@@ -95,6 +95,10 @@ static unsigned int maxuserid=0;
 /* This is to force the creation of all accounts when we initially load the accountlist. */
 static int force_account_add=0;
 
+#ifdef WITH_MYSQL
+static int doing_loadattrs=0;
+#endif
+
 static unsigned int account_hash(char const * username);
 static int account_insert_attr(t_account * account, char const * key, char const * val);
 #ifndef WITH_MYSQL
@@ -458,7 +462,7 @@ extern int account_save(t_account * account, unsigned int delta)
    
    /* account aging logic */
    if (account->accessed)
-     account->age =  0;
+     account->age >>=  1;
    else
      account->age += delta;
    if (account->age>( (3*prefs_get_user_flush_timer()) >>1))
@@ -492,10 +496,11 @@ extern int account_save(t_account * account, unsigned int delta)
      }
 #endif
 
-#ifndef WITH_MYSQL   
+#ifdef WITH_MYSQL
+   if (!(prefs_get_mysql_persistent()))
+#endif
    if (!account->loaded)
      return 0;
-#endif
    
    if (!account->dirty)
      {
@@ -593,13 +598,13 @@ extern int account_save(t_account * account, unsigned int delta)
    free(tempname);
 #else
      {
-	t_attribute /*const*/ * attr;
+	t_attribute * attr;
 	/*    eventlog(eventlog_level_debug,"account_unload_attrs","unloading \"%s\"",account->filename);*/
 	
 	// aaron: done: just save attributes to MySQL that have marked as dirty...!
 
 	for (attr=account->attrs; attr; attr=attr->next)
-	  if (attr->dirty) 
+	   if (attr->dirty) 
 	  	{
 		    storage_set(account->storageid, attr->key, attr->val);
 	            attr->dirty = 0;
@@ -641,7 +646,10 @@ static int account_insert_attr(t_account * account, char const * key, char const
     nattr->val  = nval;
 
 #ifdef WITH_MYSQL
-    nattr->dirty = 1;
+    if (doing_loadattrs==0)
+      nattr->dirty = 1;
+    else
+      nattr->dirty = 0;
 #endif
     
     nattr->next = account->attrs;
@@ -712,17 +720,33 @@ extern char const * account_get_strattr(t_account * account, char const * key)
 	eventlog(eventlog_level_info,"get_strattr","we have a clan request");
 	return account_get_w3_clanname(account);
       }
+#ifdef WITH_MYSQL
+    else if ((!(prefs_get_mysql_persistent())) && (strchr(key,'_')!=NULL))
+    {
+      char * temp;
+      char * modkey;
+      if (!(temp = strdup(key)))
+      {
+	      eventlog(eventlog_level_error,__FUNCTION__,"could not allocate memory for temp");
+	      return NULL;
+      }
+      for (modkey = temp; *modkey; modkey++)
+	      if (*modkey=='_') *modkey='\\';
+      newkey = temp;
+    }
+#endif
       else
 	newkey = key;
 
-#ifndef WITH_MYSQL
+#ifdef WITH_MYSQL
+  if (!(prefs_get_mysql_persistent()))
+#endif
     if (!account->loaded)
         if (account_load_attrs(account)<0)
 	{
 	    eventlog(eventlog_level_error,"account_get_strattr","could not load attributes");
 	    return NULL;
 	}
-#endif
     
       
     last = NULL;
@@ -757,7 +781,8 @@ extern char const * account_get_strattr(t_account * account, char const * key)
 	}
 
 #ifdef WITH_MYSQL
-   if (account != default_acct) { /* default acct is always in memory */
+ if ((prefs_get_mysql_persistent()) &&
+    (account != default_acct)) { /* default acct is always in memory */
 	result = storage_get(account->storageid,newkey);
 	if (result != NULL) {
 	    attr = malloc(sizeof(t_attribute));
@@ -768,8 +793,7 @@ extern char const * account_get_strattr(t_account * account, char const * key)
 	    account->attrs=attr;
 
 	    if (newkey!=key) free((void *)newkey); /* avoid warning */
-
-	    return result;
+	    return attr->val;
 	}
     } else
 #else
@@ -839,14 +863,15 @@ extern int account_set_strattr(t_account * account, char const * key, char const
     }
     
 #ifndef WITH_BITS
-#ifndef WITH_MYSQL
+#ifdef WITH_MYSQL
+  if (!(prefs_get_mysql_persistent()))
+#endif
     if (!account->loaded)
         if (account_load_attrs(account)<0)
 	{
 	    eventlog(eventlog_level_error,"account_set_strattr","could not load attributes");
 	    return -1;
 	}
-#endif
 #endif
     curr = account->attrs;
     if (!curr) /* if no keys in attr list then we need to insert it */
@@ -917,7 +942,7 @@ extern int account_set_strattr(t_account * account, char const * key, char const
 	    {
 		account->dirty = 1; /* we are changing an entry */
 #ifdef WITH_MYSQL
-		curr->dirty = 1;
+		curr->next->dirty = 1;
 #endif
 	    }
 	    free((void *)curr->next->val); /* avoid warning */
@@ -995,6 +1020,7 @@ static int account_load_attrs(t_account * account)
 #endif /* WITH_BITS */
     }
 #endif /* WITH_MYSQL */
+
     
     if (account->loaded) /* already done */
 	return 0;
@@ -1084,10 +1110,12 @@ static int account_load_attrs(t_account * account)
 	    free((void *)val); /* avoid warning */
     }
 #else /* WITH_MYSQL */
+   doing_loadattrs = 1;
    do {
        eventlog(eventlog_level_trace,"account_load_attrs","loading: \"%s\" \"%s\"", key, val);
        account_set_strattr(account, key, val);
    } while (storage_attr_getnext(readattr, &key, &val) == 0);
+   doing_loadattrs = 0;
 #endif /* WITH_MYSQL */
 
 #ifndef WITH_MYSQL
