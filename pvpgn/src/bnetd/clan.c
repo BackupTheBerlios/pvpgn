@@ -1030,7 +1030,7 @@ extern const char *clanmember_get_online_status(t_clanmember * member, char *sta
 
 extern const char *clanmember_get_online_status_by_connection(t_connection * conn, char *status)
 {
-    if (conn)
+    if (conn && (conn_get_state(conn)!=conn_state_empty))
     {
 	t_game *game;
 	t_channel *channel;
