@@ -125,8 +125,9 @@ ${SRC_BNETDDIR}/storage.o \
 ${SRC_BNETDDIR}/storage_file.o \
 ${SRC_BNETDDIR}/storage_cdb.o \
 ${SRC_BNETDDIR}/storage_sql.o \
-${SRC_BNETDDIR}/sql_mysql.o \
+${SRC_BNETDDIR}/sql_dbcreator.o \
 ${SRC_BNETDDIR}/sql_pgsql.o \
+${SRC_BNETDDIR}/sql_mysql.o \
 ${SRC_BNETDDIR}/runprog.o \
 ${SRC_BNETDDIR}/game_rule.o \
 ${SRC_BNETDDIR}/realm.o \
@@ -482,7 +483,7 @@ CONFS		= bnetd.conf d2cs.conf d2dbs.conf \
 		  ad.list channel.list realm.list \
 		  autoupdate bnetd_default_user bnetd_default_user.cdb gametrans d2gstrans versioncheck \
 		  bnmotd.txt bnbitsmotd.txt bnissue.txt bnmaps.txt bnxplevel.txt bnxpcalc.txt news.txt command_groups.txt \
-		  bnban bnhelp bnbitspasswd bnalias.list anongame_infos.conf tournament.conf topics
+		  bnban bnhelp bnbitspasswd bnalias.list anongame_infos.conf tournament.conf topics sql_DB_layout
 
 SHARES		= ad000001.pcx ad000001.mng ad000004.mng ad000666.mng ad000666.pcx \
 		  icons.bni icons_STAR.bni icons-WAR3.bni \

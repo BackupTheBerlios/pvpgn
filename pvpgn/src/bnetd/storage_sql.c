@@ -51,6 +51,7 @@
 #include "compat/strdup.h"
 #include "compat/strcasecmp.h"
 #include "common/tag.h"
+#include "sql_dbcreator.h"
 #include "storage_sql.h"
 #ifdef WITH_SQL_MYSQL
 #include "sql_mysql.h"
@@ -101,7 +102,6 @@ static t_sql_engine *sql = NULL;
 static unsigned int defacct;
 
 static int _sql_dbcheck(void);
-static int _sql_dbcreator(void);
 static void _sql_update_DB_v0_to_v150(void);
 
 #ifndef SQL_ON_DEMAND
@@ -706,9 +706,10 @@ extern int _sql_dbcheck(void)
 {
     int version = 0;
 
-    _sql_dbcreator();
+    sql_dbcreator(sql);
 
     while ((version=db_get_version())!=CURRENT_DB_VERSION) {
+
 	switch (version) {
 	    case 0:
         	_sql_update_DB_v0_to_v150();
@@ -719,34 +720,6 @@ extern int _sql_dbcheck(void)
 	}
      }
 
-    return 0;
-}
-
-static int _sql_dbcreator()
-{
-    char **pstr;
-    char * querys[] = {
-	"CREATE TABLE BNET (uid int NOT NULL default '0' PRIMARY KEY,acct_username varchar(128) default NULL,acct_userid varchar(128) default NULL,acct_passhash1 varchar(128) default NULL,flags_initial varchar(128) default NULL,auth_admin varchar(128) NOT NULL default 'false',auth_normallogin varchar(128) NOT NULL default 'true',auth_changepass varchar(128) NOT NULL default 'true',auth_changeprofile varchar(128) NOT NULL default 'true',auth_botlogin varchar(128) NOT NULL default 'true',auth_operator varchar(128) NOT NULL default 'false',new_at_team_flag varchar(128) default '0',auth_lockk varchar(128) NOT NULL default 'false',auth_command_groups varchar(128) NOT NULL default '1');",
-	"INSERT INTO BNET VALUES (0,NULL,NULL,NULL,NULL,'false','true','true','true','true','false','0','false','1');",
-	"CREATE TABLE friend (uid int NOT NULL default '0' PRIMARY KEY);",
-	"INSERT INTO friend VALUES (0);",
-	"CREATE TABLE profile (uid int NOT NULL default '0' PRIMARY KEY, sex varchar(128) default NULL, location varchar(128) default NULL, description varchar(128) default NULL);",
-	"INSERT INTO profile VALUES (0,NULL,NULL,NULL);",
-	"CREATE TABLE Record (uid int NOT NULL default '0' PRIMARY KEY, WAR3_solo_xp int default '0', WAR3_solo_level int default '0', WAR3_solo_wins int default '0', WAR3_solo_rank int default '0', WAR3_solo_losses int default '0', WAR3_team_xp int default '0', WAR3_team_level int default '0', WAR3_team_rank int default '0', WAR3_team_wins int default '0', WAR3_team_losses int default '0', WAR3_ffa_xp int default '0', WAR3_ffa_rank int default '0', WAR3_ffa_level int default '0', WAR3_ffa_wins int default '0', WAR3_ffa_losses int default '0', WAR3_orcs_wins int default '0', WAR3_orcs_losses int default '0', WAR3_humans_wins int default '0', WAR3_humans_losses int default '0', WAR3_undead_wins int default '0', WAR3_undead_losses int default '0', WAR3_nightelves_wins int default '0', WAR3_nightelves_losses int default '0', WAR3_random_wins int default '0', WAR3_random_losses int default '0', WAR3_teamcount int default '0', W3XP_solo_xp int default '0', W3XP_solo_level int default '0', W3XP_solo_wins int default '0', W3XP_solo_rank int default '0', W3XP_solo_losses int default '0', W3XP_team_xp int default '0', W3XP_team_level int default '0', W3XP_team_rank int default '0', W3XP_team_wins int default '0', W3XP_team_losses int default '0', W3XP_ffa_xp int default '0', W3XP_ffa_rank int default '0', W3XP_ffa_level int default '0', W3XP_ffa_wins int default '0', W3XP_ffa_losses int default '0', W3XP_orcs_wins int default '0', W3XP_orcs_losses int default '0', W3XP_humans_wins int default '0', W3XP_humans_losses int default '0', W3XP_undead_wins int default '0', W3XP_undead_losses int default '0', W3XP_nightelves_wins int default '0', W3XP_nightelves_losses int default '0', W3XP_random_wins int default '0', W3XP_random_losses int default '0', W3XP_teamcount int default '0', STAR_0_wins int default '0', STAR_0_losses int default '0', STAR_0_disconnects int default '0', STAR_1_wins int default '0', STAR_1_losses int default '0', STAR_1_disconnects int default '0', STAR_0_last_game int default '0', STAR_0_last_game_result int default '0', STAR_1_last_game int default '0', STAR_1_last_game_result int default '0', STAR_1_rating int default '0', STAR_1_high_rating int default '0', STAR_1_rank int default '0', STAR_1_high_rank int default '0', SEXP_0_wins int default '0', SEXP_0_losses int default '0', SEXP_0_disconnects int default '0', SEXP_1_wins int default '0', SEXP_1_losses int default '0', SEXP_1_disconnects int default '0', SEXP_0_last_game int default '0', SEXP_0_last_game_result int default '0', SEXP_1_last_game int default '0', SEXP_1_last_game_result int default '0', SEXP_1_rating int default '0', SEXP_1_high_rating int default '0', SEXP_1_rank int default '0', SEXP_1_high_rank int default '0');",
-	"INSERT INTO Record VALUES (0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0);",
-	"CREATE TABLE Team (uid int NOT NULL PRIMARY KEY);",
-	"INSERT INTO Team VALUES (0);",
-	"CREATE TABLE pvpgn (name varchar(128) NOT NULL PRIMARY KEY, value varchar(255));",
-	"INSERT INTO pvpgn (name, value) VALUES('db_version', '0');",
-	"DROP TABLE Version;",
-	NULL
-    };
-
-    eventlog(eventlog_level_info, __FUNCTION__,"Creating missing tables (if any)");
-    /* Note: this SQL statements should fail for already initilized DB */
-    for(pstr = querys; *pstr; pstr++)
-	sql->query(*pstr);
-    
     return 0;
 }
 
@@ -896,97 +869,6 @@ t_attr_from_all * db_get_attr_from_all(char const * attr)
  
    return attr_from_all;   
 }
-
-
-extern char const * db_get_attribute(unsigned int sid, char const * key)
-{
-   char query[1024];
-   char *tab, *col;
-   MYSQL_RES* result = NULL;
-   MYSQL_ROW row;
-   char const * val;
-   
-   if(!mysql) {
-      eventlog(eventlog_level_error, "db_get_attribute", "NULL mysql");
-      return NULL;
-   }
-
-   if (_db_get_tab(key, &tab, &col)<0) {
-      eventlog(eventlog_level_error,"db_get_attribute","error from db_get_tab");
-      return NULL;
-   }
-   
-   sprintf(query, "SELECT %s FROM %s WHERE uid = '%u';",col,tab,sid);
-   
-   eventlog(eventlog_level_trace, "db_get_attribute", "query: %s", query);
-   mysql_query(mysql,query);
-
-   result = mysql_store_result(mysql);
-   
-   if (!result) return NULL;
-   if (mysql_num_rows(result) != 1) { mysql_free_result(result); return NULL; }
-   
-   if (!(row = mysql_fetch_row(result))) {
-     eventlog(eventlog_level_error,"db_get_attribute","could not fetch row");
-     mysql_free_result(result);
-     return NULL;
-   }
-   
-   if (row[0]==NULL)
-   {
-     mysql_free_result(result);
-     return NULL;	
-   }
-
-   if ((val = (unescape_chars(row[0]))) == NULL) {
-     eventlog(eventlog_level_error,"db_get_attribute","could not duplicate value");
-     mysql_free_result(result);
-     return NULL;
-   }
-
-   mysql_free_result(result);
-   
-   return val;
-   
-
-
-}
-
-// aaron ---->
-extern int db_drop_column(const char * key)
-{
-  char query[1024];
-  char *tab, *col;
-  
-  if(!mysql) {
-    eventlog(eventlog_level_error, "db_set", "NULL mysql");
-    return -1;
-  }
-
-  if (_db_get_tab(key, &tab, &col)<0) {
-    eventlog(eventlog_level_error,"db_set","error from db_get_tab");
-    return -1;
-  }
-   
-  strcpy(query, "ALTER TABLE ");
-  strncat(query,tab,64);
-  strcat(query," DROP ");
-  strncat(query,col,64);
-  strcat(query,"';");
-  
-  eventlog(eventlog_level_trace, "db_drop_column", "query: %s", query);
-  mysql_query(mysql,query);
-  
-  if(mysql_affected_rows(mysql) != 1) 
-    {
-      eventlog(eventlog_level_fatal,"db_drop_column","Failed to drop column \"%s\" on table \"%s\".",col,tab);
-      return -1;
-    }  
-  
-  
-  return 0;
-}
-// <---
 
 #endif
 

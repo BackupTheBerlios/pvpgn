@@ -74,6 +74,7 @@ command_groups_file = conf\command_groups.txt
 statusdir   = var\status
 aliasfile   = conf\bnalias.list
 anongame_infos_file = conf\anongame_infos.conf
+DBlayoutfile = conf\sql_DB_layout
 
 fortunecmd  = bin\fortune.exe
 

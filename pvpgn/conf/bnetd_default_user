@@ -107,10 +107,6 @@
 "BNET\\acct\\userid"="0"
 "BNET\\acct\\passhash1"="67452301efcdab8998badcfe10325476c3d2e1f0"
 
-# This can be used to give the user a different chat icon.
-# for example, this will make the icon be "bnetd"
-#"BNET\\flags\\initial"="0x000010034"
-"BNET\\flags\\initial"="0x00000000"
 #"BNET\\fakeclienttag"="WAR3"
 
 

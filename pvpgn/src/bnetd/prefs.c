@@ -71,6 +71,7 @@ static struct {
     char const * adfile;
     char const * clandir;
     char const * topicfile;
+    char const * DBlayoutfile;
 
     unsigned int usersync;
     unsigned int userflush;
@@ -193,6 +194,7 @@ static Bconf_t conf_table[] =
     { "adfile",                 conf_type_char,    BNETD_AD_FILE,        NONE                , (void *)&prefs_runtime_config.adfile},
     { "clandir",		conf_type_char,	   BNETD_CLAN_DIR,	 NONE		     , (void *)&prefs_runtime_config.clandir},
     { "topicfile",		conf_type_char,	   BNETD_TOPIC_FILE,	 NONE		     , (void *)&prefs_runtime_config.topicfile},
+    { "DBlayoutfile",		conf_type_char,    BNETD_DBLAYOUT_FILE,  NONE		     , (void *)&prefs_runtime_config.DBlayoutfile},
     { "usersync",               conf_type_int,     NULL,                 BNETD_USERSYNC      , (void *)&prefs_runtime_config.usersync},
     { "userflush",              conf_type_int,     NULL,                 BNETD_USERFLUSH     , (void *)&prefs_runtime_config.userflush},
     { "servername",             conf_type_char,    "",                   NONE                , (void *)&prefs_runtime_config.servername},
@@ -626,6 +628,11 @@ extern char const * prefs_get_clandir(void)
 extern char const * prefs_get_topicfile(void)
 {
     return prefs_runtime_config.topicfile;
+}
+
+extern char const * prefs_get_DBlayoutfile(void)
+{
+    return prefs_runtime_config.DBlayoutfile;
 }
 
 
