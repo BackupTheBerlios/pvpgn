@@ -27,6 +27,8 @@ PvPGN Version History:
   -- fixed "message_cache_lookup: unsupported connection class" errors when 
   broadcasting message (ex /ann) and having any connection different than 
   irc/telnet/bot/bnet (ex d2cs etc)
+  -- added client, version and country info to the /finger command
+  -- added clan and clan rank info to the /finger command
 
 a general 1.6.x note:
 versioncheck exe-time parsing now REALLY works as it was intended to.
