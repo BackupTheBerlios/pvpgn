@@ -107,30 +107,28 @@ extern int trans_load(char const * filename, int program)
 	    continue;
 	}
 	/* check for port number - this tells us what programs will use this entry */
-	if ((temp = strrchr(input,':'))) {
-	    *temp++;
-	    /* bnetd doesn't want the port 4000 entries */
-	    if (program==TRANS_BNETD  && strcmp(temp,"4000")==0) {
-#ifdef DEBUG_TRANS
-		eventlog(eventlog_level_debug,__FUNCTION__,"d2gs input (ignoring) \"%s\"",input);
-#endif
-		free(buff);
-		continue;
-	    }
-	    /* d2cs only wants the port 4000 entries */
-	    if (program==TRANS_D2CS && strcmp(temp,"4000")!=0) {
-#ifdef DEBUG_TRANS
-		eventlog(eventlog_level_debug,__FUNCTION__,"non d2gs input (ignoring) \"%s\"",input);
-#endif
-		free(buff);
-		continue;
-	    }
-	} else {
+	if (!(temp = strrchr(input,':'))) {
 	    eventlog(eventlog_level_error,__FUNCTION__,"missing port # on input line %u of file \"%s\"",line,filename);
 	    free(buff);
 	    continue;
 	}
-	
+	*temp++;
+	/* bnetd doesn't want the port 4000 entries */
+	if (program==TRANS_BNETD  && strcmp(temp,"4000")==0) {
+#ifdef DEBUG_TRANS
+	    eventlog(eventlog_level_debug,__FUNCTION__,"d2gs input (ignoring) \"%s\"",input);
+#endif
+	    free(buff);
+	    continue;
+	}
+	/* d2cs only wants the port 4000 entries */
+	if (program==TRANS_D2CS && strcmp(temp,"4000")!=0) {
+#ifdef DEBUG_TRANS
+	    eventlog(eventlog_level_debug,__FUNCTION__,"non d2gs input (ignoring) \"%s\"",input);
+#endif
+	    free(buff);
+	    continue;
+	}
 	if (!(output = strtok(NULL," \t"))) {
 	    eventlog(eventlog_level_error,__FUNCTION__,"missing output on line %u of file \"%s\"",line,filename);
 	    free(buff);

@@ -28,6 +28,8 @@ changes to d2cs.conf:
 ---------------------
 - added: charlist_sort = "none"
 - added: charlist_sort_order = "ASC"
+- changed: d2gstransfile = /usr/local/etc/d2gstrans.conf
+    to -> transfile = /usr/local/etc/address_translation.conf
 
 rename configuration files:
 ---------------------------
@@ -36,7 +38,6 @@ rename configuration files:
 - renamed: topics to topics.conf
 - renamed: supportfile to supportfile.conf
 - renamed: sql_SB_layout to sql_DB_layout.conf
-- renamed: d2gstrans to d2gstrans.conf
 - renamed: bnhelp to bnhelp.conf
 - renamed: bnban to bnban.conf
 - renamed: bnxplevel.txt bnxplevel.conf
@@ -49,6 +50,7 @@ removed configuration files:
 ----------------------------
 - gametrans
 - w3trans
+- d2gstrans
 
 added configuration files:
 --------------------------
