@@ -538,7 +538,7 @@ static int sd_tcpinput(t_connection * c)
     
     currsize = conn_get_in_size(c);
 
-    if (!*conn_get_in_queue(c))
+    if (!queue_get_length((t_queue const * const *)conn_get_in_queue(c)))
     {
 	switch (conn_get_class(c))
 	{
@@ -623,7 +623,7 @@ static int sd_tcpinput(t_connection * c)
 	}
 	conn_push_inqueue(c,packet);
 	packet_del_ref(packet);
-	if (!*conn_get_in_queue(c))
+	if (!queue_get_length((t_queue const * const *)conn_get_in_queue(c)))
 	    return -1; /* push failed */
 	currsize = 0;
     }

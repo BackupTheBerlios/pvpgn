@@ -284,7 +284,7 @@ static int conn_handle_read(t_connection * c)
 	t_packet	* packet;
 	int		retval;
 
-	if (!c->inqueue) {
+	if (!queue_get_length((t_queue const * const *)&c->inqueue)) {
 		if (conn_create_packet(c)<0) return -1;
 		c->insize=0;
 	}

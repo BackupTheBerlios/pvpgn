@@ -517,7 +517,7 @@ static int proxy_process(unsigned short server_listen_port, struct sockaddr_in s
 		{
 		    currsize = virtconn_get_clientin_size(vc);
 		    
-		    if (!*virtconn_get_clientin_queue(vc))
+		    if (!queue_get_length(virtconn_get_clientin_queue(vc)))
 		    {
 			switch (virtconn_get_class(vc))
 			{
@@ -550,7 +550,7 @@ static int proxy_process(unsigned short server_listen_port, struct sockaddr_in s
 			}
 			queue_push_packet(virtconn_get_clientin_queue(vc),packet);
 			packet_del_ref(packet);
-			if (!*virtconn_get_clientin_queue(vc))
+			if (!queue_get_length(virtconn_get_clientin_queue(vc)))
 			    continue; /* push failed */
 			currsize = 0;
 		    }
@@ -605,7 +605,7 @@ static int proxy_process(unsigned short server_listen_port, struct sockaddr_in s
 	    {
 		currsize = virtconn_get_serverin_size(vc);
 		
-		if (!*virtconn_get_serverin_queue(vc))
+		if (!queue_get_length(virtconn_get_serverin_queue(vc)))
 		{
 		    switch (virtconn_get_class(vc))
 		    {
@@ -657,7 +657,7 @@ static int proxy_process(unsigned short server_listen_port, struct sockaddr_in s
 		    }
 		    queue_push_packet(virtconn_get_serverin_queue(vc),packet);
 		    packet_del_ref(packet);
-		    if (!*virtconn_get_serverin_queue(vc))
+		    if (!queue_get_length(virtconn_get_serverin_queue(vc)))
 			continue; /* push failed */
 		    currsize = 0;
 		}
