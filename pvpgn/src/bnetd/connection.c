@@ -124,11 +124,11 @@ static void conn_send_welcome(t_connection * c)
     
     if (!c)
     {
-        eventlog(eventlog_level_error,"conn_send_welcome","got NULL connection");
+        eventlog(eventlog_level_error,__FUNCTION__,"got NULL connection");
 	return;
     }
     
-    if (c->welcomed)
+    if (c->cflags & connection_flags_welcomed)
 	return;
     if ((filename = prefs_get_motdfile()))
     {
@@ -136,12 +136,12 @@ static void conn_send_welcome(t_connection * c)
 	{
 	    message_send_file(c,fp);
 	    if (fclose(fp)<0)
-	      { eventlog(eventlog_level_error,"conn_send_welcome","could not close MOTD file \"%s\" after reading (fopen: %s)",filename,strerror(errno)); }
+	      { eventlog(eventlog_level_error,__FUNCTION__,"could not close MOTD file \"%s\" after reading (fopen: %s)",filename,strerror(errno)); }
 	}
 	else
-	  { eventlog(eventlog_level_error,"conn_send_welcome","could not open MOTD file \"%s\" for reading (fopen: %s)",filename,strerror(errno)); }
+	  { eventlog(eventlog_level_error,__FUNCTION__,"could not open MOTD file \"%s\" for reading (fopen: %s)",filename,strerror(errno)); }
     }
-    c->welcomed = 1;
+    c->cflags|= connection_flags_welcomed;
 }
 
 
@@ -399,8 +399,6 @@ extern t_connection * conn_create(int tsock, int usock, unsigned int real_local_
     temp->outsizep               = 0;
     temp->inqueue                = NULL;
     temp->insize                 = 0;
-    temp->echoback		 = 0;
-    temp->welcomed               = 0;
     temp->host                   = NULL;
     temp->user                   = NULL;
     temp->clientexe              = NULL;
@@ -418,7 +416,6 @@ extern t_connection * conn_create(int tsock, int usock, unsigned int real_local_
     temp->ircline		 = NULL;
     temp->ircping		 = 0;
     temp->ircpass		 = NULL;
-    temp->udpok          = 0;
     temp->w3_username    = NULL;
     temp->routeconn      = NULL;
     temp->anongame	 = NULL;
@@ -426,10 +423,9 @@ extern t_connection * conn_create(int tsock, int usock, unsigned int real_local_
     temp->passfail_count = 0;
 	
     temp->w3_playerinfo = NULL;
-    temp->joingamewhisper = 0;
-    temp->leavegamewhisper = 0;
 
     temp->anongame_search_starttime = 0;
+    temp->cflags		= 0;
 	
     if (list_prepend_data(conn_head,temp)<0)
     {
@@ -3102,7 +3098,7 @@ extern int conn_get_welcomed(t_connection const * c)
         return 0;
     }
     
-    return c->welcomed;
+    return (c->flags & connection_flags_welcomed);
 }
 
 // NonReal
@@ -3114,7 +3110,7 @@ extern void conn_set_welcomed(t_connection * c, int welcomed)
         eventlog(eventlog_level_error,"conn_set_welcomed","got NULL connection");
         return;
     }
-    c->welcomed = welcomed;
+    c->flags |= connection_flags_welcomed;
 }
 
 /* ADDED BY UNDYING SOULZZ 4/7/02 */
@@ -3295,7 +3291,7 @@ extern int conn_get_echoback(t_connection * c)
 	return 0;
 	}
 
-	return c->echoback;
+	return (c->cflags & connection_flags_echoback);
 }
 
 extern void conn_set_echoback(t_connection * c, int echoback)
@@ -3305,21 +3301,23 @@ extern void conn_set_echoback(t_connection * c, int echoback)
 	eventlog(eventlog_level_error,__FUNCTION__,"got NULL connection");
 	return;
 	}
-
-	c->echoback = echoback;
+	if (echoback)
+	  c->cflags |=  connection_flags_echoback;
+	else
+	  c->cflags &= ~connection_flags_echoback;	  
 }
 
 extern int conn_set_udpok(t_connection * c)
 {
     if (!c)
     {
-	eventlog(eventlog_level_error,"conn_set_udpok","got NULL connection");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL connection");
 	return -1;
     }
     
-    if (!c->udpok)
+    if (!(c->cflags & connection_flags_udpok))
     {
-	c->udpok = 1;
+	c->cflags|= connection_flags_udpok;
 	c->flags &= ~MF_PLUG;
     }
     
@@ -3364,40 +3362,46 @@ extern int conn_set_joingamewhisper_ack(t_connection * c, unsigned int value)
 {
 	if (!c) 
 	{
-		eventlog(eventlog_level_error, "conn_set_joingamewhisper_ack", "got NULL connection");
+		eventlog(eventlog_level_error,__FUNCTION__, "got NULL connection");
 		return -1;
 	}
-	c->joingamewhisper = value;
+	if (value)
+		c->cflags |=  connection_flags_joingamewhisper;
+	else
+		c->cflags &= ~connection_flags_joingamewhisper;
 	return 0;
 }
 extern int conn_get_joingamewhisper_ack(t_connection * c)
 {
 	if (!c) 
 	{
-		eventlog(eventlog_level_error, "conn_get_joingamewhisper_ack", "got NULL connection");
+		eventlog(eventlog_level_error,__FUNCTION__, "got NULL connection");
 		return -1;
 	}
-	return c->joingamewhisper;
+	return (c->cflags & connection_flags_joingamewhisper);
 }
 
 extern int conn_set_leavegamewhisper_ack(t_connection * c, unsigned int value)
 {
 	if (!c) 
 	{
-		eventlog(eventlog_level_error, "conn_set_joingamewhisper_ack", "got NULL connection");
+		eventlog(eventlog_level_error,__FUNCTION__, "got NULL connection");
 		return -1;
 	}
-	c->leavegamewhisper = value;
+	if (value)
+		c->cflags |=  connection_flags_leavegamewhisper;
+	else
+		c->cflags &= ~connection_flags_leavegamewhisper;
 	return 0;
 }
 extern int conn_get_leavegamewhisper_ack(t_connection * c)
 {
 	if (!c) 
 	{
-		eventlog(eventlog_level_error, "conn_get_joingamewhisper_ack", "got NULL connection");
+		eventlog(eventlog_level_error,__FUNCTION__, "got NULL connection");
 		return -1;
 	}
-	return c->leavegamewhisper;
+	return (c->cflags & connection_flags_leavegamewhisper);
 }
 
 extern int conn_set_anongame_search_starttime(t_connection * c, time_t t)

@@ -106,6 +106,19 @@ typedef enum
     conn_state_pending_raw
 } t_conn_state;
 
+#ifdef CONNECTION_INTERNAL_ACCESS
+typedef enum
+{
+  connection_flags_welcomed		= 0x01,
+  connection_flags_udpok		= 0x02,
+  connection_flags_joingamewhisper	= 0x04,
+  connection_flags_leavegamewhisper	= 0x08,
+  connection_flags_echoback		= 0x10
+  
+} t_connection_flags;
+
+#endif
+
 typedef struct connection
 #ifdef CONNECTION_INTERNAL_ACCESS
 {
@@ -144,7 +157,6 @@ typedef struct connection
    unsigned int			 outsizep;
    t_queue *                     inqueue;   /* packet waiting to be processed */
    unsigned int                  insize;    /* amount received into the current input packet */
-   int                           welcomed;  /* 1 = sent welcome message, 0 = have not */
    char const *                  host;
    char const *                  user;
    char const *                  clientexe;
@@ -168,20 +180,19 @@ typedef struct connection
    char const *	      ircline; /* line cache for IRC connections */
    unsigned int		  ircping; /* value of last ping */
    char const *		  ircpass; /* hashed password for PASS authentication */
-   int                   udpok;     /* udp packets can be received by client */
    char const *          w3_username; /* filled between 0x53ff and 0x54ff -- NonReal */
    char const * 		  w3_playerinfo; /* ADDED BY UNDYING SOULZZ 4/7/02 */
-   int				  joingamewhisper;
-   int                            leavegamewhisper;
    
    // [quetzal] 20020828 - creation time, can be used for killing idling init connections
    int					  cr_time;
 
    time_t                 anongame_search_starttime;
-   int			  echoback;
 
    /* Pass fail count for bruteforce protection */
    unsigned int		passfail_count;
+
+   /* connection flag substituting some other values */
+   t_connection_flags	cflags;
 }
 #endif
 t_connection;
