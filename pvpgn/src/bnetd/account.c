@@ -108,11 +108,11 @@ static int account_check_name(char const * name);
 
 static unsigned int account_hash(char const * username)
 {
-    unsigned int i;
+    register unsigned int i;
     unsigned int pos;
-    unsigned int hash;
+    register unsigned int hash;
     unsigned int ch;
-    
+
     if (!username)
     {
 	eventlog(eventlog_level_error,"account_hash","got NULL username");
