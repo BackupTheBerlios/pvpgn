@@ -2390,7 +2390,6 @@ extern int conn_unget_chatname(t_connection const * c, char const * name)
 extern char const * conn_get_chatcharname(t_connection const * c, t_connection const * dst)
 {
     char const * accname;
-    char const * clienttag;
     char *       chatcharname;
     
     if (!c)
