@@ -761,7 +761,7 @@ static const char * _w3_decrypt_mapinfo(const char *enc)
 
     if (!(mapinfo = strdup(enc))) {
 	eventlog(eventlog_level_error, __FUNCTION__, "not enough memory to setup temporary buffer");
-	return NULL; /* its safe couse game_set_mapname checks if its NULL */
+	return NULL;
     }
 
     dec = mapinfo;
@@ -971,6 +971,7 @@ If the corresponding bit is a '0' then subtract 1 from the character.
 	}
         pstr = gameinfo + 9;
 	pstr = _w3_decrypt_mapinfo(pstr);
+	if (!pstr) return -1;
 	/* after decryption we dont have the mask bytes anymore so offsets need
 	 * to be adjusted acordingly */
         game_set_mapsize_x(game, bn_short_get(*((bn_short*)(pstr + 5))));
