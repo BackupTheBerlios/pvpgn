@@ -13,6 +13,11 @@ PvPGN Version History:
 
 [STAR/SEXP/W2BN]
   -- fixed problem with topvbot "team game"-results being discarded
+  -- fixed possible overflow with malformed gamereport packets
+
+[D2DV/D2XP]
+  -- added workarround for D2 classic client side bug 
+     (open bnet games being listed as closed bnet games)
 
 [MISC]
   -- made topics.conf being reloaded on SIGHUP
