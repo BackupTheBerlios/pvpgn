@@ -415,30 +415,10 @@ extern t_game * game_create(char const * name, char const * pass, char const * i
 	return NULL; /* already have a game by that name */
     }
     
-    if (!(game = xmalloc(sizeof(t_game))))
-    {
-	eventlog(eventlog_level_error,"game_create","could not allocate memory for game");
-	return NULL;
-    }
-    
-    if (!(game->name = xstrdup(name)))
-    {
-	xfree(game);
-	return NULL;
-    }
-    if (!(game->pass = xstrdup(pass)))
-    {
-	xfree((void *)game->name); /* avoid warning */
-	xfree(game);
-	return NULL;
-    }
-    if (!(game->info = xstrdup(info)))
-    {
-	xfree((void *)game->pass); /* avoid warning */
-	xfree((void *)game->name); /* avoid warning */
-	xfree(game);
-	return NULL;
-    }
+    game = xmalloc(sizeof(t_game));
+    game->name = xstrdup(name);
+    game->pass = xstrdup(pass);
+    game->info = xstrdup(info);
     if (!(game->clienttag = clienttag))
     {
 	eventlog(eventlog_level_error,"game_create","got UNKNOWN clienttag");
@@ -804,18 +784,16 @@ static int game_report(t_game * game)
 		}
 		account_set_ladder_last_time(game->players[i],game->clienttag,id,bnettime());
 	    }
-	    
-	    if (!(ladder_info = xmalloc(sizeof(t_ladder_info)*realcount)))
-		eventlog(eventlog_level_error,"game_report","unable to allocate memory for ladder_info, ladder ratings will not be updated");
-	    else
-		if (ladder_update(game->clienttag,id,
-		    realcount,game->players,game->results,ladder_info,
-		    discisloss?ladder_option_disconnectisloss:ladder_option_none)<0)
-		{
-		    eventlog(eventlog_level_error,"game_report","unable to update ladder stats");
-		    xfree(ladder_info);
-		    ladder_info = NULL;
-		}
+
+	    ladder_info = xmalloc(sizeof(t_ladder_info)*realcount);
+	    if (ladder_update(game->clienttag,id,
+		realcount,game->players,game->results,ladder_info,
+		discisloss?ladder_option_disconnectisloss:ladder_option_none)<0)
+	    {
+		eventlog(eventlog_level_error,"game_report","unable to update ladder stats");
+		xfree(ladder_info);
+		ladder_info = NULL;
+	    }
 	}
 	else
 	{
@@ -891,23 +869,10 @@ static int game_report(t_game * game)
 		    tmval->tm_hour,
 		    tmval->tm_min,
 		    tmval->tm_sec);
-	
-	if (!(tempname = xmalloc(strlen(prefs_get_reportdir())+1+1+5+1+2+1+strlen(dstr)+1+6+1)))
-	{
-	    eventlog(eventlog_level_error,"game_report","could not allocate memory for tempname");
-	    if (ladder_info)
-		xfree(ladder_info);
-	    return -1;
-	}
+
+	tempname = xmalloc(strlen(prefs_get_reportdir())+1+1+5+1+2+1+strlen(dstr)+1+6+1);
 	sprintf(tempname,"%s/_bnetd-gr_%s_%06u",prefs_get_reportdir(),dstr,game->id);
-	if (!(realname = xmalloc(strlen(prefs_get_reportdir())+1+2+1+strlen(dstr)+1+6+1)))
-	{
-	    eventlog(eventlog_level_error,"game_report","could not allocate memory for realname");
-	    xfree(tempname);
-	    if (ladder_info)
-		xfree(ladder_info);
-	    return -1;
-	}
+	realname = xmalloc(strlen(prefs_get_reportdir())+1+2+1+strlen(dstr)+1+6+1);
 	sprintf(realname,"%s/gr_%s_%06u",prefs_get_reportdir(),dstr,game->id);
     }
     
@@ -1328,11 +1293,7 @@ extern int game_set_description(t_game * game, char const * description)
     }
     
     if (game->description != NULL) xfree((void *)game->description);
-    if (!(game->description = xstrdup(description)))
-    {
-	eventlog(eventlog_level_error,"game_set_description","could not allocate memory for description");
-	return -1;
-    }
+    game->description = xstrdup(description);
     
     return 0;
 }
@@ -1605,113 +1566,41 @@ extern int game_add_player(t_game * game, char const * pass, int startver, t_con
     if ((i == game->count) || (game->count == 0))
     {
 
-        if (!game->connections) /* some xrealloc()s are broken */
-        {
-	    if (!(tempc = xmalloc((game->count+1)*sizeof(t_connection *))))
-	    {
-	        eventlog(eventlog_level_error,"game_add_player","unable to allocate memory for game connections");
-	        return -1;
-	    }
-        }
+        if (!game->connections) /* some realloc()s are broken */
+	    tempc = xmalloc((game->count+1)*sizeof(t_connection *));
         else
-        {
-	    if (!(tempc = xrealloc(game->connections,(game->count+1)*sizeof(t_connection *))))
-	    {
-	        eventlog(eventlog_level_error,"game_add_player","unable to allocate memory for game connections");
-	        return -1;
-	    }
-        }
+	    tempc = xrealloc(game->connections,(game->count+1)*sizeof(t_connection *));
         game->connections = tempc;
-        if (!game->players) /* some xrealloc()s are broken */
-        {
-	    if (!(tempp = xmalloc((game->count+1)*sizeof(t_account *))))
-	    {
-	        eventlog(eventlog_level_error,"game_add_player","unable to allocate memory for game players");
-	        return -1;
-	    }
-        }
+        if (!game->players) /* some realloc()s are broken */
+	    tempp = xmalloc((game->count+1)*sizeof(t_account *));
         else
-        {
-	    if (!(tempp = xrealloc(game->players,(game->count+1)*sizeof(t_account *))))
-	    {
-	        eventlog(eventlog_level_error,"game_add_player","unable to allocate memory for game players");
-	        return -1;
-	    }
-        }
+	    tempp = xrealloc(game->players,(game->count+1)*sizeof(t_account *));
         game->players = tempp;
-    
-        if (!game->results) /* some xrealloc()s are broken */
-        {
-	    if (!(tempr = xmalloc((game->count+1)*sizeof(t_game_result))))
-	    {
-	        eventlog(eventlog_level_error,"game_add_player","unable to allocate memory for game results");
-	        return -1;
-	    }
-        }
+
+        if (!game->results) /* some realloc()s are broken */
+	    tempr = xmalloc((game->count+1)*sizeof(t_game_result));
         else
-        {
-	    if (!(tempr = xrealloc(game->results,(game->count+1)*sizeof(t_game_result))))
-	    {
-	        eventlog(eventlog_level_error,"game_add_player","unable to allocate memory for game results");
-	        return -1;
-	    }
-        }
+	    tempr = xrealloc(game->results,(game->count+1)*sizeof(t_game_result));
         game->results = tempr;
 
         if (!game->reported_results)
-        {
-            if (!(temprr = xmalloc((game->count+1)*sizeof(t_game_result *))))
-	    {
-	        eventlog(eventlog_level_error,__FUNCTION__,"unable to allocate memory for game reported results");
-	        return -1;
-	    }
-        }
+            temprr = xmalloc((game->count+1)*sizeof(t_game_result *));
         else
-        {
-	    if (!(temprr = xrealloc(game->reported_results,(game->count+1)*sizeof(t_game_result *))))
-	    {
-	        eventlog(eventlog_level_error,"game_add_player","unable to allocate memory for game reported results");
-	        return -1;
-	    }
-        }
+	    temprr = xrealloc(game->reported_results,(game->count+1)*sizeof(t_game_result *));
         game->reported_results = temprr;
     
         if (!game->report_heads) /* some xrealloc()s are broken */
-        {
-	    if (!(temprh = xmalloc((game->count+1)*sizeof(char const *))))
-	    {
-	        eventlog(eventlog_level_error,"game_add_player","unable to allocate memory for game report headers");
-	        return -1;
-	    }
-        }
+	    temprh = xmalloc((game->count+1)*sizeof(char const *));
         else
-        {
-	    if (!(temprh = xrealloc((void *)game->report_heads,(game->count+1)*sizeof(char const *)))) /* avoid compiler warning */
-	    {
-	        eventlog(eventlog_level_error,"game_add_player","unable to allocate memory for game report headers");
-	        return -1;
-	    }
-        }
+	    temprh = xrealloc((void *)game->report_heads,(game->count+1)*sizeof(char const *)); /* avoid compiler warning */
         game->report_heads = temprh;
     
         if (!game->report_bodies) /* some xrealloc()s are broken */
-        {
-	    if (!(temprb = xmalloc((game->count+1)*sizeof(char const *))))
-	    {
-	        eventlog(eventlog_level_error,"game_add_player","unable to allocate memory for game report bodies");
-	        return -1;
-	    }
-        }
+	    temprb = xmalloc((game->count+1)*sizeof(char const *));
         else
-        {
-	    if (!(temprb = xrealloc((void *)game->report_bodies,(game->count+1)*sizeof(char const *)))) /* avoid compiler warning */
-	    {
-	        eventlog(eventlog_level_error,"game_add_player","unable to allocate memory for game report bodies");
-	        return -1;
-	    }
-        }
+	    temprb = xrealloc((void *)game->report_bodies,(game->count+1)*sizeof(char const *)); /* avoid compiler warning */
         game->report_bodies = temprb;
-    
+
         game->connections[game->count]   = c;
         game->players[game->count]       = conn_get_account(c);
         game->results[game->count]       = game_result_none;
@@ -1865,16 +1754,8 @@ extern int game_set_report(t_game * game, t_account * account, char const * reph
 	return -1;
     }
     
-    if (!(game->report_heads[pos] = xstrdup(rephead)))
-    {
-	eventlog(eventlog_level_error,"game_set_result","could not allocate memory for report_heads in slot %u",pos);
-	return -1;
-    }
-    if (!(game->report_bodies[pos] = xstrdup(repbody)))
-    {
-	eventlog(eventlog_level_error,"game_set_result","could not allocate memory for report_bodies in slot %u",pos);
-	return -1;
-    }
+    game->report_heads[pos] = xstrdup(rephead);
+    game->report_bodies[pos] = xstrdup(repbody);
 	
     return 0;
 }
@@ -1996,11 +1877,7 @@ extern int game_set_self_report(t_game * game, t_account * account, t_game_resul
 	return -1;
     }
     
-    if (!(results = xmalloc(sizeof(t_game_result)*game->count)))
-    {
-        eventlog(eventlog_level_error,__FUNCTION__,"could not allocate memory to store game results");
-        return -1;
-    }
+    results = xmalloc(sizeof(t_game_result)*game->count);
 
     for (i=0;i<game->count;i++) 
     {
@@ -2094,11 +1971,7 @@ extern int game_set_mapname(t_game * game, char const * mapname)
     
     if (game->mapname != NULL) xfree((void *)game->mapname);
     
-    if (!(game->mapname = xstrdup(mapname)))
-    {
-	eventlog(eventlog_level_error,"game_set_mapname","could not allocate memory for mapname");
-	return -1;
-    }
+    game->mapname = xstrdup(mapname);
     
     return 0;
 }
@@ -2269,13 +2142,7 @@ extern int game_set_realmname(t_game * game, char const * realmname)
     } 
 
     if (realmname)
-      {
-	if (!(temp=xstrdup(realmname)))
-	  {
-	    eventlog(eventlog_level_error,"game_set_realmname","could not allocate memory for new realmname");
-	    return -1;
-	  }
-      }
+	temp=xstrdup(realmname);
     else
       temp=NULL; 
 
