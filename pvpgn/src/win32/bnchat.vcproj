@@ -284,7 +284,7 @@
 				</File>
 			</Filter>
 			<Filter
-				Name="bncdb"
+				Name="bnchat"
 				Filter="">
 				<File
 					RelativePath="..\client\client.h">
