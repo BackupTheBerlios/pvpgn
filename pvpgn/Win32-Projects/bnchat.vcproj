@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="7.00"
+	Version="7.10"
 	Name="bnchat"
 	ProjectGUID="{300F80E0-1A0E-4639-AEB9-18A692FF35F4}"
 	RootNamespace="bnchat"
@@ -13,8 +13,8 @@
 	<Configurations>
 		<Configuration
 			Name="Debug|Win32"
-			OutputDirectory="..\..\bin"
-			IntermediateDirectory="..\..\obj\$(ProjectName)_debug"
+			OutputDirectory="..\bin"
+			IntermediateDirectory="..\obj\$(ProjectName)_debug"
 			ConfigurationType="1"
 			UseOfMFC="0"
 			UseOfATL="0"
@@ -30,7 +30,7 @@
 				OmitFramePointers="TRUE"
 				OptimizeForProcessor="0"
 				OptimizeForWindowsApplication="TRUE"
-				AdditionalIncludeDirectories="$(SolutionDir)/.."
+				AdditionalIncludeDirectories="../src;&quot;$(SolutionDir)/..&quot;"
 				PreprocessorDefinitions="_DEBUG;WIN32"
 				StringPooling="TRUE"
 				RuntimeLibrary="0"
@@ -46,7 +46,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalOptions="wsock32.lib"				
+				AdditionalOptions="wsock32.lib"
 				OutputFile="$(OutDir)/$(ProjectName)_debug.exe"
 				LinkIncremental="1"
 				GenerateDebugInformation="TRUE"
@@ -77,8 +77,8 @@
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
-			OutputDirectory="..\..\bin"
-			IntermediateDirectory="..\..\obj\$(ProjectName)"
+			OutputDirectory="..\bin"
+			IntermediateDirectory="..\obj\$(ProjectName)"
 			ConfigurationType="1"
 			UseOfMFC="0"
 			UseOfATL="0"
@@ -94,7 +94,7 @@
 				OmitFramePointers="TRUE"
 				OptimizeForProcessor="0"
 				OptimizeForWindowsApplication="TRUE"
-				AdditionalIncludeDirectories="$(SolutionDir)/.."
+				AdditionalIncludeDirectories="../src;&quot;$(SolutionDir)/..&quot;"
 				PreprocessorDefinitions="NDEBUG;WIN32"
 				StringPooling="TRUE"
 				RuntimeLibrary="0"
@@ -110,7 +110,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalOptions="wsock32.lib"				
+				AdditionalOptions="wsock32.lib"
 				OutputFile="$(OutDir)/$(ProjectName).exe"
 				LinkIncremental="1"
 				GenerateDebugInformation="FALSE"
@@ -151,72 +151,72 @@
 				Name="bnchat"
 				Filter="">
 				<File
-					RelativePath="..\client\bnchat.c">
+					RelativePath="..\src\client\bnchat.c">
 				</File>
 				<File
-					RelativePath="..\client\client.c">
+					RelativePath="..\src\client\client.c">
 				</File>
 				<File
-					RelativePath="..\client\client_connect.c">
+					RelativePath="..\src\client\client_connect.c">
 				</File>
 				<File
-					RelativePath="..\client\udptest.c">
+					RelativePath="..\src\client\udptest.c">
 				</File>
 			</Filter>
 			<Filter
 				Name="common"
 				Filter="">
 				<File
-					RelativePath="..\common\bn_type.c">
+					RelativePath="..\src\common\bn_type.c">
 				</File>
 				<File
-					RelativePath="..\common\bnethash.c">
+					RelativePath="..\src\common\bnethash.c">
 				</File>
 				<File
-					RelativePath="..\common\bnethashconv.c">
+					RelativePath="..\src\common\bnethashconv.c">
 				</File>
 				<File
-					RelativePath="..\common\bnettime.c">
+					RelativePath="..\src\common\bnettime.c">
 				</File>
 				<File
-					RelativePath="..\common\eventlog.c">
+					RelativePath="..\src\common\eventlog.c">
 				</File>
 				<File
-					RelativePath="..\common\hexdump.c">
+					RelativePath="..\src\common\hexdump.c">
 				</File>
 				<File
-					RelativePath="..\common\network.c">
+					RelativePath="..\src\common\network.c">
 				</File>
 				<File
-					RelativePath="..\common\packet.c">
+					RelativePath="..\src\common\packet.c">
 				</File>
 				<File
-					RelativePath="..\common\proginfo.c">
+					RelativePath="..\src\common\proginfo.c">
 				</File>
 				<File
-					RelativePath="..\common\queue.c">
+					RelativePath="..\src\common\queue.c">
 				</File>
 				<File
-					RelativePath="..\common\util.c">
+					RelativePath="..\src\common\util.c">
 				</File>
 				<File
-					RelativePath="..\common\xalloc.c">
+					RelativePath="..\src\common\xalloc.c">
 				</File>
 			</Filter>
 			<Filter
 				Name="compat"
 				Filter="">
 				<File
-					RelativePath="..\compat\gettimeofday.c">
+					RelativePath="..\src\compat\gettimeofday.c">
 				</File>
 				<File
-					RelativePath="..\compat\inet_ntoa.c">
+					RelativePath="..\src\compat\inet_ntoa.c">
 				</File>
 				<File
-					RelativePath="..\compat\psock.c">
+					RelativePath="..\src\compat\psock.c">
 				</File>
 				<File
-					RelativePath="..\compat\strerror.c">
+					RelativePath="..\src\compat\strerror.c">
 				</File>
 			</Filter>
 		</Filter>
@@ -228,72 +228,72 @@
 				Name="common"
 				Filter="">
 				<File
-					RelativePath="..\common\bn_type.h">
+					RelativePath="..\src\common\bn_type.h">
 				</File>
 				<File
-					RelativePath="..\common\bnethash.h">
+					RelativePath="..\src\common\bnethash.h">
 				</File>
 				<File
-					RelativePath="..\common\bnethashconv.h">
+					RelativePath="..\src\common\bnethashconv.h">
 				</File>
 				<File
-					RelativePath="..\common\bnettime.h">
+					RelativePath="..\src\common\bnettime.h">
 				</File>
 				<File
-					RelativePath="..\common\eventlog.h">
+					RelativePath="..\src\common\eventlog.h">
 				</File>
 				<File
-					RelativePath="..\common\hexdump.h">
+					RelativePath="..\src\common\hexdump.h">
 				</File>
 				<File
-					RelativePath="..\common\network.h">
+					RelativePath="..\src\common\network.h">
 				</File>
 				<File
-					RelativePath="..\common\packet.h">
+					RelativePath="..\src\common\packet.h">
 				</File>
 				<File
-					RelativePath="..\common\proginfo.h">
+					RelativePath="..\src\common\proginfo.h">
 				</File>
 				<File
-					RelativePath="..\common\queue.h">
+					RelativePath="..\src\common\queue.h">
 				</File>
 				<File
-					RelativePath="..\common\setup_before.h">
+					RelativePath="..\src\common\setup_before.h">
 				</File>
 				<File
-					RelativePath="..\common\util.h">
+					RelativePath="..\src\common\util.h">
 				</File>
 				<File
-					RelativePath="..\common\xalloc.h">
+					RelativePath="..\src\common\xalloc.h">
 				</File>
 			</Filter>
 			<Filter
 				Name="compat"
 				Filter="">
 				<File
-					RelativePath="..\compat\gettimeofday.h">
+					RelativePath="..\src\compat\gettimeofday.h">
 				</File>
 				<File
-					RelativePath="..\compat\inet_ntoa.h">
+					RelativePath="..\src\compat\inet_ntoa.h">
 				</File>
 				<File
-					RelativePath="..\compat\psock.h">
+					RelativePath="..\src\compat\psock.h">
 				</File>
 				<File
-					RelativePath="..\compat\strerror.h">
+					RelativePath="..\src\compat\strerror.h">
 				</File>
 			</Filter>
 			<Filter
 				Name="bnchat"
 				Filter="">
 				<File
-					RelativePath="..\client\client.h">
+					RelativePath="..\src\client\client.h">
 				</File>
 				<File
-					RelativePath="..\client\client_connect.h">
+					RelativePath="..\src\client\client_connect.h">
 				</File>
 				<File
-					RelativePath="..\client\udptest.h">
+					RelativePath="..\src\client\udptest.h">
 				</File>
 			</Filter>
 		</Filter>
@@ -301,6 +301,9 @@
 			Name="Resource Files"
 			Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx"
 			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}">
+			<File
+				RelativePath="..\src\win32\console_resource.rc">
+			</File>
 		</Filter>
 	</Files>
 	<Globals>

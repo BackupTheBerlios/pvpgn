@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="7.00"
-	Name="bnftp"
-	ProjectGUID="{300F80E0-1A0E-4639-AEB9-18A692FF35F5}"
-	RootNamespace="bnftp"
+	Version="7.10"
+	Name="d2dbsConsole"
+	ProjectGUID="{300F80E0-1A0E-4639-AEB9-18A692FF35F2}"
+	RootNamespace="d2dbsConsole"
 	Keyword="ManagedCProj">
 	<Platforms>
 		<Platform
@@ -13,8 +13,8 @@
 	<Configurations>
 		<Configuration
 			Name="Debug|Win32"
-			OutputDirectory="..\..\bin"
-			IntermediateDirectory="..\..\obj\$(ProjectName)_debug"
+			OutputDirectory="..\bin"
+			IntermediateDirectory="..\obj\$(ProjectName)_debug"
 			ConfigurationType="1"
 			UseOfMFC="0"
 			UseOfATL="0"
@@ -30,8 +30,8 @@
 				OmitFramePointers="TRUE"
 				OptimizeForProcessor="0"
 				OptimizeForWindowsApplication="TRUE"
-				AdditionalIncludeDirectories="$(SolutionDir)/.."
-				PreprocessorDefinitions="_DEBUG;WIN32"
+				AdditionalIncludeDirectories="../src;&quot;$(SolutionDir)/..&quot;"
+				PreprocessorDefinitions="_DEBUG;WIN32;HAVE_FCNTL_H"
 				StringPooling="TRUE"
 				RuntimeLibrary="0"
 				StructMemberAlignment="1"
@@ -77,8 +77,8 @@
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
-			OutputDirectory="..\..\bin"
-			IntermediateDirectory="..\..\obj\$(ProjectName)"
+			OutputDirectory="..\bin"
+			IntermediateDirectory="..\obj\$(ProjectName)"
 			ConfigurationType="1"
 			UseOfMFC="0"
 			UseOfATL="0"
@@ -94,8 +94,8 @@
 				OmitFramePointers="TRUE"
 				OptimizeForProcessor="0"
 				OptimizeForWindowsApplication="TRUE"
-				AdditionalIncludeDirectories="$(SolutionDir)/.."
-				PreprocessorDefinitions="NDEBUG;WIN32"
+				AdditionalIncludeDirectories="../src;&quot;$(SolutionDir)/..&quot;"
+				PreprocessorDefinitions="NDEBUG;WIN32;HAVE_FCNTL_H"
 				StringPooling="TRUE"
 				RuntimeLibrary="0"
 				StructMemberAlignment="1"
@@ -148,63 +148,95 @@
 			Filter="cpp;c;cxx;def;odl;idl;hpj;bat;asm;asmx"
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}">
 			<Filter
-				Name="bnchat"
+				Name="d2dbs"
 				Filter="">
 				<File
-					RelativePath="..\client\bnftp.c">
+					RelativePath="..\src\d2dbs\charlock.c">
 				</File>
 				<File
-					RelativePath="..\client\client.c">
+					RelativePath="..\src\d2dbs\cmdline_parse.c">
+				</File>
+				<File
+					RelativePath="..\src\d2dbs\d2ladder.c">
+				</File>
+				<File
+					RelativePath="..\src\d2dbs\dbsdupecheck.c">
+				</File>
+				<File
+					RelativePath="..\src\d2dbs\dbserver.c">
+				</File>
+				<File
+					RelativePath="..\src\d2dbs\dbspacket.c">
+				</File>
+				<File
+					RelativePath="..\src\d2dbs\handle_signal.c">
+				</File>
+				<File
+					RelativePath="..\src\d2dbs\main.c">
+				</File>
+				<File
+					RelativePath="..\src\d2dbs\prefs.c">
 				</File>
 			</Filter>
 			<Filter
 				Name="common"
 				Filter="">
 				<File
-					RelativePath="..\common\bn_type.c">
+					RelativePath="..\src\common\addr.c">
 				</File>
 				<File
-					RelativePath="..\common\bnettime.c">
+					RelativePath="..\src\common\bn_type.c">
 				</File>
 				<File
-					RelativePath="..\common\eventlog.c">
+					RelativePath="..\src\common\d2char_checksum.c">
 				</File>
 				<File
-					RelativePath="..\common\hexdump.c">
+					RelativePath="..\src\common\eventlog.c">
 				</File>
 				<File
-					RelativePath="..\common\network.c">
+					RelativePath="..\src\common\hexdump.c">
 				</File>
 				<File
-					RelativePath="..\common\packet.c">
+					RelativePath="..\src\common\list.c">
 				</File>
 				<File
-					RelativePath="..\common\queue.c">
+					RelativePath="..\src\common\util.c">
 				</File>
 				<File
-					RelativePath="..\common\util.c">
-				</File>
-				<File
-					RelativePath="..\common\xalloc.c">
+					RelativePath="..\src\common\xalloc.c">
 				</File>
 			</Filter>
 			<Filter
 				Name="compat"
 				Filter="">
 				<File
-					RelativePath="..\compat\gettimeofday.c">
+					RelativePath="..\src\compat\inet_aton.c">
 				</File>
 				<File
-					RelativePath="..\compat\inet_ntoa.c">
+					RelativePath="..\src\compat\psock.c">
 				</File>
 				<File
-					RelativePath="..\compat\psock.c">
+					RelativePath="..\src\compat\strerror.c">
 				</File>
 				<File
-					RelativePath="..\compat\strerror.c">
+					RelativePath="..\src\compat\strsep.c">
+				</File>
+			</Filter>
+			<Filter
+				Name="d2cs"
+				Filter="">
+				<File
+					RelativePath="..\src\d2cs\conf.c">
 				</File>
 				<File
-					RelativePath="..\compat\strftime.c">
+					RelativePath="..\src\d2cs\xstring.c">
+				</File>
+			</Filter>
+			<Filter
+				Name="win32"
+				Filter="">
+				<File
+					RelativePath="..\src\win32\service_d2dbs.c">
 				</File>
 			</Filter>
 		</Filter>
@@ -213,63 +245,98 @@
 			Filter="h;hpp;hxx;hm;inl;inc;xsd"
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}">
 			<Filter
+				Name="d2dbs"
+				Filter="">
+				<File
+					RelativePath="..\src\d2dbs\charlock.h">
+				</File>
+				<File
+					RelativePath="..\src\d2dbs\cmdline_parse.h">
+				</File>
+				<File
+					RelativePath="..\src\d2dbs\d2ladder.h">
+				</File>
+				<File
+					RelativePath="..\src\d2dbs\dbsdupecheck.h">
+				</File>
+				<File
+					RelativePath="..\src\d2dbs\dbserver.h">
+				</File>
+				<File
+					RelativePath="..\src\d2dbs\dbspacket.h">
+				</File>
+				<File
+					RelativePath="..\src\d2dbs\handle_signal.h">
+				</File>
+				<File
+					RelativePath="..\src\d2dbs\prefs.h">
+				</File>
+				<File
+					RelativePath="..\src\d2dbs\setup.h">
+				</File>
+				<File
+					RelativePath="..\src\d2dbs\version.h">
+				</File>
+			</Filter>
+			<Filter
 				Name="common"
 				Filter="">
 				<File
-					RelativePath="..\common\bn_type.h">
+					RelativePath="..\src\common\addr.h">
 				</File>
 				<File
-					RelativePath="..\common\bnettime.h">
+					RelativePath="..\src\common\bn_type.h">
 				</File>
 				<File
-					RelativePath="..\common\eventlog.h">
+					RelativePath="..\src\common\d2char_checksum.h">
 				</File>
 				<File
-					RelativePath="..\common\hexdump.h">
+					RelativePath="..\src\common\eventlog.h">
 				</File>
 				<File
-					RelativePath="..\common\network.h">
+					RelativePath="..\src\common\hexdump.h">
 				</File>
 				<File
-					RelativePath="..\common\packet.h">
+					RelativePath="..\src\common\list.h">
 				</File>
 				<File
-					RelativePath="..\common\queue.h">
+					RelativePath="..\src\common\util.h">
 				</File>
 				<File
-					RelativePath="..\common\setup_before.h">
-				</File>
-				<File
-					RelativePath="..\common\util.h">
-				</File>
-				<File
-					RelativePath="..\common\xalloc.h">
+					RelativePath="..\src\common\xalloc.h">
 				</File>
 			</Filter>
 			<Filter
 				Name="compat"
 				Filter="">
 				<File
-					RelativePath="..\compat\gettimeofday.h">
+					RelativePath="..\src\compat\inet_aton.h">
 				</File>
 				<File
-					RelativePath="..\compat\inet_ntoa.h">
+					RelativePath="..\src\compat\psock.h">
 				</File>
 				<File
-					RelativePath="..\compat\psock.h">
+					RelativePath="..\src\compat\strerror.h">
 				</File>
 				<File
-					RelativePath="..\compat\strerror.h">
-				</File>
-				<File
-					RelativePath="..\compat\strftime.h">
+					RelativePath="..\src\compat\strsep.h">
 				</File>
 			</Filter>
 			<Filter
-				Name="bncdb"
+				Name="d2cs"
 				Filter="">
 				<File
-					RelativePath="..\client\client.h">
+					RelativePath="..\src\d2cs\conf.h">
+				</File>
+				<File
+					RelativePath="..\src\d2cs\xstring.h">
+				</File>
+			</Filter>
+			<Filter
+				Name="win32"
+				Filter="">
+				<File
+					RelativePath="..\src\win32\service.h">
 				</File>
 			</Filter>
 		</Filter>
@@ -277,6 +344,9 @@
 			Name="Resource Files"
 			Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx"
 			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}">
+			<File
+				RelativePath="..\src\win32\console_resource.rc">
+			</File>
 		</Filter>
 	</Files>
 	<Globals>

@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="7.00"
-	Name="d2dbs_gui"
+	Version="7.10"
+	Name="d2dbs"
 	ProjectGUID="{300F80E0-1A0E-4639-AEB9-18A692FF35F2}"
-	RootNamespace="d2dbs_gui"
+	RootNamespace="d2dbs"
 	Keyword="ManagedCProj">
 	<Platforms>
 		<Platform
@@ -13,8 +13,8 @@
 	<Configurations>
 		<Configuration
 			Name="Debug|Win32"
-			OutputDirectory="..\..\bin"
-			IntermediateDirectory="..\..\obj\$(ProjectName)_debug"
+			OutputDirectory="..\bin"
+			IntermediateDirectory="..\obj\$(ProjectName)_debug"
 			ConfigurationType="1"
 			UseOfMFC="0"
 			UseOfATL="0"
@@ -30,7 +30,7 @@
 				OmitFramePointers="TRUE"
 				OptimizeForProcessor="0"
 				OptimizeForWindowsApplication="TRUE"
-				AdditionalIncludeDirectories="$(SolutionDir)/.."
+				AdditionalIncludeDirectories="../src;&quot;$(SolutionDir)/..&quot;"
 				PreprocessorDefinitions="_DEBUG;WIN32;WIN32_GUI;HAVE_FCNTL_H"
 				StringPooling="TRUE"
 				RuntimeLibrary="0"
@@ -64,7 +64,7 @@
 				Name="VCPreLinkEventTool"/>
 			<Tool
 				Name="VCResourceCompilerTool"
-				AdditionalIncludeDirectories="..\"/>
+				AdditionalIncludeDirectories="..\src\"/>
 			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>
 			<Tool
@@ -78,8 +78,8 @@
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
-			OutputDirectory="..\..\bin"
-			IntermediateDirectory="..\..\obj\$(ProjectName)"
+			OutputDirectory="..\bin"
+			IntermediateDirectory="..\obj\$(ProjectName)"
 			ConfigurationType="1"
 			UseOfMFC="0"
 			UseOfATL="0"
@@ -95,7 +95,7 @@
 				OmitFramePointers="TRUE"
 				OptimizeForProcessor="0"
 				OptimizeForWindowsApplication="TRUE"
-				AdditionalIncludeDirectories="$(SolutionDir)/.."
+				AdditionalIncludeDirectories="../src;&quot;$(SolutionDir)/..&quot;"
 				PreprocessorDefinitions="NDEBUG;WIN32;HAVE_FCNTL_H"
 				StringPooling="TRUE"
 				RuntimeLibrary="0"
@@ -128,7 +128,8 @@
 			<Tool
 				Name="VCPreLinkEventTool"/>
 			<Tool
-				Name="VCResourceCompilerTool"/>
+				Name="VCResourceCompilerTool"
+				AdditionalIncludeDirectories="..\src\"/>
 			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>
 			<Tool
@@ -152,95 +153,95 @@
 				Name="d2dbs"
 				Filter="">
 				<File
-					RelativePath="..\d2dbs\charlock.c">
+					RelativePath="..\src\d2dbs\charlock.c">
 				</File>
 				<File
-					RelativePath="..\d2dbs\cmdline_parse.c">
+					RelativePath="..\src\d2dbs\cmdline_parse.c">
 				</File>
 				<File
-					RelativePath="..\d2dbs\d2ladder.c">
+					RelativePath="..\src\d2dbs\d2ladder.c">
 				</File>
 				<File
-					RelativePath="..\d2dbs\dbsdupecheck.c">
+					RelativePath="..\src\d2dbs\dbsdupecheck.c">
 				</File>
 				<File
-					RelativePath="..\d2dbs\dbserver.c">
+					RelativePath="..\src\d2dbs\dbserver.c">
 				</File>
 				<File
-					RelativePath="..\d2dbs\dbspacket.c">
+					RelativePath="..\src\d2dbs\dbspacket.c">
 				</File>
 				<File
-					RelativePath="..\d2dbs\handle_signal.c">
+					RelativePath="..\src\d2dbs\handle_signal.c">
 				</File>
 				<File
-					RelativePath="..\d2dbs\main.c">
+					RelativePath="..\src\d2dbs\main.c">
 				</File>
 				<File
-					RelativePath="..\d2dbs\prefs.c">
+					RelativePath="..\src\d2dbs\prefs.c">
 				</File>
 			</Filter>
 			<Filter
 				Name="common"
 				Filter="">
 				<File
-					RelativePath="..\common\addr.c">
+					RelativePath="..\src\common\addr.c">
 				</File>
 				<File
-					RelativePath="..\common\bn_type.c">
+					RelativePath="..\src\common\bn_type.c">
 				</File>
 				<File
-					RelativePath="..\common\d2char_checksum.c">
+					RelativePath="..\src\common\d2char_checksum.c">
 				</File>
 				<File
-					RelativePath="..\common\eventlog.c">
+					RelativePath="..\src\common\eventlog.c">
 				</File>
 				<File
-					RelativePath="..\common\hexdump.c">
+					RelativePath="..\src\common\hexdump.c">
 				</File>
 				<File
-					RelativePath="..\common\list.c">
+					RelativePath="..\src\common\list.c">
 				</File>
 				<File
-					RelativePath="..\common\util.c">
+					RelativePath="..\src\common\util.c">
 				</File>
 				<File
-					RelativePath="..\common\xalloc.c">
+					RelativePath="..\src\common\xalloc.c">
 				</File>
 			</Filter>
 			<Filter
 				Name="compat"
 				Filter="">
 				<File
-					RelativePath="..\compat\inet_aton.c">
+					RelativePath="..\src\compat\inet_aton.c">
 				</File>
 				<File
-					RelativePath="..\compat\psock.c">
+					RelativePath="..\src\compat\psock.c">
 				</File>
 				<File
-					RelativePath="..\compat\strerror.c">
+					RelativePath="..\src\compat\strerror.c">
 				</File>
 				<File
-					RelativePath="..\compat\strsep.c">
+					RelativePath="..\src\compat\strsep.c">
 				</File>
 			</Filter>
 			<Filter
 				Name="d2cs"
 				Filter="">
 				<File
-					RelativePath="..\d2cs\conf.c">
+					RelativePath="..\src\d2cs\conf.c">
 				</File>
 				<File
-					RelativePath="..\d2cs\xstring.c">
+					RelativePath="..\src\d2cs\xstring.c">
 				</File>
 			</Filter>
 			<Filter
 				Name="win32"
 				Filter="">
 				<File
-					RelativePath=".\d2dbs_winmain.c">
+					RelativePath="..\src\win32\d2dbs_winmain.c">
 				</File>
 				<File
-					RelativePath=".\service_d2dbs.c">
+					RelativePath="..\src\win32\service_d2dbs.c">
 				</File>
 			</Filter>
 		</Filter>
@@ -252,98 +253,98 @@
 				Name="d2dbs"
 				Filter="">
 				<File
-					RelativePath="..\d2dbs\charlock.h">
+					RelativePath="..\src\d2dbs\charlock.h">
 				</File>
 				<File
-					RelativePath="..\d2dbs\cmdline_parse.h">
+					RelativePath="..\src\d2dbs\cmdline_parse.h">
 				</File>
 				<File
-					RelativePath="..\d2dbs\d2ladder.h">
+					RelativePath="..\src\d2dbs\d2ladder.h">
 				</File>
 				<File
-					RelativePath="..\d2dbs\dbsdupecheck.h">
+					RelativePath="..\src\d2dbs\dbsdupecheck.h">
 				</File>
 				<File
-					RelativePath="..\d2dbs\dbserver.h">
+					RelativePath="..\src\d2dbs\dbserver.h">
 				</File>
 				<File
-					RelativePath="..\d2dbs\dbspacket.h">
+					RelativePath="..\src\d2dbs\dbspacket.h">
 				</File>
 				<File
-					RelativePath="..\d2dbs\handle_signal.h">
+					RelativePath="..\src\d2dbs\handle_signal.h">
 				</File>
 				<File
-					RelativePath="..\d2dbs\prefs.h">
+					RelativePath="..\src\d2dbs\prefs.h">
 				</File>
 				<File
-					RelativePath="..\d2dbs\setup.h">
+					RelativePath="..\src\d2dbs\setup.h">
 				</File>
 				<File
-					RelativePath="..\d2dbs\version.h">
+					RelativePath="..\src\d2dbs\version.h">
 				</File>
 			</Filter>
 			<Filter
 				Name="common"
 				Filter="">
 				<File
-					RelativePath="..\common\addr.h">
+					RelativePath="..\src\common\addr.h">
 				</File>
 				<File
-					RelativePath="..\common\bn_type.h">
+					RelativePath="..\src\common\bn_type.h">
 				</File>
 				<File
-					RelativePath="..\common\d2char_checksum.h">
+					RelativePath="..\src\common\d2char_checksum.h">
 				</File>
 				<File
-					RelativePath="..\common\eventlog.h">
+					RelativePath="..\src\common\eventlog.h">
 				</File>
 				<File
-					RelativePath="..\common\hexdump.h">
+					RelativePath="..\src\common\hexdump.h">
 				</File>
 				<File
-					RelativePath="..\common\list.h">
+					RelativePath="..\src\common\list.h">
 				</File>
 				<File
-					RelativePath="..\common\util.h">
+					RelativePath="..\src\common\util.h">
 				</File>
 				<File
-					RelativePath="..\common\xalloc.h">
+					RelativePath="..\src\common\xalloc.h">
 				</File>
 			</Filter>
 			<Filter
 				Name="compat"
 				Filter="">
 				<File
-					RelativePath="..\compat\inet_aton.h">
+					RelativePath="..\src\compat\inet_aton.h">
 				</File>
 				<File
-					RelativePath="..\compat\psock.h">
+					RelativePath="..\src\compat\psock.h">
 				</File>
 				<File
-					RelativePath="..\compat\strerror.h">
+					RelativePath="..\src\compat\strerror.h">
 				</File>
 				<File
-					RelativePath="..\compat\strsep.h">
+					RelativePath="..\src\compat\strsep.h">
 				</File>
 			</Filter>
 			<Filter
 				Name="d2cs"
 				Filter="">
 				<File
-					RelativePath="..\d2cs\conf.h">
+					RelativePath="..\src\d2cs\conf.h">
 				</File>
 				<File
-					RelativePath="..\d2cs\xstring.h">
+					RelativePath="..\src\d2cs\xstring.h">
 				</File>
 			</Filter>
 			<Filter
 				Name="win32"
 				Filter="">
 				<File
-					RelativePath=".\service.h">
+					RelativePath="..\src\win32\service.h">
 				</File>
 				<File
-					RelativePath=".\winmain.h">
+					RelativePath="..\src\win32\winmain.h">
 				</File>
 			</Filter>
 		</Filter>
@@ -352,13 +353,13 @@
 			Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx"
 			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}">
 			<File
-				RelativePath=".\d2dbs_resource.h">
+				RelativePath="..\src\win32\d2dbs_resource.h">
 			</File>
 			<File
-				RelativePath=".\d2dbs_resource.rc">
+				RelativePath="..\src\win32\d2dbs_resource.rc">
 			</File>
 			<File
-				RelativePath=".\logo01.ico">
+				RelativePath="..\src\win32\logo01.ico">
 			</File>
 		</Filter>
 	</Files>
