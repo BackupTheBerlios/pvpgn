@@ -3,7 +3,7 @@
 char serviceName[] = "PvPgn service";
 
 extern int g_ServiceStatus;
-extern int old_main(int argc, char *argv[]);
+extern int main(int argc, char *argv[]);
 
 SERVICE_STATUS serviceStatus;
 SERVICE_STATUS_HANDLE serviceStatusHandle = 0;
@@ -141,7 +141,7 @@ void WINAPI ServiceMain(DWORD argc, char *argv[])
 
 		argc = 1;
 
-		old_main(argc, argv);
+		main(argc, argv);
 
 		// service was stopped
 		serviceStatus.dwCurrentState = SERVICE_STOP_PENDING;

@@ -148,7 +148,7 @@ static void usage(char const * progname)
 #define STATUS_MATCHLISTS_FAILURE	5
 #define STATUS_LADDERLIST_FAILURE	6
 
-// new functions extracted from old_main()
+// new functions extracted from Fw()
 int read_commandline(int argc, char * * argv, int *foreground, char *preffile[], char *hexfile[]);
 int pre_server_startup(void);
 void post_server_shutdown(int status);
@@ -358,6 +358,7 @@ int fork_bnetd(int foreground)
     }
     return 0;
 #endif
+return 0;
 }
 
 char * write_to_pidfile(void)
