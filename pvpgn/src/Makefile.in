@@ -78,11 +78,12 @@ INSTALL_DIRS	= @INSTALL@ -d -m 755
 # CC set by configure
 # CFLAGS set by configure
 CPPFLAGS	= @DEFS@ @DEFINES@ -DBNETD_DEFAULT_CONF_FILE=\"${confdir}/bnetd.conf\" -DD2CS_DEFAULT_CONF_FILE=\"${confdir}/d2cs.conf\" -DD2DBS_DEFAULT_CONF_FILE=\"${confdir}/d2dbs.conf\" -I"${SRC_SRCDIR}" @CPPFLAGS@
-COMPILE		= @CC@ @CFLAGS@ ${CPPFLAGS} -fno-strict-aliasing -c
+COMPILE		= @CC@ @CFLAGS@ ${CPPFLAGS} -fno-strict-aliasing -c -Wall
 #PREPROCESS	= @CPP@ ${CPPFLAGS}
 LINK		= @CC@ @CFLAGS@ @LDFLAGS@
 LINK_LIBS	= @LIBS@
 
+PARTS            = bnetd bniutils bnpass bnpcap bnproxy bntrackd client common compat d2cs d2dbs tinycdb
 
 bnetd_SBIN	= ${SRC_SBINDIR}/bnetd
 bnetd_OBJECTS	= ${SRC_BNETDDIR}/main.o \
@@ -727,6 +728,13 @@ ${SRC_ACDIR}/ansi2knr.o: ${SRC_ACDIR}/ansi2knr.c
 	@COMPILEANSI2@
 	@COMPILEANSI3@
 
+dep:
+	@${RMF} .dep
+	@for a in ${PARTS}; do \
+	    echo Dependency check: $$a; \
+	    ${COMPILE} -MM `ls $$a/*.c` | sed -e "s@\(.*\)\.o:\(.*\)@$$a\/\1\.o:\2@g" 1>>.dep; \
+	done
+	
 ${bnetd_SBIN}: ${bnetd_OBJECTS}
 	@${INSTALL_DIRS} ${SRC_SBINDIR}
 	@${RMF} $@
@@ -826,6 +834,10 @@ ${cdb_BIN}: ${cdb_OBJECTS}
 	@${INSTALL_DIRS} ${SRC_BINDIR}
 	@${RMF} $@
 	${LINK} ${cdb_OBJECTS} ${LINK_LIBS} -o $@
+
+ifneq ($(wildcard .dep),)
+include .dep
+endif
 
 # Tell versions (3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.
