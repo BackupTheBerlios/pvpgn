@@ -11,6 +11,8 @@ PvPGN Version History:
   now makes sure you leave the channel you were previously in.
   -- added /NOTICE, /ISON and /WHOIS handling
   -- now the real MOTD displays when connecting via IRC
+  -- allow changing /nick before login
+  -- allow another try on a wrong /msg nickserv identify <pass>
 
 [STORAGE]: combined plain and cdb file storage into one (this eliminates replicating 
 codes)
