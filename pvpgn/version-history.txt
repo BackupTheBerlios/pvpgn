@@ -59,6 +59,9 @@ codes)
   it 0 in the default config file
   -- fixed versioncheck file for PMAC/XMAC entries
   -- updated autoupdate with latest clients versions
+  -- fixed "message_cache_lookup: unsupported connection class" errors when 
+  broadcasting message (ex /ann) and having any connection different than 
+  irc/telnet/bot/bnet (ex d2cs etc)
 
 a general 1.6.x note:
 versioncheck exe-time parsing now REALLY works as it was intended to.

@@ -1614,6 +1614,15 @@ static t_packet * message_cache_lookup(t_message * message, t_connection *dst, u
 	    packet = NULL; /* we can cache the NULL too */
 	}
 	break;
+   case conn_class_init:
+   case conn_class_defer:
+   case conn_class_file:
+   case conn_class_auth:
+   case conn_class_d2cs_bnetd:
+   case conn_class_w3route:
+	packet = NULL;
+	break; /* cache the NULL but dont send any error, 
+	        * this are normal connections */
    default:
 	eventlog(eventlog_level_error,"message_cache_lookup","unsupported connection class %d",(int)class);
 	packet = NULL; /* we can cache the NULL too */
