@@ -384,7 +384,8 @@ extern int client_connect(char const * progname, char const * servname, unsigned
 
 	    bn_int_set(&packet->u.client_authreq_109.cdkey_number,1); /* only one */
 	    memset(&cdkey_info,'0',sizeof(cdkey_info));
-	    packet_append_data(packet,&cdkey,sizeof(cdkey_info)); /* cdkey - bogus for now */
+	    /* FIXME: put the input cdkey here */
+	    packet_append_data(packet,&cdkey_info,sizeof(cdkey_info));
 	    packet_append_string(packet,exeinfo);
 	    packet_append_string(packet,cdowner);
 	}
