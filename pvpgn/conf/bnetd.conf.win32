@@ -38,6 +38,7 @@ xpcalcfile  = conf\bnxpcalc.txt
 #pidfile    = var\bnetd.pid
 ladderdir    = var\ladders
 command_groups_file = conf\command_groups.txt
+statusdir   = var\status
 
 fortunecmd  = bin\fortune.exe
 
@@ -468,7 +469,7 @@ war3_ladder_update_secs = 300
 XML_output_ladder = false
 
 ###############################################################################
-# war3 output status textual output                                           #
+# server status textual output                                           #
 #-----------------------------------------------------------------------------#
 # This is for writing status of the server in an attempt to see number of user
 # on line actually, and games/chans.
