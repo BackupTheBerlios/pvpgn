@@ -23,11 +23,13 @@
 #ifndef JUST_NEED_TYPES
 #define JUST_NEED_TYPES
 #include "common/list.h"
+#include "common/elist.h"
 #include "clan.h"
 #include "team.h"
 #undef JUST_NEED_TYPES
 #else
 #include "common/list.h"
+#include "common/elist.h"
 #include "clan.h"
 #include "team.h"
 #endif
@@ -52,6 +54,12 @@ typedef struct attribute_struct
 #define ACCOUNT_FLAG_DIRTY	4
 #define ACCOUNT_FLAG_FLOADED	8	/* friend loaded */
 
+/* flags controlling flush/save operations */
+#define FS_NONE		0
+#define FS_FORCE	1	/* force save/flush no matter of time */
+/* NOTE: flush with force will trigger save with force in case of dirty */
+#define FS_ALL		2	/* save/flush all, not in steps */
+
 struct connection;
 
 typedef struct account_struct
@@ -62,11 +70,16 @@ typedef struct account_struct
     unsigned int  namehash; /* cached from attrs */
     unsigned int  uid;      /* cached from attrs */
     unsigned int  flags;
-    unsigned int  age;      /* number of times it has not been accessed */
     struct connection * conn;
     t_storage_info * storage;
     t_clanmember * clanmember;
     t_list * friends;
+    time_t	lastaccess;	/* timestamp of last access moment */
+    time_t	dirtytime;	/* timestamp of first dirty moment */
+    t_elist	loadedlist;	/* link to the list of loaded accounts for 
+				 * fast flushes */
+    t_elist	dirtylist;	/* link to the list of dirty accounts for 
+				 * fast saves */
     t_list * teams;
 }
 #endif
@@ -105,7 +118,8 @@ extern t_hashtable * accountlist_uid(void);
 extern int accountlist_load_default(void);
 extern void accountlist_unload_default(void);
 extern unsigned int accountlist_get_length(void);
-extern int accountlist_save(unsigned int delta, int *syncdeltap);
+extern int accountlist_save(unsigned flags);
+extern int accountlist_flush(unsigned flags);
 extern t_account * accountlist_find_account(char const * username);
 extern t_account * accountlist_find_account_by_uid(unsigned int uid);
 extern int accountlist_allow_add(void);

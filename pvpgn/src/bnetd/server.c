@@ -1200,17 +1200,20 @@ static time_t prev_exittime;
 
 static void _server_mainloop(t_addrlist *laddrs)
 {
-    time_t          prev_savetime, track_time;
+    time_t          next_savetime, next_flushtime, track_time;
     time_t          war3_ladder_updatetime;
     time_t          output_updatetime;
-    int	            syncdelta;
     unsigned int    count;
+    int             savestep, flushstep;
 
-    syncdelta = prefs_get_user_sync_timer();
-    track_time = time(NULL)-prefs_get_track();
-    starttime=prev_savetime = time(NULL);
-    war3_ladder_updatetime  = time(NULL)-prefs_get_war3_ladder_update_secs();
-    output_updatetime = time(NULL)-prefs_get_output_update_secs();
+    starttime = time(NULL);
+    track_time = starttime - prefs_get_track();
+    next_savetime = starttime + prefs_get_user_sync_timer();
+    next_flushtime = starttime + prefs_get_user_flush_timer();
+    war3_ladder_updatetime  = starttime - prefs_get_war3_ladder_update_secs();
+    output_updatetime = starttime - prefs_get_output_update_secs();
+    savestep = flushstep = 0;
+
     count = 0;
     
     for (;;)
@@ -1247,7 +1250,9 @@ static void _server_mainloop(t_addrlist *laddrs)
 	{
 	    eventlog(eventlog_level_info,"server_process","the server is shutting down (%d connections left)",connlist_get_length());
     	    clanlist_save();
-	    accountlist_save(0, NULL);
+	    /* no need for accountlist_save() when using "force" */
+	    accountlist_save(FS_FORCE | FS_ALL);
+	    accountlist_flush(FS_FORCE | FS_ALL);
 	    break;
 	}
 	if (prev_exittime!=curr_exittime)
@@ -1280,14 +1285,28 @@ static void _server_mainloop(t_addrlist *laddrs)
 	}
 	prev_exittime = curr_exittime;
 
-	if (syncdelta && prev_savetime+(time_t)syncdelta<=now)
+	if (next_savetime <=now)
 	{
-	    if (syncdelta > 0) { /* do this stuff only first step of save */
+	    if (!savestep) { /* do this stuff only first step of save */
     		clanlist_save();
         	gamelist_check_voidgame();
 	    }
-	    accountlist_save(prefs_get_user_sync_timer(), &syncdelta);
-	    prev_savetime = now;
+	    savestep = accountlist_save(FS_NONE);
+
+	    if (!savestep)	/* saving finished */
+		next_savetime += prefs_get_user_sync_timer();
+	}
+
+	if (next_flushtime <=now)
+	{
+	    if (!flushstep) { /* do this stuff only first step of save */
+    		clanlist_save();
+        	gamelist_check_voidgame();
+	    }
+	    flushstep = accountlist_flush(FS_NONE);
+
+	    if (!flushstep)	/* flushing finished */
+		next_flushtime += prefs_get_user_flush_timer();
 	}
 
 	if (prefs_get_track() && track_time+(time_t)prefs_get_track()<=now)
@@ -1313,7 +1332,11 @@ static void _server_mainloop(t_addrlist *laddrs)
 	{
 	    eventlog(eventlog_level_info,"server_process","saving accounts due to signal");
     	    clanlist_save();
-	    accountlist_save(0, NULL);
+
+	    savestep = accountlist_save(FS_NONE);
+	    if (!savestep)	/* saving finished */
+		next_savetime += prefs_get_user_sync_timer();
+
 	    do_save = 0;
 	}
 	
@@ -1336,12 +1359,12 @@ static void _server_mainloop(t_addrlist *laddrs)
 
 	    /* reload server name */
 	    server_set_name();
-	    
+
 	    accountlist_load_default(); /* FIXME: free old one */
 	    /* Dizzy: disabled for the moment, lets see who really needs it, 
 	    also it can be the cause for a lot of problems
 	    accountlist_reload(); */
-	    
+
 	    channellist_reload();
 
             realmlist_destroy();
@@ -1392,8 +1415,6 @@ static void _server_mainloop(t_addrlist *laddrs)
 
 	    anongame_infos_unload();
 	    anongame_infos_load(prefs_get_anongame_infos_file());
-	    
-	    syncdelta = prefs_get_user_sync_timer();
 	    
 	    eventlog(eventlog_level_info,"server_process","done reconfiguring");
 	    
