@@ -272,10 +272,10 @@ extern int ladder_update(char const * clienttag, t_ladder_id id, unsigned int co
 	  war3_ladder_update(ladder_cr(clienttag,id),uid,won,account_get_ladder_rating(account,clienttag,id),players[curr],0);
 
 	  if (results[curr]!=game_result_draw)
-	        war3_ladder_update(ladder_cg(clienttag,id),uid,info[curr].adj,wins,players[curr],0);
+	        war3_ladder_update(ladder_cg(clienttag,id),uid,info[curr].adj,games,players[curr],0);
 		
 	  if (results[curr]==game_result_win)
-		war3_ladder_update(ladder_cw(clienttag,id),uid,info[curr].adj,games,players[curr],0);
+		war3_ladder_update(ladder_cw(clienttag,id),uid,info[curr].adj,wins,players[curr],0);
 	}
 	
 	ladder_update_all_accounts();
@@ -1873,9 +1873,9 @@ extern int ladder_make_active(t_ladder *current, t_ladder *active,int set_attrib
   t_bnettime bt;
   int rank = 1;
 
-  id = current->ladder_id;
-  clienttag = current->clienttag;
-  type = current->type;
+  id = active->ladder_id;
+  clienttag = active->clienttag;
+  type = active->type;
 
   //FIXME: take care of ppl that might have drop'ed from ladder !!!
   ladder_destroy(active);
