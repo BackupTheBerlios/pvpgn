@@ -43,6 +43,7 @@ codes)
 
 [MISC]:
   -- fixed crash in versioncheck for clients who didnt sent proper informations
+  -- fixed channel loading "multiple clienttag duplicate channels"
 
 a general 1.6.x note:
 versioncheck exe-time parsing now REALLY works as it was intended to.
