@@ -222,7 +222,7 @@ static int _anongame_level_by_queue(t_connection * c, int queue)
     
     switch(queue) {
 	case ANONGAME_TYPE_1V1:
-	    return account_get_sololevel(conn_get_account(c),ct);
+	    return account_get_ladder_level(conn_get_account(c),ct,ladder_id_solo);
 	case ANONGAME_TYPE_2V2:
 	case ANONGAME_TYPE_3V3:
 	case ANONGAME_TYPE_4V4:
@@ -233,10 +233,10 @@ static int _anongame_level_by_queue(t_connection * c, int queue)
 	case ANONGAME_TYPE_4V4V4:
 	case ANONGAME_TYPE_2V2V2V2:
 	case ANONGAME_TYPE_3V3V3V3:
-	    return account_get_teamlevel(conn_get_account(c),ct);
+	    return account_get_ladder_level(conn_get_account(c),ct,ladder_id_ffa);
 	case ANONGAME_TYPE_SMALL_FFA:
 	case ANONGAME_TYPE_TEAM_FFA:
-	    return account_get_ffalevel(conn_get_account(c),ct);
+	    return account_get_ladder_level(conn_get_account(c),ct,ladder_id_ffa);
 	case ANONGAME_TYPE_AT_2V2:
 	case ANONGAME_TYPE_AT_3V3:
 	case ANONGAME_TYPE_AT_4V4:
@@ -1262,13 +1262,13 @@ extern int anongame_stats(t_connection * c)
 		/* FIXME-TY: ADD TOURNAMENT STATS RECORDING (this part not required?) */
 		break;
 	    case ANONGAME_TYPE_1V1:
-		oppon_level[i] = account_get_sololevel(a->info->account[(i+1)%tp],ct);
+		oppon_level[i] = account_get_ladder_level(a->info->account[(i+1)%tp],ct,ladder_id_solo);
 		break;
     	    case ANONGAME_TYPE_SMALL_FFA:
 		/* oppon_level = average level of all other players */
 		for (j=0; j<tp; j++)
 		    if (i!=j)
-			oppon_level[i]+=account_get_ffalevel(a->info->account[j],ct);
+			oppon_level[i]+=account_get_ladder_level(a->info->account[j],ct,ladder_id_ffa);
 		oppon_level[i]/=(tp-1);
 		break;
 	    case ANONGAME_TYPE_AT_2V2:
@@ -1292,7 +1292,7 @@ extern int anongame_stats(t_connection * c)
 		for ( j=0; j < (tp/tt); j++) 
 		{
 		    for ( l=0; l < (tt-1); l++) {
-			oppon_level[i]+= account_get_teamlevel(a->info->account[k%tp],ct);
+			oppon_level[i]+= account_get_ladder_level(a->info->account[k%tp],ct,ladder_id_team);
 			k++;
 		    }
 		    k++;
@@ -2017,11 +2017,11 @@ extern int handle_anongame_join(t_connection * c)
 
 				switch(gametype) {
 			case ANONGAME_TYPE_1V1:
-				level = account_get_sololevel(conn_get_account(anongame_get_player(ja,i)),ct);
+				level = account_get_ladder_level(conn_get_account(anongame_get_player(ja,i)),ct,ladder_id_solo);
 				break;
 			case ANONGAME_TYPE_SMALL_FFA:
 			case ANONGAME_TYPE_TEAM_FFA:
-				level = account_get_ffalevel(conn_get_account(anongame_get_player(ja,i)),ct);
+				level = account_get_ladder_level(conn_get_account(anongame_get_player(ja,i)),ct,ladder_id_ffa);
 				break;
 			case ANONGAME_TYPE_AT_2V2:
 			case ANONGAME_TYPE_AT_3V3:
@@ -2034,7 +2034,7 @@ extern int handle_anongame_join(t_connection * c)
 				level = 0; /* FIXME-TY: WHAT TO DO HERE */
 				break;
 			default:
-				level = account_get_teamlevel(conn_get_account(anongame_get_player(ja,i)),ct);
+				level = account_get_ladder_level(conn_get_account(anongame_get_player(ja,i)),ct,ladder_id_team);
 				break;
 				}
 

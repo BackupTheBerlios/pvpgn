@@ -186,50 +186,13 @@ extern int account_inc_racewins( t_account * account, unsigned int intrace, t_cl
 extern int account_get_racewins( t_account * account, unsigned int intrace, t_clienttag clienttag);
 extern int account_inc_racelosses( t_account * account, unsigned int intrace, t_clienttag clienttag);
 extern int account_get_racelosses( t_account * account, unsigned int intrace, t_clienttag clienttag);
-// 1v1 Solo Play Game funcs
-extern int account_inc_solowins( t_account * account, t_clienttag clienttag);
-extern int account_get_solowins( t_account * account, t_clienttag clienttag);
-extern int account_set_solowins( t_account * account, t_clienttag clienttag,unsigned wins);
-extern int account_inc_sololosses( t_account * account, t_clienttag clienttag );
-extern int account_get_sololosses( t_account * account, t_clienttag clienttag );
-extern int account_set_sololosses( t_account * account, t_clienttag clienttag,unsigned losses);
-extern int account_update_xp(t_account * account, t_clienttag clienttag, t_game_result gameresult, unsigned int opponlevel,int * xp_diff,int(*getxpfunc)(),int(*getlvlfunc)(),int(*setxpfunc)());
-extern int account_get_soloxp(t_account * account, t_clienttag clienttag);
-extern int account_set_soloxp(t_account * account, t_clienttag clienttag,unsigned xp);
-extern int account_adjust_sololevel(t_account * account, t_clienttag clienttag);
-extern int account_get_sololevel(t_account * account, t_clienttag clienttag);
-extern int account_set_sololevel(t_account * account, t_clienttag clienttag,unsigned level);
-extern int account_get_solorank(t_account * account, t_clienttag clienttag);
-extern int account_set_solorank(t_account * account, t_clienttag clienttag, int rank);
-// Any Team Game great then 1v1 .. so thats (2v2,3v3,4v4)
-extern int account_inc_teamwins(t_account * account, t_clienttag clienttag);
-extern int account_get_teamwins(t_account * account, t_clienttag clienttag);
-extern int account_set_teamwins(t_account * account, t_clienttag clienttag,unsigned wins);
-extern int account_inc_teamlosses(t_account * account, t_clienttag clienttag);
-extern int account_get_teamlosses(t_account * account, t_clienttag clienttag);
-extern int account_set_teamlosses(t_account * account, t_clienttag clienttag,unsigned losses);
-extern int account_get_teamxp(t_account * account, t_clienttag clienttag);
-extern int account_set_teamxp(t_account * account, t_clienttag clienttag,unsigned xp);
-extern int account_adjust_teamlevel(t_account * account, t_clienttag clienttag);
-extern int account_get_teamlevel(t_account * account, t_clienttag clienttag);
-extern int account_set_teamlevel(t_account * account, t_clienttag clienttag,unsigned level);
-extern int account_get_teamrank(t_account * account, t_clienttag clienttag);
-extern int account_set_teamrank(t_account * account, t_clienttag clienttag, int rank);
-// Funcs for small and big FFA
-extern int account_inc_ffawins(t_account * account, t_clienttag clienttag);
-extern int account_get_ffawins(t_account * account, t_clienttag clienttag);
-extern int account_set_ffawins(t_account * account, t_clienttag clienttag,unsigned wins);
-extern int account_inc_ffalosses(t_account * account, t_clienttag clienttag);
-extern int account_get_ffalosses(t_account * account, t_clienttag clienttag);
-extern int account_set_ffalosses(t_account * account, t_clienttag clienttag,unsigned losses);
-extern int account_get_ffaxp(t_account * account, t_clienttag clienttag);
-extern int account_set_ffaxp(t_account * account, t_clienttag clienttag,unsigned xp);
-extern int account_adjust_ffalevel(t_account * account, t_clienttag clienttag);
-extern int account_get_ffalevel(t_account * account, t_clienttag clienttag);
-extern int account_set_ffalevel(t_account * account, t_clienttag clienttag,unsigned level);
-extern int account_get_ffarank(t_account * account, t_clienttag clienttag);
-extern int account_set_ffarank(t_account * account, t_clienttag clienttag, int rank);
-// Funcs for Arranged Teams - THEUNDYING
+
+extern int account_update_xp(t_account * account, t_clienttag clienttag, t_game_result gameresult, unsigned int opponlevel,int * xp_diff,t_ladder_id id);
+extern int account_get_ladder_xp(t_account * account, t_clienttag clienttag, t_ladder_id id);
+extern int account_set_ladder_xp(t_account * account, t_clienttag clienttag, t_ladder_id id, unsigned int xp);
+extern int account_get_ladder_level(t_account * account, t_clienttag clienttag, t_ladder_id id);
+extern int account_set_ladder_level(t_account * account, t_clienttag clienttag, t_ladder_id id, unsigned int level);
+extern int account_adjust_ladder_level(t_account * account, t_clienttag clienttag, t_ladder_id id);
 
 extern int account_set_currentatteam(t_account * account, unsigned int teamcount);
 extern int account_get_currentatteam(t_account * account);

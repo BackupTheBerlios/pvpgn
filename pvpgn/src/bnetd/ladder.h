@@ -56,7 +56,12 @@ typedef enum
     ladder_id_none=0,
     ladder_id_normal=1,
     ladder_id_ironman=3,
+    ladder_id_solo=5,
+    ladder_id_team=6,
+    ladder_id_ffa=7
 } t_ladder_id;
+
+extern char * ladder_id_str[];
 
 typedef enum
 {

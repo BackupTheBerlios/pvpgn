@@ -185,7 +185,10 @@ static int _client_anongame_profile(t_connection * c, t_packet const * const pac
 
     eventlog(eventlog_level_info,__FUNCTION__,"Looking up %s's %s Stats.",username,tag_uint_to_str(clienttag_str,ctag));
 
-    if (account_get_sololevel(account,ctag)<=0 && account_get_teamlevel(account,ctag)<=0 && account_get_teams(account)==NULL)
+    if (account_get_ladder_level(account,ctag,ladder_id_solo)<=0 && 
+        account_get_ladder_level(account,ctag,ladder_id_team)<=0 && 
+        account_get_ladder_level(account,ctag,ladder_id_ffa)<=0 && 
+	account_get_teams(account)==NULL)
     {
 	eventlog(eventlog_level_info,__FUNCTION__,"%s does not have WAR3 Stats.",username);
 	if (!(rpacket = packet_create(packet_class_bnet)))
@@ -203,23 +206,23 @@ static int _client_anongame_profile(t_connection * c, t_packet const * const pac
     }
     else // If they do have a profile then:
     {
-	int solowins=account_get_solowins(account,ctag); 
-	int sololoss=account_get_sololosses(account,ctag);
-	int soloxp=account_get_soloxp(account,ctag);
-	int sololevel=account_get_sololevel(account,ctag);
-	int solorank=account_get_solorank(account,ctag);
+	int solowins=account_get_ladder_wins(account,ctag,ladder_id_solo); 
+	int sololoss=account_get_ladder_losses(account,ctag,ladder_id_solo);
+	int soloxp=account_get_ladder_xp(account,ctag,ladder_id_solo);
+	int sololevel=account_get_ladder_level(account,ctag,ladder_id_solo);
+	int solorank=account_get_ladder_rank(account,ctag,ladder_id_solo);
 
-	int teamwins=account_get_teamwins(account,ctag);
-	int teamloss=account_get_teamlosses(account,ctag);
-	int teamxp=account_get_teamxp(account,ctag);
-	int teamlevel=account_get_teamlevel(account,ctag);
-	int teamrank=account_get_teamrank(account,ctag);
+	int teamwins=account_get_ladder_wins(account,ctag,ladder_id_team);
+	int teamloss=account_get_ladder_losses(account,ctag,ladder_id_team);
+	int teamxp=account_get_ladder_xp(account,ctag,ladder_id_team);
+	int teamlevel=account_get_ladder_level(account,ctag,ladder_id_team);
+	int teamrank=account_get_ladder_rank(account,ctag,ladder_id_team);
 
-	int ffawins=account_get_ffawins(account,ctag);
-	int ffaloss=account_get_ffalosses(account,ctag);
-	int ffaxp=account_get_ffaxp(account,ctag);
-	int ffalevel=account_get_ffalevel(account,ctag);
-	int ffarank=account_get_ffarank(account,ctag);
+	int ffawins=account_get_ladder_wins(account,ctag,ladder_id_ffa);
+	int ffaloss=account_get_ladder_losses(account,ctag,ladder_id_ffa);
+	int ffaxp=account_get_ladder_xp(account,ctag,ladder_id_ffa);
+	int ffalevel=account_get_ladder_level(account,ctag,ladder_id_ffa);
+	int ffarank=account_get_ladder_rank(account,ctag,ladder_id_ffa);
 
 	int humanwins=account_get_racewins(account,1,ctag);
 	int humanlosses=account_get_racelosses(account,1,ctag);

@@ -1987,37 +1987,37 @@ static int _handle_stats_command(t_connection * c, char const *text)
 	    sprintf(msgtemp,"%.64s's Ladder Record's:",account_get_name(account));
 	    message_send_text(c,message_type_info,c,msgtemp);
 	    sprintf(msgtemp,"Users Solo Level: %u, Experience: %u",
-		account_get_sololevel(account,clienttag_uint),
-		account_get_soloxp(account,clienttag_uint));
+		account_get_ladder_level(account,clienttag_uint,ladder_id_solo),
+		account_get_ladder_xp(account,clienttag_uint,ladder_id_solo));
 	    message_send_text(c,message_type_info,c,msgtemp);
 	    sprintf(msgtemp,"SOLO Ladder Record: %u-%u-0",
-		account_get_solowins(account,clienttag_uint),
-		account_get_sololosses(account,clienttag_uint));
+		account_get_ladder_wins(account,clienttag_uint,ladder_id_solo),
+		account_get_ladder_losses(account,clienttag_uint,ladder_id_solo));
 	    message_send_text(c,message_type_info,c,msgtemp);
 	    sprintf(msgtemp,"SOLO Rank: %u",
-		account_get_solorank(account,clienttag_uint));
+		account_get_ladder_rank(account,clienttag_uint,ladder_id_solo));
 	    message_send_text(c,message_type_info,c,msgtemp);
 	    sprintf(msgtemp,"Users Team Level: %u, Experience: %u",
-		account_get_teamlevel(account,clienttag_uint),
-		account_get_teamxp(account,clienttag_uint));
+		account_get_ladder_level(account,clienttag_uint,ladder_id_team),
+		account_get_ladder_xp(account,clienttag_uint,ladder_id_team));
 	    message_send_text(c,message_type_info,c,msgtemp);
 	    sprintf(msgtemp,"TEAM Ladder Record: %u-%u-0",
-		account_get_teamwins(account,clienttag_uint),
-		account_get_teamlosses(account,clienttag_uint));
+		account_get_ladder_wins(account,clienttag_uint,ladder_id_team),
+		account_get_ladder_losses(account,clienttag_uint,ladder_id_team));
 	    message_send_text(c,message_type_info,c,msgtemp);
 	    sprintf(msgtemp,"TEAM Rank: %u",
-		account_get_teamrank(account,clienttag_uint));
+		account_get_ladder_rank(account,clienttag_uint,ladder_id_team));
 	    message_send_text(c,message_type_info,c,msgtemp);
 	    sprintf(msgtemp,"Users FFA Level: %u, Experience: %u",
-		account_get_ffalevel(account,clienttag_uint),
-		account_get_ffaxp(account,clienttag_uint));
+		account_get_ladder_level(account,clienttag_uint,ladder_id_ffa),
+		account_get_ladder_xp(account,clienttag_uint,ladder_id_ffa));
 	    message_send_text(c,message_type_info,c,msgtemp);
 	    sprintf(msgtemp,"FFA Ladder Record: %u-%u-0",
-		account_get_ffawins(account,clienttag_uint),
-		account_get_ffalosses(account,clienttag_uint));
+		account_get_ladder_wins(account,clienttag_uint,ladder_id_ffa),
+		account_get_ladder_losses(account,clienttag_uint,ladder_id_ffa));
 	    message_send_text(c,message_type_info,c,msgtemp);
 	    sprintf(msgtemp,"FFA Rank: %u",
-		account_get_ffarank(account,clienttag_uint));
+		account_get_ladder_rank(account,clienttag_uint,ladder_id_ffa));
 	    message_send_text(c,message_type_info,c,msgtemp);
 	    if (account_get_teams(account)) {
 		t_elem * curr;
@@ -3781,8 +3781,8 @@ static int _handle_ladderinfo_command(t_connection * c, char const *text)
 	  sprintf(msgtemp,"WarCraft3 Solo   %5u: %-20.20s %u/%u/0",
 		  rank,
 		  account_get_name(account),
-		  account_get_solowins(account,clienttag),
-		  account_get_sololosses(account,clienttag));
+		  account_get_ladder_wins(account,clienttag,ladder_id_solo),
+		  account_get_ladder_losses(account,clienttag,ladder_id_solo));
 	}
       else
 	sprintf(msgtemp,"WarCraft3 Solo   %5u: <none>",rank);
@@ -3793,8 +3793,8 @@ static int _handle_ladderinfo_command(t_connection * c, char const *text)
 	  sprintf(msgtemp,"WarCraft3 Team   %5u: %-20.20s %u/%u/0",
 		  rank,
 		  account_get_name(account),
-		  account_get_teamwins(account,clienttag),
-		  account_get_teamlosses(account,clienttag));
+		  account_get_ladder_wins(account,clienttag,ladder_id_team),
+		  account_get_ladder_losses(account,clienttag,ladder_id_team));
 	}
       else
 	sprintf(msgtemp,"WarCraft3 Team   %5u: <none>",rank);
@@ -3805,8 +3805,8 @@ static int _handle_ladderinfo_command(t_connection * c, char const *text)
 	  sprintf(msgtemp,"WarCraft3 FFA   %5u: %-20.20s %u/%u/0",
 		  rank,
 		  account_get_name(account),
-		  account_get_ffawins(account,clienttag),
-		  account_get_ffalosses(account,clienttag));
+		  account_get_ladder_wins(account,clienttag,ladder_id_ffa),
+		  account_get_ladder_losses(account,clienttag,ladder_id_ffa));
 	}
       else
 	sprintf(msgtemp,"WarCraft3 FFA   %5u: <none>",rank);
@@ -4521,21 +4521,23 @@ static void _reset_scw2_stats(t_account *account, t_clienttag ctag, t_connection
 
 static void _reset_w3_stats(t_account *account, t_clienttag ctag, t_connection *c)
 {
-    account_set_soloxp(account,ctag,0);
-    account_set_sololevel(account,ctag,0);
-    account_set_solowins(account,ctag,0);
-    account_set_sololosses(account,ctag,0);
-    account_set_solorank(account,ctag,0);
-    account_set_teamlevel(account,ctag,0);
-    account_set_teamxp(account,ctag,0);
-    account_set_teamwins(account,ctag,0);
-    account_set_teamlosses(account,ctag,0);
-    account_set_teamrank(account,ctag,0);
-    account_set_ffalevel(account,ctag,0);
-    account_set_ffaxp(account,ctag,0);
-    account_set_ffawins(account,ctag,0);
-    account_set_ffalosses(account,ctag,0);
-    account_set_ffarank(account,ctag,0);
+    account_set_ladder_level(account,ctag,ladder_id_solo,0);
+    account_set_ladder_xp(account,ctag,ladder_id_solo,0);
+    account_set_ladder_wins(account,ctag,ladder_id_solo,0);
+    account_set_ladder_losses(account,ctag,ladder_id_solo,0);
+    account_set_ladder_rank(account,ctag,ladder_id_solo,0);
+    
+    account_set_ladder_level(account,ctag,ladder_id_team,0);
+    account_set_ladder_xp(account,ctag,ladder_id_team,0);
+    account_set_ladder_wins(account,ctag,ladder_id_team,0);
+    account_set_ladder_losses(account,ctag,ladder_id_team,0);
+    account_set_ladder_rank(account,ctag,ladder_id_team,0);
+    
+    account_set_ladder_level(account,ctag,ladder_id_ffa,0);
+    account_set_ladder_xp(account,ctag,ladder_id_ffa,0);
+    account_set_ladder_wins(account,ctag,ladder_id_ffa,0);
+    account_set_ladder_losses(account,ctag,ladder_id_ffa,0);
+    account_set_ladder_rank(account,ctag,ladder_id_ffa,0);
     // this would now need a way to delete the team for all members now
     //account_set_atteamcount(account,ctag,0); 
 
