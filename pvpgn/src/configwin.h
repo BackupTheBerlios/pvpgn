@@ -361,3 +361,6 @@
 
 /* Define if you have the memmove function.  */
 #define HAVE_MEMMOVE 1
+
+/* Define if you have the <time.h> header file.  */
+#define HAVE_TIME_H 1
