@@ -238,8 +238,8 @@ static int versioncheck_compare_exeinfo(char const * pattern, char const * match
 #ifdef HAVE_MKTIME
 	struct tm t1;
 	struct tm t2;
-	char * exe1;
-	char * exe2;
+	char exe1[MAX_EXEINFO_STR+1];
+	char exe2[MAX_EXEINFO_STR+1];
 	char mask[MAX_EXEINFO_STR+1];
 	char * marker1;
 	char * marker2;
@@ -252,20 +252,23 @@ static int versioncheck_compare_exeinfo(char const * pattern, char const * match
 	// then scan for next whitespace, after which old parsing method is applied
 	marker1 = strchr(pattern,'.');
 	marker1 = strchr(marker1,' ');
-	*marker1 = '\0';
 	marker1++;
 	marker2 = strchr(match,'.');
 	marker2 = strchr(marker2,' ');
-	*marker2 = '\0';
 	marker2++;
 
-	exe1 = (char *)pattern;
-	exe2 = (char *)match;
+	strncpy((char *)exe1,pattern,marker1-pattern);
+	strncpy((char *)exe2,match,marker2-match);
+	exe1[marker1-pattern]='\0';
+	exe2[marker2-match]='\0';
+
+	eventlog(eventlog_level_error,__FUNCTION__,"exe1: %s, exe2: %s",exe1,exe2);
 
 	sprintf(mask,"%%02u/%%02u/%%02u %%02u:%%02u:%%02u %%u");
 
 	if (sscanf(marker1,mask,&t1.tm_mon,&t1.tm_mday,&t1.tm_year,&t1.tm_hour,&t1.tm_min,&t1.tm_sec,&size1)!=7) {
 	    eventlog(eventlog_level_warn,"versioncheck_compare_exeinfo","parser error while parsing pattern \"%s\"",pattern);
+		free((void *)pattern);
 	    return 1; /* neq */
 	}
 	if (sscanf(marker2,mask,&t2.tm_mon,&t2.tm_mday,&t2.tm_year,&t2.tm_hour,&t2.tm_min,&t2.tm_sec,&size2)!=7) {
