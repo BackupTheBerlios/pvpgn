@@ -46,7 +46,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalOptions="wsock32.lib"				
+				AdditionalOptions="wsock32.lib"
 				OutputFile="$(OutDir)/$(ProjectName)_debug.exe"
 				LinkIncremental="1"
 				GenerateDebugInformation="TRUE"
@@ -110,7 +110,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalOptions="wsock32.lib"				
+				AdditionalOptions="wsock32.lib"
 				OutputFile="$(OutDir)/$(ProjectName).exe"
 				LinkIncremental="1"
 				GenerateDebugInformation="FALSE"
@@ -164,6 +164,9 @@
 					RelativePath="..\common\bn_type.c">
 				</File>
 				<File
+					RelativePath="..\common\bnettime.c">
+				</File>
+				<File
 					RelativePath="..\common\eventlog.c">
 				</File>
 				<File
@@ -202,7 +205,7 @@
 				</File>
 				<File
 					RelativePath="..\compat\strftime.c">
-				</File>				
+				</File>
 			</Filter>
 		</Filter>
 		<Filter
@@ -214,6 +217,9 @@
 				Filter="">
 				<File
 					RelativePath="..\common\bn_type.h">
+				</File>
+				<File
+					RelativePath="..\common\bnettime.h">
 				</File>
 				<File
 					RelativePath="..\common\eventlog.h">
@@ -257,7 +263,7 @@
 				</File>
 				<File
 					RelativePath="..\compat\strftime.h">
-				</File>				
+				</File>
 			</Filter>
 			<Filter
 				Name="bncdb"
