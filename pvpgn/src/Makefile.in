@@ -122,7 +122,8 @@ ${SRC_BNETDDIR}/mail.o \
 ${SRC_BNETDDIR}/anongame_infos.o \
 ${SRC_BNETDDIR}/storage.o \
 ${SRC_BNETDDIR}/storage_file.o \
-${SRC_BNETDDIR}/storage_cdb.o \
+${SRC_BNETDDIR}/file_plain.o \
+${SRC_BNETDDIR}/file_cdb.o \
 ${SRC_BNETDDIR}/storage_sql.o \
 ${SRC_BNETDDIR}/sql_dbcreator.o \
 ${SRC_BNETDDIR}/sql_pgsql.o \

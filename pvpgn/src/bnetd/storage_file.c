@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 1998,1999,2000,2001  Ross Combs (rocombs@cs.nmsu.edu)
  * Copyright (C) 2000,2001  Marco Ziech (mmz@gmx.net)
- * Copyright (C) 2002,2003 Dizzy 
+ * Copyright (C) 2002,2003,2004 Dizzy 
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -83,6 +83,9 @@
 #include "account.h"
 #include "common/hashtable.h"
 #include "storage.h"
+#include "storage_file.h"
+#include "file_plain.h"
+#include "file_cdb.h"
 #include "common/list.h"
 #include "connection.h"
 #include "watch.h"
@@ -137,6 +140,7 @@ t_storage storage_file = {
 static const char *accountsdir = NULL;
 static const char *clansdir = NULL;
 static const char *defacct = NULL;
+static t_file_engine *file = NULL;
 
 static int file_init(const char *path)
 {
@@ -144,6 +148,7 @@ static int file_init(const char *path)
     const char *dir = NULL;
     const char *clan = NULL;
     const char *def = NULL;
+    const char *driver = NULL;
 
     if (path == NULL || path[0] == '\0') {
 	eventlog(eventlog_level_error, __FUNCTION__, "got NULL or empty path");
@@ -166,15 +171,27 @@ static int file_init(const char *path)
 	*p = '\0';
 	if (strcasecmp(tok, "dir") == 0)
 	    dir = p + 1;
-    else if (strcasecmp(tok, "clan") == 0)
+	else if (strcasecmp(tok, "clan") == 0)
 	    clan = p + 1;
 	else if (strcasecmp(tok, "default") == 0)
 	    def = p + 1;
+	else if (strcasecmp(tok, "mode") == 0)
+	    driver = p + 1;
 	else eventlog(eventlog_level_warn, __FUNCTION__, "unknown token in storage_path : '%s'", tok);
     }
 
-    if (def == NULL || clan == NULL || dir == NULL) {
-	eventlog(eventlog_level_error, __FUNCTION__, "invalid storage_path line for file module (doesnt have a 'dir', a 'clan' and a 'default' token)");
+    if (def == NULL || clan == NULL || dir == NULL || driver == NULL) {
+	eventlog(eventlog_level_error, __FUNCTION__, "invalid storage_path line for file module (doesnt have a 'dir', a 'clan', a 'default' token and a 'mode' token)");
+	free((void*)copy);
+	return -1;
+    }
+
+    if (!strcasecmp(driver, "plain"))
+	file = &file_plain;
+    else if (!strcasecmp(driver, "cdb"))
+	file = &file_cdb;
+    else {
+	eventlog(eventlog_level_error, __FUNCTION__, "unknown mode '%s' must be either plain or cdb", driver);
 	free((void*)copy);
 	return -1;
     }
@@ -189,13 +206,14 @@ static int file_init(const char *path)
 
     if ((clansdir = strdup(clan)) == NULL) {
 	eventlog(eventlog_level_error, __FUNCTION__, "not enough memory to store clans dir");
+	file_close();
 	free((void*)copy);
 	return -1;
     }
 
     if ((defacct = strdup(def)) == NULL) {
 	eventlog(eventlog_level_error, __FUNCTION__, "not enough memory to store default account path");
-	free((void*)accountsdir); accountsdir = NULL;
+	file_close();
 	free((void*)copy);
 	return -1;
     }
@@ -216,6 +234,8 @@ static int file_close(void)
     if (defacct) free((void*)defacct);
     defacct = NULL;
 
+    file = NULL;
+
     return 0;
 }
 
@@ -223,7 +243,7 @@ static t_storage_info * file_create_account(const char * username)
 {
     char *temp;
 
-    if (accountsdir == NULL) {
+    if (accountsdir == NULL || file == NULL) {
 	eventlog(eventlog_level_error, __FUNCTION__, "file storage not initilized");
 	return NULL;
     }
@@ -231,6 +251,11 @@ static t_storage_info * file_create_account(const char * username)
     if (prefs_get_savebyname())
     {
 	char const * safename;
+
+	if (!strcmp(username,defacct)) {
+	    eventlog(eventlog_level_error, __FUNCTION__, "username as defacct not allowed");
+	    return NULL;
+	}
 
 	if (!(safename = escape_fs_chars(username,strlen(username))))
 	{
@@ -259,13 +284,9 @@ static t_storage_info * file_create_account(const char * username)
 
 static int file_write_attrs(t_storage_info *info, void *attributes)
 {
-    FILE *        accountfile;
-    t_attribute * attr;
-    char const *  key;
-    char const *  val;
     char *        tempname;
 
-    if (accountsdir == NULL) {
+    if (accountsdir == NULL || file == NULL) {
 	eventlog(eventlog_level_error, __FUNCTION__, "file storage not initilized");
 	return -1;
     }
@@ -287,46 +308,12 @@ static int file_write_attrs(t_storage_info *info, void *attributes)
 
     sprintf(tempname,"%s/%s", accountsdir, BNETD_ACCOUNT_TMP);
 
-    if (!(accountfile = fopen(tempname,"w"))) {
-	eventlog(eventlog_level_error, __FUNCTION__, "unable to open file \"%s\" for writing (fopen: %s)",tempname,strerror(errno));
+    if (file->write_attrs(tempname, attributes)) {
+	/* no eventlog here, it should be reported from the file layer */
 	free(tempname);
 	return -1;
     }
-   
-    for (attr=(t_attribute *)attributes; attr; attr=attr->next) {
-	if (attr->key)
-	    key = escape_chars(attr->key,strlen(attr->key));
-	else {
-	    eventlog(eventlog_level_error, __FUNCTION__, "attribute with NULL key in list");
-	    key = NULL;
-	}
 
-	if (attr->val)
-	    val = escape_chars(attr->val,strlen(attr->val));
-	else {
-	    eventlog(eventlog_level_error, __FUNCTION__, "attribute with NULL val in list");
-	    val = NULL;
-	}
-
-	if (key && val) {
-	    if (strncmp("BNET\\CharacterDefault\\", key, 20) == 0) {
-		eventlog(eventlog_level_debug, __FUNCTION__, "skipping attribute key=\"%s\"",attr->key);
-	    } else {
-		eventlog(eventlog_level_debug, __FUNCTION__, "saving attribute key=\"%s\" val=\"%s\"",attr->key,attr->val);
-		fprintf(accountfile,"\"%s\"=\"%s\"\n",key,val);
-	    }
-	} else eventlog(eventlog_level_error, __FUNCTION__,"could not save attribute key=\"%s\"",attr->key);
-
-	if (key) free((void *)key); /* avoid warning */
-	if (val) free((void *)val); /* avoid warning */
-    }
-
-    if (fclose(accountfile)<0) {
-	eventlog(eventlog_level_error, __FUNCTION__, "could not close account file \"%s\" after writing (fclose: %s)",tempname,strerror(errno));
-	free(tempname);
-	return -1;
-    }
-   
 #ifdef WIN32
    /* We are about to rename the temporary file
     * to replace the existing account.  In Windows,
@@ -358,16 +345,7 @@ static int file_write_attrs(t_storage_info *info, void *attributes)
 
 static int file_read_attrs(t_storage_info *info, t_read_attr_func cb, void *data)
 {
-    FILE *       accountfile;
-    unsigned int line;
-    char const * buff;
-    unsigned int len;
-    char *       esckey;
-    char *       escval;
-    char * key;
-    char * val;
-    
-    if (accountsdir == NULL) {
+    if (accountsdir == NULL || file == NULL) {
 	eventlog(eventlog_level_error, __FUNCTION__, "file storage not initilized");
 	return -1;
     }
@@ -383,73 +361,33 @@ static int file_read_attrs(t_storage_info *info, t_read_attr_func cb, void *data
     }
 
     eventlog(eventlog_level_debug, __FUNCTION__, "loading \"%s\"",(char *)info);
-    if (!(accountfile = fopen((const char *)info,"r"))) {
-	eventlog(eventlog_level_error, __FUNCTION__,"could not open account file \"%s\" for reading (fopen: %s)", (char *)info, strerror(errno));
+
+    if (file->read_attrs((const char *)info, cb, data)) {
+	/* no eventlog, error reported earlier */
 	return -1;
     }
-    
-    for (line=1; (buff=file_get_line(accountfile)); line++) {
-	if (buff[0]=='#' || buff[0]=='\0') {
-	    free((void *)buff); /* avoid warning */
-	    continue;
-	}
-
-	if (strlen(buff)<6) /* "?"="" */ {
-	    eventlog(eventlog_level_error, __FUNCTION__, "malformed line %d of account file \"%s\"", line, (char *)info);
-	    free((void *)buff); /* avoid warning */
-	    continue;
-	}
-	
-	len = strlen(buff)-5+1; /* - ""="" + NUL */
-	if (!(esckey = malloc(len))) {
-	    eventlog(eventlog_level_error, __FUNCTION__, "could not allocate memory for esckey on line %d of account file \"%s\"", line, (char *)info);
-	    free((void *)buff); /* avoid warning */
-	    continue;
-	}
-	if (!(escval = malloc(len))) {
-	    eventlog(eventlog_level_error, __FUNCTION__,"could not allocate memory for escval on line %d of account file \"%s\"", line, (char *)info);
-	    free((void *)buff); /* avoid warning */
-	    free(esckey);
-	    continue;
-	}
-	
-	if (sscanf(buff,"\"%[^\"]\" = \"%[^\"]\"",esckey,escval)!=2) {
-	    if (sscanf(buff,"\"%[^\"]\" = \"\"",esckey)!=1) /* hack for an empty value field */ {
-		eventlog(eventlog_level_error, __FUNCTION__,"malformed entry on line %d of account file \"%s\"", line, (char *)info);
-		free(escval);
-		free(esckey);
-		free((void *)buff); /* avoid warning */
-		continue;
-	    }
-	    escval[0] = '\0';
-	}
-	free((void *)buff); /* avoid warning */
-	
-	key = unescape_chars(esckey);
-	val = unescape_chars(escval);
-
-/* eventlog(eventlog_level_debug,"account_load_attrs","strlen(esckey)=%u (%c), len=%u",strlen(esckey),esckey[0],len);*/
-	free(esckey);
-	free(escval);
-	
-	if (cb(key,val,data))
-	    eventlog(eventlog_level_error, __FUNCTION__, "got error from callback (key: '%s' val:'%s')", key, val);
-
-	if (key) free((void *)key); /* avoid warning */
-	if (val) free((void *)val); /* avoid warning */
-    }
-
-
-    if (fclose(accountfile)<0) 
-	eventlog(eventlog_level_error, __FUNCTION__, "could not close account file \"%s\" after reading (fclose: %s)", (char *)info, strerror(errno));
 
     return 0;
 }
 
 static void * file_read_attr(t_storage_info *info, const char *key)
 {
-    /* flat file storage doesnt know to read selective attributes */
-    return NULL;
+    if (accountsdir == NULL || file == NULL) {
+	eventlog(eventlog_level_error, __FUNCTION__, "file storage not initilized");
+	return NULL;
+    }
+
+    if (info == NULL) {
+	eventlog(eventlog_level_error, __FUNCTION__, "got NULL info storage");
+	return NULL;
+    }
+
+    if (key == NULL) {
+	eventlog(eventlog_level_error, __FUNCTION__, "got NULL key");
+	return NULL;
+    }
+
+    return file->read_attr((const char *)info, key);
 }
 
 static int file_free_info(t_storage_info *info)

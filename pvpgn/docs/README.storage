@@ -8,20 +8,20 @@
 (usernames, passwords, many other stuff). Thus it is a very important part of
 PvPGN and can drastically improve speed of the server depending on the chosen 
 method. Because we wanted to be easy to add new storage types we designed a 
-modular solution, something like this:
+modular solution, like this:
 
-                   <pvpgn account code>
+                   <pvpgn account code>  (mostly in bnetd/account.c)
 		            |
 		            |
-		  <general storage code>
-		       /    |    \
-		      /     |     \
-		     /      |      \
-		<file>    <cdb>    <sql>
-		                    /\
-				   /  \
-				  /    \
-			       <mysql> <pgsql>
+		  <general storage code> (mostly wrappers, in bnetd/storage.c)
+		       /         \
+		      /           \
+		     /             \
+		<file>            <sql> (bnetd/storage_filc, bnetd/storage_sql.c)
+		 /\                 /\
+		/  \		   /  \
+	       /    \		  /    \
+	    <plain> <cdb>     <mysql> <pgsql>
 
 Thus PvPGN can be compiled with support for more than one storage type but 
 (of course) at runtime it will only use one (as chosen by the server admin 
@@ -30,13 +30,16 @@ from the configuration file).
 2. First you will need to make sure your PvPGN version has support 
 compiled in for the type of storage you want to use.
 
-2.1 cdb/file
+2.1 file (plain and cdb)
 
-"file" storage support means to store accounts in plain text files and is 
-compiled by default, chosen by default in configuration file (and the oldest 
-and most used storage type). The only advantages of this storage type are that 
-the account files beeing human readable text are easy to read/write. It has the 
-drawback of beeing the slowest one.
+"file" storage support means to store accounts data directly in files in either 
+plain text files or cdb files (but its easy to add any other support in the 
+future) and is compiled by default, chosen by default (with the "plain" mode) 
+in configuration file (and the oldest and most used storage type). 
+
+The only advantages of the plain files storage type are that the account files 
+beeing human readable text are easy to read/write. It has the drawback of 
+beeing the slowest one.
 
 Starting with PvPGN version 1.6.0 (and their prereleases) we offer "cdb" 
 userfiles support. For who dont know, cdb is a constant non-relational 

@@ -31,7 +31,6 @@
 #ifdef WITH_SQL
 #include "storage_sql.h"
 #endif
-#include "storage_cdb.h"
 
 #include "compat/strdup.h"
 #include "common/eventlog.h"
@@ -61,7 +60,7 @@ extern int storage_init(const char *spath)
 	return -1;
     }
 
-    strcpy(dstr, "file, cdb");
+    strcpy(dstr, "file");
 #ifdef WITH_SQL
     strcat(dstr, ", sql");
 #endif
@@ -72,11 +71,6 @@ extern int storage_init(const char *spath)
 	storage = &storage_file;
 	res = storage->init(p + 1);
 	eventlog(eventlog_level_info, __FUNCTION__, "using file storage driver");
-    }
-    else if (strcasecmp(spath, "cdb") == 0) {
-	storage = &storage_cdb;
-	res = storage->init(p + 1);
-	eventlog(eventlog_level_info, __FUNCTION__, "using cdb storage driver");
     }
 #ifdef WITH_SQL
     else if (strcasecmp(spath, "sql") == 0) {

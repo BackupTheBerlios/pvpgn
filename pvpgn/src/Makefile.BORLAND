@@ -186,10 +186,11 @@ bnetd_OBJECTS       = \
     ${SRC_BNETDDIR}\news.obj \
     ${SRC_BNETDDIR}\irc.obj \
     ${SRC_BNETDDIR}\alias_command.obj \
+    ${SRC_BNETDDIR}\storage_file.obj \
+    ${SRC_BNETDDIR}\file_plain.obj \
+    ${SRC_BNETDDIR}\file_cdb.obj \
     ${SRC_BNETDDIR}\storage_sql.obj \
-    ${SRC_BNETDDIR}\storage_file.obj \ 
-    ${SRC_BNETDDIR}\storage_cdb.obj \     
-    ${SRC_BNETDDIR}\sql_mysql.obj \    
+    ${SRC_BNETDDIR}\sql_mysql.obj \
     ${SRC_BNETDDIR}\sql_dbcreator.obj \
     ${SRC_BNETDDIR}\command_groups.obj \
     ${SRC_BNETDDIR}\output.obj \

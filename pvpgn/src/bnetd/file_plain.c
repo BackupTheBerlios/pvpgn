@@ -1,0 +1,237 @@
+/*
+ * Copyright (C) 1998,1999,2000,2001  Ross Combs (rocombs@cs.nmsu.edu)
+ * Copyright (C) 2000,2001  Marco Ziech (mmz@gmx.net)
+ * Copyright (C) 2002,2003,2004 Dizzy 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ */
+#include "common/setup_before.h"
+#include <stdio.h>
+#ifdef HAVE_STDDEF_H
+# include <stddef.h>
+#else
+# ifndef NULL
+#  define NULL ((void *)0)
+# endif
+#endif
+#ifdef STDC_HEADERS
+# include <stdlib.h>
+#else
+# ifdef HAVE_MALLOC_H
+#  include <malloc.h>
+# endif
+#endif
+#ifdef HAVE_STRING_H
+# include <string.h>
+#else
+# ifdef HAVE_STRINGS_H
+#  include <strings.h>
+# endif
+#endif
+#include "compat/strchr.h"
+#include "compat/strdup.h"
+#include "compat/strcasecmp.h"
+#include "compat/strncasecmp.h"
+#include <ctype.h>
+#ifdef HAVE_LIMITS_H
+# include <limits.h>
+#endif
+#include "compat/char_bit.h"
+#ifdef TIME_WITH_SYS_TIME
+# include <sys/time.h>
+# include <time.h>
+#else
+# ifdef HAVE_SYS_TIME_H
+#  include <sys/time.h>
+# else
+#  include <time.h>
+# endif
+#endif
+#include <errno.h>
+#include "compat/strerror.h"
+#ifdef HAVE_SYS_TYPES_H
+# include <sys/types.h>
+#endif
+#ifdef HAVE_UNISTD_H
+# include <unistd.h>
+#else
+# ifdef WIN32
+#  include <io.h>
+# endif
+#endif
+#include "compat/pdir.h"
+#include "common/eventlog.h"
+#include "prefs.h"
+#include "common/util.h"
+#include "common/field_sizes.h"
+#include "common/bnethash.h"
+#define CLAN_INTERNAL_ACCESS
+#define ACCOUNT_INTERNAL_ACCESS
+#include "common/introtate.h"
+#include "account.h"
+#include "common/hashtable.h"
+#include "storage.h"
+#include "storage_file.h"
+#include "common/list.h"
+#include "connection.h"
+#include "watch.h"
+#include "clan.h"
+#undef ACCOUNT_INTERNAL_ACCESS
+#undef CLAN_INTERNAL_ACCESS
+#include "common/tag.h"
+#include "common/setup_after.h"
+
+/* plain file storage API functions */
+
+static void * plain_read_attr(const char *filename, const char *key);
+static int plain_read_attrs(const char *filename, t_read_attr_func cb, void *data);
+static int plain_write_attrs(const char *filename, void *attributes);
+
+/* file_engine struct populated with the functions above */
+
+t_file_engine file_plain = {
+    plain_read_attr,
+    plain_read_attrs,
+    plain_write_attrs
+};
+
+
+static int plain_write_attrs(const char *filename, void *attributes)
+{
+    FILE *        accountfile;
+    t_attribute * attr;
+    char const *  key;
+    char const *  val;
+
+    if (!(accountfile = fopen(filename,"w"))) {
+	eventlog(eventlog_level_error, __FUNCTION__, "unable to open file \"%s\" for writing (fopen: %s)",filename,strerror(errno));
+	return -1;
+    }
+   
+    for (attr=(t_attribute *)attributes; attr; attr=attr->next) {
+	if (attr->key)
+	    key = escape_chars(attr->key,strlen(attr->key));
+	else {
+	    eventlog(eventlog_level_error, __FUNCTION__, "attribute with NULL key in list");
+	    key = NULL;
+	}
+
+	if (attr->val)
+	    val = escape_chars(attr->val,strlen(attr->val));
+	else {
+	    eventlog(eventlog_level_error, __FUNCTION__, "attribute with NULL val in list");
+	    val = NULL;
+	}
+
+	if (key && val) {
+	    if (strncmp("BNET\\CharacterDefault\\", key, 20) == 0) {
+		eventlog(eventlog_level_debug, __FUNCTION__, "skipping attribute key=\"%s\"",attr->key);
+	    } else {
+		eventlog(eventlog_level_debug, __FUNCTION__, "saving attribute key=\"%s\" val=\"%s\"",attr->key,attr->val);
+		fprintf(accountfile,"\"%s\"=\"%s\"\n",key,val);
+	    }
+	} else eventlog(eventlog_level_error, __FUNCTION__,"could not save attribute key=\"%s\"",attr->key);
+
+	if (key) free((void *)key); /* avoid warning */
+	if (val) free((void *)val); /* avoid warning */
+    }
+
+    if (fclose(accountfile)<0) {
+	eventlog(eventlog_level_error, __FUNCTION__, "could not close account file \"%s\" after writing (fclose: %s)",filename,strerror(errno));
+	return -1;
+    }
+
+    return 0;
+}
+
+static int plain_read_attrs(const char *filename, t_read_attr_func cb, void *data)
+{
+    FILE *       accountfile;
+    unsigned int line;
+    char const * buff;
+    unsigned int len;
+    char *       esckey;
+    char *       escval;
+    char * key;
+    char * val;
+    
+    if (!(accountfile = fopen(filename,"r"))) {
+	eventlog(eventlog_level_error, __FUNCTION__,"could not open account file \"%s\" for reading (fopen: %s)", filename, strerror(errno));
+	return -1;
+    }
+
+    for (line=1; (buff=file_get_line(accountfile)); line++) {
+	if (buff[0]=='#' || buff[0]=='\0') {
+	    free((void *)buff); /* avoid warning */
+	    continue;
+	}
+
+	if (strlen(buff)<6) /* "?"="" */ {
+	    eventlog(eventlog_level_error, __FUNCTION__, "malformed line %d of account file \"%s\"", line, filename);
+	    free((void *)buff); /* avoid warning */
+	    continue;
+	}
+	
+	len = strlen(buff)-5+1; /* - ""="" + NUL */
+	if (!(esckey = malloc(len))) {
+	    eventlog(eventlog_level_error, __FUNCTION__, "could not allocate memory for esckey on line %d of account file \"%s\"", line, filename);
+	    free((void *)buff); /* avoid warning */
+	    continue;
+	}
+	if (!(escval = malloc(len))) {
+	    eventlog(eventlog_level_error, __FUNCTION__,"could not allocate memory for escval on line %d of account file \"%s\"", line, filename);
+	    free((void *)buff); /* avoid warning */
+	    free(esckey);
+	    continue;
+	}
+	
+	if (sscanf(buff,"\"%[^\"]\" = \"%[^\"]\"",esckey,escval)!=2) {
+	    if (sscanf(buff,"\"%[^\"]\" = \"\"",esckey)!=1) /* hack for an empty value field */ {
+		eventlog(eventlog_level_error, __FUNCTION__,"malformed entry on line %d of account file \"%s\"", line, filename);
+		free(escval);
+		free(esckey);
+		free((void *)buff); /* avoid warning */
+		continue;
+	    }
+	    escval[0] = '\0';
+	}
+	free((void *)buff); /* avoid warning */
+	
+	key = unescape_chars(esckey);
+	val = unescape_chars(escval);
+
+/* eventlog(eventlog_level_debug,"account_load_attrs","strlen(esckey)=%u (%c), len=%u",strlen(esckey),esckey[0],len);*/
+	free(esckey);
+	free(escval);
+	
+	if (cb(key,val,data))
+	    eventlog(eventlog_level_error, __FUNCTION__, "got error from callback (key: '%s' val:'%s')", key, val);
+
+	if (key) free((void *)key); /* avoid warning */
+	if (val) free((void *)val); /* avoid warning */
+    }
+
+
+    if (fclose(accountfile)<0) 
+	eventlog(eventlog_level_error, __FUNCTION__, "could not close account file \"%s\" after reading (fclose: %s)", filename, strerror(errno));
+
+    return 0;
+}
+
+static void * plain_read_attr(const char *filename, const char *key)
+{
+    /* flat file storage doesnt know to read selective attributes */
+    return NULL;
+}

@@ -12,6 +12,10 @@ versioncheck exe-time parsing now REALLY works as it was intended to.
 So ALL users using fucked up no-CD cracks or strange war3.org's may
 fail to login due to wrong file-time. That's not our problem. 
 
+1.7.0 (since 1.6.0)
+-- combined plain and cdb file storage into one (this eliminates replicating 
+codes)
+
 1.6.0 RC1 (since 1.6.0beta)
 -- fixed problems with win32 compiled versions only running on >= Win2000
 -- fixed a problem with PvPGN (GUI-version) run as a service wasn't shutting down

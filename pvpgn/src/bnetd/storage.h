@@ -19,20 +19,6 @@
 #ifndef INCLUDED_STORAGE_TYPES
 #define INCLUDED_STORAGE_TYPES
 
-#ifndef JUST_NEED_TYPES
-#define JUST_NEED_TYPES
-#include "storage_file.h"
-#ifdef WITH_SQL
-#include "storage_sql.h"
-#endif
-#undef JUST_NEED_TYPES
-#else
-#include "storage_file.h"
-#ifdef WITH_SQL
-#include "storage_sql.h"
-#endif
-#endif
-
 #define t_storage_info void
 
 typedef int (*t_read_attr_func)(const char *, const char *, void *);
