@@ -480,7 +480,7 @@ extern int handle_command(t_connection * c,  char const * text)
 
   for (p = standard_command_table; p->command_string != NULL; p++)
     {
-      if (strcmp(p->command_string, text)==0)
+      if (strstart(p->command_string, text)==0)
 	if (p->command_handler != NULL) return ((p->command_handler)(c,text));
     }
 
@@ -494,7 +494,7 @@ extern int handle_command(t_connection * c,  char const * text)
     
     for (p = extended_command_table; p->command_string != NULL; p++)
       {
-      if (strcmp(p->command_string, text)==0)
+      if (strstart(p->command_string, text)==0)
 	if (p->command_handler != NULL) return ((p->command_handler)(c,text));
     }
      
@@ -529,7 +529,7 @@ static int _handle_clan_command(t_connection * c, char const * text)
   for (i=0; text[i]!=' ' && text[i]!='\0'; i++); /* skip command */
   for (; text[i]==' '; i++);
   
-  if ( (strcmp(&text[i],"help") == 0) || (text[i] == '\0') )
+  if ( text[i] == '\0' )
     {
       message_send_text(c,message_type_info,c,"usage: /clan <clanname>");
       message_send_text(c,message_type_info,c,"Using this option will allow you to join a clan which displays in your profile.  ");
@@ -572,8 +572,8 @@ static int _handle_admin_command(t_connection * c, char const * text)
   for (; text[i]==' '; i++);
   
   if ((!text[i]) || ((text[i] != '+') && (text[i] != '-'))) {
-    message_send_text(c, message_type_info, c,
-		      "Use /admin +username and /admin -username to set/unset admin status.");
+    message_send_text(c, message_type_info, c,"usage: /admin +username to promote user to admin.");
+    message_send_text(c, message_type_info, c,"       /admin -username to demote user from admin.");
     return -1;
 		}
   
@@ -905,7 +905,7 @@ static int _handle_me_command(t_connection * c, char const * text)
   
   for (i=0; text[i]!=' ' && text[i]!='\0'; i++); /* skip command */
   for (; text[i]==' '; i++); /* skip spaces */
-  
+
   if (!conn_quota_exceeded(c,&text[i]))
     channel_message_send(channel,message_type_emote,c,&text[i]);
   return 0;
@@ -2414,6 +2414,12 @@ static int _handle_finger_command(t_connection * c, char const *text)
     if (j<sizeof(dest)-1) dest[j++] = text[i];
   dest[j] = '\0';
   for (; text[i]==' '; i++);
+
+  if (dest[0]=='\0')
+  {
+    message_send_text(c,message_type_info,c,"usage: /finger <account>");
+    return 0;
+  }
   
 #ifdef WITH_BITS
   if (bits_va_command_with_account_name(c,text,dest))
