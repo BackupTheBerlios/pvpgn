@@ -185,12 +185,6 @@ extern t_account * account_create(char const * username, char const * passhash1)
 
     if (username) /* actually making a new account */
     {
-	if (account_check_name(username)<0)
-	{
-	    eventlog(eventlog_level_error,"account_create","invalid account name \"%s\"",username);
-	    account_destroy(account);
-	    return NULL;
-	}
 	if (!passhash1)
 	{
 	    eventlog(eventlog_level_error,"account_create","got NULL passhash1");
