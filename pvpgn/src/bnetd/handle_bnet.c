@@ -3980,7 +3980,7 @@ static int _client_gamelistreq(t_connection * c, t_packet const * const packet)
 		    }
 		  if (prefs_get_hide_started_games() && game_get_status(game)!=game_status_open)
 		    {
-		       eventlog(eventlog_level_debug,__FUNCTION__,"[%d] not listing because game is started",conn_get_socket(c));
+		       eventlog(eventlog_level_debug,__FUNCTION__,"[%d] not listing because game is not open",conn_get_socket(c));
 		       continue;
 		    }
 		  if (strcmp(game_get_clienttag(game),clienttag)!=0)
