@@ -696,6 +696,9 @@
 					RelativePath="..\common\d2game_protocol.h">
 				</File>
 				<File
+					RelativePath="..\common\elist.h">
+				</File>
+				<File
 					RelativePath="..\common\eventlog.h">
 				</File>
 				<File
