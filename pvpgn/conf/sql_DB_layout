@@ -10,6 +10,7 @@
 "acct_username varchar(32)","NULL"
 "acct_userid int(11)","NULL"
 "acct_passhash1 varchar(128)","NULL"
+"acct_email varchar(128)","NULL"
 "auth_admin varchar(16)","'false'"
 "auth_normallogin varchar(16)","'true'"
 "auth_changepass varchar(16)","'true'"
