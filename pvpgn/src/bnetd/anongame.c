@@ -906,7 +906,7 @@ extern void handle_anongame_search(t_connection * c, t_packet const * packet)
 			eventlog(eventlog_level_fatal, "handle_anongame_search", 
 				"got all players, but there's no map to play on");
 		}	else {
-			eventlog(eventlog_level_fatal, "handle_anongame_search", 
+			eventlog(eventlog_level_info, "handle_anongame_search", 
 				"selected map: %s", mapname);
 		}
 		packet_append_string(rpacket, mapname); 
@@ -1177,6 +1177,7 @@ extern int handle_anongame_join(t_connection * c)
 	t_packet * rpacket = NULL;
 	int tp, level;
 	char gametype;
+	t_account *acct;
 
 	static t_server_w3route_playerinfo2 pl2;
 	static t_server_w3route_levelinfo2 li2;
@@ -1296,6 +1297,18 @@ extern int handle_anongame_join(t_connection * c)
 			case ANONGAME_TYPE_SMALL_FFA:
 			case ANONGAME_TYPE_TEAM_FFA:
 				level = account_get_ffalevel(conn_get_account(anongame_get_player(ja,i)));
+				break;
+			case ANONGAME_TYPE_AT_2V2:
+				acct = conn_get_account(anongame_get_player(ja,i));
+				level = account_get_atteamlevel((acct),account_get_currentatteam(acct));
+				break;
+			case ANONGAME_TYPE_AT_3V3:
+				acct = conn_get_account(anongame_get_player(ja,i));
+				level = account_get_atteamlevel((acct),account_get_currentatteam(acct));
+				break;
+			case ANONGAME_TYPE_AT_4V4:
+				acct = conn_get_account(anongame_get_player(ja,i));
+				level = account_get_atteamlevel((acct),account_get_currentatteam(acct));
 				break;
 			default:
 				level = account_get_teamlevel(conn_get_account(anongame_get_player(ja,i)));
