@@ -142,6 +142,12 @@
 					RelativePath="..\bnetd\file.c">
 				</File>
 				<File
+					RelativePath="..\bnetd\file_cdb.c">
+				</File>
+				<File
+					RelativePath="..\bnetd\file_plain.c">
+				</File>
+				<File
 					RelativePath="..\bnetd\friends.c">
 				</File>
 				<File
@@ -236,9 +242,6 @@
 				</File>
 				<File
 					RelativePath="..\bnetd\storage.c">
-				</File>
-				<File
-					RelativePath="..\bnetd\storage_cdb.c">
 				</File>
 				<File
 					RelativePath="..\bnetd\storage_file.c">
@@ -533,6 +536,12 @@
 					RelativePath="..\bnetd\file.h">
 				</File>
 				<File
+					RelativePath="..\bnetd\file_cdb.h">
+				</File>
+				<File
+					RelativePath="..\bnetd\file_plain.h">
+				</File>
+				<File
 					RelativePath="..\bnetd\friends.h">
 				</File>
 				<File
@@ -630,9 +639,6 @@
 				</File>
 				<File
 					RelativePath="..\bnetd\storage.h">
-				</File>
-				<File
-					RelativePath="..\bnetd\storage_cdb.h">
 				</File>
 				<File
 					RelativePath="..\bnetd\storage_file.h">
