@@ -124,14 +124,18 @@ static int on_d2cs_authreply(t_connection * c, t_packet const * packet)
 		return -1;
 	}
         if (!(realm=realmlist_find_realm(realmname))) {
-                eventlog(eventlog_level_error,__FUNCTION__, "realm not found");
-                return -1;
+		realm=realmlist_find_realm_by_ip(conn_get_addr(c)); /* should not fail - checked in handle_init_packet() handle_init.c */
+		eventlog(eventlog_level_warn,__FUNCTION__, "warn: realm name mismatch %s %s", realm_get_name(realm), realmname);
+		if (!(prefs_allow_d2cs_setname())) { /* fail if allow_d2cs_setname = false */
+			eventlog(eventlog_level_error,__FUNCTION__, "d2cs not allowed to set realm name");
+			return -1;
+		}
+		if (realm_get_active(realm)) { /* fail if realm already active */
+			eventlog(eventlog_level_error,__FUNCTION__, "cannot set realm name to %s (realm already active)");
+			return -1;
+		}
+		realm_set_name(realm,realmname);
         }
-	if (realm_get_name(realm) && strcasecmp(realmname,realm_get_name(realm))) {
-                eventlog(eventlog_level_error,__FUNCTION__, "warn: realm name mismatch %s %s",
-			realm_get_name(realm),realmname);
-	}
-
 	version=prefs_get_d2cs_version();
 	try_version=bn_int_get(packet->u.d2cs_bnetd_authreply.version);
 	if (version && version != try_version) {
@@ -146,7 +150,6 @@ static int on_d2cs_authreply(t_connection * c, t_packet const * packet)
 		eventlog(eventlog_level_info,__FUNCTION__,"d2cs %s authed",
 			addr_num_to_ip_str(conn_get_addr(c)));
 		conn_set_state(c,conn_state_loggedin);
-		if (prefs_allow_d2cs_setname()) realm_set_name(realm,realmname);
 		realm_active(realm,c);
 	} else {
 		eventlog(eventlog_level_error,__FUNCTION__,"failed to auth d2cs %s",
