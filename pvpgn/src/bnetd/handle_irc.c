@@ -297,7 +297,7 @@ static int handle_irc_line(t_connection * conn, char const * ircline)
 					}
 				} 
 				else if (strcasecmp(text,"register")==0) {
-					int j;
+					unsigned int j;
 					t_hash       passhash;
 					t_account  * temp;
 					char         msgtemp[MAX_MESSAGE_LEN];

@@ -59,7 +59,7 @@ static t_list * aliaslist_head=NULL;
 
 
 static int list_aliases(t_connection * c);
-static char * replace_args(char const * in, unsigned int * offsets, unsigned int numargs, char const * text);
+static char * replace_args(char const * in, unsigned int * offsets, int numargs, char const * text);
 static int do_alias(t_connection * c, char const * cmd, char const * args);
 
 
@@ -103,7 +103,7 @@ static int list_aliases(t_connection * c)
 }
 
 
-static char * replace_args(char const * in, unsigned int * offsets, unsigned int numargs, char const * text)
+static char * replace_args(char const * in, unsigned int * offsets, int numargs, char const * text)
 {
     char *         out;
     unsigned int   inpos;
@@ -136,8 +136,7 @@ static char * replace_args(char const * in, unsigned int * offsets, unsigned int
 	}
         else if (in[inpos]=='{')
 	{
-	    unsigned int arg1;
-	    int arg2;
+	    int arg1, arg2;
 	    char symbol;
 	    
 	    if (sscanf(&in[inpos],"{%u-%u}",&arg1,&arg2)!=2)
@@ -195,7 +194,7 @@ static char * replace_args(char const * in, unsigned int * offsets, unsigned int
 	}
 	else if (isdigit((int)in[inpos]))
 	{
-	    unsigned int arg;
+	    int arg;
 	    
 	    if (in[inpos]=='0') arg = 0;
 	    else if (in[inpos]=='1') arg = 1;
@@ -277,7 +276,7 @@ static int do_alias(t_connection * c, char const * cmd, char const * text)
     t_alias const * alias;
     t_output *      output;
     unsigned int *  offsets = NULL; // [quetzal] 20020805 - inital value to avoid warning
-    unsigned int    numargs = 0; // [quetzal] 20020805 - initial value to avoid warning
+    int    numargs = 0; // [quetzal] 20020805 - initial value to avoid warning
     int match = -1;
     
     numargs = count_args(text)-1; 
