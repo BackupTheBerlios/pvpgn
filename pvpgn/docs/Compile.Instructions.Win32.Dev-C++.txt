@@ -1,0 +1,18 @@
+PvPGN Win32 Dev-C++ Compile Instructions
+This file explains how to compile PvPGN for Win32 using Dev-C++ ( 5.0 beta 9 (4.9.9.0) )
+
+1) Download Dev-C++ 5.0 beta 9 (4.9.9.0) with Mingw/GCC 3.3.1 from the folling sites:
+http://prdownloads.sourceforge.net/dev-cpp/devcpp4990setup.exe
+
+2) Install Dev-C++ anywhere you like (on your computer)
+
+3) Go into the src\win32\ folder of the PvPGN sources
+Simply double-click on any of the *.dev files to fire up Dev-C++ and use Execute->Compile to build the binary
+
+3) The resulting exe file will be in the bin directory and you can use it with the other files from the latest PvPGN release.
+
+Notes for MYSQL Support:
+mySQL support with Dev-C++ still unsupported/untested
+
+Notes for GUI Support:
+We won't support building a GUI version with Dev-C++
