@@ -1614,7 +1614,7 @@ extern int server_process(void)
 		// killing idling init connections
 		if (initkill_timer && conn_get_class(c) == conn_class_init &&
 			(time(NULL) - conn_get_crtime(c) > initkill_timer)) {
-			eventlog(eventlog_level_info, "server_process", "[%d] was idling for %d seconds, closing connection",
+			eventlog(eventlog_level_info, "server_process", "[%d] was idling for %ld seconds, closing connection",
 				conn_get_socket(c), time(NULL) - conn_get_crtime(c));
 			conn_set_state(c, conn_state_destroy);
 		}
