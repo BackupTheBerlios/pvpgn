@@ -123,7 +123,7 @@ CDBFLAGS = -DWITH_CDB
 !endif
 
 CFLAGS      = -v -y -O2 -d -j2 -w-8060 -w-8057
-CPPFLAGS    = -DWIN32 -DHAVE_CONFIG_H -I${SRC_SRCDIR} \
+CPPFLAGS    = -DWIN32 -I${SRC_SRCDIR} \
                 -DBNETD_DEFAULT_CONF_FILE=\"${bnetd_DEFCONFFILE:\=\\}\" \
 		-DD2CS_DEFAULT_CONF_FILE=\"${d2cs_DEFCONFFILE:\=\\}\" \
 		-DD2DBS_DEFAULT_CONF_FILE=\"${d2dbs_DEFCONFFILE:\=\\}\" \
@@ -608,10 +608,7 @@ distclean: clean
 
 clean-compile: clean all
 
-config: ${SRC_SRCDIR}\Makefile ${SRC_SRCDIR}\config.h
-
-${SRC_SRCDIR}\config.h: ${SRC_SRCDIR}\win32\configwin.h
-    copy ${SRC_SRCDIR}\win32\configwin.h ${SRC_SRCDIR}\config.h
+config: ${SRC_SRCDIR}\Makefile
 
 ${SRC_SRCDIR}\Makefile: ${SRC_SRCDIR}\Makefile.BORLAND
     copy ${SRC_SRCDIR}\Makefile.BORLAND ${SRC_SRCDIR}\Makefile
