@@ -133,20 +133,6 @@ static void usage(char const * progname)
 		progname);
 }
 
-extern int main(int argc, char *argv[])
-{
-	if (argc > 1 && strncmp(argv[1], "--service", 9) == 0) {
-#ifdef WIN32
-		Win32_ServiceRun();
-#else
-		fprintf(stderr, "%s: running as service is valid on win32 (WinNT) systems only",argv[0]);
-#endif
-	} else {
-		old_main(argc, argv);
-	}
-	return 0;
-}
-
 int old_main(int argc, char * argv[])
 {
     int          a;
@@ -578,4 +564,18 @@ int old_main(int argc, char * argv[])
     eventlog_close();
     
     return STATUS_SUCCESS;
+}
+
+extern int main(int argc, char *argv[])
+{
+	if (argc > 1 && strncmp(argv[1], "--service", 9) == 0) {
+#ifdef WIN32
+		Win32_ServiceRun();
+#else
+		fprintf(stderr, "%s: running as service is valid on win32 (WinNT) systems only",argv[0]);
+#endif
+	} else {
+		old_main(argc, argv);
+	}
+	return 0;
 }

@@ -53,6 +53,8 @@
 #include "version.h"
 #include "common/eventlog.h"
 #include "common/setup_after.h"
+#include "handle_signal.h"
+#include "dbserver.h"
 
 static FILE * eventlog_fp;
 #ifdef USE_CHECK_ALLOC

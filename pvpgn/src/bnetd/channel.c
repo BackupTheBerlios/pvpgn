@@ -1875,6 +1875,10 @@ extern t_channel * channellist_find_channel_by_name(char const * name, char cons
     char const *   savecountry;
     char const *   saverealmname;
     int            savemaxmembers;
+
+    // try to make gcc happy and initialize all variables
+    saveshortname = savetag = savecountry = saverealmname = NULL;
+    savebotflag = saveoperflag = savelogflag = savemaxmembers = 0;
     
     maxchannel = 0;
     foundperm = 0;

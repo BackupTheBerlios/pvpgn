@@ -257,8 +257,6 @@ static int handle(t_htable_row * htable, int type, t_connection * c, t_packet co
 
 extern int handle_bnet_packet(t_connection * c, t_packet const * const packet)
 {
-   t_packet * rpacket=NULL;
-   
    if (!c)
      {
 	eventlog(eventlog_level_error,"handle_bnet_packet","[%d] got NULL connection",conn_get_socket(c));
@@ -584,8 +582,8 @@ static int _client_countryinfo109(t_connection * c, t_packet const * const packe
 	// 
 	if ((rpacket = packet_create(packet_class_bnet)))
 	  {
-	     char *url;
-	     if (url = (char *)prefs_get_war3ladder_url()) {
+	     char *url = (char *)prefs_get_war3ladder_url(); 
+	     if (url) {
 		packet_set_size(rpacket, sizeof(t_bnet_generic));
 		packet_set_type(rpacket, 0x6aff);
 		packet_append_string(rpacket, url);
@@ -2561,7 +2559,6 @@ static int _client_atinvitefriend(t_connection * c, t_packet const * const packe
 	char const *invited_usernames2[8];
 	char atmembers_usernames[255];
 	int i, n, offset,teamnumber,teammemcount;
-	char const * username;
 	t_connection * dest_c;
 	
 	teammemcount = count_to_invite;
@@ -2801,7 +2798,6 @@ static int _client_findanongame(t_connection * c, t_packet const * const packet)
 	  }
 	else // If they do have a profile then:
 	  {
-	     int n;
 	     int solowins=account_get_solowin(account); 
 	     int sololoss=account_get_sololoss(account);
 	     int soloxp=account_get_soloxp(account);
@@ -3662,8 +3658,6 @@ static int _client_adclick2(t_connection * c, t_packet const * const packet)
 
 static int _client_statsupdate(t_connection * c, t_packet const * const packet)
 {
-   t_packet * rpacket = NULL;
-
    if (packet_get_size(packet)<sizeof(t_client_statsupdate)) {
       eventlog(eventlog_level_error,"handle_bnet_packet","[%d] got bad STATSUPDATE packet (expected %u bytes, got %u)",conn_get_socket(c),sizeof(t_client_statsupdate),packet_get_size(packet));
       return -1;
@@ -3875,16 +3869,12 @@ static int _client_joinchannel(t_connection * c, t_packet const * const packet)
 	int          found=1;
 	
 	/* ADDED BY UNDYING SOULZZ 4/7/02 AND MODIFIED BY DJP FOR RANDOM FIX & WINS RACE FEATURE*/
-	unsigned int 	racewins;
 	unsigned int 	acctlevel = 0;
 	
 	char		    tempplayerinfo[40];
 	char		    raceicon; /* appeared in 1.03 */
 	unsigned int	raceiconnumber;
 	unsigned int    wins;
-	
-	int sololevel=account_get_sololevel(conn_get_account(c));
-	int teamlevel=account_get_teamlevel(conn_get_account(c));
 	
 	acctlevel = account_get_highestladderlevel(conn_get_account(c));
 	account_get_raceicon(conn_get_account(c), &raceicon, &raceiconnumber, &wins);

@@ -179,6 +179,8 @@ static int get_defversioninfo(char const * progname, char const * clienttag, uns
     *exeinfo = "";
     
     fprintf(stderr,"%s: unsupported clienttag \"%s\"\n",progname,clienttag);
+    // aaron: dunno what we should return in case of this.. but returning nothing was definetly wrong
+    return -1;
 }
 
 

@@ -58,8 +58,8 @@ static int gurp_uname2id(const char *name);
 
 extern int give_up_root_privileges(char const * user_name, char const * group_name)
 {
-    int user_id;
-    int group_id;
+    int user_id  = 0;
+    int group_id = 0;
     
     eventlog(eventlog_level_debug,"give_up_root_privileges","about to give up root privileges");
     

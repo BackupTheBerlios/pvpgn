@@ -564,8 +564,8 @@ extern int handle_command(t_connection * c,  char const * text)
 
 			// [quetzal] 20020822 - we DO care if we del UserName or username from friends list
 			// [quetzal] 20020907 - dont do anything if oldfriend is NULL
-			if (oldfriend = account_get_strattr(accountlist_find_account(&text[i]), 
-				"BNET\\acct\\username")) 
+			oldfriend = account_get_strattr(accountlist_find_account(&text[i]),"BNET\\acct\\username");
+			if (oldfriend)
 			{
 
 				n = account_get_friendcount(conn_get_account(c));

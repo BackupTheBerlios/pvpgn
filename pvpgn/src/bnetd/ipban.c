@@ -509,6 +509,7 @@ extern time_t ipbanlist_str_to_time_t(t_connection * c, char const * timestr)
     if (timestr[i]!='\0')
     {
 	if (c)
+	{
 	    if (strlen(minstr)<1)
 		message_send_text(c,message_type_info,c,"There was an error in time.");
 	    else	
@@ -516,6 +517,7 @@ extern time_t ipbanlist_str_to_time_t(t_connection * c, char const * timestr)
 		sprintf(tstr,"There was an error in time. Banning only for: %s minutes.",minstr);
 	        message_send_text(c,message_type_info,c,tstr);
 	    }
+	}
     }
 
     if (clockstr_to_seconds(minstr,&bmin)<0) /* it thinks these are seconds but we treat them as minutes */

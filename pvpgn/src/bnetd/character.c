@@ -85,6 +85,7 @@ static t_character_class bncharacter_class_to_character_class(t_uint8 class)
 }
 
 
+/* Function unused
 static t_uint8 character_class_to_bncharacter_class(t_character_class class)
 {
     switch (class)
@@ -109,7 +110,7 @@ static t_uint8 character_class_to_bncharacter_class(t_character_class class)
 	return D2CHAR_INFO_FILLER;
     }
 }
-
+*/
 
 static const char * character_class_to_classname (t_character_class class)
 {

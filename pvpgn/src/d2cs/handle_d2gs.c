@@ -48,6 +48,7 @@
 #include "connection.h"
 #include "prefs.h"
 #include "d2cs_d2gs_protocol.h"
+#include "d2gstrans.h"
 #include "common/addr.h"
 #include "common/eventlog.h"
 #include "common/queue.h"
