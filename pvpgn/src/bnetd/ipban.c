@@ -471,8 +471,10 @@ extern int ipbanlist_unload_expired(void)
     t_elem *		curr;
     t_ipban_entry * 	entry;
     time_t		now;
+    char removed;
     
     time(&now);
+    removed = 0;
     LIST_TRAVERSE(ipbanlist_head,curr)
     {
 	entry = elem_get_data(curr);
@@ -484,6 +486,7 @@ extern int ipbanlist_unload_expired(void)
 	if ((entry->endtime - now <= 0) && (entry->endtime != 0))
 	{
 	    eventlog(eventlog_level_debug,"ipbanlist_unload_expired","removing item: %s",entry->info1);
+	    removed = 1;
 	    if (list_remove_elem(ipbanlist_head,curr)<0)
 		eventlog(eventlog_level_error,"ipbanlist_unload_expired","could not remove item");
 	    else
@@ -491,7 +494,7 @@ extern int ipbanlist_unload_expired(void)
 	}
     }
     list_purge(ipbanlist_head);
-    
+    if (removed==1) ipbanlist_save(prefs_get_ipbanfile());
     return 0;
 }
 
@@ -560,9 +563,11 @@ extern int handle_ipban_command(t_connection * c, char const * text)
     {
 	case IPBAN_FUNC_ADD:
 	    ipbanlist_add(c,ipstr,ipbanlist_str_to_time_t(c,&text[i]));
+	    ipbanlist_save(prefs_get_ipbanfile());
 	    break;
 	case IPBAN_FUNC_DEL:
 	    ipban_func_del(c,ipstr);
+	    ipbanlist_save(prefs_get_ipbanfile());
 	    break;
 	case IPBAN_FUNC_LIST:
 	    ipban_func_list(c);

@@ -3352,7 +3352,10 @@ static int _handle_kill_command(t_connection * c, char const *text)
   }
 
   if (text[i]!='\0' && ipbanlist_add(c,addr_num_to_ip_str(conn_get_addr(user)),ipbanlist_str_to_time_t(c,&text[i]))==0)
-    message_send_text(user,message_type_info,user,"Connection closed by admin and banned your ip.");
+    {
+      ipbanlist_save(prefs_get_ipbanfile());
+      message_send_text(user,message_type_info,user,"Connection closed by admin and banned your ip.");
+    }
   else
     message_send_text(user,message_type_info,user,"Connection closed by admin.");
   conn_set_state(user,conn_state_destroy);
@@ -3375,7 +3378,7 @@ static int _handle_killsession_command(t_connection * c, char const *text)
   
   if (session[0]=='\0')
     {
-      message_send_text(c,message_type_info,c,"usage: /killsession <session>");
+      message_send_text(c,message_type_info,c,"usage: /killsession <session> [min]");
       return 0;
     }
   if (!isxdigit((int)session[0]))
@@ -3389,7 +3392,10 @@ static int _handle_killsession_command(t_connection * c, char const *text)
       return 0;
     }
   if (text[i]!='\0' && ipbanlist_add(c,addr_num_to_ip_str(conn_get_addr(user)),ipbanlist_str_to_time_t(c,&text[i]))==0)
-    message_send_text(user,message_type_info,user,"Connection closed by admin and banned your ip's.");
+    {
+      ipbanlist_save(prefs_get_ipbanfile());
+      message_send_text(user,message_type_info,user,"Connection closed by admin and banned your ip's.");
+    }
   else
     message_send_text(user,message_type_info,user,"Connection closed by admin.");
   conn_set_state(user,conn_state_destroy);
@@ -3910,8 +3916,6 @@ static int _handle_serverban_command(t_connection *c, char const *text)
       message_send_text(dest_c,message_type_error,dest_c,msgtemp);
       message_send_text(dest_c,message_type_error,dest_c,"Your account is also LOCKED! Only a admin can UNLOCK it!");
       conn_set_state(dest_c, conn_state_destroy);
-      //now save the ipban file
-      ipbanlist_save(prefs_get_ipbanfile());
       return 0;
 }
 
