@@ -151,12 +151,14 @@
 #include "anongame.h"
 #include "server.h"
 #include "command_groups.h"
-#include "win32/service.h"
+#ifdef WIN32
+# include "win32/service.h"
+#endif
 // aaron
 #include "war3ladder.h"
 #include "output.h"
 #include "common/setup_after.h"
-
+#include "bnpmap.h"
 
 extern FILE * hexstrm; /* from main.c */
 extern int g_ServiceStatus;
