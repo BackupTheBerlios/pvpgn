@@ -60,6 +60,10 @@ were modified. Make sure to note changes.
 lastlogin_time correct. (this was a general problem for ALL attributes that
 contained a '_')
 -- make clan show up on war3 profile screen
+-- speed up mySQL mode. it now only requests single attributes from the DB
+and doesn't load them all for a given account at once
+-- changed warcraft3 XP calculation to work the same as on battle.net
+(make sure you install new bnxpcalc.txt when updating)
 
 1.2.3:
 -- fixed some crash related bugs
