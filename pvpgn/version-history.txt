@@ -27,7 +27,9 @@ their friends list
     -> CHANGE auth_lockk auth_lockk varchar(128) NOT NULL default 'false';
     -> DELETE FROM BNET WHERE uid = 0;
     Then restart server.
-
+-- fixed bug with d2 users showing tempOP icon and not having tempOP rights
+-- fixed news and rewrote /news command to show formatted output of date
+	
 1.5.0beta2:
 -- fixed PlayGame for ROC 1.07/1.10 (pure ROC or ROC mode from FT installation),
 note that this BRAKES PlayGame for ROC < 1.07 (ie. 1.06, 1.05 et...)
