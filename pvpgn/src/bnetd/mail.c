@@ -112,17 +112,10 @@ static t_mailbox * mailbox_open(t_account * user) {
    char * path;
    char const * maildir;
 
-   if ((rez=xmalloc(sizeof(t_mailbox)))==NULL) {
-      eventlog(eventlog_level_error,"mailbox_open","not enough memory");
-      return NULL;
-   }
+   rez=xmalloc(sizeof(t_mailbox));
    maildir=prefs_get_maildir();
    p_mkdir(maildir,S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
-   if ((path=xmalloc(strlen(maildir)+1+8+1))==NULL) {
-      eventlog(eventlog_level_error,"mailbox_open","not enough memory");
-      xfree(rez);
-      return NULL;
-   }
+   path=xmalloc(strlen(maildir)+1+8+1);
    if (maildir[0]!='\0' && maildir[strlen(maildir)-1]=='/')
       sprintf(path,"%s%06u",maildir,account_get_uid(user));
    else
@@ -172,10 +165,7 @@ static int mailbox_deliver(t_mailbox * mailbox, const char * sender, const char 
       eventlog(eventlog_level_error,"mailbox_deliver","got NULL path");
       return -1;
    }
-   if ((filename=xmalloc(strlen(mailbox->path)+1+15+1))==NULL) {
-      eventlog(eventlog_level_error,"mailbox_deliver","not enough memory for filename");
-      return -1;
-   }
+   filename=xmalloc(strlen(mailbox->path)+1+15+1);
    sprintf(filename,"%s/%015lu",mailbox->path,(unsigned long)time(NULL));
    if ((fd=fopen(filename,"wb"))==NULL) {
       eventlog(eventlog_level_error,"mailbox_deliver","got NULL file descriptor. check permissions");
@@ -204,10 +194,7 @@ static t_mail * mailbox_read(t_mailbox * mailbox, unsigned int idx) {
       eventlog(eventlog_level_error,"mailbox_read","got NULL maildir");
       return NULL;
    }
-   if ((rez=xmalloc(sizeof(t_mail)))==NULL) {
-      eventlog(eventlog_level_error,"mailbox_read","not enough memory for message");
-      return NULL;
-   }
+   rez=xmalloc(sizeof(t_mail));
    p_rewinddir(mailbox->maildir);
    dentry = NULL; /* if idx < 1 we should not crash :) */
    for(i=0;i<idx && (dentry=p_readdir(mailbox->maildir))!=NULL;i++)
@@ -218,11 +205,7 @@ static t_mail * mailbox_read(t_mailbox * mailbox, unsigned int idx) {
       return NULL;
    }
    rez->timestamp=atoi(dentry);
-   if ((filename=xmalloc(strlen(dentry)+1+strlen(mailbox->path)+1))==NULL) {
-      eventlog(eventlog_level_error,"mailbox_read","not enough memory for filename");
-      xfree(rez);
-      return NULL;
-   }
+   filename=xmalloc(strlen(dentry)+1+strlen(mailbox->path)+1);
    sprintf(filename,"%s/%s",mailbox->path,dentry);
    if ((fd=fopen(filename,"rb"))==NULL) {
       eventlog(eventlog_level_error,"mailbox_read","error while opening message");
@@ -231,21 +214,10 @@ static t_mail * mailbox_read(t_mailbox * mailbox, unsigned int idx) {
       return NULL;
    }
    xfree(filename);
-   if ((rez->sender=xmalloc(256))==NULL) {
-      eventlog(eventlog_level_error,"mailbox_read","not enough memory for storing sender");
-      fclose(fd);
-      xfree(rez);
-      return NULL;
-   }
+   rez->sender=xmalloc(256);
    fgets(rez->sender,256,fd); /* maybe 256 isnt the right value to bound a line but right now its all i have :) */
    clean_str(rez->sender);
-   if ((rez->message=xmalloc(256))==NULL) {
-      eventlog(eventlog_level_error,"mailbox_read","not enough memory for storing message");
-      fclose(fd);
-      xfree(rez->sender);
-      xfree(rez);
-      return NULL;
-   }
+   rez->message=xmalloc(256);
    fgets(rez->message,256,fd);
    clean_str(rez->message);
    fclose(fd);
@@ -281,19 +253,11 @@ static struct maillist_struct * mailbox_get_list(t_mailbox *mailbox) {
       eventlog(eventlog_level_error,"mailbox_get_list","got NULL maildir");
       return NULL;
    }
-   if ((filename=xmalloc(strlen(mailbox->path)+1+15+1))==NULL) {
-      eventlog(eventlog_level_error,"mailbox_get_list","not enough memory for filename");
-      return NULL;
-   }
+   filename=xmalloc(strlen(mailbox->path)+1+15+1);
    p_rewinddir(mailbox->maildir);
    for(;(dentry=p_readdir(mailbox->maildir))!=NULL;)
      if (dentry[0]!='.') {
 	q=xmalloc(sizeof(struct maillist_struct));
-	if (q==NULL) {
-	   eventlog(eventlog_level_error,"mailbox_get_list","not enough memory for list");
-	   xfree(filename);
-	   return rez;
-	}
 	sprintf(filename,"%s/%s",mailbox->path,dentry);
 	if ((fd=fopen(filename,"rb"))==NULL) {
 	   eventlog(eventlog_level_error,"mailbox_get_list","error while opening message file");
@@ -301,12 +265,7 @@ static struct maillist_struct * mailbox_get_list(t_mailbox *mailbox) {
 	   xfree(q);
 	   return rez;
 	}
-	if ((sender=xmalloc(256))==NULL) {
-	   eventlog(eventlog_level_error,"mailbox_get_list","not enough memory for sender");
-	   fclose(fd);
-	   xfree(filename);
-	   xfree(q);
-	}
+	sender=xmalloc(256);
 	fgets(sender,256,fd);
 	clean_str(sender);
 	fclose(fd);
@@ -353,10 +312,7 @@ static int mailbox_delete(t_mailbox * mailbox, unsigned int idx) {
       eventlog(eventlog_level_error,"mailbox_delete","index out of range");
       return -1;
    }
-   if ((filename=xmalloc(strlen(dentry)+1+strlen(mailbox->path)+1))==NULL) {
-      eventlog(eventlog_level_error,"mailbox_delete","not enough memory for filename");
-      return -1;
-   }
+   filename=xmalloc(strlen(dentry)+1+strlen(mailbox->path)+1);
    sprintf(filename,"%s/%s",mailbox->path,dentry);
    rez=remove(filename);
    if (rez<0) {
@@ -379,10 +335,7 @@ static int mailbox_delete_all(t_mailbox * mailbox) {
       eventlog(eventlog_level_error,"mailbox_delete_all","got NULL maildir");
       return -1;
    }
-   if ((filename=xmalloc(strlen(mailbox->path)+1+15+1))==NULL) {
-      eventlog(eventlog_level_error,"mailbox_delete_all","not enough memory for filename");
-      return -1;
-   }
+   filename=xmalloc(strlen(mailbox->path)+1+15+1);
    p_rewinddir(mailbox->maildir);
    count = 0;
    while ((dentry=p_readdir(mailbox->maildir))!=NULL)
@@ -515,11 +468,7 @@ static void mail_func_send(t_connection * c, const char * str) {
       message_send_text(c,message_type_error,c,"Syntax: /mail send <receiver> <message>");
       return;
    }
-   if ((dest=xmalloc(i+1))==NULL) {
-      eventlog(eventlog_level_error,"mail_func_send","not enough memory for receiver");
-      message_send_text(c,message_type_error,c,"Not enough resources to complete request!");
-      return;
-   }
+   dest=xmalloc(i+1);
    memmove(dest,p,i); dest[i]='\0'; /* copy receiver in his separate string */
    if ((recv=accountlist_find_account(dest))==NULL) { /* is dest a valid account on this server ? */
       message_send_text(c,message_type_error,c,"Receiver UNKNOWN!");

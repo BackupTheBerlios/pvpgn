@@ -267,10 +267,7 @@ int eventlog_startup(void)
     
     eventlog_clear_level();
     if ((levels = prefs_get_loglevels())) {
-	if (!(temp = xstrdup(levels))) {
-	    eventlog(eventlog_level_fatal,"eventlog_startup","could not allocate memory for temp (exiting)");
-	    return -1;
-	}
+	temp = xstrdup(levels);
 	tok = strtok(temp,","); /* strtok modifies the string it is passed */
 	while (tok) {
 	    if (eventlog_add_level(tok)<0)
