@@ -145,22 +145,11 @@ extern int anongame_matchlists_create()
 
 extern int anongame_matchlists_destroy()
 {
-        t_elem * curr;
-	t_matchdata * md;
 	int i, j;
 	for (i = 0; i < ANONGAME_TYPES; i++) {
 		for (j = 0; j < MAX_LEVEL; j++) {
 			if (matchlists[i][j]) {
-
-			  // we have to free the versiontag before we can destroy the list
-
-			  LIST_TRAVERSE(matchlists[i][j], curr)
-			    {
-			      md = elem_get_data(curr);
-			      if (md->versiontag != NULL) free(md->versiontag);
-			    }
-
-			  list_destroy(matchlists[i][j]);
+				list_destroy(matchlists[i][j]);
 			}
 		}
 	}
@@ -693,7 +682,6 @@ extern int anongame_unqueue_player(t_connection * c, t_uint8 gametype)
 				eventlog(eventlog_level_debug, "anongame_unqueue_player", "unqueued player [%d] level %d", 
 					conn_get_socket(c), i);
 				list_remove_elem(matchlists[gametype][i], curr);
-				if (md->versiontag != NULL) free(md->versiontag);
 				free(md);
 				return 0;
 			}
@@ -892,7 +880,6 @@ extern void handle_anongame_search(t_connection * c, t_packet const * packet)
 			eventlog(eventlog_level_error,"handle_anongame_search","[%d] no anongame struct for queued player",conn_get_socket(c));
 			return;
 		}
-		if (anongame_get_info(a)!=NULL) anongameinfo_destroy(a->info);
 		anongame_set_info(a, info);
 		eventlog(eventlog_level_debug, "handle_anongame_search", "anongame_get_totalplayers: %d", anongame_get_totalplayers(a));
 		anongame_set_playernum(a, i+1);
@@ -1854,15 +1841,33 @@ extern int anongame_stats(t_connection * c)
 	    case ANONGAME_TYPE_AT_2V2:
 	    case ANONGAME_TYPE_AT_3V3:
 	    case ANONGAME_TYPE_AT_4V4:
-		if(result == W3_GAMERESULT_WIN) {
-		    if(account_get_new_at_team(conn_get_account(c))==1)
-			account_set_new_at_team(conn_get_account(c),0);
-		    account_set_saveATladderstats(anongame_get_account(a,i),gametype,game_result_win,account_get_atteamlevel(oacc,account_get_currentatteam(oacc)),account_get_currentatteam(anongame_get_account(a,i)));
+		if(result == W3_GAMERESULT_WIN) { //Modified by DJP in an attempt to manage teamcount ! ( bug of previous CVS 1.2.4 )
+			if(account_get_new_at_team(conn_get_account(c))==1) {
+					 int temp;
+
+				account_set_new_at_team(conn_get_account(c),0);
+			    temp = account_get_atteamcount(conn_get_account(c));
+				temp = temp+1;
+				account_set_atteamcount(conn_get_account(c),temp);
+				account_set_saveATladderstats(anongame_get_account(a,i),gametype,game_result_win,account_get_atteamlevel(oacc,account_get_currentatteam(oacc)),account_get_currentatteam(anongame_get_account(a,i)));
+			}
+			else {
+				account_set_saveATladderstats(anongame_get_account(a,i),gametype,game_result_win,account_get_atteamlevel(oacc,account_get_currentatteam(oacc)),account_get_currentatteam(anongame_get_account(a,i)));
+			}
 		}
-		if(result == W3_GAMERESULT_LOSS) {
-		    if(account_get_new_at_team(conn_get_account(c))==1)
-			account_set_new_at_team(conn_get_account(c),0);
-		    account_set_saveATladderstats(anongame_get_account(a,i),gametype,game_result_loss,account_get_atteamlevel(oacc,account_get_currentatteam(oacc)),account_get_currentatteam(anongame_get_account(a,i)));
+		if(result == W3_GAMERESULT_LOSS) { //Modified by DJP in an attempt to manage teamcount ! ( bug of previous CVS 1.2.4 )
+			if(account_get_new_at_team(conn_get_account(c))==1) {
+					int temp;
+
+				account_set_new_at_team(conn_get_account(c),0);
+			    temp = account_get_atteamcount(conn_get_account(c));
+				temp = temp+1;
+				account_set_atteamcount(conn_get_account(c),temp);
+				account_set_saveATladderstats(anongame_get_account(a,i),gametype,game_result_loss,account_get_atteamlevel(oacc,account_get_currentatteam(oacc)),account_get_currentatteam(anongame_get_account(a,i)));
+			}
+			else {
+				account_set_saveATladderstats(anongame_get_account(a,i),gametype,game_result_loss,account_get_atteamlevel(oacc,account_get_currentatteam(oacc)),account_get_currentatteam(anongame_get_account(a,i)));
+			}
 		}
 		break;
 	    default:
