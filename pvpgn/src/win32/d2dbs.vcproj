@@ -59,7 +59,7 @@
 		<Configuration
 			Name="Release|Win32"
 			OutputDirectory="..\..\bin"
-			IntermediateDirectory="..\..\bin"
+			IntermediateDirectory="..\..\obj\d2dbs"
 			ConfigurationType="1"
 			UseOfMFC="0"
 			CharacterSet="2"
