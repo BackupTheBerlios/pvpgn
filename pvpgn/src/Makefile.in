@@ -210,10 +210,10 @@ ${SRC_CDBDIR}/cdb_make_put.o \
 ${SRC_CDBDIR}/cdb_make_find.o \
 ${SRC_CDBDIR}/cdb_make.o \
 ${SRC_CDBDIR}/cdb_hash.o \
-$(SRC_ZLIBDIR)/adler32.o \
-$(SRC_ZLIBDIR)/deflate.o \
-$(SRC_ZLIBDIR)/trees.o \
-$(SRC_ZLIBDIR)/zutil.o
+${SRC_ZLIBDIR}/pvpgn_adler32.o \
+${SRC_ZLIBDIR}/pvpgn_deflate.o \
+${SRC_ZLIBDIR}/pvpgn_trees.o \
+${SRC_ZLIBDIR}/pvpgn_zutil.o
 
 
 d2cs_SBIN       = ${SRC_SBINDIR}/d2cs

@@ -34,7 +34,7 @@
 # include <bnetd/winmain.h>
 #endif
 
-#include "zlib/zlib.h"
+#include "zlib/pvpgn_zlib.h"
 
 #include "common/bn_type.h"
 #include "common/eventlog.h"
