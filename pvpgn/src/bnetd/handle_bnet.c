@@ -2182,7 +2182,7 @@ static int _client_loginreqw3(t_connection * c, t_packet const * const packet)
 	packet_set_size(rpacket,sizeof(t_server_loginreply_w3));
 	packet_set_type(rpacket,SERVER_LOGINREPLY_W3);
 
-	for (i=0; i<15; i++)
+	for (i=0; i<16; i++)
 	    bn_int_set (&rpacket->u.server_loginreply_w3.unknown[i], 0);
 
 	do {
