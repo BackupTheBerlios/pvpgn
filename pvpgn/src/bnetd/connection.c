@@ -2759,11 +2759,14 @@ extern int conn_set_realm(t_connection * c, t_realm * realm)
 
 extern int conn_set_realm_cb(void *data, void *newref)
 {
+    t_connection *c = (t_connection*)data;
+    t_realm *newrealm = (t_realm*)newref;
 
-    if (newref)
-	((t_connection *)data)->protocol.d2.realm = (t_realm *)newref;
-    else
-    	conn_set_state((t_connection *)data,conn_state_destroy);
+    c->protocol.d2.realm = newrealm;
+
+    /* close the connection for players on unconfigured realms */
+    if (!newrealm)
+    	conn_set_state(c,conn_state_destroy);
 
     return 0;
 }
