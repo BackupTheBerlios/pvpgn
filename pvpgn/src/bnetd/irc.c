@@ -292,21 +292,33 @@ extern int irc_authenticate(t_connection * conn, char const * passhash)
 	return 0;
     }
 
-    hash_set_str(&h1,passhash);
-    temphash = account_get_pass(a);	
-    hash_set_str(&h2,temphash);
-    account_unget_pass(temphash);
-    if (hash_eq(h1,h2)) {
-        conn_set_account(conn,a);
-        conn_set_botuser(conn,(tempname = conn_get_username(conn)));
-        conn_unget_username(conn,tempname);
-        conn_set_state(conn,conn_state_loggedin);
-	/* FIXME: set clienttag to "ircd" or something (and make an icon) */
-        conn_set_clienttag(conn,CLIENTTAG_BNCHATBOT); /* CHAT hope here is ok */
-        irc_send_cmd(conn,"NOTICE",":Authentication successful. You are now logged in.");
-	return 1;
-    } else {
-        irc_send_cmd(conn,"NOTICE",":Authentication failed."); /* wrong password */
+    if (connlist_find_connection_by_account(a) && prefs_get_kick_old_login()==0)
+    {
+            irc_send_cmd(conn,"NOTICE",":Authentication rejected (already logged in) ");
+    }
+    else if (account_get_auth_lock(a)==1)
+    {
+            irc_send_cmd(conn,"NOTICE",":Authentication rejected (account is locked) "); 
+    }
+    else
+    {
+        hash_set_str(&h1,passhash);
+        temphash = account_get_pass(a);	
+        hash_set_str(&h2,temphash);
+        account_unget_pass(temphash);
+        if (hash_eq(h1,h2)) {
+            conn_set_account(conn,a);
+            conn_set_botuser(conn,(tempname = conn_get_username(conn)));
+            conn_unget_username(conn,tempname);
+            conn_set_state(conn,conn_state_loggedin);
+	    /* FIXME: set clienttag to "ircd" or something (and make an icon) */
+            conn_set_clienttag(conn,CLIENTTAG_BNCHATBOT); /* CHAT hope here is ok */
+            irc_send_cmd(conn,"NOTICE",":Authentication successful. You are now logged in.");
+	    return 1;
+        } else {
+            irc_send_cmd(conn,"NOTICE",":Authentication failed."); /* wrong password */
+	    conn_increment_passfail_count(conn);
+        }
     }
     return 0;
 }
