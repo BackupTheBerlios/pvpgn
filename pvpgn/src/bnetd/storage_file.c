@@ -94,6 +94,7 @@
 #undef CLAN_INTERNAL_ACCESS
 #include "common/tag.h"
 #include "common/xalloc.h"
+#include "common/elist.h"
 #include "common/setup_after.h"
 
 /* file storage API functions */
@@ -105,8 +106,8 @@ static t_storage_info *file_create_account(char const *);
 static t_storage_info *file_get_defacct(void);
 static int file_free_info(t_storage_info *);
 static int file_read_attrs(t_storage_info *, t_read_attr_func, void *);
-static void *file_read_attr(t_storage_info *, const char *);
-static int file_write_attrs(t_storage_info *, const void *);
+static t_attr *file_read_attr(t_storage_info *, const char *);
+static int file_write_attrs(t_storage_info *, const t_hlist *);
 static int file_read_accounts(int,t_read_accounts_func, void *);
 static t_storage_info *file_read_account(const char *, unsigned);
 static int file_cmp_info(t_storage_info *, t_storage_info *);
@@ -289,7 +290,7 @@ static t_storage_info *file_create_account(const char *username)
     return temp;
 }
 
-static int file_write_attrs(t_storage_info * info, const void *attributes)
+static int file_write_attrs(t_storage_info * info, const t_hlist *attributes)
 {
     char *tempname;
 
@@ -364,7 +365,7 @@ static int file_read_attrs(t_storage_info * info, t_read_attr_func cb, void *dat
     return 0;
 }
 
-static void *file_read_attr(t_storage_info * info, const char *key)
+static t_attr *file_read_attr(t_storage_info * info, const char *key)
 {
     if (accountsdir == NULL || file == NULL)
     {

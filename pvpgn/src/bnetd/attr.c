@@ -32,11 +32,11 @@
 #include "common/xalloc.h"
 #include "compat/strcasecmp.h"
 #include "compat/strncasecmp.h"
+#define ATTRLIST_INTERNAL_ACCESS
+#include "attr.h"
 #include "storage.h"
 #include "prefs.h"
 #include "server.h"
-#define ATTRLIST_INTERNAL_ACCESS
-#include "attr.h"
 #include "common/setup_after.h"
 
 static t_attrlist *defattrs = NULL;

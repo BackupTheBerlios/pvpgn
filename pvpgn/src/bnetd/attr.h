@@ -16,6 +16,20 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
+#ifndef __ATTRTYPE_INCLUDED__
+#define __ATTRTYPE_INCLUDED__
+
+#include "common/elist.h"
+
+typedef struct attr_struct {
+    const char 		*key;
+    const char 		*val;
+    int			dirty;
+    t_hlist		link;
+} t_attr;
+
+#endif /* __ATTRTYPE_INCLUDED__ */
+
 #ifndef __ATTR_H_INCLUDED__
 #define __ATTR_H_INCLUDED__
 
@@ -23,6 +37,14 @@
 # include <time.h>
 #endif
 #include "common/elist.h"
+
+#ifndef JUST_NEED_TYPES
+#define JUST_NEED_TYPES
+#include "storage.h"
+#undef JUST_NEED_TYPES
+#else
+#include "storage.h"
+#endif
 
 #define ATTRLIST_FLAG_NONE	0
 #define ATTRLIST_FLAG_LOADED	1
@@ -33,13 +55,6 @@
 #define	FS_NONE		0
 #define FS_FORCE	1	/* force save/flush no matter of time */
 #define FS_ALL		2	/* save/flush all, not in steps */
-
-typedef struct attr_struct {
-    const char 		*key;
-    const char 		*val;
-    int			dirty;
-    t_hlist		link;
-} t_attr;
 
 typedef struct attrlist_struct 
 #ifdef ATTRLIST_INTERNAL_ACCESS

@@ -19,6 +19,9 @@
 #ifndef INCLUDED_STORAGE_TYPES
 #define INCLUDED_STORAGE_TYPES
 
+#include "common/elist.h"
+#include "attr.h"
+
 /* flags to tell if calling codes really want all accounts loading */
 #define ST_NONE		0
 #define ST_FORCE	1
@@ -38,8 +41,8 @@ typedef struct {
     t_storage_info * (*get_defacct)(void);
     int (*free_info)(t_storage_info *);
     int (*read_attrs)(t_storage_info *, t_read_attr_func, void *);
-    int (*write_attrs)(t_storage_info *, const void *);
-    void * (*read_attr)(t_storage_info *, const char *);
+    int (*write_attrs)(t_storage_info *, const t_hlist *);
+    t_attr * (*read_attr)(t_storage_info *, const char *);
     int (*read_accounts)(int,t_read_accounts_func, void *);
     t_storage_info * (*read_account)(const char *,unsigned);
     int (*cmp_info)(t_storage_info *, t_storage_info *);

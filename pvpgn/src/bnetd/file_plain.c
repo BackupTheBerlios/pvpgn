@@ -96,9 +96,9 @@
 
 /* plain file storage API functions */
 
-static void * plain_read_attr(const char *filename, const char *key);
+static t_attr * plain_read_attr(const char *filename, const char *key);
 static int plain_read_attrs(const char *filename, t_read_attr_func cb, void *data);
-static int plain_write_attrs(const char *filename, const void *attributes);
+static int plain_write_attrs(const char *filename, const t_hlist *attributes);
 
 /* file_engine struct populated with the functions above */
 
@@ -109,7 +109,7 @@ t_file_engine file_plain = {
 };
 
 
-static int plain_write_attrs(const char *filename, const void *attributes)
+static int plain_write_attrs(const char *filename, const t_hlist *attributes)
 {
     FILE       *  accountfile;
     t_hlist    *  curr;
@@ -122,7 +122,7 @@ static int plain_write_attrs(const char *filename, const void *attributes)
 	return -1;
     }
 
-    hlist_for_each(curr, (t_hlist*)attributes) {
+    hlist_for_each(curr, attributes) {
 	attr = hlist_entry(curr, t_attr, link);
 
 	if (attr_get_key(attr))
@@ -224,7 +224,7 @@ static int plain_read_attrs(const char *filename, t_read_attr_func cb, void *dat
     return 0;
 }
 
-static void * plain_read_attr(const char *filename, const char *key)
+static t_attr * plain_read_attr(const char *filename, const char *key)
 {
     /* flat file storage doesnt know to read selective attributes */
     return NULL;

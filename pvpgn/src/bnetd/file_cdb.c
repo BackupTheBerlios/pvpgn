@@ -103,8 +103,8 @@
 /* cdb file storage API functions */
 
 static int cdb_read_attrs(const char *filename, t_read_attr_func cb, void *data);
-static void * cdb_read_attr(const char *filename, const char *key);
-static int cdb_write_attrs(const char *filename, const void *attributes);
+static t_attr * cdb_read_attr(const char *filename, const char *key);
+static int cdb_write_attrs(const char *filename, const t_hlist *attributes);
 
 /* file_engine struct populated with the functions above */
 
@@ -118,7 +118,7 @@ t_file_engine file_cdb = {
 
 //#define CDB_ON_DEMAND	1
 
-static int cdb_write_attrs(const char *filename, const void *attributes)
+static int cdb_write_attrs(const char *filename, const t_hlist *attributes)
 {
     FILE           *cdbfile;
     t_hlist	   *curr;
@@ -132,7 +132,7 @@ static int cdb_write_attrs(const char *filename, const void *attributes)
 
     cdb_make_start(&cdbm, cdbfile);
 
-    hlist_for_each(curr,(t_hlist*)attributes) {
+    hlist_for_each(curr,attributes) {
 	attr = hlist_entry(curr, t_attr, link);
 
 	if (attr_get_key(attr) && attr_get_val(attr)) {
@@ -278,7 +278,7 @@ static int cdb_read_attrs(const char *filename, t_read_attr_func cb, void *data)
 }
 #endif
 
-static void * cdb_read_attr(const char *filename, const char *key)
+static t_attr * cdb_read_attr(const char *filename, const char *key)
 {
 #ifdef CDB_ON_DEMAND
     FILE	*cdbfile;

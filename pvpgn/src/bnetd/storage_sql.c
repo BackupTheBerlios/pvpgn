@@ -100,8 +100,8 @@ static t_storage_info *sql_create_account(char const *);
 static t_storage_info *sql_get_defacct(void);
 static int sql_free_info(t_storage_info *);
 static int sql_read_attrs(t_storage_info *, t_read_attr_func, void *);
-static void *sql_read_attr(t_storage_info *, const char *);
-static int sql_write_attrs(t_storage_info *, const void *);
+static t_attr *sql_read_attr(t_storage_info *, const char *);
+static int sql_write_attrs(t_storage_info *, const t_hlist *);
 static int sql_read_accounts(int,t_read_accounts_func, void *);
 static t_storage_info * sql_read_account(const char *,unsigned);
 static int sql_cmp_info(t_storage_info *, t_storage_info *);
@@ -503,7 +503,7 @@ static int sql_read_attrs(t_storage_info * info, t_read_attr_func cb, void *data
     return 0;
 }
 
-static void *sql_read_attr(t_storage_info * info, const char *key)
+static t_attr *sql_read_attr(t_storage_info * info, const char *key)
 {
 #ifdef SQL_ON_DEMAND
     char query[1024];
@@ -574,7 +574,7 @@ static void *sql_read_attr(t_storage_info * info, const char *key)
 }
 
 /* write ONLY dirty attributes */
-int sql_write_attrs(t_storage_info * info, const void *attrs)
+int sql_write_attrs(t_storage_info * info, const t_hlist *attrs)
 {
     char query[1024];
     char escape[DB_MAX_ATTRVAL * 2 + 1];	/* sql docs say the escape can take a maximum of double original size + 1 */
