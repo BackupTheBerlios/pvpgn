@@ -13,6 +13,8 @@ decreases server startup time when having many accounts. Those files are stored
 in the ladderdir. If you want/need the ladder to be rebuild from accounts,
 simply shutdown server, delete the corresponding binary ladder file(s) and 
 startup server again. The /rank_all_accounts command has been removed.
+-- added option for d2dbs to only add "ladder" chars to the ladder
+-- fixed output of D2 XML ladder experience value (from signed to unsigned)
 
 1.6.0pre5 (since 1.6.0pre4):
 -- added support for loading new accounts at runtime (ex. if made by some 
