@@ -50,6 +50,8 @@ static t_conf_table prefs_conf_table[]={
     { "bnetdaddr",              offsetof(t_prefs,bnetdaddr),              conf_type_str,    0,                             BNETD_SERVER_LIST          },
     { "charsavedir",            offsetof(t_prefs,charsavedir),            conf_type_str,    0,                             D2CS_CHARSAVE_DIR          },
     { "charinfodir",            offsetof(t_prefs,charinfodir),            conf_type_str,    0,                             D2CS_CHARINFO_DIR          },
+    { "bak_charsavedir",	offsetof(t_prefs,bak_charsavedir),        conf_type_str,    0,                             D2CS_BAK_CHARSAVE_DIR      },
+    { "bak_charinfodir",	offsetof(t_prefs,bak_charinfodir),	  conf_type_str,    0,                             D2CS_BAK_CHARINFO_DIR      },
     { "ladderdir",              offsetof(t_prefs,ladderdir),              conf_type_str,    0,                             D2CS_LADDER_DIR            },
 // FIXME: ladder_start_time should be conf_type_timestr
     { "ladder_start_time",	offsetof(t_prefs,ladder_start_time),      conf_type_timestr,0,                             NULL                       },
@@ -129,6 +131,16 @@ extern char const * prefs_get_charsave_dir(void)
 extern char const * prefs_get_charinfo_dir(void)
 {
 	return prefs_conf.charinfodir;
+}
+
+extern char const * prefs_get_bak_charsave_dir(void)
+{
+	return prefs_conf.bak_charsavedir;
+}
+
+extern char const * prefs_get_bak_charinfo_dir(void)
+{
+	return prefs_conf.bak_charinfodir;
 }
 
 extern char const * prefs_get_charsave_newbie(void)

@@ -11,6 +11,10 @@ PvPGN Version History:
   -- added "sync_on_logoff" bnetd.conf directive to enable saving of account 
   data on user's logoff
 
+[D2CS]
+  -- The backup copy of the charsave file and charinfo file are now deleted
+  when client deletes one of thier charactars
+
  ChangeLog for 1.7.1 (since 1.7.0)
 ===================================
 

@@ -217,7 +217,7 @@ extern int d2char_create(char const * account, char const * charname, unsigned c
 
 	if (file_write(infofile,&chardata,sizeof(chardata))<0) {
 		eventlog(eventlog_level_error,__FUNCTION__,"error writing info file \"%s\"",infofile);
-		unlink(infofile);
+		remove(infofile);
 		xfree(infofile);
 		xfree(savefile);
 		return -1;
@@ -225,8 +225,8 @@ extern int d2char_create(char const * account, char const * charname, unsigned c
 
 	if (file_write(savefile,buffer,size)<0) {
 		eventlog(eventlog_level_error,__FUNCTION__,"error writing save file \"%s\"",savefile);
-		unlink(infofile);
-		unlink(savefile);
+		remove(infofile);
+		remove(savefile);
 		xfree(savefile);
 		xfree(infofile);
 		return -1;
@@ -384,21 +384,45 @@ extern int d2char_delete(char const * account, char const * charname)
 		eventlog(eventlog_level_error,__FUNCTION__,"got bad account name \"%s\"",account);
 		return -1;
 	}
+	
+	/* charsave file */
 	file=xmalloc(strlen(prefs_get_charinfo_dir())+1+strlen(account)+1+strlen(charname)+1);
 	d2char_get_infofile_name(file,account,charname);
-	if (unlink(file)<0) {
-		eventlog(eventlog_level_error,__FUNCTION__,"failed to unlink charinfo file \"%s\" (unlink: %s)",file,strerror(errno));
+	if (remove(file)<0) {
+		eventlog(eventlog_level_error,__FUNCTION__,"failed to delete charinfo file \"%s\" (remove: %s)",file,strerror(errno));
 		xfree(file);
 		return -1;
 	}
 	xfree(file);
-
+	
+	/* charinfo file */
 	file=xmalloc(strlen(prefs_get_charsave_dir())+1+strlen(charname)+1);
 	d2char_get_savefile_name(file,charname);
-	if (unlink(file)<0) {
-		eventlog(eventlog_level_error,__FUNCTION__,"failed to unlink charsave file \"%s\" (unlink: %s)",file,strerror(errno));
+	if (remove(file)<0) {
+		eventlog(eventlog_level_error,__FUNCTION__,"failed to delete charsave file \"%s\" (remove: %s)",file,strerror(errno));
 	}
 	xfree(file);
+	
+	/* bak charsave file */
+	file=xmalloc(strlen(prefs_get_bak_charinfo_dir())+1+strlen(account)+1+strlen(charname)+1);
+	d2char_get_bak_infofile_name(file,account,charname);
+	if (access(file, 0) == 0) {
+	    if (remove(file)<0) {
+		eventlog(eventlog_level_error,__FUNCTION__,"failed to delete bak charinfo file \"%s\" (remove: %s)",file,strerror(errno));
+	    }
+	}
+	xfree(file);
+	
+	/* bak charinfo file */
+	file=xmalloc(strlen(prefs_get_bak_charsave_dir())+1+strlen(charname)+1);
+	d2char_get_bak_savefile_name(file,charname);
+	if (access(file, 0) == 0) {
+	    if (remove(file)<0) {
+		eventlog(eventlog_level_error,__FUNCTION__,"failed to delete bak charsave file \"%s\" (remove: %s)",file,strerror(errno));
+	    }
+	}
+	xfree(file);
+	
 	eventlog(eventlog_level_info,__FUNCTION__,"character %s(*%s) deleted",charname,account);
 	return 0;
 }
@@ -637,6 +661,20 @@ extern int d2char_get_savefile_name(char * filename, char const * charname)
 }
 
 
+extern int d2char_get_bak_savefile_name(char * filename, char const * charname)
+{
+	char	tmpchar[MAX_CHARNAME_LEN];
+
+	ASSERT(filename,-1);
+	ASSERT(charname,-1);
+	strncpy(tmpchar,charname,sizeof(tmpchar));
+	tmpchar[sizeof(tmpchar)-1]='\0';
+	strtolower(tmpchar);
+	sprintf(filename,"%s/%s",prefs_get_bak_charsave_dir(),tmpchar);
+	return 0;
+}
+
+
 extern int d2char_get_infodir_name(char * filename, char const * account)
 {
 	char	tmpacct[MAX_ACCTNAME_LEN];
@@ -670,6 +708,27 @@ extern int d2char_get_infofile_name(char * filename, char const * account, char 
 	sprintf(filename,"%s/%s/%s",prefs_get_charinfo_dir(),tmpacct,tmpchar);
 	return 0;
 }
+
+
+extern int d2char_get_bak_infofile_name(char * filename, char const * account, char const * charname)
+{
+	char	tmpchar[MAX_CHARNAME_LEN];
+	char	tmpacct[MAX_ACCTNAME_LEN];
+
+	ASSERT(filename,-1);
+	ASSERT(account,-1);
+	ASSERT(charname,-1);
+	strncpy(tmpchar,charname,sizeof(tmpchar));
+	tmpchar[sizeof(tmpchar)-1]='\0';
+	strtolower(tmpchar);
+
+	strncpy(tmpacct,account,sizeof(tmpacct));
+	tmpchar[sizeof(tmpacct)-1]='\0';
+	strtolower(tmpacct);
+	sprintf(filename,"%s/%s/%s",prefs_get_bak_charinfo_dir(),tmpacct,tmpchar);
+	return 0;
+}
+
 
 extern unsigned int d2charinfo_get_ladder(t_d2charinfo_summary const * charinfo)
 {

@@ -15,6 +15,10 @@ The path's specified are those of the default unix installation
 Configuration files changed:
 - conf/bnetd.conf : added "sync_on_logoff" parameter to have account data 
     saved to disk on user's logoff
+- conf/d2cs.conf : added "bak_charsavedir" & "bak_charinfodir" parameter so
+    d2cs can delete the backup copy of charactars deleted by the client.
+    these settings need to be set the same as the d2dbs.conf parameters
+    of the same name
 
  Updating from 1.7.0 to 1.7.1
 ==============================
