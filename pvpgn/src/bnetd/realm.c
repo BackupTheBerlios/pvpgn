@@ -104,7 +104,7 @@ static t_realm * realm_create(char const * name, char const * description, unsig
     realm->game_number = 0;
     realm->sessionnum = 0;
     realm->tcp_sock = 0;
-    
+
     eventlog(eventlog_level_info,"realm_create","created realm \"%s\"",name);
     return realm;
 }
@@ -360,12 +360,10 @@ extern int realmlist_create(char const * filename)
     unsigned int    len;
     t_addr *        raddr;
     t_addr *	    showraddr;
-    char *          temp;
+    char *          temp, *temp2;
     char *          buff;
     char *          name;
     char *          desc;
-    char *          addr;
-    char *	    showaddr;
     t_realm *       realm;
     
     if (!filename)
@@ -407,94 +405,125 @@ extern int realmlist_create(char const * filename)
         }
         len = strlen(buff)+1;
 
-        if (!(name = malloc(len)))
+	/* skip any separators */
+	for (temp = buff; *temp && (*temp == ' ' || *temp == '\t');temp++);
+	if (*temp != '"') {
+	    eventlog(eventlog_level_error,"realmlist_create","malformed line %u in file \"%s\" (no realmname)",line,filename);
+	    free(buff);
+	    continue;
+	}
+	
+	temp2 = temp + 1;
+	/* find the next " */
+	for (temp = temp2; *temp && *temp != '"';temp++);
+	if (*temp != '"' || temp == temp2) {
+	    eventlog(eventlog_level_error,"realmlist_create","malformed line %u in file \"%s\" (no realmname)",line,filename);
+	    free(buff);
+	    continue;
+	}
+	
+	/* save the realmname */
+	*temp = '\0';
+        if (!(name = strdup(temp2)))
         {
             eventlog(eventlog_level_error,"realmlist_create","could not allocate memory for name");
             free(buff);
             continue;
         }
-        if (!(desc = malloc(len)))
-        {
-            eventlog(eventlog_level_error,"realmlist_create","could not allocate memory for desc");
-            free(name);
-            free(buff);
-            continue;
-        }
-        if (!(addr = malloc(len)))
-        {
-            eventlog(eventlog_level_error,"realmlist_create","could not allocate memory for addr");
-            free(desc);
-            free(name);
-            free(buff);
-            continue;
-        }
-	if (!(showaddr = malloc(len)))
-	{
-            eventlog(eventlog_level_error,"realmlist_create","could not allocate memory for showaddr");
-            free(addr);
-	    free(desc);
-            free(name);
-            free(buff);
-            continue;
-        }
 	
-	if (sscanf(buff," \"%[^\"]\" \"%[^\"]\" %s %s",name,desc,addr,showaddr)!=4)
-	{
-	    if (sscanf(buff," \"%[^\"]\" \"\" %s %s",name,addr,showaddr)==3)
-		desc[0] = '\0';
-	    else
-	    {
-		eventlog(eventlog_level_error,"realmlist_create","malformed line %u in file \"%s\"",line,filename);
-		free(showaddr);
-		free(addr);
-		free(desc);
-         	free(name);
+	/* eventlog(eventlog_level_trace, "realmlist_create","found realmname: %s",name); */
+
+	/* skip any separators */
+	for(temp = temp + 1; *temp && (*temp == '\t' || *temp == ' ');temp++);
+	
+	if (*temp == '"') { /* we have realm description */
+	    temp2 = temp + 1;
+	    /* find the next " */
+	    for(temp = temp2;*temp && *temp != '"';temp++);
+	    if (*temp != '"' || temp == temp2) {
+		eventlog(eventlog_level_error,"realmlist_create","malformed line %u in file \"%s\" (no valid description)",line,filename);
+		free(name);
 		free(buff);
 		continue;
 	    }
+	    
+	    /* save the description */
+	    *temp = '\0';
+    	    if (!(desc = strdup(temp2))) {
+        	eventlog(eventlog_level_error,"realmlist_create","could not allocate memory for desc");
+        	free(name);
+        	free(buff);
+        	continue;
+    	    }
+	    
+	    /* eventlog(eventlog_level_trace, "realmlist_create","found realm desc: %s",desc); */
+
+	    /* skip any separators */
+	    for(temp = temp + 1; *temp && (*temp == ' ' || *temp == '\t');temp++);
+	} else desc = "\0";
+	
+	if (*temp < '0' || *temp > '9') {
+	    eventlog(eventlog_level_error,"realmlist_create","malformed line %u in file \"%s\" (no address)",line,filename);
+	    free(name);
+	    free(buff);
+	    continue;
 	}
 	
-	free(buff);
-	
-	if (!(raddr = addr_create_str(addr,0,BNETD_REALM_PORT))) /* 0 means "this computer" */
-	{
+	temp2 = temp;
+	/* find out where address ends */
+	for(temp = temp2 + 1; *temp && *temp != ' ' && *temp != '\t';temp++);
+
+	if (*temp) *temp++ = '\0'; /* if is not the end of the file, end addr and move forward */
+
+	/* eventlog(eventlog_level_trace, "realmlist_create","found realm ip: %s",temp2); */
+
+	if (!(raddr = addr_create_str(temp2,0,BNETD_REALM_PORT))) /* 0 means "this computer" */ {
 	    eventlog(eventlog_level_error,"realmlist_create","invalid address value for field 3 on line %u in file \"%s\"",line,filename);
-	    free(showaddr);
-	    free(addr);
-	    free(desc);
 	    free(name);
+	    free(buff);
 	    continue;
 	}
 	
-	free(addr);
+	/* skip any separators */
+	for(; *temp && (*temp == ' ' || *temp == '\t');temp++);
 	
-	if (!(showraddr = addr_create_str(showaddr,0,BNETD_REALM_PORT))) /* 0 means "this computer" */
-	{
-	    eventlog(eventlog_level_error,"realmlist_create","invalid address value for field 4 on line %u in file \"%s\"",line,filename);
-	    addr_destroy(raddr);
-	    free(showaddr);
-	    free(addr);
-	    free(desc);
-	    free(name);
-	    continue;
-	}
-	
-	free(showaddr);
+	if (*temp) { /* do we have show addr */
+	    if  (*temp < '0' || *temp > '9') {
+		eventlog(eventlog_level_error,"realmlist_create","malformed line %u in file \"%s\" (invalid show address)",line,filename);
+		free(name);
+		free(buff);
+		continue;
+	    }
+
+	    temp2 = temp;
+	    /* find out where address ends */
+	    for(temp = temp2 + 1; *temp && *temp != ' ' && *temp != '\t';temp++);
+
+	    *temp = '\0';
+	    /* eventlog(eventlog_level_trace, "realmlist_create","found realm show ip: %s", temp2);*/
+
+	    if (!(showraddr = addr_create_str(temp2,0,BNETD_REALM_PORT))) /* 0 means "this computer" */ {
+		eventlog(eventlog_level_error,"realmlist_create","invalid show address value for field 3 on line %u in file \"%s\"",line,filename);
+		free(name);
+		free(buff);
+		continue;
+	    }
+	} else showraddr = raddr;
 	
 	if (!(realm = realm_create(name,desc,addr_get_ip(raddr),addr_get_port(raddr),addr_get_ip(showraddr),addr_get_port(showraddr))))
 	{
 	    eventlog(eventlog_level_error,"realmlist_create","could not create realm");
+	    if (showraddr != raddr) addr_destroy(showraddr);
 	    addr_destroy(raddr);
-	    addr_destroy(showraddr);
-	    free(desc);
 	    free(name);
+	    free(buff);
 	    continue;
 	}
 	
+	if (showraddr != raddr) addr_destroy(showraddr);
 	addr_destroy(raddr);
-	addr_destroy(showraddr);
-        free(desc);
 	free(name);
+	free(buff);
 	
 	if (list_prepend_data(realmlist_head,realm)<0)
 	{
