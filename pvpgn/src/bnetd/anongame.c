@@ -85,6 +85,8 @@ static int		_anongame_totalteams(int queue);
 
 static int		_handle_anongame_search(t_connection * c, t_packet const * packet);
 static int		_anongame_queue(t_connection * c, int queue, t_uint32 map_prefs);
+static int		_anongame_compare_level(void const * a, void const * b);
+static int		_anongame_order_queue(int queue);
 static int		_anongame_match(t_connection * c, int queue);
 static int		_anongame_search_found(int queue);
 /**********************************************************************************/
@@ -497,6 +499,265 @@ static int _anongame_queue(t_connection * c, int queue, t_uint32 map_prefs)
     return 0;
 }
 
+static int _anongame_compare_level(void const * a, void const * b)
+{
+    t_connection * ca = *(t_connection * const *)a;
+    t_connection * cb = *(t_connection * const *)b;
+
+    int level_a = _anongame_level_by_queue(ca, anongame_get_queue(conn_get_anongame(ca)));
+    int level_b = _anongame_level_by_queue(cb, anongame_get_queue(conn_get_anongame(cb)));
+    
+    return (level_a > level_b) ? -1 : 1;
+}
+
+static int _anongame_order_queue(int queue)
+{
+    if (_anongame_totalteams(queue) != 0 && !anongame_arranged(queue)) { /* no need to reorder 1v1, sffa, or AT queues */
+	int i,j;
+	t_connection * temp;
+	int level[ANONGAME_MAX_TEAMS];
+	int teams = _anongame_totalteams(queue); /* number of teams */
+	int ppt	= players[queue]/teams; /* players per team */
+	
+	for (i=0; i < ANONGAME_MAX_TEAMS; i++)
+	    level[i] = 0;
+	
+	for (i=0; i < ppt-1; i++) { /* loop through the number of players per team */
+	    for (j=0; j < teams; j++) {
+		level[j] = level[j] + _anongame_level_by_queue(player[queue][i*ppt+j], queue);
+	    }
+		
+	    if (teams == 2) {
+		/* 1 >= 2 */
+		if (level[i*teams] >= level[i*teams+1]) {
+		    temp					= player[queue][(i+1)*teams];
+		    player[queue][(i+1)*teams]			= player[queue][(i+1)*teams+1];
+		    player[queue][(i+1)*teams+1]		= temp;
+		}
+		/* 2 >= 1 */
+		else if (level[i*teams+1] >= level[i*teams]) {					
+		    ;	/* nothing to do */
+		}
+	    } /* end 2 teams */
+	    
+	    else if (teams == 3) {
+		/* 1 >= 2 >= 3 */
+		if (level[i*3] >= level[i*3+1] && level[i*3+1] >= level[i*3+2]) {
+		    temp			= player[queue][(i+1)*3];
+		    player[queue][(i+1)*3]	= player[queue][(i+1)*3+2];
+		    player[queue][(i+1)*3+2]	= temp;
+		}
+		/* 1 >= 3 >= 2 */
+		else if (level[i*3] >= level[i*3+2] && level[i*3+2] >= level[i*3+1]) {
+		    temp			= player[queue][(i+1)*3];
+		    player[queue][(i+1)*3]	= player[queue][(i+1)*3+2];
+		    player[queue][(i+1)*3+2]	= player[queue][(i+1)*3+1];
+		    player[queue][(i+1)*3+1]	= temp;
+		}
+		/* 2 >= 1 >= 3 */
+		else if (level[i*3+1] >= level[i*3] && level[i*3] >= level[i*3+2]) {
+		    temp			= player[queue][(i+1)*3];
+		    player[queue][(i+1)*3]	= player[queue][(i+1)*3+1];
+		    player[queue][(i+1)*3+1]	= player[queue][(i+1)*3+2];
+		    player[queue][(i+1)*3+2]	= temp;
+		}
+		/* 2 >= 3 >= 1 */
+		else if (level[i*3+1] >= level[i*3+2] && level[i*3+2] >= level[i*3]) {
+		    temp			= player[queue][(i+1)*3+1];
+		    player[queue][(i+1)*3+1]	= player[queue][(i+1)*3+2];
+		    player[queue][(i+1)*3+2]	= temp;
+		}
+		/* 3 >= 1 >= 2 */
+		else if (level[i*3+2] >= level[i*3] && level[i*3] >= level[i*3+1]) {
+		    temp			= player[queue][(i+1)*3];
+		    player[queue][(i+1)*3]	= player[queue][(i+1)*3+1];
+		    player[queue][(i+1)*3+1] 	= temp;
+		}
+		/* 3 >= 2 >= 1 */
+		else if (level[i*3+2] >= level[i*3+1] && level[i*3+1] >= level[i*3]) {
+		    ;	/* nothing to do */
+		}
+	    } /* end 3 teams */
+	    
+	    else if (teams == 4) {
+		/* 1234 */
+		if (level[i*4] >= level[i*4+1] && level[i*4+1] >= level[i*4+2] && level[i*4+2] >= level[i*4+3]) {
+		    temp			= player[queue][(i+1)*4];
+		    player[queue][(i+1)*4]	= player[queue][(i+1)*4+3];
+		    player[queue][(i+1)*4+3] 	= temp;
+		    temp			= player[queue][(i+1)*4+1];
+		    player[queue][(i+1)*4+1] 	= player[queue][(i+1)*4+2];
+		    player[queue][(i+1)*4+2] 	= temp;
+		}
+		/* 1243 */
+		else if (level[i*4] >= level[i*4+1] && level[i*4+1] >= level[i*4+2] && level[i*4+3] >= level[i*4+2]) {
+		    temp			= player[queue][(i+1)*4];
+		    player[queue][(i+1)*4]	= player[queue][(i+1)*4+3];
+		    player[queue][(i+1)*4+3]	= player[queue][(i+1)*4+1];
+		    player[queue][(i+1)*4+1]	= player[queue][(i+1)*4+2];
+		    player[queue][(i+1)*4+2]	= temp;
+		}
+		/* 1324 */
+		else if (level[i*4] >= level[i*4+2] && level[i*4+2] >= level[i*4+1] && level[i*4+1] >= level[i*4+3]) {
+		    temp			= player[queue][(i+1)*4];
+		    player[queue][(i+1)*4]	= player[queue][(i+1)*4+3];
+		    player[queue][(i+1)*4+3]	= temp;
+		}
+		/* 1342 */
+		else if (level[i*4] >= level[i*4+2] && level[i*4+2] >= level[i*4+3] && level[i*4+3] >= level[i*4+1]) {
+		    temp			= player[queue][(i+1)*4];
+		    player[queue][(i+1)*4]	= player[queue][(i+1)*4+3];
+		    player[queue][(i+1)*4+3]	= player[queue][(i+1)*4+1];
+		    player[queue][(i+1)*4+1]	= temp;
+		}
+		/* 1423 */
+		else if (level[i*4] >= level[i*4+3] && level[i*4+3] >= level[i*4+1] && level[i*4+1] >= level[i*4+2]) {
+		    temp			= player[queue][(i+1)*4];
+		    player[queue][(i+1)*4]	= player[queue][(i+1)*4+3];
+		    player[queue][(i+1)*4+3]	= player[queue][(i+1)*4+2];
+		    player[queue][(i+1)*4+2]	= temp;
+		}
+		/* 1432 */
+		else if (level[i*4] >= level[i*4+3] && level[i*4+3] >= level[i*4+2] && level[i*4+2] >= level[i*4+1]) {
+		    temp			= player[queue][(i+1)*4];
+		    player[queue][(i+1)*4]	= player[queue][(i+1)*4+3];
+		    player[queue][(i+1)*4+3]	= player[queue][(i+1)*4+2];
+		    player[queue][(i+1)*4+2]	= player[queue][(i+1)*4+1];
+		    player[queue][(i+1)*4+1]	= temp;
+		}
+		/* 2134 */
+		else if (level[i*4+1] >= level[i*4] && level[i*4] >= level[i*4+2] && level[i*4+2] >= level[i*4+3]) {
+		    temp			= player[queue][(i+1)*4];
+		    player[queue][(i+1)*4]	= player[queue][(i+1)*4+2];
+		    player[queue][(i+1)*4+2]	= player[queue][(i+1)*4+1];
+		    player[queue][(i+1)*4+1]	= player[queue][(i+1)*4+3];
+		    player[queue][(i+1)*4+3]	= temp;
+		}
+		/* 2143 */
+		else if (level[i*4+1] >= level[i*4] && level[i*4] >= level[i*4+3] && level[i*4+3] >= level[i*4+2]) {
+		    temp			= player[queue][(i+1)*4];
+		    player[queue][(i+1)*4]	= player[queue][(i+1)*4+2];
+		    player[queue][(i+1)*4+2]	= temp;
+		    temp			= player[queue][(i+1)*4+1];
+		    player[queue][(i+1)*4+1]	= player[queue][(i+1)*4+3];
+		    player[queue][(i+1)*4+3]	= temp;
+		}
+		/* 2314 */
+		else if (level[i*4+1] >= level[i*4+2] && level[i*4+2] >= level[i*4] && level[i*4] >= level[i*4+3]) {
+		    temp			= player[queue][(i+1)*4];
+		    player[queue][(i+1)*4]	= player[queue][(i+1)*4+3];
+		    player[queue][(i+1)*4+3]	= player[queue][(i+1)*4+1];
+		    player[queue][(i+1)*4+1]	= temp;
+		}
+		/* 2341 */
+		else if (level[i*4+1] >= level[i*4+2] && level[i*4+2] >= level[i*4+3] && level[i*4+3] >= level[i*4]) {
+		    temp			= player[queue][(i+1)*4+1];
+		    player[queue][(i+1)*4+1]	= player[queue][(i+1)*4+2];
+		    player[queue][(i+1)*4+2]	= player[queue][(i+1)*4+3];
+		    player[queue][(i+1)*4+3]	= temp;
+		}
+		/* 2413 */
+		else if (level[i*4+1] >= level[i*4+3] && level[i*4+3] >= level[i*4] && level[i*4] >= level[i*4+2]) {
+		    temp			= player[queue][(i+1)*4];
+		    player[queue][(i+1)*4]	= player[queue][(i+1)*4+1];
+		    player[queue][(i+1)*4+1]	= player[queue][(i+1)*4+3];
+		    player[queue][(i+1)*4+3]	= player[queue][(i+1)*4+2];
+		    player[queue][(i+1)*4+2]	= temp;
+		}
+		/* 2431 */
+		else if (level[i*4+1] >= level[i*4+3] && level[i*4+3] >= level[i*4+2] && level[i*4+2] >= level[i*4]) {
+		    temp			= player[queue][(i+1)*4+1];
+		    player[queue][(i+1)*4+1]	= player[queue][(i+1)*4+3];
+		    player[queue][(i+1)*4+3]	= player[queue][(i+1)*4+2];
+		    player[queue][(i+1)*4+2]	= temp;
+		}
+		/* 3124 */
+		else if (level[i*4+2] >= level[i*4] && level[i*4] >= level[i*4+1] && level[i*4+1] >= level[i*4+3]) {
+		    temp			= player[queue][(i+1)*4];
+		    player[queue][(i+1)*4]	= player[queue][(i+1)*4+2];
+		    player[queue][(i+1)*4+2]	= player[queue][(i+1)*4+3];
+		    player[queue][(i+1)*4+3]	= temp;
+		}
+		/* 3142 */
+		else if (level[i*4+2] >= level[i*4] && level[i*4] >= level[i*4+3] && level[i*4+3] >= level[i*4+1]) {
+		    temp			= player[queue][(i+1)*4];
+		    player[queue][(i+1)*4]	= player[queue][(i+1)*4+2];
+		    player[queue][(i+1)*4+2]	= player[queue][(i+1)*4+3];
+		    player[queue][(i+1)*4+3]	= player[queue][(i+1)*4+1];
+		    player[queue][(i+1)*4+1]	= temp;
+		}
+		/* 3214 */
+		else if (level[i*4+2] >= level[i*4+1] && level[i*4+1] >= level[i*4] && level[i*4] >= level[i*4+3]) {
+		    temp			= player[queue][(i+1)*4];
+		    player[queue][(i+1)*4]	= player[queue][(i+1)*4+1];
+		    player[queue][(i+1)*4+1]	= player[queue][(i+1)*4+2];
+		    player[queue][(i+1)*4+2]	= player[queue][(i+1)*4+3];
+		    player[queue][(i+1)*4+3]	= temp;
+		}
+		/* 3241 */
+		else if (level[i*4+2] >= level[i*4+1] && level[i*4+1] >= level[i*4+3] && level[i*4+3] >= level[i*4]) {
+		    temp			= player[queue][(i+1)*4+1];
+		    player[queue][(i+1)*4+1]	= player[queue][(i+1)*4+2];
+		    player[queue][(i+1)*4+2]	= player[queue][(i+1)*4+3];
+		    player[queue][(i+1)*4+3]	= temp;
+		}
+		/* 3412 */
+		else if (level[i*4+2] >= level[i*4+3] && level[i*4+3] >= level[i*4] && level[i*4] >= level[i*4+1]) {
+		    temp			= player[queue][(i+1)*4];
+		    player[queue][(i+1)*4]	= player[queue][(i+1)*4+1];
+		    player[queue][(i+1)*4+1]	= temp;
+		    temp			= player[queue][(i+1)*4+2];
+		    player[queue][(i+1)*4+2]	= player[queue][(i+1)*4+3];
+		    player[queue][(i+1)*4+3]	= temp;
+		}
+		/* 3421 */
+		else if (level[i*4+2] >= level[i*4+3] && level[i*4+3] >= level[i*4+1] && level[i*4+1] >= level[i*4]) {
+		    temp			= player[queue][(i+1)*4+2];
+		    player[queue][(i+1)*4+2]	= player[queue][(i+1)*4+3];
+		    player[queue][(i+1)*4+3]	= temp;
+		}
+		/* 4123 */
+		else if (level[i*4+3] >= level[i*4] && level[i*4] >= level[i*4+1] && level[i*4+1] >= level[i*4+2]) {
+		    temp			= player[queue][(i+1)*4];
+		    player[queue][(i+1)*4]	= player[queue][(i+1)*4+2];
+		    player[queue][(i+1)*4+2]	= temp;
+		} 
+		/* 4132 */
+		else if (level[i*4+3] >= level[i*4] && level[i*4] >= level[i*4+2] && level[i*4+2] >= level[i*4+1]) {
+		    temp			= player[queue][(i+1)*4];
+		    player[queue][(i+1)*4]	= player[queue][(i+1)*4+2];
+		    player[queue][(i+1)*4+2]	= player[queue][(i+1)*4+1];
+		    player[queue][(i+1)*4+1]	= temp;
+		}
+		/* 4213 */
+		else if (level[i*4+3] >= level[i*4+1] && level[i*4+1] >= level[i*4] && level[i*4] >= level[i*4+2]) {
+		    temp			= player[queue][(i+1)*4];
+		    player[queue][(i+1)*4]	= player[queue][(i+1)*4+1];
+		    player[queue][(i+1)*4+1]	= player[queue][(i+1)*4+2];
+		    player[queue][(i+1)*4+2]	= temp;
+		}
+		/* 4231 */
+		else if (level[i*4+3] >= level[i*4+1] && level[i*4+1] >= level[i*4+2] && level[i*4+2] >= level[i*4]) {
+		    temp			= player[queue][(i+1)*4+1];
+		    player[queue][(i+1)*4+1]	= player[queue][(i+1)*4+2];
+		    player[queue][(i+1)*4+2]	= temp;
+		}
+		/* 4312 */
+		else if (level[i*4+3] >= level[i*4+2] && level[i*4+2] >= level[i*4] && level[i*4] >= level[i*4+1]) {
+		    temp			= player[queue][(i+1)*4];
+		    player[queue][(i+1)*4]	= player[queue][(i+1)*4+1];
+		    player[queue][(i+1)*4+1]	= temp;
+		}
+		/* 4321 */
+		else if (level[i*4+3] >= level[i*4+2] && level[i*4+2] >= level[i*4+1] && level[i*4+1] >= level[i*4]) {
+		    ;	/* nothing to do */
+		}
+	    } /* end 4 teams */
+	} /* end ppt loop */
+    } /* end "if" statement */
+    return 0;
+}
+
 static int _anongame_match(t_connection * c, int queue)
 {
     int level = _anongame_level_by_queue(c, queue);
@@ -507,62 +768,70 @@ static int _anongame_match(t_connection * c, int queue)
     t_anongame * a = conn_get_anongame(c);
     t_uint32 cur_prefs = a->map_prefs;
     t_connection * inv_c[ANONGAME_MAX_TEAMS];
-        
+    int maxlevel, minlevel;    
     int teams = 0;
     players[queue] = 0;
 
     eventlog(eventlog_level_trace,__FUNCTION__, "[%d] matching started for level %d player in queue %d", conn_get_socket(c), level, queue);
     
+    maxlevel = level + 6;
+    minlevel = (level - 6 < 0) ? 0 : level - 6;
+    
     while (abs(delta) < 7) {
-	eventlog(eventlog_level_trace,__FUNCTION__, "Traversing level %d players", level + delta);
-	
-	LIST_TRAVERSE(matchlists[queue][level + delta], curr)
-	{
-	    md = elem_get_data(curr);
-	    if (md->versiontag && _conn_get_versiontag(c) && !strcmp(md->versiontag, _conn_get_versiontag(c)) && (cur_prefs & md->map_prefs)) {
-		cur_prefs &= md->map_prefs;
-		
-		/* AT match */
-		if (anongame_arranged(queue)) {
-		    /* set the inv_c for unqueueing later */
-		    inv_c[teams] = md->c;
+	if ((level + delta <= maxlevel) && (level + delta >= minlevel)) {
+	    eventlog(eventlog_level_trace,__FUNCTION__, "Traversing level %d players", level + delta);
+	    
+	    LIST_TRAVERSE(matchlists[queue][level + delta], curr)
+	    {
+		md = elem_get_data(curr);
+		if (md->versiontag && _conn_get_versiontag(c) && !strcmp(md->versiontag, _conn_get_versiontag(c)) && (cur_prefs & md->map_prefs)) {
+		    /* set maxlevel and minlevel to keep all players within 6 levels */
+		    maxlevel = (level + delta + 6 < maxlevel) ? level + delta + 6 : maxlevel;
+		    minlevel = (level + delta - 6 > minlevel) ? level + delta - 6 : minlevel;
+		    cur_prefs &= md->map_prefs;
 		    
-		    a = conn_get_anongame(md->c);
-		    
-		    /* add all the players on the team to player[][] */
-		    for (i = 0; i < _anongame_totalplayers(queue)/_anongame_totalteams(queue); i++) {
-			eventlog(eventlog_level_trace,__FUNCTION__,"queue: %d, team: %d, totalplayers %d, totalteams %d, player slot: %d",
-			    queue, teams, _anongame_totalplayers(queue), _anongame_totalteams(queue),
-			    teams+i*_anongame_totalteams(queue));
-
-			player[queue][teams+i*_anongame_totalteams(queue)] = a->tc[i];
-			players[queue]++;
-		    }
-		    teams++;
-		    
-		    /* check for enough players */
-		    if (players[queue] == _anongame_totalplayers(queue)) {
-		        eventlog(eventlog_level_trace,__FUNCTION__, "Found enough players (%d), calling unqueue", players[queue]);
+		    /* AT match */
+		    if (anongame_arranged(queue)) {
 			
-			/* unqueue just the single team entry */
-			for (i = 0; i < teams; i++)
-			    anongame_unqueue(inv_c[i], queue);
+			/* set the inv_c for unqueueing later */
+			inv_c[teams] = md->c;
 			
-			mapname = _get_map_from_prefs(queue, cur_prefs, conn_get_clienttag(c));
-			return 0;
-		    }
-		
-		/* PG match */
-		} else {
-		    player[queue][players[queue]++] = md->c;
+			a = conn_get_anongame(md->c);
+			
+			/* add all the players on the team to player[][] */
+			for (i = 0; i < _anongame_totalplayers(queue)/_anongame_totalteams(queue); i++) {
+				player[queue][teams+i*_anongame_totalteams(queue)] = a->tc[i];
+				players[queue]++;
+			}
+			teams++;
+			
+			/* check for enough players */
+			if (players[queue] == _anongame_totalplayers(queue)) {
+			    			
+			    /* unqueue just the single team entry */
+			    for (i = 0; i < teams; i++)
+				anongame_unqueue(inv_c[i], queue);
+			    
+			    mapname = _get_map_from_prefs(queue, cur_prefs, conn_get_clienttag(c));
+			    return 0;
+			}
 		    
-		    if (players[queue] == _anongame_totalplayers(queue)) {
-		        eventlog(eventlog_level_trace,__FUNCTION__, "Found enough players (%d), calling unqueue", players[queue]);
-			for (i = 0; i < players[queue]; i++)
-			    anongame_unqueue(player[queue][i], queue);
+		    /* PG match */
+		    } else {
+			player[queue][players[queue]++] = md->c;
 			
-			mapname = _get_map_from_prefs(queue, cur_prefs, conn_get_clienttag(c));
-			return 0;
+			if (players[queue] == _anongame_totalplayers(queue)) {
+			    /* first sort queue by level */
+			    qsort(player[queue], players[queue], sizeof(t_connection *), _anongame_compare_level);
+			    /* next call reodering function */
+			    _anongame_order_queue(queue);
+			    /* unqueue players */
+			    for (i = 0; i < players[queue]; i++)
+				anongame_unqueue(player[queue][i], queue);
+			    
+			    mapname = _get_map_from_prefs(queue, cur_prefs, conn_get_clienttag(c));
+			    return 0;
+			}
 		    }
 		}
 	    }
