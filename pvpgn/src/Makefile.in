@@ -703,11 +703,11 @@ ${SRC_CONFDIR}/bnetd.conf: ${SRC_CONFDIR}/bnetd.conf.in ${SRC_SRCDIR}/config.sta
 
 ${SRC_CONFDIR}/d2cs.conf: ${SRC_CONFDIR}/d2cs.conf.in ${SRC_SRCDIR}/config.status
 	@${RMF} $@
-	${SED} -e "s@\(=[[:blank:]]*\"*\)/usr/local/var/@\1${sharedir}/@g" -e "s@\(=[[:blank:]]*\"*\)/usr/local/etc/@\1${confdir}/@g" ${SRC_CONFDIR}/d2cs.conf.in > $@
+	${SED} -e "s@/usr/local/var/@${sharedir}/@g" -e "s@/usr/local/etc/@${confdir}/@g" ${SRC_CONFDIR}/d2cs.conf.in > $@
 
 ${SRC_CONFDIR}/d2dbs.conf: ${SRC_CONFDIR}/d2dbs.conf.in ${SRC_SRCDIR}/config.status
 	@${RMF} $@
-	${SED} -e "s@\(=[[:blank:]]*\"*\)/usr/local/var/@\1${sharedir}/@g" -e "s@\(=[[:blank:]]*\"*\)/usr/local/etc/@\1${confdir}/@g" ${SRC_CONFDIR}/d2dbs.conf.in > $@
+	${SED} -e "s@/usr/local/var/@${sharedir}/@g" -e "s@/usr/local/etc/@${confdir}/@g" ${SRC_CONFDIR}/d2dbs.conf.in > $@
 
 ${SRC_ACDIR}/ansi2knr: ${SRC_ACDIR}/ansi2knr.o
 	@${RMF} $@
