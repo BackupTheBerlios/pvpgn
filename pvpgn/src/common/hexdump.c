@@ -70,7 +70,7 @@ extern void hexdump(FILE * stream, void const * data, unsigned int len)
     for (i = 0, datac = (char*)data ; i < len; i += 16, datac += 16)
     {
 	hexdump_string(datac, (len - i < 16) ? (len - i) : 16, dst, i);
-	fprintf(stream, "%s", dst);
+	fprintf(stream, "%s\n", dst);
 	fflush(stream);
     }
 }
@@ -108,5 +108,4 @@ static void hexdump_string(unsigned char * data, unsigned int datalen, char * ds
 		tlen += sprintf((dst+tlen), "."); /* put this for non-printables */
 	}
 
-    tlen += sprintf((dst+tlen), "\n");
 }
