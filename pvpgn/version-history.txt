@@ -5,6 +5,10 @@ versioncheck exe-time parsing now REALLY works as it was intended to.
 So ALL users using fucked up no-CD cracks or strange war3.org's may
 fail to login due to wrong file-time. That's not our problem. 
 
+1.6.0pre3 (since 1.6.0pre2):
+-- fixed clan crash bug (when any user with clans logged in on sql/cdb pvpgn 
+would crash)
+
 1.6.0pre2 (since 1.6.0pre1):
 -- fixed searching for connection of a acccount uid (thus getting rid of all 
 those useless eventlogs got NULL account in account_get_uid)
