@@ -4329,7 +4329,7 @@ static int _client_gamelistreq(t_connection * c, t_packet const * const packet)
 		       eventlog(eventlog_level_debug,__FUNCTION__,"[%d] not listing because game is wrong type",conn_get_socket(c));
 		       continue;
 		    }
-		  if (strcmp(versioncheck_get_versiontag(conn_get_versioncheck(game_get_owner(game))),versioncheck_get_versiontag(conn_get_versioncheck(c)))!=0)
+		  if (versioncheck_get_versiontag(conn_get_versioncheck(c)) && versioncheck_get_versiontag(conn_get_versioncheck(game_get_owner(game))) && strcmp(versioncheck_get_versiontag(conn_get_versioncheck(game_get_owner(game))),versioncheck_get_versiontag(conn_get_versioncheck(c)))!=0)
 		    {
 		       eventlog(eventlog_level_debug,__FUNCTION__,"[%d] not listing because game is wrong versiontag",conn_get_socket(c));
 		       continue;
