@@ -49,6 +49,7 @@
 #undef ACCOUNT_INTERNAL_ACCESS
 
 #include "compat/strdup.h"
+#include "compat/strcasecmp.h"
 #include "common/tag.h"
 #include "storage_sql.h"
 #ifdef WITH_SQL_MYSQL
