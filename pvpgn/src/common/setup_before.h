@@ -263,11 +263,32 @@
 #define PVPGN_4V4_GT_DESC    "Four vs. Four"
 #define PVPGN_4V4_GT_LONG    "Two teams of four head to battle"
 
-#define PVPGN_FFA_GT_DESC    "Small Free for All"
-#define PVPGN_FFA_GT_LONG    "Can you defeat 3-5 opponents alone?"
+#define PVPGN_5V5_GT_DESC    "Five vs. Five"
+#define PVPGN_5V5_GT_LONG    "Two teams of five - who will prevail?"
+
+#define PVPGN_6V6_GT_DESC    "Six vs. Six"
+#define PVPGN_6V6_GT_LONG    "Two teams of six - get ready to rumble!"
+
+#define PVPGN_SFFA_GT_DESC    "Small Free for All"
+#define PVPGN_SFFA_GT_LONG    "Can you defeat 3-5 opponents alone?"
+
+#define PVPGN_TFFA_GT_DESC    "Team Free for All"
+#define PVPGN_TFFA_GT_LONG    "Can your team defeat 1-2 others?"
 
 #define PVPGN_2V2V2_GT_DESC  "Two vs. Two vs. Two"
 #define PVPGN_2V2V2_GT_LONG  "Three teams of two, can you handle it?"
+
+#define PVPGN_3V3V3_GT_DESC  "Three vs. Three vs. Three"
+#define PVPGN_3V3V3_GT_LONG  "Three teams of three battle each other "
+
+#define PVPGN_4V4V4_GT_DESC  "Four vs. Four vs. Four"
+#define PVPGN_4V4V4_GT_LONG  "Three teams of four - things getting crowded?"
+
+#define PVPGN_2V2V2V2_GT_DESC  "Two vs. Two vs. Two vs. Two"
+#define PVPGN_2V2V2V2_GT_LONG  "Four teams of two, is this a challenge?"
+
+#define PVPGN_3V3V3V3_GT_DESC  "Three vs. Three vs. Three vs. Three"
+#define PVPGN_3V3V3V3_GT_LONG  "Four teams of three, the ultimate challenge!"
 
 #define PVPGN_AINFO_FILE     "conf/anongame_infos.conf"
 
