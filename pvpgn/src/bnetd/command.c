@@ -2992,7 +2992,6 @@ static int _handle_chpass_command(t_connection * c, char const *text)
   char         arg2[256];
   char const * username;
   char *       pass;
-  char const * channel;
   
   for (i=0; text[i]!=' ' && text[i]!='\0'; i++);
   for (; text[i]==' '; i++);
@@ -3056,11 +3055,7 @@ static int _handle_chpass_command(t_connection * c, char const *text)
       return 0;
     }
   
-  channel = channel_get_name(conn_get_channel(c));
-
-  if (account_get_auth_admin(account,channel) == 1 ||
-      account_get_auth_admin(account,NULL) == 1 || 
-      account_get_auth_operator(account,channel) == 1 ||
+  if (account_get_auth_admin(account,NULL) == 1 || 
       account_get_auth_operator(account,NULL) == 1) {
     sprintf(msgtemp,
       "Password for account "UID_FORMAT" updated.",account_get_uid(temp));
