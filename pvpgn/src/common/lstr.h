@@ -18,18 +18,18 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifndef INCLUDED_QSTR_TYPES
-#define INCLUDED_QSTR_TYPES
+#ifndef INCLUDED_LSTR_TYPES
+#define INCLUDED_LSTR_TYPES
 
 typedef struct lstr {
     char *str;
     unsigned len;
 } t_lstr;
 
-#endif /* INCLUDED_QSTR_TYPES */
+#endif /* INCLUDED_LSTR_TYPES */
 
-#ifndef INCLUDED_QSTR_PROTOS
-#define INCLUDED_QSTR_PROTOS
+#ifndef INCLUDED_LSTR_PROTOS
+#define INCLUDED_LSTR_PROTOS
 
 static inline void lstr_set_str(t_lstr *lstr, char *str)
 {
@@ -51,4 +51,4 @@ static inline unsigned lstr_get_len(t_lstr *lstr)
     return lstr->len;
 }
 
-#endif /* INCLUDED_QSTR_PROTOS */
+#endif /* INCLUDED_LSTR_PROTOS */
