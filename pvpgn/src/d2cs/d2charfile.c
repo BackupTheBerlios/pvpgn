@@ -152,11 +152,11 @@ extern int d2char_create(char const * account, char const * charname, unsigned c
 	be created	*/
 	
 	if (!(prefs_get_lod_realm() == 2)) {
-		if (prefs_get_lod_realm() && ((status != 0x21) && (status != 0x25))) {
+		if (prefs_get_lod_realm() && ((status & 0x20) != 0x20)) {
 		    log_warn("This Realm is for LOD Characters Only");
 		    return -1;
 		}
-		if (!prefs_get_lod_realm() && ((status != 0x01) && (status != 0x05))) {
+		if (!prefs_get_lod_realm() && ((status & 0x20) != 0x0)) {
 		    log_warn("This Realm is for Classic Characters Only");
 		    return -1;
 		}
