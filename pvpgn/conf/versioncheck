@@ -63,29 +63,29 @@
 
 # -=-=-=-=-=-=- Latest Versions -=-=-=-=-=-=- No Update Required -=-=-=-=-=-=-
 
-# Warcraft III - TFT (Expansion) 1.14a
+# Warcraft III - TFT (Expansion) 1.14b
 # Note: this version check is sent in both FT and ROC mode
 "A=3845581634 B=880823580 C=1363937103 4 A=A-S B=B-C C=C-A A=A-B" \
  IX86ver1.mpq \
  IX86 \
  W3XP \
- "War3.exe 01/06/04 03:44:50 1568211" \
+ "War3.exe 01/09/04 06:11:44 1568211" \
  0x0000000e \
- 1.0.14.151 \
- 0xa842edef \
- W3XP_114A
+ 1.0.14.1512 \
+ 0x36fd6e73 \
+ W3XP_114B
 
-# Warcraft III - ROC 1.14a
+# Warcraft III - ROC 1.14b
 # Note: this version check is sent in both FT and ROC mode
 "A=3845581634 B=880823580 C=1363937103 4 A=A-S B=B-C C=C-A A=A-B" \
  IX86ver1.mpq \
  IX86 \
  WAR3 \
- "War3.exe 01/06/04 03:44:50 1568211" \
+ "War3.exe 01/09/04 06:11:44 1568211" \
  0x0000000e \
- 1.0.14.151 \
- 0xa842edef \
- WAR3_114A
+ 1.0.14.152 \
+ 0x36fd6e73 \
+ WAR3_114B
 
 # Diablo II - LoD (Expansion) 1.10 
 "A=3845581634 B=880823580 C=1363937103 4 A=A-S B=B-C C=C-A A=A-B" \
@@ -169,6 +169,18 @@
 
 # =================== WarCraft 3 Expansion Entries ==================
 
+# Warcraft III - TFT (Expansion) 1.14a
+# Note: this version check is sent in both FT and ROC mode
+"A=3845581634 B=880823580 C=1363937103 4 A=A-S B=B-C C=C-A A=A-B" \
+ IX86ver1.mpq \
+ IX86 \
+ W3XP \
+ "War3.exe 01/06/04 03:44:50 1568211" \
+ 0x0000000e \
+ 1.0.14.151 \
+ 0xa842edef \
+ W3XP_114A
+
 # Warcraft III - TFT (Expansion) 1.13b
 # Note: this version check is sent in both FT and ROC mode
 "A=3845581634 B=880823580 C=1363937103 4 A=A-S B=B-C C=C-A A=A-B" \
@@ -244,6 +256,18 @@
  W3XP_107a
 
 # ====================== WarCraft 3 Entries ========================
+
+# Warcraft III - ROC 1.14a
+# Note: this version check is sent in both FT and ROC mode
+"A=3845581634 B=880823580 C=1363937103 4 A=A-S B=B-C C=C-A A=A-B" \
+ IX86ver1.mpq \
+ IX86 \
+ WAR3 \
+ "War3.exe 01/06/04 03:44:50 1568211" \
+ 0x0000000e \
+ 1.0.14.151 \
+ 0xa842edef \
+ WAR3_114A
 
 # Warcraft III - ROC 1.13b
 # Note: this version check is sent in both FT and ROC mode
