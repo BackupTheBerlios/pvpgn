@@ -48,6 +48,8 @@ WAR3/W3XP +/-6 level ladder-rule
 try to join non-open games)
 -- added support for d2dbs and d2cs to run as a service on WIN32
 -- removed option from configure for enabling BITS (totally broken)
+-- cleaned private/passworded games related codes also fixing private games 
+with newest W3 clients (they were considered public and listed)
 
 1.6.0pre5 (since 1.6.0pre4):
 -- added support for loading new accounts at runtime (ex. if made by some 
