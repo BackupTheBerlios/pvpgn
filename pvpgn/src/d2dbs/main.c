@@ -84,7 +84,7 @@ static int setup_daemon(void)
 
 	close(STDIN_FILENO);
 	close(STDOUT_FILENO);
-	if (!d2dbs_cmdline_get_logstderr()) {
+	if (!d2dbs_cmdline_get_debugmode()) {
 		close(STDERR_FILENO);
 	}
 
@@ -141,7 +141,7 @@ static int config_init(int argc, char * * argv)
 		return -1;
 	}
 #ifdef DO_DAEMONIZE
-	if ((!d2dbs_cmdline_get_foreground()) && (!d2dbs_commandline_get_debugmode())) {
+	if ((!d2dbs_cmdline_get_foreground()) && (!d2dbs_cmdline_get_debugmode())) {
 	    	if (!((pid = setup_daemon()) == 0)) {
 		        return pid;
 		}

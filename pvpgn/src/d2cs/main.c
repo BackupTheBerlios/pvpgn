@@ -89,7 +89,7 @@ static int setup_daemon(void)
 	}
 	close(STDIN_FILENO);
 	close(STDOUT_FILENO);
-	if (!cmdline_get_logstderr()) {
+	if (!cmdline_get_debugmode()) {
 		close(STDERR_FILENO);
 	}
 	switch ((pid = fork())) {
