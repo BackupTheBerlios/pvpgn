@@ -1939,6 +1939,9 @@ static int _client_loginreq1(t_connection * c, t_packet const * const packet)
 			       eventlog(eventlog_level_info,__FUNCTION__,"[%d] \"%s\" logged in (correct password)",conn_get_socket(c),(tname = conn_get_username(c)));
 			       conn_unget_username(c,tname);
 			       bn_int_set(&rpacket->u.server_loginreply1.message,SERVER_LOGINREPLY1_MESSAGE_SUCCESS);
+#ifdef WIN32_GUI
+			       guiOnUpdateUserList();
+#endif
 #ifdef WITH_BITS
 			    } else {
 			       eventlog(eventlog_level_info,__FUNCTION__,"[%d] login for \"%s\" refused (bits_loginlist_add returned %d)",conn_get_socket(c),(tname = account_get_name(account)),rc);
@@ -1962,7 +1965,9 @@ static int _client_loginreq1(t_connection * c, t_packet const * const packet)
 		  eventlog(eventlog_level_info,__FUNCTION__,"[%d] \"%s\" logged in (no password)",conn_get_socket(c),(tname = account_get_name(account)));
 		  account_unget_name(tname);
 		  bn_int_set(&rpacket->u.server_loginreply1.message,SERVER_LOGINREPLY1_MESSAGE_SUCCESS);
-		  
+#ifdef WIN32_GUI
+			       guiOnUpdateUserList();
+#endif		  
 	       }
 	  }
 	conn_push_outqueue(c,rpacket);
@@ -2179,8 +2184,12 @@ static int _client_loginreq2(t_connection * c, t_packet const * const packet)
 		  success = 1;
 	       }
 	  }
-	if (success && account)
+	if (success && account) {
+#ifdef WIN32_GUI
+	  guiOnUpdateUserList();
+#endif
 	  client_init_email(c,account);
+	}
 	  
 	conn_push_outqueue(c,rpacket);
 	packet_del_ref(rpacket);
