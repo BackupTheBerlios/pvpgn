@@ -184,7 +184,7 @@
 				Name="compat"
 				Filter="">
 				<File
-					RelativePath="..\compat\inet_aton.h">
+					RelativePath="..\compat\inet_aton.c">
 				</File>
 				<File
 					RelativePath="..\compat\psock.c">
@@ -267,6 +267,9 @@
 			<Filter
 				Name="compat"
 				Filter="">
+				<File
+					RelativePath="..\compat\inet_aton.h">
+				</File>
 				<File
 					RelativePath="..\compat\psock.h">
 				</File>
