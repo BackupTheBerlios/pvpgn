@@ -93,8 +93,8 @@ if ($row = mysql_fetch_row($query)) {
 				  $row = mysql_fetch_row($temp = mysql_query("SELECT value FROM config WHERE `key` = 'latest_stable'",$dbh));
 				  $latest_stable = $row[0];
 				  mysql_free_result($temp);
-				  $row = mysql_fetch_row($temp = mysql_query("SELECT value FROM config WHERE `key` = 'latest_unstable'",$dbh));
-				  $latest_unstable = $row[0];
+				  $row = mysql_fetch_row($temp = mysql_query("SELECT value FROM config WHERE `key` = 'latest_development'",$dbh));
+				  $latest_development = $row[0];
 				  mysql_free_result($temp);
 				  $row = mysql_fetch_row($temp = mysql_query("SELECT value FROM config WHERE `key` = 'latest_d2pack109'",$dbh));
 				  $latest_d2pack109 = $row[0];
@@ -115,12 +115,12 @@ if ($row = mysql_fetch_row($query)) {
 						return $mysize;
 				  }
 
-				// Check to see if there is an unstable release currently
-				  if ($latest_unstable <> 0) {
+				// Check to see if there is a development release currently
+				  if ($latest_development <> 0) {
 					// Pass some instructions to files.php and run it
 				  	$filesphp = array(
-									'type' => 'unstable',
-									'version' => $latest_unstable);
+									'type' => 'development',
+									'version' => $latest_development);
 					include('files.php');
 				  }
 				// We will assume that there will always be a stable release

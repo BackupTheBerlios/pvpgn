@@ -2,7 +2,7 @@
 require_once('../config.php');
 $dateformat = 'l F j, Y G:i:s';
 session_start();
-if (!session_is_registered('user') || !($_GET['type'] == 'unstable' || $_GET['type'] == 'stable' || $_GET['type'] == 'd2pack109')) {
+if (!session_is_registered('user') || !($_GET['type'] == 'development' || $_GET['type'] == 'stable' || $_GET['type'] == 'd2pack109')) {
 	header("Location: index.php");
 	die();
 }
@@ -95,9 +95,7 @@ $max = mysql_fetch_row(mysql_query("SELECT MAX(`order`) FROM downloads_".$_GET['
 $query = mysql_query("SELECT * FROM downloads_".$_GET['type']." ORDER BY `order` ASC",$dbh);
 if ($row = mysql_fetch_row($query)) {
 	do {
-		echo "<tr><td>".$row[3]."</td><td>".$row[0]."</td><td>".$row[1]."</td><td>".$row[2]."</td><td><a href=\"downloads.php?type=".$_GET['type']."&edit=".$row[3]."\">edit</a></td><td><a href=\"downloads.php?type=".$_GET['type']."&delete=".$row[3]."\">delete</
-
-a></td>";
+		echo "<tr><td>".$row[3]."</td><td>".$row[0]."</td><td>".$row[1]."</td><td>".$row[2]."</td><td><a href=\"downloads.php?type=".$_GET['type']."&edit=".$row[3]."\">edit</a></td><td><a href=\"downloads.php?type=".$_GET['type']."&delete=".$row[3]."\">delete</a></td>";
 		if ($row[3] <> 1) {
 			echo "<td><a href=\"downloads.php?type=".$_GET['type']."&moveup=".$row[3]."\">move up</a></td>";
 		} else {
