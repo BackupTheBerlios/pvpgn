@@ -95,12 +95,12 @@ static void game_choose_host(t_game * game)
     
     if (game->count<1)
     {
-	eventlog(eventlog_level_error,"game_choose_host","game has had no connections?!");
+	eventlog(eventlog_level_error,__FUNCTION__,"game has had no connections?!");
 	return;
     }
     if (!game->connections)
     {
-	eventlog(eventlog_level_error,"game_choose_host","game has NULL connections array");
+	eventlog(eventlog_level_error,__FUNCTION__,"game has NULL connections array");
 	return;
     }
     
@@ -112,7 +112,7 @@ static void game_choose_host(t_game * game)
 	    game->port  = conn_get_game_port(game->connections[i]);
 	    return;
 	}
-    eventlog(eventlog_level_warn,"game_choose_host","no valid connections found");
+    eventlog(eventlog_level_warn,__FUNCTION__,"no valid connections found");
 }
 
 
@@ -395,23 +395,23 @@ extern t_game * game_create(char const * name, char const * pass, char const * i
     
     if (!name)
     {
-	eventlog(eventlog_level_info,"game_create","got NULL game name");
+	eventlog(eventlog_level_info,__FUNCTION__,"got NULL game name");
 	return NULL;
     }
     if (!pass)
     {
-	eventlog(eventlog_level_info,"game_create","got NULL game pass");
+	eventlog(eventlog_level_info,__FUNCTION__,"got NULL game pass");
 	return NULL;
     }
     if (!info)
     {
-	eventlog(eventlog_level_info,"game_create","got NULL game info");
+	eventlog(eventlog_level_info,__FUNCTION__,"got NULL game info");
 	return NULL;
     }
     
     if (gamelist_find_game(name,game_type_all))
     {
-	eventlog(eventlog_level_info,"game_create","game \"%s\" not created because it already exists",name);
+	eventlog(eventlog_level_info,__FUNCTION__,"game \"%s\" not created because it already exists",name);
 	return NULL; /* already have a game by that name */
     }
     
@@ -421,7 +421,7 @@ extern t_game * game_create(char const * name, char const * pass, char const * i
     game->info = xstrdup(info);
     if (!(game->clienttag = clienttag))
     {
-	eventlog(eventlog_level_error,"game_create","got UNKNOWN clienttag");
+	eventlog(eventlog_level_error,__FUNCTION__,"got UNKNOWN clienttag");
 	xfree((void *)game->info); /* avoid warning */
 	xfree((void *)game->pass); /* avoid warning */
 	xfree((void *)game->name); /* avoid warning */
@@ -467,7 +467,7 @@ extern t_game * game_create(char const * name, char const * pass, char const * i
     
     list_prepend_data(gamelist_head,game);
 
-    eventlog(eventlog_level_info,"game_create","game \"%s\" (pass \"%s\") type %hu(%s) startver %d created",name,pass,(unsigned short)type,game_type_get_str(type),startver);
+    eventlog(eventlog_level_info,__FUNCTION__,"game \"%s\" (pass \"%s\") type %hu(%s) startver %d created",name,pass,(unsigned short)type,game_type_get_str(type),startver);
     
     return game;
 }
@@ -480,13 +480,13 @@ static void game_destroy(t_game const * game)
     
     if (!game)
     {
-	eventlog(eventlog_level_error,"game_destroy","got NULL game");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL game");
 	return;
     }
     
     if (list_remove_data(gamelist_head,game, &elem)<0)
     {
-	eventlog(eventlog_level_error,"game_destroy","could not find game \"%s\" in list",game_get_name(game));
+	eventlog(eventlog_level_error,__FUNCTION__,"could not find game \"%s\" in list",game_get_name(game));
         return;
     }
     
@@ -495,7 +495,7 @@ static void game_destroy(t_game const * game)
         realm_add_game_number(realmlist_find_realm(game->realmname),-1); 
     } 
 
-    eventlog(eventlog_level_debug,"game_destroy","game \"%s\" (count=%u ref=%u) removed from list...",game_get_name(game),game->count,game->ref);
+    eventlog(eventlog_level_debug,__FUNCTION__,"game \"%s\" (count=%u ref=%u) removed from list...",game_get_name(game),game->count,game->ref);
     
     for (i=0; i<game->count; i++)
     {
@@ -530,7 +530,7 @@ static void game_destroy(t_game const * game)
     xfree((void *)game->name); /* avoid warning */
     xfree((void *)game); /* avoid warning */
     
-    eventlog(eventlog_level_info,"game_destroy","game deleted");
+    eventlog(eventlog_level_info,__FUNCTION__,"game deleted");
     
     return;
 }
@@ -662,17 +662,17 @@ static int game_report(t_game * game)
     
     if (!game)
     {
-	eventlog(eventlog_level_error,"game_report","got NULL game");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL game");
 	return -1;
     }
     if (!game->clienttag)
     {
-	eventlog(eventlog_level_error,"game_report","got UNKNOWN clienttag");
+	eventlog(eventlog_level_error,__FUNCTION__,"got UNKNOWN clienttag");
 	return -1;
     }
     if (!game->players)
     {
-	eventlog(eventlog_level_error,"game_report","player array is NULL");
+	eventlog(eventlog_level_error,__FUNCTION__,"player array is NULL");
 	return -1;
     }
     if (!game->reported_results)
@@ -682,7 +682,7 @@ static int game_report(t_game * game)
     }
     if (!game->results)
     {
-	eventlog(eventlog_level_error,"game_report","results array is NULL");
+	eventlog(eventlog_level_error,__FUNCTION__,"results array is NULL");
 	return -1;
     }
     
@@ -706,7 +706,7 @@ static int game_report(t_game * game)
 	realcount = 0;
       else
       {
-	eventlog(eventlog_level_info,"game_report","diablo gamereport disabled: ignoring game");
+	eventlog(eventlog_level_info,__FUNCTION__,"diablo gamereport disabled: ignoring game");
 	return 0;
       }
     }
@@ -719,7 +719,7 @@ static int game_report(t_game * game)
 	{
 	    if (!game->players[i])
 	    {
-		eventlog(eventlog_level_error,"game_report","player slot %u has NULL account",i);
+		eventlog(eventlog_level_error,__FUNCTION__,"player slot %u has NULL account",i);
 		continue;
 	    }
 	    
@@ -744,12 +744,12 @@ static int game_report(t_game * game)
 	
 	if (realcount<1)
 	{
-	    eventlog(eventlog_level_info,"game_report","ignoring game");
+	    eventlog(eventlog_level_info,__FUNCTION__,"ignoring game");
 	    return -1;
 	}
     }
 
-    eventlog(eventlog_level_debug,"game_report","realcount=%d count=%u",realcount,game->count);
+    eventlog(eventlog_level_debug,__FUNCTION__,"realcount=%d count=%u",realcount,game->count);
 
     if (realcount>=1 && !game->bad)
     {
@@ -766,7 +766,7 @@ static int game_report(t_game * game)
 
 	    for (i=0; i<realcount; i++)
 	    {
-		eventlog(eventlog_level_debug,"game_report","realplayer %u result=%u",i+1,(unsigned int)game->results[i]);
+		eventlog(eventlog_level_debug,__FUNCTION__,"realplayer %u result=%u",i+1,(unsigned int)game->results[i]);
 		
 		ladder_init_account(game->players[i],game->clienttag,id);
 		
@@ -798,7 +798,7 @@ static int game_report(t_game * game)
 		    }
 		    break;
 		default:
-		    eventlog(eventlog_level_error,"game_report","bad ladder game realplayer results[%u] = %u",i,game->results[i]);
+		    eventlog(eventlog_level_error,__FUNCTION__,"bad ladder game realplayer results[%u] = %u",i,game->results[i]);
 		    account_inc_ladder_disconnects(game->players[i],game->clienttag,id);
 		    account_set_ladder_last_result(game->players[i],game->clienttag,id,game_result_get_str(game_result_disconnect));
 		}
@@ -810,7 +810,7 @@ static int game_report(t_game * game)
 		realcount,game->players,game->results,ladder_info,
 		discisloss?ladder_option_disconnectisloss:ladder_option_none)<0)
 	    {
-		eventlog(eventlog_level_error,"game_report","unable to update ladder stats");
+		eventlog(eventlog_level_error,__FUNCTION__,"unable to update ladder stats");
 		xfree(ladder_info);
 		ladder_info = NULL;
 	    }
@@ -854,7 +854,7 @@ static int game_report(t_game * game)
 		    }
 		    break;
 		default:
-		    eventlog(eventlog_level_error,"game_report","bad normal game realplayer results[%u] = %u",i,game->results[i]);
+		    eventlog(eventlog_level_error,__FUNCTION__,"bad normal game realplayer results[%u] = %u",i,game->results[i]);
 /* FIXME: Jung-woo fixed this here but we should find out what value results[i] has...
    and why "discisloss" isn't set above in game_result_disconnect */
 #if 0
@@ -871,7 +871,7 @@ static int game_report(t_game * game)
     
     if (game_get_type(game)!=game_type_ladder && prefs_get_report_all_games()!=1)
     {
-	eventlog(eventlog_level_debug,"game_report","not reporting normal games");
+	eventlog(eventlog_level_debug,__FUNCTION__,"not reporting normal games");
 	return 0;
     }
     
@@ -898,7 +898,7 @@ static int game_report(t_game * game)
     
     if (!(fp = fopen(tempname,"w")))
     {
-	eventlog(eventlog_level_error,"game_report","could not open report file \"%s\" for writing (fopen: %s)",tempname,strerror(errno));
+	eventlog(eventlog_level_error,__FUNCTION__,"could not open report file \"%s\" for writing (fopen: %s)",tempname,strerror(errno));
 	if (ladder_info)
 	    xfree(ladder_info);
 	xfree(realname);
@@ -1041,7 +1041,7 @@ static int game_report(t_game * game)
     
     if (fclose(fp)<0)
     {
-	eventlog(eventlog_level_error,"game_report","could not close report file \"%s\" after writing (fclose: %s)",tempname,strerror(errno));
+	eventlog(eventlog_level_error,__FUNCTION__,"could not close report file \"%s\" after writing (fclose: %s)",tempname,strerror(errno));
 	xfree(realname);
 	xfree(tempname);
 	return -1;
@@ -1049,13 +1049,13 @@ static int game_report(t_game * game)
     
     if (rename(tempname,realname)<0)
     {
-	eventlog(eventlog_level_error,"game_report","could not rename report file to \"%s\" (rename: %s)",realname,strerror(errno));
+	eventlog(eventlog_level_error,__FUNCTION__,"could not rename report file to \"%s\" (rename: %s)",realname,strerror(errno));
 	xfree(realname);
 	xfree(tempname);
 	return -1;
     }
     
-    eventlog(eventlog_level_debug,"game_report","game report saved as \"%s\"",realname);
+    eventlog(eventlog_level_debug,__FUNCTION__,"game report saved as \"%s\"",realname);
     xfree(realname);
     xfree(tempname);
     return 0;
@@ -1066,7 +1066,7 @@ extern unsigned int game_get_id(t_game const * game)
 {
     if (!game)
     {
-	eventlog(eventlog_level_error,"game_get_id","got NULL game");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL game");
         return 0;
     }
     return game->id;
@@ -1077,7 +1077,7 @@ extern char const * game_get_name(t_game const * game)
 {
     if (!game)
     {
-	eventlog(eventlog_level_error,"game_get_name","got NULL game");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL game");
         return NULL;
     }
     return game->name;
@@ -1088,7 +1088,7 @@ extern t_game_type game_get_type(t_game const * game)
 {
     if (!game)
     {
-	eventlog(eventlog_level_error,"game_get_type","got NULL game");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL game");
         return 0;
     }
     return game->type;
@@ -1099,7 +1099,7 @@ extern t_game_maptype game_get_maptype(t_game const * game)
 {
     if (!game)
     {
-	eventlog(eventlog_level_error,"game_get_maptype","got NULL game");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL game");
         return game_maptype_none;
     }
     return game->maptype;
@@ -1110,7 +1110,7 @@ extern int game_set_maptype(t_game * game, t_game_maptype maptype)
 {
     if (!game)
     {
-	eventlog(eventlog_level_error,"game_set_maptype","got NULL game");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL game");
         return -1;
     }
     game->maptype = maptype;
@@ -1122,7 +1122,7 @@ extern t_game_tileset game_get_tileset(t_game const * game)
 {
     if (!game)
     {
-	eventlog(eventlog_level_error,"game_get_tileset","got NULL game");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL game");
         return game_tileset_none;
     }
     return game->tileset;
@@ -1133,7 +1133,7 @@ extern int game_set_tileset(t_game * game, t_game_tileset tileset)
 {
     if (!game)
     {
-	eventlog(eventlog_level_error,"game_set_tileset","got NULL game");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL game");
         return -1;
     }
     game->tileset = tileset;
@@ -1145,7 +1145,7 @@ extern t_game_speed game_get_speed(t_game const * game)
 {
     if (!game)
     {
-	eventlog(eventlog_level_error,"game_get_speed","got NULL game");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL game");
         return game_speed_none;
     }
     return game->speed;
@@ -1156,7 +1156,7 @@ extern int game_set_speed(t_game * game, t_game_speed speed)
 {
     if (!game)
     {
-	eventlog(eventlog_level_error,"game_set_speed","got NULL game");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL game");
         return -1;
     }
     game->speed = speed;
@@ -1168,7 +1168,7 @@ extern unsigned int game_get_mapsize_x(t_game const * game)
 {
     if (!game)
     {
-	eventlog(eventlog_level_error,"game_get_mapsize_x","got NULL game");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL game");
         return 0;
     }
     return game->mapsize_x;
@@ -1179,7 +1179,7 @@ extern int game_set_mapsize_x(t_game * game, unsigned int x)
 {
     if (!game)
     {
-	eventlog(eventlog_level_error,"game_set_mapsize_x","got NULL game");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL game");
         return -1;
     }
     game->mapsize_x = x;
@@ -1191,7 +1191,7 @@ extern unsigned int game_get_mapsize_y(t_game const * game)
 {
     if (!game)
     {
-	eventlog(eventlog_level_error,"game_get_mapsize_y","got NULL game");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL game");
         return 0;
     }
     return game->mapsize_y;
@@ -1202,7 +1202,7 @@ extern int game_set_mapsize_y(t_game * game, unsigned int y)
 {
     if (!game)
     {
-	eventlog(eventlog_level_error,"game_set_mapsize_y","got NULL game");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL game");
         return -1;
     }
     game->mapsize_y = y;
@@ -1214,7 +1214,7 @@ extern unsigned int game_get_maxplayers(t_game const * game)
 {
     if (!game)
     {
-	eventlog(eventlog_level_error,"game_get_maxplayers","got NULL game");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL game");
         return 0;
     }
     return game->maxplayers;
@@ -1225,7 +1225,7 @@ extern int game_set_maxplayers(t_game * game, unsigned int maxplayers)
 {
     if (!game)
     {
-	eventlog(eventlog_level_error,"game_set_maxplayers","got NULL game");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL game");
         return -1;
     }
     game->maxplayers = maxplayers;
@@ -1237,7 +1237,7 @@ extern unsigned int game_get_difficulty(t_game const * game)
 {
     if (!game)
     {
-	eventlog(eventlog_level_error,"game_get_difficulty","got NULL game");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL game");
         return 0;
     }
     return game->difficulty;
@@ -1248,7 +1248,7 @@ extern int game_set_difficulty(t_game * game, unsigned int difficulty)
 {
     if (!game)
     {
-	eventlog(eventlog_level_error,"game_set_maxplayers","got NULL game");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL game");
         return -1;
     }
     game->difficulty = difficulty;
@@ -1260,7 +1260,7 @@ extern char const * game_get_description(t_game const * game)
 {
     if (!game)
     {
-	eventlog(eventlog_level_error,"game_get_description","got NULL game");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL game");
         return NULL;
     }
     return game->description;
@@ -1271,12 +1271,12 @@ extern int game_set_description(t_game * game, char const * description)
 {
     if (!game)
     {
-	eventlog(eventlog_level_error,"game_set_description","got NULL game");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL game");
         return -1;
     }
     if (!description)
     {
-	eventlog(eventlog_level_error,"game_set_description","got NULL description");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL description");
 	return -1;
     }
     
@@ -1291,7 +1291,7 @@ extern char const * game_get_pass(t_game const * game)
 {
     if (!game)
     {
-	eventlog(eventlog_level_error,"game_get_pass","got NULL game");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL game");
         return NULL;
     }
     return game->pass;
@@ -1302,7 +1302,7 @@ extern char const * game_get_info(t_game const * game)
 {
     if (!game)
     {
-	eventlog(eventlog_level_error,"game_get_info","got NULL game");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL game");
         return NULL;
     }
     return game->info;
@@ -1313,7 +1313,7 @@ extern int game_get_startver(t_game const * game)
 {
     if (!game)
     {
-	eventlog(eventlog_level_error,"game_get_startver","got NULL game");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL game");
         return 0;
     }
     return game->startver;
@@ -1324,7 +1324,7 @@ extern unsigned long game_get_version(t_game const * game)
 {
     if (!game)
     {
-	eventlog(eventlog_level_error,"game_get_version","got NULL game");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL game");
         return 0;
     }
     return game->version;
@@ -1335,7 +1335,7 @@ extern unsigned int game_get_ref(t_game const * game)
 {
     if (!game)
     {
-	eventlog(eventlog_level_error,"game_get_ref","got NULL game");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL game");
         return 0;
     }
     return game->ref;
@@ -1346,7 +1346,7 @@ extern unsigned int game_get_count(t_game const * game)
 {
     if (!game)
     {
-	eventlog(eventlog_level_error,"game_get_count","got NULL game");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL game");
         return 0;
     }
     return game->count;
@@ -1356,9 +1356,9 @@ extern unsigned int game_get_count(t_game const * game)
 extern void game_set_status(t_game * game, t_game_status status)
 {
 	if (!game) {
-		eventlog(eventlog_level_error,"game_set_status","got NULL game");
+		eventlog(eventlog_level_error,__FUNCTION__,"got NULL game");
 		return;
-    }
+	}
 	// [quetzal] 20020829 - this should prevent invalid status changes
 	// its like started game cant become open and so on
 	if (game->status == game_status_started && 
@@ -1384,7 +1384,7 @@ extern t_game_status game_get_status(t_game const * game)
 {
     if (!game)
     {
-	eventlog(eventlog_level_error,"game_get_status","got NULL game");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL game");
         return 0;
     }
     return game->status;
@@ -1395,7 +1395,7 @@ extern unsigned int game_get_addr(t_game const * game)
 {
     if (!game)
     {
-	eventlog(eventlog_level_error,"game_get_addr","got NULL game");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL game");
         return 0;
     }
     
@@ -1407,7 +1407,7 @@ extern unsigned short game_get_port(t_game const * game)
 {
     if (!game)
     {
-	eventlog(eventlog_level_error,"game_get_port","got NULL game");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL game");
         return 0;
     }
     
@@ -1419,22 +1419,22 @@ extern unsigned int game_get_latency(t_game const * game)
 {
     if (!game)
     {
-	eventlog(eventlog_level_error,"game_get_latency","got NULL game");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL game");
         return 0;
     }
     if (game->ref<1)
     {
-	eventlog(eventlog_level_error,"game_get_latency","game \"%s\" has no players",game->name);
+	eventlog(eventlog_level_error,__FUNCTION__,"game \"%s\" has no players",game->name);
 	return 0;
     }
     if (!game->players)
     {
-	eventlog(eventlog_level_error,"game_get_latency","game \"%s\" has NULL players array (ref=%u)",game->name,game->ref);
+	eventlog(eventlog_level_error,__FUNCTION__,"game \"%s\" has NULL players array (ref=%u)",game->name,game->ref);
 	return 0;
     }
     if (!game->players[0])
     {
-	eventlog(eventlog_level_error,"game_get_latency","game \"%s\" has NULL players[0] entry (ref=%u)",game->name,game->ref);
+	eventlog(eventlog_level_error,__FUNCTION__,"game \"%s\" has NULL players[0] entry (ref=%u)",game->name,game->ref);
 	return 0;
     }
     
@@ -1445,22 +1445,22 @@ extern t_connection * game_get_player_conn(t_game const * game, unsigned int i)
 {
   if (!game)
   {
-    eventlog(eventlog_level_error,"game_get_player_conn","got NULL game");
+    eventlog(eventlog_level_error,__FUNCTION__,"got NULL game");
     return NULL;
   }
   if (game->ref<1)
   {
-    eventlog(eventlog_level_error,"game_get_player_conn","game \"%s\" has no players",game->name);
+    eventlog(eventlog_level_error,__FUNCTION__,"game \"%s\" has no players",game->name);
     return NULL;
   }
   if (!game->players)
   {
-    eventlog(eventlog_level_error,"game_get_player_conn","game \"%s\" has NULL player array (ref=%u)",game->name,game->ref);
+    eventlog(eventlog_level_error,__FUNCTION__,"game \"%s\" has NULL player array (ref=%u)",game->name,game->ref);
     return NULL;
   }
   if (!game->players[i])
   {
-    eventlog(eventlog_level_error,"game_get_player_conn","game \"%s\" has NULL players[i] entry (ref=%u)",game->name,game->ref);
+    eventlog(eventlog_level_error,__FUNCTION__,"game \"%s\" has NULL players[i] entry (ref=%u)",game->name,game->ref);
     return NULL;
   }
   return game->connections[i];
@@ -1470,7 +1470,7 @@ extern t_clienttag game_get_clienttag(t_game const * game)
 {
     if (!game)
     {
-	eventlog(eventlog_level_error,"game_get_clienttag","got NULL game");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL game");
         return 0;
     }
     return game->clienttag;
@@ -1489,28 +1489,28 @@ extern int game_add_player(t_game * game, char const * pass, int startver, t_con
     
     if (!game)
     {
-	eventlog(eventlog_level_error,"game_add_player","got NULL game");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL game");
         return -1;
     }
     if (!pass)
     {
-	eventlog(eventlog_level_error,"game_add_player","got NULL password");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL password");
 	return -1;
     }
     if (startver!=STARTVER_UNKNOWN && startver!=STARTVER_GW1 && startver!=STARTVER_GW3 && startver!=STARTVER_GW4 && startver!=STARTVER_REALM1)
     {
-	eventlog(eventlog_level_error,"game_add_player","got bad game startver %d",startver);
+	eventlog(eventlog_level_error,__FUNCTION__,"got bad game startver %d",startver);
 	return -1;
     }
     if (!c)
     {
-	eventlog(eventlog_level_error,"game_add_player","got NULL connection");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL connection");
         return -1;
     }
     if (game->type==game_type_ladder && account_get_normal_wins(conn_get_account(c),conn_get_clienttag(c))<10)
     /* if () ... */
     {
-	eventlog(eventlog_level_error,"game_add_player","can not join ladder game without 10 normal wins");
+	eventlog(eventlog_level_error,__FUNCTION__,"can not join ladder game without 10 normal wins");
 	return -1;
     }
     
@@ -1519,14 +1519,14 @@ extern int game_add_player(t_game * game, char const * pass, int startver, t_con
 	
 	if (!(gt = game_get_clienttag(game)))
 	{
-	    eventlog(eventlog_level_error,"game_add_player","could not get clienttag for game");
+	    eventlog(eventlog_level_error,__FUNCTION__,"could not get clienttag for game");
 	    return -1;
 	}
     }
     
     if (game->pass[0]!='\0' && strcasecmp(game->pass,pass)!=0)
     {
-        eventlog(eventlog_level_debug,"game_add_player","game \"%s\" password mismatch \"%s\"!=\"%s\"",game->name,game->pass,pass); 
+        eventlog(eventlog_level_debug,__FUNCTION__,"game \"%s\" password mismatch \"%s\"!=\"%s\"",game->name,game->pass,pass); 
 	return -1;
     }
 
@@ -1603,7 +1603,7 @@ extern int game_add_player(t_game * game, char const * pass, int startver, t_con
     } // end of "if ((i == game->count) || (game->count == 0))"
 
     if (game->startver!=startver && startver!=STARTVER_UNKNOWN) /* with join startver ALWAYS unknown [KWS] */
-	eventlog(eventlog_level_error,"game_add_player","player \"%s\" client \"%s\" startver %u joining game startver %u (count=%u ref=%u)",account_get_name(conn_get_account(c)),clienttag_uint_to_str(conn_get_clienttag(c)),startver,game->startver,game->count,game->ref);
+	eventlog(eventlog_level_error,__FUNCTION__,"player \"%s\" client \"%s\" startver %u joining game startver %u (count=%u ref=%u)",account_get_name(conn_get_account(c)),clienttag_uint_to_str(conn_get_clienttag(c)),startver,game->startver,game->count,game->ref);
     
     game_choose_host(game);
     
@@ -1618,22 +1618,22 @@ extern int game_del_player(t_game * game, t_connection * c)
     
     if (!game)
     {
-	eventlog(eventlog_level_error,"game_del_player","got NULL game");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL game");
         return -1;
     }
     if (!c)
     {
-	eventlog(eventlog_level_error,"game_del_player","got NULL connection");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL connection");
 	return -1;
     }
     if (!game->players)
     {
-	eventlog(eventlog_level_error,"game_del_player","player array is NULL");
+	eventlog(eventlog_level_error,__FUNCTION__,"player array is NULL");
 	return -1;
     }
     if (!game->reported_results)
     {
-	eventlog(eventlog_level_error,"game_del_player","reported results array is NULL");
+	eventlog(eventlog_level_error,__FUNCTION__,"reported results array is NULL");
 	return -1;
     }
     account = conn_get_account(c);
@@ -1644,23 +1644,23 @@ extern int game_del_player(t_game * game, t_connection * c)
        conn_set_leavegamewhisper_ack(c,1); //1 = already whispered. We reset this each time user joins a channel
      }
 
-    eventlog(eventlog_level_debug,"game_del_player","game \"%s\" has ref=%u, count=%u; trying to remove player \"%s\"",game_get_name(game),game->ref,game->count,account_get_name(account));
+    eventlog(eventlog_level_debug,__FUNCTION__,"game \"%s\" has ref=%u, count=%u; trying to remove player \"%s\"",game_get_name(game),game->ref,game->count,account_get_name(account));
 
     for (i=0; i<game->count; i++)
 	if (game->players[i]==account && game->connections[i])
 	{
-	    eventlog(eventlog_level_debug,"game_del_player","removing player #%u \"%s\" from \"%s\", %u players left",i,(tname = account_get_name(account)),game_get_name(game),game->ref-1);
+	    eventlog(eventlog_level_debug,__FUNCTION__,"removing player #%u \"%s\" from \"%s\", %u players left",i,(tname = account_get_name(account)),game_get_name(game),game->ref-1);
 	    game->connections[i] = NULL;
 	    if (!(game->reported_results[i]))
-		eventlog(eventlog_level_debug,"game_del_player","player \"%s\" left without reporting (valid) results",tname);
+		eventlog(eventlog_level_debug,__FUNCTION__,"player \"%s\" left without reporting (valid) results",tname);
 	    
-	    eventlog(eventlog_level_debug,"game_del_player","player deleted... (ref=%u)",game->ref);
+	    eventlog(eventlog_level_debug,__FUNCTION__,"player deleted... (ref=%u)",game->ref);
 	    
 	    if (game->ref<2)
 	    {
-	        eventlog(eventlog_level_debug,"game_del_player","no more players, reporting game");
+	        eventlog(eventlog_level_debug,__FUNCTION__,"no more players, reporting game");
 		game_report(game);
-	        eventlog(eventlog_level_debug,"game_del_player","no more players, destroying game");
+	        eventlog(eventlog_level_debug,__FUNCTION__,"no more players, destroying game");
 		game_destroy(game);
 	        return 0;
 	    }
@@ -1673,7 +1673,7 @@ extern int game_del_player(t_game * game, t_connection * c)
 	    return 0;
 	}
     
-    eventlog(eventlog_level_error,"game_del_player","player \"%s\" was not in the game",account_get_name(account));
+    eventlog(eventlog_level_error,__FUNCTION__,"player \"%s\" was not in the game",account_get_name(account));
     return -1;
 }
 
@@ -1919,7 +1919,7 @@ extern char const * game_get_mapname(t_game const * game)
 {
     if (!game)
     {
-	eventlog(eventlog_level_error,"game_get_mapname","got NULL game");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL game");
 	return NULL;
     }
     
@@ -1931,12 +1931,12 @@ extern int game_set_mapname(t_game * game, char const * mapname)
 {
     if (!game)
     {
-	eventlog(eventlog_level_error,"game_set_mapname","got NULL game");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL game");
 	return -1;
     }
     if (!mapname)
     {
-	eventlog(eventlog_level_error,"game_set_mapname","got NULL mapname");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL mapname");
 	return -1;
     }
     
@@ -1952,7 +1952,7 @@ extern t_connection * game_get_owner(t_game const * game)
 {
     if (!game)
     {
-	eventlog(eventlog_level_error,"game_get_owner","got NULL game");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL game");
 	return NULL;
     }
     return game->owner;
@@ -1963,7 +1963,7 @@ extern time_t game_get_create_time(t_game const * game)
 {
     if (!game)
     {
-	eventlog(eventlog_level_error,"game_get_create_time","got NULL game");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL game");
 	return (time_t)0;
     }
     
@@ -1975,7 +1975,7 @@ extern time_t game_get_start_time(t_game const * game)
 {
     if (!game)
     {
-	eventlog(eventlog_level_error,"game_get_start_time","got NULL game");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL game");
 	return (time_t)0;
     }
     
@@ -1987,7 +1987,7 @@ extern int game_set_option(t_game * game, t_game_option option)
 {
     if (!game)
     {
-	eventlog(eventlog_level_error,"game_set_option","got NULL game");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL game");
 	return -1;
     }
     
@@ -2000,7 +2000,7 @@ extern t_game_option game_get_option(t_game const * game)
 {
     if (!game)
     {
-	eventlog(eventlog_level_error,"game_get_option","got NULL game");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL game");
 	return game_option_none;
     }
     
@@ -2084,7 +2084,7 @@ extern int game_set_realm(t_game * game, unsigned int realm)
 { 
     if (!game)
     { 
-          eventlog(eventlog_level_error,"game_set_realm","got NULL game"); 
+          eventlog(eventlog_level_error,__FUNCTION__,"got NULL game"); 
           return -1; 
     } 
     game->realm = realm; 
@@ -2095,7 +2095,7 @@ extern unsigned int game_get_realm(t_game const * game)
 { 
     if (!game)
     { 
-          eventlog(eventlog_level_error,"game_get_realm","got NULL game"); 
+          eventlog(eventlog_level_error,__FUNCTION__,"got NULL game"); 
           return 0; 
     } 
     return game->realm; 
@@ -2107,7 +2107,7 @@ extern int game_set_realmname(t_game * game, char const * realmname)
     
     if (!game)
     { 
-           eventlog(eventlog_level_error,"game_set_realmname","got NULL game"); 
+           eventlog(eventlog_level_error,__FUNCTION__,"got NULL game"); 
            return -1; 
     } 
 
@@ -2126,7 +2126,7 @@ extern  char const * game_get_realmname(t_game const * game)
 { 
     if (!game)
     { 
-           eventlog(eventlog_level_error,"game_get_realmname","got NULL game"); 
+           eventlog(eventlog_level_error,__FUNCTION__,"got NULL game"); 
            return NULL; 
     } 
     return game->realmname; 
