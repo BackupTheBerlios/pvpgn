@@ -155,7 +155,7 @@ static void usage(char const * progname)
 #define STATUS_LADDERLIST_FAILURE	6
 
 // new functions extracted from Fw()
-int read_commandline(int argc, char * * argv, int *foreground, char *preffile[], char *hexfile[]);
+int read_commandline(int argc, char * * argv, int *foreground, char const *preffile[], char *hexfile[]);
 int pre_server_startup(void);
 void post_server_shutdown(int status);
 int eventlog_startup(void);
@@ -164,7 +164,7 @@ char * write_to_pidfile(void);
 void pvpgn_greeting(void);
 
 // The functions 
-int read_commandline(int argc, char * * argv, int *foreground, char *preffile[], char *hexfile[])
+int read_commandline(int argc, char * * argv, int *foreground, char const *preffile[], char *hexfile[])
 {
     int a;
     
@@ -552,7 +552,6 @@ extern int main(int argc, char * * argv)
 {
     int a;
     int foreground = 0;
-    char *preffile = NULL;
     char *hexfile = NULL;
     char *pidfile = NULL;
 
