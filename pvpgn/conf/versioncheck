@@ -65,78 +65,29 @@
 
 # -=-=-=-=-=-=- Latest Versions -=-=-=-=-=-=- No Update Required -=-=-=-=-=-=-
 
-
-# Warcraft III - TFT (Expansion) 1.15 beta 402
+# Warcraft III - TFT (Expansion) 1.15a
 # Note: this version check is sent in both FT and ROC mode
 "A=3845581634 B=880823580 C=1363937103 4 A=A-S B=B-C C=C-A A=A-B" \
  IX86ver1.mpq \
  IX86 \
  W3XP \
- "War3.exe 04/23/04 04:03:14 1568211" \
- 0x00000192 \
- 146.0.0.155 \
- 0x36b1b4ee \
- W3XP_115BETA_402
+ "war3.exe 05/04/04 01:18:12 1568211" \
+ 0x0000000f \
+ 1.0.15.156 \
+ 0x39b3974b \
+ W3XP_115A
 
-# Warcraft III - ROC 1.15 beta 402
+# Warcraft III - ROC 1.15a
 # Note: this version check is sent in both FT and ROC mode
 "A=3845581634 B=880823580 C=1363937103 4 A=A-S B=B-C C=C-A A=A-B" \
  IX86ver1.mpq \
  IX86 \
  WAR3 \
- "War3.exe 04/23/04 04:03:14 1568211" \
- 0x00000192 \
- 146.0.0.155 \
- 0x36b1b4ee \
- WAR3_115BETA_402
-
-# Warcraft III - TFT (Expansion) 1.15 beta 401
-# Note: this version check is sent in both FT and ROC mode
-"A=3845581634 B=880823580 C=1363937103 4 A=A-S B=B-C C=C-A A=A-B" \
- IX86ver1.mpq \
- IX86 \
- W3XP \
- "War3.exe 04/21/04 21:58:18 1568211" \
- 0x00000191 \
- 145.0.0.154 \
- 0xbe7b9299 \
- W3XP_115BETA_401
-
-# Warcraft III - ROC 1.15 beta 401
-# Note: this version check is sent in both FT and ROC mode
-"A=3845581634 B=880823580 C=1363937103 4 A=A-S B=B-C C=C-A A=A-B" \
- IX86ver1.mpq \
- IX86 \
- WAR3 \
- "War3.exe 04/21/04 21:58:18 1568211" \
- 0x00000191 \
- 145.0.0.154 \
- 0xbe7b9299 \
- WAR3_115BETA_401
-
-# Warcraft III - TFT (Expansion) 1.14b
-# Note: this version check is sent in both FT and ROC mode
-"A=3845581634 B=880823580 C=1363937103 4 A=A-S B=B-C C=C-A A=A-B" \
- IX86ver1.mpq \
- IX86 \
- W3XP \
- "War3.exe 01/09/04 06:11:44 1568211" \
- 0x0000000e \
- 1.0.14.152 \
- 0x36fd6e73 \
- W3XP_114B
-
-# Warcraft III - ROC 1.14b
-# Note: this version check is sent in both FT and ROC mode
-"A=3845581634 B=880823580 C=1363937103 4 A=A-S B=B-C C=C-A A=A-B" \
- IX86ver1.mpq \
- IX86 \
- WAR3 \
- "War3.exe 01/09/04 06:11:44 1568211" \
- 0x0000000e \
- 1.0.14.152 \
- 0x36fd6e73 \
- WAR3_114B
+ "war3.exe 05/04/04 01:18:12 1568211" \
+ 0x0000000f \
+ 1.0.15.156 \
+ 0x39b3974b \
+ WAR3_115A
 
 # Diablo II - LoD (Expansion) 1.10 
 "A=3845581634 B=880823580 C=1363937103 4 A=A-S B=B-C C=C-A A=A-B" \
@@ -159,7 +110,6 @@
  1.0.10.0 \
  0x3132dda6 \
  D2DV_110
-
 
 # Diablo II - LoD (Expansion) 1.09d
 "A=3845581634 B=880823580 C=1363937103 4 A=A-S B=B-C C=C-A A=A-B" \
@@ -318,6 +268,18 @@
 
 # =================== WarCraft 3 Expansion Entries ==================
 
+# Warcraft III - TFT (Expansion) 1.14b
+# Note: this version check is sent in both FT and ROC mode
+"A=3845581634 B=880823580 C=1363937103 4 A=A-S B=B-C C=C-A A=A-B" \
+ IX86ver1.mpq \
+ IX86 \
+ W3XP \
+ "War3.exe 01/09/04 06:11:44 1568211" \
+ 0x0000000e \
+ 1.0.14.152 \
+ 0x36fd6e73 \
+ W3XP_114B
+
 # Warcraft III - TFT (Expansion) 1.14a
 # Note: this version check is sent in both FT and ROC mode
 "A=3845581634 B=880823580 C=1363937103 4 A=A-S B=B-C C=C-A A=A-B" \
@@ -405,6 +367,18 @@
  W3XP_107a
 
 # ====================== WarCraft 3 Entries ========================
+
+# Warcraft III - ROC 1.14b
+# Note: this version check is sent in both FT and ROC mode
+"A=3845581634 B=880823580 C=1363937103 4 A=A-S B=B-C C=C-A A=A-B" \
+ IX86ver1.mpq \
+ IX86 \
+ WAR3 \
+ "War3.exe 01/09/04 06:11:44 1568211" \
+ 0x0000000e \
+ 1.0.14.152 \
+ 0x36fd6e73 \
+ WAR3_114B
 
 # Warcraft III - ROC 1.14a
 # Note: this version check is sent in both FT and ROC mode
