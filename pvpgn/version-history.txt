@@ -1,9 +1,13 @@
 PvPGN Version History:
 
-Next Version 1.x.x :  Will support 1.03.  This will be a significant
-change, and will only support 1.03 version.  Mixing 1.03 and 1.02 clients
-is NOT recommended.
+1.2.0 ???:
+-- fixed disconnet = loss bug for PG and AT
+-- added timer to shutdowm open w3route connections
+-- added reloading of d2trans file on HUP signal
 
+1.1.7 RC1:
+-- added 1.03 War3 support; because of the protocol changes this version
+will not support 1.02 and older War3 clients;
 -- added support for Diablo II game servers on local lan.  See d2gstrans
 file for instructions.
 -- fixed /lockacct & /unlockacct for Diablo II & WarCraft III Clients.
