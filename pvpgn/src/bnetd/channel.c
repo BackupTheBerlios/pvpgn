@@ -126,10 +126,17 @@ extern t_channel * channel_create(char const * fullname, char const * shortname,
 	if ((channel = channellist_find_channel_by_fullname(fullname)))
 	{
 	    if ((channel_get_clienttag(channel)) && (clienttag) && (strcmp(channel_get_clienttag(channel),clienttag)==0))
-	    //FIXME: make sure that all attributes are the same!!!
 	    {
 	      eventlog(eventlog_level_error,"channel_create","could not create duplicate permanent channel (fullname \"%s\")",fullname);
 	      return NULL;
+	    }
+	    else if ((channel->allowbots!=botflag) || (channel->allowopers!=operflag) || 
+		     (channel->maxmembers!=maxmembers) || 
+		     ((channel_get_flags(channel) & channel_flags_moderated)!=moderated) ||
+		     (channel->logname && logflag==0) || (!(channel->logname) && logflag ==1))
+	    {
+		eventlog(eventlog_level_error,__FUNCTION__,"channel parameters do not match for \"%s\" and \"%s\"",fullname,channel->name);
+		return NULL;
 	    }
 	}
     }
