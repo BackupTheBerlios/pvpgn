@@ -132,23 +132,9 @@ int topiclist_add_topic(char const * channel_name, char const * topic_text, int 
 {
   t_topic * topic;
   
-  if (!(topic = xmalloc(sizeof(t_topic))))
-    {
-      eventlog(eventlog_level_error,__FUNCTION__,"could not allocate memory for topic");
-      return -1;
-    }
-  if (!(topic->channel_name = xstrdup(channel_name)))
-    {
-      eventlog(eventlog_level_error,__FUNCTION__,"could not allocate memory for channel name");
-      xfree((void *)topic);
-      return -1;
-    }
-  if (!(topic->topic = xstrdup(topic_text)))
-    {
-      eventlog(eventlog_level_error,__FUNCTION__,"could not allocate memory for topic text");
-      xfree((void *)topic->channel_name);
-      xfree((void *)topic);
-    }
+  topic = xmalloc(sizeof(t_topic));
+  topic->channel_name = xstrdup(channel_name);
+  topic->topic = xstrdup(topic_text);
   if (list_prepend_data(topiclist_head,topic)<0)
     {
       eventlog(eventlog_level_error,__FUNCTION__,"could not append item");
@@ -164,7 +150,6 @@ int topiclist_add_topic(char const * channel_name, char const * topic_text, int 
 int channel_set_topic(char const * channel_name, char const * topic_text, int do_save)
 {
   t_topic * topic;
-  char * new_topic;
 
   if (!(channel_name))
   {
@@ -180,13 +165,8 @@ int channel_set_topic(char const * channel_name, char const * topic_text, int do
 
   if ((topic = get_topic(channel_name)))
   {
-    if (!(new_topic = xstrdup(topic_text)))
-    {
-      eventlog(eventlog_level_error,__FUNCTION__,"could not allocate memory for topic");
-      return -1;
-    }
     xfree((void *)topic->topic);
-    topic->topic = new_topic;
+    topic->topic = xstrdup(topic_text);
   }
   else
   {

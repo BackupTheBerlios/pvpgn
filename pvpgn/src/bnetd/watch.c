@@ -77,13 +77,8 @@ extern int watchlist_add_events(t_connection * owner, t_account * who, t_clientt
 	    return 0;
 	}
     }
-    
-    if (!(pair = xmalloc(sizeof(t_watch_pair))))
-    {
-	eventlog(eventlog_level_error,"watchlist_add_events","could not allocate memory for pair");
-	return -1;
-    }
 
+    pair = xmalloc(sizeof(t_watch_pair));
     pair->owner = owner;
     pair->who   = who;
     pair->what  = events;

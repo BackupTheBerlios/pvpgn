@@ -69,27 +69,10 @@ t_column * create_column(char * name, char * value)
       return NULL;
     }
   
-  if (!(column = xmalloc(sizeof(t_column))))
-    {
-      eventlog(eventlog_level_error,__FUNCTION__,"could not alloc mem for column");
-      return NULL;
-    }
-  
-  if (!(column->name  = xstrdup(name)))
-    {
-      eventlog(eventlog_level_error,__FUNCTION__,"could not strdup column name");
-      xfree((void *)column);
-      return NULL;
-    }
-  
-  if (!(column->value = xstrdup(value)))
-    {
-      eventlog(eventlog_level_error,__FUNCTION__,"could not strdup column value");
-      xfree((void *)column->name);
-      xfree((void *)column);
-      return NULL;
-    }
-  
+  column = xmalloc(sizeof(t_column));
+  column->name  = xstrdup(name);
+  column->value = xstrdup(value);
+
   return column;
 };
 
@@ -113,18 +96,9 @@ t_table * create_table(char * name)
       return NULL;
     }
   
-  if (!(table = xmalloc(sizeof(t_table))))
-    {
-      eventlog(eventlog_level_error,__FUNCTION__,"could not alloc mem for table");
-      return NULL;
-    }
-  
-  if (!(table->name = xstrdup(name)))
-    {
-      eventlog(eventlog_level_error,__FUNCTION__,"could not strdup table name");
-      xfree((void *)table);
-    }
-  
+  table = xmalloc(sizeof(t_table));
+  table->name = xstrdup(name);
+
   if (!(table->columns = list_create()))
     {
       eventlog(eventlog_level_error,__FUNCTION__,"could not create list");
@@ -181,12 +155,8 @@ t_db_layout * create_db_layout()
 {
   t_db_layout * db_layout;
   
-  if (!(db_layout = xmalloc(sizeof(t_db_layout))))
-    {
-      eventlog(eventlog_level_error,__FUNCTION__,"could not alloc mem for db_layout");
-      return NULL;
-    }
-  
+  db_layout = xmalloc(sizeof(t_db_layout));
+
   if (!(db_layout->tables = list_create()))
     {
       eventlog(eventlog_level_error,__FUNCTION__,"could not create list");

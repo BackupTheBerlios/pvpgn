@@ -179,12 +179,7 @@ static int sql_init(const char *dbpath)
     const char *dbsocket = NULL;
     const char *def = NULL;
 
-    if ((path = xstrdup(dbpath)) == NULL)
-    {
-	eventlog(eventlog_level_error, __FUNCTION__, "could not duplicate dbpath");
-	return -1;
-    }
-
+    path = xstrdup(dbpath);
     tmp = path;
     while ((tok = strtok(tmp, ";")) != NULL)
     {
@@ -331,12 +326,7 @@ static t_storage_info *sql_create_account(char const *username)
 	return NULL;
     }
 
-    if ((info = xmalloc(sizeof(t_sql_info))) == NULL)
-    {
-	eventlog(eventlog_level_error, __FUNCTION__, "not enough memory for sql info");
-	return NULL;
-    }
-
+    info = xmalloc(sizeof(t_sql_info));
     *((unsigned int *) info) = uid;
     sprintf(query, "DELETE FROM BNET WHERE uid = '%s';", str_uid);
     sql->query(query);
@@ -525,29 +515,9 @@ static void *sql_read_attr(t_storage_info * info, const char *key)
 	return NULL;
     }
 
-    if ((attr = (t_attribute *) xmalloc(sizeof(t_attribute))) == NULL)
-    {
-	eventlog(eventlog_level_error, __FUNCTION__, "not enough memory for result");
-	sql->free_result(result);
-	return NULL;
-    }
-
-    if ((attr->key = xstrdup(key)) == NULL)
-    {
-	eventlog(eventlog_level_error, __FUNCTION__, "not enough memory for result key");
-	xfree((void *) attr);
-	sql->free_result(result);
-	return NULL;
-    }
-
-    if ((attr->val = xstrdup(row[0])) == NULL)
-    {
-	eventlog(eventlog_level_error, __FUNCTION__, "not enough memory for result val");
-	xfree((void *) attr->key);
-	xfree((void *) attr);
-	sql->free_result(result);
-	return NULL;
-    }
+    attr = (t_attribute *) xmalloc(sizeof(t_attribute));
+    attr->key = xstrdup(key);
+    attr->val = xstrdup(row[0]);
 
     sql->free_result(result);
 
@@ -703,12 +673,7 @@ static int sql_read_accounts(t_read_accounts_func cb, void *data)
 	    if ((unsigned int) atoi(row[0]) == defacct)
 		continue;	/* skip default account */
 
-	    if ((info = xmalloc(sizeof(t_sql_info))) == NULL)
-	    {
-		eventlog(eventlog_level_error, __FUNCTION__, "not enough memory for sql info");
-		continue;
-	    }
-
+	    info = xmalloc(sizeof(t_sql_info));
 	    *((unsigned int *) info) = atoi(row[0]);
 	    cb(info, data);
 	}
@@ -765,10 +730,8 @@ static t_storage_info * sql_read_account(const char *name, unsigned uid)
 	eventlog(eventlog_level_error, __FUNCTION__, "got NULL uid from db");
     else if ((unsigned int) atoi(row[0]) == defacct);
     /* skip default account */
-    else if ((info = xmalloc(sizeof(t_sql_info))) == NULL)
-	eventlog(eventlog_level_error, __FUNCTION__, "not enough memory for sql info");
-    else
-    {
+    else {
+	info = xmalloc(sizeof(t_sql_info));
 	*((unsigned int *) info) = atoi(row[0]);
 	sql->free_result(result);
 	return info;
@@ -795,12 +758,7 @@ static t_storage_info *sql_get_defacct(void)
 {
     t_storage_info *info;
 
-    if ((info = xmalloc(sizeof(t_sql_info))) == NULL)
-    {
-	eventlog(eventlog_level_error, __FUNCTION__, "not enough memory for sql info");
-	return NULL;
-    }
-
+    info = xmalloc(sizeof(t_sql_info));
     *((unsigned int *) info) = defacct;
 
     return info;
@@ -814,10 +772,7 @@ static const char *sql_escape_key(const char *key)
 
     for(idx = 0, p = (char *)newkey; *p; p++, idx++)
 	if ((*p < '0' || *p > '9') && (*p < 'a' || *p > 'z') && (*p < 'A' || *p > 'Z')) {
-	    if ((newkey = xstrdup(key)) == NULL) {
-		eventlog(eventlog_level_error, __FUNCTION__, "not enough memory for escaped key");
-		return key;
-	    }
+	    newkey = xstrdup(key);
 	    p = (char *)(newkey + idx);
 	    *(p++) = '_';
 	    for(; *p; p++)
@@ -994,12 +949,7 @@ static int sql_load_clans(t_load_clans_func cb)
 		continue;
 	    }
 
-	    if (!(clan = xmalloc(sizeof(t_clan))))
-	    {
-		eventlog(eventlog_level_error, __FUNCTION__, "could not allocate memory for clan");
-		sql->free_result(result);
-		return -1;
-	    }
+	    clan = xmalloc(sizeof(t_clan));
 
 	    if (!(clan->clanid = atoi(row[0])))
 	    {
@@ -1025,19 +975,7 @@ static int sql_load_clans(t_load_clans_func cb)
 		if (sql->num_rows(result2) >= 1)
 		    while ((row2 = sql->fetch_row(result2)) != NULL)
 		    {
-			if (!(member = xmalloc(sizeof(t_clanmember))))
-			{
-			    eventlog(eventlog_level_error, __FUNCTION__, "cannot allocate memory for clan member");
-			    clan_remove_all_members(clan);
-			    if (clan->clanname)
-				xfree((void *) clan->clanname);
-			    if (clan->clan_motd)
-				xfree((void *) clan->clan_motd);
-			    xfree((void *) clan);
-			    sql->free_result(result);
-			    sql->free_result(result2);
-			    return -1;
-			}
+			member = xmalloc(sizeof(t_clanmember));
 			if (row2[0] == NULL)
 			{
 			    eventlog(eventlog_level_error, __FUNCTION__, "got NULL uid from db");

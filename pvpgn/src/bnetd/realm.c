@@ -73,13 +73,8 @@ static t_realm * realm_create(char const * name, char const * description, unsig
 	eventlog(eventlog_level_error,"realm_create","got NULL description");
 	return NULL;
     }
-    
-    if (!(realm = xmalloc(sizeof(t_realm))))
-    {
-	eventlog(eventlog_level_error,"realm_create","could not allocate memory for ad");
-	return NULL;
-    }
-    
+
+    realm = xmalloc(sizeof(t_realm));
     realm->name = NULL;
     realm->description = NULL;
 
@@ -90,13 +85,7 @@ static t_realm * realm_create(char const * name, char const * description, unsig
 	return NULL;
     }
     if (realm->description != NULL) xfree((void *)realm->description);
-    if (!(realm->description = xstrdup(description)))
-    {
-	eventlog(eventlog_level_error,"realm_create","could not allocate memory for description");
-	xfree((void *)realm->name); /* avoid warning */
-	xfree(realm);
-	return NULL;
-    }
+    realm->description = xstrdup(description);
     realm->ip = ip;
     realm->port = port;
     realm->active = 0;
@@ -163,13 +152,7 @@ extern int realm_set_name(t_realm * realm, char const * name)
     }
 
     if (name)
-      {
-	if (!(temp=xstrdup(name)))
-	  {
-	    eventlog(eventlog_level_error,"realm_set_name","could not allocate memory for new realmname");
-	    return -1;
-	  }
-      }
+	temp=xstrdup(name);
     else
       temp = NULL;
 
@@ -401,12 +384,7 @@ extern int realmlist_create(char const * filename)
 	
 	/* save the realmname */
 	*temp = '\0';
-        if (!(name = xstrdup(temp2)))
-        {
-            eventlog(eventlog_level_error,"realmlist_create","could not allocate memory for name");
-            xfree(buff);
-            continue;
-        }
+        name = xstrdup(temp2);
 	
 	/* eventlog(eventlog_level_trace, "realmlist_create","found realmname: %s",name); */
 
@@ -426,19 +404,14 @@ extern int realmlist_create(char const * filename)
 	    
 	    /* save the description */
 	    *temp = '\0';
-    	    if (!(desc = xstrdup(temp2))) {
-        	eventlog(eventlog_level_error,"realmlist_create","could not allocate memory for desc");
-        	xfree(name);
-        	xfree(buff);
-        	continue;
-    	    }
+    	    desc = xstrdup(temp2);
 	    
 	    /* eventlog(eventlog_level_trace, "realmlist_create","found realm desc: %s",desc); */
 
 	    /* skip any separators */
 	    for(temp = temp + 1; *temp && (*temp == ' ' || *temp == '\t');temp++);
 	} else desc = xstrdup("\0");
-	
+
 	temp2 = temp;
 	/* find out where address ends */
 	for(temp = temp2 + 1; *temp && *temp != ' ' && *temp != '\t';temp++);

@@ -153,10 +153,7 @@ extern int news_load(const char *filename)
 	    date_set = 1;
 	    xfree((void *)dpart);
 	} else {
-	    if (!(ni = (t_news_index*)xmalloc(sizeof(t_news_index)))) {
-		eventlog(eventlog_level_error,"news_load","could not allocate memory for news index");
-		return -1;
-	    }
+	    ni = (t_news_index*)xmalloc(sizeof(t_news_index));
 	    			
 	    if (date_set==1) 
 			ni->date=mktime(date);
@@ -225,8 +222,7 @@ static char * news_read_file(FILE * fp)
     unsigned int pos=0;
     int          curr_char;
     
-    if (!(line = xmalloc(256)))
-	return NULL;
+    line = xmalloc(256);
 
     while ((curr_char = fgetc(fp))!=EOF) {
 	if (((char)curr_char)=='\r')
@@ -239,10 +235,7 @@ static char * news_read_file(FILE * fp)
 	line[pos++] = (char)curr_char;
 	if ((pos+1)>=len) {
 	    len += 64;
-	    if (!(newline = xrealloc(line,len))) {
-		xfree(line);
-		return NULL;
-	    }
+	    newline = xrealloc(line,len);
 	    line = newline;
 	}
 	if (((char)curr_char)=='}'&& pos>0 ) {
@@ -259,8 +252,7 @@ static char * news_read_file(FILE * fp)
     }
 			    
     if (pos+1<len)
-	if ((newline = xrealloc(line,pos+1))) /* bump the size back down to what we need */
-	    line = newline; /* if it fails just ignore it */
+	line = xrealloc(line,pos+1); /* bump the size back down to what we need */
     line[pos] = '\0';
     return line;
 }

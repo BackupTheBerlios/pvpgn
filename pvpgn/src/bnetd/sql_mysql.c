@@ -194,11 +194,7 @@ static t_sql_field * sql_mysql_fetch_fields(t_sql_res *result)
     fieldno = mysql_num_fields((MYSQL_RES *)result);
     fields = mysql_fetch_fields((MYSQL_RES *)result);
 
-    if ((rfields = xmalloc(sizeof(t_sql_field) * (fieldno + 1))) == NULL) {
-	eventlog(eventlog_level_error, __FUNCTION__, "not enough memory for field list");
-	return NULL;
-    }
-
+    rfields = xmalloc(sizeof(t_sql_field) * (fieldno + 1));
     for(i = 0; i < fieldno; i++)
 	rfields[i] = fields[i].name;
     rfields[i] = NULL;

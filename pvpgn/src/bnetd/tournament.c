@@ -127,11 +127,7 @@ extern int tournament_signup_user(t_account * account)
 	return 0;
     }
     
-    if (!(user = xmalloc(sizeof(t_tournament_user)))) {
-	eventlog(eventlog_level_error,__FUNCTION__,"could not allocate memory for tournament user");
-	return -1;
-    }
-    
+    user = xmalloc(sizeof(t_tournament_user));
     user->name		= xstrdup(account_get_name(account));
     user->wins		= 0;
     user->losses	= 0;

@@ -47,11 +47,7 @@ extern int timerlist_add_timer(t_connection * owner, time_t when, t_timer_cb cb,
 	return -1;
     }
     
-    if (!(timer = xmalloc(sizeof(t_timer))))
-    {
-	eventlog(eventlog_level_error,"timerlist_add_timer","could not allocate memory for timer");
-	return -1;
-    }
+    timer = xmalloc(sizeof(t_timer));
     timer->owner = owner;
     timer->when  = when;
     timer->cb    = cb;

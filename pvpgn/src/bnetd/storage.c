@@ -57,11 +57,7 @@ extern int storage_init(const char *spath)
 	return -1;
     }
 
-    if ((temp = xstrdup(spath)) == NULL) {
-	eventlog(eventlog_level_error, __FUNCTION__, "could not duplicate spath");
-	return -1;
-    }
-
+    temp = xstrdup(spath);
     if ((p = strchr(spath, ':')) == NULL) {
 	eventlog(eventlog_level_error, __FUNCTION__, "malformed storage_path , driver not found");
 	xfree((void*)temp);

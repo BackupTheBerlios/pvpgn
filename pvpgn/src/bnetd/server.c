@@ -935,11 +935,7 @@ static int _setup_add_addrs(t_addrlist **pladdrs, const char *str, unsigned int 
 	curr_laddr = elem_get_data(acurr);
 	if (addr_get_data(curr_laddr).p)
 	    continue;
-	if (!(laddr_info = xmalloc(sizeof(t_laddr_info))))
-	{
-	    eventlog(eventlog_level_error, __FUNCTION__,"could not create %s address info (malloc: %s)",laddr_type_get_str(type),strerror(psock_errno()));
-	    return -1;
-	}
+	laddr_info = xmalloc(sizeof(t_laddr_info));
         laddr_info->usocket = -1;
         laddr_info->ssocket = -1;
         laddr_info->type = type;

@@ -125,19 +125,8 @@ static t_sql_res * sql_pgsql_query_res(const char * query)
 	return NULL;
     }
 
-    if ((res = (t_pgsql_res *)xmalloc(sizeof(t_pgsql_res))) == NULL) {
-        eventlog(eventlog_level_error, __FUNCTION__, "not enough memory for pgsql result");
-	PQclear(pgres);
-	return NULL;
-    }
-
-    if ((res->rowbuf = xmalloc(sizeof(char *) * PQnfields(pgres))) == NULL) {
-	eventlog(eventlog_level_error, __FUNCTION__, "not enough memory for row buffer");
-	xfree((void*)res);
-	PQclear(pgres);
-	return NULL;
-    }
-
+    res = (t_pgsql_res *)xmalloc(sizeof(t_pgsql_res));
+    res->rowbuf = xmalloc(sizeof(char *) * PQnfields(pgres));
     res->pgres = pgres;
     res->crow = 0;
 
@@ -259,11 +248,7 @@ static t_sql_field * sql_pgsql_fetch_fields(t_sql_res *result)
 
     fieldno = PQnfields(res->pgres);
 
-    if ((rfields = xmalloc(sizeof(t_sql_field) * (fieldno + 1))) == NULL) {
-	eventlog(eventlog_level_error, __FUNCTION__, "not enough memory for field list");
-	return NULL;
-    }
-
+    rfields = xmalloc(sizeof(t_sql_field) * (fieldno + 1));
     for(i = 0; i < fieldno; i++)
 	rfields[i] = PQfname(res->pgres, i);
     rfields[i] = NULL;

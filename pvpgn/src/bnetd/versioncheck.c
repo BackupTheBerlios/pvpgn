@@ -105,26 +105,11 @@ extern t_versioncheck * versioncheck_create(t_tag archtag, t_tag clienttag)
 	    continue;
 	
 	/* FIXME: randomize the selection if more than one match */
-	if (!(vc = xmalloc(sizeof(t_versioncheck))))
-	{
-	    eventlog(eventlog_level_error,__FUNCTION__,"unable to allocate memory for vc");
-	    return &dummyvc;
-	}
-	if (!(vc->eqn = xstrdup(vi->eqn)))
-	{
-	    eventlog(eventlog_level_error,__FUNCTION__,"unable to allocate memory for eqn");
-	    xfree(vc);
-	    return &dummyvc;
-	}
-	if (!(vc->mpqfile = xstrdup(vi->mpqfile)))
-	{
-	    eventlog(eventlog_level_error,__FUNCTION__,"unable to allocate memory for mpqfile");
-	    xfree((void *)vc->eqn); /* avoid warning */
-	    xfree(vc);
-	    return &dummyvc;
-	}
+	vc = xmalloc(sizeof(t_versioncheck));
+	vc->eqn = xstrdup(vi->eqn);
+	vc->mpqfile = xstrdup(vi->mpqfile);
 	vc->versiontag = xstrdup(tag_uint_to_str(clienttag_str,clienttag));
-	
+
 	return vc;
     }
     
@@ -215,18 +200,8 @@ t_parsed_exeinfo * parse_exeinfo(char const * exeinfo)
 	return NULL;
     }
 
-    if (!(parsed_exeinfo = xmalloc(sizeof(t_parsed_exeinfo))))
-    {
-      eventlog(eventlog_level_error,__FUNCTION__,"could not allocate memory for parsed exeinfo");
-      return NULL;
-    }
-
-    if (!(parsed_exeinfo->exe = xstrdup(exeinfo)))
-    {
-      xfree((void *)parsed_exeinfo);
-      eventlog(eventlog_level_error,__FUNCTION__,"could not duplicate exeinfo");
-      return NULL;
-    }
+    parsed_exeinfo = xmalloc(sizeof(t_parsed_exeinfo));
+    parsed_exeinfo->exe = xstrdup(exeinfo);
     parsed_exeinfo->time = 0;
     parsed_exeinfo->size = 0;
     
@@ -280,13 +255,7 @@ t_parsed_exeinfo * parse_exeinfo(char const * exeinfo)
         marker[0]  = '\0';
         marker++; 
         
-        if (!(exe = xstrdup(marker)))
-        {
-          xfree((void *)parsed_exeinfo->exe);
-          xfree((void *)parsed_exeinfo);
-          eventlog(eventlog_level_error,__FUNCTION__,"could not duplicate exe");
-          return NULL;
-        }
+        exe = xstrdup(marker);
         xfree((void *)parsed_exeinfo->exe);
         parsed_exeinfo->exe = strreverse((char *)exe);
 
@@ -608,28 +577,10 @@ extern int versioncheck_load(char const * filename)
 	{
 	    versiontag = NULL;
 	}
-	
-	if (!(vi = xmalloc(sizeof(t_versioninfo))))
-	{
-	    eventlog(eventlog_level_error,__FUNCTION__,"could not allocate memory for vi");
-	    xfree(buff);
-	    continue;
-	}
-	if (!(vi->eqn = xstrdup(eqn)))
-	{
-	    eventlog(eventlog_level_error,__FUNCTION__,"could not allocate memory for eqn");
-	    xfree(vi);
-	    xfree(buff);
-	    continue;
-	}
-	if (!(vi->mpqfile = xstrdup(mpqfile)))
-	{
-	    eventlog(eventlog_level_error,__FUNCTION__,"could not allocate memory for mpqfile");
-	    xfree((void *)vi->eqn); /* avoid warning */
-	    xfree(vi);
-	    xfree(buff);
-	    continue;
-	}
+
+	vi = xmalloc(sizeof(t_versioninfo));
+	vi->eqn = xstrdup(eqn);
+	vi->mpqfile = xstrdup(mpqfile);
 	if (strlen(archtag)!=4)
 	{
 	    eventlog(eventlog_level_error,__FUNCTION__,"invalid arch tag on line %u of file \"%s\"",line,filename);
@@ -695,18 +646,7 @@ extern int versioncheck_load(char const * filename)
 
 	vi->checksum = strtoul(checksum,NULL,0);
 	if (versiontag)
-	{
-	    if (!(vi->versiontag = xstrdup(versiontag)))
-	    {
-		eventlog(eventlog_level_error,__FUNCTION__,"could not allocate memory for versiontag");
-		xfree((void *)vi->parsed_exeinfo); /* avoid warning */
-		xfree((void *)vi->mpqfile); /* avoid warning */
-		xfree((void *)vi->eqn); /* avoid warning */
-		xfree(vi);
-		xfree(buff);
-		continue;
-	    }
-	}
+	    vi->versiontag = xstrdup(versiontag);
 	else
 	    vi->versiontag = NULL;
 	

@@ -88,13 +88,7 @@ extern int support_check_files(char const * supportfile)
       continue;
     }
     
-    if (!(namebuff = xmalloc(filedirlen + 1 + strlen(buff) + 1)))
-    {
-      eventlog(eventlog_level_error,__FUNCTION__,"could not allocate memory for namebuff");
-      xfree((void *)buff);
-      fclose(fp);
-      return -1;
-    }
+    namebuff = xmalloc(filedirlen + 1 + strlen(buff) + 1);
     sprintf(namebuff,"%s/%s",prefs_get_filedir(),buff);
 
     if (access(namebuff, F_OK) < 0)

@@ -157,12 +157,7 @@ static int file_init(const char *path)
 	return -1;
     }
 
-    if ((copy = xstrdup(path)) == NULL)
-    {
-	eventlog(eventlog_level_error, __FUNCTION__, "could not duplicate path");
-	return -1;
-    }
-
+    copy = xstrdup(path);
     tmp = copy;
     while ((tok = strtok(tmp, ";")) != NULL)
     {
@@ -207,28 +202,9 @@ static int file_init(const char *path)
     if (accountsdir)
 	file_close();
 
-    if ((accountsdir = xstrdup(dir)) == NULL)
-    {
-	eventlog(eventlog_level_error, __FUNCTION__, "not enough memory to store accounts dir");
-	xfree((void *) copy);
-	return -1;
-    }
-
-    if ((clansdir = xstrdup(clan)) == NULL)
-    {
-	eventlog(eventlog_level_error, __FUNCTION__, "not enough memory to store clans dir");
-	file_close();
-	xfree((void *) copy);
-	return -1;
-    }
-
-    if ((defacct = xstrdup(def)) == NULL)
-    {
-	eventlog(eventlog_level_error, __FUNCTION__, "not enough memory to store default account path");
-	file_close();
-	xfree((void *) copy);
-	return -1;
-    }
+    accountsdir = xstrdup(dir);
+    clansdir = xstrdup(clan);
+    defacct = xstrdup(def);
 
     xfree((void *) copy);
 
@@ -279,21 +255,12 @@ static t_storage_info *file_create_account(const char *username)
 	    eventlog(eventlog_level_error, __FUNCTION__, "could not escape username");
 	    return NULL;
 	}
-	if (!(temp = xmalloc(strlen(accountsdir) + 1 + strlen(safename) + 1)))	/* dir + / + name + NUL */
-	{
-	    eventlog(eventlog_level_error, __FUNCTION__, "could not allocate memory for temp");
-	    xfree((void *) safename);
-	    return NULL;
-	}
+	temp = xmalloc(strlen(accountsdir) + 1 + strlen(safename) + 1);	/* dir + / + name + NUL */
 	sprintf(temp, "%s/%s", accountsdir, safename);
 	xfree((void *) safename);	/* avoid warning */
     } else
     {
-	if (!(temp = xmalloc(strlen(accountsdir) + 1 + 8 + 1)))	/* dir + / + uid + NUL */
-	{
-	    eventlog(eventlog_level_error, __FUNCTION__, "could not allocate memory for temp");
-	    return NULL;
-	}
+	temp = xmalloc(strlen(accountsdir) + 1 + 8 + 1);	/* dir + / + uid + NUL */
 	sprintf(temp, "%s/%06u", accountsdir, maxuserid + 1);	/* FIXME: hmm, maybe up the %06 to %08... */
     }
 
@@ -322,12 +289,7 @@ static int file_write_attrs(t_storage_info * info, void *attributes)
 	return -1;
     }
 
-    if (!(tempname = xmalloc(strlen(accountsdir) + 1 + strlen(BNETD_ACCOUNT_TMP) + 1)))
-    {
-	eventlog(eventlog_level_error, __FUNCTION__, "unable to allocate memory for tempname");
-	return -1;
-    }
-
+    tempname = xmalloc(strlen(accountsdir) + 1 + strlen(BNETD_ACCOUNT_TMP) + 1);
     sprintf(tempname, "%s/%s", accountsdir, BNETD_ACCOUNT_TMP);
 
     if (file->write_attrs(tempname, attributes))
@@ -439,11 +401,7 @@ static t_storage_info *file_get_defacct(void)
 	return NULL;
     }
 
-    if ((info = xstrdup(defacct)) == NULL)
-    {
-	eventlog(eventlog_level_error, __FUNCTION__, "could not duplicate default account filename");
-	return NULL;
-    }
+    info = xstrdup(defacct);
 
     return info;
 }
@@ -477,11 +435,7 @@ static int file_read_accounts(t_read_accounts_func cb, void *data)
 	if (dentry[0] == '.')
 	    continue;
 
-	if (!(pathname = xmalloc(strlen(accountsdir) + 1 + strlen(dentry) + 1)))	/* dir + / + file + NUL */
-	{
-	    eventlog(eventlog_level_error, __FUNCTION__, "could not allocate memory for pathname");
-	    continue;
-	}
+	pathname = xmalloc(strlen(accountsdir) + 1 + strlen(dentry) + 1);	/* dir + / + file + NUL */
 	sprintf(pathname, "%s/%s", accountsdir, dentry);
 
 	cb(pathname, data);
@@ -507,11 +461,7 @@ static t_storage_info *file_read_account(const char *accname, unsigned uid)
      * PS: yes its kind of a hack, we will make a proper index file
      */
     if (accname && prefs_get_savebyname()) {
-	if (!(pathname = xmalloc(strlen(accountsdir) + 1 + strlen(accname) + 1)))	/* dir + / + file + NUL */
-	{
-	    eventlog(eventlog_level_error, __FUNCTION__, "could not allocate memory for pathname");
-	    return NULL;
-	}
+	pathname = xmalloc(strlen(accountsdir) + 1 + strlen(accname) + 1);	/* dir + / + file + NUL */
 	sprintf(pathname, "%s/%s", accountsdir, accname);
 	if (access(pathname, 0))	/* if it doesn't exist */
 	{
@@ -562,12 +512,7 @@ static int file_load_clans(t_load_clans_func cb)
     }
     eventlog(eventlog_level_trace, __FUNCTION__, "start reading clans");
 
-    if (!(pathname = xmalloc(strlen(clansdir) + 1 + 4 + 1)))
-    {
-	eventlog(eventlog_level_error, __FUNCTION__, "could not allocate memory for pathname");
-	return -1;
-    }
-
+    pathname = xmalloc(strlen(clansdir) + 1 + 4 + 1);
     while ((dentry = p_readdir(clandir)) != NULL)
     {
 	if (dentry[0] == '.')
@@ -589,14 +534,7 @@ static int file_load_clans(t_load_clans_func cb)
 	    continue;
 	}
 
-	if (!(clan = xmalloc(sizeof(t_clan))))
-	{
-	    eventlog(eventlog_level_error, __FUNCTION__, "could not allocate memory for clan");
-	    xfree((void *) pathname);
-	    p_closedir(clandir);
-	    return -1;
-	}
-
+	clan = xmalloc(sizeof(t_clan));
 	clan->clantag = clantag;
 
 	if (!fgets(line, 1024, fp))
@@ -659,18 +597,8 @@ static int file_load_clans(t_load_clans_func cb)
 	    xfree((void*)clan);
 	    continue;
 	}
-	if ((clan->clanname = xstrdup(clanname)) == NULL)
-	{
-	    eventlog(eventlog_level_error, __FUNCTION__, "not enough memory to store clanname");
-	    xfree((void*)clan);
-	    continue;
-	}
-	if ((clan->clan_motd = xstrdup(motd)) == NULL)
-	{
-	    eventlog(eventlog_level_error, __FUNCTION__, "not enough memory to store motd");
-	    xfree((void*)clan);
-	    continue;
-	}
+	clan->clanname = xstrdup(clanname);
+	clan->clan_motd = xstrdup(motd);
 	clan->clanid = cid;
 	clan->creation_time = (time_t) creation_time;
 	clan->created = 1;
@@ -690,18 +618,7 @@ static int file_load_clans(t_load_clans_func cb)
 
 	while (fscanf(fp, "%i,%c,%i\n", &member_uid, &member_status, &member_join_time) == 3)
 	{
-	    if (!(member = xmalloc(sizeof(t_clanmember))))
-	    {
-		eventlog(eventlog_level_error, __FUNCTION__, "cannot allocate memory for clan member");
-		clan_remove_all_members(clan);
-		xfree((void *) clan->clanname);
-		xfree((void *) clan->clan_motd);
-		xfree((void *) clan);
-		fclose(fp);
-		xfree((void *) pathname);
-		p_closedir(clandir);
-		return -1;
-	    }
+	    member = xmalloc(sizeof(t_clanmember));
 	    if (!(member->memberacc = accountlist_find_account_by_uid(member_uid)))
 	    {
 		eventlog(eventlog_level_error, __FUNCTION__, "cannot find uid %u", member_uid);
@@ -760,12 +677,8 @@ static int file_write_clan(void *data)
     t_clanmember *member;
     char *clanfile;
     t_clan *clan = (t_clan *) data;
-    if (!(clanfile = xmalloc(strlen(clansdir) + 1 + 4 + 1)))
-    {
-	eventlog(eventlog_level_error, __FUNCTION__, "could not allocate memory for filename");
-	return -1;
-    }
 
+    clanfile = xmalloc(strlen(clansdir) + 1 + 4 + 1);
     sprintf(clanfile, "%s/%c%c%c%c", clansdir, clan->clantag >> 24, (clan->clantag >> 16) & 0xff, (clan->clantag >> 8) & 0xff, clan->clantag & 0xff);
 
     if ((fp = fopen(clanfile, "w")) == NULL)
@@ -797,11 +710,8 @@ static int file_write_clan(void *data)
 static int file_remove_clan(int clantag)
 {
     char *tempname;
-    if (!(tempname = xmalloc(strlen(clansdir) + 1 + 4 + 1)))
-    {
-	eventlog(eventlog_level_error, __FUNCTION__, "could not allocate memory for pathname");
-	return -1;
-    }
+
+    tempname = xmalloc(strlen(clansdir) + 1 + 4 + 1);
     sprintf(tempname, "%s/%c%c%c%c", clansdir, clantag >> 24, (clantag >> 16) & 0xff, (clantag >> 8) & 0xff, clantag & 0xff);
     if (remove((const char *) tempname) < 0)
     {
