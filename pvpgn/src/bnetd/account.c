@@ -173,7 +173,9 @@ extern t_account * account_create(char const * username, char const * passhash1)
 
     if (username) /* actually making a new account */
     {
+#ifndef WITH_MYSQL
 	char * temp;
+#endif
 	
 	if (account_check_name(username)<0)
 	{
@@ -712,8 +714,6 @@ extern char const * account_get_strattr(t_account * account, char const * key)
       }
     else if (strcasecmp(key,"clan\\name")==0)
       {
-	char * temp;
-	
 	/* we have decided to store the clan in "profile\\clanname" so we don't need an extra table
 	 * for this. But when using a client like war3 it is requested from "clan\\name"
 	 * let's just redirect this request...
@@ -796,7 +796,9 @@ extern char const * account_get_strattr(t_account * account, char const * key)
 	    if (newkey!=key) free((void *)newkey); /* avoid warning */
 	    return attr->val;
 	}
-    } else
+    } 
+    else if ((!(prefs_get_mysql_persistent()))&&(account!=default_acct)) { }
+    else
 #else
     if (account==default_acct) /* don't recurse infinitely */
 #endif
@@ -1197,7 +1199,7 @@ extern int accountlist_load_default(void)
 #ifndef WITH_MYSQL
         eventlog(eventlog_level_error,"accountlist_load_default","could not load default account template from file \"%s\"",prefs_get_defacct());
 #else
-        eventlog(eventlog_level_error,"accountlist_load_default","could not load default account template from storage id \"%u\"");
+        eventlog(eventlog_level_error,"accountlist_load_default","could not load default account template");
 #endif
 	return -1;
     }
