@@ -12,8 +12,11 @@ PvPGN Version History:
 [STORAGE]: combined plain and cdb file storage into one (this eliminates replicating 
 codes)
 
-[FDWATCH]: moved codes into "common" directory to be used by other applications 
-than bnetd
+[FDWATCH]: 
+  -- moved codes into "common" directory to be used by other applications 
+  than bnetd
+  -- changed d2cs to use fdwatch for socket handling (reduces CPU usage 
+  drastically on BIG servers)
 
 [SQL]: bugfixes
   -- fixed sql_DB_layout for command_groups and pgsql

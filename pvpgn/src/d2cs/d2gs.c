@@ -437,7 +437,7 @@ extern int d2gs_keepalive(void)
 	BEGIN_LIST_TRAVERSE_DATA(d2gslist_head,gs)
 	{
 		if (gs->active && gs->connection) {
-			queue_push_packet(d2cs_conn_get_out_queue(gs->connection),packet);
+			conn_push_outqueue(gs->connection,packet);
 		}
 	}
 	END_LIST_TRAVERSE_DATA()
@@ -464,7 +464,7 @@ extern int d2gs_restart_all_gs(void)
         BEGIN_LIST_TRAVERSE_DATA(d2gslist_head,gs)
         {
     		if (gs->connection) {
-            	    queue_push_packet(d2cs_conn_get_out_queue(gs->connection),packet);
+            	    conn_push_outqueue(gs->connection,packet);
                 }
         }
 	

@@ -240,6 +240,12 @@ ${SRC_COMMONDIR}/addr.o \
 ${SRC_COMMONDIR}/util.o \
 ${SRC_COMMONDIR}/queue.o \
 ${SRC_COMMONDIR}/network.o \
+${SRC_COMMONDIR}/rlimit.o \
+${SRC_COMMONDIR}/fdwatch.o\
+${SRC_COMMONDIR}/fdwatch_select.o\
+${SRC_COMMONDIR}/fdwatch_poll.o\
+${SRC_COMMONDIR}/fdwatch_kqueue.o\
+${SRC_COMMONDIR}/fdwatch_epoll.o\
 ${SRC_COMPATDIR}/inet_aton.o \
 ${SRC_COMPATDIR}/inet_ntoa.o \
 ${SRC_COMPATDIR}/strdup.o \

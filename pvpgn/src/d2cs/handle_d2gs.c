@@ -119,7 +119,7 @@ static void d2gs_send_init_info(t_d2gs * gs, t_connection * c)
 		packet_append_string(rpacket,"bogus_ac_checksum");
 //		packet_append_string(rpacket,prefs_get_d2gs_ac_string());
 		packet_append_string(rpacket,"bogus_ac_string");
-		queue_push_packet(d2cs_conn_get_out_queue(c),rpacket);
+		conn_push_outqueue(c,rpacket);
 		packet_del_ref(rpacket);
 	}
 	return;
@@ -234,7 +234,7 @@ static int on_d2gs_authreply(t_connection * c, t_packet * packet)
 		packet_set_type(rpacket,D2CS_D2GS_AUTHREPLY);
 		bn_int_set(&rpacket->u.d2cs_d2gs_authreply.h.seqno,0);
 		bn_int_set(&rpacket->u.d2cs_d2gs_authreply.reply,reply);
-		queue_push_packet(d2cs_conn_get_out_queue(c),rpacket);
+		conn_push_outqueue(c,rpacket);
 		packet_del_ref(rpacket);
 	}
 	
@@ -265,7 +265,7 @@ static int on_d2gs_setgsinfo(t_connection * c, t_packet * packet)
 	    bn_int_set(&rpacket->u.d2cs_d2gs_setgsinfo.h.seqno,0);
 	    bn_int_set(&rpacket->u.d2cs_d2gs_setgsinfo.maxgame,maxgame);
 	    bn_int_set(&rpacket->u.d2cs_d2gs_setgsinfo.gameflag,gameflag);
-	    queue_push_packet(d2cs_conn_get_out_queue(c),rpacket);
+	    conn_push_outqueue(c,rpacket);
 	    packet_del_ref(rpacket);
         }
 
@@ -331,7 +331,7 @@ static int on_d2gs_creategamereply(t_connection * c, t_packet * packet)
 		bn_short_set(&rpacket->u.d2cs_client_creategamereply.gameid,1);
 		bn_short_set(&rpacket->u.d2cs_client_creategamereply.u1,1);
 		bn_int_set(&rpacket->u.d2cs_client_creategamereply.reply,reply);
-		queue_push_packet(d2cs_conn_get_out_queue(client),rpacket);
+		conn_push_outqueue(client,rpacket);
 		packet_del_ref(rpacket);
 	}
 	sq_destroy(sq);
@@ -429,7 +429,7 @@ static int on_d2gs_joingamereply(t_connection * c, t_packet * packet)
 			bn_int_set(&rpacket->u.d2cs_client_joingamereply.token,0);
 			bn_int_set(&rpacket->u.d2cs_client_joingamereply.addr,0);
 		}
-		queue_push_packet(d2cs_conn_get_out_queue(client),rpacket);
+		conn_push_outqueue(client,rpacket);
 		packet_del_ref(rpacket);
 	}
 	sq_destroy(sq);
@@ -501,7 +501,7 @@ extern int handle_d2gs_init(t_connection * c)
 		bn_int_set(&packet->u.d2cs_d2gs_authreq.signlen, 0);
 		packet_append_string(packet,prefs_get_realmname());
 //		packet_append_data(packet, sign, signlen);
-		queue_push_packet(d2cs_conn_get_out_queue(c),packet);
+		conn_push_outqueue(c,packet);
 		packet_del_ref(packet);
 	}
 	eventlog(eventlog_level_info,__FUNCTION__,"sent init packet to d2gs %d (sessionnum=%d)",conn_get_d2gs_id(c),d2cs_conn_get_sessionnum(c));
