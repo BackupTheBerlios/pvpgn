@@ -1847,7 +1847,7 @@ extern unsigned int account_get_friend( t_account * account, int friendnum)
 
                 if (name) 
                 {
-                  if (acct = accountlist_find_account(name))
+                  if ((acct = accountlist_find_account(name)) != NULL)
                   {
                     tmp = account_get_uid(acct);
                     account_set_friend(account,friendnum,tmp);
