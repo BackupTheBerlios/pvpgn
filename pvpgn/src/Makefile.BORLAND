@@ -50,6 +50,8 @@ chanlogsdir = ${sharedir}\chanlogs
 TOPDIR      = ${srcdir}\..
 INSTALLDIR  = ${prefix}
 
+OBJDIR      = ${srcdir}\..\obj\bcc\
+
 SRC_SRCDIR      = ${srcdir}
 SRC_BINDIR      = ${srcdir}\..\bin
 SRC_SBINDIR     = ${srcdir}\..\sbin
@@ -126,7 +128,7 @@ CPPFLAGS    = -DWIN32 -DHAVE_CONFIG_H -I${SRC_SRCDIR} \
 		-DD2DBS_DEFAULT_CONF_FILE=\"${d2dbs_DEFCONFFILE:\=\\}\" \
 		${SQLFLAGS} ${CDBFLAGS}
 COMPILE     = ${CC} ${CFLAGS} ${CPPFLAGS} -c
-LINK        = ilink32 -v -L${LINK_LIBS_PATH}
+LINK        = ilink32 -v -L${LINK_LIBS_PATH} -I${OBJDIR}
 !ifdef WITH_SQL_MYSQL
 LINK_LIBS   = libmySQL_bc.lib
 !else
@@ -557,7 +559,10 @@ SHARES      = ad000001.smk tos.txt
 OTHERBINS	= ${sbnetd_OBJECTS} ${sbnetd_SBIN}
 DIRS        = ${SRC_BINDIR} ${SRC_SBINDIR}
 
-all: config ${SBINS} ${BINS}
+all:	config objdir ${SBINS} ${BINS}
+
+objdir:
+	if not exist ${OBJDIR} ${INSTALL_DIRS} ${OBJDIR}
 
 clean:
 # win95 supports only 1 parameter to 'del' & 'rmdir'
@@ -584,8 +589,10 @@ clean:
     -${RMF} ${SRC_ZLIBDIR}\*.bnetg_obj
     -${RMFALL} ${SRC_BINDIR}\*.*
     -${RMFALL} ${SRC_SBINDIR}\*.*
+    -${RMFALL} ${OBJDIR}\*.*    
     -${RMDIR} ${SRC_BINDIR}
     -${RMDIR} ${SRC_SBINDIR}
+    -${RMDIR} ${OBJDIR}    
 
 distclean: clean
     -${RMF} ${SRC_CONFDIR}\bnetd.conf
