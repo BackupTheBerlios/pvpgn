@@ -90,9 +90,9 @@ static char const * file_get_info(char const * rawname, unsigned int * len, bn_l
 	return NULL;
     }
     
-    if (strchr(rawname,'/'))
+    if (strchr(rawname,'/') || strchr(rawname,'\\'))
     {
-	eventlog(eventlog_level_warn,"file_get_info","got rawname containing '/' \"%s\"",rawname);
+	eventlog(eventlog_level_warn,"file_get_info","got rawname containing '/' or '\\' \"%s\"",rawname);
 	return NULL;
     }
     if (!(filename = malloc(strlen(prefs_get_filedir())+1+strlen(rawname)+1)))
