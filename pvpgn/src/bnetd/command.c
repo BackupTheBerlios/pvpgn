@@ -1574,7 +1574,7 @@ static int _handle_nobeep_command(t_connection * c, char const *text)
 
 static int _handle_version_command(t_connection * c, char const *text)
 {
-  message_send_text(c,message_type_info,c,"PvPGN "PVPGN_VERSION);  
+  message_send_text(c,message_type_info,c,PVPGN_SOFTWARE" "PVPGN_VERSION);  
   return 0;
 }
 

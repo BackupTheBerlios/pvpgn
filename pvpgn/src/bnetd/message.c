@@ -207,7 +207,7 @@ extern char * message_format_line(t_connection const * c, char const * in)
 		break;
 		
 	    case 'v':
-		strcpy(&out[outpos],PVPGN_VERSION);
+		strcpy(&out[outpos],PVPGN_SOFTWARE" "PVPGN_VERSION);
 		outpos += strlen(&out[outpos]);
 		break;
 		

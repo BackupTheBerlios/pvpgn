@@ -275,8 +275,8 @@ extern int irc_welcome(t_connection * conn)
         sprintf(temp,":Maximum length exceeded");
     irc_send(conn,RPL_WELCOME,temp);
     
-    if ((14+strlen(server_get_name())+24+strlen(PVPGN_VERSION)+1)<=MAX_IRC_MESSAGE_LEN)
-        sprintf(temp,":Your host is %s, running version bnetd-" PVPGN_VERSION,server_get_name());
+    if ((14+strlen(server_get_name())+24+strlen(PVPGN_SOFTWARE" "PVPGN_VERSION)+1)<=MAX_IRC_MESSAGE_LEN)
+        sprintf(temp,":Your host is %s, running "PVPGN_SOFTWARE" "PVPGN_VERSION,server_get_name());
     else
         sprintf(temp,":Maximum length exceeded");
     irc_send(conn,RPL_YOURHOST,temp);
@@ -288,8 +288,8 @@ extern int irc_welcome(t_connection * conn)
     else
         sprintf(temp,":Maximum length exceeded");
     irc_send(conn,RPL_CREATED,temp);
-    if ((strlen(server_get_name())+7+strlen(PVPGN_VERSION)+9+1)<=MAX_IRC_MESSAGE_LEN)
-        sprintf(temp,"%s bnetd-" PVPGN_VERSION " aroO Oon",server_get_name()); /* FIXME: be honest about modes :) */
+    if ((strlen(server_get_name())+7+strlen(PVPGN_SOFTWARE" "PVPGN_VERSION)+9+1)<=MAX_IRC_MESSAGE_LEN)
+        sprintf(temp,"%s "PVPGN_SOFTWARE" "PVPGN_VERSION" aroO Oon",server_get_name()); /* FIXME: be honest about modes :) */
     else
         sprintf(temp,":Maximum length exceeded");
     irc_send(conn,RPL_MYINFO,temp);

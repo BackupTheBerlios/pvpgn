@@ -141,7 +141,7 @@ extern int tracker_send_report(t_addrlist const * laddrs)
 		sizeof(packet.server_location));
 	packet.server_location[sizeof(packet.server_location)-1] = '\0';
 	strncpy(packet.software,
-		"PvPGN",
+		PVPGN_SOFTWARE,
 		sizeof(packet.software));
 	strncpy(packet.version,
 		PVPGN_VERSION,
