@@ -39,8 +39,7 @@ displayed
 -- fixed problems with channel flags not being set properly on channel
 join/rejoin (fix for chat icon problems with D2)
 -- added a whole bunch of new PG gametypes (5v5, 6v6, 3v3v3, 4v4v4, 2v2v2v2
-and 3v3v3v3) and a new AT gametype (2v2v2) - note: no game result reporting
-for those so far...
+and 3v3v3v3) and a new AT gametype (2v2v2)
 -- added output of (game)version to XML user status output
 -- a tiny change to bnetd.conf due to strange naming of status output parameters
 -- added some error handling for news.txt (for invalid or missing news timestamps)
@@ -48,6 +47,8 @@ for those so far...
 -- switched to reduced_accounting mode permanently now
 -- fixed a problem with adbanners found by Coolmatt (if you clicked banners
 more than once, it returned a wrong link)
+-- a tiny "fix" to /f remove <username> so u can remove users from your friendslist 
+that have allready been deleted from the server earlier
 
 
 1.5.0beta3:
