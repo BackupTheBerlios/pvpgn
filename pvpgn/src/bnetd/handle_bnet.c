@@ -2868,8 +2868,7 @@ static int _client_atacceptdeclineinvite(t_connection * c, t_packet const * cons
 	  }
 	
 	//if user declined the invitation then
-	if(bn_int_get(packet->u.client_arrangedteam_accept_decline_invite.option)==CLIENT_ARRANGEDTEAM_DECLINE)
-	  {
+	if(bn_int_get(packet->u.client_arrangedteam_accept_decline_invite.option)==CLIENT_ARRANGEDTEAM_DECLINE) {
 	     inviter = packet_get_str_const(packet,sizeof(t_client_arrangedteam_accept_decline_invite),USER_NAME_MAX);
 	     dest_c = connlist_find_connection_by_accountname(inviter);
 	     
@@ -2886,8 +2885,8 @@ static int _client_atacceptdeclineinvite(t_connection * c, t_packet const * cons
 	     
 	     queue_push_packet(conn_get_out_queue(dest_c),rpacket);
 	     packet_del_ref(rpacket);
-	     
-	  }
+	} else
+	     conn_set_channel(c, "Arranged Teams");
      }
 
    return 0;
