@@ -78,10 +78,6 @@ static char * file_find_default(const char *rawname)
     for (pattern = defaultfiles, extension = defaultfiles + 1; *pattern; pattern++, extension++)
     	if (!strcmp(rawname, *pattern)) {	/* Check if there is a default file available for this kind of file */
 	    filename = (char*)xmalloc(strlen(prefs_get_filedir()) + 1 + strlen(*pattern) + 7 + strlen(*extension));
-	    if (!filename) {
-		eventlog(eventlog_level_error,__FUNCTION__,"could not allocate memory for filename");
-		break;
-	    }
 
 	    strcpy(filename, prefs_get_filedir());
 	    strcat(filename, "/");
@@ -122,10 +118,6 @@ static char const * file_get_info(char const * rawname, unsigned int * len, bn_l
     }
 
     filename = buildpath(prefs_get_filedir(), rawname);
-    if (!filename) {
-	eventlog(eventlog_level_error,__FUNCTION__,"could not allocate memory for filename");
-	return NULL;
-    }
 
     if (stat(filename,&sfile)<0) { /* if it doesn't exist, try to replace with default file */
 	xfree((void*)filename);

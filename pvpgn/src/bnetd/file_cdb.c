@@ -193,11 +193,8 @@ static const char * fcpy(FILE *fd, cdbi_t len, cdbi_t *posp, cdbi_t limit, unsig
 
     if (strl < len + 1) {
 	char *tmp;
-	if ((tmp = xmalloc(len + 1)) == NULL) {
-	    eventlog(eventlog_level_error, __FUNCTION__, "could not alloc memory to read from db");
-	    return NULL;
-	}
 
+	tmp = xmalloc(len + 1);
 	if (str) xfree((void*)str);
 	str = tmp;
 	strl = len + 1;
@@ -247,11 +244,7 @@ static int cdb_read_attrs(const char *filename, t_read_attr_func cb, void *data)
 	    return -1;
 	}
 
-	if ((key = xstrdup(key)) == NULL) {
-	    eventlog(eventlog_level_error, __FUNCTION__, "error duplicating attribute key");
-	    fclose(f);
-	    return -1;
-	}
+	key = xstrdup(key);
 
 	if ((val = fcpy(f, vlen, &pos, eod, buf)) == NULL) {
 	    eventlog(eventlog_level_error, __FUNCTION__, "error reading attribute val");
@@ -296,26 +289,9 @@ static void * cdb_read_attr(const char *filename, const char *key)
 	return NULL;
     }
 
-    if ((attr = xmalloc(sizeof(t_attribute))) == NULL) {
-	eventlog(eventlog_level_error, __FUNCTION__, "not enough memory for attr result");
-	fclose(cdbfile);
-	return NULL;
-    }
-
-    if ((attr->key = xstrdup(key)) == NULL) {
-	eventlog(eventlog_level_error, __FUNCTION__, "not enough memory for attr key result");
-	xfree((void*)attr);
-	fclose(cdbfile);
-	return NULL;
-    }
-
-    if ((val = xmalloc(vlen + 1)) == NULL) {
-	eventlog(eventlog_level_error, __FUNCTION__, "not enough memory for attr val result");
-	xfree((void*)attr->key);
-	xfree((void*)attr);
-	fclose(cdbfile);
-	return NULL;
-    }
+    attr = xmalloc(sizeof(t_attribute));
+    attr->key = xstrdup(key);
+    val = xmalloc(vlen + 1);
 
     cdb_bread(cdbfile, val, vlen);
     fclose(cdbfile);

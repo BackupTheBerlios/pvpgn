@@ -173,11 +173,7 @@ extern int friendlist_add_account(t_list * flist, t_account * acc, int mutual)
     if(flist==NULL)
         return -1;
 
-    if (!(fr = xmalloc(sizeof(t_friend))))
-    {
-        eventlog(eventlog_level_error,__FUNCTION__,"could not allocate memory for friend");
-        return -1;
-    }
+    fr = xmalloc(sizeof(t_friend));
     fr->friendacc = acc;
     fr->mutual = mutual;
     list_append_data(flist, fr);

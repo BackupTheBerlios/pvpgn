@@ -184,20 +184,11 @@ static int plain_read_attrs(const char *filename, t_read_attr_func cb, void *dat
 	    xfree((void *)buff); /* avoid warning */
 	    continue;
 	}
-	
+
 	len = strlen(buff)-5+1; /* - ""="" + NUL */
-	if (!(esckey = xmalloc(len))) {
-	    eventlog(eventlog_level_error, __FUNCTION__, "could not allocate memory for esckey on line %d of account file \"%s\"", line, filename);
-	    xfree((void *)buff); /* avoid warning */
-	    continue;
-	}
-	if (!(escval = xmalloc(len))) {
-	    eventlog(eventlog_level_error, __FUNCTION__,"could not allocate memory for escval on line %d of account file \"%s\"", line, filename);
-	    xfree((void *)buff); /* avoid warning */
-	    xfree(esckey);
-	    continue;
-	}
-	
+	esckey = xmalloc(len);
+	escval = xmalloc(len);
+
 	if (sscanf(buff,"\"%[^\"]\" = \"%[^\"]\"",esckey,escval)!=2) {
 	    if (sscanf(buff,"\"%[^\"]\" = \"\"",esckey)!=1) /* hack for an empty value field */ {
 		eventlog(eventlog_level_error, __FUNCTION__,"malformed entry on line %d of account file \"%s\"", line, filename);
