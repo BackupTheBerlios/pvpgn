@@ -156,6 +156,7 @@ extern int anongame_matchlists_destroy()
 	return 0;
 }
 
+/*
 extern int anongame_matchmaking_process_map(FILE *f, int gametype, char *title, char *desc)
 {
 	t_uint8 i8;
@@ -263,6 +264,7 @@ extern int anongame_matchmaking_create(void)
 	fclose(f);
 	return 0;
 }
+*/
 
 extern int anongame_maplists_create(void)
 {
@@ -358,7 +360,7 @@ extern int anongame_maplists_create(void)
 
 	fclose(mapfd);
 
-	return anongame_matchmaking_create();
+	return 0; // anongame_matchmaking_create(); disabled cause matchmaking format changed from 1.03 to 1.04
 }
 
 extern void anongame_maplists_destroy()
