@@ -1323,7 +1323,7 @@ extern t_account * accountlist_add_account(t_account * account)
 	    {
 		    if (strcasecmp(tname,username)==0)
 		    {
-		        eventlog(eventlog_level_error,"accountlist_add_account","user \"%s\":"UID_FORMAT" already has an account (\"%s\":"UID_FORMAT")",username,uid,tname,curraccount->uid);
+		        eventlog(eventlog_level_info,"accountlist_add_account","user \"%s\":"UID_FORMAT" already has an account (\"%s\":"UID_FORMAT")",username,uid,tname,curraccount->uid);
 		        account_unget_name(tname);
 		        hashtable_entry_release(curr);
 		        account_unget_strattr(username);
