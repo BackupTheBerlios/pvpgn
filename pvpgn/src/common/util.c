@@ -513,12 +513,15 @@ extern char * unescape_chars(char const * in)
     char *       out;
     unsigned int inpos;
     unsigned int outpos;
+    unsigned int inlen;
     
     if (!in)
 	return NULL;
-    out = xmalloc(strlen(in)+1);
 
-    for (inpos=0,outpos=0; inpos<strlen(in); inpos++)
+    inlen = strlen(in);
+    out = xmalloc(inlen+1);
+
+    for (inpos=0,outpos=0; inpos<inlen; inpos++)
     {
         if (in[inpos]!='\\')
 	    out[outpos++] = in[inpos];
