@@ -47,7 +47,7 @@
 #include "common/eventlog.h"
 //#include "common/packet.h"
 //#include "common/queue.h"
-//#include "common/tag.h"
+#include "common/tag.h"
 #include "common/list.h"
 #include "common/util.h"
 //#include "connection.h"
@@ -106,6 +106,16 @@ static int gamelist_destroy(void)
 }
 
 /*****/
+extern int tournament_check_client(char const * clienttag)
+{
+    if ((strcmp(clienttag,CLIENTTAG_WAR3XP) == 0) && (tournament_info->game_client == 2))
+	return 1;
+    if ((strcmp(clienttag,CLIENTTAG_WARCRAFT3) == 0) && (tournament_info->game_client == 1))
+	return 1;
+	
+    return -1;
+}
+
 extern int tournament_signup_user(t_account * account)
 {
     t_tournament_user * user;
@@ -287,12 +297,15 @@ extern int tournament_init(char const * filename)
     tournament_info->start_round_3	= 0;
     tournament_info->start_round_4	= 0;
     tournament_info->tournament_end	= 0;
-    tournament_info->game_selection	= 1;
-    tournament_info->game_type		= 1;
-    tournament_info->races		= 0x3F;
+    tournament_info->game_selection	= 1; /* Default to PG */
+    tournament_info->game_type		= 1; /* Default to 1v1 */
+    tournament_info->game_client	= 2; /* Default to FT */
+    tournament_info->races		= 0x3F; /* Default to all races */
     tournament_info->format		= strdup("");
     tournament_info->sponsor		= strdup("");
     tournament_info->thumbs_down	= 0;
+    
+    anongame_tournament_maplists_destroy();
     
     if (!filename) {
 	eventlog(eventlog_level_error,__FUNCTION__,"got NULL filename");
@@ -527,10 +540,16 @@ extern int tournament_init(char const * filename)
 	        tournament_info->tournament_end = mktime(timestamp);
 	    }
 	    else if (strcmp(variable,"game_selection") == 0) {
-	        tournament_info->game_selection = atoi(pointer);
+		if (atoi(pointer) >= 1 && atoi(pointer) <= 2)
+		    tournament_info->game_selection = atoi(pointer);
 	    }
 	    else if (strcmp(variable,"game_type") == 0) {
-	        tournament_info->game_type = atoi(pointer);
+		if (atoi(pointer) >= 1 && atoi(pointer) <= 4)
+		    tournament_info->game_type = atoi(pointer);
+	    }
+	    else if (strcmp(variable,"game_client") == 0) {
+		if (atoi(pointer) >= 1 && atoi(pointer) <= 2)
+		    tournament_info->game_client = atoi(pointer);
 	    }
 	    else if (strcmp(variable,"format") == 0) {
 	        pointer = strchr(pointer,'\"');
@@ -590,10 +609,21 @@ extern int tournament_init(char const * filename)
 	        eventlog(eventlog_level_error,__FUNCTION__,"bad option \"%s\" in \"%s\"",variable,filename);
 	    
 	    if (have_sponsor && have_icon) {
-		sponsor = malloc(strlen(have_sponsor)+6);
-	        sprintf(sponsor, "%c%c3W,%s",have_icon[1],have_icon[0],have_sponsor);
-	        if (tournament_info->sponsor) free((void *)tournament_info->sponsor);
-	        tournament_info->sponsor = strdup(sponsor);
+	        sponsor = malloc(strlen(have_sponsor)+6);
+		
+		if (strlen(have_icon) == 4)
+		    sprintf(sponsor, "%c%c%c%c,%s",have_icon[3],have_icon[2],have_icon[1],have_icon[0],have_sponsor);
+		else if (strlen(have_icon) == 2)
+		    sprintf(sponsor, "%c%c3W,%s",have_icon[1],have_icon[0],have_sponsor);
+		else {
+		    sprintf(sponsor, "PX3W,%s",have_sponsor); /* default to standard FT icon */
+		    eventlog(eventlog_level_warn,__FUNCTION__,"bad icon length, using W3XP");
+		}
+		
+		if (tournament_info->sponsor)
+		    free((void *)tournament_info->sponsor);
+	        
+		tournament_info->sponsor = strdup(sponsor);
 	        free((void *)have_sponsor);
 		free((void *)have_icon);
 	        free((void *)sponsor);

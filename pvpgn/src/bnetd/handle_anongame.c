@@ -983,6 +983,8 @@ static int _client_anongame_tournament(t_connection * c, t_packet const * const 
     t_packet * rpacket = NULL;
     
     t_account * account = conn_get_account(c);
+    char const * clienttag = conn_get_clienttag(c);
+    
     unsigned int now		= time(NULL);
     unsigned int start_prelim	= tournament_get_start_preliminary();
     unsigned int end_signup	= tournament_get_end_signup();
@@ -1000,8 +1002,8 @@ static int _client_anongame_tournament(t_connection * c, t_packet const * const 
     bn_int_set(&rpacket->u.server_anongame_tournament_reply.count,
     bn_int_get(packet->u.client_anongame_tournament_request.count));
     
-    /* (1) forces tournament to be disabled */
-    if ( !start_prelim || (end_signup <= now && tournament_user_signed_up(account) < 0)) { /* No Tournament Notice */
+    if ( !start_prelim || (end_signup <= now && tournament_user_signed_up(account) < 0) ||
+	    tournament_check_client(clienttag) < 0) { /* No Tournament Notice */
 	bn_byte_set(	&rpacket->u.server_anongame_tournament_reply.type,		0);
 	bn_byte_set(	&rpacket->u.server_anongame_tournament_reply.unknown,		0);
 	bn_short_set(	&rpacket->u.server_anongame_tournament_reply.unknown4,		0);

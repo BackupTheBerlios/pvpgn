@@ -28,10 +28,12 @@ typedef struct
     unsigned int tournament_end;
     unsigned int game_selection;
     unsigned int game_type;
+    unsigned int game_client;
     unsigned int races;
     char *       format;
     char *       sponsor;       /* format: "ricon,sponsor"
-                                 * ricon = W3+icon reversed
+                                 * ricon = W3+icon reversed , if 2 char icon is selected
+				 *  or reversed icon if 4 char icon is selected
 				 * ie. "4R3W,The PvPGN Team"
 				 */
     unsigned int thumbs_down;
@@ -59,6 +61,7 @@ extern int tournament_get_stat(t_account * account, int stat);
 extern int tournament_set_in_game_status(t_account * account, int status);
 extern int tournament_get_in_finals_status(t_account * account);
 extern int tournament_get_game_in_progress(void);
+extern int tournament_check_client(char const * clienttag);
 
 extern int tournament_get_totalplayers(void);
 extern int tournament_is_arranged(void);

@@ -191,6 +191,7 @@ extern int anongame_matchlists_destroy(void);
 
 extern int anongame_stats(t_connection * c);
 extern int anongame_add_tournament_map(char * ctag, char * mname);
+extern void anongame_tournament_maplists_destroy(void);
 
 #endif
 #endif

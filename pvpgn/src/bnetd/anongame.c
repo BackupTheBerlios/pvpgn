@@ -2039,3 +2039,38 @@ extern int anongame_add_tournament_map(char * ctag, char * mname)
     
     return 0;
 }
+
+extern void anongame_tournament_maplists_destroy(void)
+{
+    t_elem *curr;
+    char *mapname;
+   
+    if (mapnames_war3[ANONGAME_TYPE_TY]) {
+	LIST_TRAVERSE(mapnames_war3[ANONGAME_TYPE_TY], curr)
+	{
+	    if ((mapname = elem_get_data(curr)) == NULL)
+		eventlog(eventlog_level_error,__FUNCTION__, "found NULL mapname");
+	    else
+	      free(mapname);
+	    
+	    list_remove_elem(mapnames_war3[ANONGAME_TYPE_TY], curr);
+	}
+	list_destroy(mapnames_war3[ANONGAME_TYPE_TY]);
+	mapnames_war3[ANONGAME_TYPE_TY] = NULL;
+    }
+    
+    if (mapnames_w3xp[ANONGAME_TYPE_TY]) {
+	LIST_TRAVERSE(mapnames_w3xp[ANONGAME_TYPE_TY], curr)
+	{
+	    if ((mapname = elem_get_data(curr)) == NULL)
+		eventlog(eventlog_level_error,__FUNCTION__, "found NULL mapname");
+	    else
+		free(mapname);
+	    
+	    list_remove_elem(mapnames_w3xp[ANONGAME_TYPE_TY], curr);
+	}
+	list_destroy(mapnames_w3xp[ANONGAME_TYPE_TY]);
+	mapnames_w3xp[ANONGAME_TYPE_TY] = NULL;
+    }
+}
+
