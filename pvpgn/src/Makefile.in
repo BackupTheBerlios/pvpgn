@@ -141,6 +141,7 @@ ${SRC_BNETDDIR}/storage_sql.o \
 ${SRC_BNETDDIR}/sql_dbcreator.o \
 ${SRC_BNETDDIR}/sql_pgsql.o \
 ${SRC_BNETDDIR}/sql_mysql.o \
+${SRC_BNETDDIR}/sql_sqlite3.o \
 ${SRC_BNETDDIR}/runprog.o \
 ${SRC_BNETDDIR}/realm.o \
 ${SRC_BNETDDIR}/character.o \

@@ -78,6 +78,9 @@
 #ifdef WITH_SQL_PGSQL
 #include "sql_pgsql.h"
 #endif
+#ifdef WITH_SQL_SQLITE3
+#include "sql_sqlite3.h"
+#endif
 #include "common/elist.h"
 #include "attr.h"
 #include "common/setup_after.h"
@@ -266,6 +269,20 @@ static int sql_init(const char *dbpath)
 	    break;
 	}
 #endif				/* WITH_SQL_PGSQL */
+#ifdef WITH_SQL_SQLITE3
+	if (strcasecmp(driver, "sqlite3") == 0)
+	{
+	    sql = &sql_sqlite3;
+	    if (sql->init(NULL, 0, NULL, dbname, NULL, NULL))
+	    {
+		eventlog(eventlog_level_error, __FUNCTION__, "got error init db");
+		sql = NULL;
+		xfree((void *) path);
+		return -1;
+	    }
+	    break;
+	}
+#endif				/* WITH_SQL_SQLITE3 */
 	eventlog(eventlog_level_error, __FUNCTION__, "no driver found for '%s'", driver);
 	xfree((void *) path);
 	return -1;
