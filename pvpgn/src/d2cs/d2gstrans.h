@@ -45,6 +45,7 @@ typedef struct
 
 extern int d2gstrans_load(char const * filename);
 extern int d2gstrans_unload(void);
+extern int d2gstrans_reload(char const * filename);
 extern void d2gstrans_net(unsigned int clientaddr, unsigned int *gsaddr);
 
 #endif

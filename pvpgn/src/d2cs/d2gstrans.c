@@ -189,6 +189,13 @@ extern int d2gstrans_unload(void)
     return 0;
 }
 
+extern int d2gstrans_reload(char const * filename)
+{
+    d2gstrans_unload();
+    if(d2gstrans_load(filename)<0) return -1;
+    return 0;
+}
+
 
 extern void d2gstrans_net(unsigned int clientaddr, unsigned int *gsaddr)
 {
