@@ -47,10 +47,8 @@ sub convert_cdb2sql {
 	    $line =~ m/^\+[0-9]+,[0-9]+:([A-Za-z0-9]+)\\(.*)->(.*)$/;
 
 	    $alist[$count]{tab} = $1;
-	    $alist[$count]{col} = $2;
+	    $alist[$count]{col} = &escape_key($2);
 	    $alist[$count]{val} = $3;
-
-	    $alist[$count]{col} =~ s!\\!_!g;
 
 	    if ($alist[$count]{col} =~ m!userid$!) {
 		$userid = $alist[$count]{val};
@@ -106,4 +104,11 @@ sub add_slashes {
     $str =~ s/\'/\\\'/g;
 
     return $str;
+}
+
+sub escape_key {
+	my $str = shift;
+
+	$str =~ s/[^0-9a-zA-Z]/_/g;
+	return $str;
 }
