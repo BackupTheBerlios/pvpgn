@@ -1302,25 +1302,21 @@ extern char const * conn_get_fake_clienttag(t_connection const * c)
 
 extern void conn_set_clienttag(t_connection * c, t_uint32 clienttag)
 {
-    int          needrefresh;
-    
     if (!c)
     {
         eventlog(eventlog_level_error,"conn_set_clienttag","got NULL connection");
         return;
     }
     
-    if (!c->protocol.client.clienttag || c->protocol.client.clienttag==clienttag)
+    if (c->protocol.client.clienttag!=clienttag)
     {
 	eventlog(eventlog_level_info,"conn_set_clienttag","[%d] setting client type to \"%s\"",conn_get_socket(c),clienttag_uint_to_str(clienttag));
-	needrefresh = 1;
+        c->protocol.client.clienttag = clienttag;
+        if (c->protocol.chat.channel)
+	    channel_update_flags(c);
+
     }
-    else
-	needrefresh = 0;
     
-    c->protocol.client.clienttag = clienttag;
-    if (needrefresh && c->protocol.chat.channel)
-	channel_update_flags(c);
 }
 
 
