@@ -1082,11 +1082,7 @@ extern int handle_w3route_packet(t_connection * c, t_packet const * const packet
       packet_set_type(rpacket,SERVER_W3ROUTE_ACK);
       bn_byte_set(&rpacket->u.server_w3route_ack.unknown1,7);
       bn_short_set(&rpacket->u.server_w3route_ack.unknown2,0);
-      {
-        int rid;
-	rid =(int)(((double)rand() / RAND_MAX) * 0x10000000);
-	bn_int_set(&rpacket->u.server_w3route_ack.unknown3,rid);
-      }
+      bn_int_set(&rpacket->u.server_w3route_ack.unknown3,SERVER_W3ROUTE_ACK_UNKNOWN3);
 
 //      bn_int_set(&rpacket->u.server_w3route_ack.unknown3,0xdeafbeef);
       bn_short_set(&rpacket->u.server_w3route_ack.unknown4,0xcccc);

@@ -220,6 +220,7 @@ typedef struct
 } t_server_w3route_ack PACKED_ATTR();
 /******************************************************/
 
+#define SERVER_W3ROUTE_ACK_UNKNOWN3	0x484e2637
 
 /******************************************************/
 /*
