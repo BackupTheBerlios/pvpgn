@@ -1,11 +1,14 @@
 PvPGN Version History:
 
-1.5.0
-a general note:
-  for everyone using mySQL: please set mysql_persitent=true in bnetd.conf
-  it will not only speed up all the database accesses but its also the mode
-that is used during dev'ing so problems with it are less propable
+1.5.0beta
+note:
+   this is a BETA version. It contains LOTS of changes and new code. It needs
+ LOTS of testings. But because of public request we released a first PVPGN
+ version supporting WAR 3 FT/ROC 1.10.
 changes:
+-- SUPPORT FOR FT/ROC 1.10
+-- changed storage layer, all configuration now takes place with "storage_path"
+configuration directive (read the comments in bnetd.conf)
 -- added conf/anongame_infos.conf so u can freely name gametypes and ladder
 URLS for W3XP
 -- maps/gametypes for W3XP can now be changed in bnmaps.txt
