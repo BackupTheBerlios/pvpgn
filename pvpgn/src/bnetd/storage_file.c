@@ -69,6 +69,7 @@
 #else
 # ifdef WIN32
 #  include <io.h>
+#  define F_OK 0
 # endif
 #endif
 #include "compat/pdir.h"
@@ -332,7 +333,7 @@ static int file_write_attrs(t_storage_info * info, void *attributes)
      * the rename which was to make this an atomic
      * operation.  At least the race window is small.
      */
-    if (access((const char *) info, 0) == 0)
+    if (access((const char *) info, F_OK) == 0)
     {
 	if (remove((const char *) info) < 0)
 	{
@@ -488,7 +489,7 @@ static t_storage_info *file_read_account(const char *accname, unsigned uid)
     if (accname && prefs_get_savebyname()) {
 	pathname = xmalloc(strlen(accountsdir) + 1 + strlen(accname) + 1);	/* dir + / + file + NUL */
 	sprintf(pathname, "%s/%s", accountsdir, accname);
-	if (access(pathname, 0))	/* if it doesn't exist */
+	if (access(pathname, F_OK))	/* if it doesn't exist */
 	{
 	    xfree((void *) pathname);
 	    return NULL;

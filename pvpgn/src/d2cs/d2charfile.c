@@ -50,6 +50,11 @@
 #include "compat/strerror.h"
 #ifdef HAVE_UNISTD_H
 # include <unistd.h>
+#else
+# ifdef WIN32
+#  include <io.h>
+#  define F_OK 0
+# endif
 #endif
 #ifdef TIME_WITH_SYS_TIME
 # include <time.h>
@@ -406,7 +411,7 @@ extern int d2char_delete(char const * account, char const * charname)
 	/* bak charsave file */
 	file=xmalloc(strlen(prefs_get_bak_charinfo_dir())+1+strlen(account)+1+strlen(charname)+1);
 	d2char_get_bak_infofile_name(file,account,charname);
-	if (access(file, 0) == 0) {
+	if (access(file, F_OK) == 0) {
 	    if (remove(file)<0) {
 		eventlog(eventlog_level_error,__FUNCTION__,"failed to delete bak charinfo file \"%s\" (remove: %s)",file,strerror(errno));
 	    }
@@ -416,7 +421,7 @@ extern int d2char_delete(char const * account, char const * charname)
 	/* bak charinfo file */
 	file=xmalloc(strlen(prefs_get_bak_charsave_dir())+1+strlen(charname)+1);
 	d2char_get_bak_savefile_name(file,charname);
-	if (access(file, 0) == 0) {
+	if (access(file, F_OK) == 0) {
 	    if (remove(file)<0) {
 		eventlog(eventlog_level_error,__FUNCTION__,"failed to delete bak charsave file \"%s\" (remove: %s)",file,strerror(errno));
 	    }
