@@ -1104,7 +1104,7 @@ static int ladder_createxptable(const char *xplevelfile, const char *xpcalcfile)
    int len,i ,j;
    int level, startxp, neededxp, mingames;
    float lossfactor;
-   int minlevel, leveldiff, xpgained, xplost, calctype = 10;
+   int minlevel, leveldiff, higher_xpgained, higher_xplost, lower_xpgained, lower_xplost, calctype = 10;
    
    if (xplevelfile == NULL || xpcalcfile == NULL) {
       eventlog(eventlog_level_error, "ladder_createxptable", "got NULL filename(s)");
@@ -1188,24 +1188,27 @@ static int ladder_createxptable(const char *xplevelfile, const char *xpcalcfile)
       for(p=buffer; *p && *p != '#'; p++);
       if (*p == '#') *p = '\0';
       
-      if (sscanf(buffer, " %d %d %d %d ", &minlevel, &leveldiff, &xpgained, &xplost) != 4)
+      if (sscanf(buffer, " %d %d %d %d %d %d ", &minlevel, &leveldiff, &higher_xpgained, &higher_xplost, &lower_xpgained, &lower_xplost) != 6)
 	continue;
       
       eventlog(eventlog_level_trace, "ladder_createxptable", "parsed 1 minlevel: %d leveldiff : %d", minlevel, leveldiff);
-      if (minlevel != 0 && minlevel != 25 && minlevel != 50) {
+      if (minlevel != 50 && minlevel != 25 && minlevel != 0) {
 	 eventlog(eventlog_level_error, "ladder_createxptable", "got invalid minim level : %d", minlevel);
 	 continue;
       }
       
       if (leveldiff <0 || leveldiff > W3_XPCALC_MAXLEVELDIFF) {
-	 eventlog(eventlog_level_error, "ladder_createxptable", "got invalid lavel diff : %d", leveldiff);
+	 eventlog(eventlog_level_error, "ladder_createxptable", "got invalid level diff : %d", leveldiff);
 	 continue;
       }
             
       calctype = minlevel / 25;
+      if (calctype>W3_XPCALC_TYPES) calctype=W3_XPCALC_TYPES-1;
       eventlog(eventlog_level_trace, "ladder_createxptable", "parsed 2 minlevel: %d ", calctype);
-      xpcalc[calctype].xpchart[leveldiff].winxp = xpgained;
-      xpcalc[calctype].xpchart[leveldiff].lossxp = xplost;
+      xpcalc[calctype].xpchart[leveldiff].higher_winxp = higher_xpgained;
+      xpcalc[calctype].xpchart[leveldiff].higher_lossxp = higher_xplost;
+      xpcalc[calctype].xpchart[leveldiff].lower_winxp = lower_xpgained;
+      xpcalc[calctype].xpchart[leveldiff].lower_lossxp = lower_xplost;
    }
    fclose(fd2);
    
@@ -1214,7 +1217,8 @@ static int ladder_createxptable(const char *xplevelfile, const char *xpcalcfile)
     */
    for(i=0; i<W3_XPCALC_TYPES; i++)
      for(j=0;j<=W3_XPCALC_MAXLEVELDIFF;j++)
-       if (xpcalc[i].xpchart[j].winxp == 0 || xpcalc[i].xpchart[j].lossxp == 0) {
+       if (xpcalc[i].xpchart[j].higher_winxp == 0 || xpcalc[i].xpchart[j].higher_lossxp == 0 ||
+           xpcalc[i].xpchart[j].lower_winxp  == 0 || xpcalc[i].xpchart[j].lower_lossxp  == 0) {
 	  eventlog(eventlog_level_error, "ladder_createxptable", "i found 0 for a win/loss XP, please check your config file");
 	  ladder_destroyxptable();
 	  return -1;
@@ -1271,13 +1275,14 @@ extern int ladder_war3_xpdiff(unsigned int winnerlevel, unsigned int looserlevel
     * we compute that from the xp charts also applying the loss factor for
     * lower level profiles
     * FIXME: ?! loss factor doesnt keep the sum of xp won/lost constant
+    * DON'T CARE, cause current win/loss values aren't symetrical any more
     */
    if (diff >= 0) {
-      *winxpdiff = xpcalc[0].xpchart[absdiff].winxp;
-      *loosxpdiff = - (xpcalc[0].xpchart[absdiff].winxp * xplevels[looserlevel - 1].lossfactor) / 100;
+      *winxpdiff = xpcalc[0].xpchart[absdiff].higher_winxp;
+      *loosxpdiff = - (xpcalc[0].xpchart[absdiff].higher_lossxp * xplevels[looserlevel - 1].lossfactor) / 100;
    } else {
-      *winxpdiff = xpcalc[0].xpchart[absdiff].lossxp;
-      *loosxpdiff = - (xpcalc[0].xpchart[absdiff].lossxp * xplevels[looserlevel - 1].lossfactor) / 100;
+      *winxpdiff = xpcalc[0].xpchart[absdiff].lower_winxp;
+      *loosxpdiff = - (xpcalc[0].xpchart[absdiff].lower_lossxp * xplevels[looserlevel - 1].lossfactor) / 100;
    }
    
    return 0;

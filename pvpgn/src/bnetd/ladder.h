@@ -31,7 +31,7 @@
 
 #endif
 
-#define W3_XPCALC_TYPES		3
+#define W3_XPCALC_TYPES		1
 #define W3_XPCALC_MAXLEVELDIFF	6
 #define W3_XPCALC_MAXLEVEL	50
 
@@ -80,7 +80,7 @@ typedef struct
 
 typedef struct
 {
-    int winxp, lossxp;
+    int higher_winxp, higher_lossxp, lower_winxp, lower_lossxp;
 } t_xpcalc_entry;
 
 typedef struct
