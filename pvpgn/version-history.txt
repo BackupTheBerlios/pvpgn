@@ -1,6 +1,6 @@
 PvPGN Version History:
 
-1.2.0 ???:
+1.2.1:
 -- fixed disconnet = loss bug for PG and AT
 -- added timer to shutdowm open w3route connections
 -- added reloading of d2trans file on HUP signal
