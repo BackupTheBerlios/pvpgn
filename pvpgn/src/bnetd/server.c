@@ -1597,11 +1597,11 @@ extern int server_process(void)
 	    continue;
 	}
 	
-	/* reap dead connections */
-	connlist_reap();
-
 	/* cycle through the ready sockets and handle them */
 	fdwatch_handle();
+
+	/* reap dead connections */
+	connlist_reap();
 
 	/* check all pending queries */
 	query_tick();
