@@ -378,12 +378,14 @@ extern int irc_welcome(t_connection * conn)
 	  while (line=file_get_line(fp))
 	  {
 	  	
-		formatted_line = message_format_line(conn,line);
-		formatted_line[0]=' ';
-		sprintf(send_line,":-%s",formatted_line);
-		irc_send(conn,RPL_MOTD,send_line);
+		if (formatted_line = message_format_line(conn,line))
+		{
+		  formatted_line[0]=' ';
+		  sprintf(send_line,":-%s",formatted_line);
+		  irc_send(conn,RPL_MOTD,send_line);
+		  free(formatted_line);
+		}
 		free(line);
-		free(formatted_line);
 	  }
 
 	  fclose(fp);
