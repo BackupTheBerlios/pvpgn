@@ -2863,7 +2863,7 @@ if (strstart(text,"/rank_all_accounts")==0)
 	// --> aaron
 	else if (strcasecmp(clienttag,CLIENTTAG_WARCRAFT3)==0)
 	{
-	  unsigned int teamcount;
+	  unsigned int teamcount = 0;
 	    if ((account = war3_ladder_get_account(&solo_ladder,rank,teamcount)))
 	    {
 		sprintf(msgtemp,"WarCraft3 Solo   %5u: %-20.20s %u/%u/0",
