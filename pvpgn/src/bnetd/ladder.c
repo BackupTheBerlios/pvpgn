@@ -1278,10 +1278,10 @@ extern int ladder_war3_xpdiff(unsigned int winnerlevel, unsigned int looserlevel
     */
    if (diff >= 0) {
       *winxpdiff = xpcalc[0].xpchart[absdiff].higher_winxp;
-      *loosxpdiff = - (xpcalc[0].xpchart[absdiff].higher_lossxp * xplevels[looserlevel - 1].lossfactor) / 100;
+      *loosxpdiff = - (xpcalc[0].xpchart[absdiff].lower_lossxp * xplevels[looserlevel - 1].lossfactor) / 100;
    } else {
       *winxpdiff = xpcalc[0].xpchart[absdiff].lower_winxp;
-      *loosxpdiff = - (xpcalc[0].xpchart[absdiff].lower_lossxp * xplevels[looserlevel - 1].lossfactor) / 100;
+      *loosxpdiff = - (xpcalc[0].xpchart[absdiff].higher_lossxp * xplevels[looserlevel - 1].lossfactor) / 100;
    }
    
    return 0;
