@@ -512,7 +512,6 @@ static void *sql_read_attr(t_storage_info * info, const char *key)
     char *tab, *col;
     unsigned int uid;
     t_attr    *attr;
-    t_hlist   *attr;
 
     if (!sql)
     {
@@ -565,7 +564,7 @@ static void *sql_read_attr(t_storage_info * info, const char *key)
 	return NULL;
     }
 
-    attr = attr_create(key, val);
+    attr = attr_create(key, row[0]);
     sql->free_result(result);
 
     return (void *) attr;
@@ -605,7 +604,7 @@ int sql_write_attrs(t_storage_info * info, const void *attrs)
 
     uid = *((unsigned int *) info);
 
-    hlist_for_each(curr, attrs) {
+    hlist_for_each(curr, (t_hlist*)attrs) {
 	attr = hlist_entry(curr, t_attr, link);
 
 	if (!attr_get_dirty(attr))
