@@ -270,11 +270,11 @@ static void fdw_kqueue_handle(void)
     {
 /*      eventlog(eventlog_level_trace, __FUNCTION__, "checking %d ident: %d read: %d write: %d", i, kqevents[i].ident, kqevents[i].filter & EVFILT_READ, kqevents[i].filter & EVFILT_WRITE); */
 
-	if (fdw_rw[kqevents[i].ident] & fdwatch_type_read && kqevents[i].filter & EVFILT_READ)
+	if (fdw_rw[kqevents[i].ident] & fdwatch_type_read && kqevents[i].filter == EVFILT_READ)
 	    if (fdw_hnd[kqevents[i].ident] (fdw_data[kqevents[i].ident], fdwatch_type_read) == -2)
 		continue;
 
-	if (fdw_rw[kqevents[i].ident] & fdwatch_type_write && kqevents[i].filter & EVFILT_WRITE)
+	if (fdw_rw[kqevents[i].ident] & fdwatch_type_write && kqevents[i].filter == EVFILT_WRITE)
 	    fdw_hnd[kqevents[i].ident] (fdw_data[kqevents[i].ident], fdwatch_type_write);
 
     }
