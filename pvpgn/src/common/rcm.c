@@ -63,12 +63,12 @@ extern void rcm_put(t_rcm *rcm, t_rcm_regref *regref)
 
 extern void rcm_chref(t_rcm *rcm, void *newref)
 {
-    t_elist *curr;
+    t_elist *curr, *save;
     t_rcm_regref *regref;
 
     assert(rcm);
 
-    elist_for_each(curr,&rcm->refs) {
+    elist_for_each_safe(curr,&rcm->refs,save) {
 	regref = elist_entry(curr,t_rcm_regref,refs_link);
 	if (regref->chref) regref->chref(regref->data,newref);
     }
