@@ -3396,6 +3396,8 @@ static int _client_findanongame(t_connection * c, t_packet const * const packet)
 	    packet_del_ref(rpacket);
 	}
      }
+   else
+     eventlog(eventlog_level_error,__FUNCTION__,"got unhandled option %d",bn_byte_get(packet->u.client_findanongame.option));
    
    return 0;
 }
