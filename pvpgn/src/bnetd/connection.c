@@ -1538,19 +1538,16 @@ extern unsigned int conn_get_flags(t_connection const * c)
 
 extern int conn_set_flags(t_connection * c, unsigned int flags)
 {
-    unsigned int oldflags;
-    
-    if (!c)
-    {
+    if (!c) {
         eventlog(eventlog_level_error,__FUNCTION__,"got NULL connection");
         return -1;
     }
-    oldflags = c->protocol.flags;
-    c->protocol.flags = flags;
 
-    if (oldflags!=c->protocol.flags && c->protocol.chat.channel)
+    if (flags!=c->protocol.flags && c->protocol.chat.channel) {
+	c->protocol.flags = flags;
 	channel_update_userflags(c);
-    
+    }
+
     return 0;
 }
 
