@@ -348,6 +348,7 @@ static int sql_read_attrs(t_storage_info *info, t_read_attr_func cb, void *data)
 	    }
 	 
 	    for(i = 0, fentry = fields; *fentry ; fentry++, i++) { /* we have to skip "uid" */
+		char * output;
 		/* we ignore the field used internally by sql */
 		if (strcmp(*fentry, SQL_UID_FIELD) == 0) continue;
 
@@ -355,13 +356,14 @@ static int sql_read_attrs(t_storage_info *info, t_read_attr_func cb, void *data)
 		if (row[i] == NULL) continue; /* its an NULL value sql field */
 
 //		eventlog(eventlog_level_trace, __FUNCTION__, "read key (step2): '%s' val: '%s'", _db_add_tab(*tab, *fentry), unescape_chars(row[i]));
-		cb(_db_add_tab(*tab, *fentry), unescape_chars(row[i]), data);
+		cb(_db_add_tab(*tab, *fentry), (output = unescape_chars(row[i])), data);
+		if (output) free((void *)output);
 //		eventlog(eventlog_level_trace, __FUNCTION__, "read key (final): '%s' val: '%s'", _db_add_tab(*tab, *fentry), unescape_chars(row[i]));
 	    }
 
 	    sql->free_fields(fields);
-	    sql->free_result(result);
 	}
+    if (result) sql->free_result(result);
     }
 
     return 0;
