@@ -36,15 +36,20 @@
 #include "common/eventlog.h"
 #include "common/util.h"
 #include "common/packet.h"
+#include "common/tag.h"
+#include "zlib/pvpgn_zlib.h"
 #include "tournament.h"
 #include "anongame_infos.h"
 #include "common/setup_after.h"
 
 static FILE * fp = NULL;
 
-t_anongame_infos * anongame_infos;
+static t_anongame_infos * anongame_infos;
 
-int anongame_infos_URL_init(t_anongame_infos * anongame_infos)
+static int zlib_compress(void const * src, int srclen, char ** dest, int * destlen);
+static int anongame_infos_data_load(void);
+
+static int anongame_infos_URL_init(t_anongame_infos * anongame_infos)
 {
 	t_anongame_infos_URL * anongame_infos_URL;
 
@@ -77,7 +82,7 @@ int anongame_infos_URL_init(t_anongame_infos * anongame_infos)
 	return 0;
 }
 
-int anongame_infos_URL_destroy(t_anongame_infos_URL * anongame_infos_URL)
+static int anongame_infos_URL_destroy(t_anongame_infos_URL * anongame_infos_URL)
 {
 	if (!(anongame_infos_URL))
 	{
@@ -102,7 +107,7 @@ int anongame_infos_URL_destroy(t_anongame_infos_URL * anongame_infos_URL)
 	return 0;
 }
 
-t_anongame_infos_DESC * anongame_infos_DESC_init(void)
+static t_anongame_infos_DESC * anongame_infos_DESC_init(void)
 {
 	t_anongame_infos_DESC * anongame_infos_DESC;
 
@@ -153,7 +158,7 @@ t_anongame_infos_DESC * anongame_infos_DESC_init(void)
 	return anongame_infos_DESC;
 }
 
-int anongame_infos_DESC_destroy(t_anongame_infos_DESC * anongame_infos_DESC)
+static int anongame_infos_DESC_destroy(t_anongame_infos_DESC * anongame_infos_DESC)
 {
 	if (!(anongame_infos_DESC))
 	{
@@ -203,7 +208,7 @@ int anongame_infos_DESC_destroy(t_anongame_infos_DESC * anongame_infos_DESC)
 	return 0;
 }
 
-int anongame_infos_THUMBSDOWN_init(t_anongame_infos * anongame_infos)
+static int anongame_infos_THUMBSDOWN_init(t_anongame_infos * anongame_infos)
 {
 	t_anongame_infos_THUMBSDOWN * anongame_infos_THUMBSDOWN;
 
@@ -242,7 +247,7 @@ int anongame_infos_THUMBSDOWN_init(t_anongame_infos * anongame_infos)
 	return 0;
 }
 
-int anongame_infos_THUMBSDOWN_destroy(t_anongame_infos_THUMBSDOWN * anongame_infos_THUMBSDOWN)
+static int anongame_infos_THUMBSDOWN_destroy(t_anongame_infos_THUMBSDOWN * anongame_infos_THUMBSDOWN)
 {
 	if (!(anongame_infos_THUMBSDOWN))
 	{
@@ -255,7 +260,7 @@ int anongame_infos_THUMBSDOWN_destroy(t_anongame_infos_THUMBSDOWN * anongame_inf
 	return 0;
 }
 
-int anongame_infos_ICON_REQ_WAR3_init(t_anongame_infos * anongame_infos)
+static int anongame_infos_ICON_REQ_WAR3_init(t_anongame_infos * anongame_infos)
 {
 	t_anongame_infos_ICON_REQ_WAR3 * anongame_infos_ICON_REQ_WAR3;
 
@@ -281,7 +286,7 @@ int anongame_infos_ICON_REQ_WAR3_init(t_anongame_infos * anongame_infos)
 	return 0;
 }
 
-int anongame_infos_ICON_REQ_WAR3_destroy(t_anongame_infos_ICON_REQ_WAR3 * anongame_infos_ICON_REQ_WAR3)
+static int anongame_infos_ICON_REQ_WAR3_destroy(t_anongame_infos_ICON_REQ_WAR3 * anongame_infos_ICON_REQ_WAR3)
 {
 	if (!(anongame_infos_ICON_REQ_WAR3))
 	{
@@ -294,7 +299,7 @@ int anongame_infos_ICON_REQ_WAR3_destroy(t_anongame_infos_ICON_REQ_WAR3 * anonga
 	return 0;
 }
 
-int anongame_infos_ICON_REQ_W3XP_init(t_anongame_infos * anongame_infos)
+static int anongame_infos_ICON_REQ_W3XP_init(t_anongame_infos * anongame_infos)
 {
 	t_anongame_infos_ICON_REQ_W3XP * anongame_infos_ICON_REQ_W3XP;
 
@@ -321,7 +326,7 @@ int anongame_infos_ICON_REQ_W3XP_init(t_anongame_infos * anongame_infos)
 	return 0;
 }
 
-int anongame_infos_ICON_REQ_W3XP_destroy(t_anongame_infos_ICON_REQ_W3XP * anongame_infos_ICON_REQ_W3XP)
+static int anongame_infos_ICON_REQ_W3XP_destroy(t_anongame_infos_ICON_REQ_W3XP * anongame_infos_ICON_REQ_W3XP)
 {
 	if (!(anongame_infos_ICON_REQ_W3XP))
 	{
@@ -335,7 +340,7 @@ int anongame_infos_ICON_REQ_W3XP_destroy(t_anongame_infos_ICON_REQ_W3XP * anonga
 }
 
 
-int anongame_infos_ICON_REQ_TOURNEY_init(t_anongame_infos * anongame_infos)
+static int anongame_infos_ICON_REQ_TOURNEY_init(t_anongame_infos * anongame_infos)
 {
 	t_anongame_infos_ICON_REQ_TOURNEY * anongame_infos_ICON_REQ_TOURNEY;
 
@@ -362,7 +367,7 @@ int anongame_infos_ICON_REQ_TOURNEY_init(t_anongame_infos * anongame_infos)
 	return 0;
 }
 
-int anongame_infos_ICON_REQ_TOURNEY_destroy(t_anongame_infos_ICON_REQ_TOURNEY * anongame_infos_ICON_REQ_TOURNEY)
+static int anongame_infos_ICON_REQ_TOURNEY_destroy(t_anongame_infos_ICON_REQ_TOURNEY * anongame_infos_ICON_REQ_TOURNEY)
 {
 	if (!(anongame_infos_ICON_REQ_TOURNEY))
 	{
@@ -372,6 +377,182 @@ int anongame_infos_ICON_REQ_TOURNEY_destroy(t_anongame_infos_ICON_REQ_TOURNEY * 
 
 	free((void *)anongame_infos_ICON_REQ_TOURNEY);
 
+	return 0;
+}
+
+static t_anongame_infos_data_lang * anongame_infos_data_lang_init(char * langID)
+{
+	t_anongame_infos_data_lang * anongame_infos_data_lang;
+
+	if (!(anongame_infos_data_lang = malloc(sizeof(t_anongame_infos_data_lang))))
+	{
+	    eventlog(eventlog_level_error,__FUNCTION__,"could not allocate mem for anongame_infos_data_lang");
+	    return NULL;
+	}
+
+	anongame_infos_data_lang->langID = strdup(langID);
+
+	anongame_infos_data_lang->desc_data = NULL;
+	anongame_infos_data_lang->ladr_data = NULL;
+
+	anongame_infos_data_lang->desc_comp_data = NULL;
+	anongame_infos_data_lang->ladr_comp_data = NULL;
+
+	anongame_infos_data_lang->desc_len = 0;
+	anongame_infos_data_lang->ladr_len = 0;
+
+	anongame_infos_data_lang->desc_comp_len = 0;
+	anongame_infos_data_lang->ladr_comp_len = 0;
+
+	return anongame_infos_data_lang;
+}
+
+static int anongame_infos_data_lang_destroy(t_anongame_infos_data_lang * anongame_infos_data_lang)
+{
+	if (!(anongame_infos_data_lang))
+	{
+		eventlog(eventlog_level_error,__FUNCTION__,"got NULL anongame_infos_data_lang");
+		return -1;
+	}
+
+	if(anongame_infos_data_lang->langID) free((void *)anongame_infos_data_lang->langID);
+
+	if(anongame_infos_data_lang->desc_data) free((void *)anongame_infos_data_lang->desc_data);
+	if(anongame_infos_data_lang->ladr_data) free((void *)anongame_infos_data_lang->ladr_data);
+
+	if(anongame_infos_data_lang->desc_comp_data) free((void *)anongame_infos_data_lang->desc_comp_data);
+	if(anongame_infos_data_lang->ladr_comp_data) free((void *)anongame_infos_data_lang->ladr_comp_data);
+
+	free((void *)anongame_infos_data_lang);
+
+	return 0;
+}
+
+static int anongame_infos_data_init(t_anongame_infos * anongame_infos)
+{
+	t_anongame_infos_data * anongame_infos_data;
+	t_list * anongame_infos_data_lang;
+
+	if (!(anongame_infos))
+	{
+		eventlog(eventlog_level_error,__FUNCTION__,"got NULL anongame_infos");
+		return -1;
+	}
+
+	if (!(anongame_infos_data = malloc(sizeof(t_anongame_infos_data))))
+	{
+	    eventlog(eventlog_level_error,__FUNCTION__,"could not allocate mem for anongame_infos_data");
+	    return -1;
+	}
+
+	if (!(anongame_infos_data_lang = list_create()))
+	{
+	    eventlog(eventlog_level_error,__FUNCTION__,"could not allocate mem for anongame_infos_data_lang");
+	    return -1;
+	}
+
+	anongame_infos_data->url_data = NULL;
+	anongame_infos_data->map_data = NULL;
+	anongame_infos_data->type_data = NULL;
+	anongame_infos_data->desc_data = NULL;
+	anongame_infos_data->ladr_data = NULL;
+
+	anongame_infos_data->url_comp_data = NULL;
+	anongame_infos_data->map_comp_data = NULL;
+	anongame_infos_data->type_comp_data = NULL;
+	anongame_infos_data->desc_comp_data = NULL;
+	anongame_infos_data->ladr_comp_data = NULL;
+
+	anongame_infos_data->url_len = 0;
+	anongame_infos_data->map_len = 0;
+	anongame_infos_data->type_len = 0;
+	anongame_infos_data->desc_len = 0;
+	anongame_infos_data->ladr_len = 0;
+
+	anongame_infos_data->url_comp_len = 0;
+	anongame_infos_data->map_comp_len = 0;
+	anongame_infos_data->type_comp_len = 0;
+	anongame_infos_data->desc_comp_len = 0;
+	anongame_infos_data->ladr_comp_len = 0;
+
+	anongame_infos->anongame_infos_data_war3=anongame_infos_data;
+	anongame_infos->anongame_infos_data_lang_war3=anongame_infos_data_lang;
+
+	if (!(anongame_infos_data = malloc(sizeof(t_anongame_infos_data))))
+	{
+	    eventlog(eventlog_level_error,__FUNCTION__,"could not allocate mem for anongame_infos_data");
+	    return -1;
+	}
+
+	if (!(anongame_infos_data_lang = list_create()))
+	{
+	    eventlog(eventlog_level_error,__FUNCTION__,"could not allocate mem for anongame_infos_data_lang");
+	    return -1;
+	}
+
+	anongame_infos_data->url_data = NULL;
+	anongame_infos_data->map_data = NULL;
+	anongame_infos_data->type_data = NULL;
+	anongame_infos_data->desc_data = NULL;
+	anongame_infos_data->ladr_data = NULL;
+
+	anongame_infos_data->url_comp_data = NULL;
+	anongame_infos_data->map_comp_data = NULL;
+	anongame_infos_data->type_comp_data = NULL;
+	anongame_infos_data->desc_comp_data = NULL;
+	anongame_infos_data->ladr_comp_data = NULL;
+
+	anongame_infos_data->url_len = 0;
+	anongame_infos_data->map_len = 0;
+	anongame_infos_data->type_len = 0;
+	anongame_infos_data->desc_len = 0;
+	anongame_infos_data->ladr_len = 0;
+
+	anongame_infos_data->url_comp_len = 0;
+	anongame_infos_data->map_comp_len = 0;
+	anongame_infos_data->type_comp_len = 0;
+	anongame_infos_data->desc_comp_len = 0;
+	anongame_infos_data->ladr_comp_len = 0;
+
+	anongame_infos->anongame_infos_data_w3xp=anongame_infos_data;
+	anongame_infos->anongame_infos_data_lang_w3xp=anongame_infos_data_lang;
+
+	return 0;    
+}
+
+static int anongame_infos_data_destroy(t_anongame_infos_data * anongame_infos_data, t_list * anongame_infos_data_lang)
+{
+	t_elem * curr;
+	t_anongame_infos_data_lang * entry;
+
+	if(anongame_infos_data->url_data) free((void *)anongame_infos_data->url_data);
+	if(anongame_infos_data->map_data) free((void *)anongame_infos_data->map_data);
+	if(anongame_infos_data->type_data) free((void *)anongame_infos_data->type_data);
+	if(anongame_infos_data->desc_data) free((void *)anongame_infos_data->desc_data);
+	if(anongame_infos_data->ladr_data) free((void *)anongame_infos_data->ladr_data);
+
+	if(anongame_infos_data->url_comp_data) free((void *)anongame_infos_data->url_comp_data);
+	if(anongame_infos_data->map_comp_data) free((void *)anongame_infos_data->map_comp_data);
+	if(anongame_infos_data->type_comp_data) free((void *)anongame_infos_data->type_comp_data);
+	if(anongame_infos_data->desc_comp_data) free((void *)anongame_infos_data->desc_comp_data);
+	if(anongame_infos_data->ladr_comp_data) free((void *)anongame_infos_data->ladr_comp_data);
+
+	free((void *)anongame_infos_data);
+
+	if (anongame_infos_data_lang)
+    {
+		LIST_TRAVERSE(anongame_infos_data_lang,curr)
+		{
+			if (!(entry = elem_get_data(curr)))
+			eventlog(eventlog_level_error,__FUNCTION__,"found NULL entry in list");
+			else
+			{
+				anongame_infos_data_lang_destroy(entry);
+			}
+			list_remove_elem(anongame_infos_data_lang,curr);
+		}
+		list_destroy(anongame_infos_data_lang);
+    }
 	return 0;
 }
 
@@ -403,6 +584,7 @@ t_anongame_infos *  anongame_infos_init(void)
 	  anongame_infos_URL_destroy(anongame_infos->anongame_infos_URL);
 	  anongame_infos_THUMBSDOWN_destroy(anongame_infos->anongame_infos_THUMBSDOWN);
 	  free((void *)anongame_infos);
+	  return NULL;
 	}
 
 	if (anongame_infos_ICON_REQ_W3XP_init(anongame_infos)!=0)
@@ -411,6 +593,7 @@ t_anongame_infos *  anongame_infos_init(void)
 	  anongame_infos_THUMBSDOWN_destroy(anongame_infos->anongame_infos_THUMBSDOWN);
 	  anongame_infos_ICON_REQ_WAR3_destroy(anongame_infos->anongame_infos_ICON_REQ_WAR3);
 	  free((void *)anongame_infos);
+	  return NULL;
 	}
 
 	if (anongame_infos_ICON_REQ_TOURNEY_init(anongame_infos)!=0)
@@ -420,7 +603,20 @@ t_anongame_infos *  anongame_infos_init(void)
 	  anongame_infos_ICON_REQ_WAR3_destroy(anongame_infos->anongame_infos_ICON_REQ_WAR3);
 	  anongame_infos_ICON_REQ_W3XP_destroy(anongame_infos->anongame_infos_ICON_REQ_W3XP);
 	  free((void *)anongame_infos);
+	  return NULL;
 	}
+
+	if (anongame_infos_data_init(anongame_infos)!=0)
+	{
+	  anongame_infos_URL_destroy(anongame_infos->anongame_infos_URL);
+	  anongame_infos_THUMBSDOWN_destroy(anongame_infos->anongame_infos_THUMBSDOWN);
+	  anongame_infos_ICON_REQ_WAR3_destroy(anongame_infos->anongame_infos_ICON_REQ_WAR3);
+	  anongame_infos_ICON_REQ_W3XP_destroy(anongame_infos->anongame_infos_ICON_REQ_W3XP);
+	  anongame_infos_ICON_REQ_TOURNEY_destroy(anongame_infos->anongame_infos_ICON_REQ_TOURNEY);
+	  free((void *)anongame_infos);
+	  return NULL;
+	}
+
 	anongame_infos->anongame_infos_DESC = NULL;
 
     if (!(anongame_infos->anongame_infos_DESC_list = list_create()))
@@ -432,13 +628,15 @@ t_anongame_infos *  anongame_infos_init(void)
   	anongame_infos_ICON_REQ_WAR3_destroy(anongame_infos->anongame_infos_ICON_REQ_WAR3);
         anongame_infos_THUMBSDOWN_destroy(anongame_infos->anongame_infos_THUMBSDOWN);
 	anongame_infos_URL_destroy(anongame_infos->anongame_infos_URL);
+	anongame_infos_data_destroy(anongame_infos->anongame_infos_data_war3, anongame_infos->anongame_infos_data_lang_war3);
+	anongame_infos_data_destroy(anongame_infos->anongame_infos_data_w3xp, anongame_infos->anongame_infos_data_lang_w3xp);
 	free((void *)anongame_infos);
         return NULL;
     }
 	return anongame_infos;
 }
 
-int anongame_infos_destroy(t_anongame_infos * anongame_infos)
+static int anongame_infos_destroy(t_anongame_infos * anongame_infos)
 {
 	t_elem					* curr;
     t_anongame_infos_DESC	* entry;
@@ -471,13 +669,15 @@ int anongame_infos_destroy(t_anongame_infos * anongame_infos)
 	anongame_infos_ICON_REQ_TOURNEY_destroy(anongame_infos->anongame_infos_ICON_REQ_TOURNEY);
   	anongame_infos_ICON_REQ_W3XP_destroy(anongame_infos->anongame_infos_ICON_REQ_W3XP);
   	anongame_infos_ICON_REQ_WAR3_destroy(anongame_infos->anongame_infos_ICON_REQ_WAR3);
+	anongame_infos_data_destroy(anongame_infos->anongame_infos_data_war3, anongame_infos->anongame_infos_data_lang_war3);
+	anongame_infos_data_destroy(anongame_infos->anongame_infos_data_w3xp, anongame_infos->anongame_infos_data_lang_w3xp);
 
 	free((void *)anongame_infos);
 
 	return 0;
 }
 
-int anongame_infos_set_str(char ** dst, char * src,char * errstr)
+static int anongame_infos_set_str(char ** dst, char * src,char * errstr)
 {
 	char * temp;
 
@@ -498,7 +698,7 @@ int anongame_infos_set_str(char ** dst, char * src,char * errstr)
 	return 0;
 }
 
-int anongame_infos_URL_set_server_URL(t_anongame_infos_URL * anongame_infos_URL, char * server_URL)
+static int anongame_infos_URL_set_server_URL(t_anongame_infos_URL * anongame_infos_URL, char * server_URL)
 {
 	if (!(anongame_infos_URL))
 	{
@@ -514,7 +714,7 @@ extern char * anongame_infos_URL_get_server_url(void)
 	return anongame_infos->anongame_infos_URL->server_URL;
 }
 
-int anongame_infos_URL_set_player_URL(t_anongame_infos_URL * anongame_infos_URL, char * player_URL)
+static int anongame_infos_URL_set_player_URL(t_anongame_infos_URL * anongame_infos_URL, char * player_URL)
 {
 	if (!(anongame_infos_URL))
 	{
@@ -532,7 +732,7 @@ extern char * anongame_infos_URL_get_player_url(void)
 }
 
 
-int anongame_infos_URL_set_tourney_URL(t_anongame_infos_URL * anongame_infos_URL, char * tourney_URL)
+static int anongame_infos_URL_set_tourney_URL(t_anongame_infos_URL * anongame_infos_URL, char * tourney_URL)
 {
 	if (!(anongame_infos_URL))
 	{
@@ -550,7 +750,7 @@ extern char * anongame_infos_URL_get_tourney_url(void)
 }
 
 
-int anongame_infos_URL_set_ladder_PG_1v1_URL(t_anongame_infos_URL * anongame_infos_URL, char * ladder_PG_1v1_URL)
+static int anongame_infos_URL_set_ladder_PG_1v1_URL(t_anongame_infos_URL * anongame_infos_URL, char * ladder_PG_1v1_URL)
 {
 	if (!(anongame_infos_URL))
 	{
@@ -567,7 +767,7 @@ extern char * anongame_infos_URL_get_ladder_PG_1v1_url(void)
 	return anongame_infos->anongame_infos_URL->ladder_PG_1v1_URL;
 }
 
-int anongame_infos_URL_set_ladder_PG_ffa_URL(t_anongame_infos_URL * anongame_infos_URL, char * ladder_PG_ffa_URL)
+static int anongame_infos_URL_set_ladder_PG_ffa_URL(t_anongame_infos_URL * anongame_infos_URL, char * ladder_PG_ffa_URL)
 {
 	if (!(anongame_infos_URL))
 	{
@@ -583,7 +783,7 @@ extern char * anongame_infos_URL_get_ladder_PG_ffa_url(void)
 	return anongame_infos->anongame_infos_URL->ladder_PG_ffa_URL;
 }
 
-int anongame_infos_URL_set_ladder_PG_team_URL(t_anongame_infos_URL * anongame_infos_URL, char * ladder_PG_team_URL)
+static int anongame_infos_URL_set_ladder_PG_team_URL(t_anongame_infos_URL * anongame_infos_URL, char * ladder_PG_team_URL)
 {
 	if (!(anongame_infos_URL))
 	{
@@ -599,7 +799,7 @@ extern char * anongame_infos_URL_get_ladder_PG_team_url(void)
 	return anongame_infos->anongame_infos_URL->ladder_PG_team_URL;
 }
 
-int anongame_infos_URL_set_ladder_AT_2v2_URL(t_anongame_infos_URL * anongame_infos_URL, char * ladder_AT_2v2_URL)
+static int anongame_infos_URL_set_ladder_AT_2v2_URL(t_anongame_infos_URL * anongame_infos_URL, char * ladder_AT_2v2_URL)
 {
 	if (!(anongame_infos_URL))
 	{
@@ -615,7 +815,7 @@ extern char * anongame_infos_URL_get_ladder_AT_2v2_url(void)
 	return anongame_infos->anongame_infos_URL->ladder_AT_2v2_URL;
 }
 
-int anongame_infos_URL_set_ladder_AT_3v3_URL(t_anongame_infos_URL * anongame_infos_URL, char * ladder_AT_3v3_URL)
+static int anongame_infos_URL_set_ladder_AT_3v3_URL(t_anongame_infos_URL * anongame_infos_URL, char * ladder_AT_3v3_URL)
 {
 	if (!(anongame_infos_URL))
 	{
@@ -631,7 +831,7 @@ extern char * anongame_infos_URL_get_ladder_AT_3v3_url(void)
 	return anongame_infos->anongame_infos_URL->ladder_AT_3v3_URL;
 }
 
-int anongame_infos_URL_set_ladder_AT_4v4_URL(t_anongame_infos_URL * anongame_infos_URL, char * ladder_AT_4v4_URL)
+static int anongame_infos_URL_set_ladder_AT_4v4_URL(t_anongame_infos_URL * anongame_infos_URL, char * ladder_AT_4v4_URL)
 {
 	if (!(anongame_infos_URL))
 	{
@@ -648,7 +848,7 @@ extern char * anongame_infos_URL_get_ladder_AT_4v4_url(void)
 }
 
 
-int anongame_infos_DESC_set_ladder_PG_1v1_desc(t_anongame_infos_DESC * anongame_infos_DESC, char * ladder_PG_1v1_desc)
+static int anongame_infos_DESC_set_ladder_PG_1v1_desc(t_anongame_infos_DESC * anongame_infos_DESC, char * ladder_PG_1v1_desc)
 {
 	if (!(anongame_infos_DESC))
 	{
@@ -658,7 +858,7 @@ int anongame_infos_DESC_set_ladder_PG_1v1_desc(t_anongame_infos_DESC * anongame_
 
 	return anongame_infos_set_str(&anongame_infos_DESC->ladder_PG_1v1_desc,ladder_PG_1v1_desc,"ladder_PG_1v1_desc");
 }
-int anongame_infos_DESC_set_ladder_PG_ffa_desc(t_anongame_infos_DESC * anongame_infos_DESC, char * ladder_PG_ffa_desc)
+static int anongame_infos_DESC_set_ladder_PG_ffa_desc(t_anongame_infos_DESC * anongame_infos_DESC, char * ladder_PG_ffa_desc)
 {
 	if (!(anongame_infos_DESC))
 	{
@@ -669,7 +869,7 @@ int anongame_infos_DESC_set_ladder_PG_ffa_desc(t_anongame_infos_DESC * anongame_
 	return anongame_infos_set_str(&anongame_infos_DESC->ladder_PG_ffa_desc,ladder_PG_ffa_desc,"ladder_PG_ffa_desc");
 }
 
-int anongame_infos_DESC_set_ladder_PG_team_desc(t_anongame_infos_DESC * anongame_infos_DESC, char * ladder_PG_team_desc)
+static int anongame_infos_DESC_set_ladder_PG_team_desc(t_anongame_infos_DESC * anongame_infos_DESC, char * ladder_PG_team_desc)
 {
 	if (!(anongame_infos_DESC))
 	{
@@ -679,7 +879,7 @@ int anongame_infos_DESC_set_ladder_PG_team_desc(t_anongame_infos_DESC * anongame
 
 	return anongame_infos_set_str(&anongame_infos_DESC->ladder_PG_team_desc,ladder_PG_team_desc,"ladder_PG_team_desc");
 }
-int anongame_infos_DESC_set_ladder_AT_2v2_desc(t_anongame_infos_DESC * anongame_infos_DESC, char * ladder_AT_2v2_desc)
+static int anongame_infos_DESC_set_ladder_AT_2v2_desc(t_anongame_infos_DESC * anongame_infos_DESC, char * ladder_AT_2v2_desc)
 {
 	if (!(anongame_infos_DESC))
 	{
@@ -690,7 +890,7 @@ int anongame_infos_DESC_set_ladder_AT_2v2_desc(t_anongame_infos_DESC * anongame_
 	return anongame_infos_set_str(&anongame_infos_DESC->ladder_AT_2v2_desc,ladder_AT_2v2_desc,"ladder_AT_2v2_desc");
 }
 
-int anongame_infos_DESC_set_ladder_AT_3v3_desc(t_anongame_infos_DESC * anongame_infos_DESC, char * ladder_AT_3v3_desc)
+static int anongame_infos_DESC_set_ladder_AT_3v3_desc(t_anongame_infos_DESC * anongame_infos_DESC, char * ladder_AT_3v3_desc)
 {
 	if (!(anongame_infos_DESC))
 	{
@@ -701,7 +901,7 @@ int anongame_infos_DESC_set_ladder_AT_3v3_desc(t_anongame_infos_DESC * anongame_
 	return anongame_infos_set_str(&anongame_infos_DESC->ladder_AT_3v3_desc,ladder_AT_3v3_desc,"ladder_AT_3v3_desc");
 }
 
-int anongame_infos_DESC_set_ladder_AT_4v4_desc(t_anongame_infos_DESC * anongame_infos_DESC, char * ladder_AT_4v4_desc)
+static int anongame_infos_DESC_set_ladder_AT_4v4_desc(t_anongame_infos_DESC * anongame_infos_DESC, char * ladder_AT_4v4_desc)
 {
 	if (!(anongame_infos_DESC))
 	{
@@ -712,7 +912,7 @@ int anongame_infos_DESC_set_ladder_AT_4v4_desc(t_anongame_infos_DESC * anongame_
 	return anongame_infos_set_str(&anongame_infos_DESC->ladder_AT_4v4_desc,ladder_AT_4v4_desc,"ladder_AT_4v4_desc");
 }
 
-int anongame_infos_DESC_set_gametype_1v1_short(t_anongame_infos_DESC * anongame_infos_DESC, char * gametype_1v1_short)
+static int anongame_infos_DESC_set_gametype_1v1_short(t_anongame_infos_DESC * anongame_infos_DESC, char * gametype_1v1_short)
 {
 	if (!(anongame_infos_DESC))
 	{
@@ -723,7 +923,7 @@ int anongame_infos_DESC_set_gametype_1v1_short(t_anongame_infos_DESC * anongame_
 	return anongame_infos_set_str(&anongame_infos_DESC->gametype_1v1_short,gametype_1v1_short,"gametype_1v1_short");
 }
 
-int anongame_infos_DESC_set_gametype_1v1_long(t_anongame_infos_DESC * anongame_infos_DESC, char * gametype_1v1_long)
+static int anongame_infos_DESC_set_gametype_1v1_long(t_anongame_infos_DESC * anongame_infos_DESC, char * gametype_1v1_long)
 {
 	if (!(anongame_infos_DESC))
 	{
@@ -734,7 +934,7 @@ int anongame_infos_DESC_set_gametype_1v1_long(t_anongame_infos_DESC * anongame_i
 	return anongame_infos_set_str(&anongame_infos_DESC->gametype_1v1_long,gametype_1v1_long,"gametype_1v1_long");
 }
 
-int anongame_infos_DESC_set_gametype_2v2_short(t_anongame_infos_DESC * anongame_infos_DESC, char * gametype_2v2_short)
+static int anongame_infos_DESC_set_gametype_2v2_short(t_anongame_infos_DESC * anongame_infos_DESC, char * gametype_2v2_short)
 {
 	if (!(anongame_infos_DESC))
 	{
@@ -745,7 +945,7 @@ int anongame_infos_DESC_set_gametype_2v2_short(t_anongame_infos_DESC * anongame_
 	return anongame_infos_set_str(&anongame_infos_DESC->gametype_2v2_short,gametype_2v2_short,"gametype_2v2_short");
 }
 
-int anongame_infos_DESC_set_gametype_2v2_long(t_anongame_infos_DESC * anongame_infos_DESC, char * gametype_2v2_long)
+static int anongame_infos_DESC_set_gametype_2v2_long(t_anongame_infos_DESC * anongame_infos_DESC, char * gametype_2v2_long)
 {
 	if (!(anongame_infos_DESC))
 	{
@@ -756,7 +956,7 @@ int anongame_infos_DESC_set_gametype_2v2_long(t_anongame_infos_DESC * anongame_i
 	return anongame_infos_set_str(&anongame_infos_DESC->gametype_2v2_long,gametype_2v2_long,"gametype_2v2_long");
 }
 
-int anongame_infos_DESC_set_gametype_3v3_short(t_anongame_infos_DESC * anongame_infos_DESC, char * gametype_3v3_short)
+static int anongame_infos_DESC_set_gametype_3v3_short(t_anongame_infos_DESC * anongame_infos_DESC, char * gametype_3v3_short)
 {
 	if (!(anongame_infos_DESC))
 	{
@@ -767,7 +967,7 @@ int anongame_infos_DESC_set_gametype_3v3_short(t_anongame_infos_DESC * anongame_
 	return anongame_infos_set_str(&anongame_infos_DESC->gametype_3v3_short,gametype_3v3_short,"gametype_3v3_short");
 }
 
-int anongame_infos_DESC_set_gametype_3v3_long(t_anongame_infos_DESC * anongame_infos_DESC, char * gametype_3v3_long)
+static int anongame_infos_DESC_set_gametype_3v3_long(t_anongame_infos_DESC * anongame_infos_DESC, char * gametype_3v3_long)
 {
 	if (!(anongame_infos_DESC))
 	{
@@ -778,7 +978,7 @@ int anongame_infos_DESC_set_gametype_3v3_long(t_anongame_infos_DESC * anongame_i
 	return anongame_infos_set_str(&anongame_infos_DESC->gametype_3v3_long,gametype_3v3_long,"gametype_3v3_long");
 }
 
-int anongame_infos_DESC_set_gametype_4v4_short(t_anongame_infos_DESC * anongame_infos_DESC, char * gametype_4v4_short)
+static int anongame_infos_DESC_set_gametype_4v4_short(t_anongame_infos_DESC * anongame_infos_DESC, char * gametype_4v4_short)
 {
 	if (!(anongame_infos_DESC))
 	{
@@ -789,7 +989,7 @@ int anongame_infos_DESC_set_gametype_4v4_short(t_anongame_infos_DESC * anongame_
 	return anongame_infos_set_str(&anongame_infos_DESC->gametype_4v4_short,gametype_4v4_short,"gametype_4v4_short");
 }
 
-int anongame_infos_DESC_set_gametype_4v4_long(t_anongame_infos_DESC * anongame_infos_DESC, char * gametype_4v4_long)
+static int anongame_infos_DESC_set_gametype_4v4_long(t_anongame_infos_DESC * anongame_infos_DESC, char * gametype_4v4_long)
 {
 	if (!(anongame_infos_DESC))
 	{
@@ -812,7 +1012,7 @@ int anongame_infos_DESC_set_gametype_5v5_short(t_anongame_infos_DESC * anongame_
 	return anongame_infos_set_str(&anongame_infos_DESC->gametype_5v5_short,gametype_5v5_short,"gametype_5v5_short");
 }
 
-int anongame_infos_DESC_set_gametype_5v5_long(t_anongame_infos_DESC * anongame_infos_DESC, char * gametype_5v5_long)
+static int anongame_infos_DESC_set_gametype_5v5_long(t_anongame_infos_DESC * anongame_infos_DESC, char * gametype_5v5_long)
 {
 	if (!(anongame_infos_DESC))
 	{
@@ -823,7 +1023,7 @@ int anongame_infos_DESC_set_gametype_5v5_long(t_anongame_infos_DESC * anongame_i
 	return anongame_infos_set_str(&anongame_infos_DESC->gametype_5v5_long,gametype_5v5_long,"gametype_5v5_long");
 }
 
-int anongame_infos_DESC_set_gametype_6v6_short(t_anongame_infos_DESC * anongame_infos_DESC, char * gametype_6v6_short)
+static int anongame_infos_DESC_set_gametype_6v6_short(t_anongame_infos_DESC * anongame_infos_DESC, char * gametype_6v6_short)
 {
 	if (!(anongame_infos_DESC))
 	{
@@ -834,7 +1034,7 @@ int anongame_infos_DESC_set_gametype_6v6_short(t_anongame_infos_DESC * anongame_
 	return anongame_infos_set_str(&anongame_infos_DESC->gametype_6v6_short,gametype_6v6_short,"gametype_6v6_short");
 }
 
-int anongame_infos_DESC_set_gametype_6v6_long(t_anongame_infos_DESC * anongame_infos_DESC, char * gametype_6v6_long)
+static int anongame_infos_DESC_set_gametype_6v6_long(t_anongame_infos_DESC * anongame_infos_DESC, char * gametype_6v6_long)
 {
 	if (!(anongame_infos_DESC))
 	{
@@ -846,7 +1046,7 @@ int anongame_infos_DESC_set_gametype_6v6_long(t_anongame_infos_DESC * anongame_i
 }
 
 
-int anongame_infos_DESC_set_gametype_sffa_short(t_anongame_infos_DESC * anongame_infos_DESC, char * gametype_sffa_short)
+static int anongame_infos_DESC_set_gametype_sffa_short(t_anongame_infos_DESC * anongame_infos_DESC, char * gametype_sffa_short)
 {
 	if (!(anongame_infos_DESC))
 	{
@@ -857,7 +1057,7 @@ int anongame_infos_DESC_set_gametype_sffa_short(t_anongame_infos_DESC * anongame
 	return anongame_infos_set_str(&anongame_infos_DESC->gametype_sffa_short,gametype_sffa_short,"gametype_sffa_short");
 }
 
-int anongame_infos_DESC_set_gametype_sffa_long(t_anongame_infos_DESC * anongame_infos_DESC, char * gametype_sffa_long)
+static int anongame_infos_DESC_set_gametype_sffa_long(t_anongame_infos_DESC * anongame_infos_DESC, char * gametype_sffa_long)
 {
 	if (!(anongame_infos_DESC))
 	{
@@ -868,7 +1068,7 @@ int anongame_infos_DESC_set_gametype_sffa_long(t_anongame_infos_DESC * anongame_
 	return anongame_infos_set_str(&anongame_infos_DESC->gametype_sffa_long,gametype_sffa_long,"gametype_sffa_long");
 }
 
-int anongame_infos_DESC_set_gametype_tffa_short(t_anongame_infos_DESC * anongame_infos_DESC, char * gametype_tffa_short)
+static int anongame_infos_DESC_set_gametype_tffa_short(t_anongame_infos_DESC * anongame_infos_DESC, char * gametype_tffa_short)
 {
 	if (!(anongame_infos_DESC))
 	{
@@ -879,7 +1079,7 @@ int anongame_infos_DESC_set_gametype_tffa_short(t_anongame_infos_DESC * anongame
 	return anongame_infos_set_str(&anongame_infos_DESC->gametype_tffa_short,gametype_tffa_short,"gametype_tffa_short");
 }
 
-int anongame_infos_DESC_set_gametype_tffa_long(t_anongame_infos_DESC * anongame_infos_DESC, char * gametype_tffa_long)
+static int anongame_infos_DESC_set_gametype_tffa_long(t_anongame_infos_DESC * anongame_infos_DESC, char * gametype_tffa_long)
 {
 	if (!(anongame_infos_DESC))
 	{
@@ -890,7 +1090,7 @@ int anongame_infos_DESC_set_gametype_tffa_long(t_anongame_infos_DESC * anongame_
 	return anongame_infos_set_str(&anongame_infos_DESC->gametype_tffa_long,gametype_tffa_long,"gametype_tffa_long");
 }
 
-int anongame_infos_DESC_set_gametype_2v2v2_short(t_anongame_infos_DESC * anongame_infos_DESC, char * gametype_2v2v2_short)
+static int anongame_infos_DESC_set_gametype_2v2v2_short(t_anongame_infos_DESC * anongame_infos_DESC, char * gametype_2v2v2_short)
 {
 	if (!(anongame_infos_DESC))
 	{
@@ -901,7 +1101,7 @@ int anongame_infos_DESC_set_gametype_2v2v2_short(t_anongame_infos_DESC * anongam
 	return anongame_infos_set_str(&anongame_infos_DESC->gametype_2v2v2_short,gametype_2v2v2_short,"gametype_2v2v2_short");
 }
 
-int anongame_infos_DESC_set_gametype_2v2v2_long(t_anongame_infos_DESC * anongame_infos_DESC, char * gametype_2v2v2_long)
+static int anongame_infos_DESC_set_gametype_2v2v2_long(t_anongame_infos_DESC * anongame_infos_DESC, char * gametype_2v2v2_long)
 {
 	if (!(anongame_infos_DESC))
 	{
@@ -913,7 +1113,7 @@ int anongame_infos_DESC_set_gametype_2v2v2_long(t_anongame_infos_DESC * anongame
 }
 
 
-int anongame_infos_DESC_set_gametype_3v3v3_short(t_anongame_infos_DESC * anongame_infos_DESC, char * gametype_3v3v3_short)
+static int anongame_infos_DESC_set_gametype_3v3v3_short(t_anongame_infos_DESC * anongame_infos_DESC, char * gametype_3v3v3_short)
 {
 	if (!(anongame_infos_DESC))
 	{
@@ -924,7 +1124,7 @@ int anongame_infos_DESC_set_gametype_3v3v3_short(t_anongame_infos_DESC * anongam
 	return anongame_infos_set_str(&anongame_infos_DESC->gametype_3v3v3_short,gametype_3v3v3_short,"gametype_3v3v3_short");
 }
 
-int anongame_infos_DESC_set_gametype_3v3v3_long(t_anongame_infos_DESC * anongame_infos_DESC, char * gametype_3v3v3_long)
+static int anongame_infos_DESC_set_gametype_3v3v3_long(t_anongame_infos_DESC * anongame_infos_DESC, char * gametype_3v3v3_long)
 {
 	if (!(anongame_infos_DESC))
 	{
@@ -935,7 +1135,7 @@ int anongame_infos_DESC_set_gametype_3v3v3_long(t_anongame_infos_DESC * anongame
 	return anongame_infos_set_str(&anongame_infos_DESC->gametype_3v3v3_long,gametype_3v3v3_long,"gametype_3v3v3_long");
 }
 
-int anongame_infos_DESC_set_gametype_4v4v4_short(t_anongame_infos_DESC * anongame_infos_DESC, char * gametype_4v4v4_short)
+static int anongame_infos_DESC_set_gametype_4v4v4_short(t_anongame_infos_DESC * anongame_infos_DESC, char * gametype_4v4v4_short)
 {
 	if (!(anongame_infos_DESC))
 	{
@@ -946,7 +1146,7 @@ int anongame_infos_DESC_set_gametype_4v4v4_short(t_anongame_infos_DESC * anongam
 	return anongame_infos_set_str(&anongame_infos_DESC->gametype_4v4v4_short,gametype_4v4v4_short,"gametype_4v4v4_short");
 }
 
-int anongame_infos_DESC_set_gametype_4v4v4_long(t_anongame_infos_DESC * anongame_infos_DESC, char * gametype_4v4v4_long)
+static int anongame_infos_DESC_set_gametype_4v4v4_long(t_anongame_infos_DESC * anongame_infos_DESC, char * gametype_4v4v4_long)
 {
 	if (!(anongame_infos_DESC))
 	{
@@ -957,7 +1157,7 @@ int anongame_infos_DESC_set_gametype_4v4v4_long(t_anongame_infos_DESC * anongame
 	return anongame_infos_set_str(&anongame_infos_DESC->gametype_4v4v4_long,gametype_4v4v4_long,"gametype_4v4v4_long");
 }
 
-int anongame_infos_DESC_set_gametype_2v2v2v2_short(t_anongame_infos_DESC * anongame_infos_DESC, char * gametype_2v2v2v2_short)
+static int anongame_infos_DESC_set_gametype_2v2v2v2_short(t_anongame_infos_DESC * anongame_infos_DESC, char * gametype_2v2v2v2_short)
 {
 	if (!(anongame_infos_DESC))
 	{
@@ -968,7 +1168,7 @@ int anongame_infos_DESC_set_gametype_2v2v2v2_short(t_anongame_infos_DESC * anong
 	return anongame_infos_set_str(&anongame_infos_DESC->gametype_2v2v2v2_short,gametype_2v2v2v2_short,"gametype_2v2v2v2_short");
 }
 
-int anongame_infos_DESC_set_gametype_2v2v2v2_long(t_anongame_infos_DESC * anongame_infos_DESC, char * gametype_2v2v2v2_long)
+static int anongame_infos_DESC_set_gametype_2v2v2v2_long(t_anongame_infos_DESC * anongame_infos_DESC, char * gametype_2v2v2v2_long)
 {
 	if (!(anongame_infos_DESC))
 	{
@@ -979,7 +1179,7 @@ int anongame_infos_DESC_set_gametype_2v2v2v2_long(t_anongame_infos_DESC * anonga
 	return anongame_infos_set_str(&anongame_infos_DESC->gametype_2v2v2v2_long,gametype_2v2v2v2_long,"gametype_2v2v2v2_long");
 }
 
-int anongame_infos_DESC_set_gametype_3v3v3v3_short(t_anongame_infos_DESC * anongame_infos_DESC, char * gametype_3v3v3v3_short)
+static int anongame_infos_DESC_set_gametype_3v3v3v3_short(t_anongame_infos_DESC * anongame_infos_DESC, char * gametype_3v3v3v3_short)
 {
 	if (!(anongame_infos_DESC))
 	{
@@ -990,7 +1190,7 @@ int anongame_infos_DESC_set_gametype_3v3v3v3_short(t_anongame_infos_DESC * anong
 	return anongame_infos_set_str(&anongame_infos_DESC->gametype_3v3v3v3_short,gametype_3v3v3v3_short,"gametype_3v3v3v3_short");
 }
 
-int anongame_infos_DESC_set_gametype_3v3v3v3_long(t_anongame_infos_DESC * anongame_infos_DESC, char * gametype_3v3v3v3_long)
+static int anongame_infos_DESC_set_gametype_3v3v3v3_long(t_anongame_infos_DESC * anongame_infos_DESC, char * gametype_3v3v3v3_long)
 {
 	if (!(anongame_infos_DESC))
 	{
@@ -1001,7 +1201,7 @@ int anongame_infos_DESC_set_gametype_3v3v3v3_long(t_anongame_infos_DESC * anonga
 	return anongame_infos_set_str(&anongame_infos_DESC->gametype_3v3v3v3_long,gametype_3v3v3v3_long,"gametype_3v3v3v3_long");
 }
 
-t_anongame_infos_DESC * anongame_infos_get_anongame_infos_DESC_by_langID(t_anongame_infos * anongame_infos, char * langID)
+static t_anongame_infos_DESC * anongame_infos_get_anongame_infos_DESC_by_langID(t_anongame_infos * anongame_infos, char * langID)
 {
 	t_elem					* curr;
     t_anongame_infos_DESC	* entry;
@@ -1448,7 +1648,7 @@ extern char * anongame_infos_get_long_desc(char * langID, int queue)
 }
 
 /**********/
-int anongame_infos_THUMBSDOWN_set_PG_1v1(t_anongame_infos_THUMBSDOWN * anongame_infos_THUMBSDOWN, char value)
+static int anongame_infos_THUMBSDOWN_set_PG_1v1(t_anongame_infos_THUMBSDOWN * anongame_infos_THUMBSDOWN, char value)
 {
     if (!anongame_infos_THUMBSDOWN)
     {
@@ -1461,7 +1661,7 @@ int anongame_infos_THUMBSDOWN_set_PG_1v1(t_anongame_infos_THUMBSDOWN * anongame_
     return 0;
 }
 
-int anongame_infos_THUMBSDOWN_set_PG_2v2(t_anongame_infos_THUMBSDOWN * anongame_infos_THUMBSDOWN, char value)
+static int anongame_infos_THUMBSDOWN_set_PG_2v2(t_anongame_infos_THUMBSDOWN * anongame_infos_THUMBSDOWN, char value)
 {
     if (!anongame_infos_THUMBSDOWN)
     {
@@ -1474,7 +1674,7 @@ int anongame_infos_THUMBSDOWN_set_PG_2v2(t_anongame_infos_THUMBSDOWN * anongame_
     return 0;
 }
 
-int anongame_infos_THUMBSDOWN_set_PG_3v3(t_anongame_infos_THUMBSDOWN * anongame_infos_THUMBSDOWN, char value)
+static int anongame_infos_THUMBSDOWN_set_PG_3v3(t_anongame_infos_THUMBSDOWN * anongame_infos_THUMBSDOWN, char value)
 {
     if (!anongame_infos_THUMBSDOWN)
     {
@@ -1487,7 +1687,7 @@ int anongame_infos_THUMBSDOWN_set_PG_3v3(t_anongame_infos_THUMBSDOWN * anongame_
     return 0;
 }
 
-int anongame_infos_THUMBSDOWN_set_PG_4v4(t_anongame_infos_THUMBSDOWN * anongame_infos_THUMBSDOWN, char value)
+static int anongame_infos_THUMBSDOWN_set_PG_4v4(t_anongame_infos_THUMBSDOWN * anongame_infos_THUMBSDOWN, char value)
 {
     if (!anongame_infos_THUMBSDOWN)
     {
@@ -1500,7 +1700,7 @@ int anongame_infos_THUMBSDOWN_set_PG_4v4(t_anongame_infos_THUMBSDOWN * anongame_
     return 0;
 }
 
-int anongame_infos_THUMBSDOWN_set_PG_5v5(t_anongame_infos_THUMBSDOWN * anongame_infos_THUMBSDOWN, char value)
+static int anongame_infos_THUMBSDOWN_set_PG_5v5(t_anongame_infos_THUMBSDOWN * anongame_infos_THUMBSDOWN, char value)
 {
     if (!anongame_infos_THUMBSDOWN)
     {
@@ -1513,7 +1713,7 @@ int anongame_infos_THUMBSDOWN_set_PG_5v5(t_anongame_infos_THUMBSDOWN * anongame_
     return 0;
 }
 
-int anongame_infos_THUMBSDOWN_set_PG_6v6(t_anongame_infos_THUMBSDOWN * anongame_infos_THUMBSDOWN, char value)
+static int anongame_infos_THUMBSDOWN_set_PG_6v6(t_anongame_infos_THUMBSDOWN * anongame_infos_THUMBSDOWN, char value)
 {
     if (!anongame_infos_THUMBSDOWN)
     {
@@ -1526,7 +1726,7 @@ int anongame_infos_THUMBSDOWN_set_PG_6v6(t_anongame_infos_THUMBSDOWN * anongame_
     return 0;
 }
 
-int anongame_infos_THUMBSDOWN_set_PG_ffa(t_anongame_infos_THUMBSDOWN * anongame_infos_THUMBSDOWN, char value)
+static int anongame_infos_THUMBSDOWN_set_PG_ffa(t_anongame_infos_THUMBSDOWN * anongame_infos_THUMBSDOWN, char value)
 {
     if (!anongame_infos_THUMBSDOWN)
     {
@@ -1539,7 +1739,7 @@ int anongame_infos_THUMBSDOWN_set_PG_ffa(t_anongame_infos_THUMBSDOWN * anongame_
     return 0;
 }
 
-int anongame_infos_THUMBSDOWN_set_AT_ffa(t_anongame_infos_THUMBSDOWN * anongame_infos_THUMBSDOWN, char value)
+static int anongame_infos_THUMBSDOWN_set_AT_ffa(t_anongame_infos_THUMBSDOWN * anongame_infos_THUMBSDOWN, char value)
 {
     if (!anongame_infos_THUMBSDOWN)
     {
@@ -1552,7 +1752,7 @@ int anongame_infos_THUMBSDOWN_set_AT_ffa(t_anongame_infos_THUMBSDOWN * anongame_
     return 0;
 }
 
-int anongame_infos_THUMBSDOWN_set_AT_2v2(t_anongame_infos_THUMBSDOWN * anongame_infos_THUMBSDOWN, char value)
+static int anongame_infos_THUMBSDOWN_set_AT_2v2(t_anongame_infos_THUMBSDOWN * anongame_infos_THUMBSDOWN, char value)
 {
     if (!anongame_infos_THUMBSDOWN)
     {
@@ -1565,7 +1765,7 @@ int anongame_infos_THUMBSDOWN_set_AT_2v2(t_anongame_infos_THUMBSDOWN * anongame_
     return 0;
 }
 
-int anongame_infos_THUMBSDOWN_set_AT_3v3(t_anongame_infos_THUMBSDOWN * anongame_infos_THUMBSDOWN, char value)
+static int anongame_infos_THUMBSDOWN_set_AT_3v3(t_anongame_infos_THUMBSDOWN * anongame_infos_THUMBSDOWN, char value)
 {
     if (!anongame_infos_THUMBSDOWN)
     {
@@ -1578,7 +1778,7 @@ int anongame_infos_THUMBSDOWN_set_AT_3v3(t_anongame_infos_THUMBSDOWN * anongame_
     return 0;
 }
 
-int anongame_infos_THUMBSDOWN_set_AT_4v4(t_anongame_infos_THUMBSDOWN * anongame_infos_THUMBSDOWN, char value)
+static int anongame_infos_THUMBSDOWN_set_AT_4v4(t_anongame_infos_THUMBSDOWN * anongame_infos_THUMBSDOWN, char value)
 {
     if (!anongame_infos_THUMBSDOWN)
     {
@@ -1591,7 +1791,7 @@ int anongame_infos_THUMBSDOWN_set_AT_4v4(t_anongame_infos_THUMBSDOWN * anongame_
     return 0;
 }
 
-int anongame_infos_THUMBSDOWN_set_PG_2v2v2(t_anongame_infos_THUMBSDOWN * anongame_infos_THUMBSDOWN, char value)
+static int anongame_infos_THUMBSDOWN_set_PG_2v2v2(t_anongame_infos_THUMBSDOWN * anongame_infos_THUMBSDOWN, char value)
 {
     if (!anongame_infos_THUMBSDOWN)
     {
@@ -1604,7 +1804,7 @@ int anongame_infos_THUMBSDOWN_set_PG_2v2v2(t_anongame_infos_THUMBSDOWN * anongam
     return 0;
 }
 
-int anongame_infos_THUMBSDOWN_set_PG_3v3v3(t_anongame_infos_THUMBSDOWN * anongame_infos_THUMBSDOWN, char value)
+static int anongame_infos_THUMBSDOWN_set_PG_3v3v3(t_anongame_infos_THUMBSDOWN * anongame_infos_THUMBSDOWN, char value)
 {
     if (!anongame_infos_THUMBSDOWN)
     {
@@ -1617,7 +1817,7 @@ int anongame_infos_THUMBSDOWN_set_PG_3v3v3(t_anongame_infos_THUMBSDOWN * anongam
     return 0;
 }
 
-int anongame_infos_THUMBSDOWN_set_PG_4v4v4(t_anongame_infos_THUMBSDOWN * anongame_infos_THUMBSDOWN, char value)
+static int anongame_infos_THUMBSDOWN_set_PG_4v4v4(t_anongame_infos_THUMBSDOWN * anongame_infos_THUMBSDOWN, char value)
 {
     if (!anongame_infos_THUMBSDOWN)
     {
@@ -1631,7 +1831,7 @@ int anongame_infos_THUMBSDOWN_set_PG_4v4v4(t_anongame_infos_THUMBSDOWN * anongam
 }
 
 
-int anongame_infos_THUMBSDOWN_set_AT_2v2v2(t_anongame_infos_THUMBSDOWN * anongame_infos_THUMBSDOWN, char value)
+static int anongame_infos_THUMBSDOWN_set_AT_2v2v2(t_anongame_infos_THUMBSDOWN * anongame_infos_THUMBSDOWN, char value)
 {
     if (!anongame_infos_THUMBSDOWN)
     {
@@ -1644,7 +1844,7 @@ int anongame_infos_THUMBSDOWN_set_AT_2v2v2(t_anongame_infos_THUMBSDOWN * anongam
     return 0;
 }
 
-int anongame_infos_THUMBSDOWN_set_PG_2v2v2v2(t_anongame_infos_THUMBSDOWN * anongame_infos_THUMBSDOWN, char value)
+static int anongame_infos_THUMBSDOWN_set_PG_2v2v2v2(t_anongame_infos_THUMBSDOWN * anongame_infos_THUMBSDOWN, char value)
 {
     if (!anongame_infos_THUMBSDOWN)
     {
@@ -1658,7 +1858,7 @@ int anongame_infos_THUMBSDOWN_set_PG_2v2v2v2(t_anongame_infos_THUMBSDOWN * anong
 }
 
 
-int anongame_infos_THUMBSDOWN_set_PG_3v3v3v3(t_anongame_infos_THUMBSDOWN * anongame_infos_THUMBSDOWN, char value)
+static int anongame_infos_THUMBSDOWN_set_PG_3v3v3v3(t_anongame_infos_THUMBSDOWN * anongame_infos_THUMBSDOWN, char value)
 {
     if (!anongame_infos_THUMBSDOWN)
     {
@@ -1719,7 +1919,7 @@ extern char anongame_infos_get_thumbsdown(int queue)
 
 /**********/
 
-int anongame_infos_ICON_REQ_WAR3_set_Level1(t_anongame_infos_ICON_REQ_WAR3 * anongame_infos_ICON_REQ_WAR3, int value)
+static int anongame_infos_ICON_REQ_WAR3_set_Level1(t_anongame_infos_ICON_REQ_WAR3 * anongame_infos_ICON_REQ_WAR3, int value)
 {
     if (!anongame_infos_ICON_REQ_WAR3)
     {
@@ -1732,7 +1932,7 @@ int anongame_infos_ICON_REQ_WAR3_set_Level1(t_anongame_infos_ICON_REQ_WAR3 * ano
     return 0;
 }
 
-int anongame_infos_ICON_REQ_WAR3_set_Level2(t_anongame_infos_ICON_REQ_WAR3 * anongame_infos_ICON_REQ_WAR3, int value)
+static int anongame_infos_ICON_REQ_WAR3_set_Level2(t_anongame_infos_ICON_REQ_WAR3 * anongame_infos_ICON_REQ_WAR3, int value)
 {
     if (!anongame_infos_ICON_REQ_WAR3)
     {
@@ -1745,7 +1945,7 @@ int anongame_infos_ICON_REQ_WAR3_set_Level2(t_anongame_infos_ICON_REQ_WAR3 * ano
     return 0;
 }
 
-int anongame_infos_ICON_REQ_WAR3_set_Level3(t_anongame_infos_ICON_REQ_WAR3 * anongame_infos_ICON_REQ_WAR3, int value)
+static int anongame_infos_ICON_REQ_WAR3_set_Level3(t_anongame_infos_ICON_REQ_WAR3 * anongame_infos_ICON_REQ_WAR3, int value)
 {
     if (!anongame_infos_ICON_REQ_WAR3)
     {
@@ -1758,7 +1958,7 @@ int anongame_infos_ICON_REQ_WAR3_set_Level3(t_anongame_infos_ICON_REQ_WAR3 * ano
     return 0;
 }
 
-int anongame_infos_ICON_REQ_WAR3_set_Level4(t_anongame_infos_ICON_REQ_WAR3 * anongame_infos_ICON_REQ_WAR3, int value)
+static int anongame_infos_ICON_REQ_WAR3_set_Level4(t_anongame_infos_ICON_REQ_WAR3 * anongame_infos_ICON_REQ_WAR3, int value)
 {
     if (!anongame_infos_ICON_REQ_WAR3)
     {
@@ -1771,7 +1971,7 @@ int anongame_infos_ICON_REQ_WAR3_set_Level4(t_anongame_infos_ICON_REQ_WAR3 * ano
     return 0;
 }
 
-int anongame_infos_ICON_REQ_W3XP_set_Level1(t_anongame_infos_ICON_REQ_W3XP * anongame_infos_ICON_REQ_W3XP, int value)
+static int anongame_infos_ICON_REQ_W3XP_set_Level1(t_anongame_infos_ICON_REQ_W3XP * anongame_infos_ICON_REQ_W3XP, int value)
 {
     if (!anongame_infos_ICON_REQ_W3XP)
     {
@@ -1784,7 +1984,7 @@ int anongame_infos_ICON_REQ_W3XP_set_Level1(t_anongame_infos_ICON_REQ_W3XP * ano
     return 0;
 }
 
-int anongame_infos_ICON_REQ_W3XP_set_Level2(t_anongame_infos_ICON_REQ_W3XP * anongame_infos_ICON_REQ_W3XP, int value)
+static int anongame_infos_ICON_REQ_W3XP_set_Level2(t_anongame_infos_ICON_REQ_W3XP * anongame_infos_ICON_REQ_W3XP, int value)
 {
     if (!anongame_infos_ICON_REQ_W3XP)
     {
@@ -1797,7 +1997,7 @@ int anongame_infos_ICON_REQ_W3XP_set_Level2(t_anongame_infos_ICON_REQ_W3XP * ano
     return 0;
 }
 
-int anongame_infos_ICON_REQ_W3XP_set_Level3(t_anongame_infos_ICON_REQ_W3XP * anongame_infos_ICON_REQ_W3XP, int value)
+static int anongame_infos_ICON_REQ_W3XP_set_Level3(t_anongame_infos_ICON_REQ_W3XP * anongame_infos_ICON_REQ_W3XP, int value)
 {
     if (!anongame_infos_ICON_REQ_W3XP)
     {
@@ -1810,7 +2010,7 @@ int anongame_infos_ICON_REQ_W3XP_set_Level3(t_anongame_infos_ICON_REQ_W3XP * ano
     return 0;
 }
 
-int anongame_infos_ICON_REQ_W3XP_set_Level4(t_anongame_infos_ICON_REQ_W3XP * anongame_infos_ICON_REQ_W3XP, int value)
+static int anongame_infos_ICON_REQ_W3XP_set_Level4(t_anongame_infos_ICON_REQ_W3XP * anongame_infos_ICON_REQ_W3XP, int value)
 {
     if (!anongame_infos_ICON_REQ_W3XP)
     {
@@ -1823,7 +2023,7 @@ int anongame_infos_ICON_REQ_W3XP_set_Level4(t_anongame_infos_ICON_REQ_W3XP * ano
     return 0;
 }
 
-int anongame_infos_ICON_REQ_W3XP_set_Level5(t_anongame_infos_ICON_REQ_W3XP * anongame_infos_ICON_REQ_W3XP, int value)
+static int anongame_infos_ICON_REQ_W3XP_set_Level5(t_anongame_infos_ICON_REQ_W3XP * anongame_infos_ICON_REQ_W3XP, int value)
 {
     if (!anongame_infos_ICON_REQ_W3XP)
     {
@@ -1836,7 +2036,7 @@ int anongame_infos_ICON_REQ_W3XP_set_Level5(t_anongame_infos_ICON_REQ_W3XP * ano
     return 0;
 }
 
-int anongame_infos_ICON_REQ_TOURNEY_set_Level1(t_anongame_infos_ICON_REQ_TOURNEY * anongame_infos_ICON_REQ_TOURNEY, int value)
+static int anongame_infos_ICON_REQ_TOURNEY_set_Level1(t_anongame_infos_ICON_REQ_TOURNEY * anongame_infos_ICON_REQ_TOURNEY, int value)
 {
     if (!anongame_infos_ICON_REQ_TOURNEY)
     {
@@ -1849,7 +2049,7 @@ int anongame_infos_ICON_REQ_TOURNEY_set_Level1(t_anongame_infos_ICON_REQ_TOURNEY
     return 0;
 }
 
-int anongame_infos_ICON_REQ_TOURNEY_set_Level2(t_anongame_infos_ICON_REQ_TOURNEY * anongame_infos_ICON_REQ_TOURNEY, int value)
+static int anongame_infos_ICON_REQ_TOURNEY_set_Level2(t_anongame_infos_ICON_REQ_TOURNEY * anongame_infos_ICON_REQ_TOURNEY, int value)
 {
     if (!anongame_infos_ICON_REQ_TOURNEY)
     {
@@ -1862,7 +2062,7 @@ int anongame_infos_ICON_REQ_TOURNEY_set_Level2(t_anongame_infos_ICON_REQ_TOURNEY
     return 0;
 }
 
-int anongame_infos_ICON_REQ_TOURNEY_set_Level3(t_anongame_infos_ICON_REQ_TOURNEY * anongame_infos_ICON_REQ_TOURNEY, int value)
+static int anongame_infos_ICON_REQ_TOURNEY_set_Level3(t_anongame_infos_ICON_REQ_TOURNEY * anongame_infos_ICON_REQ_TOURNEY, int value)
 {
     if (!anongame_infos_ICON_REQ_TOURNEY)
     {
@@ -1875,7 +2075,7 @@ int anongame_infos_ICON_REQ_TOURNEY_set_Level3(t_anongame_infos_ICON_REQ_TOURNEY
     return 0;
 }
 
-int anongame_infos_ICON_REQ_TOURNEY_set_Level4(t_anongame_infos_ICON_REQ_TOURNEY * anongame_infos_ICON_REQ_TOURNEY, int value)
+static int anongame_infos_ICON_REQ_TOURNEY_set_Level4(t_anongame_infos_ICON_REQ_TOURNEY * anongame_infos_ICON_REQ_TOURNEY, int value)
 {
     if (!anongame_infos_ICON_REQ_TOURNEY)
     {
@@ -1888,7 +2088,7 @@ int anongame_infos_ICON_REQ_TOURNEY_set_Level4(t_anongame_infos_ICON_REQ_TOURNEY
     return 0;
 }
 
-int anongame_infos_ICON_REQ_TOURNEY_set_Level5(t_anongame_infos_ICON_REQ_TOURNEY * anongame_infos_ICON_REQ_TOURNEY, int value)
+static int anongame_infos_ICON_REQ_TOURNEY_set_Level5(t_anongame_infos_ICON_REQ_TOURNEY * anongame_infos_ICON_REQ_TOURNEY, int value)
 {
     if (!anongame_infos_ICON_REQ_TOURNEY)
     {
@@ -1967,7 +2167,245 @@ extern short anongame_infos_get_ICON_REQ_TOURNEY(int Level)
 
 /**********/
 
-void anongame_infos_set_defaults(t_anongame_infos * anongame_infos)
+extern char * anongame_infos_data_get_url(char const * clienttag, int versionid, int * len)
+{
+	t_elem * curr;
+	t_anongame_infos_data_lang * entry;
+	if(strcmp(clienttag, CLIENTTAG_WARCRAFT3) == 0)
+	{
+		if(versionid < 0x0000000D)
+		{
+			(* len) = anongame_infos->anongame_infos_data_war3->url_len;
+			return anongame_infos->anongame_infos_data_war3->url_data;
+		}
+		else
+		{
+			(* len) = anongame_infos->anongame_infos_data_war3->url_comp_len;
+			return anongame_infos->anongame_infos_data_war3->url_comp_data;
+		}
+	}
+	else
+	{
+		if(versionid < 0x0000000D)
+		{
+			(* len) = anongame_infos->anongame_infos_data_w3xp->url_len;
+			return anongame_infos->anongame_infos_data_w3xp->url_data;
+		}
+		else
+		{
+			(* len) = anongame_infos->anongame_infos_data_w3xp->url_comp_len;
+			return anongame_infos->anongame_infos_data_w3xp->url_comp_data;
+		}
+	}
+}
+
+extern char * anongame_infos_data_get_map(char const * clienttag, int versionid, int * len)
+{
+	t_elem * curr;
+	t_anongame_infos_data_lang * entry;
+	if(strcmp(clienttag, CLIENTTAG_WARCRAFT3) == 0)
+	{
+		if(versionid < 0x0000000D)
+		{
+			(* len) = anongame_infos->anongame_infos_data_war3->map_len;
+			return anongame_infos->anongame_infos_data_war3->map_data;
+		}
+		else
+		{
+			(* len) = anongame_infos->anongame_infos_data_war3->map_comp_len;
+			return anongame_infos->anongame_infos_data_war3->map_comp_data;
+		}
+	}
+	else
+	{
+		if(versionid < 0x0000000D)
+		{
+			(* len) = anongame_infos->anongame_infos_data_w3xp->map_len;
+			return anongame_infos->anongame_infos_data_w3xp->map_data;
+		}
+		else
+		{
+			(* len) = anongame_infos->anongame_infos_data_w3xp->map_comp_len;
+			return anongame_infos->anongame_infos_data_w3xp->map_comp_data;
+		}
+	}
+}
+
+extern char * anongame_infos_data_get_type(char const * clienttag, int versionid, int * len)
+{
+	t_elem * curr;
+	t_anongame_infos_data_lang * entry;
+	if(strcmp(clienttag, CLIENTTAG_WARCRAFT3) == 0)
+	{
+		if(versionid < 0x0000000D)
+		{
+			(* len) = anongame_infos->anongame_infos_data_war3->type_len;
+			return anongame_infos->anongame_infos_data_war3->type_data;
+		}
+		else
+		{
+			(* len) = anongame_infos->anongame_infos_data_war3->type_comp_len;
+			return anongame_infos->anongame_infos_data_war3->type_comp_data;
+		}
+	}
+	else
+	{
+		if(versionid < 0x0000000D)
+		{
+			(* len) = anongame_infos->anongame_infos_data_w3xp->type_len;
+			return anongame_infos->anongame_infos_data_w3xp->type_data;
+		}
+		else
+		{
+			(* len) = anongame_infos->anongame_infos_data_w3xp->type_comp_len;
+			return anongame_infos->anongame_infos_data_w3xp->type_comp_data;
+		}
+	}
+}
+
+extern char * anongame_infos_data_get_desc(char const * langID, char const * clienttag, int versionid, int * len)
+{
+	t_elem * curr;
+	t_anongame_infos_data_lang * entry;
+	if(strcmp(clienttag, CLIENTTAG_WARCRAFT3) == 0)
+	{
+		if(langID != NULL)
+		{
+			LIST_TRAVERSE(anongame_infos->anongame_infos_data_lang_war3, curr)
+			{
+				if((entry = elem_get_data(curr)) && strcmp(entry->langID, langID) == 0)
+				{
+					if(versionid < 0x0000000D)
+					{
+						(* len) = entry->desc_len;
+						return entry->desc_data;
+					}
+					else
+					{
+						(* len) = entry->desc_comp_len;
+						return entry->desc_comp_data;
+					}
+				}
+			}
+		}
+		if(versionid < 0x0000000D)
+		{
+			(* len) = anongame_infos->anongame_infos_data_war3->desc_len;
+			return anongame_infos->anongame_infos_data_war3->desc_data;
+		}
+		else
+		{
+			(* len) = anongame_infos->anongame_infos_data_war3->desc_comp_len;
+			return anongame_infos->anongame_infos_data_war3->desc_comp_data;
+		}
+	}
+	else
+	{
+		if(langID != NULL)
+		{
+			LIST_TRAVERSE(anongame_infos->anongame_infos_data_lang_w3xp, curr)
+			{
+				if((entry = elem_get_data(curr)) && strcmp(entry->langID, langID) == 0)
+				{
+					if(versionid < 0x0000000D)
+					{
+						(* len) = entry->desc_len;
+						return entry->desc_data;
+					}
+					else
+					{
+						(* len) = entry->desc_comp_len;
+						return entry->desc_comp_data;
+					}
+				}
+			}
+		}
+		if(versionid < 0x0000000D)
+		{
+			(* len) = anongame_infos->anongame_infos_data_w3xp->desc_len;
+			return anongame_infos->anongame_infos_data_w3xp->desc_data;
+		}
+		else
+		{
+			(* len) = anongame_infos->anongame_infos_data_w3xp->desc_comp_len;
+			return anongame_infos->anongame_infos_data_w3xp->desc_comp_data;
+		}
+	}
+}
+
+extern char * anongame_infos_data_get_ladr(char const * langID, char const * clienttag, int versionid, int * len)
+{
+	t_elem * curr;
+	t_anongame_infos_data_lang * entry;
+	if(strcmp(clienttag, CLIENTTAG_WARCRAFT3) == 0)
+	{
+		if(langID != NULL)
+		{
+			LIST_TRAVERSE(anongame_infos->anongame_infos_data_lang_war3, curr)
+			{
+				if((entry = elem_get_data(curr)) && strcmp(entry->langID, langID) == 0)
+				{
+					if(versionid < 0x0000000D)
+					{
+						(* len) = entry->ladr_len;
+						return entry->ladr_data;
+					}
+					else
+					{
+						(* len) = entry->ladr_comp_len;
+						return entry->ladr_comp_data;
+					}
+				}
+			}
+		}
+		if(versionid < 0x0000000D)
+		{
+			(* len) = anongame_infos->anongame_infos_data_war3->ladr_len;
+			return anongame_infos->anongame_infos_data_war3->ladr_data;
+		}
+		else
+		{
+			(* len) = anongame_infos->anongame_infos_data_war3->ladr_comp_len;
+			return anongame_infos->anongame_infos_data_war3->ladr_comp_data;
+		}
+	}
+	else
+	{
+		if(langID != NULL)
+		{
+			LIST_TRAVERSE(anongame_infos->anongame_infos_data_lang_w3xp, curr)
+			{
+				if((entry = elem_get_data(curr)) && strcmp(entry->langID, langID) == 0)
+				{
+					if(versionid < 0x0000000D)
+					{
+						(* len) = entry->ladr_len;
+						return entry->ladr_data;
+					}
+					else
+					{
+						(* len) = entry->ladr_comp_len;
+						return entry->ladr_comp_data;
+					}
+				}
+			}
+		}
+		if(versionid < 0x0000000D)
+		{
+			(* len) = anongame_infos->anongame_infos_data_w3xp->ladr_len;
+			return anongame_infos->anongame_infos_data_w3xp->ladr_data;
+		}
+		else
+		{
+			(* len) = anongame_infos->anongame_infos_data_w3xp->ladr_comp_len;
+			return anongame_infos->anongame_infos_data_w3xp->ladr_comp_data;
+		}
+	}
+}
+
+/**********/
+
+static void anongame_infos_set_defaults(t_anongame_infos * anongame_infos)
 {
     t_anongame_infos_URL * anongame_infos_URL;
     t_anongame_infos_DESC * anongame_infos_DESC;
@@ -2258,7 +2696,7 @@ typedef enum
 	unchanged
 } t_parse_state;
 
-t_parse_mode switch_parse_mode(char * text, char * langID)
+static t_parse_mode switch_parse_mode(char * text, char * langID)
 {
 	if (!(text)) return parse_UNKNOWN;
 	else if (strcmp(text,"[URL]")==0) return parse_URL;
@@ -2546,12 +2984,503 @@ extern int anongame_infos_load(char const * filename)
     fclose(fp);
     
     anongame_infos_set_defaults(anongame_infos);
-
+	anongame_infos_data_load();
     return 0;
 }
 
-extern int anongame_infos_unload()
+static int anongame_infos_data_load(void)
+{
+	t_elem * curr;
+	t_packet * raw;
+	int j, k;
+	char ladr_count		= 0;
+	char desc_count;
+	char mapscount_total;
+	char value;
+	char PG_gamestyles;
+	char AT_gamestyles;
+	char TY_gamestyles;
+
+	char anongame_prefix[ANONGAME_TYPES][5] = {		/* queue */
+	/* PG 1v1	*/	{0x00, 0x00, 0x03, 0x3F, 0x00},	/*  0	*/
+	/* PG 2v2	*/	{0x01, 0x00, 0x02, 0x3F, 0x00},	/*  1	*/
+	/* PG 3v3	*/	{0x02, 0x00, 0x01, 0x3F, 0x00},	/*  2	*/
+	/* PG 4v4	*/	{0x03, 0x00, 0x01, 0x3F, 0x00},	/*  3	*/
+	/* PG sffa	*/	{0x04, 0x00, 0x02, 0x3F, 0x00},	/*  4	*/
+
+	/* AT 2v2	*/	{0x00, 0x00, 0x02, 0x3F, 0x02},	/*  5	*/
+	/* AT tffa	*/	{0x01, 0x00, 0x02, 0x3F, 0x02},	/*  6	*/
+	/* AT 3v3	*/	{0x02, 0x00, 0x02, 0x3F, 0x03},	/*  7	*/
+	/* AT 4v4	*/	{0x03, 0x00, 0x02, 0x3F, 0x04},	/*  8	*/
+
+	/* TY		*/	{0x00, 0x01, 0x00, 0x3F, 0x00},	/*  9	*/
+	/* PG 5v5	*/	{0x05, 0x00, 0x01, 0x3F, 0x00},	/* 10	*/
+	/* PG 6v6	*/	{0x06, 0x00, 0x01, 0x3F, 0x00},	/* 11	*/
+	/* PG 2v2v2	*/	{0x07, 0x00, 0x01, 0x3F, 0x00},	/* 12	*/
+	/* PG 3v3v3	*/	{0x08, 0x00, 0x01, 0x3F, 0x00},	/* 13	*/
+	/* PG 4v4v4	*/	{0x09, 0x00, 0x01, 0x3F, 0x00},	/* 14	*/
+	/* PG 2v2v2v2	*/	{0x0A, 0x00, 0x01, 0x3F, 0x00},	/* 15	*/
+	/* PG 3v3v3v3	*/	{0x0B, 0x00, 0x01, 0x3F, 0x00},	/* 16	*/
+	/* AT 2v2v2	*/	{0x04, 0x00, 0x02, 0x3F, 0x02}	/* 17	*/
+	};
+
+	/* hack to give names for new gametypes untill there added to anongame_infos.c */
+	char * anongame_gametype_names[ANONGAME_TYPES] = {
+	    "One vs. One",
+		"Two vs. Two",
+	    "Three vs. Three",
+	    "Four vs. Four",
+		"Small Free for All",
+	    "Two vs. Two",
+	    "Team Free for All",
+		"Three vs. Three",
+	    "Four vs. Four",
+	    "Tournament Game",
+		"Five vs. Five",
+	    "Six Vs. Six",
+	    "Two vs. Two vs. Two",
+		"3 vs. 3 vs. 3",
+	    "4 vs. 4 vs. 4",
+	    "2 vs. 2 vs. 2 vs. 2",
+		"3 vs. 3 vs. 3 vs. 3",
+	    "Two vs. Two vs. Two"
+	};
+
+	char const * game_clienttag[2] = { CLIENTTAG_WARCRAFT3, CLIENTTAG_WAR3XP };
+	
+	char anongame_PG_section	= 0x00;
+	char anongame_AT_section	= 0x01;
+	char anongame_TY_section	= 0x02;
+	
+	/* set thumbsdown from the conf file */
+	for (j=0; j < ANONGAME_TYPES; j++)
+		anongame_prefix[j][2] = anongame_infos_get_thumbsdown(j);
+
+	if((raw = packet_create(packet_class_raw)) != NULL)
+	{
+	    packet_append_string(raw, anongame_infos_URL_get_server_url());
+	    packet_append_string(raw, anongame_infos_URL_get_player_url());
+	    packet_append_string(raw, anongame_infos_URL_get_tourney_url());
+		anongame_infos->anongame_infos_data_war3->url_len = packet_get_size(raw);
+		if((anongame_infos->anongame_infos_data_war3->url_data = (char *)malloc(anongame_infos->anongame_infos_data_war3->url_len)) != NULL)
+		{
+			memcpy(anongame_infos->anongame_infos_data_war3->url_data, packet_get_data_const(raw, 0, anongame_infos->anongame_infos_data_war3->url_len), anongame_infos->anongame_infos_data_war3->url_len);
+			zlib_compress(anongame_infos->anongame_infos_data_war3->url_data, anongame_infos->anongame_infos_data_war3->url_len, &anongame_infos->anongame_infos_data_war3->url_comp_data, &anongame_infos->anongame_infos_data_war3->url_comp_len);
+		}
+		anongame_infos->anongame_infos_data_w3xp->url_len = packet_get_size(raw);
+		if((anongame_infos->anongame_infos_data_w3xp->url_data = (char *)malloc(anongame_infos->anongame_infos_data_w3xp->url_len)) != NULL)
+		{
+			memcpy(anongame_infos->anongame_infos_data_w3xp->url_data, packet_get_data_const(raw, 0, anongame_infos->anongame_infos_data_w3xp->url_len), anongame_infos->anongame_infos_data_w3xp->url_len);
+			zlib_compress(anongame_infos->anongame_infos_data_w3xp->url_data, anongame_infos->anongame_infos_data_w3xp->url_len, &anongame_infos->anongame_infos_data_w3xp->url_comp_data, &anongame_infos->anongame_infos_data_w3xp->url_comp_len);
+		}
+
+
+		for(k = 0; k < 2; k++)
+		{
+		packet_set_size(raw, 0);
+	    mapscount_total = maplists_get_totalmaps(game_clienttag[k]);
+	    packet_append_data(raw, &mapscount_total, 1);
+	    maplists_add_maps_to_packet(raw, game_clienttag[k]);
+		if(k == 0)
+		{
+		anongame_infos->anongame_infos_data_war3->map_len = packet_get_size(raw);
+		if((anongame_infos->anongame_infos_data_war3->map_data = (char *)malloc(anongame_infos->anongame_infos_data_war3->map_len)) != NULL)
+		{
+			memcpy(anongame_infos->anongame_infos_data_war3->map_data, packet_get_data_const(raw, 0, anongame_infos->anongame_infos_data_war3->map_len), anongame_infos->anongame_infos_data_war3->map_len);
+			zlib_compress(anongame_infos->anongame_infos_data_war3->map_data, anongame_infos->anongame_infos_data_war3->map_len, &anongame_infos->anongame_infos_data_war3->map_comp_data, &anongame_infos->anongame_infos_data_war3->map_comp_len);
+		}
+		}
+		else
+		{
+		anongame_infos->anongame_infos_data_w3xp->map_len = packet_get_size(raw);
+		if((anongame_infos->anongame_infos_data_w3xp->map_data = (char *)malloc(anongame_infos->anongame_infos_data_w3xp->map_len)) != NULL)
+		{
+			memcpy(anongame_infos->anongame_infos_data_w3xp->map_data, packet_get_data_const(raw, 0, anongame_infos->anongame_infos_data_w3xp->map_len), anongame_infos->anongame_infos_data_w3xp->map_len);
+			zlib_compress(anongame_infos->anongame_infos_data_w3xp->map_data, anongame_infos->anongame_infos_data_w3xp->map_len, &anongame_infos->anongame_infos_data_w3xp->map_comp_data, &anongame_infos->anongame_infos_data_w3xp->map_comp_len);
+		}
+		}
+		}
+
+
+		for(k = 0; k < 2; k++)
+		{
+		packet_set_size(raw, 0);
+		value = 0;
+		PG_gamestyles = 0;
+		AT_gamestyles = 0;
+		TY_gamestyles = 0;
+	    /* count of gametypes (PG, AT, TY) */
+	    for (j=0; j < ANONGAME_TYPES; j++)
+		if (maplists_get_totalmaps_by_queue(game_clienttag[k], j)) {
+		    if (!anongame_prefix[j][1] && !anongame_prefix[j][4])
+			PG_gamestyles++;
+		    if (!anongame_prefix[j][1] && anongame_prefix[j][4])
+			AT_gamestyles++;
+		    if (anongame_prefix[j][1])
+			TY_gamestyles++;
+		}
+		    
+	    if (PG_gamestyles)
+		value++;
+	    if (AT_gamestyles)
+		value++;
+	    if (TY_gamestyles)
+		value++;
+		    
+	    packet_append_data(raw, &value, 1);
+		    
+	    /* PG */
+	    if (PG_gamestyles) {
+		packet_append_data(raw, &anongame_PG_section,1);
+		packet_append_data(raw, &PG_gamestyles,1);
+		for (j=0; j < ANONGAME_TYPES; j++)
+		    if (!anongame_prefix[j][1] && !anongame_prefix[j][4] &&
+			    maplists_get_totalmaps_by_queue(game_clienttag[k],j))
+		    {
+			packet_append_data(raw, &anongame_prefix[j], 5);
+			maplists_add_map_info_to_packet(raw, game_clienttag[k], j);
+		    }
+	    }
+		    
+	    /* AT */
+	    if (AT_gamestyles) {
+		packet_append_data(raw,&anongame_AT_section,1);
+		packet_append_data(raw,&AT_gamestyles,1);
+		for (j=0; j < ANONGAME_TYPES; j++)
+		    if (!anongame_prefix[j][1] && anongame_prefix[j][4] &&
+			    maplists_get_totalmaps_by_queue(game_clienttag[k],j))
+		    {
+			packet_append_data(raw, &anongame_prefix[j], 5);
+			maplists_add_map_info_to_packet(raw, game_clienttag[k], j);
+		    }
+	    }
+		    
+	    /* TY */
+	    if (TY_gamestyles) {
+		packet_append_data(raw, &anongame_TY_section,1);
+		packet_append_data(raw, &TY_gamestyles,1);
+		for (j=0; j < ANONGAME_TYPES; j++)
+		    if (anongame_prefix[j][1] &&
+			    maplists_get_totalmaps_by_queue(game_clienttag[k],j))
+		    {
+			/* set tournament races available */
+			anongame_prefix[j][3] = tournament_get_races();
+			/* set tournament type (PG or AT)
+			 * PG = 0
+			 * AT = number players per team */
+			if (tournament_is_arranged())
+			    anongame_prefix[j][4] = tournament_get_game_type();
+			else
+			    anongame_prefix[j][4] = 0;
+			
+			packet_append_data(raw, &anongame_prefix[j], 5);
+			maplists_add_map_info_to_packet(raw, game_clienttag[k], j);
+		    }
+	    }
+		if(k == 0)
+		{
+		anongame_infos->anongame_infos_data_war3->type_len = packet_get_size(raw);
+		if((anongame_infos->anongame_infos_data_war3->type_data = (char *)malloc(anongame_infos->anongame_infos_data_war3->type_len)) != NULL)
+		{
+			memcpy(anongame_infos->anongame_infos_data_war3->type_data, packet_get_data_const(raw, 0, anongame_infos->anongame_infos_data_war3->type_len), anongame_infos->anongame_infos_data_war3->type_len);
+			zlib_compress(anongame_infos->anongame_infos_data_war3->type_data, anongame_infos->anongame_infos_data_war3->type_len, &anongame_infos->anongame_infos_data_war3->type_comp_data, &anongame_infos->anongame_infos_data_war3->type_comp_len);
+		}
+		}
+		else
+		{
+		anongame_infos->anongame_infos_data_w3xp->type_len = packet_get_size(raw);
+		if((anongame_infos->anongame_infos_data_w3xp->type_data = (char *)malloc(anongame_infos->anongame_infos_data_w3xp->type_len)) != NULL)
+		{
+			memcpy(anongame_infos->anongame_infos_data_w3xp->type_data, packet_get_data_const(raw, 0, anongame_infos->anongame_infos_data_w3xp->type_len), anongame_infos->anongame_infos_data_w3xp->type_len);
+			zlib_compress(anongame_infos->anongame_infos_data_w3xp->type_data, anongame_infos->anongame_infos_data_w3xp->type_len, &anongame_infos->anongame_infos_data_w3xp->type_comp_data, &anongame_infos->anongame_infos_data_w3xp->type_comp_len);
+		}
+		}
+		}
+
+			
+		for(k = 0; k < 2; k++)
+		{
+		desc_count = 0;
+		packet_set_size(raw, 0);
+	    for (j=0; j < ANONGAME_TYPES; j++)
+		if (maplists_get_totalmaps_by_queue(game_clienttag[k], j))
+		    desc_count++;
+	    packet_append_data(raw,&desc_count,1);
+	    /* PG description section */
+	    for (j=0; j < ANONGAME_TYPES; j++)
+		if (!anongame_prefix[j][1] && !anongame_prefix[j][4] &&
+			maplists_get_totalmaps_by_queue(game_clienttag[k], j))
+		{
+		    packet_append_data(raw, &anongame_PG_section, 1);
+		    packet_append_data(raw, &anongame_prefix[j][0], 1);
+		    
+		    if (anongame_infos_get_short_desc(NULL, j) == NULL)
+			packet_append_string(raw,anongame_gametype_names[j]);
+		    else
+			packet_append_string(raw,anongame_infos_get_short_desc(NULL, j));
+		    
+		    if (anongame_infos_get_long_desc(NULL, j) == NULL)
+			packet_append_string(raw,"No Descreption");
+		    else
+			packet_append_string(raw,anongame_infos_get_long_desc(NULL, j));
+		}
+	    /* AT description section */
+	    for (j=0; j < ANONGAME_TYPES; j++)
+		if (!anongame_prefix[j][1] && anongame_prefix[j][4] &&
+			maplists_get_totalmaps_by_queue(game_clienttag[k], j))
+		{
+		    packet_append_data(raw, &anongame_AT_section, 1);
+		    packet_append_data(raw, &anongame_prefix[j][0], 1);
+		    packet_append_string(raw,anongame_infos_get_short_desc(NULL, j));
+		    packet_append_string(raw,anongame_infos_get_long_desc(NULL, j));
+		}
+	    /* TY description section */
+	    for (j=0; j < ANONGAME_TYPES; j++)
+		if (anongame_prefix[j][1] &&
+			maplists_get_totalmaps_by_queue(game_clienttag[k], j))
+		{
+		    packet_append_data(raw, &anongame_TY_section, 1);
+		    packet_append_data(raw, &anongame_prefix[j][0], 1);
+		    packet_append_string(raw,anongame_infos_get_short_desc(NULL, j));
+		    packet_append_string(raw,anongame_infos_get_long_desc(NULL, j));
+		}
+		if(k == 0)
+		{
+		anongame_infos->anongame_infos_data_war3->desc_len = packet_get_size(raw);
+		if((anongame_infos->anongame_infos_data_war3->desc_data = (char *)malloc(anongame_infos->anongame_infos_data_war3->desc_len)) != NULL)
+		{
+			memcpy(anongame_infos->anongame_infos_data_war3->desc_data, packet_get_data_const(raw, 0, anongame_infos->anongame_infos_data_war3->desc_len), anongame_infos->anongame_infos_data_war3->desc_len);
+			zlib_compress(anongame_infos->anongame_infos_data_war3->desc_data, anongame_infos->anongame_infos_data_war3->desc_len, &anongame_infos->anongame_infos_data_war3->desc_comp_data, &anongame_infos->anongame_infos_data_war3->desc_comp_len);
+		}
+		}
+		else
+		{
+		anongame_infos->anongame_infos_data_w3xp->desc_len = packet_get_size(raw);
+		if((anongame_infos->anongame_infos_data_w3xp->desc_data = (char *)malloc(anongame_infos->anongame_infos_data_w3xp->desc_len)) != NULL)
+		{
+			memcpy(anongame_infos->anongame_infos_data_w3xp->desc_data, packet_get_data_const(raw, 0, anongame_infos->anongame_infos_data_w3xp->desc_len), anongame_infos->anongame_infos_data_w3xp->desc_len);
+			zlib_compress(anongame_infos->anongame_infos_data_w3xp->desc_data, anongame_infos->anongame_infos_data_w3xp->desc_len, &anongame_infos->anongame_infos_data_w3xp->desc_comp_data, &anongame_infos->anongame_infos_data_w3xp->desc_comp_len);
+		}
+		}
+		}
+
+
+		packet_set_size(raw, 0);
+	    /*FIXME: Still adding a static number (5)
+	    Also maybe need do do some checks to avoid prefs empty strings.*/
+	    ladr_count=6;
+	    packet_append_data(raw, &ladr_count, 1);
+	    packet_append_data(raw, "OLOS", 4);
+	    packet_append_string(raw, anongame_infos_DESC_get_ladder_PG_1v1_desc(NULL));
+	    packet_append_string(raw, anongame_infos_URL_get_ladder_PG_1v1_url());
+	    packet_append_data(raw, "MAET", 4);
+	    packet_append_string(raw, anongame_infos_DESC_get_ladder_PG_team_desc(NULL));
+	    packet_append_string(raw, anongame_infos_URL_get_ladder_PG_team_url());
+	    packet_append_data(raw, " AFF", 4);
+	    packet_append_string(raw, anongame_infos_DESC_get_ladder_PG_ffa_desc(NULL));
+	    packet_append_string(raw, anongame_infos_URL_get_ladder_PG_ffa_url());
+	    packet_append_data(raw, "2SV2", 4);
+	    packet_append_string(raw, anongame_infos_DESC_get_ladder_AT_2v2_desc(NULL));
+	    packet_append_string(raw, anongame_infos_URL_get_ladder_AT_2v2_url());
+	    packet_append_data(raw, "3SV3", 4);
+	    packet_append_string(raw, anongame_infos_DESC_get_ladder_AT_3v3_desc(NULL));
+	    packet_append_string(raw, anongame_infos_URL_get_ladder_AT_3v3_url());
+	    packet_append_data(raw, "4SV4", 4);
+	    packet_append_string(raw, anongame_infos_DESC_get_ladder_AT_4v4_desc(NULL));
+	    packet_append_string(raw, anongame_infos_URL_get_ladder_AT_4v4_url());
+		anongame_infos->anongame_infos_data_war3->ladr_len = packet_get_size(raw);
+		if((anongame_infos->anongame_infos_data_war3->ladr_data = (char *)malloc(anongame_infos->anongame_infos_data_war3->ladr_len)) != NULL)
+		{
+			memcpy(anongame_infos->anongame_infos_data_war3->ladr_data, packet_get_data_const(raw, 0, anongame_infos->anongame_infos_data_war3->ladr_len), anongame_infos->anongame_infos_data_war3->ladr_len);
+			zlib_compress(anongame_infos->anongame_infos_data_war3->ladr_data, anongame_infos->anongame_infos_data_war3->ladr_len, &anongame_infos->anongame_infos_data_war3->ladr_comp_data, &anongame_infos->anongame_infos_data_war3->ladr_comp_len);
+		}
+		anongame_infos->anongame_infos_data_w3xp->ladr_len = packet_get_size(raw);
+		if((anongame_infos->anongame_infos_data_w3xp->ladr_data = (char *)malloc(anongame_infos->anongame_infos_data_w3xp->ladr_len)) != NULL)
+		{
+			memcpy(anongame_infos->anongame_infos_data_w3xp->ladr_data, packet_get_data_const(raw, 0, anongame_infos->anongame_infos_data_w3xp->ladr_len), anongame_infos->anongame_infos_data_w3xp->ladr_len);
+			zlib_compress(anongame_infos->anongame_infos_data_w3xp->ladr_data, anongame_infos->anongame_infos_data_w3xp->ladr_len, &anongame_infos->anongame_infos_data_w3xp->ladr_comp_data, &anongame_infos->anongame_infos_data_w3xp->ladr_comp_len);
+		}
+
+
+		packet_destroy(raw);
+	}
+
+	if((raw = packet_create(packet_class_raw)) != NULL)
+	{
+	LIST_TRAVERSE(anongame_infos->anongame_infos_DESC_list,curr)
+	{
+		t_anongame_infos_DESC * anongame_infos_DESC;
+		t_anongame_infos_data_lang * anongame_infos_data_lang_war3;
+		t_anongame_infos_data_lang * anongame_infos_data_lang_w3xp;
+		anongame_infos_DESC = elem_get_data(curr);
+		anongame_infos_data_lang_war3 = anongame_infos_data_lang_init(anongame_infos_DESC->langID);
+		anongame_infos_data_lang_w3xp = anongame_infos_data_lang_init(anongame_infos_DESC->langID);
+		for(k = 0; k < 2; k++)
+		{
+		desc_count = 0;
+		packet_set_size(raw, 0);
+	    for (j=0; j < ANONGAME_TYPES; j++)
+		if (maplists_get_totalmaps_by_queue(game_clienttag[k], j))
+		    desc_count++;
+	    packet_append_data(raw,&desc_count,1);
+	    /* PG description section */
+	    for (j=0; j < ANONGAME_TYPES; j++)
+		if (!anongame_prefix[j][1] && !anongame_prefix[j][4] &&
+			maplists_get_totalmaps_by_queue(game_clienttag[k], j))
+		{
+		    packet_append_data(raw, &anongame_PG_section, 1);
+		    packet_append_data(raw, &anongame_prefix[j][0], 1);
+			    
+		    if (anongame_infos_get_short_desc(anongame_infos_DESC->langID, j) == NULL)
+			packet_append_string(raw,anongame_gametype_names[j]);
+		    else
+			packet_append_string(raw,anongame_infos_get_short_desc(anongame_infos_DESC->langID, j));
+			    
+		    if (anongame_infos_get_long_desc(anongame_infos_DESC->langID, j) == NULL)
+			packet_append_string(raw,"No Descreption");
+		    else
+			packet_append_string(raw,anongame_infos_get_long_desc(anongame_infos_DESC->langID, j));
+		}
+	    /* AT description section */
+	    for (j=0; j < ANONGAME_TYPES; j++)
+		if (!anongame_prefix[j][1] && anongame_prefix[j][4] &&
+			maplists_get_totalmaps_by_queue(game_clienttag[k], j))
+		{
+		    packet_append_data(raw, &anongame_AT_section, 1);
+		    packet_append_data(raw, &anongame_prefix[j][0], 1);
+		    packet_append_string(raw,anongame_infos_get_short_desc(anongame_infos_DESC->langID, j));
+		    packet_append_string(raw,anongame_infos_get_long_desc(anongame_infos_DESC->langID, j));
+		}
+	    /* TY description section */
+	    for (j=0; j < ANONGAME_TYPES; j++)
+		if (anongame_prefix[j][1] &&
+			maplists_get_totalmaps_by_queue(game_clienttag[k], j))
+		{
+		    packet_append_data(raw, &anongame_TY_section, 1);
+		    packet_append_data(raw, &anongame_prefix[j][0], 1);
+		    packet_append_string(raw,anongame_infos_get_short_desc(anongame_infos_DESC->langID, j));
+		    packet_append_string(raw,anongame_infos_get_long_desc(anongame_infos_DESC->langID, j));
+		}
+		if(k == 0)
+		{
+		anongame_infos_data_lang_war3->desc_len = packet_get_size(raw);
+		if((anongame_infos_data_lang_war3->desc_data = (char *)malloc(anongame_infos_data_lang_war3->desc_len)) != NULL)
+		{
+			memcpy(anongame_infos_data_lang_war3->desc_data, packet_get_data_const(raw, 0, anongame_infos_data_lang_war3->desc_len), anongame_infos_data_lang_war3->desc_len);
+			zlib_compress(anongame_infos_data_lang_war3->desc_data, anongame_infos_data_lang_war3->desc_len, &anongame_infos_data_lang_war3->desc_comp_data, &anongame_infos_data_lang_war3->desc_comp_len);
+		}
+		}
+		else
+		{
+		anongame_infos_data_lang_w3xp->desc_len = packet_get_size(raw);
+		if((anongame_infos_data_lang_w3xp->desc_data = (char *)malloc(anongame_infos_data_lang_w3xp->desc_len)) != NULL)
+		{
+			memcpy(anongame_infos_data_lang_w3xp->desc_data, packet_get_data_const(raw, 0, anongame_infos_data_lang_w3xp->desc_len), anongame_infos_data_lang_w3xp->desc_len);
+			zlib_compress(anongame_infos_data_lang_w3xp->desc_data, anongame_infos_data_lang_w3xp->desc_len, &anongame_infos_data_lang_w3xp->desc_comp_data, &anongame_infos_data_lang_w3xp->desc_comp_len);
+		}
+		}
+		}
+
+
+		packet_set_size(raw, 0);
+	    /*FIXME: Still adding a static number (5)
+	    Also maybe need do do some checks to avoid prefs empty strings.*/
+	    ladr_count=6;
+	    packet_append_data(raw, &ladr_count, 1);
+	    packet_append_data(raw, "OLOS", 4);
+	    packet_append_string(raw, anongame_infos_DESC_get_ladder_PG_1v1_desc(anongame_infos_DESC->langID));
+	    packet_append_string(raw, anongame_infos_URL_get_ladder_PG_1v1_url());
+	    packet_append_data(raw, "MAET", 4);
+	    packet_append_string(raw, anongame_infos_DESC_get_ladder_PG_team_desc(anongame_infos_DESC->langID));
+	    packet_append_string(raw, anongame_infos_URL_get_ladder_PG_team_url());
+	    packet_append_data(raw, " AFF", 4);
+	    packet_append_string(raw, anongame_infos_DESC_get_ladder_PG_ffa_desc(anongame_infos_DESC->langID));
+	    packet_append_string(raw, anongame_infos_URL_get_ladder_PG_ffa_url());
+	    packet_append_data(raw, "2SV2", 4);
+	    packet_append_string(raw, anongame_infos_DESC_get_ladder_AT_2v2_desc(anongame_infos_DESC->langID));
+	    packet_append_string(raw, anongame_infos_URL_get_ladder_AT_2v2_url());
+	    packet_append_data(raw, "3SV3", 4);
+	    packet_append_string(raw, anongame_infos_DESC_get_ladder_AT_3v3_desc(anongame_infos_DESC->langID));
+	    packet_append_string(raw, anongame_infos_URL_get_ladder_AT_3v3_url());
+	    packet_append_data(raw, "4SV4", 4);
+	    packet_append_string(raw, anongame_infos_DESC_get_ladder_AT_4v4_desc(anongame_infos_DESC->langID));
+	    packet_append_string(raw, anongame_infos_URL_get_ladder_AT_4v4_url());
+		anongame_infos_data_lang_war3->ladr_len = packet_get_size(raw);
+		if((anongame_infos_data_lang_war3->ladr_data = (char *)malloc(anongame_infos_data_lang_war3->ladr_len)) != NULL)
+		{
+			memcpy(anongame_infos_data_lang_war3->ladr_data, packet_get_data_const(raw, 0, anongame_infos_data_lang_war3->ladr_len), anongame_infos_data_lang_war3->ladr_len);
+			zlib_compress(anongame_infos_data_lang_war3->ladr_data, anongame_infos_data_lang_war3->ladr_len, &anongame_infos_data_lang_war3->ladr_comp_data, &anongame_infos_data_lang_war3->ladr_comp_len);
+		}
+		list_append_data(anongame_infos->anongame_infos_data_lang_war3, anongame_infos_data_lang_war3);
+		anongame_infos_data_lang_w3xp->ladr_len = packet_get_size(raw);
+		if((anongame_infos_data_lang_w3xp->ladr_data = (char *)malloc(anongame_infos_data_lang_w3xp->ladr_len)) != NULL)
+		{
+			memcpy(anongame_infos_data_lang_w3xp->ladr_data, packet_get_data_const(raw, 0, anongame_infos_data_lang_w3xp->ladr_len), anongame_infos_data_lang_w3xp->ladr_len);
+			zlib_compress(anongame_infos_data_lang_w3xp->ladr_data, anongame_infos_data_lang_w3xp->ladr_len, &anongame_infos_data_lang_w3xp->ladr_comp_data, &anongame_infos_data_lang_w3xp->ladr_comp_len);
+		}
+		list_append_data(anongame_infos->anongame_infos_data_lang_w3xp, anongame_infos_data_lang_w3xp);
+	}
+	packet_destroy(raw);
+	}
+	return 0;
+}
+
+extern int anongame_infos_unload(void)
 {
 	return anongame_infos_destroy(anongame_infos);
 }
 
+static int zlib_compress(void const * src, int srclen, char ** dest, int * destlen)
+{
+    char* tmpdata;
+    z_stream zcpr;
+    int ret;
+    int lorigtodo;
+    int lorigdone;
+    int all_read_before;
+
+    ret = Z_OK;
+    lorigtodo = srclen;
+    lorigdone = 0;
+    *dest = NULL;
+
+    tmpdata=(unsigned char*)malloc(srclen + (srclen/0x10) + 0x200 + 0x8000);
+    if (!tmpdata) {
+	eventlog(eventlog_level_error, __FUNCTION__, "not enough memory for tmpdata");
+	return -1;
+    }
+
+    memset(&zcpr,0,sizeof(z_stream));
+    pvpgn_deflateInit(&zcpr, 9);
+    zcpr.next_in = (void *)src;
+    zcpr.next_out = tmpdata;
+    do {
+	all_read_before = zcpr.total_in;
+	zcpr.avail_in = (lorigtodo < 0x8000) ? lorigtodo : 0x8000;
+	zcpr.avail_out = 0x8000;
+	ret = pvpgn_deflate(&zcpr,(zcpr.avail_in == lorigtodo) ? Z_FINISH : Z_SYNC_FLUSH);
+	lorigdone += (zcpr.total_in-all_read_before);
+	lorigtodo -= (zcpr.total_in-all_read_before);
+    } while (ret == Z_OK);
+
+    (*destlen) = zcpr.total_out;
+    if((*destlen)>0)
+    {
+	(*dest) = malloc((*destlen) + 4);
+	if (!(*dest)) {
+	    eventlog(eventlog_level_error, __FUNCTION__, "not enough memory for dest");
+	    pvpgn_deflateEnd(&zcpr);
+	    free((void*)tmpdata);
+	    return -1;
+	}
+	memcpy((*dest), &lorigdone, 2);
+	memcpy((*dest)+2, destlen, 2);
+	memcpy((*dest)+4, tmpdata, (*destlen));
+	(*destlen) += 4;
+    }
+    pvpgn_deflateEnd(&zcpr);
+
+    free((void*)tmpdata);
+
+    return 0;
+}

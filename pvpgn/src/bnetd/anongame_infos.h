@@ -125,6 +125,50 @@ typedef struct {
 } t_anongame_infos_ICON_REQ_TOURNEY;
 
 typedef struct {
+	char * langID;
+
+	char * desc_data;
+	char * ladr_data;
+
+	char * desc_comp_data;
+	char * ladr_comp_data;
+
+	int desc_len;
+	int ladr_len;
+
+	int desc_comp_len;
+	int ladr_comp_len;
+} t_anongame_infos_data_lang;
+
+typedef struct {
+	char * langID;
+
+	char * url_data;
+	char * map_data;
+	char * type_data;
+	char * desc_data;
+	char * ladr_data;
+
+	char * url_comp_data;
+	char * map_comp_data;
+	char * type_comp_data;
+	char * desc_comp_data;
+	char * ladr_comp_data;
+
+	int url_len;
+	int map_len;
+	int type_len;
+	int desc_len;
+	int ladr_len;
+
+	int url_comp_len;
+	int map_comp_len;
+	int type_comp_len;
+	int desc_comp_len;
+	int ladr_comp_len;
+} t_anongame_infos_data;
+
+typedef struct {
 	t_anongame_infos_URL	* anongame_infos_URL;
 	t_anongame_infos_DESC	* anongame_infos_DESC;			// for default DESC
 	t_list			* anongame_infos_DESC_list;		// for localized DESC's
@@ -132,6 +176,10 @@ typedef struct {
 	t_anongame_infos_ICON_REQ_WAR3 * anongame_infos_ICON_REQ_WAR3;
 	t_anongame_infos_ICON_REQ_W3XP * anongame_infos_ICON_REQ_W3XP;
 	t_anongame_infos_ICON_REQ_TOURNEY * anongame_infos_ICON_REQ_TOURNEY;
+	t_anongame_infos_data * anongame_infos_data_war3;
+	t_anongame_infos_data * anongame_infos_data_w3xp;
+	t_list * anongame_infos_data_lang_war3;
+	t_list * anongame_infos_data_lang_w3xp;
 } t_anongame_infos;
 
 #endif
@@ -169,5 +217,12 @@ extern char anongame_infos_get_thumbsdown(int queue);
 extern short anongame_infos_get_ICON_REQ_WAR3(int Level);
 extern short anongame_infos_get_ICON_REQ_W3XP(int Level);
 extern short anongame_infos_get_ICON_REQ_TOURNEY(int Level);
+
+extern char * anongame_infos_data_get_url(char const * clienttag, int versionid, int * len);
+extern char * anongame_infos_data_get_map(char const * clienttag, int versionid, int * len);
+extern char * anongame_infos_data_get_type(char const * clienttag, int versionid, int * len);
+extern char * anongame_infos_data_get_desc(char const * langID, char const * clienttag, int versionid, int * len);
+extern char * anongame_infos_data_get_ladr(char const * langID, char const * clienttag, int versionid, int * len);
+
 #endif
 #endif
