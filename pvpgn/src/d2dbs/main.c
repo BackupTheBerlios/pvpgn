@@ -143,7 +143,7 @@ static int config_init(int argc, char * * argv)
     {
         if (!(temp = strdup(levels)))
         {
-         eventlog(eventlog_level_fatal,"main","could not allocate memory for temp (exiting)");
+         eventlog(eventlog_level_fatal,__FUNCTION__,"could not allocate memory for temp (exiting)");
          return -1;
         }
 
@@ -152,7 +152,7 @@ static int config_init(int argc, char * * argv)
         while (tok)
         {
         if (eventlog_add_level(tok)<0)
-            eventlog(eventlog_level_error,"main","could not add log level \"%s\"",tok);
+            eventlog(eventlog_level_error,__FUNCTION__,"could not add log level \"%s\"",tok);
         tok = strtok(NULL,",");
         }
 

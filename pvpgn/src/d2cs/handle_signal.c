@@ -136,7 +136,7 @@ extern int handle_signal(void)
         {
             if (!(temp = strdup(levels)))
             {
-               eventlog(eventlog_level_fatal,"handle_signal","could not allocate memory for temp (exiting)");
+               eventlog(eventlog_level_fatal,__FUNCTION__,"could not allocate memory for temp (exiting)");
                return -1;
             }
 
@@ -145,7 +145,7 @@ extern int handle_signal(void)
             while (tok)
             {
               if (eventlog_add_level(tok)<0)
-              eventlog(eventlog_level_error,"handle_signal","could not add log level \"%s\"",tok);
+              eventlog(eventlog_level_error,__FUNCTION__,"could not add log level \"%s\"",tok);
               tok = strtok(NULL,",");
             }
 
@@ -162,7 +162,7 @@ extern int handle_signal(void)
 	
 	if (signal_data.restart_d2gs) {
 		signal_data.restart_d2gs=0;
-		eventlog(eventlog_level_info, "handle_singal","restarting all game servers due to signal");
+		eventlog(eventlog_level_info,__FUNCTION__,"restarting all game servers due to signal");
 		d2gs_restart_all_gs();
 	}
 	

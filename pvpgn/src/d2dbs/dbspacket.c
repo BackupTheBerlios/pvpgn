@@ -160,7 +160,7 @@ static unsigned int dbs_packet_savedata_charsave(t_d2dbs_connection* conn, char 
 #ifdef WIN32	
 	if (access(bakfile, 0) == 0) {
 		if (remove(bakfile)<0) {
-			eventlog(eventlog_level_error,__FUNCTION__,"could not delete lader file file \"%s\" (remove: %s)",bakfile);
+			eventlog(eventlog_level_error,__FUNCTION__,"could not delete backup charsave file \"%s\" (remove: %s)",bakfile);
 			return -1;
 		}
 	}
@@ -171,7 +171,7 @@ static unsigned int dbs_packet_savedata_charsave(t_d2dbs_connection* conn, char 
 #ifdef WIN32
 	if (access(savefile, 0) == 0) {
 		if (remove(savefile)<0) {
-			eventlog(eventlog_level_error,__FUNCTION__,"could not delete lader file file \"%s\" (remove: %s)",savefile);
+			eventlog(eventlog_level_error,__FUNCTION__,"could not delete charsave file \"%s\" (remove: %s)",savefile);
 			return -1;
 		}
 	}
@@ -231,7 +231,7 @@ static unsigned int dbs_packet_savedata_charinfo(t_d2dbs_connection* conn,char *
 #ifdef WIN32
 	if (access(bakfile, 0) == 0) {
 		if (remove(bakfile)<0) {
-			eventlog(eventlog_level_error,__FUNCTION__,"could not delete lader file file \"%s\" (remove: %s)",bakfile);
+			eventlog(eventlog_level_error,__FUNCTION__,"could not delete backup charinfo file \"%s\" (remove: %s)",bakfile);
 			return -1;
 		}
 	}
@@ -242,7 +242,7 @@ static unsigned int dbs_packet_savedata_charinfo(t_d2dbs_connection* conn,char *
 #ifdef WIN32
 	if (access(savefile, 0) == 0) {
 		if (remove(savefile)<0) {
-			eventlog(eventlog_level_error,"dbs_packet_savedata_charinfo","could not delete lader file file \"%s\" (remove: %s)",savefile);
+			eventlog(eventlog_level_error,__FUNCTION__,"could not delete charinfo file \"%s\" (remove: %s)",savefile);
 			return -1;
 		}
 	}
