@@ -460,12 +460,13 @@ extern int realmlist_create(char const * filename)
 
 	    /* skip any separators */
 	    for(temp = temp + 1; *temp && (*temp == ' ' || *temp == '\t');temp++);
-	} else desc = "\0";
+	} else desc = strdup("\0");
 	
 	if (*temp < '0' || *temp > '9') {
 	    eventlog(eventlog_level_error,"realmlist_create","malformed line %u in file \"%s\" (no address)",line,filename);
 	    free(name);
 	    free(buff);
+	    free(desc);
 	    continue;
 	}
 	
@@ -481,6 +482,7 @@ extern int realmlist_create(char const * filename)
 	    eventlog(eventlog_level_error,"realmlist_create","invalid address value for field 3 on line %u in file \"%s\"",line,filename);
 	    free(name);
 	    free(buff);
+	    free(desc);
 	    continue;
 	}
 	
@@ -492,6 +494,7 @@ extern int realmlist_create(char const * filename)
 		eventlog(eventlog_level_error,"realmlist_create","malformed line %u in file \"%s\" (invalid show address)",line,filename);
 		free(name);
 		free(buff);
+		free(desc);
 		continue;
 	    }
 
@@ -506,6 +509,7 @@ extern int realmlist_create(char const * filename)
 		eventlog(eventlog_level_error,"realmlist_create","invalid show address value for field 3 on line %u in file \"%s\"",line,filename);
 		free(name);
 		free(buff);
+		free(desc);
 		continue;
 	    }
 	} else showraddr = raddr;
@@ -517,6 +521,7 @@ extern int realmlist_create(char const * filename)
 	    addr_destroy(raddr);
 	    free(name);
 	    free(buff);
+	    free(desc);
 	    continue;
 	}
 	
@@ -524,6 +529,7 @@ extern int realmlist_create(char const * filename)
 	addr_destroy(raddr);
 	free(name);
 	free(buff);
+	free(desc);
 	
 	if (list_prepend_data(realmlist_head,realm)<0)
 	{
