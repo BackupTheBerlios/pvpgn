@@ -2038,7 +2038,7 @@ extern int conn_set_channel(t_connection * c, char const * channelname)
 	    message_send_text(c,message_type_info,c,"This channel does not have chat privileges.");
     }
     
-    if (channel_get_flags(channel) & channel_flags_moderated)
+    if (c->channel && (channel_get_flags(c->channel) & channel_flags_moderated))
 	message_send_text(c,message_type_error,c,"This channel is moderated.");
     return 0;
 }
