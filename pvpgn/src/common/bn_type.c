@@ -661,5 +661,5 @@ extern int uint32_to_int(t_uint32 num)
 {
     if (num<(1UL<<30))
         return (int)num;
-    return ((int)(num-((t_uint32)(1UL<<30))))+(-2147483647-1);
+    return (-(int)((~(num))+1));
 }
