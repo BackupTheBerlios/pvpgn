@@ -107,20 +107,9 @@ extern int command_groups_load(char const * filename)
 	    continue;
 	} 
 	while ((command = strtok(NULL," \t"))) {
-	    if (!(entry = xmalloc(sizeof(t_command_groups)))) {
-		eventlog(eventlog_level_error,"command_groups_load","could not allocate memory for entry");
-		continue;
-	    }
-	    if (!(entry->group = pow(2,group-1))) {
-		eventlog(eventlog_level_error,"command_groups_load","could not allocate memory for group");
-		xfree(entry);
-		continue;
-	    }
-	    if (!(entry->command = xstrdup(command))) {
-		eventlog(eventlog_level_error,"command_groups_load","could not allocate memory for client address");
-		xfree(entry);
-		continue;
-	    }
+	    entry = xmalloc(sizeof(t_command_groups));
+	    entry->group = 1 << (group-1);
+	    entry->command = xstrdup(command);
 	    if (list_append_data(command_groups_head,entry)<0) {
 		eventlog(eventlog_level_error,"command_groups_load","could not append item");
 		xfree(entry->command);
