@@ -74,6 +74,7 @@ aliasfile   = conf\bnalias.list
 w3trans_file = conf\w3trans
 anongame_infos_file = conf\anongame_infos.conf
 DBlayoutfile = conf\sql_DB_layout
+supportfile = conf\supportfile
 
 fortunecmd  = bin\fortune.exe
 

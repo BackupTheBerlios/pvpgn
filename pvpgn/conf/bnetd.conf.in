@@ -92,6 +92,7 @@ aliasfile   = /usr/local/etc/bnalias.list
 w3trans_file = /usr/local/etc/w3trans
 anongame_infos_file = /usr/local/etc/anongame_infos.conf
 DBlayoutfile = /usr/local/etc/sql_DB_layout
+supportfile = /usr/local/etc/supportfile
 
 fortunecmd  = /usr/games/fortune
 

@@ -33,6 +33,9 @@ changes to d2dbs.conf:
 -- added: ladder_chars_only = 1
 -- added: ladder_start_time = ""
 
+changes to bnetd.conf:
+-- added: supportfile = path to the supportfile list
+
 REMOVED BITS SUPPORT:
 - conf/bnbitsmotd.txt
 - conf/bnbitspasswd
