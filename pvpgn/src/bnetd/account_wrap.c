@@ -3073,13 +3073,13 @@ extern unsigned int account_icon_to_profile_icon(char const * icon,t_account * a
 	    {"opeo", "ogru", "otau", "Ofar", "Othr", NULL  },
 	    {"uaco", "ugho", "uabo", "Ulic", "Utic", NULL  },
 	    {"ewsp", "earc", "edoc", "Emoo", "Efur", NULL  },
-	    {NULL  , "nfng", "ninf", "nbal", "Nplh", "Uwar"},
-	    {NULL  , "nmyr", "nnsw", "ntrd", "Nngs", "Eevi"},
-	    {"hpea", "hrif", "hsor", "hspt", "Hblm", "Hkal"},
-	    {"opeo", "ohun", "oshm", "ospm", "Orkn", "Orex"},
-	    {"uaco", "ucry", "uban", "ubsp", "Ucrl", "Usyl"},
-	    {"ewsp", "esen", "edot", "edry", "Ewar", "Ewrd"},
-	    {NULL  , "nfgu", "ninc", "nbal", "Nplh", "Uwar"}
+	    {NULL  , "nfng", "ninf", "nbal", "Nplh", "Uwar"}, /* not used by RoC */
+	    {NULL  , "nmyr", "nnsw", "nhyc", "Hvsh", "Eevm"},
+	    {"hpea", "hrif", "hsor", "hspt", "Hblm", "Hjai"},
+	    {"opeo", "ohun", "oshm", "ospw", "Oshd", "Orex"},
+	    {"uaco", "ucry", "uban", "uobs", "Ucrl", "Usyl"},
+	    {"ewsp", "esen", "edot", "edry", "Ekee", "Ewrd"},
+	    {NULL  , "nfgu", "ninf", "nbal", "Nplh", "Uwar"}
 	};
 	char tmp_icon[4];
 	char * result;
