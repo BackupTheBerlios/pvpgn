@@ -370,9 +370,18 @@ extern int anongame_maplists_create(void)
       for (r++ ; *r && ( *r == ' ' || *r == '\t'); r++);
       if (*r == '\0') continue;
       
+      if (*r!='\"')
       /* find next delimiter */
-      for (u = r+1; *u && *u != ' ' && *u != '\t'; u++);
-      
+        for (u = r+1; *u && *u != ' ' && *u != '\t'; u++);
+      else
+	{
+	  r++;
+          for (u = r+1; *u && *u != '\"'; u++);
+	  if (*u!='\"')
+	  {
+	    eventlog(eventlog_level_error,__FUNCTION__,"missing \" at the end of the map name, presume it's ok anyway");
+	  }
+	}
       *u = '\0';
       
       if (strcmp(p, CLIENTTAG_WARCRAFT3) == 0)
