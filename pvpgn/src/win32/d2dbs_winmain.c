@@ -182,7 +182,7 @@ static void OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify)
             SendMessage(ghwndConsole, WM_SETTEXT, 0, 0);
             break;
         case ID_ABOUT:
-            DialogBox(GetModuleHandle(NULL), MAKEINTRESOURCE(ID_ABOUT_BOX), hwnd, DlgProcAbout);
+            DialogBox(GetModuleHandle(NULL), MAKEINTRESOURCE(ID_ABOUT_BOX), hwnd, (DLGPROC)DlgProcAbout);
             break;
     }
 }
