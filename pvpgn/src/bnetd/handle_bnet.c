@@ -832,7 +832,7 @@ static int _client_createacctreq1(t_connection * c, t_packet const *const packet
 	goto out;
     }
 
-    bnhash_to_hash((bn_int const *)packet->u.client_createacctreq1.password_hash1, &newpasshash1);
+    bnhash_to_hash(packet->u.client_createacctreq1.password_hash1, &newpasshash1);
     if (!accountlist_create_account(username, hash_get_str(newpasshash1))) {
 	eventlog(eventlog_level_debug, __FUNCTION__, "[%d] account not created (failed)", conn_get_socket(c));
 	bn_int_set(&rpacket->u.server_createacctreply1.result, SERVER_CREATEACCTREPLY1_RESULT_NO);
@@ -886,7 +886,7 @@ static int _client_createacctreq2(t_connection * c, t_packet const *const packet
 	goto out;
     }
 
-    bnhash_to_hash((bn_int const *)packet->u.client_createacctreq2.password_hash1, &newpasshash1);
+    bnhash_to_hash(packet->u.client_createacctreq2.password_hash1, &newpasshash1);
     if (!accountlist_create_account(username, hash_get_str(newpasshash1))) {
 	eventlog(eventlog_level_debug, __FUNCTION__, "[%d] account not created (failed)", conn_get_socket(c));
 	bn_int_set(&rpacket->u.server_createacctreply2.result, SERVER_CREATEACCTREPLY2_RESULT_EXIST);	/* FIXME: return reason for failure */
@@ -955,17 +955,17 @@ static int _client_changepassreq(t_connection * c, t_packet const *const packet)
 		bn_int_set(&temp.ticks, bn_int_get(packet->u.client_changepassreq.ticks));
 		bn_int_set(&temp.sessionkey, bn_int_get(packet->u.client_changepassreq.sessionkey));
 		if (hash_set_str(&oldpasshash1, oldstrhash1) < 0) {
-		    bnhash_to_hash((bn_int const *)packet->u.client_changepassreq.newpassword_hash1, &newpasshash1);
+		    bnhash_to_hash(packet->u.client_changepassreq.newpassword_hash1, &newpasshash1);
 		    account_set_pass(account, hash_get_str(newpasshash1));
 		    eventlog(eventlog_level_info, __FUNCTION__, "[%d] password change for \"%s\" successful (bad previous password)", conn_get_socket(c), account_get_name(account));
 		    bn_int_set(&rpacket->u.server_changepassack.message, SERVER_CHANGEPASSACK_MESSAGE_SUCCESS);
 		} else {
 		    hash_to_bnhash((t_hash const *) &oldpasshash1, temp.passhash1);	/* avoid warning */
 		    bnet_hash(&oldpasshash2, sizeof(temp), &temp);	/* do the double hash */
-		    bnhash_to_hash((bn_int const *)packet->u.client_changepassreq.oldpassword_hash2, &trypasshash2);
+		    bnhash_to_hash(packet->u.client_changepassreq.oldpassword_hash2, &trypasshash2);
 
 		    if (hash_eq(trypasshash2, oldpasshash2) == 1) {
-			bnhash_to_hash((bn_int const *)packet->u.client_changepassreq.newpassword_hash1, &newpasshash1);
+			bnhash_to_hash(packet->u.client_changepassreq.newpassword_hash1, &newpasshash1);
 			account_set_pass(account, hash_get_str(newpasshash1));
 			eventlog(eventlog_level_info, __FUNCTION__, "[%d] password change for \"%s\" successful (previous password)", conn_get_socket(c), account_get_name(account));
 			bn_int_set(&rpacket->u.server_changepassack.message, SERVER_CHANGEPASSACK_MESSAGE_SUCCESS);
@@ -976,7 +976,7 @@ static int _client_changepassreq(t_connection * c, t_packet const *const packet)
 		    }
 		}
 	    } else {
-		bnhash_to_hash((bn_int const *)packet->u.client_changepassreq.newpassword_hash1, &newpasshash1);
+		bnhash_to_hash(packet->u.client_changepassreq.newpassword_hash1, &newpasshash1);
 		account_set_pass(account, hash_get_str(newpasshash1));
 		eventlog(eventlog_level_info, __FUNCTION__, "[%d] password change for \"%s\" successful (no previous password)", conn_get_socket(c), account_get_name(account));
 		bn_int_set(&rpacket->u.server_changepassack.message, SERVER_CHANGEPASSACK_MESSAGE_SUCCESS);
@@ -1582,7 +1582,7 @@ static int _client_loginreq1(t_connection * c, t_packet const *const packet)
 		    hash_to_bnhash((t_hash const *) &oldpasshash1, temp.passhash1);	/* avoid warning */
 
 		    bnet_hash(&oldpasshash2, sizeof(temp), &temp);	/* do the double hash */
-		    bnhash_to_hash((bn_int const *)packet->u.client_loginreq1.password_hash2, &trypasshash2);
+		    bnhash_to_hash(packet->u.client_loginreq1.password_hash2, &trypasshash2);
 
 		    if (hash_eq(trypasshash2, oldpasshash2) == 1) {
 			conn_login(c, account, username);
@@ -1703,7 +1703,7 @@ static int _client_loginreq2(t_connection * c, t_packet const *const packet)
 		    hash_to_bnhash((t_hash const *) &oldpasshash1, temp.passhash1);	/* avoid warning */
 
 		    bnet_hash(&oldpasshash2, sizeof(temp), &temp);	/* do the double hash */
-		    bnhash_to_hash((bn_int const *)packet->u.client_loginreq2.password_hash2, &trypasshash2);
+		    bnhash_to_hash(packet->u.client_loginreq2.password_hash2, &trypasshash2);
 
 		    if (hash_eq(trypasshash2, oldpasshash2) == 1) {
 			conn_login(c, account, username);
