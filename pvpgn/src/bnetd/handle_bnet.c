@@ -3354,6 +3354,9 @@ static int _client_findanongame(t_connection * c, t_packet const * const packet)
 		char anongame_PG_section = 0x00;
 		char anongame_AT_section = 0x01;
 
+		char last_packet	= 0x00;
+		char other_packet	= 0x01;
+		    		    
 		anongame_PG_1v1_prefix[2] = anongame_infos_THUMBSDOWN_get_PG_1v1();
 		anongame_PG_2v2_prefix[2] = anongame_infos_THUMBSDOWN_get_PG_2v2();
 		anongame_PG_3v3_prefix[2] = anongame_infos_THUMBSDOWN_get_PG_3v3();
@@ -3373,20 +3376,25 @@ static int _client_findanongame(t_connection * c, t_packet const * const packet)
 		mapscount_at3v3 = list_get_length(anongame_get_w3xp_maplist(ANONGAME_TYPE_AT_3V3, clienttag));
 		mapscount_at4v4 = list_get_length(anongame_get_w3xp_maplist(ANONGAME_TYPE_AT_4V4, clienttag));
 		mapscount_total = mapscount_1v1 + mapscount_2v2 + mapscount_3v3 + mapscount_4v4 + mapscount_sffa +mapscount_at2v2 + mapscount_at3v3 + mapscount_at4v4;
-
-		if ((rpacket = packet_create(packet_class_bnet)) == NULL) {
-		  eventlog(eventlog_level_error, __FUNCTION__, "could not create new packet");
-		  return -1;
-		}
-
-		//Starting the packet stuff
-		packet_set_size(rpacket, sizeof(t_server_findanongame_inforeply));
-		packet_set_type(rpacket, SERVER_FINDANONGAME_INFOREPLY);
-		bn_byte_set(&rpacket->u.server_findanongame_inforeply.option, CLIENT_FINDANONGAME_INFOS);
-		bn_int_set(&rpacket->u.server_findanongame_inforeply.count, bn_int_get(packet->u.client_findanongame_inforeq.count));
+		
 		
 		eventlog(eventlog_level_debug,__FUNCTION__,"client_findanongame_inforeq.noitems=(0x%01x)",bn_byte_get(packet->u.client_findanongame_inforeq.noitems));
-		for (i=0;i<bn_byte_get(packet->u.client_findanongame_inforeq.noitems);i++){
+		    
+		    /* Send seperate packet for each item requested
+		     * sending all at once overloaded w3xp
+		     * [Omega] */
+		    for (i=0;i<bn_byte_get(packet->u.client_findanongame_inforeq.noitems);i++){
+			if ((rpacket = packet_create(packet_class_bnet)) == NULL) {
+			    eventlog(eventlog_level_error, __FUNCTION__, "could not create new packet");
+			    return -1;
+			}
+
+			//Starting the packet stuff
+			packet_set_size(rpacket, sizeof(t_server_findanongame_inforeply));
+			packet_set_type(rpacket, SERVER_FINDANONGAME_INFOREPLY);
+			bn_byte_set(&rpacket->u.server_findanongame_inforeply.option, CLIENT_FINDANONGAME_INFOS);
+			bn_int_set(&rpacket->u.server_findanongame_inforeply.count, 1);
+		
 			memcpy(&temp,(packet_get_data_const(packet,10+(i*8),4)),sizeof(int));
 			client_tag=bn_int_get(temp);
 			memcpy(&temp,packet_get_data_const(packet,14+(i*8),4),sizeof(int));
@@ -3527,7 +3535,7 @@ static int _client_findanongame(t_connection * c, t_packet const * const packet)
 					  }
 				      }
 				  }
-				 
+				eventlog(eventlog_level_debug,__FUNCTION__,"AT_gamestyles = %d",AT_gamestyles);
 
 				packet_append_data(rpacket,&AT_gamestyles,1);
 				
@@ -3670,16 +3678,19 @@ static int _client_findanongame(t_connection * c, t_packet const * const packet)
 			default: eventlog(eventlog_level_debug,__FUNCTION__,"unrec client_tag request tagid=(0x%01x) tag=(0x%04x)",i,client_tag);
 
 			}
+		//Adding a last padding null-byte
+		if (server_tag_count == bn_byte_get(packet->u.client_findanongame_inforeq.noitems))
+		    packet_append_data(rpacket, &last_packet, 1); /* only last packet in group gets 0x00 */
+		else
+		    packet_append_data(rpacket, &other_packet, 1); /* the rest get 0x01 */
+		
+		//Go,go,go
+		bn_byte_set(&rpacket->u.server_findanongame_inforeply.noitems, 1);
+		packet_set_size(rpacket,packet_get_size(rpacket));
+		queue_push_packet(conn_get_out_queue(c),rpacket);
+		packet_del_ref(rpacket);
 
 		}
-		//Adding a last padding null-byte
-		packet_append_string(rpacket, "");
-
-		//Go,go,go
-	    bn_byte_set(&rpacket->u.server_findanongame_inforeply.noitems, server_tag_count);
-		packet_set_size(rpacket,packet_get_size(rpacket));
-	    queue_push_packet(conn_get_out_queue(c),rpacket);
-	    packet_del_ref(rpacket);
 	}
      }
    else
@@ -5955,7 +5966,7 @@ static int _client_changeclient(t_connection * c, t_packet const * const packet)
 	    case -1: /* failed test... client has been modified */
 	    case 0: /* not listed in table... can't tell if client has been modified */
 		eventlog(eventlog_level_error, __FUNCTION__, "[%d] error revalidating, allowing anyway", conn_get_socket(c));
-		vtag = strdup(conn_get_clienttag(c)); /* set versiontag to clienttag  on fail */
+		vtag = conn_get_clienttag(c); /* set versiontag to clienttag  on fail */
 		/* client allready passed first test so we will allow */
 		/* conn_set_state(c, conn_state_destroy); */
 		break;
@@ -5964,7 +5975,6 @@ static int _client_changeclient(t_connection * c, t_packet const * const packet)
 	if (vtag) {
 	    versioncheck_set_versiontag(vc, vtag);
 	    eventlog(eventlog_level_info,__FUNCTION__,"[%d] client matches versiontag \"%s\"",conn_get_socket(c),vtag);
-	    free((void *)vtag);
 	}
     }
 
