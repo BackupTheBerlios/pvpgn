@@ -565,7 +565,7 @@ static void game_destroy(t_game const * game)
     return;
 }
 
-int game_evaluate_results(t_game * game)
+static int game_evaluate_results(t_game * game)
 {
   unsigned int i,j;
   unsigned int wins, losses, draws, disconnects;
@@ -1864,31 +1864,31 @@ extern int game_set_reported_results(t_game * game, t_account * account, t_game_
     char const * tname;
     t_game_result result;
 
-    if (!(game))
+    if (!game)
     {
         eventlog(eventlog_level_error,__FUNCTION__,"got NULL game");
 	return -1;
     }
     
-    if (!(account))
+    if (!account)
     {
         eventlog(eventlog_level_error,__FUNCTION__,"got NULL account");
 	return -1;
     }
     
-    if (!(results))
+    if (!results)
     {
         eventlog(eventlog_level_error,__FUNCTION__,"got NULL results");
 	return -1;
     }
 
-    if (!(game->players))
+    if (!game->players)
     {
         eventlog(eventlog_level_error,__FUNCTION__,"player array is NULL");
 	return -1;
     }
 
-    if (!(game->reported_results))
+    if (!game->reported_results)
     {
         eventlog(eventlog_level_error,__FUNCTION__,"reported_results array is NULL");
 	return -1;
@@ -1916,26 +1916,27 @@ extern int game_set_reported_results(t_game * game, t_account * account, t_game_
     for (j=0;j<game->count;j++)
     {
       result = results[j];
-      if (!(result==game_result_win ||
-	    result==game_result_loss ||
-	    result==game_result_draw ||
-	    result==game_result_observer ||
-	    result==game_result_disconnect ||
-	    (i!=j && 
-	      ( result==game_result_none || // disallow reporting none results for self
-	        result==game_result_playing)))) // disallow reporting playing for self
+      switch(result)
       {
-	  if (i!=j)
-	  {
-	    eventlog(eventlog_level_error,__FUNCTION__,"ignoring bad reported result %u for player \"%s\"",(unsigned int)result,j,(tname=account_get_name(game->players[j])));
-	    account_unget_name(tname);
-	    results[i]=game_result_none;
-	  }
-	  else
-	  {
-	    eventlog(eventlog_level_error,__FUNCTION__,"got bad reported result %u for self - skipping results",(unsigned int)result);
-	    return -1;
-	  }
+	  case game_result_win:
+	  case game_result_loss:
+	  case game_result_draw:
+	  case game_result_observer:
+	  case game_result_disconnect:
+	    break;
+	  case game_result_none:
+	  case game_result_playing:
+	    if (i != j) break; /* accept none/playing only from "others" */
+	  default: /* result is invalid */
+	    if (i!=j)
+	    {
+		eventlog(eventlog_level_error,__FUNCTION__,"ignoring bad reported result %u for player \"%s\"",(unsigned int)result,j,(tname=account_get_name(game->players[j])));
+		account_unget_name(tname);
+		results[i]=game_result_none;
+	    } else {
+		eventlog(eventlog_level_error,__FUNCTION__,"got bad reported result %u for self - skipping results",(unsigned int)result);
+		return -1;
+	    }
       }
     }
 
@@ -1954,13 +1955,13 @@ extern t_game_result * game_get_reported_results(t_game * game, t_account * acco
         eventlog(eventlog_level_error,__FUNCTION__,"got NULL game");
 	return NULL;
     }
-    
+
     if (!(account))
     {
         eventlog(eventlog_level_error,__FUNCTION__,"got NULL account");
 	return NULL;
     }
-    
+
     if (!(game->players))
     {
         eventlog(eventlog_level_error,__FUNCTION__,"player array is NULL");
@@ -1984,14 +1985,14 @@ extern t_game_result * game_get_reported_results(t_game * game, t_account * acco
 	account_unget_name(tname);
 	return NULL;
     }
-    
+
     if (!(game->reported_results[i]))
     {
 	eventlog(eventlog_level_error,__FUNCTION__,"player \"%s\" has not reported any results",(tname = account_get_name(account)));
 	account_unget_name(tname);
 	return NULL;
     }
-     
+
     return game->reported_results[i];
 }
 
