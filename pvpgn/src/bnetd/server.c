@@ -1446,6 +1446,8 @@ extern int server_process(void)
 		eventlog(eventlog_level_error,"server_process","could not unload old gametrans list");
 	    if (gametrans_load(prefs_get_transfile())<0)
 		eventlog(eventlog_level_error,"server_process","could not load new gametrans list");
+
+	    war3_ladder_reload_conf();
 	    
 	    if (prefs_get_track())
 		tracker_set_servers(prefs_get_trackserv_addrs());
