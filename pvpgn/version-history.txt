@@ -1,5 +1,17 @@
 PvPGN Version History:
 
+1.2.4
+-- irc: prevented "unknown command"-flooding by adding ignors for lagtime and ISON
+-- bnetd-commnds can be typed as in battle.net without need for the /BNET in 
+front of it anymore
+-- passing all unkown commands from irc to bnet-command-interpreter now
+-- winmain.c : new handler for admin-console, fixed/optimized some main code, 
+removed last compiler warnings from win32-release
+-- fixed a tiny bug in anongame.c causing the recently added timer not to close 
+a players game-connection but his connection to the server
+-- fixed some error in war3ladder causing ladder not to be updated
+-- better handling of "broken" atteams in war3ladder
+
 1.2.3:
 -- fixed some crash related bugs
 -- rewritten handle_bnet.c from 5000 lines case/switch style to a table of
