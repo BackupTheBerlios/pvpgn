@@ -50,9 +50,11 @@ extern int news_load(const char *filename)
     unsigned long	loffset;	
     char		*buff;
     struct tm		*date;
+	char date_set;
     t_news_index	*ni=NULL;
     
     loffset = 0;
+	date_set = 0;
 
     if (!filename) {
 	eventlog(eventlog_level_error, __FUNCTION__,"got NULL fullname");
@@ -85,7 +87,7 @@ extern int news_load(const char *filename)
 	    date->tm_sec=0;
 	    date->tm_isdst=-1;
 	    dpos=0;
-	    
+
 	    for (pos=1, flag=0; pos<len; pos++) {
 		if ((buff[pos]=='/') || (buff[pos]=='}')) {
 	    	    pos++;
@@ -94,9 +96,13 @@ extern int news_load(const char *filename)
 		    switch (flag++) {
 			case 0:
 		    	    date->tm_mon=atoi(dpart)-1;
+					if ((date->tm_mon<1) || (date->tm_mon>12))
+						eventlog(eventlog_level_error,__FUNCTION__,"found invalid month (%i) in news date. (format: {MM/DD/YYYY})",date->tm_mon);
 		    	    break;
 			case 1:
 		    	    date->tm_mday=atoi(dpart);
+					if ((date->tm_mday<1) || (date->tm_mday>31))
+						eventlog(eventlog_level_error,__FUNCTION__,"found invalid month day (%i) in news date. (format: {MM/DD/YYYY})",date->tm_mday);
 		    	    break;
 			case 2:
 		    	    date->tm_year=atoi(dpart)-1900;
@@ -104,10 +110,10 @@ extern int news_load(const char *filename)
 			default:
 		    	    eventlog(eventlog_level_error,__FUNCTION__,"error parsing news date");
 		    	    free((void *)dpart);
-			    free((void *)date);
-			    free((void *)buff);
-			    fclose(fp);
-		    	    return -1;
+					free((void *)date);
+					free((void *)buff);
+					fclose(fp);
+		    		return -1;
 		    }
 	    	    
 		    dpos=0;
@@ -128,7 +134,7 @@ extern int news_load(const char *filename)
 		fclose(fp);
 		return -1;
 	    }
-	    
+	    date_set = 1;
 	    free((void *)dpart);
 	} else {
 	    if (!(ni = (t_news_index*)malloc(sizeof(t_news_index)))) {
@@ -136,7 +142,10 @@ extern int news_load(const char *filename)
 		return -1;
 	    }
 	    			
-	    ni->date=mktime(date);
+	    if (date_set==1) 
+			ni->date=mktime(date);
+		else
+			ni->date=time(0);
 	    ni->body=strdup(buff);
 	    
 	    if (list_append_data(news_head,ni)<0) {
