@@ -1,5 +1,8 @@
 PvPGN Version History:
 
+1.7.x
+[IRC]: hiding IP on channel join/leave to non admins when hide_addr=true
+
 a general 1.6.x note:
 versioncheck exe-time parsing now REALLY works as it was intended to.
 So ALL users using fucked up no-CD cracks or strange war3.org's may

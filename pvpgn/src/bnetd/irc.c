@@ -669,37 +669,46 @@ extern int irc_message_format(t_packet * packet, t_message_type type, t_connecti
     case message_type_join:
     	from.nick = conn_get_chatname(me);
     	from.user = conn_get_clienttag(me);
-    	from.host = addr_num_to_ip_str(conn_get_addr(me));
+	if (prefs_get_hide_addr() && !(account_get_command_groups(conn_get_account(dst)) & command_get_group("/admin-addr")))
+	    from.host = strdup("hidden");
+	else
+    	    from.host = addr_num_to_ip_str(conn_get_addr(me));
     	msg = irc_message_preformat(&from,"JOIN","\r",irc_convert_channel(conn_get_channel(me)));
     	conn_unget_chatname(me,from.nick);
     	break;
     case message_type_part:
     	from.nick = conn_get_chatname(me);
     	from.user = conn_get_clienttag(me);
-    	from.host = addr_num_to_ip_str(conn_get_addr(me));
+	if (prefs_get_hide_addr() && !(account_get_command_groups(conn_get_account(dst)) & command_get_group("/admin-addr")))
+	    from.host = strdup("hidden");
+	else
+    	    from.host = addr_num_to_ip_str(conn_get_addr(me));
     	msg = irc_message_preformat(&from,"PART","\r",irc_convert_channel(conn_get_channel(me)));
     	conn_unget_chatname(me,from.nick);
     	break;
     case message_type_talk:
     case message_type_whisper:
     	{
-    	    char const * dst;
+    	    char const * dest;
 	    char temp[MAX_IRC_MESSAGE_LEN];
     	    from.nick = conn_get_chatname(me);
             from.user = conn_get_clienttag(me);
-    	    from.host = addr_num_to_ip_str(conn_get_addr(me));
-    	    if (type==message_type_talk)
-    	    	dst = irc_convert_channel(conn_get_channel(me)); /* FIXME: support more channels and choose right one! */
+	    if (prefs_get_hide_addr() && !(account_get_command_groups(conn_get_account(dst)) & command_get_group("/admin-addr")))
+	        from.host = strdup("hidden");
 	    else
-	        dst = ""; /* will be replaced with username in postformat */
+    	        from.host = addr_num_to_ip_str(conn_get_addr(me));
+    	    if (type==message_type_talk)
+    	    	dest = irc_convert_channel(conn_get_channel(me)); /* FIXME: support more channels and choose right one! */
+	    else
+	        dest = ""; /* will be replaced with username in postformat */
 	    sprintf(temp,":%s",text);
-    	    msg = irc_message_preformat(&from,"PRIVMSG",dst,temp);
+    	    msg = irc_message_preformat(&from,"PRIVMSG",dest,temp);
     	    conn_unget_chatname(me,from.nick);
     	}
         break;
     case message_type_emote:
     	{
-    	    char const * dst;
+    	    char const * dest;
 	    char temp[MAX_IRC_MESSAGE_LEN];
 
     	    /* "\001ACTION " + text + "\001" + \0 */
@@ -710,10 +719,13 @@ extern int irc_message_format(t_packet * packet, t_message_type type, t_connecti
 	    }
     	    from.nick = conn_get_chatname(me);
             from.user = conn_get_clienttag(me);
-    	    from.host = addr_num_to_ip_str(conn_get_addr(me));
+	    if (prefs_get_hide_addr() && !(account_get_command_groups(conn_get_account(dst)) & command_get_group("/admin-addr")))
+	        from.host = strdup("hidden");
+	    else
+    	        from.host = addr_num_to_ip_str(conn_get_addr(me));
     	    /* FIXME: also supports whisper emotes? */
-    	    dst = irc_convert_channel(conn_get_channel(me)); /* FIXME: support more channels and choose right one! */
-	    msg = irc_message_preformat(&from,"PRIVMSG",dst,temp);
+    	    dest = irc_convert_channel(conn_get_channel(me)); /* FIXME: support more channels and choose right one! */
+	    msg = irc_message_preformat(&from,"PRIVMSG",dest,temp);
     	    conn_unget_chatname(me,from.nick);
     	}
         break;
@@ -732,7 +744,10 @@ extern int irc_message_format(t_packet * packet, t_message_type type, t_connecti
     case message_type_mode:
 	from.nick = conn_get_chatname(me);
 	from.user = conn_get_clienttag(me);
-	from.host = addr_num_to_ip_str(conn_get_addr(me));
+	if (prefs_get_hide_addr() && !(account_get_command_groups(conn_get_account(dst)) & command_get_group("/admin-addr")))
+	    from.host = strdup("hidden");
+	else
+	    from.host = addr_num_to_ip_str(conn_get_addr(me));
 	msg = irc_message_preformat(&from,"MODE","\r",text);
 	conn_unget_chatname(me,from.nick);
 	break;
