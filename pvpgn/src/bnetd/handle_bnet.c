@@ -2731,6 +2731,7 @@ static int _client_motdw3(t_connection * c, t_packet const * const packet)
 {
     t_packet * rpacket;
     unsigned int last_news_time;
+    unsigned int news_firstnews;
     char serverinfo[512];
     
     if (packet_get_size(packet)<sizeof(t_client_motd_w3)) {
@@ -2740,8 +2741,10 @@ static int _client_motdw3(t_connection * c, t_packet const * const packet)
 
     /* News */
     last_news_time = bn_int_get(packet->u.client_motd_w3.last_news_time);
+    news_firstnews = news_get_firstnews();
 
     if (newslist()) {
+    	eventlog(eventlog_level_trace,__FUNCTION__,"lastnews() %u news_time %u",news_get_lastnews(),last_news_time);
 	if (news_get_lastnews() > last_news_time) {
 	    t_elem const * curr;
 	
@@ -2759,7 +2762,7 @@ static int _client_motdw3(t_connection * c, t_packet const * const packet)
 		    bn_byte_set(&rpacket->u.server_motd_w3.msgtype,SERVER_MOTD_W3_MSGTYPE);
 		    bn_int_set(&rpacket->u.server_motd_w3.curr_time,time(NULL));
 	    
-		    bn_int_set(&rpacket->u.server_motd_w3.first_news_time,news_get_firstnews());
+		    bn_int_set(&rpacket->u.server_motd_w3.first_news_time,news_firstnews);
 		    bn_int_set(&rpacket->u.server_motd_w3.timestamp,news_get_date(newsindex));
 		    bn_int_set(&rpacket->u.server_motd_w3.timestamp2,news_get_date(newsindex));
 	    
@@ -2800,8 +2803,8 @@ static int _client_motdw3(t_connection * c, t_packet const * const packet)
     //bn_int_set(&rpacket->u.server_motd_w3.ticks,get_ticks());
     bn_byte_set(&rpacket->u.server_motd_w3.msgtype,SERVER_MOTD_W3_MSGTYPE);
     bn_int_set(&rpacket->u.server_motd_w3.curr_time,time(NULL));
-    bn_int_set(&rpacket->u.server_motd_w3.first_news_time,news_get_firstnews());
-    bn_int_set(&rpacket->u.server_motd_w3.timestamp,time(NULL));
+    bn_int_set(&rpacket->u.server_motd_w3.first_news_time,news_firstnews);
+    bn_int_set(&rpacket->u.server_motd_w3.timestamp,news_firstnews+1);
     bn_int_set(&rpacket->u.server_motd_w3.timestamp2,SERVER_MOTD_W3_WELCOME);
     
     /* MODIFIED BY THE UNDYING SOULZZ 4/7/02 */

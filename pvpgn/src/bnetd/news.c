@@ -305,8 +305,13 @@ extern unsigned int news_get_firstnews(void)
 		eventlog(eventlog_level_error,"news_get_lastnews","found NULL entry in list");
 		continue;
 	    } else
-		if (first_news>ni->date)
-		    first_news=ni->date;
+	        if (first_news)
+		{
+		  if (first_news>ni->date)
+		      first_news=ni->date;
+		}
+		else
+		  first_news=ni->date;
 	}
     }
     return first_news;
