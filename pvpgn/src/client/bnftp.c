@@ -615,16 +615,7 @@ extern int main(int argc, char * argv[])
 		unsigned int bnr;
 		int          renamed=0;
 		
-		if (!(bakfile = xmalloc(strlen(reqfile)+1+2+1))) /* assuming we go up to bnr 99 we need reqfile+'.'+'99'+'\0' */
-		{
-		    fprintf(stderr,"%s: unable to allocate memory for backup filename.\n",argv[0]);
-		    if (changed_in)
-			tcsetattr(fd_stdin,TCSAFLUSH,&in_attr_old);
-		    packet_del_ref(fpacket);
-		    packet_del_ref(rpacket);
-		    return STATUS_FAILURE;
-		}
-		
+		bakfile = xmalloc(strlen(reqfile)+1+2+1); /* assuming we go up to bnr 99 we need reqfile+'.'+'99'+'\0' */
 		for (bnr=0; bnr<100; bnr++)
 		{
 		    sprintf(bakfile,"%s.%d",reqfile,bnr);

@@ -443,16 +443,12 @@ static int server_process(int sockfd)
 		    /* Not found? Make a new slot */
 		    if (!(ntohl(packet.flags)&TF_SHUTDOWN) && !curr)
 		    {
-			if ((server = xmalloc(sizeof(t_server))))
-			{
-			    server->address = cliaddr.sin_addr;
-			    server->info = packet;
-			    server->updated = time(NULL);
-			    
-			    list_append_data(serverlist_head,server);
-			}
-			else
-			    eventlog(eventlog_level_error,"server_process","could not allocate memory for server");
+			server = xmalloc(sizeof(t_server));
+			server->address = cliaddr.sin_addr;
+			server->info = packet;
+			server->updated = time(NULL);
+
+			list_append_data(serverlist_head,server);
 		    }
 		    
 		    eventlog(eventlog_level_debug,"server_process",

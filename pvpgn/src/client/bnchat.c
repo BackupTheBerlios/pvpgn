@@ -1238,36 +1238,15 @@ extern int main(int argc, char * argv[])
 	unsigned int chann_off;
 	char const * chann;
 	
-	if (!(channellist = xmalloc(sizeof(char const *)*1)))
-	{
-	    fprintf(stderr,"%s: could not allocate memory for channellist\n",argv[0]);
-            psock_close(sd);
-            if (changed_in)
-                tcsetattr(fd_stdin,TCSAFLUSH,&in_attr_old);
-	    return STATUS_FAILURE;
-	}
+	channellist = xmalloc(sizeof(char const *)*1);
 	for (i=0,chann_off=sizeof(t_server_channellist);
 	     (chann = packet_get_str_const(rpacket,chann_off,128));
 	     i++,chann_off+=strlen(chann)+1)
         {
 	    if (chann[0] == '\0') break;  /* channel list ends with a "" */
 
-	    if (!(channellist = xrealloc(channellist,sizeof(char const *)*(i+2))))
-	    {
-		fprintf(stderr,"%s: could not allocate memory for channellist\n",argv[0]);
-		psock_close(sd);
-		if (changed_in)
-		    tcsetattr(fd_stdin,TCSAFLUSH,&in_attr_old);
-		return STATUS_FAILURE;
-	    }
-	    if (!(channellist[i] = xstrdup(chann)))
-	    {
-                fprintf(stderr,"%s: could not allocate memory for channellist[i]\n",argv[0]);
-                psock_close(sd);
-                if (changed_in)
-                    tcsetattr(fd_stdin,TCSAFLUSH,&in_attr_old);
-                return STATUS_FAILURE;
-	    }
+	    channellist = xrealloc(channellist,sizeof(char const *)*(i+2));
+	    channellist[i] = xstrdup(chann);
 	}
 	channellist[i] = NULL;
     }
