@@ -29,22 +29,7 @@
 
 typedef t_uint32 t_hash[5];
 
-/* POINTER defines a generic pointer type */
-typedef t_uint8 *POINTER;
-
-/* UINT4 defines a four byte word */
-typedef t_uint32 UINT4;
-
-/* BYTE defines a unsigned character */
-typedef t_uint8 BYTE;
-
 #endif
-
-#ifndef TRUE
-  #define FALSE 0
-  #define TRUE  ( !FALSE )
-#endif /* TRUE */
-
 
 /*****/
 #ifndef JUST_NEED_TYPES
