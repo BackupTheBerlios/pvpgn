@@ -199,14 +199,14 @@ static int on_d2gs_setgsinfo(t_connection * c, t_packet * packet)
 	unsigned int	currgame, gameflag;
 
 	if (!(gs=d2gslist_find_gs(conn_get_d2gs_id(c)))) {
-		eventlog(eventlog_level_error,"on_d2gs_setgsinfo","game server %d not found",conn_get_d2gs_id(c));
+		eventlog(eventlog_level_error,__FUNCTION__,"game server %d not found",conn_get_d2gs_id(c));
 		return -1;
 	}
 	maxgame=bn_int_get(packet->u.d2gs_d2cs_setgsinfo.maxgame);
 	gameflag=bn_int_get(packet->u.d2gs_d2cs_setgsinfo.gameflag);
 	prev_maxgame=d2gs_get_maxgame(gs);
 	currgame = d2gs_get_gamenum(gs);
-	eventlog(eventlog_level_info, "on_d2gs_setgsinfo", "change game server %s max game from %d to %d (%d current)",addr_num_to_ip_str(d2cs_conn_get_addr(c)),prev_maxgame, maxgame, currgame);
+	eventlog(eventlog_level_info, __FUNCTION__, "change game server %s max game from %d to %d (%d current)",addr_num_to_ip_str(d2cs_conn_get_addr(c)),prev_maxgame, maxgame, currgame);
 	d2gs_set_maxgame(gs,maxgame);
 
         if ((rpacket=packet_create(packet_class_d2gs))) {
@@ -364,9 +364,9 @@ static int on_d2gs_joingamereply(t_connection * c, t_packet * packet)
 			
 			if(d2gs_get_ip(gs)!=gsaddr)
 			{
-			    eventlog(eventlog_level_info,"on_d2gs_joingamereply","translated gameserver %s -> %s",addr_num_to_ip_str(d2gs_get_ip(gs)),addr_num_to_ip_str(gsaddr));
+			    eventlog(eventlog_level_info,__FUNCTION__,"translated gameserver %s -> %s",addr_num_to_ip_str(d2gs_get_ip(gs)),addr_num_to_ip_str(gsaddr));
 			} else {
-			    eventlog(eventlog_level_info,"on_d2gs_joingamereply","no translation required for gamserver %s",addr_num_to_ip_str(gsaddr));
+			    eventlog(eventlog_level_info,__FUNCTION__,"no translation required for gamserver %s",addr_num_to_ip_str(gsaddr));
 			}
 			
 			bn_int_nset(&rpacket->u.d2cs_client_joingamereply.addr,gsaddr);
