@@ -3730,37 +3730,17 @@ static int _client_joinchannel(t_connection * c, t_packet const * const packet)
        
        if (found && conn_set_channel(c,cname)<0)
 	 conn_set_channel(c,CHANNEL_NAME_BANNED); /* should not fail */
-       //ADDED THEUNDYING - UPDATED 7/31/02
-       if ((account_get_auth_admin(account,cname)>0) || (account_get_auth_admin(account,NULL)>0))
-	 conn_set_flags( c, MF_BLIZZARD );
-       else if ((account_get_auth_operator(account,cname)>0) || (account_get_auth_operator(account,NULL)>0))
-	 conn_set_flags( c, MF_BNET );
-       else if ((channel_account_is_tmpOP(conn_get_channel(c),account)))
-	 conn_set_flags( c, MF_GAVEL );
-       else if (account_get_auth_voice(account,cname)>0)
-	 conn_set_flags( c, MF_VOICE );
-       else
-	 conn_set_flags( c, W3_ICON_SET );
      }   
    else
      {
-       t_account * acc;
        
-       acc = conn_get_account(c);
-       
+       // not W3
        if (conn_set_channel(c,cname)<0)
 	 conn_set_channel(c,CHANNEL_NAME_BANNED); /* should not fail */
-       //ADDED THEUNDYING - UPDATED 7/31/02
-       if ((account_get_auth_admin(account,cname)>0) || (account_get_auth_admin(account,NULL)>0))
-	 conn_set_flags( c, MF_BLIZZARD );
-       else if ((account_get_auth_operator(account,cname)>0) || (account_get_auth_operator(account,NULL)>0))
-	 conn_set_flags( c, MF_BNET );
-       else if (channel_account_is_tmpOP(conn_get_channel(c),acc))
-	 conn_set_flags( c, MF_GAVEL );
-       else if (account_get_auth_voice(account,cname)>0)
-	 conn_set_flags( c, MF_VOICE );
-       else conn_set_flags( c, W3_ICON_SET );
      }
+
+   // here we set channel flags on user
+   channel_set_flags(c);
    
    if(conn_get_motd_loggedin(c)==0)
      {

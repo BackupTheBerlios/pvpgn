@@ -322,6 +322,7 @@ static int _handle_clan_command(t_connection * c, char const * text);
 static int _handle_admin_command(t_connection * c, char const * text);
 static int _handle_aop_command(t_connection * c, char const * text);
 static int _handle_op_command(t_connection * c, char const * text);
+static int _handle_tmpop_command(t_connection * c, char const * text);
 static int _handle_deop_command(t_connection * c, char const * text);
 static int _handle_voice_command(t_connection * c, char const * text);
 static int _handle_devoice_command(t_connection * c, char const * text);
@@ -467,6 +468,7 @@ static const t_command_table_row extended_command_table[] =
 	{ "/operator"           , _handle_operator_command },
 	{ "/aop"		, _handle_aop_command },
 	{ "/op"           	, _handle_op_command },
+	{ "/tmpop"           	, _handle_tmpop_command },
 	{ "/deop"           	, _handle_deop_command },
 	{ "/voice"		, _handle_voice_command },
 	{ "/devoice"		, _handle_devoice_command },
@@ -624,38 +626,7 @@ static int _handle_clan_command(t_connection * c, char const * text)
 
 static int command_set_flags(t_connection * c)
 {
-    unsigned int	currflags;
-    unsigned int	newflags;
-    char const *	channel;
-    t_account  *	acc;
-    
-    if (!c) return -1; // user not connected, no need to update his flags
-
-    currflags = conn_get_flags(c);
-    acc = conn_get_account(c);
-    
-    if (!(channel = channel_get_name(conn_get_channel(c))))
-	return -1;
-    
-    if (account_get_auth_admin(acc,channel) == 1 || account_get_auth_admin(acc,NULL) == 1)
-	newflags = MF_BLIZZARD;
-    else if (account_get_auth_operator(acc,channel) == 1 || 
-	     account_get_auth_operator(acc,NULL) == 1)
-	newflags = MF_BNET;
-    else if (channel_account_is_tmpOP(conn_get_channel(c),acc))
-        newflags = MF_GAVEL;
-    else if ((account_get_auth_voice(acc,channel) == 1) ||
-	     (channel_account_has_tmpVOICE(conn_get_channel(c),acc)))
-	newflags = MF_VOICE;
-    else
-        newflags = 0;
-        
-    if (conn_get_flags(c) != newflags) {
-	conn_set_flags(c, newflags);
-	channel_update_flags(c);
-    }
-    
-    return 0;
+  return channel_set_flags(c);
 }
 
 static int _handle_admin_command(t_connection * c, char const * text)
@@ -689,7 +660,7 @@ static int _handle_admin_command(t_connection * c, char const * text)
     
     if (command == '+') {
 	if (account_get_auth_admin(acc,NULL) == 1) {
-	    sprintf(msg,"%s is allready a Server Admin",username);
+	    sprintf(msg,"%s is already a Server Admin",username);
 	} else {
 	    account_set_auth_admin(acc,NULL,1);
 	    sprintf(msg,"%s has been promoted to a Server Admin",username);
@@ -739,7 +710,7 @@ static int _handle_operator_command(t_connection * c, char const * text)
     
     if (command == '+') {
 	if (account_get_auth_operator(acc,NULL) == 1)
-	    sprintf(msg,"%s is allready a Server Operator",username);
+	    sprintf(msg,"%s is already a Server Operator",username);
 	else {
 	    account_set_auth_operator(acc,NULL,1);
 	    sprintf(msg,"%s has been promoted to a Server Operator",username);
@@ -789,7 +760,7 @@ static int _handle_aop_command(t_connection * c, char const * text)
     }
     
     if (account_get_auth_admin(acc,channel) == 1)
-	sprintf(msg,"%s is allready a Channel Admin",username);
+	sprintf(msg,"%s is already a Channel Admin",username);
     else {
 	account_set_auth_admin(acc,channel,1);
 	sprintf(msg,"%s has been promoted to a Channel Admin",username);
@@ -831,7 +802,7 @@ static int _handle_vop_command(t_connection * c, char const * text)
     }
     
     if (account_get_auth_voice(acc,channel) == 1)
-	sprintf(msg,"%s is allready on VOP list",username);
+	sprintf(msg,"%s is already on VOP list",username);
     else {
 	account_set_auth_voice(acc,channel,1);
 	sprintf(msg,"%s has been added to the VOP list",username);
@@ -871,12 +842,12 @@ static int _handle_voice_command(t_connection * c, char const * text)
 	message_send_text(c, message_type_info, c, msg);
 	return -1;
     }
-    if (account_get_auth_voice(acc,channel))
-	sprintf(msg,"%s is allready on VOP list, no need to Voice him", username);
+    if (account_get_auth_voice(acc,channel)==1)
+	sprintf(msg,"%s is already on VOP list, no need to Voice him", username);
     else
     {
       if (channel_account_has_tmpVOICE(conn_get_channel(c),acc))
-	  sprintf(msg,"%s has allready Voice in this channel",username);
+	  sprintf(msg,"%s has already Voice in this channel",username);
       else {
 	  account_set_tmpVOICE_channel(acc,channel);
 	  sprintf(msg,"%s has been granted Voice in this channel",username);
@@ -918,7 +889,7 @@ static int _handle_devoice_command(t_connection * c, char const * text)
 	return -1;
     }
     
-    if (account_get_auth_voice(acc,channel))
+    if (account_get_auth_voice(acc,channel)==1)
     {
 	if ((account_get_auth_admin(conn_get_account(c),channel)==1) || (account_get_auth_admin(conn_get_account(c),NULL)==1))
 	{
@@ -1002,6 +973,47 @@ static int _handle_op_command(t_connection * c, char const * text)
     else { // user is only tempOP so he may only tempOP others
          account_set_tmpOP_channel(acc,channel);
 	 sprintf(msg,"%s has been promoted to a tempOP",username);
+    }
+    
+    message_send_text(c, message_type_info, c, msg);
+    command_set_flags(connlist_find_connection_by_accountname(username));
+    return 0;
+}
+
+static int _handle_tmpop_command(t_connection * c, char const * text)
+{
+    char		msg[MAX_MESSAGE_LEN];
+    char const *	username;
+    char const *	channel;
+    t_account *		acc;
+    
+    if (!(channel = channel_get_name(conn_get_channel(c)))) {
+	message_send_text(c,message_type_error,c,"This command can only be used inside a channel.");
+	return -1;
+    }
+    
+    if (!(account_is_operator_or_admin(conn_get_account(c),channel_get_name(conn_get_channel(c))) || channel_account_is_tmpOP(conn_get_channel(c),acc))) {
+	message_send_text(c,message_type_error,c,"You must be at least a Channel Operator or tmpOP to use this command.");
+	return -1;
+    }
+    
+    text = skip_command(text);
+    
+    if (!(username = &text[0])) {
+	message_send_text(c, message_type_info, c, "You need to supply a username.");
+	return -1;
+    }
+    
+    if(!(acc = accountlist_find_account(username))) {
+	sprintf(msg, "There's no account with username %.64s.", username);
+	message_send_text(c, message_type_info, c, msg);
+	return -1;
+    }
+    if (channel_account_is_tmpOP(conn_get_channel(c),acc))
+       sprintf(msg,"%s has already tmpOP in this channel",username);
+    else {
+       account_set_tmpOP_channel(acc,channel);
+       sprintf(msg,"%s has been promoted to tmpOP in this channel",username);
     }
     
     message_send_text(c, message_type_info, c, msg);
@@ -2762,6 +2774,7 @@ static int _handle_chpass_command(t_connection * c, char const *text)
   char         arg2[256];
   char const * username;
   char *       pass;
+  char const * channel;
   
   for (i=0; text[i]!=' ' && text[i]!='\0'; i++);
   for (; text[i]==' '; i++);
@@ -2791,27 +2804,9 @@ static int _handle_chpass_command(t_connection * c, char const *text)
       message_send_text(c,message_type_info,c,"usage: /chpass [username] <password>");
       return 0;
     }
-  
-  /* FIXME: truncate or err on too long password */
-  for (i=0; i<strlen(pass); i++)
-    if (isupper((int)pass[i])) pass[i] = tolower((int)pass[i]);
-  
-  bnet_hash(&passhash,strlen(pass),pass);
-  
-  sprintf(msgtemp,"Trying to change password for account \"%s\" to \"%s\"",username,pass);
-  message_send_text(c,message_type_info,c,msgtemp);
-  
-  sprintf(msgtemp,"Hash is: %s",hash_get_str(passhash));
-  message_send_text(c,message_type_info,c,msgtemp);
-  
-  if (!(temp = accountlist_find_account(username)))
-    {
-      message_send_text(c,message_type_error,c,"Account does not exist.");
-      if (username!=arg1)
-	conn_unget_username(c,username);
-      return 0;
-    }
-  
+
+  temp = accountlist_find_account(username);
+
   account = conn_get_account(c);
   
   if ((temp==account && account_get_auth_changepass(account)==0) || /* default to true */
@@ -2823,6 +2818,23 @@ static int _handle_chpass_command(t_connection * c, char const *text)
       message_send_text(c,message_type_error,c,"Only admins may change passwords for other accounts.");
       return 0;
     }
+
+  if (!temp) 
+    {
+      message_send_text(c,message_type_error,c,"Account does not exist.");
+      if (username!=arg1)
+        conn_unget_username(c,username);
+      return 0;
+    }
+  
+  /* FIXME: truncate or err on too long password */
+  for (i=0; i<strlen(pass); i++)
+    if (isupper((int)pass[i])) pass[i] = tolower((int)pass[i]);
+  
+  bnet_hash(&passhash,strlen(pass),pass);
+  
+  sprintf(msgtemp,"Trying to change password for account \"%s\" to \"%s\"",username,pass);
+  message_send_text(c,message_type_info,c,msgtemp);
   
   if (username!=arg1)
     conn_unget_username(c,username);
@@ -2833,8 +2845,24 @@ static int _handle_chpass_command(t_connection * c, char const *text)
       return 0;
     }
   
-  sprintf(msgtemp,"Password for account "UID_FORMAT" updated.",account_get_uid(temp));
-  message_send_text(c,message_type_info,c,msgtemp);
+  channel = channel_get_name(conn_get_channel(c));
+
+  if (account_get_auth_admin(account,channel) == 1 ||
+      account_get_auth_admin(account,NULL) == 1 || 
+      account_get_auth_operator(account,channel) == 1 ||
+      account_get_auth_operator(account,NULL) == 1) {
+    sprintf(msgtemp,
+      "Password for account "UID_FORMAT" updated.",account_get_uid(temp));
+    message_send_text(c,message_type_info,c,msgtemp);
+
+    sprintf(msgtemp,"Hash is: %s",hash_get_str(passhash));
+    message_send_text(c,message_type_info,c,msgtemp);
+  } else { 
+    sprintf(msgtemp,
+      "Password for account %s updated.",username);
+    message_send_text(c,message_type_info,c,msgtemp);
+  }
+  
   return 0;
 }
 

@@ -30,6 +30,15 @@ of that cleint tag, or 'all' for all cleints) ie. /users w3xp , /users all
 -- optimized account_hash() by replacing it with the CDB hash func (3 times
 faster and seems to distribute more even)
 -- fixed a bug where new created accounts were saved too soon
+-- fixed /chpass command:
+   now only users with administrative privileges get the new passhash
+displayed
+-- added /tmpop command. With this command channel ops can grant tmpOP to users
+-- fixed a tiny bug with tmpVoice
+-- cleaned up and updated bnhelp
+-- fixed problems with channel flags not being set properly on channel
+join/rejoin (fix for chat icon problems with D2)
+
 
 1.5.0beta3:
 -- fixed a long standing bug regarding bnmaps.txt and AT maps

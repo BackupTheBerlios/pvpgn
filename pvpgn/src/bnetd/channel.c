@@ -82,6 +82,7 @@
 #include "channel.h"
 #include "common/setup_after.h"
 #include "irc.h"
+#include "common/tag.h"
 
 
 static t_list * channellist_head=NULL;
@@ -94,6 +95,7 @@ static int channellist_load_permanent(char const * filename);
 static t_channel * channellist_find_channel_by_fullname(char const * name);
 static char * channel_format_name(char const * sname, char const * country, char const * realmname, unsigned int id);
 
+extern int channel_set_flags(t_connection * c);
 
 extern t_channel * channel_create(char const * fullname, char const * shortname, char const * clienttag, int permflag, int botflag, int operflag, int logflag, char const * country, char const * realmname, int maxmembers, unsigned int moderated)
 {
@@ -2009,4 +2011,44 @@ extern t_channel * channellist_find_channel_bychannelid(unsigned int channelid)
     }
     
     return NULL;
+}
+
+extern int channel_set_flags(t_connection * c)
+{
+  unsigned int	currflags;
+  unsigned int	newflags;
+  char const *	channel;
+  t_account  *	acc;
+  
+  if (!c) return -1; // user not connected, no need to update his flags
+  
+  currflags = conn_get_flags(c);
+  acc = conn_get_account(c);
+  
+  if (!(channel = channel_get_name(conn_get_channel(c))))
+    return -1;
+  
+  if (account_get_auth_admin(acc,channel) == 1 || account_get_auth_admin(acc,NULL) == 1)
+    newflags = MF_BLIZZARD;
+  else if (account_get_auth_operator(acc,channel) == 1 || 
+	   account_get_auth_operator(acc,NULL) == 1)
+    newflags = MF_BNET;
+  else if (channel_account_is_tmpOP(conn_get_channel(c),acc))
+    newflags = MF_GAVEL;
+  else if ((account_get_auth_voice(acc,channel) == 1) ||
+	   (channel_account_has_tmpVOICE(conn_get_channel(c),acc)))
+    newflags = MF_VOICE;
+  else
+    if (strcmp(conn_get_clienttag(c), CLIENTTAG_WARCRAFT3) == 0 || 
+	strcmp(conn_get_clienttag(c), CLIENTTAG_WAR3XP) == 0)
+      newflags = W3_ICON_SET;
+    else 
+      newflags = 0;
+  
+  if (conn_get_flags(c) != newflags) {
+    conn_set_flags(c, newflags);
+    channel_update_flags(c);
+  }
+  
+  return 0;
 }
