@@ -69,8 +69,6 @@ t_fdw_backend fdw_epoll = {
 
 static int fdw_epoll_init(int nfds)
 {
-    int i;
-
     if ((epfd = epoll_create(nfds)) < 0)
 	return -1;
     epevents = (struct epoll_event *) malloc(sizeof(struct epoll_event) * nfds);
