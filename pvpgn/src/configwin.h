@@ -228,7 +228,7 @@
 #define HAVE_STRRCHR 1
 
 /* Define if you have the strtoul function.  */
-/* #undef HAVE_STRTOUL */
+#define HAVE_STRTOUL
 
 /* Define if you have the uname function.  */
 /* #undef HAVE_UNAME */
