@@ -1789,7 +1789,7 @@ static int _client_statsreq(t_connection * c, t_packet const * const packet)
 	     for (j=0,key_off=keys_off;
 		  j<key_count && (key = packet_get_str_const(packet,key_off,MAX_ATTRKEY_STR));
 		  j++,key_off+=strlen(key)+1)
-	       if (account && (strstart(key,"BNET\\auth")!=0) && (tval = account_get_strattr(account,key)))
+	       if (account && (strncmp(key,"BNET\\acct\\passhash1",19)!=0) && (tval = account_get_strattr(account,key)))
 		 {
 		    packet_append_string(rpacket,tval);
 		    account_unget_strattr(tval);
