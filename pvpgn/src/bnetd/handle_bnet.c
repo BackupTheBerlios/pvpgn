@@ -4163,6 +4163,11 @@ static int _client_gamelistreq(t_connection * c, t_packet const * const packet)
 		       eventlog(eventlog_level_debug,"handle_bnet_packet","[%d] not listing because game is wrong type",conn_get_socket(c));
 		       continue;
 		    }
+		  if (strcmp(versioncheck_get_versiontag(conn_get_versioncheck(game_get_owner(game))),versioncheck_get_versiontag(conn_get_versioncheck(c)))!=0)
+		    {
+		       eventlog(eventlog_level_debug,"handle_bnet_packet","[%d] not listing because game is wrong versiontag",conn_get_socket(c));
+		       continue;
+		    }
 		  
 		  // removed by bbf (yak)			
 		  //			bn_int_set(&glgame.unknown7,SERVER_GAMELISTREPLY_GAME_UNKNOWN7); // not in yak

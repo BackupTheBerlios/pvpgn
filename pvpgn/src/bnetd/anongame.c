@@ -507,6 +507,7 @@ static int anongame_queue_player(t_connection * c, t_uint8 gametype, t_uint32 ma
 	md = malloc(sizeof(t_matchdata));
 	md->c = c;
 	md->map_prefs = map_prefs;
+	md->versiontag = strdup(versioncheck_get_versiontag(conn_get_versioncheck(c)));
 
 	list_append_data(matchlists[gametype][level], md);
 
@@ -537,6 +538,7 @@ static int anongame_queue_player(t_connection * c, t_uint8 gametype, t_uint32 ma
 				eventlog(eventlog_level_error, "anongame_queue_player", 
 					"AT matching, got zero arranged team id");
 			} else {
+			    if (!strcmp(md->versiontag, versioncheck_get_versiontag(conn_get_versioncheck(c)))) {
 				for (i = 0; i < 100; i++) {
 					if (acinfo[i].atid == conn_get_atid(md->c)) {
 						acinfo[i].map_prefs &= md->map_prefs;
@@ -549,6 +551,7 @@ static int anongame_queue_player(t_connection * c, t_uint8 gametype, t_uint32 ma
 						break;
 					}
 				}
+			    }
 			}
 		}
 
@@ -621,7 +624,8 @@ static int anongame_queue_player(t_connection * c, t_uint8 gametype, t_uint32 ma
 
 			LIST_TRAVERSE(matchlists[gametype][level + delta], curr) {
 				md = elem_get_data(curr);
-				if (cur_prefs & md->map_prefs) {
+				if (!strcmp(md->versiontag, versioncheck_get_versiontag(conn_get_versioncheck(c)))) {
+				    if (cur_prefs & md->map_prefs) {
 					cur_prefs &= md->map_prefs;
 					player[gametype][players[gametype]++] = md->c;
 					if (players[gametype] == anongame_totalplayers(gametype)) {
@@ -633,6 +637,7 @@ static int anongame_queue_player(t_connection * c, t_uint8 gametype, t_uint32 ma
 						mapname = _get_map_from_prefs(gametype, cur_prefs);
 						return 0;
 					}
+				    }
 				}
 			}
 
@@ -677,6 +682,7 @@ extern int anongame_unqueue_player(t_connection * c, t_uint8 gametype)
 				eventlog(eventlog_level_debug, "anongame_unqueue_player", "unqueued player [%d] level %d", 
 					conn_get_socket(c), i);
 				list_remove_elem(matchlists[gametype][i], curr);
+				free(md);
 				return 0;
 			}
 		}

@@ -95,6 +95,7 @@ typedef struct
 {
 	struct connection *c;
 	t_uint32 map_prefs;
+	char * versiontag;
 } t_matchdata;
 
 typedef struct
