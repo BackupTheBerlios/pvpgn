@@ -28,6 +28,12 @@
 #ifdef HAVE_SYS_TYPES_H
 # include <sys/types.h> /* needed to include netinet/in.h */
 #endif
+#ifdef HAVE_SYS_STAT_H
+# include <sys/stat.h>
+#endif
+#ifdef HAVE_UNISTD_H
+# include <unistd.h>
+#endif
 #ifdef HAVE_SYS_SOCKET_H
 # include <sys/socket.h>
 #endif
@@ -130,47 +136,47 @@ static void d2gs_send_server_conffile(t_d2gs *gs, t_connection *c)
 {
 	t_packet	*rpacket;
 	FILE		*fp;
-	char		*confs;
-	long		size;
+	char		buff[256];
+	int		rno;
+	struct stat	sfile;
 
 	/* open d2gs server config file */
-	if ((fp=fopen(prefs_get_d2gsconffile(), "r"))==NULL)
-		return;
+	fp = fopen(prefs_get_d2gsconffile(), "rb");
+	if (!fp) goto err;
+
 	/* get file size */
-	if (fseek(fp, 0L, SEEK_END)) {
-		fclose(fp);
-		eventlog(eventlog_level_debug,__FUNCTION__,"failed fseek()");
-		return;
+	if (fstat(fileno(fp),&sfile)) {
+		eventlog(eventlog_level_debug,__FUNCTION__,"failed fstat()");
+		goto err_fp;
 	}
-	if ((size = ftell(fp)) <= 0) {
-		fclose(fp);
-		eventlog(eventlog_level_error,__FUNCTION__,"failed ftell()");
-		return;
+
+	rpacket = packet_create(packet_class_d2cs);
+	packet_set_size(rpacket,sizeof(t_d2cs_d2gs_setconffile));
+	packet_set_type(rpacket,D2CS_D2GS_SETCONFFILE);
+	bn_int_set(&rpacket->u.d2cs_d2gs_setconffile.h.seqno,0);
+	bn_int_set(&rpacket->u.d2cs_d2gs_setconffile.size, sfile.st_size);
+	bn_int_set(&rpacket->u.d2cs_d2gs_setconffile.reserved1, time(NULL));
+
+	while((rno = fread(buff,1,sizeof(buff),fp)) > 0) {
+		if (packet_append_data(rpacket,buff,rno) < 0) { /* file too big */
+		    eventlog(eventlog_level_debug,__FUNCTION__,"conffile too big for a single packet");
+		    goto err_packet;
+		}
 	}
-	fseek(fp, 0L, SEEK_SET);
-	/* read config file content */
-	confs = xmalloc(size+8);
-	if (fread(confs, size, 1, fp) != 1) {
-		fclose(fp);
-		xfree(confs);
-		eventlog(eventlog_level_error,__FUNCTION__,"failed fread()");
-		return;
-	}
-	confs[size]='\0';
+
+	conn_push_outqueue(c,rpacket);
+	packet_del_ref(rpacket);
 	fclose(fp);
-	/* send the config within a packet */
-	if ((rpacket=packet_create(packet_class_d2gs))) {
-		packet_set_size(rpacket,sizeof(t_d2cs_d2gs_setconffile));
-		packet_set_type(rpacket,D2CS_D2GS_SETCONFFILE);
-		bn_int_set(&rpacket->u.d2cs_d2gs_setconffile.h.seqno,0);
-		bn_int_set(&rpacket->u.d2cs_d2gs_setconffile.size, size);
-		bn_int_set(&rpacket->u.d2cs_d2gs_setconffile.reserved1, time(NULL));
-		packet_append_string(rpacket,confs);
-		conn_push_outqueue(c,rpacket);
-		packet_del_ref(rpacket);
-		eventlog(eventlog_level_info,__FUNCTION__,"send config file to d2gs %s", addr_num_to_ip_str(d2cs_conn_get_addr(c)));
-	}
-	xfree(confs);
+
+	return;
+
+err_packet:
+	packet_del_ref(rpacket);
+
+err_fp:
+	fclose(fp);
+
+err:
 	return;
 }
 
