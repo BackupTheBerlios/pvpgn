@@ -3260,6 +3260,9 @@ static int _client_findanongame(t_connection * c, t_packet const * const packet)
 	unsigned int desired_icon;
 	char user_icon[5];
 	char playerinfo[40];
+	char rico;
+	unsigned int rlvl,rwin;
+	int hll;
 	/*FIXME: In this case we do not get a 'count' but insted of it we get the icon
 	that the client wants to set.'W3H2' for an example. For now it is ok, since they share
 	//the same position	on the packet*/
@@ -3276,7 +3279,14 @@ static int _client_findanongame(t_connection * c, t_packet const * const packet)
 	account_set_user_icon(conn_get_account(c),conn_get_clienttag(c),user_icon);
 	//FIXME: Still need a way to 'refresh the user/channel' 
 	//_handle_rejoin_command(conn_get_account(c),"");
-	sprintf(playerinfo,"PX3W %s %u",user_icon,account_get_highestladderlevel(conn_get_account(c),conn_get_clienttag(c)));
+	hll = account_get_highestladderlevel(conn_get_account(c),conn_get_clienttag(c));
+	if (strcmp(user_icon,"NULL")!=0)
+	  sprintf(playerinfo,"PX3W %s %u",user_icon,hll);
+	else 
+	{
+	  account_get_raceicon(conn_get_account(c),&rico,&rlvl,&rwin,conn_get_clienttag(c));
+	  sprintf(playerinfo,"PX3W %1d%c3W %u",rlvl,rico,hll);
+	}
 	eventlog(eventlog_level_info,__FUNCTION__,"playerinfo: %s",playerinfo);
 	conn_set_w3_playerinfo(c,playerinfo);
 	channel_rejoin(c);
