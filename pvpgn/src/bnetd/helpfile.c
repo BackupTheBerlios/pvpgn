@@ -48,6 +48,8 @@
 #include "common/eventlog.h"
 #include "helpfile.h"
 #include "common/setup_after.h"
+#include "account_wrap.h"
+#include "command_groups.h"
 
 
 static FILE* hfd=NULL; /* helpfile descriptor */
@@ -131,6 +133,7 @@ static int list_commands(t_connection * c)
         {
             char *p,*buffer;
             int al;
+	    int skip;
 	    unsigned int length,position;
 	    
             /* ok. now we must see if there are any aliases */
@@ -146,10 +149,12 @@ static int list_commands(t_connection * c)
             do
 	    {
                 al=0;
+		skip = 0;
                 for (i=1;p[i]!=' ' && p[i]!='\0' && p[i]!='#';i++); /* skip command */
                 if (p[i]==' ') al=1; /* we have something after the command.. must remember that */
                 p[i]='\0'; /* end the string at the end of the command */
                 p[0]='/'; /* change the leading character (% or space) read from the help file to / */
+		if (!(command_get_group(p) & account_get_command_groups(conn_get_account(c)))) skip=1;
                 if (length<strlen(p)+position+1)
 		{
                     char * aux;
@@ -180,7 +185,7 @@ static int list_commands(t_connection * c)
                     p+=i; /* jump to the next command */
                 }
             } while (al);
-            message_send_text(c,message_type_info,c,buffer); /* print out the buffer */
+            if (!skip) message_send_text(c,message_type_info,c,buffer); /* print out the buffer */
             free(buffer);
         }
         free(line); /* free the memory allocated in file_get_line */
