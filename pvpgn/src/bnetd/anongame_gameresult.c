@@ -178,7 +178,7 @@ extern int gameresult_get_player_result(t_anongame_gameresult * gameresult, int 
 
   if (player >= gameresult->number_of_results)
   {
-    eventlog(eventlog_level_error,_FUNCTION__,"request for invalid player number");
+    eventlog(eventlog_level_error,__FUNCTION__,"request for invalid player number");
     return -1;
   }
 
