@@ -463,6 +463,7 @@ extern t_game * game_create(char const * name, char const * pass, char const * i
     game->connections   = NULL;
     game->players       = NULL;
     game->results       = NULL;
+    game->reported_results = NULL;
     game->report_heads  = NULL;
     game->report_bodies = NULL;
     game->create_time   = now;
@@ -528,6 +529,8 @@ static void game_destroy(t_game const * game)
 	    free((void *)game->report_bodies[i]); /* avoid warning */
 	if (game->report_heads && game->report_heads[i])
 	    free((void *)game->report_heads[i]); /* avoid warning */
+	if (game->reported_results && game->reported_results[i])
+	    free((void *)game->reported_results[i]);
     }
     if (game->realmname)
 	free((void *)game->realmname); /* avoid warining */
@@ -537,6 +540,8 @@ static void game_destroy(t_game const * game)
 	free((void *)game->report_heads); /* avoid warning */
     if (game->results)
 	free((void *)game->results); /* avoid warning */
+    if (game->reported_results)
+        free((void *)game->reported_results);
     if (game->connections)
 	free((void *)game->connections); /* avoid warning */
     if (game->players)
@@ -560,6 +565,80 @@ static void game_destroy(t_game const * game)
     return;
 }
 
+int game_evaluate_results(t_game * game)
+{
+  unsigned int i,j;
+  unsigned int wins, losses, draws, disconnects;
+
+  if (!game)
+  {
+      eventlog(eventlog_level_error,__FUNCTION__,"got NULL game");
+      return -1;
+  }
+  if (!game->results)
+  {
+      eventlog(eventlog_level_error,__FUNCTION__,"results array is NULL");
+      return -1;
+  }
+
+  if (!game->reported_results)
+  {
+      eventlog(eventlog_level_error,__FUNCTION__,"reported_results array is NULL");
+      return -1;
+  }
+
+  for (i=0;i<game->count;i++)
+  {
+    wins = losses = draws = disconnects = 0;
+
+    for (j=0;j<game->count;j++)
+    {
+      if (game->reported_results[j])
+      {
+        switch (game->reported_results[j][i])
+	{
+	  case game_result_win:
+	    wins++;
+	    break;
+	  case game_result_loss:
+	    losses++;
+	    break;
+	  case game_result_draw:
+	    draws++;
+	    break;
+	  case game_result_disconnect:
+	    disconnects++;
+	    break;
+	  default:
+	    break;
+	}
+      }
+    }
+    eventlog(eventlog_level_debug,__FUNCTION__,"wins: %u losses: %u draws: %u disconnects: %u",wins,losses,draws,disconnects);
+    //now decide what result we give
+    if ((disconnects>=draws) && (disconnects>=losses) && (disconnects>=wins))
+    {
+      game->results[i] = game_result_disconnect; //consider disconnects the worst case...
+      eventlog(eventlog_level_debug,__FUNCTION__,"deciding to give \"disconnect\" to player %d",i);
+    }
+    else if ((losses>=wins) && (losses>=draws))
+    {
+      game->results[i]=game_result_loss;         //losses are also bad...
+      eventlog(eventlog_level_debug,__FUNCTION__,"deciding to give \"loss\" to player %d",i);
+    }
+    else if ((draws>=wins))
+    {
+      game->results[i]=game_result_draw;
+      eventlog(eventlog_level_debug,__FUNCTION__,"deciding to give \"draw\" to player %d",i);
+    }
+    else if (wins)
+    {
+      game->results[i]=game_result_win;
+      eventlog(eventlog_level_debug,__FUNCTION__,"deciding to give \"win\" to player %d",i);
+    }
+  }
+  return 0;
+}
 
 static int game_report(t_game * game)
 {
@@ -567,7 +646,7 @@ static int game_report(t_game * game)
     char *          realname;
     char *          tempname;
     char const *    tname;
-    unsigned int    i;
+    unsigned int    i,j;
     unsigned int    realcount;
     time_t          now=time(NULL);
     t_ladder_info * ladder_info=NULL;
@@ -586,6 +665,11 @@ static int game_report(t_game * game)
     if (!game->players)
     {
 	eventlog(eventlog_level_error,"game_report","player array is NULL");
+	return -1;
+    }
+    if (!game->reported_results)
+    {
+        eventlog(eventlog_level_error,__FUNCTION__,"reported_results array is NULL");
 	return -1;
     }
     if (!game->results)
@@ -620,6 +704,7 @@ static int game_report(t_game * game)
     }
     else
     {
+        game_evaluate_results(game); // evaluate results from the reported results
 	/* "compact" the game; move all the real players to the top... */
 	realcount = 0;
 	for (i=0; i<game->count; i++)
@@ -643,10 +728,10 @@ static int game_report(t_game * game)
 	/* then nuke duplicate players after the real players */
 	for (i=realcount; i<game->count; i++)
 	{
-	    game->players[i]       = NULL;
-	    game->results[i]       = game_result_none;
-	    game->report_heads[i]  = NULL;
-	    game->report_bodies[i] = NULL;
+	    game->players[i]          = NULL;
+	    game->results[i]          = game_result_none;
+	    game->report_heads[i]     = NULL;
+	    game->report_bodies[i]    = NULL;
 	}
 	
 	if (realcount<1)
@@ -1439,6 +1524,7 @@ extern int game_add_player(t_game * game, char const * pass, int startver, t_con
     t_connection * * tempc;
     t_account * *    tempp;
     t_game_result *  tempr;
+    t_game_result ** temprr;
     char const * *   temprh;
     char const * *   temprb;
     
@@ -1545,6 +1631,24 @@ extern int game_add_player(t_game * game, char const * pass, int startver, t_con
 	}
     }
     game->results = tempr;
+
+    if (!game->reported_results)
+    {
+        if (!(temprr = malloc((game->count+1)*sizeof(t_game_result *))))
+	{
+	    eventlog(eventlog_level_error,__FUNCTION__,"unable to allocate memory for game reported results");
+	    return -1;
+	}
+    }
+    else
+    {
+	if (!(temprr = realloc(game->reported_results,(game->count+1)*sizeof(t_game_result *))))
+	{
+	    eventlog(eventlog_level_error,"game_add_player","unable to allocate memory for game reported results");
+	    return -1;
+	}
+    }
+    game->reported_results = temprr;
     
     if (!game->report_heads) /* some realloc()s are broken */
     {
@@ -1585,6 +1689,7 @@ extern int game_add_player(t_game * game, char const * pass, int startver, t_con
     game->connections[game->count]   = c;
     game->players[game->count]       = conn_get_account(c);
     game->results[game->count]       = game_result_none;
+    game->reported_results[game->count] = NULL;
     game->report_heads[game->count]  = NULL;
     game->report_bodies[game->count] = NULL;
     
@@ -1626,12 +1731,11 @@ extern int game_del_player(t_game * game, t_connection * c)
 	eventlog(eventlog_level_error,"game_del_player","player array is NULL");
 	return -1;
     }
-    if (!game->results)
+    if (!game->reported_results)
     {
-	eventlog(eventlog_level_error,"game_del_player","results array is NULL");
+	eventlog(eventlog_level_error,"game_del_player","reported results array is NULL");
 	return -1;
     }
-    
     account = conn_get_account(c);
 
    if(conn_get_leavegamewhisper_ack(c)==0)
@@ -1648,13 +1752,8 @@ extern int game_del_player(t_game * game, t_connection * c)
 	{
 	    eventlog(eventlog_level_debug,"game_del_player","removing player #%u \"%s\" from \"%s\", %u players left",i,(tname = account_get_name(account)),game_get_name(game),game->ref-1);
 	    game->connections[i] = NULL;
-	    if (game->results[i]!=game_result_win &&
-		game->results[i]!=game_result_loss &&
-		game->results[i]!=game_result_draw &&
-		game->results[i]!=game_result_disconnect &&
-		game->results[i]!=game_result_observer &&
-	        game->results[i]!=game_result_none)
-		eventlog(eventlog_level_error,"game_del_player","player \"%s\" leaving with bad result %u",tname,game->results[i]);
+	    if (!(game->reported_results[i]))
+		eventlog(eventlog_level_error,"game_del_player","player \"%s\" left without reporting valid results",tname);
 	    account_unget_name(tname);
 	    
 	    eventlog(eventlog_level_debug,"game_del_player","player deleted... (ref=%u)",game->ref);
@@ -1685,132 +1784,48 @@ extern int game_del_player(t_game * game, t_connection * c)
 
 extern int game_check_result(t_game * game, t_account * account, t_game_result result)
 {
-    unsigned int pos;
-    char const * tname;
-    
-    if (!game)
-    {
-	eventlog(eventlog_level_error,"game_check_result","got NULL game");
-	return -1;
-    }
-    if (!account)
-    {
-	eventlog(eventlog_level_error,"game_check_result","got NULL account");
-	return -1;
-    }
-    if (!game->players)
-    {
-	eventlog(eventlog_level_error,"game_check_result","player array is NULL");
-	return -1;
-    }
-    if (!game->results)
-    {
-	eventlog(eventlog_level_error,"game_check_result","results array is NULL");
-	return -1;
-    }
-    if (result!=game_result_win &&
-	result!=game_result_loss &&
-	result!=game_result_draw &&
-	result!=game_result_disconnect &&
-	result!=game_result_observer &&
-	result!=game_result_playing)
-    {
-	eventlog(eventlog_level_error,"game_check_result","got bad result %u for player \"%s\"",(unsigned int)result,(tname = account_get_name(account)));
-	account_unget_name(tname);
-	return -1;
-    }
-    
-    {
-	unsigned int i;
-	
-	pos = game->count;
-	for (i=0; i<game->count; i++)
-	    if (game->players[i]==account)
-		pos = i;
-    }
-    if (pos==game->count)
-    {
-	eventlog(eventlog_level_error,"game_check_result","could not find player \"%s\" to check result",(tname = account_get_name(account)));
-	account_unget_name(tname);
-	game->bad = 1;
-	return 0; /* return success even though it didn't check */
-    }
-    
-    if (game->results[pos]==result)
-    {
-	eventlog(eventlog_level_debug,"game_check_result","result %u agrees with previous for player in slot %u",(unsigned int)result,pos);
-	return 0;
-    }
-    if (game->results[pos]==game_result_none ||
-	game->results[pos]==game_result_playing)
-    {
-	if (result==game_result_playing)
-	    eventlog(eventlog_level_debug,"game_check_result","player in slot %u reported as \"still playing\", assuming that is right",pos);
-	game->results[pos] = result;
-	eventlog(eventlog_level_debug,"game_check_result","result %u initially obtained for player in slot %u",(unsigned int)result,pos);
-	return 0;
-    }
-    
-    eventlog(eventlog_level_error,"game_check_result","got inconsistent results for player in slot %u (\"%s\") previous=%u current=%u",pos,(tname = account_get_name(account)),(unsigned int)game->results[pos],(unsigned int)result);
-    account_unget_name(tname);
-    game->bad = 1;
     return 0; /* return success even though it didn't check */
 }
 
 
-extern int game_set_result(t_game * game, t_account * account, t_game_result result, char const * rephead, char const * repbody)
+extern int game_set_report(t_game * game, t_account * account, char const * rephead, char const * repbody)
 {
     unsigned int pos;
     char const * tname;
     
     if (!game)
     {
-	eventlog(eventlog_level_error,"game_set_result","got NULL game");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL game");
 	return -1;
     }
     if (!account)
     {
-	eventlog(eventlog_level_error,"game_set_result","got NULL account");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL account");
 	return -1;
     }
     if (!game->players)
     {
-	eventlog(eventlog_level_error,"game_set_result","player array is NULL");
-	return -1;
-    }
-    if (!game->results)
-    {
-	eventlog(eventlog_level_error,"game_set_result","results array is NULL");
+	eventlog(eventlog_level_error,__FUNCTION__,"player array is NULL");
 	return -1;
     }
     if (!game->report_heads)
     {
-	eventlog(eventlog_level_error,"game_set_result","report_heads array is NULL");
+	eventlog(eventlog_level_error,__FUNCTION__,"report_heads array is NULL");
 	return -1;
     }
     if (!game->report_bodies)
     {
-	eventlog(eventlog_level_error,"game_set_result","report_bodies array is NULL");
-	return -1;
-    }
-    if (result!=game_result_win &&
-	result!=game_result_loss &&
-	result!=game_result_draw &&
-	result!=game_result_observer &&
-	result!=game_result_disconnect)
-    {
-	eventlog(eventlog_level_error,"game_set_result","got bad result %u for player \"%s\"",(unsigned int)result,(tname = account_get_name(account)));
-	account_unget_name(tname);
+	eventlog(eventlog_level_error,__FUNCTION__,"report_bodies array is NULL");
 	return -1;
     }
     if (!rephead)
     {
-	eventlog(eventlog_level_error,"game_set_result","report head is NULL");
+	eventlog(eventlog_level_error,__FUNCTION__,"report head is NULL");
 	return -1;
     }
     if (!repbody)
     {
-	eventlog(eventlog_level_error,"game_set_result","report body is NULL");
+	eventlog(eventlog_level_error,__FUNCTION__,"report body is NULL");
 	return -1;
     }
     
@@ -1824,7 +1839,7 @@ extern int game_set_result(t_game * game, t_account * account, t_game_result res
     }
     if (pos==game->count)
     {
-	eventlog(eventlog_level_error,"game_set_result","could not find player \"%s\" to set result",(tname = account_get_name(account)));
+	eventlog(eventlog_level_error,__FUNCTION__,"could not find player \"%s\" to set result",(tname = account_get_name(account)));
 	account_unget_name(tname);
 	return -1;
     }
@@ -1840,60 +1855,144 @@ extern int game_set_result(t_game * game, t_account * account, t_game_result res
 	return -1;
     }
 	
-    if (game_check_result(game,account,result)<0)
+    return 0;
+}
+
+extern int game_set_reported_results(t_game * game, t_account * account, t_game_result * results)
+{
+    unsigned int i,j;
+    char const * tname;
+    t_game_result result;
+
+    if (!(game))
     {
-	eventlog(eventlog_level_error,"game_set_result","self-reported result did not check out with previous for player in slot %u",pos);
+        eventlog(eventlog_level_error,__FUNCTION__,"got NULL game");
 	return -1;
     }
+    
+    if (!(account))
+    {
+        eventlog(eventlog_level_error,__FUNCTION__,"got NULL account");
+	return -1;
+    }
+    
+    if (!(results))
+    {
+        eventlog(eventlog_level_error,__FUNCTION__,"got NULL results");
+	return -1;
+    }
+
+    if (!(game->players))
+    {
+        eventlog(eventlog_level_error,__FUNCTION__,"player array is NULL");
+	return -1;
+    }
+
+    if (!(game->reported_results))
+    {
+        eventlog(eventlog_level_error,__FUNCTION__,"reported_results array is NULL");
+	return -1;
+    }
+
+    for (i=0;i<game->count;i++)
+    {
+        if ((game->players[i]==account)) break;
+    }
+
+    if (i==game->count)
+    {
+	eventlog(eventlog_level_error,__FUNCTION__,"could not find player \"%s\" to set reported results",(tname = account_get_name(account)));
+	account_unget_name(tname);
+	return -1;
+    }
+    
+    if (game->reported_results[i])
+    {
+	eventlog(eventlog_level_error,__FUNCTION__,"player \"%s\" allready reported results - skipping this report",(tname = account_get_name(account)));
+	account_unget_name(tname);
+	return -1;
+    }
+
+    for (j=0;j<game->count;j++)
+    {
+      result = results[j];
+      if (!(result==game_result_win ||
+	    result==game_result_loss ||
+	    result==game_result_draw ||
+	    result==game_result_observer ||
+	    result==game_result_disconnect ||
+	    (i!=j && 
+	      ( result==game_result_none || // disallow reporting none results for self
+	        result==game_result_playing)))) // disallow reporting playing for self
+      {
+	  if (i!=j)
+	  {
+	    eventlog(eventlog_level_error,__FUNCTION__,"ignoring bad reported result %u for player \"%s\"",(unsigned int)result,j,(tname=account_get_name(game->players[j])));
+	    account_unget_name(tname);
+	    results[i]=game_result_none;
+	  }
+	  else
+	  {
+	    eventlog(eventlog_level_error,__FUNCTION__,"got bad reported result %u for self - skipping results",(unsigned int)result);
+	    return -1;
+	  }
+      }
+    }
+
+    game->reported_results[i] = results;
     
     return 0;
 }
 
-
-extern t_game_result game_get_result(t_game * game, t_account * account)
+extern t_game_result * game_get_reported_results(t_game * game, t_account * account)
 {
-    unsigned int pos;
-    
-    if (!game)
+    unsigned int i;
+    char const * tname;
+
+    if (!(game))
     {
-	eventlog(eventlog_level_error,"game_get_result","got NULL game");
-	return game_result_none;
-    }
-    if (!account)
-    {
-	eventlog(eventlog_level_error,"game_get_result","got NULL account");
-	return game_result_none;
-    }
-    if (!game->players)
-    {
-	eventlog(eventlog_level_error,"game_get_result","player array is NULL");
-	return game_result_none;
-    }
-    if (!game->results)
-    {
-	eventlog(eventlog_level_error,"game_get_result","results array is NULL");
-	return game_result_none;
+        eventlog(eventlog_level_error,__FUNCTION__,"got NULL game");
+	return NULL;
     }
     
+    if (!(account))
     {
-	unsigned int i;
-	
-	pos = game->count;
-	for (i=0; i<game->count; i++)
-	    if (game->players[i]==account)
-		pos = i;
+        eventlog(eventlog_level_error,__FUNCTION__,"got NULL account");
+	return NULL;
     }
-    if (pos==game->count)
+    
+    if (!(game->players))
     {
-	char const * tname;
-	
-	eventlog(eventlog_level_error,"game_get_result","could not find player \"%s\" to return result",(tname = account_get_name(account)));
+        eventlog(eventlog_level_error,__FUNCTION__,"player array is NULL");
+	return NULL;
+    }
+
+    if (!(game->reported_results))
+    {
+        eventlog(eventlog_level_error,__FUNCTION__,"reported_results array is NULL");
+	return NULL;
+    }
+
+    for (i=0;i<game->count;i++)
+    {
+        if ((game->players[i]==account)) break;
+    }
+
+    if (i==game->count)
+    {
+	eventlog(eventlog_level_error,__FUNCTION__,"could not find player \"%s\" to set reported results",(tname = account_get_name(account)));
 	account_unget_name(tname);
-	
-	return game_result_none;
+	return NULL;
     }
     
-    return game->results[pos];
+    if (!(game->reported_results[i]))
+    {
+	eventlog(eventlog_level_error,__FUNCTION__,"player \"%s\" has not reported any results",(tname = account_get_name(account)));
+	account_unget_name(tname);
+	return NULL;
+    }
+     
+    return game->reported_results[i];
 }
 
 

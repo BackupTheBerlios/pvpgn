@@ -4373,7 +4373,6 @@ static int _client_gamereport(t_connection * c, t_packet const * const packet)
      {
 	t_account *                         my_account;
 	t_account *                         other_account;
-	t_game_result                       my_result=game_result_none;
 	t_game *                            game;
 	unsigned int                        player_count;
 	unsigned int                        i;
@@ -4383,6 +4382,7 @@ static int _client_gamereport(t_connection * c, t_packet const * const packet)
 	char const *                        player;
 	unsigned int                        player_off;
 	char const *                        tname;
+	t_game_result *			    results;
 	
 	player_count = bn_int_get(packet->u.client_gamerep.count);
 	
@@ -4394,7 +4394,16 @@ static int _client_gamereport(t_connection * c, t_packet const * const packet)
 	  }
 	
 	eventlog(eventlog_level_info,__FUNCTION__,"[%d] CLIENT_GAME_REPORT: %s (%u players)",conn_get_socket(c),(tname = conn_get_username(c)),player_count);
+	conn_unget_username(c,tname);
 	my_account = conn_get_account(c);
+
+	if (!(results = malloc(sizeof(t_game_result)*player_count)))
+	{
+	    eventlog(eventlog_level_error,__FUNCTION__,"could not allocate memory to store game results");
+	    return -1;
+	}
+
+	for (i=0;i<player_count;i++) results[i]=game_result_none;
 	
 	for (i=0,result_off=sizeof(t_client_game_report),player_off=sizeof(t_client_game_report)+player_count*sizeof(t_client_game_report_result);
 	     i<player_count;
@@ -4412,10 +4421,13 @@ static int _client_gamereport(t_connection * c, t_packet const * const packet)
 	       }
 	     
 	     result = bngresult_to_gresult(bn_int_get(result_data->result));
-	     eventlog(eventlog_level_debug,__FUNCTION__,"[%d] got player %d (\"%s\") result 0x%08x",conn_get_socket(c),i,player,result);
-	     
+	     results[i] = result;
+	      
 	     if (player[0]=='\0') /* empty slots have empty player name */
 	       continue;
+
+	     eventlog(eventlog_level_debug,__FUNCTION__,"[%d] got player %d (\"%s\") result %s",conn_get_socket(c),i,player,game_result_get_str(result));
+	     
 	     
 	     if (!(other_account = accountlist_find_account(player)))
 	       {
@@ -4423,32 +4435,28 @@ static int _client_gamereport(t_connection * c, t_packet const * const packet)
 		  break;
 	       }
 	     
-	     if (my_account==other_account)
-	       my_result = result;
-	     else
-	       if (game_check_result(game,other_account,result)<0)
-		 break;
 	  }
-	
-	conn_unget_username(c,tname);
-	
+
 	if (i==player_count) /* if everything checked out... */
 	  {
 	     char const * head;
 	     char const * body;
-	     
+
 	     if (!(head = packet_get_str_const(packet,player_off,MAX_GAMEREP_HEAD_STR)))
-	       eventlog(eventlog_level_debug,__FUNCTION__,"[%d] got GAME_REPORT with missing or too long report head",conn_get_socket(c));
+	       eventlog(eventlog_level_error,__FUNCTION__,"[%d] got GAME_REPORT with missing or too long report head",conn_get_socket(c));
 	     else
 	       {
-		  player_off += strlen(head)+1;
-		  if (!(body = packet_get_str_const(packet,player_off,MAX_GAMEREP_BODY_STR)))
-		    eventlog(eventlog_level_debug,__FUNCTION__,"[%d] got GAME_REPORT with missing or too long report body",conn_get_socket(c));
-		  else
-		    game_set_result(game,my_account,my_result,head,body); /* finally we can report the info */
+		 player_off += strlen(head)+1;
+		 if (!(body = packet_get_str_const(packet,player_off,MAX_GAMEREP_BODY_STR)))
+		   eventlog(eventlog_level_error,__FUNCTION__,"[%d] got GAME_REPORT with missing or too ling report body",conn_get_socket(c));
+		 else
+		   game_set_report(game,my_account,head,body);
 	       }
 	  }
 	
+	if (game_set_reported_results(game,my_account,results)<0)
+	  free((void *)results);
+
 	eventlog(eventlog_level_debug,__FUNCTION__,"[%d] finished parsing result... now leaving game",conn_get_socket(c));
 	conn_set_game(c,NULL,NULL,NULL,game_type_none,0);
      }

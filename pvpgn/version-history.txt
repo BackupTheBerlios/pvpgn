@@ -1,6 +1,9 @@
 PvPGN Version History:
 
 1.7.0 since 1.6.0
+
+[STAR/SEXP/W2BN]: changed handling of gameresults to be democratic
+
 [IRC]: major cleanup of handle_irc.c
   -- hiding IP on channel join/leave to non admins when hide_addr=true
   -- now on IRC channel topics are supported (at least their output)
