@@ -47,6 +47,7 @@ BINARY PACKAGES:
 - Mihai Maties <mihai@xcyb.org> (RPMs & src.rpm snapshot script)
 - Radu Radoveneanu <rakware@go.ro> (Slackware packages)
 - Robert Millan <rmh at debian dot org> (official Debian package maintainer)
+- Max E. Kuznecov <mek at mek.uz.ua> (FreeBSD port entry maintainer)
 
 ORIGINAL BNETD CREDITS:
 -------------------------------
