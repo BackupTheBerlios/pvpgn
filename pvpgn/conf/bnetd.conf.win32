@@ -337,6 +337,10 @@ contact_email = "unknown"
 # connections.
 use_keepalive = false
 
+# Limit maximum number of connections per IP (0 = unlimited)
+# this feature is new, so no recommended value so far
+max_conns_per_IP = 0
+
 # This is a comma delimited list of hostnames that the server should
 # listen on.  It might be useful to make an internal-only server on a
 # gateway machine for example.  If the list is not set or if it has a
@@ -449,9 +453,7 @@ mysql_dbname = "PVPGN"
 
 # Enable this if you want the SQL connection to be persistant
 # It will improve latency time especially for remote SQL servers
-# This option has not been tested very well, it did not crashed here but
-# note that we dont enable it default. Maybe we will in the future...
-mysql_persistent = false
+mysql_persistent = true
 
 ###############################################################################
 # war3 ladder textual output                                                  #
