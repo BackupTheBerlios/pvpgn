@@ -352,3 +352,6 @@
 
 /* Define if mkdir takes only one argument. */
 #define MKDIR_TAKES_ONE_ARG 1
+
+/* Define if you support inline */
+#define inline __inline
