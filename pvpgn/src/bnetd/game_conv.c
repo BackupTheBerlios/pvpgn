@@ -972,7 +972,8 @@ If the corresponding bit is a '0' then subtract 1 from the character.
     0x11 -- 2 bytes (short, mapsize y)
     0x13 -- 4 bytes (long, unknown, map checksum ?)
     0x17 -- n bytes (string, mapname \0 terminated)
-    0x17+n -- bitmask encoding stops from here, but we don't know what following bytes mean.
+    0x17+n -- m bytes (string, game creator \0 terminated, but we already set this to game before, :P)
+    0x17+n+m -- 2 bytes: \0 \0 (first \0 might be a reserved string for password, but blizzard didn't implement it, second \0 is the info string end sign)
 */
         const char *pstr;
 
