@@ -87,3 +87,13 @@
 
     File based storage (plain and cdb) have been unified into a single storage 
     backend (called "file") and the mode (plain/cdb) is just a parameter.
+
+ o Rewritten low level socket multiplexing codes (fdwatch2)
+
+    The codes which deal with how PvPGN knows which sockets are available for 
+    reading/writing have been rewritten with a new interface which does not 
+    presume (like the old codes) that the underlying OS allocates socket 
+    values "close" (ex. WIN32 systems do not while most Unix based systems do 
+    so). The new codes eliminates this presumtion and thus allows WIN32 hosts 
+    to support a large number of connections as PvPGN supported Unix based 
+    platforms.
