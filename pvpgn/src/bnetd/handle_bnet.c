@@ -4105,11 +4105,6 @@ static int _client_joinchannel(t_connection * c, t_packet const * const packet)
 	        strcpy(tempplayerinfo, client);
 		eventlog(eventlog_level_info,__FUNCTION__,"[%d] %s",conn_get_socket(c), client);
 	     }
-	   else if (wins==0)
-	     {
-	        strcpy(tempplayerinfo, client);
-		eventlog(eventlog_level_info,__FUNCTION__,"[%d] %s",conn_get_socket(c), client);
-	     }
 	   else 
 	     {
 		sprintf(tempplayerinfo, "%s %1u%c3W %u %u", client, raceiconnumber, raceicon, acctlevel, wins); 

@@ -3007,13 +3007,14 @@ extern int account_get_icon_profile(t_account * account, char const * clienttag)
 	    {0x00000000, 0x6E677264, 0x6E616472, 0x6E726472, 0x6E62776D}  // Ramdom - ????, Grean Dragon Whelp, Blue Dragon, Red Dragon, Deathwing
 	};
 
-        if(humans>=orcs && humans>=undead && humans>=nightelf && humans>=random) {
-	    wins = humans;
-            race = 0;
-        }
-        else if(orcs>=humans && orcs>=undead && orcs>=nightelf && orcs>=random) {
+	/* moved the check for orcs in the first place so people with 0 wins get peon */
+        if(orcs>=humans && orcs>=undead && orcs>=nightelf && orcs>=random) {
             wins = orcs;
             race = 1;
+        }
+        else if(humans>=orcs && humans>=undead && humans>=nightelf && humans>=random) {
+	    wins = humans;
+            race = 0;
         }
         else if(nightelf>=humans && nightelf>=orcs && nightelf>=undead && nightelf>=random) {
             wins = nightelf;
