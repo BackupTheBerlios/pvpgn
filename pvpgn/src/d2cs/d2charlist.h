@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2004      ls_sons  (ls@gamelife.org)
+ * Copyright (C) 2004      Olaf Freyer (aaron@cs.tu-berlin.de)
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -16,23 +17,13 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-typedef struct  d2charlist_internal{
-    char const			* name;
-    unsigned int		exp;
-    unsigned int		mtime;
-    unsigned int		level;
-    struct d2charlist_internal	*next;
-    struct d2charlist_internal	*prev;
-} t_d2charlist_internal;
+#include "common/elist.h"
+#include "d2cs_d2gs_character.h"
 
-typedef struct  d2charlist{
-    t_d2charlist_internal	*first;
-    t_d2charlist_internal	*last;
+typedef struct  	d2charlist{
+    t_d2charinfo_file	*charinfo;
+    int			expiration_time;
+    t_elist		list;
 } t_d2charlist;
 
-extern void d2charlist_init(t_d2charlist *);
-extern void d2charlist_destroy(t_d2charlist *);
-
-extern int d2charlist_add_char(t_d2charlist *, char const *, bn_int, bn_int, bn_int);
-
-void do_add_char (t_d2charlist *, t_d2charlist_internal *, t_d2charlist_internal *);
+extern int d2charlist_add_char(t_elist *, t_d2charinfo_file *i, unsigned int);

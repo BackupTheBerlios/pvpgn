@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2004      ls_sons  (ls@gamelife.org)
+ * Copyright (C) 2004	Olaf Freyer (aaron@cs.tu-berlin.de)
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -45,110 +46,57 @@
 #include "d2charlist.h"
 #include "common/setup_after.h"
 
-extern void d2charlist_init(t_d2charlist * clist)
+extern int d2charlist_add_char(t_elist * list_head, t_d2charinfo_file * charinfo, unsigned int expiration_time)
 {
-    clist->first=NULL ;
-    clist->last=NULL;
-}
-
-extern void d2charlist_destroy(t_d2charlist * clist)
-{
-    t_d2charlist_internal *pointer;
-
-    while (clist->first!=NULL)
-    {
-        pointer = clist->first;
-        clist->first = pointer->next;
-	xfree((void *)pointer->name);
-        xfree((void *)pointer);
-    }
-}
-
-extern int d2charlist_add_char(t_d2charlist *charlist, char const * name, bn_int mtime, bn_int level, bn_int exp)
-{
-    t_d2charlist_internal * charlist_internal;
-    t_d2charlist_internal * search;
+    t_d2charlist * charlist, * ccharlist;
     char const * d2char_sort;
     d2char_sort = prefs_get_charlist_sort();
-    charlist_internal = xmalloc(sizeof(t_d2charlist_internal));
+    t_elist * curr;
+    
+    charlist = xmalloc(sizeof(t_d2charlist));
+    charlist->charinfo = charinfo;
+    charlist->expiration_time = expiration_time;
 
-    charlist_internal->name = xstrdup(name);
-    charlist_internal->mtime = bn_int_get(mtime);
-    charlist_internal->level = bn_int_get(level);
-    charlist_internal->exp = bn_int_get(exp);
-    charlist_internal->prev = NULL;
-    charlist_internal->next = NULL;
-    if (charlist->first == NULL) {
-	charlist->first = charlist_internal;
-	charlist->last = charlist_internal;
-    }
+    if (elist_empty(list_head))
+        elist_add(list_head,&charlist->list);
     else
     {
-        if (!strcasecmp(d2char_sort, "name"))
+        if (strcasecmp(d2char_sort, "name")==0)
         {
-            search = charlist->first;
-            while ((search != NULL) && (name > search->name))
-            {
-                search = search->next;
-            }
-            do_add_char(charlist,search,charlist_internal);
-        }
-	else if (!strcasecmp(d2char_sort, "mtime"))
-	{
-	    search = charlist->first;
-	    while ((search != NULL) && (bn_int_get(mtime) > search->mtime))
+	    elist_for_each(curr,list_head)
 	    {
-		search = search->next;
+	       ccharlist = elist_entry(curr,t_d2charlist,list);
+               if (strncasecmp(charinfo->header.charname,ccharlist->charinfo->header.charname,strlen(charinfo->header.charname))<0)
+	           break;
 	    }
-	    do_add_char(charlist,search,charlist_internal);
+            elist_add_tail(curr,&charlist->list);
+        }
+	else if (strcasecmp(d2char_sort, "mtime")==0)
+	{
+	    elist_for_each(curr,list_head)
+	    {
+	       ccharlist = elist_entry(curr,t_d2charlist,list);
+               if (bn_int_get(charinfo->header.last_time) < bn_int_get(ccharlist->charinfo->header.last_time))
+	           break;
+	    }
+            elist_add_tail(curr,&charlist->list);
 	}
-        else if (!strcasecmp(d2char_sort, "level"))
+        else if (strcasecmp(d2char_sort, "level")==0)
         {
-            search = charlist->first;
-            while ((search != NULL) && (bn_int_get(level) > search->level))
-            {
-                search = search->next;
-            }
-            while ((search != NULL) && (bn_int_get(level) == search->level) && (bn_int_get(exp) > search->exp))
-            {
-                search = search->next;
-            }
-            while ((search != NULL) && (bn_int_get(level) == search->level) && (bn_int_get(exp) == search->exp) && (name > search->name))
-            {
-                search = search->next;
-            }
-            do_add_char(charlist,search,charlist_internal);
+	    elist_for_each(curr,list_head)
+	    {
+	       ccharlist = elist_entry(curr,t_d2charlist,list);
+               if (bn_int_get(charinfo->summary.experience) < bn_int_get(ccharlist->charinfo->summary.experience))
+	           break;
+	    }
+            elist_add_tail(curr,&charlist->list);
         }
         else
         {
-	    charlist->last->next = charlist_internal;
-	    charlist_internal->prev = charlist->last;
-	    charlist->last = charlist_internal;
+	eventlog(eventlog_level_debug,__FUNCTION__,"unsorted");
+	elist_add_tail(list_head,&charlist->list);
         }
     }
     return 0;
 }
 
-void do_add_char (t_d2charlist * charlist, t_d2charlist_internal * search, t_d2charlist_internal * charlist_internal)
-{
-    if (search == NULL)
-    {
-        charlist->last->next = charlist_internal;
-        charlist_internal->prev = charlist->last;
-        charlist->last = charlist_internal;
-    }
-    else
-    {
-        charlist_internal->next = search;
-        if (search == charlist->first)
-        {
-            charlist->first = charlist_internal;
-        }
-        else
-        {
-            charlist_internal->prev = search->prev;
-            search->prev->next = charlist_internal;
-        }
-        search->prev = charlist_internal;
-    }
-}
