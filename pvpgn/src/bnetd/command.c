@@ -2255,8 +2255,7 @@ static int _handle_squelch_command(t_connection * c, char const *text)
 
   text = skip_command(text);
   
-  /* D2 puts * before username - FIXME: the client don't see it until
-     the player rejoins the channel */
+  /* D2 puts * before username */
   if (text[0]=='*')
     text++;
  
@@ -2303,13 +2302,12 @@ static int _handle_squelch_command(t_connection * c, char const *text)
 
 static int _handle_unsquelch_command(t_connection * c, char const *text)
 {
-  t_account const * account;
+  t_account * account;
   t_connection * dest_c;
 
   text = skip_command(text);
   
-  /* D2 puts * before username - FIXME: the client don't see it until
-     the player rejoins the channel */
+  /* D2 puts * before username */
   if (text[0]=='*')
     text++;
   
