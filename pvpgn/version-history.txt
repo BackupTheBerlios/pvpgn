@@ -31,7 +31,8 @@ channel.list)
 connections from same IP - by z0rm
 -- added mapping for all version up to 315 to get rid of annoying warning
 -- added tempOPs for non permanent channels. those can kick users from the
-chanel and /op other users to make them tempOPs, too
+chanel and /op other users to make them tempOPs, too. Also they can deOP other
+tempOPs and can be deOPd by server/channel OPs/admins
 
 
 1.4.6-D2
