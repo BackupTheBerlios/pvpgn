@@ -3342,13 +3342,25 @@ static int _client_findanongame(t_connection * c, t_packet const * const packet)
 		char anongame_PG_sffa_prefix[] = {0x04, 0x00, 0x02, 0x3F, 0x00};
 
 		char anongame_AT_2v2_prefix[]  = {0x00, 0x00, 0x02, 0x3F, 0x02};
-		//char anongame_AT_3v3_prefix[]  = {0x00, 0x00, 0x00, 0x00, 0x03};// I guess the last byte is the 'number of players'
+		char anongame_AT_3v3_prefix[]  = {0x02, 0x00, 0x02, 0x3F, 0x03};
+		char anongame_AT_4v4_prefix[]  = {0x03, 0x00, 0x02, 0x3F, 0x04};
 
 		char anongame_AT_2v2_maps_static[] = {0x06,0x04,0x05,0x06,0x07,0x08,0x09};
-		//char anongame_AT_3v3_maps_static[] = {0x06,0x04,0x05,0x06,0x07,0x08,0x09};
+		char anongame_AT_3v3_maps_static[] = {0x06,0x04,0x05,0x06,0x07,0x08,0x09};
+		char anongame_AT_4v4_maps_static[] = {0x06,0x04,0x05,0x06,0x07,0x08,0x09};
 
 		char anongame_PG_section = 0x00;
 		char anongame_AT_section = 0x01;
+
+		anongame_PG_1v1_prefix[2] = anongame_infos_THUMBSDOWN_get_PG_1v1();
+		anongame_PG_2v2_prefix[2] = anongame_infos_THUMBSDOWN_get_PG_2v2();
+		anongame_PG_3v3_prefix[2] = anongame_infos_THUMBSDOWN_get_PG_3v3();
+		anongame_PG_4v4_prefix[2] = anongame_infos_THUMBSDOWN_get_PG_4v4();
+		anongame_PG_sffa_prefix[2]= anongame_infos_THUMBSDOWN_get_PG_ffa();
+
+		anongame_AT_2v2_prefix[2] = anongame_infos_THUMBSDOWN_get_AT_2v2();
+		anongame_AT_3v3_prefix[2] = anongame_infos_THUMBSDOWN_get_AT_3v3();
+		anongame_AT_4v4_prefix[2] = anongame_infos_THUMBSDOWN_get_AT_4v4();
 
 		mapscount_1v1  = list_get_length(anongame_get_w3xp_maplist(ANONGAME_TYPE_1V1));
 		mapscount_2v2  = list_get_length(anongame_get_w3xp_maplist(ANONGAME_TYPE_2V2));
@@ -3494,9 +3506,15 @@ static int _client_findanongame(t_connection * c, t_packet const * const packet)
 				packet_append_data(rpacket,&anongame_AT_section,1);
 				AT_gamestyles = 1;
 				packet_append_data(rpacket,&AT_gamestyles,1);
-				packet_append_data(rpacket,&anongame_AT_2v2_prefix,5);
 
+				packet_append_data(rpacket,&anongame_AT_2v2_prefix,5);
 				packet_append_data(rpacket,&anongame_AT_2v2_maps_static,7);
+
+				//packet_append_data(rpacket,&anongame_AT_3v3_prefix,5);
+				//packet_append_data(rpacket,&anongame_AT_3v3_maps_static,7);
+
+				//packet_append_data(rpacket,&anongame_AT_4v4_prefix,5);
+				//packet_append_data(rpacket,&anongame_AT_4v4_maps_static,7);
 				
 				server_tag_count++;
 				eventlog(eventlog_level_debug,__FUNCTION__,"client_tag request tagid=(0x%01x) tag=(%s) tag_unk=(0x%04x)",i,"CLIENT_FINDANONGAME_INFOTAG_TYPE",client_tag_unk);

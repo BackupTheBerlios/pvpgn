@@ -6,7 +6,8 @@ a general note:
   it will not only speed up all the database accesses but its also the mode
 that is used during dev'ing so problems with it are less propable
 changes:
--- added conf/anongame_infos.conf so u can freely name gametypes for W3XP
+-- added conf/anongame_infos.conf so u can freely name gametypes and ladder
+URLS for W3XP
 -- maps/gametypes for W3XP can now be changed in bnmaps.txt
 -- fixed some possible mySQL problems with savebyname=false for usernames
 beginning with a digit
@@ -16,13 +17,13 @@ errors the reported line numbers are now much closer to the problem
 -- allows delimiting of mapnames with " " in bnmaps.txt
 -- changed versioncheck exe parsing so it should now accept filenames containg
 spaces (like War2-BNE)
--- some first fixes to get PvPGN working on BigEndian machines (WAR3 should
-work fine now, still problems for W3XP remaining)
+-- some fixes to get PvPGN working on BigEndian machines
 -- added /NAMES command (rfc 1459) - by Alexey
 -- make sure war3 lan game search does not cause server to report strange
 errors -  by Alexey
 -- support for multiple news - by Alexey
--- added "thumbs down" limitation for W3XP (still hardcoded but config later)
+-- added "thumbs down" limitation for W3XP (configurable via
+anongame_infos.conf)
 -- support for the "select icon" function added
 -- fixed problems with chat/profile icons not being sync'ed
 -- friends list in war3/w3xp should now properly show channel for non-mutual

@@ -167,6 +167,49 @@ int anongame_infos_DESC_destroy(t_anongame_infos_DESC * anongame_infos_DESC)
 	return 0;
 }
 
+int anongame_infos_THUMBSDOWN_init(t_anongame_infos * anongame_infos)
+{
+	t_anongame_infos_THUMBSDOWN * anongame_infos_THUMBSDOWN;
+
+	if (!(anongame_infos))
+	{
+		eventlog(eventlog_level_error,__FUNCTION__,"got NULL anongame_infos");
+		return -1;
+	}
+
+	if (!(anongame_infos_THUMBSDOWN = malloc(sizeof(t_anongame_infos_THUMBSDOWN))))
+	{
+	    eventlog(eventlog_level_error,__FUNCTION__,"could not allocate mem for anongame_infos_THUMBSDOWN");
+	    return -1;
+	}
+    
+	anongame_infos_THUMBSDOWN->PG_1v1 = 0;
+	anongame_infos_THUMBSDOWN->PG_2v2 = 0;
+	anongame_infos_THUMBSDOWN->PG_3v3 = 0;
+	anongame_infos_THUMBSDOWN->PG_4v4 = 0;
+	anongame_infos_THUMBSDOWN->PG_ffa = 0;
+	anongame_infos_THUMBSDOWN->AT_2v2 = 0;
+	anongame_infos_THUMBSDOWN->AT_3v3 = 0;
+	anongame_infos_THUMBSDOWN->AT_4v4 = 0;
+
+	anongame_infos->anongame_infos_THUMBSDOWN=anongame_infos_THUMBSDOWN;
+
+	return 0;
+}
+
+int anongame_infos_THUMBSDOWN_destroy(t_anongame_infos_THUMBSDOWN * anongame_infos_THUMBSDOWN)
+{
+	if (!(anongame_infos_THUMBSDOWN))
+	{
+		eventlog(eventlog_level_error,__FUNCTION__,"got NULL anongame_infos_THUMBSDOWN");
+		return -1;
+	}
+
+	free((void *)anongame_infos_THUMBSDOWN);
+
+	return 0;
+}
+
 t_anongame_infos *  anongame_infos_init()
 {
   t_anongame_infos * anongame_infos;
@@ -183,11 +226,19 @@ t_anongame_infos *  anongame_infos_init()
 		return NULL;
 	}
 
+	if (anongame_infos_THUMBSDOWN_init(anongame_infos)!=0)
+	{
+	  anongame_infos_URL_destroy(anongame_infos->anongame_infos_URL);
+	  free((void *)anongame_infos);
+	  return NULL;
+	}
+
 	anongame_infos->anongame_infos_DESC = NULL;
 
     if (!(anongame_infos->anongame_infos_DESC_list = list_create()))
     {
         eventlog(eventlog_level_error,__FUNCTION__,"could not create list");
+	        anongame_infos_THUMBSDOWN_destroy(anongame_infos->anongame_infos_THUMBSDOWN);
 		anongame_infos_URL_destroy(anongame_infos->anongame_infos_URL);
 		free((void *)anongame_infos);
         return NULL;
@@ -224,6 +275,7 @@ int anongame_infos_destroy(t_anongame_infos * anongame_infos)
 
 	anongame_infos_DESC_destroy(anongame_infos->anongame_infos_DESC);
 	anongame_infos_URL_destroy(anongame_infos->anongame_infos_URL);
+	anongame_infos_THUMBSDOWN_destroy(anongame_infos->anongame_infos_THUMBSDOWN);
 
 	free((void *)anongame_infos);
 
@@ -1120,6 +1172,150 @@ extern char * anongame_infos_DESC_get_gametype_ffa_long(char * langID)
 	return anongame_infos->anongame_infos_DESC->gametype_ffa_long;
 }
 
+int anongame_infos_THUMBSDOWN_set_PG_1v1(t_anongame_infos_THUMBSDOWN * anongame_infos_THUMBSDOWN, char value)
+{
+    if (!anongame_infos_THUMBSDOWN)
+    {
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL anongame_infos_THUMBSDOWN");
+	return -1;
+    }
+
+    anongame_infos_THUMBSDOWN->PG_1v1 = value;
+
+    return 0;
+}
+
+int anongame_infos_THUMBSDOWN_set_PG_2v2(t_anongame_infos_THUMBSDOWN * anongame_infos_THUMBSDOWN, char value)
+{
+    if (!anongame_infos_THUMBSDOWN)
+    {
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL anongame_infos_THUMBSDOWN");
+	return -1;
+    }
+
+    anongame_infos_THUMBSDOWN->PG_2v2 = value;
+
+    return 0;
+}
+
+int anongame_infos_THUMBSDOWN_set_PG_3v3(t_anongame_infos_THUMBSDOWN * anongame_infos_THUMBSDOWN, char value)
+{
+    if (!anongame_infos_THUMBSDOWN)
+    {
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL anongame_infos_THUMBSDOWN");
+	return -1;
+    }
+
+    anongame_infos_THUMBSDOWN->PG_3v3 = value;
+
+    return 0;
+}
+
+int anongame_infos_THUMBSDOWN_set_PG_4v4(t_anongame_infos_THUMBSDOWN * anongame_infos_THUMBSDOWN, char value)
+{
+    if (!anongame_infos_THUMBSDOWN)
+    {
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL anongame_infos_THUMBSDOWN");
+	return -1;
+    }
+
+    anongame_infos_THUMBSDOWN->PG_4v4 = value;
+
+    return 0;
+}
+
+int anongame_infos_THUMBSDOWN_set_PG_ffa(t_anongame_infos_THUMBSDOWN * anongame_infos_THUMBSDOWN, char value)
+{
+    if (!anongame_infos_THUMBSDOWN)
+    {
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL anongame_infos_THUMBSDOWN");
+	return -1;
+    }
+
+    anongame_infos_THUMBSDOWN->PG_ffa = value;
+
+    return 0;
+}
+
+int anongame_infos_THUMBSDOWN_set_AT_2v2(t_anongame_infos_THUMBSDOWN * anongame_infos_THUMBSDOWN, char value)
+{
+    if (!anongame_infos_THUMBSDOWN)
+    {
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL anongame_infos_THUMBSDOWN");
+	return -1;
+    }
+
+    anongame_infos_THUMBSDOWN->AT_2v2 = value;
+
+    return 0;
+}
+
+int anongame_infos_THUMBSDOWN_set_AT_3v3(t_anongame_infos_THUMBSDOWN * anongame_infos_THUMBSDOWN, char value)
+{
+    if (!anongame_infos_THUMBSDOWN)
+    {
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL anongame_infos_THUMBSDOWN");
+	return -1;
+    }
+
+    anongame_infos_THUMBSDOWN->AT_3v3 = value;
+
+    return 0;
+}
+
+int anongame_infos_THUMBSDOWN_set_AT_4v4(t_anongame_infos_THUMBSDOWN * anongame_infos_THUMBSDOWN, char value)
+{
+    if (!anongame_infos_THUMBSDOWN)
+    {
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL anongame_infos_THUMBSDOWN");
+	return -1;
+    }
+
+    anongame_infos_THUMBSDOWN->AT_4v4 = value;
+
+    return 0;
+}
+
+char anongame_infos_THUMBSDOWN_get_PG_1v1()
+{
+	return anongame_infos->anongame_infos_THUMBSDOWN->PG_1v1;
+}
+
+char anongame_infos_THUMBSDOWN_get_PG_2v2()
+{
+	return anongame_infos->anongame_infos_THUMBSDOWN->PG_2v2;
+}
+
+char anongame_infos_THUMBSDOWN_get_PG_3v3()
+{
+	return anongame_infos->anongame_infos_THUMBSDOWN->PG_3v3;
+}
+
+char anongame_infos_THUMBSDOWN_get_PG_4v4()
+{
+	return anongame_infos->anongame_infos_THUMBSDOWN->PG_4v4;
+}
+
+char anongame_infos_THUMBSDOWN_get_PG_ffa()
+{
+	return anongame_infos->anongame_infos_THUMBSDOWN->PG_ffa;
+}
+
+char anongame_infos_THUMBSDOWN_get_AT_2v2()
+{
+	return anongame_infos->anongame_infos_THUMBSDOWN->AT_2v2;
+}
+
+char anongame_infos_THUMBSDOWN_get_AT_3v3()
+{
+	return anongame_infos->anongame_infos_THUMBSDOWN->AT_3v3;
+}
+
+char anongame_infos_THUMBSDOWN_get_AT_4v4()
+{
+	return anongame_infos->anongame_infos_THUMBSDOWN->AT_4v4;
+}
+
 void anongame_infos_set_defaults(t_anongame_infos * anongame_infos)
 {
     t_anongame_infos_URL * anongame_infos_URL;
@@ -1217,27 +1413,35 @@ typedef int (* t_URL_string_handler)(t_anongame_infos_URL * anongame_infos_URL, 
 
 typedef struct {
 	const char				* anongame_infos_URL_string;
-	t_URL_string_handler	URL_string_handler;
+	t_URL_string_handler			URL_string_handler;
 } t_anongame_infos_URL_table_row;
 
 typedef int (* t_DESC_string_handler)(t_anongame_infos_DESC * anongame_infos_DESC, char * text);
 
 typedef struct {
 	const char				* anongame_infos_DESC_string;
-	t_DESC_string_handler	DESC_string_handler;
+	t_DESC_string_handler			DESC_string_handler;
 } t_anongame_infos_DESC_table_row;
+
+typedef int (* t_THUMBSDOWN_string_handler)(t_anongame_infos_THUMBSDOWN * anongame_infos_THUMBSDOWN, char value);
+
+
+typedef struct {
+	const char				* anongame_infos_THUMBSDOWN_string;
+	t_THUMBSDOWN_string_handler		THUMBSDOWN_string_handler;
+} t_anongame_infos_THUMBSDOWN_table_row;
 
 static const t_anongame_infos_URL_table_row URL_handler_table[] = 
 {
 	{ "server_URL",			anongame_infos_URL_set_server_URL },
 	{ "player_URL",			anongame_infos_URL_set_player_URL },
 	{ "tourney_URL",		anongame_infos_URL_set_tourney_URL },
-	{ "ladder_PG_1v1_URL",	anongame_infos_URL_set_ladder_PG_1v1_URL },
-	{ "ladder_PG_ffa_URL",	anongame_infos_URL_set_ladder_PG_ffa_URL },
-	{ "ladder_PG_team_URL",	anongame_infos_URL_set_ladder_PG_team_URL },
-	{ "ladder_AT_2v2_URL",	anongame_infos_URL_set_ladder_AT_2v2_URL },
-	{ "ladder_AT_3v3_URL",	anongame_infos_URL_set_ladder_AT_3v3_URL },
-	{ "ladder_AT_4v4_URL",	anongame_infos_URL_set_ladder_AT_4v4_URL },
+	{ "ladder_PG_1v1_URL",		anongame_infos_URL_set_ladder_PG_1v1_URL },
+	{ "ladder_PG_ffa_URL",		anongame_infos_URL_set_ladder_PG_ffa_URL },
+	{ "ladder_PG_team_URL",		anongame_infos_URL_set_ladder_PG_team_URL },
+	{ "ladder_AT_2v2_URL",		anongame_infos_URL_set_ladder_AT_2v2_URL },
+	{ "ladder_AT_3v3_URL",		anongame_infos_URL_set_ladder_AT_3v3_URL },
+	{ "ladder_AT_4v4_URL",		anongame_infos_URL_set_ladder_AT_4v4_URL },
 	{ NULL,	NULL }
 };
 
@@ -1263,11 +1467,26 @@ static const t_anongame_infos_DESC_table_row DESC_handler_table[] =
 	{ NULL, NULL }
 };
 
+static const t_anongame_infos_THUMBSDOWN_table_row THUMBSDOWN_handler_table[] =
+{
+	{ "PG_1v1",			anongame_infos_THUMBSDOWN_set_PG_1v1 },
+	{ "PG_2v2",			anongame_infos_THUMBSDOWN_set_PG_2v2 },
+	{ "PG_3v3",			anongame_infos_THUMBSDOWN_set_PG_3v3 },
+	{ "PG_4v4",			anongame_infos_THUMBSDOWN_set_PG_4v4 },
+	{ "PG_ffa",			anongame_infos_THUMBSDOWN_set_PG_ffa },
+	{ "AT_2v2",			anongame_infos_THUMBSDOWN_set_AT_2v2 },
+	{ "AT_3v3",			anongame_infos_THUMBSDOWN_set_AT_3v3 },
+	{ "AT_4v4",			anongame_infos_THUMBSDOWN_set_AT_4v4 },
+
+	{ NULL, NULL }
+};
+
 typedef enum
 {
 	parse_UNKNOWN,
 	parse_URL,
-	parse_DESC
+	parse_DESC,
+	parse_THUMBSDOWN
 } t_parse_mode;
 
 typedef enum
@@ -1280,6 +1499,7 @@ t_parse_mode switch_parse_mode(char * text, char * langID)
 {
 	if (!(text)) return parse_UNKNOWN;
 	else if (strcmp(text,"[URL]")==0) return parse_URL;
+	else if (strcmp(text,"[THUMBS_DOWN_LIMIT]")==0) return parse_THUMBSDOWN;
 	else if (strcmp(text,"[DEFAULT_DESC]")==0) 
 	{
 		langID[0] = '\0';
@@ -1311,6 +1531,9 @@ extern int anongame_infos_load(char const * filename)
 	char *					value				= NULL;
 	t_anongame_infos_DESC_table_row	const *		DESC_table_row;
 	t_anongame_infos_URL_table_row	const *		URL_table_row;
+	t_anongame_infos_THUMBSDOWN_table_row const *	THUMBSDOWN_table_row;
+	int					int_value;
+	char					char_value;
     
 	langID[0]='\0';
 	
@@ -1465,6 +1688,55 @@ extern int anongame_infos_load(char const * filename)
 			}
 
 			break;
+
+		case parse_THUMBSDOWN:
+			if ((buff[0]=='[') && (buff[strlen(buff)-1]==']'))
+			{
+				if ((parse_mode == parse_DESC) && (parse_state == unchanged))
+				{
+				  if (langID[0]!='\0')
+					list_append_data(anongame_infos->anongame_infos_DESC_list,anongame_infos_DESC);
+				 else
+					{
+						if (anongame_infos->anongame_infos_DESC == NULL)
+						  anongame_infos->anongame_infos_DESC = anongame_infos_DESC;
+						else
+						{
+							eventlog(eventlog_level_error,__FUNCTION__,"found another default_DESC block, deleting previous");
+							anongame_infos_DESC_destroy(anongame_infos->anongame_infos_DESC);
+							anongame_infos->anongame_infos_DESC = anongame_infos_DESC;
+						}
+					}
+					anongame_infos_DESC = NULL;
+				}
+				parse_mode = switch_parse_mode(buff,langID);
+				parse_state = changed;
+			}
+			else
+			{
+			        parse_state = unchanged;
+				variable = buff;
+				pointer = strchr(variable,'=');
+				for(pointer--;pointer[0]==' ';pointer--);
+				pointer[1]='\0';
+				pointer++;
+				pointer++;
+				pointer = strchr(pointer,'=');
+				pointer++;
+				int_value = atoi(pointer);
+				if (int_value<0) int_value=0;
+				if (int_value>127) int_value=127;
+				char_value = (char)int_value;
+
+				for(THUMBSDOWN_table_row = THUMBSDOWN_handler_table; THUMBSDOWN_table_row->anongame_infos_THUMBSDOWN_string != NULL; THUMBSDOWN_table_row++)
+					if (strcmp(THUMBSDOWN_table_row->anongame_infos_THUMBSDOWN_string, variable)==0) {
+						if (THUMBSDOWN_table_row->THUMBSDOWN_string_handler != NULL) THUMBSDOWN_table_row->THUMBSDOWN_string_handler(anongame_infos->anongame_infos_THUMBSDOWN,char_value);
+					}
+
+			}
+
+			break;
+
 		}
 	free(buff);
     }
