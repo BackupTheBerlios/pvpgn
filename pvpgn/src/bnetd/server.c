@@ -691,9 +691,6 @@ static int sd_tcpinput(int csocket, t_connection * c)
 	default:
 	    packet = queue_pull_packet(conn_get_in_queue(c));
 
-            if (conn_get_pmap(c))
-                packet_set_type(packet, bnpmap_real(packet_get_type(packet), conn_get_pmap(c)));
-
 	    if (hexstrm)
 	    {
 		fprintf(hexstrm,"%d: recv class=%s[0x%02x] type=%s[0x%04x] length=%u\n",
@@ -704,6 +701,9 @@ static int sd_tcpinput(int csocket, t_connection * c)
 		hexdump(hexstrm,packet_get_raw_data_const(packet,0),packet_get_size(packet));
 	    }
 	    
+            if (conn_get_pmap(c))
+                packet_set_type(packet, bnpmap_real(packet_get_type(packet), conn_get_pmap(c)));
+
 	    if (conn_get_class(c)==conn_class_bot ||
 		conn_get_class(c)==conn_class_telnet) /* NUL terminate the line to make life easier */
 	    {
@@ -812,19 +812,19 @@ static int sd_tcpoutput(int csocket, t_connection * c)
 	    return 0; /* bail out */
 	    
 	case 1: /* done sending */
-	    packet_destroy(newpacket);
-	    packet = queue_pull_packet(conn_get_out_queue(c));
-	    
 	    if (hexstrm)
 	    {
 		fprintf(hexstrm,"%d: send class=%s[0x%02x] type=%s[0x%04x] length=%u\n",
 			csocket,
-			packet_get_class_str(packet),(unsigned int)packet_get_class(packet),
-			packet_get_type_str(packet,packet_dir_from_server),packet_get_type(packet),
-			packet_get_size(packet));
-		hexdump(hexstrm,packet_get_raw_data(packet,0),packet_get_size(packet));
+			packet_get_class_str(newpacket),(unsigned int)packet_get_class(newpacket),
+			packet_get_type_str(newpacket,packet_dir_from_server),packet_get_type(newpacket),
+			packet_get_size(newpacket));
+		hexdump(hexstrm,packet_get_raw_data(newpacket,0),packet_get_size(newpacket));
 	    }
 
+	    packet_destroy(newpacket);
+	    
+	    packet = queue_pull_packet(conn_get_out_queue(c));
 	    packet_del_ref(packet);
 	    conn_set_out_size(c,0);
 	    
