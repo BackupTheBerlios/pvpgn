@@ -30,6 +30,9 @@
 /* Define if you have the _vsnprintf function.  */
 #define HAVE__VSNPRINTF 1
 
+/* Define if you have the _snprintf function.  */
+#define HAVE__SNPRINTF 1
+
 /* Define if on MINIX.  */
 /* #undef _MINIX */
 
