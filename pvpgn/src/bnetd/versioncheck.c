@@ -640,7 +640,7 @@ extern int versioncheck_load(char const * filename)
 	}
 	if (!tag_check_arch((vi->archtag = tag_str_to_uint(archtag))))
 	{
-	    eventlog(eventlog_level_error,__FUNCTION__,"got unknown archtag");
+	    eventlog(eventlog_level_error,__FUNCTION__,"got unknown archtag \"%s\"",archtag);
 	    free((void *)vi->mpqfile); /* avoid warning */
 	    free((void *)vi->eqn); /* avoid warning */
 	    free(vi);
@@ -658,7 +658,7 @@ extern int versioncheck_load(char const * filename)
 	}
 	if (!tag_check_client((vi->clienttag = tag_str_to_uint(clienttag))))
 	{
-	    eventlog(eventlog_level_error,__FUNCTION__,"got unknown clienttag");
+	    eventlog(eventlog_level_error,__FUNCTION__,"got unknown clienttag\"%s\"",clienttag);
 	    free((void *)vi->mpqfile); /* avoid warning */
 	    free((void *)vi->eqn); /* avoid warning */
 	    free(vi);

@@ -850,9 +850,6 @@
 					RelativePath="..\compat\netinet_in.h">
 				</File>
 				<File
-					RelativePath="..\compat\nls.h">
-				</File>
-				<File
 					RelativePath="..\compat\pdir.h">
 				</File>
 				<File
