@@ -1966,23 +1966,21 @@ extern int account_set_sololosses( t_account * account, t_clienttag clienttag,un
   return account_set_numattr(account,key,losses);
 }
 
-extern int account_update_soloxp(t_account * account, t_clienttag clienttag, t_game_result gameresult, unsigned int opponlevel, int * xp_diff)
+extern int account_update_xp(t_account * account, t_clienttag clienttag, t_game_result gameresult, unsigned int opponlevel, int * xp_diff,int(*getxpfunc)(),int(*getlvlfunc)(),int(*setxpfunc)())
 { 
-  char key[256];
-  char clienttag_str[5];
   int xp;
   int mylevel;
   int xpdiff = 0, placeholder;
   
-  xp = account_get_soloxp(account, clienttag); //get current xp
+  xp = (*getxpfunc)(account, clienttag); //get current xp
   if (xp < 0) {
     eventlog(eventlog_level_error, __FUNCTION__, "got negative XP");
     return -1;
   }
    
-  mylevel = account_get_sololevel(account,clienttag); //get accounts level
+  mylevel = (*getlvlfunc)(account,clienttag); //get accounts level
   if (mylevel > W3_XPCALC_MAXLEVEL) {
-    eventlog(eventlog_level_error, "account_set_soloxp", "got invalid level: %d", mylevel);
+    eventlog(eventlog_level_error, __FUNCTION__, "got invalid level: %d", mylevel);
     return -1;
   }
   
@@ -1998,7 +1996,7 @@ extern int account_update_soloxp(t_account * account, t_clienttag clienttag, t_g
     case game_result_loss:
       ladder_war3_xpdiff(opponlevel, mylevel, &placeholder, &xpdiff); break;
     default:
-      eventlog(eventlog_level_error, "account_set_soloxp", "got invalid game result: %d", gameresult);
+      eventlog(eventlog_level_error, __FUNCTION__, "got invalid game result: %d", gameresult);
       return -1;
     }
 
@@ -2006,9 +2004,7 @@ extern int account_update_soloxp(t_account * account, t_clienttag clienttag, t_g
   xp += xpdiff;
   if (xp < 0) xp = 0;
 
-  sprintf(key,"Record\\%s\\solo\\xp",tag_uint_to_str(clienttag_str,clienttag));
-  
-  return account_set_numattr(account,key,xp);
+  return (*setxpfunc)(account,clienttag,xp);
 }
 
 extern int account_get_soloxp(t_account * account, t_clienttag clienttag)
@@ -2159,52 +2155,6 @@ extern int account_set_teamlosses(t_account * account, t_clienttag clienttag, un
   return account_set_numattr(account,key,losses);
 }
 
-extern int account_update_teamxp(t_account * account, t_clienttag clienttag, t_game_result gameresult, unsigned int opponlevel,int * xp_diff)
-{
-  char key[256];
-  char clienttag_str[5];
-  int xp;
-  int mylevel;
-  int xpdiff = 0, placeholder;
-
-  xp = account_get_teamxp(account,clienttag); //get current xp
-  if (xp < 0) {
-    eventlog(eventlog_level_error, "account_set_teamxp", "got negative XP");
-    return -1;
-  }
-
-  mylevel = account_get_teamlevel(account,clienttag); //get accounts level
-  if (mylevel > W3_XPCALC_MAXLEVEL) {
-    eventlog(eventlog_level_error, "account_set_teamxp", "got invalid level: %d", mylevel);
-    return -1;
-  }
-
-  if(mylevel<=0) //if level is 0 then set it to 1
-    mylevel=1;
-  
-  if (opponlevel < 1) opponlevel = 1;
-  
-  switch (gameresult) 
-    {
-    case game_result_win:
-      ladder_war3_xpdiff(mylevel, opponlevel, &xpdiff, &placeholder); break;
-    case game_result_loss:
-      ladder_war3_xpdiff(opponlevel, mylevel, &placeholder, &xpdiff); break;
-    default:
-      eventlog(eventlog_level_error, "account_set_teamxp", "got invalid game result: %d", gameresult);
-      return -1;
-    }  
-
-  *xp_diff = xpdiff;
-
-  xp += xpdiff;
-  if(xp<0) xp=0;
-  
-  sprintf(key,"Record\\%s\\team\\xp",tag_uint_to_str(clienttag_str,clienttag));
-
-  return account_set_numattr(account, key, xp);
-}
-
 extern int account_get_teamxp(t_account * account, t_clienttag clienttag)
 {
   char key[256];
@@ -2352,52 +2302,6 @@ extern int account_set_ffalosses(t_account * account, t_clienttag clienttag,unsi
 
   sprintf(key,"Record\\%s\\ffa\\losses",tag_uint_to_str(clienttag_str,clienttag));
   return account_set_numattr(account,key,losses);
-}
-
-extern int account_update_ffaxp(t_account * account, t_clienttag clienttag,t_game_result gameresult, unsigned int opponlevel, int * xp_diff)
-{ 
-  char key[256];
-  char clienttag_str[5];
-  int xp;
-  int mylevel;
-  int xpdiff = 0, placeholder;
-  xp = account_get_ffaxp(account,clienttag); //get current xp
-
-  xpdiff = 0;
-  if (xp < 0) {
-    eventlog(eventlog_level_error, __FUNCTION__, "got negative XP");
-    return -1;
-  }
-  
-  mylevel = account_get_ffalevel(account,clienttag); //get accounts level
-  if (mylevel > W3_XPCALC_MAXLEVEL) {
-    eventlog(eventlog_level_error, "account_set_ffaxp", "got invalid level: %d", mylevel);
-    return -1;
-  }
-
-  if(mylevel<=0) //if level is 0 then set it to 1
-    mylevel=1;
-  
-  if (opponlevel < 1) opponlevel = 1;
-
-  switch (gameresult) 
-    {
-    case game_result_win:
-      ladder_war3_xpdiff(mylevel, opponlevel, &xpdiff, &placeholder); break;
-    case game_result_loss:
-      ladder_war3_xpdiff(opponlevel, mylevel, &placeholder, &xpdiff); break;
-    default:
-      eventlog(eventlog_level_error, "account_set_ffaxp", "got invalid game result: %d", gameresult);
-      return -1;
-    }
-    
-  *xp_diff = xpdiff;
-  xp += xpdiff;
-  if (xp<0) xp=0;
-  
-  sprintf(key,"Record\\%s\\ffa\\xp",tag_uint_to_str(clienttag_str,clienttag));
-
-  return account_set_numattr(account,key,xp);
 }
 
 extern int account_get_ffaxp(t_account * account, t_clienttag clienttag)
@@ -2587,7 +2491,7 @@ extern int account_set_saveladderstats(t_account * account,unsigned int gametype
 			account_inc_racelosses(account,intrace, clienttag);
 		}
 			
-		account_update_soloxp(account,clienttag,result,opponlevel,&xpdiff);
+		account_update_xp(account,clienttag,result,opponlevel,&xpdiff,&account_get_soloxp,&account_get_sololevel,&account_set_soloxp);
 		account_adjust_sololevel(account,clienttag);
 		level = account_get_sololevel(account,clienttag);
 		if (war3_ladder_update(solo_ladder(clienttag),uid,xpdiff,level,account,0)!=0)
@@ -2616,7 +2520,7 @@ extern int account_set_saveladderstats(t_account * account,unsigned int gametype
 			account_inc_racelosses(account,intrace,clienttag);
 		}
 
-		account_update_teamxp(account,clienttag,result,opponlevel,&xpdiff);
+		account_update_xp(account,clienttag,result,opponlevel,&xpdiff,&account_get_teamxp,&account_get_teamlevel,&account_set_teamxp);
 		account_adjust_teamlevel(account,clienttag);
 		level = account_get_teamlevel(account,clienttag);
 		if (war3_ladder_update(team_ladder(clienttag),uid,xpdiff,level,account,0)!=0)
@@ -2637,7 +2541,7 @@ extern int account_set_saveladderstats(t_account * account,unsigned int gametype
 			account_inc_racelosses(account,intrace,clienttag);
 		}
 
-		account_update_ffaxp(account,clienttag,result,opponlevel,&xpdiff);
+		account_update_xp(account,clienttag,result,opponlevel,&xpdiff,&account_get_ffaxp,&account_get_ffalevel,&account_set_ffaxp);
 		account_adjust_ffalevel(account,clienttag);
 		level = account_get_ffalevel(account,clienttag);
 		if (war3_ladder_update(ffa_ladder(clienttag),uid,xpdiff,level,account,0)!=0)

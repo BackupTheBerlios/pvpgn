@@ -199,7 +199,7 @@ extern int account_set_solowins( t_account * account, t_clienttag clienttag,unsi
 extern int account_inc_sololosses( t_account * account, t_clienttag clienttag );
 extern int account_get_sololosses( t_account * account, t_clienttag clienttag );
 extern int account_set_sololosses( t_account * account, t_clienttag clienttag,unsigned losses);
-extern int account_update_soloxp(t_account * account, t_clienttag clienttag, t_game_result gameresult, unsigned int opponlevel,int * xp_diff);
+extern int account_update_xp(t_account * account, t_clienttag clienttag, t_game_result gameresult, unsigned int opponlevel,int * xp_diff,int(*getxpfunc)(),int(*getlvlfunc)(),int(*setxpfunc)());
 extern int account_get_soloxp(t_account * account, t_clienttag clienttag);
 extern int account_set_soloxp(t_account * account, t_clienttag clienttag,unsigned xp);
 extern int account_adjust_sololevel(t_account * account, t_clienttag clienttag);
@@ -214,7 +214,6 @@ extern int account_set_teamwins(t_account * account, t_clienttag clienttag,unsig
 extern int account_inc_teamlosses(t_account * account, t_clienttag clienttag);
 extern int account_get_teamlosses(t_account * account, t_clienttag clienttag);
 extern int account_set_teamlosses(t_account * account, t_clienttag clienttag,unsigned losses);
-extern int account_update_teamxp(t_account * account, t_clienttag clienttag, t_game_result gameresult, unsigned int opponlevel,int * xp_diff);
 extern int account_get_teamxp(t_account * account, t_clienttag clienttag);
 extern int account_set_teamxp(t_account * account, t_clienttag clienttag,unsigned xp);
 extern int account_adjust_teamlevel(t_account * account, t_clienttag clienttag);
@@ -229,7 +228,6 @@ extern int account_set_ffawins(t_account * account, t_clienttag clienttag,unsign
 extern int account_inc_ffalosses(t_account * account, t_clienttag clienttag);
 extern int account_get_ffalosses(t_account * account, t_clienttag clienttag);
 extern int account_set_ffalosses(t_account * account, t_clienttag clienttag,unsigned losses);
-extern int account_update_ffaxp(t_account * account, t_clienttag clienttag, t_game_result gameresult, unsigned int opponlevel, int * xp_diff);
 extern int account_get_ffaxp(t_account * account, t_clienttag clienttag);
 extern int account_set_ffaxp(t_account * account, t_clienttag clienttag,unsigned xp);
 extern int account_adjust_ffalevel(t_account * account, t_clienttag clienttag);
