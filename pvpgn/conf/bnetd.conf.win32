@@ -353,11 +353,6 @@ w3routeaddr = "127.0.0.1:6200"
 # don't know what you are doing just don't touch it.
 #w3routeshow = "Your External IP here:6200"
 
-# used in Warcraft 3. The ladder icon near the custom game button
-# when clicked it will send the user to the specified URL.
-# We suggest using jfro's php PvPGN Stats and putting URL here.
-#war3ladder_url = http://12.110.173.232
-
 #                                                                            #
 ##############################################################################
 

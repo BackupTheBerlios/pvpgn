@@ -375,11 +375,6 @@ w3routeaddr = "127.0.0.1:6200"
 # dont know what your are doing just dont touch it.
 #w3routeshow = "127.0.0.1:6200"
 
-# used in Warcraft 3. The Ladder icon near the CUSTOM Game button
-# When clicked it will send the users to the specified URL.  
-# We Suggest using jfro's php PvPGN Stats and putting url here.
-#war3ladder_url = http://www.yahoo.com
-
 #                                                                            #
 ##############################################################################
 
