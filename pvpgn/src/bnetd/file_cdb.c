@@ -204,13 +204,13 @@ static const char * fcpy(FILE *fd, cdbi_t len, cdbi_t *posp, cdbi_t limit, unsig
 	if (len > 2048) no = 2048;
 	else no = len;
 
-	fget(fd, buf, no, posp, limit);
+	if (fget(fd, buf, no, posp, limit)) return NULL;
 	memmove(str + res, buf, no);
 	res += no;
     }
 
     if (res > strl - 1) {
-	eventlog(eventlog_level_error, __FUNCTION__, "BUG, this should nto happen");
+	eventlog(eventlog_level_error, __FUNCTION__, "BUG, this should not happen");
 	return NULL;
     }
 
@@ -232,25 +232,22 @@ static int cdb_read_attrs(const char *filename, t_read_attr_func cb, void *data)
 	return -1;
     }
 
-    fget(f, buf, 2048, &pos, 2048);
+    if (fget(f, buf, 2048, &pos, 2048)) goto err_fd;
     eod = cdb_unpack(buf);
     while(pos < eod) {
-	fget(f, buf, 8, &pos, eod);
+	if (fget(f, buf, 8, &pos, eod)) goto err_fd;
 	klen = cdb_unpack(buf);
 	vlen = cdb_unpack(buf + 4);
 	if ((key = fcpy(f, klen, &pos, eod, buf)) == NULL) {
 	    eventlog(eventlog_level_error, __FUNCTION__, "error reading attribute key");
-	    fclose(f);
-	    return -1;
+	    goto err_fd;
 	}
 
 	key = xstrdup(key);
 
 	if ((val = fcpy(f, vlen, &pos, eod, buf)) == NULL) {
 	    eventlog(eventlog_level_error, __FUNCTION__, "error reading attribute val");
-	    xfree((void *)key);
-	    fclose(f);
-	    return -1;
+	    goto err_key;
 	}
 
 //	eventlog(eventlog_level_trace, __FUNCTION__, "read atribute : '%s' -> '%s'", key, val);
@@ -261,6 +258,13 @@ static int cdb_read_attrs(const char *filename, t_read_attr_func cb, void *data)
 
     fclose(f);
     return 0;
+
+err_key:
+    xfree((void *)key);
+
+err_fd:
+    fclose(f);
+    return -1;
 }
 #else /* CDB_ON_DEMAND */
 static int cdb_read_attrs(const char *filename, t_read_attr_func cb, void *data)

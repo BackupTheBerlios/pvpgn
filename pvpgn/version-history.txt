@@ -5,15 +5,17 @@ PvPGN Version History:
 [WIN32 GUI]
   -- fixed problem with running d2cs & d2dbs as services (gui versions)
 
+[D2CS]
+  -- The backup copy of the charsave file and charinfo file are now deleted
+  when client deletes one of thier charactars
+
 [MISC]
   -- fixed problem with language specific channels
   -- added UNIX build configure options to disable bnetd/d2cs/d2dbs builds
   -- added "sync_on_logoff" bnetd.conf directive to enable saving of account 
   data on user's logoff
-
-[D2CS]
-  -- The backup copy of the charsave file and charinfo file are now deleted
-  when client deletes one of thier charactars
+  -- fixed crash with short/broken cdb user files
+  -- fixed trying to load invalid usernames (like "")
 
  ChangeLog for 1.7.1 (since 1.7.0)
 ===================================
