@@ -26,13 +26,15 @@ friends, too
 common channel for war3 and w3xp
 -- made sure The Void is not shown in channellist
 -- added the possibility for server admin/oper only channels (via max==0 in
-channel.list)
+channel.list) (called "restricted channel")
 -- new option max_connection_per_IP in bnetd.conf allows u to limit
 connections from same IP - by z0rm
 -- added mapping for all version up to 315 to get rid of annoying warning
 -- added tempOPs for non permanent channels. those can kick users from the
 chanel and /op other users to make them tempOPs, too. Also they can deOP other
 tempOPs and can be deOPd by server/channel OPs/admins
+-- made sure that restricted channels only get displayed in channellist for
+operators/admins
 
 
 1.4.6-D2
