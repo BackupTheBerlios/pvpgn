@@ -24,7 +24,12 @@
 #---------------------------------------------------------------------------------------------------------------#
 #"<realmname>"	 ["<description>"]	     <ip:port>		 <showip:showport>	   <ip/netmast>		#
 #											                        #
-#################################################################################################################
+#################################################################################################################
 
-# Example:
-#"D2CS"		"PvPGN Closed Realm"	xxx.xxx.xxx.xxx:6113	xxx.xxx.xxx.xxx:6113	xxx.xxx.xxx.xxx/xx
+# Normal example (having a d2cs server running on IP 1.2.3.4):
+#"D2CS"		"PvPGN Closed Realm"	1.2.3.4:6113
+
+# Special example (having d2cs running on PRIVATE LAN IP 192.168.0.2 and the 
+# external IP addr of the NAT router beeing 1.2.3.4 and portforward 6113 from 
+# the NAT router to the internal d2cs and the internal network is 192.168.0/24)
+#"D2CS"		"PvPGN Closed Realm"	192.168.0.2:6113	1.2.3.4:6113	192.168.0.0/24
