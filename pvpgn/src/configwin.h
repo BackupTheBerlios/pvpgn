@@ -346,5 +346,8 @@
 
 /* Define if you have the <varargs.h> header file.  */
 #define HAVE_VARARGS_H 1
+
+#ifndef __BORLANDC__
 #define HAVE_MKDIR 1
 #define MKDIR_TAKES_ONE_ARG 1
+#endif
