@@ -27,6 +27,9 @@
 /* Define if you have the vprintf function.  */
 #define HAVE_VPRINTF 1
 
+/* Define if you have the _vsnprintf function.  */
+#define HAVE__VSNPRINTF 1
+
 /* Define if on MINIX.  */
 /* #undef _MINIX */
 
