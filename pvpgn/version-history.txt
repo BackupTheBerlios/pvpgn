@@ -2,7 +2,28 @@ PvPGN Version History:
 
 1.6.0 (since 1.5.0beta3):
 -- fixed IRC auth bug (when using passwords with upper cases)
--- fixed FT icons
+-- fixed FT/ROC icons
+-- reorganized PG/AT code
+-- fixed "make install" update the paths for the new (storage_path) parameter
+-- adapted and included tinycdb 0.73 into PvPGN and use it for cdb user account
+files (a new storage driver)
+-- fixed war3 points gained/lost
+-- added some workarrounds which should fix any problems having NULL accounts
+into storage (especially on SQL case where it didnt overwrite existent account 
+like files do)
+-- added traditional Chinese language support for playgame and pvpgn and also 
+updated icons.bni
+-- added 1.12 W3 ROC/FT versioncheck entries
+-- added PostgreSQL user accounts support
+-- added option to /kill to kill/ban pure connections (use "/con all" to find
+out the socket of a connection you want to kill and then use "/kill #<socket>" 
+to kill it)
+-- fixed very nasty bug affecting win32 PVPGN admins only
+-- fixed possible/rare crash when doing /realmann while not beeing into any
+realm
+-- more anongame code cleanup
+-- expanded the /user command. If client tag is given, will give number of 
+users and games of that client type, or 'all' for listing of all client types
 
 1.5.0beta3:
 -- fixed a long standing bug regarding bnmaps.txt and AT maps
