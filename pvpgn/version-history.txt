@@ -17,6 +17,7 @@ PvPGN Version History:
 [MISC]
   -- made topics.conf being reloaded on SIGHUP
   -- made '/games all' display clienttag of a game
+  -- fixed problem with language specific channels with limited user count
 
  Changelog for 1.7.2 (since 1.7.1)
 ===================================

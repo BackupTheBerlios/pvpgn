@@ -87,7 +87,7 @@ static char * channel_format_name(char const * sname, char const * country, char
 
 extern int channel_set_userflags(t_connection * c);
 
-extern t_channel * channel_create(char const * fullname, char const * shortname, char const * clienttag, int permflag, int botflag, int operflag, int logflag, char const * country, char const * realmname, int maxmembers, int moderated, int clanflag)
+extern t_channel * channel_create(char const * fullname, char const * shortname, char const * clienttag, int permflag, int botflag, int operflag, int logflag, char const * country, char const * realmname, int maxmembers, int moderated, int clanflag, int autoname)
 {
     t_channel * channel;
     
@@ -202,6 +202,7 @@ extern t_channel * channel_create(char const * fullname, char const * shortname,
     if (botflag)  channel->flags |= channel_flags_allowbots;
     if (operflag) channel->flags |= channel_flags_allowopers;
     if (clanflag) channel->flags |= channel_flags_clan;
+    if (autoname) channel->flags |= channel_flags_autoname;
     
     if (logflag)
     {
@@ -1052,14 +1053,14 @@ static int channellist_load_permanent(char const * filename)
 	
 	if (name)
 	    {
-            channel_create(name,sname,tag,1,botflag,operflag,logflag,country,realmname,atoi(max),modflag,0);
+            channel_create(name,sname,tag,1,botflag,operflag,logflag,country,realmname,atoi(max),modflag,0,0);
 	    }
 	else
 	    {
             newname = channel_format_name(sname,country,realmname,1);
             if (newname)
 		{
-                   channel_create(newname,sname,tag,1,botflag,operflag,logflag,country,realmname,atoi(max),modflag,0);
+                   channel_create(newname,sname,tag,1,botflag,operflag,logflag,country,realmname,atoi(max),modflag,0,1);
                    xfree(newname);
 	    }
             else
@@ -1380,8 +1381,10 @@ extern t_channel * channellist_find_channel_by_name(char const * name, char cons
     t_channel *    channel;
     t_elem const * curr;
     int            foundperm;
+    int            foundlang;
     int            maxchannel; /* the number of "rollover" channels that exist */
     char const *   saveshortname;
+    char const *   savespecialname;
     char const *   savetag;
     int            savebotflag;
     int            saveoperflag;
@@ -1393,11 +1396,12 @@ extern t_channel * channellist_find_channel_by_name(char const * name, char cons
     t_channel *    special_channel;
 
     // try to make gcc happy and initialize all variables
-    saveshortname = savetag = savecountry = saverealmname = NULL;
+    saveshortname = savespecialname = savetag = savecountry = saverealmname = NULL;
     savebotflag = saveoperflag = savelogflag = savemaxmembers = savemoderated = 0;
 
     maxchannel = 0;
     foundperm = 0;
+    foundlang = 0;
     if (channellist_head)
     {
 	LIST_TRAVERSE(channellist_head,curr)
@@ -1422,7 +1426,7 @@ extern t_channel * channellist_find_channel_by_name(char const * name, char cons
 	    	
 		/* FIXME: what should we do if the client doesn't have a country?  For now, just take the first
 		 * channel that would otherwise match. */
-                if ( (!channel->country || !country || 
+                if ( ((!channel->country && !foundlang) || !country || 
 		      (channel->country && country && (strcmp(channel->country, country)==0))) &&
 	             ((!channel->realmname && !realmname) || 
 		      (channel->realmname && realmname && (strcmp(channel->realmname, realmname)==0))) )
@@ -1433,6 +1437,15 @@ extern t_channel * channellist_find_channel_by_name(char const * name, char cons
 			eventlog(eventlog_level_debug,__FUNCTION__,"found permanent channel \"%s\" for \"%s\"",channel->name,name);
 			return channel;
 		    }
+
+		    if (!foundlang && (channel->country)) //remember we had found a language specific channel but it was full
+		    {
+		     foundlang = 1;
+		     if (!(channel->flags & channel_flags_autoname))
+		     	savespecialname = channel->name;
+		     maxchannel = 0;
+		    }
+
 		    maxchannel++;
 		}
 
@@ -1471,10 +1484,18 @@ extern t_channel * channellist_find_channel_by_name(char const * name, char cons
     {
 	char * channelname;
 	
-        if (!(channelname=channel_format_name(saveshortname,savecountry,saverealmname,maxchannel+1)))
-                return NULL;
+	if (!foundlang || !savespecialname)
+	{
+          if (!(channelname=channel_format_name(saveshortname,savecountry,saverealmname,maxchannel+1)))
+                  return NULL;
+	}
+	else
+	{
+          if (!(channelname=channel_format_name(savespecialname,NULL,saverealmname,maxchannel+1)))
+                  return NULL;
+	}
 
-        channel = channel_create(channelname,saveshortname,savetag,1,savebotflag,saveoperflag,savelogflag,savecountry,saverealmname,savemaxmembers,savemoderated,0);
+        channel = channel_create(channelname,saveshortname,savetag,1,savebotflag,saveoperflag,savelogflag,savecountry,saverealmname,savemaxmembers,savemoderated,0,1);
         xfree(channelname);
 	
 	eventlog(eventlog_level_debug,__FUNCTION__,"created copy \"%s\" of channel \"%s\"",(channel)?(channel->name):("<failed>"),name);
