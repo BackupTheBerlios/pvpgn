@@ -1590,36 +1590,6 @@ extern int account_add_closed_character(t_account * account, t_clienttag clientt
     return 0;
 }
 
-/* ADDED BY THE UNDYING SOULZZ 4/10/02 - Clan Name for Profile Setting */
-extern int account_set_w3_clanname( t_account * account, char const * acctsetclanname )
-{
-	if ( acctsetclanname == NULL )
-	{
-	eventlog( eventlog_level_error,"account_set_w3_acctclanname","got NULL Clan Name. Not setting." );
-	return -1;
-    }
-	eventlog( eventlog_level_debug,"account_set_w3_clanname","setting clanname to %s", acctsetclanname );
-	return account_set_strattr( account, "profile\\clanname", acctsetclanname );
-}
-
-
-extern char const * account_get_w3_clanname( t_account * account)
-{
-    if ( account_get_strattr( account, "profile\\clanname") == NULL ) /* doesn't exist, so add it */
-    {
-   	account_set_w3_clanname( account, "" );	/* add line to account file but set with a NULL/Nothing*/
-	if ( account_get_strattr(account, "profile\\clanname") == NULL )
-	{
-	    eventlog( eventlog_level_error, "account_get_w3_clanname", "User has not defined a clan name for /CLAN option" );
-	    return NULL;
-        }	
-    }
-
-    return account_get_strattr( account, "profile\\clanname" );
-}
-// THEUNDYING 5/24/02 - PROFILE GET WINS/LOSSES/LEVELS..etc.. 
-
-
 extern int account_set_friend( t_account * account, int friendnum, unsigned int frienduid )
 {
 	char key[256];

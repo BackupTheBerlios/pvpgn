@@ -622,48 +622,6 @@ static int _handle_clan_command(t_connection * c, char const * text)
 
   return 0;
 }
-/*
-static int _handle_clan_command(t_connection * c, char const * text)
-{
-  t_channel const * channel;
-  char const      * oldclanname;
-  
-  if (!(channel = conn_get_channel(c)))
-    {
-      message_send_text(c,message_type_error,c,"You are not in a channel. Join a channel to set a account password!");
-      return 0;
-    }
-  
-  text = skip_command(text);
-  
-  if ( text[0] == '\0' )
-    {
-      message_send_text(c,message_type_info,c,"usage: /clan <clanname>");
-      message_send_text(c,message_type_info,c,"Using this option will allow you to join a clan which displays in your profile.  ");
-      return 0;
-    }
-
-  if (strlen(text) > MAX_CLANNAME_LEN)
-  {
-    message_send_text(c,message_type_error,c,"the length of your clanname is limited to 64 characters.");
-    return 0;
-  }
-  
-  oldclanname = xstrdup(account_get_w3_clanname(conn_get_account(c)));
-  account_set_w3_clanname(conn_get_account(c),text);
-  if(!oldclanname || !(*oldclanname))
-    {
-      sprintf( msgtemp, "Joined Clan %s", text );
-    }
-  else
-    {
-      sprintf( msgtemp, "Left Clan %s and Joined Clan %s", oldclanname, text );
-    }
-  message_send_text(c,message_type_info,c,msgtemp);
-  xfree((void *)oldclanname);
-  return 0;
-}
-*/
 
 static int command_set_flags(t_connection * c)
 {

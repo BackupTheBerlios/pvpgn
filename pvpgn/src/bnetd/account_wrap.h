@@ -159,12 +159,6 @@ extern int account_set_closed_characterlist(t_account * account, t_clienttag cli
 extern int account_add_closed_character(t_account * account, t_clienttag clienttag, t_character * ch);
 extern int account_check_closed_character(t_account * account, t_clienttag clienttag, char const * realmname, char const * charname);
 
-/* UNDYING CLAN NAME ADDITION */
-extern char const * account_get_w3_clanname( t_account * account);
-extern int account_set_w3_clanname( t_account * account, char const * acctsetclanname );
-
-// UNDYING FRIENDS LIST SAVE/GET 5/15/02
-// [zap-zero] 20020516
 
 extern int account_set_friend( t_account * account, int friendnum, unsigned int frienduid );
 extern unsigned int account_get_friend( t_account * account, int friendnum);

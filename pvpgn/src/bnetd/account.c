@@ -450,14 +450,6 @@ extern char const * account_get_strattr_real(t_account * account, char const * k
 	strncpy(temp,"STAR",6);
 	newkey = temp;
       }
-    else if (strcasecmp(key,"clan\\name")==0)
-      {
-	/* we have decided to store the clan in "profile\\clanname" so we don't need an extra table
-	 * for this. But when using a client like war3 it is requested from "clan\\name"
-	 * let's just redirect this request...
-	 */
-	return account_get_w3_clanname(account);
-      }
 
     if (newkey != key) {
 	newkey2 = storage->escape_key(newkey);
