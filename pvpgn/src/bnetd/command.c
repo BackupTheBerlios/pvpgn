@@ -369,7 +369,7 @@ static int _handle_motd_command(t_connection * c, char const * text);
 static int _handle_ping_command(t_connection * c, char const * text);
 static int _handle_commandgroups_command(t_connection * c, char const * text);
 
-static t_command_table_row standard_command_table[] = 
+static const t_command_table_row standard_command_table[] = 
 {
 	{ "/clan"		, _handle_clan_command },
 	{ "/admin"		, _handle_admin_command },
@@ -418,7 +418,7 @@ static t_command_table_row standard_command_table[] =
 	
 };
 
-static t_command_table_row extended_command_table[] =
+static const t_command_table_row extended_command_table[] =
 {
 	{ "/ann"                , _handle_announce_command },
 	{ "/r"                  , _handle_reply_command },
@@ -489,7 +489,7 @@ char const * skip_command(char const * org_text)
 
 extern int handle_command(t_connection * c,  char const * text)
 {
-  t_command_table_row *p;
+  t_command_table_row const *p;
 
   for (p = standard_command_table; p->command_string != NULL; p++)
     {
