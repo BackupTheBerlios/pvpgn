@@ -4,6 +4,9 @@ PvPGN Version History:
 -- fixed disconnet = loss bug for PG and AT
 -- added timer to shutdowm open w3route connections
 -- added reloading of d2trans file on HUP signal
+-- fixed bug where nightmare and hell games were not being displayed in
+Diablo II open join game dialog
+-- fixed bug where D2 clients would not get accutate friend list info
 -- added a realtime ladder for War3 supporting seperate ladders for solo,team,ffa
 and at games (keeping top 1000 accounts)
 -- output of War3 ladder into 4 seperate text files in /var/ladders that can
