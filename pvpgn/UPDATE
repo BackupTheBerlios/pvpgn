@@ -17,6 +17,8 @@ Configuration files changed:
     allowed number of connections to the bnetd daemon
 - conf/d2cs.conf : added "max_connections" parameter to set up the max 
     allowed number of connections to the d2cs daemon
+- conf/d2dbs.conf : added "difficulty_hack" parameter to activate the
+    Diablo II level 100 workaround
 
  Updating from 1.6.x to 1.7.0
 ==============================

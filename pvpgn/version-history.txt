@@ -13,7 +13,10 @@ PvPGN Version History:
   
 [DEV-C++]
   -- fixed compilation problems
-
+  
+[D2XP/D2DV]
+  -- added "Diablo II Level 100 Workaround" for mods with a max level
+  greater than 99. Option in d2dbs.conf to activate.
 
  ChangeLog for 1.7.0 (since 1.6.2)
 ===================================
