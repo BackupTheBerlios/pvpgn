@@ -210,6 +210,22 @@ extern int tournament_get_stat(t_account * account, int stat)
     return 0;
 }
 
+extern int tournament_get_player_score(t_account * account)
+{
+    t_tournament_user * user;
+    int score;
+    
+    if (!(user = tournament_get_user(account)))
+	return 0;
+    
+    score = user->wins * 3 + user->ties - user->losses;
+    
+    if (score < 0)
+	return 0;
+	
+    return score;
+}
+    
 extern int tournament_set_in_game_status(t_account * account, int status)
 {
     t_tournament_user * user;

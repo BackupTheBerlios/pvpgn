@@ -58,6 +58,7 @@ extern int tournament_signup_user(t_account * account);
 extern int tournament_user_signed_up(t_account * account);
 extern int tournament_add_stat(t_account * account, int stat);
 extern int tournament_get_stat(t_account * account, int stat);
+extern int tournament_get_player_score(t_account * account);
 extern int tournament_set_in_game_status(t_account * account, int status);
 extern int tournament_get_in_finals_status(t_account * account);
 extern int tournament_get_game_in_progress(void);

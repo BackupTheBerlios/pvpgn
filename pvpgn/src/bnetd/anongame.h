@@ -60,15 +60,8 @@ typedef struct
 {
 	struct connection *	c;
 	t_uint32		map_prefs;
-	char *			versiontag;
+	char const *		versiontag;
 } t_matchdata;
-
-typedef struct
-{
-	int			atid;
-	int			count;
-	t_uint32		map_prefs;
-} t_atcountinfo;
 
 #endif
 
@@ -86,10 +79,8 @@ extern int		anongame_matchlists_create(void);
 extern int		anongame_matchlists_destroy(void);
 
 extern int		handle_anongame_search(t_connection * c, t_packet const * packet);
-extern int		anongame_unqueue_player(t_connection * c, int queue);
-extern int		anongame_unqueue_team(t_connection * c, int queue);
+extern int		anongame_unqueue(t_connection * c, int queue);
 
-extern int		anongame_totalplayers(int queue);
 extern char		anongame_arranged(int queue);
 extern int		anongame_stats(t_connection * c);
 

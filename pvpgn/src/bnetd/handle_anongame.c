@@ -373,7 +373,7 @@ static int _client_anongame_cancel(t_connection * c)
     
     a_count = anongame_get_count(a);
     
-    // anongame_unqueue_player(c, anongame_get_queue(a)); 
+    // anongame_unqueue(c, anongame_get_queue(a)); 
     // -- already doing unqueue in conn_destroy_anongame
     for (i=0; i < ANONGAME_MAX_GAMECOUNT/2; i++)
 	tc[i] = anongame_get_tc(a, i);
@@ -561,8 +561,7 @@ static int _client_anongame_infos(t_connection * c, t_packet const * const packe
 	
 	queue_push_packet(conn_get_out_queue(c),rpacket);
 	packet_del_ref(rpacket);
-    } else { /* FIXME: this needs to be done properly */
-	//BlacKDicK 04/02/2003
+    } else {
 	int i;
 	bn_int temp;
 	int client_tag;
@@ -572,87 +571,60 @@ static int _client_anongame_infos(t_connection * c, t_packet const * const packe
 	char server_tag_count=0;
 	char noitems=0;
 	char desc_count=0;
-	char mapscount_1v1;
-	char mapscount_2v2;
-	char mapscount_3v3;
-	char mapscount_4v4;
-	char mapscount_sffa;
-	char mapscount_at2v2;
-	char mapscount_at3v3;
-	char mapscount_at4v4;
-	char mapscount_TY;
-	char mapscount_2v2v2;
 	char mapscount_total;
 	char value;
 	char PG_gamestyles, AT_gamestyles, TY_gamestyles;
-	int counter1, counter2;
-	char const * clienttag = conn_get_clienttag(c);
+	char const * clienttag		= conn_get_clienttag(c);
 	
-	// value changes according to Fr3DBr. the 3rd value is the allowed thumbs down count
-	// maybe make it configurable via anongame_infos.conf later on...
-	char anongame_PG_1v1_prefix[]  = {0x00, 0x00, 0x03, 0x3F, 0x00};
-	char anongame_PG_2v2_prefix[]  = {0x01, 0x00, 0x02, 0x3F, 0x00};
-	char anongame_PG_3v3_prefix[]  = {0x02, 0x00, 0x01, 0x3F, 0x00};
-	char anongame_PG_4v4_prefix[]  = {0x03, 0x00, 0x01, 0x3F, 0x00};
-	char anongame_PG_sffa_prefix[] = {0x04, 0x00, 0x02, 0x3F, 0x00};
-	/* Added by Omega */
-	char anongame_PG_2v2v2_prefix[] = {0x05, 0x00, 0x01, 0x3F, 0x00};
+	/*****/
+	char anongame_PG_1v1_prefix[]	= {0x00, 0x00, 0x03, 0x3F, 0x00};
+	char anongame_PG_2v2_prefix[]	= {0x01, 0x00, 0x02, 0x3F, 0x00};
+	char anongame_PG_3v3_prefix[]	= {0x02, 0x00, 0x01, 0x3F, 0x00};
+	char anongame_PG_4v4_prefix[]	= {0x03, 0x00, 0x01, 0x3F, 0x00};
+	char anongame_PG_sffa_prefix[]	= {0x04, 0x00, 0x02, 0x3F, 0x00};
+	char anongame_PG_2v2v2_prefix[]	= {0x05, 0x00, 0x01, 0x3F, 0x00}; /* Added by Omega */
 	
-	char anongame_AT_2v2_prefix[]  = {0x00, 0x00, 0x02, 0x3F, 0x02};
-	char anongame_AT_3v3_prefix[]  = {0x02, 0x00, 0x02, 0x3F, 0x03};
-	char anongame_AT_4v4_prefix[]  = {0x03, 0x00, 0x02, 0x3F, 0x04};
+	char anongame_AT_2v2_prefix[]	= {0x00, 0x00, 0x02, 0x3F, 0x02};
+	char anongame_AT_3v3_prefix[]	= {0x02, 0x00, 0x02, 0x3F, 0x03};
+	char anongame_AT_4v4_prefix[]	= {0x03, 0x00, 0x02, 0x3F, 0x04};
 	
-	char anongame_TY_prefix[]  = {0x00, 0x01, 0x00, 0x3F, 0x00};
+	char anongame_TY_prefix[]	= {0x00, 0x01, 0x00, 0x3F, 0x00};
 
-	char anongame_PG_section = 0x00;
-	char anongame_AT_section = 0x01;
-	char anongame_TY_section = 0x02;
+	char anongame_PG_section	= 0x00;
+	char anongame_AT_section	= 0x01;
+	char anongame_TY_section	= 0x02;
 	
-	char last_packet	= 0x00;
-	char other_packet	= 0x01;
+	char last_packet		= 0x00;
+	char other_packet		= 0x01;
 	
-	anongame_PG_1v1_prefix[2] = anongame_infos_THUMBSDOWN_get_PG_1v1();
-	anongame_PG_2v2_prefix[2] = anongame_infos_THUMBSDOWN_get_PG_2v2();
-	anongame_PG_3v3_prefix[2] = anongame_infos_THUMBSDOWN_get_PG_3v3();
-	anongame_PG_4v4_prefix[2] = anongame_infos_THUMBSDOWN_get_PG_4v4();
-	anongame_PG_sffa_prefix[2]= anongame_infos_THUMBSDOWN_get_PG_ffa();
+	anongame_PG_1v1_prefix[2]	= anongame_infos_THUMBSDOWN_get_PG_1v1();
+	anongame_PG_2v2_prefix[2]	= anongame_infos_THUMBSDOWN_get_PG_2v2();
+	anongame_PG_3v3_prefix[2]	= anongame_infos_THUMBSDOWN_get_PG_3v3();
+	anongame_PG_4v4_prefix[2]	= anongame_infos_THUMBSDOWN_get_PG_4v4();
+	anongame_PG_sffa_prefix[2]	= anongame_infos_THUMBSDOWN_get_PG_ffa();
+	anongame_PG_2v2v2_prefix[2]	= 0x01; /* fixme */
 	
-	anongame_AT_2v2_prefix[2] = anongame_infos_THUMBSDOWN_get_AT_2v2();
-	anongame_AT_3v3_prefix[2] = anongame_infos_THUMBSDOWN_get_AT_3v3();
-	anongame_AT_4v4_prefix[2] = anongame_infos_THUMBSDOWN_get_AT_4v4();
+	anongame_AT_2v2_prefix[2]	= anongame_infos_THUMBSDOWN_get_AT_2v2();
+	anongame_AT_3v3_prefix[2]	= anongame_infos_THUMBSDOWN_get_AT_3v3();
+	anongame_AT_4v4_prefix[2]	= anongame_infos_THUMBSDOWN_get_AT_4v4();
 	
-	anongame_TY_prefix[2] = tournament_get_thumbs_down();
+	anongame_TY_prefix[2]		= tournament_get_thumbs_down();
 
 	/* last value = number of players per team
 	 * 0 = PG , 2 = AT 2v2 , 3 = AT 3v3 , 4 = AT 4v4
 	 * needs to be set for TY, for team selection screen to appear on team games */
 	if (tournament_get_game_selection() == 2)
-	    anongame_TY_prefix[4] = tournament_get_game_type();
+	    anongame_TY_prefix[4]	= tournament_get_game_type();
 	else 
-	    anongame_TY_prefix[4] = 0;
+	    anongame_TY_prefix[4]	= 0;
 	
 	/* this value indicates the available races for the game
 	 * 01 = Human , 02 = Orc , 04 = Night Elves , 08 = Undead , 20 = Random
 	 * these are bits settings, therefore a value of 03 = Humans and Orcs, etc
 	 * All settings added together = 2F, why 3F for normal setting ? */
-	anongame_TY_prefix[3] = tournament_get_races();
-	
-	mapscount_1v1  = list_get_length(anongame_get_w3xp_maplist(ANONGAME_TYPE_1V1, clienttag));
-	mapscount_2v2  = list_get_length(anongame_get_w3xp_maplist(ANONGAME_TYPE_2V2, clienttag));
-	mapscount_3v3  = list_get_length(anongame_get_w3xp_maplist(ANONGAME_TYPE_3V3, clienttag));
-	mapscount_4v4  = list_get_length(anongame_get_w3xp_maplist(ANONGAME_TYPE_4V4, clienttag));
-	mapscount_sffa = list_get_length(anongame_get_w3xp_maplist(ANONGAME_TYPE_SMALL_FFA, clienttag));
-	mapscount_at2v2 = list_get_length(anongame_get_w3xp_maplist(ANONGAME_TYPE_AT_2V2, clienttag));
-	mapscount_at3v3 = list_get_length(anongame_get_w3xp_maplist(ANONGAME_TYPE_AT_3V3, clienttag));
-	mapscount_at4v4 = list_get_length(anongame_get_w3xp_maplist(ANONGAME_TYPE_AT_4V4, clienttag));
-	mapscount_TY	= list_get_length(anongame_get_w3xp_maplist(ANONGAME_TYPE_TY, clienttag));
-	/* Added by Omega */
-	mapscount_2v2v2 = list_get_length(anongame_get_w3xp_maplist(ANONGAME_TYPE_2V2V2, clienttag));
-	
-	mapscount_total = mapscount_1v1 + mapscount_2v2 + mapscount_3v3 + mapscount_4v4 +
-		     mapscount_sffa + mapscount_at2v2 + mapscount_at3v3 + mapscount_at4v4 + 
-		     mapscount_TY + mapscount_2v2v2; /* Added by Omega */
-	
+	anongame_TY_prefix[3]		= tournament_get_races();
+
+	mapscount_total = maplists_get_totalmaps(clienttag);
 //	eventlog(eventlog_level_debug,__FUNCTION__,"client_findanongame_inforeq.noitems=(0x%01x)",bn_byte_get(packet->u.client_findanongame_inforeq.noitems));
 	
 	/* Send seperate packet for each item requested
@@ -695,18 +667,7 @@ static int _client_anongame_infos(t_connection * c, t_packet const * const packe
 		    packet_append_data(rpacket, "PAM\0" , 4);
 		    packet_append_data(rpacket, &server_tag_unk , 4);
 		    packet_append_data(rpacket, &mapscount_total, 1);
-		    anongame_add_maps_to_packet(rpacket, ANONGAME_TYPE_1V1, clienttag);
-		    anongame_add_maps_to_packet(rpacket, ANONGAME_TYPE_2V2, clienttag);
-		    anongame_add_maps_to_packet(rpacket, ANONGAME_TYPE_3V3, clienttag);
-		    anongame_add_maps_to_packet(rpacket, ANONGAME_TYPE_4V4, clienttag);
-		    anongame_add_maps_to_packet(rpacket, ANONGAME_TYPE_SMALL_FFA, clienttag);
-		    /* 2v2v2 */
-		    anongame_add_maps_to_packet(rpacket, ANONGAME_TYPE_2V2V2, clienttag);
-		    /* end */
-		    anongame_add_maps_to_packet(rpacket, ANONGAME_TYPE_AT_2V2, clienttag);
-		    anongame_add_maps_to_packet(rpacket, ANONGAME_TYPE_AT_3V3, clienttag);
-		    anongame_add_maps_to_packet(rpacket, ANONGAME_TYPE_AT_4V4, clienttag);
-		    anongame_add_maps_to_packet(rpacket, ANONGAME_TYPE_TY, clienttag);
+		    maplists_add_maps_to_packet(rpacket, clienttag);
 		    noitems++;
 		    server_tag_count++;
 		    eventlog(eventlog_level_debug,__FUNCTION__,"client_tag request tagid=(0x%01x) tag=(%s)  tag_unk=(0x%04x)",i,"CLIENT_FINDANONGAME_INFOTAG_MAP",client_tag_unk);
@@ -715,168 +676,103 @@ static int _client_anongame_infos(t_connection * c, t_packet const * const packe
 		    server_tag_unk=0x7C87DEEE;
 		    packet_append_data(rpacket, "EPYT" , 4);
 		    packet_append_data(rpacket, &server_tag_unk , 4);
-		    value = 3; /* probably count of gametypes (PG,AT) */ /* added TY */
-		    packet_append_data(rpacket, &value, 1);
-		    packet_append_data(rpacket, &anongame_PG_section,1);
 		    
 		    PG_gamestyles = 0;
-		    if (mapscount_1v1) {
+		    if (maplists_get_totalmaps_by_queue(clienttag, ANONGAME_TYPE_1V1))
 			PG_gamestyles++;
-			if (mapscount_2v2) {
-			    PG_gamestyles++;
-			    if (mapscount_3v3) {
-				PG_gamestyles++;
-				if (mapscount_4v4) {
-				    PG_gamestyles++;
-				    if (mapscount_sffa) {
-					PG_gamestyles++;
-					if (mapscount_2v2v2) {
-					    PG_gamestyles++;
-					}
-				    }
-				}
-			    }
-			}
-		    }
-		    
-		    packet_append_data(rpacket, &PG_gamestyles,1);
-		    
-		    counter2 = 0;
-		    		
-		    if (mapscount_1v1)
-		    {
-			packet_append_data(rpacket, &anongame_PG_1v1_prefix,5);
-			packet_append_data(rpacket, &mapscount_1v1,1);
-			for (counter1=counter2; counter1<(counter2+mapscount_1v1);counter1++)
-			    packet_append_data(rpacket,&counter1,1);
-			counter2+=mapscount_1v1;
-				  
-			if (mapscount_2v2)
-			{
-			    packet_append_data(rpacket, &anongame_PG_2v2_prefix,5);
-			    packet_append_data(rpacket, &mapscount_2v2,1);
-			    for (counter1=counter2; counter1<(counter2+mapscount_2v2);counter1++)
-				packet_append_data(rpacket,&counter1,1);
-			    counter2+=mapscount_2v2;
-			
-			    if (mapscount_3v3)
-			    {
-				packet_append_data(rpacket, &anongame_PG_3v3_prefix,5);
-				packet_append_data(rpacket, &mapscount_3v3,1);
-				for (counter1=counter2; counter1<(counter2+mapscount_3v3);counter1++)
-				    packet_append_data(rpacket,&counter1,1);
-				counter2+=mapscount_3v3;
-				
-				if (mapscount_4v4)
-				{
-				    packet_append_data(rpacket, &anongame_PG_4v4_prefix,5);
-				    packet_append_data(rpacket, &mapscount_4v4,1);
-				    for (counter1=counter2; counter1<(counter2+mapscount_4v4);counter1++)
-					packet_append_data(rpacket,&counter1,1);
-				    counter2+=mapscount_4v4;
-				    
-				    if (mapscount_sffa)
-				    {
-					packet_append_data(rpacket, &anongame_PG_sffa_prefix,5);
-					packet_append_data(rpacket, &mapscount_sffa,1);
-					for (counter1=counter2; counter1<(counter2+mapscount_sffa);counter1++)
-					    packet_append_data(rpacket,&counter1,1);
-					counter2+=mapscount_sffa;
-					
-					/* Added by Omega */
-					if (mapscount_2v2v2) {
-					    packet_append_data(rpacket, &anongame_PG_2v2v2_prefix,5);
-					    packet_append_data(rpacket, &mapscount_2v2v2,1);
-					    for (counter1=counter2; counter1<(counter2+mapscount_2v2v2);counter1++)
-						packet_append_data(rpacket,&counter1,1);
-					    counter2+=mapscount_2v2v2;
-					
-					} else 
-					    eventlog(eventlog_level_error,__FUNCTION__,"found no 2v2v2 PG maps in bnmaps.txt - this will disturb anongameinfo packet creation");
-				    }
-				    else
-					eventlog(eventlog_level_error,__FUNCTION__,"found no sffa PG maps in bnmaps.txt - this will disturb anongameinfo packet creation");
-				}
-				else
-				    eventlog(eventlog_level_error,__FUNCTION__,"found no 4v4 PG maps in bnmaps.txt - this will disturb anongameinfo packet creation");
-			    }
-			    else
-				eventlog(eventlog_level_error,__FUNCTION__,"found no 3v3 PG maps in bnmaps.txt - this will disturb anongameinfo packet creation");
-			}
-			else
-			    eventlog(eventlog_level_error,__FUNCTION__,"found no 2v2 PG maps in bnmaps.txt - this will disturb anongameinfo packet creation");
-		    }
-		    else
-			eventlog(eventlog_level_error,__FUNCTION__,"found no 1v1 PG maps in bnmaps.txt - this will disturb anongameinfo packet creation");
-		    
-		    packet_append_data(rpacket,&anongame_AT_section,1);
+		    if (maplists_get_totalmaps_by_queue(clienttag, ANONGAME_TYPE_2V2))
+			PG_gamestyles++;
+		    if (maplists_get_totalmaps_by_queue(clienttag, ANONGAME_TYPE_3V3))
+			PG_gamestyles++;
+		    if (maplists_get_totalmaps_by_queue(clienttag, ANONGAME_TYPE_4V4))
+			PG_gamestyles++;
+		    if (maplists_get_totalmaps_by_queue(clienttag, ANONGAME_TYPE_SMALL_FFA))
+			PG_gamestyles++;
+		    if (maplists_get_totalmaps_by_queue(clienttag, ANONGAME_TYPE_2V2V2))
+			PG_gamestyles++;
 		    
 		    AT_gamestyles = 0;
-		    if (mapscount_at2v2) {
+		    if (maplists_get_totalmaps_by_queue(clienttag, ANONGAME_TYPE_AT_2V2))
 			AT_gamestyles++;
-			if (mapscount_at3v3) {
-			    AT_gamestyles++;
-			    if (mapscount_at4v4) {
-				AT_gamestyles++;
-			    }
-			}
-		    }
-		    
-		    packet_append_data(rpacket,&AT_gamestyles,1);
-		    
-		    if (mapscount_at2v2)
-		    {
-			packet_append_data(rpacket, &anongame_AT_2v2_prefix,5);
-			packet_append_data(rpacket, &mapscount_at2v2,1);
-			for (counter1=counter2; counter1<(counter2+mapscount_at2v2);counter1++)
-			    packet_append_data(rpacket,&counter1,1);
-			counter2+=mapscount_at2v2;
-			
-			if (mapscount_at3v3)
-			{
-			    packet_append_data(rpacket, &anongame_AT_3v3_prefix,5);
-			    packet_append_data(rpacket, &mapscount_at3v3,1);
-			    for (counter1=counter2; counter1<(counter2+mapscount_at3v3);counter1++)
-			        packet_append_data(rpacket,&counter1,1);
-			    counter2+=mapscount_at3v3;
-			    
-			    if (mapscount_at4v4)
-			    {
-			        packet_append_data(rpacket, &anongame_AT_4v4_prefix,5);
-			        packet_append_data(rpacket, &mapscount_at4v4,1);
-			        for (counter1=counter2; counter1<(counter2+mapscount_at4v4);counter1++)
-			    	    packet_append_data(rpacket,&counter1,1);
-			        counter2+=mapscount_at4v4;
-			    }
-			    else
-				eventlog(eventlog_level_error,__FUNCTION__,"found no 4v4 AT maps in bnmaps.txt - this will disturb anongameinfo packet creation");
-			}
-			else
-			    eventlog(eventlog_level_error,__FUNCTION__,"found no 3v3 AT maps in bnmaps.txt - this will disturb anongameinfo packet creation");
-		    }
-		    else
-			eventlog(eventlog_level_error,__FUNCTION__,"found no 2v2 AT maps in bnmaps.txt - this will disturb anongameinfo packet creation");
-		    
-		    /* TY game types */
-		    packet_append_data(rpacket, &anongame_TY_section,1);
+		    if (maplists_get_totalmaps_by_queue(clienttag, ANONGAME_TYPE_AT_3V3))
+			AT_gamestyles++;
+		    if (maplists_get_totalmaps_by_queue(clienttag, ANONGAME_TYPE_AT_4V4))
+			AT_gamestyles++;
 		    
 		    TY_gamestyles = 0;
-		    
-		    if (mapscount_TY)
+		    if (maplists_get_totalmaps_by_queue(clienttag, ANONGAME_TYPE_TY))
 			TY_gamestyles++;
 		    
-		    packet_append_data(rpacket, &TY_gamestyles,1);
+		    value = 0; /* count of gametypes (PG, AT, TY) */
+		    if (PG_gamestyles)
+			value++;
+		    if (AT_gamestyles)
+			value++;
+		    if (TY_gamestyles)
+			value++;
 		    
-		    if (mapscount_TY) {
-			packet_append_data(rpacket, &anongame_TY_prefix,5);
-			packet_append_data(rpacket, &mapscount_TY,1);
-			for (counter1=counter2; counter1<(counter2+mapscount_TY);counter1++)
-			    packet_append_data(rpacket,&counter1,1);
-			counter2+=mapscount_TY;
+		    packet_append_data(rpacket, &value, 1);
+		    
+		    /* PG */
+		    if (PG_gamestyles) {
+			packet_append_data(rpacket, &anongame_PG_section,1);
+			packet_append_data(rpacket, &PG_gamestyles,1);
+			
+			if (maplists_get_totalmaps_by_queue(clienttag, ANONGAME_TYPE_1V1)) {
+			    packet_append_data(rpacket, &anongame_PG_1v1_prefix,5);
+			    maplists_add_map_info_to_packet(rpacket, clienttag, ANONGAME_TYPE_1V1);
+			}
+			if (maplists_get_totalmaps_by_queue(clienttag, ANONGAME_TYPE_2V2)) {
+			    packet_append_data(rpacket, &anongame_PG_2v2_prefix,5);
+			    maplists_add_map_info_to_packet(rpacket, clienttag, ANONGAME_TYPE_2V2);
+			}
+			if (maplists_get_totalmaps_by_queue(clienttag, ANONGAME_TYPE_3V3)) {
+			    packet_append_data(rpacket, &anongame_PG_3v3_prefix,5);
+			    maplists_add_map_info_to_packet(rpacket, clienttag, ANONGAME_TYPE_3V3);
+			}
+			if (maplists_get_totalmaps_by_queue(clienttag, ANONGAME_TYPE_4V4)) {
+			    packet_append_data(rpacket, &anongame_PG_4v4_prefix,5);
+			    maplists_add_map_info_to_packet(rpacket, clienttag, ANONGAME_TYPE_4V4);
+			}
+			if (maplists_get_totalmaps_by_queue(clienttag, ANONGAME_TYPE_SMALL_FFA)) {
+			    packet_append_data(rpacket, &anongame_PG_sffa_prefix,5);
+			    maplists_add_map_info_to_packet(rpacket, clienttag, ANONGAME_TYPE_SMALL_FFA);
+			}
+			if (maplists_get_totalmaps_by_queue(clienttag, ANONGAME_TYPE_2V2V2)) {
+			    packet_append_data(rpacket, &anongame_PG_2v2v2_prefix,5);
+			    maplists_add_map_info_to_packet(rpacket, clienttag, ANONGAME_TYPE_2V2V2);
+			}
 		    }
-		    else
-			eventlog(eventlog_level_error,__FUNCTION__,"found no TY maps in bnmaps.txt - this will disturb anongameinfo packet creation");
-		    /* end of TY types */	
+		    
+		    /* AT */
+		    if (AT_gamestyles) {
+			packet_append_data(rpacket,&anongame_AT_section,1);
+			packet_append_data(rpacket,&AT_gamestyles,1);
+			
+			if (maplists_get_totalmaps_by_queue(clienttag, ANONGAME_TYPE_AT_2V2)) {
+			    packet_append_data(rpacket, &anongame_AT_2v2_prefix,5);
+			    maplists_add_map_info_to_packet(rpacket, clienttag, ANONGAME_TYPE_AT_2V2);
+			}
+			if (maplists_get_totalmaps_by_queue(clienttag, ANONGAME_TYPE_AT_3V3)) {
+			    packet_append_data(rpacket, &anongame_AT_3v3_prefix,5);
+			    maplists_add_map_info_to_packet(rpacket, clienttag, ANONGAME_TYPE_AT_3V3);
+			}
+			if (maplists_get_totalmaps_by_queue(clienttag, ANONGAME_TYPE_AT_4V4)) {
+			    packet_append_data(rpacket, &anongame_AT_4v4_prefix,5);
+			    maplists_add_map_info_to_packet(rpacket, clienttag, ANONGAME_TYPE_AT_4V4);
+			}
+		    }
+		    
+		    /* TY */
+		    if (TY_gamestyles) {
+			packet_append_data(rpacket, &anongame_TY_section,1);
+			packet_append_data(rpacket, &TY_gamestyles,1);
+			
+			if (maplists_get_totalmaps_by_queue(clienttag, ANONGAME_TYPE_TY)) {
+			    packet_append_data(rpacket, &anongame_TY_prefix,5);
+			    maplists_add_map_info_to_packet(rpacket, clienttag, ANONGAME_TYPE_TY);
+			}
+		    }
 		    
 		    noitems++;
 		    server_tag_count++;
@@ -886,71 +782,101 @@ static int _client_anongame_infos(t_connection * c, t_packet const * const packe
 		    server_tag_unk=0xA4F0A22F;
 		    packet_append_data(rpacket, "CSED" , 4);
 		    packet_append_data(rpacket,&server_tag_unk,4);
-		    // total descriptions
-		    desc_count=10; /* PG = 5 , AT = 3 , TY = 1 , Total = 9 */ /* +1 for 2v2v2 [Omega] */
+		    
+		    /* total descriptions */
+		    desc_count =  0;
+		    if (maplists_get_totalmaps_by_queue(clienttag, ANONGAME_TYPE_1V1))
+			desc_count++;
+		    if (maplists_get_totalmaps_by_queue(clienttag, ANONGAME_TYPE_2V2))
+			desc_count++;
+		    if (maplists_get_totalmaps_by_queue(clienttag, ANONGAME_TYPE_3V3))
+			desc_count++;
+		    if (maplists_get_totalmaps_by_queue(clienttag, ANONGAME_TYPE_4V4))
+			desc_count++;
+		    if (maplists_get_totalmaps_by_queue(clienttag, ANONGAME_TYPE_SMALL_FFA))
+			desc_count++;
+		    if (maplists_get_totalmaps_by_queue(clienttag, ANONGAME_TYPE_2V2V2))
+			desc_count++;
+		    if (maplists_get_totalmaps_by_queue(clienttag, ANONGAME_TYPE_AT_2V2))
+			desc_count++;
+		    if (maplists_get_totalmaps_by_queue(clienttag, ANONGAME_TYPE_AT_3V3))
+			desc_count++;
+		    if (maplists_get_totalmaps_by_queue(clienttag, ANONGAME_TYPE_AT_4V4))
+			desc_count++;
+		    if (maplists_get_totalmaps_by_queue(clienttag, ANONGAME_TYPE_TY))
+			desc_count++;
+		    
+		    
                     packet_append_data(rpacket,&desc_count,1);
-		    // PG description section
-		    desc_count=0;
-		    packet_append_data(rpacket,&anongame_PG_section,1);
-		    packet_append_data(rpacket,&desc_count,1);
-		    desc_count++;
-		    packet_append_string(rpacket,anongame_infos_DESC_get_gametype_1v1_short((char *)conn_get_country(c)));
-		    packet_append_string(rpacket,anongame_infos_DESC_get_gametype_1v1_long((char *)conn_get_country(c)));
-		    packet_append_data(rpacket,&anongame_PG_section,1);
-		    packet_append_data(rpacket,&desc_count,1);
-		    desc_count++;
-		    packet_append_string(rpacket,anongame_infos_DESC_get_gametype_2v2_short((char *)conn_get_country(c)));
-		    packet_append_string(rpacket,anongame_infos_DESC_get_gametype_2v2_long((char *)conn_get_country(c)));
-		    packet_append_data(rpacket,&anongame_PG_section,1);
-		    packet_append_data(rpacket,&desc_count,1);
-		    desc_count++;
-		    packet_append_string(rpacket,anongame_infos_DESC_get_gametype_3v3_short((char *)conn_get_country(c)));
-		    packet_append_string(rpacket,anongame_infos_DESC_get_gametype_3v3_long((char *)conn_get_country(c)));
-		    packet_append_data(rpacket,&anongame_PG_section,1);
-		    packet_append_data(rpacket,&desc_count,1);
-		    desc_count++;
-		    packet_append_string(rpacket,anongame_infos_DESC_get_gametype_4v4_short((char *)conn_get_country(c)));
-		    packet_append_string(rpacket,anongame_infos_DESC_get_gametype_4v4_long((char *)conn_get_country(c)));
-		    packet_append_data(rpacket,&anongame_PG_section,1);
-		    packet_append_data(rpacket,&desc_count,1);
-		    desc_count++;
-		    packet_append_string(rpacket,anongame_infos_DESC_get_gametype_ffa_short((char *)conn_get_country(c)));
-		    packet_append_string(rpacket,anongame_infos_DESC_get_gametype_ffa_long((char *)conn_get_country(c)));
+		    
+		    /* PG description section */
+		    if (maplists_get_totalmaps_by_queue(clienttag, ANONGAME_TYPE_1V1)) {
+			packet_append_data(rpacket,&anongame_PG_section,1);
+			packet_append_data(rpacket,&anongame_PG_1v1_prefix[0],1);
+			packet_append_string(rpacket,anongame_infos_DESC_get_gametype_1v1_short((char *)conn_get_country(c)));
+			packet_append_string(rpacket,anongame_infos_DESC_get_gametype_1v1_long((char *)conn_get_country(c)));
+		    }
+		    if (maplists_get_totalmaps_by_queue(clienttag, ANONGAME_TYPE_2V2)) {
+			packet_append_data(rpacket,&anongame_PG_section,1);
+			packet_append_data(rpacket,&anongame_PG_2v2_prefix[0],1);
+			packet_append_string(rpacket,anongame_infos_DESC_get_gametype_2v2_short((char *)conn_get_country(c)));
+			packet_append_string(rpacket,anongame_infos_DESC_get_gametype_2v2_long((char *)conn_get_country(c)));
+		    }
+		    if (maplists_get_totalmaps_by_queue(clienttag, ANONGAME_TYPE_3V3)) {
+			packet_append_data(rpacket,&anongame_PG_section,1);
+			packet_append_data(rpacket,&anongame_PG_3v3_prefix[0],1);
+			packet_append_string(rpacket,anongame_infos_DESC_get_gametype_3v3_short((char *)conn_get_country(c)));
+			packet_append_string(rpacket,anongame_infos_DESC_get_gametype_3v3_long((char *)conn_get_country(c)));
+		    }
+		    if (maplists_get_totalmaps_by_queue(clienttag, ANONGAME_TYPE_4V4)) {
+			packet_append_data(rpacket,&anongame_PG_section,1);
+			packet_append_data(rpacket,&anongame_PG_4v4_prefix[0],1);
+			packet_append_string(rpacket,anongame_infos_DESC_get_gametype_4v4_short((char *)conn_get_country(c)));
+			packet_append_string(rpacket,anongame_infos_DESC_get_gametype_4v4_long((char *)conn_get_country(c)));
+		    }
+		    if (maplists_get_totalmaps_by_queue(clienttag, ANONGAME_TYPE_SMALL_FFA)) {
+			packet_append_data(rpacket,&anongame_PG_section,1);
+			packet_append_data(rpacket,&anongame_PG_sffa_prefix[0],1);
+			packet_append_string(rpacket,anongame_infos_DESC_get_gametype_ffa_short((char *)conn_get_country(c)));
+			packet_append_string(rpacket,anongame_infos_DESC_get_gametype_ffa_long((char *)conn_get_country(c)));
+		    }
 		    /* Added by Omega */
-		    packet_append_data(rpacket,&anongame_PG_section,1);
-		    packet_append_data(rpacket,&desc_count,1);
-		    desc_count++;
-		    packet_append_string(rpacket,"Two vs. Two vs. Two"); /* Fixme */
-		    packet_append_string(rpacket,"Three teams of two, can you handle it?"); /* Fixme */
+		    if (maplists_get_totalmaps_by_queue(clienttag, ANONGAME_TYPE_2V2V2)) {
+			packet_append_data(rpacket,&anongame_PG_section,1);
+			packet_append_data(rpacket,&anongame_PG_2v2v2_prefix[0],1);
+			packet_append_string(rpacket,"Two vs. Two vs. Two"); /* Fixme */
+			packet_append_string(rpacket,"Three teams of two, can you handle it?"); /* Fixme */
+		    }
 		    
-		    // AT description section
-		    desc_count = 0;
-		    packet_append_data(rpacket,&anongame_AT_section,1);
-		    packet_append_data(rpacket,&desc_count,1);
-		    desc_count++;
-		    desc_count++; /* advances count to equal anongame_AT_3v3_prefix[0] [Omega]*/
-		    packet_append_string(rpacket,anongame_infos_DESC_get_gametype_2v2_short((char *)conn_get_country(c)));
-		    packet_append_string(rpacket,anongame_infos_DESC_get_gametype_2v2_long((char *)conn_get_country(c)));
-		    packet_append_data(rpacket,&anongame_AT_section,1);
-		    packet_append_data(rpacket,&desc_count,1);
-		    desc_count++;
-		    packet_append_string(rpacket,anongame_infos_DESC_get_gametype_3v3_short((char *)conn_get_country(c)));
-		    packet_append_string(rpacket,anongame_infos_DESC_get_gametype_3v3_long((char *)conn_get_country(c)));
-		    packet_append_data(rpacket,&anongame_AT_section,1);
-		    packet_append_data(rpacket,&desc_count,1);
-		    desc_count++;
-		    packet_append_string(rpacket,anongame_infos_DESC_get_gametype_4v4_short((char *)conn_get_country(c)));
-		    packet_append_string(rpacket,anongame_infos_DESC_get_gametype_4v4_long((char *)conn_get_country(c)));
-		    
-		    eventlog(eventlog_level_debug,__FUNCTION__,"client_tag request tagid=(0x%01x) tag=(%s) tag_unk=(0x%04x)",i,"CLIENT_FINDANONGAME_INFOTAG_DESC",client_tag_unk);
+		    /* AT description section */
+		    if (maplists_get_totalmaps_by_queue(clienttag, ANONGAME_TYPE_AT_2V2)) {
+			packet_append_data(rpacket,&anongame_AT_section,1);
+			packet_append_data(rpacket,&anongame_AT_2v2_prefix[0],1);
+			packet_append_string(rpacket,anongame_infos_DESC_get_gametype_2v2_short((char *)conn_get_country(c)));
+			packet_append_string(rpacket,anongame_infos_DESC_get_gametype_2v2_long((char *)conn_get_country(c)));
+		    }
+		    if (maplists_get_totalmaps_by_queue(clienttag, ANONGAME_TYPE_AT_3V3)) {
+			packet_append_data(rpacket,&anongame_AT_section,1);
+			packet_append_data(rpacket,&anongame_AT_3v3_prefix[0],1);
+			packet_append_string(rpacket,anongame_infos_DESC_get_gametype_3v3_short((char *)conn_get_country(c)));
+			packet_append_string(rpacket,anongame_infos_DESC_get_gametype_3v3_long((char *)conn_get_country(c)));
+		    }
+		    if (maplists_get_totalmaps_by_queue(clienttag, ANONGAME_TYPE_AT_4V4)) {
+			packet_append_data(rpacket,&anongame_AT_section,1);
+			packet_append_data(rpacket,&anongame_AT_4v4_prefix[0],1);
+			packet_append_string(rpacket,anongame_infos_DESC_get_gametype_4v4_short((char *)conn_get_country(c)));
+			packet_append_string(rpacket,anongame_infos_DESC_get_gametype_4v4_long((char *)conn_get_country(c)));
+		    }
 		    
 		    /* TY description section */
-		    desc_count=0;
-		    packet_append_data(rpacket,&anongame_TY_section,1);
-		    packet_append_data(rpacket,&desc_count,1);
-		    desc_count++;
-		    packet_append_string(rpacket,tournament_get_format());
-		    packet_append_string(rpacket,tournament_get_sponsor());
+		    if (maplists_get_totalmaps_by_queue(clienttag, ANONGAME_TYPE_TY)) {
+			packet_append_data(rpacket,&anongame_TY_section,1);
+			packet_append_data(rpacket,&anongame_TY_prefix[0],1);
+			packet_append_string(rpacket,tournament_get_format());
+			packet_append_string(rpacket,tournament_get_sponsor());
+		    }
+		    
+		    eventlog(eventlog_level_debug,__FUNCTION__,"client_tag request tagid=(0x%01x) tag=(%s) tag_unk=(0x%04x)",i,"CLIENT_FINDANONGAME_INFOTAG_DESC",client_tag_unk);
 		    
 		    noitems++;
 		    server_tag_count++;
@@ -984,18 +910,6 @@ static int _client_anongame_infos(t_connection * c, t_packet const * const packe
 		    noitems++;
 		    server_tag_count++;
 		    eventlog(eventlog_level_debug,__FUNCTION__,"client_tag request tagid=(0x%01x) tag=(%s) tag_unk=(0x%04x)",i,"CLIENT_FINDANONGAME_INFOTAG_LADR",client_tag_unk);
-		    break;
-		case CLIENT_FINDANONGAME_INFOTAG_SOLO:
-		    // Do nothing.BNET Server W3XP 305b doesn't answer to this request
-		    eventlog(eventlog_level_debug,__FUNCTION__,"client_tag request tagid=(0x%01x) tag=(%s) tag_unk=(0x%04x)",i,"CLIENT_FINDANONGAME_INFOTAG_SOLO",client_tag_unk);
-		    break;
-		case CLIENT_FINDANONGAME_INFOTAG_TEAM:
-		    // Do nothing.BNET Server W3XP 305b doesn't answer to this request
-		    eventlog(eventlog_level_debug,__FUNCTION__,"client_tag request tagid=(0x%01x) tag=(%s) tag_unk=(0x%04x)",i,"CLIENT_FINDANONGAME_INFOTAG_TEAM",client_tag_unk);
-		    break;
-		case CLIENT_FINDANONGAME_INFOTAG_FFA:
-		    // Do nothing.BNET Server W3XP 305b doesn't answer to this request
-		    eventlog(eventlog_level_debug,__FUNCTION__,"client_tag request tagid=(0x%01x) tag=(%s)  tag_unk=(0x%04x)",i,"CLIENT_FINDANONGAME_INFOTAG_FFA",client_tag_unk);
 		    break;
 		default:
 		     eventlog(eventlog_level_debug,__FUNCTION__,"unrec client_tag request tagid=(0x%01x) tag=(0x%04x)",i,client_tag);

@@ -22,13 +22,18 @@
 #ifndef INCLUDED_ANONGAME_MAPLISTS_PROTOS
 #define INCLUDED_ANONGAME_MAPLISTS_PROTOS
 
-extern int anongame_maplists_create(void);
-extern void anongame_maplists_destroy(void);
+extern int	anongame_maplists_create(void);
+extern void	anongame_maplists_destroy(void);
 
-extern t_list * anongame_get_w3xp_maplist(int gametype, const char * clienttag);
-extern void anongame_add_maps_to_packet(t_packet * packet, int gametype, const char * clienttag);
+extern int	maplists_get_totalmaps(char const * clienttag);
+extern int	maplists_get_totalmaps_by_queue(char const * clienttag, int queue);
 
-extern int anongame_add_tournament_map(char * ctag, char * mname);
-extern void anongame_tournament_maplists_destroy(void);
+extern void	maplists_add_maps_to_packet(t_packet * packet, char const * clienttag);
+extern void	maplists_add_map_info_to_packet(t_packet * rpacket, char const * clienttag, int queue);
+
+extern char *	maplists_get_map(int queue, char const * clienttag, int mapnumber);
+
+extern int	anongame_add_tournament_map(char const * clienttag, char * mapname);
+extern void	anongame_tournament_maplists_destroy(void);
 
 #endif

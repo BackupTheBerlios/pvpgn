@@ -170,9 +170,6 @@ typedef struct connection
    struct connection *		  routeconn;
    t_anongame *		  anongame;
    
-   // [quetzal] 20020822 - AT game identifier
-   int							  atid;
-   
    char const *          lastsender; /* last person to whisper to this connection */
    char const *          realminfo;
    char const *          charname;
@@ -370,8 +367,6 @@ extern int conn_set_w3_playerinfo( t_connection * c, char const * w3_playerinfo 
 extern const char * conn_get_w3_playerinfo( t_connection * c );
 
 // [quetzal] 20020822
-extern int conn_get_atid(t_connection *c);
-extern int conn_set_atid(t_connection *c, int id);
 extern int conn_get_crtime(t_connection *c);
 
 // [zap-zero] 20020522

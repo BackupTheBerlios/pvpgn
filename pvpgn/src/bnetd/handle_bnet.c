@@ -2649,8 +2649,6 @@ static int _client_atinvitefriend(t_connection * c, t_packet const * const packe
 	//<--- end of stat saving shit
 	
 	//Create the packet to send to each of the users you wanted to invite
-	// [quetzal] 20020822 - set inviter's atid
-	conn_set_atid(c, bn_int_get(packet->u.client_arrangedteam_invite_friend.id));
 	conn_set_channel(c,NULL);
 	//if new team set flag
 	
@@ -2659,9 +2657,6 @@ static int _client_atinvitefriend(t_connection * c, t_packet const * const packe
 	     if(!(dest_c = connlist_find_connection_by_accountname(invited_usernames[i]))) 
 	       continue;
 	     
-	     // [quetzal] 20020822 - set player's atid
-	     conn_set_atid(dest_c, bn_int_get(packet->u.client_arrangedteam_invite_friend.id));
-	     
 	     if (!(rpacket = packet_create(packet_class_bnet)))
 	       return -1;
 	     packet_set_size(rpacket,sizeof(t_server_arrangedteam_send_invite));
@@ -2669,12 +2664,20 @@ static int _client_atinvitefriend(t_connection * c, t_packet const * const packe
 	     
 	     bn_int_set(&rpacket->u.server_arrangedteam_send_invite.count,bn_int_get(packet->u.client_arrangedteam_invite_friend.count));
 	     bn_int_set(&rpacket->u.server_arrangedteam_send_invite.id,bn_int_get(packet->u.client_arrangedteam_invite_friend.id));
-	     bn_int_nset(&rpacket->u.server_arrangedteam_send_invite.inviterip, conn_get_addr(c));
-	     bn_short_set(&rpacket->u.server_arrangedteam_send_invite.port, conn_get_game_port(c));
+	     { /* gametrans support */
+	        unsigned short port = conn_get_game_port(c);
+		unsigned int addr = conn_get_addr(c);
+		
+		gametrans_net(conn_get_addr(dest_c), conn_get_game_port(dest_c),
+			      conn_get_local_addr(dest_c), conn_get_local_port(dest_c),
+			      &addr, &port);
+		
+		bn_int_nset(&rpacket->u.server_arrangedteam_send_invite.inviterip, addr);
+		bn_short_set(&rpacket->u.server_arrangedteam_send_invite.port, port);
+	     }
 	     bn_byte_set(&rpacket->u.server_arrangedteam_send_invite.numfriends,count_to_invite);
 	     packet_append_string(rpacket,conn_get_username(c));
 	     
-	     conn_set_atid(c, bn_int_get(packet->u.client_arrangedteam_invite_friend.id));
 	     conn_set_channel(c,NULL);
 	     
 	     //attach all the invited to the packet - but dont include the invitee's name

@@ -538,9 +538,9 @@ extern void conn_destroy_anongame(t_connection *c)
     // unqueue from anongame search list,
 	// if we got AT game, unqueue entire team.
 	if (anongame_arranged(a->queue)) {
-		anongame_unqueue_team(c, a->queue);
+		anongame_unqueue(a->tc[0], a->queue);
 	} else {
-		anongame_unqueue_player(c, a->queue);
+		anongame_unqueue(c, a->queue);
 	}
     free(c->anongame);
 	c->anongame = NULL;
@@ -3724,25 +3724,6 @@ extern int conn_set_routeconn(t_connection * c, t_connection * rc)
     return 0;
 }
 
-extern int conn_get_atid(t_connection *c)
-{
-	if (!c) {
-		eventlog(eventlog_level_error, "conn_get_atid", "got NULL connection");
-		return -1;
-	}
-	return c->atid;
-}
-
-extern int conn_set_atid(t_connection *c, int id)
-{
-	if (!c) 
-	{
-		eventlog(eventlog_level_error, "conn_set_atid", "got NULL connection");
-		return -1;
-	}
-	c->atid = id;
-	return 0;
-}
 extern int conn_set_motd_loggedin(t_connection * c)
 {
 	if (!c) 
