@@ -73,6 +73,24 @@ WAR3		at4v4		Maps\(8)PetrifiedForest.w3m
 WAR3		at4v4		Maps\(8)PlainsOfSnow.w3m
 WAR3            at4v4           Maps\(8)TheCrucible.w3m
 
+WAR3		tffa		Maps\(8)GardenOfWar.w3m
+
+WAR3		5v5		Maps\(10)DustwallowKeys.w3m
+
+WAR3		6v6		Maps\(12)DivideAndConquer.w3m
+
+WAR3		2v2v2		Maps\(6)SwampOfSorrows.w3m
+
+WAR3		3v3v3		Maps\(9)Riverrun.w3m
+
+WAR3		4v4v4		Maps\(12)DivideAndConquer.w3m
+
+WAR3		2v2v2v2		Maps\(8)GardenOfWar.w3m
+
+WAR3		3v3v3v3		Maps\(12)DivideAndConquer.w3m
+
+WAR3		at2v2v2		Maps\(6)SwampOfSorrows.w3m
+
 ######### WARCRAFT 3 THE FROZEN THRONE #################
 
 W3XP            1v1             Maps\FrozenThrone\(2)GlacialThaw.w3x
@@ -160,3 +178,15 @@ W3XP		at4v4		Maps\FrozenThrone\(8)MarketSquare.w3x
 W3XP		at4v4		Maps\FrozenThrone\(8)Mur'gulOasis.w3x
 W3XP		at4v4		Maps\FrozenThrone\(8)PlainsOfSnow.w3x
 W3XP		at4v4		Maps\FrozenThrone\(10)RagingStream.w3x
+
+W3XP		tffa		Maps\FrozenThrone\(8)GardenOfWar.w3x
+
+W3XP		5v5		Maps\FrozenThrone\(10)RagingStream.w3x
+
+W3XP		2v2v2		Maps\FrozenThrone\(6)WheelofChaos.w3x
+
+W3XP		3v3v3		Maps\FrozenThrone\(10)RagingStream.w3x
+
+W3XP		2v2v2v2		Maps\FrozenThrone\(8)GardenOfWar.w3x
+
+W3XP		at2v2v2		Maps\FrozenThrone\(6)WheelofChaos.w3x
