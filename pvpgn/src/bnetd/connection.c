@@ -698,7 +698,7 @@ extern void conn_destroy(t_connection * c)
 
     /* delete the conn from the dead list if its there, we dont check for error
      * because connections may be destroyed without first setting state to destroy */
-    list_remove_data(conn_dead, c);
+    if (conn_dead) list_remove_data(conn_dead, c);
 
     eventlog(eventlog_level_info,"conn_destroy","[%d] closed %s connection",c->socket.tcp_sock,classstr);
     
@@ -3518,7 +3518,7 @@ extern int connlist_create(void)
 
 extern int connlist_destroy(void)
 {
-    list_destroy(conn_dead);
+    if (conn_dead) list_destroy(conn_dead);
     conn_dead = NULL;
     /* FIXME: if called with active connection, connection are not freed */
     if (list_destroy(conn_head)<0)
