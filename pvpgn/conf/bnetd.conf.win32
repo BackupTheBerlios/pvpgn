@@ -31,8 +31,8 @@
 # - "pass" : db password                                                     #
 #                                                                            #
 # Examples:                                                                  #
-# storage_path = file:dir=/home/pvpgn/var/users;clan=/home/pvpgn/var/clans;default=/home/pvpgn/etc/bnetd_default_user
-# storage_path = cdb:dir=/home/pvpgn/var/userscdb;clan=/home/pvpgn/var/clans;default=/home/pvpgn/etc/bnetd_default_user.cdb
+# storage_path = file:dir=var\users;clan=var\clans;default=conf\bnetd_default_user
+# storage_path = cdb:dir=var\userscdb;clan=var\clans;default=conf\bnetd_default_user.cdb
 # storage_path = sql:mode=mysql;host=127.0.0.1;name=PVPGN;user=pvpgn;pass=pvpgnrocks;default=0
 #----------------------------------------------------------------------------#
 
