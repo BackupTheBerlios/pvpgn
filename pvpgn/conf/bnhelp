@@ -113,6 +113,8 @@ whois <player> - looks up some basic information on a user, including their acco
 %friends f
 /friends add <username> - add user to your friends list
 /friends del <username> - remove user from your friends list
+/friends promote <username> - promote user in your friends list
+/friends demote <username> - demote user in your friends list
 /friends list - list all users in your friends list
 /friends msg <msgtext> - whispers to all your online friends
 %mail
@@ -147,7 +149,12 @@ whois <player> - looks up some basic information on a user, including their acco
 %rehash
 /rehash - forces reload of bnetd.conf
 %clan
-/clan <clanname> - sets the clanname to be displayed in your profile
+/clan public (alias: pub)
+Opens the clan channel up to the public so that anyone may enter
+/clan private  (alias: priv)
+Closes the clan channel such that only members of the clan may enter
+/clan motd <MESSAGE>
+Update the clan message of the day to MESSAGE
 %ping p latency
 /ping, /p, /latency - returns your latency to the server
 %command_groups cg

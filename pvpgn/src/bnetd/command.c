@@ -1197,6 +1197,8 @@ static int _handle_friends_command(t_connection * c, char const * text)
 	message_send_text(c,message_type_info,c,"Friends List (Used in Arranged Teams and finding online friends.)");
 	message_send_text(c,message_type_info,c,"Type: /f add <username> (adds a friend to your list)");
 	message_send_text(c,message_type_info,c,"Type: /f del <username> (removes a friend from your list)");
+	message_send_text(c,message_type_info,c,"Type: /f promote <username> (promote a friend in your list)");
+	message_send_text(c,message_type_info,c,"Type: /f demote <username> (demote a friend in your list)");
 	message_send_text(c,message_type_info,c,"Type: /f list (shows your full friends list)");
 	message_send_text(c,message_type_info,c,"Type: /f msg (whispers a message to all your friends at once)");
 	return 0;
@@ -1348,7 +1350,7 @@ static int _handle_friends_command(t_connection * c, char const * text)
     }
 
     if (strstart(text,"r")==0 || strstart(text,"remove")==0
-	|| strstart(text,"d")==0 || strstart(text,"del")==0) {
+	|| strstart(text,"del")==0 || strstart(text,"delete")==0) {
 
 	int num;
 	char msgtemp[MAX_MESSAGE_LEN];
@@ -1384,6 +1386,100 @@ static int _handle_friends_command(t_connection * c, char const * text)
 
     		return 0; 
 	}
+    }
+
+    if (strstart(text,"p")==0 || strstart(text,"promote")==0) {
+	int num;
+	int n;
+	char msgtemp[MAX_MESSAGE_LEN];
+	char const * dest_name;
+	t_packet * rpacket;
+	t_list * flist;
+	t_friend * fr;
+	t_account * dest_acc;
+	unsigned int dest_uid;
+    
+	text = skip_command(text);
+
+	if (text[0]=='\0') {
+	    message_send_text(c,message_type_info,c,"usage: /f promote <username>");
+	    return 0;
+	}
+
+	num = account_get_friendcount(my_acc);
+	flist = account_get_friends(my_acc);
+	for(n = 1; n<num; n++)
+	    if( (dest_uid = account_get_friend(my_acc, n)) && 
+		(fr = friendlist_find_uid(flist, dest_uid)) && 
+		(dest_acc = friend_get_account(fr)) && 
+		(dest_name = account_get_name(dest_acc)) && 
+		(strcasecmp(dest_name, text) == 0) ) 
+	    {
+		account_set_friend(my_acc, n, account_get_friend(my_acc, n-1));
+		account_set_friend(my_acc, n-1, dest_uid);
+		sprintf(msgtemp, "Premoted %s in your friends list.", dest_name);
+		message_send_text(c,message_type_info,c,msgtemp);
+
+		if (!(rpacket = packet_create(packet_class_bnet)))
+	    	    return 0;
+
+		packet_set_size(rpacket,sizeof(t_server_friendmove_ack));
+		packet_set_type(rpacket,SERVER_FRIENDMOVE_ACK);
+    		bn_byte_set(&rpacket->u.server_friendmove_ack.pos1, n-1);
+    		bn_byte_set(&rpacket->u.server_friendmove_ack.pos2, n);
+
+		conn_push_outqueue(c,rpacket);
+		packet_del_ref(rpacket);
+		return 0; 
+	    }
+	return 0; 
+    }
+
+    if (strstart(text,"d")==0 || strstart(text,"demote")==0) {
+	int num;
+	int n;
+	char msgtemp[MAX_MESSAGE_LEN];
+	char const * dest_name;
+	t_packet * rpacket;
+	t_list * flist;
+	t_friend * fr;
+	t_account * dest_acc;
+	unsigned int dest_uid;
+    
+	text = skip_command(text);
+
+	if (text[0]=='\0') {
+	    message_send_text(c,message_type_info,c,"usage: /f demote <username>");
+	    return 0;
+	}
+
+	num = account_get_friendcount(my_acc);
+	flist = account_get_friends(my_acc);
+	for(n = 0; n<num-1; n++)
+	    if( (dest_uid = account_get_friend(my_acc, n)) && 
+		(fr = friendlist_find_uid(flist, dest_uid)) && 
+		(dest_acc = friend_get_account(fr)) && 
+		(dest_name = account_get_name(dest_acc)) && 
+		(strcasecmp(dest_name, text) == 0) ) 
+	    {
+		account_set_friend(my_acc, n, account_get_friend(my_acc, n+1));
+		account_set_friend(my_acc, n+1, dest_uid);
+		sprintf(msgtemp, "Premoted %s in your friends list.", dest_name);
+		message_send_text(c,message_type_info,c,msgtemp);
+
+		if (!(rpacket = packet_create(packet_class_bnet)))
+	    	    return 0;
+
+		packet_set_size(rpacket,sizeof(t_server_friendmove_ack));
+		packet_set_type(rpacket,SERVER_FRIENDMOVE_ACK);
+    		bn_byte_set(&rpacket->u.server_friendmove_ack.pos1, n);
+    		bn_byte_set(&rpacket->u.server_friendmove_ack.pos2, n+1);
+
+		conn_push_outqueue(c,rpacket);
+		packet_del_ref(rpacket);
+		return 0; 
+	    }
+	return 0; 
     }
 
     if (strstart(text,"list")==0 || strstart(text,"l")==0) {

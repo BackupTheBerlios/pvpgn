@@ -1963,8 +1963,16 @@ extern int account_remove_friend2( t_account * account, const char * friend)
     uid = account_get_uid(friend_get_account(fr));
     for (i = 0; i < n; i++)
 	if (account_get_friend(account, i) == uid) {
+    	    t_list * fflist;
+    	    t_friend * ffr;
+    	    t_account * facc;
+
 	    account_remove_friend(account, i);
 	    friendlist_remove_friend(flist, fr);
+    	    if((facc = friend_get_account(fr)) && 
+	       (fflist = account_get_friends(facc)) && 
+	       (ffr = friendlist_find_account(fflist, account)))
+        	    friend_set_mutual(ffr, 0);
 	    return i;
 	}
 
