@@ -100,11 +100,11 @@
          return gui_vprintf(format, args);
         else return vfprintf(stream, format, args);
     }
-
 #define printf gui_printf
 #endif
 
 FILE	*hexstrm = NULL;
+
 // by quetzal. indicates service status
 // 0 - stopped
 // 1 - running
@@ -127,203 +127,196 @@ static void usage(char const * progname)
 	    "    -D, --debug              run in debug mode (run in foreground and log to stdout)\n"
 	    "    -h, --help, --usage      show this information and exit\n"
 	    "    -v, --version            print version number and exit\n"
-		"    Running as service functions:\n"
-		"    -s install               install service\n"
-		"    -s uninstall             uninstall service\n",
-		progname);
+#ifdef WIN32
+	    "    Running as service functions:\n"
+	    "	 --service		  run as service\n"
+	    "    -s install               install service\n"
+	    "    -s uninstall             uninstall service\n"
+#endif	    
+	    ,progname);
 }
 
-int old_main(int argc, char * argv[])
-{
-    int          a;
-    char const * pidfile;
-    char const * hexfile=NULL;
-    int          foreground=0;
 
-	if (argc<1 || !argv || !argv[0])
-    {
-        fprintf(stderr,"bad arguments\n");
+// added some more exit status --> put in "compat/exitstatus.h" ???
+#ifdef WITH_BITS
+# define STATUS_BITS_FAILURE		2
+#endif
+#ifdef WITH_MYSQL
+# define STATUS_STORAGE_FAILURE		3
+#endif
+#define STATUS_MAPLISTS_FAILURE		4
+#define STATUS_MATCHLISTS_FAILURE	5
+#define STATUS_LADDERLIST_FAILURE	6
+
+#define STATUS_CONTINUE	-1
+
+// new functions extracted from old_main()
+int read_commandline(int argc, char *argv[], int *foreground, char *preffile[], char *hexfile[]);
+int pre_server_startup(void);
+void post_server_shutdown(int status);
+int eventlog_startup(void);
+int fork_bnetd(int foreground);
+char * write_to_pidfile(void);
+void pvpgn_greeting(void);
+
+// The functions 
+int read_commandline(int argc, char *argv[], int *foreground, char *preffile[], char *hexfile[])
+{
+    int a;
+    
+    if (argc<1 || !argv || !argv[0]) {
+	fprintf(stderr,"bad arguments\n");
         return STATUS_FAILURE;
     }
-
-	preffile = NULL;
-    for (a=1; a<argc; a++)
-	    if (strncmp(argv[a],"--config=",9)==0)
-        {
-            if (preffile)
-            {
-                fprintf(stderr,"%s: configuration file was already specified as \"%s\"\n",argv[0],preffile);
+#ifdef WIN32
+    if (argc > 1 && strncmp(argv[1], "--service", 9) == 0) {
+	Win32_ServiceRun();
+	return STATUS_SUCCESS;
+    }
+#endif
+    for (a=1; a<argc; a++) {
+	if (strncmp(argv[a],"--config=",9)==0) {
+	    if (preffile) {
+		fprintf(stderr,"%s: configuration file was already specified as \"%s\"\n",argv[0],preffile[0]);
                 usage(argv[0]);
                 return STATUS_FAILURE;
             }
-			preffile = &argv[a][9];
-		}
-        else if (strcmp(argv[a],"-c")==0)
-        {
-            if (a+1>=argc)
-            {
+	    *preffile = &argv[a][9];
+	}
+	else if (strcmp(argv[a],"-c")==0) {
+            if (a+1>=argc) {
                 fprintf(stderr,"%s: option \"%s\" requires an argument\n",argv[0],argv[a]);
                 usage(argv[0]);
                 return STATUS_FAILURE;
             }
-            if (preffile)
-            {
-                fprintf(stderr,"%s: configuration file was already specified as \"%s\"\n",argv[0],preffile);
+            if (preffile) {
+                fprintf(stderr,"%s: configuration file was already specified as \"%s\"\n",argv[0],preffile[0]);
                 usage(argv[0]);
                 return STATUS_FAILURE;
             }
             a++;
-	    preffile = argv[a];
+	    *preffile = argv[a];
         }
-        else if (strncmp(argv[a],"--hexdump=",10)==0)
-        {
-            if (hexfile)
-            {
-                fprintf(stderr,"%s: configuration file was already specified as \"%s\"\n",argv[0],hexfile);
+        else if (strncmp(argv[a],"--hexdump=",10)==0) {
+            if (hexfile) {
+                fprintf(stderr,"%s: configuration file was already specified as \"%s\"\n",argv[0],hexfile[0]);
                 usage(argv[0]);
                 return STATUS_FAILURE;
             }
-            hexfile = &argv[a][10];
+            *hexfile = &argv[a][10];
         }
-        else if (strcmp(argv[a],"-d")==0)
-        {
-            if (a+1>=argc)
-            {
+        else if (strcmp(argv[a],"-d")==0) {
+            if (a+1>=argc) {
                 fprintf(stderr,"%s: option \"%s\" requires an argument\n",argv[0],argv[a]);
                 usage(argv[0]);
                 return STATUS_FAILURE;
             }
-            if (hexfile)
-            {
-                fprintf(stderr,"%s: configuration file was already specified as \"%s\"\n",argv[0],hexfile);
+            if (hexfile) {
+                fprintf(stderr,"%s: configuration file was already specified as \"%s\"\n",argv[0],hexfile[0]);
                 usage(argv[0]);
                 return STATUS_FAILURE;
             }
             a++;
-            hexfile = argv[a];
+            *hexfile = argv[a];
         }
         else if (strcmp(argv[a],"-f")==0 || strcmp(argv[a],"--foreground")==0)
-            foreground = 1;
-        else if (strcmp(argv[a],"-D")==0 || strcmp(argv[a],"--debug")==0)
-        {
+            *foreground = 1;
+        else if (strcmp(argv[a],"-D")==0 || strcmp(argv[a],"--debug")==0) {
 	    eventlog_set_debugmode(1);
-            foreground = 1;
+            *foreground = 1;
         }
-		else if (strcmp(argv[a],"-s") == 0)
-        {
 #ifdef WIN32
-			if (a < argc - 1) {
-				if (strcmp(argv[a+1], "install") == 0) {
-					fprintf(stderr, "Installing service");
-					Win32_ServiceInstall();
-				}
-				if (strcmp(argv[a+1], "uninstall") == 0) {
-					fprintf(stderr, "Uninstalling service");
-					Win32_ServiceUninstall();
-				}
-			}
-			return 0;
-#else
-			fprintf(stderr, "%s: running as service is valid on win32 (WinNT) systems only",argv[0]);
-#endif
+	else if (strcmp(argv[a],"-s") == 0) {
+	    if (a < argc - 1) {
+		if (strcmp(argv[a+1], "install") == 0) {
+		    fprintf(stderr, "Installing service");
+		    Win32_ServiceInstall();
+		}
+		if (strcmp(argv[a+1], "uninstall") == 0) {
+		    fprintf(stderr, "Uninstalling service");
+		    Win32_ServiceUninstall();
+		}
+	    }
+	    return STATUS_SUCCESS;
         }
-        else if (strcmp(argv[a],"-v")==0 || strcmp(argv[a],"--version")==0)
-	{
+#endif
+        else if (strcmp(argv[a],"-v")==0 || strcmp(argv[a],"--version")==0) {
             printf("version "PVPGN_VERSION"\n");
             return STATUS_SUCCESS;
 	}
-        else if (strcmp(argv[a],"-h")==0 || strcmp(argv[a],"--help")==0 || strcmp(argv[a],"--usage")==0)
-            {usage(argv[0]);return STATUS_FAILURE;}
-	else if (strcmp(argv[a],"--config")==0 || strcmp(argv[a],"--hexdump")==0)
-	{
+        else if (strcmp(argv[a],"-h")==0 || strcmp(argv[a],"--help")==0 || strcmp(argv[a],"--usage")==0) {
+	    usage(argv[0]);
+	    return STATUS_SUCCESS;
+	}
+	else if (strcmp(argv[a],"--config")==0 || strcmp(argv[a],"--hexdump")==0) {
             fprintf(stderr,"%s: option \"%s\" requires and argument.\n",argv[0],argv[a]);
             usage(argv[0]);
             return STATUS_FAILURE;
 	}
-	else
-        {
+	else {
             fprintf(stderr,"%s: bad option \"%s\"\n",argv[0],argv[a]);
             usage(argv[0]);
             return STATUS_FAILURE;
         }
+    }
+    return STATUS_CONTINUE; // continue without exiting
+}
 
-	eventlog_set(stderr);
-    /* errors to eventlog from here on... */
-	   
+int eventlog_startup(void)
+{
+    char const * levels;
+    char *       temp;
+    char const * tok;
+    
+    eventlog_clear_level();
+    if ((levels = prefs_get_loglevels())) {
+	if (!(temp = strdup(levels))) {
+	    eventlog(eventlog_level_fatal,"eventlog_startup","could not allocate memory for temp (exiting)");
+	    return STATUS_FAILURE;
+	}
+	tok = strtok(temp,","); /* strtok modifies the string it is passed */
+	while (tok) {
+	    if (eventlog_add_level(tok)<0)
+		eventlog(eventlog_level_error,"eventlog_startup","could not add log level \"%s\"",tok);
+	    tok = strtok(NULL,",");
+	}
+	free(temp);
+    }
+    if (eventlog_open(prefs_get_logfile())<0) {
+	if (prefs_get_logfile()) {
+	    eventlog(eventlog_level_fatal,"eventlog_startup","could not use file \"%s\" for the eventlog (exiting)",prefs_get_logfile());
+	} else {
+	    eventlog(eventlog_level_fatal,"eventlog_startup","no logfile specified in configuration file \"%s\" (exiting)",preffile);
+	}
+	return STATUS_FAILURE;
+    }
+    eventlog(eventlog_level_info,"eventlog_startup","logging event levels: %s",prefs_get_loglevels());
+    return STATUS_CONTINUE;
+}
+
+int fork_bnetd(int foreground)
+{
 #ifdef USE_CHECK_ALLOC
     if (foreground)
 	check_set_file(stderr);
     else
-	eventlog(eventlog_level_warn,"main","memory allocation checking only available in foreground mode");
+	eventlog(eventlog_level_warn,"fork_bnetd","memory allocation checking only available in foreground mode");
 #endif
-    
-    if (preffile)
-    {
-	if (prefs_load(preffile)<0)
-	{
-	    eventlog(eventlog_level_fatal,"main","could not parse specified configuration file (exiting)");
-	    return STATUS_FAILURE;
-	}
-    }
-    else
-	if (prefs_load(BNETD_DEFAULT_CONF_FILE)<0)
-	    eventlog(eventlog_level_warn,"main","using default configuration");
-    
-    {
-	char const * levels;
-	char *       temp;
-	char const * tok;
-	
-	eventlog_clear_level();
-	if ((levels = prefs_get_loglevels()))
-	{
-	    if (!(temp = strdup(levels)))
-	    {
-		eventlog(eventlog_level_fatal,"main","could not allocate memory for temp (exiting)");
-		return STATUS_FAILURE;
-	    }
-	    tok = strtok(temp,","); /* strtok modifies the string it is passed */
-	    while (tok)
-	    {
-		if (eventlog_add_level(tok)<0)
-		    eventlog(eventlog_level_error,"main","could not add log level \"%s\"",tok);
-		tok = strtok(NULL,",");
-	    }
-	    free(temp);
-	}
-    }
-
-	if (eventlog_open(prefs_get_logfile())<0)
-    {
-		if (prefs_get_logfile()) {
-			eventlog(eventlog_level_fatal,"main","could not use file \"%s\" for the eventlog (exiting)",prefs_get_logfile());
-		}
-		else {
-			eventlog(eventlog_level_fatal,"main","no logfile specified in configuration file \"%s\" (exiting)",preffile);
-		}
-		return STATUS_FAILURE;
-    }
-    
-    /* eventlog goes to log file from here on... */
-    
 #ifdef DO_DAEMONIZE
-    if (!foreground)
-    {
-	if (chdir("/")<0)
-	{
-	    eventlog(eventlog_level_error,"main","could not change working directory to / (chdir: %s)",strerror(errno));
+    if (!foreground) {
+	if (chdir("/")<0) {
+	    eventlog(eventlog_level_error,"fork_bnetd","could not change working directory to / (chdir: %s)",strerror(errno));
 	    return STATUS_FAILURE;
 	}
 	
-	switch (fork())
-	{
-	case -1:
-	    eventlog(eventlog_level_error,"main","could not fork (fork: %s)",strerror(errno));
-	    return STATUS_FAILURE;
-	case 0: /* child */
-	    break;
-	default: /* parent */
-	    return STATUS_SUCCESS;
+	switch (fork()) {
+	    case -1:
+		eventlog(eventlog_level_error,"fork_bnetd","could not fork (fork: %s)",strerror(errno));
+		return STATUS_FAILURE;
+	    case 0: /* child */
+		break;
+	    default: /* parent */
+		return STATUS_SUCCESS;
 	}
 	
 	close(STDINFD);
@@ -332,33 +325,28 @@ int old_main(int argc, char * argv[])
 #ifdef USE_CHECK_ALLOC
 	check_set_file(NULL);
 #endif
-    
 # ifdef HAVE_SETPGID
-	if (setpgid(0,0)<0)
-	{
-	    eventlog(eventlog_level_error,"main","could not create new process group (setpgid: %s)",strerror(errno));
+	if (setpgid(0,0)<0) {
+	    eventlog(eventlog_level_error,"fork_bnetd","could not create new process group (setpgid: %s)",strerror(errno));
 	    return STATUS_FAILURE;
 	}
 # else
 #  ifdef HAVE_SETPGRP
 #   ifdef SETPGRP_VOID
-        if (setpgrp()<0)
-        {
-            eventlog(eventlog_level_error,"main","could not create new process group (setpgrp: %s)",strerror(errno));
+        if (setpgrp()<0) {
+            eventlog(eventlog_level_error,"fork_bnetd","could not create new process group (setpgrp: %s)",strerror(errno));
             return STATUS_FAILURE;
         }
 #   else
-	if (setpgrp(0,0)<0)
-	{
-	    eventlog(eventlog_level_error,"main","could not create new process group (setpgrp: %s)",strerror(errno));
+	if (setpgrp(0,0)<0) {
+	    eventlog(eventlog_level_error,"fork_bnetd","could not create new process group (setpgrp: %s)",strerror(errno));
 	    return STATUS_FAILURE;
 	}
 #   endif
 #  else
 #   ifdef HAVE_SETSID
-	if (setsid()<0)
-	{
-	    eventlog(eventlog_level_error,"main","could not create new process group (setsid: %s)",strerror(errno));
+	if (setsid()<0) {
+	    eventlog(eventlog_level_error,"fork_bnetd","could not create new process group (setsid: %s)",strerror(errno));
 	    return STATUS_FAILURE;
 	}
 #   else
@@ -367,88 +355,61 @@ int old_main(int argc, char * argv[])
 #  endif
 # endif
     }
+    return STATUS_CONTINUE;
 #endif
-    
-    pidfile = strdup(prefs_get_pidfile());
-    if (pidfile[0]=='\0')
-    {
-	free((void *)pidfile); /* avoid warning */
-	pidfile = NULL;
-    }
-    
-    if (pidfile)
-    {
-#ifdef HAVE_GETPID
-	FILE * fp;
-	
-	if (!(fp = fopen(pidfile,"w")))
-	{
-	    eventlog(eventlog_level_error,"main","unable to open pid file \"%s\" for writing (fopen: %s)",pidfile,strerror(errno));
-	    free((void *)pidfile); /* avoid warning */
-	    pidfile = NULL;
-	}
-	else
-	{
-	    fprintf(fp,"%u",(unsigned int)getpid());
-	    if (fclose(fp)<0)
-		eventlog(eventlog_level_error,"main","could not close pid file \"%s\" after writing (fclose: %s)",pidfile,strerror(errno));
-	}
-#else
-	eventlog(eventlog_level_warn,"main","no getpid() system call, disable pid file in bnetd.conf");
-	free((void *)pidfile); /* avoid warning */
-	pidfile = NULL;
-#endif
-    }
-    
-    /* Hakan: That's way too late to give up root privileges... Have to look for a better place */
-    if (give_up_root_privileges(prefs_get_effective_user(),
-                                prefs_get_effective_group())<0)
-    {
-	eventlog(eventlog_level_fatal,"main","could not give up privileges (exiting)");
-	return STATUS_FAILURE;
-    }
-    
-#ifdef HAVE_GETPID
-    eventlog(eventlog_level_info,"main","PvPGN version "PVPGN_VERSION" process %u",(unsigned int)getpid());
-#else
-    //eventlog(eventlog_level_info,"main","PvPGN version "PVPGN_VERSION);
-#endif
-    eventlog(eventlog_level_info,"main","logging event levels: %s",prefs_get_loglevels());
-    
-    if (hexfile)
-    {
-	if (!(hexstrm = fopen(hexfile,"w")))
-	    eventlog(eventlog_level_error,"main","could not open file \"%s\" for writing the hexdump (fopen: %s)",hexfile,strerror(errno));
-	else
-	  { fprintf(hexstrm,"# dump generated by PvPGN version "PVPGN_VERSION"\n"); }
-    }
+}
 
+char * write_to_pidfile(void)
+{
+    char *pidfile = strdup(prefs_get_pidfile());
+    
+    if (pidfile[0]=='\0') {
+	free((void *)pidfile); /* avoid warning */
+	return NULL;
+    }
+    if (pidfile) {
+#ifdef HAVE_GETPID
+    FILE * fp;
+	
+    if (!(fp = fopen(pidfile,"w"))) {
+	eventlog(eventlog_level_error,"write_to_pidfile","unable to open pid file \"%s\" for writing (fopen: %s)",pidfile,strerror(errno));
+	free((void *)pidfile); /* avoid warning */
+	return NULL;
+    } else {
+	fprintf(fp,"%u",(unsigned int)getpid());
+	if (fclose(fp)<0)
+	    eventlog(eventlog_level_error,"write_to_pidfile","could not close pid file \"%s\" after writing (fclose: %s)",pidfile,strerror(errno));
+    }
+#else
+    eventlog(eventlog_level_warn,"write_to_pidfile","no getpid() system call, disable pid file in bnetd.conf");
+    free((void *)pidfile); /* avoid warning */
+    return NULL;
+#endif
+    }
+    return pidfile;
+}
+
+int pre_server_startup(void)
+{
+    pvpgn_greeting();
 #ifdef WITH_MYSQL
    /* Dizzy: July 13 2002 : changed to initialize the storage layer which
     * in turn will initialize the db layer
     */
     if (storage_init() < 0) {
-	eventlog(eventlog_level_error, "main", "storage init failed");
-	return -1; 
+	eventlog(eventlog_level_error, "pre_server_startup", "storage init failed");
+	return STATUS_STORAGE_FAILURE;
     }
 #endif
     if (anongame_maplists_create() < 0) {
-	eventlog(eventlog_level_error, "main", "could not load maps");
-	return -1;
+	eventlog(eventlog_level_error, "pre_server_startup", "could not load maps");
+	return STATUS_MAPLISTS_FAILURE;
     }
-	if (anongame_matchlists_create() < 0) {
-	eventlog(eventlog_level_error, "main", "could not create matchlists");
-	return -1;
+    if (anongame_matchlists_create() < 0) {
+	eventlog(eventlog_level_error, "pre_server_startup", "could not create matchlists");
+	return STATUS_MATCHLISTS_FAILURE;
     }
-	printf("You are currently Running PvPGN "PVPGN_VERSION"\n");
-	printf("=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=\n");
-	printf("Make sure to visit:\n");
-	printf("http://www.pvpgn.org\n");
-	printf("We can also be found on: irc.pvpgn.org\n");
-	printf("Channel: #pvpgn\n");
-	printf("Server is now running.\n");
-	printf("=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=\n");
-	connlist_create();
+    connlist_create();
     gamelist_create();
     timerlist_create();
     server_set_name();
@@ -456,126 +417,210 @@ int old_main(int argc, char * argv[])
 #ifdef WITH_BITS
     bits_query_init();
     if (bits_init()<0) {
-	eventlog(eventlog_level_error,"main","BITS initialization failed");
-	goto bits_fail; /* Typhoon: Hmmm, I don't like labels ... */
+	eventlog(eventlog_level_error,"pre_server_startup","BITS initialization failed");
+	return STATUS_BITS_FAILURE;
     }
 #endif
     channellist_create();
     if (helpfile_init(prefs_get_helpfile())<0)
-	eventlog(eventlog_level_error,"main","could not load helpfile");
+	eventlog(eventlog_level_error,"pre_server_startup","could not load helpfile");
     if (ipbanlist_create()<0)
-        eventlog(eventlog_level_error,"main","could not create new IP ban list");
+        eventlog(eventlog_level_error,"pre_server_startup","could not create new IP ban list");
     if (ipbanlist_load(prefs_get_ipbanfile())<0)
-	eventlog(eventlog_level_error,"main","could not load IP ban list");
+	eventlog(eventlog_level_error,"pre_server_startup","could not load IP ban list");
     if (adbannerlist_create(prefs_get_adfile())<0)
-	eventlog(eventlog_level_error,"main","could not load adbanner list");
+	eventlog(eventlog_level_error,"pre_server_startup","could not load adbanner list");
     if (gametrans_load(prefs_get_transfile())<0)
-	eventlog(eventlog_level_error,"main","could not load gametrans list");
+	eventlog(eventlog_level_error,"pre_server_startup","could not load gametrans list");
     if (autoupdate_load(prefs_get_mpqfile())<0)
-	eventlog(eventlog_level_error,"main","could not load autoupdate list");
+	eventlog(eventlog_level_error,"pre_server_startup","could not load autoupdate list");
     if (versioncheck_load(prefs_get_versioncheck_file())<0)
-	eventlog(eventlog_level_error,"main","could not load versioncheck list");
+	eventlog(eventlog_level_error,"pre_server_startup","could not load versioncheck list");
     watchlist_create();
-    // aaron -  war3 ladder initialisation
     war3_ladders_init();
     accountlist_load_default();
-	accountlist_create();
-    // aaron - on start war3 ladder update
+    accountlist_create();
     war3_ladder_update_all_accounts();
     if (ladderlist_create()<0) {
-	eventlog(eventlog_level_error, "main", "could not create ladders");
-	return -1;
+	eventlog(eventlog_level_error, "pre_server_startup", "could not create ladders");
+	return STATUS_LADDERLIST_FAILURE;
     }
     if (realmlist_create(prefs_get_realmfile())<0)
-	eventlog(eventlog_level_error,"main","could not load realm list");
+	eventlog(eventlog_level_error,"pre_server_startup","could not load realm list");
     if (characterlist_create("")<0)
-	eventlog(eventlog_level_error,"main","could not load character list");
+	eventlog(eventlog_level_error,"pre_server_startup","could not load character list");
     if (prefs_get_track()) /* setup the tracking mechanism */
         tracker_set_servers(prefs_get_trackserv_addrs());
-        
-	/* now process connections and network traffic */
-	if (server_process() < 0)
+    return STATUS_CONTINUE;
+}
+
+void post_server_shutdown(int status)
+{
+    switch (status)
     {
-        eventlog(eventlog_level_fatal,"main","failed to initialize network (exiting)");
-	if (pidfile)
-	{
-	    if (remove(pidfile)<0)
-		eventlog(eventlog_level_error,"main","could not remove pid file \"%s\" (remove: %s)",pidfile,strerror(errno));
-	    free((void *)pidfile); /* avoid warning */
+	case STATUS_CONTINUE:
+	    tracker_set_servers(NULL);
+	    characterlist_destroy();
+    	    realmlist_destroy();
+    	    ladderlist_destroy();
+	case STATUS_LADDERLIST_FAILURE:
+	    war3_ladder_update_all_accounts();
+	    accountlist_destroy();
+    	    accountlist_unload_default();
+    	    war3_ladders_destroy();
+    	    watchlist_destroy();
+    	    versioncheck_unload();
+    	    autoupdate_unload();
+    	    gametrans_unload();
+    	    adbannerlist_destroy();
+    	    ipbanlist_save(prefs_get_ipbanfile());
+    	    ipbanlist_destroy();
+    	    helpfile_unload();
+    	    channellist_destroy();
+#ifdef WITH_BITS
+	    bits_destroy();
+	case STATUS_BITS_FAILURE: //  bits_fail:
+	    bits_query_destroy();
+#endif
+	    query_destroy();
+	    server_clear_name();
+    	    timerlist_destroy();
+	    gamelist_destroy();
+	    connlist_destroy();
+	    anongame_matchlists_destroy();
+	case STATUS_MATCHLISTS_FAILURE:
+	    anongame_maplists_destroy();
+	case STATUS_MAPLISTS_FAILURE:
+#ifdef WITH_MYSQL
+	    storage_destroy();
+	case STATUS_STORAGE_FAILURE:
+#endif
+	case STATUS_FAILURE:
+	    break;
+	default:
+	    eventlog(eventlog_level_error,"post_server_shutdown","got bad status \"%d\" during shutdown",status);
+    }
+    return;
+}    
+
+void pvpgn_greeting(void)
+{
+#ifdef HAVE_GETPID
+    eventlog(eventlog_level_info,"pvpgn_greeting","PvPGN version "PVPGN_VERSION" process %u",(unsigned int)getpid());
+#else
+    eventlog(eventlog_level_info,"pvpgn_greeting","PvPGN version "PVPGN_VERSION);
+#endif
+    
+    printf("You are currently Running PvPGN "PVPGN_VERSION"\n");
+    printf("=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=\n");
+    printf("Make sure to visit:\n");
+    printf("http://www.pvpgn.org\n");
+    printf("We can also be found on: irc.pvpgn.org\n");
+    printf("Channel: #pvpgn\n");
+    printf("Server is now running.\n");
+    printf("=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=\n");
+    
+    return;
+}
+
+// MAIN STARTS HERE!!!
+#ifdef WITH_D2
+extern int bnetd_main(int argc, char * * argv)
+#else
+extern int main(int argc, char * * argv)
+#endif
+{
+    int a;
+    int foreground = 0;
+    char *preffile = NULL;
+    char *hexfile = NULL;
+    char *pidfile = NULL;
+
+// Read the command line and set variables
+    a = read_commandline(argc, argv, &foreground, &preffile, &hexfile);
+	if (a == STATUS_FAILURE)
+	    return STATUS_FAILURE; // command line problems
+	else if (a == STATUS_SUCCESS)
+	    return STATUS_SUCCESS; // command line ok but still exiting. ie. -v or -h
+
+    eventlog_set(stderr);
+    /* errors to eventlog from here on... */
+
+// Load the prefs
+    if (preffile) {
+	if (prefs_load(preffile)<0) { // prefs are loaded here ...
+	    eventlog(eventlog_level_fatal,"main","could not parse specified configuration file (exiting)");
+	    return STATUS_FAILURE;
 	}
+    } else {
+	if (prefs_load(BNETD_DEFAULT_CONF_FILE)<0) // or prefs are loaded here ..  if not defined on command line ...
+	    eventlog(eventlog_level_warn,"main","using default configuration"); // or use defaults if default conf is not found
+    }
+
+// Start logging to log file
+    if (eventlog_startup() == STATUS_FAILURE)
+	return STATUS_FAILURE;
+    /* eventlog goes to log file from here on... */
+
+// Fork to child process if not set to foreground    
+    a = fork_bnetd(foreground);
+    if (a == STATUS_FAILURE)
+	return STATUS_FAILURE; // if fork fails
+    else if (a == STATUS_SUCCESS)
+	return STATUS_SUCCESS; // parent process exiting - child will return with -1 and continue
+
+// Give up root privileges
+    /* Hakan: That's way too late to give up root privileges... Have to look for a better place */
+    if (give_up_root_privileges(prefs_get_effective_user(),prefs_get_effective_group())<0) {
+        eventlog(eventlog_level_fatal,"main","could not give up privileges (exiting)");
         return STATUS_FAILURE;
     }
+	
+// Write the pidfile
+    pidfile = write_to_pidfile();
+
+// Open the hexfile for writing
+    if (hexfile) {
+	if (!(hexstrm = fopen(hexfile,"w")))
+	    eventlog(eventlog_level_error,"main","could not open file \"%s\" for writing the hexdump (fopen: %s)",hexfile,strerror(errno));
+	else
+	    fprintf(hexstrm,"# dump generated by PvPGN version "PVPGN_VERSION"\n");
+    }
+
+// Run the pre server stuff
+    a = pre_server_startup();
     
-    tracker_set_servers(NULL);
-    characterlist_destroy();
-    realmlist_destroy();
-    ladderlist_destroy();
-    accountlist_destroy();
-    accountlist_unload_default();
-    // aaron - war3 ladder removal
-    war3_ladders_destroy();
-    watchlist_destroy();
-    ipbanlist_save(prefs_get_ipbanfile());
-    ipbanlist_destroy();
-    autoupdate_unload();
-    versioncheck_unload();
-    gametrans_unload();
-    adbannerlist_destroy();
-    helpfile_unload();
-    channellist_destroy();
-#ifdef WITH_BITS
-    bits_destroy();
-  bits_fail:
-    bits_query_destroy();
-#endif
-    query_destroy();
-    server_clear_name();
-    timerlist_destroy();
-    gamelist_destroy();
-    connlist_destroy();
-    anongame_maplists_destroy();
-	anongame_matchlists_destroy();
-#ifdef WITH_MYSQL
-    storage_destroy();
-#endif
+// now process connections and network traffic
+    if (a == STATUS_CONTINUE) {
+	if (server_process() < 0) 
+	    eventlog(eventlog_level_fatal,"main","failed to initialize network (exiting)");
+	else
+	    eventlog(eventlog_level_info,"main","server has shut down");
+    }
     
-    if (hexstrm)
-    {
+// run post server stuff and exit
+    post_server_shutdown(a);    
+
+// Close hexfile
+    if (hexstrm) {
 	fprintf(hexstrm,"# end of dump\n");
 	if (fclose(hexstrm)<0)
 	    eventlog(eventlog_level_error,"main","could not close hexdump file \"%s\" after writing (fclose: %s)",hexfile,strerror(errno));
     }
-    
-    eventlog(eventlog_level_info,"main","server has shut down");
-    if (pidfile)
-    {
+
+// Delete pidfile
+    if (pidfile) {
 	if (remove(pidfile)<0)
 	    eventlog(eventlog_level_error,"main","could not remove pid file \"%s\" (remove: %s)",pidfile,strerror(errno));
 	free((void *)pidfile); /* avoid warning */
     }
 
-    prefs_unload();
-    
 #ifdef USE_CHECK_ALLOC
     check_cleanup();
 #endif
-    
-    // aaron: wouldn't it be nice.. to close the files we opened... ;-)
+
+    prefs_unload();
     eventlog_close();
-    
-    return STATUS_SUCCESS;
+    return a;
 }
 
-extern int main(int argc, char *argv[])
-{
-	if (argc > 1 && strncmp(argv[1], "--service", 9) == 0) {
-#ifdef WIN32
-		Win32_ServiceRun();
-#else
-		fprintf(stderr, "%s: running as service is valid on win32 (WinNT) systems only",argv[0]);
-#endif
-	} else {
-		old_main(argc, argv);
-	}
-	return 0;
-}
