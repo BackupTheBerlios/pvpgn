@@ -973,7 +973,27 @@ extern int channel_choose_operator(t_channel * channel, t_connection * tryop)
     {
 	channel_message_log(channel,channel->opr,0,"NOW OPERATOR");
 	conn_add_flags(channel->opr,MF_GAVEL);    
-	message_send_text(channel->opr,message_type_info,channel->opr,"You are now the operator for this channel.");
+	if (!(channel_get_flags(channel) & channel_flags_thevoid)) 
+	{
+	  char tmpmsg[MAX_IRC_MESSAGE_LEN+1];
+	  t_connection * user;
+
+	  for (user=channel_get_first(channel); user; user=channel_get_next())
+	  {
+	    if (conn_get_class(user)==conn_class_irc)
+	    {
+	      sprintf(tmpmsg,"%s +o %s",irc_convert_channel(channel),conn_get_chatname(channel->opr));
+	      message_send_text(user,message_type_mode,channel->opr,tmpmsg);
+	    }
+	    if (user!=channel->opr)
+	    {
+	      sprintf(tmpmsg,"%s is now the operator for this channel.",conn_get_chatname(channel->opr));
+	      message_send_text(user,message_type_info,channel->opr,tmpmsg);
+	    }
+	    else
+	      message_send_text(channel->opr,message_type_info,channel->opr,"You are now the operator for this channel.");
+	  }
+	}
     }
     
     return 0;

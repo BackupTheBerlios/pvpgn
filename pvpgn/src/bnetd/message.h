@@ -51,6 +51,7 @@ typedef enum
     message_type_error,
     message_type_emote,
     message_type_uniqueid,
+    message_type_mode,
     message_type_null
 } t_message_type;
 

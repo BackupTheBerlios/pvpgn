@@ -112,6 +112,8 @@ static char const * message_type_get_str(t_message_type type)
         return "emote";
     case message_type_uniqueid:
         return "uniqueid";
+    case message_type_mode:
+	return "mode";
     case message_type_null:
         return "null";
     default:
@@ -679,6 +681,24 @@ static int message_telnet_format(t_packet * packet, t_message_type type, t_conne
 	    conn_unget_chatcharname(me,tname);
 	}
 	break;
+    case message_type_mode:
+	if (!me)
+	{
+	    eventlog(eventlog_level_error,__FUNCTION__,"got NULL connection for %s",message_type_get_str(type));
+	    return -1;
+	}
+	{
+	    char const * tname;
+
+	    tname = conn_get_chatcharname(me,dst);
+	    if (!(msgtemp = malloc(strlen(tname)+32)))
+	    {
+		eventlog(eventlog_level_error,__FUNCTION__,"could not allocate memory for msgtmp");
+		return -1;
+	    }
+	    sprintf(msgtemp,"%s change mode: %s\r\n",tname,text);
+	    conn_unget_chatcharname(me,tname);
+	}
     default:
 	eventlog(eventlog_level_error,"message_telnet_format","got bad message type %d",(int)type);
 	return -1;

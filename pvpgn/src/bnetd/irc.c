@@ -576,7 +576,7 @@ static char * irc_message_preformat(t_irc_message_from const * from, char const 
         free(myfrom);
         return NULL;
     }
-    sprintf(msg,":%s\n%s\n%s\n:%s",myfrom,command,mydest,mytext);
+    sprintf(msg,":%s\n%s\n%s\n%s",myfrom,command,mydest,mytext);
     free(myfrom);
     return msg;
 }
@@ -685,6 +685,7 @@ extern int irc_message_format(t_packet * packet, t_message_type type, t_connecti
     case message_type_whisper:
     	{
     	    char const * dst;
+	    char temp[MAX_IRC_MESSAGE_LEN];
     	    from.nick = conn_get_chatname(me);
             from.user = conn_get_clienttag(me);
     	    from.host = addr_num_to_ip_str(conn_get_addr(me));
@@ -692,7 +693,8 @@ extern int irc_message_format(t_packet * packet, t_message_type type, t_connecti
     	    	dst = irc_convert_channel(conn_get_channel(me)); /* FIXME: support more channels and choose right one! */
 	    else
 	        dst = ""; /* will be replaced with username in postformat */
-    	    msg = irc_message_preformat(&from,"PRIVMSG",dst,text);
+	    sprintf(temp,":%s",text);
+    	    msg = irc_message_preformat(&from,"PRIVMSG",dst,temp);
     	    conn_unget_chatname(me,from.nick);
     	}
         break;
@@ -703,9 +705,9 @@ extern int irc_message_format(t_packet * packet, t_message_type type, t_connecti
 
     	    /* "\001ACTION " + text + "\001" + \0 */
 	    if ((8+strlen(text)+1+1)<=MAX_IRC_MESSAGE_LEN) {
-		sprintf(temp,"\001ACTION %s\001",text);
+		sprintf(temp,":\001ACTION %s\001",text);
 	    } else {
-		sprintf(temp,"\001ACTION (maximum message length exceeded)\001");
+		sprintf(temp,":\001ACTION (maximum message length exceeded)\001");
 	    }
     	    from.nick = conn_get_chatname(me);
             from.user = conn_get_clienttag(me);
@@ -719,10 +721,21 @@ extern int irc_message_format(t_packet * packet, t_message_type type, t_connecti
     case message_type_broadcast:
     case message_type_info:
     case message_type_error:
-	msg = irc_message_preformat(NULL,"NOTICE",NULL,text);
+	{
+	    char temp[MAX_IRC_MESSAGE_LEN];
+	    sprintf(temp,":%s",text);
+	    msg = irc_message_preformat(NULL,"NOTICE",NULL,temp);
+	}
 	break;
     case message_type_channel:
     	/* ignore it */
+	break;
+    case message_type_mode:
+	from.nick = conn_get_chatname(me);
+	from.user = conn_get_clienttag(me);
+	from.host = addr_num_to_ip_str(conn_get_addr(me));
+	msg = irc_message_preformat(&from,"MODE","\r",text);
+	conn_unget_chatname(me,from.nick);
 	break;
     default:
     	eventlog(eventlog_level_warn,"irc_message_format","%d not yet implemented",type);

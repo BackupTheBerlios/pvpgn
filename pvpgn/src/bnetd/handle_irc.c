@@ -518,9 +518,8 @@ doesn't work now, causes accesviolations, but isn't needed @ all, cause gameclie
 		    channel = conn_get_channel(conn);
 		    if (channel) {
 		    	char temp[MAX_IRC_MESSAGE_LEN];
-				// amadeo needed when topic stuff is fixed...
-				//message_send_text(conn,message_type_join,conn,NULL); /* we have to send the JOIN acknowledgement */
-				//ircname=irc_convert_channel(channel);
+				message_send_text(conn,message_type_join,conn,NULL); /* we have to send the JOIN acknowledgement */
+				ircname=irc_convert_channel(channel);
 		    	
 			if ((strlen(ircname)+1+strlen(":Not yet implemented.")+1)<MAX_IRC_MESSAGE_LEN) {
 			    sprintf(temp,"%s :Not yet implemented.",ircname);
@@ -530,8 +529,6 @@ doesn't work now, causes accesviolations, but isn't needed @ all, cause gameclie
 			    sprintf(temp,"%s FIXME 0",ircname);
 			    irc_send(conn,RPL_TOPICWHOTIME,temp); /* FIXME: this in an undernet extension but other servers support it too */
 			}
-			//amadeo: this must be deleted when topic-stuff gets activated
-			message_send_text(conn,message_type_join,conn,NULL); /* we have to send the JOIN acknowledgement */
 			irc_send_rpl_namreply(conn,channel);
 			irc_send(conn,RPL_ENDOFNAMES,":End of NAMES list");
 		    }
@@ -541,7 +538,43 @@ doesn't work now, causes accesviolations, but isn't needed @ all, cause gameclie
                  irc_unget_listelems(e);
 	} else 
 	    irc_send(conn,ERR_NEEDMOREPARAMS,":Too few arguments to JOIN");
-    }/* else if (strcmp(command,"BNET")==0) {
+    } else if (strcmp(command,"NAMES")==0) {
+      t_channel * channel;
+      
+      if (numparams>=1) {
+	char ** e;
+	char const * ircname;
+	char const * verytemp;
+	char temp[MAX_IRC_MESSAGE_LEN];
+	int i;
+	e = irc_get_listelems(params[0]);
+	for (i=0;((e)&&(e[i]));i++) {			
+			verytemp = irc_convert_ircname(e[i]);
+			
+			if (!verytemp)
+			  continue; /* something is wrong with the name ... */
+			channel = channellist_find_channel_by_name(verytemp,NULL,NULL);
+			if (!channel)
+			  continue; /* channel doesn't exist */
+			irc_send_rpl_namreply(conn,channel);
+			ircname = ircname=irc_convert_channel(channel);
+			if ((strlen(ircname)+1+strlen(":End of NAMES list")+1)<MAX_IRC_MESSAGE_LEN) {
+			  sprintf(temp,"%s :End of NAMES list",ircname);
+			  irc_send(conn,RPL_ENDOFNAMES,temp);
+			} else 
+			  irc_send(conn,RPL_ENDOFNAMES,":End of NAMES list");
+	}
+	if (e)
+	  irc_unget_listelems(e);
+      } else if (numparams==0) {
+	t_elem const * curr;
+	LIST_TRAVERSE_CONST(channellist(),curr) {
+	  channel = elem_get_data(curr);
+	  irc_send_rpl_namreply(conn,channel);
+	}
+	irc_send(conn,RPL_ENDOFNAMES,"* :End of NAMES list");		
+      }
+   }/* else if (strcmp(command,"BNET")==0) {
 	  This command is actually not defined by any RFC. It is 
 	 * a special bnetd-irc command to run battle.net /-commands.
       amadeo: changed this to make the cmdl-syntax more handy,
