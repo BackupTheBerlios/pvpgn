@@ -139,7 +139,21 @@ extern int fdwatch_add_fd(int fd, t_fdwatch_type rw, fdwatch_handler h, void *da
 
 extern int fdwatch_update_fd(int idx, t_fdwatch_type rw)
 {
-    if (idx<0) return -1;
+    if (idx<0 || idx>=fdw_maxcons) {
+	eventlog(eventlog_level_error,__FUNCTION__,"out of bounds idx [%d] (max: %d)",idx, fdw_maxcons);
+	return -1;
+    }
+    /* do not allow completly reset the access because then backend codes 
+     * can get confused */
+    if (!rw) {
+	eventlog(eventlog_level_error,__FUNCTION__,"tried to reset rw, not allowed");
+	return -1;
+    }
+
+    if (!fdw_rw(fdw_fds + idx)) {
+	eventlog(eventlog_level_error,__FUNCTION__,"found reseted rw");
+	return -1;
+    }
 
     if (fdw->add_fd(idx, rw)) return -1;
     fdw_rw(&fdw_fds[idx]) = rw;
@@ -151,10 +165,18 @@ extern int fdwatch_del_fd(int idx)
 {
     t_fdwatch_fd *cfd;
 
-    if (idx<0) return -1;
+    if (idx<0 || idx>=fdw_maxcons) {
+	eventlog(eventlog_level_error,__FUNCTION__,"out of bounds idx [%d] (max: %d)",idx, fdw_maxcons);
+	return -1;
+    }
+
+    cfd = fdw_fds + idx;
+    if (!fdw_rw(cfd)) {
+	eventlog(eventlog_level_error,__FUNCTION__,"found reseted rw");
+	return -1;
+    }
 
     fdw->del_fd(idx);
-    cfd = fdw_fds + idx;
 
     /* remove it from uselist, add it to freelist */
     elist_del(&cfd->uselist);
