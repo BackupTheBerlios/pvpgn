@@ -196,7 +196,7 @@ static int file_init(const char *path)
 
     if (def == NULL || clan == NULL || team == NULL || dir == NULL || driver == NULL)
     {
-	eventlog(eventlog_level_error, __FUNCTION__, "invalid storage_path line for file module (doesnt have a 'dir', a 'clan', a 'default' token and a 'mode' token)");
+	eventlog(eventlog_level_error, __FUNCTION__, "invalid storage_path line for file module (doesnt have a 'dir', a 'clan', a 'team', a 'default' token and a 'mode' token)");
 	xfree((void *) copy);
 	return -1;
     }
