@@ -65,6 +65,18 @@
 
 # -=-=-=-=-=-=- Latest Versions -=-=-=-=-=-=- No Update Required -=-=-=-=-=-=-
 
+# Warcraft III - ROC 1.15 beta 401
+# Note: this version check is sent in both FT and ROC mode
+"A=3845581634 B=880823580 C=1363937103 4 A=A-S B=B-C C=C-A A=A-B" \
+ IX86ver1.mpq \
+ IX86 \
+ WAR3 \
+ "War3.exe 04/21/04 21:58:18 1568211" \
+ 0x00000191 \
+ 145.0.0.154 \
+ 0xbe7b9299 \
+ WAR3_115BETA_401
+
 # Warcraft III - TFT (Expansion) 1.14b
 # Note: this version check is sent in both FT and ROC mode
 "A=3845581634 B=880823580 C=1363937103 4 A=A-S B=B-C C=C-A A=A-B" \
