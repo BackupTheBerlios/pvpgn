@@ -57,6 +57,7 @@
 # include <unistd.h>
 #endif
 #include "common/eventlog.h"
+#include "common/hexdump.h"
 #include "common/setup_after.h"
 
 #ifdef WIN32_GUI
@@ -237,6 +238,33 @@ extern char const * eventlog_get_levelname_str(t_eventlog_level level)
   } 
 }
 
+extern void eventlog_hexdump_data(void const * data, unsigned int len)
+{
+    unsigned int i;
+    char dst[100];
+    unsigned char * datac;
+
+    if (!data) {
+	eventlog(eventlog_level_error, __FUNCTION__, "got NULL data");
+	return;
+    }
+
+    for (i = 0, datac = (char*)data; i < len; i += 16, datac += 16)
+    {
+	hexdump_string(datac, (len - i < 16) ? (len - i) : 16, dst, i);
+	fprintf(eventstrm,"%s\n",dst);
+#ifdef WIN32_GUI
+        gui_lprintf(eventlog_level_info,"%s\n",dst);
+#endif
+       if (eventlog_debugmode)
+       {
+	 printf("%s\n",dst);
+       }
+
+    }
+    if (eventlog_debugmode) fflush(stdout);
+    fflush(eventstrm);
+}
 
 #ifdef DEBUGMODSTRINGS
 extern void eventlog_real(t_eventlog_level level, char const * module, char const * fmt, ...)

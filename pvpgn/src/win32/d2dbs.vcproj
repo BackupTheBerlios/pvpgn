@@ -180,6 +180,9 @@
 					RelativePath="..\common\eventlog.c">
 				</File>
 				<File
+					RelativePath="..\common\hexdump.c">
+				</File>
+				<File
 					RelativePath="..\common\list.c">
 				</File>
 				<File
@@ -275,6 +278,9 @@
 				</File>
 				<File
 					RelativePath="..\common\eventlog.h">
+				</File>
+				<File
+					RelativePath="..\common\hexdump.h">
 				</File>
 				<File
 					RelativePath="..\common\list.h">

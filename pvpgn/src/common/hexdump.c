@@ -29,27 +29,8 @@
 #include <string.h>
 #include "common/packet.h"
 #include "common/hexdump.h"
+#include "common/eventlog.h"
 #include "common/setup_after.h"
-
-static void hexdump_string(unsigned char * data, unsigned int datalen, char * dst, unsigned int counter);
-
-extern void hexdump_eventlog(t_eventlog_level level, void const * data, unsigned int len)
-{
-    unsigned int i;
-    char dst[100];
-    unsigned char * datac;
-
-    if (!data) {
-	eventlog(eventlog_level_error, __FUNCTION__, "got NULL data");
-	return;
-    }
-
-    for (i = 0, datac = (char*)data; i < len; i += 16, datac += 16)
-    {
-	hexdump_string(datac, (len - i < 16) ? (len - i) : 16, dst, i);
-	eventlog(level, "eventlog_dump_packet", "%s", dst);
-    }
-}
 
 extern void hexdump(FILE * stream, void const * data, unsigned int len) 
 {
@@ -75,7 +56,7 @@ extern void hexdump(FILE * stream, void const * data, unsigned int len)
     }
 }
 
-static void hexdump_string(unsigned char * data, unsigned int datalen, char * dst, unsigned int counter)
+extern void hexdump_string(unsigned char * data, unsigned int datalen, char * dst, unsigned int counter)
 {
     unsigned int c;
     int tlen = 0;

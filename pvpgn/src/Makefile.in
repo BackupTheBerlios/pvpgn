@@ -279,6 +279,7 @@ ${SRC_D2CSDIR}/conf.o \
 ${SRC_D2CSDIR}/xstring.o \
 ${SRC_COMMONDIR}/list.o \
 ${SRC_COMMONDIR}/eventlog.o \
+${SRC_COMMONDIR}/hexdump.o \
 ${SRC_COMMONDIR}/bn_type.o \
 ${SRC_COMMONDIR}/check_alloc.o \
 ${SRC_COMMONDIR}/util.o \
@@ -297,6 +298,7 @@ bntrackd_OBJECTS= ${SRC_BNTRACKDDIR}/bntrackd.o \
 ${SRC_COMMONDIR}/util.o \
 ${SRC_COMMONDIR}/list.o \
 ${SRC_COMMONDIR}/eventlog.o \
+${SRC_COMMONDIR}/hexdump.o \
 ${SRC_COMMONDIR}/check_alloc.o \
 ${SRC_COMPATDIR}/inet_ntoa.o \
 ${SRC_COMPATDIR}/strerror.o \
@@ -313,6 +315,7 @@ ${SRC_COMMONDIR}/queue.o \
 ${SRC_COMMONDIR}/bn_type.o \
 ${SRC_COMMONDIR}/network.o \
 ${SRC_COMMONDIR}/eventlog.o \
+${SRC_COMMONDIR}/hexdump.o \
 ${SRC_COMMONDIR}/bnethash.o \
 ${SRC_COMMONDIR}/bnethashconv.o \
 ${SRC_COMMONDIR}/util.o \
@@ -329,6 +332,7 @@ bnpass_BIN	= ${SRC_BINDIR}/bnpass
 bnpass_OBJECTS	= ${SRC_BNPASSDIR}/bnpass.o \
 ${SRC_COMMONDIR}/bnethash.o \
 ${SRC_COMMONDIR}/eventlog.o \
+${SRC_COMMONDIR}/hexdump.o \
 ${SRC_COMMONDIR}/check_alloc.o \
 ${SRC_COMPATDIR}/strerror.o
 
@@ -357,6 +361,7 @@ ${SRC_COMMONDIR}/packet.o \
 ${SRC_COMMONDIR}/bn_type.o \
 ${SRC_COMMONDIR}/network.o \
 ${SRC_COMMONDIR}/eventlog.o \
+${SRC_COMMONDIR}/hexdump.o \
 ${SRC_COMMONDIR}/util.o \
 ${SRC_COMMONDIR}/check_alloc.o \
 ${SRC_COMPATDIR}/inet_ntoa.o \
@@ -373,6 +378,7 @@ ${SRC_COMMONDIR}/queue.o \
 ${SRC_COMMONDIR}/bn_type.o \
 ${SRC_COMMONDIR}/network.o \
 ${SRC_COMMONDIR}/eventlog.o \
+${SRC_COMMONDIR}/hexdump.o \
 ${SRC_COMMONDIR}/bnethash.o \
 ${SRC_COMMONDIR}/bnethashconv.o \
 ${SRC_COMMONDIR}/util.o \
@@ -425,6 +431,7 @@ timetest_BIN	= ${SRC_BINDIR}/timetest
 timetest_OBJECTS	= ${SRC_DEBUGDIR}/timetest.o \
 ${SRC_COMMONDIR}/bn_type.o \
 ${SRC_COMMONDIR}/eventlog.o \
+${SRC_COMMONDIR}/hexdump.o \
 ${SRC_COMMONDIR}/bnettime.o \
 ${SRC_COMMONDIR}/check_alloc.o \
 ${SRC_COMPATDIR}/strerror.o \
@@ -434,6 +441,7 @@ listtest_BIN	= ${SRC_BINDIR}/listtest
 listtest_OBJECTS	= ${SRC_DEBUGDIR}/listtest.o \
 ${SRC_COMMONDIR}/list.o \
 ${SRC_COMMONDIR}/eventlog.o \
+${SRC_COMMONDIR}/hexdump.o \
 ${SRC_COMMONDIR}/check_alloc.o \
 ${SRC_COMPATDIR}/strerror.o \
 ${SRC_COMPATDIR}/strdup.o
@@ -442,6 +450,7 @@ hashtabletest_BIN	= ${SRC_BINDIR}/hashtabletest
 hashtabletest_OBJECTS	= ${SRC_DEBUGDIR}/hashtabletest.o \
 ${SRC_COMMONDIR}/hashtable.o \
 ${SRC_COMMONDIR}/eventlog.o \
+${SRC_COMMONDIR}/hexdump.o \
 ${SRC_COMMONDIR}/check_alloc.o \
 ${SRC_COMPATDIR}/strerror.o \
 ${SRC_COMPATDIR}/strdup.o
@@ -452,6 +461,7 @@ ${SRC_COMMONDIR}/addr.o \
 ${SRC_COMMONDIR}/util.o \
 ${SRC_COMMONDIR}/list.o \
 ${SRC_COMMONDIR}/eventlog.o \
+${SRC_COMMONDIR}/hexdump.o \
 ${SRC_COMMONDIR}/check_alloc.o \
 ${SRC_COMPATDIR}/inet_aton.o \
 ${SRC_COMPATDIR}/inet_ntoa.o \

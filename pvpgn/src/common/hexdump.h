@@ -26,10 +26,9 @@
 #define JUST_NEED_TYPES
 #include <stdio.h>
 #undef JUST_NEED_TYPES
-#include "common/eventlog.h"
 
-extern void hexdump_eventlog(t_eventlog_level level, void const * data, unsigned int len);
 extern void hexdump(FILE * stream, void const * data, unsigned int len);
+extern void hexdump_string(unsigned char * data, unsigned int datalen, char * dst, unsigned int counter);
 
 #endif
 #endif

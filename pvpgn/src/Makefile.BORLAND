@@ -339,6 +339,7 @@ d2dbs_OBJECTS = \
     ${SRC_D2CSDIR}\xstring.obj \ 
     ${SRC_COMMONDIR}\list.obj \ 
     ${SRC_COMMONDIR}\eventlog.obj \ 
+    ${SRC_COMMONDIR}\hexdump.obj \ 
     ${SRC_COMMONDIR}\bn_type.obj \ 
     ${SRC_COMMONDIR}\check_alloc.obj \ 
     ${SRC_COMMONDIR}\util.obj \
@@ -371,6 +372,7 @@ bntrackd_OBJECTS= ${SRC_BNTRACKDDIR}\bntrackd.obj \
 ${SRC_COMMONDIR}\util.obj \
 ${SRC_COMMONDIR}\list.obj \
 ${SRC_COMMONDIR}\eventlog.obj \
+${SRC_COMMONDIR}\hexdump.obj \ 
 ${SRC_COMMONDIR}\check_alloc.obj \
 ${SRC_COMPATDIR}\inet_ntoa.obj \
 ${SRC_COMPATDIR}\strerror.obj \
@@ -386,6 +388,7 @@ ${SRC_COMMONDIR}\queue.obj \
 ${SRC_COMMONDIR}\bn_type.obj \
 ${SRC_COMMONDIR}\network.obj \
 ${SRC_COMMONDIR}\eventlog.obj \
+${SRC_COMMONDIR}\hexdump.obj \ 
 ${SRC_COMMONDIR}\bnethash.obj \
 ${SRC_COMMONDIR}\bnethashconv.obj \
 ${SRC_COMMONDIR}\util.obj \
@@ -401,6 +404,7 @@ bnpass_BIN  = ${SRC_BINDIR}\bnpass.exe
 bnpass_OBJECTS  = ${SRC_BNPASSDIR}\bnpass.obj \
 ${SRC_COMMONDIR}\bnethash.obj \
 ${SRC_COMMONDIR}\eventlog.obj \
+${SRC_COMMONDIR}\hexdump.obj \ 
 ${SRC_COMMONDIR}\check_alloc.obj \
 ${SRC_COMPATDIR}\strerror.obj
 
@@ -429,6 +433,7 @@ ${SRC_COMMONDIR}\packet.obj \
 ${SRC_COMMONDIR}\bn_type.obj \
 ${SRC_COMMONDIR}\network.obj \
 ${SRC_COMMONDIR}\eventlog.obj \
+${SRC_COMMONDIR}\hexdump.obj \ 
 ${SRC_COMMONDIR}\util.obj \
 ${SRC_COMMONDIR}\check_alloc.obj \
 ${SRC_COMPATDIR}\inet_ntoa.obj \
@@ -445,6 +450,7 @@ ${SRC_COMMONDIR}\queue.obj \
 ${SRC_COMMONDIR}\bn_type.obj \
 ${SRC_COMMONDIR}\network.obj \
 ${SRC_COMMONDIR}\eventlog.obj \
+${SRC_COMMONDIR}\hexdump.obj \ 
 ${SRC_COMMONDIR}\bnethash.obj \
 ${SRC_COMMONDIR}\bnethashconv.obj \
 ${SRC_COMMONDIR}\util.obj \
@@ -492,6 +498,7 @@ timetest_BIN 		= ${SRC_BINDIR}\timetest.exe
 timetest_OBJECTS 	= ${SRC_DEBUGDIR}\timetest.obj \
 ${SRC_COMMONDIR}\bn_type.obj \
 ${SRC_COMMONDIR}\eventlog.obj \
+${SRC_COMMONDIR}\hexdump.obj \ 
 ${SRC_COMMONDIR}\bnettime.obj \
 ${SRC_COMMONDIR}\check_alloc.obj \
 ${SRC_COMPATDIR}\strerror.obj \
@@ -501,6 +508,7 @@ listtest_BIN 		= ${SRC_BINDIR}\listtest.exe
 listtest_OBJECTS	= ${SRC_DEBUGDIR}\listtest.obj \
 ${SRC_COMMONDIR}\list.obj \
 ${SRC_COMMONDIR}\eventlog.obj \
+${SRC_COMMONDIR}\hexdump.obj \ 
 ${SRC_COMMONDIR}\check_alloc.obj \
 ${SRC_COMPATDIR}\strerror.obj \
 ${SRC_COMPATDIR}\strdup.obj
@@ -509,6 +517,7 @@ hashtabletest_BIN	= ${SRC_BINDIR}\hashtabletest.exe
 hashtabletest_OBJECTS	= ${SRC_DEBUGDIR}\hashtabletest.obj \
 ${SRC_COMMONDIR}\hashtable.obj \
 ${SRC_COMMONDIR}\eventlog.obj \
+${SRC_COMMONDIR}\hexdump.obj \ 
 ${SRC_COMMONDIR}\check_alloc.obj \
 ${SRC_COMPATDIR}\strerror.obj \
 ${SRC_COMPATDIR}\strdup.obj
@@ -519,6 +528,7 @@ ${SRC_COMMONDIR}\addr.obj \
 ${SRC_COMMONDIR}\util.obj \
 ${SRC_COMMONDIR}\list.obj \
 ${SRC_COMMONDIR}\eventlog.obj \
+${SRC_COMMONDIR}\hexdump.obj \ 
 ${SRC_COMMONDIR}\check_alloc.obj \
 ${SRC_COMPATDIR}\inet_aton.obj \
 ${SRC_COMPATDIR}\inet_ntoa.obj \

@@ -66,6 +66,7 @@ extern void eventlog_real(t_eventlog_level level, char const * module, char cons
 
 #else
 
+extern void eventlog_hexdump_data(void const * data, unsigned int len);
 extern void eventlog(t_eventlog_level level, char const * module, char const * fmt, ...);
 extern void eventlog_step(char const * filename, t_eventlog_level level, char const * module, char const * fmt, ...);
 
