@@ -400,7 +400,7 @@ typedef struct
 #endif
 
 /* has the packet been mapped yet? */
-#define PACKET_FLAG_PMAP 0x0002
+#define PACKET_FLAG_PMAPPED 0x0002
 
 
 /*****/

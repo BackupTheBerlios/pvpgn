@@ -690,12 +690,9 @@ static int sd_tcpinput(int csocket, t_connection * c)
 	
 	default:
 	    packet = queue_pull_packet(conn_get_in_queue(c));
-	    
-	    if(conn_get_pmap(c) && !(packet_get_flags(packet) & PACKET_FLAG_PMAP)) {
-		packet_set_type(packet, bnpmap_real(packet_get_type(packet), conn_get_pmap(c)));
-		packet_set_flags(packet, packet_get_flags(packet) | PACKET_FLAG_PMAP);
-    	    }
-	    
+
+            if (conn_get_pmap(c))
+                packet_set_type(packet, bnpmap_real(packet_get_type(packet), conn_get_pmap(c)));
 	    
 	    if (hexstrm)
 	    {
@@ -789,6 +786,15 @@ static int sd_tcpoutput(int csocket, t_connection * c)
     for (;;)
     {
 	currsize = conn_get_out_size(c);
+
+        if ((packet = queue_peek_packet((t_queue const * const *)conn_get_out_queue(c))) == NULL)
+            return -2;
+
+        if(conn_get_pmap(c) && !(packet_get_flags(packet) & PACKET_FLAG_PMAPPED)) {
+  	    packet_set_type(packet, bnpmap_real(packet_get_type(packet), conn_get_pmap(c)));
+	    packet_set_flags(packet, packet_get_flags(packet) | PACKET_FLAG_PMAPPED);
+    	}
+
 	switch (net_send_packet(csocket,queue_peek_packet((t_queue const * const *)conn_get_out_queue(c)),&currsize)) /* avoid warning */
 	{
 	case -1:
