@@ -1380,9 +1380,9 @@ extern t_anongameinfo * anongameinfo_create(int totalplayers)
 extern void anongameinfo_destroy(t_anongameinfo * i)
 {
 	int j;
-	
+
 	if(!i) {
-		eventlog(eventlog_level_error, "anongameinfo_destroy", "got NULL anongameinfo");
+		eventlog(eventlog_level_error, __FUNCTION__, "got NULL anongameinfo");
 		return;
 	}
 	for (j=0; j<ANONGAME_MAX_GAMECOUNT; j++)
@@ -1395,7 +1395,7 @@ extern t_anongameinfo * anongame_get_info(t_anongame * a)
 {
 	if (!a)
 	{
-		eventlog(eventlog_level_error,"anongame_set_count","got NULL anongame");
+		eventlog(eventlog_level_error,__FUNCTION__,"got NULL anongame");
 		return NULL;
 	}
 
@@ -1406,12 +1406,12 @@ extern int anongame_get_currentplayers(t_anongame *a)
 {
 	if (!a)
 	{
-		eventlog(eventlog_level_error,"anongame_get_totalplayers","got NULL anongame");
+		eventlog(eventlog_level_error,__FUNCTION__,"got NULL anongame");
 		return 0;
 	}
 	if (!a->info)
 	{
-		eventlog(eventlog_level_error,"anongame_get_totalplayers","NULL anongameinfo");
+		eventlog(eventlog_level_error,__FUNCTION__,"NULL anongameinfo");
 		return 0;
 	}
 
@@ -1422,12 +1422,12 @@ extern int anongame_get_totalplayers(t_anongame *a)
 {
 	if (!a)
 	{
-		eventlog(eventlog_level_error,"anongame_get_totalplayers","got NULL anongame");
+		eventlog(eventlog_level_error,__FUNCTION__,"got NULL anongame");
 		return 0;
 	}
 	if (!a->info)
 	{
-		eventlog(eventlog_level_error,"anongame_get_totalplayers","NULL anongameinfo");
+		eventlog(eventlog_level_error,__FUNCTION__,"NULL anongameinfo");
 		return 0;
 	}
 
@@ -1438,17 +1438,17 @@ extern t_connection * anongame_get_player(t_anongame * a, int plnum)
 {
 	if (!a)
 	{
-		eventlog(eventlog_level_error,"anongame_get_player","got NULL anongame");
+		eventlog(eventlog_level_error,__FUNCTION__,"got NULL anongame");
 		return NULL;
 	}
 	if (!a->info)
 	{
-		eventlog(eventlog_level_error,"anongame_get_player","NULL anongameinfo");
+		eventlog(eventlog_level_error,__FUNCTION__,"NULL anongameinfo");
 		return NULL;
 	}
 
 	if(plnum < 0 || plnum > 7 || plnum >= a->info->totalplayers) {
-		eventlog(eventlog_level_error,"anongame_get_player","invalid plnum: %d", plnum);
+		eventlog(eventlog_level_error,__FUNCTION__,"invalid plnum: %d", plnum);
 		return NULL;
 	}
 
@@ -1459,7 +1459,7 @@ extern int anongame_get_count(t_anongame * a)
 {
 	if (!a)
 	{
-		eventlog(eventlog_level_error,"anongame_get_count","got NULL anongame");
+		eventlog(eventlog_level_error,__FUNCTION__,"got NULL anongame");
 		return 0;
 	}
 	return a->count;
@@ -1469,7 +1469,7 @@ extern t_uint32 anongame_get_id(t_anongame * a)
 {
 	if (!a)
 	{
-		eventlog(eventlog_level_error,"anongame_get_id","got NULL anongame");
+		eventlog(eventlog_level_error,__FUNCTION__,"got NULL anongame");
 		return 0;
 	}
 	return a->id;
@@ -1489,7 +1489,7 @@ extern t_uint32 anongame_get_race(t_anongame *a)
 {
 	if (!a)
 	{
-		eventlog(eventlog_level_error,"anongame_get_race","got NULL anongame");
+		eventlog(eventlog_level_error,__FUNCTION__,"got NULL anongame");
 		return 0;
 	}
 	return a->race;
@@ -1499,7 +1499,7 @@ extern t_uint32 anongame_get_handle(t_anongame *a)
 {
 	if (!a)
 	{
-		eventlog(eventlog_level_error,"anongame_get_handle","got NULL anongame");
+		eventlog(eventlog_level_error,__FUNCTION__,"got NULL anongame");
 		return 0;
 	}
 	return a->handle;
@@ -1509,7 +1509,7 @@ extern unsigned int anongame_get_addr(t_anongame *a)
 {
 	if (!a)
 	{
-		eventlog(eventlog_level_error,"anongame_get_addr","got NULL anongame");
+		eventlog(eventlog_level_error,__FUNCTION__,"got NULL anongame");
 		return 0;
 	}
 	return a->addr;
@@ -1519,7 +1519,7 @@ extern char anongame_get_loaded(t_anongame * a)
 {
 	if (!a)
 	{
-		eventlog(eventlog_level_error,"anongame_get_loaded","got NULL anongame");
+		eventlog(eventlog_level_error,__FUNCTION__,"got NULL anongame");
 		return 0;
 	}
 	return a->loaded;
@@ -1529,7 +1529,7 @@ extern char anongame_get_joined(t_anongame * a)
 {
 	if (!a)
 	{
-		eventlog(eventlog_level_error,"anongame_get_joined","got NULL anongame");
+		eventlog(eventlog_level_error,__FUNCTION__,"got NULL anongame");
 		return 0;
 	}
 	return a->joined;
@@ -1539,7 +1539,7 @@ extern t_uint8 anongame_get_playernum(t_anongame *a)
 {
 	if (!a)
 	{
-		eventlog(eventlog_level_error,"anongame_get_playernum","got NULL anongame");
+		eventlog(eventlog_level_error,__FUNCTION__,"got NULL anongame");
 		return 0;
 	}
 	return a->playernum;
@@ -1604,7 +1604,7 @@ extern void anongame_set_handle(t_anongame *a, t_uint32 h)
 {
 	if (!a)
 	{
-		eventlog(eventlog_level_error,"anongame_set_handle","got NULL anongame");
+		eventlog(eventlog_level_error,__FUNCTION__,"got NULL anongame");
 		return;
 	}
 
@@ -1615,7 +1615,7 @@ extern void anongame_set_addr(t_anongame *a, unsigned int addr)
 {
 	if (!a)
 	{
-		eventlog(eventlog_level_error,"anongame_set_addr","got NULL anongame");
+		eventlog(eventlog_level_error,__FUNCTION__,"got NULL anongame");
 		return;
 	}
 
@@ -1626,7 +1626,7 @@ extern void anongame_set_loaded(t_anongame * a, char loaded)
 {
 	if (!a)
 	{
-		eventlog(eventlog_level_error,"anongame_set_loaded","got NULL anongame");
+		eventlog(eventlog_level_error,__FUNCTION__,"got NULL anongame");
 		return;
 	}
 
@@ -1637,7 +1637,7 @@ extern void anongame_set_joined(t_anongame * a, char joined)
 {
 	if (!a)
 	{
-		eventlog(eventlog_level_error,"anongame_set_joined","got NULL anongame");
+		eventlog(eventlog_level_error,__FUNCTION__,"got NULL anongame");
 		return;
 	}
 
@@ -1657,21 +1657,21 @@ extern int handle_w3route_packet(t_connection * c, t_packet const * const packet
    t_anongame * a = NULL;
    t_uint8 gametype, plnum;
    int tp, i;
-   
+
    if(!c) {
-      eventlog(eventlog_level_error,"handle_w3route_packet","[%d] got NULL connection",conn_get_socket(c));
+      eventlog(eventlog_level_error,__FUNCTION__,"[%d] got NULL connection",conn_get_socket(c));
       return -1;
    }
    if(!packet) {
-      eventlog(eventlog_level_error,"handle_w3route_packet","[%d] got NULL packet",conn_get_socket(c));
+      eventlog(eventlog_level_error,__FUNCTION__,"[%d] got NULL packet",conn_get_socket(c));
       return -1;
    }
    if(packet_get_class(packet)!=packet_class_w3route) {
-      eventlog(eventlog_level_error,"handle_w3route_packet","[%d] got bad packet (class %d)",conn_get_socket(c),packet_get_class(packet));
+      eventlog(eventlog_level_error,__FUNCTION__,"[%d] got bad packet (class %d)",conn_get_socket(c),packet_get_class(packet));
       return -1;
    }
    if(conn_get_state(c) != conn_state_connected) {
-      eventlog(eventlog_level_error,"handle_w3route_packet","[%d] not connected",conn_get_socket(c));
+      eventlog(eventlog_level_error,__FUNCTION__,"[%d] not connected",conn_get_socket(c));
       return -1;
    }
    
@@ -1679,25 +1679,25 @@ extern int handle_w3route_packet(t_connection * c, t_packet const * const packet
    if(packet_get_type(packet) == CLIENT_W3ROUTE_REQ) {
       t_connection * oldc;
       
-      eventlog(eventlog_level_trace,"handle_w3route_packet","[%d] sizeof t_client_w3route_req %d", conn_get_socket(c), sizeof(t_client_w3route_req));
+      eventlog(eventlog_level_trace,__FUNCTION__,"[%d] sizeof t_client_w3route_req %d", conn_get_socket(c), sizeof(t_client_w3route_req));
       username = packet_get_str_const(packet,sizeof(t_client_w3route_req),USER_NAME_MAX);
-      eventlog(eventlog_level_info,"handle_w3route_packet","[%d] got username '%s'",conn_get_socket(c),username);
+      eventlog(eventlog_level_info,__FUNCTION__,"[%d] got username '%s'",conn_get_socket(c),username);
       gamec = connlist_find_connection_by_accountname(username);
       
       if(!gamec) {
-	 eventlog(eventlog_level_info,"handle_w3route_packet","[%d] no game connection found for this w3route connection; closing",conn_get_socket(c));
+	 eventlog(eventlog_level_info,__FUNCTION__,"[%d] no game connection found for this w3route connection; closing",conn_get_socket(c));
 	 conn_set_state(c, conn_state_destroy);
 	 return 0;
       }
       
       if(!(a = conn_get_anongame(gamec))) {
-	 eventlog(eventlog_level_info,"handle_w3route_packet","[%d] no anongame struct for game connection",conn_get_socket(c));
+	 eventlog(eventlog_level_info,__FUNCTION__,"[%d] no anongame struct for game connection",conn_get_socket(c));
 	 conn_set_state(c, conn_state_destroy);
 	 return 0;
       }
       
       if(bn_int_get((unsigned char const *)packet->u.data+sizeof(t_client_w3route_req)+strlen(username)+2) != anongame_get_id(a)) {
-	 eventlog(eventlog_level_info,"handle_w3route_packet","[%d] client sent wrong id for user '%s', closing connection",conn_get_socket(c),username);
+	 eventlog(eventlog_level_info,__FUNCTION__,"[%d] client sent wrong id for user '%s', closing connection",conn_get_socket(c),username);
 	 conn_set_state(c, conn_state_destroy);
 	 return 0;
       }
@@ -1709,7 +1709,7 @@ extern int handle_w3route_packet(t_connection * c, t_packet const * const packet
       }
       
       if(conn_set_routeconn(c, gamec) < 0 || conn_set_routeconn(gamec, c) < 0) {
-	 eventlog(eventlog_level_error,"handle_w3route_packet","[%d] conn_set_routeconn failed",conn_get_socket(c));
+	 eventlog(eventlog_level_error,__FUNCTION__,"[%d] conn_set_routeconn failed",conn_get_socket(c));
 	 return -1;
       }
 
@@ -1725,7 +1725,7 @@ extern int handle_w3route_packet(t_connection * c, t_packet const * const packet
       anongame_set_handle(a, bn_int_get(packet->u.client_w3route_req.handle));
       
       if(!(rpacket = packet_create(packet_class_w3route))) {
-	 eventlog(eventlog_level_error,"handle_w3route_packet","[%d] packet_create failed",conn_get_socket(c));
+	 eventlog(eventlog_level_error,__FUNCTION__,"[%d] packet_create failed",conn_get_socket(c));
 	 return -1;
       }
            
@@ -1754,12 +1754,12 @@ extern int handle_w3route_packet(t_connection * c, t_packet const * const packet
    }
    
    if(!gamec) {
-      eventlog(eventlog_level_info,"handle_w3route_packet","[%d] no game connection found for this w3route connection", conn_get_socket(c));
+      eventlog(eventlog_level_info,__FUNCTION__,"[%d] no game connection found for this w3route connection", conn_get_socket(c));
       return 0;
    }
    
    if(!a) {
-      eventlog(eventlog_level_info,"handle_w3route_packet","[%d] no anongame struct found for this w3route connection", conn_get_socket(c));
+      eventlog(eventlog_level_info,__FUNCTION__,"[%d] no anongame struct found for this w3route connection", conn_get_socket(c));
       return 0;
    }
    
@@ -1772,7 +1772,7 @@ extern int handle_w3route_packet(t_connection * c, t_packet const * const packet
     case CLIENT_W3ROUTE_ECHOREPLY:
       return 0;
     case CLIENT_W3ROUTE_CONNECTED:
-      //		eventlog(eventlog_level_trace,"handle_w3route_packet","[%d] got W3ROUTE_CONNECTED: %d",conn_get_socket(c), (int)bn_short_get(packet->u.client_w3route_connected.unknown1));
+      //		eventlog(eventlog_level_trace,__FUNCTION__,"[%d] got W3ROUTE_CONNECTED: %d",conn_get_socket(c), (int)bn_short_get(packet->u.client_w3route_connected.unknown1));
       return 0;
     case CLIENT_W3ROUTE_GAMERESULT:
     case CLIENT_W3ROUTE_GAMERESULT_W3XP:
@@ -1794,10 +1794,10 @@ extern int handle_w3route_packet(t_connection * c, t_packet const * const packet
 	   else
 	   	result = gameresult_get_player_result(gameresult,0); //own result is always stored as first result
 	   	   
-	   eventlog(eventlog_level_trace,"handle_w3route_packet","[%d] got W3ROUTE_GAMERESULT: %08x",conn_get_socket(c), result);
+	   eventlog(eventlog_level_trace,__FUNCTION__,"[%d] got W3ROUTE_GAMERESULT: %08x",conn_get_socket(c), result);
 
 	   if(!inf) {
-	      eventlog(eventlog_level_error,"handle_w3route_packet","[%d] NULL anongameinfo",conn_get_socket(c));
+	      eventlog(eventlog_level_error,__FUNCTION__,"[%d] NULL anongameinfo",conn_get_socket(c));
 	      return -1;
 	   }
 
@@ -1813,7 +1813,7 @@ extern int handle_w3route_packet(t_connection * c, t_packet const * const packet
 	           ac = conn_get_routeconn(anongame_get_player(a,i));
 	           if(ac) {
 		      timerlist_add_timer(ac,time(NULL)+(time_t)300,conn_shutdown,data); // 300 seconds or 5 minute timer
-		      eventlog(eventlog_level_trace,"handle_w3route_packet","[%d] started timer to close w3route",conn_get_socket(ac));
+		      eventlog(eventlog_level_trace,__FUNCTION__,"[%d] started timer to close w3route",conn_get_socket(ac));
 		    }
 		 }
 	      }
@@ -1826,7 +1826,7 @@ extern int handle_w3route_packet(t_connection * c, t_packet const * const packet
    for(i=0; i<tp; i++)
      if(i+1 != plnum && anongame_get_player(a, i))
        if(!conn_get_routeconn(anongame_get_player(a, i)) || !conn_get_anongame(anongame_get_player(a, i))) {
-	  eventlog(eventlog_level_info,"handle_w3route_packet","[%d] not all players have w3route connections up yet", conn_get_socket(c));
+	  eventlog(eventlog_level_info,__FUNCTION__,"[%d] not all players have w3route connections up yet", conn_get_socket(c));
 	  return 0;
        }
    
@@ -1834,7 +1834,7 @@ extern int handle_w3route_packet(t_connection * c, t_packet const * const packet
    // 
    switch(packet_get_type(packet)) {
     case CLIENT_W3ROUTE_LOADINGDONE:
-      eventlog(eventlog_level_trace,"handle_w3route_packet","[%d] got LOADINGDONE, playernum: %d",conn_get_socket(c),plnum);
+      eventlog(eventlog_level_trace,__FUNCTION__,"[%d] got LOADINGDONE, playernum: %d",conn_get_socket(c),plnum);
       
       anongame_set_loaded(a, 1);
       
@@ -1842,7 +1842,7 @@ extern int handle_w3route_packet(t_connection * c, t_packet const * const packet
 	 if(!anongame_get_player(a,i))	// ignore disconnected players
 	   continue;
 	 if(!(rpacket = packet_create(packet_class_w3route))) {
-	    eventlog(eventlog_level_error,"handle_w3route_packet","[%d] packet_create failed",conn_get_socket(c));
+	    eventlog(eventlog_level_error,__FUNCTION__,"[%d] packet_create failed",conn_get_socket(c));
 	    return -1;
 	 }
 	 packet_set_size(rpacket,sizeof(t_server_w3route_loadingack));
@@ -1862,7 +1862,7 @@ extern int handle_w3route_packet(t_connection * c, t_packet const * const packet
 	   continue;
 	 
 	 if(!(rpacket = packet_create(packet_class_w3route))) {
-	    eventlog(eventlog_level_error,"handle_w3route_packet","[%d] packet_create failed",conn_get_socket(c));
+	    eventlog(eventlog_level_error,__FUNCTION__,"[%d] packet_create failed",conn_get_socket(c));
 	    return -1;
 	 }
 	 
@@ -1876,11 +1876,11 @@ extern int handle_w3route_packet(t_connection * c, t_packet const * const packet
       break;
       
     case CLIENT_W3ROUTE_ABORT:
-      eventlog(eventlog_level_debug,"handle_w3route_packet","[%d] got W3ROUTE_ABORT",conn_get_socket(c));
+      eventlog(eventlog_level_debug,__FUNCTION__,"[%d] got W3ROUTE_ABORT",conn_get_socket(c));
       break;
       
     default:
-      eventlog(eventlog_level_trace,"handle_w3route_packet","[%d] default: got packet type: %04x",conn_get_socket(c),packet_get_type(packet));
+      eventlog(eventlog_level_trace,__FUNCTION__,"[%d] default: got packet type: %04x",conn_get_socket(c),packet_get_type(packet));
    }
    
    return 0;
@@ -1904,15 +1904,15 @@ extern int handle_anongame_join(t_connection * c)
 	int i, j;
 
 	if(!c) {
-		eventlog(eventlog_level_error,"handle_anongame_join","[%d] got NULL connection",conn_get_socket(c));
+		eventlog(eventlog_level_error,__FUNCTION__,"[%d] got NULL connection",conn_get_socket(c));
 		return -1;
 	}
 	if(!(conn_get_routeconn(c))) {
-		eventlog(eventlog_level_info,"handle_anongame_join","[%d] no route connection",conn_get_socket(c));
+		eventlog(eventlog_level_info,__FUNCTION__,"[%d] no route connection",conn_get_socket(c));
 		return 0;
 	}
 	if(!(a = conn_get_anongame(c))) {
-		eventlog(eventlog_level_error,"handle_anongame_join","[%d] no anongame struct",conn_get_socket(c));
+		eventlog(eventlog_level_error,__FUNCTION__,"[%d] no anongame struct",conn_get_socket(c));
 		return -1;
 	}
 
@@ -1923,7 +1923,7 @@ extern int handle_anongame_join(t_connection * c)
 	// wait till all players have w3route conns
 	for(i=0; i<tp; i++)
 		if(anongame_get_player(a, i) && (!conn_get_routeconn(anongame_get_player(a, i)) || !conn_get_anongame(anongame_get_player(a, i)) || !anongame_get_joined(conn_get_anongame(anongame_get_player(a, i))))) {
-			eventlog(eventlog_level_info,"handle_anongame_join","[%d] not all players have joined game BNet yet", conn_get_socket(c));
+			eventlog(eventlog_level_info,__FUNCTION__,"[%d] not all players have joined game BNet yet", conn_get_socket(c));
 			return 0;
 		}
 
@@ -1938,15 +1938,15 @@ extern int handle_anongame_join(t_connection * c)
 			// send a playerinfo packet for this player to each other player
 			for(i=0; i<tp; i++) {
 				if(i+1 != anongame_get_playernum(ja)) {
-					eventlog(eventlog_level_trace, "handle_anongame_join", "i = %d", i);
+					eventlog(eventlog_level_trace, __FUNCTION__, "i = %d", i);
 
 					if(!(o = anongame_get_player(ja,i))) {
-						eventlog(eventlog_level_warn,"handle_anongame_join","[%d] player %d disconnected, ignoring",conn_get_socket(c),i);
+						eventlog(eventlog_level_warn,__FUNCTION__,"[%d] player %d disconnected, ignoring",conn_get_socket(c),i);
 						continue;
 					}
 
 					if(!(rpacket = packet_create(packet_class_w3route))) {
-						eventlog(eventlog_level_error,"handle_anongame_join","[%d] packet_create failed",conn_get_socket(c));
+						eventlog(eventlog_level_error,__FUNCTION__,"[%d] packet_create failed",conn_get_socket(c));
 						return -1;
 					}
 
@@ -1955,7 +1955,7 @@ extern int handle_anongame_join(t_connection * c)
 
 
 					if(!(oa = conn_get_anongame(o))) {
-						eventlog(eventlog_level_error,"handle_anongame_join","[%d] no anongame struct of player %d", conn_get_socket(c), i);
+						eventlog(eventlog_level_error,__FUNCTION__,"[%d] no anongame struct of player %d", conn_get_socket(c), i);
 						return -1;
 					}
 
@@ -2000,7 +2000,7 @@ extern int handle_anongame_join(t_connection * c)
 
 			// levelinfo
 			if(!(rpacket = packet_create(packet_class_w3route))) {
-				eventlog(eventlog_level_error,"handle_w3route_packet","[%d] packet_create failed",conn_get_socket(c));
+				eventlog(eventlog_level_error,__FUNCTION__,"[%d] packet_create failed",conn_get_socket(c));
 				return -1;
 			}
 
@@ -2050,7 +2050,7 @@ extern int handle_anongame_join(t_connection * c)
 
 			// startgame1
 			if(!(rpacket = packet_create(packet_class_w3route))) {
-				eventlog(eventlog_level_error,"handle_w3route_packet","[%d] packet_create failed",conn_get_socket(c));
+				eventlog(eventlog_level_error,__FUNCTION__,"[%d] packet_create failed",conn_get_socket(c));
 				return -1;
 			}
 			packet_set_size(rpacket,sizeof(t_server_w3route_startgame1));
@@ -2060,7 +2060,7 @@ extern int handle_anongame_join(t_connection * c)
 
 			// startgame2
 			if(!(rpacket = packet_create(packet_class_w3route))) {
-				eventlog(eventlog_level_error,"handle_w3route_packet","[%d] packet_create failed",conn_get_socket(c));
+				eventlog(eventlog_level_error,__FUNCTION__,"[%d] packet_create failed",conn_get_socket(c));
 				return -1;
 			}
 			packet_set_size(rpacket,sizeof(t_server_w3route_startgame2));
