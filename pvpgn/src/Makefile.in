@@ -636,7 +636,7 @@ install-man:
 	done
 
 .PHONY: install-conf
-install-conf: 
+install-conf: ${SRC_CONFDIR}/bnetd.conf ${SRC_CONFDIR}/d2cs.conf ${SRC_CONFDIR}/d2dbs.conf
 	${INSTALL_DIRS} ${DESTDIR}/${confdir}
 	@list='${CONFS}'; for p in $$list; do \
 	  if test -f ${SRC_CONFDIR}/$$p; then \
