@@ -49,6 +49,7 @@ typedef unsigned int		BOOL;
 #define D2DBS_CHARSAVEBAK_DIR		"/usr/local/var/bak/charsave"
 #define D2DBS_CHARINFOBAK_DIR		"/usr/local/var/bak/charinfo"
 #define D2DBS_LADDER_DIR		"/usr/local/var/ladders"
+#define D2DBS_DEFAULT_CONF_FILE "/usr/local/etc/d2dbs.conf"
 #define DEFAULT_MEMLOG_FILE		"/tmp/d2dbs-mem.log"
 #define DEFAULT_LISTEN_PORT		6114
 #define D2DBS_SERVER_ADDRS		"0.0.0.0"
