@@ -1416,15 +1416,86 @@ static int _handle_whisper_command(t_connection * c, char const *text)
 
 static int _handle_status_command(t_connection * c, char const *text)
 {
-  char msgtemp[MAX_MESSAGE_LEN];
-  
-  sprintf(msgtemp,"There are currently %d users online, in %d games and %d channels.",
-	  connlist_login_get_length(),
-	  gamelist_get_length(),
-	  channellist_get_length());
-  message_send_text(c,message_type_info,c,msgtemp);
-  
-  return 0;
+    char msgtemp[MAX_MESSAGE_LEN];
+    char ctag[5];
+    unsigned int i,j;
+    
+    for (i=0; text[i]!=' ' && text[i]!='\0'; i++); /* skip command */
+    for (; text[i]==' '; i++);
+    for (j=0; text[i]!=' ' && text[i]!='\0'; i++) /* get clienttag */
+	if (j<sizeof(ctag)-1) ctag[j++] = text[i];
+    ctag[j] = '\0';
+    
+    if (ctag[0]=='\0') {
+	sprintf(msgtemp,"There are currently %d users online, in %d games and %d channels.",
+	    connlist_login_get_length(),
+	    gamelist_get_length(),
+	    channellist_get_length());
+	message_send_text(c,message_type_info,c,msgtemp);
+    }
+    
+    for (i=0; i<strlen(ctag); i++)
+	if (isascii((int)ctag[i]) && islower((int)ctag[i]))
+	    ctag[i] = toupper((int)ctag[i]);
+    
+    if ((strcmp(ctag,"ALL") == 0) || (strcmp(ctag,CLIENTTAG_WAR3XP) == 0)) {
+	sprintf(msgtemp,"There are currently %u user(s) in %u games of %s",
+	    conn_get_user_count_by_clienttag(CLIENTTAG_WAR3XP),
+	    game_get_count_by_clienttag(CLIENTTAG_WAR3XP),
+	    conn_get_user_game_title(CLIENTTAG_WAR3XP));
+	message_send_text(c,message_type_info,c,msgtemp);
+    }
+    if ((strcmp(ctag,"ALL") == 0) || (strcmp(ctag,CLIENTTAG_WARCRAFT3) == 0)) {
+	sprintf(msgtemp,"There are currently %u user(s) in %u games of %s",
+	    conn_get_user_count_by_clienttag(CLIENTTAG_WARCRAFT3),
+	    game_get_count_by_clienttag(CLIENTTAG_WARCRAFT3),
+	    conn_get_user_game_title(CLIENTTAG_WARCRAFT3));
+	message_send_text(c,message_type_info,c,msgtemp);
+    }
+    if ((strcmp(ctag,"ALL") == 0) || (strcmp(ctag,CLIENTTAG_DIABLO2XP) == 0)) {
+	sprintf(msgtemp,"There are currently %u user(s) in %u games of %s",
+	    conn_get_user_count_by_clienttag(CLIENTTAG_DIABLO2XP),
+	    game_get_count_by_clienttag(CLIENTTAG_DIABLO2XP),
+	    conn_get_user_game_title(CLIENTTAG_DIABLO2XP));
+	message_send_text(c,message_type_info,c,msgtemp);
+    }
+    if ((strcmp(ctag,"ALL") == 0) || (strcmp(ctag,CLIENTTAG_DIABLO2DV) == 0)) {
+	sprintf(msgtemp,"There are currently %u user(s) in %u games of %s",
+	    conn_get_user_count_by_clienttag(CLIENTTAG_DIABLO2DV),
+	    game_get_count_by_clienttag(CLIENTTAG_DIABLO2DV),
+	    conn_get_user_game_title(CLIENTTAG_DIABLO2DV));
+	message_send_text(c,message_type_info,c,msgtemp);
+    }
+    if ((strcmp(ctag,"ALL") == 0) || (strcmp(ctag,CLIENTTAG_BROODWARS) == 0)) {
+	sprintf(msgtemp,"There are currently %u user(s) in %u games of %s",
+	    conn_get_user_count_by_clienttag(CLIENTTAG_BROODWARS),
+	    game_get_count_by_clienttag(CLIENTTAG_BROODWARS),
+	    conn_get_user_game_title(CLIENTTAG_BROODWARS));
+	message_send_text(c,message_type_info,c,msgtemp);
+    }
+    if ((strcmp(ctag,"ALL") == 0) || (strcmp(ctag,CLIENTTAG_STARCRAFT) == 0)) {
+	sprintf(msgtemp,"There are currently %u user(s) in %u games of %s",
+	    conn_get_user_count_by_clienttag(CLIENTTAG_STARCRAFT),
+	    game_get_count_by_clienttag(CLIENTTAG_STARCRAFT),
+	    conn_get_user_game_title(CLIENTTAG_STARCRAFT));
+	message_send_text(c,message_type_info,c,msgtemp);
+    }
+    if ((strcmp(ctag,"ALL") == 0) || (strcmp(ctag,CLIENTTAG_WARCIIBNE) == 0)) {
+	sprintf(msgtemp,"There are currently %u user(s) in %u games of %s",
+	    conn_get_user_count_by_clienttag(CLIENTTAG_WARCIIBNE),
+	    game_get_count_by_clienttag(CLIENTTAG_WARCIIBNE),
+	    conn_get_user_game_title(CLIENTTAG_WARCIIBNE));
+	message_send_text(c,message_type_info,c,msgtemp);
+    }
+    if ((strcmp(ctag,"ALL") == 0) || (strcmp(ctag,CLIENTTAG_DIABLORTL) == 0)) {
+	sprintf(msgtemp,"There are currently %u user(s) in %u games of %s",
+	    conn_get_user_count_by_clienttag(CLIENTTAG_DIABLORTL),
+	    game_get_count_by_clienttag(CLIENTTAG_DIABLORTL),
+	    conn_get_user_game_title(CLIENTTAG_DIABLORTL));
+	message_send_text(c,message_type_info,c,msgtemp);
+    }
+    
+    return 0;
 }
 
 static int _handle_who_command(t_connection * c, char const *text)
