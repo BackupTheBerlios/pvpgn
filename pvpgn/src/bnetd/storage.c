@@ -70,13 +70,15 @@ extern int storage_init(const char *spath)
     if (strcasecmp(spath, "file") == 0) {
 	storage = &storage_file;
 	res = storage->init(p + 1);
-	eventlog(eventlog_level_info, __FUNCTION__, "using file storage driver");
+	if (!res)
+	    eventlog(eventlog_level_info, __FUNCTION__, "using file storage driver");
     }
 #ifdef WITH_SQL
     else if (strcasecmp(spath, "sql") == 0) {
 	storage = &storage_sql;
 	res = storage->init(p + 1);
-	eventlog(eventlog_level_info, __FUNCTION__, "using sql storage driver");
+	if (!res)
+	    eventlog(eventlog_level_info, __FUNCTION__, "using sql storage driver");
     }
 #endif
     else {
