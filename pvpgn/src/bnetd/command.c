@@ -193,7 +193,7 @@ static void do_whois(t_connection * c, char const * dest)
     t_game const *    game;
     t_channel const * channel;
     
-    if (!(dest_c = connlist_find_connection_by_name(dest,conn_get_realmname(c))))
+    if (!(dest_c = connlist_find_connection_by_accountname(dest)))
     {
 	t_account * dest_a;
 	t_bnettime btlogin;
