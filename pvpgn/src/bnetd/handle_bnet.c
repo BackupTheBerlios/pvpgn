@@ -2518,13 +2518,13 @@ static int _client_friendinforeq(t_connection * c, t_packet const * const packet
 		  else
                     bn_byte_set(&rpacket->u.server_friendinforeply.status, FRIENDSTATUS_PRIVATE_GAME);
 		  bn_int_set(&rpacket->u.server_friendinforeply.clienttag, *((int const *)conn_get_clienttag(dest_c)));
-		  packet_append_string(rpacket, "");
+		  packet_append_string(rpacket, game_get_name(game));
 	       }
 	     else if((channel = conn_get_channel(dest_c))) 
 	       {
 		  bn_byte_set(&rpacket->u.server_friendinforeply.status, FRIENDSTATUS_CHAT);
 		  bn_int_set(&rpacket->u.server_friendinforeply.clienttag, *((int const *)conn_get_clienttag(dest_c)));
-		  packet_append_string(rpacket, "Not Mutual");
+		  packet_append_string(rpacket, channel_get_name(channel));
 	       }
 	     else 
 	       {
