@@ -355,7 +355,7 @@ extern int trans_net(unsigned int clientaddr, unsigned int *addr, unsigned short
 		addr_get_addr_str(entry->output,temp2,sizeof(temp2)),
 		netaddr_get_addr_str(entry->network,temp3,sizeof(temp3)));
 #endif		
-	    if (addr_get_ip(entry->input)!=*addr && addr_get_port(entry->input)!=*port) {
+	    if (addr_get_ip(entry->input)!=*addr || addr_get_port(entry->input)!=*port) {
 #ifdef DEBUG_TRANS
 		eventlog(eventlog_level_debug,__FUNCTION__,"entry does match input address");
 #endif
