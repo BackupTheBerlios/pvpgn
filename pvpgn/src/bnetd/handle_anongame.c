@@ -104,7 +104,7 @@ static int _client_anongame_profile(t_connection * c, t_packet const * const pac
     eventlog(eventlog_level_info,__FUNCTION__,"Looking up %s's WAR3 Stats.",username);
 
     ctag = conn_get_clienttag(dest_c);
-    if (account_get_sololevel(account,ctag)==0 && account_get_teamlevel(account,ct)==0 && account_get_atteamcount(account,ctag)==0)
+    if (account_get_sololevel(account,ctag)<=0 && account_get_teamlevel(account,ct)<=0 && account_get_atteamcount(account,ctag)<=0)
     {
 	eventlog(eventlog_level_info,__FUNCTION__,"%s does not have WAR3 Stats.",username);
 	if (!(rpacket = packet_create(packet_class_bnet)))
@@ -140,7 +140,6 @@ static int _client_anongame_profile(t_connection * c, t_packet const * const pac
 	int ffalevel=account_get_ffalevel(account,ctag);
 	int ffarank=account_get_ffarank(account,ctag);
 	
-	int tmp2=0;
 	int humanwins=account_get_racewin(account,1,ctag);
 	int humanlosses=account_get_raceloss(account,1,ctag);
 	int orcwins=account_get_racewin(account,2,ctag);
@@ -165,9 +164,9 @@ static int _client_anongame_profile(t_connection * c, t_packet const * const pac
 	} else {
 	    bn_int_set(&rpacket->u.server_findanongame_profile2.icon,account_get_icon_profile(account,ctag));
 	}
-	
+
 	rescount = 0;
-	if (sololevel) {
+	if (sololevel > 0) {
 	    bn_int_set((bn_int*)&temp,0x534F4C4F); // SOLO backwards
 	    packet_append_data(rpacket,&temp,4);
 	    temp=0;
@@ -185,8 +184,8 @@ static int _client_anongame_profile(t_connection * c, t_packet const * const pac
 	    packet_append_data(rpacket,&temp,4); // SOLO LADDER RANK
 	    rescount++;
 	}
-	
-	if (teamlevel) {
+
+	if (teamlevel > 0) {
 	    //below is for team records. Add this after 2v2,3v3,4v4 are done
 	    bn_int_set((bn_int*)&temp,0x5445414D); 
 	    packet_append_data(rpacket,&temp,4);
@@ -206,8 +205,8 @@ static int _client_anongame_profile(t_connection * c, t_packet const * const pac
 	    //done of team game stats
 	    rescount++;
 	}
-	//FFA stats
-	if (ffalevel) {
+
+	if (ffalevel > 0) {
 	    bn_int_set((bn_int*)&temp,0x46464120);
 	    packet_append_data(rpacket,&temp,4);
 	    bn_int_set((bn_int*)&temp,ffawins);
@@ -227,7 +226,7 @@ static int _client_anongame_profile(t_connection * c, t_packet const * const pac
 	}
 	/* set result count */
 	bn_byte_set(&rpacket->u.server_findanongame_profile2.rescount,rescount);
-	
+
 	bn_int_set((bn_int*)&temp,0x06); //start of race stats
 	packet_append_data(rpacket,&temp,1);
 	bn_int_set((bn_int*)&temp,randomwins);
@@ -254,30 +253,32 @@ static int _client_anongame_profile(t_connection * c, t_packet const * const pac
 	packet_append_data(rpacket,&temp,4);
 	//end of normal stats - Start of AT stats
 	temp=account_get_atteamcount(account,ctag);
-	if (account_get_atteammembers(account, temp,ctag) == NULL && temp > 0) {
-	    temp = temp - 1;
-	    eventlog(eventlog_level_error, "handle_bnet_packet", "teammembers is NULL : Decrease atteamcount of 1 !");
-	    account_set_atteamcount(account,ctag,temp);
-	}
 
-	if (temp > 6) temp = 6; //byte (num of AT teams) 
-	
-	bn_int_set((bn_int*)&tmp2,temp);
-	packet_append_data(rpacket,&tmp2,1); 
-	
 	if(temp>0)
 	{
-	    // [quetzal] 20020827 - partially rewritten AT part
-	    int i, j, lvl, highest_lvl[6], cnt = account_get_atteamcount(account,ctag);
-	    // allocate array for teamlevels
-	    int *teamlevels = malloc(cnt * sizeof(int));
-	    
-	    // populate our array
-	    for (i = 0; i < cnt; i++) {
-		teamlevels[i] = account_get_atteamlevel(account, i+1,ctag);
-	    }
-	    
-	    // now lets pick indices of 6 highest levels
+	    /* [quetzal] 20020827 - partially rewritten AT part */
+	    int i, j, lvl, highest_lvl[6], cnt;
+	    int invalid;
+	    /* allocate array for teamlevels */
+	    int *teamlevels;
+	    unsigned char *atcountp;
+
+	    cnt = temp;
+	    teamlevels = malloc(cnt * sizeof(int));
+
+	    /* we need to store the AT team count but we dont know yet the no
+	     * of corectly stored teams so we cache the pointer for later use 
+	     */
+	    atcountp = (unsigned char *)packet_get_raw_data_build(rpacket, packet_get_size(rpacket));
+	    /* 1 byte team count place holder, set later */
+	    packet_append_data(rpacket, &temp, 1); 
+
+	    /* populate our array */
+	    for (i = 0; i < cnt; i++)
+		if ((teamlevels[i] = account_get_atteamlevel(account, i+1,ctag)) < 0)
+		    teamlevels[i] = 0;
+
+	    /* now lets pick indices of 6 highest levels */
 	    for (j = 0; j < cnt && j < 6; j++) {
 		lvl = -1;
 		for (i = 0; i < cnt; i++) {
@@ -292,28 +293,34 @@ static int _client_anongame_profile(t_connection * c, t_packet const * const pac
 	    }
 	    // <-- end of picking indices
 	    // 
-	    
-	    free(teamlevels);
-	    
+
+	    free((void*)teamlevels);
+
+	    cnt = 0;
+	    invalid = 0;
 	    for(i = 0; i < j; i++)
 	    {
-		int n = highest_lvl[i] + 1;
-		int teamsize = account_get_atteamsize(account, n, ctag);
+		int n;
+		int teamsize;
 		char * teammembers = NULL, *self = NULL, *p2, *p3;
 		int teamtype[] = {0, 0x32565332, 0x33565333, 0x34565334, 0x35565335, 0x36565336};
 		
-		// [quetzal] 20020907 - sometimes we get NULL string, even if
-		// teamcount is not 0. that should prevent crash.
-		if (!account_get_atteammembers(account, n,ctag) || teamsize < 1 || teamsize > 5)
+		n = highest_lvl[i] + 1;
+		teamsize = account_get_atteamsize(account, n, ctag);
+
+		teammembers = (char *)account_get_atteammembers(account, n,ctag);
+		if (!teammembers || teamsize < 1 || teamsize > 5) {
+		    eventlog(eventlog_level_warn, __FUNCTION__, "skipping invalid AT (members: '%s' teamsize: %d)", teammembers ? teammembers : "NULL", teamsize);
+		    invalid = 1;
 		    continue;
-		
-		p2 = p3 = teammembers = strdup(account_get_atteammembers(account, n,ctag));
-		
+		}
+
+		p2 = p3 = teammembers = strdup(teammembers);
 		eventlog(eventlog_level_debug, __FUNCTION__,"profile/AT - processing team %d", n);
-		
+
 		bn_int_set((bn_int*)&temp,teamtype[teamsize]);
 		packet_append_data(rpacket,&temp,4);
-		
+
 		bn_int_set((bn_int*)&temp,account_get_atteamwin(account,n,ctag)); //at team wins
 		packet_append_data(rpacket,&temp,2);
 		bn_int_set((bn_int*)&temp,account_get_atteamloss(account,n,ctag)); //at team losses
@@ -328,14 +335,13 @@ static int _client_anongame_profile(t_connection * c, t_packet const * const pac
 		packet_append_data(rpacket,&temp,4);
 		temp=0;
 		packet_append_data(rpacket,&temp,4); //some unknown packet? random shit
-		temp=0;
 		packet_append_data(rpacket,&temp,4); //another unknown packet..random shit
 		bn_int_set((bn_int*)&temp,teamsize);
 		packet_append_data(rpacket,&temp,1);
 		//now attach the names to the packet - not including yourself
 		// [quetzal] 20020826
 		self = strstr(teammembers, account_get_name(account));
-		
+
 		while (p2)
 		{
 		    p3 = strchr(p2, ' ');
@@ -343,11 +349,35 @@ static int _client_anongame_profile(t_connection * c, t_packet const * const pac
 		    if (self != p2) packet_append_string(rpacket, p2);
 		    p2 = p3;
 		}
-		
-		free(teammembers);
+
+		free((void *)teammembers);
+		cnt++;
 	    }
+
+	    if (!cnt) {
+		eventlog(eventlog_level_warn, __FUNCTION__, "no valid team found, sending bogus team");
+		bn_int_set((bn_int*)&temp, 0x32565332);
+		packet_append_data(rpacket,&temp,4);
+
+		temp = 0;
+		packet_append_data(rpacket,&temp,2);
+		packet_append_data(rpacket,&temp,2);
+		packet_append_data(rpacket,&temp,1);
+		packet_append_data(rpacket,&temp,1);
+		packet_append_data(rpacket,&temp,2);
+		packet_append_data(rpacket,&temp,4);
+		packet_append_data(rpacket,&temp,4);
+		packet_append_data(rpacket,&temp,4);
+		bn_int_set((bn_int*)&temp, 1);
+		packet_append_data(rpacket,&temp,1);
+		packet_append_string(rpacket,"error");
+		cnt++;
+	    }
+	    *atcountp = (unsigned char)cnt;
+
+	    if (invalid) account_fix_at(account, ctag);
 	}
-	
+
 	conn_push_outqueue(c,rpacket);
 	packet_del_ref(rpacket);				
 	

@@ -1930,8 +1930,8 @@ typedef struct
 {
     t_bnet_header h;
     bn_int       message;
-	//bn_byte       unknown[64]; // seems to be response to client-challenge
-	bn_int       unknown[16];
+    /* seems to be response to client-challenge */
+    bn_int       unknown[16];
 } t_server_loginreply_w3 PACKED_ATTR();
 #define SERVER_LOGINREPLY_W3_MESSAGE_SUCCESS 0x00000000
 #define SERVER_LOGINREPLY_W3_MESSAGE_ALREADY 0x00000001 /* Account already logged on */
