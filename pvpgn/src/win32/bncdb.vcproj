@@ -186,6 +186,12 @@
 				</File>
 			</Filter>
 			<Filter
+				Name="common"
+				<File
+					RelativePath="..\common\xalloc.c">
+				</File>	
+			</Filter>
+			<Filter
 				Name="compat"
 				Filter="">
 				<File
@@ -206,6 +212,9 @@
 				<File
 					RelativePath="..\common\setup_before.h">
 				</File>
+				<File
+					RelativePath="..\common\xalloc.h">
+				</File>								
 			</Filter>
 			<Filter
 				Name="compat"
