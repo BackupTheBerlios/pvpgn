@@ -1467,6 +1467,10 @@ extern int server_process(void)
 	    if (autoupdate_load(prefs_get_mpqfile())<0)
 	      eventlog(eventlog_level_error,"main","could not load autoupdate list");
 
+	    news_unload();
+	    if (news_load(prefs_get_newsfile())<0)
+		eventlog(eventlog_level_error,__FUNCTION__,"could not load news list");
+
 	    versioncheck_unload();
 	    if (versioncheck_load(prefs_get_versioncheck_file())<0)
 	      eventlog(eventlog_level_error,"main","could not load versioncheck list");

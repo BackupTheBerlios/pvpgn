@@ -113,6 +113,10 @@
 #include "compat/netinet_in.h"
 #include "watch.h"
 #include "anongame_infos.h"
+#include "news.h" //by Spider
+
+extern int last_news;
+extern int first_news;
 
 static int compar(const void* a, const void* b);
 
@@ -3440,143 +3444,106 @@ static int _client_findanongame(t_connection * c, t_packet const * const packet)
 
 static int _client_motdw3(t_connection * c, t_packet const * const packet)
 {
-   t_packet * rpacket = NULL;
-   
-   if (packet_get_size(packet)<sizeof(t_client_motd_w3)) {
-      eventlog(eventlog_level_error,__FUNCTION__,"[%d] got bad CLIENT_MOTD_W3 packet (expected %u bytes, got %u)",conn_get_socket(c),sizeof(t_client_motd_w3),packet_get_size(packet));
+  t_packet * rpacket = NULL;
+  
+  if (packet_get_size(packet)<sizeof(t_client_motd_w3)) {
+    eventlog(eventlog_level_error,__FUNCTION__,"[%d] got bad CLIENT_MOTD_W3 packet (expected %u bytes, got %u)",conn_get_socket(c),sizeof(t_client_motd_w3),packet_get_size(packet));
+    return -1;
+  }
+  
+  {
+    time_t now;
+    
+    // default news time is right now
+    // 
+    now = time(NULL);
+    
+    // News
+    {
+      char const * big_buffer;
+      int last_news_time;
+      int body_size;
+      
+      last_news_time = bn_int_get(packet->u.client_motd_w3.last_news_time);
+      
+      if (last_news > last_news_time)	{
+	t_elem const * curr;
+	
+	LIST_TRAVERSE_CONST(newslist(),curr) {
+	  t_news_index const * newsindex = elem_get_data(curr);
+	  
+	  if (news_get_date(newsindex)>last_news_time) {
+	    if (!(rpacket = packet_create(packet_class_bnet)))
+	      return -1;
+	    packet_set_size(rpacket,sizeof(t_server_motd_w3));
+	    packet_set_type(rpacket,SERVER_MOTD_W3);
+	    
+	    bn_byte_set(&rpacket->u.server_motd_w3.msgtype,SERVER_MOTD_W3_MSGTYPE);
+	    bn_int_set(&rpacket->u.server_motd_w3.curr_time,now);
+	    
+	    bn_int_set(&rpacket->u.server_motd_w3.first_news_time,first_news);
+	    bn_int_set(&rpacket->u.server_motd_w3.timestamp,news_get_date(newsindex));
+	    bn_int_set(&rpacket->u.server_motd_w3.timestamp2,news_get_date(newsindex));
+	    
+	    big_buffer = news_get_body(newsindex);
+	    
+	    // Append news to packet
+	    packet_append_string(rpacket,big_buffer);
+	    eventlog(eventlog_level_trace,__FUNCTION__,"(W3) %d bytes were used to store news",strlen(big_buffer));
+	    news_unget_body(big_buffer);
+	    
+	    // Send news packet
+	    queue_push_packet(conn_get_out_queue(c),rpacket);
+	    
+	    packet_del_ref(rpacket);
+	  }
+	}
+      }
+    }
+    
+    // Welcome Message
+    if (!(rpacket = packet_create(packet_class_bnet)))
       return -1;
-   }
-   
-     {
-	time_t news_time, now;
-	
-	// default news time is right now
-	// 
-	now = news_time = time(NULL);
-	
-	// News
-	  {
-	     char const * filename;
-	     FILE *       fp;
-	     char * buff;
-	     char * big_buffer;
-	     int file_size;
-	     struct stat st;
-	     int last_news_time;
-	     
-	     if ((filename = prefs_get_newsfile())) {
-		if (stat(filename,&st)==0) {
-		   news_time=st.st_mtime;
-		   file_size=st.st_size;
-		   last_news_time=bn_int_get(packet->u.client_motd_w3.last_news_time);
-		   
-		   //eventlog(eventlog_level_trace,"news_time %d > last_news_time %d",news_time,last_news_time);
-		   if (news_time>last_news_time) {
-		      if ((fp = fopen(filename,"r"))!=NULL)
-			{
-			   
-			   if (!(rpacket = packet_create(packet_class_bnet)))
-			     return -1;
-			   packet_set_size(rpacket,sizeof(t_server_motd_w3));
-			   packet_set_type(rpacket,SERVER_MOTD_W3);
-			   
-			   bn_byte_set(&rpacket->u.server_motd_w3.msgtype,SERVER_MOTD_W3_MSGTYPE);
-			   bn_int_set(&rpacket->u.server_motd_w3.curr_time,now);
-			   bn_int_set(&rpacket->u.server_motd_w3.first_news_time,news_time);
-			   bn_int_set(&rpacket->u.server_motd_w3.timestamp,news_time);
-			   bn_int_set(&rpacket->u.server_motd_w3.timestamp2,news_time);
-			   
-			   // Find file size
-			   /*fseek(fp,0,SEEK_END);
-			    file_size=ftell(fp);
-			    fseek(fp,0,SEEK_SET);*/
-			   
-			   // Allocate a buffer large enough
-			   // "large enough" means 2x because every byte _could_ be a \n
-			   file_size*=2;
-			   big_buffer=malloc(file_size+1);
-			   if (big_buffer==NULL) {
-			      eventlog(eventlog_level_error,__FUNCTION__,"(W3) could not allocate %d bytes for news storage",file_size+1);
-			   } else {
-			      eventlog(eventlog_level_trace,__FUNCTION__,"(W3) allocated %d bytes for news storage",file_size+1);
-			      big_buffer[0]=0; // clear first byte
-			      
-			      // Load news into buffer
-			      while ((buff = (char *)file_get_line(fp))) /* FIXED BY UNDYING SOULZZ 4/9/02 */
-				{
-				   strncat(big_buffer,buff,file_size-strlen(big_buffer));
-				   strncat(big_buffer,"\r\n",file_size-strlen(big_buffer));
-				   free(buff);
-				}
-			      
-			      // Append news to packet
-			      packet_append_string(rpacket,big_buffer);
-			      eventlog(eventlog_level_trace,__FUNCTION__,"(W3) %d bytes were used to store news",strlen(big_buffer));
-			      free(big_buffer);
-			      
-			      // Send news packet
-			      queue_push_packet(conn_get_out_queue(c),rpacket);
-			   }
-			   
-			   packet_del_ref(rpacket);
-			   
-			   if (fclose(fp)<0)
-			     eventlog(eventlog_level_error,__FUNCTION__,"(W3) could not close news file \"%s\" after reading",filename);
-			} /* fopen */
-		      else
-			{
-			   eventlog(eventlog_level_error,__FUNCTION__,"(W3) could not open news file \"%s\" for reading",filename);
-			}
-		   } /* is new news */
-		} else {
-		   eventlog(eventlog_level_error,__FUNCTION__,"(W3) stat(%s) failed",filename);
-		}
-	     }
-	  }
-	
-	// Welcome Message
-	if (!(rpacket = packet_create(packet_class_bnet)))
-	  return -1;
-	packet_set_size(rpacket,sizeof(t_server_motd_w3));
-	packet_set_type(rpacket,SERVER_MOTD_W3);
-	
-        //bn_int_set(&rpacket->u.server_motd_w3.ticks,get_ticks());
-	bn_byte_set(&rpacket->u.server_motd_w3.msgtype,SERVER_MOTD_W3_MSGTYPE);
-	bn_int_set(&rpacket->u.server_motd_w3.curr_time,now);
-	bn_int_set(&rpacket->u.server_motd_w3.first_news_time,news_time);
-	bn_int_set(&rpacket->u.server_motd_w3.timestamp,news_time);
-	bn_int_set(&rpacket->u.server_motd_w3.timestamp2,SERVER_MOTD_W3_WELCOME);
-	
-	/* MODIFIED BY THE UNDYING SOULZZ 4/7/02 */
-	  {
-	     int clienttaggames = game_get_count_by_clienttag(conn_get_clienttag(c));
-	     int clienttagusers = conn_get_user_count_by_clienttag(conn_get_clienttag(c));
-	     char serverinfo[512];
-	     
-	     sprintf(serverinfo,"Welcome to the PvPGN Version %s\r\n\r\nThere are currently %u user(s) in %u games of %s, and %u user(s) playing %u games and chatting In %u channels in the PvPGN Realm.\r\n%s",
-		     PVPGN_VERSION,
-		     clienttagusers,
-		     clienttaggames,
-		     conn_get_user_game_title(conn_get_clienttag(c)),
-		     connlist_login_get_length(),
-		     gamelist_get_length(),
-		     channellist_get_length(),
-		     prefs_get_server_info());
-	     
-	     packet_append_string(rpacket,serverinfo);
-	  }
-	
-	queue_push_packet(conn_get_out_queue(c),rpacket);
-	packet_del_ref(rpacket);
-	
-	// Set welcomed flag so we don't send MOTD with the old format
-	conn_set_welcomed(c,1);
-	
-     }
-   
-   return 0;
+    packet_set_size(rpacket,sizeof(t_server_motd_w3));
+    packet_set_type(rpacket,SERVER_MOTD_W3);
+    
+    //bn_int_set(&rpacket->u.server_motd_w3.ticks,get_ticks());
+    bn_byte_set(&rpacket->u.server_motd_w3.msgtype,SERVER_MOTD_W3_MSGTYPE);
+    bn_int_set(&rpacket->u.server_motd_w3.curr_time,now);
+    bn_int_set(&rpacket->u.server_motd_w3.first_news_time,first_news);
+    bn_int_set(&rpacket->u.server_motd_w3.timestamp,now);
+    bn_int_set(&rpacket->u.server_motd_w3.timestamp2,SERVER_MOTD_W3_WELCOME);
+    
+    /* MODIFIED BY THE UNDYING SOULZZ 4/7/02 */
+    {
+      int clienttaggames = game_get_count_by_clienttag(conn_get_clienttag(c));
+      int clienttagusers = conn_get_user_count_by_clienttag(conn_get_clienttag(c));
+      char serverinfo[512];
+      
+      sprintf(serverinfo,"Welcome to the PvPGN Version %s\r\n\r\nThere are currently %u user(s) in %u games of %s, and %u user(s) playing %u games and chatting In %u channels in the PvPGN Realm.\r\n%s",
+	      PVPGN_VERSION,
+	      clienttagusers,
+	      clienttaggames,
+	      conn_get_user_game_title(conn_get_clienttag(c)),
+	      connlist_login_get_length(),
+	      gamelist_get_length(),
+	      channellist_get_length(),
+	      prefs_get_server_info());
+      
+      packet_append_string(rpacket,serverinfo);
+    }
+    
+    queue_push_packet(conn_get_out_queue(c),rpacket);
+    packet_del_ref(rpacket);
+    
+    // Set welcomed flag so we don't send MOTD with the old format
+    conn_set_welcomed(c,1);
+    
+  }
+  
+  return 0;
 }
-
+  
 static int _client_realmlistreq(t_connection * c, t_packet const * const packet)
 {
    t_packet * rpacket = NULL;

@@ -127,6 +127,7 @@ ${SRC_BNETDDIR}/character.o \
 ${SRC_BNETDDIR}/udptest_send.o \
 ${SRC_BNETDDIR}/versioncheck.o \
 ${SRC_BNETDDIR}/handle_d2cs.o \
+${SRC_BNETDDIR}/news.o \
 ${SRC_BNETDDIR}/irc.o \
 ${SRC_BNETDDIR}/query.o \
 ${SRC_BNETDDIR}/alias_command.o \

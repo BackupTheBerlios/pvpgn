@@ -441,6 +441,8 @@ int pre_server_startup(void)
 	eventlog(eventlog_level_error,"pre_server_startup","could not load autoupdate list");
     if (versioncheck_load(prefs_get_versioncheck_file())<0)
 	eventlog(eventlog_level_error,"pre_server_startup","could not load versioncheck list");
+   if (news_load(prefs_get_newsfile())<0)
+	eventlog(eventlog_level_error,__FUNCTION__,"could not load news list");
     watchlist_create();
     output_init();
     accountlist_load_default();
@@ -484,6 +486,7 @@ void post_server_shutdown(int status)
 	    accountlist_destroy();
     	    accountlist_unload_default();
     	    watchlist_destroy();
+	    news_unload();
     	    versioncheck_unload();
     	    autoupdate_unload();
     	    gametrans_unload();
