@@ -1,0 +1,35 @@
+
+            >>>>> IMPORTANT: THIS IS A BETA RELEASE !! <<<<<<
+
+              Readme for Player vs. Player Gaming Network
+             ---------------------------------------------
+
+    PvPGN is a BNETD mod which aims to provide support for all Blizzard 
+clients (thus it supports all BNETD supported clients plus the most recent 
+ones). 
+
+The list of supported clients and their minimum verion required is:
+- Diablo 1 v1.09
+- Starcraft v1.08
+- BroodWar v1.08
+- Warcraft II Battle.Net Edition v2.05
+- Diablo 2 v1.07 (*)
+- Diablo 2 LOD v1.07 (*)
+- Warcraft III Reign Of Chaos v1.10
+- Warcraft III Frozen Throne v1.10
+------------
+(*) no support for v1.10 yet
+
+    The documentation is located in the docs directory. Please read docs/INDEX 
+for a list of files and what they contain.
+    If you are updating from a previous PvPGN version check the file UPDATE 
+first.
+
+
+-----
+
+We're always looking for good coders (mainly C/C++) or 
+anyone who can contribute to our project in any way.
+
+#pvpgn on irc.pvpgn.org
+http://www.pvpgn.org
