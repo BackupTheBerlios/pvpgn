@@ -285,6 +285,36 @@ extern int tournament_get_totalplayers(void)
     return tournament_info->game_type * 2;
 }
 
+void tournament_check_date(unsigned int *mon, unsigned int *mday, unsigned int *year, unsigned int *hour, unsigned int *min, unsigned int *sec, char const * caller)
+{
+  if (*mon>12)
+  {
+    eventlog(eventlog_level_error,__FUNCTION__,"got invalid month (%u) in %s",*mon,caller);
+    *mon = 12;
+  }
+  if (*mday>31)
+  {
+    eventlog(eventlog_level_error,__FUNCTION__,"got invalid mday (%u) in %s",*mday,caller);
+    *mday = 31;
+  }
+  if (*hour>23)
+  {
+    eventlog(eventlog_level_error,__FUNCTION__,"got invalid hour (%u) from %s",*hour,caller);
+    *hour = 23;
+  }
+  if (*min >59)
+  {
+    eventlog(eventlog_level_error,__FUNCTION__,"got invalid min (%u) from %s",*min,caller);
+    *min = 59;
+  }
+  if (*sec >59)
+  {
+    eventlog(eventlog_level_error,__FUNCTION__,"got invalid sec (%u) from %s",*sec,caller);
+    *sec = 59;
+  }
+  return;
+}
+
 /*****/
 extern int tournament_init(char const * filename)
 {
@@ -406,6 +436,8 @@ extern int tournament_init(char const * filename)
 	        pointer[0]='\0';
 	        
 	        sscanf(value,format,&mon,&day,&year,&hour,&min,&sec);
+
+		tournament_check_date(&mon,&day,&year,&hour,&min,&sec,variable);
 	        
 	        timestamp->tm_mon	= mon-1;
 	        timestamp->tm_mday	= day;
@@ -426,6 +458,8 @@ extern int tournament_init(char const * filename)
 	        
 	        sscanf(value,format,&mon,&day,&year,&hour,&min,&sec);
 	        
+		tournament_check_date(&mon,&day,&year,&hour,&min,&sec,variable);
+
 	        timestamp->tm_mon	= mon-1;
 	        timestamp->tm_mday	= day;
 	        timestamp->tm_year	= year-1900;
@@ -445,6 +479,8 @@ extern int tournament_init(char const * filename)
 	        
 	        sscanf(value,format,&mon,&day,&year,&hour,&min,&sec);
 	        
+		tournament_check_date(&mon,&day,&year,&hour,&min,&sec,variable);
+
 	        timestamp->tm_mon	= mon-1;
 	        timestamp->tm_mday	= day;
 	        timestamp->tm_year	= year-1900;
@@ -464,6 +500,8 @@ extern int tournament_init(char const * filename)
 	        
 	        sscanf(value,format,&mon,&day,&year,&hour,&min,&sec);
 	        
+		tournament_check_date(&mon,&day,&year,&hour,&min,&sec,variable);
+
 	        timestamp->tm_mon	= mon-1;
 	        timestamp->tm_mday	= day;
 	        timestamp->tm_year	= year-1900;
@@ -483,6 +521,8 @@ extern int tournament_init(char const * filename)
 	        
 	        sscanf(value,format,&mon,&day,&year,&hour,&min,&sec);
 	        
+		tournament_check_date(&mon,&day,&year,&hour,&min,&sec,variable);
+
 	        timestamp->tm_mon	= mon-1;
 	        timestamp->tm_mday	= day;
 	        timestamp->tm_year	= year-1900;
@@ -502,6 +542,8 @@ extern int tournament_init(char const * filename)
 	        
 	        sscanf(value,format,&mon,&day,&year,&hour,&min,&sec);
 	        
+		tournament_check_date(&mon,&day,&year,&hour,&min,&sec,variable);
+
 	        timestamp->tm_mon	= mon-1;
 	        timestamp->tm_mday	= day;
 	        timestamp->tm_year	= year-1900;
@@ -521,6 +563,8 @@ extern int tournament_init(char const * filename)
 	        
 	        sscanf(value,format,&mon,&day,&year,&hour,&min,&sec);
 	        
+		tournament_check_date(&mon,&day,&year,&hour,&min,&sec,variable);
+
 	        timestamp->tm_mon	= mon-1;
 	        timestamp->tm_mday	= day;
 	        timestamp->tm_year	= year-1900;
@@ -540,6 +584,8 @@ extern int tournament_init(char const * filename)
 	        
 	        sscanf(value,format,&mon,&day,&year,&hour,&min,&sec);
 	        
+		tournament_check_date(&mon,&day,&year,&hour,&min,&sec,variable);
+
 	        timestamp->tm_mon	= mon-1;
 	        timestamp->tm_mday	= day;
 	        timestamp->tm_year	= year-1900;
