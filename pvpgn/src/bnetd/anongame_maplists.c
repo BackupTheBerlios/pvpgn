@@ -45,8 +45,8 @@ static char *	maplist_war3[MAXMAPS];
 static char *	maplist_w3xp[MAXMAPS];
 static int	number_maps_war3 = 0;
 static int	number_maps_w3xp = 0;
-static int	maplists_war3[ANONGAME_TYPES][MAXMAPS_PER_QUEUE+1];
-static int	maplists_w3xp[ANONGAME_TYPES][MAXMAPS_PER_QUEUE+1];
+static char	maplists_war3[ANONGAME_TYPES][MAXMAPS_PER_QUEUE+1];
+static char	maplists_w3xp[ANONGAME_TYPES][MAXMAPS_PER_QUEUE+1];
 
 static int	_maplists_type_get_queue(const char * type);
 static char *	_maplists_queue_get_type(int queue);
