@@ -295,9 +295,10 @@ static int sd_accept(t_addr const * curr_laddr, t_laddr_info const * laddr_info,
 		    
     /* dont accept new connections while shutdowning */
     if (curr_exittime) {
-	if ((csocket = psock_accept(ssocket, NULL, NULL)) > 0)
-	psock_shutdown(csocket,PSOCK_SHUT_RDWR);
-	psock_close(csocket);
+	if ((csocket = psock_accept(ssocket, NULL, NULL)) > 0) {
+	    psock_shutdown(csocket,PSOCK_SHUT_RDWR);
+	    psock_close(csocket);
+	}
 	return 0;
     }
 
