@@ -20,6 +20,9 @@ and added a nice servers.xsl from jfro to show server list based on XML files
 -- added XML_output_ladder option to d2dbs.conf for additional output of D2
 ladder to xml file - once again... for ladder pages
 --- added support for closed realms (d2cs) behind a router
+--- added command line option (-p PORT) to bnpcap to specify port number
+to process. Defaults to 6112
+--- updated fsgs2bnetd.pl script - Thanks Keto
 
 1.2.3:
 -- fixed some crash related bugs
