@@ -2458,7 +2458,7 @@ static int _handle_news_command(t_connection * c, char const *text)
 	    i = strftime(date, 64,"%B %d, %Y", temp);
 	    message_send_text(c,message_type_info,c,date);
 
-	    if (body = news_get_body(newsindex))
+	    if ((body = news_get_body(newsindex)))
 		{
 	      for (i=0; body[i] != '\0'; i++) {
 		  temp2 = strdup(&body[i]);
