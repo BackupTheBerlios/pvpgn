@@ -66,7 +66,7 @@
 #define SQL_UID_FIELD		"uid"
 #define STORAGE_SQL_DEFAULT_UID	0
 
-#define SQL_ON_DEMAND	0
+#define SQL_ON_DEMAND	1
 
 static int sql_init(const char *);
 static int sql_close(void);
@@ -96,11 +96,12 @@ t_storage storage_sql = {
 
 static t_sql_engine *sql = NULL;
 
-static char * tables[] = {"BNET", "Record", "profile", "friend", "Team", NULL};
-
 static int _sql_dbcheck(void);
 static int _sql_dbcreator(void);
 static void _sql_update_DB_v0_to_v150(void);
+
+#ifndef SQL_ON_DEMAND
+static char * tables[] = {"BNET", "Record", "profile", "friend", "Team", NULL};
 
 static const char * _db_add_tab(const char *tab, const char *key)
 {
@@ -111,6 +112,8 @@ static const char * _db_add_tab(const char *tab, const char *key)
    strncpy(nkey + strlen(nkey), key, sizeof(nkey) - strlen(nkey));
    return nkey;
 }
+
+#endif /* SQL_ON_DEMAND */
 
 static int _db_get_tab(const char *key, char **ptab, char **pcol)
 {
