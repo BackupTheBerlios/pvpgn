@@ -46,6 +46,7 @@
 #include "compat/strncasecmp.h"
 #include "common/setup_after.h"
 #include "common/bnet_protocol.h"
+#include "common/tag.h"
 #include "command.h"
 //aaron
 #include "war3ladder.h"
