@@ -140,12 +140,8 @@ extern int autoupdate_load(char const * filename)
 	    xfree(buff);
 	    continue;
 	}
-	
-	if (!(entry = xmalloc(sizeof(t_autoupdate)))) {
-	    eventlog(eventlog_level_error,__FUNCTION__,"could not allocate memory for entry");
-	    xfree(buff);
-	    continue;
-	}
+
+	entry = xmalloc(sizeof(t_autoupdate));
 	
 	if (!tag_check_arch((entry->archtag = tag_str_to_uint(archtag)))) {
 	    eventlog(eventlog_level_error,__FUNCTION__,"got unknown archtag");
@@ -159,20 +155,9 @@ extern int autoupdate_load(char const * filename)
 	    xfree(buff);
 	    continue;
 	}
-	if ((!(entry->versiontag = xstrdup(versiontag)))) {
-	    eventlog(eventlog_level_error,__FUNCTION__,"could not allocate memory for versiontag");
-	    xfree(entry);
-	    xfree(buff);
-	    continue;
-	}
-	if (!(entry->mpqfile = xstrdup(mpqfile))) {
-	    eventlog(eventlog_level_error,__FUNCTION__,"could not allocate memory for mpqfile");
-	    xfree((void *)entry->versiontag);
-	    xfree(entry);
-	    xfree(buff);
-	    continue;
-	}
-	
+	entry->versiontag = xstrdup(versiontag);
+	entry->mpqfile = xstrdup(mpqfile);
+
 	eventlog(eventlog_level_debug,__FUNCTION__,"update '%s' version '%s' with file %s",clienttag,versiontag,mpqfile);
 	xfree(buff);
 	
@@ -251,10 +236,7 @@ extern char * autoupdate_check(t_tag archtag, t_tag clienttag, t_tag gamelang, c
 		tag_uint_to_str(gltag,gamelang);
 		tempmpq = xstrdup(entry->mpqfile);
 		
-		if (!(temp = xmalloc(strlen(tempmpq)+6))) {
-		    eventlog(eventlog_level_error,__FUNCTION__,"could not allocate memory for mpq file name");
-		    return NULL;
-		}
+		temp = xmalloc(strlen(tempmpq)+6);
 		
 		extention = strrchr(tempmpq,'.');
 		*extention = '\0';
