@@ -667,6 +667,9 @@ extern int irc_message_format(t_packet * packet, t_message_type type, t_connecti
     switch (type)
     {
     /* case message_type_adduser: this is sent manually in handle_irc */
+	case message_type_adduser:
+		/* when we do it somewhere else, then we can also make sure to not get our logs spammed */
+		break;
     case message_type_join:
     	from.nick = conn_get_chatname(me);
     	from.user = conn_get_clienttag(me);
