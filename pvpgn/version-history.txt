@@ -16,6 +16,8 @@ battle.net (now you drop a level when you reach the startxp of the level
 below, not when you drop below the startxp of the current level)
 -- modified war3_ladder code to sort primary by level and secondary by xp
 (thus making war3ladder behaing like battle.net ladder now)
+-- now war3 friendslist is 100% battle.net conform (also showing
+dnd/away status) and immediatly showing correct
 
 1.6.0pre2 (since 1.6.0pre1):
 -- fixed searching for connection of a acccount uid (thus getting rid of all 
