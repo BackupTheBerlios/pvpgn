@@ -30,7 +30,7 @@
 				OptimizeForProcessor="0"
 				OptimizeForWindowsApplication="TRUE"
 				AdditionalIncludeDirectories="$(SolutionDir)/.."
-				PreprocessorDefinitions="_CONSOLE;NDEBUG;WIN32;WIN32_GUI;_MBCS;WITH_SQL;WITH_SQL_MYSQL"
+				PreprocessorDefinitions="_CONSOLE;NDEBUG;WIN32;WIN32_GUI;_MBCS;WITH_SQL_MYSQL"
 				StringPooling="TRUE"
 				RuntimeLibrary="0"
 				StructMemberAlignment="1"

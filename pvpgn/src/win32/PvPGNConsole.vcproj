@@ -24,7 +24,7 @@
 				OmitFramePointers="TRUE"
 				OptimizeForWindowsApplication="TRUE"
 				AdditionalIncludeDirectories="$(SolutionDir)/.."
-				PreprocessorDefinitions="NDEBUG;WIN32;_CONSOLE;_MBCS;WITH_SQL;WITH_SQL_MYSQL"
+				PreprocessorDefinitions="NDEBUG;WIN32;_CONSOLE;_MBCS;WITH_SQL_MYSQL"
 				StringPooling="TRUE"
 				RuntimeLibrary="4"
 				EnableFunctionLevelLinking="TRUE"

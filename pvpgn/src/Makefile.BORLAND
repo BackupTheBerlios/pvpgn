@@ -112,7 +112,7 @@ RC      = brc32
 #This might not work flawless, MYSQL suggests to use their static libs from http://www.mysql.com/downloads/os-win32.html
 
 !ifdef WITH_SQL_MYSQL
-SQLFLAGS = -DWITH_SQL_MYSQL -DWITH_SQL -a8
+SQLFLAGS = -DWITH_SQL_MYSQL -a8
 !endif
 
 !ifdef WITH_CDB
