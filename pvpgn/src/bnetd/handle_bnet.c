@@ -292,6 +292,7 @@ static int _client_ladderreq(t_connection * c, t_packet const * const packet);
 static int _client_laddersearchreq(t_connection * c, t_packet const * const packet);
 static int _client_mapauthreq1(t_connection * c, t_packet const * const packet);
 static int _client_mapauthreq2(t_connection * c, t_packet const * const packet);
+static int _client_w3xp_clan_inforeq(t_connection * c, t_packet const * const packet);
 
 /* connection state connected handler table */
 static const t_htable_row bnet_htable_con[] = {
@@ -368,6 +369,7 @@ static const t_htable_row bnet_htable_log [] = {
      { CLIENT_LADDERSEARCHREQ,  _client_laddersearchreq},
      { CLIENT_MAPAUTHREQ1,      _client_mapauthreq1},
      { CLIENT_MAPAUTHREQ2,      _client_mapauthreq2},
+     { CLIENT_W3XP_CLAN_INFOREQ,_client_w3xp_clan_inforeq },
      { -1,                      NULL}
 };
 
@@ -5404,4 +5406,29 @@ static int _client_mapauthreq2(t_connection * c, t_packet const * const packet)
      }
    
    return 0;
+}
+
+static int _client_w3xp_clan_inforeq(t_connection * c, t_packet const * const packet)
+{
+  t_packet * rpacket = NULL;
+
+   if (packet_get_size(packet)<sizeof(t_client_w3xp_clan_inforeq)) {
+      eventlog(eventlog_level_error,__FUNCTION__,"[%d] got bad W3XP_CLAN_INFOREQ packet (expected %u bytes, got %u)",conn_get_socket(c),sizeof(t_client_w3xp_clan_inforeq),packet_get_size(packet));
+      return -1;
+   }
+
+   // currently we simply reply with clan allready in use...
+  if ((rpacket = packet_create(packet_class_bnet)))
+     {
+	packet_set_size(rpacket,sizeof(t_server_w3xp_clan_inforeply));
+	packet_set_type(rpacket,SERVER_W3XP_CLAN_INFOREPLY);
+        bn_int_set(&rpacket->u.server_w3xp_clan_inforeply.count,bn_int_get(packet->u.client_w3xp_clan_inforeq.count));
+	bn_short_set(&rpacket->u.server_w3xp_clan_inforeply.message,SERVER_W3XP_CLAN_INFOREPLY_MESSAGE_ALLREADY_IN_USE);
+	queue_push_packet(conn_get_out_queue(c),rpacket);
+	packet_del_ref(rpacket);
+     }
+
+
+
+
 }

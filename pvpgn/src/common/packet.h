@@ -35,6 +35,7 @@
 # include "d2cs/d2cs_d2gs_protocol.h"
 # include "d2cs/d2cs_bnetd_protocol.h"
 # include "common/auth_protocol.h"
+# include "common/w3xp_protocol.h"
 #else
 # define JUST_NEED_TYPES
 # include "common/field_sizes.h"
@@ -49,6 +50,7 @@
 # include "d2cs/d2cs_d2gs_protocol.h"
 # include "d2cs/d2cs_bnetd_protocol.h"
 # include "common/auth_protocol.h"
+# include "common/w3xp_protocol.h"
 # undef JUST_NEED_TYPES
 #endif
 
@@ -394,6 +396,9 @@ typedef struct
 
 	t_client_findanongame_inforeq		client_findanongame_inforeq;
 	t_server_findanongame_inforeply		server_findanongame_inforeply;
+	
+        t_client_w3xp_clan_inforeq              client_w3xp_clan_inforeq;
+	t_server_w3xp_clan_inforeply            server_w3xp_clan_inforeply;
 	} u;
 } t_packet;
 

@@ -513,4 +513,34 @@ typedef struct
 
 #define CLIENT_W3XP_W3ROUTE_GAMERESULT	0x2ef7
 
+// arranged team handling
+
+#define CLIENT_W3XP_ARRANGEDTEAM_FRIENDSCREEN 0x2eff
+
+#define SERVER_W3XP_ARRANGEDTEAM_FRIENDSCREEN 0x2eff
+
+// clan handling
+
+/*
+12: recv class=bnet[0x02] type=unknown[0x7dff] length=12
+0000:   FF 7D 0C 00 01 00 00 00   49 65 68 54                .}......IehT  
+*/
+
+#define CLIENT_W3XP_CLAN_INFOREQ 0x7dff
+typedef struct{
+  t_bnet_header        h;
+  bn_int               count;
+  bn_int               clanshort;
+} t_client_w3xp_clan_inforeq PACKED_ATTR();
+
+#define SERVER_W3XP_CLAN_INFOREPLY 0x7dff
+typedef struct{
+  t_bnet_header        h;
+  bn_int               count;
+  bn_short             message;
+} t_server_w3xp_clan_inforeply PACKED_ATTR();
+
+#define SERVER_W3XP_CLAN_INFOREPLY_MESSAGE_OK 0x0000
+#define SERVER_W3XP_CLAN_INFOREPLY_MESSAGE_ALLREADY_IN_USE 0x0001
+
 #endif
