@@ -68,6 +68,18 @@
  0x75d1c16f \
  W3XP_110A
 
+# Warcraft III Expansion v1.07 RETAIL
+# Note: this version check is sent in both FT and ROC mode
+"A=3845581634 B=880823580 C=1363937103 4 A=A-S B=B-C C=C-A A=A-B" \
+ IX86ver1.mpq \
+ IX86 \
+ W3XP \
+ "war3.exe 06/22/03 11:14:36 1494483" \
+ 0x00000007 \
+ 1.0.7.142 \
+ 0xde80b55b \
+ W3XP_107A
+
 # ==================== Warcraft III entries =======================
 
 # Warcraft III v1.10 RETAIL
