@@ -68,10 +68,17 @@ static inline void elist_del(t_elist *what)
 #define elist_for_each(pos,head) \
     for (pos = (head)->next; pos != (head); pos = pos->next)
 
+#define elist_for_each_rev(pos,head) \
+    for (pos = (head)->prev; pos != (head); pos = pos->prev)
+
 /* safe for removals while traversing */
 #define elist_for_each_safe(pos,head,save) \
     for (pos = (head)->next, save = pos->next; pos != (head); \
 			pos = save, save = pos->next)
+
+#define elist_for_each_safe_rev(pos,head,save) \
+    for (pos = (head)->prev, save = pos->prev; pos != (head); \
+			pos = save, save = pos->prev)
 
 #define elist_empty(ptr) ((ptr)->next == (ptr))
 
