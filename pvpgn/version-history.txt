@@ -12,6 +12,7 @@ don't generate anongame_infos data each time when user logon
 -- tournament settings will also reload when get restart signal
 -- moved winmain.c/winmain.h to src/win32/, cleanup vc project files and move
 them to src/win32/
+-- fixed saving of SC/BW last game result with SQL storage
 
 1.6.0pre3 (since 1.6.0pre2):
 -- fixed clan crash bug (when any user with clans logged in on sql/cdb pvpgn 

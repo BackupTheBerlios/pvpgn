@@ -16,6 +16,16 @@ changes to bnetd.conf:
 ----------------------
 -- added: maxusers_per_channel = 0
 
+changes to sql_DB_layout:
+-------------------------
+-- changed STAR_0_last_game_result, STAR_1_last_game_result, 
+SEXP_0_last_game_result, SEXP_1_last_game_result from int to varchar type; when 
+upgrading from a previous version you should alter the Record table for this 
+fields and change their types like:
+
+ALTER TABLE Record CHANGE COLUMN STAR_0_last_game_result varchar(128) default NULL
+etc..
+
  Updating from 1.6.0 pre 2 to 1.6.0 pre 3
 ===========================================
 
