@@ -358,12 +358,7 @@ extern t_connection * conn_create(int tsock, int usock, unsigned int real_local_
         return NULL;
     }
     
-    if (!(temp = xmalloc(sizeof(t_connection))))
-    {
-        eventlog(eventlog_level_error,"conn_create","could not allocate memory for temp");
-	return NULL;
-    }
-    
+    temp = xmalloc(sizeof(t_connection));
     temp->socket.tcp_sock               = tsock;
     temp->socket.tcp_addr               = addr;
     temp->socket.tcp_port               = port;
@@ -463,12 +458,7 @@ extern t_anongame * conn_create_anongame(t_connection *c)
 	return c->protocol.w3.anongame;
     }
 
-    if (!(temp = xmalloc(sizeof(t_anongame))))
-    {
-        eventlog(eventlog_level_error,"conn_create_anongame","could not allocate memory for temp");
-	return NULL;
-    }
-
+    temp = xmalloc(sizeof(t_anongame));
     temp->count		= 0;
     temp->id		= 0;
     temp->tid		= 0;
@@ -1025,8 +1015,7 @@ extern void conn_set_host(t_connection * c, char const * host)
     
     if (c->protocol.client.host)
 	xfree((void *)c->protocol.client.host); /* avoid warning */
-    if (!(c->protocol.client.host = xstrdup(host)))
-	eventlog(eventlog_level_error,"conn_set_host","could not allocate memory for c->protocol.client.host");
+    c->protocol.client.host = xstrdup(host);
 }
 
 
@@ -1045,8 +1034,7 @@ extern void conn_set_user(t_connection * c, char const * user)
 
     if (c->protocol.client.user)
 	xfree((void *)c->protocol.client.user); /* avoid warning */
-    if (!(c->protocol.client.user = xstrdup(user)))
-	eventlog(eventlog_level_error,"conn_set_user","could not allocate memory for c->protocol.client.user");
+    c->protocol.client.user = xstrdup(user);
 }
 
 
@@ -1065,8 +1053,7 @@ extern void conn_set_owner(t_connection * c, char const * owner)
     
     if (c->protocol.client.owner)
 	xfree((void *)c->protocol.client.owner); /* avoid warning */
-    if (!(c->protocol.client.owner = xstrdup(owner)))
-	eventlog(eventlog_level_error,"conn_set_owner","could not allocate memory for c->protocol.client.owner");
+    c->protocol.client.owner = xstrdup(owner);
 }
 
 extern const char * conn_get_user(t_connection const * c)
@@ -1102,8 +1089,7 @@ extern void conn_set_cdkey(t_connection * c, char const * cdkey)
 
     if (c->protocol.client.cdkey)
 	xfree((void *)c->protocol.client.cdkey); /* avoid warning */
-    if (!(c->protocol.client.cdkey = xstrdup(cdkey)))
-	eventlog(eventlog_level_error,"conn_set_cdkey","could not allocate memory for c->protocol.client.cdkey");
+    c->protocol.client.cdkey = xstrdup(cdkey);
 }
 
 
@@ -1136,11 +1122,7 @@ extern void conn_set_clientexe(t_connection * c, char const * clientexe)
         return;
     }
     
-    if (!(temp = xstrdup(clientexe)))
-    {
-	eventlog(eventlog_level_error,"conn_set_clientexe","unable to allocate memory for clientexe");
-	return;
-    }
+    temp = xstrdup(clientexe);
     if (c->protocol.client.clientexe)
 	xfree((void *)c->protocol.client.clientexe); /* avoid warning */
     c->protocol.client.clientexe = temp;
@@ -1176,11 +1158,7 @@ extern void conn_set_clientver(t_connection * c, char const * clientver)
         return;
     }
     
-    if (!(temp = xstrdup(clientver)))
-    {
-	eventlog(eventlog_level_error,"conn_set_clientver","unable to allocate memory for clientver");
-	return;
-    }
+    temp = xstrdup(clientver);
     if (c->protocol.client.clientver)
 	xfree((void *)c->protocol.client.clientver); /* avoid warning */
     c->protocol.client.clientver = temp;
@@ -1522,10 +1500,7 @@ extern int conn_set_loggeduser(t_connection * c, char const * username)
     assert(c != NULL);
     assert(username != NULL);
 
-    if (!(temp = xstrdup(username))) {
-	eventlog(eventlog_level_error, __FUNCTION__,"unable to duplicate username");
-	return -1;
-    }
+    temp = xstrdup(username);
     if (c->protocol.loggeduser) xfree((void*)c->protocol.loggeduser);
 
     c->protocol.loggeduser = temp;
@@ -1665,11 +1640,7 @@ extern int conn_set_awaystr(t_connection * c, char const * away)
     if (!away)
         c->protocol.chat.away = NULL;
     else
-        if (!(c->protocol.chat.away = xstrdup(away)))
-	{
-	    eventlog(eventlog_level_error,"conn_set_awaystr","could not allocate away string");
-	    return -1;
-	}
+        c->protocol.chat.away = xstrdup(away);
     
     return 0;
 }
@@ -1700,11 +1671,7 @@ extern int conn_set_dndstr(t_connection * c, char const * dnd)
     if (!dnd)
         c->protocol.chat.dnd = NULL;
     else
-        if (!(c->protocol.chat.dnd = xstrdup(dnd)))
-	{
-	    eventlog(eventlog_level_error,"conn_set_dndstr","could not allocate dnd string");
-	    return -1;
-	}
+        c->protocol.chat.dnd = xstrdup(dnd);
     
     return 0;
 }
@@ -1724,16 +1691,11 @@ extern int conn_add_ignore(t_connection * c, t_account * account)
         eventlog(eventlog_level_error,"conn_add_ignore","got NULL account");
         return -1;
     }
-    
-    if (!(newlist = xrealloc(c->protocol.chat.ignore_list,sizeof(t_account const *)*(c->protocol.chat.ignore_count+1))))
-    {
-	eventlog(eventlog_level_error,"conn_add_ignore","could not allocate memory for newlist");
-	return -1;
-    }
-    
+
+    newlist = xrealloc(c->protocol.chat.ignore_list,sizeof(t_account const *)*(c->protocol.chat.ignore_count+1));
     newlist[c->protocol.chat.ignore_count++] = account;
     c->protocol.chat.ignore_list = newlist;
-    
+
     return 0;
 }
 
@@ -1766,17 +1728,17 @@ extern int conn_del_ignore(t_connection * c, t_account const * account)
     c->protocol.chat.ignore_list[c->protocol.chat.ignore_count-1] = c->protocol.chat.ignore_list[i];
     c->protocol.chat.ignore_list[i] = temp;
     
-    if (c->protocol.chat.ignore_count==1) /* some xrealloc()s are buggy */
+    if (c->protocol.chat.ignore_count==1) /* some realloc()s are buggy */
     {
 	xfree(c->protocol.chat.ignore_list);
 	newlist = NULL;
     }
     else
 	newlist = xrealloc(c->protocol.chat.ignore_list,sizeof(t_account const *)*(c->protocol.chat.ignore_count-1));
-    
+
     c->protocol.chat.ignore_count--;
     c->protocol.chat.ignore_list = newlist;
-    
+
     return 0;
 }
 
@@ -2390,8 +2352,8 @@ extern char const * conn_get_chatcharname(t_connection const * c, t_connection c
 
 	if (c->protocol.d2.charname) mychar = c->protocol.d2.charname;
 	else mychar = "";
-    	if ((chatcharname = xmalloc(strlen(accname) + 2 + strlen(mychar))))
-    	    sprintf(chatcharname, "%s*%s", mychar, accname);
+    	chatcharname = xmalloc(strlen(accname) + 2 + strlen(mychar));
+    	sprintf(chatcharname, "%s*%s", mychar, accname);
     } else chatcharname = xstrdup(accname);
 
     return chatcharname;
@@ -2789,13 +2751,7 @@ extern int conn_set_realminfo(t_connection * c, char const * realminfo)
     }
     
     if (realminfo)
-    {
-	if (!(temp = xstrdup(realminfo)))
-	{
-	    eventlog(eventlog_level_error,"conn_set_realminfo","could not allocate memory for new realminfo");
-	    return -1;
-	}
-    }
+	temp = xstrdup(realminfo);
     else
       temp = NULL;
     
@@ -2828,13 +2784,7 @@ extern int conn_set_charname(t_connection * c, char const * charname)
     }
     
     if (charname)
-    {
-	if (!(temp = xstrdup(charname)))
-	{
-	    eventlog(eventlog_level_error,"conn_set_charname","could not allocate memory for new charname");
-	    return -1;
-	}
-    }    
+	temp = xstrdup(charname);
     else
 	temp = charname;
 
@@ -2896,14 +2846,10 @@ extern int conn_set_realmname(t_connection * c, char const * realmname)
 	xfree((void *)c->protocol.d2.realmname); /* avoid warning */
     if (!realmname)
         c->protocol.d2.realmname = NULL;
-    else
-        if (!(c->protocol.d2.realmname = xstrdup(realmname)))
-	{
-	    eventlog(eventlog_level_error,"conn_set_realmname","could not allocate realmname string");
-	    return -1;
-	}
-	else
-	    eventlog(eventlog_level_debug,"conn_set_realmname","[%d] set to \"%s\"",conn_get_socket(c),realmname);
+    else {
+        c->protocol.d2.realmname = xstrdup(realmname);
+	eventlog(eventlog_level_debug,"conn_set_realmname","[%d] set to \"%s\"",conn_get_socket(c),realmname);
+    }
     
     return 0;
 }
@@ -2943,8 +2889,7 @@ extern void conn_set_country(t_connection * c, char const * country)
 
     if (c->protocol.client.country)
 	xfree((void *)c->protocol.client.country); /* avoid warning */
-    if (!(c->protocol.client.country = xstrdup(country)))
-	eventlog(eventlog_level_error,"conn_set_country","could not allocate memory for c->protocol.client.country");
+    c->protocol.client.country = xstrdup(country);
 }
 
 
@@ -2992,8 +2937,7 @@ extern int conn_set_ircline(t_connection * c, char const * line)
     }
     if (c->protocol.chat.irc.ircline)
     	xfree((void *)c->protocol.chat.irc.ircline); /* avoid warning */
-    if (!(c->protocol.chat.irc.ircline = xstrdup(line)))
-	eventlog(eventlog_level_error,"conn_set_ircline","could not allocate memory for c->protocol.chat.irc.ircline");
+    c->protocol.chat.irc.ircline = xstrdup(line);
     return 0;
 }
 
@@ -3019,8 +2963,8 @@ extern int conn_set_ircpass(t_connection * c, char const * pass)
     if (!pass)
     	c->protocol.chat.irc.ircpass = NULL;
     else
-	if (!(c->protocol.chat.irc.ircpass = xstrdup(pass)))
-	    eventlog(eventlog_level_error,"conn_set_ircpass","could not allocate memory for c->protocol.chat.irc.ircpass");
+	c->protocol.chat.irc.ircpass = xstrdup(pass);
+
     return 0;
 }
 
@@ -3142,11 +3086,7 @@ extern int conn_quota_exceeded(t_connection * con, char const * text)
 	    break; /* old items are first, so we know nothing else will match */
     }
     
-    if ((qline = xmalloc(sizeof(t_qline)))==NULL)
-    {
-	eventlog(eventlog_level_error,"conn_quota_exceeded","could not allocate qline");
-	return 0;
-    }
+    qline = xmalloc(sizeof(t_qline));
     qline->inf = now; /* set the moment */
     if (strlen(text)>prefs_get_quota_wrapline()) /* round up on the divide */
 	qline->count = (strlen(text)+prefs_get_quota_wrapline()-1)/prefs_get_quota_wrapline();
@@ -3193,12 +3133,8 @@ extern int conn_set_lastsender(t_connection * c, char const * sender)
 	c->protocol.chat.lastsender = NULL;
 	return 0;
     }
-    if (!(c->protocol.chat.lastsender = xstrdup(sender)))
-    {
-	eventlog(eventlog_level_error,"conn_set_lastsender","could not allocate memory for c->protocol.chat.lastsender");
-	return -1;
-    }
-    
+    c->protocol.chat.lastsender = xstrdup(sender);
+
     return 0;
 }
 
@@ -3863,8 +3799,6 @@ extern int conn_increment_passfail_count (t_connection * c)
 
 extern int conn_set_tmpOP_channel(t_connection * c, char const * tmpOP_channel)
 {
-	char * tmp;
-
 	if (!c)
 	{
 	  eventlog(eventlog_level_error,__FUNCTION__,"got NULL conn");
@@ -3878,14 +3812,7 @@ extern int conn_set_tmpOP_channel(t_connection * c, char const * tmpOP_channel)
 	}
 
 	if (tmpOP_channel)
-	{
-	  if (!(tmp = xstrdup(tmpOP_channel)))
-	  {
-	    eventlog(eventlog_level_error,__FUNCTION__,"could not strdup tmpOP_channel");
-	    return -1;
-	  }
-	  c->protocol.chat.tmpOP_channel = tmp;
-	}
+	  c->protocol.chat.tmpOP_channel = xstrdup(tmpOP_channel);
 
 	return 0;
 }
@@ -3903,8 +3830,6 @@ extern char const * conn_get_tmpOP_channel(t_connection * c)
 
 extern int conn_set_tmpVOICE_channel(t_connection * c, char const * tmpVOICE_channel)
 {
-	char * tmp;
-
 	if (!c)
 	{
 	  eventlog(eventlog_level_error,__FUNCTION__,"got NULL conn");
@@ -3918,14 +3843,7 @@ extern int conn_set_tmpVOICE_channel(t_connection * c, char const * tmpVOICE_cha
 	}
 
 	if (tmpVOICE_channel)
-	{
-	  if (!(tmp = xstrdup(tmpVOICE_channel)))
-	  {
-	    eventlog(eventlog_level_error,__FUNCTION__,"could not strdup tmpVOICE_channel");
-	    return -1;
-	  }
-	  c->protocol.chat.tmpVOICE_channel = tmp;
-	}
+	  c->protocol.chat.tmpVOICE_channel = xstrdup(tmpVOICE_channel);
 
 	return 0;
 }
