@@ -425,7 +425,7 @@ BINS            = ${bnchat_BIN} ${bnpass_BIN} ${bnftp_BIN} ${bnbot_BIN} ${bnstat
 MAN1S		= bnetd.1 bntrackd.1 bnchat.1 bnpass.1 bnbot.1 bnftp.1 bnstat.1 bnetd.1 bni2tga.1 bnibuild.1 bniextract.1 bnilist.1 tgainfo.1
 MAN5S		= bnetd.conf.5 bntext.5 bnmotd.txt.5 bnissue.txt.5 bnnews.txt.5
 CONFS		= ad.list bnetd.conf bnetd_default_user bnmotd.txt bnbitsmotd.txt bnissue.txt channel.list news.txt bnban bnhelp bnbitspasswd gametrans autoupdate versioncheck realm.list d2cs.conf d2dbs.conf bnmaps.txt bnxplevel.txt bnxpcalc.txt d2gstrans
-SHARES		= ad000001.pcx ad000001.mng ad000004.mng ad000666.mng icons.bni tos.txt TOS_USA.TXT bnserver-WAR3.ini newbie.save IX86ver1.mpq bnserver.ini bnserver-D2DV.ini termsofservice-default.txt termsofservice-enUS.txt matchmaking-war3-enUS.dat matchmaking-war3-default.dat newaccount-default.txt newaccount-enUS.txt chathelp-war3-default.txt chathelp-war3-enUS.txt
+SHARES		= ad000001.pcx ad000001.mng ad000004.mng ad000666.mng icons.bni tos.txt tos-unicode_USA.txt TOS_USA.TXT bnserver-WAR3.ini newbie.save IX86ver1.mpq bnserver.ini bnserver-D2DV.ini termsofservice-default.txt termsofservice-enUS.txt matchmaking-war3-enUS.dat matchmaking-war3-default.dat newaccount-default.txt newaccount-enUS.txt chathelp-war3-default.txt chathelp-war3-enUS.txt
 OTHERRM		= ${sbnetd_OBJECTS} ${sbnetd_SBIN} ${timetest_BIN} ${listtest_BIN} ${hashtabletest_BIN} ${addrtest_BIN} ${SRC_ACDIR}/ansi2knr ${SRC_ACDIR}/ansi2knr.o @ANSI2KNR_TMP@
 DIRS		= ${SRC_BINDIR} ${SRC_SBINDIR}
 
