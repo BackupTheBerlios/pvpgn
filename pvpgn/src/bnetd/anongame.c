@@ -115,7 +115,9 @@
 
 #define MAX_LEVEL 100
 
-static t_list * mapnames[ANONGAME_TYPES];
+static t_list * mapnames_war3[ANONGAME_TYPES];
+static t_list * mapnames_w3xp[ANONGAME_TYPES];
+
 // [quetzal] 20020827 - this one get modified by anongame_queue player when there're enough
 // players and map has been chosen based on their preferences. otherwise its NULL
 static char *mapname = NULL;
@@ -281,121 +283,153 @@ extern int anongame_matchmaking_create(void)
 
 extern int anongame_maplists_create(void)
 {
-	FILE *mapfd;
-	char buffer[256];
-	int len, i, type;
-	char *p, *q, *r, *mapname;
+   FILE *mapfd;
+   char buffer[256];
+   int len, i, type;
+   char *p, *q, *r, *mapname, *u;
+   t_list * * mapnames;
 
-	if (prefs_get_mapsfile() == NULL) {
-		eventlog(eventlog_level_error, "anongame_maplists_create","invalid mapsfile, check your config");
-		return -1;
+   if (prefs_get_mapsfile() == NULL) {
+      eventlog(eventlog_level_error, "anongame_maplists_create","invalid mapsfile, check your config");
+      return -1;
+   }
+   
+   if ((mapfd = fopen(prefs_get_mapsfile(), "rt")) == NULL) {
+      eventlog(eventlog_level_error, "anongame_maplists_create", "could not open mapsfile : \"%s\"", prefs_get_mapsfile());
+      return -1;
+   }
+   
+   /* init the maps, they say static vars are 0-ed anyway but u never know :) */
+   for(i=0; i < ANONGAME_TYPES; i++) {
+      mapnames_war3[i] = NULL;
+      mapnames_w3xp[i] = NULL;
+   }
+   
+   while(fgets(buffer, 256, mapfd)) {
+      len = strlen(buffer);
+      if (len < 1) continue;
+      if (buffer[len-1] == '\n') {
+	 buffer[len-1] = '\0';
+	 len--;
+      }
+      
+      /* search for comments and comment them out */
+      for(p = buffer; *p ; p++) 
+	if (*p == '#') {
+	   *p = '\0';
+	   break;
 	}
+      
+      /* skip spaces and/or tabs */
+      for(p = buffer; *p && ( *p == ' ' || *p == '\t' ); p++);
+      if (*p == '\0') continue;
+      
+      /* find next delimiter */
+      for(q = p; *q && *q != ' ' && *q != '\t'; q++);
+      if (*q == '\0') continue;
+      
+      *q = '\0';
+      
+      /* skip spaces and/or tabs */
+      for (q++ ; *q && ( *q == ' ' || *q == '\t'); q++);
+      if (*q == '\0') continue;
+      
+      /* find next delimiter */
+      for (r = q+1; *r && *r != ' ' && *r != '\t'; r++);
+      
+      *r = '\0';
+      
+      /* skip spaces and/or tabs */
+      for (r++ ; *r && ( *r == ' ' || *r == '\t'); r++);
+      if (*r == '\0') continue;
+      
+      /* find next delimiter */
+      for (u = r+1; *u && *u != ' ' && *u != '\t'; u++);
+      
+      *u = '\0';
+      
+      if (strcmp(p, CLIENTTAG_WARCRAFT3) == 0)
+	mapnames = mapnames_war3;
+      else if (strcmp(p, CLIENTTAG_WAR3XP) == 0)
+	mapnames = mapnames_w3xp;
+      else continue; /* invalid clienttag */
 
-	if ((mapfd = fopen(prefs_get_mapsfile(), "rt")) == NULL) {
-		eventlog(eventlog_level_error, "anongame_maplists_create", "could not open mapsfile : \"%s\"", prefs_get_mapsfile());
-		return -1;
-	}
+      if ((type = _anongame_type_getid(q)) < 0) continue; /* invalid game type */
+      if (type >= ANONGAME_TYPES) {
+	 eventlog(eventlog_level_error, "anongame_maplists_create", "invalid game type: %d", type);
+	 anongame_maplists_destroy();
+	 fclose(mapfd);
+	 return -1;
+      }
 
-	/* init the maps, they say static vars are 0-ed anyway but u never know :) */
-	for(i=0; i < ANONGAME_TYPES; i++)
-		mapnames[i] = NULL;
-
-	while(fgets(buffer, 256, mapfd)) {
-		len = strlen(buffer);
-		if (len < 1) continue;
-		if (buffer[len-1] == '\n') {
-			buffer[len-1] = '\0';
-			len--;
-		}
-
-		/* search for comments and comment them out */
-		for(p = buffer; *p ; p++) 
-			if (*p == '#') {
-				*p = '\0';
-				break;
-			}
-
-			/* skip spaces and/or tabs */
-			for(p = buffer; *p && ( *p == ' ' || *p == '\t' ); p++);
-			if (*p == '\0') continue;
-
-			/* find next delimiter */
-			for(q = p; *q && *q != ' ' && *q != '\t'; q++);
-			if (*q == '\0') continue;
-
-			*q = '\0';
-
-			/* skip spaces and/or tabs */
-			for (q++ ; *q && ( *q == ' ' || *q == '\t'); q++);
-			if (*q == '\0') continue;
-
-			/* find next delimiter */
-			for (r = q+1; *r && *r != ' ' && *r != '\t'; r++);
-
-			*r = '\0';
-
-			if ((type = _anongame_type_getid(p)) < 0) continue; /* invalid game type */
-			if (type >= ANONGAME_TYPES) {
-				eventlog(eventlog_level_error, "anongame_maplists_create", "invalid game type: %d", type);
-				anongame_maplists_destroy();
-				fclose(mapfd);
-				return -1;
-			}
-
-			if ((mapname = strdup(q)) == NULL) {
-				eventlog(eventlog_level_error, "anongame_maplists_create", "could not duplicate map name \"%s\"", q);
-				anongame_maplists_destroy();
-				fclose(mapfd);
-				return -1;
-			}
-
-			if (mapnames[type] == NULL) { /* uninitialized map name list */
-				if ((mapnames[type] = list_create()) == NULL) {
-					eventlog(eventlog_level_error, "anongame_maplists_create", "could not create list for type : %d", type);
-					free(mapname);
-					anongame_maplists_destroy();
-					fclose(mapfd);
-					return -1;
-				}
-			}
-
-			if (list_append_data(mapnames[type], mapname) < 0) {
-				eventlog(eventlog_level_error, "anongame_maplists_create" , "coould not add map to the list (map: \"%s\")", mapname);
-				free(mapname);
-				anongame_maplists_destroy();
-				fclose(mapfd);
-				return -1;
-			}
-
-			eventlog(eventlog_level_debug, "anongame_maplists_create", "loaded map: \"%s\" of type \"%s\" : %d", mapname, p, type);
-
-	}
-
-	fclose(mapfd);
-
-	return 0; // anongame_matchmaking_create(); disabled cause matchmaking format changed from 1.03 to 1.04
+      if ((mapname = strdup(r)) == NULL) {
+	 eventlog(eventlog_level_error, "anongame_maplists_create", "could not duplicate map name \"%s\"", r);
+	 anongame_maplists_destroy();
+	 fclose(mapfd);
+	 return -1;
+      }
+      
+      if (mapnames[type] == NULL) { /* uninitialized map name list */
+	 if ((mapnames[type] = list_create()) == NULL) {
+	    eventlog(eventlog_level_error, "anongame_maplists_create", "could not create list for type : %d", type);
+	    free(mapname);
+	    anongame_maplists_destroy();
+	    fclose(mapfd);
+	    return -1;
+	 }
+      }
+      
+      if (list_append_data(mapnames[type], mapname) < 0) {
+	 eventlog(eventlog_level_error, "anongame_maplists_create" , "coould not add map to the list (map: \"%s\")", mapname);
+	 free(mapname);
+	 anongame_maplists_destroy();
+	 fclose(mapfd);
+	 return -1;
+      }
+      
+      eventlog(eventlog_level_debug, "anongame_maplists_create", "loaded map: \"%s\" for \"%s\" of type \"%s\" : %d", mapname, p, q, type);
+      
+   }
+   
+   fclose(mapfd);
+   
+   return 0; // anongame_matchmaking_create(); disabled cause matchmaking format changed from 1.03 to 1.04
 }
 
 extern void anongame_maplists_destroy()
 {
-	t_elem *curr;
-	char *mapname;
-	int i;
+   t_elem *curr;
+   char *mapname;
+   int i;
+   
+   for(i = 0; i < ANONGAME_TYPES; i++) {
+      if (mapnames_war3[i]) {
+	 LIST_TRAVERSE(mapnames_war3[i], curr) {
+	    if ((mapname = elem_get_data(curr)) == NULL)
+	      eventlog(eventlog_level_error, "anongame_maplists_destroy", "found NULL mapname");
+	    else
+	      free(mapname);
+	    
+	    list_remove_elem(mapnames_war3[i], curr);
+	 }
+	 list_destroy(mapnames_war3[i]);
+      }
+      mapnames_war3[i] = NULL;
 
-	for(i = 0; i < ANONGAME_TYPES; i++) {
-		if (mapnames[i]) {
-			LIST_TRAVERSE(mapnames[i], curr) {
-				if ((mapname = elem_get_data(curr)) == NULL)
-					eventlog(eventlog_level_error, "anongame_maplists_destroy", "found NULL mapname");
-				else
-					free(mapname);
-
-				list_remove_elem(mapnames[i], curr);
-			}
-			list_destroy(mapnames[i]);
-		}
-		mapnames[i] = NULL;
-	}
+      if (mapnames_w3xp[i]) {
+	 LIST_TRAVERSE(mapnames_w3xp[i], curr) {
+	    if ((mapname = elem_get_data(curr)) == NULL)
+	      eventlog(eventlog_level_error, "anongame_maplists_destroy", "found NULL mapname");
+	    else
+	      free(mapname);
+	    
+	    list_remove_elem(mapnames_w3xp[i], curr);
+	 }
+	 list_destroy(mapnames_w3xp[i]);
+      }
+      mapnames_w3xp[i] = NULL;
+      
+   }
 }
 
 /* Function not called anymore - CreepLord
@@ -472,26 +506,45 @@ int _anongame_level_by_gametype(t_connection *c, t_uint8 gametype)
 }
 
 // [quetzal] 20020815
-char *_get_map_from_prefs(int gametype, t_uint32 cur_prefs)
+char *_get_map_from_prefs(int gametype, t_uint32 cur_prefs, const char * clienttag)
 {
-	int i, j = 0;
+   int i, j = 0;
+   char * default_map, *selected;
+   char *res_maps[32];
+   t_list * * mapnames;
 
-	static char default_map[] = "Maps\\(8)PlainsOfSnow.w3m";
+   if (clienttag)
+     if (strcmp(clienttag, CLIENTTAG_WARCRAFT3) == 0) {
+	mapnames = mapnames_war3;
+	default_map = "Maps\\(8)PlainsOfSnow.w3m";
+     } else if (strcmp(clienttag, CLIENTTAG_WAR3XP) == 0) {
+	mapnames = mapnames_w3xp;
+	default_map = "Maps\\FrozenThrone\\Beta\\(6)WheelofChaos.w3x";
+     } else {
+	eventlog(eventlog_level_error, __FUNCTION__, "invalid clienttag : %s", clienttag);
+	return "Maps\\(8)PlainsOfSnow.w3m";
+     }
+   else {
+      eventlog(eventlog_level_error, __FUNCTION__, "got NULL clienttag");
+      return "Maps\\(8)PlainsOfSnow.w3m";
+   }
+   
+   for (i = 0; i < 32; i++) res_maps[i] = NULL;
+   
+   for (i = 0; i < 32; i++) {
+      if (cur_prefs & 1) {
+	 res_maps[j++] = list_get_data_by_pos(mapnames[gametype], i);
+      }
+      cur_prefs >>= 1;
+   }
 
-	char *res_maps[32];
-	for (i = 0; i < 32; i++) res_maps[i] = NULL;
+   i = rand() % j;
+   if (res_maps[i]) selected = res_maps[i];
+   else selected = default_map;
 
-	for (i = 0; i < 32; i++) {
-		if (cur_prefs & 1) {
-			res_maps[j++] = list_get_data_by_pos(mapnames[gametype], i);
-		}
-		cur_prefs >>= 1;
-	}
-	i = rand() % j;
-	eventlog(eventlog_level_debug, "_get_map_from_prefs", "got map %s from prefs", 
-		res_maps[i]);
-	if (res_maps[i]) return res_maps[i];
-	else return default_map;
+   eventlog(eventlog_level_debug, "_get_map_from_prefs", "got map %s from prefs", 
+	    selected);
+   return selected;
 }
 
 static int anongame_queue_player(t_connection * c, t_uint8 gametype, t_uint32 map_prefs)
@@ -617,7 +670,7 @@ static int anongame_queue_player(t_connection * c, t_uint8 gametype, t_uint32 ma
 					for (i = 0; i < players[gametype]; i++) {
 						anongame_unqueue_player(player[gametype][i], gametype);
 					}
-					mapname = _get_map_from_prefs(gametype, cur_prefs);
+					mapname = _get_map_from_prefs(gametype, cur_prefs, conn_get_clienttag(c));
 					return 0;
 				}
 				eventlog(eventlog_level_error, "anongame_get_player", "Found teams, but was unable to form players array");
@@ -648,7 +701,7 @@ static int anongame_queue_player(t_connection * c, t_uint8 gametype, t_uint32 ma
 						for (i = 0; i < players[gametype]; i++) {
 							anongame_unqueue_player(player[gametype][i], gametype);
 						}
-						mapname = _get_map_from_prefs(gametype, cur_prefs);
+						mapname = _get_map_from_prefs(gametype, cur_prefs, conn_get_clienttag(c));
 						return 0;
 					}
 				    }
@@ -928,20 +981,13 @@ extern void handle_anongame_search(t_connection * c, t_packet const * packet)
 		bn_int_set(&rpacket->u.server_anongame_found.count,anongame_get_count(conn_get_anongame(player[gametype][i])));
 		bn_int_set(&rpacket->u.server_anongame_found.unknown1,0);
 		
-		if (strcmp(conn_get_clienttag(c), CLIENTTAG_WAR3XP) == 0)
-		    mapname = "Maps\\FrozenThrone\\Beta\\(4)TurtleRock.w3x";
-		
 		bn_int_set(&rpacket->u.server_anongame_found.ip,w3routeip);
 		bn_short_set(&rpacket->u.server_anongame_found.port,w3routeport);
 		bn_byte_set(&rpacket->u.server_anongame_found.numplayers,anongame_totalplayers(gametype));
 		bn_byte_set(&rpacket->u.server_anongame_found.playernum, i+1);
 		bn_byte_set(&rpacket->u.server_anongame_found.gametype,gametype);
 		bn_byte_set(&rpacket->u.server_anongame_found.unknown2,0);
-		{
-		    int id;
-		    id = (int)((double)rand() / RAND_MAX * 0x10000000);
-		    bn_int_set(&rpacket->u.server_anongame_found.id,id);
-		}
+		bn_int_set(&rpacket->u.server_anongame_found.id,0xdeadbeef);
 		bn_byte_set(&rpacket->u.server_anongame_found.unknown4,6);
 		bn_short_set(&rpacket->u.server_anongame_found.unknown5,0);
 
@@ -1202,7 +1248,7 @@ extern int handle_w3route_packet(t_connection * c, t_packet const * const packet
 	 
 	 packet_set_size(rpacket,sizeof(t_server_w3route_ready));
 	 packet_set_type(rpacket,SERVER_W3ROUTE_READY);
-	 bn_byte_set(&rpacket->u.server_w3route_host.unknown1,0);
+	 bn_byte_set(&rpacket->u.server_w3route_host.unknown1, i+1);
 	 queue_push_packet(conn_get_out_queue(conn_get_routeconn(anongame_get_player(a, i))),rpacket);
 	 packet_del_ref(rpacket);
       }

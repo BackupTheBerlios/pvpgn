@@ -1,58 +1,73 @@
 # This file contains the list of map names for use with
-# anongames Wacraft 3 (Play Game/Arranged Teams)
+# anongames Wacraft 3 (Play Game/Arranged Teams) and Warcraft 3 Expansion
 # This file accepts comments starting with # and separators with space and tabs
 #
 # the format is simple, 2 columns see bellow
 #
-# <gametype>		<mapname>
+# <client>	<gametype>		<mapname>
 
-1v1		Maps\(2)PlunderIsle.w3m
-1v1		Maps\(4)Frostsabre.w3m
-1v1		Maps\(4)Legends.w3m
-1v1		Maps\(4)LostTemple.w3m
-1v1		Maps\(4)TranquilPaths.w3m
-1v1		Maps\(6)GnollWood.w3m
-1v1		Maps\(6)Moonglade.w3m
-1v1		Maps\(6)ScorchedBasin.w3m
+######### WARCRAFT 3 REIGN OF CHAOS #################
 
-2v2		Maps\(4)Duskwood.w3m
-2v2		Maps\(4)HarvestMoon.w3m
-2v2		Maps\(6)Stromguarde.w3m
-2v2		Maps\(6)SwampOfSorrows.w3m
-2v2		Maps\(8)GolemsInTheMist.w3m
-2v2		Maps\(8)TheCrucible.w3m
+WAR3		1v1		Maps\(2)PlunderIsle.w3m
+WAR3		1v1		Maps\(4)Frostsabre.w3m
+WAR3		1v1		Maps\(4)Legends.w3m
+WAR3		1v1		Maps\(4)LostTemple.w3m
+WAR3		1v1		Maps\(4)TranquilPaths.w3m
+WAR3		1v1		Maps\(6)GnollWood.w3m
+WAR3		1v1		Maps\(6)Moonglade.w3m
+WAR3		1v1		Maps\(6)ScorchedBasin.w3m
 
-3v3		Maps\(6)DarkForest.w3m
-3v3		Maps\(6)DragonFire.w3m
-3v3		Maps\(6)TimbermawHold.w3m
-3v3		Maps\(8)Battleground.w3m
-3v3		Maps\(8)PlainsOfSnow.w3m
+WAR3		2v2		Maps\(4)Duskwood.w3m
+WAR3		2v2		Maps\(4)HarvestMoon.w3m
+WAR3		2v2		Maps\(6)Stromguarde.w3m
+WAR3		2v2		Maps\(6)SwampOfSorrows.w3m
+WAR3		2v2		Maps\(8)GolemsInTheMist.w3m
+WAR3		2v2		Maps\(8)TheCrucible.w3m
 
-4v4		Maps\(8)BlastedLands.w3m
-4v4		Maps\(8)BloodvenomFalls.w3m
-4v4		Maps\(8)GardenOfWar.w3m
-4v4		Maps\(8)PetrifiedForest.w3m
+WAR3		3v3		Maps\(6)DarkForest.w3m
+WAR3		3v3		Maps\(6)DragonFire.w3m
+WAR3		3v3		Maps\(6)TimbermawHold.w3m
+WAR3		3v3		Maps\(8)Battleground.w3m
+WAR3		3v3		Maps\(8)PlainsOfSnow.w3m
+
+WAR3		4v4		Maps\(8)BlastedLands.w3m
+WAR3		4v4		Maps\(8)BloodvenomFalls.w3m
+WAR3		4v4		Maps\(8)GardenOfWar.w3m
+WAR3		4v4		Maps\(8)PetrifiedForest.w3m
 
 # Small FFA
-sffa		Maps\(4)MysticIsles.w3m
+WAR3		sffa		Maps\(4)MysticIsles.w3m
 
 # Arranged Teams 2v2
-at2v2		Maps\(4)Duskwood.w3m
-at2v2		Maps\(4)HarvestMoon.w3m
-at2v2		Maps\(6)Stromguarde.w3m
-at2v2		Maps\(6)SwampOfSorrows.w3m
-at2v2		Maps\(8)GolemsInTheMist.w3m
-at2v2		Maps\(8)TheCrucible.w3m
-
+WAR3		at2v2		Maps\(4)Duskwood.w3m
+WAR3		at2v2		Maps\(4)HarvestMoon.w3m
+WAR3		at2v2		Maps\(6)Stromguarde.w3m
+WAR3		at2v2		Maps\(6)SwampOfSorrows.w3m
+WAR3		at2v2		Maps\(8)GolemsInTheMist.w3m
+WAR3		at2v2		Maps\(8)TheCrucible.w3m
 # Arranged Teams 3v3
-at3v3		Maps\(6)DarkForest.w3m
-at3v3		Maps\(6)DragonFire.w3m
-at3v3		Maps\(6)TimbermawHold.w3m
-at3v3		Maps\(8)Battleground.w3m
-at3v3		Maps\(8)PlainsOfSnow.w3m
+WAR3		at3v3		Maps\(6)DarkForest.w3m
+WAR3		at3v3		Maps\(6)DragonFire.w3m
+WAR3		at3v3		Maps\(6)TimbermawHold.w3m
+WAR3		at3v3		Maps\(8)Battleground.w3m
+WAR3		at3v3		Maps\(8)PlainsOfSnow.w3m
 
 # Arranged Teams 4v4
-at4v4		Maps\(8)BlastedLands.w3m
-at4v4		Maps\(8)BloodvenomFalls.w3m
-at4v4		Maps\(8)GardenOfWar.w3m
-at4v4		Maps\(8)PetrifiedForest.w3m
+WAR3		at4v4		Maps\(8)BlastedLands.w3m
+WAR3		at4v4		Maps\(8)BloodvenomFalls.w3m
+WAR3		at4v4		Maps\(8)GardenOfWar.w3m
+WAR3		at4v4		Maps\(8)PetrifiedForest.w3m
+
+######### WARCRAFT 3 THE FROZEN THRONE BETA #################
+
+W3XP		1v1		Maps\FrozenThrone\Beta\(4)TurtleRock.w3x
+W3XP		1v1		Maps\FrozenThrone\Beta\(4)HailStone.w3x
+W3XP		1v1		Maps\FrozenThrone\Beta\(4)IceFlow.w3x
+W3XP		1v1		Maps\FrozenThrone\Beta\(4)Whirlwind.w3x
+W3XP		1v1		Maps\FrozenThrone\Beta\(4)Islands.w3x
+
+W3XP		2v2		Maps\FrozenThrone\Beta\(4)Islands.w3x
+W3XP		2v2		Maps\FrozenThrone\Beta\(4)Tanaris.w3x
+W3XP		2v2		Maps\FrozenThrone\Beta\(4)BridgetooNear.w3x
+W3XP		2v2		Maps\FrozenThrone\Beta\(6)WheelofChaos.w3x
+W3XP		2v2		Maps\FrozenThrone\Beta\(6)StranglethornVale.w3x
