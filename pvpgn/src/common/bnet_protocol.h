@@ -476,6 +476,17 @@ typedef struct
         bn_int       race;
 } t_client_findanongame_at PACKED_ATTR();
 
+#define SERVER_FINDANONGAME_ICONREPLY		0x44ff
+typedef struct{
+  t_bnet_header		h;
+  bn_byte		option;			/* as received from client */
+  bn_int		count;			/* as received from client */
+  bn_int		curricon;		/* current icon code */
+  bn_byte		table_width;		/* the icon table width */
+  bn_byte		table_size;		/* the icon table total size */
+  /* table data */
+} t_server_findanongame_iconreply PACKED_ATTR();
+
 //BlacKDicK 04/02/2003
 #define CLIENT_FINDANONGAME_INFOTAG_URL		0x55524c	//  URL\0
 #define CLIENT_FINDANONGAME_INFOTAG_MAP		0x4d4150	//  MAP\0
@@ -510,6 +521,8 @@ typedef struct
 #define CLIENT_FINDANONGAME_PROFILE		0x04 // 5/24/02 THEUNDYING
 #define CLIENT_FINDANONGAME_AT_SEARCH		0x05	// [zap-zero] 20020820
 #define CLIENT_FINDANONGAME_AT_INVITER_SEARCH	0x06	// [zap-zero] 20020820
+#define CLIENT_FINDANONGAME_GET_ICON		0x09	// BlacKDicK
+#define CLIENT_FINDANONGAME_SET_ICON		0x0A	// BlacKDicK
 
 #define ANONGAME_TYPE_1V1	0
 #define ANONGAME_TYPE_2V2	1
@@ -3232,6 +3245,7 @@ typedef struct
 #define W3_ICON_ORCS				2
 #define W3_ICON_UNDEAD				3 // - Although when client presses undead in PG and it sends "8" its "3" for icon
 #define W3_ICON_NIGHTELVES			4
+#define W3_ICON_DEMONS				5
 
 /* Icon setup  3RAW then <accounts level> <Race> <race wins> */
 /* Races: 1 = human, 2 = orc, 8 = undead, 4 = nightelf  32 = random */

@@ -401,6 +401,7 @@ typedef struct
 	
         t_client_w3xp_clan_inforeq              client_w3xp_clan_inforeq;
 	t_server_w3xp_clan_inforeply            server_w3xp_clan_inforeply;
+	t_server_findanongame_iconreply		server_findanongame_iconreply;
 	} u;
 } t_packet;
 
