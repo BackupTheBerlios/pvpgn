@@ -1026,8 +1026,17 @@ extern int anongame_unqueue(t_connection * c, int queue)
 	}
     }
     
-    eventlog(eventlog_level_error,__FUNCTION__, "[%d] player not found in queue", conn_get_socket(c));
-    return -1;
+    /* Output error to log for PG queues, AT players are queued with single
+     * entry. Because anongame_unqueue() is called for each player, only the first
+     * time called will the team be removed, the rest are therefore not an error.
+     * [Omega]
+     */
+    if (anongame_arranged(queue) == 0) {
+	eventlog(eventlog_level_error,__FUNCTION__, "[%d] player not found in queue", conn_get_socket(c));
+	return -1;
+    }
+
+    return 0;
 }
 
 /**********/
