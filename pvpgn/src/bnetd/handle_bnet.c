@@ -1737,6 +1737,8 @@ static int _client_statsreq(t_connection * c, t_packet const * const packet)
 		      packet_append_string(rpacket,tval);
 		      account_unget_strattr(tval);
             }
+		else
+		packet_append_string(rpacket,"");
 		 }
 	       else
 	         {
