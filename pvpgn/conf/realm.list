@@ -10,17 +10,21 @@
 # it will use this by default.  You must enter IP Addresses in for both places.		#
 # There is no default									#
 #											#
-# ip:port - actual ip the d2cs server is running on					#
-# showip:showport - ip sent to client (may be same as ip:port)				#
+# <realmname> : the realm name (mandatory; must start and end with " )			#
+# <description> : the realm description (optional; must start and end with " )		#
+# ip:port - actual ip the d2cs server is running on (mandatory)				#
+# showip:showport - ip sent to client (optional)    					#
 #											#
 # use showip:showport if you are forwarding to a d2cs server behind a gateway on a	#
 # private lan.										#
 #											#
 #-realm name-	----description----	------ip:port------	--showip:showport--	#
-#											#
+#		   (optional)					   (optional)		#
 #---------------------------------------------------------------------------------------#
-
-#"D2CS"		"PvPGN Closed Realm"	xxx.xxx.xxx.xxx:6113	xxx.xxx.xxx.xxx:6113
-
+# "<realmname>"    ["<description>"]     <real-address>          <show-address>		#
 #											#
 #########################################################################################
+
+# Example:
+#"D2CS"		"PvPGN Closed Realm"	xxx.xxx.xxx.xxx:6113	xxx.xxx.xxx.xxx:6113
+
