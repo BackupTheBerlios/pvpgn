@@ -1543,9 +1543,9 @@ extern int conn_set_flags(t_connection * c, unsigned int flags)
         return -1;
     }
 
-    if (flags!=c->protocol.flags && c->protocol.chat.channel) {
+    if (flags!=c->protocol.flags) {
 	c->protocol.flags = flags;
-	channel_update_userflags(c);
+	if (c->protocol.chat.channel) channel_update_userflags(c);
     }
 
     return 0;
