@@ -279,7 +279,8 @@ BOOL dbs_server_read_data(t_d2dbs_connection* conn)
 		if (errlen==0 || err==PSOCK_EAGAIN) {
 			return TRUE;
 		} else {
-			eventlog(eventlog_level_error,__FUNCTION__,"psock_recv() failed : %s",strerror(err ? err : errno2));
+			err = err ? err : errno2;
+			eventlog(eventlog_level_error,__FUNCTION__,"psock_recv() failed : %s(%d)",strerror(err),err);
 			return FALSE;
 		}
 	}
@@ -313,7 +314,8 @@ BOOL dbs_server_write_data(t_d2dbs_connection* conn)
 		if (errlen==0 || err==PSOCK_EAGAIN) {
 			return TRUE;
 		} else {
-			eventlog(eventlog_level_error,__FUNCTION__,"psock_send() failed : %s",strerror(err ? err : errno2));
+			err = err ? err : errno2;
+			eventlog(eventlog_level_error,__FUNCTION__,"psock_send() failed : %s(%d)",strerror(err), err);
 			return FALSE;
 		}
 	}
@@ -472,7 +474,8 @@ void dbs_server_loop(int lsocket)
 
 				if (psock_getsockopt(it->sd, PSOCK_SOL_SOCKET, PSOCK_SO_ERROR, &err, &errlen)==0) {
 					if (errlen && err!=0) {
-						eventlog(eventlog_level_error,__FUNCTION__,"data socket error : %s",strerror(err ? err : errno2));
+						err = err ? err : errno2;
+						eventlog(eventlog_level_error,__FUNCTION__,"data socket error : %s(%d)",strerror(err),err);
 					}
 				}
 				dbs_server_shutdown_connection(it);
