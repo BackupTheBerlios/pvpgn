@@ -319,7 +319,7 @@ static const t_htable_row bnet_htable_con[] = {
      { CLIENT_CDKEY3,           _client_cdkey3},
      { CLIENT_UDPOK,            _client_udpok},
      { CLIENT_FILEINFOREQ,      _client_fileinforeq},
-     { CLIENT_STATSREQ,         _client_statsreq},
+     // { CLIENT_STATSREQ,         _client_statsreq},
      { CLIENT_PINGREQ,          _client_pingreq},
      { CLIENT_LOGINREQ1,        _client_loginreq1},
      { CLIENT_LOGINREQ2,        _client_loginreq2},
@@ -1813,20 +1813,20 @@ static int _client_statsreq(t_connection * c, t_packet const * const packet)
 	     for (j=0,key_off=keys_off;
 		  j<key_count && (key = packet_get_str_const(packet,key_off,MAX_ATTRKEY_STR));
 		  j++,key_off+=strlen(key)+1)
-	       if (account && (tval = account_get_strattr(account,key)))
+	       if (account && (strstart(key,"BNET\\auth")!=0) && (tval = account_get_strattr(account,key)))
 		 {
 		    packet_append_string(rpacket,tval);
 		    account_unget_strattr(tval);
 		 }
-	     else
-	       {
-		  packet_append_string(rpacket,""); /* FIXME: what should really happen here? */
-		  if (account && key[0]!='\0')
-		    {
-		       eventlog(eventlog_level_debug,__FUNCTION__,"[%d] no entry \"%s\" in account \"%s\"",conn_get_socket(c),key,(tname = account_get_name(account)));
-		       account_unget_name(tname);
-		    }
-	       }
+	       else
+	         {
+		    packet_append_string(rpacket,""); /* FIXME: what should really happen here? */
+		    if (account && key[0]!='\0')
+		      {
+		         eventlog(eventlog_level_debug,__FUNCTION__,"[%d] no entry \"%s\" in account \"%s\" or access denied",conn_get_socket(c),key,(tname = account_get_name(account)));
+		         account_unget_name(tname);
+		      }
+	         }
 	  }
 	queue_push_packet(conn_get_out_queue(c),rpacket);
 	packet_del_ref(rpacket);
