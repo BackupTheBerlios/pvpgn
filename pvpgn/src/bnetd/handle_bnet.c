@@ -582,10 +582,10 @@ static int _client_countryinfo109(t_connection * c, t_packet const * const packe
 		 tzbias,uint32_to_int(tzbias),
 		 bn_int_get(packet->u.client_countryinfo_109.lcid),
 		 bn_int_get(packet->u.client_countryinfo_109.langid),
-		 tag_uint_to_str(&archtag_str[0],bn_int_get(packet->u.client_countryinfo_109.archtag)),
-		 tag_uint_to_str(&clienttag_str[0],bn_int_get(packet->u.client_countryinfo_109.clienttag)),
+		 tag_uint_to_str(archtag_str,bn_int_get(packet->u.client_countryinfo_109.archtag)),
+		 tag_uint_to_str(clienttag_str,bn_int_get(packet->u.client_countryinfo_109.clienttag)),
 		 bn_int_get(packet->u.client_countryinfo_109.versionid),
-		 tag_uint_to_str(&gamelang_str[0],bn_int_get(packet->u.client_countryinfo_109.gamelang)));
+		 tag_uint_to_str(gamelang_str,bn_int_get(packet->u.client_countryinfo_109.gamelang)));
 	
 	eventlog(eventlog_level_debug,__FUNCTION__,"[%d] COUNTRYINFO_109 packet from \"%s\" \"%s\"", conn_get_socket(c),countryname,langstr);
 	

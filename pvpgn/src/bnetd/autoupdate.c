@@ -247,7 +247,7 @@ extern char * autoupdate_check(t_tag archtag, t_tag clienttag, t_tag gamelang, c
 		char * tempmpq;
 		char * extention;
 		
-		tag_uint_to_str(&gltag[0],gamelang);
+		tag_uint_to_str(gltag,gamelang);
 		tempmpq = strdup(entry->mpqfile);
 		
 		if (!(temp = malloc(strlen(tempmpq)+6))) {

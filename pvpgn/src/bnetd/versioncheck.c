@@ -95,8 +95,8 @@ extern t_versioncheck * versioncheck_create(t_tag archtag, t_tag clienttag)
         }
 	
 	eventlog(eventlog_level_debug,__FUNCTION__,"version check entry archtag=%s, clienttag=%s",
-	    tag_uint_to_str(&archtag_str[0],vi->archtag),
-	    tag_uint_to_str(&clienttag_str[0],vi->clienttag));
+	    tag_uint_to_str(archtag_str,vi->archtag),
+	    tag_uint_to_str(clienttag_str,vi->clienttag));
 	
 	if (vi->archtag != archtag)
 	    continue;
@@ -122,7 +122,7 @@ extern t_versioncheck * versioncheck_create(t_tag archtag, t_tag clienttag)
 	    free(vc);
 	    return &dummyvc;
 	}
-	vc->versiontag = strdup(tag_uint_to_str(&clienttag_str[0],clienttag));
+	vc->versiontag = strdup(tag_uint_to_str(clienttag_str,clienttag));
 	
 	return vc;
     }

@@ -1213,7 +1213,7 @@ extern void conn_set_archtag(t_connection * c, t_tag archtag)
 	return;
     }
     if (c->protocol.client.archtag!=archtag)
-	eventlog(eventlog_level_info,__FUNCTION__,"[%d] setting client arch to \"%s\"",conn_get_socket(c),tag_uint_to_str(&archtag_str[0],archtag));
+	eventlog(eventlog_level_info,__FUNCTION__,"[%d] setting client arch to \"%s\"",conn_get_socket(c),tag_uint_to_str(archtag_str,archtag));
     
     c->protocol.client.archtag = archtag;
 }
@@ -1247,7 +1247,7 @@ extern void conn_set_gamelang(t_connection * c, t_tag gamelang)
 	return;
     }
     if (c->protocol.client.gamelang!=gamelang)
-	eventlog(eventlog_level_info,__FUNCTION__,"[%d] setting client gamelang to \"%s\"",conn_get_socket(c),tag_uint_to_str(&gamelang_str[0],gamelang));
+	eventlog(eventlog_level_info,__FUNCTION__,"[%d] setting client gamelang to \"%s\"",conn_get_socket(c),tag_uint_to_str(gamelang_str,gamelang));
 
     c->protocol.client.gamelang = gamelang;
 }

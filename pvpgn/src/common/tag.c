@@ -115,11 +115,11 @@ extern t_tag tag_str_to_uint(char const * tag_str)
  * from calling function:
  *
  *    char tag_str[5]; // define first, then send into fuction
- *    tag_uint_to_str(&tag_str[0], tag_uint); // returns pointer to temp
+ *    tag_uint_to_str(tag_str, tag_uint); // returns pointer to tag_str
  *
  * Nothing to malloc, nothing to free
  */
-extern char * tag_uint_to_str(char tag_str[], t_tag tag_uint)
+extern char * tag_uint_to_str(char * tag_str, t_tag tag_uint)
 {
     if (!tag_uint) /* return "UNKN" if tag_uint = 0 */
 	return TAG_UNKNOWN;
