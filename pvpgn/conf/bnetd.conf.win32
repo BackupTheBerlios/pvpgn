@@ -281,7 +281,7 @@ disc_is_loss = false
 
 # List additional game types to be counted as ladder games
 # Curently allowed types: topvbot, melee, ffa, oneonone
-# Example: ladder_games = "tobvbot,oneonone"
+# Example: ladder_games = "topvbot,oneonone"
 ladder_games = "none"
 
 # Should all users be able to use the /con and /connections commands?
