@@ -698,7 +698,7 @@ static int _client_countryinfo109(t_connection * c, t_packet const * const packe
 	else if (bn_int_tag_eq(packet->u.client_countryinfo_109.clienttag,CLIENTTAG_WAR3XP)==0) {
 	   conn_set_clienttag(c,CLIENTTAG_WAR3XP);
 	   /* we activate the packet type mapper for this connection */
-	   conn_set_pmap(c, bnpmap_get_war3xptable());
+	   conn_set_pmap(c, bnpmap_get_war3xptable(bn_int_get(packet->u.client_countryinfo_109.versionid)));
 	}
 	else
 	  eventlog(eventlog_level_error,__FUNCTION__,"[%d] unknown client program type 0x%08x, don't expect this to work",conn_get_socket(c),bn_int_get(packet->u.client_countryinfo_109.clienttag));
