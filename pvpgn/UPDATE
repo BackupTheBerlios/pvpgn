@@ -29,6 +29,9 @@ changed config files:
 - conf/command_groups.conf : added new command /clearstats
 - conf/bnetd.conf : added new possible value for version_exeinfo_match, none 
     which disables exeinfo comparation and made that default
+- conf/bnetd.conf : added "ladder_games" parameter to specify additional game 
+    types to be counted as ladder games
+
 
 changes to d2cs.conf:
 ---------------------

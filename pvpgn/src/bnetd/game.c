@@ -620,6 +620,34 @@ static int game_evaluate_results(t_game * game)
   return 0;
 }
 
+static int game_match_type(t_game_type type,const char *gametypes)
+{
+    char *p, *q;
+    int res;
+
+    if (!gametypes || !gametypes[0]) return 0;
+
+    gametypes = p = xstrdup(gametypes);
+    res = 0;
+    do {
+	q = strchr(gametypes,',');
+	if (q) *q = '\0';
+	if (strcasecmp(p,"topvbot")) {
+	    if (type == game_type_topvbot) { res = 1; break; }
+	} else if (strcasecmp(p,"melee")) {
+	    if (type == game_type_melee) { res = 1; break; }
+	} else if (strcasecmp(p,"ffa")) {
+	    if (type == game_type_ffa) { res = 1; break; }
+	} else if (strcasecmp(p,"oneonone")) {
+	    if (type == game_type_oneonone) { res = 1; break; }
+	}
+	if (q) p = q + 1;
+    } while(q);
+
+    free((void*)gametypes);
+    return res;
+}
+
 static int game_report(t_game * game)
 {
     FILE *          fp;
@@ -720,21 +748,22 @@ static int game_report(t_game * game)
 	    return -1;
 	}
     }
-    
+
     eventlog(eventlog_level_debug,"game_report","realcount=%d count=%u",realcount,game->count);
-    
+
     if (realcount>=1 && !game->bad)
     {
 	if (game_get_type(game)==game_type_ladder ||
-	    game_get_type(game)==game_type_ironman)
+	    game_get_type(game)==game_type_ironman ||
+	    game_match_type(game_get_type(game),prefs_get_ladder_games()))
 	{
 	    t_ladder_id id;
-	    
-	    if (game_get_type(game)==game_type_ladder)
-		id = ladder_id_normal;
-	    else
+
+	    if (game_get_type(game)==game_type_ironman)
 		id = ladder_id_ironman;
-	    
+	    else
+		id = ladder_id_normal;
+
 	    for (i=0; i<realcount; i++)
 	    {
 		eventlog(eventlog_level_debug,"game_report","realplayer %u result=%u",i+1,(unsigned int)game->results[i]);
