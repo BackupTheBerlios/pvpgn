@@ -1207,7 +1207,12 @@ static int _handle_friends_command(t_connection * c, char const * text)
 	t_packet 	* rpacket;
 	t_connection 	* dest_c;
 	t_account    	* friend_acc;
-	char tmp[7];
+	t_server_friendslistreply_status status;
+	t_game * game;
+	t_channel * channel;
+        char stat;
+	t_list * flist;
+	t_friend * fr;
 
 	text = skip_command(text);
 
@@ -1253,17 +1258,48 @@ static int _handle_friends_command(t_connection * c, char const * text)
 	packet_set_type(rpacket,SERVER_FRIENDADD_ACK);
 
 	packet_append_string(rpacket, account_get_name(friend_acc));
-	memset(tmp, 0, 7);
-	if (dest_c!=NULL) {
-    	    if (conn_get_channel(dest_c)) 
-		tmp[1] = FRIENDSTATUS_CHAT;
-    	    else if (conn_get_game(dest_c)) 
-		tmp[1] = FRIENDSTATUS_GAME;
-    	    else
-		tmp[1] = FRIENDSTATUS_ONLINE;
-	}
 
-	packet_append_data(rpacket, tmp, 7);
+	game = NULL;
+        channel = NULL;
+
+	if(!(dest_c))
+          {
+	    bn_byte_set(&status.location,FRIENDSTATUS_OFFLINE);
+	    bn_byte_set(&status.status,0);
+            bn_int_set(&status.clienttag,0);
+          }
+	  else 
+          {
+	    bn_int_set(&status.clienttag, *((int const *)conn_get_clienttag(dest_c)));
+            stat = 0;
+	    flist = account_get_friends(my_acc);
+	    fr = friendlist_find_account(flist,friend_acc);
+            if ((friend_get_mutual(fr)))    stat |= FRIEND_TYPE_MUTUAL;
+            if ((conn_get_dndstr(dest_c)))  stat |= FRIEND_TYPE_DND;
+	    if ((conn_get_awaystr(dest_c))) stat |= FRIEND_TYPE_AWAY;
+	    bn_byte_set(&status.status,stat);
+            if((game = conn_get_game(dest_c))) 
+	      {
+	        if (game_get_flag_private(game)==0)
+		  bn_byte_set(&status.location,FRIENDSTATUS_PUBLIC_GAME);
+		else
+                  bn_byte_set(&status.location,FRIENDSTATUS_PRIVATE_GAME);
+	      }
+	    else if((channel = conn_get_channel(dest_c))) 
+	      {
+	        bn_byte_set(&status.location,FRIENDSTATUS_CHAT);
+	      }
+	    else 
+	      {
+		bn_byte_set(&status.location,FRIENDSTATUS_ONLINE);
+	      }
+          }
+
+	packet_append_data(rpacket, &status, sizeof(status));
+
+        if (game) packet_append_string(rpacket,game_get_name(game));
+	else if (channel) packet_append_string(rpacket,channel_get_name(channel));
+	else packet_append_string(rpacket,"");
 
 	conn_push_outqueue(c,rpacket);
 	packet_del_ref(rpacket);
