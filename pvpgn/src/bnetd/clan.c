@@ -994,7 +994,7 @@ extern int clanmember_set_offline(t_connection * c)
 	return -1;
     }
 
-    if ((acc = conn_get_account(c)) != NULL && ((member = account_get_clanmember(acc)) != NULL))
+    if ((acc = conn_get_account(c)) != NULL && ((member = account_get_clanmember_forced(acc)) != NULL))
     {
 	clanmember_set_connection(member, NULL);
 	clanmember_on_change_status(member);

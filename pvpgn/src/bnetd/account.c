@@ -1271,14 +1271,32 @@ extern int account_set_clanmember(t_account * account, t_clanmember * clanmember
 
 extern t_clanmember * account_get_clanmember(t_account * account)
 {
+    t_clanmember * member;
+    
     if(account==NULL)
     {
 	eventlog(eventlog_level_error,__FUNCTION__,"got NULL account");
 	return NULL;
     }
 
-    if(account->clanmember && clanmember_get_clan(account->clanmember) && (clan_get_created(clanmember_get_clan(account->clanmember)) > 0))
-	return account->clanmember;
+    if ((member = account->clanmember)&&(clanmember_get_clan(member))&&(clan_get_created(clanmember_get_clan(member)) > 0))
+	return member;
+    else
+	return NULL;
+}
+
+extern t_clanmember * account_get_clanmember_forced(t_account * account)
+{
+    t_clanmember * member;
+    
+    if(account==NULL)
+    {
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL account");
+	return NULL;
+    }
+
+    if ((member = account->clanmember) && (clanmember_get_clan(member)))
+	return member;
     else
 	return NULL;
 }

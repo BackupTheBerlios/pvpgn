@@ -126,6 +126,7 @@ extern t_list * account_get_friends(t_account * account);
 //clan thingy by DJP & Soar
 extern int account_set_clanmember(t_account * account, t_clanmember * clanmember);
 extern t_clanmember * account_get_clanmember(t_account * account);
+extern t_clanmember * account_get_clanmember_forced(t_account * account);
 extern t_clan * account_get_clan(t_account * account);
 extern t_clan * account_get_creating_clan(t_account * account);
 
