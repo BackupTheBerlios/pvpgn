@@ -2189,11 +2189,11 @@ static int _client_loginreqw3(t_connection * c, t_packet const * const packet)
 	  }
 	
 	// too many logins? [added by NonReal]
-	if (prefs_get_max_concurrent_logins()>0) {
-	   if (prefs_get_max_concurrent_logins()<=connlist_login_get_length()) {
-	      eventlog(eventlog_level_error,__FUNCTION__,"[%d] login denied, too many concurrent logins. max: %d. current: %d.",conn_get_socket(c),prefs_get_max_concurrent_logins(),connlist_login_get_length());
-	      bn_int_set(&rpacket->u.server_loginreply_w3.message,SERVER_LOGINREPLY_W3_MESSAGE_BADACCT);
-	   }
+	if (prefs_get_max_concurrent_logins()>0 && 
+	    prefs_get_max_concurrent_logins()<=connlist_login_get_length()) {
+
+	    eventlog(eventlog_level_error,__FUNCTION__,"[%d] login denied, too many concurrent logins. max: %d. current: %d.",conn_get_socket(c),prefs_get_max_concurrent_logins(),connlist_login_get_length());
+	    bn_int_set(&rpacket->u.server_loginreply_w3.message,SERVER_LOGINREPLY_W3_MESSAGE_BADACCT);
 	}
 	
 	/* already logged in */
