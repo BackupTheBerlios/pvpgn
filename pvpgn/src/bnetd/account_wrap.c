@@ -1935,6 +1935,8 @@ extern char const * race_get_str(unsigned int race)
 		return "undead";
 	case W3_ICON_RANDOM:
 		return "random";
+	case W3_ICON_DEMONS:
+		return "demons";
 	default:
 	    eventlog(eventlog_level_warn,"race_get_str","unknown race: %x", race);
 	    return NULL;
@@ -3037,4 +3039,78 @@ extern int account_get_icon_profile(t_account * account, char const * clienttag)
 				       // changed to Peon by Dizzy, this is how BNET does it
 
 	return profileicon[race][level];
+}
+
+//BlacKDicK 04/20/2003
+extern int account_set_user_icon( t_account * account, char const * clienttag,char const * usericon)
+{
+  char key[256];
+  sprintf(key,"Record\\%s\\userselected_icon",clienttag);
+  if (usericon)
+    return account_set_strattr(account,key,usericon);
+  else
+    return account_set_strattr(account,key,"NULL");
+}
+
+extern char const * account_get_user_icon( t_account * account, char const * clienttag )
+{
+  char key[256];
+  char const * retval;
+  sprintf(key,"Record\\%s\\userselected_icon",clienttag);
+  retval = account_get_strattr(account,key);
+
+  if (strcmp(retval,"NULL")!=0)
+    return retval;
+  else
+    return NULL;
+}
+
+extern unsigned int account_icon_to_profile_icon(char const * icon,t_account * account, char const * ctag)
+{
+	// Ramdom - Nothing, Grean Dragon Whelp, Azure Dragon (Blue Dragon), Red Dragon, Deathwing, Nothing
+	// Humans - Peasant, Footman, Knight, Archmage, Medivh, Nothing
+	// Orcs - Peon, Grunt, Tauren, Far Seer, Thrall, Nothing
+	// Undead - Acolyle, Ghoul, Abomination, Lich, Tichondrius, Nothing
+	// Night Elves - Wisp, Archer, Druid of the Claw, Priestess of the Moon, Furion Stormrage, Nothing
+	// Demons - Nothing, ???(wich unit is nfgn), Infernal, Doom Guard, Pit Lord/Manaroth, Archimonde
+	unsigned int profile_code[6][6] = {
+	{0,      'ngrd', 'nadr', 'nrdr', 'nbwm', 0},
+	{'hpea', 'hfoo', 'hkni', 'Hamg', 'nmed', 0},
+	{'opeo', 'ogru', 'otau', 'Ofar', 'Othr', 0},
+	{'uaco', 'ugho', 'uabo', 'Ulic', 'Utic', 0},
+	{'ewsp', 'earc', 'edoc', 'Emoo', 'Efur', 0},
+	{0,      'nfng', 'ninf', 'nbal', 'Nplh','Uwar'}
+	};
+	char tmp_icon[4];
+	int result;
+	if (icon==NULL) return account_get_icon_profile(account,ctag);
+	if (sizeof(icon)>=4){
+		strncpy(tmp_icon,icon,4);
+		tmp_icon[0]=tmp_icon[0]-48;
+		if (tmp_icon[0]>=1) {
+			if (tmp_icon[1]=='R'){
+				result = profile_code[0][tmp_icon[0]-1];
+			}else if (tmp_icon[1]=='H'){
+				result = profile_code[1][tmp_icon[0]-1];
+			}else if (tmp_icon[1]=='O'){
+				result = profile_code[2][tmp_icon[0]-1];
+			}else if (tmp_icon[1]=='U'){
+				result = profile_code[3][tmp_icon[0]-1];
+			}else if (tmp_icon[1]=='N'){
+				result = profile_code[4][tmp_icon[0]-1];
+			}else if (tmp_icon[1]=='D'){
+				result = profile_code[5][tmp_icon[0]-1];
+			}else{
+				eventlog(eventlog_level_warn,"account_icon_to_profile_icon","got unrecognized race on [%s] icon ",icon);
+				result = 'opeo';}
+			}else{
+				eventlog(eventlog_level_warn,"account_icon_to_profile_icon","got race_level<1 on [%s] icon ",icon);
+				result = 0;
+			}
+	}else{
+		eventlog(eventlog_level_error,"account_icon_to_profile_icon","got invalid icon lenght [%s] icon ",icon);
+		result = 0;
+	}
+	eventlog(eventlog_level_debug,"account_icon_to_profile_icon","from [%4.4s] icon returned [0x%X]",icon,result);
+	return result;
 }

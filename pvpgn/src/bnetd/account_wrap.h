@@ -328,5 +328,10 @@ extern int account_get_highestladderlevel(t_account * account,char const * clien
 extern int account_get_profile_calcs(t_account * account, int xp, unsigned int level);
 extern int account_get_icon_profile(t_account * account,char const * clienttag);
 
+extern int account_set_user_icon( t_account * account, char const * clienttag,char const * usericon);
+extern char const * account_get_user_icon( t_account * account, char const * clienttag );
+extern unsigned int account_icon_to_profile_icon(char const * icon,t_account * account, char const * ctag);
+extern char const * account_icon_default(t_account * account, char const * clienttag);
+
 #endif
 #endif

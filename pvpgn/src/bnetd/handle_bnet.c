@@ -2894,7 +2894,14 @@ static int _client_findanongame(t_connection * c, t_packet const * const packet)
 	     packet_set_type(rpacket,SERVER_FINDANONGAME_PROFILE);
 	     bn_byte_set(&rpacket->u.server_findanongame_profile2.option,SERVER_FINDANONGAME_PROFILE_OPTION);
 	     bn_int_set(&rpacket->u.server_findanongame_profile2.count,Count); //job count
-	     bn_int_set(&rpacket->u.server_findanongame_profile2.unknown1,account_get_icon_profile(account,ctag));
+	     if (strcmp(ctag,CLIENTTAG_WARCRAFT3)==0) {
+	       bn_int_set(&rpacket->u.server_findanongame_profile2.unknown1,account_get_icon_profile(account,ctag));
+	     }
+	     else
+	     {
+	       bn_int_set(&rpacket->u.server_findanongame_profile2.unknown1,account_icon_to_profile_icon(account_get_user_icon(account,ctag),account,ctag));
+	     }
+
 	     rescount = 0;
 	     if (sololevel) {
 		bn_int_set((bn_int*)&temp,0x534F4C4F); // SOLO backwards
@@ -3127,6 +3134,141 @@ static int _client_findanongame(t_connection * c, t_packet const * const packet)
 	eventlog(eventlog_level_info,__FUNCTION__,"[%d] got FINDANONGAME Arranged Team SEARCH packet",conn_get_socket(c));
 	handle_anongame_search(c, packet);
      }
+// AAARON
+   else if (bn_byte_get(packet->u.client_findanongame.option)==CLIENT_FINDANONGAME_GET_ICON)
+	 //BlacKDicK 04/20/2003 Need some huge re-work on this.
+     {
+       struct
+       {
+	 char			icon_code[4];
+	 unsigned int		portrait_code;
+	 char			race;
+	 bn_short		required_wins;
+	 char			client_enabled;
+       } tempicon;
+       
+       //FIXME: Add those to the prefs and also merge them on accoun_wrap;
+       int icon_req_tourney_wins[] = {25,250,500,1500,2000};
+       int icon_req_race_wins[] = {25,250,500,1500,0};
+       int race[]={W3_RACE_RANDOM,W3_RACE_HUMANS,W3_RACE_ORCS,W3_RACE_UNDEAD,W3_RACE_NIGHTELVES,W3_ICON_DEMONS};
+       char race_char[6] ={'R','H','O','U','N','D'};
+       char icon_pos[5] ={'2','3','4','5','6',};
+       char table_width = 6;
+       char table_height= 5;
+       int i,j;
+       
+       const char * user_icon;
+       eventlog(eventlog_level_info,__FUNCTION__,"[%d] got FINDANONGAME Get Icons packet",conn_get_socket(c));
+
+       if ((rpacket = packet_create(packet_class_bnet)) == NULL) {
+	 eventlog(eventlog_level_error, __FUNCTION__, "could not create new packet");
+	 return -1;}
+
+       packet_set_size(rpacket, sizeof(t_server_findanongame_iconreply));
+       packet_set_type(rpacket, SERVER_FINDANONGAME_ICONREPLY);
+       bn_int_set(&rpacket->u.server_findanongame_iconreply.count, bn_int_get(packet->u.client_findanongame_inforeq.count));
+       bn_byte_set(&rpacket->u.server_findanongame_iconreply.option, CLIENT_FINDANONGAME_GET_ICON);
+       user_icon = account_get_user_icon(conn_get_account(c),conn_get_clienttag(c));
+       if (user_icon) memcpy(&rpacket->u.server_findanongame_iconreply.curricon, user_icon,4);
+       else bn_int_set(&rpacket->u.server_findanongame_iconreply.curricon,account_get_icon_profile(conn_get_account(c),conn_get_clienttag(c)));
+       bn_byte_set(&rpacket->u.server_findanongame_iconreply.table_width, table_width);
+       bn_byte_set(&rpacket->u.server_findanongame_iconreply.table_size, table_width*table_height);
+       for (j=0;j<table_height;j++){
+	 if (j<=3) {
+	   for (i=0;i<table_width;i++){
+	     tempicon.race=i;
+	     tempicon.icon_code[0]=icon_pos[j];
+	     tempicon.icon_code[1]=race_char[i];
+	     tempicon.icon_code[2]='3';
+	     tempicon.icon_code[3]='W';
+	     //#ifdef WIN32
+	     //tempicon.portrait_code=htonl(account_icon_to_profile_icon(tempicon.icon_code));
+	     //#else
+	     tempicon.portrait_code=(account_icon_to_profile_icon(tempicon.icon_code,conn_get_account(c),conn_get_clienttag(c)));
+	     //#endif
+	     if (i<=4){
+	       //Building the icon for the races
+	       bn_short_set(&tempicon.required_wins,icon_req_race_wins[j]);
+	       if (account_get_racewin(conn_get_account(c),race[i],conn_get_clienttag(c))>=icon_req_race_wins[j]) {
+		 tempicon.client_enabled=1;
+	       }else{
+		 tempicon.client_enabled=0;}
+	     }else{
+	       //Building the icon for the tourney
+	       bn_short_set(&tempicon.required_wins,icon_req_tourney_wins[j]);
+	       if (account_get_racewin(conn_get_account(c),race[i],conn_get_clienttag(c))>=icon_req_tourney_wins[j]) {
+		 tempicon.client_enabled=1;
+	       }else{
+		 tempicon.client_enabled=0;}
+	     }
+	     packet_append_data(rpacket, &tempicon, sizeof(tempicon));
+	   }
+	 }else{
+	   //Damm Blizz. The latest icon for the races is disabled, but the latest tourney icon isn´t.
+	   //So we build our table in 2 steps
+	   for (i=0;i<table_width;i++){
+	     //Building the icon for the races
+	     if (i<=4){
+	       tempicon.race=0;
+	       //FIXME: remmember to change this mess to sprintf
+	       tempicon.icon_code[0]=0;
+	       tempicon.icon_code[1]=0;
+	       tempicon.icon_code[2]=0;
+	       tempicon.icon_code[3]=0;
+	       tempicon.portrait_code=0;
+	       bn_short_set(&tempicon.required_wins,icon_req_race_wins[j]);
+	       tempicon.client_enabled=0;
+	     }else{
+	       //Building the icon for the tourney
+	       tempicon.race=i;
+	       tempicon.icon_code[0]=icon_pos[j];
+	       tempicon.icon_code[1]=race_char[i];
+	       tempicon.icon_code[2]='3';
+	       tempicon.icon_code[3]='W';
+	       //#ifdef WIN32
+	       //tempicon.portrait_code= htonl(account_icon_to_profile_icon(tempicon.icon_code));
+	       //#else
+	       tempicon.portrait_code= (account_icon_to_profile_icon(tempicon.icon_code,conn_get_account(c),conn_get_clienttag(c)));
+	       //#endif
+	       bn_short_set(&tempicon.required_wins,icon_req_tourney_wins[j]);
+	       if (account_get_racewin(conn_get_account(c),race[i],conn_get_clienttag(c))>=icon_req_tourney_wins[j]) {
+		 tempicon.client_enabled=1;
+	       }else{
+		 tempicon.client_enabled=0;}
+	     }
+	     packet_append_data(rpacket, &tempicon, sizeof(tempicon));
+	   }
+	 }
+       }
+       //Go,go,go
+       queue_push_packet(conn_get_out_queue(c),rpacket);
+       packet_del_ref(rpacket);
+     }
+   else if (bn_byte_get(packet->u.client_findanongame.option)==CLIENT_FINDANONGAME_SET_ICON)
+	 //BlacKDicK 04/20/2003
+     {
+	unsigned int desired_icon;
+	char user_icon[5];
+	/*FIXME: In this case we do not get a 'count' but insted of it we get the icon
+	that the client wants to set.'W3H2' for an example. For now it is ok, since they share
+	//the same position	on the packet*/
+	desired_icon=bn_int_get(packet->u.client_findanongame.count);
+	user_icon[4]=0;
+	if (desired_icon==0){
+		strcpy(&user_icon,"NULL");
+		eventlog(eventlog_level_info,__FUNCTION__,"[%d] Set icon packet to DEFAULT ICON [%4.4s]",conn_get_socket(c),user_icon);
+	}else{
+		memcpy(user_icon,&desired_icon,4);
+		eventlog(eventlog_level_info,__FUNCTION__,"[%d] Set icon packet to ICON [%s]",conn_get_socket(c),user_icon);
+	}
+	
+	account_set_user_icon(conn_get_account(c),conn_get_clienttag(c),user_icon);
+	//FIXME: Still need a way to 'refresh the user/channel' 
+	//_handle_rejoin_command(conn_get_account(c),"");
+     }
+
+
+
    else if (bn_byte_get(packet->u.client_findanongame.option) == CLIENT_FINDANONGAME_INFOS)
      {
 	if (bn_int_get(packet->u.client_findanongame_inforeq.count) > 1) {
@@ -3156,9 +3298,6 @@ static int _client_findanongame(t_connection * c, t_packet const * const packet)
 		char server_tag_count=0;
 		char ladr_count=0;
 		char desc_count=0;
-		t_list * mapslist;
-		t_elem * curr;
-		char * mapname;
 		char mapscount_1v1;
 		char mapscount_2v2;
 		char mapscount_3v3;
@@ -3464,7 +3603,6 @@ static int _client_motdw3(t_connection * c, t_packet const * const packet)
     {
       char const * big_buffer;
       int last_news_time;
-      int body_size;
       
       last_news_time = bn_int_get(packet->u.client_motd_w3.last_news_time);
       
@@ -4265,14 +4403,17 @@ static int _client_joinchannel(t_connection * c, t_packet const * const packet)
 	   unsigned int	raceiconnumber;
 	   unsigned int    wins;
 	   char *          client;
+	   char const *	   usericon;
+	   char const * clienttag = conn_get_clienttag(c);
+	   t_account * account = conn_get_account(c);
 	   
-	   if (strcmp(conn_get_clienttag(c), CLIENTTAG_WARCRAFT3) == 0)
+	   if (strcmp(clienttag, CLIENTTAG_WARCRAFT3) == 0)
 	     client = "3RAW";
 	   else
 	     client = "PX3W";
 	   
-	   acctlevel = account_get_highestladderlevel(conn_get_account(c),conn_get_clienttag(c));
-	   account_get_raceicon(conn_get_account(c), &raceicon, &raceiconnumber, &wins,conn_get_clienttag(c));
+	   acctlevel = account_get_highestladderlevel(account,clienttag);
+	   account_get_raceicon(account, &raceicon, &raceiconnumber, &wins,clienttag);
 	   if(acctlevel==0)
 	     {
 	        strcpy(tempplayerinfo, client);
@@ -4280,19 +4421,28 @@ static int _client_joinchannel(t_connection * c, t_packet const * const packet)
 	     }
 	   else 
 	     {
-		sprintf(tempplayerinfo, "%s %1u%c3W %u %u", client, raceiconnumber, raceicon, acctlevel, wins); 
-		eventlog(eventlog_level_info,__FUNCTION__,"[%d] %s %1u%c3W %u",conn_get_socket(c), client, raceiconnumber, raceicon, acctlevel);
+		usericon = account_get_user_icon(account,clienttag);
+		if (!usericon)
+		{
+		  sprintf(tempplayerinfo, "%s %1u%c3W %u", client, raceiconnumber, raceicon, acctlevel); 
+		  eventlog(eventlog_level_debug,__FUNCTION__,"[%d] %s using generated icon [%1u%c3W]",conn_get_socket(c), client, raceiconnumber, raceicon);
+		}
+		else
+		{
+		  sprintf(tempplayerinfo, "%s %s %u",client, usericon,acctlevel);
+		  eventlog(eventlog_level_debug,__FUNCTION__,"[%d] %s using user-selected icon [%s]",conn_get_socket(c),client,usericon);
+		}
 	     }
 	   
 	   conn_set_w3_playerinfo( c, tempplayerinfo ); 
 	   
-	   if(account_get_new_at_team(conn_get_account(c))==1)
+	   if(account_get_new_at_team(account)==1)
 	     {
 		int temp;
-		temp = account_get_atteamcount(conn_get_account(c),conn_get_clienttag(c));
+		temp = account_get_atteamcount(account,clienttag);
 		temp = temp-1;
-		account_set_atteamcount(conn_get_account(c),conn_get_clienttag(c),temp);
-		account_set_new_at_team(conn_get_account(c),0);
+		account_set_atteamcount(account,clienttag,temp);
+		account_set_new_at_team(account,0);
 	     }
 	}
 
