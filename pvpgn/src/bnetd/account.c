@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 1998,1999,2000,2001  Ross Combs (rocombs@cs.nmsu.edu)
  * Copyright (C) 2000,2001  Marco Ziech (mmz@gmx.net)
- * Copyright (C) 2002 Dizzy 
+ * Copyright (C) 2002,2003,2004 Dizzy 
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -81,9 +81,9 @@
 #include "watch.h"
 #include "friends.h"
 #include "common/tag.h"
-//aaron
 #include "ladder.h"
 #include "clan.h"
+#include "common/flags.h"
 #include "common/setup_after.h"
 
 static t_hashtable * accountlist_head=NULL;
@@ -104,31 +104,6 @@ static int account_load_attrs(t_account * account);
 static void account_unload_attrs(t_account * account);
 static int account_load_friends(t_account * account);
 static int account_unload_friends(t_account * account);
-
-/*
-static unsigned int account_hash(char const * username)
-{
-    register unsigned int i;
-    register unsigned int hash;
-    unsigned int pos;
-    unsigned int ch;
-    unsigned int len = strlen(username);
-
-    hash = (len+1)*120343021;
-    for (pos=0,i=0; i<len; i++)
-    {
-	if (isascii((int)username[i]) && isupper((int)username[i]))
-	    ch = (unsigned int)(unsigned char)tolower((int)username[i]);
-	else
-	    ch = (unsigned int)(unsigned char)username[i];
-	hash ^= ROTL(ch,pos,sizeof(unsigned int)*CHAR_BIT);
-        hash ^= ROTL((i+1)*314159,ch&0x1f,sizeof(unsigned int)*CHAR_BIT);
-	pos += CHAR_BIT-1;
-    }
-    
-    return hash;
-}
-*/
 
 unsigned int account_hash(char const *username)
 {
@@ -159,13 +134,11 @@ extern t_account * account_create(char const * username, char const * passhash1)
     account->storage  = NULL;
     account->clanmember = NULL;
     account->attrs    = NULL;
-    account->dirty    = 0;
-    account->accessed = 0;
     account->age      = 0;
     account->friends  = NULL;
-    account->friend_loaded = 0;
     account->conn = NULL;
-    
+    FLAG_ZERO(&account->flags);
+
     account->namehash = 0; /* hash it later before inserting */
     account->uid      = 0; /* hash it later before inserting */
 
@@ -184,7 +157,7 @@ extern t_account * account_create(char const * username, char const * passhash1)
 	    account_destroy(account);
 	    return NULL;
 	}
-        account->loaded = 1;
+	FLAG_SET(&account->flags,ACCOUNT_FLAG_LOADED);
 	
 	if ((account->name = strdup(username)) == NULL) {
 	    eventlog(eventlog_level_error, "account_create", "could not duplicate username to cache it");
@@ -211,10 +184,6 @@ extern t_account * account_create(char const * username, char const * passhash1)
 	    return NULL;
 	}
 	
-    }
-    else /* empty account to be filled in later */
-    {
-	account->loaded   = 0;
     }
     
     return account;
@@ -247,7 +216,7 @@ static void account_unload_attrs(t_account * account)
 	free(account->name);
 	account->name = NULL;
     }
-    account->loaded = 0;
+    FLAG_CLEAR(&account->flags,ACCOUNT_FLAG_LOADED);
 }
 
 extern void account_destroy(t_account * account)
@@ -334,13 +303,13 @@ extern int account_save(t_account * account, unsigned int delta)
 
    
    /* account aging logic */
-   if (account->accessed)
+   if (FLAG_ISSET(account->flags,ACCOUNT_FLAG_ACCESSED))
      account->age >>=  1;
    else
      account->age += delta;
    if (account->age>( (3*prefs_get_user_flush_timer()) >>1))
      account->age = ( (3*prefs_get_user_flush_timer()) >>1);
-   account->accessed = 0;
+   FLAG_CLEAR(&account->flags,ACCOUNT_FLAG_ACCESSED);
    
    if (!account->storage)
      {
@@ -348,10 +317,10 @@ extern int account_save(t_account * account, unsigned int delta)
 	return -1;
      }
 
-   if (!account->loaded)
+   if (!FLAG_ISSET(account->flags,ACCOUNT_FLAG_LOADED))
      return 0;
 
-   if (!account->dirty) {
+   if (!FLAG_ISSET(account->flags,ACCOUNT_FLAG_DIRTY)) {
 	if (account->age>=prefs_get_user_flush_timer()) {
 	    account_unload_friends(account);
 	    account_unload_attrs(account);
@@ -361,7 +330,7 @@ extern int account_save(t_account * account, unsigned int delta)
    
    storage->write_attrs(account->storage, account->attrs);
 
-   account->dirty = 0;
+   FLAG_CLEAR(&account->flags,ACCOUNT_FLAG_DIRTY);
 
    return 1;
 }
@@ -433,7 +402,7 @@ extern char const * account_get_strattr(t_account * account, char const * key)
 	return NULL;
     }
 
-    account->accessed = 1;
+    FLAG_SET(&account->flags,ACCOUNT_FLAG_ACCESSED);
 
 //    eventlog(eventlog_level_trace, __FUNCTION__, "reading '%s'", key);
 
@@ -484,7 +453,7 @@ extern char const * account_get_strattr(t_account * account, char const * key)
 	}
     } else newkey = storage->escape_key(key);
 
-    if (!account->loaded)
+    if (!FLAG_ISSET(account->flags,ACCOUNT_FLAG_LOADED))
     {
         if (account_load_attrs(account)<0)
 	    {
@@ -568,7 +537,7 @@ extern int account_set_strattr(t_account * account, char const * key, char const
 	return -1;
     }
     
-    if (!account->loaded)
+    if (!FLAG_ISSET(account->flags,ACCOUNT_FLAG_LOADED))
     {
         if (account_load_attrs(account)<0)
 	    {
@@ -581,7 +550,7 @@ extern int account_set_strattr(t_account * account, char const * key, char const
     {
 	if (val)
 	{
-	    account->dirty = 1; /* we are inserting an entry */
+	    FLAG_SET(&account->flags,ACCOUNT_FLAG_DIRTY); /* we are inserting an entry */
 	    return account_insert_attr(account,key,val);
 	}
 	return 0;
@@ -603,7 +572,7 @@ extern int account_set_strattr(t_account * account, char const * key, char const
 	    
 	    if (strcmp(curr->val,temp)!=0)
 	    {	
-		account->dirty = 1; /* we are changing an entry */
+		FLAG_SET(&account->flags,ACCOUNT_FLAG_DIRTY); /* we are changing an entry */
 	    }
 	    free((void *)curr->val); /* avoid warning */
 	    curr->val = temp;
@@ -615,7 +584,7 @@ extern int account_set_strattr(t_account * account, char const * key, char const
 
 	    temp = curr->next;
 
-	    account->dirty = 1; /* we are deleting an entry */
+	    FLAG_SET(&account->flags,ACCOUNT_FLAG_DIRTY); /* we are deleting an entry */
 	    free((void *)curr->key); /* avoid warning */
 	    free((void *)curr->val); /* avoid warning */
 	    free((void *)curr); /* avoid warning */
@@ -646,7 +615,7 @@ extern int account_set_strattr(t_account * account, char const * key, char const
 	    
 	    if (strcmp(curr->next->val,temp)!=0)
 	    {
-		account->dirty = 1; /* we are changing an entry */
+		FLAG_SET(&account->flags,ACCOUNT_FLAG_DIRTY); /* we are changing an entry */
 		curr->next->dirty = 1;
 	    }
 	    free((void *)curr->next->val); /* avoid warning */
@@ -658,7 +627,7 @@ extern int account_set_strattr(t_account * account, char const * key, char const
 	    
 	    temp = curr->next->next;
 	    
-	    account->dirty = 1; /* we are deleting an entry */
+	    FLAG_SET(&account->flags,ACCOUNT_FLAG_DIRTY); /* we are deleting an entry */
 	    free((void *)curr->next->key); /* avoid warning */
 	    free((void *)curr->next->val); /* avoid warning */
 	    free(curr->next);
@@ -674,7 +643,7 @@ extern int account_set_strattr(t_account * account, char const * key, char const
 
     if (val)
     {
-	account->dirty = 1; /* we are inserting an entry */
+	FLAG_SET(&account->flags,ACCOUNT_FLAG_DIRTY); /* we are inserting an entry */
 	return account_insert_attr(account,key,val);
     }
     return 0;
@@ -702,15 +671,15 @@ static int account_load_attrs(t_account * account)
     }
 
     
-    if (account->loaded) /* already done */
+    if (FLAG_ISSET(account->flags,ACCOUNT_FLAG_LOADED)) /* already done */
 	return 0;
-    if (account->dirty) /* if not loaded, how dirty? */
+    if (FLAG_ISSET(account->flags,ACCOUNT_FLAG_DIRTY)) /* if not loaded, how dirty? */
     {
 	eventlog(eventlog_level_error,"account_load_attrs","can not load modified account");
 	return -1;
     }
-    
-    account->loaded = 1; /* set now so set_strattr works */
+
+    FLAG_SET(&account->flags,ACCOUNT_FLAG_LOADED); /* set now so set_strattr works */
    doing_loadattrs = 1;
    if (storage->read_attrs(account->storage, _cb_load_attr, account)) {
         eventlog(eventlog_level_error, __FUNCTION__, "got error loading attributes");
@@ -724,7 +693,7 @@ static int account_load_attrs(t_account * account)
     }
     account->name = NULL;
 
-    account->dirty = 0;
+    FLAG_CLEAR(&account->flags,ACCOUNT_FLAG_DIRTY);
 
     return 0;
     
@@ -796,7 +765,7 @@ static int _cb_read_accounts(t_storage_info *info, void *data)
     }
 
     /* might as well free up the memory since we probably won't need it */
-    account->accessed = 0; /* lie */
+    FLAG_CLEAR(&account->flags,ACCOUNT_FLAG_ACCESSED); /* lie */
     account_save(account,3600); /* big delta to force unload */
 
     (*count)++;
@@ -852,7 +821,7 @@ extern t_account * account_load_new(char const * name, unsigned uid)
     }
 
     /* might as well free up the memory since we probably won't need it */
-    account->accessed = 0; /* lie */
+    FLAG_CLEAR(&account->flags,ACCOUNT_FLAG_ACCESSED); /* lie */
     account_save(account,1000); /* big delta to force unload */
     force_account_add = 0;
 
@@ -879,7 +848,7 @@ static int _cb_read_accounts2(t_storage_info *info, void *data)
     }
 
     /* might as well free up the memory since we probably won't need it */
-    account->accessed = 0; /* lie */
+    FLAG_CLEAR(&account->flags,ACCOUNT_FLAG_ACCESSED); /* lie */
     account_save(account,1000); /* big delta to force unload */
 
     (*count)++;
@@ -1447,7 +1416,7 @@ extern t_list * account_get_friends(t_account * account)
 	return NULL;
     }
 
-    if(!account->friend_loaded)
+    if(!FLAG_ISSET(account->flags,ACCOUNT_FLAG_FLOADED))
 	if(account_load_friends(account)<0)
         {
     	    eventlog(eventlog_level_error,__FUNCTION__,"could not load friend list");
@@ -1472,7 +1441,7 @@ static int account_load_friends(t_account * account)
 	return -1;
     }
 
-    if(account->friend_loaded)
+    if(FLAG_ISSET(account->flags,ACCOUNT_FLAG_FLOADED))
         return 0;
 
     if(account->friends==NULL)
@@ -1521,7 +1490,7 @@ static int account_load_friends(t_account * account)
     }
     if(!newlist)
         friendlist_purge(account->friends);
-    account->friend_loaded=1;
+    FLAG_SET(&account->flags,ACCOUNT_FLAG_FLOADED);
     return 0;
 }
 
@@ -1529,7 +1498,7 @@ static int account_unload_friends(t_account * account)
 {
     if(friendlist_unload(account->friends)<0)
         return -1;
-    account->friend_loaded=0;
+    FLAG_CLEAR(&account->flags,ACCOUNT_FLAG_FLOADED);
     return 0;
 }
 

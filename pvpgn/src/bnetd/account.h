@@ -44,6 +44,12 @@ typedef struct attribute_struct
 #define ACCOUNT_CLIENTTAG_WAR3 0x01;
 #define ACCOUNT_CLIENTTAG_W3XP 0x02;
 
+#define ACCOUNT_FLAG_NONE	0
+#define ACCOUNT_FLAG_LOADED	1
+#define ACCOUNT_FLAG_ACCESSED	2
+#define ACCOUNT_FLAG_DIRTY	4
+#define ACCOUNT_FLAG_FLOADED	8	/* friend loaded */
+
 struct connection;
 
 typedef struct account_struct
@@ -53,10 +59,7 @@ typedef struct account_struct
     char	* name;     /* profiling proved 99% of getstrattr its from get_name */
     unsigned int  namehash; /* cached from attrs */
     unsigned int  uid;      /* cached from attrs */
-    int           dirty;    /* 1==needs to be saved, 0==clean */
-    int           loaded;   /* 1==loaded, 0==only on disk */
-    int           accessed; /* 1==yes, 0==no */
-    int           friend_loaded;
+    unsigned int  flags;
     unsigned int  age;      /* number of times it has not been accessed */
     struct connection * conn;
     t_storage_info * storage;
