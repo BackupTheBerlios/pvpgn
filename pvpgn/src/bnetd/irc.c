@@ -68,6 +68,7 @@
 #include "server.h"
 #include "tick.h"
 #include "message.h"
+#include "command_groups.h"
 #include "common/util.h"
 #include "common/setup_after.h"
 
@@ -81,8 +82,6 @@ typedef struct {
 static char ** irc_split_elems(char * list, int separator, int ignoreblank);
 static int irc_unget_elems(char ** elems);
 static char * irc_message_preformat(t_irc_message_from const * from, char const * command, char const * dest, char const * text);
-
-static char * hidden = "hidden";
 
 extern int irc_send_cmd(t_connection * conn, char const * command, char const * params)
 {
@@ -370,15 +369,15 @@ extern int irc_welcome(t_connection * conn)
 
     irc_send(conn,RPL_MOTDSTART,temp);
 
-   if (filename = prefs_get_motdfile())
+   if ((filename = prefs_get_motdfile()))
    {
-	if (fp = fopen(filename,"r"))
+	if ((fp = fopen(filename,"r")))
 	{
 
-	  while (line=file_get_line(fp))
+	  while ((line=file_get_line(fp)))
 	  {
 	  	
-		if (formatted_line = message_format_line(conn,line))
+		if ((formatted_line = message_format_line(conn,line)))
 		{
 		  formatted_line[0]=' ';
 		  sprintf(send_line,":-%s",formatted_line);

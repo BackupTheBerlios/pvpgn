@@ -66,6 +66,7 @@
 #include "command.h"
 #include "handle_irc.h"
 #include "topic.h"
+#include "command_groups.h"
 #include "common/setup_after.h"
 #include "ctype.h"
 
@@ -792,7 +793,7 @@ static int _handle_topic_command(t_connection * conn, int numparams, char ** par
 
 			if ((ircname) && (strcmp(channel_get_name(channel),ircname)==0))
 			{
-				if (topic = channel_get_topic(channel_get_name(channel)))
+				if ((topic = channel_get_topic(channel_get_name(channel))))
 				{ 
 			  		sprintf(temp,"%s :%s",ircname,topic);
 			    		irc_send(conn,RPL_TOPIC,temp);
@@ -997,10 +998,10 @@ static int _handle_whois_command(t_connection * conn, int numparams, char ** par
 	    e = irc_get_listelems(params[0]);
 	    for (i=0; ((e)&&(e[i]));i++) 
 		{
-	    	  if (c = connlist_find_connection_by_accountname(e[i]))
+	    	  if ((c = connlist_find_connection_by_accountname(e[i])))
 		  {
 		    if (prefs_get_hide_addr() && !(account_get_command_groups(conn_get_account(conn)) & command_get_group("/admin-addr")))
-		      sprintf(temp,"%s %s hidden * :%s",e[i],conn_get_clienttag(c),addr_num_to_ip_str(conn_get_addr(c)),"PvPGN user");
+		      sprintf(temp,"%s %s hidden * :%s",e[i],conn_get_clienttag(c),"PvPGN user");
 		    else
 		      sprintf(temp,"%s %s %s * :%s",e[i],conn_get_clienttag(c),addr_num_to_ip_str(conn_get_addr(c)),"PvPGN user");
 		    irc_send(conn,RPL_WHOISUSER,temp);
