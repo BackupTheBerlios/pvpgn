@@ -327,7 +327,7 @@ static int handle(const t_htable_row *htable, int type, t_connection * c, t_pack
      if (p->type == type) {
 	res = 0;
 	if (p->handler != NULL) res = p->handler(c, packet);
-	break;
+	if (res != 2) break; /* return 2 means we want to continue parsing */
      }
    
    return res;
@@ -5258,8 +5258,6 @@ static int _client_mapauthreq2(t_connection * c, t_packet const * const packet)
 
 static int _client_command(t_connection * c, t_packet const * const packet)
 {
-   if (strcmp(conn_get_clienttag(c), CLIENTTAG_WAR3XP)  == 0)
-	return 0; /* client_command's id is the same as client_playerloginreq */
    if (packet_get_size(packet)<sizeof(t_client_command)) {
       eventlog(eventlog_level_error,__FUNCTION__,"[%d] got bad COMMAND packet (expected %u bytes, got %u)",conn_get_socket(c),sizeof(t_client_command),packet_get_size(packet));
       return -1;
@@ -5284,7 +5282,7 @@ static int _client_command(t_connection * c, t_packet const * const packet)
 	
 	
 	if (text[0]=='/')
-	  handle_command(c,text);	
+	  handle_command(c,text);
 	else
 	  eventlog(eventlog_level_error, __FUNCTION__, "command doesnt start with /");
 	/* else discard */

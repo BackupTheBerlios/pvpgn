@@ -495,4 +495,6 @@ typedef struct
 
 //#define CLIENT_W3XP_CLOSEGAME		0x67FF
 
+#define CLIENT_W3XP_COMMAND		0x0aff
+
 #endif

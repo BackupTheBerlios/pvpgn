@@ -4304,7 +4304,7 @@ typedef struct
 } t_server_realmjoinreply_109 PACKED_ATTR();
 /******************************************************/
 
-#define CLIENT_COMMAND		0x0aff
+#define CLIENT_COMMAND		0x03ff
 typedef struct {
     t_bnet_header	h;
     /* command string */
