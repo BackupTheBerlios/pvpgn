@@ -61,6 +61,7 @@ extern char const * prefs_get_topicfile(void) ;
 extern char const * prefs_get_DBlayoutfile(void) ;
 extern unsigned int prefs_get_user_sync_timer(void) ;
 extern unsigned int prefs_get_user_flush_timer(void) ;
+extern unsigned int prefs_get_user_step(void) ;
 extern char const * prefs_get_servername(void) ;
 extern unsigned int prefs_get_track(void) ;
 extern char const * prefs_get_location(void) ;

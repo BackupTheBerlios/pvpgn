@@ -952,7 +952,7 @@ extern int server_process(void)
     time_t          prev_exittime, prev_savetime, track_time;
     time_t          war3_ladder_updatetime;
     time_t          output_updatetime;
-    unsigned int    syncdelta;
+    int	            syncdelta;
     t_connection *  c;
     t_elem const *  acurr;
     t_elem const *  ccurr;
@@ -1416,8 +1416,8 @@ extern int server_process(void)
 	if (curr_exittime && (curr_exittime<=now || connlist_get_length()<1))
 	{
 	    eventlog(eventlog_level_info,"server_process","the server is shutting down (%d connections left)",connlist_get_length());
-        clanlist_save();
-	    accountlist_save(0);
+    	    clanlist_save();
+	    accountlist_save(0, NULL);
 	    break;
 	}
 	if (prev_exittime!=curr_exittime)
@@ -1449,15 +1449,17 @@ extern int server_process(void)
 	    }
 	}
 	prev_exittime = curr_exittime;
-	
+
 	if (syncdelta && prev_savetime+(time_t)syncdelta<=now)
 	{
-        clanlist_save();
-	    accountlist_save(prefs_get_user_sync_timer());
-            gamelist_check_voidgame();
+	    if (syncdelta > 0) { /* do this stuff only first step of save */
+    		clanlist_save();
+        	gamelist_check_voidgame();
+	    }
+	    accountlist_save(prefs_get_user_sync_timer(), &syncdelta);
 	    prev_savetime = now;
 	}
-	
+
 	if (prefs_get_track() && track_time+(time_t)prefs_get_track()<=now)
 	{
 	    track_time = now;
@@ -1480,8 +1482,8 @@ extern int server_process(void)
 	if (do_save)
 	{
 	    eventlog(eventlog_level_info,"server_process","saving accounts due to signal");
-        clanlist_save();
-	    accountlist_save(0);
+    	    clanlist_save();
+	    accountlist_save(0, NULL);
 	    do_save = 0;
 	}
 	

@@ -1098,16 +1098,19 @@ extern unsigned int accountlist_get_length(void)
 }
 
 
-extern int accountlist_save(unsigned int delta)
+extern int accountlist_save(unsigned int delta, int *syncdeltap)
 {
-    t_entry *    curr;
+    static t_entry *    curr = NULL;
     t_account *  account;
     unsigned int scount;
     unsigned int tcount;
     
     scount=tcount = 0;
-    HASHTABLE_TRAVERSE(accountlist_head,curr)
+    if (!curr || !syncdeltap || *syncdeltap > 0)
+	curr = hashtable_get_first(accountlist_head);
+    for(;curr; curr=entry_get_next(curr))
     {
+	if (syncdeltap && tcount >= prefs_get_user_step()) break;
 	account = entry_get_data(curr);
 	switch (account_save(account,delta))
 	{
@@ -1129,6 +1132,12 @@ extern int accountlist_save(unsigned int delta)
 #endif
     if (scount>0)
 	eventlog(eventlog_level_debug,"accountlist_save","saved %u of %u user accounts",scount,tcount);
+
+    if (syncdeltap) {
+	if (curr) *syncdeltap = -1;
+	else if (*syncdeltap < 0) *syncdeltap = prefs_get_user_sync_timer();
+    }
+
     return 0;
 }
 

@@ -14,6 +14,9 @@ don't generate anongame_infos data each time when user logon
 them to src/win32/
 -- fixed saving of SC/BW last game result with SQL storage
 -- finished kqueue fdwatch backend and made it be chosed over poll/select
+-- added new conf option userstep to configure the no. of users we check for 
+updates each run (we dont check them all at once anymore because on servers 
+with many accounts this takes too much time)
 
 1.6.0pre3 (since 1.6.0pre2):
 -- fixed clan crash bug (when any user with clans logged in on sql/cdb pvpgn 

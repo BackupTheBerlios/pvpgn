@@ -15,6 +15,7 @@ The path's specified are those of the default unix installation
 changes to bnetd.conf:
 ----------------------
 -- added: maxusers_per_channel = 0
+-- added: userstep = 100
 
 changes to sql_DB_layout:
 -------------------------

@@ -73,6 +73,7 @@ static struct {
 
     unsigned int usersync;
     unsigned int userflush;
+    unsigned int userstep;
 
     char const * servername;
 
@@ -181,7 +182,7 @@ static struct {
     unsigned int clan_channel_default_private;
     unsigned int passfail_count;
     unsigned int passfail_bantime;
-	unsigned int maxusers_per_channel;
+    unsigned int maxusers_per_channel;
 } prefs_runtime_config;
 
 /*    directive                 type               defcharval            defintval                 */
@@ -200,6 +201,7 @@ static Bconf_t conf_table[] =
     { "DBlayoutfile",		conf_type_char,    BNETD_DBLAYOUT_FILE,  NONE		     , (void *)&prefs_runtime_config.DBlayoutfile},
     { "usersync",               conf_type_int,     NULL,                 BNETD_USERSYNC      , (void *)&prefs_runtime_config.usersync},
     { "userflush",              conf_type_int,     NULL,                 BNETD_USERFLUSH     , (void *)&prefs_runtime_config.userflush},
+    { "userstep",               conf_type_int,     NULL,                 BNETD_USERSTEP      , (void *)&prefs_runtime_config.userstep},
     { "servername",             conf_type_char,    "",                   NONE                , (void *)&prefs_runtime_config.servername},
     { "track",                  conf_type_int,     NULL,                 BNETD_TRACK_TIME    , (void *)&prefs_runtime_config.track},
     { "location",               conf_type_char,    "",                   NONE                , (void *)&prefs_runtime_config.location},
@@ -650,6 +652,13 @@ extern unsigned int prefs_get_user_flush_timer(void)
 {
     return prefs_runtime_config.userflush;
 }
+
+
+extern unsigned int prefs_get_user_step(void)
+{
+    return prefs_runtime_config.userstep;
+}
+
 
 extern char const * prefs_get_servername(void)
 {

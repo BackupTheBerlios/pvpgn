@@ -195,6 +195,7 @@
 #define BNETD_MAX_TEST_PORT   6500
 #define BNETD_USERSYNC        300 /* s */
 #define BNETD_USERFLUSH       1000
+#define BNETD_USERSTEP        100 /* check 100 users per call in accountlist_save() */
 #define BNETD_LATENCY         10 /* s */
 #define BNETD_IRC_LATENCY     180 /* s */ /* Ping timeout for IRC connections */
 #define BNETD_DEF_NULLMSG     120 /* s */
