@@ -45,6 +45,7 @@ codes)
   portable (now pvpgn compiles fine on 64 bit archs)
   -- fixed an error with opened directory handles not being closed
   -- fixed chat names showen to other clients while in the same channel
+  -- fixed code portability and got d2cs/d2dbs working fine on x86_64
 
 [PREFS]
   -- fixed handling of comments (previously it skipped the whole line no 
