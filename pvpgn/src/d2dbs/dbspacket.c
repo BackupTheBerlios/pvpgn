@@ -351,9 +351,9 @@ static unsigned int dbs_packet_savedata(t_d2dbs_connection * conn)
 	unsigned short      datatype;
 	unsigned short      datalen; 
 	unsigned int        result; 
-	char AccountName[MAX_NAME_LEN+16];
-	char CharName[MAX_NAME_LEN+16];
-	char RealmName[MAX_NAME_LEN+16];
+	char AccountName[MAX_ACCTNAME_LEN];
+	char CharName[MAX_CHARNAME_LEN];
+	char RealmName[MAX_REALMNAME_LEN];
 	t_d2gs_d2dbs_save_data_request	* savecom; 
 	t_d2dbs_d2gs_save_data_reply	* saveret; 
 	char * readpos;
@@ -365,14 +365,26 @@ static unsigned int dbs_packet_savedata(t_d2dbs_connection * conn)
 	datalen=bn_short_get(savecom->datalen);
 
 	readpos+=sizeof(*savecom);
-	strncpy(AccountName,readpos,MAX_NAME_LEN);
-	AccountName[MAX_NAME_LEN]=0;
+	strncpy(AccountName,readpos,MAX_ACCTNAME_LEN);
+	if (AccountName[MAX_ACCTNAME_LEN-1]!=0)
+	{
+	    eventlog(eventlog_level_error,__FUNCTION__,"max acccount name length exceeded");
+	    return -1;
+	}
 	readpos+=strlen(AccountName)+1;
-	strncpy(CharName,readpos,MAX_NAME_LEN);
-	CharName[MAX_NAME_LEN]=0;
+	strncpy(CharName,readpos,MAX_CHARNAME_LEN);
+	if (CharName[MAX_CHARNAME_LEN-1]!=0)
+	{
+	    eventlog(eventlog_level_error,__FUNCTION__,"max char name length exceeded");
+	    return -1;
+	}
 	readpos+=strlen(CharName)+1;
-	strncpy(RealmName,readpos,MAX_NAME_LEN);
-	RealmName[MAX_NAME_LEN]=0;
+	strncpy(RealmName,readpos,MAX_REALMNAME_LEN);
+	if (RealmName[MAX_REALMNAME_LEN-1]!=0)
+	{
+	    eventlog(eventlog_level_error,__FUNCTION__,"max realm name length exceeded");
+	    return -1;
+	}
 	readpos+=strlen(RealmName)+1;
 
 	if (readpos+datalen!=conn->ReadBuf+bn_short_get(savecom->h.size)) {
@@ -411,7 +423,7 @@ static unsigned int dbs_packet_savedata(t_d2dbs_connection * conn)
 	bn_short_set(&saveret->datatype,bn_short_get(savecom->datatype));
 	bn_int_set(&saveret->result,result);
 	writepos+=sizeof(*saveret);
-	strncpy(writepos,CharName,MAX_NAME_LEN);
+	strncpy(writepos,CharName,MAX_CHARNAME_LEN);
 	conn->nCharsInWriteBuffer += writelen;
 	return 1;
 }
@@ -428,9 +440,9 @@ static unsigned int dbs_packet_getdata(t_d2dbs_connection * conn)
 	unsigned short	datatype;
 	unsigned short	datalen; 
 	unsigned int	result; 
-	char		AccountName[MAX_NAME_LEN+16];
-	char		CharName[MAX_NAME_LEN+16];
-	char		RealmName[MAX_NAME_LEN+16];
+	char		AccountName[MAX_ACCTNAME_LEN];
+	char		CharName[MAX_CHARNAME_LEN];
+	char		RealmName[MAX_REALMNAME_LEN];
 	t_d2gs_d2dbs_get_data_request	* getcom; 
 	t_d2dbs_d2gs_get_data_reply	* getret; 
 	char		* readpos;
@@ -445,14 +457,26 @@ static unsigned int dbs_packet_getdata(t_d2dbs_connection * conn)
 	datatype=bn_short_get(getcom->datatype);
 	
 	readpos+=sizeof(*getcom);
-	strncpy(AccountName,readpos,MAX_NAME_LEN);
-	AccountName[MAX_NAME_LEN]=0;
+	strncpy(AccountName,readpos,MAX_ACCTNAME_LEN);
+	if (AccountName[MAX_ACCTNAME_LEN-1]!=0)
+	{
+	    eventlog(eventlog_level_error,__FUNCTION__,"max account name length exceeded");
+	    return -1;
+	}
 	readpos+=strlen(AccountName)+1;
-	strncpy(CharName,readpos,MAX_NAME_LEN);
-	CharName[MAX_NAME_LEN]=0;
+	strncpy(CharName,readpos,MAX_CHARNAME_LEN);
+	if (CharName[MAX_CHARNAME_LEN-1]!=0)
+	{
+	    eventlog(eventlog_level_error,__FUNCTION__,"max char name length exceeded");
+	    return -1;
+	}
 	readpos+=strlen(CharName)+1;
-	strncpy(RealmName,readpos,MAX_NAME_LEN);
-	RealmName[MAX_NAME_LEN]=0;
+	strncpy(RealmName,readpos,MAX_REALMNAME_LEN);
+	if (RealmName[MAX_REALMNAME_LEN-1]!=0)
+	{
+	    eventlog(eventlog_level_error,__FUNCTION__,"max realm name length exceeded");
+	    return -1;
+	}
 	readpos+=strlen(RealmName)+1;
 
 	if (readpos != conn->ReadBuf+bn_short_get(getcom->h.size)) {
@@ -532,7 +556,7 @@ static unsigned int dbs_packet_getdata(t_d2dbs_connection * conn)
 	bn_int_set(&getret->result,result);
 	bn_short_set(&getret->datalen,datalen);
 	writepos+=sizeof(*getret);
-	strncpy(writepos,CharName,MAX_NAME_LEN);
+	strncpy(writepos,CharName,MAX_CHARNAME_LEN);
 	writepos+=strlen(CharName)+1;
 	if (datalen) memcpy(writepos,databuf,datalen);
 	conn->nCharsInWriteBuffer += writelen;
@@ -541,8 +565,8 @@ static unsigned int dbs_packet_getdata(t_d2dbs_connection * conn)
 
 static unsigned int dbs_packet_updateladder(t_d2dbs_connection * conn)
 {
-	char CharName[MAX_NAME_LEN+16];
-	char RealmName[MAX_NAME_LEN+16];
+	char CharName[MAX_CHARNAME_LEN];
+	char RealmName[MAX_REALMNAME_LEN];
 	t_d2gs_d2dbs_update_ladder	* updateladder; 
 	char * readpos;
 	t_d2ladder_info			charladderinfo;
@@ -551,11 +575,19 @@ static unsigned int dbs_packet_updateladder(t_d2dbs_connection * conn)
 	updateladder=(t_d2gs_d2dbs_update_ladder *)readpos;
 	
 	readpos+=sizeof(*updateladder);
-	strncpy(CharName,readpos,MAX_NAME_LEN);
-	CharName[MAX_NAME_LEN]=0;
+	strncpy(CharName,readpos,MAX_CHARNAME_LEN);
+	if (CharName[MAX_CHARNAME_LEN-1]!=0)
+	{
+	    eventlog(eventlog_level_error,__FUNCTION__,"max char name length exceeded");
+	    return -1;
+	}
 	readpos+=strlen(CharName)+1;
-	strncpy(RealmName,readpos,MAX_NAME_LEN);
-	RealmName[MAX_NAME_LEN]=0;
+	strncpy(RealmName,readpos,MAX_REALMNAME_LEN);
+	if (RealmName[MAX_REALMNAME_LEN-1]!=0)
+	{
+	    eventlog(eventlog_level_error,__FUNCTION__,"max realm name length exceeded");
+	    return -1;
+	}
 	readpos+=strlen(RealmName)+1;
 	if (readpos != conn->ReadBuf+bn_short_get(updateladder->h.size)) {
 		eventlog(eventlog_level_error,__FUNCTION__,"request packet size error");
@@ -574,9 +606,9 @@ static unsigned int dbs_packet_updateladder(t_d2dbs_connection * conn)
 
 static unsigned int dbs_packet_charlock(t_d2dbs_connection * conn)
 {
-	char CharName[MAX_NAME_LEN+16];
-	char AccountName[MAX_NAME_LEN+16];
-	char RealmName[MAX_NAME_LEN+16];
+	char CharName[MAX_CHARNAME_LEN];
+	char AccountName[MAX_ACCTNAME_LEN];
+	char RealmName[MAX_REALMNAME_LEN];
 	t_d2gs_d2dbs_char_lock * charlock; 
 	char * readpos;
 
@@ -584,14 +616,26 @@ static unsigned int dbs_packet_charlock(t_d2dbs_connection * conn)
 	charlock=(t_d2gs_d2dbs_char_lock*)readpos;
 	
 	readpos+=sizeof(*charlock);
-	strncpy(AccountName,readpos,MAX_NAME_LEN);
-	AccountName[MAX_NAME_LEN]=0;
+	strncpy(AccountName,readpos,MAX_ACCTNAME_LEN);
+	if (AccountName[MAX_ACCTNAME_LEN-1]!=0)
+	{
+	    eventlog(eventlog_level_error,__FUNCTION__,"max account name length exceeded");
+	    return -1;
+	}
 	readpos+=strlen(AccountName)+1;
-	strncpy(CharName,readpos,MAX_NAME_LEN);
-	CharName[MAX_NAME_LEN]=0;
+	strncpy(CharName,readpos,MAX_CHARNAME_LEN);
+	if (CharName[MAX_CHARNAME_LEN-1]!=0)
+	{
+	    eventlog(eventlog_level_error,__FUNCTION__,"max char name length exceeded");
+	    return -1;
+	}
 	readpos+=strlen(CharName)+1;
-	strncpy(RealmName,readpos,MAX_NAME_LEN);
-	RealmName[MAX_NAME_LEN]=0;
+	strncpy(RealmName,readpos,MAX_REALMNAME_LEN);
+	if (RealmName[MAX_REALMNAME_LEN-1]!=0)
+	{
+	    eventlog(eventlog_level_error,__FUNCTION__,"max realm name length exceeded");
+	    return -1;
+	}
 	readpos+=strlen(RealmName)+1;
 
 	if (readpos != conn->ReadBuf+ bn_short_get(charlock->h.size)) {

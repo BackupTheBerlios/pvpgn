@@ -35,7 +35,6 @@ typedef unsigned int		BOOL;
 #define MAX_GAMEPASS_LEN	16
 #define MAX_GAMEDESC_LEN	32
 
-#define MAX_NAME_LEN		16
 #define MAX_CHARNAME_LEN	16
 #define MAX_ACCTNAME_LEN	16
 #define MAX_GAMENAME_LEN	16
