@@ -132,7 +132,7 @@ static void conn_send_welcome(t_connection * c)
 	return;
     if (conn_get_class(c)==conn_class_irc)
     {
-	c->flags|= conn_flags_welcomed;
+	c->cflags|= conn_flags_welcomed;
 	return;
     }
     if ((filename = prefs_get_motdfile()))
@@ -1591,7 +1591,7 @@ extern int conn_set_flags(t_connection * c, unsigned int flags)
     }
     oldflags = c->flags;
     c->flags = flags;
-    
+
     if (oldflags!=c->flags && c->channel)
 	channel_update_flags(c);
     
@@ -3103,7 +3103,7 @@ extern int conn_get_welcomed(t_connection const * c)
         return 0;
     }
     
-    return (c->flags & conn_flags_welcomed);
+    return (c->cflags & conn_flags_welcomed);
 }
 
 // NonReal
@@ -3115,7 +3115,7 @@ extern void conn_set_welcomed(t_connection * c, int welcomed)
         eventlog(eventlog_level_error,"conn_set_welcomed","got NULL connection");
         return;
     }
-    c->flags |= conn_flags_welcomed;
+    c->cflags |= conn_flags_welcomed;
 }
 
 /* ADDED BY UNDYING SOULZZ 4/7/02 */
