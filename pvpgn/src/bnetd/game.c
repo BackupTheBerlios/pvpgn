@@ -2017,6 +2017,8 @@ extern int game_set_mapname(t_game * game, char const * mapname)
 	return -1;
     }
     
+    if (game->mapname != NULL) free((void *)game->mapname);
+    
     if (!(game->mapname = strdup(mapname)))
     {
 	eventlog(eventlog_level_error,"game_set_mapname","could not allocate memory for mapname");
