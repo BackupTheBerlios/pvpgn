@@ -585,7 +585,12 @@ extern char const * account_get_strattr(t_account * account, char const * key)
 	    last = curr;
 	}
 
-//    eventlog(eventlog_level_trace, __FUNCTION__, "key '%s' not found", newkey);
+    if ((curr = (t_attribute *)storage->read_attr(account->storage, newkey)) != NULL) {
+	curr->next = account->attrs;
+	account->attrs = curr;
+	if (newkey!=key) free((void *)newkey); /* avoid warning */
+	return curr->val;
+    }
 
     if (newkey!=key) free((void *)newkey); /* avoid warning */
 
@@ -667,7 +672,7 @@ extern int account_set_strattr(t_account * account, char const * key, char const
 	}
 	return 0;
     }
-    
+
     newkey = storage->escape_key(key);
     if (strcasecmp(curr->key,newkey)==0) /* if key is already the first in the attr list */
     {
@@ -711,7 +716,7 @@ extern int account_set_strattr(t_account * account, char const * key, char const
     for (; curr->next; curr=curr->next)
 	if (strcasecmp(curr->next->key,newkey)==0)
 	    break;
-    
+
     if (curr->next) /* if key is already in the attr list */
     {
 	if (val)

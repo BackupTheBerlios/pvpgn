@@ -86,8 +86,8 @@ static t_sql_res * sql_mysql_query_res(const char * query)
     }
 
     if (mysql_query(mysql, query)) {
-        eventlog(eventlog_level_error, __FUNCTION__, "got error from query (%s)", query);
-        return NULL;
+//        eventlog(eventlog_level_debug, __FUNCTION__, "got error from query (%s)", query);
+	return NULL;
     }
 
     res = mysql_store_result(mysql);

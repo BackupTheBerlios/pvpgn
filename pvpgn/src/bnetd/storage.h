@@ -46,6 +46,7 @@ typedef struct {
     int (*free_info)(t_storage_info *);
     int (*read_attrs)(t_storage_info *, t_read_attr_func, void *);
     int (*write_attrs)(t_storage_info *, void *);
+    void * (*read_attr)(t_storage_info *, const char *);
     int (*read_accounts)(t_read_accounts_func, void *);
     int (*cmp_info)(t_storage_info *, t_storage_info *);
     const char * (*escape_key)(const char *);

@@ -94,6 +94,7 @@ static t_storage_info * file_create_account(char const *);
 static t_storage_info * file_get_defacct(void);
 static int file_free_info(t_storage_info *);
 static int file_read_attrs(t_storage_info *, t_read_attr_func, void *);
+static void * file_read_attr(t_storage_info *, const char *);
 static int file_write_attrs(t_storage_info *, void *);
 static int file_read_accounts(t_read_accounts_func, void *);
 static int file_cmp_info(t_storage_info *, t_storage_info *);
@@ -109,6 +110,7 @@ t_storage storage_file = {
     file_free_info,
     file_read_attrs,
     file_write_attrs,
+    file_read_attr,
     file_read_accounts,
     file_cmp_info,
     file_escape_key
@@ -368,6 +370,12 @@ static int file_read_attrs(t_storage_info *info, t_read_attr_func cb, void *data
 	eventlog(eventlog_level_error, __FUNCTION__, "could not close account file \"%s\" after reading (fclose: %s)", (char *)info, strerror(errno));
 
     return 0;
+}
+
+static void * file_read_attr(t_storage_info *info, const char *key)
+{
+    /* flat file storage doesnt know to read selective attributes */
+    return NULL;
 }
 
 static int file_free_info(t_storage_info *info)

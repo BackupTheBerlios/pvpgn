@@ -66,12 +66,15 @@
 #define SQL_UID_FIELD		"uid"
 #define STORAGE_SQL_DEFAULT_UID	0
 
+#define SQL_ON_DEMAND	0
+
 static int sql_init(const char *);
 static int sql_close(void);
 static t_storage_info * sql_create_account(char const *);
 static t_storage_info * sql_get_defacct(void);
 static int sql_free_info(t_storage_info *);
 static int sql_read_attrs(t_storage_info *, t_read_attr_func, void *);
+static void * sql_read_attr(t_storage_info *, const char *);
 static int sql_write_attrs(t_storage_info *, void *);
 static int sql_read_accounts(t_read_accounts_func, void *);
 static int sql_cmp_info(t_storage_info *, t_storage_info *);
@@ -85,6 +88,7 @@ t_storage storage_sql = {
     sql_free_info,
     sql_read_attrs,
     sql_write_attrs,
+    sql_read_attr,
     sql_read_accounts,
     sql_cmp_info,
     sql_escape_key
@@ -302,6 +306,7 @@ static t_storage_info * sql_create_account(char const * username)
 
 static int sql_read_attrs(t_storage_info *info, t_read_attr_func cb, void *data)
 {
+#ifndef SQL_ON_DEMAND
     char query[1024];
     t_sql_res * result = NULL;
     t_sql_row * row;
@@ -365,8 +370,91 @@ static int sql_read_attrs(t_storage_info *info, t_read_attr_func cb, void *data)
 	}
     if (result) sql->free_result(result);
     }
-
+#endif /* SQL_ON_DEMAND */
     return 0;
+}
+
+static void * sql_read_attr(t_storage_info *info, const char * key)
+{
+#ifdef SQL_ON_DEMAND
+    char query[1024];
+    t_sql_res * result = NULL;
+    t_sql_row * row;
+    char *tab, *col;
+    unsigned int uid;
+    t_attribute *attr;
+
+    if(!sql) {
+	eventlog(eventlog_level_error, __FUNCTION__, "sql layer not initilized");
+	return NULL;
+    }
+   
+    if (info == NULL) {
+	eventlog(eventlog_level_error, __FUNCTION__, "got NULL storage info");
+	return NULL;
+    }
+   
+    if (key == NULL) {
+	eventlog(eventlog_level_error, __FUNCTION__, "got NULL key");
+	return NULL;
+    }
+
+    uid = *((unsigned int *)info);
+
+    if (_db_get_tab(key, &tab, &col)<0) {
+        eventlog(eventlog_level_error, __FUNCTION__, "error from db_get_tab");
+        return NULL;
+    }
+
+    sprintf(query, "SELECT `%s` FROM `%s` WHERE `"SQL_UID_FIELD"` = %d", col, tab, uid);
+    if ((result = sql->query_res(query)) == NULL) return NULL;
+
+    if (sql->num_rows(result) != 1) {
+//	eventlog(eventlog_level_debug, __FUNCTION__, "wrong numer of rows from query (%s)", query);
+	sql->free_result(result);
+	return NULL;
+    }
+
+    if (!(row = sql->fetch_row(result))) {
+	eventlog(eventlog_level_error, __FUNCTION__, "could not fetch row");
+	sql->free_result(result);
+	return NULL;
+    }
+
+    if (row[0] == NULL) {
+//	eventlog(eventlog_level_debug, __FUNCTION__, "NULL value from query (%s)", query);
+	sql->free_result(result);
+	return NULL;
+    }
+
+    if ((attr = (t_attribute *) malloc(sizeof(t_attribute))) == NULL) {
+	eventlog(eventlog_level_error, __FUNCTION__, "not enough memory for result");
+	sql->free_result(result);
+	return NULL;
+    }
+
+    if ((attr->key = strdup(key)) == NULL) {
+	eventlog(eventlog_level_error, __FUNCTION__, "not enough memory for result key");
+	free((void *)attr);
+	sql->free_result(result);
+	return NULL;
+    }
+
+    if ((attr->val = strdup(row[0])) == NULL) {
+	eventlog(eventlog_level_error, __FUNCTION__, "not enough memory for result val");
+	free((void *)attr->key);
+	free((void *)attr);
+	sql->free_result(result);
+	return NULL;
+    }
+
+    sql->free_result(result);
+
+    attr->dirty = 0;
+    return (void *)attr;
+#else
+    return NULL;
+#endif /* SQL_ON_DEMAND */
 }
 
 /* write ONLY dirty attributes */
