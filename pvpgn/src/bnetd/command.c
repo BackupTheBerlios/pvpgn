@@ -2761,21 +2761,23 @@ static int _glist_cb(t_game *game, void *data)
 	(!cbdata->tag || game_get_clienttag(game)==cbdata->tag) && 
         (cbdata->diff==game_difficulty_none || game_get_difficulty(game)==cbdata->diff))
     {
-	if (prefs_get_hide_addr() && !(account_get_command_groups(conn_get_account(cbdata->c)) & command_get_group("/admin-addr"))) /* default to false */
-	    sprintf(msgtemp," %-16.16s %1.1s %-8.8s %-21.21s %5u",
-		    game_get_name(game),
-		    game_get_flag(game) != game_flag_private ? "n":"y",
-		    game_status_get_str(game_get_status(game)),
-		    game_type_get_str(game_get_type(game)),
-		    game_get_ref(game));
-	else
-	    sprintf(msgtemp," %-16.16s %1.1s %-8.8s %-21.21s %5u %s",
-		    game_get_name(game),
-		    game_get_flag(game) != game_flag_private ? "n":"y",
-		    game_status_get_str(game_get_status(game)),
-		    game_type_get_str(game_get_type(game)),
-		    game_get_ref(game),
-		    addr_num_to_addr_str(game_get_addr(game),game_get_port(game)));
+	sprintf(msgtemp," %-16.16s %1.1s %-8.8s %-21.21s %5u ",
+	    game_get_name(game),
+	    game_get_flag(game) != game_flag_private ? "n":"y",
+	    game_status_get_str(game_get_status(game)),
+	    game_type_get_str(game_get_type(game)),
+	    game_get_ref(game));
+
+	if (!cbdata->tag)
+	{
+	 
+	  strcat(msgtemp,clienttag_uint_to_str(game_get_clienttag(game)));
+	  strcat(msgtemp," ");
+	}
+	    
+	if ((!prefs_get_hide_addr()) || (account_get_command_groups(conn_get_account(cbdata->c)) & command_get_group("/admin-addr"))) /* default to false */
+	  strcat(msgtemp, addr_num_to_addr_str(game_get_addr(game),game_get_port(game)));
+	    
 	message_send_text(cbdata->c,message_type_info,cbdata->c,msgtemp);
     }
 
@@ -2813,7 +2815,7 @@ static int _handle_games_command(t_connection * c, char const *text)
       cbdata.tag = conn_get_clienttag(c);
       message_send_text(c,message_type_info,c,"Currently accessable games:");
     }
-  else if (strcmp(&dest[0],"all")==0)
+  else if (strcasecmp(&dest[0],"all")==0)
     {
       cbdata.tag = 0;
       message_send_text(c,message_type_info,c,"All current games:");
@@ -2821,6 +2823,13 @@ static int _handle_games_command(t_connection * c, char const *text)
   else
     {
       cbdata.tag = tag_case_str_to_uint(&dest[0]);
+
+      if (!tag_check_client(cbdata.tag))
+      {
+	message_send_text(c,message_type_error,c,"No valid clienttag specified.");
+	return -1;
+      }
+      
       if(cbdata.diff==game_difficulty_none)
         sprintf(msgtemp,"Current games of type %s",tag_uint_to_str(clienttag_str,cbdata.tag));
       else
@@ -2828,10 +2837,11 @@ static int _handle_games_command(t_connection * c, char const *text)
       message_send_text(c,message_type_info,c,msgtemp);
     }
   
-  if (prefs_get_hide_addr() && !(account_get_command_groups(conn_get_account(c)) & command_get_group("/admin-addr"))) /* default to false */
-    sprintf(msgtemp," ------name------ p -status- --------type--------- count");
-  else
-    sprintf(msgtemp," ------name------ p -status- --------type--------- count --------addr--------");
+  sprintf(msgtemp," ------name------ p -status- --------type--------- count ");
+  if (!cbdata.tag)
+    strcat(msgtemp,"ctag ");
+  if ((!prefs_get_hide_addr()) || (account_get_command_groups(conn_get_account(c)) & command_get_group("/admin-addr"))) /* default to false */
+    strcat(msgtemp,"--------addr--------");
   message_send_text(c,message_type_info,c,msgtemp);
   gamelist_traverse(_glist_cb,&cbdata);
 
@@ -4560,7 +4570,7 @@ static int _handle_clearstats_command(t_connection *c, char const *text)
     char         dest[USER_NAME_MAX];
     unsigned int i,j,all;
     t_account *  account;
-    t_clienttag  ctag;
+    t_clienttag  ctag = 0;
 
     for (i=0; text[i]!=' ' && text[i]!='\0'; i++); /* skip command */
     for (; text[i]==' '; i++);

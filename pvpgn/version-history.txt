@@ -4,6 +4,7 @@ PvPGN Version History:
 ===================================
 [MISC]
   -- made topics.conf being reloaded on SIGHUP
+  -- made '/games all' display clienttag of a game
 
 [D2CS/D2DBS]
   -- fixed problem with d2cs and d2dbs not exiting when exit signal is
