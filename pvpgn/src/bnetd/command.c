@@ -1709,7 +1709,7 @@ static int _handle_status_command(t_connection * c, char const *text)
 	clienttag = 0;
     else
 	clienttag = tag_case_str_to_uint(ctag);
-    
+
     switch (clienttag)
     {
 	case 0:
@@ -1985,9 +1985,9 @@ static int _handle_stats_command(t_connection * c, char const *text)
 	message_send_text(c,message_type_error,c,"Example: /stats joe STAR");
 	return 0;
     }
-    
+
     clienttag_uint = tag_case_str_to_uint(clienttag);
-    
+
     switch (clienttag_uint)
     {
 	case CLIENTTAG_BNCHATBOT_UINT:
@@ -2658,12 +2658,18 @@ static int _handle_watchall_command(t_connection * c, char const *text)
 {
     t_clienttag clienttag=0;
     char clienttag_str[5];
-    
+
     text = skip_command(text);
-    
-    if(text[0] != '\0')
+
+    if(text[0] != '\0') {
+	if (strlen(text) != 4) {
+    	    message_send_text(c,message_type_error,c,"You must supply a rank and a valid program ID.");
+    	    message_send_text(c,message_type_error,c,"Example: /watchall STAR");
+    	    return 0;
+	}
 	clienttag = tag_case_str_to_uint(text);
-	
+    }
+
     if (conn_add_watch(c,NULL,clienttag)<0) /* FIXME: adds all events for now */
 	message_send_text(c,message_type_error,c,"Add to watch list failed.");
     else
@@ -2685,8 +2691,13 @@ static int _handle_unwatchall_command(t_connection * c, char const *text)
     
     text = skip_command(text);
     
-    if(text[0] != '\0')
+    if(text[0] != '\0') {
+	if (strlen(text) != 4) {
+    	    message_send_text(c,message_type_error,c,"You must supply a rank and a valid program ID.");
+    	    message_send_text(c,message_type_error,c,"Example: /unwatchall STAR");
+	}
 	clienttag = tag_case_str_to_uint(text);
+    }
     
     if (conn_del_watch(c,NULL,clienttag)<0) /* FIXME: deletes all events for now */
 	message_send_text(c,message_type_error,c,"Removal from watch list failed.");
@@ -3709,23 +3720,19 @@ static int _handle_ladderinfo_command(t_connection * c, char const *text)
       message_send_text(c,message_type_error,c,"Invalid rank.");
       return 0;
     }
-  
-  if (text[i]!='\0')
+
+  if (text[i]!='\0') {
+    if (strlen(clienttag)!=4) {
+      message_send_text(c,message_type_error,c,"You must supply a rank and a valid program ID.");
+      message_send_text(c,message_type_error,c,"Example: /ladderinfo 1 STAR");
+      return 0;
+    }
     clienttag = tag_case_str_to_uint(&text[i]);
-  else if (!(clienttag = conn_get_clienttag(c)))
+  } else if (!(clienttag = conn_get_clienttag(c)))
     {
       message_send_text(c,message_type_error,c,"Unable to determine client game.");
       return 0;
     }
-/*  
-  if (strlen(clienttag)!=4)
-    {
-      sprintf(msgtemp,"You must supply a rank and a valid program ID. (Program ID \"%.32s\" is invalid.)",clienttag);
-      message_send_text(c,message_type_error,c,msgtemp);
-      message_send_text(c,message_type_error,c,"Example: /ladderinfo 1 STAR");
-      return 0;
-    }
-*/  
   if (clienttag==CLIENTTAG_STARCRAFT_UINT)
     {
       if ((account = ladder_get_account_by_rank(rank,ladder_sort_highestrated,ladder_time_active,CLIENTTAG_STARCRAFT_UINT,ladder_id_normal)))

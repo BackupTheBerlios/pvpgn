@@ -192,8 +192,8 @@ extern int anongame_maplists_create(void)
       
       /* find next delimiter */
       for(q = p; *q && *q != ' ' && *q != '\t'; q++);
-      if (*q == '\0') continue;
-      
+      if (*q == '\0' || q - p != 4) continue; /* clienttag needs to have 4 chars */
+
       *q = '\0'; /* end of clienttag */
       
       /* skip spaces and/or tabs */

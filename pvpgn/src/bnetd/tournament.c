@@ -403,6 +403,10 @@ extern int tournament_init(char const * filename)
 		    xfree(buff);
 		    continue;
 		}
+		if (strlen(clienttag) != 4) {
+		    xfree(buff);
+		    continue;
+		}
 		if (strcmp(buff,"[ENDMAPS]") == 0) {
 		    xfree(buff);
 		    break;

@@ -97,10 +97,14 @@ extern char const * clienttag_uint_to_str(t_clienttag clienttag)
 /* make all letters in string upper case - used in command.c*/
 extern t_tag tag_case_str_to_uint(char const * tag_str)
 {
-    unsigned int i;
+    unsigned int i, len;
     char temp_str[5];
     
-    for (i=0; i<strlen(tag_str); i++)
+    len = strlen(tag_str);
+    if (len != 4) 
+	eventlog(eventlog_level_warn,__FUNCTION__,"got unusual sized clienttag '%s'",tag_str);
+
+    for (i=0; i<len && i < 4; i++)
 	if (islower((int)tag_str[i]))
 	    temp_str[i] = toupper((int)tag_str[i]);
 	else
