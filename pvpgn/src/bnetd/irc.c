@@ -244,8 +244,10 @@ extern int irc_authenticate(t_connection * conn, char const * passhash)
         irc_send_cmd(conn,"NOTICE",":Authentication successful. You are now logged in.");
 	return 1;
     } else {
-        /* FIXME: TODO: let the client wait ... */
         irc_send_cmd(conn,"NOTICE",":Authentication failed."); /* wrong password */
+	// [zap-zero] kick client out after failed auth
+	// otherwise could join channels etc.
+	conn_set_state(conn, conn_state_destroy);
     }
 #endif
     return 0;
