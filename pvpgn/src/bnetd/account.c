@@ -294,45 +294,41 @@ extern int account_match(t_account * account, char const * username)
 
 extern int account_save(t_account * account, unsigned int delta)
 {
-   
-   if (!account)
-     {
+    if (!account) {
 	eventlog(eventlog_level_error,"account_save","got NULL account");
 	return -1;
-     }
+    }
 
-   
-   /* account aging logic */
-   if (FLAG_ISSET(account->flags,ACCOUNT_FLAG_ACCESSED))
-     account->age >>=  1;
-   else
-     account->age += delta;
-   if (account->age>( (3*prefs_get_user_flush_timer()) >>1))
-     account->age = ( (3*prefs_get_user_flush_timer()) >>1);
-   FLAG_CLEAR(&account->flags,ACCOUNT_FLAG_ACCESSED);
-   
-   if (!account->storage)
-     {
+    /* account aging logic */
+    if (FLAG_ISSET(account->flags,ACCOUNT_FLAG_ACCESSED))
+	account->age >>=  1;
+    else
+        account->age += delta;
+    if (account->age>( (3*prefs_get_user_flush_timer()) >>1))
+        account->age = ( (3*prefs_get_user_flush_timer()) >>1);
+    FLAG_CLEAR(&account->flags,ACCOUNT_FLAG_ACCESSED);
+
+    if (!account->storage) {
 	eventlog(eventlog_level_error,"account_save","account "UID_FORMAT" has NULL filename",account->uid);
 	return -1;
-     }
+    }
 
-   if (!FLAG_ISSET(account->flags,ACCOUNT_FLAG_LOADED))
-     return 0;
+    if (!FLAG_ISSET(account->flags,ACCOUNT_FLAG_LOADED))
+	return 0;
 
-   if (!FLAG_ISSET(account->flags,ACCOUNT_FLAG_DIRTY)) {
-	if (account->age>=prefs_get_user_flush_timer()) {
+    if (!FLAG_ISSET(account->flags,ACCOUNT_FLAG_DIRTY)) {
+	if (!delta && account->age>=prefs_get_user_flush_timer()) {
 	    account_unload_friends(account);
 	    account_unload_attrs(account);
 	}
 	return 0;
-   }
-   
-   storage->write_attrs(account->storage, account->attrs);
+    }
 
-   FLAG_CLEAR(&account->flags,ACCOUNT_FLAG_DIRTY);
+    storage->write_attrs(account->storage, account->attrs);
 
-   return 1;
+    FLAG_CLEAR(&account->flags,ACCOUNT_FLAG_DIRTY);
+
+    return 1;
 }
 
 
@@ -766,7 +762,7 @@ static int _cb_read_accounts(t_storage_info *info, void *data)
 
     /* might as well free up the memory since we probably won't need it */
     FLAG_CLEAR(&account->flags,ACCOUNT_FLAG_ACCESSED); /* lie */
-    account_save(account,3600); /* big delta to force unload */
+    account_save(account,0); /* force unload */
 
     (*count)++;
 
@@ -822,7 +818,7 @@ extern t_account * account_load_new(char const * name, unsigned uid)
 
     /* might as well free up the memory since we probably won't need it */
     FLAG_CLEAR(&account->flags,ACCOUNT_FLAG_ACCESSED); /* lie */
-    account_save(account,1000); /* big delta to force unload */
+    account_save(account,0); /* force unload */
     force_account_add = 0;
 
     return account;
@@ -849,7 +845,7 @@ static int _cb_read_accounts2(t_storage_info *info, void *data)
 
     /* might as well free up the memory since we probably won't need it */
     FLAG_CLEAR(&account->flags,ACCOUNT_FLAG_ACCESSED); /* lie */
-    account_save(account,1000); /* big delta to force unload */
+    account_save(account,0); /* force unload */
 
     (*count)++;
 
