@@ -2982,7 +2982,7 @@ static int _client_findanongame(t_connection * c, t_packet const * const packet)
 		       packet_append_data(rpacket,&temp,1);
 		       temp=account_get_atteamxp(account,n);
 		       packet_append_data(rpacket,&temp,2);
-		       temp=0; //rank on AT ladder
+		       temp=account_get_atteamrank(account,n);; //rank on AT ladder
 		       packet_append_data(rpacket,&temp,4);
 		       temp=0;
 		       packet_append_data(rpacket,&temp,4); //some unknown packet? random shit
