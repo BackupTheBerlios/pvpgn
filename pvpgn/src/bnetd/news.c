@@ -280,7 +280,7 @@ extern int news_unload(void)
 	    
 	    free((void *)ni->body);
 	    free((void *)ni);
-	    list_remove_elem(news_head,curr);
+	    list_remove_elem(news_head,&curr);
 
 	}
 	

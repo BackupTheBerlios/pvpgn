@@ -1074,7 +1074,7 @@ extern int anongame_unqueue(t_connection * c, int queue)
 	    md = elem_get_data(curr);
 	    if (md->c == c) {
 		eventlog(eventlog_level_trace,__FUNCTION__, "unqueued player [%d] level %d", conn_get_socket(c), i);
-		list_remove_elem(matchlists[queue][i], curr);
+		list_remove_elem(matchlists[queue][i], &curr);
 		free(md);
 		return 0;
 	    }

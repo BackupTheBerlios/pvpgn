@@ -562,7 +562,7 @@ extern int adbannerlist_destroy(void)
 		eventlog(eventlog_level_error,"adbannerlist_destroy","found NULL adbanner in init list");
 	    else
 		adbanner_destroy(ad);
-	    list_remove_elem(adbannerlist_init_head,curr);
+	    list_remove_elem(adbannerlist_init_head,&curr);
 	}
 	list_destroy(adbannerlist_init_head);
 	adbannerlist_init_head = NULL;
@@ -577,7 +577,7 @@ extern int adbannerlist_destroy(void)
 		eventlog(eventlog_level_error,"adbannerlist_destroy","found NULL adbanner in start list");
 	    else
 		adbanner_destroy(ad);
-	    list_remove_elem(adbannerlist_start_head,curr);
+	    list_remove_elem(adbannerlist_start_head,&curr);
 	}
 	list_destroy(adbannerlist_start_head);
 	adbannerlist_start_head = NULL;
@@ -592,7 +592,7 @@ extern int adbannerlist_destroy(void)
 		eventlog(eventlog_level_error,"adbannerlist_destroy","found NULL adbanner in norm list");
 	    else
 		adbanner_destroy(ad);
-	    list_remove_elem(adbannerlist_norm_head,curr);
+	    list_remove_elem(adbannerlist_norm_head,&curr);
 	}
 	list_destroy(adbannerlist_norm_head);
 	adbannerlist_norm_head = NULL;

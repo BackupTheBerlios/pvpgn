@@ -136,7 +136,7 @@ extern int watchlist_del_events(t_connection * owner, t_account * who, char cons
 	    pair->what &= ~events;
 	    if (pair->what==0)
 	    {
-		if (list_remove_elem(watchlist_head,curr)<0)
+		if (list_remove_elem(watchlist_head,&curr)<0)
 		{
 		    eventlog(eventlog_level_error,"watchlist_del_events","could not remove item");
 		    pair->owner = NULL;
@@ -144,8 +144,6 @@ extern int watchlist_del_events(t_connection * owner, t_account * who, char cons
 		else
 		    free(pair);
 	    }
-	    
-	    list_purge(watchlist_head);
 	    
 	    return 0;
 	}
@@ -177,7 +175,7 @@ extern int watchlist_del_all_events(t_connection * owner)
 	}
 	if (pair->owner==owner)
 	{
-	    if (list_remove_elem(watchlist_head,curr)<0)
+	    if (list_remove_elem(watchlist_head,&curr)<0)
 	    {
 		eventlog(eventlog_level_error,"watchlist_del_all_events","could not remove item");
 		pair->owner = NULL;
@@ -186,8 +184,6 @@ extern int watchlist_del_all_events(t_connection * owner)
 	      { free(pair); }
 	}
     }
-    
-    list_purge(watchlist_head);
     
     return 0;
 }
@@ -214,7 +210,7 @@ extern int watchlist_del_by_account(t_account * who)
 	}
 	if (pair->who==who)
 	{
-	    if (list_remove_elem(watchlist_head,curr)<0)
+	    if (list_remove_elem(watchlist_head,&curr)<0)
 	    {
 		eventlog(eventlog_level_error,"watchlist_del_all_events","could not remove item");
 		pair->owner = NULL;
@@ -223,8 +219,6 @@ extern int watchlist_del_by_account(t_account * who)
 	      { free(pair); }
 	}
     }
-    
-    list_purge(watchlist_head);
     
     return 0;
 }
@@ -369,7 +363,7 @@ extern int watchlist_destroy(void)
 		continue;
 	    }
 	    
-	    if (list_remove_elem(watchlist_head,curr)<0)
+	    if (list_remove_elem(watchlist_head,&curr)<0)
         	eventlog(eventlog_level_error,"watchlist_destroy","could not remove item from list");
 	    free(pair);
 	}

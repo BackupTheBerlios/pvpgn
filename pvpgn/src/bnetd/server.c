@@ -1490,13 +1490,13 @@ static void _server_mainloop(t_addrlist *laddrs)
 
 static void _shutdown_conns(void)
 {
-    t_elem const *ccurr;
+    t_elem *ccurr;
     t_connection *c;
 
-    LIST_TRAVERSE_CONST(connlist(),ccurr)
+    LIST_TRAVERSE(connlist(),ccurr)
     {
 	c = (t_connection *)elem_get_data(ccurr);
-	conn_destroy(c);
+	conn_destroy(c,&ccurr,DESTROY_FROM_CONNLIST);
     }
 }
 

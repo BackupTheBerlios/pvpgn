@@ -582,7 +582,7 @@ extern int aliasfile_unload(void)
 		continue;
 	    }
 	    
-	    if (list_remove_elem(aliaslist_head,elem1)<0)
+	    if (list_remove_elem(aliaslist_head,&elem1)<0)
 	    {
 	        eventlog(eventlog_level_error,"aliasfile_unload","could not remove alias");
 		continue;
@@ -597,7 +597,7 @@ extern int aliasfile_unload(void)
 			continue;
 		    }
 		    
-		    if (list_remove_elem(alias->output,elem2)<0)
+		    if (list_remove_elem(alias->output,&elem2)<0)
 		    {
 		        eventlog(eventlog_level_error,"aliasfile_unload","could not remove output");
 			continue;

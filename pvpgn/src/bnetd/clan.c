@@ -520,7 +520,7 @@ extern int clan_unload_members(t_clan * clan)
 		eventlog(eventlog_level_error, __FUNCTION__, "found NULL entry in list");
 		continue;
 	    }
-	    list_remove_elem(clan->members, curr);
+	    list_remove_elem(clan->members, &curr);
 	    free((void *) member);
 	}
 
@@ -549,7 +549,7 @@ extern int clan_remove_all_members(t_clan * clan)
 	    }
 	    if (member->memberacc != NULL)
 		account_set_clanmember(member->memberacc, NULL);
-	    list_remove_elem(clan->members, curr);
+	    list_remove_elem(clan->members, &curr);
 	    free((void *) member);
 	}
 
@@ -564,17 +564,17 @@ extern int clan_remove_all_members(t_clan * clan)
 
 extern int clanlist_remove_clan(t_clan * clan)
 {
+    t_elem * elem;
     if (clan == NULL)
     {
 	eventlog(eventlog_level_error, __FUNCTION__, "get NULL clan");
 	return -1;
     }
-    if (list_remove_data(clanlist_head, clan) < 0)
+    if (list_remove_data(clanlist_head, clan, &elem) < 0)
     {
 	eventlog(eventlog_level_error, __FUNCTION__, "could not delete clan entry");
 	return -1;
     }
-    list_purge(clanlist_head);
     return 0;
 }
 
@@ -693,7 +693,7 @@ extern int clanlist_unload(void)
 		free((void *) clan->clan_motd);
 	    clan_unload_members(clan);
 	    free((void *) clan);
-	    list_remove_elem(clanlist_head, curr);
+	    list_remove_elem(clanlist_head, &curr);
 	}
 
 	if (list_destroy(clanlist_head) < 0)
@@ -1235,9 +1235,11 @@ extern t_clanmember *clan_add_member(t_clan * clan, t_account * memberacc, t_con
 
 extern int clan_remove_member(t_clan * clan, t_clanmember * member)
 {
+    t_elem * elem;
+    
     if (!member)
 	return -1;
-    if (list_remove_data(clan->members, member) < 0)
+    if (list_remove_data(clan->members, member, &elem) < 0)
     {
 	eventlog(eventlog_level_error, __FUNCTION__, "could not remove member");
 	return -1;
@@ -1248,7 +1250,6 @@ extern int clan_remove_member(t_clan * clan, t_clanmember * member)
 	storage->remove_clanmember(account_get_uid(member->memberacc));
     }
     free((void *) member);
-    list_purge(clan->members);
     clan->modified = 1;
     return 0;
 }
@@ -1346,7 +1347,7 @@ extern t_clan *clan_create(t_account * chieftain_acc, t_connection * chieftain_c
 	    t_clanmember *member;
 	    if ((member = elem_get_data(curr)) != NULL)
 		free(member);
-	    list_remove_elem(clan->members, curr);
+	    list_remove_elem(clan->members, &curr);
 	}
 	list_destroy(clan->members);
 	free((void *) clan);

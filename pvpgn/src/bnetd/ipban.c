@@ -106,7 +106,7 @@ extern int ipbanlist_destroy(void)
 		eventlog(eventlog_level_error,"ipbanlist_destroy","ipbanlist contains NULL item");
 		continue;
 	    }
-	    if (list_remove_elem(ipbanlist_head,curr)<0)
+	    if (list_remove_elem(ipbanlist_head,&curr)<0)
 		eventlog(eventlog_level_error,"ipbanlist_destroy","could not remove item from list");
 	    ipban_unload_entry(entry);
 	}
@@ -487,13 +487,12 @@ extern int ipbanlist_unload_expired(void)
 	{
 	    eventlog(eventlog_level_debug,"ipbanlist_unload_expired","removing item: %s",entry->info1);
 	    removed = 1;
-	    if (list_remove_elem(ipbanlist_head,curr)<0)
+	    if (list_remove_elem(ipbanlist_head,&curr)<0)
 		eventlog(eventlog_level_error,"ipbanlist_unload_expired","could not remove item");
 	    else
 		ipban_unload_entry(entry);
 	}
     }
-    list_purge(ipbanlist_head);
     if (removed==1) ipbanlist_save(prefs_get_ipbanfile());
     return 0;
 }
@@ -633,7 +632,7 @@ static int ipban_func_del(t_connection * c, char const * cp)
 	    if (ipban_identical_entry(to_delete,entry))
 	    {
 		counter++;
-		if (list_remove_elem(ipbanlist_head,curr)<0)
+		if (list_remove_elem(ipbanlist_head,&curr)<0)
 		    eventlog(eventlog_level_error,"ipbanlist_unload_expired","could not remove item");
 		else
 		    ipban_unload_entry(entry);
@@ -641,7 +640,6 @@ static int ipban_func_del(t_connection * c, char const * cp)
 	}
 	    
 	ipban_unload_entry(to_delete);
-	list_purge(ipbanlist_head);
 	if (counter == 0)
 	{
 	    message_send_text(c,message_type_error,c,"No matching entry.");
@@ -674,7 +672,7 @@ static int ipban_func_del(t_connection * c, char const * cp)
 		eventlog(eventlog_level_error,"ipban_func_del","ipbanlist contains NULL item");
 		return -1;
 	    }
-	    if (list_remove_elem(ipbanlist_head,curr)<0)
+	    if (list_remove_elem(ipbanlist_head,&curr)<0)
 	        eventlog(eventlog_level_error,"ipbanlist_unload_expired","could not remove item");
 	    else
 	    {
@@ -684,7 +682,6 @@ static int ipban_func_del(t_connection * c, char const * cp)
 	}
     }
     
-    list_purge(ipbanlist_head);
     if (to_delete_nmbr > counter)
     {
 	sprintf(tstr,"There are only %u entries.",counter);

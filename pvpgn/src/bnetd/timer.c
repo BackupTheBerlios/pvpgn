@@ -90,7 +90,7 @@ extern int timerlist_del_all_timers(t_connection * owner)
 		timer->cb(timer->owner,(time_t)0,timer->data);
 	    timer->cb = NULL;
 	    timer->owner = NULL;
-	    if (list_remove_elem(timerlist_head,curr)<0)
+	    if (list_remove_elem(timerlist_head,&curr)<0)
 	    {
 		eventlog(eventlog_level_error,"timerlist_del_all_timers","could not remove timer");
 		continue;
@@ -120,7 +120,7 @@ extern int timerlist_check_timers(time_t when)
 	{
 	    if (timer->cb)
 		timer->cb(timer->owner,timer->when,timer->data);
-	    if (list_remove_elem(timerlist_head,curr)<0)
+	    if (list_remove_elem(timerlist_head,&curr)<0)
 	    {
 		eventlog(eventlog_level_error,"timerlist_check_timers","could not remove timer");
 		continue;
@@ -128,8 +128,6 @@ extern int timerlist_check_timers(time_t when)
 	    free(timer);
 	}
     }
-    
-    list_purge(timerlist_head);
     
     return 0;
 }
@@ -158,7 +156,7 @@ extern int timerlist_destroy(void)
 		continue;
 	    }
 	    
-	    if (list_remove_elem(timerlist_head,curr)<0)
+	    if (list_remove_elem(timerlist_head,&curr)<0)
 	    {
 		eventlog(eventlog_level_error,"timerlist_destroy","could not remove item from list");
 		continue;

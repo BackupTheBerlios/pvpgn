@@ -134,7 +134,7 @@ extern int friendlist_close(t_list * flist)
             continue;
         }
 
-	if (list_remove_elem(flist, curr) < 0) 
+	if (list_remove_elem(flist, &curr) < 0) 
 	    eventlog(eventlog_level_error, __FUNCTION__, "could not remove elem from flist");
         free((void *) fr);
     }
@@ -146,7 +146,7 @@ extern int friendlist_purge(t_list * flist)
 {
     t_elem  * curr;
     t_friend * fr;
-    int doremove=0;
+
     if(flist==NULL)
         return -1;
     LIST_TRAVERSE(flist,curr)
@@ -158,14 +158,10 @@ extern int friendlist_purge(t_list * flist)
         }
         if (fr->mutual<0)
           {
-            if(list_remove_elem(flist, curr)<0)
+            if(list_remove_elem(flist, &curr)<0)
                 eventlog(eventlog_level_error,__FUNCTION__,"could not remove item from list");
-            else
-                doremove=1;
           }
     }
-    if(doremove)
-        list_purge(flist);
     return 0;
 }
 
@@ -189,19 +185,18 @@ extern int friendlist_add_account(t_list * flist, t_account * acc, int mutual)
 
 extern int friendlist_remove_friend(t_list * flist, t_friend * fr)
 {
+    t_elem * elem;
+    
     if(flist==NULL)
         return -1;
 
     if(fr!=NULL)
     {
-        if(list_remove_data(flist, fr)<0)
+        if(list_remove_data(flist, fr, &elem)<0)
         {
             eventlog(eventlog_level_error,__FUNCTION__,"could not remove item from list");
             return -1;
         }
-/* commented by dizzy
-        else
-            list_purge(flist); */
 
 	free((void *)fr);
         return 0;
@@ -211,6 +206,7 @@ extern int friendlist_remove_friend(t_list * flist, t_friend * fr)
 
 extern int friendlist_remove_account(t_list * flist, t_account * acc)
 {
+    t_elem * elem;
     t_friend * fr;
 
     if(flist==NULL)
@@ -219,14 +215,11 @@ extern int friendlist_remove_account(t_list * flist, t_account * acc)
     fr=friendlist_find_account(flist, acc);
     if(fr!=NULL)
     {
-        if(list_remove_data(flist, fr)<0)
+        if(list_remove_data(flist, fr, &elem)<0)
         {
             eventlog(eventlog_level_error,__FUNCTION__,"could not remove item from list");
             return -1;
         }
-/* commented by dizzy
-        else
-            list_purge(flist); */
 
 	free((void *)fr);
         return 0;
@@ -236,6 +229,7 @@ extern int friendlist_remove_account(t_list * flist, t_account * acc)
 
 extern int friendlist_remove_username(t_list * flist, const char * accname)
 {
+    t_elem * elem;
     t_friend * fr;
 
     if(flist==NULL)
@@ -244,14 +238,11 @@ extern int friendlist_remove_username(t_list * flist, const char * accname)
     fr=friendlist_find_username(flist, accname);
     if(fr!=NULL)
     {
-        if(list_remove_data(flist, fr)<0)
+        if(list_remove_data(flist, fr, &elem)<0)
         {
             eventlog(eventlog_level_error,__FUNCTION__,"could not remove item from list");
             return -1;
         }
-/* commented by dizzy
-        else
-            list_purge(flist); */
 
 	free((void *)fr);
         return 0;

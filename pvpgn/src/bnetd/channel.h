@@ -108,7 +108,7 @@ t_channel;
 
 extern int channel_set_flags(t_connection * c);
 extern t_channel * channel_create(char const * fullname, char const * shortname, char const * clienttag, int permflag, int botflag, int operflag, int logflag, char const * country, char const * realmname, int maxmembers, int moderated, int clan) ;
-extern int channel_destroy(t_channel * channel);
+extern int channel_destroy(t_channel * channel, t_elem ** elem);
 extern char const * channel_get_name(t_channel const * channel);
 extern char const * channel_get_shortname(t_channel const * channel);
 extern char const * channel_get_clienttag(t_channel const * channel);

@@ -610,7 +610,7 @@ static int anongame_infos_data_destroy(t_anongame_infos_data * anongame_infos_da
 	    {
 		anongame_infos_data_lang_destroy(entry);
 	    }
-	    list_remove_elem(anongame_infos_data_lang, curr);
+	    list_remove_elem(anongame_infos_data_lang, &curr);
 	}
 	list_destroy(anongame_infos_data_lang);
     }
@@ -718,7 +718,7 @@ static int anongame_infos_destroy(t_anongame_infos * anongame_infos)
 	    {
 		anongame_infos_DESC_destroy(entry);
 	    }
-	    list_remove_elem(anongame_infos->anongame_infos_DESC_list, curr);
+	    list_remove_elem(anongame_infos->anongame_infos_DESC_list, &curr);
 	}
 	list_destroy(anongame_infos->anongame_infos_DESC_list);
 	anongame_infos->anongame_infos_DESC_list = NULL;

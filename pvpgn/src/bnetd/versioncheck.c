@@ -746,7 +746,7 @@ extern int versioncheck_unload(void)
 		continue;
 	    }
 	    
-	    if (list_remove_elem(versioninfo_head,curr)<0)
+	    if (list_remove_elem(versioninfo_head,&curr)<0)
 		eventlog(eventlog_level_error,"versioncheck_unload","could not remove item from list");
 
 	    if (vi->parsed_exeinfo)

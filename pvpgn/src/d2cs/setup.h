@@ -36,7 +36,7 @@
 {\
 	t_elem * curr_elem_;\
 	for (curr_elem_=list_get_first(list); curr_elem_ && (data=elem_get_data(curr_elem_)); \
-		curr_elem_=elem_get_next(curr_elem_))
+		curr_elem_=elem_get_next(list,curr_elem_))
 
 #define END_LIST_TRAVERSE_DATA() \
 }
@@ -45,7 +45,7 @@
 {\
 	t_elem const * curr_elem_;\
 	for (curr_elem_=list_get_first_const(list); curr_elem_ && (data=elem_get_data(curr_elem_)); \
-		curr_elem_=elem_get_next_const(curr_elem_))
+		curr_elem_=elem_get_next_const(list,curr_elem_))
 
 #define END_LIST_TRAVERSE_DATA_CONST() \
 }

@@ -532,9 +532,10 @@ extern void conn_destroy_anongame(t_connection *c)
     c->protocol.w3.anongame = NULL;
 }
 
-extern void conn_destroy(t_connection * c)
+extern void conn_destroy(t_connection * c, t_elem ** elem, int conn_or_dead_list)
 {
     char const * classstr;
+    t_elem * curr;
     
     
     if (c == NULL) {
@@ -544,7 +545,7 @@ extern void conn_destroy(t_connection * c)
 
     classstr = conn_class_get_str(c->protocol.class);
 
-    if (list_remove_data(conn_head,c)<0)
+    if (list_remove_data(conn_head,c,(conn_or_dead_list)?&curr:elem)<0)
     {
 	eventlog(eventlog_level_error,"conn_destroy","could not remove item from list");
 	return;
@@ -576,13 +577,12 @@ extern void conn_destroy(t_connection * c)
     /* free the memory with user quota */
     {
 	t_qline * qline;
-	t_elem *  curr;
 	
 	LIST_TRAVERSE(c->protocol.chat.quota.list,curr)
 	{
 	    qline = elem_get_data(curr);
 	    free(qline);
-	    list_remove_elem(c->protocol.chat.quota.list,curr);
+	    list_remove_elem(c->protocol.chat.quota.list,&curr);
 	}
 	list_destroy(c->protocol.chat.quota.list);
     }
@@ -709,7 +709,7 @@ extern void conn_destroy(t_connection * c)
 
     /* delete the conn from the dead list if its there, we dont check for error
      * because connections may be destroyed without first setting state to destroy */
-    if (conn_dead) list_remove_data(conn_dead, c);
+    if (conn_dead) list_remove_data(conn_dead, c, (conn_or_dead_list)?elem:&curr);
 
     eventlog(eventlog_level_info,"conn_destroy","[%d] closed %s connection",c->socket.tcp_sock,classstr);
     
@@ -830,6 +830,8 @@ extern t_conn_state conn_get_state(t_connection const * c)
 
 extern void conn_set_state(t_connection * c, t_conn_state state)
 {
+    t_elem * elem;
+
     if (!c)
     {
         eventlog(eventlog_level_error, __FUNCTION__, "got NULL connection");
@@ -845,7 +847,7 @@ extern void conn_set_state(t_connection * c, t_conn_state state)
 	list_append_data(conn_dead, c);
     }
     else if (state != conn_state_destroy && c->protocol.state == conn_state_destroy)
-	if (list_remove_data(conn_dead, c)) {
+	if (list_remove_data(conn_dead, c, &elem)) {
 	    eventlog(eventlog_level_error, __FUNCTION__, "could not remove dead connection");
 	    return;
 	}
@@ -1874,6 +1876,7 @@ extern int conn_set_channel(t_connection * c, char const * channelname)
     t_channel * channel;
     t_channel * oldchannel;
     t_account * acc;
+    t_elem * curr;
     int clantag=0;
     t_clan * clan = NULL;
 
@@ -2002,7 +2005,7 @@ extern int conn_set_channel(t_connection * c, char const * channelname)
     if (channel_add_connection(channel,c)<0)
 	{
 	    if (created)
-		    channel_destroy(channel);
+		    channel_destroy(channel,&curr);
 	c->protocol.chat.channel = NULL;
         return -1;
 	}
@@ -3125,7 +3128,6 @@ extern int conn_quota_exceeded(t_connection * con, char const * text)
     time_t    now;
     t_qline * qline;
     t_elem *  curr;
-    int       needpurge;
     
     if (!prefs_get_quota()) return 0;
     if (strlen(text)>prefs_get_quota_maxline())
@@ -3136,25 +3138,21 @@ extern int conn_quota_exceeded(t_connection * con, char const * text)
     
     now = time(NULL);
     
-    needpurge = 0;
     LIST_TRAVERSE(con->protocol.chat.quota.list,curr)
     {
 	qline = elem_get_data(curr);
         if (now>=qline->inf+(time_t)prefs_get_quota_time())
 	{
 	    /* these lines are at least quota_time old */
-	    list_remove_elem(con->protocol.chat.quota.list,curr);
+	    list_remove_elem(con->protocol.chat.quota.list,&curr);
 	    if (qline->count>con->protocol.chat.quota.totcount)
 		eventlog(eventlog_level_error,"conn_quota_exceeded","qline->count=%u but con->protocol.chat.quota.totcount=%u",qline->count,con->protocol.chat.quota.totcount);
 	    con->protocol.chat.quota.totcount -= qline->count;
 	    free(qline);
-	    needpurge = 1;
 	}
 	else
 	    break; /* old items are first, so we know nothing else will match */
     }
-    if (needpurge)
-	list_purge(con->protocol.chat.quota.list);
     
     if ((qline = malloc(sizeof(t_qline)))==NULL)
     {
@@ -3506,10 +3504,8 @@ extern void connlist_reap(void)
 
 	if (!c)
 	    eventlog(eventlog_level_error, __FUNCTION__, "found NULL entry in conn_dead list");
-	else conn_destroy(c); /* also removes from conn_dead list and fdwatch */
+	else conn_destroy(c,&curr,DESTROY_FROM_DEADLIST); /* also removes from conn_dead list and fdwatch */
     }
-    list_purge(conn_dead);
-    list_purge(conn_head); /* remove deleted elements from the connlist */
 }
 
 extern t_list * connlist(void)

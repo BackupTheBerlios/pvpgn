@@ -519,7 +519,7 @@ extern int characterlist_destroy(void)
                 continue;
             }
             
-            if (list_remove_elem(characterlist_head,curr)<0)
+            if (list_remove_elem(characterlist_head,&curr)<0)
                 eventlog(eventlog_level_error,"characterlist_destroy","could not remove item from list");
             free(ch);
         }

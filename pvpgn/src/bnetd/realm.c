@@ -497,7 +497,7 @@ extern int realmlist_destroy(void)
 		eventlog(eventlog_level_error,"realmlist_destroy","found NULL realm in list");
 	    else
 		realm_destroy(realm);
-	    list_remove_elem(realmlist_head,curr);
+	    list_remove_elem(realmlist_head,&curr);
 	}
 	list_destroy(realmlist_head);
 	realmlist_head = NULL;

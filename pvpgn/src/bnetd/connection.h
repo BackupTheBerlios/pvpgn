@@ -224,6 +224,9 @@ t_connection;
 #include "message.h"
 #undef JUST_NEED_TYPES
 
+#define DESTROY_FROM_CONNLIST 0
+#define DESTROY_FROM_DEADLIST 1
+
 extern t_anongame * conn_create_anongame(t_connection * c);
 extern void conn_destroy_anongame(t_connection * c);
 
@@ -236,7 +239,7 @@ extern char const * conn_class_get_str(t_conn_class class) ;
 extern char const * conn_state_get_str(t_conn_state state) ;
 
 extern t_connection * conn_create(int tsock, int usock, unsigned int real_local_addr, unsigned short real_local_port, unsigned int local_addr, unsigned short local_port, unsigned int addr, unsigned short port) ;
-extern void conn_destroy(t_connection * c);
+extern void conn_destroy(t_connection * c, t_elem ** elem, int conn_or_dead_list);
 extern int conn_match(t_connection const * c, char const * user);
 extern t_conn_class conn_get_class(t_connection const * c) ;
 extern void conn_set_class(t_connection * c, t_conn_class class);

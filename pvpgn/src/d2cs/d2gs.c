@@ -132,7 +132,7 @@ extern int d2gslist_reload(char const * gslist)
 	BEGIN_LIST_TRAVERSE_DATA(d2gslist_head,gs)
 	{
 		if (!BIT_TST_FLAG(gs->flag, D2GS_FLAG_VALID)) {
-			d2gs_destroy(gs);
+			d2gs_destroy(gs,&curr_elem_);
 		}
 	}
 	END_LIST_TRAVERSE_DATA()
@@ -145,7 +145,7 @@ extern int d2gslist_destroy(void)
 
 	BEGIN_LIST_TRAVERSE_DATA_CONST(d2gslist_head,gs)
 	{
-		d2gs_destroy(gs);
+		d2gs_destroy(gs,(t_elem **)&curr_elem_);
 	}
 	END_LIST_TRAVERSE_DATA_CONST()
 	d2cs_connlist_reap();
@@ -218,10 +218,10 @@ extern t_d2gs * d2gs_create(char const * ipaddr)
 	return gs;
 }
 
-extern int d2gs_destroy(t_d2gs * gs)
+extern int d2gs_destroy(t_d2gs * gs, t_elem ** curr)
 {
 	ASSERT(gs,-1);
-	if (list_remove_data(d2gslist_head,gs)<0) {
+	if (list_remove_data(d2gslist_head,gs,curr)<0) {
 		eventlog(eventlog_level_error,__FUNCTION__,"error remove gs from list");
 		return -1;
 	}

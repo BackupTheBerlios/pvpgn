@@ -504,6 +504,7 @@ extern t_game * game_create(char const * name, char const * pass, char const * i
 
 static void game_destroy(t_game const * game)
 {
+    t_elem * elem;
     unsigned int i;
     
     if (!game)
@@ -512,7 +513,7 @@ static void game_destroy(t_game const * game)
 	return;
     }
     
-    if (list_remove_data(gamelist_head,game)<0)
+    if (list_remove_data(gamelist_head,game, &elem)<0)
     {
 	eventlog(eventlog_level_error,"game_destroy","could not find game \"%s\" in list",game_get_name(game));
         return;
@@ -1803,7 +1804,6 @@ extern int game_del_player(t_game * game, t_connection * c)
 		game_report(game);
 	        eventlog(eventlog_level_debug,"game_del_player","no more players, destroying game");
 		game_destroy(game);
-		list_purge(gamelist_head);
 	        return 0;
 	    }
 	    

@@ -256,7 +256,7 @@ int topiclist_unload(void)
       if (topic->channel_name) free((void *)topic->channel_name);
       if (topic->topic) free((void *)topic->topic);
       free((void *)topic);
-      list_remove_elem(topiclist_head,curr);
+      list_remove_elem(topiclist_head,&curr);
     }
     if (list_destroy(topiclist_head)<0)
       return -1;

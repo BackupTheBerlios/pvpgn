@@ -96,12 +96,14 @@ extern t_virtconn * virtconn_create(int csd, int ssd, unsigned int udpaddr, unsi
 
 extern void virtconn_destroy(t_virtconn * vc)
 {
+    t_elem * curr;
+
     if (!vc)
     {
         eventlog(eventlog_level_error,"virtconn_destroy","got NULL virtconn");
         return;
     }
-    if (list_remove_data(virtconn_head,vc)<0)
+    if (list_remove_data(virtconn_head,vc, &curr)<0)
 	eventlog(eventlog_level_error,"virtconn_destroy","could not remove item from list");
     
     vc->state = virtconn_state_empty;

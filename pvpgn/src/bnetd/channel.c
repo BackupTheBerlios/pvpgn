@@ -362,7 +362,7 @@ extern t_channel * channel_create(char const * fullname, char const * shortname,
 }
 
 
-extern int channel_destroy(t_channel * channel)
+extern int channel_destroy(t_channel * channel, t_elem ** curr)
 {
     t_elem * ban;
     
@@ -379,7 +379,7 @@ extern int channel_destroy(t_channel * channel)
 	return -1;
     }
     
-    if (list_remove_data(channellist_head,channel)<0)
+    if (list_remove_data(channellist_head,channel,curr)<0)
     {
         eventlog(eventlog_level_error,"channel_destroy","could not remove item from list");
         return -1;
@@ -395,7 +395,7 @@ extern int channel_destroy(t_channel * channel)
 	    eventlog(eventlog_level_error,"channel_destroy","found NULL name in banlist");
 	else
 	    free((void *)banned); /* avoid warning */
-	if (list_remove_elem(channel->banlist,ban)<0)
+	if (list_remove_elem(channel->banlist,&ban)<0)
 	    eventlog(eventlog_level_error,"channel_destroy","unable to remove item from list");
     }
     list_destroy(channel->banlist);
@@ -600,6 +600,7 @@ extern int channel_del_connection(t_channel * channel, t_connection * connection
 {
     t_channelmember * curr;
     t_channelmember * temp;
+    t_elem * curr2;
     
     if (!channel)
     {
@@ -649,8 +650,7 @@ extern int channel_del_connection(t_channel * channel, t_connection * connection
     
     if (!channel->memberlist && !(channel->flags & channel_flags_permanent)) /* if channel is empty, delete it unless it's a permanent channel */
     {
-	channel_destroy(channel);
-	list_purge(channellist_head);
+	channel_destroy(channel,&curr2);
     }
     
     return 0;
@@ -879,7 +879,7 @@ extern int channel_unban_user(t_channel * channel, char const * user)
 	}
         if (strcasecmp(banned,user)==0)
         {
-            if (list_remove_elem(channel->banlist,curr)<0)
+            if (list_remove_elem(channel->banlist,&curr)<0)
             {
                 eventlog(eventlog_level_error,"channel_unban_user","unable to remove item from list");
                 return -1;
@@ -1294,7 +1294,7 @@ extern int channellist_reload(void)
 	
 	/* Channel is empty - Destroying it */
 	channel->flags &= ~channel_flags_permanent;
-	if (channel_destroy(channel)<0)
+	if (channel_destroy(channel,&curr)<0)
 	  eventlog(eventlog_level_error,"channellist_reload","could not destroy channel");
 	
       }
@@ -1349,7 +1349,7 @@ extern int channellist_reload(void)
 	if (channel->shortname)
 	  free((void*)channel->shortname);
 
-	if (list_remove_data(channellist_old,channel)<0)
+	if (list_remove_data(channellist_old,channel,&curr)<0)
 	  eventlog(eventlog_level_error,"channellist_reload","could not remove item from list");
 	free((void*)channel);
 
@@ -1374,7 +1374,7 @@ extern int channellist_create(void)
 extern int channellist_destroy(void)
 {
     t_channel *    channel;
-    t_elem const * curr;
+    t_elem * curr;
     
     if (channellist_head)
     {
@@ -1386,7 +1386,7 @@ extern int channellist_destroy(void)
 		continue;
 	    }
 	    
-	    channel_destroy(channel);
+	    channel_destroy(channel,&curr);
 	}
 	
 	if (list_destroy(channellist_head)<0)

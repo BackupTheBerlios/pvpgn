@@ -154,7 +154,7 @@ void dispose_table(t_table * table)
 		  continue;
 		}
 	      dispose_column(column);
-	      list_remove_elem(table->columns,curr);
+	      list_remove_elem(table->columns,&curr);
 	    }
 	  
 	  list_destroy(table->columns);
@@ -215,7 +215,7 @@ void dispose_db_layout(t_db_layout * db_layout)
 		  continue;
 		}
 	      dispose_table(table);
-	      list_remove_elem(db_layout->tables,curr);
+	      list_remove_elem(db_layout->tables,&curr);
 	    }
           list_destroy(db_layout->tables);
         }
@@ -269,7 +269,7 @@ t_table * db_layout_get_first_table(t_db_layout * db_layout)
   return table;
 }
 
-t_table * db_layout_get_next_table()
+t_table * db_layout_get_next_table(t_db_layout * db_layout)
 {
   t_table * table;
 
@@ -281,7 +281,7 @@ t_table * db_layout_get_next_table()
     return NULL;
   }
 
-  if (!(curr_table = elem_get_next(curr_table))) return NULL;
+  if (!(curr_table = elem_get_next(db_layout->tables, curr_table))) return NULL;
 
   if (!(table = elem_get_data(curr_table)))
   {
@@ -323,7 +323,7 @@ t_column * table_get_first_column(t_table * table)
   return column;
 }
 
-t_column * table_get_next_column()
+t_column * table_get_next_column(t_table * table)
 {
   t_column * column;
 
@@ -333,7 +333,7 @@ t_column * table_get_next_column()
     return NULL;
   }
 
-  if (!(curr_column = elem_get_next(curr_column))) return NULL;
+  if (!(curr_column = elem_get_next(table->columns, curr_column))) return NULL;
 
   if (!(column = elem_get_data(curr_column)))
   {
@@ -452,7 +452,7 @@ int sql_dbcreator(t_sql_engine * sql)
 
   eventlog(eventlog_level_info, __FUNCTION__,"Creating missing tables and columns (if any)");
  
-  for (table = db_layout_get_first_table(db_layout);table;table = db_layout_get_next_table())
+  for (table = db_layout_get_first_table(db_layout);table;table = db_layout_get_next_table(db_layout))
   {
      column = table_get_first_column(table);
      sprintf(query,"CREATE TABLE %s (%s default %s)",table->name,column->name,column->value); 
@@ -463,7 +463,7 @@ int sql_dbcreator(t_sql_engine * sql)
        eventlog(eventlog_level_info,__FUNCTION__,"added missing column %s to table %s",column->name,table->name);
      }
 
-    for (;column;column = table_get_next_column())
+    for (;column;column = table_get_next_column(table))
     {
       sprintf(query,"ALTER TABLE %s ADD %s",table->name,column->name);
       // add missing columns

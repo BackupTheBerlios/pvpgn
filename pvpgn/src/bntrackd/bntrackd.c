@@ -292,8 +292,6 @@ static int server_process(int sockfd)
     last = time(NULL) - prefs.update;
     for (;;)
     {
-	list_purge(serverlist_head);
-	
 	/* time to dump our list to disk and call the process command */
 	/* (I'm making the assumption that this won't take very long.) */
 	if (last+(signed)prefs.update<time(NULL))
@@ -312,7 +310,7 @@ static int server_process(int sockfd)
 		
 		if (server->updated+(signed)prefs.expire<last)
 		{
-		    list_remove_elem(serverlist_head,curr);
+		    list_remove_elem(serverlist_head,&curr);
 		    free(server);
 		}
 		else
@@ -428,7 +426,7 @@ static int server_process(int sockfd)
 			{
 			    if (ntohl(packet.flags)&TF_SHUTDOWN)
 			    {
-				list_remove_elem(serverlist_head,curr);
+				list_remove_elem(serverlist_head,&curr);
 				free(server);
 			    }
 			    else

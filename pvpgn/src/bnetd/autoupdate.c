@@ -212,7 +212,7 @@ extern int autoupdate_unload(void)
 		free((void *)entry->archtag);		/* avoid warning */
 		free(entry);
 	    }
-	    list_remove_elem(autoupdate_head,curr);
+	    list_remove_elem(autoupdate_head,&curr);
 	}
 	
 	if (list_destroy(autoupdate_head)<0) return -1;

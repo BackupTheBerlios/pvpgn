@@ -585,7 +585,7 @@ int d2ladderlist_destroy(void)
     	{
 		if (!(d2ladder=elem_get_data(elem))) continue;
 		free(d2ladder);
-		list_remove_elem(d2ladder_list,elem);
+		list_remove_elem(d2ladder_list,&elem);
     	}
     	list_destroy(d2ladder_list);
 	return 0;

@@ -86,7 +86,7 @@ static int gamelist_destroy(void)
 		continue;
 	    }
 	    
-	    if (list_remove_elem(tournament_head,curr)<0)
+	    if (list_remove_elem(tournament_head,&curr)<0)
 		eventlog(eventlog_level_error,__FUNCTION__,"could not remove item from list");
 	    
 	    if (user->name)

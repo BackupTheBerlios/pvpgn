@@ -311,7 +311,7 @@ extern int trans_unload(void)
 		addr_destroy(entry->input);
 		free(entry);
 	    }
-	    list_remove_elem(trans_head,curr);
+	    list_remove_elem(trans_head,&curr);
 	}
 	list_destroy(trans_head);
 	trans_head = NULL;

@@ -150,7 +150,7 @@ extern int command_groups_unload(void)
 		free(entry->command);
 		free(entry);
 	    }
-	    list_remove_elem(command_groups_head,curr);
+	    list_remove_elem(command_groups_head,&curr);
 	}
 	list_destroy(command_groups_head);
 	command_groups_head = NULL;

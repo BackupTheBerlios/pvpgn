@@ -269,6 +269,7 @@ static int on_client_creategamereq(t_connection * c, t_packet * packet)
 	unsigned int	leveldiff, maxchar, difficulty, expansion, hardcore, ladder;
 	unsigned int	seqno, reply;
 	unsigned int	pos;
+	t_elem		* elem;
 
 	pos=sizeof(t_client_creategamereq);
 	if (!(gamename=packet_get_str_const(packet,pos,MAX_GAMENAME_LEN))) {
@@ -312,7 +313,7 @@ static int on_client_creategamereq(t_connection * c, t_packet * packet)
 		if (gq) {
 			eventlog(eventlog_level_error,__FUNCTION__,"client %d is already in game queue",d2cs_conn_get_sessionnum(c));
 			conn_set_gamequeue(c,NULL);
-			gq_destroy(gq);
+			gq_destroy(gq,&elem);
 			return 0;
 		} else if ((gq=gq_create(d2cs_conn_get_sessionnum(c), packet, gamename))) {
 			conn_set_gamequeue(c,gq);
@@ -490,9 +491,9 @@ static int on_client_gamelistreq(t_connection * c, t_packet * packet)
 
 	elem=start_elem=gamelist_get_curr_elem();
 	if (!elem) elem=list_get_first_const(d2cs_gamelist());
-	else elem=elem_get_next_const(elem);
+	else elem=elem_get_next_const(d2cs_gamelist(),elem);
 
-	for (; elem != start_elem; elem=elem_get_next_const(elem)) {
+	for (; elem != start_elem; elem=elem_get_next_const(d2cs_gamelist(),elem)) {
 		if (!elem) {
 			elem=list_get_first_const(d2cs_gamelist());
 			if (elem == start_elem) break;
@@ -781,6 +782,7 @@ static int on_client_motdreq(t_connection * c, t_packet * packet)
 static int on_client_cancelcreategame(t_connection * c, t_packet * packet)
 {
 	t_gq	* gq;
+	t_elem	* elem;
 
 	if (!packet)
 	    return -1;
@@ -789,7 +791,7 @@ static int on_client_cancelcreategame(t_connection * c, t_packet * packet)
 		return 0;
 	}
 	conn_set_gamequeue(c,NULL);
-	gq_destroy(gq);
+	gq_destroy(gq,&elem);
 	return 0;
 }
 
