@@ -163,7 +163,7 @@ static int handle_irc_line(t_connection * conn, char const * ircline)
     char * prefix = NULL; /* optional; mostly NULL */
     char * command; /* mandatory */
     char ** params = NULL; /* optional (array of params) */
-    char * text; /* optional */
+    char * text = NULL; /* optional */
 	char * bnet_command = NULL;  //amadeo: used for battle.net.commands
     int unrecognized_before = 0;
 	int linelen; //amadeo: counter for stringlenghts
@@ -186,10 +186,10 @@ static int handle_irc_line(t_connection * conn, char const * ircline)
 	//amadeo: code was sent by some unknown fellow of pvpgn, prevents buffer-overflow for
 	// too long irc-lines
 
-    text=(char *)ircline;
-    if (strlen(text)>254) {
+    if (strlen(ircline)>254) {
+        char * tmp = (char *)ircline;
 	eventlog(eventlog_level_warn,"handle_irc_line","line to long, truncation...");
-	text[254]='\0';
+	tmp[254]='\0';
     }    
 
     if (!(line = strdup(ircline))) {
