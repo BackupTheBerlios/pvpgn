@@ -1,6 +1,16 @@
 PvPGN Version History:
 
-1.5.0beta
+1.5.0beta2:
+-- fixed PlayGame for ROC 1.07/1.10 (pure ROC or ROC mode from FT installation),
+note that this BRAKES PlayGame for ROC < 1.07 (ie. 1.06, 1.05 et...)
+-- fixed account saving problems in sql mode (mostly noted by having LOTS
+of NULL username accounts), this fix wont produce those NULL usernames anymore
+but you need to "clean" your DB of the old NULL usernames
+(ex. DELETE FROM BNET WHERE acct_username is NULL)
+-- added correct 1.07 ROC/FT versionchecks
+-- fixed project files for VC++ , it should compile ok now
+
+1.5.0beta:
 note:
    this is a BETA version. It contains LOTS of changes and new code. It needs
  LOTS of testings. But because of public request we released a first PVPGN
