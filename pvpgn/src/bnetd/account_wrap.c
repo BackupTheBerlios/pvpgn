@@ -3346,3 +3346,25 @@ static unsigned int char_icon_to_uint(char * icon)
     
     return value;
 }
+
+extern char const * account_get_email(t_account * account)
+{
+	if(!account)
+	{
+		eventlog(eventlog_level_error,"account_get_new_at_team","Unable to set account flag to TRUE");
+		return NULL;
+	}
+
+    return account_get_strattr(account,"BNET\\acct\\email");
+}
+
+extern int account_set_email(t_account * account, char const * email)
+{
+	if(!account)
+	{
+		eventlog(eventlog_level_error,"account_get_new_at_team","Unable to set account flag to TRUE");
+		return -1;
+	}
+
+    return account_set_strattr(account,"BNET\\acct\\email", email);
+}

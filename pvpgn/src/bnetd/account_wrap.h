@@ -341,5 +341,8 @@ extern char const * account_icon_default(t_account * account, char const * clien
 
 extern int account_is_operator_or_admin(t_account * account, char const * channel);
 
+extern int account_set_email(t_account * account, char const * email);
+extern char const * account_get_email(t_account * account);
+
 #endif
 #endif
