@@ -22,8 +22,6 @@ to kill it)
 -- fixed possible/rare crash when doing /realmann while not beeing into any
 realm
 -- more anongame code cleanup
--- expanded the /user command. If client tag is given, will give number of 
-users and games of that client type, or 'all' for listing of all client types
 -- added gametrans support for PG/AT games
 -- expanded the /users command (if client tag is given, will list users/games
 of that cleint tag, or 'all' for all cleints) ie. /users w3xp , /users all
