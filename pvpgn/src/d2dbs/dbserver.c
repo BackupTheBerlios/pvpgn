@@ -272,7 +272,7 @@ BOOL dbs_server_read_data(t_d2dbs_connection* conn)
 		
 		err = 0;
 		errlen = sizeof(err);
-		errno2 = errno;
+		errno2 = psock_errno();
 
 		if (psock_getsockopt(conn->sd, PSOCK_SOL_SOCKET, PSOCK_SO_ERROR, &err, &errlen)<0)
 			return TRUE;
@@ -306,7 +306,7 @@ BOOL dbs_server_write_data(t_d2dbs_connection* conn)
 
 		err = 0;
 		errlen = sizeof(err);
-		errno2 = errno;
+		errno2 = psock_errno();
 
 		if (psock_getsockopt(conn->sd, PSOCK_SOL_SOCKET, PSOCK_SO_ERROR, &err, &errlen)<0)
 			return TRUE;
@@ -468,7 +468,7 @@ void dbs_server_loop(int lsocket)
 				
 				err = 0;
 				errlen = sizeof(err);
-				errno2 = errno;
+				errno2 = psock_errno();
 
 				if (psock_getsockopt(it->sd, PSOCK_SOL_SOCKET, PSOCK_SO_ERROR, &err, &errlen)==0) {
 					if (errlen && err!=0) {
