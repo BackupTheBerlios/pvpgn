@@ -485,3 +485,29 @@ war3_output_update_secs = 60
 # on demand. Maybe we should set update interval bigger cause XML output version
 # is much more verbose than the standard output
 XML_status_output_ladder = false
+
+###############################################################################
+# W3XP Matchmaking Stuff                                                      #
+#-----------------------------------------------------------------------------#
+w3xp_matchmaking_server_url  = "http://www.google.com"
+w3xp_matchmaking_player_url  = "http://www.google.com"
+w3xp_matchmaking_tourney_url = "http://www.google.com"
+
+w3xp_matchmaking_solo_url = "http://www.google.com"
+w3xp_matchmaking_solo_url_desc = "Solo Games"
+
+w3xp_matchmaking_2vs2_url = "http://www.google.com"
+w3xp_matchmaking_2vs2_url_desc = "2 player team"
+
+w3xp_matchmaking_3vs3_url = "http://www.google.com"
+w3xp_matchmaking_3vs3_url_desc = "3 player team"
+
+w3xp_matchmaking_4vs4_url = "http://www.google.com"
+w3xp_matchmaking_4vs4_url_desc = "4 player team"
+
+w3xp_matchmaking_team_url = "http://www.google.com"
+w3xp_matchmaking_team_url_desc = "Team Games"
+
+w3xp_matchmaking_ffa_url  = "http://www.google.com"
+w3xp_matchmaking_ffa_url_desc = "Free for All Games"
+###############################################################################

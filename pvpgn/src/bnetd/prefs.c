@@ -59,7 +59,6 @@ static char const * get_char_conf(char const * directive);
 static unsigned int get_int_conf(char const * directive);
 static unsigned int get_bool_conf(char const * directive);
 
-
 #define NONE 0
 #define ACT NULL, 0
 
@@ -166,7 +165,7 @@ static Bconf_t conf_table[] =
 
     /* [zap-zero] 20021606 */
 
-    { "mysql_host",		conf_type_char,	   "localhost",  	 NONE,                 	ACT },
+    { "mysql_host",		conf_type_char,	   PVPGN_DEFAULT_URL,  	 NONE,                 	ACT },
     { "mysql_account",		conf_type_char,	   NULL,	  	 NONE,                 	ACT },
     { "mysql_password",		conf_type_char,	   NULL,	  	 NONE,                 	ACT },
     { "mysql_sock",		conf_type_char,	   "/tmp/mysql.sock",  	 NONE,                 	ACT },
@@ -191,6 +190,32 @@ static Bconf_t conf_table[] =
     { "reload_new_accounts",    conf_type_bool,    NULL,                 0,                     ACT },
     { "command_groups_file",	conf_type_char,    BNETD_COMMAND_GROUPS_FILE,	NONE,		ACT },
     { "aliasfile"          ,    conf_type_char,    BNETD_ALIASFILE   ,   NONE,                  ACT },
+
+    /* BlacKDicK 04/02/2003 */
+    //URL
+    { "w3xp_matchmaking_server_url",	conf_type_char,	   PVPGN_DEFAULT_URL,	 NONE,         	ACT },
+    { "w3xp_matchmaking_player_url",	conf_type_char,	   PVPGN_DEFAULT_URL,	 NONE,         	ACT },
+    { "w3xp_matchmaking_tourney_url",   conf_type_char,    PVPGN_DEFAULT_URL,	 NONE,         	ACT },
+
+    //LADR
+    { "w3xp_matchmaking_solo_url",	conf_type_char,    PVPGN_DEFAULT_URL,	 NONE,         	ACT },
+    { "w3xp_matchmaking_solo_url_desc", conf_type_char,    PVPGN_SOLO_DESC,	 NONE,         	ACT },
+
+    { "w3xp_matchmaking_2vs2_url",	conf_type_char,    PVPGN_DEFAULT_URL,	 NONE,         	ACT },
+    { "w3xp_matchmaking_2vs2_url_desc", conf_type_char,    PVPGN_2V2_DESC,	 NONE,         	ACT },
+
+    { "w3xp_matchmaking_3vs3_url",	conf_type_char,    PVPGN_DEFAULT_URL,	 NONE,         	ACT },
+    { "w3xp_matchmaking_3vs3_url_desc", conf_type_char,    PVPGN_3V3_DESC,	 NONE,         	ACT },
+
+    { "w3xp_matchmaking_4vs4_url",	conf_type_char,    PVPGN_DEFAULT_URL,	 NONE,         	ACT },
+    { "w3xp_matchmaking_4vs4_url_desc", conf_type_char,    PVPGN_4V4_DESC,	 NONE,         	ACT },
+
+    { "w3xp_matchmaking_team_url",	conf_type_char,    PVPGN_DEFAULT_URL,	 NONE,         	ACT },
+    { "w3xp_matchmaking_team_url_desc", conf_type_char,    PVPGN_TEAM_DESC,	 NONE,         	ACT },
+
+    { "w3xp_matchmaking_ffa_url",	conf_type_char,    PVPGN_DEFAULT_URL,	 NONE,         	ACT },
+    { "w3xp_matchmaking_ffa_url_desc",  conf_type_char,    PVPGN_FFA_DESC,	 NONE,         	ACT },
+    
     { NULL,             	conf_type_none,    NULL,                 NONE,                  ACT },
 
 };
@@ -1206,4 +1231,80 @@ extern char const * prefs_get_command_groups_file(void)
 extern char const * prefs_get_aliasfile(void)
 {
    return get_char_conf("aliasfile");
+}
+
+// BlacKDicK 04/02/2003
+extern char const * prefs_get_w3xp_matchmaking_server_url(void)
+{
+    return get_char_conf("w3xp_matchmaking_server_url");
+}
+
+extern char const * prefs_get_w3xp_matchmaking_player_url(void)
+{
+    return get_char_conf("w3xp_matchmaking_player_url");
+}
+
+extern char const * prefs_get_w3xp_matchmaking_tourney_url(void)
+{
+    return get_char_conf("w3xp_matchmaking_tourney_url");
+}
+
+extern char const * prefs_get_w3xp_matchmaking_solo_url(void)
+{
+	return get_char_conf("w3xp_matchmaking_solo_url");
+}
+
+extern char const * prefs_get_w3xp_matchmaking_solo_url_desc(void)
+{
+	return get_char_conf("w3xp_matchmaking_solo_url_desc");
+}
+
+extern char const * prefs_get_w3xp_matchmaking_2vs2_url(void)
+{
+	return get_char_conf("w3xp_matchmaking_2vs2_url");
+}
+
+extern char const * prefs_get_w3xp_matchmaking_2vs2_url_desc(void)
+{
+	return get_char_conf("w3xp_matchmaking_2vs2_url_desc");
+}
+
+extern char const * prefs_get_w3xp_matchmaking_3vs3_url(void)
+{
+	return get_char_conf("w3xp_matchmaking_3vs3_url");
+}
+
+extern char const * prefs_get_w3xp_matchmaking_3vs3_url_desc(void)
+{
+	return get_char_conf("w3xp_matchmaking_3vs3_url_desc");
+}
+
+extern char const * prefs_get_w3xp_matchmaking_4vs4_url(void)
+{
+	return get_char_conf("w3xp_matchmaking_4vs4_url");
+}
+
+extern char const * prefs_get_w3xp_matchmaking_4vs4_url_desc(void)
+{
+	return get_char_conf("w3xp_matchmaking_4vs4_url_desc");
+}
+
+extern char const * prefs_get_w3xp_matchmaking_team_url(void)
+{
+	return get_char_conf("w3xp_matchmaking_team_url");
+}
+
+extern char const * prefs_get_w3xp_matchmaking_team_url_desc(void)
+{
+	return get_char_conf("w3xp_matchmaking_team_url_desc");
+}
+
+extern char const * prefs_get_w3xp_matchmaking_ffa_url(void)
+{
+	return get_char_conf("w3xp_matchmaking_ffa_url");
+}
+
+extern char const * prefs_get_w3xp_matchmaking_ffa_url_desc(void)
+{
+	return get_char_conf("w3xp_matchmaking_ffa_url_desc");
 }

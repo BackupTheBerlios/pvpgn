@@ -240,6 +240,18 @@
 #endif
 
 /***************************************************************/
+/* default values for W3XP anongameinfo packet */
+
+#define PVPGN_DEFAULT_URL    "www.pvpgn.org"
+
+#define PVPGN_SOLO_DESC      "Solo Games"
+#define PVPGN_2V2_DESC       "2 player team"
+#define PVPGN_3V3_DESC       "3 player team"
+#define PVPGN_4V4_DESC       "4 player team"
+#define PVPGN_TEAM_DESC      "Team Games"
+#define PVPGN_FFA_DESC       "Free for All Games"
+
+/***************************************************************/
 /* platform dependent features */
 
 /* conditionally enabled features */

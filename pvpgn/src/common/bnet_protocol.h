@@ -339,6 +339,7 @@ FF 44-09 00 03 01 00 00 00
 
 //HERE IS PROFILE PACKET REQUEST (CLIENT-->SERVER)
 //FF 44 17 00 04 01 00 00 00-46 6F 62 4B 65 72 6D 69   D.......FobKermi
+
 //   74 00 33 52 41 57                                 t.3RAW
 
 /* War3 1.03 changed some stuff, it added a 4 byte int between count and profile data
@@ -474,6 +475,15 @@ typedef struct
         bn_int       race;
 } t_client_findanongame_at PACKED_ATTR();
 
+//BlacKDicK 04/02/2003
+#define CLIENT_FINDANONGAME_INFOTAG_URL		0x55524c	//  URL\0
+#define CLIENT_FINDANONGAME_INFOTAG_MAP		0x4d4150	//  MAP\0
+#define CLIENT_FINDANONGAME_INFOTAG_TYPE	0x54595045	//  TYPE
+#define CLIENT_FINDANONGAME_INFOTAG_DESC	0x44455343	//  DESC
+#define CLIENT_FINDANONGAME_INFOTAG_LADR	0x4c414452	//  LADR
+#define CLIENT_FINDANONGAME_INFOTAG_SOLO	0x534f4c4f	//  SOLO
+#define CLIENT_FINDANONGAME_INFOTAG_TEAM	0x5445414d 	//  TEAM
+#define CLIENT_FINDANONGAME_INFOTAG_FFA		0x46464120 	//  FFA\20
 
 typedef struct
 {
@@ -3761,7 +3771,9 @@ typedef struct
 #define SERVER_ARRANGED_TEAM_ADDNAME 0x01 
 /*
 						   FF 61-1C 00 01 00 00 00 C9 7B   ö›Aê..ÿa......É{
+
 0x0040   A0 02 01 00 00 00 01 74-72 65 6E 64 65 63 69 64    ......trendecid
+
 0x0050   65 00                                             e.
 */
 #define CLIENT_ARRANGEDTEAM_INVITE_FRIEND 0x61ff

@@ -55,6 +55,9 @@ WAR3		sffa		Maps\(8)TheCrucible.w3m
 # Arranged Teams 2v2
 WAR3		at2v2		Maps\(4)Duskwood.w3m
 WAR3		at2v2		Maps\(4)HarvestMoon.w3m
+WAR3		at2v2		Maps\(4)LostTemple.w3m
+WAR3		at2v2		Maps\(6)GnollWood.w3m
+WAR3		at2v2		Maps\(6)ScorchedBasin.w3m
 WAR3		at2v2		Maps\(6)Stromguarde.w3m
 WAR3		at2v2		Maps\(6)SwampOfSorrows.w3m
 WAR3		at2v2		Maps\(8)GolemsInTheMist.w3m
@@ -76,7 +79,6 @@ WAR3		at4v4		Maps\(8)PetrifiedForest.w3m
 
 W3XP		1v1		Maps\FrozenThrone\Beta\(4)TurtleRock.w3x
 W3XP		1v1		Maps\FrozenThrone\Beta\(4)HailStone.w3x
-W3XP		1v1		Maps\FrozenThrone\Beta\(4)IceFlow.w3x
 W3XP		1v1		Maps\FrozenThrone\Beta\(4)Whirlwind.w3x
 W3XP		1v1		Maps\FrozenThrone\Beta\(4)Islands.w3x
 
@@ -85,3 +87,22 @@ W3XP		2v2		Maps\FrozenThrone\Beta\(4)Tanaris.w3x
 W3XP		2v2		Maps\FrozenThrone\Beta\(4)BridgetooNear.w3x
 W3XP		2v2		Maps\FrozenThrone\Beta\(6)WheelofChaos.w3x
 W3XP		2v2		Maps\FrozenThrone\Beta\(6)StranglethornVale.w3x
+W3XP		2v2		Maps\FrozenThrone\Beta\(6)RiceFields.w3x
+
+W3XP		at2v2		Maps\FrozenThrone\Beta\(4)Islands.w3x
+W3XP		at2v2		Maps\FrozenThrone\Beta\(4)Tanaris.w3x
+W3XP		at2v2		Maps\FrozenThrone\Beta\(4)BridgetooNear.w3x
+W3XP		at2v2		Maps\FrozenThrone\Beta\(6)WheelofChaos.w3x
+W3XP		at2v2		Maps\FrozenThrone\Beta\(6)StranglethornVale.w3x
+W3XP		at2v2		Maps\FrozenThrone\Beta\(6)RiceFields.w3x
+
+W3XP		sffa		Maps\FrozenThrone\Beta\(4)Islands.w3x
+W3XP		sffa		Maps\FrozenThrone\Beta\(4)Tanaris.w3x
+W3XP		sffa		Maps\FrozenThrone\Beta\(4)BridgetooNear.w3x
+W3XP		sffa		Maps\FrozenThrone\Beta\(6)WheelofChaos.w3x
+W3XP		sffa		Maps\FrozenThrone\Beta\(6)StranglethornVale.w3x
+W3XP		sffa		Maps\FrozenThrone\Beta\(6)RiceFields.w3x
+
+W3XP		3v3		Maps\FrozenThrone\Beta\(6)WheelofChaos.w3x
+W3XP		3v3		Maps\FrozenThrone\Beta\(6)StranglethornVale.w3x
+W3XP		3v3		Maps\FrozenThrone\Beta\(6)RiceFields.w3x

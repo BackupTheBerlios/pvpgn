@@ -10,54 +10,37 @@
 
 
 ##############################################################################
-# Privileges to work under                                                   #
-# Use either the names from the corresponding files or numerical id's (with  #
-# a leading '#').  If none are specified, the userid will not be changed.    #
-#----------------------------------------------------------------------------#
-
-#effective_user  = games
-#effective_group = games
-
-# effective_user  = #12
-# effective_group = #20
-
-#                                                                            #
-##############################################################################
-
-##############################################################################
 # File section                                                               #
 # The pidfile can be set to "" to turn it off.                               #
 # Use absolute paths in these lines to avoid problems!                       #
 #----------------------------------------------------------------------------#
 
-filedir     = /usr/local/var/files
-userdir     = /usr/local/var/users
-reportdir   = /usr/local/var/reports
-chanlogdir  = /usr/local/var/chanlogs
-defacct     = /usr/local/etc/bnetd_default_user
-motdfile    = /usr/local/etc/bnmotd.txt
-issuefile   = /usr/local/etc/bnissue.txt
-channelfile = /usr/local/etc/channel.list
-newsfile    = /usr/local/etc/news.txt
-adfile      = /usr/local/etc/ad.list
-ipbanfile   = /usr/local/etc/bnban
-helpfile    = /usr/local/etc/bnhelp
-transfile   = /usr/local/etc/gametrans
-mpqfile     = /usr/local/etc/autoupdate
-logfile     = /usr/local/var/bnetd.log
-realmfile   = /usr/local/etc/realm.list
-maildir     = /usr/local/var/bnmail
-versioncheck_file = /usr/local/etc/versioncheck
-mapsfile    = /usr/local/etc/bnmaps.txt
-xplevelfile = /usr/local/etc/bnxplevel.txt
-xpcalcfile  = /usr/local/etc/bnxpcalc.txt
-#pidfile    = /usr/local/var/bnetd.pid
-ladderdir   = /usr/local/var/ladders
-command_groups_file = /usr/local/etc/command_groups.txt
-statusdir   = /usr/local/var/status
-aliasfile   = /usr/local/etc/bnalias.list
+filedir     = files
+userdir     = var\users
+reportdir   = var\reports
+chanlogdir  = var\chanlogs
+defacct     = conf\bnetd_default_user
+motdfile    = conf\bnmotd.txt
+issuefile   = conf\bnissue.txt
+channelfile = conf\channel.list
+newsfile    = conf\news.txt
+adfile      = conf\ad.list
+ipbanfile   = conf\bnban
+helpfile    = conf\bnhelp
+transfile   = conf\gametrans
+mpqfile     = conf\autoupdate
+logfile     = var\bnetd.log
+realmfile   = conf\realm.list
+versioncheck_file = conf\versioncheck.conf
+mapsfile    = conf\bnmaps.txt
+xplevelfile = conf\bnxplevel.txt
+xpcalcfile  = conf\bnxpcalc.txt
+#pidfile    = var\bnetd.pid
+ladderdir    = var\ladders
+command_groups_file = conf\command_groups.txt
+statusdir   = var\status
 
-fortunecmd  = /usr/games/fortune
+fortunecmd  = bin\fortune.exe
 
 #                                                                            #
 ##############################################################################
@@ -76,8 +59,8 @@ fortunecmd  = /usr/games/fortune
 #   warn
 #   error
 #   fatal
-loglevels = fatal,error,warn,info,debug,trace
-#loglevels = fatal,error,warn,info
+#loglevels = fatal,error,warn,info,debug,trace
+loglevels = fatal,error,warn
 
 #                                                                            #
 ##############################################################################
@@ -139,7 +122,7 @@ allow_bad_version = false
 # listed in the versioncheck configuration file then enable this.  Unless
 # you have a very complete file or are very paranoid about cheaters this
 # is a good idea.
-allow_unknown_version = true
+allow_unknown_version = false
 
 # This defines how the exeinfo field in the versioncheck file is being
 # checked. In the past the string given by the client was just compared
@@ -405,10 +388,10 @@ w3routeaddr = "127.0.0.1:6200"
 #allow_uplink = false
 
 # location of the BITS password file
-#bits_password_file = "/usr/local/etc/bnbitspasswd"
+#bits_password_file = "conf\bnbitspasswd"
 
 # location of the network-wide MOTD file (bits master only)
-#bits_motd_file = "/usr/local/etc/bnbitsmotd.txt"
+#bits_motd_file = "conf\bnbitsmotd.txt"
 
 # use plaintext password transfer (bits client only)
 #bits_use_plaintext = false
@@ -427,14 +410,14 @@ w3routeaddr = "127.0.0.1:6200"
 # the description of servaddrs for formatting information. Leave this field
 # blank if you do not want to accept IRC connections.  If the port is not
 # specifed then 6667 will be used.
-#ircaddrs = ":6667"
+ircaddrs = ":6667"
 
 # This is the server name used for IRC connections. Set this to your
-# server name, if the automatic detection doesn't correctly. 
-#servername = "none"
+# server name, if the automatic detection doesn't correctly.
+servername = "test"
 
 # Set this to the desired IRC connection timeout in seconds.
-#irc_latency = 180
+irc_latency = 180
 
 #                                                                            #
 ##############################################################################
@@ -450,6 +433,8 @@ w3routeaddr = "127.0.0.1:6200"
 # is not specifed then 23 will be used.
 #telnetaddrs = ":23"
 
+#                                                                            #
+##############################################################################
 
 ##############################################################################
 # db configuration                                                           #
@@ -457,14 +442,14 @@ w3routeaddr = "127.0.0.1:6200"
 mysql_host = "localhost"
 mysql_account = "account"
 mysql_password = "password"
-mysql_sock = "/tmp/mysql.sock"
+mysql_sock = "3306"
 mysql_dbname = "PVPGN"
 
 # Enable this if you want the SQL connection to be persistant
 # It will improve latency time especially for remote SQL servers
 # This option has not been tested very well, it did not crashed here but
 # note that we dont enable it default. Maybe we will in the future...
-mysql_persistent = false
+mysql_persistent = true
 
 ###############################################################################
 # war3 ladder textual output                                                  #
@@ -479,8 +464,9 @@ mysql_persistent = false
 war3_ladder_update_secs = 300
 
 # jfro's latest ladder is based on XML... so we can switch to XML output of ladder
-# on demand
-XML_output_ladder = false
+# on demand. Maybe we should set update interval bigger cause XML output version
+# is much more verbose than the standard output
+XML_output_ladder = true
 
 ###############################################################################
 # server status textual output                                           #
@@ -497,4 +483,30 @@ war3_output_update_secs = 60
 # jfro's latest ladder is based on XML... so we can switch to XML output of ladder
 # on demand. Maybe we should set update interval bigger cause XML output version
 # is much more verbose than the standard output
-XML_status_output_ladder = false
+XML_status_output_ladder = true
+
+###############################################################################
+# W3XP Matchmaking Stuff                                                      #
+#-----------------------------------------------------------------------------#
+w3xp_matchmaking_server_url  = "http://www.google.com"
+w3xp_matchmaking_player_url  = "http://www.google.com"
+w3xp_matchmaking_tourney_url = "http://www.google.com"
+
+w3xp_matchmaking_solo_url = "http://www.google.com"
+w3xp_matchmaking_solo_url_desc = "Solo Games"
+
+w3xp_matchmaking_2vs2_url = "http://www.google.com"
+w3xp_matchmaking_2vs2_url_desc = "2 player team"
+
+w3xp_matchmaking_3vs3_url = "http://www.google.com"
+w3xp_matchmaking_3vs3_url_desc = "3 player team"
+
+w3xp_matchmaking_4vs4_url = "http://www.google.com"
+w3xp_matchmaking_4vs4_url_desc = "4 player team"
+
+w3xp_matchmaking_team_url = "http://www.google.com"
+w3xp_matchmaking_team_url_desc = "Team Games"
+
+w3xp_matchmaking_ffa_url  = "http://www.google.com"
+w3xp_matchmaking_ffa_url_desc = "Free for All Games"
+###############################################################################
