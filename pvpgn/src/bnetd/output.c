@@ -45,6 +45,7 @@
 #include "common/bnettime.h"
 #include "common/eventlog.h"
 #include "common/list.h"
+#include "common/proginfo.h"
 #include "compat/strerror.h"
 
 char * status_filename;
@@ -95,7 +96,7 @@ int output_standard_writer(FILE * fp)
 	    if (conn_get_account(conn))
 	    {
 		tname = conn_get_username(conn);
-		fprintf(fp,"\t\t<user><name>%s</name><clienttag>%s</clienttag></user>\n",tname,conn_get_clienttag(conn));
+		fprintf(fp,"\t\t<user><name>%s</name><clienttag>%s</clienttag><version>%s</version></user>\n",tname,conn_get_clienttag(conn),vernum_to_verstr(conn_get_gameversion(conn)));
 		conn_unget_username(conn,tname);
 	    }
         }
@@ -201,21 +202,6 @@ extern int output_write_to_file(void)
     fclose(fp);
     return 0;
 }
-
-/* consolidated function into output_write_to_file [Omega]
-extern int output1_write_to_file(void)
-{
-    eventlog(eventlog_level_info,"output_write_to_file","flushing output to disk");
-    
-    if (!(output_write_to_file(status_filename))) // Status
-    {
-	eventlog(eventlog_level_error,"output_write_to_file","could not output to disk");
-	return -1;
-    }
-    
-    return 0;
-}
-*/
 
 extern void output_dispose_filename(void)
 {
