@@ -140,12 +140,6 @@ static int list_commands(t_connection * c)
             /* ok. now we must see if there are any aliases */
             length=MAX_COMMAND_LEN+1; position=0;
             buffer=xmalloc(length+1); /* initial memory allocation = pretty fair */
-            if (buffer==NULL) { /* out of memory ? */
-                eventlog(eventlog_level_error,"list_commands","could not allocate memory using malloc of size %u for printing aliases (malloc)",length+1);
-                message_send_text(c,message_type_error,c," Not Enough Memory!");
-		xfree(line);
-                return 0;
-            }
             p=line+i;
             do
 	    {
@@ -157,22 +151,9 @@ static int list_commands(t_connection * c)
                 p[0]='/'; /* change the leading character (% or space) read from the help file to / */
 		if (!(command_get_group(p) & account_get_command_groups(conn_get_account(c)))) skip=1;
                 if (length<strlen(p)+position+1)
-		{
-                    char * aux;
-		    
-                    /* if we don't have enough space in the buffer then get some */
-                    length=strlen(p)+position+1; /* the new length */
-                    aux=xrealloc(buffer,length+1);
-                    if (aux==NULL)
-		    { /* out of memory ? */
-                        eventlog(eventlog_level_error,"list_commands","could not allocate memory using malloc of size %u for printing aliases (malloc)",length+1);
-                        message_send_text(c,message_type_error,c," Not Enough Memory!");
-                        xfree(buffer);
-			xfree(line); /* free the memory allocated in file_get_line */
-                        return 0;
-                    }
-                    buffer = aux;
-                }
+                /* if we don't have enough space in the buffer then get some */
+                length=strlen(p)+position+1; /* the new length */
+                buffer=xrealloc(buffer,length+1);
                 buffer[position++]=' '; /* put a space before each alias */
                 /* add the alias to the output string */
                 strcpy(buffer+position,p); position+=strlen(p);

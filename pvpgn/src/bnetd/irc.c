@@ -577,10 +577,6 @@ static char ** irc_split_elems(char * list, int separator, int ignoreblank)
     count++; /* count separators -> we have one more element ... */
     /* we also need a terminating element */
     out = xmalloc((count+1)*sizeof(char *));
-    if (!out) {
-	eventlog(eventlog_level_error,"irc_get_elems","could not allocate memory for elements: %s",strerror(errno));
-	return NULL;
-    }
 
     out[0] = list;
     if (count>1) {
@@ -653,16 +649,9 @@ static char * irc_message_preformat(t_irc_message_from const * from, char const 
 	    return NULL;
 	}
 	myfrom = xmalloc(strlen(from->nick)+1+strlen(from->user)+1+strlen(from->host)+1); /* nick + "!" + user + "@" + host + "\0" */
-	if (!myfrom) {
-	    eventlog(eventlog_level_error,"irc_message_preformat","could not allocate memory: %s",strerror(errno));
-	    return NULL;
-	}
 	sprintf(myfrom,"%s!%s@%s",from->nick,from->user,from->host);
     } else
-    	if (!(myfrom = xstrdup(server_get_name()))) {
-	    eventlog(eventlog_level_error,"irc_message_preformat","could not allocate memory: %s",strerror(errno));
-	    return NULL;
-	}
+    	myfrom = xstrdup(server_get_name());
     if (dest)
     	mydest = dest;
     if (text)
@@ -673,12 +662,8 @@ static char * irc_message_preformat(t_irc_message_from const * from, char const 
     	  strlen(mydest)+1+
     	  1+strlen(mytext)+1;
 
-     
-    if (!(msg = xmalloc(len))) {
-        eventlog(eventlog_level_error,"irc_message_preformat","could not allocate memory for message: %s",strerror(errno));
-        xfree(myfrom);
-        return NULL;
-    }
+
+    msg = xmalloc(len);
     sprintf(msg,":%s\n%s\n%s\n%s",myfrom,command,mydest,mytext);
     xfree(myfrom);
     return msg;

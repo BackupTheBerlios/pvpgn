@@ -664,14 +664,14 @@ t_ladder * binary_ladder_types_to_w3_ladder(t_binary_ladder_types type)
 }
 
 void ladder_init(t_ladder *ladder,t_binary_ladder_types type, t_clienttag clienttag, t_ladder_id ladder_id)
- {
+{
     ladder->first = NULL;
     ladder->last  = NULL;
     ladder->dirty = 1;
     ladder->type = type;
-	ladder->clienttag = clienttag;
-	ladder->ladder_id = ladder_id;
- }
+    ladder->clienttag = clienttag;
+    ladder->ladder_id = ladder_id;
+}
 
 void ladder_destroy(t_ladder *ladder)
 {
@@ -685,162 +685,152 @@ void ladder_destroy(t_ladder *ladder)
   }
 }
 
- extern int war3_ladder_add(t_ladder *ladder, int uid, int xp, int level, t_account *account, unsigned int teamcount,t_clienttag clienttag)
-  {
-
+extern int war3_ladder_add(t_ladder *ladder, int uid, int xp, int level, t_account *account, unsigned int teamcount,t_clienttag clienttag)
+{
    t_ladder_internal *ladder_entry;
    ladder_entry = xmalloc(sizeof(t_ladder_internal));
 
-   if (ladder_entry != NULL)
-   {
-      ladder_entry->uid       = uid;
-      ladder_entry->xp        = xp;
-      ladder_entry->level     = level;
-      ladder_entry->account   = account;
-      ladder_entry->teamcount = teamcount;
-      ladder_entry->prev      = NULL;
-      ladder_entry->next      = NULL;
+   ladder_entry->uid       = uid;
+   ladder_entry->xp        = xp;
+   ladder_entry->level     = level;
+   ladder_entry->account   = account;
+   ladder_entry->teamcount = teamcount;
+   ladder_entry->prev      = NULL;
+   ladder_entry->next      = NULL;
 
-      if (ladder->first == NULL)
-      { // ladder empty, so just insert element
-         ladder->first = ladder_entry;
-         ladder->last  = ladder_entry;
-      }
-      else
-      { // already elements in list
-        // determine if first or last user in ladder has XP
-        // closest to current, cause should be the shorter way to insert
-        // new user
-            if ((ladder->first->xp - xp) >= (xp - ladder->last->xp))
-            // we should enter from last to first
-            {
-              t_ladder_internal *search;
-              search = ladder->last;
-              while ((search != NULL) && (search->level < level))
-              {
-                search = search->next;
-              }
-	      while ((search != NULL) && (search->level == level) && (search->xp < xp))
-	      {
-                search = search->next;
-	      }
-
-	      if (teamcount!=0) // this only happens for atteams
-		{
-		  t_ladder_internal *teamsearch;
-		  t_ladder_internal *teamfound;
-
-		  teamsearch = search;
-		  teamfound = NULL;
-
-		  while ((teamsearch != NULL) && (teamsearch->xp == xp) && (teamsearch->level == level))
-		    {
-		      if (in_same_team(account,teamsearch->account,teamcount,teamsearch->teamcount,clienttag))
-			{
-			  teamfound = teamsearch;
-			  break;
-			}
-		      teamsearch = teamsearch->next;
-		    }
-		  if (teamfound!=NULL) search = teamfound;
-
-		}
-
-              if (search == NULL)
-              {
-                ladder->first->next = ladder_entry;
-                ladder_entry->prev  = ladder->first;
-                ladder->first       = ladder_entry;
-              }
-              else
-              {
-                 ladder_entry->next = search;
-                 ladder_entry->prev = search->prev;
-                 if (search == ladder->last)
-                 // enter at end of list
-                 {
-                  search->prev = ladder_entry;
-                  ladder->last = ladder_entry;
-                 }
-                 else
-                 {
-                   search->prev->next = ladder_entry;
-                   search->prev       = ladder_entry;
-                 }
-              }
-            }
-            else
-            // start from first and the search towards last
-            {
-              t_ladder_internal *search;
-              search = ladder->first;
-	      while ((search != NULL) && (search->level > level))
-	      {
-		search = search->prev;
-	      }
-              while ((search != NULL) && (search->level == level) && (search->xp > xp))
-              {
-                search = search->prev;
-              }
-
-	      if (teamcount!=0) // this only happens for atteams
-		{
-		  t_ladder_internal *teamsearch;
-		  t_ladder_internal *teamfound;
-
-		  teamsearch = search;
-		  teamfound = NULL;
-
-		  while ((teamsearch != NULL) && (teamsearch->xp == xp))
-		    {
-		      if (in_same_team(account,teamsearch->account,teamcount,teamsearch->teamcount,clienttag))
-			{
-			  teamfound = teamsearch;
-			  break;
-			}
-		      teamsearch = teamsearch->prev;
-		    }
-		  if (teamfound!=NULL) search = teamfound;
-
-		}
-
-
-              if (search == NULL)
-              {
-                ladder->last->prev = ladder_entry;
-                ladder_entry->next = ladder->last;
-                ladder->last       = ladder_entry;
-              }
-              else
-              {
-                 ladder_entry->prev = search;
-                 ladder_entry->next = search->next;
-                 if (search == ladder->first)
-                 // enter at beginning of list
-                 {
-                  search->next  = ladder_entry;
-                  ladder->first = ladder_entry;
-                 }
-                 else
-                 {
-                   search->next->prev = ladder_entry;
-                   search->next       = ladder_entry;
-                 }
-              }
-            }
-       }
-       ladder->dirty = 1;
-       return 0;
+   if (ladder->first == NULL)
+   { // ladder empty, so just insert element
+      ladder->first = ladder_entry;
+      ladder->last  = ladder_entry;
    }
    else
-   {
-     eventlog(eventlog_level_error,"war3_ladder_add","could not add account to ladder");
-     return -1;
-   }
- }
+   { // already elements in list
+     // determine if first or last user in ladder has XP
+     // closest to current, cause should be the shorter way to insert
+     // new user
+        if ((ladder->first->xp - xp) >= (xp - ladder->last->xp))
+        // we should enter from last to first
+        {
+          t_ladder_internal *search;
+          search = ladder->last;
+          while ((search != NULL) && (search->level < level))
+          {
+            search = search->next;
+          }
+          while ((search != NULL) && (search->level == level) && (search->xp < xp))
+	  {
+            search = search->next;
+	  }
 
- extern int war3_ladder_update(t_ladder *ladder, int uid, int xp, int level, t_account *account, unsigned int teamcount)
- {
+          if (teamcount!=0) // this only happens for atteams
+	  {
+	     t_ladder_internal *teamsearch;
+	     t_ladder_internal *teamfound;
+
+	     teamsearch = search;
+	     teamfound = NULL;
+
+	     while ((teamsearch != NULL) && (teamsearch->xp == xp) && (teamsearch->level == level))
+	     {
+	         if (in_same_team(account,teamsearch->account,teamcount,teamsearch->teamcount,clienttag))
+	    	 {
+		    teamfound = teamsearch;
+		    break;
+		 }
+		 teamsearch = teamsearch->next;
+	     }
+	     if (teamfound!=NULL) search = teamfound;
+          }
+
+          if (search == NULL)
+          {
+            ladder->first->next = ladder_entry;
+            ladder_entry->prev  = ladder->first;
+            ladder->first       = ladder_entry;
+          }
+          else
+          {
+             ladder_entry->next = search;
+             ladder_entry->prev = search->prev;
+             if (search == ladder->last)
+             // enter at end of list
+             {
+                search->prev = ladder_entry;
+                ladder->last = ladder_entry;
+             }
+             else
+             {
+                search->prev->next = ladder_entry;
+                search->prev       = ladder_entry;
+             }
+          }
+        }
+        else
+        // start from first and the search towards last
+        {
+          t_ladder_internal *search;
+          search = ladder->first;
+	  while ((search != NULL) && (search->level > level))
+	  {
+	     search = search->prev;
+	  }
+          while ((search != NULL) && (search->level == level) && (search->xp > xp))
+          {
+             search = search->prev;
+          }
+
+	  if (teamcount!=0) // this only happens for atteams
+	  {
+	     t_ladder_internal *teamsearch;
+	     t_ladder_internal *teamfound;
+
+	     teamsearch = search;
+	     teamfound = NULL;
+
+	     while ((teamsearch != NULL) && (teamsearch->xp == xp))
+	     {
+	         if (in_same_team(account,teamsearch->account,teamcount,teamsearch->teamcount,clienttag))
+		 {
+		    teamfound = teamsearch;
+		    break;
+		 }
+		 teamsearch = teamsearch->prev;
+	     }
+	     if (teamfound!=NULL) search = teamfound;
+
+	  }
+
+
+          if (search == NULL)
+          {
+             ladder->last->prev = ladder_entry;
+             ladder_entry->next = ladder->last;
+             ladder->last       = ladder_entry;
+          }
+          else
+          {
+             ladder_entry->prev = search;
+             ladder_entry->next = search->next;
+             if (search == ladder->first)
+             // enter at beginning of list
+             {
+                search->next  = ladder_entry;
+                ladder->first = ladder_entry;
+             }
+             else
+             {
+                search->next->prev = ladder_entry;
+                search->next       = ladder_entry;
+             }
+           }
+        }
+      }
+       ladder->dirty = 1;
+       return 0;
+}
+
+extern int war3_ladder_update(t_ladder *ladder, int uid, int xp, int level, t_account *account, unsigned int teamcount)
+{
    t_ladder_internal *search, *newpos;
    search = ladder->first;
    while (search && ((search->uid != uid) || (search->teamcount!=teamcount))) { search = search->prev; }
@@ -1608,15 +1598,13 @@ int XML_writer(FILE * fp, t_ladder * ladder, t_clienttag clienttag)
 	       continue;
 	     }
 	   
-	   if ((members = xstrdup(account_get_atteammembers(pointer->account,pointer->teamcount,clienttag))))
-	     {
-	       for ( member = strtok(members," ");
-		     member;
-		     member = strtok(NULL," "))
-		 fprintf(fp,"\t\t<member>%s</member>\n",member);
-	       xfree(members);
-	       fprintf(fp,"\t\t<xp>%u</xp>\n\t\t<rank>%u</rank>\n\t</team>\n",pointer->xp,rank);
-	     }
+	   members = xstrdup(account_get_atteammembers(pointer->account,pointer->teamcount,clienttag));
+	   for ( member = strtok(members," ");
+		 member;
+		 member = strtok(NULL," "))
+	       fprintf(fp,"\t\t<member>%s</member>\n",member);
+	   xfree(members);
+	   fprintf(fp,"\t\t<xp>%u</xp>\n\t\t<rank>%u</rank>\n\t</team>\n",pointer->xp,rank);
 	 }
      }
      else {
@@ -1738,16 +1726,11 @@ extern int ladders_write_to_file()
 extern char * create_filename(const char * path, const char * filename, const char * ending)
 {
   char * result;
-  if (!(result = xmalloc(strlen(path)+1+strlen(filename)+strlen(ending)+1)))
-  {
-    eventlog(eventlog_level_error,"create_filename","could not allocate name for filename %s%s",filename,ending);
-    return NULL;
-  }
-  else
-  {
-    sprintf(result,"%s/%s%s",path,filename,ending);
-    return result;
-  }
+
+  result = xmalloc(strlen(path)+1+strlen(filename)+strlen(ending)+1);
+  sprintf(result,"%s/%s%s",path,filename,ending);
+
+  return result;
 }
 
 static void dispose_filename(char * filename)
@@ -2024,24 +2007,13 @@ extern int ladder_createxptable(const char *xplevelfile, const char *xpcalcfile)
       fclose(fd1);
       return -1;
    }
-   
+
    /* then lets allocate mem for all the arrays */
-   if ((xpcalc = xmalloc(sizeof(t_xpcalc_entry) * W3_XPCALC_MAXLEVEL)) == NULL) { //presume the maximal leveldiff is level number
-      eventlog(eventlog_level_error, "ladder_createxptable", "could not allocate for calc types");
-      fclose(fd1); fclose(fd2);
-      return -1;
-   }
-   
+   xpcalc = xmalloc(sizeof(t_xpcalc_entry) * W3_XPCALC_MAXLEVEL); //presume the maximal leveldiff is level number
+
    w3_xpcalc_maxleveldiff = -1;
    memset(xpcalc, 0, sizeof(t_xpcalc_entry) * W3_XPCALC_MAXLEVEL);
-
-   if ((xplevels = xmalloc(sizeof(t_xplevel_entry) * W3_XPCALC_MAXLEVEL)) == NULL) {
-      eventlog(eventlog_level_error, "ladder_createxptable", "coould not allocate for XP levels");
-      ladder_destroyxptable();
-      fclose(fd2); fclose(fd1);
-      return -1;
-   }
-   
+   xplevels = xmalloc(sizeof(t_xplevel_entry) * W3_XPCALC_MAXLEVEL);
    memset(xplevels, 0, sizeof(t_xplevel_entry) * W3_XPCALC_MAXLEVEL);
    
    /* finally, lets read from the files */
@@ -2105,12 +2077,7 @@ extern int ladder_createxptable(const char *xplevelfile, const char *xpcalcfile)
    }
    fclose(fd2);
 
-   if (!(newxpcalc = xrealloc(xpcalc, sizeof(t_xpcalc_entry) * (w3_xpcalc_maxleveldiff+1))))
-   {
-     eventlog(eventlog_level_error,__FUNCTION__,"error resizing xpcalc array to size %d",w3_xpcalc_maxleveldiff+1);
-     ladder_destroyxptable();
-     return -1;
-   }
+   newxpcalc = xrealloc(xpcalc, sizeof(t_xpcalc_entry) * (w3_xpcalc_maxleveldiff+1));
    xpcalc=newxpcalc;
    
    /* OK, now we need to test couse if the user forgot to put some values
