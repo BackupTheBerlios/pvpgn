@@ -276,7 +276,6 @@ extern char const * game_maptype_get_str(t_game_maptype maptype) ;
 extern char const * game_tileset_get_str(t_game_tileset tileset) ;
 extern char const * game_speed_get_str(t_game_speed speed) ;
 extern char const * game_difficulty_get_str(t_game_difficulty difficulty) ;
-
 extern t_game * game_create(char const * name, char const * pass, char const * info, t_game_type type, int startver, t_clienttag clienttag,unsigned long gameversion) ;
 extern unsigned int game_get_id(t_game const * game);
 extern char const * game_get_name(t_game const * game);
@@ -323,7 +322,6 @@ extern time_t game_get_create_time(t_game const * game);
 extern time_t game_get_start_time(t_game const * game);
 extern int game_set_option(t_game * game, t_game_option option);
 extern t_game_option game_get_option(t_game const * game);
-
 extern int gamelist_create(void);
 extern int gamelist_destroy(void);
 extern int gamelist_get_length(void);
@@ -331,17 +329,15 @@ extern t_game * gamelist_find_game(char const * name, t_game_type type);
 extern t_game * gamelist_find_game_byid(unsigned int id);
 extern void gamelist_traverse(t_glist_func cb, void *data);
 extern int gamelist_total_games(void);
-
 extern int game_set_realm(t_game * game, unsigned int realm); 
 extern unsigned int game_get_realm(t_game const * game); 
 extern char const * game_get_realmname(t_game const * game); 
 extern int game_set_realmname(t_game * game, char const * realmname); 
 extern void gamelist_check_voidgame(void);
-
 extern void game_set_flag(t_game * game, t_game_flag flag);
 extern t_game_flag game_get_flag(t_game const * game);
-
 extern int game_get_count_by_clienttag(t_clienttag ct);
+extern int game_is_ladder(t_game *game);
 
 #endif
 #endif

@@ -61,6 +61,9 @@
 #ifdef HAVE_SYS_TYPES_H
 # include <sys/types.h>
 #endif
+#ifdef HAVE_ASSERT_H
+# include <assert.h>
+#endif
 #include "common/eventlog.h"
 #include "prefs.h"
 #include "connection.h"
@@ -765,9 +768,8 @@ static int game_report(t_game * game)
 
     if (realcount>=1 && !game->bad)
     {
-	if (game_get_type(game)==game_type_ladder ||
-	    game_get_type(game)==game_type_ironman ||
-	    game_match_type(game_get_type(game),prefs_get_ladder_games()))
+	if (game_is_ladder(game)
+	    )
 	{
 	    t_ladder_id id;
 
@@ -2203,4 +2205,15 @@ extern int game_get_count_by_clienttag(t_clienttag ct)
     }
    
    return clienttaggames;
+}
+
+extern int game_is_ladder(t_game *game)
+{
+    assert(game);
+
+    if (game->type == game_type_ladder ||
+        game->type == game_type_ironman ||
+	game_match_type(game_get_type(game),prefs_get_ladder_games())) return 1;
+
+    return 0;
 }
