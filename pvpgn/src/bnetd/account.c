@@ -1381,14 +1381,17 @@ extern int accounts_rank_all(void)
       uid = account_get_uid(account);
       war3_ladder_add(solo_ladder(CLIENTTAG_WARCRAFT3),
 		      uid,account_get_soloxp(account,CLIENTTAG_WARCRAFT3),
+		      account_get_sololevel(account,CLIENTTAG_WARCRAFT3),
 		      account_get_solorank(account,CLIENTTAG_WARCRAFT3),
 		      account,0,CLIENTTAG_WARCRAFT3);
       war3_ladder_add(team_ladder(CLIENTTAG_WARCRAFT3),
 		      uid,account_get_teamxp(account,CLIENTTAG_WARCRAFT3),
+		      account_get_teamlevel(account,CLIENTTAG_WARCRAFT3),
 		      account_get_teamrank(account,CLIENTTAG_WARCRAFT3),
 		      account,0,CLIENTTAG_WARCRAFT3);
       war3_ladder_add(ffa_ladder(CLIENTTAG_WARCRAFT3),
 		      uid,account_get_ffaxp(account,CLIENTTAG_WARCRAFT3),
+		      account_get_ffalevel(account,CLIENTTAG_WARCRAFT3),
 		      account_get_ffarank(account,CLIENTTAG_WARCRAFT3),
 		      account,0,CLIENTTAG_WARCRAFT3);
       for (counter=1; counter<=account_get_atteamcount(account,CLIENTTAG_WARCRAFT3);counter++)
@@ -1396,20 +1399,24 @@ extern int accounts_rank_all(void)
 	    if (account_get_atteammembers(account,counter,CLIENTTAG_WARCRAFT3) != NULL)
           war3_ladder_add(at_ladder(CLIENTTAG_WARCRAFT3),
 			  uid,account_get_atteamxp(account,counter,CLIENTTAG_WARCRAFT3),
+			  account_get_atteamlevel(account,counter,CLIENTTAG_WARCRAFT3),
 			  account_get_atteamrank(account,counter,CLIENTTAG_WARCRAFT3),
 			  account,counter,CLIENTTAG_WARCRAFT3);
       }
 
       war3_ladder_add(solo_ladder(CLIENTTAG_WAR3XP),
 		      uid,account_get_soloxp(account,CLIENTTAG_WAR3XP),
+		      account_get_sololevel(account,CLIENTTAG_WAR3XP),
 		      account_get_solorank(account,CLIENTTAG_WAR3XP),
 		      account,0,CLIENTTAG_WAR3XP);
       war3_ladder_add(team_ladder(CLIENTTAG_WAR3XP),
 		      uid,account_get_teamxp(account,CLIENTTAG_WAR3XP),
+		      account_get_teamlevel(account,CLIENTTAG_WAR3XP),
 		      account_get_teamrank(account,CLIENTTAG_WAR3XP),
 		      account,0,CLIENTTAG_WAR3XP);
       war3_ladder_add(ffa_ladder(CLIENTTAG_WAR3XP),
 		      uid,account_get_ffaxp(account,CLIENTTAG_WAR3XP),
+		      account_get_ffalevel(account,CLIENTTAG_WAR3XP),
 		      account_get_ffarank(account,CLIENTTAG_WAR3XP),
 		      account,0,CLIENTTAG_WAR3XP);
       for (counter=1; counter<=account_get_atteamcount(account,CLIENTTAG_WAR3XP);counter++)
@@ -1417,6 +1424,7 @@ extern int accounts_rank_all(void)
 	    if (account_get_atteammembers(account,counter,CLIENTTAG_WAR3XP) != NULL)
           war3_ladder_add(at_ladder(CLIENTTAG_WAR3XP),
 			  uid,account_get_atteamxp(account,counter,CLIENTTAG_WAR3XP),
+			  account_get_atteamlevel(account,counter,CLIENTTAG_WAR3XP),
 			  account_get_atteamrank(account,counter,CLIENTTAG_WAR3XP),
 			  account,counter,CLIENTTAG_WAR3XP);
       }

@@ -2126,7 +2126,7 @@ extern int account_get_sololoss( t_account * account, char const * clienttag)
   return account_get_numattr(account,key);
 }
 
-extern int account_set_soloxp(t_account * account, char const * clienttag, t_game_result gameresult, unsigned int opponlevel)
+extern int account_set_soloxp(t_account * account, char const * clienttag, t_game_result gameresult, unsigned int opponlevel, int * xp_diff)
 { 
   char key[256];
   int xp;
@@ -2160,10 +2160,8 @@ extern int account_set_soloxp(t_account * account, char const * clienttag, t_gam
       eventlog(eventlog_level_error, "account_set_soloxp", "got invalid game result: %d", gameresult);
       return -1;
     }
-  
-  // aaron
-  war3_ladder_update(solo_ladder(clienttag),account_get_uid(account),xpdiff,account,0,clienttag);
-   
+
+  *xp_diff = xpdiff;
   xp += xpdiff;
   if (xp < 0) xp = 0;
 
@@ -2290,7 +2288,7 @@ extern int account_get_teamloss(t_account * account, char const * clienttag)
   return account_get_numattr(account,key);
 }
 
-extern int account_set_teamxp(t_account * account, char const * clienttag, t_game_result gameresult, unsigned int opponlevel)
+extern int account_set_teamxp(t_account * account, char const * clienttag, t_game_result gameresult, unsigned int opponlevel,int * xp_diff)
 {
   char key[256];
   int xp;
@@ -2325,8 +2323,8 @@ extern int account_set_teamxp(t_account * account, char const * clienttag, t_gam
       return -1;
     }  
 
-  war3_ladder_update(team_ladder(clienttag),account_get_uid(account), xpdiff, account,0,clienttag);
-  
+  *xp_diff = xpdiff;
+
   xp += xpdiff;
   if(xp<0) xp=0;
   
@@ -2455,7 +2453,7 @@ extern int account_get_ffaloss(t_account * account, char const * clienttag)
   return account_get_numattr(account,key);
 }
 
-extern int account_set_ffaxp(t_account * account, char const * clienttag,t_game_result gameresult, unsigned int opponlevel)
+extern int account_set_ffaxp(t_account * account, char const * clienttag,t_game_result gameresult, unsigned int opponlevel, int * xp_diff)
 { 
   char key[256];
   int xp;
@@ -2491,10 +2489,8 @@ extern int account_set_ffaxp(t_account * account, char const * clienttag,t_game_
       return -1;
     }
     
-  war3_ladder_update(ffa_ladder(clienttag), account_get_uid(account), xpdiff, account, 0, clienttag);
-  
+  *xp_diff = xpdiff;
   xp += xpdiff;
-  
   if (xp<0) xp=0;
   
   sprintf(key,"Record\\%s\\ffa\\xp",clienttag);
@@ -2650,6 +2646,7 @@ extern int account_get_profile_calcs(t_account * account, int xp, unsigned int L
 extern int account_set_saveladderstats(t_account * account,unsigned int gametype, t_game_result result, unsigned int opponlevel, char const * clienttag)
 {
 	unsigned int intrace;
+        int xpdiff,uid,level;
 
 	if(!account) {
 		eventlog(eventlog_level_error, "account_set_saveladderstats", "got NULL account");
@@ -2661,6 +2658,7 @@ extern int account_set_saveladderstats(t_account * account,unsigned int gametype
 	eventlog(eventlog_level_trace,__FUNCTION__,"parsing game result for player: %s result: %s",account_get_name(account),(result==game_result_win)?"WIN":"LOSS");
 
 	intrace = account_get_w3pgrace(account, clienttag);
+	uid = account_get_uid(account);
 	
 	switch (gametype)
 	{
@@ -2679,8 +2677,11 @@ extern int account_set_saveladderstats(t_account * account,unsigned int gametype
 			account_set_raceloss(account,intrace, clienttag);
 		}
 			
-		account_set_soloxp(account,clienttag,result,opponlevel);
+		account_set_soloxp(account,clienttag,result,opponlevel,&xpdiff);
 		account_set_sololevel(account,clienttag);
+		level = account_get_sololevel(account,clienttag);
+		if (war3_ladder_update(solo_ladder(clienttag),uid,xpdiff,level,account,0)!=0)
+		  war3_ladder_add(solo_ladder(clienttag),uid,account_get_soloxp(account,clienttag),level,0,account,0,clienttag);
 		break;
 	  }
 	  case ANONGAME_TYPE_2V2:
@@ -2705,8 +2706,11 @@ extern int account_set_saveladderstats(t_account * account,unsigned int gametype
 			account_set_raceloss(account,intrace,clienttag);
 		}
 
-		account_set_teamxp(account,clienttag,result,opponlevel); //Not done yet
+		account_set_teamxp(account,clienttag,result,opponlevel,&xpdiff);
 		account_set_teamlevel(account,clienttag);
+		level = account_get_teamlevel(account,clienttag);
+		if (war3_ladder_update(team_ladder(clienttag),uid,xpdiff,level,account,0)!=0)
+		  war3_ladder_add(team_ladder(clienttag),uid,account_get_teamxp(account,clienttag),level,0,account,0,clienttag);
 		break;
 	  }
 
@@ -2723,8 +2727,11 @@ extern int account_set_saveladderstats(t_account * account,unsigned int gametype
 			account_set_raceloss(account,intrace,clienttag);
 		}
 
-		account_set_ffaxp(account,clienttag,result,opponlevel);
+		account_set_ffaxp(account,clienttag,result,opponlevel,&xpdiff);
 		account_set_ffalevel(account,clienttag);
+		level = account_get_ffalevel(account,clienttag);
+		if (war3_ladder_update(ffa_ladder(clienttag),uid,xpdiff,level,account,0)!=0)
+		  war3_ladder_add(ffa_ladder(clienttag),uid,account_get_ffaxp(account,clienttag),level,0,account,0,clienttag);
                 break;
 	  }
 	  default:
@@ -2886,7 +2893,7 @@ extern int account_set_atteamxp(t_account * account, unsigned int teamcount, cha
     return account_set_numattr(account,key,xp);
 }
 
-extern int account_update_atteamxp(t_account * account, t_game_result gameresult, unsigned int opponlevel, unsigned int teamcount, char const * clienttag)
+extern int account_update_atteamxp(t_account * account, t_game_result gameresult, unsigned int opponlevel, unsigned int teamcount, char const * clienttag, int * xp_diff)
 { 
   int xp;
   int mylevel;
@@ -2921,8 +2928,7 @@ extern int account_update_atteamxp(t_account * account, t_game_result gameresult
       return -1;
     }
   
-   // aaron:
-   war3_ladder_update(at_ladder(clienttag),account_get_uid(account),xpdiff,account, teamcount,clienttag);
+   *xp_diff = xpdiff;
    
    xp += xpdiff;
    if (xp < 0) xp = 0;
@@ -3091,6 +3097,7 @@ extern int account_fix_at(t_account *account, const char * ctag)
 extern int account_set_saveATladderstats(t_account * account, unsigned int gametype, t_game_result result, unsigned int opponlevel, unsigned int current_teamnum, char const * clienttag)
 {
   unsigned int intrace;
+  int xpdiff,uid,level;
 	
   if(!account) 
     {
@@ -3102,6 +3109,7 @@ extern int account_set_saveATladderstats(t_account * account, unsigned int gamet
     eventlog(eventlog_level_trace,__FUNCTION__,"parsing game result for player: %s result: %s",account_get_name(account),(result==game_result_win)?"WIN":"LOSS");
 
   intrace = account_get_w3pgrace(account,clienttag);
+  uid = account_get_uid(account);
   
   if(result == game_result_win)
     {
@@ -3113,8 +3121,11 @@ extern int account_set_saveATladderstats(t_account * account, unsigned int gamet
       account_atteamloss(account,current_teamnum,clienttag);
       account_set_raceloss(account,intrace,clienttag);
     }
-  account_update_atteamxp(account,result,opponlevel,current_teamnum,clienttag);
+  account_update_atteamxp(account,result,opponlevel,current_teamnum,clienttag,&xpdiff);
   account_update_atteamlevel(account,current_teamnum,clienttag);
+  level = account_get_atteamlevel(account,current_teamnum,clienttag);
+  if (war3_ladder_update(at_ladder(clienttag),uid,xpdiff,level,account,0)!=0)
+    war3_ladder_add(at_ladder(clienttag),uid,account_get_atteamxp(account,current_teamnum,clienttag),level,0,account,0,clienttag);
   return 0;
 }
 
