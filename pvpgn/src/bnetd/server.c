@@ -161,6 +161,7 @@
 #include "bnpmap.h"
 #include "alias_command.h"
 #include "anongame_infos.h"
+#include "news.h"
 
 extern FILE * hexstrm; /* from main.c */
 extern int g_ServiceStatus;
