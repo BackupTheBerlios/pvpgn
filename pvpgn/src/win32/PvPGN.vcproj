@@ -109,39 +109,6 @@
 					RelativePath="..\bnetd\autoupdate.c">
 				</File>
 				<File
-					RelativePath="..\bnetd\bits.c">
-				</File>
-				<File
-					RelativePath="..\bnetd\bits_chat.c">
-				</File>
-				<File
-					RelativePath="..\bnetd\bits_ext.c">
-				</File>
-				<File
-					RelativePath="..\bnetd\bits_game.c">
-				</File>
-				<File
-					RelativePath="..\bnetd\bits_login.c">
-				</File>
-				<File
-					RelativePath="..\bnetd\bits_motd.c">
-				</File>
-				<File
-					RelativePath="..\bnetd\bits_net.c">
-				</File>
-				<File
-					RelativePath="..\bnetd\bits_packet.c">
-				</File>
-				<File
-					RelativePath="..\bnetd\bits_query.c">
-				</File>
-				<File
-					RelativePath="..\bnetd\bits_rconn.c">
-				</File>
-				<File
-					RelativePath="..\bnetd\bits_va.c">
-				</File>
-				<File
 					RelativePath="..\bnetd\channel.c">
 				</File>
 				<File
@@ -197,9 +164,6 @@
 				</File>
 				<File
 					RelativePath="..\bnetd\handle_auth.c">
-				</File>
-				<File
-					RelativePath="..\bnetd\handle_bits.c">
 				</File>
 				<File
 					RelativePath="..\bnetd\handle_bnet.c">
@@ -260,9 +224,6 @@
 				</File>
 				<File
 					RelativePath="..\bnetd\prefs.c">
-				</File>
-				<File
-					RelativePath="..\bnetd\query.c">
 				</File>
 				<File
 					RelativePath="..\bnetd\realm.c">
@@ -542,39 +503,6 @@
 					RelativePath="..\bnetd\autoupdate.h">
 				</File>
 				<File
-					RelativePath="..\bnetd\bits.h">
-				</File>
-				<File
-					RelativePath="..\bnetd\bits_chat.h">
-				</File>
-				<File
-					RelativePath="..\bnetd\bits_ext.h">
-				</File>
-				<File
-					RelativePath="..\bnetd\bits_game.h">
-				</File>
-				<File
-					RelativePath="..\bnetd\bits_login.h">
-				</File>
-				<File
-					RelativePath="..\bnetd\bits_motd.h">
-				</File>
-				<File
-					RelativePath="..\bnetd\bits_net.h">
-				</File>
-				<File
-					RelativePath="..\bnetd\bits_packet.h">
-				</File>
-				<File
-					RelativePath="..\bnetd\bits_query.h">
-				</File>
-				<File
-					RelativePath="..\bnetd\bits_rconn.h">
-				</File>
-				<File
-					RelativePath="..\bnetd\bits_va.h">
-				</File>
-				<File
 					RelativePath="..\bnetd\channel.h">
 				</File>
 				<File
@@ -630,9 +558,6 @@
 				</File>
 				<File
 					RelativePath="..\bnetd\handle_auth.h">
-				</File>
-				<File
-					RelativePath="..\bnetd\handle_bits.h">
 				</File>
 				<File
 					RelativePath="..\bnetd\handle_bnet.h">
@@ -693,9 +618,6 @@
 				</File>
 				<File
 					RelativePath="..\bnetd\prefs.h">
-				</File>
-				<File
-					RelativePath="..\bnetd\query.h">
 				</File>
 				<File
 					RelativePath="..\bnetd\quota.h">
@@ -769,9 +691,6 @@
 				</File>
 				<File
 					RelativePath="..\common\auth_protocol.h">
-				</File>
-				<File
-					RelativePath="..\common\bits_protocol.h">
 				</File>
 				<File
 					RelativePath="..\common\bn_type.h">
