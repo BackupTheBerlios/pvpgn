@@ -1,4 +1,6 @@
 PvPGN Version History:
+Latest changes:
+-- MYSQL support compileable with Borland C compiler now
 
 1.4.0:
 -- fixes for PG/AT and late War3 versions
