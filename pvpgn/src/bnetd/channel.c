@@ -595,12 +595,14 @@ extern int channel_add_connection(t_channel * channel, t_connection * connection
     channel_message_log(channel,connection,0,"JOINED");
     
     message_send_text(connection,message_type_channel,connection,channel_get_name(channel));
-    for (user=channel_get_first(channel); user; user=channel_get_next())
-    {
-	message_send_text(connection,message_type_adduser,user,NULL);
-	if (user!=connection)
-	    message_send_text(user,message_type_join,connection,NULL);
-    }
+
+    if(!(channel_get_flags(channel) & channel_flags_thevoid))
+        for (user=channel_get_first(channel); user; user=channel_get_next())
+        {
+	    message_send_text(connection,message_type_adduser,user,NULL);
+    	    if (user!=connection)
+    		message_send_text(user,message_type_join,connection,NULL);
+        }
     
     /* please don't remove this notice */
     if (channel->log)
