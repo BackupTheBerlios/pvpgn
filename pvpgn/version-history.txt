@@ -1,6 +1,11 @@
 PvPGN Version History:
 
 1.5.0
+a general note:
+  for everyone using mySQL: please set mysql_persitent=true in bnetd.conf
+  it will not only speed up all the database accesses but its also the mode
+that is used during dev'ing so problems with it are less propable
+changes:
 -- added conf/anongame_infos.conf so u can freely name gametypes for W3XP
 -- maps/gametypes for W3XP can now be changed in bnmaps.txt
 -- fixed some possible mySQL problems with savebyname=false for usernames
@@ -39,6 +44,9 @@ operators/admins
 channels only to server admin/opers. Also you get the admins/opers in a
 channel listed again, now. ((A)=server admin,(O)=server operator,(a)=channel
 admin,(o)=channel operator)
+-- fixed a problem with attributes containing symbols like '-' or ' ' (like in
+"auth\\admin\\Starcraft ENU-1" not being saved to DB or not loading correctly
+when mysql_persitent=false)
 
 
 1.4.6-D2
