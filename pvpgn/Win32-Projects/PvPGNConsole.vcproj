@@ -44,7 +44,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalOptions="wsock32.lib libmySQL.lib"
+				AdditionalOptions="ws2_32.lib libmySQL.lib"
 				OutputFile="$(OutDir)/PvPGNConsole.exe"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="..\src\win32"
@@ -110,7 +110,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalOptions="wsock32.lib libmySQL.lib"
+				AdditionalOptions="ws2_32.lib libmySQL.lib"
 				OutputFile="$(OutDir)/PvPGNConsole_debug.exe"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="..\src\win32"
