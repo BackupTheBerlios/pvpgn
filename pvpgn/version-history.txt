@@ -10,6 +10,10 @@ fail to login due to wrong file-time. That's not our problem.
 would crash)
 -- made race wins needed for channel/profile icons configurable via
 anongame_infos.conf
+-- made war3/w3xp profile screen xp-progress-bar work for levels above 23
+-- adjusted war3/w3xp level calculation in case of xp loss to match with
+battle.net (now you drop a level when you reach the startxp of the level
+below, not when you drop below the startxp of the current level)
 
 1.6.0pre2 (since 1.6.0pre1):
 -- fixed searching for connection of a acccount uid (thus getting rid of all 
