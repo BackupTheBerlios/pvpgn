@@ -7,6 +7,8 @@ Bringing Emulation To New Levels!
 ** IF YOU EXPERIENCE PROBLEMS USING THE SERVER PLEASE REPORT IT TO THE **
 ********  ADMINISTRATOR OF THE SERVER NOT TO THE PVPGN TEAM  ************
 
+Project development homepage: http://pvpgn.berlios.de
+
 Support channels (ONLY for the admins):
 ========================================
 1. BugTracker (preffered support method):
