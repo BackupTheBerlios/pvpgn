@@ -417,7 +417,15 @@ static int sd_accept(t_addr const * curr_laddr, t_laddr_info const * laddr_info,
 	    conn_set_class(c,conn_class_telnet);
 	    conn_set_state(c,conn_state_connected);
 	    break;
-	case laddr_type_bnet:
+	case laddr_type_bnet: 
+	    {	/* add a timer to close stale connections */
+		int delay;
+		t_timer_data data;
+
+		data.p = NULL;
+		delay = prefs_get_initkill_timer();
+		if (delay) timerlist_add_timer(c,time(NULL)+delay,conn_shutdown,data);
+	    }
 	default:
 	    /* We have to wait for an initial "magic" byte on bnet connections to
              * tell us exactly what connection class we are dealing with.

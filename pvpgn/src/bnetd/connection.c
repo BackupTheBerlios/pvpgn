@@ -731,6 +731,7 @@ extern void conn_set_class(t_connection * c, t_conn_class class)
 {
     t_timer_data  data;
     unsigned long delta;
+    t_conn_class oldclass;
     
     if (!c)
     {
@@ -741,56 +742,75 @@ extern void conn_set_class(t_connection * c, t_conn_class class)
     if (c->protocol.class==class)
 	return;
     
+    oldclass = c->protocol.class;
     c->protocol.class = class;
-    
-    if (class==conn_class_bnet)
-    {
-	
-	if (prefs_get_udptest_port()!=0)
-	    conn_set_game_port(c,(unsigned short)prefs_get_udptest_port());
-	udptest_send(c);
-	
-	delta = prefs_get_latency();
-	data.n = delta;
-	if (timerlist_add_timer(c,time(NULL)+(time_t)delta,conn_test_latency,data)<0)
-	    eventlog(eventlog_level_error,"conn_set_class","could not add timer");
 
-        eventlog(eventlog_level_debug,"conn_set_class","added latency check timer");
+    switch(class) {
+	case conn_class_defer:
+	{ /* remove any possible init timeout timers and install a defer one */
+	    int delay = prefs_get_initkill_timer();
+	    t_timer_data data;
 
-    }
-    // [zap-zero] 20020629
-    else if (class==conn_class_w3route)
-    {
-	delta = prefs_get_latency();
-	data.n = delta;
-	if (timerlist_add_timer(c,time(NULL)+(time_t)delta,conn_test_latency,data)<0)
-	    eventlog(eventlog_level_error,"conn_set_class","could not add timer");
-    }
-    else if (class==conn_class_bot || class==conn_class_telnet)
-    {
-	t_packet * rpacket;
-	
-	if (class==conn_class_bot)
+	    data.p = NULL;
+	    if (oldclass == conn_class_init) timerlist_del_all_timers(c);
+	    if (delay) timerlist_add_timer(c,time(NULL)+(time_t)delay,conn_shutdown,data);
+	}
+	case conn_class_bnet:
+	    if (prefs_get_udptest_port()!=0)
+		conn_set_game_port(c,(unsigned short)prefs_get_udptest_port());
+	    udptest_send(c);
+
+	    /* remove any init/defer timers */
+	    if (oldclass == conn_class_defer) timerlist_del_all_timers(c);
+	    delta = prefs_get_latency();
+	    data.n = delta;
+	    if (timerlist_add_timer(c,time(NULL)+(time_t)delta,conn_test_latency,data)<0)
+		eventlog(eventlog_level_error,"conn_set_class","could not add timer");
+
+    	    eventlog(eventlog_level_debug,"conn_set_class","added latency check timer");
+	    break;
+
+	case conn_class_w3route:
+	    delta = prefs_get_latency();
+	    data.n = delta;
+	    if (timerlist_add_timer(c,time(NULL)+(time_t)delta,conn_test_latency,data)<0)
+		eventlog(eventlog_level_error,"conn_set_class","could not add timer");
+	    break;
+
+	case conn_class_bot:
+	case conn_class_telnet:
 	{
-	    if ((delta = prefs_get_nullmsg())>0)
-	    {
-		data.n = delta;
-		if (timerlist_add_timer(c,time(NULL)+(time_t)delta,conn_send_nullmsg,data)<0)
+	    t_packet * rpacket;
+	    if (class==conn_class_bot) {
+		if ((delta = prefs_get_nullmsg())>0) {
+		    data.n = delta;
+		    if (timerlist_add_timer(c,time(NULL)+(time_t)delta,conn_send_nullmsg,data)<0)
 		    eventlog(eventlog_level_error,"conn_set_class","could not add timer");
+		}
 	    }
+
+	    /* remove any init/defer timers */
+	    if (oldclass == conn_class_init) timerlist_del_all_timers(c);
+	    conn_send_issue(c);
+
+	    if (!(rpacket = packet_create(packet_class_raw)))
+		eventlog(eventlog_level_error,"conn_set_class","could not create rpacket");
+	    else {
+		packet_append_ntstring(rpacket,"Username: ");
+		conn_push_outqueue(c,rpacket);
+		packet_del_ref(rpacket);
+	    }
+
+	    break;
 	}
-	
-	conn_send_issue(c);
-	
-	if (!(rpacket = packet_create(packet_class_raw)))
-	    eventlog(eventlog_level_error,"conn_set_class","could not create rpacket");
-	else
-	{
-	    packet_append_ntstring(rpacket,"Username: ");
-	    conn_push_outqueue(c,rpacket);
-	    packet_del_ref(rpacket);
-	}
+
+	default:
+	    /* remove any init/defer timers */
+	    if (oldclass == conn_class_init || oldclass == conn_class_defer) 
+		timerlist_del_all_timers(c);
+	    break;
     }
+
 }
 
 
