@@ -52,6 +52,8 @@
 #include "war3ladder.h"
 #include "prefs.h"
 
+static unsigned int char_icon_to_uint(char * icon);
+
 #ifdef DEBUG_ACCOUNT
 extern unsigned int account_get_numattr_real(t_account * account, char const * key, char const * fn, unsigned int ln)
 #else
@@ -3065,22 +3067,22 @@ extern unsigned int account_icon_to_profile_icon(char const * icon,t_account * a
 	// Night Elves - Wisp, Archer, Druid of the Claw, Priestess of the Moon, Furion Stormrage, Nothing
 	// Demons - Nothing, ???(wich unit is nfgn), Infernal, Doom Guard, Pit Lord/Manaroth, Archimonde
 	// ADDED TFT ICON BY DJP 07/16/2003
-	unsigned int profile_code[12][6] = {
-	{0,      'ngrd', 'nadr', 'nrdr', 'nbwm', 0},
-	{'hpea', 'hfoo', 'hkni', 'Hamg', 'nmed', 0},
-	{'opeo', 'ogru', 'otau', 'Ofar', 'Othr', 0},
-	{'uaco', 'ugho', 'uabo', 'Ulic', 'Utic', 0},
-	{'ewsp', 'earc', 'edoc', 'Emoo', 'Efur', 0},
-	{0,      'nfng', 'ninf', 'nbal', 'Nplh','Uwar'},
-	{0,      'nmyr', 'nnsw', 'ntrd', 'Nngs', 'Eevi'},
-	{'hpea', 'hrif', 'hsor', 'hspt', 'Hblm', 'Hkal'},
-	{'opeo', 'ohun', 'oshm', 'ospm', 'Orkn', 'Orex'},
-	{'uaco', 'ucry', 'uban', 'ubsp', 'Ucrl', 'Usyl'},
-	{'ewsp', 'esen', 'edot', 'edry', 'Ewar', 'Ewrd'},
-	{0,      'nfgu', 'ninc', 'nbal', 'Nplh', 'Uwar'},
+	char * profile_code[12][6] = {
+	    {NULL  , "ngrd", "nadr", "nrdr", "nbwm", NULL  },
+	    {"hpea", "hfoo", "hkni", "Hamg", "nmed", NULL  },
+	    {"opeo", "ogru", "otau", "Ofar", "Othr", NULL  },
+	    {"uaco", "ugho", "uabo", "Ulic", "Utic", NULL  },
+	    {"ewsp", "earc", "edoc", "Emoo", "Efur", NULL  },
+	    {NULL  , "nfng", "ninf", "nbal", "Nplh", "Uwar"},
+	    {NULL  , "nmyr", "nnsw", "ntrd", "Nngs", "Eevi"},
+	    {"hpea", "hrif", "hsor", "hspt", "Hblm", "Hkal"},
+	    {"opeo", "ohun", "oshm", "ospm", "Orkn", "Orex"},
+	    {"uaco", "ucry", "uban", "ubsp", "Ucrl", "Usyl"},
+	    {"ewsp", "esen", "edot", "edry", "Ewar", "Ewrd"},
+	    {NULL  , "nfgu", "ninc", "nbal", "Nplh", "Uwar"}
 	};
 	char tmp_icon[4];
-	int result;
+	char * result;
 	int number_ctag=0;
 
 	if (icon==NULL) return account_get_icon_profile(account,ctag);
@@ -3105,17 +3107,17 @@ extern unsigned int account_icon_to_profile_icon(char const * icon,t_account * a
 				result = profile_code[5+number_ctag][tmp_icon[0]-1];
 			}else{
 				eventlog(eventlog_level_warn,"account_icon_to_profile_icon","got unrecognized race on [%s] icon ",icon);
-				result = 'opeo';}
+				result = profile_code[2][0];} /* "opeo" */
 			}else{
 				eventlog(eventlog_level_warn,"account_icon_to_profile_icon","got race_level<1 on [%s] icon ",icon);
-				result = 0;
+				result = NULL;
 			}
 	}else{
-		eventlog(eventlog_level_error,"account_icon_to_profile_icon","got invalid icon lenght [%s] icon ",icon);
-		result = 0;
+	    eventlog(eventlog_level_error,"account_icon_to_profile_icon","got invalid icon lenght [%s] icon ",icon);
+	    result = NULL;
 	}
-	eventlog(eventlog_level_debug,"account_icon_to_profile_icon","from [%4.4s] icon returned [0x%X]",icon,result);
-	return result;
+	eventlog(eventlog_level_debug,"account_icon_to_profile_icon","from [%4.4s] icon returned [0x%X]",icon,char_icon_to_uint(result));
+	return char_icon_to_uint(result);
 }
 
 extern int account_is_operator_or_admin(t_account * account, char const * channel)
@@ -3127,3 +3129,19 @@ extern int account_is_operator_or_admin(t_account * account, char const * channe
       return 0;
 
 }
+
+static unsigned int char_icon_to_uint(char * icon)
+{
+    unsigned int value;
+    
+    if (!icon) return 0;
+    if (strlen(icon)!=4) return 0;
+
+    value  = ((unsigned int)icon[0])<<24;
+    value |= ((unsigned int)icon[1])<<16;
+    value |= ((unsigned int)icon[2])<< 8;
+    value |= ((unsigned int)icon[3])    ;
+    
+    return value;
+}
+
