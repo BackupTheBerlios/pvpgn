@@ -438,9 +438,9 @@ int pre_server_startup(void)
     if (versioncheck_load(prefs_get_versioncheck_file())<0)
 	eventlog(eventlog_level_error,"pre_server_startup","could not load versioncheck list");
     watchlist_create();
+    war3_ladders_init();
     accountlist_load_default();
     accountlist_create();
-    war3_ladders_init();
     war3_ladder_update_all_accounts();
     if (ladderlist_create()<0) {
 	eventlog(eventlog_level_error, "pre_server_startup", "could not create ladders");
