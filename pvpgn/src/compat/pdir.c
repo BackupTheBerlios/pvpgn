@@ -139,7 +139,6 @@ extern int p_rewinddir(t_pdir * pdir) {
    memset(&pdir->fileinfo, 0, sizeof(pdir->fileinfo)); /* no need for compat because WIN32 always has memset() */
    pdir->lFindHandle = _findfirst(pdir->path, &pdir->fileinfo);
    if (pdir->lFindHandle < 0) {
-      eventlog(eventlog_level_error,__FUNCTION__,"WIN32: unable to open directory \"%s\" for reading (_findfirst: %s)",pdir->path,strerror(errno));
       pdir->status = -1;
       return -1;
    }
