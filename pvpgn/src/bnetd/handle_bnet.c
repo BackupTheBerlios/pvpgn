@@ -2468,6 +2468,7 @@ static int _client_friendinforeq(t_connection * c, t_packet const * const packet
 	     else 
 	       {
 		  bn_byte_set(&rpacket->u.server_friendinforeply.status, FRIENDSTATUS_ONLINE);
+		  bn_int_set(&rpacket->u.server_friendinforeply.clienttag, 0);
 		  packet_append_string(rpacket, "");
 	       }
 	  }
@@ -2491,6 +2492,7 @@ static int _client_friendinforeq(t_connection * c, t_packet const * const packet
 	     else 
 	       {
 		  bn_byte_set(&rpacket->u.server_friendinforeply.status, FRIENDSTATUS_ONLINE);
+		  bn_int_set(&rpacket->u.server_friendinforeply.clienttag, 0);
 		  packet_append_string(rpacket, "");
 	       }
 	     

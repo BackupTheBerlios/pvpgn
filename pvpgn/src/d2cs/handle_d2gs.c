@@ -416,6 +416,7 @@ extern int handle_d2gs_init(t_connection * c)
 	if ((packet=packet_create(packet_class_d2gs))) {
 		packet_set_size(packet,sizeof(t_d2cs_d2gs_authreq));
 		packet_set_type(packet,D2CS_D2GS_AUTHREQ);
+		bn_int_set(&packet->u.d2cs_d2gs_authreq.h.seqno,1);
 		bn_int_set(&packet->u.d2cs_d2gs_authreq.sessionnum,d2cs_conn_get_sessionnum(c));
 		packet_append_string(packet,prefs_get_realmname());
 		queue_push_packet(d2cs_conn_get_out_queue(c),packet);
