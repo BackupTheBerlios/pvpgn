@@ -31,7 +31,6 @@
 # include "d2cs/d2cs_protocol.h"
 # include "d2cs/d2cs_d2gs_protocol.h"
 # include "d2cs/d2cs_bnetd_protocol.h"
-# include "common/w3xp_protocol.h"
 #else
 # define JUST_NEED_TYPES
 # include "common/field_sizes.h"
@@ -45,7 +44,6 @@
 # include "d2cs/d2cs_protocol.h"
 # include "d2cs/d2cs_d2gs_protocol.h"
 # include "d2cs/d2cs_bnetd_protocol.h"
-# include "common/w3xp_protocol.h"
 # undef JUST_NEED_TYPES
 #endif
 

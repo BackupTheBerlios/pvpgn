@@ -60,7 +60,6 @@
 #include "common/eventlog.h"
 #include "common/packet.h"
 #include "common/bnet_protocol.h"
-#include "common/w3xp_protocol.h"
 #include "common/tag.h"
 #include "common/util.h"
 #include "common/bnettime.h"

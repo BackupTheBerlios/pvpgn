@@ -59,7 +59,6 @@
 #include "compat/strdup.h"
 #include "common/packet.h"
 #include "common/bnet_protocol.h"
-#include "common/w3xp_protocol.h"
 #include "common/tag.h"
 #include "message.h"
 #include "common/eventlog.h"
@@ -226,7 +225,6 @@ static const t_htable_row bnet_htable_con[] = {
     {CLIENT_LOGINREQ_W3, _client_loginreqw3},
     {CLIENT_LOGONPROOFREQ, _client_logonproofreq},
     /* After this packet we know to translate the packets to the normal IDs */
-    {CLIENT_W3XP_COUNTRYINFO, _client_countryinfo109},
     {CLIENT_CHANGECLIENT, _client_changeclient},
     {CLIENT_GETPASSWORDREQ, _client_getpasswordreq},
     {CLIENT_CHANGEEMAILREQ, _client_changeemailreq},
