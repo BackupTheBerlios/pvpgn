@@ -288,25 +288,25 @@ static t_storage_info * sql_create_account(char const * username)
     }
 
     *((unsigned int*)info) = uid;
-    sprintf(query, "INSERT INTO BNET (uid) VALUES('%s');", str_uid);
+    sprintf(query, "REPLACE INTO BNET (uid) VALUES('%s');", str_uid);
     if (sql->query(query)) {
         eventlog(eventlog_level_error, __FUNCTION__, "user insert failed");
 	free((void*)info);
 	return NULL;
     }
-    sprintf(query, "INSERT INTO profile (uid) VALUES('%s');", str_uid);
+    sprintf(query, "REPLACE INTO profile (uid) VALUES('%s');", str_uid);
     if (sql->query(query)) {
         eventlog(eventlog_level_error, __FUNCTION__, "user insert failed");
 	free((void*)info);
 	return NULL;
     }
-    sprintf(query, "INSERT INTO Record (uid) VALUES('%s');", str_uid);
+    sprintf(query, "REPLACE INTO Record (uid) VALUES('%s');", str_uid);
     if (sql->query(query)) {
         eventlog(eventlog_level_error, __FUNCTION__, "user insert failed");
 	free((void*)info);
 	return NULL;
     }
-    sprintf(query, "INSERT INTO friend (uid) VALUES('%s');", str_uid);
+    sprintf(query, "REPLACE INTO friend (uid) VALUES('%s');", str_uid);
     if (sql->query(query)) {
         eventlog(eventlog_level_error, __FUNCTION__, "user insert failed");
 	free((void*)info);
