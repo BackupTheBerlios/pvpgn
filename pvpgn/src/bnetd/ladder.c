@@ -256,7 +256,7 @@ extern int ladder_update(t_clienttag clienttag, t_ladder_id id, unsigned int cou
 	
 	return 0; /* no change in case of draw */
     }
-    if ((losers<1) || (winners>1 && (winners!=losers)))
+    if ((losers<1) || (winners<1) || (winners>1 && (winners!=losers)))
     {
 	eventlog(eventlog_level_error,__FUNCTION__,"missing winner or loser for count=%u (winners=%u losers=%u draws=%u)",count,winners,losers,draws);
 	return -1;
