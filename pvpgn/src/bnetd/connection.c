@@ -639,8 +639,6 @@ extern void conn_destroy(t_connection * c, t_elem ** elem, int conn_or_dead_list
 	free((void *)c->protocol.client.owner); /* avoid warning */
     if (c->protocol.client.cdkey)
 	free((void *)c->protocol.client.cdkey); /* avoid warning */
-    if (c->protocol.loggeduser)
-	free((void *)c->protocol.loggeduser); /* avoid warning */
     if (c->protocol.d2.realmname)
 	free((void *)c->protocol.d2.realmname); /* avoid warning */
     if (c->protocol.d2.realminfo)
@@ -670,14 +668,15 @@ extern void conn_destroy(t_connection * c, t_elem ** elem, int conn_or_dead_list
     if (c->protocol.account)
     {
 	char const * tname;
-	
-	tname = account_get_name(c->protocol.account);
+
+	tname = conn_get_loggeduser(c);;
 	eventlog(eventlog_level_info,"conn_destroy","[%d] \"%s\" logged out",c->socket.tcp_sock,tname);
-	account_unget_name(tname);
 	//amadeo
 #ifdef WIN32_GUI
 						guiOnUpdateUserList();
 #endif
+	if (c->protocol.loggeduser)
+	    free((void *)c->protocol.loggeduser); /* avoid warning */
 
 	if (account_get_conn(c->protocol.account)==c)  /* make sure you don't set this when allready on new conn (relogin with same account) */
 	    account_set_conn(c->protocol.account,NULL);
@@ -1545,7 +1544,9 @@ extern char const * conn_get_loggeduser(t_connection const * c)
 	eventlog(eventlog_level_error, __FUNCTION__, "got NULL connection");
 	return NULL;
     }
-    
+
+    if (!c->protocol.loggeduser && c->protocol.account)
+	return account_get_name(c->protocol.account);
     return c->protocol.loggeduser;
 }
 
@@ -2301,7 +2302,7 @@ extern char const * conn_get_username(t_connection const * c)
         eventlog(eventlog_level_error,"conn_get_username","got NULL connection");
         return NULL;
     }
-    
+
     if (c->protocol.class==conn_class_auth && c->protocol.bound)
 	return account_get_name(c->protocol.bound->protocol.account);
     if(!c->protocol.account)
@@ -2349,7 +2350,7 @@ extern char const * conn_get_chatname(t_connection const * c)
     }
     if (!c->protocol.account)
 	return NULL; /* no name yet */
-    return account_get_name(c->protocol.account);
+    return conn_get_loggeduser(c);
 }
 
 
@@ -2363,7 +2364,7 @@ extern int conn_unget_chatname(t_connection const * c, char const * name)
     
     if ((c->protocol.class==conn_class_auth || c->protocol.class==conn_class_bnet) && c->protocol.bound)
 	return 0;
-    return account_unget_name(name);
+    return 0;
 }
 
 
@@ -2382,7 +2383,7 @@ extern char const * conn_get_chatcharname(t_connection const * c, t_connection c
         return NULL; /* no name yet */
 
     /* for D2 Users */
-    accname = account_get_name(c->protocol.account);
+    accname = conn_get_loggeduser(c);
     if (!accname)
         return NULL;
 
@@ -2396,7 +2397,6 @@ extern char const * conn_get_chatcharname(t_connection const * c, t_connection c
     	    sprintf(chatcharname, "%s*%s", mychar, accname);
     } else chatcharname = strdup(accname);
 
-    account_unget_name(accname);
     return chatcharname;
 }
 

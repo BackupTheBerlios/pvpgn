@@ -1595,7 +1595,6 @@ static int _client_statsreq(t_connection * c, t_packet const * const packet)
 	unsigned int key_off;
 	t_account *  account;
 	char const * tval;
-	char const * tname;
 	
 	name_count = bn_int_get(packet->u.client_statsreq.name_count);
 	key_count = bn_int_get(packet->u.client_statsreq.key_count);
@@ -1626,9 +1625,7 @@ static int _client_statsreq(t_connection * c, t_packet const * const packet)
 	     {
 	       if ((account = conn_get_account(c)))
 	       {
-		 eventlog(eventlog_level_debug,__FUNCTION__,"[%d] client_statsreply no name, use self \"%s\"",conn_get_socket(c),(tname = account_get_name(account)));
-		 account_unget_name(tname);
-		       
+		 eventlog(eventlog_level_debug,__FUNCTION__,"[%d] client_statsreply no name, use self \"%s\"",conn_get_socket(c), name);
 	       }
 	     }
 	     
@@ -1661,8 +1658,7 @@ static int _client_statsreq(t_connection * c, t_packet const * const packet)
 		    packet_append_string(rpacket,""); /* FIXME: what should really happen here? */
 		    if (account && key[0]!='\0')
 		      {
-		         eventlog(eventlog_level_debug,__FUNCTION__,"[%d] no entry \"%s\" in account \"%s\" or access denied",conn_get_socket(c),key,(tname = account_get_name(account)));
-		         account_unget_name(tname);
+		         eventlog(eventlog_level_debug,__FUNCTION__,"[%d] no entry \"%s\" in account \"%s\" or access denied",conn_get_socket(c),key,name);
 		      }
 	         }
 	  }
@@ -1748,7 +1744,6 @@ static int _client_loginreq1(t_connection * c, t_packet const * const packet)
 	     t_hash       oldpasshash1;
 	     t_hash       oldpasshash2;
 	     t_hash       trypasshash2;
-	     char const * tname;
 	     
 	     if ((oldstrhash1 = account_get_pass(account)))
 	       {
@@ -1757,8 +1752,7 @@ static int _client_loginreq1(t_connection * c, t_packet const * const packet)
 		  if (hash_set_str(&oldpasshash1,oldstrhash1)<0)
 		    {
 		       account_unget_pass(oldstrhash1);
-		       eventlog(eventlog_level_info,__FUNCTION__,"[%d] login for \"%s\" refused (corrupted passhash1?)",conn_get_socket(c),(tname = account_get_name(account)));
-		       account_unget_name(tname);
+		       eventlog(eventlog_level_info,__FUNCTION__,"[%d] login for \"%s\" refused (corrupted passhash1?)",conn_get_socket(c), username);
 		       bn_int_set(&rpacket->u.server_loginreply1.message,SERVER_LOGINREPLY1_MESSAGE_FAIL);
 		    }
 		  else
@@ -1772,8 +1766,9 @@ static int _client_loginreq1(t_connection * c, t_packet const * const packet)
 		       if (hash_eq(trypasshash2,oldpasshash2)==1)
 			 {
 			       conn_set_account(c,account);
-			       eventlog(eventlog_level_info,__FUNCTION__,"[%d] \"%s\" logged in (correct password)",conn_get_socket(c),(tname = conn_get_username(c)));
-			       conn_unget_username(c,tname);
+			       /* cache logged username only on bnet and if case differs */
+			       if (strcmp(username, account_get_name(account))) conn_set_loggeduser(c,username);
+			       eventlog(eventlog_level_info,__FUNCTION__,"[%d] \"%s\" logged in (correct password)",conn_get_socket(c),username);
 			       bn_int_set(&rpacket->u.server_loginreply1.message,SERVER_LOGINREPLY1_MESSAGE_SUCCESS);
 #ifdef WIN32_GUI
 			       guiOnUpdateUserList();
@@ -1781,8 +1776,7 @@ static int _client_loginreq1(t_connection * c, t_packet const * const packet)
 			 }
 		       else
 			 {
-			    eventlog(eventlog_level_info,__FUNCTION__,"[%d] login for \"%s\" refused (wrong password)",conn_get_socket(c),(tname = account_get_name(account)));
-			    account_unget_name(tname);
+			    eventlog(eventlog_level_info,__FUNCTION__,"[%d] login for \"%s\" refused (wrong password)",conn_get_socket(c), username);
 			    conn_increment_passfail_count (c);
 			    bn_int_set(&rpacket->u.server_loginreply1.message,SERVER_LOGINREPLY1_MESSAGE_FAIL);
 			 }
@@ -1791,8 +1785,9 @@ static int _client_loginreq1(t_connection * c, t_packet const * const packet)
 	     else
 	       {
 		  conn_set_account(c,account);
-		  eventlog(eventlog_level_info,__FUNCTION__,"[%d] \"%s\" logged in (no password)",conn_get_socket(c),(tname = account_get_name(account)));
-		  account_unget_name(tname);
+		  /* cache logged username only on bnet and if case differs */
+		  if (strcmp(username, account_get_name(account))) conn_set_loggeduser(c,username);
+		  eventlog(eventlog_level_info,__FUNCTION__,"[%d] \"%s\" logged in (no password)",conn_get_socket(c), username);
 		  bn_int_set(&rpacket->u.server_loginreply1.message,SERVER_LOGINREPLY1_MESSAGE_SUCCESS);
 #ifdef WIN32_GUI
 			       guiOnUpdateUserList();
@@ -1900,7 +1895,6 @@ static int _client_loginreq2(t_connection * c, t_packet const * const packet)
 	     t_hash       oldpasshash1;
 	     t_hash       oldpasshash2;
 	     t_hash       trypasshash2;
-	     char const * tname;
 	     
 	     if ((oldstrhash1 = account_get_pass(account)))
 	       {
@@ -1909,8 +1903,7 @@ static int _client_loginreq2(t_connection * c, t_packet const * const packet)
 		  if (hash_set_str(&oldpasshash1,oldstrhash1)<0)
 		    {
 		       account_unget_pass(oldstrhash1);
-		       eventlog(eventlog_level_info,__FUNCTION__,"[%d] login for \"%s\" refused (corrupted passhash1?)",conn_get_socket(c),(tname = account_get_name(account)));
-		       account_unget_name(tname);
+		       eventlog(eventlog_level_info,__FUNCTION__,"[%d] login for \"%s\" refused (corrupted passhash1?)",conn_get_socket(c), username);
 		       bn_int_set(&rpacket->u.server_loginreply2.message,SERVER_LOGINREPLY2_MESSAGE_BADPASS);
 		    }
 		  else
@@ -1924,15 +1917,15 @@ static int _client_loginreq2(t_connection * c, t_packet const * const packet)
 		       if (hash_eq(trypasshash2,oldpasshash2)==1)
 			 {
 			       conn_set_account(c,account);
-			       eventlog(eventlog_level_info,__FUNCTION__,"[%d] \"%s\" logged in (correct password)",conn_get_socket(c),(tname = conn_get_username(c)));
-			       conn_unget_username(c,tname);
+			       /* cache logged username only on bnet and if case differs */
+			       if (strcmp(username, account_get_name(account))) conn_set_loggeduser(c,username);
+			       eventlog(eventlog_level_info,__FUNCTION__,"[%d] \"%s\" logged in (correct password)",conn_get_socket(c), username);
 			       bn_int_set(&rpacket->u.server_loginreply2.message,SERVER_LOGINREPLY2_MESSAGE_SUCCESS);
 			       success = 1;
 			 }
 		       else
 			 {
-			    eventlog(eventlog_level_info,__FUNCTION__,"[%d] login for \"%s\" refused (wrong password)",conn_get_socket(c),(tname = account_get_name(account)));
-			    account_unget_name(tname);
+			    eventlog(eventlog_level_info,__FUNCTION__,"[%d] login for \"%s\" refused (wrong password)",conn_get_socket(c), username);
 			    conn_increment_passfail_count (c);
 			    bn_int_set(&rpacket->u.server_loginreply2.message,SERVER_LOGINREPLY2_MESSAGE_BADPASS);
 			 }
@@ -1941,8 +1934,9 @@ static int _client_loginreq2(t_connection * c, t_packet const * const packet)
 	     else
 	       {
 		  conn_set_account(c,account);
-		  eventlog(eventlog_level_info,__FUNCTION__,"[%d] \"%s\" logged in (no password)",conn_get_socket(c),(tname = account_get_name(account)));
-		  account_unget_name(tname);
+		  /* cache logged username only on bnet and if case differs */
+		  if (strcmp(username, account_get_name(account))) conn_set_loggeduser(c,username);
+		  eventlog(eventlog_level_info,__FUNCTION__,"[%d] \"%s\" logged in (no password)",conn_get_socket(c), username);
 		  bn_int_set(&rpacket->u.server_loginreply2.message,SERVER_LOGINREPLY2_MESSAGE_SUCCESS);
 		  success = 1;
 	       }
@@ -2075,7 +2069,6 @@ static int _client_logonproofreq(t_connection * c, t_packet const * const packet
      {
 	char const * username;
 	t_account *  account;
-	char const * tname;
 	
 	eventlog(eventlog_level_info,__FUNCTION__,"[%d] logon proof requested",conn_get_socket(c));
 	
@@ -2122,20 +2115,26 @@ static int _client_logonproofreq(t_connection * c, t_packet const * const packet
 	     
 	     hash_set_str(&serverhash, account_get_pass(account));
 	     if(hash_eq(clienthash,serverhash)) {
+	        if (!(username = strdup(username))) {
+		    eventlog(eventlog_level_error, __FUNCTION__, "not enough memory to save username");
+		    return -1;
+		}
 		conn_set_account(c,account);
-		eventlog(eventlog_level_info,__FUNCTION__,"[%d] (W3) \"%s\" logged in (right password)",conn_get_socket(c),(tname = account_get_name(account)));
-		account_unget_name(tname);
+		/* cache logged username only on bnet and if case differs */
+		if (strcmp(username, account_get_name(account))) conn_set_loggeduser(c,username);
+		eventlog(eventlog_level_info,__FUNCTION__,"[%d] (W3) \"%s\" logged in (right password)",conn_get_socket(c),username);
 		if((conn_get_versionid(c) >= 0x0000000D) && (account_get_email(account) == NULL))
 			bn_int_set(&rpacket->u.server_logonproofreply.response,SERVER_LOGONPROOFREPLY_RESPONSE_EMAIL);
 		else
 			bn_int_set(&rpacket->u.server_logonproofreply.response,SERVER_LOGONPROOFREPLY_RESPONSE_OK);
+		free((void*)username);
 		// by amadeo updates the userlist
 #ifdef WIN32_GUI
 		guiOnUpdateUserList();
 #endif
 	     } else 
 	     {
-	       eventlog(eventlog_level_info,__FUNCTION__,"[%d] (W3) got wrong password for \"%s\"",conn_get_socket(c),(tname = account_get_name(account)));
+	       eventlog(eventlog_level_info,__FUNCTION__,"[%d] (W3) got wrong password for \"%s\"",conn_get_socket(c),username);
 	       conn_increment_passfail_count(c);
 	     }
 	     conn_push_outqueue(c,rpacket);
@@ -2614,7 +2613,7 @@ static int _client_atinvitefriend(t_connection * c, t_packet const * const packe
 	    if (i == 0) { /* add inviter first */
 		invited_uid = account_get_uid(conn_get_account(c));
 		bn_int_set(&rpacket->u.server_arrangedteam_invite_friend_ack.info[i], invited_uid);
-		eventlog(eventlog_level_trace,__FUNCTION__,"added uid: %u username: %s (inviter) to array",invited_uid,account_get_name(conn_get_account(c)));
+		eventlog(eventlog_level_trace,__FUNCTION__,"added uid: %u username: %s (inviter) to array",invited_uid,conn_get_loggeduser(c));
 	    } 
 	    else if (i < teammemcount) { /* add rest of team */
 		invited_c = connlist_find_connection_by_accountname(invited_usernames[i-1]);
@@ -3219,19 +3218,13 @@ static int _client_realmjoinreq109(t_connection * c, t_packet const * const pack
 		    }
 		  else
 		    {
-		       char const * tname;
-		       
-		       eventlog(eventlog_level_info,__FUNCTION__,"[%d] realm join for \"%s\" failed (unable to hash password)",conn_get_socket(c),(tname = account_get_name(conn_get_account(c))));
-		       account_unget_name(tname);
+		       eventlog(eventlog_level_info,__FUNCTION__,"[%d] realm join for \"%s\" failed (unable to hash password)",conn_get_socket(c), conn_get_loggeduser(c));
 		       account_unget_pass(pass_str);
 		    }
 	       }
 	     else
 	       {
-		  char const * tname;
-		  
-		  eventlog(eventlog_level_info,__FUNCTION__,"[%d] realm join for \"%s\" failed (no password)",conn_get_socket(c),(tname = account_get_name(conn_get_account(c))));
-		  account_unget_name(tname);
+		  eventlog(eventlog_level_info,__FUNCTION__,"[%d] realm join for \"%s\" failed (no password)",conn_get_socket(c), conn_get_loggeduser(c));
 	       }
 	  }
 	else
@@ -3573,6 +3566,7 @@ static int _client_playerinforeq(t_connection * c, t_packet const * const packet
 	
 	if (info[0]!='\0')
 	  conn_set_playerinfo(c,info);
+	if (!username[0]) username = conn_get_loggeduser(c);
 	
 	account = conn_get_account(c);
 	
@@ -3580,21 +3574,12 @@ static int _client_playerinforeq(t_connection * c, t_packet const * const packet
 	  return -1;
 	packet_set_size(rpacket,sizeof(t_server_playerinforeply));
 	packet_set_type(rpacket,SERVER_PLAYERINFOREPLY);
-	
+
 	if (account)
 	  {
-	     char const * tname;
-	     char const * str;
-	     
-	     if (!(tname = account_get_name(account)))
-	       str = username;
-	     else
-	       str = tname;
-	     packet_append_string(rpacket,str);
+	     packet_append_string(rpacket,username);
 	     packet_append_string(rpacket,conn_get_playerinfo(c));
-	     packet_append_string(rpacket,str);
-	     if (tname)
-	       account_unget_name(tname);
+	     packet_append_string(rpacket,username);
 	  }
 	else
 	  {

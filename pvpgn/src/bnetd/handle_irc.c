@@ -900,7 +900,7 @@ static int _handle_join_command(t_connection * conn, int numparams, char ** para
 
 					if (old_channel_name)
 					{
-						irc_send_cmd2(conn,account_get_name(conn_get_account(conn)),"PART",old_channel_name,"only one channel at once");
+						irc_send_cmd2(conn,conn_get_loggeduser(conn),"PART",old_channel_name,"only one channel at once");
 					}
 		    		}
 			}

@@ -63,6 +63,10 @@ PvPGN Version History:
      (different shortname, same special name)
   -- changed all 4 bytes tags (clienttags, archtags, etc) to use internally 
      integers for comparations instead of strings
+  -- changed almost every place where sending username to send the logged in 
+  username (if differs in case) than the account username (this fixes some bugs 
+  like modifying some account data when logged in with different case and also 
+  gets us to closer Battle.net behaivour)
 
 a general 1.6.x note:
 versioncheck exe-time parsing now REALLY works as it was intended to.
