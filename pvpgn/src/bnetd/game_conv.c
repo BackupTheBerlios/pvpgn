@@ -729,6 +729,17 @@ extern t_game_speed bngspeed_to_gspeed(unsigned int bngspeed)
     }
 }
 
+t_game_speed w3speed_to_gspeed(unsigned int w3speed)
+{
+    switch (w3speed)
+    {
+    case 0: return game_speed_slow;
+    case 1: return game_speed_normal;
+    case 2: return game_speed_fast;
+    default: return game_speed_none;
+    }
+}
+
 
 extern t_game_difficulty bngdifficulty_to_gdifficulty(unsigned int bngdifficulty)
 {
@@ -974,6 +985,7 @@ If the corresponding bit is a '0' then subtract 1 from the character.
 	if (!pstr) return -1;
 	/* after decryption we dont have the mask bytes anymore so offsets need
 	 * to be adjusted acordingly */
+        game_set_speed(game,w3speed_to_gspeed(bn_byte_get(*((bn_byte*)(pstr)))));
         game_set_mapsize_x(game, bn_short_get(*((bn_short*)(pstr + 5))));
         game_set_mapsize_y(game, bn_short_get(*((bn_short*)(pstr + 7))));
         game_set_mapname(game, pstr + 13);
