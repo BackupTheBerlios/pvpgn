@@ -207,7 +207,7 @@ bnetd_OBJECTS       = \
     ${SRC_BNETDDIR}\clan.obj \
     ${SRC_BNETDDIR}\topic.obj \
     ${SRC_BNETDDIR}\w3trans.obj \
-    ${SRC_BNETDDIR}\binary_ladder.obj \
+    ${SRC_BNETDDIR}\ladder_binary.obj \
     ${SRC_WIN32DIR}\service.obj \
     ${SRC_COMMONDIR}\hexdump.obj \
     ${SRC_COMMONDIR}\bn_type.obj \
