@@ -97,7 +97,6 @@ ${SRC_BNETDDIR}/handle_bot.o \
 ${SRC_BNETDDIR}/handle_telnet.o \
 ${SRC_BNETDDIR}/handle_irc.o \
 ${SRC_BNETDDIR}/handle_udp.o \
-${SRC_BNETDDIR}/handle_auth.o \
 ${SRC_BNETDDIR}/channel.o \
 ${SRC_BNETDDIR}/channel_conv.o \
 ${SRC_BNETDDIR}/game.o \

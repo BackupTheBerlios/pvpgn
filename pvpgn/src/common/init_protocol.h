@@ -51,7 +51,7 @@ typedef struct
 #ifndef INCLUDED_INIT_PROTOCOL_PROTOS
 #define INCLUDED_INIT_PROTOCOL_PROTOS
 
-#define CLIENT_INITCONN_CLASS_DEFER  0x01 /* great... means either "bnet protocol" or "auth protocol" */
+#define CLIENT_INITCONN_CLASS_BNET   0x01 /* standard bnet protocol */
 #define CLIENT_INITCONN_CLASS_FILE   0x02
 #define CLIENT_INITCONN_CLASS_BOT    0x03
 #define CLIENT_INITCONN_CLASS_ENC    0x04 /* encrypted connection */

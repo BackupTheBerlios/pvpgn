@@ -299,8 +299,8 @@ static int bnpcap_conn_packet(unsigned int sip, unsigned short sport, unsigned i
 	 eventlog(eventlog_level_warn,"bnpcap_conn_packet","init packet larger than 1 byte");
       }
       switch (data[0]) {
-       case CLIENT_INITCONN_CLASS_DEFER:
-	 bnpcap_conn_set_class(c,packet_class_none); /* we use none for defer */
+       case CLIENT_INITCONN_CLASS_BNET:
+	 bnpcap_conn_set_class(c,packet_class_bnet); /* we use none for bnet */
 	 break;
        case CLIENT_INITCONN_CLASS_FILE:
 	 bnpcap_conn_set_class(c,packet_class_file);
@@ -319,17 +319,6 @@ static int bnpcap_conn_packet(unsigned int sip, unsigned short sport, unsigned i
       int always_complete = 0;
 
       
-      if (bnpcap_conn_get_class(c) == packet_class_none) {
-	 if (data[0]==0xff)
-	   bnpcap_conn_set_class(c,packet_class_bnet);
-	 else if (data[0]==0xf7) { // W3 matchmaking -- NonReal
-	 eventlog(eventlog_level_info,"bnpcap_conn_packet","matchmaking packet");
-
-	   bnpcap_conn_set_class(c,packet_class_bnet); // W3 matchmaking -- NonReal
-	 } else
-	   bnpcap_conn_set_class(c,packet_class_auth);
-      }
-
       if (bnpcap_conn_get_class(c) == packet_class_raw)
 	always_complete = 1; /* There is no size field */
       if (bnpcap_conn_get_class(c) == packet_class_file)

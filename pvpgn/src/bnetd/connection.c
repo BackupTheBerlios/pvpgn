@@ -287,8 +287,6 @@ extern char const * conn_class_get_str(t_conn_class class)
     {
     case conn_class_init:
 	return "init";
-    case conn_class_defer: /* either bnet or auth... wait to see */
-	return "defer";
     case conn_class_bnet:
 	return "bnet";
     case conn_class_file:
@@ -297,8 +295,6 @@ extern char const * conn_class_get_str(t_conn_class class)
 	return "bot";
     case conn_class_d2cs_bnetd:
 	return "d2cs_bnetd";
-    case conn_class_auth:
-	return "auth";
     case conn_class_telnet:
 	return "telnet";
     case conn_class_irc:
@@ -746,22 +742,13 @@ extern void conn_set_class(t_connection * c, t_conn_class class)
     c->protocol.class = class;
 
     switch(class) {
-	case conn_class_defer:
-	{ /* remove any possible init timeout timers and install a defer one */
-	    int delay = prefs_get_initkill_timer();
-	    t_timer_data data;
-
-	    data.p = NULL;
-	    if (oldclass == conn_class_init) timerlist_del_all_timers(c);
-	    if (delay) timerlist_add_timer(c,time(NULL)+(time_t)delay,conn_shutdown,data);
-	}
 	case conn_class_bnet:
 	    if (prefs_get_udptest_port()!=0)
 		conn_set_game_port(c,(unsigned short)prefs_get_udptest_port());
 	    udptest_send(c);
 
-	    /* remove any init/defer timers */
-	    if (oldclass == conn_class_defer) timerlist_del_all_timers(c);
+	    /* remove any init timers */
+	    if (oldclass == conn_class_init) timerlist_del_all_timers(c);
 	    delta = prefs_get_latency();
 	    data.n = delta;
 	    if (timerlist_add_timer(c,time(NULL)+(time_t)delta,conn_test_latency,data)<0)
@@ -789,7 +776,7 @@ extern void conn_set_class(t_connection * c, t_conn_class class)
 		}
 	    }
 
-	    /* remove any init/defer timers */
+	    /* remove any init timers */
 	    if (oldclass == conn_class_init) timerlist_del_all_timers(c);
 	    conn_send_issue(c);
 
@@ -805,8 +792,8 @@ extern void conn_set_class(t_connection * c, t_conn_class class)
 	}
 
 	default:
-	    /* remove any init/defer timers */
-	    if (oldclass == conn_class_init || oldclass == conn_class_defer) 
+	    /* remove any init timers */
+	    if (oldclass == conn_class_init) 
 		timerlist_del_all_timers(c);
 	    break;
     }
@@ -1180,8 +1167,6 @@ extern t_tag conn_get_archtag(t_connection const * c)
         eventlog(eventlog_level_error,__FUNCTION__,"got NULL connection");
         return 0; /* unknown */
     }
-    if (c->protocol.class==conn_class_auth && c->protocol.bound)
-	return c->protocol.bound->protocol.client.archtag;
     
     return c->protocol.client.archtag;
 }
@@ -1248,12 +1233,6 @@ extern t_clienttag conn_get_clienttag(t_connection const * c)
         return CLIENTTAG_UNKNOWN_UINT;
     }
     
-    if (c->protocol.class==conn_class_auth && c->protocol.bound)
-    {
-	if (!c->protocol.bound->protocol.client.clienttag)
-	    return CLIENTTAG_UNKNOWN_UINT;
-	return c->protocol.bound->protocol.client.clienttag;
-    }
     if (!c->protocol.client.clienttag)
 	return CLIENTTAG_UNKNOWN_UINT;
     return c->protocol.client.clienttag;
@@ -1496,8 +1475,6 @@ extern t_account * conn_get_account(t_connection const * c)
 	return NULL;
     }
     
-    if (c->protocol.class==conn_class_auth && c->protocol.bound)
-	return c->protocol.bound->protocol.account;
     return c->protocol.account;
 }
 
@@ -2271,8 +2248,6 @@ extern char const * conn_get_username(t_connection const * c)
         return NULL;
     }
 
-    if (c->protocol.class==conn_class_auth && c->protocol.bound)
-	return account_get_name(c->protocol.bound->protocol.account);
     if(!c->protocol.account)
     {
         eventlog(eventlog_level_error,"conn_get_username","got NULL account");
@@ -2308,7 +2283,7 @@ extern char const * conn_get_chatname(t_connection const * c)
         return NULL;
     }
 
-    if ((c->protocol.class==conn_class_auth || c->protocol.class==conn_class_bnet) && c->protocol.bound)
+    if ((c->protocol.class==conn_class_bnet) && c->protocol.bound)
     {
 	if (c->protocol.d2.character)
 	    return character_get_name(c->protocol.d2.character);
@@ -2330,7 +2305,7 @@ extern int conn_unget_chatname(t_connection const * c, char const * name)
         return -1;
     }
     
-    if ((c->protocol.class==conn_class_auth || c->protocol.class==conn_class_bnet) && c->protocol.bound)
+    if ((c->protocol.class==conn_class_bnet) && c->protocol.bound)
 	return 0;
     return 0;
 }
@@ -2595,7 +2570,7 @@ extern char const * conn_get_playerinfo(t_connection const * c)
 	if (c->protocol.d2.character)
 	    ch = c->protocol.d2.character;
 	else
-	    if ((c->protocol.class==conn_class_auth || c->protocol.class==conn_class_bnet) && c->protocol.bound && c->protocol.bound->protocol.d2.character)
+	    if ((c->protocol.class==conn_class_bnet) && c->protocol.bound && c->protocol.bound->protocol.d2.character)
 		ch = c->protocol.bound->protocol.d2.character;
 	    else
 		ch = NULL;
@@ -2837,8 +2812,6 @@ extern char const * conn_get_realmname(t_connection const * c)
         return NULL;
     }
     
-    if (c->protocol.class==conn_class_auth && c->protocol.bound)
-	return c->protocol.bound->protocol.d2.realmname;
     return c->protocol.d2.realmname;
 }
 

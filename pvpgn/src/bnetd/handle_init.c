@@ -60,13 +60,13 @@ extern int handle_init_packet(t_connection * c, t_packet const * const packet)
     case CLIENT_INITCONN:
 	switch (bn_byte_get(packet->u.client_initconn.class))
 	{
-	case CLIENT_INITCONN_CLASS_DEFER:
-	    eventlog(eventlog_level_info,"handle_init_packet","[%d] client initiated bnet or auth connection",conn_get_socket(c));
+	case CLIENT_INITCONN_CLASS_BNET:
+	    eventlog(eventlog_level_info,"handle_init_packet","[%d] client initiated bnet connection",conn_get_socket(c));
 	    conn_set_state(c,conn_state_connected);
-	    conn_set_class(c,conn_class_defer);
-	    
+	    conn_set_class(c,conn_class_bnet);
+
 	    break;
-	    
+
 	case CLIENT_INITCONN_CLASS_FILE:
 	    eventlog(eventlog_level_info,"handle_init_packet","[%d] client initiated file download connection",conn_get_socket(c));
 	    conn_set_state(c,conn_state_connected);

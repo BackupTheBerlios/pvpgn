@@ -31,7 +31,6 @@
 # include "d2cs/d2cs_protocol.h"
 # include "d2cs/d2cs_d2gs_protocol.h"
 # include "d2cs/d2cs_bnetd_protocol.h"
-# include "common/auth_protocol.h"
 # include "common/w3xp_protocol.h"
 #else
 # define JUST_NEED_TYPES
@@ -46,7 +45,6 @@
 # include "d2cs/d2cs_protocol.h"
 # include "d2cs/d2cs_d2gs_protocol.h"
 # include "d2cs/d2cs_bnetd_protocol.h"
-# include "common/auth_protocol.h"
 # include "common/w3xp_protocol.h"
 # undef JUST_NEED_TYPES
 #endif
@@ -63,7 +61,6 @@ typedef enum
     packet_class_d2gs,
     packet_class_d2cs,
     packet_class_d2cs_bnetd,
-    packet_class_auth,
     packet_class_w3route
 } t_packet_class;
 
@@ -95,7 +92,6 @@ typedef struct
         t_file_generic   file;
         t_udp_generic    udp;
         t_d2game_generic d2game;
-	t_auth_generic   auth;
 	t_w3route_generic w3route;
         
 	t_client_initconn client_initconn;
@@ -204,25 +200,7 @@ typedef struct
 	t_client_udpping           client_udpping;
 	t_client_sessionaddr1      client_sessionaddr1;
 	t_client_sessionaddr2      client_sessionaddr2;
-	
-	t_client_authloginreq      client_authloginreq;
-	t_server_authloginreply    server_authloginreply;
-	t_client_createcharreq     client_createcharreq;
-	t_server_createcharreply   server_createcharreply;
-	t_client_creategamereq     client_creategamereq;
-	t_server_creategamereply   server_creategamereply;
-	t_client_joingamereq2      client_joingamereq2;
-	t_server_joingamereply2    server_joingamereply2;
-	t_server_creategame_wait   server_creategame_wait;
-	t_client_cancel_create     client_cancel_create;
-	t_client_d2gamelistreq     client_d2gamelistreq;
-	t_server_d2gamelistreply   server_d2gamelistreply;
-	t_client_gameinforeq       client_gameinforeq;
-	t_server_gameinforeply     server_gameinforeply;
-	t_client_charloginreq      client_charloginreq;
-	t_server_charloginreply    server_charloginreply;
-	t_client_deletecharreq     client_deletecharreq;
-	t_server_deletecharreply   server_deletecharreply;
+
 	t_client_motd_w3           client_motd_w3;
 	t_server_motd_w3           server_motd_w3;
 	t_client_logonproofreq     client_logonproofreq;
@@ -238,14 +216,6 @@ typedef struct
 	t_server_findanongame_playgame_cancel		server_findanongame_playgame_cancel;
 	t_server_anongame_found		server_anongame_found;
 	//t_server_w3profile_reply      server_w3profile_reply;
-	t_client_ladderreq2        client_ladderreq2;
-	t_server_ladderreply2      server_ladderreply2;
-	t_client_authmotdreq       client_authmotdreq;
-	t_server_authmotdreply     server_authmotdreply;
-	t_client_charlistreq       client_charlistreq;
-	t_server_charlistreply     server_charlistreply;
-	t_client_convertcharreq    client_convertcharreq;
-	t_server_convertcharreply  server_convertcharreply;
         t_d2cs_bnetd_generic            d2cs_bnetd;
         t_bnetd_d2cs_authreq            bnetd_d2cs_authreq;
         t_d2cs_bnetd_authreply          d2cs_bnetd_authreply;

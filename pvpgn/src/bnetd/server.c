@@ -103,7 +103,6 @@
 #include "common/eventlog.h"
 #include "message.h"
 #include "common/queue.h"
-#include "handle_auth.h"
 #include "handle_bnet.h"
 #include "handle_bot.h"
 #include "handle_telnet.h"
@@ -576,7 +575,6 @@ static int sd_tcpinput(t_connection * c)
 		    break;
 	    }
 	    break;
-	case conn_class_defer:
 	case conn_class_bot:
 	case conn_class_irc:
 	case conn_class_telnet:
@@ -586,13 +584,6 @@ static int sd_tcpinput(t_connection * c)
 		return -1;
 	    }
 	    packet_set_size(packet,1); /* start by only reading one char */
-	    break;
-	case conn_class_auth:
-	    if (!(packet = packet_create(packet_class_auth)))
-	    {
-		eventlog(eventlog_level_error,"sd_tcpinput","could not allocate auth packet for input");
-		return -1;
-	    }
 	    break;
 	case conn_class_w3route:
 	    if (!(packet = packet_create(packet_class_w3route)))
@@ -632,26 +623,6 @@ static int sd_tcpinput(t_connection * c)
     case 1: /* done reading */
 	switch (conn_get_class(c))
 	{
-	case conn_class_defer:
-	    {
-		unsigned char const * const temp=packet_get_raw_data_const(packet,0);
-		
-		eventlog(eventlog_level_debug,"sd_tcpinput","[%d] got first packet byte %02x",conn_get_socket(c),(unsigned int)temp[0]);
-		if (temp[0]==(unsigned char)0xff) /* HACK: thankfully all bnet packet types end with ff */
-		{
-		    conn_set_class(c,conn_class_bnet);
-		    conn_set_in_size(c,currsize);
-		    packet_set_class(packet,packet_class_bnet);
-		    eventlog(eventlog_level_debug,"sd_tcpinput","[%d] defered connection class is bnet",conn_get_socket(c));
-		} else {
-		    conn_set_class(c,conn_class_auth);
-		    conn_set_in_size(c,currsize);
-		    packet_set_class(packet,packet_class_auth);
-		    eventlog(eventlog_level_debug,"sd_tcpinput","[%d] defered connection class is auth",conn_get_socket(c));
-		}
-	    }
-	    break;
-	
 	case conn_class_bot:
 	case conn_class_telnet:
 	    if (currsize<MAX_PACKET_SIZE) /* if we overflow, we can't wait for the end of the line.
@@ -721,9 +692,6 @@ static int sd_tcpinput(t_connection * c)
 		    break;
 		case conn_class_file:
 		    ret = handle_file_packet(c,packet);
-		    break;
-		case conn_class_auth:
-		    ret = handle_auth_packet(c,packet);
 		    break;
 		case conn_class_irc:
 		    ret = handle_irc_packet(c,packet);

@@ -73,11 +73,9 @@
 typedef enum
 {
     conn_class_init,
-    conn_class_defer,
     conn_class_bnet,
     conn_class_file,
     conn_class_bot,
-    conn_class_auth,
     conn_class_telnet,
     conn_class_irc,     /* Internet Relay Chat */
     conn_class_d2cs_bnetd,

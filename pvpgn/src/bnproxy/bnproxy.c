@@ -135,7 +135,7 @@ static int init_virtconn(t_virtconn * vc, struct sockaddr_in servaddr)
     
     switch (connect_type)
     {
-    case CLIENT_INITCONN_CLASS_DEFER: /* FIXME: do the same hack as server.c (grr) */
+    case CLIENT_INITCONN_CLASS_BNET:
 	eventlog(eventlog_level_info,"init_virtconn","[%d] client initiated normal connection",virtconn_get_client_socket(vc));
 	virtconn_set_class(vc,virtconn_class_bnet);
 	

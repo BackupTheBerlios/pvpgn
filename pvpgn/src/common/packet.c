@@ -64,7 +64,6 @@ extern t_packet * packet_create(t_packet_class class)
         class!=packet_class_d2cs &&
         class!=packet_class_d2gs &&
 	class!=packet_class_d2cs_bnetd &&
-	class!=packet_class_auth &&
 	class!=packet_class_w3route)
     {
 	eventlog(eventlog_level_error,"packet_create","invalid packet class %d",(int)class);
@@ -149,8 +148,6 @@ extern t_packet_class packet_get_class(t_packet const * packet)
         return packet_class_d2gs;
     case packet_class_d2cs_bnetd:
         return packet_class_d2cs_bnetd;
-    case packet_class_auth:
-        return packet_class_auth;
     case packet_class_w3route:
         return packet_class_w3route;
     case packet_class_none:
@@ -190,10 +187,8 @@ extern char const * packet_get_class_str(t_packet const * packet)
         return "d2cs_bnetd";
     case packet_class_d2cs:
         return "d2cs";
-    case packet_class_auth:
-        return "auth";
-	case packet_class_w3route:
-		return "w3route";
+    case packet_class_w3route:
+	return "w3route";
     case packet_class_none:
 	return "none";
     default:
@@ -224,7 +219,6 @@ extern int packet_set_class(t_packet * packet, t_packet_class class)
         class!=packet_class_d2cs &&
         class!=packet_class_d2gs &&
         class!=packet_class_d2cs_bnetd &&
-	class!=packet_class_auth &&
 	class!=packet_class_w3route)
     {
 	eventlog(eventlog_level_error,"packet_set_class","invalid packet class %d",(int)class);
@@ -305,14 +299,6 @@ extern unsigned int packet_get_type(t_packet const * packet)
             return 0;
         }
         return bn_byte_get(packet->u.d2cs_client.h.type);
-
-    case packet_class_auth:
-	if (packet_get_size(packet)<sizeof(t_auth_header))
-	{
-	    eventlog(eventlog_level_error,"packet_get_type","auth packet is shorter than header (len=%u)",packet_get_size(packet));
-	    return 0;
-	}
-	return bn_byte_get(packet->u.auth.h.type);
 
     case packet_class_w3route:
 	if (packet_get_size(packet)<sizeof(t_w3route_header))
@@ -553,43 +539,6 @@ extern char const * packet_get_type_str(t_packet const * packet, t_packet_dir di
         case packet_class_d2cs_bnetd:
                 return "D2CS_BNETD";
 	    
-	case packet_class_auth:
-	    if (packet_get_size(packet)<sizeof(t_auth_header))
-	    {
-		eventlog(eventlog_level_error,"packet_get_type_str","packet is shorter than header (len=%u)",packet_get_size(packet));
-		return "unknown";
-	    }
-	    switch (bn_byte_get(packet->u.auth.h.type))
-	    {
-	    case CLIENT_AUTHLOGINREQ:
-		return "CLIENT_AUTHLOGINREQ";
-	    case CLIENT_CREATECHARREQ:
-		return "CLIENT_CREATECHARREQ";
-	    case CLIENT_CREATEGAMEREQ:
-		return "CLIENT_CREATEGAMEREQ";
-	    case CLIENT_JOINGAMEREQ2:
-		return "CLIENT_JOINGAMEREQ2";
-	    case CLIENT_CANCEL_CREATE:
-		return "CLIENT_CANCEL_CREATE";
-	    case CLIENT_D2GAMELISTREQ:
-		return "CLIENT_D2GAMELISTREQ";
-	    case CLIENT_GAMEINFOREQ:
-		return "CLIENT_GAMEINFOREQ";
-	    case CLIENT_CHARLOGINREQ:
-		return "CLIENT_CHARLOGINREQ";
-	    case CLIENT_DELETECHARREQ:
-		return "CLIENT_DELETECHARREQ";
-	    case CLIENT_LADDERREQ2:
-		return "CLIENT_LADDERREQ2";
-	    case CLIENT_CHARLISTREQ:
-		return "CLIENT_CHARLISTREQ";
-	    case CLIENT_AUTHMOTDREQ:
-		return "CLIENT_AUTHMOTDREQ";
-            case CLIENT_CONVERTCHARREQ:
-                return "CLIENT_CONVERTCHARREQ";
-	    }
-	    return "unknown";
-
 	case packet_class_w3route:
 	    if (packet_get_size(packet)<sizeof(t_w3route_header))
 	    {
@@ -799,42 +748,6 @@ extern char const * packet_get_type_str(t_packet const * packet, t_packet_dir di
         case packet_class_d2cs_bnetd:
                 return "D2CS_BNETD";
 
-	case packet_class_auth:
-	    if (packet_get_size(packet)<sizeof(t_auth_header))
-	    {
-		eventlog(eventlog_level_error,"packet_get_type_str","packet is shorter than header (len=%u)",packet_get_size(packet));
-		return "unknown";
-	    }
-	    switch (bn_byte_get(packet->u.auth.h.type))
-	    {
-	    case SERVER_AUTHLOGINREPLY:
-		return "SERVER_AUTHLOGINREPLY";
-	    case SERVER_CREATECHARREPLY:
-		return "SERVER_CREATECHARREPLY";
-	    case SERVER_CREATEGAMEREPLY:
-		return "SERVER_CREATEGAMEREPLY";
-	    case SERVER_JOINGAMEREPLY2:
-		return "SERVER_JOINGAMEREPLY2";
-	    case SERVER_CREATEGAME_WAIT:
-		return "SERVER_CREATEGAME_WAIT";
-	    case SERVER_D2GAMELISTREPLY:
-		return "SERVER_D2GAMELISTREPLY";
-	    case SERVER_GAMEINFOREPLY:
-		return "SERVER_GAMEINFOREPLY";
-	    case SERVER_CHARLOGINREPLY:
-		return "SERVER_CHARLOGINREPLY";
-	    case SERVER_DELETECHARREPLY:
-		return "SERVER_DELETECHARREPLY";
-	    case SERVER_LADDERREPLY2:
-		return "SERVER_LADDERREPLY2";
-	    case SERVER_CHARLISTREPLY:
-		return "SERVER_CHARLISTREPLY";
-	    case SERVER_AUTHMOTDREPLY:
-		return "SERVER_AUTHMOTDREPLY";
-            case SERVER_CONVERTCHARREPLY:
-                return "SERVER_CONVERTCHARREPLY";
-	    }
-	    return "unknown";
 	case packet_class_w3route:
 	    if (packet_get_size(packet)<sizeof(t_w3route_header))
 	    {
@@ -965,21 +878,6 @@ extern int packet_set_type(t_packet * packet, unsigned int type)
         bn_byte_set(&packet->u.d2cs_client.h.type,type);
         return 0;
 
-    case packet_class_auth:
-	if (packet_get_size(packet)<sizeof(t_auth_header))
-	{
-	    eventlog(eventlog_level_error,"packet_set_type","auth packet is shorter than header (len=%u)",packet_get_size(packet));
-	    return -1;
-	}
-	if (type>MAX_AUTH_TYPE)
-	{
-	    eventlog(eventlog_level_error,"packet_set_type","auth packet type 0x%08x is too large",type);
-	    return -1;
-	}
-	bn_byte_set(&packet->u.auth.h.type,type);
-	return 0;
-
-
     case packet_class_w3route:
 	if (packet_get_size(packet)<sizeof(t_w3route_header))
 	{
@@ -1041,9 +939,6 @@ extern unsigned int packet_get_size(t_packet const * packet)
     case packet_class_d2cs:
         size = (unsigned int)bn_short_get(packet->u.d2cs_client.h.size);
         break;
-    case packet_class_auth:
-	size = (unsigned int)bn_short_get(packet->u.auth.h.size);
-	break;
     case packet_class_w3route:
 	size = (unsigned int)bn_short_get(packet->u.w3route.h.size);
 	break;
@@ -1123,14 +1018,6 @@ extern int packet_set_size(t_packet * packet, unsigned int size)
     case packet_class_d2cs_bnetd:
         bn_short_set(&packet->u.d2cs_bnetd.h.size,size);
         return 0;
-    case packet_class_auth:
-	if (size!=0 && size<sizeof(t_auth_header))
-	{
-	    eventlog(eventlog_level_error,"packet_set_size","invalid size %u for auth packet",size);
-	    return -1;
-	}
-        bn_short_set(&packet->u.auth.h.size,size);
-        return 0;
     case packet_class_w3route:
 	if (size!=0 && size<sizeof(t_w3route_header))
 	{
@@ -1174,8 +1061,6 @@ extern unsigned int packet_get_header_size(t_packet const * packet)
         return sizeof(t_d2cs_d2gs_header);
     case packet_class_d2cs_bnetd:
         return sizeof(t_d2cs_bnetd_header);
-    case packet_class_auth:
-        return sizeof(t_auth_header);
     case packet_class_w3route:
         return sizeof(t_w3route_header);
     default:
