@@ -69,7 +69,7 @@
 #include "ladder_calc.h"
 #include "common/bnettime.h"
 #include "common/util.h"
-#include "common/list.h"
+#include "common/elist.h"
 #include "common/tag.h"
 #include "common/addr.h"
 #include "common/xalloc.h"
@@ -80,12 +80,13 @@
 #include "compat/uint.h"
 #include "common/setup_after.h"
 
-static t_list * gamelist_head=NULL;
+DECLARE_ELIST_INIT(gamelist_head);
+static int glist_length=0;
 static int totalcount=0;
 
 
 static void game_choose_host(t_game * game);
-static void game_destroy(t_game const * game);
+static void game_destroy(t_game * game);
 static int game_report(t_game * game);
 
 
@@ -464,8 +465,9 @@ extern t_game * game_create(char const * name, char const * pass, char const * i
     game->difficulty    = game_difficulty_none;
 
     game_parse_info(game,info);
-    
-    list_prepend_data(gamelist_head,game);
+
+    elist_add(&gamelist_head,&game->glist_link);
+    glist_length++;
 
     eventlog(eventlog_level_info,__FUNCTION__,"game \"%s\" (pass \"%s\") type %hu(%s) startver %d created",name,pass,(unsigned short)type,game_type_get_str(type),startver);
     
@@ -473,30 +475,26 @@ extern t_game * game_create(char const * name, char const * pass, char const * i
 }
 
 
-static void game_destroy(t_game const * game)
+static void game_destroy(t_game * game)
 {
-    t_elem * elem;
     unsigned int i;
-    
+
     if (!game)
     {
 	eventlog(eventlog_level_error,__FUNCTION__,"got NULL game");
 	return;
     }
-    
-    if (list_remove_data(gamelist_head,game, &elem)<0)
-    {
-	eventlog(eventlog_level_error,__FUNCTION__,"could not find game \"%s\" in list",game_get_name(game));
-        return;
-    }
-    
+
+    elist_del(&game->glist_link);
+    glist_length--;
+
     if (game->realmname)
     { 
         realm_add_game_number(realmlist_find_realm(game->realmname),-1); 
     } 
 
     eventlog(eventlog_level_debug,__FUNCTION__,"game \"%s\" (count=%u ref=%u) removed from list...",game_get_name(game),game->count,game->ref);
-    
+
     for (i=0; i<game->count; i++)
     {
 	if (game->report_bodies && game->report_bodies[i])
@@ -529,9 +527,9 @@ static void game_destroy(t_game const * game)
     xfree((void *)game->pass); /* avoid warning */
     if (game->name) xfree((void *)game->name); /* avoid warning */
     xfree((void *)game); /* avoid warning */
-    
+
     eventlog(eventlog_level_info,__FUNCTION__,"game deleted");
-    
+
     return;
 }
 
@@ -2010,7 +2008,8 @@ extern t_game_option game_get_option(t_game const * game)
 
 extern int gamelist_create(void)
 {
-    gamelist_head = list_create();
+    elist_init(&gamelist_head);
+    glist_length = 0;
     return 0;
 }
 
@@ -2018,64 +2017,58 @@ extern int gamelist_create(void)
 extern int gamelist_destroy(void)
 {
     /* FIXME: if called with active games, games are not freed */
-    if (gamelist_head)
-    {
-	if (list_destroy(gamelist_head)<0)
-	    return -1;
-	gamelist_head = NULL;
-    }
-    
+    elist_init(&gamelist_head);
+    glist_length = 0;
+
     return 0;
 }
 
 
 extern int gamelist_get_length(void)
 {
-    return list_get_length(gamelist_head);
+    return glist_length;
 }
 
 
 extern t_game * gamelist_find_game(char const * name, t_game_type type)
 {
-    t_elem const * curr;
-    t_game *       game;
-    
-    if (gamelist_head)
-	LIST_TRAVERSE_CONST(gamelist_head,curr)
-	{
-	    game = elem_get_data(curr);
-	    if ((type==game_type_all || game->type==type) && game->name && strcasecmp(name,game->name)==0)
-		return game;
-	}
-    
+    t_elist *curr;
+    t_game *game;
+
+    elist_for_each(curr,&gamelist_head)
+    {
+	game = elist_entry(curr,t_game,glist_link);
+	if ((type==game_type_all || game->type==type) && game->name && strcasecmp(name,game->name)==0)
+	    return game;
+    }
+
     return NULL;
 }
 
 
 extern t_game * gamelist_find_game_byid(unsigned int id)
 {
-    t_elem const * curr;
-    t_game *       game;
-    
-    if (gamelist_head)
-	LIST_TRAVERSE_CONST(gamelist_head,curr)
-	{
-	    game = elem_get_data(curr);
-	    if (game->id==id)
-		return game;
-	}
-    
+    t_elist *curr;
+    t_game *game;
+
+    elist_for_each(curr,&gamelist_head)
+    {
+	game = elist_entry(curr,t_game,glist_link);
+	if (game->id==id)
+	    return game;
+    }
+
     return NULL;
 }
 
 
 extern void gamelist_traverse(t_glist_func cb, void *data)
 {
-    t_elem const *curr;
+    t_elist *curr;
 
-    LIST_TRAVERSE_CONST(gamelist_head,curr)
+    elist_for_each(curr,&gamelist_head)
     {
-	if (cb((t_game*)elem_get_data(curr),data)<0) return;
+	if (cb(elist_entry(curr,t_game,glist_link),data)<0) return;
     }
 }
 
@@ -2140,16 +2133,14 @@ extern  char const * game_get_realmname(t_game const * game)
 
 extern void gamelist_check_voidgame(void) 
 { 
-    t_elem const    * curr; 
-    t_game          * game; 
-    time_t          now; 
-    
-    now = time(NULL); 
-    LIST_TRAVERSE_CONST(gamelist_head, curr) 
+    t_elist *curr, *save;
+    t_game *game;
+    time_t now;
+
+    time(&now);
+    elist_for_each_safe(curr,&gamelist_head,save)
     { 
-    	game = elem_get_data(curr); 
-        if (!game)
-            continue; 
+    	game = elist_entry(curr,t_game,glist_link);
         if (!game->realm)
             continue;
         if (game->ref >= 1)
@@ -2182,22 +2173,22 @@ extern t_game_flag game_get_flag(t_game const * game)
 
 extern int game_get_count_by_clienttag(t_clienttag ct)
 {
-   t_game * game;
-   t_elem const * curr;
+   t_game *game;
+   t_elist *curr;
    int clienttaggames = 0;
-   
+
    if (!ct) {
       eventlog(eventlog_level_error, __FUNCTION__, "got UNKNOWN clienttag");
       return 0;
    }
 
-   /* Get number of games for client tag specific */
-   LIST_TRAVERSE_CONST(gamelist_head,curr)
-     {
-	game = elem_get_data(curr);
+    /* Get number of games for client tag specific */
+    elist_for_each(curr,&gamelist_head)
+    {
+	game = elist_entry(curr,t_game,glist_link);
 	if(game_get_clienttag(game)==ct)
-	  clienttaggames++;
-     }
+	    clienttaggames++;
+    }
    
    return clienttaggames;
 }

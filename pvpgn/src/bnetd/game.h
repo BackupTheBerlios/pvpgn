@@ -35,6 +35,7 @@
 # include "account.h"
 # include "connection.h"
 # include "common/tag.h"
+# include "common/elist.h"
 #else
 # define JUST_NEED_TYPES
 # ifdef TIME_WITH_SYS_TIME
@@ -50,6 +51,7 @@
 # include "account.h"
 # include "connection.h"
 # include "common/tag.h"
+# include "common/elist.h"
 # undef JUST_NEED_TYPES
 #endif
 
@@ -228,6 +230,7 @@ typedef struct game
     t_game_difficulty difficulty;
     char const *      description;
     t_game_flag       flag;
+    t_elist	      glist_link;
 }
 #endif
 t_game;
