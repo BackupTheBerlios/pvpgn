@@ -86,8 +86,6 @@
 #define MAX_REALMNAME_LEN	32
 #define MIN_NAME_LEN		2
 #define MAX_CHAR_PER_GAME	8
-// MAX_CHAR_PER_ACCOUNT is needed cause D2 client can only handle 21 character
-#define MAX_CHAR_PER_ACCOUNT	21
 #define D2CS_SERVER_PORT	6113
 #define MAX_GAME_IDLE_TIME	0
 #define DEFAULT_S2S_RETRYINTERVAL	60
@@ -119,6 +117,8 @@
 #define BNETD_SERVER_LIST	"192.168.0.1"
 #define MAX_D2GAME_NUMBER	30
 #define MAX_CHAR_PER_ACCT	8
+// MAX_MAX_CHAR_PER_ACCT is needed cause D2 client can only handle 21 character
+#define MAX_MAX_CHAR_PER_ACCT	21
 #define MAX_CLIENT_IDLETIME	30 * 60
 
 #define D2CS_CHARINFO_DIR	"/usr/local/var/charinfo"
