@@ -1386,5 +1386,7 @@ static int zlib_compress(void const * src, int srclen, char ** dest, int * destl
 		deflateEnd(&zcpr);
 	}
 
+	free(tmpdata);
+
 	return 0;
 }
