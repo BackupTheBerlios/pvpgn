@@ -191,6 +191,22 @@ static Bconf_t conf_table[] =
     { "reload_new_accounts",    conf_type_bool,    NULL,                 0,                     ACT },
     { "command_groups_file",	conf_type_char,    BNETD_COMMAND_GROUPS_FILE,	NONE,		ACT },
     { "aliasfile"          ,    conf_type_char,    BNETD_ALIASFILE   ,   NONE,                  ACT },
+
+    { "matchmaking_server_url", conf_type_char,    NULL,                 NONE,                  ACT },
+    { "matchmaking_player_url", conf_type_char,    NULL,                 NONE,                  ACT },
+    { "matchmaking_tourney_url",conf_type_char,    NULL,                 NONE,                  ACT },
+    { "matchmaking_solo_url",   conf_type_char,    NULL,                 NONE,                  ACT },
+    { "matchmaking_solo_url_desc",conf_type_char,  NULL,                 NONE,                  ACT },
+    { "matchmaking_2vs2_url",   conf_type_char,    NULL,                 NONE,                  ACT },
+    { "matchmaking_2vs2_url_desc",conf_type_char,  NULL,                 NONE,                  ACT },
+    { "matchmaking_3vs3_url",   conf_type_char,    NULL,                 NONE,                  ACT },
+    { "matchmaking_3vs3_url_desc",conf_type_char,  NULL,                 NONE,                  ACT },
+    { "matchmaking_4vs4_url",   conf_type_char,    NULL,                 NONE,                  ACT },
+    { "matchmaking_4vs4_url_desc",conf_type_char,  NULL,                 NONE,                  ACT },
+    { "matchmaking_team_url",   conf_type_char,    NULL,                 NONE,                  ACT },
+    { "matchmaking_team_url_desc",conf_type_char,  NULL,                 NONE,                  ACT },
+    { "matchmaking_ffa_url",    conf_type_char,    NULL,                 NONE,                  ACT },
+    { "matchmaking_ffa_url_desc",conf_type_char,   NULL,                 NONE,                  ACT },
     { NULL,             	conf_type_none,    NULL,                 NONE,                  ACT },
 
 };
