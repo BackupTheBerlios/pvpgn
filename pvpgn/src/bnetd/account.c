@@ -1552,8 +1552,8 @@ extern t_account * accountlist_add_account(t_account * account)
           for (counter=1; counter<=account_get_atteamcount(account); counter++)
           {
 	    rank = account_get_atteamrank(account,counter);
-	    // make sure... user has ranking...
-	    if (rank)
+	    // make sure... user has ranking... and team is valid...
+	    if ((rank) && account_get_atteammembers(account,counter))
 	    {
 	       if (war3_ladder_add(&at_ladder,
 				   uid,
