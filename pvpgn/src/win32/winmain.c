@@ -632,12 +632,7 @@ void extern guiOnUpdateUserList()
 	t_connection * c;
 	t_elem const * curr;
 	t_account * acc;
-	static t_list * conn_head_gui; 
-
-	conn_head_gui = connlist();//get the Userlist
 	
-	if (conn_head_gui == NULL)
-		return;
 	SendMessage(gui.hwndUsers, LB_RESETCONTENT, 0, 0);
 
 	LIST_TRAVERSE_CONST(connlist(),curr)
@@ -887,13 +882,14 @@ BOOL CALLBACK KickDlgProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam)
 					   
 								   if (SendMessage(hButton2 , BM_GETCHECK, 0, 0)==BST_CHECKED)
 								   {
-								   account_set_strattr(accountgui,"BNET\\auth\\admin",gtrue);
-								   messageq = TRUE;
+								     account_set_admin(accountgui);
+								     account_set_command_groups(accountgui, 255);
+									 messageq = TRUE;
 								   }
 								   if (SendMessage(hButton3 , BM_GETCHECK, 0, 0)==BST_CHECKED)
 								   {
-								   account_set_strattr(accountgui,"BNET\\auth\\operator",gtrue);
-								   messageq = TRUE;
+								     account_set_auth_operator(accountgui,NULL,1);
+								     messageq = TRUE;
 								   }
 								   if (SendMessage(hButton4 , BM_GETCHECK, 0, 0)==BST_CHECKED)
 								   {
