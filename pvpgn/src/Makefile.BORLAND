@@ -264,7 +264,7 @@ bnetd_OBJECTS       = \
 bnetg_SBIN          = ${SRC_SBINDIR}\bnetg.exe
 bnetg_OBJECTS       = ${bnetd_OBJECTS:.obj=.bnetg_obj}\
     ${SRC_WIN32DIR}\winmain.obj
-bnetg_RESOURCES     = ${SRC_BNETDDIR}\resource.res
+bnetg_RESOURCES     = ${SRC_WIN32DIR}\resource.res
 bnetg_CFLAGS        = -DWIN32_GUI -tWM
 
 sbnetd_SBIN	= ${SRC_SBINDIR}\sbnetd.exe
