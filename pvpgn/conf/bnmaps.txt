@@ -12,7 +12,6 @@ WAR3		1v1		Maps\(6)ScorchedBasin.w3m
 WAR3		2v2		Maps\(4)Duskwood.w3m
 WAR3		2v2		Maps\(4)HarvestMoon.w3m
 WAR3		2v2		Maps\(4)LostTemple.w3m
-WAR3		2v2		Maps\(4)Roundabout.w3m
 WAR3		2v2		Maps\(6)GnollWood.w3m
 WAR3		2v2		Maps\(6)ScorchedBasin.w3m
 WAR3		2v2		Maps\(6)Stromguarde.w3m
@@ -26,7 +25,6 @@ WAR3		3v3		Maps\(6)DragonFire.w3m
 WAR3		3v3		Maps\(6)Stromguarde.w3m
 WAR3		3v3		Maps\(6)SwampOfSorrows.w3m
 WAR3		3v3		Maps\(6)TimbermawHold.w3m
-WAR3		3v3		Maps\(6)EnakrosWay.w3m
 WAR3		3v3		Maps\(8)Battleground.w3m
 WAR3		3v3		Maps\(8)PlainsOfSnow.w3m
 WAR3		3v3		Maps\(8)TheCrucible.w3m
@@ -35,7 +33,6 @@ WAR3		4v4		Maps\(8)BlastedLands.w3m
 WAR3		4v4		Maps\(8)BloodvenomFalls.w3m
 WAR3		4v4		Maps\(8)GardenOfWar.w3m
 WAR3		4v4		Maps\(8)PetrifiedForest.w3m
-WAR3		4v4		Maps\(8)RichMansGarden.w3m
 
 WAR3		sffa		Maps\(4)HarvestMoon.w3m
 WAR3		sffa		Maps\(4)LostTemple.w3m
@@ -44,10 +41,8 @@ WAR3		sffa		Maps\(6)GnollWood.w3m
 WAR3		sffa		Maps\(6)ScorchedBasin.w3m
 WAR3		sffa 		Maps\(6)Stromguarde.w3m
 WAR3		sffa		Maps\(6)SwampOfSorrows.w3m
-WAR3		sffa		MAPS\(6)EnakrosWay.w3m
 WAR3		sffa		Maps\(8)Battleground.w3m
 WAR3		sffa		Maps\(8)TheCrucible.w3m
-WAR3		sffa		Maps\(8)RichMansGarden.w3m
 
 WAR3		at2v2		Maps\(4)Duskwood.w3m
 WAR3		at2v2		Maps\(4)HarvestMoon.w3m
