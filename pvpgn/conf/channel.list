@@ -10,9 +10,10 @@
 # inside them. An unquoted NULL means there is no entry for that position.   #
 #                                                                            #
 # NONE for special name means to use the format "shortname-ctry num realm"   #
-#  e.g. "D2CS-Starcraft USA-1"                                                #
+#  e.g. "D2CS-Starcraft USA-1"                                               #
 # NULL for country creates non-country specific channels.                    #
 # -1 for max sets no limit to the number of users allowed in the channel     #
+#  0 for max creates a channel that only admins/operators can access         #
 #                                                                            #
 # ---special name--- 		-----short name----- 	cltag bots- -ops- -log- ctry- realm max#
 "The Void"           		"The Void"           	NULL  true  false false NULL  NULL -1
@@ -35,5 +36,6 @@ NONE                 		"Diablo II"          	D2DV  true  false false "USA" NULL 
 "Night Elf Tree of Life"	"W3"			WAR3  false false  false NULL NULL -1
 "Dragon Roost"       		"W3"			WAR3  false false false  NULL NULL -1
 "Chat"               		"Chat"			CHAT  true  false false  NULL NULL -1
+"Backstage"			"Backstage"		NULL  true  false false  NULL NULL  0
 #                                                                            #
 ##############################################################################
