@@ -728,7 +728,7 @@ extern void handle_anongame_search(t_connection * c, t_packet const * packet)
 	int temp;
 	t_uint32 race;
 	t_anongame *a = NULL; 
-	const char * map = "Maps\\(8)Battleground.w3m";
+	/* const char * map = "Maps\\(8)Battleground.w3m"; */
 	t_uint8 option, gametype;
 	int i, j;
 	t_anongameinfo *info;
@@ -1066,7 +1066,6 @@ extern int handle_w3route_packet(t_connection * c, t_packet const * const packet
     case CLIENT_W3ROUTE_GAMERESULT:
 	{
 	   int result = bn_int_get(packet->u.client_w3route_gameresult.result);
-	   int wins=0, losses=0, discs=0;
 	   t_timer_data data;
 	   t_anongameinfo *inf = anongame_get_info(a);
 	   t_connection *ac;
