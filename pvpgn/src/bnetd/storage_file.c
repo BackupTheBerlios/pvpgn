@@ -262,7 +262,7 @@ static int file_write_attrs(t_storage_info *info, void *attributes)
     */
     if (access((const char *)info, 0) == 0) {
 	if (remove((const char *)info)<0) {
-	    eventlog(eventlog_level_error, __FUNCTION__, "could not delete account file \"%s\" (remove: %s)", info, strerror(errno));
+	    eventlog(eventlog_level_error, __FUNCTION__, "could not delete account file \"%s\" (remove: %s)", (char *)info, strerror(errno));
             free(tempname);
 	    return -1;
 	}
@@ -270,7 +270,7 @@ static int file_write_attrs(t_storage_info *info, void *attributes)
 #endif
    
     if (rename(tempname,(const char *)info)<0) {
-	eventlog(eventlog_level_error, __FUNCTION__, "could not rename account file to \"%s\" (rename: %s)", info, strerror(errno));
+	eventlog(eventlog_level_error, __FUNCTION__, "could not rename account file to \"%s\" (rename: %s)", (char *)info, strerror(errno));
 	free(tempname);
 	return -1;
     }
@@ -306,9 +306,9 @@ static int file_read_attrs(t_storage_info *info, t_read_attr_func cb, void *data
 	return -1;
     }
 
-    eventlog(eventlog_level_debug, __FUNCTION__, "loading \"%s\"",info);
+    eventlog(eventlog_level_debug, __FUNCTION__, "loading \"%s\"",(char *)info);
     if (!(accountfile = fopen((const char *)info,"r"))) {
-	eventlog(eventlog_level_error, __FUNCTION__,"could not open account file \"%s\" for reading (fopen: %s)", info, strerror(errno));
+	eventlog(eventlog_level_error, __FUNCTION__,"could not open account file \"%s\" for reading (fopen: %s)", (char *)info, strerror(errno));
 	return -1;
     }
     
@@ -319,19 +319,19 @@ static int file_read_attrs(t_storage_info *info, t_read_attr_func cb, void *data
 	}
 
 	if (strlen(buff)<6) /* "?"="" */ {
-	    eventlog(eventlog_level_error, __FUNCTION__, "malformed line %d of account file \"%s\"", line, info);
+	    eventlog(eventlog_level_error, __FUNCTION__, "malformed line %d of account file \"%s\"", line, (char *)info);
 	    free((void *)buff); /* avoid warning */
 	    continue;
 	}
 	
 	len = strlen(buff)-5+1; /* - ""="" + NUL */
 	if (!(esckey = malloc(len))) {
-	    eventlog(eventlog_level_error, __FUNCTION__, "could not allocate memory for esckey on line %d of account file \"%s\"", line, info);
+	    eventlog(eventlog_level_error, __FUNCTION__, "could not allocate memory for esckey on line %d of account file \"%s\"", line, (char *)info);
 	    free((void *)buff); /* avoid warning */
 	    continue;
 	}
 	if (!(escval = malloc(len))) {
-	    eventlog(eventlog_level_error, __FUNCTION__,"could not allocate memory for escval on line %d of account file \"%s\"", line, info);
+	    eventlog(eventlog_level_error, __FUNCTION__,"could not allocate memory for escval on line %d of account file \"%s\"", line, (char *)info);
 	    free((void *)buff); /* avoid warning */
 	    free(esckey);
 	    continue;
@@ -339,7 +339,7 @@ static int file_read_attrs(t_storage_info *info, t_read_attr_func cb, void *data
 	
 	if (sscanf(buff,"\"%[^\"]\" = \"%[^\"]\"",esckey,escval)!=2) {
 	    if (sscanf(buff,"\"%[^\"]\" = \"\"",esckey)!=1) /* hack for an empty value field */ {
-		eventlog(eventlog_level_error, __FUNCTION__,"malformed entry on line %d of account file \"%s\"", line, info);
+		eventlog(eventlog_level_error, __FUNCTION__,"malformed entry on line %d of account file \"%s\"", line, (char *)info);
 		free(escval);
 		free(esckey);
 		free((void *)buff); /* avoid warning */
@@ -365,7 +365,7 @@ static int file_read_attrs(t_storage_info *info, t_read_attr_func cb, void *data
 
 
     if (fclose(accountfile)<0) 
-	eventlog(eventlog_level_error, __FUNCTION__, "could not close account file \"%s\" after reading (fclose: %s)", info, strerror(errno));
+	eventlog(eventlog_level_error, __FUNCTION__, "could not close account file \"%s\" after reading (fclose: %s)", (char *)info, strerror(errno));
 
     return 0;
 }
