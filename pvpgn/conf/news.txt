@@ -1,22 +1,15 @@
-{05/14/2003}
-added multiple news support by Spider
-{05/01/2003}
+{01/01/2004}
 Welcome To The Player-vs-Player Gaming Network!
 Bringing Emulation To New Levels!
+
 =-=-=-=-=-=-=-=-=-=-=-=-=-=-==-=-=-=-=-=-=-=-=-=-=-=-=-=-==-=-=-=-=-=-=-=
 
-New Added Features: 
-	
-	-WAR3 Frozen Throne v3054 BETA Support
-	-Users sent to THE VOID can no longer chat while in the channel.
-	-PG 1v1,2v2, and Arranged Teams 2v2 Works w/ FULL Ladder Stats,
-	 profiles, icons, ladder ranks !!!!
+Got a problem, report it!
 
-	-Race Channels just like bnet
-=-=-=-=-=-=-=-=-=-=-=-=-=-=-==-=-=-=-=-=-=-=-=-=-=-=-=-=-==-=-=-=-=-=-=-=
-Make sure to visit us online!
 irc.pvpgn.org  
 Channel: #pvpgn
+
+http://forums.pvpgn.org
 
 Enjoy!
 The PvPGN Team
