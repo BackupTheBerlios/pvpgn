@@ -1412,6 +1412,7 @@ extern int main(int argc, char * argv[])
 			    packet_set_size(packet,sizeof(t_client_startgame4));
 			    packet_set_type(packet,CLIENT_STARTGAME4);
 			    bn_short_set(&packet->u.client_startgame4.status,CLIENT_STARTGAME4_STATUS_INIT);
+			    bn_short_set(&packet->u.client_startgame4.flag,0x0000);
 			    bn_int_set(&packet->u.client_startgame4.unknown2,CLIENT_STARTGAME4_UNKNOWN2);
 			    bn_short_set(&packet->u.client_startgame4.gametype,CLIENT_GAMELISTREQ_MELEE);
 			    bn_short_set(&packet->u.client_startgame4.option,CLIENT_STARTGAME4_OPTION_MELEE_NORMAL);
