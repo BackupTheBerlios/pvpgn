@@ -3348,9 +3348,14 @@ static int _handle_admins_command(t_connection * c, char const *text)
 
 static int _handle_quit_command(t_connection * c, char const *text)
 {
-  message_send_text(c,message_type_info,c,"Connection closed.");
-  conn_set_state(c,conn_state_destroy);
-  return 0;
+    if (conn_get_game(c))
+	eventlog(eventlog_level_warn, __FUNCTION__,"[%d] user '%d' tried to disconnect while in game, cheat attempt ?", conn_get_socket(c), conn_get_loggeduser(c));
+    else {
+	message_send_text(c,message_type_info,c,"Connection closed.");
+	conn_set_state(c,conn_state_destroy);
+    }
+
+    return 0;
 }
 
 static int _handle_kill_command(t_connection * c, char const *text)
