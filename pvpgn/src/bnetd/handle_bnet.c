@@ -4779,12 +4779,12 @@ static int _client_ladderreq(t_connection * c, t_packet const * const packet)
 		  bn_long_set_a_b(&entry.lastgame_current,0,0);
 	       }
 	     
-	     bn_int_set(&entry.ttest[0],0); /* FIXME: what is ttest? */
-	     bn_int_set(&entry.ttest[1],0);
-	     bn_int_set(&entry.ttest[2],0);
-	     bn_int_set(&entry.ttest[3],0);
-	     bn_int_set(&entry.ttest[4],0);
-	     bn_int_set(&entry.ttest[5],0);
+	     bn_int_set(&entry.ttest[0],i); // rank
+	     bn_int_set(&entry.ttest[1],0); //
+	     bn_int_set(&entry.ttest[2],0); //
+	     bn_int_set(&entry.ttest[3],account_get_ladder_active_rating(account,clienttag,id));
+	     bn_int_set(&entry.ttest[4],0); //
+	     bn_int_set(&entry.ttest[5],0); //
 	     
 	     packet_append_data(rpacket,&entry,sizeof(entry));
 	     
