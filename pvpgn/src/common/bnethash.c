@@ -156,12 +156,12 @@ extern int bnet_hash(t_hash * hashout, unsigned int size, void const * datain)
     
     if (!hashout || !*hashout)
     {
-	eventlog(eventlog_level_error,"bnet_hash","got NULL hashout");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL hashout");
 	return -1;
     }
     if (size>0 && !datain)
     {
-	eventlog(eventlog_level_error,"bnet_hash","got NULL datain with size=%u",size);
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL datain with size=%u",size);
 	return -1;
     }
     
@@ -192,7 +192,7 @@ extern int hash_eq(t_hash const h1, t_hash const h2)
     
     if (!h1 || !h2)
     {
-	eventlog(eventlog_level_error,"hash_eq","got NULL hash");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL hash");
 	return -1;
     }
     
@@ -211,7 +211,7 @@ extern char const * hash_get_str(t_hash const hash)
     
     if (!hash)
     {
-	eventlog(eventlog_level_error,"hash_get_str","got NULL hash");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL hash");
 	return NULL;
     }
     
@@ -228,29 +228,29 @@ extern int hash_set_str(t_hash * hash, char const * str)
     
     if (!hash)
     {
-	eventlog(eventlog_level_error,"hash_set_str","got NULL hash pointer");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL hash pointer");
         return -1;
     }
     if (!*hash)
     {
-	eventlog(eventlog_level_error,"hash_set_str","got NULL hash");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL hash");
         return -1;
     }
     if (!str)
     {
-	eventlog(eventlog_level_error,"hash_set_str","got NULL str");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL str");
         return -1;
     }
     if (strlen(str)!=5*8)
     {
-	eventlog(eventlog_level_error,"hash_set_str","got string with length %u (should be %u)",strlen(str),5*8);
+	eventlog(eventlog_level_error,__FUNCTION__,"got string with length %u (should be %u)",strlen(str),5*8);
         return -1;
     }
     
     for (i=0; i<5; i++)
         if (sscanf(&str[i*8],"%8x",&(*hash)[i])!=1)
 	{
-	    eventlog(eventlog_level_error,"hash_set_str","got bad string");
+	    eventlog(eventlog_level_error,__FUNCTION__,"got bad string");
 	    return -1;
 	}
     

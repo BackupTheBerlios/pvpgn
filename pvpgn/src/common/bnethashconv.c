@@ -29,12 +29,12 @@ extern void bnhash_to_hash(bn_int const * bnhash, t_hash * hash)
     
     if (!bnhash)
     {
-	eventlog(eventlog_level_error,"bnhash_to_hash","got NULL bnhash");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL bnhash");
         return;
     }
     if (!hash)
     {
-	eventlog(eventlog_level_error,"bnhash_to_hash","got NULL hash");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL hash");
         return;
     }
     
@@ -49,12 +49,12 @@ extern void hash_to_bnhash(t_hash const * hash, bn_int * bnhash)
     
     if (!bnhash)
     {
-	eventlog(eventlog_level_error,"hash_to_bnhash","got NULL bnhash");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL bnhash");
         return;
     }
     if (!hash)
     {
-	eventlog(eventlog_level_error,"hash_to_bnhash","got NULL hash");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL hash");
         return;
     }
     

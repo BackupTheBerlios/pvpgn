@@ -61,21 +61,21 @@ extern int give_up_root_privileges(char const * user_name, char const * group_na
     int user_id  = 0;
     int group_id = 0;
     
-    eventlog(eventlog_level_debug,"give_up_root_privileges","about to give up root privileges");
+    eventlog(eventlog_level_debug,__FUNCTION__,"about to give up root privileges");
     
     if (user_name)
     {
 	if ((user_id = gurp_uname2id(user_name))==ILLEGAL_ID)
 	  { return -1; }
         else
-	  { eventlog(eventlog_level_debug,"give_up_root_privileges","should change to user = '%s' (%d)", user_name, user_id); }
+	  { eventlog(eventlog_level_debug,__FUNCTION__,"should change to user = '%s' (%d)", user_name, user_id); }
     }
     if (group_name)
     {
 	if ((group_id = gurp_gname2id(group_name))==ILLEGAL_ID)
 	  { return -1; }
         else
-	  { eventlog(eventlog_level_debug,"give_up_root_privileges","should change to group = '%s' (%d)", group_name, group_id); }
+	  { eventlog(eventlog_level_debug,__FUNCTION__,"should change to group = '%s' (%d)", group_name, group_id); }
     }
     
     /*  Change first the group ID, later we might not be able to anymore
@@ -92,7 +92,7 @@ extern int give_up_root_privileges(char const * user_name, char const * group_na
             return -1;
         }    
 # ifdef HAVE_GETUID
-        eventlog(eventlog_level_info,"give_up_root_privileges","Changed privileges to gid = %d", getgid());
+        eventlog(eventlog_level_info,__FUNCTION__,"Changed privileges to gid = %d", getgid());
 # endif
     }
 #endif
@@ -106,7 +106,7 @@ extern int give_up_root_privileges(char const * user_name, char const * group_na
             return -1;
         }    
 # ifdef HAVE_GETGID
-        eventlog(eventlog_level_info,"give_up_root_privileges","Changed privileges to uid = %d", getuid());
+        eventlog(eventlog_level_info,__FUNCTION__,"Changed privileges to uid = %d", getuid());
 # endif
     }
 #endif
@@ -130,7 +130,7 @@ static int gurp_uname2id(const char *name)
 #ifdef HAVE_GETPWNAM
             struct passwd * ent;
             
-            eventlog(eventlog_level_debug,"give_up_root_privileges","about to getpwnam(%s)", name);
+            eventlog(eventlog_level_debug,__FUNCTION__,"about to getpwnam(%s)", name);
             
             if (!(ent = getpwnam(name)))
             {
@@ -163,7 +163,7 @@ static int gurp_gname2id(const char *name)
 #ifdef HAVE_GETGRNAM
             struct group * ent;
             
-            eventlog(eventlog_level_debug,"give_up_root_privileges","about to getgrnam(%s)", name);
+            eventlog(eventlog_level_debug,__FUNCTION__,"about to getgrnam(%s)", name);
             
             if (!(ent = getgrnam(name)))
             {

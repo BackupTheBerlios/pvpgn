@@ -66,7 +66,7 @@ extern t_packet * packet_create(t_packet_class class)
 	class!=packet_class_d2cs_bnetd &&
 	class!=packet_class_w3route)
     {
-	eventlog(eventlog_level_error,"packet_create","invalid packet class %d",(int)class);
+	eventlog(eventlog_level_error,__FUNCTION__,"invalid packet class %d",(int)class);
         return NULL;
     }
 
@@ -84,7 +84,7 @@ extern void packet_destroy(t_packet const * packet)
 {
     if (!packet)
     {
-	eventlog(eventlog_level_error,"packet_destroy","got NULL packet");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL packet");
 	return;
     }
     
@@ -96,7 +96,7 @@ extern t_packet * packet_add_ref(t_packet * packet)
 {
     if (!packet)
     {
-	eventlog(eventlog_level_error,"packet_add_ref","got NULL packet");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL packet");
 	return NULL;
     }
     
@@ -109,7 +109,7 @@ extern void packet_del_ref(t_packet * packet)
 {
     if (!packet)
     {
-	eventlog(eventlog_level_error,"packet_del_ref","got NULL packet");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL packet");
 	return;
     }
     
@@ -124,7 +124,7 @@ extern t_packet_class packet_get_class(t_packet const * packet)
 {
     if (!packet)
     {
-	eventlog(eventlog_level_error,"packet_get_class","got NULL packet");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL packet");
 	return packet_class_none;
     }
     
@@ -153,7 +153,7 @@ extern t_packet_class packet_get_class(t_packet const * packet)
     case packet_class_none:
 	return packet_class_none;
     default:
-	eventlog(eventlog_level_error,"packet_get_class","packet has invalid class %d",(int)packet->class);
+	eventlog(eventlog_level_error,__FUNCTION__,"packet has invalid class %d",(int)packet->class);
 	return packet_class_none;
     }
 }
@@ -163,7 +163,7 @@ extern char const * packet_get_class_str(t_packet const * packet)
 {
     if (!packet)
     {
-	eventlog(eventlog_level_error,"packet_get_class_str","got NULL packet");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL packet");
 	return "unknown";
     }
     
@@ -192,7 +192,7 @@ extern char const * packet_get_class_str(t_packet const * packet)
     case packet_class_none:
 	return "none";
     default:
-	eventlog(eventlog_level_error,"packet_get_class_str","packet has invalid class %d",(int)packet->class);
+	eventlog(eventlog_level_error,__FUNCTION__,"packet has invalid class %d",(int)packet->class);
 	return "unknown";
     }
 }
@@ -202,12 +202,12 @@ extern int packet_set_class(t_packet * packet, t_packet_class class)
 {
     if (!packet)
     {
-	eventlog(eventlog_level_error,"packet_set_class","got NULL packet");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL packet");
 	return -1;
     }
     if (packet->class!=packet_class_raw)
     {
-	eventlog(eventlog_level_error,"packet_set_class","got non-raw packet");
+	eventlog(eventlog_level_error,__FUNCTION__,"got non-raw packet");
 	return -1;
     }
     if (class!=packet_class_init &&
@@ -221,7 +221,7 @@ extern int packet_set_class(t_packet * packet, t_packet_class class)
         class!=packet_class_d2cs_bnetd &&
 	class!=packet_class_w3route)
     {
-	eventlog(eventlog_level_error,"packet_set_class","invalid packet class %d",(int)class);
+	eventlog(eventlog_level_error,__FUNCTION__,"invalid packet class %d",(int)class);
         return -1;
     }
     
@@ -234,7 +234,7 @@ extern unsigned int packet_get_type(t_packet const * packet)
 {
     if (!packet)
     {
-	eventlog(eventlog_level_error,"packet_get_type","got NULL packet");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL packet");
 	return 0;
     }
     
@@ -246,7 +246,7 @@ extern unsigned int packet_get_type(t_packet const * packet)
     case packet_class_bnet:
 	if (packet_get_size(packet)<sizeof(t_bnet_header))
 	{
-	    eventlog(eventlog_level_error,"packet_get_type","bnet packet is shorter than header (len=%u)",packet_get_size(packet));
+	    eventlog(eventlog_level_error,__FUNCTION__,"bnet packet is shorter than header (len=%u)",packet_get_size(packet));
 	    return 0;
 	}
 	return (unsigned int)bn_short_get(packet->u.bnet.h.type);
@@ -254,7 +254,7 @@ extern unsigned int packet_get_type(t_packet const * packet)
     case packet_class_file:
 	if (packet_get_size(packet)<sizeof(t_file_header))
 	{
-	    eventlog(eventlog_level_error,"packet_get_type","file packet is shorter than header (len=%u)",packet_get_size(packet));
+	    eventlog(eventlog_level_error,__FUNCTION__,"file packet is shorter than header (len=%u)",packet_get_size(packet));
 	    return 0;
 	}
 	return (unsigned int)bn_short_get(packet->u.file.h.type);
@@ -262,7 +262,7 @@ extern unsigned int packet_get_type(t_packet const * packet)
     case packet_class_udp:
 	if (packet_get_size(packet)<sizeof(t_udp_header))
 	{
-	    eventlog(eventlog_level_error,"packet_get_type","udp packet is shorter than header (len=%u)",packet_get_size(packet));
+	    eventlog(eventlog_level_error,__FUNCTION__,"udp packet is shorter than header (len=%u)",packet_get_size(packet));
 	    return 0;
 	}
 	return bn_int_get(packet->u.udp.h.type);
@@ -273,7 +273,7 @@ extern unsigned int packet_get_type(t_packet const * packet)
     case packet_class_d2game:
 	if (packet_get_size(packet)<sizeof(t_d2game_header))
 	{
-	    eventlog(eventlog_level_error,"packet_get_type","d2game packet is shorter than header (len=%u)",packet_get_size(packet));
+	    eventlog(eventlog_level_error,__FUNCTION__,"d2game packet is shorter than header (len=%u)",packet_get_size(packet));
 	    return 0;
 	}
 	return bn_byte_get(packet->u.d2game.h.type);
@@ -281,13 +281,13 @@ extern unsigned int packet_get_type(t_packet const * packet)
     case packet_class_d2gs:
         if (packet_get_size(packet)<sizeof(t_d2cs_d2gs_header))
         {
-            eventlog(eventlog_level_error,"packet_get_type","d2gs packet is shorter than header (len=%u)",packet_get_size(packet));
+            eventlog(eventlog_level_error,__FUNCTION__,"d2gs packet is shorter than header (len=%u)",packet_get_size(packet));
             return 0;
         }
         return bn_short_get(packet->u.d2cs_d2gs.h.type);
     case packet_class_d2cs_bnetd:
         if (packet_get_size(packet)<sizeof(t_d2cs_bnetd_header)) {
-                eventlog(eventlog_level_error,"packet_get_type","d2cs_bnetd packet shorter than header (len=%u)",packet_get_size(packet));
+                eventlog(eventlog_level_error,__FUNCTION__,"d2cs_bnetd packet shorter than header (len=%u)",packet_get_size(packet));
                 return 0;
         }
         return bn_short_get(packet->u.d2cs_d2gs.h.type);
@@ -295,7 +295,7 @@ extern unsigned int packet_get_type(t_packet const * packet)
     case packet_class_d2cs:
         if (packet_get_size(packet)<sizeof(t_d2cs_client_header))
         {
-            eventlog(eventlog_level_error,"packet_get_type","d2cs packet is shorter than header (len=%u)",packet_get_size(packet));
+            eventlog(eventlog_level_error,__FUNCTION__,"d2cs packet is shorter than header (len=%u)",packet_get_size(packet));
             return 0;
         }
         return bn_byte_get(packet->u.d2cs_client.h.type);
@@ -303,14 +303,14 @@ extern unsigned int packet_get_type(t_packet const * packet)
     case packet_class_w3route:
 	if (packet_get_size(packet)<sizeof(t_w3route_header))
 	{
-	    eventlog(eventlog_level_error,"packet_get_type","w3route packet is shorter than header (len=%u)",packet_get_size(packet));
+	    eventlog(eventlog_level_error,__FUNCTION__,"w3route packet is shorter than header (len=%u)",packet_get_size(packet));
 	    return 0;
 	}
 	return bn_short_get(packet->u.w3route.h.type);
 
 	
     default:
-	eventlog(eventlog_level_error,"packet_get_type","packet has invalid class %d",(int)packet->class);
+	eventlog(eventlog_level_error,__FUNCTION__,"packet has invalid class %d",(int)packet->class);
 	return 0;
     }
 }
@@ -320,7 +320,7 @@ extern char const * packet_get_type_str(t_packet const * packet, t_packet_dir di
 {
     if (!packet)
     {
-	eventlog(eventlog_level_error,"packet_get_type_str","got NULL packet");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL packet");
 	return "unknown";
     }
     
@@ -334,7 +334,7 @@ extern char const * packet_get_type_str(t_packet const * packet, t_packet_dir di
 	case packet_class_bnet:
 	    if (packet_get_size(packet)<sizeof(t_bnet_header))
 	    {
-		eventlog(eventlog_level_error,"packet_get_type_str","packet is shorter than header (len=%u)",packet_get_size(packet));
+		eventlog(eventlog_level_error,__FUNCTION__,"packet is shorter than header (len=%u)",packet_get_size(packet));
 		return "unknown";
 	    }
 	    switch (bn_short_get(packet->u.bnet.h.type))
@@ -487,7 +487,7 @@ extern char const * packet_get_type_str(t_packet const * packet, t_packet_dir di
 	case packet_class_file:
 	    if (packet_get_size(packet)<sizeof(t_file_header))
 	    {
-		eventlog(eventlog_level_error,"packet_get_type_str","packet is shorter than header (len=%u)",packet_get_size(packet));
+		eventlog(eventlog_level_error,__FUNCTION__,"packet is shorter than header (len=%u)",packet_get_size(packet));
 		return "unknown";
 	    }
 	    switch (bn_short_get(packet->u.file.h.type))
@@ -500,7 +500,7 @@ extern char const * packet_get_type_str(t_packet const * packet, t_packet_dir di
 	case packet_class_udp:
 	    if (packet_get_size(packet)<sizeof(t_udp_header))
 	    {
-		eventlog(eventlog_level_error,"packet_get_type_str","packet is shorter than header (len=%u)",packet_get_size(packet));
+		eventlog(eventlog_level_error,__FUNCTION__,"packet is shorter than header (len=%u)",packet_get_size(packet));
 		return "unknown";
 	    }
 	    switch (bn_int_get(packet->u.udp.h.type))
@@ -522,7 +522,7 @@ extern char const * packet_get_type_str(t_packet const * packet, t_packet_dir di
        case packet_class_d2game:
 	    if (packet_get_size(packet)<sizeof(t_d2game_header))
 	    {
-               eventlog(eventlog_level_error,"packet_get_type_str","packet is shorter than header (len=%u)",packet_get_size(packet));
+               eventlog(eventlog_level_error,__FUNCTION__,"packet is shorter than header (len=%u)",packet_get_size(packet));
                return "unknown";
 	    }
 	    switch (bn_byte_get(packet->u.d2game.h.type))
@@ -542,7 +542,7 @@ extern char const * packet_get_type_str(t_packet const * packet, t_packet_dir di
 	case packet_class_w3route:
 	    if (packet_get_size(packet)<sizeof(t_w3route_header))
 	    {
-		eventlog(eventlog_level_error,"packet_get_type_str","packet is shorter than header (len=%u)",packet_get_size(packet));
+		eventlog(eventlog_level_error,__FUNCTION__,"packet is shorter than header (len=%u)",packet_get_size(packet));
 		return "unknown";
 	    }
 	    switch (bn_short_get(packet->u.bnet.h.type))
@@ -568,7 +568,7 @@ extern char const * packet_get_type_str(t_packet const * packet, t_packet_dir di
 	    return "unknown";
 	}
 	
-	eventlog(eventlog_level_error,"packet_get_type_str","packet has invalid class %d",(int)packet->class);
+	eventlog(eventlog_level_error,__FUNCTION__,"packet has invalid class %d",(int)packet->class);
 	return "unknown";
 	
     case packet_dir_from_server:
@@ -579,7 +579,7 @@ extern char const * packet_get_type_str(t_packet const * packet, t_packet_dir di
 	case packet_class_bnet:
 	    if (packet_get_size(packet)<sizeof(t_bnet_header))
 	    {
-		eventlog(eventlog_level_error,"packet_get_type_str","packet is shorter than header (len=%u)",packet_get_size(packet));
+		eventlog(eventlog_level_error,__FUNCTION__,"packet is shorter than header (len=%u)",packet_get_size(packet));
 		return "unknown";
 	    }
 	    switch (bn_short_get(packet->u.bnet.h.type))
@@ -702,7 +702,7 @@ extern char const * packet_get_type_str(t_packet const * packet, t_packet_dir di
 	case packet_class_file:
 	    if (packet_get_size(packet)<sizeof(t_file_header))
 	    {
-		eventlog(eventlog_level_error,"packet_get_type_str","packet is shorter than header (len=%u)",packet_get_size(packet));
+		eventlog(eventlog_level_error,__FUNCTION__,"packet is shorter than header (len=%u)",packet_get_size(packet));
 		return "unknown";
 	    }
 	    switch (bn_short_get(packet->u.file.h.type))
@@ -715,7 +715,7 @@ extern char const * packet_get_type_str(t_packet const * packet, t_packet_dir di
 	case packet_class_udp:
 	    if (packet_get_size(packet)<sizeof(t_udp_header))
 	    {
-		eventlog(eventlog_level_error,"packet_get_type_str","packet is shorter than header (len=%u)",packet_get_size(packet));
+		eventlog(eventlog_level_error,__FUNCTION__,"packet is shorter than header (len=%u)",packet_get_size(packet));
 		return "unknown";
 	    }
 	    switch (bn_int_get(packet->u.udp.h.type))
@@ -731,7 +731,7 @@ extern char const * packet_get_type_str(t_packet const * packet, t_packet_dir di
 	case packet_class_d2game:
 	    if (packet_get_size(packet)<sizeof(t_d2game_header))
 	    {
-		eventlog(eventlog_level_error,"packet_get_type_str","packet is shorter than header (len=%u)",packet_get_size(packet));
+		eventlog(eventlog_level_error,__FUNCTION__,"packet is shorter than header (len=%u)",packet_get_size(packet));
 		return "unknown";
 	    }
 	    switch (bn_byte_get(packet->u.d2game.h.type))
@@ -751,7 +751,7 @@ extern char const * packet_get_type_str(t_packet const * packet, t_packet_dir di
 	case packet_class_w3route:
 	    if (packet_get_size(packet)<sizeof(t_w3route_header))
 	    {
-		eventlog(eventlog_level_error,"packet_get_type_str","packet is shorter than header (len=%u)",packet_get_size(packet));
+		eventlog(eventlog_level_error,__FUNCTION__,"packet is shorter than header (len=%u)",packet_get_size(packet));
 		return "unknown";
 	    }
 	    switch (bn_short_get(packet->u.bnet.h.type))
@@ -778,11 +778,11 @@ extern char const * packet_get_type_str(t_packet const * packet, t_packet_dir di
 	    return "unknown";
 	}
 	
-	eventlog(eventlog_level_error,"packet_get_type_str","packet has invalid class %d",(int)packet->class);
+	eventlog(eventlog_level_error,__FUNCTION__,"packet has invalid class %d",(int)packet->class);
 	return "unknown";
     }
     
-    eventlog(eventlog_level_error,"packet_get_type_str","got unknown direction %d",(int)dir);
+    eventlog(eventlog_level_error,__FUNCTION__,"got unknown direction %d",(int)dir);
     return "unknown";
 }
 
@@ -791,7 +791,7 @@ extern int packet_set_type(t_packet * packet, unsigned int type)
 {
     if (!packet)
     {
-	eventlog(eventlog_level_error,"packet_set_type","got NULL packet");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL packet");
 	return -1;
     }
     
@@ -800,7 +800,7 @@ extern int packet_set_type(t_packet * packet, unsigned int type)
     case packet_class_init:
 	if (type!=CLIENT_INITCONN)
 	{
-	    eventlog(eventlog_level_error,"packet_set_type","init packet type 0x%08x is not valid",type);
+	    eventlog(eventlog_level_error,__FUNCTION__,"init packet type 0x%08x is not valid",type);
 	    return -1;
 	}
 	return 0;
@@ -808,12 +808,12 @@ extern int packet_set_type(t_packet * packet, unsigned int type)
     case packet_class_bnet:
 	if (packet_get_size(packet)<sizeof(t_bnet_header))
 	{
-	    eventlog(eventlog_level_error,"packet_set_type","bnet packet is shorter than header (len=%u)",packet_get_size(packet));
+	    eventlog(eventlog_level_error,__FUNCTION__,"bnet packet is shorter than header (len=%u)",packet_get_size(packet));
 	    return -1;
 	}
 	if (type>MAX_NORMAL_TYPE)
 	{
-	    eventlog(eventlog_level_error,"packet_set_type","bnet packet type 0x%08x is too large",type);
+	    eventlog(eventlog_level_error,__FUNCTION__,"bnet packet type 0x%08x is too large",type);
 	    return -1;
 	}
 	bn_short_set(&packet->u.bnet.h.type,(unsigned short)type);
@@ -822,12 +822,12 @@ extern int packet_set_type(t_packet * packet, unsigned int type)
     case packet_class_file:
 	if (packet_get_size(packet)<sizeof(t_file_header))
 	{
-	    eventlog(eventlog_level_error,"packet_set_type","file packet is shorter than header (len=%u)",packet_get_size(packet));
+	    eventlog(eventlog_level_error,__FUNCTION__,"file packet is shorter than header (len=%u)",packet_get_size(packet));
 	    return -1;
 	}
 	if (type>MAX_FILE_TYPE)
 	{
-	    eventlog(eventlog_level_error,"packet_set_type","file packet type 0x%08x is too large",type);
+	    eventlog(eventlog_level_error,__FUNCTION__,"file packet type 0x%08x is too large",type);
 	    return -1;
 	}
 	bn_short_set(&packet->u.file.h.type,(unsigned short)type);
@@ -836,7 +836,7 @@ extern int packet_set_type(t_packet * packet, unsigned int type)
     case packet_class_udp:
 	if (packet_get_size(packet)<sizeof(t_udp_header))
 	{
-	    eventlog(eventlog_level_error,"packet_set_type","udp packet is shorter than header (len=%u)",packet_get_size(packet));
+	    eventlog(eventlog_level_error,__FUNCTION__,"udp packet is shorter than header (len=%u)",packet_get_size(packet));
 	    return -1;
 	}
 	bn_int_set(&packet->u.udp.h.type,type);
@@ -845,7 +845,7 @@ extern int packet_set_type(t_packet * packet, unsigned int type)
     case packet_class_d2game:
 	if (packet_get_size(packet)<sizeof(t_d2game_header))
 	{
-	    eventlog(eventlog_level_error,"packet_set_type","d2game packet is shorter than header (len=%u)",packet_get_size(packet));
+	    eventlog(eventlog_level_error,__FUNCTION__,"d2game packet is shorter than header (len=%u)",packet_get_size(packet));
 	    return -1;
 	}
 	bn_byte_set(&packet->u.d2game.h.type,type);
@@ -854,7 +854,7 @@ extern int packet_set_type(t_packet * packet, unsigned int type)
     case packet_class_d2gs:
         if (packet_get_size(packet)<sizeof(t_d2cs_d2gs_header))
         {
-            eventlog(eventlog_level_error,"packet_set_type","d2gs packet is shorter than header (len=%u)",packet_get_size(packet));
+            eventlog(eventlog_level_error,__FUNCTION__,"d2gs packet is shorter than header (len=%u)",packet_get_size(packet));
             return -1;
         }
         bn_short_set(&packet->u.d2cs_d2gs.h.type,type);
@@ -863,7 +863,7 @@ extern int packet_set_type(t_packet * packet, unsigned int type)
     case packet_class_d2cs_bnetd:
         if (packet_get_size(packet)<sizeof(t_d2cs_bnetd_header))
         {
-            eventlog(eventlog_level_error,"packet_set_type","d2cs_bnetd packet is shorter than header (len=%u)",packet_get_size(packet));
+            eventlog(eventlog_level_error,__FUNCTION__,"d2cs_bnetd packet is shorter than header (len=%u)",packet_get_size(packet));
             return -1;
         }
         bn_short_set(&packet->u.d2cs_bnetd.h.type,type);
@@ -872,7 +872,7 @@ extern int packet_set_type(t_packet * packet, unsigned int type)
     case packet_class_d2cs:
         if (packet_get_size(packet)<sizeof(t_d2cs_client_header))
         {
-            eventlog(eventlog_level_error,"packet_set_type","d2cs packet is shorter than header (len=%u)",packet_get_size(packet));
+            eventlog(eventlog_level_error,__FUNCTION__,"d2cs packet is shorter than header (len=%u)",packet_get_size(packet));
             return -1;
         }
         bn_byte_set(&packet->u.d2cs_client.h.type,type);
@@ -881,7 +881,7 @@ extern int packet_set_type(t_packet * packet, unsigned int type)
     case packet_class_w3route:
 	if (packet_get_size(packet)<sizeof(t_w3route_header))
 	{
-	    eventlog(eventlog_level_error,"packet_set_type","w3route packet is shorter than header (len=%u)",packet_get_size(packet));
+	    eventlog(eventlog_level_error,__FUNCTION__,"w3route packet is shorter than header (len=%u)",packet_get_size(packet));
 	    return -1;
 	}
 	bn_short_set(&packet->u.w3route.h.type,(unsigned short)type);
@@ -889,11 +889,11 @@ extern int packet_set_type(t_packet * packet, unsigned int type)
 
 	
     case packet_class_raw:
-	eventlog(eventlog_level_error,"packet_set_type","can not set packet type for raw packet");
+	eventlog(eventlog_level_error,__FUNCTION__,"can not set packet type for raw packet");
 	return 0;
 	
     default:
-	eventlog(eventlog_level_error,"packet_set_type","packet has invalid class %d",(int)packet->class);
+	eventlog(eventlog_level_error,__FUNCTION__,"packet has invalid class %d",(int)packet->class);
 	return -1;
     }
 }
@@ -906,7 +906,7 @@ extern unsigned int packet_get_size(t_packet const * packet)
     
     if (!packet)
     {
-        eventlog(eventlog_level_error,"packet_get_size","got NULL packet");
+        eventlog(eventlog_level_error,__FUNCTION__,"got NULL packet");
 	return 0;
     }
     
@@ -943,13 +943,13 @@ extern unsigned int packet_get_size(t_packet const * packet)
 	size = (unsigned int)bn_short_get(packet->u.w3route.h.size);
 	break;
     default:
-	eventlog(eventlog_level_error,"packet_get_size","packet has invalid class %d",(int)packet->class);
+	eventlog(eventlog_level_error,__FUNCTION__,"packet has invalid class %d",(int)packet->class);
 	return 0;
     }
     
     if (size>MAX_PACKET_SIZE)
     {
-        eventlog(eventlog_level_error,"packet_get_size","packet has bad size %u",size);
+        eventlog(eventlog_level_error,__FUNCTION__,"packet has bad size %u",size);
 	return 0;
     }
     return size;
@@ -960,12 +960,12 @@ extern int packet_set_size(t_packet * packet, unsigned int size)
 {
     if (!packet)
     {
-        eventlog(eventlog_level_error,"packet_set_size","got NULL packet");
+        eventlog(eventlog_level_error,__FUNCTION__,"got NULL packet");
 	return -1;
     }
     if (size>MAX_PACKET_SIZE)
     {
-        eventlog(eventlog_level_error,"packet_set_size","got bad size %u",size);
+        eventlog(eventlog_level_error,__FUNCTION__,"got bad size %u",size);
 	return -1;
     }
     
@@ -974,7 +974,7 @@ extern int packet_set_size(t_packet * packet, unsigned int size)
     case packet_class_init:
 	if (size!=0 && size!=sizeof(t_client_initconn))
 	{
-	    eventlog(eventlog_level_error,"packet_set_size","invalid size %u for init packet",size);
+	    eventlog(eventlog_level_error,__FUNCTION__,"invalid size %u for init packet",size);
 	    return -1;
 	}
 	packet->len = size;
@@ -982,7 +982,7 @@ extern int packet_set_size(t_packet * packet, unsigned int size)
     case packet_class_bnet:
 	if (size!=0 && size<sizeof(t_bnet_header))
 	{
-	    eventlog(eventlog_level_error,"packet_set_size","invalid size %u for bnet packet",size);
+	    eventlog(eventlog_level_error,__FUNCTION__,"invalid size %u for bnet packet",size);
 	    return -1;
 	}
         bn_short_set(&packet->u.bnet.h.size,size);
@@ -990,7 +990,7 @@ extern int packet_set_size(t_packet * packet, unsigned int size)
     case packet_class_file:
 	if (size!=0 && size<sizeof(t_file_header))
 	{
-	    eventlog(eventlog_level_error,"packet_set_size","invalid size %u for file packet",size);
+	    eventlog(eventlog_level_error,__FUNCTION__,"invalid size %u for file packet",size);
 	    return -1;
 	}
         bn_short_set(&packet->u.file.h.size,size);
@@ -998,7 +998,7 @@ extern int packet_set_size(t_packet * packet, unsigned int size)
     case packet_class_udp:
 	if (size!=0 && size<sizeof(t_udp_header))
 	{
-	    eventlog(eventlog_level_error,"packet_set_size","invalid size %u for udp packet",size);
+	    eventlog(eventlog_level_error,__FUNCTION__,"invalid size %u for udp packet",size);
 	    return -1;
 	}
 	packet->len = size;
@@ -1021,13 +1021,13 @@ extern int packet_set_size(t_packet * packet, unsigned int size)
     case packet_class_w3route:
 	if (size!=0 && size<sizeof(t_w3route_header))
 	{
-	    eventlog(eventlog_level_error,"packet_set_size","invalid size %u for w3route packet",size);
+	    eventlog(eventlog_level_error,__FUNCTION__,"invalid size %u for w3route packet",size);
 	    return -1;
 	}
         bn_short_set(&packet->u.w3route.h.size,size);
         return 0;
     default:
-	eventlog(eventlog_level_error,"packet_set_size","packet has invalid class %d",(int)packet->class);
+	eventlog(eventlog_level_error,__FUNCTION__,"packet has invalid class %d",(int)packet->class);
 	return -1;
     }
 }
@@ -1037,7 +1037,7 @@ extern unsigned int packet_get_header_size(t_packet const * packet)
 {
     if (!packet)
     {
-        eventlog(eventlog_level_error,"packet_get_header_size","got NULL packet");
+        eventlog(eventlog_level_error,__FUNCTION__,"got NULL packet");
 	return MAX_PACKET_SIZE;
     }
     
@@ -1064,7 +1064,7 @@ extern unsigned int packet_get_header_size(t_packet const * packet)
     case packet_class_w3route:
         return sizeof(t_w3route_header);
     default:
-        eventlog(eventlog_level_error,"packet_get_header_size","packet has bad class %d",(int)packet_get_class(packet));
+        eventlog(eventlog_level_error,__FUNCTION__,"packet has bad class %d",(int)packet_get_class(packet));
         return MAX_PACKET_SIZE;
     }
 }
@@ -1074,7 +1074,7 @@ extern unsigned int packet_get_flags(t_packet const * packet)
 {
     if (!packet)
     {
-        eventlog(eventlog_level_error,"packet_get_flags","got NULL packet");
+        eventlog(eventlog_level_error,__FUNCTION__,"got NULL packet");
         return 0;
     }
     
@@ -1086,7 +1086,7 @@ extern int packet_set_flags(t_packet * packet, unsigned int flags)
 {
     if (!packet)
     {
-        eventlog(eventlog_level_error,"packet_set_flags","got NULL packet");
+        eventlog(eventlog_level_error,__FUNCTION__,"got NULL packet");
         return -1;
     }
     
@@ -1103,12 +1103,12 @@ extern int packet_append_string(t_packet * packet, char const * str)
     
     if (!packet)
     {
-        eventlog(eventlog_level_error,"packet_append_string","got NULL packet");
+        eventlog(eventlog_level_error,__FUNCTION__,"got NULL packet");
         return -1;
     }
     if (!str)
     {
-        eventlog(eventlog_level_error,"packet_append_string","got NULL string");
+        eventlog(eventlog_level_error,__FUNCTION__,"got NULL string");
         return -1;
     }
     
@@ -1140,12 +1140,12 @@ extern int packet_append_ntstring(t_packet * packet, char const * str)
     
     if (!packet)
     {
-        eventlog(eventlog_level_error,"packet_append_ntstring","got NULL packet");
+        eventlog(eventlog_level_error,__FUNCTION__,"got NULL packet");
         return -1;
     }
     if (!str)
     {
-        eventlog(eventlog_level_error,"packet_append_ntstring","got NULL string");
+        eventlog(eventlog_level_error,__FUNCTION__,"got NULL string");
         return -1;
     }
     
@@ -1175,12 +1175,12 @@ extern int packet_append_lstr(t_packet * packet, t_lstr *lstr)
     
     if (!packet)
     {
-        eventlog(eventlog_level_error,"packet_append_string","got NULL packet");
+        eventlog(eventlog_level_error,__FUNCTION__,"got NULL packet");
         return -1;
     }
     if (!lstr || !lstr_get_str(lstr))
     {
-        eventlog(eventlog_level_error,"packet_append_string","got NULL string");
+        eventlog(eventlog_level_error,__FUNCTION__,"got NULL string");
         return -1;
     }
 
@@ -1210,12 +1210,12 @@ extern int packet_append_data(t_packet * packet, void const * data, unsigned int
     
     if (!packet)
     {
-        eventlog(eventlog_level_error,"packet_append_data","got NULL packet");
+        eventlog(eventlog_level_error,__FUNCTION__,"got NULL packet");
         return -1;
     }
     if (!data)
     {
-        eventlog(eventlog_level_error,"packet_append_data","got NULL data");
+        eventlog(eventlog_level_error,__FUNCTION__,"got NULL data");
         return -1;
     }
     
@@ -1243,13 +1243,13 @@ extern void const * packet_get_raw_data_const(t_packet const * packet, unsigned 
     
     if (!packet)
     {
-        eventlog(eventlog_level_error,"packet_get_raw_data_const","got NULL packet");
+        eventlog(eventlog_level_error,__FUNCTION__,"got NULL packet");
         return NULL;
     }
     size = (unsigned int)packet_get_size(packet);
     if (offset>=size || offset>=MAX_PACKET_SIZE)
     {
-        eventlog(eventlog_level_error,"packet_get_raw_data_const","got bad offset %u for packet size %u",offset,size);
+        eventlog(eventlog_level_error,__FUNCTION__,"got bad offset %u for packet size %u",offset,size);
         return NULL;
     }
     
@@ -1263,13 +1263,13 @@ extern void * packet_get_raw_data(t_packet * packet, unsigned int offset)
     
     if (!packet)
     {
-        eventlog(eventlog_level_error,"packet_get_raw_data","got NULL packet");
+        eventlog(eventlog_level_error,__FUNCTION__,"got NULL packet");
         return NULL;
     }
     size = (unsigned int)packet_get_size(packet);
     if (offset>=size || offset>=MAX_PACKET_SIZE)
     {
-        eventlog(eventlog_level_error,"packet_get_raw_data","got bad offset %u for packet size %u",offset,size);
+        eventlog(eventlog_level_error,__FUNCTION__,"got bad offset %u for packet size %u",offset,size);
         return NULL;
     }
     
@@ -1281,13 +1281,13 @@ extern void * packet_get_raw_data_build(t_packet * packet, unsigned int offset)
 {
     if (!packet)
     {
-        eventlog(eventlog_level_error,"packet_get_raw_data_build","got NULL packet");
+        eventlog(eventlog_level_error,__FUNCTION__,"got NULL packet");
         return NULL;
     }
     
     if (offset>=MAX_PACKET_SIZE)
     {
-        eventlog(eventlog_level_error,"packet_get_raw_data_build","got bad offset %u for packet",offset);
+        eventlog(eventlog_level_error,__FUNCTION__,"got bad offset %u for packet",offset);
         return NULL;
     }
     
@@ -1303,13 +1303,13 @@ extern char const * packet_get_str_const(t_packet const * packet, unsigned int o
     
     if (!packet)
     {
-        eventlog(eventlog_level_error,"packet_get_str_const","got NULL packet");
+        eventlog(eventlog_level_error,__FUNCTION__,"got NULL packet");
         return NULL;
     }
     size = (unsigned int)packet_get_size(packet);
     if (offset>=size)
     {
-        eventlog(eventlog_level_error,"packet_get_str_const","got bad offset %u for packet size %u",offset,size);
+        eventlog(eventlog_level_error,__FUNCTION__,"got bad offset %u for packet size %u",offset,size);
         return NULL;
     }
     
@@ -1328,18 +1328,18 @@ extern void const * packet_get_data_const(t_packet const * packet, unsigned int 
     
     if (!packet)
     {
-        eventlog(eventlog_level_error,"packet_get_data_const","got NULL packet");
+        eventlog(eventlog_level_error,__FUNCTION__,"got NULL packet");
         return NULL;
     }
     if (len<1)
     {
-        eventlog(eventlog_level_error,"packet_get_data_const","got zero length");
+        eventlog(eventlog_level_error,__FUNCTION__,"got zero length");
 	return NULL;
     }
     size = (unsigned int)packet_get_size(packet);
     if (offset+len>size)
     {
-        eventlog(eventlog_level_error,"packet_get_data_const","got bad offset %u and length %u for packet size %u",offset,len,size);
+        eventlog(eventlog_level_error,__FUNCTION__,"got bad offset %u and length %u for packet size %u",offset,len,size);
         return NULL;
     }
     
@@ -1353,7 +1353,7 @@ extern t_packet * packet_duplicate(t_packet const * src)
     
     if (!(p = packet_create(packet_get_class(src))))
     {
-	eventlog(eventlog_level_error,"packet_duplicate","could not create packet");
+	eventlog(eventlog_level_error,__FUNCTION__,"could not create packet");
 	return NULL;
     }
     packet_append_data(p,src->u.data,packet_get_size(src));

@@ -149,7 +149,7 @@ extern t_bnettime bnettime(void)
     
     if (gettimeofday(&tv,NULL)<0)
     {
-        eventlog(eventlog_level_error,"bnettime","could not get time (gettimeofday: %s)",strerror(errno));
+        eventlog(eventlog_level_error,__FUNCTION__,"could not get time (gettimeofday: %s)",strerror(errno));
         return time_to_bnettime(time(NULL),0);
     }
     return time_to_bnettime((time_t)tv.tv_sec,tv.tv_usec);
@@ -171,12 +171,12 @@ extern int bnettime_set_str(t_bnettime * bntime, char const * timestr)
 {
     if (!bntime)
     {
-	eventlog(eventlog_level_error,"bnettime_set_str","got NULL bntime");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL bntime");
 	return -1;
     }
     if (!timestr)
     {
-	eventlog(eventlog_level_error,"bnettime_set_str","got NULL timestr");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL timestr");
 	return -1;
     }
     
@@ -191,7 +191,7 @@ extern void bnettime_to_bn_long(t_bnettime in, bn_long * out)
 {
     if (!out)
     {
-	eventlog(eventlog_level_error,"bnettime_to_bn_long","got NULL out");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL out");
 	return;
     }
     
@@ -203,7 +203,7 @@ extern void bn_long_to_bnettime(bn_long in, t_bnettime * out)
 {
     if (!out)
     {
-	eventlog(eventlog_level_error,"bn_long_to_bnettime","got NULL out");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL out");
 	return;
     }
     
