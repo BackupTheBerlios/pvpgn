@@ -403,7 +403,7 @@ extern char const * game_difficulty_get_str(t_game_difficulty difficulty)
 }
 
 
-extern t_game * game_create(char const * name, char const * pass, char const * info, t_game_type type, int startver, char const * clienttag)
+extern t_game * game_create(char const * name, char const * pass, char const * info, t_game_type type, int startver, char const * clienttag, unsigned long gameversion)
 {
     t_game * game;
     time_t now;
@@ -469,7 +469,7 @@ extern t_game * game_create(char const * name, char const * pass, char const * i
     game->type          = type;
     game->addr          = 0; /* will be set by first player */
     game->port          = 0; /* will be set by first player */
-    game->version       = 0; /* FIXME! */
+    game->version       = gameversion;
     game->startver      = startver; /* start packet version */
     game->status        = game_status_open;
     game->realm         = 0;

@@ -2266,7 +2266,7 @@ extern int conn_set_game(t_connection * c, char const * gamename, char const * g
 	*/
 	// original code
 	{
-	  c->game = game_create(gamename,gamepass,gameinfo,type,version,conn_get_clienttag(c));
+	  c->game = game_create(gamename,gamepass,gameinfo,type,version,conn_get_clienttag(c),conn_get_gameversion(c));
 	    if (c->game && conn_get_realmname(c) && conn_get_charname(c))
 	    {
 		game_set_realmname(c->game,conn_get_realmname(c));
