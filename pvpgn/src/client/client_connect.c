@@ -108,75 +108,84 @@ static int key_interpret(char const * cdkey, unsigned int * productid, unsigned 
 }
 
 
-static int get_defversioninfo(char const * progname, char const * clienttag, unsigned int * versionid, unsigned int * gameversion, char const * * exeinfo)
+static int get_defversioninfo(char const * progname, char const * clienttag, unsigned int * versionid, unsigned int * gameversion, char const * * exeinfo, unsigned int * checksum)
 {
     if (strcmp(clienttag,CLIENTTAG_DIABLORTL)==0)
     {
-	*versionid = CLIENT_AUTHREQ_VERSIONID_DRTL;
-	*gameversion = CLIENT_AUTHREQ_GAMEVERSION_DRTL;
-	*exeinfo = CLIENT_AUTHREQ_EXEINFO_DRTL;
+	*versionid = CLIENT_VERSIONID_DRTL;
+	*gameversion = CLIENT_GAMEVERSION_DRTL;
+	*exeinfo = CLIENT_EXEINFO_DRTL;
+	*checksum = CLIENT_CHECKSUM_DRTL;
 	return 0;
     }
     
     if (strcmp(clienttag,CLIENTTAG_STARCRAFT)==0)
     {
-	*versionid = CLIENT_AUTHREQ_VERSIONID_STAR;
-	*gameversion = CLIENT_AUTHREQ_GAMEVERSION_STAR;
-	*exeinfo = CLIENT_AUTHREQ_EXEINFO_STAR;
+	*versionid = CLIENT_VERSIONID_STAR;
+	*gameversion = CLIENT_GAMEVERSION_STAR;
+	*exeinfo = CLIENT_EXEINFO_STAR;
+	*checksum = CLIENT_CHECKSUM_STAR;
 	return 0;
     }
     
     if (strcmp(clienttag,CLIENTTAG_SHAREWARE)==0)
     {
-	*versionid = CLIENT_AUTHREQ_VERSIONID_SSHR;
-	*gameversion = CLIENT_AUTHREQ_GAMEVERSION_SSHR;
-	*exeinfo = CLIENT_AUTHREQ_EXEINFO_SSHR;
+	*versionid = CLIENT_VERSIONID_SSHR;
+	*gameversion = CLIENT_GAMEVERSION_SSHR;
+	*exeinfo = CLIENT_EXEINFO_SSHR;
+	*checksum = CLIENT_CHECKSUM_SSHR;
 	return 0;
     }
     
     if (strcmp(clienttag,CLIENTTAG_BROODWARS)==0)
     {
-	*versionid = CLIENT_AUTHREQ_VERSIONID_SEXP;
-	*gameversion = CLIENT_AUTHREQ_GAMEVERSION_SEXP;
-	*exeinfo = CLIENT_AUTHREQ_EXEINFO_SEXP;
+	*versionid = CLIENT_VERSIONID_SEXP;
+	*gameversion = CLIENT_GAMEVERSION_SEXP;
+	*exeinfo = CLIENT_EXEINFO_SEXP;
+	*checksum = CLIENT_CHECKSUM_SEXP;
 	return 0;
     }
     
     if (strcmp(clienttag,CLIENTTAG_WARCIIBNE)==0)
     {
-	*versionid = CLIENT_AUTHREQ_VERSIONID_W2BN;
-	*gameversion = CLIENT_AUTHREQ_GAMEVERSION_W2BN;
-	*exeinfo = CLIENT_AUTHREQ_EXEINFO_W2BN;
+	*versionid = CLIENT_VERSIONID_W2BN;
+	*gameversion = CLIENT_GAMEVERSION_W2BN;
+	*exeinfo = CLIENT_EXEINFO_W2BN;
+	*checksum = CLIENT_CHECKSUM_W2BN;
 	return 0;
     }
     
     if (strcmp(clienttag,CLIENTTAG_DIABLO2DV)==0)
     {
-	*versionid = CLIENT_AUTHREQ_VERSIONID_D2DV;
-	*gameversion = CLIENT_AUTHREQ_GAMEVERSION_D2DV;
-	*exeinfo = CLIENT_AUTHREQ_EXEINFO_D2DV;
+	*versionid = CLIENT_VERSIONID_D2DV;
+	*gameversion = CLIENT_GAMEVERSION_D2DV;
+	*exeinfo = CLIENT_EXEINFO_D2DV;
+	*checksum = CLIENT_CHECKSUM_D2DV;
 	return 0;
     }
     
     if (strcmp(clienttag,CLIENTTAG_DIABLO2XP)==0)
     {
-	*versionid = CLIENT_AUTHREQ_VERSIONID_D2XP;
-	*gameversion = CLIENT_AUTHREQ_GAMEVERSION_D2XP;
-	*exeinfo = CLIENT_AUTHREQ_EXEINFO_D2XP;
+	*versionid = CLIENT_VERSIONID_D2XP;
+	*gameversion = CLIENT_GAMEVERSION_D2XP;
+	*exeinfo = CLIENT_EXEINFO_D2XP;
+	*checksum = CLIENT_CHECKSUM_D2XP;
 	return 0;
     }
     
     if (strcmp(clienttag,CLIENTTAG_WARCRAFT3)==0)
     {
-	*versionid = 0x000000c8; /* FIXME: put in bnet_protocol.h */
-	*gameversion = 0x00000000; /* FIXME: wrong */
-	*exeinfo = "some.exe 01/02/03 12:34:56 42"; /* FIXME: wrong */
+	*versionid = CLIENT_VERSIONID_WAR3;
+	*gameversion = CLIENT_GAMEVERSION_WAR3;
+	*exeinfo = CLIENT_EXEINFO_WAR3;
+	*checksum = CLIENT_CHECKSUM_WAR3;
 	return 0;
     }
     
     *versionid = 0;
     *gameversion = 0;
     *exeinfo = "";
+    *checksum = 0;
     
     fprintf(stderr,"%s: unsupported clienttag \"%s\"\n",progname,clienttag);
     // aaron: dunno what we should return in case of this.. but returning nothing was definetly wrong
@@ -194,6 +203,10 @@ extern int client_connect(char const * progname, char const * servname, unsigned
     char             compname[COMPNAMELEN];
     int              lsock;
     unsigned short   lsock_port;
+    unsigned int     versionid;
+    unsigned int     gameversion;
+    char const *     exeinfo;
+    unsigned int     checksum;
     
     if (!progname)
     {
@@ -277,12 +290,6 @@ extern int client_connect(char const * progname, char const * servname, unsigned
     client_blocksend_packet(sd,packet);
     packet_del_ref(packet);
     
-#ifdef REALLY_OLD_PROT
-    if (lsock>=0)
-	if ((lsock = client_udptest_recv(progname,lsock,lsock_port,CLIENT_MAX_UDPTEST_WAIT))>=0)
-	    dprintf("Got UDP data on port %hu\n",lsock_port);
-#endif
-    
     /* reuse this same packet over and over */
     if (!(rpacket = packet_create(packet_class_bnet)))
     {
@@ -290,6 +297,8 @@ extern int client_connect(char const * progname, char const * servname, unsigned
 	goto error_lsock;
     }
     
+    get_defversioninfo(progname,clienttag,&versionid,&gameversion,&exeinfo,&checksum);
+
     if (strcmp(clienttag,CLIENTTAG_DIABLOSHR)==0 ||
         strcmp(clienttag,CLIENTTAG_DIABLORTL)==0)
     {
@@ -309,77 +318,6 @@ extern int client_connect(char const * progname, char const * servname, unsigned
 	packet_del_ref(packet);
     }
     
-#ifdef OLD_PROT
-# ifdef REALLY_OLD_PROT
-    if (!(packet = packet_create(packet_class_bnet)))
-    {
-	fprintf(stderr,"%s: could not create packet\n",progname);
-	goto error_rpacket;
-    }
-    packet_set_size(packet,sizeof(t_client_compinfo1));
-    packet_set_type(packet,CLIENT_COMPINFO1);
-    bn_int_set(&packet->u.client_compinfo1.reg_version,CLIENT_COMPINFO1_REG_VERSION);
-    bn_int_set(&packet->u.client_compinfo1.reg_auth,CLIENT_COMPINFO1_REG_AUTH);
-    bn_int_set(&packet->u.client_compinfo1.client_id,CLIENT_COMPINFO1_CLIENT_ID);
-    bn_int_set(&packet->u.client_compinfo1.client_token,CLIENT_COMPINFO1_CLIENT_TOKEN);
-    packet_append_string(packet,compname);
-    packet_append_string(packet,username);
-    client_blocksend_packet(sd,packet);
-    packet_del_ref(packet);
-# else
-    if (!(packet = packet_create(packet_class_bnet)))
-    {
-	fprintf(stderr,"%s: could not create packet\n",progname);
-	goto error_rpacket;
-    }
-    packet_set_size(packet,sizeof(t_client_compinfo2));
-    packet_set_type(packet,CLIENT_COMPINFO2);
-    bn_int_set(&packet->u.client_compinfo2.unknown1,CLIENT_COMPINFO2_UNKNOWN1);
-    bn_int_set(&packet->u.client_compinfo2.reg_version,CLIENT_COMPINFO2_REG_VERSION);
-    bn_int_set(&packet->u.client_compinfo2.reg_auth,CLIENT_COMPINFO2_REG_AUTH);
-    bn_int_set(&packet->u.client_compinfo2.client_id,CLIENT_COMPINFO2_CLIENT_ID);
-    bn_int_set(&packet->u.client_compinfo2.client_token,CLIENT_COMPINFO2_CLIENT_TOKEN);
-    packet_append_string(packet,compname);
-    packet_append_string(packet,username);
-    client_blocksend_packet(sd,packet);
-    packet_del_ref(packet);
-# endif
-    
-    if (!(packet = packet_create(packet_class_bnet)))
-    {
-	fprintf(stderr,"%s: could not create packet\n",progname);
-	goto error_rpacket;
-    }
-    packet_set_size(packet,sizeof(t_client_countryinfo1));
-    packet_set_type(packet,CLIENT_COUNTRYINFO1);
-    {
-	t_bnettime  btsystem;
-	t_bnettime  btlocal;
-	int         bias;
-	
-        bias = local_tzbias();
-	btsystem = bnettime();
-	btlocal = bnettime_add_tzbias(btsystem,bias);
-        
-	bnettime_to_bn_long(btsystem,&packet->u.client_countryinfo1.systemtime);
-	bnettime_to_bn_long(btlocal,&packet->u.client_countryinfo1.localtime);
-	
-	bn_int_set(&packet->u.client_countryinfo1.bias,(unsigned int)bias); /* rely on 2's complement */
-	dprintf("my tzbias = %d (0x%08hx)\n",bias,(unsigned int)bias);
-    }
-    /* FIXME: determine from locale */
-    bn_int_set(&packet->u.client_countryinfo1.langid1,CLIENT_COUNTRYINFO1_LANGID_USENGLISH);
-    bn_int_set(&packet->u.client_countryinfo1.langid2,CLIENT_COUNTRYINFO1_LANGID_USENGLISH);
-    bn_int_set(&packet->u.client_countryinfo1.langid3,CLIENT_COUNTRYINFO1_LANGID_USENGLISH);
-    packet_append_string(packet,CLIENT_COUNTRYINFO1_LANGSTR_USENGLISH);
-    /* FIXME: determine from locale+timezone... from domain name... nothing really would
-       work.  Maybe add some command-line options */
-    packet_append_string(packet,CLIENT_COUNTRYINFO1_COUNTRYCODE_USA);
-    packet_append_string(packet,CLIENT_COUNTRYINFO1_COUNTRYABB_USA);
-    packet_append_string(packet,CLIENT_COUNTRYINFO1_COUNTRYNAME_USA);
-    client_blocksend_packet(sd,packet);
-    packet_del_ref(packet);
-#else
     if (!(packet = packet_create(packet_class_bnet)))
     {
 	fprintf(stderr,"%s: could not create packet\n",progname);
@@ -390,7 +328,9 @@ extern int client_connect(char const * progname, char const * servname, unsigned
     bn_int_set(&packet->u.client_countryinfo_109.protocol,CLIENT_COUNTRYINFO_109_PROTOCOL);
     bn_int_tag_set(&packet->u.client_countryinfo_109.archtag,archtag);
     bn_int_tag_set(&packet->u.client_countryinfo_109.clienttag,clienttag);
-    bn_int_set(&packet->u.client_countryinfo_109.versionid,CLIENT_COUNTRYINFO_109_VERSIONID_D2DV);
+	   //AARON 
+
+    bn_int_set(&packet->u.client_countryinfo_109.versionid,versionid);
     bn_int_set(&packet->u.client_countryinfo_109.gamelang,CLIENT_COUNTRYINFO_109_GAMELANG);
     bn_int_set(&packet->u.client_countryinfo_109.localip,CLIENT_COUNTRYINFO_109_LOCALIP);
     {
@@ -410,172 +350,7 @@ extern int client_connect(char const * progname, char const * servname, unsigned
     packet_append_string(packet,CLIENT_COUNTRYINFO_109_COUNTRYNAME_USA);
     client_blocksend_packet(sd,packet);
     packet_del_ref(packet);
-#endif
-    
-    /* FIXME: did old clients send this?  Was it only Diablo I & II? */
-    if (!(packet = packet_create(packet_class_bnet)))
-    {
-	fprintf(stderr,"%s: could not create packet\n",progname);
-	goto error_rpacket;
-    }
-    packet_set_size(packet,sizeof(t_client_unknown_2b));
-    packet_set_type(packet,CLIENT_UNKNOWN_2B);
-    bn_int_set(&packet->u.client_unknown_2b.unknown1,CLIENT_UNKNOWN_2B_UNKNOWN1);
-    bn_int_set(&packet->u.client_unknown_2b.unknown2,CLIENT_UNKNOWN_2B_UNKNOWN2);
-    bn_int_set(&packet->u.client_unknown_2b.unknown3,CLIENT_UNKNOWN_2B_UNKNOWN3);
-    bn_int_set(&packet->u.client_unknown_2b.unknown4,CLIENT_UNKNOWN_2B_UNKNOWN4);
-    bn_int_set(&packet->u.client_unknown_2b.unknown5,CLIENT_UNKNOWN_2B_UNKNOWN5);
-    bn_int_set(&packet->u.client_unknown_2b.unknown6,CLIENT_UNKNOWN_2B_UNKNOWN6);
-    bn_int_set(&packet->u.client_unknown_2b.unknown7,CLIENT_UNKNOWN_2B_UNKNOWN7);
-    client_blocksend_packet(sd,packet);
-    packet_del_ref(packet);
-    
-#ifdef OLD_PROT
-    if (!(packet = packet_create(packet_class_bnet)))
-    {
-	fprintf(stderr,"%s: could not create packet\n",progname);
-	goto error_rpacket;
-    }
-    packet_set_size(packet,sizeof(t_client_progident));
-    packet_set_type(packet,CLIENT_PROGIDENT);
-    bn_int_tag_set(&packet->u.client_progident.archtag,archtag);
-    bn_int_tag_set(&packet->u.client_progident.clienttag,clienttag);
-    if (strcmp(clienttag,CLIENTTAG_DIABLORTL)==0)
-	bn_int_set(&packet->u.client_progident.versionid,CLIENT_PROGIDENT_VERSIONID_DRTL);
-    else if (strcmp(clienttag,CLIENTTAG_STARCRAFT)==0)
-	bn_int_set(&packet->u.client_progident.versionid,CLIENT_PROGIDENT_VERSIONID_STAR);
-    else if (strcmp(clienttag,CLIENTTAG_SHAREWARE)==0)
-	bn_int_set(&packet->u.client_progident.versionid,CLIENT_PROGIDENT_VERSIONID_SSHR);
-    else if (strcmp(clienttag,CLIENTTAG_BROODWARS)==0)
-	bn_int_set(&packet->u.client_progident.versionid,CLIENT_PROGIDENT_VERSIONID_SEXP);
-    else if (strcmp(clienttag,CLIENTTAG_WARCIIBNE)==0)
-	bn_int_set(&packet->u.client_progident.versionid,CLIENT_PROGIDENT_VERSIONID_W2BN);
-    else if (strcmp(clienttag,CLIENTTAG_DIABLO2DV)==0)
-	bn_int_set(&packet->u.client_progident.versionid,CLIENT_PROGIDENT_VERSIONID_D2DV);
-    else if (strcmp(clienttag,CLIENTTAG_DIABLO2XP)==0)
-	bn_int_set(&packet->u.client_progident.versionid,CLIENT_PROGIDENT_VERSIONID_D2XP);
-    else if (strcmp(clienttag,CLIENTTAG_WARCRAFT3)==0)
-	bn_int_set(&packet->u.client_progident.versionid,0x000000c8); /* FIXME: put in bnet_protocol.h */
-    else
-    {
-	fprintf(stderr,"%s: unsupported clienttag \"%s\"\n",progname,clienttag);
-	bn_int_set(&packet->u.client_progident.versionid,0);
-    }
-    bn_int_set(&packet->u.client_progident.unknown1,CLIENT_PROGIDENT_UNKNOWN1); /* FIXME: spawn? */
-    client_blocksend_packet(sd,packet);
-    packet_del_ref(packet);
-    
-    do
-        if (client_blockrecv_packet(sd,rpacket)<0)
-	{
-	    fprintf(stderr,"%s: server closed connection\n",progname);
-	    goto error_rpacket;
-	}
-    while (packet_get_type(rpacket)!=SERVER_COMPREPLY);
-    dprintf("Got COMPREPLY\n");
-    
-# ifdef REALLY_OLD_PROT
-    do
-        if (client_blockrecv_packet(sd,rpacket)<0)
-	{
-	    fprintf(stderr,"%s: server closed connection\n",progname);
-	    goto error_rpacket;
-	}
-    while (packet_get_type(rpacket)!=SERVER_SESSIONKEY1);
-    *sessionkey = bn_int_get(rpacket->u.server_sessionkey1.sessionkey);
-    dprintf("Got SESSIONKEY1 (0x%08x)\n",*sessionkey);
-# else
-    do
-        if (client_blockrecv_packet(sd,rpacket)<0)
-	{
-	    fprintf(stderr,"%s: server closed connection\n",progname);
-	    goto error_rpacket;
-	}
-    while (packet_get_type(rpacket)!=SERVER_SESSIONKEY2);
-    *sessionkey = bn_int_get(rpacket->u.server_sessionkey2.sessionkey);
-    *sessionnum = bn_int_get(rpacket->u.server_sessionkey2.sessionnum);
-    dprintf("Got SESSIONKEY2 (0x%08x)\n",*sessionkey);
-# endif
-    
-    /* do the UDPTEST stuff */
-    if (!(packet = packet_create(packet_class_udp)))
-    {
-	fprintf(stderr,"%s: could not create packet\n",progname);
-	goto error_rpacket;
-    }
-    packet_set_size(packet,sizeof(t_client_sessionaddr2));
-    packet_set_type(packet,CLIENT_SESSIONADDR2);
-    /* FIXME: now that session keys are delayed, we should do this later.  When do the real clients send it? */
-    bn_int_set(&packet->u.client_sessionaddr2.sessionkey,*sessionkey);
-    bn_int_set(&packet->u.client_sessionaddr2.sessionnum,*sessionnum);
-    /* send it twice in case one gets lost */
-    if (psock_sendto(lsock,
-		     packet_get_raw_data_const(packet,0),packet_get_size(packet),
-		     0,(struct sockaddr *)saddr,(psock_t_socklen)sizeof(*saddr))!=(int)packet_get_size(packet))
-	fprintf(stderr,"%s: failed to send SESSIONADDR (psock_sendto: %s)",progname,strerror(psock_errno()));
-    if (psock_sendto(lsock,
-		     packet_get_raw_data_const(packet,0),packet_get_size(packet),
-		     0,(struct sockaddr *)saddr,(psock_t_socklen)sizeof(*saddr))!=(int)packet_get_size(packet))
-	fprintf(stderr,"%s: failed to send SESSIONADDR (psock_sendto: %s)",progname,strerror(psock_errno()));
-    packet_del_ref(packet);
-    
-    if (lsock>=0)
-	if ((lsock = client_udptest_recv(progname,lsock,lsock_port,CLIENT_MAX_UDPTEST_WAIT))>=0)
-	    dprintf("Got UDP data on port %hu\n",lsock_port);
-#endif
-    
-#ifdef OLD_PROT
-    do
-        if (client_blockrecv_packet(sd,rpacket)<0)
-	{
-	    fprintf(stderr,"%s: server closed connection\n",progname);
-	    goto error_rpacket;
-	}
-    while (packet_get_type(rpacket)!=SERVER_AUTHREQ1 &&
-	   packet_get_type(rpacket)!=SERVER_AUTHREPLY1);
-    
-    if (packet_get_type(rpacket)==SERVER_AUTHREQ1) /* hmm... server wants to check the version number */
-    {
-	dprintf("Got AUTHREQ1\n");
-	/* FIXME: get filename and equation */
-	
-	if (!(packet = packet_create(packet_class_bnet)))
-	{
-	    fprintf(stderr,"%s: could not create packet\n",progname);
-	    goto error_rpacket;
-	}
-	packet_set_size(packet,sizeof(t_client_authreq1));
-	packet_set_type(packet,CLIENT_AUTHREQ1);
-	bn_int_tag_set(&packet->u.client_authreq1.archtag,archtag);
-	bn_int_tag_set(&packet->u.client_authreq1.clienttag,clienttag);
-	
-	{
-	    unsigned int versionid;
-	    unsigned int gameversion;
-            char const * exeinfo;
-	    
-	    get_defversioninfo(progname,clienttag,&versionid,&gameversion,&exeinfo);
-	    
-	    bn_int_set(&packet->u.client_authreq1.versionid,versionid);
-	    bn_int_set(&packet->u.client_authreq1.gameversion,gameversion);
-	    packet_append_string(packet,exeinfo);
-	}
-	
-	bn_int_set(&packet->u.client_authreq1.checksum,0x12345678); /* FIXME: bogus value */
-	client_blocksend_packet(sd,packet);
-	packet_del_ref(packet);
-	
-	/* now wait for reply */
-	do
-	    if (client_blockrecv_packet(sd,rpacket)<0)
-	    {
-		fprintf(stderr,"%s: server closed connection\n",progname);
-		goto error_rpacket;
-	    }
-	while (packet_get_type(rpacket)!=SERVER_AUTHREPLY1);
-    }
-    dprintf("Got AUTHREPLY1\n");
-#else
+   
     do
         if (client_blockrecv_packet(sd,rpacket)<0)
 	{
@@ -602,12 +377,7 @@ extern int client_connect(char const * progname, char const * servname, unsigned
 	bn_int_set(&packet->u.client_authreq_109.ticks,time(NULL));
 	
 	{
-	    unsigned int versionid;
-	    unsigned int gameversion;
-            char const * exeinfo;
             t_cdkey_info cdkey_info;
-	    
-	    get_defversioninfo(progname,clienttag,&versionid,&gameversion,&exeinfo);
 	    
 	    bn_int_set(&packet->u.client_authreq_109.gameversion,gameversion);
 
@@ -618,7 +388,7 @@ extern int client_connect(char const * progname, char const * servname, unsigned
 	    packet_append_string(packet,cdowner);
 	}
 	
-	bn_int_set(&packet->u.client_authreq_109.checksum,0x12345678); /* FIXME: bogus value */
+	bn_int_set(&packet->u.client_authreq_109.checksum,checksum);
 	client_blocksend_packet(sd,packet);
 	packet_del_ref(packet);
 	
@@ -630,11 +400,16 @@ extern int client_connect(char const * progname, char const * servname, unsigned
 		goto error_rpacket;
 	    }
 	while (packet_get_type(rpacket)!=SERVER_AUTHREPLY_109);
+      //FIXME: check if AUTHREPLY_109 is success or fail
+      if (bn_int_get(rpacket->u.server_authreply_109.message)!=SERVER_AUTHREPLY_109_MESSAGE_OK)
+      {
+         fprintf(stderr,"AUTHREPLY_109 failed - closing connection\n");
+         goto error_rpacket;
+      }
     }
     else
 	fprintf(stderr,"We didn't get a sessionkey, don't expect login to work!");
     dprintf("Got AUTHREPLY_109\n");
-#endif
     
     if (!(packet = packet_create(packet_class_bnet)))
     {
@@ -664,24 +439,7 @@ extern int client_connect(char const * progname, char const * servname, unsigned
 	    fprintf(stderr,"%s: could not create packet\n",progname);
 	    goto error_rpacket;
 	}
-#ifdef OLD_CDKEY
-	packet_set_size(packet,sizeof(t_client_cdkey));
-	packet_set_type(packet,CLIENT_CDKEY);
-	bn_int_set(&packet->u.client_cdkey.spawn,CLIENT_CDKEY_SPAWN_FALSE); /* FIXME: add option */
-	packet_append_string(packet,cdkey);
-	packet_append_string(packet,cdowner);
-	client_blocksend_packet(sd,packet);
-	packet_del_ref(packet);
-	
-	do
-	    if (client_blockrecv_packet(sd,rpacket)<0)
-	    {
-		fprintf(stderr,"%s: server closed connection\n",progname);
-		goto error_rpacket;
-	    }
-	while (packet_get_type(rpacket)!=SERVER_CDKEYREPLY);
-	dprintf("Got CDKEYREPLY (%u)\n",bn_int_get(rpacket->u.server_cdkeyreply.message));
-#else
+
         {
             struct
             {
@@ -733,7 +491,6 @@ extern int client_connect(char const * progname, char const * servname, unsigned
             }
         while (packet_get_type(rpacket)!=SERVER_CDKEYREPLY2);
         dprintf("Got CDKEYREPLY2 (%u)\n",bn_int_get(rpacket->u.server_cdkeyreply2.message));
-#endif
     }
     
     packet_destroy(rpacket);
