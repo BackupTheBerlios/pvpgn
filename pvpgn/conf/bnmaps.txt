@@ -1,11 +1,3 @@
-# This file contains the list of map names for use with
-# anongames Wacraft 3 (Play Game/Arranged Teams) and Warcraft 3 Expansion
-# This file accepts comments starting with # and separators with space and tabs
-#
-# the format is simple, 2 columns see bellow
-#
-# <client>	<gametype>		<mapname>
-
 ######### WARCRAFT 3 REIGN OF CHAOS #################
 
 WAR3		1v1		Maps\(2)PlunderIsle.w3m
@@ -20,10 +12,12 @@ WAR3		1v1		Maps\(6)ScorchedBasin.w3m
 WAR3		2v2		Maps\(4)Duskwood.w3m
 WAR3		2v2		Maps\(4)HarvestMoon.w3m
 WAR3		2v2		Maps\(4)LostTemple.w3m
+WAR3		2v2		Maps\(4)Roundabout.w3m
 WAR3		2v2		Maps\(6)GnollWood.w3m
 WAR3		2v2		Maps\(6)ScorchedBasin.w3m
 WAR3		2v2		Maps\(6)Stromguarde.w3m
 WAR3		2v2		Maps\(6)SwampOfSorrows.w3m
+WAR3		2v2		Maps\(6)EnakrosWay.w3m
 WAR3		2v2		Maps\(8)GolemsInTheMist.w3m
 WAR3		2v2		Maps\(8)TheCrucible.w3m
 
@@ -32,6 +26,7 @@ WAR3		3v3		Maps\(6)DragonFire.w3m
 WAR3		3v3		Maps\(6)Stromguarde.w3m
 WAR3		3v3		Maps\(6)SwampOfSorrows.w3m
 WAR3		3v3		Maps\(6)TimbermawHold.w3m
+WAR3		3v3		Maps\(6)EnakrosWay.w3m
 WAR3		3v3		Maps\(8)Battleground.w3m
 WAR3		3v3		Maps\(8)PlainsOfSnow.w3m
 WAR3		3v3		Maps\(8)TheCrucible.w3m
@@ -40,8 +35,8 @@ WAR3		4v4		Maps\(8)BlastedLands.w3m
 WAR3		4v4		Maps\(8)BloodvenomFalls.w3m
 WAR3		4v4		Maps\(8)GardenOfWar.w3m
 WAR3		4v4		Maps\(8)PetrifiedForest.w3m
+WAR3		4v4		Maps\(8)RichMansGarden.w3m
 
-# Small FFA
 WAR3		sffa		Maps\(4)HarvestMoon.w3m
 WAR3		sffa		Maps\(4)LostTemple.w3m
 WAR3		sffa		Maps\(4)MysticIsles.w3m
@@ -49,52 +44,75 @@ WAR3		sffa		Maps\(6)GnollWood.w3m
 WAR3		sffa		Maps\(6)ScorchedBasin.w3m
 WAR3		sffa 		Maps\(6)Stromguarde.w3m
 WAR3		sffa		Maps\(6)SwampOfSorrows.w3m
+WAR3		sffa		MAPS\(6)EnakrosWay.w3m
 WAR3		sffa		Maps\(8)Battleground.w3m
 WAR3		sffa		Maps\(8)TheCrucible.w3m
+WAR3		sffa		Maps\(8)RichMansGarden.w3m
 
-# Arranged Teams 2v2
 WAR3		at2v2		Maps\(4)Duskwood.w3m
 WAR3		at2v2		Maps\(4)HarvestMoon.w3m
 WAR3		at2v2		Maps\(4)LostTemple.w3m
+WAR3		at2v2		Maps\(6)EnakrosWay.w3m
 WAR3		at2v2		Maps\(6)GnollWood.w3m
 WAR3		at2v2		Maps\(6)ScorchedBasin.w3m
 WAR3		at2v2		Maps\(6)Stromguarde.w3m
 WAR3		at2v2		Maps\(6)SwampOfSorrows.w3m
 WAR3		at2v2		Maps\(8)GolemsInTheMist.w3m
 WAR3		at2v2		Maps\(8)TheCrucible.w3m
-# Arranged Teams 3v3
+WAR3		at2v2		Maps\(8)RichMansGarden.w3m
+
 WAR3		at3v3		Maps\(6)DarkForest.w3m
 WAR3		at3v3		Maps\(6)DragonFire.w3m
 WAR3		at3v3		Maps\(6)TimbermawHold.w3m
 WAR3		at3v3		Maps\(8)Battleground.w3m
 WAR3		at3v3		Maps\(8)PlainsOfSnow.w3m
+WAR3		at3v3		Maps\(8)RichMansGarden.w3m
 
-# Arranged Teams 4v4
 WAR3		at4v4		Maps\(8)BlastedLands.w3m
 WAR3		at4v4		Maps\(8)BloodvenomFalls.w3m
 WAR3		at4v4		Maps\(8)GardenOfWar.w3m
 WAR3		at4v4		Maps\(8)PetrifiedForest.w3m
+WAR3		at4v4		Maps\(8)RichMansGarden.w3m
 
 ######### WARCRAFT 3 THE FROZEN THRONE BETA #################
 
-### CATEGORY 1 (PG) ###
-W3XP		1v1		Maps\FrozenThrone\Beta\(4)TurtleRock.w3x
+W3XP		1v1		Maps\FrozenThrone\Beta\(4)BridgeTooNear.w3x
 W3XP		1v1		Maps\FrozenThrone\Beta\(4)HailStone.w3x
+W3XP		1v1		Maps\FrozenThrone\Beta\(4)IceFlow.w3x
+W3XP		1v1		Maps\FrozenThrone\Beta\(4)Tanaris.w3x
+W3XP		1v1		Maps\FrozenThrone\Beta\(4)FloodPlains.w3x
 W3XP		1v1		Maps\FrozenThrone\Beta\(4)Whirlwind.w3x
 W3XP		1v1		Maps\FrozenThrone\Beta\(4)Islands.w3x
+W3XP		1v1		Maps\FrozenThrone\Beta\(4)TurtleRock.w3x
+W3XP		1v1		Maps\FrozenThrone\Beta\(4)Lost Temple - FTver.w3x
+W3XP		1v1		Maps\FrozenThrone\Beta\(4)Adrenaline.w3x
+W3XP		1v1		Maps\FrozenThrone\Beta\(4)FloodPlain.w3x
 
-W3XP		2v2		Maps\FrozenThrone\Beta\(4)Islands.w3x
+W3XP		2v2		Maps\FrozenThrone\Beta\(4)BridgeTooNear.w3x
+W3XP		2v2		Maps\FrozenThrone\Beta\(4)HailStone.w3x
+W3XP		2v2		Maps\FrozenThrone\Beta\(4)IceFlow.w3x
 W3XP		2v2		Maps\FrozenThrone\Beta\(4)Tanaris.w3x
-W3XP		2v2		Maps\FrozenThrone\Beta\(4)BridgetooNear.w3x
-W3XP		2v2		Maps\FrozenThrone\Beta\(6)WheelofChaos.w3x
+W3XP		2v2		Maps\FrozenThrone\Beta\(4)FloodPlains.w3x
+W3XP		2v2		Maps\FrozenThrone\Beta\(4)Whirlwind.w3x
+W3XP		2v2		Maps\FrozenThrone\Beta\(4)Islands.w3x
+W3XP		2v2		Maps\FrozenThrone\Beta\(4)TurtleRock.w3x
+W3XP		2v2		Maps\FrozenThrone\Beta\(4)Lost Temple - FTver.w3x
+W3XP		2v2		Maps\FrozenThrone\Beta\(4)Adrenaline.w3x
+W3XP		2v2		Maps\FrozenThrone\Beta\(4)FloodPlain.w3x
+W3XP		2v2		Maps\FrozenThrone\Beta\(6)WheelOfChaos.w3x
 W3XP		2v2		Maps\FrozenThrone\Beta\(6)StranglethornVale.w3x
 W3XP		2v2		Maps\FrozenThrone\Beta\(6)RiceFields.w3x
+W3XP		2v2		Maps\FrozenThrone\Beta\(6)ScorchedBasin.w3x
 
-W3XP		3v3		Maps\FrozenThrone\Beta\(6)WheelofChaos.w3x
+W3XP		3v3		Maps\FrozenThrone\Beta\(6)WheelOfChaos.w3x
 W3XP		3v3		Maps\FrozenThrone\Beta\(6)StranglethornVale.w3x
 W3XP		3v3		Maps\FrozenThrone\Beta\(6)RiceFields.w3x
+W3XP		3v3		Maps\FrozenThrone\Beta\(6)ScorchedBasin.w3x
+W3XP		3v3		Maps\FrozenThrone\Beta\(8)Mur'gulOasis.w3x
+W3XP		3v3		Maps\FrozenThrone\Beta\(8)PlainsOfSnow.w3x
 
-W3XP		4v4		Maps\Maps\FrozenThrone\Beta\(8)GardenOfWar.w3x
+W3XP		4v4		Maps\FrozenThrone\Beta\(8)Mur'gulOasis.w3x
+W3XP		4v4		Maps\FrozenThrone\Beta\(8)PlainsOfSnow.w3x
 
 W3XP		sffa		Maps\FrozenThrone\Beta\(4)Islands.w3x
 W3XP		sffa		Maps\FrozenThrone\Beta\(4)Tanaris.w3x
@@ -103,16 +121,22 @@ W3XP		sffa		Maps\FrozenThrone\Beta\(6)WheelofChaos.w3x
 W3XP		sffa		Maps\FrozenThrone\Beta\(6)StranglethornVale.w3x
 W3XP		sffa		Maps\FrozenThrone\Beta\(6)RiceFields.w3x
 
-### CATEGORY 2 (AT) ###
-
-W3XP		at2v2		Maps\FrozenThrone\Beta\(4)Islands.w3x
+W3XP		at2v2		Maps\FrozenThrone\Beta\(4)BridgeTooNear.w3x
+W3XP		at2v2		Maps\FrozenThrone\Beta\(4)HailStone.w3x
+W3XP		at2v2		Maps\FrozenThrone\Beta\(4)IceFlow.w3x
 W3XP		at2v2		Maps\FrozenThrone\Beta\(4)Tanaris.w3x
-W3XP		at2v2		Maps\FrozenThrone\Beta\(4)BridgetooNear.w3x
-W3XP		at2v2		Maps\FrozenThrone\Beta\(6)WheelofChaos.w3x
-W3XP		at2v2		Maps\FrozenThrone\Beta\(6)StranglethornVale.w3x
-W3XP		at2v2		Maps\FrozenThrone\Beta\(6)RiceFields.w3x
+W3XP		at2v2		Maps\FrozenThrone\Beta\(4)FloodPlains.w3x
+W3XP		at2v2		Maps\FrozenThrone\Beta\(4)Whirlwind.w3x
+W3XP		at2v2		Maps\FrozenThrone\Beta\(4)Islands.w3x
+W3XP		at2v2		Maps\FrozenThrone\Beta\(4)TurtleRock.w3x
+W3XP		at2v2		Maps\FrozenThrone\Beta\(4)Lost Temple - FTver.w3x
+W3XP		at2v2		Maps\FrozenThrone\Beta\(4)Adrenaline.w3x
+W3XP		at2v2		Maps\FrozenThrone\Beta\(4)FloodPlain.w3x
 
-W3XP		at3v3		Maps\FrozenThrone\Beta\(6)WheelofChaos.w3x
+W3XP		at3v3		Maps\FrozenThrone\Beta\(6)WheelOfChaos.w3x
 W3XP		at3v3		Maps\FrozenThrone\Beta\(6)StranglethornVale.w3x
 W3XP		at3v3		Maps\FrozenThrone\Beta\(6)RiceFields.w3x
+W3XP		at3v3		Maps\FrozenThrone\Beta\(6)ScorchedBasin.w3x
 
+W3XP		at4v4		Maps\FrozenThrone\Beta\(8)Mur'gulOasis.w3x
+W3XP		at4v4		Maps\FrozenThrone\Beta\(8)PlainsOfSnow.w3x
