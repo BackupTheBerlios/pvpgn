@@ -46,7 +46,7 @@ extern void eventlog_set_debugmode(int debugmode);
 extern void eventlog_set(FILE * fp);
 extern FILE * eventlog_get(void);
 extern int eventlog_open(char const * filename);
-extern int eventlog_close();
+extern int eventlog_close(void);
 extern void eventlog_clear_level(void);
 extern int eventlog_add_level(char const * levelname);
 extern int eventlog_del_level(char const * levelname);

@@ -184,8 +184,8 @@ extern int handle_w3route_packet(t_connection * c, t_packet const * const packet
 extern int anongame_unqueue_player(t_connection * c, t_uint8 gametype);
 extern int anongame_unqueue_team(t_connection * c, t_uint8 gametype);
 
-extern int anongame_matchlists_create();
-extern int anongame_matchlists_destroy();
+extern int anongame_matchlists_create(void);
+extern int anongame_matchlists_destroy(void);
 
 extern int anongame_stats(t_connection * c);
 

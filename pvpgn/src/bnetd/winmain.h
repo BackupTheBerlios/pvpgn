@@ -23,7 +23,7 @@
 int extern gui_printf(const char *format, ...);
 int extern gui_printf_user(const char *format, ...);
 int extern gui_vprintf(const char *format, va_list);
-void extern guiOnUpdateUserList();
+void extern guiOnUpdateUserList(void);
 
 
 #endif
