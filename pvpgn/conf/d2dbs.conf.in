@@ -17,9 +17,11 @@
 # entry with no host component, the server will bind to that port on all
 # interfaces.
 # dbs default listening port is 6114
+# WARNING!! DO NOT USE "127.0.0.1" or "localhost" !!!
 servaddrs	= 0.0.0.0:6114
 
 # This is a comma delimited list of game servers
+# WARNING!! DO NOT USE "127.0.0.1" or "localhost" !!!
 #gameservlist	= your.gameserver,another.gameserver
 
 #										#
