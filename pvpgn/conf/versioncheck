@@ -789,6 +789,17 @@ W3XP \
 0x27e50166 \
 W3XP_301A
 
+# WarCraft 3 Expansion 3.03a
+"A=3845581634 B=880823580 C=1363937103 4 A=A-S B=B-C C=C-A A=A-B" \
+IX86ver1.mpq \
+IX86 \
+W3XP \
+"War3.exe 03/14/03 20:01:14 1211859" \
+0x0000012f \
+1.0.7.124 \
+0x4edf15d9 \
+W3XP_303A
+
 # ==================== WARCRAFT3 entries =======================
 
 # WarCraft 3 1.05a
