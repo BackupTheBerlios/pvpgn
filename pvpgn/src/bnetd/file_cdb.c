@@ -135,14 +135,28 @@ static int cdb_write_attrs(const char *filename, void *attributes)
 		eventlog(eventlog_level_debug, __FUNCTION__, "skipping attribute key=\"%s\"",attr->key);
 	    } else {
 		eventlog(eventlog_level_debug, __FUNCTION__, "saving attribute key=\"%s\" val=\"%s\"",attr->key,attr->val);
-		cdb_make_add(&cdbm, attr->key, strlen(attr->key), attr->val, strlen(attr->val));
+		if (cdb_make_add(&cdbm, attr->key, strlen(attr->key), attr->val, strlen(attr->val))<0)
+		{
+		    eventlog(eventlog_level_error, __FUNCTION__, "got error on cdb_make_add ('%s' = '%s')", attr->key, attr->val);
+		    cdb_make_finish(&cdbm); /* try to bail out nicely */
+		    fclose(cdbfile);
+		    return -1;
+		}
 	    }
 	} else eventlog(eventlog_level_error, __FUNCTION__,"could not save attribute key=\"%s\"",attr->key);
 
     }
 
-    cdb_make_finish(&cdbm);
-    fclose(cdbfile);
+    if (cdb_make_finish(&cdbm)<0) {
+	eventlog(eventlog_level_error, __FUNCTION__, "got error on cdb_make_finish");
+	fclose(cdbfile);
+	return -1;
+    }
+
+    if (fclose(cdbfile)<0) {
+	eventlog(eventlog_level_error, __FUNCTION__, "got error on fclose()");
+	return -1;
+    }
 
     return 0;
 }
