@@ -1,5 +1,13 @@
 PvPGN Version History:
 
+1.2.3:
+-- fixed some crash related bugs
+-- rewritten handle_bnet.c from 5000 lines case/switch style to a table of
+function handlers (should be more readable)
+-- fixed a old bnetd bug in give_up_privileges.c
+-- misc code cleaning (compiler warnings, unused variables)
+-- changed reduced_accounting conf option from int to bool type
+
 1.2.1:
 -- fixed disconnet = loss bug for PG and AT
 -- added timer to shutdowm open w3route connections
