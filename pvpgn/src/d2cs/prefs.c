@@ -89,6 +89,7 @@ static t_conf_table prefs_conf_table[]={
     { "d2gsconffile",           offsetof(t_prefs,d2gsconffile),           conf_type_str,    0,                             ""                         },
     { "charlist_sort",          offsetof(t_prefs,charlist_sort),          conf_type_str,    0,                             "none"                     },
     { "charlist_sort_order",    offsetof(t_prefs,charlist_sort_order),    conf_type_str,    0,                             "ASC"                      },
+    { "max_connections",    	offsetof(t_prefs,max_connections),    	  conf_type_int,    BNETD_MAX_SOCKETS,	      	   NULL                       },
     { NULL,                     0,                                        conf_type_none,   0,                             NULL                       }
 };
 
@@ -343,4 +344,9 @@ extern char const * prefs_get_charlist_sort(void)
 extern char const * prefs_get_charlist_sort_order(void)
 {
 	return prefs_conf.charlist_sort_order;
+}
+
+extern unsigned int prefs_get_max_connections(void)
+{
+	return prefs_conf.max_connections;
 }

@@ -377,6 +377,7 @@ extern t_connection * conn_create(int tsock, int usock, unsigned int real_local_
     temp->socket.real_local_addr        = real_local_addr;
     temp->socket.real_local_port        = real_local_port;
     temp->socket.udp_port               = port;
+    temp->socket.fdw_idx		= -1;
     temp->protocol.class                = conn_class_init;
     temp->protocol.state                = conn_state_initial;
     temp->protocol.sessionkey           = ((unsigned int)rand())^((unsigned int)time(NULL)+(unsigned int)real_local_port);
@@ -675,7 +676,7 @@ extern void conn_destroy(t_connection * c, t_elem ** elem, int conn_or_dead_list
 
     /* make sure the connection is closed */
     if (c->socket.tcp_sock!=-1) { /* -1 means that the socket was already closed by conn_close() */
-	fdwatch_del_fd(c->socket.tcp_sock);
+	fdwatch_del_fd(c->socket.fdw_idx);
 	psock_shutdown(c->socket.tcp_sock,PSOCK_SHUT_RDWR);
 	psock_close(c->socket.tcp_sock);
     }
@@ -2155,7 +2156,7 @@ extern int conn_push_outqueue(t_connection * c, t_packet * packet)
     }
 
     queue_push_packet((t_queue * *)&c->protocol.queues.outqueue, packet);
-    if (!c->protocol.queues.outsizep++) fdwatch_update_fd(c->socket.tcp_sock, fdwatch_type_read | fdwatch_type_write);
+    if (!c->protocol.queues.outsizep++) fdwatch_update_fd(c->socket.fdw_idx, fdwatch_type_read | fdwatch_type_write);
 
     return 0;
 }
@@ -2180,7 +2181,7 @@ extern t_packet * conn_pull_outqueue(t_connection * c)
     }
 
     if (c->protocol.queues.outsizep) {
-	if (!(--c->protocol.queues.outsizep)) fdwatch_update_fd(c->socket.tcp_sock, fdwatch_type_read);
+	if (!(--c->protocol.queues.outsizep)) fdwatch_update_fd(c->socket.fdw_idx, fdwatch_type_read);
 	return queue_pull_packet((t_queue * *)&c->protocol.queues.outqueue);
     }
 
@@ -3245,6 +3246,14 @@ extern t_elist * conn_get_timer(t_connection *c)
 }
 
 
+extern int conn_add_fdwatch(t_connection *c, fdwatch_handler handle)
+{
+    assert(c);
+    c->socket.fdw_idx = fdwatch_add_fd(c->socket.tcp_sock, fdwatch_type_read, handle, c);
+    return c->socket.fdw_idx;
+}
+
+
 extern int conn_get_user_count_by_clienttag(t_clienttag ct)
 {
    t_connection * conn;
@@ -3702,11 +3711,11 @@ static int connarray_create(void)
     t_conn_entry *curr;
 
     if (connarray) connarray_destroy();
-    connarray = xmalloc(sizeof(t_conn_entry) * fdw_maxfd);
+    connarray = xmalloc(sizeof(t_conn_entry) * fdw_maxcons);
 
     elist_init(&arrayflist);
     /* put all elements as free */
-    for(i = 0, curr = connarray; i < fdw_maxfd; i++, curr++) {
+    for(i = 0, curr = connarray; i < fdw_maxcons; i++, curr++) {
 	elist_add_tail(&arrayflist,&curr->freelist);
 	curr->c = NULL;
     }
@@ -3723,7 +3732,7 @@ static void connarray_destroy(void)
 
 static t_connection *connarray_get_conn(unsigned index)
 {
-    if (index >= fdw_maxfd) return NULL;
+    if (index >= fdw_maxcons) return NULL;
     return connarray[index].c;
 }
 
@@ -3745,7 +3754,7 @@ static void connarray_del_conn(unsigned index)
 {
     t_conn_entry *curr;
 
-    if (index >= fdw_maxfd) return;
+    if (index >= fdw_maxcons) return;
     curr = connarray + index;
     curr->c = NULL;
     elist_add_tail(&arrayflist,&curr->freelist);

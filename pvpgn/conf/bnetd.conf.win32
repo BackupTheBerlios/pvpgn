@@ -400,6 +400,10 @@ contact_email = "unknown"
 # Server network info                                                        #
 #----------------------------------------------------------------------------#
 
+# Set this to the maximum number of concurrent connections allowed on 
+# this server.
+max_connections = 1000
+
 # Set this option to true to allow TCP to detect and close stale
 # connections.
 use_keepalive = false

@@ -448,7 +448,7 @@ int pre_server_startup(void)
 	eventlog(eventlog_level_error, "pre_server_startup", "could not create matchlists");
 	return STATUS_MATCHLISTS_FAILURE;
     }
-    if (fdwatch_init()) {
+    if (fdwatch_init(prefs_get_max_connections())) {
 	eventlog(eventlog_level_error, __FUNCTION__, "error initilizing fdwatch");
 	return STATUS_FDWATCH_FAILURE;
     }

@@ -1,6 +1,16 @@
 PvPGN Version History:
 
-1.7.0 since 1.6.2
+ ChangeLog for 1.7.1 (since 1.7.0)
+===================================
+
+[FDWATCH]
+  -- redesigned and rewritten most of the fdwatch codes (the new codes are now 
+  called fdwatch2) to support better OS which have sparse values for sockets 
+  (ex. this should help busy WIN32 systems)
+
+
+ ChangeLog for 1.7.0 (since 1.6.2)
+===================================
 
 [D2CS]
   -- made ordering of chars on char-selection screen configurable

@@ -276,15 +276,6 @@ static int sd_accept(t_addr const * curr_laddr, t_laddr_info const * laddr_info,
     psock_t_socklen    caddr_len;
     unsigned int       raddr;
     unsigned short     rport;
-		    
-    /* dont accept new connections while shutdowning */
-    if (curr_exittime) {
-	if ((csocket = psock_accept(ssocket, NULL, NULL)) > 0) {
-	    psock_shutdown(csocket,PSOCK_SHUT_RDWR);
-	    psock_close(csocket);
-	}
-	return 0;
-    }
 
     if (!addr_get_addr_str(curr_laddr,tempa,sizeof(tempa)))
 	strcpy(tempa,"x.x.x.x:x");
@@ -316,14 +307,12 @@ static int sd_accept(t_addr const * curr_laddr, t_laddr_info const * laddr_info,
 		eventlog(eventlog_level_error,"sd_accept","could not accept new connection on %s (psock_accept: %s)",tempa,strerror(psock_errno()));
 	return -1;
     }
-    if (csocket >= fdw_maxfd)       /* This check is a bit too strict (csocket is probably
-                                     * greater than the number of connections) but this makes
-                                     * life easier later.
-                                     */
-    {
-	eventlog(eventlog_level_error,"sd_accept","csocket is beyond range allowed by get_socket_limit() (%d>=%d)",csocket,fdw_maxfd);
+
+    /* dont accept new connections while shutdowning */
+    if (curr_exittime) {
+	psock_shutdown(csocket,PSOCK_SHUT_RDWR);
 	psock_close(csocket);
-	return -1;
+	return 0;
     }
 
     if (ipbanlist_check(inet_ntoa(caddr.sin_addr))!=0)
@@ -399,8 +388,13 @@ static int sd_accept(t_addr const * curr_laddr, t_laddr_info const * laddr_info,
 	    return -1;
 	}
 	
+	if (conn_add_fdwatch(c, handle_tcp) < 0) {
+	    eventlog(eventlog_level_error,__FUNCTION__,"[%d] unable to add socket to fdwatch pool (max connections?)",csocket);
+	    conn_set_state(c,conn_state_destroy);
+	    return -1;
+	}
+
 	eventlog(eventlog_level_debug,"sd_accept","[%d] client connected to a %s listening address",csocket,laddr_type_get_str(laddr_info->type));
-	fdwatch_add_fd(csocket, fdwatch_type_read, handle_tcp, c);
 	switch (laddr_info->type)
 	{
 	case laddr_type_irc:
@@ -939,137 +933,122 @@ static int _setup_add_addrs(t_addrlist **pladdrs, const char *str, unsigned int 
     return 0;
 }
 
+static int _set_reuseaddr(int sock)
+{
+    int val = 1;
+
+    return psock_setsockopt(sock,PSOCK_SOL_SOCKET,PSOCK_SO_REUSEADDR,&val,(psock_t_socklen)sizeof(int));
+}
+
+static int _bind_socket(int sock, unsigned addr, short port)
+{
+    struct sockaddr_in saddr;
+	    
+    memset(&saddr,0,sizeof(saddr));
+    saddr.sin_family = PSOCK_AF_INET;
+    saddr.sin_port = htons(port);
+    saddr.sin_addr.s_addr = htonl(addr);
+    return psock_bind(sock,(struct sockaddr *)&saddr,(psock_t_socklen)sizeof(saddr));
+}
+
 static int _setup_listensock(t_addrlist *laddrs)
 {
     t_addr *        curr_laddr;
     t_laddr_info *  laddr_info;
     t_elem const *  acurr;
+    char            tempa[32];
+    int		    fidx;
 
     LIST_TRAVERSE_CONST(laddrs,acurr)
     {
 	curr_laddr = elem_get_data(acurr);
 	if (!(laddr_info = addr_get_data(curr_laddr).p))
 	{
-	    eventlog(eventlog_level_error,__FUNCTION__,"NULL address info");
-	    return -1;
+	    eventlog(eventlog_level_error, __FUNCTION__, "NULL address info");
+	    goto err;
 	}
 	
-	if ((laddr_info->ssocket = psock_socket(PSOCK_PF_INET,PSOCK_SOCK_STREAM,PSOCK_IPPROTO_TCP))<0)
+	if (!addr_get_addr_str(curr_laddr,tempa,sizeof(tempa)))
+	    strcpy(tempa,"x.x.x.x:x");
+
+	laddr_info->ssocket = psock_socket(PSOCK_PF_INET,PSOCK_SOCK_STREAM,PSOCK_IPPROTO_TCP);
+	if (laddr_info->ssocket<0)
 	{
-	    eventlog(eventlog_level_error,__FUNCTION__,"could not create a %s listening socket (psock_socket: %s)",laddr_type_get_str(laddr_info->type),strerror(psock_errno()));
-	    return -1;
+	    eventlog(eventlog_level_error, __FUNCTION__, "could not create a %s listening socket (psock_socket: %s)",laddr_type_get_str(laddr_info->type),strerror(psock_errno()));
+	    goto err;
 	}
 
-	if (laddr_info->ssocket >= fdw_maxfd)
-	{
-	    eventlog(eventlog_level_error,__FUNCTION__,"%s TCP socket is beyond range allowed by FD_SETSIZE for select() (%d>=%d)",laddr_type_get_str(laddr_info->type),laddr_info->ssocket,fdw_maxfd);
-	    psock_close(laddr_info->ssocket);
-	    laddr_info->ssocket = -1;
-	    return -1;
+	if (_set_reuseaddr(laddr_info->ssocket)<0)
+	    eventlog(eventlog_level_error,__FUNCTION__,"could not set option SO_REUSEADDR on %s socket %d (psock_setsockopt: %s)",laddr_type_get_str(laddr_info->type),laddr_info->ssocket,strerror(psock_errno()));
+	    /* not a fatal error... */
+
+	if (_bind_socket(laddr_info->ssocket,addr_get_ip(curr_laddr),addr_get_port(curr_laddr))<0) {
+	    eventlog(eventlog_level_error,__FUNCTION__,"could not bind %s socket to address %s TCP (psock_bind: %s)",laddr_type_get_str(laddr_info->type),tempa,strerror(psock_errno()));
+	    goto errsock;
 	}
+
+	/* tell socket to listen for connections */
+	if (psock_listen(laddr_info->ssocket,LISTEN_QUEUE)<0) {
+	    eventlog(eventlog_level_error,__FUNCTION__,"could not set %s socket %d to listen (psock_listen: %s)",laddr_type_get_str(laddr_info->type),laddr_info->ssocket,strerror(psock_errno()));
+	    goto errsock;
+	}
+
+	if (psock_ctl(laddr_info->ssocket,PSOCK_NONBLOCK)<0)
+	    eventlog(eventlog_level_error,__FUNCTION__,"could not set %s TCP listen socket to non-blocking mode (psock_ctl: %s)",laddr_type_get_str(laddr_info->type),strerror(psock_errno()));
+
+	/* index not stored persisently because we dont need to refer to it later */
+	fidx = fdwatch_add_fd(laddr_info->ssocket, fdwatch_type_read, handle_accept, curr_laddr);
+	if (fidx < 0) {
+	    eventlog(eventlog_level_error, __FUNCTION__, "could not add listening socket %d to fdwatch pool (max sockets?)",laddr_info->ssocket);
+	    goto errsock;
+	}
+
+	eventlog(eventlog_level_info,__FUNCTION__,"listening for %s connections on %s TCP",laddr_type_get_str(laddr_info->type),tempa);
 
 	if (laddr_info->type==laddr_type_bnet)
 	{
-	    if ((laddr_info->usocket = psock_socket(PSOCK_PF_INET,PSOCK_SOCK_DGRAM,PSOCK_IPPROTO_UDP))<0)
+	    laddr_info->usocket = psock_socket(PSOCK_PF_INET,PSOCK_SOCK_DGRAM,PSOCK_IPPROTO_UDP);
+	    if (laddr_info->usocket<0)
 	    {
 		eventlog(eventlog_level_error,__FUNCTION__,"could not create UDP socket (psock_socket: %s)",strerror(psock_errno()));
-		psock_close(laddr_info->ssocket);
-		laddr_info->ssocket = -1;
-		return -1;
+		goto errfdw;
 	    }
 
-	    if (laddr_info->usocket >= fdw_maxfd)
-	    {
-		eventlog(eventlog_level_error,__FUNCTION__,"%s UDP socket is beyond range allowed by FD_SETSIZE for select() (%d>=%d)",laddr_type_get_str(laddr_info->type),laddr_info->usocket,fdw_maxfd);
-		psock_close(laddr_info->usocket);
-		laddr_info->usocket = -1;
-		psock_close(laddr_info->ssocket);
-		laddr_info->ssocket = -1;
-		return -1;
+	    if (_set_reuseaddr(laddr_info->usocket)<0)
+		eventlog(eventlog_level_error,__FUNCTION__,"could not set option SO_REUSEADDR on %s socket %d (psock_setsockopt: %s)",laddr_type_get_str(laddr_info->type),laddr_info->usocket,strerror(psock_errno()));
+	    /* not a fatal error... */
+
+	    if (_bind_socket(laddr_info->usocket,addr_get_ip(curr_laddr),addr_get_port(curr_laddr))<0) {
+		eventlog(eventlog_level_error,__FUNCTION__,"could not bind %s socket to address %s UDP (psock_bind: %s)",laddr_type_get_str(laddr_info->type),tempa,strerror(psock_errno()));
+		goto errusock;
 	    }
-	}
-	
-	{
-	    int val;
-	    
-	    if (laddr_info->ssocket!=-1)
-	    {
-		val = 1;
-		if (psock_setsockopt(laddr_info->ssocket,PSOCK_SOL_SOCKET,PSOCK_SO_REUSEADDR,&val,(psock_t_socklen)sizeof(int))<0)
-		    eventlog(eventlog_level_error,__FUNCTION__,"could not set option SO_REUSEADDR on %s socket %d (psock_setsockopt: %s)",laddr_type_get_str(laddr_info->type),laddr_info->usocket,strerror(psock_errno()));
-		/* not a fatal error... */
-	    }
-	    
-	    if (laddr_info->usocket!=-1)
-	    {
-		val = 1;
-		if (psock_setsockopt(laddr_info->usocket,PSOCK_SOL_SOCKET,PSOCK_SO_REUSEADDR,&val,(psock_t_socklen)sizeof(int))<0)
-		    eventlog(eventlog_level_error,__FUNCTION__,"could not set option SO_REUSEADDR on %s socket %d (psock_setsockopt: %s)",laddr_type_get_str(laddr_info->type),laddr_info->usocket,strerror(psock_errno()));
-		/* not a fatal error... */
-	    }
-	}
-	
-	{
-	    char               tempa[32];
-	    struct sockaddr_in saddr;
-	    
-	    if (laddr_info->ssocket!=-1)
-	    {
-		memset(&saddr,0,sizeof(saddr));
-		saddr.sin_family = PSOCK_AF_INET;
-		saddr.sin_port = htons(addr_get_port(curr_laddr));
-		saddr.sin_addr.s_addr = htonl(addr_get_ip(curr_laddr));
-		if (psock_bind(laddr_info->ssocket,(struct sockaddr *)&saddr,(psock_t_socklen)sizeof(saddr))<0)
-		{
-		    if (!addr_get_addr_str(curr_laddr,tempa,sizeof(tempa)))
-			strcpy(tempa,"x.x.x.x:x");
-		    eventlog(eventlog_level_error,__FUNCTION__,"could not bind %s socket to address %s TCP (psock_bind: %s)",laddr_type_get_str(laddr_info->type),tempa,strerror(psock_errno()));
-		    return -1;
-		}
-	    }
-	    
-	    if (laddr_info->usocket!=-1)
-	    {
-		memset(&saddr,0,sizeof(saddr));
-		saddr.sin_family = PSOCK_AF_INET;
-		saddr.sin_port = htons(addr_get_port(curr_laddr));
-		saddr.sin_addr.s_addr = htonl(addr_get_ip(curr_laddr));
-		if (psock_bind(laddr_info->usocket,(struct sockaddr *)&saddr,(psock_t_socklen)sizeof(saddr))<0)
-		{
-		    if (!addr_get_addr_str(curr_laddr,tempa,sizeof(tempa)))
-			strcpy(tempa,"x.x.x.x:x");
-		    eventlog(eventlog_level_error,__FUNCTION__,"could not bind %s socket to address %s UDP (psock_bind: %s)",laddr_type_get_str(laddr_info->type),tempa,strerror(psock_errno()));
-		    return -1;
-		}
-	    }
-	    
-	    if (laddr_info->ssocket!=-1)
-	    {
-		/* tell socket to listen for connections */
-		if (psock_listen(laddr_info->ssocket,LISTEN_QUEUE)<0)
-		{
-		    eventlog(eventlog_level_error,__FUNCTION__,"could not set %s socket %d to listen (psock_listen: %s)",laddr_type_get_str(laddr_info->type),laddr_info->ssocket,strerror(psock_errno()));
-		    return -1;
-		}
-	    }
-	    
-	    if (!addr_get_addr_str(curr_laddr,tempa,sizeof(tempa)))
-		strcpy(tempa,"x.x.x.x:x");
-	    eventlog(eventlog_level_info,__FUNCTION__,"listening for %s connections on %s TCP",laddr_type_get_str(laddr_info->type),tempa);
-	}
-	
-	if (laddr_info->ssocket!=-1)
-	    if (psock_ctl(laddr_info->ssocket,PSOCK_NONBLOCK)<0)
-		eventlog(eventlog_level_error,__FUNCTION__,"could not set %s TCP listen socket to non-blocking mode (psock_ctl: %s)",laddr_type_get_str(laddr_info->type),strerror(psock_errno()));
-	if (laddr_info->usocket!=-1)
+
 	    if (psock_ctl(laddr_info->usocket,PSOCK_NONBLOCK)<0)
 		eventlog(eventlog_level_error,__FUNCTION__,"could not set %s UDP socket to non-blocking mode (psock_ctl: %s)",laddr_type_get_str(laddr_info->type),strerror(psock_errno()));
 
-	if (laddr_info->ssocket!=-1) fdwatch_add_fd(laddr_info->ssocket, fdwatch_type_read, handle_accept, curr_laddr);
-	if (laddr_info->usocket!=-1) fdwatch_add_fd(laddr_info->usocket, fdwatch_type_read, handle_udp, curr_laddr);
+	    /* index ignored because we never need it after this */
+	    if (fdwatch_add_fd(laddr_info->usocket, fdwatch_type_read, handle_udp, curr_laddr) < 0) {
+		eventlog(eventlog_level_error, __FUNCTION__, "could not add listening socket %d to fdwatch pool (max sockets?)",laddr_info->usocket);
+		goto errusock;
+	    }
+	}
     }
 
     return 0;
+
+errusock:
+    psock_close(laddr_info->usocket);
+    laddr_info->usocket = -1;
+
+errfdw:
+    fdwatch_del_fd(fidx);
+
+errsock:
+    psock_close(laddr_info->ssocket);
+    laddr_info->ssocket = -1;
+
+err:
+    return -1;
 }
 
 #ifdef DO_POSIXSIG
