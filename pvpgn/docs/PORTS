@@ -12,7 +12,10 @@ PvPGN porting status file
  x86          | BeOS R4 /w BONE  | OK      | tested
  x86_64/AMD64 | Linux 2.6.x      | OK      | tested (pvpgn >= 1.6.3 required)
  sparc64      | SunOS 5.9        | OK      | tested
- PowerPC G3   | Mac OS X 10.3.2  | OK      | tested
+ PowerPC G3   | Mac OS X 10.2.x  | OK      | tested
+ PowerPC G3   | Mac OS X 10.3.x  | OK      | tested
+ PowerPC G4   | Mac OS X 10.2.x  | OK      | tested
+ PowerPC G4   | Mac OS X 10.3.x  | OK      | tested
 
 Notes:
 - clearly x86 is the most tested version
