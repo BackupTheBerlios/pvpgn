@@ -1,4 +1,4 @@
-/* $Id: cdb.c,v 1.2 2003/07/30 21:12:31 dizzy Exp $
+/* $Id: cdb.c,v 1.3 2003/07/31 01:57:43 dizzy Exp $
  * cdb command line tool
  *
  * This file is a part of tinycdb package by Michael Tokarev, mjt@corpit.ru.
@@ -35,8 +35,6 @@
 #include <errno.h>
 #include "cdb.h"
 #include "common/setup_after.h"
-
-#ifdef HAVE_MMAP
 
 #ifndef EPROTO
 # define EPROTO EINVAL
@@ -484,4 +482,3 @@ int main(int argc, char **argv)
   return c;
 }
 
-#endif /* HAVE_MMAP */

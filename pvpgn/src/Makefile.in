@@ -184,6 +184,7 @@ ${SRC_COMPATDIR}/gettimeofday.o \
 ${SRC_COMPATDIR}/difftime.o \
 ${SRC_COMPATDIR}/memset.o \
 ${SRC_COMPATDIR}/memcpy.o \
+${SRC_COMPATDIR}/mmap.o \
 ${SRC_CDBDIR}/cdb_init.o \
 ${SRC_CDBDIR}/cdb_find.o \
 ${SRC_CDBDIR}/cdb_findnext.o \
@@ -454,7 +455,8 @@ ${SRC_CDBDIR}/cdb_make_add.o \
 ${SRC_CDBDIR}/cdb_make_put.o \
 ${SRC_CDBDIR}/cdb_make_find.o \
 ${SRC_CDBDIR}/cdb_make.o \
-${SRC_CDBDIR}/cdb_hash.o
+${SRC_CDBDIR}/cdb_hash.o \
+${SRC_COMPATDIR}/mmap.o
 
 OBJECTS		= ${bnetd_OBJECTS} ${d2cs_OBJECTS} ${d2dbs_OBJECTS} ${bntrackd_OBJECTS} ${bnchat_OBJECTS} ${bnpass_OBJECTS} ${bnbot_OBJECTS} ${bnftp_OBJECTS} ${bnstat_OBJECTS} ${bnilist_OBJECTS} ${bni2tga_OBJECTS} ${bniextract_OBJECTS} ${bnibuild_OBJECTS} ${tgainfo_OBJECTS} ${timetest_OBJECTS} ${listtest_OBJECTS} ${hashtabletest_OBJECTS} ${addrtest_OBJECTS} ${cdb_OBJECTS}
 SBINS           = ${bnetd_SBIN} ${bntrackd_SBIN} ${d2cs_SBIN} ${d2dbs_SBIN}

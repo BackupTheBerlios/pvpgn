@@ -1,4 +1,4 @@
-/* $Id: cdb_findnext.c,v 1.2 2003/07/30 21:12:31 dizzy Exp $
+/* $Id: cdb_findnext.c,v 1.3 2003/07/31 01:57:43 dizzy Exp $
  * sequential cdb_find routines
  *
  * This file is a part of tinycdb package by Michael Tokarev, mjt@corpit.ru.
@@ -11,7 +11,6 @@
 #include "cdb_int.h"
 #include "common/setup_after.h"
 
-#ifdef HAVE_MMAP
 int
 cdb_findinit(struct cdb_find *cdbfp, struct cdb *cdbp,
              const void *key, cdbi_t klen)
@@ -85,4 +84,3 @@ int cdb_findnext(struct cdb_find *cdbfp) {
   return 0;
 
 }
-#endif /* HAVE_MMAP */

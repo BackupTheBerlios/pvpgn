@@ -1,4 +1,4 @@
-/* $Id: cdb.h,v 1.2 2003/07/30 21:12:31 dizzy Exp $
+/* $Id: cdb.h,v 1.3 2003/07/31 01:57:43 dizzy Exp $
  * public cdb include file
  *
  * This file is a part of tinycdb package by Michael Tokarev, mjt@corpit.ru.
@@ -22,9 +22,7 @@ struct cdb {
   int cdb_fd;			/* file descriptor */
   /* private members */
   cdbi_t cdb_fsize;		/* datafile size */
-#ifdef HAVE_MMAP
   const unsigned char *cdb_mem; /* mmap'ed file memory */
-#endif
   cdbi_t cdb_vpos, cdb_vlen;	/* found data */
 };
 

@@ -1,4 +1,4 @@
-/* $Id: cdb_find.c,v 1.2 2003/07/30 21:12:31 dizzy Exp $
+/* $Id: cdb_find.c,v 1.3 2003/07/31 01:57:43 dizzy Exp $
  * cdb_find routine
  *
  * This file is a part of tinycdb package by Michael Tokarev, mjt@corpit.ru.
@@ -9,7 +9,6 @@
 #include "cdb_int.h"
 #include "common/setup_after.h"
 
-#ifdef HAVE_MMAP
 int
 cdb_find(struct cdb *cdbp, const void *key, cdbi_t klen)
 {
@@ -83,4 +82,3 @@ cdb_find(struct cdb *cdbp, const void *key, cdbi_t klen)
   }
 
 }
-#endif /* HAVE_MMAP */
