@@ -1289,7 +1289,7 @@ extern void conn_set_clienttag(t_connection * c, t_clienttag clienttag)
         return;
     }
     if (!tag_check_client(clienttag)) {
-	eventlog(eventlog_level_error,__FUNCTION__,"got UNKNOWN clienttag");
+	eventlog(eventlog_level_error,__FUNCTION__,"got UNKNOWN clienttag \"%s\"",tag_uint_to_str(clienttag_str,clienttag));
 	return;
     }
     if (c->protocol.client.clienttag!=clienttag) {
