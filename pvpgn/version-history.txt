@@ -10,6 +10,9 @@ PvPGN Version History:
 
 [STAR/SEXP/W2BN]
   -- fixed problem with topvbot game-results being discarded
+  
+[DEV-C++]
+  -- fixed compilation problems
 
 
  ChangeLog for 1.7.0 (since 1.6.2)
