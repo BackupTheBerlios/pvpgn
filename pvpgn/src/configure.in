@@ -200,7 +200,7 @@ fi
 
 mysql_lib_path=""
 if test "$ac_with_mysql" = "yes" ; then
-    AC_CHECK_LIB(mysqlclient, mysql_init , [DEFINES="${DEFINES} -DWITH_SQL -DWITH_SQL_MYSQL" ; LIBS="${LIBS} -lmysqlclient"], [
+    AC_CHECK_LIB(mysqlclient, mysql_init , [DEFINES="${DEFINES} -DWITH_SQL_MYSQL" ; LIBS="${LIBS} -lmysqlclient"], [
 	echo -n "checking for mysql lib path ... "
 	mysql_try_libs="/usr/lib /usr/lib/mysql /usr/local/lib /usr/local/lib/mysql /usr/local/mysql/lib /usr/local/mysql/lib/mysql"
 	for i in `echo ${mysql_try_libs}`; do
@@ -208,7 +208,7 @@ if test "$ac_with_mysql" = "yes" ; then
 		echo ${i}
 		save_ldflags="${LDFLAGS}"
 		LDFLAGS="${LDFLAGS} -L${i}"
-		AC_CHECK_LIB(mysqlclient, mysql_close , [DEFINES="${DEFINES} -DWITH_SQL -DWITH_SQL_MYSQL" ; LIBS="${LIBS} -lmysqlclient" ; mysql_lib_path="${i}"], [LDFLAGS="${save_ldflags}"])
+		AC_CHECK_LIB(mysqlclient, mysql_close , [DEFINES="${DEFINES} -DWITH_SQL_MYSQL" ; LIBS="${LIBS} -lmysqlclient" ; mysql_lib_path="${i}"], [LDFLAGS="${save_ldflags}"])
 		break
 	    fi
 	done
@@ -232,7 +232,7 @@ fi
 
 pgsql_lib_path=""
 if test "$ac_with_pgsql" = "yes" ; then
-     AC_CHECK_LIB(pq, PQsetdbLogin , [DEFINES="${DEFINES} -DWITH_SQL -DWITH_SQL_PGSQL" ; LIBS="${LIBS} -lpq"], [
+     AC_CHECK_LIB(pq, PQsetdbLogin , [DEFINES="${DEFINES} -DWITH_SQL_PGSQL" ; LIBS="${LIBS} -lpq"], [
 	echo -n "checking for pgsql lib path ... "
 	pgsql_try_libs="/usr/lib /usr/lib/pgsql /usr/local/lib /usr/local/lib/pgsql /usr/local/pgsql/lib"
 	for i in `echo ${pgsql_try_libs}`; do
@@ -240,7 +240,7 @@ if test "$ac_with_pgsql" = "yes" ; then
 		echo ${i}
 		save_ldflags="${LDFLAGS}"
 		LDFLAGS="${LDFLAGS} -L${i}"
-		AC_CHECK_LIB(pq, PQfinish , [DEFINES="${DEFINES} -DWITH_SQL -DWITH_SQL_PGSQL" ; LIBS="${LIBS} -lpq" ; pgsql_lib_path="${i}"], [LDFLAGS="${save_ldflags}"])
+		AC_CHECK_LIB(pq, PQfinish , [DEFINES="${DEFINES} -DWITH_SQL_PGSQL" ; LIBS="${LIBS} -lpq" ; pgsql_lib_path="${i}"], [LDFLAGS="${save_ldflags}"])
 		break
 	    fi
 	done

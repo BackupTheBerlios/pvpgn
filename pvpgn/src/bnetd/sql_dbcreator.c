@@ -14,9 +14,8 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifdef WITH_SQL
-
 #include "common/setup_before.h"
+#ifdef WITH_SQL
 #include <stdio.h>
 
 #ifdef STDC_HEADERS
