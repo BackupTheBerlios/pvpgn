@@ -985,10 +985,6 @@ extern int ladderlist_create(void)
     ladder_create(CLIENTTAG_BROODWARS,ladder_id_normal);
     ladder_create(CLIENTTAG_WARCIIBNE,ladder_id_normal);
     ladder_create(CLIENTTAG_WARCIIBNE,ladder_id_ironman);
-	// 9/16/2002 THEUNDYING ---->
-	ladder_create(CLIENTTAG_WARCRAFT3,ladder_id_w3_solo); //solo ladder
-	ladder_create(CLIENTTAG_WARCRAFT3,ladder_id_w3_team); //team ladder
-    //<--END OF MOD
 
     /* By Dizzy : load the XP calc table */
     if (ladder_createxptable(prefs_get_xplevel_file(), prefs_get_xpcalc_file())<0) {

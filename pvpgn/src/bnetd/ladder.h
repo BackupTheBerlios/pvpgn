@@ -53,8 +53,6 @@ typedef enum
 {
     ladder_id_normal=1,
     ladder_id_ironman=3,
-	ladder_id_w3_solo=7,
-	ladder_id_w3_team=8
 } t_ladder_id;
 
 typedef enum

@@ -2509,16 +2509,12 @@ extern int account_set_saveladderstats(t_account * account,unsigned int gametype
 		{
 			account_set_solowin(account);
 			account_set_racewin(account,intrace);
-			account_inc_ladder_wins(account,"WAR3",ladder_id_w3_solo);
-			account_set_ladder_last_result(account,"WAR3",ladder_id_w3_solo,"WIN");
 			
 		}
 		if(result == game_result_loss) //loss
 		{
 			account_set_sololoss(account);
 			account_set_raceloss(account,intrace);
-			account_inc_ladder_losses(account,"WAR3",ladder_id_w3_solo);
-			account_set_ladder_last_result(account,"WAR3",ladder_id_w3_solo,"LOSS");
 		}
 			
 		account_set_soloxp(account,result,opponlevel);
@@ -2530,15 +2526,11 @@ extern int account_set_saveladderstats(t_account * account,unsigned int gametype
 		{
 			account_set_teamwin(account);
 			account_set_racewin(account,intrace);
-			account_inc_ladder_wins(account,"WAR3",ladder_id_w3_team);
-			account_set_ladder_last_result(account,"WAR3",ladder_id_w3_team,"WIN");
 		}
 		if(result == game_result_loss) //loss
 		{
 			account_set_teamloss(account);
 			account_set_raceloss(account,intrace);
-			account_inc_ladder_losses(account,"WAR3",ladder_id_w3_team);
-			account_set_ladder_last_result(account,"WAR3",ladder_id_w3_team,"LOSS");
 		}
 
 		account_set_teamxp(account,result,opponlevel); //Not done yet
@@ -2550,15 +2542,11 @@ extern int account_set_saveladderstats(t_account * account,unsigned int gametype
 		{
 			account_set_teamwin(account);
 			account_set_racewin(account,intrace);
-			account_inc_ladder_wins(account,"WAR3",ladder_id_w3_team);
-			account_set_ladder_last_result(account,"WAR3",ladder_id_w3_team,"WIN");
 		}
 		if(result == game_result_loss) //loss
 		{
 			account_set_teamloss(account);
 			account_set_raceloss(account,intrace);
-			account_inc_ladder_losses(account,"WAR3",ladder_id_w3_team);
-			account_set_ladder_last_result(account,"WAR3",ladder_id_w3_team,"LOSS");
 		}
 
 		account_set_teamxp(account,result,opponlevel); //Not done yet
@@ -2570,15 +2558,11 @@ extern int account_set_saveladderstats(t_account * account,unsigned int gametype
 		{
 			account_set_teamwin(account);
 			account_set_racewin(account,intrace);
-			account_inc_ladder_wins(account,"WAR3",ladder_id_w3_team);
-			account_set_ladder_last_result(account,"WAR3",ladder_id_w3_team,"WIN");
 		}
 		if(result == game_result_loss) //loss
 		{
 			account_set_teamloss(account);
 			account_set_raceloss(account,intrace);
-			account_inc_ladder_losses(account,"WAR3",ladder_id_w3_team);
-			account_set_ladder_last_result(account,"WAR3",ladder_id_w3_team,"LOSS");
 		}
 
 		account_set_teamxp(account,result,opponlevel); //Not done yet
@@ -2783,7 +2767,7 @@ extern int account_get_atteamlevel(t_account * account, unsigned int teamcount)
 	sprintf(key,"Team\\%u\\teamlevel",teamcount);
 	return account_get_numattr(account,key);
 }
-//aaron TODO
+//aaron 
 extern int account_get_atteamrank(t_account * account, unsigned int teamcount)
 {
   char key[120];
