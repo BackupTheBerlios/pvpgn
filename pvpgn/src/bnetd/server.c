@@ -1363,9 +1363,11 @@ extern int server_process(void)
     
     for (;;)
     {
-#if defined(WIN32) && !defined(WIN32_GUI)
+#ifdef WIN32
+# ifndef WIN32_GUI
 	if (kbhit() && getch()=='q')
 	    server_quit_wraper();
+# endif
 	if (g_ServiceStatus == 0) server_quit_wraper();
 
 	while (g_ServiceStatus == 2) Sleep(1000);
