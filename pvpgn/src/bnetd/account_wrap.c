@@ -2702,7 +2702,7 @@ extern int account_get_atteamcount(t_account * account, char const * clienttag)
 
   sprintf(key,"Record\\%s\\teamcount",clienttag);
 
-  return account_get_numattr(account,"Record\\teamcount");
+  return account_get_numattr(account,key);
 }
 
 extern int account_set_atteamsize(t_account * account, unsigned int teamcount, char const * clienttag, unsigned int teamsize)
