@@ -1877,6 +1877,7 @@ extern int ladder_make_active(t_ladder *current, t_ladder *active,int set_attrib
   clienttag = current->clienttag;
   type = current->type;
 
+  //FIXME: take care of ppl that might have drop'ed from ladder !!!
   ladder_destroy(active);
   ladder_init(active,type,clienttag,id);
 

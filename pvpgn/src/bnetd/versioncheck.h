@@ -20,6 +20,8 @@
 #ifndef INCLUDED_VERSIONCHECK_TYPES
 #define INCLUDED_VERSIONCHECK_TYPES
 
+#include "compat/uint.h"
+
 #ifdef VERSIONCHECK_INTERNAL_ACCESS
 typedef struct
 {
@@ -35,7 +37,7 @@ typedef struct
     char const *       eqn;
     char const *       mpqfile;
     char const *       archtag;
-    char const *       clienttag;
+    t_uint32	       clienttag;
     char const *       versiontag;
     t_parsed_exeinfo * parsed_exeinfo;
     unsigned long      versionid;
@@ -60,11 +62,11 @@ t_versioncheck;
 #ifndef INCLUDED_VERSIONCHECK_PROTOS
 #define INCLUDED_VERSIONCHECK_PROTOS
 
-extern t_versioncheck * versioncheck_create(char const * archtag, char const * clienttag);
+extern t_versioncheck * versioncheck_create(char const * archtag, t_uint32 clienttag);
 extern int versioncheck_destroy(t_versioncheck * vc);
 extern char const * versioncheck_get_mpqfile(t_versioncheck const * vc);
 extern char const * versioncheck_get_eqn(t_versioncheck const * vc);
-extern int versioncheck_validate(t_versioncheck * vc, char const * archtag, char const * clienttag, char const * exeinfo, unsigned long versionid, unsigned long gameversion, unsigned long checksum);
+extern int versioncheck_validate(t_versioncheck * vc, char const * archtag, t_uint32 clienttag, char const * exeinfo, unsigned long versionid, unsigned long gameversion, unsigned long checksum);
 
 extern int versioncheck_load(char const * filename);
 extern int versioncheck_unload(void);

@@ -60,6 +60,7 @@
 # include "character.h"
 # include "versioncheck.h"
 # include "anongame.h"
+# include "compat/uint.h"
 # undef JUST_NEED_TYPES
 #endif
 
@@ -135,7 +136,7 @@ typedef struct connection
 	struct {
 	    char const *		archtag;
 	    unsigned int		gamelang;
-	    char const *		clienttag;
+	    t_uint32			clienttag;
 	    char const *		clientver;
 	    unsigned long		versionid; /* AKA bnversion */
 	    unsigned long		gameversion;
@@ -268,9 +269,9 @@ extern char const * conn_get_archtag(t_connection const * c) ;
 extern void conn_set_archtag(t_connection * c, char const * archtag);
 extern unsigned int conn_get_gamelang(t_connection const * c) ;
 extern void conn_set_gamelang(t_connection * c, unsigned int gamelang);
-extern char const * conn_get_clienttag(t_connection const * c) ;
+extern t_uint32 conn_get_clienttag(t_connection const * c) ;
 extern char const * conn_get_fake_clienttag(t_connection const * c) ;
-extern void conn_set_clienttag(t_connection * c, char const * clienttag);
+extern void conn_set_clienttag(t_connection * c, t_uint32 clienttag);
 extern unsigned long conn_get_versionid(t_connection const * c) ;
 extern int conn_set_versionid(t_connection * c, unsigned long versionid);
 extern unsigned long conn_get_gameversion(t_connection const * c) ;
@@ -403,8 +404,8 @@ extern int conn_get_leavegamewhisper_ack(t_connection * c);
 extern int conn_set_anongame_search_starttime(t_connection * c, time_t t);
 extern time_t conn_get_anongame_search_starttime(t_connection * c);
 
-extern int conn_get_user_count_by_clienttag(char const * ct);
-extern char const * conn_get_user_game_title(char const * ct);
+extern int conn_get_user_count_by_clienttag(t_uint32 ct);
+extern char const * conn_get_user_game_title(t_uint32 ct);
 
 extern unsigned int connlist_count_connections(unsigned int addr);
 

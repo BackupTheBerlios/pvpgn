@@ -91,7 +91,7 @@ extern int handle_telnet_packet(t_connection * c, t_packet const * const packet)
 	{
 	case conn_state_connected:
 	    conn_add_flags(c,MF_PLUG);
-	    conn_set_clienttag(c,CLIENTTAG_BNCHATBOT);
+	    conn_set_clienttag(c,CLIENTTAG_BNCHATBOT_UINT);
 	    
 	    {
 		char const * temp=linestr;

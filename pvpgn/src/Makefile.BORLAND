@@ -199,6 +199,7 @@ bnetd_OBJECTS       = \
     ${SRC_BNETDDIR}\w3trans.obj \
     ${SRC_BNETDDIR}\ladder_binary.obj \
     ${SRC_BNETDDIR}\support.obj \
+    ${SRC_BNETDDIR}\clienttag.obj \
     ${SRC_WIN32DIR}\service.obj \
     ${SRC_COMMONDIR}\hexdump.obj \
     ${SRC_COMMONDIR}\bn_type.obj \

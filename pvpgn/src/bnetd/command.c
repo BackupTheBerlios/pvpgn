@@ -95,6 +95,7 @@
 #include "common/bn_type.h"
 #include "command.h"
 #include "news.h"
+#include "clienttag.h"
 #include "common/setup_after.h"
 // aaron
 #include "topic.h"
@@ -1716,58 +1717,58 @@ static int _handle_status_command(t_connection * c, char const *text)
     
     if ((strcmp(ctag,"ALL") == 0) || (strcmp(ctag,CLIENTTAG_WAR3XP) == 0)) {
 	sprintf(msgtemp,"There are currently %u user(s) in %u games of %s",
-	    conn_get_user_count_by_clienttag(CLIENTTAG_WAR3XP),
+	    conn_get_user_count_by_clienttag(CLIENTTAG_WAR3XP_UINT),
 	    game_get_count_by_clienttag(CLIENTTAG_WAR3XP),
-	    conn_get_user_game_title(CLIENTTAG_WAR3XP));
+	    conn_get_user_game_title(CLIENTTAG_WAR3XP_UINT));
 	message_send_text(c,message_type_info,c,msgtemp);
     }
     if ((strcmp(ctag,"ALL") == 0) || (strcmp(ctag,CLIENTTAG_WARCRAFT3) == 0)) {
 	sprintf(msgtemp,"There are currently %u user(s) in %u games of %s",
-	    conn_get_user_count_by_clienttag(CLIENTTAG_WARCRAFT3),
+	    conn_get_user_count_by_clienttag(CLIENTTAG_WARCRAFT3_UINT),
 	    game_get_count_by_clienttag(CLIENTTAG_WARCRAFT3),
-	    conn_get_user_game_title(CLIENTTAG_WARCRAFT3));
+	    conn_get_user_game_title(CLIENTTAG_WARCRAFT3_UINT));
 	message_send_text(c,message_type_info,c,msgtemp);
     }
     if ((strcmp(ctag,"ALL") == 0) || (strcmp(ctag,CLIENTTAG_DIABLO2XP) == 0)) {
 	sprintf(msgtemp,"There are currently %u user(s) in %u games of %s",
-	    conn_get_user_count_by_clienttag(CLIENTTAG_DIABLO2XP),
+	    conn_get_user_count_by_clienttag(CLIENTTAG_DIABLO2XP_UINT),
 	    game_get_count_by_clienttag(CLIENTTAG_DIABLO2XP),
-	    conn_get_user_game_title(CLIENTTAG_DIABLO2XP));
+	    conn_get_user_game_title(CLIENTTAG_DIABLO2XP_UINT));
 	message_send_text(c,message_type_info,c,msgtemp);
     }
     if ((strcmp(ctag,"ALL") == 0) || (strcmp(ctag,CLIENTTAG_DIABLO2DV) == 0)) {
 	sprintf(msgtemp,"There are currently %u user(s) in %u games of %s",
-	    conn_get_user_count_by_clienttag(CLIENTTAG_DIABLO2DV),
+	    conn_get_user_count_by_clienttag(CLIENTTAG_DIABLO2DV_UINT),
 	    game_get_count_by_clienttag(CLIENTTAG_DIABLO2DV),
-	    conn_get_user_game_title(CLIENTTAG_DIABLO2DV));
+	    conn_get_user_game_title(CLIENTTAG_DIABLO2DV_UINT));
 	message_send_text(c,message_type_info,c,msgtemp);
     }
     if ((strcmp(ctag,"ALL") == 0) || (strcmp(ctag,CLIENTTAG_BROODWARS) == 0)) {
 	sprintf(msgtemp,"There are currently %u user(s) in %u games of %s",
-	    conn_get_user_count_by_clienttag(CLIENTTAG_BROODWARS),
+	    conn_get_user_count_by_clienttag(CLIENTTAG_BROODWARS_UINT),
 	    game_get_count_by_clienttag(CLIENTTAG_BROODWARS),
-	    conn_get_user_game_title(CLIENTTAG_BROODWARS));
+	    conn_get_user_game_title(CLIENTTAG_BROODWARS_UINT));
 	message_send_text(c,message_type_info,c,msgtemp);
     }
     if ((strcmp(ctag,"ALL") == 0) || (strcmp(ctag,CLIENTTAG_STARCRAFT) == 0)) {
 	sprintf(msgtemp,"There are currently %u user(s) in %u games of %s",
-	    conn_get_user_count_by_clienttag(CLIENTTAG_STARCRAFT),
+	    conn_get_user_count_by_clienttag(CLIENTTAG_STARCRAFT_UINT),
 	    game_get_count_by_clienttag(CLIENTTAG_STARCRAFT),
-	    conn_get_user_game_title(CLIENTTAG_STARCRAFT));
+	    conn_get_user_game_title(CLIENTTAG_STARCRAFT_UINT));
 	message_send_text(c,message_type_info,c,msgtemp);
     }
     if ((strcmp(ctag,"ALL") == 0) || (strcmp(ctag,CLIENTTAG_WARCIIBNE) == 0)) {
 	sprintf(msgtemp,"There are currently %u user(s) in %u games of %s",
-	    conn_get_user_count_by_clienttag(CLIENTTAG_WARCIIBNE),
+	    conn_get_user_count_by_clienttag(CLIENTTAG_WARCIIBNE_UINT),
 	    game_get_count_by_clienttag(CLIENTTAG_WARCIIBNE),
-	    conn_get_user_game_title(CLIENTTAG_WARCIIBNE));
+	    conn_get_user_game_title(CLIENTTAG_WARCIIBNE_UINT));
 	message_send_text(c,message_type_info,c,msgtemp);
     }
     if ((strcmp(ctag,"ALL") == 0) || (strcmp(ctag,CLIENTTAG_DIABLORTL) == 0)) {
 	sprintf(msgtemp,"There are currently %u user(s) in %u games of %s",
-	    conn_get_user_count_by_clienttag(CLIENTTAG_DIABLORTL),
+	    conn_get_user_count_by_clienttag(CLIENTTAG_DIABLORTL_UINT),
 	    game_get_count_by_clienttag(CLIENTTAG_DIABLORTL),
-	    conn_get_user_game_title(CLIENTTAG_DIABLORTL));
+	    conn_get_user_game_title(CLIENTTAG_DIABLORTL_UINT));
 	message_send_text(c,message_type_info,c,msgtemp);
     }
     
@@ -1966,7 +1967,7 @@ static int _handle_stats_command(t_connection * c, char const *text)
 		
   if (text[i]!='\0')
     clienttag = &text[i];
-  else if (!(clienttag = conn_get_clienttag(c)))
+  else if (!(clienttag = clienttag_uint_to_str(conn_get_clienttag(c))))
     {
       message_send_text(c,message_type_error,c,"Unable to determine client game.");
       return 0;
@@ -2199,7 +2200,7 @@ static int _handle_channel_command(t_connection * c, char const *text)
    
    if (conn_set_channel(c,text)<0)
      conn_set_channel(c,CHANNEL_NAME_BANNED); /* should not fail */
-   if (strcmp(conn_get_clienttag(c), CLIENTTAG_WARCRAFT3) == 0 || strcmp(conn_get_clienttag(c), CLIENTTAG_WAR3XP) == 0) 
+   if ((conn_get_clienttag(c) == CLIENTTAG_WARCRAFT3_UINT) || (conn_get_clienttag(c) == CLIENTTAG_WAR3XP_UINT)) 
      conn_update_w3_playerinfo(c);
    command_set_flags(c);
    
@@ -2211,7 +2212,7 @@ static int _handle_rejoin_command(t_connection * c, char const *text)
 
   if (channel_rejoin(c)!=0)
       message_send_text(c,message_type_error,c,"You are not in a channel.");
-  if (strcmp(conn_get_clienttag(c), CLIENTTAG_WARCRAFT3) == 0 || strcmp(conn_get_clienttag(c), CLIENTTAG_WAR3XP) == 0) 
+  if ((conn_get_clienttag(c) == CLIENTTAG_WARCRAFT3_UINT) || (conn_get_clienttag(c) ==  CLIENTTAG_WAR3XP_UINT)) 
     conn_update_w3_playerinfo(c);
   command_set_flags(c);
   
@@ -2792,7 +2793,7 @@ static int _handle_games_command(t_connection * c, char const *text)
   
   if (text[i]=='\0')
     {
-      tag = conn_get_clienttag(c);
+      tag = clienttag_uint_to_str(conn_get_clienttag(c));
       message_send_text(c,message_type_info,c,"Currently accessable games:");
     }
   else if (strcmp(&text[i],"all")==0)
@@ -2857,7 +2858,7 @@ static int _handle_channels_command(t_connection * c, char const *text)
   
   if (text[i]=='\0')
     {
-      tag = conn_get_clienttag(c);
+      tag = clienttag_uint_to_str(conn_get_clienttag(c));
       message_send_text(c,message_type_info,c,"Currently accessable channels:");
     }
   else if (strcmp(&text[i],"all")==0)
@@ -3660,7 +3661,7 @@ static int _handle_ladderinfo_command(t_connection * c, char const *text)
   
   if (text[i]!='\0')
     clienttag = &text[i];
-  else if (!(clienttag = conn_get_clienttag(c)))
+  else if (!(clienttag = clienttag_uint_to_str(conn_get_clienttag(c))))
     {
       message_send_text(c,message_type_error,c,"Unable to determine client game.");
       return 0;
@@ -4147,7 +4148,7 @@ static int _handle_tag_command(t_connection * c, char const *text)
       return 0;
     }
     
-  conn_set_clienttag(c,dest);
+  conn_set_clienttag(c,clienttag_str_to_uint(dest));
   sprintf(msgtemp,"Client tag set to %s.",dest);
   message_send_text(c,message_type_info,c,msgtemp);
   return 0;

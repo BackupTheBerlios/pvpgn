@@ -1659,8 +1659,8 @@ extern int channel_set_flags(t_connection * c)
 	   (channel_conn_has_tmpVOICE(conn_get_channel(c),c)))
     newflags = MF_VOICE;
   else
-    if (strcmp(conn_get_clienttag(c), CLIENTTAG_WARCRAFT3) == 0 || 
-	strcmp(conn_get_clienttag(c), CLIENTTAG_WAR3XP) == 0)
+    if ((conn_get_clienttag(c) == CLIENTTAG_WARCRAFT3_UINT) || 
+	(conn_get_clienttag(c) == CLIENTTAG_WAR3XP_UINT))
       newflags = W3_ICON_SET;
     else 
       newflags = 0;

@@ -94,7 +94,6 @@
 #include "clan.h"
 #include "handle_bnet.h"
 #include "handlers.h"
-#include "common/setup_after.h"
 #ifdef HAVE_NETINET_IN_H
 # include <netinet/in.h>
 #endif
@@ -103,6 +102,9 @@
 #include "anongame_infos.h"
 #include "news.h" //by Spider
 #include "friends.h"
+#include "clienttag.h"
+#include "compat/uint.h"
+#include "common/setup_after.h"
 
 extern int last_news;
 extern int first_news;
@@ -600,23 +602,23 @@ static int _client_countryinfo109(t_connection * c, t_packet const * const packe
 	  eventlog(eventlog_level_error,__FUNCTION__,"[%d] unknown client arch 0x%08x, don't expect this to work",conn_get_socket(c),bn_int_get(packet->u.client_countryinfo_109.archtag));
 	
 	if (bn_int_tag_eq(packet->u.client_countryinfo_109.clienttag,CLIENTTAG_STARCRAFT)==0)
-	  conn_set_clienttag(c,CLIENTTAG_STARCRAFT);
+	  conn_set_clienttag(c,CLIENTTAG_STARCRAFT_UINT);
 	else if (bn_int_tag_eq(packet->u.client_countryinfo_109.clienttag,CLIENTTAG_BROODWARS)==0)
-	  conn_set_clienttag(c,CLIENTTAG_BROODWARS);
+	  conn_set_clienttag(c,CLIENTTAG_BROODWARS_UINT);
 	else if (bn_int_tag_eq(packet->u.client_countryinfo_109.clienttag,CLIENTTAG_SHAREWARE)==0)
-	  conn_set_clienttag(c,CLIENTTAG_SHAREWARE);
+	  conn_set_clienttag(c,CLIENTTAG_SHAREWARE_UINT);
 	else if (bn_int_tag_eq(packet->u.client_countryinfo_109.clienttag,CLIENTTAG_DIABLORTL)==0)
-	  conn_set_clienttag(c,CLIENTTAG_DIABLORTL);
+	  conn_set_clienttag(c,CLIENTTAG_DIABLORTL_UINT);
 	else if (bn_int_tag_eq(packet->u.client_countryinfo_109.clienttag,CLIENTTAG_WARCIIBNE)==0)
-	  conn_set_clienttag(c,CLIENTTAG_WARCIIBNE);
+	  conn_set_clienttag(c,CLIENTTAG_WARCIIBNE_UINT);
 	else if (bn_int_tag_eq(packet->u.client_countryinfo_109.clienttag,CLIENTTAG_DIABLO2DV)==0)
-	  conn_set_clienttag(c,CLIENTTAG_DIABLO2DV);
+	  conn_set_clienttag(c,CLIENTTAG_DIABLO2DV_UINT);
 	else if (bn_int_tag_eq(packet->u.client_countryinfo_109.clienttag,CLIENTTAG_DIABLO2XP)==0)
-	  conn_set_clienttag(c,CLIENTTAG_DIABLO2XP);
+	  conn_set_clienttag(c,CLIENTTAG_DIABLO2XP_UINT);
 	else if (bn_int_tag_eq(packet->u.client_countryinfo_109.clienttag,CLIENTTAG_WARCRAFT3)==0)
-	  conn_set_clienttag(c,CLIENTTAG_WARCRAFT3);
+	  conn_set_clienttag(c,CLIENTTAG_WARCRAFT3_UINT);
 	else if (bn_int_tag_eq(packet->u.client_countryinfo_109.clienttag,CLIENTTAG_WAR3XP)==0)
-	   conn_set_clienttag(c,CLIENTTAG_WAR3XP);
+	   conn_set_clienttag(c,CLIENTTAG_WAR3XP_UINT);
 	else
 	  eventlog(eventlog_level_error,__FUNCTION__,"[%d] unknown client program type 0x%08x, don't expect this to work",conn_get_socket(c),bn_int_get(packet->u.client_countryinfo_109.clienttag));
 	
@@ -644,9 +646,9 @@ static int _client_countryinfo109(t_connection * c, t_packet const * const packe
 	     packet_set_size(rpacket,sizeof(t_server_authreq_109));
 	     packet_set_type(rpacket,SERVER_AUTHREQ_109);
 
-	     if (strcmp(conn_get_clienttag(c),CLIENTTAG_WARCRAFT3)==0)
+	     if ((conn_get_clienttag(c) == CLIENTTAG_WARCRAFT3_UINT))
 		bn_int_set(&rpacket->u.server_authreq_109.logontype,SERVER_AUTHREQ_109_LOGONTYPE_W3);
-	     else if (strcmp(conn_get_clienttag(c), CLIENTTAG_WAR3XP) == 0)
+	     else if ((conn_get_clienttag(c) ==  CLIENTTAG_WAR3XP_UINT))
 		bn_int_set(&rpacket->u.server_authreq_109.logontype,SERVER_AUTHREQ_109_LOGONTYPE_W3);
 	     else
 		bn_int_set(&rpacket->u.server_authreq_109.logontype,SERVER_AUTHREQ_109_LOGONTYPE);
@@ -657,8 +659,8 @@ static int _client_countryinfo109(t_connection * c, t_packet const * const packe
 	     packet_append_string(rpacket,versioncheck_get_mpqfile(vc));
 	     packet_append_string(rpacket,versioncheck_get_eqn(vc));
 	     eventlog(eventlog_level_debug,__FUNCTION__,"[%d] selected \"%s\" \"%s\"",conn_get_socket(c),versioncheck_get_mpqfile(vc),versioncheck_get_eqn(vc));
-	     if (strcmp(conn_get_clienttag(c),CLIENTTAG_WARCRAFT3)==0
-	         || strcmp(conn_get_clienttag(c), CLIENTTAG_WAR3XP) == 0) {
+	     if ((conn_get_clienttag(c) == CLIENTTAG_WARCRAFT3_UINT)
+	         || (conn_get_clienttag(c) == CLIENTTAG_WAR3XP_UINT)) {
 		 char padding[128];
 		 memset(padding, 0, 128);
 		 packet_append_data(rpacket, padding, 128);
@@ -706,25 +708,25 @@ static int _client_progident(t_connection * c, t_packet const * const packet)
      eventlog(eventlog_level_error,__FUNCTION__,"[%d] unknown client arch 0x%08x, don't expect this to work",conn_get_socket(c),bn_int_get(packet->u.client_progident.archtag));
    
    if (bn_int_tag_eq(packet->u.client_progident.clienttag,CLIENTTAG_STARCRAFT)==0)
-     conn_set_clienttag(c,CLIENTTAG_STARCRAFT);
+     conn_set_clienttag(c,CLIENTTAG_STARCRAFT_UINT);
    else if (bn_int_tag_eq(packet->u.client_progident.clienttag,CLIENTTAG_BROODWARS)==0)
-     conn_set_clienttag(c,CLIENTTAG_BROODWARS);
+     conn_set_clienttag(c,CLIENTTAG_BROODWARS_UINT);
    else if (bn_int_tag_eq(packet->u.client_progident.clienttag,CLIENTTAG_SHAREWARE)==0)
-     conn_set_clienttag(c,CLIENTTAG_SHAREWARE);
+     conn_set_clienttag(c,CLIENTTAG_SHAREWARE_UINT);
    else if (bn_int_tag_eq(packet->u.client_progident.clienttag,CLIENTTAG_DIABLORTL)==0)
-     conn_set_clienttag(c,CLIENTTAG_DIABLORTL);
+     conn_set_clienttag(c,CLIENTTAG_DIABLORTL_UINT);
    else if (bn_int_tag_eq(packet->u.client_progident.clienttag,CLIENTTAG_DIABLOSHR)==0)
-     conn_set_clienttag(c,CLIENTTAG_DIABLOSHR);
+     conn_set_clienttag(c,CLIENTTAG_DIABLOSHR_UINT);
    else if (bn_int_tag_eq(packet->u.client_progident.clienttag,CLIENTTAG_WARCIIBNE)==0)
-     conn_set_clienttag(c,CLIENTTAG_WARCIIBNE);
+     conn_set_clienttag(c,CLIENTTAG_WARCIIBNE_UINT);
    else if (bn_int_tag_eq(packet->u.client_progident.clienttag,CLIENTTAG_DIABLO2DV)==0)
-     conn_set_clienttag(c,CLIENTTAG_DIABLO2DV);
+     conn_set_clienttag(c,CLIENTTAG_DIABLO2DV_UINT);
    else if (bn_int_tag_eq(packet->u.client_progident.clienttag,CLIENTTAG_DIABLO2XP)==0)
-     conn_set_clienttag(c,CLIENTTAG_DIABLO2XP);
+     conn_set_clienttag(c,CLIENTTAG_DIABLO2XP_UINT);
    else if (bn_int_tag_eq(packet->u.client_progident.clienttag,CLIENTTAG_WARCRAFT3)==0)
-     conn_set_clienttag(c,CLIENTTAG_WARCRAFT3);
+     conn_set_clienttag(c,CLIENTTAG_WARCRAFT3_UINT);
    else if (bn_int_tag_eq(packet->u.client_progident.clienttag,CLIENTTAG_WAR3XP)==0)
-     conn_set_clienttag(c,CLIENTTAG_WAR3XP);
+     conn_set_clienttag(c,CLIENTTAG_WAR3XP_UINT);
    else
      eventlog(eventlog_level_error,__FUNCTION__,"[%d] unknown client program type 0x%08x, don't expect this to work",conn_get_socket(c),bn_int_get(packet->u.client_progident.clienttag));
    
@@ -1148,7 +1150,7 @@ static int _client_authreq1(t_connection * c, t_packet const * const packet)
 	failed = 0;
 	if (bn_int_tag_eq(packet->u.client_authreq1.archtag,conn_get_archtag(c))<0)
 	  failed = 1;
-	if (bn_int_tag_eq(packet->u.client_authreq1.clienttag,conn_get_clienttag(c))<0)
+	if (bn_int_tag_eq(packet->u.client_authreq1.clienttag,clienttag_uint_to_str(conn_get_clienttag(c)))<0)
 	  failed = 1;
 	
 	if (!(exeinfo = packet_get_str_const(packet,sizeof(t_client_authreq1),MAX_EXEINFO_STR)))
@@ -1230,7 +1232,7 @@ static int _client_authreq1(t_connection * c, t_packet const * const packet)
 	       {
 		  char * mpqfilename;
 		  
-		  mpqfilename = autoupdate_check(conn_get_archtag(c),conn_get_clienttag(c),conn_get_gamelang(c),versiontag);
+		  mpqfilename = autoupdate_check(conn_get_archtag(c),clienttag_uint_to_str(conn_get_clienttag(c)),conn_get_gamelang(c),versiontag);
 		  
 	          /* Only handle updates when there is an update file available. */
 		  if (mpqfilename!=NULL)
@@ -1374,7 +1376,7 @@ static int _client_authreq109(t_connection * c, t_packet const * const packet)
 	       {
 	          char * mpqfilename;
 		  
-		  mpqfilename = autoupdate_check(conn_get_archtag(c),conn_get_clienttag(c),conn_get_gamelang(c),versiontag);
+		  mpqfilename = autoupdate_check(conn_get_archtag(c),clienttag_uint_to_str(conn_get_clienttag(c)),conn_get_gamelang(c),versiontag);
 		  
 		  /* Only handle updates when there is an update file available. */
 		  if (mpqfilename!=NULL)
@@ -1430,7 +1432,7 @@ static int _client_iconreq(t_connection * c, t_packet const * const packet)
 	file_to_mod_time(prefs_get_iconfile(),&rpacket->u.server_iconreply.timestamp);
 
 	/* battle.net sends different file on iconreq for WAR3 and W3XP [Omega] */
-	if (strcmp(conn_get_clienttag(c),CLIENTTAG_WARCRAFT3)==0 || strcmp(conn_get_clienttag(c),CLIENTTAG_WAR3XP)==0)
+	if ((conn_get_clienttag(c) == CLIENTTAG_WARCRAFT3_UINT) || (conn_get_clienttag(c) == CLIENTTAG_WAR3XP_UINT))
 	    packet_append_string(rpacket,prefs_get_war3_iconfile());
 	/* battle.net still sends "icons.bni" to sc/bw clients
 	 * clients request icons_STAR.bni seperatly */
@@ -2515,12 +2517,15 @@ static int _client_atfriendscreen(t_connection * c, t_packet const * const packe
 static int _client_atinvitefriend(t_connection * c, t_packet const * const packet)
 {
    t_packet * rpacket;
+   char const *  ctag;
    
    if (packet_get_size(packet)<sizeof(t_client_arrangedteam_invite_friend)) {
       eventlog(eventlog_level_error,__FUNCTION__,"[%d] got bad ARRANGEDTEAM_INVITE_FRIEND packet (expected %u bytes, got %u)",conn_get_socket(c),sizeof(t_client_arrangedteam_invite_friend),packet_get_size(packet));
       return -1;
    }
    
+     ctag = clienttag_uint_to_str(conn_get_clienttag(c));
+
      {
 	int count_to_invite = bn_byte_get(packet->u.client_arrangedteam_invite_friend.numfriends);
 	char const *invited_usernames[8];
@@ -2572,9 +2577,9 @@ static int _client_atinvitefriend(t_connection * c, t_packet const * const packe
 	eventlog(eventlog_level_debug,"handle_bnet","All AT Team Members: %s",atmembers_usernames);
 	
 	//check see if inviter has ever played AT before
-	if(account_check_team(conn_get_account(c),atmembers_usernames,conn_get_clienttag(c))<0)
+	if(account_check_team(conn_get_account(c),atmembers_usernames,ctag)<0)
 	  {
-	     if(account_set_currentatteam(conn_get_account(c),account_create_newteam(conn_get_account(c),atmembers_usernames,count_to_invite,conn_get_clienttag(c)))<0)
+	     if(account_set_currentatteam(conn_get_account(c),account_create_newteam(conn_get_account(c),atmembers_usernames,count_to_invite,ctag))<0)
 	       eventlog(eventlog_level_debug,"handle_bnet","Unable to properly create team info for user. No Stats will be saved");
 	     if(account_set_new_at_team(conn_get_account(c),1)<0)
 	       eventlog(eventlog_level_error,"handle_bnet","Unable to set flag new_at_team to 1 for YES");
@@ -2582,10 +2587,10 @@ static int _client_atinvitefriend(t_connection * c, t_packet const * const packe
 	  }
 	else
 	  {
-	     teamnumber = account_check_team(conn_get_account(c),atmembers_usernames,conn_get_clienttag(c));
+	     teamnumber = account_check_team(conn_get_account(c),atmembers_usernames,ctag);
 	     eventlog(eventlog_level_debug,"handle_bnet","AT Team has played before! - Team number %d",teamnumber);
 	     account_set_currentatteam(conn_get_account(c),teamnumber);
-	     account_set_atteamsize(conn_get_account(c),teamnumber,conn_get_clienttag(c),count_to_invite);
+	     account_set_atteamsize(conn_get_account(c),teamnumber,ctag,count_to_invite);
 	     account_set_new_at_team(conn_get_account(c),0); //avoid warning
 	  }
 	//<--- end of stat saving shit
@@ -2633,19 +2638,19 @@ static int _client_atinvitefriend(t_connection * c, t_packet const * const packe
 	     packet_del_ref(rpacket);
 	     
 	     //start of stat shit for each invitee -->
-	     if(account_check_team(conn_get_account(dest_c),atmembers_usernames,conn_get_clienttag(c))<0)
+	     if(account_check_team(conn_get_account(dest_c),atmembers_usernames,ctag)<0)
 	       {
-		  if(account_set_currentatteam(conn_get_account(dest_c),account_create_newteam(conn_get_account(dest_c),atmembers_usernames,count_to_invite,conn_get_clienttag(c)))<0)
+		  if(account_set_currentatteam(conn_get_account(dest_c),account_create_newteam(conn_get_account(dest_c),atmembers_usernames,count_to_invite,ctag))<0)
 		    eventlog(eventlog_level_debug,"handle_bnet","Unable to properly create team info for user. No Stats will be saved");
 		  if(account_set_new_at_team(conn_get_account(dest_c),1)<0)
 		    eventlog(eventlog_level_error,"handle_bnet","Unable to set flag new_at_team to 1 for YES");
 	       }
 	     else
 	       {
-		  teamnumber = account_check_team(conn_get_account(dest_c),atmembers_usernames,conn_get_clienttag(c));
+		  teamnumber = account_check_team(conn_get_account(dest_c),atmembers_usernames,ctag);
 		  eventlog(eventlog_level_debug,"handle_bnet","AT Team has played before! - Team number %d",teamnumber);
 		  account_set_currentatteam(conn_get_account(dest_c),teamnumber);
-		  account_set_atteamsize(conn_get_account(dest_c),teamnumber,conn_get_clienttag(c),count_to_invite);
+		  account_set_atteamsize(conn_get_account(dest_c),teamnumber,ctag,count_to_invite);
 		  account_set_new_at_team(conn_get_account(dest_c),0); //avoid warning
 	       }
 	     //<--- end of stat saving shit
@@ -2702,11 +2707,14 @@ static int _client_atinvitefriend(t_connection * c, t_packet const * const packe
 static int _client_atacceptdeclineinvite(t_connection * c, t_packet const * const packet)
 {
    t_packet * rpacket;
+   char const * ctag;
    
    if (packet_get_size(packet)<sizeof(t_client_arrangedteam_accept_decline_invite)) {
       eventlog(eventlog_level_error,__FUNCTION__,"[%d] got bad ARRANGEDTEAM_ACCEPT_DECLINE_INVITE packet (expected %u bytes, got %u)",conn_get_socket(c),sizeof(t_client_arrangedteam_accept_decline_invite),packet_get_size(packet));
       return -1;
    }
+
+   ctag = clienttag_uint_to_str(conn_get_clienttag(c));
    
      {
 	char const *inviter;
@@ -2715,9 +2723,9 @@ static int _client_atacceptdeclineinvite(t_connection * c, t_packet const * cons
 	if(account_get_new_at_team(conn_get_account(c))==1)
 	  {
 	     int temp;
-	     temp = account_get_atteamcount(conn_get_account(c),conn_get_clienttag(c));
+	     temp = account_get_atteamcount(conn_get_account(c),ctag);
 	     temp = temp-1;
-	     account_set_atteamcount(conn_get_account(c),conn_get_clienttag(c),temp);
+	     account_set_atteamcount(conn_get_account(c),ctag,temp);
 	     account_set_new_at_team(conn_get_account(c),0);
 	  }
 	
@@ -2766,11 +2774,14 @@ static int _client_motdw3(t_connection * c, t_packet const * const packet)
     unsigned int last_news_time;
     unsigned int news_firstnews;
     char serverinfo[512];
+    char const * ctag;
     
     if (packet_get_size(packet)<sizeof(t_client_motd_w3)) {
 	eventlog(eventlog_level_error,__FUNCTION__,"[%d] got bad CLIENT_MOTD_W3 packet (expected %u bytes, got %u)",conn_get_socket(c),sizeof(t_client_motd_w3),packet_get_size(packet));
 	return -1;
     }
+
+    ctag = clienttag_uint_to_str(conn_get_clienttag(c));
 
 	/* if in a game, remove user from his game */
 	if(conn_get_game(c) != NULL)
@@ -2847,7 +2858,7 @@ static int _client_motdw3(t_connection * c, t_packet const * const packet)
     /* MODIFIED BY THE UNDYING SOULZZ 4/7/02 */
     sprintf(serverinfo,"Welcome to the "PVPGN_SOFTWARE" Version "PVPGN_VERSION"\r\n\r\nThere are currently %u user(s) in %u games of %s, and %u user(s) playing %u games and chatting In %u channels in the PvPGN Realm.\r\n%s",
 	conn_get_user_count_by_clienttag(conn_get_clienttag(c)),
-	game_get_count_by_clienttag(conn_get_clienttag(c)),
+	game_get_count_by_clienttag(ctag),
 	conn_get_user_game_title(conn_get_clienttag(c)),
 	connlist_login_get_length(),
 	gamelist_get_length(),
@@ -3265,7 +3276,7 @@ static int _client_realmjoinreq109(t_connection * c, t_packet const * const pack
 			    bn_int_set(&rpacket->u.server_realmjoinreply_109.bncs_addr2,0);
 			    bn_int_set(&rpacket->u.server_realmjoinreply_109.u7,0);
 			    bn_int_set(&rpacket->u.server_realmjoinreply_109.versionid,conn_get_versionid(c));
-			    bn_int_tag_set(&rpacket->u.server_realmjoinreply_109.clienttag,conn_get_clienttag(c));
+			    bn_int_tag_set(&rpacket->u.server_realmjoinreply_109.clienttag,clienttag_uint_to_str(conn_get_clienttag(c)));
 			    hash_to_bnhash((t_hash const *)&secret_hash,rpacket->u.server_realmjoinreply_109.secret_hash); /* avoid warning */
 			    packet_append_string(rpacket,(tname = conn_get_username(c)));
 			    conn_unget_username(c,tname);
@@ -3350,7 +3361,7 @@ static int _client_charlistreq(t_connection * c, t_packet const * const packet)
 	bn_int_set(&rpacket->u.server_unknown_37.unknown1,SERVER_UNKNOWN_37_UNKNOWN1);
 	bn_int_set(&rpacket->u.server_unknown_37.unknown2,SERVER_UNKNOWN_37_UNKNOWN2);
 	
-	if (!(charlist = account_get_closed_characterlist(conn_get_account(c),conn_get_clienttag(c),conn_get_realmname(c))))
+	if (!(charlist = account_get_closed_characterlist(conn_get_account(c),clienttag_uint_to_str(conn_get_clienttag(c)),conn_get_realmname(c))))
 	  {
 	     bn_int_set(&rpacket->u.server_unknown_37.count,0);
 	     conn_push_outqueue(c,rpacket);
@@ -3683,25 +3694,25 @@ static int _client_progident2(t_connection * c, t_packet const * const packet)
 	/* Hmm... no archtag.  Hope we get it in CLIENT_AUTHREQ1 (but we won't if we use the shortcut) */
 	
 	if (bn_int_tag_eq(packet->u.client_progident2.clienttag,CLIENTTAG_STARCRAFT)==0)
-	  conn_set_clienttag(c,CLIENTTAG_STARCRAFT);
+	  conn_set_clienttag(c,CLIENTTAG_STARCRAFT_UINT);
 	else if (bn_int_tag_eq(packet->u.client_progident2.clienttag,CLIENTTAG_BROODWARS)==0)
-	  conn_set_clienttag(c,CLIENTTAG_BROODWARS);
+	  conn_set_clienttag(c,CLIENTTAG_BROODWARS_UINT);
 	else if (bn_int_tag_eq(packet->u.client_progident2.clienttag,CLIENTTAG_SHAREWARE)==0)
-	  conn_set_clienttag(c,CLIENTTAG_SHAREWARE);
+	  conn_set_clienttag(c,CLIENTTAG_SHAREWARE_UINT);
 	else if (bn_int_tag_eq(packet->u.client_progident2.clienttag,CLIENTTAG_DIABLORTL)==0)
-	  conn_set_clienttag(c,CLIENTTAG_DIABLORTL);
+	  conn_set_clienttag(c,CLIENTTAG_DIABLORTL_UINT);
 	else if (bn_int_tag_eq(packet->u.client_progident2.clienttag,CLIENTTAG_DIABLOSHR)==0)
-	  conn_set_clienttag(c,CLIENTTAG_DIABLOSHR);
+	  conn_set_clienttag(c,CLIENTTAG_DIABLOSHR_UINT);
 	else if (bn_int_tag_eq(packet->u.client_progident2.clienttag,CLIENTTAG_WARCIIBNE)==0)
-	  conn_set_clienttag(c,CLIENTTAG_WARCIIBNE);
+	  conn_set_clienttag(c,CLIENTTAG_WARCIIBNE_UINT);
 	else if (bn_int_tag_eq(packet->u.client_progident2.clienttag,CLIENTTAG_DIABLO2DV)==0)
-	  conn_set_clienttag(c,CLIENTTAG_DIABLO2DV);
+	  conn_set_clienttag(c,CLIENTTAG_DIABLO2DV_UINT);
 	else if (bn_int_tag_eq(packet->u.client_progident2.clienttag,CLIENTTAG_DIABLO2XP)==0)
-	  conn_set_clienttag(c,CLIENTTAG_DIABLO2XP);
+	  conn_set_clienttag(c,CLIENTTAG_DIABLO2XP_UINT);
 	else if (bn_int_tag_eq(packet->u.client_progident2.clienttag,CLIENTTAG_WARCRAFT3)==0)
-	  conn_set_clienttag(c,CLIENTTAG_WARCRAFT3);
+	  conn_set_clienttag(c,CLIENTTAG_WARCRAFT3_UINT);
 	else if (bn_int_tag_eq(packet->u.client_progident2.clienttag,CLIENTTAG_WAR3XP)==0)
-	  conn_set_clienttag(c,CLIENTTAG_WAR3XP);
+	  conn_set_clienttag(c,CLIENTTAG_WAR3XP_UINT);
 	else
 	  eventlog(eventlog_level_error,__FUNCTION__,"[%d] unknown client program type 0x%08x, don't expect this to work",conn_get_socket(c),bn_int_get(packet->u.client_progident2.clienttag));
      }
@@ -3718,7 +3729,7 @@ static int _client_progident2(t_connection * c, t_packet const * const packet)
 	       {
 		  ch = elem_get_data(curr);
 		  if ((!(channel_get_flags(ch) & channel_flags_clan)) && (!prefs_get_hide_temp_channels() || channel_get_permanent(ch)) &&
-		      (!channel_get_clienttag(ch) || strcmp(channel_get_clienttag(ch),conn_get_clienttag(c))==0) &&
+		      (!channel_get_clienttag(ch) || strcmp(channel_get_clienttag(ch),clienttag_uint_to_str(conn_get_clienttag(c)))==0) &&
 			  (!(channel_get_flags(ch) & channel_flags_thevoid)) &&  // don't display theVoid in channel list
 			( (channel_get_max(ch)!=0) || 
 			( (channel_get_max(ch)==0) && (account_is_operator_or_admin(conn_get_account(c),channel_get_name(ch))==1) ) ))	// don't display restricted channel for no admins/ops
@@ -3740,7 +3751,7 @@ static int _client_joinchannel(t_connection * c, t_packet const * const packet)
    int 		found=1;
    t_clan * user_clan;
    int clantag;
-   char const * clienttag;
+   t_uint32  clienttag;
    t_channel * channel;
 
    if (packet_get_size(packet)<sizeof(t_client_joinchannel)) {
@@ -3759,7 +3770,7 @@ static int _client_joinchannel(t_connection * c, t_packet const * const packet)
      return 0; //we are allready in this channel
 
    clienttag = conn_get_clienttag(c);
-   if (strcmp(clienttag, CLIENTTAG_WARCRAFT3) == 0 || strcmp(clienttag, CLIENTTAG_WAR3XP) == 0) 
+   if ((clienttag == CLIENTTAG_WARCRAFT3_UINT)  || (clienttag == CLIENTTAG_WAR3XP_UINT)) 
      {
         conn_update_w3_playerinfo(c);
        switch (bn_int_get(packet->u.client_joinchannel.channelflag))
@@ -3874,7 +3885,7 @@ static int _client_gamelistreq(t_connection * c, t_packet const * const packet)
 	  }
 
 	bngtype = bn_short_get(packet->u.client_gamelistreq.gametype);
-	clienttag = conn_get_clienttag(c);
+	clienttag = clienttag_uint_to_str(conn_get_clienttag(c));
 	gtype = bngreqtype_to_gtype(clienttag,bngtype);
 	if (!(rpacket = packet_create(packet_class_bnet)))
 	  return -1;
@@ -4219,7 +4230,7 @@ static int _client_startgame1(t_connection * c, t_packet const * const packet)
 	    {
 	       t_game_type gtype;
 	       
-	       gtype = bngtype_to_gtype(conn_get_clienttag(c),bngtype);
+	       gtype = bngtype_to_gtype(clienttag_uint_to_str(conn_get_clienttag(c)),bngtype);
 	       if ((gtype==game_type_ladder && account_get_auth_createladdergame(conn_get_account(c))==0) || /* default to true */
 		   (gtype!=game_type_ladder && account_get_auth_createnormalgame(conn_get_account(c))==0)) /* default to true */
 		 {
@@ -4320,7 +4331,7 @@ static int _client_startgame3(t_connection * c, t_packet const * const packet)
 	    {
 	       t_game_type gtype;
 	       
-	       gtype = bngtype_to_gtype(conn_get_clienttag(c),bngtype);
+	       gtype = bngtype_to_gtype(clienttag_uint_to_str(conn_get_clienttag(c)),bngtype);
 	       if ((gtype==game_type_ladder && account_get_auth_createladdergame(conn_get_account(c))==0) ||
 		   (gtype!=game_type_ladder && account_get_auth_createnormalgame(conn_get_account(c))==0))
 		 {
@@ -4433,7 +4444,7 @@ static int _client_startgame4(t_connection * c, t_packet const * const packet)
 	  {
 	     t_game_type gtype;
 	     
-	     gtype = bngtype_to_gtype(conn_get_clienttag(c),bngtype);
+	     gtype = bngtype_to_gtype(clienttag_uint_to_str(conn_get_clienttag(c)),bngtype);
 	     if ((gtype==game_type_ladder && account_get_auth_createladdergame(conn_get_account(c))==0) ||
 		 (gtype!=game_type_ladder && account_get_auth_createnormalgame(conn_get_account(c))==0))
 	       {
@@ -4443,7 +4454,7 @@ static int _client_startgame4(t_connection * c, t_packet const * const packet)
 		  conn_unget_username(c,tname);
 	       }
 	     else if (conn_set_game(c,gamename,gamepass,gameinfo,gtype,STARTVER_GW4)==0) {
-		game_set_option(conn_get_game(c),bngoption_to_goption(conn_get_clienttag(c),gtype,option));
+		game_set_option(conn_get_game(c),bngoption_to_goption(clienttag_uint_to_str(conn_get_clienttag(c)),gtype,option));
 		if (status == CLIENT_STARTGAME4_STATUS_INITPRIVATE)
 		    game_set_flag(conn_get_game(c),game_flag_private);
 	     }
@@ -4483,7 +4494,7 @@ static int _client_closegame(t_connection * c, t_packet const * const packet)
     t_game * game;
 
     eventlog(eventlog_level_info,__FUNCTION__,"[%d] client closing game",conn_get_socket(c));
-    if(packet_get_type(packet) == CLIENT_CLOSEGAME2 || (strcmp(conn_get_clienttag(c), CLIENTTAG_WARCRAFT3) != 0 && strcmp(conn_get_clienttag(c), CLIENTTAG_WAR3XP) != 0))
+    if(packet_get_type(packet) == CLIENT_CLOSEGAME2 || ((conn_get_clienttag(c) != CLIENTTAG_WARCRAFT3_UINT)  && (conn_get_clienttag(c) != CLIENTTAG_WAR3XP_UINT)))
         conn_set_game(c,NULL,NULL,NULL,game_type_none,0);
     else if((game = conn_get_game(c))) game_set_status(game, game_status_started);
 
@@ -4623,7 +4634,7 @@ static int _client_ladderreq(t_connection * c, t_packet const * const packet)
 	t_bnettime     bt;
 	t_ladder_id    id;
 	
-	clienttag = conn_get_clienttag(c);
+	clienttag = clienttag_uint_to_str(conn_get_clienttag(c));
 	
 	type = bn_int_get(packet->u.client_ladderreq.type);
 	start = bn_int_get(packet->u.client_ladderreq.startplace);
@@ -4759,6 +4770,7 @@ static int _client_laddersearchreq(t_connection * c, t_packet const * const pack
 	unsigned int idnum;
 	unsigned int rank; /* starts at zero */
 	t_ladder_id  id;
+	char const * ctag = clienttag_uint_to_str(conn_get_clienttag(c));
 	
 	idnum = bn_int_get(packet->u.client_laddersearchreq.id);
 	
@@ -4788,26 +4800,26 @@ static int _client_laddersearchreq(t_connection * c, t_packet const * const pack
 	     switch (bn_int_get(packet->u.client_laddersearchreq.type))
 	       {
 		case CLIENT_LADDERSEARCHREQ_TYPE_HIGHESTRATED:
-		  if ((rank = ladder_get_rank_by_account(account,ladder_sort_highestrated,ladder_time_active,conn_get_clienttag(c),id))==0)
+		  if ((rank = ladder_get_rank_by_account(account,ladder_sort_highestrated,ladder_time_active,ctag,id))==0)
 		    {
-		       rank = ladder_get_rank_by_account(account,ladder_sort_highestrated,ladder_time_current,conn_get_clienttag(c),id);
-		       if (ladder_get_account_by_rank(rank,ladder_sort_highestrated,ladder_time_active,conn_get_clienttag(c),id))
+		       rank = ladder_get_rank_by_account(account,ladder_sort_highestrated,ladder_time_current,ctag,id);
+		       if (ladder_get_account_by_rank(rank,ladder_sort_highestrated,ladder_time_active,ctag,id))
 			 rank = 0;
 		    }
 		  break;
 		case CLIENT_LADDERSEARCHREQ_TYPE_MOSTWINS:
-		  if ((rank = ladder_get_rank_by_account(account,ladder_sort_mostwins,ladder_time_active,conn_get_clienttag(c),id))==0)
+		  if ((rank = ladder_get_rank_by_account(account,ladder_sort_mostwins,ladder_time_active,ctag,id))==0)
 		    {
-		       rank = ladder_get_rank_by_account(account,ladder_sort_mostwins,ladder_time_current,conn_get_clienttag(c),id);
-		       if (ladder_get_account_by_rank(rank,ladder_sort_mostwins,ladder_time_active,conn_get_clienttag(c),id))
+		       rank = ladder_get_rank_by_account(account,ladder_sort_mostwins,ladder_time_current,ctag,id);
+		       if (ladder_get_account_by_rank(rank,ladder_sort_mostwins,ladder_time_active,ctag,id))
 			 rank = 0;
 		    }
 		  break;
 		case CLIENT_LADDERSEARCHREQ_TYPE_MOSTGAMES:
-		  if ((rank = ladder_get_rank_by_account(account,ladder_sort_mostgames,ladder_time_active,conn_get_clienttag(c),id))==0)
+		  if ((rank = ladder_get_rank_by_account(account,ladder_sort_mostgames,ladder_time_active,ctag,id))==0)
 		    {
-		       rank = ladder_get_rank_by_account(account,ladder_sort_mostgames,ladder_time_current,conn_get_clienttag(c),id);
-		       if (ladder_get_account_by_rank(rank,ladder_sort_mostgames,ladder_time_active,conn_get_clienttag(c),id))
+		       rank = ladder_get_rank_by_account(account,ladder_sort_mostgames,ladder_time_current,ctag,id);
+		       if (ladder_get_account_by_rank(rank,ladder_sort_mostgames,ladder_time_active,ctag,id))
 			 rank = 0;
 		    }
 		  break;
@@ -4887,7 +4899,7 @@ static int _client_mapauthreq1(t_connection * c, t_packet const * const packet)
 		       val = SERVER_MAPAUTHREPLY1_LADDER_OK;
 		       eventlog(eventlog_level_debug,__FUNCTION__,"[%d] giving map ladder authorization (in a ladder game)",conn_get_socket(c));
 		    }
-		  else if (ladder_check_map(game_get_mapname(game),game_get_maptype(game),conn_get_clienttag(c)))
+		  else if (ladder_check_map(game_get_mapname(game),game_get_maptype(game),clienttag_uint_to_str(conn_get_clienttag(c))))
 		    {
 		       val = SERVER_MAPAUTHREPLY1_LADDER_OK;
 		       eventlog(eventlog_level_debug,__FUNCTION__,"[%d] giving map ladder authorization (is a ladder map)",conn_get_socket(c));
@@ -4963,7 +4975,7 @@ static int _client_mapauthreq2(t_connection * c, t_packet const * const packet)
 		       val = SERVER_MAPAUTHREPLY2_LADDER_OK;
 		       eventlog(eventlog_level_debug,__FUNCTION__,"[%d] giving map ladder authorization (in a ladder game)",conn_get_socket(c));
 		    }
-		  else if (ladder_check_map(game_get_mapname(game),game_get_maptype(game),conn_get_clienttag(c)))
+		  else if (ladder_check_map(game_get_mapname(game),game_get_maptype(game),clienttag_uint_to_str(conn_get_clienttag(c))))
 		    {
 		       val = SERVER_MAPAUTHREPLY2_LADDER_OK;
 		       eventlog(eventlog_level_debug,__FUNCTION__,"[%d] giving map ladder authorization (is a ladder map)",conn_get_socket(c));
@@ -4996,27 +5008,27 @@ static int _client_changeclient(t_connection * c, t_packet const * const packet)
    }
 
     if (bn_int_tag_eq(packet->u.client_changeclient.clienttag,CLIENTTAG_STARCRAFT)==0)
-	conn_set_clienttag(c,CLIENTTAG_STARCRAFT);
+	conn_set_clienttag(c,CLIENTTAG_STARCRAFT_UINT);
     else if (bn_int_tag_eq(packet->u.client_changeclient.clienttag,CLIENTTAG_BROODWARS)==0)
-	conn_set_clienttag(c,CLIENTTAG_BROODWARS);
+	conn_set_clienttag(c,CLIENTTAG_BROODWARS_UINT);
     else if (bn_int_tag_eq(packet->u.client_changeclient.clienttag,CLIENTTAG_SHAREWARE)==0)
-	conn_set_clienttag(c,CLIENTTAG_SHAREWARE);
+	conn_set_clienttag(c,CLIENTTAG_SHAREWARE_UINT);
     else if (bn_int_tag_eq(packet->u.client_changeclient.clienttag,CLIENTTAG_DIABLORTL)==0)
-	conn_set_clienttag(c,CLIENTTAG_DIABLORTL);
+	conn_set_clienttag(c,CLIENTTAG_DIABLORTL_UINT);
     else if (bn_int_tag_eq(packet->u.client_changeclient.clienttag,CLIENTTAG_WARCIIBNE)==0)
-	conn_set_clienttag(c,CLIENTTAG_WARCIIBNE);
+	conn_set_clienttag(c,CLIENTTAG_WARCIIBNE_UINT);
     else if (bn_int_tag_eq(packet->u.client_changeclient.clienttag,CLIENTTAG_DIABLO2DV)==0)
-	conn_set_clienttag(c,CLIENTTAG_DIABLO2DV);
+	conn_set_clienttag(c,CLIENTTAG_DIABLO2DV_UINT);
     else if (bn_int_tag_eq(packet->u.client_changeclient.clienttag,CLIENTTAG_DIABLO2XP)==0)
-	conn_set_clienttag(c,CLIENTTAG_DIABLO2XP);
+	conn_set_clienttag(c,CLIENTTAG_DIABLO2XP_UINT);
     else if (bn_int_tag_eq(packet->u.client_changeclient.clienttag,CLIENTTAG_WARCRAFT3)==0)
-	conn_set_clienttag(c,CLIENTTAG_WARCRAFT3);
+	conn_set_clienttag(c,CLIENTTAG_WARCRAFT3_UINT);
     else if (bn_int_tag_eq(packet->u.client_changeclient.clienttag,CLIENTTAG_WAR3XP)==0)
-	conn_set_clienttag(c,CLIENTTAG_WAR3XP);
+	conn_set_clienttag(c,CLIENTTAG_WAR3XP_UINT);
     else eventlog(eventlog_level_error,__FUNCTION__,"[%d] unknown client program type 0x%08x, don't expect this to work",conn_get_socket(c),bn_int_get(packet->u.client_changeclient.clienttag));
 
     vc = conn_get_versioncheck(c);
-    versioncheck_set_versiontag(vc, conn_get_clienttag(c));
+    versioncheck_set_versiontag(vc, clienttag_uint_to_str(conn_get_clienttag(c)));
     
     if (vc && versioncheck_get_versiontag(vc)) {
 	switch (versioncheck_validate(vc, conn_get_archtag(c),

@@ -37,6 +37,7 @@
 #include "character.h"
 #include "common/util.h"
 #include "handle_auth.h"
+#include "clienttag.h"
 #include "common/setup_after.h"
 
 
@@ -227,7 +228,7 @@ extern int handle_auth_packet(t_connection * c, t_packet const * const packet)
 		}
 
 		if (character_create(conn_get_account(c),
-				     conn_get_clienttag(c),
+				     clienttag_uint_to_str(conn_get_clienttag(c)),
 				     conn_get_realmname(c),
 				     charname,
 				     charclass,
@@ -389,7 +390,7 @@ extern int handle_auth_packet(t_connection * c, t_packet const * const packet)
 		    packet_set_type(rpacket,SERVER_CHARLOGINREPLY);
 		    if ((ch = characterlist_find_character(conn_get_realmname(c),charname)))
 		    {
-			if (!(charlist = account_get_closed_characterlist(conn_get_account(c),conn_get_clienttag(c),conn_get_realmname(c))))
+			if (!(charlist = account_get_closed_characterlist(conn_get_account(c),clienttag_uint_to_str(conn_get_clienttag(c)),conn_get_realmname(c))))
 			{
 			    eventlog(eventlog_level_info,"handle_auth_packet","[%d] character login for \"%s\" refused (account has no charlist)",conn_get_socket(c),charname);
 			    bn_int_set(&rpacket->u.server_charloginreply.reply,0xffffffff); /* FIXME */
@@ -501,7 +502,7 @@ extern int handle_auth_packet(t_connection * c, t_packet const * const packet)
 
 		{
 		    char const * realmname = conn_get_realmname(c);
-		    char const * charlist = account_get_closed_characterlist (conn_get_account(c), conn_get_clienttag(c), realmname);
+		    char const * charlist = account_get_closed_characterlist (conn_get_account(c), clienttag_uint_to_str(conn_get_clienttag(c)), realmname);
 		    char         tempname[32];
 
 		    if (charlist == NULL)
@@ -530,7 +531,7 @@ extern int handle_auth_packet(t_connection * c, t_packet const * const packet)
 				strncpy(tempname, start, name_len);
 				tempname[name_len] = '\0';
 
-				number_of_characters += add_charlistreq_packet(rpacket, conn_get_account(c), conn_get_clienttag(c), realmname, tempname);
+				number_of_characters += add_charlistreq_packet(rpacket, conn_get_account(c), clienttag_uint_to_str(conn_get_clienttag(c)), realmname, tempname);
 
 				start = next_char + 1;
 			    }
@@ -541,7 +542,7 @@ extern int handle_auth_packet(t_connection * c, t_packet const * const packet)
 			strncpy(tempname, start, name_len);
 			tempname[name_len] = '\0';
 
-			number_of_characters += add_charlistreq_packet(rpacket, conn_get_account(c), conn_get_clienttag(c), realmname, tempname);
+			number_of_characters += add_charlistreq_packet(rpacket, conn_get_account(c), clienttag_uint_to_str(conn_get_clienttag(c)), realmname, tempname);
 
 			start = next_char + 1;
 		    }    

@@ -68,6 +68,8 @@
 #include "common/field_sizes.h"
 #include "prefs.h"
 #include "versioncheck.h"
+#include "clienttag.h"
+#include "compat/uint.h"
 #include "common/setup_after.h"
 
 
@@ -76,7 +78,7 @@ static t_versioncheck dummyvc={ "A=42 B=42 C=42 4 A=A^S B=B^B C=C^C A=A^S", "IX8
 
 static int versioncheck_compare_exeinfo(t_parsed_exeinfo * pattern, t_parsed_exeinfo * match);
 
-extern t_versioncheck * versioncheck_create(char const * archtag, char const * clienttag)
+extern t_versioncheck * versioncheck_create(char const * archtag, t_uint32 clienttag)
 {
     t_elem const *   curr;
     t_versioninfo *  vi;
@@ -90,10 +92,10 @@ extern t_versioncheck * versioncheck_create(char const * archtag, char const * c
             continue;
         }
 	
-	eventlog(eventlog_level_debug,"versioncheck_create","version check entry archtag=%s, clienttag=%s",vi->archtag,vi->clienttag);
+	eventlog(eventlog_level_debug,"versioncheck_create","version check entry archtag=%s, clienttag=%s",vi->archtag,clienttag_uint_to_str(vi->clienttag));
 	if (strcmp(vi->archtag,archtag)!=0)
 	    continue;
-	if (strcmp(vi->clienttag,clienttag)!=0)
+	if (vi->clienttag != clienttag)
 	    continue;
 	
 	/* FIXME: randomize the selection if more than one match */
@@ -115,7 +117,7 @@ extern t_versioncheck * versioncheck_create(char const * archtag, char const * c
 	    free(vc);
 	    return &dummyvc;
 	}
-	vc->versiontag = strdup(clienttag);
+	vc->versiontag = strdup(clienttag_uint_to_str(clienttag));
 	
 	return vc;
     }
@@ -387,7 +389,7 @@ void free_parsed_exeinfo(t_parsed_exeinfo * parsed_exeinfo)
   }
 }
 
-extern int versioncheck_validate(t_versioncheck * vc, char const * archtag, char const * clienttag, char const * exeinfo, unsigned long versionid, unsigned long gameversion, unsigned long checksum)
+extern int versioncheck_validate(t_versioncheck * vc, char const * archtag, t_uint32 clienttag, char const * exeinfo, unsigned long versionid, unsigned long gameversion, unsigned long checksum)
 {
     t_elem const     * curr;
     t_versioninfo    * vi;
@@ -416,7 +418,7 @@ extern int versioncheck_validate(t_versioncheck * vc, char const * archtag, char
 	    continue;
 	if (strcmp(vi->archtag,archtag)!=0)
 	    continue;
-	if (strcmp(vi->clienttag,clienttag)!=0)
+	if (vi->clienttag != clienttag)
 	    continue;
 	
 	if (vi->versionid && vi->versionid != versionid)
@@ -650,7 +652,7 @@ extern int versioncheck_load(char const * filename)
 	    free(buff);
 	    continue;
 	}
-	if (!(vi->clienttag = strdup(clienttag)))
+	if (!(vi->clienttag = clienttag_str_to_uint(clienttag)))
 	{
 	    eventlog(eventlog_level_error,"versioncheck_load","could not allocate memory for clienttag");
 	    free((void *)vi->archtag); /* avoid warning */
@@ -667,7 +669,6 @@ extern int versioncheck_load(char const * filename)
 	    if (!(vi->parsed_exeinfo = parse_exeinfo(exeinfo)))
 	    {
 		eventlog(eventlog_level_error,"versioncheck_load","encountered an error while parsing exeinfo");
-		free((void *)vi->clienttag); /* avoid warning */
 		free((void *)vi->archtag); /* avoid warning */
 		free((void *)vi->mpqfile); /* avoid warning */
 		free((void *)vi->eqn); /* avoid warning */
@@ -682,7 +683,6 @@ extern int versioncheck_load(char const * filename)
 	{
 	    eventlog(eventlog_level_error,"versioncheck_load","malformed version on line %u of file \"%s\"",line,filename);
 	    free((void *)vi->parsed_exeinfo); /* avoid warning */
-	    free((void *)vi->clienttag); /* avoid warning */
 	    free((void *)vi->archtag); /* avoid warning */
 	    free((void *)vi->mpqfile); /* avoid warning */
 	    free((void *)vi->eqn); /* avoid warning */
@@ -698,7 +698,6 @@ extern int versioncheck_load(char const * filename)
 	    {
 		eventlog(eventlog_level_error,"versioncheck_load","could not allocate memory for versiontag");
 		free((void *)vi->parsed_exeinfo); /* avoid warning */
-		free((void *)vi->clienttag); /* avoid warning */
 		free((void *)vi->archtag); /* avoid warning */
 		free((void *)vi->mpqfile); /* avoid warning */
 		free((void *)vi->eqn); /* avoid warning */
@@ -718,7 +717,6 @@ extern int versioncheck_load(char const * filename)
 	    if (vi->versiontag)
 	      free((void *)vi->versiontag); /* avoid warning */
 	    free((void *)vi->parsed_exeinfo); /* avoid warning */
-	    free((void *)vi->clienttag); /* avoid warning */
 	    free((void *)vi->archtag); /* avoid warning */
 	    free((void *)vi->mpqfile); /* avoid warning */
 	    free((void *)vi->eqn); /* avoid warning */
@@ -758,7 +756,6 @@ extern int versioncheck_unload(void)
                     free((void *)vi->parsed_exeinfo->exe);
 		free((void *)vi->parsed_exeinfo); /* avoid warning */
             }
-	    free((void *)vi->clienttag); /* avoid warning */
 	    free((void *)vi->archtag); /* avoid warning */
 	    free((void *)vi->mpqfile); /* avoid warning */
 	    free((void *)vi->eqn); /* avoid warning */

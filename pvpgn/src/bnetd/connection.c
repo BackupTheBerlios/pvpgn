@@ -106,6 +106,8 @@
 #include "connection.h"
 #include "topic.h"
 #include "common/fdwatch.h"
+#include "clienttag.h"
+#include "compat/uint.h"
 #include "common/setup_after.h"
 
 
@@ -391,7 +393,7 @@ extern t_connection * conn_create(int tsock, int usock, unsigned int real_local_
     temp->protocol.client.gameversion            = 0;
     temp->protocol.client.checksum               = 0;
     temp->protocol.client.archtag                = NULL;
-    temp->protocol.client.clienttag              = NULL;
+    temp->protocol.client.clienttag              = 0;
     temp->protocol.client.clientver              = NULL;
     temp->protocol.client.gamelang               = 0;
     temp->protocol.client.country                = NULL;
@@ -600,7 +602,7 @@ extern void conn_destroy(t_connection * c)
     clanmember_set_offline(c);
 
     if(c->protocol.account)
-	watchlist_notify_event(c->protocol.account,NULL,conn_get_clienttag(c),watch_event_logout);
+	watchlist_notify_event(c->protocol.account,NULL,c->protocol.client.clienttag,watch_event_logout);
 
     if (c->protocol.client.versioncheck)
 	versioncheck_destroy((void *)c->protocol.client.versioncheck); /* avoid warning */
@@ -617,8 +619,6 @@ extern void conn_destroy(t_connection * c)
     if (c->protocol.chat.tmpVOICE_channel)
 	free((void *)c->protocol.chat.tmpVOICE_channel); /* avoid warning */
     
-    if (c->protocol.client.clienttag)
-	free((void *)c->protocol.client.clienttag); /* avoid warning */
     if (c->protocol.client.archtag)
 	free((void *)c->protocol.client.archtag); /* avoid warning */
     if (c->protocol.client.clientver)
@@ -1261,22 +1261,22 @@ extern void conn_set_gamelang(t_connection * c, unsigned int gamelang)
 }
 
 
-extern char const * conn_get_clienttag(t_connection const * c)
+extern t_uint32 conn_get_clienttag(t_connection const * c)
 {
     if (!c)
     {
         eventlog(eventlog_level_error,"conn_get_clienttag","got NULL connection");
-        return NULL;
+        return CLIENTTAG_UNKNOWN_UINT;
     }
     
     if (c->protocol.class==conn_class_auth && c->protocol.bound)
     {
 	if (!c->protocol.bound->protocol.client.clienttag)
-	    return "UKWN";
+	    return CLIENTTAG_UNKNOWN_UINT;
 	return c->protocol.bound->protocol.client.clienttag;
     }
     if (!c->protocol.client.clienttag)
-	return "UKWN";
+	return CLIENTTAG_UNKNOWN_UINT;
     return c->protocol.client.clienttag;
 }
 
@@ -1296,13 +1296,12 @@ extern char const * conn_get_fake_clienttag(t_connection const * c)
     if (account) /* BITS remote connections don't need to have an account */
 	if ((clienttag = account_get_strattr(account,"BNET\\fakeclienttag")))
 	    return clienttag;
-    return conn_get_clienttag(c);
+    return clienttag_uint_to_str(c->protocol.client.clienttag);
 }
 
 
-extern void conn_set_clienttag(t_connection * c, char const * clienttag)
+extern void conn_set_clienttag(t_connection * c, t_uint32 clienttag)
 {
-    char const * temp;
     int          needrefresh;
     
     if (!c)
@@ -1310,33 +1309,16 @@ extern void conn_set_clienttag(t_connection * c, char const * clienttag)
         eventlog(eventlog_level_error,"conn_set_clienttag","got NULL connection");
         return;
     }
-    if (!clienttag)
-    {
-        eventlog(eventlog_level_error,"conn_set_clienttag","[%d] got NULL clienttag",conn_get_socket(c));
-        return;
-    }
-    if (strlen(clienttag)!=4)
-    {
-        eventlog(eventlog_level_error,"conn_set_clienttag","[%d] got bad clienttag",conn_get_socket(c));
-        return;
-    }
     
-    if (!c->protocol.client.clienttag || strcmp(c->protocol.client.clienttag,clienttag)!=0)
+    if (!c->protocol.client.clienttag || c->protocol.client.clienttag==clienttag)
     {
-	eventlog(eventlog_level_info,"conn_set_clienttag","[%d] setting client type to \"%s\"",conn_get_socket(c),clienttag);
+	eventlog(eventlog_level_info,"conn_set_clienttag","[%d] setting client type to \"%s\"",conn_get_socket(c),clienttag_uint_to_str(clienttag));
 	needrefresh = 1;
     }
     else
 	needrefresh = 0;
     
-    if (!(temp = strdup(clienttag)))
-    {
-	eventlog(eventlog_level_error,"conn_set_clienttag","[%d] unable to allocate memory for clienttag",conn_get_socket(c));
-	return;
-    }
-    if (c->protocol.client.clienttag)
-	free((void *)c->protocol.client.clienttag); /* avoid warning */
-    c->protocol.client.clienttag = temp;
+    c->protocol.client.clienttag = clienttag;
     if (needrefresh && c->protocol.chat.channel)
 	channel_update_flags(c);
 }
@@ -1478,7 +1460,7 @@ extern void conn_set_account(t_connection * c, t_account * account)
     
     account_set_ll_time(c->protocol.account,now);
     account_set_ll_owner(c->protocol.account,c->protocol.client.owner);
-    account_set_ll_clienttag(c->protocol.account,c->protocol.client.clienttag);
+    account_set_ll_clienttag(c->protocol.account,clienttag_uint_to_str(c->protocol.client.clienttag));
     account_set_ll_ip(c->protocol.account,addr_num_to_ip_str(c->socket.tcp_addr));
       
     if (c->protocol.client.host)
@@ -1517,7 +1499,7 @@ extern void conn_set_account(t_connection * c, t_account * account)
 
     totalcount++;
     
-    watchlist_notify_event(c->protocol.account,NULL,conn_get_clienttag(c),watch_event_login);
+    watchlist_notify_event(c->protocol.account,NULL,c->protocol.client.clienttag,watch_event_login);
     
     return;
 }
@@ -1985,9 +1967,9 @@ extern int conn_set_channel(t_connection * c, char const * channelname)
         if(account_get_new_at_team(acc)==1)
 		{
 			int temp;
-			temp = account_get_atteamcount(acc,conn_get_clienttag(c));
+			temp = account_get_atteamcount(acc,clienttag_uint_to_str(c->protocol.client.clienttag));
 			temp = temp-1;
-			account_set_atteamcount(acc,conn_get_clienttag(c),temp);
+			account_set_atteamcount(acc,clienttag_uint_to_str(c->protocol.client.clienttag),temp);
 			account_set_new_at_team(acc,0);
 		}
 
@@ -2125,7 +2107,7 @@ extern int conn_set_game(t_connection * c, char const * gamename, char const * g
 	*/
 	// original code
 	{
-	  c->protocol.game = game_create(gamename,gamepass,gameinfo,type,version,conn_get_clienttag(c),conn_get_gameversion(c));
+	  c->protocol.game = game_create(gamename,gamepass,gameinfo,type,version,clienttag_uint_to_str(c->protocol.client.clienttag),conn_get_gameversion(c));
 	    if (c->protocol.game && conn_get_realmname(c) && conn_get_charname(c))
 	    {
 		game_set_realmname(c->protocol.game,conn_get_realmname(c));
@@ -2677,11 +2659,7 @@ extern int conn_set_playerinfo(t_connection const * c, char const * playerinfo)
 	eventlog(eventlog_level_error,"conn_set_playerinfo","got NULL playerinfo");
 	return -1;
     }
-    if (!(clienttag = conn_get_clienttag(c)))
-    {
-	eventlog(eventlog_level_error,"conn_set_playerinfo","connection has NULL clienttag");
-	return -1;
-    }
+    clienttag = clienttag_uint_to_str(c->protocol.client.clienttag);
     
     if (strcmp(clienttag,CLIENTTAG_DIABLORTL)==0)
     {
@@ -3432,61 +3410,54 @@ extern time_t conn_get_anongame_search_starttime(t_connection * c)
 }
 
 
-extern int conn_get_user_count_by_clienttag(char const * ct)
+extern int conn_get_user_count_by_clienttag(t_uint32 ct)
 {
    t_connection * conn;
    t_elem const * curr;
    int clienttagusers = 0;
    
-   if (ct == NULL) {
-      eventlog(eventlog_level_error, __FUNCTION__, "got NULL clienttag");
-      return 0;
-   }
-   
    /* Get Number of Users for client tag specific */
    LIST_TRAVERSE_CONST(connlist(),curr)
      {
 	conn = elem_get_data(curr);
-	if(strcmp(ct, conn_get_clienttag(conn)) == 0)
+	if (ct == conn->protocol.client.clienttag)
 	  clienttagusers++;
      }
 
    return clienttagusers;
 }
 
-extern char const * conn_get_user_game_title(char const * ct)
+extern char const * conn_get_user_game_title(t_uint32 ct)
 {
-   if (ct == NULL) {
-      eventlog(eventlog_level_error, __FUNCTION__, "got NULL clienttag");
-      return "Unknown";
+   switch (ct)
+   {
+      case CLIENTTAG_WAR3XP_UINT:
+	return "Warcraft III Frozen Throne";
+      case CLIENTTAG_WARCRAFT3_UINT:
+	return "Warcraft III";
+      case CLIENTTAG_DIABLO2XP_UINT:
+     	return "Diablo II Lord of Destruction";
+      case CLIENTTAG_DIABLO2DV_UINT:
+     	return "Diablo II";
+      case CLIENTTAG_STARJAPAN_UINT:
+     	return "Starcraft (Japan)";
+      case CLIENTTAG_WARCIIBNE_UINT:
+     	return "Warcraft II";
+      case CLIENTTAG_DIABLOSHR_UINT:
+     	return "Diablo I (Shareware)";
+      case CLIENTTAG_DIABLORTL_UINT:
+     	return "Diablo I";
+      case CLIENTTAG_SHAREWARE_UINT:
+     	return "Starcraft (Shareware)";
+      case CLIENTTAG_BROODWARS_UINT:
+     	return "Starcraft: BroodWars";
+      case CLIENTTAG_STARCRAFT_UINT:
+     	return "Starcraft";
+      case CLIENTTAG_BNCHATBOT_UINT:
+     	return "Chat";
+      default:
+     	return "Unknown";
    }
-   
-   if(strcmp(ct,CLIENTTAG_WAR3XP)==0)
-     return "Warcraft III Frozen Throne";
-   else if(strcmp(ct,CLIENTTAG_WARCRAFT3)==0)
-     return "Warcraft III";
-   else if(strcmp(ct,CLIENTTAG_DIABLO2XP)==0)
-     return "Diablo II Lord of Destruction";
-   else if(strcmp(ct,CLIENTTAG_DIABLO2DV)==0)
-     return "Diablo II";
-   else if(strcmp(ct,CLIENTTAG_STARJAPAN)==0)
-     return "Starcraft (Japan)";
-   else if(strcmp(ct,CLIENTTAG_WARCIIBNE)==0)
-     return "Warcraft II";
-   else if(strcmp(ct,CLIENTTAG_DIABLOSHR)==0)
-     return "Diablo I (Shareware)";
-   else if(strcmp(ct,CLIENTTAG_DIABLORTL)==0)
-     return "Diablo I";
-   else if(strcmp(ct,CLIENTTAG_SHAREWARE)==0)
-     return "Starcraft (Shareware)";
-   else if(strcmp(ct,CLIENTTAG_BROODWARS)==0)
-     return "Starcraft: BroodWars";
-   else if(strcmp(ct,CLIENTTAG_STARCRAFT)==0)
-     return "Starcraft";
-   else if(strcmp(ct,CLIENTTAG_BNCHATBOT)==0)
-     return "Chat";
-   else
-     return "Unknown";
 }
 
 //NO LONGER USED - WAS FOR WHEN WE DIDNT HAVE PASSWORDS AT LOGIN - THEUNDYING
@@ -3812,7 +3783,7 @@ extern int conn_update_w3_playerinfo(t_connection * c)
     strncpy(revtag, conn_get_fake_clienttag(c),5); revtag[4] = '\0';
     strreverse(revtag);
 
-    clienttag = conn_get_clienttag(c);
+    clienttag = clienttag_uint_to_str(c->protocol.client.clienttag);
 
     acctlevel = account_get_highestladderlevel(account,clienttag);
     account_get_raceicon(account, &raceicon, &raceiconnumber, &wins, clienttag);

@@ -67,6 +67,7 @@
 #include "irc.h"
 #include "message.h"
 #include "prefs.h"
+#include "clienttag.h"
 #include "common/setup_after.h"
 #include "common/tag.h"
 
@@ -200,7 +201,7 @@ extern char * message_format_line(t_connection const * c, char const * in)
 		break;
 		
 	    case 't':
-		sprintf(&out[outpos],"%s",conn_get_clienttag(c));
+		sprintf(&out[outpos],"%s",clienttag_uint_to_str(conn_get_clienttag(c)));
 		outpos += strlen(&out[outpos]);
 		break;
 		
@@ -227,7 +228,7 @@ extern char * message_format_line(t_connection const * c, char const * in)
 		break;
 
 	    case 'G':
-	    	sprintf(&out[outpos],"%d",game_get_count_by_clienttag(conn_get_clienttag(c)));
+	    	sprintf(&out[outpos],"%d",game_get_count_by_clienttag(clienttag_uint_to_str(conn_get_clienttag(c))));
 		outpos += strlen(&out[outpos]);
 		break;
 		
@@ -1126,7 +1127,7 @@ static int message_bnet_format(t_packet * packet, t_message_type type, t_connect
 	    tname = conn_get_chatcharname(me, dst);
 	    packet_append_string(packet,tname);
 	    conn_unget_chatcharname(me,tname);
-	    if ( strcmp(conn_get_clienttag(me),CLIENTTAG_WARCRAFT3) == 0 || strcmp(conn_get_clienttag(me),CLIENTTAG_WAR3XP) == 0 )
+	    if ((conn_get_clienttag(me) == CLIENTTAG_WARCRAFT3_UINT) || (conn_get_clienttag(me) == CLIENTTAG_WAR3XP_UINT))
 		playerinfo = conn_get_w3_playerinfo(me);
 	    else playerinfo = conn_get_playerinfo(me);
 	    
@@ -1151,7 +1152,7 @@ static int message_bnet_format(t_packet * packet, t_message_type type, t_connect
 	    packet_append_string(packet,tname);
 	    conn_unget_chatcharname(me,tname);
 	    
-	    if ( strcmp(conn_get_clienttag(me),CLIENTTAG_WARCRAFT3) == 0 || strcmp(conn_get_clienttag(me),CLIENTTAG_WAR3XP) == 0 )
+	    if ((conn_get_clienttag(me) == CLIENTTAG_WARCRAFT3_UINT) || (conn_get_clienttag(me) == CLIENTTAG_WAR3XP_UINT))
 		playerinfo = conn_get_w3_playerinfo(me);
 	    else playerinfo = conn_get_playerinfo(me);
 	    
@@ -1293,7 +1294,7 @@ static int message_bnet_format(t_packet * packet, t_message_type type, t_connect
 	    tname = conn_get_chatcharname(me, dst);
 	    packet_append_string(packet,tname);
 	    conn_unget_chatcharname(me,tname);
-	    if ( strcmp(conn_get_clienttag(me),CLIENTTAG_WARCRAFT3) == 0 || strcmp(conn_get_clienttag(me),CLIENTTAG_WAR3XP) == 0 )
+	    if ((conn_get_clienttag(me) == CLIENTTAG_WARCRAFT3_UINT) || (conn_get_clienttag(me) == CLIENTTAG_WAR3XP_UINT))
 		playerinfo = conn_get_w3_playerinfo(me);
 	    else playerinfo = conn_get_playerinfo(me);
 	    

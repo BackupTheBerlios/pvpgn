@@ -78,6 +78,8 @@
 #include "channel.h"
 #include "anongame.h"
 #include "storage.h"
+#include "clienttag.h"
+#include "compat/uint.h"
 #include "common/setup_after.h"
 
 static t_list *clanlist_head = NULL;
@@ -121,8 +123,8 @@ extern int clan_send_packet_to_online_members(t_clan * clan, t_packet * packet)
     LIST_TRAVERSE(clan->members, curr)
     {
 	t_clanmember *member;
-	char const *clienttag;
-	if ((member = elem_get_data(curr)) && (member->memberconn) && (clienttag = conn_get_clienttag(member->memberconn)) && ((strcasecmp(clienttag, CLIENTTAG_WARCRAFT3) == 0) || (strcasecmp(clienttag, CLIENTTAG_WAR3XP) == 0)))
+	t_uint32 clienttag;
+	if ((member = elem_get_data(curr)) && (member->memberconn) && (clienttag = conn_get_clienttag(member->memberconn)) && ((clienttag ==  CLIENTTAG_WARCRAFT3_UINT ) || (clienttag == CLIENTTAG_WAR3XP_UINT)))
 	    conn_push_outqueue(member->memberconn, packet);
     }
 
@@ -152,8 +154,8 @@ extern int clan_send_status_window_on_create(t_clan * clan)
 	LIST_TRAVERSE(clan->members, curr)
 	{
 	    t_clanmember *member;
-	    char const *clienttag;
-	    if ((member = elem_get_data(curr)) && member->memberconn && (clienttag = conn_get_clienttag(member->memberconn)) && ((strcasecmp(clienttag, CLIENTTAG_WARCRAFT3) == 0) || (strcasecmp(clienttag, CLIENTTAG_WAR3XP) == 0)))
+	    t_uint32 clienttag;
+	    if ((member = elem_get_data(curr)) && member->memberconn && (clienttag = conn_get_clienttag(member->memberconn)) && ((clienttag == CLIENTTAG_WARCRAFT3_UINT) || (clienttag == CLIENTTAG_WAR3XP_UINT)))
 	    {
 		if (conn_get_channel(member->memberconn))
 		{
@@ -190,8 +192,8 @@ extern int clan_close_status_window_on_disband(t_clan * clan)
 	LIST_TRAVERSE(clan->members, curr)
 	{
 	    t_clanmember *member;
-	    char const *clienttag;
-	    if ((member = elem_get_data(curr)) && member->memberconn && (clienttag = conn_get_clienttag(member->memberconn)) && ((strcasecmp(clienttag, CLIENTTAG_WARCRAFT3) == 0) || (strcasecmp(clienttag, CLIENTTAG_WAR3XP) == 0)))
+	    t_uint32 clienttag;
+	    if ((member = elem_get_data(curr)) && member->memberconn && (clienttag = conn_get_clienttag(member->memberconn)) && ((clienttag == CLIENTTAG_WARCRAFT3_UINT) || (clienttag ==  CLIENTTAG_WAR3XP_UINT) ))
 	    {
 		conn_push_outqueue(member->memberconn, rpacket);
 		conn_update_w3_playerinfo(member->memberconn);
@@ -209,12 +211,12 @@ extern int clan_send_status_window(t_connection * c)
     t_packet * rpacket;
     t_account *acc = conn_get_account(c);
     t_clanmember *member;
-    char const *clienttag;
+    t_uint32 clienttag;
 
     if (acc == NULL)
 	return 0;
 
-    if ((member = account_get_clanmember(acc)) && member->clan && (member->clan->clantag) && (clienttag = conn_get_clienttag(c)) && ((strcasecmp(clienttag, CLIENTTAG_WARCRAFT3) == 0) || (strcasecmp(clienttag, CLIENTTAG_WAR3XP) == 0)))
+    if ((member = account_get_clanmember(acc)) && member->clan && (member->clan->clantag) && (clienttag = conn_get_clienttag(c)) && ((clienttag == CLIENTTAG_WARCRAFT3_UINT) || (clienttag == CLIENTTAG_WAR3XP_UINT)))
     {
 	if ((rpacket = packet_create(packet_class_bnet)) != NULL)
 	{
@@ -233,9 +235,9 @@ extern int clan_send_status_window(t_connection * c)
 extern int clan_close_status_window(t_connection * c)
 {
     t_packet * rpacket;
-    char const *clienttag;
+    t_uint32 clienttag;
 
-    if ((clienttag = conn_get_clienttag(c)) && ((strcasecmp(clienttag, CLIENTTAG_WARCRAFT3) == 0) || (strcasecmp(clienttag, CLIENTTAG_WAR3XP) == 0)) && ((rpacket = packet_create(packet_class_bnet)) != NULL))
+    if ((clienttag = conn_get_clienttag(c)) && ((clienttag == CLIENTTAG_WARCRAFT3_UINT) || (clienttag == CLIENTTAG_WAR3XP_UINT)) && ((rpacket = packet_create(packet_class_bnet)) != NULL))
     {
 	packet_set_size(rpacket, sizeof(t_server_w3xp_clan_clanleaveack));
 	packet_set_type(rpacket, SERVER_W3XP_CLAN_CLANLEAVEACK);
@@ -401,8 +403,8 @@ extern int clan_get_possible_member(t_connection * c, t_packet const *const pack
 	    if ((fr = elem_get_data(curr)) != NULL)
 	    {
 		t_account *fr_acc = friend_get_account(fr);
-		char const *clienttag;
-		if (fr->mutual && ((conn = connlist_find_connection_by_account(fr_acc)) != NULL) && (conn_get_channel(conn) == channel) && (!account_get_clan(fr_acc)) && (!account_get_creating_clan(fr_acc)) && (clienttag = conn_get_clienttag(conn)) && ((strcasecmp(clienttag, CLIENTTAG_WAR3XP) == 0) || (strcasecmp(clienttag, CLIENTTAG_WARCRAFT3) == 0)) && (username = account_get_name(fr_acc)))
+		t_uint32 clienttag;
+		if (fr->mutual && ((conn = connlist_find_connection_by_account(fr_acc)) != NULL) && (conn_get_channel(conn) == channel) && (!account_get_clan(fr_acc)) && (!account_get_creating_clan(fr_acc)) && (clienttag = conn_get_clienttag(conn)) && ((clienttag == CLIENTTAG_WAR3XP_UINT) || (clienttag ==  CLIENTTAG_WARCRAFT3_UINT)) && (username = account_get_name(fr_acc)))
 		{
 		    friend_count++;
 		    packet_append_string(rpacket, username);

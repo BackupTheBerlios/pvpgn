@@ -43,6 +43,8 @@
 #include "message.h"
 #include "watch.h"
 #include "friends.h"
+#include "clienttag.h"
+#include "compat/uint.h"
 #include "common/setup_after.h"
 
 
@@ -54,12 +56,18 @@ extern int watchlist_add_events(t_connection * owner, t_account * who, char cons
 {
     t_elem const * curr;
     t_watch_pair * pair;
+    t_uint32	   ctag;
     
     if (!owner)
     {
 	eventlog(eventlog_level_error,"watchlist_add_events","got NULL owner");
 	return -1;
     }
+
+    if (clienttag)
+        ctag = clienttag_str_to_uint(clienttag);
+    else
+        ctag = 0;
     
     LIST_TRAVERSE_CONST(watchlist_head,curr)
     {
@@ -69,7 +77,7 @@ extern int watchlist_add_events(t_connection * owner, t_account * who, char cons
 	    eventlog(eventlog_level_error,"watchlist_add_events","watchlist contains NULL item");
 	    return -1;
 	}
-	if (pair->owner==owner && pair->who==who && ((clienttag == NULL && strlen(pair->clienttag) == 0) || ((clienttag != NULL) && (strcasecmp(pair->clienttag, clienttag)==0))))
+	if (pair->owner==owner && pair->who==who && ((ctag == pair->clienttag)))
 	{
 	    pair->what |= events;
 	    return 0;
@@ -82,13 +90,10 @@ extern int watchlist_add_events(t_connection * owner, t_account * who, char cons
 	return -1;
     }
 
-	if(clienttag)
-		strcpy(pair->clienttag, clienttag);
-	else
-		strcpy(pair->clienttag, "");
     pair->owner = owner;
     pair->who   = who;
     pair->what  = events;
+    pair->clienttag = ctag;
     
     if (list_prepend_data(watchlist_head,pair)<0)
     {
@@ -106,12 +111,18 @@ extern int watchlist_del_events(t_connection * owner, t_account * who, char cons
 {
     t_elem *       curr;
     t_watch_pair * pair;
+    t_uint32       ctag;
     
     if (!owner)
     {
 	eventlog(eventlog_level_error,"watchlist_del_events","got NULL owner");
 	return -1;
     }
+    
+    if (clienttag)
+        ctag = clienttag_str_to_uint(clienttag);
+    else
+        ctag = 0;
     
     LIST_TRAVERSE(watchlist_head,curr)
     {
@@ -121,7 +132,7 @@ extern int watchlist_del_events(t_connection * owner, t_account * who, char cons
 	    eventlog(eventlog_level_error,"watchlist_del_events","watchlist contains NULL item");
 	    return -1;
 	}
-	if (pair->owner==owner && pair->who==who && (clienttag == NULL || strcasecmp(clienttag, pair->clienttag) == 0))
+	if (pair->owner==owner && pair->who==who && ((!ctag) || (ctag == pair->clienttag)))
 	{
 	    pair->what &= ~events;
 	    if (pair->what==0)
@@ -219,7 +230,7 @@ extern int watchlist_del_by_account(t_account * who)
     return 0;
 }
 
-static int handle_event_whisper(t_account *account, char const *gamename, char const * clienttag, t_watch_event event)
+static int handle_event_whisper(t_account *account, char const *gamename, t_uint32 clienttag, t_watch_event event)
 {
     t_elem const * curr;
     t_watch_pair * pair;
@@ -303,14 +314,14 @@ static int handle_event_whisper(t_account *account, char const *gamename, char c
 	  eventlog(eventlog_level_error,"watchlist_notify_event","watchlist contains NULL item");
 	  return -1;
 	}
-	if (pair->owner && (!pair->who || pair->who==account) && (strlen(pair->clienttag) == 0 || (clienttag && strcasecmp(pair->clienttag, clienttag)==0)) && (pair->what&event))
+	if (pair->owner && (!pair->who || pair->who==account) && ((!pair->clienttag) || (clienttag == pair->clienttag)) && (pair->what&event))
 	message_send_text(pair->owner,message_type_info,pair->owner,msg);
     }
   
     return 0;
 }
 
-extern int watchlist_notify_event(t_account * who, char const * gamename, char const * clienttag, t_watch_event event)
+extern int watchlist_notify_event(t_account * who, char const * gamename, t_uint32 clienttag, t_watch_event event)
 {
 
     switch (event)

@@ -76,6 +76,8 @@
 #include "watch.h"
 #include "game_conv.h"
 #include "game.h"
+#include "clienttag.h"
+#include "compat/uint.h"
 #include "common/setup_after.h"
 
 static t_list * gamelist_head=NULL;
@@ -1548,7 +1550,7 @@ extern int game_add_player(t_game * game, char const * pass, int startver, t_con
 	eventlog(eventlog_level_error,"game_add_player","got NULL connection");
         return -1;
     }
-    if (game->type==game_type_ladder && account_get_normal_wins(conn_get_account(c),conn_get_clienttag(c))<10)
+    if (game->type==game_type_ladder && account_get_normal_wins(conn_get_account(c),clienttag_uint_to_str(conn_get_clienttag(c)))<10)
     /* if () ... */
     {
 	eventlog(eventlog_level_error,"game_add_player","can not join ladder game without 10 normal wins");

@@ -50,6 +50,7 @@
 #include "handle_anongame.h"
 #include "tournament.h"
 #include "clan.h"
+#include "clienttag.h"
 #include "common/setup_after.h"
 
 /* option - handling function */
@@ -167,7 +168,7 @@ static int _client_anongame_profile(t_connection * c, t_packet const * const pac
 	if (!(ctag = account_get_ll_clienttag(account))) return -1;
     }
     else
-    ctag = conn_get_clienttag(dest_c);
+    ctag = clienttag_uint_to_str(conn_get_clienttag(dest_c));
 
     eventlog(eventlog_level_info,__FUNCTION__,"Looking up %s's %s Stats.",username,ctag);
 
@@ -524,7 +525,7 @@ static int _client_anongame_get_icon(t_connection * c, t_packet const * const pa
         char user_icon[5];
         char const * uicon;
 
-	clienttag = conn_get_clienttag(c);
+	clienttag = clienttag_uint_to_str(conn_get_clienttag(c));
 	acc = conn_get_account(c);
 	/* WAR3 uses a different table size, might change if blizzard add tournament support to RoC */
 	if (strcmp(clienttag,CLIENTTAG_WARCRAFT3)==0) {
@@ -614,7 +615,7 @@ static int _client_anongame_set_icon(t_connection * c, t_packet const * const pa
 	eventlog(eventlog_level_info,__FUNCTION__,"[%d] Set icon packet to ICON [%s]",conn_get_socket(c),user_icon);
     }
     
-    account_set_user_icon(conn_get_account(c),conn_get_clienttag(c),user_icon);
+    account_set_user_icon(conn_get_account(c),clienttag_uint_to_str(conn_get_clienttag(c)),user_icon);
     //FIXME: Still need a way to 'refresh the user/channel' 
     //_handle_rejoin_command(conn_get_account(c),""); 
     /* ??? channel_update_flags() */
@@ -656,7 +657,7 @@ static int _client_anongame_infos(t_connection * c, t_packet const * const packe
 	char noitems;
 	char * tmpdata;
 	int tmplen;
-	char const * clienttag	= conn_get_clienttag(c);
+	char const * clienttag	= clienttag_uint_to_str(conn_get_clienttag(c));
 	
 	char last_packet		= 0x00;
 	char other_packet		= 0x01;
@@ -764,7 +765,7 @@ static int _client_anongame_tournament(t_connection * c, t_packet const * const 
     t_packet * rpacket;
     
     t_account * account = conn_get_account(c);
-    char const * clienttag = conn_get_clienttag(c);
+    char const * clienttag = clienttag_uint_to_str(conn_get_clienttag(c));
     
     unsigned int now		= time(NULL);
     unsigned int start_prelim	= tournament_get_start_preliminary();

@@ -48,6 +48,7 @@
 #include "common/list.h"
 #include "common/proginfo.h"
 #include "compat/strerror.h"
+#include "clienttag.h"
 
 char * status_filename;
 
@@ -98,7 +99,7 @@ int output_standard_writer(FILE * fp)
 	    if (conn_get_account(conn))
 	    {
 		tname = conn_get_username(conn);
-		fprintf(fp,"\t\t<user><name>%s</name><clienttag>%s</clienttag><version>%s</version></user>\n",tname,conn_get_clienttag(conn),vernum_to_verstr(conn_get_gameversion(conn)));
+		fprintf(fp,"\t\t<user><name>%s</name><clienttag>%s</clienttag><version>%s</version></user>\n",tname,clienttag_uint_to_str(conn_get_clienttag(conn)),vernum_to_verstr(conn_get_gameversion(conn)));
 		conn_unget_username(conn,tname);
 	    }
         }
@@ -172,7 +173,7 @@ int output_standard_writer(FILE * fp)
     	    if (conn_get_account(conn))
 	    {
 		tname = conn_get_username(conn);
-		fprintf(fp,"user%d=%s,%s\n",number,conn_get_clienttag(conn),tname);
+		fprintf(fp,"user%d=%s,%s\n",number,clienttag_uint_to_str(conn_get_clienttag(conn)),tname);
 		conn_unget_username(conn,tname);
 		number++;
 	    }

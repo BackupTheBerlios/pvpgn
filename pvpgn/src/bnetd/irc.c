@@ -70,6 +70,7 @@
 #include "message.h"
 #include "command_groups.h"
 #include "common/util.h"
+#include "clienttag.h"
 #include "common/setup_after.h"
 
 typedef struct {
@@ -312,7 +313,7 @@ extern int irc_authenticate(t_connection * conn, char const * passhash)
             conn_unget_username(conn,tempname);
             conn_set_state(conn,conn_state_loggedin);
 	    /* FIXME: set clienttag to "ircd" or something (and make an icon) */
-            conn_set_clienttag(conn,CLIENTTAG_BNCHATBOT); /* CHAT hope here is ok */
+            conn_set_clienttag(conn,CLIENTTAG_BNCHATBOT_UINT); /* CHAT hope here is ok */
             irc_send_cmd(conn,"NOTICE",":Authentication successful. You are now logged in.");
 	    return 1;
         } else {
@@ -772,6 +773,7 @@ extern int irc_message_postformat(t_packet * packet, t_connection const * dest)
 extern int irc_message_format(t_packet * packet, t_message_type type, t_connection * me, t_connection * dst, char const * text, unsigned int dstflags)
 {
     char * msg;
+    char const * ctag;
     t_irc_message_from from;
     
     if (!packet)
@@ -781,6 +783,7 @@ extern int irc_message_format(t_packet * packet, t_message_type type, t_connecti
     }
 
     msg = NULL;
+    ctag = clienttag_uint_to_str(conn_get_clienttag(me));
         
     switch (type)
     {
@@ -790,14 +793,14 @@ extern int irc_message_format(t_packet * packet, t_message_type type, t_connecti
 		break;
     case message_type_join:
     	from.nick = conn_get_chatname(me);
-    	from.user = conn_get_clienttag(me);
+    	from.user = ctag;
     	from.host = addr_num_to_ip_str(conn_get_addr(me));
     	msg = irc_message_preformat(&from,"JOIN","\r",irc_convert_channel(conn_get_channel(me)));
     	conn_unget_chatname(me,from.nick);
     	break;
     case message_type_part:
     	from.nick = conn_get_chatname(me);
-    	from.user = conn_get_clienttag(me);
+    	from.user = ctag;
     	from.host = addr_num_to_ip_str(conn_get_addr(me));
     	msg = irc_message_preformat(&from,"PART","\r",irc_convert_channel(conn_get_channel(me)));
     	conn_unget_chatname(me,from.nick);
@@ -808,7 +811,7 @@ extern int irc_message_format(t_packet * packet, t_message_type type, t_connecti
     	    char const * dest;
 	    char temp[MAX_IRC_MESSAGE_LEN];
     	    from.nick = conn_get_chatname(me);
-            from.user = conn_get_clienttag(me);
+            from.user = ctag;
     	    from.host = addr_num_to_ip_str(conn_get_addr(me));
     	    if (type==message_type_talk)
     	    	dest = irc_convert_channel(conn_get_channel(me)); /* FIXME: support more channels and choose right one! */
@@ -831,7 +834,7 @@ extern int irc_message_format(t_packet * packet, t_message_type type, t_connecti
 		sprintf(temp,":\001ACTION (maximum message length exceeded)\001");
 	    }
     	    from.nick = conn_get_chatname(me);
-            from.user = conn_get_clienttag(me);
+            from.user = ctag;
     	    from.host = addr_num_to_ip_str(conn_get_addr(me));
     	    /* FIXME: also supports whisper emotes? */
     	    dest = irc_convert_channel(conn_get_channel(me)); /* FIXME: support more channels and choose right one! */
@@ -853,7 +856,7 @@ extern int irc_message_format(t_packet * packet, t_message_type type, t_connecti
 	break;
     case message_type_mode:
 	from.nick = conn_get_chatname(me);
-	from.user = conn_get_clienttag(me);
+	from.user = ctag;
 	from.host = addr_num_to_ip_str(conn_get_addr(me));
 	msg = irc_message_preformat(&from,"MODE","\r",text);
 	conn_unget_chatname(me,from.nick);
@@ -946,7 +949,7 @@ static int irc_who_connection(t_connection * dest, t_connection * c)
 	return -1;
     }
     a = conn_get_account(c);
-    if (!(tempuser = conn_get_clienttag(c)))
+    if (!(tempuser = clienttag_uint_to_str(conn_get_clienttag(c))))
     {
 	eventlog(eventlog_level_error,__FUNCTION__,"got NULL clienttag (tempuser)");
 	return -1;

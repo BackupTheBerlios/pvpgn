@@ -43,6 +43,7 @@
 #include "common/util.h"
 #include "common/field_sizes.h"
 #include "handle_d2cs.h"
+#include "clienttag.h"
 #include "common/setup_after.h"
 
 static int on_d2cs_accountloginreq(t_connection * c, t_packet const * packet);
@@ -270,7 +271,7 @@ static int on_d2cs_charloginreq(t_connection * c, t_packet const * packet)
 	if (!(client=connlist_find_connection_by_sessionnum(sessionnum))) {
 		eventlog(eventlog_level_error,"on_d2cs_charloginreq","user %d not found",sessionnum);
 		reply = BNETD_D2CS_CHARLOGINREPLY_FAILED;
-	} else if (!(clienttag=conn_get_clienttag(client))) {
+	} else if (!(clienttag=clienttag_uint_to_str(conn_get_clienttag(client)))) {
 		eventlog(eventlog_level_error,"on_d2cs_charloginreq","got NULL clienttag");
 		reply = BNETD_D2CS_CHARLOGINREPLY_FAILED;
 	} else if (!(realmname=conn_get_realmname(client))) {
