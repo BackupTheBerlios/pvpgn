@@ -138,12 +138,12 @@ static void d2gs_send_server_conffile(t_d2gs *gs, t_connection *c)
 	/* get file size */
 	if (fseek(fp, 0L, SEEK_END)) {
 		fclose(fp);
-		eventlog(eventlog_level_debug,__FUNCTION__,"failed fseek(), %d", errno);
+		eventlog(eventlog_level_debug,__FUNCTION__,"failed fseek()");
 		return;
 	}
 	if ((size = ftell(fp)) <= 0) {
 		fclose(fp);
-		eventlog(eventlog_level_error,__FUNCTION__,"failed ftell(), %d", errno);
+		eventlog(eventlog_level_error,__FUNCTION__,"failed ftell()");
 		return;
 	}
 	fseek(fp, 0L, SEEK_SET);
@@ -157,7 +157,7 @@ static void d2gs_send_server_conffile(t_d2gs *gs, t_connection *c)
 	if (fread(confs, size, 1, fp) != 1) {
 		fclose(fp);
 		free(confs);
-		eventlog(eventlog_level_error,__FUNCTION__,"failed fread(), %d", errno);
+		eventlog(eventlog_level_error,__FUNCTION__,"failed fread()");
 		return;
 	}
 	fclose(fp);
