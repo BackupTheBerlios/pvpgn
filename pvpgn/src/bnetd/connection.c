@@ -112,6 +112,7 @@
 #include "common/field_sizes.h"
 #include "anongame.h"
 #include "connection.h"
+#include "topic.h"
 #include "common/setup_after.h"
 
 
