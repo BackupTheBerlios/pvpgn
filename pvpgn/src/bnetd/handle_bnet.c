@@ -2916,6 +2916,11 @@ static int _client_findanongame(t_connection * c, t_packet const * const packet)
 	     packet_append_data(rpacket,&temp,4);
 	     //end of normal stats - Start of AT stats
 	     temp=account_get_atteamcount(account);
+				if (account_get_atteammembers(account, temp) == NULL && temp > 0) {
+					temp = temp - 1;
+					eventlog(eventlog_level_error, "handle_bnet_packet", "teammembers is NULL : Decrease atteamcount of 1 !");
+					account_set_atteamcount(account,temp);
+				}
 	     if (temp > 6) temp = 6; //byte (num of AT teams) 
 	     
 	     packet_append_data(rpacket,&temp,1); 
