@@ -106,11 +106,12 @@ tosfile = "tos.txt"
 # than 109.  Starting with version 109 the clients will always do version
 # checking since they do not function properly if the server does not
 # request it.
-skip_versioncheck = true
+skip_versioncheck = false
 
 # If you enable the version checks but want to allow clients that don't pass
 # the checksum test then enable this.
 allow_bad_version = false
+# Required for War3 patch! [-- NonReal: No longer required]
 
 # If you enable the version checks but want to allow clients that aren't
 # listed in the versioncheck configuration file then enable this.  Unless
@@ -125,13 +126,13 @@ allow_unknown_version = true
 # autoupdate) sometimes caused filetimes which differed by just some
 # seconds. Thus, you can now choose between exact match [exact], exact
 # case-sensitive match [exactcase], dumb wildcard match [wildcard], and
-# parsed value comparison [parse]. NOTE: [parse] needs the mktime()    
+# parsed value comparison [parse]. NOTE: [parse] needs the mktime() 
 # function and might therefore not work on every system. 
 version_exeinfo_match = parse
 
 # If you have choosen [parse] above, this is the tolerance with which
 # the time can differ. The value must be given in seconds. 
-version_exeinfo_maxdiff = 3600 
+version_exeinfo_maxdiff = 3600
 
 #                                                                            #
 ##############################################################################
@@ -142,25 +143,25 @@ version_exeinfo_maxdiff = 3600
 #----------------------------------------------------------------------------#
 
 # Time in seconds between account file updates, 0 means wait forever.
-usersync  = 30
+usersync  = 300
 # Number of seconds of inactivity before file is unloaded from memory.
 # (only checked during account file updates)
-userflush = 300
+userflush = 1200
 
 # How often to send user latency tests in seconds.
-latency = 120
+latency = 10
 
 # How often to send null or keepalive packets in seconds.
-nullmsg = 60
+nullmsg = 120
 
 # Amount of time to delay shutting down server in seconds.
-shutdown_delay = 60
+shutdown_delay = 300
 # Amount of time delay period is decremented by either a SIGTERM or SIGINT
 # (control-c) signal in seconds.
 shutdown_decr = 60
 
 # How often should bans be checked for expiration? (in seconds)
-ipban_check_int = 600
+#ipban_check_int = 30
 
 #                                                                            #
 ##############################################################################
@@ -180,8 +181,9 @@ new_accounts = true
 
 # If someone attempts to log in more than once, should it kick off the old
 # login, or deny the new one?
-#kick_old_login = true
-kick_old_login = false
+kick_old_login = true
+#kick_old_login = false
+# With no passwords, this is bad to have enabled --NonReal
 
 # If a user is creating a new channel, should it be added automatically, or
 # prompt them first?
@@ -210,14 +212,14 @@ extra_commands = true
 
 # Should any and all disconnects to be counted as losses?
 # (Turning this on will override the user's choice in ladder games!)
-disc_is_loss = true
+disc_is_loss = false
 
 # Should all users be able to use the /con and /connections commands?
-enable_conn_all = false
+enable_conn_all = true
 
 # Should client IP addresses (from /con, /games, /gameinfo, /netinfo)
 # be hidden from non-admins?
-hide_addr = true
+hide_addr = false
 
 # Should private channel messages be logged to files in the chanlogdir
 # directory? (see channels.list for public channels)
@@ -266,7 +268,7 @@ savebyname = true
 
 # How man rows should the account lookup hash table have?  Servers with
 # more accounts should use a larger table for better performance.
-hashtable_size = 127
+hashtable_size = 61
 
 # don't keep track of al the not yet needed accounting infos like
 # lastlogin_owner or lastlogin_clientexe
@@ -294,12 +296,15 @@ account_allowed_symbols = "-_[]"
 
 # Set track=0 to disable tracking.  Any other number will set number
 # of seconds between sending tracking packets. This is OFF by default.
-track = 600
-#track = 600 = 10 minutes
+#track = 0
+track = 60
+# 10 minutes
 
 # Tracking server(s)
 # Use a comma delimited list of hostnames with optional UDP port numbers
 # after colons. (port 6114 is the default for the newer tracking protocol)
+#trackaddrs = "track.bnetd.org,localhost:9999"
+#trackaddrs = "track.bnetd.org"
 trackaddrs = "12.110.173.232"
 
 # Change these to match your system, for example:
@@ -319,7 +324,7 @@ contact_email = "unknown"
 
 # Set this option to true to allow TCP to detect and close stale
 # connections.
-use_keepalive = true
+use_keepalive = false
 
 # This is a comma delimited list of hostnames that the server should
 # listen on.  It might be useful to make an internal-only server on a
@@ -340,18 +345,19 @@ use_keepalive = true
 # basis.
 #udptest_port = 6112
 
-#added by zap-zero:
+
+# added by zap-zero:
 # W3 Play Game router address. Just put your server address in here.
 # It's needed to tell clients where to connect to init anonymous games.
-# change it, or clients will get "Error handling the request"!
+# Change it, or clients will get "Error handling the request"!
 w3routeaddr = "127.0.0.1:6200"
 
-# This is the w3route adress to show to clients If not specified it uses
-# the w3routeaddr from above. But if specified it will be send to clients
-# as w3route addr to connect to, that is the client will try to connect
-# to this address. Use it for server behind NAT gw setups ans stuff. If you
-# don't know what you are doing just don't touch it.
-#w3routeshow = "Your External IP here:6200"
+# This is the w3route address to show to clients. If not specified it uses
+# the w3routeaddr from above. But if specified it will be sent to clients
+# as the w3route addr to connect to, that is the clients will try to connect
+# to this address. Use it for server behind NAT gw setups and stuff. If you
+# dont know what your are doing just dont touch it.
+#w3routeshow = "127.0.0.1:6200"
 
 #                                                                            #
 ##############################################################################
