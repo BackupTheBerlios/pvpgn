@@ -850,6 +850,11 @@ Also, what is the upper player limit on WCII... 8 like on Starcraft?
 	eventlog(eventlog_level_error,"game_parse_info","NULL clienttag for game?");
 	return -1;
     }
+
+    // aaron:
+    // just preset a value so we don't get "read from uninitialised value" 
+    // when someone uses /gameinfo on non-Diablo2 game...
+    game_set_difficulty(game,game_difficulty_none);
     
     if (strcmp(clienttag,CLIENTTAG_DIABLORTL)==0 ||
 	strcmp(clienttag,CLIENTTAG_DIABLOSHR)==0)
