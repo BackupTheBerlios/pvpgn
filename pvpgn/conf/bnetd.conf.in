@@ -32,6 +32,8 @@
 # Syntax:                                                                    #
 # * for plain file driver:                                                   #
 #  storage_path = file:dir=<path_to_user_files>;default=/path/to/default/account #
+# * for cdb file driver:                                                     #
+#  storage_path = cdb:dir=<path_to_cdb_files>;default=/path/to/default/account   #
 # * for sql driver:                                                          #
 #  storage_path = sql:variable=value;...;default=0 (0 is the default uid)    #
 # Variables can be:                                                          #
@@ -44,7 +46,8 @@
 # - "pass" : db password                                                     #
 #                                                                            #
 # Examples:                                                                  #
-# storage_path = file:dir=/home/pvpgn/var/users,default=/home/pvpgn/etc/bnetd_default_user
+# storage_path = file:dir=/home/pvpgn/var/users;default=/home/pvpgn/etc/bnetd_default_user
+# storage_path = cdb:dir=/home/pvpgn/var/userscdb;default=/home/pvpgn/etc/bnetd_default_user.cdb
 # storage_path = sql:mode=mysql;host=127.0.0.1;name=PVPGN;user=pvpgn;pass=pvpgnrocks;default=0
 #----------------------------------------------------------------------------#
 
