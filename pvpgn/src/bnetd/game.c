@@ -832,7 +832,7 @@ static int game_report(t_game * game)
 		free(ladder_info);
 	    return -1;
 	}
-	sprintf(tempname,"%s/.bnetd-gr_%s_%06u",prefs_get_reportdir(),dstr,game->id);
+	sprintf(tempname,"%s/_bnetd-gr_%s_%06u",prefs_get_reportdir(),dstr,game->id);
 	if (!(realname = malloc(strlen(prefs_get_reportdir())+1+2+1+strlen(dstr)+1+6+1)))
 	{
 	    eventlog(eventlog_level_error,"game_report","could not allocate memory for realname");
