@@ -187,6 +187,7 @@
 			</Filter>
 			<Filter
 				Name="common"
+				Filter="">				
 				<File
 					RelativePath="..\common\xalloc.c">
 				</File>	
