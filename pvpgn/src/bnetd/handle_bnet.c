@@ -827,7 +827,7 @@ static int _client_createaccountw3(t_connection * c, t_packet const * const pack
 		  } else {
 		     eventlog(eventlog_level_info,__FUNCTION__,"[%d] account created",conn_get_socket(c));
 		     bn_int_set(&rpacket->u.server_createaccount_w3.result,SERVER_CREATEACCOUNT_W3_RESULT_OK);
-		     
+		     account_save(temp, 3600); /* force account save for new created accounts */
 		  }
 	     }
 	  }
@@ -906,6 +906,7 @@ static int _client_createacctreq1(t_connection * c, t_packet const * const packe
 	       {
 		  eventlog(eventlog_level_info,__FUNCTION__,"[%d] account created",conn_get_socket(c));
 		  bn_int_set(&rpacket->u.server_createacctreply1.result,SERVER_CREATEACCTREPLY1_RESULT_OK);
+		  account_save(temp, 3600); /* force account save for new created accounts */
 	       }
 	  }
 	bn_int_set(&rpacket->u.server_createacctreply1.unknown1,SERVER_CREATEACCTREPLY1_UNKNOWN1);
@@ -983,6 +984,7 @@ static int _client_createacctreq2(t_connection * c, t_packet const * const packe
 	       {
 		  eventlog(eventlog_level_info,__FUNCTION__,"[%d] account created",conn_get_socket(c));
 		  bn_int_set(&rpacket->u.server_createacctreply2.result,SERVER_CREATEACCTREPLY2_RESULT_OK);
+		  account_save(temp, 3600); /* force account save for new created accounts */
 	       }
 	  }
 	bn_int_set(&rpacket->u.server_createacctreply2.unknown1,SERVER_CREATEACCTREPLY2_UNKNOWN1);

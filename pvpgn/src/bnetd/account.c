@@ -226,7 +226,6 @@ extern t_account * account_create(char const * username, char const * passhash1)
 	if (!bits_master)
 	    eventlog(eventlog_level_warn,"account_create","account_create should not be called on BITS clients");
 #endif
-	account_save(account, 3600); /* force account save for new created accounts */
     }
     else /* empty account to be filled in later */
     {
