@@ -380,4 +380,8 @@
 # define FD_SETSIZE BNETD_MAX_SOCKETS
 #endif
 
+#ifdef HAVE_EPOLL_CREATE
+# define HAVE_EPOLL	1
+#endif
+
 #endif
