@@ -426,7 +426,7 @@ extern t_connection * conn_create(int tsock, int usock, unsigned int real_local_
     temp->protocol.queues.insize                 = 0;
     temp->protocol.loggeduser			 = NULL;
     temp->protocol.d2.realm                      = NULL;
-    rcm_regref_init(&temp->protocol.d2.realm_regref,(*conn_set_realm_cb),temp);
+    rcm_regref_init(&temp->protocol.d2.realm_regref,&conn_set_realm_cb,temp);
     temp->protocol.d2.character                  = NULL;
     temp->protocol.d2.realminfo                  = NULL;
     temp->protocol.d2.charname                   = NULL;
