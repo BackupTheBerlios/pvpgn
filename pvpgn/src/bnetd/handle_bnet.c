@@ -3461,6 +3461,7 @@ static int _client_findanongame(t_connection * c, t_packet const * const packet)
 					      packet_append_data(rpacket, &mapscount_sffa,1);
 					      for (counter1=counter2; counter1<(counter2+mapscount_sffa);counter1++)
 						packet_append_data(rpacket,&counter1,1);
+					      counter2+=mapscount_sffa;
 				    }
 					  else
 					    eventlog(eventlog_level_error,__FUNCTION__,"found no sffa PG maps in bnmaps.txt - this will disturb anongameinfo packet creation");
