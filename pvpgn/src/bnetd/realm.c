@@ -51,6 +51,9 @@
 #include "common/xalloc.h"
 #include "connection.h"
 #include "realm.h"
+#ifdef HAVE_ASSERT_H
+# include <assert.h>
+#endif
 #include "common/setup_after.h"
 
 
@@ -88,6 +91,7 @@ static t_realm * realm_create(char const * name, char const * description, unsig
     realm->description = xstrdup(description);
     realm->ip = ip;
     realm->port = port;
+    realm->conn = NULL;
     realm->active = 0;
     realm->player_number = 0;
     realm->game_number = 0;
@@ -279,6 +283,7 @@ extern int realm_active(t_realm * realm, t_connection * c)
         realm_deactive(realm);
     }
     realm->active=1;
+    realm->conn=c;
     realm->sessionnum=conn_get_sessionnum(c);
     realm->tcp_sock=conn_get_socket(c);
     eventlog(eventlog_level_info,__FUNCTION__, "realm %s actived",realm->name);
@@ -303,6 +308,7 @@ extern int realm_deactive(t_realm * realm)
         conn_set_state(c,conn_state_destroy);
 
     realm->active=0;
+    realm->conn=NULL;
     realm->sessionnum=0;
     realm->tcp_sock=0;
     /*
@@ -522,3 +528,13 @@ extern t_realm * realmlist_find_realm_by_sock(int tcp_sock)
     }
     return NULL;
 }
+
+extern t_connection * realm_get_conn(t_realm * realm)
+{
+	assert(realm);
+	
+	return realm->conn;
+}
+
+
+

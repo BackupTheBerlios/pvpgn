@@ -20,9 +20,11 @@
 
 #ifdef JUST_NEED_TYPES
 #include "common/addr.h"
+#include "connection.h"
 #else
 #define JUST_NEED_TYPES
 #include "common/addr.h"
+#include "connection.h"
 #undef JUST_NEED_TYPES
 #endif
 
@@ -38,6 +40,7 @@ typedef struct realm
     unsigned int   player_number;
     unsigned int   game_number;
     int		   tcp_sock;
+    t_connection * conn;
 }
 #endif
 t_realm;
@@ -76,6 +79,8 @@ extern t_realm * realmlist_find_realm(char const * realmname);
 extern t_realm * realmlist_find_realm_by_ip(unsigned long ip); /* ??? */
 extern t_list * realmlist(void);
 extern t_realm * realmlist_find_realm_by_sock(int tcp_sock);
+
+extern t_connection * realm_get_conn(t_realm * realm);
 
 #endif
 #endif
