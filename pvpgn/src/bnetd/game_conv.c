@@ -322,6 +322,7 @@ extern unsigned short gtype_to_bngtype(t_game_type gtype)
     case game_type_diablo:
 	return CLIENT_GAMELISTREQ_DIABLO;
     case game_type_diablo2open:
+    	return SERVER_GAMELISTREPLY_TYPE_DIABLO2_OPEN;
     case game_type_diablo2closed:
         eventlog(eventlog_level_error,__FUNCTION__,"don't know how to list Diablo II");
 	return 0;

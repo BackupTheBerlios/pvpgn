@@ -2727,6 +2727,8 @@ typedef struct
 #define SERVER_GAMELISTREPLY_GAME_STATUS_STARTED 0x0000000e
 #define SERVER_GAMELISTREPLY_GAME_STATUS_DONE    0x0000000c
 #define SERVER_GAMELISTREPLY_GAME_UNKNOWN6       0x0000002b /* latency? */
+
+#define SERVER_GAMELISTREPLY_TYPE_DIABLO2_OPEN 		0x0704 /* open game */ 
 /******************************************************/
 
 
