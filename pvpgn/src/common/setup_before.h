@@ -350,6 +350,14 @@
 
 #define BNETD_MAX_SOCKETS 4096
 
+/* JEBs20020909
+ * To get rid of the nerved compiler warning about the
+ * redefined "FD_SETSIZE", and to be sure that optimum/right
+ * parameters are used i tried to fix it.
+ */
+#ifdef STDC_HEADERS
+# include <stdlib.h>
+#endif
 
 /*
  * select() hackery... works most places, need to add autoconf checks
