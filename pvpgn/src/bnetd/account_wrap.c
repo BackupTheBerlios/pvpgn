@@ -1968,11 +1968,11 @@ extern int account_remove_friend2( t_account * account, const char * friend)
     	    t_account * facc;
 
 	    account_remove_friend(account, i);
-	    friendlist_remove_friend(flist, fr);
     	    if((facc = friend_get_account(fr)) && 
 	       (fflist = account_get_friends(facc)) && 
 	       (ffr = friendlist_find_account(fflist, account)))
         	    friend_set_mutual(ffr, 0);
+	    friendlist_remove_friend(flist, fr);
 	    return i;
 	}
 
