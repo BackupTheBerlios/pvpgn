@@ -137,9 +137,6 @@ bnetd_DEFCONFFILE   = ${confdir}\bnetd.conf
 bnetd_SBIN          = ${SRC_SBINDIR}\bnetd.exe
 bnetd_OBJECTS       = \
     ${SRC_BNETDDIR}\main.obj \
-    ${SRC_BNETDDIR}\fdwatch.obj \    
-    ${SRC_BNETDDIR}\fdwatch_poll.obj \    
-    ${SRC_BNETDDIR}\fdwatch_select.obj \    
     ${SRC_BNETDDIR}\server.obj \
     ${SRC_BNETDDIR}\connection.obj \
     ${SRC_BNETDDIR}\message.obj \
@@ -220,6 +217,9 @@ bnetd_OBJECTS       = \
     ${SRC_COMMONDIR}\token.obj \
     ${SRC_COMMONDIR}\proginfo.obj \
     ${SRC_COMMONDIR}\rlimit.obj \
+    ${SRC_COMMONDIR}\fdwatch.obj \    
+    ${SRC_COMMONDIR}\fdwatch_poll.obj \    
+    ${SRC_COMMONDIR}\fdwatch_select.obj \    
     ${SRC_COMPATDIR}\pdir.obj \
     ${SRC_COMPATDIR}\inet_aton.obj \
     ${SRC_COMPATDIR}\inet_ntoa.obj \

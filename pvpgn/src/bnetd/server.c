@@ -142,7 +142,7 @@
 #include "alias_command.h"
 #include "anongame_infos.h"
 #include "news.h"
-#include "fdwatch.h"
+#include "common/fdwatch.h"
 #include "clan.h"
 #include "w3trans.h"
 #include "tournament.h"

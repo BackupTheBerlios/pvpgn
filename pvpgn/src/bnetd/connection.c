@@ -105,7 +105,7 @@
 #include "clan.h"
 #include "connection.h"
 #include "topic.h"
-#include "fdwatch.h"
+#include "common/fdwatch.h"
 #include "common/setup_after.h"
 
 

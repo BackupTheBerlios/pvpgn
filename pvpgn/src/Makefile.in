@@ -145,11 +145,6 @@ ${SRC_BNETDDIR}/anongame_maplists.o\
 ${SRC_BNETDDIR}/clan.o\
 ${SRC_BNETDDIR}/topic.o\
 ${SRC_BNETDDIR}/friends.o\
-${SRC_BNETDDIR}/fdwatch.o\
-${SRC_BNETDDIR}/fdwatch_select.o\
-${SRC_BNETDDIR}/fdwatch_poll.o\
-${SRC_BNETDDIR}/fdwatch_kqueue.o\
-${SRC_BNETDDIR}/fdwatch_epoll.o\
 ${SRC_BNETDDIR}/w3trans.o \
 ${SRC_BNETDDIR}/ladder_binary.o \
 ${SRC_BNETDDIR}/support.o \
@@ -171,6 +166,11 @@ ${SRC_COMMONDIR}/give_up_root_privileges.o \
 ${SRC_COMMONDIR}/token.o \
 ${SRC_COMMONDIR}/proginfo.o \
 ${SRC_COMMONDIR}/rlimit.o \
+${SRC_COMMONDIR}/fdwatch.o\
+${SRC_COMMONDIR}/fdwatch_select.o\
+${SRC_COMMONDIR}/fdwatch_poll.o\
+${SRC_COMMONDIR}/fdwatch_kqueue.o\
+${SRC_COMMONDIR}/fdwatch_epoll.o\
 ${SRC_COMPATDIR}/pdir.o \
 ${SRC_COMPATDIR}/inet_aton.o \
 ${SRC_COMPATDIR}/inet_ntoa.o \
