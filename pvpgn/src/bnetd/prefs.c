@@ -191,22 +191,6 @@ static Bconf_t conf_table[] =
     { "reload_new_accounts",    conf_type_bool,    NULL,                 0,                     ACT },
     { "command_groups_file",	conf_type_char,    BNETD_COMMAND_GROUPS_FILE,	NONE,		ACT },
     { "aliasfile"          ,    conf_type_char,    BNETD_ALIASFILE   ,   NONE,                  ACT },
-
-    { "matchmaking_server_url", conf_type_char,    NULL,                 NONE,                  ACT },
-    { "matchmaking_player_url", conf_type_char,    NULL,                 NONE,                  ACT },
-    { "matchmaking_tourney_url",conf_type_char,    NULL,                 NONE,                  ACT },
-    { "matchmaking_solo_url",   conf_type_char,    NULL,                 NONE,                  ACT },
-    { "matchmaking_solo_url_desc",conf_type_char,  NULL,                 NONE,                  ACT },
-    { "matchmaking_2vs2_url",   conf_type_char,    NULL,                 NONE,                  ACT },
-    { "matchmaking_2vs2_url_desc",conf_type_char,  NULL,                 NONE,                  ACT },
-    { "matchmaking_3vs3_url",   conf_type_char,    NULL,                 NONE,                  ACT },
-    { "matchmaking_3vs3_url_desc",conf_type_char,  NULL,                 NONE,                  ACT },
-    { "matchmaking_4vs4_url",   conf_type_char,    NULL,                 NONE,                  ACT },
-    { "matchmaking_4vs4_url_desc",conf_type_char,  NULL,                 NONE,                  ACT },
-    { "matchmaking_team_url",   conf_type_char,    NULL,                 NONE,                  ACT },
-    { "matchmaking_team_url_desc",conf_type_char,  NULL,                 NONE,                  ACT },
-    { "matchmaking_ffa_url",    conf_type_char,    NULL,                 NONE,                  ACT },
-    { "matchmaking_ffa_url_desc",conf_type_char,   NULL,                 NONE,                  ACT },
     { NULL,             	conf_type_none,    NULL,                 NONE,                  ACT },
 
 };
@@ -1222,80 +1206,4 @@ extern char const * prefs_get_command_groups_file(void)
 extern char const * prefs_get_aliasfile(void)
 {
    return get_char_conf("aliasfile");
-}
-
-// BlacKDicK 04/02/2003
-extern char const * prefs_get_matchmaking_server_url(void)
-{
-    return get_char_conf("matchmaking_server_url");
-}
-
-extern char const * prefs_get_matchmaking_player_url(void)
-{
-    return get_char_conf("matchmaking_player_url");
-}
-
-extern char const * prefs_get_matchmaking_tourney_url(void)
-{
-    return get_char_conf("matchmaking_tourney_url");
-}
-
-extern char const * prefs_get_matchmaking_solo_url(void)
-{
-        return get_char_conf("matchmaking_solo_url");
-}
-
-extern char const * prefs_get_matchmaking_solo_url_desc(void)
-{
-        return get_char_conf("matchmaking_solo_url_desc");
-}
-
-extern char const * prefs_get_matchmaking_2vs2_url(void)
-{
-        return get_char_conf("matchmaking_2vs2_url");
-}
-
-extern char const * prefs_get_matchmaking_2vs2_url_desc(void)
-{
-        return get_char_conf("matchmaking_2vs2_url_desc");
-}
-
-extern char const * prefs_get_matchmaking_3vs3_url(void)
-{
-        return get_char_conf("matchmaking_3vs3_url");
-}
-
-extern char const * prefs_get_matchmaking_3vs3_url_desc(void)
-{
-        return get_char_conf("matchmaking_3vs3_url_desc");
-}
-
-extern char const * prefs_get_matchmaking_4vs4_url(void)
-{
-        return get_char_conf("matchmaking_4vs4_url");
-}
-
-extern char const * prefs_get_matchmaking_4vs4_url_desc(void)
-{
-        return get_char_conf("matchmaking_4vs4_url_desc");
-}
-
-extern char const * prefs_get_matchmaking_team_url(void)
-{
-        return get_char_conf("matchmaking_team_url");
-}
-
-extern char const * prefs_get_matchmaking_team_url_desc(void)
-{
-        return get_char_conf("matchmaking_team_url_desc");
-}
-
-extern char const * prefs_get_matchmaking_ffa_url(void)
-{
-        return get_char_conf("matchmaking_ffa_url");
-}
-
-extern char const * prefs_get_matchmaking_ffa_url_desc(void)
-{
-        return get_char_conf("matchmaking_ffa_url_desc");
 }

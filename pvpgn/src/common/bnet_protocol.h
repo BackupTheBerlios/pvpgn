@@ -69,6 +69,7 @@ typedef struct
 /* for unhandled pmap packets */
 #define CLIENT_NULL 0xfeff
 
+
 /******************************************************/
 /*
 14: recv class=w3route[0x0c] type=unknown[0x00f7] length=53
@@ -458,17 +459,6 @@ for type 0x02 :
 	DESC  : <info> 
 */
 } t_server_findanongame_inforeply PACKED_ATTR();
-
-//BlacKDicK 04/02/2003
-#define CLIENT_FINDANONGAME_INFOTAG_URL         0x55524c        //  URL\0
-#define CLIENT_FINDANONGAME_INFOTAG_MAP         0x4d4150        //  MAP\0
-#define CLIENT_FINDANONGAME_INFOTAG_TYPE        0x54595045      //  TYPE
-#define CLIENT_FINDANONGAME_INFOTAG_DESC        0x44455343      //  DESC
-#define CLIENT_FINDANONGAME_INFOTAG_LADR        0x4c414452      //  LADR
-#define CLIENT_FINDANONGAME_INFOTAG_SOLO        0x534f4c4f      //  SOLO
-#define CLIENT_FINDANONGAME_INFOTAG_TEAM        0x5445414d      //  TEAM
-#define CLIENT_FINDANONGAME_INFOTAG_FFA         0x46464120      //  FFA\20
-
 
 typedef struct
 {
@@ -3811,6 +3801,7 @@ typedef struct
 	//Usernames of the others who got invited
 } t_server_arrangedteam_send_invite PACKED_ATTR();
 
+
 #define CLIENT_ARRANGEDTEAM_ACCEPT_DECLINE_INVITE 0x63ff
 typedef struct
 {
@@ -3820,6 +3811,7 @@ typedef struct
 	bn_int option; //accept or decline
 	//username of the inviter
 } t_client_arrangedteam_accept_decline_invite PACKED_ATTR();
+
 #define CLIENT_ARRANGEDTEAM_ACCEPT		0x00000003
 #define CLIENT_ARRANGEDTEAM_DECLINE		0x00000002
 
