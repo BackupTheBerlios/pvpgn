@@ -211,7 +211,6 @@ bnetd_OBJECTS       = \
     ${SRC_COMMONDIR}\bnethashconv.obj \
     ${SRC_COMMONDIR}\addr.obj \
     ${SRC_COMMONDIR}\hashtable.obj \
-    ${SRC_COMMONDIR}\check_alloc.obj \
     ${SRC_COMMONDIR}\give_up_root_privileges.obj \
     ${SRC_COMMONDIR}\token.obj \
     ${SRC_COMMONDIR}\proginfo.obj \
@@ -291,7 +290,6 @@ d2cs_OBJECTS    = \
     ${SRC_D2CSDIR}\s2s.obj \ 
     ${SRC_D2CSDIR}\net.obj \ 
     ${SRC_D2CSDIR}\d2ladder.obj \ 
-    ${SRC_COMMONDIR}\check_alloc.obj \ 
     ${SRC_COMMONDIR}\hashtable.obj \ 
     ${SRC_COMMONDIR}\hexdump.obj \ 
     ${SRC_COMMONDIR}\eventlog.obj \ 
@@ -342,7 +340,6 @@ d2dbs_OBJECTS = \
     ${SRC_COMMONDIR}\eventlog.obj \ 
     ${SRC_COMMONDIR}\hexdump.obj \ 
     ${SRC_COMMONDIR}\bn_type.obj \ 
-    ${SRC_COMMONDIR}\check_alloc.obj \ 
     ${SRC_COMMONDIR}\util.obj \
     ${SRC_COMMONDIR}\addr.obj \
     ${SRC_COMMONDIR}\d2char_checksum.obj \ 
@@ -363,7 +360,6 @@ ${SRC_COMMONDIR}\bn_type.obj \
 ${SRC_COMMONDIR}\network.obj \
 ${SRC_COMMONDIR}\eventlog.obj \
 ${SRC_COMMONDIR}\util.obj \
-${SRC_COMMONDIR}\check_alloc.obj \
 ${SRC_COMPATDIR}\inet_ntoa.obj \
 ${SRC_COMPATDIR}\strerror.obj \
 ${SRC_COMPATDIR}\psock.obj
@@ -374,7 +370,6 @@ ${SRC_COMMONDIR}\util.obj \
 ${SRC_COMMONDIR}\list.obj \
 ${SRC_COMMONDIR}\eventlog.obj \
 ${SRC_COMMONDIR}\hexdump.obj \ 
-${SRC_COMMONDIR}\check_alloc.obj \
 ${SRC_COMPATDIR}\inet_ntoa.obj \
 ${SRC_COMPATDIR}\strerror.obj \
 ${SRC_COMPATDIR}\psock.obj
@@ -394,7 +389,6 @@ ${SRC_COMMONDIR}\bnethash.obj \
 ${SRC_COMMONDIR}\bnethashconv.obj \
 ${SRC_COMMONDIR}\util.obj \
 ${SRC_COMMONDIR}\bnettime.obj \
-${SRC_COMMONDIR}\check_alloc.obj \
 ${SRC_COMMONDIR}\proginfo.obj \
 ${SRC_COMPATDIR}\inet_ntoa.obj \
 ${SRC_COMPATDIR}\strerror.obj \
@@ -406,7 +400,6 @@ bnpass_OBJECTS  = ${SRC_BNPASSDIR}\bnpass.obj \
 ${SRC_COMMONDIR}\bnethash.obj \
 ${SRC_COMMONDIR}\eventlog.obj \
 ${SRC_COMMONDIR}\hexdump.obj \ 
-${SRC_COMMONDIR}\check_alloc.obj \
 ${SRC_COMPATDIR}\strerror.obj
 
 bnftp_BIN   = ${SRC_BINDIR}\bnftp.exe
@@ -420,7 +413,6 @@ ${SRC_COMMONDIR}\network.obj \
 ${SRC_COMMONDIR}\eventlog.obj \
 ${SRC_COMMONDIR}\bnettime.obj \
 ${SRC_COMMONDIR}\util.obj \
-${SRC_COMMONDIR}\check_alloc.obj \
 ${SRC_COMPATDIR}\inet_ntoa.obj \
 ${SRC_COMPATDIR}\strerror.obj \
 ${SRC_COMPATDIR}\strftime.obj \
@@ -436,7 +428,6 @@ ${SRC_COMMONDIR}\network.obj \
 ${SRC_COMMONDIR}\eventlog.obj \
 ${SRC_COMMONDIR}\hexdump.obj \ 
 ${SRC_COMMONDIR}\util.obj \
-${SRC_COMMONDIR}\check_alloc.obj \
 ${SRC_COMPATDIR}\inet_ntoa.obj \
 ${SRC_COMPATDIR}\strerror.obj \
 ${SRC_COMPATDIR}\psock.obj
@@ -456,7 +447,6 @@ ${SRC_COMMONDIR}\bnethash.obj \
 ${SRC_COMMONDIR}\bnethashconv.obj \
 ${SRC_COMMONDIR}\util.obj \
 ${SRC_COMMONDIR}\bnettime.obj \
-${SRC_COMMONDIR}\check_alloc.obj \
 ${SRC_COMMONDIR}\proginfo.obj \
 ${SRC_COMPATDIR}\inet_ntoa.obj \
 ${SRC_COMPATDIR}\strerror.obj \
@@ -467,33 +457,28 @@ ${SRC_COMPATDIR}\gettimeofday.obj
 bnilist_BIN = ${SRC_BINDIR}\bnilist.exe
 bnilist_OBJECTS = ${SRC_BNIUTILSDIR}\bnilist.obj \
 ${SRC_BNIUTILSDIR}\fileio.obj \
-${SRC_BNIUTILSDIR}\tga.obj \
-${SRC_COMMONDIR}\check_alloc.obj
+${SRC_BNIUTILSDIR}\tga.obj
 
 bni2tga_BIN = ${SRC_BINDIR}\bni2tga.exe
 bni2tga_OBJECTS = ${SRC_BNIUTILSDIR}\bni2tga.obj \
-${SRC_BNIUTILSDIR}\fileio.obj \
-${SRC_COMMONDIR}\check_alloc.obj
+${SRC_BNIUTILSDIR}\fileio.obj
 
 bniextract_BIN  = ${SRC_BINDIR}\bniextract.exe
 bniextract_OBJECTS= ${SRC_BNIUTILSDIR}\bniextract.obj \
 ${SRC_BNIUTILSDIR}\fileio.obj \
 ${SRC_BNIUTILSDIR}\tga.obj \
-${SRC_BNIUTILSDIR}\bni.obj \
-${SRC_COMMONDIR}\check_alloc.obj
+${SRC_BNIUTILSDIR}\bni.obj
 
 bnibuild_BIN    = ${SRC_BINDIR}\bnibuild.exe
 bnibuild_OBJECTS= ${SRC_BNIUTILSDIR}\bnibuild.obj \
 ${SRC_BNIUTILSDIR}\fileio.obj \
 ${SRC_BNIUTILSDIR}\tga.obj \
-${SRC_BNIUTILSDIR}\bni.obj \
-${SRC_COMMONDIR}\check_alloc.obj
+${SRC_BNIUTILSDIR}\bni.obj
 
 tgainfo_BIN = ${SRC_BINDIR}\tgainfo.exe
 tgainfo_OBJECTS = ${SRC_BNIUTILSDIR}\tgainfo.obj \
 ${SRC_BNIUTILSDIR}\fileio.obj \
-${SRC_BNIUTILSDIR}\tga.obj \
-${SRC_COMMONDIR}\check_alloc.obj
+${SRC_BNIUTILSDIR}\tga.obj
 
 timetest_BIN 		= ${SRC_BINDIR}\timetest.exe
 timetest_OBJECTS 	= ${SRC_DEBUGDIR}\timetest.obj \
@@ -501,7 +486,6 @@ ${SRC_COMMONDIR}\bn_type.obj \
 ${SRC_COMMONDIR}\eventlog.obj \
 ${SRC_COMMONDIR}\hexdump.obj \ 
 ${SRC_COMMONDIR}\bnettime.obj \
-${SRC_COMMONDIR}\check_alloc.obj \
 ${SRC_COMPATDIR}\strerror.obj \
 ${SRC_COMPATDIR}\gettimeofday.obj
 
@@ -510,7 +494,6 @@ listtest_OBJECTS	= ${SRC_DEBUGDIR}\listtest.obj \
 ${SRC_COMMONDIR}\list.obj \
 ${SRC_COMMONDIR}\eventlog.obj \
 ${SRC_COMMONDIR}\hexdump.obj \ 
-${SRC_COMMONDIR}\check_alloc.obj \
 ${SRC_COMPATDIR}\strerror.obj \
 ${SRC_COMPATDIR}\strdup.obj
 
@@ -519,7 +502,6 @@ hashtabletest_OBJECTS	= ${SRC_DEBUGDIR}\hashtabletest.obj \
 ${SRC_COMMONDIR}\hashtable.obj \
 ${SRC_COMMONDIR}\eventlog.obj \
 ${SRC_COMMONDIR}\hexdump.obj \ 
-${SRC_COMMONDIR}\check_alloc.obj \
 ${SRC_COMPATDIR}\strerror.obj \
 ${SRC_COMPATDIR}\strdup.obj
 
@@ -530,7 +512,6 @@ ${SRC_COMMONDIR}\util.obj \
 ${SRC_COMMONDIR}\list.obj \
 ${SRC_COMMONDIR}\eventlog.obj \
 ${SRC_COMMONDIR}\hexdump.obj \ 
-${SRC_COMMONDIR}\check_alloc.obj \
 ${SRC_COMPATDIR}\inet_aton.obj \
 ${SRC_COMPATDIR}\inet_ntoa.obj \
 ${SRC_COMPATDIR}\strerror.obj \

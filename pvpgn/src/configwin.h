@@ -279,7 +279,7 @@
 #define HAVE_STDARG_H 1
 
 /* Define if you have the <stddef.h> header file.  */
-#define HAVE_STDDEF_H
+#define HAVE_STDDEF_H 1
 
 /* Define if you have the <stdint.h> header file.  */
 /* #undef HAVE_STDINT_H */
