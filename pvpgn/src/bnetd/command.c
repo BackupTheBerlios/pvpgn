@@ -871,7 +871,7 @@ static int _handle_voice_command(t_connection * c, char const * text)
 	return -1;
     }
     if (account_get_auth_voice(acc,channel))
-	sprintf(msg,"%s is allready on VOP list, no need to Voice him");
+	sprintf(msg,"%s is allready on VOP list, no need to Voice him", username);
     else
     {
       if (channel_account_has_tmpVOICE(conn_get_channel(c),acc))
@@ -1148,8 +1148,8 @@ static int _handle_friends_command(t_connection * c, char const * text)
     
     n = account_get_friendcount(my_acc = conn_get_account(c));
     
-    if(n >= MAX_FRIENDS) {
-      sprintf(msgtemp, "You can only have a maximum of %d friends.", MAX_FRIENDS);
+    if(n >= prefs_get_max_friends()) {
+      sprintf(msgtemp, "You can only have a maximum of %d friends.", prefs_get_max_friends());
       message_send_text(c,message_type_info,c,msgtemp);
       account_unget_name(newfriend);
       return 0;

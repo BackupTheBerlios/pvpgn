@@ -12,6 +12,8 @@ the "bug" of not having the full version on tracker listings)
 -- fixed some memory leaks in mysql mode
 -- added chathelp-war3-frFR.txt, newaccount-frFR.txt, termsofservice-frFR.txt
 for our French players
+-- added option in bnetd.conf to set number of friends a user may have in
+their friends list
 
 1.5.0beta2:
 -- fixed PlayGame for ROC 1.07/1.10 (pure ROC or ROC mode from FT installation),

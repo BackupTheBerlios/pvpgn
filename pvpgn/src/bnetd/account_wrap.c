@@ -50,6 +50,7 @@
 #include "command.h"
 //aaron
 #include "war3ladder.h"
+#include "prefs.h"
 
 #ifdef DEBUG_ACCOUNT
 extern unsigned int account_get_numattr_real(t_account * account, char const * key, char const * fn, unsigned int ln)
@@ -1811,7 +1812,7 @@ extern char const * account_get_w3_clanname( t_account * account)
 extern int account_set_friend( t_account * account, int friendnum, char const * friendname )
 {
 	char key[256];
-	if ( friendname == NULL || friendnum < 0 || friendnum >= MAX_FRIENDS)
+	if ( friendname == NULL || friendnum < 0 || friendnum >= prefs_get_max_friends())
 	{
 		return -1;
 	}
@@ -1825,7 +1826,7 @@ extern char const * account_get_friend( t_account * account, int friendnum)
 	char key[256];
 	char const * tmp;
 
-	if (friendnum < 0 || friendnum >= MAX_FRIENDS) {
+	if (friendnum < 0 || friendnum >= prefs_get_max_friends()) {
 		// bogus name (user himself) instead of NULL, otherwise clients might crash
 		return account_get_name(account);  
 
@@ -1845,7 +1846,7 @@ extern char const * account_get_friend( t_account * account, int friendnum)
 
 extern int account_set_friendcount( t_account * account, int count)
 {
-	if (count < 0 || count > MAX_FRIENDS)
+	if (count < 0 || count > prefs_get_max_friends())
 	{
 		return -1;
 	}

@@ -326,6 +326,10 @@ account_allowed_symbols = "-_[]"
 # note: this is still experimental and requires a fast machine
 reload_new_accounts = false
 
+# maximum number of friends a user can add to there friends list
+# default setting is 20
+max_friends = 20
+
 #                                                                            #
 ##############################################################################
 

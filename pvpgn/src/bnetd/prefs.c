@@ -51,8 +51,8 @@
 #include "common/util.h"
 #include "common/eventlog.h"
 #include "prefs.h"
+#include "account.h" /* should we move MAX_FRIENDS to setup_before.h ? */
 #include "common/setup_after.h"
-
 
 static int processDirective(char const * directive, char const * value, unsigned int curLine);
 static char const * get_char_conf(char const * directive);
@@ -189,6 +189,7 @@ static Bconf_t conf_table[] =
 
     { "max_conns_per_IP",	conf_type_int,	   NULL,		 0,			ACT },
     
+    { "max_friends",		conf_type_int,     NULL,                 MAX_FRIENDS,           ACT },
     
     { NULL,             	conf_type_none,    NULL,                 NONE,                  ACT },
 
@@ -1217,3 +1218,7 @@ extern int prefs_get_max_conns_per_IP(void)
 	return get_int_conf("max_conns_per_IP");
 }
 
+extern int prefs_get_max_friends(void)
+{
+	return get_int_conf("max_friends");
+}
