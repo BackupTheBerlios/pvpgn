@@ -3346,14 +3346,20 @@ static int _client_motdw3(t_connection * c, t_packet const * const packet)
 	
 	/* MODIFIED BY THE UNDYING SOULZZ 4/7/02 */
 	  {
-	     char serverinfo[512];
-	     sprintf(serverinfo, "This server is powered by PvPGN Version: %s\r\nThere are currently %d users online, playing %d games and chatting in %d channels\r\n\r\n%s\r\n",
-		     PVPGN_VERSION,
-		     connlist_login_get_length(),
-		     gamelist_get_length(),
-		     channellist_get_length(),
-		     prefs_get_server_info());
-	     
+	     int clienttaggames = game_get_count_by_clienttag(c,conn_get_clienttag(c));
+		 int clienttagusers = conn_get_user_count_by_clienttag(c,conn_get_clienttag(c));
+		 char serverinfo[512];
+
+		 sprintf(serverinfo,"Welcome to the PvPGN Version %s\r\n\r\nThere are currently %u user(s) in %u games of %s, and %u user(s) playing %u games and chatting In %u channels in the PvPGN Realm.\r\n%s",
+            PVPGN_VERSION,
+			clienttagusers,
+			clienttaggames,
+			conn_get_user_game_title(c),
+		    connlist_login_get_length(),
+		    gamelist_get_length(),
+		    channellist_get_length(),
+			prefs_get_server_info());
+
 	     packet_append_string(rpacket,serverinfo);
 	  }
 	
@@ -4166,15 +4172,23 @@ static int _client_joinchannel(t_connection * c, t_packet const * const packet)
 
 	if(strcasecmp(conn_get_clienttag(c),CLIENTTAG_WARCRAFT3)==0 || strcasecmp(conn_get_clienttag(c),CLIENTTAG_WAR3XP)==0)
 	  {
-	     sprintf(msgtemp,"Welcome to the PvPGN Realm");
+
+		 int clienttaggames = game_get_count_by_clienttag(c,conn_get_clienttag(c));
+		 int clienttagusers = conn_get_user_count_by_clienttag(c,conn_get_clienttag(c));
+
+		 sprintf(msgtemp,"Welcome to the PvPGN Realm");
 	     message_send_text(c,message_type_info,c,msgtemp);
 	     sprintf(msgtemp,"This Server is hosted by: %s",prefs_get_contact_name());
 	     message_send_text(c,message_type_info,c,msgtemp);
-	     sprintf(msgtemp,"There are currently %u users online, playing %u games of Warcraft III,",
-		     connlist_login_get_length(),
-		     gamelist_get_length());
+	     sprintf(msgtemp,"There are currently %u users in %u games of %s,",
+		     clienttagusers,
+			 clienttaggames,
+			 conn_get_user_game_title(c));
 	     message_send_text(c,message_type_info,c,msgtemp);
-	     sprintf(msgtemp,"and Chatting in %u channels.",channellist_get_length());
+	     sprintf(msgtemp,"and %u users playing %u games and chatting In %u channels in the PvPGN Realm.",
+			 connlist_login_get_length(),
+			 gamelist_get_length(),
+			 channellist_get_length());
 	     message_send_text(c,message_type_info,c,msgtemp);
 	     
 	  }

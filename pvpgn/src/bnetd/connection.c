@@ -3650,3 +3650,59 @@ extern time_t conn_get_anongame_search_starttime(t_connection * c)
     }
   return c->anongame_search_starttime;
 }
+
+
+extern int conn_get_user_count_by_clienttag(t_connection * c, char const * clienttag)
+{
+	t_connection * conn;
+	t_elem const * curr;
+	int clienttagusers = 0;
+
+	/* Get Number of Users for client tag specific */
+	LIST_TRAVERSE_CONST(connlist(),curr)
+	{
+		conn = elem_get_data(curr);
+		if(strcasecmp(conn_get_clienttag(c),conn_get_clienttag(conn))==0)
+			clienttagusers++;
+	}
+
+	return clienttagusers;
+
+}
+
+extern char const * conn_get_user_game_title(t_connection * c)
+{
+	
+	if(c == NULL)
+	{
+		eventlog(eventlog_level_error, "conn_get_user_game_title", "got NULL connection");
+		return "Unknown";
+	}
+
+	if(strcasecmp(conn_get_clienttag(c),CLIENTTAG_WAR3XP)==0)
+        return "Warcraft III Frozen Throne";
+	else if(strcasecmp(conn_get_clienttag(c),CLIENTTAG_WARCRAFT3)==0)
+		return "Warcraft III";
+	else if(strcasecmp(conn_get_clienttag(c),CLIENTTAG_DIABLO2XP)==0)
+		return "Diablo II Lord of Destruction";
+	else if(strcasecmp(conn_get_clienttag(c),CLIENTTAG_DIABLO2DV)==0)
+		return "Diablo II";
+	else if(strcasecmp(conn_get_clienttag(c),CLIENTTAG_STARJAPAN)==0)
+		return "Starcraft (Japan)";
+	else if(strcasecmp(conn_get_clienttag(c),CLIENTTAG_WARCIIBNE)==0)
+		return "Warcraft II";
+	else if(strcasecmp(conn_get_clienttag(c),CLIENTTAG_DIABLOSHR)==0)
+		return "Diablo I (Shareware)";
+	else if(strcasecmp(conn_get_clienttag(c),CLIENTTAG_DIABLORTL)==0)
+		return "Diablo I";
+	else if(strcasecmp(conn_get_clienttag(c),CLIENTTAG_SHAREWARE)==0)
+		return "Starcraft (Shareware)";
+	else if(strcasecmp(conn_get_clienttag(c),CLIENTTAG_BROODWARS)==0)
+		return "Starcraft: BroodWars";
+	else if(strcasecmp(conn_get_clienttag(c),CLIENTTAG_STARCRAFT)==0)
+		return "Starcraft";
+	else if(strcasecmp(conn_get_clienttag(c),CLIENTTAG_BNCHATBOT)==0)
+		return "Chat";
+	else
+		return "Unknown";
+}

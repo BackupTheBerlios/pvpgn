@@ -391,5 +391,9 @@ extern int conn_set_pmap(t_connection *c, pmap_row const * pmap);
 extern pmap_row const * conn_get_pmap(t_connection *c);
 extern int conn_set_anongame_search_starttime(t_connection * c, time_t t);
 extern time_t conn_get_anongame_search_starttime(t_connection * c);
+
+extern int conn_get_user_count_by_clienttag(t_connection * c, char const * clienttag);
+extern char const * conn_get_user_game_title(t_connection * c);
+
 #endif
 #endif
