@@ -175,6 +175,8 @@ static int on_client_createcharreq(t_connection * c, t_packet * packet)
 	t_packet	* rpacket, * bnpacket;
 	char const	* charname;
 	char const	* account;
+	char            * path;
+	t_pdir          * dir;
 	t_sq		* sq;
 	unsigned int	reply;
 	unsigned short	status, class;
@@ -190,6 +192,18 @@ static int on_client_createcharreq(t_connection * c, t_packet * packet)
 	}
 	class=bn_short_get(packet->u.client_d2cs_createcharreq.class);
 	status=bn_short_get(packet->u.client_d2cs_createcharreq.status);
+
+	if (!(path=malloc(strlen(prefs_get_charinfo_dir())+1+strlen(account)+1))) {
+		log_error("error allocate memory for path");
+		return 0;
+	}
+	d2char_get_infodir_name(path,account);
+	if (!(dir=p_opendir(path))) {
+	        log_info("(*%s) charinfo directory do not exist, building it",account);
+		mkdir(path,S_IRWXU);
+	}
+		free(path);
+
 	if (d2char_create(account,charname,class,status)<0) {
 		log_warn("error create character %s for account %s",charname,account);
 		reply=D2CS_CLIENT_CREATECHARREPLY_ALREADY_EXIST;
