@@ -4434,7 +4434,7 @@ static int _client_startgame4(t_connection * c, t_packet const * const packet)
 		  game_set_status(currgame,game_status_full);
 		  break;
 		default:
-		  eventlog(eventlog_level_error,__FUNCTION__,"[%d] unknown startgame4 status %d (clienttag: %s)",conn_get_socket(c),status, conn_get_clienttag(c));
+		  eventlog(eventlog_level_error,__FUNCTION__,"[%d] unknown startgame4 status %d (clienttag: %s)",conn_get_socket(c),status, clienttag_uint_to_str(conn_get_clienttag(c))); 
 	       }
 	  }
 	else if (status==CLIENT_STARTGAME4_STATUS_INIT ||
@@ -4458,7 +4458,7 @@ static int _client_startgame4(t_connection * c, t_packet const * const packet)
 	     }
 	  }
 	else
-	  eventlog(eventlog_level_info,__FUNCTION__,"[%d] client tried to set game status 0x%x to unexistent game (clienttag: %s)",conn_get_socket(c), status, conn_get_clienttag(c));
+	  eventlog(eventlog_level_info,__FUNCTION__,"[%d] client tried to set game status 0x%x to unexistent game (clienttag: %s)",conn_get_socket(c), status, clienttag_uint_to_str(conn_get_clienttag(c)));
      }
 	     
      if ((rpacket = packet_create(packet_class_bnet)))
