@@ -202,8 +202,7 @@ extern int anongame_infos_unload(void);
 
 extern char anongame_infos_get_thumbsdown(int queue);
 
-extern short anongame_infos_get_ICON_REQ_WAR3(int Level);
-extern short anongame_infos_get_ICON_REQ_W3XP(int Level);
+extern short anongame_infos_get_ICON_REQ(int Level,t_clienttag clienttag);
 extern short anongame_infos_get_ICON_REQ_TOURNEY(int Level);
 
 extern char * anongame_infos_data_get_url(t_clienttag clienttag, int versionid, int * len);

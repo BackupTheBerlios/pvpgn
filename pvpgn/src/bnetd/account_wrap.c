@@ -1980,7 +1980,6 @@ extern void account_get_raceicon(t_account * account, char * raceicon, unsigned 
 	unsigned int undead;
 	unsigned int nightelf;
 	unsigned int random;
-	int icons_limits[] = {25, 250, 500, 1500, -1};
 	unsigned int i;
 
 	random = account_get_racewins(account,W3_RACE_RANDOM,clienttag);
@@ -2008,9 +2007,9 @@ extern void account_get_raceicon(t_account * account, char * raceicon, unsigned 
 	    *raceicon = 'R';
 	    *wins = random;
 	}
-	i = 0;
-	while((signed)*wins >= icons_limits[i] && icons_limits[i] > 0) i++;
-	*raceiconnumber = i + 1;
+	i = 1;
+	while((signed)*wins >= anongame_infos_get_ICON_REQ(i,clienttag) && anongame_infos_get_ICON_REQ(i,clienttag) > 0) i++;
+	*raceiconnumber = i ;
 }
 
 extern int account_get_profile_calcs(t_account * account, int xp, unsigned int Level)
@@ -2271,15 +2270,9 @@ extern unsigned int account_get_icon_profile(t_account * account, t_clienttag cl
             race = 0;
         }
 
-	if (clienttag==CLIENTTAG_WARCRAFT3_UINT) 
-	{
-          while(wins >= anongame_infos_get_ICON_REQ_WAR3(level+1) && anongame_infos_get_ICON_REQ_WAR3(level+1) > 0) level++;
-	}
-	else
-	{
-          while(wins >= anongame_infos_get_ICON_REQ_W3XP(level+1) && anongame_infos_get_ICON_REQ_W3XP(level+1) > 0) level++;
+        while(wins >= anongame_infos_get_ICON_REQ(level+1,clienttag) && anongame_infos_get_ICON_REQ(level+1,clienttag) > 0) level++;
+	if (clienttag == CLIENTTAG_WAR3XP_UINT)
 	  number_ctag = 6;
-	}
         
         eventlog(eventlog_level_info,__FUNCTION__,"race -> %u; level -> %u; wins -> %u; profileicon -> %s", race, level, wins, profile_code[race+number_ctag][level]);
 

@@ -756,8 +756,11 @@ static int anongame_infos_ICON_REQ_set_REQ(t_anongame_infos * anongame_infos, in
     return 0;
 }
 
-extern short anongame_infos_get_ICON_REQ_WAR3(int Level)
+extern short anongame_infos_get_ICON_REQ(int Level, t_clienttag clienttag)
 {
+  switch (clienttag)
+  {
+  case CLIENTTAG_WARCRAFT3_UINT:
     switch (Level)
     {
     case 0:
@@ -771,13 +774,9 @@ extern short anongame_infos_get_ICON_REQ_WAR3(int Level)
     case 4:
 	return anongame_infos->anongame_infos_ICON_REQ[ICON_REQ_WAR3_Level4];
     default:
-	eventlog(eventlog_level_error, __FUNCTION__, "invalid Level (%d)", Level);
 	return -1;
     }
-}
-
-extern short anongame_infos_get_ICON_REQ_W3XP(int Level)
-{
+  case CLIENTTAG_WAR3XP_UINT:
     switch (Level)
     {
     case 0:
@@ -793,9 +792,12 @@ extern short anongame_infos_get_ICON_REQ_W3XP(int Level)
     case 5:
 	return anongame_infos->anongame_infos_ICON_REQ[ICON_REQ_W3XP_Level5];
     default:
-	eventlog(eventlog_level_error, __FUNCTION__, "invalid Level (%d)", Level);
 	return -1;
     }
+    default:
+    eventlog(eventlog_level_error,__FUNCTION__,"invalid clienttag");
+    return -1;
+  }
 }
 
 extern short anongame_infos_get_ICON_REQ_TOURNEY(int Level)
@@ -815,7 +817,6 @@ extern short anongame_infos_get_ICON_REQ_TOURNEY(int Level)
     case 5:
 	return anongame_infos->anongame_infos_ICON_REQ[ICON_REQ_TRNY_Level5];
     default:
-	eventlog(eventlog_level_error, __FUNCTION__, "invalid Level (%d)", Level);
 	return -1;
     }
 }

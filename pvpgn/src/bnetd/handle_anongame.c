@@ -514,10 +514,7 @@ static int _client_anongame_get_icon(t_connection * c, t_packet const * const pa
 	bn_byte_set(&rpacket->u.server_findanongame_iconreply.table_width, table_width);
         bn_byte_set(&rpacket->u.server_findanongame_iconreply.table_size, table_width*table_height);
         for (j=0;j<table_height;j++){
-	    if (clienttag==CLIENTTAG_WARCRAFT3_UINT)
-		icon_req_race_wins = anongame_infos_get_ICON_REQ_WAR3(j+1);
-	    else
-		icon_req_race_wins = anongame_infos_get_ICON_REQ_W3XP(j+1);
+	    icon_req_race_wins = anongame_infos_get_ICON_REQ(j+1,clienttag);
 	    for (i=0;i<table_width;i++){
 		tempicon.race=i;
 	        tempicon.icon_code[0] = icon_pos[j];
