@@ -252,14 +252,12 @@ static int _client_anongame_profile(t_connection * c, t_packet const * const pac
 	temp=0;
 	packet_append_data(rpacket,&temp,4);
 	//end of normal stats - Start of AT stats
-	temp=account_get_atteamcount(account,ctag);
 
-	if(temp<=0)
-        {
-          temp=0;
-	  packet_append_data(rpacket,&temp,1);
-        }
-	else
+	/* 1 byte team count place holder, set later */
+	packet_append_data(rpacket, &temp, 1);
+
+	temp=account_get_atteamcount(account,ctag);
+	if(temp>0)
 	{
 	    /* [quetzal] 20020827 - partially rewritten AT part */
 	    int i, j, lvl, highest_lvl[6], cnt;
@@ -274,9 +272,7 @@ static int _client_anongame_profile(t_connection * c, t_packet const * const pac
 	    /* we need to store the AT team count but we dont know yet the no
 	     * of corectly stored teams so we cache the pointer for later use 
 	     */
-	    atcountp = (unsigned char *)packet_get_raw_data_build(rpacket, packet_get_size(rpacket));
-	    /* 1 byte team count place holder, set later */
-	    packet_append_data(rpacket, &temp, 1); 
+	    atcountp = (unsigned char *)packet_get_raw_data(rpacket, packet_get_size(rpacket) - 1);
 
 	    /* populate our array */
 	    for (i = 0; i < cnt; i++)
