@@ -3090,8 +3090,8 @@ static int _client_motdw3(t_connection * c, t_packet const * const packet)
 			   bn_byte_set(&rpacket->u.server_motd_w3.msgtype,SERVER_MOTD_W3_MSGTYPE);
 			   bn_int_set(&rpacket->u.server_motd_w3.curr_time,now);
 			   bn_int_set(&rpacket->u.server_motd_w3.first_news_time,news_time);
-			   bn_int_set(&rpacket->u.server_motd_w3.last_news_time,news_time);
 			   bn_int_set(&rpacket->u.server_motd_w3.timestamp,news_time);
+			   bn_int_set(&rpacket->u.server_motd_w3.timestamp2,news_time);
 			   
 			   // Find file size
 			   /*fseek(fp,0,SEEK_END);
@@ -3151,8 +3151,8 @@ static int _client_motdw3(t_connection * c, t_packet const * const packet)
 	bn_byte_set(&rpacket->u.server_motd_w3.msgtype,SERVER_MOTD_W3_MSGTYPE);
 	bn_int_set(&rpacket->u.server_motd_w3.curr_time,now);
 	bn_int_set(&rpacket->u.server_motd_w3.first_news_time,news_time);
-	bn_int_set(&rpacket->u.server_motd_w3.last_news_time,news_time);
-	bn_int_set(&rpacket->u.server_motd_w3.timestamp,SERVER_MOTD_W3_WELCOME);
+	bn_int_set(&rpacket->u.server_motd_w3.timestamp,news_time);
+	bn_int_set(&rpacket->u.server_motd_w3.timestamp2,SERVER_MOTD_W3_WELCOME);
 	
 	/* MODIFIED BY THE UNDYING SOULZZ 4/7/02 */
 	  {

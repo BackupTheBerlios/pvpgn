@@ -2291,12 +2291,14 @@ typedef struct
 typedef struct
 {
     t_bnet_header h;
-	bn_byte        msgtype; // this is probably actually the count
-	bn_int         curr_time;
-	bn_int         first_news_time;
-	bn_int         last_news_time;
-	bn_int         timestamp;
-    //bn_byte        unknown[17]; //  01 16 3A 6C 3C FF FF FF FF 00 00 00 00 00 00 00 00
+	bn_byte        msgtype; /* we only saw "1" type so far */
+	bn_int         curr_time; /* as seen by the server */
+	bn_int         first_news_time; /* the oldest news item's timestamp */
+	bn_int         timestamp; /* the timestamp of this news item */
+			    /* it is equal with the latest news item timestamp for
+			    the welcome message */
+	bn_int         timestamp2; /* always equal with the timestamp except the
+				    last packet which shows in the right panel */
 	/* text */
 } t_server_motd_w3 PACKED_ATTR();
 #define SERVER_MOTD_W3_MSGTYPE  0x01
