@@ -132,9 +132,10 @@ extern t_channel * channel_create(char const * fullname, char const * shortname,
 	      eventlog(eventlog_level_error,"channel_create","could not create duplicate permanent channel (fullname \"%s\")",fullname);
 	      return NULL;
 	    }
-	    else if ((channel->allowbots!=botflag) || (channel->allowopers!=operflag) || 
+	    else if (((channel->flags & channel_flags_allowbots)!=botflag) || 
+		     ((channel->flags & channel_flags_allowopers)!=operflag) || 
 		     (channel->maxmembers!=maxmembers) || 
-		     ((channel_get_flags(channel) & channel_flags_moderated)!=moderated) ||
+		     ((channel->flags & channel_flags_moderated)!=moderated) ||
 		     (channel->logname && logflag==0) || (!(channel->logname) && logflag ==1))
 	    {
 		eventlog(eventlog_level_error,__FUNCTION__,"channel parameters do not match for \"%s\" and \"%s\"",fullname,channel->name);
@@ -278,9 +279,9 @@ extern t_channel * channel_create(char const * fullname, char const * shortname,
     channel->ref = 0;
 #endif
     
-    channel->permanent  = permflag;
-    channel->allowbots  = botflag;
-    channel->allowopers = operflag;
+    if (permflag) channel->flags |= channel_flags_permanent;
+    if (botflag)  channel->flags |= channel_flags_allowbots;
+    if (operflag) channel->flags |= channel_flags_allowopers;
     
     if (logflag)
     {
@@ -329,9 +330,9 @@ extern t_channel * channel_create(char const * fullname, char const * shortname,
 		fprintf(channel->log,"shortname=\"%s\"\n",channel->shortname);
 	    else
 		fprintf(channel->log,"shortname=none\n");
-	    fprintf(channel->log,"permanent=\"%s\"\n",channel->permanent?"true":"false");
-	    fprintf(channel->log,"allowbotse=\"%s\"\n",channel->allowbots?"true":"false");
-	    fprintf(channel->log,"allowopers=\"%s\"\n",channel->allowopers?"true":"false");
+	    fprintf(channel->log,"permanent=\"%s\"\n",(channel->flags & channel_flags_permanent)?"true":"false");
+	    fprintf(channel->log,"allowbotse=\"%s\"\n",(channel->flags & channel_flags_allowbots)?"true":"false");
+	    fprintf(channel->log,"allowopers=\"%s\"\n",(channel->flags & channel_flags_allowopers)?"true":"false");
 	    if (channel->clienttag)
 		fprintf(channel->log,"clienttag=\"%s\"\n",channel->clienttag);
 	    else
@@ -391,7 +392,7 @@ extern int channel_destroy(t_channel * channel)
     if (channel->memberlist)
     {
 	eventlog(eventlog_level_debug,"channel_destroy","channel is not empty, deferring");
-	channel->permanent = 0; /* make it go away when the last person leaves */
+        channel->flags &= ~channel_flags_permanent; /* make it go away when the last person leaves */
 	return -1;
     }
     
@@ -504,7 +505,7 @@ extern int channel_get_permanent(t_channel const * channel)
 	return 0;
     }
     
-    return channel->permanent;
+    return (channel->flags & channel_flags_permanent);
 }
 
 
@@ -623,7 +624,8 @@ extern int channel_add_connection(t_channel * channel, t_connection * connection
     channel->memberlist = member;
     channel->currmembers++;
 
-    if ((!channel->permanent) && (!(channel_get_flags(channel) & channel_flags_thevoid)) 
+    if ((!(channel->flags & channel_flags_permanent)) 
+        && (!(channel->flags & channel_flags_thevoid)) 
 	&& (channel->currmembers==1) 
 	&& (account_is_operator_or_admin(conn_get_account(connection),channel_get_name(channel))==0))
     {
@@ -736,7 +738,7 @@ extern int channel_del_connection(t_channel * channel, t_connection * connection
 	account_set_tmpOP_channel(acc,NULL);
     }
     
-    if (!channel->memberlist && !channel->permanent) /* if channel is empty, delete it unless it's a permanent channel */
+    if (!channel->memberlist && !(channel->flags & channel_flags_permanent)) /* if channel is empty, delete it unless it's a permanent channel */
     {
 	channel_destroy(channel);
 	list_purge(channellist_head);
@@ -1040,7 +1042,7 @@ extern int channel_check_banning(t_channel const * channel, t_connection const *
 	return -1;
     }
     
-    if (!channel->allowbots && conn_get_class(user)==conn_class_bot)
+    if (!(channel->flags & channel_flags_allowbots) && conn_get_class(user)==conn_class_bot)
 	return 1;
     
     LIST_TRAVERSE_CONST(channel->banlist,curr)
@@ -1609,7 +1611,7 @@ extern int channellist_reload(void)
 	  continue;
 	}
 	/* Trick to avoid automatic channel destruction */
-	channel->permanent = 1;
+	channel->flags |= channel_flags_permanent;
 	if (channel->memberlist)
 	{
 	  /* we need only channel name and memberlist */
@@ -1665,7 +1667,7 @@ extern int channellist_reload(void)
 	}
 	
 	/* Channel is empty - Destroying it */
-	channel->permanent = 0;
+	channel->flags &= ~channel_flags_permanent;
 	if (channel_destroy(channel)<0)
 	  eventlog(eventlog_level_error,"channellist_reload","could not destroy channel");
 	
@@ -1946,8 +1948,8 @@ extern t_channel * channellist_find_channel_by_name(char const * name, char cons
 		/* save off some info in case we need to create a new copy */
 		saveshortname = channel->shortname;
 		savetag = channel->clienttag;
-		savebotflag = channel->allowbots;
-		saveoperflag = channel->allowopers;
+		savebotflag = channel->flags & channel_flags_allowbots;
+		saveoperflag = channel->flags & channel_flags_allowopers;
 		if (channel->logname)
 		    savelogflag = 1;
                 else
@@ -1961,7 +1963,7 @@ extern t_channel * channellist_find_channel_by_name(char const * name, char cons
                 else
                     saverealmname = channel->realmname;
 		savemaxmembers = channel->maxmembers;
-		savemoderated = channel_get_flags(channel) & channel_flags_moderated;
+		savemoderated = channel->flags & channel_flags_moderated;
 	    } 
 	}
     }

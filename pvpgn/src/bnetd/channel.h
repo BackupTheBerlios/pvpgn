@@ -80,7 +80,10 @@ typedef enum
     channel_flags_restricted=0x04,
     channel_flags_thevoid=0x08,
     channel_flags_system=0x10,
-    channel_flags_official=0x20
+    channel_flags_official=0x20,
+    channel_flags_permanent=0x40,
+    channel_flags_allowbots=0x80,
+    channel_flags_allowopers=0x100
 } t_channel_flags;
 
 /* Just a quick note for BITS: Only the master server decides whether
@@ -116,9 +119,6 @@ typedef struct channel
     char const *      shortname;  /* short "alias" for permanent channels, NULL if none */
     char const *      country;
     char const *      realmname;
-    int               permanent;  /* FIXME: merge with flags */
-    int               allowbots;  /* FIXME: merge with flags */
-    int               allowopers; /* FIXME: merge with flags */
     t_channel_flags   flags;
     int		      maxmembers;
     int		      currmembers;
