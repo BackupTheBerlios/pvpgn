@@ -41,6 +41,8 @@ join/rejoin (fix for chat icon problems with D2)
 -- added a whole bunch of new PG gametypes (5v5, 6v6, 3v3v3, 4v4v4, 2v2v2v2
 and 3v3v3v3) and a new AT gametype (2v2v2) - note: no game result reporting
 for those so far...
+-- added output of (game)version to XML user status output
+-- a tiny change to bnetd.conf due to strange naming of status output parameters
 
 
 1.5.0beta3:
