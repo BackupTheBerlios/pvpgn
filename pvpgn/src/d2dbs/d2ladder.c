@@ -665,7 +665,7 @@ int d2ladder_print_XML(FILE *ladderstrm)
       	{
 	  fprintf(ladderstrm,"\t<char>\n\t\t<rank>%2d</rank>\n\t\t<name>%s</name>\n\t\t<level>%2d</level>\n",
 		             i+1,ldata[i].charname,ldata[i].level);
-	  fprintf(ladderstrm,"\t\t<experience>%d</experience>\n\t\t<class>%s</class>\n",
+	  fprintf(ladderstrm,"\t\t<experience>%u</experience>\n\t\t<class>%s</class>\n",
 		             ldata[i].experience,charclass[ldata[i].class+1]);
 	  fprintf(ladderstrm,"\t\t<prefix>%s</prefix>\n",
 		             get_prefix(overalltype,ldata[i].status,ldata[i].class+1));
