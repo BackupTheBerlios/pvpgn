@@ -185,7 +185,9 @@ bnetd_OBJECTS       = \
     ${SRC_BNETDDIR}\bits_login.obj \
     ${SRC_BNETDDIR}\bits_game.obj \
     ${SRC_BNETDDIR}\bits_motd.obj \
-    ${SRC_BNETDDIR}\pvpgn_mysql.obj \
+    ${SRC_BNETDDIR}\storage_sql.obj \
+    ${SRC_BNETDDIR}\storage_file.obj \    
+    ${SRC_BNETDDIR}\sql_mysql.obj \    
     ${SRC_BNETDDIR}\command_groups.obj \
     ${SRC_BNETDDIR}\output.obj \
     ${SRC_WIN32DIR}\service.obj \
