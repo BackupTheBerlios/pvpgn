@@ -145,7 +145,6 @@ static int file_close(void)
 
 static t_storage_info * file_create_account(const char * username)
 {
-    t_storage_info *info;
     char *temp;
 
     if (accountsdir == NULL) {
@@ -153,7 +152,6 @@ static t_storage_info * file_create_account(const char * username)
 	return NULL;
     }
 
-    info = NULL;
     if (prefs_get_savebyname())
     {
 	char const * safename;
@@ -161,13 +159,12 @@ static t_storage_info * file_create_account(const char * username)
 	if (!(safename = escape_fs_chars(username,strlen(username))))
 	{
 	    eventlog(eventlog_level_error, __FUNCTION__, "could not escape username");
-	    file_free_info(info);
 	    return NULL;
 	}
 	if (!(temp = malloc(strlen(accountsdir)+1+strlen(safename)+1))) /* dir + / + name + NUL */
 	{
 	    eventlog(eventlog_level_error, __FUNCTION__, "could not allocate memory for temp");
-	    file_free_info(info);
+	    free((void *)safename);
 	    return NULL;
 	}
 	sprintf(temp,"%s/%s",accountsdir,safename);
@@ -176,14 +173,12 @@ static t_storage_info * file_create_account(const char * username)
 	if (!(temp = malloc(strlen(accountsdir)+1+8+1))) /* dir + / + uid + NUL */
 	{
 	    eventlog(eventlog_level_error, __FUNCTION__, "could not allocate memory for temp");
-	    file_free_info(info);
 	    return NULL;
 	}
 	sprintf(temp,"%s/%06u",accountsdir,maxuserid+1); /* FIXME: hmm, maybe up the %06 to %08... */
     }
-    info = temp;
 
-    return info;
+    return temp;
 }
 
 static int file_write_attrs(t_storage_info *info, void *attributes)

@@ -142,9 +142,6 @@ extern int account_unget_ll_cdkey(char const * cdkey);
 extern int account_set_ll_cdkey(t_account * account, char const * cdkey);
 
 extern int account_remove_verbose_accounting(t_account * account);
-#ifdef WITH_MYSQL
-extern int accounts_remove_verbose_columns(void);
-#endif
 
 /* normal stats */
 extern unsigned int account_get_normal_wins(t_account * account, char const * clienttag);

@@ -106,8 +106,8 @@ RC      = brc32
 #However the data alignment has to be set to "quad word", thus the -a8 in SQLFLAGS
 #This might not work flawless, MYSQL suggests to use their static libs from http://www.mysql.com/downloads/os-win32.html
 
-!ifdef WITH_MYSQL
-SQLFLAGS = -DWITH_MYSQL -a8
+!ifdef WITH_SQL_MYSQL
+SQLFLAGS = -DWITH_SQL_MYSQL -DWITH_SQL -a8
 !endif
 
 CFLAGS      = -v -y -O2 -d -j2 -w-8060 -w-8057
@@ -115,7 +115,7 @@ CPPFLAGS    = -DWIN32 -DHAVE_CONFIG_H -I${SRC_SRCDIR}\
                 -DBNETD_DEFAULT_CONF_FILE=\"${bnetd_DEFCONFFILE:\=\\}\" ${SQLFLAGS}
 COMPILE     = ${CC} ${CFLAGS} ${CPPFLAGS} -c
 LINK        = ilink32 -v -L${LINK_LIBS_PATH}
-!ifdef WITH_MYSQL
+!ifdef WITH_SQL_MYSQL
 LINK_LIBS   = libmySQL_bc.lib
 !else
 LINK_LIBS   =

@@ -771,29 +771,6 @@ extern int account_remove_verbose_accounting(t_account * account)
     return 0;
 }
 
-#ifdef WITH_MYSQL
-extern int accounts_remove_verbose_columns(void)
-{
-  db_drop_column("BNET\\acct\\firstlogin_time");
-  db_drop_column("BNET\\acct\\firstlogin_connection");
-  db_drop_column("BNET\\acct\\firstlogin_host");
-  db_drop_column("BNET\\acct\\firstlogin_user");
-  db_drop_column("BNET\\acct\\firstlogin_clientexe");
-  db_drop_column("BNET\\acct\\firstlogin_clienttag");
-  db_drop_column("BNET\\acct\\firstlogin_clientver");
-  db_drop_column("BNET\\acct\\firstlogin_owner");
-  db_drop_column("BNET\\acct\\firstlogin_cdkey");
-  db_drop_column("BNET\\acct\\lastlogin_connection");
-  db_drop_column("BNET\\acct\\lastlogin_user");
-  db_drop_column("BNET\\acct\\lastlogin_clientexe");
-  db_drop_column("BNET\\acct\\lastlogin_clienttag");
-  db_drop_column("BNET\\acct\\lastlogin_clientver");
-  db_drop_column("BNET\\acct\\lastlogin_cdkey");
-  return 0;
-
-}
-#endif
-
 /****************************************************************/
 
 
