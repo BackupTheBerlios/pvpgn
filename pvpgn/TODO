@@ -1,0 +1,49 @@
+PvPGN TODO LIST AND WHATS BEING WORKED ON:
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+Release v1.6 roadmap:
+1. complete tournament support with crash recovery option
+2. clans support
+3. move ladders into binary files and only rebuild them from accounts
+   when they are corupted or by admin request (a / command); this will
+   greatly speed up startup on many users servers. 
+   Also move the creation of xml/text ladder-files to a seperate daemon
+4. anonagame stuff
+    c. move w3route functions to its own .c/.h file (for w3route server)
+    e. tournament stuff
+	1. determine how games are limited to 30 minutes & map reveled at 25
+	2. complete the process for finals selection
+	3. make struct to hold / match / advance / eleminate finals players
+	    and functions to acomplish this task
+	4. add stats recording for tournament games (did race wins)
+5. optimize PvPGN using "inline" functions in all "small" functions
+6. complete support for diablo2 1.10
+
+
+Stuff not programmed for any specific version release:			      
+
+* moving from current team stuff to teamID (thats something DJP and his guys 
+wanted to do) 
+
+* changing data references from accountnames to UIDs .... 
+
+* according to forum post, sometimes the teamcount gets reduced too much 
+(set to -1) only i W3XP, when the team is disbanded before the first play 
+
+* make a "gametrans" like file for realms.list too so internal clients
+can get a internal IP for the d2cs server
+
+* get BITS working (even considering on starting from JEBs version
+which he claims to fully work BITS and add war3 to it)
+
+* make a separate daemon w3route server
+
+* design a plugins support and move in time all the code in plugins (except
+the core code of course)
+
+* add gamespy protocol support (gamespy master server does what we do in bnetd
+keeping user accounts, records, stats, channels, publishing games to requestors)
+very nice ideea from Mivabe
+
+* add some way to be able to read/write specific "runtime changable" bnetd.conf
+entries (like while server is online doing /config "allow_unknown_version" "false")
