@@ -660,8 +660,6 @@ extern char const * account_get_strattr(t_account * account, char const * key)
     char const *        newkey;
     t_attribute * curr, *last, *last2;
 #ifdef WITH_MYSQL
-   char const * result1;
-   char const * result2;
    char const * result;
    t_attribute * attr;
 #endif
@@ -757,42 +755,35 @@ extern char const * account_get_strattr(t_account * account, char const * key)
 	    last2 = last;
 	    last = curr;
 	}
-    if (newkey!=key)
-	free((void *)newkey); /* avoid warning */
 
 #ifdef WITH_MYSQL
-   result = result1 = result2 = NULL;
-   result1 = storage_get(account->storageid,key);
-   if (account == default_acct) return result1;
-   if (result1 == NULL) result2=account_get_strattr(default_acct,key);
-   if (result1 != NULL) result=result1; else result=result2;
-   attr = malloc(sizeof(t_attribute));
-   attr->key = strdup(key);
-   attr->val = result;
-   attr->dirty = 0;
-   attr->next = account->attrs;
-   account->attrs=attr;
-   if (result1 == NULL)
-   {
-     t_attribute * attr;
-     attr = malloc(sizeof(t_attribute));
-     attr->key = strdup(key);
-     if (result2!=NULL) attr->val = strdup(result2);
-                   else attr->val = NULL;
-     attr->dirty = 0;
-     attr->next = default_acct->attrs;
-     default_acct->attrs=attr;
-   }
-   
-   return result;
+   if (account != default_acct) { /* default acct is always in memory */
+	result = storage_get(account->storageid,newkey);
+	if (result != NULL) {
+	    attr = malloc(sizeof(t_attribute));
+	    attr->key = strdup(newkey);
+	    attr->val = result;
+	    attr->dirty = 0;
+	    attr->next = account->attrs;
+	    account->attrs=attr;
+
+	    if (newkey!=key) free((void *)newkey); /* avoid warning */
+
+	    return result;
+	}
+    } else
 #else
     if (account==default_acct) /* don't recurse infinitely */
-	return NULL;
-    
-    return account_get_strattr(default_acct,key); /* FIXME: this is sorta dangerous because this pointer can go away if we re-read the config files... verify that nobody caches non-username, userid strings */
 #endif
-}
+    {
+	if (newkey!=key) free((void *)newkey); /* avoid warning */
+	return NULL;
+    }
+    
+    if (newkey!=key) free((void *)newkey); /* avoid warning */
 
+    return account_get_strattr(default_acct,key); /* FIXME: this is sorta dangerous because this pointer can go away if we re-read the config files... verify that nobody caches non-username, userid strings */
+}
 
 extern int account_unget_strattr(char const * val)
 {
