@@ -37,6 +37,7 @@
 #include "common/util.h"
 #include "common/packet.h"
 #include "common/tag.h"
+#include "common/bn_type.h"
 #include "zlib/pvpgn_zlib.h"
 #include "tournament.h"
 #include "anongame_maplists.h"
@@ -3468,8 +3469,8 @@ static int zlib_compress(void const * src, int srclen, char ** dest, int * destl
 	    free((void*)tmpdata);
 	    return -1;
 	}
-	memcpy((*dest), &lorigdone, 2);
-	memcpy((*dest)+2, destlen, 2);
+	bn_short_set((bn_short*)(*dest), lorigdone);
+	bn_short_set((bn_short*)(*dest + 2), *destlen);
 	memcpy((*dest)+4, tmpdata, (*destlen));
 	(*destlen) += 4;
     }
