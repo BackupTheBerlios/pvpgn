@@ -1175,13 +1175,13 @@ extern char const * account_get_next_key(t_account * account, char const * key)
 extern int account_check_name(char const * name)
 {
     unsigned int  i;
-	char ch;
-    
+    char ch;
+
     if (!name) {
 	eventlog(eventlog_level_error, __FUNCTION__,"got NULL name");
 	return -1;
     }
-    
+
     for (i=0; i<strlen(name); i++)
     {
         /* These are the Battle.net rules but they are too strict.
@@ -1190,6 +1190,8 @@ extern int account_check_name(char const * name)
          * instead of what is.
          */
         ch = name[i];
+	/* hardcoded safety checks */
+	if (ch == '/' || ch == '\\') return -1;
         if (isalnum((int)ch)) continue;
 	if (strchr(prefs_get_account_allowed_symbols(),ch)) continue;
         return -1;
