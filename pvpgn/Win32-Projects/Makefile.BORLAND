@@ -334,7 +334,7 @@ d2cs_OBJECTS    = \
     ${SRC_COMPATDIR}\difftime.obj \ 
     ${SRC_COMPATDIR}\pdir.obj \ 
     ${SRC_COMPATDIR}\strsep.obj \
-    ${SRC_WIN32DIR}\service_d2cs.obj \
+    ${SRC_WIN32DIR}\service.obj \
     ${SRC_WIN32DIR}\d2cs_winmain.obj    
 
 d2dbs_DEFCONFFILE = ${confdir}\d2dbs.conf 
@@ -363,7 +363,7 @@ d2dbs_OBJECTS = \
     ${SRC_COMPATDIR}\psock.obj \
     ${SRC_COMPATDIR}\strerror.obj \ 
     ${SRC_COMPATDIR}\strsep.obj \
-    ${SRC_WIN32DIR}\service_d2dbs.obj \
+    ${SRC_WIN32DIR}\service.obj \
     ${SRC_WIN32DIR}\d2dbs_winmain.obj    
 
 bnproxy_SBIN    = ${SRC_SBINDIR}\bnproxy.exe

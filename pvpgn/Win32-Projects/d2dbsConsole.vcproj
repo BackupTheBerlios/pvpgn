@@ -238,7 +238,7 @@
 				Name="win32"
 				Filter="">
 				<File
-					RelativePath="..\src\win32\service_d2dbs.c">
+					RelativePath="..\src\win32\service.c">
 				</File>
 			</Filter>
 		</Filter>

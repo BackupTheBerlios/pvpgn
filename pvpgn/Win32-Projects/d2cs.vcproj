@@ -336,7 +336,7 @@
 					RelativePath="..\src\win32\d2cs_winmain.c">
 				</File>
 				<File
-					RelativePath="..\src\win32\service_d2cs.c">
+					RelativePath="..\src\win32\service.c">
 				</File>
 			</Filter>
 		</Filter>

@@ -333,7 +333,7 @@
 				Name="win32"
 				Filter="">
 				<File
-					RelativePath="..\src\win32\service_d2cs.c">
+					RelativePath="..\src\win32\service.c">
 				</File>
 			</Filter>
 		</Filter>
