@@ -611,7 +611,8 @@ extern int channel_add_connection(t_channel * channel, t_connection * connection
     channel->currmembers++;
 
     if ((!channel->permanent) && (!(channel_get_flags(channel) & channel_flags_thevoid)) 
-	&& (channel->currmembers==1))
+	&& (channel->currmembers==1) 
+	&& (account_is_operator_or_admin(conn_get_account(connection),channel_get_name(channel))==0))
     {
 	message_send_text(connection,message_type_info,connection,"you are now tempOP for this channel");
 	account_set_tmpOP_channel(conn_get_account(connection),(char *)channel_get_name(channel));
