@@ -3150,8 +3150,8 @@ static int _client_findanongame(t_connection * c, t_packet const * const packet)
 	} else { /* FIXME: this needs to be done properly */
 		//BlacKDicK 04/02/2003
 		int i;
-		int* client_tag;
-		int* client_tag_unk;
+		int client_tag;
+		int client_tag_unk;
 		int server_tag_unk;
 		char server_tag_count=0;
 		char ladr_count=0;
@@ -3203,9 +3203,9 @@ static int _client_findanongame(t_connection * c, t_packet const * const packet)
 		
 		eventlog(eventlog_level_debug,__FUNCTION__,"client_findanongame_inforeq.noitems=(0x%01x)",bn_byte_get(packet->u.client_findanongame_inforeq.noitems));
 		for (i=0;i<bn_byte_get(packet->u.client_findanongame_inforeq.noitems);i++){
-			client_tag=(int*)packet_get_data_const(packet,10+(i*8),4);
-			client_tag_unk=(int*)packet_get_data_const(packet,14+(i*8),4);
-			switch ((int)*client_tag){
+			memcpy(&client_tag,(packet_get_data_const(packet,10+(i*8),4)),sizeof(int));
+			memcpy(&client_tag_unk,packet_get_data_const(packet,14+(i*8),4),sizeof(int));
+			switch (client_tag){
 			case CLIENT_FINDANONGAME_INFOTAG_URL:
 				server_tag_unk=0xBF1F1047;
 				packet_append_data(rpacket, "LRU\0" , 4);
@@ -3215,7 +3215,7 @@ static int _client_findanongame(t_connection * c, t_packet const * const packet)
 				packet_append_string(rpacket, anongame_infos_URL_get_player_url());
 				packet_append_string(rpacket, anongame_infos_URL_get_tourney_url());
 				server_tag_count++;
-				eventlog(eventlog_level_debug,__FUNCTION__,"client_tag request tagid=(0x%01x) tag=(%s)  tag_unk=(0x%04x)",i,"CLIENT_FINDANONGAME_INFOTAG_URL",*client_tag_unk);
+				eventlog(eventlog_level_debug,__FUNCTION__,"client_tag request tagid=(0x%01x) tag=(%s)  tag_unk=(0x%04x)",i,"CLIENT_FINDANONGAME_INFOTAG_URL",client_tag_unk);
 				break;
 			case CLIENT_FINDANONGAME_INFOTAG_MAP:
 				server_tag_unk=0x70E2E0D5;
@@ -3231,7 +3231,7 @@ static int _client_findanongame(t_connection * c, t_packet const * const packet)
 				anongame_add_maps_to_packet(rpacket, ANONGAME_TYPE_SMALL_FFA);
 				
 				server_tag_count++;
-				eventlog(eventlog_level_debug,__FUNCTION__,"client_tag request tagid=(0x%01x) tag=(%s)  tag_unk=(0x%04x)",i,"CLIENT_FINDANONGAME_INFOTAG_MAP",*client_tag_unk);
+				eventlog(eventlog_level_debug,__FUNCTION__,"client_tag request tagid=(0x%01x) tag=(%s)  tag_unk=(0x%04x)",i,"CLIENT_FINDANONGAME_INFOTAG_MAP",client_tag_unk);
 				break;
 			case CLIENT_FINDANONGAME_INFOTAG_TYPE:
 				server_tag_unk=0x7C87DEEE;
@@ -3330,7 +3330,7 @@ static int _client_findanongame(t_connection * c, t_packet const * const packet)
 				packet_append_data(rpacket,&anongame_AT_2v2_maps_static,7);
 				
 				server_tag_count++;
-				eventlog(eventlog_level_debug,__FUNCTION__,"client_tag request tagid=(0x%01x) tag=(%s) tag_unk=(0x%04x)",i,"CLIENT_FINDANONGAME_INFOTAG_TYPE",*client_tag_unk);
+				eventlog(eventlog_level_debug,__FUNCTION__,"client_tag request tagid=(0x%01x) tag=(%s) tag_unk=(0x%04x)",i,"CLIENT_FINDANONGAME_INFOTAG_TYPE",client_tag_unk);
 				break;
 			case CLIENT_FINDANONGAME_INFOTAG_DESC:
 				server_tag_unk=0xA4F0A22F;
@@ -3381,7 +3381,7 @@ static int _client_findanongame(t_connection * c, t_packet const * const packet)
 				
 				
 				server_tag_count++;
-				eventlog(eventlog_level_debug,__FUNCTION__,"client_tag request tagid=(0x%01x) tag=(%s) tag_unk=(0x%04x)",i,"CLIENT_FINDANONGAME_INFOTAG_DESC",*client_tag_unk);
+				eventlog(eventlog_level_debug,__FUNCTION__,"client_tag request tagid=(0x%01x) tag=(%s) tag_unk=(0x%04x)",i,"CLIENT_FINDANONGAME_INFOTAG_DESC",client_tag_unk);
 				break;
 			case CLIENT_FINDANONGAME_INFOTAG_LADR:
 				server_tag_unk=0x3BADE25A;
@@ -3407,21 +3407,21 @@ static int _client_findanongame(t_connection * c, t_packet const * const packet)
 				packet_append_string(rpacket, anongame_infos_DESC_get_ladder_AT_3v3_desc((char *)conn_get_country(c)));
 				packet_append_string(rpacket, anongame_infos_URL_get_ladder_AT_3v3_url());
 				server_tag_count++;
-				eventlog(eventlog_level_debug,__FUNCTION__,"client_tag request tagid=(0x%01x) tag=(%s) tag_unk=(0x%04x)",i,"CLIENT_FINDANONGAME_INFOTAG_LADR",*client_tag_unk);
+				eventlog(eventlog_level_debug,__FUNCTION__,"client_tag request tagid=(0x%01x) tag=(%s) tag_unk=(0x%04x)",i,"CLIENT_FINDANONGAME_INFOTAG_LADR",client_tag_unk);
 				break;
 			case CLIENT_FINDANONGAME_INFOTAG_SOLO:
 				// Do nothing.BNET Server W3XP 305b doesn't answer to this request
-				eventlog(eventlog_level_debug,__FUNCTION__,"client_tag request tagid=(0x%01x) tag=(%s) tag_unk=(0x%04x)",i,"CLIENT_FINDANONGAME_INFOTAG_SOLO",*client_tag_unk);
+				eventlog(eventlog_level_debug,__FUNCTION__,"client_tag request tagid=(0x%01x) tag=(%s) tag_unk=(0x%04x)",i,"CLIENT_FINDANONGAME_INFOTAG_SOLO",client_tag_unk);
 				break;
 			case CLIENT_FINDANONGAME_INFOTAG_TEAM:
 				// Do nothing.BNET Server W3XP 305b doesn't answer to this request
-				eventlog(eventlog_level_debug,__FUNCTION__,"client_tag request tagid=(0x%01x) tag=(%s) tag_unk=(0x%04x)",i,"CLIENT_FINDANONGAME_INFOTAG_TEAM",*client_tag_unk);
+				eventlog(eventlog_level_debug,__FUNCTION__,"client_tag request tagid=(0x%01x) tag=(%s) tag_unk=(0x%04x)",i,"CLIENT_FINDANONGAME_INFOTAG_TEAM",client_tag_unk);
 				break;
 			case CLIENT_FINDANONGAME_INFOTAG_FFA:
 				// Do nothing.BNET Server W3XP 305b doesn't answer to this request
-				eventlog(eventlog_level_debug,__FUNCTION__,"client_tag request tagid=(0x%01x) tag=(%s)  tag_unk=(0x%04x)",i,"CLIENT_FINDANONGAME_INFOTAG_FFA",*client_tag_unk);
+				eventlog(eventlog_level_debug,__FUNCTION__,"client_tag request tagid=(0x%01x) tag=(%s)  tag_unk=(0x%04x)",i,"CLIENT_FINDANONGAME_INFOTAG_FFA",client_tag_unk);
 				break;
-			default: eventlog(eventlog_level_debug,__FUNCTION__,"unrec client_tag request tagid=(0x%01x) tag=(0x%04x)",i,*client_tag);
+			default: eventlog(eventlog_level_debug,__FUNCTION__,"unrec client_tag request tagid=(0x%01x) tag=(0x%04x)",i,client_tag);
 
 			}
 
