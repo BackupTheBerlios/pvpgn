@@ -59,7 +59,7 @@ extern int watchlist_add_events(t_connection * owner, t_account * who, char cons
 	    eventlog(eventlog_level_error,"watchlist_add_events","watchlist contains NULL item");
 	    return -1;
 	}
-	if (pair->owner==owner && pair->who==who && ((clienttag == NULL && strlen(pair->clienttag) == 0) || strcasecmp(pair->clienttag, clienttag)==0))
+	if (pair->owner==owner && pair->who==who && ((clienttag == NULL && strlen(pair->clienttag) == 0) || ((clienttag != NULL) && (strcasecmp(pair->clienttag, clienttag)==0))))
 	{
 	    pair->what |= events;
 	    return 0;
