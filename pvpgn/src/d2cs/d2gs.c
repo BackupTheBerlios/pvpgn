@@ -187,7 +187,7 @@ extern t_d2gs * d2gs_create(char const * ipaddr)
 	unsigned int	ip;
 
 	ASSERT(ipaddr,NULL);
-	if ((ip=net_inet_addr(ipaddr))==~0UL) {
+	if ((ip=net_inet_addr(ipaddr))==~0U) {
 		eventlog(eventlog_level_error,__FUNCTION__,"got bad ip address %s",ipaddr);
 		return NULL;
 	}

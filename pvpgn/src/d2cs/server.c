@@ -130,7 +130,7 @@ static int server_listen(void)
 		if (psock_ctl(sock,PSOCK_NONBLOCK)<0) {
 			eventlog(eventlog_level_error,__FUNCTION__,"error set listen socket in non-blocking mode");
 		}
-		laddr_data.p=(void *)sock;
+		laddr_data.i = sock;
 		addr_set_data(curr_laddr,laddr_data);
 		fdwatch_add_fd(sock, fdwatch_type_read, d2cs_server_handle_accept, curr_laddr);
 	}
@@ -246,7 +246,7 @@ extern int d2cs_server_handle_accept(void *data, t_fdwatch_type rw)
 {
     int sock;
 
-    sock = (int)addr_get_data((t_addr *)data).p;
+    sock = addr_get_data((t_addr *)data).i;
     server_accept(sock);
     return 0;
 }
@@ -333,7 +333,7 @@ static int server_cleanup(void)
 
 	BEGIN_LIST_TRAVERSE_DATA(server_listen_addrs,curr_laddr)
 	{
-		sock=(int)addr_get_data(curr_laddr).p;
+		sock=addr_get_data(curr_laddr).i;
 		psock_close(sock);
 	}
 	END_LIST_TRAVERSE_DATA()
