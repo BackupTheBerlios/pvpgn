@@ -102,6 +102,16 @@
 #include "compat/netinet_in.h"
 #include "watch.h"
 #include "war3ladder.h"
+# ifdef TIME_WITH_SYS_TIME
+#  include <sys/time.h>
+#  include <time.h>
+# else
+#   if HAVE_SYS_TIME_H
+#    include <sys/time.h>
+#   else
+#    include <time.h>
+#   endif
+# endif
 
 #define MAX_LEVEL 100
 
@@ -115,6 +125,9 @@ static t_connection * player[ANONGAME_TYPES][8];
 
 // [quetzal] 20020815 - queue to hold matching players
 static t_list * matchlists[ANONGAME_TYPES][MAX_LEVEL];
+
+long average_anongame_search_time = 1;
+unsigned int anongame_search_count = 0;
 
 static int _anongame_type_getid(const char *name)
 {
@@ -672,6 +685,17 @@ extern int anongame_unqueue_player(t_connection * c, t_uint8 gametype)
 		return -1;
 	}
 
+	if (conn_get_anongame_search_starttime(c) != ((time_t)0)) 
+	{
+		average_anongame_search_time *=	anongame_search_count;
+		average_anongame_search_time += (long)difftime(time(NULL),conn_get_anongame_search_starttime(c));
+		anongame_search_count++;
+		average_anongame_search_time /= anongame_search_count;
+		if (anongame_search_count > 20000) anongame_search_count = anongame_search_count / 2; /* to prevent an overflow of the average time */
+		conn_set_anongame_search_starttime(c, ((time_t)0));
+	}
+	
+
 	for (i = 0; i < MAX_LEVEL; i++) {
 		if (matchlists[gametype][i] == NULL) continue;
 
@@ -745,6 +769,8 @@ extern void handle_anongame_search(t_connection * c, t_packet const * packet)
 	t_uint32 map_prefs;
 
 	option = bn_byte_get(packet->u.client_findanongame.option);
+
+	conn_set_anongame_search_starttime(c,time(NULL));
 
 	if(option==CLIENT_FINDANONGAME_AT_INVITER_SEARCH) {
 		t_uint8 teamsize = bn_byte_get(packet->u.client_findanongame_at_inv.teamsize);
@@ -837,7 +863,7 @@ extern void handle_anongame_search(t_connection * c, t_packet const * packet)
 	bn_int_set(&rpacket->u.server_playgame_ack.count,Count);
 	bn_int_set(&rpacket->u.server_playgame_ack.playgameack2,SERVER_PLAYGAME_ACK2);
 	if (strcmp(conn_get_clienttag(c), CLIENTTAG_WAR3XP) == 0) {
-	    int temp = SERVER_PLAYGAME_AVGTIME;
+	    int temp = (int)average_anongame_search_time;
 	    packet_append_data(rpacket, &temp, 2);
 	}
 	queue_push_packet(conn_get_out_queue(c),rpacket);

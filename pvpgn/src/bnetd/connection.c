@@ -443,6 +443,8 @@ extern t_connection * conn_create(int tsock, int usock, unsigned int real_local_
 	temp->motd_loggedin = 0;
 	temp->joingamewhisper = 0;
 	temp->leavegamewhisper = 0;
+
+	temp->anongame_search_starttime = 0;
 		
 	if (list_prepend_data(conn_head,temp)<0)
     {
@@ -3626,4 +3628,23 @@ extern pmap_row const * conn_get_pmap(t_connection * c)
    }
    
    return c->pmap;
+}
+
+extern int conn_set_anongame_search_starttime(t_connection * c, time_t t)
+{
+   if (c == NULL) {
+      eventlog(eventlog_level_error, "conn_set_anongame_search_starttime", "got NULL connection");
+      return -1;
+   }
+   c->anongame_search_starttime = t;
+   return 0;
+}
+
+extern time_t conn_get_anongame_search_starttime(t_connection * c)
+{
+	if (c == NULL) {
+	  eventlog(eventlog_level_error, "conn_set_anongame_search_starttime", "got NULL connection");
+      return ((time_t) 0);
+    }
+  return c->anongame_search_starttime;
 }

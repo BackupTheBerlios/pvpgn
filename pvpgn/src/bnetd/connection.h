@@ -194,6 +194,8 @@ typedef struct connection
    
    // [quetzal] 20020828 - creation time, can be used for killing idling init connections
    int					  cr_time;
+
+   time_t                 anongame_search_starttime;
 }
 #endif
 t_connection;
@@ -387,5 +389,7 @@ extern int conn_set_leavegamewhisper_ack(t_connection * c, unsigned int value);
 extern int conn_get_leavegamewhisper_ack(t_connection * c);
 extern int conn_set_pmap(t_connection *c, pmap_row const * pmap);
 extern pmap_row const * conn_get_pmap(t_connection *c);
+extern int conn_set_anongame_search_starttime(t_connection * c, time_t t);
+extern time_t conn_get_anongame_search_starttime(t_connection * c);
 #endif
 #endif
