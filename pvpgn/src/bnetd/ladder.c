@@ -1349,7 +1349,7 @@ extern void ladders_load_accounts_to_ladderlists(void)
 		    
 		    if (sexp_cr_res!=load_success)
 	     	    {
-		      war3_ladder_add(&SEXP_current_rating, uid,0*wins,rating,account,0,CLIENTTAG_BROODWARS_UINT);
+		      war3_ladder_add(&SEXP_current_rating, uid,wins,rating,account,0,CLIENTTAG_BROODWARS_UINT);
 	 	    }
 		    
 		    if (sexp_cw_res!=load_success)
