@@ -77,6 +77,7 @@ WAR3		at4v4		Maps\(8)PetrifiedForest.w3m
 
 ######### WARCRAFT 3 THE FROZEN THRONE BETA #################
 
+### CATEGORY 1 (PG) ###
 W3XP		1v1		Maps\FrozenThrone\Beta\(4)TurtleRock.w3x
 W3XP		1v1		Maps\FrozenThrone\Beta\(4)HailStone.w3x
 W3XP		1v1		Maps\FrozenThrone\Beta\(4)Whirlwind.w3x
@@ -89,12 +90,11 @@ W3XP		2v2		Maps\FrozenThrone\Beta\(6)WheelofChaos.w3x
 W3XP		2v2		Maps\FrozenThrone\Beta\(6)StranglethornVale.w3x
 W3XP		2v2		Maps\FrozenThrone\Beta\(6)RiceFields.w3x
 
-W3XP		at2v2		Maps\FrozenThrone\Beta\(4)Islands.w3x
-W3XP		at2v2		Maps\FrozenThrone\Beta\(4)Tanaris.w3x
-W3XP		at2v2		Maps\FrozenThrone\Beta\(4)BridgetooNear.w3x
-W3XP		at2v2		Maps\FrozenThrone\Beta\(6)WheelofChaos.w3x
-W3XP		at2v2		Maps\FrozenThrone\Beta\(6)StranglethornVale.w3x
-W3XP		at2v2		Maps\FrozenThrone\Beta\(6)RiceFields.w3x
+W3XP		3v3		Maps\FrozenThrone\Beta\(6)WheelofChaos.w3x
+W3XP		3v3		Maps\FrozenThrone\Beta\(6)StranglethornVale.w3x
+W3XP		3v3		Maps\FrozenThrone\Beta\(6)RiceFields.w3x
+
+W3XP		4v4		Maps\Maps\FrozenThrone\Beta\(8)GardenOfWar.w3x
 
 W3XP		sffa		Maps\FrozenThrone\Beta\(4)Islands.w3x
 W3XP		sffa		Maps\FrozenThrone\Beta\(4)Tanaris.w3x
@@ -103,6 +103,16 @@ W3XP		sffa		Maps\FrozenThrone\Beta\(6)WheelofChaos.w3x
 W3XP		sffa		Maps\FrozenThrone\Beta\(6)StranglethornVale.w3x
 W3XP		sffa		Maps\FrozenThrone\Beta\(6)RiceFields.w3x
 
-W3XP		3v3		Maps\FrozenThrone\Beta\(6)WheelofChaos.w3x
-W3XP		3v3		Maps\FrozenThrone\Beta\(6)StranglethornVale.w3x
-W3XP		3v3		Maps\FrozenThrone\Beta\(6)RiceFields.w3x
+### CATEGORY 2 (AT) ###
+
+W3XP		at2v2		Maps\FrozenThrone\Beta\(4)Islands.w3x
+W3XP		at2v2		Maps\FrozenThrone\Beta\(4)Tanaris.w3x
+W3XP		at2v2		Maps\FrozenThrone\Beta\(4)BridgetooNear.w3x
+W3XP		at2v2		Maps\FrozenThrone\Beta\(6)WheelofChaos.w3x
+W3XP		at2v2		Maps\FrozenThrone\Beta\(6)StranglethornVale.w3x
+W3XP		at2v2		Maps\FrozenThrone\Beta\(6)RiceFields.w3x
+
+W3XP		at3v3		Maps\FrozenThrone\Beta\(6)WheelofChaos.w3x
+W3XP		at3v3		Maps\FrozenThrone\Beta\(6)StranglethornVale.w3x
+W3XP		at3v3		Maps\FrozenThrone\Beta\(6)RiceFields.w3x
+
