@@ -170,7 +170,7 @@ static void d2gs_send_server_conffile(t_d2gs *gs, t_connection *c)
 		bn_int_set(&rpacket->u.d2cs_d2gs_setconffile.size, size);
 		bn_int_set(&rpacket->u.d2cs_d2gs_setconffile.reserved1, time(NULL));
 		packet_append_string(rpacket,confs);
-		queue_push_packet(d2cs_conn_get_out_queue(c),rpacket);
+		conn_push_outqueue(c,rpacket);
 		packet_del_ref(rpacket);
 		eventlog(eventlog_level_info,__FUNCTION__,"send config file to d2gs %s", addr_num_to_ip_str(d2cs_conn_get_addr(c)));
 	}
