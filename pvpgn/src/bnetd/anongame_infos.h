@@ -61,6 +61,24 @@ typedef struct {
 	char * gametype_ffa_long;
 	char * gametype_2v2v2_short;
 	char * gametype_2v2v2_long;
+
+	char * gametype_sffa_short;
+	char * gametype_sffa_long;
+	char * gametype_tffa_short;
+	char * gametype_tffa_long;
+	char * gametype_3v3v3_short;
+	char * gametype_3v3v3_long;
+	char * gametype_4v4v4_short;
+	char * gametype_4v4v4_long;
+	char * gametype_2v2v2v2_short;
+	char * gametype_2v2v2v2_long;
+	char * gametype_3v3v3v3_short;
+	char * gametype_3v3v3v3_long;
+	char * gametype_5v5_short;
+	char * gametype_5v5_long;
+	char * gametype_6v6_short;
+	char * gametype_6v6_long;
+	
 } t_anongame_infos_DESC;
 
 typedef struct {
@@ -73,6 +91,14 @@ typedef struct {
 	char AT_3v3;
 	char AT_4v4;
 	char PG_2v2v2;
+	char AT_ffa;
+	char PG_5v5;
+	char PG_6v6;
+	char PG_3v3v3;
+	char PG_4v4v4;
+	char PG_2v2v2v2;
+	char PG_3v3v3v3;
+	char AT_2v2v2;
 } t_anongame_infos_THUMBSDOWN;
 
 typedef struct {

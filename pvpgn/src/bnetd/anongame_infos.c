@@ -1211,8 +1211,6 @@ static char * anongame_infos_DESC_get_gametype_3v3v3v3_long(char * langID)
 /**********/
 extern char * anongame_infos_get_short_desc(char * langID, int queue)
 {
-    char * result = NULL;
-
     switch(queue) {
 	case ANONGAME_TYPE_1V1:
 	    return anongame_infos_DESC_get_gametype_1v1_short(langID);
@@ -1258,8 +1256,6 @@ extern char * anongame_infos_get_short_desc(char * langID, int queue)
 
 extern char * anongame_infos_get_long_desc(char * langID, int queue)
 {
-    char * result = NULL;
-
     switch(queue) {
 	case ANONGAME_TYPE_1V1:
 	    return anongame_infos_DESC_get_gametype_1v1_long(langID);
