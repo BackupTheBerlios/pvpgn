@@ -10,6 +10,7 @@ PvPGN porting status file
  x86          | FreeBSD 4.x      | OK      | tested
  x86          | FreeBSD 5.x      | OK      | tested but use 5.2.1 at least
  x86          | BeOS R4 /w BONE  | OK      | tested
+ x86          | OpenBSD 3.x      | OK      | tested
  x86_64/AMD64 | Linux 2.6.x      | OK      | tested (pvpgn >= 1.6.3 required)
  sparc64      | SunOS 5.9        | OK      | tested
  PowerPC G3   | Mac OS X 10.2.x  | OK      | tested
