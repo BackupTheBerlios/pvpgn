@@ -119,7 +119,7 @@ whois <player> - looks up some basic information on a user, including their acco
 /lockacct <player> - locks that users account
 %unlockacct 
 /unlockacct <player> - unlocks that users account
-% friends f
+%friends f
 /friends add <username> - add user to your friends list
 /friends del <username> - remove user from your friends list
 /friends list - list all users in your friends list
