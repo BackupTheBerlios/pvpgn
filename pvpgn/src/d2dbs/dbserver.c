@@ -267,17 +267,19 @@ BOOL dbs_server_read_data(t_d2dbs_connection* conn)
 		eventlog(eventlog_level_info,__FUNCTION__,"Socket %d was closed by the client. Shutting down.",conn->sd);
 		return FALSE;
 	} else if (nBytes < 0) {
-		int 		err;
+		int 		err, errno2;
 		psock_t_socklen errlen;
 		
 		err = 0;
 		errlen = sizeof(err);
+		errno2 = errno;
+
 		if (psock_getsockopt(conn->sd, PSOCK_SOL_SOCKET, PSOCK_SO_ERROR, &err, &errlen)<0)
 			return TRUE;
 		if (errlen==0 || err==PSOCK_EAGAIN) {
 			return TRUE;
 		} else {
-			eventlog(eventlog_level_error,__FUNCTION__,"psock_recv() failed : %s",strerror(err));
+			eventlog(eventlog_level_error,__FUNCTION__,"psock_recv() failed : %s",strerror(err ? err : errno2));
 			return FALSE;
 		}
 	}
@@ -299,17 +301,19 @@ BOOL dbs_server_write_data(t_d2dbs_connection* conn)
 	else sendlen=conn->nCharsInWriteBuffer;
 	nBytes = psock_send(conn->sd, conn->WriteBuf, sendlen, 0);
 	if (nBytes < 0) {
-	        int 		err;
+	        int 		err, errno2;
 		psock_t_socklen errlen;
 
 		err = 0;
 		errlen = sizeof(err);
+		errno2 = errno;
+
 		if (psock_getsockopt(conn->sd, PSOCK_SOL_SOCKET, PSOCK_SO_ERROR, &err, &errlen)<0)
 			return TRUE;
 		if (errlen==0 || err==PSOCK_EAGAIN) {
 			return TRUE;
 		} else {
-			eventlog(eventlog_level_error,__FUNCTION__,"psock_send() failed : %s",strerror(err));
+			eventlog(eventlog_level_error,__FUNCTION__,"psock_send() failed : %s",strerror(err ? err : errno2));
 			return FALSE;
 		}
 	}
@@ -459,14 +463,16 @@ void dbs_server_loop(int lsocket)
 			}
 			
 			if (!bOK) {
-				int	err;
+				int	err, errno2;
 				psock_t_socklen	errlen;
 				
 				err = 0;
 				errlen = sizeof(err);
+				errno2 = errno;
+
 				if (psock_getsockopt(it->sd, PSOCK_SOL_SOCKET, PSOCK_SO_ERROR, &err, &errlen)==0) {
 					if (errlen && err!=0) {
-						eventlog(eventlog_level_error,__FUNCTION__,"data socket error : %s",strerror(err));
+						eventlog(eventlog_level_error,__FUNCTION__,"data socket error : %s",strerror(err ? err : errno2));
 					}
 				}
 				dbs_server_shutdown_connection(it);
