@@ -513,6 +513,9 @@ typedef struct
 
 #define CLIENT_W3XP_W3ROUTE_GAMERESULT	0x2ef7
 
+#define CLIENT_W3XP_CHANLISTREQ		0x62ff
+#define SERVER_W3XP_CHANLISTREPLY	0x62ff
+
 // arranged team handling
 
 #define CLIENT_W3XP_ARRANGEDTEAM_FRIENDSCREEN 0x2eff
