@@ -2,6 +2,15 @@ PvPGN Version History:
 
 1.4.0:
 -- fixes for PG/AT and late War3 versions
+-- fixed many mySQL issues (attributes not being saved in previous version)
+-- added compability for Borland C compiler
+-- here we go... added basic "W3 The Frozen Throne" support. So far, we only
+have Custom Game working, but that should be a good point to start from...
+So no PG/AT yet, new clan feature not yet implemented... And we are quiet sure,
+there are still enough leaks left to crash the server... but plain CG playing and
+chatting should be fine.
+When u wanna just update the executable, please make sure, to update the versioncheck 
+file, too.
 
 1.2.4 aka 1.3.0:
 -- irc: prevented "unknown command"-flooding by adding ignors for lagtime and ISON
