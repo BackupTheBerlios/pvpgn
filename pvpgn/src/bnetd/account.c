@@ -1287,18 +1287,13 @@ extern t_clanmember * account_get_clanmember(t_account * account)
 
 extern t_clanmember * account_get_clanmember_forced(t_account * account)
 {
-    t_clanmember * member;
-    
     if(account==NULL)
     {
 	eventlog(eventlog_level_error,__FUNCTION__,"got NULL account");
 	return NULL;
     }
 
-    if ((member = account->clanmember) && (clanmember_get_clan(member)))
-	return member;
-    else
-	return NULL;
+    return  account->clanmember;
 }
 
 extern t_clan * account_get_clan(t_account * account)
