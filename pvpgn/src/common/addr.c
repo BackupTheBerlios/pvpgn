@@ -67,6 +67,9 @@
 #ifdef HAVE_NETDB_H
 # include <netdb.h>
 #endif
+#ifdef HAVE_ASSERT_H
+# include <assert.h>
+#endif
 #include "compat/psock.h"
 #include "common/eventlog.h"
 #include "common/list.h"
@@ -547,29 +550,26 @@ extern int addrlist_append(t_addrlist * addrlist, char const * str, unsigned int
     char *       tstr;
     char *       tok;
     
+    assert(addrlist != NULL);
+    
     if (!str)
     {
-	eventlog(eventlog_level_error,"addrlist_append","got NULL str");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL str");
 	return -1;
     }
 
-    if (!addrlist) {
-	eventlog(eventlog_level_error,"addrlist_append","got NULL addrlist");
-	return -1;
-    }
-        
     tstr = xstrdup(str);
     for (tok=strtok(tstr,","); tok; tok=strtok(NULL,",")) /* strtok modifies the string it is passed */
     {
 	if (!(addr = addr_create_str(tok,defipaddr,defport)))
 	{
-	    eventlog(eventlog_level_error,"addrlist_append","could not create addr");
+	    eventlog(eventlog_level_error,__FUNCTION__,"could not create addr");
 	    xfree(tstr);
 	    return -1;
 	}
 	if (list_append_data(addrlist,addr)<0)
 	{
-	    eventlog(eventlog_level_error,"addrlist_append","could not add item to list");
+	    eventlog(eventlog_level_error,__FUNCTION__,"could not add item to list");
 	    addr_destroy(addr);
 	    xfree(tstr);
 	    return -1;
@@ -591,11 +591,7 @@ extern t_addrlist * addrlist_create(char const * str, unsigned int defipaddr, un
 	return NULL;
     }
     
-    if (!(addrlist = list_create()))
-    {
-	eventlog(eventlog_level_error,"addrlist_create","could not create list");
-	return NULL;
-    }
+    addrlist = list_create();
 
     if (addrlist_append(addrlist,str,defipaddr,defport)<0) {
 	eventlog(eventlog_level_error,"addrlist_create","could not append to newly created addrlist");
