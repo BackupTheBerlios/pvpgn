@@ -4829,6 +4829,7 @@ static int _client_startgame4(t_connection * c, t_packet const * const packet)
 		  break;
 		case CLIENT_STARTGAME4_STATUS_FULL1:
 		case CLIENT_STARTGAME4_STATUS_FULL2:
+		case CLIENT_STARTGAME4_STATUS_FULL_W3:
 		  game_set_status(currgame,game_status_full);
 		  break;
 		case CLIENT_STARTGAME4_STATUS_INIT:
@@ -4837,8 +4838,6 @@ static int _client_startgame4(t_connection * c, t_packet const * const packet)
 		case CLIENT_STARTGAME4_STATUS_OPEN3:
 		  
 		case CLIENT_STARTGAME4_STATUS_OPEN1_W3:
-		case CLIENT_STARTGAME4_STATUS_OPEN2_W3:
-		  
 		  game_set_status(currgame,game_status_open);
 		  break;
 		case CLIENT_STARTGAME4_STATUS_DONE1:
@@ -4864,9 +4863,7 @@ static int _client_startgame4(t_connection * c, t_packet const * const packet)
 		  eventlog(eventlog_level_info,__FUNCTION__,"[%d] game start for \"%s\" refused (no authority)",conn_get_socket(c),(tname = conn_get_username(c)));
 		  conn_unget_username(c,tname);
 	       }
-	     // [quetzal] 20020831 - _OPEN2_W3 game status code
-	     // is only sent by game creator => no need to do conn_set_game for him
-	     else if (status != CLIENT_STARTGAME4_STATUS_OPEN2_W3 &&
+	     else if (status != CLIENT_STARTGAME4_STATUS_FULL_W3 &&
 		      conn_set_game(c,gamename,gamepass,gameinfo,gtype,STARTVER_GW4)==0) {
 		game_set_option(conn_get_game(c),bngoption_to_goption(conn_get_clienttag(c),gtype,option));
 		

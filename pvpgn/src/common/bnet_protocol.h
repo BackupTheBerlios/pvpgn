@@ -3608,7 +3608,7 @@ typedef struct
 #define CLIENT_STARTGAME4_STATUS_OPEN2              0x00000005
 #define CLIENT_STARTGAME4_STATUS_OPEN3              0x00000006
 #define CLIENT_STARTGAME4_STATUS_OPEN1_W3           0x00000010 // added by NonReal -- doubt these do anything at all
-#define CLIENT_STARTGAME4_STATUS_OPEN2_W3           0x00000012 // added by NonReal // [quetzal] 20020831 - changed to 12 from 11
+#define CLIENT_STARTGAME4_STATUS_FULL_W3            0x00000012 // changed from OPEN2 to FULL
 #define CLIENT_STARTGAME4_STATUS_FULL1              0x00000004
 #define CLIENT_STARTGAME4_STATUS_FULL2              0x00000007
 #define CLIENT_STARTGAME4_STATUS_STARTED            0x0000000e
