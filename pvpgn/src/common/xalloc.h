@@ -17,6 +17,10 @@
  */
 
 #ifndef INCLUDED_XALLOC_TYPES
+
+/* out of memory callback function */
+typedef int (*t_oom_cb)(void);
+
 #define INCLUDED_XALLOC_TYPES
 
 #endif /* INCLUDED_XALLOC_TYPES */
@@ -45,5 +49,6 @@ void *xrealloc_real(void *ptr, size_t size, const char *fn, unsigned ln);
 char *xstrdup_real(const char *str, const char *fn, unsigned ln);
 #define xfree(ptr) xfree_real(ptr,__FILE__,__LINE__)
 void xfree_real(void *ptr, const char *fn, unsigned ln);
+void xalloc_setcb(t_oom_cb cb);
 
 #endif /* INCLUDED_XALLOC_PROTOS */

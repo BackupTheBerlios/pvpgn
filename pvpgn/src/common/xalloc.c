@@ -41,6 +41,8 @@
 #include "common/setup_after.h"
 #undef XALLOC_INTERNAL_ACCESS
 
+static t_oom_cb oom_cb = NULL;
+
 void *xmalloc_real(size_t size, const char *fn, unsigned ln)
 {
     void *res;
@@ -48,6 +50,7 @@ void *xmalloc_real(size_t size, const char *fn, unsigned ln)
     res = malloc(size);
     if (!res) {
 	eventlog(eventlog_level_fatal, __FUNCTION__, "out of memory (from %s:%u)",fn,ln);
+	if (oom_cb && oom_cb() && (res = malloc(size))) return res;
 	abort();
     }
 
@@ -61,6 +64,7 @@ void *xcalloc_real(size_t nmemb, size_t size, const char *fn, unsigned ln)
     res = calloc(nmemb,size);
     if (!res) {
 	eventlog(eventlog_level_fatal, __FUNCTION__, "out of memory (from %s:%u)",fn,ln);
+	if (oom_cb && oom_cb() && (res = calloc(nmemb,size))) return res;
 	abort();
     }
 
@@ -74,6 +78,7 @@ void *xrealloc_real(void *ptr, size_t size, const char *fn, unsigned ln)
     res = realloc(ptr,size);
     if (!res) {
 	eventlog(eventlog_level_fatal, __FUNCTION__, "out of memory (from %s:%u)",fn,ln);
+	if (oom_cb && oom_cb() && (res = realloc(ptr,size))) return res;
 	abort();
     }
 
@@ -87,6 +92,7 @@ char *xstrdup_real(const char *str, const char *fn, unsigned ln)
     res = strdup(str);
     if (!res) {
 	eventlog(eventlog_level_fatal, __FUNCTION__, "out of memory (from %s:%u)",fn,ln);
+	if (oom_cb && oom_cb() && (res = strdup(str))) return res;
 	abort();
     }
 
@@ -101,4 +107,9 @@ void xfree_real(void *ptr, const char *fn, unsigned ln)
     }
 
     free(ptr);
+}
+
+void xalloc_setcb(t_oom_cb cb)
+{
+    oom_cb = cb;
 }
