@@ -314,6 +314,8 @@ ${SRC_COMMONDIR}/util.o \
 ${SRC_COMMONDIR}/addr.o \
 ${SRC_COMMONDIR}/d2char_checksum.o \
 ${SRC_COMMONDIR}/xalloc.o \
+${SRC_COMMONDIR}/network.o \
+${SRC_COMMONDIR}/packet.o \
 ${SRC_COMPATDIR}/psock.o \
 ${SRC_COMPATDIR}/strerror.o \
 ${SRC_COMPATDIR}/strsep.o

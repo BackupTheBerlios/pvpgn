@@ -85,6 +85,7 @@
 #endif
 #include "compat/inet_ntoa.h"
 #include "compat/psock.h"
+#include "common/network.h"
 
 #include "dbserver.h"
 #include "charlock.h"
@@ -260,30 +261,10 @@ BOOL dbs_server_read_data(t_d2dbs_connection* conn)
 {
 	int nBytes;
 
-	nBytes = psock_recv(conn->sd,
-		       	conn->ReadBuf + conn->nCharsInReadBuffer,
-		kBufferSize - conn->nCharsInReadBuffer, 0);
-	if (nBytes == 0) {
-		eventlog(eventlog_level_info,__FUNCTION__,"Socket %d was closed by the client. Shutting down.",conn->sd);
-		return FALSE;
-	} else if (nBytes < 0) {
-		int 		err, errno2;
-		psock_t_socklen errlen;
-		
-		err = 0;
-		errlen = sizeof(err);
-		errno2 = psock_errno();
+	nBytes = net_recv(conn->sd, conn->ReadBuf + conn->nCharsInReadBuffer,
+			  kBufferSize - conn->nCharsInReadBuffer);
 
-		if (psock_getsockopt(conn->sd, PSOCK_SOL_SOCKET, PSOCK_SO_ERROR, &err, &errlen)<0)
-			return TRUE;
-		if (errlen==0 || err==PSOCK_EAGAIN) {
-			return TRUE;
-		} else {
-			err = err ? err : errno2;
-			eventlog(eventlog_level_error,__FUNCTION__,"psock_recv() failed : %s(%d)",pstrerror(err),err);
-			return FALSE;
-		}
-	}
+	if (nBytes < 0) return FALSE;
 	conn->nCharsInReadBuffer += nBytes;
 	return TRUE;
 }
@@ -295,36 +276,17 @@ BOOL dbs_server_read_data(t_d2dbs_connection* conn)
  */
 BOOL dbs_server_write_data(t_d2dbs_connection* conn)
 {
-	unsigned int sendlen;
 	int nBytes ;
 
-	if (conn->nCharsInWriteBuffer>kMaxPacketLength) sendlen=kMaxPacketLength;
-	else sendlen=conn->nCharsInWriteBuffer;
-	nBytes = psock_send(conn->sd, conn->WriteBuf, sendlen, 0);
-	if (nBytes < 0) {
-	        int 		err, errno2;
-		psock_t_socklen errlen;
+	nBytes = net_send(conn->sd, conn->WriteBuf, 
+	    conn->nCharsInWriteBuffer > kMaxPacketLength ? kMaxPacketLength : conn->nCharsInWriteBuffer);
 
-		err = 0;
-		errlen = sizeof(err);
-		errno2 = psock_errno();
+	if (nBytes < 0) return FALSE;
 
-		if (psock_getsockopt(conn->sd, PSOCK_SOL_SOCKET, PSOCK_SO_ERROR, &err, &errlen)<0)
-			return TRUE;
-		if (errlen==0 || err==PSOCK_EAGAIN) {
-			return TRUE;
-		} else {
-			err = err ? err : errno2;
-			eventlog(eventlog_level_error,__FUNCTION__,"psock_send() failed : %s(%d)",pstrerror(err), err);
-			return FALSE;
-		}
-	}
-	if (nBytes == conn->nCharsInWriteBuffer) {
-		conn->nCharsInWriteBuffer = 0;
-	} else {
-		conn->nCharsInWriteBuffer -= nBytes;
+	conn->nCharsInWriteBuffer -= nBytes;
+	if (conn->nCharsInWriteBuffer)
 		memmove(conn->WriteBuf, conn->WriteBuf + nBytes, conn->nCharsInWriteBuffer);
-	}
+
 	return TRUE;
 }
 

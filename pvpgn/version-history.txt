@@ -3,6 +3,10 @@ PvPGN Version History:
  Changelog for 1.7.4 (since 1.7.3)
 ===================================
 
+[D2DBS]
+ -- changed codes to use the common network API for send/recv on sockets and 
+ error checking thus hopefully fixing bugs of not ignoring properly some errors 
+
 [BNETD]
   -- made difficulty of a closed D2 game known to bnetd
   -- various clan related bugfixes
