@@ -492,13 +492,9 @@ CONFS		= bnetd.conf d2cs.conf d2dbs.conf \
 		  bnban bnhelp bnbitspasswd bnalias.list anongame_infos.conf tournament.conf topics sql_DB_layout w3trans
 
 SHARES		= ad000001.pcx ad000001.mng ad000004.mng ad000666.mng ad000666.pcx \
-		  icons.bni icons_STAR.bni icons-WAR3.bni \
 		  tos.txt \
-		  bnserver.ini bnserver-D2DV.ini bnserver-WAR3.ini \
 		  newbie.save \
-		  IX86ver1.mpq \
 		  termsofservice-default.txt termsofservice-enUS.txt \
-		  matchmaking-war3-default.dat matchmaking-war3-enUS.dat \
 		  chathelp-war3-default.txt chathelp-war3-enUS.txt \
 		  newaccount-default.txt newaccount-enUS.txt
 
