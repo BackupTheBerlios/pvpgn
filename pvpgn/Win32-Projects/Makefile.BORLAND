@@ -236,6 +236,7 @@ bnetd_OBJECTS       = \
     ${SRC_COMMONDIR}\fdwatch_poll.obj \    
     ${SRC_COMMONDIR}\fdwatch_select.obj \    
     ${SRC_COMMONDIR}\xalloc.obj \        
+    ${SRC_COMMONDIR}\rcm.obj \            
     ${SRC_COMPATDIR}\pdir.obj \
     ${SRC_COMPATDIR}\inet_aton.obj \
     ${SRC_COMPATDIR}\inet_ntoa.obj \

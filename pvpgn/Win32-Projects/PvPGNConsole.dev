@@ -1,7 +1,7 @@
 [Project]
 FileName=PvPGNConsole.dev
 Name=PvPGNConsole
-UnitCount=274
+UnitCount=276
 Type=1
 Ver=1
 ObjFiles=
@@ -2781,6 +2781,26 @@ BuildCmd=
 FileName=..\src\bnetd\team.c
 CompileCpp=0
 Folder=bnetd/Source Files
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit275]
+FileName=..\src\common\rcm.h
+CompileCpp=0
+Folder=common/Header Files
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit276]
+FileName=..\src\common\rcm.c
+CompileCpp=0
+Folder=common/Source Files
 Compile=1
 Link=1
 Priority=1000

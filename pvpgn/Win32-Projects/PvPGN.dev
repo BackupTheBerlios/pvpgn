@@ -1,7 +1,7 @@
 [Project]
 FileName=PvPGN.dev
 Name=PvPGN
-UnitCount=278
+UnitCount=280
 Type=0
 Ver=1
 ObjFiles=
@@ -2820,6 +2820,26 @@ BuildCmd=
 FileName=..\src\win32\resource.h
 CompileCpp=0
 Folder=win32/Resource Files
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit279]
+FileName=..\src\common\rcm.h
+CompileCpp=0
+Folder=common/Header Files
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit280]
+FileName=..\src\common\rcm.c
+CompileCpp=0
+Folder=common/Source Files
 Compile=1
 Link=1
 Priority=1000

@@ -397,6 +397,9 @@
 				</File>
 				<File
 					RelativePath="..\src\common\queue.c">
+				</File>
+				<File
+					RelativePath="..\src\common\rcm.c">
 				</File>
 				<File
 					RelativePath="..\src\common\rlimit.c">
@@ -830,7 +833,10 @@
 				</File>
 				<File
 					RelativePath="..\src\common\queue.h">
-				</File>
+				</File>
+				<File
+					RelativePath="..\src\common\rcm.h">
+				</File>					
 				<File
 					RelativePath="..\src\common\rlimit.h">
 				</File>
