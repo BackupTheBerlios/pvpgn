@@ -16,6 +16,7 @@ than bnetd
   -- fixed sql_DB_layout for command_groups and pgsql
   -- fixed a long standing bug which failed to created new columns properly 
   (mostly seen on servers failing to save AT records to DB)
+  -- fixed files2db.pl conversion script for AT (ie Team table)
 [WAR3-CG]: fixed the "can only create on CG in a row" problem
 
 

@@ -25,6 +25,7 @@ sub db_set {
     $dbh->do("INSERT INTO profile (uid) VALUES ($userid)");
     $dbh->do("INSERT INTO Record (uid) VALUES ($userid)");
     $dbh->do("INSERT INTO friend (uid) VALUES ($userid)");
+    $dbh->do("INSERT INTO Team (uid) VALUES ($userid)");
     for($i=0; $i<scalar(@alist);$i++) {
 	my $tab = $alist[$i]{tab};
 	my $col = $alist[$i]{col};
