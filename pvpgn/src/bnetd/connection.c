@@ -2019,14 +2019,12 @@ extern int conn_set_game(t_connection * c, char const * gamename, char const * g
  * [KWS]
  */
 {
-    if (!c)
-    {
+    if (!c) {
         eventlog(eventlog_level_error,__FUNCTION__,"got NULL connection");
         return -1;
     }
 
-    if (c->protocol.game)
-    {
+    if (c->protocol.game) {
         if (gamename) {
 	    if (strcasecmp(gamename,game_get_name(c->protocol.game)))
         	eventlog(eventlog_level_error,__FUNCTION__,"[%d] tried to join a new game \"%s\" while already in a game \"%s\"!",conn_get_socket(c),gamename,game_get_name(c->protocol.game));
@@ -2035,30 +2033,33 @@ extern int conn_set_game(t_connection * c, char const * gamename, char const * g
     	game_del_player(conn_get_game(c),c);
     	c->protocol.game = NULL;
     }
-    if (gamename)
-    {
-	if (!(c->protocol.game = gamelist_find_game(gamename,type)))
-	{
-	  c->protocol.game = game_create(gamename,gamepass,gameinfo,type,version,c->protocol.client.clienttag,conn_get_gameversion(c));
-	    if (c->protocol.game && conn_get_realm(c) && conn_get_charname(c))
-	    {
+
+    if (gamename) {
+	if (!(c->protocol.game = gamelist_find_game(gamename,type))) {
+	    c->protocol.game = game_create(gamename,gamepass,gameinfo,type,version,c->protocol.client.clienttag,conn_get_gameversion(c));
+	    
+	    if (c->protocol.game && conn_get_realm(c) && conn_get_charname(c)) {
 		game_set_realmname(c->protocol.game,realm_get_name(conn_get_realm(c)));
 		realm_add_game_number(conn_get_realm(c),1);
 		send_d2cs_gameinforeq(c);
 	    }
 	}
-	if (c->protocol.game)
-	{
-	  if (game_add_player(conn_get_game(c),gamepass,version,c)<0)
-	  {
-	    c->protocol.game = NULL; // bad password or version #
-	    return -1;
-	  }
+
+	if (c->protocol.game) {
+	    if (game_add_player(conn_get_game(c),gamepass,version,c)<0) {
+		c->protocol.game = NULL; // bad password or version #
+		return -1;
+	    }
+
+	    if (game_is_ladder(c->protocol.game)) {
+		if (c == game_get_owner(c->protocol.game))
+		    message_send_text(c,message_type_info,c,"Created ladder game");
+		else
+		    message_send_text(c,message_type_info,c,"Joined ladder game");
+	    }
 	}
-	// end of original code
-    }
-    else
-	c->protocol.game = NULL;
+    } else c->protocol.game = NULL;
+
     return 0;
 }
 
