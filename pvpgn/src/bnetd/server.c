@@ -171,7 +171,7 @@ static void memstat_sig_handle(int unused);
 #endif
 
 
-static time_t now;
+time_t now;
 static time_t starttime;
 static time_t curr_exittime;
 static volatile time_t sigexittime=0;

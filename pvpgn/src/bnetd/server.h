@@ -40,6 +40,8 @@ typedef struct
 
 #endif
 
+extern time_t now;
+
 #endif
 
 
