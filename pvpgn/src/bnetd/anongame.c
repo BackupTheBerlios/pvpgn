@@ -1201,6 +1201,7 @@ extern int handle_w3route_packet(t_connection * c, t_packet const * const packet
       //		eventlog(eventlog_level_trace,"handle_w3route_packet","[%d] got W3ROUTE_CONNECTED: %d",conn_get_socket(c), (int)bn_short_get(packet->u.client_w3route_connected.unknown1));
       return 0;
     case CLIENT_W3ROUTE_GAMERESULT:
+    case CLIENT_W3ROUTE_GAMERESULT_W3XP:
 	{
 	   int result = bn_int_get(packet->u.client_w3route_gameresult.result);
 	   t_timer_data data;

@@ -184,6 +184,7 @@ typedef struct
 0060:   00 00 00 00 00 00 00 00   00 00 00                   ...........
 */
 #define CLIENT_W3ROUTE_GAMERESULT 0x2ef7
+#define CLIENT_W3ROUTE_GAMERESULT_W3XP 0x3af7
 typedef struct
 {
 	t_w3route_header h;
