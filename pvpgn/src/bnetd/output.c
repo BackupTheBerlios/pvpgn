@@ -41,6 +41,7 @@
 #include "ladder.h"
 #include "server.h"
 #include "channel.h"
+#include "account.h"
 #include "common/util.h"
 #include "common/bnettime.h"
 #include "common/eventlog.h"
@@ -136,7 +137,7 @@ int output_standard_writer(FILE * fp)
     }
     else
     {
-	fprintf(fp,"[STATUS]\nVersion=%s\nUptime=%s\nGames=%d\nUsers=%d\nChannels=%d\n",PVPGN_VERSION,seconds_to_timestr(server_get_uptime()),gamelist_get_length(),connlist_login_get_length(),channellist_get_length()); // Status
+	fprintf(fp,"[STATUS]\nVersion=%s\nUptime=%s\nGames=%d\nUsers=%d\nChannels=%d\nUserAccounts=%d\n",PVPGN_VERSION,seconds_to_timestr(server_get_uptime()),gamelist_get_length(),connlist_login_get_length(),channellist_get_length(),accountlist_get_length()); // Status
 	fprintf(fp,"[CHANNELS]\n");
 	number=1;
 	LIST_TRAVERSE_CONST(channellist(),curr)
@@ -158,7 +159,7 @@ int output_standard_writer(FILE * fp)
 	    if (game_get_name(game)!=NULL)
 	    {
 		game_name = game_get_name(game);
-		fprintf(fp,"game%d=%s\n",number,game_name);
+		fprintf(fp,"game%d=%s,%s\n",number,game_get_clienttag(game),game_name);
 		number++;
 	    }
 	}
@@ -171,7 +172,7 @@ int output_standard_writer(FILE * fp)
     	    if (conn_get_account(conn))
 	    {
 		tname = conn_get_username(conn);
-		fprintf(fp,"user%d=%s\n",number,tname);
+		fprintf(fp,"user%d=%s,%s\n",number,conn_get_clienttag(conn),tname);
 		conn_unget_username(conn,tname);
 		number++;
 	    }
