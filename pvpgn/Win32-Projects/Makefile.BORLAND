@@ -413,6 +413,7 @@ ${SRC_COMMONDIR}\xalloc.obj \
 ${SRC_COMPATDIR}\inet_ntoa.obj \
 ${SRC_COMPATDIR}\strerror.obj \
 ${SRC_COMPATDIR}\psock.obj \
+${SRC_COMPATDIR}\vsnprintf.obj \
 ${SRC_COMPATDIR}\gettimeofday.obj
 
 bnpass_BIN  = ${SRC_BINDIR}\bnpass.exe
