@@ -3132,13 +3132,13 @@ static int _handle_finger_command(t_connection * c, char const *text)
   unsigned int   i,j;
   t_account *    account;
   t_connection * conn;
-  char const *   host;
+  char const *   ip;
   char *         tok;
   char const *   tname;
   char const *   tsex;
   char const *   tloc;
   char const *   tage;
-  char const *   thost;
+  char const *   tip;
   char const *   tdesc;
   
   for (i=0; text[i]!=' ' && text[i]!='\0'; i++); /* skip command */
@@ -3185,9 +3185,9 @@ static int _handle_finger_command(t_connection * c, char const *text)
   account_unget_age(tage);
   message_send_text(c,message_type_info,c,msgtemp);
   
-  if (!(host=thost = account_get_ll_host(account)) ||
+  if (!(ip=tip = account_get_ll_ip(account)) ||
       !(account_get_command_groups(conn_get_account(c)) & command_get_group("/admin-addr"))) /* default to false */
-    host = "unknown";
+    ip = "unknown";
   
   {
     time_t      then;
@@ -3206,9 +3206,9 @@ static int _handle_finger_command(t_connection * c, char const *text)
       else
 	strcpy(msgtemp,"On since ? from ");
   }
-  strncat(msgtemp,host,32);
-  if (thost)
-    account_unget_ll_host(thost);
+  strncat(msgtemp,ip,32);
+  if (tip)
+    account_unget_ll_ip(tip);
   
   message_send_text(c,message_type_info,c,msgtemp);
   
