@@ -3851,83 +3851,63 @@ static int _client_gamelistreq(t_connection * c, t_packet const * const packet)
 
 static int _client_joingame(t_connection * c, t_packet const * const packet)
 {
-   if (packet_get_size(packet)<sizeof(t_client_join_game)) {
-      eventlog(eventlog_level_error,__FUNCTION__,"[%d] got bad JOIN_GAME packet (expected %u bytes, got %u)",conn_get_socket(c),sizeof(t_client_join_game),packet_get_size(packet));
-      return -1;
-   }
-   
-     {
-	char const * gamename;
-	char const * gamepass;
-	char const * tname;
-	t_game *     game;
-	t_game_type  gtype;
-	
-	if (!(gamename = packet_get_str_const(packet,sizeof(t_client_join_game),GAME_NAME_LEN))) {
-	   eventlog(eventlog_level_error,__FUNCTION__,"[%d] got bad CLIENT_JOIN_GAME (missing or too long gamename)",conn_get_socket(c));
-	   return -1;
-	}
-	
-	if (!(gamepass = packet_get_str_const(packet,sizeof(t_client_join_game)+strlen(gamename)+1,GAME_PASS_LEN))) {
-	   eventlog(eventlog_level_error,__FUNCTION__,"[%d] got bad CLIENT_JOIN_GAME packet (missing or too long gamepass)",conn_get_socket(c));
-	   return -1;
-	}
-		
-	eventlog(eventlog_level_debug,__FUNCTION__,"[%d] trying to join game \"%s\" pass=\"%s\"",conn_get_socket(c),gamename,gamepass);
-	if(!strcmp(gamename, "BNet"))
-	  {
-	     handle_anongame_join(c);
-	     //to prevent whispering over and over that user joined channel
-	     if(conn_get_joingamewhisper_ack(c)==0)
-	       {
-		  watchlist_notify_event(conn_get_account(c),gamename,conn_get_clienttag(c),watch_event_joingame);
-		  conn_set_joingamewhisper_ack(c,1); //1 = already whispered. We reset this each time user joins a channel
-          clanmember_on_change_status_by_connection(c);
-	       }
-	     
-	     gtype = game_type_anongame;
-	  }
-	else 
-	  {
-	     //to prevent whispering over and over that user joined channel
-	     if(conn_get_joingamewhisper_ack(c)==0)
-	       {
-		  if(watchlist_notify_event(conn_get_account(c),gamename,conn_get_clienttag(c),watch_event_joingame)==0)
-		    eventlog(eventlog_level_info,"handle_bnet","Told Mutual Friends your in game %s",gamename);
-		  
-		  conn_set_joingamewhisper_ack(c,1); //1 = already whispered. We reset this each time user joins a channel
-          clanmember_on_change_status_by_connection(c);
-	       }
-	     
-	     if (!(game = gamelist_find_game(gamename,game_type_all)))
-	       {
-		  eventlog(eventlog_level_info,__FUNCTION__,"[%d] unable to find game \"%s\" for user to join",conn_get_socket(c),gamename);
-		  return 0;
-	       }
-	     gtype = game_get_type(game);
-	     gamename = game_get_name(game);
-	     if ((gtype==game_type_ladder && account_get_auth_joinladdergame(conn_get_account(c))==0) || /* default to true */
-		 (gtype!=game_type_ladder && account_get_auth_joinnormalgame(conn_get_account(c))==0)) /* default to true */
-	       {
-		  eventlog(eventlog_level_info,__FUNCTION__,"[%d] game join for \"%s\" to \"%s\" refused (no authority)",conn_get_socket(c),conn_get_username(c),gamename);
-		  /* If the user is not in a game, then map authorization
-		   will fail and keep them from playing. */
-		  return 0;
-	       }
-	  }
+    char const * gamename;
+    char const * gamepass;
+    t_game *     game;
+    t_game_type  gtype;
 
-	if (conn_set_game(c,gamename,gamepass,"",gtype,STARTVER_UNKNOWN)<0)
-	  eventlog(eventlog_level_info,__FUNCTION__,"[%d] \"%s\" joined game \"%s\", but could not be recorded on server",conn_get_socket(c),(tname = conn_get_username(c)),gamename);
-	else
-	  eventlog(eventlog_level_info,__FUNCTION__,"[%d] \"%s\" joined game \"%s\"",conn_get_socket(c),conn_get_username(c),gamename);
+    if (packet_get_size(packet)<sizeof(t_client_join_game)) {
+	eventlog(eventlog_level_error,__FUNCTION__,"[%d] got bad JOIN_GAME packet (expected %u bytes, got %u)",conn_get_socket(c),sizeof(t_client_join_game),packet_get_size(packet));
+        return -1;
+    }
 
-	// W2 hack to part channel on game join
-	if (conn_get_channel(c))
-	  conn_set_channel(c,NULL);
-	
-     }
-   
-   return 0;
+    if (!(gamename = packet_get_str_const(packet,sizeof(t_client_join_game),GAME_NAME_LEN))) {
+	eventlog(eventlog_level_error,__FUNCTION__,"[%d] got bad CLIENT_JOIN_GAME (missing or too long gamename)",conn_get_socket(c));
+	return -1;
+    }
+
+    if (!(gamepass = packet_get_str_const(packet,sizeof(t_client_join_game)+strlen(gamename)+1,GAME_PASS_LEN))) {
+	eventlog(eventlog_level_error,__FUNCTION__,"[%d] got bad CLIENT_JOIN_GAME packet (missing or too long gamepass)",conn_get_socket(c));
+	return -1;
+    }
+
+    eventlog(eventlog_level_debug,__FUNCTION__,"[%d] trying to join game \"%s\" pass=\"%s\"",conn_get_socket(c),gamename,gamepass);
+
+    if(conn_get_joingamewhisper_ack(c)==0) {
+	watchlist_notify_event(conn_get_account(c),gamename,conn_get_clienttag(c),watch_event_joingame);
+	conn_set_joingamewhisper_ack(c,1); /* 1 = already whispered. We reset this each time user joins a channel */
+        clanmember_on_change_status_by_connection(c);
+    }
+
+    if (conn_get_channel(c)) conn_set_channel(c,NULL);
+
+    if(!strcmp(gamename, "BNet") && !handle_anongame_join(c)) {
+	gtype = game_type_anongame;
+	gamename = NULL;
+	return 0;	/* tmp: do not record any anongames as yet */
+    } else {
+	if (!(game = gamelist_find_game(gamename,game_type_all))) {
+	    eventlog(eventlog_level_info,__FUNCTION__,"[%d] unable to find game \"%s\" for user to join",conn_get_socket(c),gamename);
+	    return 0;
+	}
+	gtype = game_get_type(game);
+	gamename = game_get_name(game);
+	if ((gtype==game_type_ladder && account_get_auth_joinladdergame(conn_get_account(c))==0) || /* default to true */
+	    (gtype!=game_type_ladder && account_get_auth_joinnormalgame(conn_get_account(c))==0)) /* default to true */
+	{
+	    eventlog(eventlog_level_info,__FUNCTION__,"[%d] game join for \"%s\" to \"%s\" refused (no authority)",conn_get_socket(c),conn_get_username(c),gamename);
+	    /* If the user is not in a game, then map authorization
+	       will fail and keep them from playing. */
+	    return 0;
+	}
+    }
+
+    if (conn_set_game(c,gamename,gamepass,"",gtype,STARTVER_UNKNOWN)<0)
+	eventlog(eventlog_level_info,__FUNCTION__,"[%d] \"%s\" joined game \"%s\", but could not be recorded on server",conn_get_socket(c),conn_get_username(c),gamename);
+    else
+	eventlog(eventlog_level_info,__FUNCTION__,"[%d] \"%s\" joined game \"%s\"",conn_get_socket(c),conn_get_username(c),gamename);
+
+    return 0;
 }
 
 static int _client_startgame1(t_connection * c, t_packet const * const packet)

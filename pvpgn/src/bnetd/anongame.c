@@ -1872,7 +1872,7 @@ extern int handle_anongame_join(t_connection * c)
     }
     if (!(conn_get_routeconn(c))) {
 	eventlog(eventlog_level_info, __FUNCTION__, "[%d] no route connection", conn_get_socket(c));
-	return 0;
+	return -1;
     }
     if (!(a = conn_get_anongame(c))) {
 	eventlog(eventlog_level_error, __FUNCTION__, "[%d] no anongame struct", conn_get_socket(c));
@@ -1891,7 +1891,6 @@ extern int handle_anongame_join(t_connection * c)
 	}
 
     /* then send each player info about all others */
-
     for (j = 0; j < tp; j++) {
 	jc = anongame_get_player(a, j);
 	if (!jc)		/* ignore disconnected players */
