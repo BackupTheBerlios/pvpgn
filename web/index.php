@@ -192,6 +192,8 @@ color: #FFB019
 						return $mysize;
 				  }
 
+				  echo "<div>&nbsp;</div>\n";
+
 				// Check to see if there is an unstable release currently
 				  if ($latest_unstable <> 0) {
 					// Pass some instructions to files.php and run it
@@ -262,6 +264,9 @@ color: #FFB019
 					  </tr>
 					</table>
 				  </p>
+				  <div align="center">
+					<a href="http://developer.berlios.de/project/showfiles.php?group_id=2291" class="downloadlink">More files...</a>
+				  </div>
 				  <?php
 				  // End files page
 				  } else if ($_GET['page'] == 'about') {
