@@ -443,58 +443,44 @@ install: config all
 .c.bnetg_obj:
     ${COMPILE} -o$@ ${bnetg_CFLAGS} $<
 
-${bnetd_SBIN}: ${bnetd_OBJECTS}
-    -@${INSTALL_DIRS} ${SRC_SBINDIR}
+${bnetd_SBIN}: ${bnetd_OBJECTS} ${SRC_SBINDIR}
     ${LINK} /ap c0x32 ${bnetd_OBJECTS}, $@, , ${LINK_LIBS} cw32 import32
 
-${bnetg_SBIN}: ${bnetg_OBJECTS} ${bnetg_RESOURCES}
-    -@${INSTALL_DIRS} ${SRC_SBINDIR}
+${bnetg_SBIN}: ${bnetg_OBJECTS} ${bnetg_RESOURCES} ${SRC_SBINDIR}
     ${LINK} /aa c0w32 ${bnetg_OBJECTS}, $@, , ${LINK_LIBS} cw32mt import32, , ${bnetg_RESOURCES}
 
-${bnproxy_SBIN}: ${bnproxy_OBJECTS}
-    -@${INSTALL_DIRS} ${SRC_SBINDIR}
+${bnproxy_SBIN}: ${bnproxy_OBJECTS} ${SRC_SBINDIR}
     ${LINK} /ap c0x32 ${bnproxy_OBJECTS}, $@, , ${LINK_LIBS} cw32 import32
 
-${bntrackd_SBIN}: ${bntrackd_OBJECTS}
-    -@${INSTALL_DIRS} ${SRC_SBINDIR}
+${bntrackd_SBIN}: ${bntrackd_OBJECTS}  ${SRC_SBINDIR}
     ${LINK} /ap c0x32 ${bntrackd_OBJECTS}, $@, , ${LINK_LIBS} cw32 import32
 
-${bnchat_BIN}: ${bnchat_OBJECTS}
-    -@${INSTALL_DIRS} ${SRC_BINDIR}
+${bnchat_BIN}: ${bnchat_OBJECTS} ${SRC_BINDIR}
     ${LINK} /ap c0x32 ${bnchat_OBJECTS}, $@, , ${LINK_LIBS} cw32 import32
 
-${bnpass_BIN}: ${bnpass_OBJECTS}
-    -@${INSTALL_DIRS} ${SRC_BINDIR}
+${bnpass_BIN}: ${bnpass_OBJECTS} ${SRC_BINDIR}
     ${LINK} /ap c0x32 ${bnpass_OBJECTS}, $@, , ${LINK_LIBS} cw32 import32
 
-${bnftp_BIN}: ${bnftp_OBJECTS}
-    -@${INSTALL_DIRS} ${SRC_BINDIR}
+${bnftp_BIN}: ${bnftp_OBJECTS} ${SRC_BINDIR}
     ${LINK} /ap c0x32 ${bnftp_OBJECTS}, $@, , ${LINK_LIBS} cw32 import32
 
-${bnbot_BIN}: ${bnbot_OBJECTS}
-    -@${INSTALL_DIRS} ${SRC_BINDIR}
+${bnbot_BIN}: ${bnbot_OBJECTS} ${SRC_BINDIR}
     ${LINK} /ap c0x32 ${bnbot_OBJECTS}, $@, , ${LINK_LIBS} cw32 import32
 
-${bnstat_BIN}: ${bnstat_OBJECTS}
-    -@${INSTALL_DIRS} ${SRC_BINDIR}
+${bnstat_BIN}: ${bnstat_OBJECTS} ${SRC_BINDIR}
     ${LINK} /ap c0x32 ${bnstat_OBJECTS}, $@, , ${LINK_LIBS} cw32 import32
 
 ${bnilist_BIN}: ${bnilist_OBJECTS}
-    -@${INSTALL_DIRS} ${SRC_BINDIR}
     ${LINK} /ap c0x32 ${bnilist_OBJECTS}, $@, , ${LINK_LIBS} cw32 import32
 
-${bni2tga_BIN}: ${bni2tga_OBJECTS}
-    -@${INSTALL_DIRS} ${SRC_BINDIR}
+${bni2tga_BIN}: ${bni2tga_OBJECTS} ${SRC_BINDIR}
     ${LINK} /ap c0x32 ${bni2tga_OBJECTS}, $@, , ${LINK_LIBS} cw32 import32
 
-${bniextract_BIN}: ${bniextract_OBJECTS}
-    -@${INSTALL_DIRS} ${SRC_BINDIR}
+${bniextract_BIN}: ${bniextract_OBJECTS} ${SRC_BINDIR}
     ${LINK} /ap c0x32 ${bniextract_OBJECTS}, $@, , ${LINK_LIBS} cw32 import32
 
-${bnibuild_BIN}: ${bnibuild_OBJECTS}
-    -@${INSTALL_DIRS} ${SRC_BINDIR}
+${bnibuild_BIN}: ${bnibuild_OBJECTS} ${SRC_BINDIR}
     ${LINK} /ap c0x32 ${bnibuild_OBJECTS}, $@, , ${LINK_LIBS} cw32 import32
 
-${tgainfo_BIN}: ${tgainfo_OBJECTS}
-    -@${INSTALL_DIRS} ${SRC_BINDIR}
+${tgainfo_BIN}: ${tgainfo_OBJECTS} ${SRC_BINDIR}
     ${LINK} /ap c0x32 ${tgainfo_OBJECTS}, $@, , ${LINK_LIBS} cw32 import32
