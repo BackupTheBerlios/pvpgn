@@ -24,12 +24,13 @@
 #define MAX_AUTH_TYPE        0xff
 #define MAX_GAMES_LIST         20
 #define MAX_MESSAGE_LEN       255
-#define MAX_COMMAND_LEN        16
+#define MAX_COMMAND_LEN        32
 #define USER_NAME_MAX          16 /* including terminating NUL char */
 #define USER_NAME_MIN           2
 #define UNCHECKED_NAME_STR     32 /* including terminating NUL char */
                                   /* (longer than USER_NAME_MAX and CHAR_NAME_LEN so that
                                    *  proper error packets can be returned) */
+#define MAX_CLANNAME_LEN       64
 #define CHANNEL_NAME_LEN       64
 #define CHAR_NAME_LEN          16 /* including terminating NUL char */
 #define REALM_NAME_LEN         32
