@@ -55,7 +55,7 @@ extern void * pmmap(void *addr, unsigned len, int prot, int flags, int fd, unsig
     unsigned pos;
     int res;
 
-	if ((mem = xmalloc(len)) == NULL) return MAP_FAILED;
+    mem = xmalloc(len);
     pos = 0;
     while(pos < len) {
 	res = read(fd, (char *)mem + pos, len - pos);

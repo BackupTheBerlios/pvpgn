@@ -79,11 +79,8 @@ extern t_pdir * p_opendir(const char * path) {
    }
 /*   while(path[strlen(path)]=='/') path[strlen(path)]='\0'; */
    /* win32 can use slash in addition to backslash  */
-   if ((pdir=xmalloc(sizeof(t_pdir)))==NULL) {
-      eventlog(eventlog_level_error,"p_opendir","not enough memory for pdir");
-      return NULL;
-   }
-    
+   pdir=xmalloc(sizeof(t_pdir));
+
 #ifdef WIN32
    if (strlen(path)+1+3+1>_MAX_PATH) {
       eventlog(eventlog_level_error,"p_opendir","WIN32: path too long");
@@ -92,13 +89,8 @@ extern t_pdir * p_opendir(const char * path) {
    }
    strcpy(npath, path);
    strcat(npath, "/*.*");
-   if (!(pdir->path=xstrdup(npath)))
-   {
-      eventlog(eventlog_level_error,"p_opendir","WIN32: could not allocate memory for path");
-      xfree(pdir);
-      return NULL;
-   }
-   
+   pdir->path=xstrdup(npath);
+
    pdir->status = 0;
    memset(&pdir->fileinfo, 0, sizeof(pdir->fileinfo)); /* no need for compat because WIN32 always has memset() */
    pdir->lFindHandle = _findfirst(npath, &pdir->fileinfo);
@@ -111,12 +103,7 @@ extern t_pdir * p_opendir(const char * path) {
 
 #else /* POSIX style */
 
-   if (!(pdir->path=xstrdup(path)))
-   {
-      eventlog(eventlog_level_error,"p_opendir","POSIX: unable to allocate memory for path");
-      xfree(pdir);
-      return NULL;
-   }
+   pdir->path=xstrdup(path);
    if ((pdir->dir=opendir(path))==NULL) {
       eventlog(eventlog_level_error,"p_opendir","POSIX: unable to open directory \"%s\" for reading (opendir: %s)",path,strerror(errno));
       xfree((void *)pdir->path); /* avoid warning */
