@@ -1757,11 +1757,11 @@ extern int main(int argc, char * argv[])
 			
 
 			
-		    case SERVER_W3XP_CLAN_MEMBERCHANGEACK:
-			if (packet_get_size(rpacket)<sizeof(t_server_w3xp_clan_memberchangeack))
+		    case SERVER_W3XP_CLANMEMBERUPDATE:
+			if (packet_get_size(rpacket)<sizeof(t_server_w3xp_clanmemberupdate))
 			{
 		            munge(&client);
-			    printf("Got bad SERVER_W3XP_CLAN_MEMBERCHANGEACK packet (expected %u bytes, got %u)\n",sizeof(t_server_w3xp_clan_memberchangeack),packet_get_size(rpacket));
+			    printf("Got bad SERVER_W3XP_CLANMEMBERUPDATE packet (expected %u bytes, got %u)\n",sizeof(t_server_w3xp_clanmemberupdate),packet_get_size(rpacket));
 			    break;
 			}
 
@@ -1778,18 +1778,18 @@ extern int main(int argc, char * argv[])
 			    char const * rank_str;
 			    char const * online_str;
 			    
-			    offset = sizeof(t_server_w3xp_clan_memberchangeack);
+			    offset = sizeof(t_server_w3xp_clanmemberupdate);
 			    if (!(member = packet_get_str_const(rpacket,offset,USER_NAME_MAX)))
 			    {
 				munge(&client);
-				printf("Got SERVER_W3XP_CLAN_MEMBERCHANGEACK with bad or missing member\n");
+				printf("Got SERVER_W3XP_CLANMEMBERUPDATE with bad or missing member\n");
 				break;
 			    }
 			    offset+=strlen(member)+1;
 			    if (!(rank_p = (char *)packet_get_data_const(rpacket,offset,1)))
 			    {
 				munge(&client);
-				printf("Got SERVER_W3XP_CLAN_MEMBERCHANGEACK with bad or missing rank\n");
+				printf("Got SERVER_W3XP_CLANMEMBERUPDATE with bad or missing rank\n");
 				break;
 			    }
 			    rank = *rank_p;
@@ -1797,7 +1797,7 @@ extern int main(int argc, char * argv[])
 			    if (!(online_p = (char *)packet_get_data_const(rpacket,offset,1)))
 			    {
 				munge(&client);
-				printf("Got SERVER_W3XP_CLAN_MEMBERCHANGEACK with bad or missing online status\n");
+				printf("Got SERVER_W3XP_CLAN_MEMBERUPDATE with bad or missing online status\n");
 				break;
 			    }
 			    online = *online_p;
@@ -1805,7 +1805,7 @@ extern int main(int argc, char * argv[])
 			    if (!(append_str = packet_get_str_const(rpacket,offset,USER_NAME_MAX)))
 			    {
 				munge(&client);
-				printf("Got SERVER_W3XP_CLAN_MEMBERCHANGEACK with bad or missing append_str\n");
+				printf("Got SERVER_W3XP_CLANMEMBERUPDATE with bad or missing append_str\n");
 				break;
 			    }
 			    
