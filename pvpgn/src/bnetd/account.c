@@ -1117,7 +1117,7 @@ extern t_account * accountlist_create_account(const char *username, const char *
 	return NULL; /* eventlog reported earlier */
     }
 
-    account_save(res,0); /* sync new account to storage */
+    account_save(res,FS_FORCE); /* sync new account to storage */
 
     return res;
 }
