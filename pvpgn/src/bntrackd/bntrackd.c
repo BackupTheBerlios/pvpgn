@@ -87,6 +87,8 @@
 #include "common/util.h"
 #include "common/tracker.h"
 #include "common/setup_after.h"
+#define JUST_NEED_TYPES
+#include "bnetd/prefs.h"
 
 
 /******************************************************************************
