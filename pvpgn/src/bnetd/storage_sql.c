@@ -690,6 +690,7 @@ static const char * sql_escape_key(const char *key)
 	    for(p = (char *)(newkey + idx); *p; p++)
 		if ((*p < '0' || *p > '9') && (*p < 'a' || *p > 'z') && (*p < 'A' || *p > 'Z'))
 		    *p = '_';
+	    break;
 	}
 
     return newkey;
