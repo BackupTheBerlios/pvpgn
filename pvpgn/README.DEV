@@ -85,6 +85,13 @@ written code (this includes identing, identificator names, etc...). Keeping
 the code look "the same" makes its reading a lot more easier so, finding
 bugs easier so coding better.
 
+One way to make sure your code sticks with the PvPGN coding style is to use 
+"indent" code indenting formating tool (http://www.gnu.org/software/indent/). 
+To use indent to get your code acording to PvPGN coding style use something 
+like this (it will format properly the file clan.c and save the new file to 
+clan.c.new):
+$ indent -kr -bl -bli0 -l0 clan.c -o clan.c.new
+
 Other overlooked aspect for newbie coders is code replication. Please DONT
 copy and paste code arround !!! If you need to copy common functionality from
 some place, think about making some API of that functionalilty, put it in
