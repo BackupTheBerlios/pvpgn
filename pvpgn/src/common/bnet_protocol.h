@@ -3042,11 +3042,7 @@ FF 32 2C 00 21 F8 16 2D   99 D9 BC A4 A6 5C BA 60    .2,.!..-.....\.`
 typedef struct
 {
     t_bnet_header h;
-    bn_int        unknown1; /* FIXME: maybe these are a hash of some game info? */
-    bn_int        unknown2;
-    bn_int        unknown3;
-    bn_int        unknown4;
-    bn_int        unknown5;
+    bn_int        file_checksum[5];
     /* mapfile */
 } PACKED_ATTR() t_client_mapauthreq1;
 /******************************************************/
@@ -3080,12 +3076,8 @@ FF 3C 31 00 7A 20 01 00   3B B7 C6 27 0D 61 C3 79    .<1.z ..;..'.a.y
 typedef struct
 {
     t_bnet_header h;
-    bn_int        unknown1; /* FIXME: maybe these are a hash of some game info? */
-    bn_int        unknown2;
-    bn_int        unknown3;
-    bn_int        unknown4;
-    bn_int        unknown5;
-    bn_int        unknown6;
+    bn_int        unknown; 
+    bn_int        file_hash[5];
     /* mapfile */
 } PACKED_ATTR() t_client_mapauthreq2;
 /******************************************************/
