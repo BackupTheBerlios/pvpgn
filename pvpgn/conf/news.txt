@@ -2,16 +2,14 @@ Welcome To The Player-vs-Player Gaming Network!
 Bringing Emulation To New Levels!
 =-=-=-=-=-=-=-=-=-=-=-=-=-=-==-=-=-=-=-=-=-=-=-=-=-=-=-=-==-=-=-=-=-=-=-=
 
-Added Features: 
+New Added Features: 
 	
-	-WAR3 Frozen Throne v304 BETA Support
+	-WAR3 Frozen Throne v3054 BETA Support
 	-Users sent to THE VOID can no longer chat while in the channel.
-	-PG 1v1,2v2, and Arranged Teams 2v2 Works
-		-LAdder Not Saving Yet
-	-Small /f list bug fixed showing offline users w/ gameclients.
+	-PG 1v1,2v2, and Arranged Teams 2v2 Works w/ FULL Ladder Stats,
+	 profiles, icons, ladder ranks !!!!
 
-	-War3 Classic v1.05 Support
-
+	-Race Channels just like bnet
 =-=-=-=-=-=-=-=-=-=-=-=-=-=-==-=-=-=-=-=-=-=-=-=-=-=-=-=-==-=-=-=-=-=-=-=
 Make sure to visit us online!
 irc.pvpgn.org  
