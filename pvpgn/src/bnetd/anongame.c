@@ -575,7 +575,7 @@ char *_get_map_from_prefs(int gametype, t_uint32 cur_prefs, const char * clientt
 	default_map = "Maps\\(8)PlainsOfSnow.w3m";
      } else if (strcmp(clienttag, CLIENTTAG_WAR3XP) == 0) {
 	mapnames = mapnames_w3xp;
-	default_map = "Maps\\FrozenThrone\\Beta\\(6)WheelofChaos.w3x";
+	default_map = "Maps\\FrozenThrone\\(6)WheelofChaos.w3x";
      } else {
 	eventlog(eventlog_level_error, __FUNCTION__, "invalid clienttag : %s", clienttag);
 	return "Maps\\(8)PlainsOfSnow.w3m";
