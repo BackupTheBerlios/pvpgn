@@ -223,8 +223,7 @@ ${SRC_COMMONDIR}\eventlog.obj \
 ${SRC_COMMONDIR}\check_alloc.obj \
 ${SRC_COMPATDIR}\inet_ntoa.obj \
 ${SRC_COMPATDIR}\strerror.obj \
-${SRC_COMPATDIR}\psock.obj \
-${SRC_BNTRACKDDIR}\prefs.obj
+${SRC_COMPATDIR}\psock.obj
 
 bnchat_BIN  = ${SRC_BINDIR}\bnchat.exe
 bnchat_OBJECTS  = ${SRC_CLIENTDIR}\bnchat.obj \
