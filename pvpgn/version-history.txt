@@ -50,6 +50,7 @@ try to join non-open games)
 -- removed option from configure for enabling BITS (totally broken)
 -- cleaned private/passworded games related codes also fixing private games 
 with newest W3 clients (they were considered public and listed)
+-- fixed parsing mapinfo for W3 clients
 
 1.6.0pre5 (since 1.6.0pre4):
 -- added support for loading new accounts at runtime (ex. if made by some 
