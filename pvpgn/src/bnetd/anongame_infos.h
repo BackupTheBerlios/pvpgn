@@ -100,25 +100,27 @@ typedef struct
   char ** descs;
 } t_anongame_infos_DESC;
 
-typedef struct {
-	char PG_1v1;
-	char PG_2v2;
-	char PG_3v3;
-	char PG_4v4;
-	char PG_ffa;
-	char AT_2v2;
-	char AT_3v3;
-	char AT_4v4;
-	char PG_2v2v2;
-	char AT_ffa;
-	char PG_5v5;
-	char PG_6v6;
-	char PG_3v3v3;
-	char PG_4v4v4;
-	char PG_2v2v2v2;
-	char PG_3v3v3v3;
-	char AT_2v2v2;
-} t_anongame_infos_THUMBSDOWN;
+#define anongame_infos_THUMBSDOWN_count 17
+
+typedef enum {
+	PG_1v1,
+	PG_2v2,
+	PG_3v3,
+	PG_4v4,
+	PG_ffa,
+	AT_2v2,
+	AT_3v3,
+	AT_4v4,
+	PG_2v2v2,
+	AT_ffa,
+	PG_5v5,
+	PG_6v6,
+	PG_3v3v3,
+	PG_4v4v4,
+	PG_2v2v2v2,
+	PG_3v3v3v3,
+	AT_2v2v2
+} t_anongame_infos_THUMBDOWNs;
 
 typedef struct {
 	int Level1;
@@ -181,7 +183,7 @@ typedef struct {
 	char			** anongame_infos_URL;
 	t_anongame_infos_DESC	* anongame_infos_DESC;			// for default DESC
 	t_list			* anongame_infos_DESC_list;		// for localized DESC's
-	t_anongame_infos_THUMBSDOWN * anongame_infos_THUMBSDOWN;	// for storing thumbs down config
+	char			anongame_infos_THUMBSDOWN[anongame_infos_THUMBSDOWN_count]; 
 	t_anongame_infos_ICON_REQ_WAR3 * anongame_infos_ICON_REQ_WAR3;
 	t_anongame_infos_ICON_REQ_W3XP * anongame_infos_ICON_REQ_W3XP;
 	t_anongame_infos_ICON_REQ_TOURNEY * anongame_infos_ICON_REQ_TOURNEY;
