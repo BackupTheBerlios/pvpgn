@@ -220,6 +220,7 @@ bnetd_OBJECTS       = \
     ${SRC_COMMONDIR}\fdwatch.obj \    
     ${SRC_COMMONDIR}\fdwatch_poll.obj \    
     ${SRC_COMMONDIR}\fdwatch_select.obj \    
+    ${SRC_COMMONDIR}\xalloc.obj \        
     ${SRC_COMPATDIR}\pdir.obj \
     ${SRC_COMPATDIR}\inet_aton.obj \
     ${SRC_COMPATDIR}\inet_ntoa.obj \
@@ -306,6 +307,8 @@ d2cs_OBJECTS    = \
     ${SRC_COMMONDIR}\rlimit.obj \ 
     ${SRC_COMMONDIR}\trans.obj \     
     ${SRC_COMMONDIR}\d2char_checksum.obj \ 
+    ${SRC_COMMONDIR}\fdwatch_select.obj \      
+    ${SRC_COMMONDIR}\xalloc.obj \        
     ${SRC_COMPATDIR}\inet_aton.obj \ 
     ${SRC_COMPATDIR}\inet_ntoa.obj \ 
     ${SRC_COMPATDIR}\strdup.obj \ 
@@ -343,6 +346,7 @@ d2dbs_OBJECTS = \
     ${SRC_COMMONDIR}\util.obj \
     ${SRC_COMMONDIR}\addr.obj \
     ${SRC_COMMONDIR}\d2char_checksum.obj \ 
+    ${SRC_COMMONDIR}\xalloc.obj \        
     ${SRC_COMPATDIR}\inet_aton.obj \
     ${SRC_COMPATDIR}\psock.obj \
     ${SRC_COMPATDIR}\strerror.obj \ 
@@ -360,6 +364,7 @@ ${SRC_COMMONDIR}\bn_type.obj \
 ${SRC_COMMONDIR}\network.obj \
 ${SRC_COMMONDIR}\eventlog.obj \
 ${SRC_COMMONDIR}\util.obj \
+${SRC_COMMONDIR}\xalloc.obj \        
 ${SRC_COMPATDIR}\inet_ntoa.obj \
 ${SRC_COMPATDIR}\strerror.obj \
 ${SRC_COMPATDIR}\psock.obj
@@ -370,6 +375,7 @@ ${SRC_COMMONDIR}\util.obj \
 ${SRC_COMMONDIR}\list.obj \
 ${SRC_COMMONDIR}\eventlog.obj \
 ${SRC_COMMONDIR}\hexdump.obj \ 
+${SRC_COMMONDIR}\xalloc.obj \        
 ${SRC_COMPATDIR}\inet_ntoa.obj \
 ${SRC_COMPATDIR}\strerror.obj \
 ${SRC_COMPATDIR}\psock.obj
@@ -390,6 +396,7 @@ ${SRC_COMMONDIR}\bnethashconv.obj \
 ${SRC_COMMONDIR}\util.obj \
 ${SRC_COMMONDIR}\bnettime.obj \
 ${SRC_COMMONDIR}\proginfo.obj \
+${SRC_COMMONDIR}\xalloc.obj \        
 ${SRC_COMPATDIR}\inet_ntoa.obj \
 ${SRC_COMPATDIR}\strerror.obj \
 ${SRC_COMPATDIR}\psock.obj \
@@ -413,6 +420,7 @@ ${SRC_COMMONDIR}\network.obj \
 ${SRC_COMMONDIR}\eventlog.obj \
 ${SRC_COMMONDIR}\bnettime.obj \
 ${SRC_COMMONDIR}\util.obj \
+${SRC_COMMONDIR}\xalloc.obj \        
 ${SRC_COMPATDIR}\inet_ntoa.obj \
 ${SRC_COMPATDIR}\strerror.obj \
 ${SRC_COMPATDIR}\strftime.obj \
@@ -428,6 +436,7 @@ ${SRC_COMMONDIR}\network.obj \
 ${SRC_COMMONDIR}\eventlog.obj \
 ${SRC_COMMONDIR}\hexdump.obj \ 
 ${SRC_COMMONDIR}\util.obj \
+${SRC_COMMONDIR}\xalloc.obj \        
 ${SRC_COMPATDIR}\inet_ntoa.obj \
 ${SRC_COMPATDIR}\strerror.obj \
 ${SRC_COMPATDIR}\psock.obj
@@ -448,6 +457,7 @@ ${SRC_COMMONDIR}\bnethashconv.obj \
 ${SRC_COMMONDIR}\util.obj \
 ${SRC_COMMONDIR}\bnettime.obj \
 ${SRC_COMMONDIR}\proginfo.obj \
+${SRC_COMMONDIR}\xalloc.obj \        
 ${SRC_COMPATDIR}\inet_ntoa.obj \
 ${SRC_COMPATDIR}\strerror.obj \
 ${SRC_COMPATDIR}\strftime.obj \
@@ -533,6 +543,9 @@ ${SRC_CDBDIR}\cdb_make_put.obj \
 ${SRC_CDBDIR}\cdb_make_find.obj \
 ${SRC_CDBDIR}\cdb_make.obj \
 ${SRC_CDBDIR}\cdb_hash.obj \
+${SRC_COMMONDIR}\eventlog.obj \        
+${SRC_COMMONDIR}\hexdump.obj \        
+${SRC_COMMONDIR}\xalloc.obj \        
 ${SRC_COMPATDIR}\mmap.obj \
 ${SRC_COMPATDIR}\getopt.obj
 
