@@ -4,3 +4,5 @@ PGSQL, cdb, files etc..)
 - FAQ : frequently asked questions
 - Compile.Instructions.Win32.Borland.txt : as the filename says
 - Compile.Instructions.Win32.VS.Net.txt : same for this one
+- PORTS : PvPGN porting status file, check to see if your platform/operating 
+system is supported
