@@ -591,7 +591,7 @@ extern void conn_destroy(t_connection * c)
     timerlist_del_all_timers(c);
     
     if(c->account)
-	watchlist_notify_event(c->account,watch_event_logout);
+	watchlist_notify_event(c->account,NULL,watch_event_logout);
     
     if (c->versioncheck)
 	versioncheck_destroy((void *)c->versioncheck); /* avoid warning */
@@ -1496,7 +1496,7 @@ extern void conn_set_account(t_connection * c, t_account * account)
     
     totalcount++;
     
-    watchlist_notify_event(c->account,watch_event_login);
+    watchlist_notify_event(c->account,NULL,watch_event_login);
     
     return;
 }
@@ -1881,6 +1881,9 @@ extern int conn_set_channel(t_connection * c, char const * channelname)
 	
     if(conn_set_joingamewhisper_ack(c,0)<0)
 	eventlog(eventlog_level_error,"conn_set_channel","Unable to reset conn_set_joingamewhisper_ack flag");
+
+    if(conn_set_leavegamewhisper_ack(c,0)<0)
+	eventlog(eventlog_level_error,"conn_set_channel","Unable to reset conn_set_leavegamewhisper_ack flag");
     
 	//if the last Arranged Team game was cancel, interupted, then we dont save the team at all.
 	//then we reset the flag to 0
@@ -3570,4 +3573,24 @@ extern int conn_get_joingamewhisper_ack(t_connection * c)
 		return -1;
 	}
 	return c->joingamewhisper;
+}
+
+extern int conn_set_leavegamewhisper_ack(t_connection * c, unsigned int value)
+{
+	if (!c) 
+	{
+		eventlog(eventlog_level_error, "conn_set_joingamewhisper_ack", "got NULL connection");
+		return -1;
+	}
+	c->leavegamewhisper = value;
+	return 0;
+}
+extern int conn_get_leavegamewhisper_ack(t_connection * c)
+{
+	if (!c) 
+	{
+		eventlog(eventlog_level_error, "conn_get_joingamewhisper_ack", "got NULL connection");
+		return -1;
+	}
+	return c->leavegamewhisper;
 }

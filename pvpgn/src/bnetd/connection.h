@@ -187,6 +187,7 @@ typedef struct connection
     char const * 		  w3_playerinfo; /* ADDED BY UNDYING SOULZZ 4/7/02 */
 	int					  motd_loggedin;
 	int					  joingamewhisper;
+	int                                       leavegamewhisper;
 		
 	// [quetzal] 20020828 - creation time, can be used for killing idling init connections
 	int					  cr_time;
