@@ -226,16 +226,18 @@ bnetd_OBJECTS       = \
     ${SRC_COMPATDIR}\difftime.obj \
     ${SRC_COMPATDIR}\memset.obj \
     ${SRC_COMPATDIR}\memcpy.obj \
+    ${SRC_COMPATDIR}\mmap.obj \
+    ${SRC_CDBDIR}\cdb_init.obj \
     ${SRC_CDBDIR}\cdb_find.obj \
     ${SRC_CDBDIR}\cdb_findnext.obj \
-    ${SRC_CDBDIR}\cdb_hash.obj \
-    ${SRC_CDBDIR}\cdb_init.obj \
-    ${SRC_CDBDIR}\cdb_make.obj \
-    ${SRC_CDBDIR}\cdb_make_add.obj \
-    ${SRC_CDBDIR}\cdb_make_find.obj \
-    ${SRC_CDBDIR}\cdb_make_put.obj \
     ${SRC_CDBDIR}\cdb_seek.obj \
-    ${SRC_CDBDIR}\cdb_unpack.obj
+    ${SRC_CDBDIR}\cdb_unpack.obj \
+    ${SRC_CDBDIR}\cdb_make_add.obj \
+    ${SRC_CDBDIR}\cdb_make_put.obj \
+    ${SRC_CDBDIR}\cdb_make_find.obj \
+    ${SRC_CDBDIR}\cdb_make.obj \
+    ${SRC_CDBDIR}\cdb_hash.obj
+
 
 bnetg_SBIN          = ${SRC_SBINDIR}\bnetg.exe
 bnetg_OBJECTS       = ${bnetd_OBJECTS:.obj=.bnetg_obj}\
@@ -385,6 +387,59 @@ ${SRC_BNIUTILSDIR}\fileio.obj \
 ${SRC_BNIUTILSDIR}\tga.obj \
 ${SRC_COMMONDIR}\check_alloc.obj
 
+timetest_BIN 		= ${SRC_BINDIR}/timetest.exe
+timetest_OBJECTS 	= ${SRC_DEBUGDIR}/timetest.obj \
+${SRC_COMMONDIR}/bn_type.obj \
+${SRC_COMMONDIR}/eventlog.obj \
+${SRC_COMMONDIR}/bnettime.obj \
+${SRC_COMMONDIR}/check_alloc.obj \
+${SRC_COMPATDIR}/strerror.obj \
+${SRC_COMPATDIR}/gettimeofday.obj
+
+listtest_BIN 		= ${SRC_BINDIR}/listtest.exe
+listtest_OBJECTS	= ${SRC_DEBUGDIR}/listtest.obj \
+${SRC_COMMONDIR}/list.obj \
+${SRC_COMMONDIR}/eventlog.obj \
+${SRC_COMMONDIR}/check_alloc.obj \
+${SRC_COMPATDIR}/strerror.obj \
+${SRC_COMPATDIR}/strdup.obj
+
+hashtabletest_BIN	= ${SRC_BINDIR}/hashtabletest.exe
+hashtabletest_OBJECTS	= ${SRC_DEBUGDIR}/hashtabletest.obj \
+${SRC_COMMONDIR}/hashtable.obj \
+${SRC_COMMONDIR}/eventlog.obj \
+${SRC_COMMONDIR}/check_alloc.obj \
+${SRC_COMPATDIR}/strerror.obj \
+${SRC_COMPATDIR}/strdup.obj
+
+addrtest_BIN		= ${SRC_BINDIR}/addrtest.exe
+addrtest_OBJECTS	= ${SRC_DEBUGDIR}/addrtest.obj \
+${SRC_COMMONDIR}/addr.obj \
+${SRC_COMMONDIR}/util.obj \
+${SRC_COMMONDIR}/list.obj \
+${SRC_COMMONDIR}/eventlog.obj \
+${SRC_COMMONDIR}/check_alloc.obj \
+${SRC_COMPATDIR}/inet_aton.obj \
+${SRC_COMPATDIR}/inet_ntoa.obj \
+${SRC_COMPATDIR}/strerror.obj \
+${SRC_COMPATDIR}/psock.obj \
+${SRC_COMPATDIR}/memset.obj \
+${SRC_COMPATDIR}/memcpy.obj \
+${SRC_COMPATDIR}/strdup.obj
+
+cdb_BIN			= ${SRC_BINDIR}/cdb.exe
+cdb_OBJECTS		= ${SRC_CDBDIR}/cdb.obj \
+${SRC_CDBDIR}/cdb_init.obj \
+${SRC_CDBDIR}/cdb_seek.obj \
+${SRC_CDBDIR}/cdb_find.obj \
+${SRC_CDBDIR}/cdb_findnext.obj \
+${SRC_CDBDIR}/cdb_unpack.obj \
+${SRC_CDBDIR}/cdb_make_add.obj \
+${SRC_CDBDIR}/cdb_make_put.obj \
+${SRC_CDBDIR}/cdb_make_find.obj \
+${SRC_CDBDIR}/cdb_make.obj \
+${SRC_CDBDIR}/cdb_hash.obj \
+${SRC_COMPATDIR}/mmap.obj
 
 OBJECTS     = ${bnetd_OBJECTS} ${bnetg_OBJECTS} ${bnproxy_OBJECTS} ${bntrackd_OBJECTS} ${bnchat_OBJECTS} ${bnpass_OBJECTS} ${bnbot_OBJECTS} ${bnftp_OBJECTS} ${bnstat_OBJECTS} ${bnilist_OBJECTS} ${bni2tga_OBJECTS} ${bniextract_OBJECTS} ${bnibuild_OBJECTS} ${tgainfo_OBJECTS}
 SBINS       = ${bnetd_SBIN} ${bnetg_SBIN} ${bnproxy_SBIN} ${bntrackd_SBIN}
