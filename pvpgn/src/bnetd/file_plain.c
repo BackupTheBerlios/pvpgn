@@ -204,7 +204,7 @@ static int plain_read_attrs(const char *filename, t_read_attr_func cb, void *dat
 	key = unescape_chars(esckey);
 	val = unescape_chars(escval);
 
-/* eventlog(eventlog_level_debug,"account_load_attrs","strlen(esckey)=%u (%c), len=%u",strlen(esckey),esckey[0],len);*/
+/* eventlog(eventlog_level_debug,__FUNCTION__,"strlen(esckey)=%u (%c), len=%u",strlen(esckey),esckey[0],len);*/
 	xfree(esckey);
 	xfree(escval);
 	

@@ -65,12 +65,12 @@ static t_realm * realm_create(char const * name, char const * description, unsig
     
     if (!name)
     {
-	eventlog(eventlog_level_error,"realm_create","got NULL name");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL name");
 	return NULL;
     }
     if (!description)
     {
-	eventlog(eventlog_level_error,"realm_create","got NULL description");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL description");
 	return NULL;
     }
 
@@ -80,7 +80,7 @@ static t_realm * realm_create(char const * name, char const * description, unsig
 
     if (realm_set_name(realm ,name)<0)
     {
-        eventlog(eventlog_level_error,"realm_create","failed to set name for realm");
+        eventlog(eventlog_level_error,__FUNCTION__,"failed to set name for realm");
 	xfree(realm);
 	return NULL;
     }
@@ -94,7 +94,7 @@ static t_realm * realm_create(char const * name, char const * description, unsig
     realm->sessionnum = 0;
     realm->tcp_sock = 0;
 
-    eventlog(eventlog_level_info,"realm_create","created realm \"%s\"",name);
+    eventlog(eventlog_level_info,__FUNCTION__,"created realm \"%s\"",name);
     return realm;
 }
 
@@ -103,7 +103,7 @@ static int realm_destroy(t_realm * realm)
 {
     if (!realm)
     {
-	eventlog(eventlog_level_error,"realm_destroy","got NULL realm");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL realm");
 	return -1;
     }
     
@@ -122,7 +122,7 @@ extern char const * realm_get_name(t_realm const * realm)
 {
     if (!realm)
     {
-	eventlog(eventlog_level_error,"realm_get_name","got NULL realm");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL realm");
 	return NULL;
     }
     return realm->name;
@@ -136,7 +136,7 @@ extern int realm_set_name(t_realm * realm, char const * name)
 
     if (!realm)
     {
-        eventlog(eventlog_level_error,"realm_set_name","got NULL realm");
+        eventlog(eventlog_level_error,__FUNCTION__,"got NULL realm");
         return -1;
     }
 
@@ -146,7 +146,7 @@ extern int realm_set_name(t_realm * realm, char const * name)
               return 0;
          else
          {
-              eventlog(eventlog_level_error,"realm_set_name","realm %s does already exist in list",name);
+              eventlog(eventlog_level_error,__FUNCTION__,"realm %s does already exist in list",name);
               return -1;
          }
     }
@@ -168,7 +168,7 @@ extern char const * realm_get_description(t_realm const * realm)
 {
     if (!realm)
     {
-	eventlog(eventlog_level_error,"realm_get_description","got NULL realm");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL realm");
 	return NULL;
     }
     return realm->description;
@@ -179,7 +179,7 @@ extern unsigned short realm_get_port(t_realm const * realm)
 {
     if (!realm)
     {
-        eventlog(eventlog_level_error,"realm_get_port","got NULL realm");
+        eventlog(eventlog_level_error,__FUNCTION__,"got NULL realm");
         return 0;
     }
     return realm->port;
@@ -190,7 +190,7 @@ extern unsigned int realm_get_ip(t_realm const * realm)
 {
     if (!realm)
     {
-        eventlog(eventlog_level_error,"realm_get_ip","got NULL realm");
+        eventlog(eventlog_level_error,__FUNCTION__,"got NULL realm");
         return 0;
     }
     return realm->ip;
@@ -201,7 +201,7 @@ extern unsigned int realm_get_active(t_realm const * realm)
 {
     if (!realm)
     {
-        eventlog(eventlog_level_error,"realm_get_active","got NULL realm");
+        eventlog(eventlog_level_error,__FUNCTION__,"got NULL realm");
         return 0;
     }
     return realm->active;
@@ -211,7 +211,7 @@ extern int realm_set_active(t_realm * realm, unsigned int active)
 {
     if (!realm)
     {
-        eventlog(eventlog_level_error,"realm_get_active","got NULL realm");
+        eventlog(eventlog_level_error,__FUNCTION__,"got NULL realm");
         return -1;
     }
 
@@ -223,7 +223,7 @@ extern unsigned int realm_get_player_number(t_realm const * realm)
 {
     if (!realm)
     {
-        eventlog(eventlog_level_error,"realm_get_player_number","got NULL realm");
+        eventlog(eventlog_level_error,__FUNCTION__,"got NULL realm");
         return 0;
     }
     return realm->player_number;
@@ -233,7 +233,7 @@ extern int realm_add_player_number(t_realm * realm, int number)
 {
     if (!realm)
     {
-        eventlog(eventlog_level_error,"realm_add_player_number","got NULL realm");
+        eventlog(eventlog_level_error,__FUNCTION__,"got NULL realm");
         return -1;
     }
     realm->player_number += number;
@@ -244,7 +244,7 @@ extern unsigned int realm_get_game_number(t_realm const * realm)
 {
     if (!realm)
     {
-        eventlog(eventlog_level_error,"realm_get_game_number","got NULL realm");
+        eventlog(eventlog_level_error,__FUNCTION__,"got NULL realm");
         return 0;
     }
     return realm->game_number;
@@ -254,7 +254,7 @@ extern int realm_add_game_number(t_realm * realm, int number)
 {
     if (!realm)
     {
-        eventlog(eventlog_level_error,"realm_add_game_number","got NULL realm");
+        eventlog(eventlog_level_error,__FUNCTION__,"got NULL realm");
         return -1;
     }
     realm->game_number += number;
@@ -265,23 +265,23 @@ extern int realm_active(t_realm * realm, t_connection * c)
 {
     if (!realm)
     {
-        eventlog(eventlog_level_error,"realm_active","got NULL realm");
+        eventlog(eventlog_level_error,__FUNCTION__,"got NULL realm");
         return -1;
     }
     if (!c)
     {
-        eventlog(eventlog_level_error,"realm_active","got NULL connection");
+        eventlog(eventlog_level_error,__FUNCTION__,"got NULL connection");
         return -1;
     }
     if (realm->active)
     {
-        eventlog(eventlog_level_debug,"realm_active", "realm %s is already actived,destroy previous one",realm->name);
+        eventlog(eventlog_level_debug,__FUNCTION__, "realm %s is already actived,destroy previous one",realm->name);
         realm_deactive(realm);
     }
     realm->active=1;
     realm->sessionnum=conn_get_sessionnum(c);
     realm->tcp_sock=conn_get_socket(c);
-    eventlog(eventlog_level_info,"realm_active", "realm %s actived",realm->name);
+    eventlog(eventlog_level_info,__FUNCTION__, "realm %s actived",realm->name);
     return 0;
 }
 
@@ -291,12 +291,12 @@ extern int realm_deactive(t_realm * realm)
 
     if (!realm)
     {
-        eventlog(eventlog_level_error,"realm_deactive","got NULL realm");
+        eventlog(eventlog_level_error,__FUNCTION__,"got NULL realm");
         return -1;
     }
     if (!realm->active)
     {
-        eventlog(eventlog_level_error,"realm_deactive","realm %s is not actived",realm->name);
+        eventlog(eventlog_level_error,__FUNCTION__,"realm %s is not actived",realm->name);
         return -1;
     }
     if ((c = connlist_find_connection_by_sessionnum(realm->sessionnum)))
@@ -309,7 +309,7 @@ extern int realm_deactive(t_realm * realm)
     realm->player_number=0;
     realm->game_number=0;
     */
-    eventlog(eventlog_level_info,"realm_set_active", "realm %s deactived",realm->name);
+    eventlog(eventlog_level_info,__FUNCTION__, "realm %s deactived",realm->name);
     return 0;
 }
 
@@ -481,7 +481,7 @@ extern t_realm * realmlist_find_realm(char const * realmname)
     
     if (!realmname)
     {
-	eventlog(eventlog_level_error,"realmlist_find_realm","got NULL realmname");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL realmname");
 	return NULL;
     }
 

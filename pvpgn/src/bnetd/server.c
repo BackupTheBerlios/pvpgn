@@ -297,14 +297,14 @@ static int sd_accept(t_addr const * curr_laddr, t_laddr_info const * laddr_info,
 	    psock_errno()==PSOCK_EPROTO ||
 #endif
 	    0)
-	    eventlog(eventlog_level_error,"sd_accept","client aborted connection on %s (psock_accept: %s)",tempa,strerror(psock_errno()));
+	    eventlog(eventlog_level_error,__FUNCTION__,"client aborted connection on %s (psock_accept: %s)",tempa,strerror(psock_errno()));
 	else /* EAGAIN can mean out of resources _or_ connection aborted :( */
 	    if (
 #ifdef PSOCK_EINTR
 		psock_errno()!=PSOCK_EINTR &&
 #endif
 		1)
-		eventlog(eventlog_level_error,"sd_accept","could not accept new connection on %s (psock_accept: %s)",tempa,strerror(psock_errno()));
+		eventlog(eventlog_level_error,__FUNCTION__,"could not accept new connection on %s (psock_accept: %s)",tempa,strerror(psock_errno()));
 	return -1;
     }
 
@@ -317,7 +317,7 @@ static int sd_accept(t_addr const * curr_laddr, t_laddr_info const * laddr_info,
 
     if (ipbanlist_check(inet_ntoa(caddr.sin_addr))!=0)
     {
-	eventlog(eventlog_level_error,"sd_accept","[%d] connection from banned address %s denied (closing connection)",csocket,inet_ntoa(caddr.sin_addr));
+	eventlog(eventlog_level_error,__FUNCTION__,"[%d] connection from banned address %s denied (closing connection)",csocket,inet_ntoa(caddr.sin_addr));
 	psock_close(csocket);
 	return -1;
     }
@@ -330,14 +330,14 @@ static int sd_accept(t_addr const * curr_laddr, t_laddr_info const * laddr_info,
 	return -1;
     }
     
-    eventlog(eventlog_level_info,"sd_accept","[%d] accepted connection from %s on %s",csocket,addr_num_to_addr_str(ntohl(caddr.sin_addr.s_addr),ntohs(caddr.sin_port)),tempa);
+    eventlog(eventlog_level_info,__FUNCTION__,"[%d] accepted connection from %s on %s",csocket,addr_num_to_addr_str(ntohl(caddr.sin_addr.s_addr),ntohs(caddr.sin_port)),tempa);
     
     if (prefs_get_use_keepalive())
     {
 	int val=1;
 	
 	if (psock_setsockopt(csocket,PSOCK_SOL_SOCKET,PSOCK_SO_KEEPALIVE,&val,(psock_t_socklen)sizeof(val))<0)
-	    eventlog(eventlog_level_error,"sd_accept","[%d] could not set socket option SO_KEEPALIVE (psock_setsockopt: %s)",csocket,strerror(psock_errno()));
+	    eventlog(eventlog_level_error,__FUNCTION__,"[%d] could not set socket option SO_KEEPALIVE (psock_setsockopt: %s)",csocket,strerror(psock_errno()));
 	/* not a fatal error */
     }
     
@@ -349,7 +349,7 @@ static int sd_accept(t_addr const * curr_laddr, t_laddr_info const * laddr_info,
 	rlen = sizeof(rsaddr);
 	if (psock_getsockname(csocket,(struct sockaddr *)&rsaddr,&rlen)<0)
 	{
-	    eventlog(eventlog_level_error,"sd_accept","[%d] unable to determine real local port (psock_getsockname: %s)",csocket,strerror(psock_errno()));
+	    eventlog(eventlog_level_error,__FUNCTION__,"[%d] unable to determine real local port (psock_getsockname: %s)",csocket,strerror(psock_errno()));
 	    /* not a fatal error */
 	    raddr = addr_get_ip(curr_laddr);
 	    rport = addr_get_port(curr_laddr);
@@ -358,7 +358,7 @@ static int sd_accept(t_addr const * curr_laddr, t_laddr_info const * laddr_info,
 	{
 	    if (rsaddr.sin_family!=PSOCK_AF_INET)
 	    {
-		eventlog(eventlog_level_error,"sd_accept","local address returned with bad address family %d",(int)rsaddr.sin_family);
+		eventlog(eventlog_level_error,__FUNCTION__,"local address returned with bad address family %d",(int)rsaddr.sin_family);
 		/* not a fatal error */
 		raddr = addr_get_ip(curr_laddr);
 		rport = addr_get_port(curr_laddr);
@@ -373,7 +373,7 @@ static int sd_accept(t_addr const * curr_laddr, t_laddr_info const * laddr_info,
     
     if (psock_ctl(csocket,PSOCK_NONBLOCK)<0)
     {
-	eventlog(eventlog_level_error,"sd_accept","[%d] could not set TCP socket to non-blocking mode (closing connection) (psock_ctl: %s)",csocket,strerror(psock_errno()));
+	eventlog(eventlog_level_error,__FUNCTION__,"[%d] could not set TCP socket to non-blocking mode (closing connection) (psock_ctl: %s)",csocket,strerror(psock_errno()));
 	psock_close(csocket);
 	return -1;
     }
@@ -383,7 +383,7 @@ static int sd_accept(t_addr const * curr_laddr, t_laddr_info const * laddr_info,
 	
 	if (!(c = conn_create(csocket,usocket,raddr,rport,addr_get_ip(curr_laddr),addr_get_port(curr_laddr),ntohl(caddr.sin_addr.s_addr),ntohs(caddr.sin_port))))
 	{
-	    eventlog(eventlog_level_error,"sd_accept","[%d] unable to create new connection (closing connection)",csocket);
+	    eventlog(eventlog_level_error,__FUNCTION__,"[%d] unable to create new connection (closing connection)",csocket);
 	    psock_close(csocket);
 	    return -1;
 	}
@@ -394,7 +394,7 @@ static int sd_accept(t_addr const * curr_laddr, t_laddr_info const * laddr_info,
 	    return -1;
 	}
 
-	eventlog(eventlog_level_debug,"sd_accept","[%d] client connected to a %s listening address",csocket,laddr_type_get_str(laddr_info->type));
+	eventlog(eventlog_level_debug,__FUNCTION__,"[%d] client connected to a %s listening address",csocket,laddr_type_get_str(laddr_info->type));
 	switch (laddr_info->type)
 	{
 	case laddr_type_irc:
@@ -440,17 +440,17 @@ static int sd_udpinput(t_addr * const curr_laddr, t_laddr_info const * laddr_inf
     errlen = sizeof(err);
     if (psock_getsockopt(usocket,PSOCK_SOL_SOCKET,PSOCK_SO_ERROR,&err,&errlen)<0)
     {
-        eventlog(eventlog_level_error,"sd_udpinput","[%d] unable to read socket error (psock_getsockopt: %s)",usocket,strerror(psock_errno()));
+        eventlog(eventlog_level_error,__FUNCTION__,"[%d] unable to read socket error (psock_getsockopt: %s)",usocket,strerror(psock_errno()));
 	return -1;
     }
     if (errlen && err) /* if it was an error, there is no packet to read */
     {
-	eventlog(eventlog_level_error,"sd_udpinput","[%d] async UDP socket error notification (psock_getsockopt: %s)",usocket,strerror(err));
+	eventlog(eventlog_level_error,__FUNCTION__,"[%d] async UDP socket error notification (psock_getsockopt: %s)",usocket,strerror(err));
 	return -1;
     }
     if (!(upacket = packet_create(packet_class_udp)))
     {
-	eventlog(eventlog_level_error,"sd_udpinput","could not allocate raw packet for input");
+	eventlog(eventlog_level_error,__FUNCTION__,"could not allocate raw packet for input");
 	return -1;
     }
     
@@ -478,14 +478,14 @@ static int sd_udpinput(t_addr * const curr_laddr, t_laddr_info const * laddr_inf
 							// although it shouldn't
 #endif
 		1)
-		eventlog(eventlog_level_error,"sd_udpinput","could not recv UDP datagram (psock_recvfrom: %s)",strerror(psock_errno()));
+		eventlog(eventlog_level_error,__FUNCTION__,"could not recv UDP datagram (psock_recvfrom: %s)",strerror(psock_errno()));
 	    packet_del_ref(upacket);
 	    return -1;
 	}
 	
 	if (fromaddr.sin_family!=PSOCK_AF_INET)
 	{
-	    eventlog(eventlog_level_error,"sd_udpinput","got UDP datagram with bad address family %d",(int)fromaddr.sin_family);
+	    eventlog(eventlog_level_error,__FUNCTION__,"got UDP datagram with bad address family %d",(int)fromaddr.sin_family);
 	    packet_del_ref(upacket);
 	    return -1;
 	}
@@ -531,21 +531,21 @@ static int sd_tcpinput(t_connection * c)
 	case conn_class_init:
 	    if (!(packet = packet_create(packet_class_init)))
 	    {
-		eventlog(eventlog_level_error,"sd_tcpinput","could not allocate init packet for input");
+		eventlog(eventlog_level_error,__FUNCTION__,"could not allocate init packet for input");
 		return -1;
 	    }
 	    break;
          case conn_class_d2cs_bnetd:
             if (!(packet = packet_create(packet_class_d2cs_bnetd)))
             {
-                eventlog(eventlog_level_error,"server_process","could not allocate d2cs_bnetd packet");
+                eventlog(eventlog_level_error,__FUNCTION__,"could not allocate d2cs_bnetd packet");
                 return -1;
             }
             break;
 	case conn_class_bnet:
 	    if (!(packet = packet_create(packet_class_bnet)))
 	    {
-		eventlog(eventlog_level_error,"sd_tcpinput","could not allocate bnet packet for input");
+		eventlog(eventlog_level_error,__FUNCTION__,"could not allocate bnet packet for input");
 		return -1;
 	    }
 	    break;
@@ -554,7 +554,7 @@ static int sd_tcpinput(t_connection * c)
 		case conn_state_pending_raw:
 		    if (!(packet = packet_create(packet_class_raw)))
 		    {
-			eventlog(eventlog_level_error,"sd_tcpinput","could not allocate raw packet for input");
+			eventlog(eventlog_level_error,__FUNCTION__,"could not allocate raw packet for input");
 			return -1;
 		    }
 		    packet_set_size(packet, sizeof(t_client_file_req3));
@@ -562,7 +562,7 @@ static int sd_tcpinput(t_connection * c)
 		default:
 		    if (!(packet = packet_create(packet_class_file)))
 		    {
-			eventlog(eventlog_level_error,"sd_tcpinput","could not allocate file packet for input");
+			eventlog(eventlog_level_error,__FUNCTION__,"could not allocate file packet for input");
 			return -1;
 		    }
 		    break;
@@ -573,7 +573,7 @@ static int sd_tcpinput(t_connection * c)
 	case conn_class_telnet:
 	    if (!(packet = packet_create(packet_class_raw)))
 	    {
-		eventlog(eventlog_level_error,"sd_tcpinput","could not allocate raw packet for input");
+		eventlog(eventlog_level_error,__FUNCTION__,"could not allocate raw packet for input");
 		return -1;
 	    }
 	    packet_set_size(packet,1); /* start by only reading one char */
@@ -581,13 +581,13 @@ static int sd_tcpinput(t_connection * c)
 	case conn_class_w3route:
 	    if (!(packet = packet_create(packet_class_w3route)))
 	    {
-		eventlog(eventlog_level_error,"sd_tcpinput","could not allocate w3route packet for input");
+		eventlog(eventlog_level_error,__FUNCTION__,"could not allocate w3route packet for input");
 		return -1;
 	    }
 	    break;
 	
 	default:
-	    eventlog(eventlog_level_error,"sd_tcpinput","[%d] connection has bad class (closing connection)",conn_get_socket(c));
+	    eventlog(eventlog_level_error,__FUNCTION__,"[%d] connection has bad class (closing connection)",conn_get_socket(c));
 	    // [quetzal] 20020808 - marking connection as "destroyed", memory will be freed later
 		conn_set_state(c, conn_state_destroy);
 	    return -2;
@@ -600,13 +600,13 @@ static int sd_tcpinput(t_connection * c)
     switch (net_recv_packet(csocket,packet,&currsize))
     {
     case -1:
-	eventlog(eventlog_level_debug,"sd_tcpinput","[%d] read FAILED (closing connection)",conn_get_socket(c));
+	eventlog(eventlog_level_debug,__FUNCTION__,"[%d] read FAILED (closing connection)",conn_get_socket(c));
 	// [quetzal] 20020808 - marking connection as "destroyed", memory will be freed later
 	conn_set_state(c, conn_state_destroy);
 	return -2;
 	
     case 0: /* still working on it */
-	/* eventlog(eventlog_level_debug,"sd_tcpinput","[%d] still reading \"%s\" packet (%u of %u bytes so far)",conn_get_socket(c),packet_get_class_str(packet),conn_get_in_size(c),packet_get_size(packet)); */
+	/* eventlog(eventlog_level_debug,__FUNCTION__,"[%d] still reading \"%s\" packet (%u of %u bytes so far)",conn_get_socket(c),packet_get_class_str(packet),conn_get_in_size(c),packet_get_size(packet)); */
 	conn_set_in_size(c,currsize);
 	break;
 	
@@ -690,7 +690,7 @@ static int sd_tcpinput(t_connection * c)
 		    ret = handle_w3route_packet(c,packet);
 		    break;
 		default:
-		    eventlog(eventlog_level_error,"sd_tcpinput","[%d] bad packet class %d (closing connection)",conn_get_socket(c),(int)packet_get_class(packet));
+		    eventlog(eventlog_level_error,__FUNCTION__,"[%d] bad packet class %d (closing connection)",conn_get_socket(c),(int)packet_get_class(packet));
 		    ret = -1;
 		}
 		packet_del_ref(packet);
@@ -811,7 +811,7 @@ extern void server_set_name(void)
 #ifdef WIN32
 	    sprintf(temp,"localhost");
 #else
-	    eventlog(eventlog_level_error,"server_set_name","could not get hostname: %s",strerror(errno));
+	    eventlog(eventlog_level_error,__FUNCTION__,"could not get hostname: %s",strerror(errno));
 	    return;
 #endif
     	}
@@ -842,7 +842,7 @@ extern void server_set_name(void)
 	server_name = xstrdup(sn);
     }
     server_check_and_fix_name(server_name);
-    eventlog(eventlog_level_info,"server_set_name","set servername to \"%s\"",server_name);
+    eventlog(eventlog_level_info,__FUNCTION__,"set servername to \"%s\"",server_name);
 }
 
 extern char const * server_get_name(void)
@@ -1209,15 +1209,15 @@ static void _server_mainloop(t_addrlist *laddrs)
 	
 #ifdef DO_POSIXSIG
 	if (sigprocmask(SIG_SETMASK,&save_set,NULL)<0)
-	    eventlog(eventlog_level_error,"server_process","could not unblock signals");
+	    eventlog(eventlog_level_error,__FUNCTION__,"could not unblock signals");
 	/* receive signals here */
 	if (sigprocmask(SIG_SETMASK,&block_set,NULL)<0)
-	    eventlog(eventlog_level_error,"server_process","could not block signals");
+	    eventlog(eventlog_level_error,__FUNCTION__,"could not block signals");
 #endif
 	if (got_epipe)
 	{
 	    got_epipe = 0;
-	    eventlog(eventlog_level_info,"server_process","handled SIGPIPE");
+	    eventlog(eventlog_level_info,__FUNCTION__,"handled SIGPIPE");
 	}
 	
 #if !defined(DO_POSIXSIG) || !defined(HAVE_SETITIMER)
@@ -1227,7 +1227,7 @@ static void _server_mainloop(t_addrlist *laddrs)
 	curr_exittime = sigexittime;
 	if (curr_exittime && (curr_exittime<=now || connlist_login_get_length()<1))
 	{
-	    eventlog(eventlog_level_info,"server_process","the server is shutting down (%d connections left)",connlist_get_length());
+	    eventlog(eventlog_level_info,__FUNCTION__,"the server is shutting down (%d connections left)",connlist_get_length());
     	    clanlist_save();
 	    /* no need for accountlist_save() when using "force" */
 	    accountlist_save(FS_FORCE | FS_ALL);
@@ -1250,7 +1250,7 @@ static void _server_mainloop(t_addrlist *laddrs)
 		    message_send_all(message);
 		    message_destroy(message);
 		}
-		eventlog(eventlog_level_info,"server_process","the server will shut down in %s (%d connections remaining)",tstr,connlist_get_length());
+		eventlog(eventlog_level_info,__FUNCTION__,"the server will shut down in %s (%d connections remaining)",tstr,connlist_get_length());
 	    }
 	    else
 	    {
@@ -1259,7 +1259,7 @@ static void _server_mainloop(t_addrlist *laddrs)
 		    message_send_all(message);
 		    message_destroy(message);
 		}
-		eventlog(eventlog_level_info,"server_process","server shutdown canceled");
+		eventlog(eventlog_level_info,__FUNCTION__,"server shutdown canceled");
 	    }
 	}
 	prev_exittime = curr_exittime;
@@ -1309,7 +1309,7 @@ static void _server_mainloop(t_addrlist *laddrs)
 
 	if (do_save)
 	{
-	    eventlog(eventlog_level_info,"server_process","saving accounts due to signal");
+	    eventlog(eventlog_level_info,__FUNCTION__,"saving accounts due to signal");
     	    clanlist_save();
 
 	    savestep = accountlist_save(FS_NONE);
@@ -1321,18 +1321,18 @@ static void _server_mainloop(t_addrlist *laddrs)
 	
 	if (do_restart)
 	{
-	    eventlog(eventlog_level_info,"server_process","reading configuration files");
+	    eventlog(eventlog_level_info,__FUNCTION__,"reading configuration files");
 	    if (preffile)
 	    {
         	if (prefs_load(preffile)<0)
-		    eventlog(eventlog_level_error,"server_process","could not parse configuration file");
+		    eventlog(eventlog_level_error,__FUNCTION__,"could not parse configuration file");
 	    }
 	    else
 		if (prefs_load(BNETD_DEFAULT_CONF_FILE)<0)
-		    eventlog(eventlog_level_error,"server_process","using default configuration");
+		    eventlog(eventlog_level_error,__FUNCTION__,"using default configuration");
 	    
 	    if (eventlog_open(prefs_get_logfile())<0)
-		eventlog(eventlog_level_error,"server_process","could not use the file \"%s\" for the eventlog",prefs_get_logfile());
+		eventlog(eventlog_level_error,__FUNCTION__,"could not use the file \"%s\" for the eventlog",prefs_get_logfile());
 
 	    /* FIXME: load new network settings */
 
@@ -1348,11 +1348,11 @@ static void _server_mainloop(t_addrlist *laddrs)
 
             realmlist_destroy();
             if (realmlist_create(prefs_get_realmfile())<0)
-	        eventlog(eventlog_level_error,"main","could not load realm list");
+	        eventlog(eventlog_level_error,__FUNCTION__,"could not load realm list");
 
 	    autoupdate_unload();
 	    if (autoupdate_load(prefs_get_mpqfile())<0)
-	      eventlog(eventlog_level_error,"main","could not load autoupdate list");
+	      eventlog(eventlog_level_error,__FUNCTION__,"could not load autoupdate list");
 
 	    news_unload();
 	    if (news_load(prefs_get_newsfile())<0)
@@ -1360,29 +1360,29 @@ static void _server_mainloop(t_addrlist *laddrs)
 
 	    versioncheck_unload();
 	    if (versioncheck_load(prefs_get_versioncheck_file())<0)
-	      eventlog(eventlog_level_error,"main","could not load versioncheck list");
+	      eventlog(eventlog_level_error,__FUNCTION__,"could not load versioncheck list");
 	    	    
 	    if (ipbanlist_destroy()<0)
-		eventlog(eventlog_level_error,"server_process","could not unload old IP ban list");
+		eventlog(eventlog_level_error,__FUNCTION__,"could not unload old IP ban list");
             ipbanlist_create();
 	    if (ipbanlist_load(prefs_get_ipbanfile())<0)
-		eventlog(eventlog_level_error,"server_process","could not load new IP ban list");
+		eventlog(eventlog_level_error,__FUNCTION__,"could not load new IP ban list");
 	    
 	    helpfile_unload();
 	    if (helpfile_init(prefs_get_helpfile())<0)
-		eventlog(eventlog_level_error,"server_process","could not load the helpfile");
+		eventlog(eventlog_level_error,__FUNCTION__,"could not load the helpfile");
 	    
 	    if (adbannerlist_destroy()<0)
-		eventlog(eventlog_level_error,"server_process","could not unload old adbanner list");
+		eventlog(eventlog_level_error,__FUNCTION__,"could not unload old adbanner list");
 	    if (adbannerlist_create(prefs_get_adfile())<0)
-		eventlog(eventlog_level_error,"server_process","could not load new adbanner list");
+		eventlog(eventlog_level_error,__FUNCTION__,"could not load new adbanner list");
 	    
 	    ladder_reload_conf();
 	    
 	    if (prefs_get_track())
 		tracker_set_servers(prefs_get_trackserv_addrs());
 	    if (command_groups_reload(prefs_get_command_groups_file())<0)
-		eventlog(eventlog_level_error,"server_process","could not load new command_groups list");
+		eventlog(eventlog_level_error,__FUNCTION__,"could not load new command_groups list");
 
 	    aliasfile_unload();
 	    aliasfile_load(prefs_get_aliasfile());
@@ -1395,7 +1395,7 @@ static void _server_mainloop(t_addrlist *laddrs)
 	    anongame_infos_unload();
 	    anongame_infos_load(prefs_get_anongame_infos_file());
 	    
-	    eventlog(eventlog_level_info,"server_process","done reconfiguring");
+	    eventlog(eventlog_level_info,__FUNCTION__,"done reconfiguring");
 	    
 	    do_restart = 0;
 	}
@@ -1420,7 +1420,7 @@ static void _server_mainloop(t_addrlist *laddrs)
 		errno!=PSOCK_EINTR &&
 #endif
 		1)
-	        eventlog(eventlog_level_error,"server_process","fdwatch() failed (errno: %s)",strerror(errno));
+	        eventlog(eventlog_level_error,__FUNCTION__,"fdwatch() failed (errno: %s)",strerror(errno));
 	case 0: /* timeout... no sockets need checking */
 	    continue;
 	}

@@ -313,7 +313,7 @@ int eventlog_startup(void)
 	tok = strtok(temp,","); /* strtok modifies the string it is passed */
 	while (tok) {
 	    if (eventlog_add_level(tok)<0)
-		eventlog(eventlog_level_error,"eventlog_startup","could not add log level \"%s\"",tok);
+		eventlog(eventlog_level_error,__FUNCTION__,"could not add log level \"%s\"",tok);
 	    tok = strtok(NULL,",");
 	}
 	xfree(temp);
@@ -326,7 +326,7 @@ int eventlog_startup(void)
 	}
 	return -1;
     }
-    eventlog(eventlog_level_info,"eventlog_startup","logging event levels: %s",prefs_get_loglevels());
+    eventlog(eventlog_level_info,__FUNCTION__,"logging event levels: %s",prefs_get_loglevels());
     return 0;
 }
 
@@ -337,13 +337,13 @@ int fork_bnetd(int foreground)
 #ifdef DO_DAEMONIZE
     if (!foreground) {
 	if (chdir("/")<0) {
-	    eventlog(eventlog_level_error,"fork_bnetd","could not change working directory to / (chdir: %s)",strerror(errno));
+	    eventlog(eventlog_level_error,__FUNCTION__,"could not change working directory to / (chdir: %s)",strerror(errno));
 	    return -1;
 	}
 	
 	switch ((pid = fork())) {
 	    case -1:
-		eventlog(eventlog_level_error,"fork_bnetd","could not fork (fork: %s)",strerror(errno));
+		eventlog(eventlog_level_error,__FUNCTION__,"could not fork (fork: %s)",strerror(errno));
 		return -1;
 	    case 0: /* child */
 		break;
@@ -357,26 +357,26 @@ int fork_bnetd(int foreground)
 #endif
 # ifdef HAVE_SETPGID
 	if (setpgid(0,0)<0) {
-	    eventlog(eventlog_level_error,"fork_bnetd","could not create new process group (setpgid: %s)",strerror(errno));
+	    eventlog(eventlog_level_error,__FUNCTION__,"could not create new process group (setpgid: %s)",strerror(errno));
 	    return -1;
 	}
 # else
 #  ifdef HAVE_SETPGRP
 #   ifdef SETPGRP_VOID
         if (setpgrp()<0) {
-            eventlog(eventlog_level_error,"fork_bnetd","could not create new process group (setpgrp: %s)",strerror(errno));
+            eventlog(eventlog_level_error,__FUNCTION__,"could not create new process group (setpgrp: %s)",strerror(errno));
             return -1;
         }
 #   else
 	if (setpgrp(0,0)<0) {
-	    eventlog(eventlog_level_error,"fork_bnetd","could not create new process group (setpgrp: %s)",strerror(errno));
+	    eventlog(eventlog_level_error,__FUNCTION__,"could not create new process group (setpgrp: %s)",strerror(errno));
 	    return -1;
 	}
 #   endif
 #  else
 #   ifdef HAVE_SETSID
 	if (setsid()<0) {
-	    eventlog(eventlog_level_error,"fork_bnetd","could not create new process group (setsid: %s)",strerror(errno));
+	    eventlog(eventlog_level_error,__FUNCTION__,"could not create new process group (setsid: %s)",strerror(errno));
 	    return -1;
 	}
 #   else
@@ -403,16 +403,16 @@ char * write_to_pidfile(void)
     FILE * fp;
 	
     if (!(fp = fopen(pidfile,"w"))) {
-	eventlog(eventlog_level_error,"write_to_pidfile","unable to open pid file \"%s\" for writing (fopen: %s)",pidfile,strerror(errno));
+	eventlog(eventlog_level_error,__FUNCTION__,"unable to open pid file \"%s\" for writing (fopen: %s)",pidfile,strerror(errno));
 	xfree((void *)pidfile); /* avoid warning */
 	return NULL;
     } else {
 	fprintf(fp,"%u",(unsigned int)getpid());
 	if (fclose(fp)<0)
-	    eventlog(eventlog_level_error,"write_to_pidfile","could not close pid file \"%s\" after writing (fclose: %s)",pidfile,strerror(errno));
+	    eventlog(eventlog_level_error,__FUNCTION__,"could not close pid file \"%s\" after writing (fclose: %s)",pidfile,strerror(errno));
     }
 #else
-    eventlog(eventlog_level_warn,"write_to_pidfile","no getpid() system call, disable pid file in bnetd.conf");
+    eventlog(eventlog_level_warn,__FUNCTION__,"no getpid() system call, disable pid file in bnetd.conf");
     xfree((void *)pidfile); /* avoid warning */
     return NULL;
 #endif
@@ -458,16 +458,16 @@ int pre_server_startup(void)
     server_set_name();
     channellist_create();
     if (helpfile_init(prefs_get_helpfile())<0)
-	eventlog(eventlog_level_error,"pre_server_startup","could not load helpfile");
+	eventlog(eventlog_level_error,__FUNCTION__,"could not load helpfile");
     ipbanlist_create();
     if (ipbanlist_load(prefs_get_ipbanfile())<0)
-	eventlog(eventlog_level_error,"pre_server_startup","could not load IP ban list");
+	eventlog(eventlog_level_error,__FUNCTION__,"could not load IP ban list");
     if (adbannerlist_create(prefs_get_adfile())<0)
-	eventlog(eventlog_level_error,"pre_server_startup","could not load adbanner list");
+	eventlog(eventlog_level_error,__FUNCTION__,"could not load adbanner list");
     if (autoupdate_load(prefs_get_mpqfile())<0)
-	eventlog(eventlog_level_error,"pre_server_startup","could not load autoupdate list");
+	eventlog(eventlog_level_error,__FUNCTION__,"could not load autoupdate list");
     if (versioncheck_load(prefs_get_versioncheck_file())<0)
-	eventlog(eventlog_level_error,"pre_server_startup","could not load versioncheck list");
+	eventlog(eventlog_level_error,__FUNCTION__,"could not load versioncheck list");
    if (news_load(prefs_get_newsfile())<0)
 	eventlog(eventlog_level_error,__FUNCTION__,"could not load news list");
     watchlist_create();
@@ -482,13 +482,13 @@ int pre_server_startup(void)
     ladders_load_accounts_to_ladderlists();
     ladder_update_all_accounts();
     if (realmlist_create(prefs_get_realmfile())<0)
-	eventlog(eventlog_level_error,"pre_server_startup","could not load realm list");
+	eventlog(eventlog_level_error,__FUNCTION__,"could not load realm list");
     if (characterlist_create("")<0)
-	eventlog(eventlog_level_error,"pre_server_startup","could not load character list");
+	eventlog(eventlog_level_error,__FUNCTION__,"could not load character list");
     if (prefs_get_track()) /* setup the tracking mechanism */
         tracker_set_servers(prefs_get_trackserv_addrs());
     if (command_groups_load(prefs_get_command_groups_file())<0)
-	eventlog(eventlog_level_error,"pre_server_startup","could not load command_groups list");
+	eventlog(eventlog_level_error,__FUNCTION__,"could not load command_groups list");
     aliasfile_load(prefs_get_aliasfile());
     if (trans_load(prefs_get_transfile(),TRANS_BNETD)<0)
 	eventlog(eventlog_level_error,__FUNCTION__,"could not load trans list");
@@ -555,7 +555,7 @@ void post_server_shutdown(int status)
 	case -1:
 	    break;
 	default:
-	    eventlog(eventlog_level_error,"post_server_shutdown","got bad status \"%d\" during shutdown",status);
+	    eventlog(eventlog_level_error,__FUNCTION__,"got bad status \"%d\" during shutdown",status);
     }
     return;
 }    
@@ -563,9 +563,9 @@ void post_server_shutdown(int status)
 void pvpgn_greeting(void)
 {
 #ifdef HAVE_GETPID
-    eventlog(eventlog_level_info,"pvpgn_greeting",PVPGN_SOFTWARE" version "PVPGN_VERSION" process %u",(unsigned int)getpid());
+    eventlog(eventlog_level_info,__FUNCTION__,PVPGN_SOFTWARE" version "PVPGN_VERSION" process %u",(unsigned int)getpid());
 #else
-    eventlog(eventlog_level_info,"pvpgn_greeting",PVPGN_SOFTWARE" version "PVPGN_VERSION);
+    eventlog(eventlog_level_info,__FUNCTION__,PVPGN_SOFTWARE" version "PVPGN_VERSION);
 #endif
     
     printf("You are currently Running "PVPGN_SOFTWARE" "PVPGN_VERSION"\n");
@@ -611,7 +611,7 @@ extern int main(int argc, char * * argv)
 	}
     } else {
 	if (prefs_load(BNETD_DEFAULT_CONF_FILE)<0) // or prefs are loaded here ..  if not defined on command line ...
-	    eventlog(eventlog_level_warn,"main","using default configuration"); // or use defaults if default conf is not found
+	    eventlog(eventlog_level_warn,__FUNCTION__,"using default configuration"); // or use defaults if default conf is not found
     }
 
 // Start logging to log file
@@ -632,7 +632,7 @@ extern int main(int argc, char * * argv)
 // Open the hexfile for writing
     if (hexfile) {
 	if (!(hexstrm = fopen(hexfile,"w")))
-	    eventlog(eventlog_level_error,"main","could not open file \"%s\" for writing the hexdump (fopen: %s)",hexfile,strerror(errno));
+	    eventlog(eventlog_level_error,__FUNCTION__,"could not open file \"%s\" for writing the hexdump (fopen: %s)",hexfile,strerror(errno));
 	else
 	    fprintf(hexstrm,"# dump generated by "PVPGN_SOFTWARE" version "PVPGN_VERSION"\n");
     }
@@ -653,18 +653,18 @@ extern int main(int argc, char * * argv)
     if (hexstrm) {
 	fprintf(hexstrm,"# end of dump\n");
 	if (fclose(hexstrm)<0)
-	    eventlog(eventlog_level_error,"main","could not close hexdump file \"%s\" after writing (fclose: %s)",hexfile,strerror(errno));
+	    eventlog(eventlog_level_error,__FUNCTION__,"could not close hexdump file \"%s\" after writing (fclose: %s)",hexfile,strerror(errno));
     }
 
 // Delete pidfile
     if (pidfile) {
 	if (remove(pidfile)<0)
-	    eventlog(eventlog_level_error,"main","could not remove pid file \"%s\" (remove: %s)",pidfile,strerror(errno));
+	    eventlog(eventlog_level_error,__FUNCTION__,"could not remove pid file \"%s\" (remove: %s)",pidfile,strerror(errno));
 	xfree((void *)pidfile); /* avoid warning */
     }
 
     if (a == 0)
-	eventlog(eventlog_level_info,"main","server has shut down");
+	eventlog(eventlog_level_info,__FUNCTION__,"server has shut down");
     prefs_unload();
     eventlog_close();
     

@@ -102,11 +102,11 @@ extern int ipbanlist_destroy(void)
 	    entry = elem_get_data(curr);
 	    if (!entry) /* should not happen */
 	    {
-		eventlog(eventlog_level_error,"ipbanlist_destroy","ipbanlist contains NULL item");
+		eventlog(eventlog_level_error,__FUNCTION__,"ipbanlist contains NULL item");
 		continue;
 	    }
 	    if (list_remove_elem(ipbanlist_head,&curr)<0)
-		eventlog(eventlog_level_error,"ipbanlist_destroy","could not remove item from list");
+		eventlog(eventlog_level_error,__FUNCTION__,"could not remove item from list");
 	    ipban_unload_entry(entry);
 	}
 	if (list_destroy(ipbanlist_head)<0)
@@ -129,13 +129,13 @@ extern int ipbanlist_load(char const * filename)
     
     if (!filename)
     {
-        eventlog(eventlog_level_error,"ipbanlist_load","got NULL filename");
+        eventlog(eventlog_level_error,__FUNCTION__,"got NULL filename");
 	return -1;
     }
     
     if (!(fp = fopen(filename,"r")))
     {
-        eventlog(eventlog_level_error,"ipbanlist_load","could not open banlist file \"%s\" for reading (fopen: %s)",filename,strerror(errno));
+        eventlog(eventlog_level_error,__FUNCTION__,"could not open banlist file \"%s\" for reading (fopen: %s)",filename,strerror(errno));
 	return -1;
     }
 
@@ -171,14 +171,14 @@ extern int ipbanlist_load(char const * filename)
 	else
 	    if (clockstr_to_seconds(timestr,&endtime)<0)
 	    {
-		eventlog(eventlog_level_error,"ipbanlist_load","could not convert to seconds. Banning pernamently.");
+		eventlog(eventlog_level_error,__FUNCTION__,"could not convert to seconds. Banning pernamently.");
 		endtime = 0;
 	    }
 	
 	if (ipbanlist_add(NULL,ip,endtime)!=0)
 	{
 	    xfree(buff);
-	    eventlog(eventlog_level_warn,"ipbanlist_load","error in %.64s at line %u",filename,currline);
+	    eventlog(eventlog_level_warn,__FUNCTION__,"error in %.64s at line %u",filename,currline);
 	    continue;
 	}
 	
@@ -186,7 +186,7 @@ extern int ipbanlist_load(char const * filename)
     }
     
     if (fclose(fp)<0)
-        eventlog(eventlog_level_error,"ipbanlist_load","could not close banlist file \"%s\" after reading (fclose: %s)",filename,strerror(errno));
+        eventlog(eventlog_level_error,__FUNCTION__,"could not close banlist file \"%s\" after reading (fclose: %s)",filename,strerror(errno));
     
     return 0;
 }
@@ -202,18 +202,18 @@ extern int ipbanlist_save(char const * filename)
     
     if (!filename)
     {
-        eventlog(eventlog_level_error,"ipbanlist_save","got NULL filename");
+        eventlog(eventlog_level_error,__FUNCTION__,"got NULL filename");
 	return -1;
     }
     
     if (!(fp = fopen(filename,"w")))
     {
-        eventlog(eventlog_level_error,"ipbanlist_save","could not open banlist file \"%s\" for writing (fopen: %s)",filename,strerror(errno));
+        eventlog(eventlog_level_error,__FUNCTION__,"could not open banlist file \"%s\" for writing (fopen: %s)",filename,strerror(errno));
 	return -1;
     }
 /*    if (ftruncate(fp,0)<0)
     {
-        eventlog(eventlog_level_error,"ipbanlist_save","could not truncate banlist file \"%s\" (ftruncate: %s)",filename,strerror(errno));
+        eventlog(eventlog_level_error,__FUNCTION__,"could not truncate banlist file \"%s\" (ftruncate: %s)",filename,strerror(errno));
 	return -1;
     }*/
     
@@ -222,12 +222,12 @@ extern int ipbanlist_save(char const * filename)
 	entry = elem_get_data(curr);
 	if (!entry)
 	{
-	    eventlog(eventlog_level_error,"ipbanlist_save","ipbanlist contains NULL element");
+	    eventlog(eventlog_level_error,__FUNCTION__,"ipbanlist contains NULL element");
 	    continue;
 	}
 	if (!(ipstr = ipban_entry_to_str(entry)))
 	{
-	    eventlog(eventlog_level_error,"ipbanlist_save","got NULL ipstr");
+	    eventlog(eventlog_level_error,__FUNCTION__,"got NULL ipstr");
 	    continue;
 	}
 	if (entry->endtime == 0)
@@ -235,13 +235,13 @@ extern int ipbanlist_save(char const * filename)
 	else    
 	    sprintf(line,"%s %ld\n",ipstr,entry->endtime);
 	if (!(fwrite(line,strlen(line),1,fp)))
-	    eventlog(eventlog_level_error,"ipbanlist_save","could not write to banlist file (write: %s)",strerror(errno));
+	    eventlog(eventlog_level_error,__FUNCTION__,"could not write to banlist file (write: %s)",strerror(errno));
 	xfree(ipstr);
     }
 	
     if (fclose(fp)<0)
     {
-        eventlog(eventlog_level_error,"ipbanlist_load","could not close banlist file \"%s\" after writing (fclose: %s)",filename,strerror(errno));
+        eventlog(eventlog_level_error,__FUNCTION__,"could not close banlist file \"%s\" after writing (fclose: %s)",filename,strerror(errno));
 	return -1;
     }
     
@@ -263,14 +263,14 @@ extern int ipbanlist_check(char const * ipaddr)
     
     if (!ipaddr)
     {
-	eventlog(eventlog_level_warn,"ipban_check","got NULL ipaddr");
+	eventlog(eventlog_level_warn,__FUNCTION__,"got NULL ipaddr");
 	return -1;
     }
     
     whole = xstrdup(ipaddr);
 
     time(&now);
-    eventlog(eventlog_level_debug,"ipban_check","lastcheck: %u, now: %u, now-lc: %u.",(unsigned)lastchecktime,(unsigned)now,(unsigned)(now-lastchecktime));
+    eventlog(eventlog_level_debug,__FUNCTION__,"lastcheck: %u, now: %u, now-lc: %u.",(unsigned)lastchecktime,(unsigned)now,(unsigned)(now-lastchecktime));
     
     if (now - lastchecktime >= (signed)prefs_get_ipban_check_int()) /* unsigned; no need to check prefs < 0 */
     {
@@ -285,12 +285,12 @@ extern int ipbanlist_check(char const * ipaddr)
     
     if (!ip1 || !ip2 || !ip3 || !ip4)
     {
-	eventlog(eventlog_level_warn,"ipban_check","got bad IP address \"%s\"",ipaddr);
+	eventlog(eventlog_level_warn,__FUNCTION__,"got bad IP address \"%s\"",ipaddr);
 	xfree(whole);
 	return -1;
     }
     
-    eventlog(eventlog_level_debug,"ipban_check","checking %s.%s.%s.%s",ip1,ip2,ip3,ip4);
+    eventlog(eventlog_level_debug,__FUNCTION__,"checking %s.%s.%s.%s",ip1,ip2,ip3,ip4);
     
     counter = 0;
     LIST_TRAVERSE_CONST(ipbanlist_head,curr)
@@ -298,7 +298,7 @@ extern int ipbanlist_check(char const * ipaddr)
 	entry = elem_get_data(curr);
 	if (!entry)
 	{
-	    eventlog(eventlog_level_error,"ipbanlist_check","ipbanlist contains NULL item");
+	    eventlog(eventlog_level_error,__FUNCTION__,"ipbanlist contains NULL item");
 	    return -1;
 	}
 	counter++; 
@@ -307,36 +307,36 @@ extern int ipbanlist_check(char const * ipaddr)
 	case ipban_type_exact:
 	    if (strcmp(entry->info1,ipaddr)==0)
 	    {
-		eventlog(eventlog_level_debug,"ipbanlist_check","address %s matched exact %s",ipaddr,entry->info1);
+		eventlog(eventlog_level_debug,__FUNCTION__,"address %s matched exact %s",ipaddr,entry->info1);
 		xfree(whole);
 		return counter;
 	    }
-	    eventlog(eventlog_level_debug,"ipbanlist_check","address %s does not match exact %s",ipaddr,entry->info1);
+	    eventlog(eventlog_level_debug,__FUNCTION__,"address %s does not match exact %s",ipaddr,entry->info1);
 	    continue;
 	 
 	case ipban_type_wildcard:
 	    if (strcmp(entry->info1,"*")!=0 && strcmp(ip1,entry->info1)!=0)
 	    {
-		eventlog(eventlog_level_debug,"ipbanlist_check","address %s does not match part 1 of wildcard %s.%s.%s.%s",ipaddr,entry->info1,entry->info2,entry->info3,entry->info4);
+		eventlog(eventlog_level_debug,__FUNCTION__,"address %s does not match part 1 of wildcard %s.%s.%s.%s",ipaddr,entry->info1,entry->info2,entry->info3,entry->info4);
 		continue;
 	    }
 	    if (strcmp(entry->info2,"*")!=0 && strcmp(ip2,entry->info2)!=0)
 	    {
-		eventlog(eventlog_level_debug,"ipbanlist_check","address %s does not match part 2 of wildcard %s.%s.%s.%s",ipaddr,entry->info1,entry->info2,entry->info3,entry->info4);
+		eventlog(eventlog_level_debug,__FUNCTION__,"address %s does not match part 2 of wildcard %s.%s.%s.%s",ipaddr,entry->info1,entry->info2,entry->info3,entry->info4);
 		continue;
 	    }
 	    if (strcmp(entry->info3,"*")!=0 && strcmp(ip3,entry->info3)!=0)
 	    {
-		eventlog(eventlog_level_debug,"ipbanlist_check","address %s does not match part 3 of wildcard %s.%s.%s.%s",ipaddr,entry->info1,entry->info2,entry->info3,entry->info4);
+		eventlog(eventlog_level_debug,__FUNCTION__,"address %s does not match part 3 of wildcard %s.%s.%s.%s",ipaddr,entry->info1,entry->info2,entry->info3,entry->info4);
 		continue;
 	    }
 	    if (strcmp(entry->info4,"*")!=0 && strcmp(ip4,entry->info4)!=0)
 	    {
-		eventlog(eventlog_level_debug,"ipbanlist_check","address %s does not match part 4 of wildcard %s.%s.%s.%s",ipaddr,entry->info1,entry->info2,entry->info3,entry->info4);
+		eventlog(eventlog_level_debug,__FUNCTION__,"address %s does not match part 4 of wildcard %s.%s.%s.%s",ipaddr,entry->info1,entry->info2,entry->info3,entry->info4);
 		continue;
 	    }
 	    
-	    eventlog(eventlog_level_debug,"ipbanlist_check","address %s matched wildcard %s.%s.%s.%s",ipaddr,entry->info1,entry->info2,entry->info3,entry->info4);
+	    eventlog(eventlog_level_debug,__FUNCTION__,"address %s matched wildcard %s.%s.%s.%s",ipaddr,entry->info1,entry->info2,entry->info3,entry->info4);
 	    xfree(whole);
 	    return counter;
 	    
@@ -344,11 +344,11 @@ extern int ipbanlist_check(char const * ipaddr)
 	    if ((ipban_str_to_ulong(ipaddr) >= ipban_str_to_ulong(entry->info1)) &&
 		(ipban_str_to_ulong(ipaddr) <= ipban_str_to_ulong(entry->info2)))
 	    {
-		eventlog(eventlog_level_debug,"ipbanlist_check","address %s matched range %s-%s",ipaddr,entry->info1,entry->info2);
+		eventlog(eventlog_level_debug,__FUNCTION__,"address %s matched range %s-%s",ipaddr,entry->info1,entry->info2);
 		xfree(whole);
 		return counter;
 	    }
-	    eventlog(eventlog_level_debug,"ipbanlist_check","address %s does not match range %s-%s",ipaddr,entry->info1,entry->info2);
+	    eventlog(eventlog_level_debug,__FUNCTION__,"address %s does not match range %s-%s",ipaddr,entry->info1,entry->info2);
 	    continue;
 	
 	case ipban_type_netmask:
@@ -368,11 +368,11 @@ extern int ipbanlist_check(char const * ipaddr)
 		lip2 = lip2 & netmask;		
 		if (lip1 == lip2)
 		{
-		    eventlog(eventlog_level_debug,"ipbanlist_check","address %s matched netmask %s/%s",ipaddr,entry->info1,entry->info2);
+		    eventlog(eventlog_level_debug,__FUNCTION__,"address %s matched netmask %s/%s",ipaddr,entry->info1,entry->info2);
 		    xfree(whole);
 		    return counter;
 		}
-		eventlog(eventlog_level_debug,"ipbanlist_check","address %s does not match netmask %s/%s",ipaddr,entry->info1,entry->info2);
+		eventlog(eventlog_level_debug,__FUNCTION__,"address %s does not match netmask %s/%s",ipaddr,entry->info1,entry->info2);
 		continue;
 	    }	
 	
@@ -392,15 +392,15 @@ extern int ipbanlist_check(char const * ipaddr)
 		lip2 = lip2 >> (32 - prefix);		
 		if (lip1 == lip2)
 		{
-		    eventlog(eventlog_level_debug,"ipbanlist_check","address %s matched prefix %s/%s",ipaddr,entry->info1,entry->info2);
+		    eventlog(eventlog_level_debug,__FUNCTION__,"address %s matched prefix %s/%s",ipaddr,entry->info1,entry->info2);
 		    xfree(whole);
 		    return counter;
 		}
-		eventlog(eventlog_level_debug,"ipbanlist_check","address %s does not match prefix %s/%s",ipaddr,entry->info1,entry->info2);
+		eventlog(eventlog_level_debug,__FUNCTION__,"address %s does not match prefix %s/%s",ipaddr,entry->info1,entry->info2);
 		continue;
 	    }	
 	default:  /* unknown type */
-	    eventlog(eventlog_level_warn,"ipbanlist_check","found bad ban type %d",(int)entry->type);
+	    eventlog(eventlog_level_warn,__FUNCTION__,"found bad ban type %d",(int)entry->type);
 	}
     }    
 
@@ -419,7 +419,7 @@ extern int ipbanlist_add(t_connection * c, char const * cp, time_t endtime)
     {
 	if (c)
 	    message_send_text(c,message_type_error,c,"Bad IP.");
-        eventlog(eventlog_level_error,"ipbanlist_add","could not convert to t_ipban_entry: \"%s\"",cp);
+        eventlog(eventlog_level_error,__FUNCTION__,"could not convert to t_ipban_entry: \"%s\"",cp);
         return -1;
     }
 
@@ -434,7 +434,7 @@ extern int ipbanlist_add(t_connection * c, char const * cp, time_t endtime)
 	if (endtime == 0)
 	{
             sprintf(tstr,"%s banned permamently by %s.",cp,conn_get_username(c));
-            eventlog(eventlog_level_info,"ipbanlist_add",tstr);
+            eventlog(eventlog_level_info,__FUNCTION__,tstr);
             message_send_admins(c,message_type_info,tstr);
 	    sprintf(tstr,"%s banned permamently.",cp);
 	    message_send_text(c,message_type_info,c,tstr);
@@ -442,7 +442,7 @@ extern int ipbanlist_add(t_connection * c, char const * cp, time_t endtime)
 	else
 	{
             sprintf(tstr,"%s banned for %.48s by %s.",cp,seconds_to_timestr(entry->endtime - now),conn_get_username(c));
-            eventlog(eventlog_level_info,"ipbanlist_add",tstr);
+            eventlog(eventlog_level_info,__FUNCTION__,tstr);
             message_send_admins(c,message_type_info,tstr);
 	    sprintf(tstr,"%s banned for %.48s.",cp,seconds_to_timestr(entry->endtime - now));
 	    message_send_text(c,message_type_info,c,tstr);
@@ -467,15 +467,15 @@ extern int ipbanlist_unload_expired(void)
 	entry = elem_get_data(curr);
 	if (!entry)
 	{
-	    eventlog(eventlog_level_error,"ipbanlist_unload_expired","ipbanlist_contains NULL element");
+	    eventlog(eventlog_level_error,__FUNCTION__,"ipbanlist_contains NULL element");
 	    return -1;
 	}
 	if ((entry->endtime - now <= 0) && (entry->endtime != 0))
 	{
-	    eventlog(eventlog_level_debug,"ipbanlist_unload_expired","removing item: %s",entry->info1);
+	    eventlog(eventlog_level_debug,__FUNCTION__,"removing item: %s",entry->info1);
 	    removed = 1;
 	    if (list_remove_elem(ipbanlist_head,&curr)<0)
-		eventlog(eventlog_level_error,"ipbanlist_unload_expired","could not remove item");
+		eventlog(eventlog_level_error,__FUNCTION__,"could not remove item");
 	    else
 		ipban_unload_entry(entry);
 	}
@@ -513,7 +513,7 @@ extern time_t ipbanlist_str_to_time_t(t_connection * c, char const * timestr)
 
     if (clockstr_to_seconds(minstr,&bmin)<0) /* it thinks these are seconds but we treat them as minutes */
     {
-        eventlog(eventlog_level_error,"ipbanlist_str_to_time_t","could not convert to minutes: \"%s\"",timestr);
+        eventlog(eventlog_level_error,__FUNCTION__,"could not convert to minutes: \"%s\"",timestr);
         return -1;
     }
     if (bmin == 0)
@@ -613,14 +613,14 @@ static int ipban_func_del(t_connection * c, char const * cp)
 	    entry = elem_get_data(curr);
 	    if (!entry)
 	    {
-		eventlog(eventlog_level_error,"ipban_func_del","ipbanlist contains NULL item");
+		eventlog(eventlog_level_error,__FUNCTION__,"ipbanlist contains NULL item");
 		return -1;
 	    }
 	    if (ipban_identical_entry(to_delete,entry))
 	    {
 		counter++;
 		if (list_remove_elem(ipbanlist_head,&curr)<0)
-		    eventlog(eventlog_level_error,"ipbanlist_unload_expired","could not remove item");
+		    eventlog(eventlog_level_error,__FUNCTION__,"could not remove item");
 		else
 		    ipban_unload_entry(entry);
 	    }
@@ -656,11 +656,11 @@ static int ipban_func_del(t_connection * c, char const * cp)
 	    entry = elem_get_data(curr);
 	    if (!entry)
 	    {
-		eventlog(eventlog_level_error,"ipban_func_del","ipbanlist contains NULL item");
+		eventlog(eventlog_level_error,__FUNCTION__,"ipbanlist contains NULL item");
 		return -1;
 	    }
 	    if (list_remove_elem(ipbanlist_head,&curr)<0)
-	        eventlog(eventlog_level_error,"ipbanlist_unload_expired","could not remove item");
+	        eventlog(eventlog_level_error,__FUNCTION__,"could not remove item");
 	    else
 	    {
 	        ipban_unload_entry(entry);
@@ -698,7 +698,7 @@ static int ipban_func_list(t_connection * c)
 	entry = elem_get_data(curr);
 	if (!entry)
 	{
-	    eventlog(eventlog_level_error,"ipban_func_list","ipbanlist contains NULL item");
+	    eventlog(eventlog_level_error,__FUNCTION__,"ipbanlist contains NULL item");
 	    return -1;
 	}
 	counter++;
@@ -709,7 +709,7 @@ static int ipban_func_list(t_connection * c)
 
 	if (!(ipstr = ipban_entry_to_str(entry)))
 	{
-	    eventlog(eventlog_level_error,"ipban_func_list","could not convert entry to string");
+	    eventlog(eventlog_level_error,__FUNCTION__,"could not convert entry to string");
 	    continue;
 	}
 	sprintf(tstr,"%u: %s %s",counter,ipstr,timestr);
@@ -777,7 +777,7 @@ static int ipban_identical_entry(t_ipban_entry * e1, t_ipban_entry * e2)
 		return 1;
 	    break;
         default:  /* unknown type */
-	    eventlog(eventlog_level_warn,"ipbanlist_identical_entry","found bad ban type %d",(int)e2->type);
+	    eventlog(eventlog_level_warn,__FUNCTION__,"found bad ban type %d",(int)e2->type);
     }
 
     return 0;
@@ -802,7 +802,7 @@ static int ipban_unload_entry(t_ipban_entry * e)
 		xfree(e->info2);
 	    break;
 	default:  /* unknown type */
-    	    eventlog(eventlog_level_warn,"ipbanlist_unload","found bad ban type %d",(int)e->type);
+    	    eventlog(eventlog_level_warn,__FUNCTION__,"found bad ban type %d",(int)e->type);
 	    return -1;
     }
     xfree(e);
@@ -820,13 +820,13 @@ static t_ipban_entry * ipban_str_to_ipban_entry(char const * ipstr)
     entry = xmalloc(sizeof(t_ipban_entry));
     if (!ipstr)
     {
-	eventlog(eventlog_level_error,"ipban_str_to_ipban_entry","got NULL IP");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL IP");
 	xfree(entry);
 	return NULL;
     }
     if (ipstr[0] == '\0')
     {
-        eventlog(eventlog_level_warn,"ipban_str_to_ipban_entry","got empty IP string");
+        eventlog(eventlog_level_warn,__FUNCTION__,"got empty IP string");
 	xfree(entry);
         return NULL;
     }
@@ -834,14 +834,14 @@ static t_ipban_entry * ipban_str_to_ipban_entry(char const * ipstr)
 
     if (ipban_could_be_ip_str(cp)==0)
     {
-	eventlog(eventlog_level_debug,"ipban_str_to_ipban_entry","string: \"%.32s\" can not be valid IP",cp);
+	eventlog(eventlog_level_debug,__FUNCTION__,"string: \"%.32s\" can not be valid IP",cp);
 	xfree(entry);
 	return NULL;
     }
     if ((matched = strchr(cp,'-'))) /* range */
     {
         entry->type = ipban_type_range;
-	eventlog(eventlog_level_debug,"ipban_str_to_ipban_entry","entry: %s matched as ipban_type_range",cp);
+	eventlog(eventlog_level_debug,__FUNCTION__,"entry: %s matched as ipban_type_range",cp);
         matched[0] = '\0';
         entry->info1 = xstrdup(cp); /* start of range */
 	entry->info2 = xstrdup(&matched[1]); /* end of range */
@@ -852,7 +852,7 @@ static t_ipban_entry * ipban_str_to_ipban_entry(char const * ipstr)
         if (strchr(cp,'*')) /* wildcard */
         {
 	    entry->type = ipban_type_wildcard;
-	    eventlog(eventlog_level_debug,"ipban_str_to_ipban_entry","entry: %s matched as ipban_type_wildcard",cp);
+	    eventlog(eventlog_level_debug,__FUNCTION__,"entry: %s matched as ipban_type_wildcard",cp);
 		
 	    /* only xfree() info1! */
 	    whole = xstrdup(cp);
@@ -862,7 +862,7 @@ static t_ipban_entry * ipban_str_to_ipban_entry(char const * ipstr)
 	    entry->info4 = strtok(NULL,".");
 	    if (!entry->info4) /* not enough dots */
 	    {
-	        eventlog(eventlog_level_error,"ipban_str_to_ipban_entry","wildcard entry \"%s\" does not contain all four octets",cp);
+	        eventlog(eventlog_level_error,__FUNCTION__,"wildcard entry \"%s\" does not contain all four octets",cp);
 	        xfree(entry->info1);
 	        xfree(entry);
 		xfree(cp);
@@ -875,12 +875,12 @@ static t_ipban_entry * ipban_str_to_ipban_entry(char const * ipstr)
 		if (strchr(&matched[1],'.'))
 		{
 		    entry->type = ipban_type_netmask;
-		    eventlog(eventlog_level_debug,"ipban_str_to_ipban_entry","entry: %s matched as ipban_type_netmask",cp);
+		    eventlog(eventlog_level_debug,__FUNCTION__,"entry: %s matched as ipban_type_netmask",cp);
 		}
 		else
 		{
 		    entry->type = ipban_type_prefix;
-		    eventlog(eventlog_level_debug,"ipban_str_to_ipban_entry","entry: %s matched as ipban_type_prefix",cp);
+		    eventlog(eventlog_level_debug,__FUNCTION__,"entry: %s matched as ipban_type_prefix",cp);
 		}
 	    
 		matched[0] = '\0';
@@ -892,7 +892,7 @@ static t_ipban_entry * ipban_str_to_ipban_entry(char const * ipstr)
 	    else /* exact */
 	    {
 		entry->type = ipban_type_exact;
-		eventlog(eventlog_level_debug,"ipban_str_to_ipban_entry","entry: %s matched as ipban_type_exact",cp);
+		eventlog(eventlog_level_debug,__FUNCTION__,"entry: %s matched as ipban_type_exact",cp);
 	        
 		entry->info1 = xstrdup(cp);
 		entry->info2 = NULL; /* clear unused elements so debugging is nicer */
@@ -927,7 +927,7 @@ static char * ipban_entry_to_str(t_ipban_entry const * entry)
 	    break;
 	    
 	default: /* unknown type */
-	    eventlog(eventlog_level_warn,"ipban_entry_to_str","found bad ban type %d",(int)entry->type);
+	    eventlog(eventlog_level_warn,__FUNCTION__,"found bad ban type %d",(int)entry->type);
 	    return NULL;
     }
     str = xstrdup(tstr);
@@ -990,13 +990,13 @@ static int ipban_could_be_ip_str(char const * str)
     
     if (strlen(str)<7)
     {
-	eventlog(eventlog_level_error,"ipban_could_be_ip_str","string too short");
+	eventlog(eventlog_level_error,__FUNCTION__,"string too short");
 	return 0;
     }
     for (i=0; i<strlen(str); i++)
 	if (!isdigit((int)str[i]) && str[i]!='.' && str[i]!='*' && str[i]!='/' && str[i]!='-')
 	{
-	    eventlog(eventlog_level_debug,"ipban_could_be_ip_str","illegal character on position %i",i);
+	    eventlog(eventlog_level_debug,__FUNCTION__,"illegal character on position %i",i);
 	    return 0;
 	}
 

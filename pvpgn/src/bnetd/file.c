@@ -146,12 +146,12 @@ extern int file_to_mod_time(char const * rawname, bn_long * modtime)
     
     if (!rawname)
     {
-	eventlog(eventlog_level_error,"file_to_mod_time","got NULL rawname");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL rawname");
 	return -1;
     }
     if (!modtime)
     {
-	eventlog(eventlog_level_error,"file_to_mod_time","got NULL modtime");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL modtime");
 	return -1;
     }
     
@@ -178,18 +178,18 @@ extern int file_send(t_connection * c, char const * rawname, unsigned int adid, 
     
     if (!c)
     {
-	eventlog(eventlog_level_error,"file_send","got NULL connection");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL connection");
 	return -1;
     }
     if (!rawname)
     {
-	eventlog(eventlog_level_error,"file_send","got NULL rawname");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL rawname");
 	return -1;
     }
     
     if (!(rpacket = packet_create(packet_class_file)))
     {
-	eventlog(eventlog_level_error,"file_send","could not create file packet");
+	eventlog(eventlog_level_error,__FUNCTION__,"could not create file packet");
 	return -1;
     }
     packet_set_size(rpacket,sizeof(t_server_file_reply));
@@ -200,7 +200,7 @@ extern int file_send(t_connection * c, char const * rawname, unsigned int adid, 
 	if (!(fp = fopen(filename,"rb")))
 	{
 	    /* FIXME: check for lower-case version of filename */
-	    eventlog(eventlog_level_error,"file_send","stat() succeeded yet could not open file \"%s\" for reading (fclose: %s)",filename,strerror(errno));
+	    eventlog(eventlog_level_error,__FUNCTION__,"stat() succeeded yet could not open file \"%s\" for reading (fclose: %s)",filename,strerror(errno));
 	    filelen = 0;
 	}
 	xfree((void *)filename); /* avoid warning */
@@ -217,7 +217,7 @@ extern int file_send(t_connection * c, char const * rawname, unsigned int adid, 
 	if (startoffset<filelen) {
 	    fseek(fp,startoffset,SEEK_SET);
 	} else {
-	    eventlog(eventlog_level_warn,"file_send","[%d] startoffset is beyond end of file (%u>%u)",conn_get_socket(c),startoffset,filelen);
+	    eventlog(eventlog_level_warn,__FUNCTION__,"[%d] startoffset is beyond end of file (%u>%u)",conn_get_socket(c),startoffset,filelen);
 	    /* Keep the real filesize. Battle.net does it the same way ... */
 	    fclose(fp);
 	    fp = NULL;
@@ -241,18 +241,18 @@ extern int file_send(t_connection * c, char const * rawname, unsigned int adid, 
      */
     if (!fp)
     {
-	eventlog(eventlog_level_warn,"file_send","[%d] sending no data for file \"%s\"",conn_get_socket(c),rawname);
+	eventlog(eventlog_level_warn,__FUNCTION__,"[%d] sending no data for file \"%s\"",conn_get_socket(c),rawname);
 	return -1;
     }
     
-    eventlog(eventlog_level_info,"file_send","[%d] sending file \"%s\" of length %d",conn_get_socket(c),rawname,filelen);
+    eventlog(eventlog_level_info,__FUNCTION__,"[%d] sending file \"%s\" of length %d",conn_get_socket(c),rawname,filelen);
     for (;;)
     {
 	if (!(rpacket = packet_create(packet_class_raw)))
 	{
-	    eventlog(eventlog_level_error,"file_send","could not create raw packet");
+	    eventlog(eventlog_level_error,__FUNCTION__,"could not create raw packet");
 	    if (fclose(fp)<0)
-		eventlog(eventlog_level_error,"file_send","could not close file \"%s\" after reading (fclose: %s)",rawname,strerror(errno));
+		eventlog(eventlog_level_error,__FUNCTION__,"could not close file \"%s\" after reading (fclose: %s)",rawname,strerror(errno));
 	    return -1;
 	}
 	if ((nbytes = fread(packet_get_raw_data_build(rpacket,0),1,MAX_PACKET_SIZE,fp))<(int)MAX_PACKET_SIZE)
@@ -264,7 +264,7 @@ extern int file_send(t_connection * c, char const * rawname, unsigned int adid, 
 	    }
 	    packet_del_ref(rpacket);
 	    if (ferror(fp))
-		eventlog(eventlog_level_error,"file_send","read failed before EOF on file \"%s\" (fread: %s)",rawname,strerror(errno));
+		eventlog(eventlog_level_error,__FUNCTION__,"read failed before EOF on file \"%s\" (fread: %s)",rawname,strerror(errno));
 	    break;
 	}
 	packet_set_size(rpacket,nbytes);
@@ -273,6 +273,6 @@ extern int file_send(t_connection * c, char const * rawname, unsigned int adid, 
     }
     
     if (fclose(fp)<0)
-	eventlog(eventlog_level_error,"file_send","could not close file \"%s\" after reading (fclose: %s)",rawname,strerror(errno));
+	eventlog(eventlog_level_error,__FUNCTION__,"could not close file \"%s\" after reading (fclose: %s)",rawname,strerror(errno));
     return 0;
 }

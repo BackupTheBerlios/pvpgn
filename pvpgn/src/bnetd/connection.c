@@ -175,7 +175,7 @@ static void conn_send_issue(t_connection * c)
     
     if (!c)
     {
-        eventlog(eventlog_level_error,"conn_send_issue","got NULL connection");
+        eventlog(eventlog_level_error,__FUNCTION__,"got NULL connection");
 	return;
     }
     
@@ -184,12 +184,12 @@ static void conn_send_issue(t_connection * c)
 	{
 	    message_send_file(c,fp);
 	    if (fclose(fp)<0)
-		eventlog(eventlog_level_error,"conn_send_issue","could not close issue file \"%s\" after reading (fopen: %s)",filename,strerror(errno));
+		eventlog(eventlog_level_error,__FUNCTION__,"could not close issue file \"%s\" after reading (fopen: %s)",filename,strerror(errno));
 	}
 	else
-	    eventlog(eventlog_level_error,"conn_send_issue","could not open issue file \"%s\" for reading (fopen: %s)",filename,strerror(errno));
+	    eventlog(eventlog_level_error,__FUNCTION__,"could not open issue file \"%s\" for reading (fopen: %s)",filename,strerror(errno));
     else
-	eventlog(eventlog_level_debug,"conn_send_issue","no issue file");
+	eventlog(eventlog_level_debug,__FUNCTION__,"no issue file");
 }
 
 // [zap-zero] 20020629
@@ -197,17 +197,17 @@ extern void conn_shutdown(t_connection * c, time_t now, t_timer_data foo)
 {
     if (!c)
     {
-        eventlog(eventlog_level_error,"conn_shutdown","got NULL connection");
+        eventlog(eventlog_level_error,__FUNCTION__,"got NULL connection");
         return;
     }
 
     if (now==(time_t)0) /* zero means user logged out before expiration */
     {
-	eventlog(eventlog_level_trace,"conn_shutdown","[%d] connection allready closed",conn_get_socket(c));
+	eventlog(eventlog_level_trace,__FUNCTION__,"[%d] connection allready closed",conn_get_socket(c));
 	return;
     }
 
-    eventlog(eventlog_level_trace,"conn_shutdown","[%d] closing connection",conn_get_socket(c));
+    eventlog(eventlog_level_trace,__FUNCTION__,"[%d] closing connection",conn_get_socket(c));
 
     conn_set_state(c, conn_state_destroy);
 }
@@ -218,7 +218,7 @@ extern void conn_test_latency(t_connection * c, time_t now, t_timer_data delta)
     
     if (!c)
     {
-        eventlog(eventlog_level_error,"conn_test_latency","got NULL connection");
+        eventlog(eventlog_level_error,__FUNCTION__,"got NULL connection");
         return;
     }
 
@@ -238,14 +238,14 @@ extern void conn_test_latency(t_connection * c, time_t now, t_timer_data delta)
     	 * connection. In other words we just don't care :)
     	 */
 	if (conn_get_ircping(c)!=0) {
-	    eventlog(eventlog_level_warn,"conn_test_latency","[%d] ping timeout (closing connection)",conn_get_socket(c));
+	    eventlog(eventlog_level_warn,__FUNCTION__,"[%d] ping timeout (closing connection)",conn_get_socket(c));
 	    conn_set_latency(c,0); 
 	    conn_set_state(c,conn_state_destroy);
 	}
 	irc_send_ping(c);
     } else if(conn_get_class(c)==conn_class_w3route) {
         if(!(packet = packet_create(packet_class_w3route))) {
-	    eventlog(eventlog_level_error,"handle_w3route_packet","[%d] packet_create failed",conn_get_socket(c));
+	    eventlog(eventlog_level_error,__FUNCTION__,"[%d] packet_create failed",conn_get_socket(c));
 	} else {
     	    packet_set_size(packet,sizeof(t_server_w3route_echoreq));
 	    packet_set_type(packet,SERVER_W3ROUTE_ECHOREQ);
@@ -267,12 +267,12 @@ extern void conn_test_latency(t_connection * c, time_t now, t_timer_data delta)
 	    	packet_del_ref(packet);
 	    }
 	    else
-	      { eventlog(eventlog_level_error,"conn_test_latency","could not create packet"); }
+	      { eventlog(eventlog_level_error,__FUNCTION__,"could not create packet"); }
 	}
     }
     
     if (timerlist_add_timer(c,now+(time_t)delta.n,conn_test_latency,delta)<0)
-	eventlog(eventlog_level_error,"conn_test_latency","could not add timer");
+	eventlog(eventlog_level_error,__FUNCTION__,"could not add timer");
 }
 
 
@@ -280,7 +280,7 @@ static void conn_send_nullmsg(t_connection * c, time_t now, t_timer_data delta)
 {
     if (!c)
     {
-        eventlog(eventlog_level_error,"conn_send_nullmsg","got NULL connection");
+        eventlog(eventlog_level_error,__FUNCTION__,"got NULL connection");
         return;
     }
    
@@ -290,7 +290,7 @@ static void conn_send_nullmsg(t_connection * c, time_t now, t_timer_data delta)
     message_send_text(c,message_type_null,c,NULL);
     
     if (timerlist_add_timer(c,now+(time_t)delta.n,conn_send_nullmsg,delta)<0)
-        eventlog(eventlog_level_error,"conn_send_nullmsg","could not add timer");
+        eventlog(eventlog_level_error,__FUNCTION__,"could not add timer");
 }
 
 
@@ -357,12 +357,12 @@ extern t_connection * conn_create(int tsock, int usock, unsigned int real_local_
     
     if (tsock<0)
     {
-        eventlog(eventlog_level_error,"conn_create","got bad TCP socket %d",tsock);
+        eventlog(eventlog_level_error,__FUNCTION__,"got bad TCP socket %d",tsock);
         return NULL;
     }
     if (usock<-1) /* -1 is allowed for some connection classes like bot, irc, and telnet */
     {
-        eventlog(eventlog_level_error,"conn_create","got bad UDP socket %d",usock);
+        eventlog(eventlog_level_error,__FUNCTION__,"got bad UDP socket %d",usock);
         return NULL;
     }
     
@@ -440,7 +440,7 @@ extern t_connection * conn_create(int tsock, int usock, unsigned int real_local_
 	
     list_prepend_data(conn_head,temp);
     
-    eventlog(eventlog_level_info,"conn_create","[%d][%d] sessionkey=0x%08x sessionnum=0x%08x",temp->socket.tcp_sock,temp->socket.udp_sock,temp->protocol.sessionkey,temp->protocol.sessionnum);
+    eventlog(eventlog_level_info,__FUNCTION__,"[%d][%d] sessionkey=0x%08x sessionnum=0x%08x",temp->socket.tcp_sock,temp->socket.udp_sock,temp->protocol.sessionkey,temp->protocol.sessionnum);
     
     return temp;
 }
@@ -452,7 +452,7 @@ extern t_anongame * conn_create_anongame(t_connection *c)
     int i;
 
     if(c->protocol.w3.anongame) {
-        eventlog(eventlog_level_error,"conn_create_anongame","anongame already allocated");
+        eventlog(eventlog_level_error,__FUNCTION__,"anongame already allocated");
 	return c->protocol.w3.anongame;
     }
 
@@ -484,7 +484,7 @@ extern t_anongame * conn_create_anongame(t_connection *c)
 extern t_anongame * conn_get_anongame(t_connection *c)
 {
     if(!c) {
-	eventlog(eventlog_level_error,"conn_get_anongame","got NULL connection");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL connection");
 	return NULL;
     }
     return c->protocol.w3.anongame;
@@ -496,13 +496,13 @@ extern void conn_destroy_anongame(t_connection *c)
 
     if (!c)
     {
-	eventlog(eventlog_level_error,"conn_destroy_anongame","got NULL connection");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL connection");
 	return;
     }
 
     if (!(a = c->protocol.w3.anongame))
     {
-	eventlog(eventlog_level_error,"conn_destroy_anongame","NULL anongame");
+	eventlog(eventlog_level_error,__FUNCTION__,"NULL anongame");
 	return;
     }
 
@@ -540,7 +540,7 @@ extern void conn_destroy(t_connection * c, t_elem ** elem, int conn_or_dead_list
 
     if (list_remove_data(conn_head,c,(conn_or_dead_list)?&curr:elem)<0)
     {
-	eventlog(eventlog_level_error,"conn_destroy","could not remove item from list");
+	eventlog(eventlog_level_error,__FUNCTION__,"could not remove item from list");
 	return;
     }
 
@@ -553,7 +553,7 @@ extern void conn_destroy(t_connection * c, t_elem ** elem, int conn_or_dead_list
              realm_deactive(realm);
         else
         {
-             eventlog(eventlog_level_error,"conn_destroy","could not find realm for d2cs connection");
+             eventlog(eventlog_level_error,__FUNCTION__,"could not find realm for d2cs connection");
         }
     }
     else if (c->protocol.class == conn_class_w3route && c->protocol.w3.routeconn && c->protocol.w3.routeconn->protocol.w3.anongame)
@@ -661,7 +661,7 @@ extern void conn_destroy(t_connection * c, t_elem ** elem, int conn_or_dead_list
 
     if (c->protocol.account)
     {
-	eventlog(eventlog_level_info,"conn_destroy","[%d] \"%s\" logged out",c->socket.tcp_sock,conn_get_loggeduser(c));
+	eventlog(eventlog_level_info,__FUNCTION__,"[%d] \"%s\" logged out",c->socket.tcp_sock,conn_get_loggeduser(c));
 	//amadeo
 #ifdef WIN32_GUI
 						guiOnUpdateUserList();
@@ -704,7 +704,7 @@ extern void conn_destroy(t_connection * c, t_elem ** elem, int conn_or_dead_list
     if (conn_dead) list_remove_data(conn_dead, c, (conn_or_dead_list)?elem:&curr);
     connarray_del_conn(c->protocol.sessionnum);
 
-    eventlog(eventlog_level_info,"conn_destroy","[%d] closed %s connection",c->socket.tcp_sock,classstr);
+    eventlog(eventlog_level_info,__FUNCTION__,"[%d] closed %s connection",c->socket.tcp_sock,classstr);
     
     xfree(c);
 }
@@ -714,12 +714,12 @@ extern int conn_match(t_connection const * c, char const * username)
 {
     if (!c)
     {
-        eventlog(eventlog_level_error,"conn_match","got NULL connection");
+        eventlog(eventlog_level_error,__FUNCTION__,"got NULL connection");
         return -1;
     }
     if (!username)
     {
-        eventlog(eventlog_level_error,"conn_match","got NULL username");
+        eventlog(eventlog_level_error,__FUNCTION__,"got NULL username");
         return -1;
     }
     
@@ -734,7 +734,7 @@ extern t_conn_class conn_get_class(t_connection const * c)
 {
     if (!c)
     {
-        eventlog(eventlog_level_error,"conn_get_class","got NULL connection");
+        eventlog(eventlog_level_error,__FUNCTION__,"got NULL connection");
         return conn_class_none;
     }
     
@@ -750,7 +750,7 @@ extern void conn_set_class(t_connection * c, t_conn_class class)
     
     if (!c)
     {
-        eventlog(eventlog_level_error,"conn_set_class","got NULL connection");
+        eventlog(eventlog_level_error,__FUNCTION__,"got NULL connection");
         return;
     }
     
@@ -771,16 +771,16 @@ extern void conn_set_class(t_connection * c, t_conn_class class)
 	    delta = prefs_get_latency();
 	    data.n = delta;
 	    if (timerlist_add_timer(c,time(NULL)+(time_t)delta,conn_test_latency,data)<0)
-		eventlog(eventlog_level_error,"conn_set_class","could not add timer");
+		eventlog(eventlog_level_error,__FUNCTION__,"could not add timer");
 
-    	    eventlog(eventlog_level_debug,"conn_set_class","added latency check timer");
+    	    eventlog(eventlog_level_debug,__FUNCTION__,"added latency check timer");
 	    break;
 
 	case conn_class_w3route:
 	    delta = prefs_get_latency();
 	    data.n = delta;
 	    if (timerlist_add_timer(c,time(NULL)+(time_t)delta,conn_test_latency,data)<0)
-		eventlog(eventlog_level_error,"conn_set_class","could not add timer");
+		eventlog(eventlog_level_error,__FUNCTION__,"could not add timer");
 	    break;
 
 	case conn_class_bot:
@@ -791,7 +791,7 @@ extern void conn_set_class(t_connection * c, t_conn_class class)
 		if ((delta = prefs_get_nullmsg())>0) {
 		    data.n = delta;
 		    if (timerlist_add_timer(c,time(NULL)+(time_t)delta,conn_send_nullmsg,data)<0)
-		    eventlog(eventlog_level_error,"conn_set_class","could not add timer");
+		    eventlog(eventlog_level_error,__FUNCTION__,"could not add timer");
 		}
 	    }
 
@@ -800,7 +800,7 @@ extern void conn_set_class(t_connection * c, t_conn_class class)
 	    conn_send_issue(c);
 
 	    if (!(rpacket = packet_create(packet_class_raw)))
-		eventlog(eventlog_level_error,"conn_set_class","could not create rpacket");
+		eventlog(eventlog_level_error,__FUNCTION__,"could not create rpacket");
 	    else {
 		packet_append_ntstring(rpacket,"Username: ");
 		conn_push_outqueue(c,rpacket);
@@ -824,7 +824,7 @@ extern t_conn_state conn_get_state(t_connection const * c)
 {
     if (!c)
     {
-        eventlog(eventlog_level_error,"conn_get_state","got NULL connection");
+        eventlog(eventlog_level_error,__FUNCTION__,"got NULL connection");
         return conn_state_empty;
     }
     
@@ -861,7 +861,7 @@ extern unsigned int conn_get_sessionkey(t_connection const * c)
 {
     if (!c)
     {
-        eventlog(eventlog_level_error,"conn_get_sessionkey","got NULL connection");
+        eventlog(eventlog_level_error,__FUNCTION__,"got NULL connection");
         return 0;
     }
     
@@ -873,7 +873,7 @@ extern unsigned int conn_get_sessionnum(t_connection const * c)
 {
     if (!c)
     {
-        eventlog(eventlog_level_error,"conn_get_sessionnum","got NULL connection");
+        eventlog(eventlog_level_error,__FUNCTION__,"got NULL connection");
         return 0;
     }
 
@@ -885,7 +885,7 @@ extern unsigned int conn_get_secret(t_connection const * c)
 {
     if (!c)
     {
-        eventlog(eventlog_level_error,"conn_get_secret","got NULL connection");
+        eventlog(eventlog_level_error,__FUNCTION__,"got NULL connection");
         return 0;
     }
 
@@ -897,7 +897,7 @@ extern unsigned int conn_get_addr(t_connection const * c)
 {
     if (!c)
     {
-        eventlog(eventlog_level_error,"conn_get_addr","got NULL connection");
+        eventlog(eventlog_level_error,__FUNCTION__,"got NULL connection");
         return 0;
     }
     
@@ -909,7 +909,7 @@ extern unsigned short conn_get_port(t_connection const * c)
 {
     if (!c)
     {
-        eventlog(eventlog_level_error,"conn_get_port","got NULL connection");
+        eventlog(eventlog_level_error,__FUNCTION__,"got NULL connection");
         return 0;
     }
     
@@ -921,7 +921,7 @@ extern unsigned int conn_get_local_addr(t_connection const * c)
 {
     if (!c)
     {
-        eventlog(eventlog_level_error,"conn_get_local_addr","got NULL connection");
+        eventlog(eventlog_level_error,__FUNCTION__,"got NULL connection");
         return 0;
     }
     
@@ -933,7 +933,7 @@ extern unsigned short conn_get_local_port(t_connection const * c)
 {
     if (!c)
     {
-        eventlog(eventlog_level_error,"conn_get_local_port","got NULL connection");
+        eventlog(eventlog_level_error,__FUNCTION__,"got NULL connection");
         return 0;
     }
     
@@ -945,7 +945,7 @@ extern unsigned int conn_get_real_local_addr(t_connection const * c)
 {
     if (!c)
     {
-        eventlog(eventlog_level_error,"conn_get_real_local_addr","got NULL connection");
+        eventlog(eventlog_level_error,__FUNCTION__,"got NULL connection");
         return 0;
     }
     
@@ -957,7 +957,7 @@ extern unsigned short conn_get_real_local_port(t_connection const * c)
 {
     if (!c)
     {
-        eventlog(eventlog_level_error,"conn_get_real_local_port","got NULL connection");
+        eventlog(eventlog_level_error,__FUNCTION__,"got NULL connection");
         return 0;
     }
     
@@ -969,7 +969,7 @@ extern unsigned int conn_get_game_addr(t_connection const * c)
 {
     if (!c)
     {
-        eventlog(eventlog_level_error,"conn_get_game_addr","got NULL connection");
+        eventlog(eventlog_level_error,__FUNCTION__,"got NULL connection");
         return 0;
     }
     
@@ -981,7 +981,7 @@ extern int conn_set_game_addr(t_connection * c, unsigned int game_addr)
 {
     if (!c)
     {
-        eventlog(eventlog_level_error,"conn_set_game_addr","got NULL connection");
+        eventlog(eventlog_level_error,__FUNCTION__,"got NULL connection");
         return -1;
     }
     
@@ -994,7 +994,7 @@ extern unsigned short conn_get_game_port(t_connection const * c)
 {
     if (!c)
     {
-        eventlog(eventlog_level_error,"conn_get_game_port","got NULL connection");
+        eventlog(eventlog_level_error,__FUNCTION__,"got NULL connection");
         return 0;
     }
     
@@ -1006,7 +1006,7 @@ extern int conn_set_game_port(t_connection * c, unsigned short game_port)
 {
     if (!c)
     {
-        eventlog(eventlog_level_error,"conn_set_game_port","got NULL connection");
+        eventlog(eventlog_level_error,__FUNCTION__,"got NULL connection");
         return -1;
     }
     
@@ -1019,12 +1019,12 @@ extern void conn_set_host(t_connection * c, char const * host)
 {
     if (!c)
     {
-        eventlog(eventlog_level_error,"conn_set_host","got NULL connection");
+        eventlog(eventlog_level_error,__FUNCTION__,"got NULL connection");
         return;
     }
     if (!host)
     {
-        eventlog(eventlog_level_error,"conn_set_host","got NULL host");
+        eventlog(eventlog_level_error,__FUNCTION__,"got NULL host");
         return;
     }
     
@@ -1038,12 +1038,12 @@ extern void conn_set_user(t_connection * c, char const * user)
 {
     if (!c)
     {
-        eventlog(eventlog_level_error,"conn_set_user","got NULL connection");
+        eventlog(eventlog_level_error,__FUNCTION__,"got NULL connection");
         return;
     }
     if (!user)
     {
-        eventlog(eventlog_level_error,"conn_set_user","got NULL user");
+        eventlog(eventlog_level_error,__FUNCTION__,"got NULL user");
         return;
     }
 
@@ -1057,12 +1057,12 @@ extern void conn_set_owner(t_connection * c, char const * owner)
 {
     if (!c)
     {
-        eventlog(eventlog_level_error,"conn_set_owner","got NULL connection");
+        eventlog(eventlog_level_error,__FUNCTION__,"got NULL connection");
         return;
     }
     if (!owner)
     {
-        eventlog(eventlog_level_error,"conn_set_owner","got NULL owner");
+        eventlog(eventlog_level_error,__FUNCTION__,"got NULL owner");
         return;
     }
     
@@ -1074,7 +1074,7 @@ extern void conn_set_owner(t_connection * c, char const * owner)
 extern const char * conn_get_user(t_connection const * c)
 {
     if (!c) {
-	eventlog(eventlog_level_error,"conn_get_user","got NULL connection");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL connection");
 	return NULL;
     }
     return c->protocol.client.user;
@@ -1083,7 +1083,7 @@ extern const char * conn_get_user(t_connection const * c)
 extern const char * conn_get_owner(t_connection const * c)
 {
     if (!c) {
-	eventlog(eventlog_level_error,"conn_get_user","got NULL connection");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL connection");
 	return NULL;
     }
     return c->protocol.client.owner;
@@ -1093,12 +1093,12 @@ extern void conn_set_cdkey(t_connection * c, char const * cdkey)
 {
     if (!c)
     {
-        eventlog(eventlog_level_error,"conn_set_cdkey","got NULL connection");
+        eventlog(eventlog_level_error,__FUNCTION__,"got NULL connection");
         return;
     }
     if (!cdkey)
     {
-        eventlog(eventlog_level_error,"conn_set_cdkey","got NULL cdkey");
+        eventlog(eventlog_level_error,__FUNCTION__,"got NULL cdkey");
         return;
     }
 
@@ -1112,7 +1112,7 @@ extern char const * conn_get_clientexe(t_connection const * c)
 {
     if (!c)
     {
-        eventlog(eventlog_level_error,"conn_get_clientexe","got NULL connection");
+        eventlog(eventlog_level_error,__FUNCTION__,"got NULL connection");
         return NULL;
     }
 
@@ -1128,12 +1128,12 @@ extern void conn_set_clientexe(t_connection * c, char const * clientexe)
     
     if (!c)
     {
-        eventlog(eventlog_level_error,"conn_set_clientexe","got NULL connection");
+        eventlog(eventlog_level_error,__FUNCTION__,"got NULL connection");
         return;
     }
     if (!clientexe)
     {
-        eventlog(eventlog_level_error,"conn_set_clientexe","got NULL clientexe");
+        eventlog(eventlog_level_error,__FUNCTION__,"got NULL clientexe");
         return;
     }
     
@@ -1148,7 +1148,7 @@ extern char const * conn_get_clientver(t_connection const * c)
 {
     if (!c)
     {
-        eventlog(eventlog_level_error,"conn_get_clientver","got NULL connection");
+        eventlog(eventlog_level_error,__FUNCTION__,"got NULL connection");
         return NULL;
     }
 
@@ -1164,12 +1164,12 @@ extern void conn_set_clientver(t_connection * c, char const * clientver)
     
     if (!c)
     {
-        eventlog(eventlog_level_error,"conn_set_clientver","got NULL connection");
+        eventlog(eventlog_level_error,__FUNCTION__,"got NULL connection");
         return;
     }
     if (!clientver)
     {
-        eventlog(eventlog_level_error,"conn_set_clientver","got NULL clientver");
+        eventlog(eventlog_level_error,__FUNCTION__,"got NULL clientver");
         return;
     }
     
@@ -1248,7 +1248,7 @@ extern t_clienttag conn_get_clienttag(t_connection const * c)
 {
     if (!c)
     {
-        eventlog(eventlog_level_error,"conn_get_clienttag","got NULL connection");
+        eventlog(eventlog_level_error,__FUNCTION__,"got NULL connection");
         return CLIENTTAG_UNKNOWN_UINT;
     }
     
@@ -1265,7 +1265,7 @@ extern t_clienttag conn_get_fake_clienttag(t_connection const * c)
     
     if (!c)
     {
-        eventlog(eventlog_level_error,"conn_get_fake_clienttag","got NULL connection");
+        eventlog(eventlog_level_error,__FUNCTION__,"got NULL connection");
         return 0; /* unknown */
     }
 
@@ -1282,7 +1282,7 @@ extern void conn_set_clienttag(t_connection * c, t_clienttag clienttag)
     char clienttag_str[5];
     
     if (!c) {
-        eventlog(eventlog_level_error,"conn_set_clienttag","got NULL connection");
+        eventlog(eventlog_level_error,__FUNCTION__,"got NULL connection");
         return;
     }
     if (!tag_check_client(clienttag)) {
@@ -1290,7 +1290,7 @@ extern void conn_set_clienttag(t_connection * c, t_clienttag clienttag)
 	return;
     }
     if (c->protocol.client.clienttag!=clienttag) {
-	eventlog(eventlog_level_info,"conn_set_clienttag","[%d] setting client type to \"%s\"",conn_get_socket(c),tag_uint_to_str(clienttag_str,clienttag));
+	eventlog(eventlog_level_info,__FUNCTION__,"[%d] setting client type to \"%s\"",conn_get_socket(c),tag_uint_to_str(clienttag_str,clienttag));
         c->protocol.client.clienttag = clienttag;
         if (c->protocol.chat.channel)
 	    channel_update_userflags(c);
@@ -1353,7 +1353,7 @@ extern unsigned long conn_get_versionid(t_connection const * c)
 {
     if (!c)
     {
-	eventlog(eventlog_level_error,"conn_get_versionid","got NULL connection");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL connection");
 	return 0;
     }
 
@@ -1365,7 +1365,7 @@ extern int conn_set_versionid(t_connection * c, unsigned long versionid)
 {
     if (!c)
     {
-	eventlog(eventlog_level_error,"conn_set_versionid","got NULL connection");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL connection");
 	return -1;
     }
 
@@ -1378,7 +1378,7 @@ extern int conn_get_tzbias(t_connection const * c)
 {
     if (!c)
     {
-        eventlog(eventlog_level_error,"conn_get_tzbias","got NULL connection");
+        eventlog(eventlog_level_error,__FUNCTION__,"got NULL connection");
         return 0;
     }
 
@@ -1390,7 +1390,7 @@ extern void conn_set_tzbias(t_connection * c, int tzbias)
 {
     if (!c)
     {
-        eventlog(eventlog_level_error,"conn_set_tzbias","got NULL connection");
+        eventlog(eventlog_level_error,__FUNCTION__,"got NULL connection");
         return;
     }
     
@@ -1406,19 +1406,19 @@ static void conn_set_account(t_connection * c, t_account * account)
     
     if (!c)
     {
-        eventlog(eventlog_level_error,"conn_set_account","got NULL connection");
+        eventlog(eventlog_level_error,__FUNCTION__,"got NULL connection");
         return;
     }
     if (!account)
     {
-        eventlog(eventlog_level_error,"conn_set_account","got NULL account");
+        eventlog(eventlog_level_error,__FUNCTION__,"got NULL account");
         return;
     }
     now = (unsigned int)time(NULL);
     
     if ((other = connlist_find_connection_by_accountname((tname = account_get_name(account)))))
     {
-	eventlog(eventlog_level_info,"conn_set_account","[%d] forcing logout of previous login for \"%s\"",conn_get_socket(c),tname);
+	eventlog(eventlog_level_info,__FUNCTION__,"[%d] forcing logout of previous login for \"%s\"",conn_get_socket(c),tname);
 	conn_set_state(other, conn_state_destroy);
     }
 
@@ -1489,7 +1489,7 @@ extern t_account * conn_get_account(t_connection const * c)
 {
     if (!c)
     {
-	eventlog(eventlog_level_error,"conn_get_account","got NULL connection");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL connection");
 	return NULL;
     }
     
@@ -1527,7 +1527,7 @@ extern unsigned int conn_get_flags(t_connection const * c)
 {
     if (!c)
     {
-        eventlog(eventlog_level_error,"conn_get_flags","got NULL connection");
+        eventlog(eventlog_level_error,__FUNCTION__,"got NULL connection");
         return 0;
     }
 
@@ -1541,7 +1541,7 @@ extern int conn_set_flags(t_connection * c, unsigned int flags)
     
     if (!c)
     {
-        eventlog(eventlog_level_error,"conn_set_flags","got NULL connection");
+        eventlog(eventlog_level_error,__FUNCTION__,"got NULL connection");
         return -1;
     }
     oldflags = c->protocol.flags;
@@ -1560,7 +1560,7 @@ extern void conn_add_flags(t_connection * c, unsigned int flags)
     
     if (!c)
     {
-        eventlog(eventlog_level_error,"conn_add_flags","got NULL connection");
+        eventlog(eventlog_level_error,__FUNCTION__,"got NULL connection");
         return;
     }
     oldflags = c->protocol.flags;
@@ -1577,7 +1577,7 @@ extern void conn_del_flags(t_connection * c, unsigned int flags)
     
     if (!c)
     {
-        eventlog(eventlog_level_error,"conn_del_flags","got NULL connection");
+        eventlog(eventlog_level_error,__FUNCTION__,"got NULL connection");
         return;
     }
     oldflags = c->protocol.flags;
@@ -1592,7 +1592,7 @@ extern unsigned int conn_get_latency(t_connection const * c)
 {
     if (!c)
     {
-        eventlog(eventlog_level_error,"conn_get_latency","got NULL connection");
+        eventlog(eventlog_level_error,__FUNCTION__,"got NULL connection");
         return 0;
     }
 
@@ -1604,7 +1604,7 @@ extern void conn_set_latency(t_connection * c, unsigned int ms)
 {
     if (!c)
     {
-	eventlog(eventlog_level_error,"conn_set_latency","got NULL connection");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL connection");
 	return;
     }
 
@@ -1623,7 +1623,7 @@ extern char const * conn_get_awaystr(t_connection const * c)
 {
     if (!c)
     {
-        eventlog(eventlog_level_error,"conn_get_awaystr","got NULL connection");
+        eventlog(eventlog_level_error,__FUNCTION__,"got NULL connection");
         return NULL;
     }
 
@@ -1635,7 +1635,7 @@ extern int conn_set_awaystr(t_connection * c, char const * away)
 {
     if (!c)
     {
-        eventlog(eventlog_level_error,"conn_set_awaystr","got NULL connection");
+        eventlog(eventlog_level_error,__FUNCTION__,"got NULL connection");
         return -1;
     }
     
@@ -1654,7 +1654,7 @@ extern char const * conn_get_dndstr(t_connection const * c)
 {
     if (!c)
     {
-        eventlog(eventlog_level_error,"conn_get_dndstr","got NULL connection");
+        eventlog(eventlog_level_error,__FUNCTION__,"got NULL connection");
         return NULL;
     }
     
@@ -1666,7 +1666,7 @@ extern int conn_set_dndstr(t_connection * c, char const * dnd)
 {
     if (!c)
     {
-        eventlog(eventlog_level_error,"conn_set_dndstr","got NULL connection");
+        eventlog(eventlog_level_error,__FUNCTION__,"got NULL connection");
         return -1;
     }
     
@@ -1687,12 +1687,12 @@ extern int conn_add_ignore(t_connection * c, t_account * account)
     
     if (!c)
     {
-        eventlog(eventlog_level_error,"conn_add_ignore","got NULL connection");
+        eventlog(eventlog_level_error,__FUNCTION__,"got NULL connection");
         return -1;
     }
     if (!account)
     {
-        eventlog(eventlog_level_error,"conn_add_ignore","got NULL account");
+        eventlog(eventlog_level_error,__FUNCTION__,"got NULL account");
         return -1;
     }
 
@@ -1712,12 +1712,12 @@ extern int conn_del_ignore(t_connection * c, t_account const * account)
     
     if (!c)
     {
-        eventlog(eventlog_level_error,"conn_del_ignore","got NULL connection");
+        eventlog(eventlog_level_error,__FUNCTION__,"got NULL connection");
         return -1;
     }
     if (!account)
     {
-        eventlog(eventlog_level_error,"conn_del_ignore","got NULL account");
+        eventlog(eventlog_level_error,__FUNCTION__,"got NULL account");
         return -1;
     }
     
@@ -1751,7 +1751,7 @@ extern int conn_add_watch(t_connection * c, t_account * account, t_clienttag cli
 {
     if (!c)
     {
-        eventlog(eventlog_level_error,"conn_add_watch","got NULL connection");
+        eventlog(eventlog_level_error,__FUNCTION__,"got NULL connection");
         return -1;
     }
     
@@ -1765,7 +1765,7 @@ extern int conn_del_watch(t_connection * c, t_account * account, t_clienttag cli
 {
     if (!c)
     {
-        eventlog(eventlog_level_error,"conn_del_watch","got NULL connection");
+        eventlog(eventlog_level_error,__FUNCTION__,"got NULL connection");
         return -1;
     }
     
@@ -1782,7 +1782,7 @@ extern int conn_check_ignoring(t_connection const * c, char const * me)
     
     if (!c)
     {
-        eventlog(eventlog_level_error,"conn_check_ignoring","got NULL connection");
+        eventlog(eventlog_level_error,__FUNCTION__,"got NULL connection");
         return -1;
     }
     
@@ -1802,7 +1802,7 @@ extern t_channel * conn_get_channel(t_connection const * c)
 {
     if (!c)
     {
-        eventlog(eventlog_level_error,"conn_get_channel","got NULL connection");
+        eventlog(eventlog_level_error,__FUNCTION__,"got NULL connection");
         return NULL;
     }
     
@@ -1814,7 +1814,7 @@ extern int conn_set_channel_var(t_connection * c, t_channel * channel)
 {
     if (!c)
     {
-        eventlog(eventlog_level_error,"conn_set_channel_var","got NULL connection");
+        eventlog(eventlog_level_error,__FUNCTION__,"got NULL connection");
         return -1;
     }
     c->protocol.chat.channel = channel;
@@ -1833,7 +1833,7 @@ extern int conn_set_channel(t_connection * c, char const * channelname)
 
     if (!c)
     {
-        eventlog(eventlog_level_error,"conn_set_channel","got NULL connection");
+        eventlog(eventlog_level_error,__FUNCTION__,"got NULL connection");
         return -1;
     }
 
@@ -1841,7 +1841,7 @@ extern int conn_set_channel(t_connection * c, char const * channelname)
 
     if (!acc)
     {
-        eventlog(eventlog_level_error,"conn_set_channel","got NULL account");
+        eventlog(eventlog_level_error,__FUNCTION__,"got NULL account");
         return -1;
     }
 
@@ -1911,10 +1911,10 @@ extern int conn_set_channel(t_connection * c, char const * channelname)
 	}
     
     if(conn_set_joingamewhisper_ack(c,0)<0)
-	eventlog(eventlog_level_error,"conn_set_channel","Unable to reset conn_set_joingamewhisper_ack flag");
+	eventlog(eventlog_level_error,__FUNCTION__,"Unable to reset conn_set_joingamewhisper_ack flag");
 
     if(conn_set_leavegamewhisper_ack(c,0)<0)
-	eventlog(eventlog_level_error,"conn_set_channel","Unable to reset conn_set_leavegamewhisper_ack flag");
+	eventlog(eventlog_level_error,__FUNCTION__,"Unable to reset conn_set_leavegamewhisper_ack flag");
     
 	/* if you're entering a channel, make sure they didn't exit a game without telling us */
 	if (c->protocol.game)
@@ -1933,7 +1933,7 @@ extern int conn_set_channel(t_connection * c, char const * channelname)
 		channel = channel_create(channelname,channelname,NULL,0,1,1,prefs_get_chanlog(), NULL, NULL, (prefs_get_maxusers_per_channel() > 0) ? prefs_get_maxusers_per_channel() : -1, 0, 0);
 	    if (!channel)
 	    {
-		eventlog(eventlog_level_error,"conn_set_channel","[%d] could not create channel on join \"%s\"",conn_get_socket(c),channelname);
+		eventlog(eventlog_level_error,__FUNCTION__,"[%d] could not create channel on join \"%s\"",conn_get_socket(c),channelname);
 		return -1;
 	    }
 	    created = 1;
@@ -1949,7 +1949,7 @@ extern int conn_set_channel(t_connection * c, char const * channelname)
         return -1;
 	}
 
-	eventlog(eventlog_level_info,"conn_set_channel","[%d] joined channel \"%s\"",conn_get_socket(c),channel_get_name(c->protocol.chat.channel));
+	eventlog(eventlog_level_info,__FUNCTION__,"[%d] joined channel \"%s\"",conn_get_socket(c),channel_get_name(c->protocol.chat.channel));
 	conn_send_welcome(c);
 
     if(c->protocol.chat.channel && (channel_get_flags(c->protocol.chat.channel) & channel_flags_thevoid))
@@ -1992,7 +1992,7 @@ extern t_game * conn_get_game(t_connection const * c)
 {
     if (!c)
     {
-        eventlog(eventlog_level_error,"conn_get_game","got NULL connection");
+        eventlog(eventlog_level_error,__FUNCTION__,"got NULL connection");
         return NULL;
     }
     
@@ -2104,7 +2104,7 @@ extern unsigned int conn_get_in_size(t_connection const * c)
 {
     if (!c)
     {
-        eventlog(eventlog_level_error,"conn_get_in_size","got NULL connection");
+        eventlog(eventlog_level_error,__FUNCTION__,"got NULL connection");
         return 0;
     }
     
@@ -2116,7 +2116,7 @@ extern void conn_set_in_size(t_connection * c, unsigned int size)
 {
     if (!c)
     {
-        eventlog(eventlog_level_error,"conn_set_in_size","got NULL connection");
+        eventlog(eventlog_level_error,__FUNCTION__,"got NULL connection");
         return;
     }
     
@@ -2128,7 +2128,7 @@ extern unsigned int conn_get_out_size(t_connection const * c)
 {
     if (!c)
     {
-        eventlog(eventlog_level_error,"conn_get_out_size","got NULL connection");
+        eventlog(eventlog_level_error,__FUNCTION__,"got NULL connection");
         return -1;
     }
     return c->protocol.queues.outsize;
@@ -2139,7 +2139,7 @@ extern void conn_set_out_size(t_connection * c, unsigned int size)
 {
     if (!c)
     {
-        eventlog(eventlog_level_error,"conn_set_out_size","got NULL connection");
+        eventlog(eventlog_level_error,__FUNCTION__,"got NULL connection");
         return;
     }
     
@@ -2199,13 +2199,13 @@ extern char const * conn_get_username_real(t_connection const * c,char const * f
 
     if (!c)
     {
-        eventlog(eventlog_level_error,"conn_get_username","got NULL connection (from %s:%u)",fn,ln);
+        eventlog(eventlog_level_error,__FUNCTION__,"got NULL connection (from %s:%u)",fn,ln);
         return NULL;
     }
 
     if(!c->protocol.account)
     {
-        eventlog(eventlog_level_error,"conn_get_username","got NULL account (from %s:%u)",fn,ln);
+        eventlog(eventlog_level_error,__FUNCTION__,"got NULL account (from %s:%u)",fn,ln);
         return NULL;
     }
     result = account_get_name(c->protocol.account);
@@ -2220,7 +2220,7 @@ extern char const * conn_get_chatname(t_connection const * c)
 {
     if (!c)
     {
-        eventlog(eventlog_level_error,"conn_get_chatname","got NULL connection");
+        eventlog(eventlog_level_error,__FUNCTION__,"got NULL connection");
         return NULL;
     }
 
@@ -2230,7 +2230,7 @@ extern char const * conn_get_chatname(t_connection const * c)
 	    return character_get_name(c->protocol.d2.character);
 	if (c->protocol.bound->protocol.d2.character)
 	    return character_get_name(c->protocol.bound->protocol.d2.character);
-        eventlog(eventlog_level_error,"conn_get_chatname","[%d] got connection class %s bound to class %d without a character",conn_get_socket(c),conn_class_get_str(c->protocol.class),c->protocol.bound->protocol.class);
+        eventlog(eventlog_level_error,__FUNCTION__,"[%d] got connection class %s bound to class %d without a character",conn_get_socket(c),conn_class_get_str(c->protocol.class),c->protocol.bound->protocol.class);
     }
     if (!c->protocol.account)
 	return NULL; /* no name yet */
@@ -2242,7 +2242,7 @@ extern int conn_unget_chatname(t_connection const * c, char const * name)
 {
     if (!c)
     {
-        eventlog(eventlog_level_error,"conn_unget_chatname","got NULL connection");
+        eventlog(eventlog_level_error,__FUNCTION__,"got NULL connection");
         return -1;
     }
     
@@ -2259,7 +2259,7 @@ extern char const * conn_get_chatcharname(t_connection const * c, t_connection c
     
     if (!c)
     {
-        eventlog(eventlog_level_error,"conn_get_chatcharname","got NULL connection");
+        eventlog(eventlog_level_error,__FUNCTION__,"got NULL connection");
         return NULL;
     }
 
@@ -2289,12 +2289,12 @@ extern int conn_unget_chatcharname(t_connection const * c, char const * name)
 {
     if (!c)
     {
-        eventlog(eventlog_level_error,"conn_unget_chatcharname","got NULL connection");
+        eventlog(eventlog_level_error,__FUNCTION__,"got NULL connection");
         return -1;
     }
     if (!name)
     {
-	eventlog(eventlog_level_error,"conn_unget_chatcharname","got NULL name");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL name");
 	return -1;
     }
     
@@ -2316,13 +2316,13 @@ extern unsigned int conn_get_userid(t_connection const * c)
 {
     if (!c)
     {
-        eventlog(eventlog_level_error,"conn_get_userid","got NULL connection");
+        eventlog(eventlog_level_error,__FUNCTION__,"got NULL connection");
         return 0;
     }
 
     if(!c->protocol.account)
     {
-        eventlog(eventlog_level_error,"conn_get_userid","got NULL account");
+        eventlog(eventlog_level_error,__FUNCTION__,"got NULL account");
         return 0;
     }
     
@@ -2334,7 +2334,7 @@ extern int conn_get_socket(t_connection const * c)
 {
     if (!c)
     {
-        eventlog(eventlog_level_error,"conn_get_socket","got NULL connection");
+        eventlog(eventlog_level_error,__FUNCTION__,"got NULL connection");
         return -1;
     }
     
@@ -2346,7 +2346,7 @@ extern int conn_get_game_socket(t_connection const * c)
 {
     if (!c)
     {
-        eventlog(eventlog_level_error,"conn_get_game_socket","got NULL connection");
+        eventlog(eventlog_level_error,__FUNCTION__,"got NULL connection");
         return -1;
     }
     
@@ -2358,7 +2358,7 @@ extern int conn_set_game_socket(t_connection * c, int usock)
 {
     if (!c)
     {
-        eventlog(eventlog_level_error,"conn_set_game_socket","got NULL connection");
+        eventlog(eventlog_level_error,__FUNCTION__,"got NULL connection");
         return -1;
     }
     
@@ -2377,18 +2377,18 @@ extern char const * conn_get_playerinfo(t_connection const * c)
         
     if (!c)
     {
-        eventlog(eventlog_level_error,"conn_get_playerinfo","got NULL connection");
+        eventlog(eventlog_level_error,__FUNCTION__,"got NULL connection");
         return NULL;
     }
     if (!(account = conn_get_account(c)))
     {
-	eventlog(eventlog_level_error,"conn_get_playerinfo","connection has no account");
+	eventlog(eventlog_level_error,__FUNCTION__,"connection has no account");
 	return NULL;
     }
     
     if (!(clienttag = conn_get_fake_clienttag(c)))
     {
-	eventlog(eventlog_level_error,"conn_get_playerinfo","connection has NULL fakeclienttag");
+	eventlog(eventlog_level_error,__FUNCTION__,"connection has NULL fakeclienttag");
 	return NULL;
     }
     tag_uint_to_str(clienttag_str,clienttag);
@@ -2556,12 +2556,12 @@ extern int conn_set_playerinfo(t_connection const * c, char const * playerinfo)
     
     if (!c)
     {
-        eventlog(eventlog_level_error,"conn_set_playerinfo","got NULL connection");
+        eventlog(eventlog_level_error,__FUNCTION__,"got NULL connection");
         return -1;
     }
     if (!playerinfo)
     {
-	eventlog(eventlog_level_error,"conn_set_playerinfo","got NULL playerinfo");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL playerinfo");
 	return -1;
     }
     clienttag = c->protocol.client.clienttag;
@@ -2587,7 +2587,7 @@ extern int conn_set_playerinfo(t_connection const * c, char const * playerinfo)
 		   &vitality,
 		   &gold)!=8)
 	{
-	    eventlog(eventlog_level_error,"conn_set_playerinfo","got bad playerinfo");
+	    eventlog(eventlog_level_error,__FUNCTION__,"got bad playerinfo");
 	    return -1;
 	}
 	
@@ -2621,7 +2621,7 @@ extern int conn_set_playerinfo(t_connection const * c, char const * playerinfo)
 		   &vitality,
 		   &gold)!=8)
 	{
-	    eventlog(eventlog_level_error,"conn_set_playerinfo","got bad playerinfo");
+	    eventlog(eventlog_level_error,__FUNCTION__,"got bad playerinfo");
 	    return -1;
 	}
 	
@@ -2637,16 +2637,16 @@ extern int conn_set_playerinfo(t_connection const * c, char const * playerinfo)
     else if (clienttag==CLIENTTAG_DIABLO2DV_UINT)
     {
 	/* not much to do */ /* FIXME: get char name here? */
-	eventlog(eventlog_level_trace,"conn_set_playerinfo","[%d] playerinfo request for client \"%s\" playerinfo=\"%s\"",conn_get_socket(c),tag_uint_to_str(clienttag_str,clienttag),playerinfo);
+	eventlog(eventlog_level_trace,__FUNCTION__,"[%d] playerinfo request for client \"%s\" playerinfo=\"%s\"",conn_get_socket(c),tag_uint_to_str(clienttag_str,clienttag),playerinfo);
     }
     else if (clienttag==CLIENTTAG_DIABLO2XP_UINT)
     {
         /* in playerinfo we get strings of the form "Realmname,charname" */
-	eventlog(eventlog_level_trace,"conn_set_playerinfo","[%d] playerinfo request for client \"%s\" playerinfo=\"%s\"",conn_get_socket(c),tag_uint_to_str(clienttag_str,clienttag),playerinfo);
+	eventlog(eventlog_level_trace,__FUNCTION__,"[%d] playerinfo request for client \"%s\" playerinfo=\"%s\"",conn_get_socket(c),tag_uint_to_str(clienttag_str,clienttag),playerinfo);
     }
     else
     {
-	eventlog(eventlog_level_warn,"conn_set_playerinfo","setting playerinfo for client \"%s\" not supported (playerinfo=\"%s\")",tag_uint_to_str(clienttag_str,clienttag),playerinfo);
+	eventlog(eventlog_level_warn,__FUNCTION__,"setting playerinfo for client \"%s\" not supported (playerinfo=\"%s\")",tag_uint_to_str(clienttag_str,clienttag),playerinfo);
 	return -1;
     }
     
@@ -2658,7 +2658,7 @@ extern char const * conn_get_realminfo(t_connection const * c)
 {
     if (!c)
     {
-        eventlog(eventlog_level_error,"conn_get_realminfo","got NULL connection");
+        eventlog(eventlog_level_error,__FUNCTION__,"got NULL connection");
         return NULL;
     }
     return c->protocol.d2.realminfo;
@@ -2671,7 +2671,7 @@ extern int conn_set_realminfo(t_connection * c, char const * realminfo)
 
     if (!c)
     {
-        eventlog(eventlog_level_error,"conn_set_realminfo","got NULL connection");
+        eventlog(eventlog_level_error,__FUNCTION__,"got NULL connection");
         return -1;
     }
     
@@ -2691,7 +2691,7 @@ extern char const * conn_get_charname(t_connection const * c)
 {
     if (!c)
     {
-       eventlog(eventlog_level_error,"conn_get_charname","got NULL connection");
+       eventlog(eventlog_level_error,__FUNCTION__,"got NULL connection");
        return NULL;
     }
     return c->protocol.d2.charname;
@@ -2704,7 +2704,7 @@ extern int conn_set_charname(t_connection * c, char const * charname)
 
     if (!c)
     {
-       eventlog(eventlog_level_error,"conn_set_charname","got NULL connection");
+       eventlog(eventlog_level_error,__FUNCTION__,"got NULL connection");
        return -1;
     }
     
@@ -2724,7 +2724,7 @@ extern int conn_set_idletime(t_connection * c)
 {
     if (!c)
     {
-        eventlog(eventlog_level_error,"conn_set_idletime","got NULL connection");
+        eventlog(eventlog_level_error,__FUNCTION__,"got NULL connection");
         return -1;
     }
     
@@ -2737,7 +2737,7 @@ extern unsigned int conn_get_idletime(t_connection const * c)
 {
     if (!c)
     {
-        eventlog(eventlog_level_error,"conn_get_idletime","got NULL connection");
+        eventlog(eventlog_level_error,__FUNCTION__,"got NULL connection");
         return 0;
     }
     
@@ -2749,7 +2749,7 @@ extern char const * conn_get_realmname(t_connection const * c)
 {
     if (!c)
     {
-        eventlog(eventlog_level_error,"conn_get_realmname","got NULL connection");
+        eventlog(eventlog_level_error,__FUNCTION__,"got NULL connection");
         return NULL;
     }
     
@@ -2761,7 +2761,7 @@ extern int conn_set_realmname(t_connection * c, char const * realmname)
 {
     if (!c)
     {
-        eventlog(eventlog_level_error,"conn_set_realmname","got NULL connection");
+        eventlog(eventlog_level_error,__FUNCTION__,"got NULL connection");
         return -1;
     }
     
@@ -2771,7 +2771,7 @@ extern int conn_set_realmname(t_connection * c, char const * realmname)
         c->protocol.d2.realmname = NULL;
     else {
         c->protocol.d2.realmname = xstrdup(realmname);
-	eventlog(eventlog_level_debug,"conn_set_realmname","[%d] set to \"%s\"",conn_get_socket(c),realmname);
+	eventlog(eventlog_level_debug,__FUNCTION__,"[%d] set to \"%s\"",conn_get_socket(c),realmname);
     }
     
     return 0;
@@ -2782,12 +2782,12 @@ extern int conn_set_character(t_connection * c, t_character * character)
 {
     if (!c)
     {
-        eventlog(eventlog_level_error,"conn_set_character","got NULL connection");
+        eventlog(eventlog_level_error,__FUNCTION__,"got NULL connection");
         return -1;
     }
     if (!character)
     {
-        eventlog(eventlog_level_error,"conn_set_character","got NULL character");
+        eventlog(eventlog_level_error,__FUNCTION__,"got NULL character");
 	return -1;
     }
     
@@ -2801,12 +2801,12 @@ extern void conn_set_country(t_connection * c, char const * country)
 {
     if (!c)
     {
-        eventlog(eventlog_level_error,"conn_set_country","got NULL connection");
+        eventlog(eventlog_level_error,__FUNCTION__,"got NULL connection");
         return;
     }
     if (!country)
     {
-        eventlog(eventlog_level_error,"conn_set_country","got NULL country");
+        eventlog(eventlog_level_error,__FUNCTION__,"got NULL country");
         return;
     }
 
@@ -2820,7 +2820,7 @@ extern char const * conn_get_country(t_connection const * c)
 {
     if (!c)
     {
-        eventlog(eventlog_level_error,"conn_get_country","got NULL connection");
+        eventlog(eventlog_level_error,__FUNCTION__,"got NULL connection");
         return NULL;
     }
     
@@ -2832,12 +2832,12 @@ extern int conn_bind(t_connection * c1, t_connection * c2)
 {
     if (!c1)
     {
-        eventlog(eventlog_level_error,"conn_bind","got NULL connection");
+        eventlog(eventlog_level_error,__FUNCTION__,"got NULL connection");
         return -1;
     }
     if (!c2)
     {
-        eventlog(eventlog_level_error,"conn_bind","got NULL connection");
+        eventlog(eventlog_level_error,__FUNCTION__,"got NULL connection");
         return -1;
     }
 
@@ -2851,11 +2851,11 @@ extern int conn_bind(t_connection * c1, t_connection * c2)
 extern int conn_set_ircline(t_connection * c, char const * line)
 {
     if (!c) {
-	eventlog(eventlog_level_error,"conn_set_ircline","got NULL connection");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL connection");
 	return -1;
     }
     if (!line) {
-	eventlog(eventlog_level_error,"conn_set_ircline","got NULL line");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL line");
 	return -1;
     }
     if (c->protocol.chat.irc.ircline)
@@ -2868,7 +2868,7 @@ extern int conn_set_ircline(t_connection * c, char const * line)
 extern char const * conn_get_ircline(t_connection const * c)
 {
     if (!c) {
-	eventlog(eventlog_level_error,"conn_get_ircline","got NULL connection");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL connection");
 	return NULL;
     }
     return c->protocol.chat.irc.ircline;
@@ -2878,7 +2878,7 @@ extern char const * conn_get_ircline(t_connection const * c)
 extern int conn_set_ircpass(t_connection * c, char const * pass)
 {
     if (!c) {
-	eventlog(eventlog_level_error,"conn_set_ircpass","got NULL connection");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL connection");
 	return -1;
     }
     if (c->protocol.chat.irc.ircpass)
@@ -2895,7 +2895,7 @@ extern int conn_set_ircpass(t_connection * c, char const * pass)
 extern char const * conn_get_ircpass(t_connection const * c)
 {
     if (!c) {
-	eventlog(eventlog_level_error,"conn_get_ircpass","got NULL connection");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL connection");
 	return NULL;
     }
     return c->protocol.chat.irc.ircpass;
@@ -2905,7 +2905,7 @@ extern char const * conn_get_ircpass(t_connection const * c)
 extern int conn_set_ircping(t_connection * c, unsigned int ping)
 {
     if (!c) {
-	eventlog(eventlog_level_error,"conn_set_ircping","got NULL connection");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL connection");
 	return -1;
     }
     c->protocol.chat.irc.ircping = ping;
@@ -2916,7 +2916,7 @@ extern int conn_set_ircping(t_connection * c, unsigned int ping)
 extern unsigned int conn_get_ircping(t_connection const * c)
 {
     if (!c) {
-	eventlog(eventlog_level_error,"conn_get_ircping","got NULL connection");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL connection");
 	return 0;
     }
     return c->protocol.chat.irc.ircping;
@@ -2927,7 +2927,7 @@ extern int conn_get_welcomed(t_connection const * c)
 {
     if (!c)
     {
-        eventlog(eventlog_level_error,"conn_get_welcomed","got NULL connection");
+        eventlog(eventlog_level_error,__FUNCTION__,"got NULL connection");
         return 0;
     }
 
@@ -2940,7 +2940,7 @@ extern void conn_set_welcomed(t_connection * c, int welcomed)
     
     if (!c)
     {
-        eventlog(eventlog_level_error,"conn_set_welcomed","got NULL connection");
+        eventlog(eventlog_level_error,__FUNCTION__,"got NULL connection");
         return;
     }
     c->protocol.cflags |= conn_flags_welcomed;
@@ -2953,7 +2953,7 @@ extern int conn_set_w3_playerinfo( t_connection * c, const char * w3_playerinfo 
 
     if (!c)
     {
-        eventlog(eventlog_level_error,"conn_set_w3_playerinfo", "got NULL connection");
+        eventlog(eventlog_level_error,__FUNCTION__, "got NULL connection");
         return -1;
     }
 
@@ -2971,7 +2971,7 @@ extern const char * conn_get_w3_playerinfo( t_connection * c )
 {
     if (!c)
     {
-        eventlog(eventlog_level_error,"conn_get_w3_playerinfo","got NULL connection");
+        eventlog(eventlog_level_error,__FUNCTION__,"got NULL connection");
         return NULL;
     }
     return c->protocol.w3.w3_playerinfo; 
@@ -3001,7 +3001,7 @@ extern int conn_quota_exceeded(t_connection * con, char const * text)
 	    /* these lines are at least quota_time old */
 	    list_remove_elem(con->protocol.chat.quota.list,&curr);
 	    if (qline->count>con->protocol.chat.quota.totcount)
-		eventlog(eventlog_level_error,"conn_quota_exceeded","qline->count=%u but con->protocol.chat.quota.totcount=%u",qline->count,con->protocol.chat.quota.totcount);
+		eventlog(eventlog_level_error,__FUNCTION__,"qline->count=%u but con->protocol.chat.quota.totcount=%u",qline->count,con->protocol.chat.quota.totcount);
 	    con->protocol.chat.quota.totcount -= qline->count;
 	    xfree(qline);
 	}
@@ -3042,7 +3042,7 @@ extern int conn_set_lastsender(t_connection * c, char const * sender)
 {
     if (!c)
     {
-	eventlog(eventlog_level_error,"conn_set_lastsender","got NULL conection");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL conection");
 	return -1;
     }
     if (c->protocol.chat.lastsender)
@@ -3062,7 +3062,7 @@ extern char const * conn_get_lastsender(t_connection const * c)
 {
     if (!c) 
     {
-	eventlog(eventlog_level_error,"conn_get_lastsender","got NULL connection");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL connection");
 	return NULL;
     }
     return c->protocol.chat.lastsender;
@@ -3073,7 +3073,7 @@ extern t_versioncheck * conn_get_versioncheck(t_connection * c)
 {
     if (!c)
     {
-        eventlog(eventlog_level_error,"conn_get_versioncheck","got NULL connection");
+        eventlog(eventlog_level_error,__FUNCTION__,"got NULL connection");
         return NULL;
     }
 
@@ -3085,12 +3085,12 @@ extern int conn_set_versioncheck(t_connection * c, t_versioncheck * versioncheck
 {
     if (!c) 
     {
-	eventlog(eventlog_level_error,"conn_set_versioncheck","got NULL connection");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL connection");
 	return -1;
     }
     if (!versioncheck) 
     {
-	eventlog(eventlog_level_error,"conn_set_versioncheck","got NULL versioncheck");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL versioncheck");
 	return -1;
     }
 
@@ -3145,7 +3145,7 @@ extern t_connection * conn_get_routeconn(t_connection const * c)
 {
     if (!c)
     {
-        eventlog(eventlog_level_error,"conn_get_routeconn","got NULL connection");
+        eventlog(eventlog_level_error,__FUNCTION__,"got NULL connection");
         return NULL;
     }
 
@@ -3156,7 +3156,7 @@ extern t_connection * conn_get_routeconn(t_connection const * c)
 extern int conn_set_routeconn(t_connection * c, t_connection * rc)
 {
     if (!c) {
-		eventlog(eventlog_level_error,"conn_set_routeconn","got NULL conection");
+		eventlog(eventlog_level_error,__FUNCTION__,"got NULL conection");
 		return -1;
     }
 	c->protocol.w3.routeconn = rc;
@@ -3324,7 +3324,7 @@ extern t_connection * connlist_find_connection_by_accountname(char const * accou
     
     if (!accountname)
     {
-	eventlog(eventlog_level_error,"connlist_find_connection_by_accountname","got NULL accountname");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL accountname");
 	return NULL;
     }
     
@@ -3389,12 +3389,12 @@ extern t_connection * connlist_find_connection_by_name(char const * name, char c
     
     if (!name)
     {
-	eventlog(eventlog_level_error,"connlist_find_connection_by_name","got NULL name");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL name");
 	return NULL;
     }
     if (name[0]=='\0')
     {
-	eventlog(eventlog_level_error,"connlist_find_connection_by_name","got empty name");
+	eventlog(eventlog_level_error,__FUNCTION__,"got empty name");
 	return NULL;
     }
     
@@ -3413,7 +3413,7 @@ extern t_connection * connlist_find_connection_by_name(char const * name, char c
 	n = temp - name;
 	if (n>=CHAR_NAME_LEN)
 	{
-	    eventlog(eventlog_level_info,"connlist_find_connection_by_name","character name too long in \"%s\" (charname@otherrealm format)",name);
+	    eventlog(eventlog_level_info,__FUNCTION__,"character name too long in \"%s\" (charname@otherrealm format)",name);
 	    return NULL;
 	}
 	strncpy(charname,name,n);
@@ -3429,7 +3429,7 @@ extern t_connection * connlist_find_connection_by_name(char const * name, char c
 	n = temp - name;
 	if (n>=CHAR_NAME_LEN)
 	{
-	    eventlog(eventlog_level_info,"connlist_find_connection_by_name","character name too long in \"%s\" (charname*username format)",name);
+	    eventlog(eventlog_level_info,__FUNCTION__,"character name too long in \"%s\" (charname*username format)",name);
 	    return NULL;
 	}
 	name = temp + 1;
@@ -3452,7 +3452,7 @@ extern t_connection * connlist_find_connection_by_charname(char const * charname
      t_elem const    * curr;
 
      if (!realmname) {
-	eventlog(eventlog_level_error,"connlist_find_connection_by_charname","got NULL realmname");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL realmname");
      	return NULL;
      }
      LIST_TRAVERSE_CONST(conn_head, curr)
@@ -3639,7 +3639,7 @@ extern int conn_increment_passfail_count (t_connection * c)
 	if (count == prefs_get_passfail_count())
 	{
 	    ipbanlist_add(NULL, addr_num_to_ip_str(conn_get_addr(c)), time(NULL)+(time_t)prefs_get_passfail_bantime());
-	    eventlog(eventlog_level_info,"conn_increment_passfail_count","[%d] failed password tries: %d (banned ip)",conn_get_socket(c), count);
+	    eventlog(eventlog_level_info,__FUNCTION__,"[%d] failed password tries: %d (banned ip)",conn_get_socket(c), count);
 	    conn_set_state(c, conn_state_destroy);
 	    return -1;
 	}

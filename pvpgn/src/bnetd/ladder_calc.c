@@ -521,27 +521,27 @@ extern int ladder_calc_info(t_clienttag clienttag, t_ladder_id id, unsigned int 
     
     if (!players)
     {
-	eventlog(eventlog_level_error,"ladder_calc_info","got NULL players");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL players");
 	return -1;
     }
     if (!sorted)
     {
-	eventlog(eventlog_level_error,"ladder_calc_info","got NULL sorted");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL sorted");
 	return -1;
     }
     if (!results)
     {
-	eventlog(eventlog_level_error,"ladder_calc_info","got NULL results");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL results");
 	return -1;
     }
     if (!clienttag)
     {
-	eventlog(eventlog_level_error,"ladder_calc_info","got bad clienttag");
+	eventlog(eventlog_level_error,__FUNCTION__,"got bad clienttag");
 	return -1;
     }
     if (!info)
     {
-	eventlog(eventlog_level_error,"ladder_calc_info","got NULL info");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL info");
 	return -1;
     }
     
@@ -589,7 +589,7 @@ extern int ladder_calc_info(t_clienttag clienttag, t_ladder_id id, unsigned int 
 	    prob = eight_player(sorted,clienttag,id);
 	    break;
 	default:
-	    eventlog(eventlog_level_error,"ladder_calc_info","sorry, unsupported number of ladder players (%u)",count);
+	    eventlog(eventlog_level_error,__FUNCTION__,"sorry, unsupported number of ladder players (%u)",count);
 	    return -1;
 	}
 	
@@ -598,7 +598,7 @@ extern int ladder_calc_info(t_clienttag clienttag, t_ladder_id id, unsigned int 
 	else
 	    delta = -fabs(k * prob); /* better the chance of winning -> more points subtracted */
 	
-	eventlog(eventlog_level_debug,"ladder_calc_info","computed probability=%g, k=%g, deltar=%+g",prob,k,delta);
+	eventlog(eventlog_level_debug,__FUNCTION__,"computed probability=%g, k=%g, deltar=%+g",prob,k,delta);
 	
 	info[curr].prob      = prob;
 	info[curr].k         = (unsigned int)k;

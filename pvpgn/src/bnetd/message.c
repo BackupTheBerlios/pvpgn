@@ -173,7 +173,7 @@ extern char * message_format_line(t_connection const * c, char const * in)
 	    case 'h':
     		if (gethostname(&out[outpos],MAX_INC)<0)
     		{
-		    eventlog(eventlog_level_error,"message_format_line","could not get hostname (gethostname: %s)",strerror(errno));
+		    eventlog(eventlog_level_error,__FUNCTION__,"could not get hostname (gethostname: %s)",strerror(errno));
 		    strcpy(&out[outpos],"localhost"); /* not much else you can do */
     		}
 		outpos += strlen(&out[outpos]);
@@ -270,7 +270,7 @@ extern char * message_format_line(t_connection const * c, char const * in)
 		break;
 		
 	    default:
-		eventlog(eventlog_level_warn,"message_format_line","bad formatter \"%%%c\"",in[inpos-1]);
+		eventlog(eventlog_level_warn,__FUNCTION__,"bad formatter \"%%%c\"",in[inpos-1]);
 	    }
 	
 	if ((outpos+MAX_INC)>=outlen)
@@ -294,7 +294,7 @@ static int message_telnet_format(t_packet * packet, t_message_type type, t_conne
     
     if (!packet)
     {
-	eventlog(eventlog_level_error,"message_telnet_format","got NULL packet");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL packet");
 	return -1;
     }
     
@@ -303,7 +303,7 @@ static int message_telnet_format(t_packet * packet, t_message_type type, t_conne
     case message_type_uniqueid:
 	if (!text)
 	{
-	    eventlog(eventlog_level_error,"message_telnet_format","got NULL text for %s",message_type_get_str(type));
+	    eventlog(eventlog_level_error,__FUNCTION__,"got NULL text for %s",message_type_get_str(type));
 	    return -1;
 	}
 	msgtemp = xmalloc(strlen(text)+32);
@@ -312,7 +312,7 @@ static int message_telnet_format(t_packet * packet, t_message_type type, t_conne
     case message_type_adduser:
 	if (!me)
 	{
-	    eventlog(eventlog_level_error,"message_telnet_format","got NULL connection for %s",message_type_get_str(type));
+	    eventlog(eventlog_level_error,__FUNCTION__,"got NULL connection for %s",message_type_get_str(type));
 	    return -1;
 	}
 	{
@@ -327,7 +327,7 @@ static int message_telnet_format(t_packet * packet, t_message_type type, t_conne
     case message_type_join:
 	if (!me)
 	{
-	    eventlog(eventlog_level_error,"message_telnet_format","got NULL connection for %s",message_type_get_str(type));
+	    eventlog(eventlog_level_error,__FUNCTION__,"got NULL connection for %s",message_type_get_str(type));
 	    return -1;
 	}
 	{
@@ -342,7 +342,7 @@ static int message_telnet_format(t_packet * packet, t_message_type type, t_conne
     case message_type_part:
 	if (!me)
 	{
-	    eventlog(eventlog_level_error,"message_telnet_format","got NULL connection for %s",message_type_get_str(type));
+	    eventlog(eventlog_level_error,__FUNCTION__,"got NULL connection for %s",message_type_get_str(type));
 	    return -1;
 	}
 	{
@@ -357,12 +357,12 @@ static int message_telnet_format(t_packet * packet, t_message_type type, t_conne
     case message_type_whisper:
 	if (!me)
 	{
-	    eventlog(eventlog_level_error,"message_telnet_format","got NULL connection for %s",message_type_get_str(type));
+	    eventlog(eventlog_level_error,__FUNCTION__,"got NULL connection for %s",message_type_get_str(type));
 	    return -1;
 	}
 	if (!text)
 	{
-	    eventlog(eventlog_level_error,"message_telnet_format","got NULL text for %s",message_type_get_str(type));
+	    eventlog(eventlog_level_error,__FUNCTION__,"got NULL text for %s",message_type_get_str(type));
 	    return -1;
 	}
 	if (dstflags&MF_X)
@@ -389,12 +389,12 @@ static int message_telnet_format(t_packet * packet, t_message_type type, t_conne
     case message_type_talk:
 	if (!me)
 	{
-	    eventlog(eventlog_level_error,"message_telnet_format","got NULL connection for %s",message_type_get_str(type));
+	    eventlog(eventlog_level_error,__FUNCTION__,"got NULL connection for %s",message_type_get_str(type));
 	    return -1;
 	}
 	if (!text)
 	{
-	    eventlog(eventlog_level_error,"message_telnet_format","got NULL text for %s",message_type_get_str(type));
+	    eventlog(eventlog_level_error,__FUNCTION__,"got NULL text for %s",message_type_get_str(type));
 	    return -1;
 	}
 	if (dstflags&MF_X)
@@ -421,7 +421,7 @@ static int message_telnet_format(t_packet * packet, t_message_type type, t_conne
     case message_type_broadcast:
 	if (!text)
 	{
-	    eventlog(eventlog_level_error,"message_telnet_format","got NULL text for %s",message_type_get_str(type));
+	    eventlog(eventlog_level_error,__FUNCTION__,"got NULL text for %s",message_type_get_str(type));
 	    return -1;
 	}
 	if (dstflags&MF_X)
@@ -445,7 +445,7 @@ static int message_telnet_format(t_packet * packet, t_message_type type, t_conne
     case message_type_channel:
 	if (!text)
 	{
-	    eventlog(eventlog_level_error,"message_telnet_format","got NULL text for %s",message_type_get_str(type));
+	    eventlog(eventlog_level_error,__FUNCTION__,"got NULL text for %s",message_type_get_str(type));
 	    return -1;
 	}
 	msgtemp = xmalloc(strlen(text)+32);
@@ -454,7 +454,7 @@ static int message_telnet_format(t_packet * packet, t_message_type type, t_conne
     case message_type_userflags:
 	if (!me)
 	{
-	    eventlog(eventlog_level_error,"message_telnet_format","got NULL connection for %s",message_type_get_str(type));
+	    eventlog(eventlog_level_error,__FUNCTION__,"got NULL connection for %s",message_type_get_str(type));
 	    return -1;
 	}
 	msgtemp = xstrdup("");
@@ -462,12 +462,12 @@ static int message_telnet_format(t_packet * packet, t_message_type type, t_conne
     case message_type_whisperack:
 	if (!me)
 	{
-	    eventlog(eventlog_level_error,"message_telnet_format","got NULL connection for %s",message_type_get_str(type));
+	    eventlog(eventlog_level_error,__FUNCTION__,"got NULL connection for %s",message_type_get_str(type));
 	    return -1;
 	}
 	if (!text)
 	{
-	    eventlog(eventlog_level_error,"message_telnet_format","got NULL text for %s",message_type_get_str(type));
+	    eventlog(eventlog_level_error,__FUNCTION__,"got NULL text for %s",message_type_get_str(type));
 	    return -1;
 	}
 	{
@@ -492,12 +492,12 @@ static int message_telnet_format(t_packet * packet, t_message_type type, t_conne
     case message_type_friendwhisperack:   // [zap-zero] 20020518
 	if (!me)
 	{
-	    eventlog(eventlog_level_error,"message_telnet_format","got NULL connection for %s",message_type_get_str(type));
+	    eventlog(eventlog_level_error,__FUNCTION__,"got NULL connection for %s",message_type_get_str(type));
 	    return -1;
 	}
 	if (!text)
 	{
-	    eventlog(eventlog_level_error,"message_telnet_format","got NULL text for %s",message_type_get_str(type));
+	    eventlog(eventlog_level_error,__FUNCTION__,"got NULL text for %s",message_type_get_str(type));
 	    return -1;
 	}
 	{
@@ -532,7 +532,7 @@ static int message_telnet_format(t_packet * packet, t_message_type type, t_conne
     case message_type_info:
 	if (!text)
 	{
-	    eventlog(eventlog_level_error,"message_telnet_format","got NULL text for %s",message_type_get_str(type));
+	    eventlog(eventlog_level_error,__FUNCTION__,"got NULL text for %s",message_type_get_str(type));
 	    return -1;
 	}
 	{
@@ -554,7 +554,7 @@ static int message_telnet_format(t_packet * packet, t_message_type type, t_conne
     case message_type_error:
 	if (!text)
 	{
-	    eventlog(eventlog_level_error,"message_telnet_format","got NULL text for %s",message_type_get_str(type));
+	    eventlog(eventlog_level_error,__FUNCTION__,"got NULL text for %s",message_type_get_str(type));
 	    return -1;
 	}
 	{
@@ -576,12 +576,12 @@ static int message_telnet_format(t_packet * packet, t_message_type type, t_conne
     case message_type_emote:
 	if (!me)
 	{
-	    eventlog(eventlog_level_error,"message_telnet_format","got NULL connection for %s",message_type_get_str(type));
+	    eventlog(eventlog_level_error,__FUNCTION__,"got NULL connection for %s",message_type_get_str(type));
 	    return -1;
 	}
 	if (!text)
 	{
-	    eventlog(eventlog_level_error,"message_telnet_format","got NULL text for %s",message_type_get_str(type));
+	    eventlog(eventlog_level_error,__FUNCTION__,"got NULL text for %s",message_type_get_str(type));
 	    return -1;
 	}
 	if (dstflags&MF_X)
@@ -620,7 +620,7 @@ static int message_telnet_format(t_packet * packet, t_message_type type, t_conne
 	    conn_unget_chatcharname(me,tname);
 	}
     default:
-	eventlog(eventlog_level_error,"message_telnet_format","got bad message type %d",(int)type);
+	eventlog(eventlog_level_error,__FUNCTION__,"got bad message type %d",(int)type);
 	return -1;
     }
     
@@ -641,7 +641,7 @@ static int message_bot_format(t_packet * packet, t_message_type type, t_connecti
     
     if (!packet)
     {
-	eventlog(eventlog_level_error,"message_bot_format","got NULL packet");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL packet");
 	return -1;
     }
     
@@ -660,7 +660,7 @@ static int message_bot_format(t_packet * packet, t_message_type type, t_connecti
 	    if (type==message_type_null)
 	    	return 0; /* don't display null messages during the login */
 #endif
-            eventlog(eventlog_level_error,"message_bot_format","got NULL text for non-loggedin state");
+            eventlog(eventlog_level_error,__FUNCTION__,"got NULL text for non-loggedin state");
             return -1;
         }
 	msgtemp = xmalloc(strlen(text)+4);
@@ -676,7 +676,7 @@ static int message_bot_format(t_packet * packet, t_message_type type, t_connecti
 	case message_type_uniqueid: /* FIXME: need to send this for some bots, also needed to support guest accounts */
 	    if (!text)
 	    {
-		eventlog(eventlog_level_error,"message_bot_format","got NULL text for %s",message_type_get_str(type));
+		eventlog(eventlog_level_error,__FUNCTION__,"got NULL text for %s",message_type_get_str(type));
 		return -1;
 	    }
 	    msgtemp = xmalloc(strlen(text)+32);
@@ -685,7 +685,7 @@ static int message_bot_format(t_packet * packet, t_message_type type, t_connecti
 	case message_type_adduser:
 	    if (!me)
 	    {
-		eventlog(eventlog_level_error,"message_bot_format","got NULL connection for %s",message_type_get_str(type));
+		eventlog(eventlog_level_error,__FUNCTION__,"got NULL connection for %s",message_type_get_str(type));
 		return -1;
 	    }
 	    {
@@ -700,7 +700,7 @@ static int message_bot_format(t_packet * packet, t_message_type type, t_connecti
 	case message_type_join:
 	    if (!me)
 	    {
-		eventlog(eventlog_level_error,"message_bot_format","got NULL connection for %s",message_type_get_str(type));
+		eventlog(eventlog_level_error,__FUNCTION__,"got NULL connection for %s",message_type_get_str(type));
 		return -1;
 	    }
 	    {
@@ -715,7 +715,7 @@ static int message_bot_format(t_packet * packet, t_message_type type, t_connecti
 	case message_type_part:
 	    if (!me)
 	    {
-		eventlog(eventlog_level_error,"message_bot_format","got NULL connection for %s",message_type_get_str(type));
+		eventlog(eventlog_level_error,__FUNCTION__,"got NULL connection for %s",message_type_get_str(type));
 		return -1;
 	    }
 	    {
@@ -730,12 +730,12 @@ static int message_bot_format(t_packet * packet, t_message_type type, t_connecti
 	case message_type_whisper:
 	    if (!me)
 	    {
-		eventlog(eventlog_level_error,"message_bot_format","got NULL connection for %s",message_type_get_str(type));
+		eventlog(eventlog_level_error,__FUNCTION__,"got NULL connection for %s",message_type_get_str(type));
 		return -1;
 	    }
 	    if (!text)
 	    {
-		eventlog(eventlog_level_error,"message_bot_format","got NULL text for %s",message_type_get_str(type));
+		eventlog(eventlog_level_error,__FUNCTION__,"got NULL text for %s",message_type_get_str(type));
 		return -1;
 	    }
 	    if (dstflags&MF_X)
@@ -752,12 +752,12 @@ static int message_bot_format(t_packet * packet, t_message_type type, t_connecti
 	case message_type_talk:
 	    if (!me)
 	    {
-		eventlog(eventlog_level_error,"message_bot_format","got NULL connection for %s",message_type_get_str(type));
+		eventlog(eventlog_level_error,__FUNCTION__,"got NULL connection for %s",message_type_get_str(type));
 		return -1;
 	    }
 	    if (!text)
 	    {
-		eventlog(eventlog_level_error,"message_bot_format","got NULL text for %s",message_type_get_str(type));
+		eventlog(eventlog_level_error,__FUNCTION__,"got NULL text for %s",message_type_get_str(type));
 		return -1;
 	    }
 	    if (dstflags&MF_X)
@@ -774,7 +774,7 @@ static int message_bot_format(t_packet * packet, t_message_type type, t_connecti
 	case message_type_broadcast:
 	    if (!text)
 	    {
-		eventlog(eventlog_level_error,"message_bot_format","got NULL text for %s",message_type_get_str(type));
+		eventlog(eventlog_level_error,__FUNCTION__,"got NULL text for %s",message_type_get_str(type));
 		return -1;
 	    }
 	    if (dstflags&MF_X)
@@ -785,7 +785,7 @@ static int message_bot_format(t_packet * packet, t_message_type type, t_connecti
 	case message_type_channel:
 	    if (!text)
 	    {
-		eventlog(eventlog_level_error,"message_bot_format","got NULL text for %s",message_type_get_str(type));
+		eventlog(eventlog_level_error,__FUNCTION__,"got NULL text for %s",message_type_get_str(type));
 		return -1;
 	    }
 	    msgtemp = xmalloc(32+strlen(text));
@@ -794,7 +794,7 @@ static int message_bot_format(t_packet * packet, t_message_type type, t_connecti
 	case message_type_userflags:
 	    if (!me)
 	    {
-		eventlog(eventlog_level_error,"message_bot_format","got NULL connection for %s",message_type_get_str(type));
+		eventlog(eventlog_level_error,__FUNCTION__,"got NULL connection for %s",message_type_get_str(type));
 		return -1;
 	    }
 	    {
@@ -809,12 +809,12 @@ static int message_bot_format(t_packet * packet, t_message_type type, t_connecti
 	case message_type_whisperack:
 	    if (!me)
 	    {
-		eventlog(eventlog_level_error,"message_bot_format","got NULL connection for %s",message_type_get_str(type));
+		eventlog(eventlog_level_error,__FUNCTION__,"got NULL connection for %s",message_type_get_str(type));
 		return -1;
 	    }
 	    if (!text)
 	    {
-		eventlog(eventlog_level_error,"message_bot_format","got NULL text for %s",message_type_get_str(type));
+		eventlog(eventlog_level_error,__FUNCTION__,"got NULL text for %s",message_type_get_str(type));
 		return -1;
 	    }
 	    {
@@ -829,12 +829,12 @@ static int message_bot_format(t_packet * packet, t_message_type type, t_connecti
 	case message_type_friendwhisperack: // [zap-zero] 20020518
 	    if (!me)
 	    {
-		eventlog(eventlog_level_error,"message_bot_format","got NULL connection for %s",message_type_get_str(type));
+		eventlog(eventlog_level_error,__FUNCTION__,"got NULL connection for %s",message_type_get_str(type));
 		return -1;
 	    }
 	    if (!text)
 	    {
-		eventlog(eventlog_level_error,"message_bot_format","got NULL text for %s",message_type_get_str(type));
+		eventlog(eventlog_level_error,__FUNCTION__,"got NULL text for %s",message_type_get_str(type));
 		return -1;
 	    }
 	    {
@@ -858,7 +858,7 @@ static int message_bot_format(t_packet * packet, t_message_type type, t_connecti
 	case message_type_info:
 	    if (!text)
 	    {
-		eventlog(eventlog_level_error,"message_bot_format","got NULL text for %s",message_type_get_str(type));
+		eventlog(eventlog_level_error,__FUNCTION__,"got NULL text for %s",message_type_get_str(type));
 		return -1;
 	    }
 	    msgtemp = xmalloc(32+16+strlen(text));
@@ -867,7 +867,7 @@ static int message_bot_format(t_packet * packet, t_message_type type, t_connecti
 	case message_type_error:
 	    if (!text)
 	    {
-		eventlog(eventlog_level_error,"message_bot_format","got NULL text for %s",message_type_get_str(type));
+		eventlog(eventlog_level_error,__FUNCTION__,"got NULL text for %s",message_type_get_str(type));
 		return -1;
 	    }
 	    msgtemp = xmalloc(32+16+strlen(text));
@@ -876,12 +876,12 @@ static int message_bot_format(t_packet * packet, t_message_type type, t_connecti
 	case message_type_emote:
 	    if (!me)
 	    {
-		eventlog(eventlog_level_error,"message_bot_format","got NULL connection for %s",message_type_get_str(type));
+		eventlog(eventlog_level_error,__FUNCTION__,"got NULL connection for %s",message_type_get_str(type));
 		return -1;
 	    }
 	    if (!text)
 	    {
-		eventlog(eventlog_level_error,"message_bot_format","got NULL text for %s",message_type_get_str(type));
+		eventlog(eventlog_level_error,__FUNCTION__,"got NULL text for %s",message_type_get_str(type));
 		return -1;
 	    }
 	    if (dstflags&MF_X)
@@ -896,7 +896,7 @@ static int message_bot_format(t_packet * packet, t_message_type type, t_connecti
 	    }
 	    break;
 	default:
-	    eventlog(eventlog_level_error,"message_bot_format","got bad message type %d",(int)type);
+	    eventlog(eventlog_level_error,__FUNCTION__,"got bad message type %d",(int)type);
 	    return -1;
 	}
     
@@ -917,7 +917,7 @@ static int message_bnet_format(t_packet * packet, t_message_type type, t_connect
 {
     if (!packet)
     {
-	eventlog(eventlog_level_error,"message_bnet_format","got NULL packet");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL packet");
 	return -1;
     }
     
@@ -935,7 +935,7 @@ static int message_bnet_format(t_packet * packet, t_message_type type, t_connect
     case message_type_adduser:
 	if (!me)
 	{
-	    eventlog(eventlog_level_error,"message_bnet_format","got NULL connection for %s",message_type_get_str(type));
+	    eventlog(eventlog_level_error,__FUNCTION__,"got NULL connection for %s",message_type_get_str(type));
 	    return -1;
 	}
         bn_int_set(&packet->u.server_message.type,SERVER_MESSAGE_TYPE_ADDUSER);
@@ -959,7 +959,7 @@ static int message_bnet_format(t_packet * packet, t_message_type type, t_connect
     case message_type_join:
 	if (!me)
 	{
-	    eventlog(eventlog_level_error,"message_bnet_format","got NULL connection for %s",message_type_get_str(type));
+	    eventlog(eventlog_level_error,__FUNCTION__,"got NULL connection for %s",message_type_get_str(type));
 	    return -1;
 	}
         bn_int_set(&packet->u.server_message.type,SERVER_MESSAGE_TYPE_JOIN);
@@ -984,7 +984,7 @@ static int message_bnet_format(t_packet * packet, t_message_type type, t_connect
     case message_type_part:
 	if (!me)
 	{
-	    eventlog(eventlog_level_error,"message_bnet_format","got NULL connection for %s",message_type_get_str(type));
+	    eventlog(eventlog_level_error,__FUNCTION__,"got NULL connection for %s",message_type_get_str(type));
 	    return -1;
 	}
         bn_int_set(&packet->u.server_message.type,SERVER_MESSAGE_TYPE_PART);
@@ -1002,12 +1002,12 @@ static int message_bnet_format(t_packet * packet, t_message_type type, t_connect
     case message_type_whisper:
 	if (!me)
 	{
-	    eventlog(eventlog_level_error,"message_bnet_format","got NULL connection for %s",message_type_get_str(type));
+	    eventlog(eventlog_level_error,__FUNCTION__,"got NULL connection for %s",message_type_get_str(type));
 	    return -1;
 	}
 	if (!text)
 	{
-	    eventlog(eventlog_level_error,"message_bnet_format","got NULL text for %s",message_type_get_str(type));
+	    eventlog(eventlog_level_error,__FUNCTION__,"got NULL text for %s",message_type_get_str(type));
 	    return -1;
 	}
 	if (dstflags&MF_X)
@@ -1027,12 +1027,12 @@ static int message_bnet_format(t_packet * packet, t_message_type type, t_connect
     case message_type_talk:
 	if (!me)
 	{
-	    eventlog(eventlog_level_error,"message_bnet_format","got NULL connection for %s",message_type_get_str(type));
+	    eventlog(eventlog_level_error,__FUNCTION__,"got NULL connection for %s",message_type_get_str(type));
 	    return -1;
 	}
 	if (!text)
 	{
-	    eventlog(eventlog_level_error,"message_bnet_format","got NULL text for %s",message_type_get_str(type));
+	    eventlog(eventlog_level_error,__FUNCTION__,"got NULL text for %s",message_type_get_str(type));
 	    return -1;
 	}
 	if (dstflags&MF_X)
@@ -1052,7 +1052,7 @@ static int message_bnet_format(t_packet * packet, t_message_type type, t_connect
     case message_type_broadcast:
 	if (!text)
 	{
-	    eventlog(eventlog_level_error,"message_bnet_format","got NULL text for %s",message_type_get_str(type));
+	    eventlog(eventlog_level_error,__FUNCTION__,"got NULL text for %s",message_type_get_str(type));
 	    return -1;
 	}
 	if (dstflags&MF_X)
@@ -1072,12 +1072,12 @@ static int message_bnet_format(t_packet * packet, t_message_type type, t_connect
     case message_type_channel:
 	if (!me)
 	{
-	    eventlog(eventlog_level_error,"message_bnet_format","got NULL connection for %s",message_type_get_str(type));
+	    eventlog(eventlog_level_error,__FUNCTION__,"got NULL connection for %s",message_type_get_str(type));
 	    return -1;
 	}
 	if (!text)
 	{
-	    eventlog(eventlog_level_error,"message_bnet_format","got NULL text for %s",message_type_get_str(type));
+	    eventlog(eventlog_level_error,__FUNCTION__,"got NULL text for %s",message_type_get_str(type));
 	    return -1;
 	}
         bn_int_set(&packet->u.server_message.type,SERVER_MESSAGE_TYPE_CHANNEL);
@@ -1102,7 +1102,7 @@ static int message_bnet_format(t_packet * packet, t_message_type type, t_connect
     case message_type_userflags:
 	if (!me)
 	{
-	    eventlog(eventlog_level_error,"message_bnet_format","got NULL connection for %s",message_type_get_str(type));
+	    eventlog(eventlog_level_error,__FUNCTION__,"got NULL connection for %s",message_type_get_str(type));
 	    return -1;
 	}
         bn_int_set(&packet->u.server_message.type,SERVER_MESSAGE_TYPE_USERFLAGS);
@@ -1127,12 +1127,12 @@ static int message_bnet_format(t_packet * packet, t_message_type type, t_connect
     case message_type_whisperack:
 	if (!me)
 	{
-	    eventlog(eventlog_level_error,"message_bnet_format","got NULL connection for %s",message_type_get_str(type));
+	    eventlog(eventlog_level_error,__FUNCTION__,"got NULL connection for %s",message_type_get_str(type));
 	    return -1;
 	}
 	if (!text)
 	{
-	    eventlog(eventlog_level_error,"message_bnet_format","got NULL text for %s",message_type_get_str(type));
+	    eventlog(eventlog_level_error,__FUNCTION__,"got NULL text for %s",message_type_get_str(type));
 	    return -1;
 	}
         bn_int_set(&packet->u.server_message.type,SERVER_MESSAGE_TYPE_WHISPERACK);
@@ -1150,12 +1150,12 @@ static int message_bnet_format(t_packet * packet, t_message_type type, t_connect
     case message_type_friendwhisperack:  // [zap-zero] 20020518
 	if (!me)
 	{
-	    eventlog(eventlog_level_error,"message_bnet_format","got NULL connection for %s",message_type_get_str(type));
+	    eventlog(eventlog_level_error,__FUNCTION__,"got NULL connection for %s",message_type_get_str(type));
 	    return -1;
 	}
 	if (!text)
 	{
-	    eventlog(eventlog_level_error,"message_bnet_format","got NULL text for %s",message_type_get_str(type));
+	    eventlog(eventlog_level_error,__FUNCTION__,"got NULL text for %s",message_type_get_str(type));
 	    return -1;
 	}
         bn_int_set(&packet->u.server_message.type,SERVER_MESSAGE_TYPE_WHISPERACK);
@@ -1178,12 +1178,12 @@ static int message_bnet_format(t_packet * packet, t_message_type type, t_connect
     case message_type_channeldoesnotexist:
 	if (!me)
 	{
-	    eventlog(eventlog_level_error,"message_bnet_format","got NULL connection for %s",message_type_get_str(type));
+	    eventlog(eventlog_level_error,__FUNCTION__,"got NULL connection for %s",message_type_get_str(type));
 	    return -1;
 	}
 	if (!text)
 	{
-	    eventlog(eventlog_level_error,"message_bnet_format","got NULL text for %s",message_type_get_str(type));
+	    eventlog(eventlog_level_error,__FUNCTION__,"got NULL text for %s",message_type_get_str(type));
 	    return -1;
 	}
         bn_int_set(&packet->u.server_message.type,SERVER_MESSAGE_TYPE_CHANNELDOESNOTEXIST);
@@ -1208,7 +1208,7 @@ static int message_bnet_format(t_packet * packet, t_message_type type, t_connect
     case message_type_info:
 	if (!text)
 	{
-	    eventlog(eventlog_level_error,"message_bnet_format","got NULL text for %s",message_type_get_str(type));
+	    eventlog(eventlog_level_error,__FUNCTION__,"got NULL text for %s",message_type_get_str(type));
 	    return -1; 
 	}
         bn_int_set(&packet->u.server_message.type,SERVER_MESSAGE_TYPE_INFO);
@@ -1220,7 +1220,7 @@ static int message_bnet_format(t_packet * packet, t_message_type type, t_connect
     case message_type_error:
 	if (!text)
 	{
-	    eventlog(eventlog_level_error,"message_bnet_format","got NULL text for %s",message_type_get_str(type));
+	    eventlog(eventlog_level_error,__FUNCTION__,"got NULL text for %s",message_type_get_str(type));
 	    return -1;
 	}
         bn_int_set(&packet->u.server_message.type,SERVER_MESSAGE_TYPE_ERROR);
@@ -1232,12 +1232,12 @@ static int message_bnet_format(t_packet * packet, t_message_type type, t_connect
     case message_type_emote:
 	if (!me)
 	{
-	    eventlog(eventlog_level_error,"message_bnet_format","got NULL connection for %s",message_type_get_str(type));
+	    eventlog(eventlog_level_error,__FUNCTION__,"got NULL connection for %s",message_type_get_str(type));
 	    return -1;
 	}
 	if (!text)
 	{
-	    eventlog(eventlog_level_error,"message_bnet_format","got NULL text for %s",message_type_get_str(type));
+	    eventlog(eventlog_level_error,__FUNCTION__,"got NULL text for %s",message_type_get_str(type));
 	    return -1;
 	}
 	if (dstflags&MF_X)
@@ -1255,7 +1255,7 @@ static int message_bnet_format(t_packet * packet, t_message_type type, t_connect
 	}
 	break;
     default:
-	eventlog(eventlog_level_error,"message_bnet_format","got bad message type %d",(int)type);
+	eventlog(eventlog_level_error,__FUNCTION__,"got bad message type %d",(int)type);
 	return -1;
     }
     
@@ -1288,7 +1288,7 @@ extern int message_destroy(t_message * message)
     
     if (!message)
     {
-	eventlog(eventlog_level_error,"message_destroy","got NULL message");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL message");
 	return -1;
     }
     
@@ -1318,7 +1318,7 @@ static t_packet * message_cache_lookup(t_message * message, t_connection *dst, u
     
     if (!message)
     {
-	eventlog(eventlog_level_error,"message_cache_lookup","got NULL message");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL message");
 	return NULL;
     }
     
@@ -1366,7 +1366,7 @@ static t_packet * message_cache_lookup(t_message * message, t_connection *dst, u
     case conn_class_telnet:
 	if (!(packet = packet_create(packet_class_raw)))
 	{
-	    eventlog(eventlog_level_error,"message_cache_lookup","could not create packet");
+	    eventlog(eventlog_level_error,__FUNCTION__,"could not create packet");
 	    return NULL;
 	}
 	if (message_telnet_format(packet,message->type,message->src,message->dst,message->text,dstflags)<0)
@@ -1378,7 +1378,7 @@ static t_packet * message_cache_lookup(t_message * message, t_connection *dst, u
     case conn_class_bot:
 	if (!(packet = packet_create(packet_class_raw)))
 	{
-	    eventlog(eventlog_level_error,"message_cache_lookup","could not create packet");
+	    eventlog(eventlog_level_error,__FUNCTION__,"could not create packet");
 	    return NULL;
 	}
 	if (message_bot_format(packet,message->type,message->src,message->dst,message->text,dstflags)<0)
@@ -1390,7 +1390,7 @@ static t_packet * message_cache_lookup(t_message * message, t_connection *dst, u
     case conn_class_bnet:
 	if (!(packet = packet_create(packet_class_bnet)))
 	{
-	    eventlog(eventlog_level_error,"message_cache_lookup","could not create packet");
+	    eventlog(eventlog_level_error,__FUNCTION__,"could not create packet");
 	    return NULL;
 	}
 	if (message_bnet_format(packet,message->type,message->src,dst,message->text,dstflags)<0)
@@ -1402,7 +1402,7 @@ static t_packet * message_cache_lookup(t_message * message, t_connection *dst, u
      case conn_class_irc:
 	if (!(packet = packet_create(packet_class_raw)))
 	{
-	    eventlog(eventlog_level_error,"message_cache_lookup","could not create packet");
+	    eventlog(eventlog_level_error,__FUNCTION__,"could not create packet");
 	    return NULL;
 	}
 	/* irc_message_format() is in irc.c */
@@ -1420,7 +1420,7 @@ static t_packet * message_cache_lookup(t_message * message, t_connection *dst, u
 	break; /* cache the NULL but dont send any error, 
 	        * this are normal connections */
    default:
-	eventlog(eventlog_level_error,"message_cache_lookup","unsupported connection class %d",(int)class);
+	eventlog(eventlog_level_error,__FUNCTION__,"unsupported connection class %d",(int)class);
 	packet = NULL; /* we can cache the NULL too */
     }
     
@@ -1441,12 +1441,12 @@ extern int message_send(t_message * message, t_connection * dst)
     
     if (!message)
     {
-	eventlog(eventlog_level_error,"message_send","got NULL message");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL message");
 	return -1;
     }
     if (!dst)
     {
-	eventlog(eventlog_level_error,"message_send","got NULL dst connection");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL dst connection");
 	return -1;
     }
     
@@ -1495,7 +1495,7 @@ extern int message_send_all(t_message * message)
     
     if (!message)
     {
-	eventlog(eventlog_level_error,"message_send_all","got NULL message");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL message");
 	return -1;
     }
     
@@ -1518,7 +1518,7 @@ extern int message_send_text(t_connection * dst, t_message_type type, t_connecti
     
     if (!dst)
     {
-	eventlog(eventlog_level_error,"message_send_text","got NULL connection");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL connection");
 	return -1;
     }
     
@@ -1559,13 +1559,13 @@ extern int message_send_formatted(t_connection * dst, char const * text)
     
     if (!dst)
     {
-	eventlog(eventlog_level_error,"message_send_formatted","got NULL connection");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL connection");
 	return -1;
     }
     
     if (!(line = message_format_line(dst,text)))
     {
-	eventlog(eventlog_level_error,"message_send_formatted","could not format input text \"%s\"",text);
+	eventlog(eventlog_level_error,__FUNCTION__,"could not format input text \"%s\"",text);
 	return -1;
     }
     
@@ -1596,7 +1596,7 @@ extern int message_send_formatted(t_connection * dst, char const * text)
 	message_send_text(dst,message_type_info,dst,&line[1]);
 	break;
     default:
-	eventlog(eventlog_level_error,"message_send_formatted","unknown message type '%c'",line[0]);
+	eventlog(eventlog_level_error,__FUNCTION__,"unknown message type '%c'",line[0]);
 	xfree(line);
 	return -1;
     }
@@ -1612,12 +1612,12 @@ extern int message_send_file(t_connection * dst, FILE * fd)
     
     if (!dst)
     {
-	eventlog(eventlog_level_error,"message_send_file","got NULL connection");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL connection");
 	return -1;
     }
     if (!fd)
     {
-	eventlog(eventlog_level_error,"message_send_file","got NULL fd");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL fd");
 	return -1;
     }
     

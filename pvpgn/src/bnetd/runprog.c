@@ -62,13 +62,13 @@ extern FILE * runprog_open(char const * command)
     
     if (!command)
     {
-	eventlog(eventlog_level_error,"runprog_open","got NULL command");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL command");
 	return NULL;
     }
     
     if (pipe(fds)<0)
     {
-	eventlog(eventlog_level_error,"runprog_open","could not create pipe (pipe: %s)",strerror(errno));
+	eventlog(eventlog_level_error,__FUNCTION__,"could not create pipe (pipe: %s)",strerror(errno));
 	return NULL;
     }
     
@@ -93,12 +93,12 @@ extern FILE * runprog_open(char const * command)
 	    close(fds[1]);
 	
 	if (execlp(command,command,(char *)NULL)<0)
-	    eventlog(eventlog_level_error,"runprog_open","could not execute \"%s\" (execlp: %s)",command,strerror(errno));
+	    eventlog(eventlog_level_error,__FUNCTION__,"could not execute \"%s\" (execlp: %s)",command,strerror(errno));
 	
 	exit(127); /* popen exec failure code */
 	
     case -1:
-	eventlog(eventlog_level_error,"runprog_open","could not fork (fork: %s)",strerror(errno));
+	eventlog(eventlog_level_error,__FUNCTION__,"could not fork (fork: %s)",strerror(errno));
 	close(fds[0]);
 	close(fds[1]);
 	return NULL;
@@ -108,7 +108,7 @@ extern FILE * runprog_open(char const * command)
 	
 	if (!(pp = fdopen(fds[0],"r")))
 	{
-	    eventlog(eventlog_level_error,"runprog_open","could not streamify output (fdopen: %s)",strerror(errno));
+	    eventlog(eventlog_level_error,__FUNCTION__,"could not streamify output (fdopen: %s)",strerror(errno));
 	    close(fds[0]);
 	    return NULL;
 	}
@@ -129,13 +129,13 @@ extern int runprog_close(FILE * pp)
     
     if (!pp)
     {
-	eventlog(eventlog_level_error,"runprog_close","got NULL pp");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL pp");
 	return -1;
     }
     
     if (fclose(pp)<0)
     {
-	eventlog(eventlog_level_error,"runprog_close","could not close process (fclose: %s)",strerror(errno));
+	eventlog(eventlog_level_error,__FUNCTION__,"could not close process (fclose: %s)",strerror(errno));
 	return -1;
     }
     

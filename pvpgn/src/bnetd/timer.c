@@ -43,7 +43,7 @@ extern int timerlist_add_timer(t_connection * owner, time_t when, t_timer_cb cb,
 
     if (!owner)
     {
-	eventlog(eventlog_level_error,"timerlist_add_timer","got NULL owner");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL owner");
 	return -1;
     }
     

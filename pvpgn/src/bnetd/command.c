@@ -269,12 +269,12 @@ static void user_timer_cb(t_connection * c, time_t now, t_timer_data str)
 {
     if (!c)
     {
-	eventlog(eventlog_level_error,"user_timer_cb","got NULL connection");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL connection");
 	return;
     }
     if (!str.p)
     {
-	eventlog(eventlog_level_error,"user_timer_cb","got NULL str");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL str");
 	return;
     }
     
@@ -520,7 +520,7 @@ extern int handle_command(t_connection * c,  char const * text)
     if (prefs_get_extra_commands()==0)
     {
 	message_send_text(c,message_type_error,c,"Unknown command.");
-	eventlog(eventlog_level_debug,"handle_command","got unknown standard command \"%s\"",text);
+	eventlog(eventlog_level_debug,__FUNCTION__,"got unknown standard command \"%s\"",text);
 	return 0;
     }
     
@@ -549,7 +549,7 @@ extern int handle_command(t_connection * c,  char const * text)
     }
 
     message_send_text(c,message_type_error,c,"Unknown command.");
-    eventlog(eventlog_level_debug,"handle_command","got unknown command \"%s\"",text);
+    eventlog(eventlog_level_debug,__FUNCTION__,"got unknown command \"%s\"",text);
     return 0;
 }
 
@@ -3018,7 +3018,7 @@ static int _handle_chpass_command(t_connection * c, char const *text)
   if ((temp==account && account_get_auth_changepass(account)==0) || /* default to true */
       (temp!=account && !(account_get_command_groups(conn_get_account(c)) & command_get_group("/admin-chpass")))) /* default to false */
     {
-      eventlog(eventlog_level_info,"handle_command","[%d] password change for \"%s\" refused (no change access)",conn_get_socket(c),username);
+      eventlog(eventlog_level_info,__FUNCTION__,"[%d] password change for \"%s\" refused (no change access)",conn_get_socket(c),username);
       message_send_text(c,message_type_error,c,"Only admins may change passwords for other accounts.");
       return 0;
     }
@@ -3883,7 +3883,7 @@ static int _handle_timer_command(t_connection * c, char const *text)
   
   if (timerlist_add_timer(c,time(NULL)+(time_t)delta,user_timer_cb,data)<0)
     {
-      eventlog(eventlog_level_error,"handle_command","could not add timer");
+      eventlog(eventlog_level_error,__FUNCTION__,"could not add timer");
       xfree(data.p);
       message_send_text(c,message_type_error,c,"Could not set timer.");
     }
@@ -4217,11 +4217,11 @@ static int _handle_motd_command(t_connection * c, char const *text)
       {
 	message_send_file(c,fp);
 	if (fclose(fp)<0)
-	  eventlog(eventlog_level_error,"handle_command","could not close motd file \"%s\" after reading (fopen: %s)",filename,strerror(errno));
+	  eventlog(eventlog_level_error,__FUNCTION__,"could not close motd file \"%s\" after reading (fopen: %s)",filename,strerror(errno));
       }
     else
       {
-	eventlog(eventlog_level_error,"handle_command","could not open motd file \"%s\" for reading (fopen: %s)",filename,strerror(errno));
+	eventlog(eventlog_level_error,__FUNCTION__,"could not open motd file \"%s\" for reading (fopen: %s)",filename,strerror(errno));
 	message_send_text(c,message_type_error,c,"Unable to open motd.");
       }
     return 0;

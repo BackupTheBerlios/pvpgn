@@ -93,15 +93,15 @@ extern int irc_send_cmd(t_connection * conn, char const * command, char const * 
     char const * nick;
     
     if (!conn) {
-	eventlog(eventlog_level_error,"irc_send_cmd","got NULL connection");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL connection");
 	return -1;
     }
     if (!command) {
-	eventlog(eventlog_level_error,"irc_send_cmd","got NULL command");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL command");
 	return -1;
     }
     if (!(p = packet_create(packet_class_raw))) {
-	eventlog(eventlog_level_error,"irc_send_cmd","could not create packet");
+	eventlog(eventlog_level_error,__FUNCTION__,"could not create packet");
 	return -1;
     }
 
@@ -113,7 +113,7 @@ extern int irc_send_cmd(t_connection * conn, char const * command, char const * 
         len = 1+strlen(ircname)+1+strlen(command)+1+strlen(nick)+1+strlen(params)+2;
 	if (len > MAX_IRC_MESSAGE_LEN)
 	{
-	    eventlog(eventlog_level_error,"irc_send_cmd","message to send is too large (%d bytes)",len);
+	    eventlog(eventlog_level_error,__FUNCTION__,"message to send is too large (%d bytes)",len);
 	    return -1;
 	}
 	else
@@ -122,7 +122,7 @@ extern int irc_send_cmd(t_connection * conn, char const * command, char const * 
         len = 1+strlen(ircname)+1+strlen(command)+1+strlen(nick)+1+2;
 	if (len > MAX_IRC_MESSAGE_LEN)
 	{
-	    eventlog(eventlog_level_error,"irc_send_cmd","message to send is too large (%d bytes)",len);
+	    eventlog(eventlog_level_error,__FUNCTION__,"message to send is too large (%d bytes)",len);
 	    return -1;
 	}
 	else
@@ -130,7 +130,7 @@ extern int irc_send_cmd(t_connection * conn, char const * command, char const * 
     }
     packet_set_size(p,0);
     packet_append_data(p,data,len);
-    // eventlog(eventlog_level_debug,"irc_send_cmd","[%d] sent \"%s\"",conn_get_socket(conn),data);
+    // eventlog(eventlog_level_debug,__FUNCTION__,"[%d] sent \"%s\"",conn_get_socket(conn),data);
     conn_push_outqueue(conn,p);
     packet_del_ref(p);
     return 0;
@@ -141,11 +141,11 @@ extern int irc_send(t_connection * conn, int code, char const * params)
     char temp[4]; /* '000\0' */
     
     if (!conn) {
-	eventlog(eventlog_level_error,"irc_send","got NULL connection");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL connection");
 	return -1;
     }
     if ((code>999)||(code<0)) { /* more than 3 digits or negative */
-	eventlog(eventlog_level_error,"irc_send","invalid message code (%d)",code);
+	eventlog(eventlog_level_error,__FUNCTION__,"invalid message code (%d)",code);
 	return -1;
     }
     sprintf(temp,"%03u",code);
@@ -215,11 +215,11 @@ extern int irc_send_ping(t_connection * conn)
     char data[MAX_IRC_MESSAGE_LEN];
     
     if (!conn) {
-	eventlog(eventlog_level_error,"irc_send_ping","got NULL connection");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL connection");
 	return -1;
     }
     if (!(p = packet_create(packet_class_raw))) {
-	eventlog(eventlog_level_error,"irc_send_ping","could not create packet");
+	eventlog(eventlog_level_error,__FUNCTION__,"could not create packet");
 	return -1;
     }
     conn_set_ircping(conn,get_ticks());
@@ -228,8 +228,8 @@ extern int irc_send_ping(t_connection * conn)
     else if ((6+strlen(server_get_name())+2+1)<=MAX_IRC_MESSAGE_LEN)
     	sprintf(data,"PING :%s\r\n",server_get_name());
     else
-    	eventlog(eventlog_level_error,"irc_send_ping","maximum message length exceeded");
-    eventlog(eventlog_level_debug,"irc_send_ping","[%d] sent \"%s\"",conn_get_socket(conn),data);
+    	eventlog(eventlog_level_error,__FUNCTION__,"maximum message length exceeded");
+    eventlog(eventlog_level_debug,__FUNCTION__,"[%d] sent \"%s\"",conn_get_socket(conn),data);
     packet_set_size(p,0);
     packet_append_data(p,data,strlen(data));
     conn_push_outqueue(conn,p);
@@ -243,22 +243,22 @@ extern int irc_send_pong(t_connection * conn, char const * params)
     char data[MAX_IRC_MESSAGE_LEN];
     
     if (!conn) {
-	eventlog(eventlog_level_error,"irc_send_pong","got NULL connection");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL connection");
 	return -1;
     }
     if ((1+strlen(server_get_name())+1+4+1+strlen(server_get_name())+((params)?(2+strlen(params)):(0))+2+1) > MAX_IRC_MESSAGE_LEN) {
-	eventlog(eventlog_level_error,"irc_send_pong","max message length exceeded");
+	eventlog(eventlog_level_error,__FUNCTION__,"max message length exceeded");
 	return -1;
     }
     if (!(p = packet_create(packet_class_raw))) {
-	eventlog(eventlog_level_error,"irc_send_pong","could not create packet");
+	eventlog(eventlog_level_error,__FUNCTION__,"could not create packet");
 	return -1;
     }
     if (params)
     	sprintf(data,":%s PONG %s :%s\r\n",server_get_name(),server_get_name(),params);
     else
     	sprintf(data,":%s PONG %s\r\n",server_get_name(),server_get_name());
-    eventlog(eventlog_level_debug,"irc_send_pong","[%d] sent \"%s\"",conn_get_socket(conn),data);
+    eventlog(eventlog_level_debug,__FUNCTION__,"[%d] sent \"%s\"",conn_get_socket(conn),data);
     packet_set_size(p,0);
     packet_append_data(p,data,strlen(data));
     conn_push_outqueue(conn,p);
@@ -275,17 +275,17 @@ extern int irc_authenticate(t_connection * conn, char const * passhash)
     char const * username;
 
     if (!conn) {
-	eventlog(eventlog_level_error,"irc_authenticate","got NULL connection");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL connection");
 	return 0;
     }
     if (!passhash) {
-	eventlog(eventlog_level_error,"irc_authenticate","got NULL passhash");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL passhash");
 	return 0;
     }
     username = conn_get_loggeduser(conn);
     if (!username) {
 	/* redundant sanity check */
-	eventlog(eventlog_level_error,"irc_authenticate","got NULL conn->protocol.loggeduser");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL conn->protocol.loggeduser");
 	return 0;
     }
     a = accountlist_find_account(username);
@@ -335,7 +335,7 @@ extern int irc_welcome(t_connection * conn)
     char motd_failed = 0;
     
     if (!conn) {
-	eventlog(eventlog_level_error,"irc_send_welcome","got NULL connection");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL connection");
 	return -1;
     }
 
@@ -495,7 +495,7 @@ extern char const * irc_convert_ircname(char const * pircname)
     char const * ircname = pircname + 1;
     
     if (!ircname) {
-	eventlog(eventlog_level_error,"irc_convert_ircname","got NULL ircname");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL ircname");
 	return NULL;
     }
 
@@ -560,7 +560,7 @@ static char ** irc_split_elems(char * list, int separator, int ignoreblank)
     char ** out;
     
     if (!list) {
-	eventlog(eventlog_level_error,"irc_get_elems","got NULL list");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL list");
 	return NULL;
     }
 
@@ -582,7 +582,7 @@ static char ** irc_split_elems(char * list, int separator, int ignoreblank)
 	for (i=1;i<count;i++) {
 	    out[i] = strchr(out[i-1],separator);
 	    if (!out[i]) {
-		eventlog(eventlog_level_error,"irc_get_elems","BUG: wrong number of separators");
+		eventlog(eventlog_level_error,__FUNCTION__,"BUG: wrong number of separators");
 		xfree(out);
 		return NULL;
 	    }
@@ -603,7 +603,7 @@ static char ** irc_split_elems(char * list, int separator, int ignoreblank)
 static int irc_unget_elems(char ** elems)
 {
     if (!elems) {
-	eventlog(eventlog_level_error,"irc_unget_elems","got NULL elems");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL elems");
 	return -1;
     }
     xfree(elems);
@@ -639,12 +639,12 @@ static char * irc_message_preformat(t_irc_message_from const * from, char const 
     char * msg;
 
     if (!command) {
-	eventlog(eventlog_level_error,"irc_message_preformat","got NULL command");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL command");
 	return NULL;
     }
     if (from) {
 	if ((!from->nick)||(!from->user)||(!from->host)) {
-	    eventlog(eventlog_level_error,"irc_message_preformat","got malformed from");
+	    eventlog(eventlog_level_error,__FUNCTION__,"got malformed from");
 	    return NULL;
 	}
 	myfrom = xmalloc(strlen(from->nick)+1+strlen(from->user)+1+strlen(from->host)+1); /* nick + "!" + user + "@" + host + "\0" */
@@ -681,30 +681,30 @@ extern int irc_message_postformat(t_packet * packet, t_connection const * dest)
     char const * toname = "AUTH"; /* fallback name */
 
     if (!packet) {
-	eventlog(eventlog_level_error,"irc_message_postformat","got NULL packet");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL packet");
 	return -1;
     }
     if (!dest) {
-	eventlog(eventlog_level_error,"irc_message_postformat","got NULL dest");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL dest");
 	return -1;
     }
 
     e1 = packet_get_raw_data(packet,0);
     e2 = strchr(e1,'\n');
     if (!e2) {
-	eventlog(eventlog_level_warn,"irc_message_postformat","malformed message (e2 missing)");
+	eventlog(eventlog_level_warn,__FUNCTION__,"malformed message (e2 missing)");
 	return -1;
     }
     *e2++ = '\0';
     e3 = strchr(e2,'\n');
     if (!e3) {
-	eventlog(eventlog_level_warn,"irc_message_postformat","malformed message (e3 missing)");
+	eventlog(eventlog_level_warn,__FUNCTION__,"malformed message (e3 missing)");
 	return -1;
     }
     *e3++ = '\0';
     e4 = strchr(e3,'\n');
     if (!e4) {
-	eventlog(eventlog_level_warn,"irc_message_postformat","malformed message (e4 missing)");
+	eventlog(eventlog_level_warn,__FUNCTION__,"malformed message (e4 missing)");
 	return -1;
     }
     *e4++ = '\0';
@@ -738,7 +738,7 @@ extern int irc_message_postformat(t_packet * packet, t_connection const * dest)
 	    sprintf(msg,"%s@hidden %s %s %s\r\n",e1,e2,toname,e4);
 	else
 	    sprintf(msg,"%s %s %s %s\r\n",e1,e2,toname,e4);
-	eventlog(eventlog_level_debug,"irc_message_postformat","sent \"%s\"",msg);
+	eventlog(eventlog_level_debug,__FUNCTION__,"sent \"%s\"",msg);
 	packet_set_size(packet,0);
 	packet_append_data(packet,msg,strlen(msg));
 	if (tname)
@@ -746,7 +746,7 @@ extern int irc_message_postformat(t_packet * packet, t_connection const * dest)
 	return 0;
     } else {
 	/* FIXME: split up message? */
-    	eventlog(eventlog_level_warn,"irc_message_postformat","maximum IRC message length exceeded");
+    	eventlog(eventlog_level_warn,__FUNCTION__,"maximum IRC message length exceeded");
 	if (tname)
 	    conn_unget_chatname(dest,tname);
 	return -1;
@@ -761,7 +761,7 @@ extern int irc_message_format(t_packet * packet, t_message_type type, t_connecti
     
     if (!packet)
     {
-	eventlog(eventlog_level_error,"message_irc_format","got NULL packet");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL packet");
 	return -1;
     }
 
@@ -845,7 +845,7 @@ extern int irc_message_format(t_packet * packet, t_message_type type, t_connecti
 	conn_unget_chatname(me,from.nick);
 	break;
     default:
-    	eventlog(eventlog_level_warn,"irc_message_format","%d not yet implemented",type);
+    	eventlog(eventlog_level_warn,__FUNCTION__,"%d not yet implemented",type);
 	return -1;
     }
 
@@ -865,24 +865,24 @@ extern int irc_send_rpl_namreply(t_connection * c, t_channel const * channel)
     t_connection * m;
 
     if (!c) {
-	eventlog(eventlog_level_error,"irc_send_rpl_namreply","got NULL connection");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL connection");
 	return -1;
     }
     if (!channel) {
-	eventlog(eventlog_level_error,"irc_send_rpl_namreply","got NULL channel");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL channel");
 	return -1;
     }
     memset(temp,0,sizeof(temp));
     ircname = irc_convert_channel(channel);
     if (!ircname) {
-	eventlog(eventlog_level_error,"irc_send_rpl_namreply","channel has NULL ircname");
+	eventlog(eventlog_level_error,__FUNCTION__,"channel has NULL ircname");
 	return -1;
     }
     /* '@' = secret; '*' = private; '=' = public */
     if ((1+1+strlen(ircname)+2+1)<=MAX_IRC_MESSAGE_LEN) {
 	sprintf(temp,"%c %s :",((channel_get_permanent(channel))?('='):('*')),ircname);
     } else {
-	eventlog(eventlog_level_warn,"irc_send_rpl_namreply","maximum message length exceeded");
+	eventlog(eventlog_level_warn,__FUNCTION__,"maximum message length exceeded");
 	return -1;
     }
     /* FIXME: Add per user flags (@(op) and +(voice))*/
@@ -924,11 +924,11 @@ static int irc_who_connection(t_connection * dest, t_connection * c)
     char const * tempchannel;
     
     if (!dest) {
-	eventlog(eventlog_level_error,"irc_who_connection","got NULL destination");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL destination");
 	return -1;
     }
     if (!c) {
-	eventlog(eventlog_level_error,"irc_who_connection","got NULL connection");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL connection");
 	return -1;
     }
     a = conn_get_account(c);
@@ -958,7 +958,7 @@ static int irc_who_connection(t_connection * dest, t_connection * c)
 	return -1;
     }
     if ((strlen(tempchannel)+1+strlen(tempuser)+1+strlen(tempip)+1+strlen(server_get_name())+1+strlen(tempname)+1+1+strlen(tempflags)+4+strlen(tempowner)+1)>MAX_IRC_MESSAGE_LEN) {
-	eventlog(eventlog_level_info,"irc_who_connection","WHO reply too long - skip");
+	eventlog(eventlog_level_info,__FUNCTION__,"WHO reply too long - skip");
 	return -1;
     } else
         sprintf(temp,"%s %s %s %s %s %c%s :0 %s",tempchannel,tempuser,tempip,server_get_name(),tempname,'H',tempflags,tempowner);
@@ -971,11 +971,11 @@ extern int irc_who(t_connection * c, char const * name)
     /* FIXME: support wildcards! */
 
     if (!c) {
-	eventlog(eventlog_level_error,"irc_who","got NULL connection");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL connection");
 	return -1;
     }
     if (!name) {
-	eventlog(eventlog_level_error,"irc_who","got NULL name");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL name");
 	return -1;
     }
     if ((name[0]=='#')||(name[0]=='&')||(name[0]=='!')) {

@@ -59,7 +59,7 @@ extern int watchlist_add_events(t_connection * owner, t_account * who, t_clientt
     
     if (!owner)
     {
-	eventlog(eventlog_level_error,"watchlist_add_events","got NULL owner");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL owner");
 	return -1;
     }
 
@@ -68,7 +68,7 @@ extern int watchlist_add_events(t_connection * owner, t_account * who, t_clientt
 	pair = elem_get_data(curr);
 	if (!pair) /* should not happen */
 	{
-	    eventlog(eventlog_level_error,"watchlist_add_events","watchlist contains NULL item");
+	    eventlog(eventlog_level_error,__FUNCTION__,"watchlist contains NULL item");
 	    return -1;
 	}
 	if (pair->owner==owner && pair->who==who && ((clienttag == pair->clienttag)))
@@ -98,7 +98,7 @@ extern int watchlist_del_events(t_connection * owner, t_account * who, t_clientt
     
     if (!owner)
     {
-	eventlog(eventlog_level_error,"watchlist_del_events","got NULL owner");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL owner");
 	return -1;
     }
     
@@ -107,7 +107,7 @@ extern int watchlist_del_events(t_connection * owner, t_account * who, t_clientt
 	pair = elem_get_data(curr);
 	if (!pair) /* should not happen */
 	{
-	    eventlog(eventlog_level_error,"watchlist_del_events","watchlist contains NULL item");
+	    eventlog(eventlog_level_error,__FUNCTION__,"watchlist contains NULL item");
 	    return -1;
 	}
 	if (pair->owner==owner && pair->who==who && ((!clienttag) || (clienttag == pair->clienttag)))
@@ -117,7 +117,7 @@ extern int watchlist_del_events(t_connection * owner, t_account * who, t_clientt
 	    {
 		if (list_remove_elem(watchlist_head,&curr)<0)
 		{
-		    eventlog(eventlog_level_error,"watchlist_del_events","could not remove item");
+		    eventlog(eventlog_level_error,__FUNCTION__,"could not remove item");
 		    pair->owner = NULL;
 		}
 		else
@@ -140,7 +140,7 @@ extern int watchlist_del_all_events(t_connection * owner)
     
     if (!owner)
     {
-	eventlog(eventlog_level_error,"watchlist_del_all_events","got NULL owner");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL owner");
 	return -1;
     }
     
@@ -149,14 +149,14 @@ extern int watchlist_del_all_events(t_connection * owner)
 	pair = elem_get_data(curr);
 	if (!pair) /* should not happen */
 	{
-	    eventlog(eventlog_level_error,"watchlist_del_all_events","watchlist contains NULL item");
+	    eventlog(eventlog_level_error,__FUNCTION__,"watchlist contains NULL item");
 	    return -1;
 	}
 	if (pair->owner==owner)
 	{
 	    if (list_remove_elem(watchlist_head,&curr)<0)
 	    {
-		eventlog(eventlog_level_error,"watchlist_del_all_events","could not remove item");
+		eventlog(eventlog_level_error,__FUNCTION__,"could not remove item");
 		pair->owner = NULL;
 	    }
 	    else
@@ -175,7 +175,7 @@ extern int watchlist_del_by_account(t_account * who)
     
     if (!who)
     {
-	eventlog(eventlog_level_error,"watchlist_del_by_account","got NULL account");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL account");
 	return -1;
     }
     
@@ -184,14 +184,14 @@ extern int watchlist_del_by_account(t_account * who)
 	pair = elem_get_data(curr);
 	if (!pair) /* should not happen */
 	{
-	    eventlog(eventlog_level_error,"watchlist_del_all_events","watchlist contains NULL item");
+	    eventlog(eventlog_level_error,__FUNCTION__,"watchlist contains NULL item");
 	    return -1;
 	}
 	if (pair->who==who)
 	{
 	    if (list_remove_elem(watchlist_head,&curr)<0)
 	    {
-		eventlog(eventlog_level_error,"watchlist_del_all_events","could not remove item");
+		eventlog(eventlog_level_error,__FUNCTION__,"could not remove item");
 		pair->owner = NULL;
 	    }
 	    else
@@ -216,13 +216,13 @@ static int handle_event_whisper(t_account *account, char const *gamename, t_clie
 
     if (!account)
     {
-	eventlog(eventlog_level_error,"handle_event_whisper","got NULL account");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL account");
 	return -1;
     }
 
     if (!(myusername = account_get_name(account)))
     {
-	eventlog(eventlog_level_error,"handle_event_whisper","got NULL account name");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL account name");
 	return -1;
     }
 
@@ -263,7 +263,7 @@ static int handle_event_whisper(t_account *account, char const *gamename, t_clie
 	    }
     	}
     }
-    if (cnt) eventlog(eventlog_level_info,"handle_event_whisper","notified %d friends about %s",cnt,myusername);
+    if (cnt) eventlog(eventlog_level_info,__FUNCTION__,"notified %d friends about %s",cnt,myusername);
 
     /* watchlist handling */
 
@@ -284,7 +284,7 @@ static int handle_event_whisper(t_account *account, char const *gamename, t_clie
       pair = elem_get_data(curr);
       if (!pair) /* should not happen */
 	{
-	  eventlog(eventlog_level_error,"watchlist_notify_event","watchlist contains NULL item");
+	  eventlog(eventlog_level_error,__FUNCTION__,"watchlist contains NULL item");
 	  return -1;
 	}
 	if (pair->owner && (!pair->who || pair->who==account) && ((!pair->clienttag) || (clienttag == pair->clienttag)) && (pair->what&event))
@@ -309,7 +309,7 @@ extern int watchlist_notify_event(t_account * who, char const * gamename, t_clie
       handle_event_whisper(who,gamename,clienttag,event);
       break;
     default:
-      eventlog(eventlog_level_error,"watchlist_notify_event","got unknown event %u",(unsigned int)event);
+      eventlog(eventlog_level_error,__FUNCTION__,"got unknown event %u",(unsigned int)event);
       return -1;
     }
     return 0;
@@ -335,12 +335,12 @@ extern int watchlist_destroy(void)
 	    pair = elem_get_data(curr);
 	    if (!pair) /* should not happen */
 	    {
-		eventlog(eventlog_level_error,"watchlist_destroy","watchlist contains NULL item");
+		eventlog(eventlog_level_error,__FUNCTION__,"watchlist contains NULL item");
 		continue;
 	    }
 	    
 	    if (list_remove_elem(watchlist_head,&curr)<0)
-        	eventlog(eventlog_level_error,"watchlist_destroy","could not remove item from list");
+        	eventlog(eventlog_level_error,__FUNCTION__,"could not remove item from list");
 	    xfree(pair);
 	}
 	

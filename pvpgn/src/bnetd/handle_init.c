@@ -41,17 +41,17 @@ extern int handle_init_packet(t_connection * c, t_packet const * const packet)
 {
     if (!c)
     {
-	eventlog(eventlog_level_error,"handle_init_packet","[%d] got NULL connection",conn_get_socket(c));
+	eventlog(eventlog_level_error,__FUNCTION__,"[%d] got NULL connection",conn_get_socket(c));
 	return -1;
     }
     if (!packet)
     {
-	eventlog(eventlog_level_error,"handle_init_packet","[%d] got NULL packet",conn_get_socket(c));
+	eventlog(eventlog_level_error,__FUNCTION__,"[%d] got NULL packet",conn_get_socket(c));
 	return -1;
     }
     if (packet_get_class(packet)!=packet_class_init)
     {
-        eventlog(eventlog_level_error,"handle_init_packet","[%d] got bad packet (class %d)",conn_get_socket(c),(int)packet_get_class(packet));
+        eventlog(eventlog_level_error,__FUNCTION__,"[%d] got bad packet (class %d)",conn_get_socket(c),(int)packet_get_class(packet));
         return -1;
     }
     
@@ -61,28 +61,28 @@ extern int handle_init_packet(t_connection * c, t_packet const * const packet)
 	switch (bn_byte_get(packet->u.client_initconn.class))
 	{
 	case CLIENT_INITCONN_CLASS_BNET:
-	    eventlog(eventlog_level_info,"handle_init_packet","[%d] client initiated bnet connection",conn_get_socket(c));
+	    eventlog(eventlog_level_info,__FUNCTION__,"[%d] client initiated bnet connection",conn_get_socket(c));
 	    conn_set_state(c,conn_state_connected);
 	    conn_set_class(c,conn_class_bnet);
 
 	    break;
 
 	case CLIENT_INITCONN_CLASS_FILE:
-	    eventlog(eventlog_level_info,"handle_init_packet","[%d] client initiated file download connection",conn_get_socket(c));
+	    eventlog(eventlog_level_info,__FUNCTION__,"[%d] client initiated file download connection",conn_get_socket(c));
 	    conn_set_state(c,conn_state_connected);
 	    conn_set_class(c,conn_class_file);
 	    
 	    break;
 	    
 	case CLIENT_INITCONN_CLASS_BOT:
-	    eventlog(eventlog_level_info,"handle_init_packet","[%d] client initiated chat bot connection",conn_get_socket(c));
+	    eventlog(eventlog_level_info,__FUNCTION__,"[%d] client initiated chat bot connection",conn_get_socket(c));
 	    conn_set_state(c,conn_state_connected);
 	    conn_set_class(c,conn_class_bot);
 	    
 	    break;
 	    
 	case CLIENT_INITCONN_CLASS_TELNET:
-	    eventlog(eventlog_level_info,"handle_init_packet","[%d] client initiated telnet connection",conn_get_socket(c));
+	    eventlog(eventlog_level_info,__FUNCTION__,"[%d] client initiated telnet connection",conn_get_socket(c));
 	    conn_set_state(c,conn_state_connected);
 	    conn_set_class(c,conn_class_telnet);
 	    
@@ -90,11 +90,11 @@ extern int handle_init_packet(t_connection * c, t_packet const * const packet)
 
         case CLIENT_INITCONN_CLASS_D2CS_BNETD:
             {
-              eventlog(eventlog_level_info,"handle_init_packet","[%d] client initiated d2cs_bnetd connection",conn_get_socket(c));
+              eventlog(eventlog_level_info,__FUNCTION__,"[%d] client initiated d2cs_bnetd connection",conn_get_socket(c));
 
               if (!(realmlist_find_realm_by_ip(conn_get_addr(c))))
               {
-                 eventlog(eventlog_level_info,"handle_init_packet", "[%d] d2cs connection from unknown ip address %s",conn_get_socket(c),addr_num_to_addr_str(conn_get_addr(c),conn_get_port(c)));
+                 eventlog(eventlog_level_info,__FUNCTION__, "[%d] d2cs connection from unknown ip address %s",conn_get_socket(c),addr_num_to_addr_str(conn_get_addr(c),conn_get_port(c)));
                  return -1;
               }
 
@@ -102,23 +102,23 @@ extern int handle_init_packet(t_connection * c, t_packet const * const packet)
               conn_set_class(c,conn_class_d2cs_bnetd);
               if (handle_d2cs_init(c)<0)
               {
-                  eventlog(eventlog_level_info,"handle_init_packet","faild to init d2cs connection");
+                  eventlog(eventlog_level_info,__FUNCTION__,"faild to init d2cs connection");
                   return -1;
               }
            }
            break;
 	    
 	case CLIENT_INITCONN_CLASS_ENC:
-	    eventlog(eventlog_level_info,"handle_init_packet","[%d] client initiated encrypted connection (not supported)",conn_get_socket(c));
+	    eventlog(eventlog_level_info,__FUNCTION__,"[%d] client initiated encrypted connection (not supported)",conn_get_socket(c));
 	    return -1;
 
 	default:
-	    eventlog(eventlog_level_error,"handle_init_packet","[%d] client requested unknown class 0x%02x (length %d) (closing connection)",conn_get_socket(c),(unsigned int)bn_byte_get(packet->u.client_initconn.class),packet_get_size(packet));
+	    eventlog(eventlog_level_error,__FUNCTION__,"[%d] client requested unknown class 0x%02x (length %d) (closing connection)",conn_get_socket(c),(unsigned int)bn_byte_get(packet->u.client_initconn.class),packet_get_size(packet));
 	    return -1;
 	}
 	break;
     default:
-	eventlog(eventlog_level_error,"handle_init_packet","[%d] unknown init packet type 0x%04x, len %u",conn_get_socket(c),packet_get_type(packet),packet_get_size(packet));
+	eventlog(eventlog_level_error,__FUNCTION__,"[%d] unknown init packet type 0x%04x, len %u",conn_get_socket(c),packet_get_type(packet),packet_get_size(packet));
 	return -1;
     }
     

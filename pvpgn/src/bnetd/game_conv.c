@@ -58,7 +58,7 @@ extern t_game_type bngreqtype_to_gtype(t_clienttag clienttag, unsigned short bng
 
     if (!clienttag)
     {
-	eventlog(eventlog_level_error,"bngreqtype_to_gtype","got NULL clienttag");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL clienttag");
 	return game_type_none;
     }
     
@@ -83,7 +83,7 @@ extern t_game_type bngreqtype_to_gtype(t_clienttag clienttag, unsigned short bng
 	case CLIENT_GAMELISTREQ_MAPSET:
 	    return game_type_mapset;
 	default:
-	    eventlog(eventlog_level_error,"bngreqtype_to_gtype","unknown Warcraft bnet game type \"%s\" %hu",tag_uint_to_str(clienttag_str,clienttag),bngtype);
+	    eventlog(eventlog_level_error,__FUNCTION__,"unknown Warcraft bnet game type \"%s\" %hu",tag_uint_to_str(clienttag_str,clienttag),bngtype);
 	    return game_type_none;
 	}
     }
@@ -95,7 +95,7 @@ extern t_game_type bngreqtype_to_gtype(t_clienttag clienttag, unsigned short bng
 	case CLIENT_GAMELISTREQ_ALL:
 	    return game_type_diablo2open;
 	default:
-	    eventlog(eventlog_level_error,"bngreqtype_to_gtype","unknown Diablo II bnet game type \"%s\" %hu",tag_uint_to_str(clienttag_str,clienttag),bngtype);
+	    eventlog(eventlog_level_error,__FUNCTION__,"unknown Diablo II bnet game type \"%s\" %hu",tag_uint_to_str(clienttag_str,clienttag),bngtype);
 	    return game_type_none;
 	}
     }
@@ -111,7 +111,7 @@ extern t_game_type bngreqtype_to_gtype(t_clienttag clienttag, unsigned short bng
 	case CLIENT_GAMETYPE_DIABLO_3:
 	    return game_type_diablo;
 	default:
-	    eventlog(eventlog_level_error,"bngreqtype_to_gtype","unknown Diablo bnet game type \"%s\" %hu",tag_uint_to_str(clienttag_str,clienttag),bngtype);
+	    eventlog(eventlog_level_error,__FUNCTION__,"unknown Diablo bnet game type \"%s\" %hu",tag_uint_to_str(clienttag_str,clienttag),bngtype);
 	    return game_type_none;
 	}
     }
@@ -152,7 +152,7 @@ extern t_game_type bngreqtype_to_gtype(t_clienttag clienttag, unsigned short bng
 	case CLIENT_GAMELISTREQ_TOPVBOT:
 	    return game_type_topvbot;
 	default:
-	    eventlog(eventlog_level_error,"bngreqtype_to_gtype","unknown Starcraft bnet game type \"%s\" %hu",tag_uint_to_str(clienttag_str,clienttag),bngtype);
+	    eventlog(eventlog_level_error,__FUNCTION__,"unknown Starcraft bnet game type \"%s\" %hu",tag_uint_to_str(clienttag_str,clienttag),bngtype);
 	    return game_type_none;
 	}
     }
@@ -163,7 +163,7 @@ extern t_game_type bngreqtype_to_gtype(t_clienttag clienttag, unsigned short bng
     }
     else
     {
-	eventlog(eventlog_level_error,"bngreqtype_to_gtype","unknown game clienttag \"%s\" %hu",tag_uint_to_str(clienttag_str,clienttag),bngtype);
+	eventlog(eventlog_level_error,__FUNCTION__,"unknown game clienttag \"%s\" %hu",tag_uint_to_str(clienttag_str,clienttag),bngtype);
 	return game_type_none;
     }
 }
@@ -174,7 +174,7 @@ extern t_game_type bngtype_to_gtype(t_clienttag clienttag, unsigned short bngtyp
     char clienttag_str[5];
     if (!clienttag)
     {
-	eventlog(eventlog_level_error,"bngtype_to_gtype","got NULL clienttag");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL clienttag");
 	return game_type_none;
     }
     
@@ -197,7 +197,7 @@ extern t_game_type bngtype_to_gtype(t_clienttag clienttag, unsigned short bngtyp
 	case CLIENT_GAMELISTREQ_MAPSET:
 	    return game_type_mapset;
 	default:
-	    eventlog(eventlog_level_error,"bngtype_to_gtype","unknown Warcraft bnet game type \"%s\" %hu",tag_uint_to_str(clienttag_str,clienttag),bngtype);
+	    eventlog(eventlog_level_error,__FUNCTION__,"unknown Warcraft bnet game type \"%s\" %hu",tag_uint_to_str(clienttag_str,clienttag),bngtype);
 	    return game_type_none;
 	}
     }
@@ -213,7 +213,7 @@ extern t_game_type bngtype_to_gtype(t_clienttag clienttag, unsigned short bngtyp
         case CLIENT_GAMETYPE_DIABLO2_CLOSE:
             return game_type_diablo2closed;
 	default:
-	    eventlog(eventlog_level_error,"bngtype_to_gtype","unknown Diablo II bnet game type \"%s\" %hu",tag_uint_to_str(clienttag_str,clienttag),bngtype);
+	    eventlog(eventlog_level_error,__FUNCTION__,"unknown Diablo II bnet game type \"%s\" %hu",tag_uint_to_str(clienttag_str,clienttag),bngtype);
 	    return game_type_none;
 	}
     }
@@ -227,7 +227,7 @@ extern t_game_type bngtype_to_gtype(t_clienttag clienttag, unsigned short bngtyp
 	case CLIENT_GAMETYPE_DIABLO_3:
 	    return game_type_diablo;
 	default:
-	    eventlog(eventlog_level_error,"bngtype_to_gtype","unknown Diablo bnet game type \"%s\" %hu",tag_uint_to_str(clienttag_str,clienttag),bngtype);
+	    eventlog(eventlog_level_error,__FUNCTION__,"unknown Diablo bnet game type \"%s\" %hu",tag_uint_to_str(clienttag_str,clienttag),bngtype);
 	    return game_type_none;
 	}
     }
@@ -268,7 +268,7 @@ extern t_game_type bngtype_to_gtype(t_clienttag clienttag, unsigned short bngtyp
 	case CLIENT_GAMELISTREQ_TOPVBOT:
 	    return game_type_topvbot;
 	default:
-	    eventlog(eventlog_level_error,"bngtype_to_gtype","unknown Starcraft bnet game type \"%s\" %hu",tag_uint_to_str(clienttag_str,clienttag),bngtype);
+	    eventlog(eventlog_level_error,__FUNCTION__,"unknown Starcraft bnet game type \"%s\" %hu",tag_uint_to_str(clienttag_str,clienttag),bngtype);
 	    return game_type_none;
 	}
     }
@@ -279,7 +279,7 @@ extern t_game_type bngtype_to_gtype(t_clienttag clienttag, unsigned short bngtyp
     }
     else
     {
-	eventlog(eventlog_level_error,"bngtype_to_gtype","unknown game clienttag \"%s\" %hu",tag_uint_to_str(clienttag_str,clienttag),bngtype);
+	eventlog(eventlog_level_error,__FUNCTION__,"unknown game clienttag \"%s\" %hu",tag_uint_to_str(clienttag_str,clienttag),bngtype);
 	return game_type_none;
     }
 }
@@ -323,13 +323,13 @@ extern unsigned short gtype_to_bngtype(t_game_type gtype)
 	return CLIENT_GAMELISTREQ_DIABLO;
     case game_type_diablo2open:
     case game_type_diablo2closed:
-        eventlog(eventlog_level_error,"gtype_to_bngtype","don't know how to list Diablo II");
+        eventlog(eventlog_level_error,__FUNCTION__,"don't know how to list Diablo II");
 	return 0;
     case game_type_anongame:
 	return 0;
     case game_type_none:
     default:
-        eventlog(eventlog_level_error,"gtype_to_bngtype","unknown game type %u",(unsigned int)gtype);
+        eventlog(eventlog_level_error,__FUNCTION__,"unknown game type %u",(unsigned int)gtype);
 	return 0xffff;
     }
 }
@@ -341,7 +341,7 @@ extern t_game_option bngoption_to_goption(t_clienttag clienttag, t_game_type gty
     
     if (!clienttag)
     {
-	eventlog(eventlog_level_error,"bngoption_to_goption","got NULL clienttag");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL clienttag");
 	return game_option_none;
     }
     
@@ -353,28 +353,28 @@ extern t_game_option bngoption_to_goption(t_clienttag clienttag, t_game_type gty
 	    switch (bngoption)
 	    {
 	    default:
-		eventlog(eventlog_level_error,"bngoption_to_goption","unknown Warcraft II bnet game option for \"%s\" game \"%s\" %hu",tag_uint_to_str(clienttag_str,clienttag),game_type_get_str(gtype),bngoption);
+		eventlog(eventlog_level_error,__FUNCTION__,"unknown Warcraft II bnet game option for \"%s\" game \"%s\" %hu",tag_uint_to_str(clienttag_str,clienttag),game_type_get_str(gtype),bngoption);
 		return game_option_none;
 	    }
 	case game_type_melee:
 	    switch (bngoption)
 	    {
 	    default:
-		eventlog(eventlog_level_error,"bngoption_to_goption","unknown Warcraft II bnet game option for \"%s\" game \"%s\" %hu",tag_uint_to_str(clienttag_str,clienttag),game_type_get_str(gtype),bngoption);
+		eventlog(eventlog_level_error,__FUNCTION__,"unknown Warcraft II bnet game option for \"%s\" game \"%s\" %hu",tag_uint_to_str(clienttag_str,clienttag),game_type_get_str(gtype),bngoption);
 		return game_option_none;
 	    }
 	case game_type_ffa:
 	    switch (bngoption)
 	    {
 	    default:
-		eventlog(eventlog_level_error,"bngoption_to_goption","unknown Warcraft II bnet game option for \"%s\" game \"%s\" %hu",tag_uint_to_str(clienttag_str,clienttag),game_type_get_str(gtype),bngoption);
+		eventlog(eventlog_level_error,__FUNCTION__,"unknown Warcraft II bnet game option for \"%s\" game \"%s\" %hu",tag_uint_to_str(clienttag_str,clienttag),game_type_get_str(gtype),bngoption);
 		return game_option_none;
 	    }
 	case game_type_oneonone:
 	    switch (bngoption)
 	    {
 	    default:
-		eventlog(eventlog_level_error,"bngoption_to_goption","unknown Warcraft II bnet game option for \"%s\" game \"%s\" %hu",tag_uint_to_str(clienttag_str,clienttag),game_type_get_str(gtype),bngoption);
+		eventlog(eventlog_level_error,__FUNCTION__,"unknown Warcraft II bnet game option for \"%s\" game \"%s\" %hu",tag_uint_to_str(clienttag_str,clienttag),game_type_get_str(gtype),bngoption);
 		return game_option_none;
 	    }
 	case game_type_ladder:
@@ -385,25 +385,25 @@ extern t_game_option bngoption_to_goption(t_clienttag clienttag, t_game_type gty
 	    case CLIENT_STARTGAME4_OPTION_LADDER_NOPENALTY:
 		return game_option_ladder_nopenalty;
 	    default:
-		eventlog(eventlog_level_error,"bngoption_to_goption","unknown Warcraft II bnet game option for \"%s\" game \"%s\" %hu",tag_uint_to_str(clienttag_str,clienttag),game_type_get_str(gtype),bngoption);
+		eventlog(eventlog_level_error,__FUNCTION__,"unknown Warcraft II bnet game option for \"%s\" game \"%s\" %hu",tag_uint_to_str(clienttag_str,clienttag),game_type_get_str(gtype),bngoption);
 		return game_option_none;
 	    }
 	case game_type_ironman:
 	    switch (bngoption)
 	    {
 	    default:
-		eventlog(eventlog_level_error,"bngoption_to_goption","unknown Warcraft II bnet game option for \"%s\" game \"%s\" %hu",tag_uint_to_str(clienttag_str,clienttag),game_type_get_str(gtype),bngoption);
+		eventlog(eventlog_level_error,__FUNCTION__,"unknown Warcraft II bnet game option for \"%s\" game \"%s\" %hu",tag_uint_to_str(clienttag_str,clienttag),game_type_get_str(gtype),bngoption);
 		return game_option_none;
 	    }
 	case game_type_mapset:
 	    switch (bngoption)
 	    {
 	    default:
-		eventlog(eventlog_level_error,"bngoption_to_goption","unknown Warcraft II bnet game option for \"%s\" game \"%s\" %hu",tag_uint_to_str(clienttag_str,clienttag),game_type_get_str(gtype),bngoption);
+		eventlog(eventlog_level_error,__FUNCTION__,"unknown Warcraft II bnet game option for \"%s\" game \"%s\" %hu",tag_uint_to_str(clienttag_str,clienttag),game_type_get_str(gtype),bngoption);
 		return game_option_none;
 	    }
 	default:
-	    eventlog(eventlog_level_error,"bngoption_to_goption","unknown Warcraft II game type \"%s\" %u",tag_uint_to_str(clienttag_str,clienttag),(unsigned int)gtype);
+	    eventlog(eventlog_level_error,__FUNCTION__,"unknown Warcraft II game type \"%s\" %u",tag_uint_to_str(clienttag_str,clienttag),(unsigned int)gtype);
 	    return game_option_none;
 	}
     }
@@ -418,7 +418,7 @@ extern t_game_option bngoption_to_goption(t_clienttag clienttag, t_game_type gty
             case CLIENT_STARTGAME4_OPTION_NONE: /* FIXME: really? */
                 return game_option_none;
 	    default:
-		eventlog(eventlog_level_error,"bngoption_to_goption","unknown Diablo II bnet game option for \"%s\" game \"%s\" %hu",tag_uint_to_str(clienttag_str,clienttag),game_type_get_str(gtype),bngoption);
+		eventlog(eventlog_level_error,__FUNCTION__,"unknown Diablo II bnet game option for \"%s\" game \"%s\" %hu",tag_uint_to_str(clienttag_str,clienttag),game_type_get_str(gtype),bngoption);
 		return game_option_none;
 	    }
 	case game_type_diablo2closed:
@@ -427,11 +427,11 @@ extern t_game_option bngoption_to_goption(t_clienttag clienttag, t_game_type gty
             case CLIENT_STARTGAME4_OPTION_NONE: /* FIXME: really? */
                 return game_option_none;
 	    default:
-		eventlog(eventlog_level_error,"bngoption_to_goption","unknown Diablo II bnet game option for \"%s\" game \"%s\" %hu",tag_uint_to_str(clienttag_str,clienttag),game_type_get_str(gtype),bngoption);
+		eventlog(eventlog_level_error,__FUNCTION__,"unknown Diablo II bnet game option for \"%s\" game \"%s\" %hu",tag_uint_to_str(clienttag_str,clienttag),game_type_get_str(gtype),bngoption);
 		return game_option_none;
 	    }
 	default:
-	    eventlog(eventlog_level_error,"bngoption_to_goption","unknown Diablo II game type \"%s\" %hu",tag_uint_to_str(clienttag_str,clienttag),(unsigned int)gtype);
+	    eventlog(eventlog_level_error,__FUNCTION__,"unknown Diablo II game type \"%s\" %hu",tag_uint_to_str(clienttag_str,clienttag),(unsigned int)gtype);
 	    return game_option_none;
 	}
     }
@@ -444,11 +444,11 @@ extern t_game_option bngoption_to_goption(t_clienttag clienttag, t_game_type gty
 	    switch (bngoption)
 	    {
 	    default:
-		eventlog(eventlog_level_error,"bngoption_to_goption","unknown Diablo bnet game option for \"%s\" game \"%s\" %hu",tag_uint_to_str(clienttag_str,clienttag),game_type_get_str(gtype),bngoption);
+		eventlog(eventlog_level_error,__FUNCTION__,"unknown Diablo bnet game option for \"%s\" game \"%s\" %hu",tag_uint_to_str(clienttag_str,clienttag),game_type_get_str(gtype),bngoption);
 		return game_option_none;
 	    }
 	default:
-	    eventlog(eventlog_level_error,"bngoption_to_goption","unknown Diablo game type \"%s\" %hu",tag_uint_to_str(clienttag_str,clienttag),(unsigned int)gtype);
+	    eventlog(eventlog_level_error,__FUNCTION__,"unknown Diablo game type \"%s\" %hu",tag_uint_to_str(clienttag_str,clienttag),(unsigned int)gtype);
 	    return game_option_none;
 	}
     }
@@ -464,7 +464,7 @@ extern t_game_option bngoption_to_goption(t_clienttag clienttag, t_game_type gty
 	    case CLIENT_STARTGAME4_OPTION_MELEE_NORMAL:
 		return game_option_melee_normal;
 	    default:
-		eventlog(eventlog_level_error,"bngoption_to_goption","unknown Starcraft bnet game option for \"%s\" game \"%s\" %hu",tag_uint_to_str(clienttag_str,clienttag),game_type_get_str(gtype),bngoption);
+		eventlog(eventlog_level_error,__FUNCTION__,"unknown Starcraft bnet game option for \"%s\" game \"%s\" %hu",tag_uint_to_str(clienttag_str,clienttag),game_type_get_str(gtype),bngoption);
 		return game_option_none;
 	    }
 	case game_type_ffa:
@@ -473,7 +473,7 @@ extern t_game_option bngoption_to_goption(t_clienttag clienttag, t_game_type gty
 	    case CLIENT_STARTGAME4_OPTION_FFA_NORMAL:
 		return game_option_ffa_normal;
 	    default:
-		eventlog(eventlog_level_error,"bngoption_to_goption","unknown Starcraft bnet game option for \"%s\" game \"%s\" %hu",tag_uint_to_str(clienttag_str,clienttag),game_type_get_str(gtype),bngoption);
+		eventlog(eventlog_level_error,__FUNCTION__,"unknown Starcraft bnet game option for \"%s\" game \"%s\" %hu",tag_uint_to_str(clienttag_str,clienttag),game_type_get_str(gtype),bngoption);
 		return game_option_none;
 	    }
 	case game_type_oneonone:
@@ -482,7 +482,7 @@ extern t_game_option bngoption_to_goption(t_clienttag clienttag, t_game_type gty
 	    case CLIENT_STARTGAME4_OPTION_ONEONONE_NORMAL:
 		return game_option_oneonone_normal;
 	    default:
-		eventlog(eventlog_level_error,"bngoption_to_goption","unknown Starcraft bnet game option for \"%s\" game \"%s\" %hu",tag_uint_to_str(clienttag_str,clienttag),game_type_get_str(gtype),bngoption);
+		eventlog(eventlog_level_error,__FUNCTION__,"unknown Starcraft bnet game option for \"%s\" game \"%s\" %hu",tag_uint_to_str(clienttag_str,clienttag),game_type_get_str(gtype),bngoption);
 		return game_option_none;
 	    }
 	case game_type_ctf:
@@ -491,7 +491,7 @@ extern t_game_option bngoption_to_goption(t_clienttag clienttag, t_game_type gty
 	    case CLIENT_STARTGAME4_OPTION_CTF_NORMAL:
 		return game_option_ctf_normal;
 	    default:
-		eventlog(eventlog_level_error,"bngoption_to_goption","unknown Starcraft bnet game option for \"%s\" game \"%s\" %hu",tag_uint_to_str(clienttag_str,clienttag),game_type_get_str(gtype),bngoption);
+		eventlog(eventlog_level_error,__FUNCTION__,"unknown Starcraft bnet game option for \"%s\" game \"%s\" %hu",tag_uint_to_str(clienttag_str,clienttag),game_type_get_str(gtype),bngoption);
 		return game_option_none;
 	    }
 	case game_type_greed:
@@ -506,7 +506,7 @@ extern t_game_option bngoption_to_goption(t_clienttag clienttag, t_game_type gty
 	    case CLIENT_STARTGAME4_OPTION_GREED_2500:
 		return game_option_greed_2500;
 	    default:
-		eventlog(eventlog_level_error,"bngoption_to_goption","unknown Starcraft bnet game option for \"%s\" game \"%s\" %hu",tag_uint_to_str(clienttag_str,clienttag),game_type_get_str(gtype),bngoption);
+		eventlog(eventlog_level_error,__FUNCTION__,"unknown Starcraft bnet game option for \"%s\" game \"%s\" %hu",tag_uint_to_str(clienttag_str,clienttag),game_type_get_str(gtype),bngoption);
 		return game_option_none;
 	    }
 	case game_type_slaughter:
@@ -521,7 +521,7 @@ extern t_game_option bngoption_to_goption(t_clienttag clienttag, t_game_type gty
 	    case CLIENT_STARTGAME4_OPTION_SLAUGHTER_15:
 		return game_option_slaughter_15;
 	    default:
-		eventlog(eventlog_level_error,"bngoption_to_goption","unknown Starcraft bnet game option for \"%s\" game \"%s\" %hu",tag_uint_to_str(clienttag_str,clienttag),game_type_get_str(gtype),bngoption);
+		eventlog(eventlog_level_error,__FUNCTION__,"unknown Starcraft bnet game option for \"%s\" game \"%s\" %hu",tag_uint_to_str(clienttag_str,clienttag),game_type_get_str(gtype),bngoption);
 		return game_option_none;
 	    }
 	case game_type_sdeath:
@@ -530,7 +530,7 @@ extern t_game_option bngoption_to_goption(t_clienttag clienttag, t_game_type gty
 	    case CLIENT_STARTGAME4_OPTION_SDEATH_NORMAL:
 		return game_option_sdeath_normal;
 	    default:
-		eventlog(eventlog_level_error,"bngoption_to_goption","unknown Starcraft bnet game option for \"%s\" game \"%s\" %hu",tag_uint_to_str(clienttag_str,clienttag),game_type_get_str(gtype),bngoption);
+		eventlog(eventlog_level_error,__FUNCTION__,"unknown Starcraft bnet game option for \"%s\" game \"%s\" %hu",tag_uint_to_str(clienttag_str,clienttag),game_type_get_str(gtype),bngoption);
 		return game_option_none;
 	    }
 	case game_type_ladder:
@@ -541,7 +541,7 @@ extern t_game_option bngoption_to_goption(t_clienttag clienttag, t_game_type gty
 	    case CLIENT_STARTGAME4_OPTION_LADDER_NOPENALTY:
 		return game_option_ladder_nopenalty;
 	    default:
-		eventlog(eventlog_level_error,"bngoption_to_goption","unknown Starcraft bnet game option for \"%s\" game \"%s\" %hu",tag_uint_to_str(clienttag_str,clienttag),game_type_get_str(gtype),bngoption);
+		eventlog(eventlog_level_error,__FUNCTION__,"unknown Starcraft bnet game option for \"%s\" game \"%s\" %hu",tag_uint_to_str(clienttag_str,clienttag),game_type_get_str(gtype),bngoption);
 		return game_option_none;
 	    }
 	case game_type_mapset:
@@ -550,7 +550,7 @@ extern t_game_option bngoption_to_goption(t_clienttag clienttag, t_game_type gty
 	    case CLIENT_STARTGAME4_OPTION_MAPSET_NORMAL:
 		return game_option_mapset_normal;
 	    default:
-		eventlog(eventlog_level_error,"bngoption_to_goption","unknown Starcraft bnet game option for \"%s\" game \"%s\" %hu",tag_uint_to_str(clienttag_str,clienttag),game_type_get_str(gtype),bngoption);
+		eventlog(eventlog_level_error,__FUNCTION__,"unknown Starcraft bnet game option for \"%s\" game \"%s\" %hu",tag_uint_to_str(clienttag_str,clienttag),game_type_get_str(gtype),bngoption);
 		return game_option_none;
 	    }
 	case game_type_teammelee:
@@ -563,7 +563,7 @@ extern t_game_option bngoption_to_goption(t_clienttag clienttag, t_game_type gty
 	    case CLIENT_STARTGAME4_OPTION_TEAMMELEE_2:
 		return game_option_teammelee_2;
 	    default:
-		eventlog(eventlog_level_error,"bngoption_to_goption","unknown Starcraft bnet game option for \"%s\" game \"%s\" %hu",tag_uint_to_str(clienttag_str,clienttag),game_type_get_str(gtype),bngoption);
+		eventlog(eventlog_level_error,__FUNCTION__,"unknown Starcraft bnet game option for \"%s\" game \"%s\" %hu",tag_uint_to_str(clienttag_str,clienttag),game_type_get_str(gtype),bngoption);
 		return game_option_none;
 	    }
 	case game_type_teamffa:
@@ -576,7 +576,7 @@ extern t_game_option bngoption_to_goption(t_clienttag clienttag, t_game_type gty
 	    case CLIENT_STARTGAME4_OPTION_TEAMFFA_2:
 		return game_option_teamffa_2;
 	    default:
-		eventlog(eventlog_level_error,"bngoption_to_goption","unknown Starcraft bnet game option for \"%s\" game \"%s\" %hu",tag_uint_to_str(clienttag_str,clienttag),game_type_get_str(gtype),bngoption);
+		eventlog(eventlog_level_error,__FUNCTION__,"unknown Starcraft bnet game option for \"%s\" game \"%s\" %hu",tag_uint_to_str(clienttag_str,clienttag),game_type_get_str(gtype),bngoption);
 		return game_option_none;
 	    }
 	case game_type_teamctf:
@@ -589,14 +589,14 @@ extern t_game_option bngoption_to_goption(t_clienttag clienttag, t_game_type gty
 	    case CLIENT_STARTGAME4_OPTION_TEAMCTF_2:
 		return game_option_teamctf_2;
 	    default:
-		eventlog(eventlog_level_error,"bngoption_to_goption","unknown Starcraft bnet game option for \"%s\" game \"%s\" %hu",tag_uint_to_str(clienttag_str,clienttag),game_type_get_str(gtype),bngoption);
+		eventlog(eventlog_level_error,__FUNCTION__,"unknown Starcraft bnet game option for \"%s\" game \"%s\" %hu",tag_uint_to_str(clienttag_str,clienttag),game_type_get_str(gtype),bngoption);
 		return game_option_none;
 	    }
 	case game_type_pgl:
 	    switch (bngoption)
 	    {
 	    default:
-		eventlog(eventlog_level_error,"bngoption_to_goption","unknown Starcraft bnet game option for \"%s\" game \"%s\" %hu",tag_uint_to_str(clienttag_str,clienttag),game_type_get_str(gtype),bngoption);
+		eventlog(eventlog_level_error,__FUNCTION__,"unknown Starcraft bnet game option for \"%s\" game \"%s\" %hu",tag_uint_to_str(clienttag_str,clienttag),game_type_get_str(gtype),bngoption);
 		return game_option_none;
 	    }
 	case game_type_topvbot:
@@ -617,12 +617,12 @@ extern t_game_option bngoption_to_goption(t_clienttag clienttag, t_game_type gty
 	      case CLIENT_STARTGAME4_OPTION_TOPVBOT_7:
 	        return game_option_topvbot_7;
             default:
-	     eventlog(eventlog_level_error,"bngoption_to_goption","unknown Starcraft bnet game option for \"%s\" game \"%s\" %hu",tag_uint_to_str(clienttag_str,clienttag),game_type_get_str(gtype),bngoption);
+	     eventlog(eventlog_level_error,__FUNCTION__,"unknown Starcraft bnet game option for \"%s\" game \"%s\" %hu",tag_uint_to_str(clienttag_str,clienttag),game_type_get_str(gtype),bngoption);
 		return game_option_none;
 	    }
 	case game_type_none:
 	default:
-	    eventlog(eventlog_level_error,"bngoption_to_goption","unknown Starcraft game type \"%s\" %u(%s)",tag_uint_to_str(clienttag_str,clienttag),(unsigned int)gtype,game_type_get_str(gtype));
+	    eventlog(eventlog_level_error,__FUNCTION__,"unknown Starcraft game type \"%s\" %u(%s)",tag_uint_to_str(clienttag_str,clienttag),(unsigned int)gtype,game_type_get_str(gtype));
 	    return game_option_none;
 	}
     }
@@ -633,7 +633,7 @@ extern t_game_option bngoption_to_goption(t_clienttag clienttag, t_game_type gty
     }
     else
     {
-	eventlog(eventlog_level_error,"bngoption_to_goption","unknown game tag_uint_to_str(clienttag_str,clienttag) \"%s\" %u",clienttag,(unsigned int)gtype);
+	eventlog(eventlog_level_error,__FUNCTION__,"unknown game tag_uint_to_str(clienttag_str,clienttag) \"%s\" %u",clienttag,(unsigned int)gtype);
 	return game_option_none;
     }
 }
@@ -656,7 +656,7 @@ extern t_game_result bngresult_to_gresult(unsigned int bngresult)
     case CLIENT_GAME_REPORT_RESULT_OBSERVER:
 	return game_result_observer;
     default:
-	eventlog(eventlog_level_error,"bngresult_to_gresult","unknown bnet game result %u",bngresult);
+	eventlog(eventlog_level_error,__FUNCTION__,"unknown bnet game result %u",bngresult);
 	return game_result_disconnect; /* bad packet? */
     }
 }
@@ -823,19 +823,19 @@ extern int game_parse_info(t_game * game, char const * gameinfo)
     
     if (!game)
     {
-	eventlog(eventlog_level_error,"game_parse_info","got NULL game");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL game");
 	return -1;
     }
     if (!gameinfo)
     {
-	eventlog(eventlog_level_error,"game_parse_info","got NULL gameinfo");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL gameinfo");
 	return -1;
     }
     
 	// [quetzal] 20020831
 	if (!strlen(gameinfo)) 
 	{
-		eventlog(eventlog_level_info,"game_parse_info", "got empty gameinfo (W3 client joining CG)");
+		eventlog(eventlog_level_info,__FUNCTION__, "got empty gameinfo (W3 client joining CG)");
 		return -1;
 	}
 /*
@@ -914,7 +914,7 @@ Also, what is the upper player limit on WCII... 8 like on Starcraft?
     
     if (!(clienttag = game_get_clienttag(game)))
     {
-	eventlog(eventlog_level_error,"game_parse_info","NULL clienttag for game?");
+	eventlog(eventlog_level_error,__FUNCTION__,"NULL clienttag for game?");
 	return -1;
     }
 
@@ -922,7 +922,7 @@ Also, what is the upper player limit on WCII... 8 like on Starcraft?
 	clienttag==CLIENTTAG_DIABLOSHR_UINT)
     {
 	game_set_maxplayers(game,4);
-	eventlog(eventlog_level_debug,"game_parse_info","no gameinfo for Diablo");
+	eventlog(eventlog_level_debug,__FUNCTION__,"no gameinfo for Diablo");
 	return 0;
     }
     else if (clienttag==CLIENTTAG_DIABLO2DV_UINT ||
@@ -944,7 +944,7 @@ Also, what is the upper player limit on WCII... 8 like on Starcraft?
 	  difficulty[1] = '\0';
 	  if (str_to_uint(difficulty,&bngdifficulty)<0)
 	    {
-	      eventlog(eventlog_level_error,"game_parse_info","bad gameinfo format (missing difficulty) \"%s\"",gameinfo);
+	      eventlog(eventlog_level_error,__FUNCTION__,"bad gameinfo format (missing difficulty) \"%s\"",gameinfo);
 	      return -1;
 	    }
 	  game_set_difficulty(game,bngdifficulty);
@@ -998,19 +998,19 @@ If the corresponding bit is a '0' then subtract 1 from the character.
     /* otherwise it's Starcraft, Brood War, or Warcraft II */
     if (!(save = xstrdup(gameinfo)))
     {
-	eventlog(eventlog_level_error,"game_parse_info","could not allocate memory for save");
+	eventlog(eventlog_level_error,__FUNCTION__,"could not allocate memory for save");
 	return -1;
     }
     
     if (!(line1  = strtok(save,"\r"))) /* actual game info fields */
     {
-	eventlog(eventlog_level_error,"game_parse_info","bad gameinfo format (missing line1) \"%s\"",gameinfo);
+	eventlog(eventlog_level_error,__FUNCTION__,"bad gameinfo format (missing line1) \"%s\"",gameinfo);
 	xfree(save);
 	return -1;
     }
     if (!(line2  = strtok(NULL,"\r")))
     {
-	eventlog(eventlog_level_error,"game_parse_info","bad gameinfo format (missing player) \"%s\"",gameinfo);
+	eventlog(eventlog_level_error,__FUNCTION__,"bad gameinfo format (missing player) \"%s\"",gameinfo);
 	xfree(save);
 	return -1;
     }
@@ -1026,68 +1026,68 @@ If the corresponding bit is a '0' then subtract 1 from the character.
     currtok = line1;
     if (!(unknown    = strsep(&currtok,","))) /* skip past first field (always empty?) */
     {
-	eventlog(eventlog_level_error,"game_parse_info","bad gameinfo format (missing unknown)");
+	eventlog(eventlog_level_error,__FUNCTION__,"bad gameinfo format (missing unknown)");
 	xfree(save);
 	return -1;
     }
     if (!(mapsize    = strsep(&currtok,",")))
     {
-	eventlog(eventlog_level_error,"game_parse_info","bad gameinfo format (missing mapsize)");
+	eventlog(eventlog_level_error,__FUNCTION__,"bad gameinfo format (missing mapsize)");
 	xfree(save);
 	return -1;
     }
     if (!(maxplayers = strsep(&currtok,","))) /* for later use (FIXME: what is upper field, max observers?) */
     {
-	eventlog(eventlog_level_error,"game_parse_info","bad gameinfo format (missing maxplayers)");
+	eventlog(eventlog_level_error,__FUNCTION__,"bad gameinfo format (missing maxplayers)");
 	xfree(save);
 	return -1;
     }
     if (!(speed      = strsep(&currtok,",")))
     {
-	eventlog(eventlog_level_error,"game_parse_info","bad gameinfo format (missing speed)");
+	eventlog(eventlog_level_error,__FUNCTION__,"bad gameinfo format (missing speed)");
 	xfree(save);
 	return -1;
     }
     if (!(maptype    = strsep(&currtok,",")))
     {
-	eventlog(eventlog_level_error,"game_parse_info","bad gameinfo format (missing maptype)");
+	eventlog(eventlog_level_error,__FUNCTION__,"bad gameinfo format (missing maptype)");
 	xfree(save);
 	return -1;
     }
     if (!(gametype   = strsep(&currtok,","))) /* this is set from another field */
     {
-	eventlog(eventlog_level_error,"game_parse_info","bad gameinfo format (missing gametype)");
+	eventlog(eventlog_level_error,__FUNCTION__,"bad gameinfo format (missing gametype)");
 	xfree(save);
 	return -1;
     }
     if (!(option     = strsep(&currtok,","))) /* this is set from another field */
     {
-	eventlog(eventlog_level_error,"game_parse_info","bad gameinfo format (missing option)");
+	eventlog(eventlog_level_error,__FUNCTION__,"bad gameinfo format (missing option)");
 	xfree(save);
 	return -1;
     }
     if (!(checksum   = strsep(&currtok,","))) /* FIXME */
     {
-	eventlog(eventlog_level_error,"game_parse_info","bad gameinfo format (missing checksum)");
+	eventlog(eventlog_level_error,__FUNCTION__,"bad gameinfo format (missing checksum)");
 	xfree(save);
 	return -1;
     }
     if (!(tileset    = strsep(&currtok,",")))
     {
-	eventlog(eventlog_level_error,"game_parse_info","bad gameinfo format (missing tileset)");
+	eventlog(eventlog_level_error,__FUNCTION__,"bad gameinfo format (missing tileset)");
 	xfree(save);
 	return -1;
     }
     if (!(player     = strsep(&currtok,",")))
     {
-	eventlog(eventlog_level_error,"game_parse_info","bad gameinfo format (missing player)");
+	eventlog(eventlog_level_error,__FUNCTION__,"bad gameinfo format (missing player)");
 	xfree(save);
 	return -1;
     }
     
     mapname = line2; /* only one item on this line */
     
-    eventlog(eventlog_level_debug,"game_parse_info","got info \"%s\" \"%s\" \"%s\" \"%s\" \"%s\" \"%s\" \"%s\" \"%s\" \"%s\" \"%s\"", mapsize, maxplayers, speed, maptype, gametype, option, checksum, tileset, player, mapname);
+    eventlog(eventlog_level_debug,__FUNCTION__,"got info \"%s\" \"%s\" \"%s\" \"%s\" \"%s\" \"%s\" \"%s\" \"%s\" \"%s\" \"%s\"", mapsize, maxplayers, speed, maptype, gametype, option, checksum, tileset, player, mapname);
     
     /* The map size is determined by breaking the number into two pieces and
      * multiplying each piece by 32.

@@ -170,15 +170,15 @@ static int handle_irc_line(t_connection * conn, char const * ircline)
     char * tempparams;
 
     if (!conn) {
-	eventlog(eventlog_level_error,"handle_irc_line","got NULL connection");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL connection");
 	return -1;
     }
     if (!ircline) {
-	eventlog(eventlog_level_error,"handle_irc_line","got NULL ircline");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL ircline");
 	return -1;
     }
     if (ircline[0] == '\0') {
-	eventlog(eventlog_level_error,"handle_irc_line","got empty ircline");
+	eventlog(eventlog_level_error,__FUNCTION__,"got empty ircline");
 	return -1;
     }
 	//amadeo: code was sent by some unknown fellow of pvpgn, prevents buffer-overflow for
@@ -186,7 +186,7 @@ static int handle_irc_line(t_connection * conn, char const * ircline)
 
     if (strlen(ircline)>254) {
         char * tmp = (char *)ircline;
-	eventlog(eventlog_level_warn,"handle_irc_line","line to long, truncation...");
+	eventlog(eventlog_level_warn,__FUNCTION__,"line to long, truncation...");
 	tmp[254]='\0';
     }    
 
@@ -197,7 +197,7 @@ static int handle_irc_line(t_connection * conn, char const * ircline)
 	/* The prefix is optional and is rarely provided */
 	prefix = line;
 	if (!(command = strchr(line,' '))) {
-	    eventlog(eventlog_level_warn,"handle_irc_line","got malformed line (missing command)");
+	    eventlog(eventlog_level_warn,__FUNCTION__,"got malformed line (missing command)");
 	    /* FIXME: send message instead of eventlog? */
 	    xfree(line);
 	    return -1;
@@ -247,7 +247,7 @@ static int handle_irc_line(t_connection * conn, char const * ircline)
 	    strcat(paramtemp,"\"");
 	    first = 0;
     	}
-    	eventlog(eventlog_level_debug,"handle_irc_line","[%d] got \"%s\" \"%s\" [%s] \"%s\"",conn_get_socket(conn),((prefix)?(prefix):("")),command,paramtemp,((text)?(text):("")));
+    	eventlog(eventlog_level_debug,__FUNCTION__,"[%d] got \"%s\" \"%s\" [%s] \"%s\"",conn_get_socket(conn),((prefix)?(prefix):("")),command,paramtemp,((text)?(text):("")));
     }
     
     if (conn_get_state(conn)==conn_state_connected) {
@@ -299,15 +299,15 @@ extern int handle_irc_packet(t_connection * conn, t_packet const * const packet)
     char const * data;
 
     if (!packet) {
-	eventlog(eventlog_level_error,"handle_irc_packet","got NULL packet");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL packet");
 	return -1;
     }
     if (conn_get_class(conn) != conn_class_irc ) {
-	eventlog(eventlog_level_error,"handle_irc_packet","FIXME: handle_irc_packet without any reason (conn->class != conn_class_irc)");
+	eventlog(eventlog_level_error,__FUNCTION__,"FIXME: handle_irc_packet without any reason (conn->class != conn_class_irc)");
 	return -1;
     }
 	
-    /* eventlog(eventlog_level_debug,"handle_irc_packet","got \"%s\"",packet_get_raw_data_const(packet,0)); */
+    /* eventlog(eventlog_level_debug,__FUNCTION__,"got \"%s\"",packet_get_raw_data_const(packet,0)); */
 
     memset(ircline,0,sizeof(ircline));
     data = conn_get_ircline(conn); /* fetch current status */
@@ -328,10 +328,10 @@ extern int handle_irc_packet(t_connection * conn, t_packet const * const packet)
 		ircline[ircpos++] = data[i];
 	    else {
 		ircpos++; /* for the statistic :) */
-	    	eventlog(eventlog_level_warn,"handle_irc_packet","[%d] client exceeded maximum allowed message length by %d characters",conn_get_socket(conn),ircpos-MAX_IRC_MESSAGE_LEN);
+	    	eventlog(eventlog_level_warn,__FUNCTION__,"[%d] client exceeded maximum allowed message length by %d characters",conn_get_socket(conn),ircpos-MAX_IRC_MESSAGE_LEN);
 		if ((ircpos-MAX_IRC_MESSAGE_LEN)>100) {
 		    /* automatic flood protection */
-		    eventlog(eventlog_level_error,"handle_irc_packet","[%d] excess flood",conn_get_socket(conn));
+		    eventlog(eventlog_level_error,__FUNCTION__,"[%d] excess flood",conn_get_socket(conn));
 		    return -1;
 		}
 	    }

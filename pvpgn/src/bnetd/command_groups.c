@@ -63,11 +63,11 @@ extern int command_groups_load(char const * filename)
     t_command_groups *	entry;
     
     if (!filename) {
-        eventlog(eventlog_level_error,"command_groups_load","got NULL filename");
+        eventlog(eventlog_level_error,__FUNCTION__,"got NULL filename");
         return -1;
     }
     if (!(fp = fopen(filename,"r"))) {
-        eventlog(eventlog_level_error,"command_groups_load","could not open file \"%s\" for reading (fopen: %s)",filename,strerror(errno));
+        eventlog(eventlog_level_error,__FUNCTION__,"could not open file \"%s\" for reading (fopen: %s)",filename,strerror(errno));
         return -1;
     }
     
@@ -89,17 +89,17 @@ extern int command_groups_load(char const * filename)
             buff[endpos+1] = '\0';
         }
 	if (!(temp = strtok(buff," \t"))) { /* strtok modifies the string it is passed */
-	    eventlog(eventlog_level_error,"command_groups_load","missing group on line %u of file \"%s\"",line,filename);
+	    eventlog(eventlog_level_error,__FUNCTION__,"missing group on line %u of file \"%s\"",line,filename);
 	    xfree(buff);
 	    continue;
 	}
 	if (str_to_uint(temp,&group)<0) {
-	    eventlog(eventlog_level_error,"command_groups_load","group '%s' not a valid group (1-8)",temp);
+	    eventlog(eventlog_level_error,__FUNCTION__,"group '%s' not a valid group (1-8)",temp);
 	    xfree(buff);
 	    continue;
 	}
 	if (group == 0 || group > 8) {
-	    eventlog(eventlog_level_error,"command_groups_load","group '%u' not within groups limits (1-8)",group);
+	    eventlog(eventlog_level_error,__FUNCTION__,"group '%u' not within groups limits (1-8)",group);
 	    xfree(buff);
 	    continue;
 	} 
@@ -109,7 +109,7 @@ extern int command_groups_load(char const * filename)
 	    entry->command = xstrdup(command);
 	    list_append_data(command_groups_head,entry);
 #ifdef COMMANDGROUPSDEBUG
-	    eventlog(eventlog_level_info,"command_groups_load","Added command: %s - with group %u",entry->command,entry->group);
+	    eventlog(eventlog_level_info,__FUNCTION__,"Added command: %s - with group %u",entry->command,entry->group);
 #endif
 	}
 	xfree(buff);
@@ -126,7 +126,7 @@ extern int command_groups_unload(void)
     if (command_groups_head) {
 	LIST_TRAVERSE(command_groups_head,curr) {
 	    if (!(entry = elem_get_data(curr)))
-		eventlog(eventlog_level_error,"command_groups_unload","found NULL entry in list");
+		eventlog(eventlog_level_error,__FUNCTION__,"found NULL entry in list");
 	    else {
 		xfree(entry->command);
 		xfree(entry);
@@ -147,7 +147,7 @@ extern unsigned int command_get_group(char const * command)
     if (command_groups_head) {
 	LIST_TRAVERSE(command_groups_head,curr) {
 	    if (!(entry = elem_get_data(curr)))
-		eventlog(eventlog_level_error,"command_get_group","found NULL entry in list");
+		eventlog(eventlog_level_error,__FUNCTION__,"found NULL entry in list");
 	    else if (!(strcmp(entry->command,command)))
 		return entry->group;
 	}

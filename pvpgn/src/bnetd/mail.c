@@ -122,7 +122,7 @@ static t_mailbox * mailbox_open(t_account * user) {
       sprintf(path,"%s/%06u",maildir,account_get_uid(user));
    p_mkdir(path,S_IRWXU | S_IXGRP | S_IRGRP | S_IROTH | S_IXOTH);
    if ((rez->maildir=p_opendir(path))==NULL) {
-      eventlog(eventlog_level_error,"mailbox_open","error opening maildir");
+      eventlog(eventlog_level_error,__FUNCTION__,"error opening maildir");
       xfree(path);
       xfree(rez);
       return NULL;
@@ -137,11 +137,11 @@ static int mailbox_count(t_mailbox *mailbox) {
    int count=0;
    
    if (mailbox==NULL) {
-      eventlog(eventlog_level_error,"mailbox_count","got NULL mailbox");
+      eventlog(eventlog_level_error,__FUNCTION__,"got NULL mailbox");
       return -1;
    }
    if (mailbox->maildir==NULL) {
-      eventlog(eventlog_level_error,"mailbox_count","got NULL maildir");
+      eventlog(eventlog_level_error,__FUNCTION__,"got NULL maildir");
       return -1;
    }
    p_rewinddir(mailbox->maildir);
@@ -154,21 +154,21 @@ static int mailbox_deliver(t_mailbox * mailbox, const char * sender, const char 
    char * filename;
 
    if (mailbox==NULL) {
-      eventlog(eventlog_level_error,"mailbox_deliver","got NULL mailbox");
+      eventlog(eventlog_level_error,__FUNCTION__,"got NULL mailbox");
       return -1;
    }
    if (mailbox->maildir==NULL) {
-      eventlog(eventlog_level_error,"mailbox_deliver","got NULL maildir");
+      eventlog(eventlog_level_error,__FUNCTION__,"got NULL maildir");
       return -1;
    }
    if (mailbox->path==NULL) {
-      eventlog(eventlog_level_error,"mailbox_deliver","got NULL path");
+      eventlog(eventlog_level_error,__FUNCTION__,"got NULL path");
       return -1;
    }
    filename=xmalloc(strlen(mailbox->path)+1+15+1);
    sprintf(filename,"%s/%015lu",mailbox->path,(unsigned long)time(NULL));
    if ((fd=fopen(filename,"wb"))==NULL) {
-      eventlog(eventlog_level_error,"mailbox_deliver","got NULL file descriptor. check permissions");
+      eventlog(eventlog_level_error,__FUNCTION__,"got NULL file descriptor. check permissions");
       xfree(filename);
       return -1;
    }
@@ -187,11 +187,11 @@ static t_mail * mailbox_read(t_mailbox * mailbox, unsigned int idx) {
    char *       filename;
    
    if (mailbox==NULL) {
-      eventlog(eventlog_level_error,"mailbox_read","got NULL mailbox");
+      eventlog(eventlog_level_error,__FUNCTION__,"got NULL mailbox");
       return NULL;
    }
    if (mailbox->maildir==NULL) {
-      eventlog(eventlog_level_error,"mailbox_read","got NULL maildir");
+      eventlog(eventlog_level_error,__FUNCTION__,"got NULL maildir");
       return NULL;
    }
    rez=xmalloc(sizeof(t_mail));
@@ -200,7 +200,7 @@ static t_mail * mailbox_read(t_mailbox * mailbox, unsigned int idx) {
    for(i=0;i<idx && (dentry=p_readdir(mailbox->maildir))!=NULL;i++)
      if (dentry[0]=='.') i--;
    if (dentry==NULL) {
-      eventlog(eventlog_level_error,"mailbox_read","index out of range");
+      eventlog(eventlog_level_error,__FUNCTION__,"index out of range");
       xfree(rez);
       return NULL;
    }
@@ -208,7 +208,7 @@ static t_mail * mailbox_read(t_mailbox * mailbox, unsigned int idx) {
    filename=xmalloc(strlen(dentry)+1+strlen(mailbox->path)+1);
    sprintf(filename,"%s/%s",mailbox->path,dentry);
    if ((fd=fopen(filename,"rb"))==NULL) {
-      eventlog(eventlog_level_error,"mailbox_read","error while opening message");
+      eventlog(eventlog_level_error,__FUNCTION__,"error while opening message");
       xfree(rez);
       xfree(filename);
       return NULL;
@@ -227,13 +227,13 @@ static t_mail * mailbox_read(t_mailbox * mailbox, unsigned int idx) {
 
 static void mailbox_unread(t_mail * mail) {
    if (mail==NULL)
-     eventlog(eventlog_level_error,"mailbox_unread","got NULL mail");
+     eventlog(eventlog_level_error,__FUNCTION__,"got NULL mail");
    else {
       if (mail->sender==NULL)
-	eventlog(eventlog_level_error,"mailbox_unread","got NULL sender");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL sender");
       else xfree(mail->sender);
       if (mail->message==NULL)
-	eventlog(eventlog_level_error,"mailbox_unread","got NULL message");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL message");
       else xfree(mail->message);
       xfree(mail);
    }
@@ -246,11 +246,11 @@ static struct maillist_struct * mailbox_get_list(t_mailbox *mailbox) {
    char *sender,*filename;
    
    if (mailbox==NULL) {
-      eventlog(eventlog_level_error,"mailbox_get_list","got NULL mailbox");
+      eventlog(eventlog_level_error,__FUNCTION__,"got NULL mailbox");
       return NULL;
    }
    if (mailbox->maildir==NULL) {
-      eventlog(eventlog_level_error,"mailbox_get_list","got NULL maildir");
+      eventlog(eventlog_level_error,__FUNCTION__,"got NULL maildir");
       return NULL;
    }
    filename=xmalloc(strlen(mailbox->path)+1+15+1);
@@ -260,7 +260,7 @@ static struct maillist_struct * mailbox_get_list(t_mailbox *mailbox) {
 	q=xmalloc(sizeof(struct maillist_struct));
 	sprintf(filename,"%s/%s",mailbox->path,dentry);
 	if ((fd=fopen(filename,"rb"))==NULL) {
-	   eventlog(eventlog_level_error,"mailbox_get_list","error while opening message file");
+	   eventlog(eventlog_level_error,__FUNCTION__,"error while opening message file");
 	   xfree(filename);
 	   xfree(q);
 	   return rez;
@@ -297,11 +297,11 @@ static int mailbox_delete(t_mailbox * mailbox, unsigned int idx) {
    int          rez;
    
    if (mailbox==NULL) {
-      eventlog(eventlog_level_error,"mailbox_delete","got NULL mailbox");
+      eventlog(eventlog_level_error,__FUNCTION__,"got NULL mailbox");
       return -1;
    }
    if (mailbox->maildir==NULL) {
-      eventlog(eventlog_level_error,"mailbox_delete","got NULL maildir");
+      eventlog(eventlog_level_error,__FUNCTION__,"got NULL maildir");
       return -1;
    }
    p_rewinddir(mailbox->maildir);
@@ -309,14 +309,14 @@ static int mailbox_delete(t_mailbox * mailbox, unsigned int idx) {
    for(i=0;i<idx && (dentry=p_readdir(mailbox->maildir))!=NULL;i++)
      if (dentry[0]=='.') i--;
    if (dentry==NULL) {
-      eventlog(eventlog_level_error,"mailbox_delete","index out of range");
+      eventlog(eventlog_level_error,__FUNCTION__,"index out of range");
       return -1;
    }
    filename=xmalloc(strlen(dentry)+1+strlen(mailbox->path)+1);
    sprintf(filename,"%s/%s",mailbox->path,dentry);
    rez=remove(filename);
    if (rez<0) {
-       eventlog(eventlog_level_info,"mailbox_delete","could not remove file \"%s\" (remove: %s)",filename,strerror(errno));
+       eventlog(eventlog_level_info,__FUNCTION__,"could not remove file \"%s\" (remove: %s)",filename,strerror(errno));
     }
    xfree(filename);
    return rez;
@@ -328,11 +328,11 @@ static int mailbox_delete_all(t_mailbox * mailbox) {
    int          count;
    
    if (mailbox==NULL) {
-      eventlog(eventlog_level_error,"mailbox_delete_all","got NULL mailbox");
+      eventlog(eventlog_level_error,__FUNCTION__,"got NULL mailbox");
       return -1;
    }
    if (mailbox->maildir==NULL) {
-      eventlog(eventlog_level_error,"mailbox_delete_all","got NULL maildir");
+      eventlog(eventlog_level_error,__FUNCTION__,"got NULL maildir");
       return -1;
    }
    filename=xmalloc(strlen(mailbox->path)+1+15+1);
@@ -349,13 +349,13 @@ static int mailbox_delete_all(t_mailbox * mailbox) {
 
 static void mailbox_close(t_mailbox *mailbox) {
    if (mailbox==NULL) {
-      eventlog(eventlog_level_error,"mailbox_close","got NULL mailbox");
+      eventlog(eventlog_level_error,__FUNCTION__,"got NULL mailbox");
       return;
    }
    if (mailbox->maildir!=NULL) {
       p_closedir(mailbox->maildir);
    } else {
-      eventlog(eventlog_level_error,"mailbox_close","got NULL maildir");
+      eventlog(eventlog_level_error,__FUNCTION__,"got NULL maildir");
    }
    if (mailbox->path) xfree(mailbox->path);
    xfree(mailbox);
@@ -448,11 +448,11 @@ static void mail_func_send(t_connection * c, const char * str) {
    t_mailbox * mailbox;
    
    if (c==NULL) {
-      eventlog(eventlog_level_error,"mail_func_send","got NULL connection");
+      eventlog(eventlog_level_error,__FUNCTION__,"got NULL connection");
       return;
    }
    if (str==NULL) {
-      eventlog(eventlog_level_error,"mail_func_send","got NULL command string");
+      eventlog(eventlog_level_error,__FUNCTION__,"got NULL command string");
       return;
    }
    for(i=0;str[i]==' ';i++); /* skip any spaces */
@@ -501,21 +501,21 @@ static void mail_func_read(t_connection * c, const char * str) {
    int i;
    
    if (c==NULL) {
-      eventlog(eventlog_level_error,"mail_func_read","got NULL connection");
+      eventlog(eventlog_level_error,__FUNCTION__,"got NULL connection");
       return;
    }
    if (str==NULL) {
-      eventlog(eventlog_level_error,"mail_func_read","got NULL command string");
+      eventlog(eventlog_level_error,__FUNCTION__,"got NULL command string");
       return;
    }
    for(i=0;str[i]==' ';i++);
    p=str+i;
    if ((user=conn_get_account(c))==NULL) {
-      eventlog(eventlog_level_error,"mail_func_read","got NULL account");
+      eventlog(eventlog_level_error,__FUNCTION__,"got NULL account");
       return;
    }
    if ((mailbox=mailbox_open(user))==NULL) {
-      eventlog(eventlog_level_error,"mail_func_read","got NULL mailbox");
+      eventlog(eventlog_level_error,__FUNCTION__,"got NULL mailbox");
       return;
    }
    if (*p=='\0') { /* user wants to see the mail summary */
@@ -528,7 +528,7 @@ static void mail_func_read(t_connection * c, const char * str) {
 	 return;
       }
       if ((maill=mailbox_get_list(mailbox))==NULL) {
-	 eventlog(eventlog_level_error,"mail_func_read","got NULL maillist");
+	 eventlog(eventlog_level_error,__FUNCTION__,"got NULL maillist");
 	 mailbox_close(mailbox);
 	 return;
       }
@@ -581,11 +581,11 @@ static void mail_func_delete(t_connection * c, const char * str) {
    int i;
    
    if (c==NULL) {
-      eventlog(eventlog_level_error,"mail_func_delete","got NULL connection");
+      eventlog(eventlog_level_error,__FUNCTION__,"got NULL connection");
       return;
    }
    if (str==NULL) {
-      eventlog(eventlog_level_error,"mail_func_delete","got NULL command string");
+      eventlog(eventlog_level_error,__FUNCTION__,"got NULL command string");
       return;
    }
    for(i=0;str[i]==' ';i++);
@@ -595,11 +595,11 @@ static void mail_func_delete(t_connection * c, const char * str) {
       return;
    }
    if ((user=conn_get_account(c))==NULL) {
-      eventlog(eventlog_level_error,"mail_func_read","got NULL account");
+      eventlog(eventlog_level_error,__FUNCTION__,"got NULL account");
       return;
    }
    if ((mailbox=mailbox_open(user))==NULL) {
-      eventlog(eventlog_level_error,"mail_func_read","got NULL mailbox");
+      eventlog(eventlog_level_error,__FUNCTION__,"got NULL mailbox");
       return;
    }
    if (strcmp(p,"all")==0) {
@@ -664,7 +664,7 @@ extern char const * check_mail(t_connection const * c) {
    int count;
 
    if (!(c)) {
-      eventlog(eventlog_level_error,"check_mail","got NULL connection");
+      eventlog(eventlog_level_error,__FUNCTION__,"got NULL connection");
       return "";
    }
 
@@ -673,7 +673,7 @@ extern char const * check_mail(t_connection const * c) {
   
 
    if (!(mailbox=mailbox_open(user))) {
-      eventlog(eventlog_level_error,"check_mail","got NULL mailbox");
+      eventlog(eventlog_level_error,__FUNCTION__,"got NULL mailbox");
       return "";
    }
 

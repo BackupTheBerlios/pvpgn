@@ -63,12 +63,12 @@ extern int helpfile_init(char const *filename)
 {
     if (!filename)
     {
-        eventlog(eventlog_level_error,"helpfile_init","got NULL filename");
+        eventlog(eventlog_level_error,__FUNCTION__,"got NULL filename");
 	return -1;
     }
     if (!(hfd = fopen(filename,"r")))
     {
-        eventlog(eventlog_level_error,"helpfile_init","could not open help file \"%s\" for reading (fopen: %s)",filename,strerror(errno));
+        eventlog(eventlog_level_error,__FUNCTION__,"could not open help file \"%s\" for reading (fopen: %s)",filename,strerror(errno));
         return -1;
     }
     return 0;
@@ -80,7 +80,7 @@ extern int helpfile_unload(void)
     if (hfd!=NULL)
     {
 	if (fclose(hfd)<0)
-	    eventlog(eventlog_level_error,"helpfile_unload","could not close help file after reading (fclose: %s)",strerror(errno));
+	    eventlog(eventlog_level_error,__FUNCTION__,"could not close help file after reading (fclose: %s)",strerror(errno));
 	hfd = NULL;
     }
     return 0;

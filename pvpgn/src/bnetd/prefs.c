@@ -310,12 +310,12 @@ static int processDirective(char const * directive, char const * value, unsigned
     
     if (!directive)
     {
-	eventlog(eventlog_level_error,"processDirective","got NULL directive");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL directive");
 	return -1;
     }
     if (!value)
     {
-	eventlog(eventlog_level_error,"processDirective","got NULL value");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL value");
 	return -1;
     }
     
@@ -340,7 +340,7 @@ static int processDirective(char const * directive, char const * value, unsigned
 		    unsigned int temp;
 		    
 		    if (str_to_uint(value,&temp)<0)
-			eventlog(eventlog_level_error,"processDirective","invalid integer value \"%s\" for element \"%s\" at line %u",value,directive,curLine);
+			eventlog(eventlog_level_error,__FUNCTION__,"invalid integer value \"%s\" for element \"%s\" at line %u",value,directive,curLine);
 		    else
                 	PREFS_STORE_UINT(conf_table[i].store) = temp;
 		}
@@ -356,17 +356,17 @@ static int processDirective(char const * directive, char const * value, unsigned
 		    PREFS_STORE_UINT(conf_table[i].store) = 0;
 		    break;
 		default:
-		    eventlog(eventlog_level_error,"processDirective","invalid boolean value for element \"%s\" at line %u",directive,curLine);
+		    eventlog(eventlog_level_error,__FUNCTION__,"invalid boolean value for element \"%s\" at line %u",directive,curLine);
 		}
 		break;
 		
 	    default:
-		eventlog(eventlog_level_error,"processDirective","invalid type %d in table",(int)conf_table[i].type);
+		eventlog(eventlog_level_error,__FUNCTION__,"invalid type %d in table",(int)conf_table[i].type);
 	    }
 	    return 0;
 	}
     
-    eventlog(eventlog_level_error,"processDirective","unknown element \"%s\" at line %u",directive,curLine);
+    eventlog(eventlog_level_error,__FUNCTION__,"unknown element \"%s\" at line %u",directive,curLine);
     return -1;
 }
 
@@ -395,7 +395,7 @@ extern int prefs_load(char const * filename)
 		break;
 		
 	    default:
-		eventlog(eventlog_level_error,"prefs_load","invalid type %d in table",(int)conf_table[i].type);
+		eventlog(eventlog_level_error,__FUNCTION__,"invalid type %d in table",(int)conf_table[i].type);
 		return -1;
 	    }
     }
@@ -416,7 +416,7 @@ extern int prefs_load(char const * filename)
 	
         if (!(fp = fopen(filename,"r")))
         {
-            eventlog(eventlog_level_error,"prefs_load","could not open file \"%s\" for reading (fopen: %s)",filename,strerror(errno));
+            eventlog(eventlog_level_error,__FUNCTION__,"could not open file \"%s\" for reading (fopen: %s)",filename,strerror(errno));
             return -1;
         }
 	
@@ -462,7 +462,7 @@ extern int prefs_load(char const * filename)
             while (*cp=='\t' || *cp==' ') cp++;
 	    if (*cp!='=')
 	    {
-		eventlog(eventlog_level_error,"prefs_load","missing = on line %u",currline);
+		eventlog(eventlog_level_error,__FUNCTION__,"missing = on line %u",currline);
 		xfree((void *)directive); /* avoid warning */
 		xfree(buff);
 		continue;
@@ -471,7 +471,7 @@ extern int prefs_load(char const * filename)
 	    while (*cp=='\t' || *cp==' ') cp++;
 	    if (*cp=='\0')
 	    {
-		eventlog(eventlog_level_error,"prefs_load","missing value after = on line %u",currline);
+		eventlog(eventlog_level_error,__FUNCTION__,"missing value after = on line %u",currline);
 		xfree((void *)directive); /* avoid warning */
 		xfree(buff);
 		continue;
@@ -505,7 +505,7 @@ extern int prefs_load(char const * filename)
 		}
 		if (rawvalue[j]!='"')
 		{
-		    eventlog(eventlog_level_error,"prefs_load","missing end quote for value of element \"%s\" on line %u",directive,currline);
+		    eventlog(eventlog_level_error,__FUNCTION__,"missing end quote for value of element \"%s\" on line %u",directive,currline);
 		    xfree(rawvalue);
 		    xfree((void *)directive); /* avoid warning */
 		    xfree(buff);
@@ -514,7 +514,7 @@ extern int prefs_load(char const * filename)
 		rawvalue[j] = '\0';
 		if (rawvalue[j+1]!='\0')
 		{
-		    eventlog(eventlog_level_error,"prefs_load","extra characters after the value for element \"%s\" on line %u",directive,currline);
+		    eventlog(eventlog_level_error,__FUNCTION__,"extra characters after the value for element \"%s\" on line %u",directive,currline);
 		    xfree(rawvalue);
 		    xfree((void *)directive); /* avoid warning */
 		    xfree(buff);
@@ -531,7 +531,7 @@ extern int prefs_load(char const * filename)
 		while (rawvalue[k]==' ' || rawvalue[k]=='\t') k++;
 		if (rawvalue[k]!='\0')
 		{
-		    eventlog(eventlog_level_error,"prefs_load","extra characters after the value for element \"%s\" on line %u (%s)",directive,currline,&rawvalue[k]);
+		    eventlog(eventlog_level_error,__FUNCTION__,"extra characters after the value for element \"%s\" on line %u (%s)",directive,currline,&rawvalue[k]);
 		    xfree(rawvalue);
 		    xfree((void *)directive); /* avoid warning */
 		    xfree(buff);
@@ -548,7 +548,7 @@ extern int prefs_load(char const * filename)
 	    xfree(buff);
 	}
 	if (fclose(fp)<0)
-	    eventlog(eventlog_level_error,"prefs_load","could not close prefs file \"%s\" after reading (fclose: %s)",filename,strerror(errno));
+	    eventlog(eventlog_level_error,__FUNCTION__,"could not close prefs file \"%s\" after reading (fclose: %s)",filename,strerror(errno));
     }
     
     return 0;
@@ -575,7 +575,7 @@ extern void prefs_unload(void)
 	    break;
 	    
 	default:
-	    eventlog(eventlog_level_error,"prefs_unload","invalid type %d in table",(int)conf_table[i].type);
+	    eventlog(eventlog_level_error,__FUNCTION__,"invalid type %d in table",(int)conf_table[i].type);
 	    break;
 	}
 }

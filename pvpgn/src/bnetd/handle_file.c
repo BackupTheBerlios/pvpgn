@@ -49,19 +49,19 @@ extern int handle_file_packet(t_connection * c, t_packet const * const packet)
 {
     if (!c)
     {
-	eventlog(eventlog_level_error,"handle_file_packet","[%d] got NULL connection",conn_get_socket(c));
+	eventlog(eventlog_level_error,__FUNCTION__,"[%d] got NULL connection",conn_get_socket(c));
 	return -1;
     }
     if (!packet)
     {
-	eventlog(eventlog_level_error,"handle_file_packet","[%d] got NULL packet",conn_get_socket(c));
+	eventlog(eventlog_level_error,__FUNCTION__,"[%d] got NULL packet",conn_get_socket(c));
 	return -1;
     }
 /* REMOVED BY UNDYING SOULZZ 4/3/02 */
 /*
     if (packet_get_class(packet)!=packet_class_file)
     {
-        eventlog(eventlog_level_error,"handle_file_packet","[%d] got bad packet (class %d)",conn_get_socket(c),(int)packet_get_class(packet));
+        eventlog(eventlog_level_error,__FUNCTION__,"[%d] got bad packet (class %d)",conn_get_socket(c),(int)packet_get_class(packet));
         return -1;
     }
  */   
@@ -76,7 +76,7 @@ extern int handle_file_packet(t_connection * c, t_packet const * const packet)
 	    
 	    if (!(rawname = packet_get_str_const(packet,sizeof(t_client_file_req),MAX_FILENAME_STR)))
 	    {
-		eventlog(eventlog_level_error,"handle_file_packet","[%d] got bad FILE_REQ (missing or too long filename)",conn_get_socket(c));
+		eventlog(eventlog_level_error,__FUNCTION__,"[%d] got bad FILE_REQ (missing or too long filename)",conn_get_socket(c));
 		
 		return -1;
 	    }
@@ -103,7 +103,7 @@ extern int handle_file_packet(t_connection * c, t_packet const * const packet)
 	}
 
 	default:
-	    eventlog(eventlog_level_error,"handle_file_packet","[%d] unknown file packet type 0x%04x, len %u",conn_get_socket(c),packet_get_type(packet),packet_get_size(packet));
+	    eventlog(eventlog_level_error,__FUNCTION__,"[%d] unknown file packet type 0x%04x, len %u",conn_get_socket(c),packet_get_type(packet),packet_get_size(packet));
 	    
 	    break;
 	}
@@ -129,7 +129,7 @@ extern int handle_file_packet(t_connection * c, t_packet const * const packet)
 	break;
 
     default:
-	eventlog(eventlog_level_error,"handle_file_packet","[%d] unknown file connection state %d",conn_get_socket(c),(int)conn_get_state(c));
+	eventlog(eventlog_level_error,__FUNCTION__,"[%d] unknown file connection state %d",conn_get_socket(c),(int)conn_get_state(c));
     }
 
     return 0;

@@ -61,7 +61,7 @@ int output_standard_writer(FILE * fp);
 
 extern void output_init(void)
 {
-    eventlog(eventlog_level_info,"output_init","initializing output file");
+    eventlog(eventlog_level_info,__FUNCTION__,"initializing output file");
 
     if (prefs_get_XML_status_output())
 	status_filename = create_filename(prefs_get_outputdir(),"server",".xml"); // WarCraft III
@@ -190,13 +190,13 @@ extern int output_write_to_file(void)
   
     if (!status_filename)
     {
-	eventlog(eventlog_level_error,"ouput_write_to_file","got NULL filename");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL filename");
 	return -1;
     }
     
     if (!(fp = fopen(status_filename,"w")))
     {
-        eventlog(eventlog_level_error,"ouput_write_to_file","could not open file \"%s\" for writing (fopen: %s)",status_filename,strerror(errno)); 
+        eventlog(eventlog_level_error,__FUNCTION__,"could not open file \"%s\" for writing (fopen: %s)",status_filename,strerror(errno)); 
         return -1;
     }
     

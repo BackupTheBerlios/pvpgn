@@ -106,7 +106,7 @@ static t_uint8 character_class_to_bncharacter_class(t_character_class class)
     case character_class_assassin:
 	return D2CHAR_INFO_CLASS_ASSASSIN;
     default:
-	eventlog(eventlog_level_error,"character_class_to_bncharacter_class","got unknown class %d",(int)class);
+	eventlog(eventlog_level_error,__FUNCTION__,"got unknown class %d",(int)class);
     case character_class_none:
 	return D2CHAR_INFO_FILLER;
     }
@@ -204,7 +204,7 @@ static int load_initial_data (t_character * character, t_character_class class, 
 {
     char const * data_in_hex;
 
-    eventlog(eventlog_level_debug,"load_initial_data","Initial Data for %s, %s %s",
+    eventlog(eventlog_level_debug,__FUNCTION__,"Initial Data for %s, %s %s",
 	     character->name,
 	     character_expansion_to_expansionname(expansion),
 	     character_class_to_classname(class));
@@ -280,22 +280,22 @@ extern int character_create(t_account * account, t_clienttag clienttag, char con
     
     if (!account)
     {
-	eventlog(eventlog_level_error,"character_create","got NULL account");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL account");
 	return -1;
     }
     if (!clienttag)
     {
-	eventlog(eventlog_level_error,"character_create","got bad clienttag");
+	eventlog(eventlog_level_error,__FUNCTION__,"got bad clienttag");
 	return -1;
     }
     if (!realmname)
     {
-	eventlog(eventlog_level_error,"character_create","got NULL realmname");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL realmname");
 	return -1;
     }
     if (!name)
     {
-	eventlog(eventlog_level_error,"character_create","got NULL name");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL name");
 	return -1;
     }
 
@@ -306,7 +306,7 @@ extern int character_create(t_account * account, t_clienttag clienttag, char con
 
     if (account_check_closed_character(account, clienttag, realmname, name))
     {
-	eventlog(eventlog_level_error,"character_create","a character with the name \"%s\" does already exist in realm \"%s\"",name,realmname);
+	eventlog(eventlog_level_error,__FUNCTION__,"a character with the name \"%s\" does already exist in realm \"%s\"",name,realmname);
 	xfree((void *)ch->realmname); /* avoid warning */
 	xfree((void *)ch->name); /* avoid warning */
 	xfree(ch);
@@ -325,7 +325,7 @@ extern char const * character_get_name(t_character const * ch)
 {
     if (!ch)
     {
-	eventlog(eventlog_level_error,"character_get_name","got NULL character");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL character");
 	return NULL;
     }
     return ch->name;
@@ -336,7 +336,7 @@ extern char const * character_get_realmname(t_character const * ch)
 {
     if (!ch)
     {
-	eventlog(eventlog_level_error,"character_get_realmname","got NULL character");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL character");
 	return NULL;
     }
     return ch->realmname;
@@ -347,7 +347,7 @@ extern t_character_class character_get_class(t_character const * ch)
 {
     if (!ch)
     {
-        eventlog(eventlog_level_error,"character_get_class","got NULL character");
+        eventlog(eventlog_level_error,__FUNCTION__,"got NULL character");
         return character_class_none;
     }
     return bncharacter_class_to_character_class(ch->class);
@@ -361,7 +361,7 @@ extern char const * character_get_playerinfo(t_character const * ch)
     
     if (!ch)
     {
-	eventlog(eventlog_level_error,"character_get_playerinfo","got NULL character");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL character");
 	return NULL;
     }
     
@@ -419,7 +419,7 @@ extern char const * character_get_guildname(t_character const * ch)
 {
     if (!ch)
     {
-	eventlog(eventlog_level_error,"character_get_guildname","got NULL character");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL character");
 	return NULL;
     }
     return ch->guildname;
@@ -434,12 +434,12 @@ extern int character_verify_charlist(t_character const * ch, char const * charli
     
     if (!ch)
     {
-	eventlog(eventlog_level_error,"character_verify_charlist","got NULL character");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL character");
 	return -1;
     }
     if (!charlist)
     {
-	eventlog(eventlog_level_error,"character_verify_charlist","got NULL character");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL character");
 	return -1;
     }
 
@@ -451,7 +451,7 @@ extern int character_verify_charlist(t_character const * ch, char const * charli
     {
 	if (!tok2)
 	{
-	    eventlog(eventlog_level_error,"character_verify_charlist","bad character list \"%s\"",temp);
+	    eventlog(eventlog_level_error,__FUNCTION__,"bad character list \"%s\"",temp);
 	    break;
 	}
 	
@@ -489,12 +489,12 @@ extern int characterlist_destroy(void)
             ch = elem_get_data(curr);
             if (!ch) /* should not happen */
             {
-                eventlog(eventlog_level_error,"characterlist_destroy","characterlist contains NULL item");
+                eventlog(eventlog_level_error,__FUNCTION__,"characterlist contains NULL item");
                 continue;
             }
             
             if (list_remove_elem(characterlist_head,&curr)<0)
-                eventlog(eventlog_level_error,"characterlist_destroy","could not remove item from list");
+                eventlog(eventlog_level_error,__FUNCTION__,"could not remove item from list");
             xfree(ch);
         }
 
@@ -514,12 +514,12 @@ extern t_character * characterlist_find_character(char const * realmname, char c
     
     if (!realmname)
     {
-	eventlog(eventlog_level_error,"characterlist_find_character","got NULL realmname");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL realmname");
 	return NULL;
     }
     if (!charname)
     {
-	eventlog(eventlog_level_error,"characterlist_find_character","got NULL charname");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL charname");
 	return NULL;
     }
 

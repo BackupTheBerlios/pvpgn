@@ -92,7 +92,7 @@ extern int tracker_set_servers(char const * servers)
     char           temp[32];
     
     if (track_servers && addrlist_destroy(track_servers)<0)
-        eventlog(eventlog_level_error,"tracker_set_servers","unable to destroy tracker list");
+        eventlog(eventlog_level_error,__FUNCTION__,"unable to destroy tracker list");
     
     if (!servers)
      {
@@ -102,7 +102,7 @@ extern int tracker_set_servers(char const * servers)
    
     if (!(track_servers = addrlist_create(servers,INADDR_LOOPBACK,BNETD_TRACK_PORT)))
     {
-	eventlog(eventlog_level_error,"tracker_set_servers","could not create tracking server list");
+	eventlog(eventlog_level_error,__FUNCTION__,"could not create tracking server list");
 	return -1;
     }
     
@@ -111,7 +111,7 @@ extern int tracker_set_servers(char const * servers)
 	addr = elem_get_data(curr);
 	if (!addr_get_addr_str(addr,temp,sizeof(temp)))
 	    strcpy(temp,"x.x.x.x:x");
-	eventlog(eventlog_level_info,"tracker_set_servers","tracking packets will be sent to %s",temp);
+	eventlog(eventlog_level_info,__FUNCTION__,"tracking packets will be sent to %s",temp);
     }
     
     return 0;
@@ -171,7 +171,7 @@ extern int tracker_send_report(t_addrlist const * laddrs)
 	
 	if (uname(&utsbuf)<0)
 	{
-	    eventlog(eventlog_level_warn,"tracker_send_report","could not get platform info (uname: %s)",strerror(errno));
+	    eventlog(eventlog_level_warn,__FUNCTION__,"could not get platform info (uname: %s)",strerror(errno));
 	    strncpy(packet.platform,"",sizeof(packet.platform));
 	}
 	else
@@ -188,7 +188,7 @@ extern int tracker_send_report(t_addrlist const * laddrs)
 	    
 	    if (!(laddr_info = addr_get_data(addrl).p))
 	    {
-		eventlog(eventlog_level_error,"tracker_send_report","address data is NULL");
+		eventlog(eventlog_level_error,__FUNCTION__,"address data is NULL");
 		continue;
 	    }
 	    if (laddr_info->type!=laddr_type_bnet)
@@ -209,10 +209,10 @@ extern int tracker_send_report(t_addrlist const * laddrs)
 		    strcpy(tempa,"x.x.x.x:x");
 		if (!addr_get_addr_str(addrt,tempb,sizeof(tempb)))
 		    strcpy(tempa,"x.x.x.x:x");
-		/* eventlog(eventlog_level_debug,"tracker_send_report","sending tracking info from %s to %s",tempa,tempb); */
+		/* eventlog(eventlog_level_debug,__FUNCTION__,"sending tracking info from %s to %s",tempa,tempb); */
 		
 		if (psock_sendto(laddr_info->usocket,&packet,sizeof(packet),0,(struct sockaddr *)&tempaddr,(psock_t_socklen)sizeof(tempaddr))<0)
-		    eventlog(eventlog_level_warn,"tracker_send_report","could not send tracking information from %s to %s (psock_sendto: %s)",tempa,tempb,strerror(errno));
+		    eventlog(eventlog_level_warn,__FUNCTION__,"could not send tracking information from %s to %s (psock_sendto: %s)",tempa,tempb,strerror(errno));
 	    }
 	}
     }

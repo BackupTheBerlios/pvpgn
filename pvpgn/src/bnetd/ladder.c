@@ -146,12 +146,12 @@ extern int ladder_init_account(t_account * account, t_clienttag clienttag, t_lad
     
     if (!account)
     {
-	eventlog(eventlog_level_error,"ladder_init_account","got NULL account");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL account");
 	return -1;
     }
     if (!clienttag)
     {
-	eventlog(eventlog_level_error,"ladder_init_account","got bad clienttag");
+	eventlog(eventlog_level_error,__FUNCTION__,"got bad clienttag");
 	return -1;
     }
     
@@ -160,7 +160,7 @@ extern int ladder_init_account(t_account * account, t_clienttag clienttag, t_lad
 	if (account_get_ladder_wins(account,clienttag,id)+
 	    account_get_ladder_losses(account,clienttag,id)>0) /* no ladder games so far... */
 	{
-	    eventlog(eventlog_level_warn,"ladder_init_account","account for \"%s\" (%s) has %u wins and %u losses but has zero rating",account_get_name(account),clienttag,account_get_ladder_wins(account,clienttag,id),account_get_ladder_losses(account,clienttag,id));
+	    eventlog(eventlog_level_warn,__FUNCTION__,"account for \"%s\" (%s) has %u wins and %u losses but has zero rating",account_get_name(account),clienttag,account_get_ladder_wins(account,clienttag,id),account_get_ladder_losses(account,clienttag,id));
 	    return -1;
 	}
 	account_adjust_ladder_rating(account,clienttag,id,prefs_get_ladder_init_rating());
@@ -171,7 +171,7 @@ extern int ladder_init_account(t_account * account, t_clienttag clienttag, t_lad
 	war3_ladder_add(ladder_cw(clienttag,id),uid,0,0,account,0,clienttag);
 	war3_ladder_add(ladder_cg(clienttag,id),uid,0,0,account,0,clienttag);
 
-	eventlog(eventlog_level_info,"ladder_init_account","initialized account for \"%s\" for \"%s\" ladder",account_get_name(account),tag_uint_to_str(clienttag_str,clienttag));
+	eventlog(eventlog_level_info,__FUNCTION__,"initialized account for \"%s\" for \"%s\" ladder",account_get_name(account),tag_uint_to_str(clienttag_str,clienttag));
     }
 
     return 0;
@@ -192,27 +192,27 @@ extern int ladder_update(t_clienttag clienttag, t_ladder_id id, unsigned int cou
     
     if (count<2 || count>8)
     {
-	eventlog(eventlog_level_error,"ladder_update","got invalid player count %u",count);
+	eventlog(eventlog_level_error,__FUNCTION__,"got invalid player count %u",count);
 	return -1;
     }
     if (!players)
     {
-	eventlog(eventlog_level_error,"ladder_update","got NULL players");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL players");
 	return -1;
     }
     if (!results)
     {
-	eventlog(eventlog_level_error,"ladder_update","got NULL results");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL results");
 	return -1;
     }
     if (!clienttag)
     {
-	eventlog(eventlog_level_error,"ladder_update","got bad clienttag");
+	eventlog(eventlog_level_error,__FUNCTION__,"got bad clienttag");
 	return -1;
     }
     if (!info)
     {
-	eventlog(eventlog_level_error,"ladder_update","got NULL info");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL info");
 	return -1;
     }
     
@@ -220,7 +220,7 @@ extern int ladder_update(t_clienttag clienttag, t_ladder_id id, unsigned int cou
     {
 	if (!players[curr])
 	{
-	    eventlog(eventlog_level_error,"ladder_update","got NULL player[%u] (of %u)",curr,count);
+	    eventlog(eventlog_level_error,__FUNCTION__,"got NULL player[%u] (of %u)",curr,count);
 	    return -1;
 	}
 	
@@ -240,7 +240,7 @@ extern int ladder_update(t_clienttag clienttag, t_ladder_id id, unsigned int cou
 		losers++;
 	    break;
 	default:
-	    eventlog(eventlog_level_error,"ladder_update","bad results[%u]=%u",curr,(unsigned int)results[curr]);
+	    eventlog(eventlog_level_error,__FUNCTION__,"bad results[%u]=%u",curr,(unsigned int)results[curr]);
 	    return -1;
 	}
     }
@@ -249,7 +249,7 @@ extern int ladder_update(t_clienttag clienttag, t_ladder_id id, unsigned int cou
     {
 	if (draws!=count)
 	{
-	    eventlog(eventlog_level_error,"ladder_update","some, but not all players had a draw count=%u (winners=%u losers=%u draws=%u)",count,winners,losers,draws);
+	    eventlog(eventlog_level_error,__FUNCTION__,"some, but not all players had a draw count=%u (winners=%u losers=%u draws=%u)",count,winners,losers,draws);
 	    return -1;
 	}
 	
@@ -257,13 +257,13 @@ extern int ladder_update(t_clienttag clienttag, t_ladder_id id, unsigned int cou
     }
     if (winners!=1 || losers<1)
     {
-	eventlog(eventlog_level_error,"ladder_update","missing winner or loser for count=%u (winners=%u losers=%u draws=%u)",count,winners,losers,draws);
+	eventlog(eventlog_level_error,__FUNCTION__,"missing winner or loser for count=%u (winners=%u losers=%u draws=%u)",count,winners,losers,draws);
 	return -1;
     }
     
     if (ladder_calc_info(clienttag,id,count,players,sorted,results,info)<0)
     {
-	eventlog(eventlog_level_error,"ladder_update","unable to calculate info from game results");
+	eventlog(eventlog_level_error,__FUNCTION__,"unable to calculate info from game results");
 	return -1;
     }
     
@@ -300,16 +300,16 @@ extern int ladder_check_map(char const * mapname, t_game_maptype maptype, t_clie
 {
     if (!mapname)
     {
-	eventlog(eventlog_level_error,"ladder_check_map","got NULL mapname");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL mapname");
 	return -1;
     }
     if (!clienttag)
     {
-	eventlog(eventlog_level_error,"ladder_check_map","got bad clienttag");
+	eventlog(eventlog_level_error,__FUNCTION__,"got bad clienttag");
 	return -1;
     }
     
-    eventlog(eventlog_level_debug,"ladder_check_map","checking mapname \"%s\" maptype=%d",mapname,(int)maptype);
+    eventlog(eventlog_level_debug,__FUNCTION__,"checking mapname \"%s\" maptype=%d",mapname,(int)maptype);
     if (maptype==game_maptype_ladder) /* FIXME: what about Ironman? */
 	return 1;
     
@@ -323,12 +323,12 @@ extern t_account * ladder_get_account_by_rank(unsigned int rank, t_ladder_sort l
     
     if (rank<1)
     {
-	eventlog(eventlog_level_error,"ladder_get_account_by_rank","got zero rank");
+	eventlog(eventlog_level_error,__FUNCTION__,"got zero rank");
 	return NULL;
     }
     if (!clienttag)
     {
-	eventlog(eventlog_level_error,"ladder_get_account_by_rank","got bad clienttag");
+	eventlog(eventlog_level_error,__FUNCTION__,"got bad clienttag");
 	return NULL;
     }
     
@@ -350,7 +350,7 @@ extern t_account * ladder_get_account_by_rank(unsigned int rank, t_ladder_sort l
 		else
 			return ladder_get_account(ladder_ag(clienttag,id),rank,&dummy,clienttag);
     default:
-	eventlog(eventlog_level_error,"ladder_get_account_by_rank","got bad ladder sort %u",(unsigned int)lsort);
+	eventlog(eventlog_level_error,__FUNCTION__,"got bad ladder sort %u",(unsigned int)lsort);
     }
     return NULL;
 }
@@ -362,12 +362,12 @@ extern unsigned int ladder_get_rank_by_account(t_account * account, t_ladder_sor
 
     if (!account)
     {
-	eventlog(eventlog_level_error,"ladder_get_rank_by_account","got NULL account");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL account");
 	return 0;
     }
     if (!clienttag)
     {
-	eventlog(eventlog_level_error,"ladder_get_rank_by_account","got bad clienttag");
+	eventlog(eventlog_level_error,__FUNCTION__,"got bad clienttag");
 	return 0;
     }
     
@@ -391,7 +391,7 @@ extern unsigned int ladder_get_rank_by_account(t_account * account, t_ladder_sor
 		else
 			return ladder_get_rank(ladder_ag(clienttag,id),uid,0,clienttag);
     default:
-	eventlog(eventlog_level_error,"ladder_get_rank_by_account","got bad ladder sort %u",(unsigned int)lsort);
+	eventlog(eventlog_level_error,__FUNCTION__,"got bad ladder sort %u",(unsigned int)lsort);
     }
     
     return 0;
@@ -1081,7 +1081,7 @@ extern int ladder_update_accounts(t_ladder *ladder, int (*set_fct)(), int (*get_
       }
       binary_ladder_save(w3_ladder_to_binary_ladder_types(ladder),4,&ladder_get_from_ladder);
       if (update != 0)
-        eventlog(eventlog_level_info,"ladder_update_accounts","updated %u accounts for clienttag %s",update,tag_uint_to_str(clienttag_str,ladder->clienttag));
+        eventlog(eventlog_level_info,__FUNCTION__,"updated %u accounts for clienttag %s",update,tag_uint_to_str(clienttag_str,ladder->clienttag));
     }
     ladder->dirty = 0;
     return 0;
@@ -1089,7 +1089,7 @@ extern int ladder_update_accounts(t_ladder *ladder, int (*set_fct)(), int (*get_
 
 extern int ladder_update_all_accounts(void)
 {
-  eventlog(eventlog_level_info,"ladder_update_all_accounts","updating ranking for all accounts");
+  eventlog(eventlog_level_info,__FUNCTION__,"updating ranking for all accounts");
   ladder_update_accounts(&WAR3_solo_ladder,&account_set_ladder_rank,   &account_get_ladder_rank);
   ladder_update_accounts(&WAR3_team_ladder,&account_set_ladder_rank,   &account_get_ladder_rank);
   ladder_update_accounts(&WAR3_ffa_ladder, &account_set_ladder_rank,   &account_get_ladder_rank);
@@ -1123,7 +1123,7 @@ extern int ladder_update_all_accounts(void)
   ladder_update_accounts(&W2BN_active_wins_ironman,  NULL,                      NULL);
   ladder_update_accounts(&W2BN_active_games_ironman, NULL,                      NULL);
 
-  eventlog(eventlog_level_info,"ladder_update_all_accounts","finished updating ranking for all accounts");
+  eventlog(eventlog_level_info,__FUNCTION__,"finished updating ranking for all accounts");
   return 0;
 }
 
@@ -1577,7 +1577,7 @@ int XML_writer(FILE * fp, t_ladder * ladder, t_clienttag clienttag)
 	   fprintf(fp,"\t<team>\n");
 	   if (account_get_atteammembers(pointer->account,pointer->teamcount,clienttag)==NULL)
 	     {
-	       eventlog(eventlog_level_error,"XML_writer","got invalid team, skipping");
+	       eventlog(eventlog_level_error,__FUNCTION__,"got invalid team, skipping");
 	       pointer=pointer->prev;
 	       continue;
 	     }
@@ -1666,13 +1666,13 @@ extern int ladder_write_to_file(char const * filename, t_ladder * ladder, t_clie
   
   if (!filename)
   {
-    eventlog(eventlog_level_error,"ladder_write_to_file","got NULL filename");
+    eventlog(eventlog_level_error,__FUNCTION__,"got NULL filename");
     return -1;
   }
   
   if (!(fp = fopen(filename,"w")))
   { 
-     eventlog(eventlog_level_error,"ladder_write_to_file","could not open file \"%s\" for writing (fopen: %s)",filename,strerror(errno)); 
+     eventlog(eventlog_level_error,__FUNCTION__,"could not open file \"%s\" for writing (fopen: %s)",filename,strerror(errno)); 
      return -1;
   }
 
@@ -1770,7 +1770,7 @@ void create_filenames(void)
 
 extern void ladders_init(void)
 {
-  eventlog(eventlog_level_info,"ladders_init","initializing war3 ladders");
+  eventlog(eventlog_level_info,__FUNCTION__,"initializing war3 ladders");
   ladder_init(&WAR3_solo_ladder,    WAR3_SOLO, CLIENTTAG_WARCRAFT3_UINT,ladder_id_solo);
   ladder_init(&WAR3_team_ladder,    WAR3_TEAM, CLIENTTAG_WARCRAFT3_UINT,ladder_id_team);
   ladder_init(&WAR3_ffa_ladder,     WAR3_FFA,  CLIENTTAG_WARCRAFT3_UINT,ladder_id_ffa);
@@ -1829,7 +1829,7 @@ void dispose_filenames(void)
 
 extern void ladders_destroy(void)
 {
-  eventlog(eventlog_level_info,"ladders_destroy","destroying war3 ladders");
+  eventlog(eventlog_level_info,__FUNCTION__,"destroying war3 ladders");
   ladder_destroy(&WAR3_solo_ladder);
   ladder_destroy(&WAR3_team_ladder);
   ladder_destroy(&WAR3_ffa_ladder);
