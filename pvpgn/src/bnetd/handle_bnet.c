@@ -3317,6 +3317,7 @@ static int _client_findanongame(t_connection * c, t_packet const * const packet)
 	} else { /* FIXME: this needs to be done properly */
 		//BlacKDicK 04/02/2003
 		int i;
+		bn_int temp;
 		int client_tag;
 		int client_tag_unk;
 		int server_tag_unk;
@@ -3369,8 +3370,10 @@ static int _client_findanongame(t_connection * c, t_packet const * const packet)
 		
 		eventlog(eventlog_level_debug,__FUNCTION__,"client_findanongame_inforeq.noitems=(0x%01x)",bn_byte_get(packet->u.client_findanongame_inforeq.noitems));
 		for (i=0;i<bn_byte_get(packet->u.client_findanongame_inforeq.noitems);i++){
-			memcpy(&client_tag,(packet_get_data_const(packet,10+(i*8),4)),sizeof(int));
-			memcpy(&client_tag_unk,packet_get_data_const(packet,14+(i*8),4),sizeof(int));
+			memcpy(&temp,(packet_get_data_const(packet,10+(i*8),4)),sizeof(int));
+			client_tag=bn_int_get(temp);
+			memcpy(&temp,packet_get_data_const(packet,14+(i*8),4),sizeof(int));
+			client_tag_unk=bn_int_get(temp);
 			switch (client_tag){
 			case CLIENT_FINDANONGAME_INFOTAG_URL:
 				server_tag_unk=0xBF1F1047;
@@ -4504,7 +4507,7 @@ static int _client_joinchannel(t_connection * c, t_packet const * const packet)
        
        if (found && conn_set_channel(c,cname)<0)
 	 conn_set_channel(c,CHANNEL_NAME_BANNED); /* should not fail */
-       
+       // cname = channel_get_name(conn_get_channel(c));
        //ADDED THEUNDYING - UPDATED 7/31/02
        if ((account_get_auth_admin(account,cname)>0) || (account_get_auth_admin(account,NULL)>0))
 	 conn_set_flags( c, MF_BLIZZARD );
@@ -4513,7 +4516,8 @@ static int _client_joinchannel(t_connection * c, t_packet const * const packet)
        else if ((channel_account_is_tmpOP(conn_get_channel(c),account)))
 	 conn_set_flags( c, MF_GAVEL );
        else
-	 conn_set_flags( c, W3_ICON_SET );	
+	 conn_set_flags( c, W3_ICON_SET );
+       // conn_set_channel(c,cname);
      }   
    else
      {
@@ -4523,6 +4527,7 @@ static int _client_joinchannel(t_connection * c, t_packet const * const packet)
        
        if (conn_set_channel(c,cname)<0)
 	 conn_set_channel(c,CHANNEL_NAME_BANNED); /* should not fail */
+       // cname = channel_get_name(conn_get_channel(c));
        //ADDED THEUNDYING - UPDATED 7/31/02
        if ((account_get_auth_admin(account,cname)>0) || (account_get_auth_admin(account,NULL)>0))
 	 conn_set_flags( c, MF_BLIZZARD );
@@ -4531,6 +4536,7 @@ static int _client_joinchannel(t_connection * c, t_packet const * const packet)
        else if (channel_account_is_tmpOP(conn_get_channel(c),acc))
 	 conn_set_flags( c, MF_GAVEL );
        else conn_set_flags( c, W3_ICON_SET );
+       // conn_set_channel(c,cname);
      }
    
    if(conn_get_motd_loggedin(c)==0)
