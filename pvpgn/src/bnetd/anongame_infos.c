@@ -1834,22 +1834,22 @@ extern int anongame_infos_load(char const * filename)
 {
     unsigned int			line;
     unsigned int			pos;
-    char *					buff;
-	char *					temp;
-	char 					langID[4]			= "    ";
-	t_parse_mode			parse_mode			= parse_UNKNOWN;
-	t_parse_state			parse_state			= unchanged;
-	t_anongame_infos_DESC *	anongame_infos_DESC	= NULL;
-	char *					pointer;
-	char *					variable			= NULL;
-	char *					value				= NULL;
-	t_anongame_infos_DESC_table_row	const *		DESC_table_row;
-	t_anongame_infos_URL_table_row	const *		URL_table_row;
-	t_anongame_infos_THUMBSDOWN_table_row const *	THUMBSDOWN_table_row;
-	int					int_value;
-	char					char_value;
+    char *				buff;
+    char *				temp;
+    char 				langID[4]			= "    ";
+    t_parse_mode			parse_mode			= parse_UNKNOWN;
+    t_parse_state			parse_state			= unchanged;
+    t_anongame_infos_DESC *		anongame_infos_DESC		= NULL;
+    char *				pointer;
+    char *				variable			= NULL;
+    char *				value				= NULL;
+    t_anongame_infos_DESC_table_row	const *		DESC_table_row;
+    t_anongame_infos_URL_table_row	const *		URL_table_row;
+    t_anongame_infos_THUMBSDOWN_table_row const *	THUMBSDOWN_table_row;
+    int					int_value;
+    char				char_value;
     
-	langID[0]='\0';
+    langID[0]='\0';
 	
     if (!filename)
     {
@@ -1889,169 +1889,120 @@ extern int anongame_infos_load(char const * filename)
             buff[endpos+1] = '\0';
         }
 	
-	if (buff[0]!='\0')
-		switch(parse_mode)
-		{
-		case parse_UNKNOWN:
-			if ((buff[0]!='[') || (buff[strlen(buff)-1]!=']'))
-			{
-				eventlog(eventlog_level_error,__FUNCTION__,"expected [] section start, but found %s",buff);
-			}
-			else
-			{
-				parse_mode = switch_parse_mode(buff,langID);
-				parse_state = changed;
-			}
-			break;
-		case parse_URL:
-			if ((buff[0]=='[') && (buff[strlen(buff)-1]==']'))
-			{
-				if ((parse_mode == parse_DESC) && (parse_state == changed))
-				{
-					if (langID[0]!='\0')
-						list_append_data(anongame_infos->anongame_infos_DESC_list,anongame_infos_DESC);
-					else
-					{
-						if (anongame_infos->anongame_infos_DESC == NULL)
-						  anongame_infos->anongame_infos_DESC = anongame_infos_DESC;
-						else
-						{
-							eventlog(eventlog_level_error,__FUNCTION__,"found another default_DESC block, deleting previous");
-							anongame_infos_DESC_destroy(anongame_infos->anongame_infos_DESC);
-							anongame_infos->anongame_infos_DESC = anongame_infos_DESC;
-						}
-					}
-					anongame_infos_DESC = NULL;
-				}
-				parse_mode = switch_parse_mode(buff,langID);
-				parse_state = changed;
-			}
-			else
-			{
-
-				parse_state = unchanged;
-				variable = buff;
-				pointer = strchr(variable,'=');
-				for(pointer--;pointer[0]==' ';pointer--);
-				pointer[1]='\0';
-				pointer++;
-				pointer++;
-				pointer = strchr(pointer,'\"');
-				pointer++;
-				value = pointer;
-				pointer = strchr(pointer,'\"');
-				pointer[0]='\0';
-				
-				for(URL_table_row = URL_handler_table; URL_table_row->anongame_infos_URL_string != NULL; URL_table_row++)
-					if (strcmp(URL_table_row->anongame_infos_URL_string, variable)==0) {
-						if (URL_table_row->URL_string_handler != NULL) URL_table_row->URL_string_handler(anongame_infos->anongame_infos_URL,value);
-					}
-
-			}
-			break;
-		case parse_DESC:
-			if ((buff[0]=='[') && (buff[strlen(buff)-1]==']'))
-			{
-				if ((parse_mode == parse_DESC) && (parse_state == unchanged))
-				{
-				  if (langID[0]!='\0')
-					list_append_data(anongame_infos->anongame_infos_DESC_list,anongame_infos_DESC);
-				 else
-					{
-						if (anongame_infos->anongame_infos_DESC == NULL)
-						  anongame_infos->anongame_infos_DESC = anongame_infos_DESC;
-						else
-						{
-							eventlog(eventlog_level_error,__FUNCTION__,"found another default_DESC block, deleting previous");
-							anongame_infos_DESC_destroy(anongame_infos->anongame_infos_DESC);
-							anongame_infos->anongame_infos_DESC = anongame_infos_DESC;
-						}
-					}
-					anongame_infos_DESC = NULL;
-				}
-				parse_mode = switch_parse_mode(buff,langID);
-				parse_state = changed;
-			}
-			else
-			{
-				if (parse_state == changed) 
-				{
-					anongame_infos_DESC = anongame_infos_DESC_init();
-					parse_state = unchanged;
-					eventlog(eventlog_level_info,__FUNCTION__,"got langID: [%s]",langID);
-					if (langID[0]!='\0') anongame_infos_DESC->langID = strdup(langID);
-				}
-
-				variable = buff;
-				pointer = strchr(variable,'=');
-				for(pointer--;pointer[0]==' ';pointer--);
-				pointer[1]='\0';
-				pointer++;
-				pointer++;
-				pointer = strchr(pointer,'\"');
-				pointer++;
-				value = pointer;
-				pointer = strchr(pointer,'\"');
-				pointer[0]='\0';
-
-				for(DESC_table_row = DESC_handler_table; DESC_table_row->anongame_infos_DESC_string != NULL; DESC_table_row++)
-					if (strcmp(DESC_table_row->anongame_infos_DESC_string, variable)==0) {
-						if (DESC_table_row->DESC_string_handler != NULL) DESC_table_row->DESC_string_handler(anongame_infos_DESC,value);
-					}
-
-			}
-
-			break;
-
-		case parse_THUMBSDOWN:
-			if ((buff[0]=='[') && (buff[strlen(buff)-1]==']'))
-			{
-				if ((parse_mode == parse_DESC) && (parse_state == unchanged))
-				{
-				  if (langID[0]!='\0')
-					list_append_data(anongame_infos->anongame_infos_DESC_list,anongame_infos_DESC);
-				 else
-					{
-						if (anongame_infos->anongame_infos_DESC == NULL)
-						  anongame_infos->anongame_infos_DESC = anongame_infos_DESC;
-						else
-						{
-							eventlog(eventlog_level_error,__FUNCTION__,"found another default_DESC block, deleting previous");
-							anongame_infos_DESC_destroy(anongame_infos->anongame_infos_DESC);
-							anongame_infos->anongame_infos_DESC = anongame_infos_DESC;
-						}
-					}
-					anongame_infos_DESC = NULL;
-				}
-				parse_mode = switch_parse_mode(buff,langID);
-				parse_state = changed;
-			}
-			else
-			{
-			        parse_state = unchanged;
-				variable = buff;
-				pointer = strchr(variable,'=');
-				for(pointer--;pointer[0]==' ';pointer--);
-				pointer[1]='\0';
-				pointer++;
-				pointer++;
-				pointer = strchr(pointer,'=');
-				pointer++;
-				int_value = atoi(pointer);
-				if (int_value<0) int_value=0;
-				if (int_value>127) int_value=127;
-				char_value = (char)int_value;
-
-				for(THUMBSDOWN_table_row = THUMBSDOWN_handler_table; THUMBSDOWN_table_row->anongame_infos_THUMBSDOWN_string != NULL; THUMBSDOWN_table_row++)
-					if (strcmp(THUMBSDOWN_table_row->anongame_infos_THUMBSDOWN_string, variable)==0) {
-						if (THUMBSDOWN_table_row->THUMBSDOWN_string_handler != NULL) THUMBSDOWN_table_row->THUMBSDOWN_string_handler(anongame_infos->anongame_infos_THUMBSDOWN,char_value);
-					}
-
-			}
-
-			break;
-
-		}
+	if ((buff[0]=='[') && (buff[strlen(buff)-1]==']'))
+	  {
+	    if ((parse_state == unchanged) && (anongame_infos_DESC != NULL))
+	      {
+		if (langID[0]!='\0')
+		  list_append_data(anongame_infos->anongame_infos_DESC_list,anongame_infos_DESC);
+		else
+		  {
+		    if (anongame_infos->anongame_infos_DESC == NULL)
+		      anongame_infos->anongame_infos_DESC = anongame_infos_DESC;
+		    else
+		      {
+			eventlog(eventlog_level_error,__FUNCTION__,"found another default_DESC block, deleting previous");
+			anongame_infos_DESC_destroy(anongame_infos->anongame_infos_DESC);
+			anongame_infos->anongame_infos_DESC = anongame_infos_DESC;
+		      }
+		  }
+		anongame_infos_DESC = NULL;
+	      }
+	    parse_mode = switch_parse_mode(buff,langID);
+	    parse_state = changed;
+	  }
+	else if (buff[0]!='\0')
+	  switch(parse_mode) 
+	    {
+	    case parse_UNKNOWN:
+	      {
+		if ((buff[0]!='[') || (buff[strlen(buff)-1]!=']'))
+		  {
+		    eventlog(eventlog_level_error,__FUNCTION__,"expected [] section start, but found %s",buff);
+		  }
+		else
+		  {
+		    parse_mode = switch_parse_mode(buff,langID);
+		    parse_state = changed;
+		  }
+		break;
+	      }
+	    case parse_URL:
+	      {
+		parse_state = unchanged;
+		variable = buff;
+		pointer = strchr(variable,'=');
+		for(pointer--;pointer[0]==' ';pointer--);
+		pointer[1]='\0';
+		pointer++;
+		pointer++;
+		pointer = strchr(pointer,'\"');
+		pointer++;
+		value = pointer;
+		pointer = strchr(pointer,'\"');
+		pointer[0]='\0';
+		
+		for(URL_table_row = URL_handler_table; URL_table_row->anongame_infos_URL_string != NULL; URL_table_row++)
+		  if (strcmp(URL_table_row->anongame_infos_URL_string, variable)==0) 
+		    {
+		      if (URL_table_row->URL_string_handler != NULL) URL_table_row->URL_string_handler(anongame_infos->anongame_infos_URL,value);
+		    }
+		
+		break;
+	      }
+	    case parse_DESC:
+	      {
+		if (parse_state == changed) 
+		  {
+		    anongame_infos_DESC = anongame_infos_DESC_init();
+		    parse_state = unchanged;
+		    eventlog(eventlog_level_info,__FUNCTION__,"got langID: [%s]",langID);
+		    if (langID[0]!='\0') anongame_infos_DESC->langID = strdup(langID);
+		  }
+		
+		variable = buff;
+		pointer = strchr(variable,'=');
+		for(pointer--;pointer[0]==' ';pointer--);
+		pointer[1]='\0';
+		pointer++;
+		pointer++;
+		pointer = strchr(pointer,'\"');
+		pointer++;
+		value = pointer;
+		pointer = strchr(pointer,'\"');
+		pointer[0]='\0';
+		
+		for(DESC_table_row = DESC_handler_table; DESC_table_row->anongame_infos_DESC_string != NULL; DESC_table_row++)
+		  if (strcmp(DESC_table_row->anongame_infos_DESC_string, variable)==0) 
+		    {
+		      if (DESC_table_row->DESC_string_handler != NULL) DESC_table_row->DESC_string_handler(anongame_infos_DESC,value);
+		    }
+		break;
+	      }
+	    case parse_THUMBSDOWN:
+	      {
+		parse_state = unchanged;
+		variable = buff;
+		pointer = strchr(variable,'=');
+		for(pointer--;pointer[0]==' ';pointer--);
+		pointer[1]='\0';
+		pointer++;
+		pointer++;
+		pointer = strchr(pointer,'=');
+		pointer++;
+		int_value = atoi(pointer);
+		if (int_value<0) int_value=0;
+		if (int_value>127) int_value=127;
+		char_value = (char)int_value;
+		
+		for(THUMBSDOWN_table_row = THUMBSDOWN_handler_table; THUMBSDOWN_table_row->anongame_infos_THUMBSDOWN_string != NULL; THUMBSDOWN_table_row++)
+		  if (strcmp(THUMBSDOWN_table_row->anongame_infos_THUMBSDOWN_string, variable)==0) 
+		    {
+		      if (THUMBSDOWN_table_row->THUMBSDOWN_string_handler != NULL) THUMBSDOWN_table_row->THUMBSDOWN_string_handler(anongame_infos->anongame_infos_THUMBSDOWN,char_value);
+		    }
+		break;
+	      }
+	    }
 	free(buff);
     }
   
