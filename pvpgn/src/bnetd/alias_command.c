@@ -276,7 +276,7 @@ static int do_alias(t_connection * c, char const * cmd, char const * text)
     int match = -1;
     
     numargs = count_args(text)-1; 
-    offsets=xmalloc(sizeof(unsigned int *)*(numargs+1));
+    offsets=xmalloc(sizeof(unsigned int)*(numargs+1));
     get_offsets(text,offsets);
     
     LIST_TRAVERSE_CONST(aliaslist_head,elem1)
