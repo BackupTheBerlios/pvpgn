@@ -15,6 +15,7 @@ a players game-connection but his connection to the server
 -- new bnetd.conf options:
  - added boolean option XML_output_ladder for supporting jfro's latest ladder
 -- added command line option -x and --XML to run bntrackd in XML output mode
+and added a nice servers.xsl from jfro to show server list based on XML files
 
 1.2.3:
 -- fixed some crash related bugs
