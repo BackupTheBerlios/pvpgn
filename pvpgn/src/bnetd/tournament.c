@@ -35,8 +35,12 @@
 #endif
 
 #include <errno.h>
-#ifdef HAVE_MALLOC_H
-# include <malloc.h>
+#ifdef STDC_HEADERS
+# include <stdlib.h>
+#else
+# ifdef HAVE_MALLOC_H
+#  include <malloc.h>
+# endif
 #endif
 
 #ifdef WIN32_GUI
