@@ -692,7 +692,7 @@ extern int accountlist_load_default(void)
     return 0;
 }
 
-extern t_account * account_load_new(char const * name, unsigned uid)
+static t_account * account_load_new(char const * name, unsigned uid)
 {
     t_account *account;
     t_storage_info *info;

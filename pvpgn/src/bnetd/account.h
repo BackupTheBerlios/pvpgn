@@ -100,7 +100,6 @@ t_account;
 extern unsigned int maxuserid;
 
 extern int accountlist_reload(void);
-extern t_account * account_load_new(char const * name, unsigned uid);
 extern int account_check_name(char const * name);
 extern unsigned int account_get_uid(t_account const * account);
 extern int account_match(t_account * account, char const * username);
