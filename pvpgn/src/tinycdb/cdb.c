@@ -1,4 +1,4 @@
-/* $Id: cdb.c,v 1.6 2003/08/01 02:14:09 dizzy Exp $
+/* $Id: cdb.c,v 1.7 2003/09/10 17:05:22 aaron Exp $
  * cdb command line tool
  *
  * This file is a part of tinycdb package by Michael Tokarev, mjt@corpit.ru.
@@ -25,11 +25,9 @@
 #ifdef HAVE_UNISTD_H
 # include <unistd.h>
 #else
-#ifdef __BORLANDC__
 #include <io.h>
 #endif
 #include "compat/getopt.h"
-#endif
 
 #ifdef HAVE_FCNTL_H
 # include <fcntl.h>

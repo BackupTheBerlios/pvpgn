@@ -1,4 +1,4 @@
-/* $Id: cdb_make.c,v 1.2 2003/07/30 21:12:31 dizzy Exp $
+/* $Id: cdb_make.c,v 1.3 2003/09/10 17:05:22 aaron Exp $
  * basic cdb creation routines
  *
  * This file is a part of tinycdb package by Michael Tokarev, mjt@corpit.ru.
@@ -8,6 +8,8 @@
 #include "common/setup_before.h"
 #ifdef HAVE_UNISTD_H
 # include <unistd.h>
+#else
+# include <io.h>
 #endif
 #ifdef STDC_HEADERS
 # include <stdlib.h>
