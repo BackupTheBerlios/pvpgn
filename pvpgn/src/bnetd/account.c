@@ -457,7 +457,7 @@ extern int account_save(t_account * account, unsigned int delta)
    
    /* account aging logic */
    if (account->accessed)
-     account->age >>= 1;
+     account->age =  0;
    else
      account->age += delta;
    if (account->age>( (3*prefs_get_user_flush_timer()) >>1))
@@ -1207,7 +1207,7 @@ extern int accountlist_reload(int all)
   // go to accountlist and remove everything possible
   // we keep dirty account and accounts of users currently logged in
   {
-    eventlog(eventlog_level_info,"accountlist_reload","removing accounts not logged in");
+    eventlog(eventlog_level_info,"accountlist_reload","removing accounts not logged to reload theam all");
     HASHTABLE_TRAVERSE(accountlist_head,curr)
     {
       if (curr)
@@ -1246,10 +1246,10 @@ extern int accountlist_reload(int all)
 #ifndef WITH_MYSQL
 	 if (accountlist_find_account(dentry))
 	 {
-	   // reload account if user not logged in and account not dirty
 	   free(pathname);
 	   continue;
 	 }
+	 
 	 if (!(account = account_load(pathname)))
 #else
 	 sprintf(accountuid,"#%u",uid);
@@ -1307,9 +1307,10 @@ extern int accountlist_reload(int all)
        
        if (count)
 	 eventlog(eventlog_level_info,"accountlist_reload","loaded %u user accounts in %ld seconds",count,time(NULL) - starttime);
+       if (all == RELOAD_UPDATE_ALL)
+	 eventlog(eventlog_level_info,"accountlist_reload","done reloading all accounts");
        
-       
-       war3_ladder_update_all_accounts();
+       if ((count) || (all == RELOAD_UPDATE_ALL)) war3_ladder_update_all_accounts();
        return 0;
      }
   
@@ -1527,7 +1528,7 @@ extern t_account * accountlist_find_account(char const * username)
 	return NULL;
     }
     
-    if (username[0]=='#')
+    if ((username[0]=='#') || (!(prefs_get_savebyname())))
         if (str_to_uint(&username[1],&userid)<0)
             userid = 0;
 
