@@ -124,6 +124,11 @@ static void usage(char const * progname)
             "    --client=WAR3               report client as Warcraft III\n"
             "    --hexdump=FILE              do hex dump of packets into FILE\n");
     fprintf(stderr,
+	    "    --arch=IX86                 report architecture as Windows (x86)\n"
+	    "    --arch=PMAC                 report architecture as Macintosh\n"
+	    "    --arch=XMAC                 report architecture as Macintosh OSX\n"
+	    );
+    fprintf(stderr,
 	    "    --startoffset=OFFSET        force offset to be OFFSET\n"
 	    "    --exists=ACTION             Ask/Overwrite/Backup/Resume if the file exists\n"
 	    "    --file=FILENAME             use FILENAME instead of asking\n"
@@ -142,6 +147,7 @@ extern int main(int argc, char * argv[])
     t_packet *         rpacket;
     t_packet *         fpacket;
     char const *       clienttag=NULL;
+    char const *       archtag=NULL;
     char const *       servname=NULL;
     unsigned short     servport=0;
     char const *       hexfile=NULL;
@@ -279,6 +285,41 @@ extern int main(int argc, char * argv[])
             fprintf(stderr,"%s: unknown client tag \"%s\"\n",argv[0],&argv[a][9]);
             usage(argv[0]);
         }
+        else if (strcmp(argv[a],"--arch=IX86")==0)
+        {
+            if (archtag)
+            {
+                fprintf(stderr,"%s: architecture type was already specified as \"%s\"\n",argv[0],archtag
+);
+                usage(argv[0]);
+            }
+            archtag = ARCHTAG_WINX86;
+        }
+        else if (strcmp(argv[a],"--arch=PMAC")==0)
+        {
+            if (archtag)
+            {
+                fprintf(stderr,"%s: architecture type was already specified as \"%s\"\n",argv[0],archtag
+);
+                usage(argv[0]);
+            }
+            archtag = ARCHTAG_MACPPC;
+        }
+        else if (strcmp(argv[a],"--arch=XMAC")==0)
+        {
+            if (archtag)
+            {
+                fprintf(stderr,"%s: architecture type was already specified as \"%s\"\n",argv[0],archtag
+);
+                usage(argv[0]);
+            }
+            archtag = ARCHTAG_OSXPPC;
+        }
+        else if (strncmp(argv[a],"--arch=",9)==0)
+        {
+            fprintf(stderr,"%s: unknown architecture tag \"%s\"\n",argv[0],&argv[a][9]);
+            usage(argv[0]);
+        }
 	else if (strncmp(argv[a],"--hexdump=",10)==0)
 	{
 	    if (hexfile)
@@ -353,6 +394,8 @@ extern int main(int argc, char * argv[])
         servport = BNETD_SERV_PORT;
     if (!clienttag)
         clienttag = CLIENTTAG_STARCRAFT;
+    if (!archtag)
+        archtag = ARCHTAG_WINX86;
     if (!servname)
 	servname = BNETD_DEFAULT_HOST;
     if (exist_action==EXIST_ACTION_UNSPEC)
@@ -625,7 +668,7 @@ extern int main(int argc, char * argv[])
     }
     packet_set_size(packet,sizeof(t_client_file_req));
     packet_set_type(packet,CLIENT_FILE_REQ);
-    bn_int_tag_set(&packet->u.client_file_req.archtag,ARCHTAG_WINX86);
+    bn_int_tag_set(&packet->u.client_file_req.archtag,archtag);
     bn_int_tag_set(&packet->u.client_file_req.clienttag,clienttag);
     bn_int_set(&packet->u.client_file_req.adid,0);
     bn_int_set(&packet->u.client_file_req.extensiontag,0);
