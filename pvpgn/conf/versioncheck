@@ -61,6 +61,8 @@
 #									     #
 ##############################################################################
 
+##### Intel (IX86) ###########################################################
+
 # -=-=-=-=-=-=- Latest Versions -=-=-=-=-=-=- No Update Required -=-=-=-=-=-=-
 
 # Warcraft III - TFT (Expansion) 1.14b
@@ -164,6 +166,104 @@
  1.1.0.0 \
  0x67fce4c9 \
  STAR_110
+
+##### Mac OS X (XMAC) ########################################################
+
+# -=-=-=-=-=-=- Latest Versions -=-=-=-=-=-=- No Update Required -=-=-=-=-=-=-
+
+# Diablo II LOD v1.10 MacOS X
+"A=3845581634 B=880823580 C=1363937103 4 A=A-S B=B-C C=C-A A=A-B" \
+ "XMACver1.mpq" \
+ XMAC \
+ D2XP \
+ "Diablo II (Carbon) 10/29/103 12:32:05 5691846" \
+ 0x0000000a \
+ 5.0.0.65 \
+ 0x9b01cc98 \
+ D2XP_110
+
+# StarCraft v1.10 MacOS X
+"A=2521522835 B=3428392135 C=218673704 4 A=A^S B=B-C C=C+A A=A-B" \
+ "XMACver1.mpq" \
+ XMAC \
+ STAR \
+ "Starcraft (Carbon) 03/24/103 19:00:00 1350192" \
+ 0x000000c7 \
+ 1.1.0.0 \
+ 0x8ae3c718 \
+ STAR_110
+
+# StarCraft (Broodwar Mode) v1.10 MacOS X
+"A=2521522835 B=3428392135 C=218673704 4 A=A^S B=B-C C=C+A A=A-B" \
+ "XMACver1.mpq" \
+ XMAC \
+ SEXP \
+ "Starcraft (Carbon) 03/24/103 19:00:00 1350192" \
+ 0x000000c7 \
+ 1.1.0.1 \
+ 0x8ae3c718 \
+ SEXP_110
+
+# StarCraft (Starcraft Mode) v1.10 MacOS X
+"A=2521522835 B=3428392135 C=218673704 4 A=A^S B=B-C C=C+A A=A-B" \
+ "XMACver1.mpq" \
+ XMAC \
+ STAR \
+ "Starcraft (Carbon) 03/24/103 19:00:00 1350192" \
+ 0x000000c7 \
+ 1.1.0.1 \
+ 0x8ae3c718 \
+ SEXP_110_STAR
+
+##### Mac OS Classic (PMAC) ##################################################
+
+# -=-=-=-=-=-=- Latest Versions -=-=-=-=-=-=- No Update Required -=-=-=-=-=-=-
+
+# Diablo II LOD v1.10 MacOS Classic
+"A=3845581634 B=880823580 C=1363937103 4 A=A-S B=B-C C=C-A A=A-B" \
+ "PMACver1.mpq" \
+ PMAC \
+ D2XP \
+ "Diablo II 10/13/103 01:26:09 4829910" \
+ 0x0000000a \
+ 5.0.0.57 \
+ 0xcc2c2193 \
+ D2XP_110
+
+# StarCraft (Broodwar mode) v1.10 MacOS Classic
+"A=2521522835 B=3428392135 C=218673704 4 A=A^S B=B-C C=C+A A=A-B" \
+ "PMACver1.mpq" \
+ PMAC \
+ SEXP \
+ "Starcraft 03/24/103 19:00:00 1561070" \
+ 0x000000c7 \
+ 1.1.0.1 \
+ 0xec432fff \
+ SEXP_110
+
+# StarCraft (Starcraft mode) v1.10 MacOS Classic
+"A=2521522835 B=3428392135 C=218673704 4 A=A^S B=B-C C=C+A A=A-B" \
+ "PMACver1.mpq" \
+ PMAC \
+ STAR \
+ "Starcraft 03/24/103 19:00:00 1561070" \
+ 0x000000c7 \
+ 1.1.0.1 \
+ 0xec432fff \
+ SEXP_110_STAR
+
+# StarCraft v1.10 MacOS Classic
+"A=2521522835 B=3428392135 C=218673704 4 A=A^S B=B-C C=C+A A=A-B" \
+ "PMACver1.mpq" \
+ PMAC \
+ STAR \
+ "Starcraft 03/24/103 19:01:00 1561070" \
+ 0x000000c7 \
+ 1.1.0.0 \
+ 0xec432fff \
+ STAR_110
+
+##### Intel (IX86) ###########################################################
 
 # -=-=-=-=-=- Older Versions -=-=-=-=-=-=- Update Required -=-=-=-=-=-
 
@@ -1018,8 +1118,10 @@
  0x0 \
  W2BN_1xx
 
+##### Mac OS X (XMAC) ########################################################
 
-## MacOS X ##########################################################
+# -=-=-=-=-=- Older Versions -=-=-=-=-=-=- Update Required -=-=-=-=-=-
+
 # ================ StarCraft (original) entries =====================
 
 # StarCraft v1.09b MacOS X
@@ -1092,20 +1194,9 @@
 
 # ==================== Diablo II LOD entries ========================
 
-# Diablo II LOD v1.09d MacOS X
-"A=3845581634 B=880823580 C=1363937103 4 A=A-S B=B-C C=C-A A=A-B" \
- "XMACver2.mpq" \
- XMAC \
- D2XP \
- "Game.exe 11/30/01 04:00:17 448675" \
- 9 \
- 1.0.9.0 \
- 0xfa39efbb \
- D2XP_109d
-
 # Diablo II LOD v1.xx MacOS X
 "A=3845581634 B=880823580 C=1363937103 4 A=A-S B=B-C C=C-A A=A-B" \
- "XMACver2.mpq" \
+ "XMACver1.mpq" \
  XMAC \
  D2XP \
  NULL \
@@ -1116,20 +1207,9 @@
 
 # ================== Diablo 2 (original) entries ====================
 
-# Diablo II v1.09d MacOS X
-"A=3845581634 B=880823580 C=1363937103 4 A=A-S B=B-C C=C-A A=A-B" \
- "XMACver2.mpq" \
- XMAC \
- D2DV \
- "Game.exe 11/30/01 04:00:17 448675" \
- 9 \
- 1.0.9.0 \
- 0xfa39efbb \
- D2DV_109d
-
 # Diablo II v1.xxd MacOS X
 "A=3845581634 B=880823580 C=1363937103 4 A=A-S B=B-C C=C-A A=A-B" \
- "XMACver2.mpq" \
+ "XMACver1.mpq" \
  XMAC \
  D2DV \
  NULL \
@@ -1138,7 +1218,10 @@
  0x0 \
  D2DV_1xx
 
-## MacOS
+##### Mac OS Classic (PMAC) ##################################################
+
+# -=-=-=-=-=- Older Versions -=-=-=-=-=-=- Update Required -=-=-=-=-=-
+
 # ================== StarCraft (original) entries ===================
 
 # StarCraft v1.09b MacOS Classic
@@ -1191,18 +1274,7 @@
 
 # Diablo II LOD v1.xx MacOS Classic
 "A=3845581634 B=880823580 C=1363937103 4 A=A-S B=B-C C=C-A A=A-B" \
- "PMACver2.mpq" \
- PMAC \
- D2XP \
- NULL \
- 9 \
- 1.0.9.0 \
- 0xfa39efbb \
- D2XP_109d
-
-# Diablo II LOD v1.xx MacOS Classic
-"A=3845581634 B=880823580 C=1363937103 4 A=A-S B=B-C C=C-A A=A-B" \
- "PMACver2.mpq" \
+ "PMACver1.mpq" \
  PMAC \
  D2XP \
  NULL \
@@ -1215,18 +1287,18 @@
 
 # Diablo II v1.09d MacOS Classic
 "A=3845581634 B=880823580 C=1363937103 4 A=A-S B=B-C C=C-A A=A-B" \
- "PMACver2.mpq" \
+ "PMACver1.mpq" \
  PMAC \
  D2DV \
  NULL \
- 9 \
+ 0 \
  1.0.9.0 \
- 0xfa39efbb \
+ 0x0 \
  D2DV_109d
 
 # Diablo II v1.xx MacOS Classic
 "A=3845581634 B=880823580 C=1363937103 4 A=A-S B=B-C C=C-A A=A-B" \
- "PMACver2.mpq" \
+ "PMACver1.mpq" \
  PMAC \
  D2DV \
  NULL \
@@ -1320,6 +1392,3 @@
 
 #                                                                            #
 ##############################################################################
-
-
-
