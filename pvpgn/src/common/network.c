@@ -204,8 +204,15 @@ extern int net_send_packet(int sock, t_packet const * packet, unsigned int * cur
 #endif
 	    0)
 	    return 0; /* try again later */
-	
-	eventlog(eventlog_level_error,"net_send_packet","[%d] could not send data (closing connection) (psock_send: %s)",sock,strerror(psock_errno()));
+
+	if (
+#ifdef PSOCK_EPIPE
+	    psock_errno()!=PSOCK_EPIPE &&
+#endif
+#ifdef PSOCK_ECONNRESET
+	    psock_errno()!=PSOCK_ECONNRESET &&
+#endif
+	    1) eventlog(eventlog_level_error,"net_send_packet","[%d] could not send data (closing connection) (psock_send: %s)",sock,strerror(psock_errno()));
 	return -1;
     }
     
