@@ -238,6 +238,7 @@ ${SRC_D2DBSDIR}/dbspacket.o \
 ${SRC_D2DBSDIR}/cmdline_parse.o \
 ${SRC_D2DBSDIR}/prefs.o \
 ${SRC_D2DBSDIR}/handle_signal.o \
+${SRC_D2DBSDIR}/dbsdupecheck.o \
 ${SRC_D2CSDIR}/conf.o \
 ${SRC_D2CSDIR}/xstring.o \
 ${SRC_COMMONDIR}/list.o \
