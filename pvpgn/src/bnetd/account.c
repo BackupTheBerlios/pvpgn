@@ -1203,10 +1203,11 @@ extern int accountlist_reload(int all)
 	return -1;
       }
 
-  if (all = RELOAD_UPDATE_ALL)
+  if (all == RELOAD_UPDATE_ALL)
   // go to accountlist and remove everything possible
   // we keep dirty account and accounts of users currently logged in
   {
+    eventlog(eventlog_level_info,"accountlist_reload","removing accounts not logged in");
     HASHTABLE_TRAVERSE(accountlist_head,curr)
     {
       if (curr)
