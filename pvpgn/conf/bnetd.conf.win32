@@ -291,6 +291,10 @@ track = 600
 # after colons. (port 6114 is the default for the newer tracking protocol)
 trackaddrs = "12.110.173.232"
 
+# jfro wrote a nice new sript to show tracker based on XML output, so we can
+# simply switch to it on demand
+XML_output_tracker = false
+
 # Change these to match your system, for example:
 location = "unknown"
 description = "unknown"
@@ -441,3 +445,8 @@ mysql_persistent = false
 # the following value determines, at which rate, these files are created
 # set to 0 if you don't want or need these files
 war3_ladder_update_secs = 300
+
+# jfro's latest ladder is based on XML... so we can switch to XML output of ladder
+# on demand. Maybe we should set update interval bigger cause XML output version
+# is much more verbose than the standard output
+XML_output_ladder = false
