@@ -80,7 +80,6 @@
 #include "common/introtate.h"
 #include "account.h"
 #include "common/hashtable.h"
-#include "common/setup_after.h"
 #include "storage.h"
 #include "common/list.h"
 #include "connection.h"
@@ -89,6 +88,8 @@
 #include "common/tag.h"
 //aaron
 #include "war3ladder.h"
+#include "clan.h"
+#include "common/setup_after.h"
 
 static t_hashtable * accountlist_head=NULL;
 static t_hashtable * accountlist_uid_head=NULL;
@@ -169,6 +170,7 @@ extern t_account * account_create(char const * username, char const * passhash1)
 
     account->name     = NULL;
     account->storage  = NULL;
+	account->clan    =  NULL;
     account->attrs    = NULL;
     account->dirty    = 0;
     account->accessed = 0;
@@ -581,12 +583,13 @@ extern char const * account_get_strattr(t_account * account, char const * key)
     } else newkey = storage->escape_key(key);
 
     if (!account->loaded)
+    {
         if (account_load_attrs(account)<0)
 	    {
 	        eventlog(eventlog_level_error,"account_get_strattr","could not load attributes");
 	        return NULL;
 	    }
-    
+    }
       
     last = NULL;
     last2 = NULL;
@@ -690,11 +693,13 @@ extern int account_set_strattr(t_account * account, char const * key, char const
     
 #ifndef WITH_BITS
     if (!account->loaded)
+    {
         if (account_load_attrs(account)<0)
 	    {
 	        eventlog(eventlog_level_error,"account_set_strattr","could not load attributes");
 	        return -1;
     	}
+    }
 #endif
     curr = account->attrs;
     if (!curr) /* if no keys in attr list then we need to insert it */
@@ -1734,6 +1739,7 @@ extern char * account_get_tmpVOICE_channel(t_account * account)
 	return account->tmpVOICE_channel;
 }
 
+
 // THEUNDYING - MUTUAL FRIEND CHECK 
 // fixed by zap-zero-tested and working 100% TheUndying
 // modified by Soar to support account->friends list direct access
@@ -1870,3 +1876,39 @@ static int account_unload_friends(t_account * account)
     return 0;
 }
 
+extern int account_set_clan(t_account * account, t_clan * clan)
+{
+  if(account==NULL)
+  {
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL account");
+    return -1;
+  }
+  account->clan=clan;
+  return 0;
+}
+
+extern t_clan * account_get_clan(t_account * account)
+{
+  if(account==NULL)
+  {
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL account");
+    return NULL;
+  }
+  if(account->clan&&(clan_get_created(account->clan)>0))
+    return account->clan;
+  else
+    return NULL;
+}
+
+extern t_clan * account_get_creating_clan(t_account * account)
+{
+  if(account==NULL)
+  {
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL account");
+    return NULL;
+  }
+  if(account->clan&&(clan_get_created(account->clan)<=0))
+    return account->clan;
+  else
+    return NULL;
+}

@@ -53,6 +53,7 @@
 #include "war3ladder.h"
 #include "prefs.h"
 #include "friends.h"
+#include "clan.h"
 
 static unsigned int char_icon_to_uint(char * icon);
 
@@ -1877,8 +1878,8 @@ extern int account_get_friendcount( t_account * account )
 
 extern int account_add_friend( t_account * my_acc, t_account * facc)
 {
-    unsigned my_uid = account_get_uid(my_acc);
-    unsigned fuid = account_get_uid(facc);
+    unsigned my_uid;
+    unsigned fuid;
     int nf;
     t_list *flist;
 
@@ -1886,6 +1887,9 @@ extern int account_add_friend( t_account * my_acc, t_account * facc)
 	eventlog(eventlog_level_error, __FUNCTION__, "got NULL account");
 	return -1;
     }
+
+    my_uid = account_get_uid(my_acc);
+    fuid = account_get_uid(facc);
 
     if (my_acc == facc) return -2;
 
@@ -3226,4 +3230,3 @@ static unsigned int char_icon_to_uint(char * icon)
     
     return value;
 }
-

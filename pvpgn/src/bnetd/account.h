@@ -23,12 +23,12 @@
 #ifndef JUST_NEED_TYPES
 #define JUST_NEED_TYPES
 #include "common/list.h"
+#include "clan.h"
 #undef JUST_NEED_TYPES
 #else
 #include "common/list.h"
+#include "clan.h"
 #endif
-
-#define MAX_FRIENDS 20
 
 #ifdef ACCOUNT_INTERNAL_ACCESS
 typedef struct attribute_struct
@@ -70,6 +70,7 @@ typedef struct account_struct
     int           friend_loaded;
     unsigned int  age;      /* number of times it has not been accessed */
     t_storage_info * storage;
+    t_clan * clan;
     t_list * friends;
 #ifdef WITH_BITS
     t_bits_account_state bits_state;
@@ -164,6 +165,11 @@ extern char * account_get_tmpVOICE_channel(t_account * account);
 // moved to account.c/account.h by Soar to direct access struct t_account
 extern int account_check_mutual( t_account * account,  int myuserid);
 extern t_list * account_get_friends(t_account * account);
+
+//clan thingy by DJP & Soar
+extern int account_set_clan(t_account * account, t_clan * clan);
+extern t_clan * account_get_clan(t_account * account);
+extern t_clan * account_get_creating_clan(t_account * account);
 
 #endif
 #endif

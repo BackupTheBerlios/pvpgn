@@ -415,5 +415,7 @@ extern char const * conn_get_user_game_title(char const * ct);
 
 extern unsigned int connlist_count_connections(unsigned int addr);
 
+extern int conn_update_w3_playerinfo(t_connection * c);
+
 #endif
 #endif

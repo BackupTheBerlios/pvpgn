@@ -155,7 +155,6 @@
 #define BITS_MOTD_FILE          "conf/bits_motd"
 #define BNETD_LADDER_DIR        "var/ladders"
 #define BNETD_STATUS_DIR        "var/status"
-#define BNETD_CLAN_DIR		"var/clans"
 #define BNETD_TOPIC_FILE	"var/topics"
 #define BNETD_DBLAYOUT_FILE     "conf/sql_DB_layout"
 
@@ -165,6 +164,13 @@
 /* ADDED BY UNDYING SOULZZ 4/9/02 */
 /* default identify timeout value */
 #define W3_IDENTTIMEOUT		15	/* seconds */
+/* Added by Soar */
+/* time limit for new member as newer(whom cannot be promoted) in clan, (hrs) */
+#define CLAN_NEWER_TIME     168
+#define CLAN_MAX_MEMBERS    50
+
+/* moved from account.h */
+#define MAX_FRIENDS 20
 
 /* default files relative to FILE_DIR */
 #define BNETD_TOS_FILE     "tos.txt"
@@ -298,6 +304,9 @@
 
 /* max number of players in an anongame match [Omega] */
 #define ANONGAME_MAX_GAMECOUNT  12
+
+/* max level of players*/
+#define ANONGAME_MAX_LEVEL 100
 
 /***************************************************************/
 /* platform dependent features */

@@ -57,7 +57,6 @@ extern char const * prefs_get_loglevels(void) PURE_ATTR();
 extern char const * prefs_get_motdfile(void) PURE_ATTR();
 extern char const * prefs_get_newsfile(void) PURE_ATTR();
 extern char const * prefs_get_adfile(void) PURE_ATTR();
-extern char const * prefs_get_clandir(void) PURE_ATTR();
 extern char const * prefs_get_topicfile(void) PURE_ATTR();
 extern char const * prefs_get_DBlayoutfile(void) PURE_ATTR();
 extern unsigned int prefs_get_user_sync_timer(void) PURE_ATTR();
@@ -186,6 +185,10 @@ extern char const * prefs_get_anongame_infos_file(void) PURE_ATTR();
 extern unsigned int prefs_get_max_conns_per_IP(void) PURE_ATTR();
 
 extern int prefs_get_max_friends(void) PURE_ATTR();
+
+extern unsigned int prefs_get_clan_newer_time(void) PURE_ATTR();
+extern unsigned int prefs_get_clan_max_members(void) PURE_ATTR();
+extern unsigned int prefs_get_clan_channel_default_private(void) PURE_ATTR();
 
 #endif
 #endif

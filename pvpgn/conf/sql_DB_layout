@@ -114,3 +114,14 @@
 "SEXP_1_high_rank int(11)","'0'"
 [Team]
 "uid int(11) NOT NULL PRIMARY KEY","'0'"
+[clan]
+"cid int(11) NOT NULL PRIMARY KEY","'0'"
+"short int(11) NOT NULL","'0'"
+"name varchar(30)","NULL"
+"motd varchar(30)","NULL",
+"creation_time int(11) NOT NULL","'0'"
+[clanmember]
+"cid int(11) NOT NULL","'0'"
+"uid int(11) NOT NULL PRIMARY KEY","'0'"
+"status int(11) NOT NULL","'0'"
+"join_time int(11) NOT NULL","'0'"

@@ -56,6 +56,7 @@
 #define MAX_ATTRVAL_STR      4096 /* including terminating NUL char */
 #define MAX_IRC_MESSAGE_LEN 512 /* including CRLF (according to RFC 2812) */
 #define MAX_TOPIC_LEN         201 /* including terminating NUL char */
-
+#define CLANSHORT_NAME_MAX          4
+#define CLAN_NAME_MAX          25 /* including terminating NUL char */
 
 #endif

@@ -17,7 +17,6 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
-#define ACCOUNT_INTERNAL_ACCESS
 #include "common/setup_before.h"
 #include <stdio.h>
 #ifdef HAVE_STDDEF_H
@@ -76,6 +75,8 @@
 # include "bits_va.h"
 # include "bits.h"
 #endif
+#define CLAN_INTERNAL_ACCESS
+#define ACCOUNT_INTERNAL_ACCESS
 #include "common/introtate.h"
 #include "account.h"
 #include "common/hashtable.h"
@@ -83,6 +84,9 @@
 #include "common/list.h"
 #include "connection.h"
 #include "watch.h"
+#include "clan.h"
+#undef ACCOUNT_INTERNAL_ACCESS
+#undef CLAN_INTERNAL_ACCESS
 #include "common/tag.h"
 #include "common/setup_after.h"
 
@@ -99,6 +103,9 @@ static int file_write_attrs(t_storage_info *, void *);
 static int file_read_accounts(t_read_accounts_func, void *);
 static int file_cmp_info(t_storage_info *, t_storage_info *);
 static const char * file_escape_key(const char *);
+static int file_load_clans(t_load_clans_func);
+static int file_write_clan(void *);
+static int file_remove_clan(int);
 
 /* storage struct populated with the functions above */
 
@@ -113,18 +120,23 @@ t_storage storage_file = {
     file_read_attr,
     file_read_accounts,
     file_cmp_info,
-    file_escape_key
+    file_escape_key,
+    file_load_clans,
+    file_write_clan,
+    file_remove_clan
 };
 
 /* start of actual file storage code */
 
 static const char *accountsdir = NULL;
+static const char *clansdir = NULL;
 static const char *defacct = NULL;
 
 static int file_init(const char *path)
 {
     char *tok, *copy, *tmp, *p;
     const char *dir = NULL;
+    const char *clan = NULL;
     const char *def = NULL;
 
     if (path == NULL || path[0] == '\0') {
@@ -148,13 +160,15 @@ static int file_init(const char *path)
 	*p = '\0';
 	if (strcasecmp(tok, "dir") == 0)
 	    dir = p + 1;
+    else if (strcasecmp(tok, "clan") == 0)
+	    clan = p + 1;
 	else if (strcasecmp(tok, "default") == 0)
 	    def = p + 1;
 	else eventlog(eventlog_level_warn, __FUNCTION__, "unknown token in storage_path : '%s'", tok);
     }
 
-    if (def == NULL || dir == NULL) {
-	eventlog(eventlog_level_error, __FUNCTION__, "invalid storage_path line for file module (doesnt have a 'dir' and a 'default' token)");
+    if (def == NULL || clan == NULL || dir == NULL) {
+	eventlog(eventlog_level_error, __FUNCTION__, "invalid storage_path line for file module (doesnt have a 'dir', a 'clan' and a 'default' token)");
 	free((void*)copy);
 	return -1;
     }
@@ -163,6 +177,12 @@ static int file_init(const char *path)
 
     if ((accountsdir = strdup(dir)) == NULL) {
 	eventlog(eventlog_level_error, __FUNCTION__, "not enough memory to store accounts dir");
+	free((void*)copy);
+	return -1;
+    }
+
+    if ((clansdir = strdup(clan)) == NULL) {
+	eventlog(eventlog_level_error, __FUNCTION__, "not enough memory to store clans dir");
 	free((void*)copy);
 	return -1;
     }
@@ -183,6 +203,9 @@ static int file_close(void)
 {
     if (accountsdir) free((void*)accountsdir);
     accountsdir = NULL;
+
+    if (clansdir) free((void*)clansdir);
+    clansdir = NULL;
 
     if (defacct) free((void*)defacct);
     defacct = NULL;
@@ -494,4 +517,209 @@ static int file_cmp_info(t_storage_info *info1, t_storage_info *info2)
 static const char * file_escape_key(const char * key)
 {
     return key;
+}
+
+static int file_load_clans(t_load_clans_func cb)
+{
+  char const	*dentry;
+  t_pdir	*clandir;
+  char		*pathname;
+  int       clanshort;
+  t_clan	*clan;
+  FILE		*fp;
+  char		clanname[CLAN_NAME_MAX+1];
+  char		motd[51];
+  int		cid, creation_time;
+  int		member_uid, member_join_time;
+  char		member_status;
+  t_clanmember	*member;
+  
+    if (cb == NULL) {
+	eventlog(eventlog_level_error, __FUNCTION__, "get NULL callback");
+	return -1;
+    }
+
+  if (!(clandir = p_opendir(clansdir)))
+    {
+      eventlog(eventlog_level_error,__FUNCTION__,"unable to open clan directory \"%s\" for reading (p_opendir: %s)",clansdir,strerror(errno));
+      return -1;
+    }
+  eventlog(eventlog_level_trace,__FUNCTION__,"start reading clans");
+
+  if (!(pathname = malloc(strlen(clansdir)+1+4+1)))
+	{
+	  eventlog(eventlog_level_error,__FUNCTION__,"could not allocate memory for pathname");
+	  return -1;
+	}
+
+    while ((dentry = p_readdir(clandir)) != NULL)
+    {
+      if (dentry[0]=='.') continue;
+    
+      sprintf(pathname,"%s/%s",clansdir,dentry);
+
+      if (strlen(dentry)>4)
+	{
+	  eventlog(eventlog_level_error,__FUNCTION__,"found too long clan filename in clandir \"%s\"",dentry);
+	  continue;
+	}
+    
+      clanshort = str_to_clanshort(dentry);
+
+  if ((fp = fopen(pathname,"r"))==NULL)
+    {
+      eventlog(eventlog_level_error,__FUNCTION__,"can't open clanfile \"%s\"",pathname);
+      continue;
+    }
+
+  if(!(clan = malloc(sizeof(t_clan))))
+  {
+    eventlog(eventlog_level_error,__FUNCTION__,"could not allocate memory for clan");
+    free((void *)pathname);
+    p_closedir(clandir);
+    return -1;
+  }
+
+  clan->clanshort=clanshort;
+
+  fscanf(fp,"\"%[^\"]\",\"%[^\"]\",%i,%i\n",clanname,motd,&cid,&creation_time);
+  clan->clanname = strdup(clanname);
+  clan->clan_motd = strdup(motd);
+  clan->clanid = cid;
+  clan->creation_time=(time_t)creation_time;
+  clan->created = 1;
+  clan->modified = 0;
+  clan->channel_type = prefs_get_clan_channel_default_private();
+ 
+  eventlog(eventlog_level_trace,__FUNCTION__,"name: %s motd: %s clanid: %i time: %i",clanname,motd,cid,creation_time);
+
+  clan->members = list_create();
+
+  while (fscanf(fp,"%i,%c,%i\n",&member_uid,&member_status,&member_join_time)==3)
+    {
+      if (!(member = malloc(sizeof(t_clanmember))))
+	{
+	  eventlog(eventlog_level_error,__FUNCTION__,"cannot allocate memory for clan member");
+	  clan_remove_all_members(clan);
+      if(clan->clanname)
+	    free((void *)clan->clanname);
+      if(clan->clan_motd)
+        free((void *)clan->clan_motd);
+	  free((void *)clan);
+      fclose(fp);
+      free((void *)pathname);
+      p_closedir(clandir);
+	  return -1;
+	}
+      if(!(member->memberacc   = accountlist_find_account_by_uid(member_uid)))
+      {
+	    eventlog(eventlog_level_error,__FUNCTION__,"cannot find uid %u", member_uid);
+	    free((void *)member);
+	    continue;
+      }
+      member->memberconn  = NULL;
+      member->status    = member_status-'0';
+      member->join_time = member_join_time;
+
+      if((member->status==CLAN_NEW)&&(time(NULL)-member->join_time>prefs_get_clan_newer_time()*3600))
+      {
+          member->status=CLAN_PEON;
+          clan->modified=1;
+      }
+
+      if (list_append_data(clan->members,member)<0)
+	{
+	  eventlog(eventlog_level_error,__FUNCTION__,"could not append item");
+	  free((void *)member);
+	  clan_remove_all_members(clan);
+      if(clan->clanname)
+	    free((void *)clan->clanname);
+      if(clan->clan_motd)
+	    free((void *)clan->clan_motd);
+	  free((void *)clan);
+      fclose(fp);
+      free((void *)pathname);
+      p_closedir(clandir);
+	  return -1;
+	}
+      account_set_clan(member->memberacc, clan);
+      eventlog(eventlog_level_trace,__FUNCTION__,"added member: uid: %i status: %c join_time: %i",member_uid,member_status+'0',member_join_time);
+    }
+
+  fclose(fp);
+
+      cb(clan);
+
+    }
+
+      free((void *)pathname);
+
+  if (p_closedir(clandir)<0)
+    {
+      eventlog(eventlog_level_error,__FUNCTION__,"unable to close clan directory \"%s\" (p_closedir: %s)",clansdir,strerror(errno));
+    }
+  eventlog(eventlog_level_trace,__FUNCTION__,"finished reading clans");
+
+  return 0;
+}
+
+static int file_write_clan(void * data)
+{
+  FILE			*fp;
+  t_elem		*curr;
+  t_clanmember	*member;
+  char			*clanfile;
+  t_clan        *clan=(t_clan *)data;
+  if (!(clanfile = malloc(strlen(clansdir)+1+4+1)))
+    {
+      eventlog(eventlog_level_error,__FUNCTION__,"could not allocate memory for filename");
+      return -1;
+    }
+
+  sprintf(clanfile,"%s/%c%c%c%c",clansdir,
+	  clan->clanshort>>24,(clan->clanshort>>16)&0xff,
+	  (clan->clanshort>>8)&0xff,clan->clanshort&0xff);
+
+  if ((fp = fopen(clanfile,"w"))==NULL)
+    {
+      eventlog(eventlog_level_error,__FUNCTION__,"can't open clanfile \"%s\"",clanfile);
+      free((void *)clanfile);
+      return -1;
+    }
+
+  fprintf(fp,"\"%s\",\"%s\",%i,%i\n",clan->clanname,clan->clan_motd,clan->clanid,(int)clan->creation_time);
+
+  LIST_TRAVERSE(clan->members,curr)
+    {
+      if (!(member = elem_get_data(curr)))
+	{
+	  eventlog(eventlog_level_error,__FUNCTION__,"got NULL elem in list");
+	  continue;
+	}
+    if((member->status==CLAN_NEW)&&(time(NULL)-member->join_time>prefs_get_clan_newer_time()*3600))
+      member->status=CLAN_PEON;
+    fprintf(fp,"%i,%c,%u\n",account_get_uid(member->memberacc),member->status+'0',(unsigned)member->join_time);
+    }
+
+  fclose(fp);
+  free((void *)clanfile);
+  return 0;
+}
+
+static int file_remove_clan(int clanshort)
+{
+    char * tempname;
+    if (!(tempname = malloc(strlen(clansdir)+1+4+1)))
+	{
+	  eventlog(eventlog_level_error,__FUNCTION__,"could not allocate memory for pathname");
+	  return -1;
+	}
+    sprintf(tempname, "%s/%c%c%c%c", clansdir, clanshort>>24, (clanshort>>16)&0xff, (clanshort>>8)&0xff, clanshort&0xff);
+	if (remove((const char *)tempname)<0) {
+	    eventlog(eventlog_level_error, __FUNCTION__, "could not delete clan file \"%s\" (remove: %s)", (char *)tempname, strerror(errno));
+        free(tempname);
+	    return -1;
+	}
+    free(tempname);
+    return 0;
 }

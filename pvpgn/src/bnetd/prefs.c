@@ -51,7 +51,6 @@
 #include "common/util.h"
 #include "common/eventlog.h"
 #include "prefs.h"
-#include "account.h" /* should we move MAX_FRIENDS to setup_before.h ? */
 #include "common/setup_after.h"
 
 static int processDirective(char const * directive, char const * value, unsigned int curLine);
@@ -69,7 +68,6 @@ static struct {
     char const * channelfile;
     char const * pidfile;
     char const * adfile;
-    char const * clandir;
     char const * topicfile;
     char const * DBlayoutfile;
 
@@ -178,6 +176,9 @@ static struct {
     char const * anongame_infos_file;
     unsigned int max_conns_per_IP;
     unsigned int max_friends;
+    unsigned int clan_newer_time;
+    unsigned int clan_max_members;
+    unsigned int clan_channel_default_private;
 } prefs_runtime_config;
 
 /*    directive                 type               defcharval            defintval                 */
@@ -192,7 +193,6 @@ static Bconf_t conf_table[] =
     { "channelfile",            conf_type_char,    BNETD_CHANNEL_FILE,   NONE                , (void *)&prefs_runtime_config.channelfile},
     { "pidfile",                conf_type_char,    BNETD_PID_FILE,       NONE                , (void *)&prefs_runtime_config.pidfile},
     { "adfile",                 conf_type_char,    BNETD_AD_FILE,        NONE                , (void *)&prefs_runtime_config.adfile},
-    { "clandir",		conf_type_char,	   BNETD_CLAN_DIR,	 NONE		     , (void *)&prefs_runtime_config.clandir},
     { "topicfile",		conf_type_char,	   BNETD_TOPIC_FILE,	 NONE		     , (void *)&prefs_runtime_config.topicfile},
     { "DBlayoutfile",		conf_type_char,    BNETD_DBLAYOUT_FILE,  NONE		     , (void *)&prefs_runtime_config.DBlayoutfile},
     { "usersync",               conf_type_int,     NULL,                 BNETD_USERSYNC      , (void *)&prefs_runtime_config.usersync},
@@ -297,6 +297,9 @@ static Bconf_t conf_table[] =
     { "anongame_infos_file",	conf_type_char,	   PVPGN_AINFO_FILE,	 NONE				 , (void *)&prefs_runtime_config.anongame_infos_file},
     { "max_conns_per_IP",		conf_type_int,	   NULL,				 0					 , (void *)&prefs_runtime_config.max_conns_per_IP},
     { "max_friends",			conf_type_int,     NULL,                 MAX_FRIENDS         , (void *)&prefs_runtime_config.max_friends},
+    { "clan_newer_time",        conf_type_int,     NULL,                 CLAN_NEWER_TIME     , (void *)&prefs_runtime_config.clan_newer_time},
+    { "clan_max_members",       conf_type_int,     NULL,                 CLAN_MAX_MEMBERS    , (void *)&prefs_runtime_config.clan_max_members},
+    { "clan_channel_default_private",   conf_type_bool,    NULL,         0                   , (void *)&prefs_runtime_config.clan_channel_default_private},
     { NULL,             		conf_type_none,    NULL,                 NONE                , NULL},
 };
 
@@ -618,11 +621,6 @@ extern char const * prefs_get_newsfile(void)
 extern char const * prefs_get_adfile(void)
 {
     return prefs_runtime_config.adfile;
-}
-
-extern char const * prefs_get_clandir(void)
-{
-    return prefs_runtime_config.clandir;
 }
 
 extern char const * prefs_get_topicfile(void)
@@ -1263,4 +1261,19 @@ extern unsigned int prefs_get_max_conns_per_IP(void)
 extern int prefs_get_max_friends(void)
 {
 	return prefs_runtime_config.max_friends;
+}
+
+extern unsigned int prefs_get_clan_newer_time(void)
+{
+    return prefs_runtime_config.clan_newer_time;
+}
+
+extern unsigned int prefs_get_clan_max_members(void)
+{
+    return prefs_runtime_config.clan_max_members;
+}
+
+extern unsigned int prefs_get_clan_channel_default_private(void)
+{
+    return prefs_runtime_config.clan_channel_default_private;
 }

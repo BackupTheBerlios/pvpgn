@@ -16,9 +16,9 @@
 #                                                                            #
 # Syntax:                                                                    #
 # * for plain file driver:                                                   #
-#  storage_path = file:dir=<path_to_user_files>;default=/path/to/default/account #
+#  storage_path = file:dir=<path_to_user_files>;clan=<path_to_clan_files>;default=/path/to/default/account #
 # * for cdb file driver:                                                     #
-#  storage_path = cdb:dir=<path_to_cdb_files>;default=/path/to/default/account   #
+#  storage_path = cdb:dir=<path_to_cdb_files>;clan=<path_to_clan_files>;default=/path/to/default/account   #
 # * for sql driver:                                                          #
 #  storage_path = sql:variable=value;...;default=0 (0 is the default uid)    #
 # Variables can be:                                                          #
@@ -31,12 +31,12 @@
 # - "pass" : db password                                                     #
 #                                                                            #
 # Examples:                                                                  #
-# storage_path = file:dir=/home/pvpgn/var/users;default=/home/pvpgn/etc/bnetd_default_user
-# storage_path = cdb:dir=/home/pvpgn/var/userscdb;default=/home/pvpgn/etc/bnetd_default_user.cdb
+# storage_path = file:dir=/home/pvpgn/var/users;clan=/home/pvpgn/var/clans;default=/home/pvpgn/etc/bnetd_default_user
+# storage_path = cdb:dir=/home/pvpgn/var/userscdb;clan=/home/pvpgn/var/clanscdb;default=/home/pvpgn/etc/bnetd_default_user.cdb
 # storage_path = sql:mode=mysql;host=127.0.0.1;name=PVPGN;user=pvpgn;pass=pvpgnrocks;default=0
 #----------------------------------------------------------------------------#
 
-storage_path = file:dir=var\users;default=conf\bnetd_default_user
+storage_path = file:dir=var\users;clan=var\clans;default=conf\bnetd_default_user
 
 #                                                                            #
 ##############################################################################
@@ -56,7 +56,6 @@ issuefile   = conf\bnissue.txt
 channelfile = conf\channel.list
 newsfile    = conf\news.txt
 adfile      = conf\ad.list
-clandir     = var\clans
 topicfile   = conf\topics
 ipbanfile   = conf\bnban
 helpfile    = conf\bnhelp
@@ -503,3 +502,16 @@ output_update_secs = 60
 # is much more verbose than the standard output
 XML_status_output = false
 
+###############################################################################
+# clan settings                                                               #
+#-----------------------------------------------------------------------------#
+
+# Time in hours for a new member of clan to be a newer(Peon icon, cannot premote to Grunt)
+# default value 168(7 days). If set to 0, all new members could be promote in no time
+clan_newer_time = 0
+
+# max members count allowed in a clan, set between 10&255, default 50.
+clan_max_members = 50
+
+# Default clan channel status when create a clan, 1 for private, 0 for public
+clan_channel_default_private = 0

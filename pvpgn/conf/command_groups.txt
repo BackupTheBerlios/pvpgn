@@ -46,7 +46,7 @@
 #	///// Regular commands usable by all users /////
 #	////////////////////////////////////////////////
 
-1	/clan
+1	/c /clan
 1	/f /friends
 1	/me
 1	/msg /whisper /w /m /r /reply

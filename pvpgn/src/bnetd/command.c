@@ -110,6 +110,7 @@
 #include "topic.h"
 
 #include "friends.h"
+#include "clan.h"
 
 
 static char const * bnclass_get_str(unsigned int class);
@@ -400,6 +401,7 @@ static int _handle_topic_command(t_connection * c, char const * text);
 static const t_command_table_row standard_command_table[] =
 {
 	{ "/clan"		, _handle_clan_command },
+	{ "/c"			, _handle_clan_command },
 	{ "/admin"		, _handle_admin_command },
 	{ "/f"                  , _handle_friends_command },
 	{ "/friends"            , _handle_friends_command },
@@ -583,6 +585,74 @@ extern int handle_command(t_connection * c,  char const * text)
 
 static int _handle_clan_command(t_connection * c, char const * text)
 {
+  t_account * acc;
+  t_clanmember * member;
+  t_clan * clan;
+
+  text = skip_command(text);
+
+  if ( text[0] == '\0' )
+    {
+      message_send_text(c,message_type_info,c,"usage:");
+      message_send_text(c,message_type_info,c,"/clan public  /clan pub");
+      message_send_text(c,message_type_info,c,"Opens the clan channel up to the public so that anyone may enter.");
+      message_send_text(c,message_type_info,c,"/clan private  /clan priv");
+      message_send_text(c,message_type_info,c,"Closes the clan channel such that only members of the clan may enter.");
+      message_send_text(c,message_type_info,c,"/clan motd MESSAGE");
+      message_send_text(c,message_type_info,c,"Update the clan message of the day to MESSAGE.");
+      return 0;
+    }
+
+  if((acc=conn_get_account(c))&&(clan=account_get_clan(acc))&&(member=clan_find_member(clan, acc)))
+  {
+    if(clanmember_get_status(member)>=CLAN_SHAMAN)
+    {
+      if (strstart(text,"public")==0 || strstart(text,"pub")==0) {
+        if(clan_get_channel_type(clan)!=0)
+        {
+          clan_set_channel_type(clan,0);
+          message_send_text(c,message_type_info,c,"Clan channel is opened up!");
+        }
+        else
+          message_send_text(c,message_type_error,c,"Clan channel has already been opened up!");
+      }
+      else
+      if (strstart(text,"private")==0 || strstart(text,"priv")==0) {
+        if(clan_get_channel_type(clan)!=1)
+        {
+          clan_set_channel_type(clan,1);
+          message_send_text(c,message_type_info,c,"Clan channel is closed!");
+        }
+        else
+          message_send_text(c,message_type_error,c,"Clan channel has already been closed!");
+      }
+      else
+      if (strstart(text,"motd")==0) {
+        const char * msg=skip_command(text);
+        if(msg[0]=='\0')
+        {
+          message_send_text(c,message_type_info,c,"usage:");
+          message_send_text(c,message_type_info,c,"/clan motd MESSAGE");
+          message_send_text(c,message_type_info,c,"Update the clan message of the day to MESSAGE.");
+        }
+        else
+        {
+          clan_set_motd(clan, msg);
+          message_send_text(c,message_type_info,c,"Clan message of day is updated!");
+        }
+      }
+    }
+    else
+      message_send_text(c,message_type_error,c,"You are not the chieftain or shaman of clan!");
+  }
+  else
+    message_send_text(c,message_type_error,c,"You are not in a clan!");
+
+  return 0;
+}
+/*
+static int _handle_clan_command(t_connection * c, char const * text)
+{
   t_channel const * channel;
   char const      * oldclanname;
   
@@ -621,6 +691,7 @@ static int _handle_clan_command(t_connection * c, char const * text)
   free((void *)oldclanname);
   return 0;
 }
+*/
 
 static int command_set_flags(t_connection * c)
 {
@@ -1912,6 +1983,8 @@ static int _handle_channel_command(t_connection * c, char const *text)
    
    if (conn_set_channel(c,&text[i])<0)
      conn_set_channel(c,CHANNEL_NAME_BANNED); /* should not fail */
+   if (strcmp(conn_get_clienttag(c), CLIENTTAG_WARCRAFT3) == 0 || strcmp(conn_get_clienttag(c), CLIENTTAG_WAR3XP) == 0) 
+     conn_update_w3_playerinfo(c);
    command_set_flags(c);
    
    return 0;
@@ -1922,6 +1995,8 @@ static int _handle_rejoin_command(t_connection * c, char const *text)
 
   if (channel_rejoin(c)!=0)
       message_send_text(c,message_type_error,c,"You are not in a channel.");
+  if (strcmp(conn_get_clienttag(c), CLIENTTAG_WARCRAFT3) == 0 || strcmp(conn_get_clienttag(c), CLIENTTAG_WAR3XP) == 0) 
+    conn_update_w3_playerinfo(c);
   command_set_flags(c);
   
   return 0;

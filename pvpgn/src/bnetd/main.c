@@ -463,7 +463,7 @@ int pre_server_startup(void)
     aliasfile_load(prefs_get_aliasfile());
     anongame_infos_load(prefs_get_anongame_infos_file());
     tournament_init(prefs_get_tournament_file());
-    clanlist_load(prefs_get_clandir());
+    clanlist_load();
     topiclist_load(prefs_get_topicfile());
     return 0;
 }

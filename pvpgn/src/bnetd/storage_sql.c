@@ -20,7 +20,6 @@
  */
 
 #ifdef WITH_SQL
-
 #include "common/setup_before.h"
 #include <stdio.h>
 
@@ -40,16 +39,31 @@
 # endif
 #endif
 
+#include "compat/strdup.h"
+#include "compat/strcasecmp.h"
+
+#ifdef TIME_WITH_SYS_TIME
+# include <sys/time.h>
+# include <time.h>
+#else
+# ifdef HAVE_SYS_TIME_H
+#  include <sys/time.h>
+# else
+#  include <time.h>
+# endif
+#endif
+
 #include "common/eventlog.h"
 #include "prefs.h"
 #include "common/util.h"
 
+#define CLAN_INTERNAL_ACCESS
 #define ACCOUNT_INTERNAL_ACCESS
 #include "account.h"
+#include "connection.h"
+#include "clan.h"
 #undef ACCOUNT_INTERNAL_ACCESS
-
-#include "compat/strdup.h"
-#include "compat/strcasecmp.h"
+#undef CLAN_INTERNAL_ACCESS
 #include "common/tag.h"
 #include "sql_dbcreator.h"
 #include "storage_sql.h"
@@ -83,6 +97,9 @@ static int sql_write_attrs(t_storage_info *, void *);
 static int sql_read_accounts(t_read_accounts_func, void *);
 static int sql_cmp_info(t_storage_info *, t_storage_info *);
 static const char * sql_escape_key(const char *);
+static int sql_load_clans(t_load_clans_func cb);
+static int sql_write_clan(void * data);
+static int sql_remove_clan(int clanshort);
 
 t_storage storage_sql = {
     sql_init,
@@ -95,7 +112,10 @@ t_storage storage_sql = {
     sql_read_attr,
     sql_read_accounts,
     sql_cmp_info,
-    sql_escape_key
+    sql_escape_key,
+    sql_load_clans,
+    sql_write_clan,
+    sql_remove_clan
 };
 
 static t_sql_engine *sql = NULL;
@@ -774,6 +794,262 @@ static void _sql_update_DB_v0_to_v150(void)
     _sql_db_set_version(150);
 
     eventlog(eventlog_level_info,__FUNCTION__,"successfully updated your DB");
+}
+
+static int sql_load_clans(t_load_clans_func cb)
+{
+  t_sql_res   * result;
+  t_sql_res   * result2;
+  t_sql_row   * row;
+  t_sql_row   * row2;
+  char query[1024];
+  int       clanshort;
+  t_clan	*clan;
+  char		clanname[CLAN_NAME_MAX+1];
+  char		motd[51];
+  int		cid, creation_time;
+  int		member_uid;
+  t_clanmember	*member;
+
+    if(!sql) {
+	eventlog(eventlog_level_error, __FUNCTION__, "sql layer not initilized");
+	return -1;
+    }
+
+    if (cb == NULL) {
+	eventlog(eventlog_level_error, __FUNCTION__, "get NULL callback");
+	return -1;
+    }
+
+    strcpy(query,"SELECT cid, short, name, motd, creation_time FROM clan");
+    if((result = sql->query_res(query)) != NULL) {
+	if (sql->num_rows(result) < 1) {
+	    sql->free_result(result);
+	    return 0; /* empty clan list */
+	}
+
+	while((row = sql->fetch_row(result)) != NULL) {
+	    if (row[0] == NULL) {
+		eventlog(eventlog_level_error, __FUNCTION__, "got NULL cid from db");
+		continue;
+	    }
+
+        if(!(clan = malloc(sizeof(t_clan))))
+        {
+          eventlog(eventlog_level_error,__FUNCTION__,"could not allocate memory for clan");
+          sql->free_result(result);
+          return -1;
+        }
+
+        if (!(clan->clanid=atoi(row[0])))
+        {
+          eventlog(eventlog_level_error,__FUNCTION__,"got bad cid");
+          sql->free_result(result);
+          return -1;
+        }
+
+        clan->clanshort=atoi(row[1]);
+
+        clan->clanname = strdup(row[2]);
+        clan->clan_motd = strdup(row[3]);
+        clan->creation_time=atoi(row[4]);
+        clan->created = 1;
+        clan->modified = 0;
+        clan->channel_type = prefs_get_clan_channel_default_private();
+
+        sprintf(query,"SELECT uid, status, join_time FROM clanmember WHERE cid='%u'",clan->clanid);
+
+        if((result2 = sql->query_res(query)) != NULL) {
+    	    if (sql->num_rows(result2) < 1)
+	            sql->free_result(result2);
+            else
+        	while((row2 = sql->fetch_row(result2)) != NULL) {
+                if (!(member = malloc(sizeof(t_clanmember))))
+	            {
+	                eventlog(eventlog_level_error,__FUNCTION__,"cannot allocate memory for clan member");
+                    clan_remove_all_members(clan);
+                    if(clan->clanname)
+	                    free((void *)clan->clanname);
+                    if(clan->clan_motd)
+	                    free((void *)clan->clan_motd);
+	                free((void *)clan);
+                    sql->free_result(result);
+                    sql->free_result(result2);
+	                return -1;
+            	}
+	            if (row2[0] == NULL) {
+		            eventlog(eventlog_level_error, __FUNCTION__, "got NULL uid from db");
+		            continue;
+	            }
+                if(!(member_uid=atoi(row2[0])))
+                    continue;
+                if(!(member->memberacc   = accountlist_find_account_by_uid(member_uid)))
+                {
+	                eventlog(eventlog_level_error,__FUNCTION__,"cannot find uid %u", member_uid);
+	                free((void *)member);
+	                continue;
+                }
+                member->memberconn  = NULL;
+                member->status    = atoi(row2[1]);
+                member->join_time = atoi(row2[2]);
+
+                if((member->status==CLAN_NEW)&&(time(NULL)-member->join_time>prefs_get_clan_newer_time()*3600))
+                {
+                    member->status=CLAN_PEON;
+                    clan->modified=1;
+                }
+
+                if (list_append_data(clan->members,member)<0)
+	            {
+	                eventlog(eventlog_level_error,__FUNCTION__,"could not append item");
+	                free((void *)member);
+	                clan_remove_all_members(clan);
+                    if(clan->clanname)
+	                    free((void *)clan->clanname);
+                    if(clan->clan_motd)
+	                    free((void *)clan->clan_motd);
+	                free((void *)clan);
+                    sql->free_result(result2);
+                    sql->free_result(result);
+	                return -1;
+            	}
+                account_set_clan(member->memberacc, clan);
+                eventlog(eventlog_level_trace,__FUNCTION__,"added member: uid: %i status: %c join_time: %i",member_uid,member->status+'0',member->join_time);
+            }
+            sql->free_result(result2);
+            cb(clan);
+        }
+        else
+        	eventlog(eventlog_level_error, __FUNCTION__, "error query db (query:\"%s\")", query);
+    }
+
+	sql->free_result(result);
+    } else {
+	eventlog(eventlog_level_error, __FUNCTION__, "error query db (query:\"%s\")", query);
+	return -1;
+    }
+
+  return 0;
+}
+
+static int sql_write_clan(void * data)
+{
+  char query[1024];
+  t_sql_res * result;
+  t_sql_row * row;
+  t_elem		*curr;
+  t_clanmember	*member;
+  t_clan        *clan=(t_clan *)data;
+  int num;
+
+  if(!sql) {
+	eventlog(eventlog_level_error, __FUNCTION__, "sql layer not initilized");
+	return -1;
+  }
+
+  sprintf(query, "SELECT count(*) FROM clan WHERE cid='%u'", clan->clanid);
+  if((result = sql->query_res(query)) != NULL) {
+    row = sql->fetch_row(result);
+    if (row == NULL || row[0] == NULL) {
+	  sql->free_result(result);
+	  eventlog(eventlog_level_error, __FUNCTION__, "got NULL count");
+	  return -1;
+	}
+    num = atol(row[0]);
+    sql->free_result(result);
+    if (num<1)
+      sprintf(query, "INSERT INTO clan (cid, short, name, motd, creation_time) VALUES('%u', '%d', '%s', '%s', '%d')", clan->clanid, clan->clanshort, clan->clanname, clan->clan_motd, clan->creation_time);
+    else
+      sprintf(query, "UPDATE clan SET short='%d', name='%s', motd='%s', creation_time='%d' WHERE cid='%u'", clan->clanshort, clan->clanname, clan->clan_motd, clan->creation_time, clan->clanid);
+    if(sql->query(query)<0)
+    {
+      eventlog(eventlog_level_error, __FUNCTION__, "error trying query: \"%s\"", query);
+      return -1;
+    }
+    LIST_TRAVERSE(clan->members,curr)
+    {
+      unsigned int uid;
+      if (!(member = elem_get_data(curr)))
+	  {
+	    eventlog(eventlog_level_error,__FUNCTION__,"got NULL elem in list");
+	    continue;
+	  }
+      if((member->status==CLAN_NEW)&&(time(NULL)-member->join_time>prefs_get_clan_newer_time()*3600))
+        member->status=CLAN_PEON;
+      uid=account_get_uid(member->memberacc);
+      sprintf(query, "SELECT count(*) FROM clanmember WHERE uid='%u'", uid);
+      if((result = sql->query_res(query)) != NULL) {
+        row = sql->fetch_row(result);
+        if (row == NULL || row[0] == NULL) {
+    	  sql->free_result(result);
+    	  eventlog(eventlog_level_error, __FUNCTION__, "got NULL count");
+    	  return -1;
+	    }
+        num = atol(row[0]);
+        sql->free_result(result);
+        if (num<1)
+          sprintf(query, "INSERT INTO clanmember (cid, uid, status, join_time) VALUES('%u', '%u', '%d', '%d')", clan->clanid, uid, member->status, member->join_time);
+        else
+          sprintf(query, "UPDATE clanmember SET cid='%u', status='%d', join_time='%d' WHERE uid='%u'", clan->clanid, member->status, member->join_time, uid);
+        if(sql->query(query)<0)
+        {
+          eventlog(eventlog_level_error, __FUNCTION__, "error trying query: \"%s\"", query);
+          return -1;
+        }
+      }
+      else
+      {
+	    eventlog(eventlog_level_error, __FUNCTION__, "error trying query: \"%s\"", query);
+	    return -1;
+      }
+    }
+  }
+  else
+  {
+	eventlog(eventlog_level_error, __FUNCTION__, "error trying query: \"%s\"", query);
+	return -1;
+  }
+
+  return 0;
+}
+
+static int sql_remove_clan(int clanshort)
+{
+  char query[1024];
+  t_sql_res * result;
+  t_sql_row * row;
+
+  if(!sql) {
+	eventlog(eventlog_level_error, __FUNCTION__, "sql layer not initilized");
+	return -1;
+  }
+
+  sprintf(query, "SELECT cid FROM clan WHERE short = '%d'", clanshort);
+  if(!(result=sql->query_res(query)))
+  {
+	eventlog(eventlog_level_error, __FUNCTION__, "error query db (query:\"%s\")", query);
+	return -1;
+  }
+
+  if (sql->num_rows(result) != 1) {
+    sql->free_result(result);
+    return -1; /*clan not found or found more than 1*/
+  }
+
+  if(row=sql->fetch_row(result))
+  {
+    unsigned int cid=atoi(row[0]);
+    sprintf(query, "DELETE FROM clanmember WHERE cid='%u'", cid);
+    if(sql->query(query)!=0)
+      return -1;
+    sprintf(query, "DELETE FROM clan WHERE cid='%u'", cid);
+    if(sql->query(query)!=0)
+      return -1;
+  }
+
+  sql->free_result(result);
+
+  return 0;
 }
 
 #ifdef KAKAMAKA

@@ -151,6 +151,7 @@
 #include "anongame_infos.h"
 #include "news.h"
 #include "fdwatch.h"
+#include "clan.h"
 #include "common/setup_after.h"
 
 extern FILE * hexstrm; /* from main.c */
@@ -1404,6 +1405,7 @@ extern int server_process(void)
 	if (curr_exittime && (curr_exittime<=now || connlist_get_length()<1))
 	{
 	    eventlog(eventlog_level_info,"server_process","the server is shutting down (%d connections left)",connlist_get_length());
+        clanlist_save();
 	    accountlist_save(0);
 	    break;
 	}
@@ -1439,6 +1441,7 @@ extern int server_process(void)
 	
 	if (syncdelta && prev_savetime+(time_t)syncdelta<=now)
 	{
+        clanlist_save();
 	    accountlist_save(prefs_get_user_sync_timer());
             gamelist_check_voidgame();
 	    prev_savetime = now;
@@ -1466,6 +1469,7 @@ extern int server_process(void)
 	if (do_save)
 	{
 	    eventlog(eventlog_level_info,"server_process","saving accounts due to signal");
+        clanlist_save();
 	    accountlist_save(0);
 	    do_save = 0;
 	}

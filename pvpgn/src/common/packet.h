@@ -399,8 +399,34 @@ typedef struct
 	t_client_findanongame_inforeq		client_findanongame_inforeq;
 	t_server_findanongame_inforeply		server_findanongame_inforeply;
 	
-        t_client_w3xp_clan_inforeq              client_w3xp_clan_inforeq;
-	t_server_w3xp_clan_inforeply            server_w3xp_clan_inforeply;
+	t_client_w3xp_clan_invitereq        client_w3xp_clan_invitereq;
+    t_server_w3xp_clan_invitereply      server_w3xp_clan_invitereply;
+	t_server_w3xp_clan_invitereq        server_w3xp_clan_invitereq;
+	t_client_w3xp_clan_invitereply      client_w3xp_clan_invitereply;
+	t_client_w3xp_clan_delreq           client_w3xp_clan_delreq;
+	t_server_w3xp_clan_delreply         server_w3xp_clan_delreply;
+	t_client_w3xp_clan_motdchg          client_w3xp_clan_motdchg;
+	t_client_w3xp_clan_motdreq          client_w3xp_clan_motdreq;
+	t_server_w3xp_clan_motdreply        server_w3xp_clan_motdreply;
+	t_client_w3xp_clan_memberreq        client_w3xp_clan_memberreq;
+	t_server_w3xp_clan_memberreply      server_w3xp_clan_memberreply;
+    t_client_w3xp_clan_createreq        client_w3xp_clan_createreq;
+	t_server_w3xp_clan_createreply      server_w3xp_clan_createreply;
+	t_client_w3xp_clan_createinvitereq  client_w3xp_clan_createinvitereq;
+    t_server_w3xp_clan_createinvitereply    server_w3xp_clan_createinvitereply;
+	t_server_w3xp_clan_createinvitereq  server_w3xp_clan_createinvitereq;
+    t_client_w3xp_clan_createinvitereply    client_w3xp_clan_createinvitereply;
+    t_server_w3xp_clan_clanack			    server_w3xp_clan_clanack;
+    t_server_w3xp_clan_memberchangeack      server_w3xp_clan_memberchangeack;
+    t_client_w3xp_clan_memberchangereq      client_w3xp_clan_memberchangereq;
+    t_server_w3xp_clan_memberchangereply    server_w3xp_clan_memberchangereply;
+    t_client_w3xp_clan_memberdelreq         client_w3xp_clan_memberdelreq;
+    t_server_w3xp_clan_memberdelreply       server_w3xp_clan_memberdelreply;
+    t_client_w3xp_clan_membernewchiefreq    client_w3xp_clan_membernewchiefreq;
+    t_server_w3xp_clan_membernewchiefreply  server_w3xp_clan_membernewchiefreply;
+    t_server_w3xp_clan_clanleaveack         server_w3xp_clan_clanleaveack;
+    t_server_w3xp_clan_memberleaveack       server_w3xp_clan_memberleaveack;
+
 	t_server_findanongame_iconreply		server_findanongame_iconreply;
 	t_client_changeclient			client_changeclient;
 	/* restructure anongame [Omega] */

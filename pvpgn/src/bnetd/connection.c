@@ -50,6 +50,7 @@
 #include "compat/strrchr.h"
 #include "compat/strdup.h"
 #include "compat/strcasecmp.h"
+#include "compat/strncasecmp.h"
 #include <errno.h>
 #include "compat/strerror.h"
 #ifdef HAVE_UNISTD_H
@@ -111,6 +112,7 @@
 #include "common/bnet_protocol.h"
 #include "common/field_sizes.h"
 #include "anongame.h"
+#include "clan.h"
 #include "connection.h"
 #include "topic.h"
 #include "fdwatch.h"
@@ -615,6 +617,8 @@ extern void conn_destroy(t_connection * c)
     watchlist_del_all_events(c);
     timerlist_del_all_timers(c);
     
+    clanmember_set_offline(c);
+
     if(c->account)
 	watchlist_notify_event(c->account,NULL,watch_event_logout);
     
@@ -1589,6 +1593,8 @@ extern void conn_set_account(t_connection * c, t_account * account)
 	c->botuser = NULL;
     }
     
+    clanmember_set_online(c);
+
     totalcount++;
     
     watchlist_notify_event(c->account,NULL,watch_event_login);
@@ -1963,7 +1969,10 @@ extern int conn_set_channel_var(t_connection * c, t_channel * channel)
 extern int conn_set_channel(t_connection * c, char const * channelname)
 {
     t_channel * channel;
+    t_channel * oldchannel;
     t_account * acc;
+    int clanshort=0;
+    t_clan * clan;
 
     if (!c)
     {
@@ -1971,15 +1980,55 @@ extern int conn_set_channel(t_connection * c, char const * channelname)
         return -1;
     }
 
-    acc = conn_get_account(c);
+    acc = c->account;
+
+    if (!acc)
+    {
+        eventlog(eventlog_level_error,"conn_set_channel","got NULL account");
+        return -1;
+    }
 
     if (channelname)
     {
-	if (!(channel = channellist_find_channel_by_name(channelname,conn_get_country(c),conn_get_realmname(c))))
-	{
-	    //
-	}
-	else
+#ifndef WITH_BITS
+	unsigned int created = 0;
+#endif
+
+    clan=account_get_clan(acc);
+    if((strncasecmp(channelname, "clan ", 5)==0)&&(strlen(channelname)<10))
+      clanshort = str_to_clanshort(&channelname[5]);
+
+	channel = channellist_find_channel_by_name(channelname,conn_get_country(c),conn_get_realmname(c));
+
+    if(clanshort&&((!clan)||(clan_get_clanshort(clan)!=clanshort)))
+    {
+        if (!channel)
+        {
+            char msgtemp[MAX_MESSAGE_LEN];
+            sprintf(msgtemp, "Unable to join channel %s, there is no member of that clan in the channel!", channelname);
+            message_send_text(c, message_type_error, c, msgtemp);
+            return 0;
+        }
+        else
+        {
+            t_clan * ch_clan;
+            if((ch_clan=clanlist_find_clan_by_clanshort(clanshort))&&(clan_get_channel_type(ch_clan)==1))
+            {
+                message_send_text(c, message_type_error, c, "This is a private clan channel, unable to join!");
+                return 0;
+            }
+        }
+    }
+
+    if (c->channel)
+    {
+	channel_del_connection(c->channel, c);
+	c->channel = NULL;
+    }
+
+    channel = channellist_find_channel_by_name(channelname,conn_get_country(c),conn_get_realmname(c));
+
+    if (channel)
 	{
 	    if (channel_check_banning(channel,c))
 	    {
@@ -2003,14 +2052,9 @@ extern int conn_set_channel(t_connection * c, char const * channelname)
 		return -1;
 	    }
 	}
-    }
     
-    if (c->channel)
-    {
-	channel_del_connection(c->channel,c);
-	c->channel = NULL;
-    }
-	
+    oldchannel=c->channel;
+
     if(conn_set_joingamewhisper_ack(c,0)<0)
 	eventlog(eventlog_level_error,"conn_set_channel","Unable to reset conn_set_joingamewhisper_ack flag");
 
@@ -2019,26 +2063,15 @@ extern int conn_set_channel(t_connection * c, char const * channelname)
     
 	//if the last Arranged Team game was cancel, interupted, then we dont save the team at all.
 	//then we reset the flag to 0
-	if(channelname == NULL)
-	{
-		//do nothing
-	}
-	else
-	{
-		if(account_get_new_at_team(conn_get_account(c))==1)
+
+        if(account_get_new_at_team(acc)==1)
 		{
 			int temp;
-			temp = account_get_atteamcount(conn_get_account(c),conn_get_clienttag(c));
+			temp = account_get_atteamcount(acc,conn_get_clienttag(c));
 			temp = temp-1;
-			account_set_atteamcount(conn_get_account(c),conn_get_clienttag(c),temp);
-			account_set_new_at_team(conn_get_account(c),0);
+			account_set_atteamcount(acc,conn_get_clienttag(c),temp);
+			account_set_new_at_team(acc,0);
 		}
-	}
-    if (channelname)
-    {
-#ifndef WITH_BITS
-	unsigned int created = 0;
-#endif
 
 	/* if you're entering a channel, make sure they didn't exit a game without telling us */
 	if (c->game)
@@ -2099,31 +2132,68 @@ extern int conn_set_channel(t_connection * c, char const * channelname)
 	eventlog(eventlog_level_debug,"conn_set_channel","[%d] joined channel \"%s\"",conn_get_socket(c),channelname);
 #else
 	created = 0;
-	if (!(c->channel = channellist_find_channel_by_name(channelname, conn_get_country(c), conn_get_realmname(c))))
+
+    if (!channel)
 	{
-	    if (!(c->channel = channel_create(channelname,channelname,NULL,0,1,1,prefs_get_chanlog(), NULL, NULL, -1,0)))
+        if(clanshort)
+            channel = channel_create(channelname,channelname,CLIENTTAG_WAR3XP,0,1,0,prefs_get_chanlog(), NULL, NULL, -1,0);
+        else
+            channel = channel_create(channelname,channelname,NULL,0,1,1,prefs_get_chanlog(), NULL, NULL, -1,0);
+	    if (!channel)
 	    {
 		eventlog(eventlog_level_error,"conn_set_channel","[%d] could not create channel on join \"%s\"",conn_get_socket(c),channelname);
 		return -1;
 	    }
 	    created = 1;
 	}
-	
-	if (channel_add_connection(conn_get_channel(c),c)<0)
+
+    if (channel_add_connection(channel,c)<0)
 	{
 	    if (created)
-		channel_destroy(c->channel);
-	    c->channel = NULL;
-            return -1;
+		    channel_destroy(channel);
+        return -1;
 	}
+
+    c->channel=channel;
+
 	eventlog(eventlog_level_info,"conn_set_channel","[%d] joined channel \"%s\"",conn_get_socket(c),channel_get_name(c->channel));
 #endif
 	conn_send_welcome(c);
 
-	if(c->channel && (channel_get_flags(c->channel) & channel_flags_thevoid))
+   if(conn_get_motd_loggedin(c)==0)
+     {
+       char msgtemp[255];
+       int clienttaggames = game_get_count_by_clienttag(conn_get_clienttag(c));
+       int clienttagusers = conn_get_user_count_by_clienttag(conn_get_clienttag(c));
+       
+       sprintf(msgtemp,"Welcome to the PvPGN Realm");
+       message_send_text(c,message_type_info,c,msgtemp);
+       sprintf(msgtemp,"This Server is hosted by: %s",prefs_get_contact_name());
+       message_send_text(c,message_type_info,c,msgtemp);
+       sprintf(msgtemp,"There are currently %u users in %u games of %s,",
+	       clienttagusers,
+	       clienttaggames,
+	       conn_get_user_game_title(conn_get_clienttag(c)));
+       message_send_text(c,message_type_info,c,msgtemp);
+       sprintf(msgtemp,"and %u users playing %u games and chatting In %u channels in the PvPGN Realm.",
+	       connlist_login_get_length(),
+	       gamelist_get_length(),
+	       channellist_get_length());
+       message_send_text(c,message_type_info,c,msgtemp);
+       
+       
+       conn_set_motd_loggedin(c);
+     }
+   
+    if(c->channel && (channel_get_flags(c->channel) & channel_flags_thevoid))
 	    message_send_text(c,message_type_info,c,"This channel does not have chat privileges.");
+    if (clanshort&&clan&&(clan_get_clanshort(clan)==clanshort))
+    {
+      char msgtemp[MAX_MESSAGE_LEN];
+      sprintf(msgtemp,"%s",clan_get_motd(clan));
+      message_send_text(c,message_type_info,c,msgtemp);
     }
-    
+
     if (channel_get_topic(channel_get_name(c->channel)))
     {
       char msgtemp[MAX_MESSAGE_LEN];
@@ -2134,6 +2204,19 @@ extern int conn_set_channel(t_connection * c, char const * channelname)
 
     if (c->channel && (channel_get_flags(c->channel) & channel_flags_moderated))
 	message_send_text(c,message_type_error,c,"This channel is moderated.");
+
+    if(c->channel!=oldchannel)
+      clanmember_on_change_status_by_connection(c);
+    }
+    else
+    {
+      if (c->channel)
+      {
+        channel_del_connection(c->channel,c);
+        c->channel = NULL;
+      }
+    }
+
     return 0;
 }
 
@@ -2472,6 +2555,11 @@ extern char const * conn_get_username(t_connection const * c)
     }
     if (c->class==conn_class_auth && c->bound)
 	return account_get_name(c->bound->account);
+    if(!c->account)
+    {
+        eventlog(eventlog_level_error,"conn_get_username","got NULL account");
+        return NULL;
+    }
     result = account_get_name(c->account);
     if (result == NULL)
     { 
@@ -2628,6 +2716,12 @@ extern unsigned int conn_get_userid(t_connection const * c)
     if (!c)
     {
         eventlog(eventlog_level_error,"conn_get_userid","got NULL connection");
+        return 0;
+    }
+
+    if(!c->account)
+    {
+        eventlog(eventlog_level_error,"conn_get_userid","got NULL account");
         return 0;
     }
     
@@ -3967,7 +4061,7 @@ extern t_connection * connlist_find_connection_by_uid(unsigned int uid)
     LIST_TRAVERSE_CONST(conn_head,curr)
     {
 	c = elem_get_data(curr);
-	if (account_get_uid(c->account)==uid)
+	if (conn_get_userid(c)==uid)
 	    return c;
     }
     
@@ -4021,4 +4115,87 @@ extern unsigned int connlist_count_connections(unsigned int addr)
   }
 
   return count;
+}
+
+extern int conn_update_w3_playerinfo(t_connection * c)
+{
+    t_account * 	account;
+    char const * 	clienttag;
+    t_clan * 		user_clan;
+    int 		clanshort=0;
+    unsigned int	acctlevel = 0;
+    char		tempplayerinfo[40];
+    char		raceicon; /* appeared in 1.03 */
+    unsigned int	raceiconnumber;
+    unsigned int    	wins;
+    char *          	client;
+    char const *	usericon;
+    char 		clanshort_str_tmp[5];
+    const char * 	clanshort_str = NULL;
+
+    if (c == NULL) {
+	eventlog(eventlog_level_error, __FUNCTION__, "got NULL connection");
+	return -1;
+    }
+
+    account = conn_get_account(c);
+
+    if (account == NULL) {
+	eventlog(eventlog_level_error, __FUNCTION__, "got NULL account");
+	return -1;
+    }
+
+    clienttag = conn_get_clienttag(c);
+
+    if (strcmp(clienttag, CLIENTTAG_WARCRAFT3) == 0)
+	client = "3RAW";
+    else
+	client = "PX3W";
+
+    acctlevel = account_get_highestladderlevel(account,clienttag);
+    account_get_raceicon(account, &raceicon, &raceiconnumber, &wins, clienttag);
+
+    if((user_clan = account_get_clan(account)) != NULL)
+	clanshort = clan_get_clanshort(user_clan);
+
+    if(clanshort) {
+	sprintf(clanshort_str_tmp, "%c%c%c%c", clanshort&0xff, (clanshort>>8)&0xff, (clanshort>>16)&0xff, clanshort>>24);
+        clanshort_str=clanshort_str_tmp;
+        while((* clanshort_str) == 0) clanshort_str++;
+    }
+
+    if(acctlevel == 0) {
+	if(clanshort)
+	    sprintf(tempplayerinfo, "%s 1R3W 0 %s", client, clanshort_str);
+	else
+	    strcpy(tempplayerinfo, client);
+	eventlog(eventlog_level_info,__FUNCTION__,"[%d] %s",conn_get_socket(c), client);
+    } else {
+	usericon = account_get_user_icon(account,clienttag);
+	if (!usericon) {
+    	    if(clanshort)
+		sprintf(tempplayerinfo, "%s %1u%c3W %u %s", client, raceiconnumber, raceicon, acctlevel, clanshort_str); 
+            else
+		sprintf(tempplayerinfo, "%s %1u%c3W %u", client, raceiconnumber, raceicon, acctlevel); 
+	    eventlog(eventlog_level_info,__FUNCTION__,"[%d] %s using generated icon [%1u%c3W]",conn_get_socket(c), client, raceiconnumber, raceicon);
+	} else {
+            if(clanshort)
+		sprintf(tempplayerinfo, "%s %s %u %s",client, usericon, acctlevel, clanshort_str);
+            else
+		sprintf(tempplayerinfo, "%s %s %u",client, usericon, acctlevel);
+	    eventlog(eventlog_level_info,__FUNCTION__,"[%d] %s using user-selected icon [%s]",conn_get_socket(c),client,usericon);
+	}
+    }
+
+    conn_set_w3_playerinfo( c, tempplayerinfo ); 
+
+    if(account_get_new_at_team(account) == 1) {
+	int temp;
+	temp = account_get_atteamcount(account,clienttag);
+	temp = temp-1;
+	account_set_atteamcount(account,clienttag,temp);
+	account_set_new_at_team(account,0);
+    }
+
+    return 0;     
 }
