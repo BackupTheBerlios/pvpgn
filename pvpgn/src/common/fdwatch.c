@@ -62,6 +62,10 @@ static t_fdw_backend * fdw = NULL;
 extern int fdwatch_init(void)
 {
     fdw_maxfd = get_socket_limit();
+    if (fdw_maxfd < 1) {
+	eventlog(eventlog_level_fatal, __FUNCTION__, "too few sockets available (%d)",fdw_maxfd);
+	return -1;
+    }
 
     fdw_rw = xmalloc(sizeof(int) * fdw_maxfd);
     fdw_data = xmalloc(sizeof(void *) * fdw_maxfd);
