@@ -17,9 +17,6 @@
 
 2v2		Maps\(4)Duskwood.w3m
 2v2		Maps\(4)HarvestMoon.w3m
-2v2		Maps\(4)LostTemple.w3m
-2v2		Maps\(6)GnollWood.w3m
-2v2		Maps\(6)ScorchedBasin.w3m
 2v2		Maps\(6)Stromguarde.w3m
 2v2		Maps\(6)SwampOfSorrows.w3m
 2v2		Maps\(8)GolemsInTheMist.w3m
@@ -27,38 +24,21 @@
 
 3v3		Maps\(6)DarkForest.w3m
 3v3		Maps\(6)DragonFire.w3m
-3v3		Maps\(6)Stromguarde.w3m
-3v3		Maps\(6)SwampOfSorrows.w3m
 3v3		Maps\(6)TimbermawHold.w3m
 3v3		Maps\(8)Battleground.w3m
 3v3		Maps\(8)PlainsOfSnow.w3m
-3v3		Maps\(8)TheCrucible.w3m
 
 4v4		Maps\(8)BlastedLands.w3m
 4v4		Maps\(8)BloodvenomFalls.w3m
 4v4		Maps\(8)GardenOfWar.w3m
-4v4		Maps\(8)GolemsInTheMist.w3m
 4v4		Maps\(8)PetrifiedForest.w3m
-4v4		Maps\(8)PlainsOfSnow.w3m
-4v4		Maps\(8)TheCrucible.w3m
 
 # Small FFA
-sffa		Maps\(4)HarvestMoon.w3m
-sffa		Maps\(4)LostTemple.w3m
 sffa		Maps\(4)MysticIsles.w3m
-sffa		Maps\(6)GnollWood.w3m
-sffa		Maps\(6)ScorchedBasin.w3m
-sffa		Maps\(6)Stromguarde.w3m
-sffa		Maps\(6)SwampOfSorrows.w3m
-sffa		Maps\(8)Battleground.w3m
-sffa		Maps\(8)TheCrucible.w3m
 
 # Arranged Teams 2v2
 at2v2		Maps\(4)Duskwood.w3m
 at2v2		Maps\(4)HarvestMoon.w3m
-at2v2		Maps\(4)LostTemple.w3m
-at2v2		Maps\(6)GnollWood.w3m
-at2v2		Maps\(6)ScorchedBasin.w3m
 at2v2		Maps\(6)Stromguarde.w3m
 at2v2		Maps\(6)SwampOfSorrows.w3m
 at2v2		Maps\(8)GolemsInTheMist.w3m
@@ -67,18 +47,12 @@ at2v2		Maps\(8)TheCrucible.w3m
 # Arranged Teams 3v3
 at3v3		Maps\(6)DarkForest.w3m
 at3v3		Maps\(6)DragonFire.w3m
-at3v3		Maps\(6)Stromguarde.w3m
-at3v3		Maps\(6)SwampOfSorrows.w3m
 at3v3		Maps\(6)TimbermawHold.w3m
 at3v3		Maps\(8)Battleground.w3m
 at3v3		Maps\(8)PlainsOfSnow.w3m
-at3v3		Maps\(8)TheCrucible.w3m
 
 # Arranged Teams 4v4
 at4v4		Maps\(8)BlastedLands.w3m
 at4v4		Maps\(8)BloodvenomFalls.w3m
 at4v4		Maps\(8)GardenOfWar.w3m
-at4v4		Maps\(8)GolemsInTheMist.w3m
 at4v4		Maps\(8)PetrifiedForest.w3m
-at4v4		Maps\(8)PlainsOfSnow.w3m
-at4v4		Maps\(8)TheCrucible.w3m
