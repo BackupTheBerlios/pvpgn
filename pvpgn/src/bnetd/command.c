@@ -3040,7 +3040,13 @@ static int _handle_chpass_command(t_connection * c, char const *text)
       return 0;
     }
   
-  /* FIXME: truncate or err on too long password */
+  if (strlen(pass) > USER_PASS_MAX)
+  {
+    sprintf(msgtemp,"Maximum password length allowed is %d",USER_PASS_MAX);
+    message_send_text(c,message_type_error,c,msgtemp);
+    return 0;
+  }
+  
   for (i=0; i<strlen(pass); i++)
     if (isupper((int)pass[i])) pass[i] = tolower((int)pass[i]);
   
