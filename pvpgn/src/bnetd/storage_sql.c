@@ -1312,7 +1312,7 @@ static int sql_write_team(void *data)
 	if (num < 1)
 	    sprintf(query, "INSERT INTO arrangedteam (teamid, size, clienttag, lastgame, member1, member2, member3, member4, wins,losses, xp, level, rank) VALUES('%u', '%c', '%s', '%u', '%u', '%u', '%u', '%u', '%d', '%d', '%d', '%d', '%d')", team->teamid,team->size+'0',clienttag_uint_to_str(team->clienttag),(unsigned int)team->lastgame,team->teammembers[0],team->teammembers[1],team->teammembers[2],team->teammembers[3],team->wins,team->losses,team->xp,team->level,team->rank);
 	else
-	    sprintf(query, "UPDATE arrangedteam SET size='%c', clienttag='%s', lastgame='%u', member1='%u',member2='%u', member3='%u',member4='%u', wins='%d' losses='%d', xp='%d', level='%d', rank='%d' WHERE teamid='%u'",team->size+'0',clienttag_uint_to_str(team->clienttag),(unsigned int)team->lastgame,team->teammembers[0],team->teammembers[1],team->teammembers[2],team->teammembers[3],team->wins,team->losses,team->xp,team->level,team->rank,team->teamid);
+	    sprintf(query, "UPDATE arrangedteam SET size='%c', clienttag='%s', lastgame='%u', member1='%u', member2='%u', member3='%u', member4='%u', wins='%d', losses='%d', xp='%d', level='%d', rank='%d' WHERE teamid='%u'",team->size+'0',clienttag_uint_to_str(team->clienttag),(unsigned int)team->lastgame,team->teammembers[0],team->teammembers[1],team->teammembers[2],team->teammembers[3],team->wins,team->losses,team->xp,team->level,team->rank,team->teamid);
 	if (sql->query(query) < 0)
 	{
 	    eventlog(eventlog_level_error, __FUNCTION__, "error trying query: \"%s\"", query);

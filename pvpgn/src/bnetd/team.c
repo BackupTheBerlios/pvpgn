@@ -521,10 +521,12 @@ int team_update_level(t_team * team)
   return 0;
 }
 
-int team_set_saveladderstats(t_team * team, t_account * account, unsigned int gametype, int result, unsigned int opponlevel,t_clienttag clienttag)
+int team_set_saveladderstats(t_team * team, unsigned int gametype, int result, unsigned int opponlevel,t_clienttag clienttag)
 {
   unsigned int intrace;
   int xpdiff,level;
+  int i;
+  t_account * account;
 	
   if(!team) 
     {
@@ -535,17 +537,14 @@ int team_set_saveladderstats(t_team * team, t_account * account, unsigned int ga
     //added for better tracking down of problems with gameresults
     eventlog(eventlog_level_trace,__FUNCTION__,"parsing game result for team: %u result: %s",team_get_teamid(team),(result==W3_GAMERESULT_WIN)?"WIN":"LOSS");
 
-  intrace = account_get_w3pgrace(account,clienttag);
   
   if(result == W3_GAMERESULT_WIN)
     {
       team_win(team);
-      account_inc_racewins(account,intrace,clienttag);
     }
   if(result == W3_GAMERESULT_LOSS)
     {
       team_loss(team);
-      account_inc_racelosses(account,intrace,clienttag);
     }
   team_update_xp(team, result, opponlevel,&xpdiff);
   team_update_level(team);
@@ -555,6 +554,26 @@ int team_set_saveladderstats(t_team * team, t_account * account, unsigned int ga
     war3_ladder_add(at_ladder(clienttag),uid,account_get_atteamxp(account,current_teamnum,clienttag),level,account,0,clienttag);
     */
   storage->write_team(team);
+
+
+  // now set currentatteam to 0 so we only get one report for each team
+  for (i=0; i<MAX_TEAMSIZE; i++)
+  {
+    if ((account = team->members[i]))
+    {
+      intrace = account_get_w3pgrace(account,clienttag);
+      if(result == W3_GAMERESULT_WIN)
+      {
+        account_inc_racewins(account,intrace,clienttag);
+      }
+      if(result == W3_GAMERESULT_LOSS)
+      {
+        account_inc_racelosses(account,intrace,clienttag);
+      }
+      account_set_currentatteam(account,0);
+    }
+  }
+  
   return 0;
 }
 
