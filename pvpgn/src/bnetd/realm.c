@@ -606,13 +606,11 @@ extern t_connection * realm_get_conn(t_realm * realm)
 extern t_realm * realm_get(t_realm * realm, t_rcm_regref * regref)
 {
 	rcm_get(realm->rcm,regref);
-	eventlog(eventlog_level_trace,__FUNCTION__,"an object registed with \"%s\" realm",realm->name);
 	return realm;
 }
 
 extern void realm_put(t_realm * realm, t_rcm_regref * regref)
 {
-	eventlog(eventlog_level_trace,__FUNCTION__,"an object unregisted with \"%s\" realm",realm->name);
 	rcm_put(realm->rcm,regref);
 }
 	

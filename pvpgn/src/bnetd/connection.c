@@ -2760,7 +2760,6 @@ extern int conn_set_realm(t_connection * c, t_realm * realm)
 extern int conn_set_realm_cb(void *data, void *newref)
 {
 
-eventlog(eventlog_level_trace,__FUNCTION__,"callback triggerd for realm \"%s\"",realm_get_name((t_realm *)newref));
     if (newref)
     {
 	((t_connection *)data)->protocol.d2.realm = (t_realm *)newref;
