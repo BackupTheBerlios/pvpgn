@@ -61,6 +61,9 @@ version_exeinfo_maxdiff a bit [for me I had 3601 secs diff but 3600 allowed)
 are stored into storage; pvpgn will automagically convert from old format to
 new format but once you run this pvpgn version you will have trouble to use
 older versions)
+-- redesigned and rewritten main loop and server.c; also introduced a new 
+general API for watching socket status (fdwatch); the new code should be 
+many times faster (especially when having a lot of concurrent connections)
 
 1.5.0beta3:
 -- fixed a long standing bug regarding bnmaps.txt and AT maps

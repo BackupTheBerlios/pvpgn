@@ -117,7 +117,7 @@ static int _client_anongame_profile(t_connection * c, t_packet const * const pac
 	bn_byte_set(&rpacket->u.server_findanongame_profile2.rescount,0);
 	temp=0;
 	packet_append_data(rpacket,&temp,2); 
-	queue_push_packet(conn_get_out_queue(c),rpacket);
+	conn_push_outqueue(c,rpacket);
 	packet_del_ref(rpacket);
     }
     else // If they do have a profile then:
@@ -348,7 +348,7 @@ static int _client_anongame_profile(t_connection * c, t_packet const * const pac
 	    }
 	}
 	
-	queue_push_packet(conn_get_out_queue(c),rpacket);
+	conn_push_outqueue(c,rpacket);
 	packet_del_ref(rpacket);				
 	
 	eventlog(eventlog_level_info,__FUNCTION__,"Sent %s's WAR3 Stats to requestor.",username);
@@ -392,7 +392,7 @@ static int _client_anongame_cancel(t_connection * c)
     packet_set_type(rpacket,SERVER_FINDANONGAME_PLAYGAME_CANCEL);
     bn_byte_set(&rpacket->u.server_findanongame_playgame_cancel.cancel,SERVER_FINDANONGAME_CANCEL);
     bn_int_set(&rpacket->u.server_findanongame_playgame_cancel.count, a_count);
-    queue_push_packet(conn_get_out_queue(c),rpacket);
+    conn_push_outqueue(c,rpacket);
     packet_del_ref(rpacket);
     return 0;
 }
@@ -490,7 +490,7 @@ static int _client_anongame_get_icon(t_connection * c, t_packet const * const pa
 	    }
 	}
         //Go,go,go
-        queue_push_packet(conn_get_out_queue(c),rpacket);
+        conn_push_outqueue(c,rpacket);
         packet_del_ref(rpacket);
     }
     return 0;
@@ -558,7 +558,7 @@ static int _client_anongame_infos(t_connection * c, t_packet const * const packe
 	bn_byte_set(&rpacket->u.server_findanongame_inforeply.noitems, 0);
 	packet_append_data(rpacket, &temp, 1);
 	
-	queue_push_packet(conn_get_out_queue(c),rpacket);
+	conn_push_outqueue(c,rpacket);
 	packet_del_ref(rpacket);
     } else {
 	int i, j;
@@ -853,7 +853,7 @@ static int _client_anongame_infos(t_connection * c, t_packet const * const packe
 	    //Go,go,go
 	    bn_byte_set(&rpacket->u.server_findanongame_inforeply.noitems, noitems);
 	    packet_set_size(rpacket,packet_get_size(rpacket));
-	    queue_push_packet(conn_get_out_queue(c),rpacket);
+	    conn_push_outqueue(c,rpacket);
 	    packet_del_ref(rpacket);
 	}
     }
@@ -1025,7 +1025,7 @@ static int _client_anongame_tournament(t_connection * c, t_packet const * const 
 	bn_byte_set(	&rpacket->u.server_anongame_tournament_reply.nulltag,		0);
     }
     
-    queue_push_packet(conn_get_out_queue(c),rpacket);
+    conn_push_outqueue(c,rpacket);
     packet_del_ref(rpacket);
     return 0;
 }

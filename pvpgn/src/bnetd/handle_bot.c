@@ -135,7 +135,7 @@ extern int handle_bot_packet(t_connection * c, t_packet const * const packet)
 		    packet_append_ntstring(rpacket,conn_get_botuser(c));
 #endif
 		    packet_append_ntstring(rpacket,msg);
-		    queue_push_packet(conn_get_out_queue(c),rpacket);
+		    conn_push_outqueue(c,rpacket);
 		    packet_del_ref(rpacket);
 		}
 	    }
@@ -159,7 +159,7 @@ extern int handle_bot_packet(t_connection * c, t_packet const * const packet)
 		packet_append_ntstring(rpacket,linestr);
 #endif
 		packet_append_ntstring(rpacket,temp);
-		queue_push_packet(conn_get_out_queue(c),rpacket);
+		conn_push_outqueue(c,rpacket);
 		packet_del_ref(rpacket);
 	    }
 	    break;
@@ -188,7 +188,7 @@ extern int handle_bot_packet(t_connection * c, t_packet const * const packet)
 		    }
 		    
 		    packet_append_ntstring(rpacket,tempa);
-		    queue_push_packet(conn_get_out_queue(c),rpacket);
+		    conn_push_outqueue(c,rpacket);
 		    packet_del_ref(rpacket);
 		    break;
 		}
@@ -204,7 +204,7 @@ extern int handle_bot_packet(t_connection * c, t_packet const * const packet)
 		    }
 		    
 		    packet_append_ntstring(rpacket,tempa);
-		    queue_push_packet(conn_get_out_queue(c),rpacket);
+		    conn_push_outqueue(c,rpacket);
 		    packet_del_ref(rpacket);
 		    break;
 		}
@@ -227,7 +227,7 @@ extern int handle_bot_packet(t_connection * c, t_packet const * const packet)
 		    	    }
 		    
 		    	    packet_append_ntstring(rpacket,tempa);
-		    	    queue_push_packet(conn_get_out_queue(c),rpacket);
+		    	    conn_push_outqueue(c,rpacket);
 		    	    packet_del_ref(rpacket);
 		    	    break;
 			} else {
@@ -248,7 +248,7 @@ extern int handle_bot_packet(t_connection * c, t_packet const * const packet)
 			}
 			
 			packet_append_ntstring(rpacket,tempa);
-			queue_push_packet(conn_get_out_queue(c),rpacket);
+			conn_push_outqueue(c,rpacket);
 			packet_del_ref(rpacket);
 #ifdef WITH_BITS
 		    } /* bits master */
@@ -267,7 +267,7 @@ extern int handle_bot_packet(t_connection * c, t_packet const * const packet)
 		    }
 		    
 		    packet_append_ntstring(rpacket,tempa);
-		    queue_push_packet(conn_get_out_queue(c),rpacket);
+		    conn_push_outqueue(c,rpacket);
 		    packet_del_ref(rpacket);
 		    break;
 		}
@@ -290,7 +290,7 @@ extern int handle_bot_packet(t_connection * c, t_packet const * const packet)
 			}
 			
 			packet_append_ntstring(rpacket,tempa);
-			queue_push_packet(conn_get_out_queue(c),rpacket);
+			conn_push_outqueue(c,rpacket);
 			packet_del_ref(rpacket);
 			break;
 		    }
@@ -320,7 +320,7 @@ extern int handle_bot_packet(t_connection * c, t_packet const * const packet)
 			}
 			
 			packet_append_ntstring(rpacket,tempa);
-			queue_push_packet(conn_get_out_queue(c),rpacket);
+			conn_push_outqueue(c,rpacket);
 			packet_del_ref(rpacket);
 			break;
 		    }
@@ -338,7 +338,7 @@ extern int handle_bot_packet(t_connection * c, t_packet const * const packet)
 			}
 			
 			packet_append_ntstring(rpacket,tempa);
-			queue_push_packet(conn_get_out_queue(c),rpacket);
+			conn_push_outqueue(c,rpacket);
 			packet_del_ref(rpacket);
 			break;
 		    }
@@ -357,7 +357,7 @@ extern int handle_bot_packet(t_connection * c, t_packet const * const packet)
 			}
 			
 			packet_append_ntstring(rpacket,tempb);
-			queue_push_packet(conn_get_out_queue(c),rpacket);
+			conn_push_outqueue(c,rpacket);
 			packet_del_ref(rpacket);
 			break;
 		    }
@@ -374,7 +374,7 @@ extern int handle_bot_packet(t_connection * c, t_packet const * const packet)
 			}
 			
 			packet_append_ntstring(rpacket,tempb);
-			queue_push_packet(conn_get_out_queue(c),rpacket);
+			conn_push_outqueue(c,rpacket);
 			packet_del_ref(rpacket);
 			break;
 		    }
@@ -418,7 +418,7 @@ extern int handle_bot_packet(t_connection * c, t_packet const * const packet)
 			    break;
 			}
 			packet_append_ntstring(rpacket,tempa);
-			queue_push_packet(conn_get_out_queue(c),rpacket);
+			conn_push_outqueue(c,rpacket);
 			packet_del_ref(rpacket);
 			break;
 		    }
@@ -428,7 +428,7 @@ extern int handle_bot_packet(t_connection * c, t_packet const * const packet)
 		    else
 		    {
 			packet_append_ntstring(rpacket,"\r\n");
-			queue_push_packet(conn_get_out_queue(c),rpacket);
+			conn_push_outqueue(c,rpacket);
 			packet_del_ref(rpacket);
 		    }
 		    conn_set_account(c,account);

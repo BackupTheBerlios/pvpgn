@@ -98,12 +98,12 @@ extern int handle_file_packet(t_connection * c, t_packet const * const packet)
 		    packet_set_size(rpacket,sizeof(t_server_file_unknown1));
 		    bn_short_set( &rpacket->u.server_file_unknown1.unknown1, 0x84e7 );
 		    bn_short_set( &rpacket->u.server_file_unknown1.unknown2, 0x41b4 );
-		    queue_push_packet( conn_get_out_queue(c), rpacket );
+		    conn_push_outqueue(c, rpacket );
 		    packet_del_ref( rpacket );
 	    }
 	    if((rpacket = packet_create(packet_class_raw))) {
 		    packet_set_size(rpacket,sizeof(t_client_war3113_file_req));
-		    queue_push_packet( conn_get_in_queue(c), rpacket );
+		    conn_push_inqueue( c, rpacket );
 		    packet_del_ref( rpacket );
 	    }
 	}

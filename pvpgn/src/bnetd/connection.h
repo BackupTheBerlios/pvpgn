@@ -151,6 +151,7 @@ typedef struct connection
    t_game *                      game;
    t_queue *                     outqueue;  /* packets waiting to be sent */
    unsigned int                  outsize;   /* amount sent from the current output packet */
+   unsigned int			 outsizep;
    t_queue *                     inqueue;   /* packet waiting to be processed */
    unsigned int                  insize;    /* amount received into the current input packet */
    int                           welcomed;  /* 1 = sent welcome message, 0 = have not */
@@ -311,6 +312,12 @@ extern void conn_set_in_size(t_connection * c, unsigned int size);
 extern t_queue * * conn_get_out_queue(t_connection * c) PURE_ATTR();
 extern unsigned int conn_get_out_size(t_connection const * c) PURE_ATTR();
 extern void conn_set_out_size(t_connection * c, unsigned int size);
+extern int conn_push_outqueue(t_connection * c, t_packet * packet);
+extern t_packet * conn_peek_outqueue(t_connection * c);
+extern t_packet * conn_pull_outqueue(t_connection * c);
+extern int conn_push_inqueue(t_connection * c, t_packet * packet);
+extern t_packet * conn_peek_inqueue(t_connection * c);
+extern t_packet * conn_pull_inqueue(t_connection * c);
 extern int conn_check_ignoring(t_connection const * c, char const * me) PURE_ATTR();
 extern t_account * conn_get_account(t_connection const * c) PURE_ATTR();
 extern void conn_set_account(t_connection * c, t_account * account);
@@ -377,6 +384,7 @@ extern char const * conn_get_w3_loginreq(t_connection * c);
 extern int conn_set_routeconn(t_connection * c, t_connection * rc);
 extern t_connection * conn_get_routeconn(t_connection const * c);
 extern int connlist_create(void);
+extern void connlist_reap(void);
 extern int connlist_destroy(void);
 extern t_list * connlist(void) PURE_ATTR();
 extern t_connection * connlist_find_connection_by_sessionkey(unsigned int sessionkey);

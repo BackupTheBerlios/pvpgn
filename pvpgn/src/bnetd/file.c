@@ -247,7 +247,7 @@ extern int file_send(t_connection * c, char const * rawname, unsigned int adid, 
 	bn_int_set(&rpacket->u.server_file_reply.extensiontag,etag);
 	/* rpacket->u.server_file_reply.timestamp is set above */
 	packet_append_string(rpacket,rawname);
-	queue_push_packet(conn_get_out_queue(c),rpacket);
+	conn_push_outqueue(c,rpacket);
     }
     packet_del_ref(rpacket);
 
@@ -275,7 +275,7 @@ extern int file_send(t_connection * c, char const * rawname, unsigned int adid, 
 	    if (nbytes>0) /* send out last portion */
 	    {
 		packet_set_size(rpacket,nbytes);
-		queue_push_packet(conn_get_out_queue(c),rpacket);
+		conn_push_outqueue(c,rpacket);
 	    }
 	    packet_del_ref(rpacket);
 	    if (ferror(fp))
@@ -283,7 +283,7 @@ extern int file_send(t_connection * c, char const * rawname, unsigned int adid, 
 	    break;
 	}
 	packet_set_size(rpacket,nbytes);
-	queue_push_packet(conn_get_out_queue(c),rpacket);
+	conn_push_outqueue(c,rpacket);
 	packet_del_ref(rpacket);
     }
     

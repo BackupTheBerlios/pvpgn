@@ -149,7 +149,7 @@ static int on_d2cs_authreply(t_connection * c, t_packet const * packet)
 		packet_set_type(rpacket,BNETD_D2CS_AUTHREPLY);
 		bn_int_set(&rpacket->u.bnetd_d2cs_authreply.h.seqno,1);
 		bn_int_set(&rpacket->u.bnetd_d2cs_authreply.reply,reply);
-		queue_push_packet(conn_get_out_queue(c),rpacket);
+		conn_push_outqueue(c,rpacket);
 		packet_del_ref(rpacket);
 	}
 	return 0;
@@ -233,7 +233,7 @@ static int on_d2cs_accountloginreq(t_connection * c, t_packet const * packet)
 		bn_int_set(&rpacket->u.bnetd_d2cs_accountloginreply.h.seqno,
 			bn_int_get(packet->u.d2cs_bnetd_accountloginreq.h.seqno));
 		bn_int_set(&rpacket->u.bnetd_d2cs_accountloginreply.reply,reply);
-		queue_push_packet(conn_get_out_queue(c),rpacket);
+		conn_push_outqueue(c,rpacket);
 		packet_del_ref(rpacket);
 	}
 	return 0;
@@ -299,7 +299,7 @@ static int on_d2cs_charloginreq(t_connection * c, t_packet const * packet)
 		bn_int_set(&rpacket->u.bnetd_d2cs_charloginreply.h.seqno,
 			bn_int_get(packet->u.d2cs_bnetd_charloginreq.h.seqno));
 		bn_int_set(&rpacket->u.bnetd_d2cs_charloginreply.reply,reply);
-		queue_push_packet(conn_get_out_queue(c),rpacket);
+		conn_push_outqueue(c,rpacket);
 		packet_del_ref(rpacket);
 	}
 	return 0;
@@ -314,7 +314,7 @@ extern int handle_d2cs_init(t_connection * c)
 		packet_set_type(packet,BNETD_D2CS_AUTHREQ);
 		bn_int_set(&packet->u.bnetd_d2cs_authreq.h.seqno,1);
 		bn_int_set(&packet->u.bnetd_d2cs_authreq.sessionnum,conn_get_sessionnum(c));
-		queue_push_packet(conn_get_out_queue(c),packet);
+		conn_push_outqueue(c,packet);
 		packet_del_ref(packet);
 	}
 	eventlog(eventlog_level_info,"handle_d2cs_init","sent init packet to d2cs (sessionnum=%d)",

@@ -1629,7 +1629,7 @@ extern int message_send(t_message * message, t_connection * dst)
 	}
     }
     
-    queue_push_packet(conn_get_out_queue(dst),packet);
+    conn_push_outqueue(dst,packet);
 
     if (conn_get_class(dst)==conn_class_irc)
     	packet_del_ref(packet); /* we don't need the previously created copy anymore ... */

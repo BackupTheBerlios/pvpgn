@@ -60,13 +60,6 @@
 #include "compat/memset.h"
 #include <errno.h>
 #include "compat/strerror.h"
-#ifdef HAVE_POLL_H
-# include <poll.h>
-#else
-# ifdef HAVE_SYS_POLL_H
-#  include <sys/poll.h>
-# endif
-#endif
 #ifdef TIME_WITH_SYS_TIME
 # include <sys/time.h>
 # include <time.h>
@@ -84,9 +77,6 @@
 #ifdef DO_POSIXSIG
 # include <signal.h>
 # include "compat/signal.h"
-#endif
-#ifdef HAVE_SYS_SELECT_H
-# include <sys/select.h>
 #endif
 #ifdef HAVE_SYS_SOCKET_H
 # include <sys/socket.h>
@@ -157,10 +147,11 @@
 // aaron
 #include "war3ladder.h"
 #include "output.h"
-#include "common/setup_after.h"
 #include "alias_command.h"
 #include "anongame_infos.h"
 #include "news.h"
+#include "fdwatch.h"
+#include "common/setup_after.h"
 
 extern FILE * hexstrm; /* from main.c */
 extern int g_ServiceStatus;
@@ -184,7 +175,6 @@ static volatile int got_epipe=0;
 static volatile int do_report_usage=0;
 #endif
 static char const * server_name=NULL;
-
 
 extern void server_quit_delay(unsigned int delay)
 {
@@ -275,43 +265,9 @@ static char const * laddr_type_get_str(t_laddr_type laddr_type)
 }
 
 
-/* This is similar function to the FD_ISSET macro used with select.
- * Given a set of fds and a mask it determines if the socket was
- * selected.  It tries to take advantage of the ordering of the
- * fd array to avoid searching it (thereby making socket handling
- * O(n^2)) by saving the location of the next member.  It will
- * normally take one or two iterations of the top loop to find
- * the right entry.  That will normally fail once for every poll()
- * and then one iteration of the second loop will do the job.
- * I haven't seen it take logner than that and it should never
- * try to lookup an fd that isn't in the list.
- */
-#ifdef HAVE_POLL
-static int poll_check(struct pollfd const * fds, int num_fd, int sd, int mask)
-{
-    static int guess=0;
-    int        i;
-    
-    for (i=guess; i<num_fd; i++)
-	if (fds[i].fd==sd)
-	{
-	    guess = i;
-	    return fds[i].revents & mask;
-	}
-    
-    if (guess>=num_fd)
-	guess = num_fd;
-    
-    for (i=0; i<guess; i++)
-	if (fds[i].fd==sd)
-	{
-	    guess = i;
-	    return fds[i].revents & mask;
-	}
-    
-    return 0;
-}
-#endif
+static int handle_accept(void *data, t_fdwatch_type rw);
+static int handle_tcp(void *data, t_fdwatch_type rw);
+static int handle_udp(void *data, t_fdwatch_type rw);
 
 
 static int sd_accept(t_addr const * curr_laddr, t_laddr_info const * laddr_info, int ssocket, int usocket)
@@ -353,12 +309,12 @@ static int sd_accept(t_addr const * curr_laddr, t_laddr_info const * laddr_info,
 		eventlog(eventlog_level_error,"sd_accept","could not accept new connection on %s (psock_accept: %s)",tempa,strerror(psock_errno()));
 	return -1;
     }
-    if (csocket>=get_socket_limit()) /* This check is a bit too strict (csocket is probably
+    if (csocket >= fdw_maxfd)       /* This check is a bit too strict (csocket is probably
                                      * greater than the number of connections) but this makes
                                      * life easier later.
                                      */
     {
-	eventlog(eventlog_level_error,"sd_accept","csocket is beyond range allowed by get_socket_limit() (%d>=%d)",csocket,get_socket_limit());
+	eventlog(eventlog_level_error,"sd_accept","csocket is beyond range allowed by get_socket_limit() (%d>=%d)",csocket,fdw_maxfd);
 	psock_close(csocket);
 	return -1;
     }
@@ -458,8 +414,10 @@ static int sd_accept(t_addr const * curr_laddr, t_laddr_info const * laddr_info,
              */
 	    break;
 	}
+
+	fdwatch_add_fd(csocket, fdwatch_type_read, handle_tcp, c);
     }
-    
+
     return 0;
 }
 
@@ -550,10 +508,11 @@ static int sd_udpinput(t_addr * const curr_laddr, t_laddr_info const * laddr_inf
 }
 
 
-static int sd_tcpinput(int csocket, t_connection * c)
+static int sd_tcpinput(t_connection * c)
 {
     unsigned int currsize;
     t_packet *   packet;
+    int		 csocket = conn_get_socket(c);
     
     currsize = conn_get_in_size(c);
     
@@ -629,14 +588,14 @@ static int sd_tcpinput(int csocket, t_connection * c)
 		conn_set_state(c, conn_state_destroy);
 	    return -2;
 	}
-	queue_push_packet(conn_get_in_queue(c),packet);
+	conn_push_inqueue(c,packet);
 	packet_del_ref(packet);
 	if (!*conn_get_in_queue(c))
 	    return -1; /* push failed */
 	currsize = 0;
     }
     
-    packet = queue_peek_packet((t_queue const * const *)conn_get_in_queue(c)); /* avoid warning */
+    packet = conn_peek_inqueue(c);
     switch (net_recv_packet(csocket,packet,&currsize))
     {
     case -1:
@@ -699,7 +658,7 @@ static int sd_tcpinput(int csocket, t_connection * c)
 	    /* got a complete line or overflow... fall through */
 	
 	default:
-	    packet = queue_pull_packet(conn_get_in_queue(c));
+	    packet = conn_pull_inqueue(c);
 
 	    if (hexstrm)
 	    {
@@ -783,18 +742,19 @@ static int sd_tcpinput(int csocket, t_connection * c)
 }
 
 
-static int sd_tcpoutput(int csocket, t_connection * c)
+static int sd_tcpoutput(t_connection * c)
 {
     unsigned int currsize;
     unsigned int totsize;
     t_packet *   packet;
+    int		 csocket = conn_get_socket(c);
     
     totsize = 0;
     for (;;)
     {
 	currsize = conn_get_out_size(c);
 
-        if ((packet = queue_peek_packet((t_queue const * const *)conn_get_out_queue(c))) == NULL)
+        if ((packet = conn_peek_outqueue(c)) == NULL)
             return -2;
 
 	switch (net_send_packet(csocket,packet,&currsize)) /* avoid warning */
@@ -820,7 +780,7 @@ static int sd_tcpoutput(int csocket, t_connection * c)
 		hexdump(hexstrm,packet_get_raw_data(packet,0),packet_get_size(packet));
 	    }
 
-	    packet = queue_pull_packet(conn_get_out_queue(c));
+	    packet = conn_pull_outqueue(c);
 	    packet_del_ref(packet);
 	    conn_set_out_size(c,0);
 	    
@@ -905,35 +865,72 @@ extern void server_clear_name(void)
 }
 
 
+static void _server_setup_listensock(t_addrlist *laddrs)
+{
+    t_elem const *  acurr;
+    t_addr *        curr_laddr;
+    t_laddr_info *  laddr_info;
+
+    LIST_TRAVERSE_CONST(laddrs,acurr)
+    {
+	curr_laddr = elem_get_data(acurr);
+	if (!(laddr_info = addr_get_data(curr_laddr).p))
+	{
+	    eventlog(eventlog_level_error,"server_process","NULL address info");
+	    continue;
+	}
+
+	if (laddr_info->ssocket!=-1) fdwatch_add_fd(laddr_info->ssocket, fdwatch_type_read, handle_accept, curr_laddr);
+	if (laddr_info->usocket!=-1) fdwatch_add_fd(laddr_info->usocket, fdwatch_type_read, handle_udp, curr_laddr);
+    }
+}
+
+
+static int handle_accept(void *data, t_fdwatch_type rw)
+{
+    t_laddr_info *laddr_info = addr_get_data((t_addr *)data).p;
+
+    return sd_accept((t_addr *)data, laddr_info, laddr_info->ssocket, laddr_info->usocket);
+}
+
+
+static int handle_udp(void *data, t_fdwatch_type rw)
+{
+    t_laddr_info *laddr_info = addr_get_data((t_addr *)data).p;
+
+    return sd_udpinput((t_addr *)data, laddr_info, laddr_info->ssocket, laddr_info->usocket);
+}
+
+
+static int handle_tcp(void *data, t_fdwatch_type rw)
+{
+    switch(rw) {
+	case fdwatch_type_read: return sd_tcpinput((t_connection *)data);
+	case fdwatch_type_write: return sd_tcpoutput((t_connection *)data);
+	default:
+	    return -1;
+    }
+}
+
+
 extern int server_process(void)
 {
     t_addrlist *    laddrs;
     t_addr *        curr_laddr;
     t_addr_data     laddr_data;
     t_laddr_info *  laddr_info;
-#ifdef HAVE_POLL
-    struct pollfd * fds = NULL; /* avoid warning */
-    int             num_fd;
-#else
-    struct timeval  tv;
-    t_psock_fd_set  rfds, wfds;
-    int             highest_fd;
-#endif
     time_t          curr_exittime, prev_exittime, prev_savetime, track_time, now;
     time_t          war3_ladder_updatetime;
-	time_t          output_updatetime;
+    time_t          output_updatetime;
     unsigned int    syncdelta;
     t_connection *  c;
     t_elem const *  acurr;
     t_elem const *  ccurr;
-    int             csocket;
 #ifdef DO_POSIXSIG
     sigset_t        block_set;
     sigset_t        save_set;
 #endif
     unsigned int    count;
-	// [quetzal] 20020828 
-	int initkill_timer = prefs_get_initkill_timer();
     
     if (psock_init()<0)
     {
@@ -1094,16 +1091,11 @@ extern int server_process(void)
 	}
     }
     
-    
-#ifdef HAVE_POLL
-    eventlog(eventlog_level_debug,"server_process","setting up poll structures");
-    if (!(fds = malloc(get_socket_limit() * sizeof (struct pollfd))))
-    {
-	eventlog(eventlog_level_error,"server_process","could not allocate poll structures");
-	goto error_addr_list;
+    if (fdwatch_init()) {
+	eventlog(eventlog_level_error, __FUNCTION__, "could not initilized fdwatch layer");
+	goto error_poll;
     }
-#endif
-    
+
     LIST_TRAVERSE_CONST(laddrs,acurr)
     {
 	curr_laddr = elem_get_data(acurr);
@@ -1118,15 +1110,15 @@ extern int server_process(void)
 	    eventlog(eventlog_level_error,"server_process","could not create a %s listening socket (psock_socket: %s)",laddr_type_get_str(laddr_info->type),strerror(psock_errno()));
 	    goto error_poll;
 	}
-#if defined(FD_SETSIZE) && !defined(HAVE_POLL)
-	if (laddr_info->ssocket>=FD_SETSIZE) /* fd_set size is determined at compile time */
+
+	if (laddr_info->ssocket >= fdw_maxfd)
 	{
-	    eventlog(eventlog_level_error,"server_process","%s TCP socket is beyond range allowed by FD_SETSIZE for select() (%d>=%d)",laddr_type_get_str(laddr_info->type),laddr_info->ssocket,FD_SETSIZE);
+	    eventlog(eventlog_level_error,"server_process","%s TCP socket is beyond range allowed by FD_SETSIZE for select() (%d>=%d)",laddr_type_get_str(laddr_info->type),laddr_info->ssocket,fdw_maxfd);
 	    psock_close(laddr_info->ssocket);
 	    laddr_info->ssocket = -1;
 	    goto error_poll;
 	}
-#endif
+
 	if (laddr_info->type==laddr_type_bnet)
 	{
 	    if ((laddr_info->usocket = psock_socket(PSOCK_PF_INET,PSOCK_SOCK_DGRAM,PSOCK_IPPROTO_UDP))<0)
@@ -1136,17 +1128,16 @@ extern int server_process(void)
 		laddr_info->ssocket = -1;
 		goto error_poll;
 	    }
-#if defined(FD_SETSIZE) && !defined(HAVE_POLL)
-	    if (laddr_info->usocket>=FD_SETSIZE) /* fd_set size is determined at compile time */
+
+	    if (laddr_info->usocket >= fdw_maxfd)
 	    {
-		eventlog(eventlog_level_error,"server_process","%s UDP socket is beyond range allowed by FD_SETSIZE for select() (%d>=%d)",laddr_type_get_str(laddr_info->type),laddr_info->usocket,FD_SETSIZE);
+		eventlog(eventlog_level_error,"server_process","%s UDP socket is beyond range allowed by FD_SETSIZE for select() (%d>=%d)",laddr_type_get_str(laddr_info->type),laddr_info->usocket,fdw_maxfd);
 		psock_close(laddr_info->usocket);
 		laddr_info->usocket = -1;
 		psock_close(laddr_info->ssocket);
 		laddr_info->ssocket = -1;
 		goto error_poll;
 	    }
-#endif
 	}
 	
 	{
@@ -1318,13 +1309,16 @@ extern int server_process(void)
 	    eventlog(eventlog_level_error,"server_process","could not set SIGPIPE signal handler (sigaction: %s)",strerror(errno));
     }
 #endif
-    
+
+    /* setup listening sockets */
+    _server_setup_listensock(laddrs);
+
     syncdelta = prefs_get_user_sync_timer();
 
     track_time = time(NULL)-prefs_get_track();
     starttime=prev_savetime = time(NULL);
     war3_ladder_updatetime  = time(NULL)-prefs_get_war3_ladder_update_secs();
-	output_updatetime  = time(NULL)-prefs_get_output_update_secs();
+    output_updatetime = time(NULL)-prefs_get_output_update_secs();
     count = 0;
     
     for (;;)
@@ -1527,86 +1521,12 @@ extern int server_process(void)
 	    timerlist_check_timers(now);
 	    count = 0;
 	}
-	
-#ifdef HAVE_POLL
-	num_fd = 0;
-#else
-	/* loop over all connections to create the sets for select() */
-	PSOCK_FD_ZERO(&rfds);
-	PSOCK_FD_ZERO(&wfds);
-	highest_fd = -1;
-#endif
-	
-	LIST_TRAVERSE_CONST(laddrs,acurr)
-	{
-	    curr_laddr = elem_get_data(acurr);
-	    if (!(laddr_info = addr_get_data(curr_laddr).p))
-	    {
-		eventlog(eventlog_level_error,"server_process","NULL address info");
-		continue;
-	    }
-	    
-#ifdef HAVE_POLL
-	    if (laddr_info->ssocket!=-1)
-	    {
-		fds[num_fd].fd = laddr_info->ssocket;
-		fds[num_fd].events = POLLIN;
-		fds[num_fd].revents = 0;
-		num_fd++;
-	    }
-	    if (laddr_info->usocket!=-1)
-	    {
-		fds[num_fd].fd = laddr_info->usocket;
-		fds[num_fd].events = POLLIN;
-		fds[num_fd].revents = 0;
-		num_fd++;
-	    }
-#else
-	    if (laddr_info->ssocket!=-1)
-	    {
-		PSOCK_FD_SET(laddr_info->ssocket,&rfds);
-		if (laddr_info->ssocket>highest_fd)
-        	    highest_fd = laddr_info->ssocket;
-	    }
-	    if (laddr_info->usocket!=-1)
-	    {
-		PSOCK_FD_SET(laddr_info->usocket,&rfds);
-		if (laddr_info->usocket>highest_fd)
-        	    highest_fd = laddr_info->usocket;
-	    }
-#endif
-	}
-	
-	LIST_TRAVERSE_CONST(connlist(),ccurr)
-	{
-	    c = elem_get_data(ccurr);
-            csocket = conn_get_socket(c);
-	    
-#ifdef HAVE_POLL
- 	    fds[num_fd].fd = csocket;
-	    fds[num_fd].events = POLLIN;
-	    if (queue_get_length((t_queue const * const *)conn_get_out_queue(c))>0)
-		fds[num_fd].events |= POLLOUT; 
-	    fds[num_fd].revents = 0;
-	    num_fd++;
-#else
-	    PSOCK_FD_SET(csocket,&rfds);
-	    if (queue_get_length((t_queue const * const *)conn_get_out_queue(c))>0)
-		PSOCK_FD_SET(csocket,&wfds); /* pending output, also check for writeability */
-	    if (csocket>highest_fd)
-        	highest_fd = csocket;
-#endif
-	}
-	
+
+/* no need to populate the fdwatch structures as they are populated on the fly 
+ * by sd_accept, conn_push_outqueue, conn_pull_outqueue, conn_destory */
+
 	/* find which sockets need servicing */
-#ifdef HAVE_POLL
-	switch (poll(fds,num_fd,BNETD_POLL_INTERVAL))
-#else
-	/* always reset the select() timeout */
-	tv.tv_sec  = 0;
-	tv.tv_usec = BNETD_POLL_INTERVAL*1000;
-	switch (psock_select(highest_fd+1,&rfds,&wfds,NULL,&tv))
-#endif
+	switch (fdwatch(BNETD_POLL_INTERVAL))
 	{
 	case -1: /* error */
 	    if (
@@ -1615,108 +1535,25 @@ extern int server_process(void)
 		errno!=PSOCK_EINTR &&
 #endif
 		1)
-#ifdef HAVE_POLL
-	        eventlog(eventlog_level_error,"server_process","poll failed (poll: %s)",strerror(errno));
-#else
-	        eventlog(eventlog_level_error,"server_process","select failed (select: %s)",strerror(psock_errno()));
-#endif
+	        eventlog(eventlog_level_error,"server_process","fdwatch() failed (errno: %s)",strerror(errno));
 	case 0: /* timeout... no sockets need checking */
 	    continue;
 	}
 	
-	/* check for incoming connection */
-	if (!curr_exittime) /* don't allow connections while exiting... */
-	    LIST_TRAVERSE_CONST(laddrs,acurr)
-	    {
-		curr_laddr = elem_get_data(acurr);
-		if (!(laddr_info = addr_get_data(curr_laddr).p))
-		{
-		    eventlog(eventlog_level_error,"server_process","NULL address info");
-		    continue;
-		}
-		
-		if (laddr_info->ssocket!=-1)
-		{
-#ifdef HAVE_POLL
-		    if (poll_check(fds,num_fd,laddr_info->ssocket,POLLIN|POLLHUP|POLLERR))
-#else
-		    if (PSOCK_FD_ISSET(laddr_info->ssocket,&rfds))
-#endif
-			sd_accept(curr_laddr,laddr_info,laddr_info->ssocket,laddr_info->usocket);
-		}
-		
-		if (laddr_info->usocket!=-1)
-		{
-#ifdef HAVE_POLL
-		    if (poll_check(fds,num_fd,laddr_info->usocket,POLLIN|POLLHUP|POLLERR))
-#else
-		    if (PSOCK_FD_ISSET(laddr_info->usocket,&rfds))
-#endif
-			sd_udpinput(curr_laddr,laddr_info,laddr_info->ssocket,laddr_info->usocket);
-		}
-	    }
-	
-	/* search connections for sockets that need service */
-	/* Uncomment the following line if you want to increase the size of your log :) */
-	/*eventlog(eventlog_level_debug,"server_process","Checking for connected sockets that need service");*/
+	/* reap dead connections */
+	connlist_reap();
 
-	LIST_TRAVERSE_CONST(connlist(),ccurr)
-	{
-	    c = elem_get_data(ccurr);
+	/* cycle through the ready sockets and handle them */
+	fdwatch_handle();
 
-		// killing idling init connections
-		if (initkill_timer && conn_get_class(c) == conn_class_init &&
-			(time(NULL) - conn_get_crtime(c) > initkill_timer)) {
-			eventlog(eventlog_level_info, "server_process", "[%d] was idling for %ld seconds, closing connection",
-				conn_get_socket(c), time(NULL) - conn_get_crtime(c));
-			conn_set_state(c, conn_state_destroy);
-		}
-	   
-	    if (conn_get_state(c)==conn_state_destroy)
-	    {
-		conn_destroy(c);
-		continue;
-	    }
-
-            csocket = conn_get_socket(c);
-	    
-#ifdef HAVE_POLL
-	    if (poll_check(fds,num_fd,csocket,POLLNVAL))
-	    {
-		eventlog(eventlog_level_error,"server_process","[%d] oops, using stale file descriptor (closing connection)",conn_get_socket(c));
-		conn_destroy(c);
-		continue;
-	    }
-#endif
-	    
-#ifdef HAVE_POLL
-	    if (poll_check(fds,num_fd,csocket,POLLIN|POLLHUP|POLLERR))
-#else
-	    if (PSOCK_FD_ISSET(csocket,&rfds))
-#endif
-		// [quetzal] 20020808 - if we closed connection, skip everything below
-		if (sd_tcpinput(csocket,c) == -2) continue;
-	    
-#ifdef HAVE_POLL
-	    if (poll_check(fds,num_fd,csocket,POLLOUT|POLLERR))
-#else
-	    if (PSOCK_FD_ISSET(csocket,&wfds))
-#endif
-		// [quetzal] 20020808 - not really needed, but someone might add some code below
-		if (sd_tcpoutput(csocket,c) == -2) continue; 
-	}
-	list_purge(connlist());
-	
 	/* check all pending queries */
 	query_tick();
     }
     
     /* cleanup for server shutdown */
     
-#ifdef HAVE_POLL
-    free(fds);
-#endif
-    
+    fdwatch_close();
+
     LIST_TRAVERSE_CONST(connlist(),ccurr)
     {
 	c = elem_get_data(ccurr);
@@ -1744,10 +1581,6 @@ extern int server_process(void)
     /* error cleanup */
     
 error_poll:
-    
-#ifdef HAVE_POLL
-    free(fds);
-#endif
     
 error_addr_list:
     LIST_TRAVERSE_CONST(laddrs,acurr)

@@ -397,7 +397,7 @@ static int _handle_anongame_search(t_connection * c, t_packet const * packet)
     bn_int_set(&rpacket->u.server_anongame_search_reply.reply,0);
     temp = (int)average_anongame_search_time;
     packet_append_data(rpacket, &temp, 2);
-    queue_push_packet(conn_get_out_queue(c),rpacket);
+    conn_push_outqueue(c,rpacket);
     packet_del_ref(rpacket);
     /* end search reply */
 
@@ -673,7 +673,7 @@ static int _anongame_search_found(int queue)
 	bn_byte_set(&rpacket->u.server_anongame_found.gametype,a->gametype);
 	packet_append_string(rpacket, mapname);
 	packet_append_data(rpacket, pt2, sizeof(t_saf_pt2));
-	queue_push_packet(conn_get_out_queue(player[queue][i]),rpacket);
+	conn_push_outqueue(player[queue][i],rpacket);
 	packet_del_ref(rpacket);
     }
 
@@ -1313,7 +1313,7 @@ extern int handle_w3route_packet(t_connection * c, t_packet const * const packet
       bn_int_nset(&rpacket->u.server_w3route_ack.ip,conn_get_addr(c));
       bn_int_set(&rpacket->u.server_w3route_ack.unknown7,0);
       bn_int_set(&rpacket->u.server_w3route_ack.unknown8,0);
-      queue_push_packet(conn_get_out_queue(c), rpacket);
+      conn_push_outqueue(c, rpacket);
       packet_del_ref(rpacket);
       
       return 0;
@@ -1409,7 +1409,7 @@ extern int handle_w3route_packet(t_connection * c, t_packet const * const packet
 	 packet_set_size(rpacket,sizeof(t_server_w3route_loadingack));
 	 packet_set_type(rpacket,SERVER_W3ROUTE_LOADINGACK);
 	 bn_byte_set(&rpacket->u.server_w3route_loadingack.playernum,plnum);
-	 queue_push_packet(conn_get_out_queue(conn_get_routeconn(anongame_get_player(a, i))),rpacket);
+	 conn_push_outqueue(conn_get_routeconn(anongame_get_player(a, i)),rpacket);
 	 packet_del_ref(rpacket);
       }
       
@@ -1430,7 +1430,7 @@ extern int handle_w3route_packet(t_connection * c, t_packet const * const packet
 	 packet_set_size(rpacket,sizeof(t_server_w3route_ready));
 	 packet_set_type(rpacket,SERVER_W3ROUTE_READY);
 	 bn_byte_set(&rpacket->u.server_w3route_host.unknown1, 0);
-	 queue_push_packet(conn_get_out_queue(conn_get_routeconn(anongame_get_player(a, i))),rpacket);
+	 conn_push_outqueue(conn_get_routeconn(anongame_get_player(a, i)),rpacket);
 	 packet_del_ref(rpacket);
       }
       
@@ -1556,7 +1556,7 @@ extern int handle_anongame_join(t_connection * c)
 					bn_int_set(&pl_addr.unknown3,0);
 					packet_append_data(rpacket, &pl_addr, sizeof(pl_addr));
 
-					queue_push_packet(conn_get_out_queue(conn_get_routeconn(jc)), rpacket);
+					conn_push_outqueue(conn_get_routeconn(jc), rpacket);
 					packet_del_ref(rpacket);
 				}
 			}
@@ -1608,7 +1608,7 @@ extern int handle_anongame_join(t_connection * c)
 				packet_append_data(rpacket, &li2, sizeof(li2));
 			}
 
-			queue_push_packet(conn_get_out_queue(conn_get_routeconn(jc)), rpacket);
+			conn_push_outqueue(conn_get_routeconn(jc), rpacket);
 			packet_del_ref(rpacket);
 
 			// startgame1
@@ -1618,7 +1618,7 @@ extern int handle_anongame_join(t_connection * c)
 			}
 			packet_set_size(rpacket,sizeof(t_server_w3route_startgame1));
 			packet_set_type(rpacket,SERVER_W3ROUTE_STARTGAME1);
-			queue_push_packet(conn_get_out_queue(conn_get_routeconn(jc)), rpacket);
+			conn_push_outqueue(conn_get_routeconn(jc), rpacket);
 			packet_del_ref(rpacket);
 
 			// startgame2
@@ -1628,7 +1628,7 @@ extern int handle_anongame_join(t_connection * c)
 			}
 			packet_set_size(rpacket,sizeof(t_server_w3route_startgame2));
 			packet_set_type(rpacket,SERVER_W3ROUTE_STARTGAME2);
-			queue_push_packet(conn_get_out_queue(conn_get_routeconn(jc)), rpacket);
+			conn_push_outqueue(conn_get_routeconn(jc), rpacket);
 			packet_del_ref(rpacket);
 		}
 		return 0;

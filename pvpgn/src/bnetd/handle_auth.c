@@ -145,7 +145,7 @@ extern int handle_auth_packet(t_connection * c, t_packet const * const packet)
 		    packet_set_size(rpacket,sizeof(t_server_authloginreply));
 		    packet_set_type(rpacket,SERVER_AUTHLOGINREPLY);
 		    bn_int_set(&rpacket->u.server_authloginreply.reply,reply);
-		    queue_push_packet(conn_get_out_queue(c),rpacket);
+		    conn_push_outqueue(c,rpacket);
 		    packet_del_ref(rpacket);
 		}
 	    }
@@ -246,7 +246,7 @@ extern int handle_auth_packet(t_connection * c, t_packet const * const packet)
 		    packet_set_size(rpacket,sizeof(t_server_createcharreply));
 		    packet_set_type(rpacket,SERVER_CREATECHARREPLY);
 		    bn_int_set(&rpacket->u.server_createcharreply.reply,reply);
-		    queue_push_packet(conn_get_out_queue(c),rpacket);
+		    conn_push_outqueue(c,rpacket);
 		    packet_del_ref(rpacket);
 		}
 	    }
@@ -268,7 +268,7 @@ extern int handle_auth_packet(t_connection * c, t_packet const * const packet)
 		bn_short_set(&rpacket->u.server_creategamereply.unknown2,SERVER_CREATEGAMEREPLY_UNKNOWN2);
 		bn_short_set(&rpacket->u.server_creategamereply.unknown3,SERVER_CREATEGAMEREPLY_UNKNOWN3);
 		bn_int_set(&rpacket->u.server_creategamereply.reply,SERVER_CREATEGAMEREPLY_REPLY_OK);
-		queue_push_packet(conn_get_out_queue(c),rpacket);
+		conn_push_outqueue(c,rpacket);
 		packet_del_ref(rpacket);
 	    }
 	    break;
@@ -293,7 +293,7 @@ extern int handle_auth_packet(t_connection * c, t_packet const * const packet)
 #endif
 		bn_int_set(&rpacket->u.server_joingamereply2.unknown4,SERVER_JOINGAMEREPLY2_UNKNOWN4);
 		bn_int_set(&rpacket->u.server_joingamereply2.reply,SERVER_JOINGAMEREPLY2_REPLY_OK);
-		queue_push_packet(conn_get_out_queue(c),rpacket);
+		conn_push_outqueue(c,rpacket);
 		packet_del_ref(rpacket);
 	    }
 	    break;
@@ -316,7 +316,7 @@ extern int handle_auth_packet(t_connection * c, t_packet const * const packet)
 		bn_int_set(&rpacket->u.server_d2gamelistreply.unknown4,SERVER_D2GAMELISTREPLY_UNKNOWN4);
 		packet_append_string(rpacket,"Nope"); /* game name */
 		packet_append_string(rpacket,""); /* game pass? */
-		queue_push_packet(conn_get_out_queue(c),rpacket);
+		conn_push_outqueue(c,rpacket);
 		packet_del_ref(rpacket);
 	    }
 	    if ((rpacket = packet_create(packet_class_auth)))
@@ -330,7 +330,7 @@ extern int handle_auth_packet(t_connection * c, t_packet const * const packet)
 		packet_append_string(rpacket,"");
 		packet_append_string(rpacket,"");
 		packet_append_string(rpacket,"");
-		queue_push_packet(conn_get_out_queue(c),rpacket);
+		conn_push_outqueue(c,rpacket);
 		packet_del_ref(rpacket);
 	    }
 	    break;
@@ -359,7 +359,7 @@ extern int handle_auth_packet(t_connection * c, t_packet const * const packet)
 		bn_byte_set(&rpacket->u.server_gameinforeply.unknown4,SERVER_GAMEINFOREPLY_UNKNOWN4);
 		packet_append_string(rpacket,"Player1");
 		packet_append_string(rpacket,"Player2");
-		queue_push_packet(conn_get_out_queue(c),rpacket);
+		conn_push_outqueue(c,rpacket);
 		packet_del_ref(rpacket);
 	    }
 	    break;
@@ -413,7 +413,7 @@ extern int handle_auth_packet(t_connection * c, t_packet const * const packet)
 			eventlog(eventlog_level_info,"handle_auth_packet","[%d] character login for \"%s\" refused (no such character in realm \"%s\")",conn_get_socket(c),charname,conn_get_realmname(c));
 			bn_int_set(&rpacket->u.server_charloginreply.reply,0xffffffff); /* FIXME */
 		    }
-		    queue_push_packet(conn_get_out_queue(c),rpacket);
+		    conn_push_outqueue(c,rpacket);
 		    packet_del_ref(rpacket);
 	        }
 	    }
@@ -432,7 +432,7 @@ extern int handle_auth_packet(t_connection * c, t_packet const * const packet)
 		packet_set_type(rpacket,SERVER_DELETECHARREPLY);
 		bn_short_set(&rpacket->u.server_deletecharreply.unknown1,bn_short_get(packet->u.client_deletecharreq.unknown1));
 		bn_int_set(&rpacket->u.server_deletecharreply.reply,SERVER_DELETECHARREPLY_REPLY_SUCCESS);
-		queue_push_packet(conn_get_out_queue(c),rpacket);
+		conn_push_outqueue(c,rpacket);
 		packet_del_ref(rpacket);
 	    }
 	    break;
@@ -454,7 +454,7 @@ extern int handle_auth_packet(t_connection * c, t_packet const * const packet)
 		bn_short_set(&rpacket->u.server_ladderreply2.unknown4,SERVER_LADDERREPLY2_UNKNOWN4);
 		bn_int_set(&rpacket->u.server_ladderreply2.unknown5,SERVER_LADDERREPLY2_UNKNOWN5);
 		bn_int_set(&rpacket->u.server_ladderreply2.unknown6,SERVER_LADDERREPLY2_UNKNOWN6);
-		queue_push_packet(conn_get_out_queue(c),rpacket);
+		conn_push_outqueue(c,rpacket);
 		packet_del_ref(rpacket);
 	    }
 	    break;
@@ -472,7 +472,7 @@ extern int handle_auth_packet(t_connection * c, t_packet const * const packet)
 		packet_set_type(rpacket,SERVER_AUTHMOTDREPLY);
 		bn_byte_set(&rpacket->u.server_authmotdreply.unknown1,SERVER_AUTHMOTDREPLY_UNKNOWN1);
 		packet_append_string(rpacket,"Hello.");
-		queue_push_packet(conn_get_out_queue(c),rpacket);
+		conn_push_outqueue(c,rpacket);
 		packet_del_ref(rpacket);
 	    }
 	    break;
@@ -554,7 +554,7 @@ extern int handle_auth_packet(t_connection * c, t_packet const * const packet)
 		eventlog(eventlog_level_debug,"handle_auth_packet","CHARLISTREPLY.unknown2 = 0x%04x", bn_short_get(rpacket->u.server_charlistreply.unknown2));
 		eventlog(eventlog_level_debug,"handle_auth_packet","CHARLISTREPLY.nchars_2 = 0x%04x", bn_short_get(rpacket->u.server_charlistreply.nchars_2));
 
-		queue_push_packet(conn_get_out_queue(c),rpacket);
+		conn_push_outqueue(c,rpacket);
 		packet_del_ref(rpacket);
 	    }
 	    break;
@@ -584,7 +584,7 @@ extern int handle_auth_packet(t_connection * c, t_packet const * const packet)
 		    packet_set_size(rpacket,sizeof(t_server_convertcharreply));
 		    packet_set_type(rpacket,SERVER_CONVERTCHARREPLY);
                     bn_int_set(&rpacket->u.server_convertcharreply.unknown1, SERVER_CONVERTCHARREPLY_UNKNOWN1);
-		    queue_push_packet(conn_get_out_queue(c),rpacket);
+		    conn_push_outqueue(c,rpacket);
 		    packet_del_ref(rpacket);
 		}
             }

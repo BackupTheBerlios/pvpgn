@@ -113,11 +113,13 @@
 #include "anongame.h"
 #include "connection.h"
 #include "topic.h"
+#include "fdwatch.h"
 #include "common/setup_after.h"
 
 
 static int      totalcount=0;
 static t_list * conn_head=NULL;
+static t_list * conn_dead=NULL;
 
 static void conn_send_welcome(t_connection * c);
 static void conn_send_issue(t_connection * c);
@@ -237,7 +239,7 @@ extern void conn_test_latency(t_connection * c, time_t now, t_timer_data delta)
     	    packet_set_size(packet,sizeof(t_server_w3route_echoreq));
 	    packet_set_type(packet,SERVER_W3ROUTE_ECHOREQ);
 	    bn_int_set(&packet->u.server_w3route_echoreq.ticks,get_ticks());
-	    queue_push_packet(conn_get_out_queue(c), packet);
+	    conn_push_outqueue(c, packet);
 	    packet_del_ref(packet);
 	}
     } else {
@@ -250,7 +252,7 @@ extern void conn_test_latency(t_connection * c, time_t now, t_timer_data delta)
 	    	packet_set_size(packet,sizeof(t_server_echoreq));
 	    	packet_set_type(packet,SERVER_ECHOREQ);
 	    	bn_int_set(&packet->u.server_echoreq.ticks,get_ticks());
-	    	queue_push_packet(conn_get_out_queue(c),packet);
+	    	conn_push_outqueue(c,packet);
 	    	packet_del_ref(packet);
 	    }
 	    else
@@ -410,6 +412,7 @@ extern t_connection * conn_create(int tsock, int usock, unsigned int real_local_
     temp->game                   = NULL;
     temp->outqueue               = NULL;
     temp->outsize                = 0;
+    temp->outsizep               = 0;
     temp->inqueue                = NULL;
     temp->insize                 = 0;
     temp->echoback		 = 0;
@@ -694,6 +697,7 @@ extern void conn_destroy(t_connection * c)
     
     /* make sure the connection is closed */
     if (c->tcp_sock!=-1) { /* -1 means that the socket was already closed by conn_close() */
+	fdwatch_del_fd(c->tcp_sock);
 	psock_shutdown(c->tcp_sock,PSOCK_SHUT_RDWR);
 	psock_close(c->tcp_sock);
     }
@@ -726,6 +730,10 @@ extern void conn_destroy(t_connection * c)
     if(c->anongame)
 	conn_destroy_anongame(c);
     
+    /* delete the conn from the dead list if its there, we dont check for error
+     * because connections may be destroyed without first setting state to destroy */
+    list_remove_data(conn_dead, c);
+
     eventlog(eventlog_level_info,"conn_destroy","[%d] closed %s connection",c->tcp_sock,classstr);
     
     free(c);
@@ -824,7 +832,7 @@ extern void conn_set_class(t_connection * c, t_conn_class class)
 	else
 	{
 	    packet_append_ntstring(rpacket,"Username: ");
-	    queue_push_packet(conn_get_out_queue(c),rpacket);
+	    conn_push_outqueue(c,rpacket);
 	    packet_del_ref(rpacket);
 	}
     }
@@ -847,9 +855,23 @@ extern void conn_set_state(t_connection * c, t_conn_state state)
 {
     if (!c)
     {
-        eventlog(eventlog_level_error,"conn_set_state","got NULL connection");
+        eventlog(eventlog_level_error, __FUNCTION__, "got NULL connection");
         return;
     }
+
+    /* special case for destroying connections, add them to conn_dead list */
+    if (state == conn_state_destroy && c->state != conn_state_destroy) {
+	if (!conn_dead && !(conn_dead = list_create())) {
+	    eventlog(eventlog_level_error, __FUNCTION__, "could not initilize conn_dead list");
+	    return;
+	}
+	list_append_data(conn_dead, c);
+    }
+    else if (state != conn_state_destroy && c->state == conn_state_destroy)
+	if (list_remove_data(conn_dead, c)) {
+	    eventlog(eventlog_level_error, __FUNCTION__, "could not remove dead connection");
+	    return;
+	}
 
     c->state = state;
 }
@@ -2340,6 +2362,94 @@ extern void conn_set_out_size(t_connection * c, unsigned int size)
     c->outsize = size;
 }
 
+extern int conn_push_outqueue(t_connection * c, t_packet * packet)
+{
+    if (!c)
+    {
+        eventlog(eventlog_level_error, __FUNCTION__, "got NULL connection");
+        return -1;
+    }
+
+    if (!packet)
+    {
+        eventlog(eventlog_level_error, __FUNCTION__, "got NULL packet");
+        return -1;
+    }
+
+    queue_push_packet((t_queue * *)&c->outqueue, packet);
+    if (!c->outsizep++) fdwatch_update_fd(c->tcp_sock, fdwatch_type_read | fdwatch_type_write);
+
+    return 0;
+}
+
+extern t_packet * conn_peek_outqueue(t_connection * c)
+{
+    if (!c)
+    {
+        eventlog(eventlog_level_error, __FUNCTION__, "got NULL connection");
+        return NULL;
+    }
+
+    return queue_peek_packet((t_queue const * const *)&c->outqueue);
+}
+
+extern t_packet * conn_pull_outqueue(t_connection * c)
+{
+    if (!c)
+    {
+        eventlog(eventlog_level_error, __FUNCTION__, "got NULL connection");
+        return NULL;
+    }
+
+    if (c->outsizep) {
+	if (!(--c->outsizep)) fdwatch_update_fd(c->tcp_sock, fdwatch_type_read);
+	return queue_pull_packet((t_queue * *)&c->outqueue);
+    }
+
+    return NULL;
+}
+
+extern int conn_push_inqueue(t_connection * c, t_packet * packet)
+{
+    if (!c)
+    {
+        eventlog(eventlog_level_error, __FUNCTION__, "got NULL connection");
+        return -1;
+    }
+
+    if (!packet)
+    {
+        eventlog(eventlog_level_error, __FUNCTION__, "got NULL packet");
+        return -1;
+    }
+
+    queue_push_packet((t_queue * *)&c->inqueue, packet);
+
+    return 0;
+}
+
+extern t_packet * conn_peek_inqueue(t_connection * c)
+{
+    if (!c)
+    {
+        eventlog(eventlog_level_error, __FUNCTION__, "got NULL connection");
+        return NULL;
+    }
+
+    return queue_peek_packet((t_queue const * const *)&c->inqueue);
+}
+
+extern t_packet * conn_pull_inqueue(t_connection * c)
+{
+    if (!c)
+    {
+        eventlog(eventlog_level_error, __FUNCTION__, "got NULL connection");
+        return NULL;
+    }
+
+    return queue_pull_packet((t_queue * *)&c->inqueue);
+}
+
 #ifdef DEBUG_ACCOUNT
 extern char const * conn_get_username_real(t_connection const * c,char const * fn,unsigned int ln)
 #else
@@ -3230,299 +3340,6 @@ extern const char * conn_get_w3_playerinfo( t_connection * c )
     }
     return c->w3_playerinfo; 
 }
-//NO LONGER USED - WAS FOR WHEN WE DIDNT HAVE PASSWORDS AT LOGIN - THEUNDYING
-//extern int conn_set_w3_isidentified( t_connection * c, int isidentified )
-//{
-//    if ( isidentified != 1 )
-//	c->w3_isidentified = 0;
-//    else
-//	c->w3_isidentified = 1;
-//
-//    return c->w3_isidentified;
-//}
-//
-//extern int conn_get_w3_isidentified( t_connection * c )
-//{
-//    return c->w3_isidentified;
-//}
-
-//extern void conn_w3_identtimeout( t_connection * c, time_t now, t_timer_data data )
-//{
-//    if ( conn_get_w3_isidentified(c) == 0 )
-//    {
-//	conn_set_state( c, conn_state_destroy );
-//    }
-//    return;
-//}
-/* END OF UNDYING SOULZZ MODS */
-
-extern int connlist_create(void)
-{
-    if (!(conn_head = list_create()))
-	return -1;
-    return 0;
-}
-
-extern int connlist_destroy(void)
-{
-    /* FIXME: if called with active connection, connection are not freed */
-    if (list_destroy(conn_head)<0)
-	return -1;
-    conn_head = NULL;
-    return 0;
-}
-
-
-extern t_list * connlist(void)
-{
-    return conn_head;
-}
-
-
-extern t_connection * connlist_find_connection_by_accountname(char const * accountname)
-{
-    t_connection *    c;
-    t_account const * temp;
-    t_elem const *    curr;
-    
-    if (!accountname)
-    {
-	eventlog(eventlog_level_error,"connlist_find_connection_by_accountname","got NULL accountname");
-	return NULL;
-    }
-    
-    if (!(temp = accountlist_find_account(accountname)))
-	return NULL;
-    
-    LIST_TRAVERSE_CONST(conn_head,curr)
-    {
-	c = elem_get_data(curr);
-	if (c->account==temp)
-	    return c;
-    }
-    
-    return NULL;
-}
-
-extern t_connection * connlist_find_connection_by_account(t_account * account)
-{
-    t_connection *    c;
-    t_elem const *    curr;
-    
-    if (!account) {
-	eventlog(eventlog_level_error,__FUNCTION__,"got NULL account");
-	return NULL;
-    }
-    
-    LIST_TRAVERSE_CONST(conn_head,curr)
-    {
-	c = elem_get_data(curr);
-	if (c->account==account)
-	    return c;
-    }
-    
-    return NULL;
-}
-
-
-extern t_connection * connlist_find_connection_by_sessionkey(unsigned int sessionkey)
-{
-    t_connection * c;
-    t_elem const * curr;
-    
-    LIST_TRAVERSE_CONST(conn_head,curr)
-    {
-	c = elem_get_data(curr);
-	if (c->sessionkey==sessionkey)
-	    return c;
-    }
-    
-    return NULL;
-}
-
-
-extern t_connection * connlist_find_connection_by_sessionnum(unsigned int sessionnum)
-{
-    t_connection * c;
-    t_elem const * curr;
-    
-    LIST_TRAVERSE_CONST(conn_head,curr)
-    {
-	c = elem_get_data(curr);
-	if (c->sessionnum==sessionnum)
-	    return c;
-    }
-    
-    return NULL;
-}
-
-
-extern t_connection * connlist_find_connection_by_socket(int socket)
-{
-    t_connection * c;
-    t_elem const * curr;
-    
-    LIST_TRAVERSE_CONST(conn_head,curr)
-    {
-	c = elem_get_data(curr);
-	if (c->tcp_sock==socket)
-	    return c;
-    }
-    
-    return NULL;
-}
-
-
-extern t_connection * connlist_find_connection_by_name(char const * name, char const * realmname)
-{
-    char         charname[CHAR_NAME_LEN];
-    char const * temp;
-    
-    if (!name)
-    {
-	eventlog(eventlog_level_error,"connlist_find_connection_by_name","got NULL name");
-	return NULL;
-    }
-    if (name[0]=='\0')
-    {
-	eventlog(eventlog_level_error,"connlist_find_connection_by_name","got empty name");
-	return NULL;
-    }
-    
-    /* format: *username */
-    if (name[0]=='*')
-    {
-        name++;
-        return connlist_find_connection_by_accountname(name);
-    }
-    
-    /* If is charname@otherrealm or ch@rname@realm */
-    if ((temp=strrchr(name,'@'))) /* search from the right */
-    {
-	unsigned int n;
-	
-	n = temp - name;
-	if (n>=CHAR_NAME_LEN)
-	{
-	    eventlog(eventlog_level_info,"connlist_find_connection_by_name","character name too long in \"%s\" (charname@otherrealm format)",name);
-	    return NULL;
-	}
-	strncpy(charname,name,n);
-	charname[n] = '\0';
-	return connlist_find_connection_by_charname(name,temp + 1);
-    }
-    
-    /* format: charname*username */
-    if ((temp=strchr(name,'*')))
-    {
-	unsigned int n;
-	
-	n = temp - name;
-	if (n>=CHAR_NAME_LEN)
-	{
-	    eventlog(eventlog_level_info,"connlist_find_connection_by_name","character name too long in \"%s\" (charname*username format)",name);
-	    return NULL;
-	}
-	name = temp + 1;
-	return connlist_find_connection_by_accountname(name);
-    }
-    
-    /* format: charname (realm must be not NULL) */
-    if (realmname)
-	return connlist_find_connection_by_charname(name,realmname);
-    
-    /* format: Simple username, clients with no realm, like starcraft or d2 open,
-     * the format is the same of charname but is matched if realmname is NULL */
-    return connlist_find_connection_by_accountname(name);
-}
-
-
-extern t_connection * connlist_find_connection_by_charname(char const * charname, char const * realmname)
-{
-     t_connection    * c;
-     t_elem const    * curr;
-
-     if (!realmname) {
-	eventlog(eventlog_level_error,"connlist_find_connection_by_charname","got NULL realmname");
-     	return NULL;
-     }
-     LIST_TRAVERSE_CONST(conn_head, curr)
-     {
-        c = elem_get_data(curr);
-        if (!c)
-            continue;
-        if (!c->charname)
-            continue;
-        if (!c->realmname)
-            continue;
-        if ((strcasecmp(c->charname, charname)==0)&&(strcasecmp(c->realmname,realmname)==0))
-            return c;
-     }
-     return NULL;
-}
-
-
-#ifdef WITH_BITS
-extern t_connection * connlist_find_connection_by_sessionid(unsigned int sessionid)
-{
-    t_connection * c;
-    t_elem const * curr;
-    
-    LIST_TRAVERSE_CONST(conn_head,curr)
-    {
-	c = elem_get_data(curr);
-	if (c->sessionid==sessionid)
-	    return c;
-    }
-    
-    return NULL;
-}
-#endif
-
-extern t_connection * connlist_find_connection_by_uid(unsigned int uid)
-{
-    t_connection * c;
-    t_elem const * curr;
-    
-    LIST_TRAVERSE_CONST(conn_head,curr)
-    {
-	c = elem_get_data(curr);
-	if (account_get_uid(c->account)==uid)
-	    return c;
-    }
-    
-    return NULL;
-}
-
-extern int connlist_get_length(void)
-{
-    return list_get_length(conn_head);
-}
-
-
-extern unsigned int connlist_login_get_length(void)
-{
-    t_connection const * c;
-    unsigned int         count;
-    t_elem const *       curr;
-    
-    count = 0;
-    LIST_TRAVERSE_CONST(conn_head,curr)
-    {
-	c = elem_get_data(curr);
-	if ((c->state==conn_state_loggedin)&&
-	    ((c->class==conn_class_bnet)||(c->class==conn_class_bot)||(c->class==conn_class_telnet)||(c->class==conn_class_irc)))
-	    count++;
-    }
-    
-    return count;
-}
-
-
-extern int connlist_total_logins(void)
-{
-    return totalcount;
-}
 
 
 extern int conn_quota_exceeded(t_connection * con, char const * text)
@@ -3872,6 +3689,324 @@ extern char const * conn_get_user_game_title(char const * ct)
    else
      return "Unknown";
 }
+
+//NO LONGER USED - WAS FOR WHEN WE DIDNT HAVE PASSWORDS AT LOGIN - THEUNDYING
+//extern int conn_set_w3_isidentified( t_connection * c, int isidentified )
+//{
+//    if ( isidentified != 1 )
+//	c->w3_isidentified = 0;
+//    else
+//	c->w3_isidentified = 1;
+//
+//    return c->w3_isidentified;
+//}
+//
+//extern int conn_get_w3_isidentified( t_connection * c )
+//{
+//    return c->w3_isidentified;
+//}
+
+//extern void conn_w3_identtimeout( t_connection * c, time_t now, t_timer_data data )
+//{
+//    if ( conn_get_w3_isidentified(c) == 0 )
+//    {
+//	conn_set_state( c, conn_state_destroy );
+//    }
+//    return;
+//}
+/* END OF UNDYING SOULZZ MODS */
+
+extern int connlist_create(void)
+{
+    if (!(conn_head = list_create()))
+	return -1;
+    return 0;
+}
+
+extern int connlist_destroy(void)
+{
+    list_destroy(conn_dead);
+    conn_dead = NULL;
+    /* FIXME: if called with active connection, connection are not freed */
+    if (list_destroy(conn_head)<0)
+	return -1;
+    conn_head = NULL;
+    return 0;
+}
+
+extern void connlist_reap(void)
+{
+    t_elem		*curr;
+    t_connection	*c;
+
+    if (!conn_dead || !conn_head) return;
+
+    LIST_TRAVERSE(conn_dead, curr)
+    {
+	c = (t_connection *)elem_get_data(curr);
+
+	if (!c)
+	    eventlog(eventlog_level_error, __FUNCTION__, "found NULL entry in conn_dead list");
+	else {
+	    fdwatch_del_fd(conn_get_socket(c));
+	    conn_destroy(c); /* also removes from conn_dead list */
+	}
+    }
+    list_purge(conn_dead);
+    list_purge(conn_head); /* remove deleted elements from the connlist */
+}
+
+extern t_list * connlist(void)
+{
+    return conn_head;
+}
+
+
+extern t_connection * connlist_find_connection_by_accountname(char const * accountname)
+{
+    t_connection *    c;
+    t_account const * temp;
+    t_elem const *    curr;
+    
+    if (!accountname)
+    {
+	eventlog(eventlog_level_error,"connlist_find_connection_by_accountname","got NULL accountname");
+	return NULL;
+    }
+    
+    if (!(temp = accountlist_find_account(accountname)))
+	return NULL;
+    
+    LIST_TRAVERSE_CONST(conn_head,curr)
+    {
+	c = elem_get_data(curr);
+	if (c->account==temp)
+	    return c;
+    }
+    
+    return NULL;
+}
+
+extern t_connection * connlist_find_connection_by_account(t_account * account)
+{
+    t_connection *    c;
+    t_elem const *    curr;
+    
+    if (!account) {
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL account");
+	return NULL;
+    }
+    
+    LIST_TRAVERSE_CONST(conn_head,curr)
+    {
+	c = elem_get_data(curr);
+	if (c->account==account)
+	    return c;
+    }
+    
+    return NULL;
+}
+
+
+extern t_connection * connlist_find_connection_by_sessionkey(unsigned int sessionkey)
+{
+    t_connection * c;
+    t_elem const * curr;
+    
+    LIST_TRAVERSE_CONST(conn_head,curr)
+    {
+	c = elem_get_data(curr);
+	if (c->sessionkey==sessionkey)
+	    return c;
+    }
+    
+    return NULL;
+}
+
+
+extern t_connection * connlist_find_connection_by_sessionnum(unsigned int sessionnum)
+{
+    t_connection * c;
+    t_elem const * curr;
+    
+    LIST_TRAVERSE_CONST(conn_head,curr)
+    {
+	c = elem_get_data(curr);
+	if (c->sessionnum==sessionnum)
+	    return c;
+    }
+    
+    return NULL;
+}
+
+
+extern t_connection * connlist_find_connection_by_socket(int socket)
+{
+    t_connection * c;
+    t_elem const * curr;
+    
+    LIST_TRAVERSE_CONST(conn_head,curr)
+    {
+	c = elem_get_data(curr);
+	if (c->tcp_sock==socket)
+	    return c;
+    }
+    
+    return NULL;
+}
+
+
+extern t_connection * connlist_find_connection_by_name(char const * name, char const * realmname)
+{
+    char         charname[CHAR_NAME_LEN];
+    char const * temp;
+    
+    if (!name)
+    {
+	eventlog(eventlog_level_error,"connlist_find_connection_by_name","got NULL name");
+	return NULL;
+    }
+    if (name[0]=='\0')
+    {
+	eventlog(eventlog_level_error,"connlist_find_connection_by_name","got empty name");
+	return NULL;
+    }
+    
+    /* format: *username */
+    if (name[0]=='*')
+    {
+        name++;
+        return connlist_find_connection_by_accountname(name);
+    }
+    
+    /* If is charname@otherrealm or ch@rname@realm */
+    if ((temp=strrchr(name,'@'))) /* search from the right */
+    {
+	unsigned int n;
+	
+	n = temp - name;
+	if (n>=CHAR_NAME_LEN)
+	{
+	    eventlog(eventlog_level_info,"connlist_find_connection_by_name","character name too long in \"%s\" (charname@otherrealm format)",name);
+	    return NULL;
+	}
+	strncpy(charname,name,n);
+	charname[n] = '\0';
+	return connlist_find_connection_by_charname(name,temp + 1);
+    }
+    
+    /* format: charname*username */
+    if ((temp=strchr(name,'*')))
+    {
+	unsigned int n;
+	
+	n = temp - name;
+	if (n>=CHAR_NAME_LEN)
+	{
+	    eventlog(eventlog_level_info,"connlist_find_connection_by_name","character name too long in \"%s\" (charname*username format)",name);
+	    return NULL;
+	}
+	name = temp + 1;
+	return connlist_find_connection_by_accountname(name);
+    }
+    
+    /* format: charname (realm must be not NULL) */
+    if (realmname)
+	return connlist_find_connection_by_charname(name,realmname);
+    
+    /* format: Simple username, clients with no realm, like starcraft or d2 open,
+     * the format is the same of charname but is matched if realmname is NULL */
+    return connlist_find_connection_by_accountname(name);
+}
+
+
+extern t_connection * connlist_find_connection_by_charname(char const * charname, char const * realmname)
+{
+     t_connection    * c;
+     t_elem const    * curr;
+
+     if (!realmname) {
+	eventlog(eventlog_level_error,"connlist_find_connection_by_charname","got NULL realmname");
+     	return NULL;
+     }
+     LIST_TRAVERSE_CONST(conn_head, curr)
+     {
+        c = elem_get_data(curr);
+        if (!c)
+            continue;
+        if (!c->charname)
+            continue;
+        if (!c->realmname)
+            continue;
+        if ((strcasecmp(c->charname, charname)==0)&&(strcasecmp(c->realmname,realmname)==0))
+            return c;
+     }
+     return NULL;
+}
+
+
+#ifdef WITH_BITS
+extern t_connection * connlist_find_connection_by_sessionid(unsigned int sessionid)
+{
+    t_connection * c;
+    t_elem const * curr;
+    
+    LIST_TRAVERSE_CONST(conn_head,curr)
+    {
+	c = elem_get_data(curr);
+	if (c->sessionid==sessionid)
+	    return c;
+    }
+    
+    return NULL;
+}
+#endif
+
+extern t_connection * connlist_find_connection_by_uid(unsigned int uid)
+{
+    t_connection * c;
+    t_elem const * curr;
+    
+    LIST_TRAVERSE_CONST(conn_head,curr)
+    {
+	c = elem_get_data(curr);
+	if (account_get_uid(c->account)==uid)
+	    return c;
+    }
+    
+    return NULL;
+}
+
+extern int connlist_get_length(void)
+{
+    return list_get_length(conn_head);
+}
+
+
+extern unsigned int connlist_login_get_length(void)
+{
+    t_connection const * c;
+    unsigned int         count;
+    t_elem const *       curr;
+    
+    count = 0;
+    LIST_TRAVERSE_CONST(conn_head,curr)
+    {
+	c = elem_get_data(curr);
+	if ((c->state==conn_state_loggedin)&&
+	    ((c->class==conn_class_bnet)||(c->class==conn_class_bot)||(c->class==conn_class_telnet)||(c->class==conn_class_irc)))
+	    count++;
+    }
+    
+    return count;
+}
+
+
+extern int connlist_total_logins(void)
+{
+    return totalcount;
+}
+
 
 extern unsigned int connlist_count_connections(unsigned int addr)
 {

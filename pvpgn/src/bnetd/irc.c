@@ -122,7 +122,7 @@ extern int irc_send_cmd(t_connection * conn, char const * command, char const * 
     packet_set_size(p,0);
     packet_append_data(p,data,len);
     eventlog(eventlog_level_debug,"irc_send_cmd","[%d] sent \"%s\"",conn_get_socket(conn),data);
-    queue_push_packet(conn_get_out_queue(conn),p);
+    conn_push_outqueue(conn,p);
     packet_del_ref(p);
     return 0;
 }
@@ -166,7 +166,7 @@ extern int irc_send_ping(t_connection * conn)
     eventlog(eventlog_level_debug,"irc_send_ping","[%d] sent \"%s\"",conn_get_socket(conn),data);
     packet_set_size(p,0);
     packet_append_data(p,data,strlen(data));
-    queue_push_packet(conn_get_out_queue(conn),p);
+    conn_push_outqueue(conn,p);
     packet_del_ref(p);
     return 0;
 }
@@ -195,7 +195,7 @@ extern int irc_send_pong(t_connection * conn, char const * params)
     eventlog(eventlog_level_debug,"irc_send_pong","[%d] sent \"%s\"",conn_get_socket(conn),data);
     packet_set_size(p,0);
     packet_append_data(p,data,strlen(data));
-    queue_push_packet(conn_get_out_queue(conn),p);
+    conn_push_outqueue(conn,p);
     packet_del_ref(p);
     return 0;
 }

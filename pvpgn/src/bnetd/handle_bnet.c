@@ -408,7 +408,7 @@ static int _client_compinfo1(t_connection * c, t_packet const * const packet)
 	bn_int_set(&rpacket->u.server_compreply.reg_auth,SERVER_COMPREPLY_REG_AUTH);
 	bn_int_set(&rpacket->u.server_compreply.client_id,SERVER_COMPREPLY_CLIENT_ID);
 	bn_int_set(&rpacket->u.server_compreply.client_token,SERVER_COMPREPLY_CLIENT_TOKEN);
-	queue_push_packet(conn_get_out_queue(c),rpacket);
+	conn_push_outqueue(c,rpacket);
 	packet_del_ref(rpacket);
      }
    if ((rpacket = packet_create(packet_class_bnet)))
@@ -416,7 +416,7 @@ static int _client_compinfo1(t_connection * c, t_packet const * const packet)
 	packet_set_size(rpacket,sizeof(t_server_sessionkey1));
 	packet_set_type(rpacket,SERVER_SESSIONKEY1);
 	bn_int_set(&rpacket->u.server_sessionkey1.sessionkey,conn_get_sessionkey(c));
-	queue_push_packet(conn_get_out_queue(c),rpacket);
+	conn_push_outqueue(c,rpacket);
 	packet_del_ref(rpacket);
      }
    return 0;
@@ -459,7 +459,7 @@ static int _client_compinfo2(t_connection * c, t_packet const * const packet)
 	bn_int_set(&rpacket->u.server_compreply.reg_auth,SERVER_COMPREPLY_REG_AUTH);
 	bn_int_set(&rpacket->u.server_compreply.client_id,SERVER_COMPREPLY_CLIENT_ID);
 	bn_int_set(&rpacket->u.server_compreply.client_token,SERVER_COMPREPLY_CLIENT_TOKEN);
-	queue_push_packet(conn_get_out_queue(c),rpacket);
+	conn_push_outqueue(c,rpacket);
 	packet_del_ref(rpacket);
      }
    
@@ -469,7 +469,7 @@ static int _client_compinfo2(t_connection * c, t_packet const * const packet)
 	packet_set_type(rpacket,SERVER_SESSIONKEY2);
 	bn_int_set(&rpacket->u.server_sessionkey2.sessionnum,conn_get_sessionnum(c));
 	bn_int_set(&rpacket->u.server_sessionkey2.sessionkey,conn_get_sessionkey(c));
-	queue_push_packet(conn_get_out_queue(c),rpacket);
+	conn_push_outqueue(c,rpacket);
 	packet_del_ref(rpacket);
      }
    
@@ -607,7 +607,7 @@ static int _client_countryinfo109(t_connection * c, t_packet const * const packe
 	     packet_set_size(rpacket,sizeof(t_server_echoreq));
 	     packet_set_type(rpacket,SERVER_ECHOREQ);
 	     bn_int_set(&rpacket->u.server_echoreq.ticks,get_ticks());
-	     queue_push_packet(conn_get_out_queue(c),rpacket);
+	     conn_push_outqueue(c,rpacket);
 	     packet_del_ref(rpacket);
 	  }
 	
@@ -646,7 +646,7 @@ static int _client_countryinfo109(t_connection * c, t_packet const * const packe
 		 memset(padding, 0, 128);
 		 packet_append_data(rpacket, padding, 128);
 	     }
-	     queue_push_packet(conn_get_out_queue(c),rpacket);
+	     conn_push_outqueue(c,rpacket);
 	     packet_del_ref(rpacket);
 	  }
      }
@@ -725,7 +725,7 @@ static int _client_progident(t_connection * c, t_packet const * const packet)
 	       bn_int_set(&rpacket->u.server_authreply1.message,SERVER_AUTHREPLY1_MESSAGE_OK);
 	     packet_append_string(rpacket,"");
 	     packet_append_string(rpacket,""); /* FIXME: what's the second string for? */
-	     queue_push_packet(conn_get_out_queue(c),rpacket);
+	     conn_push_outqueue(c,rpacket);
 	     packet_del_ref(rpacket);
 	  }
      }
@@ -744,7 +744,7 @@ static int _client_progident(t_connection * c, t_packet const * const packet)
 	     packet_append_string(rpacket,versioncheck_get_mpqfile(vc));
 	     packet_append_string(rpacket,versioncheck_get_eqn(vc));
 	     eventlog(eventlog_level_debug,__FUNCTION__,"[%d] selected \"%s\" \"%s\"",conn_get_socket(c),versioncheck_get_mpqfile(vc),versioncheck_get_eqn(vc));
-	     queue_push_packet(conn_get_out_queue(c),rpacket);
+	     conn_push_outqueue(c,rpacket);
 	     packet_del_ref(rpacket);
 	  }
      }
@@ -836,7 +836,7 @@ static int _client_createaccountw3(t_connection * c, t_packet const * const pack
 	bn_int_set(&rpacket->u.server_createacctreply1.unknown2,SERVER_CREATEACCTREPLY1_UNKNOWN2);
 	bn_int_set(&rpacket->u.server_createacctreply1.unknown3,SERVER_CREATEACCTREPLY1_UNKNOWN3);
 	bn_int_set(&rpacket->u.server_createacctreply1.unknown4,SERVER_CREATEACCTREPLY1_UNKNOWN4);
-	queue_push_packet(conn_get_out_queue(c),rpacket);
+	conn_push_outqueue(c,rpacket);
 	packet_del_ref(rpacket);
      }
 
@@ -914,7 +914,7 @@ static int _client_createacctreq1(t_connection * c, t_packet const * const packe
 	bn_int_set(&rpacket->u.server_createacctreply1.unknown2,SERVER_CREATEACCTREPLY1_UNKNOWN2);
 	bn_int_set(&rpacket->u.server_createacctreply1.unknown3,SERVER_CREATEACCTREPLY1_UNKNOWN3);
 	bn_int_set(&rpacket->u.server_createacctreply1.unknown4,SERVER_CREATEACCTREPLY1_UNKNOWN4);
-	queue_push_packet(conn_get_out_queue(c),rpacket);
+	conn_push_outqueue(c,rpacket);
 	packet_del_ref(rpacket);
      }
    
@@ -992,7 +992,7 @@ static int _client_createacctreq2(t_connection * c, t_packet const * const packe
 	bn_int_set(&rpacket->u.server_createacctreply2.unknown2,SERVER_CREATEACCTREPLY2_UNKNOWN2);
 	bn_int_set(&rpacket->u.server_createacctreply2.unknown3,SERVER_CREATEACCTREPLY2_UNKNOWN3);
 	bn_int_set(&rpacket->u.server_createacctreply2.unknown4,SERVER_CREATEACCTREPLY2_UNKNOWN4);
-	queue_push_packet(conn_get_out_queue(c),rpacket);
+	conn_push_outqueue(c,rpacket);
 	packet_del_ref(rpacket);
      }
    
@@ -1104,7 +1104,7 @@ static int _client_changepassreq(t_connection * c, t_packet const * const packet
 	       }
 	  }
 	
-	queue_push_packet(conn_get_out_queue(c),rpacket);
+	conn_push_outqueue(c,rpacket);
 	packet_del_ref(rpacket);
 	
      }
@@ -1266,7 +1266,7 @@ static int _client_authreq1(t_connection * c, t_packet const * const packet)
 	       }
 	     
 	     packet_append_string(rpacket,""); /* FIXME: what's the second string for? */
-	     queue_push_packet(conn_get_out_queue(c),rpacket);
+	     conn_push_outqueue(c,rpacket);
 	     packet_del_ref(rpacket);
 	  }
      }
@@ -1402,7 +1402,7 @@ static int _client_authreq109(t_connection * c, t_packet const * const packet)
 		    free((void *)mpqfilename);
 	       }
 	     
-	     queue_push_packet(conn_get_out_queue(c),rpacket);
+	     conn_push_outqueue(c,rpacket);
 	     packet_del_ref(rpacket);
 	  }
      }
@@ -1448,7 +1448,7 @@ static int _client_iconreq(t_connection * c, t_packet const * const packet)
 	else
 	    packet_append_string(rpacket,prefs_get_iconfile());
 	
-	queue_push_packet(conn_get_out_queue(c),rpacket);
+	conn_push_outqueue(c,rpacket);
 	packet_del_ref(rpacket);
      }
    
@@ -1489,7 +1489,7 @@ static int _client_cdkey(t_connection * c, t_packet const * const packet)
 	     packet_set_type(rpacket,SERVER_CDKEYREPLY);
 	     bn_int_set(&rpacket->u.server_cdkeyreply.message,SERVER_CDKEYREPLY_MESSAGE_OK);
 	     packet_append_string(rpacket,owner);
-	     queue_push_packet(conn_get_out_queue(c),rpacket);
+	     conn_push_outqueue(c,rpacket);
 	     packet_del_ref(rpacket);
 	  }
      }
@@ -1502,7 +1502,7 @@ static int _client_cdkey(t_connection * c, t_packet const * const packet)
 	       bn_int_set(&rpacket->u.server_regsnoopreq.hkey,SERVER_REGSNOOPREQ_HKEY_CURRENT_USER);
 	       packet_append_string(rpacket,SERVER_REGSNOOPREQ_REGKEY);
 	       packet_append_string(rpacket,SERVER_REGSNOOPREQ_REGVALNAME);
-	       queue_push_packet(conn_get_out_queue(c),rpacket);
+	       conn_push_outqueue(c,rpacket);
 	       packet_del_ref(rpacket);
 	    }
 #endif
@@ -1536,7 +1536,7 @@ static int _client_cdkey2(t_connection * c, t_packet const * const packet)
 	     packet_set_type(rpacket,SERVER_CDKEYREPLY2);
 	     bn_int_set(&rpacket->u.server_cdkeyreply2.message,SERVER_CDKEYREPLY2_MESSAGE_OK);
 	     packet_append_string(rpacket,owner);
-	     queue_push_packet(conn_get_out_queue(c),rpacket);
+	     conn_push_outqueue(c,rpacket);
 	     packet_del_ref(rpacket);
 	  }
      }
@@ -1571,7 +1571,7 @@ static int _client_cdkey3(t_connection * c, t_packet const * const packet)
 	     packet_set_type(rpacket,SERVER_CDKEYREPLY3);
 	     bn_int_set(&rpacket->u.server_cdkeyreply3.message,SERVER_CDKEYREPLY3_MESSAGE_OK);
 	     packet_append_string(rpacket,""); /* FIXME: owner, message, ??? */
-	     queue_push_packet(conn_get_out_queue(c),rpacket);
+	     conn_push_outqueue(c,rpacket);
 	     packet_del_ref(rpacket);
 	  }
      }
@@ -1628,7 +1628,7 @@ static int _client_fileinforeq(t_connection * c, t_packet const * const packet)
 	      */
 	     file_to_mod_time(tosfile,&rpacket->u.server_fileinforeply.timestamp);
 	     packet_append_string(rpacket,tosfile);
-	     queue_push_packet(conn_get_out_queue(c),rpacket);
+	     conn_push_outqueue(c,rpacket);
 	     packet_del_ref(rpacket);
 	  }
      }
@@ -1712,7 +1712,7 @@ static int _client_statsreq(t_connection * c, t_packet const * const packet)
 		      }
 	         }
 	  }
-	queue_push_packet(conn_get_out_queue(c),rpacket);
+	conn_push_outqueue(c,rpacket);
 	packet_del_ref(rpacket);
      }
    
@@ -1916,7 +1916,7 @@ static int _client_loginreq1(t_connection * c, t_packet const * const packet)
 		  
 	       }
 	  }
-	queue_push_packet(conn_get_out_queue(c),rpacket);
+	conn_push_outqueue(c,rpacket);
 	packet_del_ref(rpacket);
      }
    
@@ -2105,7 +2105,7 @@ static int _client_loginreq2(t_connection * c, t_packet const * const packet)
 		  bn_int_set(&rpacket->u.server_loginreply2.message,SERVER_LOGINREPLY2_MESSAGE_SUCCESS);
 	       }
 	  }
-	queue_push_packet(conn_get_out_queue(c),rpacket);
+	conn_push_outqueue(c,rpacket);
 	packet_del_ref(rpacket);
      }
    
@@ -2222,7 +2222,7 @@ static int _client_loginreqw3(t_connection * c, t_packet const * const packet)
 		  bn_int_set (&rpacket->u.server_loginreply_w3.unknown[15], 0x1fa27892);
 	       }
 	     
-	     queue_push_packet(conn_get_out_queue(c),rpacket);
+	     conn_push_outqueue(c,rpacket);
 	     packet_del_ref(rpacket);
 	     
 	  }
@@ -2246,7 +2246,7 @@ static int _client_pingreq(t_connection * c, t_packet const * const packet)
      {
 	packet_set_size(rpacket,sizeof(t_server_pingreply));
 	packet_set_type(rpacket,SERVER_PINGREPLY);
-	queue_push_packet(conn_get_out_queue(c),rpacket);
+	conn_push_outqueue(c,rpacket);
 	packet_del_ref(rpacket);
      }
    
@@ -2324,7 +2324,7 @@ static int _client_logonproofreq(t_connection * c, t_packet const * const packet
 	     } else
 	       eventlog(eventlog_level_info,__FUNCTION__,"[%d] (W3) got wrong password for \"%s\"",conn_get_socket(c),(tname = account_get_name(account)));
 	     
-	     queue_push_packet(conn_get_out_queue(c),rpacket);
+	     conn_push_outqueue(c,rpacket);
 	     packet_del_ref(rpacket);
 	  }
      }
@@ -2390,7 +2390,7 @@ static int _client_friendslistreq(t_connection * c, t_packet const * const packe
 	   packet_append_data(rpacket, tmp, 7);
 	}
 
-	queue_push_packet(conn_get_out_queue(c),rpacket);
+	conn_push_outqueue(c,rpacket);
 	packet_del_ref(rpacket);
     }
 
@@ -2446,7 +2446,7 @@ static int _client_friendinforeq(t_connection * c, t_packet const * const packet
 	     bn_byte_set(&rpacket->u.server_friendinforeply.status, FRIENDSTATUS_OFFLINE);
 	     bn_int_set(&rpacket->u.server_friendinforeply.clienttag, 0);
 	     packet_append_string(rpacket, "");
-	     queue_push_packet(conn_get_out_queue(c),rpacket);
+	     conn_push_outqueue(c,rpacket);
 	     packet_del_ref(rpacket);
 	     return 0;
 	}
@@ -2500,7 +2500,7 @@ static int _client_friendinforeq(t_connection * c, t_packet const * const packet
 	     
 	  }
 	
-	queue_push_packet(conn_get_out_queue(c),rpacket);
+	conn_push_outqueue(c,rpacket);
 	packet_del_ref(rpacket);
 	
      }
@@ -2576,7 +2576,7 @@ static int _client_atfriendscreen(t_connection * c, t_packet const * const packe
 	eventlog(eventlog_level_info, "handle_bnet", "AT - no friends available for AT game.");
     else {
 	bn_byte_set(&rpacket->u.server_arrangedteam_friendscreen.f_count, f_cnt);
-	queue_push_packet(conn_get_out_queue(c), rpacket);
+	conn_push_outqueue(c, rpacket);
      }
    
    packet_del_ref(rpacket);
@@ -2701,7 +2701,7 @@ static int _client_atinvitefriend(t_connection * c, t_packet const * const packe
 	       }
 	     
 	     //now send packet
-	     queue_push_packet(conn_get_out_queue(dest_c),rpacket);
+	     conn_push_outqueue(dest_c,rpacket);
 	     packet_del_ref(rpacket);
 	     
 	     //start of stat shit for each invitee -->
@@ -2763,7 +2763,7 @@ static int _client_atinvitefriend(t_connection * c, t_packet const * const packe
 	    }
 	}
 	
-	queue_push_packet(conn_get_out_queue(c),rpacket);
+	conn_push_outqueue(c,rpacket);
 	packet_del_ref(rpacket);
 	
      }
@@ -2809,7 +2809,7 @@ static int _client_atacceptdeclineinvite(t_connection * c, t_packet const * cons
 	     bn_int_set(&rpacket->u.server_arrangedteam_member_decline.action,SERVER_ARRANGEDTEAM_DECLINE);
 	     packet_append_string(rpacket,conn_get_username(c));
 	     
-	     queue_push_packet(conn_get_out_queue(dest_c),rpacket);
+	     conn_push_outqueue(dest_c,rpacket);
 	     packet_del_ref(rpacket);
 	}
      }
@@ -2873,7 +2873,7 @@ static int _client_motdw3(t_connection * c, t_packet const * const packet)
 		    eventlog(eventlog_level_trace,__FUNCTION__,"(W3) %u bytes were used to store news",strlen(news_get_body(newsindex)));
 	    
 		    /* Send news packet */
-		    queue_push_packet(conn_get_out_queue(c),rpacket);
+		    conn_push_outqueue(c,rpacket);
 	    
 		    packet_del_ref(rpacket);
 		}
@@ -2891,8 +2891,8 @@ static int _client_motdw3(t_connection * c, t_packet const * const packet)
 	bn_int_set(&rpacket->u.server_motd_w3.timestamp,time(NULL));
 	bn_int_set(&rpacket->u.server_motd_w3.timestamp2,time(NULL));
 	packet_append_string(rpacket,"No news today.");
-	queue_push_packet(conn_get_out_queue(c),rpacket);
-	queue_push_packet(conn_get_out_queue(c),rpacket);
+	conn_push_outqueue(c,rpacket);
+	conn_push_outqueue(c,rpacket);
 	packet_del_ref(rpacket);
     }
             
@@ -2922,7 +2922,7 @@ static int _client_motdw3(t_connection * c, t_packet const * const packet)
       
     packet_append_string(rpacket,serverinfo);
     
-    queue_push_packet(conn_get_out_queue(c),rpacket);
+    conn_push_outqueue(c,rpacket);
     packet_del_ref(rpacket);
     
     /* Set welcomed flag so we don't send MOTD with the old format */
@@ -2969,7 +2969,7 @@ static int _client_realmlistreq(t_connection * c, t_packet const * const packet)
 	     count++;
 	  }
 	bn_int_set(&rpacket->u.server_realmlistreply.count,count);
-	queue_push_packet(conn_get_out_queue(c),rpacket);
+	conn_push_outqueue(c,rpacket);
 	packet_del_ref(rpacket);
      }
    
@@ -3019,7 +3019,7 @@ static int _client_realmjoinreq(t_connection * c, t_packet const * const packet)
 		  bn_int_set(&rpacket->u.server_realmjoinreply.secret_hash[3],0);
 		  bn_int_set(&rpacket->u.server_realmjoinreply.secret_hash[4],0);
 		  packet_append_string(rpacket,"");
-		  queue_push_packet(conn_get_out_queue(c),rpacket);
+		  conn_push_outqueue(c,rpacket);
 		  packet_del_ref(rpacket);
 	       }
 	  }
@@ -3071,7 +3071,7 @@ static int _client_realmjoinreq(t_connection * c, t_packet const * const packet)
 		  hash_to_bnhash((t_hash const *)&secret_hash,rpacket->u.server_realmjoinreply.secret_hash); /* avoid warning */
 		  packet_append_string(rpacket,(tname = conn_get_username(c)));
 		  conn_unget_username(c,tname);
-		  queue_push_packet(conn_get_out_queue(c),rpacket);
+		  conn_push_outqueue(c,rpacket);
 		  packet_del_ref(rpacket);
 	       }
 	  }
@@ -3175,7 +3175,7 @@ static int _client_realmjoinreq109(t_connection * c, t_packet const * const pack
 			    hash_to_bnhash((t_hash const *)&secret_hash,rpacket->u.server_realmjoinreply_109.secret_hash); /* avoid warning */
 			    packet_append_string(rpacket,(tname = conn_get_username(c)));
 			    conn_unget_username(c,tname);
-			    queue_push_packet(conn_get_out_queue(c),rpacket);
+			    conn_push_outqueue(c,rpacket);
 			    packet_del_ref(rpacket);
 			 }
 		       return 0;
@@ -3224,7 +3224,7 @@ static int _client_realmjoinreq109(t_connection * c, t_packet const * const pack
 	     bn_int_set(&rpacket->u.server_realmjoinreply_109.secret_hash[3],0);
 	     bn_int_set(&rpacket->u.server_realmjoinreply_109.secret_hash[4],0);
 	     packet_append_string(rpacket,"");
-	     queue_push_packet(conn_get_out_queue(c),rpacket);
+	     conn_push_outqueue(c,rpacket);
 	     packet_del_ref(rpacket);
 	  }
      }
@@ -3259,7 +3259,7 @@ static int _client_charlistreq(t_connection * c, t_packet const * const packet)
 	if (!(charlist = account_get_closed_characterlist(conn_get_account(c),conn_get_clienttag(c),conn_get_realmname(c))))
 	  {
 	     bn_int_set(&rpacket->u.server_unknown_37.count,0);
-	     queue_push_packet(conn_get_out_queue(c),rpacket);
+	     conn_push_outqueue(c,rpacket);
 	     packet_del_ref(rpacket);
 	     return 0;
 	  }
@@ -3267,7 +3267,7 @@ static int _client_charlistreq(t_connection * c, t_packet const * const packet)
 	  {
 	     eventlog(eventlog_level_error,__FUNCTION__,"[%d] unable to allocate memory for characterlist",conn_get_socket(c));
 	     bn_int_set(&rpacket->u.server_unknown_37.count,0);
-	     queue_push_packet(conn_get_out_queue(c),rpacket);
+	     conn_push_outqueue(c,rpacket);
 	     packet_del_ref(rpacket);
 	     account_unget_closed_characterlist(conn_get_account(c),charlist);
 	     return 0;
@@ -3311,7 +3311,7 @@ static int _client_charlistreq(t_connection * c, t_packet const * const packet)
 	     free(temp);
 	     
 	     bn_int_set(&rpacket->u.server_unknown_37.count,count);
-	     queue_push_packet(conn_get_out_queue(c),rpacket);
+	     conn_push_outqueue(c,rpacket);
 	     packet_del_ref(rpacket);
 	  }
      }
@@ -3353,7 +3353,7 @@ static int _client_adreq(t_connection * c, t_packet const * const packet)
 	     file_to_mod_time(adbanner_get_filename(ad),&rpacket->u.server_adreply.timestamp);
 	     packet_append_string(rpacket,adbanner_get_filename(ad));
 	     packet_append_string(rpacket,adbanner_get_link(ad));
-	     queue_push_packet(conn_get_out_queue(c),rpacket);
+	     conn_push_outqueue(c,rpacket);
 	     packet_del_ref(rpacket);
 	  }
      }
@@ -3424,7 +3424,7 @@ static int _client_adclick2(t_connection * c, t_packet const * const packet)
 	     packet_set_type(rpacket,SERVER_ADCLICKREPLY2);
 	     bn_int_set(&rpacket->u.server_adclickreply2.adid,adbanner_get_id(ad));
 	     packet_append_string(rpacket,adbanner_get_link(ad));
-	     queue_push_packet(conn_get_out_queue(c),rpacket);
+	     conn_push_outqueue(c,rpacket);
 	     packet_del_ref(rpacket);
 	  }
      }
@@ -3564,7 +3564,7 @@ static int _client_playerinforeq(t_connection * c, t_packet const * const packet
 	     packet_append_string(rpacket,"");
 	     packet_append_string(rpacket,"");
 	  }
-	queue_push_packet(conn_get_out_queue(c),rpacket);
+	conn_push_outqueue(c,rpacket);
 	packet_del_ref(rpacket);
      }
    
@@ -3636,7 +3636,7 @@ static int _client_progident2(t_connection * c, t_packet const * const packet)
 	       }
 	  }
 	packet_append_string(rpacket,"");
-	queue_push_packet(conn_get_out_queue(c),rpacket);
+	conn_push_outqueue(c,rpacket);
 	packet_del_ref(rpacket); 
      }
    
@@ -4025,7 +4025,7 @@ static int _client_gamelistreq(t_connection * c, t_packet const * const packet)
 	     eventlog(eventlog_level_debug,__FUNCTION__,"[%d] GAMELISTREPLY sent %u of %u games",conn_get_socket(c),counter,tcount);
 	  }
 	
-	queue_push_packet(conn_get_out_queue(c),rpacket);
+	conn_push_outqueue(c,rpacket);
 	packet_del_ref(rpacket);
 #endif  /* WITH_BITS */
      }
@@ -4225,7 +4225,7 @@ static int _client_startgame1(t_connection * c, t_packet const * const packet)
 		    else
 		      bn_int_set(&rpacket->u.server_startgame1_ack.reply,SERVER_STARTGAME1_ACK_NO);
 		    
-		    queue_push_packet(conn_get_out_queue(c),rpacket);
+		    conn_push_outqueue(c,rpacket);
 		    packet_del_ref(rpacket);
 		 }
 	    }
@@ -4332,7 +4332,7 @@ static int _client_startgame3(t_connection * c, t_packet const * const packet)
 		    else
 		      bn_int_set(&rpacket->u.server_startgame3_ack.reply,SERVER_STARTGAME3_ACK_NO);
 		    
-		    queue_push_packet(conn_get_out_queue(c),rpacket);
+		    conn_push_outqueue(c,rpacket);
 		    packet_del_ref(rpacket);
 		 }
 	    }
@@ -4477,7 +4477,7 @@ static int _client_startgame4(t_connection * c, t_packet const * const packet)
 		    bn_int_set(&rpacket->u.server_startgame4_ack.reply,SERVER_STARTGAME4_ACK_OK);
 		  else
 		    bn_int_set(&rpacket->u.server_startgame4_ack.reply,SERVER_STARTGAME4_ACK_NO);
-		  queue_push_packet(conn_get_out_queue(c),rpacket);
+		  conn_push_outqueue(c,rpacket);
 		  packet_del_ref(rpacket);
 	       }
 	  }
@@ -4492,7 +4492,7 @@ static int _client_startgame4(t_connection * c, t_packet const * const packet)
 	packet_set_size(rpacket,sizeof(t_server_echoreq));
 	packet_set_type(rpacket,SERVER_ECHOREQ);
 	bn_int_set(&rpacket->u.server_echoreq.ticks,get_ticks());
-	queue_push_packet(conn_get_out_queue(c),rpacket);
+	conn_push_outqueue(c,rpacket);
 	packet_del_ref(rpacket);
      }
    
@@ -4756,7 +4756,7 @@ static int _client_ladderreq(t_connection * c, t_packet const * const packet)
 	       packet_append_string(rpacket," "); /* use a space so the client won't show the user's own account when double-clicked on */
 	  }
 	
-	queue_push_packet(conn_get_out_queue(c),rpacket);
+	conn_push_outqueue(c,rpacket);
 	packet_del_ref(rpacket);
      }
    
@@ -4846,7 +4846,7 @@ static int _client_laddersearchreq(t_connection * c, t_packet const * const pack
 	packet_set_size(rpacket,sizeof(t_server_laddersearchreply));
 	packet_set_type(rpacket,SERVER_LADDERSEARCHREPLY);
 	bn_int_set(&rpacket->u.server_laddersearchreply.rank,rank);
-	queue_push_packet(conn_get_out_queue(c),rpacket);
+	conn_push_outqueue(c,rpacket);
 	packet_del_ref(rpacket);
      }
    
@@ -4926,7 +4926,7 @@ static int _client_mapauthreq1(t_connection * c, t_packet const * const packet)
 	     packet_set_size(rpacket,sizeof(t_server_mapauthreply1));
 	     packet_set_type(rpacket,SERVER_MAPAUTHREPLY1);
 	     bn_int_set(&rpacket->u.server_mapauthreply1.response,val);
-	     queue_push_packet(conn_get_out_queue(c),rpacket);
+	     conn_push_outqueue(c,rpacket);
 	     packet_del_ref(rpacket);
 	  }
 #ifdef WITH_BITS
@@ -5015,7 +5015,7 @@ static int _client_mapauthreq2(t_connection * c, t_packet const * const packet)
 	     packet_set_size(rpacket,sizeof(t_server_mapauthreply2));
 	     packet_set_type(rpacket,SERVER_MAPAUTHREPLY2);
 	     bn_int_set(&rpacket->u.server_mapauthreply2.response,val);
-	     queue_push_packet(conn_get_out_queue(c),rpacket);
+	     conn_push_outqueue(c,rpacket);
 	     packet_del_ref(rpacket);
 	  }
 #ifdef WITH_BITS
@@ -5042,7 +5042,7 @@ static int _client_w3xp_clan_inforeq(t_connection * c, t_packet const * const pa
 	packet_set_type(rpacket,SERVER_W3XP_CLAN_INFOREPLY);
         bn_int_set(&rpacket->u.server_w3xp_clan_inforeply.count,bn_int_get(packet->u.client_w3xp_clan_inforeq.count));
 	bn_short_set(&rpacket->u.server_w3xp_clan_inforeply.message,SERVER_W3XP_CLAN_INFOREPLY_MESSAGE_ALLREADY_IN_USE);
-	queue_push_packet(conn_get_out_queue(c),rpacket);
+	conn_push_outqueue(c,rpacket);
 	packet_del_ref(rpacket);
      }
 

@@ -1179,7 +1179,7 @@ static int _handle_friends_command(t_connection * c, char const * text)
 
 	packet_append_data(rpacket, tmp, 7);
 
-	queue_push_packet(conn_get_out_queue(c),rpacket);
+	conn_push_outqueue(c,rpacket);
 	packet_del_ref(rpacket);
 
 	return 0;
@@ -1257,7 +1257,7 @@ static int _handle_friends_command(t_connection * c, char const * text)
 
 		bn_byte_set(&rpacket->u.server_frienddel_ack.friendnum, num);
 
-		queue_push_packet(conn_get_out_queue(c),rpacket);
+		conn_push_outqueue(c,rpacket);
 		packet_del_ref(rpacket);
 
     		return 0; 
