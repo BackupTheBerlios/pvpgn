@@ -31,6 +31,9 @@
 #  include <malloc.h>
 # endif
 #endif
+#ifdef HAVE_ASSERT_H
+# include <assert.h>
+#endif
 #include "common/eventlog.h"
 #include "common/xalloc.h"
 #include "common/list.h"
@@ -85,11 +88,7 @@ extern int list_prepend_data(t_list * list, void * data)
 {
     t_elem * elem;
     
-    if (!list)
-    {
-	eventlog(eventlog_level_error,"list_prepend_data","got NULL list");
-	return -1;
-    }
+    assert(list != NULL);
 
     elem = xmalloc(sizeof(t_elem));
     elem->data = data;
@@ -111,11 +110,7 @@ extern int list_append_data(t_list * list, void * data)
 {
     t_elem * elem;
     
-    if (!list)
-    {
-	eventlog(eventlog_level_error,"list_append_data","got NULL list");
-	return -1;
-    }
+    assert(list != NULL);
 
     elem = xmalloc(sizeof(t_elem));
     elem->data = data;
