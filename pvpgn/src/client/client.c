@@ -185,8 +185,16 @@ extern int client_get_comm(char const * prompt, char * text, unsigned int maxlen
 #ifndef WIN32
 	addlen = read(fileno(stdin),&temp,1);
 #else
-	temp = getch();
-	addlen=1;
+	if (kbhit())
+	{
+	  temp = getch();
+	  addlen=1;
+	}
+	else
+	{
+	  temp = 0;
+	  addlen=0;
+	}
 #endif
 
 	if (addlen<1)

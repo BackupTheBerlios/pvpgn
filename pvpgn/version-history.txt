@@ -1,5 +1,11 @@
 PvPGN Version History:
 
+ Changelog for 1.7.5 (since 1.7.4)
+===================================
+
+[BNCHAT]
+ -- fixed win32 specific problem (can't read while writing)
+
  Changelog for 1.7.4 (since 1.7.3)
 ===================================
 
