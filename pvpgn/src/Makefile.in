@@ -471,7 +471,7 @@ ${SRC_COMPATDIR}/memset.o \
 ${SRC_COMPATDIR}/memcpy.o \
 ${SRC_COMPATDIR}/strdup.o
 
-cdb_BIN			= ${SRC_BINDIR}/cdb
+cdb_BIN			= ${SRC_BINDIR}/bncdb
 cdb_OBJECTS		= ${SRC_CDBDIR}/cdb.o \
 ${SRC_CDBDIR}/cdb_init.o \
 ${SRC_CDBDIR}/cdb_find.o \
