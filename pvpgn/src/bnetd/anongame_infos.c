@@ -195,99 +195,6 @@ t_anongame_infos *  anongame_infos_init()
 	return anongame_infos;
 }
 
-void anongame_infos_set_defaults(t_anongame_infos * anongame_infos)
-{
-    t_anongame_infos_URL * anongame_infos_URL;
-    t_anongame_infos_DESC * anongame_infos_DESC;
-
-    if (!(anongame_infos))
-    {
-	eventlog(eventlog_level_error,__FUNCTION__,"got NULL anongame_infos");
-	return;
-    }
-
-    anongame_infos_URL  = anongame_infos->anongame_infos_URL;
-    anongame_infos_DESC = anongame_infos->anongame_infos_DESC;
-
-    if (!(anongame_infos_URL))
-    {
-	eventlog(eventlog_level_error,__FUNCTION__,"got NULL anongame_infos_URL, trying to init");
-	if (anongame_infos_URL_init(anongame_infos)!=0)
-        { 
-	  eventlog(eventlog_level_error,__FUNCTION__,"failed to init... PANIC!");
-	  return;
-        }
-    }
-
-    if (!(anongame_infos_DESC))
-    {
-        eventlog(eventlog_level_error,__FUNCTION__,"got NULL anongame_infos_DESC, trying to init");
-	if (!(anongame_infos_DESC = anongame_infos_DESC_init()))
-	{
-	  eventlog(eventlog_level_error,__FUNCTION__,"failed to init... PANIC!");
-	  return;
-	}
-	else
-	anongame_infos->anongame_infos_DESC = anongame_infos_DESC;
-    }
-    
-    // now set default values
-
-    if (!(anongame_infos_URL->server_URL)) 
-	anongame_infos_URL_set_server_URL(anongame_infos_URL,PVPGN_DEFAULT_URL);
-    if (!(anongame_infos_URL->player_URL)) 
-	anongame_infos_URL_set_player_URL(anongame_infos_URL,PVPGN_DEFAULT_URL);
-    if (!(anongame_infos_URL->tourney_URL)) 
-	anongame_infos_URL_set_tourney_URL(anongame_infos_URL,PVPGN_DEFAULT_URL);
-    if (!(anongame_infos_URL->ladder_PG_1v1_URL)) 
-	anongame_infos_URL_set_ladder_PG_1v1_URL(anongame_infos_URL,PVPGN_DEFAULT_URL);
-    if (!(anongame_infos_URL->ladder_PG_ffa_URL)) 
-	anongame_infos_URL_set_ladder_PG_ffa_URL(anongame_infos_URL,PVPGN_DEFAULT_URL);
-    if (!(anongame_infos_URL->ladder_PG_team_URL)) 
-	anongame_infos_URL_set_ladder_PG_team_URL(anongame_infos_URL,PVPGN_DEFAULT_URL);
-    if (!(anongame_infos_URL->ladder_AT_2v2_URL)) 
-	anongame_infos_URL_set_ladder_AT_2v2_URL(anongame_infos_URL,PVPGN_DEFAULT_URL);
-    if (!(anongame_infos_URL->ladder_AT_3v3_URL)) 
-	anongame_infos_URL_set_ladder_AT_3v3_URL(anongame_infos_URL,PVPGN_DEFAULT_URL);
-    if (!(anongame_infos_URL->ladder_AT_4v4_URL)) 
-	anongame_infos_URL_set_ladder_AT_4v4_URL(anongame_infos_URL,PVPGN_DEFAULT_URL);
-
-    if (!(anongame_infos_DESC->ladder_PG_1v1_desc)) 
-	anongame_infos_DESC_set_ladder_PG_1v1_desc(anongame_infos_DESC,PVPGN_PG_1V1_DESC);
-    if (!(anongame_infos_DESC->ladder_PG_ffa_desc)) 
-	anongame_infos_DESC_set_ladder_PG_ffa_desc(anongame_infos_DESC,PVPGN_PG_FFA_DESC);
-    if (!(anongame_infos_DESC->ladder_PG_team_desc)) 
-	anongame_infos_DESC_set_ladder_PG_team_desc(anongame_infos_DESC,PVPGN_PG_TEAM_DESC);
-    if (!(anongame_infos_DESC->ladder_AT_2v2_desc)) 
-	anongame_infos_DESC_set_ladder_AT_2v2_desc(anongame_infos_DESC,PVPGN_AT_2V2_DESC);
-    if (!(anongame_infos_DESC->ladder_AT_3v3_desc)) 
-	anongame_infos_DESC_set_ladder_AT_3v3_desc(anongame_infos_DESC,PVPGN_AT_3V3_DESC);
-    if (!(anongame_infos_DESC->ladder_AT_4v4_desc)) 
-	anongame_infos_DESC_set_ladder_AT_4v4_desc(anongame_infos_DESC,PVPGN_AT_4V4_DESC);
-
-    if (!(anongame_infos_DESC->gametype_1v1_short))
-	anongame_infos_DESC_set_gametype_1v1_short(anongame_infos_DESC,PVPGN_1V1_GT_DESC);
-    if (!(anongame_infos_DESC->gametype_1v1_long))
-	anongame_infos_DESC_set_gametype_1v1_long(anongame_infos_DESC,PVPGN_1V1_GT_LONG);
-    if (!(anongame_infos_DESC->gametype_2v2_short))
-	anongame_infos_DESC_set_gametype_2v2_short(anongame_infos_DESC,PVPGN_2V2_GT_DESC);
-    if (!(anongame_infos_DESC->gametype_2v2_long))
-	anongame_infos_DESC_set_gametype_2v2_long(anongame_infos_DESC,PVPGN_2V2_GT_LONG);
-    if (!(anongame_infos_DESC->gametype_3v3_short))
-	anongame_infos_DESC_set_gametype_3v3_short(anongame_infos_DESC,PVPGN_3V3_GT_DESC);
-    if (!(anongame_infos_DESC->gametype_3v3_long))
-	anongame_infos_DESC_set_gametype_3v3_long(anongame_infos_DESC,PVPGN_3V3_GT_LONG);
-    if (!(anongame_infos_DESC->gametype_4v4_short))
-	anongame_infos_DESC_set_gametype_4v4_short(anongame_infos_DESC,PVPGN_4V4_GT_DESC);
-    if (!(anongame_infos_DESC->gametype_4v4_long))
-	anongame_infos_DESC_set_gametype_4v4_long(anongame_infos_DESC,PVPGN_4V4_GT_LONG);
-    if (!(anongame_infos_DESC->gametype_ffa_short))
-	anongame_infos_DESC_set_gametype_ffa_short(anongame_infos_DESC,PVPGN_FFA_GT_DESC);
-    if (!(anongame_infos_DESC->gametype_ffa_long))
-	anongame_infos_DESC_set_gametype_ffa_long(anongame_infos_DESC,PVPGN_FFA_GT_LONG);
-
-}
-
 int anongame_infos_destroy(t_anongame_infos * anongame_infos)
 {
 	t_elem					* curr;
@@ -1211,6 +1118,99 @@ extern char * anongame_infos_DESC_get_gametype_ffa_long(char * langID)
 	return result;
     else
 	return anongame_infos->anongame_infos_DESC->gametype_ffa_long;
+}
+
+void anongame_infos_set_defaults(t_anongame_infos * anongame_infos)
+{
+    t_anongame_infos_URL * anongame_infos_URL;
+    t_anongame_infos_DESC * anongame_infos_DESC;
+
+    if (!(anongame_infos))
+    {
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL anongame_infos");
+	return;
+    }
+
+    anongame_infos_URL  = anongame_infos->anongame_infos_URL;
+    anongame_infos_DESC = anongame_infos->anongame_infos_DESC;
+
+    if (!(anongame_infos_URL))
+    {
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL anongame_infos_URL, trying to init");
+	if (anongame_infos_URL_init(anongame_infos)!=0)
+        { 
+	  eventlog(eventlog_level_error,__FUNCTION__,"failed to init... PANIC!");
+	  return;
+        }
+    }
+
+    if (!(anongame_infos_DESC))
+    {
+        eventlog(eventlog_level_error,__FUNCTION__,"got NULL anongame_infos_DESC, trying to init");
+	if (!(anongame_infos_DESC = anongame_infos_DESC_init()))
+	{
+	  eventlog(eventlog_level_error,__FUNCTION__,"failed to init... PANIC!");
+	  return;
+	}
+	else
+	anongame_infos->anongame_infos_DESC = anongame_infos_DESC;
+    }
+    
+    // now set default values
+
+    if (!(anongame_infos_URL->server_URL)) 
+	anongame_infos_URL_set_server_URL(anongame_infos_URL,PVPGN_DEFAULT_URL);
+    if (!(anongame_infos_URL->player_URL)) 
+	anongame_infos_URL_set_player_URL(anongame_infos_URL,PVPGN_DEFAULT_URL);
+    if (!(anongame_infos_URL->tourney_URL)) 
+	anongame_infos_URL_set_tourney_URL(anongame_infos_URL,PVPGN_DEFAULT_URL);
+    if (!(anongame_infos_URL->ladder_PG_1v1_URL)) 
+	anongame_infos_URL_set_ladder_PG_1v1_URL(anongame_infos_URL,PVPGN_DEFAULT_URL);
+    if (!(anongame_infos_URL->ladder_PG_ffa_URL)) 
+	anongame_infos_URL_set_ladder_PG_ffa_URL(anongame_infos_URL,PVPGN_DEFAULT_URL);
+    if (!(anongame_infos_URL->ladder_PG_team_URL)) 
+	anongame_infos_URL_set_ladder_PG_team_URL(anongame_infos_URL,PVPGN_DEFAULT_URL);
+    if (!(anongame_infos_URL->ladder_AT_2v2_URL)) 
+	anongame_infos_URL_set_ladder_AT_2v2_URL(anongame_infos_URL,PVPGN_DEFAULT_URL);
+    if (!(anongame_infos_URL->ladder_AT_3v3_URL)) 
+	anongame_infos_URL_set_ladder_AT_3v3_URL(anongame_infos_URL,PVPGN_DEFAULT_URL);
+    if (!(anongame_infos_URL->ladder_AT_4v4_URL)) 
+	anongame_infos_URL_set_ladder_AT_4v4_URL(anongame_infos_URL,PVPGN_DEFAULT_URL);
+
+    if (!(anongame_infos_DESC->ladder_PG_1v1_desc)) 
+	anongame_infos_DESC_set_ladder_PG_1v1_desc(anongame_infos_DESC,PVPGN_PG_1V1_DESC);
+    if (!(anongame_infos_DESC->ladder_PG_ffa_desc)) 
+	anongame_infos_DESC_set_ladder_PG_ffa_desc(anongame_infos_DESC,PVPGN_PG_FFA_DESC);
+    if (!(anongame_infos_DESC->ladder_PG_team_desc)) 
+	anongame_infos_DESC_set_ladder_PG_team_desc(anongame_infos_DESC,PVPGN_PG_TEAM_DESC);
+    if (!(anongame_infos_DESC->ladder_AT_2v2_desc)) 
+	anongame_infos_DESC_set_ladder_AT_2v2_desc(anongame_infos_DESC,PVPGN_AT_2V2_DESC);
+    if (!(anongame_infos_DESC->ladder_AT_3v3_desc)) 
+	anongame_infos_DESC_set_ladder_AT_3v3_desc(anongame_infos_DESC,PVPGN_AT_3V3_DESC);
+    if (!(anongame_infos_DESC->ladder_AT_4v4_desc)) 
+	anongame_infos_DESC_set_ladder_AT_4v4_desc(anongame_infos_DESC,PVPGN_AT_4V4_DESC);
+
+    if (!(anongame_infos_DESC->gametype_1v1_short))
+	anongame_infos_DESC_set_gametype_1v1_short(anongame_infos_DESC,PVPGN_1V1_GT_DESC);
+    if (!(anongame_infos_DESC->gametype_1v1_long))
+	anongame_infos_DESC_set_gametype_1v1_long(anongame_infos_DESC,PVPGN_1V1_GT_LONG);
+    if (!(anongame_infos_DESC->gametype_2v2_short))
+	anongame_infos_DESC_set_gametype_2v2_short(anongame_infos_DESC,PVPGN_2V2_GT_DESC);
+    if (!(anongame_infos_DESC->gametype_2v2_long))
+	anongame_infos_DESC_set_gametype_2v2_long(anongame_infos_DESC,PVPGN_2V2_GT_LONG);
+    if (!(anongame_infos_DESC->gametype_3v3_short))
+	anongame_infos_DESC_set_gametype_3v3_short(anongame_infos_DESC,PVPGN_3V3_GT_DESC);
+    if (!(anongame_infos_DESC->gametype_3v3_long))
+	anongame_infos_DESC_set_gametype_3v3_long(anongame_infos_DESC,PVPGN_3V3_GT_LONG);
+    if (!(anongame_infos_DESC->gametype_4v4_short))
+	anongame_infos_DESC_set_gametype_4v4_short(anongame_infos_DESC,PVPGN_4V4_GT_DESC);
+    if (!(anongame_infos_DESC->gametype_4v4_long))
+	anongame_infos_DESC_set_gametype_4v4_long(anongame_infos_DESC,PVPGN_4V4_GT_LONG);
+    if (!(anongame_infos_DESC->gametype_ffa_short))
+	anongame_infos_DESC_set_gametype_ffa_short(anongame_infos_DESC,PVPGN_FFA_GT_DESC);
+    if (!(anongame_infos_DESC->gametype_ffa_long))
+	anongame_infos_DESC_set_gametype_ffa_long(anongame_infos_DESC,PVPGN_FFA_GT_LONG);
+
 }
 
 typedef int (* t_URL_string_handler)(t_anongame_infos_URL * anongame_infos_URL, char * text);
