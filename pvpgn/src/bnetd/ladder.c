@@ -185,7 +185,6 @@ extern int ladder_init_account(t_account * account, t_clienttag clienttag, t_lad
 extern int ladder_update(t_clienttag clienttag, t_ladder_id id, unsigned int count, t_account * * players, t_game_result * results, t_ladder_info * info, t_ladder_option opns)
 {
     unsigned int curr;
-    t_account *  sorted[8];
     unsigned int winners=0;
     unsigned int losers=0;
     unsigned int draws=0;
@@ -262,7 +261,7 @@ extern int ladder_update(t_clienttag clienttag, t_ladder_id id, unsigned int cou
 	return 0;
     }
     
-    if (ladder_calc_info(clienttag,id,count,players,sorted,results,info)<0)
+    if (ladder_calc_info(clienttag,id,count,players,results,info)<0)
     {
 	eventlog(eventlog_level_error,__FUNCTION__,"unable to calculate info from game results");
 	return -1;

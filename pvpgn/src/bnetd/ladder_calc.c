@@ -33,32 +33,33 @@
 #include "common/tag.h"
 #include "ladder.h"
 #include "ladder_calc.h"
+#include "common/xalloc.h"
 #include "common/setup_after.h"
 
 
 static double probability(unsigned int a, unsigned int b) ;
 static int coefficient(t_account * account, t_clienttag clienttag, t_ladder_id id);
 
-static double two_player(t_account * * players, t_clienttag clienttag, t_ladder_id id);
+static double two_player(unsigned int *rating);
 
-static double three_player(t_account * * players, t_clienttag clienttag, t_ladder_id id);
+static double three_player(unsigned int *rating);
 
-static double four_player(t_account * * players, t_clienttag clienttag, t_ladder_id id);
+static double four_player(unsigned int *rating);
 
-static double five_player(t_account * * players, t_clienttag clienttag, t_ladder_id id);
+static double five_player(unsigned int *rating);
 static double five_f1(int a, int b, int c, int d, int e) ;
 static double five_f2(int a, int b, int c) ;
 
-static double six_player(t_account * * players, t_clienttag clienttag, t_ladder_id id);
+static double six_player(unsigned int *rating);
 static double six_f1(int a, int b, int c, int d, int e, int f) ;
 static double six_f2(int a, int b, int c, int d, int e, int f) ;
 static double six_f3(int a, int b, int c, int d) ;
 
-static double seven_player(t_account * * players, t_clienttag clienttag, t_ladder_id id);
+static double seven_player(unsigned int *rating);
 static double seven_f1(int a, int b, int c, int d, int e, int f, int g) ;
 static double seven_f2(int a, int b, int c, int d, int e, int f, int g) ;
 
-static double eight_player(t_account * * players, t_clienttag clienttag, t_ladder_id id);
+static double eight_player(unsigned int *rating);
 static double eight_f1(int a, int b, int c, int d, int e, int f, int g) ;
 static double eight_f2(int a, int b, int c, int d, int e, int f, int g) ;
 static double eight_f3(int a, int b, int c, int d, int e) ;
@@ -121,27 +122,27 @@ static int coefficient(t_account * account, t_clienttag clienttag, t_ladder_id i
  * in a tournament. It turns out the math for this is really ugly,
  * so we have hardcoded the equations for every number of players.
  */
-static double two_player(t_account * * players, t_clienttag clienttag, t_ladder_id id)
+static double two_player(unsigned int *rating)
 {
     unsigned int a,b;
     double       ab;
     
-    a = account_get_ladder_rating(players[0],clienttag,id);
-    b = account_get_ladder_rating(players[1],clienttag,id);
+    a = rating[0];
+    b = rating[1];
     
     ab = probability(a,b);
     
     return ab;
 }
 
-static double three_player(t_account * * players, t_clienttag clienttag, t_ladder_id id)
+static double three_player(unsigned int *rating)
 {
     unsigned int a,b,c;
     double       ab,ac,bc,cb;
     
-    a = account_get_ladder_rating(players[0],clienttag,id);
-    b = account_get_ladder_rating(players[1],clienttag,id);
-    c = account_get_ladder_rating(players[2],clienttag,id);
+    a = rating[0];
+    b = rating[1];
+    c = rating[2];
     
     ab = probability(a,b);
     ac = probability(a,c);
@@ -151,15 +152,16 @@ static double three_player(t_account * * players, t_clienttag clienttag, t_ladde
     return (2*(ab*ac)+(bc*ab)+(cb*ac))/3;
 }
 
-static double four_player(t_account * * players, t_clienttag clienttag, t_ladder_id id)
+static double four_player(unsigned int *rating)
 {
     unsigned int a,b,c,d;
     double       ab,ac,ad,bc,bd,cb,cd,db,dc;
     
-    a = account_get_ladder_rating(players[0],clienttag,id);
-    b = account_get_ladder_rating(players[1],clienttag,id);
-    c = account_get_ladder_rating(players[2],clienttag,id);
-    d = account_get_ladder_rating(players[3],clienttag,id);
+    a = rating[0];
+    b = rating[1];
+    c = rating[2];
+    d = rating[3];
+
     
     ab = probability(a,b);
     ac = probability(a,c);
@@ -186,15 +188,15 @@ static double four_player(t_account * * players, t_clienttag clienttag, t_ladder
  * of the 2-player subtree if A is in the 3-players subtree.
  */
 
-static double five_player(t_account * * players, t_clienttag clienttag, t_ladder_id id)
+static double five_player(unsigned int *rating)
 {
     unsigned int a,b,c,d,e;
     
-    a = account_get_ladder_rating(players[0],clienttag,id);
-    b = account_get_ladder_rating(players[1],clienttag,id);
-    c = account_get_ladder_rating(players[2],clienttag,id);
-    d = account_get_ladder_rating(players[3],clienttag,id);
-    e = account_get_ladder_rating(players[4],clienttag,id);
+    a = rating[0];
+    b = rating[1];
+    c = rating[2];
+    d = rating[3];
+    e = rating[4];
     
     return (five_f1(a,b,c,d,e)+five_f1(a,c,d,e,b)+
             five_f1(a,d,e,b,c)+five_f1(a,e,b,c,d))/30;
@@ -239,16 +241,16 @@ static double five_f2(int a, int b, int c)
 }
 
 
-static double six_player(t_account * * players, t_clienttag clienttag, t_ladder_id id)
+static double six_player(unsigned int *rating)
 {
     unsigned int a,b,c,d,e,f;
     
-    a = account_get_ladder_rating(players[0],clienttag,id);
-    b = account_get_ladder_rating(players[1],clienttag,id);
-    c = account_get_ladder_rating(players[2],clienttag,id);
-    d = account_get_ladder_rating(players[3],clienttag,id);
-    e = account_get_ladder_rating(players[4],clienttag,id);
-    f = account_get_ladder_rating(players[5],clienttag,id);
+    a = rating[0];
+    b = rating[1];
+    c = rating[2];
+    d = rating[3];
+    e = rating[4];
+    f = rating[5];
 
 /* A B C D
  *  A   C    E F
@@ -337,17 +339,17 @@ static double six_f3(int a, int b, int c, int d)
 }
 
 
-static double seven_player(t_account * * players, t_clienttag clienttag, t_ladder_id id)
+static double seven_player(unsigned int *rating)
 {
     unsigned int a,b,c,d,e,f,g;
     
-    a = account_get_ladder_rating(players[0],clienttag,id);
-    b = account_get_ladder_rating(players[1],clienttag,id);
-    c = account_get_ladder_rating(players[2],clienttag,id);
-    d = account_get_ladder_rating(players[3],clienttag,id);
-    e = account_get_ladder_rating(players[4],clienttag,id);
-    f = account_get_ladder_rating(players[5],clienttag,id);
-    g = account_get_ladder_rating(players[6],clienttag,id);
+    a = rating[0];
+    b = rating[1];
+    c = rating[2];
+    d = rating[3];
+    e = rating[4];
+    f = rating[5];
+    g = rating[6];
 
     return (seven_f1(a,b,c,d,e,f,g)+seven_f1(a,c,b,d,e,f,g)+
             seven_f1(a,d,c,b,e,f,g)+seven_f1(a,e,c,d,b,f,g)+
@@ -409,19 +411,19 @@ return
      
 }
 
-static double eight_player(t_account * * players, t_clienttag clienttag, t_ladder_id id)
+static double eight_player(unsigned int *rating)
 {
     unsigned int a,b,c,d,e,f,g,h;
     double       ab,ac,ad,ae,af,ag,ah;
     
-    a = account_get_ladder_rating(players[0],clienttag,id);
-    b = account_get_ladder_rating(players[1],clienttag,id);
-    c = account_get_ladder_rating(players[2],clienttag,id);
-    d = account_get_ladder_rating(players[3],clienttag,id);
-    e = account_get_ladder_rating(players[4],clienttag,id);
-    f = account_get_ladder_rating(players[5],clienttag,id);
-    g = account_get_ladder_rating(players[6],clienttag,id);
-    h = account_get_ladder_rating(players[7],clienttag,id);
+    a = rating[0];
+    b = rating[1];
+    c = rating[2];
+    d = rating[3];
+    e = rating[4];
+    f = rating[5];
+    g = rating[6];
+    h = rating[7];
 
     ab = probability(a,b);
     ac = probability(a,c);
@@ -516,18 +518,15 @@ static double eight_f3(int a, int b, int c, int d, int e)
 }
 
 /* Determine changes in ratings due to game results. */
-extern int ladder_calc_info(t_clienttag clienttag, t_ladder_id id, unsigned int count, t_account * * players, t_account * * sorted, t_game_result * results, t_ladder_info * info)
+extern int ladder_calc_info(t_clienttag clienttag, t_ladder_id id, unsigned int count, t_account * * players, t_game_result * results, t_ladder_info * info)
 {
     unsigned int curr;
+    unsigned int *rating;
+    unsigned int *sorted;
     
     if (!players)
     {
 	eventlog(eventlog_level_error,__FUNCTION__,"got NULL players");
-	return -1;
-    }
-    if (!sorted)
-    {
-	eventlog(eventlog_level_error,__FUNCTION__,"got NULL sorted");
 	return -1;
     }
     if (!results)
@@ -545,6 +544,12 @@ extern int ladder_calc_info(t_clienttag clienttag, t_ladder_id id, unsigned int 
 	eventlog(eventlog_level_error,__FUNCTION__,"got NULL info");
 	return -1;
     }
+
+    rating = xmalloc(sizeof(unsigned int)*count);
+    sorted = xmalloc(sizeof(unsigned int)*count);
+
+    for (curr=0; curr<count; curr++)
+        rating[curr] = account_get_ladder_rating(players[7],clienttag,id);
     
     for (curr=0; curr<count; curr++)
     {
@@ -561,36 +566,38 @@ extern int ladder_calc_info(t_clienttag clienttag, t_ladder_id id, unsigned int 
 	       order is not important for the other players */
 	    for (i=0,j=1; i<count; i++)
 		if (i==curr)
-		    sorted[0] = players[i];
+		    sorted[0] = rating[i];
 		else
-		    sorted[j++] = players[i];
+		    sorted[j++] = rating[i];
 	}
 	
 	switch (count)
 	{
 	case 2:
-	    prob = two_player(sorted,clienttag,id);
+	    prob = two_player(sorted);
             break;
 	case 3:
-	    prob = three_player(sorted,clienttag,id);
+	    prob = three_player(sorted);
             break;
 	case 4:
-	    prob = four_player(sorted,clienttag,id);
+	    prob = four_player(sorted);
             break;
 	case 5:
-	    prob = five_player(sorted,clienttag,id);
+	    prob = five_player(sorted);
 	    break;
 	case 6:
-	    prob = six_player(sorted,clienttag,id);
+	    prob = six_player(sorted);
 	    break;
 	case 7:
-	    prob = seven_player(sorted,clienttag,id);
+	    prob = seven_player(sorted);
 	    break;
 	case 8:
-	    prob = eight_player(sorted,clienttag,id);
+	    prob = eight_player(sorted);
 	    break;
 	default:
 	    eventlog(eventlog_level_error,__FUNCTION__,"sorry, unsupported number of ladder players (%u)",count);
+            xfree((void *)rating);
+            xfree((void *)sorted);
 	    return -1;
 	}
 	
@@ -607,6 +614,9 @@ extern int ladder_calc_info(t_clienttag clienttag, t_ladder_id id, unsigned int 
 	info[curr].oldrating = account_get_ladder_rating(players[curr],clienttag,id);
 	info[curr].oldrank   = account_get_ladder_rank(players[curr],clienttag,id);
     }
+
+    xfree((void *)rating);
+    xfree((void *)sorted);
     
     return 0;
 }
