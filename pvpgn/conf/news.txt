@@ -4,10 +4,11 @@ Bringing Emulation To New Levels!
 
 =-=-=-=-=-=-=-=-=-=-=-=-=-=-==-=-=-=-=-=-=-=-=-=-=-=-=-=-==-=-=-=-=-=-=-=
 
-Got a problem, report it!
+** IF YOU EXPERIENCE PROBLEMS USING THE SERVER PLEASE REPORT IT TO THE **
+********  ADMINISTRATOR OF THE SERVER NOT TO THE PVPGN TEAM  ************
 
-Support channels:
-==================
+Support channels (ONLY for the admins):
+========================================
 1. BugTracker (preffered support method):
 http://sourceforge.net/tracker/?atid=470605&group_id=53514&func=browse
 
