@@ -102,10 +102,36 @@ typedef struct {
 } t_anongame_infos_THUMBSDOWN;
 
 typedef struct {
+	int Level1;
+	int Level2;
+	int Level3;
+	int Level4;
+} t_anongame_infos_ICON_REQ_WAR3;
+
+typedef struct {
+	int Level1;
+	int Level2;
+	int Level3;
+	int Level4;
+	int Level5;
+} t_anongame_infos_ICON_REQ_W3XP;
+
+typedef struct {
+	int Level1;
+	int Level2;
+	int Level3;
+	int Level4;
+	int Level5;
+} t_anongame_infos_ICON_REQ_TOURNEY;
+
+typedef struct {
 	t_anongame_infos_URL	* anongame_infos_URL;
 	t_anongame_infos_DESC	* anongame_infos_DESC;			// for default DESC
 	t_list			* anongame_infos_DESC_list;		// for localized DESC's
 	t_anongame_infos_THUMBSDOWN * anongame_infos_THUMBSDOWN;	// for storing thumbs down config
+	t_anongame_infos_ICON_REQ_WAR3 * anongame_infos_ICON_REQ_WAR3;
+	t_anongame_infos_ICON_REQ_W3XP * anongame_infos_ICON_REQ_W3XP;
+	t_anongame_infos_ICON_REQ_TOURNEY * anongame_infos_ICON_REQ_TOURNEY;
 } t_anongame_infos;
 
 #endif
@@ -140,5 +166,8 @@ extern char * anongame_infos_get_long_desc(char * langID, int queue);
 
 extern char anongame_infos_get_thumbsdown(int queue);
 
+extern short anongame_infos_get_ICON_REQ_WAR3(int Level);
+extern short anongame_infos_get_ICON_REQ_W3XP(int Level);
+extern short anongame_infos_get_ICON_REQ_TOURNEY(int Level);
 #endif
 #endif

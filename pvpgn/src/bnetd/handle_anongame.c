@@ -441,8 +441,8 @@ static int _client_anongame_get_icon(t_connection * c, t_packet const * const pa
         
 	//FIXME: Add those to the prefs and also merge them on accoun_wrap;
 	// FIXED BY DJP 07/16/2003 FOR 110 CHANGE ( TOURNEY & RACE WINS ) + Table_witdh
-        int icon_req_tourney_wins[] = {10,75,150,250,500};
-        int icon_req_race_wins[] = {25,150,350,750,1500};
+	short icon_req_race_wins;
+	short icon_req_tourney_wins;
         int race[]={W3_RACE_RANDOM,W3_RACE_HUMANS,W3_RACE_ORCS,W3_RACE_UNDEAD,W3_RACE_NIGHTELVES,W3_ICON_DEMONS};
         char race_char[6] ={'R','H','O','U','N','D'};
         char icon_pos[5] ={'2','3','4','5','6',};
@@ -451,12 +451,16 @@ static int _client_anongame_get_icon(t_connection * c, t_packet const * const pa
         int i,j;
         char rico;
         unsigned int rlvl,rwins;
+	char const * clienttag;
+	t_account * acc;
         
         char user_icon[5];
         char const * uicon;
 
+	clienttag = conn_get_clienttag(c);
+	acc = conn_get_account(c);
 	/* WAR3 uses a different table size, might change if blizzard add tournament support to RoC */
-	if (strcmp(conn_get_clienttag(c),CLIENTTAG_WARCRAFT3)==0) {
+	if (strcmp(clienttag,CLIENTTAG_WARCRAFT3)==0) {
     	    table_width = 5;
 	    table_height= 4;
 	}
@@ -467,18 +471,18 @@ static int _client_anongame_get_icon(t_connection * c, t_packet const * const pa
 	    eventlog(eventlog_level_error, __FUNCTION__, "could not create new packet");
 	    return -1;
 	}
-	
+
 	packet_set_size(rpacket, sizeof(t_server_findanongame_iconreply));
         packet_set_type(rpacket, SERVER_FINDANONGAME_ICONREPLY);
         bn_int_set(&rpacket->u.server_findanongame_iconreply.count, bn_int_get(packet->u.client_findanongame_inforeq.count));
         bn_byte_set(&rpacket->u.server_findanongame_iconreply.option, CLIENT_FINDANONGAME_GET_ICON);
-        if ((uicon = account_get_user_icon(conn_get_account(c),conn_get_clienttag(c))))
+        if ((uicon = account_get_user_icon(acc,clienttag)))
         {
 	    memcpy(&rpacket->u.server_findanongame_iconreply.curricon, uicon,4);
         }
         else 
         {
-	    account_get_raceicon(conn_get_account(c),&rico,&rlvl,&rwins,conn_get_clienttag(c));
+	    account_get_raceicon(acc,&rico,&rlvl,&rwins,clienttag);
 	    sprintf(user_icon,"%1d%c3W",rlvl,rico);
             memcpy(&rpacket->u.server_findanongame_iconreply.curricon,user_icon,4);
         }
@@ -486,29 +490,30 @@ static int _client_anongame_get_icon(t_connection * c, t_packet const * const pa
 	bn_byte_set(&rpacket->u.server_findanongame_iconreply.table_width, table_width);
         bn_byte_set(&rpacket->u.server_findanongame_iconreply.table_size, table_width*table_height);
         for (j=0;j<table_height;j++){
+	    if (strcmp(clienttag,CLIENTTAG_WARCRAFT3)==0)
+		icon_req_race_wins = anongame_infos_get_ICON_REQ_WAR3(j+1);
+	    else
+		icon_req_race_wins = anongame_infos_get_ICON_REQ_W3XP(j+1);
 	    for (i=0;i<table_width;i++){
 		tempicon.race=i;
 	        tempicon.icon_code[0]=icon_pos[j];
 	        tempicon.icon_code[1]=race_char[i];
 	        tempicon.icon_code[2]='3';
 	        tempicon.icon_code[3]='W';
-	        //#ifdef WIN32
-	        //tempicon.portrait_code=htonl(account_icon_to_profile_icon(tempicon.icon_code));
-	        //#else
-	        tempicon.portrait_code=(account_icon_to_profile_icon(tempicon.icon_code,conn_get_account(c),conn_get_clienttag(c)));
-	        //#endif
+	        tempicon.portrait_code=(account_icon_to_profile_icon(tempicon.icon_code,acc,clienttag));
 	        if (i<=4){
 	    	    //Building the icon for the races
-	    	    bn_short_set(&tempicon.required_wins,icon_req_race_wins[j]);
-	    	    if (account_get_racewin(conn_get_account(c),race[i],conn_get_clienttag(c))>=icon_req_race_wins[j]) {
+	    	    bn_short_set(&tempicon.required_wins,icon_req_race_wins);
+	    	    if (account_get_racewin(acc,race[i],clienttag)>=icon_req_race_wins) {
 			tempicon.client_enabled=1;
 	    	    }else{
 			tempicon.client_enabled=0;
 		    }
 	    	}else{
 	        //Building the icon for the tourney
-	        bn_short_set(&tempicon.required_wins,icon_req_tourney_wins[j]);
-	        if (account_get_racewin(conn_get_account(c),race[i],conn_get_clienttag(c))>=icon_req_tourney_wins[j]) {
+		icon_req_tourney_wins = anongame_infos_get_ICON_REQ_TOURNEY(j+1);
+	        bn_short_set(&tempicon.required_wins,icon_req_tourney_wins);
+	        if (account_get_racewin(acc,race[i],clienttag)>=icon_req_tourney_wins) {
 		    tempicon.client_enabled=1;
 	        }else{
 		    tempicon.client_enabled=0;}

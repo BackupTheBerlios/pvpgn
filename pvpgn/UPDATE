@@ -9,6 +9,14 @@ It should contain:
 -- all new/changed config files in the conf/ subfolder
 The path's specified are those of the default unix installation
 
+ Updating from 1.6.0 pre 2 to 1.6.0 pre 3
+===========================================
+
+new/changed config files/folders:
+---------------------------------
+-- added 3 new sections to conf/anongame_infos.conf where u can now easily
+   configure the race wins needed to get a specific icon
+
  Updating from 1.6.0 pre 1 to 1.6.0 pre 2
 ===========================================
 

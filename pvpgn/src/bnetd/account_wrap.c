@@ -54,6 +54,7 @@
 #include "prefs.h"
 #include "friends.h"
 #include "clan.h"
+#include "anongame_infos.h"
 
 static unsigned int char_icon_to_uint(char * icon);
 
@@ -3227,7 +3228,6 @@ extern unsigned int account_get_icon_profile(t_account * account, char const * c
 	unsigned int level	= 0; // 0 = under 25, 1 = 25 to 249, 2 = 250 to 499, 3 = 500 to 1499, 4 = 1500 or more (wins)
 	unsigned int wins	= 0;
 	int number_ctag		= 0;
-	unsigned int icons_limits[6] = {25, 150, 350, 750, 1500, -1}; // maybe add option to config to set levels
 
 	/* moved the check for orcs in the first place so people with 0 wins get peon */
         if(orcs>=humans && orcs>=undead && orcs>=nightelf && orcs>=random) {
@@ -3251,12 +3251,17 @@ extern unsigned int account_get_icon_profile(t_account * account, char const * c
             race = 0;
         }
 
-        while(wins >= icons_limits[level] && icons_limits[level] > 0) level++;
-
-	if ((strcmp(clienttag,CLIENTTAG_WARCRAFT3)==0) && (level>4)) level = 4;
-	if (strcmp(clienttag,CLIENTTAG_WAR3XP)==0) number_ctag = 6;
+	if (strcmp(clienttag,CLIENTTAG_WARCRAFT3)==0) 
+	{
+          while(wins >= anongame_infos_get_ICON_REQ_WAR3(level+1) && anongame_infos_get_ICON_REQ_WAR3(level+1) > 0) level++;
+	}
+	else
+	{
+          while(wins >= anongame_infos_get_ICON_REQ_W3XP(level+1) && anongame_infos_get_ICON_REQ_W3XP(level+1) > 0) level++;
+	  number_ctag = 6;
+	}
         
-        eventlog(eventlog_level_info,"account_get_icon_profile","race -> %u; level -> %u; wins -> %u; profileicon -> 0x%X", race, level, wins, profile_code[race+number_ctag][level]);
+        eventlog(eventlog_level_info,"account_get_icon_profile","race -> %u; level -> %u; wins -> %u; profileicon -> %s", race, level, wins, profile_code[race+number_ctag][level]);
 
 	return char_icon_to_uint(profile_code[race+number_ctag][level]);
 }
