@@ -1033,8 +1033,15 @@ static int _handle_op_command(t_connection * c, char const * text)
       }
     }
     else { // user is only tempOP so he may only tempOP others
-         account_set_tmpOP_channel(acc,channel);
-	 sprintf(msgtemp,"%s has been promoted to a tempOP",username);
+         t_connection * con;
+         if ((!(con = connlist_find_connection_by_account(acc))) || 
+             (conn_get_channel(c) != conn_get_channel(con)))
+          sprintf(msgtemp,"%s must be on the same channel to tempOP him",username);
+         else
+         {
+           account_set_tmpOP_channel(acc,channel);
+	   sprintf(msgtemp,"%s has been promoted to a tempOP",username);
+         }
     }
     
     message_send_text(c, message_type_info, c, msgtemp);
@@ -1072,9 +1079,17 @@ static int _handle_tmpop_command(t_connection * c, char const * text)
     }
     if (channel_account_is_tmpOP(conn_get_channel(c),acc))
        sprintf(msgtemp,"%s has already tmpOP in this channel",username);
-    else {
-       account_set_tmpOP_channel(acc,channel);
-       sprintf(msgtemp,"%s has been promoted to tmpOP in this channel",username);
+    else 
+    {
+       t_connection * con;
+       if ((!(con = connlist_find_connection_by_account(acc))) ||
+           (conn_get_channel(c) != conn_get_channel(con)))
+       sprintf(msgtemp,"%s must be on the same channel to tempOP him",username);
+       else
+       {
+         account_set_tmpOP_channel(acc,channel);
+         sprintf(msgtemp,"%s has been promoted to tmpOP in this channel",username);
+       }
     }
     
     message_send_text(c, message_type_info, c, msgtemp);
