@@ -4,7 +4,7 @@
 	Version="7.00"
 	Name="bnchat"
 	ProjectGUID="{300F80E0-1A0E-4639-AEB9-18A692FF35F4}"
-	RootNamespace="bncchat"
+	RootNamespace="bnchat"
 	Keyword="ManagedCProj">
 	<Platforms>
 		<Platform
