@@ -103,6 +103,53 @@ static char const * _conn_get_versiontag(t_connection * c)
 }
 
 /**********/
+
+static char const * _anongame_queue_to_string(int queue)
+{
+    switch (queue)
+    {
+	case ANONGAME_TYPE_1V1: 
+	    return "PG 1v1";
+	case ANONGAME_TYPE_2V2: 
+	    return "PG 2v2";
+	case ANONGAME_TYPE_3V3: 
+	    return "PG 3v3";
+	case ANONGAME_TYPE_4V4: 
+	    return "PG 4v4";
+	case ANONGAME_TYPE_SMALL_FFA: 
+	    return "PG SFFA";
+	case ANONGAME_TYPE_AT_2V2: 
+	    return "AT 2v2";
+	case ANONGAME_TYPE_TEAM_FFA: 
+	    return "AT TFFA";
+	case ANONGAME_TYPE_AT_3V3: 
+	    return "AT 3v3";
+	case ANONGAME_TYPE_AT_4V4: 
+	    return "AT 4v4";
+	case ANONGAME_TYPE_TY: 
+	    return "TOURNEY";
+	case ANONGAME_TYPE_5V5: 
+	    return "PG 5v5";
+	case ANONGAME_TYPE_6V6: 
+	    return "PG 6v6";
+	case ANONGAME_TYPE_2V2V2: 
+	    return "PG 2v2v2";
+	case ANONGAME_TYPE_3V3V3: 
+	    return "PG 3v3v3";
+	case ANONGAME_TYPE_4V4V4: 
+	    return "PG 4v4v4";
+	case ANONGAME_TYPE_2V2V2V2: 
+	    return "PG 2v2v2v2";
+	case ANONGAME_TYPE_3V3V3V3: 
+	    return "PG 3v3v3v3";
+	case ANONGAME_TYPE_AT_2V2V2: 
+	    return "AT 2v2v2";
+	default: 
+	    eventlog(eventlog_level_error,__FUNCTION__,"invalid queue number %d",queue);
+	    return "error";
+    }
+}
+
 static int _anongame_gametype_to_queue(int type, int gametype)
 {
     switch (type) {
@@ -1032,7 +1079,7 @@ extern int anongame_unqueue(t_connection * c, int queue)
      * [Omega]
      */
     if (anongame_arranged(queue) == 0) {
-	eventlog(eventlog_level_error,__FUNCTION__, "[%d] player not found in queue", conn_get_socket(c));
+	eventlog(eventlog_level_error,__FUNCTION__, "[%d] player not found in \"%s\" queue", conn_get_socket(c),_anongame_queue_to_string(queue));
 	return -1;
     }
 
