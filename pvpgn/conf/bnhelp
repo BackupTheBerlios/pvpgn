@@ -145,5 +145,7 @@ whereis <player> - looks up some basic information on a user, including their ac
 /remove_accounting_infos - remove extra accounting infos from all accounts - may take some while...
 %rehash
 /rehash - forces reload of bnetd.conf
+&clan
+/clan <clanname> - sets the clanname to be displayed in your war3 profile
 #                                                                            #
 ##############################################################################
