@@ -191,6 +191,8 @@ bnetd_OBJECTS       = \
     ${SRC_BNETDDIR}\sql_mysql.obj \    
     ${SRC_BNETDDIR}\command_groups.obj \
     ${SRC_BNETDDIR}\output.obj \
+    ${SRC_BNETDDIR}\tournament.obj \
+    ${SRC_BNETDDIR}\anongame_maplists.obj \
     ${SRC_WIN32DIR}\service.obj \
     ${SRC_COMMONDIR}\hexdump.obj \
     ${SRC_COMMONDIR}\bn_type.obj \
