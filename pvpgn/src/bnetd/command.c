@@ -1093,7 +1093,6 @@ static int _handle_friends_command(t_connection * c, char const * text)
     char msgtemp[MAX_MESSAGE_LEN];
     int n;
     char const *myusername;
-    char const *clienttag;
     t_connection const * dest_c;
     t_game const * game;
     t_channel const * channel;

@@ -51,9 +51,10 @@ extern int news_load(const char *filename){
 	unsigned int	len;
 	unsigned long	loffset;	
 	char *	    buff;
-    char *	    temp;	
 	struct tm    *date;
 	t_news_index	*ni=NULL;
+
+	loffset = 0;
 
 	if (!filename) {
 		eventlog(eventlog_level_error,"news_load","got NULL fullname");
