@@ -3062,33 +3062,45 @@ extern unsigned int account_icon_to_profile_icon(char const * icon,t_account * a
 	// Undead - Acolyle, Ghoul, Abomination, Lich, Tichondrius, Nothing
 	// Night Elves - Wisp, Archer, Druid of the Claw, Priestess of the Moon, Furion Stormrage, Nothing
 	// Demons - Nothing, ???(wich unit is nfgn), Infernal, Doom Guard, Pit Lord/Manaroth, Archimonde
-	unsigned int profile_code[6][6] = {
+	// ADDED TFT ICON BY DJP 07/16/2003
+	unsigned int profile_code[12][6] = {
 	{0,      'ngrd', 'nadr', 'nrdr', 'nbwm', 0},
 	{'hpea', 'hfoo', 'hkni', 'Hamg', 'nmed', 0},
 	{'opeo', 'ogru', 'otau', 'Ofar', 'Othr', 0},
 	{'uaco', 'ugho', 'uabo', 'Ulic', 'Utic', 0},
 	{'ewsp', 'earc', 'edoc', 'Emoo', 'Efur', 0},
-	{0,      'nfng', 'ninf', 'nbal', 'Nplh','Uwar'}
+	{0,      'nfng', 'ninf', 'nbal', 'Nplh','Uwar'},
+	{0,      'nmyr', 'nnsw', 'ntrd', 'Nngs', 'Eevi'},
+	{'hpea', 'hrif', 'hsor', 'hspt', 'Hblm', 'Hkal'},
+	{'opeo', 'ohun', 'oshm', 'ospm', 'Orkn', 'Orex'},
+	{'uaco', 'ucry', 'uban', 'ubsp', 'Ucrl', 'Usyl'},
+	{'ewsp', 'esen', 'edot', 'edry', 'Ewar', 'Ewrd'},
+	{0,      'nfgu', 'ninc', 'nbal', 'Nplh', 'Uwar'},
 	};
 	char tmp_icon[4];
 	int result;
+	int number_ctag=0;
+
 	if (icon==NULL) return account_get_icon_profile(account,ctag);
 	if (sizeof(icon)>=4){
 		strncpy(tmp_icon,icon,4);
 		tmp_icon[0]=tmp_icon[0]-48;
+		if (strcmp(ctag,"W3XP") == 0) {
+			number_ctag = 6;
+		}
 		if (tmp_icon[0]>=1) {
 			if (tmp_icon[1]=='R'){
-				result = profile_code[0][tmp_icon[0]-1];
+				result = profile_code[0+number_ctag][tmp_icon[0]-1];
 			}else if (tmp_icon[1]=='H'){
-				result = profile_code[1][tmp_icon[0]-1];
+				result = profile_code[1+number_ctag][tmp_icon[0]-1];
 			}else if (tmp_icon[1]=='O'){
-				result = profile_code[2][tmp_icon[0]-1];
+				result = profile_code[2+number_ctag][tmp_icon[0]-1];
 			}else if (tmp_icon[1]=='U'){
-				result = profile_code[3][tmp_icon[0]-1];
+				result = profile_code[3+number_ctag][tmp_icon[0]-1];
 			}else if (tmp_icon[1]=='N'){
-				result = profile_code[4][tmp_icon[0]-1];
+				result = profile_code[4+number_ctag][tmp_icon[0]-1];
 			}else if (tmp_icon[1]=='D'){
-				result = profile_code[5][tmp_icon[0]-1];
+				result = profile_code[5+number_ctag][tmp_icon[0]-1];
 			}else{
 				eventlog(eventlog_level_warn,"account_icon_to_profile_icon","got unrecognized race on [%s] icon ",icon);
 				result = 'opeo';}

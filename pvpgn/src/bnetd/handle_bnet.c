@@ -3149,8 +3149,9 @@ static int _client_findanongame(t_connection * c, t_packet const * const packet)
        } tempicon;
        
        //FIXME: Add those to the prefs and also merge them on accoun_wrap;
-       int icon_req_tourney_wins[] = {25,250,500,1500,2000};
-       int icon_req_race_wins[] = {25,250,500,1500,0};
+// FIXED BY DJP 07/16/2003 FOR 110 CHANGE ( TOURNEY & RACE WINS ) + Table_witdh
+       int icon_req_tourney_wins[] = {10,75,150,250,500};
+       int icon_req_race_wins[] = {25,150,350,750,1500};
        int race[]={W3_RACE_RANDOM,W3_RACE_HUMANS,W3_RACE_ORCS,W3_RACE_UNDEAD,W3_RACE_NIGHTELVES,W3_ICON_DEMONS};
        char race_char[6] ={'R','H','O','U','N','D'};
        char icon_pos[5] ={'2','3','4','5','6',};
@@ -3185,7 +3186,6 @@ static int _client_findanongame(t_connection * c, t_packet const * const packet)
        bn_byte_set(&rpacket->u.server_findanongame_iconreply.table_width, table_width);
        bn_byte_set(&rpacket->u.server_findanongame_iconreply.table_size, table_width*table_height);
        for (j=0;j<table_height;j++){
-	 if (j<=3) {
 	   for (i=0;i<table_width;i++){
 	     tempicon.race=i;
 	     tempicon.icon_code[0]=icon_pos[j];
@@ -3214,43 +3214,7 @@ static int _client_findanongame(t_connection * c, t_packet const * const packet)
 	     }
 	     packet_append_data(rpacket, &tempicon, sizeof(tempicon));
 	   }
-	 }else{
-	   //Damm Blizz. The latest icon for the races is disabled, but the latest tourney icon isn´t.
-	   //So we build our table in 2 steps
-	   for (i=0;i<table_width;i++){
-	     //Building the icon for the races
-	     if (i<=4){
-	       tempicon.race=0;
-	       //FIXME: remmember to change this mess to sprintf
-	       tempicon.icon_code[0]=0;
-	       tempicon.icon_code[1]=0;
-	       tempicon.icon_code[2]=0;
-	       tempicon.icon_code[3]=0;
-	       tempicon.portrait_code=0;
-	       bn_short_set(&tempicon.required_wins,icon_req_race_wins[j]);
-	       tempicon.client_enabled=0;
-	     }else{
-	       //Building the icon for the tourney
-	       tempicon.race=i;
-	       tempicon.icon_code[0]=icon_pos[j];
-	       tempicon.icon_code[1]=race_char[i];
-	       tempicon.icon_code[2]='3';
-	       tempicon.icon_code[3]='W';
-	       //#ifdef WIN32
-	       //tempicon.portrait_code= htonl(account_icon_to_profile_icon(tempicon.icon_code));
-	       //#else
-	       tempicon.portrait_code= (account_icon_to_profile_icon(tempicon.icon_code,conn_get_account(c),conn_get_clienttag(c)));
-	       //#endif
-	       bn_short_set(&tempicon.required_wins,icon_req_tourney_wins[j]);
-	       if (account_get_racewin(conn_get_account(c),race[i],conn_get_clienttag(c))>=icon_req_tourney_wins[j]) {
-		 tempicon.client_enabled=1;
-	       }else{
-		 tempicon.client_enabled=0;}
-	     }
-	     packet_append_data(rpacket, &tempicon, sizeof(tempicon));
 	   }
-	 }
-       }
        //Go,go,go
        queue_push_packet(conn_get_out_queue(c),rpacket);
        packet_del_ref(rpacket);
@@ -3270,7 +3234,7 @@ static int _client_findanongame(t_connection * c, t_packet const * const packet)
 	desired_icon=bn_int_get(packet->u.client_findanongame.count);
 	user_icon[4]=0;
 	if (desired_icon==0){
-		strcpy(&user_icon[0],"NULL");
+		strcpy(&user_icon,"NULL");
 		eventlog(eventlog_level_info,__FUNCTION__,"[%d] Set icon packet to DEFAULT ICON [%4.4s]",conn_get_socket(c),user_icon);
 	}else{
 		memcpy(user_icon,&desired_icon,4);
