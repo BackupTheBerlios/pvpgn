@@ -21,7 +21,7 @@
 #include "connection.h"
 #include "common/packet.h"
 
-extern int handle_d2cs_packet(t_connection * c, t_packet * packet);
+extern int d2cs_handle_d2cs_packet(t_connection * c, t_packet * packet);
 extern int d2cs_handle_client_creategame(t_connection * c, t_packet * packet);
 extern int d2cs_send_client_creategamewait(t_connection * c, unsigned int position);
 

@@ -140,29 +140,29 @@ extern t_connection * s2s_create(char const * server, unsigned short def_port, t
 			port=ntohs(laddr.sin_port);
 		}
 	}
-	if (!(c=conn_create(sock,ip,port, ntohl(addr.sin_addr.s_addr), ntohs(addr.sin_port)))) {
+	if (!(c=d2cs_conn_create(sock,ip,port, ntohl(addr.sin_addr.s_addr), ntohs(addr.sin_port)))) {
 		log_error("error create s2s connection");
 		psock_close(sock);
 		return NULL;
 	}
 	if (connected) {
-		conn_set_state(c,conn_state_init);
+		d2cs_conn_set_state(c,conn_state_init);
 	} else {
-		conn_set_state(c,conn_state_connecting);
+		d2cs_conn_set_state(c,conn_state_connecting);
 	}
-	conn_set_class(c,class);
+	d2cs_conn_set_class(c,class);
 	return c;
 }
 
 extern int s2s_destroy(t_connection * c)
 {
 	ASSERT(c,-1);
-	switch (conn_get_class(c)) {
+	switch (d2cs_conn_get_class(c)) {
 		case conn_class_bnetd:
 			bnetd_destroy(c);
 			break;
 		default:
-			log_error("got bad s2s connection class %d",conn_get_class(c));
+			log_error("got bad s2s connection class %d",d2cs_conn_get_class(c));
 			return -1;
 	}
 	return 0;

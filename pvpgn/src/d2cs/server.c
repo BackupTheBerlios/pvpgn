@@ -170,7 +170,7 @@ static int server_accept(int sock)
 			port=ntohs(raddr.sin_port);
 		}
 	}
-	if (!conn_create(csock,ip,port,ntohl(caddr.sin_addr.s_addr),ntohs(caddr.sin_port))) {
+	if (!d2cs_conn_create(csock,ip,port,ntohl(caddr.sin_addr.s_addr),ntohs(caddr.sin_port))) {
 		log_error("error create new connection");
 		psock_close(csock);
 		return -1;
@@ -180,8 +180,8 @@ static int server_accept(int sock)
 
 static int server_purge_list(void)
 {
-	hashtable_purge(connlist());
-	list_purge(gamelist());
+	hashtable_purge(d2cs_connlist());
+	list_purge(d2cs_gamelist());
 	list_purge(d2gslist());
 	list_purge(sqlist());
 	list_purge(gqlist());
@@ -202,7 +202,7 @@ static int server_handle_timed_event(void)
 	now=time(NULL);
 	if (now-prev_list_purgetime>(signed)prefs_get_list_purgeinterval()) {
 		server_purge_list();
-		gamelist_check_voidgame();
+		d2cs_gamelist_check_voidgame();
 		prev_list_purgetime=now;
 	}
 	if (now-prev_gamequeue_checktime>(signed)prefs_get_gamequeue_checkinterval()) {
@@ -253,17 +253,17 @@ static int server_handle_socket(void)
 	}
 	END_LIST_TRAVERSE_DATA()
 
-	BEGIN_HASHTABLE_TRAVERSE_DATA(connlist(),c)
+	BEGIN_HASHTABLE_TRAVERSE_DATA(d2cs_connlist(),c)
 	{
-		if (conn_get_state(c)==conn_state_destroy) {
-			conn_destroy(c);
+		if (d2cs_conn_get_state(c)==conn_state_destroy) {
+			d2cs_conn_destroy(c);
 			continue;
 		}
-		sock=conn_get_socket(c);
-		if (queue_get_length((t_queue const * const *)conn_get_out_queue(c))>0) {
+		sock=d2cs_conn_get_socket(c);
+		if (queue_get_length((t_queue const * const *)d2cs_conn_get_out_queue(c))>0) {
 			PSOCK_FD_SET(sock,&wfds);
 		}
-		if (conn_get_state(c)==conn_state_connecting) {
+		if (d2cs_conn_get_state(c)==conn_state_connecting) {
 			PSOCK_FD_SET(sock,&wfds);
 		} else {
 			PSOCK_FD_SET(sock,&rfds);
@@ -300,9 +300,9 @@ static int server_handle_socket(void)
 	}
 	END_LIST_TRAVERSE_DATA()
 
-	BEGIN_HASHTABLE_TRAVERSE_DATA(connlist(),c)
+	BEGIN_HASHTABLE_TRAVERSE_DATA(d2cs_connlist(),c)
 	{
-		sock=conn_get_socket(c);
+		sock=d2cs_conn_get_socket(c);
 		if (PSOCK_FD_ISSET(sock,&rfds)) {
 			conn_add_socket_flag(c,SOCKET_FLAG_READ);
 		}
@@ -310,7 +310,7 @@ static int server_handle_socket(void)
 			conn_add_socket_flag(c,SOCKET_FLAG_WRITE);
 		}
 		if (conn_handle_socket(c)<0) {
-			conn_destroy(c);
+			d2cs_conn_destroy(c);
 		}
 		
 	}
@@ -349,7 +349,7 @@ static int server_cleanup(void)
 	return 0;
 }
 
-extern int server_process(void)
+extern int d2cs_server_process(void)
 {
 	handle_signal_init();
 	if (psock_init()<0) {

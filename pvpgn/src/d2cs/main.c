@@ -101,8 +101,8 @@ static int setup_daemon(void)
 
 static int init(void)
 {
-	connlist_create();
-	gamelist_create();
+	d2cs_connlist_create();
+	d2cs_gamelist_create();
 	sqlist_create();
 	d2gslist_create();
 	gqlist_create();
@@ -116,8 +116,8 @@ static int init(void)
 static int cleanup(void)
 {
 	d2ladder_destroy();
-	connlist_destroy();
-	gamelist_destroy();
+	d2cs_connlist_destroy();
+	d2cs_gamelist_destroy();
 	sqlist_destroy();
 	d2gslist_destroy();
 	gqlist_destroy();
@@ -148,13 +148,13 @@ static int config_init(int argc, char * * argv)
 			return -1;
 		}
 	}
-	if (prefs_load(cmdline_get_prefs_file())<0) {
+	if (d2cs_prefs_load(cmdline_get_prefs_file())<0) {
 		log_error("error loading configuration file %s",cmdline_get_prefs_file());
 		return -1;
 	}
 
     eventlog_clear_level();
-    if ((levels = prefs_get_loglevels()))
+    if ((levels = d2cs_prefs_get_loglevels()))
     {
         if (!(temp = strdup(levels)))
         {
@@ -182,8 +182,8 @@ static int config_init(int argc, char * * argv)
 			return -1;
 		}
 	} else {
-		if (eventlog_open(prefs_get_logfile())<0) {
-			log_error("error open eventlog file %s",prefs_get_logfile());
+		if (eventlog_open(d2cs_prefs_get_logfile())<0) {
+			log_error("error open eventlog file %s",d2cs_prefs_get_logfile());
 			return -1;
 		}
 	}
@@ -201,13 +201,16 @@ static int config_init(int argc, char * * argv)
 
 static int config_cleanup(void)
 {
-	prefs_unload();
+	d2cs_prefs_unload();
 	cmdline_cleanup(); 
 	return 0;
 }
 
-
+#ifdef WITH_D2
+extern int d2cs_main(int argc, char * * argv)
+#else
 extern int main(int argc, char * * argv)
+#endif
 {
 #ifdef USE_CHECK_ALLOC
 	check_set_file(stderr);
@@ -223,7 +226,7 @@ extern int main(int argc, char * * argv)
 	} else {
 		log_info("server initialized");
 	}
-	if (server_process()<0) {
+	if (d2cs_server_process()<0) {
 		log_error("failed to run server");
 		return 1;
 	}

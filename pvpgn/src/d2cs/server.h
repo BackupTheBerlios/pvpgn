@@ -18,6 +18,6 @@
 #ifndef INCLUDED_SERVER_H
 #define INCLUDED_SERVER_H
 
-extern int server_process(void);
+extern int d2cs_server_process(void);
 
 #endif

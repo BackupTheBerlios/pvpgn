@@ -157,7 +157,7 @@ SOCKET dbs_server_init(void)
 		return -1;
 	}
 
-	if (d2ladder_init()==-1)
+	if (d2dbs_d2ladder_init()==-1)
 	{
 		log_error("d2ladder_init() failed");
 		return -1;
@@ -188,7 +188,7 @@ SOCKET dbs_server_init(void)
 		log_error("psock_setsockopt() failed : %s",strerror(psock_errno()));
 	}
 
-        if (!(servaddr=addr_create_str(prefs_get_servaddrs(),INADDR_ANY,DEFAULT_LISTEN_PORT)))
+        if (!(servaddr=addr_create_str(d2dbs_prefs_get_servaddrs(),INADDR_ANY,DEFAULT_LISTEN_PORT)))
 	{
 		log_error("could not get servaddr");
 		return -1;
@@ -365,7 +365,7 @@ static int dbs_handle_timed_events(void)
 		dbs_keepalive();
 		prev_keepalive_save_time=now;
 	}
-	if (now-prev_timeout_checktime>(signed)prefs_get_timeout_checkinterval()) {
+	if (now-prev_timeout_checktime>(signed)d2dbs_prefs_get_timeout_checkinterval()) {
 		dbs_check_timeout();
 		prev_timeout_checktime=now;
 	}
@@ -388,7 +388,7 @@ void dbs_server_loop(SOCKET lsocket)
 	
 	listpurgecount=0;
 	while (1) {
-		if (handle_signal()<0) break;
+		if (d2dbs_handle_signal()<0) break;
 		dbs_handle_timed_events();
 		highest_fd=dbs_server_setup_fdsets(&ReadFDs, &WriteFDs, &ExceptFDs, lsocket);
 
@@ -498,7 +498,7 @@ static void dbs_on_exit(void)
 		list_remove_elem(dbs_server_connection_list,elem);
 	}
 	cl_destroy();
-	d2ladder_destroy();
+	d2dbs_d2ladder_destroy();
 	list_destroy(dbs_server_connection_list);
 	if (preset_d2gsid_head)
 	{

@@ -58,14 +58,14 @@ typedef struct
 #define gameflag_create(e,h,d) (0x04|(e?0x100000:0) | (h?0x800:0) | ((d & 0x07) << 0x0c))
 
 
-extern t_list * gamelist(void);
-extern int gamelist_destroy(void);
-extern int gamelist_create(void);
-extern t_game * gamelist_find_game(char const * gamename);
+extern t_list * d2cs_gamelist(void);
+extern int d2cs_gamelist_destroy(void);
+extern int d2cs_gamelist_create(void);
+extern t_game * d2cs_gamelist_find_game(char const * gamename);
 extern t_game * gamelist_find_game_by_id(unsigned int id);
 extern t_game * gamelist_find_game_by_d2gs_and_id(unsigned int d2gs_id, unsigned int d2gs_gameid);
-extern void gamelist_check_voidgame(void);
-extern t_game * game_create(char const * gamename, char const * gamepass, char const * gamedesc,
+extern void d2cs_gamelist_check_voidgame(void);
+extern t_game * d2cs_game_create(char const * gamename, char const * gamepass, char const * gamedesc,
 				unsigned int gameflag);
 extern int game_destroy(t_game * game);
 extern int game_add_character(t_game * game, char const * charname, 
@@ -77,7 +77,7 @@ extern int game_set_d2gs(t_game * game, t_d2gs * gs);
 extern int game_set_d2gs_gameid(t_game * game, unsigned int gameid);
 extern unsigned int game_get_d2gs_gameid(t_game const * game);
 extern int game_set_id(t_game * game, unsigned int id);
-extern unsigned int game_get_id(t_game const * game);
+extern unsigned int d2cs_game_get_id(t_game const * game);
 extern int game_set_created(t_game * game, unsigned int created);
 extern unsigned int game_get_created(t_game const * game);
 extern int game_set_leveldiff(t_game * game, unsigned int leveldiff);
@@ -95,11 +95,11 @@ extern unsigned int game_get_gameflag_difficulty(t_game const * game);
 extern int game_set_maxchar(t_game * game, unsigned int maxchar);
 extern unsigned int game_get_maxchar(t_game const * game);
 extern unsigned int game_get_currchar(t_game const * game);
-extern char const * game_get_name(t_game const * game);
-extern char const * game_get_pass(t_game const * game);
+extern char const * d2cs_game_get_name(t_game const * game);
+extern char const * d2cs_game_get_pass(t_game const * game);
 extern char const * game_get_desc(t_game const * game);
 extern unsigned int game_get_gameflag(t_game const * game);
-extern int game_get_create_time(t_game const * game);
+extern int d2cs_game_get_create_time(t_game const * game);
 extern int game_set_create_time(t_game * game,int create_time);
 extern t_list * game_get_charlist(t_game const * game);
 extern t_game * gamelist_find_character(char const * charname);

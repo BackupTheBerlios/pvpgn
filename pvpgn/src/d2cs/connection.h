@@ -83,33 +83,33 @@ typedef struct
 #define SOCKET_FLAG_READ		0x1
 #define SOCKET_FLAG_WRITE		0x2
 
-extern t_hashtable * connlist(void);
-extern int connlist_destroy(void);
-extern int connlist_create(void);
+extern t_hashtable * d2cs_connlist(void);
+extern int d2cs_connlist_destroy(void);
+extern int d2cs_connlist_create(void);
 extern int conn_check_multilogin(t_connection const * c,char const * charname);
-extern t_connection * connlist_find_connection_by_sessionnum(unsigned int sessionnum);
-extern t_connection * connlist_find_connection_by_charname(char const * charname);
+extern t_connection * d2cs_connlist_find_connection_by_sessionnum(unsigned int sessionnum);
+extern t_connection * d2cs_connlist_find_connection_by_charname(char const * charname);
 extern int conn_handle_socket(t_connection * c);
-extern t_connection * conn_create(int sock, unsigned int local_addr, unsigned short local_port, 
+extern t_connection * d2cs_conn_create(int sock, unsigned int local_addr, unsigned short local_port, 
 				unsigned int addr, unsigned short port);
-extern int conn_destroy(t_connection * c);
-extern int conn_get_socket(t_connection const * c);
-extern unsigned int conn_get_sessionnum(t_connection const * c);
-extern t_conn_class conn_get_class(t_connection const * c);
-extern int conn_set_class(t_connection * c, t_conn_class class);
-extern t_conn_state conn_get_state(t_connection const * c);
-extern int conn_set_state(t_connection * c, t_conn_state state);
-extern t_queue * * conn_get_out_queue(t_connection const * c);
-extern t_queue * * conn_get_in_queue(t_connection const * c);
-extern unsigned int conn_get_in_size(t_connection const * c);
-extern unsigned int conn_get_out_size(t_connection const * c);
+extern int d2cs_conn_destroy(t_connection * c);
+extern int d2cs_conn_get_socket(t_connection const * c);
+extern unsigned int d2cs_conn_get_sessionnum(t_connection const * c);
+extern t_conn_class d2cs_conn_get_class(t_connection const * c);
+extern int d2cs_conn_set_class(t_connection * c, t_conn_class class);
+extern t_conn_state d2cs_conn_get_state(t_connection const * c);
+extern int d2cs_conn_set_state(t_connection * c, t_conn_state state);
+extern t_queue * * d2cs_conn_get_out_queue(t_connection const * c);
+extern t_queue * * d2cs_conn_get_in_queue(t_connection const * c);
+extern unsigned int d2cs_conn_get_in_size(t_connection const * c);
+extern unsigned int d2cs_conn_get_out_size(t_connection const * c);
 extern int conn_add_socket_flag(t_connection * c, unsigned int flag);
 extern int conn_process_packet(t_connection * c, t_packet * packet, t_packet_handle_table * table,
 				unsigned int table_size);
-extern int conn_set_account(t_connection * c, char const * account);
-extern int conn_set_charname(t_connection * c, char const * charname);
-extern char const * conn_get_account(t_connection const * c);
-extern char const * conn_get_charname(t_connection const * c);
+extern int d2cs_conn_set_account(t_connection * c, char const * account);
+extern int d2cs_conn_set_charname(t_connection * c, char const * charname);
+extern char const * d2cs_conn_get_account(t_connection const * c);
+extern char const * d2cs_conn_get_charname(t_connection const * c);
 extern int conn_set_charinfo(t_connection * c, t_d2charinfo_summary const * charinfo);
 extern unsigned int conn_get_charinfo_expansion(t_connection const * c);
 extern unsigned int conn_get_charinfo_hardcore(t_connection const * c);
@@ -119,8 +119,8 @@ extern unsigned int conn_get_charinfo_level(t_connection const * c);
 extern unsigned int conn_get_charinfo_class(t_connection const * c);
 extern unsigned int conn_get_d2gs_id(t_connection const * c);
 extern int conn_set_d2gs_id(t_connection * c, unsigned int d2gs_id);
-extern unsigned int conn_get_addr(t_connection const * c);
-extern unsigned short conn_get_port(t_connection const * c);
+extern unsigned int d2cs_conn_get_addr(t_connection const * c);
+extern unsigned short d2cs_conn_get_port(t_connection const * c);
 extern t_gq * conn_get_gamequeue(t_connection const * c);
 extern int conn_set_gamequeue(t_connection * c, t_gq * gq);
 extern int conn_set_bnetd_sessionnum(t_connection * c, unsigned int sessionnum);

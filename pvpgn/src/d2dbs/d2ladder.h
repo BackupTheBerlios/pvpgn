@@ -51,8 +51,8 @@ typedef t_list t_d2ladderlist;
 #define D2LADDER_OVERALL_MAXNUM		1000
 #define D2LADDER_MAXTYPE		35
 
-extern int d2ladder_init(void);
-extern int d2ladder_destroy(void);
+extern int d2dbs_d2ladder_init(void);
+extern int d2dbs_d2ladder_destroy(void);
 extern int d2ladder_rebuild(void);
 extern int d2ladder_update(t_d2ladder_info * pcharladderinfo);
 extern int d2ladder_print(FILE * ladderstrm);

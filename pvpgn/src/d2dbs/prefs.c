@@ -66,7 +66,7 @@ static t_conf_table prefs_conf_table[]={
 
 static t_prefs prefs_conf;
 
-extern int prefs_load(char const * filename)
+extern int d2dbs_prefs_load(char const * filename)
 {
 	memset(&prefs_conf,0,sizeof(prefs_conf));
 	if (conf_load_file(filename,prefs_conf_table,&prefs_conf,sizeof(prefs_conf))<0) {
@@ -75,44 +75,44 @@ extern int prefs_load(char const * filename)
 	return 0;
 }
 
-extern int prefs_reload(char const * filename)
+extern int d2dbs_prefs_reload(char const * filename)
 {
-        prefs_unload();
-        if (prefs_load(filename)<0) return -1;
+        d2dbs_prefs_unload();
+        if (d2dbs_prefs_load(filename)<0) return -1;
         return 0;
 }
 
-extern int prefs_unload(void)
+extern int d2dbs_prefs_unload(void)
 {
 	return conf_cleanup(prefs_conf_table, &prefs_conf, sizeof(prefs_conf));
 }
 
-extern char const * prefs_get_servaddrs(void)
+extern char const * d2dbs_prefs_get_servaddrs(void)
 {
 	return prefs_conf.servaddrs;
 }
 
-extern char const * prefs_get_charsave_dir(void)
+extern char const * d2dbs_prefs_get_charsave_dir(void)
 {
 	return prefs_conf.charsavedir;
 }
 
-extern char const * prefs_get_charinfo_dir(void)
+extern char const * d2dbs_prefs_get_charinfo_dir(void)
 {
 	return prefs_conf.charinfodir;
 }
 
-extern char const * prefs_get_d2gs_list(void)
+extern char const * d2dbs_prefs_get_d2gs_list(void)
 {
 	return prefs_conf.gameservlist;
 }
 
-extern char const * prefs_get_ladder_dir(void)
+extern char const * d2dbs_prefs_get_ladder_dir(void)
 {
 	return prefs_conf.ladderdir;
 }
 
-extern char const * prefs_get_logfile(void)
+extern char const * d2dbs_prefs_get_logfile(void)
 {
 	return prefs_conf.logfile;
 }
@@ -142,17 +142,17 @@ extern unsigned int prefs_get_ladderinit_time(void)
 	return prefs_conf.ladderinit_time;
 }
 
-extern char const * prefs_get_loglevels(void)
+extern char const * d2dbs_prefs_get_loglevels(void)
 {
 	return prefs_conf.loglevels;
 }
 
-extern unsigned int prefs_get_shutdown_delay(void)
+extern unsigned int d2dbs_prefs_get_shutdown_delay(void)
 {
         return prefs_conf.shutdown_delay;
 }
 
-extern unsigned int prefs_get_shutdown_decr(void)
+extern unsigned int d2dbs_prefs_get_shutdown_decr(void)
 {
         return prefs_conf.shutdown_decr;
 }
@@ -162,12 +162,12 @@ extern unsigned int prefs_get_keepalive_interval(void)
         return prefs_conf.keepalive_interval;
 }
 
-extern unsigned int prefs_get_idletime(void)
+extern unsigned int d2dbs_prefs_get_idletime(void)
 {
         return prefs_conf.idletime;
 }
 
-extern unsigned int prefs_get_timeout_checkinterval(void)
+extern unsigned int d2dbs_prefs_get_timeout_checkinterval(void)
 {
 	return prefs_conf.timeout_checkinterval;
 }

@@ -41,7 +41,7 @@
 static int on_d2gs_initconn(t_connection * c);
 static int on_d2cs_initconn(t_connection * c);
 
-extern int handle_init_packet(t_connection * c, t_packet * packet)
+extern int d2cs_handle_init_packet(t_connection * c, t_packet * packet)
 {
 	int	class;
 	int	retval;
@@ -68,14 +68,14 @@ static int on_d2gs_initconn(t_connection * c)
 {
 	t_d2gs * gs;
 
-	log_info("[%d] client initiated d2gs connection",conn_get_socket(c));
-	if (!(gs=d2gslist_find_gs_by_ip(conn_get_addr(c)))) {
+	log_info("[%d] client initiated d2gs connection",d2cs_conn_get_socket(c));
+	if (!(gs=d2gslist_find_gs_by_ip(d2cs_conn_get_addr(c)))) {
 		log_error("d2gs connection from invalid ip address %s",
-			addr_num_to_ip_str(conn_get_addr(c)));
+			addr_num_to_ip_str(d2cs_conn_get_addr(c)));
 		return -1;
 	}
-	conn_set_class(c,conn_class_d2gs);
-	conn_set_state(c,conn_state_connected);
+	d2cs_conn_set_class(c,conn_class_d2gs);
+	d2cs_conn_set_state(c,conn_state_connected);
 	conn_set_d2gs_id(c,d2gs_get_id(gs));
 	if (handle_d2gs_init(c)<0) {
 		log_error("failed to init d2gs connection");
@@ -86,8 +86,8 @@ static int on_d2gs_initconn(t_connection * c)
 
 static int on_d2cs_initconn(t_connection * c)
 {
-	log_info("[%d] client initiated d2cs connection",conn_get_socket(c));
-	conn_set_class(c,conn_class_d2cs);
-	conn_set_state(c,conn_state_connected);
+	log_info("[%d] client initiated d2cs connection",d2cs_conn_get_socket(c));
+	d2cs_conn_set_class(c,conn_class_d2cs);
+	d2cs_conn_set_state(c,conn_state_connected);
 	return 0;
 }

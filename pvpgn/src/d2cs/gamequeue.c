@@ -121,17 +121,17 @@ extern int gqlist_check_creategame(void)
 
 	BEGIN_LIST_TRAVERSE_DATA(gqlist_head,gq)
 	{
-		c=connlist_find_connection_by_sessionnum(gq->clientid);
+		c=d2cs_connlist_find_connection_by_sessionnum(gq->clientid);
 		if (!c) {
 			log_error("client %d not found (gamename: %s)",gq->clientid,gq->gamename);
 			gq_destroy(gq);
 			continue;
 		} else if (!conn_get_gamequeue(c)) {
-			log_error("got NULL game queue for client %s",conn_get_account(c));
+			log_error("got NULL game queue for client %s",d2cs_conn_get_account(c));
 			gq_destroy(gq);
 			continue;
 		} else {
-			log_info("try create game %s for account %s",gq->gamename,conn_get_account(c));
+			log_info("try create game %s for account %s",gq->gamename,d2cs_conn_get_account(c));
 			d2cs_handle_client_creategame(c,gq->packet);
 			conn_set_gamequeue(c,NULL);
 			gq_destroy(gq);
@@ -151,14 +151,14 @@ extern int gqlist_update_all_clients(void)
 	n=0;
 	BEGIN_LIST_TRAVERSE_DATA(gqlist_head,gq)
 	{
-		c=connlist_find_connection_by_sessionnum(gq->clientid);
+		c=d2cs_connlist_find_connection_by_sessionnum(gq->clientid);
 		if (!c) {
 			log_error("client %d not found (gamename: %s)",gq->clientid,gq->gamename);
 			gq_destroy(gq);
 			continue;
 		} else {
 			n++;
-			log_debug("update client %s position to %d",conn_get_account(c),n);
+			log_debug("update client %s position to %d",d2cs_conn_get_account(c),n);
 			d2cs_send_client_creategamewait(c,n);
 		}
 	}

@@ -81,7 +81,7 @@ static volatile struct
 	unsigned int	exit_time;
 } signal_data ={ 0, 0, 0, 0, 0 };
 
-extern int handle_signal(void)
+extern int d2dbs_handle_signal(void)
 {
 	time_t		now;
     char const * levels;
@@ -102,9 +102,9 @@ extern int handle_signal(void)
 		signal_data.do_quit=0;
 		now=time(NULL);
 		if (!signal_data.exit_time) {
-			signal_data.exit_time=now+prefs_get_shutdown_delay();
+			signal_data.exit_time=now+d2dbs_prefs_get_shutdown_delay();
 		} else {
-			signal_data.exit_time-=prefs_get_shutdown_decr();
+			signal_data.exit_time-=d2dbs_prefs_get_shutdown_decr();
 		}
 		if (now >= (signed)signal_data.exit_time) {
 			log_info("shutdown server due to signal");
@@ -115,12 +115,12 @@ extern int handle_signal(void)
 	if (signal_data.reload_config) {
 		signal_data.reload_config=0;
 		log_info("reloading configuartion file due to signal");
-		if (prefs_reload(cmdline_get_prefs_file())<0) {
+		if (d2dbs_prefs_reload(d2dbs_cmdline_get_prefs_file())<0) {
 			log_error("error reload configuration file,exitting");
 			return -1;
 		}
         eventlog_clear_level();
-        if ((levels = prefs_get_loglevels()))
+        if ((levels = d2dbs_prefs_get_loglevels()))
         {
           if (!(temp = strdup(levels)))
           {
@@ -139,7 +139,7 @@ extern int handle_signal(void)
           free(temp);
         }
 
-		if (!cmdline_get_logstderr()) eventlog_open(prefs_get_logfile());
+		if (!d2dbs_cmdline_get_logstderr()) eventlog_open(d2dbs_prefs_get_logfile());
 	}
 	if (signal_data.save_ladder) {
 		signal_data.save_ladder=0;
@@ -149,7 +149,7 @@ extern int handle_signal(void)
 	return 0;
 }
 
-extern int handle_signal_init(void)
+extern int d2dbs_handle_signal_init(void)
 {
 	signal(SIGINT,on_signal);
 	signal(SIGTERM,on_signal);

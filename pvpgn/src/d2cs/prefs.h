@@ -60,12 +60,12 @@ typedef struct
 	unsigned int	allow_convert;
 } t_prefs;
 
-extern int prefs_load(char const * filename);
+extern int d2cs_prefs_load(char const * filename);
 extern int prefs_reload(char const * filename);
-extern int prefs_unload(void);
+extern int d2cs_prefs_unload(void);
 
 extern char const * prefs_get_d2gstrans_file(void);
-extern char const * prefs_get_logfile(void);
+extern char const * d2cs_prefs_get_logfile(void);
 extern char const * prefs_get_servaddrs(void);
 extern char const * prefs_get_charsave_dir(void);
 extern char const * prefs_get_charinfo_dir(void);
@@ -79,8 +79,8 @@ extern unsigned int prefs_get_maxgamelist(void);
 extern unsigned int prefs_allow_newchar(void);
 extern unsigned int prefs_get_gamequeue_checkinterval(void);
 extern unsigned int prefs_get_idletime(void);
-extern unsigned int prefs_get_shutdown_delay(void);
-extern unsigned int prefs_get_shutdown_decr(void);
+extern unsigned int d2cs_prefs_get_shutdown_delay(void);
+extern unsigned int d2cs_prefs_get_shutdown_decr(void);
 extern char const * prefs_get_bnetdaddr(void);
 extern unsigned int prefs_get_s2s_retryinterval(void);
 extern unsigned int prefs_get_s2s_timeout(void);
@@ -92,7 +92,7 @@ extern unsigned int prefs_get_ladderlist_count(void);
 extern unsigned int prefs_get_d2ladder_refresh_interval(void);
 extern unsigned int prefs_get_game_maxlifetime(void);
 extern char const * prefs_get_ladder_dir(void);
-extern char const * prefs_get_loglevels(void);
+extern char const * d2cs_prefs_get_loglevels(void);
 extern unsigned int prefs_allow_gamelist_showall(void);
 extern unsigned int prefs_allow_gamelimit(void);
 extern unsigned int prefs_check_multilogin(void);

@@ -75,7 +75,7 @@ static int setup_daemon(void)
 	}
 	close(STDIN_FILENO);
 	close(STDOUT_FILENO);
-	if (!cmdline_get_logstderr()) {
+	if (!d2dbs_cmdline_get_logstderr()) {
 		close(STDERR_FILENO);
 	}
 	switch (fork()) {
@@ -108,29 +108,29 @@ static int config_init(int argc, char * * argv)
     char *       temp;
     char const * tok;
 
-	if (cmdline_parse(argc, argv)<0) {
+	if (d2dbs_cmdline_parse(argc, argv)<0) {
 		return -1;
 	}
-	if (cmdline_get_version()) {
-		cmdline_show_version();
+	if (d2dbs_cmdline_get_version()) {
+		d2dbs_cmdline_show_version();
 		return -1;
 	}
-	if (cmdline_get_help()) {
-		cmdline_show_help();
+	if (d2dbs_cmdline_get_help()) {
+		d2dbs_cmdline_show_help();
 		return -1;
 	}
-	if (!cmdline_get_foreground()) {
+	if (!d2dbs_cmdline_get_foreground()) {
 		if (setup_daemon()<0) {
 			return -1;
 		}
 	}
-	if (prefs_load(cmdline_get_prefs_file())<0) {
-		log_error("error loading configuration file %s",cmdline_get_prefs_file());
+	if (d2dbs_prefs_load(d2dbs_cmdline_get_prefs_file())<0) {
+		log_error("error loading configuration file %s",d2dbs_cmdline_get_prefs_file());
 		return -1;
 	}
 
     eventlog_clear_level();
-    if ((levels = prefs_get_loglevels()))
+    if ((levels = d2dbs_prefs_get_loglevels()))
     {
         if (!(temp = strdup(levels)))
         {
@@ -151,16 +151,16 @@ static int config_init(int argc, char * * argv)
     }
 
 
-	if (cmdline_get_logstderr()) {
+	if (d2dbs_cmdline_get_logstderr()) {
 		eventlog_set(stderr);
-	} else if (cmdline_get_logfile()) {
-		if (eventlog_open(cmdline_get_logfile())<0) {
-			log_error("error open eventlog file %s",cmdline_get_logfile());
+	} else if (d2dbs_cmdline_get_logfile()) {
+		if (eventlog_open(d2dbs_cmdline_get_logfile())<0) {
+			log_error("error open eventlog file %s",d2dbs_cmdline_get_logfile());
 			return -1;
 		}
 	} else {
-		if (eventlog_open(prefs_get_logfile())<0) {
-			log_error("error open eventlog file %s",prefs_get_logfile());
+		if (eventlog_open(d2dbs_prefs_get_logfile())<0) {
+			log_error("error open eventlog file %s",d2dbs_prefs_get_logfile());
 			return -1;
 		}
 	}
@@ -177,13 +177,17 @@ static int config_init(int argc, char * * argv)
 
 static int config_cleanup(void)
 {
-	prefs_unload();
-	cmdline_cleanup(); 
+	d2dbs_prefs_unload();
+	d2dbs_cmdline_cleanup(); 
 	if (eventlog_fp) fclose(eventlog_fp);
 	return 0;
 }
 
-int main(int argc, char * * argv)
+#ifdef WITH_D2
+extern int d2dbs_main(int argc, char * * argv)
+#else
+extern int main(int argc, char * * argv)
+#endif
 {
 #ifdef USE_CHECK_ALLOC
 	check_set_file(stderr);
@@ -199,7 +203,7 @@ int main(int argc, char * * argv)
 	} else {
 		log_info("server initialized");
 	}
-	handle_signal_init();
+	d2dbs_handle_signal_init();
 	dbs_server_main();
 	cleanup();
 	config_cleanup();

@@ -104,9 +104,9 @@ extern int handle_signal(void)
 		signal_data.do_quit=0;
 		now=time(NULL);
 		if (!signal_data.exit_time) {
-			signal_data.exit_time=now+prefs_get_shutdown_delay();
+			signal_data.exit_time=now+d2cs_prefs_get_shutdown_delay();
 		} else {
-			signal_data.exit_time-=prefs_get_shutdown_decr();
+			signal_data.exit_time-=d2cs_prefs_get_shutdown_decr();
 		}
 		if (now >= (signed)signal_data.exit_time) {
 			log_info("shutdown server due to signal");
@@ -131,7 +131,7 @@ extern int handle_signal(void)
 		}
 
         eventlog_clear_level();
-        if ((levels = prefs_get_loglevels()))
+        if ((levels = d2cs_prefs_get_loglevels()))
         {
             if (!(temp = strdup(levels)))
             {
@@ -151,7 +151,7 @@ extern int handle_signal(void)
             free(temp);
         }
 
-		if (!cmdline_get_logstderr()) eventlog_open(prefs_get_logfile());
+		if (!cmdline_get_logstderr()) eventlog_open(d2cs_prefs_get_logfile());
 	}
 	if (signal_data.reload_ladder) {
 		signal_data.reload_ladder=0;

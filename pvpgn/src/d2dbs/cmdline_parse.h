@@ -32,16 +32,16 @@ typedef struct
 	unsigned int	logstderr;
 } t_param;
 
-extern int cmdline_parse(int argc, char ** argv);
-extern int cmdline_cleanup(void);
-extern void cmdline_show_help(void);
-extern void cmdline_show_version(void);
-extern char const * cmdline_get_prefs_file(void);
-extern char const * cmdline_get_logfile(void);
-extern unsigned int cmdline_get_version(void);
-extern unsigned int cmdline_get_help(void);
-extern unsigned int cmdline_get_foreground(void);
-extern unsigned int cmdline_get_logstderr(void);
+extern int d2dbs_cmdline_parse(int argc, char ** argv);
+extern int d2dbs_cmdline_cleanup(void);
+extern void d2dbs_cmdline_show_help(void);
+extern void d2dbs_cmdline_show_version(void);
+extern char const * d2dbs_cmdline_get_prefs_file(void);
+extern char const * d2dbs_cmdline_get_logfile(void);
+extern unsigned int d2dbs_cmdline_get_version(void);
+extern unsigned int d2dbs_cmdline_get_help(void);
+extern unsigned int d2dbs_cmdline_get_foreground(void);
+extern unsigned int d2dbs_cmdline_get_logstderr(void);
 #ifdef USE_CHECK_ALLOC
 extern char const * cmdline_get_memlog_file(void);
 #endif

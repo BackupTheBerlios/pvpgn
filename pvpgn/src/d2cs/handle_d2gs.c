@@ -133,20 +133,20 @@ static int on_d2gs_authreply(t_connection * c, t_packet * packet)
 	}
 
 	if (reply==D2CS_D2GS_AUTHREPLY_SUCCEED) {
-		log_info("game server %s authed",addr_num_to_ip_str(conn_get_addr(c)));
-		conn_set_state(c,conn_state_authed);
+		log_info("game server %s authed",addr_num_to_ip_str(d2cs_conn_get_addr(c)));
+		d2cs_conn_set_state(c,conn_state_authed);
 		d2gs_active(gs,c);
 	} else {
-		log_error("game server %s failed to auth",addr_num_to_ip_str(conn_get_addr(c)));
+		log_error("game server %s failed to auth",addr_num_to_ip_str(d2cs_conn_get_addr(c)));
 		/* 
-		conn_set_state(c,conn_state_destroy); 
+		d2cs_conn_set_state(c,conn_state_destroy); 
 		*/
 	}
 	if ((rpacket=packet_create(packet_class_d2gs))) {
 		packet_set_size(rpacket,sizeof(t_d2cs_d2gs_authreply));
 		packet_set_type(rpacket,D2CS_D2GS_AUTHREPLY);
 		bn_int_set(&rpacket->u.d2cs_d2gs_authreply.reply,reply);
-		queue_push_packet(conn_get_out_queue(c),rpacket);
+		queue_push_packet(d2cs_conn_get_out_queue(c),rpacket);
 		packet_del_ref(rpacket);
 	}
 	return 0;
@@ -163,7 +163,7 @@ static int on_d2gs_setgsinfo(t_connection * c, t_packet * packet)
 	}
 	maxgame=bn_int_get(packet->u.d2gs_d2cs_setgsinfo.maxgame);
 	prev_maxgame=d2gs_get_maxgame(gs);
-	log_info("change game server %s max game from %d to %d",addr_num_to_ip_str(conn_get_addr(c)),
+	log_info("change game server %s max game from %d to %d",addr_num_to_ip_str(d2cs_conn_get_addr(c)),
 		prev_maxgame, maxgame);
 	d2gs_set_maxgame(gs,maxgame);
 	for (i=prev_maxgame; i<maxgame; i++) gqlist_check_creategame();
@@ -192,7 +192,7 @@ static int on_d2gs_creategamereply(t_connection * c, t_packet * packet)
 		log_error("seqno %d not found",seqno);
 		return 0;
 	}
-	if (!(client=connlist_find_connection_by_sessionnum(sq_get_clientid(sq)))) {
+	if (!(client=d2cs_connlist_find_connection_by_sessionnum(sq_get_clientid(sq)))) {
 		log_error("client %d not found",sq_get_clientid(sq));
 		sq_destroy(sq);
 		return 0;
@@ -212,10 +212,10 @@ static int on_d2gs_creategamereply(t_connection * c, t_packet * packet)
 	if (result==D2GS_D2CS_CREATEGAME_SUCCEED) {
 		game_set_d2gs_gameid(game,bn_int_get(packet->u.d2gs_d2cs_creategamereply.gameid));
 		game_set_created(game,1);
-		log_info("game %s created on gs %d",game_get_name(game),conn_get_d2gs_id(c));
+		log_info("game %s created on gs %d",d2cs_game_get_name(game),conn_get_d2gs_id(c));
 		reply=D2CS_CLIENT_CREATEGAMEREPLY_SUCCEED;
 	} else {
-		log_warn("failed to create game %s on gs %d",game_get_name(game),conn_get_d2gs_id(c));
+		log_warn("failed to create game %s on gs %d",d2cs_game_get_name(game),conn_get_d2gs_id(c));
 		game_destroy(game);
 		reply=D2CS_CLIENT_CREATEGAMEREPLY_FAILED;
 	}
@@ -228,7 +228,7 @@ static int on_d2gs_creategamereply(t_connection * c, t_packet * packet)
 		bn_short_set(&rpacket->u.d2cs_client_creategamereply.gameid,1);
 		bn_short_set(&rpacket->u.d2cs_client_creategamereply.u1,1);
 		bn_int_set(&rpacket->u.d2cs_client_creategamereply.reply,reply);
-		queue_push_packet(conn_get_out_queue(client),rpacket);
+		queue_push_packet(d2cs_conn_get_out_queue(client),rpacket);
 		packet_del_ref(rpacket);
 	}
 	sq_destroy(sq);
@@ -253,7 +253,7 @@ static int on_d2gs_joingamereply(t_connection * c, t_packet * packet)
 		log_error("seqno %d not found",seqno);
 		return 0;
 	}
-	if (!(client=connlist_find_connection_by_sessionnum(sq_get_clientid(sq)))) {
+	if (!(client=d2cs_connlist_find_connection_by_sessionnum(sq_get_clientid(sq)))) {
 		log_error("client %d not found",sq_get_clientid(sq));
 		sq_destroy(sq);
 		return 0;
@@ -276,12 +276,12 @@ static int on_d2gs_joingamereply(t_connection * c, t_packet * packet)
 
 	result=bn_int_get(packet->u.d2gs_d2cs_joingamereply.result);
 	if (result==D2GS_D2CS_JOINGAME_SUCCEED) {
-		log_info("added %s to game %s on gs %d",conn_get_charname(client),
-			game_get_name(game),conn_get_d2gs_id(c));
+		log_info("added %s to game %s on gs %d",d2cs_conn_get_charname(client),
+			d2cs_game_get_name(game),conn_get_d2gs_id(c));
 		reply=D2CS_CLIENT_JOINGAMEREPLY_SUCCEED;
 	} else {
-		log_info("failed to add %s to game %s on gs %d",conn_get_charname(client),
-			game_get_name(game),conn_get_d2gs_id(c));
+		log_info("failed to add %s to game %s on gs %d",d2cs_conn_get_charname(client),
+			d2cs_game_get_name(game),conn_get_d2gs_id(c));
 		reply=D2CS_CLIENT_JOINGAMEREPLY_FAILED;
 	}
 
@@ -297,7 +297,7 @@ static int on_d2gs_joingamereply(t_connection * c, t_packet * packet)
 			bn_int_set(&rpacket->u.d2cs_client_joingamereply.token,sq_get_gametoken(sq));
 
 			gsaddr = d2gs_get_ip(gs);
-			d2gstrans_net(conn_get_addr(client),&gsaddr);
+			d2gstrans_net(d2cs_conn_get_addr(client),&gsaddr);
 			
 			if(d2gs_get_ip(gs)!=gsaddr)
 			{
@@ -312,7 +312,7 @@ static int on_d2gs_joingamereply(t_connection * c, t_packet * packet)
 			bn_int_set(&rpacket->u.d2cs_client_joingamereply.token,0);
 			bn_int_set(&rpacket->u.d2cs_client_joingamereply.addr,0);
 		}
-		queue_push_packet(conn_get_out_queue(client),rpacket);
+		queue_push_packet(d2cs_conn_get_out_queue(client),rpacket);
 		packet_del_ref(rpacket);
 	}
 	sq_destroy(sq);
@@ -379,11 +379,11 @@ extern int handle_d2gs_init(t_connection * c)
 	if ((packet=packet_create(packet_class_d2gs))) {
 		packet_set_size(packet,sizeof(t_d2cs_d2gs_authreq));
 		packet_set_type(packet,D2CS_D2GS_AUTHREQ);
-		bn_int_set(&packet->u.d2cs_d2gs_authreq.sessionnum,conn_get_sessionnum(c));
+		bn_int_set(&packet->u.d2cs_d2gs_authreq.sessionnum,d2cs_conn_get_sessionnum(c));
 		packet_append_string(packet,prefs_get_realmname());
-		queue_push_packet(conn_get_out_queue(c),packet);
+		queue_push_packet(d2cs_conn_get_out_queue(c),packet);
 		packet_del_ref(packet);
 	}
-	log_info("sent init packet to d2gs %d (sessionnum=%d)",conn_get_d2gs_id(c),conn_get_sessionnum(c));
+	log_info("sent init packet to d2gs %d (sessionnum=%d)",conn_get_d2gs_id(c),d2cs_conn_get_sessionnum(c));
 	return 0;
 }

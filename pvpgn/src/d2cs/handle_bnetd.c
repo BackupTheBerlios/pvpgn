@@ -77,9 +77,9 @@ extern int handle_bnetd_init(t_connection * c)
 	packet=packet_create(packet_class_init);
 	packet_set_size(packet,sizeof(t_client_initconn));
 	bn_byte_set(&packet->u.client_initconn.class, CLIENT_INITCONN_CLASS_D2CS_BNETD);
-	queue_push_packet(conn_get_out_queue(c),packet);
+	queue_push_packet(d2cs_conn_get_out_queue(c),packet);
 	packet_del_ref(packet);
-	conn_set_state(c,conn_state_connected);
+	d2cs_conn_set_state(c,conn_state_connected);
 	log_info("sent init class packet to bnetd");
 	return 0;
 }
@@ -96,7 +96,7 @@ static int on_bnetd_authreq(t_connection * c, t_packet * packet)
 		packet_set_type(rpacket,D2CS_BNETD_AUTHREPLY);
 		bn_int_set(&rpacket->u.d2cs_bnetd_authreply.version,D2CS_VERSION_NUMBER);
 		packet_append_string(rpacket,prefs_get_realmname());
-		queue_push_packet(conn_get_out_queue(c),rpacket);
+		queue_push_packet(d2cs_conn_get_out_queue(c),rpacket);
 		packet_del_ref(rpacket);
 	}
 	return 0;
@@ -109,10 +109,10 @@ static int on_bnetd_authreply(t_connection * c, t_packet * packet)
 	reply=bn_int_get(packet->u.bnetd_d2cs_authreply.reply);
 	if (reply == BNETD_D2CS_AUTHREPLY_SUCCEED) {
 		log_info("authed by bnetd");
-		conn_set_state(c,conn_state_authed);
+		d2cs_conn_set_state(c,conn_state_authed);
 	} else {
 		log_error("failed to auth by bnetd (error=%d)",reply);
-		conn_set_state(c,conn_state_destroy);
+		d2cs_conn_set_state(c,conn_state_destroy);
 	}
 	return 0;
 }
@@ -134,7 +134,7 @@ static int on_bnetd_accountloginreply(t_connection * c, t_packet * packet)
 		log_error("seqno %d not found",seqno);
 		return -1;
 	}
-	if (!(client=connlist_find_connection_by_sessionnum(sq_get_clientid(sq)))) {
+	if (!(client=d2cs_connlist_find_connection_by_sessionnum(sq_get_clientid(sq)))) {
 		log_error("client %d not found",sq_get_clientid(sq));
 		sq_destroy(sq);
 		return -1;
@@ -148,8 +148,8 @@ static int on_bnetd_accountloginreply(t_connection * c, t_packet * packet)
 	if (result==BNETD_D2CS_CHARLOGINREPLY_SUCCEED) {
 		reply=D2CS_CLIENT_LOGINREPLY_SUCCEED;
 		account=packet_get_str_const(opacket,sizeof(t_client_d2cs_loginreq),MAX_CHARNAME_LEN);
-		conn_set_account(client,account);
-		conn_set_state(client,conn_state_authed);
+		d2cs_conn_set_account(client,account);
+		d2cs_conn_set_state(client,conn_state_authed);
 		log_info("account %s authed",account);
 	} else {
 		log_warn("client %d login request was rejected by bnetd",sq_get_clientid(sq));
@@ -159,7 +159,7 @@ static int on_bnetd_accountloginreply(t_connection * c, t_packet * packet)
 		packet_set_size(rpacket,sizeof(t_d2cs_client_loginreply));
 		packet_set_type(rpacket,D2CS_CLIENT_LOGINREPLY);
 		bn_int_set(&rpacket->u.d2cs_client_loginreply.reply,reply);
-		queue_push_packet(conn_get_out_queue(client),rpacket);
+		queue_push_packet(d2cs_conn_get_out_queue(client),rpacket);
 		packet_del_ref(rpacket);
 	}
 	sq_destroy(sq);
@@ -183,7 +183,7 @@ static int on_bnetd_charloginreply(t_connection * c, t_packet * packet)
 		log_error("seqno %d not found",seqno);
 		return -1;
 	}
-	if (!(client=connlist_find_connection_by_sessionnum(sq_get_clientid(sq)))) {
+	if (!(client=d2cs_connlist_find_connection_by_sessionnum(sq_get_clientid(sq)))) {
 		log_error("client %d not found",sq_get_clientid(sq));
 		sq_destroy(sq);
 		return -1;
@@ -204,8 +204,8 @@ static int on_bnetd_charloginreply(t_connection * c, t_packet * packet)
 			} else {
 				reply= D2CS_CLIENT_CREATECHARREPLY_SUCCEED;
 				log_info("character %s authed",charname);
-				conn_set_charname(client,charname);
-				conn_set_state(client,conn_state_char_authed);
+				d2cs_conn_set_charname(client,charname);
+				d2cs_conn_set_state(client,conn_state_char_authed);
 			}
 		} else {
 			reply = D2CS_CLIENT_CREATECHARREPLY_FAILED;
@@ -215,7 +215,7 @@ static int on_bnetd_charloginreply(t_connection * c, t_packet * packet)
 			packet_set_size(rpacket,sizeof(t_d2cs_client_createcharreply));
 			packet_set_type(rpacket,D2CS_CLIENT_CREATECHARREPLY);
 			bn_int_set(&rpacket->u.d2cs_client_createcharreply.reply,reply);
-			queue_push_packet(conn_get_out_queue(client),rpacket);
+			queue_push_packet(d2cs_conn_get_out_queue(client),rpacket);
 			packet_del_ref(rpacket);
 		}
 	} else if (type==CLIENT_D2CS_CHARLOGINREQ) {
@@ -227,8 +227,8 @@ static int on_bnetd_charloginreply(t_connection * c, t_packet * packet)
 			} else {
 				reply = D2CS_CLIENT_CHARLOGINREPLY_SUCCEED;
 				log_info("character %s authed",charname);
-				conn_set_charname(client,charname);
-				conn_set_state(client,conn_state_char_authed);
+				d2cs_conn_set_charname(client,charname);
+				d2cs_conn_set_state(client,conn_state_char_authed);
 			}
 		} else {
 			reply = D2CS_CLIENT_CHARLOGINREPLY_FAILED;
@@ -238,7 +238,7 @@ static int on_bnetd_charloginreply(t_connection * c, t_packet * packet)
 			packet_set_size(rpacket,sizeof(t_d2cs_client_charloginreply));
 			packet_set_type(rpacket,D2CS_CLIENT_CHARLOGINREPLY);
 			bn_int_set(&rpacket->u.d2cs_client_charloginreply.reply,reply);
-			queue_push_packet(conn_get_out_queue(client),rpacket);
+			queue_push_packet(d2cs_conn_get_out_queue(client),rpacket);
 			packet_del_ref(rpacket);
 		}
 	} else {

@@ -60,7 +60,7 @@ static unsigned int	total_game=0;
 static unsigned int	game_id=0;
 static t_game_charinfo * game_find_character(t_game * game, char const * charname);
 
-extern t_list * gamelist(void)
+extern t_list * d2cs_gamelist(void)
 {
 	return gamelist_head;
 }
@@ -76,13 +76,13 @@ extern void gamelist_set_curr_elem(t_elem const * elem)
 	return;
 }
 
-extern int gamelist_create(void)
+extern int d2cs_gamelist_create(void)
 {
 	if (!(gamelist_head=list_create())) return -1;
 	return 0;
 }
 
-extern int gamelist_destroy(void)
+extern int d2cs_gamelist_destroy(void)
 {
 	t_game * game;
 
@@ -100,7 +100,7 @@ extern int gamelist_destroy(void)
 	return 0;
 }
 
-extern t_game * gamelist_find_game(char const * gamename)
+extern t_game * d2cs_gamelist_find_game(char const * gamename)
 {
 	t_game * game;
 
@@ -153,7 +153,7 @@ extern t_game * gamelist_find_character(char const * charname)
 	return NULL;
 }
 
-extern void gamelist_check_voidgame(void)
+extern void d2cs_gamelist_check_voidgame(void)
 {
 	t_game	* game;
 	time_t	now;
@@ -174,7 +174,7 @@ extern void gamelist_check_voidgame(void)
 	END_LIST_TRAVERSE_DATA()
 }
 
-extern t_game * game_create(char const * gamename, char const * gamepass, char const * gamedesc,
+extern t_game * d2cs_game_create(char const * gamename, char const * gamepass, char const * gamedesc,
 			unsigned int gameflag)
 {
 	t_game	* game;
@@ -183,7 +183,7 @@ extern t_game * game_create(char const * gamename, char const * gamepass, char c
 	ASSERT(gamename,NULL);
 	ASSERT(gamepass,NULL);
 	ASSERT(gamedesc,NULL);
-	if (gamelist_find_game(gamename)) {
+	if (d2cs_gamelist_find_game(gamename)) {
 		log_error("game %s already exist",gamename);
 		return NULL;
 	}
@@ -368,7 +368,7 @@ extern unsigned int game_get_d2gs_gameid(t_game const * game)
 	return game->d2gs_gameid;
 }
 
-extern unsigned int game_get_id(t_game const * game)
+extern unsigned int d2cs_game_get_id(t_game const * game)
 {
 	ASSERT(game,0);
 	return game->id;
@@ -504,7 +504,7 @@ extern unsigned int game_get_currchar(t_game const * game)
 	return game->currchar;
 }
 
-extern char const * game_get_name(t_game const * game)
+extern char const * d2cs_game_get_name(t_game const * game)
 {
 	ASSERT(game,NULL);
 	return game->name;
@@ -516,7 +516,7 @@ extern char const * game_get_desc(t_game const * game)
 	return game->desc;
 }
 
-extern char const * game_get_pass(t_game const * game)
+extern char const * d2cs_game_get_pass(t_game const * game)
 {
 	ASSERT(game,NULL);
 	return game->pass;
@@ -528,7 +528,7 @@ extern unsigned int game_get_gameflag(t_game const * game)
 	return game->gameflag;
 }
 
-extern int game_get_create_time(t_game const * game)
+extern int d2cs_game_get_create_time(t_game const * game)
 {
 	ASSERT(game,-1);
 	return game->create_time;

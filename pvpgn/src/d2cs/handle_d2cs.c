@@ -120,7 +120,7 @@ static t_packet_handle_table d2cs_packet_handle_table[]={
 };
 
 
-extern int handle_d2cs_packet(t_connection * c, t_packet * packet)
+extern int d2cs_handle_d2cs_packet(t_connection * c, t_packet * packet)
 {
 	return conn_process_packet(c,packet,d2cs_packet_handle_table,NELEMS(d2cs_packet_handle_table));
 }
@@ -148,7 +148,7 @@ static int on_client_loginreq(t_connection * c, t_packet * packet)
 	conn_set_bnetd_sessionnum(c,sessionnum);
 	log_info("got client (*%s) login request sessionnum=0x%X",account,sessionnum);
 	if ((bnpacket=packet_create(packet_class_d2cs_bnetd))) {
-		if ((sq=sq_create(conn_get_sessionnum(c),packet,0))) {
+		if ((sq=sq_create(d2cs_conn_get_sessionnum(c),packet,0))) {
 			packet_set_size(bnpacket,sizeof(t_d2cs_bnetd_accountloginreq));
 			packet_set_type(bnpacket,D2CS_BNETD_ACCOUNTLOGINREQ);
 			bn_int_set(&bnpacket->u.d2cs_bnetd_accountloginreq.h.seqno,sq_get_seqno(sq));
@@ -161,7 +161,7 @@ static int on_client_loginreq(t_connection * c, t_packet * packet)
 				packet->u.client_d2cs_loginreq.secret_hash,
 				sizeof(bnpacket->u.d2cs_bnetd_accountloginreq.secret_hash));
 			packet_append_string(bnpacket,account);
-			queue_push_packet(conn_get_out_queue(bnetd_conn()),bnpacket);
+			queue_push_packet(d2cs_conn_get_out_queue(bnetd_conn()),bnpacket);
 		}
 		packet_del_ref(bnpacket);
 	}
@@ -182,7 +182,7 @@ static int on_client_createcharreq(t_connection * c, t_packet * packet)
 		log_error("got bad character name");
 		return -1;
 	}
-	if (!(account=conn_get_account(c))) {
+	if (!(account=d2cs_conn_get_account(c))) {
 		log_error("missing account for character %s",charname);
 		return -1;
 	}
@@ -199,7 +199,7 @@ static int on_client_createcharreq(t_connection * c, t_packet * packet)
 		reply=D2CS_CLIENT_CREATECHARREPLY_SUCCEED;
 		conn_set_charinfo(c,&data.summary);
 		if ((bnpacket=packet_create(packet_class_d2cs_bnetd))) {
-			if ((sq=sq_create(conn_get_sessionnum(c),packet,0))) {
+			if ((sq=sq_create(d2cs_conn_get_sessionnum(c),packet,0))) {
 				packet_set_size(bnpacket,sizeof(t_d2cs_bnetd_charloginreq));
 				packet_set_type(bnpacket,D2CS_BNETD_CHARLOGINREQ);
 				bn_int_set(&bnpacket->u.d2cs_bnetd_charloginreq.h.seqno,sq_get_seqno(sq));
@@ -207,7 +207,7 @@ static int on_client_createcharreq(t_connection * c, t_packet * packet)
 					conn_get_bnetd_sessionnum(c));
 				packet_append_string(bnpacket,charname);
 				packet_append_string(bnpacket,(char const *)&data.portrait);
-				queue_push_packet(conn_get_out_queue(bnetd_conn()),bnpacket);
+				queue_push_packet(d2cs_conn_get_out_queue(bnetd_conn()),bnpacket);
 			}
 			packet_del_ref(bnpacket);
 		}
@@ -217,7 +217,7 @@ static int on_client_createcharreq(t_connection * c, t_packet * packet)
 		packet_set_size(rpacket,sizeof(t_d2cs_client_createcharreply));
 		packet_set_type(rpacket,D2CS_CLIENT_CREATECHARREPLY);
 		bn_int_set(&rpacket->u.d2cs_client_createcharreply.reply,reply);
-		queue_push_packet(conn_get_out_queue(c),rpacket);
+		queue_push_packet(d2cs_conn_get_out_queue(c),rpacket);
 		packet_del_ref(rpacket);
 	}
 	return 0;
@@ -267,7 +267,7 @@ static int on_client_creategamereq(t_connection * c, t_packet * packet)
 	gs = NULL;
 	game = NULL;
 	gq=conn_get_gamequeue(c);
-	if (gamelist_find_game(gamename)) {
+	if (d2cs_gamelist_find_game(gamename)) {
 		log_info("game name %s is already exist in gamelist",gamename);
 		reply=D2CS_CLIENT_CREATEGAMEREPLY_NAME_EXIST;
 	} else if (!gq && gqlist_find_game(gamename)) {
@@ -275,11 +275,11 @@ static int on_client_creategamereq(t_connection * c, t_packet * packet)
 		reply=D2CS_CLIENT_CREATEGAMEREPLY_NAME_EXIST;
 	} else if (!(gs=d2gslist_choose_server())) {
 		if (gq) {
-			log_error("client %d is already in game queue",conn_get_sessionnum(c));
+			log_error("client %d is already in game queue",d2cs_conn_get_sessionnum(c));
 			conn_set_gamequeue(c,NULL);
 			gq_destroy(gq);
 			return 0;
-		} else if ((gq=gq_create(conn_get_sessionnum(c), packet, gamename))) {
+		} else if ((gq=gq_create(d2cs_conn_get_sessionnum(c), packet, gamename))) {
 			conn_set_gamequeue(c,gq);
 			d2cs_send_client_creategamewait(c,gqlist_get_length());
 			return 0;
@@ -287,7 +287,7 @@ static int on_client_creategamereq(t_connection * c, t_packet * packet)
 		reply=D2CS_CLIENT_CREATEGAMEREPLY_FAILED;
 	} else if (hardcore && conn_get_charinfo_dead(c)) {
 		reply=D2CS_CLIENT_CREATEGAMEREPLY_FAILED;
-	} else if (!(game=game_create(gamename,gamepass,gamedesc,gameflag))) {
+	} else if (!(game=d2cs_game_create(gamename,gamepass,gamedesc,gameflag))) {
 		reply=D2CS_CLIENT_CREATEGAMEREPLY_NAME_EXIST;
 	} else {
 		reply=D2CS_CLIENT_CREATEGAMEREPLY_SUCCEED;
@@ -313,7 +313,7 @@ static int on_client_creategamereq(t_connection * c, t_packet * packet)
 			bn_short_set(&rpacket->u.d2cs_client_creategamereply.u1,0);
 			bn_short_set(&rpacket->u.d2cs_client_creategamereply.gameid,0);
 			bn_int_set(&rpacket->u.d2cs_client_creategamereply.reply,reply);
-			queue_push_packet(conn_get_out_queue(c),rpacket);
+			queue_push_packet(d2cs_conn_get_out_queue(c),rpacket);
 			packet_del_ref(rpacket);
 		}
 	} else {
@@ -321,7 +321,7 @@ static int on_client_creategamereq(t_connection * c, t_packet * packet)
 		t_sq		* sq;
 
 		if ((gspacket=packet_create(packet_class_d2gs))) {
-			if ((sq=sq_create(conn_get_sessionnum(c),packet,game_get_id(game)))) {
+			if ((sq=sq_create(d2cs_conn_get_sessionnum(c),packet,d2cs_game_get_id(game)))) {
 				packet_set_size(gspacket,sizeof(t_d2cs_d2gs_creategamereq));
 				packet_set_type(gspacket,D2CS_D2GS_CREATEGAMEREQ);
 				bn_int_set(&gspacket->u.d2cs_d2gs_creategamereq.h.seqno,sq_get_seqno(sq));
@@ -329,7 +329,7 @@ static int on_client_creategamereq(t_connection * c, t_packet * packet)
 				bn_byte_set(&gspacket->u.d2cs_d2gs_creategamereq.hardcore,hardcore);
 				bn_byte_set(&gspacket->u.d2cs_d2gs_creategamereq.expansion,expansion);
 				packet_append_string(gspacket,gamename);
-				queue_push_packet(conn_get_out_queue(d2gs_get_connection(gs)),gspacket);
+				queue_push_packet(d2cs_conn_get_out_queue(d2gs_get_connection(gs)),gspacket);
 			}
 			packet_del_ref(gspacket);
 			log_info("request create game %s on gs %d",gamename,d2gs_get_id(gs));
@@ -361,11 +361,11 @@ static int on_client_joingamereq(t_connection * c, t_packet * packet)
 		log_error("got bad game pass");
 		return -1;
 	}
-	if (!(charname=conn_get_charname(c))) {
+	if (!(charname=d2cs_conn_get_charname(c))) {
 		log_error("missing character name for connection");
 		return -1;
 	}
-	if (!(account=conn_get_account(c))) {
+	if (!(account=d2cs_conn_get_account(c))) {
 		log_error("missing account for connection");
 		return -1;
 	}
@@ -373,7 +373,7 @@ static int on_client_joingamereq(t_connection * c, t_packet * packet)
 		log_error("character %s is already logged in",charname);
 		return -1;
 	}
-	if (!(game=gamelist_find_game(gamename))) {
+	if (!(game=d2cs_gamelist_find_game(gamename))) {
 		log_info("game %s not found",gamename);
 		reply=D2CS_CLIENT_JOINGAMEREPLY_NOT_EXIST;
 	} else if (!(gs=game_get_d2gs(game))) {
@@ -396,7 +396,7 @@ static int on_client_joingamereq(t_connection * c, t_packet * packet)
 			bn_int_set(&rpacket->u.d2cs_client_joingamereply.addr,0);
 			bn_int_set(&rpacket->u.d2cs_client_joingamereply.token,0);
 			bn_int_set(&rpacket->u.d2cs_client_joingamereply.reply,reply);
-			queue_push_packet(conn_get_out_queue(c),rpacket);
+			queue_push_packet(d2cs_conn_get_out_queue(c),rpacket);
 			packet_del_ref(rpacket);
 		}
 	} else {
@@ -404,7 +404,7 @@ static int on_client_joingamereq(t_connection * c, t_packet * packet)
 		t_sq		* sq;
 		
 		if ((gspacket=packet_create(packet_class_d2gs))) {
-			if ((sq=sq_create(conn_get_sessionnum(c),packet,game_get_id(game)))) {
+			if ((sq=sq_create(d2cs_conn_get_sessionnum(c),packet,d2cs_game_get_id(game)))) {
 				packet_set_size(gspacket,sizeof(t_d2cs_d2gs_joingamereq));
 				packet_set_type(gspacket,D2CS_D2GS_JOINGAMEREQ);
 				bn_int_set(&gspacket->u.d2cs_d2gs_joingamereq.h.seqno,sq_get_seqno(sq));
@@ -414,7 +414,7 @@ static int on_client_joingamereq(t_connection * c, t_packet * packet)
 				bn_int_set(&gspacket->u.d2cs_d2gs_joingamereq.token,sq_get_gametoken(sq));
 				packet_append_string(gspacket,charname);
 				packet_append_string(gspacket,account);
-				queue_push_packet(conn_get_out_queue(d2gs_get_connection(gs)),gspacket);
+				queue_push_packet(d2cs_conn_get_out_queue(d2gs_get_connection(gs)),gspacket);
 			}
 			packet_del_ref(gspacket);
 			log_info("request join game %s for character %s on gs %d",gamename,
@@ -442,12 +442,12 @@ static int on_client_gamelistreq(t_connection * c, t_packet * packet)
 	maxlifetime=prefs_get_game_maxlifetime();
 
 	elem=start_elem=gamelist_get_curr_elem();
-	if (!elem) elem=list_get_first_const(gamelist());
+	if (!elem) elem=list_get_first_const(d2cs_gamelist());
 	else elem=elem_get_next_const(elem);
 
 	for (; elem != start_elem; elem=elem_get_next_const(elem)) {
 		if (!elem) {
-			elem=list_get_first_const(gamelist());
+			elem=list_get_first_const(d2cs_gamelist());
 			if (elem == start_elem) break;
 		}
 		if (!(game=elem_get_data(elem))) {
@@ -464,12 +464,12 @@ static int on_client_gamelistreq(t_connection * c, t_packet * packet)
 			packet_set_size(rpacket,sizeof(t_d2cs_client_gamelistreply));
 			packet_set_type(rpacket,D2CS_CLIENT_GAMELISTREPLY);
 			bn_short_set(&rpacket->u.d2cs_client_gamelistreply.seqno,seqno);
-			bn_int_set(&rpacket->u.d2cs_client_gamelistreply.token,game_get_id(game));
+			bn_int_set(&rpacket->u.d2cs_client_gamelistreply.token,d2cs_game_get_id(game));
 			bn_byte_set(&rpacket->u.d2cs_client_gamelistreply.currchar,game_get_currchar(game));
 			bn_int_set(&rpacket->u.d2cs_client_gamelistreply.gameflag,game_get_gameflag(game));
-			packet_append_string(rpacket,game_get_name(game));
+			packet_append_string(rpacket,d2cs_game_get_name(game));
 			packet_append_string(rpacket,game_get_desc(game));
-			queue_push_packet(conn_get_out_queue(c),rpacket);
+			queue_push_packet(d2cs_conn_get_out_queue(c),rpacket);
 			packet_del_ref(rpacket);
 			count++;
 			if (prefs_get_maxgamelist() && count>=prefs_get_maxgamelist()) break;
@@ -487,7 +487,7 @@ static int on_client_gamelistreq(t_connection * c, t_packet * packet)
 			packet_append_string(rpacket,"");
 			packet_append_string(rpacket,"");
 			packet_append_string(rpacket,"");
-			queue_push_packet(conn_get_out_queue(c),rpacket);
+			queue_push_packet(d2cs_conn_get_out_queue(c),rpacket);
 			packet_del_ref(rpacket);
 		}
 	}
@@ -506,7 +506,7 @@ static int on_client_gameinforeq(t_connection * c, t_packet * packet)
 		log_error("got bad game name");
 		return -1;
 	}
-	if (!(game=gamelist_find_game(gamename))) {
+	if (!(game=d2cs_gamelist_find_game(gamename))) {
 		log_error("game %s not found",gamename);
 		return 0;
 	}
@@ -516,7 +516,7 @@ static int on_client_gameinforeq(t_connection * c, t_packet * packet)
 		packet_set_type(rpacket,D2CS_CLIENT_GAMEINFOREPLY);
 		bn_short_set(&rpacket->u.d2cs_client_gameinforeply.seqno,seqno);
 		bn_int_set(&rpacket->u.d2cs_client_gameinforeply.gameflag,game_get_gameflag(game));
-		bn_int_set(&rpacket->u.d2cs_client_gameinforeply.etime,time(NULL)-game_get_create_time(game));
+		bn_int_set(&rpacket->u.d2cs_client_gameinforeply.etime,time(NULL)-d2cs_game_get_create_time(game));
 		bn_byte_set(&rpacket->u.d2cs_client_gameinforeply.charlevel,game_get_charlevel(game));
 		bn_byte_set(&rpacket->u.d2cs_client_gameinforeply.leveldiff,game_get_leveldiff(game));
 		bn_byte_set(&rpacket->u.d2cs_client_gameinforeply.maxchar,game_get_maxchar(game));
@@ -540,7 +540,7 @@ static int on_client_gameinforeq(t_connection * c, t_packet * packet)
 		if (n!=game_get_currchar(game)) {
 			log_error("game %s character list corrupted",gamename);
 		}
-		queue_push_packet(conn_get_out_queue(c),rpacket);
+		queue_push_packet(d2cs_conn_get_out_queue(c),rpacket);
 		packet_del_ref(rpacket);
 	}
 	return 0;
@@ -558,7 +558,7 @@ static int on_client_charloginreq(t_connection * c, t_packet * packet)
 		log_error("got bad character name");
 		return -1;
 	}
-	if (!(account=conn_get_account(c))) {
+	if (!(account=d2cs_conn_get_account(c))) {
 		log_error("missing account for connection");
 		return -1;
 	}
@@ -572,7 +572,7 @@ static int on_client_charloginreq(t_connection * c, t_packet * packet)
 	conn_set_charinfo(c,&data.summary);
 	log_info("got character %s(*%s) login request",charname,account);
 	if ((bnpacket=packet_create(packet_class_d2cs_bnetd))) {
-		if ((sq=sq_create(conn_get_sessionnum(c),packet,0))) {
+		if ((sq=sq_create(d2cs_conn_get_sessionnum(c),packet,0))) {
 			packet_set_size(bnpacket,sizeof(t_d2cs_bnetd_charloginreq));
 			packet_set_type(bnpacket,D2CS_BNETD_CHARLOGINREQ);
 			bn_int_set(&bnpacket->u.d2cs_bnetd_charloginreq.h.seqno,sq_get_seqno(sq));
@@ -580,7 +580,7 @@ static int on_client_charloginreq(t_connection * c, t_packet * packet)
 				conn_get_bnetd_sessionnum(c));
 			packet_append_string(bnpacket,charname);
 			packet_append_string(bnpacket,(char const *)&data.portrait);
-			queue_push_packet(conn_get_out_queue(bnetd_conn()),bnpacket);
+			queue_push_packet(d2cs_conn_get_out_queue(bnetd_conn()),bnpacket);
 		}
 		packet_del_ref(bnpacket);
 	}
@@ -602,8 +602,8 @@ static int on_client_deletecharreq(t_connection * c, t_packet * packet)
 		log_error("character %s is already logged in",charname);
 		return -1;
 	}
-	conn_set_charname(c,NULL);
-	account=conn_get_account(c);
+	d2cs_conn_set_charname(c,NULL);
+	account=d2cs_conn_get_account(c);
 	if (d2char_delete(account,charname)<0) {
 		log_error("failed to delete character %s(*%s)",charname,account);
 		reply = D2CS_CLIENT_DELETECHARREPLY_FAILED;
@@ -615,7 +615,7 @@ static int on_client_deletecharreq(t_connection * c, t_packet * packet)
 		packet_set_type(rpacket,D2CS_CLIENT_DELETECHARREPLY);
 		bn_short_set(&rpacket->u.d2cs_client_deletecharreply.u1,0);
 		bn_int_set(&rpacket->u.d2cs_client_deletecharreply.reply,reply);
-		queue_push_packet(conn_get_out_queue(c),rpacket);
+		queue_push_packet(d2cs_conn_get_out_queue(c),rpacket);
 		packet_del_ref(rpacket);
 	}
 	return 0;
@@ -689,7 +689,7 @@ static int d2cs_send_client_ladder(t_connection * c, unsigned char type, unsigne
 				curr_len -= 4;
 			}
 			bn_short_set(&rpacket->u.d2cs_client_ladderreply.curr_len,curr_len);
-			queue_push_packet(conn_get_out_queue(c),rpacket);
+			queue_push_packet(d2cs_conn_get_out_queue(c),rpacket);
 			packet_del_ref(rpacket);
 		}
 		cont_len += curr_len;
@@ -709,7 +709,7 @@ static int on_client_motdreq(t_connection * c, t_packet * packet)
 		packet_set_type(rpacket,D2CS_CLIENT_MOTDREPLY);
 		bn_byte_set(&rpacket->u.d2cs_client_motdreply.u1,0);
 		packet_append_string(rpacket,prefs_get_motd());
-		queue_push_packet(conn_get_out_queue(c),rpacket);
+		queue_push_packet(d2cs_conn_get_out_queue(c),rpacket);
 		packet_del_ref(rpacket);
 	}
 	return 0;
@@ -761,7 +761,7 @@ static int on_client_charladderreq(t_connection * c, t_packet * packet)
 			bn_short_set(&rpacket->u.d2cs_client_ladderreply.total_len,0);
 			bn_short_set(&rpacket->u.d2cs_client_ladderreply.curr_len,0);
 			bn_short_set(&rpacket->u.d2cs_client_ladderreply.cont_len,0);
-			queue_push_packet(conn_get_out_queue(c),rpacket);
+			queue_push_packet(d2cs_conn_get_out_queue(c),rpacket);
 			packet_del_ref(rpacket);
 		}
 		return 0;
@@ -785,7 +785,7 @@ static int on_client_charlistreq(t_connection * c, t_packet * packet)
 	if (!packet)
 	    return -1;
 	
-	if (!(account=conn_get_account(c))) {
+	if (!(account=d2cs_conn_get_account(c))) {
 		log_error("missing account for connection");
 		return -1;
 	}
@@ -824,7 +824,7 @@ static int on_client_charlistreq(t_connection * c, t_packet * packet)
 		}
 		bn_short_set(&rpacket->u.d2cs_client_charlistreply.currchar,n);
 		bn_short_set(&rpacket->u.d2cs_client_charlistreply.currchar2,n);
-		queue_push_packet(conn_get_out_queue(c),rpacket);
+		queue_push_packet(d2cs_conn_get_out_queue(c),rpacket);
 		packet_del_ref(rpacket);
 	}
 	free(path);
@@ -846,7 +846,7 @@ static int on_client_convertcharreq(t_connection * c, t_packet * packet)
 		log_error("character %s is already logged in",charname);
 		return -1;
 	}
-	account=conn_get_account(c);
+	account=d2cs_conn_get_account(c);
 	if (d2char_convert(account,charname)<0) {
 		log_error("failed to convert character %s(*%s)",charname,account);
 		reply = D2CS_CLIENT_CONVERTCHARREPLY_FAILED;
@@ -857,7 +857,7 @@ static int on_client_convertcharreq(t_connection * c, t_packet * packet)
 		packet_set_size(rpacket,sizeof(t_d2cs_client_convertcharreply));
 		packet_set_type(rpacket,D2CS_CLIENT_CONVERTCHARREPLY);
 		bn_int_set(&rpacket->u.d2cs_client_convertcharreply.reply,reply);
-		queue_push_packet(conn_get_out_queue(c),rpacket);
+		queue_push_packet(d2cs_conn_get_out_queue(c),rpacket);
 		packet_del_ref(rpacket);
 	}
 	return 0;
@@ -872,7 +872,7 @@ extern int d2cs_send_client_creategamewait(t_connection * c, unsigned int positi
 		packet_set_size(packet,sizeof(t_d2cs_client_creategamewait));
 		packet_set_type(packet,D2CS_CLIENT_CREATEGAMEWAIT);
 		bn_int_set(&packet->u.d2cs_client_creategamewait.position,position);
-		queue_push_packet(conn_get_out_queue(c),packet);
+		queue_push_packet(d2cs_conn_get_out_queue(c),packet);
 		packet_del_ref(packet);
 	}
 	return 0;
@@ -906,7 +906,7 @@ static unsigned int d2cs_try_joingame(t_connection const * c, t_game const * gam
 			reply=D2CS_CLIENT_JOINGAMEREPLY_LEVEL_LIMIT;
 		} else if (conn_get_charinfo_level(c) < game_get_minlevel(game)) {
 			reply=D2CS_CLIENT_JOINGAMEREPLY_LEVEL_LIMIT;
-		} else if (strcmp(game_get_pass(game),gamepass)) {
+		} else if (strcmp(d2cs_game_get_pass(game),gamepass)) {
 			reply=D2CS_CLIENT_JOINGAMEREPLY_BAD_PASS;
 		} else {
 			reply=D2CS_CLIENT_JOINGAMEREPLY_SUCCEED;

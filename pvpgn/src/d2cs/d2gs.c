@@ -213,7 +213,7 @@ extern int d2gs_destroy(t_d2gs * gs)
 		return -1;
 	}
 	if (gs->active && gs->connection) {
-		conn_set_state(gs->connection, conn_state_destroy);
+		d2cs_conn_set_state(gs->connection, conn_state_destroy);
 		d2gs_deactive(gs, gs->connection);
 	}
 	log_info("removed game server %s (id: %d) from list",addr_num_to_ip_str(gs->ip),gs->id);
@@ -336,8 +336,8 @@ extern int d2gs_active(t_d2gs * gs, t_connection * c)
 		d2gs_deactive(gs, gs->connection);
 	}
 	total_d2gs++;
-	log_info("game server %s (id: %d) actived (%d total)",addr_num_to_addr_str(conn_get_addr(c),
-		conn_get_port(c)),gs->id,total_d2gs);
+	log_info("game server %s (id: %d) actived (%d total)",addr_num_to_addr_str(d2cs_conn_get_addr(c),
+		d2cs_conn_get_port(c)),gs->id,total_d2gs);
 	gs->state=d2gs_state_authed;
 	gs->connection=c;
 	gs->active=1;
@@ -360,13 +360,13 @@ extern int d2gs_deactive(t_d2gs * gs, t_connection * c)
 		return 0;
 	}
 	total_d2gs--;
-	log_info("game server %s (id: %d) deactived (%d left)",addr_num_to_addr_str(conn_get_addr(gs->connection),conn_get_port(gs->connection)),gs->id,total_d2gs);
+	log_info("game server %s (id: %d) deactived (%d left)",addr_num_to_addr_str(d2cs_conn_get_addr(gs->connection),d2cs_conn_get_port(gs->connection)),gs->id,total_d2gs);
 	gs->state=d2gs_state_none;
 	gs->connection=NULL;
 	gs->active=0;
 	gs->maxgame=0;
 	log_info("destroying all games on game server %d",gs->id);
-	BEGIN_LIST_TRAVERSE_DATA(gamelist(),game)
+	BEGIN_LIST_TRAVERSE_DATA(d2cs_gamelist(),game)
 	{
 		if (game_get_d2gs(game)==gs) game_destroy(game);
 	}
@@ -386,10 +386,10 @@ extern unsigned int d2gs_calc_checksum(t_connection * c)
 	char const	* password;
 
 	ASSERT(c,0);
-	sessionnum=conn_get_sessionnum(c);
+	sessionnum=d2cs_conn_get_sessionnum(c);
 	checksum=prefs_get_d2gs_checksum();
-	port=conn_get_port(c);
-	addr=conn_get_addr(c);
+	port=d2cs_conn_get_port(c);
+	addr=d2cs_conn_get_addr(c);
 	realmname=prefs_get_realmname();
 	password=prefs_get_d2gs_password();
 
@@ -423,7 +423,7 @@ extern int d2gs_keepalive(void)
 	BEGIN_LIST_TRAVERSE_DATA(d2gslist_head,gs)
 	{
 		if (gs->active && gs->connection) {
-			queue_push_packet(conn_get_out_queue(gs->connection),packet);
+			queue_push_packet(d2cs_conn_get_out_queue(gs->connection),packet);
 		}
 	}
 	END_LIST_TRAVERSE_DATA()

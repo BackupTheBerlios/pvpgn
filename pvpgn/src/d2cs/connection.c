@@ -126,25 +126,25 @@ static unsigned int conn_charname_hash(char const * charname)
 	return hash;
 }
 
-extern t_hashtable * connlist(void)
+extern t_hashtable * d2cs_connlist(void)
 {
 	return connlist_head;
 }
 
-extern int connlist_create(void)
+extern int d2cs_connlist_create(void)
 {
 	if (!(connlist_head=hashtable_create(200))) return -1;
 	if (!(conn_charname_list_head=hashtable_create(200))) return -1;
 	return 0;
 }
 
-extern int connlist_destroy(void)
+extern int d2cs_connlist_destroy(void)
 {
 	t_connection 	* c;
 	
 	BEGIN_HASHTABLE_TRAVERSE_DATA(connlist_head, c)
 	{
-		conn_destroy(c);
+		d2cs_conn_destroy(c);
 	}
 	END_HASHTABLE_TRAVERSE_DATA()
 
@@ -171,14 +171,14 @@ extern int conn_check_multilogin(t_connection const * c,char const * charname)
 	if (gamelist_find_character(charname)) {
 		return -1;
 	}
-	conn=connlist_find_connection_by_charname(charname);
+	conn=d2cs_connlist_find_connection_by_charname(charname);
 	if (conn && conn!=c) {
 		return -1;
 	}
 	return 0;
 }
 
-extern t_connection * connlist_find_connection_by_sessionnum(unsigned int sessionnum)
+extern t_connection * d2cs_connlist_find_connection_by_sessionnum(unsigned int sessionnum)
 {
 	t_connection 	* c;
 	t_entry		* curr;
@@ -197,7 +197,7 @@ extern t_connection * connlist_find_connection_by_sessionnum(unsigned int sessio
 	return NULL;
 }
 
-extern t_connection * connlist_find_connection_by_charname(char const * charname)
+extern t_connection * d2cs_connlist_find_connection_by_charname(char const * charname)
 {
 	t_entry		* curr;
 	t_connection 	* c;
@@ -267,8 +267,8 @@ static int conn_handle_packet(t_connection * c, t_packet * packet)
 	int	retval;
 
 	switch (c->class) {
-		CASE (conn_class_init, retval=handle_init_packet(c,packet));
-		CASE (conn_class_d2cs, retval=handle_d2cs_packet(c,packet));
+		CASE (conn_class_init, retval=d2cs_handle_init_packet(c,packet));
+		CASE (conn_class_d2cs, retval=d2cs_handle_d2cs_packet(c,packet));
 		CASE (conn_class_d2gs, retval=handle_d2gs_packet(c,packet));
 		CASE (conn_class_bnetd, retval=handle_bnetd_packet(c,packet));
 		default:
@@ -370,13 +370,13 @@ extern int connlist_check_timeout(void)
 			case conn_class_d2cs:
 				if (prefs_get_idletime() && (now - c->last_active > prefs_get_idletime())) {
 					log_info("client %d idled too long time, destroy it",c->sessionnum);
-					conn_set_state(c,conn_state_destroy);
+					d2cs_conn_set_state(c,conn_state_destroy);
 				}
 				break;
 			case conn_class_d2gs:
 				if (prefs_get_s2s_idletime() && now - c->last_active > prefs_get_s2s_idletime()) {
 					log_info("server %d timed out",c->sessionnum);
-					conn_set_state(c,conn_state_destroy);
+					d2cs_conn_set_state(c,conn_state_destroy);
 				}
 				break;
 			case conn_class_bnetd:
@@ -389,7 +389,7 @@ extern int connlist_check_timeout(void)
 	return 0;
 }
 
-extern t_connection * conn_create(int sock, unsigned int local_addr, unsigned short local_port, 
+extern t_connection * d2cs_conn_create(int sock, unsigned int local_addr, unsigned short local_port, 
 				unsigned int addr, unsigned short port)
 {
 	static unsigned int	sessionnum=1;
@@ -435,7 +435,7 @@ extern t_connection * conn_create(int sock, unsigned int local_addr, unsigned sh
 	return c;
 }
 
-extern int conn_destroy(t_connection * c)
+extern int d2cs_conn_destroy(t_connection * c)
 {
 
 	ASSERT(c,-1);
@@ -456,7 +456,7 @@ extern int conn_destroy(t_connection * c)
 	}
 	if (c->account) free((void *)c->account);
 	if (c->charinfo) free((void *)c->charinfo);
-	if (c->charname) conn_set_charname(c,NULL);
+	if (c->charname) d2cs_conn_set_charname(c,NULL);
 	queue_clear(&c->inqueue);
 	queue_clear(&c->outqueue);
 
@@ -469,57 +469,57 @@ extern int conn_destroy(t_connection * c)
 	return 0;
 }
 
-extern int conn_get_socket(t_connection const * c)
+extern int d2cs_conn_get_socket(t_connection const * c)
 {
 	ASSERT(c,-1);
 	return c->sock;
 }
 
-extern t_conn_state conn_get_state(t_connection const * c)
+extern t_conn_state d2cs_conn_get_state(t_connection const * c)
 {
 	ASSERT(c,conn_state_none);
 	return c->state;
 }
 
-extern int conn_set_state(t_connection * c, t_conn_state state)
+extern int d2cs_conn_set_state(t_connection * c, t_conn_state state)
 {
 	ASSERT(c,-1);
 	c->state=state;
 	return 0;
 }
 	
-extern t_conn_class conn_get_class(t_connection const * c)
+extern t_conn_class d2cs_conn_get_class(t_connection const * c)
 {
 	ASSERT(c,conn_class_none);
 	return c->class;
 }
 
-extern int conn_set_class(t_connection * c, t_conn_class class)
+extern int d2cs_conn_set_class(t_connection * c, t_conn_class class)
 {
 	ASSERT(c,-1);
 	c->class=class;
 	return 0;
 }
 
-extern t_queue * * conn_get_in_queue(t_connection const * c)
+extern t_queue * * d2cs_conn_get_in_queue(t_connection const * c)
 {
 	ASSERT(c,NULL);
 	return (t_queue * *)&c->inqueue;
 }
 	
-extern unsigned int conn_get_out_size(t_connection const * c)
+extern unsigned int d2cs_conn_get_out_size(t_connection const * c)
 {
 	ASSERT(c,0);
 	return c->outsize;
 }
 
-extern t_queue * * conn_get_out_queue(t_connection const * c)
+extern t_queue * * d2cs_conn_get_out_queue(t_connection const * c)
 {
 	ASSERT(c,NULL);
 	return (t_queue * *)&c->outqueue;
 }
 
-extern unsigned int conn_get_in_size(t_connection const * c)
+extern unsigned int d2cs_conn_get_in_size(t_connection const * c)
 {
 	ASSERT(c,0);
 	return c->insize;
@@ -564,7 +564,7 @@ extern int conn_process_packet(t_connection * c, t_packet * packet, t_packet_han
 	return table[type].handler(c,packet);
 }
 
-extern int conn_set_account(t_connection * c, char const * account)
+extern int d2cs_conn_set_account(t_connection * c, char const * account)
 {
 	char const * temp;
 
@@ -582,13 +582,13 @@ extern int conn_set_account(t_connection * c, char const * account)
 	return 0;
 }
 
-extern char const * conn_get_account(t_connection const * c)
+extern char const * d2cs_conn_get_account(t_connection const * c)
 {
 	ASSERT(c,NULL);
 	return c->account;
 }
 
-extern int conn_set_charname(t_connection * c, char const * charname)
+extern int d2cs_conn_set_charname(t_connection * c, char const * charname)
 {
 	char const	* temp;
 
@@ -623,13 +623,13 @@ extern int conn_set_charname(t_connection * c, char const * charname)
 	return 0;
 }
 
-extern char const * conn_get_charname(t_connection const * c)
+extern char const * d2cs_conn_get_charname(t_connection const * c)
 {
 	ASSERT(c,NULL);
 	return c->charname;
 }
 
-extern unsigned int conn_get_sessionnum(t_connection const * c)
+extern unsigned int d2cs_conn_get_sessionnum(t_connection const * c)
 {
 	ASSERT(c,0);
 	return c->sessionnum;
@@ -704,13 +704,13 @@ extern unsigned int conn_get_d2gs_id(t_connection const * c)
 	return c->d2gs_id;
 }
 
-extern unsigned int conn_get_addr(t_connection const * c)
+extern unsigned int d2cs_conn_get_addr(t_connection const * c)
 {
 	ASSERT(c,0);
 	return c->addr;
 }
 
-extern unsigned short conn_get_port(t_connection const * c)
+extern unsigned short d2cs_conn_get_port(t_connection const * c)
 {
 	ASSERT(c,0);
 	return c->port;

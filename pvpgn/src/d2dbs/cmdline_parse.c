@@ -76,20 +76,20 @@ static char help_message[]="Usage: d2cs [<options>]\n"
 "	1.You should always use absolute path here for all FILE names\n"
 "	2.-m option only works when compiled with USE_CHECK_ALLOC defined\n";
 
-extern void cmdline_show_help(void)
+extern void d2dbs_cmdline_show_help(void)
 {
 	fputs(help_message,stderr);
 	return;
 }
 
-extern void cmdline_show_version(void)
+extern void d2dbs_cmdline_show_version(void)
 {
 	fputs(D2DBS_VERSION,stderr);
 	fputs("\n\n",stderr);
 	return;
 }
 
-extern int cmdline_parse(int argc, char ** argv)
+extern int d2dbs_cmdline_parse(int argc, char ** argv)
 {
 	memset(&cmdline_param,0, sizeof(cmdline_param));
 	if (conf_parse_param(argc, argv, param_conf_table, &cmdline_param, sizeof(cmdline_param))<0) {
@@ -98,37 +98,37 @@ extern int cmdline_parse(int argc, char ** argv)
 	return 0;
 }
 
-extern int cmdline_cleanup(void)
+extern int d2dbs_cmdline_cleanup(void)
 {
 	return conf_cleanup(param_conf_table, &cmdline_param, sizeof(cmdline_param));
 }
 
-extern char const * cmdline_get_prefs_file(void)
+extern char const * d2dbs_cmdline_get_prefs_file(void)
 {
 	return cmdline_param.prefs_file;
 }
 
-extern unsigned int cmdline_get_help(void)
+extern unsigned int d2dbs_cmdline_get_help(void)
 {
 	return cmdline_param.help;
 }
 
-extern unsigned int cmdline_get_version(void)
+extern unsigned int d2dbs_cmdline_get_version(void)
 {
 	return cmdline_param.version;
 }
 
-extern unsigned int cmdline_get_foreground(void)
+extern unsigned int d2dbs_cmdline_get_foreground(void)
 {
 	return cmdline_param.foreground;
 }
 
-extern unsigned int cmdline_get_logstderr(void)
+extern unsigned int d2dbs_cmdline_get_logstderr(void)
 {
 	return cmdline_param.logstderr;
 }
 
-extern char const * cmdline_get_logfile(void)
+extern char const * d2dbs_cmdline_get_logfile(void)
 {
 	return cmdline_param.logfile;
 }

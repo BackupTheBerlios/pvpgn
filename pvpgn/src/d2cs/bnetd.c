@@ -56,10 +56,10 @@ extern int bnetd_check(void)
 	static unsigned int	prev_connecting_checktime=0;
 
 	if (bnetd_connection) {
-		if (conn_get_state(bnetd_connection)==conn_state_connecting) {
+		if (d2cs_conn_get_state(bnetd_connection)==conn_state_connecting) {
 			if (time(NULL) - prev_connecting_checktime > prefs_get_s2s_timeout()) {
 				log_warn("connection to bnetd s2s timeout");
-				conn_set_state(bnetd_connection,conn_state_destroy);
+				d2cs_conn_set_state(bnetd_connection,conn_state_destroy);
 				return -1;
 			}
 		}
@@ -68,7 +68,7 @@ extern int bnetd_check(void)
 	if (!(bnetd_connection=s2s_create(prefs_get_bnetdaddr(),BNETD_SERV_PORT,conn_class_bnetd))) {
 		return -1;
 	}
-	if (conn_get_state(bnetd_connection)==conn_state_connected) {
+	if (d2cs_conn_get_state(bnetd_connection)==conn_state_connected) {
 		handle_bnetd_init(bnetd_connection);
 	} else {
 		prev_connecting_checktime=time(NULL);

@@ -336,20 +336,20 @@ t_d2ladder * d2ladderlist_find_type(unsigned int type)
 	return NULL;
 }
 
-extern int d2ladder_init(void)
+extern int d2dbs_d2ladder_init(void)
 {
 	d2ladder_change_count=0;
 	d2ladder_maxtype=0;
-	d2ladder_ladder_file=malloc(strlen(prefs_get_ladder_dir())+1+\
+	d2ladder_ladder_file=malloc(strlen(d2dbs_prefs_get_ladder_dir())+1+\
 			  strlen(LADDER_FILE_PREFIX)+1+strlen(CLIENTTAG_DIABLO2DV)+1+10);
-	d2ladder_backup_file=malloc(strlen(prefs_get_ladder_dir())+1+\
+	d2ladder_backup_file=malloc(strlen(d2dbs_prefs_get_ladder_dir())+1+\
 			  strlen(LADDER_BACKUP_PREFIX)+1+strlen(CLIENTTAG_DIABLO2DV)+1+10);
 	if (!d2ladder_ladder_file) return -1;
 	if (!d2ladder_backup_file) return -1;
-	sprintf(d2ladder_ladder_file,"%s/%s.%s",prefs_get_ladder_dir(),\
+	sprintf(d2ladder_ladder_file,"%s/%s.%s",d2dbs_prefs_get_ladder_dir(),\
 		LADDER_FILE_PREFIX,CLIENTTAG_DIABLO2DV);
 
-	sprintf(d2ladder_backup_file,"%s/%s.%s",prefs_get_ladder_dir(),\
+	sprintf(d2ladder_backup_file,"%s/%s.%s",d2dbs_prefs_get_ladder_dir(),\
 		LADDER_BACKUP_PREFIX,CLIENTTAG_DIABLO2DV);
 
 	if (d2ladderlist_init()<0) {
@@ -522,7 +522,7 @@ int d2ladder_readladder(void)
 	return 0;
 }
 
-extern int d2ladder_destroy(void)
+extern int d2dbs_d2ladder_destroy(void)
 {
     	unsigned int i;
     	t_d2ladder * d2ladder;

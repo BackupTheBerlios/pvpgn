@@ -124,7 +124,7 @@ static unsigned int dbs_packet_savedata_charsave(t_d2dbs_connection* conn, char 
 	unsigned short curlen,readlen,leftlen,writelen;
 	int	fd;
 
-	sprintf(filename,"%s/.%s.tmp",prefs_get_charsave_dir(),CharName);
+	sprintf(filename,"%s/.%s.tmp",d2dbs_prefs_get_charsave_dir(),CharName);
 	fd = open(filename, O_WRONLY|O_CREAT|O_TRUNC,S_IREAD|S_IWRITE );
 	if (fd<=0) {
 		log_error("open() failed : %s",filename);
@@ -147,7 +147,7 @@ static unsigned int dbs_packet_savedata_charsave(t_d2dbs_connection* conn, char 
 	close(fd);
 
 	sprintf(bakfile,"%s/%s",prefs_get_charsave_bak_dir(),CharName);
-	sprintf(savefile,"%s/%s",prefs_get_charsave_dir(),CharName);
+	sprintf(savefile,"%s/%s",d2dbs_prefs_get_charsave_dir(),CharName);
 	if (rename(savefile, bakfile)==-1) {
 		log_warn("error rename %s to %s", savefile, bakfile);
 	}
@@ -175,7 +175,7 @@ static unsigned int dbs_packet_savedata_charinfo(t_d2dbs_connection* conn,char *
 		log_info("created charinfo directory: %s",filepath);
 	}
 
-	sprintf(filename,"%s/%s/.%s.tmp",prefs_get_charinfo_dir(),AccountName,CharName);
+	sprintf(filename,"%s/%s/.%s.tmp",d2dbs_prefs_get_charinfo_dir(),AccountName,CharName);
 	fd = open(filename, O_WRONLY|O_CREAT|O_TRUNC,S_IREAD|S_IWRITE );
 	if (fd<=0) {
 		log_error("open() failed : %s",filename);
@@ -199,7 +199,7 @@ static unsigned int dbs_packet_savedata_charinfo(t_d2dbs_connection* conn,char *
 	close(fd);
 
 	sprintf(bakfile,"%s/%s/%s",prefs_get_charinfo_bak_dir(),AccountName,CharName);
-	sprintf(savefile,"%s/%s/%s",prefs_get_charinfo_dir(),AccountName,CharName);
+	sprintf(savefile,"%s/%s/%s",d2dbs_prefs_get_charinfo_dir(),AccountName,CharName);
 	if (rename(savefile, bakfile)==-1) {
 		log_info("error rename %s to %s", savefile, bakfile);
 	}
@@ -217,7 +217,7 @@ static unsigned int dbs_packet_getdata_charsave(t_d2dbs_connection* conn,char * 
 	int				fd;
 	unsigned short curlen,readlen,leftlen,writelen;
 	long filesize;
-	sprintf(filename,"%s/%s",prefs_get_charsave_dir(),CharName);
+	sprintf(filename,"%s/%s",d2dbs_prefs_get_charsave_dir(),CharName);
 	fd = open(filename, O_RDONLY);
 	if (fd<=0) {
 		log_error("open() failed : %s",filename);
@@ -262,7 +262,7 @@ static unsigned int dbs_packet_getdata_charinfo(t_d2dbs_connection* conn,char * 
 	unsigned short curlen,readlen,leftlen,writelen;
 	long filesize;
 
-	sprintf(filename,"%s/%s/%s",prefs_get_charinfo_dir(),AccountName,CharName);
+	sprintf(filename,"%s/%s/%s",d2dbs_prefs_get_charinfo_dir(),AccountName,CharName);
 	fd = open(filename, O_RDONLY);
 	if (fd<=0) {
 		log_error("open() failed : %s",filename);
@@ -590,7 +590,7 @@ extern int dbs_packet_handle(t_d2dbs_connection* conn)
 		conn->type=conn->ReadBuf[0];
 
 		if (conn->type==CONNECT_CLASS_D2GS_TO_D2DBS) {
-			if (dbs_verify_ipaddr(prefs_get_d2gs_list(),conn)<0) {
+			if (dbs_verify_ipaddr(d2dbs_prefs_get_d2gs_list(),conn)<0) {
 				log_error("d2gs connection from unknown ip address");
 				return -1;
 			}
@@ -696,7 +696,7 @@ int dbs_check_timeout(void)
 	int				timeout;
 
 	now=time(NULL);
-	timeout=prefs_get_idletime();
+	timeout=d2dbs_prefs_get_idletime();
 	LIST_TRAVERSE(dbs_server_connection_list,elem)
 	{
 		if (!(tempc=elem_get_data(elem))) continue;

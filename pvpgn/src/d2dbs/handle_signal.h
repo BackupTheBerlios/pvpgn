@@ -1,7 +1,7 @@
 #ifndef INCLUDED_HANDLE_SIGNAL_H
 #define INCLUDED_HANDLE_SIGNAL_H
 
-extern int handle_signal_init(void);
-extern int handle_signal(void);
+extern int d2dbs_handle_signal_init(void);
+extern int d2dbs_handle_signal(void);
 
 #endif
