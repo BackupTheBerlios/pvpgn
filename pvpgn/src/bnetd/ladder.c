@@ -1000,7 +1000,10 @@ extern t_account * ladder_get_account(t_ladder *ladder, int rank, unsigned int *
   }
 }
 
-extern int ladder_update_accounts(t_ladder *ladder, int (*set_fct)(), int (*get_fct1)())
+typedef int (* t_set_fct)(t_account *account,t_clienttag cltag, t_ladder_id ldr_id,int rank);
+typedef int (* t_get_fct)(t_account *account,t_clienttag cltag, t_ladder_id ldr_id);
+
+extern int ladder_update_accounts(t_ladder *ladder, t_set_fct set_fct, t_get_fct get_fct1)
 {
     t_ladder_internal *pointer, *tmp_pointer;
     t_account *account;
@@ -1022,15 +1025,7 @@ extern int ladder_update_accounts(t_ladder *ladder, int (*set_fct)(), int (*get_
          {
            if (ladder->ladder_id == ladder_id_none) //war3/w3xp AT ladder
 	   {
-	     if ((*get_fct1)(account,pointer->teamcount,clienttag)!=rank)
-	     {
-	       (*set_fct)(account,pointer->teamcount,clienttag,rank);
-	       update++;
-	       // if in the same team as previous account
-	       if ((pointer) && (pointer->next) && 
-               in_same_team(pointer->account,pointer->next->account,pointer->teamcount,pointer->next->teamcount,clienttag))
-	       rank--;
-	     }
+		   // do nothing now
 	   }
 	   else //other ladders...
 	   {
@@ -1087,36 +1082,36 @@ extern int ladder_update_accounts(t_ladder *ladder, int (*set_fct)(), int (*get_
 extern int ladder_update_all_accounts(void)
 {
   eventlog(eventlog_level_info,__FUNCTION__,"updating ranking for all accounts");
-  ladder_update_accounts(&WAR3_solo_ladder,&account_set_ladder_rank,   &account_get_ladder_rank);
-  ladder_update_accounts(&WAR3_team_ladder,&account_set_ladder_rank,   &account_get_ladder_rank);
-  ladder_update_accounts(&WAR3_ffa_ladder, &account_set_ladder_rank,   &account_get_ladder_rank);
+  ladder_update_accounts(&WAR3_solo_ladder, (t_set_fct)&account_set_ladder_rank,   (t_get_fct)&account_get_ladder_rank);
+  ladder_update_accounts(&WAR3_team_ladder, (t_set_fct)&account_set_ladder_rank,   (t_get_fct)&account_get_ladder_rank);
+  ladder_update_accounts(&WAR3_ffa_ladder,  (t_set_fct)&account_set_ladder_rank,   (t_get_fct)&account_get_ladder_rank);
   //ladder_update_accounts(&WAR3_at_ladder,  &account_set_atteamrank, &account_get_atteamrank);
-  ladder_update_accounts(&W3XP_solo_ladder,&account_set_ladder_rank,   &account_get_ladder_rank);
-  ladder_update_accounts(&W3XP_team_ladder,&account_set_ladder_rank,   &account_get_ladder_rank);
-  ladder_update_accounts(&W3XP_ffa_ladder, &account_set_ladder_rank,   &account_get_ladder_rank);
+  ladder_update_accounts(&W3XP_solo_ladder, (t_set_fct)&account_set_ladder_rank,   (t_get_fct)&account_get_ladder_rank);
+  ladder_update_accounts(&W3XP_team_ladder, (t_set_fct)&account_set_ladder_rank,   (t_get_fct)&account_get_ladder_rank);
+  ladder_update_accounts(&W3XP_ffa_ladder,  (t_set_fct)&account_set_ladder_rank,   (t_get_fct)&account_get_ladder_rank);
   //ladder_update_accounts(&W3XP_at_ladder,  &account_set_atteamrank, &account_get_atteamrank);
-  ladder_update_accounts(&STAR_current_rating, &account_set_ladder_rank, &account_get_ladder_rank);
+  ladder_update_accounts(&STAR_current_rating,(t_set_fct)&account_set_ladder_rank, (t_get_fct)&account_get_ladder_rank);
   ladder_update_accounts(&STAR_current_wins,  NULL,                      NULL);
   ladder_update_accounts(&STAR_current_games, NULL,                      NULL);
-  ladder_update_accounts(&SEXP_current_rating, &account_set_ladder_rank, &account_get_ladder_rank);
+  ladder_update_accounts(&SEXP_current_rating,(t_set_fct)&account_set_ladder_rank, (t_get_fct)&account_get_ladder_rank);
   ladder_update_accounts(&SEXP_current_wins,  NULL,                      NULL);
   ladder_update_accounts(&SEXP_current_games, NULL,                      NULL);
-  ladder_update_accounts(&STAR_active_rating, &account_set_ladder_active_rank, &account_get_ladder_active_rank);
+  ladder_update_accounts(&STAR_active_rating, (t_set_fct)&account_set_ladder_active_rank, (t_get_fct)&account_get_ladder_active_rank);
   ladder_update_accounts(&STAR_active_wins,   NULL,                      NULL);
   ladder_update_accounts(&STAR_active_games,  NULL,                      NULL);
-  ladder_update_accounts(&SEXP_active_rating, &account_set_ladder_active_rank, &account_get_ladder_active_rank);
+  ladder_update_accounts(&SEXP_active_rating, (t_set_fct)&account_set_ladder_active_rank, (t_get_fct)&account_get_ladder_active_rank);
   ladder_update_accounts(&SEXP_active_wins,   NULL,                      NULL);
   ladder_update_accounts(&SEXP_active_games,  NULL,                      NULL);
-  ladder_update_accounts(&W2BN_current_rating, &account_set_ladder_rank, &account_get_ladder_rank);
+  ladder_update_accounts(&W2BN_current_rating, (t_set_fct)&account_set_ladder_rank, (t_get_fct)&account_get_ladder_rank);
   ladder_update_accounts(&W2BN_current_wins,  NULL,                      NULL);
   ladder_update_accounts(&W2BN_current_games, NULL,                      NULL);
-  ladder_update_accounts(&W2BN_active_rating, &account_set_ladder_rank, &account_get_ladder_rank);
+  ladder_update_accounts(&W2BN_active_rating, (t_set_fct)&account_set_ladder_rank, (t_get_fct)&account_get_ladder_rank);
   ladder_update_accounts(&W2BN_active_wins,   NULL,                      NULL);
   ladder_update_accounts(&W2BN_active_games,  NULL,                      NULL);
-  ladder_update_accounts(&W2BN_current_rating_ironman, &account_set_ladder_rank, &account_get_ladder_rank);
+  ladder_update_accounts(&W2BN_current_rating_ironman, (t_set_fct)&account_set_ladder_rank, (t_get_fct)&account_get_ladder_rank);
   ladder_update_accounts(&W2BN_current_wins_ironman,  NULL,                      NULL);
   ladder_update_accounts(&W2BN_current_games_ironman, NULL,                      NULL);
-  ladder_update_accounts(&W2BN_active_rating_ironman, &account_set_ladder_rank, &account_get_ladder_rank);
+  ladder_update_accounts(&W2BN_active_rating_ironman, (t_set_fct)&account_set_ladder_rank, (t_get_fct)&account_get_ladder_rank);
   ladder_update_accounts(&W2BN_active_wins_ironman,  NULL,                      NULL);
   ladder_update_accounts(&W2BN_active_games_ironman, NULL,                      NULL);
 
