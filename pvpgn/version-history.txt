@@ -58,6 +58,7 @@ codes)
   -- disable versioncheck exeinfo timediff if the maxdiff is set to 0 and made 
   it 0 in the default config file
   -- fixed versioncheck file for PMAC/XMAC entries
+  -- updated autoupdate with latest clients versions
 
 a general 1.6.x note:
 versioncheck exe-time parsing now REALLY works as it was intended to.

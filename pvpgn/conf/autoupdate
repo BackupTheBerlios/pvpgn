@@ -36,8 +36,9 @@
 # Make sure all the required mpq files are in the files directory or         #
 # autoupdate will not work.                                                  #
 #                                                                            #
-# The avaliable language files in addition to enUS (the only mpq file        #
-# without the language code) are:                                            #
+# Note: As of Warcraft III 1.14, English clients now have a language tag     #
+#                                                                            #
+# The avaliable language files in addition to enUS are:                      #
 #                                                                            #
 #      csCZ  deDE  esES  frFR  itIT  jaJA  koKR  plPL  ruRU  zhCN  zhTW      #
 #                                                                            #
@@ -47,72 +48,75 @@
 #                                                                            #
 ##############################################################################
 
-
 ##### Intel (IX86) ###########################################################
 
 # =============== WarCraft III - FT (Expansion) ===============
-#IX86    W3XP    W3XP_107a       W3XP_IX86_1xx_112A.mpq
-#IX86    W3XP    W3XP_110a       W3XP_IX86_1xx_112A.mpq
+#IX86    W3XP    W3XP_107a       W3XP_IX86_1xx_114B_enUS.mpq
+#IX86    W3XP    W3XP_110a       W3XP_IX86_1xx_114B_enUS.mpq
+#IX86    W3XP    W3XP_111a	 W3XP_IX86_1xx_114B_enUS.mpq
+#IX86    W3XP    W3XP_112A	 W3XP_IX86_1xx_114B_enUS.mpq
+#IX86    W3XP    W3XP_113A	 W3XP_IX86_1xx_114B_enUS.mpq
 
-# Incremental update from version 111a
-#IX86    W3XP    W3XP_111a	W3XP_IX86_111A_112A.mpq
+# Incremental updates
+#IX86    W3XP    W3XP_113B	 W3XP_IX86_113B_114B_enUS.mpq
+#IX86    W3XP    W3XP_114A	 W3XP_IX86_114A_114B_enUS.mpq
 
 # The next one is a WarCraft III - FT wildcard entry.
-#IX86    W3XP    W3XP_1xx        W3XP_IX86_1xx_112A.mpq
+#IX86    W3XP    W3XP_1xx        W3XP_IX86_1xx_114B_enUS.mpq
 
 # ==================== WarCraft III - RoC =====================
-#IX86    WAR3    WAR3_100        WAR3_IX86_1xx_112A.mpq
-#IX86    WAR3    WAR3_101        WAR3_IX86_1xx_112A.mpq
-#IX86    WAR3    WAR3_101b       WAR3_IX86_1xx_112A.mpq
-#IX86    WAR3    WAR3_102        WAR3_IX86_1xx_112A.mpq
-#IX86    WAR3    WAR3_102a       WAR3_IX86_1xx_112A.mpq
-#IX86    WAR3    WAR3_103a       WAR3_IX86_1xx_112A.mpq
-#IX86    WAR3    WAR3_104a       WAR3_IX86_1xx_112A.mpq
-#IX86    WAR3    WAR3_104b       WAR3_IX86_1xx_112A.mpq
-#IX86    WAR3    WAR3_104c       WAR3_IX86_1xx_112A.mpq
-#IX86    WAR3    WAR3_105a       WAR3_IX86_1xx_112A.mpq
-#IX86    WAR3    WAR3_106a       WAR3_IX86_1xx_112A.mpq
-#IX86    WAR3    WAR3_110a       WAR3_IX86_1xx_112A.mpq
+#IX86    WAR3    WAR3_100        WAR3_IX86_1xx_114B_enUS.mpq
+#IX86    WAR3    WAR3_101        WAR3_IX86_1xx_114B_enUS.mpq
+#IX86    WAR3    WAR3_101b       WAR3_IX86_1xx_114B_enUS.mpq
+#IX86    WAR3    WAR3_102        WAR3_IX86_1xx_114B_enUS.mpq
+#IX86    WAR3    WAR3_102a       WAR3_IX86_1xx_114B_enUS.mpq
+#IX86    WAR3    WAR3_103a       WAR3_IX86_1xx_114B_enUS.mpq
+#IX86    WAR3    WAR3_104a       WAR3_IX86_1xx_114B_enUS.mpq
+#IX86    WAR3    WAR3_104b       WAR3_IX86_1xx_114B_enUS.mpq
+#IX86    WAR3    WAR3_104c       WAR3_IX86_1xx_114B_enUS.mpq
+#IX86    WAR3    WAR3_105a       WAR3_IX86_1xx_114B_enUS.mpq
+#IX86    WAR3    WAR3_106a       WAR3_IX86_1xx_114B_enUS.mpq
+#IX86    WAR3    WAR3_110a       WAR3_IX86_1xx_114B_enUS.mpq
+#IX86    WAR3    WAR3_111a       WAR3_IX86_1xx_114B_enUS.mpq
+#IX86    WAR3    WAR3_112A       WAR3_IX86_1xx_114B_enUS.mpq
+#IX86    WAR3    WAR3_113A       WAR3_IX86_1xx_114B_enUS.mpq
 
-# Incremental update from version 111a
-#IX86    WAR3    WAR3_111a       WAR3_IX86_111A_112A.mpq
+# Incremental updates
+#IX86    WAR3    WAR3_113B       WAR3_IX86_113B_114B_enUS.mpq
+#IX86    WAR3    WAR3_114A       WAR3_IX86_114A_114B_enUS.mpq
 
 # The next one is a WarCraft III - RoC wildcard entry.
-#IX86    WAR3    WAR3_1xx        WAR3_IX86_1xx_112A.mpq
+#IX86    WAR3    WAR3_1xx        WAR3_IX86_1xx_114B_enUS.mpq
 
 # ===================== Diablo II Expansion (LoD) ===========================
 # note: Blizzard has suppressed d2/lod versions 1.09c.
-#IX86	D2XP	D2XP_107	D2XP_IX86_107_109D.mpq
-#IX86	D2XP	D2XP_108	D2XP_IX86_1xx_109D.mpq
-#IX86	D2XP	D2XP_109	D2XP_IX86_1xx_109D.mpq
-#IX86	D2XP	D2XP_109b	D2XP_IX86_1xx_109D.mpq
-
-# Incremental update from version 109c
-#IX86	D2XP	D2XP_109c	D2XP_IX86_109C_109D.mpq
+#IX86	D2XP	D2XP_107	D2XP_IX86_1xx_110A.mpq
+#IX86	D2XP	D2XP_108	D2XP_IX86_1xx_110A.mpq
+#IX86	D2XP	D2XP_109	D2XP_IX86_1xx_110A.mpq
+#IX86	D2XP	D2XP_109b	D2XP_IX86_1xx_110A.mpq
+#IX86	D2XP	D2XP_109c	D2XP_IX86_1xx_110A.mpq
 
 # The next one is a Diablo II LoD wildcard entry.
-#IX86	D2XP	D2XP_1xx	D2XP_IX86_1xx_109D.mpq
+#IX86	D2XP	D2XP_1xx	D2XP_IX86_1xx_110A.mpq
 
 # ========================== Diablo II (DV) =================================
 # note: Blizzard has suppressed d2/lod versions 1.09c.
-#IX86	D2DV	D2DV_100	D2DV_IX86_100_109D.mpq
-#IX86	D2DV	D2DV_101	D2DV_IX86_1xx_109D.mpq
-#IX86	D2DV	D2DV_103	D2DV_IX86_1xx_109D.mpq
-#IX86	D2DV	D2DV_104b	D2DV_IX86_1xx_109D.mpq
-#IX86	D2DV	D2DV_104c	D2DV_IX86_1xx_109D.mpq
-#IX86	D2DV	D2DV_105	D2DV_IX86_1xx_109D.mpq
-#IX86	D2DV	D2DV_105b	D2DV_IX86_1xx_109D.mpq
-#IX86	D2DV	D2DV_106	D2DV_IX86_1xx_109D.mpq
-#IX86	D2DV	D2DV_106b	D2DV_IX86_1xx_109D.mpq
-#IX86	D2DV	D2DV_108	D2DV_IX86_1xx_109D.mpq
-#IX86	D2DV	D2DV_109	D2DV_IX86_1xx_109D.mpq
-#IX86	D2DV	D2DV_109b	D2DV_IX86_1xx_109D.mpq
-
-# Incremental update from version 109c
-#IX86	D2DV	D2DV_109c	D2DV_IX86_109C_109D.mpq
+#IX86	D2DV	D2DV_100	D2DV_IX86_1xx_110A.mpq
+#IX86	D2DV	D2DV_101	D2DV_IX86_1xx_110A.mpq
+#IX86	D2DV	D2DV_103	D2DV_IX86_1xx_110A.mpq
+#IX86	D2DV	D2DV_104b	D2DV_IX86_1xx_110A.mpq
+#IX86	D2DV	D2DV_104c	D2DV_IX86_1xx_110A.mpq
+#IX86	D2DV	D2DV_105	D2DV_IX86_1xx_110A.mpq
+#IX86	D2DV	D2DV_105b	D2DV_IX86_1xx_110A.mpq
+#IX86	D2DV	D2DV_106	D2DV_IX86_1xx_110A.mpq
+#IX86	D2DV	D2DV_106b	D2DV_IX86_1xx_110A.mpq
+#IX86	D2DV	D2DV_108	D2DV_IX86_1xx_110A.mpq
+#IX86	D2DV	D2DV_109	D2DV_IX86_1xx_110A.mpq
+#IX86	D2DV	D2DV_109b	D2DV_IX86_1xx_110A.mpq
+#IX86	D2DV	D2DV_109c	D2DV_IX86_1xx_110A.mpq
 
 # The next one is a Diablo II wildcard entry.
-#IX86	D2DV	D2DV_1xx	D2DV_IX86_1xx_109D.mpq
+#IX86	D2DV	D2DV_1xx	D2DV_IX86_1xx_110A.mpq
 
 # ================ StarCraft Expansion (Brood War) ==========================
 #IX86	SEXP	SEXP_104	SEXP_IX86_1xx_110.mpq
@@ -167,5 +171,49 @@
 #IX86    W2BN   W2BN_200	W2BN_IX86_200_202.mpq
 #IX86    W2BN   W2BN_201	W2BN_IX86_201_202.mpq
 
-#                                                                            #
-##############################################################################
+##### Mac OS X (XMAC) ########################################################
+# Note: there are very limited entries here because the versioncheck file does
+# not contain Mac entries for many of the old versions.
+
+# ===================== Diablo II Expansion (LoD) ===========================
+# Note: Diablo 2 1.10b was released for Mac only.  It fixed a small bug where
+# some Macs would crash.  It is fully compatible with Diablo 2 1.10a on IX86.
+# Blizzard doesn't update clients from 1.10a to 1.10b
+# versioncheck cannot tell the difference between 1.10a and 1.10b
+
+#XMAC	 D2XP   D2XP_1xx	D2XP_XMAC_1xx_110B.mpq
+
+# ========================== Diablo II (DV) =================================
+
+#XMAC	 D2DV   D2DV_1xx	D2DV_XMAC_1xx_110B.mpq
+
+# ================ StarCraft Expansion (Brood War) ==========================
+
+#XMAC	SEXP	SEXP_109b	SEXP_XMAC_1xx_110.mpq
+#XMAC	SEXP	SEXP_1xx	SEXP_XMAC_1xx_110.mpq
+
+# ========================= StarCraft (original) ============================
+
+#XMAC	STAR	STAR_109b	STAR_XMAC_1xx_110.mpq
+#XMAC	STAR	STAR_1xx	STAR_XMAC_1xx_110.mpq
+
+##### Mac OS Classic (PMAC) ##################################################
+
+# ===================== Diablo II Expansion (LoD) ===========================
+
+#PMAC	D2XP    D2XP_1xx	D2XP_PMAC_1xx_110A.mpq
+
+# ========================== Diablo II (DV) =================================
+
+#PMAC   D2DV    D2DV_109d	D2DV_PMAC_1xx_110A.mpq
+#PMAC	D2DV    D2DV_1xx	D2DV_PMAC_1xx_110A.mpq
+
+# ================ StarCraft Expansion (Brood War) ==========================
+
+#PMAC	SEXP	SEXP_109b	SEXP_PMAC_1xx_110.mpq
+#PMAC	SEXP	SEXP_1xx	SEXP_PMAC_1xx_110.mpq
+
+# ========================= StarCraft (original) ============================
+
+#PMAC	STAR	STAR_109b	STAR_PMAC_1xx_110.mpq
+#PMAC	STAR	STAR_1xx	STAR_PMAC_1xx_110.mpq

@@ -15,6 +15,7 @@ The path's specified are those of the default unix installation
 changed config files:
 - conf/bnetd.conf : changed storage_path so it combines plain and cdb file 
 storage into "file"
+- conf/autoupdate : updated with latest client versions entries
 
  Updating from 1.6.0 beta to 1.6.0 (final)
 ==========================================
