@@ -2200,7 +2200,6 @@ static int _client_atinvitefriend(t_connection * c, t_packet const *const packet
     {
 	int count_to_invite, count, id;
 	char const *invited_usernames[8];
-	char atmembers_usernames[255];
 	t_account *members[MAX_TEAMSIZE];
 	int i, n, offset, teammemcount;
 	t_connection *dest_c;
@@ -2242,8 +2241,6 @@ static int _client_atinvitefriend(t_connection * c, t_packet const *const packet
 		members[i] = NULL;
 	}
 
-
-	eventlog(eventlog_level_debug, "handle_bnet", "All AT Team Members: %s", atmembers_usernames);
 
 	if (!(team = account_find_team_by_accounts(members[0], members, ctag))) {
 	    team = create_team(members, ctag);	//no need to free on return -1 because it's allready in teamlist
