@@ -457,6 +457,11 @@ static int _handle_pong_command(t_connection * conn, int numparams, char ** para
 	        val = atoi(params[0]);
 		sname = params[0];
 	    }
+	    else if (text)
+	    {
+	    	val = atoi(text);
+		sname = text;
+	    }
 	    else
 	    {
 		val = 0;
@@ -465,7 +470,7 @@ static int _handle_pong_command(t_connection * conn, int numparams, char ** para
 
 	    if (conn_get_ircping(conn) != val) 
 		{
-	    	if ((sname)&&(strcmp(sname,server_get_name())!=0)) 
+	    	if ((!(sname)) || (strcmp(sname,server_get_name())!=0)) 
 		{
 			/* Actually the servername should not be always accepted but we aren't that pedantic :) */
 			eventlog(eventlog_level_warn,__FUNCTION__,"[%d] got bad PONG (%u!=%u && %s!=%s)",conn_get_socket(conn),val,conn_get_ircping(conn),sname,server_get_name());
