@@ -562,14 +562,38 @@ ${SRC_COMPATDIR}\mmap.obj \
 ${SRC_COMPATDIR}\getopt.obj
 
 OBJECTS		= ${bnetd_OBJECTS} ${d2cs_OBJECTS} ${d2dbs_OBJECTS} ${bntrackd_OBJECTS} ${bnchat_OBJECTS} ${bnpass_OBJECTS} ${bnbot_OBJECTS} ${bnftp_OBJECTS} ${bnstat_OBJECTS} ${bnilist_OBJECTS} ${bni2tga_OBJECTS} ${bniextract_OBJECTS} ${bnibuild_OBJECTS} ${tgainfo_OBJECTS} ${timetest_OBJECTS} ${listtest_OBJECTS} ${hashtabletest_OBJECTS} ${addrtest_OBJECTS} ${cdb_OBJECTS}
-SBINS       = ${bnetd_SBIN} ${d2cs_SBIN} ${d2dbs_SBIN} ${bnproxy_SBIN} ${bntrackd_SBIN}
-BINS        = ${bnchat_BIN} ${bnpass_BIN} ${bnftp_BIN} ${bnbot_BIN} ${bnstat_BIN} ${bnilist_BIN} ${bni2tga_BIN} ${bniextract_BIN} ${bnibuild_BIN} ${tgainfo_BIN} ${cdb_BIN}
-CONFS       = ad.conf bnetd.conf bnetd_default_user.plain bnetd_default_user.cdb bnmotd.txt channel.conf news.txt bnban.conf bnhelp.conf autoupdate.conf realm.conf bnmaps.conf bnxplevel.conf bnxpcalc.conf news.txt command_groups.conf bnban.conf bnhelp.conf bnalias.conf anongame_infos.conf tournament.conf topics.conf sql_DB_layout.conf address_translation.conf supportfile.conf
-SHARES      = ad000001.smk tos.txt
+GUISBINS	= ${bnetd_SBIN} ${d2cs_SBIN} ${d2dbs_SBIN} 
+SBINS		= ${bnproxy_SBIN} ${bntrackd_SBIN}
+BINS		= ${bnchat_BIN} ${bnpass_BIN} ${bnftp_BIN} ${bnbot_BIN} ${bnstat_BIN} ${bnilist_BIN} ${bni2tga_BIN} ${bniextract_BIN} ${bnibuild_BIN} ${tgainfo_BIN} ${cdb_BIN}
+CONFS		= ad.conf bnetd.conf bnetd_default_user.plain bnetd_default_user.cdb bnmotd.txt channel.conf news.txt bnban.conf bnhelp.conf autoupdate.conf realm.conf bnmaps.conf bnxplevel.conf bnxpcalc.conf news.txt command_groups.conf bnban.conf bnhelp.conf bnalias.conf anongame_infos.conf tournament.conf topics.conf sql_DB_layout.conf address_translation.conf supportfile.conf
+SHARES		= ad000001.smk tos.txt
 OTHERBINS	= ${sbnetd_OBJECTS} ${sbnetd_SBIN}
-DIRS        = ${SRC_BINDIR} ${SRC_SBINDIR}
+DIRS		= ${SRC_BINDIR} ${SRC_SBINDIR}
 
-all:	config objdir ${SBINS} ${BINS}
+!ifdef WITH_GUI
+all:	config objdir ${GUISBINS}
+ 
+ @echo ===================================================================
+ @echo Build GUI versions of bnetd, d2cs and d2dbs.
+ @echo Now building non GUI stuff.
+ @-${RMF} ${SRC_COMMONDIR}\eventlog.obj	
+ @make_borland console
+!else
+all:	config objdir ${GUISBINS} ${SBINS} ${BINS}
+ -${RMF} ${SRC_COMMONDIR}\eventlog.obj	
+ @echo ===================================================================
+ @echo All applications build.
+ @echo ===================================================================
+!endif
+
+!ifndef WITH_GUI
+console: config objdir ${SBINS} ${BINS}
+ -${RMF} ${SRC_COMMONDIR}\eventlog.obj	
+ @echo ===================================================================
+ @echo remaining sbin and bin applications build.
+ @echo ===================================================================
+!endif
+
 
 objdir:
 	if not exist ${OBJDIR} ${INSTALL_DIRS} ${OBJDIR}
