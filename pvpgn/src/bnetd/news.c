@@ -184,9 +184,11 @@ static char * news_read_file(FILE * fp)
 	    }
 	    line = newline;
 	}
-	if (((char)curr_char)=='}'&& pos>0 )
+	if (((char)curr_char)=='}'&& pos>0 ) {
+	    if (((char)curr_char)!='\n') /* check for return */
+		fseek(fp,ftell(fp)-1,SEEK_SET); /* if not assume body starts and reset fp pos */
 	    break; /* end of news date */
-
+	}
     }
     
     if (curr_char==EOF && pos<1)  { /* not even an empty line */

@@ -3686,27 +3686,29 @@ static int _client_motdw3(t_connection * c, t_packet const * const packet)
 	    {
 		t_news_index const * newsindex = elem_get_data(curr);
 	    
-		if (!(rpacket = packet_create(packet_class_bnet)))
-		    return -1;
+		if (news_get_date(newsindex) > last_news_time) {
+		    if (!(rpacket = packet_create(packet_class_bnet)))
+			return -1;
 	    
-		packet_set_size(rpacket,sizeof(t_server_motd_w3));
-		packet_set_type(rpacket,SERVER_MOTD_W3);
+		    packet_set_size(rpacket,sizeof(t_server_motd_w3));
+		    packet_set_type(rpacket,SERVER_MOTD_W3);
 	    
-		bn_byte_set(&rpacket->u.server_motd_w3.msgtype,SERVER_MOTD_W3_MSGTYPE);
-		bn_int_set(&rpacket->u.server_motd_w3.curr_time,time(NULL));
+		    bn_byte_set(&rpacket->u.server_motd_w3.msgtype,SERVER_MOTD_W3_MSGTYPE);
+		    bn_int_set(&rpacket->u.server_motd_w3.curr_time,time(NULL));
 	    
-		bn_int_set(&rpacket->u.server_motd_w3.first_news_time,news_get_firstnews());
-		bn_int_set(&rpacket->u.server_motd_w3.timestamp,news_get_date(newsindex));
-		bn_int_set(&rpacket->u.server_motd_w3.timestamp2,news_get_date(newsindex));
+		    bn_int_set(&rpacket->u.server_motd_w3.first_news_time,news_get_firstnews());
+		    bn_int_set(&rpacket->u.server_motd_w3.timestamp,news_get_date(newsindex));
+		    bn_int_set(&rpacket->u.server_motd_w3.timestamp2,news_get_date(newsindex));
 	    
-		/* Append news to packet */
-		packet_append_string(rpacket,news_get_body(newsindex));
-		eventlog(eventlog_level_trace,__FUNCTION__,"(W3) %u bytes were used to store news",strlen(news_get_body(newsindex)));
+		    /* Append news to packet */
+		    packet_append_string(rpacket,news_get_body(newsindex));
+		    eventlog(eventlog_level_trace,__FUNCTION__,"(W3) %u bytes were used to store news",strlen(news_get_body(newsindex)));
 	    
-		/* Send news packet */
-		queue_push_packet(conn_get_out_queue(c),rpacket);
+		    /* Send news packet */
+		    queue_push_packet(conn_get_out_queue(c),rpacket);
 	    
-		packet_del_ref(rpacket);
+		    packet_del_ref(rpacket);
+		}
 	    }
 	} 
     } else {

@@ -2438,7 +2438,6 @@ static int _handle_news_command(t_connection * c, char const *text)
 	    temp1 = news_get_date(newsindex);
 	    temp = localtime(&temp1);
 	    i = strftime(date, 64,"%B %d, %Y", temp);
-	    message_send_text(c,message_type_info,c,"\n\0");
 	    message_send_text(c,message_type_info,c,date);
 
 	    body = news_get_body(newsindex);
