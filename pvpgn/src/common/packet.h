@@ -197,9 +197,9 @@ typedef struct
 	t_client_file_req          client_file_req;
 	t_server_file_reply        server_file_reply;
 
-	/* ADDED BY UNDYING SOULZZ 4/3/02 */
 	t_server_file_unknown1	   server_file_unknown1;
-	t_client_war3113_file_req  client_war3113_file_req;	
+	t_client_file_req2         client_file_req2;
+	t_client_file_req3         client_file_req3;
 
 	t_server_udptest           server_udptest;
 	t_client_udpping           client_udpping;

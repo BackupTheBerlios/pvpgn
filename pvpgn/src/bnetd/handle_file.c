@@ -89,13 +89,12 @@ extern int handle_file_packet(t_connection * c, t_packet const * const packet)
 	}
 	break;
 
-	case CLIENT_WAR3113_FILE_REQ1:
+	case CLIENT_FILE_REQ2:
 	{
 	    t_packet * rpacket = NULL;
 	    if((rpacket = packet_create(packet_class_raw))) {
 		    packet_set_size(rpacket,sizeof(t_server_file_unknown1));
-		    bn_short_set( &rpacket->u.server_file_unknown1.unknown1, 0xdead );
-		    bn_short_set( &rpacket->u.server_file_unknown1.unknown2, 0xbeef );
+		    bn_int_set( &rpacket->u.server_file_unknown1.unknown, 0xdeadbeef );
 		    conn_push_outqueue(c, rpacket );
 		    packet_del_ref( rpacket );
 	    }
@@ -113,7 +112,7 @@ extern int handle_file_packet(t_connection * c, t_packet const * const packet)
     case conn_state_pending_raw:
 	switch (packet_get_type(packet))
 	{
-	    case CLIENT_WAR3113_FILE_REQ2:
+	    case CLIENT_FILE_REQ3:
 	    {
 		char rawname[MAX_FILENAME_STR];
 

@@ -77,9 +77,26 @@ typedef struct
 } t_client_file_req PACKED_ATTR();
 /******************************************************/
 
-/* ADDED BY UNDYING SOULZZ 4/3/02 */
-#define CLIENT_WAR3113_FILE_REQ1	0x0200
-#define CLIENT_WAR3113_FILE_REQ2	0x0000
+/*
+the next 2 file requests appeared on w3 first. first it sends filereq2 then 
+server replies with some rnadom int then client sends filereq3 (which is a 
+raw packet with no valuable header) then filename then server replies with 
+normal file_reply and sends the contents
+
+12: recv class=file[0x03] type=unknown[0x0200] length=20
+0000:   14 00 00 02 36 38 58 49   33 52 41 57 00 00 00 00    ....68XI3RAW....
+0010:   00 00 00 00                                          ....            
+*/
+#define CLIENT_FILE_REQ2		0x0200
+typedef struct
+{
+    t_file_header h;
+    bn_int        archtag;
+    bn_int        clienttag;
+    bn_long       unknown1;
+} t_client_file_req2 PACKED_ATTR();
+
+#define CLIENT_FILE_REQ3		0x0000
 typedef struct
 {
     bn_int	unknown1;
@@ -90,7 +107,7 @@ typedef struct
     bn_long	unknown5;
     bn_long	unknown6;
     /* filename */
-} t_client_war3113_file_req PACKED_ATTR();
+} t_client_file_req3 PACKED_ATTR();
 
 /******************************************************/
 /* SERVER FILE MPQ REPLY
@@ -120,12 +137,10 @@ typedef struct
 } t_server_file_reply PACKED_ATTR();
 /******************************************************/
 
-/* ADDED BY UNDYING SOULZZ 4/3/02 */
-#define SERVER_FILE_UNKNOWN1	0x0200
+#define SERVER_FILE_UNKNOWN1 0xdeadbeef
 typedef struct
 {
-    bn_short	unknown1;
-    bn_short	unknown2;
+    bn_int	unknown;
 } t_server_file_unknown1 PACKED_ATTR();
 
 #endif

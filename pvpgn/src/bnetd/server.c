@@ -563,7 +563,7 @@ static int sd_tcpinput(t_connection * c)
 			eventlog(eventlog_level_error,"sd_tcpinput","could not allocate raw packet for input");
 			return -1;
 		    }
-		    packet_set_size(packet, sizeof(t_client_war3113_file_req));
+		    packet_set_size(packet, sizeof(t_client_file_req3));
 		    break;
 		default:
 		    if (!(packet = packet_create(packet_class_file)))
