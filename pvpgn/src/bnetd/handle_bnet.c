@@ -5483,7 +5483,7 @@ static int _client_w3xp_clan_invitereply(t_connection * c, t_packet const * cons
             channel_set_flags(c);
             if (conn_set_channel(c,channelname)<0)
               conn_set_channel(c,CHANNEL_NAME_BANNED); /* should not fail */
-            clanmember_on_change_status(member);
+            clanmember_set_online(c);
           }
           clan_send_status_window(c);
         }
