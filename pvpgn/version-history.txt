@@ -35,7 +35,9 @@ codes)
   -- fixed "can't refresh on AT screen when no online mutual friends"
   -- matching users in same private channel now also get listed on AT screen
 
-[WAR3]: fixed possible disc on too long news items
+[WAR3]: 
+  -- fixed possible disc on too long news items
+  -- droped <1.13 support, added basic 1.15 support
 
 [D2]:
   -- re-enabled checksum check

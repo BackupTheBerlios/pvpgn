@@ -155,25 +155,15 @@ typedef struct {
 typedef struct {
 	char * langID;
 
-	char * url_data;
-	char * map_data;
-	char * type_data;
-	char * desc_data;
-	char * ladr_data;
-
 	char * url_comp_data;
+	char * url_comp_data_115;
 	char * map_comp_data;
 	char * type_comp_data;
 	char * desc_comp_data;
 	char * ladr_comp_data;
 
-	int url_len;
-	int map_len;
-	int type_len;
-	int desc_len;
-	int ladr_len;
-
 	int url_comp_len;
+	int url_comp_len_115;
 	int map_comp_len;
 	int type_comp_len;
 	int desc_comp_len;
