@@ -39,7 +39,7 @@
 #include <richedit.h>
 #include <commctrl.h>
 #include "bnetd/message.h" //amadeo
-#include "bnetd/resource.h"
+#include "win32/resource.h"
 #include "bnetd/ipban.h" //zak
 
 #include "common/addr.h" //added for borland, should not be a prob for VS.NET
