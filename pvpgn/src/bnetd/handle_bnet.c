@@ -166,6 +166,7 @@ static int _client_startgame1(t_connection * c, t_packet const * const packet);
 static int _client_startgame3(t_connection * c, t_packet const * const packet);
 static int _client_startgame4(t_connection * c, t_packet const * const packet);
 static int _client_closegame(t_connection * c, t_packet const * const packet);
+static int _client_closegame2(t_connection * c, t_packet const * const packet);
 static int _client_gamereport(t_connection * c, t_packet const * const packet);
 static int _client_leavechannel(t_connection * c, t_packet const * const packet);
 static int _client_ladderreq(t_connection * c, t_packet const * const packet);
@@ -266,7 +267,7 @@ static const t_htable_row bnet_htable_log [] = {
      { CLIENT_STARTGAME3,       _client_startgame3},
      { CLIENT_STARTGAME4,       _client_startgame4},
      { CLIENT_CLOSEGAME,        _client_closegame},
-     { CLIENT_CLOSEGAME2,       _client_closegame},
+     { CLIENT_CLOSEGAME2,       _client_closegame2},
      { CLIENT_GAME_REPORT,      _client_gamereport},
      { CLIENT_LEAVECHANNEL,     _client_leavechannel},
      { CLIENT_LADDERREQ,        _client_ladderreq},
@@ -4318,15 +4319,19 @@ static int _client_startgame4(t_connection * c, t_packet const * const packet)
 
 static int _client_closegame(t_connection * c, t_packet const * const packet)
 {
-	t_game * game;
+    eventlog(eventlog_level_info,__FUNCTION__,"[%d] client closing game",conn_get_socket(c));
+    if(strcmp(conn_get_clienttag(c), CLIENTTAG_WARCRAFT3) != 0 && strcmp(conn_get_clienttag(c), CLIENTTAG_WAR3XP) != 0)
+        conn_set_game(c,NULL,NULL,NULL,game_type_none,0);
 
-   eventlog(eventlog_level_info,__FUNCTION__,"[%d] client closing game",conn_get_socket(c));
-   if(((game = conn_get_game(c)) != NULL) && (game_get_owner(game) == c) && (game_get_status(game) != game_status_started))
-	   game_set_status(game, game_status_started);
-   conn_set_game(c,NULL,NULL,NULL,game_type_none,0);
+    return 0;
+}
 
-   //to prevent whispering over and over that user joined channel
-   return 0;
+static int _client_closegame2(t_connection * c, t_packet const * const packet)
+{
+    eventlog(eventlog_level_info,__FUNCTION__,"[%d] client closing game",conn_get_socket(c));
+    conn_set_game(c,NULL,NULL,NULL,game_type_none,0);
+
+    return 0;
 }
 
 static int _client_gamereport(t_connection * c, t_packet const * const packet)
