@@ -610,7 +610,7 @@ static int sql_read_accounts(t_read_accounts_func cb, void *data)
 		continue;
 	    }
 
-	    if (atoi(row[0]) == defacct) continue; /* skip default account */
+	    if ((unsigned int)atoi(row[0]) == defacct) continue; /* skip default account */
 
 	    if ((info = malloc(sizeof(t_sql_info))) == NULL) {
 		eventlog(eventlog_level_error, __FUNCTION__, "not enough memory for sql info");

@@ -1212,7 +1212,7 @@ extern char const * prefs_get_anongame_infos_file(void)
 	return get_char_conf("anongame_infos_file");
 }
 
-extern int prefs_get_max_conns_per_IP(void)
+extern unsigned int prefs_get_max_conns_per_IP(void)
 {
 	return get_int_conf("max_conns_per_IP");
 }

@@ -185,7 +185,7 @@ extern char const * prefs_get_aliasfile(void) PURE_ATTR();
 
 extern char const * prefs_get_anongame_infos_file(void) PURE_ATTR();
 
-extern int prefs_get_max_conns_per_IP(void) PURE_ATTR();
+extern unsigned int prefs_get_max_conns_per_IP(void) PURE_ATTR();
 
 extern int prefs_get_max_friends(void) PURE_ATTR();
 

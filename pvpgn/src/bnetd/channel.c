@@ -95,7 +95,7 @@ static t_channel * channellist_find_channel_by_fullname(char const * name);
 static char * channel_format_name(char const * sname, char const * country, char const * realmname, unsigned int id);
 
 
-extern t_channel * channel_create(char const * fullname, char const * shortname, char const * clienttag, int permflag, int botflag, int operflag, int logflag, char const * country, char const * realmname, int maxmembers, int moderated)
+extern t_channel * channel_create(char const * fullname, char const * shortname, char const * clienttag, int permflag, int botflag, int operflag, int logflag, char const * country, char const * realmname, int maxmembers, unsigned int moderated)
 {
     t_channel * channel;
     
@@ -1353,7 +1353,7 @@ static int channellist_load_permanent(char const * filename)
     int          botflag;
     int          operflag;
     int          logflag;
-    int          modflag;
+    unsigned int modflag;
     char *       buff;
     char *       name;
     char *       sname;
@@ -1781,7 +1781,7 @@ extern int channellist_get_length(void)
     return list_get_length(channellist_head);
 }
 
-extern unsigned int channel_get_max(t_channel const * channel)
+extern int channel_get_max(t_channel const * channel)
 {
   if (!channel)
   {
@@ -1792,7 +1792,7 @@ extern unsigned int channel_get_max(t_channel const * channel)
   return channel->maxmembers;
 }
 
-extern unsigned int channel_get_curr(t_channel const * channel)
+extern int channel_get_curr(t_channel const * channel)
 {
   if (!channel)
   {
@@ -1886,7 +1886,7 @@ extern t_channel * channellist_find_channel_by_name(char const * name, char cons
     int            savebotflag;
     int            saveoperflag;
     int            savelogflag;
-    int		   savemoderated;
+    unsigned int   savemoderated;
     char const *   savecountry;
     char const *   saverealmname;
     int            savemaxmembers;
