@@ -282,6 +282,27 @@ int anongame_infos_destroy(t_anongame_infos * anongame_infos)
 	return 0;
 }
 
+int anongame_infos_set_str(char ** dst, char * src,char * errstr)
+{
+	char * temp;
+
+	if (!(src))
+	{
+		eventlog(eventlog_level_error,__FUNCTION__,"got NULL %s",errstr);
+		return -1;
+	}
+
+	if (!(temp = strdup(src)))
+	{
+		eventlog(eventlog_level_error,__FUNCTION__,"could not allocate mem for %s",errstr);
+		return -1;
+	}
+	if (*dst) free((void *)*dst);
+	*dst = temp;
+
+	return 0;
+}
+
 int anongame_infos_URL_set_server_URL(t_anongame_infos_URL * anongame_infos_URL, char * server_URL)
 {
 	char * temp;
@@ -291,19 +312,7 @@ int anongame_infos_URL_set_server_URL(t_anongame_infos_URL * anongame_infos_URL,
 		return -1;
 	}
 
-	if (!(server_URL))
-	{
-		eventlog(eventlog_level_error,__FUNCTION__,"got NULL server_URL");
-		return -1;
-	}
-
-	if (!(temp = strdup(server_URL)))
-	{
-		eventlog(eventlog_level_error,__FUNCTION__,"could not allocate mem for server_URL");
-		return -1;
-	}
-	if (anongame_infos_URL->server_URL) free((void *)anongame_infos_URL->server_URL);
-	anongame_infos_URL->server_URL = temp;
+	return anongame_infos_set_str(&anongame_infos_URL->server_URL,server_URL,"server_URL");
 
 	return 0;
 }
@@ -322,21 +331,8 @@ int anongame_infos_URL_set_player_URL(t_anongame_infos_URL * anongame_infos_URL,
 		return -1;
 	}
 
-	if (!(player_URL))
-	{
-		eventlog(eventlog_level_error,__FUNCTION__,"got NULL player_URL");
-		return -1;
-	}
 
-	if (!(temp = strdup(player_URL)))
-	{
-		eventlog(eventlog_level_error,__FUNCTION__,"could not allocate mem for player_URL");
-		return -1;
-	}
-	if (anongame_infos_URL->player_URL) free((void *)anongame_infos_URL->player_URL);
-	anongame_infos_URL->player_URL = temp;
-
-	return 0;
+	return anongame_infos_set_str(&anongame_infos_URL->player_URL,player_URL,"player_URL");
 }
 
 extern char * anongame_infos_URL_get_player_url()
@@ -354,21 +350,8 @@ int anongame_infos_URL_set_tourney_URL(t_anongame_infos_URL * anongame_infos_URL
 		return -1;
 	}
 
-	if (!(tourney_URL))
-	{
-		eventlog(eventlog_level_error,__FUNCTION__,"got NULL tourney_URL");
-		return -1;
-	}
+	return anongame_infos_set_str(&anongame_infos_URL->tourney_URL,tourney_URL,"tourney_URL");
 
-	if (!(temp = strdup(tourney_URL)))
-	{
-		eventlog(eventlog_level_error,__FUNCTION__,"could not allocate mem for tourney_URL");
-		return -1;
-	}
-	if (anongame_infos_URL->tourney_URL) free((void *)anongame_infos_URL->tourney_URL);
-	anongame_infos_URL->tourney_URL = temp;
-
-	return 0;
 }
 
 extern char * anongame_infos_URL_get_tourney_url()
@@ -386,21 +369,8 @@ int anongame_infos_URL_set_ladder_PG_1v1_URL(t_anongame_infos_URL * anongame_inf
 		return -1;
 	}
 
-	if (!(ladder_PG_1v1_URL))
-	{
-		eventlog(eventlog_level_error,__FUNCTION__,"got NULL ladder_PG_1v1_URL");
-		return -1;
-	}
+	return anongame_infos_set_str(&anongame_infos_URL->ladder_PG_1v1_URL,ladder_PG_1v1_URL,"ladder_PG_1v1_URL");
 
-	if (!(temp = strdup(ladder_PG_1v1_URL)))
-	{
-		eventlog(eventlog_level_error,__FUNCTION__,"could not allocate mem for ladder_PG_1v1_URL");
-		return -1;
-	}
-	if (anongame_infos_URL->ladder_PG_1v1_URL) free((void *)anongame_infos_URL->ladder_PG_1v1_URL);
-	anongame_infos_URL->ladder_PG_1v1_URL = temp;
-
-	return 0;
 }
 
 extern char * anongame_infos_URL_get_ladder_PG_1v1_url()
@@ -417,21 +387,7 @@ int anongame_infos_URL_set_ladder_PG_ffa_URL(t_anongame_infos_URL * anongame_inf
 		return -1;
 	}
 
-	if (!(ladder_PG_ffa_URL))
-	{
-		eventlog(eventlog_level_error,__FUNCTION__,"got NULL ladder_PG_ffa_URL");
-		return -1;
-	}
-
-	if (!(temp = strdup(ladder_PG_ffa_URL)))
-	{
-		eventlog(eventlog_level_error,__FUNCTION__,"could not allocate mem for ladder_PG_ffa_URL");
-		return -1;
-	}
-	if (anongame_infos_URL->ladder_PG_ffa_URL) free((void *)anongame_infos_URL->ladder_PG_ffa_URL);
-	anongame_infos_URL->ladder_PG_ffa_URL = temp;
-
-	return 0;
+	return anongame_infos_set_str(&anongame_infos_URL->ladder_PG_ffa_URL,ladder_PG_ffa_URL,"ladder_PG_ffa_URL");
 }
 
 extern char * anongame_infos_URL_get_ladder_PG_ffa_url()
@@ -448,21 +404,7 @@ int anongame_infos_URL_set_ladder_PG_team_URL(t_anongame_infos_URL * anongame_in
 		return -1;
 	}
 
-	if (!(ladder_PG_team_URL))
-	{
-		eventlog(eventlog_level_error,__FUNCTION__,"got NULL ladder_PG_team_URL");
-		return -1;
-	}
-
-	if (!(temp = strdup(ladder_PG_team_URL)))
-	{
-		eventlog(eventlog_level_error,__FUNCTION__,"could not allocate mem for ladder_PG_team_URL");
-		return -1;
-	}
-	if (anongame_infos_URL->ladder_PG_team_URL) free((void *)anongame_infos_URL->ladder_PG_team_URL);
-	anongame_infos_URL->ladder_PG_team_URL = temp;
-
-	return 0;
+	return anongame_infos_set_str(&anongame_infos_URL->ladder_PG_team_URL,ladder_PG_team_URL,"ladder_PG_team_URL");
 }
 
 extern char * anongame_infos_URL_get_ladder_PG_team_url()
@@ -479,21 +421,7 @@ int anongame_infos_URL_set_ladder_AT_2v2_URL(t_anongame_infos_URL * anongame_inf
 		return -1;
 	}
 
-	if (!(ladder_AT_2v2_URL))
-	{
-		eventlog(eventlog_level_error,__FUNCTION__,"got NULL ladder_AT_2v2_URL");
-		return -1;
-	}
-
-	if (!(temp = strdup(ladder_AT_2v2_URL)))
-	{
-		eventlog(eventlog_level_error,__FUNCTION__,"could not allocate mem for ladder_AT_2v2_URL");
-		return -1;
-	}
-	if (anongame_infos_URL->ladder_AT_2v2_URL) free((void *)anongame_infos_URL->ladder_AT_2v2_URL);
-	anongame_infos_URL->ladder_AT_2v2_URL = temp;
-
-	return 0;
+	return anongame_infos_set_str(&anongame_infos_URL->ladder_AT_2v2_URL,ladder_AT_2v2_URL,"ladder_AT_2v2_URL");
 }
 
 extern char * anongame_infos_URL_get_ladder_AT_2v2_url()
@@ -510,21 +438,7 @@ int anongame_infos_URL_set_ladder_AT_3v3_URL(t_anongame_infos_URL * anongame_inf
 		return -1;
 	}
 
-	if (!(ladder_AT_3v3_URL))
-	{
-		eventlog(eventlog_level_error,__FUNCTION__,"got NULL ladder_AT_3v3_URL");
-		return -1;
-	}
-
-	if (!(temp = strdup(ladder_AT_3v3_URL)))
-	{
-		eventlog(eventlog_level_error,__FUNCTION__,"could not allocate mem for ladder_AT_3v3_URL");
-		return -1;
-	}
-	if (anongame_infos_URL->ladder_AT_3v3_URL) free((void *)anongame_infos_URL->ladder_AT_3v3_URL);
-	anongame_infos_URL->ladder_AT_3v3_URL = temp;
-
-	return 0;
+	return anongame_infos_set_str(&anongame_infos_URL->ladder_AT_3v3_URL,ladder_AT_3v3_URL,"ladder_AT_3v3_URL");
 }
 
 extern char * anongame_infos_URL_get_ladder_AT_3v3_url()
@@ -541,21 +455,7 @@ int anongame_infos_URL_set_ladder_AT_4v4_URL(t_anongame_infos_URL * anongame_inf
 		return -1;
 	}
 
-	if (!(ladder_AT_4v4_URL))
-	{
-		eventlog(eventlog_level_error,__FUNCTION__,"got NULL ladder_AT_4v4_URL");
-		return -1;
-	}
-
-	if (!(temp = strdup(ladder_AT_4v4_URL)))
-	{
-		eventlog(eventlog_level_error,__FUNCTION__,"could not allocate mem for ladder_AT_4v4_URL");
-		return -1;
-	}
-	if (anongame_infos_URL->ladder_AT_4v4_URL) free((void *)anongame_infos_URL->ladder_AT_4v4_URL);
-	anongame_infos_URL->ladder_AT_4v4_URL = temp;
-
-	return 0;
+	return anongame_infos_set_str(&anongame_infos_URL->ladder_AT_4v4_URL,ladder_AT_4v4_URL,"ladder_AT_4v4_URL");
 }
 
 extern char * anongame_infos_URL_get_ladder_AT_4v4_url()
@@ -573,21 +473,7 @@ int anongame_infos_DESC_set_ladder_PG_1v1_desc(t_anongame_infos_DESC * anongame_
 		return -1;
 	}
 
-	if (!(ladder_PG_1v1_desc))
-	{
-		eventlog(eventlog_level_error,__FUNCTION__,"got NULL ladder_PG_1v1_desc");
-		return -1;
-	}
-
-	if (!(temp = strdup(ladder_PG_1v1_desc)))
-	{
-		eventlog(eventlog_level_error,__FUNCTION__,"could not allocate mem for ladder_PG_1v1_desc");
-		return -1;
-	}
-	if (anongame_infos_DESC->ladder_PG_1v1_desc) free((void *)anongame_infos_DESC->ladder_PG_1v1_desc);
-	anongame_infos_DESC->ladder_PG_1v1_desc = temp;
-
-	return 0;
+	return anongame_infos_set_str(&anongame_infos_DESC->ladder_PG_1v1_desc,ladder_PG_1v1_desc,"ladder_PG_1v1_desc");
 }
 int anongame_infos_DESC_set_ladder_PG_ffa_desc(t_anongame_infos_DESC * anongame_infos_DESC, char * ladder_PG_ffa_desc)
 {
@@ -598,21 +484,7 @@ int anongame_infos_DESC_set_ladder_PG_ffa_desc(t_anongame_infos_DESC * anongame_
 		return -1;
 	}
 
-	if (!(ladder_PG_ffa_desc))
-	{
-		eventlog(eventlog_level_error,__FUNCTION__,"got NULL ladder_PG_ffa_desc");
-		return -1;
-	}
-
-	if (!(temp = strdup(ladder_PG_ffa_desc)))
-	{
-		eventlog(eventlog_level_error,__FUNCTION__,"could not allocate mem for ladder_PG_ffa_desc");
-		return -1;
-	}
-	if (anongame_infos_DESC->ladder_PG_ffa_desc) free((void *)anongame_infos_DESC->ladder_PG_ffa_desc);
-	anongame_infos_DESC->ladder_PG_ffa_desc = temp;
-
-	return 0;
+	return anongame_infos_set_str(&anongame_infos_DESC->ladder_PG_ffa_desc,ladder_PG_ffa_desc,"ladder_PG_ffa_desc");
 }
 
 int anongame_infos_DESC_set_ladder_PG_team_desc(t_anongame_infos_DESC * anongame_infos_DESC, char * ladder_PG_team_desc)
@@ -624,21 +496,7 @@ int anongame_infos_DESC_set_ladder_PG_team_desc(t_anongame_infos_DESC * anongame
 		return -1;
 	}
 
-	if (!(ladder_PG_team_desc))
-	{
-		eventlog(eventlog_level_error,__FUNCTION__,"got NULL ladder_PG_team_desc");
-		return -1;
-	}
-
-	if (!(temp = strdup(ladder_PG_team_desc)))
-	{
-		eventlog(eventlog_level_error,__FUNCTION__,"could not allocate mem for ladder_PG_team_desc");
-		return -1;
-	}
-	if (anongame_infos_DESC->ladder_PG_team_desc) free((void *)anongame_infos_DESC->ladder_PG_team_desc);
-	anongame_infos_DESC->ladder_PG_team_desc = temp;
-
-	return 0;
+	return anongame_infos_set_str(&anongame_infos_DESC->ladder_PG_team_desc,ladder_PG_team_desc,"ladder_PG_team_desc");
 }
 int anongame_infos_DESC_set_ladder_AT_2v2_desc(t_anongame_infos_DESC * anongame_infos_DESC, char * ladder_AT_2v2_desc)
 {
@@ -649,21 +507,7 @@ int anongame_infos_DESC_set_ladder_AT_2v2_desc(t_anongame_infos_DESC * anongame_
 		return -1;
 	}
 
-	if (!(ladder_AT_2v2_desc))
-	{
-		eventlog(eventlog_level_error,__FUNCTION__,"got NULL ladder_AT_2v2_desc");
-		return -1;
-	}
-
-	if (!(temp = strdup(ladder_AT_2v2_desc)))
-	{
-		eventlog(eventlog_level_error,__FUNCTION__,"could not allocate mem for ladder_AT_2v2_desc");
-		return -1;
-	}
-	if (anongame_infos_DESC->ladder_AT_2v2_desc) free((void *)anongame_infos_DESC->ladder_AT_2v2_desc);
-	anongame_infos_DESC->ladder_AT_2v2_desc = temp;
-
-	return 0;
+	return anongame_infos_set_str(&anongame_infos_DESC->ladder_AT_2v2_desc,ladder_AT_2v2_desc,"ladder_AT_2v2_desc");
 }
 
 int anongame_infos_DESC_set_ladder_AT_3v3_desc(t_anongame_infos_DESC * anongame_infos_DESC, char * ladder_AT_3v3_desc)
@@ -675,21 +519,7 @@ int anongame_infos_DESC_set_ladder_AT_3v3_desc(t_anongame_infos_DESC * anongame_
 		return -1;
 	}
 
-	if (!(ladder_AT_3v3_desc))
-	{
-		eventlog(eventlog_level_error,__FUNCTION__,"got NULL ladder_AT_3v3_desc");
-		return -1;
-	}
-
-	if (!(temp = strdup(ladder_AT_3v3_desc)))
-	{
-		eventlog(eventlog_level_error,__FUNCTION__,"could not allocate mem for ladder_AT_3v3_desc");
-		return -1;
-	}
-	if (anongame_infos_DESC->ladder_AT_3v3_desc) free((void *)anongame_infos_DESC->ladder_AT_3v3_desc);
-	anongame_infos_DESC->ladder_AT_3v3_desc = temp;
-
-	return 0;
+	return anongame_infos_set_str(&anongame_infos_DESC->ladder_AT_3v3_desc,ladder_AT_3v3_desc,"ladder_AT_3v3_desc");
 }
 
 int anongame_infos_DESC_set_ladder_AT_4v4_desc(t_anongame_infos_DESC * anongame_infos_DESC, char * ladder_AT_4v4_desc)
@@ -701,21 +531,7 @@ int anongame_infos_DESC_set_ladder_AT_4v4_desc(t_anongame_infos_DESC * anongame_
 		return -1;
 	}
 
-	if (!(ladder_AT_4v4_desc))
-	{
-		eventlog(eventlog_level_error,__FUNCTION__,"got NULL ladder_PG_4v4_desc");
-		return -1;
-	}
-
-	if (!(temp = strdup(ladder_AT_4v4_desc)))
-	{
-		eventlog(eventlog_level_error,__FUNCTION__,"could not allocate mem for ladder_AT_4v4_desc");
-		return -1;
-	}
-	if (anongame_infos_DESC->ladder_AT_4v4_desc) free((void *)anongame_infos_DESC->ladder_AT_4v4_desc);
-	anongame_infos_DESC->ladder_AT_4v4_desc = temp;
-
-	return 0;
+	return anongame_infos_set_str(&anongame_infos_DESC->ladder_AT_4v4_desc,ladder_AT_4v4_desc,"ladder_AT_4v4_desc");
 }
 
 int anongame_infos_DESC_set_gametype_1v1_short(t_anongame_infos_DESC * anongame_infos_DESC, char * gametype_1v1_short)
@@ -727,21 +543,7 @@ int anongame_infos_DESC_set_gametype_1v1_short(t_anongame_infos_DESC * anongame_
 		return -1;
 	}
 
-	if (!(gametype_1v1_short))
-	{
-		eventlog(eventlog_level_error,__FUNCTION__,"got NULL gametype_1v1_short");
-		return -1;
-	}
-
-	if (!(temp = strdup(gametype_1v1_short)))
-	{
-		eventlog(eventlog_level_error,__FUNCTION__,"could not allocate mem for gametype_1v1_short");
-		return -1;
-	}
-	if (anongame_infos_DESC->gametype_1v1_short) free((void *)anongame_infos_DESC->gametype_1v1_short);
-	anongame_infos_DESC->gametype_1v1_short = temp;
-
-	return 0;
+	return anongame_infos_set_str(&anongame_infos_DESC->gametype_1v1_short,gametype_1v1_short,"gametype_1v1_short");
 }
 
 int anongame_infos_DESC_set_gametype_1v1_long(t_anongame_infos_DESC * anongame_infos_DESC, char * gametype_1v1_long)
@@ -753,21 +555,7 @@ int anongame_infos_DESC_set_gametype_1v1_long(t_anongame_infos_DESC * anongame_i
 		return -1;
 	}
 
-	if (!(gametype_1v1_long))
-	{
-		eventlog(eventlog_level_error,__FUNCTION__,"got NULL gametype_1v1_long");
-		return -1;
-	}
-
-	if (!(temp = strdup(gametype_1v1_long)))
-	{
-		eventlog(eventlog_level_error,__FUNCTION__,"could not allocate mem for gametype_1v1_long");
-		return -1;
-	}
-	if (anongame_infos_DESC->gametype_1v1_long) free((void *)anongame_infos_DESC->gametype_1v1_long);
-	anongame_infos_DESC->gametype_1v1_long = temp;
-
-	return 0;
+	return anongame_infos_set_str(&anongame_infos_DESC->gametype_1v1_long,gametype_1v1_long,"gametype_1v1_long");
 }
 
 int anongame_infos_DESC_set_gametype_2v2_short(t_anongame_infos_DESC * anongame_infos_DESC, char * gametype_2v2_short)
@@ -779,21 +567,7 @@ int anongame_infos_DESC_set_gametype_2v2_short(t_anongame_infos_DESC * anongame_
 		return -1;
 	}
 
-	if (!(gametype_2v2_short))
-	{
-		eventlog(eventlog_level_error,__FUNCTION__,"got NULL gametype_2v2_short");
-		return -1;
-	}
-
-	if (!(temp = strdup(gametype_2v2_short)))
-	{
-		eventlog(eventlog_level_error,__FUNCTION__,"could not allocate mem for gametype_2v2_short");
-		return -1;
-	}
-	if (anongame_infos_DESC->gametype_2v2_short) free((void *)anongame_infos_DESC->gametype_2v2_short);
-	anongame_infos_DESC->gametype_2v2_short = temp;
-
-	return 0;
+	return anongame_infos_set_str(&anongame_infos_DESC->gametype_2v2_short,gametype_2v2_short,"gametype_2v2_short");
 }
 
 int anongame_infos_DESC_set_gametype_2v2_long(t_anongame_infos_DESC * anongame_infos_DESC, char * gametype_2v2_long)
@@ -805,21 +579,7 @@ int anongame_infos_DESC_set_gametype_2v2_long(t_anongame_infos_DESC * anongame_i
 		return -1;
 	}
 
-	if (!(gametype_2v2_long))
-	{
-		eventlog(eventlog_level_error,__FUNCTION__,"got NULL gametype_2v2_long");
-		return -1;
-	}
-
-	if (!(temp = strdup(gametype_2v2_long)))
-	{
-		eventlog(eventlog_level_error,__FUNCTION__,"could not allocate mem for gametype_2v2_long");
-		return -1;
-	}
-	if (anongame_infos_DESC->gametype_2v2_long) free((void *)anongame_infos_DESC->gametype_2v2_long);
-	anongame_infos_DESC->gametype_2v2_long = temp;
-
-	return 0;
+	return anongame_infos_set_str(&anongame_infos_DESC->gametype_2v2_long,gametype_2v2_long,"gametype_2v2_long");
 }
 
 int anongame_infos_DESC_set_gametype_3v3_short(t_anongame_infos_DESC * anongame_infos_DESC, char * gametype_3v3_short)
@@ -831,21 +591,7 @@ int anongame_infos_DESC_set_gametype_3v3_short(t_anongame_infos_DESC * anongame_
 		return -1;
 	}
 
-	if (!(gametype_3v3_short))
-	{
-		eventlog(eventlog_level_error,__FUNCTION__,"got NULL gametype_1v1_short");
-		return -1;
-	}
-
-	if (!(temp = strdup(gametype_3v3_short)))
-	{
-		eventlog(eventlog_level_error,__FUNCTION__,"could not allocate mem for gametype_3v3_short");
-		return -1;
-	}
-	if (anongame_infos_DESC->gametype_3v3_short) free((void *)anongame_infos_DESC->gametype_3v3_short);
-	anongame_infos_DESC->gametype_3v3_short = temp;
-
-	return 0;
+	return anongame_infos_set_str(&anongame_infos_DESC->gametype_3v3_short,gametype_3v3_short,"gametype_3v3_short");
 }
 
 int anongame_infos_DESC_set_gametype_3v3_long(t_anongame_infos_DESC * anongame_infos_DESC, char * gametype_3v3_long)
@@ -857,21 +603,7 @@ int anongame_infos_DESC_set_gametype_3v3_long(t_anongame_infos_DESC * anongame_i
 		return -1;
 	}
 
-	if (!(gametype_3v3_long))
-	{
-		eventlog(eventlog_level_error,__FUNCTION__,"got NULL gametype_3v3_long");
-		return -1;
-	}
-
-	if (!(temp = strdup(gametype_3v3_long)))
-	{
-		eventlog(eventlog_level_error,__FUNCTION__,"could not allocate mem for gametype_3v3_long");
-		return -1;
-	}
-	if (anongame_infos_DESC->gametype_3v3_long) free((void *)anongame_infos_DESC->gametype_3v3_long);
-	anongame_infos_DESC->gametype_3v3_long = temp;
-
-	return 0;
+	return anongame_infos_set_str(&anongame_infos_DESC->gametype_3v3_long,gametype_3v3_long,"gametype_3v3_long");
 }
 
 int anongame_infos_DESC_set_gametype_4v4_short(t_anongame_infos_DESC * anongame_infos_DESC, char * gametype_4v4_short)
@@ -883,21 +615,7 @@ int anongame_infos_DESC_set_gametype_4v4_short(t_anongame_infos_DESC * anongame_
 		return -1;
 	}
 
-	if (!(gametype_4v4_short))
-	{
-		eventlog(eventlog_level_error,__FUNCTION__,"got NULL gametype_4v4_short");
-		return -1;
-	}
-
-	if (!(temp = strdup(gametype_4v4_short)))
-	{
-		eventlog(eventlog_level_error,__FUNCTION__,"could not allocate mem for gametype_4v4_short");
-		return -1;
-	}
-	if (anongame_infos_DESC->gametype_4v4_short) free((void *)anongame_infos_DESC->gametype_4v4_short);
-	anongame_infos_DESC->gametype_4v4_short = temp;
-
-	return 0;
+	return anongame_infos_set_str(&anongame_infos_DESC->gametype_4v4_short,gametype_4v4_short,"gametype_4v4_short");
 }
 
 int anongame_infos_DESC_set_gametype_4v4_long(t_anongame_infos_DESC * anongame_infos_DESC, char * gametype_4v4_long)
@@ -909,21 +627,7 @@ int anongame_infos_DESC_set_gametype_4v4_long(t_anongame_infos_DESC * anongame_i
 		return -1;
 	}
 
-	if (!(gametype_4v4_long))
-	{
-		eventlog(eventlog_level_error,__FUNCTION__,"got NULL gametype_4v4_long");
-		return -1;
-	}
-
-	if (!(temp = strdup(gametype_4v4_long)))
-	{
-		eventlog(eventlog_level_error,__FUNCTION__,"could not allocate mem for gametype_4v4_long");
-		return -1;
-	}
-	if (anongame_infos_DESC->gametype_4v4_long) free((void *)anongame_infos_DESC->gametype_4v4_long);
-	anongame_infos_DESC->gametype_4v4_long = temp;
-
-	return 0;
+	return anongame_infos_set_str(&anongame_infos_DESC->gametype_4v4_long,gametype_4v4_long,"gametype_4v4_long");
 }
 
 int anongame_infos_DESC_set_gametype_ffa_short(t_anongame_infos_DESC * anongame_infos_DESC, char * gametype_ffa_short)
@@ -935,21 +639,7 @@ int anongame_infos_DESC_set_gametype_ffa_short(t_anongame_infos_DESC * anongame_
 		return -1;
 	}
 
-	if (!(gametype_ffa_short))
-	{
-		eventlog(eventlog_level_error,__FUNCTION__,"got NULL gametype_ffa_short");
-		return -1;
-	}
-
-	if (!(temp = strdup(gametype_ffa_short)))
-	{
-		eventlog(eventlog_level_error,__FUNCTION__,"could not allocate mem for gametype_ffa_short");
-		return -1;
-	}
-	if (anongame_infos_DESC->gametype_ffa_short) free((void *)anongame_infos_DESC->gametype_ffa_short);
-	anongame_infos_DESC->gametype_ffa_short = temp;
-
-	return 0;
+	return anongame_infos_set_str(&anongame_infos_DESC->gametype_ffa_short,gametype_ffa_short,"gametype_ffa_short");
 }
 
 int anongame_infos_DESC_set_gametype_ffa_long(t_anongame_infos_DESC * anongame_infos_DESC, char * gametype_ffa_long)
@@ -961,21 +651,7 @@ int anongame_infos_DESC_set_gametype_ffa_long(t_anongame_infos_DESC * anongame_i
 		return -1;
 	}
 
-	if (!(gametype_ffa_long))
-	{
-		eventlog(eventlog_level_error,__FUNCTION__,"got NULL gametype_ffa_long");
-		return -1;
-	}
-
-	if (!(temp = strdup(gametype_ffa_long)))
-	{
-		eventlog(eventlog_level_error,__FUNCTION__,"could not allocate mem for gametype_ffa_long");
-		return -1;
-	}
-	if (anongame_infos_DESC->gametype_ffa_long) free((void *)anongame_infos_DESC->gametype_ffa_long);
-	anongame_infos_DESC->gametype_ffa_long = temp;
-
-	return 0;
+	return anongame_infos_set_str(&anongame_infos_DESC->gametype_ffa_long,gametype_ffa_long,"gametype_ffa_long");
 }
 
 t_anongame_infos_DESC * anongame_infos_get_anongame_infos_DESC_by_langID(t_anongame_infos * anongame_infos, char * langID)
