@@ -232,7 +232,15 @@ t_parsed_exeinfo * parse_exeinfo(char const * exeinfo)
 	int size;
         char time_invalid = 0;
 
-	memset(&t1,0,sizeof(t1));
+		if (exeinfo[0]=='\0') //happens when using war3-noCD and having deleted war3.org
+		{
+          free((void *)parsed_exeinfo->exe);
+          free((void *)parsed_exeinfo);
+          eventlog(eventlog_level_error,__FUNCTION__,"found empty exeinfo");
+          return NULL;
+		}
+
+        memset(&t1,0,sizeof(t1));
         t1.tm_isdst = -1;
 
         exeinfo    = strreverse((char *)exeinfo);
