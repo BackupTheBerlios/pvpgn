@@ -2605,7 +2605,10 @@ extern int handle_command(t_connection * c,  char const * text)
 	  }
 
 	// remove accounting here
+
+        message_send_text(c,message_type_info,c,"starting to remove accounting infos... this may take a while...");
 	accounts_remove_accounting_infos();
+        message_send_text(c,message_type_info,c,"done removing accounting infos.. remember... next account saving may take a while...");
 	
 	return 0;
     }
