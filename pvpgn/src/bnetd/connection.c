@@ -113,6 +113,14 @@
 #include "common/xalloc.h"
 #include "common/setup_after.h"
 
+/* types and data structures used for the connlist array */
+typedef struct {
+    t_connection *c;
+    t_elist freelist;
+} t_conn_entry;
+
+t_conn_entry *connarray = NULL;
+t_elist arrayflist;
 
 static int      totalcount=0;
 static t_list * conn_head=NULL;
@@ -121,6 +129,11 @@ static t_list * conn_dead=NULL;
 static void conn_send_welcome(t_connection * c);
 static void conn_send_issue(t_connection * c);
 
+static int connarray_create(void);
+static void connarray_destroy(void);
+static t_connection *connarray_get_conn(unsigned index);
+static unsigned connarray_add_conn(t_connection *c);
+static void connarray_del_conn(unsigned index);
 
 static void conn_send_welcome(t_connection * c)
 {
@@ -339,7 +352,6 @@ extern char const * conn_state_get_str(t_conn_state state)
 
 extern t_connection * conn_create(int tsock, int usock, unsigned int real_local_addr, unsigned short real_local_port, unsigned int local_addr, unsigned short local_port, unsigned int addr, unsigned short port)
 {
-    static unsigned int sessionnum;
     t_connection * temp;
 	
     
@@ -368,7 +380,7 @@ extern t_connection * conn_create(int tsock, int usock, unsigned int real_local_
     temp->protocol.class                = conn_class_init;
     temp->protocol.state                = conn_state_initial;
     temp->protocol.sessionkey           = ((unsigned int)rand())^((unsigned int)time(NULL)+(unsigned int)real_local_port);
-    temp->protocol.sessionnum           = sessionnum++;
+    temp->protocol.sessionnum           = connarray_add_conn(temp);
     temp->protocol.secret               = ((unsigned int)rand())^(totalcount+((unsigned int)time(NULL)));
     temp->protocol.flags                = MF_PLUG;
     temp->protocol.latency              = 0;
@@ -684,6 +696,7 @@ extern void conn_destroy(t_connection * c, t_elem ** elem, int conn_or_dead_list
     /* delete the conn from the dead list if its there, we dont check for error
      * because connections may be destroyed without first setting state to destroy */
     if (conn_dead) list_remove_data(conn_dead, c, (conn_or_dead_list)?elem:&curr);
+    connarray_del_conn(c->protocol.sessionnum);
 
     eventlog(eventlog_level_info,"conn_destroy","[%d] closed %s connection",c->socket.tcp_sock,classstr);
     
@@ -3360,35 +3373,10 @@ extern char const * conn_get_user_game_title(t_clienttag ct)
    }
 }
 
-//NO LONGER USED - WAS FOR WHEN WE DIDNT HAVE PASSWORDS AT LOGIN - THEUNDYING
-//extern int conn_set_w3_isidentified( t_connection * c, int isidentified )
-//{
-//    if ( isidentified != 1 )
-//	c->w3_isidentified = 0;
-//    else
-//	c->w3_isidentified = 1;
-//
-//    return c->w3_isidentified;
-//}
-//
-//extern int conn_get_w3_isidentified( t_connection * c )
-//{
-//    return c->w3_isidentified;
-//}
-
-//extern void conn_w3_identtimeout( t_connection * c, time_t now, t_timer_data data )
-//{
-//    if ( conn_get_w3_isidentified(c) == 0 )
-//    {
-//	conn_set_state( c, conn_state_destroy );
-//    }
-//    return;
-//}
-/* END OF UNDYING SOULZZ MODS */
-
 extern int connlist_create(void)
 {
     conn_head = list_create();
+    connarray_create();
     return 0;
 }
 
@@ -3396,6 +3384,7 @@ extern int connlist_destroy(void)
 {
     if (conn_dead) list_destroy(conn_dead);
     conn_dead = NULL;
+    connarray_destroy();
     /* FIXME: if called with active connection, connection are not freed */
     if (list_destroy(conn_head)<0)
 	return -1;
@@ -3470,17 +3459,7 @@ extern t_connection * connlist_find_connection_by_sessionkey(unsigned int sessio
 
 extern t_connection * connlist_find_connection_by_sessionnum(unsigned int sessionnum)
 {
-    t_connection * c;
-    t_elem const * curr;
-    
-    LIST_TRAVERSE_CONST(conn_head,curr)
-    {
-	c = elem_get_data(curr);
-	if (c->protocol.sessionnum==sessionnum)
-	    return c;
-    }
-    
-    return NULL;
+    return connarray_get_conn(sessionnum);
 }
 
 
@@ -3836,3 +3815,57 @@ extern char const * conn_get_tmpVOICE_channel(t_connection * c)
 	return c->protocol.chat.tmpVOICE_channel;
 }
 
+static int connarray_create(void)
+{
+    int i;
+    t_conn_entry *curr;
+
+    if (connarray) connarray_destroy();
+    connarray = xmalloc(sizeof(t_conn_entry) * fdw_maxfd);
+
+    elist_init(&arrayflist);
+    /* put all elements as free */
+    for(i = 0, curr = connarray; i < fdw_maxfd; i++, curr++) {
+	elist_add_tail(&arrayflist,&curr->freelist);
+	curr->c = NULL;
+    }
+
+    return 0;
+}
+
+
+static void connarray_destroy(void)
+{
+    if (connarray) xfree((void*)connarray);
+    connarray = NULL;
+}
+
+static t_connection *connarray_get_conn(unsigned index)
+{
+    if (index >= fdw_maxfd) return NULL;
+    return connarray[index].c;
+}
+
+static unsigned connarray_add_conn(t_connection *c)
+{
+    t_conn_entry *curr;
+
+    assert(c);
+    assert(!elist_empty(&arrayflist));
+
+    curr = elist_entry(elist_next(&arrayflist),t_conn_entry,freelist);
+    assert(curr->c == NULL);	/* it should never be free and != NULL */
+    curr->c = c;
+    elist_del(&curr->freelist);
+    return (curr - connarray);	/* return the array index */
+}
+
+static void connarray_del_conn(unsigned index)
+{
+    t_conn_entry *curr;
+
+    if (index >= fdw_maxfd) return;
+    curr = connarray + index;
+    curr->c = NULL;
+    elist_add_tail(&arrayflist,&curr->freelist);
+}
