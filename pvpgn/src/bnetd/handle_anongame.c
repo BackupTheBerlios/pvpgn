@@ -49,6 +49,7 @@
 #include "anongame_maplists.h"
 #include "handle_anongame.h"
 #include "tournament.h"
+#include "clan.h"
 #include "common/setup_after.h"
 
 /* option - handling function */
@@ -61,7 +62,7 @@
 /* 0x05 */ /* AT style search - handle_anongame_search() in anongame.c */
 /* 0x06 */ /* AT style search (Inviter) handle_anongame_search() in anongame.c */
 /* 0x07 */ static int _client_anongame_tournament(t_connection * c, t_packet const * const packet);
-/* 0x08 */ /* unknown if it even exists */
+/* 0x08 */ static int _client_anongame_profile_clan(t_connection * c, t_packet const * const packet);
 /* 0x09 */ static int _client_anongame_get_icon(t_connection * c, t_packet const * const packet);
 /* 0x0A */ static int _client_anongame_set_icon(t_connection * c, t_packet const * const packet);
 
@@ -69,6 +70,72 @@
 static unsigned int _tournament_time_convert(unsigned int time);
 
 /* and now the functions */
+
+static int _client_anongame_profile_clan(t_connection * c, t_packet const * const packet)
+{
+    t_packet * rpacket;
+    int clantag;
+    int clienttag;
+    int count;
+    int temp;
+    t_clan * clan;
+    unsigned char rescount;
+
+    if (packet_get_size(packet)<sizeof(t_client_findanongame_profile_clan))
+    {
+	eventlog(eventlog_level_error,__FUNCTION__,"[%d] got bad ANONGAME_PROFILE_CLAN packet (expected %u bytes, got %u)",conn_get_socket(c), sizeof(t_client_findanongame_profile_clan), packet_get_size(packet));
+	return -1;
+    }
+
+    clantag = bn_int_get(packet->u.client_findanongame_profile_clan.clantag);
+    clienttag = bn_int_get(packet->u.client_findanongame_profile_clan.clienttag);
+    count = bn_int_get(packet->u.server_findanongame_profile_clan.count);
+    clan = clanlist_find_clan_by_clantag(clantag);
+
+    if ((rpacket = packet_create(packet_class_bnet)))
+    {
+	packet_set_size(rpacket,sizeof(t_server_findanongame_profile_clan));
+	packet_set_type(rpacket,SERVER_FINDANONGAME_PROFILE_CLAN);
+	bn_byte_set(&rpacket->u.server_findanongame_profile_clan.option,CLIENT_FINDANONGAME_PROFILE_CLAN);
+	bn_int_set(&rpacket->u.server_findanongame_profile_clan.count,count);
+	rescount = 0;
+
+	if (!(clan))
+	{
+	   temp = 0;
+	   packet_append_data(rpacket,&temp,1);
+	}
+	else
+	{
+	   temp = 0;
+	   packet_append_data(rpacket,&temp,1);
+
+	   /* need to add clan stuff here:
+	   	format:
+		bn_int	ladder_tag (SNLC, 2NLC, 3NLC, 4NLC)
+		bn_int	wins
+		bn_int	losses
+		bn_byte rank
+		bn_byte progess bar
+		bn_int	xp
+		bn_int	rank
+		bn_byte 0x06 <-- random + 5 races
+		6 times:
+		bn_int  wins
+		bn_int	losses
+	    */
+	}
+	
+	bn_byte_set(&rpacket->u.server_findanongame_profile_clan.rescount,rescount);
+
+
+	conn_push_outqueue(c,rpacket);
+	packet_del_ref(rpacket);	
+    }
+   
+   return 0;
+}
+
 static int _client_anongame_profile(t_connection * c, t_packet const * const packet)
 {
     t_packet * rpacket;
@@ -102,7 +169,7 @@ static int _client_anongame_profile(t_connection * c, t_packet const * const pac
     else
     ctag = conn_get_clienttag(dest_c);
 
-    eventlog(eventlog_level_info,__FUNCTION__,"Looking up %s's WAR3 Stats.",username);
+    eventlog(eventlog_level_info,__FUNCTION__,"Looking up %s's %s Stats.",username,ctag);
 
     if (account_get_sololevel(account,ctag)<=0 && account_get_teamlevel(account,ctag)<=0 && account_get_atteamcount(account,ctag)<=0)
     {
@@ -876,29 +943,36 @@ static unsigned int _tournament_time_convert(unsigned int time)
 
 extern int handle_anongame_packet(t_connection * c, t_packet const * const packet)
 {
-    if (bn_byte_get(packet->u.client_anongame.option)==CLIENT_FINDANONGAME_PROFILE)
-	return _client_anongame_profile(c, packet);
+    switch (bn_byte_get(packet->u.client_anongame.option))
+    {
+	case CLIENT_FINDANONGAME_PROFILE:
+	  return _client_anongame_profile(c, packet);
 
-    if (bn_byte_get(packet->u.client_anongame.option) == CLIENT_FINDANONGAME_CANCEL) 
-	return _client_anongame_cancel(c);
+	case CLIENT_FINDANONGAME_CANCEL:
+	  return _client_anongame_cancel(c);
 	
-    if (bn_byte_get(packet->u.client_anongame.option)==CLIENT_FINDANONGAME_SEARCH ||
-	    bn_byte_get(packet->u.client_anongame.option)==CLIENT_FINDANONGAME_AT_INVITER_SEARCH ||
-	    bn_byte_get(packet->u.client_anongame.option)==CLIENT_FINDANONGAME_AT_SEARCH)
-	return handle_anongame_search(c, packet); /* located in anongame.c */
+	case CLIENT_FINDANONGAME_SEARCH:
+	case CLIENT_FINDANONGAME_AT_INVITER_SEARCH:
+	case CLIENT_FINDANONGAME_AT_SEARCH:
+	  return handle_anongame_search(c, packet); /* located in anongame.c */
 
-    if (bn_byte_get(packet->u.client_anongame.option)==CLIENT_FINDANONGAME_GET_ICON)
-	return _client_anongame_get_icon(c, packet);
+	case CLIENT_FINDANONGAME_GET_ICON:
+	  return _client_anongame_get_icon(c, packet);
     
-    if (bn_byte_get(packet->u.client_anongame.option)==CLIENT_FINDANONGAME_SET_ICON)
-	return _client_anongame_set_icon(c, packet);
+	case CLIENT_FINDANONGAME_SET_ICON:
+	  return _client_anongame_set_icon(c, packet);
 
-    if (bn_byte_get(packet->u.client_anongame.option) == CLIENT_FINDANONGAME_INFOS)
-	return _client_anongame_infos(c, packet);
+	case CLIENT_FINDANONGAME_INFOS:
+	  return _client_anongame_infos(c, packet);
     
-    if (bn_byte_get(packet->u.client_anongame.option)==CLIENT_ANONGAME_TOURNAMENT)
-	return _client_anongame_tournament(c, packet);
-    
-    eventlog(eventlog_level_error,__FUNCTION__,"got unhandled option %d",bn_byte_get(packet->u.client_findanongame.option));
-    return -1;
+	case CLIENT_ANONGAME_TOURNAMENT:
+	  return _client_anongame_tournament(c, packet);
+
+	case CLIENT_FINDANONGAME_PROFILE_CLAN:
+	  return _client_anongame_profile_clan(c, packet);
+
+	default:
+          eventlog(eventlog_level_error,__FUNCTION__,"got unhandled option %d",bn_byte_get(packet->u.client_findanongame.option));
+	  return -1;
+    }
 }

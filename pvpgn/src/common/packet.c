@@ -399,8 +399,8 @@ extern char const * packet_get_type_str(t_packet const * packet, t_packet_dir di
 		return "CLIENT_REALMLISTREQ";
 	    case CLIENT_REALMLISTREQ_110:
 		return "CLIENT_REALMLISTREQ_110";
-	    case CLIENT_REALMJOINREQ:
-		return "CLIENT_REALMJOINREQ";
+	    case CLIENT_PROFILEREQ:
+		return "CLIENT_PROFILEREQ";
 	    case CLIENT_UNKNOWN_37:
 		return "CLIENT_UNKNOWN_37";
 	    case CLIENT_UNKNOWN_39:
@@ -505,6 +505,8 @@ extern char const * packet_get_type_str(t_packet const * packet, t_packet_dir di
 		return "CLIENT_FRIENDSLISTREQ";
 	    case CLIENT_FRIENDINFOREQ:
 		return "CLIENT_FRIENDINFOREQ";
+	    case CLIENT_CLANINFOREQ:
+	    	return "CLIENT_CLANINFOREQ";
 	    }
 	    return "unknown";
 	    
@@ -677,8 +679,8 @@ extern char const * packet_get_type_str(t_packet const * packet, t_packet_dir di
 		return "SERVER_REALMLISTREPLY";
 	    case SERVER_REALMLISTREPLY_110:
 		return "SERVER_REALMLISTREPLY_110";		
-	    case SERVER_REALMJOINREPLY:
-		return "SERVER_REALMJOINREPLY";
+	    case SERVER_PROFILEREPLY:
+		return "SERVER_PROFILEREPLY";
 	    case SERVER_UNKNOWN_37:
 		return "SERVER_UNKNOWN_37";
 	    case SERVER_MOTD_W3:
@@ -755,6 +757,8 @@ extern char const * packet_get_type_str(t_packet const * packet, t_packet_dir di
 		return "SERVER_FRIENDDEL_ACK";		
 	    case SERVER_FRIENDMOVE_ACK:
 		return "SERVER_FRIENDMOVE_ACK";		
+	    case SERVER_CLANINFOREPLY:
+	    	return "SERVER_CLANINFO_REPLY";
 	    }
 	    return "unknown";
 	    

@@ -180,8 +180,8 @@ typedef struct
         t_client_realmlistreq_110   client_realmlistreq_110;
         t_server_realmlistreply     server_realmlistreply;
         t_server_realmlistreply_110 server_realmlistreply_110;
-        t_client_realmjoinreq       client_realmjoinreq;
-        t_server_realmjoinreply     server_realmjoinreply;
+        t_client_profilereq         client_profilereq;
+        t_server_profilereply       server_profilereply;
         t_client_realmjoinreq_109   client_realmjoinreq_109;
         t_server_realmjoinreply_109 server_realmjoinreply_109;
         t_client_unknown_37         client_unknown_37;
@@ -239,7 +239,7 @@ typedef struct
 	t_server_findanongame_playgame_cancel		server_findanongame_playgame_cancel;
 	t_server_anongame_found		server_anongame_found;
 	//t_server_w3profile_reply      server_w3profile_reply;
-    t_client_ladderreq2        client_ladderreq2;
+	t_client_ladderreq2        client_ladderreq2;
 	t_server_ladderreply2      server_ladderreply2;
 	t_client_authmotdreq       client_authmotdreq;
 	t_server_authmotdreply     server_authmotdreply;
@@ -316,19 +316,19 @@ typedef struct
 	t_server_friendmove_ack		server_friendmove_ack;
 
 	// 5/19/02 - THEUNDYING - used for arranged teams
-	t_client_arrangedteam_friendscreen		client_arrangedteam_friendscreen;
-	t_server_arrangedteam_friendscreen		server_arrangedteam_friendscreen;
-	t_client_arrangedteam_invite_friend		client_arrangedteam_invite_friend;
-	t_server_arrangedteam_invite_friend_ack		server_arrangedteam_invite_friend_ack;
-	t_server_arrangedteam_send_invite		server_arrangedteam_send_invite;
+	t_client_arrangedteam_friendscreen	client_arrangedteam_friendscreen;
+	t_server_arrangedteam_friendscreen	server_arrangedteam_friendscreen;
+	t_client_arrangedteam_invite_friend	client_arrangedteam_invite_friend;
+	t_server_arrangedteam_invite_friend_ack	server_arrangedteam_invite_friend_ack;
+	t_server_arrangedteam_send_invite	server_arrangedteam_send_invite;
 	t_client_arrangedteam_accept_invite    client_arrangedteam_accept_invite;
 	t_client_arrangedteam_accept_decline_invite    client_arrangedteam_accept_decline_invite;
 	t_server_arrangedteam_member_decline    server_arrangedteam_member_decline;
 	// 5/24/02 - THEUNDYING - updates for ANONGAME PROFILE PACKET
-	t_client_findanongame_profile			client_findanongame_profile;
+	t_client_findanongame_profile		client_findanongame_profile;
 
 	/* dizzy : war3 1.03 has changed format */
-	t_server_findanongame_profile2			server_findanongame_profile2;
+	t_server_findanongame_profile2		server_findanongame_profile2;
 		
 	// [zap-zero] 20020529
 	t_client_w3route_req			client_w3route_req;
@@ -348,33 +348,33 @@ typedef struct
 	t_client_findanongame_inforeq		client_findanongame_inforeq;
 	t_server_findanongame_inforeply		server_findanongame_inforeply;
 	
-	t_client_w3xp_clan_invitereq        client_w3xp_clan_invitereq;
-    t_server_w3xp_clan_invitereply      server_w3xp_clan_invitereply;
-	t_server_w3xp_clan_invitereq        server_w3xp_clan_invitereq;
-	t_client_w3xp_clan_invitereply      client_w3xp_clan_invitereply;
-	t_client_w3xp_clan_disbandreq       client_w3xp_clan_disbandreq;
-	t_server_w3xp_clan_disbandreply     server_w3xp_clan_disbandreply;
-	t_client_w3xp_clan_motdchg          client_w3xp_clan_motdchg;
-	t_client_w3xp_clan_motdreq          client_w3xp_clan_motdreq;
-	t_server_w3xp_clan_motdreply        server_w3xp_clan_motdreply;
-	t_client_w3xp_clan_memberreq        client_w3xp_clan_memberreq;
-	t_server_w3xp_clan_memberreply      server_w3xp_clan_memberreply;
-    t_client_w3xp_clan_createreq        client_w3xp_clan_createreq;
-	t_server_w3xp_clan_createreply      server_w3xp_clan_createreply;
-	t_client_w3xp_clan_createinvitereq  client_w3xp_clan_createinvitereq;
-    t_server_w3xp_clan_createinvitereply    server_w3xp_clan_createinvitereply;
-	t_server_w3xp_clan_createinvitereq  server_w3xp_clan_createinvitereq;
-    t_client_w3xp_clan_createinvitereply    client_w3xp_clan_createinvitereply;
-    t_server_w3xp_clan_clanack			    server_w3xp_clan_clanack;
-    t_server_w3xp_clan_memberchangeack      server_w3xp_clan_memberchangeack;
-    t_client_w3xp_clan_memberchangereq      client_w3xp_clan_memberchangereq;
-    t_server_w3xp_clan_memberchangereply    server_w3xp_clan_memberchangereply;
-    t_client_w3xp_clan_memberdelreq         client_w3xp_clan_memberdelreq;
-    t_server_w3xp_clan_memberdelreply       server_w3xp_clan_memberdelreply;
-    t_client_w3xp_clan_membernewchiefreq    client_w3xp_clan_membernewchiefreq;
-    t_server_w3xp_clan_membernewchiefreply  server_w3xp_clan_membernewchiefreply;
-    t_server_w3xp_clan_clanleaveack         server_w3xp_clan_clanleaveack;
-    t_server_w3xp_clan_memberleaveack       server_w3xp_clan_memberleaveack;
+	t_client_w3xp_clan_invitereq		client_w3xp_clan_invitereq;
+    	t_server_w3xp_clan_invitereply		server_w3xp_clan_invitereply;
+	t_server_w3xp_clan_invitereq		server_w3xp_clan_invitereq;
+	t_client_w3xp_clan_invitereply		client_w3xp_clan_invitereply;
+	t_client_w3xp_clan_disbandreq		client_w3xp_clan_disbandreq;
+	t_server_w3xp_clan_disbandreply		server_w3xp_clan_disbandreply;
+	t_client_w3xp_clan_motdchg		client_w3xp_clan_motdchg;
+	t_client_w3xp_clan_motdreq		client_w3xp_clan_motdreq;
+	t_server_w3xp_clan_motdreply		server_w3xp_clan_motdreply;
+	t_client_w3xp_clan_memberreq		client_w3xp_clan_memberreq;
+	t_server_w3xp_clan_memberreply		server_w3xp_clan_memberreply;
+	t_client_w3xp_clan_createreq		client_w3xp_clan_createreq;
+	t_server_w3xp_clan_createreply		server_w3xp_clan_createreply;
+	t_client_w3xp_clan_createinvitereq	client_w3xp_clan_createinvitereq;
+	t_server_w3xp_clan_createinvitereply	server_w3xp_clan_createinvitereply;
+	t_server_w3xp_clan_createinvitereq	server_w3xp_clan_createinvitereq;
+	t_client_w3xp_clan_createinvitereply	client_w3xp_clan_createinvitereply;
+	t_server_w3xp_clan_clanack		server_w3xp_clan_clanack;
+	t_server_w3xp_clan_memberchangeack      server_w3xp_clan_memberchangeack;
+	t_client_w3xp_clan_memberchangereq      client_w3xp_clan_memberchangereq;
+	t_server_w3xp_clan_memberchangereply    server_w3xp_clan_memberchangereply;
+	t_client_w3xp_clan_memberdelreq         client_w3xp_clan_memberdelreq;
+	t_server_w3xp_clan_memberdelreply       server_w3xp_clan_memberdelreply;
+	t_client_w3xp_clan_membernewchiefreq    client_w3xp_clan_membernewchiefreq;
+	t_server_w3xp_clan_membernewchiefreply  server_w3xp_clan_membernewchiefreply;
+	t_server_w3xp_clan_clanleaveack         server_w3xp_clan_clanleaveack;
+	t_server_w3xp_clan_memberleaveack       server_w3xp_clan_memberleaveack;
 
 	t_server_findanongame_iconreply		server_findanongame_iconreply;
 	t_client_changeclient			client_changeclient;
@@ -385,11 +385,15 @@ typedef struct
 	t_server_anongame_tournament_reply	server_anongame_tournament_reply;
 
     /* new packets supporting D2 1.10 & War3 1.13 */
-    t_client_setemailreply	   client_setemailreq;
-	t_server_setemailreq	   server_setemailreply;
-	t_client_getpasswordreq	   client_getpasswordreq;
-	t_client_changeemailreq	   client_changeemailreq;
-	t_client_crashdump	   client_crashdump;
+    t_client_setemailreply			client_setemailreq;
+	t_server_setemailreq			server_setemailreply;
+	t_client_getpasswordreq			client_getpasswordreq;
+	t_client_changeemailreq			client_changeemailreq;
+	t_client_crashdump			client_crashdump;
+	t_client_claninforeq			client_claninforeq;
+	t_server_claninforeply			server_claninforeply;
+	t_client_findanongame_profile_clan	client_findanongame_profile_clan;
+	t_server_findanongame_profile_clan	server_findanongame_profile_clan;
 	} u;
 } t_packet;
 

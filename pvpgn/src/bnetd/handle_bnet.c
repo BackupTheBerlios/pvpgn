@@ -147,7 +147,7 @@ static int _client_atacceptdeclineinvite(t_connection * c, t_packet const * cons
 static int _client_motdw3(t_connection * c, t_packet const * const packet);
 static int _client_realmlistreq(t_connection * c, t_packet const * const packet);
 static int _client_realmlistreq110(t_connection * c, t_packet const * const packet);
-static int _client_realmjoinreq(t_connection * c, t_packet const * const packet);
+static int _client_profilereq(t_connection * c, t_packet const * const packet);
 static int _client_realmjoinreq109(t_connection * c, t_packet const * const packet);
 static int _client_unknown39(t_connection * c, t_packet const * const packet);
 static int _client_charlistreq(t_connection * c, t_packet const * const packet);
@@ -189,6 +189,7 @@ static int _client_crashdump(t_connection * c, t_packet const * const packet);
 static int _client_setemailreply(t_connection * c, t_packet const * const packet);
 static int _client_changeemailreq(t_connection * c, t_packet const * const packet);
 static int _client_getpasswordreq(t_connection * c, t_packet const * const packet);
+static int _client_claninforeq(t_connection * c, t_packet const * const packet);
 
 /* connection state connected handler table */
 static const t_htable_row bnet_htable_con[] = {
@@ -244,7 +245,7 @@ static const t_htable_row bnet_htable_log [] = {
      { CLIENT_MOTD_W3,          _client_motdw3},
      { CLIENT_REALMLISTREQ,     _client_realmlistreq},
      { CLIENT_REALMLISTREQ_110, _client_realmlistreq110},
-     { CLIENT_REALMJOINREQ,     _client_realmjoinreq},
+     { CLIENT_PROFILEREQ,     _client_profilereq},
      { CLIENT_REALMJOINREQ_109, _client_realmjoinreq109},
      { CLIENT_UNKNOWN_37,       _client_charlistreq},
      { CLIENT_UNKNOWN_39,       _client_unknown39},
@@ -287,6 +288,7 @@ static const t_htable_row bnet_htable_log [] = {
      { CLIENT_W3XP_CLAN_INVITEREPLY,_client_w3xp_clan_invitereply },
      { CLIENT_CRASHDUMP,        _client_crashdump },
      { CLIENT_SETEMAILREPLY,      _client_setemailreply },
+     { CLIENT_CLANINFOREQ,	_client_claninforeq },
      { CLIENT_NULL,		NULL},
      { -1,                      NULL}
 };
@@ -2944,6 +2946,123 @@ static int _client_realmlistreq110(t_connection * c, t_packet const * const pack
    return 0;
 }
 
+static int _client_claninforeq(t_connection * c, t_packet const * const packet)
+{
+   t_packet * rpacket;
+   int count;
+   char const * username;
+   t_account * account;
+   t_clanmember * clanmember;
+   t_clan	* clan;
+   int		clantag1;
+   int		clantag2;
+   
+   if (packet_get_size(packet)<sizeof(t_client_claninforeq))
+     {
+	eventlog(eventlog_level_error,__FUNCTION__,"[%d] got bad CLANINFOREQ packet (expected %u bytes, got %u)",conn_get_socket(c),sizeof(t_client_claninforeq),packet_get_size(packet));
+	return -1;
+     }
+
+    count = bn_int_get(packet->u.client_claninforeq.count);
+    clantag1 = bn_int_get(packet->u.client_claninforeq.clantag);
+    clan = NULL;
+
+    if (!(username = packet_get_str_const(packet,sizeof(t_client_claninforeq),USER_NAME_MAX)))
+    {
+    	eventlog(eventlog_level_error,__FUNCTION__,"[%d] got bad CLANINFOREQ (missing or too long username)",conn_get_socket(c));
+	return -1;
+    }
+
+    if (!(account = accountlist_find_account(username)))
+    {
+	eventlog(eventlog_level_error,__FUNCTION__,"requested claninfo for non-existant account");
+	return -1;
+    }
+    
+    if ((clanmember = account_get_clanmember(account)) && (clan = clanmember_get_clan(clanmember)))
+	clantag2 = clan_get_clantag(clan);
+    else
+	clantag2 = 0;
+
+    if ((rpacket = packet_create(packet_class_bnet)))
+    {
+    	packet_set_size(rpacket,sizeof(t_server_claninforeply));
+	packet_set_type(rpacket,SERVER_CLANINFOREPLY);
+	bn_int_set(&rpacket->u.server_profilereply.count,count);
+	if (clantag1 == clantag2)
+	{  int temp;
+	
+	  bn_byte_set(&rpacket->u.server_claninforeply.fail,0);
+	
+	  packet_append_string(rpacket,clan_get_name(clan));
+	  temp = clanmember_get_status(clanmember);
+	  packet_append_data(rpacket,&temp,1);
+	  temp = clanmember_get_join_time(clanmember);
+	  packet_append_data(rpacket,&temp,8);
+	}
+	else
+	  bn_byte_set(&rpacket->u.server_claninforeply.fail,1);
+
+
+	conn_push_outqueue(c,rpacket);
+	packet_del_ref(rpacket);
+    }
+
+    return 0;
+}
+
+static int _client_profilereq(t_connection * c, t_packet const * const packet)
+{
+   t_packet * rpacket;
+   int count;
+   char const * username;
+   t_account * account;
+   t_clanmember * clanmember;
+   t_clan	* clan;
+   bn_int	clanTAG;
+   
+   if (packet_get_size(packet)<sizeof(t_client_profilereq))
+     {
+	eventlog(eventlog_level_error,__FUNCTION__,"[%d] got bad PROFILEREQ packet (expected %u bytes, got %u)",conn_get_socket(c),sizeof(t_client_profilereq),packet_get_size(packet));
+	return -1;
+     }
+
+    count = bn_int_get(packet->u.client_profilereq.count);
+
+    if (!(username = packet_get_str_const(packet,sizeof(t_client_profilereq),USER_NAME_MAX)))
+    {
+    	eventlog(eventlog_level_error,__FUNCTION__,"[%d] got bad PROFILEREQ (missing or too long username)",conn_get_socket(c));
+	return -1;
+    }
+
+    if (!(account = accountlist_find_account(username)))
+    {
+	eventlog(eventlog_level_error,__FUNCTION__,"requested profile for non-existant account");
+	return -1;
+    }
+    if ((rpacket = packet_create(packet_class_bnet)))
+    {
+    	packet_set_size(rpacket,sizeof(t_server_profilereply));
+	packet_set_type(rpacket,SERVER_PROFILEREPLY);
+	bn_int_set(&rpacket->u.server_profilereply.count,count);
+	bn_byte_set(&rpacket->u.server_profilereply.fail,0);
+	packet_append_string(rpacket,account_get_desc(account));
+	packet_append_string(rpacket,account_get_loc(account));
+	if ((clanmember = account_get_clanmember(account)) && (clan = clanmember_get_clan(clanmember)))
+	  bn_int_set(&clanTAG,clan_get_clantag(clan));
+	else
+	  bn_int_set(&clanTAG,0);
+	packet_append_data(rpacket,clanTAG,4);
+
+	conn_push_outqueue(c,rpacket);
+	packet_del_ref(rpacket);
+    }
+
+    return 0;
+}
+
+
+/* obsolete - and packet ID now used by profilereq 
 static int _client_realmjoinreq(t_connection * c, t_packet const * const packet)
 {
    t_packet * rpacket;
@@ -2971,9 +3090,9 @@ static int _client_realmjoinreq(t_connection * c, t_packet const * const packet)
 	       {
 		  packet_set_size(rpacket,sizeof(t_server_realmjoinreply));
 		  packet_set_type(rpacket,SERVER_REALMJOINREPLY);
-		  bn_int_set(&rpacket->u.server_realmjoinreply.unknown1,bn_int_get(packet->u.client_realmjoinreq.unknown1)); /* should this be copied on error? */
+		  bn_int_set(&rpacket->u.server_realmjoinreply.unknown1,bn_int_get(packet->u.client_realmjoinreq.unknown1)); // should this be copied on error?
 		  bn_int_set(&rpacket->u.server_realmjoinreply.unknown2,0);
-		  bn_int_set(&rpacket->u.server_realmjoinreply.unknown3,0); /* reg auth */
+		  bn_int_set(&rpacket->u.server_realmjoinreply.unknown3,0); // reg auth
 		  bn_int_set(&rpacket->u.server_realmjoinreply.sessionkey,0);
 		  bn_int_nset(&rpacket->u.server_realmjoinreply.addr,0);
 		  bn_short_nset(&rpacket->u.server_realmjoinreply.port,0);
@@ -3003,9 +3122,9 @@ static int _client_realmjoinreq(t_connection * c, t_packet const * const packet)
 	       } temp;
 	     t_hash       secret_hash;
 	     
-	     conn_set_realmname(c,realm_get_name(realm)); /* FIXME: should we only set this after they log in to the realm server? */
+	     conn_set_realmname(c,realm_get_name(realm)); // FIXME: should we only set this after they log in to the realm server?
 	     
-	     /* "password" to verify auth connection later, not sure what real Battle.net does */
+	     // "password" to verify auth connection later, not sure what real Battle.net does
 	     salt = rand();
 	     bn_int_set(&temp.salt,salt);
 	     bn_int_set(&temp.sessionkey,conn_get_sessionkey(c));
@@ -3021,7 +3140,7 @@ static int _client_realmjoinreq(t_connection * c, t_packet const * const packet)
 		  packet_set_type(rpacket,SERVER_REALMJOINREPLY);
 		  bn_int_set(&rpacket->u.server_realmjoinreply.unknown1,bn_int_get(packet->u.client_realmjoinreq.unknown1));
 		  bn_int_set(&rpacket->u.server_realmjoinreply.unknown2,SERVER_REALMJOINREPLY_UNKNOWN2);
-		  bn_int_set(&rpacket->u.server_realmjoinreply.unknown3,SERVER_REALMJOINREPLY_UNKNOWN3); /* reg auth */
+		  bn_int_set(&rpacket->u.server_realmjoinreply.unknown3,SERVER_REALMJOINREPLY_UNKNOWN3); // reg auth
 		  bn_int_set(&rpacket->u.server_realmjoinreply.sessionkey,conn_get_sessionkey(c));
 		  
 		  if (netaddr_contains_addr_num(realm_get_exclude_net(realm), conn_get_addr(c))) {
@@ -3036,7 +3155,7 @@ static int _client_realmjoinreq(t_connection * c, t_packet const * const packet)
 		  bn_int_set(&rpacket->u.server_realmjoinreply.unknown7,SERVER_REALMJOINREPLY_UNKNOWN7);
 		  bn_int_set(&rpacket->u.server_realmjoinreply.unknown8,SERVER_REALMJOINREPLY_UNKNOWN8);
 		  bn_int_set(&rpacket->u.server_realmjoinreply.unknown9,salt);
-		  hash_to_bnhash((t_hash const *)&secret_hash,rpacket->u.server_realmjoinreply.secret_hash); /* avoid warning */
+		  hash_to_bnhash((t_hash const *)&secret_hash,rpacket->u.server_realmjoinreply.secret_hash); // avoid warning
 		  packet_append_string(rpacket,(tname = conn_get_username(c)));
 		  conn_unget_username(c,tname);
 		  conn_push_outqueue(c,rpacket);
@@ -3047,6 +3166,8 @@ static int _client_realmjoinreq(t_connection * c, t_packet const * const packet)
    
    return 0;
 }
+*/
+
 
 static int _client_realmjoinreq109(t_connection * c, t_packet const * const packet)
 {

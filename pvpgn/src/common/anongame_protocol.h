@@ -28,6 +28,7 @@ typedef struct
 #define CLIENT_FINDANONGAME_AT_SEARCH           0x05
 #define CLIENT_FINDANONGAME_AT_INVITER_SEARCH   0x06
 #define CLIENT_ANONGAME_TOURNAMENT		0X07
+#define	CLIENT_FINDANONGAME_PROFILE_CLAN	0x08
 #define CLIENT_FINDANONGAME_GET_ICON            0x09
 #define CLIENT_FINDANONGAME_SET_ICON            0x0A
 
@@ -366,6 +367,31 @@ typedef struct
     bn_byte             descnum;    /* matches desc_count of DESC */
     bn_byte             nulltag;    /* 00 */
 } t_server_anongame_tournament_reply PACKED_ATTR();
+
+/***********************************************************************************/
+
+/* option 08 - clan profile request */
+typedef struct
+{
+    t_bnet_header h;
+    bn_byte	option;
+    bn_int	count;
+    bn_int	clantag;
+    bn_int	clienttag;
+} t_client_findanongame_profile_clan PACKED_ATTR();
+
+#define SERVER_FINDANONGAME_PROFILE_CLAN	0x44ff
+
+typedef struct
+{
+    t_bnet_header	h;
+    bn_byte		option;
+    bn_int		count;
+    bn_byte		rescount;
+    // REST OF PROFILE STATS - THIS WILL BE SET IN HANDLE_BNET.C after
+    // SERVER LOOKS UP THE USER ACCOUNT
+} t_server_findanongame_profile_clan PACKED_ATTR();
+
 
 /***********************************************************************************/
 /* option 9 - icon request */

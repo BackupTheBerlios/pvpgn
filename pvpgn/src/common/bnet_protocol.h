@@ -1313,83 +1313,26 @@ typedef struct
 #define SERVER_REALMLISTREPLY_110_DATA_UNKNOWN1 0x00000001
 
 
-/******************************************************/
-/*
-FF 35 25 00 01 00 00 00   AA 7D 15 EB DA C7 FE 92    .5%......}......
-94 84 C2 FE 98 2C 4D 20   12 96 05 D2 42 65 74 61    .....,M ....Beta
-57 65 73 74 00                                       West.
-
-FF 35 25 00 06 00 00 00   BB DA EF 7A 94 D9 6E B0    .5%........z..n.
-35 0e 03 96 6a 5f be 87   11 A3 59 CE 42 65 74 61    5...j_....Y.Beta
-57 65 73 74 00                                       West.
-*/
-#define CLIENT_REALMJOINREQ 0x35ff
+#define CLIENT_PROFILEREQ 0x35ff
 typedef struct /* join realm request */
 {
     t_bnet_header h;
-    bn_int        unknown1; /* seq number? */
-    bn_int        unknown2;
-    bn_int        unknown3;
-    bn_int        unknown4;
-    bn_int        unknown5;
-    bn_int        unknown6; /* bn_hash of something? */
-    /* realm name */
-} t_client_realmjoinreq PACKED_ATTR();
-/******************************************************/
+    bn_int	  count;
+    /* player name */
+} t_client_profilereq PACKED_ATTR();
 
 
-/******************************************************/
-/*
-FF 35 43 00 01 00 00 00   FA 9E 0D D1 D8 94 F6 07    .5C.............
-F6 0F 08 00 D8 94 F6 30   17 E0 00 00 00 00 00 00    .......0........
-42 1B 00 00 B2 7E 27 44   D5 C5 FB 07 FA 9E BF 63    B....~'D.......c
-1B 57 1B 69 7F 4F A9 C0   B8 83 E9 4C 4D 6F 4E 6B    .W.i.O.....LMoNk
-32 6B 00                                             2k.
-
-FF 35 44 00 01 00 00 00   FA 9E 0D D1 D8 94 F6 07    .5D.............
-F6 0F 08 00 80 7B 40 A2   17 E0 00 00 00 00 00 00    .....{@.........
-42 1B 00 00 B2 7E 27 44   D5 C5 FB 07 FA 9E BF 63    B....~'D.......c
-1B 57 1B 69 7F 4F A9 C0   B8 83 E9 4C 51 6C 65 78    .W.i.O.....LQlex
-53 5A 47 00                                          SZG.
-
-FF 35 48 00 01 00 00 00   24 43 A2 A9 D8 94 F6 09    .5H.....$C......
-05 75 0E 00 D8 94 F6 30   17 E0 00 00 00 00 00 00    .u.....0........
-10 1D 00 00 FE CE B9 DA   89 4B 93 51 A9 18 FA A2    .........K.Q....
-85 4B B8 A4 B4 27 C8 5D   A8 FE 17 31 48 65 68 65    .K...'.]...1Hehe
-2D 69 2D 53 75 63 6B 00                              -i-Suck.
-*/
-#define SERVER_REALMJOINREPLY 0x35ff
+#define SERVER_PROFILEREPLY 0x35ff
 typedef struct /* realm join reply? */
 {
     t_bnet_header h;
-    bn_int        unknown1;       /* same as reqest */ /* seq number? */ /* count? */ /* result? */
-    bn_int        unknown2;       /* same later in auth login */
-    bn_int        unknown3;       /* reg auth? looks like server ip */ /* same later in auth login and SERVER_MESSAGE */
-    bn_int        sessionkey;     /* same later in auth login */
-    bn_int        addr;           /* big endian? */
-    bn_short      port;           /* big endian? */
-    bn_short      unknown6;
-    bn_int        unknown7;       /* always zero? */ /* same later in auth login */
-    bn_int        unknown8;       /* always near 0x2000? */ /* same later in auth login */
-    bn_int        unknown9;       /* hash salt? */ /* same later in auth login */
-    bn_int        secret_hash[5]; /* same later in auth login */
-    /* player name */
-} t_server_realmjoinreply PACKED_ATTR();
-#define SERVER_REALMJOINREPLY_UNKNOWN2  0xd10d9efa
-#define SERVER_REALMJOINREPLY_UNKNOWN3  0x07f694d8
-#define SERVER_REALMJOINREPLY_UNKNOWN6  0x0000
-#define SERVER_REALMJOINREPLY_UNKNOWN7  0x00000000
-#define SERVER_REALMJOINREPLY_UNKNOWN8  0x00001b42
-/******************************************************/
+    bn_int	  count;	/* same as in req */
+    bn_byte	  fail;		/* != 0 if a problem occured */
+    /* profile-description */
+    /* profile-location */
+    /* bn_int clanTAG */
+} t_server_profilereply PACKED_ATTR();
 
-
-/******************************************************/
-/*
-FF 37 09 00 00 00 00 00   00                         .7.......
-
-Diablo II 1.03
-      FF 37 09 00 00 00   00 00 00                     .7.......
-*/
 #define CLIENT_UNKNOWN_37 0x37ff
 typedef struct /* character list request, character list upload? */
 {
@@ -3664,6 +3607,26 @@ typedef struct
 	/* crashdump file data */
 	/* contains data like client version, exception code, code address */
 } t_client_crashdump PACKED_ATTR();
+
+#define CLIENT_CLANINFOREQ		0x82ff
+typedef struct
+{
+	t_bnet_header	h;
+	bn_int		count;
+	bn_int		clantag;
+	/* player name */
+} t_client_claninforeq PACKED_ATTR();
+
+#define SERVER_CLANINFOREPLY		0x82ff
+typedef struct
+{
+	t_bnet_header	h;
+	bn_int		count;
+	bn_byte		fail;
+	/* string  - clan name */
+	/* bn_byte - clan rank */
+	/* bn_int  - join time */
+} t_server_claninforeply PACKED_ATTR();
 
 #endif
 

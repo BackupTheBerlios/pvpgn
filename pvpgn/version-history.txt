@@ -37,7 +37,7 @@ codes)
 
 [WAR3]: 
   -- fixed possible disc on too long news items
-  -- droped <1.13 support, added basic 1.15 support
+  -- droped <1.13 support, added 1.15 support (CG,PG,AT, clan profile view)
 
 [D2]:
   -- re-enabled checksum check
