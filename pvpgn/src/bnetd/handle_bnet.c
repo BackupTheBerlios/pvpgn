@@ -4151,7 +4151,7 @@ static int _client_joingame(t_connection * c, t_packet const * const packet)
 	     if (!(game = gamelist_find_game(gamename,game_type_all)))
 	       {
 		  eventlog(eventlog_level_info,__FUNCTION__,"[%d] unable to find game \"%s\" for user to join",conn_get_socket(c),gamename);
-		  return -1;
+		  return 0;
 	       }
 	     gtype = game_get_type(game);
 	     gamename = game_get_name(game);
@@ -4159,7 +4159,7 @@ static int _client_joingame(t_connection * c, t_packet const * const packet)
 	     if (!(game = bits_gamelist_find_game(gamename,game_type_all)))
 	       {
 		  eventlog(eventlog_level_info,__FUNCTION__,"[%d] unable to find game \"%s\" for user to join",conn_get_socket(c),gamename);
-		  return -1;
+		  return 0;
 	       }
 	     gtype = bits_game_get_type(game);
 	     gamename = bits_game_get_name(game);
@@ -4172,7 +4172,7 @@ static int _client_joingame(t_connection * c, t_packet const * const packet)
 		  conn_unget_username(c,tname);
 		  /* If the user is not in a game, then map authorization
 		   will fail and keep them from playing. */
-		  return -1;
+		  return 0;
 	       }
 	  }
 	
