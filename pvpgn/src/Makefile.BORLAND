@@ -255,10 +255,10 @@ bnetd_OBJECTS       = \
     ${SRC_CDBDIR}\cdb_make_find.obj \
     ${SRC_CDBDIR}\cdb_make.obj \
     ${SRC_CDBDIR}\cdb_hash.obj \
-    $(SRC_ZLIBDIR)\adler32.obj \
-    $(SRC_ZLIBDIR)\deflate.obj \
-    $(SRC_ZLIBDIR)\trees.obj \
-    $(SRC_ZLIBDIR)\zutil.obj
+    $(SRC_ZLIBDIR)\pvpgn_adler32.obj \
+    $(SRC_ZLIBDIR)\pvpgn_deflate.obj \
+    $(SRC_ZLIBDIR)\pvpgn_trees.obj \
+    $(SRC_ZLIBDIR)\pvpgn_zutil.obj
 
 
 bnetg_SBIN          = ${SRC_SBINDIR}\bnetg.exe
