@@ -140,11 +140,12 @@ extern t_channel * channel_create(char const * fullname, char const * shortname,
 	channel->flags = channel_flags_public;
 	if (clienttag && maxmembers!=-1) /* approximation.. we want things like "Starcraft USA-1" */
 	    channel->flags |= channel_flags_system;
-    } else if(!strcasecmp(shortname, CHANNEL_NAME_KICKED)
-           || !strcasecmp(shortname, CHANNEL_NAME_BANNED)) {
-	channel->flags = channel_flags_thevoid;	   
     } else
 	channel->flags = channel_flags_none;
+
+    if(!strcasecmp(shortname, CHANNEL_NAME_KICKED)
+    || !strcasecmp(shortname, CHANNEL_NAME_BANNED))
+	channel->flags |= channel_flags_thevoid;
     
     eventlog(eventlog_level_debug,"channel_create","creating new channel \"%s\" shortname=%s%s%s clienttag=%s%s%s country=%s%s%s realm=%s%s%s",fullname,
 	     shortname?"\"":"(", /* all this is doing is printing the name in quotes else "none" in parens */

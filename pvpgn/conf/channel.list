@@ -15,6 +15,7 @@
 # -1 for max sets no limit to the number of users allowed in the channel     #
 #                                                                            #
 # ---special name--- -----short name----- cltag bots- -ops- -log- ctry- realm max#
+"The Void"           "The Void"           NULL  true  false false NULL  NULL -1
 NONE                 "Starcraft"          STAR  true  false false "USA" NULL 30
 NONE                 "Brood War"          SEXP  true  false false "USA" NULL 30
 NONE                 "Starcraft Shareware" SSHR true  false false "USA" NULL 30
