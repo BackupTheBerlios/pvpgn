@@ -1628,7 +1628,7 @@ extern t_account * accountlist_find_account(char const * username)
 	    }
 	}
     }
-    if ((!(userid)) || (userid && ((username[0]=='#') || (isnum(username[0])))))
+    if ((!(userid)) || (userid && ((username[0]=='#') || (isdigit(username[0])))))
     {
 	unsigned int namehash;
 	char const * tname;
