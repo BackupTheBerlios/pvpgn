@@ -3696,6 +3696,7 @@ static int _client_joinchannel(t_connection * c, t_packet const * const packet)
    t_clan * user_clan;
    int clanshort=0;
    char const * clienttag;
+   t_channel * channel;
 
    if (packet_get_size(packet)<sizeof(t_client_joinchannel)) {
       eventlog(eventlog_level_error,__FUNCTION__,"[%d] got bad JOINCHANNEL packet (expected %u bytes, got %u)",conn_get_socket(c),sizeof(t_client_joinchannel),packet_get_size(packet));
@@ -3708,6 +3709,10 @@ static int _client_joinchannel(t_connection * c, t_packet const * const packet)
      eventlog(eventlog_level_error,__FUNCTION__,"[%d] got bad JOINCHANNEL (missing or too long cname)",conn_get_socket(c));
      return -1;
    }
+
+   if ((channel = conn_get_channel(c)) && (strcasecmp(channel_get_name(channel),cname)==0))
+     return 0; //we are allready in this channel
+
    clienttag = conn_get_clienttag(c);
    if (strcmp(clienttag, CLIENTTAG_WARCRAFT3) == 0 || strcmp(clienttag, CLIENTTAG_WAR3XP) == 0) 
      {

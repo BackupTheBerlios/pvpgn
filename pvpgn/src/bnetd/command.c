@@ -1971,17 +1971,17 @@ static int _handle_time_command(t_connection * c, char const *text)
 static int _handle_channel_command(t_connection * c, char const *text)
  {
    unsigned int i;
+   t_channel * channel;
+
+   text = skip_command(text);
    
-   for (i=0; text[i]!=' ' && text[i]!='\0'; i++); /* skip command */
-   for (; text[i]==' '; i++);
-   
-   if (text[i]=='\0')
+   if (text[0]=='\0')
      {
        message_send_text(c,message_type_info,c,"usage /channel <channel>");
        return 0;
      }
    
-   if(strcasecmp(&text[i],"Arranged Teams")==0)
+   if(strcasecmp(text,"Arranged Teams")==0)
      {
 //       if(account_get_auth_admin(conn_get_account(c))>0)
 //	 {
@@ -1995,8 +1995,11 @@ static int _handle_channel_command(t_connection * c, char const *text)
 	   return 0;
 //	 }
      }
+
+   if ((channel = conn_get_channel(c)) && (strcasecmp(channel_get_name(channel),text)==0))
+     return 0; // we don't have to do anything, we are allready in this channel
    
-   if (conn_set_channel(c,&text[i])<0)
+   if (conn_set_channel(c,text)<0)
      conn_set_channel(c,CHANNEL_NAME_BANNED); /* should not fail */
    if (strcmp(conn_get_clienttag(c), CLIENTTAG_WARCRAFT3) == 0 || strcmp(conn_get_clienttag(c), CLIENTTAG_WAR3XP) == 0) 
      conn_update_w3_playerinfo(c);
@@ -2020,11 +2023,10 @@ static int _handle_rejoin_command(t_connection * c, char const *text)
 static int _handle_away_command(t_connection * c, char const *text)
 {
   unsigned int i;
+
+  text = skip_command(text);
   
-  for (i=0; text[i]!=' ' && text[i]!='\0'; i++); /* skip command */
-  for (; text[i]==' '; i++);
-  
-  if (text[i]=='\0') /* toggle away mode */
+  if (text[0]=='\0') /* toggle away mode */
     {
       if (!conn_get_awaystr(c))
       {
@@ -2040,7 +2042,7 @@ static int _handle_away_command(t_connection * c, char const *text)
   else
     {
       message_send_text(c,message_type_info,c,"You are now marked as being away.");
-      conn_set_awaystr(c,&text[i]);
+      conn_set_awaystr(c,text);
     }
   
   return 0;
@@ -2050,10 +2052,9 @@ static int _handle_dnd_command(t_connection * c, char const *text)
 {
   unsigned int i;
   
-  for (i=0; text[i]!=' ' && text[i]!='\0'; i++); /* skip command */
-  for (; text[i]==' '; i++);
+  text = skip_command(text);
   
-  if (text[i]=='\0') /* toggle dnd mode */
+  if (text[0]=='\0') /* toggle dnd mode */
     {
       if (!conn_get_dndstr(c))
       {
@@ -2069,7 +2070,7 @@ static int _handle_dnd_command(t_connection * c, char const *text)
   else
     {
       message_send_text(c,message_type_info,c,"Do Not Disturb mode engaged.");
-      conn_set_dndstr(c,&text[i]);
+      conn_set_dndstr(c,text);
     }
   
   return 0;
@@ -2079,22 +2080,21 @@ static int _handle_squelch_command(t_connection * c, char const *text)
 {
   unsigned int i;
   t_account *  account;
-  
-  for (i=0; text[i]!=' ' && text[i]!='\0'; i++); /* skip command */
-  for (; text[i]==' '; i++);
+
+  text = skip_command(text);
   
   /* D2 puts * before username - FIXME: the client don't see it until
      the player rejoins the channel */
-  if (text[i]=='*')
-    i++;
-  
-  if (text[i]=='\0')
+  if (text[0]=='*')
+    text++;
+ 
+  if (text[0]=='\0')
     {
       message_send_text(c,message_type_info,c,"usage: /squelch <username>");
       return 0;
     }
   
-  if (!(account = accountlist_find_account(&text[i])))
+  if (!(account = accountlist_find_account(text)))
     {
       message_send_text(c,message_type_error,c,"No such user.");
       return 0;
@@ -2124,22 +2124,21 @@ static int _handle_unsquelch_command(t_connection * c, char const *text)
 {
   unsigned int      i;
   t_account const * account;
-  
-  for (i=0; text[i]!=' ' && text[i]!='\0'; i++); /* skip command */
-  for (; text[i]==' '; i++);
+
+  text = skip_command(text);
   
   /* D2 puts * before username - FIXME: the client don't see it until
      the player rejoins the channel */
-  if (text[i]=='*')
-    i++;
+  if (text[0]=='*')
+    text++;
   
-  if (text[i]=='\0')
+  if (text[0]=='\0')
     {
       message_send_text(c,message_type_info,c,"usage: /unsquelch <username>");
       return 0;
     }
   
-  if (!(account = accountlist_find_account(&text[i])))
+  if (!(account = accountlist_find_account(text)))
     {
       message_send_text(c,message_type_info,c,"No such user.");
       return 0;
