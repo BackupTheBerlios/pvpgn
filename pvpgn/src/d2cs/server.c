@@ -265,10 +265,6 @@ extern int d2cs_server_handle_tcp(void *data, t_fdwatch_type rw)
 
 static int server_handle_socket(void)
 {
-/*
-	int		sock;
-	t_connection   *c;
-*/
 	switch (fdwatch(BNETD_POLL_INTERVAL)) {
 		case -1:
 			if (
@@ -287,16 +283,6 @@ static int server_handle_socket(void)
 	}
 
 	fdwatch_handle();
-/*
-        BEGIN_HASHTABLE_TRAVERSE_DATA(d2cs_connlist(),c)
-        {
-                sock=d2cs_conn_get_socket(c);
-                if (conn_handle_socket(c)<0) {
-                        d2cs_conn_destroy(c);
-                }
-        }
-	END_HASHTABLE_TRAVERSE_DATA()
-*/
 	return 0;
 }
 
