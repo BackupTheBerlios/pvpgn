@@ -635,8 +635,7 @@ extern void channel_message_log(t_channel const * channel, t_connection * me, in
 	time_t       now;
 	struct tm *  tmnow;
 	char         timetemp[CHANLOG_TIME_MAXLEN];
-	char const * tname;
-	
+
 	now = time(NULL);
 	if ((!(tmnow = localtime(&now))))
 	    strcpy(timetemp,"?");
@@ -644,10 +643,9 @@ extern void channel_message_log(t_channel const * channel, t_connection * me, in
 	    strftime(timetemp,sizeof(timetemp),CHANLOGLINE_TIME_FORMAT,tmnow);
 	
 	if (fromuser)
-	    fprintf(channel->log,"%s: \"%s\" \"%s\"\n",timetemp,(tname = conn_get_username(me)),text);
+	    fprintf(channel->log,"%s: \"%s\" \"%s\"\n",timetemp,conn_get_username(me),text);
 	else
-	    fprintf(channel->log,"%s: \"%s\" %s\n",timetemp,(tname = conn_get_username(me)),text);
-	conn_unget_username(me,tname);
+	    fprintf(channel->log,"%s: \"%s\" %s\n",timetemp,conn_get_username(me),text);
 	fflush(channel->log);
     }
 }

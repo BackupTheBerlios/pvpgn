@@ -101,7 +101,6 @@ extern char const * account_get_strattr_real(t_account * account, char const * k
 #else
 extern char const * account_get_strattr(t_account * account, char const * key);
 #endif
-extern int account_unget_strattr(char const * val);
 extern int account_set_strattr(t_account * account, char const * key, char const * val);
 
 extern char const * account_get_first_key(t_account * account);

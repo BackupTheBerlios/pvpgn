@@ -307,7 +307,6 @@ extern int irc_authenticate(t_connection * conn, char const * passhash)
         hash_set_str(&h1,passhash);
         temphash = account_get_pass(a);	
         hash_set_str(&h2,temphash);
-        account_unget_pass(temphash);
         if (hash_eq(h1,h2)) {
             conn_login(conn,a,username);
             conn_set_state(conn,conn_state_loggedin);
@@ -963,8 +962,6 @@ static int irc_who_connection(t_connection * dest, t_connection * c)
 	return -1;
     } else
         sprintf(temp,"%s %s %s %s %s %c%s :0 %s",tempchannel,tempuser,tempip,server_get_name(),tempname,'H',tempflags,tempowner);
-    account_unget_ll_owner(tempowner);
-    conn_unget_username(c,tempname);
     irc_send(dest,RPL_WHOREPLY,temp);
     return 0;
 }

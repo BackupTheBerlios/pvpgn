@@ -49,14 +49,7 @@ extern int account_get_boolattr(t_account * account, char const * key);
 #endif
 extern int account_set_boolattr(t_account * account, char const * key, int val);
 
-#ifdef DEBUG_ACCOUNT
-extern int account_unget_name_real(char const * name, char const * fn, unsigned int ln);
-# define account_unget_name(N) account_unget_name_real(N,__FILE__,__LINE__)
-#else
-extern int account_unget_name(char const * name);
-#endif
 extern char const * account_get_pass(t_account * account);
-extern int account_unget_pass(char const * pass);
 extern int account_set_pass(t_account * account, char const * passhash1);
 
 /* authorization */
@@ -80,28 +73,20 @@ extern int account_set_auth_lock(t_account * account, int val);
 
 /* profile */
 extern char const * account_get_sex(t_account * account); /* the profile attributes are updated directly in bnetd.c */
-extern int account_unget_sex(char const * sex); /* the profile attributes are updated directly in bnetd.c */
 extern char const * account_get_age(t_account * account);
-extern int account_unget_age(char const * age);
 extern char const * account_get_loc(t_account * account);
-extern int account_unget_loc(char const * loc);
 extern char const * account_get_desc(t_account * account);
-extern int account_unget_desc(char const * desc);
 
 /* last login */
 extern unsigned int account_get_ll_time(t_account * account);
 extern int account_set_ll_time(t_account * account, unsigned int t);
 extern char const * account_get_ll_user(t_account * account);
-extern int account_unget_ll_user(char const * clientexe);
 extern int account_set_ll_user(t_account * account, char const * user);
 extern t_clienttag account_get_ll_clienttag(t_account * account);
-extern int account_unget_ll_clienttag(t_clienttag clienttag);
 extern int account_set_ll_clienttag(t_account * account, t_clienttag clienttag);
 extern char const * account_get_ll_owner(t_account * account);
-extern int account_unget_ll_owner(char const * owner);
 extern int account_set_ll_owner(t_account * account, char const * owner);
 extern char const * account_get_ll_ip(t_account * account);
-extern int account_unget_ll_ip(char const * ip);
 extern int account_set_ll_ip(t_account * account, char const * ip);
 
 /* normal stats */
@@ -171,7 +156,6 @@ extern int account_set_normal_gold(t_account * account, t_clienttag clienttag, u
 
 /* Diablo II closed characters */
 extern char const * account_get_closed_characterlist(t_account * account, t_clienttag clienttag, char const * realmname);
-extern int account_unget_closed_characterlist(t_account * account, char const * charlist);
 extern int account_set_closed_characterlist(t_account * account, t_clienttag clienttag, char const * charlist);
 extern int account_add_closed_character(t_account * account, t_clienttag clienttag, t_character * ch);
 extern int account_check_closed_character(t_account * account, t_clienttag clienttag, char const * realmname, char const * charname);

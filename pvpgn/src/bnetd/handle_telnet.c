@@ -161,9 +161,8 @@ extern int handle_telnet_packet(t_connection * c, t_packet const * const packet)
 		char const *       oldstrhash1;
 		t_hash             trypasshash1;
 		t_hash             oldpasshash1;
-		char const *       tname;
 		char *             testpass;
-		
+
 		if (!loggeduser) /* error earlier in login */
 		{
 		    /* no log message... */
@@ -216,11 +215,9 @@ extern int handle_telnet_packet(t_connection * c, t_packet const * const packet)
 		{
 		    if (hash_set_str(&oldpasshash1,oldstrhash1)<0)
 		    {
-			account_unget_pass(oldstrhash1);
-			eventlog(eventlog_level_info,"handle_telnet_packet","[%d] bot login for \"%s\" refused (corrupted passhash1?)",conn_get_socket(c),(tname = account_get_name(account)));
-			account_unget_name(tname);
+			eventlog(eventlog_level_info,"handle_telnet_packet","[%d] bot login for \"%s\" refused (corrupted passhash1?)",conn_get_socket(c),account_get_name(account));
 			conn_set_state(c,conn_state_bot_username);
-			
+
 			if (!(rpacket = packet_create(packet_class_raw)))
 			{
 			    eventlog(eventlog_level_error,"handle_telnet_packet","[%d] could not create rpacket",conn_get_socket(c));
@@ -232,7 +229,6 @@ extern int handle_telnet_packet(t_connection * c, t_packet const * const packet)
 			packet_del_ref(rpacket);
 			break;
 		    }
-		    account_unget_pass(oldstrhash1);
 
 		    testpass = xstrdup(linestr);
 		    {
@@ -244,12 +240,11 @@ extern int handle_telnet_packet(t_connection * c, t_packet const * const packet)
 		    }
 		    if (bnet_hash(&trypasshash1,strlen(testpass),testpass)<0) /* FIXME: force to lowercase */
 		    {
-			eventlog(eventlog_level_info,"handle_telnet_packet","[%d] bot login for \"%s\" refused (unable to hash password)",conn_get_socket(c),(tname = account_get_name(account)));
-			account_unget_name(tname);
+			eventlog(eventlog_level_info,"handle_telnet_packet","[%d] bot login for \"%s\" refused (unable to hash password)",conn_get_socket(c),account_get_name(account));
 			xfree(testpass);
-			
+
 			conn_set_state(c,conn_state_bot_username);
-			
+
 			if (!(rpacket = packet_create(packet_class_raw)))
 			{
 			    eventlog(eventlog_level_error,"handle_telnet_packet","[%d] could not create rpacket",conn_get_socket(c));
@@ -264,10 +259,9 @@ extern int handle_telnet_packet(t_connection * c, t_packet const * const packet)
 		    xfree(testpass);
 		    if (hash_eq(trypasshash1,oldpasshash1)!=1)
 		    {
-			eventlog(eventlog_level_info,"handle_telnet_packet","[%d] bot login for \"%s\" refused (wrong password)",conn_get_socket(c),(tname = account_get_name(account)));
-			account_unget_name(tname);
+			eventlog(eventlog_level_info,"handle_telnet_packet","[%d] bot login for \"%s\" refused (wrong password)",conn_get_socket(c),account_get_name(account));
 			conn_set_state(c,conn_state_bot_username);
-			
+
 			if (!(rpacket = packet_create(packet_class_raw)))
 			{
 			    eventlog(eventlog_level_error,"handle_telnet_packet","[%d] could not create rpacket",conn_get_socket(c));
@@ -283,10 +277,9 @@ extern int handle_telnet_packet(t_connection * c, t_packet const * const packet)
 		    
 		    if (account_get_auth_botlogin(account)!=1) /* default to false */
 		    {
-			eventlog(eventlog_level_info,"handle_telnet_packet","[%d] bot login for \"%s\" refused (no bot access)",conn_get_socket(c),(tname = account_get_name(account)));
-			account_unget_name(tname);
+			eventlog(eventlog_level_info,"handle_telnet_packet","[%d] bot login for \"%s\" refused (no bot access)",conn_get_socket(c),account_get_name(account));
 			conn_set_state(c,conn_state_bot_username);
-			
+
 			if (!(rpacket = packet_create(packet_class_raw)))
 			{
 			    eventlog(eventlog_level_error,"handle_telnet_packet","[%d] could not create rpacket",conn_get_socket(c));
@@ -300,10 +293,9 @@ extern int handle_telnet_packet(t_connection * c, t_packet const * const packet)
 		    }
 		    else if (account_get_auth_lock(account)==1) /* default to false */
 		    {
-			eventlog(eventlog_level_info,"handle_telnet_packet","[%d] bot login for \"%s\" refused (this account is locked)",conn_get_socket(c),(tname = account_get_name(account)));
-			account_unget_name(tname);
+			eventlog(eventlog_level_info,"handle_telnet_packet","[%d] bot login for \"%s\" refused (this account is locked)",conn_get_socket(c),account_get_name(account));
 			conn_set_state(c,conn_state_bot_username);
-			
+
 			if (!(rpacket = packet_create(packet_class_raw)))
 			{
 			    eventlog(eventlog_level_error,"handle_telnet_packet","[%d] could not create rpacket",conn_get_socket(c));
@@ -316,14 +308,11 @@ extern int handle_telnet_packet(t_connection * c, t_packet const * const packet)
 			break;
 		    }
 		    
-		    eventlog(eventlog_level_info,"handle_telnet_packet","[%d] \"%s\" bot logged in (correct password)",conn_get_socket(c),(tname = account_get_name(account)));
-		    account_unget_name(tname);
+		    eventlog(eventlog_level_info,"handle_telnet_packet","[%d] \"%s\" bot logged in (correct password)",conn_get_socket(c),account_get_name(account));
 		}
 		else
-		{
-		    eventlog(eventlog_level_info,"handle_telnet_packet","[%d] \"%s\" bot logged in (no password)",conn_get_socket(c),(tname = account_get_name(account)));
-		    account_unget_name(tname);
-		}
+		    eventlog(eventlog_level_info,"handle_telnet_packet","[%d] \"%s\" bot logged in (no password)",conn_get_socket(c),account_get_name(account));
+
 		    if (!(rpacket = packet_create(packet_class_raw))) /* if we got this far, let them log in even if this fails */
 			eventlog(eventlog_level_error,"handle_telnet_packet","[%d] could not create rpacket",conn_get_socket(c));
 		    else
@@ -332,8 +321,7 @@ extern int handle_telnet_packet(t_connection * c, t_packet const * const packet)
 			conn_push_outqueue(c,rpacket);
 			packet_del_ref(rpacket);
 		    }
-		    message_send_text(c,message_type_uniqueid,c,(tname = account_get_name(account)));
-		    account_unget_name(tname);
+		    message_send_text(c,message_type_uniqueid,c,account_get_name(account));
 
 		    conn_login(c,account,loggeduser);
 

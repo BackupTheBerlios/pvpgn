@@ -1415,8 +1415,7 @@ static void conn_set_account(t_connection * c, t_account * account)
 	eventlog(eventlog_level_info,"conn_set_account","[%d] forcing logout of previous login for \"%s\"",conn_get_socket(c),tname);
 	conn_set_state(other, conn_state_destroy);
     }
-    account_unget_name(tname);
-    
+
     c->protocol.account = account;
     c->protocol.state = conn_state_loggedin;
     account_set_conn(account,c);
@@ -2225,18 +2224,6 @@ extern char const * conn_get_username(t_connection const * c)
 
     }
     return result;
-}
-
-
-extern void conn_unget_username(t_connection const * c, char const * name)
-{
-    if (!c)
-    {
-        eventlog(eventlog_level_error,"conn_unget_username","got NULL connection");
-        return;
-    }
-    
-    account_unget_name(name);
 }
 
 

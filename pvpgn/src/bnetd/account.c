@@ -274,12 +274,7 @@ extern int account_match(t_account * account, char const * username)
 	    (tname = account_get_name(account)))
 	{
 	    if (strcasecmp(tname,username)==0)
-	    {
-		account_unget_name(tname);
 		return 1;
-	    }
-	    else
-	      { account_unget_name(tname); }
 	}
     }
     
@@ -447,11 +442,7 @@ extern char const * account_get_strattr(t_account * account, char const * key)
 		    curr->next = last;
 		    
 		}
-#ifdef TESTUNGET
-		return xstrdup(curr->val);
-#else
                 return curr->val;
-#endif
 	    }
 	    last2 = last;
 	    last = curr;
@@ -470,19 +461,6 @@ extern char const * account_get_strattr(t_account * account, char const * key)
 	return NULL;
     
     return account_get_strattr(default_acct,key); /* FIXME: this is sorta dangerous because this pointer can go away if we re-read the config files... verify that nobody caches non-username, userid strings */
-}
-
-extern int account_unget_strattr(char const * val)
-{
-    if (!val)
-    {
-	eventlog(eventlog_level_error,"account_unget_strattr","got NULL val");
-	return -1;
-    }
-#ifdef TESTUNGET
-    xfree((void *)val); /* avoid warning */
-#endif
-    return 0;
 }
 
 extern int account_set_strattr(t_account * account, char const * key, char const * val)
@@ -928,12 +906,9 @@ extern t_account * accountlist_find_account(char const * username)
 	    {
 		if (strcasecmp(tname,username)==0)
 		{
-		    account_unget_name(tname);
 		    hashtable_entry_release(curr);
 		    return account;
 		}
-		else
-		  { account_unget_name(tname); }
 	    }
 	}
     }
@@ -1023,9 +998,7 @@ extern t_account * accountlist_add_account(t_account * account)
 	    if (curraccount->uid==uid)
 	    {
 		eventlog(eventlog_level_error,"accountlist_add_account","user \"%s\":"UID_FORMAT" already has an account (\"%s\":"UID_FORMAT")",username,uid,(tname = account_get_name(curraccount)),curraccount->uid);
-		account_unget_name(tname);
 		hashtable_entry_release(curr);
-		account_unget_strattr(username);
 		return NULL;
 	    }
         }
@@ -1038,16 +1011,12 @@ extern t_account * accountlist_add_account(t_account * account)
 		    if (strcasecmp(tname,username)==0)
 		    {
 		        eventlog(eventlog_level_info,"accountlist_add_account","user \"%s\":"UID_FORMAT" already has an account (\"%s\":"UID_FORMAT")",username,uid,tname,curraccount->uid);
-		        account_unget_name(tname);
 		        hashtable_entry_release(curr);
-		        account_unget_strattr(username);
 		        return NULL;
 		    }
-		    account_unget_name(tname);
 	    }
 	}
     }
-    account_unget_strattr(username);
 
     if (hashtable_insert_data(accountlist_head,account,account->namehash)<0)
     {
@@ -1154,13 +1123,8 @@ extern char const * account_get_name(t_account * account)
 	return NULL; /* FIXME: places assume this can't fail */
     }
     
-    if (account->name) { /* we have a cached username so return it */
-#ifdef TEST_UNGET
-       return xstrdup(account->name);
-#else
+    if (account->name) /* we have a cached username so return it */
        return account->name;
-#endif
-    }
 
     /* we dont have a cached username so lets get it from attributes */
     if (!(temp = account_get_strattr(account,"BNET\\acct\\username")))

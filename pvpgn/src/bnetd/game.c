@@ -625,7 +625,6 @@ static int game_report(t_game * game)
     FILE *          fp;
     char *          realname;
     char *          tempname;
-    char const *    tname;
     unsigned int    i;
     unsigned int    realcount;
     time_t          now=time(NULL);
@@ -932,35 +931,23 @@ static int game_report(t_game * game)
     
     if (game->clienttag==CLIENTTAG_DIABLORTL_UINT)
 	for (i=0; i<game->count; i++)
-	{
-	    tname = account_get_name(game->players[i]);
-	    fprintf(fp,"%-16s JOINED\n",tname);
-	    account_unget_name(tname);
-	}
+	    fprintf(fp,"%-16s JOINED\n",account_get_name(game->players[i]));
     else
 	if (ladder_info)
 	    for (i=0; i<realcount; i++)
-	    {
-		tname = account_get_name(game->players[i]);
 		fprintf(fp,"%-16s %-8s rating=%u [#%05u]  prob=%4.1f%%  K=%2u  adj=%+d\n",
-			tname,
+			account_get_name(game->players[i]),
 			game_result_get_str(game->results[i]),
 			ladder_info[i].oldrating,
 			ladder_info[i].oldrank,
 			ladder_info[i].prob*100.0,
 			ladder_info[i].k,
 			ladder_info[i].adj);
-		account_unget_name(tname);
-	    }
 	else
 	    for (i=0; i<realcount; i++)
-	    {
-		tname = account_get_name(game->players[i]);
 		fprintf(fp,"%-16s %-8s\n",
-			tname,
+			account_get_name(game->players[i]),
 			game_result_get_str(game->results[i]));
-		account_unget_name(tname);
-	    }
     fprintf(fp,"\n\n");
     
     if (ladder_info)
@@ -971,19 +958,11 @@ static int game_report(t_game * game)
 	if (game->report_heads[i])
 	    fprintf(fp,"%s\n",game->report_heads[i]);
 	else
-	{
-	    tname = account_get_name(game->players[i]);
-	    fprintf(fp,"[ game report header not available for player %u (\"%s\") ]\n",i+1,tname);
-	    account_unget_name(tname);
-	}
+	    fprintf(fp,"[ game report header not available for player %u (\"%s\") ]\n",i+1,account_get_name(game->players[i]));
 	if (game->report_bodies[i])
 	    fprintf(fp,"%s\n",game->report_bodies[i]);
 	else
-	{
-	    tname = account_get_name(game->players[i]);
-	    fprintf(fp,"[ game report body not available for player %u (\"%s\") ]\n\n",i+1,tname);
-	    account_unget_name(tname);
-	}
+	    fprintf(fp,"[ game report body not available for player %u (\"%s\") ]\n\n",i+1,account_get_name(game->players[i]));
     }
     fprintf(fp,"\n\n");
     
@@ -993,16 +972,12 @@ static int game_report(t_game * game)
         game->clienttag==CLIENTTAG_WARCIIBNE_UINT)
     {
 	for (i=0; i<realcount; i++)
-	{
-	    tname = account_get_name(game->players[i]);
 	    fprintf(fp,"%s's normal record is now %u/%u/%u (%u draws)\n",
-		    tname,
+		    account_get_name(game->players[i]),
 		    account_get_normal_wins(game->players[i],game->clienttag),
 		    account_get_normal_losses(game->players[i],game->clienttag),
 		    account_get_normal_disconnects(game->players[i],game->clienttag),
 		    account_get_normal_draws(game->players[i],game->clienttag));
-	    account_unget_name(tname);
-	}
     }
     if (game->clienttag==CLIENTTAG_STARCRAFT_UINT ||
         game->clienttag==CLIENTTAG_BROODWARS_UINT ||
@@ -1010,35 +985,27 @@ static int game_report(t_game * game)
     {
 	fprintf(fp,"\n");
 	for (i=0; i<realcount; i++)
-	{
-	    tname = account_get_name(game->players[i]);
 	    fprintf(fp,"%s's standard ladder record is now %u/%u/%u (rating %u [#%05u]) (%u draws)\n",
-		    tname,
+		    account_get_name(game->players[i]),
 		    account_get_ladder_wins(game->players[i],game->clienttag,ladder_id_normal),
 		    account_get_ladder_losses(game->players[i],game->clienttag,ladder_id_normal),
 		    account_get_ladder_disconnects(game->players[i],game->clienttag,ladder_id_normal),
 		    account_get_ladder_rating(game->players[i],game->clienttag,ladder_id_normal),
 		    account_get_ladder_rank(game->players[i],game->clienttag,ladder_id_normal),
 		    account_get_ladder_draws(game->players[i],game->clienttag,ladder_id_normal));
-	    account_unget_name(tname);
-	}
     }
     if (game->clienttag==CLIENTTAG_WARCIIBNE_UINT)
     {
 	fprintf(fp,"\n");
 	for (i=0; i<realcount; i++)
-	{
-	    tname = account_get_name(game->players[i]);
 	    fprintf(fp,"%s's ironman ladder record is now %u/%u/%u (rating %u [#%05u]) (%u draws)\n",
-		    tname,
+		    account_get_name(game->players[i]),
 		    account_get_ladder_wins(game->players[i],game->clienttag,ladder_id_ironman),
 		    account_get_ladder_losses(game->players[i],game->clienttag,ladder_id_ironman),
 		    account_get_ladder_disconnects(game->players[i],game->clienttag,ladder_id_ironman),
 		    account_get_ladder_rating(game->players[i],game->clienttag,ladder_id_ironman),
 		    account_get_ladder_rank(game->players[i],game->clienttag,ladder_id_ironman),
 		    account_get_ladder_draws(game->players[i],game->clienttag,ladder_id_ironman));
-	    account_unget_name(tname);
-	}
     }
     
     fprintf(fp,"\nThis game lasted %lu minutes (elapsed).\n",((unsigned long int)difftime(now,game->start_time))/60);
@@ -1607,12 +1574,7 @@ extern int game_add_player(t_game * game, char const * pass, int startver, t_con
     } // end of "if ((i == game->count) || (game->count == 0))"
 
     if (game->startver!=startver && startver!=STARTVER_UNKNOWN) /* with join startver ALWAYS unknown [KWS] */
-    {
-	char const * tname;
-
-	eventlog(eventlog_level_error,"game_add_player","player \"%s\" client \"%s\" startver %u joining game startver %u (count=%u ref=%u)",(tname = account_get_name(conn_get_account(c))),clienttag_uint_to_str(conn_get_clienttag(c)),startver,game->startver,game->count,game->ref);
-	account_unget_name(tname);
-    }
+	eventlog(eventlog_level_error,"game_add_player","player \"%s\" client \"%s\" startver %u joining game startver %u (count=%u ref=%u)",account_get_name(conn_get_account(c)),clienttag_uint_to_str(conn_get_clienttag(c)),startver,game->startver,game->count,game->ref);
     
     game_choose_host(game);
     
@@ -1652,10 +1614,9 @@ extern int game_del_player(t_game * game, t_connection * c)
        watchlist_notify_event(conn_get_account(c),NULL,conn_get_clienttag(c),watch_event_leavegame);
        conn_set_leavegamewhisper_ack(c,1); //1 = already whispered. We reset this each time user joins a channel
      }
-    
-    eventlog(eventlog_level_debug,"game_del_player","game \"%s\" has ref=%u, count=%u; trying to remove player \"%s\"",game_get_name(game),game->ref,game->count,(tname = account_get_name(account)));
-    account_unget_name(tname);
-    
+
+    eventlog(eventlog_level_debug,"game_del_player","game \"%s\" has ref=%u, count=%u; trying to remove player \"%s\"",game_get_name(game),game->ref,game->count,account_get_name(account));
+
     for (i=0; i<game->count; i++)
 	if (game->players[i]==account && game->connections[i])
 	{
@@ -1663,7 +1624,6 @@ extern int game_del_player(t_game * game, t_connection * c)
 	    game->connections[i] = NULL;
 	    if (!(game->reported_results[i]))
 		eventlog(eventlog_level_debug,"game_del_player","player \"%s\" left without reporting (valid) results",tname);
-	    account_unget_name(tname);
 	    
 	    eventlog(eventlog_level_debug,"game_del_player","player deleted... (ref=%u)",game->ref);
 	    
@@ -1684,8 +1644,7 @@ extern int game_del_player(t_game * game, t_connection * c)
 	    return 0;
 	}
     
-    eventlog(eventlog_level_error,"game_del_player","player \"%s\" was not in the game",(tname = account_get_name(account)));
-    account_unget_name(tname);
+    eventlog(eventlog_level_error,"game_del_player","player \"%s\" was not in the game",account_get_name(account));
     return -1;
 }
 
@@ -1693,8 +1652,7 @@ extern int game_del_player(t_game * game, t_connection * c)
 extern int game_set_report(t_game * game, t_account * account, char const * rephead, char const * repbody)
 {
     unsigned int pos;
-    char const * tname;
-    
+
     if (!game)
     {
 	eventlog(eventlog_level_error,__FUNCTION__,"got NULL game");
@@ -1741,8 +1699,7 @@ extern int game_set_report(t_game * game, t_account * account, char const * reph
     }
     if (pos==game->count)
     {
-	eventlog(eventlog_level_error,__FUNCTION__,"could not find player \"%s\" to set result",(tname = account_get_name(account)));
-	account_unget_name(tname);
+	eventlog(eventlog_level_error,__FUNCTION__,"could not find player \"%s\" to set result",account_get_name(account));
 	return -1;
     }
     
@@ -1755,7 +1712,6 @@ extern int game_set_report(t_game * game, t_account * account, char const * reph
 extern int game_set_reported_results(t_game * game, t_account * account, t_game_result * results)
 {
     unsigned int i,j;
-    char const * tname;
     t_game_result result;
 
     if (!game)
@@ -1795,15 +1751,13 @@ extern int game_set_reported_results(t_game * game, t_account * account, t_game_
 
     if (i==game->count)
     {
-	eventlog(eventlog_level_error,__FUNCTION__,"could not find player \"%s\" to set reported results",(tname = account_get_name(account)));
-	account_unget_name(tname);
+	eventlog(eventlog_level_error,__FUNCTION__,"could not find player \"%s\" to set reported results",account_get_name(account));
 	return -1;
     }
     
     if (game->reported_results[i])
     {
-	eventlog(eventlog_level_error,__FUNCTION__,"player \"%s\" allready reported results - skipping this report",(tname = account_get_name(account)));
-	account_unget_name(tname);
+	eventlog(eventlog_level_error,__FUNCTION__,"player \"%s\" allready reported results - skipping this report",account_get_name(account));
 	return -1;
     }
 
@@ -1824,8 +1778,7 @@ extern int game_set_reported_results(t_game * game, t_account * account, t_game_
 	  default: /* result is invalid */
 	    if (i!=j)
 	    {
-		eventlog(eventlog_level_error,__FUNCTION__,"ignoring bad reported result %u for player \"%s\"",(unsigned int)result,(tname=account_get_name(game->players[j])));
-		account_unget_name(tname);
+		eventlog(eventlog_level_error,__FUNCTION__,"ignoring bad reported result %u for player \"%s\"",(unsigned int)result,account_get_name(game->players[j]));
 		results[i]=game_result_none;
 	    } else {
 		eventlog(eventlog_level_error,__FUNCTION__,"got bad reported result %u for self - skipping results",(unsigned int)result);
@@ -1887,7 +1840,6 @@ extern int game_set_self_report(t_game * game, t_account * account, t_game_resul
 extern t_game_result * game_get_reported_results(t_game * game, t_account * account)
 {
     unsigned int i;
-    char const * tname;
 
     if (!(game))
     {
@@ -1920,15 +1872,13 @@ extern t_game_result * game_get_reported_results(t_game * game, t_account * acco
 
     if (i==game->count)
     {
-	eventlog(eventlog_level_error,__FUNCTION__,"could not find player \"%s\" to set reported results",(tname = account_get_name(account)));
-	account_unget_name(tname);
+	eventlog(eventlog_level_error,__FUNCTION__,"could not find player \"%s\" to set reported results",account_get_name(account));
 	return NULL;
     }
 
     if (!(game->reported_results[i]))
     {
-	eventlog(eventlog_level_error,__FUNCTION__,"player \"%s\" has not reported any results",(tname = account_get_name(account)));
-	account_unget_name(tname);
+	eventlog(eventlog_level_error,__FUNCTION__,"player \"%s\" has not reported any results",account_get_name(account));
 	return NULL;
     }
 

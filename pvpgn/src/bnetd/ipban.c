@@ -428,14 +428,12 @@ extern int ipbanlist_add(t_connection * c, char const * cp, time_t endtime)
     
     if (c)
     {
-	char const *	tname;
 	time_t		now;
 	
 	time(&now);
 	if (endtime == 0)
 	{
-            sprintf(tstr,"%s banned permamently by %s.",cp,(tname = conn_get_username(c)));
-	    conn_unget_username(c,tname);
+            sprintf(tstr,"%s banned permamently by %s.",cp,conn_get_username(c));
             eventlog(eventlog_level_info,"ipbanlist_add",tstr);
             message_send_admins(c,message_type_info,tstr);
 	    sprintf(tstr,"%s banned permamently.",cp);
@@ -443,8 +441,7 @@ extern int ipbanlist_add(t_connection * c, char const * cp, time_t endtime)
 	}
 	else
 	{
-            sprintf(tstr,"%s banned for %.48s by %s.",cp,seconds_to_timestr(entry->endtime - now),(tname = conn_get_username(c)));
-	    conn_unget_username(c,tname);
+            sprintf(tstr,"%s banned for %.48s by %s.",cp,seconds_to_timestr(entry->endtime - now),conn_get_username(c));
             eventlog(eventlog_level_info,"ipbanlist_add",tstr);
             message_send_admins(c,message_type_info,tstr);
 	    sprintf(tstr,"%s banned for %.48s.",cp,seconds_to_timestr(entry->endtime - now));

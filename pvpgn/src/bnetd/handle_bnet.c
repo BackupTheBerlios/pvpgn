@@ -995,7 +995,6 @@ static int _client_changepassreq(t_connection * c, t_packet const * const packet
 	     t_hash       oldpasshash2;
 	     t_hash       trypasshash2;
 	     t_hash       newpasshash1;
-	     char const * tname;
 	     
 	     
 	     if ((oldstrhash1 = account_get_pass(account)))
@@ -1004,16 +1003,13 @@ static int _client_changepassreq(t_connection * c, t_packet const * const packet
 		  bn_int_set(&temp.sessionkey,bn_int_get(packet->u.client_changepassreq.sessionkey));
 		  if (hash_set_str(&oldpasshash1,oldstrhash1)<0)
 		    {
-		       account_unget_pass(oldstrhash1);
 		       bnhash_to_hash(packet->u.client_changepassreq.newpassword_hash1,&newpasshash1);
 		       account_set_pass(account,hash_get_str(newpasshash1));
-		       eventlog(eventlog_level_info,__FUNCTION__,"[%d] password change for \"%s\" successful (bad previous password)",conn_get_socket(c),(tname = account_get_name(account)));
-		       account_unget_name(tname);
+		       eventlog(eventlog_level_info,__FUNCTION__,"[%d] password change for \"%s\" successful (bad previous password)",conn_get_socket(c),account_get_name(account));
 		       bn_int_set(&rpacket->u.server_changepassack.message,SERVER_CHANGEPASSACK_MESSAGE_SUCCESS);
 		    }
 		  else
 		    {
-		       account_unget_pass(oldstrhash1);
 		       hash_to_bnhash((t_hash const *)&oldpasshash1,temp.passhash1); /* avoid warning */
 		       bnet_hash(&oldpasshash2,sizeof(temp),&temp); /* do the double hash */
 		       bnhash_to_hash(packet->u.client_changepassreq.oldpassword_hash2,&trypasshash2);
@@ -1022,14 +1018,12 @@ static int _client_changepassreq(t_connection * c, t_packet const * const packet
 			 {
 			    bnhash_to_hash(packet->u.client_changepassreq.newpassword_hash1,&newpasshash1);
 			    account_set_pass(account,hash_get_str(newpasshash1));
-			    eventlog(eventlog_level_info,__FUNCTION__,"[%d] password change for \"%s\" successful (previous password)",conn_get_socket(c),(tname = account_get_name(account)));
-			    account_unget_name(tname);
+			    eventlog(eventlog_level_info,__FUNCTION__,"[%d] password change for \"%s\" successful (previous password)",conn_get_socket(c),account_get_name(account));
 			    bn_int_set(&rpacket->u.server_changepassack.message,SERVER_CHANGEPASSACK_MESSAGE_SUCCESS);
 			 }
 		       else
 			 {
-			    eventlog(eventlog_level_info,__FUNCTION__,"[%d] password change for \"%s\" refused (wrong password)",conn_get_socket(c),(tname = account_get_name(account)));
-			    account_unget_name(tname);
+			    eventlog(eventlog_level_info,__FUNCTION__,"[%d] password change for \"%s\" refused (wrong password)",conn_get_socket(c),account_get_name(account));
 			    conn_increment_passfail_count(c);
 			    bn_int_set(&rpacket->u.server_changepassack.message,SERVER_CHANGEPASSACK_MESSAGE_FAIL);
 			 }
@@ -1039,8 +1033,7 @@ static int _client_changepassreq(t_connection * c, t_packet const * const packet
 	       {
 		  bnhash_to_hash(packet->u.client_changepassreq.newpassword_hash1,&newpasshash1);
 		  account_set_pass(account,hash_get_str(newpasshash1));
-		  eventlog(eventlog_level_info,__FUNCTION__,"[%d] password change for \"%s\" successful (no previous password)",conn_get_socket(c),(tname = account_get_name(account)));
-		  account_unget_name(tname);
+		  eventlog(eventlog_level_info,__FUNCTION__,"[%d] password change for \"%s\" successful (no previous password)",conn_get_socket(c),account_get_name(account));
 		  bn_int_set(&rpacket->u.server_changepassack.message,SERVER_CHANGEPASSACK_MESSAGE_SUCCESS);
 	       }
 	  }
@@ -1737,13 +1730,11 @@ static int _client_loginreq1(t_connection * c, t_packet const * const packet)
 		  bn_int_set(&temp.sessionkey,bn_int_get(packet->u.client_loginreq1.sessionkey));
 		  if (hash_set_str(&oldpasshash1,oldstrhash1)<0)
 		    {
-		       account_unget_pass(oldstrhash1);
 		       eventlog(eventlog_level_info,__FUNCTION__,"[%d] login for \"%s\" refused (corrupted passhash1?)",conn_get_socket(c), username);
 		       bn_int_set(&rpacket->u.server_loginreply1.message,SERVER_LOGINREPLY1_MESSAGE_FAIL);
 		    }
 		  else
 		    {
-		       account_unget_pass(oldstrhash1);
 		       hash_to_bnhash((t_hash const *)&oldpasshash1,temp.passhash1); /* avoid warning */
 		       
 		       bnet_hash(&oldpasshash2,sizeof(temp),&temp); /* do the double hash */
@@ -1884,13 +1875,11 @@ static int _client_loginreq2(t_connection * c, t_packet const * const packet)
 		  bn_int_set(&temp.sessionkey,bn_int_get(packet->u.client_loginreq2.sessionkey));
 		  if (hash_set_str(&oldpasshash1,oldstrhash1)<0)
 		    {
-		       account_unget_pass(oldstrhash1);
 		       eventlog(eventlog_level_info,__FUNCTION__,"[%d] login for \"%s\" refused (corrupted passhash1?)",conn_get_socket(c), username);
 		       bn_int_set(&rpacket->u.server_loginreply2.message,SERVER_LOGINREPLY2_MESSAGE_BADPASS);
 		    }
 		  else
 		    {
-		       account_unget_pass(oldstrhash1);
 		       hash_to_bnhash((t_hash const *)&oldpasshash1,temp.passhash1); /* avoid warning */
 		       
 		       bnet_hash(&oldpasshash2,sizeof(temp),&temp); /* do the double hash */
@@ -3061,8 +3050,7 @@ static int _client_realmjoinreq(t_connection * c, t_packet const * const packet)
 		  bn_int_set(&rpacket->u.server_realmjoinreply.unknown8,SERVER_REALMJOINREPLY_UNKNOWN8);
 		  bn_int_set(&rpacket->u.server_realmjoinreply.unknown9,salt);
 		  hash_to_bnhash((t_hash const *)&secret_hash,rpacket->u.server_realmjoinreply.secret_hash); // avoid warning
-		  packet_append_string(rpacket,(tname = conn_get_username(c)));
-		  conn_unget_username(c,tname);
+		  packet_append_string(rpacket,conn_get_username(c));
 		  conn_push_outqueue(c,rpacket);
 		  packet_del_ref(rpacket);
 	       }
@@ -3130,7 +3118,6 @@ static int _client_realmjoinreq109(t_connection * c, t_packet const * const pack
 	       {
 		  if (hash_set_str(&passhash,pass_str)==0)
 		    {
-		       account_unget_pass(pass_str);
 		       hash_to_bnhash((t_hash const *)&passhash,temp.passhash);
 		       salt = bn_int_get(packet->u.client_realmjoinreq_109.seqno);
 		       bn_int_set(&temp.salt,salt);
@@ -3141,8 +3128,6 @@ static int _client_realmjoinreq109(t_connection * c, t_packet const * const pack
 		       
 		       if ((rpacket = packet_create(packet_class_bnet)))
 			 {
-			    char const * tname;
-			    
 			    packet_set_size(rpacket,sizeof(t_server_realmjoinreply_109));
 			    packet_set_type(rpacket,SERVER_REALMJOINREPLY_109);
 			    bn_int_set(&rpacket->u.server_realmjoinreply_109.seqno,salt);
@@ -3167,18 +3152,14 @@ static int _client_realmjoinreq109(t_connection * c, t_packet const * const pack
 			    bn_int_set(&rpacket->u.server_realmjoinreply_109.versionid,conn_get_versionid(c));
 			    bn_int_set(&rpacket->u.server_realmjoinreply_109.clienttag,conn_get_clienttag(c));
 			    hash_to_bnhash((t_hash const *)&secret_hash,rpacket->u.server_realmjoinreply_109.secret_hash); /* avoid warning */
-			    packet_append_string(rpacket,(tname = conn_get_username(c)));
-			    conn_unget_username(c,tname);
+			    packet_append_string(rpacket,conn_get_username(c));
 			    conn_push_outqueue(c,rpacket);
 			    packet_del_ref(rpacket);
 			 }
 		       return 0;
 		    }
 		  else
-		    {
 		       eventlog(eventlog_level_info,__FUNCTION__,"[%d] realm join for \"%s\" failed (unable to hash password)",conn_get_socket(c), conn_get_loggeduser(c));
-		       account_unget_pass(pass_str);
-		    }
 	       }
 	     else
 	       {
@@ -3252,8 +3233,7 @@ static int _client_charlistreq(t_connection * c, t_packet const * const packet)
 	     return 0;
 	  }
 	temp = xstrdup(charlist);
-	account_unget_closed_characterlist(conn_get_account(c),charlist);
-	
+
 	  {
 	     char const *        tok1;
 	     char const *        tok2;
@@ -3267,10 +3247,7 @@ static int _client_charlistreq(t_connection * c, t_packet const * const packet)
 	       {
 		  if (!tok2)
 		    {
-		       char const * tname;
-		       
-		       eventlog(eventlog_level_error,__FUNCTION__,"[%d] account \"%s\" has bad character list \"%s\"",conn_get_socket(c),(tname = conn_get_username(c)),temp);
-		       conn_unget_username(c,tname);
+		       eventlog(eventlog_level_error,__FUNCTION__,"[%d] account \"%s\" has bad character list \"%s\"",conn_get_socket(c),conn_get_username(c),temp);
 		       break;
 		    }
 		  
@@ -3365,15 +3342,10 @@ static int _client_adclick(t_connection * c, t_packet const * const packet)
       eventlog(eventlog_level_error,__FUNCTION__,"[%d] got bad ADCLICK packet (expected %u bytes, got %u)",conn_get_socket(c),sizeof(t_client_adclick),packet_get_size(packet));
       return -1;
    }
-   
-     {
-	char const * tname;
-	
-	eventlog(eventlog_level_info,__FUNCTION__,"[%d] ad click for adid 0x%04x from \"%s\"",
-		 conn_get_socket(c),bn_int_get(packet->u.client_adclick.adid),(tname = conn_get_username(c)));
-	conn_unget_username(c,tname);
-     }
-   
+
+    eventlog(eventlog_level_info,__FUNCTION__,"[%d] ad click for adid 0x%04x from \"%s\"",
+	 conn_get_socket(c),bn_int_get(packet->u.client_adclick.adid),conn_get_username(c));
+
    return 0;
 }
 
@@ -3385,14 +3357,9 @@ static int _client_adclick2(t_connection * c, t_packet const * const packet)
       eventlog(eventlog_level_error,__FUNCTION__,"[%d] got bad ADCLICK2 packet (expected %u bytes, got %u)",conn_get_socket(c), sizeof(t_client_adclick2),packet_get_size(packet));
       return -1;
    }
-   
-     {
-	char const * tname;
-	
-	eventlog(eventlog_level_info,__FUNCTION__,"[%d] ad click2 for adid 0x%04hx from \"%s\"", conn_get_socket(c),bn_int_get(packet->u.client_adclick2.adid),(tname = conn_get_username(c)));
-	conn_unget_username(c,tname);
-     }
-   
+
+    eventlog(eventlog_level_info,__FUNCTION__,"[%d] ad click2 for adid 0x%04hx from \"%s\"", conn_get_socket(c),bn_int_get(packet->u.client_adclick2.adid),conn_get_username(c));
+
      {
 	t_adbanner * ad;
 	
@@ -3462,17 +3429,13 @@ static int _client_statsupdate(t_connection * c, t_packet const * const packet)
 	
 	if ((account = conn_get_account(c)))
 	  {
-	     char const * tname;
-	     
 	     if (account_get_auth_changeprofile(account)==0) /* default to true */
 	       {
-		  eventlog(eventlog_level_error,__FUNCTION__,"[%d] stats update for \"%s\" refused (no change profile access)",conn_get_socket(c),(tname = conn_get_username(c)));
-		  conn_unget_username(c,tname);
+		  eventlog(eventlog_level_error,__FUNCTION__,"[%d] stats update for \"%s\" refused (no change profile access)",conn_get_socket(c),conn_get_username(c));
 		  return -1;
 	       }
-	     eventlog(eventlog_level_info,__FUNCTION__,"[%d] updating player profile for \"%s\"",conn_get_socket(c),(tname = conn_get_username(c)));
-	     conn_unget_username(c,tname);
-	     
+	     eventlog(eventlog_level_info,__FUNCTION__,"[%d] updating player profile for \"%s\"",conn_get_socket(c),conn_get_username(c));
+
 	     for (i=0,name_off=sizeof(t_client_statsupdate);
 		  i<name_count && (name = packet_get_str_const(packet,name_off,UNCHECKED_NAME_STR));
 		  i++,name_off+=strlen(name)+1)
@@ -3985,20 +3948,18 @@ static int _client_joingame(t_connection * c, t_packet const * const packet)
 	     if ((gtype==game_type_ladder && account_get_auth_joinladdergame(conn_get_account(c))==0) || /* default to true */
 		 (gtype!=game_type_ladder && account_get_auth_joinnormalgame(conn_get_account(c))==0)) /* default to true */
 	       {
-		  eventlog(eventlog_level_info,__FUNCTION__,"[%d] game join for \"%s\" to \"%s\" refused (no authority)",conn_get_socket(c),(tname = conn_get_username(c)),gamename);
-		  conn_unget_username(c,tname);
+		  eventlog(eventlog_level_info,__FUNCTION__,"[%d] game join for \"%s\" to \"%s\" refused (no authority)",conn_get_socket(c),conn_get_username(c),gamename);
 		  /* If the user is not in a game, then map authorization
 		   will fail and keep them from playing. */
 		  return 0;
 	       }
 	  }
-	
+
 	if (conn_set_game(c,gamename,gamepass,"",gtype,STARTVER_UNKNOWN)<0)
 	  eventlog(eventlog_level_info,__FUNCTION__,"[%d] \"%s\" joined game \"%s\", but could not be recorded on server",conn_get_socket(c),(tname = conn_get_username(c)),gamename);
 	else
-	  eventlog(eventlog_level_info,__FUNCTION__,"[%d] \"%s\" joined game \"%s\"",conn_get_socket(c),(tname = conn_get_username(c)),gamename);
-	conn_unget_username(c,tname);
-	
+	  eventlog(eventlog_level_info,__FUNCTION__,"[%d] \"%s\" joined game \"%s\"",conn_get_socket(c),conn_get_username(c),gamename);
+
 	// W2 hack to part channel on game join
 	if (conn_get_channel(c))
 	  conn_set_channel(c,NULL);
@@ -4080,12 +4041,7 @@ static int _client_startgame1(t_connection * c, t_packet const * const packet)
 	       gtype = bngtype_to_gtype(conn_get_clienttag(c),bngtype);
 	       if ((gtype==game_type_ladder && account_get_auth_createladdergame(conn_get_account(c))==0) || /* default to true */
 		   (gtype!=game_type_ladder && account_get_auth_createnormalgame(conn_get_account(c))==0)) /* default to true */
-		 {
-		    char const * tname;
-		    
-		    eventlog(eventlog_level_info,__FUNCTION__,"[%d] game start for \"%s\" refused (no authority)",conn_get_socket(c),(tname = conn_get_username(c)));
-		    conn_unget_username(c,tname);
-		 }
+		    eventlog(eventlog_level_info,__FUNCTION__,"[%d] game start for \"%s\" refused (no authority)",conn_get_socket(c),conn_get_username(c));
 	       else
 		 conn_set_game(c,gamename,gamepass,gameinfo,gtype,STARTVER_GW1);
 	       
@@ -4181,12 +4137,7 @@ static int _client_startgame3(t_connection * c, t_packet const * const packet)
 	       gtype = bngtype_to_gtype(conn_get_clienttag(c),bngtype);
 	       if ((gtype==game_type_ladder && account_get_auth_createladdergame(conn_get_account(c))==0) ||
 		   (gtype!=game_type_ladder && account_get_auth_createnormalgame(conn_get_account(c))==0))
-		 {
-		    char const * tname;
-		    
-		    eventlog(eventlog_level_info,__FUNCTION__,"[%d] game start for \"%s\" refused (no authority)",conn_get_socket(c),(tname = conn_get_username(c)));
-		    conn_unget_username(c,tname);
-		 }
+		    eventlog(eventlog_level_info,__FUNCTION__,"[%d] game start for \"%s\" refused (no authority)",conn_get_socket(c),conn_get_username(c));
 	       else
 		 conn_set_game(c,gamename,gamepass,gameinfo,gtype,STARTVER_GW3);
 	       
@@ -4289,12 +4240,7 @@ static int _client_startgame4(t_connection * c, t_packet const * const packet)
 	     gtype = bngtype_to_gtype(conn_get_clienttag(c),bngtype);
 	     if ((gtype==game_type_ladder && account_get_auth_createladdergame(conn_get_account(c))==0) ||
 		 (gtype!=game_type_ladder && account_get_auth_createnormalgame(conn_get_account(c))==0))
-	       {
-		  char const * tname;
-		  
-		  eventlog(eventlog_level_info,__FUNCTION__,"[%d] game start for \"%s\" refused (no authority)",conn_get_socket(c),(tname = conn_get_username(c)));
-		  conn_unget_username(c,tname);
-	       }
+		  eventlog(eventlog_level_info,__FUNCTION__,"[%d] game start for \"%s\" refused (no authority)",conn_get_socket(c),conn_get_username(c));
 	     else if (conn_set_game(c,gamename,gamepass,gameinfo,gtype,STARTVER_GW4)==0) {
 		game_set_option(conn_get_game(c),bngoption_to_goption(conn_get_clienttag(c),gtype,option));
 		if (status & CLIENT_STARTGAME4_STATUS_PRIVATE)
@@ -4364,20 +4310,17 @@ static int _client_gamereport(t_connection * c, t_packet const * const packet)
 	t_game_result                       result;
 	char const *                        player;
 	unsigned int                        player_off;
-	char const *                        tname;
 	t_game_result *			    results;
 	
 	player_count = bn_int_get(packet->u.client_gamerep.count);
 	
 	if (!(game = conn_get_game(c)))
 	  {
-	     eventlog(eventlog_level_error,__FUNCTION__,"[%d] got GAME_REPORT when not in a game for user \"%s\"",conn_get_socket(c),(tname = conn_get_username(c)));
-	     conn_unget_username(c,tname);
+	     eventlog(eventlog_level_error,__FUNCTION__,"[%d] got GAME_REPORT when not in a game for user \"%s\"",conn_get_socket(c),conn_get_username(c));
 	     return -1;
 	  }
-	
-	eventlog(eventlog_level_info,__FUNCTION__,"[%d] CLIENT_GAME_REPORT: %s (%u players)",conn_get_socket(c),(tname = conn_get_username(c)),player_count);
-	conn_unget_username(c,tname);
+
+	eventlog(eventlog_level_info,__FUNCTION__,"[%d] CLIENT_GAME_REPORT: %s (%u players)",conn_get_socket(c),conn_get_username(c),player_count);
 	my_account = conn_get_account(c);
 
 	if (player_count > game_get_count(game))
@@ -4476,7 +4419,6 @@ static int _client_ladderreq(t_connection * c, t_packet const * const packet)
 	unsigned int   idnum;
 	t_account *    account;
 	t_clienttag    clienttag;
-	char const *   tname;
 	char const *   timestr;
 	t_bnettime     bt;
 	t_ladder_id    id;
@@ -4587,10 +4529,7 @@ static int _client_ladderreq(t_connection * c, t_packet const * const packet)
 	     packet_append_data(rpacket,&entry,sizeof(entry));
 	     
 	     if (account)
-	       {
-		  packet_append_string(rpacket,(tname = account_get_name(account)));
-		  account_unget_name(tname);
-	       }
+		  packet_append_string(rpacket,account_get_name(account));
 	     else
 	       packet_append_string(rpacket," "); /* use a space so the client won't show the user's own account when double-clicked on */
 	  }

@@ -217,7 +217,6 @@ extern int handle_bot_packet(t_connection * c, t_packet const * const packet)
 		{
 		    if (hash_set_str(&oldpasshash1,oldstrhash1)<0)
 		    {
-			account_unget_pass(oldstrhash1);
 			eventlog(eventlog_level_info,"handle_bot_packet","[%d] bot login for \"%s\" refused (corrupted passhash1?)",conn_get_socket(c),loggeduser);
 			conn_set_state(c,conn_state_bot_username);
 			
@@ -232,7 +231,6 @@ extern int handle_bot_packet(t_connection * c, t_packet const * const packet)
 			packet_del_ref(rpacket);
 			break;
 		    }
-		    account_unget_pass(oldstrhash1);
 
                     testpass = xstrdup(linestr);
 		    {

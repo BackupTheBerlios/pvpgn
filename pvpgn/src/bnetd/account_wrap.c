@@ -91,10 +91,8 @@ extern unsigned int account_get_numattr(t_account * account, char const * key)
     if (str_to_uint(temp,&val)<0)
     {
 	eventlog(eventlog_level_error,"account_get_numattr","not a numeric string \"%s\" for key \"%s\"",temp,key);
-	account_unget_strattr(temp);
 	return 0;
     }
-    account_unget_strattr(temp);
     
     return val;
 }
@@ -153,13 +151,10 @@ extern int account_get_boolattr(t_account * account, char const * key)
     switch (str_get_bool(temp))
     {
     case 1:
-	account_unget_strattr(temp);
 	return 1;
     case 0:
-	account_unget_strattr(temp);
 	return 0;
     default:
-	account_unget_strattr(temp);
 	eventlog(eventlog_level_error,"account_get_boolattr","bad boolean value \"%s\" for key \"%s\"",temp,key);
 	return -1;
     }
@@ -186,26 +181,6 @@ extern int account_set_boolattr(t_account * account, char const * key, int val)
 /****************************************************************/
 
 
-#ifdef DEBUG_ACCOUNT
-extern int account_unget_name_real(char const * name, char const * fn, unsigned int ln)
-#else
-extern int account_unget_name(char const * name)
-#endif
-{
-    if (!name)
-    {
-#ifdef DEBUG_ACCOUNT
-	eventlog(eventlog_level_error,"account_unget_name","got NULL name (from %s:%u)",fn,ln);
-#else
-	eventlog(eventlog_level_error,"account_unget_name","got NULL name");
-#endif
-	return -1;
-    }
-    
-    return account_unget_strattr(name);
-}
-
-
 extern char const * account_get_pass(t_account * account)
 {
     return account_get_strattr(account,"BNET\\acct\\passhash1");
@@ -214,12 +189,6 @@ extern char const * account_get_pass(t_account * account)
 extern int account_set_pass(t_account * account, char const * passhash1)
 {
     return account_set_strattr(account,"BNET\\acct\\passhash1",passhash1);
-}
-
-
-extern int account_unget_pass(char const * pass)
-{
-    return account_unget_strattr(pass);
 }
 
 
@@ -375,12 +344,6 @@ extern char const * account_get_sex(t_account * account)
 }
 
 
-extern int account_unget_sex(char const * sex)
-{
-    return account_unget_strattr(sex);
-}
-
-
 extern char const * account_get_age(t_account * account)
 {
     char const * temp;
@@ -394,12 +357,6 @@ extern char const * account_get_age(t_account * account)
     if (!(temp = account_get_strattr(account,"profile\\age")))
 	return "";
     return temp;
-}
-
-
-extern int account_unget_age(char const * age)
-{
-    return account_unget_strattr(age);
 }
 
 
@@ -419,12 +376,6 @@ extern char const * account_get_loc(t_account * account)
 }
 
 
-extern int account_unget_loc(char const * loc)
-{
-    return account_unget_strattr(loc);
-}
-
-
 extern char const * account_get_desc(t_account * account)
 {
     char const * temp;
@@ -438,12 +389,6 @@ extern char const * account_get_desc(t_account * account)
     if (!(temp = account_get_strattr(account,"profile\\description")))
 	return "";
     return temp;
-}
-
-
-extern int account_unget_desc(char const * desc)
-{
-    return account_unget_strattr(desc);
 }
 
 
@@ -470,17 +415,9 @@ extern t_clienttag account_get_ll_clienttag(t_account * account)
     
     clienttag = account_get_strattr(account,"BNET\\acct\\lastlogin_clienttag");
     clienttag_uint= tag_str_to_uint(clienttag);
-    account_unget_strattr(clienttag);
     
     return clienttag_uint;
 }
-
-/*
-extern int account_unget_ll_clienttag(char const * clienttag)
-{
-    return account_unget_strattr(clienttag);
-}
-*/
 
 extern int account_set_ll_clienttag(t_account * account, t_clienttag clienttag)
 {
@@ -496,12 +433,6 @@ extern char const * account_get_ll_user(t_account * account)
 }
 
 
-extern int account_unget_ll_user(char const * user)
-{
-    return account_unget_strattr(user);
-}
-
-
 extern int account_set_ll_user(t_account * account, char const * user)
 {
     return account_set_strattr(account,"BNET\\acct\\lastlogin_user",user);
@@ -514,12 +445,6 @@ extern char const * account_get_ll_owner(t_account * account)
 }
 
 
-extern int account_unget_ll_owner(char const * owner)
-{
-    return account_unget_strattr(owner);
-}
-
-
 extern int account_set_ll_owner(t_account * account, char const * owner)
 {
     return account_set_strattr(account,"BNET\\acct\\lastlogin_owner",owner);
@@ -529,12 +454,6 @@ extern int account_set_ll_owner(t_account * account, char const * owner)
 extern char const * account_get_ll_ip(t_account * account)
 {
     return account_get_strattr(account,"BNET\\acct\\lastlogin_ip");
-}
-
-
-extern int account_unget_ll_ip(char const * ip)
-{
-    return account_unget_strattr(ip);
 }
 
 
@@ -1527,12 +1446,6 @@ extern char const * account_get_closed_characterlist(t_account * account, t_clie
     eventlog(eventlog_level_debug,"account_get_closed_characterlist","looking for '%s'",realmkey);
 
     return account_get_strattr(account, realmkey);
-}
-
-
-extern int account_unget_closed_characterlist(t_account * account, char const * charlist)
-{
-    return account_unget_strattr(charlist);
 }
 
 

@@ -490,7 +490,6 @@ static void mail_func_send(t_connection * c, const char * str) {
      message_send_text(c,message_type_error,c,"There was an error completing your request!");
    else 
      message_send_text(c,message_type_info,c,"Your mail has been sent successfully.");
-   conn_unget_username(c,myname);
    mailbox_close(mailbox);
 }
 

@@ -331,7 +331,6 @@ extern char const * conn_get_username_real(t_connection const * c, char const * 
 #else
 extern char const * conn_get_username(t_connection const * c);
 #endif
-extern void conn_unget_username(t_connection const * c, char const * name);
 extern char const * conn_get_chatname(t_connection const * c);
 extern int conn_unget_chatname(t_connection const * c, char const * name);
 extern char const * conn_get_chatcharname(t_connection const * c, t_connection const * dst);

@@ -138,7 +138,6 @@ extern int ladderlist_make_all_active(void)
  */
 extern int ladder_init_account(t_account * account, t_clienttag clienttag, t_ladder_id id)
 {
-    char const * tname;
     int uid;
     char clienttag_str[5];
     
@@ -158,22 +157,20 @@ extern int ladder_init_account(t_account * account, t_clienttag clienttag, t_lad
 	if (account_get_ladder_wins(account,clienttag,id)+
 	    account_get_ladder_losses(account,clienttag,id)>0) /* no ladder games so far... */
 	{
-	    eventlog(eventlog_level_warn,"ladder_init_account","account for \"%s\" (%s) has %u wins and %u losses but has zero rating",(tname = account_get_name(account)),clienttag,account_get_ladder_wins(account,clienttag,id),account_get_ladder_losses(account,clienttag,id));
-	    account_unget_name(tname);
+	    eventlog(eventlog_level_warn,"ladder_init_account","account for \"%s\" (%s) has %u wins and %u losses but has zero rating",account_get_name(account),clienttag,account_get_ladder_wins(account,clienttag,id),account_get_ladder_losses(account,clienttag,id));
 	    return -1;
 	}
 	account_adjust_ladder_rating(account,clienttag,id,prefs_get_ladder_init_rating());
-	
+
 	uid = account_get_uid(account);
 
 	war3_ladder_add(ladder_cr(clienttag,id),uid,0,account_get_ladder_rating(account,clienttag,id),account,0,clienttag);
 	war3_ladder_add(ladder_cw(clienttag,id),uid,0,0,account,0,clienttag);
 	war3_ladder_add(ladder_cg(clienttag,id),uid,0,0,account,0,clienttag);
 
-	eventlog(eventlog_level_info,"ladder_init_account","initialized account for \"%s\" for \"%s\" ladder",(tname = account_get_name(account)),tag_uint_to_str(clienttag_str,clienttag));
-	account_unget_name(tname);
+	eventlog(eventlog_level_info,"ladder_init_account","initialized account for \"%s\" for \"%s\" ladder",account_get_name(account),tag_uint_to_str(clienttag_str,clienttag));
     }
-    
+
     return 0;
 }
 

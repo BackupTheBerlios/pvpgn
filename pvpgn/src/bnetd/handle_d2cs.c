@@ -202,10 +202,8 @@ static int on_d2cs_accountloginreq(t_connection * c, t_packet const * packet)
 		reply=BNETD_D2CS_ACCOUNTLOGINREPLY_FAILED;
 	} else if (strcasecmp(account,tname)) {
 		eventlog(eventlog_level_error,"on_d2cs_accountloginreq","username %s not match",account);
-		conn_unget_username(client,tname);
 		reply=BNETD_D2CS_ACCOUNTLOGINREPLY_FAILED;
 	} else {
-		conn_unget_username(client,tname);
 		bn_int_set(&temp.salt,salt);
 		bn_int_set(&temp.sessionkey,sessionkey);
 		bn_int_set(&temp.sessionnum,sessionnum);
@@ -227,7 +225,6 @@ static int on_d2cs_accountloginreq(t_connection * c, t_packet const * packet)
 				reply=BNETD_D2CS_ACCOUNTLOGINREPLY_FAILED;
 			}
 		}
-		account_unget_pass(pass_str);
 	}
 	if ((rpacket=packet_create(packet_class_d2cs_bnetd))) {
 		packet_set_size(rpacket,sizeof(t_bnetd_d2cs_accountloginreply));

@@ -279,8 +279,6 @@ static int handle_event_whisper(t_account *account, char const *gamename, t_clie
     if (event == watch_event_login)    sprintf(msg,"Watched user %s has entered the PvPGN Realm.",myusername);
     if (event == watch_event_logout)   sprintf(msg,"Watched user %s has left the PvPGN Realm",myusername);
 
-    account_unget_name(myusername);
-
     LIST_TRAVERSE_CONST(watchlist_head,curr)
     {
       pair = elem_get_data(curr);

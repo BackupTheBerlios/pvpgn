@@ -83,7 +83,6 @@ int output_standard_writer(FILE * fp)
     t_game const	*game;
     char const		*channel_name;
     char const		*game_name;
-    char const		*tname;
     int			number;
     char		clienttag_str[5];
     
@@ -99,13 +98,9 @@ int output_standard_writer(FILE * fp)
 	{
 	    conn = elem_get_data(curr);
 	    if (conn_get_account(conn))
-	    {
-		tname = conn_get_username(conn);
-		fprintf(fp,"\t\t<user><name>%s</name><clienttag>%s</clienttag><version>%s</version></user>\n",tname,tag_uint_to_str(clienttag_str,conn_get_clienttag(conn)),conn_get_clientver(conn));
-		conn_unget_username(conn,tname);
-	    }
+		fprintf(fp,"\t\t<user><name>%s</name><clienttag>%s</clienttag><version>%s</version></user>\n",conn_get_username(conn),tag_uint_to_str(clienttag_str,conn_get_clienttag(conn)),conn_get_clientver(conn));
         }
-	
+
 	fprintf(fp,"\t\t</Users>\n");
 	fprintf(fp,"\t\t<Games>\n");
 	fprintf(fp,"\t\t<Number>%d</Number>\n",gamelist_get_length());
@@ -174,9 +169,7 @@ int output_standard_writer(FILE * fp)
     	    conn = elem_get_data(curr);
     	    if (conn_get_account(conn))
 	    {
-		tname = conn_get_username(conn);
-		fprintf(fp,"user%d=%s,%s\n",number,tag_uint_to_str(clienttag_str,conn_get_clienttag(conn)),tname);
-		conn_unget_username(conn,tname);
+		fprintf(fp,"user%d=%s,%s\n",number,tag_uint_to_str(clienttag_str,conn_get_clienttag(conn)),conn_get_username(conn));
 		number++;
 	    }
 	}
