@@ -25,11 +25,11 @@ typedef enum
 {	WAR3_SOLO, WAR3_TEAM, WAR3_FFA, WAR3_AT, 
 	W3XP_SOLO, W3XP_TEAM, W3XP_FFA, W3XP_AT
 	// add SC/BW/Diablo later on
-} e_binary_ladder_types;
+} t_binary_ladder_types;
 
 typedef enum
 {	load_success, illegal_checksum, load_failed
-} e_binary_ladder_load_result;
+} t_binary_ladder_load_result;
 
 #ifdef BINARY_LADDER_INTERNAL_ACCESS
 
@@ -46,8 +46,8 @@ typedef enum
 
 // some protos here
 
-extern int binary_ladder_save(e_binary_ladder_types type, unsigned int paracount, int (*_cb_get_from_ladder)());
-extern e_binary_ladder_load_result binary_ladder_load(e_binary_ladder_types type, unsigned int paracount, int (*_cb_add_to_ladder)());
+extern int binary_ladder_save(t_binary_ladder_types type, unsigned int paracount, int (*_cb_get_from_ladder)());
+extern t_binary_ladder_load_result binary_ladder_load(t_binary_ladder_types type, unsigned int paracount, int (*_cb_add_to_ladder)());
 
 #endif
 #endif
