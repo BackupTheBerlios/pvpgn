@@ -35,6 +35,7 @@
 #endif
 #include "compat/strchr.h"
 #include "compat/strdup.h"
+#include "compat/strcasecmp.h"
 #include "compat/vargs.h"
 #include <ctype.h>
 #include <errno.h>
