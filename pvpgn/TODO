@@ -2,12 +2,18 @@ PvPGN TODO LIST AND WHATS BEING WORKED ON:
 =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
 Release v1.6 roadmap:
-1. complete tournament support with crash recovery option
-2. move ladders into binary files and only rebuild them from accounts
+1. move ladders into binary files and only rebuild them from accounts
    when they are corupted or by admin request (a / command); this will
    greatly speed up startup on many users servers. 
    Also move the creation of xml/text ladder-files to a seperate daemon
-3. anonagame stuff
+2. complete support for diablo2 1.10
+
+
+Stuff not programmed for any specific version release:			      
+
+* complete tournament support with crash recovery option
+
+* anonagame stuff
     c. move w3route functions to its own .c/.h file (for w3route server)
     e. tournament stuff
 	1. determine how games are limited to 30 minutes & map reveled at 25
@@ -15,10 +21,6 @@ Release v1.6 roadmap:
 	3. make struct to hold / match / advance / eleminate finals players
 	    and functions to acomplish this task
 	4. add stats recording for tournament games (did race wins)
-4. complete support for diablo2 1.10
-
-
-Stuff not programmed for any specific version release:			      
 
 * add a /clearstats <clienttag> command to be able to clear game stats for
 WAR3/W3XP/SC/BW/W2BNE.... (dunno if users should be able to delete their own stats...
