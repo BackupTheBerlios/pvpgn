@@ -63,6 +63,8 @@
 #include "common/setup_after.h"
 
 static t_list * clanlist_head=NULL;
+t_elem        * memberlist_curr;
+int max_clanid = 0;
 
 int clan_memberlist_unload(t_clan * clan)
 {
@@ -91,21 +93,27 @@ int clan_memberlist_unload(t_clan * clan)
   return 0;
 }
 
-int clan_save(t_clan * clan, char * clanfile)
+int clan_save(t_clan * clan)
 {
   FILE * fp;
   t_elem * curr;
   t_clanmember * member;
+  char * clanfile;
 
-  if (!(clanfile))
+  if (!(clanfile = malloc(strlen(prefs_get_clandir())+1+4+1)))
   {
-    eventlog(eventlog_level_error,__FUNCTION__,"got NULL clanfile");
+    eventlog(eventlog_level_error,__FUNCTION__,"could not allocate memory for filename");
     return -1;
   }
+
+  sprintf(clanfile,"%s/%c%c%c%c",prefs_get_clandir(),
+                                 clan->clanshort[0],clan->clanshort[1],
+                                 clan->clanshort[2],clan->clanshort[3]);
 
   if ((fp = fopen(clanfile,"w"))==NULL)
   {
     eventlog(eventlog_level_error,__FUNCTION__,"can't open clanfile \"%s\"",clanfile);
+    free((void *)clanfile);
     return -1;
   }
 
@@ -123,6 +131,7 @@ int clan_save(t_clan * clan, char * clanfile)
 
 
   fclose(fp);
+  free((void *)clanfile);
   return 0;
 }
 
@@ -157,6 +166,8 @@ t_clan * clan_load(char * clanfile, char * clanshort)
   clan->creation_time=(time_t)creation_time;
  
   eventlog(eventlog_level_trace,__FUNCTION__,"name: %s clanid: %i time: %i",clanname,cid,creation_time);
+
+  if (cid>max_clanid) max_clanid=cid;
 
   clan->members = list_create();
 
@@ -199,15 +210,19 @@ int clanlist_add(t_clan * clan)
     return -1;
   }
 
+  if (!(clan->clanid))
+    clan->clanid=++max_clanid;
+
   if (list_append_data(clanlist_head,clan)<0)
   {
     eventlog(eventlog_level_error,__FUNCTION__,"could not append item");
     clan_memberlist_unload(clan);
     free((void *)clan->clanname);
     free((void *)clan);
+    return -1;
   }
 
-  return 0;
+  return clan->clanid;
 }
 
 int clanlist_load(char const * clansdir)
@@ -296,3 +311,105 @@ int clanlist_unload()
   return 0;
 }
 
+t_clan * get_clan_by_clanid(int cid)
+{
+  t_elem * curr;
+  t_clan * clan;
+
+  if (clanlist_head)
+  {
+    LIST_TRAVERSE(clanlist_head,curr)
+    {
+      if (!(clan = elem_get_data(curr)))
+      {
+        eventlog(eventlog_level_error,__FUNCTION__,"found NULL entry in list");
+        continue;
+      }
+      if (clan->clanid==cid) return clan;
+    }
+
+  }
+
+  return NULL;
+}
+
+t_clan * get_clan_by_clanshort(char clanshort[4])
+{
+  t_elem * curr;
+  t_clan * clan;
+
+  if (clanlist_head)
+  {
+    LIST_TRAVERSE(clanlist_head,curr)
+    {
+      if (!(clan = elem_get_data(curr)))
+      {
+        eventlog(eventlog_level_error,__FUNCTION__,"found NULL entry in list");
+        continue;
+      }
+      if ((clan->clanshort[0]==clanshort[0]) &&
+          (clan->clanshort[1]==clanshort[1]) &&
+          (clan->clanshort[2]==clanshort[2]) &&
+          (clan->clanshort[3]==clanshort[3])) return clan;
+    }
+
+  }
+
+  return NULL;
+}
+
+t_clanmember * clan_get_first_member(t_clan * clan)
+{
+  t_clanmember * member;
+
+  if (!(clan))
+  {
+    eventlog(eventlog_level_error,__FUNCTION__,"got NULL clan");
+    return NULL;
+  }
+
+  if (!(clan->members))
+  {
+     eventlog(eventlog_level_error,__FUNCTION__,"found NULL clan->members");
+     return NULL;
+  }
+
+  memberlist_curr = list_get_first(clan->members);
+
+  if (!(memberlist_curr))
+  {
+    eventlog(eventlog_level_error,__FUNCTION__,"clan has no members");
+    return NULL;
+  }
+
+  if (!(member = elem_get_data(memberlist_curr)))
+  {
+    eventlog(eventlog_level_error,__FUNCTION__,"got NULL element in list");
+    return NULL;
+  }
+
+  return member;
+}
+
+t_clanmember * clan_get_next_member()
+{
+  t_clanmember * member;
+
+  if (!(memberlist_curr))
+  {
+    eventlog(eventlog_level_error,__FUNCTION__,"got NULL memberlist_curr");
+    return NULL;
+  }
+
+  memberlist_curr = elem_get_next(memberlist_curr);
+
+  if (!(memberlist_curr)) return NULL;
+
+  if (!(member = elem_get_data(memberlist_curr)))
+  {
+    eventlog(eventlog_level_error,__FUNCTION__,"got NULL element in list");
+    return NULL;
+  }
+
+  return member;
+}

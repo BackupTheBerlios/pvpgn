@@ -73,5 +73,20 @@ t_clan;
 int clanlist_load(char const * clanshort);
 int clanlist_unload();
 
+int clanlist_add(t_clan * clan);
+// adds a clan to the clanlist. does NOT check if clan with same clanshort is allready present
+// it returns the clanid of the clan just added or -1 in case of error
+// if clan->clanid==0 (in case of a newly created clan) it sets a valid new clan->clanid
+
+int clan_save(t_clan * clan);
+// forces the saving of the clan to disc (no other way to save yet)
+
+
+t_clan * get_clan_by_clanid(int cid);
+t_clan * get_clan_by_clanshort(char clanshort[4]);
+
+t_clanmember * clan_get_first_member(t_clan * clan);
+t_clanmember * clan_get_next_member();
+
 #endif
 #endif
