@@ -3234,7 +3234,7 @@ static int _client_findanongame(t_connection * c, t_packet const * const packet)
 	desired_icon=bn_int_get(packet->u.client_findanongame.count);
 	user_icon[4]=0;
 	if (desired_icon==0){
-		strcpy(&user_icon,"NULL");
+		strcpy(user_icon,"NULL");
 		eventlog(eventlog_level_info,__FUNCTION__,"[%d] Set icon packet to DEFAULT ICON [%4.4s]",conn_get_socket(c),user_icon);
 	}else{
 		memcpy(user_icon,&desired_icon,4);

@@ -3085,7 +3085,7 @@ extern unsigned int account_icon_to_profile_icon(char const * icon,t_account * a
 	if (sizeof(icon)>=4){
 		strncpy(tmp_icon,icon,4);
 		tmp_icon[0]=tmp_icon[0]-48;
-		if (strcmp(ctag,"W3XP") == 0) {
+		if (strcmp(ctag,CLIENTTAG_WAR3XP) == 0) {
 			number_ctag = 6;
 		}
 		if (tmp_icon[0]>=1) {
