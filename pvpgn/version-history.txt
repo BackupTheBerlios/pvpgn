@@ -7,6 +7,8 @@ Warcraft III RoC and Frozen Throne
 and removed all references to version numbers
 -- reorganized versioncheck file with latest versions first for faster
 client matching
+-- organized some internal stuff regarding PvPGN version (which also fixes
+the "bug" of not having the full version on tracker listings)
 -- fixed some memory leaks in mysql mode
 -- added chathelp-war3-frFR.txt, newaccount-frFR.txt, termsofservice-frFR.txt
 for our French players
