@@ -213,9 +213,7 @@ extern int output1_write_to_file(void)
 }
 */
 
-/* Unused Function [Omega]
-void output_dispose_filename(char * filename)
+extern void output_dispose_filename(void)
 {
-  if (filename) free(filename);
+  if (status_filename) free(status_filename);
 }
-*/

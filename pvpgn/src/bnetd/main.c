@@ -473,6 +473,7 @@ void post_server_shutdown(int status)
 	case STATUS_LADDERLIST_FAILURE:
 	    war3_ladder_update_all_accounts();
     	    war3_ladders_destroy();
+	    output_dispose_filename();
 	    accountlist_destroy();
     	    accountlist_unload_default();
     	    watchlist_destroy();

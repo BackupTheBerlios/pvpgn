@@ -159,6 +159,7 @@ extern int versioncheck_set_versiontag(t_versioncheck * vc, char const * version
 	return -1;
     }
     
+    free((void *)vc->versiontag);
     vc->versiontag = strdup(versiontag);
     return 0;
 }
