@@ -1564,9 +1564,12 @@ extern t_account * accountlist_find_account(char const * username)
 	return NULL;
     }
     
-    if ((username[0]=='#') || (!(prefs_get_savebyname())))
+    if (username[0]=='#')
         if (str_to_uint(&username[1],&userid)<0)
             userid = 0;
+    if (!(prefs_get_savebyname()))
+	if (str_to_uint(username,&userid)<0)
+	    userid = 0;
 
     /* all accounts in list must be hashed already, no need to check */
     
