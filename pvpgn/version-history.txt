@@ -6,6 +6,12 @@ So ALL users using fucked up no-CD cracks or strange war3.org's may
 fail to login due to wrong file-time. That's not our problem. 
 
 1.6.0beta (since 1.6.0pre5)
+!!! IMPORTANT !!!
+Most of the files under "files" directory where moved in their own package now 
+which is distributed separately. To setup a fresh server you will need to get 
+the "files" package too and unpack it into "files" directory of your PvPGN 
+installation.
+
 -- fixed bug in d2cs where it didnt accepted new chars if lod_realm was set 
 to any 0 or 1 value (but worked with 2 set by default)
 -- now there are binary ladder files for all ladder types. This significantly
@@ -15,18 +21,32 @@ simply shutdown server, delete the corresponding binary ladder file(s) and
 startup server again. The /rank_all_accounts command has been removed.
 -- added option for d2dbs to only add "ladder" chars to the ladder
 -- fixed output of D2 XML ladder experience value (from signed to unsigned)
+-- added missing d2 1.10 eMail registration request
 -- rewritten the packet queue codes to reduce memory management calls and in 
 turn reduce CPU usage
+-- fixed Starcraft game list requests (sends game_type_all lately)
 -- "fixed" the infamous "got error handling packet id 0x15ff" message when no 
 ads configured
 -- fixed userlist in Win32 GUI to update after each user login and not only for 
+-- fixed LOTS of uninitilized data bytes sent to network I/O in d2cs
 -- added ladder_start_time to d2cs.conf
+-- location clean up of some WIN32 build files
+-- fixed d2cs problems that newly created accounts can sometimes not create 
+new chars until they go back to char selection screen and then try again to 
+create a char
+-- fixed problems with game reports on WIN32 (couse it doesnt like filenames 
+starting with '.')
+-- removed some useless log messages
 -- removed the "static" motd part and included this stuff in conf/bnmotd.txt
 -- added docs/bnmotd.txt that explains the usage
+-- fixed startgame4 handling routine; game lists should be all OK now
+-- fixed d2cs and d2dbs so they compile and work on WIN32 too and changed WIN32 
+build files to compile them (d2closed will no longer be needed)
 -- added the possibilty to add new lines to bnxpcalc.txt to increase the
 WAR3/W3XP +/-6 level ladder-rule
-
-War3 users
+-- rewritten the "specific" game search and reply (shouldnt allow clients to 
+try to join non-open games)
+-- added support for d2dbs and d2cs to run as a service on WIN32
 
 1.6.0pre5 (since 1.6.0pre4):
 -- added support for loading new accounts at runtime (ex. if made by some 

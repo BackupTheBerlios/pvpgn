@@ -12,6 +12,12 @@ The path's specified are those of the default unix installation
  Updating from 1.6.0 pre 5 to 1.6.0 beta
 ===========================================
 
+!!!IMPORTANT!!!
+Most of the files under "files" directory where moved in their own package now 
+which is distributed separately. To setup a fresh server you will need to get 
+the "files" package too and unpack it into "files" directory of your PvPGN 
+installation.
+
 changed config files:
 ---------------------
 -- updated bnmotd.txt
