@@ -164,6 +164,7 @@ ${SRC_BNETDDIR}/fdwatch_poll.o\
 ${SRC_BNETDDIR}/fdwatch_kqueue.o\
 ${SRC_BNETDDIR}/fdwatch_epoll.o\
 ${SRC_BNETDDIR}/w3trans.o \
+${SRC_BNETDDIR}/binary_ladder.o \
 ${SRC_COMMONDIR}/hexdump.o \
 ${SRC_COMMONDIR}/bn_type.o \
 ${SRC_COMMONDIR}/packet.o \

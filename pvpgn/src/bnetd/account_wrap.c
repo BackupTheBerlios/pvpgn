@@ -2684,7 +2684,7 @@ extern int account_set_saveladderstats(t_account * account,unsigned int gametype
 		account_set_sololevel(account,clienttag);
 		level = account_get_sololevel(account,clienttag);
 		if (war3_ladder_update(solo_ladder(clienttag),uid,xpdiff,level,account,0)!=0)
-		  war3_ladder_add(solo_ladder(clienttag),uid,account_get_soloxp(account,clienttag),level,0,account,0,clienttag);
+		  war3_ladder_add(solo_ladder(clienttag),uid,account_get_soloxp(account,clienttag),level,account,0,clienttag);
 		break;
 	  }
 	  case ANONGAME_TYPE_2V2:
@@ -2713,7 +2713,7 @@ extern int account_set_saveladderstats(t_account * account,unsigned int gametype
 		account_set_teamlevel(account,clienttag);
 		level = account_get_teamlevel(account,clienttag);
 		if (war3_ladder_update(team_ladder(clienttag),uid,xpdiff,level,account,0)!=0)
-		  war3_ladder_add(team_ladder(clienttag),uid,account_get_teamxp(account,clienttag),level,0,account,0,clienttag);
+		  war3_ladder_add(team_ladder(clienttag),uid,account_get_teamxp(account,clienttag),level,account,0,clienttag);
 		break;
 	  }
 
@@ -2734,7 +2734,7 @@ extern int account_set_saveladderstats(t_account * account,unsigned int gametype
 		account_set_ffalevel(account,clienttag);
 		level = account_get_ffalevel(account,clienttag);
 		if (war3_ladder_update(ffa_ladder(clienttag),uid,xpdiff,level,account,0)!=0)
-		  war3_ladder_add(ffa_ladder(clienttag),uid,account_get_ffaxp(account,clienttag),level,0,account,0,clienttag);
+		  war3_ladder_add(ffa_ladder(clienttag),uid,account_get_ffaxp(account,clienttag),level,account,0,clienttag);
                 break;
 	  }
 	  default:
@@ -3128,7 +3128,7 @@ extern int account_set_saveATladderstats(t_account * account, unsigned int gamet
   account_update_atteamlevel(account,current_teamnum,clienttag);
   level = account_get_atteamlevel(account,current_teamnum,clienttag);
   if (war3_ladder_update(at_ladder(clienttag),uid,xpdiff,level,account,0)!=0)
-    war3_ladder_add(at_ladder(clienttag),uid,account_get_atteamxp(account,current_teamnum,clienttag),level,0,account,0,clienttag);
+    war3_ladder_add(at_ladder(clienttag),uid,account_get_atteamxp(account,current_teamnum,clienttag),level,account,0,clienttag);
   return 0;
 }
 
