@@ -6,6 +6,8 @@
  * Copyright (C) 2000,2001  Marco Ziech (mmz@gmx.net)
  * Copyright (C) 2000  Dizzy 
  * Copyright (C) 2000  Onlyer (onlyer@263.net)
+ * Copyright (C) 2003,2004  Aaron
+ * Copyright (C) 2004  Donny Redmond (dredmond@linuxmail.org)
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -3203,6 +3205,7 @@ static int _handle_finger_command(t_connection * c, char const *text)
   char const *   tage;
   char const *   tip;
   char const *   tdesc;
+  t_clanmember * clanmemb;
   
   for (i=0; text[i]!=' ' && text[i]!='\0'; i++); /* skip command */
   for (; text[i]==' '; i++);
@@ -3229,6 +3232,38 @@ static int _handle_finger_command(t_connection * c, char const *text)
   account_unget_name(tname);
   account_unget_sex(tsex);
   message_send_text(c,message_type_info,c,msgtemp);
+
+  if ((clanmemb = account_get_clanmember(account)))
+  {
+    t_clan *	 clan;
+    char	 status;
+
+    if ((clan = clanmember_get_clan(clanmemb)))
+    {
+	sprintf(msgtemp,"Clan : %-64.64s",clan_get_name(clan));
+	if ((status = clanmember_get_status(clanmemb)))
+	{
+	    switch (status)
+	    {
+		case CLAN_CHIEFTAIN:
+		   strcat(msgtemp,"  Rank: Chieftain");
+		   break;
+		case CLAN_SHAMAN:
+		   strcat(msgtemp,"  Rank: Shaman");
+		   break;
+		case CLAN_GRUNT:
+		   strcat(msgtemp,"  Rank: Grunt");
+		   break;
+		case CLAN_PEON:
+		   strcat(msgtemp,"  Rank: Peon");
+		   break;
+		default:;
+	    }
+	}
+	message_send_text(c,message_type_info,c,msgtemp);
+
+    }
+  }
   
   sprintf(msgtemp,"Location: %-23.23s Age: %.14s",
 	  (tloc = account_get_loc(account)),
@@ -3236,6 +3271,15 @@ static int _handle_finger_command(t_connection * c, char const *text)
   account_unget_loc(tloc);
   account_unget_age(tage);
   message_send_text(c,message_type_info,c,msgtemp);
+  
+  if((conn = connlist_find_connection_by_accountname(dest)))
+  {
+	  sprintf(msgtemp,"Client: %s    Ver: %s   Country: %s",
+		  conn_get_user_game_title(conn_get_clienttag(conn)),
+		  conn_get_clientver(conn),
+		  conn_get_country(conn));
+	  message_send_text(c,message_type_info,c,msgtemp);
+  }
   
   if (!(ip=tip = account_get_ll_ip(account)) ||
       !(account_get_command_groups(conn_get_account(c)) & command_get_group("/admin-addr"))) /* default to false */
@@ -3247,7 +3291,7 @@ static int _handle_finger_command(t_connection * c, char const *text)
     
     then = account_get_ll_time(account);
     tmthen = localtime(&then); /* FIXME: determine user's timezone */
-    if (!(conn = connlist_find_connection_by_accountname(dest)))
+    if (!(conn))
       if (tmthen)
 	strftime(msgtemp,sizeof(msgtemp),"Last login %a %b %d %H:%M %Y from ",tmthen);
       else
