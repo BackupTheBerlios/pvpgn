@@ -172,6 +172,8 @@ static int anongame_infos_ICON_REQ_init(t_anongame_infos * anongame_infos)
 	return -1;
     }
 
+	anongame_infos_ICON_REQ = anongame_infos->anongame_infos_ICON_REQ;
+
     anongame_infos_ICON_REQ[ICON_REQ_WAR3_Level1] = 25;
     anongame_infos_ICON_REQ[ICON_REQ_WAR3_Level2] = 250;
     anongame_infos_ICON_REQ[ICON_REQ_WAR3_Level3] = 500;
