@@ -183,7 +183,6 @@ static Bconf_t conf_table[] =
     { "reduced_accounting",     conf_type_bool,    NULL,                 0,                     ACT },
 
     { "XML_output_ladder",      conf_type_bool,    NULL,                 0,	    ACT },
-    { "XML_output_tracker",     conf_type_bool,    NULL,                 0,                     ACT }, 
 
     { NULL,             	conf_type_none,    NULL,                 NONE,                  ACT },
 
@@ -1160,10 +1159,5 @@ extern int prefs_get_reduced_accounting(void)
 extern int prefs_get_XML_output_ladder(void)
 {
         return get_bool_conf("XML_output_ladder");
-}
-
-extern int prefs_get_XML_output_tracker(void)
-{
-        return get_bool_conf("XML_output_tracker");
 }
 
