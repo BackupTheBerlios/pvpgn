@@ -432,8 +432,12 @@ contact_email = "unknown"
 #----------------------------------------------------------------------------#
 
 # Set this to the maximum number of concurrent connections allowed on 
-# this server (minimum 32).
+# this server (minimum 32). This limit sets a general server connection 
+# limit, NOT the concurrent user limit (for that see next option)
 max_connections = 1000
+
+# Maximum number of concurrent users (0 means unlimited).
+max_concurrent_logins = 0
 
 # Set this option to true to allow TCP to detect and close stale
 # connections.
