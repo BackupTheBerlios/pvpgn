@@ -428,15 +428,10 @@ static int _handle_ping_command(t_connection * conn, int numparams, char ** para
 {
 	/* Dizzy: just ignore this because RFC says we should not reply client PINGs
 	 * NOTE: RFC2812 doesn't seem to be very expressive about this ... */
-	 /*
-        if ((text)&&(strcmp(text,server_get_name())!=0))
-	    irc_send(conn,ERR_NOSUCHSERVER,":No such server"); We don't know other servers
-	;
-	else
-	*/
+	if (numparams)
 	    irc_send_pong(conn,params[0]);
-	    /*
-	*/
+	else
+	    irc_send_pong(conn,text);
 	return 0;
 }
 
