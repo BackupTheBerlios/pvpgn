@@ -140,8 +140,10 @@ extern t_channel * channel_create(char const * fullname, char const * shortname,
 	channel->flags = channel_flags_public;
 	if (clienttag && maxmembers!=-1) /* approximation.. we want things like "Starcraft USA-1" */
 	    channel->flags |= channel_flags_system;
-    }
-    else
+    } else if(!strcasecmp(shortname, CHANNEL_NAME_KICKED)
+           || !strcasecmp(shortname, CHANNEL_NAME_BANNED)) {
+	channel->flags = channel_flags_thevoid;	   
+    } else
 	channel->flags = channel_flags_none;
     
     eventlog(eventlog_level_debug,"channel_create","creating new channel \"%s\" shortname=%s%s%s clienttag=%s%s%s country=%s%s%s realm=%s%s%s",fullname,
@@ -831,6 +833,9 @@ extern void channel_message_send(t_channel const * channel, t_message_type type,
 	eventlog(eventlog_level_error,"channel_message_send","got NULL connection");
         return;
     }
+
+    if(channel_get_flags(channel) & channel_flags_thevoid)
+	return;
     
     if (!(message = message_create(type,me,NULL,text)))
     {
