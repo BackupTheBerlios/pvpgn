@@ -2524,57 +2524,28 @@ static int _client_friendinforeq(t_connection * c, t_packet const * const packet
 	     return 0;
 	}
 
-	if(friend_get_mutual(fr))
+        type = FRIEND_TYPE_NON_MUTUAL;
+	if(friend_get_mutual(fr)) type |= FRIEND_TYPE_MUTUAL;
+        if ((conn_get_dndstr(dest_c)))  type |= FRIEND_TYPE_DND;
+	if ((conn_get_awaystr(dest_c))) type |= FRIEND_TYPE_AWAY;
+	bn_byte_set(&rpacket->u.server_friendinforeply.type, type);
+	if((game = conn_get_game(dest_c))) 
 	  {
-	     type = FRIEND_TYPE_MUTUAL;
-             if ((conn_get_dndstr(dest_c)))  type |= FRIEND_TYPE_DND;
-	     if ((conn_get_awaystr(dest_c))) type |= FRIEND_TYPE_AWAY;
-	     bn_byte_set(&rpacket->u.server_friendinforeply.type, type);
-	     if((game = conn_get_game(dest_c))) 
-	       {
-		  if (game_get_flag_private(game)==0)
-		    bn_byte_set(&rpacket->u.server_friendinforeply.status, FRIENDSTATUS_PUBLIC_GAME);
-		  else
-                    bn_byte_set(&rpacket->u.server_friendinforeply.status, FRIENDSTATUS_PRIVATE_GAME);
-		  packet_append_string(rpacket, game_get_name(game));
-	       }
-	     else if((channel = conn_get_channel(dest_c))) 
-	       {
-		  bn_byte_set(&rpacket->u.server_friendinforeply.status, FRIENDSTATUS_CHAT);
-		  packet_append_string(rpacket, channel_get_name(channel));
-		  
-	       }
-	     else 
-	       {
-		  bn_byte_set(&rpacket->u.server_friendinforeply.status, FRIENDSTATUS_ONLINE);
-		  packet_append_string(rpacket, "");
-	       }
+	    if (game_get_flag_private(game)==0)
+	      bn_byte_set(&rpacket->u.server_friendinforeply.status, FRIENDSTATUS_PUBLIC_GAME);
+	    else
+              bn_byte_set(&rpacket->u.server_friendinforeply.status, FRIENDSTATUS_PRIVATE_GAME);
+	    packet_append_string(rpacket, game_get_name(game));
 	  }
-	else
+	else if((channel = conn_get_channel(dest_c))) 
 	  {
-	     type = FRIEND_TYPE_NON_MUTUAL;
-             if ((conn_get_dndstr(dest_c)))  type |= FRIEND_TYPE_DND;
-	     if ((conn_get_awaystr(dest_c))) type |= FRIEND_TYPE_AWAY;
-	     bn_byte_set(&rpacket->u.server_friendinforeply.type, type);
-	     
-	     if((game = conn_get_game(dest_c))) 
-	       {
-		  if (game_get_flag_private(game)==0)
-		    bn_byte_set(&rpacket->u.server_friendinforeply.status, FRIENDSTATUS_PUBLIC_GAME);
-		  else
-                    bn_byte_set(&rpacket->u.server_friendinforeply.status, FRIENDSTATUS_PRIVATE_GAME);
-		  packet_append_string(rpacket, game_get_name(game));
-	       }
-	     else if((channel = conn_get_channel(dest_c))) 
-	       {
-		  bn_byte_set(&rpacket->u.server_friendinforeply.status, FRIENDSTATUS_CHAT);
-		  packet_append_string(rpacket, channel_get_name(channel));
-	       }
-	     else 
-	       {
-		  bn_byte_set(&rpacket->u.server_friendinforeply.status, FRIENDSTATUS_ONLINE);
-		  packet_append_string(rpacket, "");
-	       }	     
+	    bn_byte_set(&rpacket->u.server_friendinforeply.status, FRIENDSTATUS_CHAT);
+	    packet_append_string(rpacket, channel_get_name(channel));
+	  }
+	else 
+	  {
+	    bn_byte_set(&rpacket->u.server_friendinforeply.status, FRIENDSTATUS_ONLINE);
+	    packet_append_string(rpacket, "");
 	  }
 	
 	bn_int_set(&rpacket->u.server_friendinforeply.clienttag, *((int const *)conn_get_clienttag(dest_c)));
