@@ -146,6 +146,7 @@
 #include "clan.h"
 #include "w3trans.h"
 #include "tournament.h"
+#include <ctype.h>
 #include "common/setup_after.h"
 
 extern FILE * hexstrm; /* from main.c */
