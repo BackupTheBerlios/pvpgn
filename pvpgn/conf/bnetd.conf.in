@@ -302,6 +302,11 @@ reduced_accounting = false
 # default setting is "-_[]" as it was previous versions
 account_allowed_symbols = "-_[]"
 
+# when set to true new accounts added to userfiles folder or added to DB
+# manually will get loaded to accountlist while server running...
+# note: this is still experimental and requires a fast machine
+reload_new_accounts = false
+
 #                                                                            #
 ##############################################################################
 

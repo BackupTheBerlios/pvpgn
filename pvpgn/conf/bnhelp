@@ -151,7 +151,9 @@ whereis <player> - looks up some basic information on a user, including their ac
 /clan <clanname> - sets the clanname to be displayed in your profile
 &ping
 /ping, /p, /latency - returns your latency to the server
-&reload_accounts
-/reload_accounts - reload account data for all users currently not logged in
+&reload_accounts_all
+/reload_accounts_all - reload account data for all users currently not logged in
+&reload_accounts_new
+/reload_accounts_new - load accounts added manually to DB or userfiles folder
 #                                                                            #
 ##############################################################################
