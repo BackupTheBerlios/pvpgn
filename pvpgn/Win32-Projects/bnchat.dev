@@ -1,7 +1,7 @@
 [Project]
 FileName=bnchat.dev
 Name=bnchat
-UnitCount=40
+UnitCount=42
 Type=1
 Ver=1
 ObjFiles=
@@ -446,4 +446,24 @@ OriginalFilename=bnchat.exe
 ProductName=bnchat
 ProductVersion=0.1
 AutoIncBuildNr=0
+
+[Unit41]
+FileName=..\src\compat\vsnprintf.h
+CompileCpp=0
+Folder=compat/Header Files
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit42]
+FileName=..\src\compat\vsnprintf.c
+CompileCpp=0
+Folder=compat/Source Files
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
 
