@@ -73,4 +73,6 @@ static inline void elist_del(t_elist *what)
     for (pos = (head)->next, save = pos->next; pos != (head); \
 			pos = save, save = pos->next)
 
+#define elist_empty(ptr) ((ptr)->next == (ptr))
+
 #endif /* INCLUDED_ELIST_PROTOS */
