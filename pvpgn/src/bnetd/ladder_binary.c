@@ -47,7 +47,12 @@
 #include "prefs.h"
 #include "common/setup_after.h"
 
-const char * binary_ladder_type_to_filename(e_binary_ladder_types type)
+static void dispose_filename(const char * filename)
+{
+    if (filename) free((void*)filename);
+}
+
+static const char * binary_ladder_type_to_filename(e_binary_ladder_types type)
 {
   switch (type) {
     case WAR3_SOLO: return "WAR3_SOLO";
@@ -64,7 +69,7 @@ const char * binary_ladder_type_to_filename(e_binary_ladder_types type)
   }
 }
 
-int binary_ladder_save(e_binary_ladder_types type, unsigned int paracount, int (*_cb_get_from_ladder)())
+extern int binary_ladder_save(e_binary_ladder_types type, unsigned int paracount, int (*_cb_get_from_ladder)())
 { int results[10];
   int rank = 1;
   const char * ladder_name;
@@ -108,7 +113,7 @@ int binary_ladder_save(e_binary_ladder_types type, unsigned int paracount, int (
   return 0;
 }
 
-e_binary_ladder_load_result binary_ladder_load(e_binary_ladder_types type, unsigned int paracount, int (*_cb_add_to_ladder)())
+extern e_binary_ladder_load_result binary_ladder_load(e_binary_ladder_types type, unsigned int paracount, int (*_cb_add_to_ladder)())
 { int values[10];
   const char * ladder_name;
   const char * filename;

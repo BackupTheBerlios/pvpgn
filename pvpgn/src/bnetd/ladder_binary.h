@@ -46,8 +46,8 @@ typedef enum
 
 // some protos here
 
-int binary_ladder_save(e_binary_ladder_types type, unsigned int paracount, int (*_cb_get_from_ladder)());
-e_binary_ladder_load_result binary_ladder_load(e_binary_ladder_types type, unsigned int paracount, int (*_cb_add_to_ladder)());
+extern int binary_ladder_save(e_binary_ladder_types type, unsigned int paracount, int (*_cb_get_from_ladder)());
+extern e_binary_ladder_load_result binary_ladder_load(e_binary_ladder_types type, unsigned int paracount, int (*_cb_add_to_ladder)());
 
 #endif
 #endif
