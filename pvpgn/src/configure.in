@@ -80,11 +80,11 @@ esac])
 extra_lib=""
 AC_ARG_WITH(efence, [  --with-efence           link with Electric Fence to find memory problems], [extra_lib="${extra_lib} -lefence"])
 
-AC_ARG_WITH(mysql, [  --with-mysql            include MySQL user accounts support], [ac_with_mysql='yes'])
+AC_ARG_WITH(mysql, [  --with-mysql            include MySQL user accounts support])
 
-AC_ARG_WITH(pgsql, [  --with-pgsql            include PostgreSQL user accounts support], [ac_with_pgsql='yes'])
+AC_ARG_WITH(pgsql, [  --with-pgsql            include PostgreSQL user accounts support])
 
-AC_ARG_WITH(mssql, [  --with-mssql            include MSSQL user accounts support (requires FreeTDS includes/libs)], [ac_with_mssql='yes'])
+AC_ARG_WITH(mssql, [  --with-mssql            include MSSQL user accounts support (requires FreeTDS includes/libs)])
 
 extra_define=""
 dnl Enable poll()
@@ -186,97 +186,122 @@ AC_CHECK_LIB(z, compress, [LIBS="$LIBS -lz"])
 
 mysql_include_path=""
 dnl Detecting mysql paths
-if test "$ac_with_mysql" = "yes" ; then
-	echo -n "checking for mysql include path ... "
+if test "$with_mysql" = "yes" ; then
+	AC_MSG_CHECKING([for mysql include path])
 	mysql_try_includes="/usr/include /usr/include/mysql /usr/local/include /usr/local/include/mysql /usr/local/mysql/include /usr/local/mysql/include/mysql"
 	for i in `echo ${mysql_try_includes}`; do
 	    if test -f "${i}/mysql.h" ; then
-		echo ${i}
 		CPPFLAGS="${CPPFLAGS} -I${i}"
 		mysql_include_path=${i}
 		break
 	    fi
 	done
+	if test -n "$mysql_include_path" ; then
+	    AC_MSG_RESULT([found in $mysql_include_path])
+	else
+	    AC_MSG_ERROR([not found, please install the MySQL headers])
+	fi
 fi
 
 mysql_lib_path=""
-if test "$ac_with_mysql" = "yes" ; then
+if test "$with_mysql" = "yes" ; then
     AC_CHECK_LIB(mysqlclient, mysql_init , [DEFINES="${DEFINES} -DWITH_SQL_MYSQL" ; LIBS="${LIBS} -lmysqlclient"], [
-	echo -n "checking for mysql lib path ... "
+	AC_MSG_CHECKING([for mysql lib path])
 	mysql_try_libs="/usr/lib /usr/lib/mysql /usr/local/lib /usr/local/lib/mysql /usr/local/mysql/lib /usr/local/mysql/lib/mysql"
+	found=""
 	for i in `echo ${mysql_try_libs}`; do
 	    if test -f "${i}/libmysqlclient.so" -o -f "${i}/libmysqlclient.a" ; then
-		echo ${i}
 		save_ldflags="${LDFLAGS}"
 		LDFLAGS="${LDFLAGS} -L${i}"
 		AC_CHECK_LIB(mysqlclient, mysql_close , [DEFINES="${DEFINES} -DWITH_SQL_MYSQL" ; LIBS="${LIBS} -lmysqlclient" ; mysql_lib_path="${i}"], [LDFLAGS="${save_ldflags}"])
 		break
 	    fi
 	done
+	if test -n "$mysql_lib_path" ; then
+	    AC_MSG_RESULT([found in $mysql_lib_path])
+	else
+	    AC_MSG_ERROR([not found, please install the MySQL libraries])
+	fi
     ])
 fi
 
 pgsql_include_path=""
 dnl Detecting pgsql paths
-if test "$ac_with_pgsql" = "yes" ; then
-	echo -n "checking for pgsql include path ... "
+if test "$with_pgsql" = "yes" ; then
+	AC_MSG_CHECKING([for pgsql include path])
 	pgsql_try_includes="/usr/include /usr/include/pgsql /usr/local/include /usr/local/include/pgsql /usr/local/pgsql/include"
 	for i in `echo ${pgsql_try_includes}`; do
 	    if test -f "${i}/libpq-fe.h" ; then
-		echo ${i}
 		CPPFLAGS="${CPPFLAGS} -I${i}"
 		pgsql_include_path=${i}
 		break
 	    fi
 	done
+	if test -n "$pgsql_include_path" ; then
+	    AC_MSG_RESULT([found in $pgsql_include_path])
+	else
+	    AC_MSG_ERROR([not found, please install the PostgreSQL includes])
+	fi
 fi
 
 pgsql_lib_path=""
-if test "$ac_with_pgsql" = "yes" ; then
+if test "$with_pgsql" = "yes" ; then
      AC_CHECK_LIB(pq, PQsetdbLogin , [DEFINES="${DEFINES} -DWITH_SQL_PGSQL" ; LIBS="${LIBS} -lpq"], [
-	echo -n "checking for pgsql lib path ... "
+	AC_MSG_CHECKING([for pgsql lib path])
 	pgsql_try_libs="/usr/lib /usr/lib/pgsql /usr/local/lib /usr/local/lib/pgsql /usr/local/pgsql/lib"
 	for i in `echo ${pgsql_try_libs}`; do
 	    if test -f "${i}/libpq.so" -o -f "${i}/libpq.a" ; then
-		echo ${i}
 		save_ldflags="${LDFLAGS}"
 		LDFLAGS="${LDFLAGS} -L${i}"
 		AC_CHECK_LIB(pq, PQfinish , [DEFINES="${DEFINES} -DWITH_SQL_PGSQL" ; LIBS="${LIBS} -lpq" ; pgsql_lib_path="${i}"], [LDFLAGS="${save_ldflags}"])
 		break
 	    fi
 	done
+	if test -n "$pgsql_lib_path" ; then
+	    AC_MSG_RESULT([found in $pgsql_lib_path])
+	else
+	    AC_MSG_ERROR([not found, please install the PostgreSQL libraries])
+	fi
      ])
 fi
 
 mssql_include_path=""
 dnl Detecting mssql paths
-if test "$ac_with_mssql" = "yes" ; then
-	echo -n "checking for mssql/FreeTDS include path ... "
+if test "$with_mssql" = "yes" ; then
+	AC_MSG_CHECKING([for mssql/FreeTDS include path])
 	mssql_try_includes="/usr/include /usr/include/freetds /usr/local/include /usr/local/include/freetds /usr/local/freetds/include"
 	for i in `echo ${mssql_try_includes}`; do
 	    if test -f "${i}/sqlfront.h" ; then
-		echo ${i}
 		CPPFLAGS="${CPPFLAGS} -I${i}"
 		mssql_include_path=${i}
 		break
 	    fi
 	done
+	if test -n "$mssql_include_path" ; then
+	    AC_MSG_RESULT([found in $mssql_include_path])
+	else
+	    AC_MSG_ERROR([not found, please install the FreeTDS includes])
+	fi
 fi
 
 mssql_lib_path=""
-if test "$ac_with_mssql" = "yes" ; then
+if test "$with_mssql" = "yes" ; then
      AC_CHECK_LIB(sybdb, dbinit, [DEFINES="${DEFINES} -DWITH_SQL_MSSQL" ; LIBS="${LIBS} -lsybdb"], [
-	echo -n "checking for mssql/FreeTDS lib path ... "
+	AC_MSG_CHECKING([for mssql/FreeTDS lib path])
 	mssql_try_libs="/usr/lib /usr/lib/freetds /usr/local/lib /usr/local/lib/freetds /usr/local/freetds/lib"
 	for i in `echo ${mssql_try_libs}`; do
 	    if test -f "${i}/libsybdb.so" -o -f "${i}/libsybdb.a" ; then
-		echo ${i}
 		save_ldflags="${LDFLAGS}"
 		LDFLAGS="${LDFLAGS} -L${i}"
 		AC_CHECK_LIB(sybdb, dbclose, [DEFINES="${DEFINES} -DWITH_SQL_MSSQL" ; LIBS="${LIBS} -lsybdb" ; mssql_lib_path="${i}"], [LDFLAGS="${save_ldflags}"])
 		break
 	    fi
 	done
+	if test -n "$mssql_lib_path" ; then
+	    AC_MSG_RESULT([found in $mssql_lib_path])
+	else
+	    AC_MSG_ERROR([not found, please install the FreeTDS libraries])
+	fi
      ])
 fi
 
