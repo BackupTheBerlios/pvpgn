@@ -1440,7 +1440,7 @@ extern int server_process(void)
 	    if (adbannerlist_destroy()<0)
 		eventlog(eventlog_level_error,"server_process","could not unload old adbanner list");
 	    if (adbannerlist_create(prefs_get_adfile())<0)
-		eventlog(eventlog_level_error,"server_process","could not new adbanner list");
+		eventlog(eventlog_level_error,"server_process","could not load new adbanner list");
 	    
 	    if (gametrans_unload()<0)
 		eventlog(eventlog_level_error,"server_process","could not unload old gametrans list");
