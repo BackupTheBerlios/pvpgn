@@ -124,9 +124,6 @@
 					RelativePath="..\bnetd\clan.c">
 				</File>
 				<File
-					RelativePath="..\bnetd\clienttag.c">
-				</File>
-				<File
 					RelativePath="..\bnetd\command.c">
 				</File>
 				<File
@@ -341,6 +338,9 @@
 					RelativePath="..\common\rlimit.c">
 				</File>
 				<File
+					RelativePath="..\common\tag.c">
+				</File>
+				<File
 					RelativePath="..\common\token.c">
 				</File>
 				<File
@@ -522,9 +522,6 @@
 				</File>
 				<File
 					RelativePath="..\bnetd\clan.h">
-				</File>
-				<File
-					RelativePath="..\bnetd\clienttag.h">
 				</File>
 				<File
 					RelativePath="..\bnetd\command.h">
