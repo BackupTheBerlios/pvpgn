@@ -32,8 +32,8 @@
 typedef struct
 {
     char const * line;
-    unsigned int min;
-    unsigned int max;
+    int min;
+    int max;
 } t_output;
 
 typedef struct
