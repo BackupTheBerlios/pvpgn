@@ -55,6 +55,7 @@ extern char const * versioncheck_get_versiontag(t_versioncheck const * vc);
 extern int versioncheck_set_versiontag(t_versioncheck * vc, char const * versiontag);
 extern char const * versioncheck_get_clienttag(t_versioncheck const * vc);
 extern int versioncheck_set_clienttag(t_versioncheck * vc, char const * clienttag);
+extern int versioncheck_set_archtag(t_versioncheck * vc, char const * archtag);
 
 #endif
 #endif
