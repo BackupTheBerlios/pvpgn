@@ -45,6 +45,7 @@
 #else
 # ifdef WIN32
 #  include <io.h>
+#  define F_OK 0
 # endif
 #endif
 #include "compat/strerror.h"
