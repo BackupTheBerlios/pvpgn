@@ -142,6 +142,8 @@ typedef struct connection
    char const *                  clienttag;
    char const *                  clientver;
    unsigned long                 versionid; /* AKA bnversion */
+   unsigned long		 gameversion;
+   unsigned long		 checksum;
    char const *                  country;
    int                           tzbias;
    t_account *                   account;
@@ -273,6 +275,10 @@ extern char const * conn_get_fake_clienttag(t_connection const * c) PURE_ATTR();
 extern void conn_set_clienttag(t_connection * c, char const * clienttag);
 extern unsigned long conn_get_versionid(t_connection const * c) PURE_ATTR();
 extern int conn_set_versionid(t_connection * c, unsigned long versionid);
+extern unsigned long conn_get_gameversion(t_connection const * c) PURE_ATTR();
+extern int conn_set_gameversion(t_connection * c, unsigned long gameversion);
+extern unsigned long conn_get_checksum(t_connection const * c) PURE_ATTR();
+extern int conn_set_checksum(t_connection * c, unsigned long checksum);
 extern char const * conn_get_clientver(t_connection const * c) PURE_ATTR();
 extern void conn_set_clientver(t_connection * c, char const * clientver);
 extern int conn_get_tzbias(t_connection const * c) PURE_ATTR();

@@ -1189,30 +1189,30 @@ static int _client_authreq1(t_connection * c, t_packet const * const packet)
 	     exeinfo = "badexe";
 	     failed = 1;
 	  }
-	versionid = bn_int_get(packet->u.client_authreq1.versionid);
-	checksum = bn_int_get(packet->u.client_authreq1.checksum);
-	gameversion = bn_int_get(packet->u.client_authreq1.gameversion);
-	strcpy(verstr,vernum_to_verstr(gameversion));
+	conn_set_versionid(c, bn_int_get(packet->u.client_authreq1.versionid));
+	conn_set_checksum(c, bn_int_get(packet->u.client_authreq1.checksum));
+	conn_set_gameversion(c, bn_int_get(packet->u.client_authreq1.gameversion));
+	strcpy(verstr,vernum_to_verstr(bn_int_get(packet->u.client_authreq1.gameversion)));
+	conn_set_clientver(c,verstr);
+	conn_set_clientexe(c,exeinfo);
 	
-	eventlog(eventlog_level_info,__FUNCTION__,"[%d] CLIENT_AUTHREQ1 archtag=0x%08x clienttag=0x%08x verstr=%s exeinfo=\"%s\" versionid=0x%08x gameversion=0x%08x checksum=0x%08x",
+	eventlog(eventlog_level_info,__FUNCTION__,"[%d] CLIENT_AUTHREQ1 archtag=0x%08x clienttag=0x%08x verstr=%s exeinfo=\"%s\" versionid=0x%08lx gameversion=0x%08lx checksum=0x%08lx",
 		 conn_get_socket(c),
 		 bn_int_get(packet->u.client_authreq1.archtag),
 		 bn_int_get(packet->u.client_authreq1.clienttag),
 		 verstr,
 		 exeinfo,
-		 versionid,
-		 gameversion,
-		 checksum);
+		 conn_get_versionid(c),
+		 conn_get_gameversion(c),
+		 conn_get_checksum(c));
 	
-	conn_set_clientver(c,verstr);
-	conn_set_clientexe(c,exeinfo);
 	
 	if ((rpacket = packet_create(packet_class_bnet)))
 	  {
 	     packet_set_size(rpacket,sizeof(t_server_authreply1));
 	     packet_set_type(rpacket,SERVER_AUTHREPLY1);
 	     
-	     versiontag = NULL;
+	     versiontag = versioncheck_get_versiontag(conn_get_versioncheck(c));
 	     
 	     if (!conn_get_versioncheck(c) && prefs_get_skip_versioncheck())
 	       eventlog(eventlog_level_info,__FUNCTION__,"[%d] skip versioncheck enabled and client did not request validation",conn_get_socket(c));
@@ -1221,10 +1221,10 @@ static int _client_authreq1(t_connection * c, t_packet const * const packet)
 					     conn_get_archtag(c),
 					     conn_get_clienttag(c),
 					     exeinfo,
-					     versionid,
-					     gameversion,
-					     checksum,
-					     &versiontag))
+					     conn_get_versionid(c),
+					     conn_get_gameversion(c),
+					     conn_get_checksum(c),
+					     versiontag))
 		 {
 		  case -1: /* failed test... client has been modified */
 		    if (!prefs_get_allow_bad_version())
@@ -1247,15 +1247,12 @@ static int _client_authreq1(t_connection * c, t_packet const * const packet)
 		    /* 1 == test passed... client seems to be ok */
 		 }
 	     
-	     if (versiontag)
-	     {
-	       t_versioncheck * vc;
-	       
-	       vc = conn_get_versioncheck(c);
-	       versioncheck_set_versiontag(vc, versiontag);
-	       conn_set_versioncheck(c, vc);
-	       eventlog(eventlog_level_info,__FUNCTION__,"[%d] client matches versiontag \"%s\"",conn_get_socket(c),versiontag);
-	     }
+//	     if (versiontag)
+//	        free((void *)versiontag);
+		
+	    versiontag = versioncheck_get_versiontag(conn_get_versioncheck(c));
+
+	     eventlog(eventlog_level_info,__FUNCTION__,"[%d] client matches versiontag \"%s\"",conn_get_socket(c),versiontag);
 	     
 	     if (failed)
 	       {
@@ -1277,7 +1274,7 @@ static int _client_authreq1(t_connection * c, t_packet const * const packet)
 		    {
 		       eventlog(eventlog_level_info,__FUNCTION__,"[%d] an upgrade for version %s is available \"%s\"",
 				conn_get_socket(c),
-				versiontag,
+				versioncheck_get_versiontag(conn_get_versioncheck(c)),
 				mpqfilename);
 		       if (bn_int_tag_eq(packet->u.client_progident.clienttag,CLIENTTAG_DIABLO2XP)==0)
 			 bn_int_set(&rpacket->u.server_authreply1.message,SERVER_AUTHREPLY1_D2XP_MESSAGE_UPDATE);
@@ -1287,7 +1284,7 @@ static int _client_authreq1(t_connection * c, t_packet const * const packet)
 		    }
 		  else
 		    {
-		       eventlog(eventlog_level_info,__FUNCTION__,"[%d] no upgrade for %s is available",conn_get_socket(c),versiontag);
+		       eventlog(eventlog_level_info,__FUNCTION__,"[%d] no upgrade for %s is available",conn_get_socket(c),versioncheck_get_versiontag(conn_get_versioncheck(c)));
 		       if (bn_int_tag_eq(packet->u.client_progident.clienttag,CLIENTTAG_DIABLO2XP)==0)
 			 bn_int_set(&rpacket->u.server_authreply1.message,SERVER_AUTHREPLY1_D2XP_MESSAGE_OK);
 		       else
@@ -1350,27 +1347,28 @@ static int _client_authreq109(t_connection * c, t_packet const * const packet)
 	  }
 	conn_set_owner(c,owner);
 	
-	versionid = conn_get_versionid(c);
-	checksum = bn_int_get(packet->u.client_authreq_109.checksum);
-	gameversion = bn_int_get(packet->u.client_authreq_109.gameversion);
-	strcpy(verstr,vernum_to_verstr(bn_int_get(packet->u.client_authreq_109.gameversion)));
-	conn_set_clientver(c,verstr);
-	
-	eventlog(eventlog_level_info,__FUNCTION__,"[%d] CLIENT_AUTHREQ_109 ticks=0x%08x, verstr=%s exeinfo=\"%s\" versionid=0x%08x gameversion=0x%08x checksum=0x%08x",
-		 conn_get_socket(c),
-		 bn_int_get(packet->u.client_authreq_109.ticks),
-		 verstr,
-		 exeinfo,
-		 versionid,
-		 gameversion,
-		 checksum);
+        versionid = conn_get_versionid(c);
+        conn_set_checksum(c, bn_int_get(packet->u.client_authreq_109.checksum));
+        conn_set_gameversion(c, bn_int_get(packet->u.client_authreq_109.gameversion));
+        strcpy(verstr,vernum_to_verstr(bn_int_get(packet->u.client_authreq_109.gameversion)));
+        conn_set_clientver(c,verstr);
+        conn_set_clientexe(c,exeinfo);
+
+	eventlog(eventlog_level_info,__FUNCTION__,"[%d] CLIENT_AUTHREQ_109 ticks=0x%08x, verstr=%s exeinfo=\"%s\" versionid=0x%08x gameversion=0x%08lx checksum=0x%08lx",
+		conn_get_socket(c),
+		bn_int_get(packet->u.client_authreq_109.ticks),
+		verstr,
+		exeinfo,
+		versionid,
+		conn_get_gameversion(c),
+		conn_get_checksum(c));
 	
 	if ((rpacket = packet_create(packet_class_bnet)))
 	  {
 	     packet_set_size(rpacket,sizeof(t_server_authreply_109));
 	     packet_set_type(rpacket,SERVER_AUTHREPLY_109);
 	     
-	     versiontag = NULL;
+	     versiontag = versioncheck_get_versiontag(conn_get_versioncheck(c));
 	     
 	     if (!conn_get_versioncheck(c) && prefs_get_skip_versioncheck())
 	       eventlog(eventlog_level_info,__FUNCTION__,"[%d] skip versioncheck enabled and client did not request validation",conn_get_socket(c));
@@ -1379,10 +1377,10 @@ static int _client_authreq109(t_connection * c, t_packet const * const packet)
 					     conn_get_archtag(c),
 					     conn_get_clienttag(c),
 					     exeinfo,
-					     versionid,
-					     gameversion,
-					     checksum,
-					     &versiontag))
+					     conn_get_versionid(c),
+					     conn_get_gameversion(c),
+					     conn_get_checksum(c),
+					     versiontag))
 		 {
 		  case -1: /* failed test... client has been modified */
 		    if (!prefs_get_allow_bad_version())
@@ -1405,16 +1403,10 @@ static int _client_authreq109(t_connection * c, t_packet const * const packet)
 		    /* 1 == test passed... client seems to be ok */
 		 }
 	     
-	     if (versiontag)
-	     {
-	       t_versioncheck * vc;
-	       
-	       vc = conn_get_versioncheck(c);
-	       versioncheck_set_versiontag(vc, versiontag);
-	       conn_set_versioncheck(c, vc);
-	       eventlog(eventlog_level_info,__FUNCTION__,"[%d] client matches versiontag \"%s\"",conn_get_socket(c),versiontag);
-	     } else versiontag = conn_get_clienttag(c);
+	     versiontag = versioncheck_get_versiontag(conn_get_versioncheck(c));
 	     
+	     eventlog(eventlog_level_info,__FUNCTION__,"[%d] client matches versiontag \"%s\"",conn_get_socket(c),versiontag);
+
 	     if (failed)
 	       {
 		  conn_set_state(c,conn_state_untrusted);
@@ -5952,30 +5944,24 @@ static int _client_changeclient(t_connection * c, t_packet const * const packet)
     else eventlog(eventlog_level_error,__FUNCTION__,"[%d] unknown client program type 0x%08x, don't expect this to work",conn_get_socket(c),bn_int_get(packet->u.client_changeclient.clienttag));
 
     vc = conn_get_versioncheck(c);
+    versioncheck_set_versiontag(vc, conn_get_clienttag(c));
+    
     if (vc && versioncheck_get_versiontag(vc)) {
-	const char *vtag;
-
-	vtag = NULL;
-
-	/* FIXME: we need to set the rest so vc will be accurate if FT vc is missing */
-	versioncheck_set_clienttag(vc, conn_get_clienttag(c));
-	versioncheck_set_archtag(vc, conn_get_archtag(c));
-
-	switch (versioncheck_revalidate(vc, &vtag))
+	switch (versioncheck_validate(vc, conn_get_archtag(c),
+	        conn_get_clienttag(c),
+		conn_get_clientexe(c),
+		conn_get_versionid(c),
+		conn_get_gameversion(c),
+		conn_get_checksum(c),
+		versioncheck_get_versiontag(conn_get_versioncheck(c))))
 	{
 	    case -1: /* failed test... client has been modified */
 	    case 0: /* not listed in table... can't tell if client has been modified */
 		eventlog(eventlog_level_error, __FUNCTION__, "[%d] error revalidating, allowing anyway", conn_get_socket(c));
-		vtag = conn_get_clienttag(c); /* set versiontag to clienttag  on fail */
-		/* client allready passed first test so we will allow */
-		/* conn_set_state(c, conn_state_destroy); */
 		break;
 	}
 
-	if (vtag) {
-	    versioncheck_set_versiontag(vc, vtag);
-	    eventlog(eventlog_level_info,__FUNCTION__,"[%d] client matches versiontag \"%s\"",conn_get_socket(c),vtag);
-	}
+	eventlog(eventlog_level_info,__FUNCTION__,"[%d] client versiontag set to \"%s\"",conn_get_socket(c),versioncheck_get_versiontag(vc));
     }
 
     return 0;

@@ -115,10 +115,11 @@ extern t_versioncheck * versioncheck_create(char const * archtag, char const * c
 	    free(vc);
 	    return &dummyvc;
 	}
+	
 	vc->versiontag = strdup(clienttag);
 	
-	vc->archtag	= NULL;
-	vc->clienttag	= NULL;
+	vc->archtag	= strdup(archtag);
+	vc->clienttag	= strdup(clienttag);
 	vc->exeinfo	= NULL;
 	vc->versionid	= 0;
 	vc->gameversion	= 0;
@@ -183,7 +184,7 @@ extern char const * versioncheck_get_versiontag(t_versioncheck const * vc)
     
     return vc->versiontag;
 }
-
+/*
 extern int versioncheck_set_archtag(t_versioncheck * vc, char const * archtag)
 {
     if (!vc) {
@@ -226,6 +227,7 @@ extern char const * versioncheck_get_clienttag(t_versioncheck const * vc)
     
     return vc->clienttag;
 }
+*/
 
 
 extern char const * versioncheck_get_mpqfile(t_versioncheck const * vc)
@@ -357,7 +359,7 @@ static int versioncheck_compare_exeinfo(char const * pattern, char const * match
 }
 
 
-extern int versioncheck_validate(t_versioncheck * vc, char const * archtag, char const * clienttag, char const * exeinfo, unsigned long versionid, unsigned long gameversion, unsigned long checksum, char const ** versiontag)
+extern int versioncheck_validate(t_versioncheck * vc, char const * archtag, char const * clienttag, char const * exeinfo, unsigned long versionid, unsigned long gameversion, unsigned long checksum, char const * versiontag)
 {
     t_elem const *  curr;
     t_versioninfo * vi;
@@ -417,63 +419,41 @@ extern int versioncheck_validate(t_versioncheck * vc, char const * archtag, char
 	else
 	    badcs = 0;
 	
-	*versiontag = vi->versiontag;
+	if (vc->versiontag)
+	    free((void *)vc->versiontag);
+	vc->versiontag = strdup(vi->versiontag);
 	
 	if (badexe || badcs)
 	    continue;
 	
 	/* Ok, version and checksum matches or exeinfo/checksum are disabled
 	 * anyway we have found a complete match */
-	if (*versiontag) {
-	    eventlog(eventlog_level_info,"versioncheck_validate","got a matching entry: %s",*versiontag);
-	    if (vc->archtag != archtag) {
-		if (vc->archtag) free((void *)vc->archtag);
-		vc->archtag = strdup(archtag);
-	    }
-	    if (vc->clienttag != clienttag) {
-		if (vc->clienttag) free((void *)vc->clienttag);
-		vc->clienttag = strdup(clienttag);
-	    }
-	    if (vc->exeinfo != exeinfo) {
-		if (vc->exeinfo) free((void *)vc->exeinfo);
-		vc->exeinfo = strdup(exeinfo);
-	    }
-	    vc->versionid = versionid;
-	    vc->gameversion = gameversion;
-	    vc->checksum = checksum;
-	}
-	else
-	    eventlog(eventlog_level_info,"versioncheck_validate","got a matching entry");
+	eventlog(eventlog_level_info,"versioncheck_validate","got a matching entry: %s",vc->versiontag);
 	return 1;
     }
     
     if (badcs) /* A match was found but the checksum was different */
     {
-	if (*versiontag)
-	    eventlog(eventlog_level_info,"versioncheck_validate","bad checksum, closest match is: %s",*versiontag);
-	else
-	    eventlog(eventlog_level_info,"versioncheck_validate","bad checksum, closest match is: (no versiontag)");
+	eventlog(eventlog_level_info,"versioncheck_validate","bad checksum, closest match is: %s",vc->versiontag);
 	return -1;
     }
     if (badexe) /* A match was found but the exeinfo string was different */
     {
-	if (*versiontag)
-	    eventlog(eventlog_level_info,"versioncheck_validate","bad exeinfo, closest match is: %s",*versiontag);
-	else
-	    eventlog(eventlog_level_info,"versioncheck_validate","bad exeinfo, closest match is: (no versiontag)");
+	eventlog(eventlog_level_info,"versioncheck_validate","bad exeinfo, closest match is: %s",vc->versiontag);
 	return -1;
     }
     
     /* No match in list */
-    eventlog(eventlog_level_info,"versioncheck_validate","no match in list");
-    *versiontag = NULL;
+    eventlog(eventlog_level_info,"versioncheck_validate","no match in list, setting to: %s",vc->versiontag);
     return 0;
 }
 
+/*
 extern int versioncheck_revalidate(t_versioncheck *vc, char const ** versiontag)
 {
     return versioncheck_validate(vc, vc->archtag, vc->clienttag, vc->exeinfo, vc->versionid, vc->gameversion, vc->checksum, versiontag);
 }
+*/
 
 extern int versioncheck_load(char const * filename)
 {

@@ -396,6 +396,8 @@ extern t_connection * conn_create(int tsock, int usock, unsigned int real_local_
 	return NULL;
     }
     temp->versionid              = 0;
+    temp->gameversion		 = 0;
+    temp->checksum		 = 0;
     temp->archtag                = NULL;
     temp->clienttag              = NULL;
     temp->clientver              = NULL;
@@ -1409,6 +1411,56 @@ extern void conn_set_clienttag(t_connection * c, char const * clienttag)
     c->clienttag = temp;
     if (needrefresh && c->channel)
 	channel_update_flags(c);
+}
+
+
+extern unsigned long conn_get_gameversion(t_connection const * c)
+{
+    if (!c)
+    {
+	eventlog(eventlog_level_error, __FUNCTION__,"got NULL connection");
+	return 0;
+    }
+    
+    return c->gameversion;
+}
+
+
+extern int conn_set_gameversion(t_connection * c, unsigned long gameversion)
+{
+    if (!c)
+    {
+	eventlog(eventlog_level_error, __FUNCTION__,"got NULL connection");
+	return -1;
+    }
+    
+    c->gameversion = gameversion;
+    return 0;
+}
+
+
+extern unsigned long conn_get_checksum(t_connection const * c)
+{
+    if (!c)
+    {
+	eventlog(eventlog_level_error, __FUNCTION__,"got NULL connection");
+	return 0;
+    }
+    
+    return c->checksum;
+}
+
+
+extern int conn_set_checksum(t_connection * c, unsigned long checksum)
+{
+    if (!c)
+    {
+	eventlog(eventlog_level_error, __FUNCTION__,"got NULL connection");
+	return -1;
+    }
+    
+    c->checksum = checksum;
+    return 0;
 }
 
 
