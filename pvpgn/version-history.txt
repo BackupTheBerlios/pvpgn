@@ -1,6 +1,9 @@
 PvPGN Version History:
 
-1.2.4
+1.4.0:
+-- fixes for PG/AT and late War3 versions
+
+1.2.4 aka 1.3.0:
 -- irc: prevented "unknown command"-flooding by adding ignors for lagtime and ISON
 -- irc: changed motd from old huge bnetd logo to smaller message
 -- bnetd-commnds can be typed as in battle.net without need for the /BNET in 

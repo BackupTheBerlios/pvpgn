@@ -544,7 +544,56 @@ found game :
 0020:   70 73 5C 42 65 74 61 5C   28 34 29 4C 6F 73 74 20    ps\Beta\(4)Lost
 0030:   54 65 6D 70 6C 65 2E 77   33 6D 00 FF FF FF FF 00    Temple.w3m......
 0040:   00 00 00 02 00 00 00 01   02                         .........
+
+They changed it somewhere between 1.03 and 1.05:
+
+for FFA
+# 62 packet from server: type=0x44ff(unknown) length=68 class=bnet
+0000:   FF 44 44 00 01 01 00 00   00 00 00 00 00 D5 F8 6A    .DD............j
+0010:   55 E0 17 A1 5A 01 00 04   4F 00 FB 06 00 04 4D 61    U...Z...O.....Ma
+0020:   70 73 5C 28 36 29 53 74   72 6F 6D 67 75 61 72 64    ps\(6)Stromguard
+0030:   65 2E 77 33 6D 00 FF FF   FF FF 20 41 46 46 06 00    e.w3m..... AFF..
+0040:   00 00 02 02                                          ....            
+
+for TEAM 3v3:
+# 410 packet from server: type=0x44ff(unknown) length=71 class=bnet
+0000:   FF 44 47 00 01 01 00 00   00 00 00 00 00 D5 F8 6A    .DG............j
+0010:   68 E0 17 46 5A 01 00 36   B5 8B 67 06 00 02 4D 61    h..FZ..6..g...Ma
+0020:   70 73 5C 28 36 29 53 77   61 6D 70 4F 66 53 6F 72    ps\(6)SwampOfSor
+0030:   72 6F 77 73 2E 77 33 6D   00 FF FF FF FF 4D 41 45    rows.w3m.....MAE
+0040:   54 06 02 00 00 02 02                                 T......         
+
+for TEAM 2v2:
+# 264 packet from server: type=0x44ff(unknown) length=68 class=bnet
+0000:   FF 44 44 00 01 01 00 00   00 00 00 00 00 D5 F8 6A    .DD............j
+0010:   54 E0 17 F9 5A 01 00 CA   D2 00 F8 06 00 01 4D 61    T...Z.........Ma
+0020:   70 73 5C 28 34 29 48 61   72 76 65 73 74 4D 6F 6F    ps\(4)HarvestMoo
+0030:   6E 2E 77 33 6D 00 FF FF   FF FF 4D 41 45 54 04 02    n.w3m.....MAET..
+0040:   00 00 02 02                                          ....            
+
+for 1v1:
+# 161 packet from server: type=0x44ff(unknown) length=68 class=bnet
+0000:   FF 44 44 00 01 01 00 00   00 00 00 00 00 D5 F8 6A    .DD............j
+0010:   63 E0 17 FA 59 01 00 D0   8B 32 3E 06 00 00 4D 61    c...Y....2>...Ma
+0020:   70 73 5C 28 32 29 50 6C   75 6E 64 65 72 49 73 6C    ps\(2)PlunderIsl
+0030:   65 2E 77 33 6D 00 FF FF   FF FF 4F 4C 4F 53 02 00    e.w3m.....OLOS..
+0040:   00 00 02 02                                          ....            
+
+for 2v2 AT:
+# 305 packet from server: type=0x44ff(unknown) length=68 class=bnet
+0000:   FF 44 44 00 01 01 00 00   00 00 00 00 00 D5 F8 6A    .DD............j
+0010:   66 E0 17 D3 59 01 00 9A   CE FD 81 06 02 00 4D 61    f...Y.........Ma
+0020:   70 73 5C 28 34 29 48 61   72 76 65 73 74 4D 6F 6F    ps\(4)HarvestMoo
+0030:   6E 2E 77 33 6D 00 FF FF   FF FF 32 53 56 32 04 02    n.w3m.....2SV2..
+0040:   00 00 02 02                                          ....            
+
 */
+#define SERVER_ANONGAME_SOLO_STR	0x534F4C4F /* "SOLO" */
+#define SERVER_ANONGAME_TEAM_STR	0x5445414D /* "TEAM" */
+#define SERVER_ANONGAME_SFFA_STR	0x46464120 /* "FFA " */
+#define SERVER_ANONGAME_AT2v2_STR	0x32565332 /* "2VS2" */
+#define SERVER_ANONGAME_AT3v3_STR	0x33565333 /* "3VS3" */
+#define SERVER_ANONGAME_AT4v4_STR	0x34565334 /* "4VS4" */
 
 #define SERVER_ANONGAME_FOUND 0x44ff
 typedef struct

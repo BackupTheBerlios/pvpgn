@@ -914,16 +914,22 @@ extern void handle_anongame_search(t_connection * c, t_packet const * packet)
 		packet_append_data(rpacket, &temp, 4);
 
 		// team num
-		if(gametype == ANONGAME_TYPE_SMALL_FFA)
-			temp = i;
-		else if(gametype == ANONGAME_TYPE_TEAM_FFA || gametype == ANONGAME_TYPE_AT_2V2)
-			temp = i >> 1;
-		else if(gametype == ANONGAME_TYPE_AT_3V3)
-			temp = i / 3;
-		else if(gametype == ANONGAME_TYPE_AT_4V4)
-			temp = i >> 2;
-		else
-			temp=i % 2;
+		{
+		/* dizzy: this changed in 1.05 */
+		    int gametype_tab [] = { SERVER_ANONGAME_SOLO_STR,
+					    SERVER_ANONGAME_TEAM_STR,
+					    SERVER_ANONGAME_TEAM_STR,
+					    SERVER_ANONGAME_TEAM_STR,
+					    SERVER_ANONGAME_SFFA_STR,
+					    SERVER_ANONGAME_AT2v2_STR,
+					    0, /* Team FFA is no longer supported */
+					    SERVER_ANONGAME_AT3v3_STR,
+					    SERVER_ANONGAME_AT4v4_STR };
+		    if (gametype > 8) {
+			eventlog(eventlog_level_error, "handle_anongame_search", "invalid gametype (%d)", gametype);
+			temp = 0;
+		    } else temp = gametype_tab[gametype];
+		}
 		packet_append_data(rpacket, &temp, 4);
 
 		// total players
