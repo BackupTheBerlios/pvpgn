@@ -46,23 +46,23 @@
 
 static t_conf_table param_conf_table[]={
 #ifdef USE_CHECK_ALLOC
-	{ "-m",			offsetof(t_param,memlog_file),	conf_type_str,  (int)DEFAULT_MEMLOG_FILE},
+	{ "-m",          offsetof(t_param,memlog_file),   conf_type_str, 0, DEFAULT_MEMLOG_FILE   },
 #endif
-	{ "-c",			offsetof(t_param,prefs_file),	conf_type_str,	(int)D2CS_DEFAULT_CONF_FILE  },
-	{ "-l",			offsetof(t_param,logfile),	conf_type_str,  (int)NULL		},
-	{ "-h",			offsetof(t_param,help),		conf_type_bool, 0			},
-	{ "--help",		offsetof(t_param,help),		conf_type_bool,	0			},
-	{ "-v",			offsetof(t_param,version),	conf_type_bool,	0			},
-	{ "--version",		offsetof(t_param,version),	conf_type_bool,	0			},
-	{ "-f",			offsetof(t_param,foreground),	conf_type_bool,	0			},
-	{ "--foreground",	offsetof(t_param,foreground),	conf_type_bool,	0			},
-	{ "-D",			offsetof(t_param,debugmode),	conf_type_bool,	0			},
-	{ "--debug",		offsetof(t_param,debugmode),	conf_type_bool,	0			},
+	{ "-c",          offsetof(t_param,prefs_file),    conf_type_str, 0, D2CS_DEFAULT_CONF_FILE},
+	{ "-l",          offsetof(t_param,logfile),       conf_type_str, 0, NULL                  },
+	{ "-h",          offsetof(t_param,help),          conf_type_bool,0, NULL                  },
+	{ "--help",      offsetof(t_param,help),          conf_type_bool,0, NULL                  },
+	{ "-v",          offsetof(t_param,version),       conf_type_bool,0, NULL                  },
+	{ "--version",   offsetof(t_param,version),       conf_type_bool,0, NULL                  },
+	{ "-f",	         offsetof(t_param,foreground),    conf_type_bool,0, NULL                  },
+	{ "--foreground",offsetof(t_param,foreground),    conf_type_bool,0, NULL                  },
+	{ "-D",          offsetof(t_param,debugmode),     conf_type_bool,0, NULL                  },
+	{ "--debug",     offsetof(t_param,debugmode),     conf_type_bool,0, NULL                  },
 #ifdef WIN32
-	{ "--service",	offsetof(t_param,run_as_service),	conf_type_bool, 0		},
-	{ "-s",			offsetof(t_param,make_service),		conf_type_str, (int)NULL	},
+	{ "--service",   offsetof(t_param,run_as_service),conf_type_bool,0, NULL                  },
+	{ "-s",          offsetof(t_param,make_service),  conf_type_str, 0, NULL                  },
 #endif
-	{ NULL,			0,				conf_type_none,	0			}
+	{ NULL,          0,                               conf_type_none,0, NULL                  }
 };
 
 static t_param cmdline_param;
