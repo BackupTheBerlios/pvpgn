@@ -582,6 +582,29 @@ int d2ladder_empty(void)
 	return 0;
 }
 
+const char * get_prefix(int type, int status, int class)
+{
+  int  difficulty;
+  static char prefix [4][4][2][16] =
+                                  {{{"",""},{"",""},{"",""},{"",""}},
+	  
+                                   {{"Count" ,"Countess"} ,     {"Sir","Dame"},
+                                    {"Destroyer","Destroyer"} , {"Slayer","Slayer"}},
+
+	  		           {{"Duke"  ,"Duchess"}  ,     {"Lord","Lady"}, 
+                                    {"Conqueror","Conqueror"} , {"Champion","Champion"}},
+
+			           {{"King"  ,"Queen"}    ,     {"Baron","Baroness"},
+                                    {"Guardian","Guardian"}   , {"Patriarch","Matriarch"}}};
+
+  static int sex[11] = {0,1,1,0,0,0,0,1,0,0,0};
+
+  difficulty = ((status >> 0x08) & 0x0f) / 5;
+
+			           
+  return prefix[difficulty][type][sex[class]];
+}
+
 int d2ladder_print_XML(FILE *ladderstrm)
 {
   // modified version of d2ladder_print - changes done by jfro with a little help of aaron
@@ -635,8 +658,9 @@ int d2ladder_print_XML(FILE *ladderstrm)
 	  fprintf(ladderstrm,"\t<char>\n\t\t<rank>%2d</rank>\n\t\t<name>%s</name>\n\t\t<level>%2d</level>\n",
 		             i+1,ldata[i].charname,ldata[i].level);
 	  fprintf(ladderstrm,"\t\t<experience>%d</experience>\n\t\t<class>%s</class>\n",
-
 		             ldata[i].experience,charclass[ldata[i].class+1]);
+	  fprintf(ladderstrm,"\t\t<prefix>%s</prefix>\n",
+		             get_prefix(overalltype,ldata[i].status,ldata[i].class+1));
           if (((ldata[i].status) & (D2CHARINFO_STATUS_FLAG_DEAD | D2CHARINFO_STATUS_FLAG_HARDCORE)) == 
 				   (D2CHARINFO_STATUS_FLAG_DEAD | D2CHARINFO_STATUS_FLAG_HARDCORE))
 	    fprintf(ladderstrm,"\t\t<status>dead</status>\n\t</char>\n");
