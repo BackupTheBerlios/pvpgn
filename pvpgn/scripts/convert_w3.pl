@@ -23,13 +23,13 @@ while ($filename = readdir FILEDIR) {
     if ($filename =~ m/^\./) { next; } #ignore . and ..
 
     if ( ! (($dev,$ino,$mode,$nlink,$uid,$gid,$rdev,$size,
-    $atime,$mtime,$ctime,$blksize,$blocks) = stat "$dirpath/$filename" )) {
+    $atime,$mtime,$ctime,$blksize,$blocks) = stat $dirpath ."/". $filename )) {
         print "Error stat-ing the file $pathdir/$filename!\n" ; next; }
     
     $type = ($mode & 070000) >> 12;
     
     if ($type != 0) {
-	print "File $dirpath/$filename its not regular\n";
+	print "File ". $dirpath ."/". $filename ." its not regular\n";
 	next;
     }
     convertfile($filename);
@@ -41,9 +41,9 @@ sub convertfile {
     my $filen = shift;
     my ($tab, $col, $val);
 
-    open FILE, "$dirpath/$filen" or die "Error opening file $dirpath/$filen\n";
-    open FILEOUT, ">$dirpath2/$filen" or die "Error opening output file $dirpath2/$filen";
-    print "Converting file $filen ... ";
+    open FILE, $dirpath ."/". $filen or die "Error opening file ". $dirpath ."/". $filen ."\n";
+    open FILEOUT, ">". $dirpath2 ."/". $filen or die "Error opening output file ". $dirpath2 ."/". $filen ."\n";
+    print "Converting file ". $filen ."... ";
 
     while($line = <FILE>) {
 	if ($line =~ m/".*"=".*"/) {
