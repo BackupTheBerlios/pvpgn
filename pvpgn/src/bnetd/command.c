@@ -1970,7 +1970,6 @@ static int _handle_time_command(t_connection * c, char const *text)
 
 static int _handle_channel_command(t_connection * c, char const *text)
  {
-   unsigned int i;
    t_channel * channel;
 
    text = skip_command(text);
@@ -2022,7 +2021,6 @@ static int _handle_rejoin_command(t_connection * c, char const *text)
 
 static int _handle_away_command(t_connection * c, char const *text)
 {
-  unsigned int i;
 
   text = skip_command(text);
   
@@ -2050,7 +2048,6 @@ static int _handle_away_command(t_connection * c, char const *text)
 
 static int _handle_dnd_command(t_connection * c, char const *text)
 {
-  unsigned int i;
   
   text = skip_command(text);
   
@@ -2078,7 +2075,6 @@ static int _handle_dnd_command(t_connection * c, char const *text)
 
 static int _handle_squelch_command(t_connection * c, char const *text)
 {
-  unsigned int i;
   t_account *  account;
 
   text = skip_command(text);
@@ -2122,7 +2118,6 @@ static int _handle_squelch_command(t_connection * c, char const *text)
 
 static int _handle_unsquelch_command(t_connection * c, char const *text)
 {
-  unsigned int      i;
   t_account const * account;
 
   text = skip_command(text);

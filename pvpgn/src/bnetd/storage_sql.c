@@ -88,17 +88,17 @@
 
 static int sql_init(const char *);
 static int sql_close(void);
-static t_storage_info * sql_create_account(char const *);
-static t_storage_info * sql_get_defacct(void);
+static t_storage_info *sql_create_account(char const *);
+static t_storage_info *sql_get_defacct(void);
 static int sql_free_info(t_storage_info *);
 static int sql_read_attrs(t_storage_info *, t_read_attr_func, void *);
-static void * sql_read_attr(t_storage_info *, const char *);
+static void *sql_read_attr(t_storage_info *, const char *);
 static int sql_write_attrs(t_storage_info *, void *);
 static int sql_read_accounts(t_read_accounts_func, void *);
 static int sql_cmp_info(t_storage_info *, t_storage_info *);
-static const char * sql_escape_key(const char *);
+static const char *sql_escape_key(const char *);
 static int sql_load_clans(t_load_clans_func cb);
-static int sql_write_clan(void * data);
+static int sql_write_clan(void *data);
 static int sql_remove_clan(int clanshort);
 
 t_storage storage_sql = {
@@ -125,38 +125,40 @@ static int _sql_dbcheck(void);
 static void _sql_update_DB_v0_to_v150(void);
 
 #ifndef SQL_ON_DEMAND
-static char * tables[] = {"BNET", "Record", "profile", "friend", "Team", NULL};
+static char *tables[] = { "BNET", "Record", "profile", "friend", "Team", NULL };
 
-static const char * _db_add_tab(const char *tab, const char *key)
+static const char *_db_add_tab(const char *tab, const char *key)
 {
-   static char nkey[DB_MAX_ATTRKEY];
-   
-   strncpy(nkey, tab, sizeof(nkey) - 1);
-   nkey[strlen(nkey) + 1] = '\0'; nkey[strlen(nkey)] = '_';
-   strncpy(nkey + strlen(nkey), key, sizeof(nkey) - strlen(nkey));
-   return nkey;
+    static char nkey[DB_MAX_ATTRKEY];
+
+    strncpy(nkey, tab, sizeof(nkey) - 1);
+    nkey[strlen(nkey) + 1] = '\0';
+    nkey[strlen(nkey)] = '_';
+    strncpy(nkey + strlen(nkey), key, sizeof(nkey) - strlen(nkey));
+    return nkey;
 }
 
-#endif /* SQL_ON_DEMAND */
+#endif				/* SQL_ON_DEMAND */
 
 static int _db_get_tab(const char *key, char **ptab, char **pcol)
 {
-   static char tab[DB_MAX_ATTRKEY];
-   static char col[DB_MAX_ATTRKEY];
-   
-   strncpy(tab, key, DB_MAX_TAB-1);
-   tab[DB_MAX_TAB-1]=0;
+    static char tab[DB_MAX_ATTRKEY];
+    static char col[DB_MAX_ATTRKEY];
 
-   if(!strchr(tab, '_')) return -1;
+    strncpy(tab, key, DB_MAX_TAB - 1);
+    tab[DB_MAX_TAB - 1] = 0;
 
-   
-   *(strchr(tab, '_')) = 0;
-   strncpy(col, key+strlen(tab)+1, DB_MAX_TAB-1);
-   col[DB_MAX_TAB-1]=0;
-   /* return tab and col as 2 static buffers */
-   *ptab = tab;
-   *pcol = col;
-   return 0;
+    if (!strchr(tab, '_'))
+	return -1;
+
+
+    *(strchr(tab, '_')) = 0;
+    strncpy(col, key + strlen(tab) + 1, DB_MAX_TAB - 1);
+    col[DB_MAX_TAB - 1] = 0;
+    /* return tab and col as 2 static buffers */
+    *ptab = tab;
+    *pcol = col;
+    return 0;
 }
 
 static int sql_init(const char *dbpath)
@@ -171,17 +173,20 @@ static int sql_init(const char *dbpath)
     const char *dbsocket = NULL;
     const char *def = NULL;
 
-    if ((path = strdup(dbpath)) == NULL) {
+    if ((path = strdup(dbpath)) == NULL)
+    {
 	eventlog(eventlog_level_error, __FUNCTION__, "could not duplicate dbpath");
 	return -1;
     }
 
     tmp = path;
-    while((tok = strtok(tmp, ";")) != NULL) {
+    while ((tok = strtok(tmp, ";")) != NULL)
+    {
 	tmp = NULL;
-	if ((p = strchr(tok, '=')) == NULL) {
+	if ((p = strchr(tok, '=')) == NULL)
+	{
 	    eventlog(eventlog_level_error, __FUNCTION__, "invalid storage_path, no '=' present in token");
-	    free((void*)path);
+	    free((void *) path);
 	    return -1;
 	}
 	*p = '\0';
@@ -201,52 +206,62 @@ static int sql_init(const char *dbpath)
 	    dbpass = p + 1;
 	else if (strcasecmp(tok, "default") == 0)
 	    def = p + 1;
-	else eventlog(eventlog_level_warn, __FUNCTION__, "unknown token in storage_path : '%s'", tok);
+	else
+	    eventlog(eventlog_level_warn, __FUNCTION__, "unknown token in storage_path : '%s'", tok);
     }
 
-    if (driver == NULL) {
+    if (driver == NULL)
+    {
 	eventlog(eventlog_level_error, __FUNCTION__, "no mode specified");
-	free((void*)path);
+	free((void *) path);
 	return -1;
     }
 
     if (def == NULL)
 	defacct = STORAGE_SQL_DEFAULT_UID;
-    else defacct = atoi(def);
+    else
+	defacct = atoi(def);
 
-    do {
+    do
+    {
 #ifdef WITH_SQL_MYSQL
-	if (strcasecmp(driver, "mysql") == 0) {
+	if (strcasecmp(driver, "mysql") == 0)
+	{
 	    sql = &sql_mysql;
-	    if (sql->init(dbhost, dbport, dbsocket, dbname, dbuser, dbpass)) {
+	    if (sql->init(dbhost, dbport, dbsocket, dbname, dbuser, dbpass))
+	    {
 		eventlog(eventlog_level_error, __FUNCTION__, "got error init db");
 		sql = NULL;
-		free((void*)path);
-		return -1;
-	    }
-	    break;
-	} 
-#endif /* WITH_SQL_MYSQL */
-#ifdef WITH_SQL_PGSQL
-	if (strcasecmp(driver, "pgsql") == 0) {
-	    sql = &sql_pgsql;
-	    if (sql->init(dbhost, dbport, dbsocket, dbname, dbuser, dbpass)) {
-		eventlog(eventlog_level_error, __FUNCTION__, "got error init db");
-		sql = NULL;
-		free((void*)path);
+		free((void *) path);
 		return -1;
 	    }
 	    break;
 	}
-#endif /* WITH_SQL_PGSQL */
+#endif				/* WITH_SQL_MYSQL */
+#ifdef WITH_SQL_PGSQL
+	if (strcasecmp(driver, "pgsql") == 0)
+	{
+	    sql = &sql_pgsql;
+	    if (sql->init(dbhost, dbport, dbsocket, dbname, dbuser, dbpass))
+	    {
+		eventlog(eventlog_level_error, __FUNCTION__, "got error init db");
+		sql = NULL;
+		free((void *) path);
+		return -1;
+	    }
+	    break;
+	}
+#endif				/* WITH_SQL_PGSQL */
 	eventlog(eventlog_level_error, __FUNCTION__, "no driver found for '%s'", driver);
-	free((void*)path);
+	free((void *) path);
 	return -1;
-    }while(0);
+    }
+    while (0);
 
-    free((void*)path);
+    free((void *) path);
 
-    if (_sql_dbcheck()) {
+    if (_sql_dbcheck())
+    {
 	eventlog(eventlog_level_error, __FUNCTION__, "got error from dbcheck");
 	sql->close();
 	return -1;
@@ -257,7 +272,8 @@ static int sql_init(const char *dbpath)
 
 static int sql_close(void)
 {
-    if (sql == NULL) {
+    if (sql == NULL)
+    {
 	eventlog(eventlog_level_error, __FUNCTION__, "sql not initilized");
 	return -1;
     }
@@ -267,16 +283,17 @@ static int sql_close(void)
     return 0;
 }
 
-static t_storage_info * sql_create_account(char const * username)
+static t_storage_info *sql_create_account(char const *username)
 {
     char query[1024];
-    t_sql_res * result = NULL;
-    t_sql_row * row;
+    t_sql_res *result = NULL;
+    t_sql_row *row;
     int uid = maxuserid + 1;
     char str_uid[32];
     t_storage_info *info;
 
-    if(!sql) {
+    if (!sql)
+    {
 	eventlog(eventlog_level_error, __FUNCTION__, "sql layer not initilized");
 	return NULL;
     }
@@ -284,212 +301,243 @@ static t_storage_info * sql_create_account(char const * username)
     sprintf(str_uid, "%u", uid);
 
     sprintf(query, "SELECT count(*) FROM BNET WHERE acct_username='%s'", username);
-    if((result = sql->query_res(query)) != NULL) {
-            int num;
+    if ((result = sql->query_res(query)) != NULL)
+    {
+	int num;
 
-            row = sql->fetch_row(result);
-	    if (row == NULL || row[0] == NULL) {
-		sql->free_result(result);
-		eventlog(eventlog_level_error, __FUNCTION__, "got NULL count");
-		return NULL;
-	    }
-            num = atol(row[0]);
-            sql->free_result(result);
-            if (num>0) {
-		eventlog(eventlog_level_error, __FUNCTION__, "got existant username");
-		return NULL;
-	    }
-        }
-    else {
+	row = sql->fetch_row(result);
+	if (row == NULL || row[0] == NULL)
+	{
+	    sql->free_result(result);
+	    eventlog(eventlog_level_error, __FUNCTION__, "got NULL count");
+	    return NULL;
+	}
+	num = atol(row[0]);
+	sql->free_result(result);
+	if (num > 0)
+	{
+	    eventlog(eventlog_level_error, __FUNCTION__, "got existant username");
+	    return NULL;
+	}
+    } else
+    {
 	eventlog(eventlog_level_error, __FUNCTION__, "error trying query: \"%s\"", query);
 	return NULL;
     }
 
-    if ((info = malloc(sizeof(t_sql_info))) == NULL) {
+    if ((info = malloc(sizeof(t_sql_info))) == NULL)
+    {
 	eventlog(eventlog_level_error, __FUNCTION__, "not enough memory for sql info");
 	return NULL;
     }
 
-    *((unsigned int*)info) = uid;
+    *((unsigned int *) info) = uid;
     sprintf(query, "DELETE FROM BNET WHERE uid = '%s';", str_uid);
     sql->query(query);
     sprintf(query, "INSERT INTO BNET (uid) VALUES('%s');", str_uid);
-    if (sql->query(query)) {
-        eventlog(eventlog_level_error, __FUNCTION__, "user insert failed");
-	free((void*)info);
+    if (sql->query(query))
+    {
+	eventlog(eventlog_level_error, __FUNCTION__, "user insert failed");
+	free((void *) info);
 	return NULL;
     }
 
     sprintf(query, "DELETE FROM profile WHERE uid = '%s';", str_uid);
     sql->query(query);
     sprintf(query, "INSERT INTO profile (uid) VALUES('%s');", str_uid);
-    if (sql->query(query)) {
-        eventlog(eventlog_level_error, __FUNCTION__, "user insert failed");
-	free((void*)info);
+    if (sql->query(query))
+    {
+	eventlog(eventlog_level_error, __FUNCTION__, "user insert failed");
+	free((void *) info);
 	return NULL;
     }
 
     sprintf(query, "DELETE FROM Record WHERE uid = '%s';", str_uid);
     sql->query(query);
     sprintf(query, "INSERT INTO Record (uid) VALUES('%s');", str_uid);
-    if (sql->query(query)) {
-        eventlog(eventlog_level_error, __FUNCTION__, "user insert failed");
-	free((void*)info);
+    if (sql->query(query))
+    {
+	eventlog(eventlog_level_error, __FUNCTION__, "user insert failed");
+	free((void *) info);
 	return NULL;
     }
 
     sprintf(query, "DELETE FROM friend WHERE uid = '%s';", str_uid);
     sql->query(query);
     sprintf(query, "INSERT INTO friend (uid) VALUES('%s');", str_uid);
-    if (sql->query(query)) {
-        eventlog(eventlog_level_error, __FUNCTION__, "user insert failed");
-	free((void*)info);
+    if (sql->query(query))
+    {
+	eventlog(eventlog_level_error, __FUNCTION__, "user insert failed");
+	free((void *) info);
 	return NULL;
     }
 
     return info;
 }
 
-static int sql_read_attrs(t_storage_info *info, t_read_attr_func cb, void *data)
+static int sql_read_attrs(t_storage_info * info, t_read_attr_func cb, void *data)
 {
 #ifndef SQL_ON_DEMAND
     char query[1024];
-    t_sql_res * result = NULL;
-    t_sql_row * row;
+    t_sql_res *result = NULL;
+    t_sql_row *row;
     char **tab;
     unsigned int uid;
 
-    if(!sql) {
+    if (!sql)
+    {
 	eventlog(eventlog_level_error, __FUNCTION__, "sql layer not initilized");
 	return -1;
     }
-   
-    if (info == NULL) {
+
+    if (info == NULL)
+    {
 	eventlog(eventlog_level_error, __FUNCTION__, "got NULL storage info");
 	return -1;
     }
-   
-    if (cb == NULL) {
+
+    if (cb == NULL)
+    {
 	eventlog(eventlog_level_error, __FUNCTION__, "got NULL callback");
 	return -1;
     }
 
-    uid = *((unsigned int *)info);
+    uid = *((unsigned int *) info);
 
-    for(tab = tables; *tab ; tab++) {
-	sprintf(query,"SELECT * FROM %s WHERE uid='%u'", *tab, uid);
+    for (tab = tables; *tab; tab++)
+    {
+	sprintf(query, "SELECT * FROM %s WHERE uid='%u'", *tab, uid);
 
-//	eventlog(eventlog_level_trace, __FUNCTION__, "query: \"%s\"",query);
+//      eventlog(eventlog_level_trace, __FUNCTION__, "query: \"%s\"",query);
 
-	if ((result = sql->query_res(query)) != NULL && sql->num_rows(result) == 1 && sql->num_fields(result)>1) {
+	if ((result = sql->query_res(query)) != NULL && sql->num_rows(result) == 1 && sql->num_fields(result) > 1)
+	{
 	    unsigned int i;
 	    t_sql_field *fields, *fentry;
 
-	    if ((fields = sql->fetch_fields(result)) == NULL) {
-		eventlog(eventlog_level_error,"db_get_attributes","could not fetch the fields");
+	    if ((fields = sql->fetch_fields(result)) == NULL)
+	    {
+		eventlog(eventlog_level_error, "db_get_attributes", "could not fetch the fields");
 		sql->free_result(result);
 		return -1;
 	    }
 
-	    if (!(row = sql->fetch_row(result))) {
+	    if (!(row = sql->fetch_row(result)))
+	    {
 		eventlog(eventlog_level_error, __FUNCTION__, "could not fetch row");
 		sql->free_fields(fields);
 		sql->free_result(result);
 		return -1;
 	    }
-	 
-	    for(i = 0, fentry = fields; *fentry ; fentry++, i++) { /* we have to skip "uid" */
-		char * output;
+
+	    for (i = 0, fentry = fields; *fentry; fentry++, i++)
+	    {			/* we have to skip "uid" */
+		char *output;
 		/* we ignore the field used internally by sql */
-		if (strcmp(*fentry, SQL_UID_FIELD) == 0) continue;
+		if (strcmp(*fentry, SQL_UID_FIELD) == 0)
+		    continue;
 
-//		eventlog(eventlog_level_trace, __FUNCTION__, "read key (step1): '%s' val: '%s'", _db_add_tab(*tab, *fentry), unescape_chars(row[i]));
-		if (row[i] == NULL) continue; /* its an NULL value sql field */
+//              eventlog(eventlog_level_trace, __FUNCTION__, "read key (step1): '%s' val: '%s'", _db_add_tab(*tab, *fentry), unescape_chars(row[i]));
+		if (row[i] == NULL)
+		    continue;	/* its an NULL value sql field */
 
-//		eventlog(eventlog_level_trace, __FUNCTION__, "read key (step2): '%s' val: '%s'", _db_add_tab(*tab, *fentry), unescape_chars(row[i]));
+//              eventlog(eventlog_level_trace, __FUNCTION__, "read key (step2): '%s' val: '%s'", _db_add_tab(*tab, *fentry), unescape_chars(row[i]));
 		cb(_db_add_tab(*tab, *fentry), (output = unescape_chars(row[i])), data);
-		if (output) free((void *)output);
-//		eventlog(eventlog_level_trace, __FUNCTION__, "read key (final): '%s' val: '%s'", _db_add_tab(*tab, *fentry), unescape_chars(row[i]));
+		if (output)
+		    free((void *) output);
+//              eventlog(eventlog_level_trace, __FUNCTION__, "read key (final): '%s' val: '%s'", _db_add_tab(*tab, *fentry), unescape_chars(row[i]));
 	    }
 
 	    sql->free_fields(fields);
 	}
-	if (result) sql->free_result(result);
+	if (result)
+	    sql->free_result(result);
     }
-#endif /* SQL_ON_DEMAND */
+#endif				/* SQL_ON_DEMAND */
     return 0;
 }
 
-static void * sql_read_attr(t_storage_info *info, const char * key)
+static void *sql_read_attr(t_storage_info * info, const char *key)
 {
 #ifdef SQL_ON_DEMAND
     char query[1024];
-    t_sql_res * result = NULL;
-    t_sql_row * row;
+    t_sql_res *result = NULL;
+    t_sql_row *row;
     char *tab, *col;
     unsigned int uid;
     t_attribute *attr;
 
-    if(!sql) {
+    if (!sql)
+    {
 	eventlog(eventlog_level_error, __FUNCTION__, "sql layer not initilized");
 	return NULL;
     }
-   
-    if (info == NULL) {
+
+    if (info == NULL)
+    {
 	eventlog(eventlog_level_error, __FUNCTION__, "got NULL storage info");
 	return NULL;
     }
-   
-    if (key == NULL) {
+
+    if (key == NULL)
+    {
 	eventlog(eventlog_level_error, __FUNCTION__, "got NULL key");
 	return NULL;
     }
 
-    uid = *((unsigned int *)info);
+    uid = *((unsigned int *) info);
 
-    if (_db_get_tab(key, &tab, &col)<0) {
-        eventlog(eventlog_level_error, __FUNCTION__, "error from db_get_tab");
-        return NULL;
+    if (_db_get_tab(key, &tab, &col) < 0)
+    {
+	eventlog(eventlog_level_error, __FUNCTION__, "error from db_get_tab");
+	return NULL;
     }
 
-    sprintf(query, "SELECT %s FROM %s WHERE "SQL_UID_FIELD" = %d", col, tab, uid);
-    if ((result = sql->query_res(query)) == NULL) return NULL;
+    sprintf(query, "SELECT %s FROM %s WHERE " SQL_UID_FIELD " = %d", col, tab, uid);
+    if ((result = sql->query_res(query)) == NULL)
+	return NULL;
 
-    if (sql->num_rows(result) != 1) {
-//	eventlog(eventlog_level_debug, __FUNCTION__, "wrong numer of rows from query (%s)", query);
+    if (sql->num_rows(result) != 1)
+    {
+//      eventlog(eventlog_level_debug, __FUNCTION__, "wrong numer of rows from query (%s)", query);
 	sql->free_result(result);
 	return NULL;
     }
 
-    if (!(row = sql->fetch_row(result))) {
+    if (!(row = sql->fetch_row(result)))
+    {
 	eventlog(eventlog_level_error, __FUNCTION__, "could not fetch row");
 	sql->free_result(result);
 	return NULL;
     }
 
-    if (row[0] == NULL) {
-//	eventlog(eventlog_level_debug, __FUNCTION__, "NULL value from query (%s)", query);
+    if (row[0] == NULL)
+    {
+//      eventlog(eventlog_level_debug, __FUNCTION__, "NULL value from query (%s)", query);
 	sql->free_result(result);
 	return NULL;
     }
 
-    if ((attr = (t_attribute *) malloc(sizeof(t_attribute))) == NULL) {
+    if ((attr = (t_attribute *) malloc(sizeof(t_attribute))) == NULL)
+    {
 	eventlog(eventlog_level_error, __FUNCTION__, "not enough memory for result");
 	sql->free_result(result);
 	return NULL;
     }
 
-    if ((attr->key = strdup(key)) == NULL) {
+    if ((attr->key = strdup(key)) == NULL)
+    {
 	eventlog(eventlog_level_error, __FUNCTION__, "not enough memory for result key");
-	free((void *)attr);
+	free((void *) attr);
 	sql->free_result(result);
 	return NULL;
     }
 
-    if ((attr->val = strdup(row[0])) == NULL) {
+    if ((attr->val = strdup(row[0])) == NULL)
+    {
 	eventlog(eventlog_level_error, __FUNCTION__, "not enough memory for result val");
-	free((void *)attr->key);
-	free((void *)attr);
+	free((void *) attr->key);
+	free((void *) attr);
 	sql->free_result(result);
 	return NULL;
     }
@@ -497,151 +545,172 @@ static void * sql_read_attr(t_storage_info *info, const char * key)
     sql->free_result(result);
 
     attr->dirty = 0;
-    return (void *)attr;
+    return (void *) attr;
 #else
     return NULL;
-#endif /* SQL_ON_DEMAND */
+#endif				/* SQL_ON_DEMAND */
 }
 
 /* write ONLY dirty attributes */
-int sql_write_attrs(t_storage_info *info, void *attrs)
+int sql_write_attrs(t_storage_info * info, void *attrs)
 {
     char query[1024];
-    char escape[DB_MAX_ATTRVAL * 2 + 1]; /* sql docs say the escape can take a maximum of double original size + 1*/
+    char escape[DB_MAX_ATTRVAL * 2 + 1];	/* sql docs say the escape can take a maximum of double original size + 1 */
     char safeval[DB_MAX_ATTRVAL];
     char *p, *tab, *col;
     t_attribute *attr;
     unsigned int uid;
 
-    if(!sql) {
+    if (!sql)
+    {
 	eventlog(eventlog_level_error, __FUNCTION__, "sql layer not initilized");
-        return -1;
+	return -1;
     }
 
-    if (info == NULL) {
+    if (info == NULL)
+    {
 	eventlog(eventlog_level_error, __FUNCTION__, "got NULL sql info");
-        return -1;
+	return -1;
     }
 
-    if (attrs == NULL) {
+    if (attrs == NULL)
+    {
 	eventlog(eventlog_level_error, __FUNCTION__, "got NULL attributes list");
-        return -1;
+	return -1;
     }
 
-    uid = *((unsigned int *)info);
+    uid = *((unsigned int *) info);
 
-    for(attr=(t_attribute *)attrs; attr; attr = attr->next) {
-	if (!attr->dirty) continue; /* save ONLY dirty attributes */
+    for (attr = (t_attribute *) attrs; attr; attr = attr->next)
+    {
+	if (!attr->dirty)
+	    continue;		/* save ONLY dirty attributes */
 
-	if (attr->key == NULL) {
+	if (attr->key == NULL)
+	{
 	    eventlog(eventlog_level_error, __FUNCTION__, "found NULL key in attributes list");
 	    continue;
 	}
 
-	if (attr->val == NULL) {
+	if (attr->val == NULL)
+	{
 	    eventlog(eventlog_level_error, __FUNCTION__, "found NULL value in attributes list");
 	    continue;
 	}
 
-	if (_db_get_tab(attr->key, &tab, &col)<0) {
+	if (_db_get_tab(attr->key, &tab, &col) < 0)
+	{
 	    eventlog(eventlog_level_error, __FUNCTION__, "error from db_get_tab");
 	    continue;
 	}
 
-        strncpy(safeval, attr->val, DB_MAX_ATTRVAL-1);
-	safeval[DB_MAX_ATTRVAL-1]=0;
-	for(p=safeval; *p; p++)
-	    if(*p == '\'')              /* value shouldn't contain ' */
+	strncpy(safeval, attr->val, DB_MAX_ATTRVAL - 1);
+	safeval[DB_MAX_ATTRVAL - 1] = 0;
+	for (p = safeval; *p; p++)
+	    if (*p == '\'')	/* value shouldn't contain ' */
 		*p = '"';
-   
+
 	sql->escape_string(escape, safeval, strlen(safeval));
 
 	strcpy(query, "UPDATE ");
-	strncat(query,tab,64);
-	strcat(query," SET ");
-	strncat(query,col,64);
-	strcat(query,"='");
-	strcat(query,escape);
-	strcat(query,"' WHERE uid='");
+	strncat(query, tab, 64);
+	strcat(query, " SET ");
+	strncat(query, col, 64);
+	strcat(query, "='");
+	strcat(query, escape);
+	strcat(query, "' WHERE uid='");
 	sprintf(query + strlen(query), "%u", uid);
-	strcat(query,"'");
-   
-//	eventlog(eventlog_level_trace, "db_set", "query: %s", query);
+	strcat(query, "'");
 
-	if(sql->query(query)) {
+//      eventlog(eventlog_level_trace, "db_set", "query: %s", query);
+
+	if (sql->query(query))
+	{
 	    char query2[512];
 	    eventlog(eventlog_level_info, __FUNCTION__, "trying to insert new column %s", col);
 	    strcpy(query2, "ALTER TABLE ");
-	    strncat(query2,tab,DB_MAX_TAB);
-	    strcat(query2," ADD COLUMN ");
-	    strncat(query2,col,DB_MAX_TAB);
-	    strcat(query2," VARCHAR(128);");
+	    strncat(query2, tab, DB_MAX_TAB);
+	    strcat(query2, " ADD COLUMN ");
+	    strncat(query2, col, DB_MAX_TAB);
+	    strcat(query2, " VARCHAR(128);");
 
-//	    eventlog(eventlog_level_trace, __FUNCTION__, "query: %s", query2);
-	    if (sql->query(query2)) {
+//          eventlog(eventlog_level_trace, __FUNCTION__, "query: %s", query2);
+	    if (sql->query(query2))
+	    {
 		eventlog(eventlog_level_error, __FUNCTION__, "ALTER failed, bailing out");
 		continue;
 	    }
 
 	    /* try query again */
-//	    eventlog(eventlog_level_trace, "db_set", "query: %s", query);
-	    if (sql->query(query)) {
+//          eventlog(eventlog_level_trace, "db_set", "query: %s", query);
+	    if (sql->query(query))
+	    {
 		// Tried everything, now trying to insert that user to the table for the first time
-		sprintf(query2,"INSERT INTO %s (uid,%s) VALUES ('%u','%s')",tab,col,uid,escape);
-//		eventlog(eventlog_level_error, __FUNCTION__, "update failed so tried INSERT for the last chance");
-		if (sql->query(query2)) {
-            	    eventlog(eventlog_level_error, __FUNCTION__, "could not INSERT attribute");
+		sprintf(query2, "INSERT INTO %s (uid,%s) VALUES ('%u','%s')", tab, col, uid, escape);
+//              eventlog(eventlog_level_error, __FUNCTION__, "update failed so tried INSERT for the last chance");
+		if (sql->query(query2))
+		{
+		    eventlog(eventlog_level_error, __FUNCTION__, "could not INSERT attribute");
 		    continue;
-    		}
+		}
 	    }
 	}
     }
 
-   return 0;
+    return 0;
 }
 
 static int sql_read_accounts(t_read_accounts_func cb, void *data)
 {
     char query[1024];
-    t_sql_res * result = NULL;
-    t_sql_row * row;
+    t_sql_res *result = NULL;
+    t_sql_row *row;
     t_storage_info *info;
 
-    if(!sql) {
+    if (!sql)
+    {
 	eventlog(eventlog_level_error, __FUNCTION__, "sql layer not initilized");
 	return -1;
     }
 
-    if (cb == NULL) {
+    if (cb == NULL)
+    {
 	eventlog(eventlog_level_error, __FUNCTION__, "get NULL callback");
 	return -1;
     }
 
-    strcpy(query,"SELECT uid FROM BNET");
-    if((result = sql->query_res(query)) != NULL) {
-	if (sql->num_rows(result) <= 1) {
+    strcpy(query, "SELECT uid FROM BNET");
+    if ((result = sql->query_res(query)) != NULL)
+    {
+	if (sql->num_rows(result) <= 1)
+	{
 	    sql->free_result(result);
-	    return 0; /* empty user list */
+	    return 0;		/* empty user list */
 	}
 
-	while((row = sql->fetch_row(result)) != NULL) {
-	    if (row[0] == NULL) {
+	while ((row = sql->fetch_row(result)) != NULL)
+	{
+	    if (row[0] == NULL)
+	    {
 		eventlog(eventlog_level_error, __FUNCTION__, "got NULL uid from db");
 		continue;
 	    }
 
-	    if ((unsigned int)atoi(row[0]) == defacct) continue; /* skip default account */
+	    if ((unsigned int) atoi(row[0]) == defacct)
+		continue;	/* skip default account */
 
-	    if ((info = malloc(sizeof(t_sql_info))) == NULL) {
+	    if ((info = malloc(sizeof(t_sql_info))) == NULL)
+	    {
 		eventlog(eventlog_level_error, __FUNCTION__, "not enough memory for sql info");
 		continue;
 	    }
 
-	    *((unsigned int *)info) = atoi(row[0]);
+	    *((unsigned int *) info) = atoi(row[0]);
 	    cb(info, data);
-        }
+	}
 	sql->free_result(result);
-    } else {
+    } else
+    {
 	eventlog(eventlog_level_error, __FUNCTION__, "error query db (query:\"%s\")", query);
 	return -1;
     }
@@ -649,63 +718,64 @@ static int sql_read_accounts(t_read_accounts_func cb, void *data)
     return 0;
 }
 
-static int sql_cmp_info(t_storage_info *info1, t_storage_info *info2)
+static int sql_cmp_info(t_storage_info * info1, t_storage_info * info2)
 {
-    return *((unsigned int *)info1) != *((unsigned int *)info2);
+    return *((unsigned int *) info1) != *((unsigned int *) info2);
 }
 
-static int sql_free_info(t_storage_info *info)
+static int sql_free_info(t_storage_info * info)
 {
-    if (info) free((void*)info);
+    if (info)
+	free((void *) info);
 
     return 0;
 }
 
-static t_storage_info * sql_get_defacct(void)
+static t_storage_info *sql_get_defacct(void)
 {
     t_storage_info *info;
 
-    if ((info = malloc(sizeof(t_sql_info))) == NULL) {
+    if ((info = malloc(sizeof(t_sql_info))) == NULL)
+    {
 	eventlog(eventlog_level_error, __FUNCTION__, "not enough memory for sql info");
 	return NULL;
     }
 
-    *((unsigned int *)info) = defacct;
+    *((unsigned int *) info) = defacct;
 
     return info;
 }
 
-static const char * sql_escape_key(const char *key)
+static const char *sql_escape_key(const char *key)
 {
     const char *newkey = key;
-    char *p;
-    int idx;
 
-    for(idx = 0, p = (char *)newkey; *p; p++, idx++)
-	if ((*p < '0' || *p > '9') && (*p < 'a' || *p > 'z') && (*p < 'A' || *p > 'Z')) {
-	    if ((newkey = strdup(key)) == NULL) {
-		eventlog(eventlog_level_error, __FUNCTION__, "not enough memory for escaped key");
-		return key;
-	    }
-	    for(p = (char *)(newkey + idx); *p; p++)
-		if ((*p < '0' || *p > '9') && (*p < 'a' || *p > 'z') && (*p < 'A' || *p > 'Z'))
-		    *p = '_';
-	    break;
+    if (strchr(key, '\\') || strchr(key, ' ') || strchr(key, '-'))
+    {
+	char *p;
+
+	if ((newkey = strdup(key)) == NULL)
+	{
+	    eventlog(eventlog_level_error, __FUNCTION__, "not enough memory for escaped key");
+	    return key;
 	}
+	for (p = (char *) newkey; *p; p++)
+	    if (*p == '\\' || *p == '-' || *p == ' ')
+		*p = '_';
+    }
 
     return newkey;
 }
 
 int db_get_version(void)
 {
-    t_sql_res * result = NULL;
-    t_sql_row * row;
+    t_sql_res *result = NULL;
+    t_sql_row *row;
     int version = 0;
 
-    if ((result = sql->query_res("SELECT value FROM pvpgn WHERE name = 'db_version'")) == NULL) return 0;
-    if (sql->num_rows(result) == 1
-	&& (row = sql->fetch_row(result)) != NULL
-	&& row[0] != NULL) 
+    if ((result = sql->query_res("SELECT value FROM pvpgn WHERE name = 'db_version'")) == NULL)
+	return 0;
+    if (sql->num_rows(result) == 1 && (row = sql->fetch_row(result)) != NULL && row[0] != NULL)
 	version = atoi(row[0]);
 
     sql->free_result(result);
@@ -717,10 +787,11 @@ void _sql_db_set_version(int version)
 {
     char query[1024];
 
-    sprintf(query,"UPDATE pvpgn SET value = '%d' WHERE name = 'db_version';",version);
-    if (sql->query(query)) {
+    sprintf(query, "UPDATE pvpgn SET value = '%d' WHERE name = 'db_version';", version);
+    if (sql->query(query))
+    {
 	sql->query("CREATE TABLE pvpgn (name varchar(128) NOT NULL PRIMARY KEY, value varchar(255));");
-	sprintf(query,"INSERT INTO pvpgn (name, value) VALUES('db_version', '%d');",version);
+	sprintf(query, "INSERT INTO pvpgn (name, value) VALUES('db_version', '%d');", version);
 	sql->query(query);
     }
 }
@@ -731,329 +802,361 @@ extern int _sql_dbcheck(void)
 
     sql_dbcreator(sql);
 
-    while ((version=db_get_version())!=CURRENT_DB_VERSION) {
+    while ((version = db_get_version()) != CURRENT_DB_VERSION)
+    {
 
-	switch (version) {
-	    case 0:
-        	_sql_update_DB_v0_to_v150();
-		break;
-	    default:
-		eventlog(eventlog_level_error,__FUNCTION__,"unknown PvPGN DB version, aborting");
-		return -1;
+	switch (version)
+	{
+	case 0:
+	    _sql_update_DB_v0_to_v150();
+	    break;
+	default:
+	    eventlog(eventlog_level_error, __FUNCTION__, "unknown PvPGN DB version, aborting");
+	    return -1;
 	}
-     }
+    }
 
     return 0;
 }
 
 static void _sql_update_DB_v0_to_v150(void)
 {
-    t_sql_res   * result;
-    t_sql_field * fields, *fentry;
+    t_sql_res *result;
+    t_sql_field *fields, *fentry;
     char query[1024];
 
-    eventlog(eventlog_level_info,__FUNCTION__,"updating your PvPGN SQL DB...");
+    eventlog(eventlog_level_info, __FUNCTION__, "updating your PvPGN SQL DB...");
 
-    if ((result = sql->query_res("SELECT * FROM Record;")) != NULL) {
-	if ((fields = sql->fetch_fields(result)) != NULL) {
-	    for(fentry = fields; *fentry; fentry++) {
-		if (strncmp(*fentry,"WAR3_",5)==0) continue;   // prevent converting over and over again
-		if (strncmp(*fentry,"W3XP_",5)==0) continue;
-		if (strncmp(*fentry,CLIENTTAG_STARCRAFT,4)==0) continue;
-		if (strncmp(*fentry,CLIENTTAG_BROODWARS,4)==0) continue;
-		if (strncmp(*fentry,CLIENTTAG_WARCIIBNE,4)==0) continue;
-		if (strncmp(*fentry,CLIENTTAG_DIABLO2DV,4)==0) continue;
-		if (strncmp(*fentry,CLIENTTAG_DIABLO2XP,4)==0) continue;
-		if (strncmp(*fentry,CLIENTTAG_DIABLORTL,4)==0) continue;
-		if (strncmp(*fentry,CLIENTTAG_DIABLOSHR,4)==0) continue;
-		if (strncmp(*fentry,CLIENTTAG_SHAREWARE,4)==0) continue;
-		if (strcmp(*fentry,SQL_UID_FIELD)==0) continue;
+    if ((result = sql->query_res("SELECT * FROM Record;")) != NULL)
+    {
+	if ((fields = sql->fetch_fields(result)) != NULL)
+	{
+	    for (fentry = fields; *fentry; fentry++)
+	    {
+		if (strncmp(*fentry, "WAR3_", 5) == 0)
+		    continue;	// prevent converting over and over again
+		if (strncmp(*fentry, "W3XP_", 5) == 0)
+		    continue;
+		if (strncmp(*fentry, CLIENTTAG_STARCRAFT, 4) == 0)
+		    continue;
+		if (strncmp(*fentry, CLIENTTAG_BROODWARS, 4) == 0)
+		    continue;
+		if (strncmp(*fentry, CLIENTTAG_WARCIIBNE, 4) == 0)
+		    continue;
+		if (strncmp(*fentry, CLIENTTAG_DIABLO2DV, 4) == 0)
+		    continue;
+		if (strncmp(*fentry, CLIENTTAG_DIABLO2XP, 4) == 0)
+		    continue;
+		if (strncmp(*fentry, CLIENTTAG_DIABLORTL, 4) == 0)
+		    continue;
+		if (strncmp(*fentry, CLIENTTAG_DIABLOSHR, 4) == 0)
+		    continue;
+		if (strncmp(*fentry, CLIENTTAG_SHAREWARE, 4) == 0)
+		    continue;
+		if (strcmp(*fentry, SQL_UID_FIELD) == 0)
+		    continue;
 
-		sprintf(query,"ALTER TABLE Record CHANGE %s WAR3_%s int default '0';",*fentry,*fentry);
+		sprintf(query, "ALTER TABLE Record CHANGE %s WAR3_%s int default '0';", *fentry, *fentry);
 		sql->query(query);
-		sprintf(query,"ALTER TABLE Record ADD W3XP_%s int default '0';",*fentry);
-		sql->query(query); 
+		sprintf(query, "ALTER TABLE Record ADD W3XP_%s int default '0';", *fentry);
+		sql->query(query);
 	    }
 	    sql->free_fields(fields);
 	}
 	sql->free_result(result);
     }
 
-    if ((result = sql->query_res("SELECT * FROM Team;")) != NULL) {
-	if ((fields = sql->fetch_fields(result)) != NULL) {
-	    for(fentry = fields; *fentry; fentry++) {
-		if (strncmp(*fentry,"WAR3_",5)==0) continue;
-		if (strncmp(*fentry,"W3XP_",5)==0) continue;
-		if (strcmp(*fentry,SQL_UID_FIELD)==0) continue;
+    if ((result = sql->query_res("SELECT * FROM Team;")) != NULL)
+    {
+	if ((fields = sql->fetch_fields(result)) != NULL)
+	{
+	    for (fentry = fields; *fentry; fentry++)
+	    {
+		if (strncmp(*fentry, "WAR3_", 5) == 0)
+		    continue;
+		if (strncmp(*fentry, "W3XP_", 5) == 0)
+		    continue;
+		if (strcmp(*fentry, SQL_UID_FIELD) == 0)
+		    continue;
 
-		sprintf(query,"ALTER TABLE Team CHANGE %s WAR3_%s varchar(128);",*fentry,*fentry);
+		sprintf(query, "ALTER TABLE Team CHANGE %s WAR3_%s varchar(128);", *fentry, *fentry);
 		sql->query(query);
 	    }
 	    sql->free_fields(fields);
 	}
-        sql->free_result(result);
+	sql->free_result(result);
     }
 
     _sql_db_set_version(150);
 
-    eventlog(eventlog_level_info,__FUNCTION__,"successfully updated your DB");
+    eventlog(eventlog_level_info, __FUNCTION__, "successfully updated your DB");
 }
 
 static int sql_load_clans(t_load_clans_func cb)
 {
-  t_sql_res   * result;
-  t_sql_res   * result2;
-  t_sql_row   * row;
-  t_sql_row   * row2;
-  char query[1024];
-  int       clanshort;
-  t_clan	*clan;
-  char		clanname[CLAN_NAME_MAX+1];
-  char		motd[51];
-  int		cid, creation_time;
-  int		member_uid;
-  t_clanmember	*member;
+    t_sql_res *result;
+    t_sql_res *result2;
+    t_sql_row *row;
+    t_sql_row *row2;
+    char query[1024];
+    t_clan *clan;
+    int member_uid;
+    t_clanmember *member;
 
-    if(!sql) {
+    if (!sql)
+    {
 	eventlog(eventlog_level_error, __FUNCTION__, "sql layer not initilized");
 	return -1;
     }
 
-    if (cb == NULL) {
+    if (cb == NULL)
+    {
 	eventlog(eventlog_level_error, __FUNCTION__, "get NULL callback");
 	return -1;
     }
 
-    strcpy(query,"SELECT cid, short, name, motd, creation_time FROM clan WHERE cid > 0");
-    if((result = sql->query_res(query)) != NULL) {
-	if (sql->num_rows(result) < 1) {
+    strcpy(query, "SELECT cid, short, name, motd, creation_time FROM clan WHERE cid > 0");
+    if ((result = sql->query_res(query)) != NULL)
+    {
+	if (sql->num_rows(result) < 1)
+	{
 	    sql->free_result(result);
-	    return 0; /* empty clan list */
+	    return 0;		/* empty clan list */
 	}
 
-	while((row = sql->fetch_row(result)) != NULL) {
-	    if (row[0] == NULL) {
+	while ((row = sql->fetch_row(result)) != NULL)
+	{
+	    if (row[0] == NULL)
+	    {
 		eventlog(eventlog_level_error, __FUNCTION__, "got NULL cid from db");
 		continue;
 	    }
 
-        if(!(clan = malloc(sizeof(t_clan))))
-        {
-          eventlog(eventlog_level_error,__FUNCTION__,"could not allocate memory for clan");
-          sql->free_result(result);
-          return -1;
-        }
+	    if (!(clan = malloc(sizeof(t_clan))))
+	    {
+		eventlog(eventlog_level_error, __FUNCTION__, "could not allocate memory for clan");
+		sql->free_result(result);
+		return -1;
+	    }
 
-        if (!(clan->clanid=atoi(row[0])))
-        {
-          eventlog(eventlog_level_error,__FUNCTION__,"got bad cid");
-          sql->free_result(result);
-          return -1;
-        }
+	    if (!(clan->clanid = atoi(row[0])))
+	    {
+		eventlog(eventlog_level_error, __FUNCTION__, "got bad cid");
+		sql->free_result(result);
+		return -1;
+	    }
 
-        clan->clanshort=atoi(row[1]);
+	    clan->clanshort = atoi(row[1]);
 
-        clan->clanname = strdup(row[2]);
-        clan->clan_motd = strdup(row[3]);
-        clan->creation_time=atoi(row[4]);
-        clan->created = 1;
-        clan->modified = 0;
-        clan->channel_type = prefs_get_clan_channel_default_private();
-	clan->members = list_create();
+	    clan->clanname = strdup(row[2]);
+	    clan->clan_motd = strdup(row[3]);
+	    clan->creation_time = atoi(row[4]);
+	    clan->created = 1;
+	    clan->modified = 0;
+	    clan->channel_type = prefs_get_clan_channel_default_private();
+	    clan->members = list_create();
 
-        sprintf(query,"SELECT uid, status, join_time FROM clanmember WHERE cid='%u'",clan->clanid);
+	    sprintf(query, "SELECT uid, status, join_time FROM clanmember WHERE cid='%u'", clan->clanid);
 
-        if((result2 = sql->query_res(query)) != NULL) {
-    	    if (sql->num_rows(result2) < 1)
-	            sql->free_result(result2);
-            else
-        	while((row2 = sql->fetch_row(result2)) != NULL) {
-                if (!(member = malloc(sizeof(t_clanmember))))
-	            {
-	                eventlog(eventlog_level_error,__FUNCTION__,"cannot allocate memory for clan member");
-                    clan_remove_all_members(clan);
-                    if(clan->clanname)
-	                    free((void *)clan->clanname);
-                    if(clan->clan_motd)
-	                    free((void *)clan->clan_motd);
-	                free((void *)clan);
-                    sql->free_result(result);
-                    sql->free_result(result2);
-	                return -1;
-            	}
-	            if (row2[0] == NULL) {
-		            eventlog(eventlog_level_error, __FUNCTION__, "got NULL uid from db");
-		            continue;
-	            }
-                if(!(member_uid=atoi(row2[0])))
-                    continue;
-                if(!(member->memberacc   = accountlist_find_account_by_uid(member_uid)))
-                {
-	                eventlog(eventlog_level_error,__FUNCTION__,"cannot find uid %u", member_uid);
-	                free((void *)member);
-	                continue;
-                }
-                member->memberconn  = NULL;
-                member->status    = atoi(row2[1]);
-                member->join_time = atoi(row2[2]);
+	    if ((result2 = sql->query_res(query)) != NULL)
+	    {
+		if (sql->num_rows(result2) < 1)
+		    sql->free_result(result2);
+		else
+		    while ((row2 = sql->fetch_row(result2)) != NULL)
+		    {
+			if (!(member = malloc(sizeof(t_clanmember))))
+			{
+			    eventlog(eventlog_level_error, __FUNCTION__, "cannot allocate memory for clan member");
+			    clan_remove_all_members(clan);
+			    if (clan->clanname)
+				free((void *) clan->clanname);
+			    if (clan->clan_motd)
+				free((void *) clan->clan_motd);
+			    free((void *) clan);
+			    sql->free_result(result);
+			    sql->free_result(result2);
+			    return -1;
+			}
+			if (row2[0] == NULL)
+			{
+			    eventlog(eventlog_level_error, __FUNCTION__, "got NULL uid from db");
+			    continue;
+			}
+			if (!(member_uid = atoi(row2[0])))
+			    continue;
+			if (!(member->memberacc = accountlist_find_account_by_uid(member_uid)))
+			{
+			    eventlog(eventlog_level_error, __FUNCTION__, "cannot find uid %u", member_uid);
+			    free((void *) member);
+			    continue;
+			}
+			member->memberconn = NULL;
+			member->status = atoi(row2[1]);
+			member->join_time = atoi(row2[2]);
 
-                if((member->status==CLAN_NEW)&&(time(NULL)-member->join_time>prefs_get_clan_newer_time()*3600))
-                {
-                    member->status=CLAN_PEON;
-                    clan->modified=1;
-                }
+			if ((member->status == CLAN_NEW) && (time(NULL) - member->join_time > prefs_get_clan_newer_time() * 3600))
+			{
+			    member->status = CLAN_PEON;
+			    clan->modified = 1;
+			}
 
-                if (list_append_data(clan->members,member)<0)
-	            {
-	                eventlog(eventlog_level_error,__FUNCTION__,"could not append item");
-	                free((void *)member);
-	                clan_remove_all_members(clan);
-                    if(clan->clanname)
-	                    free((void *)clan->clanname);
-                    if(clan->clan_motd)
-	                    free((void *)clan->clan_motd);
-	                free((void *)clan);
-                    sql->free_result(result2);
-                    sql->free_result(result);
-	                return -1;
-            	}
-                account_set_clan(member->memberacc, clan);
-                eventlog(eventlog_level_trace,__FUNCTION__,"added member: uid: %i status: %c join_time: %i",member_uid,member->status+'0',member->join_time);
-            }
-            sql->free_result(result2);
-            cb(clan);
-        }
-        else
-        	eventlog(eventlog_level_error, __FUNCTION__, "error query db (query:\"%s\")", query);
-    }
+			if (list_append_data(clan->members, member) < 0)
+			{
+			    eventlog(eventlog_level_error, __FUNCTION__, "could not append item");
+			    free((void *) member);
+			    clan_remove_all_members(clan);
+			    if (clan->clanname)
+				free((void *) clan->clanname);
+			    if (clan->clan_motd)
+				free((void *) clan->clan_motd);
+			    free((void *) clan);
+			    sql->free_result(result2);
+			    sql->free_result(result);
+			    return -1;
+			}
+			account_set_clan(member->memberacc, clan);
+			eventlog(eventlog_level_trace, __FUNCTION__, "added member: uid: %i status: %c join_time: %u", member_uid, member->status + '0', (unsigned)member->join_time);
+		    }
+		sql->free_result(result2);
+		cb(clan);
+	    } else
+		eventlog(eventlog_level_error, __FUNCTION__, "error query db (query:\"%s\")", query);
+	}
 
 	sql->free_result(result);
-    } else {
+    } else
+    {
 	eventlog(eventlog_level_error, __FUNCTION__, "error query db (query:\"%s\")", query);
 	return -1;
     }
 
-  return 0;
+    return 0;
 }
 
-static int sql_write_clan(void * data)
+static int sql_write_clan(void *data)
 {
-  char query[1024];
-  t_sql_res * result;
-  t_sql_row * row;
-  t_elem		*curr;
-  t_clanmember	*member;
-  t_clan        *clan=(t_clan *)data;
-  int num;
+    char query[1024];
+    t_sql_res *result;
+    t_sql_row *row;
+    t_elem *curr;
+    t_clanmember *member;
+    t_clan *clan = (t_clan *) data;
+    int num;
 
-  if(!sql) {
+    if (!sql)
+    {
 	eventlog(eventlog_level_error, __FUNCTION__, "sql layer not initilized");
 	return -1;
-  }
-
-  sprintf(query, "SELECT count(*) FROM clan WHERE cid='%u'", clan->clanid);
-  if((result = sql->query_res(query)) != NULL) {
-    row = sql->fetch_row(result);
-    if (row == NULL || row[0] == NULL) {
-	  sql->free_result(result);
-	  eventlog(eventlog_level_error, __FUNCTION__, "got NULL count");
-	  return -1;
-	}
-    num = atol(row[0]);
-    sql->free_result(result);
-    if (num<1)
-      sprintf(query, "INSERT INTO clan (cid, short, name, motd, creation_time) VALUES('%u', '%d', '%s', '%s', '%d')", clan->clanid, clan->clanshort, clan->clanname, clan->clan_motd, clan->creation_time);
-    else
-      sprintf(query, "UPDATE clan SET short='%d', name='%s', motd='%s', creation_time='%d' WHERE cid='%u'", clan->clanshort, clan->clanname, clan->clan_motd, clan->creation_time, clan->clanid);
-    if(sql->query(query)<0)
-    {
-      eventlog(eventlog_level_error, __FUNCTION__, "error trying query: \"%s\"", query);
-      return -1;
     }
-    LIST_TRAVERSE(clan->members,curr)
+
+    sprintf(query, "SELECT count(*) FROM clan WHERE cid='%u'", clan->clanid);
+    if ((result = sql->query_res(query)) != NULL)
     {
-      unsigned int uid;
-      if (!(member = elem_get_data(curr)))
-	  {
-	    eventlog(eventlog_level_error,__FUNCTION__,"got NULL elem in list");
-	    continue;
-	  }
-      if((member->status==CLAN_NEW)&&(time(NULL)-member->join_time>prefs_get_clan_newer_time()*3600))
-        member->status=CLAN_PEON;
-      uid=account_get_uid(member->memberacc);
-      sprintf(query, "SELECT count(*) FROM clanmember WHERE uid='%u'", uid);
-      if((result = sql->query_res(query)) != NULL) {
-        row = sql->fetch_row(result);
-        if (row == NULL || row[0] == NULL) {
-    	  sql->free_result(result);
-    	  eventlog(eventlog_level_error, __FUNCTION__, "got NULL count");
-    	  return -1;
-	    }
-        num = atol(row[0]);
-        sql->free_result(result);
-        if (num<1)
-          sprintf(query, "INSERT INTO clanmember (cid, uid, status, join_time) VALUES('%u', '%u', '%d', '%d')", clan->clanid, uid, member->status, member->join_time);
-        else
-          sprintf(query, "UPDATE clanmember SET cid='%u', status='%d', join_time='%d' WHERE uid='%u'", clan->clanid, member->status, member->join_time, uid);
-        if(sql->query(query)<0)
-        {
-          eventlog(eventlog_level_error, __FUNCTION__, "error trying query: \"%s\"", query);
-          return -1;
-        }
-      }
-      else
-      {
+	row = sql->fetch_row(result);
+	if (row == NULL || row[0] == NULL)
+	{
+	    sql->free_result(result);
+	    eventlog(eventlog_level_error, __FUNCTION__, "got NULL count");
+	    return -1;
+	}
+	num = atol(row[0]);
+	sql->free_result(result);
+	if (num < 1)
+	    sprintf(query, "INSERT INTO clan (cid, short, name, motd, creation_time) VALUES('%u', '%d', '%s', '%s', '%u')", clan->clanid, clan->clanshort, clan->clanname, clan->clan_motd, (unsigned)clan->creation_time);
+	else
+	    sprintf(query, "UPDATE clan SET short='%d', name='%s', motd='%s', creation_time='%u' WHERE cid='%u'", clan->clanshort, clan->clanname, clan->clan_motd, (unsigned)clan->creation_time, clan->clanid);
+	if (sql->query(query) < 0)
+	{
 	    eventlog(eventlog_level_error, __FUNCTION__, "error trying query: \"%s\"", query);
 	    return -1;
-      }
-    }
-  }
-  else
-  {
+	}
+	LIST_TRAVERSE(clan->members, curr)
+	{
+	    unsigned int uid;
+	    if (!(member = elem_get_data(curr)))
+	    {
+		eventlog(eventlog_level_error, __FUNCTION__, "got NULL elem in list");
+		continue;
+	    }
+	    if ((member->status == CLAN_NEW) && (time(NULL) - member->join_time > prefs_get_clan_newer_time() * 3600))
+		member->status = CLAN_PEON;
+	    uid = account_get_uid(member->memberacc);
+	    sprintf(query, "SELECT count(*) FROM clanmember WHERE uid='%u'", uid);
+	    if ((result = sql->query_res(query)) != NULL)
+	    {
+		row = sql->fetch_row(result);
+		if (row == NULL || row[0] == NULL)
+		{
+		    sql->free_result(result);
+		    eventlog(eventlog_level_error, __FUNCTION__, "got NULL count");
+		    return -1;
+		}
+		num = atol(row[0]);
+		sql->free_result(result);
+		if (num < 1)
+		    sprintf(query, "INSERT INTO clanmember (cid, uid, status, join_time) VALUES('%u', '%u', '%d', '%u')", clan->clanid, uid, member->status, (unsigned)member->join_time);
+		else
+		    sprintf(query, "UPDATE clanmember SET cid='%u', status='%d', join_time='%u' WHERE uid='%u'", clan->clanid, member->status, (unsigned)member->join_time, uid);
+		if (sql->query(query) < 0)
+		{
+		    eventlog(eventlog_level_error, __FUNCTION__, "error trying query: \"%s\"", query);
+		    return -1;
+		}
+	    } else
+	    {
+		eventlog(eventlog_level_error, __FUNCTION__, "error trying query: \"%s\"", query);
+		return -1;
+	    }
+	}
+    } else
+    {
 	eventlog(eventlog_level_error, __FUNCTION__, "error trying query: \"%s\"", query);
 	return -1;
-  }
+    }
 
-  return 0;
+    return 0;
 }
 
 static int sql_remove_clan(int clanshort)
 {
-  char query[1024];
-  t_sql_res * result;
-  t_sql_row * row;
+    char query[1024];
+    t_sql_res *result;
+    t_sql_row *row;
 
-  if(!sql) {
+    if (!sql)
+    {
 	eventlog(eventlog_level_error, __FUNCTION__, "sql layer not initilized");
 	return -1;
-  }
+    }
 
-  sprintf(query, "SELECT cid FROM clan WHERE short = '%d'", clanshort);
-  if(!(result=sql->query_res(query)))
-  {
+    sprintf(query, "SELECT cid FROM clan WHERE short = '%d'", clanshort);
+    if (!(result = sql->query_res(query)))
+    {
 	eventlog(eventlog_level_error, __FUNCTION__, "error query db (query:\"%s\")", query);
 	return -1;
-  }
+    }
 
-  if (sql->num_rows(result) != 1) {
+    if (sql->num_rows(result) != 1)
+    {
+	sql->free_result(result);
+	return -1;		/*clan not found or found more than 1 */
+    }
+
+    if ((row = sql->fetch_row(result)))
+    {
+	unsigned int cid = atoi(row[0]);
+	sprintf(query, "DELETE FROM clanmember WHERE cid='%u'", cid);
+	if (sql->query(query) != 0)
+	    return -1;
+	sprintf(query, "DELETE FROM clan WHERE cid='%u'", cid);
+	if (sql->query(query) != 0)
+	    return -1;
+    }
+
     sql->free_result(result);
-    return -1; /*clan not found or found more than 1*/
-  }
 
-  if(row=sql->fetch_row(result))
-  {
-    unsigned int cid=atoi(row[0]);
-    sprintf(query, "DELETE FROM clanmember WHERE cid='%u'", cid);
-    if(sql->query(query)!=0)
-      return -1;
-    sprintf(query, "DELETE FROM clan WHERE cid='%u'", cid);
-    if(sql->query(query)!=0)
-      return -1;
-  }
-
-  sql->free_result(result);
-
-  return 0;
+    return 0;
 }
 
-#endif /* WITH_SQL */
+#endif				/* WITH_SQL */
