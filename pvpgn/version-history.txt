@@ -39,11 +39,12 @@ just compile the server and install new server executable)
 -- replaced gmtime() with localtime() here and there
 -- on a /rehash and after each account_save() new created accounts 
 get loaded via account_reload() (so u can add accounts manually which will get
-added to the running server)
+added to the running server) (optional via bnetd.conf)
 -- based on the account_reload() and some modification of it a new command got
-added called /reload_accounts which will reload account data for all users
+added called /reload_accounts_all which will reload account data for all users
 currently not logged in (and remove all accounts where userfile/db entries
-got removed)
+got removed) and /reload_accounts_new which will only load new created
+accounts
 -- modified /set command to return current value if no value to set is given
 
 1.2.3:
