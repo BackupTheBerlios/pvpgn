@@ -4086,10 +4086,10 @@ extern int conn_update_w3_playerinfo(t_connection * c)
     char		raceicon; /* appeared in 1.03 */
     unsigned int	raceiconnumber;
     unsigned int    	wins;
-    char *          	client;
     char const *	usericon;
     char 		clantag_str_tmp[5];
     const char * 	clantag_str = NULL;
+    char        revtag[5];
 
     if (c == NULL) {
 	eventlog(eventlog_level_error, __FUNCTION__, "got NULL connection");
@@ -4103,12 +4103,10 @@ extern int conn_update_w3_playerinfo(t_connection * c)
 	return -1;
     }
 
-    clienttag = conn_get_clienttag(c);
+    strcpy(revtag, conn_get_fake_clienttag(c));
+    strreverse(revtag);
 
-    if (strcmp(clienttag, CLIENTTAG_WARCRAFT3) == 0)
-	client = "3RAW";
-    else
-	client = "PX3W";
+    clienttag = conn_get_clienttag(c);
 
     acctlevel = account_get_highestladderlevel(account,clienttag);
     account_get_raceicon(account, &raceicon, &raceiconnumber, &wins, clienttag);
@@ -4124,24 +4122,24 @@ extern int conn_update_w3_playerinfo(t_connection * c)
 
     if(acctlevel == 0) {
 	if(clantag)
-	    sprintf(tempplayerinfo, "%s 1R3W 0 %s", client, clantag_str);
+	    sprintf(tempplayerinfo, "%s %s 0 %s", revtag, revtag, clantag_str);
 	else
-	    strcpy(tempplayerinfo, client);
-	eventlog(eventlog_level_info,__FUNCTION__,"[%d] %s",conn_get_socket(c), client);
+	    strcpy(tempplayerinfo, revtag);
+	eventlog(eventlog_level_info,__FUNCTION__,"[%d] %s",conn_get_socket(c), revtag);
     } else {
 	usericon = account_get_user_icon(account,clienttag);
 	if (!usericon) {
     	    if(clantag)
-		sprintf(tempplayerinfo, "%s %1u%c3W %u %s", client, raceiconnumber, raceicon, acctlevel, clantag_str); 
+		sprintf(tempplayerinfo, "%s %1u%c3W %u %s", revtag, raceiconnumber, raceicon, acctlevel, clantag_str); 
             else
-		sprintf(tempplayerinfo, "%s %1u%c3W %u", client, raceiconnumber, raceicon, acctlevel); 
-	    eventlog(eventlog_level_info,__FUNCTION__,"[%d] %s using generated icon [%1u%c3W]",conn_get_socket(c), client, raceiconnumber, raceicon);
+		sprintf(tempplayerinfo, "%s %1u%c3W %u", revtag, raceiconnumber, raceicon, acctlevel); 
+	    eventlog(eventlog_level_info,__FUNCTION__,"[%d] %s using generated icon [%1u%c3W]",conn_get_socket(c), revtag, raceiconnumber, raceicon);
 	} else {
             if(clantag)
-		sprintf(tempplayerinfo, "%s %s %u %s",client, usericon, acctlevel, clantag_str);
+		sprintf(tempplayerinfo, "%s %s %u %s",revtag, usericon, acctlevel, clantag_str);
             else
-		sprintf(tempplayerinfo, "%s %s %u",client, usericon, acctlevel);
-	    eventlog(eventlog_level_info,__FUNCTION__,"[%d] %s using user-selected icon [%s]",conn_get_socket(c),client,usericon);
+		sprintf(tempplayerinfo, "%s %s %u",revtag, usericon, acctlevel);
+	    eventlog(eventlog_level_info,__FUNCTION__,"[%d] %s using user-selected icon [%s]",conn_get_socket(c),revtag,usericon);
 	}
     }
 
