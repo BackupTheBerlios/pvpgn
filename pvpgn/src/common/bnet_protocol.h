@@ -3244,9 +3244,10 @@ typedef struct
 #define CLIENT_GAMETYPE_DIABLO_2     0x00000009
 #define CLIENT_GAMETYPE_DIABLO_3     0x0000000c
 /* FIXME: Not sure how Diablo II does things yet */
-#define CLIENT_GAMETYPE_DIABLO2_CLOSE 0x00000000 /* close game */ 
-#define CLIENT_GAMETYPE_DIABLO2_OPEN  0x00000008 /* open, no min level, no restrict, normal difficulty */ 
-
+#define CLIENT_GAMETYPE_DIABLO2_CLOSE 		0x00000000 /* close game */ 
+#define CLIENT_GAMETYPE_DIABLO2_OPEN_NORMAL	0X00000008 /* open, normal difficulty */
+#define CLIENT_GAMETYPE_DIABLO2_OPEN_NIGHTMARE	0X00000009 /* open, nightmare difficulty */
+#define CLIENT_GAMETYPE_DIABLO2_OPEN_HELL	0X0000000a /* open, hell difficulty */
 
 /******************************************************/
 

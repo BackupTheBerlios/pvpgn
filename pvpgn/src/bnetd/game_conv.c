@@ -203,7 +203,9 @@ extern t_game_type bngtype_to_gtype(char const * clienttag, unsigned short bngty
     {
 	switch (bngtype)
 	{
-        case CLIENT_GAMETYPE_DIABLO2_OPEN:
+        case CLIENT_GAMETYPE_DIABLO2_OPEN_NORMAL:
+        case CLIENT_GAMETYPE_DIABLO2_OPEN_NIGHTMARE:
+        case CLIENT_GAMETYPE_DIABLO2_OPEN_HELL:
 	    return game_type_diablo2open;
         case CLIENT_GAMETYPE_DIABLO2_CLOSE:
             return game_type_diablo2closed;
