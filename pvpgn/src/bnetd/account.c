@@ -539,6 +539,20 @@ extern char const * account_get_strattr(t_account * account, char const * key)
 	strncpy(temp,"Record",6);
 	newkey = temp;
       }
+    if (strncmp(key,"Star",4)==0)
+      {
+	char * temp;
+	
+	/* Starcraft clients query Star instead of STAR on logon screen.
+	 */
+	if (!(temp = strdup(key)))
+	  {
+	    eventlog(eventlog_level_error,"account_get_strattr","could not allocate memory for temp");
+	    return NULL;
+	  }
+	strncpy(temp,"STAR",6);
+	newkey = temp;
+      }
     else if (strcasecmp(key,"clan\\name")==0)
       {
 	/* we have decided to store the clan in "profile\\clanname" so we don't need an extra table
