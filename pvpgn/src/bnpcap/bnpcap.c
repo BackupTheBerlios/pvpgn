@@ -305,9 +305,6 @@ static int bnpcap_conn_packet(unsigned int sip, unsigned short sport, unsigned i
        case CLIENT_INITCONN_CLASS_FILE:
 	 bnpcap_conn_set_class(c,packet_class_file);
 	 break;
-       case CLIENT_INITCONN_CLASS_BITS:
-	 bnpcap_conn_set_class(c,packet_class_bits);
-	 break;
        case 0xf7: // W3 matchmaking hack
 	 eventlog(eventlog_level_info,"bnpcap_conn_packet","matchmaking packet");
 	   bnpcap_conn_set_class(c,packet_class_bnet);
