@@ -2437,7 +2437,6 @@ extern void account_get_raceicon(t_account * account, char * raceicon, unsigned 
 	orcs = account_get_racewin(account,W3_RACE_ORCS); 
 	undead = account_get_racewin(account,W3_RACE_UNDEAD);
 	nightelf = account_get_racewin(account,W3_RACE_NIGHTELVES);
-	eventlog(eventlog_level_info,"handle_bnet_packet","raceicon -> %u wins -> %u",*raceicon, *wins);
 	if(humans>=orcs && humans>=undead && humans>=nightelf && humans>=random) {
 	    *raceicon = 'H';
 	    *wins = humans;
