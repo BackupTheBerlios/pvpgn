@@ -24,7 +24,7 @@
    write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
    Boston, MA 02111-1307, USA.  */
 
-#ifndef __BORLANDC__ /* caused problems to compile on bcc otherwise */
+#ifndef __WIN32__ /* caused problems/warnings compiling on bcc/vs.net otherwise */
 #include <common/setup_before.h>
 #endif
 
