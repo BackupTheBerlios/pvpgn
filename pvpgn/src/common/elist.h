@@ -31,6 +31,10 @@ typedef struct elist_struct {
 # include <stddef.h>
 #endif
 
+/* access to it's members */
+#define elist_next(ptr) ((ptr)->next)
+#define elist_prev(ptr) ((ptr)->prev)
+
 #define __elist_init(elist,val) { (elist)->next = (elist)->prev = (val); }
 #define elist_init(elist) __elist_init(elist,elist)
 
