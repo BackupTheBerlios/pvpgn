@@ -373,10 +373,12 @@ clean:
     -${RMF} ${SRC_BNPROXYDIR}\*.obj
     -${RMF} ${SRC_COMPATDIR}\*.obj
     -${RMF} ${SRC_COMMONDIR}\*.obj
+    -${RMF} ${SRC_WIN32DIR}\*.obj    
     -${RMF} ${SRC_BNETDDIR}\*.obj
     -${RMF} ${SRC_BNETDDIR}\*.res
     -${RMF} ${SRC_COMPATDIR}\*.bnetg_obj
     -${RMF} ${SRC_COMMONDIR}\*.bnetg_obj
+    -${RMF} ${SRC_WIN32DIR}\*.bnetg_obj  
     -${RMF} ${SRC_BNETDDIR}\*.bnetg_obj
     -${RMFALL} ${SRC_BINDIR}\*.*
     -${RMFALL} ${SRC_SBINDIR}\*.*
