@@ -4,7 +4,8 @@ PvPGN Version History:
 note:
    this is a BETA version. It contains LOTS of changes and new code. It needs
  LOTS of testings. But because of public request we released a first PVPGN
- version supporting WAR 3 FT/ROC 1.10.
+ version supporting WAR 3 FT/ROC 1.10. There are KNOWN bugs related to 
+ PG with ROC mode of Frozen Throne.
 changes:
 -- SUPPORT FOR FT/ROC 1.10
 -- changed storage layer, all configuration now takes place with "storage_path"
