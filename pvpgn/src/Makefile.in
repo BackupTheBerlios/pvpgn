@@ -497,9 +497,10 @@ MAN5S		= bnetd.conf.5 bntext.5 bnmotd.txt.5 bnissue.txt.5 bnnews.txt.5
 
 CONFS		= bnetd.conf d2cs.conf d2dbs.conf \
 		  ad.list channel.list realm.list d2server.ini \
-		  autoupdate bnetd_default_user bnetd_default_user.cdb gametrans d2gstrans versioncheck \
-		  bnmotd.txt bnissue.txt bnmaps.txt bnxplevel.txt bnxpcalc.txt news.txt command_groups.txt \
-		  bnban bnhelp bnalias.list anongame_infos.conf tournament.conf topics sql_DB_layout w3trans supportfile
+		  autoupdate.conf bnetd_default_user.plain bnetd_default_user.cdb gametrans.conf d2gstrans.conf \
+		  versioncheck.conf bnmotd.txt bnissue.txt bnmaps.conf bnxplevel.conf bnxpcalc.conf news.txt \
+		  command_groups.conf bnban.conf bnhelp.conf bnalias.list anongame_infos.conf tournament.conf \
+		  topics.conf sql_DB_layout.conf w3trans.conf supportfile.conf
 
 SHARES		= ad000001.smk ad000001.mng ad000004.mng \
 		  tos.txt \

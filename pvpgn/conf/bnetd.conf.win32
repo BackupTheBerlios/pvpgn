@@ -31,12 +31,12 @@
 # - "pass" : db password                                                     #
 #                                                                            #
 # Examples:                                                                  #
-# storage_path = file:mode=plain;dir=var\users;clan=var\clans;default=conf\bnetd_default_user
+# storage_path = file:mode=plain;dir=var\users;clan=var\clans;default=conf\bnetd_default_user.plain
 # storage_path = file:mode=cdb;dir=var\userscdb;clan=var\clans;default=conf\bnetd_default_user.cdb
 # storage_path = sql:mode=mysql;host=127.0.0.1;name=PVPGN;user=pvpgn;pass=pvpgnrocks;default=0
 #----------------------------------------------------------------------------#
 
-storage_path = file:mode=plain;dir=var\users;clan=var\clans;default=conf\bnetd_default_user
+storage_path = file:mode=plain;dir=var\users;clan=var\clans;default=conf\bnetd_default_user.plain
 
 #                                                                            #
 ##############################################################################
@@ -55,26 +55,26 @@ issuefile   = conf\bnissue.txt
 channelfile = conf\channel.list
 newsfile    = conf\news.txt
 adfile      = conf\ad.list
-topicfile   = conf\topics
-ipbanfile   = conf\bnban
-helpfile    = conf\bnhelp
-transfile   = conf\gametrans
-mpqfile     = conf\autoupdate
+topicfile   = conf\topics.conf
+ipbanfile   = conf\bnban.conf
+helpfile    = conf\bnhelp.conf
+transfile   = conf\gametrans.conf
+mpqfile     = conf\autoupdate.conf
 logfile     = var\bnetd.log
 realmfile   = conf\realm.list
-versioncheck_file = conf\versioncheck
-mapsfile    = conf\bnmaps.txt
-xplevelfile = conf\bnxplevel.txt
-xpcalcfile  = conf\bnxpcalc.txt
+versioncheck_file = conf\versioncheck.conf
+mapsfile    = conf\bnmaps.conf
+xplevelfile = conf\bnxplevel.conf
+xpcalcfile  = conf\bnxpcalc.conf
 #pidfile    = var\bnetd.pid
 ladderdir    = var\ladders
-command_groups_file = conf\command_groups.txt
+command_groups_file = conf\command_groups.conf
 statusdir   = var\status
 aliasfile   = conf\bnalias.list
-w3trans_file = conf\w3trans
+w3trans_file = conf\w3trans.conf
 anongame_infos_file = conf\anongame_infos.conf
-DBlayoutfile = conf\sql_DB_layout
-supportfile = conf\supportfile
+DBlayoutfile = conf\sql_DB_layout.conf
+supportfile = conf\supportfile.conf
 
 fortunecmd  = bin\fortune.exe
 

@@ -42,6 +42,7 @@ PvPGN Version History:
   -- added clan and clan rank info to the /finger command
   -- added option to bnmotd.txt to display info about new mail
   -- adjusted /whois command to be more like on battle.net
+  -- massivly renamed configuration files so each has an extension
 
 a general 1.6.x note:
 versioncheck exe-time parsing now REALLY works as it was intended to.
