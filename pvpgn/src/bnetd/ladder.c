@@ -101,6 +101,8 @@ int 		       last_rank     = 0;
  * Make the current ladder statistics the active ones.
  */
 
+extern int ladder_make_active(t_ladder *current, t_ladder *active,int set_attributes);
+
 extern int ladderlist_make_all_active(void)
 {
 	ladder_make_active(ladder_cr(CLIENTTAG_STARCRAFT,ladder_id_normal), ladder_ar(CLIENTTAG_STARCRAFT,ladder_id_normal),1);
@@ -1885,7 +1887,7 @@ extern int ladder_make_active(t_ladder *current, t_ladder *active,int set_attrib
   ladder_destroy(active);
   ladder_init(active,type,clienttag,id);
 
-  while (internal = ladder_get_rank_internal(current,rank,clienttag)) 
+  while ((internal = ladder_get_rank_internal(current,rank,clienttag)))
   {
     account = internal->account;
     war3_ladder_add(active,internal->uid,internal->xp,internal->level,account,0,clienttag);
@@ -1918,7 +1920,7 @@ extern int ladder_createxptable(const char *xplevelfile, const char *xpcalcfile)
    char *p;
    t_xpcalc_entry * newxpcalc;
    int len,i ,j;
-   int level, startxp, neededxp, mingames, calctype;
+   int level, startxp, neededxp, mingames;
    float lossfactor;
    int minlevel, leveldiff, higher_xpgained, higher_xplost, lower_xpgained, lower_xplost  = 10;
    
@@ -2062,8 +2064,6 @@ extern int ladder_createxptable(const char *xplevelfile, const char *xpcalcfile)
 
 extern void ladder_destroyxptable()
 {
-   int i;
-   
    if (xpcalc != NULL) free(xpcalc);
    if (xplevels != NULL) free(xplevels);
 }

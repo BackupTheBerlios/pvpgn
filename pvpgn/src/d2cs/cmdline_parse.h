@@ -42,7 +42,7 @@ extern char const * cmdline_get_logfile(void);
 extern unsigned int cmdline_get_version(void);
 extern unsigned int cmdline_get_help(void);
 extern unsigned int cmdline_get_foreground(void);
-extern unsigned int cmdline_get_logstderr(void);
+extern unsigned int cmdline_get_debugmode(void);
 #ifdef WIN32
 extern unsigned int cmdline_get_run_as_service(void);
 extern char const * cmdline_get_make_service(void);
