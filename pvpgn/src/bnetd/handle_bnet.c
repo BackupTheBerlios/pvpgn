@@ -750,7 +750,7 @@ static int _client_createaccountw3(t_connection * c, t_packet const * const pack
 
     eventlog(eventlog_level_debug,__FUNCTION__,"[%d] new account requested for \"%s\"",conn_get_socket(c),username);
 
-    if (prefs_get_allow_new_accounts()) {
+    if (prefs_get_allow_new_accounts()==0) {
 	eventlog(eventlog_level_debug,__FUNCTION__,"[%d] account not created (disabled)",conn_get_socket(c));
 	bn_int_set(&rpacket->u.server_createaccount_w3.result,SERVER_CREATEACCOUNT_W3_RESULT_EXIST);
 	goto out;
