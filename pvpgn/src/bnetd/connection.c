@@ -2407,31 +2407,16 @@ extern char const * conn_get_chatcharname(t_connection const * c, t_connection c
     if (!accname)
         return NULL;
     
-/* Edited to make channel icon display correctly for d2 clients
-    if (dst)
-        clienttag = conn_get_clienttag(dst);
-    else
-        clienttag = NULL;
-    
-    if (clienttag && ((strcmp(clienttag, CLIENTTAG_DIABLO2DV) == 0) || (strcmp(clienttag, CLIENTTAG_DIABLO2XP) == 0)))
- *  I'm not sure if this breaks anything else, so I left the original code [Omega] */    
-    
-    if ((clienttag = c->clienttag) && ((strcmp(clienttag, CLIENTTAG_DIABLO2DV) == 0) || (strcmp(clienttag, CLIENTTAG_DIABLO2XP) == 0)))
-    {   
-        if (c->charname)
-        {
-            if ((chatcharname = malloc(strlen(c->charname) + strlen(accname) + 2)))
-        	sprintf(chatcharname, "%s*%s", c->charname, accname);
-        }
-        else
-        {
-            if ((chatcharname = malloc(strlen(accname) + 2)))
-        	sprintf(chatcharname, "*%s", accname);
-        }
-    }
-    else
-        chatcharname = strdup(accname);
-    
+    if (dst && dst->charname)
+    {
+	const char *mychar;
+
+	if (c->charname) mychar = c->charname;
+	else mychar = "";
+    	if ((chatcharname = malloc(strlen(accname) + 2 + strlen(mychar))))
+    	    sprintf(chatcharname, "%s*%s", mychar, accname);
+    } else chatcharname = strdup(accname);
+
     account_unget_name(accname);
     return chatcharname;
 }
@@ -2452,6 +2437,15 @@ extern int conn_unget_chatcharname(t_connection const * c, char const * name)
     
     free((void *)name); /* avoid warning */
     return 0;
+}
+
+
+extern t_message_class conn_get_message_class(t_connection const * c, t_connection const * dst)
+{
+    if (dst && dst->charname) /* message to D2 user must be char*account */
+	return message_class_charjoin;
+
+    return message_class_normal;
 }
 
 

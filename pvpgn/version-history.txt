@@ -41,6 +41,7 @@ codes)
   -- rewritten some of the d2cs/d2dbs configuration codes to be more clean and 
   portable (now pvpgn compiles fine on 64 bit archs)
   -- fixed an error with opened directory handles not being closed
+  -- fixed chat names showen to other clients while in the same channel
 
 [PREFS]
   -- fixed handling of comments (previously it skipped the whole line no 

@@ -55,14 +55,19 @@ typedef enum
     message_type_null
 } t_message_type;
 
+typedef enum {
+    message_class_normal,
+    message_class_charjoin,	/* use char*account (if account isnt d2 char is "") */
+} t_message_class;
 
 typedef struct message
 #ifdef MESSAGE_INTERNAL_ACCESS
 {
     unsigned int   num_cached;
     t_packet * *   packets;    /* cached messages */
-    t_conn_class * classes;    /* classes of caches messages */
+    t_conn_class * classes;    /* classes of cached message connections */
     unsigned int * dstflags;   /* overlaid flags of cached messages */
+    t_message_class * mclasses; /* classes of cached messages */
     /* ---- */
     t_message_type type;       /* format of message */
     t_connection * src;        /* originator message */

@@ -73,7 +73,7 @@
 static int message_telnet_format(t_packet * packet, t_message_type type, t_connection * me, t_connection * dst, char const * text, unsigned int dstflags);
 static int message_bot_format(t_packet * packet, t_message_type type, t_connection * me, t_connection * dst, char const * text, unsigned int dstflags);
 static int message_bnet_format(t_packet * packet, t_message_type type, t_connection * me, t_connection * dst, char const * text, unsigned int dstflags);
-static t_packet * message_cache_lookup(t_message * message, t_conn_class class, unsigned int flags);
+static t_packet * message_cache_lookup(t_message * message, t_connection *dst, unsigned int flags);
 
 static char const * message_type_get_str(t_message_type type)
 {
@@ -1221,7 +1221,7 @@ static int message_bnet_format(t_packet * packet, t_message_type type, t_connect
 	{
 	    char const * tname;
 	    
-	    tname = conn_get_chatcharname(me, me); /* FIXME: second should be dst but cache gets in the way */
+	    tname = conn_get_chatcharname(me, dst); /* FIXME: second should be dst but cache gets in the way */
 	    packet_append_string(packet,tname);
 	    conn_unget_chatcharname(me,tname);
 	    packet_append_string(packet,text);
@@ -1454,6 +1454,7 @@ extern t_message * message_create(t_message_type type, t_connection * src, t_con
     message->packets    = NULL;
     message->classes    = NULL;
     message->dstflags   = NULL;
+    message->mclasses	= NULL;
     message->type       = type;
     message->src        = src;
     message->dst        = dst;
@@ -1482,16 +1483,20 @@ extern int message_destroy(t_message * message)
 	free(message->classes);
     if (message->dstflags)
 	free(message->dstflags);
+    if (message->mclasses)
+	free(message->mclasses);
     free(message);
     
     return 0;
 }
 
 
-static t_packet * message_cache_lookup(t_message * message, t_conn_class class, unsigned int dstflags)
+static t_packet * message_cache_lookup(t_message * message, t_connection *dst, unsigned int dstflags)
 {
     unsigned int i;
     t_packet * packet;
+    t_message_class mclass;
+    t_conn_class class;
     
     if (!message)
     {
@@ -1499,14 +1504,18 @@ static t_packet * message_cache_lookup(t_message * message, t_conn_class class, 
 	return NULL;
     }
     
+    class = conn_get_class(dst);
+    mclass = conn_get_message_class(message->src, dst);
     for (i=0; i<message->num_cached; i++)
-        if (message->classes[i]==class && message->dstflags[i]==dstflags)
+        if (message->classes[i]==class && message->dstflags[i]==dstflags 
+	    && message->mclasses[i]==mclass)
 	    return message->packets[i];
     
     {
 	t_packet * *   temp_packets;
 	t_conn_class * temp_classes;
 	unsigned int * temp_dstflags;
+	t_message_class *temp_mclasses;
 	
 	if (!message->packets)
 	    temp_packets = malloc(sizeof(t_packet *)*(message->num_cached+1));
@@ -1538,9 +1547,20 @@ static t_packet * message_cache_lookup(t_message * message, t_conn_class class, 
 	    return NULL;
 	}
 	
+	if (!message->mclasses)
+	    temp_mclasses = malloc(sizeof(t_message_class)*(message->num_cached+1));
+	else
+	    temp_mclasses = realloc(message->mclasses,sizeof(t_message_class)*(message->num_cached+1));
+	if (!temp_mclasses)
+	{
+	    eventlog(eventlog_level_error,"message_cache_lookup","unable to allocate memory for mclasses");
+	    return NULL;
+	}
+	
 	message->packets = temp_packets;
 	message->classes = temp_classes;
 	message->dstflags = temp_dstflags;
+	message->mclasses = temp_mclasses;
     }
     
     switch (class)
@@ -1575,7 +1595,7 @@ static t_packet * message_cache_lookup(t_message * message, t_conn_class class, 
 	    eventlog(eventlog_level_error,"message_cache_lookup","could not create packet");
 	    return NULL;
 	}
-	if (message_bnet_format(packet,message->type,message->src,message->dst,message->text,dstflags)<0)
+	if (message_bnet_format(packet,message->type,message->src,dst,message->text,dstflags)<0)
 	{
 	    packet_del_ref(packet);
 	    packet = NULL; /* we can cache the NULL too */
@@ -1603,6 +1623,7 @@ static t_packet * message_cache_lookup(t_message * message, t_conn_class class, 
     message->packets[i] = packet;
     message->classes[i] = class;
     message->dstflags[i] = dstflags;
+    message->mclasses[i] = mclass;
     
     return packet;
 }
@@ -1638,7 +1659,7 @@ extern int message_send(t_message * message, t_connection * dst)
 	    conn_unget_chatname(message->src,tname);
     }
     
-    if (!(packet = message_cache_lookup(message,conn_get_class(dst),dstflags)))
+    if (!(packet = message_cache_lookup(message,dst,dstflags)))
 	return -1;
 
     /* FIXME: this is not needed now, message has dst */

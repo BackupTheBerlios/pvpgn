@@ -215,6 +215,7 @@ t_connection;
 #include "versioncheck.h"
 #include "timer.h"
 #include "anongame.h"
+#include "message.h"
 #undef JUST_NEED_TYPES
 
 extern t_anongame * conn_create_anongame(t_connection * c);
@@ -324,6 +325,7 @@ extern char const * conn_get_chatname(t_connection const * c);
 extern int conn_unget_chatname(t_connection const * c, char const * name);
 extern char const * conn_get_chatcharname(t_connection const * c, t_connection const * dst);
 extern int conn_unget_chatcharname(t_connection const * c, char const * name);
+extern t_message_class conn_get_message_class(t_connection const * c, t_connection const * dst);
 extern unsigned int conn_get_userid(t_connection const * c);
 extern char const * conn_get_playerinfo(t_connection const * c);
 extern int conn_set_playerinfo(t_connection const * c, char const * playerinfo);
