@@ -120,10 +120,10 @@ extern t_channel * channel_create(char const * fullname, char const * shortname,
 	      eventlog(eventlog_level_error,"channel_create","could not create duplicate permanent channel (fullname \"%s\")",fullname);
 	      return NULL;
 	    }
-	    else if (((channel->flags & channel_flags_allowbots)!=botflag) || 
-		     ((channel->flags & channel_flags_allowopers)!=operflag) || 
+	    else if (((channel->flags & channel_flags_allowbots)!=(botflag?channel_flags_allowbots:0)) || 
+		     ((channel->flags & channel_flags_allowopers)!=(operflag?channel_flags_allowopers:0)) || 
 		     (channel->maxmembers!=maxmembers) || 
-		     ((channel->flags & channel_flags_moderated)!=moderated) ||
+		     ((channel->flags & channel_flags_moderated)!=(moderated?channel_flags_moderated:0)) ||
 		     (channel->logname && logflag==0) || (!(channel->logname) && logflag ==1))
 	    {
 		eventlog(eventlog_level_error,__FUNCTION__,"channel parameters do not match for \"%s\" and \"%s\"",fullname,channel->name);
