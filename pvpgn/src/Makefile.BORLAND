@@ -174,7 +174,6 @@ bnetd_OBJECTS       = \
     ${SRC_BNETDDIR}\anongame_infos.obj \
     ${SRC_BNETDDIR}\storage.obj \
     ${SRC_BNETDDIR}\runprog.obj \
-    ${SRC_BNETDDIR}\game_rule.obj \
     ${SRC_BNETDDIR}\realm.obj \
     ${SRC_BNETDDIR}\character.obj \
     ${SRC_BNETDDIR}\udptest_send.obj \

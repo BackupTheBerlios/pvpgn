@@ -129,7 +129,6 @@ ${SRC_BNETDDIR}/sql_dbcreator.o \
 ${SRC_BNETDDIR}/sql_pgsql.o \
 ${SRC_BNETDDIR}/sql_mysql.o \
 ${SRC_BNETDDIR}/runprog.o \
-${SRC_BNETDDIR}/game_rule.o \
 ${SRC_BNETDDIR}/realm.o \
 ${SRC_BNETDDIR}/character.o \
 ${SRC_BNETDDIR}/udptest_send.o \
