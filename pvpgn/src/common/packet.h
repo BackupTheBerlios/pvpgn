@@ -183,7 +183,9 @@ typedef struct
         t_server_regsnoopreq        server_regsnoopreq;
         t_client_regsnoopreply      client_regsnoopreply;
         t_client_realmlistreq       client_realmlistreq;
+        t_client_realmlistreq_110   client_realmlistreq_110;
         t_server_realmlistreply     server_realmlistreply;
+        t_server_realmlistreply_110 server_realmlistreply_110;
         t_client_realmjoinreq       client_realmjoinreq;
         t_server_realmjoinreply     server_realmjoinreply;
         t_client_realmjoinreq_109   client_realmjoinreq_109;
@@ -316,6 +318,7 @@ typedef struct
         t_d2cs_d2gs_authreq             d2cs_d2gs_authreq;
         t_d2gs_d2cs_authreply           d2gs_d2cs_authreply;
         t_d2cs_d2gs_authreply           d2cs_d2gs_authreply;
+	t_d2cs_d2gs_setinitinfo         d2cs_d2gs_setinitinfo;
 	t_d2cs_d2gs_setgsinfo           d2cs_d2gs_setgsinfo;
         t_d2gs_d2cs_setgsinfo           d2gs_d2cs_setgsinfo;
         t_d2cs_d2gs_creategamereq       d2cs_d2gs_creategamereq;
@@ -354,6 +357,8 @@ typedef struct
         t_client_d2cs_charladderreq     client_d2cs_charladderreq;
         t_client_d2cs_charlistreq       client_d2cs_charlistreq;
         t_d2cs_client_charlistreply     d2cs_client_charlistreply;
+        t_client_d2cs_charlistreq_110   client_d2cs_charlistreq_110;
+        t_d2cs_client_charlistreply_110 d2cs_client_charlistreply_110;
         t_client_d2cs_convertcharreq    client_d2cs_convertcharreq;
         t_d2cs_client_convertcharreply  d2cs_client_convertcharreply;
 		// 5/14/02 - THEUNDYING - USED FOR THE FRIENDS LIST

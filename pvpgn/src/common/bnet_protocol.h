@@ -1458,6 +1458,19 @@ typedef struct
 
 /******************************************************/
 /*
+0000:   FF 40 04 00                                          .@..            
+
+*/
+#define CLIENT_REALMLISTREQ_110 0x40ff
+typedef struct
+{
+    t_bnet_header h;
+} t_client_realmlistreq_110 PACKED_ATTR();
+/******************************************************/
+
+
+/******************************************************/
+/*
 FF 34 5E 00 00 00 00 00   01 00 00 00 00 00 00 C0    .4^.............
 00 00 00 00 00 00 00 00   00 00 00 00 10 82 01 00    ................
 FF FF FF FF 00 00 00 00   42 65 74 61 57 65 73 74    ........BetaWest
@@ -1515,9 +1528,35 @@ typedef struct
 #define SERVER_REALMLISTREPLY_DATA_UNKNOWN7 0x00018210 /* 98832 or 1;33296 */
 #define SERVER_REALMLISTREPLY_DATA_UNKNOWN8 0xffffffff
 #define SERVER_REALMLISTREPLY_DATA_UNKNOWN9 0x00000000
+/******************************************************/
+
 
 
 /******************************************************/
+/*
+# 44 packet from server: type=0x40ff(unknown) length=40 class=bnet
+0000:   FF 40 28 00 00 00 00 00   01 00 00 00 01 00 00 00    .@(.............
+0010:   45 75 72 6F 70 65 00 52   65 61 6C 6D 20 66 6F 72    Europe.Realm for
+0020:   20 45 75 72 6F 70 65 00                               Europe.        
+*/
+#define SERVER_REALMLISTREPLY_110 0x40ff
+
+typedef struct
+{
+    t_bnet_header h;
+    bn_int        unknown1;
+    bn_int        count;
+    /* realm entries */
+} t_server_realmlistreply_110 PACKED_ATTR();
+#define SERVER_REALMLISTREPLY_110_UNKNOWN1 0x00000000
+
+typedef struct
+{
+    bn_int unknown1;
+    /* realm name */
+    /* realm description */
+} t_server_realmlistreply_110_data PACKED_ATTR();
+#define SERVER_REALMLISTREPLY_110_DATA_UNKNOWN1 0x00000001
 
 
 /******************************************************/

@@ -158,6 +158,7 @@ static int _client_atacceptinvite(t_connection * c, t_packet const * const packe
 static int _client_atacceptdeclineinvite(t_connection * c, t_packet const * const packet);
 static int _client_motdw3(t_connection * c, t_packet const * const packet);
 static int _client_realmlistreq(t_connection * c, t_packet const * const packet);
+static int _client_realmlistreq110(t_connection * c, t_packet const * const packet);
 static int _client_realmjoinreq(t_connection * c, t_packet const * const packet);
 static int _client_realmjoinreq109(t_connection * c, t_packet const * const packet);
 static int _client_unknown39(t_connection * c, t_packet const * const packet);
@@ -253,6 +254,7 @@ static const t_htable_row bnet_htable_log [] = {
      { CLIENT_FILEINFOREQ,      _client_fileinforeq},
      { CLIENT_MOTD_W3,          _client_motdw3},
      { CLIENT_REALMLISTREQ,     _client_realmlistreq},
+     { CLIENT_REALMLISTREQ_110, _client_realmlistreq110},
      { CLIENT_REALMJOINREQ,     _client_realmjoinreq},
      { CLIENT_REALMJOINREQ_109, _client_realmjoinreq109},
      { CLIENT_UNKNOWN_37,       _client_charlistreq},
@@ -2982,7 +2984,7 @@ static int _client_motdw3(t_connection * c, t_packet const * const packet)
     
     return 0;
 }
-  
+
 static int _client_realmlistreq(t_connection * c, t_packet const * const packet)
 {
    t_packet * rpacket;
@@ -3021,6 +3023,45 @@ static int _client_realmlistreq(t_connection * c, t_packet const * const packet)
 	     count++;
 	  }
 	bn_int_set(&rpacket->u.server_realmlistreply.count,count);
+	conn_push_outqueue(c,rpacket);
+	packet_del_ref(rpacket);
+     }
+   
+   return 0;
+}
+  
+static int _client_realmlistreq110(t_connection * c, t_packet const * const packet)
+{
+   t_packet * rpacket;
+
+   if (packet_get_size(packet)<sizeof(t_client_realmlistreq_110)) {
+      eventlog(eventlog_level_error,__FUNCTION__,"[%d] got bad REALMLISTREQ_110 packet (expected %u bytes, got %u)",conn_get_socket(c),sizeof(t_client_realmlistreq),packet_get_size(packet));
+      return -1;
+   }
+   
+   if ((rpacket = packet_create(packet_class_bnet)))
+     {
+	t_elem const *               curr;
+	t_realm const *              realm;
+	t_server_realmlistreply_110_data realmdata;
+	unsigned int                 count;
+	
+	packet_set_size(rpacket,sizeof(t_server_realmlistreply_110));
+	packet_set_type(rpacket,SERVER_REALMLISTREPLY_110);
+	bn_int_set(&rpacket->u.server_realmlistreply_110.unknown1,SERVER_REALMLISTREPLY_110_UNKNOWN1);
+	count = 0;
+	LIST_TRAVERSE_CONST(realmlist(),curr)
+	  {
+	     realm = elem_get_data(curr);
+	     if (!realm_get_active(realm))
+	       continue;
+	     bn_int_set(&realmdata.unknown1,SERVER_REALMLISTREPLY_110_DATA_UNKNOWN1);
+	     packet_append_data(rpacket,&realmdata,sizeof(realmdata));
+	     packet_append_string(rpacket,realm_get_name(realm));
+	     packet_append_string(rpacket,realm_get_description(realm));
+	     count++;
+	  }
+	bn_int_set(&rpacket->u.server_realmlistreply_110.count,count);
 	conn_push_outqueue(c,rpacket);
 	packet_del_ref(rpacket);
      }
