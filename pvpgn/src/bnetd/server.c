@@ -535,7 +535,7 @@ static int sd_tcpinput(t_connection * c)
     int		 csocket = conn_get_socket(c);
     
     currsize = conn_get_in_size(c);
-    
+
     if (!*conn_get_in_queue(c))
     {
 	switch (conn_get_class(c))
@@ -562,10 +562,22 @@ static int sd_tcpinput(t_connection * c)
 	    }
 	    break;
 	case conn_class_file:
-	    if (!(packet = packet_create(packet_class_file)))
-	    {
-		eventlog(eventlog_level_error,"sd_tcpinput","could not allocate file packet for input");
-		return -1;
+	    switch(conn_get_state(c)) {
+		case conn_state_pending_raw:
+		    if (!(packet = packet_create(packet_class_raw)))
+		    {
+			eventlog(eventlog_level_error,"sd_tcpinput","could not allocate raw packet for input");
+			return -1;
+		    }
+		    packet_set_size(packet, sizeof(t_client_war3113_file_req));
+		    break;
+		default:
+		    if (!(packet = packet_create(packet_class_file)))
+		    {
+			eventlog(eventlog_level_error,"sd_tcpinput","could not allocate file packet for input");
+			return -1;
+		    }
+		    break;
 	    }
 	    break;
 	case conn_class_bits:

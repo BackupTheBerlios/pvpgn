@@ -345,6 +345,8 @@ extern char const * conn_state_get_str(t_conn_state state)
 	return "bits_auth";
     case conn_state_untrusted:
 	return "untrusted";
+    case conn_state_pending_raw:
+	return "pending_raw";
     default:
 	return "UNKNOWN";
     }

@@ -113,7 +113,8 @@ typedef enum
     conn_state_bot_username,
     conn_state_bot_password,
     conn_state_bits_auth,
-    conn_state_untrusted
+    conn_state_untrusted,
+    conn_state_pending_raw
 } t_conn_state;
 
 typedef struct connection

@@ -89,48 +89,49 @@ extern int handle_file_packet(t_connection * c, t_packet const * const packet)
 	}
 	break;
 
-	/* ADDED BY UNDYING SOULZZ 4/3/02 */
 	case CLIENT_WAR3113_FILE_REQ1:
 	{
 	    t_packet * rpacket = NULL;
-	    eventlog(eventlog_level_info,"handle_file_packet","[%d] packet processed", conn_get_socket(c) );
 	    if((rpacket = packet_create(packet_class_raw))) {
 		    packet_set_size(rpacket,sizeof(t_server_file_unknown1));
-		    bn_short_set( &rpacket->u.server_file_unknown1.unknown1, 0x84e7 );
-		    bn_short_set( &rpacket->u.server_file_unknown1.unknown2, 0x41b4 );
+		    bn_short_set( &rpacket->u.server_file_unknown1.unknown1, 0xdead );
+		    bn_short_set( &rpacket->u.server_file_unknown1.unknown2, 0xbeef );
 		    conn_push_outqueue(c, rpacket );
 		    packet_del_ref( rpacket );
 	    }
-	    if((rpacket = packet_create(packet_class_raw))) {
-		    packet_set_size(rpacket,sizeof(t_client_war3113_file_req));
-		    conn_push_inqueue( c, rpacket );
-		    packet_del_ref( rpacket );
-	    }
+	    conn_set_state(c, conn_state_pending_raw);
+	    break;
 	}
-	break;
 
-	/* ADDED BY UNDYING SOULZZ 4/3/02 */
-	case CLIENT_WAR3113_FILE_REQ2:
-	{
-	    char rawname[MAX_FILENAME_STR];
-	    
-	    eventlog( eventlog_level_info,"handle_file_packet","[%d] new file case",conn_get_socket(c));
-	    psock_recv( conn_get_socket(c), rawname, MAX_FILENAME_STR, 0 );
-	
-	    file_send(c, rawname, 0, 0, 0, 1);
-	}
-	break;	
-	
 	default:
 	    eventlog(eventlog_level_error,"handle_file_packet","[%d] unknown file packet type 0x%04x, len %u",conn_get_socket(c),packet_get_type(packet),packet_get_size(packet));
 	    
 	    break;
 	}
 	break;
-	
+
+    case conn_state_pending_raw:
+	switch (packet_get_type(packet))
+	{
+	    case CLIENT_WAR3113_FILE_REQ2:
+	    {
+		char rawname[MAX_FILENAME_STR];
+
+		psock_recv( conn_get_socket(c), rawname, MAX_FILENAME_STR, 0 );
+		file_send(c, rawname, 0, 0, 0, 1);
+	    }
+	    break;	
+
+	    default:
+		eventlog(eventlog_level_error, __FUNCTION__, "[%d] unknown file packet type 0x%04x, len %u",conn_get_socket(c),packet_get_type(packet),packet_get_size(packet));
+
+	    break;
+	}
+	break;
+
     default:
 	eventlog(eventlog_level_error,"handle_file_packet","[%d] unknown file connection state %d",conn_get_socket(c),(int)conn_get_state(c));
     }
-    
+
     return 0;
 }
