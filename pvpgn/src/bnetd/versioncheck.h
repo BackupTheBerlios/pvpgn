@@ -20,6 +20,7 @@
 #ifndef INCLUDED_VERSIONCHECK_TYPES
 #define INCLUDED_VERSIONCHECK_TYPES
 
+#ifdef VERSIONCHECK_INTERNAL_ACCESS
 typedef struct
 {
     char const *  eqn;
@@ -32,8 +33,17 @@ typedef struct
     unsigned long gameversion;
     unsigned long checksum;
 } t_versioninfo;
+#endif
 
-typedef t_versioninfo t_versioncheck;
+typedef struct s_versioncheck
+#ifdef VERSIONCHECK_INTERNAL_ACCESS
+{
+    char const * eqn;
+    char const * mpqfile;
+    char *	 versiontag;
+}
+#endif
+t_versioncheck;
 
 #endif
 
@@ -46,16 +56,12 @@ extern int versioncheck_destroy(t_versioncheck * vc);
 extern char const * versioncheck_get_mpqfile(t_versioncheck const * vc);
 extern char const * versioncheck_get_eqn(t_versioncheck const * vc);
 extern int versioncheck_validate(t_versioncheck * vc, char const * archtag, char const * clienttag, char const * exeinfo, unsigned long versionid, unsigned long gameversion, unsigned long checksum, char const * versiontag);
-//extern int versioncheck_revalidate(t_versioncheck *vc, char const ** versiontag);
 
 extern int versioncheck_load(char const * filename);
 extern int versioncheck_unload(void);
 
 extern char const * versioncheck_get_versiontag(t_versioncheck const * vc);
 extern int versioncheck_set_versiontag(t_versioncheck * vc, char const * versiontag);
-//extern char const * versioncheck_get_clienttag(t_versioncheck const * vc);
-//extern int versioncheck_set_clienttag(t_versioncheck * vc, char const * clienttag);
-//extern int versioncheck_set_archtag(t_versioncheck * vc, char const * archtag);
 
 #endif
 #endif

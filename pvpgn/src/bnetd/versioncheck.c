@@ -72,7 +72,7 @@
 
 
 static t_list * versioninfo_head=NULL;
-static t_versioncheck dummyvc={ "A=42 B=42 C=42 4 A=A^S B=B^B C=C^C A=A^S", "IX86ver1.mpq", "None", "None", "NoVC", "None", 0, 0, 0};
+static t_versioncheck dummyvc={ "A=42 B=42 C=42 4 A=A^S B=B^B C=C^C A=A^S", "IX86ver1.mpq", "NoVC" };
 
 static int versioncheck_compare_exeinfo(char const * pattern, char const * match);
 
@@ -115,15 +115,8 @@ extern t_versioncheck * versioncheck_create(char const * archtag, char const * c
 	    free(vc);
 	    return &dummyvc;
 	}
-	
 	vc->versiontag = strdup(clienttag);
 	
-	vc->archtag	= strdup(archtag);
-	vc->clienttag	= strdup(clienttag);
-	vc->exeinfo	= NULL;
-	vc->versionid	= 0;
-	vc->gameversion	= 0;
-	vc->checksum	= 0;
 	return vc;
     }
     
@@ -150,9 +143,6 @@ extern int versioncheck_destroy(t_versioncheck * vc)
     free((void *)vc->versiontag);
     free((void *)vc->mpqfile);
     free((void *)vc->eqn);
-    if (vc->archtag) free((void *)vc->archtag);
-    if (vc->clienttag) free((void *)vc->clienttag);
-    if (vc->exeinfo) free((void *)vc->exeinfo);
     free(vc);
     
     return 0;
@@ -184,50 +174,6 @@ extern char const * versioncheck_get_versiontag(t_versioncheck const * vc)
     
     return vc->versiontag;
 }
-/*
-extern int versioncheck_set_archtag(t_versioncheck * vc, char const * archtag)
-{
-    if (!vc) {
-	eventlog(eventlog_level_error,__FUNCTION__,"got NULL vc");
-	return -1;
-    }
-    if (!archtag) {
-	eventlog(eventlog_level_error,__FUNCTION__,"got NULL versiontag");
-	return -1;
-    }
-    
-    if (vc->archtag!=NULL) free((void *)vc->archtag);
-    vc->archtag = strdup(archtag);
-    return 0;
-}
-
-extern int versioncheck_set_clienttag(t_versioncheck * vc, char const * clienttag)
-{
-    if (!vc) {
-	eventlog(eventlog_level_error,__FUNCTION__,"got NULL vc");
-	return -1;
-    }
-    if (!clienttag) {
-	eventlog(eventlog_level_error,__FUNCTION__,"got NULL versiontag");
-	return -1;
-    }
-    
-    if (vc->clienttag!=NULL) free((void *)vc->clienttag);
-    vc->clienttag = strdup(clienttag);
-    return 0;
-}
-
-
-extern char const * versioncheck_get_clienttag(t_versioncheck const * vc)
-{
-    if (!vc) {
-	eventlog(eventlog_level_error,__FUNCTION__,"got NULL vc");
-	return NULL;
-    }
-    
-    return vc->clienttag;
-}
-*/
 
 
 extern char const * versioncheck_get_mpqfile(t_versioncheck const * vc)
@@ -379,7 +325,7 @@ extern int versioncheck_validate(t_versioncheck * vc, char const * archtag, char
 	    eventlog(eventlog_level_error,"versioncheck_validate","version list contains NULL item");
 	    continue;
         }
-
+	
 	if (strcmp(vi->eqn,vc->eqn)!=0)
 	    continue;
 	if (strcmp(vi->mpqfile,vc->mpqfile)!=0)
@@ -447,13 +393,6 @@ extern int versioncheck_validate(t_versioncheck * vc, char const * archtag, char
     eventlog(eventlog_level_info,"versioncheck_validate","no match in list, setting to: %s",vc->versiontag);
     return 0;
 }
-
-/*
-extern int versioncheck_revalidate(t_versioncheck *vc, char const ** versiontag)
-{
-    return versioncheck_validate(vc, vc->archtag, vc->clienttag, vc->exeinfo, vc->versionid, vc->gameversion, vc->checksum, versiontag);
-}
-*/
 
 extern int versioncheck_load(char const * filename)
 {
