@@ -310,6 +310,8 @@ extern int handle_bot_packet(t_connection * c, t_packet const * const packet)
 			eventlog(eventlog_level_info,"handle_bot_packet","[%d] bot login for \"%s\" refused (unable to hash password)",conn_get_socket(c),(tname = account_get_name(account)));
 			account_unget_name(tname);
 			conn_set_state(c,conn_state_bot_username);
+
+			free((void *)testpass);
 			
 			if (!(rpacket = packet_create(packet_class_raw)))
 			{
@@ -322,6 +324,7 @@ extern int handle_bot_packet(t_connection * c, t_packet const * const packet)
 			packet_del_ref(rpacket);
 			break;
 		    }
+		    free((void *)testpass);
 		    if (hash_eq(trypasshash1,oldpasshash1)!=1)
 		    {
 			eventlog(eventlog_level_info,"handle_bot_packet","[%d] bot login for \"%s\" refused (wrong password)",conn_get_socket(c),(tname = account_get_name(account)));
