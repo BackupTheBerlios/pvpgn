@@ -488,11 +488,15 @@ clean:
     -${RMF} ${SRC_COMMONDIR}\*.obj
     -${RMF} ${SRC_WIN32DIR}\*.obj    
     -${RMF} ${SRC_BNETDDIR}\*.obj
+    -${RMF} ${SRC_CDBDIR}\*.obj
+    -${RMF} ${SRC_ZLIBDIR}\*.obj
     -${RMF} ${SRC_BNETDDIR}\*.res
     -${RMF} ${SRC_COMPATDIR}\*.bnetg_obj
     -${RMF} ${SRC_COMMONDIR}\*.bnetg_obj
     -${RMF} ${SRC_WIN32DIR}\*.bnetg_obj  
     -${RMF} ${SRC_BNETDDIR}\*.bnetg_obj
+    -${RMF} ${SRC_CDBDIR}\*.bnetg_obj
+    -${RMF} ${SRC_ZLIBDIR}\*.bnetg_obj
     -${RMFALL} ${SRC_BINDIR}\*.*
     -${RMFALL} ${SRC_SBINDIR}\*.*
     -${RMDIR} ${SRC_BINDIR}
