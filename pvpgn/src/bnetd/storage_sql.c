@@ -678,17 +678,19 @@ static t_storage_info * sql_get_defacct(void)
 static const char * sql_escape_key(const char *key)
 {
     const char *newkey = key;
+    char *p;
+    int idx;
 
-    if (strchr(key, '\\') || strchr(key, ' ') || strchr(key, '-')) {
-	char *p;
-
-	if ((newkey = strdup(key)) == NULL) {
-	    eventlog(eventlog_level_error, __FUNCTION__, "not enough memory for escaped key");
-	    return key;
+    for(idx = 0, p = (char *)newkey; *p; p++, idx++)
+	if ((*p < '0' || *p > '9') && (*p < 'a' || *p > 'z') && (*p < 'A' || *p > 'Z')) {
+	    if ((newkey = strdup(key)) == NULL) {
+		eventlog(eventlog_level_error, __FUNCTION__, "not enough memory for escaped key");
+		return key;
+	    }
+	    for(p = (char *)(newkey + idx); *p; p++)
+		if ((*p < '0' || *p > '9') && (*p < 'a' || *p > 'z') && (*p < 'A' || *p > 'Z'))
+		    *p = '_';
 	}
-	for(p = (char *)newkey; *p; p++)
-	    if (*p == '\\' || *p == '-' || *p == ' ') *p = '_';
-    }
 
     return newkey;
 }
