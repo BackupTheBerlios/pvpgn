@@ -938,28 +938,7 @@ extern t_clan *clanmember_get_clan(t_clanmember * member)
 
 extern const char *clanmember_get_online_status(t_clanmember * member, char *status)
 {
-    if (member->memberconn)
-    {
-	t_game *game;
-	t_channel *channel;
-	if ((game = conn_get_game(member->memberconn)) != NULL)
-	{
-	    if (game_get_flag_private(game))
-		(*status) = SERVER_W3XP_CLAN_MEMBER_PRIVATE_GAME;
-	    else
-		(*status) = SERVER_W3XP_CLAN_MEMBER_GAME;
-	    return game_get_name(game);
-	}
-	if ((channel = conn_get_channel(member->memberconn)) != NULL)
-	{
-	    (*status) = SERVER_W3XP_CLAN_MEMBER_CHANNEL;
-	    return channel_get_name(channel);
-	}
-
-	(*status) = SERVER_W3XP_CLAN_MEMBER_ONLINE;
-    } else
-	(*status) = SERVER_W3XP_CLAN_MEMBER_OFFLINE;
-    return NULL;
+	return clanmember_get_online_status_by_connection(member->memberconn, status);
 }
 
 extern const char *clanmember_get_online_status_by_connection(t_connection * conn, char *status)
