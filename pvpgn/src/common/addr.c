@@ -567,13 +567,7 @@ extern int addrlist_append(t_addrlist * addrlist, char const * str, unsigned int
 	    xfree(tstr);
 	    return -1;
 	}
-	if (list_append_data(addrlist,addr)<0)
-	{
-	    eventlog(eventlog_level_error,__FUNCTION__,"could not add item to list");
-	    addr_destroy(addr);
-	    xfree(tstr);
-	    return -1;
-	}
+	list_append_data(addrlist,addr);
     }
     
     xfree(tstr);

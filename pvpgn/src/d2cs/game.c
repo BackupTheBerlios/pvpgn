@@ -208,15 +208,7 @@ extern t_game * d2cs_game_create(char const * gamename, char const * gamepass, c
 	game->d2gs=NULL;
 	game->maxchar=MAX_CHAR_PER_GAME;
 	game->currchar=0;
-	if (list_prepend_data(gamelist_head,game)<0) {
-		eventlog(eventlog_level_error,__FUNCTION__,"error prepend game to game list");
-		list_destroy(game->charlist);
-		xfree((void *)game->desc);
-		xfree((void *)game->pass);
-		xfree((void *)game->name);
-		xfree(game);
-		return NULL;
-	}
+	list_prepend_data(gamelist_head,game);
 	total_game++;
 	eventlog(eventlog_level_info,__FUNCTION__,"game %s pass=%s desc=%s gameflag=0x%08X created (%d total)",gamename,gamepass,
 		gamedesc,gameflag,total_game);
@@ -296,11 +288,7 @@ extern int game_add_character(t_game * game, char const * charname, unsigned cha
 	charinfo->charname=xstrdup(charname);
 	charinfo->class=class;
 	charinfo->level=level;
-	if (list_append_data(game->charlist,charinfo)<0) {
-		eventlog(eventlog_level_error,__FUNCTION__,"error add character %s to game %s",charname,game->name);
-		xfree(charinfo);
-		return -1;
-	}
+	list_append_data(game->charlist,charinfo);
 	game->currchar++;
 	game->lastaccess_time=time(NULL);
 	eventlog(eventlog_level_info,__FUNCTION__,"added character %s to game %s (%d total)",charname,game->name,game->currchar);

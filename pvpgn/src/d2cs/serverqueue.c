@@ -117,12 +117,7 @@ extern t_sq * sq_create(unsigned int clientid, t_packet * packet,unsigned int ga
 	sq->packet=packet;
 	sq->gametoken=0;
 	if (packet) packet_add_ref(packet);
-	if (list_append_data(sqlist_head,sq)<0) {
-		eventlog(eventlog_level_error,__FUNCTION__,"error append server queue to list");
-		if (packet) packet_del_ref(packet);
-		xfree(sq);
-		return NULL;
-	}
+	list_append_data(sqlist_head,sq);
 	return sq;
 }
 

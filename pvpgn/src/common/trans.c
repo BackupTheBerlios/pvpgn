@@ -194,13 +194,7 @@ extern int trans_load(char const * filename, int program)
 		addr_get_addr_str(entry->output,tmp2,sizeof(tmp2)),
 		netaddr_get_addr_str(entry->network,tmp3,sizeof(tmp3)));
 #endif
-	    if (list_append_data(trans_head,entry)<0) {
-	        eventlog(eventlog_level_error,__FUNCTION__,"could not append item");
-	        netaddr_destroy(entry->network);
-	        addr_destroy(entry->output);
-	        addr_destroy(entry->input);
-	        xfree(entry);
-	    }
+	    list_append_data(trans_head,entry);
 	    npos++;
 	}
 	xfree(tmp);
@@ -258,13 +252,7 @@ extern int trans_load(char const * filename, int program)
 		addr_get_addr_str(entry->output,tmp2,sizeof(tmp2)),
 		netaddr_get_addr_str(entry->network,tmp3,sizeof(tmp3)));
 #endif
-	    if (list_append_data(trans_head,entry)<0) {
-		eventlog(eventlog_level_error,__FUNCTION__,"could not append item");
-		netaddr_destroy(entry->network);
-		addr_destroy(entry->output);
-		addr_destroy(entry->input);
-		xfree(entry);
-	    }
+	    list_append_data(trans_head,entry);
 	    npos++;
 	}
 	xfree(tmp);
