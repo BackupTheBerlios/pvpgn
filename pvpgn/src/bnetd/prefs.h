@@ -184,5 +184,30 @@ extern char const * prefs_get_command_groups_file(void) PURE_ATTR();
 
 extern char const * prefs_get_aliasfile(void) PURE_ATTR();
 
+/* BlacKDicK 04/02/2003 */
+//URL
+extern char const * prefs_get_matchmaking_server_url(void) PURE_ATTR();
+extern char const * prefs_get_matchmaking_player_url(void) PURE_ATTR();
+extern char const * prefs_get_matchmaking_tourney_url(void) PURE_ATTR();
+
+//LADR
+extern char const * prefs_get_matchmaking_solo_url(void) PURE_ATTR();
+extern char const * prefs_get_matchmaking_solo_url_desc(void) PURE_ATTR();
+
+extern char const * prefs_get_matchmaking_2vs2_url(void) PURE_ATTR();
+extern char const * prefs_get_matchmaking_2vs2_url_desc(void) PURE_ATTR();
+
+extern char const * prefs_get_matchmaking_3vs3_url(void) PURE_ATTR();
+extern char const * prefs_get_matchmaking_3vs3_url_desc(void) PURE_ATTR();
+
+extern char const * prefs_get_matchmaking_4vs4_url(void) PURE_ATTR();
+extern char const * prefs_get_matchmaking_4vs4_url_desc(void) PURE_ATTR();
+
+extern char const * prefs_get_matchmaking_team_url(void) PURE_ATTR();
+extern char const * prefs_get_matchmaking_team_url_desc(void) PURE_ATTR();
+
+extern char const * prefs_get_matchmaking_ffa_url(void) PURE_ATTR();
+extern char const * prefs_get_matchmaking_ffa_url_desc(void) PURE_ATTR();
+
 #endif
 #endif
