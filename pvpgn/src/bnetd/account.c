@@ -1386,6 +1386,7 @@ extern int accounts_rank_all(void)
 		      uid,account_get_ffaxp(account,CLIENTTAG_WARCRAFT3),
 		      account_get_ffalevel(account,CLIENTTAG_WARCRAFT3),
 		      account,0,CLIENTTAG_WARCRAFT3);
+      for (counter=1; counter<=account_get_atteamcount(account,CLIENTTAG_WARCRAFT3);counter++)
       {
 	    if (account_get_atteammembers(account,counter,CLIENTTAG_WARCRAFT3) != NULL)
           war3_ladder_add(at_ladder(CLIENTTAG_WARCRAFT3),
