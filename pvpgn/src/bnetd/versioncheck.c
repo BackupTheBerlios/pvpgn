@@ -115,7 +115,7 @@ extern t_versioncheck * versioncheck_create(char const * archtag, char const * c
 	    free(vc);
 	    return &dummyvc;
 	}
-	vc->versiontag = NULL;
+	vc->versiontag = strdup(clienttag);
 	
 	return vc;
     }
