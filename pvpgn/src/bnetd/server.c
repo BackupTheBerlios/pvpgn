@@ -145,6 +145,7 @@
 #include "common/xalloc.h"
 #include "tournament.h"
 #include <ctype.h>
+#include "topic.h"
 #include "common/setup_after.h"
 
 extern FILE * hexstrm; /* from main.c */
@@ -1394,6 +1395,10 @@ static void _server_mainloop(t_addrlist *laddrs)
 
 	    anongame_infos_unload();
 	    anongame_infos_load(prefs_get_anongame_infos_file());
+
+	    topiclist_unload();
+	    if (topiclist_load(prefs_get_topicfile())<0)
+	    	eventlog(eventlog_level_error,__FUNCTION__,"could not load new topic list");
 	    
 	    eventlog(eventlog_level_info,__FUNCTION__,"done reconfiguring");
 	    
