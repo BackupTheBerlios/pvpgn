@@ -4,6 +4,7 @@ PvPGN Version History:
 
 [D2CS]
   -- made ordering of chars on char-selection screen configurable
+  -- fixed "d2cs not trying to reconnect" issue
 
 [STAR/SEXP/W2BN]:
   -- changed handling of gameresults to be democratic
