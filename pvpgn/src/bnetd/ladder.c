@@ -257,7 +257,8 @@ extern int ladder_update(char const * clienttag, t_ladder_id id, unsigned int co
 	  uid = account_get_uid(players[curr]);
 	  account_adjust_ladder_rating(players[curr],clienttag,id,info[curr].adj);
 	  war3_ladder_update(ladder_cr(clienttag,id),uid,info[curr].adj,0,players[curr],0);
-	  war3_ladder_update(ladder_cg(clienttag,id),uid,1,0,players[curr],0);
+	  if (results[curr]!=game_result_draw)
+	        war3_ladder_update(ladder_cg(clienttag,id),uid,1,0,players[curr],0);
 	  if (results[curr]==game_result_win)
 		war3_ladder_update(ladder_cw(clienttag,id),uid,1,0,players[curr],0);
 	}
