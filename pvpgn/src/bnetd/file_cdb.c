@@ -246,7 +246,8 @@ static int cdb_read_attrs(const char *filename, t_read_attr_func cb, void *data)
 	}
 
 //	eventlog(eventlog_level_trace, __FUNCTION__, "read atribute : '%s' -> '%s'", key, val);
-	cb(key, val, data);
+	if (cb(key, val, data))
+	    eventlog(eventlog_level_error, __FUNCTION__, "got error from callback on account file '%s'", filename);
 	free((void *)key);
     }
 
@@ -302,7 +303,7 @@ static void * cdb_read_attr(const char *filename, const char *key)
     }
 
     cdb_bread(cdbfile, val, vlen);
-	fclose(cdbfile);
+    fclose(cdbfile);
 
     val[vlen] = '\0';
 

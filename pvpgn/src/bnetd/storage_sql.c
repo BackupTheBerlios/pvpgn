@@ -447,7 +447,8 @@ static int sql_read_attrs(t_storage_info * info, t_read_attr_func cb, void *data
 		    continue;	/* its an NULL value sql field */
 
 //              eventlog(eventlog_level_trace, __FUNCTION__, "read key (step2): '%s' val: '%s'", _db_add_tab(*tab, *fentry), unescape_chars(row[i]));
-		cb(_db_add_tab(*tab, *fentry), (output = unescape_chars(row[i])), data);
+		if (cb(_db_add_tab(*tab, *fentry), (output = unescape_chars(row[i])), data))
+		    eventlog(eventlog_level_error, __FUNCTION__, "got error from callback on UID: %u", uid);
 		if (output)
 		    free((void *) output);
 //              eventlog(eventlog_level_trace, __FUNCTION__, "read key (final): '%s' val: '%s'", _db_add_tab(*tab, *fentry), unescape_chars(row[i]));

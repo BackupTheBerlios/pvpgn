@@ -875,14 +875,14 @@ static int _cb_read_accounts2(t_storage_info *info, void *data)
     {
         eventlog(eventlog_level_error, __FUNCTION__,"could not load account from storage");
         storage->free_info(info);
-        return 0;
+        return -1;
     }
-	
+
     if (!accountlist_add_account(account))
     {
         eventlog(eventlog_level_error, __FUNCTION__,"could not add account to list");
         account_destroy(account);
-        return 0;
+        return -1;
     }
 
     /* might as well free up the memory since we probably won't need it */
