@@ -21,6 +21,8 @@ turn reduce CPU usage
 ads configured
 -- fixed userlist in Win32 GUI to update after each user login and not only for 
 -- added ladder_start_time to d2cs.conf
+-- removed the "static" motd part and included this stuff in conf/bnmotd.txt
+-- added docs/bnmotd.txt that explains the usage
 
 War3 users
 

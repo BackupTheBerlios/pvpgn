@@ -453,7 +453,6 @@ extern t_connection * conn_create(int tsock, int usock, unsigned int real_local_
     temp->passfail_count = 0;
 	
     temp->w3_playerinfo = NULL;
-    temp->motd_loggedin = 0;
     temp->joingamewhisper = 0;
     temp->leavegamewhisper = 0;
 
@@ -2165,31 +2164,6 @@ extern int conn_set_channel(t_connection * c, char const * channelname)
 #endif
 	conn_send_welcome(c);
 
-   if(conn_get_motd_loggedin(c)==0)
-     {
-       char msgtemp[255];
-       int clienttaggames = game_get_count_by_clienttag(conn_get_clienttag(c));
-       int clienttagusers = conn_get_user_count_by_clienttag(conn_get_clienttag(c));
-       
-       sprintf(msgtemp,"Welcome to the PvPGN Realm");
-       message_send_text(c,message_type_info,c,msgtemp);
-       sprintf(msgtemp,"This Server is hosted by: %s",prefs_get_contact_name());
-       message_send_text(c,message_type_info,c,msgtemp);
-       sprintf(msgtemp,"There are currently %u users in %u games of %s,",
-	       clienttagusers,
-	       clienttaggames,
-	       conn_get_user_game_title(conn_get_clienttag(c)));
-       message_send_text(c,message_type_info,c,msgtemp);
-       sprintf(msgtemp,"and %u users playing %u games and chatting In %u channels in the PvPGN Realm.",
-	       connlist_login_get_length(),
-	       gamelist_get_length(),
-	       channellist_get_length());
-       message_send_text(c,message_type_info,c,msgtemp);
-       
-       
-       conn_set_motd_loggedin(c);
-     }
-   
     if(c->channel && (channel_get_flags(c->channel) & channel_flags_thevoid))
 	    message_send_text(c,message_type_info,c,"This channel does not have chat privileges.");
     if (clantag && clan && (clan_get_clantag(clan)==clantag))
@@ -3640,26 +3614,6 @@ extern int conn_set_routeconn(t_connection * c, t_connection * rc)
 	c->routeconn = rc;
     
     return 0;
-}
-
-extern int conn_set_motd_loggedin(t_connection * c)
-{
-	if (!c) 
-	{
-		eventlog(eventlog_level_error, "conn_set_motd_loggedin", "got NULL connection");
-		return -1;
-	}
-	c->motd_loggedin = 1;
-	return 0;
-}
-extern int conn_get_motd_loggedin(t_connection * c)
-{
-	if (!c) 
-	{
-		eventlog(eventlog_level_error, "conn_get_motd_loggedin", "got NULL connection");
-		return -1;
-	}
-	return c->motd_loggedin;
 }
 
 extern int conn_get_crtime(t_connection *c)

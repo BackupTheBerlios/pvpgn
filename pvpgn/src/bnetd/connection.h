@@ -187,7 +187,6 @@ typedef struct connection
    int                   udpok;     /* udp packets can be received by client */
    char const *          w3_username; /* filled between 0x53ff and 0x54ff -- NonReal */
    char const * 		  w3_playerinfo; /* ADDED BY UNDYING SOULZZ 4/7/02 */
-   int				  motd_loggedin;
    int				  joingamewhisper;
    int                            leavegamewhisper;
    
@@ -405,8 +404,6 @@ extern t_connection * connlist_find_connection_by_uid(unsigned int uid);
 extern int connlist_get_length(void) ;
 extern unsigned int connlist_login_get_length(void) ;
 extern int connlist_total_logins(void) ;
-extern int conn_set_motd_loggedin(t_connection * c);
-extern int conn_get_motd_loggedin(t_connection * c);
 extern int conn_set_joingamewhisper_ack(t_connection * c, unsigned int value);
 extern int conn_get_joingamewhisper_ack(t_connection * c);
 extern int conn_set_leavegamewhisper_ack(t_connection * c, unsigned int value);

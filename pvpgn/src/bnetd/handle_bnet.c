@@ -2998,9 +2998,6 @@ static int _client_motdw3(t_connection * c, t_packet const * const packet)
     conn_push_outqueue(c,rpacket);
     packet_del_ref(rpacket);
     
-    /* Set welcomed flag so we don't send MOTD with the old format */
-    conn_set_welcomed(c,1);
-    
     return 0;
 }
 

@@ -66,6 +66,7 @@
 #include "command.h"
 #include "irc.h"
 #include "message.h"
+#include "prefs.h"
 #include "common/setup_after.h"
 #include "common/tag.h"
 
@@ -224,6 +225,16 @@ extern char * message_format_line(t_connection const * c, char const * in)
 	    case 'E': /* ERROR */
 		out[0] = 'E';
 		break;
+
+	    case 'G':
+	    	sprintf(&out[outpos],"%d",game_get_count_by_clienttag(conn_get_clienttag(c)));
+		outpos += strlen(&out[outpos]);
+		break;
+		
+	    case 'H':
+		strcpy(&out[outpos],prefs_get_contact_name());
+		outpos += strlen(&out[outpos]);
+		break;
 		
 	    case 'I': /* INFO */
 		out[0] = 'I';
@@ -232,9 +243,19 @@ extern char * message_format_line(t_connection const * c, char const * in)
 	    case 'M': /* MESSAGE */
 		out[0] = 'M';
 		break;
+
+	    case 'N':
+	    	strcpy(&out[outpos],conn_get_user_game_title(conn_get_clienttag(c)));
+		outpos += strlen(&out[outpos]);
+		break;
 		
 	    case 'T': /* EMOTE */
 		out[0] = 'T';
+		break;
+
+	    case 'U':
+	    	sprintf(&out[outpos],"%d",conn_get_user_count_by_clienttag(conn_get_clienttag(c)));
+		outpos += strlen(&out[outpos]);
 		break;
 		
 	    case 'W': /* INFO */

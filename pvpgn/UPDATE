@@ -12,6 +12,10 @@ The path's specified are those of the default unix installation
  Updating from 1.6.0 pre 5 to 1.6.0 beta
 ===========================================
 
+changed config files:
+---------------------
+-- updated bnmotd.txt
+
 changes to d2dbs.conf:
 ----------------------
 -- added: ladder_chars_only = 1
