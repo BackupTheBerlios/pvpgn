@@ -18,7 +18,7 @@
 #
 
 # Process this file with autoconf to produce a configure script.
-AC_INIT(bnetd/handle_bnet.c)
+AC_INIT(d2cs/handle_d2gs.c)
 AC_CONFIG_HEADER(config.h)
 
 AUTOCONF_CONFIG_DIR="autoconf"
