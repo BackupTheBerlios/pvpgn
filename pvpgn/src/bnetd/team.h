@@ -86,8 +86,8 @@ extern int team_get_level(t_team * team);
 extern int team_get_rank(t_team * team);
 extern time_t team_get_lastgame(t_team * team);
 
-extern int team_win(t_team * team);
-extern int team_loss(t_team * team);
+extern int team_inc_wins(t_team * team);
+extern int team_inc_losses(t_team * team);
 
 extern int team_set_saveladderstats(t_team * team, unsigned int gametype, int result, unsigned int opponlevel,t_clienttag clienttag);
 

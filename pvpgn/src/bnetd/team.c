@@ -69,6 +69,7 @@
 #ifdef HAVE_ASSERT_H
 # include <assert.h>
 #endif
+#include "server.h"
 #include "common/setup_after.h"
 
 static t_list *teamlist_head = NULL;
@@ -441,7 +442,7 @@ time_t team_get_lastgame(t_team * team)
     return team->lastgame;
 }
 
-int team_win(t_team * team)
+int team_inc_wins(t_team * team)
 {
   assert(team);
 
@@ -449,11 +450,19 @@ int team_win(t_team * team)
   return 0;
 }
 
-int team_loss(t_team * team)
+int team_inc_losses(t_team * team)
 {
   assert(team);
 
   team->losses++;
+  return 0;
+}
+
+int team_update_lastgame(t_team * team)
+{
+  assert(team);
+
+  team->lastgame = now;
   return 0;
 }
 
@@ -541,14 +550,15 @@ int team_set_saveladderstats(t_team * team, unsigned int gametype, int result, u
   
   if(result == W3_GAMERESULT_WIN)
     {
-      team_win(team);
+      team_inc_wins(team);
     }
   if(result == W3_GAMERESULT_LOSS)
     {
-      team_loss(team);
+      team_inc_losses(team);
     }
   team_update_xp(team, result, opponlevel,&xpdiff);
   team_update_level(team);
+  team_update_lastgame(team);
   level = team_get_level(team);
   /*
   if (war3_ladder_update(at_ladder(clienttag),uid,xpdiff,level,account,0)!=0)
