@@ -1942,6 +1942,15 @@ extern int account_set_demoteadmin( t_account * account )
 	return account_set_strattr( account, "BNET\\auth\\admin", "false" );
 }
 
+extern unsigned int account_get_command_groups(t_account * account)
+{
+    return account_get_numattr(account,"BNET\\auth\\command_groups");
+}
+extern int account_set_command_groups(t_account * account, unsigned int groups)
+{
+    return account_set_numattr(account,"BNET\\auth\\command_groups",groups);
+}
+
 // WAR3 Play Game & Profile Funcs
 
 extern char const * race_get_str(unsigned int race)

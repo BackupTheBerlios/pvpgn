@@ -51,7 +51,9 @@ should be somehow up-to-date now
 -- some ad banner sending order fixes
 -- updated versioncheck and matchmaking file
 -- /watch and /watchall command should work now
-
+-- added command groups for more admin control. Be sure to read the config
+file command_groups.txt for more info. bnetd.conf & bnetd_default_user
+were modified. Make sure to note changes. 
 
 1.2.3:
 -- fixed some crash related bugs

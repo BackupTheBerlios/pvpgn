@@ -188,7 +188,7 @@ static Bconf_t conf_table[] =
     { "account_allowed_symbols",conf_type_char,    PVPGN_DEFAULT_SYMB,   NONE,                  ACT },
 
     { "reload_new_accounts",    conf_type_bool,    NULL,                 0,                     ACT },
-
+    { "command_groups_file",	conf_type_char,    BNETD_COMMAND_GROUPS_FILE,	NONE,		ACT },
     { NULL,             	conf_type_none,    NULL,                 NONE,                  ACT },
 
 };
@@ -1179,4 +1179,9 @@ extern char const * prefs_get_account_allowed_symbols(void)
 extern int prefs_get_reload_new_accounts(void)
 {
 	return get_bool_conf("reload_new_accounts");
+}
+
+extern char const * prefs_get_command_groups_file(void)
+{
+    return get_char_conf("command_groups_file");
 }

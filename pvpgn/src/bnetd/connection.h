@@ -379,6 +379,8 @@ extern int conn_set_motd_loggedin(t_connection * c);
 extern int conn_get_motd_loggedin(t_connection * c);
 extern int conn_set_joingamewhisper_ack(t_connection * c, unsigned int value);
 extern int conn_get_joingamewhisper_ack(t_connection * c);
+extern int conn_set_leavegamewhisper_ack(t_connection * c, unsigned int value);
+extern int conn_get_leavegamewhisper_ack(t_connection * c);
 
 #endif
 #endif

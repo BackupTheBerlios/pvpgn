@@ -83,7 +83,7 @@
 #include "anongame.h"
 //aaron
 #include "war3ladder.h"
-
+#include "command_groups.h"
 #include "common/setup_after.h"
 
 #ifdef WIN32
@@ -453,6 +453,8 @@ int pre_server_startup(void)
 	eventlog(eventlog_level_error,"pre_server_startup","could not load character list");
     if (prefs_get_track()) /* setup the tracking mechanism */
         tracker_set_servers(prefs_get_trackserv_addrs());
+    if (command_groups_load(prefs_get_command_groups_file())<0)
+	eventlog(eventlog_level_error,"pre_server_startup","could not load command_groups list");
     return 0;
 }
 
@@ -461,6 +463,7 @@ void post_server_shutdown(int status)
     switch (status)
     {
 	case 0:
+	    command_groups_unload();
 	    tracker_set_servers(NULL);
 	    characterlist_destroy();
     	    realmlist_destroy();

@@ -241,6 +241,9 @@ extern char const * race_get_str(unsigned int race);
 extern int account_set_admin( t_account * account );
 extern int account_set_demoteadmin( t_account * account );
 
+extern unsigned int account_get_command_groups(t_account * account);
+extern int account_set_command_groups(t_account * account, unsigned int groups);
+
 extern int account_set_w3pgrace( t_account * account, unsigned int race);
 extern int account_get_w3pgrace( t_account * account );
 

@@ -90,6 +90,7 @@
 #include "alias_command.h"
 #include "realm.h"
 #include "ipban.h"
+#include "command_groups.h"
 #ifdef WITH_BITS
 # include "bits.h"
 # include "bits_query.h"
@@ -366,6 +367,7 @@ static int _handle_ipban_command(t_connection * c, char const * text);
 static int _handle_set_command(t_connection * c, char const * text);
 static int _handle_motd_command(t_connection * c, char const * text);
 static int _handle_ping_command(t_connection * c, char const * text);
+static int _handle_commandgroups_command(t_connection * c, char const * text);
 
 static t_command_table_row standard_command_table[] = 
 {
@@ -434,7 +436,7 @@ static t_command_table_row extended_command_table[] =
 	{ "/addacct"            , _handle_addacct_command },
 	{ "/chpass"             , _handle_chpass_command },
 	{ "/connections"        , _handle_connections_command },
-	{ "/conn"               , _handle_connections_command },
+	{ "/con"                , _handle_connections_command },
 	{ "/finger"             , _handle_finger_command },
 	{ "/operator"           , _handle_operator_command },
 	{ "/admins"             , _handle_admins_command },
@@ -469,19 +471,32 @@ static t_command_table_row extended_command_table[] =
 	{ "/latency"            , _handle_ping_command },
 	{ "/ping"               , _handle_ping_command },
 	{ "/p"                  , _handle_ping_command },
+	{ "/commandgroups"	, _handle_commandgroups_command },
+	{ "/cg"			, _handle_commandgroups_command },
         { NULL                  , NULL } 
 
 };
 
 extern int handle_command(t_connection * c,  char const * text)
-{ int res;
-
+{
   t_command_table_row *p;
 
   for (p = standard_command_table; p->command_string != NULL; p++)
     {
       if (strstart(text, p->command_string)==0)
+        {
+	  if (!(command_get_group(p->command_string)))
+	    {
+	      message_send_text(c,message_type_error,c,"This command is has been deactivated");
+	      return 0;
+	    }
+	  if (!((command_get_group(p->command_string) & account_get_command_groups(conn_get_account(c))) == command_get_group(p->command_string)))
+	    {
+	      message_send_text(c,message_type_error,c,"This command is reserved for admins.");
+	      return 0;
+	    }
 	if (p->command_handler != NULL) return ((p->command_handler)(c,text));
+	}
     }
 
        
@@ -495,7 +510,19 @@ extern int handle_command(t_connection * c,  char const * text)
     for (p = extended_command_table; p->command_string != NULL; p++)
       {
       if (strstart(text, p->command_string)==0)
+        {
+	  if (!(command_get_group(p->command_string)))
+	    {
+	      message_send_text(c,message_type_error,c,"This command is has been deactivated");
+	      return 0;
+	    }
+	  if (!((command_get_group(p->command_string) & account_get_command_groups(conn_get_account(c))) == command_get_group(p->command_string)))
+	    {
+	      message_send_text(c,message_type_error,c,"This command is reserved for admins.");
+	      return 0;
+	    }
 	if (p->command_handler != NULL) return ((p->command_handler)(c,text));
+	}
     }
      
     if (strlen(text)>=2 && strncmp(text,"//",2)==0)
@@ -905,6 +932,7 @@ static int _handle_friends_command(t_connection * c, char const * text)
     
     return 0;
   } 
+  return 0;
 }
 
 static int _handle_me_command(t_connection * c, char const * text)
@@ -3749,4 +3777,119 @@ static int _handle_ipban_command(t_connection * c, char const *text)
   
   handle_ipban_command(c,text);
   return 0;
+}
+
+static int _handle_commandgroups_command(t_connection * c, char const * text)
+{
+    t_account *	account;
+    char *	command;
+    char *	username;
+    unsigned int usergroups;	// from user account
+    unsigned int groups = 0;	// converted from arg3
+    char	tempgroups[8];	// converted from usergroups
+    char 	t[MAX_MESSAGE_LEN];
+    char 	msgtemp[MAX_MESSAGE_LEN];
+    unsigned int i,j;
+    char	arg1[256];
+    char	arg2[256];
+    char	arg3[256];
+  
+    strncpy(t, text, MAX_MESSAGE_LEN - 1);
+    for (i=0; t[i]!=' ' && t[i]!='\0'; i++); /* skip command /groups */
+    
+    for (; t[i]==' '; i++); /* skip spaces */
+    for (j=0; t[i]!=' ' && t[i]!='\0'; i++) /* get command */
+	if (j<sizeof(arg1)-1) arg1[j++] = t[i];
+    arg1[j] = '\0';
+  
+    for (; t[i]==' '; i++); /* skip spaces */
+    for (j=0; t[i]!=' ' && t[i]!='\0'; i++) /* get username */
+	if (j<sizeof(arg2)-1) arg2[j++] = t[i];
+    arg2[j] = '\0';
+  
+    for (; t[i]==' '; i++); /* skip spaces */
+    for (j=0; t[i]!='\0'; i++) /* get groups */
+	if (j<sizeof(arg3)-1) arg3[j++] = t[i];
+    arg3[j] = '\0';
+  
+    command = arg1;
+    username = arg2;
+
+    if (arg1[0] =='\0') {
+	message_send_text(c,message_type_info,c,"usage: /cg <command> <username> [<group(s)>]");
+	return 0;
+    }
+  
+    if (!strcmp(command,"help") || !strcmp(command,"h")) {
+	message_send_text(c,message_type_info,c,"Command Groups (Defines the Groups of Commands a User Can Use.)");
+	message_send_text(c,message_type_info,c,"Type: /cg add <username> <group(s)> - adds group(s) to user profile");
+	message_send_text(c,message_type_info,c,"Type: /cg del <username> <group(s)> - deletes group(s) from user profile");
+	message_send_text(c,message_type_info,c,"Type: /cg list <username> - shows current groups user can use");
+	return 0;
+    }
+    
+    if (arg2[0] =='\0') {
+	message_send_text(c,message_type_info,c,"usage: /cg <command> <username> [<group(s)>]");
+	return 0;
+    }
+
+    if (!(account = accountlist_find_account(username))) {
+	message_send_text(c,message_type_error,c,"Invalid user.");
+	return 0;
+    }
+    
+    usergroups = account_get_command_groups(account);
+
+    if (!strcmp(command,"list") || !strcmp(command,"l")) {
+	if (usergroups & 1) tempgroups[0] = '1'; else tempgroups[0] = ' ';
+	if (usergroups & 2) tempgroups[1] = '2'; else tempgroups[1] = ' ';
+	if (usergroups & 4) tempgroups[2] = '3'; else tempgroups[2] = ' ';
+	if (usergroups & 8) tempgroups[3] = '4'; else tempgroups[3] = ' ';
+	if (usergroups & 16) tempgroups[4] = '5'; else tempgroups[4] = ' ';
+	if (usergroups & 32) tempgroups[5] = '6'; else tempgroups[5] = ' ';
+	if (usergroups & 64) tempgroups[6] = '7'; else tempgroups[6] = ' ';
+	if (usergroups & 128) tempgroups[7] = '8'; else tempgroups[7] = ' ';
+	sprintf(msgtemp, "%s's command group(s): %s", username, tempgroups);
+	message_send_text(c,message_type_info,c,msgtemp);
+	return 0;
+    }
+    
+    if (arg3[0] =='\0') {
+	message_send_text(c,message_type_info,c,"usage: /cg <command> <username> [<group(s)>]");
+	return 0;
+    }
+	
+    for (i=0; arg3[i] != '\0'; i++) {
+	if (arg3[i] == '1') groups |= 1;
+	else if (arg3[i] == '2') groups |= 2;
+	else if (arg3[i] == '3') groups |= 4;
+	else if (arg3[i] == '4') groups |= 8;
+	else if (arg3[i] == '5') groups |= 16;
+	else if (arg3[i] == '6') groups |= 32;
+	else if (arg3[i] == '7') groups |= 64;
+	else if (arg3[i] == '8') groups |= 128;
+	else {
+	    sprintf(msgtemp, "got bad group: %c", arg3[i]);
+	    message_send_text(c,message_type_info,c,msgtemp);
+	    return 0;
+	}
+    }
+
+    if (!strcmp(command,"add") || !strcmp(command,"a")) {
+	account_set_command_groups(account, usergroups | groups);
+	sprintf(msgtemp, "groups %s has been added to user: %s", arg3, username);
+	message_send_text(c,message_type_info,c,msgtemp);
+	return 0;
+    }
+    
+    if (!strcmp(command,"del") || !strcmp(command,"d")) {
+	account_set_command_groups(account, usergroups & (255 - groups));
+	sprintf(msgtemp, "groups %s has been deleted from user: %s", arg3, username);
+	message_send_text(c,message_type_info,c,msgtemp);
+	return 0;
+    }
+    
+    sprintf(msgtemp, "got unknown command: %s", command);
+    message_send_text(c,message_type_info,c,msgtemp);
+    return 0;
 }

@@ -1683,7 +1683,7 @@ extern t_account * accountlist_add_account(t_account * account)
     // 11-20-2002 aaron --->
     if (account)
       { int rank;
-	if (rank = account_get_solorank(account))
+	if ((rank = account_get_solorank(account)))
 	  {
 	    if (war3_ladder_add(&solo_ladder,
 				uid,
@@ -1696,7 +1696,7 @@ extern t_account * accountlist_add_account(t_account * account)
 		return NULL;
 	      }
 	  }
-	if (rank = account_get_teamrank(account))
+	if ((rank = account_get_teamrank(account)))
 	  {
 	    if (war3_ladder_add(&team_ladder,
 				uid,
@@ -1709,7 +1709,7 @@ extern t_account * accountlist_add_account(t_account * account)
 		return NULL;
 	      }
 	  }
-	if (rank = account_get_ffarank(account))
+	if ((rank = account_get_ffarank(account)))
 	{
           if (war3_ladder_add(&ffa_ladder,
 			      uid,

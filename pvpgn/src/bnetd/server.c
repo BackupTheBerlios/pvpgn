@@ -150,6 +150,7 @@
 #include "game.h"
 #include "anongame.h"
 #include "server.h"
+#include "command_groups.h"
 #include "common/setup_after.h"
 #include "win32/service.h"
 // aaron
@@ -1458,6 +1459,9 @@ extern int server_process(void)
 	    if (!bits_uplink_connection)
 		bits_motd_load_from_file();
 #endif
+	    if (command_groups_reload(prefs_get_command_groups_file())<0)
+		eventlog(eventlog_level_error,"server_process","could not load new command_groups list");
+	    
 	    syncdelta = prefs_get_user_sync_timer();
 	    
 	    eventlog(eventlog_level_info,"server_process","done reconfiguring");

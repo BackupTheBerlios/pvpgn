@@ -154,6 +154,7 @@
 #define BITS_MOTD_FILE          "conf/bits_motd"
 #define BNETD_LADDER_DIR        "var/ladders"
 
+#define BNETD_COMMAND_GROUPS_FILE "conf/command_groups.txt"
 /* ADDED BY UNDYING SOULZZ 4/9/02 */
 /* default identify timeout value */
 #define W3_IDENTTIMEOUT		15	/* seconds */
@@ -173,7 +174,7 @@
 #define BNETD_W3ROUTE_PORT    6113
 #define BNETD_IRC_ADDRS       "" /* this means none */
 #define BNETD_IRC_PORT        6667 /* used if port not specified */
-#define BNETD_TRACK_ADDRS     "track.bnetd.org"
+#define BNETD_TRACK_ADDRS     "track.pvpgn.org"
 #define BNETD_TRACK_PORT      6114 /* use this port if not specified */
 #define BNETD_DEF_TEST_PORT   6112 /* default guess for UDP test port */
 #define BNETD_MIN_TEST_PORT   6112

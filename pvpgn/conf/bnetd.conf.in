@@ -53,6 +53,7 @@ xplevelfile = /usr/local/etc/bnxplevel.txt
 xpcalcfile  = /usr/local/etc/bnxpcalc.txt
 #pidfile    = /usr/local/var/bnetd.pid
 ladderdir   = /usr/local/var/ladders
+command_groups_file = /usr/local/etc/command_groups.txt
 
 fortunecmd  = /usr/games/fortune
 
@@ -328,8 +329,7 @@ track = 60
 # Use a comma delimited list of hostnames with optional UDP port numbers
 # after colons. (port 6114 is the default for the newer tracking protocol)
 #trackaddrs = "track.bnetd.org,localhost:9999"
-#trackaddrs = "track.bnetd.org"
-trackaddrs = "12.110.173.232"
+#trackaddrs = "track.pvpgn.org"
 
 # Change these to match your system, for example:
 location = "unknown"

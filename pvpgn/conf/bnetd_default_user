@@ -147,6 +147,7 @@
 #----------------------------------------------------------------------------#
 
 # "BNET\\auth\\admin"="false"
+"BNET\\auth\\command_groups"="1"
 # "BNET\\auth\\announce"="false"
 # "BNET\\auth\\botlogin"="false"
 # "BNET\\auth\\operator"="false"
