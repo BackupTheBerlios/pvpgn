@@ -205,10 +205,6 @@ static void account_unload_attrs(t_account * account)
 	xfree((void *)attr); /* avoid warning */
     }
     account->attrs = NULL;
-    if (account->name) {
-	xfree(account->name);
-	account->name = NULL;
-    }
     FLAG_CLEAR(&account->flags,ACCOUNT_FLAG_LOADED);
 }
 
@@ -222,6 +218,8 @@ static void account_destroy(t_account * account)
     friendlist_close(account->friends);
     teams_destroy(account->teams);
     account_unload_attrs(account);
+    if (account->name)
+        xfree(account->name);
     if (account->storage)
 	storage->free_info(account->storage);
 
@@ -606,12 +604,6 @@ static int account_load_attrs(t_account * account)
    }
    doing_loadattrs = 0;
 
-    if (account->name) {
-	eventlog(eventlog_level_error,"account_load_attrs","found old username chache, check out!");
-	xfree(account->name);
-    }
-    account->name = NULL;
-
     FLAG_CLEAR(&account->flags,ACCOUNT_FLAG_DIRTY);
 
     return 0;
@@ -947,7 +939,7 @@ static t_account * accountlist_add_account(t_account * account)
         return NULL;
     }
 
-    username = account_get_strattr(account,"BNET\\acct\\username");
+    username = account_get_name(account);
     uid = account_get_numattr(account,"BNET\\acct\\userid");
 
     if (!username || strlen(username)<1) {
@@ -981,7 +973,7 @@ static t_account * accountlist_add_account(t_account * account)
 	    curraccount = entry_get_data(curr);
 	    if (curraccount->uid==uid)
 	    {
-		eventlog(eventlog_level_debug,__FUNCTION__,"user \"%s\":"UID_FORMAT" already has an account (\"%s\":"UID_FORMAT")",username,uid,(tname = account_get_name(curraccount)),curraccount->uid);
+		eventlog(eventlog_level_debug,__FUNCTION__,"user \"%s\":"UID_FORMAT" already has an account (\"%s\":"UID_FORMAT")",username,uid,account_get_name(curraccount),curraccount->uid);
 		hashtable_entry_release(curr);
 		return NULL;
 	    }
@@ -1113,7 +1105,7 @@ extern char const * account_get_name_real(t_account * account, char const * fn, 
 
     if (!account)
     {
-	eventlog(eventlog_level_error,"account_get_name","got NULL account (from %s:%u)",fn,ln);
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL account (from %s:%u)",fn,ln);
 	return NULL; /* FIXME: places assume this can't fail */
     }
 
@@ -1122,7 +1114,7 @@ extern char const * account_get_name_real(t_account * account, char const * fn, 
 
     /* we dont have a cached username so lets get it from attributes */
     if (!(temp = account_get_strattr(account,"BNET\\acct\\username")))
-	eventlog(eventlog_level_error,"account_get_name","account has no username");
+	eventlog(eventlog_level_error,__FUNCTION__,"account has no username");
     else
 	account->name = xstrdup(temp);
     return account->name;
