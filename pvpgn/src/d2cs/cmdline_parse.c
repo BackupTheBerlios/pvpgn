@@ -56,8 +56,12 @@ static t_conf_table param_conf_table[]={
 	{ "--version",		offsetof(t_param,version),	conf_type_bool,	0			},
 	{ "-f",			offsetof(t_param,foreground),	conf_type_bool,	0			},
 	{ "--foreground",	offsetof(t_param,foreground),	conf_type_bool,	0			},
-	{ "-s",			offsetof(t_param,logstderr),	conf_type_bool,	0			},
-	{ "--stderr",		offsetof(t_param,logstderr),	conf_type_bool,	0			},
+	{ "-D",			offsetof(t_param,debugmode),	conf_type_bool,	0			},
+	{ "--debug",		offsetof(t_param,debugmode),	conf_type_bool,	0			},
+#ifdef WIN32
+	{ "--service",	offsetof(t_param,run_as_service),	conf_type_bool, 0		},
+	{ "-s",			offsetof(t_param,make_service),		conf_type_str, (int)NULL	},
+#endif
 	{ NULL,			0,				conf_type_none,	0			}
 };
 
@@ -71,7 +75,13 @@ static char help_message[]="\n"
 "	-h, --help:		show this help message and exit\n"
 "	-v, --version:		show version information and exit\n"
 "	-f, --foreground:	start in foreground mode (don`t daemonize)\n"
-"	-s, --stderr:		log to stderr instead of logging to file\n"
+"	-D, --debug:		run in debug mode (run in foreground and log to stdout)\n"
+#ifdef WIN32
+"    Running as service functions:\n"
+"	 --service		  run as service\n"
+"    -s install               install service\n"
+"    -s uninstall             uninstall service\n"
+#endif	    
 "\n"
 "Notes:\n"
 "	1.You should always use absolute path here for all FILE names\n"
@@ -124,15 +134,28 @@ extern unsigned int cmdline_get_foreground(void)
 	return cmdline_param.foreground;
 }
 
-extern unsigned int cmdline_get_logstderr(void)
+extern unsigned int cmdline_get_debugmode(void)
 {
-	return cmdline_param.logstderr;
+	return cmdline_param.debugmode;
 }
 
 extern char const * cmdline_get_logfile(void)
 {
 	return cmdline_param.logfile;
 }
+
+#ifdef WIN32
+extern unsigned int cmdline_get_run_as_service(void)
+{
+	return cmdline_param.run_as_service;
+}
+
+extern char const * cmdline_get_make_service(void)
+{
+	return cmdline_param.make_service;
+}
+
+#endif
 
 #ifdef USE_CHECK_ALLOC
 extern char const * cmdline_get_memlog_file(void)

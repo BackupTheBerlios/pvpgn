@@ -176,6 +176,9 @@
 					RelativePath="..\d2cs\handle_init.c">
 				</File>
 				<File
+					RelativePath="..\d2cs\handle_signal.c">
+				</File>
+				<File
 					RelativePath="..\d2cs\main.c">
 				</File>
 				<File
@@ -283,6 +286,13 @@
 					RelativePath="..\compat\uname.c">
 				</File>
 			</Filter>
+			<Filter
+				Name="win32"
+				Filter="">
+				<File
+					RelativePath=".\service_d2cs.c">
+				</File>
+			</Filter>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -350,6 +360,9 @@
 				</File>
 				<File
 					RelativePath="..\d2cs\handle_init.h">
+				</File>
+				<File
+					RelativePath="..\d2cs\handle_signal.h">
 				</File>
 				<File
 					RelativePath="..\d2cs\net.h">
@@ -454,6 +467,13 @@
 				</File>
 				<File
 					RelativePath="..\compat\uname.h">
+				</File>
+			</Filter>
+			<Filter
+				Name="win32"
+				Filter="">
+				<File
+					RelativePath=".\service.h">
 				</File>
 			</Filter>
 		</Filter>

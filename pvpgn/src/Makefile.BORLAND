@@ -296,6 +296,7 @@ d2cs_OBJECTS    = \
     ${SRC_D2CSDIR}\cmdline_parse.obj \ 
     ${SRC_D2CSDIR}\bnetd.obj \ 
     ${SRC_D2CSDIR}\handle_bnetd.obj \ 
+    ${SRC_D2CSDIR}\handle_signal.obj \     
     ${SRC_D2CSDIR}\s2s.obj \ 
     ${SRC_D2CSDIR}\net.obj \ 
     ${SRC_D2CSDIR}\d2ladder.obj \ 
@@ -324,7 +325,8 @@ d2cs_OBJECTS    = \
     ${SRC_COMPATDIR}\gettimeofday.obj \ 
     ${SRC_COMPATDIR}\difftime.obj \ 
     ${SRC_COMPATDIR}\pdir.obj \ 
-    ${SRC_COMPATDIR}\strsep.obj 
+    ${SRC_COMPATDIR}\strsep.obj \
+    ${SRC_WIN32DIR}\service_d2cs.obj     
 
 d2dbs_DEFCONFFILE = ${confdir}\d2dbs.conf 
 d2dbs_SBIN = ${SRC_SBINDIR}\d2dbs.exe 

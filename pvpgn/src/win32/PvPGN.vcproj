@@ -109,9 +109,6 @@
 					RelativePath="..\bnetd\autoupdate.c">
 				</File>
 				<File
-					RelativePath="..\bnetd\ladder_binary.c">
-				</File>
-				<File
 					RelativePath="..\bnetd\bits.c">
 				</File>
 				<File
@@ -239,6 +236,9 @@
 				</File>
 				<File
 					RelativePath="..\bnetd\ladder.c">
+				</File>
+				<File
+					RelativePath="..\bnetd\ladder_binary.c">
 				</File>
 				<File
 					RelativePath="..\bnetd\ladder_calc.c">
@@ -539,9 +539,6 @@
 					RelativePath="..\bnetd\autoupdate.h">
 				</File>
 				<File
-					RelativePath="..\bnetd\ladder_binary.h">
-				</File>
-				<File
 					RelativePath="..\bnetd\bits.h">
 				</File>
 				<File
@@ -672,6 +669,9 @@
 				</File>
 				<File
 					RelativePath="..\bnetd\ladder.h">
+				</File>
+				<File
+					RelativePath="..\bnetd\ladder_binary.h">
 				</File>
 				<File
 					RelativePath="..\bnetd\ladder_calc.h">

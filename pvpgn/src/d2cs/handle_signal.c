@@ -152,7 +152,7 @@ extern int handle_signal(void)
             free(temp);
         }
 
-		if (!cmdline_get_logstderr()) eventlog_open(d2cs_prefs_get_logfile());
+		if (!cmdline_get_debugmode()) eventlog_open(d2cs_prefs_get_logfile());
 	}
 	if (signal_data.reload_ladder) {
 		signal_data.reload_ladder=0;
@@ -168,7 +168,13 @@ extern int handle_signal(void)
 	
 	return 0;
 }
+#ifdef WIN32
+extern void signal_quit_wrapper(void)
+{
+  signal_data.do_quit=1;
+}
 
+#else
 extern int handle_signal_init(void)
 {
 	signal(SIGINT,on_signal);
@@ -214,3 +220,4 @@ static void on_signal(int s)
 	}
 	signal(s,on_signal);
 }
+#endif
