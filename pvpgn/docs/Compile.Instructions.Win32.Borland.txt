@@ -5,7 +5,7 @@ This file explains how to compile PvPGN for Win32 using Borland C++ Compiler 5.5
 ftp://ftpd.borland.com/download/bcppbuilder/freecommandLinetools.exe
 http://altd.borland.com/download/bcppbuilder/freecommandLinetools.exe
 
-2) Install the tools to a directory, e.g. c:\program files\borlandc\ (this will be used as an example in the following
+2) Install the tools to a directory, e.g. c:\program files\borlandc\ (this will be used as an example in the following)
 
 3) Go to the /bin subdirectory, e.g. c:\program files\borlandc\bin
 
@@ -21,11 +21,18 @@ http://altd.borland.com/download/bcppbuilder/freecommandLinetools.exe
 Those two files are required by the compiler to find the Lib and Include directory...
 
 6) Now you're ready to compile the server. 
-Open a command prompt, go to the src directory and run make_borland.bat
+Open a command prompt, go to the Win32-Projects directory.
+To build all apps as console apps (recommended for running as a service): make_borland
+To build GUI versions of bnetd, d2cs and d2dbs: make_borland -DWITH_GUI
 
 The resulting exe file will be in the sbin directory and you can use it with the other files from the latest PvPGN release.
 
-Notes for MYSQL Support:
+Notes about CDB Support:
+------------------------
+To add support for CDB file storage add -DWITH_CDB to the command line options
+
+Notes about MYSQL Support:
+--------------------------
 First of all u need to add a subfolder src/mysql/ where u add the header files from your favorite mySQL release.
 If you wish to compile with MYSQL support, run "make_borland -DWITH_SQL_MYSQL" in src directory.
 Note that libmySQL.lib does not work with borland compilers, so we converted it using the borland tool 
@@ -34,4 +41,3 @@ You might want to do the same if you want to have a current lib file, alternativ
 IMPLIB libmysql_bc.lib libmysql.dll
 
 Note that we're working with VS.NET mostly so there might still be borland-related bugs.
-If you find one or have other comments, feel free to join #pvpgn on irc.pvpgn.org
