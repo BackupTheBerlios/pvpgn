@@ -19,6 +19,7 @@
 #include <stdio.h>
 #include <pcap.h>
 #include <errno.h>
+#include <netinet/in.h>
 #include <string.h>
 #include "compat/strerror.h"
 #include <getopt.h>
@@ -31,6 +32,7 @@
 #include "common/hexdump.h"
 #include "common/list.h"
 #include "common/version.h"
+#include "common/util.h"
 #include "common/setup_after.h"
 
 /* FIXME: everywhere: add checks for NULL pointers */
@@ -43,6 +45,7 @@ char ebuf[PCAP_ERRBUF_SIZE];
 int bnpcap_dodebug = 0;
 int bnpcap_beverbose = 0;
 
+unsigned int listen_port = 6112;
 
 /********************* CONNECTIONS ********************/
 
@@ -198,7 +201,7 @@ static t_bnpcap_conn * bnpcap_conn_new(t_bnpcap_addr const *s, t_bnpcap_addr con
       eventlog(eventlog_level_error,"bnpcap_conn_new","malloc failed: %s",strerror(errno));
       return NULL;
    }
-   if (d->port==6112) { /* FIXME: That's dirty: We assume the server is on port 6112 */
+   if (d->port==listen_port) { /* FIXME: That's dirty: We assume the server is on port 6112 */
       memcpy(&c->client,s,sizeof(t_bnpcap_addr));
       memcpy(&c->server,d,sizeof(t_bnpcap_addr));
    } else {
@@ -266,7 +269,6 @@ static int bnpcap_conn_packet(unsigned int sip, unsigned short sport, unsigned i
    t_bnpcap_addr s;
    t_bnpcap_addr d;
    t_bnpcap_conn *c;
-   t_packet *p;
    t_bnpcap_packet *bp;
    
    s.ip = sip;
@@ -307,9 +309,6 @@ static int bnpcap_conn_packet(unsigned int sip, unsigned short sport, unsigned i
        case CLIENT_INITCONN_CLASS_BITS:
 	 bnpcap_conn_set_class(c,packet_class_bits);
 	 break;
-       case CLIENT_INITCONN_CLASS_BITS:
-	 bnpcap_conn_set_class(c,packet_class_bits);
-	 break;
        case 0xf7: // W3 matchmaking hack
 	 eventlog(eventlog_level_info,"bnpcap_conn_packet","matchmaking packet");
 	   bnpcap_conn_set_class(c,packet_class_bnet);
@@ -319,7 +318,7 @@ static int bnpcap_conn_packet(unsigned int sip, unsigned short sport, unsigned i
       }
    } else {
       t_packet *p;
-      int off;
+      unsigned int off;
       unsigned char const *datap = data;
       int always_complete = 0;
 
@@ -372,7 +371,7 @@ static int bnpcap_conn_packet(unsigned int sip, unsigned short sport, unsigned i
 	    p = c->serverpkt;
 	    off = c->serveroff;
 	 }
-	 while ((datap-data)<len) {
+	 while ((datap-data)<(signed)len) {
 	    if (!p) {
 	       eventlog(eventlog_level_debug,"bnpcap_conn_packet","creating new packet");
 	       p = packet_create(bnpcap_conn_get_class(c));
@@ -384,7 +383,7 @@ static int bnpcap_conn_packet(unsigned int sip, unsigned short sport, unsigned i
 	       off = 0;
 	    }
 	    if (off < packet_get_header_size(p)) {
-	       int l = (packet_get_header_size(p)-off);
+	       unsigned int l = (packet_get_header_size(p)-off);
 	       /* (len-(datap-data)) : remaining bytes in buffer */
 	       if ((len-(datap-data)) < l)
 		 l = (len-(datap-data));
@@ -393,7 +392,7 @@ static int bnpcap_conn_packet(unsigned int sip, unsigned short sport, unsigned i
 	       datap = datap + l;
 	       off = off + l;
 	    } else {
-	       int l = (packet_get_size(p)-off);
+	       unsigned int l = (packet_get_size(p)-off);
 	       if ((len-(datap-data)) < l)
 		 l = (len-(datap-data));
 	       eventlog(eventlog_level_debug,"bnpcap_conn_packet","filling up packet (0x%04x:%s) (adding %d to %d to get %d)",packet_get_type(p),packet_get_type_str(p,bnpcap_conn_get_dir(c,&s,&d)),l,off,packet_get_size(p));
@@ -439,6 +438,7 @@ static int bnpcap_conn_packet(unsigned int sip, unsigned short sport, unsigned i
       } /* !always_complete */
       return 0;
    }
+   return 0;
 }
 
 
@@ -515,7 +515,7 @@ static int bnpcap_process_tcp(t_ip_header const * ip, unsigned char const *data,
 	       }
 	    }
 	 }
-      } else if ((h.sport!=6112)&&(h.dport!=6112)) {
+      } else if ((h.sport!=listen_port)&&(h.dport!=listen_port)) {
 	 eventlog(eventlog_level_info,"bnpcap_process_tcp","other packet (%d)",((signed)len-(h.doffset*4)));
       } else {
 	 eventlog(eventlog_level_info,"bnpcap_process_tcp","valid packet (%d)",((signed)len-(h.doffset*4)));
@@ -536,7 +536,7 @@ static int bnpcap_udp2udp(t_ip_udp_header *d, t_ip_udp_header_raw const *s)
    return 0;
 }
 
-static int bnpcap_process_udp(t_ip_header const * ip, unsigned char const *data, unsigned int len)
+static int bnpcap_process_udp(unsigned char const *data, unsigned int len)
 {
    t_ip_udp_header_raw const *raw;
    t_ip_udp_header h;
@@ -550,7 +550,7 @@ static int bnpcap_process_udp(t_ip_header const * ip, unsigned char const *data,
       eventlog(eventlog_level_error,"bnpcap_process_udp","malloc failed: %s",strerror(errno));
       return -1;
    }
-   if (h.dport==6112) {
+   if (h.dport==listen_port) {
       bp->dir = packet_dir_from_client;
    } else {
       bp->dir = packet_dir_from_server;
@@ -623,9 +623,10 @@ static int bnpcap_process_ip(unsigned char const *data, unsigned int len)
 	 return bnpcap_process_tcp(&h,data+(h.ihl*4),h.len-(h.ihl*4));
       } else if (h.protocol==17) {
 	 /* This is UDP */
-	 return bnpcap_process_udp(&h,data+(h.ihl*4),h.len-(h.ihl*4));
+	 return bnpcap_process_udp(data+(h.ihl*4),h.len-(h.ihl*4));
       }
    }
+   return 0;
 }
 
 /************************************* ETHERNET ******************************/
@@ -652,6 +653,8 @@ static void bnpcap_process_packet(u_char * private, const struct pcap_pkthdr * p
 {
    unsigned int pl = p->len;
    
+   if(private) private = NULL; // hack to eliminate compiler warning
+   
    memcpy(&packettime,&p->ts,sizeof(struct timeval));
    eventlog(eventlog_level_debug,"bnpcap_process_packet","packet: len=%d caplen=%d",p->len,p->caplen);
    /* FIXME: check if it's ethernet */
@@ -664,9 +667,10 @@ static void bnpcap_usage(void) {
    printf("BNPCAP - A tool to convert pcap battle.net dumps to a human-readable format.\n");
    printf("Version " PVPGN_VERSION " --- Copyright (c) 2001  Marco Ziech (mmz@gmx.net)\n");
    printf("This software makes use of libpcap.\n\n");
-   printf("Usage: bnpcap [-d] [-v] <pcap-filename>\n");
-   printf("   -d     Print out debugging information\n");
-   printf("   -v     Be more verbose\n\n");
+   printf("Usage: bnpcap [-d] [-v] [-p PORT] <pcap-filename>\n");
+   printf("   -d          Print out debugging information\n");
+   printf("   -v          Be more verbose\n");
+   printf("   -p PORT     Specify port to process (Default: 6112)\n\n");
 }
 
 /******************************* MAIN *************************************/
@@ -676,8 +680,11 @@ int main (int argc, char **argv) {
    t_elem * currudp;
    int c;
    
-   while ((c=getopt(argc,argv,"dv"))!=-1) {
+   while ((c=getopt(argc,argv,"dvp:"))!=-1) {
       switch (c) {
+       case 'p':
+	 str_to_uint(optarg, &listen_port);
+	 break;
        case 'd':
 	 bnpcap_dodebug = 1;
 	 break;
@@ -749,5 +756,6 @@ int main (int argc, char **argv) {
       printf("\n");
    }
    pcap_close(pc);
+   return 0;
 }
 
