@@ -87,59 +87,24 @@ extern int account_unget_loc(char const * loc);
 extern char const * account_get_desc(t_account * account);
 extern int account_unget_desc(char const * desc);
 
-/* first login */
-extern unsigned int account_get_fl_time(t_account * account);
-extern int account_set_fl_time(t_account * account, unsigned int t);
-extern unsigned int account_get_fl_connection(t_account * account);
-extern int account_set_fl_connection(t_account * account, unsigned int connection);
-extern char const * account_get_fl_host(t_account * account);
-extern int account_unget_fl_host(char const * clientexe);
-extern int account_set_fl_host(t_account * account, char const * host);
-extern char const * account_get_fl_user(t_account * account);
-extern int account_unget_fl_user(char const * clientexe);
-extern int account_set_fl_user(t_account * account, char const * user);
-extern char const * account_get_fl_clientexe(t_account * account);
-extern int account_unget_fl_clientexe(char const * clientexe);
-extern int account_set_fl_clientexe(t_account * account, char const * exefile);
-extern char const * account_get_fl_clienttag(t_account * account);
-extern int account_unget_fl_clienttag(char const * clienttag);
-extern int account_set_fl_clienttag(t_account * account, char const * clienttag);
-extern char const * account_get_fl_clientver(t_account * account);
-extern int account_unget_fl_clientver(char const * clientver);
-extern int account_set_fl_clientver(t_account * account, char const * version);
-extern char const * account_get_fl_owner(t_account * account);
-extern int account_unget_fl_owner(char const * owner);
-extern int account_set_fl_owner(t_account * account, char const * owner);
-extern char const * account_get_fl_cdkey(t_account * account);
-extern int account_unget_fl_cdkey(char const * cdkey);
-extern int account_set_fl_cdkey(t_account * account, char const * cdkey);
-
 /* last login */
 extern unsigned int account_get_ll_time(t_account * account);
 extern int account_set_ll_time(t_account * account, unsigned int t);
-extern unsigned int account_get_ll_connection(t_account * account);
-extern int account_set_ll_connection(t_account * account, unsigned int connection);
 extern char const * account_get_ll_host(t_account * account);
 extern int account_unget_ll_host(char const * clientexe);
 extern int account_set_ll_host(t_account * account, char const * host);
 extern char const * account_get_ll_user(t_account * account);
 extern int account_unget_ll_user(char const * clientexe);
 extern int account_set_ll_user(t_account * account, char const * user);
-extern char const * account_get_ll_clientexe(t_account * account);
-extern int account_unget_ll_clientexe(char const * clientexe);
-extern int account_set_ll_clientexe(t_account * account, char const * exefile);
 extern char const * account_get_ll_clienttag(t_account * account);
 extern int account_unget_ll_clienttag(char const * clienttag);
 extern int account_set_ll_clienttag(t_account * account, char const * clienttag);
-extern char const * account_get_ll_clientver(t_account * account);
-extern int account_unget_ll_clientver(char const * clientver);
-extern int account_set_ll_clientver(t_account * account, char const * version);
 extern char const * account_get_ll_owner(t_account * account);
 extern int account_unget_ll_owner(char const * owner);
 extern int account_set_ll_owner(t_account * account, char const * owner);
-extern char const * account_get_ll_cdkey(t_account * account);
-extern int account_unget_ll_cdkey(char const * cdkey);
-extern int account_set_ll_cdkey(t_account * account, char const * cdkey);
+extern char const * account_get_ll_ip(t_account * account);
+extern int account_unget_ll_ip(char const * ip);
+extern int account_set_ll_ip(t_account * account, char const * ip);
 
 /* normal stats */
 extern unsigned int account_get_normal_wins(t_account * account, char const * clienttag);

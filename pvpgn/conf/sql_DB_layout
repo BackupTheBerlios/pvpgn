@@ -21,9 +21,9 @@
 "auth_lockk varchar(16)","'0'"
 "auth_command_groups varchar(128) NOT NULL","'1'"
 "acct_lastlogin_time int(11)","'0'"
-"acct_lastlogin_host varchar(128)","NULL"
 "acct_lastlogin_owner varchar(128)","NULL"
 "acct_lastlogin_clientexe varchar(128)","NULL"
+"acct_lastlogin_ip varchar(32)","NULL"
 [friend]
 "uid int(11) NOT NULL PRIMARY KEY","'0'"
 [profile]

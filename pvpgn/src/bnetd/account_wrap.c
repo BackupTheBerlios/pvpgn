@@ -450,157 +450,6 @@ extern int account_unget_desc(char const * desc)
 /****************************************************************/
 
 
-extern unsigned int account_get_fl_time(t_account * account)
-{
-    return account_get_numattr(account,"BNET\\acct\\firstlogin_time");
-}
-
-
-extern int account_set_fl_time(t_account * account, unsigned int t)
-{
-    return account_set_numattr(account,"BNET\\acct\\firstlogin_time",t);
-}
-
-
-extern char const * account_get_fl_clientexe(t_account * account)
-{
-    return account_get_strattr(account,"BNET\\acct\\firstlogin_clientexe");
-}
-
-
-extern int account_unget_fl_clientexe(char const * clientexe)
-{
-    return account_unget_strattr(clientexe);
-}
-
-
-extern int account_set_fl_clientexe(t_account * account, char const * exefile)
-{
-    return account_set_strattr(account,"BNET\\acct\\firstlogin_clientexe",exefile);
-}
-
-
-extern char const * account_get_fl_clientver(t_account * account)
-{
-    return account_get_strattr(account,"BNET\\acct\\firstlogin_clientver");
-}
-
-
-extern int account_unget_fl_clientver(char const * clientver)
-{
-    return account_unget_strattr(clientver);
-}
-
-
-extern int account_set_fl_clientver(t_account * account, char const * version)
-{
-    return account_set_strattr(account,"BNET\\acct\\firstlogin_clientver",version);
-}
-
-
-extern char const * account_get_fl_clienttag(t_account * account)
-{
-    return account_get_strattr(account,"BNET\\acct\\firstlogin_clienttag");
-}
-
-
-extern int account_unget_fl_clienttag(char const * clienttag)
-{
-    return account_unget_strattr(clienttag);
-}
-
-
-extern int account_set_fl_clienttag(t_account * account, char const * clienttag)
-{
-    return account_set_strattr(account,"BNET\\acct\\firstlogin_clienttag",clienttag);
-}
-
-
-extern unsigned int account_get_fl_connection(t_account * account)
-{
-    return account_get_numattr(account,"BNET\\acct\\firstlogin_connection");
-}
-
-
-extern int account_set_fl_connection(t_account * account, unsigned int connection)
-{
-    return account_set_numattr(account,"BNET\\acct\\firstlogin_connection",connection);
-}
-
-
-extern char const * account_get_fl_host(t_account * account)
-{
-    return account_get_strattr(account,"BNET\\acct\\firstlogin_host");
-}
-
-
-extern int account_unget_fl_host(char const * host)
-{
-    return account_unget_strattr(host);
-}
-
-
-extern int account_set_fl_host(t_account * account, char const * host)
-{
-    return account_set_strattr(account,"BNET\\acct\\firstlogin_host",host);
-}
-
-
-extern char const * account_get_fl_user(t_account * account)
-{
-    return account_get_strattr(account,"BNET\\acct\\firstlogin_user");
-}
-
-
-extern int account_unget_fl_user(char const * user)
-{
-    return account_unget_strattr(user);
-}
-
-
-extern int account_set_fl_user(t_account * account, char const * user)
-{
-    return account_set_strattr(account,"BNET\\acct\\firstlogin_user",user);
-}
-extern char const * account_get_fl_owner(t_account * account)
-{
-    return account_get_strattr(account,"BNET\\acct\\firstlogin_owner");
-}
-
-
-extern int account_unget_fl_owner(char const * owner)
-{
-    return account_unget_strattr(owner);
-}
-
-
-extern int account_set_fl_owner(t_account * account, char const * owner)
-{
-    return account_set_strattr(account,"BNET\\acct\\firstlogin_owner",owner);
-}
-
-
-extern char const * account_get_fl_cdkey(t_account * account)
-{
-    return account_get_strattr(account,"BNET\\acct\\firstlogin_cdkey");
-}
-
-
-extern int account_unget_fl_cdkey(char const * cdkey)
-{
-    return account_unget_strattr(cdkey);
-}
-
-
-extern int account_set_fl_cdkey(t_account * account, char const * cdkey)
-{
-    return account_set_strattr(account,"BNET\\acct\\firstlogin_cdkey",cdkey);
-}
-
-
-/****************************************************************/
-
-
 extern unsigned int account_get_ll_time(t_account * account)
 {
     return account_get_numattr(account,"BNET\\acct\\lastlogin_time");
@@ -612,41 +461,6 @@ extern int account_set_ll_time(t_account * account, unsigned int t)
     return account_set_numattr(account,"BNET\\acct\\lastlogin_time",t);
 }
 
-
-extern char const * account_get_ll_clientexe(t_account * account)
-{
-    return account_get_strattr(account,"BNET\\acct\\lastlogin_clientexe");
-}
-
-
-extern int account_unget_ll_clientexe(char const * clientexe)
-{
-    return account_unget_strattr(clientexe);
-}
-
-
-extern int account_set_ll_clientexe(t_account * account, char const * exefile)
-{
-    return account_set_strattr(account,"BNET\\acct\\lastlogin_clientexe",exefile);
-}
-
-
-extern char const * account_get_ll_clientver(t_account * account)
-{
-    return account_get_strattr(account,"BNET\\acct\\lastlogin_clientver");
-}
-
-
-extern int account_unget_ll_clientver(char const * clientver)
-{
-    return account_unget_strattr(clientver);
-}
-
-
-extern int account_set_ll_clientver(t_account * account, char const * version)
-{
-    return account_set_strattr(account,"BNET\\acct\\lastlogin_clientver",version);
-}
 
 
 extern char const * account_get_ll_clienttag(t_account * account)
@@ -664,18 +478,6 @@ extern int account_unget_ll_clienttag(char const * clienttag)
 extern int account_set_ll_clienttag(t_account * account, char const * clienttag)
 {
     return account_set_strattr(account,"BNET\\acct\\lastlogin_clienttag",clienttag);
-}
-
-
-extern unsigned int account_get_ll_connection(t_account * account)
-{
-    return account_get_numattr(account,"BNET\\acct\\lastlogin_connection");
-}
-
-
-extern int account_set_ll_connection(t_account * account, unsigned int connection)
-{
-    return account_set_numattr(account,"BNET\\acct\\lastlogin_connection",connection);
 }
 
 
@@ -733,21 +535,21 @@ extern int account_set_ll_owner(t_account * account, char const * owner)
 }
 
 
-extern char const * account_get_ll_cdkey(t_account * account)
+extern char const * account_get_ll_ip(t_account * account)
 {
-    return account_get_strattr(account,"BNET\\acct\\lastlogin_cdkey");
+    return account_get_strattr(account,"BNET\\acct\\lastlogin_ip");
 }
 
 
-extern int account_unget_ll_cdkey(char const * cdkey)
+extern int account_unget_ll_ip(char const * ip)
 {
-    return account_unget_strattr(cdkey);
+    return account_unget_strattr(ip);
 }
 
 
-extern int account_set_ll_cdkey(t_account * account, char const * cdkey)
+extern int account_set_ll_ip(t_account * account, char const * ip)
 {
-    return account_set_strattr(account,"BNET\\acct\\lastlogin_cdkey",cdkey);
+    return account_set_strattr(account,"BNET\\acct\\lastlogin_ip",ip);
 }
 
 /****************************************************************/
