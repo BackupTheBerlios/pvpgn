@@ -195,7 +195,7 @@ extern t_binary_ladder_load_result binary_ladder_load(t_binary_ladder_types type
   }
 
   fclose(fp);
-  eventlog(eventlog_level_info,__FUNCTION__,"sucessfully loaded %s",filename);
+  eventlog(eventlog_level_info,__FUNCTION__,"successfully loaded %s",filename);
   dispose_filename(filename);
   return load_success;
 
