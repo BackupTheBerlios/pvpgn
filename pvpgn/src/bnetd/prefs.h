@@ -20,25 +20,6 @@
 #ifndef INCLUDED_PREFS_TYPES
 #define INCLUDED_PREFS_TYPES
 
-#ifdef PREFS_INTERNAL_ACCESS
-typedef enum
-{
-    conf_type_none,
-    conf_type_int,
-    conf_type_char,
-    conf_type_bool
-} conf_type_t;
-
-typedef struct
-{
-    char const * directive;
-    conf_type_t  type;
-    char const * defcharval;
-    unsigned int defintval; /* shared with bool */
-    void *store; /* place where the value is stored */
-} Bconf_t;
-#endif
-
 #endif
 
 

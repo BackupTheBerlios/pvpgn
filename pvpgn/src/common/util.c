@@ -656,3 +656,16 @@ extern char * buildpath(char const *root, const char *suffix)
     strcpy(result,root); strcat(result,"/"); strcat(result,suffix);
     return result;
 }
+
+extern char * str_skip_space(char *str)
+{
+    for(;*str == ' ' || *str == '\t';str++);
+    return str;
+}
+
+extern char * str_skip_word(char *str)
+{
+    for(;*str != ' ' && *str != '\t' && *str;str++);
+    return str;
+}
+

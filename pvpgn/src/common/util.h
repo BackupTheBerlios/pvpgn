@@ -41,6 +41,8 @@ extern char * unescape_chars(char const * in) ;
 extern void str_to_hex(char * target, char * data, int datalen);
 extern int hex_to_str(char const * source, char * data, int datalen);
 extern char * buildpath(char const *root, const char *suffix);
+extern char *str_skip_space(char *str);
+extern char *str_skip_word(char *str);
 
 #endif
 #endif

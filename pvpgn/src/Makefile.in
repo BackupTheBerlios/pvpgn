@@ -190,6 +190,7 @@ ${SRC_COMMONDIR}/fdwatch_epoll.o\
 ${SRC_COMMONDIR}/trans.o \
 ${SRC_COMMONDIR}/xalloc.o \
 ${SRC_COMMONDIR}/rcm.o \
+${SRC_COMMONDIR}/conf.o \
 ${SRC_COMPATDIR}/pdir.o \
 ${SRC_COMPATDIR}/inet_aton.o \
 ${SRC_COMPATDIR}/inet_ntoa.o \
