@@ -194,9 +194,6 @@ extern int ladder_war3_get_min_xp(unsigned int level);
  extern int ladder_get_from_ladder(t_binary_ladder_types type, int rank, int * results);
  extern int ladder_put_into_ladder(t_binary_ladder_types type, int * values);
 
- extern int ladder_make_active(t_ladder *current, t_ladder *active);
-
-
 #endif
 #endif
 

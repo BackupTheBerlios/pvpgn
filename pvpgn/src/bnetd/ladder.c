@@ -102,18 +102,18 @@ int 		       last_rank     = 0;
 
 extern int ladderlist_make_all_active(void)
 {
-	ladder_make_active(ladder_cr(CLIENTTAG_STARCRAFT,ladder_id_normal), ladder_ar(CLIENTTAG_STARCRAFT,ladder_id_normal));
-	ladder_make_active(ladder_cw(CLIENTTAG_STARCRAFT,ladder_id_normal), ladder_aw(CLIENTTAG_STARCRAFT,ladder_id_normal));
-	ladder_make_active(ladder_cg(CLIENTTAG_STARCRAFT,ladder_id_normal), ladder_ag(CLIENTTAG_STARCRAFT,ladder_id_normal));
-	ladder_make_active(ladder_cr(CLIENTTAG_BROODWARS,ladder_id_normal), ladder_ar(CLIENTTAG_BROODWARS,ladder_id_normal));
-	ladder_make_active(ladder_cw(CLIENTTAG_BROODWARS,ladder_id_normal), ladder_aw(CLIENTTAG_BROODWARS,ladder_id_normal));
-	ladder_make_active(ladder_cg(CLIENTTAG_BROODWARS,ladder_id_normal), ladder_ag(CLIENTTAG_BROODWARS,ladder_id_normal));
-	ladder_make_active(ladder_cr(CLIENTTAG_WARCIIBNE,ladder_id_normal), ladder_ar(CLIENTTAG_WARCIIBNE,ladder_id_normal));
-	ladder_make_active(ladder_cw(CLIENTTAG_WARCIIBNE,ladder_id_normal), ladder_aw(CLIENTTAG_WARCIIBNE,ladder_id_normal));
-	ladder_make_active(ladder_cg(CLIENTTAG_WARCIIBNE,ladder_id_normal), ladder_ag(CLIENTTAG_WARCIIBNE,ladder_id_normal));
-	ladder_make_active(ladder_cr(CLIENTTAG_WARCIIBNE,ladder_id_ironman),ladder_ar(CLIENTTAG_WARCIIBNE,ladder_id_ironman));
-	ladder_make_active(ladder_cw(CLIENTTAG_WARCIIBNE,ladder_id_ironman),ladder_aw(CLIENTTAG_WARCIIBNE,ladder_id_ironman));
-	ladder_make_active(ladder_cg(CLIENTTAG_WARCIIBNE,ladder_id_ironman),ladder_ag(CLIENTTAG_WARCIIBNE,ladder_id_ironman));
+	ladder_make_active(ladder_cr(CLIENTTAG_STARCRAFT,ladder_id_normal), ladder_ar(CLIENTTAG_STARCRAFT,ladder_id_normal),1);
+	ladder_make_active(ladder_cw(CLIENTTAG_STARCRAFT,ladder_id_normal), ladder_aw(CLIENTTAG_STARCRAFT,ladder_id_normal),0);
+	ladder_make_active(ladder_cg(CLIENTTAG_STARCRAFT,ladder_id_normal), ladder_ag(CLIENTTAG_STARCRAFT,ladder_id_normal),0);
+	ladder_make_active(ladder_cr(CLIENTTAG_BROODWARS,ladder_id_normal), ladder_ar(CLIENTTAG_BROODWARS,ladder_id_normal),1);
+	ladder_make_active(ladder_cw(CLIENTTAG_BROODWARS,ladder_id_normal), ladder_aw(CLIENTTAG_BROODWARS,ladder_id_normal),0);
+	ladder_make_active(ladder_cg(CLIENTTAG_BROODWARS,ladder_id_normal), ladder_ag(CLIENTTAG_BROODWARS,ladder_id_normal),0);
+	ladder_make_active(ladder_cr(CLIENTTAG_WARCIIBNE,ladder_id_normal), ladder_ar(CLIENTTAG_WARCIIBNE,ladder_id_normal),1);
+	ladder_make_active(ladder_cw(CLIENTTAG_WARCIIBNE,ladder_id_normal), ladder_aw(CLIENTTAG_WARCIIBNE,ladder_id_normal),0);
+	ladder_make_active(ladder_cg(CLIENTTAG_WARCIIBNE,ladder_id_normal), ladder_ag(CLIENTTAG_WARCIIBNE,ladder_id_normal),0);
+	ladder_make_active(ladder_cr(CLIENTTAG_WARCIIBNE,ladder_id_ironman),ladder_ar(CLIENTTAG_WARCIIBNE,ladder_id_ironman),1);
+	ladder_make_active(ladder_cw(CLIENTTAG_WARCIIBNE,ladder_id_ironman),ladder_aw(CLIENTTAG_WARCIIBNE,ladder_id_ironman),0);
+	ladder_make_active(ladder_cg(CLIENTTAG_WARCIIBNE,ladder_id_ironman),ladder_ag(CLIENTTAG_WARCIIBNE,ladder_id_ironman),0);
 	ladder_update_all_accounts();
     return 0;
 }
@@ -1867,11 +1867,16 @@ int ladder_put_into_ladder(t_binary_ladder_types type, int * values)
   return 0;
 }
 
-extern int ladder_make_active(t_ladder *current, t_ladder *active)
+extern int ladder_make_active(t_ladder *current, t_ladder *active,int set_attributes)
 {
   t_ladder_id id;
   char const * clienttag;
   t_binary_ladder_types type;
+  t_ladder_internal * internal;
+  t_account * account;
+  char const * timestr;
+  t_bnettime bt;
+  int rank = 1;
 
   id = current->ladder_id;
   clienttag = current->clienttag;
@@ -1880,11 +1885,28 @@ extern int ladder_make_active(t_ladder *current, t_ladder *active)
   ladder_destroy(active);
   ladder_init(active,type,clienttag,id);
 
-  active->first = current->first;
-  active->last = current->last;
-  active->dirty = 1;
+  while (internal = ladder_get_rank_internal(current,rank,clienttag)) 
+  {
+    account = internal->account;
+    war3_ladder_add(active,internal->uid,internal->xp,internal->level,account,0,clienttag);
+    if (set_attributes)
+    {
+      account_set_ladder_active_wins(account,clienttag,id,account_get_ladder_wins(account,clienttag,id));
+      account_set_ladder_active_losses(account,clienttag,id,account_get_ladder_losses(account,clienttag,id));
+      account_set_ladder_active_draws(account,clienttag,id,account_get_ladder_draws(account,clienttag,id));
+      account_set_ladder_active_disconnects(account,clienttag,id,account_get_ladder_disconnects(account,clienttag,id));
+      account_set_ladder_active_rating(account,clienttag,id,account_get_ladder_rating(account,clienttag,id));
+      account_set_ladder_active_rank(account,clienttag,id,account_get_ladder_rank(account,clienttag,id));
+      if (!(timestr = account_get_ladder_last_time(account,clienttag,id)))
+        timestr = BNETD_LADDER_DEFAULT_TIME;
+      bnettime_set_str(&bt,timestr);
+      account_set_ladder_active_last_time(account,clienttag,id,bt);
+    }
+    rank++;
+  }
 
-  ladder_init(current,type,clienttag,id);  
+  //now traverse the current ladder and put everything into the active one....
+
 
   return 0;
 }
