@@ -1319,9 +1319,8 @@ extern int anongame_infos_load(char const *filename)
 
     if (!(fp = fopen(filename, "r")))
     {
-	eventlog(eventlog_level_error, "anongameinfo_load", "could not open file \"%s\" for reading (fopen: %s)", filename, pstrerror(errno));
-	anongame_infos_destroy(anongame_infos);
-	return -1;
+	eventlog(eventlog_level_error, "anongameinfo_load", "could not open file \"%s\" for reading (fopen: %s), using default values", filename, pstrerror(errno));
+	goto anongame_infos_loading_failure;
     }
 
     for (line = 1; (buff = file_get_line(fp)); line++)
@@ -1552,7 +1551,8 @@ extern int anongame_infos_load(char const *filename)
 
     file_get_line(NULL); // clear file_get_line buffer
     fclose(fp);
-
+    
+anongame_infos_loading_failure:
     anongame_infos_set_defaults(anongame_infos);
     anongame_infos_data_load();
     return 0;
