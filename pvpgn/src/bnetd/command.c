@@ -4479,7 +4479,10 @@ static int _handle_moderate_command(t_connection * c, char const * text)
   t_channel_flags oldflags;
   t_channel * channel;
 
-  channel = conn_get_channel(c);
+  if (!(conn_get_channel(c)) || !(channel = channel_get_name(conn_get_channel(c)))) {
+    message_send_text(c,message_type_error,c,"This command can only be used inside a channel.");
+    return -1;
+  }
 
   if (!(account_is_operator_or_admin(conn_get_account(c),channel_get_name(channel)))) {
 	message_send_text(c,message_type_error,c,"You must be at least a Channel Operator to use this command.");
