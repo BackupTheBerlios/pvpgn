@@ -3,6 +3,7 @@
  * Copyright (C) 1998,1999,2000,2001  Ross Combs (rocombs@cs.nmsu.edu)
  * Copyright (C) 1999,2000  Rob Crittenden (rcrit@greyoak.com)
  * Copyright (C) 2000,2001  Marco Ziech (mmz@gmx.net)
+ * Copyright (C) 2003 Dizzy 
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -640,8 +641,11 @@ static int _client_countryinfo109(t_connection * c, t_packet const * const packe
 
 static int _client_unknown2b(t_connection * c, t_packet const * const packet)
 {
-   if (packet_get_size(packet)<sizeof(t_client_unknown_2b))
-     eventlog(eventlog_level_error,"handle_bnet_packet","[%d] got bad UNKNOWN_2B packet (expected %u bytes, got %u)",conn_get_socket(c),sizeof(t_client_unknown_2b),packet_get_size(packet));
+   if (packet_get_size(packet)<sizeof(t_client_unknown_2b)) {
+      eventlog(eventlog_level_error,"handle_bnet_packet","[%d] got bad UNKNOWN_2B packet (expected %u bytes, got %u)",conn_get_socket(c),sizeof(t_client_unknown_2b),packet_get_size(packet));
+      return -1;
+   }
+   return 0;
 }
 
 static int _client_progident(t_connection * c, t_packet const * const packet)
@@ -1393,8 +1397,11 @@ static int _client_authreq109(t_connection * c, t_packet const * const packet)
 
 static int _client_regsnoopreply(t_connection * c, t_packet const * const packet)
 {
-   if (packet_get_size(packet)<sizeof(t_client_regsnoopreply))
-     eventlog(eventlog_level_error,"handle_bnet_packet","[%d] got bad REGSNOOPREPLY packet (expected %u bytes, got %u)",conn_get_socket(c),sizeof(t_client_regsnoopreply),packet_get_size(packet));
+   if (packet_get_size(packet)<sizeof(t_client_regsnoopreply)) {
+      eventlog(eventlog_level_error,"handle_bnet_packet","[%d] got bad REGSNOOPREPLY packet (expected %u bytes, got %u)",conn_get_socket(c),sizeof(t_client_regsnoopreply),packet_get_size(packet));
+      return -1;
+   }
+   return 0;
 }
 
 static int _client_iconreq(t_connection * c, t_packet const * const packet)
@@ -3543,8 +3550,11 @@ static int _client_charlistreq(t_connection * c, t_packet const * const packet)
 
 static int _client_unknown39(t_connection * c, t_packet const * const packet)
 {
-   if (packet_get_size(packet)<sizeof(t_client_unknown_39))
-     eventlog(eventlog_level_error,"handle_bnet_packet","[%d] got bad UNKNOWN_39 packet (expected %u bytes, got %u)",conn_get_socket(c),sizeof(t_client_unknown_39),packet_get_size(packet));
+   if (packet_get_size(packet)<sizeof(t_client_unknown_39)) {
+      eventlog(eventlog_level_error,"handle_bnet_packet","[%d] got bad UNKNOWN_39 packet (expected %u bytes, got %u)",conn_get_socket(c),sizeof(t_client_unknown_39),packet_get_size(packet));
+      return -1;
+   }
+   return 0;
 }
 
 static int _client_adreq(t_connection * c, t_packet const * const packet)
