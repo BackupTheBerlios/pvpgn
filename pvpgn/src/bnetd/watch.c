@@ -318,7 +318,7 @@ static int handle_event_whisper(t_account *account, char const *gamename, t_clie
 	}
 	if (pair->owner && (!pair->who || pair->who==account) && ((!pair->clienttag) || (clienttag == pair->clienttag)) && (pair->what&event))
 	{
-	    if (!my_c) my_c = dest_c;
+	    if (!my_c) my_c = pair->owner;
 	    message_send_text(pair->owner,message_type_whisper,my_c,msg);
 	}
     }
