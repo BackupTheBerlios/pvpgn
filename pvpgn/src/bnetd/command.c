@@ -4414,8 +4414,11 @@ static int _handle_topic_command(t_connection * c, char const * text)
     tmp  = strchr(topic,'"');
     if (tmp) tmp[0]='\0';
   }
-
-  eventlog(eventlog_level_trace,__FUNCTION__,"channel: %s topic: %s",channel_name,topic);
+  
+  if (!(conn_get_channel(c)) || !(channel = channel_get_name(conn_get_channel(c)))) {
+    message_send_text(c,message_type_error,c,"This command can only be used inside a channel.");
+    return -1;
+  }
 
   if (channel_name[0]=='\0')
   {
