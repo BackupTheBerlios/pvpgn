@@ -115,7 +115,6 @@ static int compar(const void* a, const void* b);
 /* handlers prototypes */
 static int _client_unknown_1b(t_connection * c, t_packet const * const packet);
 static int _client_compinfo1(t_connection * c, t_packet const * const packet);
-static int _client_compinfo1(t_connection * c, t_packet const * const packet);
 static int _client_compinfo2(t_connection * c, t_packet const * const packet);
 static int _client_countryinfo1(t_connection * c, t_packet const * const packet);
 static int _client_countryinfo109(t_connection * c, t_packet const * const packet);
@@ -182,7 +181,7 @@ static t_htable_row bnet_htable_con[] = {
      { CLIENT_UNKNOWN_1B,       _client_unknown_1b},
      { CLIENT_COMPINFO1,        _client_compinfo1},
      { CLIENT_COMPINFO2,        _client_compinfo2},
-     { CLIENT_COUNTRYINFO1,     _client_countryinfo109},
+     { CLIENT_COUNTRYINFO1,     _client_countryinfo1},
      { CLIENT_COUNTRYINFO_109,  _client_countryinfo109},
      { CLIENT_UNKNOWN_2B,       _client_unknown2b},
      { CLIENT_PROGIDENT,        _client_progident},
