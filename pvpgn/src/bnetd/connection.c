@@ -441,6 +441,7 @@ extern t_connection * conn_create(int tsock, int usock, unsigned int real_local_
     temp->w3_playerinfo = NULL;
 	temp->motd_loggedin = 0;
 	temp->joingamewhisper = 0;
+	temp->leavegamewhisper = 0;
 		
 	if (list_prepend_data(conn_head,temp)<0)
     {
