@@ -1066,9 +1066,9 @@ static unsigned int _tournament_time_convert(unsigned int time)
     unsigned int tmp1, tmp2, tmp3;
     
     tmp1 = time-1059179400;	/* 0x3F21CB88  */
-    tmp2 = tmp1*1073/1800;	/* 0x431/0x708 */
-    tmp3 = tmp2+3276999948U;	/* 0xC3530D0C  */
-/*  eventlog(eventlog_level_trace,__FUNCTION__,"time: 0x%08x, tmp1: 0x%08x, tmp2 0x%08x, tmp3 0x%08x",time,tmp1,tmp2,tmp3); */
+    tmp2 = tmp1*0.59604645;
+    tmp3 = tmp2+3276999960U;
+    /*eventlog(eventlog_level_trace,__FUNCTION__,"time: 0x%08x, tmp1: 0x%08x, tmp2 0x%08x, tmp3 0x%08x",time,tmp1,tmp2,tmp3);*/
 
     return tmp3;
 }
