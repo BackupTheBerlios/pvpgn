@@ -30,7 +30,7 @@
 #ifdef HAVE__VSNPRINTF
 #define vsnprintf(str,size,format,ap) _vsnprintf(str,size,format,ap)
 #else
-#ifdef defined(_IOSTRG) && defined(_IOSTRG) && defined(HAVE_DOPRNT)
+#if defined(_IOSTRG) && defined(_IOSTRG) && defined(HAVE_DOPRNT)
 extern int vsnprintf(char *str, int size, const char *format, va_list ap);
 #else
 #error "Your system lacks ANY kind of vsnprintf support!"
