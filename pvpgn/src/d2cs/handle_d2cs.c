@@ -873,11 +873,6 @@ static int on_client_charlistreq(t_connection * c, t_packet * packet)
 		packet_set_size(rpacket,sizeof(t_d2cs_client_charlistreply));
 		packet_set_type(rpacket,D2CS_CLIENT_CHARLISTREPLY);
 		bn_short_set(&rpacket->u.d2cs_client_charlistreply.u1,0);
-		if (prefs_allow_newchar()) {
-			bn_short_set(&rpacket->u.d2cs_client_charlistreply.maxchar,maxchar);
-		} else {
-			bn_short_set(&rpacket->u.d2cs_client_charlistreply.maxchar,0);
-		}
 		n=0;
 		if (!(dir=p_opendir(path))) {
 			eventlog(eventlog_level_info,__FUNCTION__,"(*%s) charinfo directory do not exist, building it",account);
@@ -893,6 +888,11 @@ static int on_client_charlistreq(t_connection * c, t_packet * packet)
 				d2charlist_add_char(d2c, charname, charinfo.header.last_time,charinfo.summary.charlevel,charinfo.summary.experience);
 				n++;
 				if (n>=maxchar) break;
+			}
+			if (prefs_allow_newchar() && (n<maxchar)) {
+				bn_short_set(&rpacket->u.d2cs_client_charlistreply.maxchar,maxchar);
+			} else {
+				bn_short_set(&rpacket->u.d2cs_client_charlistreply.maxchar,0);
 			}
 			p_closedir(dir);
 			if (!strcmp(charlist_sort_order, "ASC"))
@@ -977,11 +977,6 @@ static int on_client_charlistreq_110(t_connection * c, t_packet * packet)
 		packet_set_size(rpacket,sizeof(t_d2cs_client_charlistreply_110));
 		packet_set_type(rpacket,D2CS_CLIENT_CHARLISTREPLY_110);
 		bn_short_set(&rpacket->u.d2cs_client_charlistreply_110.u1,0);
-		if (prefs_allow_newchar()) {
-			bn_short_set(&rpacket->u.d2cs_client_charlistreply.maxchar,maxchar);
-		} else {
-			bn_short_set(&rpacket->u.d2cs_client_charlistreply.maxchar,0);
-		}
 		n=0;
 		if (!(dir=p_opendir(path))) {
 			eventlog(eventlog_level_info,__FUNCTION__,"(*%s) charinfo directory do not exist, building it",account);
@@ -1003,6 +998,11 @@ static int on_client_charlistreq_110(t_connection * c, t_packet * packet)
 				d2charlist_add_char(d2c, charname, charinfo.header.last_time,charinfo.summary.charlevel,charinfo.summary.experience);
 				n++;
 				if (n>=maxchar) break;
+			}
+			if (prefs_allow_newchar() && (n<maxchar)) {
+				bn_short_set(&rpacket->u.d2cs_client_charlistreply.maxchar,maxchar);
+			} else {
+				bn_short_set(&rpacket->u.d2cs_client_charlistreply.maxchar,0);
 			}
 			p_closedir(dir);
 			if (!strcmp(charlist_sort_order, "ASC"))
