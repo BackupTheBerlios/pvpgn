@@ -167,6 +167,7 @@ static void memstat_sig_handle(int unused);
 
 
 static time_t starttime;
+static time_t curr_exittime;
 static volatile time_t sigexittime=0;
 static volatile int do_restart=0;
 static volatile int do_save=0;
@@ -279,6 +280,14 @@ static int sd_accept(t_addr const * curr_laddr, t_laddr_info const * laddr_info,
     unsigned int       raddr;
     unsigned short     rport;
 		    
+    /* dont accept new connections while shutdowning */
+    if (curr_exittime) {
+	if ((csocket = psock_accept(ssocket, NULL, NULL)) > 0)
+	psock_shutdown(csocket,PSOCK_SHUT_RDWR);
+	psock_close(csocket);
+	return 0;
+    }
+
     if (!addr_get_addr_str(curr_laddr,tempa,sizeof(tempa)))
 	strcpy(tempa,"x.x.x.x:x");
     
@@ -919,7 +928,7 @@ extern int server_process(void)
     t_addr *        curr_laddr;
     t_addr_data     laddr_data;
     t_laddr_info *  laddr_info;
-    time_t          curr_exittime, prev_exittime, prev_savetime, track_time, now;
+    time_t          prev_exittime, prev_savetime, track_time, now;
     time_t          war3_ladder_updatetime;
     time_t          output_updatetime;
     unsigned int    syncdelta;
@@ -1552,14 +1561,14 @@ extern int server_process(void)
     
     /* cleanup for server shutdown */
     
-    fdwatch_close();
-
     LIST_TRAVERSE_CONST(connlist(),ccurr)
     {
 	c = elem_get_data(ccurr);
 	conn_destroy(c);
     }
     
+    fdwatch_close();
+
     LIST_TRAVERSE_CONST(laddrs,acurr)
     {
 	curr_laddr = elem_get_data(acurr);
