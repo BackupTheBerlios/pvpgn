@@ -4271,7 +4271,7 @@ static int _client_startgame1(t_connection * c, t_packet const * const packet)
 		 }
 	    }
 	else
-	  eventlog(eventlog_level_info,__FUNCTION__,"[%d] client tried to set game status to DONE",conn_get_socket(c));
+	  eventlog(eventlog_level_info,__FUNCTION__,"[%d] client tried to set game status DONE to destroyed game",conn_get_socket(c));
 #endif /* !WITH_BITS */
      }
    
@@ -4378,7 +4378,7 @@ static int _client_startgame3(t_connection * c, t_packet const * const packet)
 		 }
 	    }
 	else
-	  eventlog(eventlog_level_info,__FUNCTION__,"[%d] client tried to set game status to DONE",conn_get_socket(c));
+	  eventlog(eventlog_level_info,__FUNCTION__,"[%d] client tried to set game status DONE to destroyed game",conn_get_socket(c));
 #endif /* !WITH_BITS */
      }
    
@@ -4523,7 +4523,7 @@ static int _client_startgame4(t_connection * c, t_packet const * const packet)
 	       }
 	  }
 	else
-	  eventlog(eventlog_level_info,__FUNCTION__,"[%d] client tried to set game status to DONE",conn_get_socket(c));
+	  eventlog(eventlog_level_info,__FUNCTION__,"[%d] client tried to set game status DONE to destroyed game",conn_get_socket(c));
 #endif /* !WITH_BITS */
      }
    
