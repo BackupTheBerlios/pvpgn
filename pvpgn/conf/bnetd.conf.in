@@ -319,6 +319,9 @@ passfail_count = 0
 # Password fail IP ban duration (in seconds)
 passfail_bantime = 300
 
+# Max users limit in private channels (0 = unlimited)
+maxusers_per_channel = 0
+
 #                                                                            #
 ##############################################################################
 

@@ -192,6 +192,7 @@ extern unsigned int prefs_get_clan_channel_default_private(void) ;
 
 extern unsigned int prefs_get_passfail_count(void) ;
 extern unsigned int prefs_get_passfail_bantime(void) ;
+extern unsigned int prefs_get_maxusers_per_channel(void) ;
 
 #endif
 #endif

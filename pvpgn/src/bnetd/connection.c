@@ -2139,9 +2139,9 @@ extern int conn_set_channel(t_connection * c, char const * channelname)
     if (!channel)
 	{
         if(clantag)
-            channel = channel_create(channelname,channelname,CLIENTTAG_WAR3XP,0,1,0,prefs_get_chanlog(), NULL, NULL, -1,0);
+            channel = channel_create(channelname,channelname,CLIENTTAG_WAR3XP,0,1,0,prefs_get_chanlog(), NULL, NULL, (prefs_get_maxusers_per_channel() > 0) ? prefs_get_maxusers_per_channel() : -1,0);
         else
-            channel = channel_create(channelname,channelname,NULL,0,1,1,prefs_get_chanlog(), NULL, NULL, -1,0);
+			channel = channel_create(channelname,channelname,NULL,0,1,1,prefs_get_chanlog(), NULL, NULL, (prefs_get_maxusers_per_channel() > 0) ? prefs_get_maxusers_per_channel() : -1,0);
 	    if (!channel)
 	    {
 		eventlog(eventlog_level_error,"conn_set_channel","[%d] could not create channel on join \"%s\"",conn_get_socket(c),channelname);

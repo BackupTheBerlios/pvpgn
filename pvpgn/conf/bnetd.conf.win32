@@ -48,7 +48,6 @@ storage_path = file:dir=var\users;clan=var\clans;default=conf\bnetd_default_user
 #----------------------------------------------------------------------------#
 
 filedir     = files
-userdir     = var\users
 reportdir   = var\reports
 chanlogdir  = var\chanlogs
 motdfile    = conf\bnmotd.txt
@@ -223,7 +222,7 @@ new_accounts = true
 kick_old_login = true
 #kick_old_login = false
 # With no passwords, this is bad to have enabled --NonReal
-
+		
 # If a user is creating a new channel, should it be added automatically, or
 # prompt them first?
 ask_new_channel = true
@@ -300,6 +299,9 @@ passfail_count = 0
 
 # Password fail IP ban duration (in seconds)
 passfail_bantime = 300
+
+# Max users limit in private channels (0 = unlimited)
+maxusers_per_channel = 0
 
 #                                                                            #
 ##############################################################################

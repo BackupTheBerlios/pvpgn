@@ -9,6 +9,13 @@ It should contain:
 -- all new/changed config files in the conf/ subfolder
 The path's specified are those of the default unix installation
 
+ Updating from 1.6.0 pre 3 to 1.6.0 pre 4
+===========================================
+
+changes to bnetd.conf:
+----------------------
+-- added: maxusers_per_channel = 0
+
  Updating from 1.6.0 pre 2 to 1.6.0 pre 3
 ===========================================
 
