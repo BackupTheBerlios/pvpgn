@@ -281,6 +281,7 @@ static int server_handle_socket(void)
 			}
 			/* fall through */
 		case 0:
+			d2cs_connlist_reap();
 			return 0;
 		default:
 			break;
