@@ -27,6 +27,13 @@
 #  include <strings.h>
 # endif
 #endif
+#ifdef STDC_HEADERS
+# include <stdlib.h>
+#else
+# ifdef HAVE_MALLOC_H
+#  include <malloc.h>
+# endif
+#endif
 #include "common/eventlog.h"
 #include "fdwatch.h"
 #ifdef HAVE_SELECT

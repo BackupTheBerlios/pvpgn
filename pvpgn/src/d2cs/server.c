@@ -98,7 +98,6 @@
 #endif
 #include "common/setup_after.h"
 
-static int server_purge_list(void);
 static int server_listen(void);
 static int server_accept(int sock);
 static int server_handle_timed_event(void);

@@ -30,6 +30,13 @@
 #  include <memory.h>
 # endif
 #endif
+#ifdef STDC_HEADERS
+# include <stdlib.h>
+#else
+# ifdef HAVE_MALLOC_H
+#  include <malloc.h>
+# endif
+#endif
 
 #ifdef WIN32
 # include "compat/socket.h" /* is this needed */

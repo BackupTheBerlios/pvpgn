@@ -504,7 +504,8 @@ void post_server_shutdown(int status)
 	    anongame_maplists_destroy();
 	case STATUS_MAPLISTS_FAILURE:
 	case STATUS_SUPPORT_FAILURE:
-	    psock_deinit();
+	    if (psock_deinit())
+		eventlog(eventlog_level_error, __FUNCTION__, "got error from psock_deinit()");
 	case STATUS_PSOCK_FAILURE:
 	    storage_close();
 	case STATUS_STORAGE_FAILURE:

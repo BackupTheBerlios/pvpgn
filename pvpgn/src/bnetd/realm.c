@@ -337,13 +337,11 @@ extern int realmlist_create(char const * filename)
     unsigned int    pos;
     unsigned int    len;
     t_addr *        raddr;
-    t_addr *	    showraddr;
     char *          temp, *temp2;
     char *          buff;
     char *          name;
     char *          desc;
     t_realm *       realm;
-    t_netaddr *     exclude_net;
     
     if (!filename)
     {
