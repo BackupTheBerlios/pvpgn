@@ -535,8 +535,8 @@ static int file_load_clans(t_load_clans_func cb)
     int clantag;
     t_clan *clan;
     FILE *fp;
-    char clanname[CLAN_NAME_MAX + 1];
-    char motd[51];
+    char *clanname, *motd, *p;
+    char line[1024];
     int cid, creation_time;
     int member_uid, member_join_time;
     char member_status;
@@ -566,13 +566,13 @@ static int file_load_clans(t_load_clans_func cb)
 	if (dentry[0] == '.')
 	    continue;
 
-	sprintf(pathname, "%s/%s", clansdir, dentry);
-
 	if (strlen(dentry) > 4)
 	{
 	    eventlog(eventlog_level_error, __FUNCTION__, "found too long clan filename in clandir \"%s\"", dentry);
 	    continue;
 	}
+
+	sprintf(pathname, "%s/%s", clansdir, dentry);
 
 	clantag = str_to_clantag(dentry);
 
@@ -592,9 +592,78 @@ static int file_load_clans(t_load_clans_func cb)
 
 	clan->clantag = clantag;
 
-	fscanf(fp, "\"%[^\"]\",\"%[^\"]\",%i,%i\n", clanname, motd, &cid, &creation_time);
-	clan->clanname = strdup(clanname);
-	clan->clan_motd = strdup(motd);
+	if (!fgets(line, 1024, fp))
+	{
+	    eventlog(eventlog_level_error, __FUNCTION__, "invalid clan file: no first line");
+	    free((void*)clan);
+	    continue;
+	}
+
+	clanname = line;
+	if (*clanname != '"')
+	{
+	    eventlog(eventlog_level_error, __FUNCTION__, "invalid clan file: invalid first line");
+	    free((void*)clan);
+	    continue;
+	}
+	clanname++;
+	p = strchr(clanname, '"');
+	if (!p)
+	{
+	    eventlog(eventlog_level_error, __FUNCTION__, "invalid clan file: invalid first line");
+	    free((void*)clan);
+	    continue;
+	}
+	*p = '\0';
+	if (strlen(clanname) >= CLAN_NAME_MAX)
+	{
+	    eventlog(eventlog_level_error, __FUNCTION__, "invalid clan file: invalid first line");
+	    free((void*)clan);
+	    continue;
+	}
+
+	p++;
+	if (*p != ',')
+	{
+	    eventlog(eventlog_level_error, __FUNCTION__, "invalid clan file: invalid first line");
+	    free((void*)clan);
+	    continue;
+	}
+	p++;
+	if (*p != '"')
+	{
+	    eventlog(eventlog_level_error, __FUNCTION__, "invalid clan file: invalid first line");
+	    free((void*)clan);
+	    continue;
+	}
+	motd = p + 1;
+	p = strchr(motd, '"');
+	if (!p)
+	{
+	    eventlog(eventlog_level_error, __FUNCTION__, "invalid clan file: invalid first line");
+	    free((void*)clan);
+	    continue;
+	}
+	*p = '\0';
+
+	if (sscanf(p + 1, ",%d,%d\n", &cid, &creation_time) != 2)
+	{
+	    eventlog(eventlog_level_error, __FUNCTION__, "invalid first line in clanfile");
+	    free((void*)clan);
+	    continue;
+	}
+	if ((clan->clanname = strdup(clanname)) == NULL)
+	{
+	    eventlog(eventlog_level_error, __FUNCTION__, "not enough memory to store clanname");
+	    free((void*)clan);
+	    continue;
+	}
+	if ((clan->clan_motd = strdup(motd)) == NULL)
+	{
+	    eventlog(eventlog_level_error, __FUNCTION__, "not enough memory to store motd");
+	    free((void*)clan);
+	    continue;
+	}
 	clan->clanid = cid;
 	clan->creation_time = (time_t) creation_time;
 	clan->created = 1;
@@ -603,7 +672,14 @@ static int file_load_clans(t_load_clans_func cb)
 
 	eventlog(eventlog_level_trace, __FUNCTION__, "name: %s motd: %s clanid: %i time: %i", clanname, motd, cid, creation_time);
 
-	clan->members = list_create();
+	if ((clan->members = list_create()) == NULL)
+	{
+	    eventlog(eventlog_level_error, __FUNCTION__, "could not allocate memory for clan members");
+	    free((void*)clan);
+	    free((void *) pathname);
+	    p_closedir(clandir);
+	    return -1;
+	}
 
 	while (fscanf(fp, "%i,%c,%i\n", &member_uid, &member_status, &member_join_time) == 3)
 	{
@@ -611,10 +687,8 @@ static int file_load_clans(t_load_clans_func cb)
 	    {
 		eventlog(eventlog_level_error, __FUNCTION__, "cannot allocate memory for clan member");
 		clan_remove_all_members(clan);
-		if (clan->clanname)
-		    free((void *) clan->clanname);
-		if (clan->clan_motd)
-		    free((void *) clan->clan_motd);
+		free((void *) clan->clanname);
+		free((void *) clan->clan_motd);
 		free((void *) clan);
 		fclose(fp);
 		free((void *) pathname);
@@ -643,10 +717,8 @@ static int file_load_clans(t_load_clans_func cb)
 		eventlog(eventlog_level_error, __FUNCTION__, "could not append item");
 		free((void *) member);
 		clan_remove_all_members(clan);
-		if (clan->clanname)
-		    free((void *) clan->clanname);
-		if (clan->clan_motd)
-		    free((void *) clan->clan_motd);
+		free((void *) clan->clanname);
+		free((void *) clan->clan_motd);
 		free((void *) clan);
 		fclose(fp);
 		free((void *) pathname);
