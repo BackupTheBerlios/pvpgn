@@ -34,7 +34,7 @@
 # storage_path = file:mode=plain;dir=var\users;clan=var\clans;team=var\teams\;default=conf\bnetd_default_user.plain
 # storage_path = file:mode=cdb;dir=var\userscdb;clan=var\clans;team=var\teams\;default=conf\bnetd_default_user.cdb
 # storage_path = sql:mode=mysql;host=127.0.0.1;name=PVPGN;user=pvpgn;pass=pvpgnrocks;default=0
-# storage_path = sql:mode=sqlite3;name=/usr/local/var/users.db;default=0
+# storage_path = sql:mode=sqlite3;name=var\users.db;default=0
 #----------------------------------------------------------------------------#
 
 storage_path = file:mode=plain;dir=var\users;clan=var\clans;team=var\teams;default=conf\bnetd_default_user.plain
