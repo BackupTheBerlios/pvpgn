@@ -254,27 +254,16 @@ W2BN_202
 
 # =================== WarCraft 3 Frozen Throne ==================
 
-# WarCraft 3 Expansion 3.04b (in the patch log it was mispelled to 3.04a)
+# WarCraft 3 Expansion 3.05a
 "A=3845581634 B=880823580 C=1363937103 4 A=A-S B=B-C C=C-A A=A-B" \
 IX86ver1.mpq \
 IX86 \
 W3XP \
-"War3.exe 03/24/03 20:53:08 1211859" \
-0x00000130 \
-1.0.7.126 \
-0x8d84bf0a \
-W3XP_304B
+"war3.exe 03/28/03 00:54:52 1207763" \
+0x00000131 \
+1.0.7.127 \
+0x789fb3e4
 
-# WarCraft 3 Expansion 3.04a
-#"A=3845581634 B=880823580 C=1363937103 4 A=A-S B=B-C C=C-A A=A-B" \
-#IX86ver1.mpq \
-#IX86 \
-#W3XP \
-#"war3.exe 03/22/03 00:36:18 1211859" \
-#0x00000130 \
-#1.0.7.125 \
-#0x43da2361 \
-#W3XP_304A
 
 # ==================== WARCRAFT3 entries =======================
 

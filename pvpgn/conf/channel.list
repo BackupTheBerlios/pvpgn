@@ -22,6 +22,16 @@ NONE                 "Starcraft Shareware" SSHR true  false false "USA" NULL 30
 NONE                 "Diablo Retail"      DRTL  true  false false "USA" NULL 30
 NONE                 "War2BNE"            W2BN  true  false false "USA" NULL 30
 NONE                 "Diablo II"          D2DV  true  false false "USA" NULL 30
+"Human Castle"       "Human Castle"       WAR3  false false false  NULL NULL -1
+"Orc Stronghold"     "Orc Stronghold"     WAR3  false false false  NULL NULL -1
+"Undead Necropolis" "Undead Necropolis"   WAR3  false false false  NULL NULL -1
+"Night Elf Tree of Life"  "Night Elf Tree of Life"  WAR3  false  false  false NULL NULL -1
+"Dragon Roost"       "Dragon Roost"       WAR3  false false false  NULL NULL -1
+"Human Castle"       "Human Castle"       W3XP  false false false  NULL NULL -1
+"Orc Stronghold"     "Orc Stronghold"     W3XP  false false false  NULL NULL -1
+"Undead Necropolis" "Undead Necropolis"   W3XP  false false false  NULL NULL -1
+"Night Elf Tree of Life"  "Night Elf Tree of Life"  W3XP  false  false  false NULL NULL -1
+"Dragon Roost"       "Dragon Roost"       W3XP  false false false  NULL NULL -1
 "Chat"               "Chat"               CHAT  true  false false  NULL NULL -1
 "Warcraft 3 Frozen Throne"   "W3"         W3XP  true  false false  NULL NULL -1
 "Warcraft 3"         "W3"                 WAR3  true  false false  NULL NULL -1
