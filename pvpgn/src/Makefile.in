@@ -59,6 +59,7 @@ SRC_COMMONDIR	= ${SRC_SRCDIR}/common
 SRC_COMPATDIR	= ${SRC_SRCDIR}/compat
 SRC_DEBUGDIR	= ${SRC_SRCDIR}/debug
 SRC_CDBDIR	= ${SRC_SRCDIR}/tinycdb
+SRC_ZLIBDIR     = ${SRC_SRCDIR}/zlib
 
 RMF		= rm -f
 
@@ -208,7 +209,11 @@ ${SRC_CDBDIR}/cdb_make_add.o \
 ${SRC_CDBDIR}/cdb_make_put.o \
 ${SRC_CDBDIR}/cdb_make_find.o \
 ${SRC_CDBDIR}/cdb_make.o \
-${SRC_CDBDIR}/cdb_hash.o
+${SRC_CDBDIR}/cdb_hash.o \
+$(SRC_ZLIBDIR)/adler32.o \
+$(SRC_ZLIBDIR)/deflate.o \
+$(SRC_ZLIBDIR)/trees.o \
+$(SRC_ZLIBDIR)/zutil.o
 
 
 d2cs_SBIN       = ${SRC_SBINDIR}/d2cs

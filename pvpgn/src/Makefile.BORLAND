@@ -69,6 +69,7 @@ SRC_COMPATDIR   = ${SRC_SRCDIR}\compat
 SRC_DEBUGDIR    = ${SRC_SRCDIR}\debug
 SRC_WIN32DIR	= ${SRC_SRCDIR}\win32
 SRC_CDBDIR      = ${SRC_SRCDIR}\tinycdb
+SRC_ZLIBDIR      = ${SRC_SRCDIR}\zlib
 
 MKDIR           = md
 
@@ -253,7 +254,11 @@ bnetd_OBJECTS       = \
     ${SRC_CDBDIR}\cdb_make_put.obj \
     ${SRC_CDBDIR}\cdb_make_find.obj \
     ${SRC_CDBDIR}\cdb_make.obj \
-    ${SRC_CDBDIR}\cdb_hash.obj
+    ${SRC_CDBDIR}\cdb_hash.obj \
+    $(SRC_ZLIBDIR)\adler32.obj \
+    $(SRC_ZLIBDIR)\deflate.obj \
+    $(SRC_ZLIBDIR)\trees.obj \
+    $(SRC_ZLIBDIR)\zutil.obj
 
 
 bnetg_SBIN          = ${SRC_SBINDIR}\bnetg.exe
