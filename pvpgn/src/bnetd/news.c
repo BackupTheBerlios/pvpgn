@@ -85,6 +85,8 @@ extern int news_load(const char *filename)
 	return -1;
     }
 
+	setbuf(fp,NULL);
+
     date=malloc(sizeof(struct tm));
 	
     for (line=1; (buff = news_read_file(fp)); line++) {
