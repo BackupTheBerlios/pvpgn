@@ -29,13 +29,7 @@ a client lib)
 	    and functions to acomplish this task
 	4. add stats recording for tournament games (did race wins)
 
-* moving from current team stuff to teamID (thats something DJP and his guys 
-wanted to do) 
-
 * changing data references from accountnames to UIDs .... 
-
-* according to forum post, sometimes the teamcount gets reduced too much 
-(set to -1) only i W3XP, when the team is disbanded before the first play 
 
 * design a plugins support and move in time all the code in plugins (except
 the core code of course)
