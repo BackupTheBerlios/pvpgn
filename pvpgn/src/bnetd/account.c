@@ -491,9 +491,11 @@ extern int account_save(t_account * account, unsigned int delta)
 	return -1;
      }
 #endif
-   
+
+#ifndef WITH_MYSQL   
    if (!account->loaded)
      return 0;
+#endif
    
    if (!account->dirty)
      {
@@ -679,13 +681,6 @@ extern char const * account_get_strattr(t_account * account, char const * key)
     }
 
     account->accessed = 1;
-    
-    if (!account->loaded)
-        if (account_load_attrs(account)<0)
-	{
-	    eventlog(eventlog_level_error,"account_get_strattr","could not load attributes");
-	    return NULL;
-	}
 
     if (strncasecmp(key,"DynKey",6)==0)
       {
@@ -713,32 +708,19 @@ extern char const * account_get_strattr(t_account * account, char const * key)
 	eventlog(eventlog_level_info,"get_strattr","we have a clan request");
 	return account_get_w3_clanname(account);
       }
-
-#ifdef WITH_MYSQL
-    // we have a tiny little problem: in the DB each \\ is stored as _ and each _ is taken for a \\
-    // so if we try to grab an attribute with _ in it the DB says fuck you...
-    // so let's just cheat a little bit... and make every _ a \\ in the key
-    
-    if (strchr(key,'_')!= NULL)
-      {
-	char * temp;
-       	char * modkey;
-
-	if (!(temp = strdup(key)))
-	  {
-	    eventlog(eventlog_level_error,"account_get_strattr","could not allocate memory for temp");
-	    return NULL;
-	  }
-	
-	for (modkey = temp; *modkey; modkey++)
-	  if (*modkey=='_') *modkey='\\';
-	newkey = temp;
-      }
-    
-#endif
       else
 	newkey = key;
+
+#ifndef WITH_MYSQL
+    if (!account->loaded)
+        if (account_load_attrs(account)<0)
+	{
+	    eventlog(eventlog_level_error,"account_get_strattr","could not load attributes");
+	    return NULL;
+	}
+#endif
     
+      
     last = NULL;
     last2 = NULL;
     if (account->attrs)
@@ -771,11 +753,41 @@ extern char const * account_get_strattr(t_account * account, char const * key)
 	}
     if (newkey!=key)
 	free((void *)newkey); /* avoid warning */
-    
+
+#ifdef WITH_MYSQL
+   char const * result1 = NULL;
+   char const * result2 = NULL;
+   char const * result  = NULL;
+   result1 = storage_get(account->storageid,key);
+   if (account == default_acct) return result1;
+   if (result1 == NULL) result2=account_get_strattr(default_acct,key);
+   if (result1 != NULL) result=result1; else result=result2;
+   t_attribute * attr;
+   attr = malloc(sizeof(t_attribute));
+   attr->key = strdup(key);
+   attr->val = result;
+   attr->dirty = 0;
+   attr->next = account->attrs;
+   account->attrs=attr;
+   if (result1 == NULL)
+   {
+     t_attribute * attr;
+     attr = malloc(sizeof(t_attribute));
+     attr->key = strdup(key);
+     if (result2!=NULL) attr->val = strdup(result2);
+                   else attr->val = NULL;
+     attr->dirty = 0;
+     attr->next = default_acct->attrs;
+     default_acct->attrs=attr;
+   }
+   
+   return result;
+#else
     if (account==default_acct) /* don't recurse infinitely */
 	return NULL;
     
     return account_get_strattr(default_acct,key); /* FIXME: this is sorta dangerous because this pointer can go away if we re-read the config files... verify that nobody caches non-username, userid strings */
+#endif
 }
 
 
@@ -833,12 +845,14 @@ extern int account_set_strattr(t_account * account, char const * key, char const
     }
     
 #ifndef WITH_BITS
+#ifndef WITH_MYSQL
     if (!account->loaded)
         if (account_load_attrs(account)<0)
 	{
 	    eventlog(eventlog_level_error,"account_set_strattr","could not load attributes");
 	    return -1;
 	}
+#endif
 #endif
     curr = account->attrs;
     if (!curr) /* if no keys in attr list then we need to insert it */

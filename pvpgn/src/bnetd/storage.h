@@ -51,6 +51,7 @@ extern int storage_account_getnext(t_readacct *, unsigned int*);
 extern int storage_account_close(t_readacct *);
 
 extern int storage_set(unsigned int, const char *, const char *);
+extern char const * storage_get(unsigned int, char const *);
 #endif
 
 #endif

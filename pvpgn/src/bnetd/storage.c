@@ -230,4 +230,29 @@ extern int storage_set(unsigned int sid, const char *key, const char *val)
    return result;
 }
 
+
+extern char const * storage_get(unsigned int sid, const char *key)
+{
+
+   char const * result;
+   
+   if (key == NULL) {
+      eventlog(eventlog_level_error,"storage_get", "got NULL key");
+      return NULL;
+   }
+   
+   if (db_init()<0) {
+      eventlog(eventlog_level_error,"storage_get","faild to init db");
+      return NULL;
+   }
+   
+   result = db_get_attribute(sid, key);
+   
+   if (!prefs_get_mysql_persistent()) {
+      db_close();
+   }
+   
+   return result;
+}
+
 #endif
