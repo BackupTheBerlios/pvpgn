@@ -2522,21 +2522,47 @@ extern char const * conn_get_playerinfo(t_connection const * c)
     }
     else if (strcmp(clienttag,CLIENTTAG_STARCRAFT)==0)
     {
-	sprintf(playerinfo,"%s %u %u %u %u %u",
-		revtag,
-		account_get_ladder_rating(account,clienttag,ladder_id_normal),
-		account_get_ladder_rank(account,clienttag,ladder_id_normal),
-		account_get_normal_wins(account,clienttag),
-		0,0);
+        if (conn_get_versionid(c)<=0x000000c7)
+	{
+	  sprintf(playerinfo,"%s %u %u %u %u %u",
+		  revtag,
+		  account_get_ladder_rating(account,clienttag,ladder_id_normal),
+		  account_get_ladder_rank(account,clienttag,ladder_id_normal),
+		  account_get_normal_wins(account,clienttag),
+		  0,0);
+	}
+	else
+	{
+	  sprintf(playerinfo,"%s %u %u %u %u %u %u %u %u %s",
+		  revtag,
+		  account_get_ladder_rating(account,clienttag,ladder_id_normal),
+		  account_get_ladder_rank(account,clienttag,ladder_id_normal),
+		  account_get_normal_wins(account,clienttag),
+		  0,0,0,0,0,
+		  revtag);
+	}
     }
     else if (strcmp(clienttag,CLIENTTAG_BROODWARS)==0)
     {
-	sprintf(playerinfo,"%s %u %u %u %u %u",
-		revtag,
-		account_get_ladder_rating(account,clienttag,ladder_id_normal),
-		account_get_ladder_rank(account,clienttag,ladder_id_normal),
-		account_get_normal_wins(account,clienttag),
-		0,0);
+        if (conn_get_versionid(c)<=0x000000c7)
+	{
+	  sprintf(playerinfo,"%s %u %u %u %u %u",
+		  revtag,
+		  account_get_ladder_rating(account,clienttag,ladder_id_normal),
+		  account_get_ladder_rank(account,clienttag,ladder_id_normal),
+		  account_get_normal_wins(account,clienttag),
+		  0,0);
+	}
+	else
+	{
+	  sprintf(playerinfo,"%s %u %u %u %u %u %u %u %u %s",
+		  revtag,
+		  account_get_ladder_rating(account,clienttag,ladder_id_normal),
+		  account_get_ladder_rank(account,clienttag,ladder_id_normal),
+		  account_get_normal_wins(account,clienttag),
+		  0,0,0,0,0,
+		  revtag);
+	}
     }
     else if (strcmp(clienttag,CLIENTTAG_SHAREWARE)==0)
     {

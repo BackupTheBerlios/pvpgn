@@ -4,6 +4,8 @@ PvPGN Version History:
 
 [STAR/SEXP/W2BN]: changed handling of gameresults to be democratic
 
+[STAR/SEXP] : fixed "v1.11 can't play ladder games"-problem
+
 [IRC]: major cleanup of handle_irc.c
   -- hiding IP on channel join/leave to non admins when hide_addr=true
   -- now on IRC channel topics are supported (at least their output)
