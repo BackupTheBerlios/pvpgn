@@ -160,12 +160,16 @@ extern int g_ServiceStatus;
 static void quit_sig_handle(int unused);
 static void restart_sig_handle(int unused);
 static void save_sig_handle(int unused);
+#ifdef HAVE_SETITIMER
+static void timer_sig_handle(int unused);
+#endif
 #endif
 #ifdef USE_CHECK_ALLOC
 static void memstat_sig_handle(int unused);
 #endif
 
 
+static time_t now;
 static time_t starttime;
 static time_t curr_exittime;
 static volatile time_t sigexittime=0;
@@ -220,11 +224,17 @@ static void save_sig_handle(int unused)
     do_save = 1;
 }
 
-
 static void pipe_sig_handle(int unused)
 {
     got_epipe = 1;
 }
+
+#ifdef HAVE_SETITIMER
+static void timer_sig_handle(int unused)
+{
+    time(&now);
+}
+#endif
 #endif
 
 
@@ -928,7 +938,7 @@ extern int server_process(void)
     t_addr *        curr_laddr;
     t_addr_data     laddr_data;
     t_laddr_info *  laddr_info;
-    time_t          prev_exittime, prev_savetime, track_time, now;
+    time_t          prev_exittime, prev_savetime, track_time;
     time_t          war3_ladder_updatetime;
     time_t          output_updatetime;
     unsigned int    syncdelta;
@@ -1265,6 +1275,11 @@ extern int server_process(void)
 	eventlog(eventlog_level_error,"server_process","could not add signal to set (sigemptyset: %s)",strerror(errno));
 	goto error_poll;
     }
+    if (sigaddset(&block_set,SIGALRM)<0)
+    {
+	eventlog(eventlog_level_error,"server_process","could not add signal to set (sigemptyset: %s)",strerror(errno));
+	goto error_poll;
+    }
     
     {
 	struct sigaction quit_action;
@@ -1274,6 +1289,9 @@ extern int server_process(void)
 # ifdef USE_CHECK_ALLOC
 	struct sigaction memstat_action;
 # endif
+#ifdef	HAVE_SETITIMER
+	struct sigaction timer_action;
+#endif
 	
 	quit_action.sa_handler = quit_sig_handle;
 	if (sigemptyset(&quit_action.sa_mask)<0)
@@ -1301,6 +1319,12 @@ extern int server_process(void)
 	if (sigemptyset(&pipe_action.sa_mask)<0)
 	    eventlog(eventlog_level_error,"server_process","could not initialize signal set (sigemptyset: %s)",strerror(errno));
 	pipe_action.sa_flags = SA_RESTART;
+#ifdef HAVE_SETITIMER
+	timer_action.sa_handler = timer_sig_handle;
+	if (sigemptyset(&timer_action.sa_mask)<0)
+	    eventlog(eventlog_level_error,"server_process","could not initialize signal set (sigemptyset: %s)",strerror(errno));
+	timer_action.sa_flags = SA_RESTART;
+#endif /* HAVE_SETITIMER */
 	
 	if (sigaction(SIGINT,&quit_action,NULL)<0) /* control-c */
 	    eventlog(eventlog_level_error,"server_process","could not set SIGINT signal handler (sigaction: %s)",strerror(errno));
@@ -1316,6 +1340,25 @@ extern int server_process(void)
 # endif
 	if (sigaction(SIGPIPE,&pipe_action,NULL)<0)
 	    eventlog(eventlog_level_error,"server_process","could not set SIGPIPE signal handler (sigaction: %s)",strerror(errno));
+#ifdef HAVE_SETITIMER
+	/* setup asynchronus timestamp update timer */
+	if (sigaction(SIGALRM,&timer_action,NULL)<0)
+	    eventlog(eventlog_level_error,"server_process","could not set SIGALRM signal handler (sigaction: %s)",strerror(errno));
+
+	{
+	    struct itimerval it;
+
+	    it.it_interval.tv_sec = BNETD_JIFFIES / 1000;
+	    it.it_interval.tv_usec = BNETD_JIFFIES % 1000;
+	    it.it_value.tv_sec = BNETD_JIFFIES / 1000;
+	    it.it_value.tv_usec = BNETD_JIFFIES % 1000;
+
+	    if (setitimer(ITIMER_REAL, &it, NULL)) {
+		eventlog(eventlog_level_fatal, __FUNCTION__, "failed to set timers (setitimer(): %s)", strerror(errno));
+		goto error_poll;
+	    }
+	}
+#endif
     }
 #endif
 
@@ -1346,16 +1389,18 @@ extern int server_process(void)
 	/* receive signals here */
 	if (sigprocmask(SIG_SETMASK,&block_set,NULL)<0)
 	    eventlog(eventlog_level_error,"server_process","could not block signals");
+#else
 #endif
-	
 	if (got_epipe)
 	{
 	    got_epipe = 0;
 	    eventlog(eventlog_level_info,"server_process","handled SIGPIPE");
 	}
 	
-	now = time(NULL);
-	
+#if !defined(DO_POSIXSIG) || !defined(HAVE_SETITIMER)
+/* if no DO_POSIXSIG or no HAVE_SETITIMER so we must read timestamp each loop */
+	time(&now);
+#endif
 	curr_exittime = sigexittime;
 	if (curr_exittime && (curr_exittime<=now || connlist_get_length()<1))
 	{

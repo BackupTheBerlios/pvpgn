@@ -193,6 +193,7 @@
 #define BNETD_DEF_NULLMSG     120 /* s */
 #define BNETD_TRACK_TIME      0
 #define BNETD_POLL_INTERVAL   20 /* 20 ms */
+#define BNETD_JIFFIES         50 /* 50 ms jiffies time quantum */
 #define BNETD_SHUTDELAY       300 /* s */
 #define BNETD_SHUTDECR        60 /* s */
 #define BNETD_DEFAULT_OWNER   "PvPGN"
