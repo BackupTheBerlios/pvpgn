@@ -259,17 +259,17 @@ extern int handle_bnet_packet(t_connection * c, t_packet const * const packet)
 {
    if (!c)
      {
-	eventlog(eventlog_level_error,"handle_bnet_packet","[%d] got NULL connection",conn_get_socket(c));
+	eventlog(eventlog_level_error,__FUNCTION__,"[%d] got NULL connection",conn_get_socket(c));
 	return -1;
      }
    if (!packet)
      {
-	eventlog(eventlog_level_error,"handle_bnet_packet","[%d] got NULL packet",conn_get_socket(c));
+	eventlog(eventlog_level_error,__FUNCTION__,"[%d] got NULL packet",conn_get_socket(c));
 	return -1;
      }
    if (packet_get_class(packet) != packet_class_bnet)
      {
-	eventlog(eventlog_level_error,"handle_bnet_packet","[%d] got bad packet (class %d)",conn_get_socket(c),(int)packet_get_class(packet));
+	eventlog(eventlog_level_error,__FUNCTION__,"[%d] got bad packet (class %d)",conn_get_socket(c),(int)packet_get_class(packet));
 	return -1;
      }
    
@@ -277,10 +277,10 @@ extern int handle_bnet_packet(t_connection * c, t_packet const * const packet)
     case conn_state_connected:
       switch (handle(bnet_htable_con, packet_get_type(packet), c, packet)) {
        case 1:
-	 eventlog(eventlog_level_error,"handle_bnet_packet","[%d] unknown (unlogged in) bnet packet type 0x%04x, len %u",conn_get_socket(c),packet_get_type(packet),packet_get_size(packet));
+	 eventlog(eventlog_level_error,__FUNCTION__,"[%d] unknown (unlogged in) bnet packet type 0x%04x, len %u",conn_get_socket(c),packet_get_type(packet),packet_get_size(packet));
 	 break;
        case -1:
-	 eventlog(eventlog_level_error,"handle_bnet_packet","[%d] got error handling packet type 0x%04x, len %u", conn_get_socket(c), packet_get_type(packet), packet_get_size(packet));
+	 eventlog(eventlog_level_error,__FUNCTION__,"[%d] got error handling packet type 0x%04x, len %u", conn_get_socket(c), packet_get_type(packet), packet_get_size(packet));
 	 break;
       };
       break;
@@ -288,20 +288,20 @@ extern int handle_bnet_packet(t_connection * c, t_packet const * const packet)
     case conn_state_loggedin:
       switch (handle(bnet_htable_log, packet_get_type(packet), c, packet)) {
        case 1:
-	 eventlog(eventlog_level_error,"handle_bnet_packet","[%d] unknown (logged in) bnet packet type 0x%04x, len %u",conn_get_socket(c),packet_get_type(packet),packet_get_size(packet));
+	 eventlog(eventlog_level_error,__FUNCTION__,"[%d] unknown (logged in) bnet packet type 0x%04x, len %u",conn_get_socket(c),packet_get_type(packet),packet_get_size(packet));
 	 break;
        case -1:
-	 eventlog(eventlog_level_error,"handle_bnet_packet","[%d] got error handling packet type 0x%04x, len %u", conn_get_socket(c), packet_get_type(packet), packet_get_size(packet));
+	 eventlog(eventlog_level_error,__FUNCTION__,"[%d] got error handling packet type 0x%04x, len %u", conn_get_socket(c), packet_get_type(packet), packet_get_size(packet));
 	 break;
       };
       break;
 
     case conn_state_untrusted:
-      eventlog(eventlog_level_error,"handle_bnet_packet","[%d] unknown (untrusted) bnet packet type 0x%04x, len %u",conn_get_socket(c),packet_get_type(packet),packet_get_size(packet));
+      eventlog(eventlog_level_error,__FUNCTION__,"[%d] unknown (untrusted) bnet packet type 0x%04x, len %u",conn_get_socket(c),packet_get_type(packet),packet_get_size(packet));
       break;
       
     default:
-      eventlog(eventlog_level_error,"handle_bnet_packet","[%d] invalid login state %d",conn_get_socket(c),conn_get_state(c));
+      eventlog(eventlog_level_error,__FUNCTION__,"[%d] invalid login state %d",conn_get_socket(c),conn_get_state(c));
    };
        
     return 0;
@@ -332,7 +332,7 @@ static int _client_unknown_1b(t_connection * c, t_packet const * const packet)
 {
    if (packet_get_size(packet)<sizeof(t_client_unknown_1b))
      {
-	eventlog(eventlog_level_error,"handle_bnet_packet","[%d] got bad UNKNOWN_1B packet (expected %u bytes, got %u)",conn_get_socket(c),sizeof(t_client_unknown_1b),packet_get_size(packet));
+	eventlog(eventlog_level_error,__FUNCTION__,"[%d] got bad UNKNOWN_1B packet (expected %u bytes, got %u)",conn_get_socket(c),sizeof(t_client_unknown_1b),packet_get_size(packet));
 	return -1;
      }
    
@@ -340,14 +340,14 @@ static int _client_unknown_1b(t_connection * c, t_packet const * const packet)
 	unsigned int   newip;
 	unsigned short newport;
 	
-	eventlog(eventlog_level_debug,"handle_bnet_packet","[%d] UNKNOWN_1B unknown1=0x%04hx",conn_get_socket(c),bn_short_get(packet->u.client_unknown_1b.unknown1));
-	eventlog(eventlog_level_debug,"handle_bnet_packet","[%d] UNKNOWN_1B unknown2=0x%08x",conn_get_socket(c),bn_int_get(packet->u.client_unknown_1b.unknown2));
-	eventlog(eventlog_level_debug,"handle_bnet_packet","[%d] UNKNOWN_1B unknown3=0x%08x",conn_get_socket(c),bn_int_get(packet->u.client_unknown_1b.unknown3));
+	eventlog(eventlog_level_debug,__FUNCTION__,"[%d] UNKNOWN_1B unknown1=0x%04hx",conn_get_socket(c),bn_short_get(packet->u.client_unknown_1b.unknown1));
+	eventlog(eventlog_level_debug,__FUNCTION__,"[%d] UNKNOWN_1B unknown2=0x%08x",conn_get_socket(c),bn_int_get(packet->u.client_unknown_1b.unknown2));
+	eventlog(eventlog_level_debug,__FUNCTION__,"[%d] UNKNOWN_1B unknown3=0x%08x",conn_get_socket(c),bn_int_get(packet->u.client_unknown_1b.unknown3));
 	
 	newip = bn_int_nget(packet->u.client_unknown_1b.ip);
 	newport = bn_short_nget(packet->u.client_unknown_1b.port);
 	
-	eventlog(eventlog_level_info,"handle_bnet_packet","[%d] UNKNOWN_1B set new UDP address to %s",conn_get_socket(c),addr_num_to_addr_str(newip,newport));
+	eventlog(eventlog_level_info,__FUNCTION__,"[%d] UNKNOWN_1B set new UDP address to %s",conn_get_socket(c),addr_num_to_addr_str(newip,newport));
 	conn_set_game_addr(c,newip);
 	conn_set_game_port(c,newport);
      }
@@ -360,7 +360,7 @@ static int _client_compinfo1(t_connection * c, t_packet const * const packet)
 
    if (packet_get_size(packet)<sizeof(t_client_compinfo1))
      {
-	eventlog(eventlog_level_error,"handle_bnet_packet","[%d] got bad COMPINFO1 packet (expected %u bytes, got %u)",conn_get_socket(c),sizeof(t_client_compinfo1),packet_get_size(packet));
+	eventlog(eventlog_level_error,__FUNCTION__,"[%d] got bad COMPINFO1 packet (expected %u bytes, got %u)",conn_get_socket(c),sizeof(t_client_compinfo1),packet_get_size(packet));
 	return -1;
      }
 	    
@@ -370,12 +370,12 @@ static int _client_compinfo1(t_connection * c, t_packet const * const packet)
 	
 	if (!(host = packet_get_str_const(packet,sizeof(t_client_compinfo1),MAX_WINHOST_STR)))
 	  {
-	     eventlog(eventlog_level_error,"handle_bnet_packet","[%d] got bad COMPINFO1 packet (missing or too long host)",conn_get_socket(c));
+	     eventlog(eventlog_level_error,__FUNCTION__,"[%d] got bad COMPINFO1 packet (missing or too long host)",conn_get_socket(c));
 	     return -1;
 	  }
 	if (!(user = packet_get_str_const(packet,sizeof(t_client_compinfo1)+strlen(host)+1,MAX_WINUSER_STR)))
 	  {
-	     eventlog(eventlog_level_error,"handle_bnet_packet","[%d] got bad COMPINFO1 packet (missing or too long user)",conn_get_socket(c));
+	     eventlog(eventlog_level_error,__FUNCTION__,"[%d] got bad COMPINFO1 packet (missing or too long user)",conn_get_socket(c));
 	     return -1;
 	  }
 	
@@ -411,7 +411,7 @@ static int _client_compinfo2(t_connection * c, t_packet const * const packet)
 
    if (packet_get_size(packet)<sizeof(t_client_compinfo2))
      {
-	eventlog(eventlog_level_error,"handle_bnet_packet","[%d] got bad COMPINFO2 packet (expected %u bytes, got %u)",conn_get_socket(c),sizeof(t_client_compinfo2),packet_get_size(packet));
+	eventlog(eventlog_level_error,__FUNCTION__,"[%d] got bad COMPINFO2 packet (expected %u bytes, got %u)",conn_get_socket(c),sizeof(t_client_compinfo2),packet_get_size(packet));
 	return -1;
      }
    
@@ -421,12 +421,12 @@ static int _client_compinfo2(t_connection * c, t_packet const * const packet)
 	
 	if (!(host = packet_get_str_const(packet,sizeof(t_client_compinfo2),MAX_WINHOST_STR)))
 	  {
-	     eventlog(eventlog_level_error,"handle_bnet_packet","[%d] got bad COMPINFO2 packet (missing or too long host)",conn_get_socket(c));
+	     eventlog(eventlog_level_error,__FUNCTION__,"[%d] got bad COMPINFO2 packet (missing or too long host)",conn_get_socket(c));
 	     return -1;
 	  }
 	if (!(user = packet_get_str_const(packet,sizeof(t_client_compinfo2)+strlen(host)+1,MAX_WINUSER_STR)))
 	  {
-	     eventlog(eventlog_level_error,"handle_bnet_packet","[%d] got bad COMPINFO2 packet (missing or too long user)",conn_get_socket(c));
+	     eventlog(eventlog_level_error,__FUNCTION__,"[%d] got bad COMPINFO2 packet (missing or too long user)",conn_get_socket(c));
 	     return -1;
 	  }
 	
@@ -463,7 +463,7 @@ static int _client_countryinfo1(t_connection * c, t_packet const * const packet)
 {
    if (packet_get_size(packet)<sizeof(t_client_countryinfo1))
      {
-	eventlog(eventlog_level_error,"handle_bnet_packet","[%d] got bad COUNTRYINFO1 packet (expected %u bytes, got %u)",conn_get_socket(c),sizeof(t_client_countryinfo1),packet_get_size(packet));
+	eventlog(eventlog_level_error,__FUNCTION__,"[%d] got bad COUNTRYINFO1 packet (expected %u bytes, got %u)",conn_get_socket(c),sizeof(t_client_countryinfo1),packet_get_size(packet));
 	return -1;
      }
      {
@@ -475,30 +475,30 @@ static int _client_countryinfo1(t_connection * c, t_packet const * const packet)
 	
 	if (!(langstr = packet_get_str_const(packet,sizeof(t_client_countryinfo1),MAX_LANG_STR)))
 	  {
-	     eventlog(eventlog_level_error,"handle_bnet_packet","[%d] got bad COUNTRYINFO1 packet (missing or too long langstr)",conn_get_socket(c));
+	     eventlog(eventlog_level_error,__FUNCTION__,"[%d] got bad COUNTRYINFO1 packet (missing or too long langstr)",conn_get_socket(c));
 	     return -1;
 	  }
 	
 	if (!(countrycode = packet_get_str_const(packet,sizeof(t_client_countryinfo1)+strlen(langstr)+1,MAX_COUNTRYCODE_STR)))
 	  {
-	     eventlog(eventlog_level_error,"handle_bnet_packet","[%d] got bad COUNTRYINFO1 packet (missing or too long countrycode)",conn_get_socket(c));
+	     eventlog(eventlog_level_error,__FUNCTION__,"[%d] got bad COUNTRYINFO1 packet (missing or too long countrycode)",conn_get_socket(c));
 	     return -1;
 	  }
 	
 	if (!(country = packet_get_str_const(packet,sizeof(t_client_countryinfo1)+strlen(langstr)+1+strlen(countrycode)+1,MAX_COUNTRY_STR)))
 	  {
-	     eventlog(eventlog_level_error,"handle_bnet_packet","[%d] got bad COUNTRYINFO1 packet (missing or too long country)",conn_get_socket(c));
+	     eventlog(eventlog_level_error,__FUNCTION__,"[%d] got bad COUNTRYINFO1 packet (missing or too long country)",conn_get_socket(c));
 	     return -1;
 	  }
 	
 	if (!(countryname = packet_get_str_const(packet,sizeof(t_client_countryinfo1)+strlen(langstr)+1+strlen(countrycode)+1+strlen(country)+1,MAX_COUNTRYNAME_STR)))
 	  {
-	     eventlog(eventlog_level_error,"handle_bnet_packet","[%d] got bad COUNTRYINFO1 packet (missing or too long countryname)",conn_get_socket(c));
+	     eventlog(eventlog_level_error,__FUNCTION__,"[%d] got bad COUNTRYINFO1 packet (missing or too long countryname)",conn_get_socket(c));
 	     return -1;
 	  }
 	
 	tzbias = bn_int_get(packet->u.client_countryinfo1.bias);
-	eventlog(eventlog_level_debug,"handle_bnet_packet","[%d] COUNTRYINFO1 packet from tzbias=0x%04x(%+d) langstr=%s countrycode=%s country=%s",tzbias,uint32_to_int(tzbias),conn_get_socket(c),langstr,countrycode,country);
+	eventlog(eventlog_level_debug,__FUNCTION__,"[%d] COUNTRYINFO1 packet from tzbias=0x%04x(%+d) langstr=%s countrycode=%s country=%s",tzbias,uint32_to_int(tzbias),conn_get_socket(c),langstr,countrycode,country);
 	conn_set_country(c,country);
 	conn_set_tzbias(c,uint32_to_int(tzbias));
      }
@@ -511,7 +511,7 @@ static int _client_countryinfo109(t_connection * c, t_packet const * const packe
    
    if (packet_get_size(packet)<sizeof(t_client_countryinfo_109))
      {
-	eventlog(eventlog_level_error,"handle_bnet_packet","[%d] got bad COUNTRYINFO_109 packet (expected %u bytes, got %u)",conn_get_socket(c),sizeof(t_client_countryinfo_109),packet_get_size(packet));
+	eventlog(eventlog_level_error,__FUNCTION__,"[%d] got bad COUNTRYINFO_109 packet (expected %u bytes, got %u)",conn_get_socket(c),sizeof(t_client_countryinfo_109),packet_get_size(packet));
 	return -1;
      }
    
@@ -522,19 +522,19 @@ static int _client_countryinfo109(t_connection * c, t_packet const * const packe
 	
 	if (!(langstr = packet_get_str_const(packet,sizeof(t_client_countryinfo_109),MAX_LANG_STR)))
 	  {
-	     eventlog(eventlog_level_error,"handle_bnet_packet","[%d] got bad COUNTRYINFO_109 packet (missing or too long langstr)",conn_get_socket(c));
+	     eventlog(eventlog_level_error,__FUNCTION__,"[%d] got bad COUNTRYINFO_109 packet (missing or too long langstr)",conn_get_socket(c));
 	     return -1;
 	  }
 	
 	if (!(countryname = packet_get_str_const(packet,sizeof(t_client_countryinfo_109)+strlen(langstr)+1,MAX_COUNTRYNAME_STR)))
 	  {
-	     eventlog(eventlog_level_error,"handle_bnet_packet","[%d] got bad COUNTRYINFO_109 packet (missing or too long countryname)",conn_get_socket(c));
+	     eventlog(eventlog_level_error,__FUNCTION__,"[%d] got bad COUNTRYINFO_109 packet (missing or too long countryname)",conn_get_socket(c));
 	     return -1;
 	  }
 	
 	tzbias = bn_int_get(packet->u.client_countryinfo_109.bias);
 	
-	eventlog(eventlog_level_debug,"handle_bnet_packet","[%d] COUNTRYINFO_109 packet tzbias=0x%04x(%+d) lcid=%u langid=%u arch=%04x client=%04x versionid=%04x",conn_get_socket(c),
+	eventlog(eventlog_level_debug,__FUNCTION__,"[%d] COUNTRYINFO_109 packet tzbias=0x%04x(%+d) lcid=%u langid=%u arch=%04x client=%04x versionid=%04x",conn_get_socket(c),
 		 tzbias,uint32_to_int(tzbias),
 		 bn_int_get(packet->u.client_countryinfo_109.lcid),
 		 bn_int_get(packet->u.client_countryinfo_109.langid),
@@ -542,7 +542,7 @@ static int _client_countryinfo109(t_connection * c, t_packet const * const packe
 		 bn_int_get(packet->u.client_countryinfo_109.clienttag),
 		 bn_int_get(packet->u.client_countryinfo_109.versionid));
 	
-	eventlog(eventlog_level_debug,"handle_bnet_packet","[%d] COUNTRYINFO_109 packet from \"%s\" \"%s\"", conn_get_socket(c),countryname,langstr);
+	eventlog(eventlog_level_debug,__FUNCTION__,"[%d] COUNTRYINFO_109 packet from \"%s\" \"%s\"", conn_get_socket(c),countryname,langstr);
 	
 	conn_set_country(c,langstr); /* FIXME: This isn't right.  We want USA not ENU (English-US) */
 	conn_set_tzbias(c,uint32_to_int(tzbias));
@@ -556,7 +556,7 @@ static int _client_countryinfo109(t_connection * c, t_packet const * const packe
 	else if (bn_int_tag_eq(packet->u.client_countryinfo_109.archtag,ARCHTAG_OSXPPC)==0)
 	  conn_set_archtag(c,ARCHTAG_OSXPPC);
 	else
-	  eventlog(eventlog_level_error,"handle_bnet_packet","[%d] unknown client arch 0x%08x, don't expect this to work",conn_get_socket(c),bn_int_get(packet->u.client_countryinfo_109.archtag));
+	  eventlog(eventlog_level_error,__FUNCTION__,"[%d] unknown client arch 0x%08x, don't expect this to work",conn_get_socket(c),bn_int_get(packet->u.client_countryinfo_109.archtag));
 	
 	if (bn_int_tag_eq(packet->u.client_countryinfo_109.clienttag,CLIENTTAG_STARCRAFT)==0)
 	  conn_set_clienttag(c,CLIENTTAG_STARCRAFT);
@@ -575,7 +575,7 @@ static int _client_countryinfo109(t_connection * c, t_packet const * const packe
 	else if (bn_int_tag_eq(packet->u.client_countryinfo_109.clienttag,CLIENTTAG_WARCRAFT3)==0)
 	  conn_set_clienttag(c,CLIENTTAG_WARCRAFT3);
 	else
-	  eventlog(eventlog_level_error,"handle_bnet_packet","[%d] unknown client program type 0x%08x, don't expect this to work",conn_get_socket(c),bn_int_get(packet->u.client_countryinfo_109.clienttag));
+	  eventlog(eventlog_level_error,__FUNCTION__,"[%d] unknown client program type 0x%08x, don't expect this to work",conn_get_socket(c),bn_int_get(packet->u.client_countryinfo_109.clienttag));
 	
 	/* First, send an ECHO_REQ */
 	
@@ -592,17 +592,17 @@ static int _client_countryinfo109(t_connection * c, t_packet const * const packe
 	  {
 	     t_versioncheck * vc;
 	     
-	     eventlog(eventlog_level_debug,"handle_bnet_packet","[%d] selecting version check",conn_get_socket(c));
+	     eventlog(eventlog_level_debug,__FUNCTION__,"[%d] selecting version check",conn_get_socket(c));
 	     vc = versioncheck_create(conn_get_archtag(c),conn_get_clienttag(c));
 	     conn_set_versioncheck(c,vc);
 	     packet_set_size(rpacket,sizeof(t_server_authreq_109));
 	     packet_set_type(rpacket,SERVER_AUTHREQ_109);
 	     
 	     // WarCraft III expects a different value than other clients
-	     eventlog(eventlog_level_trace,"handle_bnet_packet","conn_get_clienttag(c)=%s (WCIII is %s)",
+	     eventlog(eventlog_level_trace,__FUNCTION__,"conn_get_clienttag(c)=%s (WCIII is %s)",
 		      conn_get_clienttag(c), CLIENTTAG_WARCRAFT3);
 	     if (strcmp(conn_get_clienttag(c),CLIENTTAG_WARCRAFT3)==0) {
-		eventlog(eventlog_level_trace,"handle_bnet_packet","Responding with WarCraft III AUTHREQ response.");
+		eventlog(eventlog_level_trace,__FUNCTION__,"Responding with WarCraft III AUTHREQ response.");
 		bn_int_set(&rpacket->u.server_authreq_109.unknown1,SERVER_AUTHREQ_109_UNKNOWN1_W3);
 	     } else {
 		bn_int_set(&rpacket->u.server_authreq_109.unknown1,SERVER_AUTHREQ_109_UNKNOWN1);
@@ -613,7 +613,7 @@ static int _client_countryinfo109(t_connection * c, t_packet const * const packe
 	     file_to_mod_time(versioncheck_get_mpqfile(vc),&rpacket->u.server_authreq_109.timestamp);
 	     packet_append_string(rpacket,versioncheck_get_mpqfile(vc));
 	     packet_append_string(rpacket,versioncheck_get_eqn(vc));
-	     eventlog(eventlog_level_debug,"handle_bnet_packet","[%d] selected \"%s\" \"%s\"",conn_get_socket(c),versioncheck_get_mpqfile(vc),versioncheck_get_eqn(vc));                   
+	     eventlog(eventlog_level_debug,__FUNCTION__,"[%d] selected \"%s\" \"%s\"",conn_get_socket(c),versioncheck_get_mpqfile(vc),versioncheck_get_eqn(vc));                   
 	     queue_push_packet(conn_get_out_queue(c),rpacket);
 	     packet_del_ref(rpacket);
 	  }
@@ -624,7 +624,7 @@ static int _client_countryinfo109(t_connection * c, t_packet const * const packe
 static int _client_unknown2b(t_connection * c, t_packet const * const packet)
 {
    if (packet_get_size(packet)<sizeof(t_client_unknown_2b)) {
-      eventlog(eventlog_level_error,"handle_bnet_packet","[%d] got bad UNKNOWN_2B packet (expected %u bytes, got %u)",conn_get_socket(c),sizeof(t_client_unknown_2b),packet_get_size(packet));
+      eventlog(eventlog_level_error,__FUNCTION__,"[%d] got bad UNKNOWN_2B packet (expected %u bytes, got %u)",conn_get_socket(c),sizeof(t_client_unknown_2b),packet_get_size(packet));
       return -1;
    }
    return 0;
@@ -636,11 +636,11 @@ static int _client_progident(t_connection * c, t_packet const * const packet)
 
    if (packet_get_size(packet)<sizeof(t_client_progident))
      {
-	eventlog(eventlog_level_error,"handle_bnet_packet","[%d] got bad PROGIDENT packet (expected %u bytes, got %u)",conn_get_socket(c),sizeof(t_client_progident),packet_get_size(packet));
+	eventlog(eventlog_level_error,__FUNCTION__,"[%d] got bad PROGIDENT packet (expected %u bytes, got %u)",conn_get_socket(c),sizeof(t_client_progident),packet_get_size(packet));
 	return -1;
      }
    
-   eventlog(eventlog_level_info,"handle_bnet_packet","[%d] CLIENT_PROGIDENT archtag=0x%08x clienttag=0x%08x versionid=0x%08x unknown1=0x%08x",
+   eventlog(eventlog_level_info,__FUNCTION__,"[%d] CLIENT_PROGIDENT archtag=0x%08x clienttag=0x%08x versionid=0x%08x unknown1=0x%08x",
 	    conn_get_socket(c),
 	    bn_int_get(packet->u.client_progident.archtag),
 	    bn_int_get(packet->u.client_progident.clienttag),
@@ -654,7 +654,7 @@ static int _client_progident(t_connection * c, t_packet const * const packet)
    else if (bn_int_tag_eq(packet->u.client_progident.archtag,ARCHTAG_OSXPPC)==0)
      conn_set_archtag(c,ARCHTAG_OSXPPC);
    else
-     eventlog(eventlog_level_error,"handle_bnet_packet","[%d] unknown client arch 0x%08x, don't expect this to work",conn_get_socket(c),bn_int_get(packet->u.client_progident.archtag));
+     eventlog(eventlog_level_error,__FUNCTION__,"[%d] unknown client arch 0x%08x, don't expect this to work",conn_get_socket(c),bn_int_get(packet->u.client_progident.archtag));
    
    if (bn_int_tag_eq(packet->u.client_progident.clienttag,CLIENTTAG_STARCRAFT)==0)
      conn_set_clienttag(c,CLIENTTAG_STARCRAFT);
@@ -675,11 +675,11 @@ static int _client_progident(t_connection * c, t_packet const * const packet)
    else if (bn_int_tag_eq(packet->u.client_progident.clienttag,CLIENTTAG_WARCRAFT3)==0)
      conn_set_clienttag(c,CLIENTTAG_WARCRAFT3);
    else
-     eventlog(eventlog_level_error,"handle_bnet_packet","[%d] unknown client program type 0x%08x, don't expect this to work",conn_get_socket(c),bn_int_get(packet->u.client_progident.clienttag));
+     eventlog(eventlog_level_error,__FUNCTION__,"[%d] unknown client program type 0x%08x, don't expect this to work",conn_get_socket(c),bn_int_get(packet->u.client_progident.clienttag));
    
    if (prefs_get_skip_versioncheck())
      {
-	eventlog(eventlog_level_debug,"handle_bnet_packet","[%d] attempting to skip version check by sending early authreply",conn_get_socket(c));
+	eventlog(eventlog_level_debug,__FUNCTION__,"[%d] attempting to skip version check by sending early authreply",conn_get_socket(c));
 	/* skip over SERVER_AUTHREQ1 and CLIENT_AUTHREQ1 */
 	if ((rpacket = packet_create(packet_class_bnet)))
 	  {
@@ -699,7 +699,7 @@ static int _client_progident(t_connection * c, t_packet const * const packet)
      {
 	t_versioncheck * vc;
 	
-	eventlog(eventlog_level_debug,"handle_bnet_packet","[%d] selecting version check",conn_get_socket(c));
+	eventlog(eventlog_level_debug,__FUNCTION__,"[%d] selecting version check",conn_get_socket(c));
 	vc = versioncheck_create(conn_get_archtag(c),conn_get_clienttag(c));
 	conn_set_versioncheck(c,vc);
 	if ((rpacket = packet_create(packet_class_bnet)))
@@ -709,7 +709,7 @@ static int _client_progident(t_connection * c, t_packet const * const packet)
 	     file_to_mod_time(versioncheck_get_mpqfile(vc),&rpacket->u.server_authreq1.timestamp);
 	     packet_append_string(rpacket,versioncheck_get_mpqfile(vc));
 	     packet_append_string(rpacket,versioncheck_get_eqn(vc));
-	     eventlog(eventlog_level_debug,"handle_bnet_packet","[%d] selected \"%s\" \"%s\"",conn_get_socket(c),versioncheck_get_mpqfile(vc),versioncheck_get_eqn(vc));
+	     eventlog(eventlog_level_debug,__FUNCTION__,"[%d] selected \"%s\" \"%s\"",conn_get_socket(c),versioncheck_get_mpqfile(vc),versioncheck_get_eqn(vc));
 	     queue_push_packet(conn_get_out_queue(c),rpacket);
 	     packet_del_ref(rpacket);
 	  }
@@ -724,7 +724,7 @@ static int _client_createaccountw3(t_connection * c, t_packet const * const pack
 
    if (packet_get_size(packet)<sizeof(t_client_createaccount_w3))
      {
-	eventlog(eventlog_level_error,"handle_bnet_packet","[%d] (W3) got bad CREATEACCOUNT_W3 packet (expected %u bytes, got %u)",conn_get_socket(c),sizeof(t_client_createaccount_w3),packet_get_size(packet));
+	eventlog(eventlog_level_error,__FUNCTION__,"[%d] (W3) got bad CREATEACCOUNT_W3 packet (expected %u bytes, got %u)",conn_get_socket(c),sizeof(t_client_createaccount_w3),packet_get_size(packet));
 	return -1;
      }
    
@@ -734,11 +734,11 @@ static int _client_createaccountw3(t_connection * c, t_packet const * const pack
 	
 	if (!(username = packet_get_str_const(packet,sizeof(t_client_createaccount_w3),UNCHECKED_NAME_STR)))
 	  {
-	     eventlog(eventlog_level_error,"handle_bnet_packet","[%d] (W3) got bad CREATEACCOUNT_W3 (missing or too long username)",conn_get_socket(c));
+	     eventlog(eventlog_level_error,__FUNCTION__,"[%d] (W3) got bad CREATEACCOUNT_W3 (missing or too long username)",conn_get_socket(c));
 	     return -1;
 	  }
 	
-	eventlog(eventlog_level_info,"handle_bnet_packet","[%d] (W3) new account requested for \"%s\"",conn_get_socket(c),username);
+	eventlog(eventlog_level_info,__FUNCTION__,"[%d] (W3) new account requested for \"%s\"",conn_get_socket(c),username);
 	
 	if (!(rpacket = packet_create(packet_class_bnet)))
 	  return -1;
@@ -747,7 +747,7 @@ static int _client_createaccountw3(t_connection * c, t_packet const * const pack
 	
 	if (prefs_get_allow_new_accounts()==0)
 	  {
-	     eventlog(eventlog_level_info,"handle_bnet_packet","[%d] (W3) account not created (disabled)",conn_get_socket(c));
+	     eventlog(eventlog_level_info,__FUNCTION__,"[%d] (W3) account not created (disabled)",conn_get_socket(c));
 	     bn_int_set(&rpacket->u.server_createaccount_w3.result,SERVER_CREATEACCOUNT_W3_RESULT_NO);
 	  }
 	else
@@ -760,7 +760,7 @@ static int _client_createaccountw3(t_connection * c, t_packet const * const pack
 	     unsigned int i;
 	     
 	     if (!plainpass) {
-		eventlog(eventlog_level_error,"handle_bnet_packet","[%d] (W3) got bad CREATEACCOUNT_W3 (missing password)",conn_get_socket(c));
+		eventlog(eventlog_level_error,__FUNCTION__,"[%d] (W3) got bad CREATEACCOUNT_W3 (missing password)",conn_get_socket(c));
 		bn_int_set(&rpacket->u.server_createaccount_w3.result,SERVER_CREATEACCOUNT_W3_RESULT_NO);
 	     } else {
 		/* convert plaintext password to uppercase */
@@ -783,16 +783,16 @@ static int _client_createaccountw3(t_connection * c, t_packet const * const pack
 		bnet_hash(&sc_hash, strlen(lpass), lpass);
 		if (!(temp = account_create(username,hash_get_str(sc_hash))))
 		  {
-		     eventlog(eventlog_level_info,"handle_bnet_packet","[%d] (W3) account not created (failed)",conn_get_socket(c));
+		     eventlog(eventlog_level_info,__FUNCTION__,"[%d] (W3) account not created (failed)",conn_get_socket(c));
 		     bn_int_set(&rpacket->u.server_createaccount_w3.result,SERVER_CREATEACCOUNT_W3_RESULT_NO);
 		  }
 		else if (!accountlist_add_account(temp))
 		  {
 		     account_destroy(temp);
-		     eventlog(eventlog_level_info,"handle_bnet_packet","[%d] (W3) account not inserted",conn_get_socket(c));
+		     eventlog(eventlog_level_info,__FUNCTION__,"[%d] (W3) account not inserted",conn_get_socket(c));
 		     bn_int_set(&rpacket->u.server_createaccount_w3.result,SERVER_CREATEACCOUNT_W3_RESULT_NO);
 		  } else {
-		     eventlog(eventlog_level_info,"handle_bnet_packet","[%d] account created",conn_get_socket(c));
+		     eventlog(eventlog_level_info,__FUNCTION__,"[%d] account created",conn_get_socket(c));
 		     bn_int_set(&rpacket->u.server_createaccount_w3.result,SERVER_CREATEACCOUNT_W3_RESULT_OK);
 		     
 		  }
@@ -815,7 +815,7 @@ static int _client_createacctreq1(t_connection * c, t_packet const * const packe
    
    if (packet_get_size(packet)<sizeof(t_client_createacctreq1))
      {
-	eventlog(eventlog_level_error,"handle_bnet_packet","[%d] got bad CREATEACCTREQ1 packet (expected %u bytes, got %u)",conn_get_socket(c),sizeof(t_client_createacctreq1),packet_get_size(packet));
+	eventlog(eventlog_level_error,__FUNCTION__,"[%d] got bad CREATEACCTREQ1 packet (expected %u bytes, got %u)",conn_get_socket(c),sizeof(t_client_createacctreq1),packet_get_size(packet));
 	return -1;
      }
    
@@ -825,7 +825,7 @@ static int _client_createacctreq1(t_connection * c, t_packet const * const packe
       
       if (!(username = packet_get_str_const(packet,sizeof(t_client_createacctreq1),UNCHECKED_NAME_STR)))
 	{
-	   eventlog(eventlog_level_error,"handle_bnet_packet","[%d] got bad CREATEACCTREQ1 (missing or too long username)",conn_get_socket(c));
+	   eventlog(eventlog_level_error,__FUNCTION__,"[%d] got bad CREATEACCTREQ1 (missing or too long username)",conn_get_socket(c));
 	   return -1;
 	}
       
@@ -839,11 +839,11 @@ static int _client_createacctreq1(t_connection * c, t_packet const * const packe
 	
 	if (!(username = packet_get_str_const(packet,sizeof(t_client_createacctreq1),UNCHECKED_NAME_STR)))
 	  {
-	     eventlog(eventlog_level_error,"handle_bnet_packet","[%d] got bad CREATEACCTREQ1 (missing or too long username)",conn_get_socket(c));
+	     eventlog(eventlog_level_error,__FUNCTION__,"[%d] got bad CREATEACCTREQ1 (missing or too long username)",conn_get_socket(c));
 	     return -1;
 	  }
 	
-	eventlog(eventlog_level_info,"handle_bnet_packet","[%d] new account requested for \"%s\"",conn_get_socket(c),username);
+	eventlog(eventlog_level_info,__FUNCTION__,"[%d] new account requested for \"%s\"",conn_get_socket(c),username);
 	
 	if (!(rpacket = packet_create(packet_class_bnet)))
 	  return -1;
@@ -852,7 +852,7 @@ static int _client_createacctreq1(t_connection * c, t_packet const * const packe
 	
 	if (prefs_get_allow_new_accounts()==0)
 	  {
-	     eventlog(eventlog_level_info,"handle_bnet_packet","[%d] account not created (disabled)",conn_get_socket(c));
+	     eventlog(eventlog_level_info,__FUNCTION__,"[%d] account not created (disabled)",conn_get_socket(c));
 	     bn_int_set(&rpacket->u.server_createacctreply1.result,SERVER_CREATEACCTREPLY1_RESULT_NO);
 	  }
 	else
@@ -860,18 +860,18 @@ static int _client_createacctreq1(t_connection * c, t_packet const * const packe
 	     bnhash_to_hash(packet->u.client_createacctreq1.password_hash1,&newpasshash1);
 	     if (!(temp = account_create(username,hash_get_str(newpasshash1))))
 	       {
-		  eventlog(eventlog_level_info,"handle_bnet_packet","[%d] account not created (failed)",conn_get_socket(c));
+		  eventlog(eventlog_level_info,__FUNCTION__,"[%d] account not created (failed)",conn_get_socket(c));
 		  bn_int_set(&rpacket->u.server_createacctreply1.result,SERVER_CREATEACCTREPLY1_RESULT_NO);
 	       }
 	     else if (!accountlist_add_account(temp))
 	       {
 		  account_destroy(temp);
-		  eventlog(eventlog_level_info,"handle_bnet_packet","[%d] account not inserted",conn_get_socket(c));
+		  eventlog(eventlog_level_info,__FUNCTION__,"[%d] account not inserted",conn_get_socket(c));
 		  bn_int_set(&rpacket->u.server_createacctreply1.result,SERVER_CREATEACCTREPLY1_RESULT_NO);
 	       }
 	     else
 	       {
-		  eventlog(eventlog_level_info,"handle_bnet_packet","[%d] account created",conn_get_socket(c));
+		  eventlog(eventlog_level_info,__FUNCTION__,"[%d] account created",conn_get_socket(c));
 		  bn_int_set(&rpacket->u.server_createacctreply1.result,SERVER_CREATEACCTREPLY1_RESULT_OK);
 	       }
 	  }
@@ -892,7 +892,7 @@ static int _client_createacctreq2(t_connection * c, t_packet const * const packe
    
    if (packet_get_size(packet)<sizeof(t_client_createacctreq2))
      {
-	eventlog(eventlog_level_error,"handle_bnet_packet","[%d] got bad CLIENT_CREATEACCTREQ2 packet (expected %u bytes, got %u)",conn_get_socket(c),sizeof(t_client_createacctreq2),packet_get_size(packet));
+	eventlog(eventlog_level_error,__FUNCTION__,"[%d] got bad CLIENT_CREATEACCTREQ2 packet (expected %u bytes, got %u)",conn_get_socket(c),sizeof(t_client_createacctreq2),packet_get_size(packet));
 	return -1;
      }
    
@@ -902,7 +902,7 @@ static int _client_createacctreq2(t_connection * c, t_packet const * const packe
       
       if (!(username = packet_get_str_const(packet,sizeof(t_client_createacctreq2),UNCHECKED_NAME_STR)))
 	{
-	   eventlog(eventlog_level_error,"handle_bnet_packet","[%d] got bad CLIENT_CREATEACCTREQ2 (missing or too long username)",conn_get_socket(c));
+	   eventlog(eventlog_level_error,__FUNCTION__,"[%d] got bad CLIENT_CREATEACCTREQ2 (missing or too long username)",conn_get_socket(c));
 	   return -1;
 	}
       
@@ -916,11 +916,11 @@ static int _client_createacctreq2(t_connection * c, t_packet const * const packe
 	
 	if (!(username = packet_get_str_const(packet,sizeof(t_client_createacctreq2),UNCHECKED_NAME_STR)))
 	  {
-	     eventlog(eventlog_level_error,"handle_bnet_packet","[%d] got bad CREATEACCTREQ2 (missing or too long username)",conn_get_socket(c));
+	     eventlog(eventlog_level_error,__FUNCTION__,"[%d] got bad CREATEACCTREQ2 (missing or too long username)",conn_get_socket(c));
 	     return -1;
 	  }
 	
-	eventlog(eventlog_level_info,"handle_bnet_packet","[%d] new account requested for \"%s\"",conn_get_socket(c),username);
+	eventlog(eventlog_level_info,__FUNCTION__,"[%d] new account requested for \"%s\"",conn_get_socket(c),username);
 	
 	if (!(rpacket = packet_create(packet_class_bnet)))
 	  return -1;
@@ -929,7 +929,7 @@ static int _client_createacctreq2(t_connection * c, t_packet const * const packe
 	
 	if (prefs_get_allow_new_accounts()==0)
 	  {
-	     eventlog(eventlog_level_info,"handle_bnet_packet","[%d] account not created (disabled)",conn_get_socket(c));
+	     eventlog(eventlog_level_info,__FUNCTION__,"[%d] account not created (disabled)",conn_get_socket(c));
 	     bn_int_set(&rpacket->u.server_createacctreply2.result,SERVER_CREATEACCTREPLY2_RESULT_SHORT);
 	  }
 	else
@@ -937,18 +937,18 @@ static int _client_createacctreq2(t_connection * c, t_packet const * const packe
 	     bnhash_to_hash(packet->u.client_createacctreq2.password_hash1,&newpasshash1);
 	     if (!(temp = account_create(username,hash_get_str(newpasshash1))))
 	       {
-		  eventlog(eventlog_level_info,"handle_bnet_packet","[%d] account not created (failed)",conn_get_socket(c));
+		  eventlog(eventlog_level_info,__FUNCTION__,"[%d] account not created (failed)",conn_get_socket(c));
 		  bn_int_set(&rpacket->u.server_createacctreply2.result,SERVER_CREATEACCTREPLY2_RESULT_SHORT); /* FIXME: return reason for failure */
 	       }
 	     else if (!accountlist_add_account(temp))
 	       {
 		  account_destroy(temp);
-		  eventlog(eventlog_level_info,"handle_bnet_packet","[%d] account not inserted",conn_get_socket(c));
+		  eventlog(eventlog_level_info,__FUNCTION__,"[%d] account not inserted",conn_get_socket(c));
 		  bn_int_set(&rpacket->u.server_createacctreply2.result,SERVER_CREATEACCTREPLY2_RESULT_SHORT);
 	       }
 	     else
 	       {
-		  eventlog(eventlog_level_info,"handle_bnet_packet","[%d] account created",conn_get_socket(c));
+		  eventlog(eventlog_level_info,__FUNCTION__,"[%d] account created",conn_get_socket(c));
 		  bn_int_set(&rpacket->u.server_createacctreply2.result,SERVER_CREATEACCTREPLY2_RESULT_OK);
 	       }
 	  }
@@ -969,7 +969,7 @@ static int _client_changepassreq(t_connection * c, t_packet const * const packet
    
    if (packet_get_size(packet)<sizeof(t_client_changepassreq))
      {
-	eventlog(eventlog_level_error,"handle_bnet_packet","[%d] got bad CHANGEPASSREQ packet (expected %u bytes, got %u)",conn_get_socket(c),sizeof(t_client_changepassreq),packet_get_size(packet));
+	eventlog(eventlog_level_error,__FUNCTION__,"[%d] got bad CHANGEPASSREQ packet (expected %u bytes, got %u)",conn_get_socket(c),sizeof(t_client_changepassreq),packet_get_size(packet));
 	return -1;
      }
    
@@ -979,11 +979,11 @@ static int _client_changepassreq(t_connection * c, t_packet const * const packet
 	
 	if (!(username = packet_get_str_const(packet,sizeof(t_client_changepassreq),UNCHECKED_NAME_STR)))
 	  {
-	     eventlog(eventlog_level_error,"handle_bnet_packet","[%d] got bad CHANGEPASSREQ (missing or too long username)",conn_get_socket(c));
+	     eventlog(eventlog_level_error,__FUNCTION__,"[%d] got bad CHANGEPASSREQ (missing or too long username)",conn_get_socket(c));
 	     return -1;
 	  }
 	
-	eventlog(eventlog_level_info,"handle_bnet_packet","[%d] password change requested for \"%s\"",conn_get_socket(c),username);
+	eventlog(eventlog_level_info,__FUNCTION__,"[%d] password change requested for \"%s\"",conn_get_socket(c),username);
 	
 	if (!(rpacket = packet_create(packet_class_bnet)))
 	  return -1;
@@ -993,17 +993,17 @@ static int _client_changepassreq(t_connection * c, t_packet const * const packet
 	/* fail if logged in or no account */
 	if (connlist_find_connection_by_accountname(username) || !(account = accountlist_find_account(username)))
 	  {
-	     eventlog(eventlog_level_info,"handle_bnet_packet","[%d] password change for \"%s\" refused (no such account)",conn_get_socket(c),username);
+	     eventlog(eventlog_level_info,__FUNCTION__,"[%d] password change for \"%s\" refused (no such account)",conn_get_socket(c),username);
 	     bn_int_set(&rpacket->u.server_changepassack.message,SERVER_CHANGEPASSACK_MESSAGE_FAIL);
 	  }
 	else if (account_get_auth_changepass(account)==0) /* default to true */
 	  {
-	     eventlog(eventlog_level_info,"handle_bnet_packet","[%d] password change for \"%s\" refused (no change access)",conn_get_socket(c),username);
+	     eventlog(eventlog_level_info,__FUNCTION__,"[%d] password change for \"%s\" refused (no change access)",conn_get_socket(c),username);
 	     bn_int_set(&rpacket->u.server_changepassack.message,SERVER_CHANGEPASSACK_MESSAGE_FAIL);
 	  }
 	else if (conn_get_sessionkey(c)!=bn_int_get(packet->u.client_changepassreq.sessionkey))
 	  {
-	     eventlog(eventlog_level_error,"handle_bnet_packet","[%d] password change for \"%s\" refused (expected session key 0x%08x, got 0x%08x)",conn_get_socket(c),username,conn_get_sessionkey(c),bn_int_get(packet->u.client_changepassreq.sessionkey));
+	     eventlog(eventlog_level_error,__FUNCTION__,"[%d] password change for \"%s\" refused (expected session key 0x%08x, got 0x%08x)",conn_get_socket(c),username,conn_get_sessionkey(c),bn_int_get(packet->u.client_changepassreq.sessionkey));
 	     bn_int_set(&rpacket->u.server_changepassack.message,SERVER_CHANGEPASSACK_MESSAGE_FAIL);
 	  }   
 	else
@@ -1031,7 +1031,7 @@ static int _client_changepassreq(t_connection * c, t_packet const * const packet
 		       account_unget_pass(oldstrhash1);
 		       bnhash_to_hash(packet->u.client_changepassreq.newpassword_hash1,&newpasshash1);
 		       account_set_pass(account,hash_get_str(newpasshash1));
-		       eventlog(eventlog_level_info,"handle_bnet_packet","[%d] password change for \"%s\" successful (bad previous password)",conn_get_socket(c),(tname = account_get_name(account)));
+		       eventlog(eventlog_level_info,__FUNCTION__,"[%d] password change for \"%s\" successful (bad previous password)",conn_get_socket(c),(tname = account_get_name(account)));
 		       account_unget_name(tname);
 		       bn_int_set(&rpacket->u.server_changepassack.message,SERVER_CHANGEPASSACK_MESSAGE_SUCCESS);
 		    }
@@ -1046,13 +1046,13 @@ static int _client_changepassreq(t_connection * c, t_packet const * const packet
 			 {
 			    bnhash_to_hash(packet->u.client_changepassreq.newpassword_hash1,&newpasshash1);
 			    account_set_pass(account,hash_get_str(newpasshash1));
-			    eventlog(eventlog_level_info,"handle_bnet_packet","[%d] password change for \"%s\" successful (previous password)",conn_get_socket(c),(tname = account_get_name(account)));
+			    eventlog(eventlog_level_info,__FUNCTION__,"[%d] password change for \"%s\" successful (previous password)",conn_get_socket(c),(tname = account_get_name(account)));
 			    account_unget_name(tname);
 			    bn_int_set(&rpacket->u.server_changepassack.message,SERVER_CHANGEPASSACK_MESSAGE_SUCCESS);
 			 }
 		       else
 			 {
-			    eventlog(eventlog_level_info,"handle_bnet_packet","[%d] password change for \"%s\" refused (wrong password)",conn_get_socket(c),(tname = account_get_name(account)));
+			    eventlog(eventlog_level_info,__FUNCTION__,"[%d] password change for \"%s\" refused (wrong password)",conn_get_socket(c),(tname = account_get_name(account)));
 			    account_unget_name(tname);
 			    bn_int_set(&rpacket->u.server_changepassack.message,SERVER_CHANGEPASSACK_MESSAGE_FAIL);
 			 }
@@ -1062,7 +1062,7 @@ static int _client_changepassreq(t_connection * c, t_packet const * const packet
 	       {
 		  bnhash_to_hash(packet->u.client_changepassreq.newpassword_hash1,&newpasshash1);
 		  account_set_pass(account,hash_get_str(newpasshash1));
-		  eventlog(eventlog_level_info,"handle_bnet_packet","[%d] password change for \"%s\" successful (no previous password)",conn_get_socket(c),(tname = account_get_name(account)));
+		  eventlog(eventlog_level_info,__FUNCTION__,"[%d] password change for \"%s\" successful (no previous password)",conn_get_socket(c),(tname = account_get_name(account)));
 		  account_unget_name(tname);
 		  bn_int_set(&rpacket->u.server_changepassack.message,SERVER_CHANGEPASSACK_MESSAGE_SUCCESS);
 	       }
@@ -1080,7 +1080,7 @@ static int _client_echoreply(t_connection * c, t_packet const * const packet)
 {
    if (packet_get_size(packet)<sizeof(t_client_echoreply))
      {
-	eventlog(eventlog_level_error,"handle_bnet_packet","[%d] got bad ECHOREPLY packet (expected %u bytes, got %u)",conn_get_socket(c),sizeof(t_client_echoreply),packet_get_size(packet));
+	eventlog(eventlog_level_error,__FUNCTION__,"[%d] got bad ECHOREPLY packet (expected %u bytes, got %u)",conn_get_socket(c),sizeof(t_client_echoreply),packet_get_size(packet));
 	return -1;
      }
    
@@ -1091,7 +1091,7 @@ static int _client_echoreply(t_connection * c, t_packet const * const packet)
 	now = get_ticks();
 	then = bn_int_get(packet->u.client_echoreply.ticks);
 	if (!now || !then || now<then)
-	  eventlog(eventlog_level_warn,"handle_bnet_packet","[%d] bad timing in echo reply: now=%u then=%u",conn_get_socket(c),now,then);
+	  eventlog(eventlog_level_warn,__FUNCTION__,"[%d] bad timing in echo reply: now=%u then=%u",conn_get_socket(c),now,then);
 	else
 	  conn_set_latency(c,now-then);
      }
@@ -1105,7 +1105,7 @@ static int _client_authreq1(t_connection * c, t_packet const * const packet)
    
    if (packet_get_size(packet)<sizeof(t_client_authreq1))
      {
-	eventlog(eventlog_level_error,"handle_bnet_packet","[%d] got bad AUTHREQ1 packet (expected %u bytes, got %u)",conn_get_socket(c),sizeof(t_client_authreq1),packet_get_size(packet));
+	eventlog(eventlog_level_error,__FUNCTION__,"[%d] got bad AUTHREQ1 packet (expected %u bytes, got %u)",conn_get_socket(c),sizeof(t_client_authreq1),packet_get_size(packet));
 	return -1;
      }
    
@@ -1126,7 +1126,7 @@ static int _client_authreq1(t_connection * c, t_packet const * const packet)
 	
 	if (!(exeinfo = packet_get_str_const(packet,sizeof(t_client_authreq1),MAX_EXEINFO_STR)))
 	  {
-	     eventlog(eventlog_level_error,"handle_bnet_packet","[%d] got bad AUTHREQ1 (missing or too long exeinfo)",conn_get_socket(c));
+	     eventlog(eventlog_level_error,__FUNCTION__,"[%d] got bad AUTHREQ1 (missing or too long exeinfo)",conn_get_socket(c));
 	     exeinfo = "badexe";
 	     failed = 1;
 	  }
@@ -1135,7 +1135,7 @@ static int _client_authreq1(t_connection * c, t_packet const * const packet)
 	gameversion = bn_int_get(packet->u.client_authreq1.gameversion);
 	strcpy(verstr,vernum_to_verstr(gameversion));
 	
-	eventlog(eventlog_level_info,"handle_bnet_packet","[%d] CLIENT_AUTHREQ1 archtag=0x%08x clienttag=0x%08x verstr=%s exeinfo=\"%s\" versionid=0x%08x gameversion=0x%08x checksum=0x%08x",
+	eventlog(eventlog_level_info,__FUNCTION__,"[%d] CLIENT_AUTHREQ1 archtag=0x%08x clienttag=0x%08x verstr=%s exeinfo=\"%s\" versionid=0x%08x gameversion=0x%08x checksum=0x%08x",
 		 conn_get_socket(c),
 		 bn_int_get(packet->u.client_authreq1.archtag),
 		 bn_int_get(packet->u.client_authreq1.clienttag),
@@ -1156,7 +1156,7 @@ static int _client_authreq1(t_connection * c, t_packet const * const packet)
 	     versiontag = NULL;
 	     
 	     if (!conn_get_versioncheck(c) && prefs_get_skip_versioncheck())
-	       eventlog(eventlog_level_info,"handle_bnet_packet","[%d] skip versioncheck enabled and client did not request validation",conn_get_socket(c));
+	       eventlog(eventlog_level_info,__FUNCTION__,"[%d] skip versioncheck enabled and client did not request validation",conn_get_socket(c));
 	     else
 	       switch (versioncheck_validate(conn_get_versioncheck(c),
 					     conn_get_archtag(c),
@@ -1170,20 +1170,20 @@ static int _client_authreq1(t_connection * c, t_packet const * const packet)
 		  case -1: /* failed test... client has been modified */
 		    if (!prefs_get_allow_bad_version())
 		      {
-			 eventlog(eventlog_level_info,"handle_bnet_packet","[%d] client failed test (marking untrusted)",conn_get_socket(c));
+			 eventlog(eventlog_level_info,__FUNCTION__,"[%d] client failed test (marking untrusted)",conn_get_socket(c));
 			 failed = 1;
 		      }
 		    else
-		      eventlog(eventlog_level_info,"handle_bnet_packet","[%d] client failed test, allowing anyway",conn_get_socket(c));
+		      eventlog(eventlog_level_info,__FUNCTION__,"[%d] client failed test, allowing anyway",conn_get_socket(c));
 		    break;
 		  case 0: /* not listed in table... can't tell if client has been modified */
 		    if (!prefs_get_allow_unknown_version())
 		      {
-			 eventlog(eventlog_level_info,"handle_bnet_packet","[%d] unable to test client (marking untrusted)",conn_get_socket(c));
+			 eventlog(eventlog_level_info,__FUNCTION__,"[%d] unable to test client (marking untrusted)",conn_get_socket(c));
 			 failed = 1;
 		      }
 		    else
-		      eventlog(eventlog_level_info,"handle_bnet_packet","[%d] unable to test client, allowing anyway",conn_get_socket(c));
+		      eventlog(eventlog_level_info,__FUNCTION__,"[%d] unable to test client, allowing anyway",conn_get_socket(c));
 		    break;
 		    /* 1 == test passed... client seems to be ok */
 		 }
@@ -1195,7 +1195,7 @@ static int _client_authreq1(t_connection * c, t_packet const * const packet)
 	       vc = conn_get_versioncheck(c);
 	       versioncheck_set_versiontag(vc, versiontag);
 	       conn_set_versioncheck(c, vc);
-	       eventlog(eventlog_level_info,"handle_bnet_packet","[%d] client matches versiontag \"%s\"",conn_get_socket(c),versiontag);
+	       eventlog(eventlog_level_info,__FUNCTION__,"[%d] client matches versiontag \"%s\"",conn_get_socket(c),versiontag);
 	     }
 	     
 	     if (failed)
@@ -1212,7 +1212,7 @@ static int _client_authreq1(t_connection * c, t_packet const * const packet)
 		  /* Only handle updates when there is an update file available. */
 		  if (autoupdate_file(conn_get_archtag(c),conn_get_clienttag(c),verstr,versiontag)!=NULL)
 		    {
-		       eventlog(eventlog_level_info,"handle_bnet_packet","[%d] an upgrade from %s-%s %s(%s) to %s is available \"%s\"",
+		       eventlog(eventlog_level_info,__FUNCTION__,"[%d] an upgrade from %s-%s %s(%s) to %s is available \"%s\"",
 				conn_get_socket(c),
 				conn_get_archtag(c),
 				conn_get_clienttag(c),
@@ -1228,7 +1228,7 @@ static int _client_authreq1(t_connection * c, t_packet const * const packet)
 		    }
 		  else
 		    {
-		       eventlog(eventlog_level_info,"handle_bnet_packet","[%d] no upgrades from %s %s are available",conn_get_socket(c),conn_get_clienttag(c),verstr);
+		       eventlog(eventlog_level_info,__FUNCTION__,"[%d] no upgrades from %s %s are available",conn_get_socket(c),conn_get_clienttag(c),verstr);
 		       if (bn_int_tag_eq(packet->u.client_progident.clienttag,CLIENTTAG_DIABLO2XP)==0)
 			 bn_int_set(&rpacket->u.server_authreply1.message,SERVER_AUTHREPLY1_D2XP_MESSAGE_OK);
 		       else
@@ -1252,7 +1252,7 @@ static int _client_authreq109(t_connection * c, t_packet const * const packet)
    
    if (packet_get_size(packet)<sizeof(t_client_authreq_109))
      {
-	eventlog(eventlog_level_error,"handle_bnet_packet","[%d] got bad AUTHREQ_109 packet (expected %u bytes, got %u)",conn_get_socket(c),sizeof(t_client_authreq_109),packet_get_size(packet));
+	eventlog(eventlog_level_error,__FUNCTION__,"[%d] got bad AUTHREQ_109 packet (expected %u bytes, got %u)",conn_get_socket(c),sizeof(t_client_authreq_109),packet_get_size(packet));
 	return 0;
      }
    
@@ -1274,7 +1274,7 @@ static int _client_authreq109(t_connection * c, t_packet const * const packet)
 	
 	if (!(exeinfo = packet_get_str_const(packet,pos,MAX_EXEINFO_STR)))
 	  {
-	     eventlog(eventlog_level_error,"handle_bnet_packet","[%d] got bad AUTHREQ_109 (missing or too long exeinfo)",conn_get_socket(c));
+	     eventlog(eventlog_level_error,__FUNCTION__,"[%d] got bad AUTHREQ_109 (missing or too long exeinfo)",conn_get_socket(c));
 	     exeinfo = "badexe";
 	     failed = 1;
 	  }
@@ -1283,7 +1283,7 @@ static int _client_authreq109(t_connection * c, t_packet const * const packet)
 	
 	if (!(owner = packet_get_str_const(packet,pos,MAX_OWNER_STR)))
 	  {
-	     eventlog(eventlog_level_error,"handle_bnet_packet","[%d] got bad AUTHREQ_109 (missing or too long owner)",conn_get_socket(c)); 
+	     eventlog(eventlog_level_error,__FUNCTION__,"[%d] got bad AUTHREQ_109 (missing or too long owner)",conn_get_socket(c)); 
 	     owner = ""; /* maybe owner was missing, use empty string */
 	  }
 	conn_set_owner(c,owner);
@@ -1294,7 +1294,7 @@ static int _client_authreq109(t_connection * c, t_packet const * const packet)
 	strcpy(verstr,vernum_to_verstr(bn_int_get(packet->u.client_authreq_109.gameversion)));
 	conn_set_clientver(c,verstr);
 	
-	eventlog(eventlog_level_info,"handle_bnet_packet","[%d] CLIENT_AUTHREQ_109 ticks=0x%08x, verstr=%s exeinfo=\"%s\" versionid=0x%08x gameversion=0x%08x checksum=0x%08x",
+	eventlog(eventlog_level_info,__FUNCTION__,"[%d] CLIENT_AUTHREQ_109 ticks=0x%08x, verstr=%s exeinfo=\"%s\" versionid=0x%08x gameversion=0x%08x checksum=0x%08x",
 		 conn_get_socket(c),
 		 bn_int_get(packet->u.client_authreq_109.ticks),
 		 verstr,
@@ -1311,7 +1311,7 @@ static int _client_authreq109(t_connection * c, t_packet const * const packet)
 	     versiontag = NULL;
 	     
 	     if (!conn_get_versioncheck(c) && prefs_get_skip_versioncheck())
-	       eventlog(eventlog_level_info,"handle_bnet_packet","[%d] skip versioncheck enabled and client did not request validation",conn_get_socket(c));
+	       eventlog(eventlog_level_info,__FUNCTION__,"[%d] skip versioncheck enabled and client did not request validation",conn_get_socket(c));
 	     else
 	       switch (versioncheck_validate(conn_get_versioncheck(c),
 					     conn_get_archtag(c),
@@ -1325,20 +1325,20 @@ static int _client_authreq109(t_connection * c, t_packet const * const packet)
 		  case -1: /* failed test... client has been modified */
 		    if (!prefs_get_allow_bad_version())
 		      {
-			 eventlog(eventlog_level_info,"handle_bnet_packet","[%d] client failed test (closing connection)",conn_get_socket(c));
+			 eventlog(eventlog_level_info,__FUNCTION__,"[%d] client failed test (closing connection)",conn_get_socket(c));
 			 failed = 1;
 		      }
 		    else
-		      eventlog(eventlog_level_info,"handle_bnet_packet","[%d] client failed test, allowing anyway",conn_get_socket(c));
+		      eventlog(eventlog_level_info,__FUNCTION__,"[%d] client failed test, allowing anyway",conn_get_socket(c));
 		    break;
 		  case 0: /* not listed in table... can't tell if client has been modified */
 		    if (!prefs_get_allow_unknown_version())
 		      {
-			 eventlog(eventlog_level_info,"handle_bnet_packet","[%d] unable to test client (closing connection)",conn_get_socket(c));
+			 eventlog(eventlog_level_info,__FUNCTION__,"[%d] unable to test client (closing connection)",conn_get_socket(c));
 			 failed = 1;
 		      }
 		    else
-		      eventlog(eventlog_level_info,"handle_bnet_packet","[%d] unable to test client, allowing anyway",conn_get_socket(c));
+		      eventlog(eventlog_level_info,__FUNCTION__,"[%d] unable to test client, allowing anyway",conn_get_socket(c));
 		    break;
 		    /* 1 == test passed... client seems to be ok */
 		 }
@@ -1350,7 +1350,7 @@ static int _client_authreq109(t_connection * c, t_packet const * const packet)
 	       vc = conn_get_versioncheck(c);
 	       versioncheck_set_versiontag(vc, versiontag);
 	       conn_set_versioncheck(c, vc);
-	       eventlog(eventlog_level_info,"handle_bnet_packet","[%d] client matches versiontag \"%s\"",conn_get_socket(c),versiontag);
+	       eventlog(eventlog_level_info,__FUNCTION__,"[%d] client matches versiontag \"%s\"",conn_get_socket(c),versiontag);
 	     }
 	     
 	     if (failed)
@@ -1364,7 +1364,7 @@ static int _client_authreq109(t_connection * c, t_packet const * const packet)
 		  /* Only handle updates when there is an update file available. */
 		  if (autoupdate_file(conn_get_archtag(c),conn_get_clienttag(c),verstr,versiontag)!=NULL)
 		    {
-		       eventlog(eventlog_level_info,"handle_bnet_packet","[%d] an upgrade from %s-%s %s(%s) to %s is available \"%s\"",
+		       eventlog(eventlog_level_info,__FUNCTION__,"[%d] an upgrade from %s-%s %s(%s) to %s is available \"%s\"",
 				conn_get_socket(c),
 				conn_get_archtag(c),
 				conn_get_clienttag(c),
@@ -1377,7 +1377,7 @@ static int _client_authreq109(t_connection * c, t_packet const * const packet)
 		    }
 		  else
 		    {
-		       eventlog(eventlog_level_info,"handle_bnet_packet","[%d] no upgrades from %s %s are available",conn_get_socket(c),conn_get_clienttag(c),verstr);
+		       eventlog(eventlog_level_info,__FUNCTION__,"[%d] no upgrades from %s %s are available",conn_get_socket(c),conn_get_clienttag(c),verstr);
 		       bn_int_set(&rpacket->u.server_authreply_109.message,SERVER_AUTHREPLY_109_MESSAGE_OK);
 		       packet_append_string(rpacket,"");
 		    }
@@ -1394,7 +1394,7 @@ static int _client_authreq109(t_connection * c, t_packet const * const packet)
 static int _client_regsnoopreply(t_connection * c, t_packet const * const packet)
 {
    if (packet_get_size(packet)<sizeof(t_client_regsnoopreply)) {
-      eventlog(eventlog_level_error,"handle_bnet_packet","[%d] got bad REGSNOOPREPLY packet (expected %u bytes, got %u)",conn_get_socket(c),sizeof(t_client_regsnoopreply),packet_get_size(packet));
+      eventlog(eventlog_level_error,__FUNCTION__,"[%d] got bad REGSNOOPREPLY packet (expected %u bytes, got %u)",conn_get_socket(c),sizeof(t_client_regsnoopreply),packet_get_size(packet));
       return -1;
    }
    return 0;
@@ -1406,7 +1406,7 @@ static int _client_iconreq(t_connection * c, t_packet const * const packet)
    
    if (packet_get_size(packet)<sizeof(t_client_iconreq))
      {
-	eventlog(eventlog_level_error,"handle_bnet_packet","[%d] got bad ICONREQ packet (expected %u bytes, got %u)",conn_get_socket(c),sizeof(t_client_iconreq),packet_get_size(packet));
+	eventlog(eventlog_level_error,__FUNCTION__,"[%d] got bad ICONREQ packet (expected %u bytes, got %u)",conn_get_socket(c),sizeof(t_client_iconreq),packet_get_size(packet));
 	return -1;
      }
    
@@ -1440,7 +1440,7 @@ static int _client_cdkey(t_connection * c, t_packet const * const packet)
    
    if (packet_get_size(packet)<sizeof(t_client_cdkey))
      {
-	eventlog(eventlog_level_error,"handle_bnet_packet","[%d] got bad CDKEY packet (expected %u bytes, got %u)",conn_get_socket(c),sizeof(t_client_cdkey),packet_get_size(packet));
+	eventlog(eventlog_level_error,__FUNCTION__,"[%d] got bad CDKEY packet (expected %u bytes, got %u)",conn_get_socket(c),sizeof(t_client_cdkey),packet_get_size(packet));
 	return -1;
      }
    
@@ -1450,12 +1450,12 @@ static int _client_cdkey(t_connection * c, t_packet const * const packet)
 	
 	if (!(cdkey = packet_get_str_const(packet,sizeof(t_client_cdkey),MAX_CDKEY_STR)))
 	  {
-	     eventlog(eventlog_level_error,"handle_bnet_packet","[%d] got bad CDKEY packet (missing or too long cdkey)",conn_get_socket(c));
+	     eventlog(eventlog_level_error,__FUNCTION__,"[%d] got bad CDKEY packet (missing or too long cdkey)",conn_get_socket(c));
 	     return -1;
 	  }
 	if (!(owner = packet_get_str_const(packet,sizeof(t_client_cdkey)+strlen(cdkey)+1,MAX_OWNER_STR)))
 	  {
-	     eventlog(eventlog_level_error,"handle_bnet_packet","[%d] got bad CDKEY packet (missing or too long owner)",conn_get_socket(c));
+	     eventlog(eventlog_level_error,__FUNCTION__,"[%d] got bad CDKEY packet (missing or too long owner)",conn_get_socket(c));
 	     return -1;
 	  }
 	
@@ -1494,7 +1494,7 @@ static int _client_cdkey2(t_connection * c, t_packet const * const packet)
    
    if (packet_get_size(packet)<sizeof(t_client_cdkey2))
      {
-	eventlog(eventlog_level_error,"handle_bnet_packet","[%d] got bad CDKEY2 packet (expected %u bytes, got %u)",conn_get_socket(c),sizeof(t_client_cdkey2),packet_get_size(packet));
+	eventlog(eventlog_level_error,__FUNCTION__,"[%d] got bad CDKEY2 packet (expected %u bytes, got %u)",conn_get_socket(c),sizeof(t_client_cdkey2),packet_get_size(packet));
 	return -1;
      }
    
@@ -1503,7 +1503,7 @@ static int _client_cdkey2(t_connection * c, t_packet const * const packet)
 	
 	if (!(owner = packet_get_str_const(packet,sizeof(t_client_cdkey2),MAX_OWNER_STR)))
 	  {
-	     eventlog(eventlog_level_error,"handle_bnet_packet","[%d] got bad CDKEY2 packet (missing or too long owner)",conn_get_socket(c));
+	     eventlog(eventlog_level_error,__FUNCTION__,"[%d] got bad CDKEY2 packet (missing or too long owner)",conn_get_socket(c));
 	     return -1;
 	  }
 	
@@ -1529,7 +1529,7 @@ static int _client_cdkey3(t_connection * c, t_packet const * const packet)
 
    if (packet_get_size(packet)<sizeof(t_client_cdkey3))
      {
-	eventlog(eventlog_level_error,"handle_bnet_packet","[%d] got bad CDKEY3 packet (expected %u bytes, got %u)",conn_get_socket(c),sizeof(t_client_cdkey2),packet_get_size(packet));
+	eventlog(eventlog_level_error,__FUNCTION__,"[%d] got bad CDKEY3 packet (expected %u bytes, got %u)",conn_get_socket(c),sizeof(t_client_cdkey2),packet_get_size(packet));
 	return -1;
      }
    
@@ -1538,7 +1538,7 @@ static int _client_cdkey3(t_connection * c, t_packet const * const packet)
 	
 	if (!(owner = packet_get_str_const(packet,sizeof(t_client_cdkey3),MAX_OWNER_STR)))
 	  {
-	     eventlog(eventlog_level_error,"handle_bnet_packet","[%d] got bad CDKEY3 packet (missing or too long owner)",conn_get_socket(c));
+	     eventlog(eventlog_level_error,__FUNCTION__,"[%d] got bad CDKEY3 packet (missing or too long owner)",conn_get_socket(c));
 	     return -1;
 	  }
 	
@@ -1562,7 +1562,7 @@ static int _client_udpok(t_connection * c, t_packet const * const packet)
 {
    if (packet_get_size(packet)<sizeof(t_client_udpok))
      {
-	eventlog(eventlog_level_error,"handle_bnet_packet","[%d] got bad UDPOK packet (expected %u bytes, got %u)",conn_get_socket(c),sizeof(t_client_udpok),packet_get_size(packet));
+	eventlog(eventlog_level_error,__FUNCTION__,"[%d] got bad UDPOK packet (expected %u bytes, got %u)",conn_get_socket(c),sizeof(t_client_udpok),packet_get_size(packet));
 	return -1;
      }
    /* we could check the contents but there really isn't any point */
@@ -1577,7 +1577,7 @@ static int _client_fileinforeq(t_connection * c, t_packet const * const packet)
    
    if (packet_get_size(packet)<sizeof(t_client_fileinforeq))
      {
-	eventlog(eventlog_level_error,"handle_bnet_packet","[%d] got bad FILEINFOREQ packet (expected %u bytes, got %u)",conn_get_socket(c),sizeof(t_client_fileinforeq),packet_get_size(packet));
+	eventlog(eventlog_level_error,__FUNCTION__,"[%d] got bad FILEINFOREQ packet (expected %u bytes, got %u)",conn_get_socket(c),sizeof(t_client_fileinforeq),packet_get_size(packet));
 	return -1;
      }
    
@@ -1586,10 +1586,10 @@ static int _client_fileinforeq(t_connection * c, t_packet const * const packet)
 	
 	if (!(tosfile = packet_get_str_const(packet,sizeof(t_client_fileinforeq),MAX_FILENAME_STR)))
 	  {
-	     eventlog(eventlog_level_error,"handle_bnet_packet","[%d] got bad FILEINFOREQ packet (missing or too long tosfile)",conn_get_socket(c));
+	     eventlog(eventlog_level_error,__FUNCTION__,"[%d] got bad FILEINFOREQ packet (missing or too long tosfile)",conn_get_socket(c));
 	     return -1;
 	  }
-	eventlog(eventlog_level_info,"handle_bnet_packet","[%d] TOS requested: \"%s\" - type = 0x%02x",conn_get_socket(c),tosfile, bn_int_get(packet->u.client_fileinforeq.type));
+	eventlog(eventlog_level_info,__FUNCTION__,"[%d] TOS requested: \"%s\" - type = 0x%02x",conn_get_socket(c),tosfile, bn_int_get(packet->u.client_fileinforeq.type));
 	
 	/* TODO: if type is TOSFILE make bnetd to send default tosfile if selected is not found */ 
 	if ((rpacket = packet_create(packet_class_bnet)))
@@ -1621,7 +1621,7 @@ static int _client_statsreq(t_connection * c, t_packet const * const packet)
    
    if (packet_get_size(packet)<sizeof(t_client_statsreq))
      {
-	eventlog(eventlog_level_error,"handle_bnet_packet","[%d] got bad STATSREQ packet (expected %u bytes, got %u)",conn_get_socket(c),sizeof(t_client_statsreq),packet_get_size(packet));
+	eventlog(eventlog_level_error,__FUNCTION__,"[%d] got bad STATSREQ packet (expected %u bytes, got %u)",conn_get_socket(c),sizeof(t_client_statsreq),packet_get_size(packet));
 	return -1;
      }
    
@@ -1646,7 +1646,7 @@ static int _client_statsreq(t_connection * c, t_packet const * const packet)
 	     i++,name_off+=strlen(name)+1);
 	if (i<name_count)
 	  {
-	     eventlog(eventlog_level_error,"handle_bnet_packet","[%d] got bad STATSREQ packet (only %u names of %u)",conn_get_socket(c),i,name_count);
+	     eventlog(eventlog_level_error,__FUNCTION__,"[%d] got bad STATSREQ packet (only %u names of %u)",conn_get_socket(c),i,name_count);
 	     return -1;
 	  }
 	keys_off = name_off;
@@ -1667,7 +1667,7 @@ static int _client_statsreq(t_connection * c, t_packet const * const packet)
 	     {
 	       if ((account = conn_get_account(c)))
 	       {
-		 eventlog(eventlog_level_debug,"handle_bnet_packet","[%d] client_statsreply no name, use self \"%s\"",conn_get_socket(c),(tname = account_get_name(account)));
+		 eventlog(eventlog_level_debug,__FUNCTION__,"[%d] client_statsreply no name, use self \"%s\"",conn_get_socket(c),(tname = account_get_name(account)));
 		 account_unget_name(tname);
 		       
 	       }
@@ -1686,7 +1686,7 @@ static int _client_statsreq(t_connection * c, t_packet const * const packet)
 		  packet_append_string(rpacket,""); /* FIXME: what should really happen here? */
 		  if (account && key[0]!='\0')
 		    {
-		       eventlog(eventlog_level_debug,"handle_bnet_packet","[%d] no entry \"%s\" in account \"%s\"",conn_get_socket(c),key,(tname = account_get_name(account)));
+		       eventlog(eventlog_level_debug,__FUNCTION__,"[%d] no entry \"%s\" in account \"%s\"",conn_get_socket(c),key,(tname = account_get_name(account)));
 		       account_unget_name(tname);
 		    }
 	       }
@@ -1704,7 +1704,7 @@ static int _client_loginreq1(t_connection * c, t_packet const * const packet)
    
    if (packet_get_size(packet)<sizeof(t_client_loginreq1))
      {
-	eventlog(eventlog_level_error,"handle_bnet_packet","[%d] got bad LOGINREQ1 packet (expected %u bytes, got %u)",conn_get_socket(c),sizeof(t_client_loginreq1),packet_get_size(packet));
+	eventlog(eventlog_level_error,__FUNCTION__,"[%d] got bad LOGINREQ1 packet (expected %u bytes, got %u)",conn_get_socket(c),sizeof(t_client_loginreq1),packet_get_size(packet));
 	return -1;
      }
    
@@ -1714,7 +1714,7 @@ static int _client_loginreq1(t_connection * c, t_packet const * const packet)
 	
 	if (!(username = packet_get_str_const(packet,sizeof(t_client_loginreq1),USER_NAME_MAX)))
 	  {
-	     eventlog(eventlog_level_error,"handle_bnet_packet","[%d] got bad LOGINREQ1 (missing or too long username)",conn_get_socket(c));
+	     eventlog(eventlog_level_error,__FUNCTION__,"[%d] got bad LOGINREQ1 (missing or too long username)",conn_get_socket(c));
 	     return -1;
 	  }
 	
@@ -1726,7 +1726,7 @@ static int _client_loginreq1(t_connection * c, t_packet const * const packet)
 	// too many logins? [added by NonReal]
 	if (prefs_get_max_concurrent_logins()>0) {
 	   if (prefs_get_max_concurrent_logins()<=connlist_login_get_length()) {
-	      eventlog(eventlog_level_error,"handle_bnet_packet","[%d] login denied, too many concurrent logins. max: %d. current: %d.",conn_get_socket(c),prefs_get_max_concurrent_logins(),connlist_login_get_length());
+	      eventlog(eventlog_level_error,__FUNCTION__,"[%d] login denied, too many concurrent logins. max: %d. current: %d.",conn_get_socket(c),prefs_get_max_concurrent_logins(),connlist_login_get_length());
 	      bn_int_set(&rpacket->u.server_loginreply1.message,SERVER_LOGINREPLY1_MESSAGE_FAIL);
 	      return -1;
 	   }
@@ -1736,7 +1736,7 @@ static int _client_loginreq1(t_connection * c, t_packet const * const packet)
 	if (connlist_find_connection_by_accountname(username) &&
 	    prefs_get_kick_old_login()==0)
 	  {
-	     eventlog(eventlog_level_info,"handle_bnet_packet","[%d] login for \"%s\" refused (already logged in)",conn_get_socket(c),username);
+	     eventlog(eventlog_level_info,__FUNCTION__,"[%d] login for \"%s\" refused (already logged in)",conn_get_socket(c),username);
 	     bn_int_set(&rpacket->u.server_loginreply1.message,SERVER_LOGINREPLY1_MESSAGE_FAIL);
 	  }
 	else
@@ -1747,7 +1747,7 @@ static int _client_loginreq1(t_connection * c, t_packet const * const packet)
 	       
 	       if (account_name_is_unknown(username)) {
 		  if (bits_va_lock_account(username)<0) {
-		     eventlog(eventlog_level_error,"handle_bnet_packet","bits_va_lock_account failed");
+		     eventlog(eventlog_level_error,__FUNCTION__,"bits_va_lock_account failed");
 		     packet_del_ref(rpacket);
 		     return -1;
 		  }
@@ -1757,7 +1757,7 @@ static int _client_loginreq1(t_connection * c, t_packet const * const packet)
 	       if (!account_is_ready_for_use(account)) {
 		  q = query_create(bits_query_type_client_loginreq_1);
 		  if (!q)
-		    eventlog(eventlog_level_error,"handle_bnet_packet","could not create bits query");
+		    eventlog(eventlog_level_error,__FUNCTION__,"could not create bits query");
 		  query_attach_conn(q,"client",c);
 		  query_attach_packet_const(q,"request",packet);
 		  query_attach_account(q,"account",account);
@@ -1770,22 +1770,22 @@ static int _client_loginreq1(t_connection * c, t_packet const * const packet)
 	/* fail if no account */
 	if (!(account = accountlist_find_account(username)))
 	  {
-	     eventlog(eventlog_level_info,"handle_bnet_packet","[%d] login for \"%s\" refused (no such account)",conn_get_socket(c),username);
+	     eventlog(eventlog_level_info,__FUNCTION__,"[%d] login for \"%s\" refused (no such account)",conn_get_socket(c),username);
 	     bn_int_set(&rpacket->u.server_loginreply1.message,SERVER_LOGINREPLY1_MESSAGE_FAIL);
 	  }
 	else if (account_get_auth_bnetlogin(account)==0) /* default to true */
 	  {
-	     eventlog(eventlog_level_info,"handle_bnet_packet","[%d] login for \"%s\" refused (no bnet access)",conn_get_socket(c),username);
+	     eventlog(eventlog_level_info,__FUNCTION__,"[%d] login for \"%s\" refused (no bnet access)",conn_get_socket(c),username);
 	     bn_int_set(&rpacket->u.server_loginreply1.message,SERVER_LOGINREPLY1_MESSAGE_FAIL);
 	  }
 	else if (account_get_auth_lock(account)==1) /* default to false */
 	  {
-	     eventlog(eventlog_level_info,"handle_bnet_packet","[%d] login for \"%s\" refused (this account is locked)",conn_get_socket(c),username);
+	     eventlog(eventlog_level_info,__FUNCTION__,"[%d] login for \"%s\" refused (this account is locked)",conn_get_socket(c),username);
 	     bn_int_set(&rpacket->u.server_loginreply1.message,SERVER_LOGINREPLY1_MESSAGE_FAIL);
 	  }
 	else if (conn_get_sessionkey(c)!=bn_int_get(packet->u.client_loginreq1.sessionkey))
 	  {
-	     eventlog(eventlog_level_error,"handle_bnet_packet","[%d] login for \"%s\" refused (expected session key 0x%08x, got 0x%08x)",conn_get_socket(c),username,conn_get_sessionkey(c),bn_int_get(packet->u.client_loginreq1.sessionkey));
+	     eventlog(eventlog_level_error,__FUNCTION__,"[%d] login for \"%s\" refused (expected session key 0x%08x, got 0x%08x)",conn_get_socket(c),username,conn_get_sessionkey(c),bn_int_get(packet->u.client_loginreq1.sessionkey));
 	     bn_int_set(&rpacket->u.server_loginreply1.message,SERVER_LOGINREPLY1_MESSAGE_FAIL);
 	  }
 	else
@@ -1825,7 +1825,7 @@ static int _client_loginreq1(t_connection * c, t_packet const * const packet)
 		  if (hash_set_str(&oldpasshash1,oldstrhash1)<0)
 		    {
 		       account_unget_pass(oldstrhash1);
-		       eventlog(eventlog_level_info,"handle_bnet_packet","[%d] login for \"%s\" refused (corrupted passhash1?)",conn_get_socket(c),(tname = account_get_name(account)));
+		       eventlog(eventlog_level_info,__FUNCTION__,"[%d] login for \"%s\" refused (corrupted passhash1?)",conn_get_socket(c),(tname = account_get_name(account)));
 		       account_unget_name(tname);
 		       bn_int_set(&rpacket->u.server_loginreply1.message,SERVER_LOGINREPLY1_MESSAGE_FAIL);
 		    }
@@ -1868,7 +1868,7 @@ static int _client_loginreq1(t_connection * c, t_packet const * const packet)
 			       
 			       q = query_create(bits_query_type_client_loginreq_2);
 			       if (!q)
-				 eventlog(eventlog_level_error,"handle_bnet_packet","could not create bits query");
+				 eventlog(eventlog_level_error,__FUNCTION__,"could not create bits query");
 			       query_attach_conn(q,"client",c);
 			       query_attach_packet_const(q,"request",packet);
 			       query_attach_account(q,"account",account);
@@ -1883,12 +1883,12 @@ static int _client_loginreq1(t_connection * c, t_packet const * const packet)
 			    if (rc == 0) {
 #endif
 			       conn_set_account(c,account);
-			       eventlog(eventlog_level_info,"handle_bnet_packet","[%d] \"%s\" logged in (correct password)",conn_get_socket(c),(tname = conn_get_username(c)));
+			       eventlog(eventlog_level_info,__FUNCTION__,"[%d] \"%s\" logged in (correct password)",conn_get_socket(c),(tname = conn_get_username(c)));
 			       conn_unget_username(c,tname);
 			       bn_int_set(&rpacket->u.server_loginreply1.message,SERVER_LOGINREPLY1_MESSAGE_SUCCESS);
 #ifdef WITH_BITS
 			    } else {
-			       eventlog(eventlog_level_info,"handle_bnet_packet","[%d] login for \"%s\" refused (bits_loginlist_add returned %d)",conn_get_socket(c),(tname = account_get_name(account)),rc);
+			       eventlog(eventlog_level_info,__FUNCTION__,"[%d] login for \"%s\" refused (bits_loginlist_add returned %d)",conn_get_socket(c),(tname = account_get_name(account)),rc);
 			       account_unget_name(tname);
 			       bn_int_set(&rpacket->u.server_loginreply1.message,SERVER_LOGINREPLY1_MESSAGE_FAIL);
 			    }
@@ -1896,7 +1896,7 @@ static int _client_loginreq1(t_connection * c, t_packet const * const packet)
 			 }
 		       else
 			 {
-			    eventlog(eventlog_level_info,"handle_bnet_packet","[%d] login for \"%s\" refused (wrong password)",conn_get_socket(c),(tname = account_get_name(account)));
+			    eventlog(eventlog_level_info,__FUNCTION__,"[%d] login for \"%s\" refused (wrong password)",conn_get_socket(c),(tname = account_get_name(account)));
 			    account_unget_name(tname);
 			    bn_int_set(&rpacket->u.server_loginreply1.message,SERVER_LOGINREPLY1_MESSAGE_FAIL);
 			 }
@@ -1905,7 +1905,7 @@ static int _client_loginreq1(t_connection * c, t_packet const * const packet)
 	     else
 	       {
 		  conn_set_account(c,account);
-		  eventlog(eventlog_level_info,"handle_bnet_packet","[%d] \"%s\" logged in (no password)",conn_get_socket(c),(tname = account_get_name(account)));
+		  eventlog(eventlog_level_info,__FUNCTION__,"[%d] \"%s\" logged in (no password)",conn_get_socket(c),(tname = account_get_name(account)));
 		  account_unget_name(tname);
 		  bn_int_set(&rpacket->u.server_loginreply1.message,SERVER_LOGINREPLY1_MESSAGE_SUCCESS);
 		  
@@ -1924,7 +1924,7 @@ static int _client_loginreq2(t_connection * c, t_packet const * const packet)
 
    if (packet_get_size(packet)<sizeof(t_client_loginreq2))
      {
-	eventlog(eventlog_level_error,"handle_bnet_packet","[%d] got bad LOGINREQ2 packet (expected %u bytes, got %u)",conn_get_socket(c),sizeof(t_client_loginreq2),packet_get_size(packet));
+	eventlog(eventlog_level_error,__FUNCTION__,"[%d] got bad LOGINREQ2 packet (expected %u bytes, got %u)",conn_get_socket(c),sizeof(t_client_loginreq2),packet_get_size(packet));
 	return -1;
      }
    
@@ -1934,7 +1934,7 @@ static int _client_loginreq2(t_connection * c, t_packet const * const packet)
 	
 	if (!(username = packet_get_str_const(packet,sizeof(t_client_loginreq2),USER_NAME_MAX)))
 	  {
-	     eventlog(eventlog_level_error,"handle_bnet_packet","[%d] got bad LOGINREQ2 (missing or too long username)",conn_get_socket(c));
+	     eventlog(eventlog_level_error,__FUNCTION__,"[%d] got bad LOGINREQ2 (missing or too long username)",conn_get_socket(c));
 	     return -1;
 	  }
 	
@@ -1946,7 +1946,7 @@ static int _client_loginreq2(t_connection * c, t_packet const * const packet)
 	// too many logins? [added by NonReal]
 	if (prefs_get_max_concurrent_logins()>0) {
 	   if (prefs_get_max_concurrent_logins()<=connlist_login_get_length()) {
-	      eventlog(eventlog_level_error,"handle_bnet_packet","[%d] login denied, too many concurrent logins. max: %d. current: %d.",conn_get_socket(c),prefs_get_max_concurrent_logins(),connlist_login_get_length());
+	      eventlog(eventlog_level_error,__FUNCTION__,"[%d] login denied, too many concurrent logins. max: %d. current: %d.",conn_get_socket(c),prefs_get_max_concurrent_logins(),connlist_login_get_length());
 	      bn_int_set(&rpacket->u.server_loginreply2.message,SERVER_LOGINREPLY2_MESSAGE_BADPASS);
 	      return -1;
 	   }
@@ -1956,7 +1956,7 @@ static int _client_loginreq2(t_connection * c, t_packet const * const packet)
 	if (connlist_find_connection_by_accountname(username) &&
 	    prefs_get_kick_old_login()==0)
 	  {
-	     eventlog(eventlog_level_info,"handle_bnet_packet","[%d] login for \"%s\" refused (already logged in)",conn_get_socket(c),username);
+	     eventlog(eventlog_level_info,__FUNCTION__,"[%d] login for \"%s\" refused (already logged in)",conn_get_socket(c),username);
 	     bn_int_set(&rpacket->u.server_loginreply2.message,SERVER_LOGINREPLY2_MESSAGE_ALREADY);
 	  }
 	else
@@ -1965,7 +1965,7 @@ static int _client_loginreq2(t_connection * c, t_packet const * const packet)
 	    {
 	       if (account_name_is_unknown(username)) {
 		  if (bits_va_lock_account(username)<0) {
-		     eventlog(eventlog_level_error,"handle_bnet_packet","bits_va_lock_account failed");
+		     eventlog(eventlog_level_error,__FUNCTION__,"bits_va_lock_account failed");
 		     packet_del_ref(rpacket);
 		     return -1;
 		  }
@@ -1976,22 +1976,22 @@ static int _client_loginreq2(t_connection * c, t_packet const * const packet)
 	/* fail if no account */
 	if (!(account = accountlist_find_account(username)))
 	  {
-	     eventlog(eventlog_level_info,"handle_bnet_packet","[%d] login for \"%s\" refused (no such account)",conn_get_socket(c),username);
+	     eventlog(eventlog_level_info,__FUNCTION__,"[%d] login for \"%s\" refused (no such account)",conn_get_socket(c),username);
 	     bn_int_set(&rpacket->u.server_loginreply2.message,SERVER_LOGINREPLY2_MESSAGE_BADPASS);
 	  }
 	else if (account_get_auth_bnetlogin(account)==0) /* default to true */
 	  {
-	     eventlog(eventlog_level_info,"handle_bnet_packet","[%d] login for \"%s\" refused (no bnet access)",conn_get_socket(c),username);
+	     eventlog(eventlog_level_info,__FUNCTION__,"[%d] login for \"%s\" refused (no bnet access)",conn_get_socket(c),username);
 	     bn_int_set(&rpacket->u.server_loginreply2.message,SERVER_LOGINREPLY2_MESSAGE_BADPASS);
 	  }
 	else if (account_get_auth_lock(account)==1) /* default to false */
 	  {
-	     eventlog(eventlog_level_info,"handle_bnet_packet","[%d] login for \"%s\" refused (this account is locked)",conn_get_socket(c),username);
+	     eventlog(eventlog_level_info,__FUNCTION__,"[%d] login for \"%s\" refused (this account is locked)",conn_get_socket(c),username);
 	     bn_int_set(&rpacket->u.server_loginreply1.message,SERVER_LOGINREPLY2_MESSAGE_BADPASS);
 	  }
 	else if (conn_get_sessionkey(c)!=bn_int_get(packet->u.client_loginreq2.sessionkey))
 	  {
-	     eventlog(eventlog_level_error,"handle_bnet_packet","[%d] login for \"%s\" refused (expected session key 0x%08x, got 0x%08x)",conn_get_socket(c),username,conn_get_sessionkey(c),bn_int_get(packet->u.client_loginreq2.sessionkey));
+	     eventlog(eventlog_level_error,__FUNCTION__,"[%d] login for \"%s\" refused (expected session key 0x%08x, got 0x%08x)",conn_get_socket(c),username,conn_get_sessionkey(c),bn_int_get(packet->u.client_loginreq2.sessionkey));
 	     bn_int_set(&rpacket->u.server_loginreply2.message,SERVER_LOGINREPLY2_MESSAGE_BADPASS);
 	  }
 	else
@@ -2015,7 +2015,7 @@ static int _client_loginreq2(t_connection * c, t_packet const * const packet)
 		  if (hash_set_str(&oldpasshash1,oldstrhash1)<0)
 		    {
 		       account_unget_pass(oldstrhash1);
-		       eventlog(eventlog_level_info,"handle_bnet_packet","[%d] login for \"%s\" refused (corrupted passhash1?)",conn_get_socket(c),(tname = account_get_name(account)));
+		       eventlog(eventlog_level_info,__FUNCTION__,"[%d] login for \"%s\" refused (corrupted passhash1?)",conn_get_socket(c),(tname = account_get_name(account)));
 		       account_unget_name(tname);
 		       bn_int_set(&rpacket->u.server_loginreply2.message,SERVER_LOGINREPLY2_MESSAGE_BADPASS);
 		    }
@@ -2058,7 +2058,7 @@ static int _client_loginreq2(t_connection * c, t_packet const * const packet)
 			       
 			       q = query_create(bits_query_type_client_loginreq_2);
 			       if (!q)
-				 eventlog(eventlog_level_error,"handle_bnet_packet","could not create bits query");
+				 eventlog(eventlog_level_error,__FUNCTION__,"could not create bits query");
 			       query_attach_conn(q,"client",c);
 			       query_attach_packet_const(q,"request",packet);
 			       query_attach_account(q,"account",account);
@@ -2073,12 +2073,12 @@ static int _client_loginreq2(t_connection * c, t_packet const * const packet)
 			    if (rc == 0) {
 #endif
 			       conn_set_account(c,account);
-			       eventlog(eventlog_level_info,"handle_bnet_packet","[%d] \"%s\" logged in (correct password)",conn_get_socket(c),(tname = conn_get_username(c)));
+			       eventlog(eventlog_level_info,__FUNCTION__,"[%d] \"%s\" logged in (correct password)",conn_get_socket(c),(tname = conn_get_username(c)));
 			       conn_unget_username(c,tname);
 			       bn_int_set(&rpacket->u.server_loginreply2.message,SERVER_LOGINREPLY2_MESSAGE_SUCCESS);
 #ifdef WITH_BITS
 			    } else {
-			       eventlog(eventlog_level_info,"handle_bnet_packet","[%d] login for \"%s\" refused (bits_loginlist_add returned %d)",conn_get_socket(c),(tname = account_get_name(account)),rc);
+			       eventlog(eventlog_level_info,__FUNCTION__,"[%d] login for \"%s\" refused (bits_loginlist_add returned %d)",conn_get_socket(c),(tname = account_get_name(account)),rc);
 			       account_unget_name(tname);
 			       bn_int_set(&rpacket->u.server_loginreply1.message,SERVER_LOGINREPLY1_MESSAGE_FAIL);
 			    }
@@ -2086,7 +2086,7 @@ static int _client_loginreq2(t_connection * c, t_packet const * const packet)
 			 }
 		       else
 			 {
-			    eventlog(eventlog_level_info,"handle_bnet_packet","[%d] login for \"%s\" refused (wrong password)",conn_get_socket(c),(tname = account_get_name(account)));
+			    eventlog(eventlog_level_info,__FUNCTION__,"[%d] login for \"%s\" refused (wrong password)",conn_get_socket(c),(tname = account_get_name(account)));
 			    account_unget_name(tname);
 			    bn_int_set(&rpacket->u.server_loginreply2.message,SERVER_LOGINREPLY2_MESSAGE_BADPASS);
 			 }
@@ -2095,7 +2095,7 @@ static int _client_loginreq2(t_connection * c, t_packet const * const packet)
 	     else
 	       {
 		  conn_set_account(c,account);
-		  eventlog(eventlog_level_info,"handle_bnet_packet","[%d] \"%s\" logged in (no password)",conn_get_socket(c),(tname = account_get_name(account)));
+		  eventlog(eventlog_level_info,__FUNCTION__,"[%d] \"%s\" logged in (no password)",conn_get_socket(c),(tname = account_get_name(account)));
 		  account_unget_name(tname);
 		  bn_int_set(&rpacket->u.server_loginreply2.message,SERVER_LOGINREPLY2_MESSAGE_SUCCESS);
 	       }
@@ -2113,7 +2113,7 @@ static int _client_loginreqw3(t_connection * c, t_packet const * const packet)
    
    if (packet_get_size(packet)<sizeof(t_client_loginreq_w3))
      {
-	eventlog(eventlog_level_error,"handle_bnet_packet","[%d] got bad CLIENT_LOGINREQ_W3 packet (expected %u bytes, got %u)",conn_get_socket(c),sizeof(t_client_loginreq_w3),packet_get_size(packet));
+	eventlog(eventlog_level_error,__FUNCTION__,"[%d] got bad CLIENT_LOGINREQ_W3 packet (expected %u bytes, got %u)",conn_get_socket(c),sizeof(t_client_loginreq_w3),packet_get_size(packet));
 	return -1;
      }
    
@@ -2124,10 +2124,10 @@ static int _client_loginreqw3(t_connection * c, t_packet const * const packet)
 	
 	if (!(username = packet_get_str_const(packet,sizeof(t_client_loginreq_w3),USER_NAME_MAX)))
 	  {
-	     eventlog(eventlog_level_error,"handle_bnet_packet","[%d] got bad CLIENT_LOGINREQ_W3 (missing or too long username)",conn_get_socket(c));
+	     eventlog(eventlog_level_error,__FUNCTION__,"[%d] got bad CLIENT_LOGINREQ_W3 (missing or too long username)",conn_get_socket(c));
 	     return -1;
 	  } else {
-	     eventlog(eventlog_level_trace,"handle_bnet_packet","[%d] got username from CLIENT_LOGINREQ_W3 packet: %s",conn_get_socket(c),username);
+	     eventlog(eventlog_level_trace,__FUNCTION__,"[%d] got username from CLIENT_LOGINREQ_W3 packet: %s",conn_get_socket(c),username);
 	  }
 	
 	if (!(rpacket = packet_create(packet_class_bnet)))
@@ -2145,7 +2145,7 @@ static int _client_loginreqw3(t_connection * c, t_packet const * const packet)
 	// too many logins? [added by NonReal]
 	if (prefs_get_max_concurrent_logins()>0) {
 	   if (prefs_get_max_concurrent_logins()<=connlist_login_get_length()) {
-	      eventlog(eventlog_level_error,"handle_bnet_packet","[%d] login denied, too many concurrent logins. max: %d. current: %d.",conn_get_socket(c),prefs_get_max_concurrent_logins(),connlist_login_get_length());
+	      eventlog(eventlog_level_error,__FUNCTION__,"[%d] login denied, too many concurrent logins. max: %d. current: %d.",conn_get_socket(c),prefs_get_max_concurrent_logins(),connlist_login_get_length());
 	      bn_int_set(&rpacket->u.server_loginreply_w3.message,SERVER_LOGINREPLY_W3_MESSAGE_BADACCT);
 	   }
 	}
@@ -2154,7 +2154,7 @@ static int _client_loginreqw3(t_connection * c, t_packet const * const packet)
 	else if (connlist_find_connection_by_accountname(username) &&
 		 prefs_get_kick_old_login()==0)
 	  {
-	     eventlog(eventlog_level_info,"handle_bnet_packet","[%d] (W3) login for \"%s\" refused (already logged in)",conn_get_socket(c),username);
+	     eventlog(eventlog_level_info,__FUNCTION__,"[%d] (W3) login for \"%s\" refused (already logged in)",conn_get_socket(c),username);
 	     bn_int_set(&rpacket->u.server_loginreply_w3.message,SERVER_LOGINREPLY_W3_MESSAGE_ALREADY);
 	  }
 	else
@@ -2164,7 +2164,7 @@ static int _client_loginreqw3(t_connection * c, t_packet const * const packet)
 	       {
 		  if (account_name_is_unknown(username)) {
 		     if (bits_va_lock_account(username)<0) {
-			eventlog(eventlog_level_error,"handle_bnet_packet","bits_va_lock_account failed");
+			eventlog(eventlog_level_error,__FUNCTION__,"bits_va_lock_account failed");
 			packet_del_ref(rpacket);
 			return -1;
 		     }
@@ -2177,22 +2177,22 @@ static int _client_loginreqw3(t_connection * c, t_packet const * const packet)
 	     account = accountlist_find_account(username);
 	     if (!account)
 	       {
-		  eventlog(eventlog_level_info,"handle_bnet_packet","[%d] (W3) login for \"%s\" refused (no such account)",conn_get_socket(c),username);
+		  eventlog(eventlog_level_info,__FUNCTION__,"[%d] (W3) login for \"%s\" refused (no such account)",conn_get_socket(c),username);
 		  bn_int_set(&rpacket->u.server_loginreply_w3.message,SERVER_LOGINREPLY_W3_MESSAGE_BADACCT);
 	       }
 	     else if (account_get_auth_bnetlogin(account)==0) /* default to true */
 	       {
-		  eventlog(eventlog_level_info,"handle_bnet_packet","[%d] (W3) login for \"%s\" refused (no bnet access)",conn_get_socket(c),username);
+		  eventlog(eventlog_level_info,__FUNCTION__,"[%d] (W3) login for \"%s\" refused (no bnet access)",conn_get_socket(c),username);
 		  bn_int_set(&rpacket->u.server_loginreply_w3.message,SERVER_LOGINREPLY_W3_MESSAGE_BADACCT);
 	       }
 	     else if (account_get_auth_lock(account)==1) /* default to false */
 	       {
-		  eventlog(eventlog_level_info,"handle_bnet_packet","[%d] login for \"%s\" refused (this account is locked)",conn_get_socket(c),username);
+		  eventlog(eventlog_level_info,__FUNCTION__,"[%d] login for \"%s\" refused (this account is locked)",conn_get_socket(c),username);
 		  bn_int_set(&rpacket->u.server_loginreply1.message,SERVER_LOGINREPLY_W3_MESSAGE_BADACCT);
 	       }
 	     else
 	       {
-		  eventlog(eventlog_level_info,"handle_bnet_packet","[%d] (W3) \"%s\" passed account check",conn_get_socket(c),(tname = account_get_name(account)));
+		  eventlog(eventlog_level_info,__FUNCTION__,"[%d] (W3) \"%s\" passed account check",conn_get_socket(c),(tname = account_get_name(account)));
 		  conn_set_w3_username(c,tname);
 		  account_unget_name(tname);
 		  bn_int_set(&rpacket->u.server_loginreply_w3.message,SERVER_LOGINREPLY_W3_MESSAGE_SUCCESS);
@@ -2233,7 +2233,7 @@ static int _client_pingreq(t_connection * c, t_packet const * const packet)
    
    if (packet_get_size(packet)<sizeof(t_client_pingreq))
      {
-	eventlog(eventlog_level_error,"handle_bnet_packet","[%d] got bad PINGREQ packet (expected %u bytes, got %u)",conn_get_socket(c),sizeof(t_client_pingreq),packet_get_size(packet));
+	eventlog(eventlog_level_error,__FUNCTION__,"[%d] got bad PINGREQ packet (expected %u bytes, got %u)",conn_get_socket(c),sizeof(t_client_pingreq),packet_get_size(packet));
 	return -1;
      }
    
@@ -2254,7 +2254,7 @@ static int _client_logonproofreq(t_connection * c, t_packet const * const packet
    
    if (packet_get_size(packet)<sizeof(t_client_logonproofreq))
      {
-	eventlog(eventlog_level_error,"handle_bnet_packet","[%d] got bad LOGONPROOFREQ packet (expected %u bytes, got %u)",conn_get_socket(c),sizeof(t_client_logonproofreq),packet_get_size(packet));
+	eventlog(eventlog_level_error,__FUNCTION__,"[%d] got bad LOGONPROOFREQ packet (expected %u bytes, got %u)",conn_get_socket(c),sizeof(t_client_logonproofreq),packet_get_size(packet));
 	return -1;
      }
    
@@ -2263,7 +2263,7 @@ static int _client_logonproofreq(t_connection * c, t_packet const * const packet
 	t_account *  account;
 	char const * tname;
 	
-	eventlog(eventlog_level_info,"handle_bnet_packet","[%d] logon proof requested",conn_get_socket(c));
+	eventlog(eventlog_level_info,__FUNCTION__,"[%d] logon proof requested",conn_get_socket(c));
 	
 	if (!(rpacket = packet_create(packet_class_bnet)))
 	  return -1;
@@ -2285,17 +2285,17 @@ static int _client_logonproofreq(t_connection * c, t_packet const * const packet
 	
 	if (!(username = conn_get_w3_username(c)))
 	  {
-	     eventlog(eventlog_level_info,"handle_bnet_packet","[%d] (W3) got NULL username, 0x54ff before 0x53ff?",conn_get_socket(c));
+	     eventlog(eventlog_level_info,__FUNCTION__,"[%d] (W3) got NULL username, 0x54ff before 0x53ff?",conn_get_socket(c));
 	  }
 	else if (!(account = accountlist_find_account(username)))
 	  {
-	     eventlog(eventlog_level_info,"handle_bnet_packet","[%d] (W3) login in 0x54ff for \"%s\" refused (no such account)",conn_get_socket(c),username);
+	     eventlog(eventlog_level_info,__FUNCTION__,"[%d] (W3) login in 0x54ff for \"%s\" refused (no such account)",conn_get_socket(c),username);
 	  } else {
 	     t_hash serverhash;
 	     t_hash clienthash;
 	     
 	     if (!packet_get_data_const(packet,4,20)) {
-		eventlog(eventlog_level_error,"handle_bnet_packet","[%d] (W3) got bad LOGONPROOFREQ packet (missing hash)",conn_get_socket(c));
+		eventlog(eventlog_level_error,__FUNCTION__,"[%d] (W3) got bad LOGONPROOFREQ packet (missing hash)",conn_get_socket(c));
 		return -1;
 	     }
 	     
@@ -2309,7 +2309,7 @@ static int _client_logonproofreq(t_connection * c, t_packet const * const packet
 	     hash_set_str(&serverhash, account_get_pass(account));
 	     if(hash_eq(clienthash,serverhash)) {
 		conn_set_account(c,account);
-		eventlog(eventlog_level_info,"handle_bnet_packet","[%d] (W3) \"%s\" logged in (right password)",conn_get_socket(c),(tname = account_get_name(account)));
+		eventlog(eventlog_level_info,__FUNCTION__,"[%d] (W3) \"%s\" logged in (right password)",conn_get_socket(c),(tname = account_get_name(account)));
 		account_unget_name(tname);
 		bn_int_set(&rpacket->u.server_logonproofreply.response,SERVER_LOGONPROOFREPLY_RESPONSE_OK);
 		// by amadeo updates the userlist
@@ -2317,7 +2317,7 @@ static int _client_logonproofreq(t_connection * c, t_packet const * const packet
 		guiOnUpdateUserList();
 #endif
 	     } else
-	       eventlog(eventlog_level_info,"handle_bnet_packet","[%d] (W3) got wrong password for \"%s\"",conn_get_socket(c),(tname = account_get_name(account)));
+	       eventlog(eventlog_level_info,__FUNCTION__,"[%d] (W3) got wrong password for \"%s\"",conn_get_socket(c),(tname = account_get_name(account)));
 	     
 	     queue_push_packet(conn_get_out_queue(c),rpacket);
 	     packet_del_ref(rpacket);
@@ -2330,17 +2330,17 @@ static int _client_logonproofreq(t_connection * c, t_packet const * const packet
 static int _client_changegameport(t_connection * c, t_packet const * const packet)
 {
    if (packet_get_size(packet)<sizeof(t_client_changegameport)) {
-      eventlog(eventlog_level_error,"handle_bnet_packet","[%d] got bad changegameport packet (expected %u bytes, got %u)",conn_get_socket(c),sizeof(t_client_changegameport),packet_get_size(packet));
+      eventlog(eventlog_level_error,__FUNCTION__,"[%d] got bad changegameport packet (expected %u bytes, got %u)",conn_get_socket(c),sizeof(t_client_changegameport),packet_get_size(packet));
       return -1;
    }
      {
 	unsigned short port = bn_short_get(packet->u.client_changegameport.port);
 	if(port <= 1024 || port >= 32767) {
-	   eventlog(eventlog_level_error,"handle_bnet_packet","[%d] invalid port in changegameport packet: %d",conn_get_socket(c), (int)port);
+	   eventlog(eventlog_level_error,__FUNCTION__,"[%d] invalid port in changegameport packet: %d",conn_get_socket(c), (int)port);
 	   return -1;
 	}
 	
-	eventlog(eventlog_level_trace,"handle_bnet_packet","[%d] changing game port to: %d",conn_get_socket(c), (int)port);
+	eventlog(eventlog_level_trace,__FUNCTION__,"[%d] changing game port to: %d",conn_get_socket(c), (int)port);
 	conn_set_game_port(c, port);
      }
    
@@ -2353,7 +2353,7 @@ static int _client_friendslistreq(t_connection * c, t_packet const * const packe
 
    if (packet_get_size(packet)<sizeof(t_client_friendslistreq))
      {
-	eventlog(eventlog_level_error,"handle_bnet_packet","[%d] got bad FRIENDSLISTREQ packet (expected %u bytes, got %u)",conn_get_socket(c),sizeof(t_client_friendslistreq),packet_get_size(packet));
+	eventlog(eventlog_level_error,__FUNCTION__,"[%d] got bad FRIENDSLISTREQ packet (expected %u bytes, got %u)",conn_get_socket(c),sizeof(t_client_friendslistreq),packet_get_size(packet));
 	return -1;
      }
      {
@@ -2396,7 +2396,7 @@ static int _client_friendinforeq(t_connection * c, t_packet const * const packet
    t_packet * rpacket = NULL;
 
    if (packet_get_size(packet)<sizeof(t_client_friendinforeq)) {
-      eventlog(eventlog_level_error,"handle_bnet_packet","[%d] got bad FRIENDINFOREQ packet (expected %u bytes, got %u)",conn_get_socket(c),sizeof(t_client_friendinforeq),packet_get_size(packet));
+      eventlog(eventlog_level_error,__FUNCTION__,"[%d] got bad FRIENDINFOREQ packet (expected %u bytes, got %u)",conn_get_socket(c),sizeof(t_client_friendinforeq),packet_get_size(packet));
       return -1;
    }
 
@@ -2411,7 +2411,7 @@ static int _client_friendinforeq(t_connection * c, t_packet const * const packet
 	
 	myusername = conn_get_username(c);
 	if(bn_byte_get(packet->u.client_friendinforeq.friendnum) > n) {
-	   eventlog(eventlog_level_error,"handle_bnet_packet","[%d] bad friend number in FRIENDINFOREQ packet",conn_get_socket(c));
+	   eventlog(eventlog_level_error,__FUNCTION__,"[%d] bad friend number in FRIENDINFOREQ packet",conn_get_socket(c));
 	   return -1;
 	}
 	
@@ -2424,7 +2424,7 @@ static int _client_friendinforeq(t_connection * c, t_packet const * const packet
 	friend = account_get_friend(conn_get_account(c),bn_byte_get(packet->u.client_friendinforeq.friendnum));
 	if(!friend) 
 	  {
-	     eventlog(eventlog_level_error,"handle_bnet_packet","[%d] friend number %d not found",conn_get_socket(c), (int) bn_byte_get(packet->u.client_friendinforeq.friendnum));
+	     eventlog(eventlog_level_error,__FUNCTION__,"[%d] friend number %d not found",conn_get_socket(c), (int) bn_byte_get(packet->u.client_friendinforeq.friendnum));
 	     return -1;
 	  }
 	
@@ -2509,7 +2509,7 @@ static int _client_atfriendscreen(t_connection * c, t_packet const * const packe
    unsigned char f_cnt = 0;
    t_packet * rpacket = NULL;
    
-   eventlog(eventlog_level_info,"handle_bnet_packet","[%d] got CLIENT_ARRANGEDTEAM_FRIENDSCREEN packet",conn_get_socket(c));
+   eventlog(eventlog_level_info,__FUNCTION__,"[%d] got CLIENT_ARRANGEDTEAM_FRIENDSCREEN packet",conn_get_socket(c));
    
    myusername = conn_get_username(c);
    eventlog(eventlog_level_trace, "handle_bnet", "[%d] AT - Got Username %s", 
@@ -2568,7 +2568,7 @@ static int _client_atinvitefriend(t_connection * c, t_packet const * const packe
    t_packet * rpacket = NULL;
    
    if (packet_get_size(packet)<sizeof(t_client_arrangedteam_invite_friend)) {
-      eventlog(eventlog_level_error,"handle_bnet_packet","[%d] got bad ARRANGEDTEAM_INVITE_FRIEND packet (expected %u bytes, got %u)",conn_get_socket(c),sizeof(t_client_arrangedteam_invite_friend),packet_get_size(packet));
+      eventlog(eventlog_level_error,__FUNCTION__,"[%d] got bad ARRANGEDTEAM_INVITE_FRIEND packet (expected %u bytes, got %u)",conn_get_socket(c),sizeof(t_client_arrangedteam_invite_friend),packet_get_size(packet));
       return -1;
    }
    
@@ -2582,7 +2582,7 @@ static int _client_atinvitefriend(t_connection * c, t_packet const * const packe
 	
 	teammemcount = count_to_invite;
 	teammemcount++;
-	eventlog(eventlog_level_info,"handle_bnet_packet","[%d] got ARRANGEDTEAM INVITE packet",conn_get_socket(c));
+	eventlog(eventlog_level_info,__FUNCTION__,"[%d] got ARRANGEDTEAM INVITE packet",conn_get_socket(c));
 	offset = sizeof(t_client_arrangedteam_invite_friend);
 	
 	for (i = 0; i < count_to_invite; i++) 
@@ -2727,7 +2727,7 @@ static int _client_atacceptdeclineinvite(t_connection * c, t_packet const * cons
    t_packet * rpacket = NULL;
    
    if (packet_get_size(packet)<sizeof(t_client_arrangedteam_accept_decline_invite)) {
-      eventlog(eventlog_level_error,"handle_bnet_packet","[%d] got bad ARRANGEDTEAM_ACCEPT_DECLINE_INVITE packet (expected %u bytes, got %u)",conn_get_socket(c),sizeof(t_client_arrangedteam_accept_decline_invite),packet_get_size(packet));
+      eventlog(eventlog_level_error,__FUNCTION__,"[%d] got bad ARRANGEDTEAM_ACCEPT_DECLINE_INVITE packet (expected %u bytes, got %u)",conn_get_socket(c),sizeof(t_client_arrangedteam_accept_decline_invite),packet_get_size(packet));
       return -1;
    }
    
@@ -2782,11 +2782,11 @@ static int _client_findanongame(t_connection * c, t_packet const * const packet)
 	t_account * account; 
 	
 	Count = bn_int_get(packet->u.client_findanongame.count);
-	eventlog(eventlog_level_info,"handle_bnet_packet","[%d] got a FINDANONGAME PROFILE packet",conn_get_socket(c));
+	eventlog(eventlog_level_info,__FUNCTION__,"[%d] got a FINDANONGAME PROFILE packet",conn_get_socket(c));
 	
 	if (!(username = packet_get_str_const(packet,sizeof(t_client_findanongame_profile),USER_NAME_MAX)))
 	  {
-	     eventlog(eventlog_level_error,"handle_bnet_packet","[%d] got bad FINDANONGAME_PROFILE (missing or too long username)",conn_get_socket(c));
+	     eventlog(eventlog_level_error,__FUNCTION__,"[%d] got bad FINDANONGAME_PROFILE (missing or too long username)",conn_get_socket(c));
 	     return -1;
 	  }
 	
@@ -2797,11 +2797,11 @@ static int _client_findanongame(t_connection * c, t_packet const * const packet)
 	     return -1;
 	  }										
 	
-	eventlog(eventlog_level_error,"handle_bnet_packet","Looking up %s's WAR3 Stats.",username);
+	eventlog(eventlog_level_error,__FUNCTION__,"Looking up %s's WAR3 Stats.",username);
 			
 	if (account_get_sololevel(account)==0 && account_get_teamlevel(account)==0 && account_get_atteamcount(account)==0)
 	  {
-	     eventlog(eventlog_level_info,"handle_bnet_packet","%s does not have WAR3 Stats.",username);
+	     eventlog(eventlog_level_info,__FUNCTION__,"%s does not have WAR3 Stats.",username);
 	     if (!(rpacket = packet_create(packet_class_bnet)))
 	       return -1;
 	     packet_set_size(rpacket,sizeof(t_server_findanongame_profile2));
@@ -2942,7 +2942,7 @@ static int _client_findanongame(t_connection * c, t_packet const * const packet)
 			}
 		     }
 		     teamlevels[highest_lvl[j]] = -1;
-		     eventlog(eventlog_level_debug, "handle_bnet_packet", 
+		     eventlog(eventlog_level_debug, __FUNCTION__, 
 			      "profile/AT - highest level is %d with index %d", lvl, highest_lvl[j]);
 		  }
 		  // <-- end of picking indices
@@ -2962,7 +2962,7 @@ static int _client_findanongame(t_connection * c, t_packet const * const packet)
 		       
 		       p2 = p3 = teammembers = strdup(account_get_atteammembers(account, n));
 		       
-		       eventlog(eventlog_level_debug, "handle_bnet_packet", 
+		       eventlog(eventlog_level_debug, __FUNCTION__, 
 				"profile/AT - processing team %d", n);
 		       
 		       temp = teamtype[teamsize];
@@ -3006,7 +3006,7 @@ static int _client_findanongame(t_connection * c, t_packet const * const packet)
 	     queue_push_packet(conn_get_out_queue(c),rpacket);
 	     packet_del_ref(rpacket);				
 	     
-	     eventlog(eventlog_level_info,"handle_bnet_packet","Sent %s's WAR3 Stats to requestor.",username);
+	     eventlog(eventlog_level_info,__FUNCTION__,"Sent %s's WAR3 Stats to requestor.",username);
 	  }
      } 
    else if (bn_byte_get(packet->u.client_findanongame.option) == CLIENT_FINDANONGAME_CANCEL) 
@@ -3015,7 +3015,7 @@ static int _client_findanongame(t_connection * c, t_packet const * const packet)
 	t_anongame *a = conn_get_anongame(c);
 	int a_count;
 	
-	eventlog(eventlog_level_info,"handle_bnet_packet","[%d] got FINDANONGAME CANCEL packet", conn_get_socket(c));
+	eventlog(eventlog_level_info,__FUNCTION__,"[%d] got FINDANONGAME CANCEL packet", conn_get_socket(c));
 	
 	if(!a)
 	  return -1;
@@ -3038,17 +3038,17 @@ static int _client_findanongame(t_connection * c, t_packet const * const packet)
      }
    else if (bn_byte_get(packet->u.client_findanongame.option)==CLIENT_FINDANONGAME_SEARCH)
      {
-	eventlog(eventlog_level_info,"handle_bnet_packet","[%d] got FINDANONGAME SEARCH packet",conn_get_socket(c));
+	eventlog(eventlog_level_info,__FUNCTION__,"[%d] got FINDANONGAME SEARCH packet",conn_get_socket(c));
 	handle_anongame_search(c, packet);
      }
    else if (bn_byte_get(packet->u.client_findanongame.option)==CLIENT_FINDANONGAME_AT_INVITER_SEARCH)
      {
-	eventlog(eventlog_level_info,"handle_bnet_packet","[%d] got FINDANONGAME Arranged Team SEARCH packet by inviter",conn_get_socket(c));
+	eventlog(eventlog_level_info,__FUNCTION__,"[%d] got FINDANONGAME Arranged Team SEARCH packet by inviter",conn_get_socket(c));
 	handle_anongame_search(c, packet);
      }
    else if (bn_byte_get(packet->u.client_findanongame.option)==CLIENT_FINDANONGAME_AT_SEARCH)
      {
-	eventlog(eventlog_level_info,"handle_bnet_packet","[%d] got FINDANONGAME Arranged Team SEARCH packet",conn_get_socket(c));
+	eventlog(eventlog_level_info,__FUNCTION__,"[%d] got FINDANONGAME Arranged Team SEARCH packet",conn_get_socket(c));
 	handle_anongame_search(c, packet);
      }
    
@@ -3061,7 +3061,7 @@ static int _client_motdw3(t_connection * c, t_packet const * const packet)
    
    if (packet_get_size(packet)<sizeof(t_client_motd_w3))
      {
-	eventlog(eventlog_level_error,"handle_bnet_packet","[%d] got bad CLIENT_MOTD_W3 packet (expected %u bytes, got %u)",conn_get_socket(c),sizeof(t_client_motd_w3),packet_get_size(packet));
+	eventlog(eventlog_level_error,__FUNCTION__,"[%d] got bad CLIENT_MOTD_W3 packet (expected %u bytes, got %u)",conn_get_socket(c),sizeof(t_client_motd_w3),packet_get_size(packet));
 	return -1;
      }
    
@@ -3113,9 +3113,9 @@ static int _client_motdw3(t_connection * c, t_packet const * const packet)
 			   file_size*=2;
 			   big_buffer=malloc(file_size+1);
 			   if (big_buffer==NULL) {
-			      eventlog(eventlog_level_error,"handle_bnet_packet","(W3) could not allocate %d bytes for news storage",file_size+1);
+			      eventlog(eventlog_level_error,__FUNCTION__,"(W3) could not allocate %d bytes for news storage",file_size+1);
 			   } else {
-			      eventlog(eventlog_level_trace,"handle_bnet_packet","(W3) allocated %d bytes for news storage",file_size+1);
+			      eventlog(eventlog_level_trace,__FUNCTION__,"(W3) allocated %d bytes for news storage",file_size+1);
 			      big_buffer[0]=0; // clear first byte
 			      
 			      // Load news into buffer
@@ -3128,7 +3128,7 @@ static int _client_motdw3(t_connection * c, t_packet const * const packet)
 			      
 			      // Append news to packet
 			      packet_append_string(rpacket,big_buffer);
-			      eventlog(eventlog_level_trace,"handle_bnet_packet","(W3) %d bytes were used to store news",strlen(big_buffer));
+			      eventlog(eventlog_level_trace,__FUNCTION__,"(W3) %d bytes were used to store news",strlen(big_buffer));
 			      free(big_buffer);
 			      
 			      // Send news packet
@@ -3138,15 +3138,15 @@ static int _client_motdw3(t_connection * c, t_packet const * const packet)
 			   packet_del_ref(rpacket);
 
 			   if (fclose(fp)<0)
-			     eventlog(eventlog_level_error,"handle_bnet_packet","(W3) could not close news file \"%s\" after reading",filename);
+			     eventlog(eventlog_level_error,__FUNCTION__,"(W3) could not close news file \"%s\" after reading",filename);
 			} /* fopen */
 		      else
 			{
-			   eventlog(eventlog_level_error,"handle_bnet_packet","(W3) could not open news file \"%s\" for reading",filename);
+			   eventlog(eventlog_level_error,__FUNCTION__,"(W3) could not open news file \"%s\" for reading",filename);
 			}
 		   } /* is new news */
 		} else {
-		   eventlog(eventlog_level_error,"handle_bnet_packet","(W3) stat(%s) failed",filename);
+		   eventlog(eventlog_level_error,__FUNCTION__,"(W3) stat(%s) failed",filename);
 		}
 	     }
 	  }
@@ -3193,7 +3193,7 @@ static int _client_realmlistreq(t_connection * c, t_packet const * const packet)
    t_packet * rpacket = NULL;
 
    if (packet_get_size(packet)<sizeof(t_client_realmlistreq)) {
-      eventlog(eventlog_level_error,"handle_bnet_packet","[%d] got bad REALMLISTREQ packet (expected %u bytes, got %u)",conn_get_socket(c),sizeof(t_client_realmlistreq),packet_get_size(packet));
+      eventlog(eventlog_level_error,__FUNCTION__,"[%d] got bad REALMLISTREQ packet (expected %u bytes, got %u)",conn_get_socket(c),sizeof(t_client_realmlistreq),packet_get_size(packet));
       return -1;
    }
    
@@ -3239,7 +3239,7 @@ static int _client_realmjoinreq(t_connection * c, t_packet const * const packet)
    
    if (packet_get_size(packet)<sizeof(t_client_realmjoinreq))
      {
-	eventlog(eventlog_level_error,"handle_bnet_packet","[%d] got bad REALMJOINREQ packet (expected %u bytes, got %u)",conn_get_socket(c),sizeof(t_client_realmjoinreq),packet_get_size(packet));
+	eventlog(eventlog_level_error,__FUNCTION__,"[%d] got bad REALMJOINREQ packet (expected %u bytes, got %u)",conn_get_socket(c),sizeof(t_client_realmjoinreq),packet_get_size(packet));
 	return -1;
      }
    
@@ -3249,13 +3249,13 @@ static int _client_realmjoinreq(t_connection * c, t_packet const * const packet)
 	
 	if (!(realmname = packet_get_str_const(packet,sizeof(t_client_realmjoinreq),REALM_NAME_LEN)))
 	  {
-	     eventlog(eventlog_level_error,"handle_bnet_packet","[%d] got bad REALMJOINREQ (missing or too long realmname)",conn_get_socket(c));
+	     eventlog(eventlog_level_error,__FUNCTION__,"[%d] got bad REALMJOINREQ (missing or too long realmname)",conn_get_socket(c));
 	     return -1;
 	  }
 	
 	if (!(realm = realmlist_find_realm(realmname)))
 	  {
-	     eventlog(eventlog_level_error,"handle_bnet_packet","[%d] got bad REALMJOINREQ (missing or too long realmname)",conn_get_socket(c));
+	     eventlog(eventlog_level_error,__FUNCTION__,"[%d] got bad REALMJOINREQ (missing or too long realmname)",conn_get_socket(c));
 	     if ((rpacket = packet_create(packet_class_bnet)))
 	       {
 		  packet_set_size(rpacket,sizeof(t_server_realmjoinreply));
@@ -3335,7 +3335,7 @@ static int _client_realmjoinreq109(t_connection * c, t_packet const * const pack
    t_packet * rpacket = NULL;
    
    if (packet_get_size(packet)<sizeof(t_client_realmjoinreq_109)) {
-      eventlog(eventlog_level_error,"handle_bnet_packet","[%d] got bad REALMJOINREQ_109 packet (expected %u bytes, got %u)",conn_get_socket(c),sizeof(t_client_realmjoinreq_109),packet_get_size(packet));
+      eventlog(eventlog_level_error,__FUNCTION__,"[%d] got bad REALMJOINREQ_109 packet (expected %u bytes, got %u)",conn_get_socket(c),sizeof(t_client_realmjoinreq_109),packet_get_size(packet));
       return -1;
    }
 	    
@@ -3345,7 +3345,7 @@ static int _client_realmjoinreq109(t_connection * c, t_packet const * const pack
 	
 	if (!(realmname = packet_get_str_const(packet,sizeof(t_client_realmjoinreq_109),REALM_NAME_LEN)))
 	  {
-	     eventlog(eventlog_level_error,"handle_bnet_packet","[%d] got bad REALMJOINREQ_109 (missing or too long realmname)",conn_get_socket(c));
+	     eventlog(eventlog_level_error,__FUNCTION__,"[%d] got bad REALMJOINREQ_109 (missing or too long realmname)",conn_get_socket(c));
 	     return -1;
 	  }
 	
@@ -3427,7 +3427,7 @@ static int _client_realmjoinreq109(t_connection * c, t_packet const * const pack
 		    {
 		       char const * tname;
 		       
-		       eventlog(eventlog_level_info,"handle_bnet_packet","[%d] realm join for \"%s\" failed (unable to hash password)",conn_get_socket(c),(tname = account_get_name(conn_get_account(c))));
+		       eventlog(eventlog_level_info,__FUNCTION__,"[%d] realm join for \"%s\" failed (unable to hash password)",conn_get_socket(c),(tname = account_get_name(conn_get_account(c))));
 		       account_unget_name(tname);
 		       account_unget_pass(pass_str);
 		    }
@@ -3436,12 +3436,12 @@ static int _client_realmjoinreq109(t_connection * c, t_packet const * const pack
 	       {
 		  char const * tname;
 		  
-		  eventlog(eventlog_level_info,"handle_bnet_packet","[%d] realm join for \"%s\" failed (no password)",conn_get_socket(c),(tname = account_get_name(conn_get_account(c))));
+		  eventlog(eventlog_level_info,__FUNCTION__,"[%d] realm join for \"%s\" failed (no password)",conn_get_socket(c),(tname = account_get_name(conn_get_account(c))));
 		  account_unget_name(tname);
 	       }
 	  }
 	else
-	  eventlog(eventlog_level_error,"handle_bnet_packet","[%d] could not find active realm \"%s\"",conn_get_socket(c),realmname);
+	  eventlog(eventlog_level_error,__FUNCTION__,"[%d] could not find active realm \"%s\"",conn_get_socket(c),realmname);
 	
 	if ((rpacket = packet_create(packet_class_bnet)))
 	  {
@@ -3480,7 +3480,7 @@ static int _client_charlistreq(t_connection * c, t_packet const * const packet)
    t_packet * rpacket = NULL;
 
    if (packet_get_size(packet)<sizeof(t_client_unknown_37)) {
-      eventlog(eventlog_level_error,"handle_bnet_packet","[%d] got bad UNKNOWN_37 packet (expected %u bytes, got %u)",conn_get_socket(c),sizeof(t_client_unknown_37),packet_get_size(packet));
+      eventlog(eventlog_level_error,__FUNCTION__,"[%d] got bad UNKNOWN_37 packet (expected %u bytes, got %u)",conn_get_socket(c),sizeof(t_client_unknown_37),packet_get_size(packet));
       return -1;
    }
    /*
@@ -3508,7 +3508,7 @@ static int _client_charlistreq(t_connection * c, t_packet const * const packet)
 	  }
 	if (!(temp = strdup(charlist)))
 	  {
-	     eventlog(eventlog_level_error,"handle_bnet_packet","[%d] unable to allocate memory for characterlist",conn_get_socket(c));
+	     eventlog(eventlog_level_error,__FUNCTION__,"[%d] unable to allocate memory for characterlist",conn_get_socket(c));
 	     bn_int_set(&rpacket->u.server_unknown_37.count,0);
 	     queue_push_packet(conn_get_out_queue(c),rpacket);
 	     packet_del_ref(rpacket);
@@ -3532,7 +3532,7 @@ static int _client_charlistreq(t_connection * c, t_packet const * const packet)
 		    {
 		       char const * tname;
 		       
-		       eventlog(eventlog_level_error,"handle_bnet_packet","[%d] account \"%s\" has bad character list \"%s\"",conn_get_socket(c),(tname = conn_get_username(c)),temp);
+		       eventlog(eventlog_level_error,__FUNCTION__,"[%d] account \"%s\" has bad character list \"%s\"",conn_get_socket(c),(tname = conn_get_username(c)),temp);
 		       conn_unget_username(c,tname);
 		       break;
 		    }
@@ -3547,7 +3547,7 @@ static int _client_charlistreq(t_connection * c, t_packet const * const packet)
 		       count++;
 		    }
 		  else
-		    eventlog(eventlog_level_error,"handle_bnet_packet","[%d] character \"%s\" is missing",conn_get_socket(c),tok2);
+		    eventlog(eventlog_level_error,__FUNCTION__,"[%d] character \"%s\" is missing",conn_get_socket(c),tok2);
 		  tok1 = strtok(NULL,",");
 		  tok2 = strtok(NULL,",");
 	       }
@@ -3565,7 +3565,7 @@ static int _client_charlistreq(t_connection * c, t_packet const * const packet)
 static int _client_unknown39(t_connection * c, t_packet const * const packet)
 {
    if (packet_get_size(packet)<sizeof(t_client_unknown_39)) {
-      eventlog(eventlog_level_error,"handle_bnet_packet","[%d] got bad UNKNOWN_39 packet (expected %u bytes, got %u)",conn_get_socket(c),sizeof(t_client_unknown_39),packet_get_size(packet));
+      eventlog(eventlog_level_error,__FUNCTION__,"[%d] got bad UNKNOWN_39 packet (expected %u bytes, got %u)",conn_get_socket(c),sizeof(t_client_unknown_39),packet_get_size(packet));
       return -1;
    }
    return 0;
@@ -3576,7 +3576,7 @@ static int _client_adreq(t_connection * c, t_packet const * const packet)
    t_packet * rpacket = NULL;
 
    if (packet_get_size(packet)<sizeof(t_client_adreq)) {
-      eventlog(eventlog_level_error,"handle_bnet_packet","[%d] got bad ADREQ packet (expected %u bytes, got %u)",conn_get_socket(c),sizeof(t_client_adreq),packet_get_size(packet));
+      eventlog(eventlog_level_error,__FUNCTION__,"[%d] got bad ADREQ packet (expected %u bytes, got %u)",conn_get_socket(c),sizeof(t_client_adreq),packet_get_size(packet));
       return -1;
    }
 	    
@@ -3586,7 +3586,7 @@ static int _client_adreq(t_connection * c, t_packet const * const packet)
 	if (!(ad = adbanner_pick(c,bn_int_get(packet->u.client_adreq.prev_adid))))
 	  return -1;
 	
-	/*		    eventlog(eventlog_level_debug,"handle_bnet_packet","[%d] picking ad file=\"%s\" id=0x%06x tag=%u",conn_get_socket(c),adbanner_get_filename(ad),adbanner_get_id(ad),adbanner_get_extensiontag(ad));*/
+	/*		    eventlog(eventlog_level_debug,__FUNCTION__,"[%d] picking ad file=\"%s\" id=0x%06x tag=%u",conn_get_socket(c),adbanner_get_filename(ad),adbanner_get_id(ad),adbanner_get_extensiontag(ad));*/
 	if ((rpacket = packet_create(packet_class_bnet)))
 	  {
 	     packet_set_size(rpacket,sizeof(t_server_adreply));
@@ -3607,14 +3607,14 @@ static int _client_adreq(t_connection * c, t_packet const * const packet)
 static int _client_adack(t_connection * c, t_packet const * const packet)
 {
    if (packet_get_size(packet)<sizeof(t_client_adack)) {
-      eventlog(eventlog_level_error,"handle_bnet_packet","[%d] got bad ADACK packet (expected %u bytes, got %u)",conn_get_socket(c),sizeof(t_client_adack),packet_get_size(packet));
+      eventlog(eventlog_level_error,__FUNCTION__,"[%d] got bad ADACK packet (expected %u bytes, got %u)",conn_get_socket(c),sizeof(t_client_adack),packet_get_size(packet));
       return -1;
    }
    
      {
 	char const * tname;
 	
-	eventlog(eventlog_level_info,"handle_bnet_packet","[%d] ad acknowledgement for adid 0x%04x from \"%s\"",conn_get_socket(c),bn_int_get(packet->u.client_adack.adid),(tname = conn_get_chatname(c)));
+	eventlog(eventlog_level_info,__FUNCTION__,"[%d] ad acknowledgement for adid 0x%04x from \"%s\"",conn_get_socket(c),bn_int_get(packet->u.client_adack.adid),(tname = conn_get_chatname(c)));
 	conn_unget_chatname(c,tname);
      }
    
@@ -3624,14 +3624,14 @@ static int _client_adack(t_connection * c, t_packet const * const packet)
 static int _client_adclick(t_connection * c, t_packet const * const packet)
 {
    if (packet_get_size(packet)<sizeof(t_client_adclick)) {
-      eventlog(eventlog_level_error,"handle_bnet_packet","[%d] got bad ADCLICK packet (expected %u bytes, got %u)",conn_get_socket(c),sizeof(t_client_adclick),packet_get_size(packet));
+      eventlog(eventlog_level_error,__FUNCTION__,"[%d] got bad ADCLICK packet (expected %u bytes, got %u)",conn_get_socket(c),sizeof(t_client_adclick),packet_get_size(packet));
       return -1;
    }
    
      {
 	char const * tname;
 	
-	eventlog(eventlog_level_info,"handle_bnet_packet","[%d] ad click for adid 0x%04x from \"%s\"",
+	eventlog(eventlog_level_info,__FUNCTION__,"[%d] ad click for adid 0x%04x from \"%s\"",
 		 conn_get_socket(c),bn_int_get(packet->u.client_adclick.adid),(tname = conn_get_username(c)));
 	conn_unget_username(c,tname);
      }
@@ -3644,14 +3644,14 @@ static int _client_adclick2(t_connection * c, t_packet const * const packet)
    t_packet * rpacket = NULL;
    
    if (packet_get_size(packet)<sizeof(t_client_adclick2)) {
-      eventlog(eventlog_level_error,"handle_bnet_packet","[%d] got bad ADCLICK2 packet (expected %u bytes, got %u)",conn_get_socket(c), sizeof(t_client_adclick2),packet_get_size(packet));
+      eventlog(eventlog_level_error,__FUNCTION__,"[%d] got bad ADCLICK2 packet (expected %u bytes, got %u)",conn_get_socket(c), sizeof(t_client_adclick2),packet_get_size(packet));
       return -1;
    }
    
      {
 	char const * tname;
 	
-	eventlog(eventlog_level_info,"handle_bnet_packet","[%d] ad click2 for adid 0x%04hx from \"%s\"", conn_get_socket(c),bn_int_get(packet->u.client_adclick2.adid),(tname = conn_get_username(c)));
+	eventlog(eventlog_level_info,__FUNCTION__,"[%d] ad click2 for adid 0x%04hx from \"%s\"", conn_get_socket(c),bn_int_get(packet->u.client_adclick2.adid),(tname = conn_get_username(c)));
 	conn_unget_username(c,tname);
      }
    
@@ -3678,7 +3678,7 @@ static int _client_adclick2(t_connection * c, t_packet const * const packet)
 static int _client_statsupdate(t_connection * c, t_packet const * const packet)
 {
    if (packet_get_size(packet)<sizeof(t_client_statsupdate)) {
-      eventlog(eventlog_level_error,"handle_bnet_packet","[%d] got bad STATSUPDATE packet (expected %u bytes, got %u)",conn_get_socket(c),sizeof(t_client_statsupdate),packet_get_size(packet));
+      eventlog(eventlog_level_error,__FUNCTION__,"[%d] got bad STATSUPDATE packet (expected %u bytes, got %u)",conn_get_socket(c),sizeof(t_client_statsupdate),packet_get_size(packet));
       return -1;
    }
    
@@ -3700,14 +3700,14 @@ static int _client_statsupdate(t_connection * c, t_packet const * const packet)
 	key_count = bn_int_get(packet->u.client_statsupdate.key_count);
 	
 	if (name_count!=1)
-	  eventlog(eventlog_level_warn,"handle_bnet_packet","[%d] got suspicious STATSUPDATE packet (name_count=%u)",conn_get_socket(c),name_count);
+	  eventlog(eventlog_level_warn,__FUNCTION__,"[%d] got suspicious STATSUPDATE packet (name_count=%u)",conn_get_socket(c),name_count);
 	
 	for (i=0,name_off=sizeof(t_client_statsupdate);
 	     i<name_count && (name = packet_get_str_const(packet,name_off,UNCHECKED_NAME_STR));
 	     i++,name_off+=strlen(name)+1);
 	if (i<name_count)
 	  {
-	     eventlog(eventlog_level_error,"handle_bnet_packet","[%d] got bad STATSUPDATE packet (only %u names of %u)",conn_get_socket(c),i,name_count);
+	     eventlog(eventlog_level_error,__FUNCTION__,"[%d] got bad STATSUPDATE packet (only %u names of %u)",conn_get_socket(c),i,name_count);
 	     return -1;
 	  }
 	keys_off = name_off;
@@ -3717,7 +3717,7 @@ static int _client_statsupdate(t_connection * c, t_packet const * const packet)
 	     i++,key_off+=strlen(key)+1);
 	if (i<key_count)
 	  {
-	     eventlog(eventlog_level_error,"handle_bnet_packet","[%d] got bad STATSUPDATE packet (only %u keys of %u)",conn_get_socket(c),i,key_count);
+	     eventlog(eventlog_level_error,__FUNCTION__,"[%d] got bad STATSUPDATE packet (only %u keys of %u)",conn_get_socket(c),i,key_count);
 	     return -1;
 	  }
 	vals_off = key_off;
@@ -3728,11 +3728,11 @@ static int _client_statsupdate(t_connection * c, t_packet const * const packet)
 	     
 	     if (account_get_auth_changeprofile(account)==0) /* default to true */
 	       {
-		  eventlog(eventlog_level_error,"handle_bnet_packet","[%d] stats update for \"%s\" refused (no change profile access)",conn_get_socket(c),(tname = conn_get_username(c)));
+		  eventlog(eventlog_level_error,__FUNCTION__,"[%d] stats update for \"%s\" refused (no change profile access)",conn_get_socket(c),(tname = conn_get_username(c)));
 		  conn_unget_username(c,tname);
 		  return -1;
 	       }
-	     eventlog(eventlog_level_info,"handle_bnet_packet","[%d] updating player profile for \"%s\"",conn_get_socket(c),(tname = conn_get_username(c)));
+	     eventlog(eventlog_level_info,__FUNCTION__,"[%d] updating player profile for \"%s\"",conn_get_socket(c),(tname = conn_get_username(c)));
 	     conn_unget_username(c,tname);
 	     
 	     for (i=0,name_off=sizeof(t_client_statsupdate);
@@ -3742,7 +3742,7 @@ static int _client_statsupdate(t_connection * c, t_packet const * const packet)
 		    j<key_count && (key = packet_get_str_const(packet,key_off,MAX_ATTRKEY_STR)) && (val = packet_get_str_const(packet,val_off,MAX_ATTRVAL_STR));
 		    j++,key_off+=strlen(key)+1,val_off+=strlen(val)+1)
 		 if (strlen(key)<9 || strncasecmp(key,"profile\\",8)!=0)
-		   eventlog(eventlog_level_error,"handle_bnet_packet","[%d] got STATSUPDATE with suspicious key \"%s\" value \"%s\"",conn_get_socket(c),key,val);
+		   eventlog(eventlog_level_error,__FUNCTION__,"[%d] got STATSUPDATE with suspicious key \"%s\" value \"%s\"",conn_get_socket(c),key,val);
 	     else
 	       account_set_strattr(account,key,val);
 	  }
@@ -3756,7 +3756,7 @@ static int _client_playerinforeq(t_connection * c, t_packet const * const packet
    t_packet * rpacket = NULL;
    
    if (packet_get_size(packet)<sizeof(t_client_playerinforeq)) {
-      eventlog(eventlog_level_error,"handle_bnet_packet","[%d] got bad PLAYERINFOREQ packet (expected %u bytes, got %u)",conn_get_socket(c),sizeof(t_client_playerinforeq),packet_get_size(packet));
+      eventlog(eventlog_level_error,__FUNCTION__,"[%d] got bad PLAYERINFOREQ packet (expected %u bytes, got %u)",conn_get_socket(c),sizeof(t_client_playerinforeq),packet_get_size(packet));
       return -1;
    }
    
@@ -3767,12 +3767,12 @@ static int _client_playerinforeq(t_connection * c, t_packet const * const packet
 	
 	if (!(username = packet_get_str_const(packet,sizeof(t_client_playerinforeq),USER_NAME_MAX)))
 	  {
-	     eventlog(eventlog_level_error,"handle_bnet_packet","[%d] got bad PLAYERINFOREQ (missing or too long username)",conn_get_socket(c));
+	     eventlog(eventlog_level_error,__FUNCTION__,"[%d] got bad PLAYERINFOREQ (missing or too long username)",conn_get_socket(c));
 	     return -1;
 	  }
 	if (!(info = packet_get_str_const(packet,sizeof(t_client_playerinforeq)+strlen(username)+1,MAX_PLAYERINFO_STR)))
 	  {
-	     eventlog(eventlog_level_error,"handle_bnet_packet","[%d] got bad PLAYERINFOREQ (missing or too long info)",conn_get_socket(c));
+	     eventlog(eventlog_level_error,__FUNCTION__,"[%d] got bad PLAYERINFOREQ (missing or too long info)",conn_get_socket(c));
 	     return -1;
 	  }
 	
@@ -3819,14 +3819,14 @@ static int _client_progident2(t_connection * c, t_packet const * const packet)
    t_packet * rpacket = NULL;
    
    if (packet_get_size(packet)<sizeof(t_client_progident2)) {
-      eventlog(eventlog_level_error,"handle_bnet_packet","[%d] got bad PROGIDENT2 packet (expected %u bytes, got %u)",conn_get_socket(c),sizeof(t_client_progident2),packet_get_size(packet));
+      eventlog(eventlog_level_error,__FUNCTION__,"[%d] got bad PROGIDENT2 packet (expected %u bytes, got %u)",conn_get_socket(c),sizeof(t_client_progident2),packet_get_size(packet));
       return -1;
    }
    
    /* d2 uses this packet with clienttag = 0 to request the channel list */
    if (bn_int_get(packet->u.client_progident2.clienttag))
      {
-	eventlog(eventlog_level_debug,"handle_bnet_packet","[%d] CLIENT_PROGIDENT2 clienttag=0x%08x",conn_get_socket(c),bn_int_get(packet->u.client_progident2.clienttag));
+	eventlog(eventlog_level_debug,__FUNCTION__,"[%d] CLIENT_PROGIDENT2 clienttag=0x%08x",conn_get_socket(c),bn_int_get(packet->u.client_progident2.clienttag));
 	
 	/* Hmm... no archtag.  Hope we get it in CLIENT_AUTHREQ1 (but we won't if we use the shortcut) */
 	
@@ -3849,7 +3849,7 @@ static int _client_progident2(t_connection * c, t_packet const * const packet)
 	else if (bn_int_tag_eq(packet->u.client_progident2.clienttag,CLIENTTAG_WARCRAFT3)==0)
 	  conn_set_clienttag(c,CLIENTTAG_WARCRAFT3);
 	else
-	  eventlog(eventlog_level_error,"handle_bnet_packet","[%d] unknown client program type 0x%08x, don't expect this to work",conn_get_socket(c),bn_int_get(packet->u.client_progident2.clienttag));
+	  eventlog(eventlog_level_error,__FUNCTION__,"[%d] unknown client program type 0x%08x, don't expect this to work",conn_get_socket(c),bn_int_get(packet->u.client_progident2.clienttag));
      }
    
    if ((rpacket = packet_create(packet_class_bnet)))
@@ -3879,7 +3879,7 @@ static int _client_progident2(t_connection * c, t_packet const * const packet)
 static int _client_joinchannel(t_connection * c, t_packet const * const packet)
 {
    if (packet_get_size(packet)<sizeof(t_client_joinchannel)) {
-      eventlog(eventlog_level_error,"handle_bnet_packet","[%d] got bad JOINCHANNEL packet (expected %u bytes, got %u)",conn_get_socket(c),sizeof(t_client_joinchannel),packet_get_size(packet));
+      eventlog(eventlog_level_error,__FUNCTION__,"[%d] got bad JOINCHANNEL packet (expected %u bytes, got %u)",conn_get_socket(c),sizeof(t_client_joinchannel),packet_get_size(packet));
       return -1;
    }
    
@@ -3900,22 +3900,22 @@ static int _client_joinchannel(t_connection * c, t_packet const * const packet)
 	if(acctlevel==0)
 	  {
 	     sprintf( tempplayerinfo, "3RAW 3RAW 0 0");
-	     eventlog(eventlog_level_info,"handle_bnet_packet","[%d] 3RAW 3RAW",conn_get_socket(c));
+	     eventlog(eventlog_level_info,__FUNCTION__,"[%d] 3RAW 3RAW",conn_get_socket(c));
 	  }
 	else if (wins==0)
 	  {
 	     sprintf( tempplayerinfo, "3RAW 3RAW 0 0");
-	     eventlog(eventlog_level_info,"handle_bnet_packet","[%d] 3RAW 3RAW",conn_get_socket(c));
+	     eventlog(eventlog_level_info,__FUNCTION__,"[%d] 3RAW 3RAW",conn_get_socket(c));
 	  }
 	else 
 	  {
 	     sprintf(tempplayerinfo, "3RAW %1u%c3W %u %u", raceiconnumber, raceicon, acctlevel, wins); 
-	     eventlog(eventlog_level_info,"handle_bnet_packet","[%d] 3RAW %1u%c3W %u",conn_get_socket(c), raceiconnumber, raceicon, acctlevel);
+	     eventlog(eventlog_level_info,__FUNCTION__,"[%d] 3RAW %1u%c3W %u",conn_get_socket(c), raceiconnumber, raceicon, acctlevel);
 	  }
 	
 	if (!(cname = packet_get_str_const(packet,sizeof(t_client_joinchannel),CHANNEL_NAME_LEN)))
 	  {
-	     eventlog(eventlog_level_error,"handle_bnet_packet","[%d] got bad JOINCHANNEL (missing or too long cname)",conn_get_socket(c));
+	     eventlog(eventlog_level_error,__FUNCTION__,"[%d] got bad JOINCHANNEL (missing or too long cname)",conn_get_socket(c));
 	     return -1;
 	  }
 	//ADDED THEUNDYING - UPDATED 7/31/02
@@ -3940,24 +3940,24 @@ static int _client_joinchannel(t_connection * c, t_packet const * const packet)
 	switch (bn_int_get(packet->u.client_joinchannel.channelflag))
 	  {
 	   case CLIENT_JOINCHANNEL_NORMAL:
-	     eventlog(eventlog_level_info,"handle_bnet_packet","[%d] CLIENT_JOINCHANNEL_NORMAL channel \"%s\"",conn_get_socket(c),cname);
+	     eventlog(eventlog_level_info,__FUNCTION__,"[%d] CLIENT_JOINCHANNEL_NORMAL channel \"%s\"",conn_get_socket(c),cname);
 	     
 	     if (channellist_find_channel_by_name(cname,conn_get_country(c),conn_get_realmname(c)))
 	       break; /* just join it */
 	     else if (prefs_get_ask_new_channel())
 	       {
 		  found=0;
-		  eventlog(eventlog_level_info,"handle_bnet_packet","[%d] didn't find channel \"%s\" to join",conn_get_socket(c),cname);
+		  eventlog(eventlog_level_info,__FUNCTION__,"[%d] didn't find channel \"%s\" to join",conn_get_socket(c),cname);
 		  message_send_text(c,message_type_channeldoesnotexist,c,cname);
 	       }
 	     break;
 	   case CLIENT_JOINCHANNEL_GENERIC:
-	     eventlog(eventlog_level_info,"handle_bnet_packet","[%d] CLIENT_JOINCHANNEL_GENERIC channel \"%s\"",conn_get_socket(c),cname);
+	     eventlog(eventlog_level_info,__FUNCTION__,"[%d] CLIENT_JOINCHANNEL_GENERIC channel \"%s\"",conn_get_socket(c),cname);
 	     /* don't have to do anything here */
 	     break;
 	   case CLIENT_JOINCHANNEL_CREATE:
-	     eventlog(eventlog_level_info,"handle_bnet_packet","[%d] CLIENT_JOINCHANNEL_CREATE channel \"%s\"",conn_get_socket(c),cname);
-	     eventlog(eventlog_level_info,"handle_bnet_packet","[%d] CLIENT_JOINCHANNEL_CREATE channel \"%s\"",conn_get_socket(c),cname);
+	     eventlog(eventlog_level_info,__FUNCTION__,"[%d] CLIENT_JOINCHANNEL_CREATE channel \"%s\"",conn_get_socket(c),cname);
+	     eventlog(eventlog_level_info,__FUNCTION__,"[%d] CLIENT_JOINCHANNEL_CREATE channel \"%s\"",conn_get_socket(c),cname);
 	     /* don't have to do anything here */
 	     break;
 	  }
@@ -3994,7 +3994,7 @@ static int _client_joinchannel(t_connection * c, t_packet const * const packet)
 static int _client_message(t_connection * c, t_packet const * const packet)
 {
    if (packet_get_size(packet)<sizeof(t_client_message)) {
-      eventlog(eventlog_level_error,"handle_bnet_packet","[%d] got bad MESSAGE packet (expected %u bytes, got %u)",conn_get_socket(c),sizeof(t_client_message),packet_get_size(packet));
+      eventlog(eventlog_level_error,__FUNCTION__,"[%d] got bad MESSAGE packet (expected %u bytes, got %u)",conn_get_socket(c),sizeof(t_client_message),packet_get_size(packet));
       return -1;
    }
    
@@ -4004,7 +4004,7 @@ static int _client_message(t_connection * c, t_packet const * const packet)
 	
 	if (!(text = packet_get_str_const(packet,sizeof(t_client_message),MAX_MESSAGE_LEN)))
 	  {
-	     eventlog(eventlog_level_error,"handle_bnet_packet","[%d] got bad MESSAGE (missing or too long text)",conn_get_socket(c));
+	     eventlog(eventlog_level_error,__FUNCTION__,"[%d] got bad MESSAGE (missing or too long text)",conn_get_socket(c));
 	     return -1;
 	  }
 	
@@ -4032,7 +4032,7 @@ static int _client_gamelistreq(t_connection * c, t_packet const * const packet)
    t_packet * rpacket = NULL;
    
    if (packet_get_size(packet)<sizeof(t_client_gamelistreq)) {
-      eventlog(eventlog_level_error,"handle_bnet_packet","[%d] got bad GAMELISTREQ packet (expected %u bytes, got %u)",conn_get_socket(c),sizeof(t_client_gamelistreq),packet_get_size(packet));
+      eventlog(eventlog_level_error,__FUNCTION__,"[%d] got bad GAMELISTREQ packet (expected %u bytes, got %u)",conn_get_socket(c),sizeof(t_client_gamelistreq),packet_get_size(packet));
       return -1;
    }
 	    
@@ -4049,7 +4049,7 @@ static int _client_gamelistreq(t_connection * c, t_packet const * const packet)
 	
 	if (!(gamename = packet_get_str_const(packet,sizeof(t_client_gamelistreq),GAME_NAME_LEN)))
 	  {
-	     eventlog(eventlog_level_error,"handle_bnet_packet","[%d] got bad GAMELISTREQ (missing or too long gamename)",conn_get_socket(c));
+	     eventlog(eventlog_level_error,__FUNCTION__,"[%d] got bad GAMELISTREQ (missing or too long gamename)",conn_get_socket(c));
 	     return -1;
 	  }
 	
@@ -4070,7 +4070,7 @@ static int _client_gamelistreq(t_connection * c, t_packet const * const packet)
 	/* specific game requested? */
 	if (gamename[0]!='\0')
 	  {
-	     eventlog(eventlog_level_debug,"handle_bnet_packet","[%d] GAMELISTREPLY looking for specific game tag=\"%s\" bngtype=0x%08x gtype=%d name=\"%s\"",conn_get_socket(c),conn_get_clienttag(c),bngtype,(int)gtype,gamename);
+	     eventlog(eventlog_level_debug,__FUNCTION__,"[%d] GAMELISTREPLY looking for specific game tag=\"%s\" bngtype=0x%08x gtype=%d name=\"%s\"",conn_get_socket(c),conn_get_clienttag(c),bngtype,(int)gtype,gamename);
 	     if ((game = gamelist_find_game(gamename,gtype)))
 	       {
 		  //	removed by bbf (yak)
@@ -4100,7 +4100,7 @@ static int _client_gamelistreq(t_connection * c, t_packet const * const packet)
 		       bn_int_set(&glgame.status,SERVER_GAMELISTREPLY_GAME_STATUS_DONE);
 		       break;
 		     default:
-		       eventlog(eventlog_level_warn,"handle_bnet_packet","[%d] game \"%s\" has bad status %d",conn_get_socket(c),game_get_name(game),game_get_status(game));
+		       eventlog(eventlog_level_warn,__FUNCTION__,"[%d] game \"%s\" has bad status %d",conn_get_socket(c),game_get_name(game),game_get_status(game));
 		       bn_int_set(&glgame.status,0);
 		    }
 		  bn_int_set(&glgame.unknown6,SERVER_GAMELISTREPLY_GAME_UNKNOWN6);
@@ -4110,12 +4110,12 @@ static int _client_gamelistreq(t_connection * c, t_packet const * const packet)
 		  packet_append_string(rpacket,game_get_pass(game));
 		  packet_append_string(rpacket,game_get_info(game));
 		  bn_int_set(&rpacket->u.server_gamelistreply.gamecount,1);
-		  eventlog(eventlog_level_debug,"handle_bnet_packet","[%d] GAMELISTREPLY found it",conn_get_socket(c));
+		  eventlog(eventlog_level_debug,__FUNCTION__,"[%d] GAMELISTREPLY found it",conn_get_socket(c));
 	       }
 	     else
 	       {
 		  bn_int_set(&rpacket->u.server_gamelistreply.gamecount,0);
-		  eventlog(eventlog_level_debug,"handle_bnet_packet","[%d] GAMELISTREPLY doesn't seem to exist",conn_get_socket(c));
+		  eventlog(eventlog_level_debug,__FUNCTION__,"[%d] GAMELISTREPLY doesn't seem to exist",conn_get_socket(c));
 	       }
 	  }
 	else /* list all public games of this type */
@@ -4126,9 +4126,9 @@ static int _client_gamelistreq(t_connection * c, t_packet const * const packet)
 	     bn_int game_spacer = { 1, 0 ,0 ,0 };
 	     
 	     if (gtype==game_type_all)
-	       eventlog(eventlog_level_debug,"handle_bnet_packet","GAMELISTREPLY looking for public games tag=\"%s\" bngtype=0x%08x gtype=all",conn_get_clienttag(c),bngtype);
+	       eventlog(eventlog_level_debug,__FUNCTION__,"GAMELISTREPLY looking for public games tag=\"%s\" bngtype=0x%08x gtype=all",conn_get_clienttag(c),bngtype);
 	     else
-	       eventlog(eventlog_level_debug,"handle_bnet_packet","GAMELISTREPLY looking for public games tag=\"%s\" bngtype=0x%08x gtype=%d",conn_get_clienttag(c),bngtype,(int)gtype);
+	       eventlog(eventlog_level_debug,__FUNCTION__,"GAMELISTREPLY looking for public games tag=\"%s\" bngtype=0x%08x gtype=%d",conn_get_clienttag(c),bngtype,(int)gtype);
 	     
 	     counter = 0;
 	     tcount = 0;
@@ -4136,36 +4136,36 @@ static int _client_gamelistreq(t_connection * c, t_packet const * const packet)
 	       {
 		  game = elem_get_data(curr);
 		  tcount++;
-		  eventlog(eventlog_level_debug,"handle_bnet_packet","[%d] considering listing game=\"%s\", pass=\"%s\" clienttag=\"%s\" gtype=%d",conn_get_socket(c),game_get_name(game),game_get_pass(game),game_get_clienttag(game),(int)game_get_type(game));
+		  eventlog(eventlog_level_debug,__FUNCTION__,"[%d] considering listing game=\"%s\", pass=\"%s\" clienttag=\"%s\" gtype=%d",conn_get_socket(c),game_get_name(game),game_get_pass(game),game_get_clienttag(game),(int)game_get_type(game));
 		  
 		  if (prefs_get_hide_pass_games() && strcmp(game_get_pass(game),"")!=0)
 		    {
-		       eventlog(eventlog_level_debug,"handle_bnet_packet","[%d] not listing because game is private",conn_get_socket(c));
+		       eventlog(eventlog_level_debug,__FUNCTION__,"[%d] not listing because game is private",conn_get_socket(c));
 		       continue;
 		    }
 		  if (prefs_get_hide_pass_games() && game_get_flag_private(game))
 		    {
-		       eventlog(eventlog_level_debug,"handle_bnet_packet","[%d] not listing because game has private flag",conn_get_socket(c));
+		       eventlog(eventlog_level_debug,__FUNCTION__,"[%d] not listing because game has private flag",conn_get_socket(c));
 		       continue;
 		    }
 		  if (prefs_get_hide_started_games() && game_get_status(game)!=game_status_open)
 		    {
-		       eventlog(eventlog_level_debug,"handle_bnet_packet","[%d] not listing because game is started",conn_get_socket(c));
+		       eventlog(eventlog_level_debug,__FUNCTION__,"[%d] not listing because game is started",conn_get_socket(c));
 		       continue;
 		    }
 		  if (strcmp(game_get_clienttag(game),conn_get_clienttag(c))!=0)
 		    {
-		       eventlog(eventlog_level_debug,"handle_bnet_packet","[%d] not listing because game is for a different client",conn_get_socket(c));
+		       eventlog(eventlog_level_debug,__FUNCTION__,"[%d] not listing because game is for a different client",conn_get_socket(c));
 		       continue;
 		    }
 		  if (gtype!=game_type_all && game_get_type(game)!=gtype)
 		    {
-		       eventlog(eventlog_level_debug,"handle_bnet_packet","[%d] not listing because game is wrong type",conn_get_socket(c));
+		       eventlog(eventlog_level_debug,__FUNCTION__,"[%d] not listing because game is wrong type",conn_get_socket(c));
 		       continue;
 		    }
 		  if (strcmp(versioncheck_get_versiontag(conn_get_versioncheck(game_get_owner(game))),versioncheck_get_versiontag(conn_get_versioncheck(c)))!=0)
 		    {
-		       eventlog(eventlog_level_debug,"handle_bnet_packet","[%d] not listing because game is wrong versiontag",conn_get_socket(c));
+		       eventlog(eventlog_level_debug,__FUNCTION__,"[%d] not listing because game is wrong versiontag",conn_get_socket(c));
 		       continue;
 		    }
 		  
@@ -4196,7 +4196,7 @@ static int _client_gamelistreq(t_connection * c, t_packet const * const packet)
 		       bn_int_set(&glgame.status,SERVER_GAMELISTREPLY_GAME_STATUS_DONE);
 		       break;
 		     default:
-		       eventlog(eventlog_level_warn,"handle_bnet_packet","[%d] game \"%s\" has bad status=%d",conn_get_socket(c),game_get_name(game),(int)game_get_status(game));
+		       eventlog(eventlog_level_warn,__FUNCTION__,"[%d] game \"%s\" has bad status=%d",conn_get_socket(c),game_get_name(game),(int)game_get_status(game));
 		       bn_int_set(&glgame.status,0);
 		    }
 		  bn_int_set(&glgame.unknown6,SERVER_GAMELISTREPLY_GAME_UNKNOWN6);
@@ -4207,7 +4207,7 @@ static int _client_gamelistreq(t_connection * c, t_packet const * const packet)
 		      strlen(game_get_pass(game))+1+
 		      strlen(game_get_info(game))+1>MAX_PACKET_SIZE)
 		    {
-		       eventlog(eventlog_level_debug,"handle_bnet_packet","[%d] out of room for games",conn_get_socket(c));
+		       eventlog(eventlog_level_debug,__FUNCTION__,"[%d] out of room for games",conn_get_socket(c));
 		       break; /* no more room */
 		    }
 		  
@@ -4233,7 +4233,7 @@ static int _client_gamelistreq(t_connection * c, t_packet const * const packet)
 	      }// - yakz's does not use this, but it seems to be required
 	      */		    
 	     bn_int_set(&rpacket->u.server_gamelistreply.gamecount,counter);
-	     eventlog(eventlog_level_debug,"handle_bnet_packet","[%d] GAMELISTREPLY sent %u of %u games",conn_get_socket(c),counter,tcount);
+	     eventlog(eventlog_level_debug,__FUNCTION__,"[%d] GAMELISTREPLY sent %u of %u games",conn_get_socket(c),counter,tcount);
 	  }
 	
 	queue_push_packet(conn_get_out_queue(c),rpacket);
@@ -4247,7 +4247,7 @@ static int _client_gamelistreq(t_connection * c, t_packet const * const packet)
 static int _client_joingame(t_connection * c, t_packet const * const packet)
 {
    if (packet_get_size(packet)<sizeof(t_client_join_game)) {
-      eventlog(eventlog_level_error,"handle_bnet_packet","[%d] got bad JOIN_GAME packet (expected %u bytes, got %u)",conn_get_socket(c),sizeof(t_client_join_game),packet_get_size(packet));
+      eventlog(eventlog_level_error,__FUNCTION__,"[%d] got bad JOIN_GAME packet (expected %u bytes, got %u)",conn_get_socket(c),sizeof(t_client_join_game),packet_get_size(packet));
       return -1;
    }
    
@@ -4263,16 +4263,16 @@ static int _client_joingame(t_connection * c, t_packet const * const packet)
 	t_game_type  gtype = game_type_none;
 	
 	if (!(gamename = packet_get_str_const(packet,sizeof(t_client_join_game),GAME_NAME_LEN))) {
-	   eventlog(eventlog_level_error,"handle_bnet_packet","[%d] got bad CLIENT_JOIN_GAME (missing or too long gamename)",conn_get_socket(c));
+	   eventlog(eventlog_level_error,__FUNCTION__,"[%d] got bad CLIENT_JOIN_GAME (missing or too long gamename)",conn_get_socket(c));
 	   return -1;
 	}
 	
 	if (!(gamepass = packet_get_str_const(packet,sizeof(t_client_join_game)+strlen(gamename)+1,GAME_PASS_LEN))) {
-	   eventlog(eventlog_level_error,"handle_bnet_packet","[%d] got bad CLIENT_JOIN_GAME packet (missing or too long gamepass)",conn_get_socket(c));
+	   eventlog(eventlog_level_error,__FUNCTION__,"[%d] got bad CLIENT_JOIN_GAME packet (missing or too long gamepass)",conn_get_socket(c));
 	   return -1;
 	}
 		
-	eventlog(eventlog_level_debug,"handle_bnet_packet","[%d] trying to join game \"%s\" pass=\"%s\"",conn_get_socket(c),gamename,gamepass);
+	eventlog(eventlog_level_debug,__FUNCTION__,"[%d] trying to join game \"%s\" pass=\"%s\"",conn_get_socket(c),gamename,gamepass);
 	if(!strcmp(gamename, "BNet"))
 	  {
 	     handle_anongame_join(c);
@@ -4299,7 +4299,7 @@ static int _client_joingame(t_connection * c, t_packet const * const packet)
 #ifndef WITH_BITS
 	     if (!(game = gamelist_find_game(gamename,game_type_all)))
 	       {
-		  eventlog(eventlog_level_error,"handle_bnet_packet","[%d] unable to find game \"%s\" for user to join",conn_get_socket(c),gamename);
+		  eventlog(eventlog_level_error,__FUNCTION__,"[%d] unable to find game \"%s\" for user to join",conn_get_socket(c),gamename);
 		  return -1;
 	       }
 	     gtype = game_get_type(game);
@@ -4307,7 +4307,7 @@ static int _client_joingame(t_connection * c, t_packet const * const packet)
 #else /* WITH_BITS */
 	     if (!(game = bits_gamelist_find_game(gamename,game_type_all)))
 	       {
-		  eventlog(eventlog_level_error,"handle_bnet_packet","[%d] unable to find game \"%s\" for user to join",conn_get_socket(c),gamename);
+		  eventlog(eventlog_level_error,__FUNCTION__,"[%d] unable to find game \"%s\" for user to join",conn_get_socket(c),gamename);
 		  return -1;
 	       }
 	     gtype = bits_game_get_type(game);
@@ -4317,7 +4317,7 @@ static int _client_joingame(t_connection * c, t_packet const * const packet)
 	     if ((gtype==game_type_ladder && account_get_auth_joinladdergame(conn_get_account(c))==0) || /* default to true */
 		 (gtype!=game_type_ladder && account_get_auth_joinnormalgame(conn_get_account(c))==0)) /* default to true */
 	       {
-		  eventlog(eventlog_level_info,"handle_bnet_packet","[%d] game join for \"%s\" to \"%s\" refused (no authority)",conn_get_socket(c),(tname = conn_get_username(c)),gamename);
+		  eventlog(eventlog_level_info,__FUNCTION__,"[%d] game join for \"%s\" to \"%s\" refused (no authority)",conn_get_socket(c),(tname = conn_get_username(c)),gamename);
 		  conn_unget_username(c,tname);
 		  /* If the user is not in a game, then map authorization
 		   will fail and keep them from playing. */
@@ -4326,9 +4326,9 @@ static int _client_joingame(t_connection * c, t_packet const * const packet)
 	  }
 	
 	if (conn_set_game(c,gamename,gamepass,"",gtype,STARTVER_UNKNOWN)<0)
-	  eventlog(eventlog_level_info,"handle_bnet_packet","[%d] \"%s\" joined game \"%s\", but could not be recorded on server",conn_get_socket(c),(tname = conn_get_username(c)),gamename);
+	  eventlog(eventlog_level_info,__FUNCTION__,"[%d] \"%s\" joined game \"%s\", but could not be recorded on server",conn_get_socket(c),(tname = conn_get_username(c)),gamename);
 	else
-	  eventlog(eventlog_level_info,"handle_bnet_packet","[%d] \"%s\" joined game \"%s\"",conn_get_socket(c),(tname = conn_get_username(c)),gamename);
+	  eventlog(eventlog_level_info,__FUNCTION__,"[%d] \"%s\" joined game \"%s\"",conn_get_socket(c),(tname = conn_get_username(c)),gamename);
 	conn_unget_username(c,tname);
 	
 	// W2 hack to part channel on game join
@@ -4345,7 +4345,7 @@ static int _client_startgame1(t_connection * c, t_packet const * const packet)
    t_packet * rpacket = NULL;
    
    if (packet_get_size(packet)<sizeof(t_client_startgame1)) {
-      eventlog(eventlog_level_error,"handle_bnet_packet","[%d] got bad STARTGAME1 packet (expected %u bytes, got %u)",conn_get_socket(c),sizeof(t_client_startgame1),packet_get_size(packet));
+      eventlog(eventlog_level_error,__FUNCTION__,"[%d] got bad STARTGAME1 packet (expected %u bytes, got %u)",conn_get_socket(c),sizeof(t_client_startgame1),packet_get_size(packet));
       return -1;
    }
    
@@ -4361,17 +4361,17 @@ static int _client_startgame1(t_connection * c, t_packet const * const packet)
 	
 	if (!(gamename = packet_get_str_const(packet,sizeof(t_client_startgame1),GAME_NAME_LEN)))
 	  {
-	     eventlog(eventlog_level_error,"handle_bnet_packet","[%d] got bad STARTGAME1 packet (missing or too long gamename)",conn_get_socket(c));
+	     eventlog(eventlog_level_error,__FUNCTION__,"[%d] got bad STARTGAME1 packet (missing or too long gamename)",conn_get_socket(c));
 	     return -1;
 	  }
 	if (!(gamepass = packet_get_str_const(packet,sizeof(t_client_startgame1)+strlen(gamename)+1,GAME_PASS_LEN)))
 	  {
-	     eventlog(eventlog_level_error,"handle_bnet_packet","[%d] got bad STARTGAME1 packet (missing or too long gamepass)",conn_get_socket(c));
+	     eventlog(eventlog_level_error,__FUNCTION__,"[%d] got bad STARTGAME1 packet (missing or too long gamepass)",conn_get_socket(c));
 	     return -1;
 	  }
 	if (!(gameinfo = packet_get_str_const(packet,sizeof(t_client_startgame1)+strlen(gamename)+1+strlen(gamepass)+1,GAME_INFO_LEN)))
 	  {
-	     eventlog(eventlog_level_error,"handle_bnet_packet","[%d] got bad STARTGAME1 packet (missing or too long gameinfo)",conn_get_socket(c));
+	     eventlog(eventlog_level_error,__FUNCTION__,"[%d] got bad STARTGAME1 packet (missing or too long gameinfo)",conn_get_socket(c));
 	     return -1;
 	  }
 	if(conn_get_joingamewhisper_ack(c)==0)
@@ -4384,7 +4384,7 @@ static int _client_startgame1(t_connection * c, t_packet const * const packet)
 	
 	
 	bngtype = bn_short_get(packet->u.client_startgame1.gametype);
-	eventlog(eventlog_level_debug,"handle_bnet_packet","[%d] got startgame1 status for game \"%s\" is 0x%08x (gametype = 0x%04hx)",conn_get_socket(c),gamename,bn_int_get(packet->u.client_startgame1.status),bngtype);
+	eventlog(eventlog_level_debug,__FUNCTION__,"[%d] got startgame1 status for game \"%s\" is 0x%08x (gametype = 0x%04hx)",conn_get_socket(c),gamename,bn_int_get(packet->u.client_startgame1.status),bngtype);
 	status = bn_int_get(packet->u.client_startgame1.status)&CLIENT_STARTGAME1_STATUSMASK;
 	
 #ifdef WITH_BITS
@@ -4405,7 +4405,7 @@ static int _client_startgame1(t_connection * c, t_packet const * const packet)
 		  break;
 		case CLIENT_STARTGAME1_STATUS_DONE:
 		  game_set_status(currgame,game_status_done);
-		  eventlog(eventlog_level_info,"handle_bnet_packet","[%d] game \"%s\" is finished",conn_get_socket(c),gamename);
+		  eventlog(eventlog_level_info,__FUNCTION__,"[%d] game \"%s\" is finished",conn_get_socket(c),gamename);
 		  break;
 	       }
 	  }
@@ -4420,7 +4420,7 @@ static int _client_startgame1(t_connection * c, t_packet const * const packet)
 		 {
 		    char const * tname;
 		    
-		    eventlog(eventlog_level_info,"handle_bnet_packet","[%d] game start for \"%s\" refused (no authority)",conn_get_socket(c),(tname = conn_get_username(c)));
+		    eventlog(eventlog_level_info,__FUNCTION__,"[%d] game start for \"%s\" refused (no authority)",conn_get_socket(c),(tname = conn_get_username(c)));
 		    conn_unget_username(c,tname);
 		 }
 	       else
@@ -4441,7 +4441,7 @@ static int _client_startgame1(t_connection * c, t_packet const * const packet)
 		 }
 	    }
 	else
-	  eventlog(eventlog_level_info,"handle_bnet_packet","[%d] client tried to set game status to DONE",conn_get_socket(c));
+	  eventlog(eventlog_level_info,__FUNCTION__,"[%d] client tried to set game status to DONE",conn_get_socket(c));
 #endif /* !WITH_BITS */
      }
    
@@ -4453,7 +4453,7 @@ static int _client_startgame3(t_connection * c, t_packet const * const packet)
    t_packet * rpacket = NULL;
    
    if (packet_get_size(packet)<sizeof(t_client_startgame3)) {
-      eventlog(eventlog_level_error,"handle_bnet_packet","[%d] got bad STARTGAME3 packet (expected %u bytes, got %u)",conn_get_socket(c),sizeof(t_client_startgame3),packet_get_size(packet));
+      eventlog(eventlog_level_error,__FUNCTION__,"[%d] got bad STARTGAME3 packet (expected %u bytes, got %u)",conn_get_socket(c),sizeof(t_client_startgame3),packet_get_size(packet));
       return -1;
    }
    
@@ -4469,17 +4469,17 @@ static int _client_startgame3(t_connection * c, t_packet const * const packet)
 	
 	if (!(gamename = packet_get_str_const(packet,sizeof(t_client_startgame3),GAME_NAME_LEN)))
 	  {
-	     eventlog(eventlog_level_error,"handle_bnet_packet","[%d] got bad STARTGAME3 packet (missing or too long gamename)",conn_get_socket(c));
+	     eventlog(eventlog_level_error,__FUNCTION__,"[%d] got bad STARTGAME3 packet (missing or too long gamename)",conn_get_socket(c));
 	     return -1;
 	  }
 	if (!(gamepass = packet_get_str_const(packet,sizeof(t_client_startgame3)+strlen(gamename)+1,GAME_PASS_LEN)))
 	  {
-	     eventlog(eventlog_level_error,"handle_bnet_packet","[%d] got bad STARTGAME3 packet (missing or too long gamepass)",conn_get_socket(c));
+	     eventlog(eventlog_level_error,__FUNCTION__,"[%d] got bad STARTGAME3 packet (missing or too long gamepass)",conn_get_socket(c));
 	     return -1;
 	  }
 	if (!(gameinfo = packet_get_str_const(packet,sizeof(t_client_startgame3)+strlen(gamename)+1+strlen(gamepass)+1,GAME_INFO_LEN)))
 	  {
-	     eventlog(eventlog_level_error,"handle_bnet_packet","[%d] got bad STARTGAME3 packet (missing or too long gameinfo)",conn_get_socket(c));
+	     eventlog(eventlog_level_error,__FUNCTION__,"[%d] got bad STARTGAME3 packet (missing or too long gameinfo)",conn_get_socket(c));
 	     return -1;
 	  }
 	if(conn_get_joingamewhisper_ack(c)==0)
@@ -4490,7 +4490,7 @@ static int _client_startgame3(t_connection * c, t_packet const * const packet)
 	     conn_set_joingamewhisper_ack(c,1); //1 = already whispered. We reset this each time user joins a channel
 	  }
 	bngtype = bn_short_get(packet->u.client_startgame3.gametype);
-	eventlog(eventlog_level_debug,"handle_bnet_packet","[%d] got startgame3 status for game \"%s\" is 0x%08x (gametype = 0x%04hx)",conn_get_socket(c),gamename,bn_int_get(packet->u.client_startgame3.status),bngtype);
+	eventlog(eventlog_level_debug,__FUNCTION__,"[%d] got startgame3 status for game \"%s\" is 0x%08x (gametype = 0x%04hx)",conn_get_socket(c),gamename,bn_int_get(packet->u.client_startgame3.status),bngtype);
 	status = bn_int_get(packet->u.client_startgame3.status)&CLIENT_STARTGAME3_STATUSMASK;
 	
 #ifdef WITH_BITS
@@ -4512,7 +4512,7 @@ static int _client_startgame3(t_connection * c, t_packet const * const packet)
 		  break;
 		case CLIENT_STARTGAME3_STATUS_DONE:
 		  game_set_status(currgame,game_status_done);
-		  eventlog(eventlog_level_info,"handle_bnet_packet","[%d] game \"%s\" is finished",conn_get_socket(c),gamename);
+		  eventlog(eventlog_level_info,__FUNCTION__,"[%d] game \"%s\" is finished",conn_get_socket(c),gamename);
 		  break;
 	       }
 	  }
@@ -4527,7 +4527,7 @@ static int _client_startgame3(t_connection * c, t_packet const * const packet)
 		 {
 		    char const * tname;
 		    
-		    eventlog(eventlog_level_info,"handle_bnet_packet","[%d] game start for \"%s\" refused (no authority)",conn_get_socket(c),(tname = conn_get_username(c)));
+		    eventlog(eventlog_level_info,__FUNCTION__,"[%d] game start for \"%s\" refused (no authority)",conn_get_socket(c),(tname = conn_get_username(c)));
 		    conn_unget_username(c,tname);
 		 }
 	       else
@@ -4548,7 +4548,7 @@ static int _client_startgame3(t_connection * c, t_packet const * const packet)
 		 }
 	    }
 	else
-	  eventlog(eventlog_level_info,"handle_bnet_packet","[%d] client tried to set game status to DONE",conn_get_socket(c));
+	  eventlog(eventlog_level_info,__FUNCTION__,"[%d] client tried to set game status to DONE",conn_get_socket(c));
 #endif /* !WITH_BITS */
      }
    
@@ -4560,7 +4560,7 @@ static int _client_startgame4(t_connection * c, t_packet const * const packet)
    t_packet * rpacket = NULL;
    
    if (packet_get_size(packet)<sizeof(t_client_startgame4)) {
-      eventlog(eventlog_level_error,"handle_bnet_packet","[%d] got bad STARTGAME4 packet (expected %u bytes, got %u)",conn_get_socket(c),sizeof(t_client_startgame4),packet_get_size(packet));
+      eventlog(eventlog_level_error,__FUNCTION__,"[%d] got bad STARTGAME4 packet (expected %u bytes, got %u)",conn_get_socket(c),sizeof(t_client_startgame4),packet_get_size(packet));
       return -1;
    }
    
@@ -4584,17 +4584,17 @@ static int _client_startgame4(t_connection * c, t_packet const * const packet)
 	
 	if (!(gamename = packet_get_str_const(packet,sizeof(t_client_startgame4),GAME_NAME_LEN)))
 	  {
-	     eventlog(eventlog_level_error,"handle_bnet_packet","[%d] got bad STARTGAME4 packet (missing or too long gamename)",conn_get_socket(c));
+	     eventlog(eventlog_level_error,__FUNCTION__,"[%d] got bad STARTGAME4 packet (missing or too long gamename)",conn_get_socket(c));
 	     return -1;
 	  }
 	if (!(gamepass = packet_get_str_const(packet,sizeof(t_client_startgame4)+strlen(gamename)+1,GAME_PASS_LEN)))
 	  {
-	     eventlog(eventlog_level_error,"handle_bnet_packet","[%d] got bad STARTGAME4 packet (missing or too long gamepass)",conn_get_socket(c));
+	     eventlog(eventlog_level_error,__FUNCTION__,"[%d] got bad STARTGAME4 packet (missing or too long gamepass)",conn_get_socket(c));
 	     return -1;
 	  }
 	if (!(gameinfo = packet_get_str_const(packet,sizeof(t_client_startgame4)+strlen(gamename)+1+strlen(gamepass)+1,GAME_INFO_LEN)))
 	  {
-	     eventlog(eventlog_level_error,"handle_bnet_packet","[%d] got bad STARTGAME4 packet (missing or too long gameinfo)",conn_get_socket(c));
+	     eventlog(eventlog_level_error,__FUNCTION__,"[%d] got bad STARTGAME4 packet (missing or too long gameinfo)",conn_get_socket(c));
 	     return -1;
 	  }
 	if(conn_get_joingamewhisper_ack(c)==0)
@@ -4606,14 +4606,14 @@ static int _client_startgame4(t_connection * c, t_packet const * const packet)
 	  }
 	bngtype = bn_short_get(packet->u.client_startgame4.gametype);
 	option = bn_short_get(packet->u.client_startgame4.option);
-	eventlog(eventlog_level_debug,"handle_bnet_packet","[%d] got startgame4 status for game \"%s\" is 0x%08x (gametype=0x%04hx option=0x%04x)",conn_get_socket(c),gamename,bn_int_get(packet->u.client_startgame4.status),bngtype,option);
+	eventlog(eventlog_level_debug,__FUNCTION__,"[%d] got startgame4 status for game \"%s\" is 0x%08x (gametype=0x%04hx option=0x%04x)",conn_get_socket(c),gamename,bn_int_get(packet->u.client_startgame4.status),bngtype,option);
 	//status = bn_int_get(packet->u.client_startgame4.status)&CLIENT_STARTGAME4_STATUSMASK;
 	
 	status = bn_short_get(packet->u.client_startgame4.status); //&CLIENT_STARTGAME4_STATUSMASK;
 	flag = bn_short_get(packet->u.client_startgame4.flag);
 	
-	eventlog(eventlog_level_debug,"handle_bnet_packet","[%d] startgame4 status: %02x", conn_get_socket(c), status);
-	eventlog(eventlog_level_debug,"handle_bnet_packet","[%d] startgame4 flag: %02x", conn_get_socket(c), flag);
+	eventlog(eventlog_level_debug,__FUNCTION__,"[%d] startgame4 status: %02x", conn_get_socket(c), status);
+	eventlog(eventlog_level_debug,__FUNCTION__,"[%d] startgame4 flag: %02x", conn_get_socket(c), flag);
 	
 #ifdef WITH_BITS
 	bits_game_handle_startgame4(c,gamename,gamepass,gameinfo,bngtype,status,option);
@@ -4650,10 +4650,10 @@ static int _client_startgame4(t_connection * c, t_packet const * const packet)
 		case CLIENT_STARTGAME4_STATUS_DONE1:
 		case CLIENT_STARTGAME4_STATUS_DONE2:
 		  game_set_status(currgame,game_status_done);
-		  eventlog(eventlog_level_info,"handle_bnet_packet","[%d] game \"%s\" is finished",conn_get_socket(c),gamename);
+		  eventlog(eventlog_level_info,__FUNCTION__,"[%d] game \"%s\" is finished",conn_get_socket(c),gamename);
 		  break;
 		default:
-		  eventlog(eventlog_level_debug,"handle_bnet_packet","[%d] unknown startgame4 status %d",conn_get_socket(c),status);
+		  eventlog(eventlog_level_debug,__FUNCTION__,"[%d] unknown startgame4 status %d",conn_get_socket(c),status);
 	       }
 	  }
 	if (status!=CLIENT_STARTGAME4_STATUS_DONE1 &&
@@ -4667,7 +4667,7 @@ static int _client_startgame4(t_connection * c, t_packet const * const packet)
 	       {
 		  char const * tname;
 		  
-		  eventlog(eventlog_level_info,"handle_bnet_packet","[%d] game start for \"%s\" refused (no authority)",conn_get_socket(c),(tname = conn_get_username(c)));
+		  eventlog(eventlog_level_info,__FUNCTION__,"[%d] game start for \"%s\" refused (no authority)",conn_get_socket(c),(tname = conn_get_username(c)));
 		  conn_unget_username(c,tname);
 	       }
 	     // [quetzal] 20020831 - _OPEN2_W3 game status code
@@ -4677,7 +4677,7 @@ static int _client_startgame4(t_connection * c, t_packet const * const packet)
 		game_set_option(conn_get_game(c),bngoption_to_goption(conn_get_clienttag(c),gtype,option));
 		
 		if (flag & 0x0001) {
-		   eventlog(eventlog_level_debug,"handle_bnet_packet","game created with private flag");
+		   eventlog(eventlog_level_debug,__FUNCTION__,"game created with private flag");
 		   game_set_flag_private(conn_get_game(c),1);
 		}
 	     }
@@ -4696,7 +4696,7 @@ static int _client_startgame4(t_connection * c, t_packet const * const packet)
 	       }
 	  }
 	else
-	  eventlog(eventlog_level_info,"handle_bnet_packet","[%d] client tried to set game status to DONE",conn_get_socket(c));
+	  eventlog(eventlog_level_info,__FUNCTION__,"[%d] client tried to set game status to DONE",conn_get_socket(c));
 #endif /* !WITH_BITS */
      }
    
@@ -4715,7 +4715,7 @@ static int _client_startgame4(t_connection * c, t_packet const * const packet)
 
 static int _client_closegame(t_connection * c, t_packet const * const packet)
 {
-   eventlog(eventlog_level_info,"handle_bnet_packet","[%d] client closing game",conn_get_socket(c));
+   eventlog(eventlog_level_info,__FUNCTION__,"[%d] client closing game",conn_get_socket(c));
    conn_set_game(c,NULL,NULL,NULL,game_type_none,0);
 
    //to prevent whispering over and over that user joined channel
@@ -4731,7 +4731,7 @@ static int _client_closegame(t_connection * c, t_packet const * const packet)
 static int _client_gamereport(t_connection * c, t_packet const * const packet)
 {
    if (packet_get_size(packet)<sizeof(t_client_game_report)) {
-      eventlog(eventlog_level_error,"handle_bnet_packet","[%d] got bad GAME_REPORT packet (expected %u bytes, got %u)",conn_get_socket(c),sizeof(t_client_game_report),packet_get_size(packet));
+      eventlog(eventlog_level_error,__FUNCTION__,"[%d] got bad GAME_REPORT packet (expected %u bytes, got %u)",conn_get_socket(c),sizeof(t_client_game_report),packet_get_size(packet));
       return -1;
    }
    
@@ -4759,12 +4759,12 @@ static int _client_gamereport(t_connection * c, t_packet const * const packet)
 	
 	if (!(game = conn_get_game(c)))
 	  {
-	     eventlog(eventlog_level_error,"handle_bnet_packet","[%d] got GAME_REPORT when not in a game for user \"%s\"",conn_get_socket(c),(tname = conn_get_username(c)));
+	     eventlog(eventlog_level_error,__FUNCTION__,"[%d] got GAME_REPORT when not in a game for user \"%s\"",conn_get_socket(c),(tname = conn_get_username(c)));
 	     conn_unget_username(c,tname);
 	     return -1;
 	  }
 	
-	eventlog(eventlog_level_info,"handle_bnet_packet","[%d] CLIENT_GAME_REPORT: %s (%u players)",conn_get_socket(c),(tname = conn_get_username(c)),player_count);
+	eventlog(eventlog_level_info,__FUNCTION__,"[%d] CLIENT_GAME_REPORT: %s (%u players)",conn_get_socket(c),(tname = conn_get_username(c)),player_count);
 	my_account = conn_get_account(c);
 	
 	for (i=0,result_off=sizeof(t_client_game_report),player_off=sizeof(t_client_game_report)+player_count*sizeof(t_client_game_report_result);
@@ -4773,24 +4773,24 @@ static int _client_gamereport(t_connection * c, t_packet const * const packet)
 	  {
 	     if (!(result_data = packet_get_data_const(packet,result_off,sizeof(t_client_game_report_result))))
 	       {
-		  eventlog(eventlog_level_error,"handle_bnet_packet","[%d] got corrupt GAME_REPORT packet (missing results %u-%u)",conn_get_socket(c),i+1,player_count);
+		  eventlog(eventlog_level_error,__FUNCTION__,"[%d] got corrupt GAME_REPORT packet (missing results %u-%u)",conn_get_socket(c),i+1,player_count);
 		  break;
 	       }
 	     if (!(player = packet_get_str_const(packet,player_off,USER_NAME_MAX)))
 	       {
-		  eventlog(eventlog_level_error,"handle_bnet_packet","[%d] got corrupt GAME_REPORT packet (missing players %u-%u)",conn_get_socket(c),i+1,player_count);
+		  eventlog(eventlog_level_error,__FUNCTION__,"[%d] got corrupt GAME_REPORT packet (missing players %u-%u)",conn_get_socket(c),i+1,player_count);
 		  break;
 	       }
 	     
 	     result = bngresult_to_gresult(bn_int_get(result_data->result));
-	     eventlog(eventlog_level_debug,"handle_bnet_packet","[%d] got player %d (\"%s\") result 0x%08x",conn_get_socket(c),i,player,result);
+	     eventlog(eventlog_level_debug,__FUNCTION__,"[%d] got player %d (\"%s\") result 0x%08x",conn_get_socket(c),i,player,result);
 	     
 	     if (player[0]=='\0') /* empty slots have empty player name */
 	       continue;
 	     
 	     if (!(other_account = accountlist_find_account(player)))
 	       {
-		  eventlog(eventlog_level_error,"handle_bnet_packet","[%d] got GAME_REPORT with unknown player \"%s\"",conn_get_socket(c),player);
+		  eventlog(eventlog_level_error,__FUNCTION__,"[%d] got GAME_REPORT with unknown player \"%s\"",conn_get_socket(c),player);
 		  break;
 	       }
 	     
@@ -4809,18 +4809,18 @@ static int _client_gamereport(t_connection * c, t_packet const * const packet)
 	     char const * body;
 	     
 	     if (!(head = packet_get_str_const(packet,player_off,MAX_GAMEREP_HEAD_STR)))
-	       eventlog(eventlog_level_debug,"handle_bnet_packet","[%d] got GAME_REPORT with missing or too long report head",conn_get_socket(c));
+	       eventlog(eventlog_level_debug,__FUNCTION__,"[%d] got GAME_REPORT with missing or too long report head",conn_get_socket(c));
 	     else
 	       {
 		  player_off += strlen(head)+1;
 		  if (!(body = packet_get_str_const(packet,player_off,MAX_GAMEREP_BODY_STR)))
-		    eventlog(eventlog_level_debug,"handle_bnet_packet","[%d] got GAME_REPORT with missing or too long report body",conn_get_socket(c));
+		    eventlog(eventlog_level_debug,__FUNCTION__,"[%d] got GAME_REPORT with missing or too long report body",conn_get_socket(c));
 		  else
 		    game_set_result(game,my_account,my_result,head,body); /* finally we can report the info */
 	       }
 	  }
 	
-	eventlog(eventlog_level_debug,"handle_bnet_packet","[%d] finished parsing result... now leaving game",conn_get_socket(c));
+	eventlog(eventlog_level_debug,__FUNCTION__,"[%d] finished parsing result... now leaving game",conn_get_socket(c));
 	conn_set_game(c,NULL,NULL,NULL,game_type_none,0);
      }
    
@@ -4841,7 +4841,7 @@ static int _client_ladderreq(t_connection * c, t_packet const * const packet)
    
    
    if (packet_get_size(packet)<sizeof(t_client_ladderreq)) {
-      eventlog(eventlog_level_error,"handle_bnet_packet","[%d] got bad LADDERREQ packet (expected %u bytes, got %u)",conn_get_socket(c),sizeof(t_client_ladderreq),packet_get_size(packet));
+      eventlog(eventlog_level_error,__FUNCTION__,"[%d] got bad LADDERREQ packet (expected %u bytes, got %u)",conn_get_socket(c),sizeof(t_client_ladderreq),packet_get_size(packet));
       return -1;
    }
    
@@ -4866,7 +4866,7 @@ static int _client_ladderreq(t_connection * c, t_packet const * const packet)
 	count = bn_int_get(packet->u.client_ladderreq.count);
 	idnum = bn_int_get(packet->u.client_ladderreq.id);
 	
-	/* eventlog(eventlog_level_debug,"handle_bnet_packet","got LADDERREQ type=%u start=%u count=%u id=%u",type,start,count,id); */
+	/* eventlog(eventlog_level_debug,__FUNCTION__,"got LADDERREQ type=%u start=%u count=%u id=%u",type,start,count,id); */
 	
 	switch (idnum)
 	  {
@@ -4877,7 +4877,7 @@ static int _client_ladderreq(t_connection * c, t_packet const * const packet)
 	     id = ladder_id_ironman;
 	     break;
 	   default:
-	     eventlog(eventlog_level_error,"handle_bnet_packet","[%d] got unknown ladder ladderreq.id=0x%08x",conn_get_socket(c),idnum);
+	     eventlog(eventlog_level_error,__FUNCTION__,"[%d] got unknown ladder ladderreq.id=0x%08x",conn_get_socket(c),idnum);
 	     id = ladder_id_normal;
 	  }
 	
@@ -4910,7 +4910,7 @@ static int _client_ladderreq(t_connection * c, t_packet const * const packet)
 		  break;
 		default:
 		  account = NULL;
-		  eventlog(eventlog_level_error,"handle_bnet_packet","[%d] got unknown value for ladderreq.type=%u",conn_get_socket(c),type);
+		  eventlog(eventlog_level_error,__FUNCTION__,"[%d] got unknown value for ladderreq.type=%u",conn_get_socket(c),type);
 	       }
 	     
 	     if (account)
@@ -4982,7 +4982,7 @@ static int _client_laddersearchreq(t_connection * c, t_packet const * const pack
    t_packet * rpacket = NULL;
    
    if (packet_get_size(packet)<sizeof(t_client_laddersearchreq)) {
-      eventlog(eventlog_level_error,"handle_bnet_packet","[%d] got bad LADDERSEARCHREQ packet (expected %u bytes, got %u)",conn_get_socket(c),sizeof(t_client_laddersearchreq),packet_get_size(packet));
+      eventlog(eventlog_level_error,__FUNCTION__,"[%d] got bad LADDERSEARCHREQ packet (expected %u bytes, got %u)",conn_get_socket(c),sizeof(t_client_laddersearchreq),packet_get_size(packet));
       return -1;
    }
    
@@ -5004,13 +5004,13 @@ static int _client_laddersearchreq(t_connection * c, t_packet const * const pack
 	     id = ladder_id_ironman;
 	     break;
 	   default:
-	     eventlog(eventlog_level_error,"handle_bnet_packet","[%d] got unknown ladder laddersearchreq.id=0x%08x",conn_get_socket(c),idnum);
+	     eventlog(eventlog_level_error,__FUNCTION__,"[%d] got unknown ladder laddersearchreq.id=0x%08x",conn_get_socket(c),idnum);
 	     id = ladder_id_normal;
 	  }
 	
 	if (!(playername = packet_get_str_const(packet,sizeof(t_client_laddersearchreq),USER_NAME_MAX)))
 	  {
-	     eventlog(eventlog_level_error,"handle_bnet_packet","[%d] got bad LADDERSEARCHREQ packet (missing or too long playername)",conn_get_socket(c));
+	     eventlog(eventlog_level_error,__FUNCTION__,"[%d] got bad LADDERSEARCHREQ packet (missing or too long playername)",conn_get_socket(c));
 	     return -1;
 	  }
 	
@@ -5046,7 +5046,7 @@ static int _client_laddersearchreq(t_connection * c, t_packet const * const pack
 		  break;
 		default:
 		  rank = 0;
-		  eventlog(eventlog_level_error,"handle_bnet_packet","[%d] got unknown ladder search type %u",conn_get_socket(c),bn_int_get(packet->u.client_laddersearchreq.type));
+		  eventlog(eventlog_level_error,__FUNCTION__,"[%d] got unknown ladder search type %u",conn_get_socket(c),bn_int_get(packet->u.client_laddersearchreq.type));
 	       }
 	     
 	     if (rank==0)
@@ -5072,7 +5072,7 @@ static int _client_mapauthreq1(t_connection * c, t_packet const * const packet)
    t_packet * rpacket = NULL;
    
    if (packet_get_size(packet)<sizeof(t_client_mapauthreq1)) {
-      eventlog(eventlog_level_error,"handle_bnet_packet","[%d] got bad MAPAUTHREQ1 packet (expected %u bytes, got %u)",conn_get_socket(c),sizeof(t_client_mapauthreq1),packet_get_size(packet));
+      eventlog(eventlog_level_error,__FUNCTION__,"[%d] got bad MAPAUTHREQ1 packet (expected %u bytes, got %u)",conn_get_socket(c),sizeof(t_client_mapauthreq1),packet_get_size(packet));
       return -1;
    }
    
@@ -5082,7 +5082,7 @@ static int _client_mapauthreq1(t_connection * c, t_packet const * const packet)
 	
 	if (!(mapname = packet_get_str_const(packet,sizeof(t_client_mapauthreq1),MAP_NAME_LEN)))
 	  {
-	     eventlog(eventlog_level_error,"handle_bnet_packet","[%d] got bad MAPAUTHREQ1 packet (missing or too long mapname)",conn_get_socket(c));
+	     eventlog(eventlog_level_error,__FUNCTION__,"[%d] got bad MAPAUTHREQ1 packet (missing or too long mapname)",conn_get_socket(c));
 	     return -1;
 	  }
 	
@@ -5095,11 +5095,11 @@ static int _client_mapauthreq1(t_connection * c, t_packet const * const packet)
 	
 	if (game)
 	  {
-	     eventlog(eventlog_level_info,"handle_bnet_packet","[%d] map auth requested for map \"%s\" gametype \"%s\"",conn_get_socket(c),mapname,game_type_get_str(game_get_type(game)));
+	     eventlog(eventlog_level_info,__FUNCTION__,"[%d] map auth requested for map \"%s\" gametype \"%s\"",conn_get_socket(c),mapname,game_type_get_str(game_get_type(game)));
 	     game_set_mapname(game,mapname);
 	  }
 	else
-	  eventlog(eventlog_level_info,"handle_bnet_packet","[%d] map auth requested when not in a game",conn_get_socket(c));
+	  eventlog(eventlog_level_info,__FUNCTION__,"[%d] map auth requested when not in a game",conn_get_socket(c));
 	
 	if ((rpacket = packet_create(packet_class_bnet)))
 	  {
@@ -5108,13 +5108,13 @@ static int _client_mapauthreq1(t_connection * c, t_packet const * const packet)
 	     if (!game)
 	       {
 		  val = SERVER_MAPAUTHREPLY1_NO;
-		  eventlog(eventlog_level_debug,"handle_bnet_packet","[%d] map authorization denied (not in a game)",conn_get_socket(c));
+		  eventlog(eventlog_level_debug,__FUNCTION__,"[%d] map authorization denied (not in a game)",conn_get_socket(c));
 	       }
 	     else
 	       if (strcasecmp(game_get_mapname(game),mapname)!=0)
 		 {
 		    val = SERVER_MAPAUTHREPLY1_NO;
-		    eventlog(eventlog_level_debug,"handle_bnet_packet","[%d] map authorization denied (map name \"%s\" does not match game map name \"%s\")",conn_get_socket(c),mapname,game_get_mapname(game));
+		    eventlog(eventlog_level_debug,__FUNCTION__,"[%d] map authorization denied (map name \"%s\" does not match game map name \"%s\")",conn_get_socket(c),mapname,game_get_mapname(game));
 		 }
 	     else
 	       {
@@ -5123,17 +5123,17 @@ static int _client_mapauthreq1(t_connection * c, t_packet const * const packet)
 		  if (game_get_type(game)==game_type_ladder)
 		    {
 		       val = SERVER_MAPAUTHREPLY1_LADDER_OK;
-		       eventlog(eventlog_level_debug,"handle_bnet_packet","[%d] giving map ladder authorization (in a ladder game)",conn_get_socket(c));
+		       eventlog(eventlog_level_debug,__FUNCTION__,"[%d] giving map ladder authorization (in a ladder game)",conn_get_socket(c));
 		    }
 		  else if (ladder_check_map(game_get_mapname(game),game_get_maptype(game),conn_get_clienttag(c)))
 		    {
 		       val = SERVER_MAPAUTHREPLY1_LADDER_OK;
-		       eventlog(eventlog_level_debug,"handle_bnet_packet","[%d] giving map ladder authorization (is a ladder map)",conn_get_socket(c));
+		       eventlog(eventlog_level_debug,__FUNCTION__,"[%d] giving map ladder authorization (is a ladder map)",conn_get_socket(c));
 		    }
 		  else
 		    {
 		       val = SERVER_MAPAUTHREPLY1_OK;
-		       eventlog(eventlog_level_debug,"handle_bnet_packet","[%d] giving map normal authorization",conn_get_socket(c));
+		       eventlog(eventlog_level_debug,__FUNCTION__,"[%d] giving map normal authorization",conn_get_socket(c));
 		    }
 	       }
 	     
@@ -5156,7 +5156,7 @@ static int _client_mapauthreq2(t_connection * c, t_packet const * const packet)
    t_packet * rpacket = NULL;
 
    if (packet_get_size(packet)<sizeof(t_client_mapauthreq2)) {
-      eventlog(eventlog_level_error,"handle_bnet_packet","[%d] got bad MAPAUTHREQ2 packet (expected %u bytes, got %u)",conn_get_socket(c),sizeof(t_client_mapauthreq2),packet_get_size(packet));
+      eventlog(eventlog_level_error,__FUNCTION__,"[%d] got bad MAPAUTHREQ2 packet (expected %u bytes, got %u)",conn_get_socket(c),sizeof(t_client_mapauthreq2),packet_get_size(packet));
       return -1;
    }
    
@@ -5166,7 +5166,7 @@ static int _client_mapauthreq2(t_connection * c, t_packet const * const packet)
 	
 	if (!(mapname = packet_get_str_const(packet,sizeof(t_client_mapauthreq2),MAP_NAME_LEN)))
 	  {
-	     eventlog(eventlog_level_error,"handle_bnet_packet","[%d] got bad MAPAUTHREQ2 packet (missing or too long mapname)",conn_get_socket(c));
+	     eventlog(eventlog_level_error,__FUNCTION__,"[%d] got bad MAPAUTHREQ2 packet (missing or too long mapname)",conn_get_socket(c));
 	     return -1;
 	  }
 	
@@ -5179,11 +5179,11 @@ static int _client_mapauthreq2(t_connection * c, t_packet const * const packet)
 	
 	if (game)
 	  {
-	     eventlog(eventlog_level_info,"handle_bnet_packet","[%d] map auth requested for map \"%s\" gametype \"%s\"",conn_get_socket(c),mapname,game_type_get_str(game_get_type(game)));
+	     eventlog(eventlog_level_info,__FUNCTION__,"[%d] map auth requested for map \"%s\" gametype \"%s\"",conn_get_socket(c),mapname,game_type_get_str(game_get_type(game)));
 	     game_set_mapname(game,mapname);
 	  }
 	else
-	  eventlog(eventlog_level_info,"handle_bnet_packet","[%d] map auth requested when not in a game",conn_get_socket(c));
+	  eventlog(eventlog_level_info,__FUNCTION__,"[%d] map auth requested when not in a game",conn_get_socket(c));
 	
 	if ((rpacket = packet_create(packet_class_bnet)))
 	  {
@@ -5192,13 +5192,13 @@ static int _client_mapauthreq2(t_connection * c, t_packet const * const packet)
 	     if (!game)
 	       {
 		  val = SERVER_MAPAUTHREPLY2_NO;
-		  eventlog(eventlog_level_debug,"handle_bnet_packet","[%d] map authorization denied (not in a game)",conn_get_socket(c));
+		  eventlog(eventlog_level_debug,__FUNCTION__,"[%d] map authorization denied (not in a game)",conn_get_socket(c));
 	       }
 	     else
 	       if (strcasecmp(game_get_mapname(game),mapname)!=0)
 		 {
 		    val = SERVER_MAPAUTHREPLY2_NO;
-		    eventlog(eventlog_level_debug,"handle_bnet_packet","[%d] map authorization denied (map name \"%s\" does not match game map name \"%s\")",conn_get_socket(c),mapname,game_get_mapname(game));
+		    eventlog(eventlog_level_debug,__FUNCTION__,"[%d] map authorization denied (map name \"%s\" does not match game map name \"%s\")",conn_get_socket(c),mapname,game_get_mapname(game));
 		 }
 	     else
 	       {
@@ -5212,17 +5212,17 @@ static int _client_mapauthreq2(t_connection * c, t_packet const * const packet)
 		  if (game_get_type(game)==game_type_ladder)
 		    {
 		       val = SERVER_MAPAUTHREPLY2_LADDER_OK;
-		       eventlog(eventlog_level_debug,"handle_bnet_packet","[%d] giving map ladder authorization (in a ladder game)",conn_get_socket(c));
+		       eventlog(eventlog_level_debug,__FUNCTION__,"[%d] giving map ladder authorization (in a ladder game)",conn_get_socket(c));
 		    }
 		  else if (ladder_check_map(game_get_mapname(game),game_get_maptype(game),conn_get_clienttag(c)))
 		    {
 		       val = SERVER_MAPAUTHREPLY2_LADDER_OK;
-		       eventlog(eventlog_level_debug,"handle_bnet_packet","[%d] giving map ladder authorization (is a ladder map)",conn_get_socket(c));
+		       eventlog(eventlog_level_debug,__FUNCTION__,"[%d] giving map ladder authorization (is a ladder map)",conn_get_socket(c));
 		    }
 		  else
 		    {
 		       val = SERVER_MAPAUTHREPLY2_OK;
-		       eventlog(eventlog_level_debug,"handle_bnet_packet","[%d] giving map normal authorization",conn_get_socket(c));
+		       eventlog(eventlog_level_debug,__FUNCTION__,"[%d] giving map normal authorization",conn_get_socket(c));
 		    }
 	       }
 	     
