@@ -373,7 +373,7 @@ extern char const * irc_convert_channel(t_channel const * channel)
 	} else {
 	    out[outpos++] = bname[i];
 	}
-	if ((outpos)>=(sizeof(out)+2)) {
+	if ((outpos+2)>=(sizeof(out))) {
 	    sprintf(out,"!%u",channel_get_channelid(channel));
 	    return out;
 	}
@@ -439,7 +439,7 @@ extern char const * irc_convert_ircname(char const * pircname)
     	} else {
     	    out[outpos++] = ircname[i];
     	}
-	if ((outpos)>=(sizeof(out)+2)) {
+	if ((outpos+2)>=(sizeof(out))) {
 	    return NULL;
 	}
     }
