@@ -87,6 +87,43 @@
 #include "common/xalloc.h"
 #include "common/setup_after.h"
 
+/* out of memory safety */
+#define OOM_SAFE_MEM	1000000		/* 1 Mbyte of safety memory */
+
+void *oom_buffer = NULL;
+
+static int bnetd_oom_handler(void)
+{
+    /* no safety buffer, sorry :( */
+    if (!oom_buffer) return 0;
+
+    /* free the safety buffer hoping next allocs will succeed */
+    free(oom_buffer);
+    oom_buffer = NULL;
+
+    eventlog(eventlog_level_fatal,__FUNCTION__,"out of memory, forcing immediate shutdown");
+
+    /* shutdown immediatly */
+    server_quit_delay(-1);
+
+    return 1;	/* ask xalloc codes to retry the allocation request */
+}
+
+static int oom_setup(void)
+{
+    oom_buffer = malloc(OOM_SAFE_MEM);
+    if (!oom_buffer) return -1;
+
+    xalloc_setcb(bnetd_oom_handler);
+    return 0;
+}
+
+static void oom_free(void)
+{
+    if (oom_buffer) free(oom_buffer);
+    oom_buffer = NULL;
+}
+
 #ifdef WIN32
 # include "win32/service.h"
 #endif
@@ -139,6 +176,7 @@ static void usage(char const * progname)
 
 
 // added some more exit status --> put in "compat/exitstatus.h" ???
+#define STATUS_OOM_FAILURE		20
 #define STATUS_STORAGE_FAILURE		30
 #define STATUS_PSOCK_FAILURE		35
 #define STATUS_MAPLISTS_FAILURE		40
@@ -381,6 +419,10 @@ char * write_to_pidfile(void)
 int pre_server_startup(void)
 {
     pvpgn_greeting();
+    if (oom_setup() < 0) {
+	eventlog(eventlog_level_error, __FUNCTION__, "OOM init failed");
+	return STATUS_OOM_FAILURE;
+    }
     if (storage_init(prefs_get_storage_path()) < 0) {
 	eventlog(eventlog_level_error, "pre_server_startup", "storage init failed");
 	return STATUS_STORAGE_FAILURE;
@@ -496,6 +538,8 @@ void post_server_shutdown(int status)
 	case STATUS_PSOCK_FAILURE:
 	    storage_close();
 	case STATUS_STORAGE_FAILURE:
+	    oom_free();
+	case STATUS_OOM_FAILURE:
 	case -1:
 	    break;
 	default:
