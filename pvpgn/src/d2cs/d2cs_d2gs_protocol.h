@@ -50,7 +50,6 @@ typedef struct
 {
 	t_d2cs_d2gs_header	h;
 	bn_int			sessionnum;
-	bn_int			signlen;
  	/* realm name */
 	/* key check sum, maybe 128 bytes */
 } t_d2cs_d2gs_authreq;
@@ -61,9 +60,6 @@ typedef struct
 	t_d2cs_d2gs_header	h;
 	bn_int			version;
 	bn_int			checksum;
-	bn_int			randnum;
-	bn_int			signlen;
-	bn_basic		sign[128];
 } t_d2gs_d2cs_authreply;
 
 #define D2CS_D2GS_AUTHREPLY		0x11
@@ -130,7 +126,6 @@ typedef struct
 typedef struct
 {
 	t_d2cs_d2gs_header	h;
-	bn_byte			ladder;
 	bn_byte			expansion;
 	bn_byte			difficulty;
 	bn_byte			hardcore;
