@@ -45,7 +45,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalOptions="wsock32.lib libmysql.lib"
+				AdditionalOptions="ws2_32.lib libmysql.lib"
 				OutputFile="$(OutDir)/$(ProjectName).exe"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="..\src\win32"
@@ -111,7 +111,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalOptions="wsock32.lib libmysql.lib"
+				AdditionalOptions="ws2_32.lib libmysql.lib"
 				OutputFile="$(OutDir)/$(ProjectName)_debug.exe"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="..\src\win32"
