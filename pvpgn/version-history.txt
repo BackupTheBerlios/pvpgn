@@ -10,6 +10,11 @@ PvPGN Version History:
 [BNETD]
   -- made difficulty of a closed D2 game known to bnetd
   -- various clan related bugfixes
+  -- enforced max password length (was creating problems in some cases with 
+  very long passwords)
+
+[MISC]
+  -- lots of optimizations (lowers CPU footprint)
 
  Changelog for 1.7.3 (since 1.7.2)
 ===================================
