@@ -1,4 +1,4 @@
-67/*
+/*
 * This program is free software; you can redistribute it and/or
 * modify it under the terms of the GNU General Public License
 * as published by the Free Software Foundation; either version 2
@@ -146,7 +146,7 @@ extern int anongame_matchlists_create()
 extern int anongame_matchlists_destroy()
 {
         t_elem * curr;
-	t_matchdata md;
+	t_matchdata * md;
 	int i, j;
 	for (i = 0; i < ANONGAME_TYPES; i++) {
 		for (j = 0; j < MAX_LEVEL; j++) {
@@ -154,7 +154,7 @@ extern int anongame_matchlists_destroy()
 
 			  // we have to free the versiontag before we can destroy the list
 
-			  LIST_TRAVERSE(matchlists[gametype][i], curr)
+			  LIST_TRAVERSE(matchlists[i][j], curr)
 			    {
 			      md = elem_get_data(curr);
 			      if (md->versiontag != NULL) free(md->versiontag);
