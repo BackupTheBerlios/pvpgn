@@ -1844,11 +1844,18 @@ extern unsigned int account_get_friend( t_account * account, int friendnum)
 
                 sprintf(key,"friend\\%d\\name",friendnum);
                 name = account_get_strattr(account,key);
-                if ((name) && (acct = accountlist_find_account(name)))
+
+                if (name) 
                 {
-                  tmp = account_get_uid(acct);
-                  account_set_friend(account,friendnum,tmp);
-                  return tmp;
+                  if (acct = accountlist_find_account(name))
+                  {
+                    tmp = account_get_uid(acct);
+                    account_set_friend(account,friendnum,tmp);
+                    account_set_strattr(account,key,NULL); //remove old username-based friend now                  
+                    
+                    return tmp;
+                  }
+                  account_set_strattr(account,key,NULL); //remove old username-based friend now                  
                 }
 
 		n = account_get_friendcount(account);
