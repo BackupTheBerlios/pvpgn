@@ -5,7 +5,7 @@ PvPGN Version History:
 
 [FDWATCH]
   -- redesigned and rewritten most of the fdwatch codes (the new codes are now 
-  called fdwatch2) to support better OS which have sparse values for sockets 
+  called fdwatch2) to better support OS which have sparse values for sockets 
   (ex. this should help busy WIN32 systems)
 
 
