@@ -19,6 +19,7 @@ DB now
 in the account and removing unused lastlogin infos (experimental - if your
 client seems to miss some info now, plz report as a bug). This can be done via
 a new parameter in bnetd.conf and the new command /remove_accounting_infos
+-- added /rehash command to reload bnetd.conf
 
 1.1.7 RC1:
 -- added 1.03 War3 support; because of the protocol changes this version
