@@ -14,6 +14,8 @@ also gets things compiling on BeOS)
 will be automatically renamed on use
 -- IRC: fixed error messages sent on client sent PINGs (this is a temporary fix 
 in the future the IRC codes will be cleaned up)
+-- IRC: fixed the problem that IRC clients weren't informed about users
+joining a channel
 -- fixed problems with sql_dbcreator when using pgsql (note that
 conf/sql_DB_layout has been updated)
 -- updated conf/bnmaps.txt to match current battle.net maps lineup
