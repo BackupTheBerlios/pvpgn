@@ -680,7 +680,7 @@ extern void conn_destroy(t_connection * c, t_elem ** elem, int conn_or_dead_list
 	psock_close(c->socket.tcp_sock);
     }
     /* clear out the packet queues */
-    queue_clear(&c->protocol.queues.inqueue);
+    if (c->protocol.queues.inqueue) packet_del_ref(c->protocol.queues.inqueue);
     queue_clear(&c->protocol.queues.outqueue);
 
     // [zap-zero] 20020601
@@ -2091,15 +2091,19 @@ extern unsigned int conn_get_tcpaddr(t_connection * c)
 }
 
 
-extern t_queue * * conn_get_in_queue(t_connection * c)
+extern t_packet * conn_get_in_queue(t_connection * c)
 {
-    if (!c)
-    {
-        eventlog(eventlog_level_error,"conn_get_in_queue","got NULL connection");
-        return NULL;
-    }
+    assert(c);
 
-    return &c->protocol.queues.inqueue;
+    return c->protocol.queues.inqueue;
+}
+
+
+extern void conn_put_in_queue(t_connection * c, t_packet * packet)
+{
+    assert(c);
+
+    c->protocol.queues.inqueue = packet;
 }
 
 
@@ -2205,47 +2209,6 @@ extern t_packet * conn_pull_outqueue(t_connection * c)
     }
 
     return NULL;
-}
-
-extern int conn_push_inqueue(t_connection * c, t_packet * packet)
-{
-    if (!c)
-    {
-        eventlog(eventlog_level_error, __FUNCTION__, "got NULL connection");
-        return -1;
-    }
-
-    if (!packet)
-    {
-        eventlog(eventlog_level_error, __FUNCTION__, "got NULL packet");
-        return -1;
-    }
-
-    queue_push_packet((t_queue * *)&c->protocol.queues.inqueue, packet);
-
-    return 0;
-}
-
-extern t_packet * conn_peek_inqueue(t_connection * c)
-{
-    if (!c)
-    {
-        eventlog(eventlog_level_error, __FUNCTION__, "got NULL connection");
-        return NULL;
-    }
-
-    return queue_peek_packet((t_queue const * const *)&c->protocol.queues.inqueue);
-}
-
-extern t_packet * conn_pull_inqueue(t_connection * c)
-{
-    if (!c)
-    {
-        eventlog(eventlog_level_error, __FUNCTION__, "got NULL connection");
-        return NULL;
-    }
-
-    return queue_pull_packet((t_queue * *)&c->protocol.queues.inqueue);
 }
 
 #ifdef DEBUG_ACCOUNT

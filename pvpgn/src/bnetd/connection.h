@@ -42,6 +42,7 @@
 # include "anongame.h"
 # include "common/tag.h"
 # include "common/elist.h"
+# include "common/packet.h"
 #else
 # define JUST_NEED_TYPES
 # ifdef TIME_WITH_SYS_TIME
@@ -64,6 +65,7 @@
 # include "anongame.h"
 # include "common/tag.h"
 # include "common/elist.h"
+# include "common/packet.h"
 # undef JUST_NEED_TYPES
 #endif
 
@@ -154,7 +156,7 @@ typedef struct connection
 	    t_queue *		outqueue;  /* packets waiting to be sent */
 	    unsigned int	outsize;   /* amount sent from the current output packet */
 	    unsigned int	outsizep;
-	    t_queue *		inqueue;   /* packet waiting to be processed */
+	    t_packet *		inqueue;   /* packet waiting to be processed */
 	    unsigned int	insize;    /* amount received into the current input packet */
 	} queues; /* network queues and related data */
 	struct {
@@ -308,7 +310,8 @@ extern int conn_set_channel(t_connection * c, char const * channelname);
 extern t_game * conn_get_game(t_connection const * c) ;
 extern int conn_set_game(t_connection * c, char const * gamename, char const * gamepass, char const * gameinfo, t_game_type type, int version);
 extern unsigned int conn_get_tcpaddr(t_connection * c) ;
-extern t_queue * * conn_get_in_queue(t_connection * c) ;
+extern t_packet * conn_get_in_queue(t_connection * c) ;
+extern void conn_put_in_queue(t_connection * c, t_packet *packet) ;
 extern unsigned int conn_get_in_size(t_connection const * c) ;
 extern void conn_set_in_size(t_connection * c, unsigned int size);
 extern t_queue * * conn_get_out_queue(t_connection * c) ;
@@ -317,9 +320,6 @@ extern void conn_set_out_size(t_connection * c, unsigned int size);
 extern int conn_push_outqueue(t_connection * c, t_packet * packet);
 extern t_packet * conn_peek_outqueue(t_connection * c);
 extern t_packet * conn_pull_outqueue(t_connection * c);
-extern int conn_push_inqueue(t_connection * c, t_packet * packet);
-extern t_packet * conn_peek_inqueue(t_connection * c);
-extern t_packet * conn_pull_inqueue(t_connection * c);
 extern int conn_check_ignoring(t_connection const * c, char const * me) ;
 extern t_account * conn_get_account(t_connection const * c) ;
 extern void conn_login(t_connection * c, t_account * account, const char *loggeduser);

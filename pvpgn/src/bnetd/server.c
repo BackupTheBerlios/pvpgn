@@ -531,7 +531,7 @@ static int sd_tcpinput(t_connection * c)
     
     currsize = conn_get_in_size(c);
 
-    if (!queue_get_length((t_queue const * const *)conn_get_in_queue(c)))
+    if (!conn_get_in_queue(c))
     {
 	switch (conn_get_class(c))
 	{
@@ -599,14 +599,11 @@ static int sd_tcpinput(t_connection * c)
 		conn_set_state(c, conn_state_destroy);
 	    return -2;
 	}
-	conn_push_inqueue(c,packet);
-	packet_del_ref(packet);
-	if (!queue_get_length((t_queue const * const *)conn_get_in_queue(c)))
-	    return -1; /* push failed */
+	conn_put_in_queue(c,packet);
 	currsize = 0;
     }
     
-    packet = conn_peek_inqueue(c);
+    packet = conn_get_in_queue(c);
     switch (net_recv_packet(csocket,packet,&currsize))
     {
     case -1:
@@ -648,7 +645,7 @@ static int sd_tcpinput(t_connection * c)
 	    /* got a complete line or overflow... fall through */
 	
 	default:
-	    packet = conn_pull_inqueue(c);
+	    conn_put_in_queue(c,NULL);
 
 	    if (hexstrm)
 	    {
@@ -715,7 +712,7 @@ static int sd_tcpinput(t_connection * c)
 	    conn_set_in_size(c,0);
 	}
     }
-    
+
     return 0;
 }
 
