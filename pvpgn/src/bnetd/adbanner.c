@@ -114,10 +114,21 @@ static t_adbanner * adbanner_create(unsigned int id, unsigned int next_id, unsig
 	return NULL;
     }
 
-    if (strcasecmp(client,"NULL") && strlen(client) == 4) 
-	ad->client = clienttag_str_to_uint(client);
+    if (strcasecmp(client,"NULL")==0)
+    	ad->client = 0;
     else
-        ad->client = 0;
+	ad->client = clienttag_str_to_uint(client);
+
+    /* I'm aware that this statement looks stupid */
+    if (ad->client && clienttag_str_to_uint(clienttag_uint_to_str(ad->client))==CLIENTTAG_UNKNOWN_UINT)
+    {
+    	eventlog(eventlog_level_error,__FUNCTION__,"banner with invalid clienttag \"%s\"encountered",client);
+	free((void *)ad->link);
+	free((void *)ad->filename); /* avoid warning */
+	free(ad);
+	return NULL;
+    }
+
 
     eventlog(eventlog_level_debug,"adbanner_create","created ad id=0x%08x filename=\"%s\" extensiontag=0x%04x delay=%u link=\"%s\" next_id=0x%08x client=\"%s\"",ad->id,ad->filename,ad->extensiontag,ad->delay,ad->link,ad->next,ad->client?client:"");
     return ad;
@@ -258,7 +269,7 @@ extern t_clienttag adbanner_get_client(t_adbanner const * ad)
 	eventlog(eventlog_level_error,"adbanner_get_client","got NULL ad");
 	return CLIENTTAG_UNKNOWN_UINT;
     }
-    return ad->client?ad->client:CLIENTTAG_UNKNOWN_UINT;
+    return ad->client;
 }
 
 
@@ -327,7 +338,7 @@ static t_adbanner * adbannerlist_get_random(t_list const * head, t_clienttag cli
 	{
     	    if (!(temp = elem_get_data(curr))) continue;
 	    if ((adbanner_get_client(temp) == 0))
-		if (ocount++ == pos) return temp;
+		if (ocount++ == pos) return temp; 
 	}
 	eventlog(eventlog_level_error,"adbannerlist_get_random","couldnt locate random chosed!");
     }
