@@ -95,6 +95,7 @@ t_storage storage_sql = {
 };
 
 static t_sql_engine *sql = NULL;
+static unsigned int defacct;
 
 static int _sql_dbcheck(void);
 static int _sql_dbcreator(void);
@@ -145,6 +146,7 @@ static int sql_init(const char *dbpath)
     const char *driver = NULL;
     const char *dbport = NULL;
     const char *dbsocket = NULL;
+    const char *def = NULL;
 
     if ((path = strdup(dbpath)) == NULL) {
 	eventlog(eventlog_level_error, __FUNCTION__, "could not duplicate dbpath");
@@ -174,6 +176,9 @@ static int sql_init(const char *dbpath)
 	    dbuser = p + 1;
 	else if (strcasecmp(tok, "pass") == 0)
 	    dbpass = p + 1;
+	else if (strcasecmp(tok, "default") == 0)
+	    def = p + 1;
+	else eventlog(eventlog_level_warn, __FUNCTION__, "unknown token in storage_path : '%s'", tok);
     }
 
     if (driver == NULL) {
@@ -181,6 +186,10 @@ static int sql_init(const char *dbpath)
 	free((void*)path);
 	return -1;
     }
+
+    if (def == NULL)
+	defacct = STORAGE_SQL_DEFAULT_UID;
+    else defacct = atoi(def);
 
     do {
 #ifdef WITH_SQL_MYSQL
@@ -582,7 +591,7 @@ static int sql_read_accounts(t_read_accounts_func cb, void *data)
 		continue;
 	    }
 
-	    if (atoi(row[0]) == STORAGE_SQL_DEFAULT_UID) continue; /* skip default account */
+	    if (atoi(row[0]) == defacct) continue; /* skip default account */
 
 	    if ((info = malloc(sizeof(t_sql_info))) == NULL) {
 		eventlog(eventlog_level_error, __FUNCTION__, "not enough memory for sql info");
@@ -623,7 +632,7 @@ static t_storage_info * sql_get_defacct(void)
 	return NULL;
     }
 
-    *((unsigned int *)info) = STORAGE_SQL_DEFAULT_UID;
+    *((unsigned int *)info) = defacct;
 
     return info;
 }

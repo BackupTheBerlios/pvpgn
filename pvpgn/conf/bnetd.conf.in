@@ -27,12 +27,13 @@
 ##############################################################################
 # Storage section                                                            #
 # storage_path will tell pvpgn how and where from/to to read/write accounts  #
-# right now it supports 2 "drivers" : file and sql                           #
+# right now it supports 3 "drivers" : plain file, cdb file and sql           #
 #                                                                            #
 # Syntax:                                                                    #
-# * for file driver: storage_path = file:<path_to_user_files>                #
+# * for plain file driver:                                                   #
+#  storage_path = file:dir=<path_to_user_files>;default=/path/to/default/account #
 # * for sql driver:                                                          #
-#  storage_path = sql:variable=value;...                                     #
+#  storage_path = sql:variable=value;...;default=0 (0 is the default uid)    #
 # Variables can be:                                                          #
 # - "mode" : tells PVPGN the sql mode you will use (mysql/pgsql/etc..)       #
 # - "host" : the database host                                               #
@@ -43,11 +44,11 @@
 # - "pass" : db password                                                     #
 #                                                                            #
 # Examples:                                                                  #
-# storage_path = file:/home/pvpgn/var/users                                  #
-# storage_path = sql:mode=mysql;host=127.0.0.1;name=PVPGN;user=pvpgn;pass=pvpgnrocks
+# storage_path = file:dir=/home/pvpgn/var/users,default=/home/pvpgn/etc/bnetd_default_user
+# storage_path = sql:mode=mysql;host=127.0.0.1;name=PVPGN;user=pvpgn;pass=pvpgnrocks;default=0
 #----------------------------------------------------------------------------#
 
-storage_path = file:/usr/local/var/users
+storage_path = file:dir=/usr/local/var/users;default=/usr/local/etc/bnetd_default_user
 
 #                                                                            #
 ##############################################################################
@@ -61,7 +62,6 @@ storage_path = file:/usr/local/var/users
 filedir     = /usr/local/var/files
 reportdir   = /usr/local/var/reports
 chanlogdir  = /usr/local/var/chanlogs
-defacct     = /usr/local/etc/bnetd_default_user
 motdfile    = /usr/local/etc/bnmotd.txt
 issuefile   = /usr/local/etc/bnissue.txt
 channelfile = /usr/local/etc/channel.list

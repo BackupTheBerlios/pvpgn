@@ -69,7 +69,6 @@ static Bconf_t conf_table[] =
     { "storage_path",           conf_type_char,    BNETD_STORAGE_PATH,   NONE,                  ACT },
     { "logfile",                conf_type_char,    BNETD_LOG_FILE,       NONE,                  ACT },
     { "loglevels",              conf_type_char,    BNETD_LOG_LEVELS,     NONE,                  ACT },
-    { "defacct",                conf_type_char,    BNETD_TEMPLATE_FILE,  NONE,                  ACT },
     { "motdfile",               conf_type_char,    BNETD_MOTD_FILE,      NONE,                  ACT },
     { "newsfile",               conf_type_char,    BNETD_NEWS_DIR,       NONE,                  ACT },
     { "channelfile",            conf_type_char,    BNETD_CHANNEL_FILE,   NONE,                  ACT },
@@ -532,12 +531,6 @@ extern char const * prefs_get_logfile(void)
 extern char const * prefs_get_loglevels(void)
 {
     return get_char_conf("loglevels");
-}
-
-
-extern char const * prefs_get_defacct(void)
-{
-    return get_char_conf("defacct");
 }
 
 

@@ -136,7 +136,6 @@
 #define BNETD_STORAGE_PATH      ""
 #define BNETD_REPORT_DIR        "reports"
 #define BNETD_LOG_FILE          "logs/bnetd.log"
-#define BNETD_TEMPLATE_FILE     "conf/account_template.txt"
 #define BNETD_MOTD_FILE         "conf/bnmotd.txt"
 #define BNETD_NEWS_DIR          "news"
 #define BNETD_AD_FILE           "conf/ad.conf"

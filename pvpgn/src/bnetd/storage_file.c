@@ -119,18 +119,58 @@ t_storage storage_file = {
 /* start of actual file storage code */
 
 static const char *accountsdir = NULL;
+static const char *defacct = NULL;
 
 static int file_init(const char *path)
 {
+    char *tok, *copy, *tmp, *p;
+    const char *dir = NULL;
+    const char *def = NULL;
+
     if (path == NULL || path[0] == '\0') {
-	eventlog(eventlog_level_error, __FUNCTION__, "got NULL or empty account dir path");
+	eventlog(eventlog_level_error, __FUNCTION__, "got NULL or empty path");
+	return -1;
+    }
+
+    if ((copy = strdup(path)) == NULL) {
+	eventlog(eventlog_level_error, __FUNCTION__, "could not duplicate path");
+	return -1;
+    }
+
+    tmp = copy;
+    while((tok = strtok(tmp, ";")) != NULL) {
+	tmp = NULL;
+	if ((p = strchr(tok, '=')) == NULL) {
+	    eventlog(eventlog_level_error, __FUNCTION__, "invalid storage_path, no '=' present in token");
+	    free((void*)copy);
+	    return -1;
+	}
+	*p = '\0';
+	if (strcasecmp(tok, "dir") == 0)
+	    dir = p + 1;
+	else if (strcasecmp(tok, "default") == 0)
+	    def = p + 1;
+	else eventlog(eventlog_level_warn, __FUNCTION__, "unknown token in storage_path : '%s'", tok);
+    }
+
+    if (def == NULL || dir == NULL) {
+	eventlog(eventlog_level_error, __FUNCTION__, "invalid storage_path line for file module (doesnt have a 'dir' and a 'default' token)");
+	free((void*)copy);
 	return -1;
     }
 
     if (accountsdir) file_close();
 
-    if ((accountsdir = strdup(path)) == NULL) {
+    if ((accountsdir = strdup(dir)) == NULL) {
 	eventlog(eventlog_level_error, __FUNCTION__, "not enough memory to store accounts dir");
+	free((void*)copy);
+	return -1;
+    }
+
+    if ((defacct = strdup(def)) == NULL) {
+	eventlog(eventlog_level_error, __FUNCTION__, "not enough memory to store default account path");
+	free((void*)accountsdir); accountsdir = NULL;
+	free((void*)copy);
 	return -1;
     }
 
@@ -141,6 +181,9 @@ static int file_close(void)
 {
     if (accountsdir) free((void*)accountsdir);
     accountsdir = NULL;
+
+    if (defacct) free((void*)defacct);
+    defacct = NULL;
 
     return 0;
 }
@@ -388,7 +431,12 @@ static t_storage_info * file_get_defacct(void)
 {
     t_storage_info * info;
 
-    if ((info = strdup(prefs_get_defacct())) == NULL) {
+    if (defacct == NULL) {
+        eventlog(eventlog_level_error, __FUNCTION__, "file storage not initilized");
+	return NULL;
+    }
+
+    if ((info = strdup(defacct)) == NULL) {
         eventlog(eventlog_level_error, __FUNCTION__, "could not duplicate default account filename");
 	return NULL;
     }
