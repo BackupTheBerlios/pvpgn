@@ -802,6 +802,36 @@ static int sd_tcpoutput(t_connection * c)
     /* not reached */
 }
 
+void server_check_and_fix_name(char const * sname)
+{
+    int ok = 1;
+    char * tn = (char *)sname;
+    char * sn = (char *)sname;
+
+    if (!isalnum(*sn))
+    {
+	eventlog(eventlog_level_error,__FUNCTION__,"servername contains invalid first symbol (must be alphanumeric)");
+	*tn='a';
+    }
+    tn++;
+    sn++;
+    
+    for (;*sn!='\0';sn++)
+    {
+	if (isalnum(*sn) || *sn=='-' || *sn=='.')
+	{
+	   *tn=*sn;
+	   tn++;
+	}
+	else
+	    ok = 0;
+    }
+    *tn='\0';
+
+    if (!ok)
+      eventlog(eventlog_level_error,__FUNCTION__,"servername contains invalid symbol(s) (must be alphanumeric, '-' or '.') - skipped those symbols");
+}
+
 extern void server_set_name(void)
 {
     char temp[250];
@@ -851,6 +881,7 @@ extern void server_set_name(void)
     } else {
 	server_name = strdup(sn);
     }
+    server_check_and_fix_name(server_name);
     eventlog(eventlog_level_info,"server_set_name","set servername to \"%s\"",server_name);
 }
 
