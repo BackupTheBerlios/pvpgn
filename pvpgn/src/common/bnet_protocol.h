@@ -4410,4 +4410,12 @@ typedef struct
   bn_int unknown2;
 } t_client_search_lan_games PACKED_ATTR();
 
+#define CLIENT_CHANGECLIENT	0x5cff
+typedef struct
+{
+    t_bnet_header h;
+    bn_int clienttag;
+} t_client_changeclient;
+
 #endif
+

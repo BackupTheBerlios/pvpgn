@@ -183,6 +183,7 @@ static int _client_laddersearchreq(t_connection * c, t_packet const * const pack
 static int _client_mapauthreq1(t_connection * c, t_packet const * const packet);
 static int _client_mapauthreq2(t_connection * c, t_packet const * const packet);
 static int _client_w3xp_clan_inforeq(t_connection * c, t_packet const * const packet);
+static int _client_changeclient(t_connection * c, t_packet const * const packet);
 
 /* connection state connected handler table */
 static const t_htable_row bnet_htable_con[] = {
@@ -216,6 +217,7 @@ static const t_htable_row bnet_htable_con[] = {
      { CLIENT_LOGONPROOFREQ,    _client_logonproofreq},
    /* After this packet we know to translate the packets to the normal IDs */
      { CLIENT_W3XP_COUNTRYINFO, _client_countryinfo109},
+     { CLIENT_CHANGECLIENT,	_client_changeclient},
      { -1,                       NULL}
 };
 
@@ -5854,5 +5856,35 @@ static int _client_w3xp_clan_inforeq(t_connection * c, t_packet const * const pa
   return 0;
 
 
+}
+
+static int _client_changeclient(t_connection * c, t_packet const * const packet)
+{
+   if (packet_get_size(packet)<sizeof(t_client_changeclient)) {
+      eventlog(eventlog_level_error,__FUNCTION__,"[%d] got bad CLIENT_CHANGECLIENT packet (expected %u bytes, got %u)",conn_get_socket(c),sizeof(t_client_changeclient),packet_get_size(packet));
+      return -1;
+   }
+
+    if (bn_int_tag_eq(packet->u.client_changeclient.clienttag,CLIENTTAG_STARCRAFT)==0)
+	conn_set_clienttag(c,CLIENTTAG_STARCRAFT);
+    else if (bn_int_tag_eq(packet->u.client_changeclient.clienttag,CLIENTTAG_BROODWARS)==0)
+	conn_set_clienttag(c,CLIENTTAG_BROODWARS);
+    else if (bn_int_tag_eq(packet->u.client_changeclient.clienttag,CLIENTTAG_SHAREWARE)==0)
+	conn_set_clienttag(c,CLIENTTAG_SHAREWARE);
+    else if (bn_int_tag_eq(packet->u.client_changeclient.clienttag,CLIENTTAG_DIABLORTL)==0)
+	conn_set_clienttag(c,CLIENTTAG_DIABLORTL);
+    else if (bn_int_tag_eq(packet->u.client_changeclient.clienttag,CLIENTTAG_WARCIIBNE)==0)
+	conn_set_clienttag(c,CLIENTTAG_WARCIIBNE);
+    else if (bn_int_tag_eq(packet->u.client_changeclient.clienttag,CLIENTTAG_DIABLO2DV)==0)
+	conn_set_clienttag(c,CLIENTTAG_DIABLO2DV);
+    else if (bn_int_tag_eq(packet->u.client_changeclient.clienttag,CLIENTTAG_DIABLO2XP)==0)
+	conn_set_clienttag(c,CLIENTTAG_DIABLO2XP);
+    else if (bn_int_tag_eq(packet->u.client_changeclient.clienttag,CLIENTTAG_WARCRAFT3)==0)
+	conn_set_clienttag(c,CLIENTTAG_WARCRAFT3);
+    else if (bn_int_tag_eq(packet->u.client_changeclient.clienttag,CLIENTTAG_WAR3XP)==0)
+	conn_set_clienttag(c,CLIENTTAG_WAR3XP);
+    else eventlog(eventlog_level_error,__FUNCTION__,"[%d] unknown client program type 0x%08x, don't expect this to work",conn_get_socket(c),bn_int_get(packet->u.client_changeclient.clienttag));
+
+    return 0;
 }
 

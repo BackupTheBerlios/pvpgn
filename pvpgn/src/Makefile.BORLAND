@@ -160,7 +160,6 @@ bnetd_OBJECTS       = \
     ${SRC_BNETDDIR}\autoupdate.obj \
     ${SRC_BNETDDIR}\helpfile.obj \
     ${SRC_BNETDDIR}\mail.obj \
-    ${SRC_BNETDDIR}\bnpmap.obj \
     ${SRC_BNETDDIR}\anongame_infos.obj \
     ${SRC_BNETDDIR}\storage.obj \
     ${SRC_BNETDDIR}\runprog.obj \
