@@ -72,7 +72,6 @@
 #include "versioncheck.h"
 #include "storage.h"
 #include "anongame.h"
-//aaron
 #include "command_groups.h"
 #include "output.h"
 #include "alias_command.h"
@@ -95,6 +94,7 @@
 # include "win32/winmain.h"
 # define printf gui_printf
 #endif
+#include "cmdline.h"
 #include "common/setup_after.h"
 
 /* out of memory safety */
@@ -143,40 +143,16 @@ char serviceLongName[] = "PvPGN service";
 char serviceName[] = "pvpgn";
 char serviceDescription[] = "Player vs. Player Gaming Network - Server";
 
-// by quetzal. indicates service status
-// -1 - not in service mode
-//  0 - stopped
-//  1 - running
-//  2 - paused
+/* 
+ * by quetzal. indicates service status
+ * -1 - not in service mode
+ *  0 - stopped
+ *  1 - running
+ *  2 - paused
+ */
 int g_ServiceStatus = -1;
 
-static void usage(char const * progname);
-
-static void usage(char const * progname)
-{
-    fprintf(stderr,
-	    "usage: %s [<options>]\n"
-	    "    -c FILE, --config=FILE   use FILE as configuration file (default is " BNETD_DEFAULT_CONF_FILE ")\n"
-	    "    -d FILE, --hexdump=FILE  do hex dump of packets into FILE\n"
-#ifdef DO_DAEMONIZE
-	    "    -f, --foreground         don't daemonize\n"
-#else
-	    "    -f, --foreground         don't daemonize (default)\n"
-#endif
-	    "    -D, --debug              run in debug mode (run in foreground and log to stdout)\n"
-	    "    -h, --help, --usage      show this information and exit\n"
-	    "    -v, --version            print version number and exit\n"
-#ifdef WIN32
-	    "    Running as service functions:\n"
-	    "	 --service		  run as service\n"
-	    "    -s install               install service\n"
-	    "    -s uninstall             uninstall service\n"
-#endif	    
-	    ,progname);
-}
-
-
-// added some more exit status --> put in "compat/exitstatus.h" ???
+/* added some more exit status --> put in "compat/exitstatus.h" ??? */
 #define STATUS_OOM_FAILURE		20
 #define STATUS_STORAGE_FAILURE		30
 #define STATUS_PSOCK_FAILURE		35
@@ -187,117 +163,12 @@ static void usage(char const * progname)
 #define STATUS_SUPPORT_FAILURE          80
 #define STATUS_FDWATCH_FAILURE          90
 
-// new functions extracted from Fw()
-int read_commandline(int argc, char * * argv, int *foreground, char const *preffile[], char *hexfile[]);
 int pre_server_startup(void);
 void post_server_shutdown(int status);
 int eventlog_startup(void);
 int fork_bnetd(int foreground);
 char * write_to_pidfile(void);
 void pvpgn_greeting(void);
-
-// The functions 
-int read_commandline(int argc, char * * argv, int *foreground, char const *preffile[], char *hexfile[])
-{
-    int a;
-    
-    if (argc<1 || !argv || !argv[0]) {
-	fprintf(stderr,"bad arguments\n");
-        return -1;
-    }
-#ifdef WIN32
-    if (argc > 1 && strncmp(argv[1], "--service", 9) == 0) {
-	Win32_ServiceRun();
-	return 0;
-    }
-#endif
-    for (a=1; a<argc; a++) {
-	if (strncmp(argv[a],"--config=",9)==0) {
-	    if (*preffile) {
-		fprintf(stderr,"%s: configuration file was already specified as \"%s\"\n",argv[0],preffile[0]);
-                usage(argv[0]);
-                return -1;
-            }
-	    *preffile = &argv[a][9];
-	}
-	else if (strcmp(argv[a],"-c")==0) {
-            if (a+1>=argc) {
-                fprintf(stderr,"%s: option \"%s\" requires an argument\n",argv[0],argv[a]);
-                usage(argv[0]);
-                return -1;
-            }
-            if (*preffile) {
-                fprintf(stderr,"%s: configuration file was already specified as \"%s\"\n",argv[0],preffile[0]);
-                usage(argv[0]);
-                return -1;
-            }
-            a++;
-	    *preffile = argv[a];
-        }
-        else if (strncmp(argv[a],"--hexdump=",10)==0) {
-            if (*hexfile) {
-                fprintf(stderr,"%s: configuration file was already specified as \"%s\"\n",argv[0],hexfile[0]);
-                usage(argv[0]);
-                return -1;
-            }
-            *hexfile = &argv[a][10];
-        }
-        else if (strcmp(argv[a],"-d")==0) {
-            if (a+1>=argc) {
-                fprintf(stderr,"%s: option \"%s\" requires an argument\n",argv[0],argv[a]);
-                usage(argv[0]);
-                return -1;
-            }
-            if (*hexfile) {
-                fprintf(stderr,"%s: configuration file was already specified as \"%s\"\n",argv[0],hexfile[0]);
-                usage(argv[0]);
-                return -1;
-            }
-            a++;
-            *hexfile = argv[a];
-        }
-        else if (strcmp(argv[a],"-f")==0 || strcmp(argv[a],"--foreground")==0)
-            *foreground = 1;
-        else if (strcmp(argv[a],"-D")==0 || strcmp(argv[a],"--debug")==0) {
-	    eventlog_set_debugmode(1);
-            *foreground = 1;
-        }
-#ifdef WIN32
-	else if (strcmp(argv[a],"-s") == 0) {
-	    if (a < argc - 1) {
-		if (strcmp(argv[a+1], "install") == 0) {
-		    fprintf(stderr, "Installing service");
-		    Win32_ServiceInstall();
-		}
-		if (strcmp(argv[a+1], "uninstall") == 0) {
-		    fprintf(stderr, "Uninstalling service");
-		    Win32_ServiceUninstall();
-		}
-	    }
-	    return 0;
-        }
-#endif
-        else if (strcmp(argv[a],"-v")==0 || strcmp(argv[a],"--version")==0) {
-            printf(PVPGN_SOFTWARE" version "PVPGN_VERSION"\n");
-            return 0;
-	}
-        else if (strcmp(argv[a],"-h")==0 || strcmp(argv[a],"--help")==0 || strcmp(argv[a],"--usage")==0) {
-	    usage(argv[0]);
-	    return 0;
-	}
-	else if (strcmp(argv[a],"--config")==0 || strcmp(argv[a],"--hexdump")==0) {
-            fprintf(stderr,"%s: option \"%s\" requires and argument.\n",argv[0],argv[a]);
-            usage(argv[0]);
-            return -1;
-	}
-	else {
-            fprintf(stderr,"%s: bad option \"%s\"\n",argv[0],argv[a]);
-            usage(argv[0]);
-            return -1;
-        }
-    }
-    return 1; // continue without exiting
-}
 
 int eventlog_startup(void)
 {
