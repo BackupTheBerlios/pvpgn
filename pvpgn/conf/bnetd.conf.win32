@@ -350,14 +350,14 @@ savebyname = true
 # more accounts should use a larger table for better performance.
 hashtable_size = 61
 
-# per default, only alphanumerical symbols are allowed in account names
+# Per default, only alphanumerical symbols are allowed in account names
 # with this variable you can add some extra symbols to be allowed
 # but be warned - that some of them might cause trouble - at least with
 # savebyname=true (some symbols are forbidden in filenames or might cause
-# you real trouble - plz neither allow wildcard symbols like '*' or '?' nor 
-# allow path delimiters like '/' or '\'. also note that allowing the '.' might
-# cause u some headache on win32 systems. u have been warned - the rest is up
-# to you.
+# you real trouble - plz neither allow wildcard symbols like '*' or '?'.
+# Path delimiters like '/' or '\' are hardcoded filtered and can't be allowed.
+# Also note that allowing the '.' might cause u some headache on win32 systems. 
+# You have been warned - the rest is up to you.
 # default setting is "-_[]" as it was previous versions
 account_allowed_symbols = "-_[]"
 
