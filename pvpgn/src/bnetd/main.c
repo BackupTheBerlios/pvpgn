@@ -88,6 +88,7 @@
 #include "common/setup_after.h"
 #include "alias_command.h"
 #include "anongame_infos.h"
+#include "news.h"
 
 #ifdef WIN32
 # include "win32/service.h"
