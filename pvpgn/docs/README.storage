@@ -90,10 +90,10 @@ in the examples in the config file which I paste them here:
 
 Syntax:
 - for plain file driver:
-storage_path = file:dir=<path_to_user_files>;default=/path/to/default/account
+storage_path = file:dir=<path_to_user_files>;clan=<path_to_clan_files>;default=/path/to/default/account
 
 - for cdb file driver:
-storage_path = cdb:dir=<path_to_cdb_files>;default=/path/to/default/account
+storage_path = cdb:dir=<path_to_cdb_files>;clan=<path_to_clan_files>;default=/path/to/default/account
 
 - for sql driver:
 storage_path = sql:variable=value;...;default=0 (0 is the default uid)
@@ -108,9 +108,9 @@ storage_path = sql:variable=value;...;default=0 (0 is the default uid)
   - "pass" : db password
 
 Examples:
-storage_path = file:dir=/usr/local/pvpgn/var/users;default=/usr/local/pvpgn/etc/bnetd_default_user
+storage_path = file:dir=/usr/local/pvpgn/var/users;clan=/usr/local/pvpgn/var/clans;default=/usr/local/pvpgn/etc/bnetd_default_user
 
-storage_path = cdb:dir=/usr/local/pvpgn/var/userscdb;default=/usr/local/pvpgn/etc/bnetd_default_user.cdb
+storage_path = cdb:dir=/usr/local/pvpgn/var/userscdb;clan=/usr/local/pvpgn/var/clanscdb;default=/usr/local/pvpgn/etc/bnetd_default_user.cdb
 
 storage_path = sql:mode=mysql;host=127.0.0.1;name=PVPGN;user=pvpgn;pass=pvpgnrocks;default=0
 
