@@ -33,7 +33,7 @@
 #   endif
 # endif
 # include "game.h"
-# include "common/elist.h"
+# include "common/queue.h"
 # include "channel.h"
 # include "account.h"
 # include "quota.h"
@@ -56,7 +56,7 @@
 #   endif
 # endif
 # include "game.h"
-# include "common/elist.h"
+# include "common/queue.h"
 # include "channel.h"
 # include "account.h"
 # include "quota.h"
@@ -153,7 +153,7 @@ typedef struct connection
 	    t_versioncheck *		versioncheck; /* equation and MPQ file used to validate game checksum */
 	} client; /* client program specific data */
 	struct {
-	    t_elist 		outqueue;  /* packets waiting to be sent */
+	    t_queue *		outqueue;  /* packets waiting to be sent */
 	    unsigned int	outsize;   /* amount sent from the current output packet */
 	    unsigned int	outsizep;
 	    t_packet *		inqueue;   /* packet waiting to be processed */
@@ -216,6 +216,7 @@ t_connection;
 
 #define JUST_NEED_TYPES
 #include "common/packet.h"
+#include "common/queue.h"
 #include "channel.h"
 #include "game.h"
 #include "account.h"
@@ -313,9 +314,10 @@ extern t_packet * conn_get_in_queue(t_connection * c) ;
 extern void conn_put_in_queue(t_connection * c, t_packet *packet) ;
 extern unsigned int conn_get_in_size(t_connection const * c) ;
 extern void conn_set_in_size(t_connection * c, unsigned int size);
+extern t_queue * * conn_get_out_queue(t_connection * c) ;
 extern unsigned int conn_get_out_size(t_connection const * c) ;
 extern void conn_set_out_size(t_connection * c, unsigned int size);
-extern void conn_push_outqueue(t_connection * c, t_packet * packet);
+extern int conn_push_outqueue(t_connection * c, t_packet * packet);
 extern t_packet * conn_peek_outqueue(t_connection * c);
 extern t_packet * conn_pull_outqueue(t_connection * c);
 extern int conn_check_ignoring(t_connection const * c, char const * me) ;

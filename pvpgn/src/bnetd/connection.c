@@ -84,7 +84,7 @@
 #include "realm.h"
 #include "channel.h"
 #include "game.h"
-#include "common/elist.h"
+#include "common/queue.h"
 #include "tick.h"
 #include "common/packet.h"
 #include "common/tag.h"
@@ -415,7 +415,7 @@ extern t_connection * conn_create(int tsock, int usock, unsigned int real_local_
     temp->protocol.chat.tmpOP_channel		 = NULL;
     temp->protocol.chat.tmpVOICE_channel	 = NULL;
     temp->protocol.game                     = NULL;
-    elist_init(&temp->protocol.queues.outqueue);
+    temp->protocol.queues.outqueue               = NULL;
     temp->protocol.queues.outsize                = 0;
     temp->protocol.queues.outsizep               = 0;
     temp->protocol.queues.inqueue                = NULL;
@@ -679,18 +679,9 @@ extern void conn_destroy(t_connection * c, t_elem ** elem, int conn_or_dead_list
 	psock_shutdown(c->socket.tcp_sock,PSOCK_SHUT_RDWR);
 	psock_close(c->socket.tcp_sock);
     }
-
     /* clear out the packet queues */
     if (c->protocol.queues.inqueue) packet_del_ref(c->protocol.queues.inqueue);
-
-    {
-	t_elist *curr, *safe;
-
-	elist_for_each_safe(curr,&c->protocol.queues.outqueue,safe)
-	{
-	    packet_del_ref(elist_entry(curr,t_packet,queue));
-	}
-    }
+    queue_clear(&c->protocol.queues.outqueue);
 
     // [zap-zero] 20020601
     if (c->protocol.w3.routeconn) {
@@ -2140,6 +2131,17 @@ extern void conn_set_in_size(t_connection * c, unsigned int size)
 }
 
 
+extern t_queue * * conn_get_out_queue(t_connection * c)
+{
+    if (!c)
+    {
+        eventlog(eventlog_level_error,"conn_get_out_queue","got NULL connection");
+        return NULL;
+    }
+    return &c->protocol.queues.outqueue;
+}
+
+
 extern unsigned int conn_get_out_size(t_connection const * c)
 {
     if (!c)
@@ -2162,35 +2164,48 @@ extern void conn_set_out_size(t_connection * c, unsigned int size)
     c->protocol.queues.outsize = size;
 }
 
-extern void conn_push_outqueue(t_connection * c, t_packet * packet)
+extern int conn_push_outqueue(t_connection * c, t_packet * packet)
 {
-    assert(c);
-    assert(packet);
+    if (!c)
+    {
+        eventlog(eventlog_level_error, __FUNCTION__, "got NULL connection");
+        return -1;
+    }
 
-    packet_add_ref(packet);
-    elist_add_tail(&c->protocol.queues.outqueue,packet_get_qentry(packet));
+    if (!packet)
+    {
+        eventlog(eventlog_level_error, __FUNCTION__, "got NULL packet");
+        return -1;
+    }
+
+    queue_push_packet((t_queue * *)&c->protocol.queues.outqueue, packet);
     if (!c->protocol.queues.outsizep++) fdwatch_update_fd(c->socket.tcp_sock, fdwatch_type_read | fdwatch_type_write);
+
+    return 0;
 }
 
 extern t_packet * conn_peek_outqueue(t_connection * c)
 {
-    assert(c);
+    if (!c)
+    {
+        eventlog(eventlog_level_error, __FUNCTION__, "got NULL connection");
+        return NULL;
+    }
 
-    if (elist_empty(&c->protocol.queues.outqueue)) return NULL;
-    return elist_entry(elist_next(&c->protocol.queues.outqueue),t_packet,queue);
+    return queue_peek_packet((t_queue const * const *)&c->protocol.queues.outqueue);
 }
 
 extern t_packet * conn_pull_outqueue(t_connection * c)
 {
-    assert(c);
+    if (!c)
+    {
+        eventlog(eventlog_level_error, __FUNCTION__, "got NULL connection");
+        return NULL;
+    }
 
     if (c->protocol.queues.outsizep) {
-	t_elist *entry;
-
 	if (!(--c->protocol.queues.outsizep)) fdwatch_update_fd(c->socket.tcp_sock, fdwatch_type_read);
-	entry = elist_next(&c->protocol.queues.outqueue);
-	elist_del(entry);
-	return elist_entry(entry,t_packet,queue);
+	return queue_pull_packet((t_queue * *)&c->protocol.queues.outqueue);
     }
 
     return NULL;

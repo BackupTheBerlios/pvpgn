@@ -32,7 +32,6 @@
 # include "d2cs/d2cs_d2gs_protocol.h"
 # include "d2cs/d2cs_bnetd_protocol.h"
 # include "common/w3xp_protocol.h"
-# include "common/elist.h"
 #else
 # define JUST_NEED_TYPES
 # include "common/field_sizes.h"
@@ -47,7 +46,6 @@
 # include "d2cs/d2cs_d2gs_protocol.h"
 # include "d2cs/d2cs_bnetd_protocol.h"
 # include "common/w3xp_protocol.h"
-# include "common/elist.h"
 # undef JUST_NEED_TYPES
 #endif
 
@@ -84,8 +82,7 @@ typedef struct
     t_packet_class class;
     unsigned int   flags; /* user-defined flags (used to mark UDP in bnproxy) */
     unsigned int   len;   /* raw packets have no header, so we use this */
-    t_elist	   queue; /* elist used to link packets in queues */
-
+    
     /* next part looks just like it would on the network (no padding, byte for byte) */
     union
     {
@@ -403,10 +400,6 @@ extern void * packet_get_raw_data_build(t_packet * packet, unsigned int offset);
 extern char const * packet_get_str_const(t_packet const * packet, unsigned int offset, unsigned int maxlen);
 extern void const * packet_get_data_const(t_packet const * packet, unsigned int offset, unsigned int len);
 extern t_packet * packet_duplicate(t_packet const * src);
-static inline t_elist * packet_get_qentry(t_packet * packet)
-{
-    return &packet->queue;
-}
 
 #endif
 #endif
