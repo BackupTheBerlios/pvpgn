@@ -102,7 +102,6 @@
 #include "common/hexdump.h"
 #include "common/eventlog.h"
 #include "message.h"
-#include "common/elist.h"
 #include "handle_bnet.h"
 #include "handle_bot.h"
 #include "handle_telnet.h"
@@ -759,7 +758,7 @@ static int sd_tcpoutput(t_connection * c)
 	    conn_set_out_size(c,0);
 
 	    /* stop at about BNETD_MAX_OUTBURST (or until out of packets or EWOULDBLOCK) */
-	    if (totsize>BNETD_MAX_OUTBURST || elist_empty(conn_get_out_queue(c)))
+	    if (totsize>BNETD_MAX_OUTBURST || !conn_peek_outqueue(c))
 		return 0;
 	    totsize += currsize;
 	    break;

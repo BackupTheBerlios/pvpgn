@@ -2140,17 +2140,6 @@ extern void conn_set_in_size(t_connection * c, unsigned int size)
 }
 
 
-extern t_elist * conn_get_out_queue(t_connection * c)
-{
-    if (!c)
-    {
-        eventlog(eventlog_level_error,"conn_get_out_queue","got NULL connection");
-        return NULL;
-    }
-    return &c->protocol.queues.outqueue;
-}
-
-
 extern unsigned int conn_get_out_size(t_connection const * c)
 {
     if (!c)
@@ -2187,6 +2176,7 @@ extern t_packet * conn_peek_outqueue(t_connection * c)
 {
     assert(c);
 
+    if (elist_empty(&c->protocol.queues.outqueue)) return NULL;
     return elist_entry(elist_next(&c->protocol.queues.outqueue),t_packet,queue);
 }
 
