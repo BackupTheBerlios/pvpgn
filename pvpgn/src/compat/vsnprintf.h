@@ -19,13 +19,7 @@
 #define INCLUDED_VSNPRINTF_PROTOS
 
 #include <stdio.h>
-#ifdef HAVE_STDARG_H
-# include <stdarg.h>
-#else
-# ifdef HAVE_VARARGS_H
-#  include <varargs.h>
-# endif
-#endif
+#include "compat/vargs.h"
 
 #if !defined(HAVE_VSNPRINTF) 
 #ifdef HAVE__VSNPRINTF

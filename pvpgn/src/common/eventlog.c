@@ -35,13 +35,7 @@
 # endif
 #endif
 #include "compat/strcasecmp.h"
-#ifdef HAVE_STDARG_H
-# include <stdarg.h>
-#else
-# ifdef HAVE_VARARGS_H
-#  include <varargs.h>
-# endif
-#endif
+#include "compat/vargs.h"
 #ifdef TIME_WITH_SYS_TIME
 # include <sys/time.h>
 # include <time.h>
@@ -314,7 +308,7 @@ extern void eventlog(t_eventlog_level level, char const * module, char const * f
     gui_lprintf(level,"%s [%s] %s: ",time_string,eventlog_get_levelname_str(level),module);
 #endif
 
-    va_start(args,fmt);
+    VA_START(args,fmt);
 
 #ifdef HAVE_VPRINTF
     vfprintf(eventstrm,fmt,args);

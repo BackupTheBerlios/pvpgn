@@ -35,13 +35,7 @@
 #endif
 #include "compat/strchr.h"
 #include "compat/strdup.h"
-#ifdef HAVE_STDARG_H
-# include <stdarg.h>
-#else
-# ifdef HAVE_VARARGS_H
-#  include <varargs.h>
-# endif
-#endif
+#include "compat/vargs.h"
 #include <ctype.h>
 #include <errno.h>
 #include "compat/strerror.h"
@@ -699,7 +693,7 @@ void ansi_printf(t_client_state * client,int color, char const * fmt, ...)
     if (client->useansi)
         ansi_text_color_fore(color);
 
-    va_start(args,fmt);
+    VA_START(args,fmt);
     vsnprintf(buffer,2048,fmt,args);
     va_end(args);
     
