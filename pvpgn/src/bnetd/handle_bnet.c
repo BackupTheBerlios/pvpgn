@@ -3262,15 +3262,7 @@ static int _client_charlistreq(t_connection * c, t_packet const * const packet)
 	     packet_del_ref(rpacket);
 	     return 0;
 	  }
-	if (!(temp = xstrdup(charlist)))
-	  {
-	     eventlog(eventlog_level_error,__FUNCTION__,"[%d] unable to allocate memory for characterlist",conn_get_socket(c));
-	     bn_int_set(&rpacket->u.server_unknown_37.count,0);
-	     conn_push_outqueue(c,rpacket);
-	     packet_del_ref(rpacket);
-	     account_unget_closed_characterlist(conn_get_account(c),charlist);
-	     return 0;
-	  }
+	temp = xstrdup(charlist);
 	account_unget_closed_characterlist(conn_get_account(c),charlist);
 	
 	  {
@@ -4405,11 +4397,7 @@ static int _client_gamereport(t_connection * c, t_packet const * const packet)
 	    return -1;
 	}
 
-	if (!(results = xmalloc(sizeof(t_game_result)*game_get_count(game))))
-	{
-	    eventlog(eventlog_level_error,__FUNCTION__,"could not allocate memory to store game results");
-	    return -1;
-	}
+	results = xmalloc(sizeof(t_game_result)*game_get_count(game));
 
 	for (i=0;i<game_get_count(game);i++) results[i]=game_result_none;
 	
