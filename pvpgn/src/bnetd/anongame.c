@@ -73,7 +73,6 @@
 #include "common/bn_type.h"
 #include "common/field_sizes.h"
 #include "ladder.h"
-#include "adbanner.h"
 #include "common/list.h"
 #include "common/bnettime.h"
 #include "common/addr.h"
