@@ -290,6 +290,21 @@ extern char const * game_option_get_str(t_game_option option)
 	return "3 teams";
     case game_option_teamctf_2:
 	return "2 teams";
+    case game_option_topvbot_7:
+	return "7 vs all";
+    case game_option_topvbot_6:
+	return "6 vs all";
+    case game_option_topvbot_5:
+	return "5 vs all";
+    case game_option_topvbot_4:
+	return "4 vs all";
+    case game_option_topvbot_3:
+	return "3 vs all";
+    case game_option_topvbot_2:
+	return "2 vs all";
+    case game_option_topvbot_1:
+	return "1 vs all";
+
     case game_option_none:
 	return "none";
     default:
