@@ -2516,21 +2516,21 @@ extern void account_get_raceicon(t_account * account, char * raceicon, unsigned 
 	orcs = account_get_racewin(account,W3_RACE_ORCS,clienttag); 
 	undead = account_get_racewin(account,W3_RACE_UNDEAD,clienttag);
 	nightelf = account_get_racewin(account,W3_RACE_NIGHTELVES,clienttag);
-	if(humans>=orcs && humans>=undead && humans>=nightelf && humans>=random) {
+	if(orcs>=humans && orcs>=undead && orcs>=nightelf && orcs>=random) {
+	  *raceicon = 'O';
+	  *wins = orcs;
+	}
+	else if(humans>=orcs && humans>=undead && humans>=nightelf && humans>=random) {
 	    *raceicon = 'H';
 	    *wins = humans;
-	}
-	else if(orcs>=humans && orcs>=undead && orcs>=nightelf && orcs>=random) {
-	    *raceicon = 'O';
-	    *wins = orcs;
-	}
-	else if(undead>=humans && undead>=orcs && undead>=nightelf && undead>=random) {
-	    *raceicon = 'U';
-	    *wins = undead;
 	}
 	else if(nightelf>=humans && nightelf>=orcs && nightelf>=undead && nightelf>=random) {
 	    *raceicon = 'N';
 	    *wins = nightelf;
+	}
+	else if(undead>=humans && undead>=orcs && undead>=nightelf && undead>=random) {
+	    *raceicon = 'U';
+	    *wins = undead;
 	}
 	else {
 	    *raceicon = 'R';
