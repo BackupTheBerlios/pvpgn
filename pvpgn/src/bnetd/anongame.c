@@ -1828,7 +1828,13 @@ extern int anongame_stats(t_connection * c)
 	if (!wins)
     	    return -1;
     
+    // according to zap, order of players in anongame is:
+    // for PG: t1_p1, t2_p1, t1_p2, t2_p2, ...
+    // for AT: t1_p1, t1_p2, ..., t2_p1, t2_p2, ...
+    
     for(i=0; i<tp; i++) {
+ 	int j,k;
+	int oppon_level = 0;
 	t_account * oacc = anongame_get_account(a, (i+1)%tp);
 	int result = anongame_get_result(a,i);
 	
@@ -1837,58 +1843,65 @@ extern int anongame_stats(t_connection * c)
 	        
 	switch(gametype) {
 	    case ANONGAME_TYPE_1V1:
+		oppon_level = account_get_sololevel(oacc);
 		if(result == W3_GAMERESULT_WIN)
-		    account_set_saveladderstats(anongame_get_account(a,i),gametype,game_result_win,account_get_sololevel(oacc));
+		    account_set_saveladderstats(anongame_get_account(a,i),gametype,game_result_win,oppon_level);
 		if(result == W3_GAMERESULT_LOSS)
-		    account_set_saveladderstats(anongame_get_account(a,i),gametype,game_result_loss,account_get_sololevel(oacc));
+		    account_set_saveladderstats(anongame_get_account(a,i),gametype,game_result_loss,oppon_level);
 		break;
 	    case ANONGAME_TYPE_SMALL_FFA:
-		// FIXME: need to adjust FFA xp and levels
+		// oppon_level = average level of all other players
+		for (j=0; j<tp; j++) if (i!=j) oppon_level+=account_get_ffalevel(anongame_get_account(a,j));
+		oppon_level/=tp;
 		if(result == W3_GAMERESULT_WIN)
-		    //account_set_ffawin(anongame_get_account(a,i));
-		    account_set_saveladderstats(anongame_get_account(a,i),gametype,game_result_win,account_get_ffalevel(oacc));
+		    account_set_saveladderstats(anongame_get_account(a,i),gametype,game_result_win,oppon_level);
 		if(result == W3_GAMERESULT_LOSS)
-		    //account_set_ffaloss(anongame_get_account(a,i));
-	            account_set_saveladderstats(anongame_get_account(a,i),gametype,game_result_loss,account_get_ffalevel(oacc));
+	            account_set_saveladderstats(anongame_get_account(a,i),gametype,game_result_loss,oppon_level);
 		break;
 	    case ANONGAME_TYPE_AT_2V2:
 	    case ANONGAME_TYPE_AT_3V3:
 	    case ANONGAME_TYPE_AT_4V4:
+
+		if (i<(tp/2)) k=(tp/2); else k=0;	
+		oacc = anongame_get_account(a,k);
+		oppon_level= account_get_atteamlevel(oacc,account_get_currentatteam(oacc));
+		
 		if(result == W3_GAMERESULT_WIN) { //Modified by DJP in an attempt to manage teamcount ! ( bug of previous CVS 1.2.4 )
 			if(account_get_new_at_team(conn_get_account(c))==1) {
 					 int temp;
 
 				account_set_new_at_team(conn_get_account(c),0);
-			    temp = account_get_atteamcount(conn_get_account(c));
+			        temp = account_get_atteamcount(conn_get_account(c));
 				temp = temp+1;
 				account_set_atteamcount(conn_get_account(c),temp);
-				account_set_saveATladderstats(anongame_get_account(a,i),gametype,game_result_win,account_get_atteamlevel(oacc,account_get_currentatteam(oacc)),account_get_currentatteam(anongame_get_account(a,i)));
 			}
-			else {
-				account_set_saveATladderstats(anongame_get_account(a,i),gametype,game_result_win,account_get_atteamlevel(oacc,account_get_currentatteam(oacc)),account_get_currentatteam(anongame_get_account(a,i)));
-			}
+			account_set_saveATladderstats(anongame_get_account(a,i),gametype,game_result_win,oppon_level,account_get_currentatteam(anongame_get_account(a,i)));
 		}
 		if(result == W3_GAMERESULT_LOSS) { //Modified by DJP in an attempt to manage teamcount ! ( bug of previous CVS 1.2.4 )
 			if(account_get_new_at_team(conn_get_account(c))==1) {
 					int temp;
 
 				account_set_new_at_team(conn_get_account(c),0);
-			    temp = account_get_atteamcount(conn_get_account(c));
+			        temp = account_get_atteamcount(conn_get_account(c));
 				temp = temp+1;
 				account_set_atteamcount(conn_get_account(c),temp);
-				account_set_saveATladderstats(anongame_get_account(a,i),gametype,game_result_loss,account_get_atteamlevel(oacc,account_get_currentatteam(oacc)),account_get_currentatteam(anongame_get_account(a,i)));
 			}
-			else {
-				account_set_saveATladderstats(anongame_get_account(a,i),gametype,game_result_loss,account_get_atteamlevel(oacc,account_get_currentatteam(oacc)),account_get_currentatteam(anongame_get_account(a,i)));
-			}
+			account_set_saveATladderstats(anongame_get_account(a,i),gametype,game_result_loss,oppon_level,account_get_currentatteam(anongame_get_account(a,i)));
 		}
 		break;
 	    default:
-		// FIXME: only get team level of one opponent here... should get max or average level of all opponents?
+		// oppon_level = average level of all opponents (which are every 2nd player in the list)
+		k = i+1;
+		for (j=0; j<(tp/2); j++) 
+		{
+			oppon_level+= account_get_teamlevel(anongame_get_account(a,k%tp));
+			k = k+2;
+		}
+		oppon_level/=(tp/2);
 		if(result == W3_GAMERESULT_WIN)
-		    account_set_saveladderstats(anongame_get_account(a,i),gametype,game_result_win,account_get_teamlevel(oacc));
+		    account_set_saveladderstats(anongame_get_account(a,i),gametype,game_result_win,oppon_level);
 		if(result == W3_GAMERESULT_LOSS)
-		    account_set_saveladderstats(anongame_get_account(a,i),gametype,game_result_loss,account_get_teamlevel(oacc));
+		    account_set_saveladderstats(anongame_get_account(a,i),gametype,game_result_loss,oppon_level);
 		break;
 	}
     }
