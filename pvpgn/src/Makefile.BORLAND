@@ -559,7 +559,7 @@ ${SRC_COMPATDIR}\getopt.obj
 OBJECTS		= ${bnetd_OBJECTS} ${d2cs_OBJECTS} ${d2dbs_OBJECTS} ${bntrackd_OBJECTS} ${bnchat_OBJECTS} ${bnpass_OBJECTS} ${bnbot_OBJECTS} ${bnftp_OBJECTS} ${bnstat_OBJECTS} ${bnilist_OBJECTS} ${bni2tga_OBJECTS} ${bniextract_OBJECTS} ${bnibuild_OBJECTS} ${tgainfo_OBJECTS} ${timetest_OBJECTS} ${listtest_OBJECTS} ${hashtabletest_OBJECTS} ${addrtest_OBJECTS} ${cdb_OBJECTS}
 SBINS       = ${bnetd_SBIN} ${bnetg_SBIN} ${d2cs_SBIN} ${d2dbs_SBIN} ${bnproxy_SBIN} ${bntrackd_SBIN}
 BINS        = ${bnchat_BIN} ${bnpass_BIN} ${bnftp_BIN} ${bnbot_BIN} ${bnstat_BIN} ${bnilist_BIN} ${bni2tga_BIN} ${bniextract_BIN} ${bnibuild_BIN} ${tgainfo_BIN} ${cdb_BIN}
-CONFS       = ad.list bnetd.conf bnetd_default_user.plain bnetd_default_user.cdb bnmotd.txt channel.list news.txt bnban.conf bnhelp.conf gametrans.conf d2gstrans.conf autoupdate.conf realm.list bnmaps.conf bnxplevel.conf bnxpcalc.conf news.txt command_groups.conf bnban.conf bnhelp.conf bnalias.list anongame_infos.conf tournament.conf topics.conf sql_DB_layout.conf w3trans.conf supportfile.conf
+CONFS       = ad.conf bnetd.conf bnetd_default_user.plain bnetd_default_user.cdb bnmotd.txt channel.conf news.txt bnban.conf bnhelp.conf gametrans.conf d2gstrans.conf autoupdate.conf realm.conf bnmaps.conf bnxplevel.conf bnxpcalc.conf news.txt command_groups.conf bnban.conf bnhelp.conf bnalias.conf anongame_infos.conf tournament.conf topics.conf sql_DB_layout.conf w3trans.conf supportfile.conf
 SHARES      = ad000001.smk tos.txt
 OTHERBINS	= ${sbnetd_OBJECTS} ${sbnetd_SBIN}
 DIRS        = ${SRC_BINDIR} ${SRC_SBINDIR}
