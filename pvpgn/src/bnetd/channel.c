@@ -843,7 +843,7 @@ extern void channel_message_send(t_channel const * channel, t_message_type type,
     tname = conn_get_chatname(me);
     for (c=channel_get_first(channel); c; c=channel_get_next())
     {
-	if (c==me && (type==message_type_talk || type==message_type_join))
+	if (c==me && (type==message_type_talk || type==message_type_join || type==message_type_part))
 	    continue; /* ignore ourself */
 	if ((type==message_type_talk || type==message_type_whisper || type==message_type_emote || type==message_type_broadcast) &&
 	    conn_check_ignoring(c,tname)==1)
