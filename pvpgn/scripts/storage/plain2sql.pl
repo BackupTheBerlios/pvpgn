@@ -47,7 +47,13 @@ sub convertplain2db {
 
 	    $line =~ m/^"([A-Za-z0-9]+)\\\\(.*)"="(.*)"/;
 
-	    $alist[$count]{tab} = $1;
+	    $tab = $1;
+	    # skip Team as we now have another team structure
+	    if ($tab =~ m/^team$/i) {
+	    	next;
+	    }
+
+	    $alist[$count]{tab} = $tab;
 	    $alist[$count]{col} = &escape_key($2);
 	    $alist[$count]{val} = $3;
 
@@ -111,6 +117,7 @@ sub add_slashes {
 sub escape_key {
 	my $str = shift;
 
+	$str =~ tr/A-Z/a-z/;
 	$str =~ s/[^0-9a-zA-Z]/_/g;
 	return $str;
 }
