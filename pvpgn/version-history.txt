@@ -13,7 +13,8 @@ those useless eventlogs got NULL account in account_get_uid)
 by some other accounts, those who referenced them got "unknown" friend for each 
 deleted friend (resulting in a possible disc when viewing friends list)
 -- fixed problem (only appearing with topaz chat so far) that user seems to join
-a channel on first connect twice (meaning: join-leave-join).
+a channel on first connect twice (meaning: join-leave-join)
+-- fixed check for allowed War3 game ports (was 1025-32766 now is 1024-49151)
 
 1.6.0pre1 (since 1.5.0beta3):
 -- fixed IRC auth bug (when using passwords with upper cases)
