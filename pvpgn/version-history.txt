@@ -31,8 +31,8 @@ channel.list)
 connections from same IP - by z0rm
 -- added mapping for all version up to 315 to get rid of annoying warning
 -- added tempOPs for non permanent channels. those can kick users from the
-chanel and /op other users to make them tempOPs, too (no OP icon so far, this
-will be added later)
+chanel and /op other users to make them tempOPs, too
+
 
 1.4.6-D2
 -- added support for the new d2gs from 20030304
