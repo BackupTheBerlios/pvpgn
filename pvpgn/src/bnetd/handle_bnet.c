@@ -365,6 +365,7 @@ static const t_htable_row bnet_htable_log [] = {
      { CLIENT_STARTGAME3,       _client_startgame3},
      { CLIENT_STARTGAME4,       _client_startgame4},
      { CLIENT_CLOSEGAME,        _client_closegame},
+     { CLIENT_CLOSEGAME2,       _client_closegame},
      { CLIENT_GAME_REPORT,      _client_gamereport},
      { CLIENT_LEAVECHANNEL,     _client_leavechannel},
      { CLIENT_LADDERREQ,        _client_ladderreq},

@@ -3728,6 +3728,7 @@ typedef struct
 
 /******************************************************/
 #define CLIENT_CLOSEGAME 0x02ff
+#define CLIENT_CLOSEGAME2 0x1fff
 typedef struct
 {
     t_bnet_header h;
