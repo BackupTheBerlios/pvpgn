@@ -1494,18 +1494,20 @@ static int _handle_friends_command(t_connection * c, char const * text)
 	t_elem  * curr;
 	t_friend * fr;
 	t_list  * flist;
+	int num;
+	unsigned int uid;
 
 	message_send_text(c,message_type_info,c,"Your PvPGN - Friends List");
 	message_send_text(c,message_type_info,c,"=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=");
+	num = account_get_friendcount(my_acc);
 
 	flist=account_get_friends(my_acc);
 	if(flist!=NULL) {
-	    i=1;
-    	    LIST_TRAVERSE(flist,curr)
+	    for (i=0;i<num;i++)
 	    {
-    		if (!(fr = elem_get_data(curr)))
+    		if ((!(uid = account_get_friend(my_acc,i))) || (!(fr = friendlist_find_uid(flist,uid))))
     		{
-        	    eventlog(eventlog_level_error,__FUNCTION__,"found NULL entry in list");
+        	    eventlog(eventlog_level_error,__FUNCTION__,"friend uid in list");
         	    continue;
     		}
     		software[0]='\0';
@@ -1537,10 +1539,9 @@ static int _handle_friends_command(t_connection * c, char const * text)
 		}
 
 		friend=account_get_name(friend_acc);
-    		if (software[0]) sprintf(msgtemp, "%d: %s%.16s%.128s, %.64s", i, friend_get_mutual(fr)?"*":" ", friend, status,software);
-		else sprintf(msgtemp, "%d: %.16s%.128s", i, friend, status);
+    		if (software[0]) sprintf(msgtemp, "%d: %s%.16s%.128s, %.64s", i+1, friend_get_mutual(fr)?"*":" ", friend, status,software);
+		else sprintf(msgtemp, "%d: %.16s%.128s", i+1, friend, status);
 		message_send_text(c,message_type_info,c,msgtemp);
-		i++;
 	    }
 	}
 	message_send_text(c,message_type_info,c,"=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=");
