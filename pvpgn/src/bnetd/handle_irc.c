@@ -83,6 +83,7 @@ static int _handle_pong_command(t_connection * conn, int numparams, char ** para
 static int _handle_pass_command(t_connection * conn, int numparams, char ** params, char * text);
 static int _handle_privmsg_command(t_connection * conn, int numparams, char ** params, char * text);
 static int _handle_notice_command(t_connection * conn, int numparams, char ** params, char * text);
+static int _handle_quit_command(t_connection * conn, int numparams, char ** params, char * text);
 
 
 static int _handle_who_command(t_connection * conn, int numparams, char ** params, char * text);
@@ -92,7 +93,6 @@ static int _handle_join_command(t_connection * conn, int numparams, char ** para
 static int _handle_names_command(t_connection * conn, int numparams, char ** params, char * text);
 static int _handle_mode_command(t_connection * conn, int numparams, char ** params, char * text);
 static int _handle_userhost_command(t_connection * conn, int numparams, char ** params, char * text);
-static int _handle_quit_command(t_connection * conn, int numparams, char ** params, char * text);
 static int _handle_ison_command(t_connection * conn, int numparams, char ** params, char * text);
 static int _handle_whois_command(t_connection * conn, int numparams, char ** params, char * text);
 
@@ -107,6 +107,7 @@ static const t_irc_command_table_row irc_con_command_table[] =
 	{ "PASS"		, _handle_pass_command },
 	{ "PRIVMSG"		, _handle_privmsg_command },
 	{ "NOTICE"		, _handle_notice_command },
+	{ "QUIT"		, _handle_quit_command },
 	{ NULL			, NULL }
 };
 
@@ -121,7 +122,6 @@ static const t_irc_command_table_row irc_log_command_table[] =
 	{ "NAMES"		, _handle_names_command },
 	{ "MODE"		, _handle_mode_command },
 	{ "USERHOST"		, _handle_userhost_command },
-	{ "QUIT"		, _handle_quit_command },
 	{ "ISON"		, _handle_ison_command },
 	{ "WHOIS"		, _handle_whois_command },
 	{ NULL			, NULL }
@@ -950,7 +950,7 @@ static int _handle_userhost_command(t_connection * conn, int numparams, char ** 
 
 static int _handle_quit_command(t_connection * conn, int numparams, char ** params, char * text)
 {
-	conn_set_channel(conn, NULL);
+	conn_set_channel_var(conn, NULL);
 	conn_set_state(conn, conn_state_destroy);
 	return 0;
 }
