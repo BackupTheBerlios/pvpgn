@@ -93,9 +93,9 @@ static int file_close(void);
 static t_storage_info * file_create_account(char const *);
 static t_storage_info * file_get_defacct(void);
 static int file_free_info(t_storage_info *);
-static int file_read_attrs(t_storage_info *, t_read_attr_func);
+static int file_read_attrs(t_storage_info *, t_read_attr_func, void *);
 static int file_write_attrs(t_storage_info *, void *);
-static int file_read_accounts(t_read_accounts_func);
+static int file_read_accounts(t_read_accounts_func, void *);
 static int file_cmp_info(t_storage_info *, t_storage_info *);
 static const char * file_escape_key(const char *);
 
@@ -288,7 +288,7 @@ static int file_write_attrs(t_storage_info *info, void *attributes)
     return 0;
 }
 
-static int file_read_attrs(t_storage_info *info, t_read_attr_func cb)
+static int file_read_attrs(t_storage_info *info, t_read_attr_func cb, void *data)
 {
     FILE *       accountfile;
     unsigned int line;
@@ -364,7 +364,7 @@ static int file_read_attrs(t_storage_info *info, t_read_attr_func cb)
 	free(esckey);
 	free(escval);
 	
-	if (cb(key,val))
+	if (cb(key,val,data))
 	    eventlog(eventlog_level_error, __FUNCTION__, "got error from callback (key: '%s' val:'%s')", key, val);
 
 	if (key) free((void *)key); /* avoid warning */
@@ -397,7 +397,7 @@ static t_storage_info * file_get_defacct(void)
     return info;
 }
 
-static int file_read_accounts(t_read_accounts_func cb)
+static int file_read_accounts(t_read_accounts_func cb, void *data)
 {
     char const * dentry;
     char *       pathname;
@@ -435,7 +435,7 @@ static int file_read_accounts(t_read_accounts_func cb)
 	}
 	info = pathname;
 
-	cb(info);
+	cb(info, data);
     }
 
     if (p_closedir(accountdir)<0)

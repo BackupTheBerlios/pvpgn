@@ -70,9 +70,9 @@ static int sql_close(void);
 static t_storage_info * sql_create_account(char const *);
 static t_storage_info * sql_get_defacct(void);
 static int sql_free_info(t_storage_info *);
-static int sql_read_attrs(t_storage_info *, t_read_attr_func);
+static int sql_read_attrs(t_storage_info *, t_read_attr_func, void *);
 static int sql_write_attrs(t_storage_info *, void *);
-static int sql_read_accounts(t_read_accounts_func);
+static int sql_read_accounts(t_read_accounts_func, void *);
 static int sql_cmp_info(t_storage_info *, t_storage_info *);
 static const char * sql_escape_key(const char *);
 
@@ -315,7 +315,7 @@ static t_storage_info * sql_create_account(char const * username)
     return info;
 }
 
-static int sql_read_attrs(t_storage_info *info, t_read_attr_func cb)
+static int sql_read_attrs(t_storage_info *info, t_read_attr_func cb, void *data)
 {
     char query[1024];
     t_sql_res * result = NULL;
@@ -370,7 +370,7 @@ static int sql_read_attrs(t_storage_info *info, t_read_attr_func cb)
 		if (row[i] == NULL) continue; /* its an NULL value sql field */
 
 //		eventlog(eventlog_level_trace, __FUNCTION__, "read key (step2): '%s' val: '%s'", _db_add_tab(*tab, *fentry), unescape_chars(row[i]));
-		cb(_db_add_tab(*tab, *fentry), unescape_chars(row[i]));
+		cb(_db_add_tab(*tab, *fentry), unescape_chars(row[i]), data);
 //		eventlog(eventlog_level_trace, __FUNCTION__, "read key (final): '%s' val: '%s'", _db_add_tab(*tab, *fentry), unescape_chars(row[i]));
 	    }
 
@@ -479,7 +479,7 @@ int sql_write_attrs(t_storage_info *info, void *attrs)
    return 0;
 }
 
-static int sql_read_accounts(t_read_accounts_func cb)
+static int sql_read_accounts(t_read_accounts_func cb, void *data)
 {
     char query[1024];
     t_sql_res * result = NULL;
@@ -512,7 +512,7 @@ static int sql_read_accounts(t_read_accounts_func cb)
 	    }
 
 	    *((unsigned int *)info) = atoi(row[0]);
-	    cb(info);
+	    cb(info, data);
         }
 	sql->free_result(result);
     } else {

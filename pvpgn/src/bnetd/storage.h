@@ -35,8 +35,8 @@
 
 #define t_storage_info void
 
-typedef int (*t_read_attr_func)(const char *, const char *);
-typedef int (*t_read_accounts_func)(t_storage_info *);
+typedef int (*t_read_attr_func)(const char *, const char *, void *);
+typedef int (*t_read_accounts_func)(t_storage_info *, void*);
 
 typedef struct {
     int (*init)(const char *);
@@ -44,9 +44,9 @@ typedef struct {
     t_storage_info * (*create_account)(char const * );
     t_storage_info * (*get_defacct)(void);
     int (*free_info)(t_storage_info *);
-    int (*read_attrs)(t_storage_info *, t_read_attr_func);
+    int (*read_attrs)(t_storage_info *, t_read_attr_func, void *);
     int (*write_attrs)(t_storage_info *, void *);
-    int (*read_accounts)(t_read_accounts_func);
+    int (*read_accounts)(t_read_accounts_func, void *);
     int (*cmp_info)(t_storage_info *, t_storage_info *);
     const char * (*escape_key)(const char *);
 } t_storage;

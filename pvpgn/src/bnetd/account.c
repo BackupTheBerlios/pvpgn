@@ -760,17 +760,18 @@ extern int account_set_strattr(t_account * account, char const * key, char const
     return 0;
 }
 
+static int _cb_load_attr(const char *key, const char *val, void *data)
+{
+    t_account *account = (t_account *)data;
+
+    return account_set_strattr(account, key, val);
+}
 
 static int account_load_attrs(t_account * account)
 {
     char * key;
     char * val;
     
-    int _cb_load_attr(const char *key, const char *val)
-    {
-	return account_set_strattr(account, key, val);
-    }
-
     if (!account)
     {
 	eventlog(eventlog_level_error,"account_load_attrs","got NULL account");
@@ -813,7 +814,7 @@ static int account_load_attrs(t_account * account)
     
     account->loaded = 1; /* set now so set_strattr works */
    doing_loadattrs = 1;
-   if (storage->read_attrs(account->storage, _cb_load_attr)) {
+   if (storage->read_attrs(account->storage, _cb_load_attr, account)) {
         eventlog(eventlog_level_error, __FUNCTION__, "got error loading attributes");
 	return -1;
    }
@@ -897,6 +898,35 @@ extern int account_logged_in(t_account * account)
     return 0;
 }
 
+static int _cb_read_accounts(t_storage_info *info, void *data)
+{
+    unsigned int *count = (unsigned int *)data;
+    t_account *account;
+
+    if (accountlist_find_account_by_storage(info)) {
+	storage->free_info(info);
+	return 0;
+    }
+
+    if (!(account = account_load(info))) {
+        eventlog(eventlog_level_error,"accountlist_reload","could not load account from storage");
+        storage->free_info(info);
+        return -1;
+    }
+
+    if (!accountlist_add_account(account)) {
+        eventlog(eventlog_level_error,"accountlist_reload","could not add account to list");
+        account_destroy(account);
+        return 0;
+    }
+
+    /* might as well free up the memory since we probably won't need it */
+    account->accessed = 0; /* lie */
+    account_save(account,1000); /* big delta to force unload */
+
+    (*count)++;
+}
+
 extern int accountlist_reload(int all)
 {
     unsigned int count;
@@ -906,32 +936,6 @@ extern int accountlist_reload(int all)
     t_entry   * curr;
 
     int starttime = time(NULL);
-
-    int _cb_read_accounts(t_storage_info *info)
-    {
-	if (accountlist_find_account_by_storage(info)) {
-	    storage->free_info(info);
-	    return 0;
-	}
-
-	if (!(account = account_load(info))) {
-	    eventlog(eventlog_level_error,"accountlist_reload","could not load account from storage");
-	    storage->free_info(info);
-	    return -1;
-	}
-
-	if (!accountlist_add_account(account)) {
-	    eventlog(eventlog_level_error,"accountlist_reload","could not add account to list");
-	    account_destroy(account);
-	    return 0;
-	}
-
-	/* might as well free up the memory since we probably won't need it */
-	account->accessed = 0; /* lie */
-	account_save(account,1000); /* big delta to force unload */
-
-	count++;
-    }
 
 #ifdef WITH_BITS
   if (!bits_master)
@@ -969,7 +973,7 @@ extern int accountlist_reload(int all)
   
   count = 0;
 
-  if (storage->read_accounts(_cb_read_accounts)) {
+  if (storage->read_accounts(_cb_read_accounts, &count)) {
       eventlog(eventlog_level_error, __FUNCTION__, "could not read accounts");
       return -1;
   }
@@ -986,35 +990,37 @@ extern int accountlist_reload(int all)
   return 0;
 }
   
+static int _cb_read_accounts2(t_storage_info *info, void *data)
+{
+    unsigned int *count = (unsigned int *)data;
+    t_account *account;
+
+    if (!(account = account_load(info)))
+    {
+        eventlog(eventlog_level_error,"accountlist_create","could not load account from storage");
+        storage->free_info(info);
+        return 0;
+    }
+	
+    if (!accountlist_add_account(account))
+    {
+        eventlog(eventlog_level_error,"accountlist_create","could not add account to list");
+        account_destroy(account);
+        return 0;
+    }
+
+    /* might as well free up the memory since we probably won't need it */
+    account->accessed = 0; /* lie */
+    account_save(account,1000); /* big delta to force unload */
+	
+    (*count)++;
+}
+
 extern int accountlist_create(void)
 {
     unsigned int count;
-    t_account *  account;
 
     int starttime = time(NULL);
-
-    int _cb_read_accounts(t_storage_info *info)
-    {
-	if (!(account = account_load(info)))
-	{
-	    eventlog(eventlog_level_error,"accountlist_create","could not load account from storage");
-	    storage->free_info(info);
-	    return 0;
-	}
-	
-	if (!accountlist_add_account(account))
-	{
-	    eventlog(eventlog_level_error,"accountlist_create","could not add account to list");
-	    account_destroy(account);
-	    return 0;
-	}
-
-	/* might as well free up the memory since we probably won't need it */
-	account->accessed = 0; /* lie */
-	account_save(account,1000); /* big delta to force unload */
-	
-        count++;
-    }
 
     eventlog(eventlog_level_info, "accountlist_create", "started creating accountlist");
     
@@ -1035,7 +1041,7 @@ extern int accountlist_create(void)
     force_account_add = 1; /* disable the protection */
     
     count = 0;
-    if (storage->read_accounts(_cb_read_accounts))
+    if (storage->read_accounts(_cb_read_accounts2, &count))
     {
         eventlog(eventlog_level_error,"accountlist_create","got error reading users");
         return -1;
