@@ -10,10 +10,25 @@ EndProject
 Global
 	GlobalSection(SolutionConfiguration) = preSolution
 		ConfigName.0 = Release
+		ConfigName.1 = Debug
 	EndGlobalSection
 	GlobalSection(ProjectDependencies) = postSolution
-	EndGlobalSection	
+	EndGlobalSection
 	GlobalSection(ProjectConfiguration) = postSolution
+		{300F80E0-1A0E-4639-AEB9-18A692FF35F3}.Debug.ActiveCfg = Debug|Win32
+		{300F80E0-1A0E-4639-AEB9-18A692FF35F3}.Debug.Build.0 = Debug|Win32
+		{300F80E0-1A0E-4639-AEB9-18A692FF35F3}.Release.ActiveCfg = Release|Win32
+		{300F80E0-1A0E-4639-AEB9-18A692FF35F3}.Release.Build.0 = Release|Win32
+		{300F80E0-1A0E-4639-AEB9-18A692FF35F3}.Debug.ActiveCfg = Debug|Win32
+		{300F80E0-1A0E-4639-AEB9-18A692FF35F3}.Debug.Build.0 = Debug|Win32
+		{300F80E0-1A0E-4639-AEB9-18A692FF35F3}.Release.ActiveCfg = Release|Win32
+		{300F80E0-1A0E-4639-AEB9-18A692FF35F3}.Release.Build.0 = Release|Win32
+		{300F80E0-1A0E-4639-AEB9-18A692FF35F3}.Debug.ActiveCfg = Debug|Win32
+		{300F80E0-1A0E-4639-AEB9-18A692FF35F3}.Debug.Build.0 = Debug|Win32
+		{300F80E0-1A0E-4639-AEB9-18A692FF35F3}.Release.ActiveCfg = Release|Win32
+		{300F80E0-1A0E-4639-AEB9-18A692FF35F3}.Release.Build.0 = Release|Win32
+		{300F80E0-1A0E-4639-AEB9-18A692FF35F3}.Debug.ActiveCfg = Debug|Win32
+		{300F80E0-1A0E-4639-AEB9-18A692FF35F3}.Debug.Build.0 = Debug|Win32
 		{300F80E0-1A0E-4639-AEB9-18A692FF35F3}.Release.ActiveCfg = Release|Win32
 		{300F80E0-1A0E-4639-AEB9-18A692FF35F3}.Release.Build.0 = Release|Win32
 	EndGlobalSection
