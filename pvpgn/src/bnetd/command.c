@@ -47,7 +47,6 @@
 #endif
 #include "compat/strdup.h"
 #include "compat/strcasecmp.h"
-#include "compat/snprintf.h"
 #include <ctype.h>
 #include <errno.h>
 #include "compat/strerror.h"
@@ -647,7 +646,7 @@ static int _handle_admin_command(t_connection * c, char const * text)
     }
     
     if(!(acc = accountlist_find_account(username))) {
-	snprintf(msg,MAX_MESSAGE_LEN, "There's no account with username %s.", username);
+	sprintf(msg, "There's no account with username %.64s.", username);
 	message_send_text(c, message_type_info, c, msg);
 	return -1;
     }
@@ -697,7 +696,7 @@ static int _handle_operator_command(t_connection * c, char const * text)
     }
     
     if(!(acc = accountlist_find_account(username))) {
-	snprintf(msg, MAX_MESSAGE_LEN, "There's no account with username %s.", username);
+	sprintf(msg, "There's no account with username %.64s.", username);
 	message_send_text(c, message_type_info, c, msg);
 	return -1;
     }
@@ -748,7 +747,7 @@ static int _handle_aop_command(t_connection * c, char const * text)
     }
     
     if(!(acc = accountlist_find_account(username))) {
-	snprintf(msg, MAX_MESSAGE_LEN, "There's no account with username %s.", username);
+	sprintf(msg, "There's no account with username %.64s.", username);
 	message_send_text(c, message_type_info, c, msg);
 	return -1;
     }
@@ -791,7 +790,7 @@ static int _handle_op_command(t_connection * c, char const * text)
     }
     
     if(!(acc = accountlist_find_account(username))) {
-	snprintf(msg, MAX_MESSAGE_LEN, "There's no account with username %s.", username);
+	sprintf(msg, "There's no account with username %.64s.", username);
 	message_send_text(c, message_type_info, c, msg);
 	return -1;
     }
@@ -834,7 +833,7 @@ static int _handle_deop_command(t_connection * c, char const * text)
     }
     
     if(!(acc = accountlist_find_account(username))) {
-	snprintf(msg, MAX_MESSAGE_LEN, "There's no account with username %s.", username);
+	sprintf(msg, "There's no account with username %.64s.", username);
 	message_send_text(c, message_type_info, c, msg);
 	return -1;
     }
@@ -1089,7 +1088,7 @@ static int _handle_friends_command(t_connection * c, char const * text)
     myusername = conn_get_username(c);
     
     for(i=0; i<n; i++) 
-      {
+     {
 	friend = account_get_friend(my_acc, i);
 	
 	if (!(dest_c = connlist_find_connection_by_accountname(friend)))
@@ -1141,8 +1140,8 @@ static int _handle_friends_command(t_connection * c, char const * text)
 	      }
 	  }
 	
-	if (software[0]) snprintf(msgtemp, MAX_MESSAGE_LEN, "%d: %s%s, %s", i+1, friend, status,software);
-	else snprintf(msgtemp, MAX_MESSAGE_LEN, "%d: %s%s", i+1, friend, status);
+	if (software[0]) sprintf(msgtemp, "%d: %.16s%.128s, %.64s", i+1, friend, status,software);
+	else sprintf(msgtemp, "%d: %.16s%.128s", i+1, friend, status);
 	message_send_text(c,message_type_info,c,msgtemp);
       }
     
@@ -3753,7 +3752,7 @@ static int _handle_set_command(t_connection * c, char const *text)
     {
       if (account_get_strattr(account,key))
 	{
-	  snprintf(msgtemp, MAX_MESSAGE_LEN, "current value of %s is \"%s\"",key,account_get_strattr(account,key));
+	  sprintf(msgtemp, "current value of %.64s is \"%.128s\"",key,account_get_strattr(account,key));
 	  message_send_text(c,message_type_error,c,msgtemp);
 	}
       else
