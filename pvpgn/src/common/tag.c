@@ -101,7 +101,7 @@ extern t_tag tag_case_str_to_uint(char const * tag_str)
     char temp_str[5];
     
     for (i=0; i<strlen(tag_str); i++)
-	if (isascii((int)tag_str[i]) && islower((int)tag_str[i]))
+	if (islower((int)tag_str[i]))
 	    temp_str[i] = toupper((int)tag_str[i]);
 	else
 	    temp_str[i] = tag_str[i];
