@@ -3798,6 +3798,7 @@ static int _client_gamelistreq(t_connection * c, t_packet const * const packet)
 	char const *                gamename;
 	unsigned short              bngtype;
 	t_game_type                 gtype;
+	char const *		    clienttag;
 #ifndef WITH_BITS
 	t_game *                    game;
 	t_server_gamelistreply_game glgame;
@@ -3812,7 +3813,8 @@ static int _client_gamelistreq(t_connection * c, t_packet const * const packet)
 	  }
 	
 	bngtype = bn_short_get(packet->u.client_gamelistreq.gametype);
-	gtype = bngreqtype_to_gtype(conn_get_clienttag(c),bngtype);
+	clienttag = conn_get_clienttag(c);
+	gtype = bngreqtype_to_gtype(clienttag,bngtype);
 #ifdef WITH_BITS
 	/* FIXME: what about maxgames? */
 	bits_game_handle_client_gamelistreq(c,gtype,0,gamename);
@@ -3828,12 +3830,12 @@ static int _client_gamelistreq(t_connection * c, t_packet const * const packet)
 	/* specific game requested? */
 	if (gamename[0]!='\0')
 	  {
-	     eventlog(eventlog_level_debug,__FUNCTION__,"[%d] GAMELISTREPLY looking for specific game tag=\"%s\" bngtype=0x%08x gtype=%d name=\"%s\"",conn_get_socket(c),conn_get_clienttag(c),bngtype,(int)gtype,gamename);
+	     eventlog(eventlog_level_debug,__FUNCTION__,"[%d] GAMELISTREPLY looking for specific game tag=\"%s\" bngtype=0x%08x gtype=%d name=\"%s\"",conn_get_socket(c),clienttag,bngtype,(int)gtype,gamename);
 	     if ((game = gamelist_find_game(gamename,gtype)))
 	       {
 		  //	removed by bbf (yak)
 		  //			bn_int_set(&glgame.unknown7,SERVER_GAMELISTREPLY_GAME_UNKNOWN7); // not in yak
-													   bn_short_set(&glgame.gametype,gtype_to_bngtype(game_get_type(game)));
+		  bn_short_set(&glgame.gametype,gtype_to_bngtype(game_get_type(game)));
 		  bn_short_set(&glgame.unknown1,SERVER_GAMELISTREPLY_GAME_UNKNOWN1);
 		  bn_short_set(&glgame.unknown3,SERVER_GAMELISTREPLY_GAME_UNKNOWN3);
 		  addr = game_get_addr(game);
@@ -3882,11 +3884,13 @@ static int _client_gamelistreq(t_connection * c, t_packet const * const packet)
 	     unsigned int   tcount;
 	     t_elem const * curr;
 	     bn_int game_spacer = { 1, 0 ,0 ,0 };
+	     char const * versiontag1;
+	     char const * versiontag2;
 	     
 	     if (gtype==game_type_all)
-	       eventlog(eventlog_level_debug,__FUNCTION__,"GAMELISTREPLY looking for public games tag=\"%s\" bngtype=0x%08x gtype=all",conn_get_clienttag(c),bngtype);
+	       eventlog(eventlog_level_debug,__FUNCTION__,"GAMELISTREPLY looking for public games tag=\"%s\" bngtype=0x%08x gtype=all",clienttag,bngtype);
 	     else
-	       eventlog(eventlog_level_debug,__FUNCTION__,"GAMELISTREPLY looking for public games tag=\"%s\" bngtype=0x%08x gtype=%d",conn_get_clienttag(c),bngtype,(int)gtype);
+	       eventlog(eventlog_level_debug,__FUNCTION__,"GAMELISTREPLY looking for public games tag=\"%s\" bngtype=0x%08x gtype=%d",clienttag,bngtype,(int)gtype);
 	     
 	     counter = 0;
 	     tcount = 0;
@@ -3911,7 +3915,7 @@ static int _client_gamelistreq(t_connection * c, t_packet const * const packet)
 		       eventlog(eventlog_level_debug,__FUNCTION__,"[%d] not listing because game is started",conn_get_socket(c));
 		       continue;
 		    }
-		  if (strcmp(game_get_clienttag(game),conn_get_clienttag(c))!=0)
+		  if (strcmp(game_get_clienttag(game),clienttag)!=0)
 		    {
 		       eventlog(eventlog_level_debug,__FUNCTION__,"[%d] not listing because game is for a different client",conn_get_socket(c));
 		       continue;
@@ -3921,7 +3925,9 @@ static int _client_gamelistreq(t_connection * c, t_packet const * const packet)
 		       eventlog(eventlog_level_debug,__FUNCTION__,"[%d] not listing because game is wrong type",conn_get_socket(c));
 		       continue;
 		    }
-		  if (versioncheck_get_versiontag(conn_get_versioncheck(c)) && versioncheck_get_versiontag(conn_get_versioncheck(game_get_owner(game))) && strcmp(versioncheck_get_versiontag(conn_get_versioncheck(game_get_owner(game))),versioncheck_get_versiontag(conn_get_versioncheck(c)))!=0)
+		  versiontag1 = versioncheck_get_versiontag(conn_get_versioncheck(c));
+		  versiontag2 = versioncheck_get_versiontag(conn_get_versioncheck(game_get_owner(game)));
+		  if (versiontag1 && versiontag2 && (strcmp(versiontag2,versiontag1)!=0))
 		    {
 		       eventlog(eventlog_level_debug,__FUNCTION__,"[%d] not listing because game is wrong versiontag",conn_get_socket(c));
 		       continue;
@@ -3929,7 +3935,7 @@ static int _client_gamelistreq(t_connection * c, t_packet const * const packet)
 		  
 		  // removed by bbf (yak)			
 		  //			bn_int_set(&glgame.unknown7,SERVER_GAMELISTREPLY_GAME_UNKNOWN7); // not in yak
-													   bn_short_set(&glgame.gametype,gtype_to_bngtype(game_get_type(game)));
+	          bn_short_set(&glgame.gametype,gtype_to_bngtype(game_get_type(game)));
 		  bn_short_set(&glgame.unknown1,SERVER_GAMELISTREPLY_GAME_UNKNOWN1);
 		  bn_short_set(&glgame.unknown3,SERVER_GAMELISTREPLY_GAME_UNKNOWN3);
 		  addr = game_get_addr(game);
