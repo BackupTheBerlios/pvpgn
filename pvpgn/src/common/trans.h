@@ -32,7 +32,7 @@ typedef struct
 {
     t_addr	*input;
     t_addr	*output;
-    t_netaddr	*exclude;
+    t_netaddr	*network;
 } t_trans;
 
 #endif

@@ -49,6 +49,8 @@
 #include "trans.h"
 #include "common/setup_after.h"
 
+#define DEBUG_TRANS
+
 static t_list * trans_head=NULL;
 
 extern int trans_load(char const * filename)
@@ -60,8 +62,14 @@ extern int trans_load(char const * filename)
     char		*temp;
     char const		*input;
     char const		*output;
-    char const		*include;
     char const		*exclude;
+    char const		*include;
+    unsigned int	npos;
+    char		*network;
+    char		*tmp;
+    char 		tmp1[32];
+    char		tmp2[32];
+    char		tmp3[32];
     t_trans		*entry;
     
     if (!filename) {
@@ -104,42 +112,160 @@ extern int trans_load(char const * filename)
 	    continue;
 	}
 	if (!(exclude = strtok(NULL," \t"))) {
-	    exclude = "0.0.0.0/0"; /* no excluded network address */
-	}
-	if (!(entry = malloc(sizeof(t_trans)))) {
-	    eventlog(eventlog_level_error,__FUNCTION__,"could not allocate memory for entry");
+	    eventlog(eventlog_level_error,__FUNCTION__,"missing exclude on line %u of file \"%s\"",line,filename);
 	    free(buff);
 	    continue;
 	}
-	if (!(entry->input = addr_create_str(input,0,0))) {
-	    eventlog(eventlog_level_error,__FUNCTION__,"could not allocate memory for input address");
-	    free(entry);
+	if (!(include = strtok(NULL," \t"))) {
+	    eventlog(eventlog_level_error,__FUNCTION__,"missing include on line %u of file \"%s\"",line,filename);
 	    free(buff);
 	    continue;
 	}
-	if (!(entry->output = addr_create_str(output,0,0))) {
-	    eventlog(eventlog_level_error,__FUNCTION__,"could not allocate memory for output address");
-	    addr_destroy(entry->input);
-	    free(entry);
+	/* add exlude networks */
+	if (!(tmp = strdup(exclude))) {
+	    eventlog(eventlog_level_error,__FUNCTION__,"could not allocate memory for temp");
 	    free(buff);
 	    continue;
 	}
-	if (!(entry->exclude = netaddr_create_str(exclude))) {
-	    eventlog(eventlog_level_error,__FUNCTION__,"could not allocate memory for exclude address");
-	    addr_destroy(entry->output);
-	    addr_destroy(entry->input);
-	    free(entry);
+	npos=0;
+	while (tmp[npos]) {
+	    network = &tmp[npos];
+	    for (; tmp[npos]!=',' && tmp[npos]!='\0'; npos++);
+	    if (tmp[npos]=='\0')
+		npos++;
+	    else
+		tmp[npos]='\0';
+	    if (strcmp(network,"NONE")==0) {
+		npos++;
+		continue;
+	    }
+	    if (!(entry = malloc(sizeof(t_trans)))) {
+		eventlog(eventlog_level_error,__FUNCTION__,"could not allocate memory for entry");
+		npos++;
+		continue;
+	    }
+	    if (!(entry->input = addr_create_str(input,0,0))) {
+		eventlog(eventlog_level_error,__FUNCTION__,"could not allocate memory for input address");
+		free(entry);
+		npos++;
+		continue;
+	    }
+	    if (!(entry->output = addr_create_str(input,0,0))) {
+		eventlog(eventlog_level_error,__FUNCTION__,"could not allocate memory for output address");
+		addr_destroy(entry->input);
+		free(entry);
+		npos++;
+		continue;
+	    }
+	    if (strcmp(network,"ANY")==0) {
+		if (!(entry->network = netaddr_create_str("0.0.0.0/0"))) {
+		    eventlog(eventlog_level_error,__FUNCTION__,"could not allocate memory for network address");
+		    addr_destroy(entry->output);
+		    addr_destroy(entry->input);
+		    free(entry);
+		    npos++;
+		    continue;
+		}
+	    } else { 
+		if (!(entry->network = netaddr_create_str(network))) {
+		    eventlog(eventlog_level_error,__FUNCTION__,"could not allocate memory for network address");
+		    addr_destroy(entry->output);
+		    addr_destroy(entry->input);
+		    free(entry);
+		    npos++;
+		    continue;
+		}
+	    }
+#ifdef DEBUG_TRANS
+	    eventlog(eventlog_level_debug,__FUNCTION__,
+		"Adding Host -> %s, Output -> %s, Network %s - (exclude)",
+		addr_get_addr_str(entry->input,tmp1,sizeof(tmp1)),
+		addr_get_addr_str(entry->output,tmp2,sizeof(tmp2)),
+		netaddr_get_addr_str(entry->network,tmp3,sizeof(tmp3)));
+#endif
+	    if (list_append_data(trans_head,entry)<0) {
+	        eventlog(eventlog_level_error,__FUNCTION__,"could not append item");
+	        netaddr_destroy(entry->network);
+	        addr_destroy(entry->output);
+	        addr_destroy(entry->input);
+	        free(entry);
+	    }
+	    npos++;
+	}
+	free(tmp);
+	/* add include networks */
+	if (!(tmp = strdup(include))) {
+	    eventlog(eventlog_level_error,__FUNCTION__,"could not allocate memory for temp");
 	    free(buff);
 	    continue;
 	}
+	npos=0;
+	while (tmp[npos]) {
+	    network = &tmp[npos];
+	    for (; tmp[npos]!=',' && tmp[npos]!='\0'; npos++);
+	    if (tmp[npos]=='\0')
+		npos++;
+	    else
+		tmp[npos]='\0';
+	    if (strcmp(network,"NONE")==0) {
+		npos++;
+		continue;
+	    }
+	    if (!(entry = malloc(sizeof(t_trans)))) {
+	        eventlog(eventlog_level_error,__FUNCTION__,"could not allocate memory for entry");
+		npos++;
+	        continue;
+	    }
+	    if (!(entry->input = addr_create_str(input,0,0))) {
+		eventlog(eventlog_level_error,__FUNCTION__,"could not allocate memory for input address");
+		free(entry);
+		npos++;
+		continue;
+	    }
+	    if (!(entry->output = addr_create_str(output,0,0))) {
+		eventlog(eventlog_level_error,__FUNCTION__,"could not allocate memory for output address");
+		addr_destroy(entry->input);
+		free(entry);
+		npos++;
+		continue;
+	    }
+	    if (strcmp(network,"ANY")==0) {
+		if (!(entry->network = netaddr_create_str("0.0.0.0/0"))) {
+		    eventlog(eventlog_level_error,__FUNCTION__,"could not allocate memory for network address");
+		    addr_destroy(entry->output);
+		    addr_destroy(entry->input);
+		    free(entry);
+		    npos++;
+		    continue;
+		}
+	    } else { 
+		if (!(entry->network = netaddr_create_str(network))) {
+		    eventlog(eventlog_level_error,__FUNCTION__,"could not allocate memory for network address");
+		    addr_destroy(entry->output);
+		    addr_destroy(entry->input);
+		    free(entry);
+		    npos++;
+		    continue;
+		}
+	    }
+#ifdef DEBUG_TRANS
+	    eventlog(eventlog_level_debug,__FUNCTION__,
+		"Adding Host -> %s, Output -> %s, Network %s - (include)",
+		addr_get_addr_str(entry->input,tmp1,sizeof(tmp1)),
+		addr_get_addr_str(entry->output,tmp2,sizeof(tmp2)),
+		netaddr_get_addr_str(entry->network,tmp3,sizeof(tmp3)));
+#endif
+	    if (list_append_data(trans_head,entry)<0) {
+		eventlog(eventlog_level_error,__FUNCTION__,"could not append item");
+		netaddr_destroy(entry->network);
+		addr_destroy(entry->output);
+		addr_destroy(entry->input);
+		free(entry);
+	    }
+	    npos++;
+	}
+	free(tmp);
 	free(buff);
-	if (list_append_data(trans_head,entry)<0) {
-	    eventlog(eventlog_level_error,__FUNCTION__,"could not append item");
-	    netaddr_destroy(entry->exclude);
-	    addr_destroy(entry->output);
-	    addr_destroy(entry->input);
-	    free(entry);
-	}
     }
     fclose(fp);
     eventlog(eventlog_level_info,__FUNCTION__,"trans file loaded");
@@ -157,7 +283,7 @@ extern int trans_unload(void)
 	    if (!(entry = elem_get_data(curr))) {
 		eventlog(eventlog_level_error,__FUNCTION__,"found NULL entry in list");
 	    } else {
-		netaddr_destroy(entry->exclude);
+		netaddr_destroy(entry->network);
 		addr_destroy(entry->output);
 		addr_destroy(entry->input);
 		free(entry);
@@ -186,9 +312,11 @@ extern int trans_net(unsigned int clientaddr, unsigned int *addr, unsigned short
     char         temp3[32];
     char	 temp4[32];
     
+#ifdef DEBUG_TRANS
     eventlog(eventlog_level_debug,__FUNCTION__,"checking %s for client %s ...",
 	addr_num_to_addr_str(*addr, *port),
 	addr_num_to_ip_str(clientaddr));
+#endif
 
     if (trans_head) {
 	LIST_TRAVERSE_CONST(trans_head,curr)
@@ -198,28 +326,37 @@ extern int trans_net(unsigned int clientaddr, unsigned int *addr, unsigned short
 		continue;
 	    }
 	    
-	    eventlog(eventlog_level_debug,__FUNCTION__,"against entry -> %s output %s clientex %s",
+#ifdef DEBUG_TRANS
+	    eventlog(eventlog_level_debug,__FUNCTION__,"against entry -> %s output %s network %s",
 		addr_get_addr_str(entry->input,temp1,sizeof(temp1)),
 		addr_get_addr_str(entry->output,temp2,sizeof(temp2)),
-		netaddr_get_addr_str(entry->exclude,temp3,sizeof(temp3)));
-		
+		netaddr_get_addr_str(entry->network,temp3,sizeof(temp3)));
+#endif		
 	    if (addr_get_ip(entry->input)!=*addr && addr_get_port(entry->input)!=*port) {
-		eventlog(eventlog_level_debug,"__FUNCTION__","entry not for right ip");
+#ifdef DEBUG_TRANS
+		eventlog(eventlog_level_debug,"__FUNCTION__","entry does match input address");
+#endif
 		continue;
 	    }
-	    if (netaddr_contains_addr_num(entry->exclude,clientaddr)==1) {
-		eventlog(eventlog_level_debug,__FUNCTION__,"client is in the excluded network");
+	    if (netaddr_contains_addr_num(entry->network,clientaddr)==0) {
+#ifdef DEBUG_TRANS
+		eventlog(eventlog_level_debug,__FUNCTION__,"client is not in the network");
+#endif
 		continue;
 	    }
-	    
+#ifdef DEBUG_TRANS
 	    eventlog(eventlog_level_debug,__FUNCTION__,"%s translated to %s",
 		addr_num_to_addr_str(*addr, *port),
 		addr_get_addr_str(entry->output,temp4,sizeof(temp4)));
-	    
+#endif
 	    *addr = addr_get_ip(entry->output);
 	    *port = addr_get_port(entry->output);
-	    return 1; /* true = translated */
+	    return 1; /* match found in list */
 	}
     }
-    return 0; /* false = not translated */
+#ifdef DEBUG_TRANS
+    eventlog(eventlog_level_debug,__FUNCTION__,"no match found for %s (not translated)",
+	addr_num_to_addr_str(*addr, *port));
+#endif
+    return 0; /* no match found in list */
 }
