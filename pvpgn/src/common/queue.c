@@ -141,8 +141,10 @@ extern void queue_push_packet(t_queue * * queue, t_packet * packet)
     }
 
     if (temp->ulen == temp->alen) { /* ring queue is full, need to allocate some memory */
+/* FIXME: find a solution
 	if (temp->alen)
 	    eventlog(eventlog_level_error, __FUNCTION__, "queue is full (resizing) (oldsize: %u)", temp->alen);
+*/
 
 	if (!(ptr = realloc(temp->ring, sizeof(t_packet *) * (temp->alen + QUEUE_QUANTUM)))) {
 	    eventlog(eventlog_level_error, __FUNCTION__, "not enough memory for ring buffer");
