@@ -1226,9 +1226,9 @@ extern int anongame_stats(t_connection * c)
     }
 
     /* prevent users from getting loss if server is shutdown (does not prevent errors from crash) - [Omega] */
-    if (discs == tp)
-	if (!wins)
-	    return -1;
+    /* also discard games with no winners at all (i.e. games where game host disc'ed and so all players do) */
+    if (!wins)
+	return -1;
 
     /* according to zap, order of players in anongame is:
      * for PG: t1_p1, t2_p1, t1_p2, t2_p2, ...
