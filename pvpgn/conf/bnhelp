@@ -135,7 +135,7 @@ whereis <player> - looks up some basic information on a user, including their ac
     /ipban a[dd] <IP> [time] - ban specified IP for time minutes (time = 0 - permanently ban)
     /ipban h[elp] - show help screen
 %set
-/set <account> <key> <value> - set an attribute in a player profile
+/set <account> <key> [value] - set an attribute in a player profile - if no value given returns current value
    key is like BNET\acct\lastlogin_owner
 %motd
 /motd - display the motd
@@ -151,5 +151,7 @@ whereis <player> - looks up some basic information on a user, including their ac
 /clan <clanname> - sets the clanname to be displayed in your profile
 &ping
 /ping, /p, /latency - returns your latency to the server
+&reload_accounts
+/reload_accounts - reload account data for all users currently not logged in
 #                                                                            #
 ##############################################################################

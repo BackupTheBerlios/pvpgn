@@ -81,6 +81,8 @@
 #include "common/hashtable.h"
 #include "common/setup_after.h"
 #include "storage.h"
+#include "common/list.h"
+#include "connection.h"
 //aaron
 #include "war3ladder.h"
 
@@ -1139,10 +1141,34 @@ extern int accountlist_load_default(void)
     return 0;
 }
 
-extern int accountlist_reload(void)
+extern int account_logged_in(t_account * account)
+{
+  t_elem const * curr;
+  t_connection * tc;
+  t_account * acc;
+
+  LIST_TRAVERSE_CONST(connlist(),curr)
+  {
+    if (tc = elem_get_data(curr)) 
+    {
+      if (acc = conn_get_account(tc))
+      {
+	if (acc == account) return 1;
+      }
+    }
+    
+  }
+  return 0;
+  
+}
+
+extern int accountlist_reload(int all)
 {
   unsigned int count;
   t_account *  account;
+  t_account *  old_acc;
+
+  t_entry   * curr;
  	
   int starttime = time(NULL);
 #ifndef WITH_MYSQL
@@ -1176,6 +1202,25 @@ extern int accountlist_reload(void)
 #endif
 	return -1;
       }
+
+  if (all = RELOAD_UPDATE_ALL)
+  // go to accountlist and remove everything possible
+  // we keep dirty account and accounts of users currently logged in
+  HASHTABLE_TRAVERSE(accountlist_head,curr)
+  {
+    if (curr)
+    {
+      if (old_acc = (t_account *)entry_get_data(curr))
+      {
+	if (!((old_acc->dirty) || account_logged_in(old_acc)))
+	{
+	  war3_ladders_remove_account(old_acc);
+	  account_destroy(old_acc);
+	  hashtable_remove_entry(accountlist_head,curr);
+	}
+      }
+    }
+  }
   
   force_account_add = 1; /* disable the protection */
   
@@ -1196,16 +1241,19 @@ extern int accountlist_reload(void)
 #endif
 	 
 #ifndef WITH_MYSQL
-	 if (accountlist_find_account(dentry))
+	 if (old_acc = accountlist_find_account(dentry))
 	 {
+	   // reload account if user not logged in and account not dirty
 	   free(pathname);
 	   continue;
 	 }
 	 if (!(account = account_load(pathname)))
 #else
-	   sprintf(accountuid,"#%u",uid);
-	 if (accountlist_find_account(accountuid))
+	 sprintf(accountuid,"#%u",uid);
+	 if (old_acc = accountlist_find_account(accountuid))
+	 {
 	   continue;
+	 }
 	 if (!(account = account_load(uid)))
 #endif
 	   {
@@ -1258,6 +1306,7 @@ extern int accountlist_reload(void)
 	 eventlog(eventlog_level_info,"accountlist_reload","loaded %u user accounts in %ld seconds",count,time(NULL) - starttime);
        
        
+       war3_ladder_update_all_accounts();
        return 0;
      }
   

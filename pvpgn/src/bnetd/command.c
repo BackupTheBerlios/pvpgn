@@ -2622,6 +2622,7 @@ extern int handle_command(t_connection * c,  char const * text)
 
 	return 0;
     }
+
 if (strstart(text,"/rank_all_accounts")==0)
     {
 	if (account_get_auth_admin(conn_get_account(c))!=1) /* default to false */
@@ -2635,6 +2636,21 @@ if (strstart(text,"/rank_all_accounts")==0)
 	
 	return 0;
     }
+
+    if (strstart(text,"/reload_accounts")==0)
+    {
+	if (account_get_auth_admin(conn_get_account(c))!=1) /* default to false */
+        {
+            message_send_text(c,message_type_error,c,"This command is reserved for admins.");
+	    return 0;
+        }
+
+	// rank all accounts here
+	accountlist_reload(RELOAD_UPDATE_ALL);
+	
+	return 0;
+    }
+
 
     // <--
 
@@ -3330,6 +3346,7 @@ if (strstart(text,"/rank_all_accounts")==0)
 	char *key;
 	char *value;
 	char t[MAX_MESSAGE_LEN];
+        char msgtemp[MAX_MESSAGE_LEN];
 	unsigned int i,j;
 	char         arg1[256];
 	char         arg2[256];
@@ -3395,7 +3412,13 @@ if (strstart(text,"/rank_all_accounts")==0)
     	if (*value == '\0')
 	{
 	    message_send_text(c,message_type_error,c,"What value do you want to set?");
-	    message_send_text(c,message_type_error,c,"it is currently not possible to remove a value");
+	    if (account_get_strattr(account,key))
+	      {
+		sprintf(msgtemp,"current value us \"%s\"",account_get_strattr(account,key));
+	        message_send_text(c,message_type_error,c,msgtemp);
+	      }
+	    else
+	      message_send_text(c,message_type_error,c,"value currently not set");
 	    return 0;
 	}
 

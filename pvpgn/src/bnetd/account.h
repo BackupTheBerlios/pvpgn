@@ -83,6 +83,9 @@ t_account;
 #include "common/hashtable.h"
 #undef JUST_NEED_TYPES
 
+#define RELOAD_ADD_ONLY_NEW 0
+#define RELOAD_UPDATE_ALL   1
+
 
 extern t_account * account_create(char const * username, char const * passhash1) MALLOC_ATTR();
 extern t_account * create_vaccount(const char *username, unsigned int uid);
@@ -116,7 +119,7 @@ extern int account_set_uid(t_account * account, int uid);
 extern char const * account_get_first_key(t_account * account);
 extern char const * account_get_next_key(t_account * account, char const * key);
 
-extern int accountlist_reload(void);
+extern int accountlist_reload(int all);
 extern int accountlist_create(void);
 extern int accountlist_destroy(void);
 extern t_hashtable * accountlist(void);
