@@ -608,7 +608,7 @@ static int _sql_dbcreator()
 {
     char **pstr;
     char * querys[] = {
-	"CREATE TABLE BNET (uid int(11) NOT NULL default '0' PRIMARY KEY,acct_username varchar(128) default NULL,acct_userid varchar(128) default NULL,acct_passhash1 varchar(128) default NULL,flags_initial varchar(128) default NULL,auth_admin varchar(128) default 'false',auth_normallogin varchar(128) default 'true',auth_changepass varchar(128) default 'true',auth_changeprofile varchar(128) default 'true',auth_botlogin varchar(128) default 'true',auth_operator varchar(128) default 'false',new_at_team_flag varchar(128) default '0',auth_lockk varchar(128) default 'false',auth_command_groups varchar(128) NOT NULL default '1');",
+	"CREATE TABLE BNET (uid int(11) NOT NULL default '0' PRIMARY KEY,acct_username varchar(128) default NULL,acct_userid varchar(128) default NULL,acct_passhash1 varchar(128) default NULL,flags_initial varchar(128) default NULL,auth_admin varchar(128) NOT NULL default 'false',auth_normallogin varchar(128) NOT NULL default 'true',auth_changepass varchar(128) NOT NULL default 'true',auth_changeprofile varchar(128) NOT NULL default 'true',auth_botlogin varchar(128) NOT NULL default 'true',auth_operator varchar(128) NOT NULL default 'false',new_at_team_flag varchar(128) default '0',auth_lockk varchar(128) NOT NULL default 'false',auth_command_groups varchar(128) NOT NULL default '1');",
 	"INSERT INTO BNET VALUES (0,NULL,NULL,NULL,NULL,'false','true','true','true','true','false','0','false','1');",
 	"CREATE TABLE friend (uid int(11) NOT NULL default '0' PRIMARY KEY);",
 	"INSERT INTO friend VALUES (0);",
