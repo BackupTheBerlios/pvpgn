@@ -105,6 +105,8 @@ static int account_load_attrs(t_account * account);
 static void account_unload_attrs(t_account * account);
 static int account_load_friends(t_account * account);
 static int account_unload_friends(t_account * account);
+static void account_destroy(t_account * account);
+static t_account * accountlist_add_account(t_account * account);
 
 unsigned int account_hash(char const *username)
 {
@@ -121,10 +123,15 @@ unsigned int account_hash(char const *username)
     return h;
 }
 
-extern t_account * account_create(char const * username, char const * passhash1)
+static t_account * account_create(char const * username, char const * passhash1)
 {
     t_account * account;
     
+    if (username && !passhash1) {
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL passhash1");
+	return NULL;
+    }
+
     account = xmalloc(sizeof(t_account));
 
     account->name     = NULL;
@@ -142,18 +149,10 @@ extern t_account * account_create(char const * username, char const * passhash1)
 
     if (username) /* actually making a new account */
     {
-	if (!passhash1)
-	{
-	    eventlog(eventlog_level_error,"account_create","got NULL passhash1");
-	    account_destroy(account);
-	    return NULL;
-	}
-
 	account->storage =  storage->create_account(username);
 	if(!account->storage) {
-	    eventlog(eventlog_level_error,"account_create","failed to add user to storage");
-	    account_destroy(account);
-	    return NULL;
+	    eventlog(eventlog_level_error,__FUNCTION__,"failed to add user to storage");
+	    goto err;
 	}
 	FLAG_SET(&account->flags,ACCOUNT_FLAG_LOADED);
 
@@ -161,26 +160,27 @@ extern t_account * account_create(char const * username, char const * passhash1)
 
 	if (account_set_strattr(account,"BNET\\acct\\username",username)<0)
 	{
-	    eventlog(eventlog_level_error,"account_create","could not set username");
-	    account_destroy(account);
-	    return NULL;
+	    eventlog(eventlog_level_error,__FUNCTION__,"could not set username");
+	    goto err;
 	}
 	if (account_set_numattr(account,"BNET\\acct\\userid",maxuserid+1)<0)
 	{
-	    eventlog(eventlog_level_error,"account_create","could not set userid");
-	    account_destroy(account);
-	    return NULL;
+	    eventlog(eventlog_level_error,__FUNCTION__,"could not set userid");
+	    goto err;
 	}
 	if (account_set_strattr(account,"BNET\\acct\\passhash1",passhash1)<0)
 	{
-	    eventlog(eventlog_level_error,"account_create","could not set passhash1");
-	    account_destroy(account);
-	    return NULL;
+	    eventlog(eventlog_level_error,__FUNCTION__,"could not set passhash1");
+	    goto err;
 	}
 	
     }
     
     return account;
+
+err:
+    account_destroy(account);
+    return NULL;
 }
 
 
@@ -212,11 +212,11 @@ static void account_unload_attrs(t_account * account)
     FLAG_CLEAR(&account->flags,ACCOUNT_FLAG_LOADED);
 }
 
-extern void account_destroy(t_account * account)
+static void account_destroy(t_account * account)
 {
     if (!account)
     {
-	eventlog(eventlog_level_error,"account_destroy","got NULL account");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL account");
 	return;
     }
     friendlist_close(account->friends);
@@ -281,10 +281,10 @@ extern int account_match(t_account * account, char const * username)
 }
 
 
-extern int account_save(t_account * account, unsigned int delta)
+static int account_save(t_account * account, unsigned int delta)
 {
     if (!account) {
-	eventlog(eventlog_level_error,"account_save","got NULL account");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL account");
 	return -1;
     }
 
@@ -298,7 +298,7 @@ extern int account_save(t_account * account, unsigned int delta)
     FLAG_CLEAR(&account->flags,ACCOUNT_FLAG_ACCESSED);
 
     if (!account->storage) {
-	eventlog(eventlog_level_error,"account_save","account "UID_FORMAT" has NULL filename",account->uid);
+	eventlog(eventlog_level_error,__FUNCTION__,"account "UID_FORMAT" has NULL filename",account->uid);
 	return -1;
     }
 
@@ -937,41 +937,38 @@ extern int accountlist_allow_add(void)
     return 1; /* otherwise let them proceed */
 }
 
-extern t_account * accountlist_add_account(t_account * account)
+static t_account * accountlist_add_account(t_account * account)
 {
     unsigned int uid;
     char const * username;
-    
-    if (!account)
-    {
-        eventlog(eventlog_level_error,"accountlist_add_account","got NULL account");
+
+    if (!account) {
+        eventlog(eventlog_level_error,__FUNCTION__,"got NULL account");
         return NULL;
     }
-    
+
     username = account_get_strattr(account,"BNET\\acct\\username");
     uid = account_get_numattr(account,"BNET\\acct\\userid");
-    
-    if (!username || strlen(username)<1)
-    {
-        eventlog(eventlog_level_error,"accountlist_add_account","got bad account (empty username)");
+
+    if (!username || strlen(username)<1) {
+        eventlog(eventlog_level_error,__FUNCTION__,"got bad account (empty username)");
         return NULL;
     }
-    if (uid<1)
-    {
-	eventlog(eventlog_level_error,"accountlist_add_account","got bad account (bad uid), fix it!");
+    if (uid<1) {
+	eventlog(eventlog_level_error,__FUNCTION__,"got bad account (bad uid), fix it!");
 	uid = maxuserid + 1;
     }
 
     /* check whether the account limit was reached */
     if (!accountlist_allow_add()) {
-	eventlog(eventlog_level_warn,"accountlist_add_account","account limit reached (current is %u, storing %u)",prefs_get_max_accounts(),hashtable_get_length(accountlist_head));
+	eventlog(eventlog_level_warn,__FUNCTION__,"account limit reached (current is %u, storing %u)",prefs_get_max_accounts(),hashtable_get_length(accountlist_head));
 	return NULL;
     }
-    
+
     /* delayed hash, do it before inserting account into the list */
     account->namehash = account_hash(username);
     account->uid = uid;
-    
+
     /* mini version of accountlist_find_account(username) || accountlist_find_account(uid)  */
     {
 	t_entry *    curr;
@@ -984,7 +981,7 @@ extern t_account * accountlist_add_account(t_account * account)
 	    curraccount = entry_get_data(curr);
 	    if (curraccount->uid==uid)
 	    {
-		eventlog(eventlog_level_error,"accountlist_add_account","user \"%s\":"UID_FORMAT" already has an account (\"%s\":"UID_FORMAT")",username,uid,(tname = account_get_name(curraccount)),curraccount->uid);
+		eventlog(eventlog_level_debug,__FUNCTION__,"user \"%s\":"UID_FORMAT" already has an account (\"%s\":"UID_FORMAT")",username,uid,(tname = account_get_name(curraccount)),curraccount->uid);
 		hashtable_entry_release(curr);
 		return NULL;
 	    }
@@ -997,7 +994,7 @@ extern t_account * accountlist_add_account(t_account * account)
 	    {
 		    if (strcasecmp(tname,username)==0)
 		    {
-		        eventlog(eventlog_level_info,"accountlist_add_account","user \"%s\":"UID_FORMAT" already has an account (\"%s\":"UID_FORMAT")",username,uid,tname,curraccount->uid);
+		        eventlog(eventlog_level_debug,__FUNCTION__,"user \"%s\":"UID_FORMAT" already has an account (\"%s\":"UID_FORMAT")",username,uid,tname,curraccount->uid);
 		        hashtable_entry_release(curr);
 		        return NULL;
 		    }
@@ -1005,24 +1002,42 @@ extern t_account * accountlist_add_account(t_account * account)
 	}
     }
 
-    if (hashtable_insert_data(accountlist_head,account,account->namehash)<0)
-    {
-	eventlog(eventlog_level_error,"accountlist_add_account","could not add account to list");
+    if (hashtable_insert_data(accountlist_head,account,account->namehash)<0) {
+	eventlog(eventlog_level_error,__FUNCTION__,"could not add account to list");
 	return NULL;
     }
-    
-    if (hashtable_insert_data(accountlist_uid_head,account,uid)<0)
-    {
-	eventlog(eventlog_level_error,"accountlist_add_account","could not add account to list");
+
+    if (hashtable_insert_data(accountlist_uid_head,account,uid)<0) {
+	eventlog(eventlog_level_error,__FUNCTION__,"could not add account to list");
 	return NULL;
     }
-    
+
 /*    hashtable_stats(accountlist_head); */
 
     if (uid>maxuserid)
         maxuserid = uid;
 
     return account;
+}
+
+extern t_account * accountlist_create_account(const char *username, const char *passhash1)
+{
+    t_account *res;
+
+    assert(username != NULL);
+    assert(passhash1 != NULL);
+
+    res = account_create(username,passhash1);
+    if (!res) return NULL; /* eventlog reported ealier */
+
+    if (!accountlist_add_account(res)) {
+	account_destroy(res);
+	return NULL; /* eventlog reported earlier */
+    }
+
+    account_save(res,0); /* sync new account to storage */
+
+    return res;
 }
 
 extern char const * account_get_first_key(t_account * account)

@@ -2932,67 +2932,58 @@ static int _handle_channels_command(t_connection * c, char const *text)
 
 static int _handle_addacct_command(t_connection * c, char const *text)
 {
-  unsigned int i,j;
-  t_account  * temp;
-  t_hash       passhash;
-  char         username[USER_NAME_MAX];
-  char         pass[256];
-  
-  for (i=0; text[i]!=' ' && text[i]!='\0'; i++);
-  for (; text[i]==' '; i++);
-  
-  for (j=0; text[i]!=' ' && text[i]!='\0'; i++) /* get username */
-    if (j<sizeof(username)-1) username[j++] = text[i];
-  username[j] = '\0';
-  
-  for (; text[i]==' '; i++); /* skip spaces */
-  for (j=0; text[i]!='\0'; i++) /* get pass (spaces are allowed) */
-    if (j<sizeof(pass)-1) pass[j++] = text[i];
-  pass[j] = '\0';
-  
-  if (username[0]=='\0' || pass[0]=='\0')
-    {
-      message_send_text(c,message_type_info,c,"usage: /addacct <username> <password>");
-      return 0;
+    unsigned int i,j;
+    t_account  * temp;
+    t_hash       passhash;
+    char         username[USER_NAME_MAX];
+    char         pass[256];
+
+    for (i=0; text[i]!=' ' && text[i]!='\0'; i++);
+    for (; text[i]==' '; i++);
+
+    for (j=0; text[i]!=' ' && text[i]!='\0'; i++) /* get username */
+	if (j<sizeof(username)-1) username[j++] = text[i];
+    username[j] = '\0';
+
+    for (; text[i]==' '; i++); /* skip spaces */
+    for (j=0; text[i]!='\0'; i++) /* get pass (spaces are allowed) */
+	if (j<sizeof(pass)-1) pass[j++] = text[i];
+    pass[j] = '\0';
+
+    if (username[0]=='\0' || pass[0]=='\0') {
+	message_send_text(c,message_type_info,c,"usage: /addacct <username> <password>");
+        return 0;
     }
-  
-    if (account_check_name(username)<0)
-    { 
+
+    if (account_check_name(username)<0) { 
         message_send_text(c,message_type_error,c,"Account name contains some invalid symbol!");
         return 0; 
-    } 
+    }
 
-  /* FIXME: truncate or err on too long password */
-  for (i=0; i<strlen(pass); i++)
-    if (isupper((int)pass[i])) pass[i] = tolower((int)pass[i]);
-  
-  bnet_hash(&passhash,strlen(pass),pass);
-  
-  sprintf(msgtemp,"Trying to add account \"%s\" with password \"%s\"",username,pass);
-  message_send_text(c,message_type_info,c,msgtemp);
-  
-  sprintf(msgtemp,"Hash is: %s",hash_get_str(passhash));
-  message_send_text(c,message_type_info,c,msgtemp);
-  
-  if (!(temp = account_create(username,hash_get_str(passhash))))
-    {
-      message_send_text(c,message_type_error,c,"Failed to create account!");
-      eventlog(eventlog_level_info,"handle_command","[%d] account \"%s\" not created by admin (failed)",conn_get_socket(c),username);
-      return 0;
+    /* FIXME: truncate or err on too long password */
+    for (i=0; i<strlen(pass); i++)
+	if (isupper((int)pass[i])) pass[i] = tolower((int)pass[i]);
+
+    bnet_hash(&passhash,strlen(pass),pass);
+
+    sprintf(msgtemp,"Trying to add account \"%s\" with password \"%s\"",username,pass);
+    message_send_text(c,message_type_info,c,msgtemp);
+
+    sprintf(msgtemp,"Hash is: %s",hash_get_str(passhash));
+    message_send_text(c,message_type_info,c,msgtemp);
+
+    temp = accountlist_create_account(username,hash_get_str(passhash));
+    if (!temp) {
+	message_send_text(c,message_type_error,c,"Failed to create account!");
+        eventlog(eventlog_level_debug,__FUNCTION__,"[%d] account \"%s\" not created (failed)",conn_get_socket(c),username);
+	return 0;
     }
-  if (!accountlist_add_account(temp))
-    {
-      account_destroy(temp);
-      message_send_text(c,message_type_error,c,"Failed to insert account (already exists?)!");
-      eventlog(eventlog_level_info,"handle_command","[%d] account \"%s\" could not be created by admin (insert failed)",conn_get_socket(c),username);
-    }
-  else
-    {
-      sprintf(msgtemp,"Account "UID_FORMAT" created.",account_get_uid(temp));
-      message_send_text(c,message_type_info,c,msgtemp);
-      eventlog(eventlog_level_info,"handle_command","[%d] account \"%s\" created by admin",conn_get_socket(c),username);
-    }
-  return 0;
+
+    sprintf(msgtemp,"Account "UID_FORMAT" created.",account_get_uid(temp));
+    message_send_text(c,message_type_info,c,msgtemp);
+    eventlog(eventlog_level_debug,__FUNCTION__,"[%d] account \"%s\" created",conn_get_socket(c),username);
+
+    return 0;
 }
 
 static int _handle_chpass_command(t_connection * c, char const *text)

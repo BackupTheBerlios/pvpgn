@@ -571,27 +571,18 @@ static int _handle_privmsg_command(t_connection * conn, int numparams, char ** p
 	
 					sprintf(msgtemp,"Trying to create account \"%s\" with password \"%s\"",username,pass);
 					message_send_text(conn,message_type_info,conn,msgtemp);					
-	
-					if (!(temp = account_create(username,hash_get_str(passhash))))
-					{
+
+					temp = accountlist_create_account(username,hash_get_str(passhash));
+					if (!temp) {
 						message_send_text(conn,message_type_error,conn,"Failed to create account!");
-						eventlog(eventlog_level_info,__FUNCTION__,"[%d] account \"%s\" not created by IRC (failed)",conn_get_socket(conn),username);
+						eventlog(eventlog_level_debug,__FUNCTION__,"[%d] account \"%s\" not created (failed)",conn_get_socket(conn),username);
 						conn_unget_chatname(conn,username);
 						break;
 					}
-					if (!accountlist_add_account(temp))
-					{
-						account_destroy(temp);
-						message_send_text(conn,message_type_error,conn,"Failed to register account. Account already exists.");
-						eventlog(eventlog_level_info,__FUNCTION__,"[%d] account \"%s\" could not be created by IRC (insert failed)",conn_get_socket(conn),username);
-					}
-					else
-					{
-						sprintf(msgtemp,"Account "UID_FORMAT" created.",account_get_uid(temp));
-						message_send_text(conn,message_type_info,conn,msgtemp);
-						eventlog(eventlog_level_info,__FUNCTION__,"[%d] account \"%s\" created by IRC",conn_get_socket(conn),username);
-					}
 
+					sprintf(msgtemp,"Account "UID_FORMAT" created.",account_get_uid(temp));
+					message_send_text(conn,message_type_info,conn,msgtemp);
+					eventlog(eventlog_level_debug,__FUNCTION__,"[%d] account \"%s\" created",conn_get_socket(conn),username);
 					conn_unget_chatname(conn,username);
 				}
 				else 

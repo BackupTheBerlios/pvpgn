@@ -718,225 +718,184 @@ static int _client_progident(t_connection * c, t_packet const * const packet)
 
 static int _client_createaccountw3(t_connection * c, t_packet const * const packet)
 {
-   t_packet * rpacket;
+    t_packet * rpacket;
+    char const * username;
+    char const *plainpass;
+    char upass[20];
+    char lpass[20];
+    t_hash sc_hash;
+    unsigned int i;
 
-   if (packet_get_size(packet)<sizeof(t_client_createaccount_w3))
-     {
-	eventlog(eventlog_level_error,__FUNCTION__,"[%d] (W3) got bad CREATEACCOUNT_W3 packet (expected %u bytes, got %u)",conn_get_socket(c),sizeof(t_client_createaccount_w3),packet_get_size(packet));
+    if (packet_get_size(packet)<sizeof(t_client_createaccount_w3)) {
+	eventlog(eventlog_level_error,__FUNCTION__,"[%d] got bad CREATEACCOUNT_W3 packet (expected %u bytes, got %u)",conn_get_socket(c),sizeof(t_client_createaccount_w3),packet_get_size(packet));
 	return -1;
-     }
-   
-     {
-	char const * username;
-	t_account *  temp;
-	
-	if (!(username = packet_get_str_const(packet,sizeof(t_client_createaccount_w3),UNCHECKED_NAME_STR)))
-	  {
-	     eventlog(eventlog_level_error,__FUNCTION__,"[%d] (W3) got bad CREATEACCOUNT_W3 (missing or too long username)",conn_get_socket(c));
-	     return -1;
-	  }
-	
-	eventlog(eventlog_level_info,__FUNCTION__,"[%d] (W3) new account requested for \"%s\"",conn_get_socket(c),username);
-	
-	if (!(rpacket = packet_create(packet_class_bnet)))
-	  return -1;
-	packet_set_size(rpacket,sizeof(t_server_createaccount_w3));
-	packet_set_type(rpacket,SERVER_CREATEACCOUNT_W3);
-	
-	if (prefs_get_allow_new_accounts()==0)
-	  {
-	     eventlog(eventlog_level_info,__FUNCTION__,"[%d] (W3) account not created (disabled)",conn_get_socket(c));
-	     bn_int_set(&rpacket->u.server_createaccount_w3.result,SERVER_CREATEACCOUNT_W3_RESULT_EXIST);
-	  }
-	else
-	  {
-	     // [zap-zero] 20020521 - support for plaintext passwords at w3 login screen
-	     char const *plainpass = packet_get_str_const(packet,4+8*4,16);
-	     char upass[20];
-	     char lpass[20];
-	     t_hash sc_hash;
-	     unsigned int i;
-	     
-		if (account_check_name(username)<0) {
-		     eventlog(eventlog_level_info,__FUNCTION__,"[%d] (W3) account not created (invalid symbols)",conn_get_socket(c));
-		     bn_int_set(&rpacket->u.server_createaccount_w3.result,SERVER_CREATEACCOUNT_W3_RESULT_INVALID);
-		}
-		else if (!plainpass) {
-		eventlog(eventlog_level_error,__FUNCTION__,"[%d] (W3) got bad CREATEACCOUNT_W3 (missing password)",conn_get_socket(c));
-		bn_int_set(&rpacket->u.server_createaccount_w3.result,SERVER_CREATEACCOUNT_W3_RESULT_EXIST);
-	     } else {
-		/* convert plaintext password to uppercase */
-		strncpy(upass,plainpass,16);
-		upass[16] = 0;
-		for (i=0; i<strlen(upass); i++)
-		  if (isascii((int)upass[i]) && islower((int)upass[i]))
-		    upass[i] = toupper((int)upass[i]);
-		
-		/* convert plaintext password to lowercase for sc etc. */
-		strncpy(lpass,plainpass,16);
-		lpass[16] = 0;
-		for (i=0; i<strlen(lpass); i++)
-		  if (isascii((int)lpass[i]) && isupper((int)lpass[i]))
-		    lpass[i] = tolower((int)lpass[i]);
-		
-		
-		//set password hash for sc etc.
-		
-		bnet_hash(&sc_hash, strlen(lpass), lpass);
-		if (!(temp = account_create(username,hash_get_str(sc_hash))))
-		  {
-		     eventlog(eventlog_level_info,__FUNCTION__,"[%d] (W3) account not created (failed)",conn_get_socket(c));
-		     bn_int_set(&rpacket->u.server_createaccount_w3.result,SERVER_CREATEACCOUNT_W3_RESULT_EXIST);
-		  }
-		else if (!accountlist_add_account(temp))
-		  {
-		     account_destroy(temp);
-		     eventlog(eventlog_level_info,__FUNCTION__,"[%d] (W3) account not inserted",conn_get_socket(c));
-		     bn_int_set(&rpacket->u.server_createaccount_w3.result,SERVER_CREATEACCOUNT_W3_RESULT_EXIST);
-		  } else {
-		     eventlog(eventlog_level_info,__FUNCTION__,"[%d] account created",conn_get_socket(c));
-		     bn_int_set(&rpacket->u.server_createaccount_w3.result,SERVER_CREATEACCOUNT_W3_RESULT_OK);
-		     account_save(temp, 0); /* force account save for new created accounts */
-		  }
-	     }
-	  }
-	conn_push_outqueue(c,rpacket);
-	packet_del_ref(rpacket);
-     }
+    }
 
-   return 0;
+    username = packet_get_str_const(packet,sizeof(t_client_createaccount_w3),UNCHECKED_NAME_STR);
+    if (!username) {
+	eventlog(eventlog_level_error,__FUNCTION__,"[%d] got bad CREATEACCOUNT_W3 (missing or too long username)",conn_get_socket(c));
+	return -1;
+    }
+
+    plainpass = packet_get_str_const(packet,4+8*4,16);
+    if (!plainpass) {
+	eventlog(eventlog_level_error,__FUNCTION__,"[%d] got bad CREATEACCOUNT_W3 (missing password)",conn_get_socket(c));
+	return -1;
+    }
+
+    rpacket = packet_create(packet_class_bnet);
+    if (!rpacket) return -1;
+    packet_set_size(rpacket,sizeof(t_server_createaccount_w3));
+    packet_set_type(rpacket,SERVER_CREATEACCOUNT_W3);
+
+    eventlog(eventlog_level_debug,__FUNCTION__,"[%d] new account requested for \"%s\"",conn_get_socket(c),username);
+
+    if (prefs_get_allow_new_accounts()) {
+	eventlog(eventlog_level_debug,__FUNCTION__,"[%d] account not created (disabled)",conn_get_socket(c));
+	bn_int_set(&rpacket->u.server_createaccount_w3.result,SERVER_CREATEACCOUNT_W3_RESULT_EXIST);
+	goto out;
+    }
+
+    if (account_check_name(username)<0) {
+	eventlog(eventlog_level_debug,__FUNCTION__,"[%d] account not created (invalid symbols)",conn_get_socket(c));
+	bn_int_set(&rpacket->u.server_createaccount_w3.result,SERVER_CREATEACCOUNT_W3_RESULT_INVALID);
+	goto out;
+    }
+
+    /* convert plaintext password to uppercase */
+    strncpy(upass,plainpass,16);
+    upass[16] = 0;
+    for (i=0; i<strlen(upass); i++)
+	if (isascii((int)upass[i]) && islower((int)upass[i]))
+	    upass[i] = toupper((int)upass[i]);
+
+    /* convert plaintext password to lowercase for sc etc. */
+    strncpy(lpass,plainpass,16);
+    lpass[16] = 0;
+    for (i=0; i<strlen(lpass); i++)
+	if (isascii((int)lpass[i]) && isupper((int)lpass[i]))
+	    lpass[i] = tolower((int)lpass[i]);
+
+
+    //set password hash for sc etc.
+    bnet_hash(&sc_hash, strlen(lpass), lpass);
+    if (!accountlist_create_account(username,hash_get_str(sc_hash)))
+	bn_int_set(&rpacket->u.server_createaccount_w3.result,SERVER_CREATEACCOUNT_W3_RESULT_EXIST);
+    else {
+        eventlog(eventlog_level_debug,__FUNCTION__,"[%d] account created",conn_get_socket(c));
+        bn_int_set(&rpacket->u.server_createaccount_w3.result,SERVER_CREATEACCOUNT_W3_RESULT_OK);
+    }
+
+out:
+    conn_push_outqueue(c,rpacket);
+    packet_del_ref(rpacket);
+
+    return 0;
 }
 
 static int _client_createacctreq1(t_connection * c, t_packet const * const packet)
 {
-   t_packet * rpacket;
-   
-   if (packet_get_size(packet)<sizeof(t_client_createacctreq1))
-     {
+    t_packet * rpacket;
+    char const * username;
+    t_hash       newpasshash1;
+
+    if (packet_get_size(packet)<sizeof(t_client_createacctreq1)) {
 	eventlog(eventlog_level_error,__FUNCTION__,"[%d] got bad CREATEACCTREQ1 packet (expected %u bytes, got %u)",conn_get_socket(c),sizeof(t_client_createacctreq1),packet_get_size(packet));
 	return -1;
-     }
-   
-     {
-	char const * username;
-	t_account *  temp;
-	t_hash       newpasshash1;
-	
-	if (!(username = packet_get_str_const(packet,sizeof(t_client_createacctreq1),UNCHECKED_NAME_STR)))
-	  {
-	     eventlog(eventlog_level_error,__FUNCTION__,"[%d] got bad CREATEACCTREQ1 (missing or too long username)",conn_get_socket(c));
-	     return -1;
-	  }
-	
-	eventlog(eventlog_level_info,__FUNCTION__,"[%d] new account requested for \"%s\"",conn_get_socket(c),username);
-	
-	if (!(rpacket = packet_create(packet_class_bnet)))
-	  return -1;
-	packet_set_size(rpacket,sizeof(t_server_createacctreply1));
-	packet_set_type(rpacket,SERVER_CREATEACCTREPLY1);
-	
-	if (prefs_get_allow_new_accounts()==0)
-	  {
-	     eventlog(eventlog_level_info,__FUNCTION__,"[%d] account not created (disabled)",conn_get_socket(c));
-	     bn_int_set(&rpacket->u.server_createacctreply1.result,SERVER_CREATEACCTREPLY1_RESULT_NO);
-	  }
-	else
-	  {
-		if (account_check_name(username)<0) {
-		     eventlog(eventlog_level_info,__FUNCTION__,"[%d] account not created (invalid symbols)",conn_get_socket(c));
-		     bn_int_set(&rpacket->u.server_createaccount_w3.result,SERVER_CREATEACCTREPLY1_RESULT_NO);
-		} else {
-	     bnhash_to_hash(packet->u.client_createacctreq1.password_hash1,&newpasshash1);
-	     if (!(temp = account_create(username,hash_get_str(newpasshash1))))
-	       {
-		  eventlog(eventlog_level_info,__FUNCTION__,"[%d] account not created (failed)",conn_get_socket(c));
-		  bn_int_set(&rpacket->u.server_createacctreply1.result,SERVER_CREATEACCTREPLY1_RESULT_NO);
-	       }
-	     else if (!accountlist_add_account(temp))
-	       {
-		  account_destroy(temp);
-		  eventlog(eventlog_level_info,__FUNCTION__,"[%d] account not inserted",conn_get_socket(c));
-		  bn_int_set(&rpacket->u.server_createacctreply1.result,SERVER_CREATEACCTREPLY1_RESULT_NO);
-	       }
-	     else
-	       {
-		  eventlog(eventlog_level_info,__FUNCTION__,"[%d] account created",conn_get_socket(c));
-		  bn_int_set(&rpacket->u.server_createacctreply1.result,SERVER_CREATEACCTREPLY1_RESULT_OK);
-		  account_save(temp, 0); /* force account save for new created accounts */
-	       }
-		}
-	  }
-	conn_push_outqueue(c,rpacket);
-	packet_del_ref(rpacket);
-     }
-   
-   return 0;
+    }
+
+    if (!(username = packet_get_str_const(packet,sizeof(t_client_createacctreq1),UNCHECKED_NAME_STR))) {
+	eventlog(eventlog_level_error,__FUNCTION__,"[%d] got bad CREATEACCTREQ1 (missing or too long username)",conn_get_socket(c));
+	return -1;
+    }
+
+    eventlog(eventlog_level_debug,__FUNCTION__,"[%d] new account requested for \"%s\"",conn_get_socket(c),username);
+
+    rpacket = packet_create(packet_class_bnet);
+    if (!rpacket) return -1;
+    packet_set_size(rpacket,sizeof(t_server_createacctreply1));
+    packet_set_type(rpacket,SERVER_CREATEACCTREPLY1);
+
+    if (prefs_get_allow_new_accounts()==0) {
+	eventlog(eventlog_level_debug,__FUNCTION__,"[%d] account not created (disabled)",conn_get_socket(c));
+	bn_int_set(&rpacket->u.server_createacctreply1.result,SERVER_CREATEACCTREPLY1_RESULT_NO);
+	goto out;
+    }
+
+    if (account_check_name(username)<0) {
+	eventlog(eventlog_level_info,__FUNCTION__,"[%d] account not created (invalid symbols)",conn_get_socket(c));
+	bn_int_set(&rpacket->u.server_createaccount_w3.result,SERVER_CREATEACCTREPLY1_RESULT_NO);
+	goto out;
+    }
+
+    bnhash_to_hash(packet->u.client_createacctreq1.password_hash1,&newpasshash1);
+    if (!accountlist_create_account(username,hash_get_str(newpasshash1))) {
+	eventlog(eventlog_level_debug,__FUNCTION__,"[%d] account not created (failed)",conn_get_socket(c));
+	bn_int_set(&rpacket->u.server_createacctreply1.result,SERVER_CREATEACCTREPLY1_RESULT_NO);
+	goto out;
+    }
+
+    eventlog(eventlog_level_debug,__FUNCTION__,"[%d] account created",conn_get_socket(c));
+    bn_int_set(&rpacket->u.server_createacctreply1.result,SERVER_CREATEACCTREPLY1_RESULT_OK);
+
+out:
+    conn_push_outqueue(c,rpacket);
+    packet_del_ref(rpacket);
+
+    return 0;
 }
 
 static int _client_createacctreq2(t_connection * c, t_packet const * const packet)
 {
-   t_packet * rpacket;
-   
-   if (packet_get_size(packet)<sizeof(t_client_createacctreq2))
-     {
+    t_packet * rpacket;
+    char const * username;
+    t_hash       newpasshash1;
+
+    if (packet_get_size(packet)<sizeof(t_client_createacctreq2)) {
 	eventlog(eventlog_level_error,__FUNCTION__,"[%d] got bad CLIENT_CREATEACCTREQ2 packet (expected %u bytes, got %u)",conn_get_socket(c),sizeof(t_client_createacctreq2),packet_get_size(packet));
 	return -1;
-     }
-   
-     {
-	char const * username;
-	t_account *  temp;
-	t_hash       newpasshash1;
-	
-	if (!(username = packet_get_str_const(packet,sizeof(t_client_createacctreq2),UNCHECKED_NAME_STR)))
-	  {
-	     eventlog(eventlog_level_error,__FUNCTION__,"[%d] got bad CREATEACCTREQ2 (missing or too long username)",conn_get_socket(c));
-	     return -1;
-	  }
-	
-	eventlog(eventlog_level_info,__FUNCTION__,"[%d] new account requested for \"%s\"",conn_get_socket(c),username);
-	
-	if (!(rpacket = packet_create(packet_class_bnet)))
-	  return -1;
-	packet_set_size(rpacket,sizeof(t_server_createacctreply2));
-	packet_set_type(rpacket,SERVER_CREATEACCTREPLY2);
-	
-	if (prefs_get_allow_new_accounts()==0)
-	  {
-	     eventlog(eventlog_level_info,__FUNCTION__,"[%d] account not created (disabled)",conn_get_socket(c));
-	     bn_int_set(&rpacket->u.server_createacctreply2.result,SERVER_CREATEACCTREPLY2_RESULT_EXIST);
-	  }
-	else
-	  {
-		if (account_check_name(username)<0) {
-		     eventlog(eventlog_level_info,__FUNCTION__,"[%d] account not created (invalid symbols)",conn_get_socket(c));
-		     bn_int_set(&rpacket->u.server_createaccount_w3.result,SERVER_CREATEACCTREPLY2_RESULT_INVALID);
-		} else {
-	     bnhash_to_hash(packet->u.client_createacctreq2.password_hash1,&newpasshash1);
-	     if (!(temp = account_create(username,hash_get_str(newpasshash1))))
-	       {
-		  eventlog(eventlog_level_info,__FUNCTION__,"[%d] account not created (failed)",conn_get_socket(c));
-		  bn_int_set(&rpacket->u.server_createacctreply2.result,SERVER_CREATEACCTREPLY2_RESULT_EXIST); /* FIXME: return reason for failure */
-	       }
-	     else if (!accountlist_add_account(temp))
-	       {
-		  account_destroy(temp);
-		  eventlog(eventlog_level_info,__FUNCTION__,"[%d] account not inserted",conn_get_socket(c));
-		  bn_int_set(&rpacket->u.server_createacctreply2.result,SERVER_CREATEACCTREPLY2_RESULT_EXIST);
-	       }
-	     else
-	       {
-		  eventlog(eventlog_level_info,__FUNCTION__,"[%d] account created",conn_get_socket(c));
-		  bn_int_set(&rpacket->u.server_createacctreply2.result,SERVER_CREATEACCTREPLY2_RESULT_OK);
-		  account_save(temp, 0); /* force account save for new created accounts */
-	       }
-		}
-	  }
-	conn_push_outqueue(c,rpacket);
-	packet_del_ref(rpacket);
-     }
-   
-   return 0;
+    }
+
+    username = packet_get_str_const(packet,sizeof(t_client_createacctreq2),UNCHECKED_NAME_STR);
+    if (!username) {
+	eventlog(eventlog_level_error,__FUNCTION__,"[%d] got bad CREATEACCTREQ2 (missing or too long username)",conn_get_socket(c));
+	return -1;
+    }
+
+    eventlog(eventlog_level_debug,__FUNCTION__,"[%d] new account requested for \"%s\"",conn_get_socket(c),username);
+
+    rpacket = packet_create(packet_class_bnet);
+    if (!rpacket) return -1;
+    packet_set_size(rpacket,sizeof(t_server_createacctreply2));
+    packet_set_type(rpacket,SERVER_CREATEACCTREPLY2);
+
+    if (prefs_get_allow_new_accounts()==0) {
+	eventlog(eventlog_level_debug,__FUNCTION__,"[%d] account not created (disabled)",conn_get_socket(c));
+	bn_int_set(&rpacket->u.server_createacctreply2.result,SERVER_CREATEACCTREPLY2_RESULT_EXIST);
+	goto out;
+    }
+
+    if (account_check_name(username)<0) {
+	eventlog(eventlog_level_debug,__FUNCTION__,"[%d] account not created (invalid symbols)",conn_get_socket(c));
+	bn_int_set(&rpacket->u.server_createaccount_w3.result,SERVER_CREATEACCTREPLY2_RESULT_INVALID);
+	goto out;
+    }
+
+    bnhash_to_hash(packet->u.client_createacctreq2.password_hash1,&newpasshash1);
+    if (!accountlist_create_account(username,hash_get_str(newpasshash1))) {
+	eventlog(eventlog_level_debug,__FUNCTION__,"[%d] account not created (failed)",conn_get_socket(c));
+	bn_int_set(&rpacket->u.server_createacctreply2.result,SERVER_CREATEACCTREPLY2_RESULT_EXIST); /* FIXME: return reason for failure */
+	goto out;
+    }
+
+    eventlog(eventlog_level_debug,__FUNCTION__,"[%d] account created",conn_get_socket(c));
+    bn_int_set(&rpacket->u.server_createacctreply2.result,SERVER_CREATEACCTREPLY2_RESULT_OK);
+
+out:
+    conn_push_outqueue(c,rpacket);
+    packet_del_ref(rpacket);
+
+    return 0;
 }
 
 static int _client_changepassreq(t_connection * c, t_packet const * const packet)

@@ -89,12 +89,8 @@ extern unsigned int maxuserid;
 extern int accountlist_reload(void);
 extern t_account * account_load_new(char const * name, unsigned uid);
 extern int account_check_name(char const * name);
-extern t_account * account_create(char const * username, char const * passhash1) ;
-extern t_account * create_vaccount(const char *username, unsigned int uid);
-extern void account_destroy(t_account * account);
 extern unsigned int account_get_uid(t_account const * account);
 extern int account_match(t_account * account, char const * username);
-extern int account_save(t_account * account, unsigned int delta);
 extern char const * account_get_strattr_real(t_account * account, char const * key, char const * fn, unsigned int ln);
 #define account_get_strattr(A,K) account_get_strattr_real(A,K,__FILE__,__LINE__)
 extern int account_set_strattr(t_account * account, char const * key, char const * val);
@@ -113,7 +109,7 @@ extern int accountlist_save(unsigned int delta, int *syncdeltap);
 extern t_account * accountlist_find_account(char const * username);
 extern t_account * accountlist_find_account_by_uid(unsigned int uid);
 extern int accountlist_allow_add(void);
-extern t_account * accountlist_add_account(t_account * account);
+extern t_account * accountlist_create_account(const char *username, const char *passhash1);
 // aaron
 //extern int accounts_rank_all(void);
 extern void accounts_get_attr(char const *);
