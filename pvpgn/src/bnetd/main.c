@@ -84,6 +84,7 @@
 //aaron
 #include "war3ladder.h"
 #include "command_groups.h"
+#include "output.h"
 #include "common/setup_after.h"
 
 #ifdef WIN32
@@ -440,7 +441,7 @@ int pre_server_startup(void)
 	eventlog(eventlog_level_error,"pre_server_startup","could not load versioncheck list");
     watchlist_create();
     war3_ladders_init();
-	output_init();
+    output_init();
     accountlist_load_default();
     accountlist_create();
     war3_ladder_update_all_accounts();

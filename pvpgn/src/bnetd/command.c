@@ -2904,7 +2904,7 @@ static int _handle_rank_all_accounts_command(t_connection * c, char const *text)
     }
   // rank all accounts here
   accounts_rank_all();
-  output1_write_to_file();
+//  output_write_to_file(); // why do this here? force output with command? lets add new command... [Omega]
   return 0;
 }
 

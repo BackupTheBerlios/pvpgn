@@ -14,13 +14,10 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
- #ifndef NULL
- # define NULL ((void *)0)
- #endif
- #define JUST_NEED_TYPES
-// #include "account.h"
- #undef JUST_NEED_TYPES
+#ifndef NULL
+# define NULL ((void *)0)
+#endif
 
- extern void output_init(void);
+extern void output_init(void);
  // initialize the output file
- extern int output_write_to_file();
+extern int output_write_to_file(void);
