@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="7.10"
+	Version="7.00"
 	Name="PvPGN"
 	ProjectGUID="{300F80E0-1A0E-4639-AEB9-18A692FF35F3}"
 	Keyword="Win32Proj">
@@ -76,8 +76,8 @@
 		</Configuration>
 		<Configuration
 			Name="Debug|Win32"
-			OutputDirectory="$(ConfigurationName)"
-			IntermediateDirectory="$(ConfigurationName)"
+			OutputDirectory="..\..\debug"
+			IntermediateDirectory="..\..\debugobj\PvPGN"
 			ConfigurationType="1"
 			UseOfMFC="0"
 			UseOfATL="0"
