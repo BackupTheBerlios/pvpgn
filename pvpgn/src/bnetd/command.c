@@ -4169,6 +4169,7 @@ static int _handle_flag_command(t_connection * c, char const *text)
     
   newflag = strtoul(dest,NULL,0);
   conn_set_flags(c,newflag);
+  channel_update_userflags(c);
   
   sprintf(msgtemp,"Flags set to 0x%08x.",newflag);
   message_send_text(c,message_type_info,c,msgtemp);
