@@ -4458,7 +4458,9 @@ static int _client_startgame4(t_connection * c, t_packet const * const packet)
 	bngtype = bn_short_get(packet->u.client_startgame4.gametype);
 	option = bn_short_get(packet->u.client_startgame4.option);
 	eventlog(eventlog_level_debug,__FUNCTION__,"[%d] got startgame4 status for game \"%s\" is 0x%08x (gametype=0x%04hx option=0x%04x)",conn_get_socket(c),gamename,bn_int_get(packet->u.client_startgame4.status),bngtype,option);
-	status = bn_int_get(packet->u.client_startgame4.status) & CLIENT_STARTGAME4_STATUSMASK;
+	status = bn_int_get(packet->u.client_startgame4.status);
+	if (status == 0xc) status = 0x3;
+	status &= CLIENT_STARTGAME4_STATUSMASK;
 	
 	flag = bn_short_get(packet->u.client_startgame4.flag);
 	
