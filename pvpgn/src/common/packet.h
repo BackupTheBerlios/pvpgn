@@ -435,6 +435,13 @@ typedef struct
 	t_server_anongame_search_reply		server_anongame_search_reply;
 	t_client_anongame_tournament_request	client_anongame_tournament_request;
 	t_server_anongame_tournament_reply	server_anongame_tournament_reply;
+
+    /* new packets supporting D2 1.10 & War3 1.13 */
+    t_client_setemailreply	   client_setemailreq;
+	t_server_setemailreq	   server_setemailreply;
+	t_client_getpasswordreq	   client_getpasswordreq;
+	t_client_changeemailreq	   client_changeemailreq;
+	t_client_crashdump	   client_crashdump;
 	} u;
 } t_packet;
 

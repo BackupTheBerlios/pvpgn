@@ -1952,8 +1952,8 @@ msgid - 4 bytes
 unknown1 - 20 bytes
 
 Packet #13
-0x0000   FF 54 1C 00 00 00 00 00-3A D5 B9 B1 2B D9 B5 D9   ÿT......:Õ¹±+ÙµÙ
-0x0010   87 3B 2B 3D 28 57 C0 2E-02 93 5F 8B               ‡;+=(WÀ..“_‹
+0x0000   FF 54 1C 00 00 00 00 00-3A D5 B9 B1 2B D9 B5 D9   ÿT......:Õ¹?Ùµ?
+0x0010   87 3B 2B 3D 28 57 C0 2E-02 93 5F 8B               ?+=(W?.“_?
 */
 #define CLIENT_LOGONPROOFREQ 0x54ff
 typedef struct
@@ -1977,6 +1977,7 @@ typedef struct
 #define SERVER_LOGONPROOFREPLY_RESPONSE_OK 0x00000000
 //#define SERVER_LOGONPROOFREPLY_RESPONSE_BADPASS 0x00000001
 #define SERVER_LOGONPROOFREPLY_RESPONSE_BADPASS 0x00000002 /* from the battle net dump... */
+#define SERVER_LOGONPROOFREPLY_RESPONSE_EMAIL  0x0000000E
 #define SERVER_LOGONPROOFREPLY_UNKNOWN1  0x02825278
 #define SERVER_LOGONPROOFREPLY_UNKNOWN2  0x00000000
 #define SERVER_LOGONPROOFREPLY_UNKNOWN3  0x02825278
@@ -3820,6 +3821,58 @@ typedef struct
     t_bnet_header h;
     bn_int clienttag;
 } t_client_changeclient;
+
+#define CLIENT_SETEMAILREPLY		0x59ff
+typedef struct
+{
+	t_bnet_header	h;
+	/* email address */
+} t_client_setemailreply PACKED_ATTR();
+
+#define SERVER_SETEMAILREQ		0x59ff
+/* send this packet to client before login ok packet will cause
+client to enter input email screen */
+typedef struct
+{
+	t_bnet_header	h;
+} t_server_setemailreq PACKED_ATTR();
+
+#define CLIENT_GETPASSWORDREQ		0x5aff
+typedef struct
+{
+	t_bnet_header	h;
+	/* account name */
+	/* email address */
+} t_client_getpasswordreq PACKED_ATTR();
+
+#define CLIENT_CHANGEEMAILREQ		0x5bff
+typedef struct
+{
+	t_bnet_header	h;
+	/* account name */
+	/* old email address */
+	/* new email address */
+} t_client_changeemailreq PACKED_ATTR();
+
+#define CLIENT_MOTDREQ			0x46ff
+typedef struct
+{
+	t_bnet_header h;
+	bn_int        last_news_time;	/* date of the last news item the client has */
+} t_client_motdreq PACKED_ATTR();
+/*
+this packet is sent right after cdkey and version auth reply success and crashdump exist
+0x0000: ff 5d 14 00 01 01 00 27   00 0a 01 05 00 00 c0 00    .].....'........
+0x0010: 00 00 00 00                                          ....            
+*/
+
+#define CLIENT_CRASHDUMP		0x5dff
+typedef struct
+{
+	t_bnet_header	h;
+	/* crashdump file data */
+	/* contains data like client version, exception code, code address */
+} t_client_crashdump PACKED_ATTR();
 
 #endif
 

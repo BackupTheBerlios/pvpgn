@@ -42,6 +42,7 @@
 #define MAX_EXEINFO_STR       256 /* including terminating NUL char */
 #define MAX_OWNER_STR         128 /* including terminating NUL char */
 #define MAX_CDKEY_STR         128 /* including terminating NUL char */
+#define MAX_EMAIL_STR         128 /* including terminating NUL char */
 #define MAX_WINHOST_STR       128 /* including terminating NUL char */
 #define MAX_WINUSER_STR       128 /* including terminating NUL char */
 #define MAX_LANG_STR           64 /* including terminating NUL char */
