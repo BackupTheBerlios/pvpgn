@@ -559,17 +559,8 @@ static int _client_anongame_set_icon(t_connection * c, t_packet const * const pa
     //FIXME: Still need a way to 'refresh the user/channel' 
     //_handle_rejoin_command(conn_get_account(c),""); 
     /* ??? channel_update_flags() */
-    hll = account_get_highestladderlevel(conn_get_account(c),conn_get_clienttag(c));
-    if (strcmp(user_icon,"NULL")!=0)
-	sprintf(playerinfo,"PX3W %s %u",user_icon,hll);
-    else 
-    {
-	account_get_raceicon(conn_get_account(c),&rico,&rlvl,&rwin,conn_get_clienttag(c));
-	sprintf(playerinfo,"PX3W %1d%c3W %u",rlvl,rico,hll);
-    }
+	conn_update_w3_playerinfo(c);
     
-    eventlog(eventlog_level_info,__FUNCTION__,"playerinfo: %s",playerinfo);
-    conn_set_w3_playerinfo(c,playerinfo);
     channel_rejoin(c);
     return 0;
 }
