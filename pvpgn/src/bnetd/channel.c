@@ -81,6 +81,7 @@
 #endif
 #include "channel.h"
 #include "common/setup_after.h"
+#include "irc.h"
 
 
 static t_list * channellist_head=NULL;
