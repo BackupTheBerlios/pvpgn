@@ -2625,6 +2625,7 @@ static int _client_atfriendscreen(t_connection * c, t_packet const * const packe
    int i;
    unsigned char f_cnt = 0;
    t_packet * rpacket = NULL;
+   char const * vt;
    
    eventlog(eventlog_level_info,__FUNCTION__,"[%d] got CLIENT_ARRANGEDTEAM_FRIENDSCREEN packet",conn_get_socket(c));
    
@@ -2643,6 +2644,7 @@ static int _client_atfriendscreen(t_connection * c, t_packet const * const packe
    packet_set_size(rpacket,sizeof(t_server_arrangedteam_friendscreen));
 			packet_set_type(rpacket,SERVER_ARRANGEDTEAM_FRIENDSCREEN);
    
+   vt = versioncheck_get_versiontag(conn_get_versioncheck(c));
    // cycle through friends, taking those who is currently available
    for(i = 0; i < account_get_friendcount(conn_get_account(c)); i++) 
      {
@@ -2650,7 +2652,10 @@ static int _client_atfriendscreen(t_connection * c, t_packet const * const packe
 	
 	if(!(dest_c = connlist_find_connection_by_accountname(f))) 
 	  continue; // if user is offline, then continue to next friend
-	
+
+	if (vt && versioncheck_get_versiontag(conn_get_versioncheck(dest_c)) && strcmp(vt, versioncheck_get_versiontag(conn_get_versioncheck(dest_c))))
+	    continue; /* friend is using another game/version */
+
 	if(account_check_mutual(conn_get_account(dest_c), myusername) == 0)
 	  {		
 	     if(conn_get_dndstr(dest_c)) 
