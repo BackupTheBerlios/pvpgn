@@ -131,12 +131,14 @@ extern char * message_format_line(t_connection const * c, char const * in)
     unsigned int inpos;
     unsigned int outpos;
     unsigned int outlen=MAX_INC;
+    int		 inlen;
     
     if (!(out = malloc(outlen+1)))
 	return NULL;
     
+    inlen = strlen(in);
     out[0] = 'I';
-    for (inpos=0,outpos=1; inpos<strlen(in); inpos++)
+    for (inpos=0,outpos=1; inpos<inlen; inpos++)
     {
         if (in[inpos]!='%')
 	{
