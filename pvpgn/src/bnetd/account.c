@@ -149,11 +149,18 @@ extern t_account * account_create(char const * username, char const * passhash1)
 {
     t_account * account;
     
-    if (username && account_check_name(username)<0)
+    if (username)
     { 
-        eventlog(eventlog_level_error,"account_create","got bad account name"); 
+		eventlog(eventlog_level_error,"account_create","got bad account name"); 
         return NULL; 
     } 
+
+	if (account_check_name(username)<0)
+    { 
+		eventlog(eventlog_level_error,"account_create","got bad account name (name \"%s\" contains invalid symbols)",username); 
+        return NULL; 
+    } 
+
 
     if (!(account = malloc(sizeof(t_account))))
     {
