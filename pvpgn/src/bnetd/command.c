@@ -4179,6 +4179,7 @@ static int _handle_tag_command(t_connection * c, char const *text)
 {
     char         dest[8];
     unsigned int i,j;
+    unsigned int newtag;
     
     for (i=0; text[i]!=' ' && text[i]!='\0'; i++); /* skip command */
     for (; text[i]==' '; i++);
@@ -4197,8 +4198,15 @@ static int _handle_tag_command(t_connection * c, char const *text)
 	message_send_text(c,message_type_error,c,"Client tag should be four characters long.");
 	return 0;
     }
-    conn_set_clienttag(c,tag_case_str_to_uint(dest));
-    sprintf(msgtemp,"Client tag set to %s.",dest);
+    newtag = tag_case_str_to_uint(dest);
+    if (tag_check_client(newtag))
+    {
+        conn_set_clienttag(c,newtag);
+	channel_update_userflags(c);
+        sprintf(msgtemp,"Client tag set to %s.",dest);
+    }
+    else
+    sprintf(msgtemp,"Invalid clienttag %s specified",dest);
     message_send_text(c,message_type_info,c,msgtemp);
     return 0;
 }

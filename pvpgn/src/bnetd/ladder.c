@@ -414,16 +414,20 @@ extern t_ladder * solo_ladder(t_clienttag clienttag)
 {
   if (clienttag==CLIENTTAG_WARCRAFT3_UINT) 
     return &WAR3_solo_ladder;
-  else 
+  if (clienttag==CLIENTTAG_WAR3XP_UINT) 
     return &W3XP_solo_ladder;
+  else 
+    return NULL;
 }
 
 extern t_ladder * team_ladder(t_clienttag clienttag)
 {
   if (clienttag==CLIENTTAG_WARCRAFT3_UINT) 
     return &WAR3_team_ladder;
-  else 
+  if (clienttag==CLIENTTAG_WAR3XP_UINT) 
     return &W3XP_team_ladder;
+  else 
+    return NULL;
 }
 
 extern t_ladder * ffa_ladder(t_clienttag clienttag)
@@ -996,6 +1000,12 @@ t_ladder_internal * ladder_get_rank_internal(t_ladder * ladder,int rank, t_clien
 extern t_account * ladder_get_account(t_ladder *ladder, int rank, unsigned int * teamcount,t_clienttag clienttag)
 {
   t_ladder_internal *search;
+
+  if (!(ladder))
+  {
+    // eventlog(eventlog_level_error,__FUNCTION__,"got request for non-existant ladder");
+    return NULL;
+  }
 
   search = ladder_get_rank_internal(ladder,rank,clienttag);
 
