@@ -203,6 +203,28 @@ if ($row = mysql_fetch_row($query)) {
 					  <br />
 				  <?php
 				  // End files page
+				  } else if ($_GET['page'] == 'changelog') {
+				    echo "<p class=\"text13\">\n";
+                    $changelog = file('includes/version-history.txt');
+                    $changelog[0] = 'skipme';
+                    $changelog[1] = 'skipme';
+                    foreach ($changelog as $line) {
+                        $line = trim($line);
+                        if ($line == 'skipme') {
+                            continue;
+                        } elseif (substr($line,0,1) == '[') {
+                            $pos = strpos($line,']');
+                            echo "<span style=\"color:#FF0000\">".substr($line,0,$pos+1)."</span>";
+                            echo substr($line,$pos+2)."<br>\n";
+                        } elseif (substr($line,0,13) == 'Changelog for' || substr($line,0,13) == 'ChangeLog for') {
+                            echo "<strong style=\"color:#FFB019\">$line</strong>\n";
+                        } elseif ($line == '===================================') {
+                            echo "<span style=\"color:#FFB019\">$line</span><br>\n";
+                        } else {
+                            echo $line . "<br>\n";
+                        }
+                    }
+				    echo "</p>\n";
 				  } else if ($_GET['page'] == 'about') {
 					// "What is PvPGN?" page
 				  	readfile('includes/about.htm');
