@@ -2060,7 +2060,7 @@ extern int conn_set_game(t_connection * c, char const * gamename, char const * g
 	    if (c->game && conn_get_realmname(c) && conn_get_charname(c))
 	    {
 		game_set_realmname(c->game,conn_get_realmname(c));
-		realm_add_game_number(realmlist_find_realm(con_get_realmname(c)),1);
+		realm_add_game_number(realmlist_find_realm(conn_get_realmname(c)),1);
 	    }
 	}
 	if (c->game)
@@ -2068,7 +2068,7 @@ extern int conn_set_game(t_connection * c, char const * gamename, char const * g
 	  game_parse_info(c->game,gameinfo);
 	  if (game_add_player(conn_get_game(c),gamepass,version,c)<0)
 	  {
-	    c->game = NULL // bad password or version #
+	    c->game = NULL; // bad password or version #
 	    return -1;
 	  }
 	}
