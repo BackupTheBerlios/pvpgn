@@ -547,8 +547,16 @@ typedef struct
 typedef struct
 {
     t_bnet_header h;
+    bn_byte friendcount;
     /* 1 byte status, 0-terminated name, 6 bytes unknown, ... */
 } t_server_friendslistreply PACKED_ATTR();
+
+typedef struct
+{
+    bn_byte status;
+    bn_byte location;
+    bn_int clienttag;
+} t_server_friendslistreply_status PACKED_ATTR();
 	
 /*
 # 124 packet from client: type=0x66ff(unknown) length=5 class=bnet
@@ -586,6 +594,8 @@ typedef struct
 } t_server_friendinforeply PACKED_ATTR();
 #define FRIEND_TYPE_NON_MUTUAL 0x00
 #define FRIEND_TYPE_MUTUAL     0x01
+#define FRIEND_TYPE_DND	       0x02
+#define FRIEND_TYPE_AWAY       0x04
 
 /******************************************************/
 /*

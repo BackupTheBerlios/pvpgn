@@ -2398,6 +2398,12 @@ static int _client_friendslistreq(t_connection * c, t_packet const * const packe
 	t_account * account=conn_get_account(c);
 	int i;
 	int n = account_get_friendcount(account);
+        int friendcount = 0;
+        t_server_friendslistreply_status status;
+	t_connection * dest_c;
+	t_game * game;
+	t_channel * channel;
+        char stat;
 
 	if(n==0) return 0;
 	if (!(rpacket = packet_create(packet_class_bnet)))
@@ -2406,8 +2412,6 @@ static int _client_friendslistreq(t_connection * c, t_packet const * const packe
 	packet_set_size(rpacket,sizeof(t_server_friendslistreply));
 	packet_set_type(rpacket,SERVER_FRIENDSLISTREPLY);
 
-	tmp[0]=(unsigned char) n;    //set number of friends
-	packet_append_data(rpacket, tmp, 1);
 
     if ((flist = account_get_friends(account))==NULL) return -1;
 
@@ -2415,11 +2419,50 @@ static int _client_friendslistreq(t_connection * c, t_packet const * const packe
 	    friend = account_get_friend(account,i);
 	    if ((fr=friendlist_find_uid(flist, friend))==NULL) continue;
 	    packet_append_string(rpacket, account_get_name(friend_get_account(fr)));
-	    memset(tmp, 0, 7);
-	    if(connlist_find_connection_by_uid(friend))
-		tmp[1] = FRIENDSTATUS_ONLINE;
-	   packet_append_data(rpacket, tmp, 7);
+	    game = NULL;
+            channel = NULL;
+
+	    if(!(dest_c = connlist_find_connection_by_uid(friend)))
+            {
+		bn_byte_set(&status.location,FRIENDSTATUS_OFFLINE);
+		bn_byte_set(&status.status,0);
+                bn_int_set(&status.clienttag,0);
+            }
+	    else 
+            {
+	      bn_int_set(&status.clienttag, *((int const *)conn_get_clienttag(dest_c)));
+              stat = 0;
+              if ((friend_get_mutual(fr)))    stat |= FRIEND_TYPE_MUTUAL;
+              if ((conn_get_dndstr(dest_c)))  stat |= FRIEND_TYPE_DND;
+	      if ((conn_get_awaystr(dest_c))) stat |= FRIEND_TYPE_AWAY;
+	      bn_byte_set(&status.status,stat);
+              if((game = conn_get_game(dest_c))) 
+	        {
+		  if (game_get_flag_private(game)==0)
+		    bn_byte_set(&status.location,FRIENDSTATUS_PUBLIC_GAME);
+		  else
+                    bn_byte_set(&status.location,FRIENDSTATUS_PRIVATE_GAME);
+	        }
+	      else if((channel = conn_get_channel(dest_c))) 
+	        {
+		   bn_byte_set(&status.location,FRIENDSTATUS_CHAT);
+	        }
+	      else 
+	        {
+		  bn_byte_set(&status.location,FRIENDSTATUS_ONLINE);
+	        }
+            }
+
+	    packet_append_data(rpacket, &status, sizeof(status));
+
+            if (game) packet_append_string(rpacket,game_get_name(game));
+	    else if (channel) packet_append_string(rpacket,channel_get_name(channel));
+	    else packet_append_string(rpacket,"");
+
+	    friendcount++;
 	}
+
+	bn_byte_set(&rpacket->u.server_friendslistreply.friendcount, friendcount);
 
 	conn_push_outqueue(c,rpacket);
 	packet_del_ref(rpacket);
@@ -2446,6 +2489,7 @@ static int _client_friendinforeq(t_connection * c, t_packet const * const packet
 	t_friend * fr;
 	t_list * flist;
 	int n=account_get_friendcount(account);
+	char type;
 
 	if(bn_byte_get(packet->u.client_friendinforeq.friendnum) > n) {
 	   eventlog(eventlog_level_error,__FUNCTION__,"[%d] bad friend number in FRIENDINFOREQ packet",conn_get_socket(c));
@@ -2482,34 +2526,36 @@ static int _client_friendinforeq(t_connection * c, t_packet const * const packet
 
 	if(friend_get_mutual(fr))
 	  {
-	     bn_byte_set(&rpacket->u.server_friendinforeply.type, FRIEND_TYPE_MUTUAL);
-	     
+	     type = FRIEND_TYPE_MUTUAL;
+             if ((conn_get_dndstr(dest_c)))  type |= FRIEND_TYPE_DND;
+	     if ((conn_get_awaystr(dest_c))) type |= FRIEND_TYPE_AWAY;
+	     bn_byte_set(&rpacket->u.server_friendinforeply.type, type);
 	     if((game = conn_get_game(dest_c))) 
 	       {
 		  if (game_get_flag_private(game)==0)
 		    bn_byte_set(&rpacket->u.server_friendinforeply.status, FRIENDSTATUS_PUBLIC_GAME);
 		  else
                     bn_byte_set(&rpacket->u.server_friendinforeply.status, FRIENDSTATUS_PRIVATE_GAME);
-		  bn_int_set(&rpacket->u.server_friendinforeply.clienttag, *((int const *)conn_get_clienttag(dest_c)));
 		  packet_append_string(rpacket, game_get_name(game));
 	       }
 	     else if((channel = conn_get_channel(dest_c))) 
 	       {
 		  bn_byte_set(&rpacket->u.server_friendinforeply.status, FRIENDSTATUS_CHAT);
-		  bn_int_set(&rpacket->u.server_friendinforeply.clienttag, *((int const *)conn_get_clienttag(dest_c)));
 		  packet_append_string(rpacket, channel_get_name(channel));
 		  
 	       }
 	     else 
 	       {
 		  bn_byte_set(&rpacket->u.server_friendinforeply.status, FRIENDSTATUS_ONLINE);
-		  bn_int_set(&rpacket->u.server_friendinforeply.clienttag, 0);
 		  packet_append_string(rpacket, "");
 	       }
 	  }
 	else
 	  {
-	     bn_byte_set(&rpacket->u.server_friendinforeply.type, FRIEND_TYPE_NON_MUTUAL);
+	     type = FRIEND_TYPE_NON_MUTUAL;
+             if ((conn_get_dndstr(dest_c)))  type |= FRIEND_TYPE_DND;
+	     if ((conn_get_awaystr(dest_c))) type |= FRIEND_TYPE_AWAY;
+	     bn_byte_set(&rpacket->u.server_friendinforeply.type, type);
 	     
 	     if((game = conn_get_game(dest_c))) 
 	       {
@@ -2517,24 +2563,22 @@ static int _client_friendinforeq(t_connection * c, t_packet const * const packet
 		    bn_byte_set(&rpacket->u.server_friendinforeply.status, FRIENDSTATUS_PUBLIC_GAME);
 		  else
                     bn_byte_set(&rpacket->u.server_friendinforeply.status, FRIENDSTATUS_PRIVATE_GAME);
-		  bn_int_set(&rpacket->u.server_friendinforeply.clienttag, *((int const *)conn_get_clienttag(dest_c)));
 		  packet_append_string(rpacket, game_get_name(game));
 	       }
 	     else if((channel = conn_get_channel(dest_c))) 
 	       {
 		  bn_byte_set(&rpacket->u.server_friendinforeply.status, FRIENDSTATUS_CHAT);
-		  bn_int_set(&rpacket->u.server_friendinforeply.clienttag, *((int const *)conn_get_clienttag(dest_c)));
 		  packet_append_string(rpacket, channel_get_name(channel));
 	       }
 	     else 
 	       {
 		  bn_byte_set(&rpacket->u.server_friendinforeply.status, FRIENDSTATUS_ONLINE);
-		  bn_int_set(&rpacket->u.server_friendinforeply.clienttag, 0);
 		  packet_append_string(rpacket, "");
-	       }
-	     
+	       }	     
 	  }
 	
+	bn_int_set(&rpacket->u.server_friendinforeply.clienttag, *((int const *)conn_get_clienttag(dest_c)));
+
 	conn_push_outqueue(c,rpacket);
 	packet_del_ref(rpacket);
 	
