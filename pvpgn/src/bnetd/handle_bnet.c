@@ -2279,7 +2279,7 @@ static int _client_friendslistreq(t_connection * c, t_packet const * const packe
             }
 	    else 
             {
-	      bn_int_set(&status.clienttag, *((int const *)conn_get_clienttag(dest_c)));
+	      bn_int_set(&status.clienttag, conn_get_clienttag(dest_c));
               stat = 0;
               if ((friend_get_mutual(fr)))    stat |= FRIEND_TYPE_MUTUAL;
               if ((conn_get_dndstr(dest_c)))  stat |= FRIEND_TYPE_DND;
@@ -2397,7 +2397,7 @@ static int _client_friendinforeq(t_connection * c, t_packet const * const packet
 	    packet_append_string(rpacket, "");
 	  }
 	
-	bn_int_set(&rpacket->u.server_friendinforeply.clienttag, *((int const *)conn_get_clienttag(dest_c)));
+	bn_int_set(&rpacket->u.server_friendinforeply.clienttag, conn_get_clienttag(dest_c));
 
 	conn_push_outqueue(c,rpacket);
 	packet_del_ref(rpacket);
