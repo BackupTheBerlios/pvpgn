@@ -462,12 +462,6 @@ int sql_dbcreator(t_sql_engine * sql)
        eventlog(eventlog_level_info,__FUNCTION__,"added missing table %s to DB",table->name);
        eventlog(eventlog_level_info,__FUNCTION__,"added missing column %s to table %s",column->name,table->name);
      }
-     sscanf(column->name,"%s",_column); //get column name without format infos
-     sprintf(query,"INSERT INTO %s (%s) VALUES (%s)",table->name,_column,column->value);
-     if (!(sql->query(query)))
-     {
-       eventlog(eventlog_level_info,__FUNCTION__,"added missing default account to table %s",table->name);
-     }
 
     for (;column;column = table_get_next_column())
     {
@@ -481,6 +475,15 @@ int sql_dbcreator(t_sql_engine * sql)
 	sql->query(query);
       }
     }
+
+    column = table_get_first_column(table);
+    sscanf(column->name,"%s",_column); //get column name without format infos
+    sprintf(query,"INSERT INTO %s (%s) VALUES (%s)",table->name,_column,column->value);
+    if (!(sql->query(query)))
+    {
+      eventlog(eventlog_level_info,__FUNCTION__,"added missing default account to table %s",table->name);
+    }
+
   }
   
   dispose_db_layout(db_layout);
