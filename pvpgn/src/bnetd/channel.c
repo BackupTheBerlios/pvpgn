@@ -783,12 +783,6 @@ extern void channel_message_send(t_channel const * channel, t_message_type type,
 	}
     }
     
-    if (!(message = message_create(type,me,NULL,text)))
-    {
-	eventlog(eventlog_level_error,"channel_message_send","could not create message");
-	return;
-    }
-    
     heard = 0;
     tname = conn_get_chatname(me);
     for (c=channel_get_first(channel); c; c=channel_get_next())
@@ -798,12 +792,20 @@ extern void channel_message_send(t_channel const * channel, t_message_type type,
 	if ((type==message_type_talk || type==message_type_whisper || type==message_type_emote || type==message_type_broadcast) &&
 	    conn_check_ignoring(c,tname)==1)
 	    continue; /* ignore squelched players */
+
+        if (!(message = message_create(type,me,c,text)))
+        {
+	    eventlog(eventlog_level_error,"channel_message_send","could not create message");
+	    return;
+	}
 	
 	if (message_send(message,c)==0 && c!=me)
 	    heard = 1;
+	    
+    	message_destroy(message);
+
     }
     conn_unget_chatname(me,tname);
-    message_destroy(message);
     
     if (!heard && (type==message_type_talk || type==message_type_emote))
 	message_send_text(me,message_type_info,me,"No one hears you.");
