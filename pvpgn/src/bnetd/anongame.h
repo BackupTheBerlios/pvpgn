@@ -180,7 +180,7 @@ extern void anongame_add_maps_to_packet(t_packet * packet, int gametype, const c
 
 extern int anongame_totalplayers(t_uint8 gametype);
 extern char anongame_arranged(t_uint8 gametype);
-extern void handle_anongame_search(t_connection * c, t_packet const * packet);
+extern int handle_anongame_search(t_connection * c, t_packet const * packet);
 extern int handle_anongame_join(t_connection * c);
 extern int handle_w3route_packet(t_connection * c, t_packet const * const packet);
 extern int anongame_unqueue_player(t_connection * c, t_uint8 gametype);

@@ -55,7 +55,7 @@ extern t_versioncheck * versioncheck_create(char const * archtag, char const * c
 extern int versioncheck_destroy(t_versioncheck * vc);
 extern char const * versioncheck_get_mpqfile(t_versioncheck const * vc);
 extern char const * versioncheck_get_eqn(t_versioncheck const * vc);
-extern int versioncheck_validate(t_versioncheck * vc, char const * archtag, char const * clienttag, char const * exeinfo, unsigned long versionid, unsigned long gameversion, unsigned long checksum, char const * versiontag);
+extern int versioncheck_validate(t_versioncheck * vc, char const * archtag, char const * clienttag, char const * exeinfo, unsigned long versionid, unsigned long gameversion, unsigned long checksum);
 
 extern int versioncheck_load(char const * filename);
 extern int versioncheck_unload(void);

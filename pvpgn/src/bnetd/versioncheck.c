@@ -305,7 +305,7 @@ static int versioncheck_compare_exeinfo(char const * pattern, char const * match
 }
 
 
-extern int versioncheck_validate(t_versioncheck * vc, char const * archtag, char const * clienttag, char const * exeinfo, unsigned long versionid, unsigned long gameversion, unsigned long checksum, char const * versiontag)
+extern int versioncheck_validate(t_versioncheck * vc, char const * archtag, char const * clienttag, char const * exeinfo, unsigned long versionid, unsigned long gameversion, unsigned long checksum)
 {
     t_elem const *  curr;
     t_versioninfo * vi;

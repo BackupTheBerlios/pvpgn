@@ -26,6 +26,7 @@
 # include "common/field_sizes.h"
 # include "common/init_protocol.h"
 # include "common/bnet_protocol.h"
+# include "common/anongame_protocol.h"
 # include "common/file_protocol.h"
 # include "common/bot_protocol.h"
 # include "common/bits_protocol.h"
@@ -41,6 +42,7 @@
 # include "common/field_sizes.h"
 # include "common/init_protocol.h"
 # include "common/bnet_protocol.h"
+# include "common/anongame_protocol.h"
 # include "common/file_protocol.h"
 # include "common/bot_protocol.h"
 # include "common/bits_protocol.h"
@@ -291,7 +293,6 @@ typedef struct
 
 	// 5/12/02 EDITED BY THEUNDYING for WC3 1.31+
 	t_server_findanongame_playgame_cancel		server_findanongame_playgame_cancel;
-	t_server_playgame_ack		server_playgame_ack;
 	t_server_anongame_found		server_anongame_found;
 	//t_server_w3profile_reply      server_w3profile_reply;
     t_client_ladderreq2        client_ladderreq2;
@@ -376,7 +377,6 @@ typedef struct
 	t_server_arrangedteam_member_decline    server_arrangedteam_member_decline;
 	// 5/24/02 - THEUNDYING - updates for ANONGAME PROFILE PACKET
 	t_client_findanongame_profile			client_findanongame_profile;
-	t_server_findanongame_profile			server_findanongame_profile;
 
 	/* dizzy : war3 1.03 has changed format */
 	t_server_findanongame_profile2			server_findanongame_profile2;
@@ -403,6 +403,11 @@ typedef struct
 	t_server_w3xp_clan_inforeply            server_w3xp_clan_inforeply;
 	t_server_findanongame_iconreply		server_findanongame_iconreply;
 	t_client_changeclient			client_changeclient;
+	/* restructure anongame [Omega] */
+	t_client_anongame			client_anongame;
+	t_server_anongame_search_reply		server_anongame_search_reply;
+	t_client_anongame_tournament_request	client_anongame_tournament_request;
+	t_server_anongame_tournament_reply	server_anongame_tournament_reply;
 	} u;
 } t_packet;
 

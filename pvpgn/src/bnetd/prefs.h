@@ -181,7 +181,7 @@ extern char const * prefs_get_account_allowed_symbols(void) PURE_ATTR();
 extern int prefs_get_reload_new_accounts(void) PURE_ATTR();
 
 extern char const * prefs_get_command_groups_file(void) PURE_ATTR();
-
+extern char const * prefs_get_tournament_file(void) PURE_ATTR();
 extern char const * prefs_get_aliasfile(void) PURE_ATTR();
 
 extern char const * prefs_get_anongame_infos_file(void) PURE_ATTR();
