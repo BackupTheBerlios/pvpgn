@@ -106,20 +106,21 @@ t_channel;
 #define CHANNEL_NAME_KICKED "THE VOID"
 #define CHANNEL_NAME_CHAT   "Chat"
 
-extern int channel_set_flags(t_connection * c);
+extern int channel_set_userflags(t_connection * c);
 extern t_channel * channel_create(char const * fullname, char const * shortname, char const * clienttag, int permflag, int botflag, int operflag, int logflag, char const * country, char const * realmname, int maxmembers, int moderated, int clan) ;
 extern int channel_destroy(t_channel * channel, t_elem ** elem);
 extern char const * channel_get_name(t_channel const * channel);
 extern char const * channel_get_shortname(t_channel const * channel);
 extern char const * channel_get_clienttag(t_channel const * channel);
 extern t_channel_flags channel_get_flags(t_channel const * channel);
+extern int channel_set_flags(t_channel * channel, t_channel_flags flags);
 extern int channel_get_permanent(t_channel const * channel);
 extern unsigned int channel_get_channelid(t_channel const * channel);
 extern int channel_set_channelid(t_channel * channel, unsigned int channelid);
 extern int channel_add_connection(t_channel * channel, t_connection * connection);
 extern int channel_del_connection(t_channel * channel, t_connection * connection);
 extern void channel_update_latency(t_connection * conn);
-extern void channel_update_flags(t_connection * conn);
+extern void channel_update_userflags(t_connection * conn);
 extern void channel_message_log(t_channel const * channel, t_connection * me, int fromuser, char const * text);
 extern void channel_message_send(t_channel const * channel, t_message_type type, t_connection * conn, char const * text);
 extern int channel_ban_user(t_channel * channel, char const * user);

@@ -159,7 +159,7 @@ extern int clan_send_status_window_on_create(t_clan * clan)
 		if (conn_get_channel(member->memberconn))
 		{
 		    conn_update_w3_playerinfo(member->memberconn);
-		    channel_set_flags(member->memberconn);
+		    channel_set_userflags(member->memberconn);
 		    if (conn_set_channel(member->memberconn, channelname) < 0)
 			conn_set_channel(member->memberconn, CHANNEL_NAME_BANNED);	/* should not fail */
 		}

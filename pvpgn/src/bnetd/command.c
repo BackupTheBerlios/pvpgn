@@ -367,6 +367,7 @@ static int _handle_motd_command(t_connection * c, char const * text);
 static int _handle_ping_command(t_connection * c, char const * text);
 static int _handle_commandgroups_command(t_connection * c, char const * text);
 static int _handle_topic_command(t_connection * c, char const * text);
+static int _handle_moderate_command(t_connection * c, char const * text);
 
 static const t_command_table_row standard_command_table[] =
 {
@@ -477,6 +478,7 @@ static const t_command_table_row extended_command_table[] =
 	{ "/commandgroups"	, _handle_commandgroups_command },
 	{ "/cg"			, _handle_commandgroups_command },
 	{ "/topic"		, _handle_topic_command },
+	{ "/moderate"		, _handle_moderate_command },
         { NULL                  , NULL } 
 
 };
@@ -664,7 +666,7 @@ static int _handle_clan_command(t_connection * c, char const * text)
 
 static int command_set_flags(t_connection * c)
 {
-  return channel_set_flags(c);
+  return channel_set_userflags(c);
 }
 
 static int _handle_admin_command(t_connection * c, char const * text)
@@ -4520,6 +4522,35 @@ static int _handle_topic_command(t_connection * c, char const * text)
 
   sprintf(msgtemp,"%s topic: %s",channel_name, topic);
   message_send_text(c,message_type_info,c,msgtemp);
+
+  return 0;
+}
+
+static int _handle_moderate_command(t_connection * c, char const * text)
+{
+  t_channel_flags oldflags;
+  t_channel * channel;
+
+  channel = conn_get_channel(c);
+
+  if (!(account_is_operator_or_admin(conn_get_account(c),channel_get_name(channel)))) {
+	message_send_text(c,message_type_error,c,"You must be at least a Channel Operator to use this command.");
+	return -1;
+  }
+  
+  oldflags = channel_get_flags(channel);
+  
+  if (channel_set_flags(channel, oldflags ^ channel_flags_moderated)) {
+	eventlog(eventlog_level_error,__FUNCTION__,"could not set channel %s flags",channel_get_name(channel));
+	message_send_text(c,message_type_error,c,"Unable to change channel flags.");
+	return -1;
+  }
+  else {
+  	if (oldflags & channel_flags_moderated)
+		channel_message_send(channel,message_type_info,c,"Channel is now unmoderated");
+	else
+		channel_message_send(channel,message_type_info,c,"Channel is now moderated");
+  }
 
   return 0;
 }

@@ -83,7 +83,7 @@ static int channellist_load_permanent(char const * filename);
 static t_channel * channellist_find_channel_by_fullname(char const * name);
 static char * channel_format_name(char const * sname, char const * country, char const * realmname, unsigned int id);
 
-extern int channel_set_flags(t_connection * c);
+extern int channel_set_userflags(t_connection * c);
 
 extern t_channel * channel_create(char const * fullname, char const * shortname, char const * clienttag, int permflag, int botflag, int operflag, int logflag, char const * country, char const * realmname, int maxmembers, int moderated, int clanflag)
 {
@@ -475,6 +475,17 @@ extern t_channel_flags channel_get_flags(t_channel const * channel)
     return channel->flags;
 }
 
+extern int channel_set_flags(t_channel * channel, t_channel_flags flags)
+{
+    if (!channel)
+    {
+        eventlog(eventlog_level_error,__FUNCTION__,"got NULL channel");
+	return -1;
+    }
+    channel->flags = flags;
+    
+    return 0;
+}
 
 extern int channel_get_permanent(t_channel const * channel)
 {
@@ -577,7 +588,7 @@ extern int channel_add_connection(t_channel * channel, t_connection * connection
     {
 	message_send_text(connection,message_type_info,connection,"you are now tempOP for this channel");
 	conn_set_tmpOP_channel(connection,(char *)channel_get_name(channel));
-	channel_update_flags(connection);
+	channel_update_userflags(connection);
     }
 
     if(!(channel_get_flags(channel) & channel_flags_thevoid))
@@ -684,7 +695,7 @@ extern void channel_update_latency(t_connection * me)
 }
 
 
-extern void channel_update_flags(t_connection * me)
+extern void channel_update_userflags(t_connection * me)
 {
     t_channel *    channel;
     t_message *    message;
@@ -692,12 +703,12 @@ extern void channel_update_flags(t_connection * me)
     
     if (!me)
     {
-	eventlog(eventlog_level_error,"channel_update_flags","got NULL connection");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL connection");
         return;
     }
     if (!(channel = conn_get_channel(me)))
     {
-	eventlog(eventlog_level_error,"channel_update_flags","connection has no channel");
+	eventlog(eventlog_level_error,__FUNCTION__,"connection has no channel");
         return;
     }
     
@@ -1638,7 +1649,7 @@ extern t_channel * channellist_find_channel_bychannelid(unsigned int channelid)
     return NULL;
 }
 
-extern int channel_set_flags(t_connection * c)
+extern int channel_set_userflags(t_connection * c)
 {
   unsigned int	newflags;
   char const *	channel;
@@ -1672,7 +1683,7 @@ extern int channel_set_flags(t_connection * c)
   
   if (conn_get_flags(c) != newflags) {
     conn_set_flags(c, newflags);
-    channel_update_flags(c);
+    channel_update_userflags(c);
   }
   
   return 0;

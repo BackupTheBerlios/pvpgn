@@ -3690,7 +3690,7 @@ static int _client_joinchannel(t_connection * c, t_packet const * const packet)
 	 conn_set_channel(c,CHANNEL_NAME_BANNED); /* should not fail */
      }
    // here we set channel flags on user
-   channel_set_flags(c);
+   channel_set_userflags(c);
 
    return 0;
 }
@@ -5335,7 +5335,7 @@ static int _client_w3xp_clan_invitereply(t_connection * c, t_packet const * cons
           if(conn_get_channel(c))
           {
             conn_update_w3_playerinfo(c);
-            channel_set_flags(c);
+            channel_set_userflags(c);
             if (conn_set_channel(c,channelname)<0)
               conn_set_channel(c,CHANNEL_NAME_BANNED); /* should not fail */
             clanmember_set_online(c);

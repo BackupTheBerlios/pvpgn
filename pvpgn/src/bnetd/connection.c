@@ -1309,7 +1309,7 @@ extern void conn_set_clienttag(t_connection * c, t_clienttag clienttag)
 	eventlog(eventlog_level_info,"conn_set_clienttag","[%d] setting client type to \"%s\"",conn_get_socket(c),tag_uint_to_str(clienttag_str,clienttag));
         c->protocol.client.clienttag = clienttag;
         if (c->protocol.chat.channel)
-	    channel_update_flags(c);
+	    channel_update_userflags(c);
     }
     
 }
@@ -1578,7 +1578,7 @@ extern int conn_set_flags(t_connection * c, unsigned int flags)
     c->protocol.flags = flags;
 
     if (oldflags!=c->protocol.flags && c->protocol.chat.channel)
-	channel_update_flags(c);
+	channel_update_userflags(c);
     
     return 0;
 }
@@ -1597,7 +1597,7 @@ extern void conn_add_flags(t_connection * c, unsigned int flags)
     c->protocol.flags |= flags;
     
     if (oldflags!=c->protocol.flags && c->protocol.chat.channel)
-	channel_update_flags(c);
+	channel_update_userflags(c);
 }
 
 
@@ -1614,7 +1614,7 @@ extern void conn_del_flags(t_connection * c, unsigned int flags)
     c->protocol.flags &= ~flags;
     
     if (oldflags!=c->protocol.flags && c->protocol.chat.channel)
-	channel_update_flags(c);
+	channel_update_userflags(c);
 }
 
 

@@ -620,7 +620,7 @@ static int _client_anongame_set_icon(t_connection * c, t_packet const * const pa
     account_set_user_icon(conn_get_account(c),conn_get_clienttag(c),user_icon);
     //FIXME: Still need a way to 'refresh the user/channel' 
     //_handle_rejoin_command(conn_get_account(c),""); 
-    /* ??? channel_update_flags() */
+    /* ??? channel_update_userflags() */
 	conn_update_w3_playerinfo(c);
     
     channel_rejoin(c);
