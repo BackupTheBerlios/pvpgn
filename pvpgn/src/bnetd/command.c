@@ -958,7 +958,7 @@ static int _handle_devoice_command(t_connection * c, char const * text)
     t_connection *	dst_c;
     int			done = 0;
     char const *	name;
-    int			changed;
+    int			changed = 0;
     
     if (!(channel = channel_get_name(conn_get_channel(c)))) {
 	message_send_text(c,message_type_error,c,"This command can only be used inside a channel.");
@@ -1178,7 +1178,6 @@ static int _handle_deop_command(t_connection * c, char const * text)
     t_connection *	dst_c;
     char const *	name;
     int			done = 0;
-    int			changed = 0;
     
     if (!(channel = channel_get_name(conn_get_channel(c)))) {
 	message_send_text(c,message_type_error,c,"This command can only be used inside a channel.");
