@@ -61,6 +61,12 @@ typedef struct clan
 #endif
 t_clan;
 
+#define CLAN_CHIEFTAIN 0x04
+#define CLAN_SHAMAN    0x03
+#define CLAN_GRUNT     0x02
+#define CLAN_PEON      0x01
+#define CLAN_NEW       0x00
+
 #endif
 
 #ifndef JUST_NEED_TYPES
@@ -97,6 +103,14 @@ char  * clan_get_clanname(t_clan * clan);
 char  * clan_get_clan_motd(t_clan * clan);
 int     clan_get_clanid(t_clan * clan);
 time_t  clan_get_creation_time(t_clan * clan);
+
+int clan_add_member(t_clan * clan, int uid, char status);
+// adds a new member with given uid and status to a clan
+// does NOT automatically save the clan (and the changes within) to disc
+
+t_clan * create_clan(int chieftain_uid, char clanshort[4], char * clanname, char * motd);
+// creates a new clan with the given data and adds the chieftain as first member
+// does NOT automatically save the newly created clan to disc
 
 #endif
 #endif

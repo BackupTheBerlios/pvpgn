@@ -495,3 +495,123 @@ time_t clan_get_creation_time(t_clan * clan)
   return clan->creation_time;
 }
 
+int clan_add_member(t_clan * clan, int uid, char status)
+{
+  t_clanmember * member;
+
+  if (!(clan))
+  {
+    eventlog(eventlog_level_error,__FUNCTION__,"got NULL clan");
+    return -1;
+  }
+
+  if (!(clan->members))
+  {
+    eventlog(eventlog_level_error,__FUNCTION__,"found NULL clan->members");
+    return -1;
+  }
+
+  if (!(member = malloc(sizeof(t_clanmember))))
+  {
+    eventlog(eventlog_level_error,__FUNCTION__,"could not allocate memory for clanmember");
+    return -1;
+  }
+
+  member->uid       = uid;
+  member->status    = status;
+  member->join_time = time(0);
+
+  if (list_append_data(clan->members,member)<0)
+  {
+     eventlog(eventlog_level_error,__FUNCTION__,"could not append item");
+     free((void *)member);
+     return -1;
+  }
+
+  return 0;
+}
+
+t_clan * create_clan(int chieftain_uid, char clanshort[4], char * clanname, char * motd)
+{
+  t_clan * clan;
+  t_clanmember * member;
+
+  if (!(clan = malloc(sizeof(t_clan))))
+  {
+     eventlog(eventlog_level_error,__FUNCTION__,"could not allocate memory for new clan");
+     return NULL;
+  }
+
+  if (!(member = malloc(sizeof(t_clanmember))))
+  {
+    eventlog(eventlog_level_error,__FUNCTION__,"could not allocate memory for clanmember");
+    free((void *)clan);
+    return NULL;
+  }
+
+  if (!(clanname))
+  {
+    eventlog(eventlog_level_error,__FUNCTION__,"got NULL clanname");
+    free((void *)clan);
+    free((void *)member);
+    return NULL;
+  }
+
+  if (!(clan->clanname = strdup(clanname)))
+  {
+    eventlog(eventlog_level_error,__FUNCTION__,"could not allocate memory for clanname");
+    free((void *)clan);
+    free((void *)member);
+    return NULL;
+  }
+
+  if (!(motd))
+  {
+    clan->clan_motd = strdup("This is a newly created clan");
+  }
+  else
+  {
+    clan->clan_motd = strdup(motd);
+  }
+  if (!(clan->clan_motd))
+  {
+    eventlog(eventlog_level_error,__FUNCTION__,"could not allocate memory for clan_motd");
+    free((void *)clan->clanname);
+    free((void *)member);
+    free((void *)clan);
+    return NULL;
+  }
+
+  clan->creation_time = time(0);
+
+  memcpy(clan->clanshort,clanshort,4);
+
+  clan->clanid=++max_clanid;
+
+  if ((clan->members = list_create())<0)
+  {
+    eventlog(eventlog_level_error,__FUNCTION__,"could not create memberlist");
+    free((void *)clan->clanname);
+    free((void *)clan->clan_motd);
+    free((void *)member);
+    free((void *)clan);
+    return NULL;
+  }
+
+  member->uid       = chieftain_uid;
+  member->status    = CLAN_CHIEFTAIN;
+  member->join_time = clan->creation_time;
+
+  if (list_append_data(clan->members,member)<0)
+  {
+    eventlog(eventlog_level_error,__FUNCTION__,"could not append item");
+    free((void *)clan->clanname);
+    free((void *)clan->clan_motd);
+    free((void *)member);
+    list_destroy(clan->members);
+    free((void *)clan);
+    return NULL;
+  }
+
+  return clan;
+}
