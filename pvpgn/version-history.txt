@@ -1,24 +1,35 @@
 PvPGN Version History:
 
 1.7.0 since 1.6.0
-[IRC]: hiding IP on channel join/leave to non admins when hide_addr=true
 [IRC]: major cleanup of handle_irc.c
+  -- hiding IP on channel join/leave to non admins when hide_addr=true
   -- now on IRC channel topics are supported (at least their output)
   -- PvPGN can only handle being in one channel at once, so the server
   now makes sure you leave the channel you were previously in.
-[IRC]: added /NOTICE, /ISON and /WHOIS handling
-[IRC]: now the real MOTD displays when connecting via IRC
+  -- added /NOTICE, /ISON and /WHOIS handling
+  -- now the real MOTD displays when connecting via IRC
+
 [STORAGE]: combined plain and cdb file storage into one (this eliminates replicating 
 codes)
+
 [FDWATCH]: moved codes into "common" directory to be used by other applications 
 than bnetd
+
 [SQL]: bugfixes
   -- fixed sql_DB_layout for command_groups and pgsql
   -- fixed a long standing bug which failed to created new columns properly 
   (mostly seen on servers failing to save AT records to DB)
   -- fixed files2db.pl conversion script for AT (ie Team table)
+
 [WAR3-CG]: fixed the "can only create on CG in a row" problem
 
+[D2]:
+  -- re-enabled checksum check
+  -- added missing packet NULL check (possible crash)
+  -- added support for d2gs beta6 (DiabloClone etc)
+
+[MISC]:
+  -- fixed crash in versioncheck for clients who didnt sent proper informations
 
 a general 1.6.x note:
 versioncheck exe-time parsing now REALLY works as it was intended to.
