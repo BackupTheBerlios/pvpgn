@@ -93,7 +93,7 @@ static int get_mail_quota(t_account *);
 
 /* Mail API */
 /* for now this functions are only for internal use */
-static t_mailbox * mailbox_open(t_account *);
+static t_mailbox * mailbox_open(t_account *, t_mbox_mode mode);
 static int mailbox_count(t_mailbox *);
 static int mailbox_deliver(t_mailbox *, const char *, const char *);
 static t_mail * mailbox_read(t_mailbox *, unsigned int);
@@ -107,26 +107,34 @@ static void mailbox_close(t_mailbox *);
 static char * clean_str(char *);
 
 
-static t_mailbox * mailbox_open(t_account * user) {
+static t_mailbox * mailbox_open(t_account * user, t_mbox_mode mode) {
    t_mailbox * rez;
    char * path;
    char const * maildir;
 
    rez=xmalloc(sizeof(t_mailbox));
+
    maildir=prefs_get_maildir();
-   p_mkdir(maildir,S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
+   if (mode & mbox_mode_write)
+      p_mkdir(maildir,S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
+
    path=xmalloc(strlen(maildir)+1+8+1);
    if (maildir[0]!='\0' && maildir[strlen(maildir)-1]=='/')
       sprintf(path,"%s%06u",maildir,account_get_uid(user));
    else
       sprintf(path,"%s/%06u",maildir,account_get_uid(user));
-   p_mkdir(path,S_IRWXU | S_IXGRP | S_IRGRP | S_IROTH | S_IXOTH);
+
+   if (mode & mbox_mode_write)
+      p_mkdir(path,S_IRWXU | S_IXGRP | S_IRGRP | S_IROTH | S_IXOTH);
+
    if ((rez->maildir=p_opendir(path))==NULL) {
-      eventlog(eventlog_level_error,__FUNCTION__,"error opening maildir");
+      if (mode & mbox_mode_write) 
+         eventlog(eventlog_level_error,__FUNCTION__,"error opening maildir");
       xfree(path);
       xfree(rez);
       return NULL;
    }
+
    rez->uid=account_get_uid(user);
    rez->path=path;
    return rez;
@@ -135,11 +143,10 @@ static t_mailbox * mailbox_open(t_account * user) {
 static int mailbox_count(t_mailbox *mailbox) {
    char const * dentry;
    int count=0;
-   
-   if (mailbox==NULL) {
-      eventlog(eventlog_level_error,__FUNCTION__,"got NULL mailbox");
-      return -1;
-   }
+
+   /* consider NULL mailbox as empty mailbox */
+   if (mailbox==NULL) return 0;
+
    if (mailbox->maildir==NULL) {
       eventlog(eventlog_level_error,__FUNCTION__,"got NULL maildir");
       return -1;
@@ -348,10 +355,7 @@ static int mailbox_delete_all(t_mailbox * mailbox) {
 }
 
 static void mailbox_close(t_mailbox *mailbox) {
-   if (mailbox==NULL) {
-      eventlog(eventlog_level_error,__FUNCTION__,"got NULL mailbox");
-      return;
-   }
+   if (mailbox==NULL) return;
    if (mailbox->maildir!=NULL) {
       p_closedir(mailbox->maildir);
    } else {
@@ -476,7 +480,7 @@ static void mail_func_send(t_connection * c, const char * str) {
       return;
    }
    xfree(dest); /* free dest here, the sooner the better */
-   if ((mailbox=mailbox_open(recv))==NULL) {
+   if ((mailbox=mailbox_open(recv, mbox_mode_write))==NULL) {
       message_send_text(c,message_type_error,c,"There was an error completing your request!");
       return;
    }
@@ -514,15 +518,13 @@ static void mail_func_read(t_connection * c, const char * str) {
       eventlog(eventlog_level_error,__FUNCTION__,"got NULL account");
       return;
    }
-   if ((mailbox=mailbox_open(user))==NULL) {
-      eventlog(eventlog_level_error,__FUNCTION__,"got NULL mailbox");
-      return;
-   }
+
+   mailbox=mailbox_open(user, mbox_mode_read);
    if (*p=='\0') { /* user wants to see the mail summary */
       struct maillist_struct *maill, *mp;
       unsigned int idx;
       
-      if (mailbox_count(mailbox)==0) {
+      if (!mailbox_count(mailbox)) {
 	 message_send_text(c,message_type_info,c,"You have no mail.");
 	 mailbox_close(mailbox);
 	 return;
@@ -598,7 +600,7 @@ static void mail_func_delete(t_connection * c, const char * str) {
       eventlog(eventlog_level_error,__FUNCTION__,"got NULL account");
       return;
    }
-   if ((mailbox=mailbox_open(user))==NULL) {
+   if ((mailbox=mailbox_open(user, mbox_mode_write))==NULL) {
       eventlog(eventlog_level_error,__FUNCTION__,"got NULL mailbox");
       return;
    }
@@ -670,16 +672,11 @@ extern char const * check_mail(t_connection const * c) {
 
    if (!(user=conn_get_account(c)))
       return "";
-  
 
-   if (!(mailbox=mailbox_open(user))) {
-      eventlog(eventlog_level_error,__FUNCTION__,"got NULL mailbox");
-      return "";
-   }
-
+   mailbox=mailbox_open(user, mbox_mode_read);
    count = mailbox_count(mailbox);
    mailbox_close(mailbox);
-   
+
    if (count == 0) 
    {
       return "You have no mail.";

@@ -68,6 +68,11 @@
 # undef JUST_NEED_TYPES
 #endif
 
+typedef enum {
+    mbox_mode_read = 0x01,
+    mbox_mode_write = 0x02
+} t_mbox_mode;
+
 typedef struct mailbox_struct {
    t_pdir *     maildir;
    unsigned int uid;
