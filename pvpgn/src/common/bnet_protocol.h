@@ -210,10 +210,12 @@ typedef struct
 typedef struct
 {
 	t_w3route_header h;
-	bn_byte unknown1;
-	bn_byte unknown2;
-	bn_int	result;
-	// rest unknown
+	bn_byte number_of_results;
+/*
+        t_client_w3route_gameresult_player players[];   1-n times
+	t_client_w3route_gameresult_part2  part2;
+	t_client_w3route_gameresult_hero   heroes[];    0-n times
+	t_client_w3route_gameresult_part3  part3; */
 } t_client_w3route_gameresult PACKED_ATTR();
 /******************************************************/
 
@@ -221,7 +223,53 @@ typedef struct
 #define W3_GAMERESULT_LOSS	0x00000003
 #define W3_GAMERESULT_WIN	0x00000004
 
+typedef struct
+{
+	bn_byte number;
+	bn_int  result;
+	bn_int  race;
+	bn_int  unknown1;
+	bn_int  unknown2;
+} t_client_w3route_gameresult_player PACKED_ATTR();
 
+typedef struct
+{
+	bn_byte unknown0; // but could also contain info about result
+	bn_int  unknown1;
+	bn_int  unknown2;
+	bn_int  unknown3;
+	bn_int  unknown4;
+	bn_int  unit_score;
+	bn_int  heroes_score;
+	bn_int  resource_score;
+	bn_int  units_produced;
+	bn_int  units_killed;
+	bn_int  buildings_produced;
+	bn_int  buildings_razed;
+	bn_int  largest_army;
+	bn_int  heroes_used_count;
+}  t_client_w3route_gameresult_part2 PACKED_ATTR();
+
+typedef struct
+{
+	bn_short level;
+	bn_int  race_and_name;
+	bn_int  hero_xp;
+} t_client_w3route_gameresult_hero PACKED_ATTR();
+
+typedef struct
+{
+	bn_int  heroes_killed;
+	bn_int  items_obtained;
+	bn_int  mercenaries_hired;
+	bn_int  total_hero_xp;
+	bn_int  gold_mined;
+	bn_int  lumber_harvested;
+	bn_int  resources_traded_given;
+	bn_int  resources_traded_taken;
+	bn_int  tech_percentage;
+	bn_int  gold_lost_to_upkeep;
+} t_client_w3route_gameresult_part3 PACKED_ATTR();
 
 /******************************************************/
 /*

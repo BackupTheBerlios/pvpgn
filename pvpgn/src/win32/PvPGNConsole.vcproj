@@ -91,6 +91,9 @@
 					RelativePath="..\bnetd\anongame.c">
 				</File>
 				<File
+					RelativePath="..\bnetd\anongame_gameresult.c">
+				</File>
+				<File
 					RelativePath="..\bnetd\anongame_infos.c">
 				</File>
 				<File
@@ -483,6 +486,9 @@
 				</File>
 				<File
 					RelativePath="..\bnetd\anongame.h">
+				</File>
+				<File
+					RelativePath="..\bnetd\anongame_gameresult.h">
 				</File>
 				<File
 					RelativePath="..\bnetd\anongame_infos.h">

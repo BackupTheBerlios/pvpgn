@@ -53,6 +53,7 @@
 #include "timer.h"
 #include "ladder.h"
 #include "anongame_maplists.h"
+#include "anongame_gameresult.h"
 #include "w3trans.h"
 #include "common/setup_after.h"
 
@@ -1680,14 +1681,24 @@ extern int handle_w3route_packet(t_connection * c, t_packet const * const packet
 
 	    /* insert reading of whole packet into t_gameresult */
 
-	   int result = bn_int_get(packet->u.client_w3route_gameresult.result);
+	   t_anongame_gameresult * gameresult;
+	   int result;
+	   
 	   t_timer_data data;
 	   t_anongameinfo *inf = anongame_get_info(a);
 	   t_connection *ac;
 
 	   data.p = NULL;
+
+	   if (!(gameresult = anongame_gameresult_parse(packet)))
+	   	result = -1;
+	   else
+	   	result = gameresult_get_player_result(gameresult,0); //own result is always stored as first result
 	   	   
 	   eventlog(eventlog_level_trace,"handle_w3route_packet","[%d] got W3ROUTE_GAMERESULT: %08x",conn_get_socket(c), result);
+
+	   if ((gameresult))  // not needed any longer... should be attached to anongame for later usage
+	     gameresult_destroy(gameresult);
 	   
 	   if(!inf) {
 	      eventlog(eventlog_level_error,"handle_w3route_packet","[%d] NULL anongameinfo",conn_get_socket(c));
