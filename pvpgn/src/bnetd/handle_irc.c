@@ -82,6 +82,7 @@ static int _handle_ping_command(t_connection * conn, int numparams, char ** para
 static int _handle_pong_command(t_connection * conn, int numparams, char ** params, char * text);
 static int _handle_pass_command(t_connection * conn, int numparams, char ** params, char * text);
 static int _handle_privmsg_command(t_connection * conn, int numparams, char ** params, char * text);
+static int _handle_notice_command(t_connection * conn, int numparams, char ** params, char * text);
 
 
 static int _handle_who_command(t_connection * conn, int numparams, char ** params, char * text);
@@ -92,6 +93,8 @@ static int _handle_names_command(t_connection * conn, int numparams, char ** par
 static int _handle_mode_command(t_connection * conn, int numparams, char ** params, char * text);
 static int _handle_userhost_command(t_connection * conn, int numparams, char ** params, char * text);
 static int _handle_quit_command(t_connection * conn, int numparams, char ** params, char * text);
+static int _handle_ison_command(t_connection * conn, int numparams, char ** params, char * text);
+static int _handle_whois_command(t_connection * conn, int numparams, char ** params, char * text);
 
 
 /* state connected handlers */
@@ -103,6 +106,7 @@ static const t_irc_command_table_row irc_con_command_table[] =
 	{ "PONG"		, _handle_pong_command },
 	{ "PASS"		, _handle_pass_command },
 	{ "PRIVMSG"		, _handle_privmsg_command },
+	{ "NOTICE"		, _handle_notice_command },
 	{ NULL			, NULL }
 };
 
@@ -116,8 +120,10 @@ static const t_irc_command_table_row irc_log_command_table[] =
 	{ "JOIN"		, _handle_join_command },
 	{ "NAMES"		, _handle_names_command },
 	{ "MODE"		, _handle_mode_command },
-	{ "USERHOST"	, _handle_userhost_command },
+	{ "USERHOST"		, _handle_userhost_command },
 	{ "QUIT"		, _handle_quit_command },
+	{ "ISON"		, _handle_ison_command },
+	{ "WHOIS"		, _handle_whois_command },
 	{ NULL			, NULL }
 };
 
@@ -274,12 +280,12 @@ static int handle_irc_line(t_connection * conn, char const * ircline)
     if ((conn_get_state(conn)==conn_state_loggedin)&&(unrecognized_before)) {
 
 		if (handle_irc_log_command(conn, command, numparams, params, text)!=-1) {}
-		else if ((strstart(command,"LAG")!=0)&&(strstart(command,"ISON")!=0)&&(strstart(command,"JOIN")!=0)){
+		else if ((strstart(command,"LAG")!=0)&&(strstart(command,"JOIN")!=0)){
 			linelen = strlen (ircline);
 			bnet_command = malloc(linelen + 2);
 			if (bnet_command == NULL) 
 			{
-				eventlog(eventlog_level_error, "handle_irc 470", "insufficient memory available");
+				eventlog(eventlog_level_error, __FUNCTION__, "insufficient memory available");
 				return -1;
 			}
 			bnet_command[0]='/';
@@ -628,6 +634,40 @@ static int _handle_privmsg_command(t_connection * conn, int numparams, char ** p
 	return 0;
 }
 
+static int _handle_notice_command(t_connection * conn, int numparams, char ** params, char * text)
+{
+	if ((numparams>=1)&&(text)) 
+	{
+	    int i;
+	    char ** e;
+	
+	    e = irc_get_listelems(params[0]);
+	    /* FIXME: support wildcards! */
+		
+	    for (i=0;((e)&&(e[i]));i++) 
+		{
+			if (conn_get_state(conn)==conn_state_loggedin) 
+			{
+				t_connection * user;
+
+				if ((user = connlist_find_connection_by_accountname(e[i]))) 
+				{
+					irc_send_cmd2(user,conn_get_botuser(conn),"NOTICE",conn_get_botuser(user),text);
+				}
+				else 
+				{
+					irc_send(conn,ERR_NOSUCHNICK,":No such user");
+				}
+	        	}
+	    	}
+	    	if (e)
+	        irc_unget_listelems(e);
+	} 
+	else
+	    irc_send(conn,ERR_NEEDMOREPARAMS,":Too few arguments to PRIVMSG");
+	return 0;
+}
+
 static int _handle_who_command(t_connection * conn, int numparams, char ** params, char * text)
 {
 	if (numparams>=1) 
@@ -910,6 +950,72 @@ static int _handle_userhost_command(t_connection * conn, int numparams, char ** 
 
 static int _handle_quit_command(t_connection * conn, int numparams, char ** params, char * text)
 {
-	/* FIXME: Not yet implemented */
+	conn_set_channel(conn, NULL);
+	conn_set_state(conn, conn_state_destroy);
+	return 0;
+}
+
+static int _handle_ison_command(t_connection * conn, int numparams, char ** params, char * text)
+{
+	char temp[MAX_IRC_MESSAGE_LEN];
+	char first = 1;
+	
+	eventlog(eventlog_level_trace,__FUNCTION__,"in ISON");
+	if (numparams>=1) 
+	{
+	    int i;
+
+	    temp[0]='\0';
+	    for (i=0; (i<numparams && (params) && (params[i]));i++) 
+		{
+	    	  if (connlist_find_connection_by_accountname(params[i]))
+		  {
+		    if (first)
+		        strcat(temp,":");
+		    else 
+		        strcat(temp," ");
+		    strcat(temp,params[i]);
+		    first = 0;
+		  }
+	    }
+	    irc_send(conn,RPL_ISON,temp);
+	} 
+	else 
+	    irc_send(conn,ERR_NEEDMOREPARAMS,":Too few arguments to ISON");
+	return 0;
+}
+
+static int _handle_whois_command(t_connection * conn, int numparams, char ** params, char * text)
+{
+	char temp[MAX_IRC_MESSAGE_LEN];
+	eventlog(eventlog_level_trace,__FUNCTION__,"in WHOIS");
+	if (numparams>=1) 
+	{
+	    int i;
+	    char ** e;
+	    t_connection * c;
+
+	    temp[0]='\0';
+	    e = irc_get_listelems(params[0]);
+	    for (i=0; ((e)&&(e[i]));i++) 
+		{
+	    	  if (c = connlist_find_connection_by_accountname(e[i]))
+		  {
+		    if (prefs_get_hide_addr() && !(account_get_command_groups(conn_get_account(conn)) & command_get_group("/admin-addr")))
+		      sprintf(temp,"%s %s hidden * :%s",e[i],conn_get_clienttag(c),addr_num_to_ip_str(conn_get_addr(c)),"PvPGN user");
+		    else
+		      sprintf(temp,"%s %s %s * :%s",e[i],conn_get_clienttag(c),addr_num_to_ip_str(conn_get_addr(c)),"PvPGN user");
+		    irc_send(conn,RPL_WHOISUSER,temp);
+		  }
+		  else
+		    irc_send(conn,ERR_NOSUCHNICK,":No such nick/channel");
+		  
+	    }
+	    irc_send(conn,RPL_ENDOFWHOIS,":End of /WHOIS list");
+        if (e)
+			irc_unget_listelems(e);
+	} 
+	else 
+	    irc_send(conn,ERR_NEEDMOREPARAMS,":Too few arguments to WHOIS");
 	return 0;
 }
