@@ -1352,9 +1352,9 @@ extern void game_set_status(t_game * game, t_game_status status)
 		return;
 	}
 
-	if (game->status == game_status_done) {
+	if (game->status == game_status_done && status != game_status_done) {
 		eventlog(eventlog_level_error, "game_set_status", 
-		"attempting to set status %d to done game", game->status);
+		"attempting to set status '%s' (%d) to done game", game_status_get_str(game->status), game->status);
 		return;
 	}
 
