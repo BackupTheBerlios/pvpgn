@@ -1539,7 +1539,7 @@ extern int game_add_player(t_game * game, char const * pass, int startver, t_con
     t_game_result ** temprr;
     char const * *   temprh;
     char const * *   temprb;
-    unsigned int i;
+    unsigned int i = 0;
     
     if (!game)
     {

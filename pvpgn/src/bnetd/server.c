@@ -808,7 +808,7 @@ void server_check_and_fix_name(char const * sname)
     char * tn = (char *)sname;
     char * sn = (char *)sname;
 
-    if (!isalnum(*sn))
+    if (!isalnum((int)*sn))
     {
 	eventlog(eventlog_level_error,__FUNCTION__,"servername contains invalid first symbol (must be alphanumeric)");
 	*tn='a';
@@ -818,7 +818,7 @@ void server_check_and_fix_name(char const * sname)
     
     for (;*sn!='\0';sn++)
     {
-	if (isalnum(*sn) || *sn=='-' || *sn=='.')
+	if (isalnum((int)*sn) || *sn=='-' || *sn=='.')
 	{
 	   *tn=*sn;
 	   tn++;
