@@ -107,7 +107,6 @@ static int account_insert_attr(t_account * account, char const * key, char const
 static t_account * account_load(t_storage_info *);
 static int account_load_attrs(t_account * account);
 static void account_unload_attrs(t_account * account);
-static int account_check_name(char const * name);
 static int account_load_friends(t_account * account);
 static int account_unload_friends(t_account * account);
 
@@ -155,13 +154,6 @@ extern t_account * account_create(char const * username, char const * passhash1)
 {
     t_account * account;
     
-    if (username && account_check_name(username)<0)
-    { 
-	eventlog(eventlog_level_error,"account_create","got bad account name (name \"%s\" contains invalid symbols)",username); 
-        return NULL; 
-    } 
-
-
     if (!(account = malloc(sizeof(t_account))))
     {
 	eventlog(eventlog_level_error,"account_create","could not allocate memory for account");
@@ -1595,7 +1587,7 @@ extern char const * account_get_next_key(t_account * account, char const * key)
 }
 
 
-static int account_check_name(char const * name)
+extern int account_check_name(char const * name)
 {
     unsigned int  i;
 	char ch;

@@ -305,6 +305,11 @@ static int handle_irc_line(t_connection * conn, char const * ircline)
 					char         msgtemp[MAX_MESSAGE_LEN];
 					char       * username=(char *)conn_get_botuser(conn);						
 					
+					if (account_check_name(username)<0) {
+						message_send_text(conn,message_type_error,conn,"Account name contains invalid symbol!");
+						break;
+					}
+
 					if (!pass || pass[0]=='\0' || (strlen(pass)>16) )
 					{
 						message_send_text(conn,message_type_error,conn,":Syntax: REGISTER password(max 16 characters)");

@@ -817,7 +817,11 @@ static int _client_createaccountw3(t_connection * c, t_packet const * const pack
 	     t_hash sc_hash;
 	     unsigned int i;
 	     
-	     if (!plainpass) {
+		if (account_check_name(username)<0) {
+		     eventlog(eventlog_level_info,__FUNCTION__,"[%d] (W3) account not created (invalid symbols)",conn_get_socket(c));
+		     bn_int_set(&rpacket->u.server_createaccount_w3.result,SERVER_CREATEACCOUNT_W3_RESULT_INVALID);
+		}
+		else if (!plainpass) {
 		eventlog(eventlog_level_error,__FUNCTION__,"[%d] (W3) got bad CREATEACCOUNT_W3 (missing password)",conn_get_socket(c));
 		bn_int_set(&rpacket->u.server_createaccount_w3.result,SERVER_CREATEACCOUNT_W3_RESULT_EXIST);
 	     } else {
@@ -911,6 +915,10 @@ static int _client_createacctreq1(t_connection * c, t_packet const * const packe
 	  }
 	else
 	  {
+		if (account_check_name(username)<0) {
+		     eventlog(eventlog_level_info,__FUNCTION__,"[%d] account not created (invalid symbols)",conn_get_socket(c));
+		     bn_int_set(&rpacket->u.server_createaccount_w3.result,SERVER_CREATEACCTREPLY1_RESULT_NO);
+		} else {
 	     bnhash_to_hash(packet->u.client_createacctreq1.password_hash1,&newpasshash1);
 	     if (!(temp = account_create(username,hash_get_str(newpasshash1))))
 	       {
@@ -929,6 +937,7 @@ static int _client_createacctreq1(t_connection * c, t_packet const * const packe
 		  bn_int_set(&rpacket->u.server_createacctreply1.result,SERVER_CREATEACCTREPLY1_RESULT_OK);
 		  account_save(temp, 3600); /* force account save for new created accounts */
 	       }
+		}
 	  }
 	conn_push_outqueue(c,rpacket);
 	packet_del_ref(rpacket);
@@ -985,6 +994,10 @@ static int _client_createacctreq2(t_connection * c, t_packet const * const packe
 	  }
 	else
 	  {
+		if (account_check_name(username)<0) {
+		     eventlog(eventlog_level_info,__FUNCTION__,"[%d] account not created (invalid symbols)",conn_get_socket(c));
+		     bn_int_set(&rpacket->u.server_createaccount_w3.result,SERVER_CREATEACCTREPLY2_RESULT_INVALID);
+		} else {
 	     bnhash_to_hash(packet->u.client_createacctreq2.password_hash1,&newpasshash1);
 	     if (!(temp = account_create(username,hash_get_str(newpasshash1))))
 	       {
@@ -1003,6 +1016,7 @@ static int _client_createacctreq2(t_connection * c, t_packet const * const packe
 		  bn_int_set(&rpacket->u.server_createacctreply2.result,SERVER_CREATEACCTREPLY2_RESULT_OK);
 		  account_save(temp, 3600); /* force account save for new created accounts */
 	       }
+		}
 	  }
 	conn_push_outqueue(c,rpacket);
 	packet_del_ref(rpacket);

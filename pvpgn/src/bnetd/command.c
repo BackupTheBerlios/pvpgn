@@ -2880,6 +2880,12 @@ static int _handle_addacct_command(t_connection * c, char const *text)
       return 0;
     }
   
+    if (account_check_name(username)<0)
+    { 
+        message_send_text(c,message_type_error,c,"Account name contains some invalid symbol!");
+        return 0; 
+    } 
+
   /* FIXME: truncate or err on too long password */
   for (i=0; i<strlen(pass); i++)
     if (isupper((int)pass[i])) pass[i] = tolower((int)pass[i]);
