@@ -2621,6 +2621,19 @@ extern int handle_command(t_connection * c,  char const * text)
 
 	return 0;
     }
+if (strstart(text,"/rank_all_accounts")==0)
+    {
+	if (account_get_auth_admin(conn_get_account(c))!=1) /* default to false */
+        {
+            message_send_text(c,message_type_error,c,"This command is reserved for admins.");
+	    return 0;
+        }
+
+	// rank all accounts here
+	accounts_rank_all();
+	
+	return 0;
+    }
 
     // <--
 

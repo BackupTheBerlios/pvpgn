@@ -1592,6 +1592,35 @@ extern int accounts_remove_accounting_infos(void)
 
   return 0;
 }
+
+extern int accounts_rank_all(void)
+{
+    t_entry *    curr;
+    t_account *  account;
+    unsigned int uid;
+
+    // unload ladders, create new.... !!!
+    war3_ladders_destroy();
+    war3_ladders_init();
+    
+    
+    HASHTABLE_TRAVERSE(accountlist_head,curr)
+    {
+      int counter;
+      
+      account = entry_get_data(curr);
+      uid = account_get_uid(account);
+      war3_ladder_add(&solo_ladder,uid,account_get_soloxp(account),account_get_solorank(account),account,0);
+      war3_ladder_add(&team_ladder,uid,account_get_teamxp(account),account_get_teamrank(account),account,0);
+      war3_ladder_add(&ffa_ladder,uid,account_get_ffaxp(account),account_get_ffarank(account),account,0);
+      for (counter=1; counter<=account_get_atteamcount(account);counter++)
+      {
+        war3_ladder_add(&at_ladder,uid,account_get_atteamxp(account,counter),account_get_atteamrank(account,counter),account,counter);
+      }
+    }
+    war3_ladder_update_all_accounts();
+    return 0;
+}
 // <---
 
 #ifdef WITH_BITS

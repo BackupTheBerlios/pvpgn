@@ -128,6 +128,7 @@ extern int accountlist_allow_add(void);
 extern t_account * accountlist_add_account(t_account * account);
 // aaron
 extern int accounts_remove_accounting_infos(void);
+extern int accounts_rank_all(void);
 /* names and passwords */
 #ifdef DEBUG_ACCOUNT
 extern char const * account_get_name_real(t_account * account, char const * fn, unsigned int ln);
