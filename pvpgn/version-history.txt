@@ -15,6 +15,11 @@ deleted friend (resulting in a possible disc when viewing friends list)
 -- fixed problem (only appearing with topaz chat so far) that user seems to join
 a channel on first connect twice (meaning: join-leave-join)
 -- fixed check for allowed War3 game ports (was 1025-32766 now is 1024-49151)
+-- fixed a tiny problem in war3 login req (when login with non existant user)
+-- made sure, that username-based friends get removed from account when converting
+to uid-based friends is done
+-- fixed possible server instability due to a /rehash when using a non standard
+location for the preffile (bnetd.conf)
 
 1.6.0pre1 (since 1.5.0beta3):
 -- fixed IRC auth bug (when using passwords with upper cases)
