@@ -26,15 +26,14 @@
 #endif
 #endif
 
-char serviceLongName[] = "PvPGN service";
-char serviceName[] = "pvpgn";
-char serviceDescription[] = "Player vs. Player Gaming Network - Server";
-
+extern char serviceLongName[];
+extern char serviceName[];
+extern char serviceDescription[];
 
 extern int g_ServiceStatus;
 
 #ifdef WIN32_GUI
-extern int bnetd_main(int argc, char *argv[]);
+extern int server_main(int argc, char *argv[]);
 #else
 extern int main(int argc, char *argv[]);
 #endif
@@ -205,7 +204,7 @@ void WINAPI ServiceMain(DWORD argc, char *argv[])
 		argc = 1;
 
 #ifdef WIN32_GUI
-		bnetd_main(argc, argv);
+		server_main(argc, argv);
 #else
 		main(argc, argv);
 #endif

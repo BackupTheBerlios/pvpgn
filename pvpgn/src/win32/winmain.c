@@ -47,7 +47,7 @@
 
 #define WM_SHELLNOTIFY          (WM_USER+1)
 
-int extern bnetd_main(int, char*[]);
+int extern server_main(int, char*[]);
 
 
 void static         guiThread(void*);
@@ -137,7 +137,7 @@ int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE reserved,
 
   //by greini new call of main cause _argc and _argv don't exist in VS
 	//result = main(_argc, _argv);
-	result = bnetd_main(__argc ,__argv);
+	result = server_main(__argc ,__argv);
     
 	gui.main_finished = TRUE;
     eventlog(eventlog_level_debug,__FUNCTION__,"server exited ( return : %i )", result);

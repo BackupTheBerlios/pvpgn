@@ -29,7 +29,7 @@
 
 #define WM_SHELLNOTIFY          (WM_USER+1)
 
-extern int	d2dbs_main(int argc, char *argv[]); /* d2dbs main function in d2dbs/main.c */
+extern int	server_main(int argc, char *argv[]); /* d2dbs main function in d2dbs/main.c */
 
 static void	d2dbs(void * dummy); /* thread function for d2dbs */
 
@@ -338,7 +338,7 @@ static void guiAddText(const char *str, COLORREF clr)
 
 static void d2dbs(void * dummy)
 {
-    switch (d2dbs_main(__argc, __argv))
+    switch (server_main(__argc, __argv))
     {
         case EXIT_SERVICE:
             gui_run = FALSE; /* close gui */

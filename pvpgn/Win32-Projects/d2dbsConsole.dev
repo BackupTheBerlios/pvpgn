@@ -40,7 +40,7 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit2]
-FileName=..\src\win32\service_d2dbs.c
+FileName=..\src\win32\service.c
 CompileCpp=0
 Folder=win32/Source Files
 Compile=1

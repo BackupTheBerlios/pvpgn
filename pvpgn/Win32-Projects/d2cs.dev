@@ -1238,7 +1238,7 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit120]
-FileName=..\src\win32\service_d2cs.c
+FileName=..\src\win32\service.c
 CompileCpp=0
 Folder=win32/Source Files
 Compile=1

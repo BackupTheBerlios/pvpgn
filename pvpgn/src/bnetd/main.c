@@ -87,6 +87,13 @@
 #include "common/trans.h"
 #include "common/xalloc.h"
 #include "common/fdwatch.h"
+#ifdef WIN32
+# include "win32/service.h"
+#endif
+#ifdef WIN32_GUI
+# include "win32/winmain.h"
+# define printf gui_printf
+#endif
 #include "common/setup_after.h"
 
 /* out of memory safety */
@@ -126,24 +133,11 @@ static void oom_free(void)
     oom_buffer = NULL;
 }
 
-#ifdef WIN32
-# include "win32/service.h"
-#endif
-
-#ifdef WIN32_GUI
-#include "win32/winmain.h"
-    int static fprintf(FILE *stream, const char *format, ...){
-     va_list args;
-
-        va_start(args, format);
-        if(stream == stderr || stream == stdout) 
-         return gui_lvprintf(eventlog_level_error, format, args);
-        else return vfprintf(stream, format, args);
-    }
-#define printf gui_printf
-#endif
-
 FILE	*hexstrm = NULL;
+
+char serviceLongName[] = "PvPGN service";
+char serviceName[] = "pvpgn";
+char serviceDescription[] = "Player vs. Player Gaming Network - Server";
 
 // by quetzal. indicates service status
 // -1 - not in service mode
@@ -582,7 +576,7 @@ void pvpgn_greeting(void)
 
 // MAIN STARTS HERE!!!
 #ifdef WIN32_GUI
-extern int bnetd_main(int argc, char * * argv)
+extern int server_main(int argc, char * * argv)
 #else
 extern int main(int argc, char * * argv)
 #endif

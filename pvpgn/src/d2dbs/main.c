@@ -53,14 +53,21 @@
 #include "version.h"
 #include "common/eventlog.h"
 #ifdef WIN32
-#include "win32/service.h"
+# include "win32/service.h"
 #endif
 #include "handle_signal.h"
 #include "dbserver.h"
 #include "common/xalloc.h"
+#ifdef WIN32_GUI
+# include "win32/winmain.h"
+#endif
 #include "common/setup_after.h"
 
 static FILE * eventlog_fp;
+
+char serviceLongName[] = "d2dbs service";
+char serviceName[] = "d2dbs";
+char serviceDescription[] = "Diablo 2 DataBase Server";
 
 int g_ServiceStatus = -1;
 
@@ -70,18 +77,6 @@ static int config_init(int argc, char * * argv);
 static int config_cleanup(void);
 static int setup_daemon(void);
 
-#ifdef WIN32_GUI
-#include "win32/winmain.h"
-static int fprintf(FILE *stream, const char *format, ...)
-{
-    va_list args;
-    va_start(args, format);
-    if(stream == stderr || stream == stdout)
-        return gui_lvprintf(eventlog_level_error, format, args);
-    else
-        return vfprintf(stream, format, args);
-}
-#endif
 
 #ifdef DO_DAEMONIZE
 static int setup_daemon(void)
@@ -223,7 +218,7 @@ static int config_cleanup(void)
 }
 
 #ifdef WIN32_GUI
-extern int d2dbs_main(int argc, char * * argv)
+extern int server_main(int argc, char * * argv)
 #else
 extern int main(int argc, char * * argv)
 #endif
