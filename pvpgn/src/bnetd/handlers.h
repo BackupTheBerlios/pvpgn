@@ -19,10 +19,8 @@
 #ifndef __HANDLERS_H__
 #define __HANDLERS_H__
 
-#include "common/setup_before.h"
 #include "common/packet.h"
 #include "connection.h"
-#include "common/setup_after.h"
 
 typedef int (* t_handler)(t_connection *, t_packet const * const);
 

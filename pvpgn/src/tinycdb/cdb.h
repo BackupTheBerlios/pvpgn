@@ -3,9 +3,7 @@
  * This file is a part of tinycdb package by Michael Tokarev, mjt@corpit.ru.
  * Public domain.
  */
-#include "common/setup_before.h"
 #include <stdio.h>
-#include "common/setup_after.h"
 
 #ifndef TINYCDB_VERSION
 #define TINYCDB_VERSION 0.74
