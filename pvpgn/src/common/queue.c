@@ -46,7 +46,7 @@
 #include "common/queue.h"
 #include "common/setup_after.h"
 
-#define QUEUE_QUANTUM	5 /* allocate ring buffer slots for 5 packets at once */
+#define QUEUE_QUANTUM	10 /* allocate ring buffer slots for 10 packets at once */
 
 extern t_packet * queue_pull_packet(t_queue * * queue)
 {
@@ -142,7 +142,7 @@ extern void queue_push_packet(t_queue * * queue, t_packet * packet)
 
     if (temp->ulen == temp->alen) { /* ring queue is full, need to allocate some memory */
 	if (temp->alen)
-	    eventlog(eventlog_level_error, __FUNCTION__, "queue is full (resizing)");
+	    eventlog(eventlog_level_error, __FUNCTION__, "queue is full (resizing) (oldsize: %u)", temp->alen);
 
 	if (!(ptr = realloc(temp->ring, sizeof(t_packet *) * (temp->alen + QUEUE_QUANTUM)))) {
 	    eventlog(eventlog_level_error, __FUNCTION__, "not enough memory for ring buffer");
