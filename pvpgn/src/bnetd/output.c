@@ -86,6 +86,7 @@ int output_standard_writer(FILE * fp)
     if (prefs_get_XML_status_output())
     {
 	fprintf(fp,"<?xml version=\"1.0\"?>\n<status>\n");
+        fprintf(fp,"\t\t<Version>%s</Version>\n",PVPGN_VERSION);
 	fprintf(fp,"\t\t<Uptime>%s</Uptime>\n",seconds_to_timestr(server_get_uptime()));
 	fprintf(fp,"\t\t<Users>\n");
 	fprintf(fp,"\t\t<Number>%d</Number>\n",connlist_login_get_length());
@@ -135,7 +136,7 @@ int output_standard_writer(FILE * fp)
     }
     else
     {
-	fprintf(fp,"[STATUS]\nUptime=%s\nGames=%d\nUsers=%d\nChannels=%d\n",seconds_to_timestr(server_get_uptime()),gamelist_get_length(),connlist_login_get_length(),channellist_get_length()); // Status
+	fprintf(fp,"[STATUS]\nVersion=%s\nUptime=%s\nGames=%d\nUsers=%d\nChannels=%d\n",PVPGN_VERSION,seconds_to_timestr(server_get_uptime()),gamelist_get_length(),connlist_login_get_length(),channellist_get_length()); // Status
 	fprintf(fp,"[CHANNELS]\n");
 	number=1;
 	LIST_TRAVERSE_CONST(channellist(),curr)
