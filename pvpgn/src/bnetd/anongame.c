@@ -446,6 +446,7 @@ static int _handle_anongame_search(t_connection * c, t_packet const * packet)
 	    break;
 	case CLIENT_FINDANONGAME_SEARCH:
 	    tc[0] = c;
+	    a->tc[0]=c;
 	    break;
 	default:
 	    eventlog(eventlog_level_error,__FUNCTION__, "invalid search option (%d)", option);
