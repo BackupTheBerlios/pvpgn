@@ -148,9 +148,6 @@
 					RelativePath="..\bnetd\game_conv.c">
 				</File>
 				<File
-					RelativePath="..\bnetd\gametrans.c">
-				</File>
-				<File
 					RelativePath="..\bnetd\handle_anongame.c">
 				</File>
 				<File
@@ -265,9 +262,6 @@
 					RelativePath="..\bnetd\versioncheck.c">
 				</File>
 				<File
-					RelativePath="..\bnetd\w3trans.c">
-				</File>
-				<File
 					RelativePath="..\bnetd\watch.c">
 				</File>
 			</Filter>
@@ -339,6 +333,9 @@
 				</File>
 				<File
 					RelativePath="..\common\token.c">
+				</File>
+				<File
+					RelativePath="..\common\trans.c">
 				</File>
 				<File
 					RelativePath="..\common\util.c">
@@ -548,9 +545,6 @@
 					RelativePath="..\bnetd\game_conv.h">
 				</File>
 				<File
-					RelativePath="..\bnetd\gametrans.h">
-				</File>
-				<File
 					RelativePath="..\bnetd\handle_anongame.h">
 				</File>
 				<File
@@ -663,9 +657,6 @@
 				</File>
 				<File
 					RelativePath="..\bnetd\versioncheck.h">
-				</File>
-				<File
-					RelativePath="..\bnetd\w3trans.h">
 				</File>
 				<File
 					RelativePath="..\bnetd\watch.h">
@@ -784,6 +775,9 @@
 				</File>
 				<File
 					RelativePath="..\common\tracker.h">
+				</File>
+				<File
+					RelativePath="..\common\trans.h">
 				</File>
 				<File
 					RelativePath="..\common\udp_protocol.h">
