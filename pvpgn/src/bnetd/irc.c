@@ -67,6 +67,8 @@
 #include "prefs.h"
 #include "server.h"
 #include "tick.h"
+#include "message.h"
+#include "common/util.h"
 #include "common/setup_after.h"
 
 typedef struct {
@@ -319,6 +321,11 @@ extern int irc_welcome(t_connection * conn)
     time_t temptime;
     char const * tempname;
     char const * temptimestr;
+    char const * filename;
+    FILE *fp;
+    char * line, * formatted_line;
+    char send_line[MAX_IRC_MESSAGE_LEN];
+    char motd_failed = 0;
     
     if (!conn) {
 	eventlog(eventlog_level_error,"irc_send_welcome","got NULL connection");
@@ -360,13 +367,39 @@ extern int irc_welcome(t_connection * conn)
     	sprintf(temp,":- %s Message of the day - ",server_get_name());
     else
         sprintf(temp,":Maximum length exceeded"); 
+
     irc_send(conn,RPL_MOTDSTART,temp);
-    irc_send(conn,RPL_MOTD,":- This is an experimental service and a MOTD is          ");
-    irc_send(conn,RPL_MOTD,":- therefore not yet supported.                           ");
-    irc_send(conn,RPL_MOTD,":- ====================================================== ");
-    irc_send(conn,RPL_MOTD,":-                 http://www.pvpgn.org                   ");
-    irc_send(conn,RPL_MOTD,":- ====================================================== ");
-    irc_send(conn,RPL_MOTD,":-                                                        ");
+
+   if (filename = prefs_get_motdfile())
+   {
+	if (fp = fopen(filename,"r"))
+	{
+
+	  while (line=file_get_line(fp))
+	  {
+	  	
+		formatted_line = message_format_line(conn,line);
+		formatted_line[0]=' ';
+		sprintf(send_line,":-%s",formatted_line);
+		irc_send(conn,RPL_MOTD,send_line);
+		free(line);
+		free(formatted_line);
+	  }
+
+	  fclose(fp);
+	}
+	else motd_failed = 1;
+   }
+   else
+     motd_failed = 1;
+   
+    if (motd_failed)
+    {
+      irc_send(conn,RPL_MOTD,":- Failed to load motd, sending default motd              ");
+      irc_send(conn,RPL_MOTD,":- ====================================================== ");
+      irc_send(conn,RPL_MOTD,":-                 http://www.pvpgn.org                   ");
+      irc_send(conn,RPL_MOTD,":- ====================================================== ");
+    }
     irc_send(conn,RPL_ENDOFMOTD,":End of /MOTD command");
     irc_send_cmd(conn,"NOTICE",":This is an experimental service.");
     if (connlist_find_connection_by_accountname(conn_get_botuser(conn))) {

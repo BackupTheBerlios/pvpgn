@@ -130,6 +130,11 @@ static void conn_send_welcome(t_connection * c)
     
     if (c->cflags & conn_flags_welcomed)
 	return;
+    if (conn_get_class(c)==conn_class_irc)
+    {
+	c->flags|= conn_flags_welcomed;
+	return;
+    }
     if ((filename = prefs_get_motdfile()))
     {
 	if ((fp = fopen(filename,"r")))
