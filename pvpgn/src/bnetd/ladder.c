@@ -151,7 +151,7 @@ extern int ladder_init_account(t_account * account, char const * clienttag, t_la
 	
 	uid = account_get_uid(account);
 
-	war3_ladder_add(ladder_cr(clienttag,id),uid,account_get_ladder_rating(account,clienttag,id),0,account,0,clienttag);
+	war3_ladder_add(ladder_cr(clienttag,id),uid,0,account_get_ladder_rating(account,clienttag,id),account,0,clienttag);
 	war3_ladder_add(ladder_cw(clienttag,id),uid,0,0,account,0,clienttag);
 	war3_ladder_add(ladder_cg(clienttag,id),uid,0,0,account,0,clienttag);
 
@@ -254,13 +254,25 @@ extern int ladder_update(char const * clienttag, t_ladder_id id, unsigned int co
     
     for (curr=0; curr<count; curr++)
 	{
-	  uid = account_get_uid(players[curr]);
-	  account_adjust_ladder_rating(players[curr],clienttag,id,info[curr].adj);
-	  war3_ladder_update(ladder_cr(clienttag,id),uid,info[curr].adj,0,players[curr],0);
+	  int won,wins,games;
+	  t_account * account;
+
+	  if (results[curr]==game_result_win) won=1; else won=0;
+	  
+	  account = players[curr];
+	  uid = account_get_uid(account);
+	  wins = account_get_ladder_wins(account,clienttag,id);
+	  games = wins + account_get_ladder_losses(account,clienttag,id) + account_get_ladder_disconnects(account,clienttag,id);
+	  
+	  account_adjust_ladder_rating(account,clienttag,id,info[curr].adj);
+	  
+	  war3_ladder_update(ladder_cr(clienttag,id),uid,won,account_get_ladder_rating(account,clienttag,id),players[curr],0);
+
 	  if (results[curr]!=game_result_draw)
-	        war3_ladder_update(ladder_cg(clienttag,id),uid,1,0,players[curr],0);
+	        war3_ladder_update(ladder_cg(clienttag,id),uid,info[curr].adj,wins,players[curr],0);
+		
 	  if (results[curr]==game_result_win)
-		war3_ladder_update(ladder_cw(clienttag,id),uid,1,0,players[curr],0);
+		war3_ladder_update(ladder_cw(clienttag,id),uid,info[curr].adj,games,players[curr],0);
 	}
 	
 	ladder_update_all_accounts();
@@ -1208,6 +1220,7 @@ extern void ladders_load_accounts_to_ladderlists(void)
     {
       if ((account=((t_account *)entry_get_data(curr))))
 	  {
+	      int rating, wins;
 	      int uid = account_get_uid(account);
 
 	      if ((war3_solo_res!=load_success) && ((xp = account_get_soloxp(account,CLIENTTAG_WARCRAFT3))))
@@ -1294,202 +1307,196 @@ extern void ladders_load_accounts_to_ladderlists(void)
 		    }	   
 		  }
 
-		  if(account_get_ladder_rating(account,CLIENTTAG_STARCRAFT,ladder_id_normal)>0)
+		  if ((rating = account_get_ladder_rating(account,CLIENTTAG_STARCRAFT,ladder_id_normal))>0)
 		  {
-		 	 if (star_cr_res!=load_success)
-	     	 {
-		     	  war3_ladder_add(&STAR_current_rating, uid,
-				 	              account_get_ladder_rating(account,CLIENTTAG_STARCRAFT,ladder_id_normal),
-						 		  0,account,0,CLIENTTAG_STARCRAFT);
-	 	     }
-		 	 if (star_cw_res!=load_success)
-	     	 {
-	 		      war3_ladder_add(&STAR_current_wins, uid,
-		 			              account_get_ladder_wins(account,CLIENTTAG_STARCRAFT,ladder_id_normal),
-			 					  0,account,0,CLIENTTAG_STARCRAFT);
-	 	     }
-		 	 if (star_cg_res!=load_success)
-	     	 {
-	 			 int games = account_get_ladder_wins(account,CLIENTTAG_STARCRAFT,ladder_id_normal)+
-		 		             account_get_ladder_losses(account,CLIENTTAG_STARCRAFT,ladder_id_normal)+
-	         	             account_get_ladder_disconnects(account,CLIENTTAG_STARCRAFT,ladder_id_normal);
+		    wins   = account_get_ladder_wins(account,CLIENTTAG_STARCRAFT,ladder_id_normal);
+		    
+		    if (star_cr_res!=load_success)
+	     	    {
+		       war3_ladder_add(&STAR_current_rating, uid,wins,rating,account,0,CLIENTTAG_STARCRAFT);
+	 	    }
+		    
+		    if (star_cw_res!=load_success)
+	     	    {
+	 	       war3_ladder_add(&STAR_current_wins, uid,rating,wins,account,0,CLIENTTAG_STARCRAFT);
+	 	    }
+		    
+		    if (star_cg_res!=load_success)
+	     	    {
+	 	      int games = wins +
+		                  account_get_ladder_losses(account,CLIENTTAG_STARCRAFT,ladder_id_normal)+
+	                          account_get_ladder_disconnects(account,CLIENTTAG_STARCRAFT,ladder_id_normal);
 
-	 		      war3_ladder_add(&STAR_current_games, uid,
-		 			              games, 0,account,0,CLIENTTAG_STARCRAFT);
-	     	 }
-		  }
-		  if (account_get_ladder_active_rating(account,CLIENTTAG_STARCRAFT,ladder_id_normal)>0)
-		  {
-	 		 if (star_ar_res!=load_success)
-	 	     {
-		 	      war3_ladder_add(&STAR_active_rating, uid,
-				 	              account_get_ladder_active_rating(account,CLIENTTAG_STARCRAFT,ladder_id_normal),
-					 			  0,account,0,CLIENTTAG_STARCRAFT);
-	 	     }
-		 	 if (star_aw_res!=load_success)
-	     	 {
-		     	  war3_ladder_add(&STAR_active_wins, uid,
-				 	              account_get_ladder_active_wins(account,CLIENTTAG_STARCRAFT,ladder_id_normal),
-						 		  0,account,0,CLIENTTAG_STARCRAFT);
-	 	     }
-		 	 if (star_ag_res!=load_success)
-	     	 {
-			 	 int games = account_get_ladder_active_wins(account,CLIENTTAG_STARCRAFT,ladder_id_normal)+
-			     	         account_get_ladder_active_losses(account,CLIENTTAG_STARCRAFT,ladder_id_normal)+
-	                     	 account_get_ladder_active_disconnects(account,CLIENTTAG_STARCRAFT,ladder_id_normal);
-
-	 		      war3_ladder_add(&STAR_active_games, uid,
-		 			              games, 0,account,0,CLIENTTAG_STARCRAFT);
-	     	 }
+	 	      war3_ladder_add(&STAR_current_games, uid,rating,games,account,0,CLIENTTAG_STARCRAFT);
+	     	    }
 		  }
 
-		  if(account_get_ladder_rating(account,CLIENTTAG_BROODWARS,ladder_id_normal)>0)
+		  if ((rating = account_get_ladder_active_rating(account,CLIENTTAG_STARCRAFT,ladder_id_normal))>0)
 		  {
-		 	 if (sexp_cr_res!=load_success)
-	     	 {
-		     	  war3_ladder_add(&SEXP_current_rating, uid,
-				 	              account_get_ladder_rating(account,CLIENTTAG_BROODWARS,ladder_id_normal),
-						 		  0,account,0,CLIENTTAG_BROODWARS);
-	 	     }
-		 	 if (sexp_cw_res!=load_success)
-	     	 {
-	 		      war3_ladder_add(&SEXP_current_wins, uid,
-		 			              account_get_ladder_wins(account,CLIENTTAG_BROODWARS,ladder_id_normal),
-			 					  0,account,0,CLIENTTAG_BROODWARS);
-	 	     }
-		 	 if (sexp_cg_res!=load_success)
-	     	 {
-	 			 int games = account_get_ladder_wins(account,CLIENTTAG_BROODWARS,ladder_id_normal)+
-		 		             account_get_ladder_losses(account,CLIENTTAG_BROODWARS,ladder_id_normal)+
-	         	             account_get_ladder_disconnects(account,CLIENTTAG_BROODWARS,ladder_id_normal);
+		    wins   = account_get_ladder_active_wins(account,CLIENTTAG_STARCRAFT,ladder_id_normal);
+		    
+	 	    if (star_ar_res!=load_success)
+	 	    {
+		      war3_ladder_add(&STAR_active_rating, uid,wins,rating,account,0,CLIENTTAG_STARCRAFT);
+	 	    }
+		    
+		    if (star_aw_res!=load_success)
+	     	    {
+		      war3_ladder_add(&STAR_active_wins, uid,rating,wins,account,0,CLIENTTAG_STARCRAFT);
+	 	    }
+		    
+		    if (star_ag_res!=load_success)
+	     	    {
+		      int games = wins +
+			     	  account_get_ladder_active_losses(account,CLIENTTAG_STARCRAFT,ladder_id_normal)+
+	                     	  account_get_ladder_active_disconnects(account,CLIENTTAG_STARCRAFT,ladder_id_normal);
 
-	 		      war3_ladder_add(&SEXP_current_games, uid,
-		 			              games, 0,account,0,CLIENTTAG_BROODWARS);
-	     	 }
-		  }
-		  if (account_get_ladder_active_rating(account,CLIENTTAG_BROODWARS,ladder_id_normal)>0)
-		  {
-	 		 if (sexp_ar_res!=load_success)
-	 	     {
-		 	      war3_ladder_add(&SEXP_active_rating, uid,
-				 	              account_get_ladder_active_rating(account,CLIENTTAG_BROODWARS,ladder_id_normal),
-					 			  0,account,0,CLIENTTAG_BROODWARS);
-	 	     }
-		 	 if (sexp_aw_res!=load_success)
-	     	 {
-		     	  war3_ladder_add(&SEXP_active_wins, uid,
-				 	              account_get_ladder_active_wins(account,CLIENTTAG_BROODWARS,ladder_id_normal),
-						 		  0,account,0,CLIENTTAG_BROODWARS);
-	 	     }
-		 	 if (sexp_ag_res!=load_success)
-	     	 {
-			 	 int games = account_get_ladder_active_wins(account,CLIENTTAG_BROODWARS,ladder_id_normal)+
-			     	         account_get_ladder_active_losses(account,CLIENTTAG_BROODWARS,ladder_id_normal)+
-	                     	 account_get_ladder_active_disconnects(account,CLIENTTAG_BROODWARS,ladder_id_normal);
-
-	 		      war3_ladder_add(&SEXP_active_games, uid,
-		 			              games, 0,account,0,CLIENTTAG_BROODWARS);
-	     	 }
+	 	      war3_ladder_add(&STAR_active_games, uid,rating,games,account,0,CLIENTTAG_STARCRAFT);
+	     	    }
 		  }
 
-		  if(account_get_ladder_rating(account,CLIENTTAG_WARCIIBNE,ladder_id_normal)>0)
+		  if ((rating = account_get_ladder_rating(account,CLIENTTAG_BROODWARS,ladder_id_normal))>0)
 		  {
-		 	 if (w2bn_cr_res!=load_success)
-	     	 {
-		     	  war3_ladder_add(&W2BN_current_rating, uid,
-				 	              account_get_ladder_rating(account,CLIENTTAG_WARCIIBNE,ladder_id_normal),
-						 		  0,account,0,CLIENTTAG_WARCIIBNE);
-	 	     }
-		 	 if (w2bn_cw_res!=load_success)
-	     	 {
-	 		      war3_ladder_add(&W2BN_current_wins, uid,
-		 			              account_get_ladder_wins(account,CLIENTTAG_WARCIIBNE,ladder_id_normal),
-			 					  0,account,0,CLIENTTAG_WARCIIBNE);
-	 	     }
-		 	 if (w2bn_cg_res!=load_success)
-	     	 {
-	 			 int games = account_get_ladder_wins(account,CLIENTTAG_WARCIIBNE,ladder_id_normal)+
-		 		             account_get_ladder_losses(account,CLIENTTAG_WARCIIBNE,ladder_id_normal)+
-	         	                     account_get_ladder_disconnects(account,CLIENTTAG_WARCIIBNE,ladder_id_normal);
+		    wins = account_get_ladder_wins(account,CLIENTTAG_BROODWARS,ladder_id_normal);
+		    
+		    if (sexp_cr_res!=load_success)
+	     	    {
+		      war3_ladder_add(&SEXP_current_rating, uid,0*wins,rating,account,0,CLIENTTAG_BROODWARS);
+	 	    }
+		    
+		    if (sexp_cw_res!=load_success)
+	     	    {
+	 	      war3_ladder_add(&SEXP_current_wins, uid,rating,wins,account,0,CLIENTTAG_BROODWARS);
+	 	    }
+		    
+		    if (sexp_cg_res!=load_success)
+	     	    {
+	 	      int games = wins +
+		 		  account_get_ladder_losses(account,CLIENTTAG_BROODWARS,ladder_id_normal)+
+	         	          account_get_ladder_disconnects(account,CLIENTTAG_BROODWARS,ladder_id_normal);
 
-	 		      war3_ladder_add(&W2BN_current_games, uid,
-		 			              games, 0,account,0,CLIENTTAG_WARCIIBNE);
-	     	 }
+	 	      war3_ladder_add(&SEXP_current_games, uid,rating,games,account,0,CLIENTTAG_BROODWARS);
+	     	    }
 		  }
 
-		  if(account_get_ladder_active_rating(account,CLIENTTAG_WARCIIBNE,ladder_id_normal)>0)
+		  if ((rating = account_get_ladder_active_rating(account,CLIENTTAG_BROODWARS,ladder_id_normal))>0)
 		  {
-		 	 if (w2bn_ar_res!=load_success)
-	     	 {
-		     	  war3_ladder_add(&W2BN_active_rating, uid,
-				 	              account_get_ladder_active_rating(account,CLIENTTAG_WARCIIBNE,ladder_id_normal),
-						 		  0,account,0,CLIENTTAG_WARCIIBNE);
-	 	     }
-		 	 if (w2bn_aw_res!=load_success)
-	     	 {
-	 		      war3_ladder_add(&W2BN_active_wins, uid,
-		 			              account_get_ladder_active_wins(account,CLIENTTAG_WARCIIBNE,ladder_id_normal),
-			 					  0,account,0,CLIENTTAG_WARCIIBNE);
-	 	     }
-		 	 if (w2bn_ag_res!=load_success)
-	     	 {
-	 			 int games = account_get_ladder_active_wins(account,CLIENTTAG_WARCIIBNE,ladder_id_normal)+
-		 		             account_get_ladder_active_losses(account,CLIENTTAG_WARCIIBNE,ladder_id_normal)+
-	         	                     account_get_ladder_active_disconnects(account,CLIENTTAG_WARCIIBNE,ladder_id_normal);
+		    wins = account_get_ladder_active_wins(account,CLIENTTAG_BROODWARS,ladder_id_normal);
+		    
+	 	    if (sexp_ar_res!=load_success)
+	 	    {
+		      war3_ladder_add(&SEXP_active_rating, uid,wins,rating,account,0,CLIENTTAG_BROODWARS);
+	 	    }
+		    
+		    if (sexp_aw_res!=load_success)
+	     	    {
+		      war3_ladder_add(&SEXP_active_wins, uid,rating,wins,account,0,CLIENTTAG_BROODWARS);
+	 	    }
+		    
+		    if (sexp_ag_res!=load_success)
+	     	    {
+		      int games = wins +
+			     	  account_get_ladder_active_losses(account,CLIENTTAG_BROODWARS,ladder_id_normal)+
+	                     	  account_get_ladder_active_disconnects(account,CLIENTTAG_BROODWARS,ladder_id_normal);
 
-	 		      war3_ladder_add(&W2BN_active_games, uid,
-		 			              games, 0,account,0,CLIENTTAG_WARCIIBNE);
-	     	 }
+	 	       war3_ladder_add(&SEXP_active_games, uid,rating,games,account,0,CLIENTTAG_BROODWARS);
+	     	    }
 		  }
 
-		  if(account_get_ladder_rating(account,CLIENTTAG_WARCIIBNE,ladder_id_ironman)>0)
+		  if ((rating = account_get_ladder_rating(account,CLIENTTAG_WARCIIBNE,ladder_id_normal))>0)
 		  {
-		 	 if (w2bn_cri_res!=load_success)
-	     	 {
-		     	  war3_ladder_add(&W2BN_current_rating_ironman, uid,
-				 	              account_get_ladder_rating(account,CLIENTTAG_WARCIIBNE,ladder_id_ironman),
-						 		  0,account,0,CLIENTTAG_WARCIIBNE);
-	 	     }
-		 	 if (w2bn_cwi_res!=load_success)
-	     	 {
-	 		      war3_ladder_add(&W2BN_current_wins_ironman, uid,
-		 			              account_get_ladder_wins(account,CLIENTTAG_WARCIIBNE,ladder_id_ironman),
-			 					  0,account,0,CLIENTTAG_WARCIIBNE);
-	 	     }
-		 	 if (w2bn_cgi_res!=load_success)
-	     	 {
-	 			 int games = account_get_ladder_wins(account,CLIENTTAG_WARCIIBNE,ladder_id_ironman)+
-		 		             account_get_ladder_losses(account,CLIENTTAG_WARCIIBNE,ladder_id_ironman)+
-	         	             account_get_ladder_disconnects(account,CLIENTTAG_WARCIIBNE,ladder_id_ironman);
+		    wins = account_get_ladder_wins(account,CLIENTTAG_WARCIIBNE,ladder_id_normal);
+		    
+		    if (w2bn_cr_res!=load_success)
+	     	    {
+		      war3_ladder_add(&W2BN_current_rating, uid,wins,rating,account,0,CLIENTTAG_WARCIIBNE);
+	 	    }
+		    
+		    if (w2bn_cw_res!=load_success)
+	     	    {
+	 	      war3_ladder_add(&W2BN_current_wins, uid,rating,wins,account,0,CLIENTTAG_WARCIIBNE);
+	 	    }
+		    
+		    if (w2bn_cg_res!=load_success)
+	     	    {
+	 	      int games = wins +
+		 		  account_get_ladder_losses(account,CLIENTTAG_WARCIIBNE,ladder_id_normal)+
+	         	          account_get_ladder_disconnects(account,CLIENTTAG_WARCIIBNE,ladder_id_normal);
 
-	 		      war3_ladder_add(&W2BN_current_games_ironman, uid,
-		 			              games, 0,account,0,CLIENTTAG_WARCIIBNE);
-	     	 }
+	 	      war3_ladder_add(&W2BN_current_games, uid,rating,games,account,0,CLIENTTAG_WARCIIBNE);
+	     	    }
 		  }
 
-		  if(account_get_ladder_active_rating(account,CLIENTTAG_WARCIIBNE,ladder_id_ironman)>0)
+		  if ((rating = account_get_ladder_active_rating(account,CLIENTTAG_WARCIIBNE,ladder_id_normal))>0)
 		  {
-		 	 if (w2bn_ari_res!=load_success)
-	     	 {
-		     	  war3_ladder_add(&W2BN_active_rating_ironman, uid,
-				 	              account_get_ladder_active_rating(account,CLIENTTAG_WARCIIBNE,ladder_id_ironman),
-						 		  0,account,0,CLIENTTAG_WARCIIBNE);
-	 	     }
-		 	 if (w2bn_awi_res!=load_success)
-	     	 {
-	 		      war3_ladder_add(&W2BN_active_wins_ironman, uid,
-		 			              account_get_ladder_active_wins(account,CLIENTTAG_WARCIIBNE,ladder_id_ironman),
-			 					  0,account,0,CLIENTTAG_WARCIIBNE);
-	 	     }
-		 	 if (w2bn_agi_res!=load_success)
-	     	 {
-	 			 int games = account_get_ladder_active_wins(account,CLIENTTAG_WARCIIBNE,ladder_id_ironman)+
-		 		             account_get_ladder_active_losses(account,CLIENTTAG_WARCIIBNE,ladder_id_ironman)+
-	         	                     account_get_ladder_active_disconnects(account,CLIENTTAG_WARCIIBNE,ladder_id_ironman);
+		    wins = account_get_ladder_active_wins(account,CLIENTTAG_WARCIIBNE,ladder_id_normal);
+		    
+		    if (w2bn_ar_res!=load_success)
+	     	    {
+		      war3_ladder_add(&W2BN_active_rating, uid,wins,rating,account,0,CLIENTTAG_WARCIIBNE);
+	 	    }
+		    
+		    if (w2bn_aw_res!=load_success)
+	     	    {
+	 	      war3_ladder_add(&W2BN_active_wins, uid,rating,wins,account,0,CLIENTTAG_WARCIIBNE);
+	 	    }
+		    
+		    if (w2bn_ag_res!=load_success)
+	     	    {
+	 	      int games = wins +
+		 		  account_get_ladder_active_losses(account,CLIENTTAG_WARCIIBNE,ladder_id_normal)+
+	         	          account_get_ladder_active_disconnects(account,CLIENTTAG_WARCIIBNE,ladder_id_normal);
 
-	 		      war3_ladder_add(&W2BN_active_games_ironman, uid,
-		 			              games, 0,account,0,CLIENTTAG_WARCIIBNE);
-	     	 }
+	 	      war3_ladder_add(&W2BN_active_games, uid,rating,games,account,0,CLIENTTAG_WARCIIBNE);
+	     	    }
+		  }
+
+		  if ((rating = account_get_ladder_rating(account,CLIENTTAG_WARCIIBNE,ladder_id_ironman))>0)
+		  {
+	            wins = account_get_ladder_wins(account,CLIENTTAG_WARCIIBNE,ladder_id_ironman);
+		    
+		    if (w2bn_cri_res!=load_success)
+	     	    {
+		      war3_ladder_add(&W2BN_current_rating_ironman, uid,wins,rating,account,0,CLIENTTAG_WARCIIBNE);	
+	 	    }
+		    
+		    if (w2bn_cwi_res!=load_success)
+	     	    {
+	 	      war3_ladder_add(&W2BN_current_wins_ironman, uid,rating,wins,account,0,CLIENTTAG_WARCIIBNE);
+	 	    }
+		    
+		    if (w2bn_cgi_res!=load_success)
+	     	    {
+	 	      int games = wins +
+		 		  account_get_ladder_losses(account,CLIENTTAG_WARCIIBNE,ladder_id_ironman)+
+	         	          account_get_ladder_disconnects(account,CLIENTTAG_WARCIIBNE,ladder_id_ironman);
+
+	 	      war3_ladder_add(&W2BN_current_games_ironman, uid,rating,games,account,0,CLIENTTAG_WARCIIBNE);
+	     	    }
+		  }
+
+		  if ((rating = account_get_ladder_active_rating(account,CLIENTTAG_WARCIIBNE,ladder_id_ironman))>0)
+		  {
+		    wins = account_get_ladder_active_wins(account,CLIENTTAG_WARCIIBNE,ladder_id_ironman);
+		    
+		    if (w2bn_ari_res!=load_success)
+	     	    {
+		      war3_ladder_add(&W2BN_active_rating_ironman, uid,wins,rating,account,0,CLIENTTAG_WARCIIBNE);
+	 	    }
+		    
+		    if (w2bn_awi_res!=load_success)
+	     	    {
+	 	      war3_ladder_add(&W2BN_active_wins_ironman, uid,rating,wins,account,0,CLIENTTAG_WARCIIBNE);
+	 	    }
+		    
+		    if (w2bn_agi_res!=load_success)
+	     	    {
+	 	      int games = account_get_ladder_active_wins(account,CLIENTTAG_WARCIIBNE,ladder_id_ironman)+
+		 		  account_get_ladder_active_losses(account,CLIENTTAG_WARCIIBNE,ladder_id_ironman)+
+	         	          account_get_ladder_active_disconnects(account,CLIENTTAG_WARCIIBNE,ladder_id_ironman);
+
+	 	      war3_ladder_add(&W2BN_active_games_ironman, uid,rating, games,account,0,CLIENTTAG_WARCIIBNE);
+	     	    }
 		  }
 
 	   }
