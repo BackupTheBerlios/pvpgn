@@ -355,3 +355,6 @@
 
 /* Define if you support inline */
 #define inline __inline
+
+/* Define if you support assertions */
+#define HAVE_ASSERT_H 1

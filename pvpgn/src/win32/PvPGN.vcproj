@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="7.00"
+	Version="7.10"
 	Name="PvPGN"
 	ProjectGUID="{300F80E0-1A0E-4639-AEB9-18A692FF35F3}"
 	Keyword="Win32Proj">
@@ -31,6 +31,70 @@
 				OptimizeForWindowsApplication="TRUE"
 				AdditionalIncludeDirectories="$(SolutionDir)/.."
 				PreprocessorDefinitions="_CONSOLE;NDEBUG;WIN32;WIN32_GUI;_MBCS;WITH_SQL_MYSQL"
+				StringPooling="TRUE"
+				RuntimeLibrary="0"
+				StructMemberAlignment="1"
+				EnableFunctionLevelLinking="TRUE"
+				UsePrecompiledHeader="0"
+				WarningLevel="1"
+				Detect64BitPortabilityProblems="TRUE"
+				DebugInformationFormat="3"
+				CallingConvention="0"
+				CompileAs="1"/>
+			<Tool
+				Name="VCCustomBuildTool"/>
+			<Tool
+				Name="VCLinkerTool"
+				AdditionalOptions="wsock32.lib libmysql.lib"
+				OutputFile="$(OutDir)/PvPGN.exe"
+				LinkIncremental="1"
+				GenerateDebugInformation="TRUE"
+				SubSystem="2"
+				OptimizeReferences="2"
+				EnableCOMDATFolding="2"
+				TargetMachine="1"/>
+			<Tool
+				Name="VCMIDLTool"/>
+			<Tool
+				Name="VCPostBuildEventTool"/>
+			<Tool
+				Name="VCPreBuildEventTool"/>
+			<Tool
+				Name="VCPreLinkEventTool"/>
+			<Tool
+				Name="VCResourceCompilerTool"/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"/>
+			<Tool
+				Name="VCWebDeploymentTool"/>
+			<Tool
+				Name="VCManagedWrapperGeneratorTool"/>
+			<Tool
+				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
+		</Configuration>
+		<Configuration
+			Name="Debug|Win32"
+			OutputDirectory="$(ConfigurationName)"
+			IntermediateDirectory="$(ConfigurationName)"
+			ConfigurationType="1"
+			UseOfMFC="0"
+			UseOfATL="0"
+			CharacterSet="2"
+			WholeProgramOptimization="TRUE">
+			<Tool
+				Name="VCCLCompilerTool"
+				Optimization="2"
+				GlobalOptimizations="FALSE"
+				InlineFunctionExpansion="1"
+				EnableIntrinsicFunctions="FALSE"
+				FavorSizeOrSpeed="1"
+				OmitFramePointers="TRUE"
+				OptimizeForProcessor="0"
+				OptimizeForWindowsApplication="TRUE"
+				AdditionalIncludeDirectories="$(SolutionDir)/.."
+				PreprocessorDefinitions="_CONSOLE;_DEBUG;WIN32;WIN32_GUI;_MBCS;WITH_SQL_MYSQL"
 				StringPooling="TRUE"
 				RuntimeLibrary="0"
 				StructMemberAlignment="1"
@@ -969,6 +1033,12 @@
 				RelativePath="..\win32\resource.rc">
 				<FileConfiguration
 					Name="Release|Win32">
+					<Tool
+						Name="VCResourceCompilerTool"
+						AdditionalIncludeDirectories="$(SolutionDir)/.."/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Win32">
 					<Tool
 						Name="VCResourceCompilerTool"
 						AdditionalIncludeDirectories="$(SolutionDir)/.."/>
