@@ -43,6 +43,7 @@ and 3v3v3v3) and a new AT gametype (2v2v2) - note: no game result reporting
 for those so far...
 -- added output of (game)version to XML user status output
 -- a tiny change to bnetd.conf due to strange naming of status output parameters
+-- added some error handling for news.txt (for invalid or missing news timestamps)
 
 
 1.5.0beta3:
