@@ -653,7 +653,7 @@ int sql_write_attrs(t_storage_info * info, void *attrs)
 //              eventlog(eventlog_level_error, __FUNCTION__, "update failed so tried INSERT for the last chance");
 		if (sql->query(query2))
 		{
-		    eventlog(eventlog_level_error, __FUNCTION__, "could not INSERT attribute");
+		    eventlog(eventlog_level_error, __FUNCTION__, "could not INSERT attribute '%s'->'%s'", attr->key, attr->val);
 		    continue;
 		}
 	    }
