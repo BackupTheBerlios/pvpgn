@@ -896,25 +896,25 @@ static void _sql_update_DB_v0_to_v150(void)
 	{
 	    for (fentry = fields; *fentry; fentry++)
 	    {
-		if (strncmp(*fentry, "WAR3_", 5) == 0)
+		if (strncasecmp(*fentry, "WAR3_", 5) == 0)
 		    continue;	// prevent converting over and over again
-		if (strncmp(*fentry, "W3XP_", 5) == 0)
+		if (strncasecmp(*fentry, "W3XP_", 5) == 0)
 		    continue;
-		if (strncmp(*fentry, CLIENTTAG_STARCRAFT, 4) == 0)
+		if (strncasecmp(*fentry, CLIENTTAG_STARCRAFT, 4) == 0)
 		    continue;
-		if (strncmp(*fentry, CLIENTTAG_BROODWARS, 4) == 0)
+		if (strncasecmp(*fentry, CLIENTTAG_BROODWARS, 4) == 0)
 		    continue;
-		if (strncmp(*fentry, CLIENTTAG_WARCIIBNE, 4) == 0)
+		if (strncasecmp(*fentry, CLIENTTAG_WARCIIBNE, 4) == 0)
 		    continue;
-		if (strncmp(*fentry, CLIENTTAG_DIABLO2DV, 4) == 0)
+		if (strncasecmp(*fentry, CLIENTTAG_DIABLO2DV, 4) == 0)
 		    continue;
-		if (strncmp(*fentry, CLIENTTAG_DIABLO2XP, 4) == 0)
+		if (strncasecmp(*fentry, CLIENTTAG_DIABLO2XP, 4) == 0)
 		    continue;
-		if (strncmp(*fentry, CLIENTTAG_DIABLORTL, 4) == 0)
+		if (strncasecmp(*fentry, CLIENTTAG_DIABLORTL, 4) == 0)
 		    continue;
-		if (strncmp(*fentry, CLIENTTAG_DIABLOSHR, 4) == 0)
+		if (strncasecmp(*fentry, CLIENTTAG_DIABLOSHR, 4) == 0)
 		    continue;
-		if (strncmp(*fentry, CLIENTTAG_SHAREWARE, 4) == 0)
+		if (strncasecmp(*fentry, CLIENTTAG_SHAREWARE, 4) == 0)
 		    continue;
 		if (strcmp(*fentry, SQL_UID_FIELD) == 0)
 		    continue;

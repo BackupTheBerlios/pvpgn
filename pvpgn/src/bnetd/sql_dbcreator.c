@@ -471,11 +471,14 @@ int sql_dbcreator(t_sql_engine * sql)
 
     for (;column;column = table_get_next_column())
     {
-      sprintf(query,"ALTER TABLE %s ADD %s default %s",table->name,column->name,column->value);
+      sprintf(query,"ALTER TABLE %s ADD %s",table->name,column->name);
       // add missing columns
       if (!(sql->query(query)))
       {
         eventlog(eventlog_level_info,__FUNCTION__,"added missing column %s to table %s",column->name,table->name);
+	sscanf(column->name,"%s",_column); //get column name without format infos
+	sprintf(query,"ALTER TABLE %s ALTER %s SET DEFAULT %s",table->name,_column,column->value);
+	sql->query(query);
       }
     }
   }
