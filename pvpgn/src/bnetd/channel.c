@@ -161,8 +161,8 @@ extern t_channel * channel_create(char const * fullname, char const * shortname,
     if (moderated)
 	channel->flags |= channel_flags_moderated;
 
-    if(!strcasecmp(shortname, CHANNEL_NAME_KICKED)
-    || !strcasecmp(shortname, CHANNEL_NAME_BANNED))
+    if(shortname && (!strcasecmp(shortname, CHANNEL_NAME_KICKED)
+       || !strcasecmp(shortname, CHANNEL_NAME_BANNED)))
 	channel->flags |= channel_flags_thevoid;
     
     eventlog(eventlog_level_debug,"channel_create","creating new channel \"%s\" shortname=%s%s%s clienttag=%s%s%s country=%s%s%s realm=%s%s%s",fullname,
