@@ -943,68 +943,6 @@ static int _cb_read_accounts(t_storage_info *info, void *data)
     return 0;
 }
 
-extern int accountlist_reload(int all)
-{
-    unsigned int count;
-    t_account *  old_acc;
-
-    t_entry   * curr;
-
-    int starttime = time(NULL);
-
-#ifdef WITH_BITS
-  if (!bits_master)
-     {
-       eventlog(eventlog_level_info,"accountlist_reload","running as BITS client -> no accounts loaded");
-       return 0;
-     }
-#endif
-  
-
-  if (all == RELOAD_UPDATE_ALL)
-  // go to accountlist and remove everything possible
-  // we keep dirty account and accounts of users currently logged in
-  {
-    eventlog(eventlog_level_info,"accountlist_reload","removing accounts not logged to reload theam all");
-    HASHTABLE_TRAVERSE(accountlist_head,curr)
-    {
-      if (curr)
-      {
-        if ((old_acc = (t_account *)entry_get_data(curr)))
-        {
-	  if (!((old_acc->dirty) || account_logged_in(old_acc)))
-	  {
-	    war3_ladders_remove_account(old_acc);
-	    watchlist_del_by_account(old_acc);
-	    account_destroy(old_acc);
-	    hashtable_remove_entry(accountlist_head,curr);
-  	  }
-        }
-      }
-    }
-  }
-  
-  force_account_add = 1; /* disable the protection */
-  
-  count = 0;
-
-  if (storage->read_accounts(_cb_read_accounts, &count)) {
-      eventlog(eventlog_level_error, __FUNCTION__, "could not read accounts");
-      return -1;
-  }
-
-  force_account_add = 0; /* enable the protection */
-
-  if (count)
-    eventlog(eventlog_level_info,"accountlist_reload","loaded %u user accounts in %ld seconds",count,time(NULL) - starttime);
-  if (all == RELOAD_UPDATE_ALL)
-    eventlog(eventlog_level_info,"accountlist_reload","done reloading all accounts");
-
-  if ((count) || (all == RELOAD_UPDATE_ALL)) war3_ladder_update_all_accounts();
-
-  return 0;
-}
-
 static int _cb_read_accounts2(t_storage_info *info, void *data)
 {
     unsigned int *count = (unsigned int *)data;
@@ -1363,26 +1301,6 @@ extern t_account * accountlist_add_account(t_account * account)
 }
 
 // aaron --->
-extern int accounts_remove_accounting_infos(void)
-{
-    t_entry *    curr;
-    t_account *  account;
-    
-    HASHTABLE_TRAVERSE(accountlist_head,curr)
-    {
-	account = entry_get_data(curr);
-	account_remove_verbose_accounting(account);
-    }
-
-    // for file mode, this is enough... on next save... the info's won't get saved...
-    // so we effectivly got rid of them...
-    // with MySQL mode it's more complicated... the info's remain in the database...
-    // so we have to remove them now manually from DB...
-    //accounts_remove_verbose_columns();
-    // FIXME: do this!
-
-  return 0;
-}
 
 extern int accounts_rank_all(void)
 {

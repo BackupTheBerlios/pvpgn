@@ -166,11 +166,9 @@ static struct {
     unsigned int output_update_secs;
     char const * ladderdir;
     char const * statusdir;
-    unsigned int reduced_accounting;
     unsigned int XML_output_ladder;
     unsigned int XML_status_output;
     char const * account_allowed_symbols;
-    unsigned int reload_new_accounts;
     char const * command_groups_file;
     char const * tournament_file;
     char const * aliasfile;
@@ -284,11 +282,9 @@ static Bconf_t conf_table[] =
     { "output_update_secs",	conf_type_int,     NULL,                 0                   , &prefs_runtime_config.output_update_secs},
     { "ladderdir",              conf_type_char,    BNETD_LADDER_DIR,     NONE                , &prefs_runtime_config.ladderdir},
     { "statusdir",              conf_type_char,    BNETD_STATUS_DIR,     NONE                , &prefs_runtime_config.statusdir},
-    { "reduced_accounting",     conf_type_bool,    NULL,                 0                   , &prefs_runtime_config.reduced_accounting},
     { "XML_output_ladder",      conf_type_bool,    NULL,                 0	    	     , &prefs_runtime_config.XML_output_ladder},
     { "XML_status_output",      conf_type_bool,    NULL,                 0	     	     , &prefs_runtime_config.XML_status_output},
     { "account_allowed_symbols",conf_type_char,    PVPGN_DEFAULT_SYMB,   NONE                , &prefs_runtime_config.account_allowed_symbols},
-    { "reload_new_accounts",    conf_type_bool,    NULL,                 0                   , &prefs_runtime_config.reload_new_accounts},
     { "command_groups_file",	conf_type_char,    BNETD_COMMAND_GROUPS_FILE,	NONE	     , &prefs_runtime_config.command_groups_file},
     { "tournament_file",	conf_type_char,    BNETD_TOURNAMENT_FILE,	NONE	     , &prefs_runtime_config.tournament_file},
     { "aliasfile"          ,    conf_type_char,    BNETD_ALIASFILE   ,   NONE                , &prefs_runtime_config.aliasfile},
@@ -1203,11 +1199,6 @@ extern char const * prefs_get_outputdir(void)
         return prefs_runtime_config.statusdir;
 }
 
-extern int prefs_get_reduced_accounting(void)
-{
-        return prefs_runtime_config.reduced_accounting;
-}
-
 extern int prefs_get_XML_output_ladder(void)
 {
         return prefs_runtime_config.XML_output_ladder;
@@ -1221,11 +1212,6 @@ extern int prefs_get_XML_status_output(void)
 extern char const * prefs_get_account_allowed_symbols(void)
 {
 	return prefs_runtime_config.account_allowed_symbols;
-}
-
-extern int prefs_get_reload_new_accounts(void)
-{
-	return prefs_runtime_config.reload_new_accounts;
 }
 
 extern char const * prefs_get_command_groups_file(void)

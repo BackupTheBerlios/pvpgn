@@ -1393,8 +1393,7 @@ extern int server_process(void)
 	if (syncdelta && prev_savetime+(time_t)syncdelta<=now)
 	{
 	    accountlist_save(prefs_get_user_sync_timer());
-	    if (prefs_get_reload_new_accounts()) accountlist_reload(RELOAD_ADD_ONLY_NEW);
-            gamelist_check_voidgame();
+        gamelist_check_voidgame();
 	    prev_savetime = now;
 	}
 	
@@ -1446,7 +1445,6 @@ extern int server_process(void)
 	    server_set_name();
 	    
 	    accountlist_load_default(); /* FIXME: free old one */
-	    if (prefs_get_reload_new_accounts()) accountlist_reload(RELOAD_ADD_ONLY_NEW);
 	    
 	    /* FIXME: reload channel list, need some tests, bits is disabled */
 	    #ifndef WITH_BITS

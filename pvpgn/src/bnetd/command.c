@@ -374,11 +374,8 @@ static int _handle_kill_command(t_connection * c, char const * text);
 static int _handle_killsession_command(t_connection * c, char const * text);
 static int _handle_gameinfo_command(t_connection * c, char const * text);
 static int _handle_ladderactivate_command(t_connection * c, char const * text);
-static int _handle_remove_accounting_infos_command(t_connection * c, char const * text);
 static int _handle_rehash_command(t_connection * c, char const * text);
 static int _handle_rank_all_accounts_command(t_connection * c, char const * text);
-static int _handle_reload_accounts_all_command(t_connection * c, char const * text);
-static int _handle_reload_accounts_new_command(t_connection * c, char const * text);
 static int _handle_shutdown_command(t_connection * c, char const * text);
 static int _handle_ladderinfo_command(t_connection * c, char const * text);
 static int _handle_timer_command(t_connection * c, char const * text);
@@ -481,11 +478,8 @@ static const t_command_table_row extended_command_table[] =
 	{ "/killsession"        , _handle_killsession_command },
 	{ "/gameinfo"           , _handle_gameinfo_command },
 	{ "/ladderactivate"     , _handle_ladderactivate_command },
-	{ "/remove_accounting_infos", _handle_remove_accounting_infos_command },
 	{ "/rehash"             , _handle_rehash_command },
 	{ "/rank_all_accounts"  , _handle_rank_all_accounts_command },
-	{ "/reload_accounts_all", _handle_reload_accounts_all_command },
-	{ "/reload_accounts_new", _handle_reload_accounts_new_command },
 	{ "/shutdown"           , _handle_shutdown_command },
 	{ "/ladderinfo"         , _handle_ladderinfo_command },
 	{ "/timer"              , _handle_timer_command },
@@ -2521,6 +2515,7 @@ static int _handle_news_command(t_connection * c, char const *text)
 
 	    temp1 = news_get_date(newsindex);
 	    temp = localtime(&temp1);
+		//here it crashes!
 	    i = strftime(date, 64,"%B %d, %Y", temp);
 	    message_send_text(c,message_type_info,c,date);
 
@@ -3373,20 +3368,6 @@ static int _handle_ladderactivate_command(t_connection * c, char const *text)
   return 0;
 }
 
-static int _handle_remove_accounting_infos_command(t_connection * c, char const *text)
-{
-  if (prefs_get_reduced_accounting()==0)
-    {
-      message_send_text(c,message_type_error,c,"Command Aborted. Server is currently in full accounting mode.");
-      return 0;
-    }
-  // remove accounting here
-  message_send_text(c,message_type_info,c,"starting to remove accounting infos... this may take a while...");
-  accounts_remove_accounting_infos();
-  message_send_text(c,message_type_info,c,"done removing accounting infos.. remember... next account saving may take a while...");
-  return 0;
-}
-
 static int _handle_rehash_command(t_connection * c, char const *text)
 {
   server_restart_wraper();  
@@ -3397,22 +3378,6 @@ static int _handle_rank_all_accounts_command(t_connection * c, char const *text)
 {
   // rank all accounts here
   accounts_rank_all();
-  return 0;
-}
-
-static int _handle_reload_accounts_all_command(t_connection * c, char const *text)
-{
-  message_send_text(c,message_type_info,c,"start reloading all accounts (Warning: still EXPERIMENTAL");
-  accountlist_reload(RELOAD_UPDATE_ALL);  
-  message_send_text(c,message_type_info,c,"done reloading all accounts");
-  return 0;
-}
-
-static int _handle_reload_accounts_new_command(t_connection * c, char const *text)
-{
-  message_send_text(c,message_type_info,c,"searching for new accounts to add");
-  accountlist_reload(RELOAD_ADD_ONLY_NEW);  
-  message_send_text(c,message_type_info,c,"done loading new accounts");
   return 0;
 }
 

@@ -1530,29 +1530,6 @@ extern void conn_set_account(t_connection * c, t_account * account)
 	    conn_add_flags(c,strtoul(flagstr,NULL,0));
     }
     
-    // aaron - only keep track of all those login infos when deserved
-    if (prefs_get_reduced_accounting()==0)
-    {
-      if (account_get_fl_time(c->account)==0)
-      {
-	  account_set_fl_time(c->account,now);
-	  account_set_fl_connection(c->account,c->tcp_addr);
-	  account_set_fl_host(c->account,c->host);
-	  account_set_fl_user(c->account,c->user);
-	  account_set_fl_clientexe(c->account,c->clientexe);
-	  account_set_fl_clienttag(c->account,c->clienttag);
-	  account_set_fl_clientver(c->account,c->clientver);
-	  account_set_fl_owner(c->account,c->owner);
-	  account_set_fl_cdkey(c->account,c->cdkey);
-      }
-      account_set_ll_connection(c->account,c->tcp_addr);
-      account_set_ll_user(c->account,c->user);
-      account_set_ll_clientexe(c->account,c->clientexe);
-      account_set_ll_clienttag(c->account,c->clienttag);
-      account_set_ll_clientver(c->account,c->clientver);
-      account_set_ll_cdkey(c->account,c->cdkey);
-    }
-    // still always keep track of lastlogon_time, _host and _owner
     account_set_ll_time(c->account,now);
     account_set_ll_host(c->account,c->host);
     account_set_ll_owner(c->account,c->owner);

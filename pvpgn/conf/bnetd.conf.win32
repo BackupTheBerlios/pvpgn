@@ -307,11 +307,6 @@ savebyname = true
 # more accounts should use a larger table for better performance.
 hashtable_size = 61
 
-# don't keep track of al the not yet needed accounting infos like
-# lastlogin_owner or lastlogin_clientexe
-# false = keep track of all infos; true = just keep track of lastlogin_time
-reduced_accounting = false
-
 # per default, only alphanumerical symbols are allowed in account names
 # with this variable you can add some extra symbols to be allowed
 # but be warned - that some of them might cause trouble - at least with
@@ -322,11 +317,6 @@ reduced_accounting = false
 # to you.
 # default setting is "-_[]" as it was previous versions
 account_allowed_symbols = "-_[]"
-
-# when set to true new accounts added to userfiles folder or added to DB
-# manually will get loaded to accountlist while server running...
-# note: this is still experimental and requires a fast machine
-reload_new_accounts = false
 
 # maximum number of friends a user can add to there friends list
 # default setting is 20

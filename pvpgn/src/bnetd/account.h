@@ -85,9 +85,6 @@ t_account;
 #include "common/hashtable.h"
 #undef JUST_NEED_TYPES
 
-#define RELOAD_ADD_ONLY_NEW 0
-#define RELOAD_UPDATE_ALL   1
-
 extern unsigned int maxuserid;
 
 extern t_account * account_create(char const * username, char const * passhash1) MALLOC_ATTR();
@@ -122,7 +119,6 @@ extern int account_set_uid(t_account * account, int uid);
 extern char const * account_get_first_key(t_account * account);
 extern char const * account_get_next_key(t_account * account, char const * key);
 
-extern int accountlist_reload(int all);
 extern int accountlist_create(void);
 extern int accountlist_destroy(void);
 extern t_hashtable * accountlist(void);
@@ -136,7 +132,6 @@ extern t_account * accountlist_find_account_by_storage(t_storage_info *);
 extern int accountlist_allow_add(void);
 extern t_account * accountlist_add_account(t_account * account);
 // aaron
-extern int accounts_remove_accounting_infos(void);
 extern int accounts_rank_all(void);
 extern void accounts_get_attr(char const *);
 /* names and passwords */

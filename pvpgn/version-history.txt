@@ -44,6 +44,8 @@ for those so far...
 -- added output of (game)version to XML user status output
 -- a tiny change to bnetd.conf due to strange naming of status output parameters
 -- added some error handling for news.txt (for invalid or missing news timestamps)
+-- removed reload_new/all_accounts command again due to problems is might cause
+-- switched to reduced_accounting mode permanently now
 
 
 1.5.0beta3:

@@ -148,7 +148,7 @@
 
 4	/kill /killsession /addacct /lockacct /unlockacct
 
-5	/rank_all_accounts /reload_accounts_all /reload_accounts_new /ladderactivate
+5	/rank_all_accounts /ladderactivate
 
 #	-- Access to group '6' allows users to not only make others Server Admins & Server Operators
 #		but will allow them to make themselves Server Admin & Server Operator.
@@ -157,7 +157,7 @@
 
 7	/set /commandgroups /cg
 
-8	/shutdown /rehash /remove_accounting_infos
+8	/shutdown /rehash
 
 #	//////////////////////////////////////
 #	///// End of Command Groups File /////
