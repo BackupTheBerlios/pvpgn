@@ -573,6 +573,9 @@ static void game_destroy(t_game const * game)
     if (game->clienttag)
 	free((void *)game->clienttag); /* avoid warning */
 
+    if (game->description)
+	free((void *)game->description); /* avoid warning */
+
     free((void *)game->info); /* avoid warning */
     free((void *)game->pass); /* avoid warning */
     free((void *)game->name); /* avoid warning */
