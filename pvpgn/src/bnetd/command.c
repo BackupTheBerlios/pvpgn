@@ -2762,7 +2762,7 @@ static int _handle_news_command(t_connection * c, char const *text)
 	    newsindex = elem_get_data(curr);
 
 	    temp1 = news_get_date(newsindex);
-	    if (temp = localtime(&temp1))
+	    if ((temp = localtime(&temp1)))
 	       strftime(date, 64,"%B %d, %Y", temp);
 	    else
 	       strcpy(date, "(invalid date)");
