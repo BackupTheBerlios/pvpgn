@@ -291,6 +291,7 @@ typedef struct
 	t_server_findanongame_playgame_cancel		server_findanongame_playgame_cancel;
 	t_server_playgame_ack		server_playgame_ack;
 	t_server_anongame_found		server_anongame_found;
+	t_server_anongame_found2	server_anongame_found2;
 	//t_server_w3profile_reply      server_w3profile_reply;
     t_client_ladderreq2        client_ladderreq2;
 	t_server_ladderreply2      server_ladderreply2;

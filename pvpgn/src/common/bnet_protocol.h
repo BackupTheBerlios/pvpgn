@@ -683,9 +683,38 @@ typedef struct
 	// MISC PACKET APPEND DATA's //
 } t_server_anongame_found PACKED_ATTR();
 
+typedef struct
+{
+    t_bnet_header h;
+    bn_byte type;		/* 1: anongame found */
+    bn_int count;
+    bn_int unknown1;
+    bn_short unknown3; /* 0x0032 */
+    bn_byte  unknown6;  /* 0xff */
+    bn_short unknown7; /* 0x5434 */
+    bn_short unknown8; /* 0x0001 */
+    bn_int   unknown9; /* 0x00000001 maybe count ? */
+    bn_int   unknown10; /* 0x00000000 */
+    bn_int ip;
+    bn_short port;
+    bn_byte numplayers; /* 2 for 1vs1, 4 for 2vs2 etc */
+    bn_byte playernum;  /* 1-8 */
+    bn_byte gametype;   
+    bn_byte unknown2;   /* 0x00 */
+    bn_int id;		/* random val for identifying client */
+    bn_byte unknown4;   /* 0x06 */
+    bn_short unknown5;  /* 0x0000 */
+														
+	// MAP NAME //
+	// MISC PACKET APPEND DATA's //
+} t_server_anongame_found2 PACKED_ATTR();
 
-
-
+#define SERVER_ANONGAME_FOUND2_UNKNOWN3 0x0032
+#define SERVER_ANONGAME_FOUND2_UNKNOWN6 0xff
+#define SERVER_ANONGAME_FOUND2_UNKNOWN7 0x5434
+#define SERVER_ANONGAME_FOUND2_UNKNOWN8 0x0001
+#define SERVER_ANONGAME_FOUND2_UNKNOWN9 0x00000001
+#define SERVER_ANONGAME_FOUND2_UNKNOWN10 0x00000000
 
 /******************************************************/
 /*

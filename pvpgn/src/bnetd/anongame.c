@@ -893,7 +893,12 @@ extern void handle_anongame_search(t_connection * c, t_packet const * packet)
 
 		if (!(rpacket = packet_create(packet_class_bnet)))
 			return;
-		packet_set_size(rpacket,sizeof(t_server_anongame_found));
+		
+		if (strcmp(conn_get_clienttag(c), CLIENTTAG_WAR3XP) == 0)
+		    packet_set_size(rpacket,sizeof(t_server_anongame_found2));
+		else
+		    packet_set_size(rpacket,sizeof(t_server_anongame_found));
+
 		packet_set_type(rpacket,SERVER_ANONGAME_FOUND);
 		bn_byte_set(&rpacket->u.server_anongame_found.type,1);
 		bn_int_set(&rpacket->u.server_anongame_found.count,anongame_get_count(conn_get_anongame(player[gametype][i])));
@@ -907,6 +912,17 @@ extern void handle_anongame_search(t_connection * c, t_packet const * packet)
 		bn_int_set(&rpacket->u.server_anongame_found.id,0xdeadbeef);
 		bn_byte_set(&rpacket->u.server_anongame_found.unknown4,6);
 		bn_short_set(&rpacket->u.server_anongame_found.unknown5,0);
+		
+		if (strcmp(conn_get_clienttag(c), CLIENTTAG_WAR3XP) == 0) {
+		    bn_short_set(&rpacket->u.server_anongame_found2.unknown3, SERVER_ANONGAME_FOUND2_UNKNOWN3);
+		    bn_byte_set(&rpacket->u.server_anongame_found2.unknown6, SERVER_ANONGAME_FOUND2_UNKNOWN6);
+		    bn_short_set(&rpacket->u.server_anongame_found2.unknown7, SERVER_ANONGAME_FOUND2_UNKNOWN7);
+		    bn_short_set(&rpacket->u.server_anongame_found2.unknown8, SERVER_ANONGAME_FOUND2_UNKNOWN8);
+		    bn_int_set(&rpacket->u.server_anongame_found2.unknown9, SERVER_ANONGAME_FOUND2_UNKNOWN9);
+		    bn_int_set(&rpacket->u.server_anongame_found2.unknown10, SERVER_ANONGAME_FOUND2_UNKNOWN10);
+		    mapname = "Maps\\FrozenThrone\\Beta\\(4)TrtleRock.w3x";
+		}
+
 		if (!mapname) {
 			eventlog(eventlog_level_fatal, "handle_anongame_search", 
 				"got all players, but there's no map to play on");
