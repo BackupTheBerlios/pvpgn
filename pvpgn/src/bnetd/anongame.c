@@ -682,6 +682,7 @@ extern int anongame_unqueue_player(t_connection * c, t_uint8 gametype)
 				eventlog(eventlog_level_debug, "anongame_unqueue_player", "unqueued player [%d] level %d", 
 					conn_get_socket(c), i);
 				list_remove_elem(matchlists[gametype][i], curr);
+				if (md->versiontag != NULL) free((void *)md->versiontag);
 				free(md);
 				return 0;
 			}
