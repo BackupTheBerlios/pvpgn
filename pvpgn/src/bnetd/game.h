@@ -283,16 +283,16 @@ t_game;
 #include "common/list.h"
 #undef JUST_NEED_TYPES
 
-extern char const * game_type_get_str(t_game_type type) CONST_ATTR();
-extern char const * game_status_get_str(t_game_status status) CONST_ATTR();
-extern char const * game_result_get_str(t_game_result result) CONST_ATTR();
-extern char const * game_option_get_str(t_game_option option) CONST_ATTR();
-extern char const * game_maptype_get_str(t_game_maptype maptype) CONST_ATTR();
-extern char const * game_tileset_get_str(t_game_tileset tileset) CONST_ATTR();
-extern char const * game_speed_get_str(t_game_speed speed) CONST_ATTR();
-extern char const * game_difficulty_get_str(t_game_difficulty difficulty) CONST_ATTR();
+extern char const * game_type_get_str(t_game_type type) ;
+extern char const * game_status_get_str(t_game_status status) ;
+extern char const * game_result_get_str(t_game_result result) ;
+extern char const * game_option_get_str(t_game_option option) ;
+extern char const * game_maptype_get_str(t_game_maptype maptype) ;
+extern char const * game_tileset_get_str(t_game_tileset tileset) ;
+extern char const * game_speed_get_str(t_game_speed speed) ;
+extern char const * game_difficulty_get_str(t_game_difficulty difficulty) ;
 
-extern t_game * game_create(char const * name, char const * pass, char const * info, t_game_type type, int startver, char const * clienttag) MALLOC_ATTR();
+extern t_game * game_create(char const * name, char const * pass, char const * info, t_game_type type, int startver, char const * clienttag) ;
 extern unsigned int game_get_id(t_game const * game);
 extern char const * game_get_name(t_game const * game);
 extern t_game_type game_get_type(t_game const * game);

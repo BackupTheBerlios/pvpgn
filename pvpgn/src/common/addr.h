@@ -78,17 +78,17 @@ extern char const * host_lookup(char const * hoststr, unsigned int * ipaddr);
 
 /* ipaddr and port are in host byte order */
 #ifdef USE_CHECK_ALLOC
-extern t_addr * addr_create_num_real(unsigned int ipaddr, unsigned short port, char const * fn, unsigned int ln) MALLOC_ATTR();
+extern t_addr * addr_create_num_real(unsigned int ipaddr, unsigned short port, char const * fn, unsigned int ln) ;
 # define addr_create_num(A,P) addr_create_num_real(A,P,__FILE__"{addr_create_num}",__LINE__)
 #else
-extern t_addr * addr_create_num(unsigned int ipaddr, unsigned short port) MALLOC_ATTR();
+extern t_addr * addr_create_num(unsigned int ipaddr, unsigned short port) ;
 #endif
 /* defipaddr and defport are in host byte order */
 #ifdef USE_CHECK_ALLOC
-extern t_addr * addr_create_str_real(char const * str, unsigned int defipaddr, unsigned short defport, char const * fn, unsigned int ln) MALLOC_ATTR();
+extern t_addr * addr_create_str_real(char const * str, unsigned int defipaddr, unsigned short defport, char const * fn, unsigned int ln) ;
 # define addr_create_str(S,A,P) addr_create_str_real(S,A,P,__FILE__"{addr_create_str}",__LINE__)
 #else
-extern t_addr * addr_create_str(char const * str, unsigned int defipaddr, unsigned short defport) MALLOC_ATTR();
+extern t_addr * addr_create_str(char const * str, unsigned int defipaddr, unsigned short defport) ;
 #endif
 extern int addr_destroy(t_addr const * addr);
 extern char * addr_get_host_str(t_addr const * addr, char * str, unsigned int len);
@@ -99,14 +99,14 @@ extern unsigned int addr_get_ip(t_addr const * addr);
 extern unsigned short addr_get_port(t_addr const * addr);
 extern int addr_set_data(t_addr * addr, t_addr_data data);
 extern t_addr_data addr_get_data(t_addr const * addr);
-extern t_netaddr * netaddr_create_str(char const * str) MALLOC_ATTR();
+extern t_netaddr * netaddr_create_str(char const * str) ;
 extern int netaddr_destroy(t_netaddr const * netaddr);
 extern char * netaddr_get_addr_str(t_netaddr const * netaddr, char * str, unsigned int len);
 extern int netaddr_contains_addr_num(t_netaddr const * netaddr, unsigned int ipaddr);
 
 /* defipaddr and defport are in host byte order */
 extern int addrlist_append(t_addrlist * addrlist, char const * str, unsigned int defipaddr, unsigned short defport);
-extern t_addrlist * addrlist_create(char const * str, unsigned int defipaddr, unsigned short defport) MALLOC_ATTR();
+extern t_addrlist * addrlist_create(char const * str, unsigned int defipaddr, unsigned short defport) ;
 extern int addrlist_destroy(t_addrlist * addrlist);
 extern int addrlist_get_length(t_addrlist const * addrlist);
 

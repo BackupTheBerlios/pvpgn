@@ -61,10 +61,10 @@ t_hashtable;
 #define INCLUDED_HASHTABLE_PROTOS
 
 #ifdef USE_CHECK_ALLOC
-extern t_hashtable * hashtable_create_real(unsigned int num_rows, char const * fn, unsigned int ln) MALLOC_ATTR();
+extern t_hashtable * hashtable_create_real(unsigned int num_rows, char const * fn, unsigned int ln) ;
 # define hashtable_create(N) hashtable_create_real(N, __FILE__"{hashtable_create}",__LINE__)
 #else
-extern t_hashtable * hashtable_create(unsigned int num_rows) MALLOC_ATTR();
+extern t_hashtable * hashtable_create(unsigned int num_rows) ;
 #endif
 extern int hashtable_destroy(t_hashtable * hashtable);
 extern int hashtable_purge(t_hashtable * hashtable);

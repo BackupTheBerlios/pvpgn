@@ -78,7 +78,7 @@ t_virtconn;
 #include "common/list.h"
 #undef JUST_NEED_TYPES
 
-extern t_virtconn * virtconn_create(int csd, int ssd, unsigned int udpaddr, unsigned short udpport) MALLOC_ATTR();
+extern t_virtconn * virtconn_create(int csd, int ssd, unsigned int udpaddr, unsigned short udpport) ;
 extern void virtconn_destroy(t_virtconn * vc);
 extern t_virtconn_class virtconn_get_class(t_virtconn const * vc);
 extern void virtconn_set_class(t_virtconn * vc, t_virtconn_class class);

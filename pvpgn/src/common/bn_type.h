@@ -54,16 +54,16 @@ extern int bn_short_tag_set(bn_short * dst, char const * tag);
 extern int bn_int_tag_set(bn_int * dst, char const * tag);
 extern int bn_long_tag_set(bn_long * dst, char const * tag);
 
-extern t_uint8 bn_byte_get(bn_byte const src) PURE_ATTR();
-extern t_uint16 bn_short_get(bn_short const src) PURE_ATTR();
-extern t_uint16 bn_short_nget(bn_short const src) PURE_ATTR();
-extern t_uint32 bn_int_get(bn_int const src) PURE_ATTR();
-extern t_uint32 bn_int_nget(bn_int const src) PURE_ATTR();
+extern t_uint8 bn_byte_get(bn_byte const src) ;
+extern t_uint16 bn_short_get(bn_short const src) ;
+extern t_uint16 bn_short_nget(bn_short const src) ;
+extern t_uint32 bn_int_get(bn_int const src) ;
+extern t_uint32 bn_int_nget(bn_int const src) ;
 #ifdef HAVE_T_UINT64
-extern t_uint64 bn_long_get(bn_long const src) PURE_ATTR();
+extern t_uint64 bn_long_get(bn_long const src) ;
 #endif
-extern t_uint32 bn_long_get_a(bn_long const src) PURE_ATTR();
-extern t_uint32 bn_long_get_b(bn_long const src) PURE_ATTR();
+extern t_uint32 bn_long_get_a(bn_long const src) ;
+extern t_uint32 bn_long_get_b(bn_long const src) ;
 
 extern int bn_byte_set(bn_byte * dst, t_uint8 src);
 extern int bn_short_set(bn_short * dst, t_uint16 src);
@@ -79,10 +79,10 @@ extern int bn_long_nset_a_b(bn_long * dst, t_uint32 srca, t_uint32 srcb);
 
 extern int bn_raw_set(void * dst, void const * src, unsigned int len);
 
-extern int bn_byte_tag_eq(bn_byte const src, char const * tag) PURE_ATTR();
-extern int bn_short_tag_eq(bn_short const src, char const * tag) PURE_ATTR();
-extern int bn_int_tag_eq(bn_int const src, char const * tag) PURE_ATTR();
-extern int bn_long_tag_eq(bn_long const src, char const * tag) PURE_ATTR();
+extern int bn_byte_tag_eq(bn_byte const src, char const * tag) ;
+extern int bn_short_tag_eq(bn_short const src, char const * tag) ;
+extern int bn_int_tag_eq(bn_int const src, char const * tag) ;
+extern int bn_long_tag_eq(bn_long const src, char const * tag) ;
 
 extern int uint32_to_int(t_uint32 num);
 

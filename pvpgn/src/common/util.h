@@ -26,18 +26,18 @@
 #include <stdio.h>
 #undef JUST_NEED_TYPES
 
-extern int strstart(char const * full, char const * part) PURE_ATTR();
-extern char * file_get_line(FILE * fp) MALLOC_ATTR();
+extern int strstart(char const * full, char const * part) ;
+extern char * file_get_line(FILE * fp) ;
 extern char * strreverse(char * str);
 extern int str_to_uint(char const * str, unsigned int * num);
 extern int str_to_ushort(char const * str, unsigned short * num);
 extern int str_print_term(FILE * fp, char const * str, unsigned int len, int allow_nl);
-extern int str_get_bool(char const * str) PURE_ATTR();
+extern int str_get_bool(char const * str) ;
 extern char const * seconds_to_timestr(unsigned int totsecs); /* FIXME: can this be marked pure? */
 extern int clockstr_to_seconds(char const * clockstr, unsigned int * totsecs);
-extern char * escape_fs_chars(char const * in, unsigned int len) MALLOC_ATTR();
-extern char * escape_chars(char const * in, unsigned int len) MALLOC_ATTR();
-extern char * unescape_chars(char const * in) MALLOC_ATTR();
+extern char * escape_fs_chars(char const * in, unsigned int len) ;
+extern char * escape_chars(char const * in, unsigned int len) ;
+extern char * unescape_chars(char const * in) ;
 extern void str_to_hex(char * target, char * data, int datalen);
 extern int hex_to_str(char const * source, char * data, int datalen);
 

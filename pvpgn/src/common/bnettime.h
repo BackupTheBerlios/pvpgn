@@ -53,10 +53,10 @@ typedef struct
 #include "common/bn_type.h"
 #undef JUST_NEED_TYPES
 
-extern t_bnettime secs_to_bnettime(double secs) CONST_ATTR();
-extern double bnettime_to_secs(t_bnettime bntime) CONST_ATTR();
-extern t_bnettime time_to_bnettime(time_t stdtime, unsigned int usec) CONST_ATTR();
-extern time_t bnettime_to_time(t_bnettime bntime) CONST_ATTR();
+extern t_bnettime secs_to_bnettime(double secs) ;
+extern double bnettime_to_secs(t_bnettime bntime) ;
+extern t_bnettime time_to_bnettime(time_t stdtime, unsigned int usec) ;
+extern time_t bnettime_to_time(t_bnettime bntime) ;
 extern t_bnettime bnettime(void);
 extern char const * bnettime_get_str(t_bnettime bntime);
 extern int bnettime_set_str(t_bnettime * bntime, char const * timestr);

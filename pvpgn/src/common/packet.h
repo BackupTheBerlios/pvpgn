@@ -450,10 +450,10 @@ typedef struct
 #define INCLUDED_PACKET_PROTOS
 
 #ifdef USE_CHECK_ALLOC
-extern t_packet * packet_create_real(t_packet_class class, char const * fn, unsigned int ln) MALLOC_ATTR();
+extern t_packet * packet_create_real(t_packet_class class, char const * fn, unsigned int ln) ;
 # define packet_create(C) packet_create_real(C,__FILE__"{packet_create}",__LINE__)
 #else
-extern t_packet * packet_create(t_packet_class class) MALLOC_ATTR();
+extern t_packet * packet_create(t_packet_class class) ;
 #endif
 extern void packet_destroy(t_packet const * packet);
 extern t_packet * packet_add_ref(t_packet * packet);

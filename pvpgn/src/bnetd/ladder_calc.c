@@ -35,7 +35,7 @@
 #include "common/setup_after.h"
 
 
-static double probability(unsigned int a, unsigned int b) CONST_ATTR();
+static double probability(unsigned int a, unsigned int b) ;
 static int coefficient(t_account * account, char const * clienttag, t_ladder_id id);
 
 static double two_player(t_account * * players, char const * clienttag, t_ladder_id id);
@@ -45,22 +45,22 @@ static double three_player(t_account * * players, char const * clienttag, t_ladd
 static double four_player(t_account * * players, char const * clienttag, t_ladder_id id);
 
 static double five_player(t_account * * players, char const * clienttag, t_ladder_id id);
-static double five_f1(int a, int b, int c, int d, int e) CONST_ATTR();
-static double five_f2(int a, int b, int c) CONST_ATTR();
+static double five_f1(int a, int b, int c, int d, int e) ;
+static double five_f2(int a, int b, int c) ;
 
 static double six_player(t_account * * players, char const * clienttag, t_ladder_id id);
-static double six_f1(int a, int b, int c, int d, int e, int f) CONST_ATTR();
-static double six_f2(int a, int b, int c, int d, int e, int f) CONST_ATTR();
-static double six_f3(int a, int b, int c, int d) CONST_ATTR();
+static double six_f1(int a, int b, int c, int d, int e, int f) ;
+static double six_f2(int a, int b, int c, int d, int e, int f) ;
+static double six_f3(int a, int b, int c, int d) ;
 
 static double seven_player(t_account * * players, char const * clienttag, t_ladder_id id);
-static double seven_f1(int a, int b, int c, int d, int e, int f, int g) CONST_ATTR();
-static double seven_f2(int a, int b, int c, int d, int e, int f, int g) CONST_ATTR();
+static double seven_f1(int a, int b, int c, int d, int e, int f, int g) ;
+static double seven_f2(int a, int b, int c, int d, int e, int f, int g) ;
 
 static double eight_player(t_account * * players, char const * clienttag, t_ladder_id id);
-static double eight_f1(int a, int b, int c, int d, int e, int f, int g) CONST_ATTR();
-static double eight_f2(int a, int b, int c, int d, int e, int f, int g) CONST_ATTR();
-static double eight_f3(int a, int b, int c, int d, int e) CONST_ATTR();
+static double eight_f1(int a, int b, int c, int d, int e, int f, int g) ;
+static double eight_f2(int a, int b, int c, int d, int e, int f, int g) ;
+static double eight_f3(int a, int b, int c, int d, int e) ;
 
 /*
  * Compute probability of winning using the Elo system

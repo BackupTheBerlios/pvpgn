@@ -59,12 +59,12 @@ t_realm;
 #include "connection.h"
 #undef JUST_NEED_TYPES
 
-extern char const * realm_get_name(t_realm const * realm) PURE_ATTR();
-extern char const * realm_get_description(t_realm const * realm) PURE_ATTR();
-extern unsigned short realm_get_port(t_realm const * realm) PURE_ATTR();
-extern unsigned int realm_get_ip(t_realm const * realm) PURE_ATTR();
-extern unsigned short realm_get_showport(t_realm const * realm) PURE_ATTR();
-extern unsigned int realm_get_showip(t_realm const * realm) PURE_ATTR();
+extern char const * realm_get_name(t_realm const * realm) ;
+extern char const * realm_get_description(t_realm const * realm) ;
+extern unsigned short realm_get_port(t_realm const * realm) ;
+extern unsigned int realm_get_ip(t_realm const * realm) ;
+extern unsigned short realm_get_showport(t_realm const * realm) ;
+extern unsigned int realm_get_showip(t_realm const * realm) ;
 extern t_netaddr * realm_get_exclude_net(t_realm const * realm);
 extern int realm_set_name(t_realm * realm, char const * name);
 extern unsigned int realm_get_active(t_realm const * realm);

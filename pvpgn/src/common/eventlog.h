@@ -66,7 +66,7 @@ extern void eventlog_real(t_eventlog_level level, char const * module, char cons
 
 #else
 
-extern void eventlog(t_eventlog_level level, char const * module, char const * fmt, ...) PRINTF_ATTR(3,4);
+extern void eventlog(t_eventlog_level level, char const * module, char const * fmt, ...);
 extern void eventlog_step(char const * filename, t_eventlog_level level, char const * module, char const * fmt, ...);
 
 #endif

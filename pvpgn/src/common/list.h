@@ -46,10 +46,10 @@ t_list;
 #define INCLUDED_LIST_PROTOS
 
 #ifdef USE_CHECK_ALLOC
-extern t_list * list_create_real(char const * fn, unsigned int ln) MALLOC_ATTR();
+extern t_list * list_create_real(char const * fn, unsigned int ln) ;
 # define list_create() list_create_real(__FILE__"{list_create}",__LINE__)
 #else
-extern t_list * list_create(void) MALLOC_ATTR();
+extern t_list * list_create(void) ;
 #endif
 extern int list_destroy(t_list * list);
 extern int list_purge(t_list * list);

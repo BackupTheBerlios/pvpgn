@@ -26,15 +26,15 @@
 #include "game.h"
 #undef JUST_NEED_TYPES
 
-extern t_game_type bngreqtype_to_gtype(char const * clienttag, unsigned short bngtype) PURE_ATTR();
-extern t_game_type bngtype_to_gtype(char const * clienttag, unsigned short bngtype) PURE_ATTR();
-extern unsigned short gtype_to_bngtype(t_game_type gtype) CONST_ATTR();
-extern t_game_option bngoption_to_goption(char const * clienttag, t_game_type gtype, unsigned short bngoption) PURE_ATTR();
-extern t_game_result bngresult_to_gresult(unsigned int bngresult) CONST_ATTR();
-extern t_game_maptype bngmaptype_to_gmaptype(unsigned int bngmaptype) CONST_ATTR();
-extern t_game_tileset bngtileset_to_gtileset(unsigned int bngtileset) CONST_ATTR();
-extern t_game_speed bngspeed_to_gspeed(unsigned int bngspeed) CONST_ATTR();
-extern t_game_difficulty bngdifficulty_to_gdifficulty(unsigned int bngdifficulty) CONST_ATTR();
+extern t_game_type bngreqtype_to_gtype(char const * clienttag, unsigned short bngtype) ;
+extern t_game_type bngtype_to_gtype(char const * clienttag, unsigned short bngtype) ;
+extern unsigned short gtype_to_bngtype(t_game_type gtype) ;
+extern t_game_option bngoption_to_goption(char const * clienttag, t_game_type gtype, unsigned short bngoption) ;
+extern t_game_result bngresult_to_gresult(unsigned int bngresult) ;
+extern t_game_maptype bngmaptype_to_gmaptype(unsigned int bngmaptype) ;
+extern t_game_tileset bngtileset_to_gtileset(unsigned int bngtileset) ;
+extern t_game_speed bngspeed_to_gspeed(unsigned int bngspeed) ;
+extern t_game_difficulty bngdifficulty_to_gdifficulty(unsigned int bngdifficulty) ;
 extern int game_parse_info(t_game * game, char const * gameinfo);
 
 #endif

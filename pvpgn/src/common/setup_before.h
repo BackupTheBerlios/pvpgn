@@ -341,37 +341,6 @@
 # define PRINTF_ATTR(FMTARG,VARG)
 #endif
 
-/* returns a pointer which can not alias any other object */
-#if defined(__GNUC__) && ((__GNUC__ == 2 && __GNUC_MINOR__ >= 96) || __GNUC__ > 2)
-# define MALLOC_ATTR() __attribute__((__malloc__))
-#else
-# define MALLOC_ATTR()
-#endif
-
-/* must only read arguments and non-volatile global variables and change nothing
-   except for local variables and its own return value (and must eventually return) */
-#if defined(__GNUC__) && ((__GNUC__ == 2 && __GNUC_MINOR__ >= 96) || __GNUC__ > 2)
-# define PURE_ATTR() __attribute__((__pure__))
-#else
-# define PURE_ATTR()
-#endif
-
-/* must only read direct arguments (no following pointers) and change nothing except
-   for local variables and its own return value (and it must have a non-void return
-   type and eventually return) */
-#if defined(__GNUC__) && ((__GNUC__ == 2 && __GNUC_MINOR__ >= 5) || __GNUC__ > 2)
-# define CONST_ATTR() __attribute__((__const__))
-#else
-# define CONST_ATTR()
-#endif
-
-/* must never return and have void return type */
-#if defined(__GNUC__) && ((__GNUC__ == 2 && __GNUC_MINOR__ >= 5) || __GNUC__ > 2)
-# define NORETURN_ATTR() __attribute__((__noreturn__))
-#else
-# define NORETURN_ATTR()
-#endif
-
 /* type attributes */
 
 /* set GCC machine storage mode */

@@ -62,12 +62,12 @@ extern void check_cleanup(void);
 #define calloc(nelem,size) check_calloc_real((nelem),(size),__FILE__,__LINE__)
 #endif
 
-extern void * check_malloc_real(unsigned int size, char const * file_name, int line_number) MALLOC_ATTR();
-extern void * check_calloc_real(unsigned int nelem, unsigned int size, char const * file_name, int line_number) MALLOC_ATTR();
+extern void * check_malloc_real(unsigned int size, char const * file_name, int line_number) ;
+extern void * check_calloc_real(unsigned int nelem, unsigned int size, char const * file_name, int line_number) ;
 extern void * check_realloc_real(void * ptr, unsigned int size, char const * file_name, int line_number);
 extern void check_free_real(void * ptr, char const * file_name, int line_number);
 extern void check_cfree_real(void * ptr, char const * file_name, int line_number);
-extern void * check_strdup_real(char const * s1, char const * file_name, int line_number) MALLOC_ATTR();
+extern void * check_strdup_real(char const * s1, char const * file_name, int line_number) ;
 
 #endif
 #endif
