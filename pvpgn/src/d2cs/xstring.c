@@ -179,7 +179,6 @@ extern char * * strtoargv(char const * str, unsigned int * count)
 	int		* pindex;
 	void		** ptrindex;
 	char		* result;
-	void		* realloc_tmp;
 
 	if (!str || !count) return NULL;
 	temp=xmalloc(strlen(str)+1);
@@ -193,7 +192,7 @@ extern char * * strtoargv(char const * str, unsigned int * count)
 		if (!str[i]) break;
 		if (*count >=n ) {
 			n += SPLIT_STRING_INCREASEMENT;
-			pindex=(int *)=xrealloc(pindex,n * sizeof(int));
+			pindex=(int *)xrealloc(pindex,n * sizeof(int));
 		}
 		pindex[*count]=j;
 		(*count)++;
@@ -243,7 +242,6 @@ extern char * arraytostr(char * * array, char const * delim, int count)
 	int	i;
 	unsigned int n;
 	char	* result;
-	char	* realloc_tmp;
 	int	need_delim;
 
 	if (!delim || !array) return NULL;
