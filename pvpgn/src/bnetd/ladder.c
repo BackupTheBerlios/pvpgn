@@ -307,7 +307,7 @@ extern int ladder_check_map(char const * mapname, t_game_maptype maptype, char c
 
 extern t_account * ladder_get_account_by_rank(unsigned int rank, t_ladder_sort lsort, t_ladder_time ltime, char const * clienttag, t_ladder_id id)
 {
-    int dummy;
+    unsigned int dummy;
     
     if (rank<1)
     {
