@@ -812,7 +812,7 @@ extern int conn_set_charinfo(t_connection * c, t_d2charinfo_summary const * char
 	}
 	if (c->charinfo) xfree((void *)c->charinfo);
 	c->charinfo=xmalloc(sizeof(t_d2charinfo_summary));
-	memcpy(c->charinfo,charinfo,sizeof(t_d2charinfo_summary));
+	memcpy((void*)c->charinfo,charinfo,sizeof(t_d2charinfo_summary));
 	return 0;
 }
 
