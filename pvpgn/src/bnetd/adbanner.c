@@ -119,7 +119,7 @@ static t_adbanner * adbanner_create(unsigned int id, unsigned int next_id, unsig
 	ad->client = clienttag_str_to_uint(client);
 
     /* I'm aware that this statement looks stupid */
-    if (ad->client && clienttag_str_to_uint(clienttag_uint_to_str(ad->client))==CLIENTTAG_UNKNOWN_UINT)
+    if (ad->client && (!tag_check_client(ad->client)))
     {
     	eventlog(eventlog_level_error,__FUNCTION__,"banner with invalid clienttag \"%s\"encountered",client);
 	free((void *)ad->link);
