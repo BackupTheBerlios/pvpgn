@@ -4464,11 +4464,7 @@ static int _client_startgame4(t_connection * c, t_packet const * const packet)
 	     switch (status)
 	       {
 		case CLIENT_STARTGAME4_STATUS_STARTED:
-		  /* Dizzy : my war3 is sending different status when started as shown bellow:
-		   Aug 08 01:54:42 handle_bnet_packet: [10] got startgame4 status for game "test2" is 0x00000008 (gametype=0x0009 option=0x0000)
-		   Aug 08 01:54:42 handle_bnet_packet: [10] startgame4 status: 08
-		   Aug 08 01:54:42 handle_bnet_packet: [10] startgame4 flag: 00
-		   Aug 08 01:54:42 handle_bnet_packet: [10] unknown startgame4 status 8 */
+		case CLIENT_STARTGAME4_STATUS_STARTED2:
 		case CLIENT_STARTGAME4_STATUS_STARTED_W3:
 		  game_set_status(currgame,game_status_started);
 		  break;
@@ -4485,7 +4481,6 @@ static int _client_startgame4(t_connection * c, t_packet const * const packet)
 		case CLIENT_STARTGAME4_STATUS_OPEN1_W3:
 		  game_set_status(currgame,game_status_open);
 		  break;
-		case CLIENT_STARTGAME4_STATUS_DONE1:
 		case CLIENT_STARTGAME4_STATUS_DONE2:
 		  game_set_status(currgame,game_status_done);
 		  eventlog(eventlog_level_info,__FUNCTION__,"[%d] game \"%s\" is finished",conn_get_socket(c),gamename);
@@ -4494,8 +4489,7 @@ static int _client_startgame4(t_connection * c, t_packet const * const packet)
 		  eventlog(eventlog_level_error,__FUNCTION__,"[%d] unknown startgame4 status %d",conn_get_socket(c),status);
 	       }
 	  }
-	else if (status!=CLIENT_STARTGAME4_STATUS_DONE1 &&
-	         status!=CLIENT_STARTGAME4_STATUS_DONE2)
+	else if (status!=CLIENT_STARTGAME4_STATUS_DONE2)
 	  {
 	     t_game_type gtype;
 	     
