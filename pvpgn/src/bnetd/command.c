@@ -2746,17 +2746,49 @@ static int _handle_news_command(t_connection * c, char const *text)
     return 0;
 }
 
+struct glist_cb_struct {
+    t_game_difficulty diff;
+    t_clienttag tag;
+    t_connection *c;
+};
+
+static int _glist_cb(t_game *game, void *data)
+{
+    struct glist_cb_struct *cbdata = (struct glist_cb_struct*)data;
+
+    if ((!cbdata->tag || !prefs_get_hide_pass_games() || game_get_flag(game) != game_flag_private) &&
+	(!cbdata->tag || game_get_clienttag(game)==cbdata->tag) && 
+        (cbdata->diff==game_difficulty_none || game_get_difficulty(game)==cbdata->diff))
+    {
+	if (prefs_get_hide_addr() && !(account_get_command_groups(conn_get_account(cbdata->c)) & command_get_group("/admin-addr"))) /* default to false */
+	    sprintf(msgtemp," %-16.16s %1.1s %-8.8s %-21.21s %5u",
+		    game_get_name(game),
+		    game_get_flag(game) != game_flag_private ? "n":"y",
+		    game_status_get_str(game_get_status(game)),
+		    game_type_get_str(game_get_type(game)),
+		    game_get_ref(game));
+	else
+	    sprintf(msgtemp," %-16.16s %1.1s %-8.8s %-21.21s %5u %s",
+		    game_get_name(game),
+		    game_get_flag(game) != game_flag_private ? "n":"y",
+		    game_status_get_str(game_get_status(game)),
+		    game_type_get_str(game_get_type(game)),
+		    game_get_ref(game),
+		    addr_num_to_addr_str(game_get_addr(game),game_get_port(game)));
+	message_send_text(cbdata->c,message_type_info,cbdata->c,msgtemp);
+    }
+
+    return 0;
+}
+
 static int _handle_games_command(t_connection * c, char const *text)
 {
   unsigned int   i;
   unsigned int   j;
-  t_elem const * curr;
-  t_game const * game;
-  t_clienttag    tag;
   char           clienttag_str[5];
   char           dest[5];
-  t_game_difficulty   difficulty;
-  
+  struct glist_cb_struct cbdata;
+
   for (i=0; text[i]!=' ' && text[i]!='\0'; i++); /* skip command */
   for (; text[i]==' '; i++);
   for (j=0; text[i]!=' ' && text[i]!='\0'; i++) /* get dest */
@@ -2764,32 +2796,34 @@ static int _handle_games_command(t_connection * c, char const *text)
   dest[j] = '\0';
   for (; text[i]==' '; i++);
 
+  cbdata.c = c;
+
   if(strcmp(&text[i],"norm")==0)
-    difficulty = game_difficulty_normal;
+    cbdata.diff = game_difficulty_normal;
   else if(strcmp(&text[i],"night")==0)
-    difficulty = game_difficulty_nightmare;
+    cbdata.diff = game_difficulty_nightmare;
   else if(strcmp(&text[i],"hell")==0)
-    difficulty = game_difficulty_hell;
+    cbdata.diff = game_difficulty_hell;
   else
-    difficulty = game_difficulty_none;
+    cbdata.diff = game_difficulty_none;
   
   if (dest[0]=='\0')
     {
-      tag = conn_get_clienttag(c);
+      cbdata.tag = conn_get_clienttag(c);
       message_send_text(c,message_type_info,c,"Currently accessable games:");
     }
   else if (strcmp(&dest[0],"all")==0)
     {
-      tag = 0;
+      cbdata.tag = 0;
       message_send_text(c,message_type_info,c,"All current games:");
     }
   else
     {
-      tag = tag_case_str_to_uint(&dest[0]);
-      if(difficulty==game_difficulty_none)
-        sprintf(msgtemp,"Current games of type %s",tag_uint_to_str(clienttag_str,tag));
+      cbdata.tag = tag_case_str_to_uint(&dest[0]);
+      if(cbdata.diff==game_difficulty_none)
+        sprintf(msgtemp,"Current games of type %s",tag_uint_to_str(clienttag_str,cbdata.tag));
       else
-        sprintf(msgtemp,"Current games of type %s %s",tag_uint_to_str(clienttag_str,tag),&text[i]);
+        sprintf(msgtemp,"Current games of type %s %s",tag_uint_to_str(clienttag_str,cbdata.tag),&text[i]);
       message_send_text(c,message_type_info,c,msgtemp);
     }
   
@@ -2798,32 +2832,8 @@ static int _handle_games_command(t_connection * c, char const *text)
   else
     sprintf(msgtemp," ------name------ p -status- --------type--------- count --------addr--------");
   message_send_text(c,message_type_info,c,msgtemp);
-  LIST_TRAVERSE_CONST(gamelist(),curr)
-    {
-      game = elem_get_data(curr);
-      if ((!tag || !prefs_get_hide_pass_games() || game_get_flag(game) != game_flag_private) &&
-	  (!tag || game_get_clienttag(game)==tag) && 
-         (difficulty==game_difficulty_none || game_get_difficulty(game)==difficulty))
-	{
-	  if (prefs_get_hide_addr() && !(account_get_command_groups(conn_get_account(c)) & command_get_group("/admin-addr"))) /* default to false */
-	    sprintf(msgtemp," %-16.16s %1.1s %-8.8s %-21.21s %5u",
-		    game_get_name(game),
-		    game_get_flag(game) != game_flag_private ? "n":"y",
-		    game_status_get_str(game_get_status(game)),
-		    game_type_get_str(game_get_type(game)),
-		    game_get_ref(game));
-	  else
-	    sprintf(msgtemp," %-16.16s %1.1s %-8.8s %-21.21s %5u %s",
-		    game_get_name(game),
-		    game_get_flag(game) != game_flag_private ? "n":"y",
-		    game_status_get_str(game_get_status(game)),
-		    game_type_get_str(game_get_type(game)),
-		    game_get_ref(game),
-		    addr_num_to_addr_str(game_get_addr(game),game_get_port(game)));
-	  message_send_text(c,message_type_info,c,msgtemp);
-	}
-    }
-  
+  gamelist_traverse(_glist_cb,&cbdata);
+
   return 0;
 }
 

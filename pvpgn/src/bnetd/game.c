@@ -2069,9 +2069,14 @@ extern t_game * gamelist_find_game_byid(unsigned int id)
 }
 
 
-extern t_list * gamelist(void)
+extern void gamelist_traverse(t_glist_func cb, void *data)
 {
-    return gamelist_head;
+    t_elem const *curr;
+
+    LIST_TRAVERSE_CONST(gamelist_head,curr)
+    {
+	if (cb((t_game*)elem_get_data(curr),data)<0) return;
+    }
 }
 
 
@@ -2187,7 +2192,7 @@ extern int game_get_count_by_clienttag(t_clienttag ct)
    }
 
    /* Get number of games for client tag specific */
-   LIST_TRAVERSE_CONST(gamelist(),curr)
+   LIST_TRAVERSE_CONST(gamelist_head,curr)
      {
 	game = elem_get_data(curr);
 	if(game_get_clienttag(game)==ct)

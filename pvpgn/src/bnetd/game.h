@@ -232,6 +232,8 @@ typedef struct game
 #endif
 t_game;
 
+typedef int (*t_glist_func)(t_game *, void *);
+
 #endif
 
 
@@ -324,7 +326,7 @@ extern int gamelist_destroy(void);
 extern int gamelist_get_length(void);
 extern t_game * gamelist_find_game(char const * name, t_game_type type);
 extern t_game * gamelist_find_game_byid(unsigned int id);
-extern t_list * gamelist(void);
+extern void gamelist_traverse(t_glist_func cb, void *data);
 extern int gamelist_total_games(void);
 
 extern int game_set_realm(t_game * game, unsigned int realm); 

@@ -75,14 +75,37 @@ extern void output_init(void)
  * Write Functions *
  */
 
+static int _glist_cb_xml(t_game *game, void *data)
+{
+    char clienttag_str[5];
+
+    fprintf((FILE*)data,"\t\t<game><name>%s</name><clienttag>%s</clienttag></game>\n",game_get_name(game),tag_uint_to_str(clienttag_str,game_get_clienttag(game)));
+
+    return 0;
+}
+
+static int _glist_cb_simple(t_game *game, void *data)
+{
+    static int number;
+    char clienttag_str[5];
+
+    if (!data) { 
+	number = 1;
+	return 0;
+    }
+
+    fprintf((FILE*)data,"game%d=%s,%s\n",number,tag_uint_to_str(clienttag_str,game_get_clienttag(game)),game_get_name(game));
+    number++;
+
+    return 0;
+}
+
 int output_standard_writer(FILE * fp)
 {
     t_elem const	*curr;
     t_connection	*conn;
     t_channel const	*channel;
-    t_game const	*game;
     char const		*channel_name;
-    char const		*game_name;
     int			number;
     char		clienttag_str[5];
     
@@ -105,15 +128,7 @@ int output_standard_writer(FILE * fp)
 	fprintf(fp,"\t\t<Games>\n");
 	fprintf(fp,"\t\t<Number>%d</Number>\n",gamelist_get_length());
 	
-	LIST_TRAVERSE_CONST(gamelist(),curr)
-	{
-    	    game = elem_get_data(curr);
-	    if (game_get_name(game)!=NULL)
-	    {
-		game_name = game_get_name(game);
-		fprintf(fp,"\t\t<game><name>%s</name><clienttag>%s</clienttag></game>\n",game_name,tag_uint_to_str(clienttag_str,game_get_clienttag(game)));
-	    }
-	}
+	gamelist_traverse(_glist_cb_xml,fp);
 
 	fprintf(fp,"\t\t</Games>\n");
 	fprintf(fp,"\t\t<Channels>\n");
@@ -150,17 +165,8 @@ int output_standard_writer(FILE * fp)
 	}
 
 	fprintf(fp,"[GAMES]\n");
-	number=1;
-	LIST_TRAVERSE_CONST(gamelist(),curr)
-	{
-    	    game = elem_get_data(curr);
-	    if (game_get_name(game)!=NULL)
-	    {
-		game_name = game_get_name(game);
-		fprintf(fp,"game%d=%s,%s\n",number,tag_uint_to_str(clienttag_str,game_get_clienttag(game)),game_name);
-		number++;
-	    }
-	}
+	_glist_cb_simple(NULL,NULL);	/* init number */
+	gamelist_traverse(_glist_cb_simple,fp);
 
 	fprintf(fp,"[USERS]\n");
 	number=1;
