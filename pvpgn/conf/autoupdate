@@ -73,10 +73,10 @@
 #IX86    WAR3    WAR3_106a       WAR3_IX86_1xx_111A.mpq
 
 # Incremental update from version 110a
-IX86    WAR3    WAR3_110a       WAR3_IX86_100A_111A.mpq
+#IX86    WAR3    WAR3_110a       WAR3_IX86_100A_111A.mpq
 
 # The next one is a WarCraft III - RoC wildcard entry.
-IX86    WAR3    WAR3_1xx        WAR3_IX86_1xx_111A.mpq
+#IX86    WAR3    WAR3_1xx        WAR3_IX86_1xx_111A.mpq
 
 # ===================== Diablo II Expansion (LoD) ===========================
 # note: Blizzard has suppressed d2/lod versions 1.09c.
