@@ -2797,7 +2797,7 @@ static int _client_findanongame(t_connection * c, t_packet const * const packet)
 	     return -1;
 	  }										
 	
-	eventlog(eventlog_level_error,__FUNCTION__,"Looking up %s's WAR3 Stats.",username);
+	eventlog(eventlog_level_info,__FUNCTION__,"Looking up %s's WAR3 Stats.",username);
 			
 	if (account_get_sololevel(account)==0 && account_get_teamlevel(account)==0 && account_get_atteamcount(account)==0)
 	  {
