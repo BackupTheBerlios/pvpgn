@@ -1646,7 +1646,7 @@ extern unsigned int account_get_friend( t_account * account, int friendnum)
     return tmp;
 }
 
-extern int account_set_friendcount( t_account * account, int count)
+static int account_set_friendcount( t_account * account, int count)
 {
 	if (count < 0 || count > prefs_get_max_friends())
 	{

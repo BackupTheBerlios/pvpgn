@@ -162,7 +162,6 @@ extern int account_check_closed_character(t_account * account, t_clienttag clien
 
 extern int account_set_friend( t_account * account, int friendnum, unsigned int frienduid );
 extern unsigned int account_get_friend( t_account * account, int friendnum);
-extern int account_set_friendcount( t_account * account, int count);
 extern int account_get_friendcount( t_account * account );
 extern int account_add_friend( t_account * my_acc, t_account * facc );
 extern int account_remove_friend( t_account * account, int friendnum );
