@@ -52,18 +52,18 @@ extern t_virtconn * virtconn_create(int csd, int ssd, unsigned int udpaddr, unsi
     
     if (csd<0)
     {
-        eventlog(eventlog_level_error,"virtconn_create","got bad client socket");
+        eventlog(eventlog_level_error,__FUNCTION__,"got bad client socket");
         return NULL;
     }
     if (ssd<0)
     {
-        eventlog(eventlog_level_error,"virtconn_create","got bad server socket");
+        eventlog(eventlog_level_error,__FUNCTION__,"got bad server socket");
         return NULL;
     }
     
     if (!(temp = malloc(sizeof(t_virtconn))))
     {
-        eventlog(eventlog_level_error,"virtconn_create","could not allocate memory for temp");
+        eventlog(eventlog_level_error,__FUNCTION__,"could not allocate memory for temp");
         return NULL;
     }
     
@@ -86,7 +86,7 @@ extern t_virtconn * virtconn_create(int csd, int ssd, unsigned int udpaddr, unsi
     if (list_prepend_data(virtconn_head,temp)<0)
     {
         free(temp);
-        eventlog(eventlog_level_error,"virtconn_create","could not prepend temp");
+        eventlog(eventlog_level_error,__FUNCTION__,"could not prepend temp");
         return NULL;
     }
     
@@ -100,11 +100,11 @@ extern void virtconn_destroy(t_virtconn * vc)
 
     if (!vc)
     {
-        eventlog(eventlog_level_error,"virtconn_destroy","got NULL virtconn");
+        eventlog(eventlog_level_error,__FUNCTION__,"got NULL virtconn");
         return;
     }
     if (list_remove_data(virtconn_head,vc, &curr)<0)
-	eventlog(eventlog_level_error,"virtconn_destroy","could not remove item from list");
+	eventlog(eventlog_level_error,__FUNCTION__,"could not remove item from list");
     
     vc->state = virtconn_state_empty;
     
@@ -117,8 +117,8 @@ extern void virtconn_destroy(t_virtconn * vc)
     queue_clear(&vc->cinqueue);
     queue_clear(&vc->coutqueue);
     
-    eventlog(eventlog_level_info,"virtconn_destroy","[%d] closed server connection (%d) class=%d",vc->ssd,vc->csd,(int)vc->class);
-    eventlog(eventlog_level_info,"virtconn_destroy","[%d] closed client connection (%d) class=%d",vc->csd,vc->ssd,(int)vc->class);
+    eventlog(eventlog_level_info,__FUNCTION__,"[%d] closed server connection (%d) class=%d",vc->ssd,vc->csd,(int)vc->class);
+    eventlog(eventlog_level_info,__FUNCTION__,"[%d] closed client connection (%d) class=%d",vc->csd,vc->ssd,(int)vc->class);
     
     free(vc);
 }
@@ -128,7 +128,7 @@ extern t_virtconn_class virtconn_get_class(t_virtconn const * vc)
 {
     if (!vc)
     {
-        eventlog(eventlog_level_error,"virtconn_get_class","got NULL virtconn");
+        eventlog(eventlog_level_error,__FUNCTION__,"got NULL virtconn");
         return virtconn_class_none;
     }
 
@@ -140,7 +140,7 @@ extern void virtconn_set_class(t_virtconn * vc, t_virtconn_class class)
 {
     if (!vc)
     {
-        eventlog(eventlog_level_error,"virtconn_set_class","got NULL virtconn");
+        eventlog(eventlog_level_error,__FUNCTION__,"got NULL virtconn");
         return;
     }
     
@@ -152,7 +152,7 @@ extern t_virtconn_state virtconn_get_state(t_virtconn const * vc)
 {
     if (!vc)
     {
-        eventlog(eventlog_level_error,"cvirtonn_set_state","got NULL virtconn");
+        eventlog(eventlog_level_error,__FUNCTION__,"got NULL virtconn");
         return virtconn_state_empty;
     }
     
@@ -164,7 +164,7 @@ extern void virtconn_set_state(t_virtconn * vc, t_virtconn_state state)
 {
     if (!vc)
     {
-        eventlog(eventlog_level_error,"virtconn_set_state","got NULL virtconn");
+        eventlog(eventlog_level_error,__FUNCTION__,"got NULL virtconn");
         return;
     }
     
@@ -176,7 +176,7 @@ extern unsigned int virtconn_get_udpaddr(t_virtconn const * vc)
 {
     if (!vc)
     {
-        eventlog(eventlog_level_error,"virtconn_get_udpaddr","got NULL virtconn");
+        eventlog(eventlog_level_error,__FUNCTION__,"got NULL virtconn");
         return 0;
     }
     
@@ -188,7 +188,7 @@ extern unsigned short virtconn_get_udpport(t_virtconn const * vc)
 {
     if (!vc)
     {
-        eventlog(eventlog_level_error,"virtconn_get_udpport","got NULL virtconn");
+        eventlog(eventlog_level_error,__FUNCTION__,"got NULL virtconn");
         return 0;
     }
     
@@ -200,7 +200,7 @@ extern t_queue * * virtconn_get_clientin_queue(t_virtconn * vc)
 {
     if (!vc)
     {
-        eventlog(eventlog_level_error,"virtconn_get_clientin_queue","got NULL connection");
+        eventlog(eventlog_level_error,__FUNCTION__,"got NULL connection");
         return NULL;
     }
 
@@ -212,7 +212,7 @@ extern int virtconn_get_clientin_size(t_virtconn const * vc)
 {
     if (!vc)
     {
-        eventlog(eventlog_level_error,"virtconn_get_clientin_size","got NULL connection");
+        eventlog(eventlog_level_error,__FUNCTION__,"got NULL connection");
         return -1;
     }
 
@@ -224,7 +224,7 @@ extern void virtconn_set_clientin_size(t_virtconn * vc, unsigned int size)
 {
     if (!vc)
     {
-        eventlog(eventlog_level_error,"virtconn_set_clientin_size","got NULL connection");
+        eventlog(eventlog_level_error,__FUNCTION__,"got NULL connection");
         return;
     }
 
@@ -236,7 +236,7 @@ extern t_queue * * virtconn_get_clientout_queue(t_virtconn * vc)
 {
     if (!vc)
     {
-        eventlog(eventlog_level_error,"virtconn_get_clientout_queue","got NULL connection");
+        eventlog(eventlog_level_error,__FUNCTION__,"got NULL connection");
         return NULL;
     }
 
@@ -248,7 +248,7 @@ extern int virtconn_get_clientout_size(t_virtconn const * vc)
 {
     if (!vc)
     {
-        eventlog(eventlog_level_error,"virtconn_get_clientout_size","got NULL connection");
+        eventlog(eventlog_level_error,__FUNCTION__,"got NULL connection");
         return -1;
     }
 
@@ -260,7 +260,7 @@ extern void virtconn_set_clientout_size(t_virtconn * vc, unsigned int size)
 {
     if (!vc)
     {
-        eventlog(eventlog_level_error,"virtconn_set_clientout_size","got NULL connection");
+        eventlog(eventlog_level_error,__FUNCTION__,"got NULL connection");
         return;
     }
 
@@ -272,7 +272,7 @@ extern int virtconn_get_client_socket(t_virtconn const * vc)
 {
     if (!vc)
     {
-        eventlog(eventlog_level_error,"virtconn_get_client_socket","got NULL virtconn");
+        eventlog(eventlog_level_error,__FUNCTION__,"got NULL virtconn");
 	return -1;
     }
     return vc->csd;
@@ -283,7 +283,7 @@ extern t_queue * * virtconn_get_serverin_queue(t_virtconn * vc)
 {
     if (!vc)
     {
-        eventlog(eventlog_level_error,"virtconn_get_serverin_queue","got NULL connection");
+        eventlog(eventlog_level_error,__FUNCTION__,"got NULL connection");
         return NULL;
     }
 
@@ -295,7 +295,7 @@ extern int virtconn_get_serverin_size(t_virtconn const * vc)
 {
     if (!vc)
     {
-        eventlog(eventlog_level_error,"virtconn_get_serverin_size","got NULL connection");
+        eventlog(eventlog_level_error,__FUNCTION__,"got NULL connection");
         return -1;
     }
 
@@ -307,7 +307,7 @@ extern void virtconn_set_serverin_size(t_virtconn * vc, unsigned int size)
 {
     if (!vc)
     {
-        eventlog(eventlog_level_error,"virtconn_set_serverin_size","got NULL connection");
+        eventlog(eventlog_level_error,__FUNCTION__,"got NULL connection");
         return;
     }
 
@@ -319,7 +319,7 @@ extern t_queue * * virtconn_get_serverout_queue(t_virtconn * vc)
 {
     if (!vc)
     {
-        eventlog(eventlog_level_error,"virtconn_get_serverout_queue","got NULL connection");
+        eventlog(eventlog_level_error,__FUNCTION__,"got NULL connection");
         return NULL;
     }
 
@@ -331,7 +331,7 @@ extern int virtconn_get_serverout_size(t_virtconn const * vc)
 {
     if (!vc)
     {
-        eventlog(eventlog_level_error,"virtconn_get_serverout_size","got NULL connection");
+        eventlog(eventlog_level_error,__FUNCTION__,"got NULL connection");
         return -1;
     }
 
@@ -343,7 +343,7 @@ extern void virtconn_set_serverout_size(t_virtconn * vc, unsigned int size)
 {
     if (!vc)
     {
-        eventlog(eventlog_level_error,"virtconn_set_serverout_size","got NULL connection");
+        eventlog(eventlog_level_error,__FUNCTION__,"got NULL connection");
         return;
     }
 
@@ -355,7 +355,7 @@ extern int virtconn_get_server_socket(t_virtconn const * vc)
 {
     if (!vc)
     {
-        eventlog(eventlog_level_error,"virtconn_get_server_socket","got NULL virtconn");
+        eventlog(eventlog_level_error,__FUNCTION__,"got NULL virtconn");
 	return -1;
     }
     return vc->ssd;
@@ -366,7 +366,7 @@ extern void virtconn_set_fileleft(t_virtconn * vc, unsigned int size)
 {
     if (!vc)
     {
-        eventlog(eventlog_level_error,"virtconn_set_fileleft","got NULL virtconn");
+        eventlog(eventlog_level_error,__FUNCTION__,"got NULL virtconn");
 	return;
     }
     vc->fileleft = size;
@@ -377,7 +377,7 @@ extern unsigned int virtconn_get_fileleft(t_virtconn const * vc)
 {
     if (!vc)
     {
-        eventlog(eventlog_level_error,"virtconn_get_fileleft","got NULL virtconn");
+        eventlog(eventlog_level_error,__FUNCTION__,"got NULL virtconn");
 	return 0;
     }
     return vc->fileleft;

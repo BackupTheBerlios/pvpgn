@@ -197,7 +197,7 @@ static t_bnpcap_conn * bnpcap_conn_new(t_bnpcap_addr const *s, t_bnpcap_addr con
    
    c = (t_bnpcap_conn *) malloc(sizeof(t_bnpcap_conn)); /* avoid warning */
    if (!c) {
-      eventlog(eventlog_level_error,"bnpcap_conn_new","malloc failed: %s",strerror(errno));
+      eventlog(eventlog_level_error,__FUNCTION__,"malloc failed: %s",strerror(errno));
       return NULL;
    }
    if (d->port==listen_port || d->port==6200) { /* FIXME: That's dirty: We assume the server is on port 6112 */
@@ -257,7 +257,7 @@ static t_packet_dir bnpcap_conn_get_dir(t_bnpcap_conn const * c, t_bnpcap_addr c
 }
 
 static int bnpcap_conn_add_packet(t_bnpcap_conn *c, t_bnpcap_packet *bp) {
-   eventlog(eventlog_level_debug,"bnpcap_conn_add_packet","id=%u ",bp->id);
+   eventlog(eventlog_level_debug,__FUNCTION__,"id=%u ",bp->id);
    list_append_data(c->packets,bp);
    packet_add_ref(bp->p);
    return 0;
@@ -276,7 +276,7 @@ static int bnpcap_conn_packet(unsigned int sip, unsigned short sport, unsigned i
    d.port = dport;
   
    if ((c = bnpcap_conn_find(&s,&d))) {
-      eventlog(eventlog_level_debug,"bnpcap_conn_packet","adding packet to existing connection");
+      eventlog(eventlog_level_debug,__FUNCTION__,"adding packet to existing connection");
       if (c->tcpstate==tcp_state_ack) {
 	 c->tcpstate = tcp_state_ok;
       } else if (c->tcpstate==tcp_state_syn) {
@@ -284,7 +284,7 @@ static int bnpcap_conn_packet(unsigned int sip, unsigned short sport, unsigned i
 	 c->tcpstate = tcp_state_ok;
       }
    } else {
-      eventlog(eventlog_level_debug,"bnpcap_conn_packet","adding packet to incomplete connection");
+      eventlog(eventlog_level_debug,__FUNCTION__,"adding packet to incomplete connection");
       c = bnpcap_conn_new(&s,&d);
       bnpcap_conn_set_class(c,packet_class_raw); /* we don't know the init sequence */
       c->incomplete = 1;
@@ -292,11 +292,11 @@ static int bnpcap_conn_packet(unsigned int sip, unsigned short sport, unsigned i
       list_append_data(conns,c);
    }
    if (c->tcpstate!=tcp_state_ok) {
-      eventlog(eventlog_level_warn,"bnpcap_conn_packet","connection got packet in wrong state!");
+      eventlog(eventlog_level_warn,__FUNCTION__,"connection got packet in wrong state!");
    }
    if (bnpcap_conn_get_class(c) == packet_class_init) { 
       if (len>1) {
-	 eventlog(eventlog_level_warn,"bnpcap_conn_packet","init packet larger than 1 byte");
+	 eventlog(eventlog_level_warn,__FUNCTION__,"init packet larger than 1 byte");
       }
       switch (data[0]) {
        case CLIENT_INITCONN_CLASS_BNET:
@@ -306,7 +306,7 @@ static int bnpcap_conn_packet(unsigned int sip, unsigned short sport, unsigned i
 	 bnpcap_conn_set_class(c,packet_class_file);
 	 break;
        case 0xf7: // W3 matchmaking hack
-	 eventlog(eventlog_level_info,"bnpcap_conn_packet","matchmaking packet");
+	 eventlog(eventlog_level_info,__FUNCTION__,"matchmaking packet");
 	   bnpcap_conn_set_class(c,packet_class_bnet);
 	   break;
        default:
@@ -326,17 +326,17 @@ static int bnpcap_conn_packet(unsigned int sip, unsigned short sport, unsigned i
 
       if (always_complete) {
 	 /* packet is always complete */
-	 eventlog(eventlog_level_debug,"bnpcap_conn_packet","packet is always complete (class=%d)",bnpcap_conn_get_class(c));
+	 eventlog(eventlog_level_debug,__FUNCTION__,"packet is always complete (class=%d)",bnpcap_conn_get_class(c));
 	 bp = (t_bnpcap_packet *) malloc(sizeof(t_bnpcap_packet)); /* avoid warning */
 	 if (!bp) {
-	    eventlog(eventlog_level_error,"bnpcap_conn_packet","malloc failed: %s",strerror(errno));
+	    eventlog(eventlog_level_error,__FUNCTION__,"malloc failed: %s",strerror(errno));
 	    return -1;
 	 }
 	 bp->dir = bnpcap_conn_get_dir(c,&s,&d);
 	 bp->p = packet_create(bnpcap_conn_get_class(c));
 	 bp->id = current_packet_id++;
 	 if (!bp->p) {
-	    eventlog(eventlog_level_error,"bnpcap_conn_packet","packet_create failed");
+	    eventlog(eventlog_level_error,__FUNCTION__,"packet_create failed");
 	    return -1;
 	 }
 	 memcpy(&bp->tv,&packettime,sizeof(struct timeval));
@@ -344,7 +344,7 @@ static int bnpcap_conn_packet(unsigned int sip, unsigned short sport, unsigned i
 	 memcpy(packet_get_raw_data(bp->p,0),data,len);
 	 bnpcap_conn_add_packet(c,bp);
 	 if ((packet_get_class(bp->p)==packet_class_file)&&(packet_get_type(bp->p)==SERVER_FILE_REPLY)) {
-	    eventlog(eventlog_level_debug,"bnpcap_conn_packet","file transfer initiated (setting to raw)");
+	    eventlog(eventlog_level_debug,__FUNCTION__,"file transfer initiated (setting to raw)");
 	    bnpcap_conn_set_class(c,packet_class_raw);
 	 }
       } else {
@@ -358,10 +358,10 @@ static int bnpcap_conn_packet(unsigned int sip, unsigned short sport, unsigned i
 	 }
 	 while ((datap-data)<(signed)len) {
 	    if (!p) {
-	       eventlog(eventlog_level_debug,"bnpcap_conn_packet","creating new packet");
+	       eventlog(eventlog_level_debug,__FUNCTION__,"creating new packet");
 	       p = packet_create(bnpcap_conn_get_class(c));
 	       if (!p) {
-		  eventlog(eventlog_level_error,"bnpcap_conn_packet","packet_create failed");
+		  eventlog(eventlog_level_error,__FUNCTION__,"packet_create failed");
 		  return -1;
 	       }
 	       packet_set_size(p,packet_get_header_size(p)); /* set it to the minimum for now */
@@ -372,7 +372,7 @@ static int bnpcap_conn_packet(unsigned int sip, unsigned short sport, unsigned i
 	       /* (len-(datap-data)) : remaining bytes in buffer */
 	       if ((len-(datap-data)) < l)
 		 l = (len-(datap-data));
-	       eventlog(eventlog_level_debug,"bnpcap_conn_packet","filling up header (adding %d to %d to get %d)",l,off,packet_get_header_size(p));
+	       eventlog(eventlog_level_debug,__FUNCTION__,"filling up header (adding %d to %d to get %d)",l,off,packet_get_header_size(p));
 	       memcpy(packet_get_raw_data(p,off),datap,l); 
 	       datap = datap + l;
 	       off = off + l;
@@ -380,21 +380,21 @@ static int bnpcap_conn_packet(unsigned int sip, unsigned short sport, unsigned i
 	       unsigned int l = (packet_get_size(p)-off);
 	       if ((len-(datap-data)) < l)
 		 l = (len-(datap-data));
-	       eventlog(eventlog_level_debug,"bnpcap_conn_packet","filling up packet (0x%04x:%s) (adding %d to %d to get %d)",packet_get_type(p),packet_get_type_str(p,bnpcap_conn_get_dir(c,&s,&d)),l,off,packet_get_size(p));
+	       eventlog(eventlog_level_debug,__FUNCTION__,"filling up packet (0x%04x:%s) (adding %d to %d to get %d)",packet_get_type(p),packet_get_type_str(p,bnpcap_conn_get_dir(c,&s,&d)),l,off,packet_get_size(p));
 	       memcpy(packet_get_raw_data(p,off),datap,l); 
 	       datap = datap + l;
 	       off = off + l;	    
 	    }
 	    if ((off>=packet_get_header_size(p))&&(off>=packet_get_size(p))) { 
 	       /* packet is complete */
-	       eventlog(eventlog_level_debug,"bnpcap_conn_packet","packet is complete");
+	       eventlog(eventlog_level_debug,__FUNCTION__,"packet is complete");
 	       bp = (t_bnpcap_packet *) malloc(sizeof(t_bnpcap_packet)); /* avoid warning */
 	       if (!bp) {
-		  eventlog(eventlog_level_error,"bnpcap_conn_packet","malloc failed: %s",strerror(errno));
+		  eventlog(eventlog_level_error,__FUNCTION__,"malloc failed: %s",strerror(errno));
 		  return -1;
 	       }
 	       if ((off != packet_get_size(p))&&(bnpcap_dodebug)) {
-		  eventlog(eventlog_level_warn,"bnpcap_conn_packet","packet size differs (%d != %d) (offset=0x%04x)",off,packet_get_size(p),datap-data);
+		  eventlog(eventlog_level_warn,__FUNCTION__,"packet size differs (%d != %d) (offset=0x%04x)",off,packet_get_size(p),datap-data);
 		  hexdump(stderr,data,len);
 /*		  memcpy(packet_get_raw_data(p,0),data,packet_get_size(p)); */
 	       }
@@ -411,7 +411,7 @@ static int bnpcap_conn_packet(unsigned int sip, unsigned short sport, unsigned i
 	 } /* while */
 	 /* write back saved state */
 	 if ((off>0)&&(bnpcap_dodebug)) {
-	    eventlog(eventlog_level_debug,"bnpcap_conn_packet","saving %d bytes in packet buffer (p=0x%08x)",off,(int)p);
+	    eventlog(eventlog_level_debug,__FUNCTION__,"saving %d bytes in packet buffer (p=0x%08x)",off,(int)p);
 	 }
 	 if (bnpcap_conn_get_dir(c,&s,&d)==packet_dir_from_client) {
 	    c->clientpkt = p;
@@ -454,7 +454,7 @@ static int bnpcap_process_tcp(t_ip_header const * ip, unsigned char const *data,
    raw = (t_tcp_header_raw const *) data; /* avoid warning */
    bnpcap_tcp2tcp(&h,raw);
    if (h.doffset < 5) {
-      eventlog(eventlog_level_warn,"bnpcap_process_tcp","tcp header too small (%u 32-bit words)",h.doffset);
+      eventlog(eventlog_level_warn,__FUNCTION__,"tcp header too small (%u 32-bit words)",h.doffset);
       return 1;
    } else {
       char fstr[32] = "";
@@ -471,9 +471,9 @@ static int bnpcap_process_tcp(t_ip_header const * ip, unsigned char const *data,
 	strcat(fstr,"S");
       if (h.flags & TCP_FIN)
 	strcat(fstr,"F");
-      eventlog(eventlog_level_debug,"bnpcap_process_tcp","tcp: sport=%u dport=%u seqno=0x%08x ackno=0x%08x window=0x%08x len=%d (%s)",h.sport,h.dport,h.seqno,h.ackno,h.window,((signed)len-(h.doffset*4)),fstr);
+      eventlog(eventlog_level_debug,__FUNCTION__,"tcp: sport=%u dport=%u seqno=0x%08x ackno=0x%08x window=0x%08x len=%d (%s)",h.sport,h.dport,h.seqno,h.ackno,h.window,((signed)len-(h.doffset*4)),fstr);
       if (((signed)len-(h.doffset*4))<=0) { 
-	 eventlog(eventlog_level_info,"bnpcap_process_tcp","empty packet (%d)",((signed)len-(h.doffset*4)));
+	 eventlog(eventlog_level_info,__FUNCTION__,"empty packet (%d)",((signed)len-(h.doffset*4)));
 	 /* handle sync packets */
 	 if (h.flags & TCP_SYN)  {
 	    t_bnpcap_addr s,d;
@@ -494,16 +494,16 @@ static int bnpcap_process_tcp(t_ip_header const * ip, unsigned char const *data,
 		  c = bnpcap_conn_new(&s,&d);
 		  c->tcpstate = tcp_state_syn;
 		  list_append_data(conns,c);
-		  eventlog(eventlog_level_debug,"bnpcap_process_tcp","created new connection with SYN");
+		  eventlog(eventlog_level_debug,__FUNCTION__,"created new connection with SYN");
 	       } else {
-		  eventlog(eventlog_level_debug,"bnpcap_process_tcp","got SYN in connection");
+		  eventlog(eventlog_level_debug,__FUNCTION__,"got SYN in connection");
 	       }
 	    }
 	 }
       } else if (((h.sport!=listen_port)&&(h.dport!=listen_port)) && ((h.sport!=6200)&&(h.dport!=6200))) {
-	 eventlog(eventlog_level_info,"bnpcap_process_tcp","other packet (%d)",((signed)len-(h.doffset*4)));
+	 eventlog(eventlog_level_info,__FUNCTION__,"other packet (%d)",((signed)len-(h.doffset*4)));
       } else {
-	 eventlog(eventlog_level_info,"bnpcap_process_tcp","valid packet (%d)",((signed)len-(h.doffset*4)));
+	 eventlog(eventlog_level_info,__FUNCTION__,"valid packet (%d)",((signed)len-(h.doffset*4)));
 	 bnpcap_conn_packet(ip->src,h.sport,ip->dst,h.dport,data+(h.doffset*4),len-(h.doffset*4));
       }
       return 0;
@@ -532,7 +532,7 @@ static int bnpcap_process_udp(unsigned char const *data, unsigned int len)
    
    bp = (t_bnpcap_packet *) malloc(sizeof(t_bnpcap_packet)); /* avoid warning */
    if (!bp) {
-      eventlog(eventlog_level_error,"bnpcap_process_udp","malloc failed: %s",strerror(errno));
+      eventlog(eventlog_level_error,__FUNCTION__,"malloc failed: %s",strerror(errno));
       return -1;
    }
    if (h.dport==listen_port || h.dport==6200) {
@@ -540,17 +540,17 @@ static int bnpcap_process_udp(unsigned char const *data, unsigned int len)
    } else {
       bp->dir = packet_dir_from_server;
    }
-   eventlog(eventlog_level_debug,"bnpcap_process_udp","sport=%u dport=%u len=%u(%d)",h.sport,h.dport,h.len,len);
+   eventlog(eventlog_level_debug,__FUNCTION__,"sport=%u dport=%u len=%u(%d)",h.sport,h.dport,h.len,len);
    bp->id = current_packet_id++;
    memcpy(&bp->tv,&packettime,sizeof(struct timeval));
    bp->p = packet_create(packet_class_udp);
    if (!bp->p) {
-      eventlog(eventlog_level_error,"bnpcap_process_udp","packet_create failed");
+      eventlog(eventlog_level_error,__FUNCTION__,"packet_create failed");
       return -1;
    }
    packet_set_size(bp->p,h.len-sizeof(t_ip_udp_header_raw));
    memcpy(packet_get_raw_data(bp->p,0),data+sizeof(t_ip_udp_header_raw),h.len-sizeof(t_ip_udp_header_raw));
-   eventlog(eventlog_level_error,"bnpcap_process_udp","id=%u ",bp->id);
+   eventlog(eventlog_level_error,__FUNCTION__,"id=%u ",bp->id);
    list_append_data(udppackets,bp);
    return 0;
 }
@@ -586,14 +586,14 @@ static int bnpcap_process_ip(unsigned char const *data, unsigned int len)
    raw = (t_ip_header_raw const *) data; /* avoid warning */
    bnpcap_ip2ip(&h,raw);
    if (h.version != 4) {
-      eventlog(eventlog_level_warn,"bnpcap_process_ip","ip version %u not supported (ihl=%u, raw=0x%02x)",h.version,h.ihl,raw->versionihl);
+      eventlog(eventlog_level_warn,__FUNCTION__,"ip version %u not supported (ihl=%u, raw=0x%02x)",h.version,h.ihl,raw->versionihl);
       return 1;
    } else if (h.ihl < 5) {
       /* an IP header must be at least 5 words */
-      eventlog(eventlog_level_warn,"bnpcap_process_ip","ip header to small (%u 32-bit words)",h.ihl);
+      eventlog(eventlog_level_warn,__FUNCTION__,"ip header to small (%u 32-bit words)",h.ihl);
       return 1;
    } else if (h.len > len) {
-      eventlog(eventlog_level_warn,"bnpcap_process_ip","ip len larger than packet (%d > %d)",h.len,len);
+      eventlog(eventlog_level_warn,__FUNCTION__,"ip len larger than packet (%d > %d)",h.len,len);
       return 1;
    } else {
       char fstr[32] = "";
@@ -602,7 +602,7 @@ static int bnpcap_process_ip(unsigned char const *data, unsigned int len)
 	strcat(fstr,"D");
       if (h.flags & IP_MF)
 	strcat(fstr,"M");
-      eventlog(eventlog_level_debug,"bnpcap_process_ip","ip: len=%u(%u) src=%08x dst=%08x protocol=%u offset=0x%08x id=0x%08x (%s)",h.len,len,h.src,h.dst,h.protocol,h.offset,h.id,fstr);
+      eventlog(eventlog_level_debug,__FUNCTION__,"ip: len=%u(%u) src=%08x dst=%08x protocol=%u offset=0x%08x id=0x%08x (%s)",h.len,len,h.src,h.dst,h.protocol,h.offset,h.id,fstr);
       if (h.protocol==6) {
 	 /* This is TCP */
 	 return bnpcap_process_tcp(&h,data+(h.ihl*4),h.len-(h.ihl*4));
@@ -625,7 +625,7 @@ static int bnpcap_process_ether(unsigned char const *data, unsigned int len)
       /* This is IP */
       return bnpcap_process_ip(data+sizeof(t_ether_raw),len-sizeof(t_ether_raw));
    } else {
-      eventlog(eventlog_level_warn,"bnpcap_process_ether","unsupported protocol 0x%04x",ntohs(raw->type));
+      eventlog(eventlog_level_warn,__FUNCTION__,"unsupported protocol 0x%04x",ntohs(raw->type));
       return 1;
    }
 }
@@ -641,7 +641,7 @@ static void bnpcap_process_packet(u_char * private, const struct pcap_pkthdr * p
    if(private) private = NULL; // hack to eliminate compiler warning
    
    memcpy(&packettime,&p->ts,sizeof(struct timeval));
-   eventlog(eventlog_level_debug,"bnpcap_process_packet","packet: len=%d caplen=%d",p->len,p->caplen);
+   eventlog(eventlog_level_debug,__FUNCTION__,"packet: len=%d caplen=%d",p->len,p->caplen);
    /* FIXME: check if it's ethernet */
    bnpcap_process_ether(data,pl);
 }

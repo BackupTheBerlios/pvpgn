@@ -138,7 +138,7 @@ int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE reserved,
 	result = bnetd_main(__argc ,__argv);
     
 	gui.main_finished = TRUE;
-    eventlog(eventlog_level_debug,"WinMain","server exited ( return : %i )", result);
+    eventlog(eventlog_level_debug,__FUNCTION__,"server exited ( return : %i )", result);
     WaitForSingleObject(gui.event_ready, INFINITE);
    
     return 0;
@@ -396,10 +396,10 @@ void static guiOnClose(HWND hwnd){
 
     guiKillTrayIcon();
     if( !gui.main_finished ){
-     eventlog(eventlog_level_debug,"WinMain","GUI wants server dead...");
+     eventlog(eventlog_level_debug,__FUNCTION__,"GUI wants server dead...");
      exit(0);
     }else{
-     eventlog(eventlog_level_debug,"WinMain","GUI wants to exit...");
+     eventlog(eventlog_level_debug,__FUNCTION__,"GUI wants to exit...");
      SetEvent(gui.event_ready);
     }
 

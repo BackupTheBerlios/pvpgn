@@ -160,7 +160,7 @@ extern int main(int argc, char * argv[])
 	switch (fork())
 	{
 	case -1:
-	    eventlog(eventlog_level_error,"main","could not fork (fork: %s)\n",strerror(errno));
+	    eventlog(eventlog_level_error,__FUNCTION__,"could not fork (fork: %s)\n",strerror(errno));
 	    return STATUS_FAILURE;
 	case 0: /* child */
 	    break;
@@ -175,7 +175,7 @@ extern int main(int argc, char * argv[])
 # ifdef HAVE_SETPGID
 	if (setpgid(0,0)<0)
 	{
-	    eventlog(eventlog_level_error,"main","could not create new process group (setpgid: %s)\n",strerror(errno));
+	    eventlog(eventlog_level_error,__FUNCTION__,"could not create new process group (setpgid: %s)\n",strerror(errno));
 	    return STATUS_FAILURE;
 	}
 # else
@@ -183,13 +183,13 @@ extern int main(int argc, char * argv[])
 #   ifdef SETPGRP_VOID
 	if (setpgrp()<0)
 	{
-	    eventlog(eventlog_level_error,"main","could not create new process group (setpgrp: %s)\n",strerror(errno));
+	    eventlog(eventlog_level_error,__FUNCTION__,"could not create new process group (setpgrp: %s)\n",strerror(errno));
 	    return STATUS_FAILURE;
 	}
 #   else
 	if (setpgrp(0,0)<0)
 	{
-	    eventlog(eventlog_level_error,"main","could not create new process group (setpgrp: %s)\n",strerror(errno));
+	    eventlog(eventlog_level_error,__FUNCTION__,"could not create new process group (setpgrp: %s)\n",strerror(errno));
 	    return STATUS_FAILURE;
 	}
 #   endif
@@ -197,7 +197,7 @@ extern int main(int argc, char * argv[])
 #   ifdef HAVE_SETSID
 	if (setsid()<0)
 	{
-	    eventlog(eventlog_level_error,"main","could not create new process group (setsid: %s)\n",strerror(errno));
+	    eventlog(eventlog_level_error,__FUNCTION__,"could not create new process group (setsid: %s)\n",strerror(errno));
 	    return STATUS_FAILURE;
 	}
 #   else
@@ -215,37 +215,37 @@ extern int main(int argc, char * argv[])
 
         if (!(fp = fopen(prefs.pidfile,"w")))
         {
-            eventlog(eventlog_level_error,"main","unable to open pid file \"%s\" for writing (fopen: %s)",prefs.pidfile,strerror(errno));
+            eventlog(eventlog_level_error,__FUNCTION__,"unable to open pid file \"%s\" for writing (fopen: %s)",prefs.pidfile,strerror(errno));
             prefs.pidfile = NULL;
         }
         else
         {
             fprintf(fp,"%u",(unsigned int)getpid());
             if (fclose(fp)<0)
-                eventlog(eventlog_level_error,"main","could not close pid file \"%s\" after writing (fclose: %s)",prefs.pidfile,strerror(errno));
+                eventlog(eventlog_level_error,__FUNCTION__,"could not close pid file \"%s\" after writing (fclose: %s)",prefs.pidfile,strerror(errno));
         }
 #else
-        eventlog(eventlog_level_warn,"main","no getpid() system call, do not use the -P or the --pidfile option");
+        eventlog(eventlog_level_warn,__FUNCTION__,"no getpid() system call, do not use the -P or the --pidfile option");
         prefs.pidfile = NULL;
 #endif
     }
     
 #ifdef HAVE_GETPID
-    eventlog(eventlog_level_info,"main","bntrackd version "PVPGN_VERSION" process %u",(unsigned int)getpid());
+    eventlog(eventlog_level_info,__FUNCTION__,"bntrackd version "PVPGN_VERSION" process %u",(unsigned int)getpid());
 #else
-    eventlog(eventlog_level_info,"main","bntrackd version "PVPGN_VERSION);
+    eventlog(eventlog_level_info,__FUNCTION__,"bntrackd version "PVPGN_VERSION);
 #endif
     
     if (psock_init()<0)
     {
-        eventlog(eventlog_level_error,"main","could not initialize socket functions");
+        eventlog(eventlog_level_error,__FUNCTION__,"could not initialize socket functions");
         return STATUS_FAILURE;
     }
     
     /* create the socket */
     if ((sockfd = psock_socket(PSOCK_PF_INET,PSOCK_SOCK_DGRAM,PSOCK_IPPROTO_UDP))<0)
     {
-	eventlog(eventlog_level_error,"main","could not create UDP listen socket (psock_socket: %s)\n",strerror(psock_errno()));
+	eventlog(eventlog_level_error,__FUNCTION__,"could not create UDP listen socket (psock_socket: %s)\n",strerror(psock_errno()));
 	return STATUS_FAILURE;
     }
     
@@ -259,7 +259,7 @@ extern int main(int argc, char * argv[])
 	servaddr.sin_port = htons(prefs.port);
 	if (psock_bind(sockfd,(struct sockaddr *)&servaddr,sizeof(servaddr))<0)
 	{
-	    eventlog(eventlog_level_error,"main","could not bind to UDP port %hu (psock_bind: %s)\n",prefs.port,strerror(psock_errno()));
+	    eventlog(eventlog_level_error,__FUNCTION__,"could not bind to UDP port %hu (psock_bind: %s)\n",prefs.port,strerror(psock_errno()));
 	    return STATUS_FAILURE;
 	}
     }
@@ -285,7 +285,7 @@ static int server_process(int sockfd)
     
     if (!(serverlist_head = list_create()))
     {
-	eventlog(eventlog_level_error,"server_process","could not create server list");
+	eventlog(eventlog_level_error,__FUNCTION__,"could not create server list");
 	return -1;
     }
     
@@ -301,7 +301,7 @@ static int server_process(int sockfd)
 	    
 	    if (!(outfile = fopen(prefs.outfile,"w")))
 	    {
-		eventlog(eventlog_level_error,"server_process","unable to open file \"%s\" for writing (fopen: %s)",prefs.outfile,strerror(errno));
+		eventlog(eventlog_level_error,__FUNCTION__,"unable to open file \"%s\" for writing (fopen: %s)",prefs.outfile,strerror(errno));
 		continue;
 	    }
 	    
@@ -359,7 +359,7 @@ static int server_process(int sockfd)
 		}
 	    }
             if (fclose(outfile)<0)
-                eventlog(eventlog_level_error,"main","could not close output file \"%s\" after writing (fclose: %s)",prefs.outfile,strerror(errno));
+                eventlog(eventlog_level_error,__FUNCTION__,"could not close output file \"%s\" after writing (fclose: %s)",prefs.outfile,strerror(errno));
 	    
 	    if (prefs.process[0]!='\0')
 		system(prefs.process);
@@ -378,7 +378,7 @@ static int server_process(int sockfd)
                 errno!=PSOCK_EINTR &&
 #endif
                 1)
-                eventlog(eventlog_level_error,"server_process","select failed (select: %s)",strerror(errno));
+                eventlog(eventlog_level_error,__FUNCTION__,"select failed (select: %s)",strerror(errno));
         case 0: /* timeout and no sockets ready */
             continue;
         }
@@ -451,7 +451,7 @@ static int server_process(int sockfd)
 			list_append_data(serverlist_head,server);
 		    }
 		    
-		    eventlog(eventlog_level_debug,"server_process",
+		    eventlog(eventlog_level_debug,__FUNCTION__,
 			     "Packet received from %s:"
 			     " packet_version=%u"
 			     " flags=0x%08lx"
