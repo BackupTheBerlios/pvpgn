@@ -536,6 +536,11 @@ extern void conn_destroy(t_connection * c)
     char const * classstr;
     
     
+    if (c == NULL) {
+	eventlog(eventlog_level_error, "conn_destroy", "got NULL connection");
+	return;
+    }
+
     classstr = conn_class_get_str(c->class);
     
     if (list_remove_data(conn_head,c)<0)
