@@ -4285,23 +4285,23 @@ static int _client_startgame4(t_connection * c, t_packet const * const packet)
 		if (status == CLIENT_STARTGAME4_STATUS_INITPRIVATE)
 		    game_set_flag(conn_get_game(c),game_flag_private);
 	     }
-	     
-	     if ((rpacket = packet_create(packet_class_bnet)))
-	       {
-		  packet_set_size(rpacket,sizeof(t_server_startgame4_ack));
-		  packet_set_type(rpacket,SERVER_STARTGAME4_ACK);
-		  
-		  if (conn_get_game(c))
-		    bn_int_set(&rpacket->u.server_startgame4_ack.reply,SERVER_STARTGAME4_ACK_OK);
-		  else
-		    bn_int_set(&rpacket->u.server_startgame4_ack.reply,SERVER_STARTGAME4_ACK_NO);
-		  conn_push_outqueue(c,rpacket);
-		  packet_del_ref(rpacket);
-	       }
 	  }
 	else
 	  eventlog(eventlog_level_info,__FUNCTION__,"[%d] client tried to set game status 0x%x to unexistent game (clienttag: %s)",conn_get_socket(c), status, conn_get_clienttag(c));
      }
+	     
+     if ((rpacket = packet_create(packet_class_bnet)))
+       {
+	  packet_set_size(rpacket,sizeof(t_server_startgame4_ack));
+	  packet_set_type(rpacket,SERVER_STARTGAME4_ACK);
+	  
+	  if (conn_get_game(c))
+	    bn_int_set(&rpacket->u.server_startgame4_ack.reply,SERVER_STARTGAME4_ACK_OK);
+	  else
+	    bn_int_set(&rpacket->u.server_startgame4_ack.reply,SERVER_STARTGAME4_ACK_NO);
+	  conn_push_outqueue(c,rpacket);
+	  packet_del_ref(rpacket);
+       }
    
    /* First, send an ECHO_REQ */
    if ((rpacket = packet_create(packet_class_bnet)))
