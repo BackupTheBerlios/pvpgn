@@ -324,7 +324,7 @@ extern t_packet * conn_peek_inqueue(t_connection * c);
 extern t_packet * conn_pull_inqueue(t_connection * c);
 extern int conn_check_ignoring(t_connection const * c, char const * me) ;
 extern t_account * conn_get_account(t_connection const * c) ;
-extern void conn_set_login(t_connection * c, t_account * account, const char *loggeduser);
+extern void conn_login(t_connection * c, t_account * account, const char *loggeduser);
 extern int conn_get_socket(t_connection const * c) ;
 extern int conn_get_game_socket(t_connection const * c) ;
 extern int conn_set_game_socket(t_connection * c, int usock);
