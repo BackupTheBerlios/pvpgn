@@ -8,9 +8,8 @@
 typedef struct news_index
 #ifdef NEWS_INTERNAL_ACCESS
 {
-	long	date;
-	long	offset;
-	unsigned short	size;
+	unsigned int 	date;
+	char		*body;
 }
 #endif
 t_news_index;
@@ -25,9 +24,10 @@ t_news_index;
 extern int news_load(const char *filename);
 extern int news_unload(void);
 
-extern char const * news_get_body(t_news_index const * news);
-extern int news_unget_body(char const * val);
-extern unsigned int const news_get_date(t_news_index const * news);
+extern unsigned int news_get_firstnews(void);
+extern unsigned int news_get_lastnews(void);
+extern char * news_get_body(t_news_index const * news);
+extern unsigned int news_get_date(t_news_index const * news);
 
 extern t_list * newslist(void);
 

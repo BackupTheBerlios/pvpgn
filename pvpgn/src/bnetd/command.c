@@ -103,6 +103,7 @@
 #include "common/queue.h"
 #include "common/bn_type.h"
 #include "command.h"
+#include "news.h"
 #include "common/setup_after.h"
 // aaron
 #include "war3ladder.h"
@@ -2420,25 +2421,39 @@ static int _handle_lusers_command(t_connection * c, char const *text)
 
 static int _handle_news_command(t_connection * c, char const *text)
 {
-  char const * filename;
-  FILE *       fp;
-  
-  if ((filename = prefs_get_newsfile()))
-    if ((fp = fopen(filename,"r")))
-      {
-	message_send_file(c,fp);
-	if (fclose(fp)<0)
-	  eventlog(eventlog_level_error,"handle_command","could not close news file \"%s\" after reading (fclose: %s)",filename,strerror(errno));
-      }
-    else
-      {
-	eventlog(eventlog_level_error,"handle_command","could not open news file \"%s\" for reading (fopen: %s)",filename,strerror(errno));
+    if (newslist()) {
+	t_news_index const 	*newsindex;
+	t_elem const 		*curr;
+	char			date[64];
+	char			*body = NULL;
+	struct tm 		*temp;
+	time_t			temp1;
+	char			*temp2 = NULL;
+	int			i,j;
+	
+	LIST_TRAVERSE_CONST(newslist(),curr)
+	{
+	    newsindex = elem_get_data(curr);
+
+	    temp1 = news_get_date(newsindex);
+	    temp = localtime(&temp1);
+	    i = strftime(date, 64,"%B %d, %Y", temp);
+	    message_send_text(c,message_type_info,c,"\n\0");
+	    message_send_text(c,message_type_info,c,date);
+
+	    body = news_get_body(newsindex);
+	    for (i=0; body[i] != '\0'; i++) {
+		temp2 = strdup(&body[i]);
+		for (j=0; temp2[j] != '\n'; j++);
+		temp2[j] = '\0';
+		message_send_text(c,message_type_info,c,temp2);
+		free((void *)temp2);
+		i = i+j;
+	    }
+	}
+    } else
 	message_send_text(c,message_type_info,c,"No news today.");
-      }
-  else
-    message_send_text(c,message_type_info,c,"No news today.");
-  
-  return 0;
+    return 0;
 }
 
 static int _handle_games_command(t_connection * c, char const *text)

@@ -3634,102 +3634,99 @@ static int _client_findanongame(t_connection * c, t_packet const * const packet)
 
 static int _client_motdw3(t_connection * c, t_packet const * const packet)
 {
-  t_packet * rpacket = NULL;
-  
-  if (packet_get_size(packet)<sizeof(t_client_motd_w3)) {
-    eventlog(eventlog_level_error,__FUNCTION__,"[%d] got bad CLIENT_MOTD_W3 packet (expected %u bytes, got %u)",conn_get_socket(c),sizeof(t_client_motd_w3),packet_get_size(packet));
-    return -1;
-  }
-  
-  {
-    time_t now;
+    t_packet * rpacket = NULL;
+    unsigned int last_news_time;
+    char serverinfo[512];
     
-    // default news time is right now
-    // 
-    now = time(NULL);
-    
-    // News
-    {
-      char const * big_buffer;
-      int last_news_time;
-      
-      last_news_time = bn_int_get(packet->u.client_motd_w3.last_news_time);
-      
-      if (last_news > last_news_time)	{
-	t_elem const * curr;
-	
-	LIST_TRAVERSE_CONST(newslist(),curr) {
-	  t_news_index const * newsindex = elem_get_data(curr);
-	  
-	  if (news_get_date(newsindex)>last_news_time) {
-	    if (!(rpacket = packet_create(packet_class_bnet)))
-	      return -1;
-	    packet_set_size(rpacket,sizeof(t_server_motd_w3));
-	    packet_set_type(rpacket,SERVER_MOTD_W3);
-	    
-	    bn_byte_set(&rpacket->u.server_motd_w3.msgtype,SERVER_MOTD_W3_MSGTYPE);
-	    bn_int_set(&rpacket->u.server_motd_w3.curr_time,now);
-	    
-	    bn_int_set(&rpacket->u.server_motd_w3.first_news_time,first_news);
-	    bn_int_set(&rpacket->u.server_motd_w3.timestamp,news_get_date(newsindex));
-	    bn_int_set(&rpacket->u.server_motd_w3.timestamp2,news_get_date(newsindex));
-	    
-	    big_buffer = news_get_body(newsindex);
-	    
-	    // Append news to packet
-	    packet_append_string(rpacket,big_buffer);
-	    eventlog(eventlog_level_trace,__FUNCTION__,"(W3) %d bytes were used to store news",strlen(big_buffer));
-	    news_unget_body(big_buffer);
-	    
-	    // Send news packet
-	    queue_push_packet(conn_get_out_queue(c),rpacket);
-	    
-	    packet_del_ref(rpacket);
-	  }
-	}
-      }
+    if (packet_get_size(packet)<sizeof(t_client_motd_w3)) {
+	eventlog(eventlog_level_error,__FUNCTION__,"[%d] got bad CLIENT_MOTD_W3 packet (expected %u bytes, got %u)",conn_get_socket(c),sizeof(t_client_motd_w3),packet_get_size(packet));
+	return -1;
     }
-    
-    // Welcome Message
+
+    /* News */
+    last_news_time = bn_int_get(packet->u.client_motd_w3.last_news_time);
+
+    if (newslist()) {
+	if (news_get_lastnews() > last_news_time) {
+	    t_elem const * curr;
+	
+	    LIST_TRAVERSE_CONST(newslist(),curr)
+	    {
+		t_news_index const * newsindex = elem_get_data(curr);
+	    
+		if (!(rpacket = packet_create(packet_class_bnet)))
+		    return -1;
+	    
+		packet_set_size(rpacket,sizeof(t_server_motd_w3));
+		packet_set_type(rpacket,SERVER_MOTD_W3);
+	    
+		bn_byte_set(&rpacket->u.server_motd_w3.msgtype,SERVER_MOTD_W3_MSGTYPE);
+		bn_int_set(&rpacket->u.server_motd_w3.curr_time,time(NULL));
+	    
+		bn_int_set(&rpacket->u.server_motd_w3.first_news_time,news_get_firstnews());
+		bn_int_set(&rpacket->u.server_motd_w3.timestamp,news_get_date(newsindex));
+		bn_int_set(&rpacket->u.server_motd_w3.timestamp2,news_get_date(newsindex));
+	    
+		/* Append news to packet */
+		packet_append_string(rpacket,news_get_body(newsindex));
+		eventlog(eventlog_level_trace,__FUNCTION__,"(W3) %u bytes were used to store news",strlen(news_get_body(newsindex)));
+	    
+		/* Send news packet */
+		queue_push_packet(conn_get_out_queue(c),rpacket);
+	    
+		packet_del_ref(rpacket);
+	    }
+	} 
+    } else {
+	if (!(rpacket = packet_create(packet_class_bnet)))
+	    return -1;
+	
+	packet_set_size(rpacket,sizeof(t_server_motd_w3));
+	packet_set_type(rpacket,SERVER_MOTD_W3);
+	bn_byte_set(&rpacket->u.server_motd_w3.msgtype,SERVER_MOTD_W3_MSGTYPE);
+	bn_int_set(&rpacket->u.server_motd_w3.curr_time,time(NULL));
+	bn_int_set(&rpacket->u.server_motd_w3.first_news_time,0);
+	bn_int_set(&rpacket->u.server_motd_w3.timestamp,time(NULL));
+	bn_int_set(&rpacket->u.server_motd_w3.timestamp2,time(NULL));
+	packet_append_string(rpacket,"No news today.");
+	queue_push_packet(conn_get_out_queue(c),rpacket);
+	queue_push_packet(conn_get_out_queue(c),rpacket);
+	packet_del_ref(rpacket);
+    }
+            
+    /* Welcome Message */
     if (!(rpacket = packet_create(packet_class_bnet)))
       return -1;
+    
     packet_set_size(rpacket,sizeof(t_server_motd_w3));
     packet_set_type(rpacket,SERVER_MOTD_W3);
     
     //bn_int_set(&rpacket->u.server_motd_w3.ticks,get_ticks());
     bn_byte_set(&rpacket->u.server_motd_w3.msgtype,SERVER_MOTD_W3_MSGTYPE);
-    bn_int_set(&rpacket->u.server_motd_w3.curr_time,now);
-    bn_int_set(&rpacket->u.server_motd_w3.first_news_time,first_news);
-    bn_int_set(&rpacket->u.server_motd_w3.timestamp,now);
+    bn_int_set(&rpacket->u.server_motd_w3.curr_time,time(NULL));
+    bn_int_set(&rpacket->u.server_motd_w3.first_news_time,news_get_firstnews());
+    bn_int_set(&rpacket->u.server_motd_w3.timestamp,time(NULL));
     bn_int_set(&rpacket->u.server_motd_w3.timestamp2,SERVER_MOTD_W3_WELCOME);
     
     /* MODIFIED BY THE UNDYING SOULZZ 4/7/02 */
-    {
-      int clienttaggames = game_get_count_by_clienttag(conn_get_clienttag(c));
-      int clienttagusers = conn_get_user_count_by_clienttag(conn_get_clienttag(c));
-      char serverinfo[512];
+    sprintf(serverinfo,"Welcome to the "PVPGN_SOFTWARE" Version "PVPGN_VERSION"\r\n\r\nThere are currently %u user(s) in %u games of %s, and %u user(s) playing %u games and chatting In %u channels in the PvPGN Realm.\r\n%s",
+	conn_get_user_count_by_clienttag(conn_get_clienttag(c)),
+	game_get_count_by_clienttag(conn_get_clienttag(c)),
+	conn_get_user_game_title(conn_get_clienttag(c)),
+	connlist_login_get_length(),
+	gamelist_get_length(),
+	channellist_get_length(),
+	prefs_get_server_info());
       
-      sprintf(serverinfo,"Welcome to the "PVPGN_SOFTWARE" Version "PVPGN_VERSION"\r\n\r\nThere are currently %u user(s) in %u games of %s, and %u user(s) playing %u games and chatting In %u channels in the PvPGN Realm.\r\n%s",
-	      clienttagusers,
-	      clienttaggames,
-	      conn_get_user_game_title(conn_get_clienttag(c)),
-	      connlist_login_get_length(),
-	      gamelist_get_length(),
-	      channellist_get_length(),
-	      prefs_get_server_info());
-      
-      packet_append_string(rpacket,serverinfo);
-    }
+    packet_append_string(rpacket,serverinfo);
     
     queue_push_packet(conn_get_out_queue(c),rpacket);
     packet_del_ref(rpacket);
     
-    // Set welcomed flag so we don't send MOTD with the old format
+    /* Set welcomed flag so we don't send MOTD with the old format */
     conn_set_welcomed(c,1);
     
-  }
-  
-  return 0;
+    return 0;
 }
   
 static int _client_realmlistreq(t_connection * c, t_packet const * const packet)

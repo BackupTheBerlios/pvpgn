@@ -38,172 +38,235 @@
 #include <time.h>
 #include "common/setup_after.h"
 
-void news_get_lastnews();
+static char * news_read_file(FILE * fp);
 
 static t_list * news_head=NULL;
 static FILE * fp = NULL;
-int last_news;
-int first_news;
 
-extern int news_load(const char *filename){
-	unsigned int    line;
-    unsigned int    pos;
-	unsigned int	len;
-	unsigned long	loffset;	
-	char *	    buff;
-	struct tm    *date;
-	t_news_index	*ni=NULL;
+extern int news_load(const char *filename)
+{
+    unsigned int	line;
+    unsigned int	len;
+    unsigned long	loffset;	
+    char		*buff;
+    struct tm		*date;
+    t_news_index	*ni=NULL;
+    
+    loffset = 0;
 
-	loffset = 0;
-
-	if (!filename) {
-		eventlog(eventlog_level_error,"news_load","got NULL fullname");
-		return -1;
-	}
-
-	if (!(news_head = list_create()))
-    {
-		eventlog(eventlog_level_error,"news_load","could create list");
-		return -1;
+    if (!filename) {
+	eventlog(eventlog_level_error, __FUNCTION__,"got NULL fullname");
+	return -1;
     }
 
-	if ((fp = fopen(filename,"rb"))==NULL){
-		eventlog(eventlog_level_error,"news_load","can't open news file");
-		return -1;
-	}
-	date=malloc(sizeof(struct tm));
+    if (!(news_head = list_create())) {
+	eventlog(eventlog_level_error, __FUNCTION__,"could create list");
+	return -1;
+    }
+
+    if ((fp = fopen(filename,"r"))==NULL) {
+	eventlog(eventlog_level_error, __FUNCTION__,"can't open news file");
+	return -1;
+    }
+
+    date=malloc(sizeof(struct tm));
 	
-	for (line=1; (buff = file_get_line(fp)); line++){
-		for (pos=0; buff[pos]=='\t' || buff[pos]==' '; pos++);
-		if (buff[pos]=='#')
-		{
-		    free(buff);
-			continue;
-		}
-		len = (int)strlen(buff);
-		if ((len-pos>=12) && (buff[pos]=='{') && ((buff[pos+11]=='}'))){			
-			char	flag;
-			char	*dpart;
-			char	dpos;			
+    for (line=1; (buff = news_read_file(fp)); line++) {
+	len = strlen(buff);
+	
+	if (buff[0]=='{') {
+	    int		flag;
+	    char	*dpart = malloc(5);
+	    int		dpos;
+	    unsigned 	pos;
 
-			date->tm_hour=0;
-			date->tm_min=0;
-			date->tm_sec=0;
-			date->tm_isdst=-1;
-			flag = 0;
-			dpart=(char*)malloc(5);
-			dpos=0;
-			for (++pos, flag=0;pos<len;pos++){
-				if ((buff[pos]=='/') || (buff[pos]=='}')) {
-					dpart[dpos]='\0';
-					switch (flag++) 
-					{
-						case 0:date->tm_mon=atoi(dpart)-1;
-							break;
-						case 1:date->tm_mday=atoi(dpart);
-							break;
-						case 2:date->tm_year=atoi(dpart)-1900;
-							break;
-						default:
-							eventlog(eventlog_level_error,"news_load","error parsing news date");
-							free(dpart);
-							return -1;
-					}
-					if (buff[pos]=='}')
-						break;
-					dpos=0;					
-				}
-				else 
-				{	
-					if (((dpos>1) && (flag<2)) || ((dpos>3) && (flag>1)))
-					{
-						eventlog(eventlog_level_error,"news_load","error parsing news date");
-						free(dpart);
-						return -1;
-					}
-					dpart[dpos++]=buff[pos];
-				}
-			}
-			free(dpart);			
-			if (ni!=NULL) 
-			{
-				ni->size=line-loffset;
-			}
-			if (!(ni = (t_news_index*)malloc(sizeof(t_news_index))))
-			{
-				eventlog(eventlog_level_error,"news_load","could not allocate memory for news index");
-				return -1;
-			}			
-			ni->date=mktime(date);
-			ni->offset=ftell(fp);
-			loffset=line+1;
-			if (list_append_data(news_head,ni)<0)
-			{
-				eventlog(eventlog_level_error,"news_load","could not append item");
-				if (ni)
-					free(ni);
-				ni=NULL;
-				continue;
-			}
-		}
-		free(buff);
-	}	
-	if (ni!=NULL) 
-	{
-		first_news = ni->date;
-		ni->size=line-loffset;
+	    date->tm_hour=0;
+	    date->tm_min=0;
+	    date->tm_sec=0;
+	    date->tm_isdst=-1;
+	    dpos=0;
+	    
+	    for (pos=1, flag=0; pos<len; pos++) {
+		if ((buff[pos]=='/') || (buff[pos]=='}')) {
+	    	    pos++;
+		    dpart[dpos]='\0';
+	    	    
+		    switch (flag++) {
+			case 0:
+		    	    date->tm_mon=atoi(dpart)-1;
+		    	    break;
+			case 1:
+		    	    date->tm_mday=atoi(dpart);
+		    	    break;
+			case 2:
+		    	    date->tm_year=atoi(dpart)-1900;
+		    	    break;
+			default:
+		    	    eventlog(eventlog_level_error,__FUNCTION__,"error parsing news date");
+		    	    free((void *)dpart);
+			    free((void *)date);
+			    free((void *)buff);
+			    fclose(fp);
+		    	    return -1;
+		    }
+	    	    
+		    dpos=0;
+		} 
+		
+		if (buff[pos]=='}')
+	    	    break;
+
+		dpart[dpos++]=buff[pos];
+	    }
+		
+	    if (((dpos>1) && (flag<2)) || ((dpos>3) && (flag>1))) {
+		eventlog(eventlog_level_error,__FUNCTION__,"dpos: %d, flag: %d", dpos, flag);
+	    	eventlog(eventlog_level_error,"news_load","error parsing news date");
+	    	free((void *)dpart);
+		free((void *)date);
+		free((void *)buff);
+		fclose(fp);
+		return -1;
+	    }
+	    
+	    free((void *)dpart);
+	} else {
+	    if (!(ni = (t_news_index*)malloc(sizeof(t_news_index)))) {
+		eventlog(eventlog_level_error,"news_load","could not allocate memory for news index");
+		return -1;
+	    }
+	    			
+	    ni->date=mktime(date);
+	    ni->body=strdup(buff);
+	    
+	    if (list_append_data(news_head,ni)<0) {
+		eventlog(eventlog_level_error,"news_load","could not append item");
+		if (ni)
+		    free(ni);
+		ni=NULL;
+		continue;
+	    }
 	}
-
-	free(date);
-	news_get_lastnews();
-	return 0;
+	free((void *)buff);
+    }	
+    free((void *)date);
+    
+    fclose(fp);
+    fp = NULL;
+    return 0;
 }
 
+static char * news_read_file(FILE * fp)
+{
+    char * 	 line;
+    char *       newline;
+    unsigned int len=256;
+    unsigned int pos=0;
+    int          curr_char;
+    
+    if (!(line = malloc(256)))
+	return NULL;
+
+    while ((curr_char = fgetc(fp))!=EOF) {
+	if (((char)curr_char)=='\r')
+	    continue; /* make DOS line endings look Unix-like */
+	if (((char)curr_char)=='{'&& pos>0 ) {
+	    fseek(fp,ftell(fp)-1,SEEK_SET);
+	    break; /* end of news body */
+	}
+	
+	line[pos++] = (char)curr_char;
+	if ((pos+1)>=len) {
+	    len += 64;
+	    if (!(newline = realloc(line,len))) {
+		free(line);
+		return NULL;
+	    }
+	    line = newline;
+	}
+	if (((char)curr_char)=='}'&& pos>0 )
+	    break; /* end of news date */
+
+    }
+    
+    if (curr_char==EOF && pos<1)  { /* not even an empty line */
+	free(line);
+	return NULL;
+    }
+			    
+    if (pos+1<len)
+	if ((newline = realloc(line,pos+1))) /* bump the size back down to what we need */
+	    line = newline; /* if it fails just ignore it */
+    line[pos] = '\0';
+    return line;
+}
+							    
 /* Free up all of the elements in the linked list */
 extern int news_unload(void)
 {
     t_elem *       curr;
-	t_news_index * ni;
+    t_news_index * ni;
     
-    if (news_head)
-    {    
+    if (news_head) {
 	LIST_TRAVERSE(news_head,curr)
 	{
-	    if (!(ni = elem_get_data(curr)))
-		eventlog(eventlog_level_error,"news_unload","found NULL entry in list");
-	    else
-	    {		
-		free(ni);
+	    if (!(ni = elem_get_data(curr))) {
+	    	eventlog(eventlog_level_error,"news_unload","found NULL entry in list");
+		continue;
 	    }
+	    
+	    free((void *)ni->body);
+	    free((void *)ni);
 	    list_remove_elem(news_head,curr);
+
 	}
 	
 	if (list_destroy(news_head)<0)
 	    return -1;
+	
 	news_head = NULL;
     }
-
-    // aaron: and now close the file:
-    fclose(fp);
-    
     return 0;
 }
 
-void news_get_lastnews()
+extern unsigned int news_get_lastnews(void)
 {
-	t_elem *       curr;
-	t_news_index * ni;
-	if (news_head)
-	{
+    t_elem	 *curr;
+    t_news_index *ni;
+    unsigned int last_news = 0;
+    
+    if (news_head) {
 	LIST_TRAVERSE(news_head,curr)
 	{
-	    if (!(ni = elem_get_data(curr)))		
-		eventlog(eventlog_level_error,"news_get_lastnews","found NULL entry in list");			
-	    else
-			if (last_news<ni->date)
-				last_news=ni->date;
+	    if (!(ni = elem_get_data(curr))) {
+		eventlog(eventlog_level_error,"news_get_lastnews","found NULL entry in list");
+		continue;
+	    } else
+		if (last_news<ni->date)
+		    last_news=ni->date;
 	}
+    }
+    return last_news;
+}
+
+extern unsigned int news_get_firstnews(void)
+{
+    t_elem	 *curr;
+    t_news_index *ni;
+    unsigned int first_news = 0;
+    
+    if (news_head) {
+	LIST_TRAVERSE(news_head,curr)
+	{
+	    if (!(ni = elem_get_data(curr))) {
+		eventlog(eventlog_level_error,"news_get_lastnews","found NULL entry in list");
+		continue;
+	    } else
+		if (first_news>ni->date)
+		    first_news=ni->date;
 	}
+    }
+    return first_news;
 }
 
 extern t_list * newslist(void)
@@ -211,54 +274,22 @@ extern t_list * newslist(void)
     return news_head;
 }
 
-extern char const * news_get_body(t_news_index const * news)
+extern char * news_get_body(t_news_index const * news)
 {
-	char	* buff;
-	char	* big_buffer=malloc(1);
-	unsigned int line,len=1,rlen;	
-
-	// Load news into buffer
-	big_buffer[len-1]='\0';
-	line=0;
-	fseek(fp,news->offset,SEEK_SET);
-	while ((++line<=news->size) && (buff = (char *)file_get_line(fp)))
-	{		
-		rlen=strlen(buff);
-		len+=rlen+2;
-		big_buffer=realloc(big_buffer,len);
-//		big_buffer[len-rlen-3]='\0';
-		strcat(big_buffer,buff);
-		strcat(big_buffer,"\r\n");
-		free(buff);		
-	}
-/*
-	big_buffer=(char *)malloc(10);
-	big_buffer[0]='\0';
-	sprintf(big_buffer,"Testing");
-*/
-	return big_buffer;
-}
-
-extern int news_unget_body(char const * val)
-{
-    if (!val)
-    {
-		eventlog(eventlog_level_error,"news_unget_body","got NULL val");
-		return -1;
-    }
-#ifdef TESTUNGET
-    free((void *)val); /* avoid warning */
-#endif
-    return 0;
-}
-
-extern unsigned int const news_get_date(t_news_index const * news)
-{
-    if (!news)
-    {
-        eventlog(eventlog_level_warn,"news_get_date","got NULL news");
-		return 0;
+    if (!news) {
+	eventlog(eventlog_level_warn,"news_get_date","got NULL news");
+	return 0;
     }
     
-	return news->date;
+    return news->body;
+}
+
+extern unsigned int news_get_date(t_news_index const * news)
+{
+    if (!news) {
+	eventlog(eventlog_level_warn,"news_get_date","got NULL news");
+	return 0;
+    }
+    
+    return news->date;
 }
