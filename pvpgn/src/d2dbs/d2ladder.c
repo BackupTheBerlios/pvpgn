@@ -111,6 +111,9 @@ extern int d2ladder_update(t_d2ladder_info * pcharladderinfo)
 	if (!pcharladderinfo->charname[0]) return 0;
 	class=pcharladderinfo->class;
 	status=pcharladderinfo->status;
+
+	if (prefs_get_ladder_chars_only() && (!charstatus_get_ladder(status)))
+          return -1;
 	
 	hardcore=charstatus_get_hardcore(status); 
 	expansion=charstatus_get_expansion(status); 

@@ -63,6 +63,7 @@ static t_conf_table prefs_conf_table[]={
     { "timeout_checkinterval",offsetof(t_prefs,timeout_checkinterval),conf_type_int, DEFAULT_TIMEOUT_CHECKINTERVAL},  
     { "XML_ladder_output"    ,offsetof(t_prefs,XML_ladder_output),   conf_type_int,  0                            },
     { "ladderupdate_threshold",offsetof(t_prefs,ladderupdate_threshold),conf_type_int,DEFAULT_LADDERUPDATE_THRESHOLD},
+    { "ladder_chars_only",    offsetof(t_prefs,ladder_chars_only),   conf_type_int,  0                            },
     { NULL,                   0,                                     conf_type_none, 0                            }
 };
 
@@ -182,4 +183,9 @@ extern unsigned int d2dbs_prefs_get_XML_output_ladder(void)
 extern unsigned int prefs_get_ladderupdate_threshold(void)
 {
 	return prefs_conf.ladderupdate_threshold;
+}
+
+extern unsigned int prefs_get_ladder_chars_only(void)
+{
+	return prefs_conf.ladder_chars_only;
 }

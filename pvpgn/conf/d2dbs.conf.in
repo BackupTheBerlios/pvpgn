@@ -92,5 +92,10 @@ timeout_checkinterval	=	60
 # experience threshold, minimum experience needed to register on the ladder
 ladderupdate_threshold	=	0
 
+# What chars will be added to ladder?
+# 0 = ladder and non-ladder chars
+# 1 = only ladder chars
+ladder_chars_only	=	1
+
 #										#
 #################################################################################
