@@ -2416,6 +2416,8 @@ static int _client_atfriendscreen(t_connection * c, t_packet const * const packe
    t_friend * fr;
    t_list * flist;
    t_elem * curr;
+   t_channel * mychannel, *chan;
+   int publicchan=1;
    
    eventlog(eventlog_level_info,__FUNCTION__,"[%d] got CLIENT_ARRANGEDTEAM_FRIENDSCREEN packet",conn_get_socket(c));
    
@@ -2433,6 +2435,11 @@ static int _client_atfriendscreen(t_connection * c, t_packet const * const packe
    
     packet_set_size(rpacket,sizeof(t_server_arrangedteam_friendscreen));
 		    packet_set_type(rpacket,SERVER_ARRANGEDTEAM_FRIENDSCREEN);
+
+	
+   mychannel  = conn_get_channel(c);
+   if ((mychannel))
+     publicchan = channel_get_flags(mychannel) & channel_flags_public;
 
     vt = versioncheck_get_versiontag(conn_get_versioncheck(c));
     flist=account_get_friends(conn_get_account(c));
@@ -2453,15 +2460,41 @@ static int _client_atfriendscreen(t_connection * c, t_packet const * const packe
 
 	if(friend_get_mutual(fr))
     	{		
-	    if(conn_get_dndstr(dest_c)) 
+	    if(conn_get_dndstr(dest_c))
 	        continue; // user is dnd
+	    if(conn_get_awaystr(dest_c))
+	        continue; // user is away
 	    if(conn_get_game(dest_c)) 
 	        continue; // user is some game
-	    if (!conn_get_channel(dest_c))
+	    if (!(chan=conn_get_channel(dest_c)))
 	        continue;
+	    if (!publicchan && (chan == mychannel))
+	        continue; // don't list YET if in same private channel
 
             fname=account_get_name(account);
 	    eventlog(eventlog_level_trace,"handle_bnet","AT - Friend: %s is available for a AT Game.", fname);
+	    f_cnt++;
+	    packet_append_string(rpacket, fname);
+	}
+    }
+
+    if (!publicchan)
+    {  // now list matching users in same private chan
+        for (dest_c = channel_get_first(mychannel);dest_c;dest_c=channel_get_next())
+	{
+	    if (dest_c == c)
+	       continue; // don'tlist yourself
+	    nvt = versioncheck_get_versiontag(conn_get_versioncheck(dest_c));
+	    if (vt && nvt && strcmp(vt, nvt))
+	        continue; /* user is using another game/version */
+	    if(conn_get_dndstr(dest_c))
+	        continue; // user is dnd
+	    if(conn_get_awaystr(dest_c))
+	        continue; // user is away
+	    if(!(conn_get_account(dest_c)))
+	        continue;
+	    fname=account_get_name(conn_get_account(dest_c));
+	    eventlog(eventlog_level_trace,"handle_bnet","AT - user in private channel: %s is available for a AT Game.", fname);
 	    f_cnt++;
 	    packet_append_string(rpacket, fname);
 	}

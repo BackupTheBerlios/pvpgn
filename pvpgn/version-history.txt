@@ -28,7 +28,9 @@ codes)
 
 [WAR3-CG]: fixed the "can only create on CG in a row" problem
 
-[WAR3-AT]: fixed "can't refresh on AT screen when no online mutual friends"
+[WAR3-AT]: 
+  -- fixed "can't refresh on AT screen when no online mutual friends"
+  -- matching users in same private channel now also get listed on AT screen
 
 [WAR3]: fixed possible disc on too long news items
 
