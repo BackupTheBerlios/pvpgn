@@ -24,10 +24,12 @@
 #define JUST_NEED_TYPES
 #include "common/list.h"
 #include "clan.h"
+#include "team.h"
 #undef JUST_NEED_TYPES
 #else
 #include "common/list.h"
 #include "clan.h"
+#include "team.h"
 #endif
 
 #ifdef ACCOUNT_INTERNAL_ACCESS
@@ -65,6 +67,7 @@ typedef struct account_struct
     t_storage_info * storage;
     t_clanmember * clanmember;
     t_list * friends;
+    t_list * teams;
 }
 #endif
 t_account;
@@ -139,8 +142,12 @@ extern t_clanmember * account_get_clanmember(t_account * account);
 extern t_clan * account_get_clan(t_account * account);
 extern t_clan * account_get_creating_clan(t_account * account);
 
-int account_set_conn(t_account * account, t_connection * conn);
-t_connection * account_get_conn(t_account * account);
+extern int account_set_conn(t_account * account, t_connection * conn);
+extern t_connection * account_get_conn(t_account * account);
+
+extern void account_add_team(t_account * account, t_team * team);
+
+
 
 #endif
 #endif

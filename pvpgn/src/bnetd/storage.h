@@ -24,6 +24,7 @@
 typedef int (*t_read_attr_func)(const char *, const char *, void *);
 typedef int (*t_read_accounts_func)(t_storage_info *, void*);
 typedef int (*t_load_clans_func)(void*);
+typedef int (*t_load_teams_func)(void*);
 
 typedef struct {
     int (*init)(const char *);
@@ -42,6 +43,9 @@ typedef struct {
     int (*write_clan)(void *);
     int (*remove_clan)(int);
     int (*remove_clanmember)(int);
+    int (*load_teams)(t_load_teams_func);
+    int (*write_team)(void *);
+    int (*remove_team)(unsigned int);
 } t_storage;
 
 #endif /* INCLUDED_STORAGE_TYPES */

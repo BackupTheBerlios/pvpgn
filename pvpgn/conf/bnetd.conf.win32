@@ -16,9 +16,9 @@
 #                                                                            #
 # Syntax:                                                                    #
 # * for plain file driver:                                                   #
-#  storage_path = file:mode=plain;dir=<path_to_user_files>;clan=<path_to_clan_files>;default=/path/to/default/account #
+#  storage_path = file:mode=plain;dir=<path_to_user_files>;clan=<path_to_clan_files>;team=<path_to_team_files>;default=/path/to/default/account #
 # * for cdb file driver:                                                     #
-#  storage_path = file:mode=cdb;dir=<path_to_cdb_files>;clan=<path_to_clan_files>;default=/path/to/default/account   #
+#  storage_path = file:mode=cdb;dir=<path_to_cdb_files>;clan=<path_to_clan_files>;team=<path_to_team_files>;default=/path/to/default/account   #
 # * for sql driver:                                                          #
 #  storage_path = sql:variable=value;...;default=0 (0 is the default uid)    #
 # Variables can be:                                                          #
@@ -31,12 +31,12 @@
 # - "pass" : db password                                                     #
 #                                                                            #
 # Examples:                                                                  #
-# storage_path = file:mode=plain;dir=var\users;clan=var\clans;default=conf\bnetd_default_user.plain
-# storage_path = file:mode=cdb;dir=var\userscdb;clan=var\clans;default=conf\bnetd_default_user.cdb
+# storage_path = file:mode=plain;dir=var\users;clan=var\clans;team=var\teams\;default=conf\bnetd_default_user.plain
+# storage_path = file:mode=cdb;dir=var\userscdb;clan=var\clans;team=var\teams\;default=conf\bnetd_default_user.cdb
 # storage_path = sql:mode=mysql;host=127.0.0.1;name=PVPGN;user=pvpgn;pass=pvpgnrocks;default=0
 #----------------------------------------------------------------------------#
 
-storage_path = file:mode=plain;dir=var\users;clan=var\clans;default=conf\bnetd_default_user.plain
+storage_path = file:mode=plain;dir=var\users;clan=var\clans;team=var\teams;default=conf\bnetd_default_user.plain
 
 #                                                                            #
 ##############################################################################

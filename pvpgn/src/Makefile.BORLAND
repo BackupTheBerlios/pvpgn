@@ -44,6 +44,7 @@ sharedir    = ${prefix}\var
 filesdir    = ${sharedir}\files
 usersdir    = ${sharedir}\users
 clandir	    = ${sharedir}\clans
+teamdir     = ${sharedir}\teams
 reportsdir  = ${sharedir}\reports
 chanlogsdir = ${sharedir}\chanlogs
 
@@ -199,6 +200,7 @@ bnetd_OBJECTS       = \
     ${SRC_BNETDDIR}\topic.obj \
     ${SRC_BNETDDIR}\ladder_binary.obj \
     ${SRC_BNETDDIR}\support.obj \
+    ${SRC_BNETDDIR}\team.obj \
     ${SRC_WIN32DIR}\service.obj \
     ${SRC_COMMONDIR}\hexdump.obj \
     ${SRC_COMMONDIR}\bn_type.obj \

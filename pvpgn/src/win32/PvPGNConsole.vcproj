@@ -311,6 +311,9 @@
 					RelativePath="..\bnetd\support.c">
 				</File>
 				<File
+					RelativePath="..\bnetd\team.c">
+				</File>
+				<File
 					RelativePath="..\bnetd\tick.c">
 				</File>
 				<File
@@ -712,6 +715,9 @@
 				</File>
 				<File
 					RelativePath="..\bnetd\support.h">
+				</File>
+				<File
+					RelativePath="..\bnetd\team.h">
 				</File>
 				<File
 					RelativePath="..\bnetd\tick.h">

@@ -81,6 +81,7 @@
 #include "tournament.h"
 #include "news.h"
 #include "clan.h"
+#include "team.h"
 #include "topic.h"
 #include "support.h"
 #include "common/trans.h"
@@ -494,6 +495,7 @@ int pre_server_startup(void)
     tournament_init(prefs_get_tournament_file());
     anongame_infos_load(prefs_get_anongame_infos_file());
     clanlist_load();
+    teamlist_load();
     topiclist_load(prefs_get_topicfile());
     return 0;
 }
@@ -504,6 +506,7 @@ void post_server_shutdown(int status)
     {
 	case 0:
 	    topiclist_unload();
+	    teamlist_unload();
             clanlist_unload();
 	    tournament_destroy();
 	    anongame_infos_unload();

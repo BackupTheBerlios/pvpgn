@@ -29,6 +29,7 @@ filesdir	= @localstatedir@/files
 usersdir	= @localstatedir@/users
 userscdbdir	= @localstatedir@/userscdb
 clandir		= @localstatedir@/clans
+teamdir		= @localstatedir@/teams
 bnmaildir	= @localstatedir@/bnmail
 reportsdir	= @localstatedir@/reports
 chanlogsdir	= @localstatedir@/chanlogs
@@ -143,6 +144,7 @@ ${SRC_BNETDDIR}/handle_anongame.o \
 ${SRC_BNETDDIR}/tournament.o \
 ${SRC_BNETDDIR}/anongame_maplists.o\
 ${SRC_BNETDDIR}/clan.o\
+${SRC_BNETDDIR}/team.o\
 ${SRC_BNETDDIR}/topic.o\
 ${SRC_BNETDDIR}/friends.o\
 ${SRC_BNETDDIR}/ladder_binary.o \
@@ -645,7 +647,8 @@ install-conf: ${SRC_CONFDIR}/bnetd.conf ${SRC_CONFDIR}/d2cs.conf ${SRC_CONFDIR}/
 install-share:
 	${INSTALL_DIRS} ${DESTDIR}/${sharedir} ${DESTDIR}/${filesdir} ${DESTDIR}/${usersdir} ${DESTDIR}/${userscdbdir} ${DESTDIR}/${bnmaildir} ${DESTDIR}/${reportsdir} \
 	${DESTDIR}/${chanlogsdir} ${DESTDIR}/${charinfodir} ${DESTDIR}/${charsavedir} ${DESTDIR}/${bak_charsavedir} \
-	${DESTDIR}/${bak_charinfodir} ${DESTDIR}/${ladderdir} ${DESTDIR}/${statusdir} ${DESTDIR}/${clandir}
+	${DESTDIR}/${bak_charinfodir} ${DESTDIR}/${ladderdir} ${DESTDIR}/${statusdir} \ 
+	${DESTDIR}/${clandir} ${DESTDIR}/${teamdir}
 	@list='${SHARES}'; for p in $$list; do \
 	  if test -f ${SRC_SHAREDIR}/$$p; then \
 	    ${ECHO} "  ${INSTALL_DATA} ${SRC_SHAREDIR}/$$p ${DESTDIR}/${filesdir}"; \

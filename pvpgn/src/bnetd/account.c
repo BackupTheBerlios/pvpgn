@@ -76,11 +76,15 @@
 #include "connection.h"
 #include "watch.h"
 #include "friends.h"
+#include "team.h"
 #include "common/tag.h"
 #include "ladder.h"
 #include "clan.h"
 #include "common/flags.h"
 #include "common/xalloc.h"
+#ifdef HAVE_ASSERT_H
+# include <assert.h>
+#endif
 #include "common/setup_after.h"
 
 static t_hashtable * accountlist_head=NULL;
@@ -129,6 +133,7 @@ extern t_account * account_create(char const * username, char const * passhash1)
     account->attrs    = NULL;
     account->age      = 0;
     account->friends  = NULL;
+    account->teams    = NULL;
     account->conn = NULL;
     FLAG_ZERO(&account->flags);
 
@@ -216,6 +221,7 @@ extern void account_destroy(t_account * account)
 	return;
     }
     friendlist_close(account->friends);
+    teams_destroy(account->teams);
     account_unload_attrs(account);
     if (account->storage)
 	storage->free_info(account->storage);
@@ -1377,4 +1383,15 @@ t_connection * account_get_conn(t_account * account)
   }
 
   return account->conn;
+}
+
+void account_add_team(t_account * account,t_team * team)
+{
+  assert(account);
+  assert(team);
+
+  if (!(account->teams))
+    account->teams = list_create();
+
+    list_append_data(account->teams,team);
 }

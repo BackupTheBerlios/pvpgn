@@ -78,6 +78,7 @@
 #include "common/field_sizes.h"
 #include "common/bnethash.h"
 #define CLAN_INTERNAL_ACCESS
+#define TEAM_INTERNAL_ACCESS
 #define ACCOUNT_INTERNAL_ACCESS
 #include "common/introtate.h"
 #include "account.h"
@@ -90,7 +91,9 @@
 #include "connection.h"
 #include "watch.h"
 #include "clan.h"
+#include "team.h"
 #undef ACCOUNT_INTERNAL_ACCESS
+#undef TEAM_INTERNAL_ACCESS
 #undef CLAN_INTERNAL_ACCESS
 #include "common/tag.h"
 #include "common/xalloc.h"
@@ -114,6 +117,9 @@ static int file_load_clans(t_load_clans_func);
 static int file_write_clan(void *);
 static int file_remove_clan(int);
 static int file_remove_clanmember(int);
+static int file_load_teams(t_load_teams_func);
+static int file_write_team(void *);
+static int file_remove_team(unsigned int);
 
 /* storage struct populated with the functions above */
 
@@ -133,13 +139,17 @@ t_storage storage_file = {
     file_load_clans,
     file_write_clan,
     file_remove_clan,
-    file_remove_clanmember
+    file_remove_clanmember,
+    file_load_teams,
+    file_write_team,
+    file_remove_team
 };
 
 /* start of actual file storage code */
 
 static const char *accountsdir = NULL;
 static const char *clansdir = NULL;
+static const char *teamsdir = NULL;
 static const char *defacct = NULL;
 static t_file_engine *file = NULL;
 
@@ -148,6 +158,7 @@ static int file_init(const char *path)
     char *tok, *copy, *tmp, *p;
     const char *dir = NULL;
     const char *clan = NULL;
+    const char *team = NULL;
     const char *def = NULL;
     const char *driver = NULL;
 
@@ -173,6 +184,8 @@ static int file_init(const char *path)
 	    dir = p + 1;
 	else if (strcasecmp(tok, "clan") == 0)
 	    clan = p + 1;
+	else if (strcasecmp(tok, "team") == 0)
+	    team = p + 1;
 	else if (strcasecmp(tok, "default") == 0)
 	    def = p + 1;
 	else if (strcasecmp(tok, "mode") == 0)
@@ -181,7 +194,7 @@ static int file_init(const char *path)
 	    eventlog(eventlog_level_warn, __FUNCTION__, "unknown token in storage_path : '%s'", tok);
     }
 
-    if (def == NULL || clan == NULL || dir == NULL || driver == NULL)
+    if (def == NULL || clan == NULL || team == NULL || dir == NULL || driver == NULL)
     {
 	eventlog(eventlog_level_error, __FUNCTION__, "invalid storage_path line for file module (doesnt have a 'dir', a 'clan', a 'default' token and a 'mode' token)");
 	xfree((void *) copy);
@@ -204,6 +217,7 @@ static int file_init(const char *path)
 
     accountsdir = xstrdup(dir);
     clansdir = xstrdup(clan);
+    teamsdir = xstrdup(team);
     defacct = xstrdup(def);
 
     xfree((void *) copy);
@@ -220,6 +234,10 @@ static int file_close(void)
     if (clansdir)
 	xfree((void *) clansdir);
     clansdir = NULL;
+
+    if (teamsdir)
+    	xfree((void *) teamsdir);
+    teamsdir = NULL;
 
     if (defacct)
 	xfree((void *) defacct);
@@ -707,5 +725,204 @@ static int file_remove_clan(int clantag)
 
 static int file_remove_clanmember(int uid)
 {
+    return 0;
+}
+
+static int file_load_teams(t_load_teams_func cb)
+{
+    char const *dentry;
+    t_pdir *teamdir;
+    char *pathname;
+    unsigned int teamid;
+    t_team *team;
+    FILE *fp;
+    char * line;
+    unsigned int fteamid;
+    unsigned char size;
+    int i;
+
+    if (cb == NULL)
+    {
+	eventlog(eventlog_level_error, __FUNCTION__, "get NULL callback");
+	return -1;
+    }
+
+    if (!(teamdir = p_opendir(teamsdir)))
+    {
+	eventlog(eventlog_level_error, __FUNCTION__, "unable to open team directory \"%s\" for reading (p_opendir: %s)", teamsdir, strerror(errno));
+	return -1;
+    }
+    eventlog(eventlog_level_trace, __FUNCTION__, "start reading teams");
+
+    pathname = xmalloc(strlen(teamsdir) + 1 + 8 + 1);
+    while ((dentry = p_readdir(teamdir)) != NULL)
+    {
+	if (dentry[0] == '.')
+	    continue;
+
+	if (strlen(dentry) != 8)
+	{
+	    eventlog(eventlog_level_error, __FUNCTION__, "found invalid team filename in teamdir \"%s\"", dentry);
+	    continue;
+	}
+
+	sprintf(pathname, "%s/%s", teamsdir, dentry);
+
+	teamid = (unsigned int)strtoul(dentry,NULL,16); // we use hexadecimal teamid as filename
+
+	if ((fp = fopen(pathname, "r")) == NULL)
+	{
+	    eventlog(eventlog_level_error, __FUNCTION__, "can't open teamfile \"%s\"", pathname);
+	    continue;
+	}
+
+	team = xmalloc(sizeof(t_team));
+	team->teamid = teamid;
+
+	if (!(line = file_get_line(fp)))
+	{
+	    eventlog(eventlog_level_error,__FUNCTION__,"invalid team file: file is empty");
+	    goto load_team_failure;
+	}
+	
+	if (sscanf(line,"%u,%c",&fteamid,&size)!=2)
+	{
+	    eventlog(eventlog_level_error,__FUNCTION__,"invalid team file: invalid number of arguments on first line");
+	    goto load_team_failure;
+	}
+	
+	if (fteamid != teamid)
+	{
+	    eventlog(eventlog_level_error,__FUNCTION__,"invalid team file: filename and stored teamid don't match");
+	    goto load_team_failure;
+	}
+	
+	size -='0';
+	if ((size<2) || (size>4))
+	{
+	    eventlog(eventlog_level_error,__FUNCTION__,"invalid team file: invalid team size");
+	    goto load_team_failure;
+	}
+	team->size = size;
+
+	xfree((void *)line);
+
+	if (!(line= file_get_line(fp)))
+	{
+	    eventlog(eventlog_level_error,__FUNCTION__,"invalid team file: missing 2nd line");
+	    goto load_team_failure;
+	}
+
+	if (sscanf(line,"%u,%u,%u,%u",&team->teammembers[0],&team->teammembers[1],&team->teammembers[2],&team->teammembers[3])!=4)
+	{
+	    eventlog(eventlog_level_error,__FUNCTION__,"invalid team file: invalid number of arguments on 2nd line");
+	    goto load_team_failure;
+	}
+
+	for (i=0; i<MAX_TEAMSIZE;i++)
+	{
+	   if (i<size)
+	   {
+		if ((team->teammembers[i]==0))
+		{
+	    		eventlog(eventlog_level_error,__FUNCTION__,"invalid team file: too few members");
+	    		goto load_team_failure;
+		}
+	   }
+	   else
+	   {
+	   	if ((team->teammembers[i]!=0))
+		{
+	    		eventlog(eventlog_level_error,__FUNCTION__,"invalid team file: too many members");
+	    		goto load_team_failure;
+		}
+
+	   }
+	}
+
+	xfree((void *)line);
+	
+	if (!(line= file_get_line(fp)))
+	{
+	    eventlog(eventlog_level_error,__FUNCTION__,"invalid team file: missing 3rd line");
+	    goto load_team_failure;
+	}
+
+	if (sscanf(line,"%d,%d,%d,%d,%d",&team->wins,&team->losses,&team->xp,&team->level,&team->rank)!=5)
+	{
+	    eventlog(eventlog_level_error,__FUNCTION__,"invalid team file: invalid number of arguments on 3rd line");
+	    goto load_team_failure;
+	}
+
+	xfree((void *)line);
+
+	eventlog(eventlog_level_trace,__FUNCTION__,"succesfully loaded team %s",dentry);
+	cb(team);
+	
+	goto load_team_success;
+	load_team_failure:
+	  if (line) xfree((void*)line);
+	  xfree((void*)team);
+	  eventlog(eventlog_level_error,__FUNCTION__,"error while reading file \"%s\"",dentry);
+
+	load_team_success:
+
+	fclose(fp);
+
+
+    }
+
+    xfree((void *) pathname);
+
+    if (p_closedir(teamdir) < 0)
+    {
+	eventlog(eventlog_level_error, __FUNCTION__, "unable to close team directory \"%s\" (p_closedir: %s)", teamsdir, strerror(errno));
+    }
+    eventlog(eventlog_level_trace, __FUNCTION__, "finished reading teams");
+
+    return 0;
+}
+
+static int file_write_team(void *data)
+{
+    FILE *fp;
+    char *teamfile;
+    t_team *team = (t_team *) data;
+
+    teamfile = xmalloc(strlen(teamsdir) + 1 + 8 + 1);
+    sprintf(teamfile, "%s/%08x", teamsdir, team->teamid);
+
+    if ((fp = fopen(teamfile, "w")) == NULL)
+    {
+	eventlog(eventlog_level_error, __FUNCTION__, "can't open teamfile \"%s\"", teamfile);
+	xfree((void *) teamfile);
+	return -1;
+    }
+
+    fprintf(fp,"%u,%c",team->teamid,team->size+'0');
+    fprintf(fp,"%u,%u,%u,%u",team->teammembers[0],team->teammembers[1],team->teammembers[2],team->teammembers[3]);
+    fprintf(fp,"%d,%d,%d,%d,%d",team->wins,team->losses,team->xp,team->level,team->rank);
+
+    fclose(fp);
+    xfree((void *) teamfile);
+    
+    return 0;
+}
+
+static int file_remove_team(unsigned int teamid)
+{
+
+    char *tempname;
+
+    tempname = xmalloc(strlen(clansdir) + 1 + 8 + 1);
+    sprintf(tempname, "%s/%08x", clansdir, teamid);
+    if (remove((const char *) tempname) < 0)
+    {
+	eventlog(eventlog_level_error, __FUNCTION__, "could not delete team file \"%s\" (remove: %s)", (char *) tempname, strerror(errno));
+	xfree(tempname);
+	return -1;
+    }
+    xfree(tempname);
+    
     return 0;
 }

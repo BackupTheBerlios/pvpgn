@@ -104,6 +104,9 @@ static int sql_load_clans(t_load_clans_func cb);
 static int sql_write_clan(void *data);
 static int sql_remove_clan(int clantag);
 static int sql_remove_clanmember(int);
+static int sql_load_teams(t_load_teams_func cb);
+static int sql_write_team(void *data);
+static int sql_remove_team(unsigned int teamid);
 
 t_storage storage_sql = {
     sql_init,
@@ -121,7 +124,10 @@ t_storage storage_sql = {
     sql_load_clans,
     sql_write_clan,
     sql_remove_clan,
-    sql_remove_clanmember
+    sql_remove_clanmember,
+    sql_load_teams,
+    sql_write_team,
+    sql_remove_team
 };
 
 static t_sql_engine *sql = NULL;
@@ -1172,6 +1178,21 @@ static int sql_remove_clanmember(int uid)
 	return -1;
     }
 
+    return 0;
+}
+
+static int sql_load_teams(t_load_teams_func cb)
+{
+    return 0;
+}
+
+static int sql_write_team(void *data)
+{
+    return 0;
+}
+
+static int sql_remove_team(unsigned int teamid)
+{
     return 0;
 }
 
