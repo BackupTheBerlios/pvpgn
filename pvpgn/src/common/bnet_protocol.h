@@ -786,9 +786,9 @@ typedef struct
     /* versioncheck filename */
     /* equation */
 } t_server_authreq_109 PACKED_ATTR();
-#define SERVER_AUTHREQ_109_LOGONTYPE 0x0000000
-#define SERVER_AUTHREQ_109_LOGONTYPE_W3 0x00000001
-#define SERVER_AUTHREQ_109_LOGONTYPE_W3XP 0x00000002
+#define SERVER_AUTHREQ_109_LOGONTYPE 		0x0000000
+#define SERVER_AUTHREQ_109_LOGONTYPE_W3 	0x00000002
+#define SERVER_AUTHREQ_109_LOGONTYPE_W3XP 	0x00000002
 /******************************************************/
 
 /* ADDED BY UNDYING SOULZZ 4/3/02 */

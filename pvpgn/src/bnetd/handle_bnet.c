@@ -649,7 +649,7 @@ static int _client_countryinfo109(t_connection * c, t_packet const * const packe
 	     if ((conn_get_clienttag(c) == CLIENTTAG_WARCRAFT3_UINT))
 		bn_int_set(&rpacket->u.server_authreq_109.logontype,SERVER_AUTHREQ_109_LOGONTYPE_W3);
 	     else if ((conn_get_clienttag(c) ==  CLIENTTAG_WAR3XP_UINT))
-		bn_int_set(&rpacket->u.server_authreq_109.logontype,SERVER_AUTHREQ_109_LOGONTYPE_W3);
+		bn_int_set(&rpacket->u.server_authreq_109.logontype,SERVER_AUTHREQ_109_LOGONTYPE_W3XP);
 	     else
 		bn_int_set(&rpacket->u.server_authreq_109.logontype,SERVER_AUTHREQ_109_LOGONTYPE);
 	     
