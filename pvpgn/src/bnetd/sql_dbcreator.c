@@ -50,6 +50,7 @@
 
 t_elem  * curr_table  = NULL;
 t_elem  * curr_column = NULL;
+t_elem  * curr_cmd    = NULL;
 
 t_db_layout * db_layout;
 
@@ -100,6 +101,7 @@ t_table * create_table(char * name)
   table->name = xstrdup(name);
 
   table->columns = list_create();
+  table->sql_commands = list_create();
   
   return table;
 }
@@ -108,6 +110,7 @@ void dispose_table(t_table * table)
 {
   t_elem * curr;
   t_column * column;
+  char * sql_command;
   
   if (table)
     {
@@ -127,8 +130,24 @@ void dispose_table(t_table * table)
 	    }
 	  
 	  list_destroy(table->columns);
-	  
         }
+
+      if (table->sql_commands)
+        {
+          LIST_TRAVERSE(table->sql_commands,curr)
+	    {
+	      if (!(sql_command = elem_get_data(curr)))
+		{
+		  eventlog(eventlog_level_error,__FUNCTION__,"found NULL entry in list");
+		  continue;
+		}
+	      xfree((void *)sql_command);
+	      list_remove_elem(table->sql_commands,&curr);
+	    }
+	  
+	  list_destroy(table->sql_commands);
+        }
+      
       
       xfree((void *)table);
     }
@@ -139,6 +158,14 @@ void table_add_column(t_table * table, t_column * column)
   if ((table) && (column))
     {
       list_append_data(table->columns,column);
+    }
+}
+
+void table_add_sql_command(t_table * table, char * sql_command)
+{
+  if ((table) && (sql_command))
+    {
+      list_append_data(table->sql_commands,sql_command);
     }
 }
 
@@ -296,6 +323,57 @@ t_column * table_get_next_column(t_table * table)
   return column;
 }
 
+char * table_get_first_sql_command(t_table * table)
+{
+  char * sql_command;
+
+  if (!(table))
+  {
+    eventlog(eventlog_level_error,__FUNCTION__,"got NULL table");
+    return NULL;
+  }
+
+  if (!(table->sql_commands))
+  {
+    eventlog(eventlog_level_error,__FUNCTION__,"got NULL table->sql_commands");
+    return NULL;
+  }
+
+  if (!(curr_cmd = list_get_first(table->sql_commands)))
+  {
+    return NULL;
+  }
+
+  if (!(sql_command = elem_get_data(curr_cmd)))
+  {
+    eventlog(eventlog_level_error,__FUNCTION__,"got NULL elem in list");
+    return NULL;
+  }
+
+  return sql_command;
+}
+
+char * table_get_next_sql_command(t_table * table)
+{
+  char * sql_command;
+
+  if (!(curr_cmd))
+  {
+    eventlog(eventlog_level_error,__FUNCTION__,"got NULL curr_cmd");
+    return NULL;
+  }
+
+  if (!(curr_cmd = elem_get_next(table->sql_commands, curr_cmd))) return NULL;
+
+  if (!(sql_command = elem_get_data(curr_cmd)))
+  {
+    eventlog(eventlog_level_error,__FUNCTION__,"got NULL elem in list");
+    return NULL;
+  }
+
+  return sql_command;
+}
+
 int load_db_layout(char const * filename)
 {
   FILE * fp;
@@ -305,6 +383,7 @@ int load_db_layout(char const * filename)
   char * table       = NULL;
   char * column      = NULL;
   char * value       = NULL;
+  char * sqlcmd      = NULL;
   t_table * _table   = NULL;
   t_column * _column = NULL;
 
@@ -353,7 +432,7 @@ int load_db_layout(char const * filename)
         column = &line[1];
         if (!(tmp = strchr(column,'"')))
         {
-          eventlog(eventlog_level_error,__FUNCTION__,"missing '\"' at the end of column definitioni in line %i",lineno);
+          eventlog(eventlog_level_error,__FUNCTION__,"missing '\"' at the end of column definition in line %i",lineno);
           continue;
         }
         tmp[0]='\0';
@@ -373,8 +452,28 @@ int load_db_layout(char const * filename)
         _column = create_column(column,value);
         table_add_column(_table,_column);
         _column = NULL;
-
         break;
+      case ':':
+        if (!(_table))
+        {
+          eventlog(eventlog_level_error,__FUNCTION__,"found a sql_command without previous table in line %i",lineno);
+          continue;
+        }
+	if (line[1]!='"')
+	{
+	  eventlog(eventlog_level_error,__FUNCTION__,"missing starting '\"' in sql_command definition on line %i",lineno);
+	  continue;
+	}
+	sqlcmd = &line[2];
+        if (!(tmp = strchr(sqlcmd,'"')))
+        {
+          eventlog(eventlog_level_error,__FUNCTION__,"missing ending '\"' in sql_command definition on line %i",lineno);
+          continue;
+        }
+        tmp[0]='\0';
+	table_add_sql_command(_table,xstrdup(sqlcmd));
+
+	break;
       case '#':
         break;
       default:
@@ -394,6 +493,7 @@ int sql_dbcreator(t_sql_engine * sql)
   t_column    * column;
   char        _column[1024];
   char        query[1024];
+  char        * sqlcmd;
 
   load_db_layout(prefs_get_DBlayoutfile());
 
@@ -422,6 +522,14 @@ int sql_dbcreator(t_sql_engine * sql)
 	sql->query(query);
 */
       }
+    }
+
+    for (sqlcmd = table_get_first_sql_command(table);sqlcmd;sqlcmd = table_get_next_sql_command(table))
+    {
+        if (!(sql->query(sqlcmd)))
+        {
+           eventlog(eventlog_level_info,__FUNCTION__,"sucessfully issued: %s",sqlcmd);
+        }
     }
 
     column = table_get_first_column(table);

@@ -33,6 +33,7 @@ typedef struct table
 {
   char   * name;
   t_list * columns;
+  t_list * sql_commands;
 } 
 #endif
 t_table;
