@@ -184,5 +184,7 @@ whois <player> - looks up some basic information on a user, including their acco
 /voice <username> - give temporary voice to user
 %devoice
 /devoice <username> - remove user from VOP list and take away temporary voice
+%topic
+/topic [ [channel name] "topic " ] - used to get/set a channels topic
 #                                                                            #
 ##############################################################################
