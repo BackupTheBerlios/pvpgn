@@ -118,7 +118,6 @@ extern int timerlist_check_timers(time_t when)
 	}
 	if (timer->owner && timer->when<when)
 	{
-	    t_connection *c = timer->owner;
 	    if (timer->cb)
 		timer->cb(timer->owner,timer->when,timer->data);
 	    if (list_remove_elem(timerlist_head,curr)<0)
