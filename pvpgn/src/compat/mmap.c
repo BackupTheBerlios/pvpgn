@@ -36,7 +36,8 @@
 extern void * pmmap(void *addr, unsigned len, int prot, int flags, int fd, unsigned offset)
 {
     void *mem;
-    int pos, res;
+    unsigned pos;
+    int res;
 
     if ((mem = malloc(len)) == NULL) return MAP_FAILED;
     pos = 0;
