@@ -1867,7 +1867,7 @@ extern int account_get_racewins( t_account * account, unsigned int intrace, t_cl
 	return account_get_numattr(account,table);
 }
 
-extern int account_set_raceloss( t_account * account, unsigned int intrace, t_clienttag clienttag)
+extern int account_inc_racelosses( t_account * account, unsigned int intrace, t_clienttag clienttag)
 {
 	char table[256];
 	char clienttag_str[5];
@@ -2584,7 +2584,7 @@ extern int account_set_saveladderstats(t_account * account,unsigned int gametype
 		if(result == game_result_loss) //loss
 		{
 			account_inc_sololoss(account, clienttag);
-			account_set_raceloss(account,intrace, clienttag);
+			account_inc_racelosses(account,intrace, clienttag);
 		}
 			
 		account_update_soloxp(account,clienttag,result,opponlevel,&xpdiff);
@@ -2613,7 +2613,7 @@ extern int account_set_saveladderstats(t_account * account,unsigned int gametype
 		if(result == game_result_loss) //loss
 		{
 			account_inc_teamloss(account,clienttag);
-			account_set_raceloss(account,intrace,clienttag);
+			account_inc_racelosses(account,intrace,clienttag);
 		}
 
 		account_update_teamxp(account,clienttag,result,opponlevel,&xpdiff);
@@ -2634,7 +2634,7 @@ extern int account_set_saveladderstats(t_account * account,unsigned int gametype
 		if(result == game_result_loss) //loss
 		{
 			account_inc_ffaloss(account,clienttag);
-			account_set_raceloss(account,intrace,clienttag);
+			account_inc_racelosses(account,intrace,clienttag);
 		}
 
 		account_update_ffaxp(account,clienttag,result,opponlevel,&xpdiff);
@@ -3037,7 +3037,7 @@ extern int account_set_saveATladderstats(t_account * account, unsigned int gamet
   if(result == game_result_loss)
     {
       account_inc_atteamlosses(account,current_teamnum,clienttag);
-      account_set_raceloss(account,intrace,clienttag);
+      account_inc_racelosses(account,intrace,clienttag);
     }
   account_update_atteamxp(account,result,opponlevel,current_teamnum,clienttag,&xpdiff);
   account_update_atteamlevel(account,current_teamnum,clienttag);
