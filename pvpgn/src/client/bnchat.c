@@ -124,6 +124,7 @@
 # define dprintf if (0) printf
 #endif
 
+#define CHANNEL_BNCHATBOT "Chat"
 #define CHANNEL_STARCRAFT "Starcraft"
 #define CHANNEL_BROODWARS "Brood War"
 #define CHANNEL_SHAREWARE "Starcraft Shareware"
@@ -132,7 +133,8 @@
 #define CHANNEL_WARCIIBNE "War2BNE"
 #define CHANNEL_DIABLO2DV "Diablo II"
 #define CHANNEL_DIABLO2XP "Diablo II"
-#define CHANNEL_WARCRAFT3 "Warcraft III" /* FIXME: is this correct? */
+#define CHANNEL_WARCRAFT3 "W3"
+#define CHANNEL_WAR3XP    "W3"
 
 
 volatile int handle_winch=0;
@@ -353,6 +355,7 @@ static void usage(char const * progname)
 	    "    -a, --ansi-color            use ANSI colors\n"
             "    -n, --new-account           create a new account\n"
             "    -c, --change-password       change account password\n"
+            "    --client=CHAT               report client as a chat bot\n"
             "    -b, --client=SEXP           report client as Brood Wars\n"
             "    -d, --client=DRTL           report client as Diablo Retail\n"
             "    --client=DSHR               report client as Diablo Shareware\n");
@@ -362,7 +365,8 @@ static void usage(char const * progname)
             "    -w, --client=W2BN           report client as Warcraft II BNE\n"
             "    --client=D2DV               report client as Diablo II\n"
             "    --client=D2XP               report client as Diablo II: LoD\n"
-            "    --client=WAR3               report client as Warcraft III\n");
+            "    --client=WAR3               report client as Warcraft III\n"
+            "    --client=W3XP               report client as Warcraft III Frozen Throne\n");
     fprintf(stderr,
 	    "    -o NAME, --owner=NAME       report CD owner as NAME\n"
 	    "    -k KEY, --cdkey=KEY         report CD key as KEY\n"
@@ -442,6 +446,16 @@ extern int main(int argc, char * argv[])
 		usage(argv[0]);
 	    }
 	    changepass = 1;
+	}
+        else if (strcmp(argv[a],"--client=CHAT")==0)
+	{
+	    if (clienttag)
+	    {
+		fprintf(stderr,"%s: client type was already specified as \"%s\"\n",argv[0],clienttag);
+		usage(argv[0]);
+	    }
+	    clienttag = CLIENTTAG_BNCHATBOT;
+	    channel = CHANNEL_BNCHATBOT;
 	}
         else if (strcmp(argv[a],"-b")==0 || strcmp(argv[a],"--client=SEXP")==0)
 	{
@@ -532,6 +546,16 @@ extern int main(int argc, char * argv[])
 	    }
 	    clienttag = CLIENTTAG_WARCRAFT3;
 	    channel = CHANNEL_WARCRAFT3;
+	}
+        else if (strcmp(argv[a],"--client=W3XP")==0)
+	{
+	    if (clienttag)
+	    {
+		fprintf(stderr,"%s: client type was already specified as \"%s\"\n",argv[0],clienttag);
+		usage(argv[0]);
+	    }
+	    clienttag = CLIENTTAG_WAR3XP;
+	    channel = CHANNEL_WAR3XP;
 	}
 	else if (strncmp(argv[a],"--client=",9)==0)
 	{

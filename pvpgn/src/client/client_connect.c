@@ -173,7 +173,8 @@ static int get_defversioninfo(char const * progname, char const * clienttag, uns
 	return 0;
     }
     
-    if (strcmp(clienttag,CLIENTTAG_WARCRAFT3)==0)
+    if (strcmp(clienttag,CLIENTTAG_WARCRAFT3)==0 ||
+	strcmp(clienttag,CLIENTTAG_WAR3XP)==0)
     {
 	*versionid = CLIENT_VERSIONID_WAR3;
 	*gameversion = CLIENT_GAMEVERSION_WAR3;
