@@ -19,6 +19,7 @@ server crash on previous version
 and added a nice servers.xsl from jfro to show server list based on XML files
 -- added XML_output_ladder option to d2dbs.conf for additional output of D2
 ladder to xml file - once again... for ladder pages
+--- added support for closed realms (d2cs) behind a router
 
 1.2.3:
 -- fixed some crash related bugs
