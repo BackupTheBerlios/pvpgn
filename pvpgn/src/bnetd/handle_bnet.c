@@ -2471,7 +2471,7 @@ static int _client_friendinforeq(t_connection * c, t_packet const * const packet
 	fr=friendlist_find_uid(flist, friend);
 
 	if(fr==NULL || (dest_c = connlist_find_connection_by_account(friend_get_account(fr)))==NULL) {
-	     bn_byte_set(&rpacket->u.server_friendinforeply.unknown1, 0);
+	     bn_byte_set(&rpacket->u.server_friendinforeply.type, FRIEND_TYPE_NON_MUTUAL);
 	     bn_byte_set(&rpacket->u.server_friendinforeply.status, FRIENDSTATUS_OFFLINE);
 	     bn_int_set(&rpacket->u.server_friendinforeply.clienttag, 0);
 	     packet_append_string(rpacket, "");
@@ -2482,11 +2482,14 @@ static int _client_friendinforeq(t_connection * c, t_packet const * const packet
 
 	if(friend_get_mutual(fr))
 	  {
-	     bn_byte_set(&rpacket->u.server_friendinforeply.unknown1, 1); // This is if a mutal friend or not 6/28/02 THEUNDYING 0 = no, 1 = yes
+	     bn_byte_set(&rpacket->u.server_friendinforeply.type, FRIEND_TYPE_MUTUAL);
 	     
 	     if((game = conn_get_game(dest_c))) 
 	       {
-		  bn_byte_set(&rpacket->u.server_friendinforeply.status, FRIENDSTATUS_GAME);
+		  if (game_get_flag_private(game)==0)
+		    bn_byte_set(&rpacket->u.server_friendinforeply.status, FRIENDSTATUS_PUBLIC_GAME);
+		  else
+                    bn_byte_set(&rpacket->u.server_friendinforeply.status, FRIENDSTATUS_PRIVATE_GAME);
 		  bn_int_set(&rpacket->u.server_friendinforeply.clienttag, *((int const *)conn_get_clienttag(dest_c)));
 		  packet_append_string(rpacket, game_get_name(game));
 	       }
@@ -2506,19 +2509,22 @@ static int _client_friendinforeq(t_connection * c, t_packet const * const packet
 	  }
 	else
 	  {
-	     bn_byte_set(&rpacket->u.server_friendinforeply.unknown1, 0); // This is if a mutal friend or not 6/28/02 THEUNDYING 0 = no, 1 = yes
+	     bn_byte_set(&rpacket->u.server_friendinforeply.type, FRIEND_TYPE_NON_MUTUAL);
 	     
 	     if((game = conn_get_game(dest_c))) 
 	       {
-		  bn_byte_set(&rpacket->u.server_friendinforeply.status, FRIENDSTATUS_GAME);
+		  if (game_get_flag_private(game)==0)
+		    bn_byte_set(&rpacket->u.server_friendinforeply.status, FRIENDSTATUS_PUBLIC_GAME);
+		  else
+                    bn_byte_set(&rpacket->u.server_friendinforeply.status, FRIENDSTATUS_PRIVATE_GAME);
 		  bn_int_set(&rpacket->u.server_friendinforeply.clienttag, *((int const *)conn_get_clienttag(dest_c)));
-		  packet_append_string(rpacket, game_get_name(game));
+		  packet_append_string(rpacket, "");
 	       }
 	     else if((channel = conn_get_channel(dest_c))) 
 	       {
 		  bn_byte_set(&rpacket->u.server_friendinforeply.status, FRIENDSTATUS_CHAT);
 		  bn_int_set(&rpacket->u.server_friendinforeply.clienttag, *((int const *)conn_get_clienttag(dest_c)));
-		  packet_append_string(rpacket, channel_get_name(channel));
+		  packet_append_string(rpacket, "Not Mutual");
 	       }
 	     else 
 	       {

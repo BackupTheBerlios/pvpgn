@@ -579,11 +579,14 @@ typedef struct
 {
     t_bnet_header h;
     bn_byte friendnum;
-    bn_byte unknown1;
+    bn_byte type;
     bn_byte status;
     bn_int clienttag;
     /* game name */
 } t_server_friendinforeply PACKED_ATTR();
+#define FRIEND_TYPE_NON_MUTUAL 0x00
+#define FRIEND_TYPE_MUTUAL     0x01
+
 /******************************************************/
 /*
 # 126 packet from server: type=0x67ff(unknown) length=15 class=bnet
@@ -608,9 +611,10 @@ typedef struct
 } t_server_frienddel_ack PACKED_ATTR();
 /******************************************************/
 
-#define FRIENDSTATUS_OFFLINE    0
-#define FRIENDSTATUS_ONLINE     1
-#define FRIENDSTATUS_CHAT       2
-#define FRIENDSTATUS_GAME       3
+#define FRIENDSTATUS_OFFLINE    	0x00
+#define FRIENDSTATUS_ONLINE     	0x01
+#define FRIENDSTATUS_CHAT       	0x02
+#define FRIENDSTATUS_PUBLIC_GAME	0x03
+#define FRIENDSTATUS_PRIVATE_GAME	0x05
 
 #endif
