@@ -480,7 +480,7 @@ extern int handle_command(t_connection * c,  char const * text)
 			sprintf( msgtemp, "Added %s to your friends list.", newfriend);
 			message_send_text(c,message_type_info,c,msgtemp);
 			// 7/27/02 - THEUNDYING - Inform friend that you added them to your list
-			friend_c = connlist_find_connection_by_name(newfriend,conn_get_realmname(c));
+			friend_c = connlist_find_connection_by_accountname(newfriend);
 			sprintf(msgtemp,"%s added you to his/her friends list.",conn_get_username(c));
 			message_send_text(friend_c,message_type_info,friend_c,msgtemp);
 
@@ -492,7 +492,7 @@ extern int handle_command(t_connection * c,  char const * text)
 
 			packet_append_string(rpacket, newfriend);
 			memset(tmp, 0, 7);
-			if ((dest_c = connlist_find_connection_by_name(newfriend,conn_get_realmname(c)))) {
+			if ((dest_c = connlist_find_connection_by_accountname(newfriend))) {
 				if (conn_get_channel(dest_c)) 
 					tmp[1] = FRIENDSTATUS_CHAT;
 				else
@@ -533,7 +533,7 @@ extern int handle_command(t_connection * c,  char const * text)
 			for(i=0; i<n; i++) 
 			{ //Cycle through your friend list and whisper the ones that are online
 				friend = account_get_friend(conn_get_account(c),i);
-				dest_c = connlist_find_connection_by_name(friend,conn_get_realmname(c));
+				dest_c = connlist_find_connection_by_accountname(friend);
 				myusername = conn_get_username(c);
 				if (dest_c==NULL) //If friend is offline, go on to next
 					continue;
@@ -632,7 +632,7 @@ extern int handle_command(t_connection * c,  char const * text)
 			{
 				friend = account_get_friend(conn_get_account(c), i);
                 
-				if (!(dest_c = connlist_find_connection_by_name(friend,conn_get_realmname(c))))
+				if (!(dest_c = connlist_find_connection_by_accountname(friend)))
 					sprintf(status, ", offline");
 				else
 				{
@@ -3372,7 +3372,7 @@ extern int handle_login_whisper(t_connection * c, char const *tname)
 	for(i=0; i<n; i++) 
 	{ 
 	friend = account_get_friend(conn_get_account(c),i);
-	dest_c = connlist_find_connection_by_name(friend,conn_get_realmname(c));
+	dest_c = connlist_find_connection_by_accountname(friend);
 	myusername = conn_get_username(c);
 
 	sprintf(msg,"Your friend %s has entered the PvPGN Realm.",myusername);
@@ -3416,7 +3416,7 @@ extern int handle_joingame_whisper(t_connection *c, char const *gamename)
 	for(i=0; i<n; i++) 
 	{ 
 	friend = account_get_friend(conn_get_account(c),i);
-	dest_c = connlist_find_connection_by_name(friend,conn_get_realmname(c));
+	dest_c = connlist_find_connection_by_accountname(friend);
 	myusername = conn_get_username(c);
 		
 	sprintf(msg,"Your friend %s has entered game %s.",myusername,gamename);

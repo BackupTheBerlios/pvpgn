@@ -2069,7 +2069,7 @@ extern int handle_bnet_packet(t_connection * c, t_packet const * const packet)
 			friend = account_get_friend(conn_get_account(c),i);
 			packet_append_string(rpacket, friend);
 			memset(tmp, 0, 7);
-			if(connlist_find_connection_by_name(friend,conn_get_realmname(c)))
+			if(connlist_find_connection_by_accountname(friend))
 				tmp[1] = FRIENDSTATUS_ONLINE;
 			packet_append_data(rpacket, tmp, 7);
 		}
@@ -2118,7 +2118,7 @@ extern int handle_bnet_packet(t_connection * c, t_packet const * const packet)
 		// Updated - THEUNDYING 7/26/02 - Mutual Friends Check - Fixed by me w00t w00t
 		account = accountlist_find_account(friend); //Get the friends account
 		
-		if(!(dest_c = connlist_find_connection_by_name(friend,conn_get_realmname(c)))) 
+		if(!(dest_c = connlist_find_connection_by_accountname(friend))) 
 		{
 			bn_byte_set(&rpacket->u.server_friendinforeply.unknown1, 0);
 			bn_byte_set(&rpacket->u.server_friendinforeply.status, FRIENDSTATUS_OFFLINE);
@@ -2215,7 +2215,7 @@ extern int handle_bnet_packet(t_connection * c, t_packet const * const packet)
 			{
 				f = account_get_friend(conn_get_account(c), i);
 				
-				if(!(dest_c = connlist_find_connection_by_name(f, conn_get_realmname(c)))) 
+				if(!(dest_c = connlist_find_connection_by_accountname(f))) 
 					continue; // if user is offline, then continue to next friend
 				
 				if(account_check_mutual(conn_get_account(dest_c), myusername) == 0)
@@ -2325,7 +2325,7 @@ extern int handle_bnet_packet(t_connection * c, t_packet const * const packet)
 					
 			for(i=0; i < count_to_invite; i++)
 			{
-				if(!(dest_c = connlist_find_connection_by_name(invited_usernames[i], conn_get_realmname(c)))) 
+				if(!(dest_c = connlist_find_connection_by_accountname(invited_usernames[i]))) 
 					continue;
 
 				// [quetzal] 20020822 - set player's atid
@@ -2413,7 +2413,7 @@ extern int handle_bnet_packet(t_connection * c, t_packet const * const packet)
 			if(bn_int_get(packet->u.client_arrangedteam_accept_decline_invite.option)==CLIENT_ARRANGEDTEAM_DECLINE)
 			{
 				inviter = packet_get_str_const(packet,sizeof(t_client_arrangedteam_accept_decline_invite),USER_NAME_MAX);
-				dest_c = connlist_find_connection_by_name(inviter,conn_get_realmname(c));
+				dest_c = connlist_find_connection_by_accountname(inviter);
                 			   
 				eventlog(eventlog_level_info,"handle_bnet","%s declined a arranged team game with %s",conn_get_username(c),inviter);
                				
