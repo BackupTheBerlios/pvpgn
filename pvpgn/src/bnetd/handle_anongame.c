@@ -254,7 +254,12 @@ static int _client_anongame_profile(t_connection * c, t_packet const * const pac
 	//end of normal stats - Start of AT stats
 	temp=account_get_atteamcount(account,ctag);
 
-	if(temp>0)
+	if(temp<=0)
+        {
+          temp=0;
+	  packet_append_data(rpacket,&temp,1);
+        }
+	else
 	{
 	    /* [quetzal] 20020827 - partially rewritten AT part */
 	    int i, j, lvl, highest_lvl[6], cnt;
