@@ -779,6 +779,17 @@ W2BN_202
 
 # ==================== WARCRAFT3 entries =======================
 
+# Warcraft III Retail v1.04 (english)
+"A=3845581634 B=880823580 C=1363937103 4 A=A-S B=B-C C=C-A A=A-B" \
+IX86ver1.mpq \
+IX86 \
+WAR3 \
+"war3.exe 10/31/02 17:29:22 1068499" \
+0x00000004 \
+1.0.3.0 \
+0x56f4cc37 \
+WAR3_104
+
 # Warcraft III v1.03(a) RZR
 #"A=3845581634 B=880823580 C=1363937103 4 A=A-S B=B-C C=C-A A=A-B" \
 #IX86ver1.mpq \
