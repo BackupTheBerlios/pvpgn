@@ -769,7 +769,7 @@ static int sd_tcpoutput(t_connection * c)
 	{
 	case -1:
 		// [quetzal] 20020808 - marking connection as "destroyed", memory will be freed later
-		conn_set_state(c, conn_state_destroy);
+	    conn_set_state(c, conn_state_destroy);
 	    return -2;
 	    
 	case 0: /* still working on it */
@@ -791,8 +791,8 @@ static int sd_tcpoutput(t_connection * c)
 	    packet_del_ref(packet);
 	    conn_set_out_size(c,0);
 	    
-	    /* stop at about 2KB (or until out of packets or EWOULDBLOCK) */
-	    if (totsize>2048 || queue_get_length((t_queue const * const *)conn_get_out_queue(c))<1)
+	    /* stop at about BNETD_MAX_OUTBURST (or until out of packets or EWOULDBLOCK) */
+	    if (totsize>BNETD_MAX_OUTBURST || queue_get_length((t_queue const * const *)conn_get_out_queue(c))<1)
 		return 0;
 	    totsize += currsize;
 	    break;

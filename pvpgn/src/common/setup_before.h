@@ -171,6 +171,9 @@
 /* moved from account.h */
 #define MAX_FRIENDS 20
 
+/* maximum ammount of bytes sent in a single server.c/sd_tcpoutput call */
+#define BNETD_MAX_OUTBURST 16384
+
 /* default files relative to FILE_DIR */
 #define BNETD_TOS_FILE     "tos.txt"
 #define BNETD_ICON_FILE    "icons.bni"
