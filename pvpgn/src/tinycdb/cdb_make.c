@@ -5,11 +5,7 @@
  */
 
 #include "common/setup_before.h"
-#ifdef HAVE_UNISTD_H
-# include <unistd.h>
-#else
-# include <io.h>
-#endif
+#include <stdio.h>
 #ifdef STDC_HEADERS
 # include <stdlib.h>
 #else
@@ -40,7 +36,7 @@ cdb_pack(unsigned num, unsigned char buf[4])
 }
 
 int
-cdb_make_start(struct cdb_make *cdbmp, int fd)
+cdb_make_start(struct cdb_make *cdbmp, FILE *fd)
 {
   memset(cdbmp, 0, sizeof(*cdbmp));
   cdbmp->cdb_fd = fd;
@@ -50,10 +46,10 @@ cdb_make_start(struct cdb_make *cdbmp, int fd)
 }
 
 static int
-ewrite(int fd, const char *buf, int len)
+ewrite(FILE *fd, const char *buf, int len)
 {
   while(len) {
-    int l = write(fd, buf, len);
+    int l = fwrite(buf, 1, len, fd);
     if (l < 0 && errno != EINTR)
       return -1;
     len -= l;
@@ -162,8 +158,8 @@ cdb_make_finish_internal(struct cdb_make *cdbmp)
     cdb_pack(hpos[t], p + (t << 3));
     cdb_pack(hcnt[t], p + (t << 3) + 4);
   }
-  if (lseek(cdbmp->cdb_fd, 0, 0) != 0 ||
-      ewrite(cdbmp->cdb_fd, p, 2048) != 0)
+  rewind(cdbmp->cdb_fd);
+  if (ewrite(cdbmp->cdb_fd, p, 2048) != 0)
     return -1;
 
   return 0;

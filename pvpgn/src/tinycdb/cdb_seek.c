@@ -5,11 +5,7 @@
  */
 
 #include "common/setup_before.h"
-#ifdef HAVE_UNISTD_H
-# include <unistd.h>
-#else
-# include <io.h>
-#endif
+#include <stdio.h>
 #include "cdb_int.h"
 #include "common/setup_after.h"
 
@@ -20,11 +16,11 @@
 /* read a chunk from file, ignoring interrupts (EINTR) */
 
 int
-cdb_bread(int fd, void *buf, int len)
+cdb_bread(FILE *fd, void *buf, int len)
 {
   int l;
   while(len > 0) {
-    do l = read(fd, buf, len);
+    do l = fread(buf, 1, len, fd);
     while(l < 0 && errno == EINTR);
     if (l <= 0) {
       if (!l)
@@ -41,7 +37,7 @@ cdb_bread(int fd, void *buf, int len)
    place data length to *dlenp. */
 
 int
-cdb_seek(int fd, const void *key, unsigned klen, unsigned *dlenp)
+cdb_seek(FILE *fd, const void *key, unsigned klen, unsigned *dlenp)
 {
   unsigned htstart;		/* hash table start position */
   unsigned htsize;		/* number of elements in a hash table */
@@ -55,7 +51,7 @@ cdb_seek(int fd, const void *key, unsigned klen, unsigned *dlenp)
   hval = cdb_hash(key, klen);
   pos = (hval & 0xff) << 3; /* position in TOC */
   /* read the hash table parameters */
-  if (lseek(fd, pos, SEEK_SET) < 0 || cdb_bread(fd, rbuf, 8) < 0)
+  if (fseek(fd, pos, SEEK_SET) || cdb_bread(fd, rbuf, 8) < 0)
     return -1;
   if ((htsize = cdb_unpack(rbuf + 4)) == 0)
     return 0;
@@ -64,7 +60,7 @@ cdb_seek(int fd, const void *key, unsigned klen, unsigned *dlenp)
   htstart = cdb_unpack(rbuf);
 
   for(;;) {
-    if (needseek && lseek(fd, htstart + (hti << 3), SEEK_SET) < 0)
+    if (needseek && fseek(fd, htstart + (hti << 3), SEEK_SET))
       return -1;
     if (cdb_bread(fd, rbuf, 8) < 0)
       return -1;
@@ -74,7 +70,7 @@ cdb_seek(int fd, const void *key, unsigned klen, unsigned *dlenp)
     if (cdb_unpack(rbuf) != hval) /* hash value not matched */
       needseek = 0;
     else { /* hash value matched */
-      if (lseek(fd, pos, SEEK_SET) < 0 || cdb_bread(fd, rbuf, 8) < 0)
+      if (fseek(fd, pos, SEEK_SET) || cdb_bread(fd, rbuf, 8) < 0)
 	return -1;
       if (cdb_unpack(rbuf) == klen) { /* key length matches */
 	/* read the key from file and compare with wanted */

@@ -20,19 +20,7 @@
 # endif
 #endif
 #include <stdarg.h>
-#ifdef HAVE_UNISTD_H
-# include <unistd.h>
-#else
-#include <io.h>
-#endif
 #include "compat/getopt.h"
-#ifdef HAVE_FCNTL_H
-# include <fcntl.h>
-#else
-# ifdef HAVE_SYS_FILE_H
-#  include <sys/file.h>
-# endif
-#endif
 #include <errno.h>
 #include "cdb.h"
 #include "common/setup_after.h"
@@ -87,11 +75,12 @@ static int qmode(char *dbname, char *key, int num, int flags)
 {
   struct cdb c;
   struct cdb_find cf;
+  FILE *fd;
   int r;
   int n, found;
 
-  r = open(dbname, O_RDONLY);
-  if (r < 0 || cdb_init(&c, r) != 0)
+  fd = fopen(dbname, "rb");
+  if (fd == NULL || cdb_init(&c, fd) != 0)
     error(errno, "unable to open database `%s'", dbname);
 
   r = cdb_findinit(&cf, &c, key, strlen(key));
@@ -153,7 +142,7 @@ dmode(char *dbname, char mode, int flags)
   FILE *f;
   if (strcmp(dbname, "-") == 0)
     f = stdin;
-  else if ((f = fopen(dbname, "r")) == NULL)
+  else if ((f = fopen(dbname, "rb")) == NULL)
     error(errno, "open %s", dbname);
   allocbuf(2048);
   fget(f, buf, 2048, &pos, 2048);
@@ -195,7 +184,7 @@ static int smode(char *dbname) {
 
   if (strcmp(dbname, "-") == 0)
     f = stdin;
-  else if ((f = fopen(dbname, "r")) == NULL)
+  else if ((f = fopen(dbname, "rb")) == NULL)
     error(errno, "open %s", dbname);
 
   pos = 0;
@@ -366,15 +355,15 @@ static int
 cmode(char *dbname, char *tmpname, int argc, char **argv, int flags)
 {
   struct cdb_make cdb;
-  int fd;
+  FILE *fd;
   if (!tmpname) {
     tmpname = (char*)malloc(strlen(dbname) + 5);
     if (!tmpname)
       error(ENOMEM, "unable to allocate memory");
     strcat(strcpy(tmpname, dbname), ".tmp");
   }
-  fd = open(tmpname, O_RDWR | O_CREAT | O_TRUNC, 0644);
-  if (fd < 0)
+  fd = fopen(tmpname, "w+b");
+  if (fd == 0)
     error(errno, "unable to create %s", tmpname);
   cdb_make_start(&cdb, fd);
   allocbuf(4096);
@@ -384,7 +373,7 @@ cmode(char *dbname, char *tmpname, int argc, char **argv, int flags)
       if (strcmp(argv[i], "-") == 0)
         dofile(&cdb, stdin, "(stdin)", flags);
       else {
-        FILE *f = fopen(argv[i], "r");
+        FILE *f = fopen(argv[i], "rb");
         if (!f)
           error(errno, "%s", argv[i]);
         dofile(&cdb, f, argv[i], flags);
@@ -396,7 +385,7 @@ cmode(char *dbname, char *tmpname, int argc, char **argv, int flags)
     dofile(&cdb, stdin, "(stdin)", flags);
   if (cdb_make_finish(&cdb) != 0)
     error(errno, "cdb_make_finish");
-  close(fd);
+  fclose(fd);
   if (rename(tmpname, dbname) != 0)
     error(errno, "rename %s->%s", tmpname, dbname);
   return 0;

@@ -5,6 +5,7 @@
  */
 
 #include "common/setup_before.h"
+#include <stdio.h>
 #ifdef HAVE_SYS_STAT_H
 # include <sys/stat.h>
 #endif
@@ -13,22 +14,22 @@
 #include "common/setup_after.h"
 
 int
-cdb_init(struct cdb *cdbp, int fd)
+cdb_init(struct cdb *cdbp, FILE *fd)
 {
-  struct stat st;
   unsigned char *mem;
   unsigned fsize, dend;
 
   /* get file size */
-  if (fstat(fd, &st) < 0)
+  if (fseek(fd, 0, SEEK_END))
     return -1;
+  fsize = (unsigned)(ftell(fd));
+  rewind(fd);
   /* trivial sanity check: at least toc should be here */
-  if (st.st_size < 2048)
+  if (fsize < 2048)
     return errno = EPROTO, -1;
-  fsize = (unsigned)(st.st_size & 0xffffffffu);
 
   /* memory-map file */
-  if ((mem = pmmap(NULL, fsize, PROT_READ, MAP_SHARED, fd, 0)) ==
+  if ((mem = pmmap(NULL, fsize, PROT_READ, MAP_SHARED, fileno(fd), 0)) ==
       (unsigned char *)-1)
     return -1;
 
