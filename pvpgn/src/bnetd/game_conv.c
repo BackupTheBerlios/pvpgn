@@ -1116,38 +1116,28 @@ If the corresponding bit is a '0' then subtract 1 from the character.
      * for example, 34 = (32*3) x (32*4) = 96 x 128
      */
     /* special handling for mapsize. empty is 256x256 */
-    if (mapsize[0]!='\0')
-        str_to_uint(mapsize,&bngmapsize);
-    else
+    if ((mapsize[0]!='\0') || (str_to_uint(mapsize,&bngmapsize)<0))
 	bngmapsize = 88; /* 256x256 */
     game_set_mapsize_x(game,(bngmapsize/10)*32);
     game_set_mapsize_y(game,(bngmapsize%10)*32);
     
     /* special handling for maxplayers, empty is 8 */
-    if (maxplayers[0]!='\0')
-	str_to_uint(maxplayers,&bngmaxplayers);
-    else
+    if ((maxplayers[0]!='\0') || (str_to_uint(maxplayers,&bngmaxplayers)<0))
 	bngmaxplayers = 8;
     game_set_maxplayers(game,(bngmaxplayers%10));
     
     /* special handling for gamespeed. empty is fast */
-    if (speed[0]!='\0')
-        str_to_uint(speed,&bngspeed);
-    else
+    if ((speed[0]!='\0') || ( str_to_uint(speed,&bngspeed)<0))
 	bngspeed = CLIENT_GAMESPEED_FAST;
     game_set_speed(game,bngspeed_to_gspeed(bngspeed));
     
     /* special handling for maptype. empty is self-made */
-    if (maptype[0]!='\0')
-        str_to_uint(maptype,&bngmaptype);
-    else
+    if ((maptype[0]!='\0') || (str_to_uint(maptype,&bngmaptype)<0))
 	bngmaptype = CLIENT_MAPTYPE_SELFMADE;
     game_set_maptype(game,bngmaptype_to_gmaptype(bngmaptype));
     
     /* special handling for tileset. empty is badlands */
-    if (tileset[0]!='\0')
-        str_to_uint(tileset,&bngtileset);
-    else
+    if ((tileset[0]!='\0') || (str_to_uint(tileset,&bngtileset)<0))
 	bngtileset = CLIENT_TILESET_BADLANDS;
     game_set_tileset(game,bngtileset_to_gtileset(bngtileset));
     
