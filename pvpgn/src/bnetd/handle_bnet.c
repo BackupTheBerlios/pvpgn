@@ -2917,6 +2917,8 @@ static int _client_findanongame(t_connection * c, t_packet const * const packet)
 	int Count;
 	int temp;
 	t_account * account; 
+	t_connection * dest_c;
+	char const * ctag;
 	
 	Count = bn_int_get(packet->u.client_findanongame.count);
 	eventlog(eventlog_level_info,__FUNCTION__,"[%d] got a FINDANONGAME PROFILE packet",conn_get_socket(c));
@@ -2930,13 +2932,19 @@ static int _client_findanongame(t_connection * c, t_packet const * const packet)
 	//If no account is found then break
 	if (!(account = accountlist_find_account(username)))
 	  {				
-	     eventlog(eventlog_level_error,"handle_bnet","Could not get account - PROFILE");
+	     eventlog(eventlog_level_error, __FUNCTION__, "Could not get account - PROFILE");
 	     return -1;
 	  }										
 	
+	if (!(dest_c = connlist_find_connection_by_accountname(username))) {
+	    eventlog(eventlog_level_error, __FUNCTION__, "account is offline (profile request)");
+	    return -1;
+	}
+
 	eventlog(eventlog_level_info,__FUNCTION__,"Looking up %s's WAR3 Stats.",username);
-			
-	if (account_get_sololevel(account,ct)==0 && account_get_teamlevel(account,ct)==0 && account_get_atteamcount(account,ct)==0)
+
+	ctag = conn_get_clienttag(dest_c);
+	if (account_get_sololevel(account,ctag)==0 && account_get_teamlevel(account,ct)==0 && account_get_atteamcount(account,ctag)==0)
 	  {
 	     eventlog(eventlog_level_info,__FUNCTION__,"%s does not have WAR3 Stats.",username);
 	     if (!(rpacket = packet_create(packet_class_bnet)))
@@ -2954,34 +2962,34 @@ static int _client_findanongame(t_connection * c, t_packet const * const packet)
 	  }
 	else // If they do have a profile then:
 	  {
-	     int solowins=account_get_solowin(account,ct); 
-	     int sololoss=account_get_sololoss(account,ct);
-	     int soloxp=account_get_soloxp(account,ct);
-	     int sololevel=account_get_sololevel(account,ct);
-	     int solorank=account_get_solorank(account,ct);
+	     int solowins=account_get_solowin(account,ctag); 
+	     int sololoss=account_get_sololoss(account,ctag);
+	     int soloxp=account_get_soloxp(account,ctag);
+	     int sololevel=account_get_sololevel(account,ctag);
+	     int solorank=account_get_solorank(account,ctag);
 	     
-	     int teamwins=account_get_teamwin(account,ct);
-	     int teamloss=account_get_teamloss(account,ct);
-	     int teamxp=account_get_teamxp(account,ct);
-	     int teamlevel=account_get_teamlevel(account,ct);
-	     int teamrank=account_get_teamrank(account,ct);
+	     int teamwins=account_get_teamwin(account,ctag);
+	     int teamloss=account_get_teamloss(account,ctag);
+	     int teamxp=account_get_teamxp(account,ctag);
+	     int teamlevel=account_get_teamlevel(account,ctag);
+	     int teamrank=account_get_teamrank(account,ctag);
 	     
-	     int ffawins=account_get_ffawin(account,ct);
-	     int ffaloss=account_get_ffaloss(account,ct);
-	     int ffaxp=account_get_ffaxp(account,ct);
-	     int ffalevel=account_get_ffalevel(account,ct);
-	     int ffarank=account_get_ffarank(account,ct);
+	     int ffawins=account_get_ffawin(account,ctag);
+	     int ffaloss=account_get_ffaloss(account,ctag);
+	     int ffaxp=account_get_ffaxp(account,ctag);
+	     int ffalevel=account_get_ffalevel(account,ctag);
+	     int ffarank=account_get_ffarank(account,ctag);
 	     
-	     int humanwins=account_get_racewin(account,1,ct);
-	     int humanlosses=account_get_raceloss(account,1,ct);
-	     int orcwins=account_get_racewin(account,2,ct);
-	     int orclosses=account_get_raceloss(account,2,ct);
-	     int undeadwins=account_get_racewin(account,8,ct);
-	     int undeadlosses=account_get_raceloss(account,8,ct);
-	     int nightelfwins=account_get_racewin(account,4,ct);
-	     int nightelflosses=account_get_raceloss(account,4,ct);
-	     int randomwins=account_get_racewin(account,0,ct);
-	     int randomlosses=account_get_raceloss(account,0,ct);
+	     int humanwins=account_get_racewin(account,1,ctag);
+	     int humanlosses=account_get_raceloss(account,1,ctag);
+	     int orcwins=account_get_racewin(account,2,ctag);
+	     int orclosses=account_get_raceloss(account,2,ctag);
+	     int undeadwins=account_get_racewin(account,8,ctag);
+	     int undeadlosses=account_get_raceloss(account,8,ctag);
+	     int nightelfwins=account_get_racewin(account,4,ctag);
+	     int nightelflosses=account_get_raceloss(account,4,ctag);
+	     int randomwins=account_get_racewin(account,0,ctag);
+	     int randomlosses=account_get_raceloss(account,0,ctag);
 	     
 	     unsigned char rescount;
 	     
@@ -2991,7 +2999,7 @@ static int _client_findanongame(t_connection * c, t_packet const * const packet)
 	     packet_set_type(rpacket,SERVER_FINDANONGAME_PROFILE);
 	     bn_byte_set(&rpacket->u.server_findanongame_profile2.option,SERVER_FINDANONGAME_PROFILE_OPTION);
 	     bn_int_set(&rpacket->u.server_findanongame_profile2.count,Count); //job count
-	     bn_int_set(&rpacket->u.server_findanongame_profile2.unknown1,account_get_icon_profile(account,ct));
+	     bn_int_set(&rpacket->u.server_findanongame_profile2.unknown1,account_get_icon_profile(account,ctag));
 	     rescount = 0;
 	     if (sololevel) {
 		temp=0x534F4C4F; // SOLO backwards
@@ -3052,26 +3060,27 @@ static int _client_findanongame(t_connection * c, t_packet const * const packet)
 	     temp=0;
 	     packet_append_data(rpacket,&temp,4);
 	     //end of normal stats - Start of AT stats
-	     temp=account_get_atteamcount(account,ct);
-				if (account_get_atteammembers(account, temp,ct) == NULL && temp > 0) {
-					temp = temp - 1;
-					eventlog(eventlog_level_error, "handle_bnet_packet", "teammembers is NULL : Decrease atteamcount of 1 !");
-					account_set_atteamcount(account,ct,temp);
-				}
+	     temp=account_get_atteamcount(account,ctag);
+	     if (account_get_atteammembers(account, temp,ctag) == NULL && temp > 0) {
+		temp = temp - 1;
+		eventlog(eventlog_level_error, "handle_bnet_packet", "teammembers is NULL : Decrease atteamcount of 1 !");
+		account_set_atteamcount(account,ctag,temp);
+	     }
+
 	     if (temp > 6) temp = 6; //byte (num of AT teams) 
 	     
 	     packet_append_data(rpacket,&temp,1); 
 	     
-	     if(account_get_atteamcount(account,ct)>0)
+	     if(temp>0)
 	       {
 		  // [quetzal] 20020827 - partially rewritten AT part
-		  int i, j, lvl, highest_lvl[6], cnt = account_get_atteamcount(account,ct);
+		  int i, j, lvl, highest_lvl[6], cnt = account_get_atteamcount(account,ctag);
 		  // allocate array for teamlevels
 		  int *teamlevels = malloc(cnt * sizeof(int));
 		  
 		  // populate our array
 		  for (i = 0; i < cnt; i++) {
-		     teamlevels[i] = account_get_atteamlevel(account, i+1,ct);
+		     teamlevels[i] = account_get_atteamlevel(account, i+1,ctag);
 		  }
 		  
 		  // now lets pick indices of 6 highest levels
@@ -3094,32 +3103,32 @@ static int _client_findanongame(t_connection * c, t_packet const * const packet)
 		  for(i = 0; i < j; i++)
 		    {
 		       int n = highest_lvl[i] + 1;
-		       int teamsize = account_get_atteamsize(account, n, ct);
+		       int teamsize = account_get_atteamsize(account, n, ctag);
 		       char * teammembers = NULL, *self = NULL, *p2, *p3;
 		       int teamtype[] = {0, 0x32565332, 0x33565333, 0x34565334, 0x35565335, 0x36565336};
 		       
 		       // [quetzal] 20020907 - sometimes we get NULL string, even if
 		       // teamcount is not 0. that should prevent crash.
-		       if (!account_get_atteammembers(account, n,ct) || teamsize < 1 || teamsize > 5) continue;
+		       if (!account_get_atteammembers(account, n,ctag) || teamsize < 1 || teamsize > 5) continue;
 		       
-		       p2 = p3 = teammembers = strdup(account_get_atteammembers(account, n,ct));
+		       p2 = p3 = teammembers = strdup(account_get_atteammembers(account, n,ctag));
 		       
 		       eventlog(eventlog_level_debug, __FUNCTION__, 
 				"profile/AT - processing team %d", n);
 		       
 		       temp = teamtype[teamsize];
 		       packet_append_data(rpacket,&temp,4);
-		       temp=account_get_atteamwin(account,n,ct); //at team wins
+		       temp=account_get_atteamwin(account,n,ctag); //at team wins
 		       packet_append_data(rpacket,&temp,2);
-		       temp=account_get_atteamloss(account,n,ct); //at team losses
+		       temp=account_get_atteamloss(account,n,ctag); //at team losses
 		       packet_append_data(rpacket,&temp,2);
-		       temp=account_get_atteamlevel(account,n,ct); 
+		       temp=account_get_atteamlevel(account,n,ctag); 
 		       packet_append_data(rpacket,&temp,1);
-		       temp=account_get_profile_calcs(account,account_get_atteamxp(account,n,ct),account_get_atteamlevel(account,n,ct)); // xp bar calc
+		       temp=account_get_profile_calcs(account,account_get_atteamxp(account,n,ctag),account_get_atteamlevel(account,n,ctag)); // xp bar calc
 		       packet_append_data(rpacket,&temp,1);
-		       temp=account_get_atteamxp(account,n,ct);
+		       temp=account_get_atteamxp(account,n,ctag);
 		       packet_append_data(rpacket,&temp,2);
-		       temp=account_get_atteamrank(account,n,ct);; //rank on AT ladder
+		       temp=account_get_atteamrank(account,n,ctag);; //rank on AT ladder
 		       packet_append_data(rpacket,&temp,4);
 		       temp=0;
 		       packet_append_data(rpacket,&temp,4); //some unknown packet? random shit
