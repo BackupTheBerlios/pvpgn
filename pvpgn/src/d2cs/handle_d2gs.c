@@ -111,6 +111,7 @@ static void d2gs_send_init_info(t_d2gs * gs, t_connection * c)
 	if ((rpacket=packet_create(packet_class_d2gs))) {
 		packet_set_size(rpacket,sizeof(t_d2cs_d2gs_setinitinfo));
 		packet_set_type(rpacket,D2CS_D2GS_SETINITINFO);
+		bn_int_set(&rpacket->u.d2cs_d2gs_setinitinfo.h.seqno,0);
 		bn_int_set(&rpacket->u.d2cs_d2gs_setinitinfo.time, time(NULL));
 		bn_int_set(&rpacket->u.d2cs_d2gs_setinitinfo.gs_id, d2gs_get_id(gs));
 		bn_int_set(&rpacket->u.d2cs_d2gs_setinitinfo.ac_version, 0);
@@ -181,6 +182,7 @@ static int on_d2gs_authreply(t_connection * c, t_packet * packet)
 	if ((rpacket=packet_create(packet_class_d2gs))) {
 		packet_set_size(rpacket,sizeof(t_d2cs_d2gs_authreply));
 		packet_set_type(rpacket,D2CS_D2GS_AUTHREPLY);
+		bn_int_set(&rpacket->u.d2cs_d2gs_authreply.h.seqno,0);
 		bn_int_set(&rpacket->u.d2cs_d2gs_authreply.reply,reply);
 		queue_push_packet(d2cs_conn_get_out_queue(c),rpacket);
 		packet_del_ref(rpacket);
@@ -210,6 +212,7 @@ static int on_d2gs_setgsinfo(t_connection * c, t_packet * packet)
         if ((rpacket=packet_create(packet_class_d2gs))) {
 	    packet_set_size(rpacket,sizeof(t_d2cs_d2gs_setgsinfo));
 	    packet_set_type(rpacket,D2CS_D2GS_SETGSINFO);
+	    bn_int_set(&rpacket->u.d2cs_d2gs_setgsinfo.h.seqno,0);
 	    bn_int_set(&rpacket->u.d2cs_d2gs_setgsinfo.maxgame,maxgame);
 	    bn_int_set(&rpacket->u.d2cs_d2gs_setgsinfo.gameflag,gameflag);
 	    queue_push_packet(d2cs_conn_get_out_queue(c),rpacket);
@@ -439,6 +442,7 @@ extern int handle_d2gs_init(t_connection * c)
 	if ((packet=packet_create(packet_class_d2gs))) {
 		packet_set_size(packet,sizeof(t_d2cs_d2gs_authreq));
 		packet_set_type(packet,D2CS_D2GS_AUTHREQ);
+		bn_int_set(&packet->u.d2cs_d2gs_authreq.h.seqno,0);
 		bn_int_set(&packet->u.d2cs_d2gs_authreq.sessionnum,d2cs_conn_get_sessionnum(c));
 		bn_int_set(&packet->u.d2cs_d2gs_authreq.signlen, 0);
 		packet_append_string(packet,prefs_get_realmname());
