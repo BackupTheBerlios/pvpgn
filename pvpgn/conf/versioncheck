@@ -82,6 +82,18 @@
  0xa9c022bd \
  WAR3_112A
 
+# Diablo II - LoD (Expansion) 1.10 
+"A=3845581634 B=880823580 C=1363937103 4 A=A-S B=B-C C=C-A A=A-B" \ 
+ IX86ver1.mpq \ 
+ IX86 \ 
+ D2XP \ 
+ "Game.exe 10/13/03 08:35:30 1198857" \ 
+ 0x0000000a \ 
+ 1.0.10.0 \ 
+ 0x210126ec \ 
+ D2XP_110 
+
+
 # Diablo II - LoD (Expansion) 1.09d
 "A=3845581634 B=880823580 C=1363937103 4 A=A-S B=B-C C=C-A A=A-B" \
  IX86ver1.mpq \
