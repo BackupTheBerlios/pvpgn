@@ -16,8 +16,8 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifndef INCLUDED_LADDER_PROTOS
-#define INCLUDED_LADDER_PROTOS
+#ifndef INCLUDED_SUPPORT_PROTOS
+#define INCLUDED_SUPPORT_PROTOS
 
 extern int support_check_files(char const * supportfile);
 

@@ -92,6 +92,7 @@
 #include "clan.h"
 #include "topic.h"
 #include "w3trans.h"
+#include "support.h"
 #include "common/setup_after.h"
 
 #ifdef WIN32
