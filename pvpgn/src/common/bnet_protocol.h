@@ -2698,9 +2698,15 @@ typedef struct
 {
     t_bnet_header h;
     bn_int        gamecount;
-    bn_int  unknown; // dirty hack! -- in yak
+    bn_int	  sstatus; /* when reply with error to specific game */
     /* games */
 } t_server_gamelistreply PACKED_ATTR();
+
+#define SERVER_GAMELISTREPLY_GAME_SSTATUS_NOTFOUND	0x0 /* but also any other value diff from the ones bellow */
+#define SERVER_GAMELISTREPLY_GAME_SSTATUS_PASS		0x2 /* password incorrect */
+#define SERVER_GAMELISTREPLY_GAME_SSTATUS_FULL		0x3 /* game full */
+#define SERVER_GAMELISTREPLY_GAME_SSTATUS_STARTED	0x4 /* game started */
+#define SERVER_GAMELISTREPLY_GAME_SSTATUS_NOSPAWNCDKEY	0x5 /* trying to use a spawn install join invalid cdkey creator game */
 
 typedef struct
 {

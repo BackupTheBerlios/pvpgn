@@ -3866,6 +3866,7 @@ static int _client_gamelistreq(t_connection * c, t_packet const * const packet)
 	    
      {
 	char const *                gamename;
+	char const *                gamepass;
 	unsigned short              bngtype;
 	t_game_type                 gtype;
 	char const *		    clienttag;
@@ -3881,7 +3882,13 @@ static int _client_gamelistreq(t_connection * c, t_packet const * const packet)
 	     eventlog(eventlog_level_error,__FUNCTION__,"[%d] got bad GAMELISTREQ (missing or too long gamename)",conn_get_socket(c));
 	     return -1;
 	  }
-	
+
+	if (!(gamepass = packet_get_str_const(packet,sizeof(t_client_gamelistreq) + strlen(gamename) + 1,GAME_PASS_LEN)))
+	  {
+	     eventlog(eventlog_level_error,__FUNCTION__,"[%d] got bad GAMELISTREQ (missing or too long password)",conn_get_socket(c));
+	     return -1;
+	  }
+
 	bngtype = bn_short_get(packet->u.client_gamelistreq.gametype);
 	clienttag = conn_get_clienttag(c);
 	gtype = bngreqtype_to_gtype(clienttag,bngtype);
@@ -3893,59 +3900,67 @@ static int _client_gamelistreq(t_connection * c, t_packet const * const packet)
 	  return -1;
 	packet_set_size(rpacket,sizeof(t_server_gamelistreply));
 	packet_set_type(rpacket,SERVER_GAMELISTREPLY);
-	
-	// re added by bbf (yak)
-	bn_int_set(&rpacket->u.server_gamelistreply.unknown,0); // yak
-	
+
+	bn_int_set(&rpacket->u.server_gamelistreply.sstatus,0);
+
 	/* specific game requested? */
 	if (gamename[0]!='\0')
 	  {
-	     eventlog(eventlog_level_debug,__FUNCTION__,"[%d] GAMELISTREPLY looking for specific game tag=\"%s\" bngtype=0x%08x gtype=%d name=\"%s\"",conn_get_socket(c),clienttag,bngtype,(int)gtype,gamename);
+	     eventlog(eventlog_level_debug,__FUNCTION__,"[%d] GAMELISTREPLY looking for specific game tag=\"%s\" bngtype=0x%08x gtype=%d name=\"%s\" pass=\"%s\"",conn_get_socket(c),clienttag,bngtype,(int)gtype,gamename,gamepass);
 	     if ((game = gamelist_find_game(gamename,gtype)))
 	       {
-		  //	removed by bbf (yak)
-		  //			bn_int_set(&glgame.unknown7,SERVER_GAMELISTREPLY_GAME_UNKNOWN7); // not in yak
-		  bn_short_set(&glgame.gametype,gtype_to_bngtype(game_get_type(game)));
-		  bn_short_set(&glgame.unknown1,SERVER_GAMELISTREPLY_GAME_UNKNOWN1);
-		  bn_short_set(&glgame.unknown3,SERVER_GAMELISTREPLY_GAME_UNKNOWN3);
-		  addr = game_get_addr(game);
-		  port = game_get_port(game);
-		  gametrans_net(conn_get_addr(c),conn_get_port(c),conn_get_local_addr(c),conn_get_local_port(c),&addr,&port);
-		  bn_short_nset(&glgame.port,port);
-		  bn_int_nset(&glgame.game_ip,addr);
-		  bn_int_set(&glgame.unknown4,SERVER_GAMELISTREPLY_GAME_UNKNOWN4);
-		  bn_int_set(&glgame.unknown5,SERVER_GAMELISTREPLY_GAME_UNKNOWN5);
+		/* game found but first we need to make sure everything is OK */
+		  bn_int_set(&rpacket->u.server_gamelistreply.gamecount,0);
 		  switch (game_get_status(game))
 		    {
 		     case game_status_started:
-		       bn_int_set(&glgame.status,SERVER_GAMELISTREPLY_GAME_STATUS_STARTED);
+		       bn_int_set(&rpacket->u.server_gamelistreply.sstatus, SERVER_GAMELISTREPLY_GAME_SSTATUS_STARTED);
+		       eventlog(eventlog_level_debug,__FUNCTION__,"[%d] GAMELISTREPLY found but started",conn_get_socket(c));
 		       break;
 		     case game_status_full:
-		       bn_int_set(&glgame.status,SERVER_GAMELISTREPLY_GAME_STATUS_FULL);
-		       break;
-		     case game_status_open:
-		       bn_int_set(&glgame.status,SERVER_GAMELISTREPLY_GAME_STATUS_OPEN);
+		       bn_int_set(&rpacket->u.server_gamelistreply.sstatus, SERVER_GAMELISTREPLY_GAME_SSTATUS_FULL);
+		       eventlog(eventlog_level_debug,__FUNCTION__,"[%d] GAMELISTREPLY found but full",conn_get_socket(c));
 		       break;
 		     case game_status_done:
-		       bn_int_set(&glgame.status,SERVER_GAMELISTREPLY_GAME_STATUS_DONE);
+		       bn_int_set(&rpacket->u.server_gamelistreply.sstatus, SERVER_GAMELISTREPLY_GAME_SSTATUS_NOTFOUND);
+		       eventlog(eventlog_level_debug,__FUNCTION__,"[%d] GAMELISTREPLY found but done",conn_get_socket(c));
+		       break;
+		     case game_status_open:
+		       if (strcmp(gamepass, game_get_pass(game))) { /* passworded game must match password in request */
+		          bn_int_set(&rpacket->u.server_gamelistreply.sstatus, SERVER_GAMELISTREPLY_GAME_SSTATUS_PASS);
+		          eventlog(eventlog_level_debug,__FUNCTION__,"[%d] GAMELISTREPLY found but is password protected and wrong password given",conn_get_socket(c));
+			  break;
+		       }
+
+		       /* everything seems fine, lets reply with the found game */
+		       bn_int_set(&glgame.status,SERVER_GAMELISTREPLY_GAME_STATUS_OPEN);
+		       bn_short_set(&glgame.gametype,gtype_to_bngtype(game_get_type(game)));
+		       bn_short_set(&glgame.unknown1,SERVER_GAMELISTREPLY_GAME_UNKNOWN1);
+		       bn_short_set(&glgame.unknown3,SERVER_GAMELISTREPLY_GAME_UNKNOWN3);
+		       addr = game_get_addr(game);
+		       port = game_get_port(game);
+		       gametrans_net(conn_get_addr(c),conn_get_port(c),conn_get_local_addr(c),conn_get_local_port(c),&addr,&port);
+		       bn_short_nset(&glgame.port,port);
+		       bn_int_nset(&glgame.game_ip,addr);
+		       bn_int_set(&glgame.unknown4,SERVER_GAMELISTREPLY_GAME_UNKNOWN4);
+		       bn_int_set(&glgame.unknown5,SERVER_GAMELISTREPLY_GAME_UNKNOWN5);
+		       bn_int_set(&glgame.unknown6,SERVER_GAMELISTREPLY_GAME_UNKNOWN6);
+
+		       packet_append_data(rpacket,&glgame,sizeof(glgame));
+		       packet_append_string(rpacket,game_get_name(game));
+		       packet_append_string(rpacket,game_get_pass(game));
+		       packet_append_string(rpacket,game_get_info(game));
+		       bn_int_set(&rpacket->u.server_gamelistreply.gamecount,1);
+		       eventlog(eventlog_level_debug,__FUNCTION__,"[%d] GAMELISTREPLY specific game found",conn_get_socket(c));
 		       break;
 		     default:
 		       eventlog(eventlog_level_warn,__FUNCTION__,"[%d] game \"%s\" has bad status %d",conn_get_socket(c),game_get_name(game),game_get_status(game));
-		       bn_int_set(&glgame.status,0);
 		    }
-		  bn_int_set(&glgame.unknown6,SERVER_GAMELISTREPLY_GAME_UNKNOWN6);
-		  
-		  packet_append_data(rpacket,&glgame,sizeof(glgame));
-		  packet_append_string(rpacket,game_get_name(game));
-		  packet_append_string(rpacket,game_get_pass(game));
-		  packet_append_string(rpacket,game_get_info(game));
-		  bn_int_set(&rpacket->u.server_gamelistreply.gamecount,1);
-		  eventlog(eventlog_level_debug,__FUNCTION__,"[%d] GAMELISTREPLY found it",conn_get_socket(c));
 	       }
 	     else
 	       {
 		  bn_int_set(&rpacket->u.server_gamelistreply.gamecount,0);
-		  eventlog(eventlog_level_debug,__FUNCTION__,"[%d] GAMELISTREPLY doesn't seem to exist",conn_get_socket(c));
+		  eventlog(eventlog_level_debug,__FUNCTION__,"[%d] GAMELISTREPLY specific game doesn't seem to exist",conn_get_socket(c));
 	       }
 	  }
 	else /* list all public games of this type */
