@@ -629,12 +629,15 @@ int d2ladder_print_XML(FILE *ladderstrm)
                        type,laddermode[overalltype],charclass[classtype]);
     for(i=0; i<d2ladder->len; i++)
       {
-	fprintf(ladderstrm,"\t<char>\n\t\t<rank>%2d</rank>\n\t\t<name>%s</name>\n\t\t<level>%2d</level>\n",
-		           i+1,ldata[i].charname,ldata[i].level);
-	fprintf(ladderstrm,"\t\t<experience>%d</experience>\n\t\t<status>%2X</status>\n\t\t<unk>%1X</unk>\n",
-		           ldata[i].experience,ldata[i].status,1);
-	fprintf(ladderstrm,"\t\t<class>%s</class>\n\t</char>\n",
-		           charclass[ldata[i].class+1]);
+      	if ((ldata[i].charname != NULL) && (ldata[i].charname[0] != '\0'))
+      	{
+	  fprintf(ladderstrm,"\t<char>\n\t\t<rank>%2d</rank>\n\t\t<name>%s</name>\n\t\t<level>%2d</level>\n",
+		             i+1,ldata[i].charname,ldata[i].level);
+	  fprintf(ladderstrm,"\t\t<experience>%d</experience>\n\t\t<status>%2X</status>\n\t\t<unk>%1X</unk>\n",
+		             ldata[i].experience,ldata[i].status,1);
+	  fprintf(ladderstrm,"\t\t<class>%s</class>\n\t</char>\n",
+		             charclass[ldata[i].class+1]);
+	}
       }
     fprintf(ladderstrm,"</ladder>\n");
     fflush(ladderstrm);
