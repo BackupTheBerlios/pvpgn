@@ -108,7 +108,7 @@ extern int trans_load(char const * filename, int program)
 	    xfree(buff);
 	    continue;
 	}
-	*temp++;
+	temp++;
 	/* bnetd doesn't want the port 4000 entries */
 	if (program==TRANS_BNETD  && strcmp(temp,"4000")==0) {
 #ifdef DEBUG_TRANS
