@@ -98,8 +98,7 @@ static t_realm * realm_create(char const * name, char const * description, unsig
     realm->game_number = 0;
     realm->sessionnum = 0;
     realm->tcp_sock = 0;
-    realm->rcm = xmalloc(sizeof(t_rcm));
-    rcm_init(realm->rcm);
+    rcm_init(&realm->rcm);
 
     eventlog(eventlog_level_info,__FUNCTION__,"created realm \"%s\"",name);
     return realm;
@@ -117,7 +116,6 @@ static int realm_destroy(t_realm * realm)
     if (realm->active)
     	realm_deactive(realm);
 
-    xfree((void *)realm->rcm);
     xfree((void *)realm->name); /* avoid warning */
     xfree((void *)realm->description); /* avoid warning */
     xfree((void *)realm); /* avoid warning */
@@ -463,7 +461,6 @@ extern int realmlist_reload(char const * filename)
     int match;
     t_list * newlist = NULL;
     t_list * oldlist = realmlist_head;
-    t_rcm * tmp;
 
     realmlist_head = NULL;
 
@@ -491,17 +488,14 @@ extern int realmlist_reload(char const * filename)
 	    if (!strcmp(old_realm->name,new_realm->name))
 	    {
 		match = 1;
-		rcm_chref(old_realm->rcm,new_realm);
-		tmp = new_realm->rcm;
-		new_realm->rcm = old_realm->rcm;
-		old_realm->rcm = tmp;
+		rcm_chref(&old_realm->rcm,new_realm);
 		
 		break;
 	    }
 
 	}
 	if (!match)
-	  rcm_chref(old_realm->rcm,NULL);
+	  rcm_chref(&old_realm->rcm,NULL);
 
 	realm_destroy(old_realm);
         list_remove_elem(oldlist,&old_curr);
@@ -605,13 +599,11 @@ extern t_connection * realm_get_conn(t_realm * realm)
 
 extern t_realm * realm_get(t_realm * realm, t_rcm_regref * regref)
 {
-	rcm_get(realm->rcm,regref);
+	rcm_get(&realm->rcm,regref);
 	return realm;
 }
 
 extern void realm_put(t_realm * realm, t_rcm_regref * regref)
 {
-	rcm_put(realm->rcm,regref);
+	rcm_put(&realm->rcm,regref);
 }
-	
-

@@ -45,7 +45,7 @@ typedef struct realm
     unsigned int   game_number;
     int		   tcp_sock;
     struct	   connection * conn;
-    t_rcm	   * rcm;
+    t_rcm	   rcm;
 }
 #endif
 t_realm;

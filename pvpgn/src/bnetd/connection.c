@@ -2762,11 +2762,18 @@ extern int conn_set_realm_cb(void *data, void *newref)
     t_connection *c = (t_connection*)data;
     t_realm *newrealm = (t_realm*)newref;
 
-    c->protocol.d2.realm = newrealm;
+    assert(c->protocol.d2.realm);	/* this should never be NULL here */
 
-    /* close the connection for players on unconfigured realms */
-    if (!newrealm)
+    /* we are removing a reference */
+    realm_put(c->protocol.d2.realm,&c->protocol.d2.realm_regref);
+
+    if (newrealm)
+	c->protocol.d2.realm = realm_get(newrealm,&c->protocol.d2.realm_regref);
+    else {
+	/* close the connection for players on unconfigured realms */
     	conn_set_state(c,conn_state_destroy);
+	c->protocol.d2.realm = NULL;
+    }
 
     return 0;
 }
