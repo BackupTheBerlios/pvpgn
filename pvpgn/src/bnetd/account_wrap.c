@@ -1873,10 +1873,51 @@ extern int account_get_friendcount( t_account * account )
     return account_get_numattr( account, "friend\\count" );
 }
 
+extern int account_add_friend( t_account * my_acc, t_account * facc)
+{
+    unsigned my_uid = account_get_uid(my_acc);
+    unsigned fuid = account_get_uid(facc);
+    int nf;
+    t_list *flist;
+
+    if (my_acc == NULL || facc == NULL) {
+	eventlog(eventlog_level_error, __FUNCTION__, "got NULL account");
+	return -1;
+    }
+
+    if (my_acc == facc) return -2;
+
+    nf = account_get_friendcount(my_acc);
+    if (nf >= prefs_get_max_friends()) return -3;
+
+    flist = account_get_friends(my_acc);
+    if (flist == NULL) return -1;
+    if (friendlist_find_account(flist, facc) != NULL) return -4;
+
+    account_set_friend(my_acc, nf, fuid);
+    account_set_friendcount(my_acc, nf + 1);
+    if (account_check_mutual(facc, my_uid) == 0)
+	friendlist_add_account(flist, facc, 1);
+    else
+	friendlist_add_account(flist, facc, 0);
+
+    return 0;
+}
+
 extern int account_remove_friend( t_account * account, int friendnum )
 {
     unsigned i;
     int n = account_get_friendcount(account);
+
+    if (account == NULL) {
+	eventlog(eventlog_level_error, __FUNCTION__, "got NULL account");
+	return -1;
+    }
+
+    if (friendnum < 0 || friendnum >= n) {
+	eventlog(eventlog_level_error, __FUNCTION__, "got invalid friendnum");
+	return -1;
+    }
 
     for(i = friendnum ; i < n - 1; i++)
 	account_set_friend(account, i, account_get_friend(account, i + 1));
@@ -1885,6 +1926,40 @@ extern int account_remove_friend( t_account * account, int friendnum )
     account_set_friendcount(account, n-1);
 
     return 0;
+}
+
+extern int account_remove_friend2( t_account * account, const char * friend)
+{
+    t_list *flist;
+    t_friend *fr;
+    unsigned i, uid;
+    int n;
+
+    if (account == NULL) {
+	eventlog(eventlog_level_error, __FUNCTION__, "got NULL account");
+	return -1;
+    }
+
+    if (friend == NULL) {
+	eventlog(eventlog_level_error, __FUNCTION__, "got NULL friend username");
+	return -1;
+    }
+
+    if ((flist = account_get_friends(account)) == NULL)
+	return -1;
+
+    if ((fr = friendlist_find_username(flist, friend)) == NULL) return -2;
+
+    n = account_get_friendcount(account);
+    uid = account_get_uid(friend_get_account(fr));
+    for (i = 0; i < n; i++)
+	if (account_get_friend(account, i) == uid) {
+	    account_remove_friend(account, i);
+	    friendlist_remove_friend(flist, fr);
+	    return 0;
+	}
+
+    return -2;
 }
 
 // Some Extra Commands for REAL admins to promote other users to Admins

@@ -36,10 +36,10 @@ extern int friendlist_purge(t_list *);
 extern int friendlist_add_account(t_list *, t_account *, int);
 extern int friendlist_remove_friend(t_list * flist, t_friend *);
 extern int friendlist_remove_account(t_list *, t_account *);
-extern int friendlist_remove_accountname(t_list *, const char *);
+extern int friendlist_remove_username(t_list *, const char *);
 extern t_friend * friendlist_find_account(t_list *, t_account *);
-extern t_friend * friendlist_find_accountname(t_list *, const char *);
-extern t_friend * friendlist_find_accountuid(t_list *, int);
+extern t_friend * friendlist_find_username(t_list *, const char *);
+extern t_friend * friendlist_find_uid(t_list *, int);
 
 #endif
 

@@ -232,14 +232,14 @@ extern int friendlist_remove_account(t_list * flist, t_account * acc)
     return -1;
 }
 
-extern int friendlist_remove_accountname(t_list * flist, const char * accname)
+extern int friendlist_remove_username(t_list * flist, const char * accname)
 {
     t_friend * fr;
 
     if(flist==NULL)
         return -1;
 
-    fr=friendlist_find_accountname(flist, accname);
+    fr=friendlist_find_username(flist, accname);
     if(fr!=NULL)
     {
         if(list_remove_data(flist, fr)<0)
@@ -278,7 +278,7 @@ extern t_friend * friendlist_find_account(t_list * flist, t_account * acc)
     return NULL;
 }
 
-extern t_friend * friendlist_find_accountname(t_list * flist, const char * accname)
+extern t_friend * friendlist_find_username(t_list * flist, const char * accname)
 {
     t_elem  * curr;
     t_friend * fr;
@@ -298,7 +298,7 @@ extern t_friend * friendlist_find_accountname(t_list * flist, const char * accna
     return NULL;
 }
 
-extern t_friend * friendlist_find_accountuid(t_list * flist, int uid)
+extern t_friend * friendlist_find_uid(t_list * flist, int uid)
 {
     t_elem  * curr;
     t_friend * fr;

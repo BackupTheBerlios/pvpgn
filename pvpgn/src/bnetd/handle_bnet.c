@@ -2382,7 +2382,7 @@ static int _client_friendslistreq(t_connection * c, t_packet const * const packe
 	for(i=0; i<n; i++) {
 	    friend = account_get_friend(account,i);
 	    if ((flist = account_get_friends(account))==NULL) return -1;
-	    if ((fr=friendlist_find_accountuid(flist, friend))==NULL) return -1;
+	    if ((fr=friendlist_find_uid(flist, friend))==NULL) return -1;
 	    packet_append_string(rpacket, account_get_name(friend_get_account(fr)));
 	    memset(tmp, 0, 7);
 	    if(connlist_find_connection_by_uid(friend))
@@ -2439,7 +2439,7 @@ static int _client_friendinforeq(t_connection * c, t_packet const * const packet
 	bn_byte_set(&rpacket->u.server_friendinforeply.friendnum, bn_byte_get(packet->u.client_friendinforeq.friendnum));
 
         flist = account_get_friends(account);
-	fr=friendlist_find_accountuid(flist, friend);
+	fr=friendlist_find_uid(flist, friend);
 
 	if(fr==NULL || (dest_c = connlist_find_connection_by_account(friend_get_account(fr)))==NULL) {
 	     bn_byte_set(&rpacket->u.server_friendinforeply.unknown1, 0);

@@ -1104,7 +1104,6 @@ static int _handle_friends_command(t_connection * c, char const * text)
 {
     int i;
     t_account *my_acc = conn_get_account(c);
-    unsigned my_uid = account_get_uid(my_acc);
 
     text = skip_command(text);;
 
@@ -1118,13 +1117,10 @@ static int _handle_friends_command(t_connection * c, char const * text)
     }
 
     if (strstart(text,"add")==0 || strstart(text,"a")==0) {
-	int newfriend;
 	char msgtemp[MAX_MESSAGE_LEN];
-	int n;
 	t_packet 	* rpacket=NULL;
 	t_connection 	* dest_c;
 	t_account    	* friend_acc;
-	t_list       	* flist;
 	char tmp[7];
 
 	text = skip_command(text);
@@ -1139,43 +1135,26 @@ static int _handle_friends_command(t_connection * c, char const * text)
 	    return 0;
 	}
 
-	newfriend = account_get_uid(friend_acc);
-
-	if(newfriend == my_uid) {
-    	    message_send_text(c,message_type_info,c,"You can't add yourself to your friends list.");
-    	    return 0;
+	switch(account_add_friend(my_acc, friend_acc)) {
+	    case -1:
+    		message_send_text(c,message_type_error,c,"Server error.");
+    		return 0;
+	    case -2:
+    		message_send_text(c,message_type_info,c,"You can't add yourself to your friends list.");
+    		return 0;
+	    case -3:
+    		sprintf(msgtemp, "You can only have a maximum of %d friends.", prefs_get_max_friends());
+    		message_send_text(c,message_type_info,c,msgtemp);
+    		return 0;
+	    case -4:
+		sprintf(msgtemp, "%s is already on your friends list!", text);
+		message_send_text(c,message_type_info,c,msgtemp);
+		return 0;
 	}
-
-	n = account_get_friendcount(my_acc);
-
-	if(n >= prefs_get_max_friends()) {
-    	    sprintf(msgtemp, "You can only have a maximum of %d friends.", prefs_get_max_friends());
-    	    message_send_text(c,message_type_info,c,msgtemp);
-    	    return 0;
-	}
-
-
-	/* check if the friend was already added */
-	flist=account_get_friends(my_acc);
-	if(flist==NULL)
-    	    return -1;
-
-	if(friendlist_find_account(flist, friend_acc)!=NULL) {
-	    sprintf(msgtemp, "%s is already on your friends list!", text);
-	    message_send_text(c,message_type_info,c,msgtemp);
-	    return 0;
-	}
-
-	account_set_friend(my_acc, n, newfriend);
-	account_set_friendcount(my_acc, n+1);
-	if(account_check_mutual(friend_acc, my_uid)==0)
-    	    friendlist_add_account(flist, friend_acc, 1);
-	else
-    	    friendlist_add_account(flist, friend_acc, 0);
 
 	sprintf( msgtemp, "Added %s to your friends list.", text);
 	message_send_text(c,message_type_info,c,msgtemp);
-	dest_c = connlist_find_connection_by_uid(newfriend);
+	dest_c = connlist_find_connection_by_account(friend_acc);
 	if(dest_c!=NULL) {
     	    sprintf(msgtemp,"%s added you to his/her friends list.",conn_get_username(c));
     	    message_send_text(dest_c,message_type_info,dest_c,msgtemp);
@@ -1249,12 +1228,9 @@ static int _handle_friends_command(t_connection * c, char const * text)
     if (strstart(text,"r")==0 || strstart(text,"remove")==0
 	|| strstart(text,"d")==0 || strstart(text,"del")==0) {
 
-	int n;
+	int num;
 	char msgtemp[MAX_MESSAGE_LEN];
 	t_packet * rpacket=NULL;
-	int accuid;
-	t_list * flist;
-	t_friend * fr;
     
 	text = skip_command(text);
 
@@ -1263,47 +1239,29 @@ static int _handle_friends_command(t_connection * c, char const * text)
 	    return 0;
 	}
 
-	flist=account_get_friends(my_acc);
-	if(flist==NULL)
-    	    return -1;
-	fr=friendlist_find_accountname(flist, text);
-	if (fr!=NULL) {
-	    n = account_get_friendcount(my_acc);
-	    accuid = account_get_uid(friend_get_account(fr));
-	    for(i=0; i<n; i++) {
-		if(account_get_friend(my_acc, i) == accuid) {
-		    char num = (char)i;
+	switch((num = account_remove_friend2(my_acc, text))) {
+	    case -1: return -1;
+	    case -2:
+		sprintf(msgtemp, "%s was not found on your friends list.", text);
+		message_send_text(c,message_type_info,c,msgtemp);
+		return 0;
+	    default:
+		sprintf(msgtemp, "Removed %s from your friends list.", text);
+		message_send_text(c,message_type_info,c,msgtemp);
 
-		    for (;i<n-1;i++)
-                	account_set_friend(my_acc,i,account_get_friend(my_acc,i+1));
+		if (!(rpacket = packet_create(packet_class_bnet)))
+	    	    return 0;
 
-  		    account_set_friend(my_acc, n-1, 0);
-		    account_set_friendcount(my_acc, n-1);
+		packet_set_size(rpacket,sizeof(t_server_frienddel_ack));
+		packet_set_type(rpacket,SERVER_FRIENDDEL_ACK);
 
-    		    friendlist_remove_friend(flist, fr);
+		bn_byte_set(&rpacket->u.server_frienddel_ack.friendnum, num);
 
-    		    sprintf(msgtemp, "Removed %s from your friends list.", text);
-		    message_send_text(c,message_type_info,c,msgtemp);
+		queue_push_packet(conn_get_out_queue(c),rpacket);
+		packet_del_ref(rpacket);
 
-		    if (!(rpacket = packet_create(packet_class_bnet)))
-	    		return 0;
-
-		    packet_set_size(rpacket,sizeof(t_server_frienddel_ack));
-		    packet_set_type(rpacket,SERVER_FRIENDDEL_ACK);
-
-		    bn_byte_set(&rpacket->u.server_frienddel_ack.friendnum, num);
-
-		    queue_push_packet(conn_get_out_queue(c),rpacket);
-		    packet_del_ref(rpacket);
-
-    		    return 0; 
-		}
-    	    }
+    		return 0; 
 	}
-
-	sprintf(msgtemp, "%s was not found on your friends list.", text);
-	message_send_text(c,message_type_info,c,msgtemp);
-	return 0;
     }
 
     if (strstart(text,"list")==0 || strstart(text,"l")==0) {

@@ -581,18 +581,11 @@ extern char const * account_get_strattr(t_account * account, char const * key)
     } else newkey = storage->escape_key(key);
 
     if (!account->loaded)
-    {
         if (account_load_attrs(account)<0)
 	    {
 	        eventlog(eventlog_level_error,"account_get_strattr","could not load attributes");
 	        return NULL;
 	    }
-        if (account_load_friends(account)<0)
-	    {
-	        eventlog(eventlog_level_error,"account_get_strattr","could not load friends");
-	        return NULL;
-	    }
-    }
     
       
     last = NULL;
@@ -697,18 +690,11 @@ extern int account_set_strattr(t_account * account, char const * key, char const
     
 #ifndef WITH_BITS
     if (!account->loaded)
-    {
         if (account_load_attrs(account)<0)
 	    {
 	        eventlog(eventlog_level_error,"account_set_strattr","could not load attributes");
 	        return -1;
     	}
-        if (account_load_friends(account)<0)
-	    {
-	        eventlog(eventlog_level_error,"account_get_strattr","could not load friends");
-	        return -1;
-	    }
-    }
 #endif
     curr = account->attrs;
     if (!curr) /* if no keys in attr list then we need to insert it */
@@ -1766,7 +1752,7 @@ extern int account_check_mutual( t_account * account, int myuserid)
     if(account->friends!=NULL)
     {
         t_friend * fr;
-        if((fr=friendlist_find_accountuid(account->friends, myuserid))!=NULL)
+        if((fr=friendlist_find_uid(account->friends, myuserid))!=NULL)
         {
             friend_set_mutual(fr, 1);
             return 0;
@@ -1803,13 +1789,12 @@ extern t_list * account_get_friends(t_account * account)
     }
 
     if(!account->friend_loaded)
-    {
 	if(account_load_friends(account)<0)
         {
     	    eventlog(eventlog_level_error,__FUNCTION__,"could not load friend list");
             return NULL;
         }
-    }
+
     return account->friends;
 }
 
@@ -1847,7 +1832,7 @@ static int account_load_friends(t_account * account)
             continue;
         }
         fr=NULL;
-        if(newlist || (fr=friendlist_find_accountuid(account->friends, friend))==NULL)
+        if(newlist || (fr=friendlist_find_uid(account->friends, friend))==NULL)
         {
             if((acc = accountlist_find_account_by_uid(friend))==NULL)
             {
