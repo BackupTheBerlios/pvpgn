@@ -594,6 +594,27 @@ extern t_game_option bngoption_to_goption(char const * clienttag, t_game_type gt
 		eventlog(eventlog_level_error,"bngoption_to_goption","unknown Starcraft bnet game option for \"%s\" game \"%s\" %hu",clienttag,game_type_get_str(gtype),bngoption);
 		return game_option_none;
 	    }
+	case game_type_topvbot:
+	    switch (bngoption)
+	    {
+	      case CLIENT_STARTGAME4_OPTION_TOPVBOT_1:
+	        return game_option_topvbot_1;
+	      case CLIENT_STARTGAME4_OPTION_TOPVBOT_2:
+		return game_option_topvbot_2;
+	      case CLIENT_STARTGAME4_OPTION_TOPVBOT_3:
+	        return game_option_topvbot_3;
+	      case CLIENT_STARTGAME4_OPTION_TOPVBOT_4:
+		return game_option_topvbot_4;
+	      case CLIENT_STARTGAME4_OPTION_TOPVBOT_5:
+	        return game_option_topvbot_5;
+	      case CLIENT_STARTGAME4_OPTION_TOPVBOT_6:
+		return game_option_topvbot_6;
+	      case CLIENT_STARTGAME4_OPTION_TOPVBOT_7:
+	        return game_option_topvbot_7;
+            default:
+	     eventlog(eventlog_level_error,"bngoption_to_goption","unknown Starcraft bnet game option for \"%s\" game \"%s\" %hu",clienttag,game_type_get_str(gtype),bngoption);
+		return game_option_none;
+	    }
 	case game_type_none:
 	default:
 	    eventlog(eventlog_level_error,"bngoption_to_goption","unknown Starcraft game type \"%s\" %u(%s)",clienttag,(unsigned int)gtype,game_type_get_str(gtype));

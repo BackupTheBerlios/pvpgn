@@ -1328,6 +1328,7 @@ extern int server_process(void)
 	if (curr_exittime && (curr_exittime<=now || connlist_get_length()<1))
 	{
 	    eventlog(eventlog_level_info,"server_process","the server is shutting down (%d connections left)",connlist_get_length());
+	    accountlist_save(0);
 	    break;
 	}
 	if (prev_exittime!=curr_exittime)
@@ -1363,6 +1364,7 @@ extern int server_process(void)
 	if (syncdelta && prev_savetime+(time_t)syncdelta<=now)
 	{
 	    accountlist_save(prefs_get_user_sync_timer());
+	    accountlist_reload();
             gamelist_check_voidgame();
 	    prev_savetime = now;
 	}
@@ -1408,6 +1410,7 @@ extern int server_process(void)
 	    server_set_name();
 	    
 	    accountlist_load_default(); /* FIXME: free old one */
+	    accountlist_reload();
 	    
 	    /* FIXME: reload channel list, need some tests, bits is disabled */
 	    #ifndef WITH_BITS

@@ -216,6 +216,27 @@ extern int eventlog_del_level(char const * levelname)
     return -1;
 }
 
+extern char const * eventlog_get_levelname_str(t_eventlog_level level)
+{
+  switch (level)
+  {
+  case eventlog_level_trace:
+    return "trace";
+  case eventlog_level_debug:
+    return "debug";
+  case eventlog_level_info:
+    return "info";
+  case eventlog_level_warn:
+    return "warn";
+  case eventlog_level_error:
+    return "error";
+  case eventlog_level_fatal:
+    return "fatal";
+  default:
+    return "unknown";
+  } 
+}
+
 
 #ifdef DEBUGMODSTRINGS
 extern void eventlog_real(t_eventlog_level level, char const * module, char const * fmt, ...)
@@ -242,9 +263,9 @@ extern void eventlog(t_eventlog_level level, char const * module, char const * f
     
     if (!module)
     {
-	fprintf(eventstrm,"%s eventlog: got NULL module\n",time_string);
+	fprintf(eventstrm,"%s [error] eventlog: got NULL module\n",time_string);
 #ifdef WIN32_GUI
-        gui_printf("%s eventlog: got NULL module\n",time_string);
+        gui_printf("%s [error] eventlog: got NULL module\n",time_string);
 #endif
 	fflush(eventstrm);
 	return;
@@ -252,17 +273,17 @@ extern void eventlog(t_eventlog_level level, char const * module, char const * f
 
     if (!fmt)
     {
-	fprintf(eventstrm,"%s eventlog: got NULL fmt\n",time_string);
+	fprintf(eventstrm,"%s [error] eventlog: got NULL fmt\n",time_string);
 #ifdef WIN32_GUI
-        gui_printf("%s eventlog: got NULL fmt\n",time_string);
+        gui_printf("%s [error] eventlog: got NULL fmt\n",time_string);
 #endif
 	fflush(eventstrm);
 	return;
     }
     
-    fprintf(eventstrm,"%s %s: ",time_string,module);
+    fprintf(eventstrm,"%s [%s] %s: ",time_string,eventlog_get_levelname_str(level),module);
 #ifdef WIN32_GUI
-    gui_printf("%s %s: ",time_string,module);
+    gui_printf("%s [%s] %s: ",time_string,eventlog_get_levelname_str(level),module);
 #endif
 
     va_start(args,fmt);
@@ -329,18 +350,18 @@ extern void eventlog_step(char const * filename, t_eventlog_level level, char co
     
     if (!module)
     {
-	fprintf(fp,"%s eventlog_step: got NULL module\n",time_string);
+	fprintf(fp,"%s [error] eventlog_step: got NULL module\n",time_string);
 	fclose(fp);
 	return;
     }
     if (!fmt)
     {
-	fprintf(fp,"%s eventlog_step: got NULL fmt\n",time_string);
+	fprintf(fp,"%s [error] eventlog_step: got NULL fmt\n",time_string);
 	fclose(fp);
 	return;
     }
     
-    fprintf(fp,"%s %s: ",time_string,module);
+    fprintf(fp,"%s [%s] %s: ",time_string,eventlog_get_levelname_str(level),module);
     va_start(args,fmt);
 #ifdef HAVE_VPRINTF
     vfprintf(fp,fmt,args);

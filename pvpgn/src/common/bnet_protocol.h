@@ -3524,7 +3524,13 @@ typedef struct
 #define CLIENT_STARTGAME4_OPTION_TEAMCTF_3          0x0002
 #define CLIENT_STARTGAME4_OPTION_TEAMCTF_2          0x0001
 #define CLIENT_STARTGAME4_OPTION_PGL_               0x000 /* FIXME */
-#define CLIENT_STARTGAME4_OPTION_TOPVBOT_           0x000 /* FIXME */
+#define CLIENT_STARTGAME4_OPTION_TOPVBOT_1          0x0001 /* 1 vs all [ 1x1, 1x2, 1x3 ...]         */
+#define CLIENT_STARTGAME4_OPTION_TOPVBOT_2          0x0002 /* f.e. for (8) The Hunters.scm 1 vs all */
+#define CLIENT_STARTGAME4_OPTION_TOPVBOT_3          0x0003 /*      means 1x7                        */
+#define CLIENT_STARTGAME4_OPTION_TOPVBOT_4          0x0004 /* 4 vs all                              */
+#define CLIENT_STARTGAME4_OPTION_TOPVBOT_5          0x0005
+#define CLIENT_STARTGAME4_OPTION_TOPVBOT_6          0x0006
+#define CLIENT_STARTGAME4_OPTION_TOPVBOT_7          0x0007
 #define CLIENT_STARTGAME4_UNKNOWN4		    0x00000000
 #define CLIENT_STARTGAME4_UNKNOWN5		    0x00000000
 #define CLIENT_STARTGAME4_OPTION_NONE               0x000 /* FIXME */

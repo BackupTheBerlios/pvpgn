@@ -323,6 +323,7 @@ extern t_game_status game_get_status(t_game const * game);
 extern unsigned int game_get_addr(t_game const * game);
 extern unsigned short game_get_port(t_game const * game);
 extern unsigned int game_get_latency(t_game const * game);
+extern t_connection * game_get_player_conn(t_game const * game, unsigned int i);
 extern char const * game_get_clienttag(t_game const * game);
 #ifndef WITH_BITS
 extern int game_add_player(t_game * game, char const * pass, int startver, t_connection * c);

@@ -116,6 +116,7 @@ extern int account_set_uid(t_account * account, int uid);
 extern char const * account_get_first_key(t_account * account);
 extern char const * account_get_next_key(t_account * account, char const * key);
 
+extern int accountlist_reload(void);
 extern int accountlist_create(void);
 extern int accountlist_destroy(void);
 extern t_hashtable * accountlist(void);

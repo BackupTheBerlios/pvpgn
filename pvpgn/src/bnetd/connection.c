@@ -2003,6 +2003,12 @@ extern t_game * conn_get_game(t_connection const * c)
 
 
 extern int conn_set_game(t_connection * c, char const * gamename, char const * gamepass, char const * gameinfo, t_game_type type, int version)
+/*
+ * If game not exists (create) version != 0 (called in handle_bnet.c, function _client_startgameX())
+ * If game exists (join) version == 0 always (called in handle_bnet.c, function _client_joingame())
+ * If game exists (join) gameinfo == "" (called in handle_bnet.c, function _client_joingame())
+ * [KWS]
+ */
 {
     if (!c)
     {
@@ -2028,21 +2034,23 @@ extern int conn_set_game(t_connection * c, char const * gamename, char const * g
     {
 	if (!(c->game = gamelist_find_game(gamename,type)))
         { 
-	    c->game = game_create(gamename,gamepass,gameinfo,type,version,conn_get_clienttag(c));
-            if (c->game && conn_get_realmname(c) && conn_get_charname(c))
+	    /* setup a new game if it does not allready exist */
+	    if (!(c->game = game_create(gamename,gamepass,gameinfo,type,version,conn_get_clienttag(c))))
+	       return -1;
+
+	    game_parse_info(c->game,gameinfo); /* only create */
+            if (conn_get_realmname(c) && conn_get_charname(c))
             {
                   game_set_realmname(c->game,conn_get_realmname(c));
                   realm_add_game_number(realmlist_find_realm(conn_get_realmname(c)),1);
 	    }
 	}
-	if (c->game)
-        { 
-            game_parse_info(c->game,gameinfo);
-	    if (game_add_player(conn_get_game(c),gamepass,version,c)<0)
-	    {
-		c->game = NULL; /* bad password or version # */
-		return -1;
-	    }
+
+	/* join new or existing game */
+        if (game_add_player(conn_get_game(c),gamepass,version,c)<0)
+        {
+  	  c->game = NULL; /* bad password or version # */
+	  return -1;
 	}
     }
     else

@@ -50,6 +50,7 @@ extern int eventlog_close();
 extern void eventlog_clear_level(void);
 extern int eventlog_add_level(char const * levelname);
 extern int eventlog_del_level(char const * levelname);
+extern char const * eventlog_get_levelname_str(t_eventlog_level level);
 #ifdef DEBUGMODSTRINGS
 
 extern void eventlog_real(t_eventlog_level level, char const * module, char const * fmt, ...) PRINTF_ATTR(3,4);

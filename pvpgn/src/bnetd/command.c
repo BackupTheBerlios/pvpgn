@@ -1137,7 +1137,7 @@ extern int handle_command(t_connection * c,  char const * text)
 	/* Battle.net time: Wed Jun 23 15:15:29 */
 	btlocal = bnettime_add_tzbias(btsystem,local_tzbias());
 	now = bnettime_to_time(btlocal);
-	if (!(tmnow = gmtime(&now)))
+	if (!(tmnow = localtime(&now)))
 	    strcpy(msgtemp,"PvPGN Server Time: ?");
 	else
 	    strftime(msgtemp,sizeof(msgtemp),"PvPGN Server Time: %a %b %d %H:%M:%S",tmnow);
@@ -1146,7 +1146,7 @@ extern int handle_command(t_connection * c,  char const * text)
 	{
 	    btlocal = bnettime_add_tzbias(btsystem,conn_get_tzbias(c));
 	    now = bnettime_to_time(btlocal);
-	    if (!(tmnow = gmtime(&now)))
+	    if (!(tmnow = localtime(&now)))
 		strcpy(msgtemp,"Your local time: ?");
 	    else
 		strftime(msgtemp,sizeof(msgtemp),"Your local time: %a %b %d %H:%M:%S",tmnow);
@@ -2387,8 +2387,8 @@ extern int handle_command(t_connection * c,  char const * text)
 	    message_send_text(c,message_type_error,c,"That user is not logged in?");
 	    return 0;
 	}
-	if (text[i]!='\0')
-	    ipbanlist_add(c,addr_num_to_ip_str(conn_get_addr(user)),ipbanlist_str_to_time_t(c,&text[i]));
+	if (text[i]!='\0' && ipbanlist_add(c,addr_num_to_ip_str(conn_get_addr(user)),ipbanlist_str_to_time_t(c,&text[i]))==0)
+	   message_send_text(user,message_type_info,user,"Connection closed by admin and banned your ip.");
 	else
 	    message_send_text(user,message_type_info,user,"Connection closed by admin.");
         conn_set_state(user,conn_state_destroy);
@@ -2398,13 +2398,13 @@ extern int handle_command(t_connection * c,  char const * text)
     {
 	unsigned int	i,j;
 	t_connection *	user;
-	char		usrnick[13];
+	char		session[16];
 	
 	for (i=0; text[i]!=' ' && text[i]!='\0'; i++); /* skip command */
 	for (; text[i]==' '; i++);
 	for (j=0; text[i]!=' ' && text[i]!='\0'; i++) /* get nick */
-	    if (j<sizeof(usrnick)-1) usrnick[j++] = text[i];
-	usrnick[j]='\0';
+	    if (j<sizeof(session)-1) session[j++] = text[i];
+	session[j]='\0';
 	for (; text[i]==' '; i++);
 	
 	if (account_get_auth_admin(conn_get_account(c))!=1) /* default to false */
@@ -2412,26 +2412,26 @@ extern int handle_command(t_connection * c,  char const * text)
             message_send_text(c,message_type_error,c,"This command is reserved for admins.");
 	    return 0;
         }
-	if (text[i]=='\0')
+	if (session[0]=='\0')
 	{
 	    message_send_text(c,message_type_error,c,"Which session do you want to kill?");
 	    return 0;
 	}
-	if (!isxdigit((int)text[i]))
+	if (!isxdigit((int)session[0]))
 	{
 	    message_send_text(c,message_type_error,c,"That is not a valid session.");
 	    return 0;
 	}
-	if (!(user = connlist_find_connection_by_sessionkey((unsigned int)strtoul(&text[i],NULL,16))))
+	if (!(user = connlist_find_connection_by_sessionkey((unsigned int)strtoul(session,NULL,16))))
 	{
             message_send_text(c,message_type_error,c,"That session does not exist.");
 	    return 0;
 	}
-	if (text[i]!='\0')
-	    ipbanlist_add(c,addr_num_to_ip_str(conn_get_addr(user)),ipbanlist_str_to_time_t(c,&text[i]));
+	if (text[i]!='\0' && ipbanlist_add(c,addr_num_to_ip_str(conn_get_addr(user)),ipbanlist_str_to_time_t(c,&text[i]))==0)
+	    message_send_text(user,message_type_info,user,"Connection closed by admin and banned your ip's.");
 	else
 	    message_send_text(user,message_type_info,user,"Connection closed by admin.");
-        conn_set_state(user,conn_state_destroy);
+          conn_set_state(user,conn_state_destroy);
         return 0;
     }
     if (strstart(text,"/gameinfo")==0)
@@ -2513,7 +2513,7 @@ extern int handle_command(t_connection * c,  char const * text)
 	    struct tm * gmgametime;
 	    
 	    gametime = game_get_create_time(game);
-	    if (!(gmgametime = gmtime(&gametime)))
+	    if (!(gmgametime = localtime(&gametime)))
 		strcpy(msgtemp,"Created: ?");
 	    else
 		strftime(msgtemp,sizeof(msgtemp),"Created: "GAME_TIME_FORMAT,gmgametime);
@@ -2522,7 +2522,7 @@ extern int handle_command(t_connection * c,  char const * text)
 	    gametime = game_get_start_time(game);
 	    if (gametime!=(time_t)0)
 	    {
-		if (!(gmgametime = gmtime(&gametime)))
+		if (!(gmgametime = localtime(&gametime)))
 		    strcpy(msgtemp,"Started: ?");
 		else
 		    strftime(msgtemp,sizeof(msgtemp),"Started: "GAME_TIME_FORMAT,gmgametime);
@@ -3430,7 +3430,43 @@ if (strstart(text,"/rank_all_accounts")==0)
 			return 0;
 		}
     }
-    
+     if (strstart(text,"/latency")==0 || strstart(text,"/ping")==0 || strstart(text,"/p")==0)
+     {
+ 	unsigned int i;
+ 	t_connection *	user;
+ 	t_game 	*	game;
+ 	char msgtemp[MAX_MESSAGE_LEN];
+ 	char const *   tname;
+ 	
+ 	for (i=0; text[i]!=' ' && text[i]!='\0'; i++); /* skip command */
+ 	for (; text[i]==' '; i++);
+ 	
+ 	if (text[i]=='\0')
+ 	{
+ 	    if (game=conn_get_game(c))
+ 	    {
+		for (i=0; i<game_get_count(game); i++)
+ 		{
+ 		    if (user = game_get_player_conn(game, i))
+ 		    {
+ 			sprintf(msgtemp,"%s latency: %9u",(tname = conn_get_username(user)),conn_get_latency(user));
+ 			conn_unget_username(user,tname);
+ 			message_send_text(c,message_type_info,c,msgtemp);
+ 		    }
+ 		}
+ 		return 0;
+ 	    }
+ 	    sprintf(msgtemp,"Your latency %9u",conn_get_latency(c));
+ 	}
+	else if (user = connlist_find_connection_by_accountname(&text[i]))
+ 		sprintf(msgtemp,"%s latency %9u",&text[i],conn_get_latency(user));
+ 	else
+ 		sprintf(msgtemp,"Invalid user");
+ 
+ 	message_send_text(c,message_type_info,c,msgtemp);
+ 	return 0;
+     }
+     
     if (strlen(text)>=2 && strncmp(text,"//",2)==0)
     {
 	handle_alias_command(c,text);

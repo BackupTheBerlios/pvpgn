@@ -31,6 +31,14 @@ This fix solves the problem with accounts not beeing able to play D2 closed
 games, cause bnetd and d2cs were accepting different symbols.
 -- fixed /time command
 -- added war3 ladder info output to /ladderinfo command
+thanks for the following changes go to [KWS]
+-- added /ping command which returns your server latency
+-- added support for W2BNE TOPVBOT game-type
+-- added new options to makefile called bnetd and install-bnetd (now u can
+just compile the server and install new server executable)
+-- replaced gmtime() with localtime() here and there
+-- on a /rehash new created accounts should get loaded via account_reload()
+(new files in users dir or new accounts added to db manually)
 
 1.2.3:
 -- fixed some crash related bugs

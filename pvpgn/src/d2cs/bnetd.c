@@ -68,7 +68,7 @@ extern int bnetd_check(void)
 	if (!(bnetd_connection=s2s_create(prefs_get_bnetdaddr(),BNETD_SERV_PORT,conn_class_bnetd))) {
 		return -1;
 	}
-	if (d2cs_conn_get_state(bnetd_connection)==conn_state_connected) {
+	if (d2cs_conn_get_state(bnetd_connection)==conn_state_init) {
 		handle_bnetd_init(bnetd_connection);
 	} else {
 		prev_connecting_checktime=time(NULL);

@@ -495,8 +495,21 @@ ${SRC_BINDIR}:
 ${SRC_SBINDIR}:
 	${INSTALL_DIRS} $@
 
+.PHONY: bnetd
+bnetd: ${bnetd_SBIN}
+
 .PHONY: install
 install: install-sbin install-bin install-man install-conf install-share
+
+.PHONY: install-bnetd
+install-bnetd: ${bnetd_SBIN}
+	${INSTALL_DIRS} ${sbindir}
+	@list='${bnetd_SBIN}'; for p in $$list; do \
+	  if test -f $$p; then \
+	    ${ECHO} " ${INSTALL_PROGRAM} $$p ${sbindir}"; \
+	    ${INSTALL_PROGRAM} $$p ${sbindir}; \
+	  else :; fi; \
+	done
 
 .PHONY: install-sbin
 install-sbin: ${SBINS}

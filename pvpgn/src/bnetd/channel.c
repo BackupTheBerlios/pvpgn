@@ -279,7 +279,7 @@ extern t_channel * channel_create(char const * fullname, char const * shortname,
 	
 	now = time(NULL);
 	
-	if (!(tmnow = gmtime(&now)))
+	if (!(tmnow = localtime(&now)))
 	    dstr[0] = '\0';
 	else
 	    sprintf(dstr,"%04d%02d%02d%02d%02d%02d",
@@ -415,7 +415,7 @@ extern int channel_destroy(t_channel * channel)
 	char        timetemp[CHANLOG_TIME_MAXLEN];
 	
 	now = time(NULL);
-	if ((!(tmnow = gmtime(&now))))
+	if ((!(tmnow = localtime(&now))))
 	    strcpy(timetemp,"?");
 	else
 	    strftime(timetemp,sizeof(timetemp),CHANLOG_TIME_FORMAT,tmnow);
@@ -794,7 +794,7 @@ extern void channel_message_log(t_channel const * channel, t_connection * me, in
 	char const * tname;
 	
 	now = time(NULL);
-	if ((!(tmnow = gmtime(&now))))
+	if ((!(tmnow = localtime(&now))))
 	    strcpy(timetemp,"?");
 	else
 	    strftime(timetemp,sizeof(timetemp),CHANLOGLINE_TIME_FORMAT,tmnow);

@@ -1638,7 +1638,16 @@ static int _client_statsreq(t_connection * c, t_packet const * const packet)
 	     i<name_count && (name = packet_get_str_const(packet,name_off,UNCHECKED_NAME_STR));
 	     i++,name_off+=strlen(name)+1)
 	  {
-	     account = accountlist_find_account(name);
+	     if (!(account = accountlist_find_account(name)))
+	     {
+	       if (account = conn_get_account(c))
+	       {
+		 eventlog(eventlog_level_debug,"handle_bnet_packet","[%d] client_statsreply no name, use self \"%s\"",conn_get_socket(c),(tname = account_get_name(account)));
+		 account_unget_name(tname);
+		       
+	       }
+	     }
+	     
 	     for (j=0,key_off=keys_off;
 		  j<key_count && (key = packet_get_str_const(packet,key_off,MAX_ATTRKEY_STR));
 		  j++,key_off+=strlen(key)+1)

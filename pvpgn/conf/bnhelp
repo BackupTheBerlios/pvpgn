@@ -149,5 +149,7 @@ whereis <player> - looks up some basic information on a user, including their ac
 /rehash - forces reload of bnetd.conf
 &clan
 /clan <clanname> - sets the clanname to be displayed in your profile
+&ping
+/ping, /p, /latency - returns your latency to the server
 #                                                                            #
 ##############################################################################

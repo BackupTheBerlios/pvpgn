@@ -805,7 +805,7 @@ static int game_report(t_game * game)
 	struct tm * tmval;
 	char        dstr[64];
 	
-	if (!(tmval = gmtime(&now)))
+	if (!(tmval = localtime(&now)))
 	    dstr[0] = '\0';
 	else
 	    sprintf(dstr,"%04d%02d%02d%02d%02d%02d",
@@ -858,19 +858,19 @@ static int game_report(t_game * game)
 	struct tm * gametime;
 	char        timetemp[GAME_TIME_MAXLEN];
 	
-	if (!(gametime = gmtime(&game->create_time)))
+	if (!(gametime = localtime(&game->create_time)))
 	    strcpy(timetemp,"?");
 	else
 	    strftime(timetemp,sizeof(timetemp),GAME_TIME_FORMAT,gametime);
 	fprintf(fp,"created=\"%s\" ",timetemp);
 	
-	if (!(gametime = gmtime(&game->start_time)))
+	if (!(gametime = localtime(&game->start_time)))
 	    strcpy(timetemp,"?");
 	else
 	    strftime(timetemp,sizeof(timetemp),GAME_TIME_FORMAT,gametime);
 	fprintf(fp,"started=\"%s\" ",timetemp);
 	
-	if (!(gametime = gmtime(&now)))
+	if (!(gametime = localtime(&now)))
 	    strcpy(timetemp,"?");
 	else
 	    strftime(timetemp,sizeof(timetemp),GAME_TIME_FORMAT,gametime);
@@ -1418,6 +1418,30 @@ extern unsigned int game_get_latency(t_game const * game)
     return 0; /* conn_get_latency(game->players[0]); */
 }
 
+extern t_connection * game_get_player_conn(t_game const * game, unsigned int i)
+{
+  if (!game)
+  {
+    eventlog(eventlog_level_error,"game_get_player_conn","got NULL game");
+    return NULL;
+  }
+  if (game->ref<1)
+  {
+    eventlog(eventlog_level_error,"game_get_player_conn","game \"%s\" has no players",game->name);
+    return NULL;
+  }
+  if (!game->players)
+  {
+    eventlog(eventlog_level_error,"game_get_player_conn","game \"%s\" has NULL player array (ref=%u)",game->name,game->ref);
+    return NULL;
+  }
+  if (!game->players[i])
+  {
+    eventlog(eventlog_level_error,"game_get_player_conn","game \"%s\" has NULL players[i] entry (ref=%u)",game->name,game->ref);
+    return NULL;
+  }
+  return game->connections[i];
+}
 
 extern char const * game_get_clienttag(t_game const * game)
 {
@@ -1642,7 +1666,7 @@ extern int game_add_player(t_game * game, char const * pass, int startver, unsig
     game->ref++;
     game->lastaccess_time = time(NULL);
     
-    if (game->startver!=startver)
+    if (game->startver!=startver && startver!=STARTVER_UNKNOWN) /* with join startver ALWAYS unknown [KWS] */
     {
 #ifndef WITH_BITS	
 	char const * tname;

@@ -1139,6 +1139,129 @@ extern int accountlist_load_default(void)
     return 0;
 }
 
+extern int accountlist_reload(void)
+{
+  unsigned int count;
+  t_account *  account;
+ 	
+  int starttime = time(NULL);
+#ifndef WITH_MYSQL
+  char const * dentry;
+  char *       pathname;
+  t_pdir *     accountdir;
+#else
+  t_readacct	 *readacct;
+  unsigned int uid;
+  char	accountuid[16];
+#endif
+  
+#ifdef WITH_BITS
+  if (!bits_master)
+     {
+       eventlog(eventlog_level_info,"accountlist_reload","running as BITS client -> no accounts loaded");
+       return 0;
+     }
+#endif
+  
+ #ifndef WITH_MYSQL
+  if (!(accountdir = p_opendir(prefs_get_userdir())))
+#else
+    if (!(readacct = storage_account_getfirst(&uid)))
+#endif
+      {
+#ifndef WITH_MYSQL
+	eventlog(eventlog_level_error,"accountlist_reload","unable to open user directory \"%s\" for reading (p_opendir: %s)",prefs_get_userdir(),strerror(errno));
+#else
+	eventlog(eventlog_level_error,"accountlist_reload","unable to start users read");
+#endif
+	return -1;
+      }
+  
+  force_account_add = 1; /* disable the protection */
+  
+  count = 0;
+ #ifndef WITH_MYSQL
+  while ((dentry = p_readdir(accountdir)))
+     {
+       if (dentry[0]=='.')
+	 continue;
+       if (!(pathname = malloc(strlen(prefs_get_userdir())+1+strlen(dentry)+1))) /* dir + / + file + NUL */
+	 {
+	   eventlog(eventlog_level_error,"accountlist_reload","could not allocate memory for pathname");
+	   continue;
+	 }
+       sprintf(pathname,"%s/%s",prefs_get_userdir(),dentry);
+#else
+       do {
+#endif
+	 
+#ifndef WITH_MYSQL
+	 if (accountlist_find_account(dentry))
+	 {
+	   free(pathname);
+	   continue;
+	 }
+	 if (!(account = account_load(pathname)))
+#else
+	   sprintf(accountuid,"#%u",uid);
+	 if (accountlist_find_account(accountuid))
+	   continue;
+	 if (!(account = account_load(uid)))
+#endif
+	   {
+#ifndef WITH_MYSQL
+	     eventlog(eventlog_level_error,"accountlist_reload","could not load account from file \"%s\"",pathname);
+	     free(pathname);
+#else
+	     eventlog(eventlog_level_error,"accountlist_reload","could not load account from storage id \"%u\"",uid);
+#endif
+	     continue;
+	   }
+	 
+	 if (!accountlist_add_account(account))
+	   {
+#ifndef WITH_MYSQL
+	     eventlog(eventlog_level_error,"accountlist_reload","could not add account from file \"%s\" to list",pathname);
+	     free(pathname);
+#else
+	     eventlog(eventlog_level_error,"accountlist_reload","could not add account with storage id \"%u\" to list",uid);
+#endif
+	     
+	     account_destroy(account);
+	     continue;
+	   }
+#ifndef WITH_MYSQL
+	 free(pathname);
+#endif
+	 
+	 /* might as well free up the memory since we probably won't need it */
+	 account->accessed = 0; /* lie */
+	 account_save(account,1000); /* big delta to force unload */
+	 
+         count++;
+       }
+#ifdef WITH_MYSQL
+       while(storage_account_getnext(readacct, &uid) == 0);
+#endif
+       
+       force_account_add = 0; /* enable the protection */
+       
+#ifndef WITH_MYSQL
+       if (p_closedir(accountdir)<0)
+	 eventlog(eventlog_level_error,"accountlist_reload","unable to close user directory \"%s\" (p_closedir: %s)",prefs_get_userdir(),strerror(errno));
+#else
+       if (storage_account_close(readacct)<0)
+	 eventlog(eventlog_level_error,"accountlist_reload","unable to close read user list");
+#endif
+       
+       if (count)
+	 eventlog(eventlog_level_info,"accountlist_reload","loaded %u user accounts in %ld seconds",count,time(NULL) - starttime);
+       
+       
+       return 0;
+     }
+  
+  
     
 extern int accountlist_create(void)
 {
