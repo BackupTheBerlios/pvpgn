@@ -2781,7 +2781,7 @@ extern char const * conn_get_playerinfo(t_connection const * c)
 	eventlog(eventlog_level_error,"conn_get_playerinfo","connection has NULL fakeclienttag");
 	return NULL;
     }
-    strcpy(revtag,clienttag);
+    strncpy(revtag,clienttag,5); revtag[4] = '\0';
     strreverse(revtag);
     
     if (strcmp(clienttag,CLIENTTAG_BNCHATBOT)==0)
@@ -4103,7 +4103,7 @@ extern int conn_update_w3_playerinfo(t_connection * c)
 	return -1;
     }
 
-    strcpy(revtag, conn_get_fake_clienttag(c));
+    strcpy(revtag, conn_get_fake_clienttag(c),5); revtag[4] = '\0';
     strreverse(revtag);
 
     clienttag = conn_get_clienttag(c);
