@@ -154,7 +154,8 @@ typedef enum {
   mode_gamename, 
   mode_gamepass, 
   mode_gamewait, 
-  mode_gamestop 
+  mode_gamestop,
+  mode_claninvite
 } t_mode;
 
 typedef struct _client_state
@@ -172,7 +173,7 @@ typedef struct _client_state
     int			fd_stdin;
     unsigned int	screen_width,screen_height;
     int			munged;
-    t_mode             mode;
+    t_mode		mode;
     char		text[MAX_MESSAGE_LEN];
 } t_client_state;
 
@@ -185,6 +186,8 @@ typedef struct _user_info
     char const *	channel;
     char		curr_gamename[GAME_NAME_LEN];
     char		curr_gamepass[GAME_PASS_LEN];
+    int			count, clantag;
+    char const *	inviter;
 
 } t_user_info;
 
@@ -1412,6 +1415,50 @@ extern int main(int argc, char * argv[])
 		case 1:
 		    switch (client.mode)
 		    {
+		    case mode_claninvite:
+			    
+		        printf("\n");
+			client.munged = 1;
+
+			if ((client.text[0]!='\0') && strcasecmp(client.text,"yes") && strcasecmp(client.text,"no"))
+			{
+			    printf("Do you want to accept invitation (yes/no) ? [yes] ");
+			    break;
+			}
+			
+			if (!(packet = packet_create(packet_class_bnet)))
+			{
+			    printf("Packet creation failed.\n");
+			}
+			else
+			{
+			    char result;
+			
+			    packet_set_size(packet,sizeof(t_client_w3xp_clan_invitereply));
+			    packet_set_type(packet,CLIENT_W3XP_CLAN_INVITEREPLY);
+			    bn_int_set(&packet->u.client_w3xp_clan_invitereply.count,user.count);
+			    bn_int_set(&packet->u.client_w3xp_clan_invitereply.clantag,user.clantag);
+			    packet_append_string(packet,user.inviter);
+
+			    if (!strcasecmp(client.text,"no"))
+			        result = W3XP_CLAN_INVITEREPLY_DECLINE;
+			    else
+			        result = W3XP_CLAN_INVITEREPLY_ACCEPT;
+				
+			    packet_append_data(packet,&result,1);
+			    
+			    client_blocksend_packet(client.sd,packet);
+			    packet_del_ref(packet);
+
+			    if (user.inviter)
+			        xfree((void *)user.inviter);
+			    user.inviter = NULL;
+				
+			}
+
+			
+			client.mode = mode_chat;
+		        break;
 
 		    case mode_gamename:
 			if (client.text[0]=='\0')
@@ -1675,8 +1722,140 @@ extern int main(int argc, char * argv[])
 			    printf("Got bad SERVER_W3XP_CLAN_INVITEREQ packet (expected %u bytes, got %u)\n",sizeof(t_server_w3xp_clan_invitereq),packet_get_size(rpacket));
 			    break;
 			}
-			munge(&client);
-			printf("invited\n");
+
+			{
+			    char const * clan;
+			    char const * inviter;
+			    int offset;
+			    
+			    offset = sizeof(t_server_w3xp_clan_invitereq);
+			    if (!(clan = packet_get_str_const(rpacket,offset,MAX_CLANNAME_LEN)))
+			    {
+				munge(&client);
+				printf("Got SERVER_W3XP_CLAN_INVITEREQ with bad or missing clanname\n");
+				break;
+			    }
+			    offset+=strlen(clan)+1;
+			    if (!(inviter = packet_get_str_const(rpacket,offset,USER_NAME_MAX)))
+			    {
+				munge(&client);
+				printf("Got SERVER_W3XP_CLAN_INVITEREQ with bad or missing inviter\n");
+				break;
+			    }
+			    user.count   = bn_int_get(rpacket->u.server_w3xp_clan_invitereq.count);
+			    user.clantag = bn_int_get(rpacket->u.server_w3xp_clan_invitereq.clantag);
+			    if (user.inviter)
+			    	xfree((void *)user.inviter);
+			    user.inviter = xstrdup(inviter);
+			    
+			    munge(&client);
+			    printf("%s invited you to Clan %s\n",inviter,clan);
+			    printf("Do you want to accept invitation (yes/no) ? [yes] ");
+			    
+			    client.mode = mode_claninvite;
+			}
+			
+
+			
+		    case SERVER_W3XP_CLAN_MEMBERCHANGEACK:
+			if (packet_get_size(rpacket)<sizeof(t_server_w3xp_clan_memberchangeack))
+			{
+		            munge(&client);
+			    printf("Got bad SERVER_W3XP_CLAN_MEMBERCHANGEACK packet (expected %u bytes, got %u)\n",sizeof(t_server_w3xp_clan_memberchangeack),packet_get_size(rpacket));
+			    break;
+			}
+
+			if (client.mode == mode_claninvite)
+			    break;
+			
+			{
+			    char const * member;
+			    char rank, online;
+			    char const * rank_p;
+			    char const * online_p;
+			    char const * append_str;
+			    int offset;
+			    char const * rank_str;
+			    char const * online_str;
+			    
+			    offset = sizeof(t_server_w3xp_clan_memberchangeack);
+			    if (!(member = packet_get_str_const(rpacket,offset,USER_NAME_MAX)))
+			    {
+				munge(&client);
+				printf("Got SERVER_W3XP_CLAN_MEMBERCHANGEACK with bad or missing member\n");
+				break;
+			    }
+			    offset+=strlen(member)+1;
+			    if (!(rank_p = (char *)packet_get_data_const(rpacket,offset,1)))
+			    {
+				munge(&client);
+				printf("Got SERVER_W3XP_CLAN_MEMBERCHANGEACK with bad or missing rank\n");
+				break;
+			    }
+			    rank = *rank_p;
+			    offset+=1;
+			    if (!(online_p = (char *)packet_get_data_const(rpacket,offset,1)))
+			    {
+				munge(&client);
+				printf("Got SERVER_W3XP_CLAN_MEMBERCHANGEACK with bad or missing online status\n");
+				break;
+			    }
+			    online = *online_p;
+			    offset+=1;
+			    if (!(append_str = packet_get_str_const(rpacket,offset,USER_NAME_MAX)))
+			    {
+				munge(&client);
+				printf("Got SERVER_W3XP_CLAN_MEMBERCHANGEACK with bad or missing append_str\n");
+				break;
+			    }
+			    
+			    switch (rank)
+			    {
+				case SERVER_W3XP_CLAN_MEMBER_NEW:
+					rank_str = "New clan member";
+					break;
+				case SERVER_W3XP_CLAN_MEMBER_PEON:
+					rank_str = "Peon";
+					break;
+				case SERVER_W3XP_CLAN_MEMBER_GRUNT:
+					rank_str = "Grunt";
+					break;
+				case SERVER_W3XP_CLAN_MEMBER_SHAMAN:
+					rank_str = "Shaman";
+					break;
+				case SERVER_W3XP_CLAN_MEMBER_CHIEFTAIN:
+					rank_str = "Chieftain";
+					break;
+				default:
+					rank_str = "";
+					
+			    }
+
+			    switch (online)
+			    {
+				case SERVER_W3XP_CLAN_MEMBER_OFFLINE:
+					online_str = "offline";
+					break;
+				case SERVER_W3XP_CLAN_MEMBER_ONLINE:
+					online_str = "online";
+					break;
+				case SERVER_W3XP_CLAN_MEMBER_CHANNEL:
+					online_str = "in channel";
+					break;
+				case SERVER_W3XP_CLAN_MEMBER_GAME:
+					online_str = "in game";
+					break;
+				case SERVER_W3XP_CLAN_MEMBER_PRIVATE_GAME:
+					online_str = "in private game";
+					break;
+				default:
+					online_str = "";
+			    }
+			    
+			    munge(&client);
+			    printf("%s %s  is now %s %s\n",rank_str,member,online_str,append_str);
+			}
+		    
 			
 		    case SERVER_STATSREPLY:
 			if (client.mode==mode_waitstat)
