@@ -133,7 +133,7 @@ extern void ladder_destroyxptable(void);
 extern int ladder_war3_xpdiff(unsigned int winnerlevel, unsigned int looserlevel, int *, int *);
 extern int ladder_war3_updatelevel(unsigned int oldlevel, int xp);
 extern int ladder_war3_get_min_xp(unsigned int level);
-extern unsigned int war3_get_maxleveldiff(void);
+extern int war3_get_maxleveldiff(void);
 
 
  extern int war3_ladder_add(t_ladder *ladder, int uid, int xp, int level, t_account *account, unsigned int teamcount,char const * clienttag);

@@ -66,7 +66,7 @@
 /* for War3 XP computations */
 static t_xpcalc_entry  * xpcalc;
 static t_xplevel_entry * xplevels;
-unsigned int w3_xpcalc_maxleveldiff;
+int w3_xpcalc_maxleveldiff;
 
 const char * WAR3_solo_file = "WAR3_solo";
 const char * W3XP_solo_file = "W3XP_solo";
@@ -2068,7 +2068,7 @@ extern void ladder_destroyxptable()
    if (xplevels != NULL) free(xplevels);
 }
 
-extern unsigned int war3_get_maxleveldiff()
+extern int war3_get_maxleveldiff()
 {
   return w3_xpcalc_maxleveldiff;
 }
