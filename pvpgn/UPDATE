@@ -25,6 +25,8 @@ new config files:
 changed config files:
 ---------------------
 -- updated bnmotd.txt
+-- updated anongame_infos.txt (you MUST udpate it, old language tags are not 
+supported anymore)
 
 changes to d2dbs.conf:
 ----------------------
