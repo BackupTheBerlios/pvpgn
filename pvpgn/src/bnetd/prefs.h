@@ -171,7 +171,6 @@ extern char const * prefs_get_ladderdir(void) PURE_ATTR();
 extern int prefs_get_reduced_accounting(void) PURE_ATTR();
 
 extern int prefs_get_XML_output_ladder(void) PURE_ATTR();
-extern int prefs_get_XML_output_tracker(void) PURE_ATTR();
 
 #endif
 #endif
