@@ -36,7 +36,7 @@ typedef struct
     t_bnet_header	h;
     bn_byte		option;
     /* rest of packet data */
-} t_client_anongame PACKED_ATTR();
+} PACKED_ATTR() t_client_anongame;
 
 /***********************************************************************************/
 #define CLIENT_FINDANONGAME_SEARCH              0x00
@@ -128,7 +128,7 @@ typedef struct
     bn_byte		unknown3;  /* 8 */
     bn_int		id;        /* client id */
     bn_int       	race;      /* 1 = H , 2 = O , 4 = N , 8 = U , 0x20 = R */
-} t_client_findanongame PACKED_ATTR();
+} PACKED_ATTR() t_client_findanongame;
 
 typedef struct
 {
@@ -146,7 +146,7 @@ typedef struct
     bn_byte      unknown3;  /* 08 */
     bn_int       id;	    /* client id */
     bn_int       race;      /* 1 = H , 2 = O , 4 = N , 8 = U , 0x20 = R */
-} t_client_findanongame_at_inv PACKED_ATTR();
+} PACKED_ATTR() t_client_findanongame_at_inv;
 
 typedef struct
 {
@@ -161,7 +161,7 @@ typedef struct
     bn_byte      unknown3;  /* 08 */
     bn_int       id;        /* client id */
     bn_int       race;      /* 1 = H , 2 = O , 4 = N , 8 = U , 0x20 = R */
-} t_client_findanongame_at PACKED_ATTR();
+} PACKED_ATTR() t_client_findanongame_at;
 
 #define SERVER_ANONGAME_SEARCH_REPLY		0x44ff
 typedef struct
@@ -171,7 +171,7 @@ typedef struct
     bn_int    count;
     bn_int    reply;
     /*      bn_short  avgtime; - only in W3XP so far average time in seconds of search */
-} t_server_anongame_search_reply PACKED_ATTR();
+} PACKED_ATTR() t_server_anongame_search_reply;
 
 /***********************************************************************************/
 /* option 01 - anongame found */
@@ -263,7 +263,7 @@ typedef struct
 				     */
     /* char *		mapname */
     /* t_saf_pt2 * 	pt2 */
-} t_server_anongame_found PACKED_ATTR();
+} PACKED_ATTR() t_server_anongame_found;
 
 /* MISC PACKET APPEND DATA's */
 typedef struct
@@ -275,7 +275,7 @@ typedef struct
     bn_short	unknown2;		/* 0x0000 */
     bn_byte	visibility;		/* 0x01 = dark - 0x02 = default */
     bn_byte	unknown3;		/* 0x02 */
-} t_saf_pt2 PACKED_ATTR();
+} PACKED_ATTR() t_saf_pt2;
 
 /***********************************************************************************/
 /* option 02 - info request */
@@ -287,7 +287,7 @@ typedef struct
 					 * 0x02 for matchmaking infos */
     bn_int              count;          /* 0x00000001 increments each request of same type */
     bn_byte             noitems;
-} t_client_findanongame_inforeq PACKED_ATTR();
+} PACKED_ATTR() t_client_findanongame_inforeq;
 
 #define SERVER_FINDANONGAME_INFOREPLY           0x44ff
 typedef struct {
@@ -305,7 +305,7 @@ for type 0x02 :
 	TYPE  : <info> unknown 38 bytes probably meaning anongame types
 	DESC  : <info>
 */
-} t_server_findanongame_inforeply PACKED_ATTR();
+} PACKED_ATTR() t_server_findanongame_inforeply;
 
 /***********************************************************************************/
 /* option 03 - playgame cancel */
@@ -315,7 +315,7 @@ typedef struct
     t_bnet_header h; // header
     bn_byte cancel; // Cancel byte always 03
     bn_int  count;
-} t_server_findanongame_playgame_cancel PACKED_ATTR();
+} PACKED_ATTR() t_server_findanongame_playgame_cancel;
 
 
 /* option 04 - profile request */
@@ -326,7 +326,7 @@ typedef struct
     bn_int          count;
     // USERNAME TO LOOKUP //
     // CLIENT TAG //
-} t_client_findanongame_profile PACKED_ATTR();
+} PACKED_ATTR() t_client_findanongame_profile;
 
 #define SERVER_FINDANONGAME_PROFILE		0x44ff
 /*
@@ -337,7 +337,7 @@ typedef struct
     bn_int count; // count that goes up each time user clicks on someones profile
     // REST OF PROFILE STATS - THIS WILL BE SET IN HANDLE_BNET.C after
     // SERVER LOOKS UP THE USER ACCOUNT
-} t_server_findanongame_profile PACKED_ATTR();
+} PACKED_ATTR() t_server_findanongame_profile;
 */
 typedef struct
 {
@@ -348,7 +348,7 @@ typedef struct
     bn_byte		rescount;
     // REST OF PROFILE STATS - THIS WILL BE SET IN HANDLE_BNET.C after
     // SERVER LOOKS UP THE USER ACCOUNT
-} t_server_findanongame_profile2 PACKED_ATTR();
+} PACKED_ATTR() t_server_findanongame_profile2;
 
 /***********************************************************************************/
 /* option 07 - tournament request */
@@ -358,7 +358,7 @@ typedef struct
     t_bnet_header       h;
     bn_byte             option; /* 07 */
     bn_int              count;  /* 01 00 00 00 */
-} t_client_anongame_tournament_request PACKED_ATTR();
+} PACKED_ATTR() t_client_anongame_tournament_request;
 
 #define SERVER_FINDANONGAME_TOURNAMENT_REPLY    0x44ff
 typedef struct
@@ -384,7 +384,7 @@ typedef struct
     bn_byte             selection;  /* matches anongame_TY_section of DESC */
     bn_byte             descnum;    /* matches desc_count of DESC */
     bn_byte             nulltag;    /* 00 */
-} t_server_anongame_tournament_reply PACKED_ATTR();
+} PACKED_ATTR() t_server_anongame_tournament_reply;
 
 /***********************************************************************************/
 
@@ -396,7 +396,7 @@ typedef struct
     bn_int	count;
     bn_int	clantag;
     bn_int	clienttag;
-} t_client_findanongame_profile_clan PACKED_ATTR();
+} PACKED_ATTR() t_client_findanongame_profile_clan;
 
 #define SERVER_FINDANONGAME_PROFILE_CLAN	0x44ff
 
@@ -408,7 +408,7 @@ typedef struct
     bn_byte		rescount;
     // REST OF PROFILE STATS - THIS WILL BE SET IN HANDLE_BNET.C after
     // SERVER LOOKS UP THE USER ACCOUNT
-} t_server_findanongame_profile_clan PACKED_ATTR();
+} PACKED_ATTR() t_server_findanongame_profile_clan;
 
 
 /***********************************************************************************/
@@ -422,7 +422,7 @@ typedef struct{
     bn_byte               table_width;            /* the icon table width */
     bn_byte               table_size;             /* the icon table total size */
     /* table data */
-} t_server_findanongame_iconreply PACKED_ATTR();
+} PACKED_ATTR() t_server_findanongame_iconreply;
 
 /***********************************************************************************/
 #define SERVER_ANONGAME_SOLO_STR        	0x534F4C4F /* "SOLO" */
@@ -473,7 +473,7 @@ typedef struct{
 typedef struct
 {
 	t_bnet_header h;
-} t_client_arrangedteam_friendscreen PACKED_ATTR();
+} PACKED_ATTR() t_client_arrangedteam_friendscreen;
 
 /***********************************************************************************/
 #define SERVER_ARRANGEDTEAM_FRIENDSCREEN 0x60ff
@@ -482,7 +482,7 @@ typedef struct
 	t_bnet_header h;
 	bn_byte f_count;
 	/* usernames get appended here */
-} t_server_arrangedteam_friendscreen PACKED_ATTR();
+} PACKED_ATTR() t_server_arrangedteam_friendscreen;
 
 #define SERVER_ARRANGED_TEAM_ADDNAME 0x01 
 
@@ -500,7 +500,7 @@ typedef struct
 	bn_int		unknown1;	/* 01 00 00 00 */
 	bn_byte 	numfriends;	//next is a byte, that is the number of friends to invite
 	/* usernames get appended here */
-} t_client_arrangedteam_invite_friend PACKED_ATTR();
+} PACKED_ATTR() t_client_arrangedteam_invite_friend;
 
 /***********************************************************************************/
 #define SERVER_ARRANGEDTEAM_INVITE_FRIEND_ACK 0x61ff
@@ -512,7 +512,7 @@ typedef struct
         bn_int		timestamp;
         bn_byte 	teamsize;    /* numfriends + 1 */
         bn_int		info[5];
-} t_server_arrangedteam_invite_friend_ack PACKED_ATTR();
+} PACKED_ATTR() t_server_arrangedteam_invite_friend_ack;
 
 /***********************************************************************************/
 #define SERVER_ARRANGEDTEAM_SEND_INVITE 0x63ff
@@ -526,7 +526,7 @@ typedef struct
 	bn_byte numfriends; /* Number of friends that got invited to the game */
 	/* username of the inviter */
 	/* usernames of the others who got invited */
-} t_server_arrangedteam_send_invite PACKED_ATTR();
+} PACKED_ATTR() t_server_arrangedteam_send_invite;
 
 /***********************************************************************************/
 #define CLIENT_ARRANGEDTEAM_ACCEPT_DECLINE_INVITE 0x63ff
@@ -537,7 +537,7 @@ typedef struct
 	bn_int id;
 	bn_int option;   /* accept or decline */
 	/* username of the inviter */
-} t_client_arrangedteam_accept_decline_invite PACKED_ATTR();
+} PACKED_ATTR() t_client_arrangedteam_accept_decline_invite;
 
 #define CLIENT_ARRANGEDTEAM_ACCEPT		0x00000003
 #define CLIENT_ARRANGEDTEAM_DECLINE		0x00000002
@@ -550,7 +550,7 @@ typedef struct
 	bn_int count;
 	bn_int action; // number assigned to player? playernum?
 	//username of the person who declined invitation
-} t_server_arrangedteam_member_decline PACKED_ATTR();
+} PACKED_ATTR() t_server_arrangedteam_member_decline;
 
 #define SERVER_ARRANGEDTEAM_ACCEPT		0x00000003
 #define SERVER_ARRANGEDTEAM_DECLINE		0x00000002
@@ -579,7 +579,7 @@ typedef struct
 typedef struct
 {
     t_bnet_header h;
-} t_client_friendslistreq PACKED_ATTR();
+} PACKED_ATTR() t_client_friendslistreq;
     
 /*
 # 158 packet from server: type=0x65ff(unknown) length=16 class=bnet
@@ -593,14 +593,14 @@ typedef struct
     t_bnet_header h;
     bn_byte friendcount;
     /* 1 byte status, 0-terminated name, 6 bytes unknown, ... */
-} t_server_friendslistreply PACKED_ATTR();
+} PACKED_ATTR() t_server_friendslistreply;
 
 typedef struct
 {
     bn_byte status;
     bn_byte location;
     bn_int clienttag;
-} t_server_friendslistreply_status PACKED_ATTR();
+} PACKED_ATTR() t_server_friendslistreply_status;
 	
 /*
 # 124 packet from client: type=0x66ff(unknown) length=5 class=bnet
@@ -612,7 +612,7 @@ typedef struct
 {
     t_bnet_header h;
     bn_byte friendnum;
-} t_client_friendinforeq PACKED_ATTR();
+} PACKED_ATTR() t_client_friendinforeq;
 
 /*
 # 126 packet from server: type=0x66ff(unknown) length=12 class=bnet
@@ -635,7 +635,7 @@ typedef struct
     bn_byte status;
     bn_int clienttag;
     /* game name */
-} t_server_friendinforeply PACKED_ATTR();
+} PACKED_ATTR() t_server_friendinforeply;
 #define FRIEND_TYPE_NON_MUTUAL 0x00
 #define FRIEND_TYPE_MUTUAL     0x01
 #define FRIEND_TYPE_DND	       0x02
@@ -651,7 +651,7 @@ typedef struct
 {
     t_bnet_header h;
     /* friend name, status */
-} t_server_friendadd_ack PACKED_ATTR();
+} PACKED_ATTR() t_server_friendadd_ack;
 /******************************************************/
 /*
 # 114 packet from server: type=0x68ff(unknown) length=5 class=bnet
@@ -662,7 +662,7 @@ typedef struct
 {
     t_bnet_header h;
     bn_byte friendnum;
-} t_server_frienddel_ack PACKED_ATTR();
+} PACKED_ATTR() t_server_frienddel_ack;
 /******************************************************/
 
 #define SERVER_FRIENDMOVE_ACK 0x69ff
@@ -671,7 +671,7 @@ typedef struct
     t_bnet_header h;
     bn_byte pos1;
     bn_byte pos2;
-} t_server_friendmove_ack PACKED_ATTR();
+} PACKED_ATTR() t_server_friendmove_ack;
 
 #define FRIENDSTATUS_OFFLINE    	0x00
 #define FRIENDSTATUS_ONLINE     	0x01

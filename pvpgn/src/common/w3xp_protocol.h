@@ -115,7 +115,7 @@
 typedef struct
 {
 	t_bnet_header h;
-} t_client_arrangedteam_accept_invite PACKED_ATTR();
+} PACKED_ATTR() t_client_arrangedteam_accept_invite;
 
 // clan handling
 
@@ -165,7 +165,7 @@ typedef struct{
   t_bnet_header        h;
   bn_int               count;
   bn_int               clantag;
-} t_client_w3xp_clan_createreq PACKED_ATTR();
+} PACKED_ATTR() t_client_w3xp_clan_createreq;
 
 
 #define SERVER_W3XP_CLAN_CREATEREPLY 0x70ff
@@ -176,7 +176,7 @@ typedef struct{
   bn_byte			   friend_count;
   // player name in chan or mutual
   //char player_name[sizeof (friend_name)];
-} t_server_w3xp_clan_createreply PACKED_ATTR();
+} PACKED_ATTR() t_server_w3xp_clan_createreply;
 #define SERVER_W3XP_CLAN_CREATEREPLY_CHECK_OK 0x00
 #define SERVER_W3XP_CLAN_CREATEREPLY_CHECK_ALLREADY_IN_USE 0x01
 #define SERVER_W3XP_CLAN_CREATEREPLY_CHECK_TIME_LIMIT 0x02
@@ -199,7 +199,7 @@ typedef struct{
   // bn_int			    clantag;
   // bn_byte			friend_count; //Number of friend selected
   // Name of friend (\0 terminated string)
-} t_client_w3xp_clan_createinvitereq PACKED_ATTR();
+} PACKED_ATTR() t_client_w3xp_clan_createinvitereq;
 
 /*3756: send class=bnet[0x02] type=unknown[0x71ff] length=14
 0000:   FF 71 0E 00 02 00 00 00   05 44 4A 50 32 00          .q.......DJP2.  
@@ -214,7 +214,7 @@ typedef struct{
   bn_int               count;
   bn_byte			   status; // 0x05 = Cannot contact(not in channel screen) or already in clan | 0x04 = Decline | 0x00 = OK :)
 // Name of failed member(\0 terminated string)
-} t_server_w3xp_clan_createinvitereply PACKED_ATTR();
+} PACKED_ATTR() t_server_w3xp_clan_createinvitereply;
 
 #define SERVER_W3XP_CLAN_CREATEINVITEREQ 0x72ff
 typedef struct{
@@ -225,7 +225,7 @@ typedef struct{
   // Clan Creator (\0 terminated string)
   // bn_byte			friend_count; //Number of friend selected
   // Name of friend (\0 terminated string)
-} t_server_w3xp_clan_createinvitereq PACKED_ATTR();
+} PACKED_ATTR() t_server_w3xp_clan_createinvitereq;
 
 #define CLIENT_W3XP_CLAN_CREATEINVITEREPLY 0x72ff
 typedef struct{
@@ -234,7 +234,7 @@ typedef struct{
   bn_int			   clantag;
   // Clan Creator (\0 terminated string)
   // bn_byte			reply  /* 0x04--decline 0x05--Cannot contact(not in channel screen) or already in clan 0x06--accept*/ 
-} t_client_w3xp_clan_createinvitereply PACKED_ATTR();
+} PACKED_ATTR() t_client_w3xp_clan_createinvitereply;
 
 /*
 3876: recv class=bnet[0x02] type=unknown[0x73ff] length=8
@@ -243,14 +243,14 @@ typedef struct{
 typedef struct{
   t_bnet_header        h;
   bn_int               count;
-} t_client_w3xp_clan_disbandreq PACKED_ATTR();
+} PACKED_ATTR() t_client_w3xp_clan_disbandreq;
 
 #define SERVER_W3XP_CLAN_DISBANDREPLY 0x73ff
 typedef struct{
   t_bnet_header        h;
   bn_int               count;
   bn_byte              result;   /* 0-- Success  1-- Exception raised  2-- Clan exists less than 1 week, cannot remove */
-} t_server_w3xp_clan_disbandreply PACKED_ATTR();
+} PACKED_ATTR() t_server_w3xp_clan_disbandreply;
 #define SERVER_W3XP_CLAN_DISBANDREPLY_RESULT_OK 0x0
 #define SERVER_W3XP_CLAN_DISBANDREPLY_RESULT_EXCEPTION 0x1
 #define SERVER_W3XP_CLAN_DISBANDREPLY_RESULT_FAILED 0x2
@@ -260,14 +260,14 @@ typedef struct{
   t_bnet_header        h;
   bn_int               count;
   //Player_Name deleted(\0 terminated)
-} t_client_w3xp_clan_membernewchiefreq PACKED_ATTR();
+} PACKED_ATTR() t_client_w3xp_clan_membernewchiefreq;
 
 #define SERVER_W3XP_CLAN_MEMBERNEWCHIEFREPLY 0x74ff
 typedef struct{
   t_bnet_header        h;
   bn_int               count;
   bn_byte              result; /* 0-successful 1-failed */
-} t_server_w3xp_clan_membernewchiefreply PACKED_ATTR();
+} PACKED_ATTR() t_server_w3xp_clan_membernewchiefreply;
 #define SERVER_W3XP_CLAN_MEMBERNEWCHIEFREPLY_SUCCESS 0x00
 #define SERVER_W3XP_CLAN_MEMBERNEWCHIEFREPLY_FAILED 0x01
 
@@ -277,13 +277,13 @@ typedef struct{
   bn_byte		unknow1; /* 0x00 */
   bn_int		clantag;
   bn_byte		status;  /* member status */
-} t_server_w3xp_clan_clanack PACKED_ATTR();
+} PACKED_ATTR() t_server_w3xp_clan_clanack;
 
 #define SERVER_W3XP_CLAN_CLANLEAVEACK 0x76ff
 typedef struct{
   t_bnet_header        h;
   bn_byte              unknown1; /* always be zero? */
-} t_server_w3xp_clan_clanleaveack PACKED_ATTR();
+} PACKED_ATTR() t_server_w3xp_clan_clanleaveack;
 #define SERVER_W3XP_CLAN_CLANLEAVEACK_UNKNOWN1 0x00
 
 /*
@@ -294,28 +294,28 @@ typedef struct{
   t_bnet_header        h;
   bn_int               count;
   //Player_Name invited
-} t_client_w3xp_clan_invitereq PACKED_ATTR();
+} PACKED_ATTR() t_client_w3xp_clan_invitereq;
 
 #define SERVER_W3XP_CLAN_INVITEREPLY 0x77ff
 typedef struct{
   t_bnet_header        h;
   bn_int               count;
   bn_byte              result;  /* 0x04--decline 0x05--Cannot contact(not in channel screen) or already in clan */
-} t_server_w3xp_clan_invitereply PACKED_ATTR();
+} PACKED_ATTR() t_server_w3xp_clan_invitereply;
 
 #define CLIENT_W3XP_CLAN_MEMBERDELREQ 0x78ff
 typedef struct{
   t_bnet_header        h;
   bn_int               count;
   //Player_Name deleted(\0 terminated)
-} t_client_w3xp_clan_memberdelreq PACKED_ATTR();
+} PACKED_ATTR() t_client_w3xp_clan_memberdelreq;
 
 #define SERVER_W3XP_CLAN_MEMBERDELREPLY 0x78ff
 typedef struct{
   t_bnet_header        h;
   bn_int               count;
   bn_byte              result; /* 0-successful 1-failed */
-} t_server_w3xp_clan_memberdelreply PACKED_ATTR();
+} PACKED_ATTR() t_server_w3xp_clan_memberdelreply;
 #define SERVER_W3XP_CLAN_MEMBERDELREPLY_SUCCESS 0x00
 #define SERVER_W3XP_CLAN_MEMBERDELREPLY_FAILED 0x01
 
@@ -326,7 +326,7 @@ typedef struct{
   bn_int               clantag;
   //Clan_Name (\0 terminated)
   //Player_Name invited (\0 terminated)
-} t_server_w3xp_clan_invitereq PACKED_ATTR();
+} PACKED_ATTR() t_server_w3xp_clan_invitereq;
 
 #define CLIENT_W3XP_CLAN_INVITEREPLY 0x79ff
 typedef struct{
@@ -335,7 +335,7 @@ typedef struct{
   bn_int               clantag;
   //Player_Name invited (\0 terminated)
   //bn_byte            reply/* 0x04--decline 0x05--Cannot contact(not in channel screen) or already in clan 0x06--accept 0x07--no privilege to invite 0x08--cannot invite(??any difference from cannot contact?) 0x09--clan full*/
-} t_client_w3xp_clan_invitereply PACKED_ATTR();
+} PACKED_ATTR() t_client_w3xp_clan_invitereply;
 #define W3XP_CLAN_INVITEREPLY_SUCCESS 0x00
 #define W3XP_CLAN_INVITEREPLY_DECLINE 0x04
 #define W3XP_CLAN_INVITEREPLY_FAILED 0x05
@@ -350,14 +350,14 @@ typedef struct{
   bn_int               count;
   //Player_Name invited(\0 terminated)
   //Player_Status(bn_byte: 1~4)
-} t_client_w3xp_clan_memberchangereq PACKED_ATTR();
+} PACKED_ATTR() t_client_w3xp_clan_memberchangereq;
 
 #define SERVER_W3XP_CLAN_MEMBERCHANGEREPLY 0x7aff
 typedef struct{
   t_bnet_header        h;
   bn_int               count;
   bn_byte              result; /* 0-successful 1-failed */
-} t_server_w3xp_clan_memberchangereply PACKED_ATTR();
+} PACKED_ATTR() t_server_w3xp_clan_memberchangereply;
 #define SERVER_W3XP_CLAN_MEMBERCHANGEREPLY_SUCCESS 0x00
 #define SERVER_W3XP_CLAN_MEMBERCHANGEREPLY_FAILED 0x01
 
@@ -366,7 +366,7 @@ typedef struct{
   t_bnet_header        h;
   bn_int               unknow1;
   // Motd en string ^^
-} t_client_w3xp_clan_motdchg PACKED_ATTR();
+} PACKED_ATTR() t_client_w3xp_clan_motdchg;
 #define SERVER_W3XP_CLAN_MOTDREPLY_UNKNOW1 0x00000000
 
 #define SERVER_W3XP_CLAN_MOTDREPLY 0x7cff
@@ -375,13 +375,13 @@ typedef struct{
   bn_int               count;
   bn_int			   unknow1; // 0x00000000
   // MOTD 
-} t_server_w3xp_clan_motdreply PACKED_ATTR();
+} PACKED_ATTR() t_server_w3xp_clan_motdreply;
 
 #define CLIENT_W3XP_CLAN_MOTDREQ 0x7cff
 typedef struct{
   t_bnet_header        h;
   bn_int               count;
-} t_client_w3xp_clan_motdreq PACKED_ATTR();
+} PACKED_ATTR() t_client_w3xp_clan_motdreq;
 
 /*
 Paquet #52
@@ -418,7 +418,7 @@ typedef struct{
   // bn_byte		   online status
   // unknown(always \0)
   // repeat end
-} t_server_w3xp_clan_memberreply PACKED_ATTR();
+} PACKED_ATTR() t_server_w3xp_clan_memberreply;
 
 /*
 Paquet #51
@@ -429,13 +429,13 @@ Paquet #51
 typedef struct{
   t_bnet_header        h;
   bn_int               count;
-} t_client_w3xp_clan_memberreq PACKED_ATTR();
+} PACKED_ATTR() t_client_w3xp_clan_memberreq;
 
 #define SERVER_W3XP_CLAN_MEMBERLEAVEACK 0x7eff
 typedef struct{
   t_bnet_header        h;
   //Player_Name deleted(\0 terminated)
-} t_server_w3xp_clan_memberleaveack PACKED_ATTR();
+} PACKED_ATTR() t_server_w3xp_clan_memberleaveack;
 
 #define SERVER_W3XP_CLAN_MEMBERCHANGEACK 0x7fff
 typedef struct{
@@ -443,6 +443,6 @@ typedef struct{
   //Player_Name invited(\0 terminated)
   //Player_Status(bn_byte: 1~4)
   //Player_Online(bn_short: 0x0/0x1)
-} t_server_w3xp_clan_memberchangeack PACKED_ATTR();
+} PACKED_ATTR() t_server_w3xp_clan_memberchangeack;
 
 #endif

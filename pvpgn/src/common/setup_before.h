@@ -348,8 +348,8 @@
 # define MODE_ATTR(M)
 #endif
 
-/* avoid using padding */
-#if defined(__GNUC__) && (__GNUC__ < 3 || (__GNUC__ == 3 && __GNUC_MINOR__<4 ))
+/* avoid using padding on GCC, for other compilers you need alternate solutions */
+#if defined(__GNUC__)
 # define PACKED_ATTR() __attribute__((__packed__))
 #else
 # define PACKED_ATTR()

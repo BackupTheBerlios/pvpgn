@@ -38,7 +38,7 @@ typedef struct
 {
     bn_short size;
     bn_byte  type;
-} t_auth_header PACKED_ATTR();
+} PACKED_ATTR() t_auth_header;
 /******************************************************/
 
 
@@ -46,7 +46,7 @@ typedef struct
 typedef struct
 {
     t_auth_header h;
-} t_auth_generic PACKED_ATTR();
+} PACKED_ATTR() t_auth_generic;
 /******************************************************/
 
 
@@ -101,7 +101,7 @@ typedef struct
     bn_int        unknown9; /* hash salt? */ /* from 0x35ff packet */
     bn_int        secret_hash[5]; /* from 0x35ff packet */
     /* player name */ /* _not_ character name! */
-} t_client_authloginreq PACKED_ATTR();
+} PACKED_ATTR() t_client_authloginreq;
 /******************************************************/
 
 
@@ -116,7 +116,7 @@ typedef struct
 {
     t_auth_header h;
     bn_int        reply;
-} t_server_authloginreply PACKED_ATTR();
+} PACKED_ATTR() t_server_authloginreply;
 #define SERVER_AUTHLOGINREPLY_REPLY_SUCCESS  0x00000000
 #define SERVER_AUTHLOGINREPLY_REPLY_BANNED   0x00000001 /* D2DV Beta 1.02 interprets as "You are banned from Battle.net, reconnect later" */
 #define SERVER_AUTHLOGINREPLY_REPLY_NOCONN   0x00000002 /* D2DV Beta 1.02 interprets as "Can't connect to server" */
@@ -187,7 +187,7 @@ typedef struct
     bn_short      unknown1; /* always zero? */
     bn_short      expansion; /* FIXME: according to Onlyer this is "type" 0x0=Normal 0x4=hardcore ,the same as in .d2s file */
     /* character name */
-} t_client_createcharreq PACKED_ATTR();
+} PACKED_ATTR() t_client_createcharreq;
 #define CLIENT_CREATECHARREQ_CLASS_AMAZON      0x0000
 #define CLIENT_CREATECHARREQ_CLASS_SORCERESS   0x0001
 #define CLIENT_CREATECHARREQ_CLASS_NECROMANCER 0x0002
@@ -213,7 +213,7 @@ typedef struct
 {
     t_auth_header h;
     bn_int        reply;
-} t_server_createcharreply PACKED_ATTR();
+} PACKED_ATTR() t_server_createcharreply;
 #define SERVER_CREATECHARREPLY_REPLY_SUCCESS  0x00000000
 /* FIXME: play with these... what error message does this produce? */
 #define SERVER_CREATECHARREPLY_REPLY_REJECTED 0x00000014 /* Name %s rejected by server */
@@ -274,7 +274,7 @@ typedef struct
     /* game name */
     /* game pass */
     /* game desc */
-} t_client_creategamereq PACKED_ATTR();
+} PACKED_ATTR() t_client_creategamereq;
 #define CLIENT_CREATEGAMEREQ_UNKNOWN1             0x0200
 #define CLIENT_CREATEGAMEREQ_UNKNOWN2             0x00
 #define CLIENT_CREATEGAMEREQ_UNKNOWN3             0x0000
@@ -316,7 +316,7 @@ typedef struct
     bn_short      unknown2;
     bn_short      unknown3; /* token? */
     bn_int        reply;
-} t_server_creategamereply PACKED_ATTR();
+} PACKED_ATTR() t_server_creategamereply;
 #define SERVER_CREATEGAMEREPLY_UNKNOWN2 0x0000
 #define SERVER_CREATEGAMEREPLY_UNKNOWN3 0x1234
 #define SERVER_CREATEGAMEREPLY_REPLY_OK           0x00000000
@@ -342,7 +342,7 @@ typedef struct
     bn_short      unknown1; /* sequence number? */
     /* game name */
     /* game pass */
-} t_client_joingamereq2 PACKED_ATTR();
+} PACKED_ATTR() t_client_joingamereq2;
 /******************************************************/
 
 
@@ -376,7 +376,7 @@ typedef struct
     bn_int        addr; /* game server IP (port is 4000) */ /* 216 148 246 52 */
     bn_int        unknown4; /* token? */
     bn_int        reply;
-} t_server_joingamereply2 PACKED_ATTR();
+} PACKED_ATTR() t_server_joingamereply2;
 #define SERVER_JOINGAMEREPLY2_UNKNOWN2 0x000003d2
 #define SERVER_JOINGAMEREPLY2_UNKNOWN4 0x1007f9af
 #define SERVER_JOINGAMEREPLY2_REPLY_OK          0x00000000
@@ -423,7 +423,7 @@ typedef struct
     bn_short      unknown1; /* sequence number? */
     bn_int        unknown2; /* always zero */
     bn_byte       unknown3; /* password? filter? always zero? */
-} t_client_d2gamelistreq PACKED_ATTR();
+} PACKED_ATTR() t_client_d2gamelistreq;
 /******************************************************/
 
 
@@ -479,7 +479,7 @@ typedef struct
     /* game name */
     /* game info */
     /* empty for END? */
-} t_server_d2gamelistreply PACKED_ATTR();
+} PACKED_ATTR() t_server_d2gamelistreply;
 #define SERVER_D2GAMELISTREPLY_UNKNOWN2     0x000032a8
 #define SERVER_D2GAMELISTREPLY_UNKNOWN3     0x00000001
 #define SERVER_D2GAMELISTREPLY_UNKNOWN4     0x00001004
@@ -499,7 +499,7 @@ typedef struct
     t_auth_header h;
     bn_short      unknown1; /* sequence no? */
     /* game name */
-} t_client_gameinforeq PACKED_ATTR();
+} PACKED_ATTR() t_client_gameinforeq;
 /******************************************************/
 
 
@@ -541,7 +541,7 @@ typedef struct
     bn_byte       level[16];
     bn_byte       unknown4;
     /* characters */
-} t_server_gameinforeply PACKED_ATTR();
+} PACKED_ATTR() t_server_gameinforeply;
 #define SERVER_GAMEINFOREPLY_UNKNOWN2 0x00100400
 #define SERVER_GAMEINFOREPLY_UNKNOWN3 0x00100400
 #define SERVER_GAMEINFOREPLY_UNKNOWN2 0x00100400
@@ -560,7 +560,7 @@ typedef struct
 {
     t_auth_header h;
     /* character name */
-} t_client_charloginreq PACKED_ATTR();
+} PACKED_ATTR() t_client_charloginreq;
 /******************************************************/
 
 
@@ -573,7 +573,7 @@ typedef struct
 {
     t_auth_header h;
     bn_int        reply;
-} t_server_charloginreply PACKED_ATTR();
+} PACKED_ATTR() t_server_charloginreply;
 #define SERVER_CHARLOGINREPLY_REPLY_SUCCESS 0x00000000
 #define SERVER_CHARLOGINREPLY_ERROR         0x00000001  /* need disconnect client */
 /* FIXME: document error codes */
@@ -589,7 +589,7 @@ typedef struct
 {
     t_auth_header h;
     bn_short      unknown1; /* sequence no? */ /* FIXME: Onlyer doesn't have this */
-} t_client_deletecharreq PACKED_ATTR();
+} PACKED_ATTR() t_client_deletecharreq;
 /******************************************************/
 
 
@@ -603,7 +603,7 @@ typedef struct
     t_auth_header h;
     bn_short      unknown1; /* sequence no? same as client */ /* FIXME: Onlyer doesn't have this */
     bn_int        reply;
-} t_server_deletecharreply PACKED_ATTR();
+} PACKED_ATTR() t_server_deletecharreply;
 #define SERVER_DELETECHARREPLY_REPLY_SUCCESS 0x00000000
 #define SERVER_DELETECHARREPLY_REPLY_ERROR   0x00000001
 /* FIXME: document error codes */
@@ -637,7 +637,7 @@ typedef struct
 {
     t_auth_header h;
     bn_byte       class;
-} t_client_ladderreq2 PACKED_ATTR();
+} PACKED_ATTR() t_client_ladderreq2;
 #define CLIENT_LADDERREQ2_CLASS_HARDCORE_OVERALL     0x00
 #define CLIENT_LADDERREQ2_CLASS_HARDCORE_AMAZON      0x01
 #define CLIENT_LADDERREQ2_CLASS_HARDCORE_SORCERESS   0x02
@@ -730,7 +730,7 @@ typedef struct
     bn_short      unknown4; /* cont_len? */   /* FIXME: sort these out */
     bn_int        unknown5; /* cont_len? */
     bn_int        unknown6; /* count? */
-} t_server_ladderreply2 PACKED_ATTR();
+} PACKED_ATTR() t_server_ladderreply2;
 #define SERVER_LADDERREPLY2_UNKNOWN2 0x0000
 #define SERVER_LADDERREPLY2_UNKNOWN3 0x0000
 #define SERVER_LADDERREPLY2_UNKNOWN4 0x0000
@@ -746,7 +746,7 @@ typedef struct
     bn_byte level; 
     bn_byte unknown2; 
     /* character name? */ /* or char charname[16]; */  /* FIXME */
-} t_server_ladderreply2_entry PACKED_ATTR();
+} PACKED_ATTR() t_server_ladderreply2_entry;
 #define SERVER_LADDERREPLY2_ENTRY_UNKNOWN1 0x00000000
 #define SERVER_LADDERREPLY2_ENTRY_UNKNOWN2 0x00
 /******************************************************/
@@ -762,7 +762,7 @@ typedef struct /* FIXME: This seems to be a request for the character list */
     t_auth_header h;
     bn_short      unknown1;    /* FIXME: Possibly max number of characters? */
     bn_short      unknown2;
-} t_client_charlistreq PACKED_ATTR();
+} PACKED_ATTR() t_client_charlistreq;
 /******************************************************/
 
 
@@ -802,7 +802,7 @@ typedef struct
 
     /* num_chars times character blocks */
 
-} t_server_charlistreply PACKED_ATTR();
+} PACKED_ATTR() t_server_charlistreply;
 /******************************************************/
 
 
@@ -813,7 +813,7 @@ typedef struct
 typedef struct
 {
     t_auth_header h;
-} t_client_convertcharreq PACKED_ATTR();
+} PACKED_ATTR() t_client_convertcharreq;
 /******************************************************/
 
 
@@ -826,7 +826,7 @@ typedef struct
 {
     t_auth_header h;
     bn_int        unknown1;  /* This seems to be always 00 00 00 00 */
-} t_server_convertcharreply PACKED_ATTR();
+} PACKED_ATTR() t_server_convertcharreply;
 #define SERVER_CONVERTCHARREPLY_UNKNOWN1 0x00000000
 /******************************************************/
 
@@ -838,7 +838,7 @@ typedef struct
 typedef struct /* FIXME: ping request? */ /* is there normally a reply? */
 {
     t_auth_header h;
-} t_client_authmotdreq PACKED_ATTR();
+} PACKED_ATTR() t_client_authmotdreq;
 /******************************************************/
 
 

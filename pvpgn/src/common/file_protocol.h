@@ -32,7 +32,7 @@ typedef struct
 {
     bn_short size;
     bn_short type;
-} t_file_header PACKED_ATTR();
+} PACKED_ATTR() t_file_header;
 /******************************************************/
 
 
@@ -40,7 +40,7 @@ typedef struct
 typedef struct
 {
     t_file_header h;
-} t_file_generic PACKED_ATTR();
+} PACKED_ATTR() t_file_generic;
 /******************************************************/
 
 
@@ -74,7 +74,7 @@ typedef struct
     bn_int        startoffset; /* is this actually used in the original clients? */
     bn_long       timestamp;
     /* filename */
-} t_client_file_req PACKED_ATTR();
+} PACKED_ATTR() t_client_file_req;
 /******************************************************/
 
 /*
@@ -94,7 +94,7 @@ typedef struct
     bn_int        archtag;
     bn_int        clienttag;
     bn_long       unknown1;
-} t_client_file_req2 PACKED_ATTR();
+} PACKED_ATTR() t_client_file_req2;
 
 #define CLIENT_FILE_REQ3		0x0000
 typedef struct
@@ -107,7 +107,7 @@ typedef struct
     bn_long	unknown5;
     bn_long	unknown6;
     /* filename */
-} t_client_file_req3 PACKED_ATTR();
+} PACKED_ATTR() t_client_file_req3;
 
 /******************************************************/
 /* SERVER FILE MPQ REPLY
@@ -134,13 +134,13 @@ typedef struct
     bn_int        extensiontag; /* unlike other tags, this one is "forward" */
     bn_long       timestamp;
     /* filename */
-} t_server_file_reply PACKED_ATTR();
+} PACKED_ATTR() t_server_file_reply;
 /******************************************************/
 
 #define SERVER_FILE_UNKNOWN1 0xdeadbeef
 typedef struct
 {
     bn_int	unknown;
-} t_server_file_unknown1 PACKED_ATTR();
+} PACKED_ATTR() t_server_file_unknown1;
 
 #endif
