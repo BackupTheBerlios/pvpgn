@@ -107,7 +107,6 @@ static struct {
     char const * trackaddrs;
     char const * servaddrs;
     char const * w3routeaddr;
-    char const * w3routeshow;
     char const * ircaddrs;
     unsigned int use_keepalive;
     unsigned int udptest_port;
@@ -174,6 +173,7 @@ static struct {
     char const * tournament_file;
     char const * aliasfile;
     char const * anongame_infos_file;
+    char const * w3trans_file;
     unsigned int max_conns_per_IP;
     unsigned int max_friends;
     unsigned int clan_newer_time;
@@ -231,7 +231,6 @@ static Bconf_t conf_table[] =
     { "trackaddrs",             conf_type_char,    BNETD_TRACK_ADDRS,    NONE                , (void *)&prefs_runtime_config.trackaddrs},
     { "servaddrs",              conf_type_char,    BNETD_SERV_ADDRS,     NONE                , (void *)&prefs_runtime_config.servaddrs},
     { "w3routeaddr",            conf_type_char,    BNETD_W3ROUTE_ADDR,   NONE                , (void *)&prefs_runtime_config.w3routeaddr},
-    { "w3routeshow",            conf_type_char,    NULL,                 NONE                , (void *)&prefs_runtime_config.w3routeshow},
     { "ircaddrs",               conf_type_char,    BNETD_IRC_ADDRS,      NONE                , (void *)&prefs_runtime_config.ircaddrs},
     { "use_keepalive",          conf_type_bool,    NULL,                 0                   , (void *)&prefs_runtime_config.use_keepalive},
     { "udptest_port",           conf_type_int,     NULL,                 BNETD_DEF_TEST_PORT , (void *)&prefs_runtime_config.udptest_port},
@@ -296,6 +295,7 @@ static Bconf_t conf_table[] =
     { "command_groups_file",	conf_type_char,    BNETD_COMMAND_GROUPS_FILE,	NONE	     , (void *)&prefs_runtime_config.command_groups_file},
     { "tournament_file",		conf_type_char,    BNETD_TOURNAMENT_FILE, NONE			     , (void *)&prefs_runtime_config.tournament_file},
     { "aliasfile"          ,    conf_type_char,    BNETD_ALIASFILE   ,   NONE                , (void *)&prefs_runtime_config.aliasfile},
+    { "w3trans_file",		conf_type_char,		BNETD_W3TRANS_FILE,	NONE,	(void *)&prefs_runtime_config.w3trans_file},
     { "anongame_infos_file",	conf_type_char,	   PVPGN_AINFO_FILE,	 NONE				 , (void *)&prefs_runtime_config.anongame_infos_file},
     { "max_conns_per_IP",		conf_type_int,	   NULL,				 0					 , (void *)&prefs_runtime_config.max_conns_per_IP},
     { "max_friends",			conf_type_int,     NULL,                 MAX_FRIENDS         , (void *)&prefs_runtime_config.max_friends},
@@ -844,15 +844,9 @@ extern char const * prefs_get_bnetdserv_addrs(void)
     return prefs_runtime_config.servaddrs;
 }
 
-// [zap-zero] 20020527	
 extern char const * prefs_get_w3route_addr(void)
 {
     return prefs_runtime_config.w3routeaddr;
-}
-
-extern char const * prefs_get_w3route_show(void)
-{
-    return prefs_runtime_config.w3routeshow;
 }
 
 extern char const * prefs_get_irc_addrs(void)
@@ -1250,6 +1244,11 @@ extern char const * prefs_get_tournament_file(void)
 extern char const * prefs_get_aliasfile(void)
 {
    return prefs_runtime_config.aliasfile;
+}
+
+extern char const * prefs_get_w3trans_file(void)
+{
+    return prefs_runtime_config.w3trans_file;
 }
 
 extern char const * prefs_get_anongame_infos_file(void)

@@ -161,6 +161,7 @@
 #define BNETD_COMMAND_GROUPS_FILE "conf/command_groups.txt"
 #define BNETD_TOURNAMENT_FILE	"conf/tournament.conf"
 #define BNETD_ALIASFILE         "conf/bnalias.list"
+#define BNETD_W3TRANS_FILE	"conf/w3trans"
 /* ADDED BY UNDYING SOULZZ 4/9/02 */
 /* default identify timeout value */
 #define W3_IDENTTIMEOUT		15	/* seconds */
@@ -184,7 +185,7 @@
 #define BNETD_SERV_ADDRS      ":" /* this means "all" */
 #define BNETD_SERV_PORT       6112
 #define BNETD_W3ROUTE_ADDR    "0.0.0.0"
-#define BNETD_W3ROUTE_PORT    6113
+#define BNETD_W3ROUTE_PORT    6200
 #define BNETD_IRC_ADDRS       "" /* this means none */
 #define BNETD_IRC_PORT        6667 /* used if port not specified */
 #define BNETD_TRACK_ADDRS     "track.pvpgn.org"

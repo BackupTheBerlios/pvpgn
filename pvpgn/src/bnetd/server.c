@@ -152,6 +152,7 @@
 #include "news.h"
 #include "fdwatch.h"
 #include "clan.h"
+#include "w3trans.h"
 #include "common/setup_after.h"
 
 extern FILE * hexstrm; /* from main.c */
@@ -1553,6 +1554,9 @@ extern int server_process(void)
 
 	    aliasfile_unload();
 	    aliasfile_load(prefs_get_aliasfile());
+	    
+	    if(w3trans_reload(prefs_get_w3trans_file())<0)
+		eventlog(eventlog_level_error,__FUNCTION__,"could not reload w3trans list");
 
 	    anongame_infos_unload();
 	    anongame_infos_load(prefs_get_anongame_infos_file());

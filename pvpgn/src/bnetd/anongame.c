@@ -53,6 +53,7 @@
 #include "timer.h"
 #include "war3ladder.h"
 #include "anongame_maplists.h"
+#include "w3trans.h"
 #include "common/setup_after.h"
 
 #define MAX_LEVEL 100
@@ -854,7 +855,7 @@ static int _anongame_match(t_connection * c, int queue)
 }
 
 static int w3routeip = -1; /* changed by dizzy to show the w3routeshow addr if available */
-static unsigned short w3routeport = 6200;
+static unsigned short w3routeport = BNETD_W3ROUTE_PORT;
 
 static int _anongame_search_found(int queue)
 {
@@ -871,12 +872,7 @@ static int _anongame_search_found(int queue)
     if(w3routeip==-1) {
 	t_addr * routeraddr;
 	
-	if (prefs_get_w3route_show())
-	    routeraddr = addr_create_str(prefs_get_w3route_show(), 0, 6200);
-	else
-	    routeraddr = addr_create_str(prefs_get_w3route_addr(), 0, 6200);
-	
-//	eventlog(eventlog_level_trace,__FUNCTION__,"setting w3routeip, addr from prefs");
+	routeraddr = addr_create_str(prefs_get_w3route_addr(), 0, BNETD_W3ROUTE_PORT);
 	
 	if(!routeraddr) {
 	    eventlog(eventlog_level_error,__FUNCTION__,"error getting w3route_addr");
@@ -931,8 +927,15 @@ static int _anongame_search_found(int queue)
 	bn_byte_set(&rpacket->u.server_anongame_found.option,1);
 	bn_int_set(&rpacket->u.server_anongame_found.count,a->count);
 	bn_int_set(&rpacket->u.server_anongame_found.unknown1,0);
-	bn_int_nset(&rpacket->u.server_anongame_found.ip,w3routeip);
-	bn_short_set(&rpacket->u.server_anongame_found.port,w3routeport);
+	{ /* w3trans support */
+	    unsigned int w3ip = w3routeip;
+	    unsigned short w3port = w3routeport;
+	    
+	    w3trans_net(conn_get_addr(player[queue][i]), &w3ip, &w3port);
+	    
+	    bn_int_nset(&rpacket->u.server_anongame_found.ip,w3ip);
+	    bn_short_set(&rpacket->u.server_anongame_found.port,w3port);
+	}
 	bn_byte_set(&rpacket->u.server_anongame_found.unknown2,i+1);
 	bn_byte_set(&rpacket->u.server_anongame_found.unknown3,queue);
 	bn_short_set(&rpacket->u.server_anongame_found.unknown4,0);

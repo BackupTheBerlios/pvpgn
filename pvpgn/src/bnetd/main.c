@@ -92,6 +92,7 @@
 #include "news.h"
 #include "clan.h"
 #include "topic.h"
+#include "w3trans.h"
 #include "common/setup_after.h"
 
 #ifdef WIN32
@@ -461,6 +462,8 @@ int pre_server_startup(void)
     if (command_groups_load(prefs_get_command_groups_file())<0)
 	eventlog(eventlog_level_error,"pre_server_startup","could not load command_groups list");
     aliasfile_load(prefs_get_aliasfile());
+    if (w3trans_load(prefs_get_w3trans_file())<0)
+	eventlog(eventlog_level_error,__FUNCTION__,"could not load w3trans list");
     anongame_infos_load(prefs_get_anongame_infos_file());
     tournament_init(prefs_get_tournament_file());
     clanlist_load();
@@ -477,6 +480,7 @@ void post_server_shutdown(int status)
             clanlist_unload();
 	    tournament_destroy();
 	    anongame_infos_unload();
+	    w3trans_unload();
 	    aliasfile_unload();
 	    command_groups_unload();
 	    tracker_set_servers(NULL);

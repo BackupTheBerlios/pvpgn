@@ -98,7 +98,6 @@ extern char const * prefs_get_trackserv_addrs(void) PURE_ATTR();
 extern char const * prefs_get_bnetdserv_addrs(void) PURE_ATTR();
 extern char const * prefs_get_irc_addrs(void) PURE_ATTR();
 extern char const * prefs_get_w3route_addr(void) PURE_ATTR();
-extern char const * prefs_get_w3route_show(void) PURE_ATTR();
 extern unsigned int prefs_get_use_keepalive(void) PURE_ATTR();
 extern unsigned int prefs_get_do_uplink(void) PURE_ATTR();
 extern char const * prefs_get_uplink_server(void) PURE_ATTR();
@@ -179,6 +178,7 @@ extern char const * prefs_get_account_allowed_symbols(void) PURE_ATTR();
 extern char const * prefs_get_command_groups_file(void) PURE_ATTR();
 extern char const * prefs_get_tournament_file(void) PURE_ATTR();
 extern char const * prefs_get_aliasfile(void) PURE_ATTR();
+extern char const * prefs_get_w3trans_file(void) PURE_ATTR();
 
 extern char const * prefs_get_anongame_infos_file(void) PURE_ATTR();
 
