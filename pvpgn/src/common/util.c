@@ -49,14 +49,17 @@
 
 extern int strstart(char const * full, char const * part)
 {
+    size_t strlen_full, strlen_part;
     if (!full || !part)
 	return 1;
-    if (strlen(full)<strlen(part))
+    strlen_full = strlen(full);
+    strlen_part = strlen(part);
+    if (strlen_full<strlen_part)
 	return 1;
     /* If there is more than the command, make sure it is separated */
-    if (strlen(full)>strlen(part) && full[strlen(part)]!=' ' && full[strlen(part)]!='\0')
+    if (strlen_full>strlen_part && full[strlen_part]!=' ' && full[strlen_part]!='\0')
         return 1;
-    return strncasecmp(full,part,strlen(part));
+    return strncasecmp(full,part,strlen_part);
 }
 
 
