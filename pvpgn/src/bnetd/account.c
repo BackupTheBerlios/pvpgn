@@ -1401,9 +1401,6 @@ extern char const * account_get_name(t_account * account)
 }
 
 
-// THEUNDYING - MUTUAL FRIEND CHECK 
-// fixed by zap-zero-tested and working 100% TheUndying
-// modified by Soar to support account->friends list direct access
 extern int account_check_mutual( t_account * account, int myuserid)
 {
     if (account == NULL) {

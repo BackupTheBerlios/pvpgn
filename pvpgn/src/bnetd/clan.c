@@ -404,7 +404,14 @@ extern int clan_get_possible_member(t_connection * c, t_packet const *const pack
 	    {
 		t_account *fr_acc = friend_get_account(fr);
 		t_uint32 clienttag;
-		if (fr->mutual && ((conn = connlist_find_connection_by_account(fr_acc)) != NULL) && (conn_get_channel(conn) == channel) && (!account_get_clan(fr_acc)) && (!account_get_creating_clan(fr_acc)) && (clienttag = conn_get_clienttag(conn)) && ((clienttag == CLIENTTAG_WAR3XP_UINT) || (clienttag ==  CLIENTTAG_WARCRAFT3_UINT)) && (username = account_get_name(fr_acc)))
+		if (fr->mutual 
+		    && ((conn = connlist_find_connection_by_account(fr_acc)) != NULL) 
+		    && (conn_get_channel(conn) == channel) 
+		    && (!account_get_clan(fr_acc)) 
+		    && (!account_get_creating_clan(fr_acc)) 
+		    && (clienttag = conn_get_clienttag(conn)) 
+		    && ((clienttag == CLIENTTAG_WAR3XP_UINT) || (clienttag ==  CLIENTTAG_WARCRAFT3_UINT)) 
+		    && (username = account_get_name(fr_acc)))
 		{
 		    friend_count++;
 		    packet_append_string(rpacket, username);
@@ -796,7 +803,7 @@ extern t_clanmember *clan_find_member_by_name(t_clan * clan, char const *membern
 	    eventlog(eventlog_level_error, __FUNCTION__, "got NULL element in list");
 	    return NULL;
 	}
-	if (strcmp(account_get_name(member->memberacc), membername) == 0)
+	if (strcasecmp(account_get_name(member->memberacc), membername) == 0)
 	    return member;
     }
 
