@@ -3169,56 +3169,6 @@ extern int account_get_new_at_team(t_account * account)
 	return account_get_numattr(account,"BNET\\new_at_team_flag");
 }
 
-extern int account_get_icon_profile(t_account * account, char const * clienttag)
-{
-	unsigned int humans	= account_get_racewin(account,W3_RACE_HUMANS,clienttag);		//  1;
-	unsigned int orcs	= account_get_racewin(account,W3_RACE_ORCS,clienttag); 		        //  2;
-	unsigned int nightelf	= account_get_racewin(account,W3_RACE_NIGHTELVES,clienttag);	        //  4;
-	unsigned int undead	= account_get_racewin(account,W3_RACE_UNDEAD,clienttag);		//  8;
-	unsigned int random	= account_get_racewin(account,W3_RACE_RANDOM,clienttag);		// 32;
-	unsigned int race	= 0; // 0 = Humans, 1 = Orcs, 2 = Night Elves, 3 = Undead, 4 = Ramdom
-	unsigned int level	= 0; // 0 = under 25, 1 = 25 to 249, 2 = 250 to 499, 3 = 500 to 1499, 4 = 1500 or more (wins)
-	unsigned int wins	= 0;
-	unsigned int icons_limits[5] = {25, 250, 500, 1500, -1}; // maybe add option to config to set levels
-	unsigned int profileicon[5][5] = {
-	    {0x68706561, 0x68666F6F, 0x686B6E69, 0x48616D67, 0x6E6D6564}, // Humans - Peasant, Footman, Knight, Archmage, Medivh
-	    {0x6F70656F, 0x6F677275, 0x6F746175, 0x4F666172, 0x4F746872}, // Orcs - Peon, Grunt, Tauren, Far Seer, Thrall
-	    {0x65777370, 0x65617263, 0x65646F63, 0x456D6F6F, 0x45667572}, // Night Elves - Wisp, Archer, Druid of the Claw, Priestess of the Moon, Furion Stormrage
-	    {0x7561636F, 0x7567686F, 0x7561626F, 0x556C6963, 0x55746963}, // Undead - Acolyle, Ghoul, Abomination, Lich, Tichondrius
-	    {0x00000000, 0x6E677264, 0x6E616472, 0x6E726472, 0x6E62776D}  // Ramdom - ????, Grean Dragon Whelp, Blue Dragon, Red Dragon, Deathwing
-	};
-
-	/* moved the check for orcs in the first place so people with 0 wins get peon */
-        if(orcs>=humans && orcs>=undead && orcs>=nightelf && orcs>=random) {
-            wins = orcs;
-            race = 1;
-        }
-        else if(humans>=orcs && humans>=undead && humans>=nightelf && humans>=random) {
-	    wins = humans;
-            race = 0;
-        }
-        else if(nightelf>=humans && nightelf>=orcs && nightelf>=undead && nightelf>=random) {
-            wins = nightelf;
-            race = 2;
-        }
-        else if(undead>=humans && undead>=orcs && undead>=nightelf && undead>=random) {
-            wins = undead;
-            race = 3;
-        }
-        else {
-            wins = random;
-            race = 4;
-        }
-
-        while(wins >= icons_limits[level] && icons_limits[level] > 0) level++;
-
-        eventlog(eventlog_level_info,"account_get_icon_profile","race -> %u; level -> %u; wins -> %u; profileicon -> 0x%X", race, level, wins, profileicon[race][level]);
-
-        if (!level) return 0x6F70656F; // Sheep - Remove to use race icons ie. Peasant, Peon, Wisp, etc. (Not tested) maybe add option in config
-				       // changed to Peon by Dizzy, this is how BNET does it
-
-	return profileicon[race][level];
-}
 
 //BlacKDicK 04/20/2003
 extern int account_set_user_icon( t_account * account, char const * clienttag,char const * usericon)
@@ -3244,16 +3194,14 @@ extern char const * account_get_user_icon( t_account * account, char const * cli
     return NULL;
 }
 
-extern unsigned int account_icon_to_profile_icon(char const * icon,t_account * account, char const * ctag)
-{
-	// Ramdom - Nothing, Grean Dragon Whelp, Azure Dragon (Blue Dragon), Red Dragon, Deathwing, Nothing
-	// Humans - Peasant, Footman, Knight, Archmage, Medivh, Nothing
-	// Orcs - Peon, Grunt, Tauren, Far Seer, Thrall, Nothing
-	// Undead - Acolyle, Ghoul, Abomination, Lich, Tichondrius, Nothing
-	// Night Elves - Wisp, Archer, Druid of the Claw, Priestess of the Moon, Furion Stormrage, Nothing
-	// Demons - Nothing, ???(wich unit is nfgn), Infernal, Doom Guard, Pit Lord/Manaroth, Archimonde
-	// ADDED TFT ICON BY DJP 07/16/2003
-	char * profile_code[12][6] = {
+// Ramdom - Nothing, Grean Dragon Whelp, Azure Dragon (Blue Dragon), Red Dragon, Deathwing, Nothing
+// Humans - Peasant, Footman, Knight, Archmage, Medivh, Nothing
+// Orcs - Peon, Grunt, Tauren, Far Seer, Thrall, Nothing
+// Undead - Acolyle, Ghoul, Abomination, Lich, Tichondrius, Nothing
+// Night Elves - Wisp, Archer, Druid of the Claw, Priestess of the Moon, Furion Stormrage, Nothing
+// Demons - Nothing, ???(wich unit is nfgn), Infernal, Doom Guard, Pit Lord/Manaroth, Archimonde
+// ADDED TFT ICON BY DJP 07/16/2003
+static char * profile_code[12][6] = {
 	    {NULL  , "ngrd", "nadr", "nrdr", "nbwm", NULL  },
 	    {"hpea", "hfoo", "hkni", "Hamg", "nmed", NULL  },
 	    {"opeo", "ogru", "otau", "Ofar", "Othr", NULL  },
@@ -3267,6 +3215,54 @@ extern unsigned int account_icon_to_profile_icon(char const * icon,t_account * a
 	    {"ewsp", "esen", "edot", "edry", "Ekee", "Ewrd"},
 	    {NULL  , "nfgu", "ninf", "nbal", "Nplh", "Uwar"}
 	};
+
+extern unsigned int account_get_icon_profile(t_account * account, char const * clienttag)
+{
+	unsigned int humans	= account_get_racewin(account,W3_RACE_HUMANS,clienttag);		//  1;
+	unsigned int orcs	= account_get_racewin(account,W3_RACE_ORCS,clienttag); 		        //  2;
+	unsigned int nightelf	= account_get_racewin(account,W3_RACE_NIGHTELVES,clienttag);	        //  4;
+	unsigned int undead	= account_get_racewin(account,W3_RACE_UNDEAD,clienttag);		//  8;
+	unsigned int random	= account_get_racewin(account,W3_RACE_RANDOM,clienttag);		// 32;
+	unsigned int race	= 0; // 0 = Humans, 1 = Orcs, 2 = Night Elves, 3 = Undead, 4 = Ramdom
+	unsigned int level	= 0; // 0 = under 25, 1 = 25 to 249, 2 = 250 to 499, 3 = 500 to 1499, 4 = 1500 or more (wins)
+	unsigned int wins	= 0;
+	int number_ctag		= 0;
+	unsigned int icons_limits[6] = {25, 150, 350, 750, 1500, -1}; // maybe add option to config to set levels
+
+	/* moved the check for orcs in the first place so people with 0 wins get peon */
+        if(orcs>=humans && orcs>=undead && orcs>=nightelf && orcs>=random) {
+            wins = orcs;
+            race = 2;
+        }
+        else if(humans>=orcs && humans>=undead && humans>=nightelf && humans>=random) {
+	    wins = humans;
+            race = 1;
+        }
+        else if(nightelf>=humans && nightelf>=orcs && nightelf>=undead && nightelf>=random) {
+            wins = nightelf;
+            race = 4;
+        }
+        else if(undead>=humans && undead>=orcs && undead>=nightelf && undead>=random) {
+            wins = undead;
+            race = 3;
+        }
+        else {
+            wins = random;
+            race = 0;
+        }
+
+        while(wins >= icons_limits[level] && icons_limits[level] > 0) level++;
+
+	if ((strcmp(clienttag,CLIENTTAG_WARCRAFT3)==0) && (level>4)) level = 4;
+	if (strcmp(clienttag,CLIENTTAG_WAR3XP)==0) number_ctag = 6;
+        
+        eventlog(eventlog_level_info,"account_get_icon_profile","race -> %u; level -> %u; wins -> %u; profileicon -> 0x%X", race, level, wins, profile_code[race+number_ctag][level]);
+
+	return char_icon_to_uint(profile_code[race+number_ctag][level]);
+}
+
+extern unsigned int account_icon_to_profile_icon(char const * icon,t_account * account, char const * ctag)
+{
 	char tmp_icon[4];
 	char * result;
 	int number_ctag=0;
@@ -3302,7 +3298,7 @@ extern unsigned int account_icon_to_profile_icon(char const * icon,t_account * a
 	    eventlog(eventlog_level_error,"account_icon_to_profile_icon","got invalid icon lenght [%s] icon ",icon);
 	    result = NULL;
 	}
-	eventlog(eventlog_level_debug,"account_icon_to_profile_icon","from [%4.4s] icon returned [0x%X]",icon,char_icon_to_uint(result));
+	//eventlog(eventlog_level_debug,"account_icon_to_profile_icon","from [%4.4s] icon returned [0x%X]",icon,char_icon_to_uint(result));
 	return char_icon_to_uint(result);
 }
 

@@ -72,7 +72,6 @@ static unsigned int _tournament_time_convert(unsigned int time);
 static int _client_anongame_profile(t_connection * c, t_packet const * const packet)
 {
     t_packet * rpacket = NULL;
-    char const * ct = conn_get_clienttag(c);
     char const * username;
     int Count;
     int temp;
@@ -97,14 +96,15 @@ static int _client_anongame_profile(t_connection * c, t_packet const * const pac
     }										
 
     if (!(dest_c = connlist_find_connection_by_accountname(username))) {
-	eventlog(eventlog_level_error, __FUNCTION__, "account is offline (profile request)");
-	return -1;
+	eventlog(eventlog_level_debug, __FUNCTION__, "account is offline -  try ll_clienttag");
+	if (!(ctag = account_get_ll_clienttag(account))) return -1;
     }
+    else
+    ctag = conn_get_clienttag(dest_c);
 
     eventlog(eventlog_level_info,__FUNCTION__,"Looking up %s's WAR3 Stats.",username);
 
-    ctag = conn_get_clienttag(dest_c);
-    if (account_get_sololevel(account,ctag)<=0 && account_get_teamlevel(account,ct)<=0 && account_get_atteamcount(account,ctag)<=0)
+    if (account_get_sololevel(account,ctag)<=0 && account_get_teamlevel(account,ctag)<=0 && account_get_atteamcount(account,ctag)<=0)
     {
 	eventlog(eventlog_level_info,__FUNCTION__,"%s does not have WAR3 Stats.",username);
 	if (!(rpacket = packet_create(packet_class_bnet)))
@@ -113,7 +113,7 @@ static int _client_anongame_profile(t_connection * c, t_packet const * const pac
 	packet_set_type(rpacket,SERVER_FINDANONGAME_PROFILE);
 	bn_byte_set(&rpacket->u.server_findanongame_profile2.option,CLIENT_FINDANONGAME_PROFILE);
 	bn_int_set(&rpacket->u.server_findanongame_profile2.count,Count);
-	bn_int_set(&rpacket->u.server_findanongame_profile2.icon,SERVER_FINDANONGAME_PROFILE_UNKNOWN2);
+	bn_int_set(&rpacket->u.server_findanongame_profile2.icon,account_icon_to_profile_icon(account_get_user_icon(account,ctag),account,ctag));
 	bn_byte_set(&rpacket->u.server_findanongame_profile2.rescount,0);
 	temp=0;
 	packet_append_data(rpacket,&temp,2); 
@@ -159,11 +159,7 @@ static int _client_anongame_profile(t_connection * c, t_packet const * const pac
 	packet_set_type(rpacket,SERVER_FINDANONGAME_PROFILE);
 	bn_byte_set(&rpacket->u.server_findanongame_profile2.option,CLIENT_FINDANONGAME_PROFILE);
 	bn_int_set(&rpacket->u.server_findanongame_profile2.count,Count); //job count
-	if (strcmp(ctag,CLIENTTAG_WARCRAFT3)==0 || strcmp(ctag,CLIENTTAG_WAR3XP)==0) {
-	    bn_int_set(&rpacket->u.server_findanongame_profile2.icon,account_icon_to_profile_icon(account_get_user_icon(account,ctag),account,ctag));
-	} else {
-	    bn_int_set(&rpacket->u.server_findanongame_profile2.icon,account_get_icon_profile(account,ctag));
-	}
+	bn_int_set(&rpacket->u.server_findanongame_profile2.icon,account_icon_to_profile_icon(account_get_user_icon(account,ctag),account,ctag));
 
 	rescount = 0;
 	if (sololevel > 0) {

@@ -332,7 +332,7 @@ extern int account_get_highestladderlevel(t_account * account,char const * clien
 
 // Determines the length of XP bar in profiles screen
 extern int account_get_profile_calcs(t_account * account, int xp, unsigned int level);
-extern int account_get_icon_profile(t_account * account,char const * clienttag);
+extern unsigned int account_get_icon_profile(t_account * account,char const * clienttag);
 
 extern int account_set_user_icon( t_account * account, char const * clienttag,char const * usericon);
 extern char const * account_get_user_icon( t_account * account, char const * clienttag );

@@ -1562,6 +1562,7 @@ extern void conn_set_account(t_connection * c, t_account * account)
     account_set_ll_time(c->account,now);
     account_set_ll_host(c->account,c->host);
     account_set_ll_owner(c->account,c->owner);
+    account_set_ll_clienttag(c->account,c->clienttag);
       
     if (c->host)
     {
