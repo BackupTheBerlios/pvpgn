@@ -1,4 +1,3 @@
-
 /*
  * Copyright (C) 1998,1999  Ross Combs (rocombs@cs.nmsu.edu)
  *
@@ -3019,7 +3018,8 @@ extern int account_get_icon_profile(t_account * account, char const * clienttag)
 
 	if (!wins) return 0x6E736865; // Sheep
 	
-        if (!level) return 0x6E736865; // Sheep - Remove to use race icons ie. Peasant, Peon, Wisp, etc. (Not tested) maybe add option in config
+        if (!level) return 0x6F70656F; // Sheep - Remove to use race icons ie. Peasant, Peon, Wisp, etc. (Not tested) maybe add option in config
+				       // changed to Peon by Dizzy, this is how BNET does it
         
 	return profileicon[race][level];
 }
