@@ -2978,8 +2978,8 @@ typedef struct
     /* clear password */
     /* info */
 } t_server_gamelistreply_game PACKED_ATTR();
-#define SERVER_GAMELISTREPLY_GAME_UNKNOWN7       0x00000000 //0x00000409 /* 0x0000000c */
-#define SERVER_GAMELISTREPLY_GAME_UNKNOWN1           0x0001//0x0000 //0x0001 /* 0x0000 */
+#define SERVER_GAMELISTREPLY_GAME_UNKNOWN7       0x00000000 //0x00000409 // 0x0000000c 
+#define SERVER_GAMELISTREPLY_GAME_UNKNOWN1           0x0001 //0x0000 //0x0001 // 0x0000 
 #define SERVER_GAMELISTREPLY_GAME_UNKNOWN3           0x0002
 #define SERVER_GAMELISTREPLY_GAME_UNKNOWN4       0x00000000
 #define SERVER_GAMELISTREPLY_GAME_UNKNOWN5       0x00000000
@@ -3114,7 +3114,6 @@ Diablo II 1.03 (level diff 0)
 typedef struct
 {
     t_bnet_header h;
-    //bn_int        status; /* really two bn_shorts? */ /* NonReal: yes */
     bn_short      status; // 0x0001 - private war3 game
     bn_short      flag;
     bn_int        unknown2; /* 00 00 00 00 */
