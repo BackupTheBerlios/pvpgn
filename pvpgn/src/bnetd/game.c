@@ -646,7 +646,7 @@ static int game_report(t_game * game)
     char *          realname;
     char *          tempname;
     char const *    tname;
-    unsigned int    i,j;
+    unsigned int    i;
     unsigned int    realcount;
     time_t          now=time(NULL);
     t_ladder_info * ladder_info=NULL;
