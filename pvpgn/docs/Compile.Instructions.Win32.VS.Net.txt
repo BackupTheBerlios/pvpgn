@@ -1,0 +1,13 @@
+PvPGN Win32 VS.Net Compile Instructions
+
+Compiling WITHOUT mySQL support:
+- edit the PvPGN project properties:
+-- C/C++ -> Preprocessor -> Preprocessor definitions: remove the ";WITH_SQL;WITH_SQL_MYSQL" part of the line
+-- Linker -> command line: remove " libmysql.lib" part of the line
+- compile
+
+Compiling WITH mySQL support:
+- add a subfolder src/mysql/
+- copy the header files from your favorite mySQL version to this folder
+- compile
+- make sure to provide the "libmysql.dll" from your chosen mySQL version along with the PvPGN exe

@@ -26,6 +26,7 @@ Open a command prompt, go to the src directory and run make_borland.bat
 The resulting exe file will be in the sbin directory and you can use it with the other files from the latest PvPGN release.
 
 Notes for MYSQL Support:
+First of all u need to add a subfolder src/mysql/ where u add the header files from your favorite mySQL release.
 If you wish to compile with MYSQL support, run "make_borland -DWITH_SQL_MYSQL" in src directory.
 Note that libmySQL.lib does not work with borland compilers, so we converted it using the borland tool 
 COFF2OMF libmySQL.lib libmySQL_bc.lib
