@@ -30,10 +30,10 @@
 # Use absolute paths in these lines to avoid problems!                       #
 #----------------------------------------------------------------------------#
 
-filedir     = /usr/local/var/files/
-userdir     = /usr/local/var/users/
-reportdir   = /usr/local/var/reports/
-chanlogdir  = /usr/local/var/chanlogs/
+filedir     = /usr/local/var/files
+userdir     = /usr/local/var/users
+reportdir   = /usr/local/var/reports
+chanlogdir  = /usr/local/var/chanlogs
 defacct     = /usr/local/etc/bnetd_default_user
 motdfile    = /usr/local/etc/bnmotd.txt
 issuefile   = /usr/local/etc/bnissue.txt
@@ -46,7 +46,7 @@ transfile   = /usr/local/etc/gametrans
 mpqfile     = /usr/local/etc/autoupdate
 logfile     = /usr/local/var/bnetd.log
 realmfile   = /usr/local/etc/realm.list
-maildir     = /usr/local/var/bnmail/
+maildir     = /usr/local/var/bnmail
 versioncheck_file = /usr/local/etc/versioncheck
 mapsfile    = /usr/local/etc/bnmaps.txt
 xplevelfile = /usr/local/etc/bnxplevel.txt
