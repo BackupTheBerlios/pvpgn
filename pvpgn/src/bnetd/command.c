@@ -2455,18 +2455,19 @@ static int _handle_news_command(t_connection * c, char const *text)
 
 	    temp1 = news_get_date(newsindex);
 	    temp = localtime(&temp1);
-		//here it crashes!
 	    i = strftime(date, 64,"%B %d, %Y", temp);
 	    message_send_text(c,message_type_info,c,date);
 
-	    body = news_get_body(newsindex);
-	    for (i=0; body[i] != '\0'; i++) {
-		temp2 = strdup(&body[i]);
-		for (j=0; temp2[j] != '\n'; j++);
-		temp2[j] = '\0';
-		message_send_text(c,message_type_info,c,temp2);
-		free((void *)temp2);
-		i = i+j;
+	    if (body = news_get_body(newsindex))
+		{
+	      for (i=0; body[i] != '\0'; i++) {
+		  temp2 = strdup(&body[i]);
+		  for (j=0; (temp2[j] != '\n')&&(temp2[j] != '\0'); j++);
+		  temp2[j] = '\0';
+		  message_send_text(c,message_type_info,c,temp2);
+		  free((void *)temp2);
+		  i = i+j;
+		  }
 	    }
 	}
     } else
