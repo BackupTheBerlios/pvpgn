@@ -97,12 +97,29 @@ RC      = brc32
 # working correctly after 20 or 30 warnings so we have to disable it.
 # Warning 8057 is that a function parameter is unused... this is probably intentional so
 # this only makes the compile noisy.
+
+#Note on MYSQL support:
+#libmySQL.lib has to be converted to work with borland, use this borland tool:
+#COFF2OMF libmySQL.lib libmySQL_bc.lib
+#Or create it from the dll file:
+#IMPLIB libmysql_bc.lib libmysql.dll
+#However the data alignment has to be set to "quad word", thus the -a8 in SQLFLAGS
+#This might not work flawless, MYSQL suggests to use their static libs from http://www.mysql.com/downloads/os-win32.html
+
+!ifdef WITH_MYSQL
+SQLFLAGS = -DWITH_MYSQL -a8
+!endif
+
 CFLAGS      = -v -y -O2 -d -j2 -w-8060 -w-8057
 CPPFLAGS    = -DWIN32 -DHAVE_CONFIG_H -I${SRC_SRCDIR}\
-                -DBNETD_DEFAULT_CONF_FILE=\"${bnetd_DEFCONFFILE:\=\\}\"
+                -DBNETD_DEFAULT_CONF_FILE=\"${bnetd_DEFCONFFILE:\=\\}\" ${SQLFLAGS}
 COMPILE     = ${CC} ${CFLAGS} ${CPPFLAGS} -c
 LINK        = ilink32 -v -L${LINK_LIBS_PATH}
-LINK_LIBS   = 
+!ifdef WITH_MYSQL
+LINK_LIBS   = libmySQL_bc.lib
+!else
+LINK_LIBS   =
+!endif
 
 bnetd_DEFCONFFILE   = ${confdir}\bnetd.conf
 bnetd_SBIN          = ${SRC_SBINDIR}\bnetd.exe
