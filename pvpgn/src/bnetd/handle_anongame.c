@@ -602,7 +602,7 @@ static int _client_anongame_infos(t_connection * c, t_packet const * const packe
 	anongame_PG_3v3_prefix[2]	= anongame_infos_THUMBSDOWN_get_PG_3v3();
 	anongame_PG_4v4_prefix[2]	= anongame_infos_THUMBSDOWN_get_PG_4v4();
 	anongame_PG_sffa_prefix[2]	= anongame_infos_THUMBSDOWN_get_PG_ffa();
-	anongame_PG_2v2v2_prefix[2]	= 0x01; /* fixme */
+	anongame_PG_2v2v2_prefix[2]	= anongame_infos_THUMBSDOWN_get_PG_2v2v2();
 	
 	anongame_AT_2v2_prefix[2]	= anongame_infos_THUMBSDOWN_get_AT_2v2();
 	anongame_AT_3v3_prefix[2]	= anongame_infos_THUMBSDOWN_get_AT_3v3();
@@ -844,8 +844,8 @@ static int _client_anongame_infos(t_connection * c, t_packet const * const packe
 		    if (maplists_get_totalmaps_by_queue(clienttag, ANONGAME_TYPE_2V2V2)) {
 			packet_append_data(rpacket,&anongame_PG_section,1);
 			packet_append_data(rpacket,&anongame_PG_2v2v2_prefix[0],1);
-			packet_append_string(rpacket,"Two vs. Two vs. Two"); /* Fixme */
-			packet_append_string(rpacket,"Three teams of two, can you handle it?"); /* Fixme */
+			packet_append_string(rpacket,anongame_infos_DESC_get_gametype_2v2v2_short((char *)conn_get_country(c)));
+			packet_append_string(rpacket,anongame_infos_DESC_get_gametype_2v2v2_long((char *)conn_get_country(c)));
 		    }
 		    
 		    /* AT description section */

@@ -266,6 +266,9 @@
 #define PVPGN_FFA_GT_DESC    "Small Free for All"
 #define PVPGN_FFA_GT_LONG    "Can you defeat 3-5 opponents alone?"
 
+#define PVPGN_2V2V2_GT_DESC  "Two vs. Two vs. Two"
+#define PVPGN_2V2V2_GT_LONG  "Three teams of two, can you handle it?"
+
 #define PVPGN_AINFO_FILE     "conf/anongame_infos.conf"
 
 /* max number of players in an anongame match [Omega] */

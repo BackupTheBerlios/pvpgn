@@ -37,6 +37,8 @@ typedef struct {
 	char * gametype_4v4_long;
 	char * gametype_ffa_short;
 	char * gametype_ffa_long;
+	char * gametype_2v2v2_short;
+	char * gametype_2v2v2_long;
 } t_anongame_infos_DESC;
 
 typedef struct {
@@ -48,6 +50,7 @@ typedef struct {
 	char AT_2v2;
 	char AT_3v3;
 	char AT_4v4;
+	char PG_2v2v2;
 } t_anongame_infos_THUMBSDOWN;
 
 typedef struct {
@@ -88,6 +91,8 @@ extern char * anongame_infos_DESC_get_gametype_4v4_short(char * langID);
 extern char * anongame_infos_DESC_get_gametype_4v4_long(char * langID);
 extern char * anongame_infos_DESC_get_gametype_ffa_short(char * langID);
 extern char * anongame_infos_DESC_get_gametype_ffa_long(char * langID);
+extern char * anongame_infos_DESC_get_gametype_2v2v2_short(char * langID);
+extern char * anongame_infos_DESC_get_gametype_2v2v2_long(char * langID);
 
 extern char anongame_infos_THUMBSDOWN_get_PG_1v1();
 extern char anongame_infos_THUMBSDOWN_get_PG_2v2();
@@ -97,3 +102,4 @@ extern char anongame_infos_THUMBSDOWN_get_PG_ffa();
 extern char anongame_infos_THUMBSDOWN_get_AT_2v2();
 extern char anongame_infos_THUMBSDOWN_get_AT_3v3();
 extern char anongame_infos_THUMBSDOWN_get_AT_4v4();
+extern char anongame_infos_THUMBSDOWN_get_PG_2v2v2();
