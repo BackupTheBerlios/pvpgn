@@ -110,7 +110,7 @@ extern int news_load(const char *filename)
 		    switch (flag++) {
 			case 0:
 		    	    date->tm_mon=atoi(dpart)-1;
-					if ((date->tm_mon<1) || (date->tm_mon>12))
+					if ((date->tm_mon<0) || (date->tm_mon>11))
 						eventlog(eventlog_level_error,__FUNCTION__,"found invalid month (%i) in news date. (format: {MM/DD/YYYY}) on line %u",date->tm_mon,line);
 		    	    break;
 			case 1:
