@@ -26,6 +26,8 @@ now also the profile code autmatically fixes broken team records if it detects a
 -- removed w3routeshow from bnetd.conf and added w3trans file to specify the w3route ip
 to be sent to clients
 -- fixed a possible crash bug with IRC who (when ll_owner was NULL)
+-- fixed the problem that the displayed tournament start time was wrong (allthough
+tournament started at time specified in conf file)
 
 1.6.0pre1 (since 1.5.0beta3):
 -- fixed IRC auth bug (when using passwords with upper cases)
