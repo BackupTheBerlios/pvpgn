@@ -40,9 +40,11 @@
 # include "character.h"
 # include "versioncheck.h"
 # include "anongame.h"
+# include "realm.h"
 # include "common/tag.h"
 # include "common/elist.h"
 # include "common/packet.h"
+# include "common/rcm.h"
 #else
 # define JUST_NEED_TYPES
 # ifdef TIME_WITH_SYS_TIME
@@ -63,16 +65,17 @@
 # include "character.h"
 # include "versioncheck.h"
 # include "anongame.h"
+# include "realm.h"
 # include "common/tag.h"
 # include "common/elist.h"
 # include "common/packet.h"
+# include "common/rcm.h"
 # undef JUST_NEED_TYPES
 #endif
 
 #endif
 
 
-# include "realm.h"
 
 typedef enum
 {
@@ -186,6 +189,7 @@ typedef struct connection
 	/* FIXME: this d2/w3 specific data could be unified into an union */
 	struct {
 	    t_realm *			realm;
+	    t_rcm_regref		realm_regref;
 	    t_character *		character;
 	    char const *		realminfo;
 	    char const *		charname;
@@ -228,6 +232,7 @@ t_connection;
 #include "versioncheck.h"
 #include "timer.h"
 #include "anongame.h"
+# include "realm.h"
 #include "message.h"
 #include "common/tag.h"
 #include "common/fdwatch.h"

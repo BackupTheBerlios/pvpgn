@@ -109,6 +109,7 @@
 #include "clan.h"
 #include "connection.h"
 #include "topic.h"
+#include "common/rcm.h"
 #include "common/fdwatch.h"
 #include "common/elist.h"
 #include "common/xalloc.h"
@@ -350,6 +351,7 @@ extern char const * conn_state_get_str(t_conn_state state)
     }
 }
 
+extern int conn_set_realm_cb(void *data, void *newref);
 
 extern t_connection * conn_create(int tsock, int usock, unsigned int real_local_addr, unsigned short real_local_port, unsigned int local_addr, unsigned short local_port, unsigned int addr, unsigned short port)
 {
@@ -424,6 +426,7 @@ extern t_connection * conn_create(int tsock, int usock, unsigned int real_local_
     temp->protocol.queues.insize                 = 0;
     temp->protocol.loggeduser			 = NULL;
     temp->protocol.d2.realm                      = NULL;
+    rcm_regref_init(&temp->protocol.d2.realm_regref,(*conn_set_realm_cb),temp);
     temp->protocol.d2.character                  = NULL;
     temp->protocol.d2.realminfo                  = NULL;
     temp->protocol.d2.charname                   = NULL;
@@ -549,7 +552,7 @@ extern void conn_destroy(t_connection * c, t_elem ** elem, int conn_or_dead_list
     {
         t_realm * realm;
 
-        realm=realmlist_find_realm_by_sock(conn_get_socket(c));
+        realm=conn_get_realm(c);
         if (realm)
              realm_deactive(realm);
         else
@@ -565,6 +568,7 @@ extern void conn_destroy(t_connection * c, t_elem ** elem, int conn_or_dead_list
 
     if (c->protocol.d2.realm) {
         realm_add_player_number(c->protocol.d2.realm,-1);
+	realm_put(c->protocol.d2.realm,&c->protocol.d2.realm_regref);
     }
 
     
@@ -2739,10 +2743,32 @@ extern int conn_set_realm(t_connection * c, t_realm * realm)
         return -1;
     }
     
-    c->protocol.d2.realm = realm;
+    if (c->protocol.d2.realm)
+    	realm_put(c->protocol.d2.realm,&c->protocol.d2.realm_regref);
+	
+    if (!realm)
+        c->protocol.d2.realm = NULL;
+    else
+        c->protocol.d2.realm = realm_get(realm,&c->protocol.d2.realm_regref);
+
     if (realm)
        eventlog(eventlog_level_debug,__FUNCTION__,"[%d] set to \"%s\"",conn_get_socket(c),realm_get_name(realm));
     
+    return 0;
+}
+
+extern int conn_set_realm_cb(void *data, void *newref)
+{
+
+eventlog(eventlog_level_trace,__FUNCTION__,"callback triggerd for realm \"%s\"",realm_get_name((t_realm *)newref));
+    if (newref)
+    {
+	((t_connection *)data)->protocol.d2.realm = (t_realm *)newref;
+    }
+    else
+    {
+    	conn_set_state((t_connection *)data,conn_state_destroy);
+    }
     return 0;
 }
 

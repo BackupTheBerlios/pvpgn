@@ -452,8 +452,6 @@ int pre_server_startup(void)
 	eventlog(eventlog_level_error, __FUNCTION__, "error initilizing fdwatch");
 	return STATUS_FDWATCH_FAILURE;
     }
-    if (realmlist_create(prefs_get_realmfile())<0)
-	eventlog(eventlog_level_error,__FUNCTION__,"could not load realm list");
     connlist_create();
     gamelist_create();
     timerlist_create();
@@ -496,6 +494,8 @@ int pre_server_startup(void)
     anongame_infos_load(prefs_get_anongame_infos_file());
     clanlist_load();
     teamlist_load();
+    if (realmlist_create(prefs_get_realmfile())<0)
+	eventlog(eventlog_level_error,__FUNCTION__,"could not load realm list");
     topiclist_load(prefs_get_topicfile());
     return 0;
 }
@@ -506,6 +506,7 @@ void post_server_shutdown(int status)
     {
 	case 0:
 	    topiclist_unload();
+    	    realmlist_destroy();
 	    teamlist_unload();
             clanlist_unload();
 	    tournament_destroy();
@@ -537,7 +538,6 @@ void post_server_shutdown(int status)
     	    timerlist_destroy();
 	    gamelist_destroy();
 	    connlist_destroy();
-    	    realmlist_destroy();
 	    fdwatch_close();
 	case STATUS_FDWATCH_FAILURE:
 	    anongame_matchlists_destroy();

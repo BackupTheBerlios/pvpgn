@@ -1347,9 +1347,8 @@ static void _server_mainloop(t_addrlist *laddrs)
 
 	    channellist_reload();
 
-            realmlist_destroy();
-            if (realmlist_create(prefs_get_realmfile())<0)
-	        eventlog(eventlog_level_error,__FUNCTION__,"could not load realm list");
+            if (realmlist_reload(prefs_get_realmfile())<0)
+	        eventlog(eventlog_level_error,__FUNCTION__,"could not reload realm list");
 
 	    autoupdate_unload();
 	    if (autoupdate_load(prefs_get_mpqfile())<0)

@@ -50,6 +50,7 @@
 #include "common/addr.h"
 #include "common/xalloc.h"
 #include "connection.h"
+#include "common/rcm.h"
 #include "realm.h"
 #ifdef HAVE_ASSERT_H
 # include <assert.h>
@@ -97,6 +98,8 @@ static t_realm * realm_create(char const * name, char const * description, unsig
     realm->game_number = 0;
     realm->sessionnum = 0;
     realm->tcp_sock = 0;
+    realm->rcm = xmalloc(sizeof(t_rcm));
+    rcm_init(realm->rcm);
 
     eventlog(eventlog_level_info,__FUNCTION__,"created realm \"%s\"",name);
     return realm;
@@ -114,6 +117,7 @@ static int realm_destroy(t_realm * realm)
     if (realm->active)
     	realm_deactive(realm);
 
+    xfree((void *)realm->rcm);
     xfree((void *)realm->name); /* avoid warning */
     xfree((void *)realm->description); /* avoid warning */
     xfree((void *)realm); /* avoid warning */
@@ -304,11 +308,10 @@ extern int realm_deactive(t_realm * realm)
         eventlog(eventlog_level_error,__FUNCTION__,"realm %s is not actived",realm->name);
         return -1;
     }
-    if ((c = connlist_find_connection_by_sessionnum(realm->sessionnum)))
+    if ((c = realm_get_conn(realm)))
         conn_set_state(c,conn_state_destroy);
 
     realm->active=0;
-    realm->conn=NULL;
     realm->sessionnum=0;
     realm->tcp_sock=0;
     /*
@@ -320,7 +323,7 @@ extern int realm_deactive(t_realm * realm)
 }
 
 
-extern int realmlist_create(char const * filename)
+t_list * realmlist_load(char const * filename)
 {
     FILE *          fp;
     unsigned int    line;
@@ -332,21 +335,21 @@ extern int realmlist_create(char const * filename)
     char *          name;
     char *          desc;
     t_realm *       realm;
+    t_list *        list_head = NULL;
     
     if (!filename)
     {
         eventlog(eventlog_level_error,__FUNCTION__,"got NULL filename");
-        return -1;
+        return NULL;
     }
     
     if (!(fp = fopen(filename,"r")))
     {
         eventlog(eventlog_level_error,__FUNCTION__,"could not open realm file \"%s\" for reading (fopen: %s)",filename,strerror(errno));
-        return -1;
+        return NULL;
     }
     
-    if (!realmlist_head)
-    	realmlist_head = list_create();
+    list_head = list_create();
 
     for (line=1; (buff = file_get_line(fp)); line++)
     {
@@ -444,44 +447,113 @@ extern int realmlist_create(char const * filename)
 	xfree(buff);
 	xfree(desc);
 	
-	list_prepend_data(realmlist_head,realm);
+	list_prepend_data(list_head,realm);
     }
     if (fclose(fp)<0)
 	eventlog(eventlog_level_error,__FUNCTION__,"could not close realm file \"%s\" after reading (fclose: %s)",filename,strerror(errno));
+    return list_head;
+}
+
+extern int realmlist_reload(char const * filename)
+{
+    t_elem * new_curr;
+    t_elem * old_curr;
+    t_realm * new_realm;
+    t_realm * old_realm;
+    int match;
+    t_list * newlist = NULL;
+    t_list * oldlist = realmlist_head;
+    t_rcm * tmp;
+
+    realmlist_head = NULL;
+
+    if (!(newlist = realmlist_load(filename)))
+        return -1;
+
+    LIST_TRAVERSE(oldlist,old_curr)
+    {
+    	if (!(old_realm = elem_get_data(old_curr)))
+	{
+	  eventlog(eventlog_level_error,__FUNCTION__,"found NULL elem in list");
+	  continue;
+	}
+
+	match = 0;
+
+	LIST_TRAVERSE(newlist,new_curr)
+	{
+    	    if (!(new_realm = elem_get_data(new_curr)))
+	    {
+	      eventlog(eventlog_level_error,__FUNCTION__,"found NULL elem in list");
+	      continue;
+	    }
+
+	    if (!strcmp(old_realm->name,new_realm->name))
+	    {
+		match = 1;
+		rcm_chref(old_realm->rcm,new_realm);
+		tmp = new_realm->rcm;
+		new_realm->rcm = old_realm->rcm;
+		old_realm->rcm = tmp;
+		
+		break;
+	    }
+
+	}
+	if (!match)
+	  rcm_chref(old_realm->rcm,NULL);
+
+	realm_destroy(old_realm);
+        list_remove_elem(oldlist,&old_curr);
+    }
+
+    list_destroy(oldlist);
+
+    realmlist_head = newlist;
+
     return 0;
 }
 
+extern int realmlist_create(char const * filename)
+{
+    if (!(realmlist_head = realmlist_load(filename)))
+       return -1;
 
-extern int realmlist_destroy(void)
+    return 0;
+       
+}
+
+extern int realmlist_unload(t_list * list_head)
 {
     t_elem *  curr;
     t_realm * realm;
     
-    if (realmlist_head)
+    if (list_head)
     {
-	LIST_TRAVERSE(realmlist_head,curr)
+	LIST_TRAVERSE(list_head,curr)
 	{
 	    if (!(realm = elem_get_data(curr)))
-	    {
 		eventlog(eventlog_level_error,__FUNCTION__,"found NULL realm in list");
-	        list_remove_elem(realmlist_head,&curr);
-            }
-	    else if (!realm->player_number) // FIXME: this was we don't get rid of still visited realms
-	    {
+	    else
 	        realm_destroy(realm);
-	        list_remove_elem(realmlist_head,&curr);
-	    }
+
+	    list_remove_elem(list_head,&curr);
 	}
-	if (list_get_length(realmlist_head)==0)
-	{
-	    list_destroy(realmlist_head);
-	    realmlist_head = NULL;
-	}
+	list_destroy(list_head);
     }
     
     return 0;
 }
 
+extern int realmlist_destroy()
+{
+	int res;
+	
+	res = realmlist_unload(realmlist_head);
+	realmlist_head = NULL;
+
+	return res;
+}
 
 extern t_list * realmlist(void)
 {
@@ -524,20 +596,6 @@ extern t_realm * realmlist_find_realm_by_ip(unsigned long ip)
     return NULL;
 }
 
-extern t_realm * realmlist_find_realm_by_sock(int tcp_sock)
-{
-    t_elem const *  curr;
-    t_realm * realm;
-
-    LIST_TRAVERSE_CONST(realmlist_head,curr)
-    {
-        realm = elem_get_data(curr);
-        if (realm->tcp_sock==tcp_sock)
-            return realm;
-    }
-    return NULL;
-}
-
 extern t_connection * realm_get_conn(t_realm * realm)
 {
 	assert(realm);
@@ -545,5 +603,17 @@ extern t_connection * realm_get_conn(t_realm * realm)
 	return realm->conn;
 }
 
+extern t_realm * realm_get(t_realm * realm, t_rcm_regref * regref)
+{
+	rcm_get(realm->rcm,regref);
+	eventlog(eventlog_level_trace,__FUNCTION__,"an object registed with \"%s\" realm",realm->name);
+	return realm;
+}
 
+extern void realm_put(t_realm * realm, t_rcm_regref * regref)
+{
+	eventlog(eventlog_level_trace,__FUNCTION__,"an object unregisted with \"%s\" realm",realm->name);
+	rcm_put(realm->rcm,regref);
+}
+	
 

@@ -21,10 +21,12 @@
 #ifdef JUST_NEED_TYPES
 #include "common/addr.h"
 #include "connection.h"
+# include "common/rcm.h"
 #else
 #define JUST_NEED_TYPES
 #include "common/addr.h"
 #include "connection.h"
+# include "common/rcm.h"
 #undef JUST_NEED_TYPES
 #endif
 
@@ -42,7 +44,8 @@ typedef struct realm
     unsigned int   player_number;
     unsigned int   game_number;
     int		   tcp_sock;
-    struct connection * conn;
+    struct	   connection * conn;
+    t_rcm	   * rcm;
 }
 #endif
 t_realm;
@@ -59,6 +62,7 @@ t_realm;
 #include "common/list.h"
 #include "common/addr.h"
 #include "connection.h"
+#include "common/rcm.h"
 #undef JUST_NEED_TYPES
 
 extern char const * realm_get_name(t_realm const * realm) ;
@@ -77,12 +81,15 @@ extern int realm_deactive(t_realm * realm);
 
 extern int realmlist_create(char const * filename);
 extern int realmlist_destroy(void);
+extern int realmlist_reload(char const * filename);
 extern t_realm * realmlist_find_realm(char const * realmname);
 extern t_realm * realmlist_find_realm_by_ip(unsigned long ip); /* ??? */
 extern t_list * realmlist(void);
-extern t_realm * realmlist_find_realm_by_sock(int tcp_sock);
 
 extern struct connection * realm_get_conn(t_realm * realm);
+
+extern t_realm * realm_get(t_realm * realm, t_rcm_regref * regref);
+extern void realm_put(t_realm * realm, t_rcm_regref * regref);
 
 #endif
 #endif
