@@ -5858,19 +5858,25 @@ static int _client_changeclient(t_connection * c, t_packet const * const packet)
 
 	vtag = NULL;
 
+	/* FIXME: we need to set the rest so vc will be accurate if FT vc is missing */
 	versioncheck_set_clienttag(vc, conn_get_clienttag(c));
+	versioncheck_set_archtag(vc, conn_get_archtag(c));
+
 	switch (versioncheck_revalidate(vc, &vtag))
 	{
 	    case -1: /* failed test... client has been modified */
 	    case 0: /* not listed in table... can't tell if client has been modified */
-		eventlog(eventlog_level_error, __FUNCTION__, "error revalidating");
-		conn_set_state(c, conn_state_destroy);
+		eventlog(eventlog_level_error, __FUNCTION__, "[%d] error revalidating, allowing anyway", conn_get_socket(c));
+		vtag = strdup(conn_get_clienttag(c)); /* set versiontag to clienttag  on fail */
+		/* client allready passed first test so we will allow */
+		/* conn_set_state(c, conn_state_destroy); */ 
 		break;
 	}
 
 	if (vtag) {
 	    versioncheck_set_versiontag(vc, vtag);
 	    eventlog(eventlog_level_info,__FUNCTION__,"[%d] client matches versiontag \"%s\"",conn_get_socket(c),vtag);
+	    free((void *)vtag);
 	}
     }
 
