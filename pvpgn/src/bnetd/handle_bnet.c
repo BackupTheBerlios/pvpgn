@@ -1728,6 +1728,7 @@ static int _client_statsreq(t_connection * c, t_packet const * const packet)
 		  j++,key_off+=strlen(key)+1)
 	       if (account && (strncmp(key,"BNET\\acct\\passhash1",19)!=0))
 		 {
+	    if (*key == '\0') continue;
             if(strcmp(key,"clan\\name")==0)
             {
               t_clan * clan;
