@@ -106,7 +106,7 @@ ${SRC_BNETDDIR}/file.o \
 ${SRC_BNETDDIR}/watch.o \
 ${SRC_BNETDDIR}/ladder.o \
 ${SRC_BNETDDIR}/ladder_calc.o \
-${SRC_BNETDDIR}//ad.o \
+${SRC_BNETDDIR}/adbanner.o \
 ${SRC_BNETDDIR}/timer.o \
 ${SRC_BNETDDIR}/tracker.o \
 ${SRC_BNETDDIR}/ipban.o \
