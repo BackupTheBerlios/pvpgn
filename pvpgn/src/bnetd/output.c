@@ -94,7 +94,7 @@ int output_standard_writer(FILE * fp)
 	    if (conn_get_account(conn))
 	    {
 		tname = conn_get_username(conn);
-		fprintf(fp,"\t\t%s\n",tname);
+		fprintf(fp,"\t\t<user>%s</user>\n",tname);
 		conn_unget_username(conn,tname);
 	    }
         }
@@ -109,7 +109,7 @@ int output_standard_writer(FILE * fp)
 	    if (game_get_name(game)!=NULL)
 	    {
 		game_name = game_get_name(game);
-		fprintf(fp,"\t\t%s\n",game_name);
+		fprintf(fp,"\t\t<game>%s</game>\n",game_name);
 	    }
 	}
 
@@ -123,7 +123,7 @@ int output_standard_writer(FILE * fp)
     	    if (channel_get_name(channel)!=NULL)
 	    {
 		channel_name = channel_get_name(channel);
-		fprintf(fp,"\t\t%s\n",channel_name);
+		fprintf(fp,"\t\t<channel>%s</channel>\n",channel_name);
 	    }
 	}
 	
