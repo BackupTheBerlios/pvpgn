@@ -174,6 +174,8 @@ static int file_init(const char *path)
 	return -1;
     }
 
+    free((void*)copy);
+
     return 0;
 }
 
