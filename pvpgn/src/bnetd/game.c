@@ -570,7 +570,7 @@ static void game_destroy(t_game const * game)
 static int game_evaluate_results(t_game * game)
 {
   unsigned int i,j;
-  unsigned int wins, losses, draws, disconnects;
+  unsigned int wins, losses, draws, disconnects, reports;
 
   if (!game)
   {
@@ -591,7 +591,7 @@ static int game_evaluate_results(t_game * game)
 
   for (i=0;i<game->count;i++)
   {
-    wins = losses = draws = disconnects = 0;
+    wins = losses = draws = disconnects = reports = 0;
 
     for (j=0;j<game->count;j++)
     {
@@ -601,15 +601,19 @@ static int game_evaluate_results(t_game * game)
 	{
 	  case game_result_win:
 	    wins++;
+	    reports++;
 	    break;
 	  case game_result_loss:
 	    losses++;
+	    reports++;
 	    break;
 	  case game_result_draw:
 	    draws++;
+	    reports++;
 	    break;
 	  case game_result_disconnect:
 	    disconnects++;
+	    reports++;
 	    break;
 	  default:
 	    break;
@@ -617,8 +621,14 @@ static int game_evaluate_results(t_game * game)
       }
     }
     eventlog(eventlog_level_debug,__FUNCTION__,"wins: %u losses: %u draws: %u disconnects: %u",wins,losses,draws,disconnects);
+    
     //now decide what result we give
-    if ((disconnects>=draws) && (disconnects>=losses) && (disconnects>=wins))
+    if (!(reports)) // no results at all - game canceled before starting
+    {
+      game->results[i] = game_result_none;
+      eventlog(eventlog_level_debug,__FUNCTION__,"deciding to give \"none\" to player %d",i);
+    }
+    else if ((disconnects>=draws) && (disconnects>=losses) && (disconnects>=wins))
     {
       game->results[i] = game_result_disconnect; //consider disconnects the worst case...
       eventlog(eventlog_level_debug,__FUNCTION__,"deciding to give \"disconnect\" to player %d",i);
@@ -1755,7 +1765,7 @@ extern int game_del_player(t_game * game, t_connection * c)
 	    eventlog(eventlog_level_debug,"game_del_player","removing player #%u \"%s\" from \"%s\", %u players left",i,(tname = account_get_name(account)),game_get_name(game),game->ref-1);
 	    game->connections[i] = NULL;
 	    if (!(game->reported_results[i]))
-		eventlog(eventlog_level_error,"game_del_player","player \"%s\" left without reporting valid results",tname);
+		eventlog(eventlog_level_error,"game_del_player","player \"%s\" left without reporting (valid) results",tname);
 	    account_unget_name(tname);
 	    
 	    eventlog(eventlog_level_debug,"game_del_player","player deleted... (ref=%u)",game->ref);
