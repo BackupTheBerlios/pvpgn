@@ -106,6 +106,7 @@
 #include "connection.h"
 #include "topic.h"
 #include "common/fdwatch.h"
+#include "common/elist.h"
 #include "common/setup_after.h"
 
 
@@ -427,6 +428,7 @@ extern t_connection * conn_create(int tsock, int usock, unsigned int real_local_
     temp->protocol.w3.anongame                   = NULL;
     temp->protocol.w3.anongame_search_starttime  = 0;
     temp->protocol.bound                         = NULL;
+    elist_init(&temp->protocol.timers);
     temp->protocol.cr_time                       = time(NULL);
     temp->protocol.passfail_count                = 0;
 
@@ -604,7 +606,7 @@ extern void conn_destroy(t_connection * c, t_elem ** elem, int conn_or_dead_list
 
     watchlist_del_all_events(c);
     timerlist_del_all_timers(c);
-    
+
     clanmember_set_offline(c);
 
     if(c->protocol.account)
@@ -3385,6 +3387,17 @@ extern time_t conn_get_anongame_search_starttime(t_connection * c)
       return ((time_t) 0);
     }
   return c->protocol.w3.anongame_search_starttime;
+}
+
+
+extern t_elist * conn_get_timer(t_connection *c)
+{
+    if (!c) {
+	eventlog(eventlog_level_error, __FUNCTION__, "got NULL connection");
+	return NULL;
+    }
+
+    return &c->protocol.timers;
 }
 
 

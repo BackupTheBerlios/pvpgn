@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 1999,2000  Ross Combs (rocombs@cs.nmsu.edu)
+ * Copyright (C) 2004 Dizzy 
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -24,20 +25,21 @@
 #  include <malloc.h>
 # endif
 #endif
-#include "common/list.h"
+#include "common/elist.h"
 #include "connection.h"
 #include "common/eventlog.h"
 #include "timer.h"
 #include "common/setup_after.h"
 
 
-static t_list * timerlist_head=NULL;
+static t_elist timerlist_head;
 
 
 extern int timerlist_add_timer(t_connection * owner, time_t when, t_timer_cb cb, t_timer_data data)
 {
-    t_timer * timer;
-    
+    t_timer * timer, *ctimer;
+    t_elist * curr;
+
     if (!owner)
     {
 	eventlog(eventlog_level_error,"timerlist_add_timer","got NULL owner");
@@ -53,121 +55,88 @@ extern int timerlist_add_timer(t_connection * owner, time_t when, t_timer_cb cb,
     timer->when  = when;
     timer->cb    = cb;
     timer->data  = data;
-    
-    if (list_prepend_data(timerlist_head,timer)<0)
+
+    /* try to preserve a when based order */
+    elist_for_each(curr,&timerlist_head)
     {
-	free(timer);
-	eventlog(eventlog_level_error,"timerlist_add_timer","could not prepend temp");
-	return -1;
+	ctimer = elist_entry(curr,t_timer,timers);
+	if (ctimer->when > when) break;
     }
-    
+    elist_add_tail(curr, &timer->timers);
+
+    /* add it to the t_conn timers list */
+    elist_add_tail(conn_get_timer(owner), &timer->owners);
+
     return 0;
 }
 
 
 extern int timerlist_del_all_timers(t_connection * owner)
 {
-    t_elem *  curr;
+    t_elist * curr, *save;
     t_timer * timer;
-    
+
     if (!owner)
     {
-	eventlog(eventlog_level_error,"timerlist_del_all_timers","got NULL owner");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL owner");
 	return -1;
     }
-    
-    LIST_TRAVERSE(timerlist_head,curr)
+
+    elist_for_each_safe(curr,conn_get_timer(owner),save)
     {
-	timer = elem_get_data(curr);
-	if (!timer) /* should not happen */
-	{
-	    eventlog(eventlog_level_error,"timerlist_del_all_timers","timerlist contains NULL item");
-	    return -1;
-	}
-	if (timer->owner==owner)
-	{
-	    if (timer->cb)
-		timer->cb(timer->owner,(time_t)0,timer->data);
-	    timer->cb = NULL;
-	    timer->owner = NULL;
-	    if (list_remove_elem(timerlist_head,&curr)<0)
-	    {
-		eventlog(eventlog_level_error,"timerlist_del_all_timers","could not remove timer");
-		continue;
-	    }
-	    free(timer);
-	}
+	timer = elist_entry(curr, t_timer, owners);
+	if (timer->cb)
+	    timer->cb(timer->owner,(time_t)0,timer->data);
+	elist_del(&timer->owners);
+	elist_del(&timer->timers);
+	free((void*)timer);
     }
-    
+
     return 0;
 }
 
 
 extern int timerlist_check_timers(time_t when)
 {
-    t_elem *  curr;
+    t_elist * curr, *save;
     t_timer * timer;
-    
-    LIST_TRAVERSE(timerlist_head,curr)
+
+    elist_for_each_safe(curr,&timerlist_head,save)
     {
-	timer = elem_get_data(curr);
-	if (!timer) /* should not happen */
-	{
-	    eventlog(eventlog_level_error,"timerlist_check_timers","timerlist contains NULL item");
-	    return -1;
-	}
+	timer = elist_entry(curr,t_timer,timers);
 	if (timer->owner && timer->when<when)
 	{
 	    if (timer->cb)
 		timer->cb(timer->owner,timer->when,timer->data);
-	    if (list_remove_elem(timerlist_head,&curr)<0)
-	    {
-		eventlog(eventlog_level_error,"timerlist_check_timers","could not remove timer");
-		continue;
-	    }
-	    free(timer);
-	}
+	    elist_del(&timer->owners);
+	    elist_del(&timer->timers);
+	    free((void*)timer);
+	} else break; /* beeing sorted there is no need to go beyond this point */
     }
-    
+
     return 0;
 }
 
 extern int timerlist_create(void)
 {
-    if (!(timerlist_head = list_create()))
-	return -1;
+    elist_init(&timerlist_head);
     return 0;
 }
 
 
 extern int timerlist_destroy(void)
 {
-    t_elem *  curr;
+    t_elist * curr, *save;
     t_timer * timer;
     
-    if (timerlist_head)
+    elist_for_each_safe(curr,&timerlist_head,save)
     {
-	LIST_TRAVERSE(timerlist_head,curr)
-	{
-	    timer = elem_get_data(curr);
-	    if (!timer) /* should not happen */
-	    {
-		eventlog(eventlog_level_error,"timerlist_destroy","timerlist contains NULL item");
-		continue;
-	    }
-	    
-	    if (list_remove_elem(timerlist_head,&curr)<0)
-	    {
-		eventlog(eventlog_level_error,"timerlist_destroy","could not remove item from list");
-		continue;
-	    }
-	    free(timer);
-	}
-	
-	if (list_destroy(timerlist_head)<0)
-	    return -1;
-	timerlist_head = NULL;
+        timer = elist_entry(curr,t_timer,timers);
+	elist_del(&timer->owners);
+	elist_del(&timer->timers);
+	free((void*)timer);
     }
+    elist_init(&timerlist_head);
     
     return 0;
 }

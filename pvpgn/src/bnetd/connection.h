@@ -41,6 +41,7 @@
 # include "versioncheck.h"
 # include "anongame.h"
 # include "common/tag.h"
+# include "common/elist.h"
 #else
 # define JUST_NEED_TYPES
 # ifdef TIME_WITH_SYS_TIME
@@ -62,6 +63,7 @@
 # include "versioncheck.h"
 # include "anongame.h"
 # include "common/tag.h"
+# include "common/elist.h"
 # undef JUST_NEED_TYPES
 #endif
 
@@ -177,6 +179,7 @@ typedef struct connection
 	t_game *		game;
 	char const *		loggeduser;   /* username as logged in or given (not taken from account) */
 	struct connection *	bound; /* matching Diablo II auth connection */
+	t_elist			timers; /* cached list of timers for cleaning */
 	/* FIXME: this d2/w3 specific data could be unified into an union */
 	struct {
 	    char const *		realmname; /* to remember until character is created */
@@ -420,6 +423,7 @@ extern int conn_set_tmpOP_channel(t_connection * c, char const * tmpOP_channel);
 extern char const * conn_get_tmpOP_channel(t_connection * c);
 extern int conn_set_tmpVOICE_channel(t_connection * c, char const * tmpVOICE_channel);
 extern char const * conn_get_tmpVOICE_channel(t_connection * c);
+extern t_elist *conn_get_timer(t_connection * c);
 
 #endif
 #endif

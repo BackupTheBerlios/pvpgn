@@ -45,6 +45,7 @@
 # include "connection.h"
 # undef JUST_NEED_TYPES
 #endif
+#include "common/elist.h"
 
 typedef union
 {
@@ -54,15 +55,18 @@ typedef union
 
 typedef void (* t_timer_cb)(t_connection * owner, time_t when, t_timer_data data);
 
+typedef struct timer_struct
 #ifdef TIMER_INTERNAL_ACCESS
-typedef struct
 {
-    t_connection * owner; /* who to notify */
-    time_t         when;  /* when the timer expires */
-    t_timer_cb     cb;    /* what to call */
-    t_timer_data   data;  /* data argument */
-} t_timer;
+    t_connection * owner; 	/* who to notify */
+    time_t         when;  	/* when the timer expires */
+    t_timer_cb     cb;    	/* what to call */
+    t_timer_data   data;  	/* data argument */
+    t_elist	   owners;	/* list to the setup timers of same owner */
+    t_elist	   timers;	/* timers list, used for final cleaning */
+}
 #endif
+t_timer;
 
 #endif
 
