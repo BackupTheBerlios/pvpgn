@@ -43,7 +43,7 @@
 #include "bnetd/ipban.h" //zak
 
 #include "common/addr.h" //added for borland, should not be a prob for VS.NET
-
+#include "common/setup_after.h"
 
 #define WM_SHELLNOTIFY          (WM_USER+1)
 
@@ -581,7 +581,7 @@ int extern gui_lvprintf(t_eventlog_level l, const char *format, va_list arglist)
     case eventlog_level_error:
       clr = RGB(255, 0, 0);
       break;
-    eventlog_level_fatal:
+    case eventlog_level_fatal:
       clr = RGB(255, 0, 0);
       break;
     default:
