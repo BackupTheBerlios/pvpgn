@@ -71,6 +71,7 @@ ladderdir    = var\ladders
 command_groups_file = conf\command_groups.txt
 statusdir   = var\status
 aliasfile   = conf\bnalias.list
+w3trans_file = conf\w3trans
 anongame_infos_file = conf\anongame_infos.conf
 DBlayoutfile = conf\sql_DB_layout
 
@@ -407,18 +408,13 @@ max_conns_per_IP = 0
 #udptest_port = 6112
 
 
-# added by zap-zero:
-# W3 Play Game router address. Just put your server address in here.
-# It's needed to tell clients where to connect to init anonymous games.
-# Change it, or clients will get "Error handling the request"!
-w3routeaddr = "127.0.0.1:6200"
+# W3 Play Game router address. Just put your server address in here
+# or use 0.0.0.0:6200 for server to bind to all interfaces,
+# but make sure you set up w3trans if you do.
+w3routeaddr = "0.0.0.0:6200"
 
-# This is the w3route address to show to clients. If not specified it uses
-# the w3routeaddr from above. But if specified it will be sent to clients
-# as the w3route addr to connect to, that is the clients will try to connect
-# to this address. Use it for server behind NAT gw setups and stuff. If you
-# dont know what your are doing just dont touch it.
-#w3routeshow = "127.0.0.1:6200"
+# w3routeshow has been removed.
+# see the w3trans file for translating the w3route ip for local networks
 
 #                                                                            #
 ##############################################################################
