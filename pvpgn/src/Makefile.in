@@ -433,7 +433,7 @@ CONFS		= bnetd.conf d2cs.conf d2dbs.conf \
 		  ad.list channel.list realm.list \
 		  autoupdate bnetd_default_user gametrans d2gstrans versioncheck \
 		  bnmotd.txt bnbitsmotd.txt bnissue.txt bnmaps.txt bnxplevel.txt bnxpcalc.txt news.txt command_groups.txt \
-		  bnban bnhelp bnbitspasswd
+		  bnban bnhelp bnbitspasswd bnalias.list
 
 SHARES		= ad000001.pcx ad000001.mng ad000004.mng ad000666.mng ad000666.pcx \
 		  icons.bni icons_STAR.bni icons-WAR3.bni \
