@@ -17,6 +17,7 @@ Stuff not programmed for any specific version release:
 * complete tournament support with crash recovery option
 
 * anonagame stuff
+    a. the new W3 AMM introduced with 1.15 patch
     c. move w3route functions to its own .c/.h file (for w3route server)
     e. tournament stuff
 	1. determine how games are limited to 30 minutes & map reveled at 25
