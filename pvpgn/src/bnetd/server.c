@@ -227,6 +227,11 @@ static void timer_sig_handle(int unused)
     time(&now);
 }
 #endif
+
+static void forced_quit_sig_handle(int unused)
+{
+    server_quit_delay(-1);	/* programs shutdown 1 second before now */
+}
 #endif
 
 
@@ -1150,22 +1155,23 @@ static int _setup_posixsig(void)
 #ifdef	HAVE_SETITIMER
 	struct sigaction timer_action;
 #endif
-	
+	struct sigaction forced_quit_action;
+
 	quit_action.sa_handler = quit_sig_handle;
 	if (sigemptyset(&quit_action.sa_mask)<0)
 	    eventlog(eventlog_level_error,__FUNCTION__,"could not initialize signal set (sigemptyset: %s)",strerror(errno));
 	quit_action.sa_flags = SA_RESTART;
-	
+
 	restart_action.sa_handler = restart_sig_handle;
 	if (sigemptyset(&restart_action.sa_mask)<0)
 	    eventlog(eventlog_level_error,__FUNCTION__,"could not initialize signal set (sigemptyset: %s)",strerror(errno));
 	restart_action.sa_flags = SA_RESTART;
-	
+
 	save_action.sa_handler = save_sig_handle;
 	if (sigemptyset(&save_action.sa_mask)<0)
 	    eventlog(eventlog_level_error,__FUNCTION__,"could not initialize signal set (sigemptyset: %s)",strerror(errno));
 	save_action.sa_flags = SA_RESTART;
-	
+
 	pipe_action.sa_handler = pipe_sig_handle;
 	if (sigemptyset(&pipe_action.sa_mask)<0)
 	    eventlog(eventlog_level_error,__FUNCTION__,"could not initialize signal set (sigemptyset: %s)",strerror(errno));
@@ -1176,7 +1182,11 @@ static int _setup_posixsig(void)
 	    eventlog(eventlog_level_error,__FUNCTION__,"could not initialize signal set (sigemptyset: %s)",strerror(errno));
 	timer_action.sa_flags = SA_RESTART;
 #endif /* HAVE_SETITIMER */
-	
+	forced_quit_action.sa_handler = forced_quit_sig_handle;
+	if (sigemptyset(&forced_quit_action.sa_mask)<0)
+	    eventlog(eventlog_level_error,__FUNCTION__,"could not initialize signal set (sigemptyset: %s)",strerror(errno));
+	forced_quit_action.sa_flags = SA_RESTART;	
+
 	if (sigaction(SIGINT,&quit_action,NULL)<0) /* control-c */
 	    eventlog(eventlog_level_error,__FUNCTION__,"could not set SIGINT signal handler (sigaction: %s)",strerror(errno));
 	if (sigaction(SIGHUP,&restart_action,NULL)<0)
@@ -1206,6 +1216,8 @@ static int _setup_posixsig(void)
 	    }
 	}
 #endif
+	if (sigaction(SIGQUIT,&forced_quit_action,NULL)<0) /* immediate shutdown */
+	    eventlog(eventlog_level_error,__FUNCTION__,"could not set SIGQUIT signal handler (sigaction: %s)",strerror(errno));
     }
 
     return 0;
