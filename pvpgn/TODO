@@ -20,6 +20,10 @@ Release v1.6 roadmap:
 
 Stuff not programmed for any specific version release:			      
 
+* add a /clearstats <clienttag> command to be able to clear game stats for
+WAR3/W3XP/SC/BW/W2BNE.... (dunno if users should be able to delete their own stats...
+but admins should be able to delete the stats of cheaters)
+
 * moving from current team stuff to teamID (thats something DJP and his guys 
 wanted to do) 
 
