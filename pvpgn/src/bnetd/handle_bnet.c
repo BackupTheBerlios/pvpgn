@@ -2286,7 +2286,7 @@ static int _client_atinvitefriend(t_connection * c, t_packet const *const packet
 
 	    for (n = 0; n < teammemcount; n++) {
 		if (n != i)
-		    packet_append_string(rpacket, conn_get_loggeduser(account_get_conn(team_get_member(team, n))));
+		    packet_append_string(rpacket, account_get_name(team_get_member(team, n)));
 	    }
 
 	    //now send packet
