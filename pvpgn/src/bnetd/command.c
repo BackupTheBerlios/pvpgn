@@ -217,35 +217,35 @@ static void do_whois(t_connection * c, char const * dest)
     {
 	char const * tname;
 	
-	sprintf(namepart,"%.64s",(tname = conn_get_username(dest_c)));
-	conn_unget_username(dest_c,tname);
+	sprintf(namepart,"%.64s",(tname = conn_get_chatcharname(dest_c,c)));
+	conn_unget_chatcharname(dest_c,tname);
 	verb = "is";
     }
     
     if ((game = conn_get_game(dest_c)))
     {
-	sprintf(msgtemp,"%s %s logged on from account "UID_FORMAT", and %s currently in %s game \"%.64s\".",
+	sprintf(msgtemp,"%s %s using %s and %s currently in %s game \"%.64s\".",
 		namepart,
 		verb,
-		conn_get_userid(dest_c),
+		conn_get_user_game_title(conn_get_clienttag(dest_c)),
 		verb,
 		game_get_flag(game) == game_flag_private ? "private" : "",
 		game_get_name(game));
     }
     else if ((channel = conn_get_channel(dest_c)))
     {
-        sprintf(msgtemp,"%s %s logged on from account "UID_FORMAT", and %s currently in channel \"%.64s\".",
+        sprintf(msgtemp,"%s %s using %s and %s currently in channel \"%.64s\".",
 		namepart,
 		verb,
-		conn_get_userid(dest_c),
+		conn_get_user_game_title(conn_get_clienttag(dest_c)),
 		verb,
 		channel_get_name(channel));
     }
     else
-	sprintf(msgtemp,"%s %s logged on from account "UID_FORMAT".",
+	sprintf(msgtemp,"%s %s using %s.",
 		namepart,
 		verb,
-		conn_get_userid(dest_c));
+		conn_get_user_game_title(conn_get_clienttag(dest_c)));
     message_send_text(c,message_type_info,c,msgtemp);
     
     if (conn_get_dndstr(dest_c))
