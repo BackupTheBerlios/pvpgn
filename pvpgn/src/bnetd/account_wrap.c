@@ -2934,8 +2934,8 @@ extern int account_get_highestladderlevel(t_account * account,char const * clien
 		}
 	}
 
-	eventlog(eventlog_level_debug,"account_get_highestladderlevel","Checking for highest level in Solo,Team,AT Ladder Stats");
-	eventlog(eventlog_level_debug,"account_get_highestladderlevel","Solo Level: %d, Team Level %d, Highest AT Team Level: %d",sololevel,teamlevel,atlevel);
+	eventlog(eventlog_level_debug,"account_get_highestladderlevel","Checking for highest level in Solo,Team,FFA,AT Ladder Stats");
+	eventlog(eventlog_level_debug,"account_get_highestladderlevel","Solo Level: %d, Team Level %d, FFA Level %d, Highest AT Team Level: %d",sololevel,teamlevel,ffalevel,atlevel);
 			
 	if(sololevel >= teamlevel && sololevel >= atlevel && sololevel >= ffalevel)
 		return sololevel;
