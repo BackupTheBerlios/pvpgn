@@ -520,7 +520,7 @@ static int anongame_queue_player(t_connection * c, t_uint8 gametype, t_uint32 ma
 	md = malloc(sizeof(t_matchdata));
 	md->c = c;
 	md->map_prefs = map_prefs;
-	md->versiontag = strdup(versioncheck_get_versiontag(conn_get_versioncheck(c)));
+	md->versiontag = versioncheck_get_versiontag(conn_get_versioncheck(c)) ? strdup(versioncheck_get_versiontag(conn_get_versioncheck(c))) : NULL;
 
 	list_append_data(matchlists[gametype][level], md);
 
@@ -551,7 +551,7 @@ static int anongame_queue_player(t_connection * c, t_uint8 gametype, t_uint32 ma
 				eventlog(eventlog_level_error, "anongame_queue_player", 
 					"AT matching, got zero arranged team id");
 			} else {
-			    if (!strcmp(md->versiontag, versioncheck_get_versiontag(conn_get_versioncheck(c)))) {
+			    if (md->versiontag && versioncheck_get_versiontag(conn_get_versioncheck(c)) && !strcmp(md->versiontag, versioncheck_get_versiontag(conn_get_versioncheck(c)))) {
 				for (i = 0; i < 100; i++) {
 					if (acinfo[i].atid == conn_get_atid(md->c)) {
 						acinfo[i].map_prefs &= md->map_prefs;
@@ -637,7 +637,7 @@ static int anongame_queue_player(t_connection * c, t_uint8 gametype, t_uint32 ma
 
 			LIST_TRAVERSE(matchlists[gametype][level + delta], curr) {
 				md = elem_get_data(curr);
-				if (!strcmp(md->versiontag, versioncheck_get_versiontag(conn_get_versioncheck(c)))) {
+				if (md->versiontag && versioncheck_get_versiontag(conn_get_versioncheck(c)) && !strcmp(md->versiontag, versioncheck_get_versiontag(conn_get_versioncheck(c)))) {
 				    if (cur_prefs & md->map_prefs) {
 					cur_prefs &= md->map_prefs;
 					player[gametype][players[gametype]++] = md->c;
