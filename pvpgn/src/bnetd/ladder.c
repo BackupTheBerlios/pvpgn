@@ -829,6 +829,7 @@ extern int war3_ladder_update(t_ladder *ladder, int uid, int xp, int level, t_ac
    {
      search->xp += xp;
      search->level = level;
+     ladder->dirty = 1;
 
      // make sure, we don't get negative XP
      if (search->xp < 0) search->xp = 0;
@@ -848,8 +849,6 @@ extern int war3_ladder_update(t_ladder *ladder, int uid, int xp, int level, t_ac
         if (newpos != search->next)
         // so we really have to change ranking now
         {
-	  // we are changing something in the ladder
-          ladder->dirty = 1;
           // first close gap, where we've been...
           search->next->prev = search->prev;
           if (search->prev != NULL) 
@@ -887,8 +886,6 @@ extern int war3_ladder_update(t_ladder *ladder, int uid, int xp, int level, t_ac
         if (newpos != search->prev)
         // so we really have to change ranking now
         {
-	  // we are changing something in the ladder
-          ladder->dirty = 1;
           // first close gap, where we've been...
           search->prev->next = search->next;
           if (search->next != NULL) 
