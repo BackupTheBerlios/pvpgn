@@ -571,73 +571,73 @@ install: install-sbin install-bin install-man install-conf install-share
 
 .PHONY: install-bnetd
 install-bnetd: ${bnetd_SBIN}
-	${INSTALL_DIRS} ${sbindir}
+	${INSTALL_DIRS} ${DESTDIR}/${sbindir}
 	@list='${bnetd_SBIN}'; for p in $$list; do \
 	  if test -f $$p; then \
-	    ${ECHO} " ${INSTALL_PROGRAM} $$p ${sbindir}"; \
-	    ${INSTALL_PROGRAM} $$p ${sbindir}; \
+	    ${ECHO} " ${INSTALL_PROGRAM} $$p ${DESTDIR}/${sbindir}"; \
+	    ${INSTALL_PROGRAM} $$p ${DESTDIR}/${sbindir}; \
 	  else :; fi; \
 	done
 
 .PHONY: install-sbin
 install-sbin: ${SBINS}
-	${INSTALL_DIRS} ${sbindir}
+	${INSTALL_DIRS} ${DESTDIR}/${sbindir}
 	@list='${SBINS}'; for p in $$list; do \
 	  if test -f $$p; then \
-	    ${ECHO} "  ${INSTALL_PROGRAM} $$p ${sbindir}"; \
-	    ${INSTALL_PROGRAM} $$p ${sbindir}; \
+	    ${ECHO} "  ${INSTALL_PROGRAM} $$p ${DESTDIR}/${sbindir}"; \
+	    ${INSTALL_PROGRAM} $$p ${DESTDIR}/${sbindir}; \
 	  else :; fi; \
 	done
 
 .PHONY: install-bin
 install-bin: ${BINS}
-	${INSTALL_DIRS} ${bindir}
+	${INSTALL_DIRS} ${DESTDIR}/${bindir}
 	@list='${BINS}'; for p in $$list; do \
 	  if test -f $$p; then \
-	    ${ECHO} "  ${INSTALL_PROGRAM} $$p ${bindir}"; \
-	    ${INSTALL_PROGRAM} $$p ${bindir}; \
+	    ${ECHO} "  ${INSTALL_PROGRAM} $$p ${DESTDIR}/${bindir}"; \
+	    ${INSTALL_PROGRAM} $$p ${DESTDIR}/${bindir}; \
 	  else :; fi; \
 	done
 
 .PHONY: install-man
 install-man:
-	${INSTALL_DIRS} ${mandir} ${mandir}/man1 ${mandir}/man5
+	${INSTALL_DIRS} ${DESTDIR}/${mandir} ${DESTDIR}/${mandir}/man1 ${DESTDIR}/${mandir}/man5
 	@list='${MAN1S}'; for p in $$list; do \
 	  if test -f ${SRC_MANDIR}/$$p; then \
-	    ${ECHO} "  ${INSTALL_DATA} ${SRC_MANDIR}/$$p ${mandir}/man1"; \
+	    ${ECHO} "  ${INSTALL_DATA} ${SRC_MANDIR}/$$p ${DESTDIR}/${mandir}/man1"; \
 	    ${INSTALL_DATA} ${SRC_MANDIR}/$$p ${mandir}/man1; \
 	  else :; fi; \
 	done
 	@list='${MAN5S}'; for p in $$list; do \
 	  if test -f ${SRC_MANDIR}/$$p; then \
-	    ${ECHO} "  ${INSTALL_DATA} ${SRC_MANDIR}/$$p ${mandir}/man5"; \
+	    ${ECHO} "  ${INSTALL_DATA} ${SRC_MANDIR}/$$p ${DESTDIR}/${mandir}/man5"; \
 	    ${INSTALL_DATA} ${SRC_MANDIR}/$$p ${mandir}/man5; \
 	  else :; fi; \
 	done
 
 .PHONY: install-conf
 install-conf: 
-	${INSTALL_DIRS} ${confdir}
+	${INSTALL_DIRS} ${DESTDIR}/${confdir}
 	@list='${CONFS}'; for p in $$list; do \
 	  if test -f ${SRC_CONFDIR}/$$p; then \
-	    ${ECHO} "  ${INSTALL_DATA} ${SRC_CONFDIR}/$$p ${confdir}"; \
-	    ${INSTALL_DATA} ${SRC_CONFDIR}/$$p ${confdir}; \
+	    ${ECHO} "  ${INSTALL_DATA} ${SRC_CONFDIR}/$$p ${DESTDIR}/${confdir}"; \
+	    ${INSTALL_DATA} ${SRC_CONFDIR}/$$p ${DESTDIR}/${confdir}; \
 	  else :; fi; \
 	done
 
 .PHONY: install-share
 install-share:
-	${INSTALL_DIRS} ${sharedir} ${filesdir} ${usersdir} ${userscdbdir} ${bnmaildir} ${reportsdir} \
-	${chanlogsdir} ${charinfodir} ${charsavedir} ${bak_charsavedir} \
-	${bak_charinfodir} ${ladderdir} ${statusdir} ${clandir}
+	${INSTALL_DIRS} ${DESTDIR}/${sharedir} ${DESTDIR}/${filesdir} ${DESTDIR}/${usersdir} ${DESTDIR}/${userscdbdir} ${DESTDIR}/${bnmaildir} ${DESTDIR}/${reportsdir} \
+	${DESTDIR}/${chanlogsdir} ${DESTDIR}/${charinfodir} ${DESTDIR}/${charsavedir} ${DESTDIR}/${bak_charsavedir} \
+	${DESTDIR}/${bak_charinfodir} ${DESTDIR}/${ladderdir} ${DESTDIR}/${statusdir} ${DESTDIR}/${clandir}
 	@list='${SHARES}'; for p in $$list; do \
 	  if test -f ${SRC_SHAREDIR}/$$p; then \
-	    ${ECHO} "  ${INSTALL_DATA} ${SRC_SHAREDIR}/$$p ${filesdir}"; \
-	    ${INSTALL_DATA} ${SRC_SHAREDIR}/$$p ${filesdir}; \
+	    ${ECHO} "  ${INSTALL_DATA} ${SRC_SHAREDIR}/$$p ${DESTDIR}/${filesdir}"; \
+	    ${INSTALL_DATA} ${SRC_SHAREDIR}/$$p ${DESTDIR}/${filesdir}; \
 	  else :; fi; \
 	done
 	chmod u+x ${SRC_SCRIPTDIR}/tos.sh
-	${SRC_SCRIPTDIR}/tos.sh ${filesdir}
+	${SRC_SCRIPTDIR}/tos.sh ${DESTDIR}/${filesdir}
 
 .PHONY: uninstall
 uninstall: uninstall-sbin uninstall-bin uninstall-man uninstall-conf uninstall-share
