@@ -47,6 +47,7 @@ admin,(o)=channel operator)
 -- fixed a problem with attributes containing symbols like '-' or ' ' (like in
 "auth\\admin\\Starcraft ENU-1" not being saved to DB or not loading correctly
 when mysql_persitent=false)
+-- hopefully fixed the little/big endian problems with W3XP we had on SPARCs
 
 
 1.4.6-D2
