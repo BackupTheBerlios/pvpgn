@@ -46,5 +46,9 @@ or
 
 $ installpkg pvpgn-<ver>.tgz
 
+or
+
+$ dpkg -i pvpgn-<ver>.deb
+
 After you install the binary package you will need to adjust PvPGN configuration 
 files (usually installed in /etc/pvpgn dir). Have fun!
