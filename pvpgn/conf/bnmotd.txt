@@ -1,0 +1,7 @@
+%IHello %l, welcome to a PvPGN Server!
+%IRunning version %v on %h.
+%I
+%IThere are %a user accounts on this server.
+%IThere are currently %u users online in %g games and %c channels.
+%IHaving trouble with a command?  Type   /help   to
+%Ilearn more about it.

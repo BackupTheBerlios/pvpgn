@@ -1,0 +1,895 @@
+##############################################################################
+# versioncheck  -  Version Check Configuration		                     #
+#----------------------------------------------------------------------------#
+#                                                                            #
+# This file is used to verify that clients are the same version they claim   #
+# to be and to tag certain versions for autoupgrades (see the autoupdate     #
+# file).                                                                     #
+#                                                                            #
+# Every combination of archtag/clienttag/version/equation/mpqfile needs to   #
+# be listed seperately.  Each combination has a unique checksum.             #
+#                                                                            #
+# If the exeinfo field is "NULL" then the string comparison will be disabled #
+# for that entry.  If the checksum field is 0 then the checksum verification #
+# is disabled for that entry.  If the versionid is 0 then the verification   #
+# of versionid is disabled for that entry The versiontag is optional.        #
+# It is used to identify a particular version even when the version number   #
+# is identical to another (e.g. 109c and 109d are both version 1.0.9.0).     #
+# These tags can be used in the autoupdate file allowing it to know the      #
+# difference because of the different checksums.                             #
+#                                                                            #
+# Multiple matching:                                                         #
+# exeinfo = NULL will match all client exeinfos                              #
+# versionid = 0x0 will match all client versionids                           #
+# gameversion = 0.0.0.0 will match all client's versions                     #
+# checksum = 0x0 will match all client checksums                             #
+#                                                                            #
+# Note: if you use multiple equations/mpqfile be sure of put entries with    #
+#       corresponding checksum for each archtag/clienttag                    #
+#                                                                            #
+# versioncheck entries work like a firewall chains, bnetd will match the     #
+# first entry, then is safe to use entries in descending order, so if we     #
+# found a badversion, it will be tagged with the tag of entry with the lower #
+# version. Last line can be used to match all version unmatched so far       #
+#                                                                            #
+# Do not include "/" in any of the filenames.                                #
+#                                                                            #
+# The version number can be in two forms.  If it does not contain a period   #
+# then 123 is assumed to mean 1.2.3.0.  Otherwise it may contain up to three #
+# periods.  If fewer than four parts are present, the latter ones will be    #
+# assumed to be zero.  For example, 1.8 would be interpreted as 1.8.0.0.     #
+# Sections will overflow if they are greater than 255.                       #
+#                                                                            #
+# Typically Blizzard will add a 1 in the fourth position to signify an       #
+# expansion pack and 10 to signify "b" versions.  So Brood War 1.08b would   #
+# have a version of 1.0.8.11.                                                #
+#                                                                            #
+# ---------------------------equation--------------------------- \           #
+# ---mpqfile---- \                                                           #
+# archtag                                                                    #
+# clienttag                                                                  #
+# ----------------exeinfo----------------- \                                 #
+# versionid- \                                                               #
+# gameversion \                                                              #
+# -checksum- \                                                               #
+# -versiontag-                                                               #
+
+# ==================== StarCraft (original) entries ==========================
+# These checksums are calculated using IX86ver1.mpq with this md5sum
+# a2b83ee67e1c5697dfc32705b50e1208  IX86ver1.mpq
+
+# Starcraft 1.09b MacOS X -- added by jfro
+"A=2521522835 B=3428392135 C=218673704 4 A=A^S B=B-C C=C+A A=A-B" \
+ "XMACver1.mpq" \
+ XMAC \
+ STAR \
+ NULL \
+ 0x000000c5 \
+ 1.0.9.2 \
+ 0x0 \
+ STAR_109b
+ 
+# Starcraft 1.09b MacOS Classic -- added by jfro
+"A=2521522835 B=3428392135 C=218673704 4 A=A^S B=B-C C=C+A A=A-B" \
+ "PMACver1.mpq" \
+ PMAC \
+ STAR \
+ NULL \
+ 0x000000c5 \
+ 1.0.9.2 \
+ 0x0 \
+ STAR_109b
+
+# This matches STAR version 1.09b and tags it with "STAR_109b" *** ADDED MpNico
+"A=2521522835 B=3428392135 C=218673704 4 A=A^S B=B-C C=C+A A=A-B" \
+ "IX86ver1.mpq" \
+ IX86 \
+ STAR \
+ "starcraft.exe 02/21/02 21:48:41 1083392" \
+ 0x000000c5 \
+ 1.0.9.2 \
+ 0xe48a961c \
+ STAR_109b
+
+# This matches STAR version 1.09 and tags it with "STAR_109"
+"A=2521522835 B=3428392135 C=218673704 4 A=A^S B=B-C C=C+A A=A-B" \
+ "IX86ver1.mpq" \
+ IX86 \
+ STAR \
+ "starcraft.exe 02/05/02 07:37:20 1083392" \
+ 0x000000c5 \
+ 1.0.9.0 \
+ 0x4cccdb51 \
+ STAR_109
+
+# This matches STAR version 1.08b and tags it with "STAR_108b"
+"A=2521522835 B=3428392135 C=218673704 4 A=A^S B=B-C C=C+A A=A-B" \
+ "IX86ver1.mpq" \
+ IX86 \
+ STAR \
+ "starcraft.exe 05/19/01 02:01:50 1082880" \
+ 0x000000c3 \
+ 1.0.8.10 \
+ 0xf8a2a489 \
+ STAR_108b
+
+# This matches STAR version 1.08 and tags it with "STAR_108"
+"A=2521522835 B=3428392135 C=218673704 4 A=A^S B=B-C C=C+A A=A-B" \
+ "IX86ver1.mpq" \
+ IX86 \
+ STAR \
+ "starcraft.exe 05/17/01 04:12:40 1082880" \
+ 0x000000c3 \
+ 1.0.8.0 \
+ 0xb39e1494 \
+ STAR_108
+
+# This matches STAR version 1.07 and tags it with "STAR_107"
+"A=2521522835 B=3428392135 C=218673704 4 A=A^S B=B-C C=C+A A=A-B" \
+ "IX86ver1.mpq" \
+ IX86 \
+ STAR \
+ "starcraft.exe 10/30/99 02:20:12 1043456" \
+ 0x000000c1 \
+ 1.0.7.0 \
+ 0x79126108 \
+ STAR_107
+
+# This matches STAR version 1.06 and tags it with "STAR_106"
+"A=2521522835 B=3428392135 C=218673704 4 A=A^S B=B-C C=C+A A=A-B" \
+ "IX86ver1.mpq" \
+ IX86 \
+ STAR \
+ "starcraft.exe 09/25/99 22:40:10 1042432" \
+ 0x000000bd \
+ 1.0.6.0 \
+ 0xfea28485 \
+ STAR_106
+
+# This matches STAR version 1.05 and tags it with "STAR_105"
+"A=2521522835 B=3428392135 C=218673704 4 A=A^S B=B-C C=C+A A=A-B" \
+ "IX86ver1.mpq" \
+ IX86 \
+ STAR \
+ "starcraft.exe 03/08/99 22:41:50 1042432" \
+ 0x000000bd \
+ 1.0.5.0 \
+ 0xc243123c \
+ STAR_105
+
+# This matches STAR version 1.04 and tags it with "STAR_104"
+"A=2521522835 B=3428392135 C=218673704 4 A=A^S B=B-C C=C+A A=A-B" \
+ "IX86ver1.mpq" \
+ IX86 \
+ STAR \
+ "starcraft.exe 12/16/98 22:24:18 1041408" \
+ 0x000000bb \
+ 1.0.4.0 \
+ 0x2779bdc8 \
+ STAR_104
+
+# This matches STAR version 1.03 and tags it with "STAR_103"
+"A=2521522835 B=3428392135 C=218673704 4 A=A^S B=B-C C=C+A A=A-B" \
+ "IX86ver1.mpq" \
+ IX86 \
+ STAR \
+ "starcraft.exe 10/09/98 23:18:22 987648" \
+ 0x000000a9 \
+ 1.0.3.0 \
+ 0x1309eaad \
+ STAR_103
+
+# This matches any STAR version not matched so far and tags it with "STAR_1xx"
+# (Unfortunately it also matches Brood War in StarCraft original mode.)
+# You probably don't wont this since this matches even fake versions.
+"A=3845581634 B=880823580 C=1363937103 4 A=A-S B=B-C C=C-A A=A-B" \
+ IX86ver1.mpq \
+ IX86 \
+ STAR \
+ NULL \
+ 0 \
+ 0.0.0.0 \
+ 0x0 \
+ STAR_1xx
+
+
+# ==================== StarCraft Broodwar entries ============================
+# These checksums are calculated using IX86ver1.mpq with this md5sum
+# a2b83ee67e1c5697dfc32705b50e1208  IX86ver1.mpq
+
+# Broodwar 1.09b MacOS X  -- added by jfro
+"A=2521522835 B=3428392135 C=218673704 4 A=A^S B=B-C C=C+A A=A-B" \
+ "XMACver1.mpq" \
+ XMAC \
+ SEXP \
+ NULL \
+ 0x000000c5 \
+ 1.0.9.11 \
+ 0x0 \
+ SEXP_109b
+ 
+# Broodwar 1.09b MacOS Classic -- added by jfro
+"A=2521522835 B=3428392135 C=218673704 4 A=A^S B=B-C C=C+A A=A-B" \
+ "PMACver1.mpq" \
+ PMAC \
+ SEXP \
+ NULL \
+ 0x000000c5 \
+ 1.0.9.11 \
+ 0x0 \
+ SEXP_109b
+
+# This matches SEXP/IX86 (Broodwar mode) version 1.09b and tags it with "SEXP_109b" *** ADDED MpNico
+"A=2521522835 B=3428392135 C=218673704 4 A=A^S B=B-C C=C+A A=A-B" \
+ "IX86ver1.mpq" \
+ IX86 \
+ SEXP \
+ "starcraft.exe 02/21/02 20:54:04 1083392" \
+ 0x000000c5 \
+ 1.0.9.3 \
+ 0x517eaaaa \
+ SEXP_109b
+ 
+
+# This matches SEXP (StarCraft mode) version 1.09 and tags it with "SEXP_109b_STAR" *** ADDED MpNico
+"A=2521522835 B=3428392135 C=218673704 4 A=A^S B=B-C C=C+A A=A-B" \
+ "IX86ver1.mpq" \
+ IX86 \
+ STAR \
+ "starcraft.exe 02/21/02 20:54:04 1083392" \
+ 0x000000c5 \
+ 1.0.9.3 \
+ 0x517eaaaa \
+ SEXP_109b_STAR
+
+# This matches SEXP/IX86 (Broodwar mode) version 1.09 and tags it with "SEXP_109"
+"A=2521522835 B=3428392135 C=218673704 4 A=A^S B=B-C C=C+A A=A-B" \
+ "IX86ver1.mpq" \
+ IX86 \
+ SEXP \
+ "starcraft.exe 02/05/02 07:17:26 1083392" \
+ 0x000000c5 \
+ 1.0.9.1 \
+ 0x0aeff018 \
+ SEXP_109
+
+
+# This matches SEXP/XMAC (Broodwar mode) version 1.09 and tags it with "SEXP_109"
+# FIXME
+"A=2521522835 B=3428392135 C=218673704 4 A=A^S B=B-C C=C+A A=A-B" \
+ "IX86ver1.mpq" \
+ XMAC \
+ SEXP \
+ NULL \
+ 0x000000c5 \
+ 1.0.9.1 \
+ 0x0 \
+ SEXP_109
+
+
+# This matches SEXP (StarCraft mode) version 1.09 and tags it with "SEXP_109_STAR"
+"A=2521522835 B=3428392135 C=218673704 4 A=A^S B=B-C C=C+A A=A-B" \
+ "IX86ver1.mpq" \
+ IX86 \
+ STAR \
+ "starcraft.exe 02/05/02 07:17:26 1083392" \
+ 0x000000c5 \
+ 1.0.9.1 \
+ 0x0aeff018 \
+ SEXP_109_STAR
+
+# This matches SEXP (Broodwar mode) version 1.08b and tags it with "SEXP_108b"
+# note: the exeinfo is NULL here since the time of the starcraft.exe depends 
+# on the method used to update StarCraft.
+# You may create independent rules instead with the following information:
+# patch  'bw_108b.exe'   - "starcraft.exe 05/19/01 02:28:24 1082880"
+# update 'brood108b.mpq' - "starcraft.exe 05/19/01 02:28:24 1082880"
+# update 'bw7-8b.mpq'    - "starcraft.exe 05/19/01 02:28:24 1082880"
+# update 'bw8-8b.mpq'    - "starcraft.exe 05/19/01 02:00:06 1082880"
+"A=2521522835 B=3428392135 C=218673704 4 A=A^S B=B-C C=C+A A=A-B" \
+ "IX86ver1.mpq" \
+ IX86 \
+ SEXP \
+ NULL \
+ 0x000000c3 \
+ 1.0.8.11 \
+ 0xd81aee2d \
+ SEXP_108b
+
+# This matches SEXP (StarCraft mode) version 1.08b and tags it with "SEXP_108b_STAR"
+# note: the exeinfo is NULL here since the time of the starcraft.exe depends 
+# on the method used to update StarCraft.
+# You may create independent rules instead with the following information:
+# patch  'bw_108b.exe'   - "starcraft.exe 05/19/01 02:28:24 1082880"
+# update 'brood108b.mpq' - "starcraft.exe 05/19/01 02:28:24 1082880"
+# update 'bw7-8b.mpq'    - "starcraft.exe 05/19/01 02:28:24 1082880"
+# update 'bw8-8b.mpq'    - "starcraft.exe 05/19/01 02:00:06 1082880"
+"A=2521522835 B=3428392135 C=218673704 4 A=A^S B=B-C C=C+A A=A-B" \
+ "IX86ver1.mpq" \
+ IX86 \
+ STAR \
+ NULL \
+ 0x000000c3 \
+ 1.0.8.11 \
+ 0xd81aee2d \
+ SEXP_108b_STAR
+
+# This matches SEXP (Broodwar mode) version 1.08 and tags it with "SEXP_108"
+"A=2521522835 B=3428392135 C=218673704 4 A=A^S B=B-C C=C+A A=A-B" \
+ "IX86ver1.mpq" \
+ IX86 \
+ SEXP \
+ "starcraft.exe 05/17/01 03:51:08 1082880" \
+ 0x000000c3 \
+ 1.0.8.1 \
+ 0x514d02d7 \
+ SEXP_108
+
+# This matches SEXP (StarCraft mode) version 1.08 and tags it with "SEXP_108_STAR"
+"A=2521522835 B=3428392135 C=218673704 4 A=A^S B=B-C C=C+A A=A-B" \
+ "IX86ver1.mpq" \
+ IX86 \
+ STAR \
+ "starcraft.exe 05/17/01 03:51:08 1082880" \
+ 0x000000c3 \
+ 1.0.8.1 \
+ 0x514d02d7 \
+ SEXP_108_STAR
+
+# This matches SEXP (Broodwar mode) version 1.07 and tags it with "SEXP_107"
+"A=2521522835 B=3428392135 C=218673704 4 A=A^S B=B-C C=C+A A=A-B" \
+ "IX86ver1.mpq" \
+ IX86 \
+ SEXP \
+ "starcraft.exe 10/30/99 03:54:30 1043456" \
+ 0x000000c1 \
+ 1.0.7.1 \
+ 0xacf13dce \
+ SEXP_107
+ 
+# This matches SEXP (StarCraft mode) version 1.07 and tags it with "SEXP_107_STAR"
+"A=2521522835 B=3428392135 C=218673704 4 A=A^S B=B-C C=C+A A=A-B" \
+ "IX86ver1.mpq" \
+ IX86 \
+ STAR \
+ "starcraft.exe 10/30/99 03:54:30 1043456" \
+ 0x000000c1 \
+ 1.0.7.1 \
+ 0xacf13dce \
+ SEXP_107_STAR
+ 
+# This matches SEXP (Broodwar mode) version 1.06 and tags it with "SEXP_106"
+"A=2521522835 B=3428392135 C=218673704 4 A=A^S B=B-C C=C+A A=A-B" \
+ "IX86ver1.mpq" \
+ IX86 \
+ SEXP \
+ "starcraft.exe 09/28/99 19:41:34 1042432" \
+ 0x000000bd \
+ 1.0.6.1 \
+ 0x1acce912 \
+ SEXP_106
+ 
+# This matches SEXP (StarCraft mode) version 1.06 and tags it with "SEXP_106_STAR"
+"A=2521522835 B=3428392135 C=218673704 4 A=A^S B=B-C C=C+A A=A-B" \
+ "IX86ver1.mpq" \
+ IX86 \
+ STAR \
+ "starcraft.exe 09/28/99 19:41:34 1042432" \
+ 0x000000bd \
+ 1.0.6.1 \
+ 0x1acce912 \
+ SEXP_106_STAR
+
+# This matches SEXP (Broodwar mode) version 1.05 and tags it with "SEXP_105"
+"A=2521522835 B=3428392135 C=218673704 4 A=A^S B=B-C C=C+A A=A-B" \
+ "IX86ver1.mpq" \
+ IX86 \
+ SEXP \
+ "starcraft.exe 03/08/99 22:37:32 1042432" \
+ 0x000000bd \
+ 1.0.5.1 \
+ 0x9a2d64e6 \
+ SEXP_105
+ 
+# This matches SEXP (StarCraft mode) version 1.05 and tags it with "SEXP_105_STAR"
+"A=2521522835 B=3428392135 C=218673704 4 A=A^S B=B-C C=C+A A=A-B" \
+ "IX86ver1.mpq" \
+ IX86 \
+ STAR \
+ "starcraft.exe 03/08/99 22:37:32 1042432" \
+ 0x000000bd \
+ 1.0.5.1 \
+ 0x9a2d64e6 \
+ SEXP_105_STAR
+
+# This matches SEXP (Broodwar mode) version 1.04 and tags it with "SEXP_104"
+# note: the exeinfo is NULL here since the date of the starcraft.exe
+# matches the system date during Broodwar installation such making it incomparable
+"A=2521522835 B=3428392135 C=218673704 4 A=A^S B=B-C C=C+A A=A-B" \
+ "IX86ver1.mpq" \
+ IX86 \
+ SEXP \
+ NULL \
+ 0x000000bb \
+ 1.0.4.1 \
+ 0xfd581427 \
+ SEXP_104
+ 
+# This matches SEXP (StarCraft mode) version 1.04 and tags it with "SEXP_104_STAR"
+# note: the exeinfo is NULL here since the date of the starcraft.exe
+# matches the system date during Broodwar installation such making it incomparable
+"A=2521522835 B=3428392135 C=218673704 4 A=A^S B=B-C C=C+A A=A-B" \
+ "IX86ver1.mpq" \
+ IX86 \
+ STAR \
+ NULL \
+ 0x000000bb \
+ 1.0.4.1 \
+ 0xfd581427 \
+ SEXP_104_STAR
+
+# This matches any SEXP version not matched so far and tags it with "SEXP_1xx"
+# You probably don't wont this since this matches even fake versions.
+"A=3845581634 B=880823580 C=1363937103 4 A=A-S B=B-C C=C-A A=A-B" \
+ IX86ver1.mpq \
+ IX86 \
+ SEXP \
+ NULL \
+ 0 \
+ 0.0.0.0 \
+ 0x0 \
+ SEXP_1xx
+
+
+# ====================== Diablo II LOD entries ===========================
+# These checksums are calculated using IX86ver1.mpq with this md5sum
+# a2b83ee67e1c5697dfc32705b50e1208  IX86ver1.mpq
+
+# Diablo 2 LOD 1.09d MacOS X -- added by jfro
+"A=3845581634 B=880823580 C=1363937103 4 A=A-S B=B-C C=C-A A=A-B" \
+ XMACver2.mpq \
+ XMAC \
+ D2XP \
+ "Game.exe 11/30/01 04:00:17 448675" \
+ 9 \
+ 1.0.9.0 \
+ 0xfa39efbb \
+ D2XP_109d
+ 
+# Diablo 2 LOD 1.09d for MacOS Classic -- added by jfro
+"A=3845581634 B=880823580 C=1363937103 4 A=A-S B=B-C C=C-A A=A-B" \
+ PMACver2.mpq \
+ PMAC \
+ D2XP \
+ NULL \
+ 9 \
+ 1.0.9.0 \
+ 0xfa39efbb \
+ D2XP_109d
+
+# This matches D2XP version 1.09d and tags it with "D2XP_109d"
+"A=3845581634 B=880823580 C=1363937103 4 A=A-S B=B-C C=C-A A=A-B" \
+ IX86ver1.mpq \
+ IX86 \
+ D2XP \
+ "Game.exe 11/30/01 04:00:17 448675" \
+ 9 \
+ 1.0.9.0 \
+ 0xfa39efbb \
+ D2XP_109d
+
+# This matches D2XP version 1.09b and tags it with "D2XP_109b"
+"A=3845581634 B=880823580 C=1363937103 4 A=A-S B=B-C C=C-A A=A-B" \
+ IX86ver1.mpq \
+ IX86 \
+ D2XP \
+ "Game.exe 08/31/01 22:40:56 428163" \
+ 9 \
+ 1.0.9.0 \
+ 0x1436c138 \
+ D2XP_109b
+
+# This matches D2XP version 1.09 and tags it with "D2XP_109"
+"A=3845581634 B=880823580 C=1363937103 4 A=A-S B=B-C C=C-A A=A-B" \
+ IX86ver1.mpq \
+ IX86 \
+ D2XP \
+ "Game.exe 08/16/01 23:05:03 428163" \
+ 9 \
+ 1.0.9.0 \
+ 0x15abc72d \
+ D2XP_109
+
+# This matches D2XP version 1.08 and tags it with "D2XP_108"
+"A=3845581634 B=880823580 C=1363937103 4 A=A-S B=B-C C=C-A A=A-B" \
+ IX86ver1.mpq \
+ IX86 \
+ D2XP \
+ "Game.exe 06/19/01 02:24:32 428163" \
+ 8 \
+ 1.0.8.0 \
+ 0x3a8664ff \
+ D2XP_108
+
+# This matches D2XP version 1.07 and tags it with "D2XP_107"
+"A=3845581634 B=880823580 C=1363937103 4 A=A-S B=B-C C=C-A A=A-B" \
+ IX86ver1.mpq \
+ IX86 \
+ D2XP \
+ "Game.exe 01/23/02 06:39:26 424067" \
+ 7 \
+ 1.0.7.0 \
+ 0x4f3079e6 \
+ D2XP_107
+
+# This matches any D2XP version not matched so far and tags it with "D2XP_1xx"
+# You probably don't wont this since this matches even fake versions.
+"A=3845581634 B=880823580 C=1363937103 4 A=A-S B=B-C C=C-A A=A-B" \
+ IX86ver1.mpq \
+ IX86 \
+ D2XP \
+ NULL \
+ 0 \
+ 0.0.0.0 \
+ 0x0 \
+ D2XP_1xx
+
+
+# ==================== Diablo 2 (original) entries =====================
+
+# Diablo 2 1.09d MacOS X -- added by jfro
+"A=3845581634 B=880823580 C=1363937103 4 A=A-S B=B-C C=C-A A=A-B" \
+ XMACver2.mpq \
+ XMAC \
+ D2DV \
+ "Game.exe 11/30/01 04:00:17 448675" \
+ 9 \
+ 1.0.9.0 \
+ 0xfa39efbb \
+ D2DV_109d
+ 
+# Diablo 2 1.09d for MacOS Classic -- added by jfro
+"A=3845581634 B=880823580 C=1363937103 4 A=A-S B=B-C C=C-A A=A-B" \
+ PMACver2.mpq \
+ PMAC \
+ D2DV \
+ NULL \
+ 9 \
+ 1.0.9.0 \
+ 0xfa39efbb \
+ D2DV_109d
+
+# This matches D2DV version 1.09d and tags it with "D2DV_109d"
+"A=3845581634 B=880823580 C=1363937103 4 A=A-S B=B-C C=C-A A=A-B" \
+ IX86ver1.mpq \
+ IX86 \
+ D2DV \
+ "Game.exe 11/30/01 03:59:45 444579" \
+ 9 \
+ 1.0.9.0 \
+ 0x41e223a3 \
+ D2DV_109d
+
+# This matches D2DV version 1.09b and tags it with "D2DV_109b"
+"A=3845581634 B=880823580 C=1363937103 4 A=A-S B=B-C C=C-A A=A-B" \
+ IX86ver1.mpq \
+ IX86 \
+ D2DV \
+ "Game.exe 08/31/01 22:40:35 424067" \
+ 9 \
+ 1.0.9.0 \
+ 0xb9cb2cb1 \
+ D2DV_109b
+
+# This matches D2DV version 1.09 and tags it with "D2DV_109"
+"A=3845581634 B=880823580 C=1363937103 4 A=A-S B=B-C C=C-A A=A-B" \
+ IX86ver1.mpq \
+ IX86 \
+ D2DV \
+ "Game.exe 08/16/01 23:04:40 424067" \
+ 9 \
+ 1.0.9.0 \
+ 0xc43f1764 \
+ D2DV_109
+
+# This matches D2DV version 1.08 and tags it with "D2DV_108"
+"A=3845581634 B=880823580 C=1363937103 4 A=A-S B=B-C C=C-A A=A-B" \
+ IX86ver1.mpq \
+ IX86 \
+ D2DV \
+ "Game.exe 06/19/01 02:24:04 424067" \
+ 9 \
+ 1.0.8.0 \
+ 0x9e488d3d \
+ D2DV_108
+
+# This matches D2DV version 1.06b and tags it with "D2DV_106b"
+"A=3845581634 B=880823580 C=1363937103 4 A=A-S B=B-C C=C-A A=A-B" \
+ IX86ver1.mpq \
+ IX86 \
+ D2DV \
+ "Game.exe 05/16/01 18:55:11 419971" \
+ 6 \
+ 1.0.6.0 \
+ 0xb2fb38b7 \
+ D2DV_106b
+
+# This matches D2DV version 1.06 and tags it with "D2DV_106"
+"A=3845581634 B=880823580 C=1363937103 4 A=A-S B=B-C C=C-A A=A-B" \
+ IX86ver1.mpq \
+ IX86 \
+ D2DV \
+ "Game.exe 04/19/01 02:05:33 419971" \
+ 6 \
+ 1.0.6.0 \
+ 0xaa348e13 \
+ D2DV_106
+
+# This matches D2DV version 1.05b and tags it with "D2DV_105b"
+"A=3845581634 B=880823580 C=1363937103 4 A=A-S B=B-C C=C-A A=A-B" \
+ IX86ver1.mpq \
+ IX86 \
+ D2DV \
+ "Game.exe 02/01/01 21:21:16 399491" \
+ 5 \
+ 1.0.5.1 \
+ 0x36869f98 \
+ D2DV_105b
+
+# This matches D2DV version 1.05 and tags it with "D2DV_105"
+"A=3845581634 B=880823580 C=1363937103 4 A=A-S B=B-C C=C-A A=A-B" \
+ IX86ver1.mpq \
+ IX86 \
+ D2DV \
+ "Game.exe 01/27/01 01:16:00 399491" \
+ 5 \
+ 1.0.5.0 \
+ 0xd6dec09b \
+ D2DV_105
+
+# This matches D2DV version 1.04c and tags it with "D2DV_104c"
+"A=3845581634 B=880823580 C=1363937103 4 A=A-S B=B-C C=C-A A=A-B" \
+ IX86ver1.mpq \
+ IX86 \
+ D2DV \
+ "Game.exe 12/23/00 18:28:04 387107" \
+ 4 \
+ 1.0.4.2 \
+ 0xc6d40aaf \
+ D2DV_104c
+
+# This matches D2DV version 1.04b and tags it with "D2DV_104b"
+"A=3845581634 B=880823580 C=1363937103 4 A=A-S B=B-C C=C-A A=A-B" \
+ IX86ver1.mpq \
+ IX86 \
+ D2DV \
+ "Game.exe 12/22/00 18:08:34 403587" \
+ 4 \
+ 1.0.4.1 \
+ 0x3882960e \
+ D2DV_104b
+
+# This matches D2DV version 1.03 and tags it with "D2DV_104b"
+"A=3845581634 B=880823580 C=1363937103 4 A=A-S B=B-C C=C-A A=A-B" \
+ IX86ver1.mpq \
+ IX86 \
+ D2DV \
+ "Game.exe 08/01/00 00:34:00 346243" \
+ 3 \
+ 1.0.3.0 \
+ 0x0120ed90 \
+ D2DV_103
+
+# This matches D2DV version 1.01 and tags it with "D2DV_104b"
+"A=3845581634 B=880823580 C=1363937103 4 A=A-S B=B-C C=C-A A=A-B" \
+ IX86ver1.mpq \
+ IX86 \
+ D2DV \
+ "Game.exe 06/26/00 22:31:00 346243" \
+ 1 \
+ 1.0.0.1 \
+ 0x5aef7e66 \
+ D2DV_101
+
+# This matches D2DV version 1.00 (installation) and tags it with "D2DV_100"
+# 1.00 have 0 versionid used as a wildchar in versioncheck
+# but we don't care because we have exeinfo and checksum
+"A=3845581634 B=880823580 C=1363937103 4 A=A-S B=B-C C=C-A A=A-B" \
+ IX86ver1.mpq \
+ IX86 \
+ D2DV \
+ "Game.exe 01/01/97 02:05:09 309379" \
+ 0 \
+ 1.0.0.1 \
+ 0xac5e46cb \
+ D2DV_100
+
+# This matches any D2DV version not matched so far and tags it with "D2DV_1xx"
+# You probably don't wont this since this matches even fake versions.
+"A=3845581634 B=880823580 C=1363937103 4 A=A-S B=B-C C=C-A A=A-B" \
+ IX86ver1.mpq \
+ IX86 \
+ D2DV \
+ NULL \
+ 0 \
+ 0.0.0.0 \
+ 0x0 \
+ D2DV_1xx
+
+
+# ==================== Diablo (original) entries =======================
+
+# This matches DRTL version ???? and tags it with "DRTL_109b"
+"A=3845581634 B=880823580 C=1363937103 4 A=A-S B=B-C C=C-A A=A-B" \
+ IX86ver1.mpq \
+ IX86 \
+ DRTL \
+ "Diablo.exe 05/18/01 23:10:57 757760" \
+ 0x0000002a \
+ 1.0.9.2 \
+ 0xbcaf354d \
+ DRTL_109b
+
+# This matches DRTL version ???? and tags it with "DRTL_109"
+"A=3845581634 B=880823580 C=1363937103 4 A=A-S B=B-C C=C-A A=A-B" \
+ IX86ver1.mpq \
+ IX86 \
+ DRTL \
+ "Diablo.exe 05/12/01 00:53:17 757760" \
+ 0x0000002a \
+ 1.0.9.1 \
+ 0xbcaf354d \
+ DRTL_109
+
+# This matches DRTL version ???? and tags it with "DRTL_108"
+"A=3845581634 B=880823580 C=1363937103 4 A=A-S B=B-C C=C-A A=A-B" \
+ IX86ver1.mpq \
+ IX86 \
+ DRTL \
+ "Diablo.exe 05/24/00 01:16:01 764928" \
+ 0x00000028 \
+ 1.0.8.1 \
+ 0x09eb1213 \
+ DRTL_108
+
+# This matches any DRTL version not matched so far and tags it with "DRTL_1xx"
+# You probably don't wont this since this matches even fake versions.
+"A=3845581634 B=880823580 C=1363937103 4 A=A-S B=B-C C=C-A A=A-B" \
+ IX86ver1.mpq \
+ IX86 \
+ DRTL \
+ NULL \
+ 0 \
+ 0.0.0.0 \
+ DRTL_1xx
+
+# ==================== WARCRAFT2 BNE (thanks eggy) ====================
+
+# Warcraft II BNE v2.02(a)
+"A=3845581634 B=880823580 C=1363937103 4 A=A-S B=B-C C=C-A A=A-B" \
+IX86ver1.mpq \
+IX86 \
+W2BN \
+"Warcraft II BNE.exe 05/15/01 20:53:19 712704" \
+0x0000004f \
+2.0.2.0 \
+0x00000000 \
+W2BN_202
+
+
+# ==================== WARCRAFT3 entries =======================
+
+# Warcraft III v1.03(a) RZR
+#"A=3845581634 B=880823580 C=1363937103 4 A=A-S B=B-C C=C-A A=A-B" \
+#IX86ver1.mpq \
+#IX86 \
+#WAR3 \
+#"war3.exe 10/10/02 08:53:14 659456" \
+#0x00000003 \
+#1.0.3.0 \
+#0x01dd2de7 \
+#WAR3_103a
+
+# Warcraft III Retail v1.03(a)
+"A=3845581634 B=880823580 C=1363937103 4 A=A-S B=B-C C=C-A A=A-B" \
+IX86ver1.mpq \
+IX86 \
+WAR3 \
+"war3.exe 10/08/02 20:54:49 713495" \
+0x00000003 \
+1.0.3.0 \
+0xae4ac7fa \
+WAR3_103a
+
+# Warcraft III Retail v1.02a
+"A=3845581634 B=880823580 C=1363937103 4 A=A-S B=B-C C=C-A A=A-B" \
+IX86ver1.mpq \
+IX86 \
+WAR3 \
+"war3.exe 09/06/02 02:41:02 713495" \
+0x00000002 \
+1.0.1.0 \
+0xa67d9a0e \
+WAR3_102a
+
+# Warcraft III Retail v1.02
+"A=3845581634 B=880823580 C=1363937103 4 A=A-S B=B-C C=C-A A=A-B" \
+IX86ver1.mpq \
+IX86 \
+WAR3 \
+"war3.exe 08/12/02 18:21:15 713495" \
+0x00000002 \
+1.0.1.0 \
+0x03d8be54 \
+WAR3
+
+# Warcraft III RzR v1.02
+#"A=3845581634 B=880823580 C=1363937103 4 A=A-S B=B-C C=C-A A=A-B" \
+#IX86ver1.mpq \
+#IX86 \
+#WAR3 \
+#"war3.exe 08/12/02 18:21:15 713495" \
+#0x00000002 \
+#1.0.1.0 \
+#0x03d8be54 \
+#WAR3
+
+# WARCRAFT 3 RETAIL SUPPORT - PVPGN
+
+# Warcraft III Retail v1.01b
+"A=3845581634 B=880823580 C=1363937103 4 A=A-S B=B-C C=C-A A=A-B" \
+IX86ver1.mpq \
+IX86 \
+WAR3 \
+"war3.exe 07/10/02 18:59:10 713495" \
+0x00000001 \
+1.0.1.1 \
+0x062ef7dc \
+WAR3
+
+# Warcraft III Retail 1.01
+"A=3845581634 B=880823580 C=1363937103 4 A=A-S B=B-C C=C-A A=A-B" \
+IX86ver1.mpq \
+IX86 \
+WAR3 \
+"war3.exe 06/28/02 18:41:18 713495" \
+0x00000001 \
+1.0.1.0 \
+0x62c2e1a2 \
+WAR3
+
+# Warcraft III Retail 1.01 Deviance Cracked 
+"A=3845581634 B=880823580 C=1363937103 4 A=A-S B=B-C C=C-A A=A-B" \
+IX86ver1.mpq \
+IX86 \
+WAR3 \
+"War3.exe 07/03/02 07:36:00 637440" \
+0x00000001 \
+1.0.1.0 \
+0x9d84aa4e \
+WAR3
+
+# Warcraft III Retail 1.00
+#"A=3845581634 B=880823580 C=1363937103 4 A=A-S B=B-C C=C-A A=A-B" \
+#IX86ver1.mpq \
+#IX86 \
+#WAR3 \
+#"War3.exe 07/03/02 22:48:23 713495" \
+#0x00000000 \
+#1.0.0.0 \
+#0xf891f129 \
+#WAR3
+
+# Warcraft III Retail 1.00 RZR
+#"A=3845581634 B=880823580 C=1363937103 4 A=A-S B=B-C C=C-A A=A-B" \
+#IX86ver1.mpq \
+#IX86 \
+#WAR3 \
+#"War3.exe 06/14/02 05:00:00 713495" \
+#0x00000000 \
+#1.0.0.0 \
+#0x540f5100 \
+#WAR3
+
+#                                                                            #
+##############################################################################

@@ -1,0 +1,70 @@
+PvPGN Version History:
+
+Next Version 1.x.x :  Will support 1.03.  This will be a significant
+change, and will only support 1.03 version.  Mixing 1.03 and 1.02 clients
+is NOT recommended.
+
+-- added support for Diablo II game servers on local lan.  See d2gstrans
+file for instructions.
+-- fixed /lockacct & /unlockacct for Diablo II & WarCraft III Clients.
+
+1.1.6 RC4:
+  NOTE:  *** Last version to support PvPGN 1.02a or earlier clients. ***
+
+- added /serverban username - bans IP and locks user account 
+- Code Optimizations. PvPGN now runs approx 2X faster. 
+- wc3ladder url fixed. requires acid adaptive loader 5300 bytes. Older
+acid loaders won't work with this feature enabled, e.g. Users will be
+disconnected. 5300 byte loader will not for for next version of wc3.  
+Wc3ladder url will be changed or removed.
+- Fixed bugs in Friends list, missing game result initializations
+- banner list format changed so pcx/mng used for appropriate clients
+- Various other crash bugs and memory leak fixes 
+- D2 added multiple Realm Support and other D2 fixes.
+
+1.1.6 RC3:
+- Various crash bugs and mem leak fixes
+
+1.1.6 RC2:
+- Various Bug fixes
+
+1.1.6 RC1:
+- Added Arranged Team Support (2v2,3v3,4v4, team ffa)
+- Fixed Various bugs
+
+1.1.5rc2:
+- fixed d2/sc icons/avatars
+- added checks and autodetection to unix sql configure
+
+1.1.5rc1:
+- MySQL works very well now
+- Complete PG Support
+- PG Profiles / Stats, XP/Level calcs and Icons ;)
+- PG matchmaking with max 6 level diff
+
+1.1.4:
+-Play Game 1v1 support
+-All-language support
+
+1.1.3:
+-MySQL support (optional)
+
+1.1.2:
+-Encrypted Passwords WORK now (Agreement between PvPGN and Warforge)
+
+1.1.1:
+-Friends List fully working-Progress on Arranged Teams (NOT working yet)
+
+1.1.0 fixed for 1.32:
+-Added support for Warcraft III v1.32 (only versioncheck changed)
+
+1.1.0 (first public PvPGN release): 
+-Added support for Warcraft III v1.31-Took out profiles. They will not
+work right now
+-Code changes: Fixed a few serious bugs when server would rise over 2k
+active accounts
+-Recoded the whole ANONGAME Packet Structures-Added Semi Support for
+Friends List
+-Added the "NEW" Match-making-war3US.DAT file (v1.31 Version)
+-Added the Updated ICONS.BNI file-Gave bnetd code some new flavor. MFC C++
+can now be added in! ;p

@@ -1,0 +1,18 @@
+Welcome to PvPGN BNETD MOD (type /version for details)
+PvPGN and its affiliates in no way condone software piracy.
+The games that you play on our servers, we hope you have
+or will be purchasing. 
+
+Whats New?: Fully working Play Game!, Stats, Profiles.
+Auto Matching 6 level difference players.
+
+All crash bugs fixed! - PvPGN can run as a service on Win32 now!
+
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-==-=-=-=-=-=-=-=-=-=-=-=-=-=-==-=-=-=-=-=-=-=
+Make sure to visit us online!
+irc.pvpgn.org  
+Channel: #pvpgn
+
+Enjoy!
+The PvPGN Team
+http://www.PvPGN.org
