@@ -4204,6 +4204,8 @@ static int _handle_tag_command(t_connection * c, char const *text)
     {
         unsigned int oldflags = conn_get_flags(c);
         conn_set_clienttag(c,newtag);
+	if ((newtag==CLIENTTAG_WARCRAFT3_UINT) || (newtag==CLIENTTAG_WAR3XP_UINT))
+	  conn_update_w3_playerinfo(c);
 	channel_rejoin(c);
 	conn_set_flags(c,oldflags);
 	channel_update_userflags(c);
