@@ -19,6 +19,10 @@
 #ifndef INCLUDED_STORAGE_TYPES
 #define INCLUDED_STORAGE_TYPES
 
+/* flags to tell if calling codes really want all accounts loading */
+#define ST_NONE		0
+#define ST_FORCE	1
+
 #define t_storage_info void
 
 typedef int (*t_read_attr_func)(const char *, const char *, void *);
@@ -29,13 +33,14 @@ typedef int (*t_load_teams_func)(void*);
 typedef struct {
     int (*init)(const char *);
     int (*close)(void);
+    unsigned (*read_maxuserid)(void);
     t_storage_info * (*create_account)(char const * );
     t_storage_info * (*get_defacct)(void);
     int (*free_info)(t_storage_info *);
     int (*read_attrs)(t_storage_info *, t_read_attr_func, void *);
     int (*write_attrs)(t_storage_info *, void *);
     void * (*read_attr)(t_storage_info *, const char *);
-    int (*read_accounts)(t_read_accounts_func, void *);
+    int (*read_accounts)(int,t_read_accounts_func, void *);
     t_storage_info * (*read_account)(const char *,unsigned);
     int (*cmp_info)(t_storage_info *, t_storage_info *);
     const char * (*escape_key)(const char *);

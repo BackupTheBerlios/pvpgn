@@ -117,6 +117,7 @@ extern t_hashtable * accountlist(void);
 extern t_hashtable * accountlist_uid(void);
 extern int accountlist_load_default(void);
 extern void accountlist_unload_default(void);
+extern int accountlist_load_all(int flag);
 extern unsigned int accountlist_get_length(void);
 extern int accountlist_save(unsigned flags);
 extern int accountlist_flush(unsigned flags);

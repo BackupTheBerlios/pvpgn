@@ -755,38 +755,56 @@ static int _cb_read_accounts2(t_storage_info *info, void *data)
     return 0;
 }
 
-extern int accountlist_create(void)
+extern int accountlist_load_all(int flag)
 {
     unsigned int count;
-
     int starttime = time(NULL);
+    static int loaded = 0; /* all accounts already loaded ? */
+    int res;
 
-    eventlog(eventlog_level_info, "accountlist_create", "started creating accountlist");
+    if (loaded) return 0;
+
+    count = 0;
+    res = 0;
+
+    force_account_add = 1; /* disable the protection */
+    switch(storage->read_accounts(flag,_cb_read_accounts2, &count))
+    {
+	case -1:
+    	    eventlog(eventlog_level_error, __FUNCTION__,"got error reading users");
+    	    res = -1;
+	    break;
+	case 0: 
+	    loaded = 1;
+	    eventlog(eventlog_level_info, __FUNCTION__, "loaded %u user accounts in %ld seconds",count,time(NULL) - starttime);
+	    break;
+	default:
+	    break;
+    }
+    force_account_add = 0; /* enable the protection */
+
+    return res;
+}
+
+extern int accountlist_create(void)
+{
+    eventlog(eventlog_level_info, __FUNCTION__, "started creating accountlist");
     
     if (!(accountlist_head = hashtable_create(prefs_get_hashtable_size())))
     {
-        eventlog(eventlog_level_error,"accountlist_create","could not create accountlist_head");
+        eventlog(eventlog_level_error, __FUNCTION__, "could not create accountlist_head");
 	return -1;
     }
     
     if (!(accountlist_uid_head = hashtable_create(prefs_get_hashtable_size())))
     {
-        eventlog(eventlog_level_error,"accountlist_create","could not create accountlist_uid_head");
+        eventlog(eventlog_level_error, __FUNCTION__, "could not create accountlist_uid_head");
 	return -1;
     }
-    
-    force_account_add = 1; /* disable the protection */
-    
-    count = 0;
-    if (storage->read_accounts(_cb_read_accounts2, &count))
-    {
-        eventlog(eventlog_level_error,"accountlist_create","got error reading users");
-        return -1;
-    }
 
-    force_account_add = 0; /* enable the protection */
-
-    eventlog(eventlog_level_info,"accountlist_create","loaded %u user accounts in %ld seconds",count,time(NULL) - starttime);
+    /* load accounts without force, indexed storage types wont be loading */
+    accountlist_load_all(ST_NONE);
+    maxuserid = storage->read_maxuserid();
 
     return 0;
 }

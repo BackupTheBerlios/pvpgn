@@ -103,13 +103,14 @@
 
 static int file_init(const char *);
 static int file_close(void);
+static unsigned file_read_maxuserid(void);
 static t_storage_info *file_create_account(char const *);
 static t_storage_info *file_get_defacct(void);
 static int file_free_info(t_storage_info *);
 static int file_read_attrs(t_storage_info *, t_read_attr_func, void *);
 static void *file_read_attr(t_storage_info *, const char *);
 static int file_write_attrs(t_storage_info *, void *);
-static int file_read_accounts(t_read_accounts_func, void *);
+static int file_read_accounts(int,t_read_accounts_func, void *);
 static t_storage_info *file_read_account(const char *, unsigned);
 static int file_cmp_info(t_storage_info *, t_storage_info *);
 static const char *file_escape_key(const char *);
@@ -126,6 +127,7 @@ static int file_remove_team(unsigned int);
 t_storage storage_file = {
     file_init,
     file_close,
+    file_read_maxuserid,
     file_create_account,
     file_get_defacct,
     file_free_info,
@@ -152,6 +154,11 @@ static const char *clansdir = NULL;
 static const char *teamsdir = NULL;
 static const char *defacct = NULL;
 static t_file_engine *file = NULL;
+
+static unsigned file_read_maxuserid(void)
+{
+    return maxuserid;
+}
 
 static int file_init(const char *path)
 {
@@ -424,7 +431,7 @@ static t_storage_info *file_get_defacct(void)
     return info;
 }
 
-static int file_read_accounts(t_read_accounts_func cb, void *data)
+static int file_read_accounts(int flag,t_read_accounts_func cb, void *data)
 {
     char const *dentry;
     char *pathname;

@@ -71,6 +71,7 @@
 #undef CLAN_INTERNAL_ACCESS
 #include "common/tag.h"
 #include "common/xalloc.h"
+#include "common/flags.h"
 #include "sql_dbcreator.h"
 #include "storage_sql.h"
 #ifdef WITH_SQL_MYSQL
@@ -94,13 +95,14 @@
 
 static int sql_init(const char *);
 static int sql_close(void);
+static unsigned sql_read_maxuserid(void);
 static t_storage_info *sql_create_account(char const *);
 static t_storage_info *sql_get_defacct(void);
 static int sql_free_info(t_storage_info *);
 static int sql_read_attrs(t_storage_info *, t_read_attr_func, void *);
 static void *sql_read_attr(t_storage_info *, const char *);
 static int sql_write_attrs(t_storage_info *, void *);
-static int sql_read_accounts(t_read_accounts_func, void *);
+static int sql_read_accounts(int,t_read_accounts_func, void *);
 static t_storage_info * sql_read_account(const char *,unsigned);
 static int sql_cmp_info(t_storage_info *, t_storage_info *);
 static const char *sql_escape_key(const char *);
@@ -115,6 +117,7 @@ static int sql_remove_team(unsigned int teamid);
 t_storage storage_sql = {
     sql_init,
     sql_close,
+    sql_read_maxuserid,
     sql_create_account,
     sql_get_defacct,
     sql_free_info,
@@ -292,6 +295,42 @@ static int sql_close(void)
     sql->close();
     sql = NULL;
     return 0;
+}
+
+static unsigned sql_read_maxuserid(void)
+{
+    t_sql_res *result;
+    t_sql_row *row;
+    long maxuid;
+
+    if (sql == NULL)
+    {
+	eventlog(eventlog_level_error, __FUNCTION__, "sql not initilized");
+	return 0;
+    }
+
+    if ((result = sql->query_res("SELECT max(uid) FROM BNET")) == NULL) {
+	eventlog(eventlog_level_error, __FUNCTION__, "error trying query: \"SELECT max(uid) FROM BNET\"");
+	return 0;
+    }
+
+    row = sql->fetch_row(result);
+    if (row == NULL || row[0] == NULL)
+    {
+	sql->free_result(result);
+	eventlog(eventlog_level_error, __FUNCTION__, "got NULL max");
+	return 0;
+    }
+
+    maxuid = atol(row[0]);
+    sql->free_result(result);
+    if (maxuid < 0)
+    {
+	eventlog(eventlog_level_error, __FUNCTION__, "got invalid maxuserid");
+	return 0;
+    }
+
+    return maxuid;
 }
 
 static t_storage_info *sql_create_account(char const *username)
@@ -644,7 +683,7 @@ int sql_write_attrs(t_storage_info * info, void *attrs)
     return 0;
 }
 
-static int sql_read_accounts(t_read_accounts_func cb, void *data)
+static int sql_read_accounts(int flag,t_read_accounts_func cb, void *data)
 {
     char query[1024];
     t_sql_res *result = NULL;
@@ -662,6 +701,9 @@ static int sql_read_accounts(t_read_accounts_func cb, void *data)
 	eventlog(eventlog_level_error, __FUNCTION__, "get NULL callback");
 	return -1;
     }
+
+    /* don't actually load anything here if ST_FORCE is not set as SQL is indexed */
+    if (!FLAG_ISSET(flag,ST_FORCE)) return 1;
 
     strcpy(query, "SELECT uid FROM BNET");
     if ((result = sql->query_res(query)) != NULL)

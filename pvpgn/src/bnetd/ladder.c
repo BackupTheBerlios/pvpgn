@@ -57,6 +57,7 @@
 #include "compat/strcasecmp.h"
 #include "compat/strncasecmp.h"
 #include "ladder_binary.h"
+#include "storage.h"
 #include "account.h"
 #include "common/bnet_protocol.h"
 #include "common/xalloc.h"
@@ -1221,7 +1222,12 @@ extern void ladders_load_accounts_to_ladderlists(void)
     eventlog(eventlog_level_trace,__FUNCTION__,"everything went smooth... taking shortcut");
     return;
   }
-      
+
+  eventlog(eventlog_level_warn, __FUNCTION__, "binary ladders missing or incomplete, going to load all accounts to rebuild them");
+  if (accountlist_load_all(ST_FORCE)) {
+    eventlog(eventlog_level_error, __FUNCTION__, "error loading all accounts");
+    return;
+  }
   HASHTABLE_TRAVERSE(accountlist(),curr)
     {
       if ((account=((t_account *)entry_get_data(curr))))
