@@ -187,6 +187,7 @@ static int config_cleanup(void)
 {
 	d2dbs_prefs_unload();
 	d2dbs_cmdline_cleanup(); 
+	eventlog_close();
 	if (eventlog_fp) fclose(eventlog_fp);
 	return 0;
 }

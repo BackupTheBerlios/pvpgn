@@ -94,6 +94,7 @@ static int on_bnetd_authreq(t_connection * c, t_packet * packet)
 	if ((rpacket=packet_create(packet_class_d2cs_bnetd))) {
 		packet_set_size(rpacket,sizeof(t_d2cs_bnetd_authreply));
 		packet_set_type(rpacket,D2CS_BNETD_AUTHREPLY);
+		bn_int_set(&rpacket->u.d2cs_bnetd_authreply.h.seqno,1);
 		bn_int_set(&rpacket->u.d2cs_bnetd_authreply.version,D2CS_VERSION_NUMBER);
 		packet_append_string(rpacket,prefs_get_realmname());
 		queue_push_packet(d2cs_conn_get_out_queue(c),rpacket);

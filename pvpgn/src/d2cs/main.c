@@ -243,6 +243,7 @@ extern int main(int argc, char * * argv)
 	}
 	cleanup();
 	config_cleanup();
+	eventlog_close();
 #ifdef USE_CHECK_ALLOC
 	check_cleanup();
 	if (memlog_fp) fclose(memlog_fp);

@@ -147,6 +147,7 @@ static int on_d2cs_authreply(t_connection * c, t_packet const * packet)
 	if ((rpacket=packet_create(packet_class_d2cs_bnetd))) {
 		packet_set_size(rpacket,sizeof(t_bnetd_d2cs_authreply));
 		packet_set_type(rpacket,BNETD_D2CS_AUTHREPLY);
+		bn_int_set(&rpacket->u.bnetd_d2cs_authreply.h.seqno,1);
 		bn_int_set(&rpacket->u.bnetd_d2cs_authreply.reply,reply);
 		queue_push_packet(conn_get_out_queue(c),rpacket);
 		packet_del_ref(rpacket);
@@ -311,6 +312,7 @@ extern int handle_d2cs_init(t_connection * c)
 	if ((packet=packet_create(packet_class_d2cs_bnetd))) {
 		packet_set_size(packet,sizeof(t_bnetd_d2cs_authreq));
 		packet_set_type(packet,BNETD_D2CS_AUTHREQ);
+		bn_int_set(&packet->u.bnetd_d2cs_authreq.h.seqno,1);
 		bn_int_set(&packet->u.bnetd_d2cs_authreq.sessionnum,conn_get_sessionnum(c));
 		queue_push_packet(conn_get_out_queue(c),packet);
 		packet_del_ref(packet);

@@ -207,7 +207,7 @@ SOCKET dbs_server_init(void)
 		log_error("psock_listen() failed : %s",strerror(psock_errno()));
 		return -1;
 	}
-	free(servaddr);
+	addr_destroy(servaddr);
 	return sd;
 }
 

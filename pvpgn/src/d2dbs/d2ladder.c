@@ -177,6 +177,7 @@ int d2ladder_initladderfile(void)
 	fdladder=open(d2ladder_ladder_file,O_WRONLY|O_CREAT|O_TRUNC|O_BINARY,S_IREAD | S_IWRITE);
 	if(fdladder!=-1) {
 		bn_int_set(&fileheader.maxtype,maxtype);
+		bn_int_set(&fileheader.checksum,0);
 		write(fdladder,&fileheader,sizeof(fileheader));
 		write(fdladder,lhead,sizeof(lhead));
 		for(i=0;i<maxtype;i++) {
@@ -748,6 +749,7 @@ extern int d2ladder_saveladder(void)
 	// <---
 	
 	bn_int_set(&fileheader.maxtype,d2ladder_maxtype);
+	bn_int_set(&fileheader.checksum,0);
 	write(fdladder,&fileheader,sizeof(fileheader));
 	write(fdladder,lhead,sizeof(lhead));
 	for(i=0;i<d2ladder_maxtype;i++) {
@@ -859,7 +861,7 @@ int d2ladder_checksum_set(void)
 {
 	int		fdladder;
 	off_t		filesize;
-	int		curlen,readlen;
+	int		curlen,readlen,len;
 	unsigned char * buffer;
 	bn_int		checksum;
 
@@ -890,7 +892,11 @@ int d2ladder_checksum_set(void)
 
 	curlen=0;
 	while(curlen<filesize) {
-		readlen=read(fdladder,buffer+curlen,2000);
+		if(filesize-curlen > 2000)
+		    len = 2000;
+		else
+		    len = filesize-curlen;
+		readlen=read(fdladder,buffer+curlen,len);
 		if (readlen<=0) {
 			free(buffer);
 			close(fdladder);
@@ -912,7 +918,7 @@ int d2ladder_checksum_check(void)
 {
 	int		fdladder;
 	off_t		filesize;
-	int		curlen,readlen;
+	int		curlen,readlen,len;
 	unsigned char	* buffer;
 	int		checksum,oldchecksum;
 	t_d2ladderfile_header	* header;
@@ -944,7 +950,11 @@ int d2ladder_checksum_check(void)
 	header=(t_d2ladderfile_header *)buffer;
 	curlen=0;
 	while(curlen<filesize) {
-		readlen=read(fdladder,buffer+curlen,2000);
+		if(filesize-curlen > 2000)
+		    len = 2000;
+		else
+		    len = filesize-curlen;
+		readlen=read(fdladder,buffer+curlen,len);
 		if (readlen<=0) {
 			free(buffer);
 			close(fdladder);

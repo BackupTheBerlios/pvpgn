@@ -157,6 +157,7 @@ extern int d2gstrans_load(char const * filename)
 	    free(entry);
 	}
     }
+    fclose(fp);
     eventlog(eventlog_level_info,"d2gstrans_load","d2gstrans file loaded");
     return 0;
 }
