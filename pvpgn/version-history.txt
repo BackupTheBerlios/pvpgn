@@ -8,6 +8,9 @@ fail to login due to wrong file-time. That's not our problem.
 1.6.0pre5 (since 1.6.0pre4):
 -- fixed old d2gs compatibility (d2gs could not connect to pre4 d2cs but it 
 was fine to use pre3 d2cs with pre4 bnetd and old d2gs)
+-- added support for loading new accounts at runtime (ex. if made by some 
+external webscript)
+-- fixed a double free() bug in loading of clans in some corner cases
 
 1.6.0pre4 (since 1.6.0pre3):
 -- fixed problem that started game remain in gamelist in war3/w3xp 1.13
