@@ -66,7 +66,7 @@ static unsigned int get_bool_conf(char const * directive);
 static Bconf_t conf_table[] =
 {
     { "filedir",                conf_type_char,    BNETD_FILE_DIR,       NONE,                  ACT },
-    { "userdir",                conf_type_char,    BNETD_USER_DIR,       NONE,                  ACT },
+    { "storage_path",           conf_type_char,    BNETD_STORAGE_PATH,   NONE,                  ACT },
     { "logfile",                conf_type_char,    BNETD_LOG_FILE,       NONE,                  ACT },
     { "loglevels",              conf_type_char,    BNETD_LOG_LEVELS,     NONE,                  ACT },
     { "defacct",                conf_type_char,    BNETD_TEMPLATE_FILE,  NONE,                  ACT },
@@ -165,12 +165,6 @@ static Bconf_t conf_table[] =
 
     /* [zap-zero] 20021606 */
 
-    { "mysql_host",		conf_type_char,	   PVPGN_DEFAULT_URL,  	 NONE,                 	ACT },
-    { "mysql_account",		conf_type_char,	   NULL,	  	 NONE,                 	ACT },
-    { "mysql_password",		conf_type_char,	   NULL,	  	 NONE,                 	ACT },
-    { "mysql_sock",		conf_type_char,	   "/tmp/mysql.sock",  	 NONE,                 	ACT },
-    { "mysql_dbname",		conf_type_char,	   "PVPGN",	  	 NONE,                 	ACT },
-    { "mysql_persistent",	conf_type_bool,	   NULL,		 0,			ACT },
     { "mapsfile",		conf_type_char,	   NULL,		 0,          		ACT },
     { "xplevelfile",    	conf_type_char,	   NULL,		 0,          		ACT },
     { "xpcalcfile",		conf_type_char,	   NULL,		 0,          		ACT },
@@ -515,9 +509,9 @@ extern void prefs_unload(void)
 }
 
 
-extern char const * prefs_get_userdir(void)
+extern char const * prefs_get_storage_path(void)
 {
-    return get_char_conf("userdir");
+    return get_char_conf("storage_path");
 }
 
 

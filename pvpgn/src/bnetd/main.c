@@ -145,9 +145,7 @@ static void usage(char const * progname)
 #ifdef WITH_BITS
 # define STATUS_BITS_FAILURE		2
 #endif
-#ifdef WITH_MYSQL
-# define STATUS_STORAGE_FAILURE		3
-#endif
+#define STATUS_STORAGE_FAILURE		3
 #define STATUS_MAPLISTS_FAILURE		4
 #define STATUS_MATCHLISTS_FAILURE	5
 #define STATUS_LADDERLIST_FAILURE	6
@@ -398,15 +396,10 @@ char * write_to_pidfile(void)
 int pre_server_startup(void)
 {
     pvpgn_greeting();
-#ifdef WITH_MYSQL
-   /* Dizzy: July 13 2002 : changed to initialize the storage layer which
-    * in turn will initialize the db layer
-    */
-    if (storage_init() < 0) {
+    if (storage_init(prefs_get_storage_path()) < 0) {
 	eventlog(eventlog_level_error, "pre_server_startup", "storage init failed");
 	return STATUS_STORAGE_FAILURE;
     }
-#endif
     if (anongame_maplists_create() < 0) {
 	eventlog(eventlog_level_error, "pre_server_startup", "could not load maps");
 	return STATUS_MAPLISTS_FAILURE;
@@ -510,10 +503,8 @@ void post_server_shutdown(int status)
 	case STATUS_MATCHLISTS_FAILURE:
 	    anongame_maplists_destroy();
 	case STATUS_MAPLISTS_FAILURE:
-#ifdef WITH_MYSQL
-	    storage_destroy();
+	    storage_close();
 	case STATUS_STORAGE_FAILURE:
-#endif
 	case -1:
 	    break;
 	default:

@@ -1,5 +1,5 @@
 /*
-   * Copyright (C) 2002 Dizzy 
+   * Copyright (C) 2002,2003 Dizzy 
    *
    * This program is free software; you can redistribute it and/or
    * modify it under the terms of the GNU General Public License
@@ -15,14 +15,9 @@
    * along with this program; if not, write to the Free Software
    * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
    */
-#ifdef WITH_MYSQL
 
 #include "common/setup_before.h"
-#include "prefs.h"
-#include "pvpgn_mysql.h"
-#include "compat/strchr.h"
-#include "compat/char_bit.h"
-#include "common/introtate.h"
+#include "compat/strcasecmp.h"
 #ifdef HAVE_STRING_H
 # include <string.h>
 #else
@@ -30,309 +25,59 @@
 #  include <strings.h>
 # endif
 #endif
+
 #include "storage.h"
+#include "storage_file.h"
+#ifdef WITH_SQL
+#include "storage_sql.h"
+#endif
+
+#include "compat/strdup.h"
+#include "common/eventlog.h"
 #include "common/setup_after.h"
-#ifdef STDC_HEADERS
-#include <stdlib.h>
-#else
-#ifdef HAVE_MALLOC_H
-#include <malloc.h>
-#endif
-#endif
-#include "account.h"
 
-extern int storage_init(void)
+t_storage *storage = NULL;
+
+extern int storage_init(const char *spath)
 {
-   if (db_check() < 0) {
-      eventlog(eventlog_level_error, "storage_init", "Could not initialize sql layer");
-      return -1;
-   }
-   return 0;
-}
+    char *temp, *p;
+    int res;
 
-extern void storage_destroy(void)
-{
-    if (prefs_get_mysql_persistent()) {
-	db_close();
-    }
-}
-
-extern unsigned int storage_create_account(const char * username)
-{
-   /* there is nothing to cache here, there should not be too many
-    * new accounts per second
-    */
-   unsigned int result;
-
-   if (db_init()<0) {
-      eventlog(eventlog_level_error, "storage_create_account", "db_init() failed");
-      return 0;
-   }
-
-   result = db_new_user(username);
-   
-   if (!prefs_get_mysql_persistent()) {
-     db_close();
-   }
-   
-   return result;
-}
-
-extern t_readattr * storage_attr_getfirst(unsigned int sid, char **pkey, char **pvalue)
-{
-   t_readattr * readattr;
-
-   eventlog(eventlog_level_trace, "storage_attr_getfirst", "<<<< ENTER ! (uid: %u)", sid);
-   if (db_init()<0) {
-      eventlog(eventlog_level_error, "storage_attr_getfirst", "db_init() failed");
-      return NULL;
-   }
-
-   if ((readattr = malloc(sizeof(t_readattr))) == NULL) {
-      eventlog(eventlog_level_error,"storage_attr_getfirst","could not allocate for attr list");
-      if (!prefs_get_mysql_persistent()) {
-         db_close();
-      }
-      return NULL;
-   }
-   
-   if ((readattr->alist = db_get_attributes(sid)) == NULL) {
-      eventlog(eventlog_level_error,"storage_attr_getfirst","could not retrieve attribute list");
-      free(readattr);
-      if (!prefs_get_mysql_persistent()) {
-         db_close();
-      }
-      return NULL;
-   }
-   
-   if (!prefs_get_mysql_persistent()) {
-      db_close();
-   }
-   readattr->pos = 0; /* start from beginning */
-   
-   *pkey = readattr->alist->keys[0];
-   *pvalue = readattr->alist->values[0];
-   
-   return readattr;
-}
-
-extern int storage_attr_getnext(t_readattr * readattr, char **pkey, char **pvalue)
-{
-   if (readattr == NULL) {
-      eventlog(eventlog_level_error,"storage_attr_getnext", "Got NULL readattr");
-      return -1;
-   }
-   
-   if (readattr->pos >= readattr->alist->len -1) /* we finished browsing */
-     return -1;
-   
-   readattr->pos++;
-   *pkey = readattr->alist->keys[readattr->pos];
-   *pvalue = readattr->alist->values[readattr->pos];
-   
-   return 0;
-}
-
-extern int storage_attr_close(t_readattr * readattr)
-{
-   if (readattr == NULL) {
-      eventlog(eventlog_level_error,"storage_attr_close", "Got NULL readattr");
-      return -1;
-   }
-   
-   if (readattr->alist != NULL) db_free_attributes(readattr->alist);
-   free(readattr);
-   return 0;
-}
-
-extern t_readacct * storage_account_getfirst(unsigned int *puid)
-{
-   t_readacct *readacct;
-   
-   if (db_init()<0) {
-      eventlog(eventlog_level_error, "storage_account_getfirst", "db_init() failed");
-      return NULL;
-   }
-
-   if ((readacct = malloc(sizeof(t_readacct))) == NULL) {
-      eventlog(eventlog_level_error,"storage_account_getfirst","could not allocate for readacct");
-      if (!prefs_get_mysql_persistent()) {
-         db_close();
-      }
-      return NULL;
-   }
-   
-   if ((readacct->ulist = db_get_accounts()) == NULL) {
-      eventlog(eventlog_level_error,"storage_account_getfirst","could not get the account list");
-      free(readacct);
-      if (!prefs_get_mysql_persistent()) {
-         db_close();
-      }
-      return NULL;
-   }
-   
-   if (!prefs_get_mysql_persistent()) {
-      db_close();
-   }
-   
-   readacct->pos = 0;
-   *puid = readacct->ulist->uids[0];
-
-   return readacct;
-}
-
-extern int storage_account_getnext(t_readacct *readacct, unsigned int *puid)
-{
-   if (readacct == NULL) {
-      eventlog(eventlog_level_error,"storage_account_getnext", "Got NULL readacct");
-      return -1;
-   }
-   
-   if (readacct->pos >= readacct->ulist->len - 1)
-     return -1;
-   
-   readacct->pos++;
-   *puid = readacct->ulist->uids[readacct->pos];
-   
-   return 0;
-}
-
-extern int storage_account_close(t_readacct * readacct)
-{
-   if (readacct == NULL) {
-      eventlog(eventlog_level_error,"storage_account_close","Got NULL readacct");
-      return -1;
-   }
-   
-   if (readacct->ulist) db_free_accounts(readacct->ulist);
-   free(readacct);
-
-   return 0;
-}
-
-extern int storage_set(unsigned int sid, const char *key, const char *val)
-{
-   int result;
-   
-   if (key == NULL) {
-      eventlog(eventlog_level_error,"storage_set", "got NULL key");
-      return -1;
-   }
-   
-   if (val == NULL) {
-      eventlog(eventlog_level_error,"storage_set", "got NULL val");
-      return -1;
-   }
-   
-   if (db_init()<0) {
-      eventlog(eventlog_level_error,"storage_set","faild to init db");
-      return -1;
-   }
-   
-   result = db_set(sid, key, val);
-   
-   if (!prefs_get_mysql_persistent()) {
-      db_close();
-   }
-   
-   return result;
-}
-
-
-extern char const * storage_get(unsigned int sid, const char *key)
-{
-
-   char const * result;
-   
-   if (key == NULL) {
-      eventlog(eventlog_level_error,"storage_get", "got NULL key");
-      return NULL;
-   }
-   
-   if (db_init()<0) {
-      eventlog(eventlog_level_error,"storage_get","faild to init db");
-      return NULL;
-   }
-   
-   result = db_get_attribute(sid, key);
-   
-   if (!prefs_get_mysql_persistent()) {
-      db_close();
-   }
-   
-   return result;
-}
-
-extern t_readattrs * storage_attrs_getfirst(char const * attr, unsigned int * uid, char ** value)
-{
-   t_readattrs * readattrs;
-
-   if (attr == NULL) {
-      eventlog(eventlog_level_error,"storage_get", "got NULL attr");
-      return NULL;
-   }
-   
-   if (db_init()<0) {
-      eventlog(eventlog_level_error,"storage_get","faild to init db");
-      return NULL;
-   }
-
-   if ((readattrs = malloc(sizeof(t_readattrs))) == NULL) {
-      eventlog(eventlog_level_error,__FUNCTION__,"could not allocate for readattrs");
-      if (!prefs_get_mysql_persistent()) {
-         db_close();
-      }
-      return NULL;
-   }
-
-   if ((readattrs->attr_from_all = db_get_attr_from_all(attr))==NULL) {
-      eventlog(eventlog_level_error,__FUNCTION__,"could not get the list");
-      free(readattrs);
-      if (!prefs_get_mysql_persistent()) {
-         db_close();
-      }
-      return NULL;
-   }
-   
-   if (!prefs_get_mysql_persistent()) {
-      db_close();
+    if (spath == NULL) {
+	eventlog(eventlog_level_error, __FUNCTION__, "got NULL spath");
+	return -1;
     }
 
-   readattrs->pos = 0;
-   *uid = readattrs->attr_from_all->uids[0];
-   *value = readattrs->attr_from_all->values[0];
+    if ((temp = strdup(spath)) == NULL) {
+	eventlog(eventlog_level_error, __FUNCTION__, "could not duplicate spath");
+	return -1;
+    }
 
-   return readattrs;
-}
+    if ((p = strchr(spath, ':')) == NULL) {
+	eventlog(eventlog_level_error, __FUNCTION__, "malformed storage_path , driver not found");
+	free((void*)temp);
+	return -1;
+    }
 
-extern int storage_attrs_getnext(t_readattrs *readattrs, unsigned int *uid, char ** value)
-{
-   if (readattrs == NULL) {
-      eventlog(eventlog_level_error,__FUNCTION__, "Got NULL readattrs");
-      return -1;
-   }
-   
-   if (readattrs->pos >= readattrs->attr_from_all->len - 1)
-     return -1;
-   
-   readattrs->pos++;
-   *uid   = readattrs->attr_from_all->uids[readattrs->pos];
-   *value = readattrs->attr_from_all->values[readattrs->pos];
-   
-   return 0;
-}
-
-extern int storage_attrs_close(t_readattrs * readattrs)
-{
-   if (readattrs == NULL) {
-      eventlog(eventlog_level_error,__FUNCTION__,"Got NULL readattrs");
-      return -1;
-   }
-   
-   if (readattrs->attr_from_all) db_free_attrs(readattrs->attr_from_all);
-   free(readattrs);
-
-   return 0;
-}
-
+    *p = '\0';
+    if (strcasecmp(spath, "file") == 0) {
+	storage = &storage_file;
+	res = storage->init(p + 1);
+    }
+#ifdef WITH_SQL
+    else if (strcasecmp(spath, "sql") == 0) {
+	storage = &storage_sql;
+	res = storage->init(p + 1);
+    }
 #endif
+
+    free((void*)temp);
+
+    return res;
+}
+
+extern void storage_close(void)
+{
+    storage->close();
+}
+

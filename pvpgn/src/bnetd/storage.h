@@ -1,6 +1,5 @@
-#ifdef WITH_MYSQL
 /*
-  * Copyright (C) 2002 Dizzy 
+  * Copyright (C) 2002,2003 Dizzy 
   *
   * This program is free software; you can redistribute it and/or
   * modify it under the terms of the GNU General Public License
@@ -17,50 +16,51 @@
   * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
   */
 
-#ifndef INCLUDED_STORAGE_H
-#define INCLUDED_STORAGE_H
+#ifndef INCLUDED_STORAGE_TYPES
+#define INCLUDED_STORAGE_TYPES
 
-#include "common/eventlog.h"
-#include "pvpgn_mysql.h"
-#ifdef WIN32
- #include "compat/strcasecmp.h"
+#ifndef JUST_NEED_TYPES
+#define JUST_NEED_TYPES
+#include "storage_file.h"
+#ifdef WITH_SQL
+#include "storage_sql.h"
+#endif
+#undef JUST_NEED_TYPES
+#else
+#include "storage_file.h"
+#ifdef WITH_SQL
+#include "storage_sql.h"
+#endif
 #endif
 
-#define STORAGE_DEFAULT_ID 0
+#define t_storage_info void
 
-typedef struct readattr_struct {
-    t_attrlist *alist;
-    unsigned int pos;
-} t_readattr;
+typedef int (*t_read_attr_func)(const char *, const char *);
+typedef int (*t_read_accounts_func)(t_storage_info *);
 
-typedef struct readacct_struct {
-    t_uidlist *ulist;
-    unsigned int pos;
-} t_readacct;
+typedef struct {
+    int (*init)(const char *);
+    int (*close)(void);
+    t_storage_info * (*create_account)(char const * );
+    t_storage_info * (*get_defacct)(void);
+    int (*free_info)(t_storage_info *);
+    int (*read_attrs)(t_storage_info *, t_read_attr_func);
+    int (*write_attrs)(t_storage_info *, void *);
+    int (*read_accounts)(t_read_accounts_func);
+    int (*cmp_info)(t_storage_info *, t_storage_info *);
+    const char * (*escape_key)(const char *);
+} t_storage;
 
-typedef struct readattrs_struct {
-   t_attr_from_all *attr_from_all;
-   unsigned int pos;
-} t_readattrs;
+#endif /* INCLUDED_STORAGE_TYPES */
 
-extern int storage_init(void);
-extern void storage_destroy(void);
-extern unsigned int storage_create_account(const char *);
+#ifndef JUST_NEED_TYPES
+#ifndef INCLUDED_STORAGE_PROTOS
+#define INCLUDED_STORAGE_PROTOS
 
-extern t_readattr * storage_attr_getfirst(unsigned int, char **, char **);
-extern int storage_attr_getnext(t_readattr *, char **, char **);
-extern int storage_attr_close(t_readattr *);
+extern t_storage *storage;
 
-extern t_readacct * storage_account_getfirst(unsigned int*);
-extern int storage_account_getnext(t_readacct *, unsigned int*);
-extern int storage_account_close(t_readacct *);
+extern int storage_init(const char *);
+extern void storage_close(void);
 
-extern t_readattrs * storage_attrs_getfirst(char const *, unsigned int *, char **);
-extern int storage_attrs_getnext(t_readattrs *, unsigned int*, char **);
-extern int storage_attrs_close(t_readattrs *);
-
-extern int storage_set(unsigned int, const char *, const char *);
-extern char const * storage_get(unsigned int, char const *);
-#endif
-
-#endif
+#endif /* INCLUDED_STORAGE_PROTOS */
+#endif /* JUST_NEED_TYPES */

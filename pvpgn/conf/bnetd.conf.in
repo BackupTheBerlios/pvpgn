@@ -25,13 +25,40 @@
 ##############################################################################
 
 ##############################################################################
+# Storage section                                                            #
+# storage_path will tell pvpgn how and where from/to to read/write accounts  #
+# right now it supports 2 "drivers" : file and sql                           #
+#                                                                            #
+# Syntax:                                                                    #
+# * for file driver: storage_path = file:<path_to_user_files>                #
+# * for sql driver:                                                          #
+#  storage_path = sql:variable=value;...                                     #
+# Variables can be:                                                          #
+# - "mode" : tells PVPGN the sql mode you will use (mysql/pgsql/etc..)       #
+# - "host" : the database host                                               #
+# - "port" : the TCP/IP port if needed                                       #
+# - "socket" : the UNIX local socket if needed                               #
+# - "name" : database name                                                   #
+# - "user" : db username                                                     #
+# - "pass" : db password                                                     #
+#                                                                            #
+# Examples:                                                                  #
+# storage_path = file:/home/pvpgn/var/users                                  #
+# storage_path = sql:mode=mysql;host=127.0.0.1;name=PVPGN;user=pvpgn;pass=pvpgnrocks
+#----------------------------------------------------------------------------#
+
+storage_path = file:/usr/local/var/users
+
+#                                                                            #
+##############################################################################
+
+##############################################################################
 # File section                                                               #
 # The pidfile can be set to "" to turn it off.                               #
 # Use absolute paths in these lines to avoid problems!                       #
 #----------------------------------------------------------------------------#
 
 filedir     = /usr/local/var/files
-userdir     = /usr/local/var/users
 reportdir   = /usr/local/var/reports
 chanlogdir  = /usr/local/var/chanlogs
 defacct     = /usr/local/etc/bnetd_default_user
@@ -454,20 +481,6 @@ w3routeaddr = "127.0.0.1:6200"
 # field # blank if you do not want to accept telnet connections.  If the port
 # is not specifed then 23 will be used.
 #telnetaddrs = ":23"
-
-
-##############################################################################
-# db configuration                                                           #
-#----------------------------------------------------------------------------#
-mysql_host = "localhost"
-mysql_account = "account"
-mysql_password = "password"
-mysql_sock = "/tmp/mysql.sock"
-mysql_dbname = "PVPGN"
-
-# Enable this if you want the SQL connection to be persistant
-# It will improve latency time especially for remote SQL servers
-mysql_persistent = true
 
 ###############################################################################
 # war3 ladder textual output                                                  #

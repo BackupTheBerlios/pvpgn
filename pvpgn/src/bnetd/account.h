@@ -19,6 +19,8 @@
 #ifndef INCLUDED_ACCOUNT_TYPES
 #define INCLUDED_ACCOUNT_TYPES
 
+#include "storage.h"
+
 #define MAX_FRIENDS 20
 
 #ifdef ACCOUNT_INTERNAL_ACCESS
@@ -26,9 +28,7 @@ typedef struct attribute_struct
 {
     char const *              key;
     char const *              val;
-#ifdef WITH_MYSQL
     int			      dirty;  // 1 = needs to be saved, 0 = unchanged
-#endif
     struct attribute_struct * next;
 } t_attribute;
 #endif
@@ -61,11 +61,7 @@ typedef struct account_struct
     int           loaded;   /* 1==loaded, 0==only on disk */
     int           accessed; /* 1==yes, 0==no */
     unsigned int  age;      /* number of times it has not been accessed */
-#ifndef WITH_MYSQL
-    char const *  filename; /* for BITS: NULL means it's a "virtual" account */
-#else
-    unsigned int  storageid;
-#endif
+    t_storage_info * storage;
 #ifdef WITH_BITS
     t_bits_account_state bits_state;
  /*   int           locked;    0==lock request not yet answered,
@@ -92,6 +88,7 @@ t_account;
 #define RELOAD_ADD_ONLY_NEW 0
 #define RELOAD_UPDATE_ALL   1
 
+extern unsigned int maxuserid;
 
 extern t_account * account_create(char const * username, char const * passhash1) MALLOC_ATTR();
 extern t_account * create_vaccount(const char *username, unsigned int uid);
@@ -134,6 +131,7 @@ extern void accountlist_unload_default(void);
 extern unsigned int accountlist_get_length(void);
 extern int accountlist_save(unsigned int delta);
 extern t_account * accountlist_find_account(char const * username);
+extern t_account * accountlist_find_account_by_storage(t_storage_info *);
 extern int accountlist_allow_add(void);
 extern t_account * accountlist_add_account(t_account * account);
 // aaron

@@ -51,7 +51,7 @@ extern char const * preffile;
 
 extern int prefs_load(char const * filename);
 extern void prefs_unload(void);
-extern char const * prefs_get_userdir(void) PURE_ATTR();
+extern char const * prefs_get_storage_path(void) PURE_ATTR();
 extern char const * prefs_get_filedir(void) PURE_ATTR();
 extern char const * prefs_get_logfile(void) PURE_ATTR();
 extern char const * prefs_get_loglevels(void) PURE_ATTR();

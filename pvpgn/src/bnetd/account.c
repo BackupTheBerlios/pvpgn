@@ -91,22 +91,16 @@
 static t_hashtable * accountlist_head=NULL;
 
 static t_account * default_acct=NULL;
-static unsigned int maxuserid=0;
+unsigned int maxuserid=0;
 
 /* This is to force the creation of all accounts when we initially load the accountlist. */
 static int force_account_add=0;
 
-#ifdef WITH_MYSQL
 static int doing_loadattrs=0;
-#endif
 
 static unsigned int account_hash(char const * username);
 static int account_insert_attr(t_account * account, char const * key, char const * val);
-#ifndef WITH_MYSQL
-static t_account * account_load(char const * filename);
-#else
-static t_account * account_load(unsigned int sid);
-#endif
+static t_account * account_load(t_storage_info *);
 static int account_load_attrs(t_account * account);
 static void account_unload_attrs(t_account * account);
 static int account_check_name(char const * name);
@@ -158,11 +152,7 @@ extern t_account * account_create(char const * username, char const * passhash1)
     }
 
     account->name     = NULL;
-#ifndef WITH_MYSQL
-    account->filename = NULL;
-#else
-    account->storageid= 0;
-#endif
+    account->storage  = NULL;
     account->attrs    = NULL;
     account->dirty    = 0;
     account->accessed = 0;
@@ -175,10 +165,6 @@ extern t_account * account_create(char const * username, char const * passhash1)
 
     if (username) /* actually making a new account */
     {
-#ifndef WITH_MYSQL
-	char * temp;
-#endif
-	
 	if (account_check_name(username)<0)
 	{
 	    eventlog(eventlog_level_error,"account_create","invalid account name \"%s\"",username);
@@ -192,46 +178,12 @@ extern t_account * account_create(char const * username, char const * passhash1)
 	    return NULL;
 	}
 
-#ifdef WITH_MYSQL
-	account->storageid =  storage_create_account(username);
-	if(!account->storageid) {
-	    eventlog(eventlog_level_error,"account_create","failed to add user to db");
+	account->storage =  storage->create_account(username);
+	if(!account->storage) {
+	    eventlog(eventlog_level_error,"account_create","failed to add user to storage");
 	    account_destroy(account);
 	    return NULL;
 	}
-#else
-	if (prefs_get_savebyname())
-	{
-	    char const * safename;
-	    
-	    if (!(safename = escape_fs_chars(username,strlen(username))))
-	    {
-		eventlog(eventlog_level_error,"account_create","could not escape username");
-		account_destroy(account);
-		return NULL;
-	    }
-	    if (!(temp = malloc(strlen(prefs_get_userdir())+1+strlen(safename)+1))) /* dir + / + name + NUL */
-	    {
-		eventlog(eventlog_level_error,"account_create","could not allocate memory for temp");
-		account_destroy(account);
-		return NULL;
-	    }
-	    sprintf(temp,"%s/%s",prefs_get_userdir(),safename);
-	    free((void *)safename); /* avoid warning */
-	}
-	else
-	{
-	    if (!(temp = malloc(strlen(prefs_get_userdir())+1+8+1))) /* dir + / + uid + NUL */
-	    {
-		eventlog(eventlog_level_error,"account_create","could not allocate memory for temp");
-		account_destroy(account);
-		return NULL;
-	    }
-	    sprintf(temp,"%s/%06u",prefs_get_userdir(),maxuserid+1); /* FIXME: hmm, maybe up the %06 to %08... */
-	}
-	account->filename = temp;
-	
-#endif
         account->loaded = 1;
 	
 	if ((account->name = strdup(username)) == NULL) {
@@ -273,14 +225,6 @@ extern t_account * account_create(char const * username, char const * passhash1)
 #endif
     }
     
-#ifdef WITH_MYSQL
-    /* because the server crashes it doesnt get to save new accounts
-     * so we get lots of NULL accounts, lets try to flush them here
-     * it should remove this problem
-     */
-     account_save(account, 1000); /* big delta to force unload */
-#endif
-
     return account;
 }
 
@@ -373,10 +317,9 @@ extern void account_destroy(t_account * account)
 	return;
     }
     account_unload_attrs(account);
-#ifndef WITH_MYSQL
-    if (account->filename)
-	free((void *)account->filename); /* avoid warning */
-#endif
+    if (account->storage)
+	storage->free_info(account->storage);
+
     free(account);
 }
 
@@ -388,12 +331,7 @@ extern unsigned int account_get_uid(t_account const * account)
 	eventlog(eventlog_level_error,"account_get_uid","got NULL account");
 	return -1;
     }
-/* FIXME: uids should be treated the same */
-#ifndef WITH_MYSQL    
     return account->uid;
-#else
-    return account->storageid;
-#endif
 }
 
 
@@ -420,12 +358,7 @@ extern int account_match(t_account * account, char const * username)
     
     if (userid)
     {
-    /* FIXME: treat uids the same */
-#ifndef WITH_MYSQL
         if (account->uid==userid)
-#else
-	if (account->storageid==userid)
-#endif
             return 1;
     }
     else
@@ -450,13 +383,6 @@ extern int account_match(t_account * account, char const * username)
 
 extern int account_save(t_account * account, unsigned int delta)
 {
-#ifndef WITH_MYSQL
-   FILE *        accountfile;
-   t_attribute * attr;
-   char const *  key;
-   char const *  val;
-   char *        tempname;
-#endif
    
    if (!account)
      {
@@ -489,8 +415,7 @@ extern int account_save(t_account * account, unsigned int delta)
    }
 #endif
    
-#ifndef WITH_MYSQL
-   if (!account->filename)
+   if (!account->storage)
      {
 # ifdef WITH_BITS
 	if (!bits_master)
@@ -499,11 +424,7 @@ extern int account_save(t_account * account, unsigned int delta)
 	eventlog(eventlog_level_error,"account_save","account "UID_FORMAT" has NULL filename",account->uid);
 	return -1;
      }
-#endif
 
-#ifdef WITH_MYSQL
-   if (!(prefs_get_mysql_persistent()))
-#endif
    if (!account->loaded)
      return 0;
    
@@ -514,109 +435,8 @@ extern int account_save(t_account * account, unsigned int delta)
 	return 0;
      }
    
-#ifndef WITH_MYSQL
-   if (!(tempname = malloc(strlen(prefs_get_userdir())+1+strlen(BNETD_ACCOUNT_TMP)+1)))
-     {
-	eventlog(eventlog_level_error,"account_save","uable to allocate memory for tempname");
-	return -1;
-     }
-   
-   sprintf(tempname,"%s/%s",prefs_get_userdir(),BNETD_ACCOUNT_TMP);
-   
-   if (!(accountfile = fopen(tempname,"w")))
-     {
-	eventlog(eventlog_level_error,"account_save","unable to open file \"%s\" for writing (fopen: %s)",tempname,strerror(errno));
-	free(tempname);
-	return -1;
-     }
-   
-    for (attr=account->attrs; attr; attr=attr->next)
-     {
-	if (attr->key)
-	  key = escape_chars(attr->key,strlen(attr->key));
-	else
-	  {
-	     eventlog(eventlog_level_error,"account_save","attribute with NULL key in list");
-	     key = NULL;
-	  }
-	if (attr->val)
-	  val = escape_chars(attr->val,strlen(attr->val));
-	else
-	  {
-	     eventlog(eventlog_level_error,"account_save","attribute with NULL val in list");
-	     val = NULL;
-	  }
-	if (key && val)
-	  {
-	     if (strncmp("BNET\\CharacterDefault\\", key, 20) == 0)
-	       {
-		  eventlog(eventlog_level_debug,"account_save","skipping attribute key=\"%s\"",attr->key);
-	       }
-	     else
-	       {
-		  eventlog(eventlog_level_debug,"account_save","saving attribute key=\"%s\" val=\"%s\"",attr->key,attr->val);
-		  fprintf(accountfile,"\"%s\"=\"%s\"\n",key,val);
-	       }
-	}
-	else
-	  eventlog(eventlog_level_error,"account_save","could not save attribute key=\"%s\"",attr->key);
-	if (key)
-	  free((void *)key); /* avoid warning */
-	if (val)
-	  free((void *)val); /* avoid warning */
-     }
-   
-   if (fclose(accountfile)<0)
-     {
-	eventlog(eventlog_level_error,"account_save","could not close account file \"%s\" after writing (fclose: %s)",tempname,strerror(errno));
-	free(tempname);
-	return -1;
-     }
-   
-#ifdef WIN32
-   /* We are about to rename the temporary file
-    * to replace the existing account.  In Windows,
-    * we have to remove the previous file or the
-    * rename function will fail saying the file
-    * already exists.  This defeats the purpose of
-    * the rename which was to make this an atomic
-    * operation.  At least the race window is small.
-    */
-   if (access(account->filename, 0) == 0)
-     {
-	if (remove(account->filename)<0)
-	  {
-	     eventlog(eventlog_level_error,"account_save","could not delete account file \"%s\" (remove: %s)",account->filename,strerror(errno));
-           free(tempname);
-	     return -1;
-	  }
-     }
-#endif
-   
-   if (rename(tempname,account->filename)<0)
-     {
-	eventlog(eventlog_level_error,"account_save","could not rename account file to \"%s\" (rename: %s)",account->filename,strerror(errno));
-	free(tempname);
-	return -1;
-    }
-   
-   free(tempname);
-#else
-     {
-	t_attribute * attr;
-	/*    eventlog(eventlog_level_debug,"account_unload_attrs","unloading \"%s\"",account->filename);*/
-	
-	// aaron: done: just save attributes to MySQL that have marked as dirty...!
+   storage->write_attrs(account->storage, account->attrs);
 
-	for (attr=account->attrs; attr; attr=attr->next)
-	   if (attr->dirty) 
-	  	{
-		    storage_set(account->storageid, attr->key, attr->val);
-	            attr->dirty = 0;
-		}
-     }
-#endif /* WITH_MYSQL */
-	
    account->dirty = 0;
 
    return 1;
@@ -634,7 +454,9 @@ static int account_insert_attr(t_account * account, char const * key, char const
 	eventlog(eventlog_level_error,"account_insert_attr","could not allocate attribute");
 	return -1;
     }
-    if (!(nkey = strdup(key)))
+
+    nkey = (char *)storage->escape_key(key);
+    if (nkey == key && !(nkey = strdup(key)))
     {
 	eventlog(eventlog_level_error,"account_insert_attr","could not allocate attribute key");
 	free(nattr);
@@ -650,13 +472,6 @@ static int account_insert_attr(t_account * account, char const * key, char const
     nattr->key  = nkey;
     nattr->val  = nval;
 
-#ifdef WITH_MYSQL
-    if (doing_loadattrs==0)
-      nattr->dirty = 1;
-    else
-      nattr->dirty = 0;
-#endif
-    
     nattr->next = account->attrs;
     
     account->attrs = nattr;
@@ -670,12 +485,10 @@ extern char const * account_get_strattr_real(t_account * account, char const * k
 extern char const * account_get_strattr(t_account * account, char const * key)
 #endif
 {
-    char const *        newkey;
+    char const *        newkey = key, *newkey2;
     t_attribute * curr, *last, *last2;
-#ifdef WITH_MYSQL
    char const * result;
    t_attribute * attr;
-#endif
    
 /*    eventlog(eventlog_level_trace,"account_get_strattr","<<<< ENTER!"); */
     if (!account)
@@ -698,6 +511,8 @@ extern char const * account_get_strattr(t_account * account, char const * key)
     }
 
     account->accessed = 1;
+
+//    eventlog(eventlog_level_trace, __FUNCTION__, "reading '%s'", key);
 
     if (strncasecmp(key,"DynKey",6)==0)
       {
@@ -723,28 +538,15 @@ extern char const * account_get_strattr(t_account * account, char const * key)
 	eventlog(eventlog_level_info,"get_strattr","we have a clan request");
 	return account_get_w3_clanname(account);
       }
-#ifdef WITH_MYSQL
-    else if ((!(prefs_get_mysql_persistent())) && 
-	     ((strchr(key,'_')!=NULL) || (strchr(key,'-')!=NULL) || (strchr(key,' ')!=NULL)))
-    {
-      char * temp;
-      char * modkey;
-      if (!(temp = strdup(key)))
-      {
-	      eventlog(eventlog_level_error,__FUNCTION__,"could not allocate memory for temp");
-	      return NULL;
-      }
-      for (modkey = temp; *modkey; modkey++)
-	      if ((*modkey=='_') || (*modkey=='-') || (*modkey==' ')) *modkey='\\';
-      newkey = temp;
-    }
-#endif
-      else
-	newkey = key;
 
-#ifdef WITH_MYSQL
-  if (!(prefs_get_mysql_persistent()))
-#endif
+    if (newkey != key) {
+	newkey2 = storage->escape_key(newkey);
+	if (newkey2 != newkey) {
+	    free((void*)newkey);
+	    newkey = newkey2;
+	}
+    } else newkey = storage->escape_key(key);
+
     if (!account->loaded)
         if (account_load_attrs(account)<0)
 	{
@@ -784,34 +586,13 @@ extern char const * account_get_strattr(t_account * account, char const * key)
 	    last = curr;
 	}
 
-#ifdef WITH_MYSQL
- if ((prefs_get_mysql_persistent()) &&
-    (account != default_acct)) { /* default acct is always in memory */
-	result = storage_get(account->storageid,newkey);
-	if (result != NULL) {
-	    attr = malloc(sizeof(t_attribute));
-	    attr->key = strdup(newkey);
-	    attr->val = result;
-	    attr->dirty = 0;
-	    attr->next = account->attrs;
-	    account->attrs=attr;
+//    eventlog(eventlog_level_trace, __FUNCTION__, "key '%s' not found", newkey);
 
-	    if (newkey!=key) free((void *)newkey); /* avoid warning */
-	    return attr->val;
-	}
-    } 
-    else if ((!(prefs_get_mysql_persistent()))&&(account!=default_acct)) { }
-    else
-#else
-    if (account==default_acct) /* don't recurse infinitely */
-#endif
-    {
-	if (newkey!=key) free((void *)newkey); /* avoid warning */
-	return NULL;
-    }
-    
     if (newkey!=key) free((void *)newkey); /* avoid warning */
 
+    if (account==default_acct) /* don't recurse infinitely */
+	return NULL;
+    
     return account_get_strattr(default_acct,key); /* FIXME: this is sorta dangerous because this pointer can go away if we re-read the config files... verify that nobody caches non-username, userid strings */
 }
 
@@ -856,6 +637,7 @@ extern int account_set_strattr(t_account * account, char const * key, char const
 #endif
 {
     t_attribute * curr;
+    const char *newkey;
     
     if (!account)
     {
@@ -869,9 +651,6 @@ extern int account_set_strattr(t_account * account, char const * key, char const
     }
     
 #ifndef WITH_BITS
-#ifdef WITH_MYSQL
-  if (!(prefs_get_mysql_persistent()))
-#endif
     if (!account->loaded)
         if (account_load_attrs(account)<0)
 	{
@@ -890,7 +669,8 @@ extern int account_set_strattr(t_account * account, char const * key, char const
 	return 0;
     }
     
-    if (strcasecmp(curr->key,key)==0) /* if key is already the first in the attr list */
+    newkey = storage->escape_key(key);
+    if (strcasecmp(curr->key,newkey)==0) /* if key is already the first in the attr list */
     {
 	if (val)
 	{
@@ -899,37 +679,37 @@ extern int account_set_strattr(t_account * account, char const * key, char const
 	    if (!(temp = strdup(val)))
 	    {
 		eventlog(eventlog_level_error,"account_set_strattr","could not allocate attribute value");
+		if (key != newkey) free((void*)newkey);
 		return -1;
 	    }
 	    
 	    if (strcmp(curr->val,temp)!=0)
 	    {	
 		account->dirty = 1; /* we are changing an entry */
-#ifdef WITH_MYSQL
-		curr->dirty = 1;
-#endif
-	    }	
+	    }
 	    free((void *)curr->val); /* avoid warning */
 	    curr->val = temp;
 	}
 	else
 	{
 	    t_attribute * temp;
-	    
+
 	    temp = curr->next;
-	    
+
 	    account->dirty = 1; /* we are deleting an entry */
 	    free((void *)curr->key); /* avoid warning */
 	    free((void *)curr->val); /* avoid warning */
 	    free((void *)curr); /* avoid warning */
-	    
+
 	    account->attrs = temp;
 	}
+
+	if (key != newkey) free((void*)newkey);
 	return 0;
     }
     
     for (; curr->next; curr=curr->next)
-	if (strcasecmp(curr->next->key,key)==0)
+	if (strcasecmp(curr->next->key,newkey)==0)
 	    break;
     
     if (curr->next) /* if key is already in the attr list */
@@ -941,15 +721,13 @@ extern int account_set_strattr(t_account * account, char const * key, char const
 	    if (!(temp = strdup(val)))
 	    {
 		eventlog(eventlog_level_error,"account_set_strattr","could not allocate attribute value");
+		if (key != newkey) free((void*)newkey);
 		return -1;
 	    }
 	    
 	    if (strcmp(curr->next->val,temp)!=0)
 	    {
 		account->dirty = 1; /* we are changing an entry */
-#ifdef WITH_MYSQL
-		curr->next->dirty = 1;
-#endif
 	    }
 	    free((void *)curr->next->val); /* avoid warning */
 	    curr->next->val = temp;
@@ -967,9 +745,13 @@ extern int account_set_strattr(t_account * account, char const * key, char const
 	    
 	    curr->next = temp;
 	}
+
+	if (key != newkey) free((void*)newkey);
 	return 0;
     }
     
+    if (key != newkey) free((void*)newkey);
+
     if (val)
     {
 	account->dirty = 1; /* we are inserting an entry */
@@ -981,27 +763,21 @@ extern int account_set_strattr(t_account * account, char const * key, char const
 
 static int account_load_attrs(t_account * account)
 {
-#ifndef WITH_MYSQL
-    FILE *       accountfile;
-    unsigned int line;
-    char const * buff;
-    unsigned int len;
-    char *       esckey;
-    char *       escval;
-#else
-    t_readattr   *readattr;
-#endif
     char * key;
     char * val;
     
+    int _cb_load_attr(const char *key, const char *val)
+    {
+	return account_set_strattr(account, key, val);
+    }
+
     if (!account)
     {
 	eventlog(eventlog_level_error,"account_load_attrs","got NULL account");
 	return -1;
     }
 
-#ifndef WITH_MYSQL
-    if (!account->filename)
+    if (!account->storage)
     {
 #ifndef WITH_BITS
 	eventlog(eventlog_level_error,"account_load_attrs","account has NULL filename");
@@ -1025,7 +801,6 @@ static int account_load_attrs(t_account * account)
 	}
 #endif /* WITH_BITS */
     }
-#endif /* WITH_MYSQL */
 
     
     if (account->loaded) /* already done */
@@ -1036,101 +811,13 @@ static int account_load_attrs(t_account * account)
 	return -1;
     }
     
-#ifndef WITH_MYSQL
-    eventlog(eventlog_level_debug,"account_load_attrs","loading \"%s\"",account->filename);
-    if (!(accountfile = fopen(account->filename,"r")))
-#else
-    eventlog(eventlog_level_trace,"account_load_attrs","loading uid: %u", account->storageid);
-    if (!(readattr = storage_attr_getfirst(account->storageid, &key, &val)))
-#endif
-    {
-#ifndef WITH_MYSQL
-	eventlog(eventlog_level_error,"account_load_attrs","could not open account file \"%s\" for reading (fopen: %s)",account->filename,strerror(errno));
-#else
-	eventlog(eventlog_level_error,"account_load_attrs","could not open account (storage) \"%u\"",account->storageid);
-#endif
-	return -1;
-    }
-    
     account->loaded = 1; /* set now so set_strattr works */
-#ifndef WITH_MYSQL
-    for (line=1; (buff=file_get_line(accountfile)); line++)
-    {
-	if (buff[0]=='#' || buff[0]=='\0')
-	{
-	    free((void *)buff); /* avoid warning */
-	    continue;
-	}
-	if (strlen(buff)<6) /* "?"="" */
-	{
-	    eventlog(eventlog_level_error,"account_load_attrs","malformed line %d of account file \"%s\"",line,account->filename);
-	    free((void *)buff); /* avoid warning */
-	    continue;
-	}
-	
-	len = strlen(buff)-5+1; /* - ""="" + NUL */
-	if (!(esckey = malloc(len)))
-	{
-	    eventlog(eventlog_level_error,"account_load_attrs","could not allocate memory for esckey on line %d of account file \"%s\"",line,account->filename);
-	    free((void *)buff); /* avoid warning */
-	    continue;
-	}
-	if (!(escval = malloc(len)))
-	{
-	    eventlog(eventlog_level_error,"account_load_attrs","could not allocate memory for escval on line %d of account file \"%s\"",line,account->filename);
-	    free((void *)buff); /* avoid warning */
-	    free(esckey);
-	    continue;
-	}
-	
-	if (sscanf(buff,"\"%[^\"]\" = \"%[^\"]\"",esckey,escval)!=2)
-	{
-	    if (sscanf(buff,"\"%[^\"]\" = \"\"",esckey)!=1) /* hack for an empty value field */
-	    {
-		eventlog(eventlog_level_error,"account_load_attrs","malformed entry on line %d of account file \"%s\"",line,account->filename);
-		free(escval);
-		free(esckey);
-		free((void *)buff); /* avoid warning */
-		continue;
-	    }
-	    escval[0] = '\0';
-	}
-	free((void *)buff); /* avoid warning */
-	
-	key = unescape_chars(esckey);
-	val = unescape_chars(escval);
-	
-/* eventlog(eventlog_level_debug,"account_load_attrs","strlen(esckey)=%u (%c), len=%u",strlen(esckey),esckey[0],len);*/
-	free(esckey);
-	free(escval);
-	
-	if (key && val)
-#ifdef WITH_BITS
-	    account_set_strattr_nobits(account,key,val);
-#else
-	    account_set_strattr(account,key,val);
-#endif
-	if (key)
-	    free((void *)key); /* avoid warning */
-	if (val)
-	    free((void *)val); /* avoid warning */
-    }
-#else /* WITH_MYSQL */
    doing_loadattrs = 1;
-   do {
-       eventlog(eventlog_level_trace,"account_load_attrs","loading: \"%s\" \"%s\"", key, val);
-       account_set_strattr(account, key, val);
-   } while (storage_attr_getnext(readattr, &key, &val) == 0);
+   if (storage->read_attrs(account->storage, _cb_load_attr)) {
+        eventlog(eventlog_level_error, __FUNCTION__, "got error loading attributes");
+	return -1;
+   }
    doing_loadattrs = 0;
-#endif /* WITH_MYSQL */
-
-#ifndef WITH_MYSQL
-    if (fclose(accountfile)<0)
-	eventlog(eventlog_level_error,"account_load_attrs","could not close account file \"%s\" after reading (fclose: %s)",account->filename,strerror(errno));
-#else
-    if (storage_attr_close(readattr)<0)
-	eventlog(eventlog_level_error,"account_load_attrs","could not close account attribute read list");
-#endif
 
     if (account->name) {
 	eventlog(eventlog_level_error,"account_load_attrs","found old username chache, check out!");
@@ -1149,86 +836,21 @@ static int account_load_attrs(t_account * account)
 
 extern void accounts_get_attr(const char * attribute)
 {
-#ifdef WITH_MYSQL
-  t_readattrs * readattrs;
-  unsigned int uid;
-  char * value;
-  t_account * account;
-  char uidstr[40];
-
-  if (prefs_get_mysql_persistent())
-  {
-    if (!( readattrs = storage_attrs_getfirst(attribute,&uid,&value)))
-    {
-      eventlog(eventlog_level_error,__FUNCTION__,"unable to start attrs read");
-      return;
-    }
-    else
-    {
-      doing_loadattrs = 1;
-      do
-      {
-	  if ((uid) && (value))
-	  {
-	    sprintf(uidstr,"#%u",uid);
-	    if (!(account = accountlist_find_account(uidstr)))
-	    {
-	      eventlog(eventlog_level_error,__FUNCTION__,"could not find account with given uid");
-            }
-	    else
-	    {
-	      //TODO: search if attribute is allready set to prevent double adding
-	      account_set_strattr(account,attribute,value);
-	    }
-	  }
-      }
-      while (storage_attrs_getnext(readattrs,&uid,&value)==0);
-      doing_loadattrs = 0;
-
-      if (storage_attrs_close(readattrs)<0)
-	  eventlog(eventlog_level_error,__FUNCTION__,"unable to close read attrs list");
-    }
-  }
-#endif
+/* FIXME: do it */
 }
 
-#ifndef WITH_MYSQL
-static t_account * account_load(char const * filename)
-{
-    t_account * account;
-    
-    if (!filename)
-    {
-	eventlog(eventlog_level_error,"account_load","got NULL filename");
-	return NULL;
-    }
-#else
-static t_account * account_load(unsigned int sid)
+static t_account * account_load(t_storage_info *storage)
 {
     t_account * account;
 
-    eventlog(eventlog_level_trace, "account_load","<<<< ENTER (uid:%u)!", sid);
-#endif
+    eventlog(eventlog_level_trace, "account_load","<<<< ENTER !");
     if (!(account = account_create(NULL,NULL)))
     {
-#ifndef WITH_MYSQL
-	eventlog(eventlog_level_error,"account_load","could not load account from file \"%s\"",filename);
-#else
-	eventlog(eventlog_level_error,"account_load","could not load account for id \"%u\"",sid);
-#endif
+	eventlog(eventlog_level_error,"account_load","could not load account");
 	return NULL;
     }
 
-#ifndef WITH_MYSQL
-    if (!(account->filename = strdup(filename)))
-    {
-	eventlog(eventlog_level_error,"account_load","could not allocate memory for account->filename");
-	account_destroy(account);
-	return NULL;
-    }
-#else
-    account->storageid = sid;
-#endif
+    account->storage = storage;
     
     return account;
 }
@@ -1238,17 +860,9 @@ extern int accountlist_load_default(void)
     if (default_acct)
 	account_destroy(default_acct);
 
-#ifndef WITH_MYSQL
-    if (!(default_acct = account_load(prefs_get_defacct())))
-#else
-    if (!(default_acct = account_load(STORAGE_DEFAULT_ID)))
-#endif
+    if (!(default_acct = account_load(storage->get_defacct())))
     {
-#ifndef WITH_MYSQL
-        eventlog(eventlog_level_error,"accountlist_load_default","could not load default account template from file \"%s\"",prefs_get_defacct());
-#else
         eventlog(eventlog_level_error,"accountlist_load_default","could not load default account template");
-#endif
 	return -1;
     }
 
@@ -1265,44 +879,60 @@ extern int accountlist_load_default(void)
 
 extern int account_logged_in(t_account * account)
 {
-  t_elem const * curr;
-  t_connection * tc;
-  t_account * acc;
+    t_elem const * curr;
+    t_connection * tc;
+    t_account * acc;
 
-  LIST_TRAVERSE_CONST(connlist(),curr)
-  {
-    if ((tc = elem_get_data(curr))) 
+    LIST_TRAVERSE_CONST(connlist(),curr)
     {
-      if ((acc = conn_get_account(tc)))
-      {
-	if (acc == account) return 1;
-      }
+	if ((tc = elem_get_data(curr))) 
+	{
+	    if ((acc = conn_get_account(tc)))
+	    {
+		if (acc == account) return 1;
+	    }
+	}
     }
-    
-  }
-  return 0;
-  
+
+    return 0;
 }
 
 extern int accountlist_reload(int all)
 {
-  unsigned int count;
-  t_account *  account;
-  t_account *  old_acc;
+    unsigned int count;
+    t_account *  account;
+    t_account *  old_acc;
 
-  t_entry   * curr;
- 	
-  int starttime = time(NULL);
-#ifndef WITH_MYSQL
-  char const * dentry;
-  char *       pathname;
-  t_pdir *     accountdir;
-#else
-  t_readacct	 *readacct;
-  unsigned int uid;
-  char	accountuid[16];
-#endif
-  
+    t_entry   * curr;
+
+    int starttime = time(NULL);
+
+    int _cb_read_accounts(t_storage_info *info)
+    {
+	if (accountlist_find_account_by_storage(info)) {
+	    storage->free_info(info);
+	    return 0;
+	}
+
+	if (!(account = account_load(info))) {
+	    eventlog(eventlog_level_error,"accountlist_reload","could not load account from storage");
+	    storage->free_info(info);
+	    return -1;
+	}
+
+	if (!accountlist_add_account(account)) {
+	    eventlog(eventlog_level_error,"accountlist_reload","could not add account to list");
+	    account_destroy(account);
+	    return 0;
+	}
+
+	/* might as well free up the memory since we probably won't need it */
+	account->accessed = 0; /* lie */
+	account_save(account,1000); /* big delta to force unload */
+
+	count++;
+    }
+
 #ifdef WITH_BITS
   if (!bits_master)
      {
@@ -1311,19 +941,6 @@ extern int accountlist_reload(int all)
      }
 #endif
   
- #ifndef WITH_MYSQL
-  if (!(accountdir = p_opendir(prefs_get_userdir())))
-#else
-    if (!(readacct = storage_account_getfirst(&uid)))
-#endif
-      {
-#ifndef WITH_MYSQL
-	eventlog(eventlog_level_error,"accountlist_reload","unable to open user directory \"%s\" for reading (p_opendir: %s)",prefs_get_userdir(),strerror(errno));
-#else
-	eventlog(eventlog_level_error,"accountlist_reload","unable to start users read");
-#endif
-	return -1;
-      }
 
   if (all == RELOAD_UPDATE_ALL)
   // go to accountlist and remove everything possible
@@ -1351,108 +968,53 @@ extern int accountlist_reload(int all)
   force_account_add = 1; /* disable the protection */
   
   count = 0;
- #ifndef WITH_MYSQL
-  while ((dentry = p_readdir(accountdir)))
-     {
-       if (dentry[0]=='.')
-	 continue;
-       if (!(pathname = malloc(strlen(prefs_get_userdir())+1+strlen(dentry)+1))) /* dir + / + file + NUL */
-	 {
-	   eventlog(eventlog_level_error,"accountlist_reload","could not allocate memory for pathname");
-	   continue;
-	 }
-       sprintf(pathname,"%s/%s",prefs_get_userdir(),dentry);
-#else
-       do {
-#endif
-	 
-#ifndef WITH_MYSQL
-	 if (accountlist_find_account(dentry))
-	 {
-	   free(pathname);
-	   continue;
-	 }
-	 
-	 if (!(account = account_load(pathname)))
-#else
-	 sprintf(accountuid,"#%u",uid);
-	 if (accountlist_find_account(accountuid))
-	 {
-	   continue;
-	 }
-	 if (!(account = account_load(uid)))
-#endif
-	   {
-#ifndef WITH_MYSQL
-	     eventlog(eventlog_level_error,"accountlist_reload","could not load account from file \"%s\"",pathname);
-	     free(pathname);
-#else
-	     eventlog(eventlog_level_error,"accountlist_reload","could not load account from storage id \"%u\"",uid);
-#endif
-	     continue;
-	   }
-	 
-	 if (!accountlist_add_account(account))
-	   {
-#ifndef WITH_MYSQL
-	     eventlog(eventlog_level_error,"accountlist_reload","could not add account from file \"%s\" to list",pathname);
-	     free(pathname);
-#else
-	     eventlog(eventlog_level_error,"accountlist_reload","could not add account with storage id \"%u\" to list",uid);
-#endif
-	     
-	     account_destroy(account);
-	     continue;
-	   }
-#ifndef WITH_MYSQL
-	 free(pathname);
-#endif
-	 
-	 /* might as well free up the memory since we probably won't need it */
-	 account->accessed = 0; /* lie */
-	 account_save(account,1000); /* big delta to force unload */
-	 
-         count++;
-       }
-#ifdef WITH_MYSQL
-       while(storage_account_getnext(readacct, &uid) == 0);
-#endif
-       
-       force_account_add = 0; /* enable the protection */
-       
-#ifndef WITH_MYSQL
-       if (p_closedir(accountdir)<0)
-	 eventlog(eventlog_level_error,"accountlist_reload","unable to close user directory \"%s\" (p_closedir: %s)",prefs_get_userdir(),strerror(errno));
-#else
-       if (storage_account_close(readacct)<0)
-	 eventlog(eventlog_level_error,"accountlist_reload","unable to close read user list");
-#endif
-       
-       if (count)
-	 eventlog(eventlog_level_info,"accountlist_reload","loaded %u user accounts in %ld seconds",count,time(NULL) - starttime);
-       if (all == RELOAD_UPDATE_ALL)
-	 eventlog(eventlog_level_info,"accountlist_reload","done reloading all accounts");
-       
-       if ((count) || (all == RELOAD_UPDATE_ALL)) war3_ladder_update_all_accounts();
-       return 0;
-     }
+
+  if (storage->read_accounts(_cb_read_accounts)) {
+      eventlog(eventlog_level_error, __FUNCTION__, "could not read accounts");
+      return -1;
+  }
+
+  force_account_add = 0; /* enable the protection */
+
+  if (count)
+    eventlog(eventlog_level_info,"accountlist_reload","loaded %u user accounts in %ld seconds",count,time(NULL) - starttime);
+  if (all == RELOAD_UPDATE_ALL)
+    eventlog(eventlog_level_info,"accountlist_reload","done reloading all accounts");
+
+  if ((count) || (all == RELOAD_UPDATE_ALL)) war3_ladder_update_all_accounts();
+
+  return 0;
+}
   
-  
-    
 extern int accountlist_create(void)
 {
-	unsigned int count;
+    unsigned int count;
     t_account *  account;
-	
+
     int starttime = time(NULL);
-#ifndef WITH_MYSQL
-    char const * dentry;
-    char *       pathname;
-    t_pdir *     accountdir;
-#else
-    t_readacct	 *readacct;
-    unsigned int uid;
-#endif
+
+    int _cb_read_accounts(t_storage_info *info)
+    {
+	if (!(account = account_load(info)))
+	{
+	    eventlog(eventlog_level_error,"accountlist_create","could not load account from storage");
+	    storage->free_info(info);
+	    return 0;
+	}
+	
+	if (!accountlist_add_account(account))
+	{
+	    eventlog(eventlog_level_error,"accountlist_create","could not add account to list");
+	    account_destroy(account);
+	    return 0;
+	}
+
+	/* might as well free up the memory since we probably won't need it */
+	account->accessed = 0; /* lie */
+	account_save(account,1000); /* big delta to force unload */
+	
+        count++;
+    }
 
     eventlog(eventlog_level_info, "accountlist_create", "started creating accountlist");
     
@@ -1470,92 +1032,19 @@ extern int accountlist_create(void)
     }
 #endif
 
-#ifndef WITH_MYSQL
-    if (!(accountdir = p_opendir(prefs_get_userdir())))
-#else
-    if (!(readacct = storage_account_getfirst(&uid)))
-#endif
-    {
-#ifndef WITH_MYSQL
-        eventlog(eventlog_level_error,"accountlist_create","unable to open user directory \"%s\" for reading (p_opendir: %s)",prefs_get_userdir(),strerror(errno));
-#else
-        eventlog(eventlog_level_error,"accountlist_create","unable to start users read");
-#endif
-        return -1;
-    }
-
     force_account_add = 1; /* disable the protection */
     
     count = 0;
-#ifndef WITH_MYSQL
-    while ((dentry = p_readdir(accountdir)))
+    if (storage->read_accounts(_cb_read_accounts))
     {
-	if (dentry[0]=='.')
-	    continue;
-	if (!(pathname = malloc(strlen(prefs_get_userdir())+1+strlen(dentry)+1))) /* dir + / + file + NUL */
-	{
-	    eventlog(eventlog_level_error,"accountlist_create","could not allocate memory for pathname");
-	    continue;
-	}
-	sprintf(pathname,"%s/%s",prefs_get_userdir(),dentry);
-#else
-    do {
-#endif
-
-#ifndef WITH_MYSQL
-	if (!(account = account_load(pathname)))
-#else
-	if (!(account = account_load(uid)))
-#endif
-	{
-#ifndef WITH_MYSQL
-	    eventlog(eventlog_level_error,"accountlist_create","could not load account from file \"%s\"",pathname);
-	    free(pathname);
-#else
-	    eventlog(eventlog_level_error,"accountlist_create","could not load account from storage id \"%u\"",uid);
-#endif
-	    continue;
-	}
-	
-	if (!accountlist_add_account(account))
-	{
-#ifndef WITH_MYSQL
-	    eventlog(eventlog_level_error,"accountlist_create","could not add account from file \"%s\" to list",pathname);
-	    free(pathname);
-#else
-	    eventlog(eventlog_level_error,"accountlist_create","could not add account with storage id \"%u\" to list",uid);
-#endif
-
-	    account_destroy(account);
-	    continue;
-	}
-#ifndef WITH_MYSQL
-       free(pathname);
-#endif
-	
-	/* might as well free up the memory since we probably won't need it */
-	account->accessed = 0; /* lie */
-	account_save(account,1000); /* big delta to force unload */
-	
-        count++;
+        eventlog(eventlog_level_error,"accountlist_create","got error reading users");
+        return -1;
     }
-#ifdef WITH_MYSQL
-       while(storage_account_getnext(readacct, &uid) == 0);
-#endif
 
     force_account_add = 0; /* enable the protection */
 
-#ifndef WITH_MYSQL
-    if (p_closedir(accountdir)<0)
-	eventlog(eventlog_level_error,"accountlist_create","unable to close user directory \"%s\" (p_closedir: %s)",prefs_get_userdir(),strerror(errno));
-#else
-    if (storage_account_close(readacct)<0)
-	eventlog(eventlog_level_error,"accountlist_create","unable to close read user list");
-#endif
-    
     eventlog(eventlog_level_info,"accountlist_create","loaded %u user accounts in %ld seconds",count,time(NULL) - starttime);
-	
-	
+
     return 0;
 }
 
@@ -1650,15 +1139,12 @@ extern t_account * accountlist_find_account(char const * username)
 	return NULL;
     }
     
-    if (username[0]=='#')
+    if (username[0]=='#') {
         if (str_to_uint(&username[1],&userid)<0)
             userid = 0;
-
-#ifndef WITH_MYSQL
-    else if (!(prefs_get_savebyname()))
+    } else if (!(prefs_get_savebyname()))
 	if (str_to_uint(username,&userid)<0)
 	    userid = 0;
-#endif
 
     /* all accounts in list must be hashed already, no need to check */
     
@@ -1695,6 +1181,29 @@ extern t_account * accountlist_find_account(char const * username)
 		  { account_unget_name(tname); }
 	    }
 	}
+    }
+    
+    return NULL;
+}
+
+
+extern t_account * accountlist_find_account_by_storage(t_storage_info *info)
+{
+    t_entry *    curr;
+    t_account *  account;
+
+    if (!info) {
+	eventlog(eventlog_level_error, __FUNCTION__, "got NULL storage info");
+	return NULL;
+    }
+    
+    /* all accounts in list must be hashed already, no need to check */
+    
+    HASHTABLE_TRAVERSE(accountlist_head,curr)
+    {
+	account = (t_account *) entry_get_data(curr);
+	if (storage->cmp_info(info, account->storage) == 0)
+	    return account;
     }
     
     return NULL;
@@ -1825,9 +1334,8 @@ extern int accounts_remove_accounting_infos(void)
     // so we effectivly got rid of them...
     // with MySQL mode it's more complicated... the info's remain in the database...
     // so we have to remove them now manually from DB...
-#ifdef WITH_MYSQL
-    accounts_remove_verbose_columns();
-#endif
+    //accounts_remove_verbose_columns();
+    // FIXME: do this!
 
   return 0;
 }

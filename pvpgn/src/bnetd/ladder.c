@@ -53,7 +53,6 @@
 #include "ladder_calc.h"
 #include "ladder.h"
 #include "common/setup_after.h"
-#include "pvpgn_mysql.h" //will be used to call WAR3 Ladder Funcs to process on a timer
 #include "war3ladder.h"
 
 /* for War3 XP computations */

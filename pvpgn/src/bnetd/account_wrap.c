@@ -49,9 +49,6 @@
 #include "command.h"
 //aaron
 #include "war3ladder.h"
-#ifdef WITH_MYSQL
-#include "pvpgn_mysql.h"
-#endif
 
 #ifdef DEBUG_ACCOUNT
 extern unsigned int account_get_numattr_real(t_account * account, char const * key, char const * fn, unsigned int ln)

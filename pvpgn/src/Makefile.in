@@ -73,7 +73,7 @@ INSTALL_DIRS	= @INSTALL@ -d -m 755
 
 # CC set by configure
 # CFLAGS set by configure
-CPPFLAGS	= @DEFS@ @DEFINES@ -DBNETD_DEFAULT_CONF_FILE=\"${confdir}/bnetd.conf\" -DD2CS_DEFAULT_CONF_FILE=\"${confdir}/d2cs.conf\" -DD2DBS_DEFAULT_CONF_FILE=\"${confdir}/d2dbs.conf\" @CPPFLAGS@ -I"${SRC_SRCDIR}"
+CPPFLAGS	= @DEFS@ @DEFINES@ -DBNETD_DEFAULT_CONF_FILE=\"${confdir}/bnetd.conf\" -DD2CS_DEFAULT_CONF_FILE=\"${confdir}/d2cs.conf\" -DD2DBS_DEFAULT_CONF_FILE=\"${confdir}/d2dbs.conf\" -I"${SRC_SRCDIR}" @CPPFLAGS@
 COMPILE		= @CC@ @CFLAGS@ ${CPPFLAGS} -c
 #PREPROCESS	= @CPP@ ${CPPFLAGS}
 LINK		= @CC@ @CFLAGS@ @LDFLAGS@
@@ -120,6 +120,9 @@ ${SRC_BNETDDIR}/mail.o \
 ${SRC_BNETDDIR}/bnpmap.o \
 ${SRC_BNETDDIR}/anongame_infos.o \
 ${SRC_BNETDDIR}/storage.o \
+${SRC_BNETDDIR}/storage_file.o \
+${SRC_BNETDDIR}/storage_sql.o \
+${SRC_BNETDDIR}/sql_mysql.o \
 ${SRC_BNETDDIR}/runprog.o \
 ${SRC_BNETDDIR}/game_rule.o \
 ${SRC_BNETDDIR}/realm.o \
@@ -142,7 +145,6 @@ ${SRC_BNETDDIR}/bits_rconn.o \
 ${SRC_BNETDDIR}/bits_login.o \
 ${SRC_BNETDDIR}/bits_game.o \
 ${SRC_BNETDDIR}/bits_motd.o \
-${SRC_BNETDDIR}/pvpgn_mysql.o \
 ${SRC_BNETDDIR}/command_groups.o \
 ${SRC_BNETDDIR}/output.o \
 ${SRC_COMMONDIR}/hexdump.o \
