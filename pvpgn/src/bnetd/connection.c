@@ -562,7 +562,7 @@ extern void conn_destroy(t_connection * c)
              eventlog(eventlog_level_error,"conn_destroy","could not find realm for d2cs connection");
         }
     }
-    else if (c->protocol.class == conn_class_w3route && c->protocol.w3.routeconn && c->protocol.w3.anongame)
+    else if (c->protocol.class == conn_class_w3route && c->protocol.w3.routeconn && c->protocol.w3.routeconn->protocol.w3.anongame)
     {
 	anongame_stats(c);
 	conn_destroy_anongame(c->protocol.w3.routeconn);  // [zap-zero] destroy anongame too when game connection is invalid
