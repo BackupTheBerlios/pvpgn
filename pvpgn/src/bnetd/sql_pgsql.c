@@ -99,7 +99,7 @@ static t_sql_res * sql_pgsql_query_res(const char * query)
     }
 
     if (PQresultStatus(pgres) != PGRES_TUPLES_OK) {
-        eventlog(eventlog_level_debug, __FUNCTION__, "got error from query (%s)", query);
+/*        eventlog(eventlog_level_debug, __FUNCTION__, "got error from query (%s)", query); */
 	PQclear(pgres);
 	return NULL;
     }
@@ -120,7 +120,7 @@ static t_sql_res * sql_pgsql_query_res(const char * query)
     res->pgres = pgres;
     res->crow = 0;
 
-    eventlog(eventlog_level_debug, __FUNCTION__, "res: %p res->rowbuf: %p res->crow: %d res->pgres: %p", res, res->rowbuf, res->crow, res->pgres);
+/*    eventlog(eventlog_level_debug, __FUNCTION__, "res: %p res->rowbuf: %p res->crow: %d res->pgres: %p", res, res->rowbuf, res->crow, res->pgres); */
     return res;
 }
 
@@ -176,7 +176,7 @@ static t_sql_row * sql_pgsql_fetch_row(t_sql_res *result)
 
     res->crow++;
 
-    eventlog(eventlog_level_debug, __FUNCTION__, "res: %p res->rowbuf: %p res->crow: %d res->pgres: %p", res, res->rowbuf, res->crow, res->pgres);
+/*    eventlog(eventlog_level_debug, __FUNCTION__, "res: %p res->rowbuf: %p res->crow: %d res->pgres: %p", res, res->rowbuf, res->crow, res->pgres); */
     return res->rowbuf;
 }
 
@@ -185,7 +185,7 @@ static void sql_pgsql_free_result(t_sql_res *result)
     t_pgsql_res *res = (t_pgsql_res *) result;
 
     if (res == NULL) return;
-    eventlog(eventlog_level_debug, __FUNCTION__, "res: %p res->rowbuf: %p res->crow: %d res->pgres: %p", res, res->rowbuf, res->crow, res->pgres);
+/*    eventlog(eventlog_level_debug, __FUNCTION__, "res: %p res->rowbuf: %p res->crow: %d res->pgres: %p", res, res->rowbuf, res->crow, res->pgres); */
 
     if (res->pgres) PQclear(res->pgres);
     if (res->rowbuf) free((void*)res->rowbuf);
