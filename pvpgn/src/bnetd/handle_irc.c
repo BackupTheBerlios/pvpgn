@@ -441,6 +441,7 @@ static int _handle_ping_command(t_connection * conn, int numparams, char ** para
 
 static int _handle_pong_command(t_connection * conn, int numparams, char ** params, char * text)
 {
+	
 	/* NOTE: RFC2812 doesn't seem to be very expressive about this ... */
 	if (conn_get_ircping(conn)==0) 
 	{
@@ -449,16 +450,25 @@ static int _handle_pong_command(t_connection * conn, int numparams, char ** para
 	else 
 	{
 	    unsigned int val = 0;
+	    char * sname;
 
-	    if (text) val = atoi(text);
-	    if (numparams>=1) val = atoi(params[0]);
+	    if (numparams>=1)
+	    {  
+	        val = atoi(params[0]);
+		sname = params[0];
+	    }
+	    else
+	    {
+		val = 0;
+		sname = 0;
+	    }
 
 	    if (conn_get_ircping(conn) != val) 
 		{
-	    	if ((text)&&(strcmp(text,server_get_name())!=0)) 
+	    	if ((sname)&&(strcmp(sname,server_get_name())!=0)) 
 			{
 				/* Actually the servername should not be always accepted but we aren't that pedantic :) */
-				eventlog(eventlog_level_warn,"handle_irc_line","[%d] got bad PONG (%u!=%u)",conn_get_socket(conn),val,conn_get_ircping(conn));
+				eventlog(eventlog_level_warn,"handle_irc_line","[%d] got bad PONG (%u!=%u && %s!=%s)",conn_get_socket(conn),val,conn_get_ircping(conn),sname,server_get_name());
 				return -1;
 			}
 	    }
