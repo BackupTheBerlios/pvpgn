@@ -122,28 +122,24 @@ typedef enum {
 	AT_2v2v2
 } t_anongame_infos_THUMBDOWNs;
 
-typedef struct {
-	int Level1;
-	int Level2;
-	int Level3;
-	int Level4;
-} t_anongame_infos_ICON_REQ_WAR3;
+#define anongame_infos_ICON_REQ_count 14
 
-typedef struct {
-	int Level1;
-	int Level2;
-	int Level3;
-	int Level4;
-	int Level5;
-} t_anongame_infos_ICON_REQ_W3XP;
-
-typedef struct {
-	int Level1;
-	int Level2;
-	int Level3;
-	int Level4;
-	int Level5;
-} t_anongame_infos_ICON_REQ_TOURNEY;
+typedef enum {
+	ICON_REQ_WAR3_Level1,
+	ICON_REQ_WAR3_Level2,
+	ICON_REQ_WAR3_Level3,
+	ICON_REQ_WAR3_Level4,
+	ICON_REQ_W3XP_Level1,
+	ICON_REQ_W3XP_Level2,
+	ICON_REQ_W3XP_Level3,
+	ICON_REQ_W3XP_Level4,
+	ICON_REQ_W3XP_Level5,
+	ICON_REQ_TRNY_Level1,
+	ICON_REQ_TRNY_Level2,
+	ICON_REQ_TRNY_Level3,
+	ICON_REQ_TRNY_Level4,
+	ICON_REQ_TRNY_Level5
+} t_anongame_infos_ICON_REQs;
 
 typedef struct {
 	char * langID;
@@ -184,9 +180,7 @@ typedef struct {
 	t_anongame_infos_DESC	* anongame_infos_DESC;			// for default DESC
 	t_list			* anongame_infos_DESC_list;		// for localized DESC's
 	char			anongame_infos_THUMBSDOWN[anongame_infos_THUMBSDOWN_count]; 
-	t_anongame_infos_ICON_REQ_WAR3 * anongame_infos_ICON_REQ_WAR3;
-	t_anongame_infos_ICON_REQ_W3XP * anongame_infos_ICON_REQ_W3XP;
-	t_anongame_infos_ICON_REQ_TOURNEY * anongame_infos_ICON_REQ_TOURNEY;
+	int			anongame_infos_ICON_REQ[anongame_infos_ICON_REQ_count];
 	t_anongame_infos_data * anongame_infos_data_war3;
 	t_anongame_infos_data * anongame_infos_data_w3xp;
 	t_list * anongame_infos_data_lang_war3;
