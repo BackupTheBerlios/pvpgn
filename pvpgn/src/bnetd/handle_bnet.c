@@ -4249,7 +4249,7 @@ static int _client_joingame(t_connection * c, t_packet const * const packet)
 	     //to prevent whispering over and over that user joined channel
 	     if(conn_get_joingamewhisper_ack(c)==0)
 	       {
-		  handle_joingame_whisper(c,gamename);
+		  handle_event_whisper(conn_get_account(c),gamename,watch_event_joingame);
 		  conn_set_joingamewhisper_ack(c,1); //1 = already whispered. We reset this each time user joins a channel
 	       }
 	     
@@ -4260,7 +4260,7 @@ static int _client_joingame(t_connection * c, t_packet const * const packet)
 	     //to prevent whispering over and over that user joined channel
 	     if(conn_get_joingamewhisper_ack(c)==0)
 	       {
-		  if(handle_joingame_whisper(c,gamename)==0)
+		  if(handle_event_whisper(conn_get_account(c),gamename,watch_event_joingame)==0)
 		    eventlog(eventlog_level_info,"handle_bnet","Told Mutual Friends your in game %s",gamename);
 		  
 		  conn_set_joingamewhisper_ack(c,1); //1 = already whispered. We reset this each time user joins a channel
@@ -4346,7 +4346,7 @@ static int _client_startgame1(t_connection * c, t_packet const * const packet)
 	  }
 	if(conn_get_joingamewhisper_ack(c)==0)
 	  {
-	     if(handle_joingame_whisper(c,gamename)==0)
+	     if(handle_event_whisper(conn_get_account(c),gamename,watch_event_joingame)==0)
 	       eventlog(eventlog_level_info,"handle_bnet","Told Mutual Friends your in game %s",gamename);
 	     
 	     conn_set_joingamewhisper_ack(c,1); //1 = already whispered. We reset this each time user joins a channel
@@ -4454,7 +4454,7 @@ static int _client_startgame3(t_connection * c, t_packet const * const packet)
 	  }
 	if(conn_get_joingamewhisper_ack(c)==0)
 	  {
-	     if(handle_joingame_whisper(c,gamename)==0)
+	     if(handle_event_whisper(conn_get_account(c),gamename,watch_event_joingame)==0)
 	       eventlog(eventlog_level_info,"handle_bnet","Told Mutual Friends your in game %s",gamename);
 	     
 	     conn_set_joingamewhisper_ack(c,1); //1 = already whispered. We reset this each time user joins a channel
@@ -4569,7 +4569,7 @@ static int _client_startgame4(t_connection * c, t_packet const * const packet)
 	  }
 	if(conn_get_joingamewhisper_ack(c)==0)
 	  {
-	     if(handle_joingame_whisper(c,gamename)==0)
+	     if(handle_event_whisper(conn_get_account(c),gamename,watch_event_joingame)==0)
 	       eventlog(eventlog_level_info,"handle_bnet","Told Mutual Friends your in game %s",gamename);
 	     
 	     conn_set_joingamewhisper_ack(c,1); //1 = already whispered. We reset this each time user joins a channel

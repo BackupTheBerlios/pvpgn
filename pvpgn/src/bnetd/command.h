@@ -25,10 +25,5 @@
 #undef JUST_NEED_TYPES
 
 extern int handle_command(t_connection * c, char const * text);
-//3 new commands added to inform mutual friends when u logon, logoff and join a game
-//code works with watch_list
-extern int handle_login_whisper(t_connection * c, char const *tname);
-extern int handle_logoff_whisper(t_connection * dest_c, char const *username, char msg[512]);
-extern int handle_joingame_whisper(t_connection *c, char const *gamename);
 #endif
 #endif

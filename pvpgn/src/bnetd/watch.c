@@ -165,6 +165,45 @@ extern int watchlist_del_all_events(t_connection * owner)
     return 0;
 }
 
+extern int handle_event_whisper(t_account *account, char const *gamename, t_watch_event event)
+{
+	char const *friend;
+	char msg[512];
+	int i;
+	int cnt = 0;
+	int n = account_get_friendcount(account);
+	char const *myusername;
+	t_connection * dest_c;
+
+	myusername = account_get_name(account);
+							
+	for(i=0; i<n; i++) 
+	{ 
+	friend = account_get_friend(account,i);
+	dest_c = connlist_find_connection_by_accountname(friend);
+		
+       
+	if (event == watch_event_joingame) sprintf(msg,"Your friend %s has entered game %s.",myusername,gamename);
+        if (event == watch_event_login)    sprintf(msg,"Your friend %s has entered the PvPGN Realm.",myusername);
+	if (event == watch_event_logout)   sprintf(msg,"Your friend %s has left the PvPGN Realm",myusername);
+	
+	if (dest_c==NULL) //If friend is offline, go on to next
+		continue;
+	else 
+	{ 
+		cnt++;	// keep track of successful whispers
+		if(account_check_mutual(conn_get_account(dest_c),myusername)==0)
+		{
+			message_send_text(dest_c,message_type_info,dest_c,msg);
+			
+		}
+	}
+	}
+
+        account_unget_name(myusername);
+	
+	return 0;
+}
 
 extern int watchlist_notify_event(t_account * who, t_watch_event event)
 {
@@ -186,14 +225,14 @@ extern int watchlist_notify_event(t_account * who, t_watch_event event)
     switch (event)
     {
     case watch_event_login:
-		if(account_notify_friends_login(tname)==0)
+		if(handle_event_whisper(who,NULL,watch_event_login)==0)
 		{
 			eventlog(eventlog_level_info,"watch_event_login","Told Mutual Friends %s came online.",tname);
 		}
 		return 0;
 		break; /* I KNOW its unreachable code! :) */
     case watch_event_logout:
-		if(account_notify_friends_logoff(tname)==0)
+		if(handle_event_whisper(who,NULL,watch_event_logout)==0)
 		{
 			eventlog(eventlog_level_info,"watch_event_login","Told Mutual Friends %s logged off.",tname);
 		}

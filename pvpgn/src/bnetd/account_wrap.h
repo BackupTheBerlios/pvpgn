@@ -236,8 +236,6 @@ extern int account_set_friendcount( t_account * account, int count);
 extern int account_get_friendcount( t_account * account );
 // THEUNDYING MUTUAL FRIEND CHECK 7/27/02 UPDATED!
 extern int account_check_mutual( t_account * account, char const *myusername);
-extern int account_notify_friends_login ( char const *tname );
-extern int account_notify_friends_logoff ( char const *tname );
 
 extern char const * race_get_str(unsigned int race);
 extern int account_set_admin( t_account * account );

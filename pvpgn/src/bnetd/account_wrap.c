@@ -1,3 +1,4 @@
+
 /*
  * Copyright (C) 1998,1999  Ross Combs (rocombs@cs.nmsu.edu)
  *
@@ -1929,51 +1930,7 @@ extern int account_check_mutual( t_account * account, char const *myusername)
 	// If friend isnt in list return -1 to tell func NO
 	return -1;
 }
-// THEUNDYING 7/27/2002 - MUTUAL FRIENDS WATCHLIST CODE
-//Used to let online mutual friends that you have logged on
-extern int account_notify_friends_login ( char const *tname )
-{
-	if(handle_login_whisper(connlist_find_connection_by_accountname(tname),tname)==0)
-	{
-		return 0;	
-	}
-	else
-	{
-		return -1;
-	}
-}
-//Used to let mutual friends know that you have logged off
-extern int account_notify_friends_logoff ( char const *tname )
-{
-	t_account *useraccount;
-	t_account *friendaccount;
-	char const *username = tname;
-	char const *friend;
-	char msg[512];
-	int i;
-	int n;
-		
-	useraccount = accountlist_find_account(username);
-	n = account_get_friendcount(useraccount);
-	
-	sprintf(msg,"Your friend %s has left the PvPGN Realm",username);
 
-	for(i=0; i<n; i++) 
-	{ 
-		friend = account_get_friend(useraccount,i);
-		friendaccount = accountlist_find_account(friend);
-
-		if(account_check_mutual(friendaccount,tname)==0)
-		{
-			if(handle_logoff_whisper(connlist_find_connection_by_accountname(friend),username,msg)==0)
-			{
-				continue;
-			}
-		}
-	}
-
-	return 0;
-}
 // Some Extra Commands for REAL admins to promote other users to Admins
 // And Moderators of channels
 extern int account_set_admin( t_account * account )
