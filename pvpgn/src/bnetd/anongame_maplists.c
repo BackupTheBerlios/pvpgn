@@ -105,7 +105,7 @@ static void _maplists_add_map(char const * clienttag, char * mapname, int queue)
 	
 	if (maplists_war3[queue][0] < MAXMAPS_PER_QUEUE) {
 	    maplists_war3[queue][0]++;
-	    maplists_war3[queue][maplists_war3[queue][0]] = j;
+	    maplists_war3[queue][(int)maplists_war3[queue][0]] = j;
 	} else {
 	    eventlog(eventlog_level_error,__FUNCTION__,
 		"cannot add map \"%s\" for gametype: %s (maxmaps per qametype: %d)",
@@ -126,7 +126,7 @@ static void _maplists_add_map(char const * clienttag, char * mapname, int queue)
 	
 	if (maplists_w3xp[queue][0] < MAXMAPS_PER_QUEUE) {
 	    maplists_w3xp[queue][0]++;
-	    maplists_w3xp[queue][maplists_w3xp[queue][0]] = j;
+	    maplists_w3xp[queue][(int)maplists_w3xp[queue][0]] = j;
 	} else {
 	    eventlog(eventlog_level_error,__FUNCTION__,
 		"cannot add map \"%s\" for gametype: %s (maxmaps per qametype: %d)",
@@ -276,9 +276,9 @@ extern void maplists_add_map_info_to_packet(t_packet * rpacket, char const * cli
 extern char * maplists_get_map(int queue, char const * clienttag, int mapnumber)
 {
     if (strcmp(clienttag, CLIENTTAG_WARCRAFT3) == 0)
-	return maplist_war3[maplists_war3[queue][mapnumber]];
+	return maplist_war3[(int)maplists_war3[queue][mapnumber]];
     if (strcmp(clienttag, CLIENTTAG_WAR3XP) == 0)
-	return maplist_w3xp[maplists_w3xp[queue][mapnumber]];
+	return maplist_w3xp[(int)maplists_w3xp[queue][mapnumber]];
     
     return NULL;
 }
