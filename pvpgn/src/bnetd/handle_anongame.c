@@ -193,37 +193,37 @@ static int _client_anongame_profile(t_connection * c, t_packet const * const pac
     }
     else // If they do have a profile then:
     {
-	int solowins=account_get_solowin(account,ctag); 
-	int sololoss=account_get_sololoss(account,ctag);
+	int solowins=account_get_solowins(account,ctag); 
+	int sololoss=account_get_sololosses(account,ctag);
 	int soloxp=account_get_soloxp(account,ctag);
 	int sololevel=account_get_sololevel(account,ctag);
 	int solorank=account_get_solorank(account,ctag);
-	
-	int teamwins=account_get_teamwin(account,ctag);
-	int teamloss=account_get_teamloss(account,ctag);
+
+	int teamwins=account_get_teamwins(account,ctag);
+	int teamloss=account_get_teamlosses(account,ctag);
 	int teamxp=account_get_teamxp(account,ctag);
 	int teamlevel=account_get_teamlevel(account,ctag);
 	int teamrank=account_get_teamrank(account,ctag);
-	
-	int ffawins=account_get_ffawin(account,ctag);
-	int ffaloss=account_get_ffaloss(account,ctag);
+
+	int ffawins=account_get_ffawins(account,ctag);
+	int ffaloss=account_get_ffalosses(account,ctag);
 	int ffaxp=account_get_ffaxp(account,ctag);
 	int ffalevel=account_get_ffalevel(account,ctag);
 	int ffarank=account_get_ffarank(account,ctag);
-	
-	int humanwins=account_get_racewin(account,1,ctag);
-	int humanlosses=account_get_raceloss(account,1,ctag);
-	int orcwins=account_get_racewin(account,2,ctag);
-	int orclosses=account_get_raceloss(account,2,ctag);
-	int undeadwins=account_get_racewin(account,8,ctag);
-	int undeadlosses=account_get_raceloss(account,8,ctag);
-	int nightelfwins=account_get_racewin(account,4,ctag);
-	int nightelflosses=account_get_raceloss(account,4,ctag);
-	int randomwins=account_get_racewin(account,0,ctag);
-	int randomlosses=account_get_raceloss(account,0,ctag);
-	
+
+	int humanwins=account_get_racewins(account,1,ctag);
+	int humanlosses=account_get_racelosses(account,1,ctag);
+	int orcwins=account_get_racewins(account,2,ctag);
+	int orclosses=account_get_racelosses(account,2,ctag);
+	int undeadwins=account_get_racewins(account,8,ctag);
+	int undeadlosses=account_get_racelosses(account,8,ctag);
+	int nightelfwins=account_get_racewins(account,4,ctag);
+	int nightelflosses=account_get_racelosses(account,4,ctag);
+	int randomwins=account_get_racewins(account,0,ctag);
+	int randomlosses=account_get_racelosses(account,0,ctag);
+
 	unsigned char rescount;
-	
+
 	if (!(rpacket = packet_create(packet_class_bnet)))
 	    return -1;
 	packet_set_size(rpacket,sizeof(t_server_findanongame_profile2));
@@ -389,9 +389,9 @@ static int _client_anongame_profile(t_connection * c, t_packet const * const pac
 		bn_int_set((bn_int*)&temp,teamtype[teamsize]);
 		packet_append_data(rpacket,&temp,4);
 
-		bn_int_set((bn_int*)&temp,account_get_atteamwin(account,n,ctag)); //at team wins
+		bn_int_set((bn_int*)&temp,account_get_atteamwins(account,n,ctag)); //at team wins
 		packet_append_data(rpacket,&temp,2);
-		bn_int_set((bn_int*)&temp,account_get_atteamloss(account,n,ctag)); //at team losses
+		bn_int_set((bn_int*)&temp,account_get_atteamlosses(account,n,ctag)); //at team losses
 		packet_append_data(rpacket,&temp,2);
 		bn_int_set((bn_int*)&temp,account_get_atteamlevel(account,n,ctag)); 
 		packet_append_data(rpacket,&temp,1);
@@ -575,7 +575,7 @@ static int _client_anongame_get_icon(t_connection * c, t_packet const * const pa
 	        if (i<=4){
 	    	    //Building the icon for the races
 	    	    bn_short_set(&tempicon.required_wins,icon_req_race_wins);
-	    	    if (account_get_racewin(acc,race[i],clienttag)>=icon_req_race_wins) {
+	    	    if (account_get_racewins(acc,race[i],clienttag)>=icon_req_race_wins) {
 			tempicon.client_enabled=1;
 	    	    }else{
 			tempicon.client_enabled=0;
@@ -584,7 +584,7 @@ static int _client_anongame_get_icon(t_connection * c, t_packet const * const pa
 	        //Building the icon for the tourney
 		icon_req_tourney_wins = anongame_infos_get_ICON_REQ_TOURNEY(j+1);
 	        bn_short_set(&tempicon.required_wins,icon_req_tourney_wins);
-	        if (account_get_racewin(acc,race[i],clienttag)>=icon_req_tourney_wins) {
+	        if (account_get_racewins(acc,race[i],clienttag)>=icon_req_tourney_wins) {
 		    tempicon.client_enabled=1;
 	        }else{
 		    tempicon.client_enabled=0;}

@@ -1607,34 +1607,34 @@ int XML_writer(FILE * fp, t_ladder * ladder, t_clienttag clienttag)
      else {
          if (ladder==solo_ladder(clienttag)) {
            level = account_get_sololevel(pointer->account,clienttag);
-           wins = account_get_solowin(pointer->account,clienttag);
-           losses = account_get_sololoss(pointer->account,clienttag);
+           wins = account_get_solowins(pointer->account,clienttag);
+           losses = account_get_sololosses(pointer->account,clienttag);
          }
          else if (ladder==team_ladder(clienttag)) {
            level = account_get_teamlevel(pointer->account,clienttag);
-           wins = account_get_teamwin(pointer->account,clienttag);
-           losses = account_get_teamloss(pointer->account,clienttag);
+           wins = account_get_teamwins(pointer->account,clienttag);
+           losses = account_get_teamlosses(pointer->account,clienttag);
          }
          else if (ladder==ffa_ladder(clienttag)) {
            level = account_get_ffalevel(pointer->account,clienttag);
-           wins = account_get_ffawin(pointer->account,clienttag);
-           losses = account_get_ffaloss(pointer->account,clienttag);
+           wins = account_get_ffawins(pointer->account,clienttag);
+           losses = account_get_ffalosses(pointer->account,clienttag);
          }
          else {
            level = 0;
            wins = 0;
            losses = 0;
          }
-         orc_wins = account_get_racewin(pointer->account,W3_RACE_ORCS,clienttag);
-         orc_losses = account_get_raceloss(pointer->account,W3_RACE_ORCS,clienttag);
-         undead_wins = account_get_racewin(pointer->account,W3_RACE_UNDEAD,clienttag);
-         undead_losses = account_get_raceloss(pointer->account,W3_RACE_UNDEAD,clienttag);
-         human_wins = account_get_racewin(pointer->account,W3_RACE_HUMANS,clienttag);
-         human_losses = account_get_raceloss(pointer->account,W3_RACE_HUMANS,clienttag);
-         nightelf_wins = account_get_racewin(pointer->account,W3_RACE_NIGHTELVES,clienttag);
-         nightelf_losses = account_get_raceloss(pointer->account,W3_RACE_NIGHTELVES,clienttag);
-         random_wins = account_get_racewin(pointer->account,W3_RACE_RANDOM,clienttag);
-         random_losses = account_get_raceloss(pointer->account,W3_RACE_RANDOM,clienttag);
+         orc_wins = account_get_racewins(pointer->account,W3_RACE_ORCS,clienttag);
+         orc_losses = account_get_racelosses(pointer->account,W3_RACE_ORCS,clienttag);
+         undead_wins = account_get_racewins(pointer->account,W3_RACE_UNDEAD,clienttag);
+         undead_losses = account_get_racelosses(pointer->account,W3_RACE_UNDEAD,clienttag);
+         human_wins = account_get_racewins(pointer->account,W3_RACE_HUMANS,clienttag);
+         human_losses = account_get_racelosses(pointer->account,W3_RACE_HUMANS,clienttag);
+         nightelf_wins = account_get_racewins(pointer->account,W3_RACE_NIGHTELVES,clienttag);
+         nightelf_losses = account_get_racelosses(pointer->account,W3_RACE_NIGHTELVES,clienttag);
+         random_wins = account_get_racewins(pointer->account,W3_RACE_RANDOM,clienttag);
+         random_losses = account_get_racelosses(pointer->account,W3_RACE_RANDOM,clienttag);
      // write username, xp and rank to file and everyhing else needed for nice ladder pages
 	 fprintf(fp,"\t<player>\n\t\t<name>%s</name>\n\t\t<level>%u</level>\n\t\t<xp>%u</xp>\n",
                     account_get_name(pointer->account),level,pointer->xp);

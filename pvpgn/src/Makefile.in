@@ -647,7 +647,7 @@ install-conf: ${SRC_CONFDIR}/bnetd.conf ${SRC_CONFDIR}/d2cs.conf ${SRC_CONFDIR}/
 install-share:
 	${INSTALL_DIRS} ${DESTDIR}/${sharedir} ${DESTDIR}/${filesdir} ${DESTDIR}/${usersdir} ${DESTDIR}/${userscdbdir} ${DESTDIR}/${bnmaildir} ${DESTDIR}/${reportsdir} \
 	${DESTDIR}/${chanlogsdir} ${DESTDIR}/${charinfodir} ${DESTDIR}/${charsavedir} ${DESTDIR}/${bak_charsavedir} \
-	${DESTDIR}/${bak_charinfodir} ${DESTDIR}/${ladderdir} ${DESTDIR}/${statusdir} \ 
+	${DESTDIR}/${bak_charinfodir} ${DESTDIR}/${ladderdir} ${DESTDIR}/${statusdir} \
 	${DESTDIR}/${clandir} ${DESTDIR}/${teamdir}
 	@list='${SHARES}'; for p in $$list; do \
 	  if test -f ${SRC_SHAREDIR}/$$p; then \
