@@ -71,7 +71,7 @@ extern int get_socket_limit(void)
 	/* FIXME: somehow get WSAData win32 socket limit here */
 #endif
 
-#ifndef HAVE_POLL
+#if !(defined HAVE_POLL || defined HAVE_KQUEUE || defined HAVE_EPOLL)
 	if(FD_SETSIZE < socklimit)
 		socklimit = FD_SETSIZE;
 #endif
