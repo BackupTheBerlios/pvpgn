@@ -173,7 +173,7 @@ typedef struct connection
     char const *          lastsender; /* last person to whisper to this connection */
     char const *          realminfo;
     char const *          charname;
-    t_versioncheck const *versioncheck; /* equation and MPQ file used to validate game checksum */
+    t_versioncheck *	versioncheck; /* equation and MPQ file used to validate game checksum */
     char const *	      ircline; /* line cache for IRC connections */
     unsigned int		  ircping; /* value of last ping */
     char const *		  ircpass; /* hashed password for PASS authentication */
@@ -330,8 +330,8 @@ extern char const * conn_get_country(t_connection const * c);
 extern int conn_quota_exceeded(t_connection * c, char const * message);
 extern int conn_set_lastsender(t_connection * c, char const * sender);
 extern char const * conn_get_lastsender(t_connection const * c);
-extern t_versioncheck const * conn_get_versioncheck(t_connection const * c) PURE_ATTR();
-extern int conn_set_versioncheck(t_connection * c, t_versioncheck const * versioncheck);
+extern t_versioncheck * conn_get_versioncheck(t_connection * c) PURE_ATTR();
+extern int conn_set_versioncheck(t_connection * c, t_versioncheck * versioncheck);
 extern int conn_set_ircline(t_connection * c, char const * line);
 extern char const * conn_get_ircline(t_connection const * c);
 extern int conn_set_ircpass(t_connection * c, char const * pass);

@@ -40,6 +40,7 @@ typedef struct s_versioncheck
 {
     char const * eqn;
     char const * mpqfile;
+    char *	 versiontag;
 }
 #endif
 t_versioncheck;
@@ -58,6 +59,9 @@ extern int versioncheck_validate(t_versioncheck const * vc, char const * archtag
 
 extern int versioncheck_load(char const * filename);
 extern int versioncheck_unload(void);
+
+extern char const * versioncheck_get_versiontag(t_versioncheck const * vc);
+extern int versioncheck_set_versiontag(t_versioncheck * vc, char const * versiontag);
 
 #endif
 #endif

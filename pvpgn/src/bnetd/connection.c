@@ -3431,7 +3431,7 @@ extern char const * conn_get_lastsender(t_connection const * c)
 }
 
 
-extern t_versioncheck const * conn_get_versioncheck(t_connection const * c)
+extern t_versioncheck * conn_get_versioncheck(t_connection * c)
 {
     if (!c)
     {
@@ -3443,7 +3443,7 @@ extern t_versioncheck const * conn_get_versioncheck(t_connection const * c)
 }
 
 
-extern int conn_set_versioncheck(t_connection * c, t_versioncheck const * versioncheck)
+extern int conn_set_versioncheck(t_connection * c, t_versioncheck * versioncheck)
 {
     if (!c) 
     {

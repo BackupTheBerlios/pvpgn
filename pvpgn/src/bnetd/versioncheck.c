@@ -72,7 +72,7 @@
 
 
 static t_list * versioninfo_head=NULL;
-static t_versioncheck dummyvc={ "A=42 B=42 C=42 4 A=A^S B=B^B C=C^C A=A^S", "IX86ver1.mpq" };
+static t_versioncheck dummyvc={ "A=42 B=42 C=42 4 A=A^S B=B^B C=C^C A=A^S", "IX86ver1.mpq", NULL };
 
 static int versioncheck_compare_exeinfo(char const * pattern, char const * match);
 
@@ -115,6 +115,7 @@ extern t_versioncheck * versioncheck_create(char const * archtag, char const * c
 	    free(vc);
 	    return &dummyvc;
 	}
+	vc->versiontag = NULL;
 	
 	return vc;
     }
@@ -139,11 +140,38 @@ extern int versioncheck_destroy(t_versioncheck * vc)
     if (vc==&dummyvc)
 	return 0;
     
+    free((void *)vc->versiontag);
     free((void *)vc->mpqfile);
     free((void *)vc->eqn);
     free(vc);
     
     return 0;
+}
+
+extern int versioncheck_set_versiontag(t_versioncheck * vc, char const * versiontag)
+{
+    if (!vc) {
+	eventlog(eventlog_level_error,"versioncheck_set_versiontag","got NULL vc");
+	return -1;
+    }
+    if (!versiontag) {
+	eventlog(eventlog_level_error,"versioncheck_set_versiontag","got NULL versiontag");
+	return -1;
+    }
+    
+    vc->versiontag = strdup(versiontag);
+    return 0;
+}
+
+
+extern char const * versioncheck_get_versiontag(t_versioncheck const * vc)
+{
+    if (!vc) {
+	eventlog(eventlog_level_error,"versioncheck_get_versiontag","got NULL vc");
+	return NULL;
+    }
+    
+    return vc->versiontag;
 }
 
 

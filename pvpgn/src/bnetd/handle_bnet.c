@@ -1189,7 +1189,14 @@ static int _client_authreq1(t_connection * c, t_packet const * const packet)
 		 }
 	     
 	     if (versiontag)
+	     {
+	       t_versioncheck * vc;
+	       
+	       vc = conn_get_versioncheck(c);
+	       versioncheck_set_versiontag(vc, versiontag);
+	       conn_set_versioncheck(c, vc);
 	       eventlog(eventlog_level_info,"handle_bnet_packet","[%d] client matches versiontag \"%s\"",conn_get_socket(c),versiontag);
+	     }
 	     
 	     if (failed)
 	       {
@@ -1337,7 +1344,14 @@ static int _client_authreq109(t_connection * c, t_packet const * const packet)
 		 }
 	     
 	     if (versiontag)
+	     {
+	       t_versioncheck * vc;
+	       
+	       vc = conn_get_versioncheck(c);
+	       versioncheck_set_versiontag(vc, versiontag);
+	       conn_set_versioncheck(c, vc);
 	       eventlog(eventlog_level_info,"handle_bnet_packet","[%d] client matches versiontag \"%s\"",conn_get_socket(c),versiontag);
+	     }
 	     
 	     if (failed)
 	       {
@@ -1640,7 +1654,7 @@ static int _client_statsreq(t_connection * c, t_packet const * const packet)
 	  {
 	     if (!(account = accountlist_find_account(name)))
 	     {
-	       if (account = conn_get_account(c))
+	       if ((account = conn_get_account(c)))
 	       {
 		 eventlog(eventlog_level_debug,"handle_bnet_packet","[%d] client_statsreply no name, use self \"%s\"",conn_get_socket(c),(tname = account_get_name(account)));
 		 account_unget_name(tname);
