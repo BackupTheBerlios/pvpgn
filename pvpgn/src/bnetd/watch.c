@@ -303,7 +303,7 @@ static int handle_event_whisper(t_account *account, char const *gamename, char c
 	  eventlog(eventlog_level_error,"watchlist_notify_event","watchlist contains NULL item");
 	  return -1;
 	}
-	if (pair->owner && (!pair->who || pair->who==account) && (!pair->clienttag || (clienttag && strcasecmp(pair->clienttag, clienttag)==0)) && (pair->what&event))
+	if (pair->owner && (!pair->who || pair->who==account) && (strlen(pair->clienttag) == 0 || (clienttag && strcasecmp(pair->clienttag, clienttag)==0)) && (pair->what&event))
 	message_send_text(pair->owner,message_type_info,pair->owner,msg);
     }
   
