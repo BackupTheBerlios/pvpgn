@@ -55,6 +55,9 @@
 #  endif
 # endif
 #endif
+#ifdef HAVE_ASSERT_H
+# include <assert.h>
+#endif
 #include "compat/strchr.h"
 #include "compat/strdup.h"
 #include "compat/strcasecmp.h"
@@ -306,14 +309,11 @@ t_parsed_exeinfo * parse_exeinfo(char const * exeinfo)
 //static int versioncheck_compare_exeinfo(char const * pattern, char const * match)
 static int versioncheck_compare_exeinfo(t_parsed_exeinfo * pattern, t_parsed_exeinfo * match)
 {
-    if (!pattern) {
-	eventlog(eventlog_level_error,__FUNCTION__,"got NULL pattern");
-	return -1; /* neq/fail */
-    }
-    if (!match) {
-	eventlog(eventlog_level_error,__FUNCTION__,"got NULL match");
-	return -1; /* neq/fail */
-    }
+    assert(pattern);
+    assert(match);
+
+    if (!strcasecmp(prefs_get_version_exeinfo_match(),"none"))
+	return 0;	/* ignore exeinfo */
 
     if (strlen(pattern->exe)!=strlen(match->exe))
     	return 1; /* neq */
@@ -402,7 +402,7 @@ extern int versioncheck_validate(t_versioncheck * vc, t_tag archtag, t_tag clien
 	if (vi->gameversion && vi->gameversion != gameversion)
 	    continue;
 
-	
+
 	if ((!(parsed_exeinfo)) || (vi->parsed_exeinfo && (versioncheck_compare_exeinfo(vi->parsed_exeinfo,parsed_exeinfo) != 0)))
 	{
 	    /*

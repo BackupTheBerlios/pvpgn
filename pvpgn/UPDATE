@@ -27,6 +27,8 @@ changed config files:
 - conf/realm.conf : removed showip:port & exclude net (translations done
     in address_translation.conf)
 - conf/command_groups.conf : added new command /clearstats
+- conf/bnetd.conf : added new possible value for version_exeinfo_match, none 
+    which disables exeinfo comparation and made that default
 
 changes to d2cs.conf:
 ---------------------
