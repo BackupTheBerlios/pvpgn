@@ -33,14 +33,13 @@
 #include "mmap.h"
 #ifdef WIN32
 # include <windows.h>
+# include <io.h>
 #endif
 #include "common/setup_after.h"
 
 extern void * pmmap(void *addr, unsigned len, int prot, int flags, int fd, unsigned offset)
 {
     void *mem;
-    unsigned pos;
-    int res;
 #ifdef WIN32 
     HANDLE	hFile, hMapping;
 
@@ -52,7 +51,10 @@ extern void * pmmap(void *addr, unsigned len, int prot, int flags, int fd, unsig
     if (!hMapping) return MAP_FAILED;
     mem = MapViewOfFile(hMapping, FILE_MAP_READ, 0, 0 ,0);
 #else /* systems without mmap or win32 */
-    if ((mem = malloc(len)) == NULL) return MAP_FAILED;
+    unsigned pos;
+    int res;
+
+	if ((mem = malloc(len)) == NULL) return MAP_FAILED;
     pos = 0;
     while(pos < len) {
 	res = read(fd, (char *)mem + pos, len - pos);
