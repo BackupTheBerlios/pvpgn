@@ -294,7 +294,7 @@ extern int clan_send_status_window(t_connection * c)
 	return -1;
     }
     
-    if ((clienttag != CLIENTTAG_WARCRAFT3_UINT) && (clienttag == CLIENTTAG_WAR3XP_UINT))
+    if ((clienttag != CLIENTTAG_WARCRAFT3_UINT) && (clienttag != CLIENTTAG_WAR3XP_UINT))
     	return 0;
 	
     if ((rpacket = packet_create(packet_class_bnet)))
