@@ -143,9 +143,6 @@ t_storage storage_sql = {
 static t_sql_engine *sql = NULL;
 static unsigned int defacct;
 
-static int _sql_dbcheck(void);
-static void _sql_update_DB_v0_to_v150(void);
-
 #ifndef SQL_ON_DEMAND
 static char *tables[] = { "BNET", "Record", "profile", "friend", "Team", NULL };
 
@@ -290,13 +287,6 @@ static int sql_init(const char *dbpath)
     while (0);
 
     xfree((void *) path);
-
-    if (_sql_dbcheck())
-    {
-	eventlog(eventlog_level_error, __FUNCTION__, "got error from dbcheck");
-	sql->close();
-	return -1;
-    }
 
     return 0;
 }
@@ -875,102 +865,6 @@ void _sql_db_set_version(int version)
 	sprintf(query, "INSERT INTO pvpgn (name, value) VALUES('db_version', '%d');", version);
 	sql->query(query);
     }
-}
-
-extern int _sql_dbcheck(void)
-{
-    int version = 0;
-
-    sql_dbcreator(sql);
-
-    while ((version = db_get_version()) != CURRENT_DB_VERSION)
-    {
-
-	switch (version)
-	{
-	case 0:
-	    _sql_update_DB_v0_to_v150();
-	    break;
-	default:
-	    eventlog(eventlog_level_error, __FUNCTION__, "unknown PvPGN DB version, aborting");
-	    return -1;
-	}
-    }
-
-    return 0;
-}
-
-static void _sql_update_DB_v0_to_v150(void)
-{
-    t_sql_res *result;
-    t_sql_field *fields, *fentry;
-    char query[1024];
-
-    eventlog(eventlog_level_info, __FUNCTION__, "updating your PvPGN SQL DB...");
-
-    if ((result = sql->query_res("SELECT * FROM Record;")) != NULL)
-    {
-	if ((fields = sql->fetch_fields(result)) != NULL)
-	{
-	    for (fentry = fields; *fentry; fentry++)
-	    {
-		if (strncasecmp(*fentry, "WAR3_", 5) == 0)
-		    continue;	// prevent converting over and over again
-		if (strncasecmp(*fentry, "W3XP_", 5) == 0)
-		    continue;
-		if (strncasecmp(*fentry, CLIENTTAG_STARCRAFT, 4) == 0)
-		    continue;
-		if (strncasecmp(*fentry, CLIENTTAG_BROODWARS, 4) == 0)
-		    continue;
-		if (strncasecmp(*fentry, CLIENTTAG_WARCIIBNE, 4) == 0)
-		    continue;
-		if (strncasecmp(*fentry, CLIENTTAG_DIABLO2DV, 4) == 0)
-		    continue;
-		if (strncasecmp(*fentry, CLIENTTAG_DIABLO2XP, 4) == 0)
-		    continue;
-		if (strncasecmp(*fentry, CLIENTTAG_DIABLORTL, 4) == 0)
-		    continue;
-		if (strncasecmp(*fentry, CLIENTTAG_DIABLOSHR, 4) == 0)
-		    continue;
-		if (strncasecmp(*fentry, CLIENTTAG_SHAREWARE, 4) == 0)
-		    continue;
-		if (strcmp(*fentry, SQL_UID_FIELD) == 0)
-		    continue;
-
-		sprintf(query, "ALTER TABLE Record CHANGE %s WAR3_%s int default '0';", *fentry, *fentry);
-		sql->query(query);
-		sprintf(query, "ALTER TABLE Record ADD W3XP_%s int default '0';", *fentry);
-		sql->query(query);
-	    }
-	    sql->free_fields(fields);
-	}
-	sql->free_result(result);
-    }
-
-    if ((result = sql->query_res("SELECT * FROM Team;")) != NULL)
-    {
-	if ((fields = sql->fetch_fields(result)) != NULL)
-	{
-	    for (fentry = fields; *fentry; fentry++)
-	    {
-		if (strncmp(*fentry, "WAR3_", 5) == 0)
-		    continue;
-		if (strncmp(*fentry, "W3XP_", 5) == 0)
-		    continue;
-		if (strcmp(*fentry, SQL_UID_FIELD) == 0)
-		    continue;
-
-		sprintf(query, "ALTER TABLE Team CHANGE %s WAR3_%s varchar(128);", *fentry, *fentry);
-		sql->query(query);
-	    }
-	    sql->free_fields(fields);
-	}
-	sql->free_result(result);
-    }
-
-    _sql_db_set_version(150);
-
-    eventlog(eventlog_level_info, __FUNCTION__, "successfully updated your DB");
 }
 
 static int sql_load_clans(t_load_clans_func cb)
