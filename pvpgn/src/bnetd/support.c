@@ -40,7 +40,9 @@
 # endif
 #endif
 #include <errno.h>
+#ifdef HAVE_UNISTD_H
 #include <unistd.h>
+#endif
 #include "compat/strerror.h"
 #include "common/eventlog.h"
 #include "support.h"
