@@ -1382,13 +1382,13 @@ extern int server_process(void)
 	if (prefs_get_war3_ladder_update_secs() && war3_ladder_updatetime+(time_t)prefs_get_war3_ladder_update_secs()<=now)
 	{
            war3_ladder_updatetime = now;
-	       war3_ladders_write_to_file();
+	   war3_ladders_write_to_file();
 	}
 
 	if (prefs_get_war3_output_update_secs() && war3_output_updatetime+(time_t)prefs_get_war3_output_update_secs()<=now)
 	{
            war3_output_updatetime = now;
-	       output1_write_to_file();
+	   output_write_to_file();
 	}
 	
 
