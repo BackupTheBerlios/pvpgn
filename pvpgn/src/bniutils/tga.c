@@ -188,7 +188,7 @@ extern t_tgaimg * load_tga(FILE *f) {
 	/* Now, we can alloc img->data */
 	img->data = malloc(img->width*img->height*pixelsize);
 	if (img->imgtype == tgaimgtype_uncompressed_truecolor) {
-		if (fread(img->data,pixelsize,img->width*img->height,f)<img->width*img->height) {
+		if (fread(img->data,pixelsize,img->width*img->height,f)<(unsigned)(img->width*img->height)) {
 			fprintf(stderr,"load_tga: error while reading data!\n");
 			free(img->data);
 			free(img);
@@ -256,7 +256,7 @@ extern int write_tga(FILE *f, t_tgaimg *img) {
 		
 		pixelsize = getpixelsize(img);
 		if (pixelsize == 0) return -1;
-		if (fwrite(img->data,pixelsize,img->width*img->height,f)<img->width*img->height) {
+		if (fwrite(img->data,pixelsize,img->width*img->height,f)<(unsigned)(img->width*img->height)) {
 			fprintf(stderr,"write_tga: could not write %d pixels (fwrite: %s)\n",img->width*img->height,strerror(errno));
 			file_wpop();
 			return -1;
@@ -300,7 +300,7 @@ static int RLE_decompress(FILE *f, void *buf, int bufsize, int pixelsize) {
 			return -1;
 		}
 		if ((pt & 0x80) == 0) {	/* RAW PACKET */
-			if (fread(bufp,pixelsize,count,f)<count) {
+			if (fread(bufp,pixelsize,count,f)<(unsigned)count) {
 				if (feof(f))
 					fprintf(stderr,"RLE_decompress: short RAW packet (expected %d bytes) (EOF)\n",pixelsize*count);
 				else
@@ -358,7 +358,7 @@ static void RLE_write_pkt(FILE *f, t_tgapkttype pkttype, int len, void *data, in
 		count = (unsigned char) (len-1);
 		if (fwrite(&count, 1, 1, f)<1)
 			fprintf(stderr,"RLE_write_pkt: could not write RAW pixel count (fwrite: %s)\n",strerror(errno));
-		if (fwrite(data,pixelsize,len,f)<len)
+		if (fwrite(data,pixelsize,len,f)<(unsigned)len)
 			fprintf(stderr,"RLE_write_pkt: could not write %d RAW pixels (fwrite: %s)\n",len,strerror(errno));
 	}
 }
@@ -373,6 +373,9 @@ static int RLE_compress(FILE *f, t_tgaimg const *img) {
 	unsigned char *pktdatap;
 	unsigned int actual=0,perceived=0;
 	int i;
+
+	pkttype = RAW;
+	pktdatap = NULL;
 	
 	if (img == NULL) return -1;
 	if (img->data == NULL) return -1;

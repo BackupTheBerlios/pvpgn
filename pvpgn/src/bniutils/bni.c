@@ -65,7 +65,7 @@ extern t_bnifile * load_bni(FILE *f) {
 		}
 		b->icons->icon[i].unknown = file_readd_le();
 	}
-	if (ftell(f)!=b->dataoffset) 
+	if (ftell(f)!=(long)b->dataoffset) 
 		fprintf(stderr,"load_bni: Warning, %lu bytes of garbage after BNI header\n",(unsigned long)(b->dataoffset-ftell(f)));
 	file_rpop();
 	return b;
@@ -94,7 +94,7 @@ extern int write_bni(FILE *f,t_bnifile *b) {
 		}
 		file_writed_le(b->icons->icon[i].unknown);
 	}
-	if (ftell(f)!=b->dataoffset)
+	if (ftell(f)!=(long)b->dataoffset)
 		fprintf(stderr,"Warning: dataoffset is incorrect! (=0x%lx should be 0x%lx)\n",(unsigned long)b->dataoffset,(unsigned long)ftell(f));
 	file_wpop();
 	return 0;
