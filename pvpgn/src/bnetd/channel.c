@@ -565,6 +565,10 @@ extern int channel_add_connection(t_channel * channel, t_connection * connection
     channel->memberlist = member;
     channel->currmembers++;
 
+    channel_message_log(channel,connection,0,"JOINED");
+    
+    message_send_text(connection,message_type_channel,connection,channel_get_name(channel));
+
     if ((!(channel->flags & channel_flags_permanent)) 
         && (!(channel->flags & channel_flags_thevoid)) 
         && (!(channel->flags & channel_flags_clan)) 
@@ -573,11 +577,8 @@ extern int channel_add_connection(t_channel * channel, t_connection * connection
     {
 	message_send_text(connection,message_type_info,connection,"you are now tempOP for this channel");
 	conn_set_tmpOP_channel(connection,(char *)channel_get_name(channel));
+	channel_update_flags(connection);
     }
-    
-    channel_message_log(channel,connection,0,"JOINED");
-    
-    message_send_text(connection,message_type_channel,connection,channel_get_name(channel));
 
     if(!(channel_get_flags(channel) & channel_flags_thevoid))
         for (user=channel_get_first(channel); user; user=channel_get_next())

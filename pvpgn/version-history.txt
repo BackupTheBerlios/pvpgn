@@ -45,6 +45,8 @@ PvPGN Version History:
   -- massivly renamed configuration files so each has an extension
   -- added scripts/pvpgn_hash.inc.php so everyone who needs has a php-
      implementation of the commonly used passhash algorithm
+  -- fixed problem with topaz-chat (and maybe other clients, too)
+     not propperly displaying tmpOP on initial channel join
 
 a general 1.6.x note:
 versioncheck exe-time parsing now REALLY works as it was intended to.
