@@ -151,7 +151,7 @@ t_channel;
 #define CHANNEL_NAME_KICKED "THE VOID"
 #define CHANNEL_NAME_CHAT   "Chat"
 
-extern t_channel * channel_create(char const * fullname, char const * shortname, char const * clienttag, int permflag, int botflag, int operflag, int logflag, char const * country, char const * realmname, int maxmembers) MALLOC_ATTR();
+extern t_channel * channel_create(char const * fullname, char const * shortname, char const * clienttag, int permflag, int botflag, int operflag, int logflag, char const * country, char const * realmname, int maxmembers,int moderated) MALLOC_ATTR();
 extern int channel_destroy(t_channel * channel);
 extern char const * channel_get_name(t_channel const * channel);
 extern char const * channel_get_shortname(t_channel const * channel);
@@ -175,6 +175,7 @@ extern int channel_get_length(t_channel const * channel);
 extern unsigned int channel_get_max(t_channel const * channel);
 extern unsigned int channel_get_curr(t_channel const * channel);
 extern int channel_account_is_tmpOP(t_channel const * channel, t_account * account);
+extern int channel_acocunt_has_tmpVOICE(t_channel const * channel, t_account * account);
 #ifndef WITH_BITS
 extern t_connection * channel_get_first(t_channel const * channel);
 extern t_connection * channel_get_next(void);

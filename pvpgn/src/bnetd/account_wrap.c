@@ -286,6 +286,21 @@ extern int account_set_auth_operator(t_account * account, char const * channelna
     return account_set_boolattr(account, temp, val);
 }
 
+extern int account_get_auth_voice(t_account * account, char const * channelname)
+{
+    char temp[256];
+
+    sprintf(temp,"BNET\\auth\\voice\\%.100s",channelname);
+    return account_get_boolattr(account,temp);	
+}
+
+extern int account_set_auth_voice(t_account * account, char const * channelname, int val)
+{
+    char temp[256];
+
+    sprintf(temp,"BNET\\auth\\voice\\%.100s",channelname);
+    return account_set_boolattr(account, temp, val);
+}
 
 extern int account_get_auth_changepass(t_account * account)
 {

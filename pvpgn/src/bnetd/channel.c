@@ -95,7 +95,7 @@ static t_channel * channellist_find_channel_by_fullname(char const * name);
 static char * channel_format_name(char const * sname, char const * country, char const * realmname, unsigned int id);
 
 
-extern t_channel * channel_create(char const * fullname, char const * shortname, char const * clienttag, int permflag, int botflag, int operflag, int logflag, char const * country, char const * realmname, int maxmembers)
+extern t_channel * channel_create(char const * fullname, char const * shortname, char const * clienttag, int permflag, int botflag, int operflag, int logflag, char const * country, char const * realmname, int maxmembers, int moderated)
 {
     t_channel * channel;
     
@@ -126,6 +126,7 @@ extern t_channel * channel_create(char const * fullname, char const * shortname,
 	if ((channel = channellist_find_channel_by_fullname(fullname)))
 	{
 	    if ((channel_get_clienttag(channel)) && (clienttag) && (strcmp(channel_get_clienttag(channel),clienttag)==0))
+	    //FIXME: make sure that all attributes are the same!!!
 	    {
 	      eventlog(eventlog_level_error,"channel_create","could not create duplicate permanent channel (fullname \"%s\")",fullname);
 	      return NULL;
@@ -146,6 +147,9 @@ extern t_channel * channel_create(char const * fullname, char const * shortname,
 	    channel->flags |= channel_flags_system;
     } else
 	channel->flags = channel_flags_none;
+
+    if (moderated)
+	channel->flags |= channel_flags_moderated;
 
     if(!strcasecmp(shortname, CHANNEL_NAME_KICKED)
     || !strcasecmp(shortname, CHANNEL_NAME_BANNED))
@@ -862,8 +866,21 @@ extern void channel_message_send(t_channel const * channel, t_message_type type,
         return;
     }
 
-    if(channel_get_flags(channel) & channel_flags_thevoid)
+    if(channel_get_flags(channel) & channel_flags_thevoid) // no talking in the void
 	return;
+
+    if(channel_get_flags(channel) & channel_flags_moderated) // moderated channel - only admins,OPs and voices may talk
+    {
+	if (type==message_type_talk || type==message_type_emote)
+	{
+	    if (!((account_is_operator_or_admin(conn_get_account(me),channel_get_name(channel))) ||
+		 (channel_account_has_tmpVOICE(channel,conn_get_account(me)))))
+	    {
+		message_send_text(me,message_type_error,me,"This channel is moderated");
+	        return;
+	    }
+	}
+    }
     
     if (!(message = message_create(type,me,NULL,text)))
     {
@@ -1329,6 +1346,7 @@ static int channellist_load_permanent(char const * filename)
     int          botflag;
     int          operflag;
     int          logflag;
+    int          modflag;
     char *       buff;
     char *       name;
     char *       sname;
@@ -1338,6 +1356,7 @@ static int channellist_load_permanent(char const * filename)
     char *       log;
     char *       country;
     char *       max;
+    char *       moderated;
     char *       newname;
     char *       realmname;
     
@@ -1370,55 +1389,61 @@ static int channellist_load_permanent(char const * filename)
         pos = 0;
 	if (!(name = next_token(buff,&pos)))
 	{
-	    eventlog(eventlog_level_error,"channellist_load_permanent","missing name in line %u in file \"%s\"",line,filename);
+	    eventlog(eventlog_level_error,__FUNCTION__,"missing name in line %u in file \"%s\"",line,filename);
 	    free(buff);
 	    continue;
 	}
 	if (!(sname = next_token(buff,&pos)))
 	{
-	    eventlog(eventlog_level_error,"channellist_load_permanent","missing sname in line %u in file \"%s\"",line,filename);
+	    eventlog(eventlog_level_error,__FUNCTION__,"missing sname in line %u in file \"%s\"",line,filename);
 	    free(buff);
 	    continue;
 	}
 	if (!(tag = next_token(buff,&pos)))
 	{
-	    eventlog(eventlog_level_error,"channellist_load_permanent","missing tag in line %u in file \"%s\"",line,filename);
+	    eventlog(eventlog_level_error,__FUNCTION__,"missing tag in line %u in file \"%s\"",line,filename);
 	    free(buff);
 	    continue;
 	}
 	if (!(bot = next_token(buff,&pos)))
 	{
-	    eventlog(eventlog_level_error,"channellist_load_permanent","missing bot in line %u in file \"%s\"",line,filename);
+	    eventlog(eventlog_level_error,__FUNCTION__,"missing bot in line %u in file \"%s\"",line,filename);
 	    free(buff);
 	    continue;
 	}
 	if (!(oper = next_token(buff,&pos)))
 	{
-	    eventlog(eventlog_level_error,"channellist_load_permanent","missing oper in line %u in file \"%s\"",line,filename);
+	    eventlog(eventlog_level_error,__FUNCTION__,"missing oper in line %u in file \"%s\"",line,filename);
 	    free(buff);
 	    continue;
 	}
 	if (!(log = next_token(buff,&pos)))
 	{
-	    eventlog(eventlog_level_error,"channellist_load_permanent","missing log in line %u in file \"%s\"",line,filename);
+	    eventlog(eventlog_level_error,__FUNCTION__,"missing log in line %u in file \"%s\"",line,filename);
 	    free(buff);
 	    continue;
 	}
 	if (!(country = next_token(buff,&pos)))
 	{
-	    eventlog(eventlog_level_error,"channellist_load_permanent","missing country in line %u in file \"%s\"",line,filename);
+	    eventlog(eventlog_level_error,__FUNCTION__,"missing country in line %u in file \"%s\"",line,filename);
 	    free(buff);
 	    continue;
 	}
         if (!(realmname = next_token(buff,&pos)))
         {
-           eventlog(eventlog_level_error,"channellist_load_permanent","missing realmname in line %u in file \"%s\"",line,filename);
+           eventlog(eventlog_level_error,__FUNCTION__,"missing realmname in line %u in file \"%s\"",line,filename);
            free(buff);
            continue;
         }
 	if (!(max = next_token(buff,&pos)))
 	{
-	    eventlog(eventlog_level_error,"channellist_load_permanent","missing max in line %u in file \"%s\"",line,filename);
+	    eventlog(eventlog_level_error,__FUNCTION__,"missing max in line %u in file \"%s\"",line,filename);
+	    free(buff);
+	    continue;
+	}
+	if (!(moderated = next_token(buff,&pos)))
+	{
+	    eventlog(eventlog_level_error,__FUNCTION__,"missing mod in line %u in file \"%s\"",line,filename);
 	    free(buff);
 	    continue;
 	}
@@ -1464,6 +1489,20 @@ static int channellist_load_permanent(char const * filename)
 	    free(buff);
 	    continue;
         }
+
+	switch (str_get_bool(moderated))
+	{
+	    case 1:
+		modflag = 1;
+		break;
+	    case 0:
+		modflag = 0;
+		break;
+	    default:
+		eventlog(eventlog_level_error,__FUNCTION__,"invalid boolean value \"%s\" for field 10 on line %u in file \"%s\"",moderated,line,filename);
+		free(buff);
+		continue;
+	}
 	
 	if (strcmp(sname,"NULL") == 0)
 	    sname = NULL;
@@ -1478,14 +1517,14 @@ static int channellist_load_permanent(char const * filename)
 	
 	if (name)
 	    {
-            channel_create(name,sname,tag,1,botflag,operflag,logflag,country,realmname,atoi(max));
+            channel_create(name,sname,tag,1,botflag,operflag,logflag,country,realmname,atoi(max),modflag);
 	    }
 	else
 	    {
             newname = channel_format_name(sname,country,realmname,1);
             if (newname)
 		{
-                   channel_create(newname,sname,tag,1,botflag,operflag,logflag,country,realmname,atoi(max));
+                   channel_create(newname,sname,tag,1,botflag,operflag,logflag,country,realmname,atoi(max),modflag);
                    free(newname);
 	    }
             else
@@ -1779,6 +1818,27 @@ extern int channel_account_is_tmpOP(t_channel const * channel, t_account * accou
 	return 0;
 }
 
+extern int channel_account_has_tmpVOICE(t_channel const * channel, t_account * account)
+{
+	if (!channel)
+	{
+	  eventlog(eventlog_level_error,__FUNCTION__,"got NULL channel");
+	  return 0;
+	}
+
+	if (!account)
+	{
+	  eventlog(eventlog_level_error,__FUNCTION__,"got NULL account");
+	  return 0;
+	}
+
+	if (!account_get_tmpVOICE_channel(account)) return 0;
+
+	if (strcmp(account_get_tmpVOICE_channel(account),channel_get_name(channel))==0) return 1;
+
+	return 0;
+}
+
 static t_channel * channellist_find_channel_by_fullname(char const * name)
 {
     t_channel *    channel;
@@ -1819,13 +1879,14 @@ extern t_channel * channellist_find_channel_by_name(char const * name, char cons
     int            savebotflag;
     int            saveoperflag;
     int            savelogflag;
+    int		   savemoderated;
     char const *   savecountry;
     char const *   saverealmname;
     int            savemaxmembers;
 
     // try to make gcc happy and initialize all variables
     saveshortname = savetag = savecountry = saverealmname = NULL;
-    savebotflag = saveoperflag = savelogflag = savemaxmembers = 0;
+    savebotflag = saveoperflag = savelogflag = savemaxmembers = savemoderated = 0;
     
     maxchannel = 0;
     foundperm = 0;
@@ -1891,6 +1952,7 @@ extern t_channel * channellist_find_channel_by_name(char const * name, char cons
                 else
                     saverealmname = channel->realmname;
 		savemaxmembers = channel->maxmembers;
+		savemoderated = channel_get_flags(channel) & channel_flags_moderated;
 	    } 
 	}
     }
@@ -1906,7 +1968,7 @@ extern t_channel * channellist_find_channel_by_name(char const * name, char cons
         if (!(channelname=channel_format_name(saveshortname,savecountry,saverealmname,maxchannel+1)))
                 return NULL;
 
-        channel = channel_create(channelname,saveshortname,savetag,1,savebotflag,saveoperflag,savelogflag,savecountry,saverealmname,savemaxmembers);
+        channel = channel_create(channelname,saveshortname,savetag,1,savebotflag,saveoperflag,savelogflag,savecountry,saverealmname,savemaxmembers,savemoderated);
         free(channelname);
 	
 	eventlog(eventlog_level_debug,"channellist_find_channel_by_name","created copy \"%s\" of channel \"%s\"",(channel)?(channel->name):("<failed>"),name);

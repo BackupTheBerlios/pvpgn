@@ -4525,7 +4525,6 @@ static int _client_joinchannel(t_connection * c, t_packet const * const packet)
        
        if (found && conn_set_channel(c,cname)<0)
 	 conn_set_channel(c,CHANNEL_NAME_BANNED); /* should not fail */
-       // cname = channel_get_name(conn_get_channel(c));
        //ADDED THEUNDYING - UPDATED 7/31/02
        if ((account_get_auth_admin(account,cname)>0) || (account_get_auth_admin(account,NULL)>0))
 	 conn_set_flags( c, MF_BLIZZARD );
@@ -4533,9 +4532,10 @@ static int _client_joinchannel(t_connection * c, t_packet const * const packet)
 	 conn_set_flags( c, MF_BNET );
        else if ((channel_account_is_tmpOP(conn_get_channel(c),account)))
 	 conn_set_flags( c, MF_GAVEL );
+       else if (account_get_auth_voice(account,cname)>0)
+	 conn_set_flags( c, MF_VOICE );
        else
 	 conn_set_flags( c, W3_ICON_SET );
-       // conn_set_channel(c,cname);
      }   
    else
      {
@@ -4545,7 +4545,6 @@ static int _client_joinchannel(t_connection * c, t_packet const * const packet)
        
        if (conn_set_channel(c,cname)<0)
 	 conn_set_channel(c,CHANNEL_NAME_BANNED); /* should not fail */
-       // cname = channel_get_name(conn_get_channel(c));
        //ADDED THEUNDYING - UPDATED 7/31/02
        if ((account_get_auth_admin(account,cname)>0) || (account_get_auth_admin(account,NULL)>0))
 	 conn_set_flags( c, MF_BLIZZARD );
@@ -4553,8 +4552,9 @@ static int _client_joinchannel(t_connection * c, t_packet const * const packet)
 	 conn_set_flags( c, MF_BNET );
        else if (channel_account_is_tmpOP(conn_get_channel(c),acc))
 	 conn_set_flags( c, MF_GAVEL );
+       else if (account_get_auth_voice(account,cname)>0)
+	 conn_set_flags( c, MF_VOICE );
        else conn_set_flags( c, W3_ICON_SET );
-       // conn_set_channel(c,cname);
      }
    
    if(conn_get_motd_loggedin(c)==0)
@@ -4614,7 +4614,7 @@ static int _client_message(t_connection * c, t_packet const * const packet)
 	  handle_command(c,text);	
 	else
 	  if (channel && !conn_quota_exceeded(c,text))
-	    channel_message_send(channel,message_type_talk,c,text);
+	     channel_message_send(channel,message_type_talk,c,text);
 	/* else discard */
      }
    

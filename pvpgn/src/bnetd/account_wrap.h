@@ -66,6 +66,8 @@ extern int account_get_auth_botlogin(t_account * account);
 extern int account_get_auth_bnetlogin(t_account * account);
 extern int account_get_auth_operator(t_account * account, char const * channelname);
 extern int account_set_auth_operator(t_account * account, char const * channelname, int val);
+extern int account_get_auth_voice(t_account * account, char const * channelname);
+extern int account_set_auth_voice(t_account * account, char const * channelname, int val);
 extern int account_get_auth_changepass(t_account * account);
 extern int account_get_auth_changeprofile(t_account * account);
 extern int account_get_auth_createnormalgame(t_account * account);

@@ -168,6 +168,7 @@ extern t_account * account_create(char const * username, char const * passhash1)
     account->accessed = 0;
     account->age      = 0;
     account->tmpOP_channel = NULL;
+    account->tmpVOICE_channel = NULL;
     
     account->namehash = 0; /* hash it later before inserting */
     account->uid      = 0; /* hash it later before inserting */
@@ -2124,7 +2125,7 @@ extern char const * account_get_name(t_account * account)
     return temp;
 }
 
-extern int account_set_tmpOP_channel(t_account * account, char * tmpOP_channel)
+extern int account_set_tmpOP_channel(t_account * account, char const * tmpOP_channel)
 {
 	char * tmp;
 
@@ -2163,3 +2164,44 @@ extern char * account_get_tmpOP_channel(t_account * account)
 	
 	return account->tmpOP_channel;
 }
+
+extern int account_set_tmpVOICE_channel(t_account * account, char const * tmpVOICE_channel)
+{
+	char * tmp;
+
+	if (!account)
+	{
+	  eventlog(eventlog_level_error,__FUNCTION__,"got NULL account");
+	  return -1;
+	}
+
+	if (account->tmpVOICE_channel)
+	{
+	  free((void *)account->tmpVOICE_channel);
+	  account->tmpVOICE_channel = NULL;
+	}
+
+	if (tmpVOICE_channel)
+	{
+	  if (!(tmp = strdup(tmpVOICE_channel)))
+	  {
+	    eventlog(eventlog_level_error,__FUNCTION__,"could not strdup tmpVOICE_channel");
+	    return -1;
+	  }
+	  account->tmpVOICE_channel = tmp;
+	}
+
+	return 0;
+}
+
+extern char * account_get_tmpVOICE_channel(t_account * account)
+{
+	if (!account)
+	{
+	  eventlog(eventlog_level_error,__FUNCTION__,"got NULL account");
+	  return NULL;
+	}
+	
+	return account->tmpVOICE_channel;
+}
+

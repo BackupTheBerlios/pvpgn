@@ -78,23 +78,29 @@
 #		-- can /aop users for any channel
 #		-- can /op & /deop users for any channel
 #		-- can /kick /ban & /unban users for any channel
+#		-- can /vop users for any channel
+#		-- can /voice & /devoice users for any channel
 #	-- Server Operator - operator status set to true - use --> /operator +<username>
 #		-- can /op & /deop users for any channel
 #		-- can /kick /ban & /unban users for any channel
+#		-- can /voice & /devoice users for any channel
 #	-- Channel Admin - admin starus for channel set to true - use --> /aop <username>
 #		-- can /aop users for the channel they are admin of
 #		-- can /op & /deop users for the channel they are admin of
 #		-- can /kick /ban & /unban users for the channel they are admin of
+#		-- can /vop users for the chnnel they are admin of
+#		-- can /voice & /devoice users for the channel they are admin of
 #	-- Channel Operator - operator status for channel set to true - use --> /op <username>
 #		-- can /op & /deop users for the channel they are operator of
 #		-- can /kick /ban & /unban users for the channel they are operator of
+#		-- can /voice & /devoice users for the channel they are	operator of
 #
 #	-- You must be in the channel you wish to give or take Channel Operator or 
 #		Channel Admin status too or from. ** /aop /op & /deop **
 #	-- P.S. You may now have more than one operator and/or admin per channel.
 #		-- No need to make everyone Server Admins.
 
-1	/kick /ban /unban /op /deop /aop
+1	/kick /ban /unban /op /deop /aop /voice /devoice /vop /devop
 
 #	////////////////////////////////
 #	///// Commands with limits /////

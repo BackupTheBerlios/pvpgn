@@ -49,6 +49,9 @@ admin,(o)=channel operator)
 "auth\\admin\\Starcraft ENU-1" not being saved to DB or not loading correctly
 when mysql_persitent=false)
 -- hopefully fixed the little/big endian problems with W3XP we had on SPARCs
+-- added moderated channels (note changed format of channel.list !!!) and new
+commands for them: /voice & /devoice for temporary voice control and /vop for
+auto-voicing (command_groups.txt has also been changed !!!)
 
 
 1.4.6-D2

@@ -322,6 +322,9 @@ static int _handle_admin_command(t_connection * c, char const * text);
 static int _handle_aop_command(t_connection * c, char const * text);
 static int _handle_op_command(t_connection * c, char const * text);
 static int _handle_deop_command(t_connection * c, char const * text);
+static int _handle_voice_command(t_connection * c, char const * text);
+static int _handle_devoice_command(t_connection * c, char const * text);
+static int _handle_vop_command(t_connection * c, char const * text);
 static int _handle_friends_command(t_connection * c, char const * text);
 static int _handle_me_command(t_connection * c, char const * text);
 static int _handle_whisper_command(t_connection * c, char const * text);
@@ -391,7 +394,7 @@ static int _handle_motd_command(t_connection * c, char const * text);
 static int _handle_ping_command(t_connection * c, char const * text);
 static int _handle_commandgroups_command(t_connection * c, char const * text);
 
-static const t_command_table_row standard_command_table[] = 
+static const t_command_table_row standard_command_table[] =
 {
 	{ "/clan"		, _handle_clan_command },
 	{ "/admin"		, _handle_admin_command },
@@ -464,6 +467,9 @@ static const t_command_table_row extended_command_table[] =
 	{ "/aop"		, _handle_aop_command },
 	{ "/op"           	, _handle_op_command },
 	{ "/deop"           	, _handle_deop_command },
+	{ "/voice"		, _handle_voice_command },
+	{ "/devoice"		, _handle_devoice_command },
+	{ "/vop"		, _handle_vop_command },
 	{ "/admins"             , _handle_admins_command },
 	{ "/logout"             , _handle_quit_command },
 	{ "/quit"               , _handle_quit_command },
@@ -635,6 +641,9 @@ static int command_set_flags(t_connection * c)
 	newflags = MF_BNET;
     else if (channel_account_is_tmpOP(conn_get_channel(c),acc))
         newflags = MF_GAVEL;
+    else if ((account_get_auth_voice(acc,channel) == 1) ||
+	     (channel_account_has_tmpVOICE(conn_get_channel(c),acc)))
+	newflags = MF_VOICE;
     else
         newflags = 0;
         
@@ -788,6 +797,134 @@ static int _handle_aop_command(t_connection * c, char const * text)
     return 0;
 }
 
+static int _handle_vop_command(t_connection * c, char const * text)
+{
+    char		msg[MAX_MESSAGE_LEN];
+    char const *	username;
+    char const *	channel;
+    t_account *		acc;
+    
+    if (!(channel = channel_get_name(conn_get_channel(c)))) {
+	message_send_text(c,message_type_error,c,"This command can only be used inside a channel.");
+	return -1;
+    }
+    
+    if (account_get_auth_admin(conn_get_account(c),NULL)!=1 && account_get_auth_admin(conn_get_account(c),channel)!=1) {
+	message_send_text(c,message_type_error,c,"You must be at least a Channel Admin to use this command.");
+	return -1;
+    }
+    
+    text = skip_command(text);
+    
+    if (!(username = &text[0])) {
+	message_send_text(c, message_type_info, c, "You need to supply a username.");
+	return -1;
+    }
+    
+    if(!(acc = accountlist_find_account(username))) {
+	sprintf(msg, "There's no account with username %.64s.", username);
+	message_send_text(c, message_type_info, c, msg);
+	return -1;
+    }
+    
+    if (account_get_auth_voice(acc,channel) == 1)
+	sprintf(msg,"%s has allready AutoVoice in this channel",username);
+    else {
+	account_set_auth_voice(acc,channel,1);
+	sprintf(msg,"%s has been granted AutoVoice in this channel",username);
+    }
+    
+    message_send_text(c, message_type_info, c, msg);
+    command_set_flags(connlist_find_connection_by_accountname(username));
+    return 0;
+}
+
+static int _handle_voice_command(t_connection * c, char const * text)
+{
+    char		msg[MAX_MESSAGE_LEN];
+    char const *	username;
+    char const *	channel;
+    t_account *		acc;
+    
+    if (!(channel = channel_get_name(conn_get_channel(c)))) {
+	message_send_text(c,message_type_error,c,"This command can only be used inside a channel.");
+	return -1;
+    }
+    
+    if (!(account_is_operator_or_admin(conn_get_account(c),channel_get_name(conn_get_channel(c))))) {
+	message_send_text(c,message_type_error,c,"You must be at least a Channel Operator to use this command.");
+	return -1;
+    }
+    
+    text = skip_command(text);
+    
+    if (!(username = &text[0])) {
+	message_send_text(c, message_type_info, c, "You need to supply a username.");
+	return -1;
+    }
+    
+    if(!(acc = accountlist_find_account(username))) {
+	sprintf(msg, "There's no account with username %.64s.", username);
+	message_send_text(c, message_type_info, c, msg);
+	return -1;
+    }
+    
+    if (channel_account_has_tmpVOICE(conn_get_channel(c),acc))
+	sprintf(msg,"%s has allready Voice in this channel",username);
+    else {
+	account_set_tmpVOICE_channel(acc,channel);
+	sprintf(msg,"%s has been granted Voice in this channel",username);
+    }
+    
+    message_send_text(c, message_type_info, c, msg);
+    command_set_flags(connlist_find_connection_by_accountname(username));
+    return 0;
+}
+
+static int _handle_devoice_command(t_connection * c, char const * text)
+{
+    char		msg[MAX_MESSAGE_LEN];
+    char const *	username;
+    char const *	channel;
+    t_account *		acc;
+    
+    if (!(channel = channel_get_name(conn_get_channel(c)))) {
+	message_send_text(c,message_type_error,c,"This command can only be used inside a channel.");
+	return -1;
+    }
+    
+    if (!(account_is_operator_or_admin(conn_get_account(c),channel_get_name(conn_get_channel(c))))) {
+	message_send_text(c,message_type_error,c,"You must be at least a Channel Operator to use this command.");
+	return -1;
+    }
+    
+    text = skip_command(text);
+    
+    if (!(username = &text[0])) {
+	message_send_text(c, message_type_info, c, "You need to supply a username.");
+	return -1;
+    }
+    
+    if(!(acc = accountlist_find_account(username))) {
+	sprintf(msg, "There's no account with username %.64s.", username);
+	message_send_text(c, message_type_info, c, msg);
+	return -1;
+    }
+    
+    if (channel_account_has_tmpVOICE(conn_get_channel(c),acc))
+	{
+	  account_set_tmpVOICE_channel(acc,NULL);
+	  sprintf(msg,"Voice has been taken from %s in this channel",username);
+	}
+    else {
+	sprintf(msg,"%s has no Voice, so it can't be taken away",username);
+    }
+    
+    message_send_text(c, message_type_info, c, msg);
+    command_set_flags(connlist_find_connection_by_accountname(username));
+    return 0;
+}
+
 static int _handle_op_command(t_connection * c, char const * text)
 {
     char		msg[MAX_MESSAGE_LEN];
@@ -839,7 +976,7 @@ static int _handle_op_command(t_connection * c, char const * text)
       }
     }
     else { // user is only tempOP so he may only tempOP others
-         account_set_tmpOP_channel(acc,(char *)channel);
+         account_set_tmpOP_channel(acc,channel);
 	 sprintf(msg,"%s has been promoted to a tempOP",username);
     }
     
