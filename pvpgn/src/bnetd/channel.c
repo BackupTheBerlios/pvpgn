@@ -522,6 +522,27 @@ extern int channel_set_channelid(t_channel * channel, unsigned int channelid)
     return 0;
 }
 
+extern int channel_rejoin(t_connection * conn)
+{
+  t_channel const * channel;
+  char const * temp;
+  char const * chname;
+
+  if (!(channel = conn_get_channel(conn)))
+    return -1;
+
+  if (!(temp = channel_get_name(channel)))
+    return -1;
+
+  if ((chname=strdup(temp)))
+  {
+    if (conn_set_channel(conn,chname)<0)
+      conn_set_channel(conn,CHANNEL_NAME_BANNED);
+    free((void *)chname);
+  }
+  return 0;  
+}
+
 
 extern int channel_add_connection(t_channel * channel, t_connection * connection)
 {

@@ -177,6 +177,7 @@ extern int channel_set_next_operator(t_channel * channel, t_connection * conn);
 extern int channel_ban_user(t_channel * channel, char const * user);
 extern int channel_unban_user(t_channel * channel, char const * user);
 extern int channel_check_banning(t_channel const * channel, t_connection const * user);
+extern int channel_rejoin(t_connection * conn);
 extern t_list * channel_get_banlist(t_channel const * channel);
 extern int channel_get_length(t_channel const * channel);
 #ifndef WITH_BITS

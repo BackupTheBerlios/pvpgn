@@ -1675,28 +1675,9 @@ static int _handle_channel_command(t_connection * c, char const *text)
 
 static int _handle_rejoin_command(t_connection * c, char const *text)
 {
-  t_channel const * channel;
-  char const *      temp;
-  char const *      chname;
-  
-  if (!(channel = conn_get_channel(c)))
-    {
+
+  if (channel_rejoin(c)!=0)
       message_send_text(c,message_type_error,c,"You are not in a channel.");
-      return 0;
-    }
-  
-  if (!(temp = channel_get_name(channel)))
-    return 0;
-  
-  /* we need to copy the channel name because we might remove the
-     last person (ourself) from the channel and cause the string
-     to be freed in destroy_channel() */
-  if ((chname = strdup(temp)))
-    {
-      if (conn_set_channel(c,chname)<0)
-	conn_set_channel(c,CHANNEL_NAME_BANNED); /* should not fail */
-      free((void *)chname); /* avoid warning */
-    }
   
   return 0;
 }
