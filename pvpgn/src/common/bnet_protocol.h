@@ -2937,6 +2937,8 @@ typedef struct
 #define CLIENT_MAPTYPE_BLIZZARD     1
 #define CLIENT_MAPTYPE_LADDER       2
 #define CLIENT_MAPTYPE_PGL          3
+#define CLIENT_MAPTYPE_KBK          4
+#define CLIENT_MAPTYPE_CompUSA      5
 
 /* CLIENT_GAMESPEED_FAST is NULL for "fast" games, I convert it into 4 */
 #define CLIENT_GAMESPEED_SLOWEST  0

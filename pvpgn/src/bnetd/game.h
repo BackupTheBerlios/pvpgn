@@ -144,7 +144,9 @@ typedef enum
     game_maptype_selfmade,
     game_maptype_blizzard,
     game_maptype_ladder,
-    game_maptype_pgl
+    game_maptype_pgl,
+    game_maptype_kbk,
+    game_maptype_compusa
 } t_game_maptype;
 
 typedef enum

@@ -330,6 +330,10 @@ extern char const * game_maptype_get_str(t_game_maptype maptype)
 	return "Ladder";
     case game_maptype_pgl:
 	return "PGL";
+    case game_maptype_kbk:
+	return "KBK";
+    case game_maptype_compusa:
+	return "CompUSA";
     default:
 	return "Unknown";
     }

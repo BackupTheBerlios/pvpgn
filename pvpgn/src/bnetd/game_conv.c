@@ -697,6 +697,10 @@ extern t_game_maptype bngmaptype_to_gmaptype(unsigned int bngmaptype)
         return game_maptype_ladder;
     case CLIENT_MAPTYPE_PGL:
         return game_maptype_pgl;
+    case CLIENT_MAPTYPE_KBK:
+	return game_maptype_kbk;
+    case CLIENT_MAPTYPE_CompUSA:
+	return game_maptype_compusa;
     default:
         return game_maptype_none;
     }
