@@ -1141,7 +1141,7 @@ extern int handle_w3route_packet(t_connection * c, t_packet const * const packet
       }
 
       /* set clienttag for w3route connections; we can do conn_get_clienttag() on them */
-      conn_set_clienttag(c, strdup(conn_get_clienttag(gamec)));
+      conn_set_clienttag(c, conn_get_clienttag(gamec));
 
       anongame_set_addr(a, bn_int_get((unsigned char const *)packet->u.data+sizeof(t_client_w3route_req)+strlen(username)+2+12));
       anongame_set_joined(a, 0);
