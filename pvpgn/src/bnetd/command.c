@@ -477,6 +477,16 @@ static t_command_table_row extended_command_table[] =
 
 };
 
+char const * skip_command(char const * org_text)
+{
+   unsigned int i;
+   char * text = (char *)org_text;
+   for (i=0; text[i]!=' ' && text[i]!='\0'; i++); /* skip command */
+   if (text[i]!='\0') text[i++]='\0';             /* \0-terminate command */
+   for (; text[i]==' '; i++);  
+   return &text[i];
+}
+
 extern int handle_command(t_connection * c,  char const * text)
 {
   t_command_table_row *p;
@@ -487,7 +497,7 @@ extern int handle_command(t_connection * c,  char const * text)
         {
 	  if (!(command_get_group(p->command_string)))
 	    {
-	      message_send_text(c,message_type_error,c,"This command is has been deactivated");
+	      message_send_text(c,message_type_error,c,"This command has been deactivated");
 	      return 0;
 	    }
 	  if (!((command_get_group(p->command_string) & account_get_command_groups(conn_get_account(c))) == command_get_group(p->command_string)))
@@ -513,7 +523,7 @@ extern int handle_command(t_connection * c,  char const * text)
         {
 	  if (!(command_get_group(p->command_string)))
 	    {
-	      message_send_text(c,message_type_error,c,"This command is has been deactivated");
+	      message_send_text(c,message_type_error,c,"This command has been deactivated");
 	      return 0;
 	    }
 	  if (!((command_get_group(p->command_string) & account_get_command_groups(conn_get_account(c))) == command_get_group(p->command_string)))
@@ -541,11 +551,8 @@ extern int handle_command(t_connection * c,  char const * text)
 static int _handle_clan_command(t_connection * c, char const * text)
 {
   t_channel const * channel;
-  unsigned int		  i;
-  char const *	    clanname;
-  char const * acctgetclanname;
-  char const *		oldclanname;
-  char         		clansendmessage[200];
+  char const      * oldclanname;
+  char         	    clansendmessage[200];
   
   if (!(channel = conn_get_channel(c)))
     {
@@ -553,65 +560,52 @@ static int _handle_clan_command(t_connection * c, char const * text)
       return 0;
     }
   
-  for (i=0; text[i]!=' ' && text[i]!='\0'; i++); /* skip command */
-  for (; text[i]==' '; i++);
+  text = skip_command(text);
   
-  if ( text[i] == '\0' )
+  if ( text[0] == '\0' )
     {
       message_send_text(c,message_type_info,c,"usage: /clan <clanname>");
       message_send_text(c,message_type_info,c,"Using this option will allow you to join a clan which displays in your profile.  ");
       return 0;
     }
-  acctgetclanname = account_get_w3_clanname(conn_get_account(c));
-  message_send_text(c,message_type_error,c,"You have left your old clan ");
-  if(!acctgetclanname || !(*acctgetclanname))
+  oldclanname = strdup(account_get_w3_clanname(conn_get_account(c)));
+  account_set_w3_clanname(conn_get_account(c),text);
+  if(!oldclanname || !(*oldclanname))
     {
-      eventlog( eventlog_level_error, "handle_bnet", "No Clan Name Found. User setting a new clan name" );
-      clanname = strdup( &text[i] );
-      account_set_w3_clanname(conn_get_account(c),clanname);
-      free( (void *) clanname );
-      oldclanname = strdup( account_get_w3_clanname( conn_get_account( c ) ) );
-      sprintf( clansendmessage, "Joined Clan %s", clanname );
-      message_send_text(c,message_type_info,c,clansendmessage);	
-      return 0;
+      sprintf( clansendmessage, "Joined Clan %s", text );
     }
   else
     {
-      eventlog( eventlog_level_error, "handle_bnet", "User setting a new clan name" );
-      clanname = strdup( &text[i] );
-      account_set_w3_clanname(conn_get_account(c),clanname);
-      free( (void *) clanname );
-      oldclanname = strdup( account_get_w3_clanname( conn_get_account( c ) ) );
-      sprintf( clansendmessage, "Left Clan %s\r\n and Joined Clan %s\r\n", oldclanname, clanname );
-      message_send_text(c,message_type_info,c,clansendmessage);	
-      return 0;
+      sprintf( clansendmessage, "Left Clan %s and Joined Clan %s", oldclanname, text );
     }
+  message_send_text(c,message_type_info,c,clansendmessage);
+  free((void *)oldclanname);
+  return 0;
 }
 
 static int _handle_admin_command(t_connection * c, char const * text)
 {
-  unsigned int i;
   char msg[255];
   const char *username;
   char command;
-  
-  for (i=0; text[i]!=' ' && text[i]!='\0'; i++); /* skip command */
-  for (; text[i]==' '; i++);
+  t_account * acc;
 
+  text = skip_command(text);
+  
   if (account_get_auth_admin(conn_get_account(c))!=1) /* default to false */
     {
       message_send_text(c,message_type_error,c,"This command is reserved for admins.");
       return 0;
     }
   
-  if ((!text[i]) || ((text[i] != '+') && (text[i] != '-'))) {
+  if ((text[0]=='\0') || ((text[0] != '+') && (text[0] != '-'))) {
     message_send_text(c, message_type_info, c,"usage: /admin +username to promote user to admin.");
     message_send_text(c, message_type_info, c,"       /admin -username to demote user from admin.");
     return -1;
-		}
+    }
   
-  command = text[i++];
-  username = &text[i];
+  command = text[0];
+  username = &text[1];
   
   if(!*username)
     {
@@ -620,21 +614,31 @@ static int _handle_admin_command(t_connection * c, char const * text)
       return -1;
     }
   
-  if (!accountlist_find_account(username)) {
-    sprintf(msg, "There's no account with %s username.", username);
+  if (!(acc = accountlist_find_account(username))) {
+    sprintf(msg, "There's no account with  username %s.", username);
     message_send_text(c, message_type_info, c, msg);
     return -1;
   }
   
   if (command == '+') 
   {
-	account_set_admin(accountlist_find_account(username));
-	sprintf(msg, "%s has been promoted to a Server Admin.", username);			
+    if (account_get_auth_admin(acc) == 1)
+      sprintf(msg,"%s is allready a Server Admin",username);
+    else
+    {
+	account_set_admin(acc);
+	sprintf(msg, "%s has been promoted to a Server Admin.", username);
+    }
   } 
   else 
   {
-	account_set_demoteadmin(accountlist_find_account(username));
-	sprintf(msg, "%s has been demoted from a Server Admin.", username);			
+    if (account_get_auth_admin(acc) != 1)
+      sprintf(msg,"%s is no Server Admin, so you can't demote him",username);
+    else
+    {
+	account_set_demoteadmin(acc);
+	sprintf(msg, "%s has been demoted from a Server Admin.", username);
+    }
   }
   message_send_text(c, message_type_info, c, msg);
     
@@ -643,13 +647,11 @@ static int _handle_admin_command(t_connection * c, char const * text)
 
 static int _handle_friends_command(t_connection * c, char const * text)
 {
-  int i;
-  for (i=0; text[i]!=' ' && text[i]!='\0'; i++); /* skip command */
-  for (; text[i]==' '; i++);
+  unsigned int i;
+	
+  text = skip_command(text);;
   
-  text = &text[i];
-  
-  if(!text[0] || strstart(text,"help")==0 || strstart(text, "h")==0) {
+  if(text[0]=='\0' || strstart(text,"help")==0 || strstart(text, "h")==0) {
     message_send_text(c,message_type_info,c,"Friends List (Used in Arranged Teams and finding online friends.)");
     message_send_text(c,message_type_info,c,"Type: /f add <username> (adds a friend to your list)");
     message_send_text(c,message_type_info,c,"Type: /f del <username> (removes a friend from your list)");
@@ -664,37 +666,39 @@ static int _handle_friends_command(t_connection * c, char const * text)
     t_packet * rpacket=NULL;
     t_connection * dest_c;
     t_connection * friend_c;
+    t_account    * my_acc;
+    t_account    * friend_acc;
     char tmp[7];
     
-    for (i=0; text[i]!=' ' && text[i]!='\0'; i++); /* skip command */
-    for (; text[i]==' '; i++);
+    text = skip_command(text);
 
-    if (text[i] == '\0')
+    if (text[0] == '\0')
     {
 	message_send_text(c,message_type_info,c,"usage: /f add <username>");
 	return 0;
     }
     
-    if (!accountlist_find_account(&text[i]))
+    if (!(friend_acc = accountlist_find_account(text)))
       {
 	message_send_text(c,message_type_info,c,"That user does not exist.");
 	return 0;
       }
     
     // [quetzal] 20020822 - we DO care if we add UserName or username to friends list
-    newfriend = account_get_strattr(accountlist_find_account(&text[i]), 
-				    "BNET\\acct\\username");
+    newfriend = account_get_name(friend_acc);
     
     if(!strcasecmp(newfriend, conn_get_username(c))) {
       message_send_text(c,message_type_info,c,"You can't add yourself to your friends list.");
+      account_unget_name(newfriend);
       return 0;
     }
     
-    n = account_get_friendcount(conn_get_account(c));
+    n = account_get_friendcount(my_acc = conn_get_account(c));
     
     if(n >= MAX_FRIENDS) {
       sprintf(msgtemp, "You can only have a maximum of %d friends.", MAX_FRIENDS);
       message_send_text(c,message_type_info,c,msgtemp);
+      account_unget_name(newfriend);
       return 0;
     }
     
@@ -702,15 +706,16 @@ static int _handle_friends_command(t_connection * c, char const * text)
     // check if the friend was already added
     
     for(i=0; i<n; i++)
-      if(!strcasecmp(account_get_friend(conn_get_account(c), i), newfriend)) 
+      if(!strcasecmp(account_get_friend(my_acc, i), newfriend)) 
 	{
 	  sprintf(msgtemp, "%s is already on your friends list!", newfriend);
 	  message_send_text(c,message_type_info,c,msgtemp);
+	  account_unget_name(newfriend);
 	  return 0;
 	}
     
-    account_set_friendcount(conn_get_account(c), n+1);
-    account_set_friend(conn_get_account(c), n, newfriend);
+    account_set_friendcount(my_acc, n+1);
+    account_set_friend(my_acc, n, newfriend);
     
     sprintf( msgtemp, "Added %s to your friends list.", newfriend);
     message_send_text(c,message_type_info,c,msgtemp);
@@ -720,7 +725,10 @@ static int _handle_friends_command(t_connection * c, char const * text)
     message_send_text(friend_c,message_type_info,friend_c,msgtemp);
     
     if (!(rpacket = packet_create(packet_class_bnet)))
+    {
+      account_unget_name(newfriend);
       return 0;
+    }
     
     packet_set_size(rpacket,sizeof(t_server_friendadd_ack));
     packet_set_type(rpacket,SERVER_FRIENDADD_ACK);
@@ -738,6 +746,8 @@ static int _handle_friends_command(t_connection * c, char const * text)
     
     queue_push_packet(conn_get_out_queue(c),rpacket);
     packet_del_ref(rpacket);
+
+    account_unget_name(newfriend);
     
     return 0;
 		}
@@ -749,27 +759,24 @@ static int _handle_friends_command(t_connection * c, char const * text)
       char const *msg;
       int i;
       int cnt = 0;
-      int n = account_get_friendcount(conn_get_account(c));
+      t_account * my_acc;
+      int n = account_get_friendcount(my_acc = conn_get_account(c));
       char const *myusername;
       t_connection * dest_c;
       
-      for (i=0; text[i]!=' ' && text[i]!='\0'; i++); /* skip command */
-      for (; text[i]==' '; i++);
-      
-      msg = &text[i];
+      msg = skip_command(text);
       //if the message test is empty then ignore command
-      if (!(*msg))
+      if (msg[0]=='\0')
 	{
 	  message_send_text(c,message_type_info,c,"Did not message any friends. Type some text next time.");
 	  return 0; 
 	}
       
-      
+      myusername = conn_get_username(c);
       for(i=0; i<n; i++) 
 	{ //Cycle through your friend list and whisper the ones that are online
-	  friend = account_get_friend(conn_get_account(c),i);
+	  friend = account_get_friend(my_acc,i);
 	  dest_c = connlist_find_connection_by_accountname(friend);
-	  myusername = conn_get_username(c);
 	  if (dest_c==NULL) //If friend is offline, go on to next
 	    continue;
 	  else { 
@@ -792,12 +799,12 @@ static int _handle_friends_command(t_connection * c, char const * text)
     int n;
     char msgtemp[MAX_MESSAGE_LEN];
     char const * oldfriend;
+    t_account * my_acc;
     t_packet * rpacket=NULL;
     
-    for (i=0; text[i]!=' ' && text[i]!='\0'; i++); /* skip command */
-    for (; text[i]==' '; i++);
+    text = skip_command(text);
     
-    if (text[i]=='\0')
+    if (text[0]=='\0')
     {
 	message_send_text(c,message_type_info,c,"usage: /f remove <username>");
 	return 0;
@@ -805,31 +812,24 @@ static int _handle_friends_command(t_connection * c, char const * text)
     
     // [quetzal] 20020822 - we DO care if we del UserName or username from friends list
     // [quetzal] 20020907 - dont do anything if oldfriend is NULL
-    oldfriend = account_get_strattr(accountlist_find_account(&text[i]),"BNET\\acct\\username");
+    oldfriend = account_get_name(accountlist_find_account(text));
     if (oldfriend)
       {
 	
-	n = account_get_friendcount(conn_get_account(c));
-	
-	/*if (!accountlist_find_account(&text[i])) // But sometimes accounts can disappear in a DB corruption. If that happens the name will stay on the list all the time. heh
-	  {
-	  message_send_text(c,message_type_info,c,"That user does not exist.");
-	  return 0;
-	  }*/
+	n = account_get_friendcount(my_acc = conn_get_account(c));
 	
 	for(i=0; i<n; i++)
-	  if(!strcasecmp(account_get_friend(conn_get_account(c), i), oldfriend)) {
+	  if(!strcasecmp(account_get_friend(my_acc, i), oldfriend)) {
 	    char num = (char)i;
-	    /* shift friends after deleted */
-	    for(; i<n-1; i++)
-	      account_set_friend(conn_get_account(c), i, account_get_friend(conn_get_account(c), i+1));
+	    if (i<n-1) account_set_friend(my_acc, i, account_get_friend(my_acc, n-1));
 	    
 	    account_set_friend(conn_get_account(c), n-1, "");
 	    account_set_friendcount(conn_get_account(c), n-1);
 	    
 	    sprintf(msgtemp, "Removed %s from your friends list.", oldfriend);
 	    message_send_text(c,message_type_info,c,msgtemp);
-	    
+
+            account_unget_name(oldfriend);	    
 	    
 	    if (!(rpacket = packet_create(packet_class_bnet)))
 	      return 0;
@@ -846,7 +846,7 @@ static int _handle_friends_command(t_connection * c, char const * text)
 	  };
       }
     
-    sprintf(msgtemp, "%s was not found on your friends list.", oldfriend);
+    sprintf(msgtemp, "%s was not found on your friends list.", text);
     message_send_text(c,message_type_info,c,msgtemp);
     return 0;
   }
@@ -861,17 +861,18 @@ static int _handle_friends_command(t_connection * c, char const * text)
     t_connection const * dest_c;
     t_game const * game;
     t_channel const * channel;
+    t_account * my_acc;
     
     software[0]='\0';
     message_send_text(c,message_type_info,c,"Your PvPGN - Friends List");
     message_send_text(c,message_type_info,c,"=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=");
     
-    n = account_get_friendcount(conn_get_account(c));
+    n = account_get_friendcount(my_acc = conn_get_account(c));
     myusername = conn_get_username(c);
     
     for(i=0; i<n; i++) 
       {
-	friend = account_get_friend(conn_get_account(c), i);
+	friend = account_get_friend(my_acc, i);
 	
 	if (!(dest_c = connlist_find_connection_by_accountname(friend)))
 	  sprintf(status, ", offline");
@@ -946,11 +947,10 @@ static int _handle_me_command(t_connection * c, char const * text)
       return 0;
     }
   
-  for (i=0; text[i]!=' ' && text[i]!='\0'; i++); /* skip command */
-  for (; text[i]==' '; i++); /* skip spaces */
+  text = skip_command(text);
 
-  if (!conn_quota_exceeded(c,&text[i]))
-    channel_message_send(channel,message_type_emote,c,&text[i]);
+  if ((text[0]!='\0') && (!conn_quota_exceeded(c,text)))
+    channel_message_send(channel,message_type_emote,c,text);
   return 0;
 }
 
