@@ -87,7 +87,6 @@
 #include "common/util.h"
 #include "common/tracker.h"
 #include "common/setup_after.h"
-#include "prefs.h"
 
 
 /******************************************************************************
@@ -104,6 +103,7 @@ typedef struct
 {
     int            foreground;
     int            debug;
+    int            XML_mode;
     unsigned int   expire;
     unsigned int   update;
     unsigned short port;
@@ -317,7 +317,7 @@ static int server_process(int sockfd)
 		}
 		else
 		{
-		  /* if (prefs_get_XML_output_tracker())
+		   if (prefs.XML_mode == 1)
 		  {
 		    fprintf(outfile,"<server>\n\t<address>%s</address>\n",inet_ntoa(server->address));
 		    fprintf(outfile,"\t<port>%hu</port>\n",(unsigned short)ntohs(server->info.port));
@@ -338,7 +338,7 @@ static int server_process(int sockfd)
 		    fprintf(outfile,"</server>\n");
 		  }
 		  else
-		  { */
+		  { 
 		    fprintf(outfile,"%s\n##\n",inet_ntoa(server->address));
 		    fprintf(outfile,"%hu\n##\n",(unsigned short)ntohs(server->info.port));
 		    fprintf(outfile,"%s\n##\n",server->info.server_location);
@@ -356,7 +356,7 @@ static int server_process(int sockfd)
 		    fprintf(outfile,"%lu\n##\n",(unsigned long)ntohl(server->info.total_games));
 		    fprintf(outfile,"%lu\n##\n",(unsigned long)ntohl(server->info.total_logins));
 		    fprintf(outfile,"###\n");
-		 // }
+		  }
 		}
 	    }
             if (fclose(outfile)<0)
@@ -514,6 +514,7 @@ static void usage(char const * progname)
            "  -p PORT, --port=PORT           listen for announcments on UDP port PORT\n"
            "  -P FILE, --pidfile=FILE        write pid to FILE\n"
            "  -u SECS, --update SECS         write output file every SEC seconds\n"
+	   "  -x, --XML                      write output file in XML format\n"
            "  -h, --help, --usage            show this information and exit\n"
            "  -v, --version                  print version number and exit\n");
     exit(STATUS_FAILURE);
@@ -529,6 +530,7 @@ static void getprefs(int argc, char * argv[])
     prefs.expire     = 0;
     prefs.update     = 0;
     prefs.port       = 0;
+    prefs.XML_mode   = 0;
     prefs.outfile    = NULL;
     prefs.pidfile    = NULL;
     prefs.process    = NULL;
@@ -595,6 +597,8 @@ static void getprefs(int argc, char * argv[])
 	}
 	else if (strcmp(argv[a],"-f")==0 || strcmp(argv[a],"--foreground")==0)
 	    prefs.foreground = 1;
+        else if (strcmp(argv[a],"-x")==0 || strcmp(argv[a],"--XML")==0)
+	    prefs.XML_mode = 1;
 	else if (strncmp(argv[a],"--logfile=",10)==0)
 	{
 	    if (prefs.logfile)
