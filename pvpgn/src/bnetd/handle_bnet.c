@@ -2379,10 +2379,10 @@ static int _client_friendslistreq(t_connection * c, t_packet const * const packe
 	tmp[0]=(unsigned char) n;    //set number of friends
 	packet_append_data(rpacket, tmp, 1);
 
+	if ((flist = account_get_friends(account))==NULL) return -1;
 	for(i=0; i<n; i++) {
 	    friend = account_get_friend(account,i);
-	    if ((flist = account_get_friends(account))==NULL) return -1;
-	    if ((fr=friendlist_find_uid(flist, friend))==NULL) return -1;
+	    if ((fr=friendlist_find_uid(flist, friend))==NULL) continue;
 	    packet_append_string(rpacket, account_get_name(friend_get_account(fr)));
 	    memset(tmp, 0, 7);
 	    if(connlist_find_connection_by_uid(friend))

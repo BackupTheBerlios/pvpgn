@@ -1958,7 +1958,7 @@ extern int account_remove_friend2( t_account * account, const char * friend)
 	if (account_get_friend(account, i) == uid) {
 	    account_remove_friend(account, i);
 	    friendlist_remove_friend(flist, fr);
-	    return 0;
+	    return i;
 	}
 
     return -2;
