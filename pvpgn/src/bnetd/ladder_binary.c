@@ -95,7 +95,7 @@ static const char * binary_ladder_type_to_filename(t_binary_ladder_types type)
   }
 }
 
-extern int binary_ladder_save(t_binary_ladder_types type, unsigned int paracount, int (*_cb_get_from_ladder)())
+extern int binary_ladder_save(t_binary_ladder_types type, unsigned int paracount, t_cb_get_from_ladder _cb_get_from_ladder)
 { int results[10];
   int rank = 1;
   const char * ladder_name;
@@ -139,7 +139,7 @@ extern int binary_ladder_save(t_binary_ladder_types type, unsigned int paracount
   return 0;
 }
 
-extern t_binary_ladder_load_result binary_ladder_load(t_binary_ladder_types type, unsigned int paracount, int (*_cb_add_to_ladder)())
+extern t_binary_ladder_load_result binary_ladder_load(t_binary_ladder_types type, unsigned int paracount, t_cb_add_to_ladder _cb_add_to_ladder)
 { int values[10];
   const char * ladder_name;
   const char * filename;

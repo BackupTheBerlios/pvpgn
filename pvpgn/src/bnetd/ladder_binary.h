@@ -41,6 +41,9 @@ typedef enum
 	load_failed
 } t_binary_ladder_load_result;
 
+typedef int (* t_cb_get_from_ladder)(t_binary_ladder_types type, int rank, int *results);
+typedef int (* t_cb_add_to_ladder)(t_binary_ladder_types, int *values);
+
 #ifdef BINARY_LADDER_INTERNAL_ACCESS
 
 #define magick 0xdeadbeef
@@ -56,8 +59,8 @@ typedef enum
 
 // some protos here
 
-extern int binary_ladder_save(t_binary_ladder_types type, unsigned int paracount, int (*_cb_get_from_ladder)());
-extern t_binary_ladder_load_result binary_ladder_load(t_binary_ladder_types type, unsigned int paracount, int (*_cb_add_to_ladder)());
+extern int binary_ladder_save(t_binary_ladder_types type, unsigned int paracount, t_cb_get_from_ladder _cb_get_from_ladder);
+extern t_binary_ladder_load_result binary_ladder_load(t_binary_ladder_types type, unsigned int paracount, t_cb_add_to_ladder _cb_add_to_ladder);
 
 #endif
 #endif
