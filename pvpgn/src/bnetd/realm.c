@@ -286,6 +286,7 @@ extern int realm_active(t_realm * realm, t_connection * c)
     }
     realm->active=1;
     realm->conn=c;
+    conn_set_realm(c,realm);
     realm->sessionnum=conn_get_sessionnum(c);
     realm->tcp_sock=conn_get_socket(c);
     eventlog(eventlog_level_info,__FUNCTION__, "realm %s actived",realm->name);
