@@ -2749,10 +2749,10 @@ extern int conn_set_realm(t_connection * c, t_realm * realm)
     if (!realm)
         c->protocol.d2.realm = NULL;
     else
+    {
         c->protocol.d2.realm = realm_get(realm,&c->protocol.d2.realm_regref);
-
-    if (realm)
-       eventlog(eventlog_level_debug,__FUNCTION__,"[%d] set to \"%s\"",conn_get_socket(c),realm_get_name(realm));
+        eventlog(eventlog_level_debug,__FUNCTION__,"[%d] set to \"%s\"",conn_get_socket(c),realm_get_name(realm));
+    }
     
     return 0;
 }
@@ -2761,13 +2761,10 @@ extern int conn_set_realm_cb(void *data, void *newref)
 {
 
     if (newref)
-    {
 	((t_connection *)data)->protocol.d2.realm = (t_realm *)newref;
-    }
     else
-    {
     	conn_set_state((t_connection *)data,conn_state_destroy);
-    }
+
     return 0;
 }
 
