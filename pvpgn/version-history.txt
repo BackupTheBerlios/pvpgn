@@ -1,20 +1,21 @@
 PvPGN Version History:
 
-1.7.x
+1.7.0 since 1.6.0
 [IRC]: hiding IP on channel join/leave to non admins when hide_addr=true
 [IRC]: major cleanup of handle_irc.c
 	-- now on IRC channel topics are supported (at least their output)
 	-- PvPGN can only handle being in one channel at once, so the server
 	   now makes sure you leave the channel you were previously in.
+[IRC]: added /NOTICE, /ISON and /WHOIS handling
+[IRC]: now the real MOTD displays when connecting via IRC
+[STORAGE]: combined plain and cdb file storage into one (this eliminates replicating 
+codes)
 
 a general 1.6.x note:
 versioncheck exe-time parsing now REALLY works as it was intended to.
 So ALL users using fucked up no-CD cracks or strange war3.org's may
 fail to login due to wrong file-time. That's not our problem. 
 
-1.7.0 (since 1.6.0)
--- combined plain and cdb file storage into one (this eliminates replicating 
-codes)
 
 1.6.0 RC1 (since 1.6.0beta)
 -- fixed problems with win32 compiled versions only running on >= Win2000
