@@ -179,6 +179,7 @@ extern int main(int argc, char * argv[])
     char               timestr[FILE_TIME_MAXLEN];
     unsigned int       screen_width,screen_height;
     int                munged;
+    unsigned int       newproto = 0;
 
     if (argc<1 || !argv || !argv[0])
     {
@@ -277,6 +278,7 @@ extern int main(int argc, char * argv[])
                 usage(argv[0]);
             }
             clienttag = CLIENTTAG_WARCRAFT3;
+	    newproto = 1;
         }
         else if (strcmp(argv[a],"--client=W3XP")==0)
         {
@@ -286,6 +288,7 @@ extern int main(int argc, char * argv[])
                 usage(argv[0]);
             }
             clienttag = CLIENTTAG_WAR3XP;
+	    newproto = 1;
         }
         else if (strncmp(argv[a],"--client=",9)==0)
         {
@@ -670,15 +673,24 @@ extern int main(int argc, char * argv[])
 	packet_del_ref(rpacket);
 	return STATUS_FAILURE;
     }
-    packet_set_size(packet,sizeof(t_client_file_req));
-    packet_set_type(packet,CLIENT_FILE_REQ);
-    bn_int_tag_set(&packet->u.client_file_req.archtag,archtag);
-    bn_int_tag_set(&packet->u.client_file_req.clienttag,clienttag);
-    bn_int_set(&packet->u.client_file_req.adid,0);
-    bn_int_set(&packet->u.client_file_req.extensiontag,0);
-    bn_int_set(&packet->u.client_file_req.startoffset,startoffset);
-    bn_long_set_a_b(&packet->u.client_file_req.timestamp,0x00000000,0x00000000);
-    packet_append_string(packet,reqfile);
+    if (newproto) {
+	/* first send ARCH/CTAG */
+	packet_set_size(packet, sizeof(t_client_file_req2));
+	packet_set_type(packet, CLIENT_FILE_REQ2);
+	bn_int_tag_set(&packet->u.client_file_req2.archtag,archtag);
+	bn_int_tag_set(&packet->u.client_file_req2.clienttag,clienttag);
+	bn_long_set_a_b(&packet->u.client_file_req2.unknown1,0,0);
+    } else {
+	packet_set_size(packet,sizeof(t_client_file_req));
+	packet_set_type(packet, CLIENT_FILE_REQ);
+	bn_int_tag_set(&packet->u.client_file_req.archtag,archtag);
+	bn_int_tag_set(&packet->u.client_file_req.clienttag,clienttag);
+	bn_int_set(&packet->u.client_file_req.adid,0);
+	bn_int_set(&packet->u.client_file_req.extensiontag,0);
+	bn_int_set(&packet->u.client_file_req.startoffset,startoffset);
+	bn_long_set_a_b(&packet->u.client_file_req.timestamp,0x00000000,0x00000000);
+	packet_append_string(packet,reqfile);
+    }
     if (hexstrm)
     {
 	fprintf(hexstrm,"%d: send class=%s[0x%02hx] type=%s[0x%04hx] length=%u\n",
@@ -688,11 +700,55 @@ extern int main(int argc, char * argv[])
 		packet_get_size(packet));
 	hexdump(hexstrm,packet_get_raw_data(packet,0),packet_get_size(packet));
     }
-    printf("\nRequesting info...");
+    if (newproto) printf("\nSending ARCH/CTAG info...");
+    else printf("\nRequesting info...");
     fflush(stdout);
     client_blocksend_packet(sd,packet);
     packet_del_ref(packet);
     
+    if (newproto) {
+	/* received the stupid 4 bytes unknown "packet" */
+	packet_set_size(fpacket, sizeof(t_server_file_unknown1));
+	if (client_blockrecv_packet(sd,fpacket)<0)
+	{
+	    fprintf(stderr,"%s: server closed connection\n",argv[0]);
+	    packet_del_ref(fpacket);
+	    packet_del_ref(rpacket);
+	    return STATUS_FAILURE;
+	}
+	if (hexstrm)
+	{
+	    fprintf(hexstrm,"%d: recv class=%s[0x%02hx] type=%s[0x%04hx] length=%u\n",
+		     sd,
+		     packet_get_class_str(fpacket),(unsigned int)packet_get_class(fpacket),
+		     packet_get_type_str(fpacket,packet_dir_from_server),packet_get_type(fpacket),
+		     packet_get_size(fpacket));
+	    hexdump(hexstrm,packet_get_raw_data(fpacket,0),packet_get_size(fpacket));
+	}
+
+	/* send file info request */
+	packet_set_size(fpacket, sizeof(t_client_file_req3));
+	bn_int_set(&fpacket->u.client_file_req3.unknown1, 0);
+	bn_long_set_a_b(&fpacket->u.client_file_req3.timestamp, 0, 0);
+	bn_long_set_a_b(&fpacket->u.client_file_req3.unknown2, 0, 0);
+	bn_long_set_a_b(&fpacket->u.client_file_req3.unknown3, 0, 0);
+	bn_long_set_a_b(&fpacket->u.client_file_req3.unknown4, 0, 0);
+	bn_long_set_a_b(&fpacket->u.client_file_req3.unknown5, 0, 0);
+	bn_long_set_a_b(&fpacket->u.client_file_req3.unknown6, 0, 0);
+	packet_append_string(fpacket, reqfile);
+	printf("\nRequesting info...");
+	fflush(stdout);
+	client_blocksend_packet(sd,fpacket);
+	if (hexstrm)
+	{
+	    fprintf(hexstrm,"%d: send class=%s[0x%02hx] type=%s[0x%04hx] length=%u\n",
+		    sd,
+		    packet_get_class_str(fpacket),(unsigned int)packet_get_class(fpacket),
+		    packet_get_type_str(fpacket,packet_dir_from_client),packet_get_type(fpacket),
+		    packet_get_size(fpacket));
+	    hexdump(hexstrm,packet_get_raw_data(fpacket,0),packet_get_size(fpacket));
+	}
+    }
     do
     {
 	if (client_blockrecv_packet(sd,rpacket)<0)
