@@ -356,6 +356,7 @@ ${SRC_COMPATDIR}/inet_ntoa.o \
 ${SRC_COMPATDIR}/strerror.o \
 ${SRC_COMPATDIR}/psock.o \
 ${SRC_COMPATDIR}/gettimeofday.o \
+${SRC_COMPATDIR}/vsnprintf.o \
 ${SRC_COMPATDIR}/memset.o
 
 bnpass_BIN	= ${SRC_BINDIR}/bnpass

@@ -93,6 +93,13 @@
 #ifdef HAVE_ARPA_INET_H
 # include <arpa/inet.h>
 #endif
+#ifdef HAVE_STDARG_H
+# include <stdarg.h>
+#else
+# ifdef HAVE_VARARGS_H
+#  include <varargs.h>
+# endif
+#endif
 #include "compat/inet_ntoa.h"
 #include "compat/psock.h"
 #include "common/packet.h"
@@ -110,6 +117,7 @@
 #include "common/version.h"
 #include "common/util.h"
 #include "common/xalloc.h"
+#include "common/hexdump.h"
 #ifdef CLIENTDEBUG
 # include "common/eventlog.h"
 #endif
@@ -119,6 +127,7 @@
 #ifdef WIN32
 # include <conio.h> /* for kbhit() and getch() */
 #endif
+#include "compat/vsnprintf.h"
 #include "common/setup_after.h"
 
 
@@ -154,6 +163,37 @@ typedef enum {
   mode_gamewait, 
   mode_gamestop 
 } t_mode;
+
+typedef struct _client_state
+{
+    int 		useansi;
+    int 		sd;
+    struct sockaddr_in	saddr;
+    unsigned int	sessionkey;
+    unsigned int	sessionnum;
+    unsigned int	currsize;
+    unsigned int	commpos;
+    struct termios	in_attr_old;
+    struct termios	in_attr_new;
+    int			changed_in;
+    int			fd_stdin;
+    unsigned int	screen_width,screen_height;
+    int			munged;
+    t_mode             mode;
+    char		text[MAX_MESSAGE_LEN];
+} t_client_state;
+
+typedef struct _user_info
+{
+    char const *	clienttag;
+    char		player[MAX_MESSAGE_LEN];
+    char const *	cdowner;
+    char const *	cdkey;
+    char const *	channel;
+    char		curr_gamename[GAME_NAME_LEN];
+    char		curr_gamepass[GAME_PASS_LEN];
+
+} t_user_info;
 
 
 static char const * mflags_get_str(unsigned int flags);
@@ -633,75 +673,84 @@ int read_commandline(int argc, char * * argv,
     return 0;
 }
 
-int munge(int munged, int screen_width, t_mode mode, char *text)
+void munge(t_client_state * client)
 {
     int i;
 
-    if (!munged)
+    if (!client->munged)
     {
 	printf("\r");
-	for (i=0; i<strlen(mode_get_prompt(mode)); i++)
+	for (i=0; i<strlen(mode_get_prompt(client->mode)); i++)
 	    printf(" ");
-	for (i=0; i<strlen(text) && i<screen_width-strlen(mode_get_prompt(mode)); i++)
+	for (i=0; i<strlen(client->text) && i<client->screen_width-strlen(mode_get_prompt(client->mode)); i++)
 	    printf(" ");
 	printf("\r");
-	munged = 1;
+	client->munged = 1;
     }
-    
-   return munged; 
 }
 
+void ansi_printf(t_client_state * client,int color, char const * fmt, ...)
+{
+    va_list		args;
+    char		buffer[2048];
+
+    if (!(client))
+        return;
+
+    if (!(fmt))
+        return;
+
+    if (client->useansi)
+        ansi_text_color_fore(color);
+
+    va_start(args,fmt);
+    vsnprintf(buffer,2048,fmt,args);
+    va_end(args);
+    
+    
+    str_print_term(stdout,buffer,0,0);
+
+    if (client->useansi)
+        ansi_text_reset();
+
+    fflush(stdout);
+
+}
 
 extern int main(int argc, char * argv[])
 {
-    int                useansi=0;
     int                newacct=0;
     int                changepass=0;
-    int                sd;
-    struct sockaddr_in saddr;
+    t_client_state	client;
+    t_user_info		user;
     t_packet *         packet;
     t_packet *         rpacket;
-    char const *       cdowner=NULL;
-    char const *       cdkey=NULL;
-    char const *       clienttag=NULL;
-    char const *       channel=NULL;
     char const *       servname=NULL;
     unsigned short     servport=0;
-    char               player[MAX_MESSAGE_LEN];
-    char               text[MAX_MESSAGE_LEN];
-    unsigned int       currsize;
-    unsigned int       commpos;
-    struct termios     in_attr_old;
-    struct termios     in_attr_new;
-    int                changed_in;
-    unsigned int       sessionkey;
-    unsigned int       sessionnum;
-    int                fd_stdin;
     char const * *     channellist;
-    t_mode             mode;
     unsigned int       statsmatch=24; /* any random number that is rare in uninitialized fields */
-    unsigned int       screen_width,screen_height;
-    int                munged;
-    char               curr_gamename[GAME_NAME_LEN];
-    char               curr_gamepass[GAME_PASS_LEN];
     
-
-    read_commandline(argc,argv,&servname,&servport,&clienttag,&changepass,&newacct,&channel,&cdowner,&cdkey,&useansi);
+    user.cdowner = NULL;
+    user.cdkey = NULL;
+    user.channel = NULL;
     
-    fd_stdin = fileno(stdin);
-    if (tcgetattr(fd_stdin,&in_attr_old)>=0)
+    read_commandline(argc,argv,&servname,&servport,&user.clienttag,&changepass,&newacct,&user.channel,
+                     &user.cdowner,&user.cdkey,&client.useansi);
+    
+    client.fd_stdin = fileno(stdin);
+    if (tcgetattr(client.fd_stdin,&client.in_attr_old)>=0)
     {
-        in_attr_new = in_attr_old;
-        in_attr_new.c_lflag &= ~(ECHO | ICANON); /* turn off ECHO and ICANON */
-	in_attr_new.c_cc[VMIN]  = 0; /* don't require reads to return data */
-        in_attr_new.c_cc[VTIME] = 1; /* timeout = .1 seconds */
-        tcsetattr(fd_stdin,TCSANOW,&in_attr_new);
-        changed_in = 1;
+        client.in_attr_new = client.in_attr_old;
+        client.in_attr_new.c_lflag &= ~(ECHO | ICANON); /* turn off ECHO and ICANON */
+	client.in_attr_new.c_cc[VMIN]  = 0; /* don't require reads to return data */
+        client.in_attr_new.c_cc[VTIME] = 1; /* timeout = .1 seconds */
+        tcsetattr(client.fd_stdin,TCSANOW,&client.in_attr_new);
+        client.changed_in = 1;
     }
     else
     {
 	fprintf(stderr,"%s: could not set terminal attributes for stdin\n",argv[0]);
-	changed_in = 0;
+	client.changed_in = 0;
     }
     
 #ifdef HAVE_SIGACTION
@@ -717,15 +766,15 @@ extern int main(int argc, char * argv[])
 #endif
 
 
-    if (client_get_termsize(fd_stdin,&screen_width,&screen_height)<0)
+    if (client_get_termsize(client.fd_stdin,&client.screen_width,&client.screen_height)<0)
     {
 	fprintf(stderr,"%s: could not determine screen size\n",argv[0]);
-	if (changed_in)
-	    tcsetattr(fd_stdin,TCSAFLUSH,&in_attr_old);
+	if (client.changed_in)
+	    tcsetattr(client.fd_stdin,TCSAFLUSH,&client.in_attr_old);
 	return STATUS_FAILURE;
     }
     
-    if (useansi)
+    if (client.useansi)
     {
 	ansi_text_reset();
 	ansi_screen_clear();
@@ -733,13 +782,13 @@ extern int main(int argc, char * argv[])
 	fflush(stdout);
     }
     
-    if ((sd = client_connect(argv[0],
-			     servname,servport,cdowner,cdkey,clienttag,
-			     &saddr,&sessionkey,&sessionnum,ARCHTAG_WINX86))<0)
+    if ((client.sd = client_connect(argv[0],
+			     servname,servport,user.cdowner,user.cdkey,user.clienttag,
+			     &client.saddr,&client.sessionkey,&client.sessionnum,ARCHTAG_WINX86))<0)
     {
 	fprintf(stderr,"%s: fatal error during handshake\n",argv[0]);
-	if (changed_in)
-	    tcsetattr(fd_stdin,TCSAFLUSH,&in_attr_old);
+	if (client.changed_in)
+	    tcsetattr(client.fd_stdin,TCSAFLUSH,&client.in_attr_old);
 	return STATUS_FAILURE;
     }
     
@@ -747,18 +796,18 @@ extern int main(int argc, char * argv[])
     if (!(rpacket = packet_create(packet_class_bnet)))
     {
 	fprintf(stderr,"%s: could not create packet\n",argv[0]);
-	psock_close(sd);
-	if (changed_in)
-	    tcsetattr(fd_stdin,TCSAFLUSH,&in_attr_old);
+	psock_close(client.sd);
+	if (client.changed_in)
+	    tcsetattr(client.fd_stdin,TCSAFLUSH,&client.in_attr_old);
 	return STATUS_FAILURE;
     }
     
     if (!(packet = packet_create(packet_class_bnet)))
     {
 	fprintf(stderr,"%s: could not create packet\n",argv[0]);
-	psock_close(sd);
-	if (changed_in)
-	    tcsetattr(fd_stdin,TCSAFLUSH,&in_attr_old);
+	psock_close(client.sd);
+	if (client.changed_in)
+	    tcsetattr(client.fd_stdin,TCSAFLUSH,&client.in_attr_old);
 	return STATUS_FAILURE;
     }
     packet_set_size(packet,sizeof(t_client_fileinforeq));
@@ -766,20 +815,20 @@ extern int main(int argc, char * argv[])
     bn_int_set(&packet->u.client_fileinforeq.type,CLIENT_FILEINFOREQ_TYPE_TOS);
     bn_int_set(&packet->u.client_fileinforeq.unknown2,CLIENT_FILEINFOREQ_UNKNOWN2);
     
-    if ((clienttag == CLIENTTAG_DIABLO2DV) || (clienttag == CLIENTTAG_DIABLO2XP))
+    if ((user.clienttag == CLIENTTAG_DIABLO2DV) || (user.clienttag == CLIENTTAG_DIABLO2XP))
         packet_append_string(packet,CLIENT_FILEINFOREQ_FILE_TOSUNICODEUSA);
     else
         packet_append_string(packet,CLIENT_FILEINFOREQ_FILE_TOSUSA);
     
-    client_blocksend_packet(sd,packet);
+    client_blocksend_packet(client.sd,packet);
     packet_del_ref(packet);
     do
-        if (client_blockrecv_packet(sd,rpacket)<0)
+        if (client_blockrecv_packet(client.sd,rpacket)<0)
 	{
 	   fprintf(stderr,"%s: server closed connection\n",argv[0]);
-	   psock_close(sd);
-	   if (changed_in)
-	       tcsetattr(fd_stdin,TCSAFLUSH,&in_attr_old);
+	   psock_close(client.sd);
+	   if (client.changed_in)
+	       tcsetattr(client.fd_stdin,TCSAFLUSH,&client.in_attr_old);
 	   return STATUS_FAILURE;
 	}
     while (packet_get_type(rpacket)!=SERVER_FILEINFOREPLY);
@@ -789,12 +838,12 @@ extern int main(int argc, char * argv[])
     printf("----\n");
     if (newacct)
     {
-	if (useansi)
+	if (client.useansi)
 	    ansi_text_color_fore(ansi_text_color_red);
 	printf("###### Terms Of Service ######\n");
-	print_file(&saddr,packet_get_str_const(rpacket,sizeof(t_server_fileinforeply),1024),argv[0],clienttag);
+	print_file(&client.saddr,packet_get_str_const(rpacket,sizeof(t_server_fileinforeply),1024),argv[0],user.clienttag);
 	printf("##############################\n\n");
-	if (useansi)
+	if (client.useansi)
 	    ansi_text_reset();
     }
 	    
@@ -810,62 +859,64 @@ extern int main(int argc, char * argv[])
             t_hash passhash1;
 	    
 	    printf("Enter information for your new account\n");
-	    munged = 1;
-	    commpos = 0;
-	    player[0] = '\0';
-	    while ((status = client_get_comm("Username: ",player,MAX_MESSAGE_LEN,&commpos,1,munged,screen_width))==0)
+	    client.munged = 1;
+	    client.commpos = 0;
+	    user.player[0] = '\0';
+	    while ((status = client_get_comm("Username: ",user.player,MAX_MESSAGE_LEN,&client.commpos,
+	                                     1,client.munged,client.screen_width))==0)
 		if (handle_winch)
 		{
-		    client_get_termsize(fd_stdin,&screen_width,&screen_height);
+		    client_get_termsize(client.fd_stdin,&client.screen_width,&client.screen_height);
 		    printf(" \r");
-		    munged = 1;
+		    client.munged = 1;
 		    handle_winch = 0;
 		}
 		else
-		    munged = 0;
+		    client.munged = 0;
 	    printf("\n");
 	    if (status<0)
 		continue;
-	    if (strchr(player,' ')  || strchr(player,'\t') ||
-		strchr(player,'\r') || strchr(player,'\n') )
+	    if (strchr(user.player,' ')  || strchr(user.player,'\t') ||
+		strchr(user.player,'\r') || strchr(user.player,'\n') )
 	    {
 		printf("Spaces are not allowed in usernames. Try again.\n");
 		continue;
 	    }
 	    /* we could use strcspn() but it doesn't exist everywhere */
-	    if (strchr(player,'#')  ||
-		strchr(player,'%')  ||
-		strchr(player,'&')  ||
-		strchr(player,'*')  ||
-		strchr(player,'\\') ||
-		strchr(player,'"')  ||
-		strchr(player,',')  ||
-		strchr(player,'<')  ||
-		strchr(player,'/')  ||
-		strchr(player,'>')  ||
-		strchr(player,'?'))
+	    if (strchr(user.player,'#')  ||
+		strchr(user.player,'%')  ||
+		strchr(user.player,'&')  ||
+		strchr(user.player,'*')  ||
+		strchr(user.player,'\\') ||
+		strchr(user.player,'"')  ||
+		strchr(user.player,',')  ||
+		strchr(user.player,'<')  ||
+		strchr(user.player,'/')  ||
+		strchr(user.player,'>')  ||
+		strchr(user.player,'?'))
 	    {
 		printf("The special characters #%%&*\\\",</>? are allowed in usernames. Try again.\n");
 	    }
-	    if (strlen(player)>=USER_NAME_MAX)
+	    if (strlen(user.player)>=USER_NAME_MAX)
 	    {
 		printf("Usernames must not be more than %u characters long. Try again.\n",USER_NAME_MAX-1);
 		continue;
 	    }
 	    
-	    munged = 1;
-	    commpos = 0;
+	    client.munged = 1;
+	    client.commpos = 0;
 	    password[0] = '\0';
-	    while ((status = client_get_comm("Password: ",password,MAX_MESSAGE_LEN,&commpos,0,munged,screen_width))==0)
+	    while ((status = client_get_comm("Password: ",password,MAX_MESSAGE_LEN,&client.commpos,0,
+	                                     client.munged,client.screen_width))==0)
 		if (handle_winch)
 		{
-		    client_get_termsize(fd_stdin,&screen_width,&screen_height);
+		    client_get_termsize(client.fd_stdin,&client.screen_width,&client.screen_height);
 		    printf(" \r");
-		    munged = 1;
+		    client.munged = 1;
 		    handle_winch = 0;
 		}
 		else
-		    munged = 0;
+		    client.munged = 0;
 	    printf("\n");
 	    if (status<0)
 		continue;
@@ -873,19 +924,20 @@ extern int main(int argc, char * argv[])
 		if (isupper((int)password[i]))
 		    password[i] = tolower((int)password[i]);
 	    
-	    munged = 1;
-	    commpos = 0;
+	    client.munged = 1;
+	    client.commpos = 0;
 	    passwordvrfy[0] = '\0';
-	    while ((status = client_get_comm("Retype password: ",passwordvrfy,MAX_MESSAGE_LEN,&commpos,0,munged,screen_width))==0)
+	    while ((status = client_get_comm("Retype password: ",passwordvrfy,MAX_MESSAGE_LEN,&client.commpos,0,
+	                                     client.munged,client.screen_width))==0)
 		if (handle_winch)
 		{
-		    client_get_termsize(fd_stdin,&screen_width,&screen_height);
+		    client_get_termsize(client.fd_stdin,&client.screen_width,&client.screen_height);
 		    printf(" \r");
-		    munged = 1;
+		    client.munged = 1;
 		    handle_winch = 0;
 		}
 		else
-		    munged = 0;
+		    client.munged = 0;
 	    printf("\n");
 	    if (status<0)
 		continue;
@@ -903,25 +955,25 @@ extern int main(int argc, char * argv[])
 	    if (!(packet = packet_create(packet_class_bnet)))
 	    {
 		fprintf(stderr,"%s: could not create packet\n",argv[0]);
-		psock_close(sd);
-		if (changed_in)
-		    tcsetattr(fd_stdin,TCSAFLUSH,&in_attr_old);
+		psock_close(client.sd);
+		if (client.changed_in)
+		    tcsetattr(client.fd_stdin,TCSAFLUSH,&client.in_attr_old);
 		return STATUS_FAILURE;
 	    }
 	    packet_set_size(packet,sizeof(t_client_createacctreq1));
 	    packet_set_type(packet,CLIENT_CREATEACCTREQ1);
 	    hash_to_bnhash((t_hash const *)&passhash1,packet->u.client_createacctreq1.password_hash1); /* avoid warning */
-	    packet_append_string(packet,player);
-            client_blocksend_packet(sd,packet);
+	    packet_append_string(packet,user.player);
+            client_blocksend_packet(client.sd,packet);
 	    packet_del_ref(packet);
 	    
 	    do
-		if (client_blockrecv_packet(sd,rpacket)<0)
+		if (client_blockrecv_packet(client.sd,rpacket)<0)
 		{
 		   fprintf(stderr,"%s: server closed connection\n",argv[0]);
-		   psock_close(sd);
-		   if (changed_in)
-		       tcsetattr(fd_stdin,TCSAFLUSH,&in_attr_old);
+		   psock_close(client.sd);
+		   if (client.changed_in)
+		       tcsetattr(client.fd_stdin,TCSAFLUSH,&client.in_attr_old);
 		   return STATUS_FAILURE;
 		}
 	    while (packet_get_type(rpacket)!=SERVER_CREATEACCTREPLY1);
@@ -950,84 +1002,88 @@ extern int main(int argc, char * argv[])
 	    
             printf("Enter your old and new login information\n");
 	    
-	    munged = 1;
-	    commpos = 0;
-	    player[0] = '\0';
-	    while ((status = client_get_comm("Username: ",player,MAX_MESSAGE_LEN,&commpos,1,munged,screen_width))==0)
+	    client.munged = 1;
+	    client.commpos = 0;
+	    user.player[0] = '\0';
+	    while ((status = client_get_comm("Username: ",user.player,MAX_MESSAGE_LEN,&client.commpos,1,
+	                                     client.munged,client.screen_width))==0)
 		if (handle_winch)
 		{
-		    client_get_termsize(fd_stdin,&screen_width,&screen_height);
+		    client_get_termsize(client.fd_stdin,&client.screen_width,&client.screen_height);
 		    printf(" \r");
-		    munged = 1;
+		    client.munged = 1;
 		    handle_winch = 0;
 		}
 		else
-		    munged = 0;
+		    client.munged = 0;
 	    printf("\n");
 	    if (status<0)
 		continue;
-	    if (strchr(player,' '))
+	    if (strchr(user.player,' '))
 	    {
 		printf("Spaces not allowed in username. Try again.\n");
 		continue;
 	    }
-	    if (strlen(player)>=USER_NAME_MAX)
+	    if (strlen(user.player)>=USER_NAME_MAX)
 	    {
 		printf("Usernames must not be more than %u characters long. Try again.\n",USER_NAME_MAX-1);
 		continue;
 	    }
 	    
-	    munged = 1;
-	    commpos = 0;
+	    client.munged = 1;
+	    client.commpos = 0;
 	    passwordprev[0] = '\0';
-	    while ((status = client_get_comm("Old password: ",passwordprev,MAX_MESSAGE_LEN,&commpos,0,munged,screen_width))==0)
+	    while ((status = client_get_comm("Old password: ",passwordprev,MAX_MESSAGE_LEN,&client.commpos,0,
+	                                     client.munged,client.screen_width))==0)
 		if (handle_winch)
 		{
-		    client_get_termsize(fd_stdin,&screen_width,&screen_height);
+		    client_get_termsize(client.fd_stdin,&client.screen_width,&client.screen_height);
 		    printf(" \r");
-		    munged = 1;
+		    client.munged = 1;
 		    handle_winch = 0;
 		}
 		else
-		    munged = 0;
+		    client.munged = 0;
 	    printf("\n");
 	    if (status<0)
 		continue;
 	    for (i=0; i<strlen(passwordprev); i++)
 		passwordprev[i] = tolower((int)passwordprev[i]);
 	    
-	    munged = 1;
-	    commpos = 0;
+	    client.munged = 1;
+	    client.commpos = 0;
 	    password[0] = '\0';
-	    while ((status = client_get_comm("New password: ",password,MAX_MESSAGE_LEN,&commpos,0,munged,screen_width))==0)
+	    while ((status = client_get_comm("New password: ",password,MAX_MESSAGE_LEN,&client.commpos,0,
+	                                     client.munged,client.screen_width))==0)
 		if (handle_winch)
 		{
-		    client_get_termsize(fd_stdin,&screen_width,&screen_height);
+		    client_get_termsize(client.fd_stdin,&client.screen_width,&client.screen_height);
 		    printf(" \r");
-		    munged = 1;
+		    client.munged = 1;
 		    handle_winch = 0;
 		}
 		else
-		    munged = 0;
+		    client.munged = 0;
 	    printf("\n");
 	    if (status<0)
 		continue;
 	    for (i=0; i<strlen(password); i++)
 		password[i] = tolower((int)password[i]);
 	    
-	    munged = 1;
-	    commpos = 0;
+	    client.munged = 1;
+	    client.commpos = 0;
 	    passwordvrfy[0] = '\0';
-	    while ((status = client_get_comm("Retype new password: ",passwordvrfy,MAX_MESSAGE_LEN,&commpos,0,munged,screen_width))==0)
+	    while ((status = client_get_comm("Retype new password: ",passwordvrfy,MAX_MESSAGE_LEN,&client.commpos,0,
+	                                     client.munged,client.screen_width))==0)
 		if (handle_winch)
 		{
-		    client_get_termsize(fd_stdin,&screen_width,&screen_height);
+		    client_get_termsize(client.fd_stdin,&client.screen_width,&client.screen_height);
 		    printf(" \r");
-		    munged = 1;
+		    client.munged = 1;
 		    handle_winch = 0;
 		}
 		else
-		    munged = 0;
+		    client.munged = 0;
 	    printf("\n");
 	    if (status<0)
 		continue;
@@ -1042,7 +1098,7 @@ extern int main(int argc, char * argv[])
 	    
             ticks = 0; /* FIXME: what to use here? */
             bn_int_set(&temp.ticks,ticks);
-            bn_int_set(&temp.sessionkey,sessionkey);
+            bn_int_set(&temp.sessionkey,client.sessionkey);
             bnet_hash(&oldpasshash1,strlen(passwordprev),passwordprev); /* do the single hash for old */
             hash_to_bnhash((t_hash const *)&oldpasshash1,temp.passhash1); /* avoid warning */
             bnet_hash(&oldpasshash2,sizeof(temp),&temp); /* do the double hash for old */
@@ -1051,28 +1107,28 @@ extern int main(int argc, char * argv[])
 	    if (!(packet = packet_create(packet_class_bnet)))
 	    {
 		fprintf(stderr,"%s: could not create packet\n",argv[0]);
-		psock_close(sd);
-		if (changed_in)
-		    tcsetattr(fd_stdin,TCSAFLUSH,&in_attr_old);
+		psock_close(client.sd);
+		if (client.changed_in)
+		    tcsetattr(client.fd_stdin,TCSAFLUSH,&client.in_attr_old);
 		return STATUS_FAILURE;
 	    }
 	    packet_set_size(packet,sizeof(t_client_changepassreq));
 	    packet_set_type(packet,CLIENT_CHANGEPASSREQ);
 	    bn_int_set(&packet->u.client_changepassreq.ticks,ticks);
-	    bn_int_set(&packet->u.client_changepassreq.sessionkey,sessionkey);
+	    bn_int_set(&packet->u.client_changepassreq.sessionkey,client.sessionkey);
 	    hash_to_bnhash((t_hash const *)&oldpasshash2,packet->u.client_changepassreq.oldpassword_hash2); /* avoid warning */
 	    hash_to_bnhash((t_hash const *)&newpasshash1,packet->u.client_changepassreq.newpassword_hash1); /* avoid warning */
-	    packet_append_string(packet,player);
-            client_blocksend_packet(sd,packet);
+	    packet_append_string(packet,user.player);
+            client_blocksend_packet(client.sd,packet);
 	    packet_del_ref(packet);
 	    
 	    do
-		if (client_blockrecv_packet(sd,rpacket)<0)
+		if (client_blockrecv_packet(client.sd,rpacket)<0)
 		{
 		   fprintf(stderr,"%s: server closed connection\n",argv[0]);
-		   psock_close(sd);
-		   if (changed_in)
-		       tcsetattr(fd_stdin,TCSAFLUSH,&in_attr_old);
+		   psock_close(client.sd);
+		   if (client.changed_in)
+		       tcsetattr(client.fd_stdin,TCSAFLUSH,&client.in_attr_old);
 		   return STATUS_FAILURE;
 		}
 	    while (packet_get_type(rpacket)!=SERVER_CHANGEPASSACK);
@@ -1088,46 +1144,48 @@ extern int main(int argc, char * argv[])
 	{
             printf("Enter your login information\n");
 	    
-	    munged = 1;
-	    commpos = 0;
-	    player[0] = '\0';
-	    while ((status = client_get_comm("Username: ",player,MAX_MESSAGE_LEN,&commpos,1,munged,screen_width))==0)
+	    client.munged = 1;
+	    client.commpos = 0;
+	    user.player[0] = '\0';
+	    while ((status = client_get_comm("Username: ",user.player,MAX_MESSAGE_LEN,&client.commpos,1,
+	                                     client.munged,client.screen_width))==0)
 		if (handle_winch)
 		{
-		    client_get_termsize(fd_stdin,&screen_width,&screen_height);
+		    client_get_termsize(client.fd_stdin,&client.screen_width,&client.screen_height);
 		    printf(" \r");
-		    munged = 1;
+		    client.munged = 1;
 		    handle_winch = 0;
 		}
 		else
-		    munged = 0;
+		    client.munged = 0;
 	    printf("\n");
 	    if (status<0)
 		continue;
-	    if (strchr(player,' '))
+	    if (strchr(user.player,' '))
 	    {
 		printf("Spaces not allowed in username. Try again.\n");
 		continue;
 	    }
-	    if (strlen(player)>=USER_NAME_MAX)
+	    if (strlen(user.player)>=USER_NAME_MAX)
 	    {
 		printf("Usernames must not be more than %u characters long. Try again.\n",USER_NAME_MAX-1);
 		continue;
 	    }
 	    
-	    munged = 1;
-	    commpos = 0;
+	    client.munged = 1;
+	    client.commpos = 0;
 	    password[0] = '\0';
-	    while ((status = client_get_comm("Password: ",password,MAX_MESSAGE_LEN,&commpos,0,munged,screen_width))==0)
+	    while ((status = client_get_comm("Password: ",password,MAX_MESSAGE_LEN,&client.commpos,0,
+	                                     client.munged,client.screen_width))==0)
 		if (handle_winch)
 		{
-		    client_get_termsize(fd_stdin,&screen_width,&screen_height);
+		    client_get_termsize(client.fd_stdin,&client.screen_width,&client.screen_height);
 		    printf(" \r");
-		    munged = 1;
+		    client.munged = 1;
 		    handle_winch = 0;
 		}
 		else
-		    munged = 0;
+		    client.munged = 0;
 	    printf("\n");
 	    if (status<0)
 		continue;
@@ -1149,7 +1207,7 @@ extern int main(int argc, char * argv[])
             
             ticks = 0; /* FIXME: what to use here? */
             bn_int_set(&temp.ticks,ticks);
-            bn_int_set(&temp.sessionkey,sessionkey);
+            bn_int_set(&temp.sessionkey,client.sessionkey);
             bnet_hash(&passhash1,strlen(password),password); /* do the single hash */
             hash_to_bnhash((t_hash const *)&passhash1,temp.passhash1); /* avoid warning */
             bnet_hash(&passhash2,sizeof(temp),&temp); /* do the double hash */
@@ -1157,28 +1215,28 @@ extern int main(int argc, char * argv[])
 	    if (!(packet = packet_create(packet_class_bnet)))
 	    {
 		fprintf(stderr,"%s: could not create packet\n",argv[0]);
-		psock_close(sd);
-		if (changed_in)
-		    tcsetattr(fd_stdin,TCSAFLUSH,&in_attr_old);
+		psock_close(client.sd);
+		if (client.changed_in)
+		    tcsetattr(client.fd_stdin,TCSAFLUSH,&client.in_attr_old);
 		return STATUS_FAILURE;
 	    }
 	    packet_set_size(packet,sizeof(t_client_loginreq1));
 	    packet_set_type(packet,CLIENT_LOGINREQ1);
 	    bn_int_set(&packet->u.client_loginreq1.ticks,ticks);
-	    bn_int_set(&packet->u.client_loginreq1.sessionkey,sessionkey);
+	    bn_int_set(&packet->u.client_loginreq1.sessionkey,client.sessionkey);
 	    hash_to_bnhash((t_hash const *)&passhash2,packet->u.client_loginreq1.password_hash2); /* avoid warning */
-	    packet_append_string(packet,player);
-            client_blocksend_packet(sd,packet);
+	    packet_append_string(packet,user.player);
+            client_blocksend_packet(client.sd,packet);
 	    packet_del_ref(packet);
 	}
 	
         do
-            if (client_blockrecv_packet(sd,rpacket)<0)
+            if (client_blockrecv_packet(client.sd,rpacket)<0)
 	    {
 	       fprintf(stderr,"%s: server closed connection\n",argv[0]);
-	       psock_close(sd);
-	       if (changed_in)
-	           tcsetattr(fd_stdin,TCSAFLUSH,&in_attr_old);
+	       psock_close(client.sd);
+	       if (client.changed_in)
+	           tcsetattr(client.fd_stdin,TCSAFLUSH,&client.in_attr_old);
 	       return STATUS_FAILURE;
 	    }
         while (packet_get_type(rpacket)!=SERVER_LOGINREPLY1);
@@ -1190,22 +1248,22 @@ extern int main(int argc, char * argv[])
     fprintf(stderr,"Logged in.\n");
     printf("----\n");
     
-    if (newacct && (strcmp(clienttag,CLIENTTAG_DIABLORTL)==0 ||
-		    strcmp(clienttag,CLIENTTAG_DIABLOSHR)==0))
+    if (newacct && (strcmp(user.clienttag,CLIENTTAG_DIABLORTL)==0 ||
+		    strcmp(user.clienttag,CLIENTTAG_DIABLOSHR)==0))
     {
 	if (!(packet = packet_create(packet_class_bnet)))
 	{
 	    fprintf(stderr,"%s: could not create packet\n",argv[0]);
-	    if (changed_in)
-		tcsetattr(fd_stdin,TCSAFLUSH,&in_attr_old);
+	    if (client.changed_in)
+		tcsetattr(client.fd_stdin,TCSAFLUSH,&client.in_attr_old);
 	}
 	else
 	{
 	    packet_set_size(packet,sizeof(t_client_playerinforeq));
 	    packet_set_type(packet,CLIENT_PLAYERINFOREQ);
-	    packet_append_string(packet,player);
+	    packet_append_string(packet,user.player);
 	    packet_append_string(packet,"LTRD 1 2 0 20 25 15 20 100 0"); /* FIXME: don't hardcode */
-	    client_blocksend_packet(sd,packet);
+	    client_blocksend_packet(client.sd,packet);
 	    packet_del_ref(packet);
 	}
     }
@@ -1213,24 +1271,24 @@ extern int main(int argc, char * argv[])
     if (!(packet = packet_create(packet_class_bnet)))
     {
 	fprintf(stderr,"%s: could not create packet\n",argv[0]);
-	psock_close(sd);
-	if (changed_in)
-	    tcsetattr(fd_stdin,TCSAFLUSH,&in_attr_old);
+	psock_close(client.sd);
+	if (client.changed_in)
+	    tcsetattr(client.fd_stdin,TCSAFLUSH,&client.in_attr_old);
 	return STATUS_FAILURE;
     }
     packet_set_size(packet,sizeof(t_client_progident2));
     packet_set_type(packet,CLIENT_PROGIDENT2);
-    bn_int_tag_set(&packet->u.client_progident2.clienttag,clienttag);
-    client_blocksend_packet(sd,packet);
+    bn_int_tag_set(&packet->u.client_progident2.clienttag,user.clienttag);
+    client_blocksend_packet(client.sd,packet);
     packet_del_ref(packet);
     
     do
-        if (client_blockrecv_packet(sd,rpacket)<0)
+        if (client_blockrecv_packet(client.sd,rpacket)<0)
 	{
 	    fprintf(stderr,"%s: server closed connection\n",argv[0]);
-	    psock_close(sd);
-	    if (changed_in)
-		tcsetattr(fd_stdin,TCSAFLUSH,&in_attr_old);
+	    psock_close(client.sd);
+	    if (client.changed_in)
+		tcsetattr(client.fd_stdin,TCSAFLUSH,&client.in_attr_old);
 	    return STATUS_FAILURE;
 	}
     while (packet_get_type(rpacket)!=SERVER_CHANNELLIST);
@@ -1256,22 +1314,22 @@ extern int main(int argc, char * argv[])
     if (!(packet = packet_create(packet_class_bnet)))
     {
 	fprintf(stderr,"%s: could not create packet\n",argv[0]);
-	psock_close(sd);
-	if (changed_in)
-	    tcsetattr(fd_stdin,TCSAFLUSH,&in_attr_old);
+	psock_close(client.sd);
+	if (client.changed_in)
+	    tcsetattr(client.fd_stdin,TCSAFLUSH,&client.in_attr_old);
 	return STATUS_FAILURE;
     }
     packet_set_size(packet,sizeof(t_client_joinchannel));
     packet_set_type(packet,CLIENT_JOINCHANNEL);
     bn_int_set(&packet->u.client_joinchannel.channelflag,CLIENT_JOINCHANNEL_GENERIC);
-    packet_append_string(packet,channel);
-    client_blocksend_packet(sd,packet);
+    packet_append_string(packet,user.channel);
+    client_blocksend_packet(client.sd,packet);
     packet_del_ref(packet);
     
-    if (psock_ctl(sd,PSOCK_NONBLOCK)<0)
+    if (psock_ctl(client.sd,PSOCK_NONBLOCK)<0)
 	fprintf(stderr,"%s: could not set TCP socket to non-blocking mode (psock_ctl: %s)\n",argv[0],strerror(psock_errno()));
     
-    mode = mode_chat;
+    client.mode = mode_chat;
     
     {
 	unsigned int   i;
@@ -1287,16 +1345,16 @@ extern int main(int argc, char * argv[])
 	PSOCK_FD_ZERO(&rfds);
 
 #ifndef WIN32
-	highest_fd = fd_stdin;
-	if (sd>highest_fd)
+	highest_fd = client.fd_stdin;
+	if (client.sd>highest_fd)
 #endif
-	    highest_fd = sd;
+	    highest_fd = client.sd;
 	
-	currsize = 0;
+	client.currsize = 0;
 	
-	munged = 1; /* == need to draw prompt */
-	commpos = 0;
-	text[0] = '\0';
+	client.munged = 1; /* == need to draw prompt */
+	client.commpos = 0;
+	client.text[0] = '\0';
 	
 	for (;;)
 	{
@@ -1304,23 +1362,23 @@ extern int main(int argc, char * argv[])
 
 	    if (handle_winch)
 	    {
-		client_get_termsize(fd_stdin,&screen_width,&screen_height);
+		client_get_termsize(client.fd_stdin,&client.screen_width,&client.screen_height);
 		handle_winch = 0;
 		printf(" \r");
-		munged = 1;
+		client.munged = 1;
 	    }
 	    
-	    if (munged)
+	    if (client.munged)
 	    {
-		printf("%s%s",mode_get_prompt(mode),text + ((screen_width <= strlen(mode_get_prompt(mode)) + commpos ) ? strlen(mode_get_prompt(mode)) + commpos + 1 - screen_width : 0));
+		printf("%s%s",mode_get_prompt(client.mode),client.text + ((client.screen_width <= strlen(mode_get_prompt(client.mode)) + client.commpos ) ? strlen(mode_get_prompt(client.mode)) + client.commpos + 1 - client.screen_width : 0));
 		fflush(stdout);
-		munged = 0;
+		client.munged = 0;
 	    }
 	    	PSOCK_FD_ZERO(&rfds);
 #ifndef WIN32
-	    PSOCK_FD_SET(fd_stdin,&rfds);
+	    PSOCK_FD_SET(client.fd_stdin,&rfds);
 #endif
-	    PSOCK_FD_SET(sd,&rfds);
+	    PSOCK_FD_SET(client.sd,&rfds);
 		errno = 0;
 	    
 #ifndef WIN32
@@ -1331,61 +1389,62 @@ extern int main(int argc, char * argv[])
 	    {
 			if (psock_errno()!=PSOCK_EINTR)
 			{
-				munged = munge(munged,screen_width,mode,text);
+				munge(&client);
 				printf("Select failed (select: %s)\n",strerror(psock_errno()));
 			}
 			continue;
 	    }
 #ifndef WIN32
-	    if (PSOCK_FD_ISSET(fd_stdin,&rfds)) /* got keyboard data */
+	    if (PSOCK_FD_ISSET(client.fd_stdin,&rfds)) /* got keyboard data */
 #else
 		if (kbhit())
 #endif
 	    {
-		munged = 0;
+		client.munged = 0;
 
-		switch (client_get_comm(mode_get_prompt(mode),text,MAX_MESSAGE_LEN,&commpos,1,0,screen_width))
+		switch (client_get_comm(mode_get_prompt(client.mode),client.text,MAX_MESSAGE_LEN,&client.commpos,1,
+		                        0,client.screen_width))
 		{
 		case -1: /* cancel */
-		    munged = munge(munged,screen_width,mode,text);
-		    if (mode==mode_command)
-			mode = mode_chat;
+		    munge(&client);
+		    if (client.mode==mode_command)
+			client.mode = mode_chat;
 		    else
-			mode = mode_command;
-		    commpos = 0;
-		    text[0] = '\0';
+			client.mode = mode_command;
+		    client.commpos = 0;
+		    client.text[0] = '\0';
 		    break;
 		    
 		case 0: /* timeout */
 		    break;
 		    
 		case 1:
-		    switch (mode)
+		    switch (client.mode)
 		    {
 
 		    case mode_gamename:
-			if (text[0]=='\0')
+			if (client.text[0]=='\0')
 			{
-		            munged = munge(munged,screen_width,mode,text);
+		            munge(&client);
 			    printf("Games must have a name.\n");
 			    break;
 			}
 			printf("\n");
-			munged = 1;
-			strncpy(curr_gamename,text,sizeof(curr_gamename));
-			curr_gamename[sizeof(curr_gamename)-1] = '\0';
-			mode = mode_gamepass;
+			client.munged = 1;
+			strncpy(user.curr_gamename,client.text,sizeof(user.curr_gamename));
+			user.curr_gamename[sizeof(user.curr_gamename)-1] = '\0';
+			client.mode = mode_gamepass;
 			break;
 		    case mode_gamepass:
 			printf("\n");
-			munged = 1;
-			strncpy(curr_gamepass,text,sizeof(curr_gamepass));
-			curr_gamepass[sizeof(curr_gamepass)-1] = '\0';
+			client.munged = 1;
+			strncpy(user.curr_gamepass,client.text,sizeof(user.curr_gamepass));
+			user.curr_gamepass[sizeof(user.curr_gamepass)-1] = '\0';
 			
 			if (!(packet = packet_create(packet_class_bnet)))
 			{
 			    printf("Packet creation failed.\n");
-			    mode = mode_command;
+			    client.mode = mode_command;
 			}
 			else
 			{
@@ -1398,17 +1457,17 @@ extern int main(int argc, char * argv[])
 			    bn_short_set(&packet->u.client_startgame4.option,CLIENT_STARTGAME4_OPTION_MELEE_NORMAL);
 			    bn_int_set(&packet->u.client_startgame4.unknown4,CLIENT_STARTGAME4_UNKNOWN4);
 			    bn_int_set(&packet->u.client_startgame4.unknown5,CLIENT_STARTGAME4_UNKNOWN5);
-			    packet_append_string(packet,curr_gamename);
-			    packet_append_string(packet,curr_gamepass);
+			    packet_append_string(packet,user.curr_gamename);
+			    packet_append_string(packet,user.curr_gamepass);
 			    packet_append_string(packet,",,,,1,3,1,3e37a84c,7,Player\rAshrigo\r");
-			    client_blocksend_packet(sd,packet);
+			    client_blocksend_packet(client.sd,packet);
 			    packet_del_ref(packet);
-			    mode = mode_gamewait;
+			    client.mode = mode_gamewait;
 			}
 			break;
 		    case mode_gamestop:
 			printf("\n");
-			munged = 1;
+			client.munged = 1;
 			
 			if (!(packet = packet_create(packet_class_bnet)))
 			    printf("Packet creation failed.\n");
@@ -1416,45 +1475,45 @@ extern int main(int argc, char * argv[])
 			{
 			    packet_set_size(packet,sizeof(t_client_closegame));
 			    packet_set_type(packet,CLIENT_CLOSEGAME);
-			    client_blocksend_packet(sd,packet);
+			    client_blocksend_packet(client.sd,packet);
 			    packet_del_ref(packet);
 			    printf("Game closed.\n");
-			    mode = mode_command;
+			    client.mode = mode_command;
 			}
 			break;
 		    case mode_command:
-			if (text[0]=='\0')
+			if (client.text[0]=='\0')
 			    break;
 			printf("\n");
-			munged = 1;
-			if (strstart(text,"channel")==0)
+			client.munged = 1;
+			if (strstart(client.text,"channel")==0)
 			{
 			    printf("Available channels:\n");
-			    if (useansi)
+			    if (client.useansi)
 				ansi_text_color_fore(ansi_text_color_yellow);
 			    for (i=0; channellist[i]; i++)
 				printf(" %s\n",channellist[i]);
-			    if (useansi)
+			    if (client.useansi)
 				ansi_text_reset();
 			}
-			else if (strstart(text,"create")==0)
+			else if (strstart(client.text,"create")==0)
 			{
 			    printf("Enter new game information\n");
-			    mode = mode_gamename;
+			    client.mode = mode_gamename;
 			}
-			else if (strstart(text,"join")==0)
+			else if (strstart(client.text,"join")==0)
 			{
 			    printf("Not implemented yet.\n");
 			}
-			else if (strstart(text,"ladder")==0)
+			else if (strstart(client.text,"ladder")==0)
 			{
 			    printf("Not implemented yet.\n");
 			}
-			else if (strstart(text,"stats")==0)
+			else if (strstart(client.text,"stats")==0)
 			{
 			    printf("Not implemented yet.\n");
 			}
-			else if (strstart(text,"help")==0 || strcmp(text,"?")==0)
+			else if (strstart(client.text,"help")==0 || strcmp(client.text,"?")==0)
 			{
 			    printf("Available commands:\n"
 				   " channel        - join or create a channel\n"
@@ -1468,16 +1527,12 @@ extern int main(int argc, char * argv[])
 				   " stats <PLAYER> - print a player's game record\n"
 				   "Use the escape key to toggle between chat and command modes.\n");
 			}
-			else if (strstart(text,"info")==0)
+			else if (strstart(client.text,"info")==0)
 			{
-			    for (i=4; text[i]==' ' || text[i]=='\t'; i++);
-			    if (text[i]=='\0')
+			    for (i=4; client.text[i]==' ' || client.text[i]=='\t'; i++);
+			    if (client.text[i]=='\0')
 			    {
-				if (useansi)
-				    ansi_text_color_fore(ansi_text_color_red);
-				printf("You must specify the player.\n");
-				if (useansi)
-				    ansi_text_reset();
+			        ansi_printf(&client,ansi_text_color_red,"You must specify the player.\n");
 			    }
 			    else
 			    {
@@ -1485,14 +1540,14 @@ extern int main(int argc, char * argv[])
 				    fprintf(stderr,"%s: could not create packet\n",argv[0]);
 				else
 				{
-				    printf("Profile info for %s:\n",&text[i]);
+				    printf("Profile info for %s:\n",&client.text[i]);
 				    packet_set_size(packet,sizeof(t_client_statsreq));
 				    packet_set_type(packet,CLIENT_STATSREQ);
 				    bn_int_set(&packet->u.client_statsreq.name_count,1);
 				    bn_int_set(&packet->u.client_statsreq.key_count,4);
 				    statsmatch = (unsigned int)time(NULL);
 				    bn_int_set(&packet->u.client_statsreq.requestid,statsmatch);
-				    packet_append_string(packet,&text[i]);
+				    packet_append_string(packet,&client.text[i]);
 #if 0
 				    packet_append_string(packet,"BNET\\acct\\username");
 				    packet_append_string(packet,"BNET\\acct\\userid");
@@ -1501,85 +1556,77 @@ extern int main(int argc, char * argv[])
 				    packet_append_string(packet,"profile\\age");
 				    packet_append_string(packet,"profile\\location");
 				    packet_append_string(packet,"profile\\description");
-				    client_blocksend_packet(sd,packet);
+				    client_blocksend_packet(client.sd,packet);
 				    packet_del_ref(packet);
 				    
-				    mode = mode_waitstat;
+				    client.mode = mode_waitstat;
 				}
 			    }
 			}
-			else if (strstart(text,"chinfo")==0)
+			else if (strstart(client.text,"chinfo")==0)
 			{
 			    printf("Not implemented yet.\n");
 			}
-			else if (strstart(text,"quit")==0)
+			else if (strstart(client.text,"quit")==0)
 			{
-			    psock_close(sd);
-			    if (changed_in)
-				tcsetattr(fd_stdin,TCSAFLUSH,&in_attr_old);
+			    psock_close(client.sd);
+			    if (client.changed_in)
+				tcsetattr(client.fd_stdin,TCSAFLUSH,&client.in_attr_old);
 			    return STATUS_SUCCESS;
 			}
 			else
 			{
-			    if (useansi)
-				ansi_text_color_fore(ansi_text_color_red);
-			    printf("Unknown local command \"%s\".\n",text);
-			    if (useansi)
-				ansi_text_reset();
+			    ansi_printf(&client,ansi_text_color_red,"Unknown local command \"%s\".\n",client.text);
 			}
 			break;
 			
 		    case mode_chat:
-			if (text[0]=='\0')
+			if (client.text[0]=='\0')
 			    break;
-			if (text[0]=='/')
+			if (client.text[0]=='/')
 			{
-		            munged = munge(munged,screen_width,mode,text);
+		            munge(&client);
 			}
 			else
 			{
-			    if (useansi)
-				ansi_text_color_fore(ansi_text_color_blue);
-			    printf("\r<%s>",player);
-			    if (useansi)
-				ansi_text_reset();
+			    ansi_printf(&client,ansi_text_color_blue,"\r<%s>",user.player);
 			    printf(" ");
-			    str_print_term(stdout,text,0,0);
+			    str_print_term(stdout,client.text,0,0);
 			    printf("\n");
-			    munged = 1;
+			    client.munged = 1;
 			}
 			
 			if (!(packet = packet_create(packet_class_bnet)))
 			{
 			    fprintf(stderr,"%s: could not create packet\n",argv[0]);
-			    psock_close(sd);
-			    if (changed_in)
-				tcsetattr(fd_stdin,TCSAFLUSH,&in_attr_old);
+			    psock_close(client.sd);
+			    if (client.changed_in)
+				tcsetattr(client.fd_stdin,TCSAFLUSH,&client.in_attr_old);
 			    return STATUS_FAILURE;
 			}
 			packet_set_size(packet,sizeof(t_client_message));
 			packet_set_type(packet,CLIENT_MESSAGE);
-			packet_append_string(packet,text);
-			client_blocksend_packet(sd,packet);
+			packet_append_string(packet,client.text);
+			client_blocksend_packet(client.sd,packet);
 			packet_del_ref(packet);
 			break;
 			
 		    default:
 			/* one of the wait states; erase what they typed */
-		        munged = munge(munged,screen_width,mode,text);
+		        munge(&client);
 			break;
 		    }
 		    
-		    commpos = 0;
-		    text[0] = '\0';
+		    client.commpos = 0;
+		    client.text[0] = '\0';
 		    break;
 		}
 	    }
 	    
-	    if (PSOCK_FD_ISSET(sd,&rfds)) /* got network data */
+	    if (PSOCK_FD_ISSET(client.sd,&rfds)) /* got network data */
 	    {
 		/* rpacket is from server, packet is from client */
-		switch (net_recv_packet(sd,rpacket,&currsize))
+		switch (net_recv_packet(client.sd,rpacket,&client.currsize))
 		{
 		case 0: /* nothing */
 		    break;
@@ -1590,55 +1637,55 @@ extern int main(int argc, char * argv[])
 		    case SERVER_ECHOREQ: /* might as well support it */
 			if (packet_get_size(rpacket)<sizeof(t_server_echoreq))
 			{
-		            munged = munge(munged,screen_width,mode,text);
+		            munge(&client);
 			    printf("Got bad SERVER_ECHOREQ packet (expected %u bytes, got %u)\n",sizeof(t_server_echoreq),packet_get_size(rpacket));
 			    break;
 			}
 			
 			if (!(packet = packet_create(packet_class_bnet)))
 			{
-		            munged = munge(munged,screen_width,mode,text);
+		            munge(&client);
 			    fprintf(stderr,"%s: could not create packet\n",argv[0]);
-			    psock_close(sd);
-			    if (changed_in)
-				tcsetattr(fd_stdin,TCSAFLUSH,&in_attr_old);
+			    psock_close(client.sd);
+			    if (client.changed_in)
+				tcsetattr(client.fd_stdin,TCSAFLUSH,&client.in_attr_old);
 			    return STATUS_FAILURE;
 			}
 			packet_set_size(packet,sizeof(t_client_echoreply));
 			packet_set_type(packet,CLIENT_ECHOREPLY);
 			bn_int_set(&packet->u.client_echoreply.ticks,bn_int_get(rpacket->u.server_echoreq.ticks));
-			client_blocksend_packet(sd,packet);
+			client_blocksend_packet(client.sd,packet);
 			packet_del_ref(packet);
 			
 			break;
 			
 		    case SERVER_STARTGAME4_ACK:
-			if (mode==mode_gamewait)
+			if (client.mode==mode_gamewait)
 			{
-		            munged = munge(munged,screen_width,mode,text);
+		            munge(&client);
 			    
 			    if (bn_int_get(rpacket->u.server_startgame4_ack.reply)==SERVER_STARTGAME4_ACK_OK)
 			    {
 				printf("Game created.\n");
-				mode = mode_gamestop;
+				client.mode = mode_gamestop;
 			    }
 			    else
 			    {
 				printf("Game could not be created, try another name.\n");
-				mode = mode_gamename;
+				client.mode = mode_gamename;
 			    }
 			}
 			break;
 			
 		    case SERVER_STATSREPLY:
-			if (mode==mode_waitstat)
+			if (client.mode==mode_waitstat)
 			{
 			    unsigned int names,keys;
 			    unsigned int match;
 			    unsigned int strpos;
 			    char const * temp;
 			    
-		            munged = munge(munged,screen_width,mode,text);
+		            munge(&client);
 			    
 			    names = bn_int_get(rpacket->u.server_statsreply.name_count);
 			    keys  = bn_int_get(rpacket->u.server_statsreply.key_count);
@@ -1652,31 +1699,19 @@ extern int main(int argc, char * argv[])
 			    if ((temp = packet_get_str_const(rpacket,strpos,256)))
 			    {
 				printf(" Sex: ");
-				if (useansi)
-				    ansi_text_color_fore(ansi_text_color_yellow);
-				printf("%s\n",temp);
-				if (useansi)
-				    ansi_text_reset();
+				ansi_printf(&client,ansi_text_color_yellow,"%s\n",temp);
 				strpos += strlen(temp)+1;
 			    }
 			    if ((temp = packet_get_str_const(rpacket,strpos,256)))
 			    {
 				printf(" Age: ");
-				if (useansi)
-				    ansi_text_color_fore(ansi_text_color_yellow);
-				printf("%s\n",temp);
-				if (useansi)
-				    ansi_text_reset();
+				ansi_printf(&client,ansi_text_color_yellow,"%s\n",temp);
 				strpos += strlen(temp)+1;
 			    }
 			    if ((temp = packet_get_str_const(rpacket,strpos,256)))
 			    {
 				printf(" Location: ");
-				if (useansi)
-				    ansi_text_color_fore(ansi_text_color_yellow);
-				printf("%s\n",temp);
-				if (useansi)
-				    ansi_text_reset();
+				ansi_printf(&client,ansi_text_color_yellow,"%s\n",temp);
 				strpos += strlen(temp)+1;
 			    }
 			    if ((temp = packet_get_str_const(rpacket,strpos,256)))
@@ -1685,19 +1720,19 @@ extern int main(int argc, char * argv[])
 				char * tok;
 				
 				printf(" Description: \n");
-				if (useansi)
+				if (client.useansi)
 				    ansi_text_color_fore(ansi_text_color_yellow);
 				strncpy(msgtemp,temp,sizeof(msgtemp));
 				msgtemp[sizeof(msgtemp)-1] = '\0';
 				for (tok=strtok(msgtemp,"\r\n"); tok; tok=strtok(NULL,"\r\n"))
 				    printf("  %s\n",tok);
-				if (useansi)
+				if (client.useansi)
 				    ansi_text_reset();
 				strpos += strlen(temp)+1;
 			    }
 			    
 			    if (match==statsmatch)
-				mode = mode_command;
+				client.mode = mode_command;
 			}
 			break;
 			
@@ -1707,7 +1742,7 @@ extern int main(int argc, char * argv[])
 		    case SERVER_MESSAGE:
 			if (packet_get_size(rpacket)<sizeof(t_server_message))
 			{
-		            munged = munge(munged,screen_width,mode,text);
+		            munge(&client);
 			    printf("Got bad SERVER_MESSAGE packet (expected %u bytes, got %u)",sizeof(t_server_message),packet_get_size(rpacket));
 			    break;
 			}
@@ -1718,13 +1753,13 @@ extern int main(int argc, char * argv[])
 			    
 			    if (!(speaker = packet_get_str_const(rpacket,sizeof(t_server_message),32)))
 			    {
-		                munged = munge(munged,screen_width,mode,text);
+		                munge(&client);
 				printf("Got SERVER_MESSAGE packet with bad or missing speaker\n");
 				break;
 			    }
 			    if (!(message = packet_get_str_const(rpacket,sizeof(t_server_message)+strlen(speaker)+1,1024)))
 			    {
-		                munged = munge(munged,screen_width,mode,text);
+		                munge(&client);
 				printf("Got SERVER_MESSAGE packet with bad or missing message (speaker=\"%s\" start=%u len=%u)\n",speaker,sizeof(t_server_message)+strlen(speaker)+1,packet_get_size(rpacket));
 				break;
 			    }
@@ -1732,127 +1767,59 @@ extern int main(int argc, char * argv[])
 			    switch (bn_int_get(rpacket->u.server_message.type))
 			    {
 			    case SERVER_MESSAGE_TYPE_JOIN:
-		                munged = munge(munged,screen_width,mode,text);
-				if (useansi)
-				    ansi_text_color_fore(ansi_text_color_green);
-				printf("\"");
-				str_print_term(stdout,speaker,0,0);
-				printf("\" %s enters\n",mflags_get_str(bn_int_get(rpacket->u.server_message.flags)));
-				if (useansi)
-				    ansi_text_reset();
+		                munge(&client);
+				ansi_printf(&client,ansi_text_color_green,"\"%s\" %s enters\n",speaker,
+				            mflags_get_str(bn_int_get(rpacket->u.server_message.flags)));
 				break;
 			    case SERVER_MESSAGE_TYPE_CHANNEL:
-		                munged = munge(munged,screen_width,mode,text);
-				if (useansi)
-				    ansi_text_color_fore(ansi_text_color_green);
-				printf("Joining channel: \"");
-				str_print_term(stdout,message,0,0);
-				printf("\" %s\n",cflags_get_str(bn_int_get(rpacket->u.server_message.flags)));
-				if (useansi)
-				    ansi_text_reset();
+		                munge(&client);
+				ansi_printf(&client,ansi_text_color_green,"Joining channel :\"%s\" %s\n",message,
+				            cflags_get_str(bn_int_get(rpacket->u.server_message.flags)));
 				break;
 			    case SERVER_MESSAGE_TYPE_ADDUSER:
-		                munged = munge(munged,screen_width,mode,text);
-				if (useansi)
-				    ansi_text_color_fore(ansi_text_color_green);
-				printf("\"");
-				str_print_term(stdout,speaker,0,0);
-				printf("\" %s is here\n",mflags_get_str(bn_int_get(rpacket->u.server_message.flags)));
-				if (useansi)
-				    ansi_text_reset();
+		                munge(&client);
+				ansi_printf(&client,ansi_text_color_green,"\"%s\" %s is here\n",speaker,mflags_get_str(bn_int_get(rpacket->u.server_message.flags)));
 				break;
 			    case SERVER_MESSAGE_TYPE_USERFLAGS:
 				break;
 			    case SERVER_MESSAGE_TYPE_PART:
-		                munged = munge(munged,screen_width,mode,text);
-				if (useansi)
-				    ansi_text_color_fore(ansi_text_color_green);
-				printf("\"");
-				str_print_term(stdout,speaker,0,0);
-				printf("\" %s leaves\n",mflags_get_str(bn_int_get(rpacket->u.server_message.flags)));
-				if (useansi)
-				    ansi_text_reset();
+		                munge(&client);
+				ansi_printf(&client,ansi_text_color_green,"\"%s\" %s leaves\n",speaker,mflags_get_str(bn_int_get(rpacket->u.server_message.flags)));
 				break;
 			    case SERVER_MESSAGE_TYPE_WHISPER:
-		                munged = munge(munged,screen_width,mode,text);
-				if (useansi)
-				    ansi_text_color_fore(ansi_text_color_blue);
-				printf("<From: ");
-				str_print_term(stdout,speaker,0,0);
-				printf(">");
-				if (useansi)
-				    ansi_text_reset();
+		                munge(&client);
+				ansi_printf(&client,ansi_text_color_blue,"<From: %s>",speaker);
 				printf(" ");
 				str_print_term(stdout,message,0,0);
 				printf("\n");
 				break;
 			    case SERVER_MESSAGE_TYPE_WHISPERACK:
-		                munged = munge(munged,screen_width,mode,text);
-				if (useansi)
-				    ansi_text_color_fore(ansi_text_color_blue);
-				printf("<To: ");
-				str_print_term(stdout,speaker,0,0);
-				printf(">");
-				if (useansi)
-				    ansi_text_reset();
+		                munge(&client);
+				ansi_printf(&client,ansi_text_color_blue,"<To: %s>",speaker);
 				printf(" ");
 				str_print_term(stdout,message,0,0);
 				printf("\n");
 				break;
 			    case SERVER_MESSAGE_TYPE_BROADCAST:
-		                munged = munge(munged,screen_width,mode,text);
-				if (useansi)
-				    ansi_text_color_fore(ansi_text_color_yellow);
-				printf("<Broadcast: ");
-				str_print_term(stdout,speaker,0,0);
-				printf("> ");
-				str_print_term(stdout,message,0,0);
-				printf("\n");
-				if (useansi)
-				    ansi_text_reset();
+		                munge(&client);
+				ansi_printf(&client,ansi_text_color_yellow,"<Broadcast %s> %s\n",speaker,message);
 				break;
 			    case SERVER_MESSAGE_TYPE_ERROR:
-		                munged = munge(munged,screen_width,mode,text);
-				if (useansi)
-				    ansi_text_color_fore(ansi_text_color_red);
-				printf("<Error> ");
-				str_print_term(stdout,message,0,0);
-				printf("\n");
-				if (useansi)
-				    ansi_text_reset();
+		                munge(&client);
+				ansi_printf(&client,ansi_text_color_red,"<Error> %s\n",message);
 				break;
 			    case SERVER_MESSAGE_TYPE_INFO:
-		                munged = munge(munged,screen_width,mode,text);
-				if (useansi)
-				    ansi_text_color_fore(ansi_text_color_yellow);
-				printf("<Info> ");
-				str_print_term(stdout,message,0,0);
-				printf("\n");
-				if (useansi)
-				    ansi_text_reset();
+		                munge(&client);
+				ansi_printf(&client,ansi_text_color_yellow,"<Info> %s\n",message);
 				break;
 			    case SERVER_MESSAGE_TYPE_EMOTE:
-		                munged = munge(munged,screen_width,mode,text);
-				if (useansi)
-				    ansi_text_color_fore(ansi_text_color_yellow);
-				printf("<");
-				str_print_term(stdout,speaker,0,0);
-				printf(" ");
-				str_print_term(stdout,message,0,0);
-				printf(">\n");
-				if (useansi)
-				    ansi_text_reset();
+		                munge(&client);
+				ansi_printf(&client,ansi_text_color_yellow,"<%s %s>\n",speaker,message);
 				break;
 			    default:
 			    case SERVER_MESSAGE_TYPE_TALK:
-		                munged = munge(munged,screen_width,mode,text);
-				if (useansi)
-				    ansi_text_color_fore(ansi_text_color_yellow);
-				printf("<");
-				str_print_term(stdout,speaker,0,0);
-				printf(">");
-				if (useansi)
-				    ansi_text_reset();
+		                munge(&client);
+				ansi_printf(&client,ansi_text_color_yellow,"<%s>",speaker);
 				printf(" ");
 				str_print_term(stdout,message,0,0);
 				printf("\n");
@@ -1861,20 +1828,22 @@ extern int main(int argc, char * argv[])
 			break;
 			
 		    default:
-		        munged = munge(munged,screen_width,mode,text);
+		        munge(&client);
 			printf("Unsupported server packet type 0x%04x\n",packet_get_type(rpacket));
+			hexdump(stdout,packet_get_data_const(rpacket,0,packet_get_size(rpacket)),packet_get_size(rpacket));
+			printf("\n");
 		    }
 		    
-		    currsize = 0;
+		    client.currsize = 0;
 		    break;
 		    
 		case -1: /* error (probably connection closed) */
 		default:
-		    munged = munge(munged,screen_width,mode,text);
+		    munge(&client);
 		    printf("----\nConnection closed by server.\n");
-		    psock_close(sd);
-		    if (changed_in)
-			tcsetattr(fd_stdin,TCSAFLUSH,&in_attr_old);
+		    psock_close(client.sd);
+		    if (client.changed_in)
+			tcsetattr(client.fd_stdin,TCSAFLUSH,&client.in_attr_old);
 		    return STATUS_SUCCESS;
 		}
 	    }
