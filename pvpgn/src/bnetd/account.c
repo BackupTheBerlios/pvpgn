@@ -167,6 +167,7 @@ extern t_account * account_create(char const * username, char const * passhash1)
     account->dirty    = 0;
     account->accessed = 0;
     account->age      = 0;
+    account->tmpOP_channel = NULL;
     
     account->namehash = 0; /* hash it later before inserting */
     account->uid      = 0; /* hash it later before inserting */
@@ -2120,4 +2121,44 @@ extern char const * account_get_name(t_account * account)
     else
 	account->name = strdup(temp);
     return temp;
+}
+
+extern int account_set_tmpOP_channel(t_account * account, char * tmpOP_channel)
+{
+	char * tmp;
+
+	if (!account)
+	{
+	  eventlog(eventlog_level_error,__FUNCTION__,"got NULL account");
+	  return -1;
+	}
+
+	if (account->tmpOP_channel)
+	{
+	  free((void *)account->tmpOP_channel);
+	  account->tmpOP_channel = NULL;
+	}
+
+	if (tmpOP_channel)
+	{
+	  if (!(tmp = strdup(tmpOP_channel)))
+	  {
+	    eventlog(eventlog_level_error,__FUNCTION__,"could not strdup tmpOP_channel");
+	    return -1;
+	  }
+	  account->tmpOP_channel = tmp;
+	}
+
+	return 0;
+}
+
+extern char * account_get_tmpOP_channel(t_account * account)
+{
+	if (!account)
+	{
+	  eventlog(eventlog_level_error,__FUNCTION__,"got NULL account");
+	  return NULL;
+	}
+	
+	return account->tmpOP_channel;
 }

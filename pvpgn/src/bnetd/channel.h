@@ -124,13 +124,6 @@ typedef struct channel
     unsigned int      id;
     t_channelmember * memberlist;
     t_list *          banlist;    /* of char * */
-#ifdef WITH_BITS
-    unsigned int      opr;        /* bits master: sessionid of operator */
-    unsigned int      next_opr;   /* bits master: sessionid of designated operator */
-#else
-    t_connection *    opr;        /* operator */
-    t_connection *    next_opr;   /* designated operator */
-#endif
     char *            logname;    /* NULL if not logged */
     FILE *            log;        /* NULL if not logging */
 #ifdef WITH_BITS
@@ -171,9 +164,6 @@ extern void channel_update_latency(t_connection * conn);
 extern void channel_update_flags(t_connection * conn);
 extern void channel_message_log(t_channel const * channel, t_connection * me, int fromuser, char const * text);
 extern void channel_message_send(t_channel const * channel, t_message_type type, t_connection * conn, char const * text);
-extern t_connection * channel_get_operator(t_channel const * channel);
-extern int channel_choose_operator(t_channel * channel, t_connection * tryop);
-extern int channel_set_next_operator(t_channel * channel, t_connection * conn);
 extern int channel_ban_user(t_channel * channel, char const * user);
 extern int channel_unban_user(t_channel * channel, char const * user);
 extern int channel_check_banning(t_channel const * channel, t_connection const * user);
@@ -182,6 +172,7 @@ extern t_list * channel_get_banlist(t_channel const * channel);
 extern int channel_get_length(t_channel const * channel);
 extern unsigned int channel_get_max(t_channel const * channel);
 extern unsigned int channel_get_curr(t_channel const * channel);
+extern int channel_account_is_tmpOP(t_channel const * channel, t_account * account);
 #ifndef WITH_BITS
 extern t_connection * channel_get_first(t_channel const * channel);
 extern t_connection * channel_get_next(void);

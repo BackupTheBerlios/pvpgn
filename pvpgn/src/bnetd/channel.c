@@ -260,14 +260,6 @@ extern t_channel * channel_create(char const * fullname, char const * shortname,
     channel->memberlist = NULL;
     
 #ifdef WITH_BITS
-    channel->opr        = 0;
-    channel->next_opr   = 0;
-#else
-    channel->opr        = NULL;
-    channel->next_opr   = NULL;
-#endif
-    
-#ifdef WITH_BITS
     if (bits_master)
 	send_bits_chat_channellist_add(channel,NULL);
     channel->ref = 0;
@@ -617,6 +609,12 @@ extern int channel_add_connection(t_channel * channel, t_connection * connection
     member->next = channel->memberlist;
     channel->memberlist = member;
     channel->currmembers++;
+
+    if ((!channel->permanent) && (channel->currmembers==1))
+    {
+	message_send_text(connection,message_type_info,connection,"you are now tempOP for this channel");
+	account_set_tmpOP_channel(conn_get_account(connection),(char *)channel_get_name(channel));
+    }
     
     channel_message_log(channel,connection,0,"JOINED");
     
@@ -633,10 +631,6 @@ extern int channel_add_connection(t_channel * channel, t_connection * connection
     /* please don't remove this notice */
     if (channel->log)
 	message_send_text(connection,message_type_info,connection,prefs_get_log_notice());
-    
-    eventlog(eventlog_level_debug,"channel_add_connection","choosing operator");
-    if (!channel->opr)
-	channel_choose_operator(channel,connection); /* try using this account */
     
     return 0;
 #endif
@@ -677,6 +671,7 @@ extern int channel_del_connection(t_channel * channel, t_connection * connection
 #else
     t_channelmember * curr;
     t_channelmember * temp;
+    t_account 	    * acc;
     
     if (!channel)
     {
@@ -717,11 +712,14 @@ extern int channel_del_connection(t_channel * channel, t_connection * connection
 	}
     }
     channel->currmembers--;
-    
-    if (channel->next_opr==connection)
-	channel_set_next_operator(channel,NULL);
-    if (channel->opr==connection)
-	channel_choose_operator(channel,NULL);
+
+    acc = conn_get_account(connection);
+
+    if (account_get_tmpOP_channel(acc) && 
+	strcmp(account_get_tmpOP_channel(acc),channel_get_name(channel))==0)
+    {
+	account_set_tmpOP_channel(acc,NULL);
+    }
     
     if (!channel->memberlist && !channel->permanent) /* if channel is empty, delete it unless it's a permanent channel */
     {
@@ -914,155 +912,6 @@ extern void channel_message_send(t_channel const * channel, t_message_type type,
     if (!heard && (type==message_type_talk || type==message_type_emote))
 	message_send_text(me,message_type_info,me,"No one hears you.");
 }
-
-
-extern int channel_choose_operator(t_channel * channel, t_connection * tryop)
-{
-#ifdef WITH_BITS
-    eventlog(eventlog_level_error,"channel_choose_operator","FIXME");
-    return 0;
-#else
-    t_connection *          oldop;
-    t_channelmember const * curr;
-    
-    if (!channel)
-    {
-	eventlog(eventlog_level_error,"channel_choose_operator","got NULL channel");
-	return -1;
-    }
-    
-    oldop = channel->opr;
-    
-    if (channel->next_opr) /* someone was designated */
-    {
-	if (conn_get_channel(channel->next_opr)!=channel)
-	{
-	    eventlog(eventlog_level_error,"channel_choose_operator","designated next operator not in this channel");
-	    return -1;
-	}
-	channel->opr = channel->next_opr;
-	channel->next_opr = NULL;
-    }
-    else
-    {
-        t_connection * newop;
-	t_account *    account;
-        
-	newop = channel->opr;
-	
-	/* choose the designee, or the last (oldest) member of the channel
-           that is eligible */
-	for (curr=channel->memberlist; curr; curr=curr->next)
-	    if (curr->connection!=channel->opr)
-	    {
-		if (!(account = conn_get_account(curr->connection)))
-		{
-		    eventlog(eventlog_level_error,"channel_choose_operator","connection without account in channel \"%s\"",channel->name);
-		    continue;
-		}
-		/* designation overrides everything else... */
-		if (tryop && curr->connection!=tryop)
-		    continue;
-		/* specific account setting overrides other settings... */
-		if (account_get_auth_operator(account,channel->name)==1) /* default to false */
-		{
-        	    newop = curr->connection;
-		    continue;
-		}
-		/* channel overrides general account settings... */
-		if (!channel->allowopers)
-		    continue;
-		/* finally, check general account settings */
-		if (account_get_auth_operator(account,NULL)==1) /* default to false */
-        	    newop = curr->connection;
-	    }
-	
-	channel->opr = newop;
-    }
-    
-    /* the requested connection was not chosen */
-    if (tryop && channel->opr!=tryop)
-	return -1;
-    
-    /* there is nobody else who can be an op */
-    if (oldop==channel->opr)
-        channel->opr = NULL;
-    
-    /* update flags */
-    if (oldop)
-    {
-	channel_message_log(channel,oldop,0,"NO LONGER OPERATOR");
-        conn_del_flags(oldop,MF_GAVEL);  
-    }
-    if (channel->opr)
-    {
-	channel_message_log(channel,channel->opr,0,"NOW OPERATOR");
-	conn_add_flags(channel->opr,MF_GAVEL);    
-	if (!(channel_get_flags(channel) & channel_flags_thevoid)) 
-	{
-	  char tmpmsg[MAX_IRC_MESSAGE_LEN+1];
-	  t_connection * user;
-
-	  for (user=channel_get_first(channel); user; user=channel_get_next())
-	  {
-	    if (conn_get_class(user)==conn_class_irc)
-	    {
-	      sprintf(tmpmsg,"%s +o %s",irc_convert_channel(channel),conn_get_chatname(channel->opr));
-	      message_send_text(user,message_type_mode,channel->opr,tmpmsg);
-	    }
-	    if (user!=channel->opr)
-	    {
-	      sprintf(tmpmsg,"%s is now the operator for this channel.",conn_get_chatname(channel->opr));
-	      message_send_text(user,message_type_info,channel->opr,tmpmsg);
-	    }
-	    else
-	      message_send_text(channel->opr,message_type_info,channel->opr,"You are now the operator for this channel.");
-	  }
-	}
-    }
-    
-    return 0;
-#endif
-}
-
-
-extern t_connection * channel_get_operator(t_channel const * channel)
-{
-#ifdef WITH_BITS
-    eventlog(eventlog_level_error,"channel_get_operator","BITS FIXME");
-    return NULL;
-#else
-    if (!channel)
-    {
-	eventlog(eventlog_level_error,"channel_get_operator","got NULL channel");
-	return NULL;
-    }
-    
-    return channel->opr;
-#endif
-}
-
-
-extern int channel_set_next_operator(t_channel * channel, t_connection * conn)
-{
-#ifdef WITH_BITS
-    eventlog(eventlog_level_error,"channel_set_next_operator","BITS FIXME");
-    return 0;
-#else
-    if (!channel)
-    {
-	eventlog(eventlog_level_error,"channel_set_next_operator","got NULL channel");
-	return -1;
-    }
-    
-    if (conn && channel->opr==conn)
-	return -1;
-    
-    channel->next_opr = conn;
-    return 0;
-#endif
-}
-
 
 extern int channel_ban_user(t_channel * channel, char const * user)
 {
@@ -1907,6 +1756,26 @@ extern unsigned int channel_get_curr(t_channel const * channel)
 
 }
 
+extern int channel_account_is_tmpOP(t_channel const * channel, t_account * account)
+{
+	if (!channel)
+	{
+	  eventlog(eventlog_level_error,__FUNCTION__,"got NULL channel");
+	  return 0;
+	}
+
+	if (!account)
+	{
+	  eventlog(eventlog_level_error,__FUNCTION__,"got NULL account");
+	  return 0;
+	}
+
+	if (!account_get_tmpOP_channel(account)) return 0;
+	
+	if (strcmp(account_get_tmpOP_channel(account),channel_get_name(channel))==0) return 1;
+
+	return 0;
+}
 
 static t_channel * channellist_find_channel_by_fullname(char const * name)
 {

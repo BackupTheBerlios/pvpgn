@@ -55,6 +55,7 @@ typedef struct account_struct
     char	* name;     /* profiling proved 99% of getstrattr its from get_name */
     unsigned int  namehash; /* cached from attrs */
     unsigned int  uid;      /* cached from attrs */
+    char        * tmpOP_channel; /* non-permanent channel user is tmpOP in */
     int           dirty;    /* 1==needs to be saved, 0==clean */
     int           loaded;   /* 1==loaded, 0==only on disk */
     int           accessed; /* 1==yes, 0==no */
@@ -145,6 +146,10 @@ extern char const * account_get_name_real(t_account * account, char const * fn, 
 #else
 extern char const * account_get_name(t_account * account);
 #endif
+
+
+extern int    account_set_tmpOP_channel(t_account * account, char * tmpOP_channel);
+extern char * account_get_tmpOP_channel(t_account * account);
 
 #endif
 #endif

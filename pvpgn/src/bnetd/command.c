@@ -1689,10 +1689,18 @@ static int _handle_away_command(t_connection * c, char const *text)
   for (i=0; text[i]!=' ' && text[i]!='\0'; i++); /* skip command */
   for (; text[i]==' '; i++);
   
-  if (text[i]=='\0') /* back to normal */
+  if (text[i]=='\0') /* toggle away mode */
     {
-      message_send_text(c,message_type_info,c,"You are no longer marked as away.");
-      conn_set_awaystr(c,NULL);
+      if (!conn_get_awaystr(c))
+      {
+	message_send_text(c,message_type_info,c,"You are now marked as being away.");
+	conn_set_awaystr(c,"Currently not available");	
+      }
+      else
+      {
+        message_send_text(c,message_type_info,c,"You are no longer marked as away.");
+        conn_set_awaystr(c,NULL);
+      }
     }
   else
     {
@@ -1710,10 +1718,18 @@ static int _handle_dnd_command(t_connection * c, char const *text)
   for (i=0; text[i]!=' ' && text[i]!='\0'; i++); /* skip command */
   for (; text[i]==' '; i++);
   
-  if (text[i]=='\0') /* back to normal */
+  if (text[i]=='\0') /* toggle dnd mode */
     {
-      message_send_text(c,message_type_info,c,"Do Not Disturb mode cancelled.");
-      conn_set_dndstr(c,NULL);
+      if (!conn_get_dndstr(c))
+      {
+	message_send_text(c,message_type_info,c,"Do Not Diturb mode engaged.");
+	conn_set_dndstr(c,"Not available");
+      }
+      else
+      {
+        message_send_text(c,message_type_info,c,"Do Not Disturb mode cancelled.");
+        conn_set_dndstr(c,NULL);
+      }
     }
   else
     {
@@ -1810,6 +1826,7 @@ static int _handle_kick_command(t_connection * c, char const *text)
   unsigned int      i,j;
   t_channel const * channel;
   t_connection *    kuc;
+  t_account *	    acc;
   
   for (i=0; text[i]!=' ' && text[i]!='\0'; i++); /* skip command */
   for (; text[i]==' '; i++);
@@ -1829,12 +1846,15 @@ static int _handle_kick_command(t_connection * c, char const *text)
       message_send_text(c,message_type_error,c,"This command can only be used inside a channel.");
       return 0;
     }
-  if (account_get_auth_admin(conn_get_account(c),NULL)!=1 && /* default to false */
-      account_get_auth_admin(conn_get_account(c),channel_get_name(channel))!=1 && /* default to false */
-      account_get_auth_operator(conn_get_account(c),NULL)!=1 && /* default to false */
-      account_get_auth_operator(conn_get_account(c),channel_get_name(channel))!=1) /* default to false */
+
+  acc = conn_get_account(c);
+  if (account_get_auth_admin(acc,NULL)!=1 && /* default to false */
+      account_get_auth_admin(acc,channel_get_name(channel))!=1 && /* default to false */
+      account_get_auth_operator(acc,NULL)!=1 && /* default to false */
+      account_get_auth_operator(acc,channel_get_name(channel))!=1 && /* default to false */
+      !channel_account_is_tmpOP(channel,acc))
     {
-      message_send_text(c,message_type_error,c,"You have to be at least a Channel Operator to use this command.");
+      message_send_text(c,message_type_error,c,"You have to be at least a Channel Operator or tempOP to use this command.");
       return 0;
     }
   if (!(kuc = connlist_find_connection_by_accountname(dest)))
@@ -2320,9 +2340,11 @@ static int _handle_channels_command(t_connection * c, char const *text)
 	  (!tag || !channel_get_clienttag(channel) ||
 	   strcasecmp(channel_get_clienttag(channel),tag)==0))
 	{
+	 /* FIXME: display opers correct again (aaron)
 	  if ((opr = channel_get_operator(channel)))
 	    oprname = conn_get_username(opr);
 	  else
+	 */
 	    oprname = NULL;
 	  sprintf(msgtemp," %-24.24s %5u %-16.16s",
 		  channel_get_name(channel),
