@@ -259,7 +259,7 @@
 /* #undef HAVE_DIRENT_H */
 
 /* Define if you have the <fcntl.h> header file.  */
-/* #undef HAVE_FCNTL_H */
+#define HAVE_FCNTL_H
 
 /* Define if you have the <grp.h> header file.  */
 /* #undef HAVE_GRP_H */
