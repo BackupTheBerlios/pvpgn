@@ -2,7 +2,9 @@ PvPGN Version History:
 
 1.7.0 since 1.6.2
 
-[STAR/SEXP/W2BN]: changed handling of gameresults to be democratic
+[STAR/SEXP/W2BN]:
+  -- changed handling of gameresults to be democratic
+  -- fixed problem with win/games ladder
 
 [STAR/SEXP] : fixed "v1.11 can't play ladder games"-problem
 
@@ -19,6 +21,10 @@ PvPGN Version History:
 
 [WAR3]: 
   -- droped <1.13 support, added 1.15 support (CG,PG,AT, clan profile view)
+
+[LADDERS]:
+  -- added .dat/.xml ladder output for STAR/SEXP/W2BN rating based ladder
+  -- moved textual ladder files from ladderdir to statusdir
 
 [PREFS]
   -- fixed handling of comments (previously it skipped the whole line no 

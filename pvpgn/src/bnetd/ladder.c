@@ -76,11 +76,21 @@ const char * WAR3_ffa_file  = "WAR3_ffa";
 const char * W3XP_ffa_file  = "W3XP_ffa";
 const char * WAR3_at_file   = "WAR3_atteam";
 const char * W3XP_at_file   = "W3XP_atteam";
+const char * STAR_ar_file   = "STAR_active_rating";
+const char * STAR_cr_file   = "STAR_current_rating";
+const char * SEXP_ar_file   = "SEXP_active_rating";
+const char * SEXP_cr_file   = "SEXP_current_rating";
+const char * W2BN_ar_file   = "W2BN_active_rating";
+const char * W2BN_cr_file   = "W2BN_current_rating";
+const char * W2BN_ari_file   = "W2BN_active_rating_iron";
+const char * W2BN_cri_file   = "W2BN_current_rating_iron";
 const char * std_end   = ".dat";
 const char * xml_end   = ".xml";
 
 char * WAR3_solo_filename, * WAR3_team_filename, * WAR3_ffa_filename, * WAR3_at_filename;
 char * W3XP_solo_filename, * W3XP_team_filename, * W3XP_ffa_filename, * W3XP_at_filename;
+char * STAR_ar_filename, * STAR_cr_filename, * SEXP_ar_filename, * SEXP_cr_filename;
+char * W2BN_ar_filename, * W2BN_cr_filename, * W2BN_ari_filename, * W2BN_cri_filename;
 
 t_ladder WAR3_solo_ladder, WAR3_team_ladder, WAR3_ffa_ladder, WAR3_at_ladder;
 t_ladder W3XP_solo_ladder, W3XP_team_ladder, W3XP_ffa_ladder, W3XP_at_ladder;
@@ -1502,29 +1512,41 @@ extern void ladders_load_accounts_to_ladderlists(void)
 
 int standard_writer(FILE * fp, t_ladder * ladder,char const * clienttag)
 {
-  t_ladder_internal * pointer;
-  unsigned int rank=0;
+    t_ladder_internal * pointer;
+    unsigned int rank=0;
 
-  pointer = ladder->first;
-  while (pointer != NULL)
-  {
-     rank++;
-
-     if (ladder==at_ladder(clienttag))
-     {
-       // if in the same team as previous account
-       if ((pointer) && (pointer->next) 
-           && in_same_team(pointer->account,pointer->next->account,pointer->teamcount,pointer->next->teamcount,clienttag))
-	       rank--;
-       else
-	 // other team... so write all team members names, xp and rank to file
-	 fprintf(fp,"%s,%u,%u\n",account_get_atteammembers(pointer->account,pointer->teamcount,clienttag),pointer->xp,rank);
-     }
-     else
-     // write username, xp and rank to file
-     fprintf(fp,"%s,%u,%u\n",account_get_name(pointer->account),pointer->xp,rank);
-
-     pointer=pointer->prev;
+    pointer = ladder->first;
+    while (pointer != NULL)
+    {
+	rank++;
+	if ((strcmp(clienttag,CLIENTTAG_WARCRAFT3)==0) || (strcmp(clienttag,CLIENTTAG_WAR3XP)==0))
+	{
+	    if (ladder==at_ladder(clienttag))
+	    {
+		// if in the same team as previous account
+		if ((pointer) && (pointer->next) 
+		    && in_same_team(pointer->account,pointer->next->account,pointer->teamcount,pointer->next->teamcount,clienttag))
+		{
+		    rank--;
+		}
+		// other team... so write all team members names, xp and rank to file
+		else
+		{
+		    fprintf(fp,"%s,%u,%u\n",account_get_atteammembers(pointer->account,pointer->teamcount,clienttag),pointer->xp,rank);
+		}
+	    }
+	    else
+	    // write username, xp and rank to file
+		fprintf(fp,"%s,%u,%u\n",account_get_name(pointer->account),pointer->xp,rank);
+	}
+	else if ((strcmp(clienttag, CLIENTTAG_STARCRAFT)==0) || (strcmp(clienttag, CLIENTTAG_BROODWARS)==0) || (strcmp(clienttag, CLIENTTAG_WARCIIBNE)==0))
+	{
+	    fprintf(fp,"%u %s %u (%u / %u / %u)\n",rank, account_get_name(pointer->account),pointer->level,
+		account_get_ladder_wins(pointer->account,ladder->clienttag,ladder->ladder_id), 
+		account_get_ladder_losses(pointer->account,ladder->clienttag,ladder->ladder_id),
+		account_get_ladder_disconnects(pointer->account,ladder->clienttag,ladder->ladder_id));
+	}
+	pointer=pointer->prev;
   }
   return 0;
 }
@@ -1540,6 +1562,7 @@ int XML_writer(FILE * fp, t_ladder * ladder, char const * clienttag)
   unsigned int level;
   unsigned int wins;
   unsigned int losses;
+  unsigned int discs;
   unsigned int orc_wins,human_wins,undead_wins,nightelf_wins,random_wins;
   unsigned int orc_losses,human_losses,undead_losses,nightelf_losses,random_losses;
   char *members;
@@ -1551,6 +1574,9 @@ int XML_writer(FILE * fp, t_ladder * ladder, char const * clienttag)
   {
      rank++;
 
+     if ((strcmp(clienttag,CLIENTTAG_WARCRAFT3)==0) || (strcmp(clienttag,CLIENTTAG_WAR3XP)==0))
+     {
+     
      if (ladder==at_ladder(clienttag))
      {
        // if in the same team as previous account
@@ -1626,6 +1652,20 @@ int XML_writer(FILE * fp, t_ladder * ladder, char const * clienttag)
 	 fprintf(fp,"\t\t\t<random>\n\t\t\t\t<wins>%u</wins>\n\t\t\t\t<losses>%u</losses>\n\t\t\t</random>\n\t\t</races>\n\t</player>\n",
                     random_wins,random_losses);
      }
+     
+     } // end: if clienttag WAR3 or WAR3XP
+    else if ((strcmp(clienttag, CLIENTTAG_STARCRAFT)==0) || (strcmp(clienttag, CLIENTTAG_BROODWARS)==0) || (strcmp(clienttag, CLIENTTAG_WARCIIBNE)==0))
+    {
+	wins = account_get_ladder_wins(pointer->account,ladder->clienttag,ladder->ladder_id);
+	losses = account_get_ladder_losses(pointer->account,ladder->clienttag,ladder->ladder_id);
+	discs = account_get_ladder_disconnects(pointer->account,ladder->clienttag,ladder->ladder_id);
+	
+	fprintf(fp,"\t<player>\n\t\t<rank>%u</rank>\n\t\t<name>%s</name>\n\t\t<rating>%u</rating>\n",
+	    rank, account_get_name(pointer->account),pointer->level);
+	fprintf(fp,"\t\t<wins>%u</wins>\n\t\t<losses>%u</losses>\n\t\t<discs>%u</discs>\n\t</player>\n",
+                    wins,losses,discs);
+    }
+
      pointer=pointer->prev;
   }
   fprintf(fp,"</ladder>\n");
@@ -1669,6 +1709,15 @@ extern int ladders_write_to_file()
   ladder_write_to_file(W3XP_team_filename, &W3XP_team_ladder,   CLIENTTAG_WAR3XP);
   ladder_write_to_file(W3XP_ffa_filename,  &W3XP_ffa_ladder,    CLIENTTAG_WAR3XP);
   ladder_write_to_file(W3XP_at_filename,   &W3XP_at_ladder,     CLIENTTAG_WAR3XP);
+  ladder_write_to_file(STAR_ar_filename,   &STAR_active_rating, CLIENTTAG_STARCRAFT);
+  ladder_write_to_file(STAR_cr_filename,   &STAR_current_rating,CLIENTTAG_STARCRAFT);
+  ladder_write_to_file(SEXP_ar_filename,   &SEXP_active_rating, CLIENTTAG_BROODWARS);
+  ladder_write_to_file(SEXP_cr_filename,   &SEXP_current_rating,CLIENTTAG_BROODWARS);
+  ladder_write_to_file(W2BN_ar_filename,   &W2BN_active_rating, CLIENTTAG_WARCIIBNE);
+  ladder_write_to_file(W2BN_cr_filename,   &W2BN_current_rating,CLIENTTAG_WARCIIBNE);
+  ladder_write_to_file(W2BN_ari_filename,  &W2BN_active_rating_ironman, CLIENTTAG_WARCIIBNE);
+  ladder_write_to_file(W2BN_cri_filename,  &W2BN_current_rating_ironman,CLIENTTAG_WARCIIBNE);
+
   return 0;
 }
 
@@ -1694,27 +1743,46 @@ static void dispose_filename(char * filename)
 
 void create_filenames(void)
 {
+    // In the ladderdir are binary ladder files, the human readable ladderlist output 
+    // is better in other place, in the outputdir [KWS]
+
   if (prefs_get_XML_output_ladder())
   {
-    WAR3_solo_filename = create_filename(prefs_get_ladderdir(),WAR3_solo_file,xml_end);
-    WAR3_team_filename = create_filename(prefs_get_ladderdir(),WAR3_team_file,xml_end);
-    WAR3_ffa_filename  = create_filename(prefs_get_ladderdir(),WAR3_ffa_file,xml_end);
-    WAR3_at_filename   = create_filename(prefs_get_ladderdir(),WAR3_at_file,xml_end);
-    W3XP_solo_filename = create_filename(prefs_get_ladderdir(),W3XP_solo_file,xml_end);
-    W3XP_team_filename = create_filename(prefs_get_ladderdir(),W3XP_team_file,xml_end);
-    W3XP_ffa_filename  = create_filename(prefs_get_ladderdir(),W3XP_ffa_file,xml_end);
-    W3XP_at_filename   = create_filename(prefs_get_ladderdir(),W3XP_at_file,xml_end);
+    WAR3_solo_filename = create_filename(prefs_get_outputdir(),WAR3_solo_file,xml_end);
+    WAR3_team_filename = create_filename(prefs_get_outputdir(),WAR3_team_file,xml_end);
+    WAR3_ffa_filename  = create_filename(prefs_get_outputdir(),WAR3_ffa_file,xml_end);
+    WAR3_at_filename   = create_filename(prefs_get_outputdir(),WAR3_at_file,xml_end);
+    W3XP_solo_filename = create_filename(prefs_get_outputdir(),W3XP_solo_file,xml_end);
+    W3XP_team_filename = create_filename(prefs_get_outputdir(),W3XP_team_file,xml_end);
+    W3XP_ffa_filename  = create_filename(prefs_get_outputdir(),W3XP_ffa_file,xml_end);
+    W3XP_at_filename   = create_filename(prefs_get_outputdir(),W3XP_at_file,xml_end);
+    STAR_ar_filename   = create_filename(prefs_get_outputdir(),STAR_ar_file,xml_end);
+    STAR_cr_filename   = create_filename(prefs_get_outputdir(),STAR_cr_file,xml_end);
+    SEXP_ar_filename   = create_filename(prefs_get_outputdir(),SEXP_ar_file,xml_end);
+    SEXP_cr_filename   = create_filename(prefs_get_outputdir(),SEXP_cr_file,xml_end);
+    W2BN_ar_filename   = create_filename(prefs_get_outputdir(),W2BN_ar_file,xml_end);
+    W2BN_cr_filename   = create_filename(prefs_get_outputdir(),W2BN_cr_file,xml_end);
+    W2BN_ari_filename  = create_filename(prefs_get_outputdir(),W2BN_ari_file,xml_end);
+    W2BN_cri_filename  = create_filename(prefs_get_outputdir(),W2BN_cri_file,xml_end);
   }
   else
   {
-    WAR3_solo_filename = create_filename(prefs_get_ladderdir(),WAR3_solo_file,std_end);
-    WAR3_team_filename = create_filename(prefs_get_ladderdir(),WAR3_team_file,std_end);
-    WAR3_ffa_filename  = create_filename(prefs_get_ladderdir(),WAR3_ffa_file,std_end);
-    WAR3_at_filename   = create_filename(prefs_get_ladderdir(),WAR3_at_file,std_end);
-    W3XP_solo_filename = create_filename(prefs_get_ladderdir(),W3XP_solo_file,std_end);
-    W3XP_team_filename = create_filename(prefs_get_ladderdir(),W3XP_team_file,std_end);
-    W3XP_ffa_filename  = create_filename(prefs_get_ladderdir(),W3XP_ffa_file,std_end);
-    W3XP_at_filename   = create_filename(prefs_get_ladderdir(),W3XP_at_file,std_end);
+    WAR3_solo_filename = create_filename(prefs_get_outputdir(),WAR3_solo_file,std_end);
+    WAR3_team_filename = create_filename(prefs_get_outputdir(),WAR3_team_file,std_end);
+    WAR3_ffa_filename  = create_filename(prefs_get_outputdir(),WAR3_ffa_file,std_end);
+    WAR3_at_filename   = create_filename(prefs_get_outputdir(),WAR3_at_file,std_end);
+    W3XP_solo_filename = create_filename(prefs_get_outputdir(),W3XP_solo_file,std_end);
+    W3XP_team_filename = create_filename(prefs_get_outputdir(),W3XP_team_file,std_end);
+    W3XP_ffa_filename  = create_filename(prefs_get_outputdir(),W3XP_ffa_file,std_end);
+    W3XP_at_filename   = create_filename(prefs_get_outputdir(),W3XP_at_file,std_end);
+    STAR_ar_filename   = create_filename(prefs_get_outputdir(),STAR_ar_file,std_end);
+    STAR_cr_filename   = create_filename(prefs_get_outputdir(),STAR_cr_file,std_end);
+    SEXP_ar_filename   = create_filename(prefs_get_outputdir(),SEXP_ar_file,std_end);
+    SEXP_cr_filename   = create_filename(prefs_get_outputdir(),SEXP_cr_file,std_end);
+    W2BN_ar_filename   = create_filename(prefs_get_outputdir(),W2BN_ar_file,std_end);
+    W2BN_cr_filename   = create_filename(prefs_get_outputdir(),W2BN_cr_file,std_end);
+    W2BN_ari_filename  = create_filename(prefs_get_outputdir(),W2BN_ari_file,std_end);
+    W2BN_cri_filename  = create_filename(prefs_get_outputdir(),W2BN_cri_file,std_end);
   }
 }
 
@@ -1767,6 +1835,14 @@ void dispose_filenames(void)
   dispose_filename(W3XP_team_filename);
   dispose_filename(W3XP_ffa_filename);
   dispose_filename(W3XP_at_filename);
+  dispose_filename(STAR_ar_filename);
+  dispose_filename(STAR_cr_filename);
+  dispose_filename(SEXP_ar_filename);
+  dispose_filename(SEXP_cr_filename);
+  dispose_filename(W2BN_ar_filename);
+  dispose_filename(W2BN_cr_filename);
+  dispose_filename(W2BN_ari_filename);
+  dispose_filename(W2BN_cri_filename);
 }
 
 extern void ladders_destroy(void)
