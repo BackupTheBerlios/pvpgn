@@ -331,10 +331,7 @@ int dbs_server_list_add_socket(int sd, unsigned int ipaddr)
 	t_d2dbs_connection	*it;
 	struct in_addr		in;
 
-	if (!(it=xmalloc(sizeof(t_d2dbs_connection)))) {
-		eventlog(eventlog_level_error,__FUNCTION__,"xmalloc() failed");
-		return 0;
-	}
+	it=xmalloc(sizeof(t_d2dbs_connection));
 	memset(it, 0, sizeof(t_d2dbs_connection));
 	it->sd=sd;
 	it->ipaddr=ipaddr;
@@ -564,10 +561,6 @@ static unsigned int get_preset_d2gsid(unsigned int ipaddr)
 	}
 	/* not found, build a new item */
 	pgsid = xmalloc(sizeof(t_preset_d2gsid));
-	if (!pgsid) {
-		eventlog(eventlog_level_warn,__FUNCTION__,"failed malloc memory for t_preset_d2gsid");
-		return ++dbs_packet_gs_id;
-	}
 	pgsid->ipaddr = ipaddr;
 	pgsid->d2gsid = ++dbs_packet_gs_id;
 	/* add to list */

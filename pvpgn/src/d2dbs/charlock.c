@@ -68,12 +68,7 @@ int cl_init(unsigned int tbllen, unsigned int maxgs)
 	cl_destroy();
 
 	clitbl = (t_charlockinfo**)xmalloc(tbllen*sizeof(t_charlockinfo**));
-	if (!clitbl) return -1;
 	gsqtbl = (t_charlockinfo**)xmalloc(maxgs*sizeof(t_charlockinfo**));
-	if (!gsqtbl) {
-		xfree(clitbl);
-		return -1;
-	}
 	memset(clitbl, 0, tbllen*sizeof(t_charlockinfo**));
 	memset(gsqtbl, 0, maxgs*sizeof(t_charlockinfo**));
 	clitbl_len = tbllen;
@@ -152,7 +147,6 @@ int cl_lock_char(unsigned char *charname,
 
 	/* not found, locked it */
 	pcl = (t_charlockinfo*)xmalloc(sizeof(t_charlockinfo));
-	if (!pcl) return -1;	/* no free memory available :( */
 	memset(pcl, 0, sizeof(t_charlockinfo));
 	strncpy(pcl->charname, charname, MAX_CHARNAME_LEN-1);
 	strncpy(pcl->realmname, realmname, MAX_REALMNAME_LEN-1);

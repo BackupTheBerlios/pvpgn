@@ -735,7 +735,7 @@ static int dbs_verify_ipaddr(char const * addrlist,t_d2dbs_connection * c)
 
 	in.s_addr=htonl(c->ipaddr);
 	ipaddr=inet_ntoa(in);
-	if (!(adlist = xstrdup(addrlist))) return -1;
+	adlist = xstrdup(addrlist);
 	temp=adlist;
 	valid=0;
 	while ((s=strsep(&temp, ","))) {
