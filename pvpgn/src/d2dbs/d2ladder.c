@@ -69,6 +69,7 @@
 #include "common/list.h"
 #include "common/eventlog.h"
 #include "common/setup_after.h"
+#include "d2cs/d2charfile.h"
 
 char			* d2ladder_ladder_file = NULL;
 char			* d2ladder_backup_file = NULL;
@@ -633,10 +634,14 @@ int d2ladder_print_XML(FILE *ladderstrm)
       	{
 	  fprintf(ladderstrm,"\t<char>\n\t\t<rank>%2d</rank>\n\t\t<name>%s</name>\n\t\t<level>%2d</level>\n",
 		             i+1,ldata[i].charname,ldata[i].level);
-	  fprintf(ladderstrm,"\t\t<experience>%d</experience>\n\t\t<status>%2X</status>\n\t\t<unk>%1X</unk>\n",
-		             ldata[i].experience,ldata[i].status,1);
-	  fprintf(ladderstrm,"\t\t<class>%s</class>\n\t</char>\n",
-		             charclass[ldata[i].class+1]);
+	  fprintf(ladderstrm,"\t\t<experience>%d</experience>\n\t\t<class>%s</class>\n",
+
+		             ldata[i].experience,charclass[ldata[i].class+1]);
+          if (((ldata[i].status) & (D2CHARINFO_STATUS_FLAG_DEAD | D2CHARINFO_STATUS_FLAG_HARDCORE)) == 
+				   (D2CHARINFO_STATUS_FLAG_DEAD | D2CHARINFO_STATUS_FLAG_HARDCORE))
+	    fprintf(ladderstrm,"\t\t<status>dead</status>\n\t</char>\n");
+	  else
+	    fprintf(ladderstrm,"\t\t<status>alive</status>\n\t</char>\n");
 	}
       }
     fprintf(ladderstrm,"</ladder>\n");
