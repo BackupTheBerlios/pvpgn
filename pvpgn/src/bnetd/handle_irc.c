@@ -14,9 +14,14 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ amadeo: i added my name in front of all changes i made, just to find my erros :)
+ i also implemented some idea from other ppl and because sometimes, i really don't
+ know anymore who sent me the code, i also took my name, to keep the changes clear.
+ this is not meant as any stealing of credits.
  */
 #define CONNECTION_INTERNAL_ACCESS
 #include "common/setup_before.h"
+#include "common/util.h" //amadeo: needed for strstart
 #ifdef STDC_HEADERS
 # include <stdlib.h>
 #else
@@ -92,6 +97,15 @@ static int handle_irc_line(t_connection * conn, char const * ircline)
 	eventlog(eventlog_level_error,"handle_irc_line","got empty ircline");
 	return -1;
     }
+	//amadeo: code was sent by some unknown fellow of pvpgn, prevents buffer-overflow for
+	// too long irc-lines
+
+    text=(char *)ircline;
+    if (strlen(text)>254) {
+	eventlog(eventlog_level_warn,"handle_irc_line","line to long, truncation...");
+	text[254]='\0';
+    }    
+
     if (!(line = strdup(ircline))) {
 	eventlog(eventlog_level_error,"handle_irc_line","could not allocate memory for line");
 	return -1;
@@ -255,21 +269,87 @@ static int handle_irc_line(t_connection * conn, char const * ircline)
 	
 	    e = irc_get_listelems(params[0]);
 	    /* FIXME: support wildcards! */
-	    for (i=0;((e)&&(e[i]));i++) {
-	    	if ((conn_get_state(conn)==conn_state_bot_password)&&(strcasecmp(e[i],"NICKSERV")==0)) {
-		    char * pass;
-		    pass = strchr(text,' ');
-		    if (pass)
-		    	*pass++ = '\0';
-		    if ((pass)&&(strcasecmp(text,"identify")==0)) {
-		    	t_hash h;
+		
+//start amadeo: code was sent by some unkown fellow of pvpgn(maybe u wanna give us your name 
+// for any credits), it adds nick-registration,i changed some things here and there...
+	   for (i=0;((e)&&(e[i]));i++) {
+    	
+    	if (strcasecmp(e[i],"NICKSERV")==0) {
+ 		    char * pass;
+			
+ 		    pass = strchr(text,' ');
+ 		    if (pass)
+ 		    	*pass++ = '\0';
+			if (strcasecmp(text,"identify")==0) {
+				if (conn_get_state(conn)==conn_state_bot_password) {						
+					if (pass) {
+ 		    	t_hash h;
+ 
+ 		    	bnet_hash(&h,strlen(pass),pass);
+ 		    	irc_authenticate(conn,hash_get_str(h));
+ 		    } else {
+						irc_send_cmd(conn,"NOTICE",":Syntax: IDENTIFY password(max 16 characters)");
 
-		    	bnet_hash(&h,strlen(pass),pass);
-		    	irc_authenticate(conn,hash_get_str(h));
-		    } else {
-		        irc_send_cmd(conn,"NOTICE",":Invalid arguments for NICKSERV");
-		    }
-	        } else if (conn_get_state(conn)==conn_state_loggedin) {
+						}
+					} else {
+							irc_send_cmd(conn,"NOTICE",":You don't need to IDENTIFY");
+					}
+				} 
+				else if (strcasecmp(text,"register")==0) {
+					int j;
+					t_hash       passhash;
+					t_account  * temp;
+					char         msgtemp[MAX_MESSAGE_LEN];
+					char       * username=(char *)conn_get_botuser(conn);						
+					
+					if (!pass || pass[0]=='\0' || (strlen(pass)>16) )
+					{
+						message_send_text(conn,message_type_error,conn,":Syntax: REGISTER password(max 16 characters)");
+						break;
+					}
+	
+					
+					for (j=0; j<strlen(pass); j++)
+						if (isupper((int)pass[j])) pass[j] = tolower((int)pass[j]);
+	
+					bnet_hash(&passhash,strlen(pass),pass);
+	
+					sprintf(msgtemp,"Trying to create account \"%s\" with password \"%s\"",username,pass);
+					message_send_text(conn,message_type_info,conn,msgtemp);					
+	
+					if (!(temp = account_create(username,hash_get_str(passhash))))
+					{
+						message_send_text(conn,message_type_error,conn,"Failed to create account!");
+						eventlog(eventlog_level_info,"handle_irc_line","[%d] account \"%s\" not created by IRC (failed)",conn_get_socket(conn),username);
+						conn_unget_chatname(conn,username);
+						break;
+					}
+					if (!accountlist_add_account(temp))
+					{
+						account_destroy(temp);
+						message_send_text(conn,message_type_error,conn,"Failed to register account. Account already exists.");
+						eventlog(eventlog_level_info,"handle_irc_line","[%d] account \"%s\" could not be created by IRC (insert failed)",conn_get_socket(conn),username);
+					}
+					else
+					{
+						sprintf(msgtemp,"Account "UID_FORMAT" created.",account_get_uid(temp));
+						message_send_text(conn,message_type_info,conn,msgtemp);
+						eventlog(eventlog_level_info,"handle_irc_line","[%d] account \"%s\" created by IRC",conn_get_socket(conn),username);
+					}
+
+					conn_unget_chatname(conn,username);
+				}
+				else 
+				{
+					char tmp[MAX_IRC_MESSAGE_LEN+1];
+					
+ 		        irc_send_cmd(conn,"NOTICE",":Invalid arguments for NICKSERV");
+					sprintf(tmp,":Unrecognized command %s",text);
+					irc_send_cmd(conn,"NOTICE",tmp);
+ 		    }
+ 	        } 
+//end amadeo 
+else if (conn_get_state(conn)==conn_state_loggedin) {
 		    if (e[i][0]=='#') {
 		        /* channel message */
 			t_channel * channel;
@@ -392,6 +472,35 @@ static int handle_irc_line(t_connection * conn, char const * ircline)
                  irc_unget_listelems(e);
     	}
     	irc_send(conn,RPL_LISTEND,":End of LIST command");
+/*start amadeo:  same ppl who did the nick-reg stuff had some ideas about "topics" :)....
+doesn't work now, causes accesviolations, but isn't needed @ all, cause gameclients can't see topics*/
+		} else if (strcmp(command,"TOPIC")==0) {
+		char ** e = NULL;
+		
+		if (params!=NULL) e = irc_get_listelems(params[0]);
+
+		if ((e)&&(e[0])) {
+	    	char const * ircname = irc_convert_ircname(e[0]);
+
+			t_channel * channel;
+
+			channel = conn_get_channel(conn);			
+
+			if (channel) {	
+
+				if ((!ircname)||(strcmp(channel_get_name(channel),ircname)!=0)) {
+					irc_send(conn,ERR_NOTONCHANNEL,":You're not on that channel");
+				} else {
+					char temp[MAX_IRC_MESSAGE_LEN];					
+
+					ircname=irc_convert_channel(channel);
+
+					sprintf(temp,"%s :Not yet implemented.",ircname);
+					irc_send(conn,RPL_TOPIC,temp);
+				}
+			}
+		}
+/* */
     } else if (strcmp(command,"JOIN")==0) {
 	if (numparams>=1) {
 	    char ** e;
@@ -408,6 +517,9 @@ static int handle_irc_line(t_connection * conn, char const * ircline)
 		    channel = conn_get_channel(conn);
 		    if (channel) {
 		    	char temp[MAX_IRC_MESSAGE_LEN];
+				// amadeo needed when topic stuff is fixed...
+				//message_send_text(conn,message_type_join,conn,NULL); /* we have to send the JOIN acknowledgement */
+				//ircname=irc_convert_channel(channel);
 		    	
 			if ((strlen(ircname)+1+strlen(":Not yet implemented.")+1)<MAX_IRC_MESSAGE_LEN) {
 			    sprintf(temp,"%s :Not yet implemented.",ircname);
@@ -417,6 +529,7 @@ static int handle_irc_line(t_connection * conn, char const * ircline)
 			    sprintf(temp,"%s FIXME 0",ircname);
 			    irc_send(conn,RPL_TOPICWHOTIME,temp); /* FIXME: this in an undernet extension but other servers support it too */
 			}
+			//amadeo: this must be deleted when topic-stuff gets activated
 			message_send_text(conn,message_type_join,conn,NULL); /* we have to send the JOIN acknowledgement */
 			irc_send_rpl_namreply(conn,channel);
 			irc_send(conn,RPL_ENDOFNAMES,":End of NAMES list");
@@ -449,9 +562,9 @@ static int handle_irc_line(t_connection * conn, char const * ircline)
 	/* FIXME: Not yet implemented */
 	//amadeo -> (LAGTIME.xxxxxxxx is send by several irc-clients. It is not needed
     // but would result in unknown-command error flooding the users channelwindow....
-	// same for "ISON" in Trillian
-	} else if ((command[0]!='L')&& (command[1]!='A') && (command[2]!='G')&& 
-		       (command[0]!='I')&& (command[1]!='S') && (command[2]!='O')){
+	// same for "ISON" in Trillian , /JOIN MUST NOT BE PASSED,, otherwise ppl can join without
+	//	nick-auth...,
+	} else if ((strstart(command,"LAG")!=0)&&(strstart(command,"ISON")!=0)&&(strstart(command,"JOIN")!=0)){
 	/* amadeo: just pass the line to bnet-command-interpreter to get rid of /BNET blabla...
 	           will also return errormsg if command is still unknown
 
