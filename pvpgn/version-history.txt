@@ -5,6 +5,12 @@ versioncheck exe-time parsing now REALLY works as it was intended to.
 So ALL users using fucked up no-CD cracks or strange war3.org's may
 fail to login due to wrong file-time. That's not our problem. 
 
+1.6.0pre4 (since 1.6.0pre3):
+-- fixed problem that started game remain in gamelist in war3/w3xp 1.13
+-- moved anongame_infos packet data generation to server startup so that
+we don't generate anongame_infos data each time when user logon
+-- tournament settings will also reload when get restart signal
+
 1.6.0pre3 (since 1.6.0pre2):
 -- fixed clan crash bug (when any user with clans logged in on sql/cdb pvpgn 
 would crash)
