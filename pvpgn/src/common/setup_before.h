@@ -28,7 +28,9 @@
 #endif
 
 #ifdef WIN32
+#ifndef __BORLANDC__ /* Borland uses config.h.win32borland instead */
 # include "configwin.h"
+#endif
 #endif
 
 /* This file contains compile-time configuration parameters including
