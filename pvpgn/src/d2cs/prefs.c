@@ -87,6 +87,8 @@ static t_conf_table prefs_conf_table[]={
     { "d2gs_restart_delay",	offsetof(t_prefs,d2gs_restart_delay),     conf_type_int,    DEFAULT_D2GS_RESTART_DELAY,    NULL                       },
     { "char_expire_day",	offsetof(t_prefs,char_expire_day),        conf_type_int,    0,                             NULL                       },
     { "d2gsconffile",           offsetof(t_prefs,d2gsconffile),           conf_type_str,    0,                             ""                         },
+    { "charlist_sort",          offsetof(t_prefs,charlist_sort),          conf_type_str,    0,                             "none"                     },
+    { "charlist_sort_order",    offsetof(t_prefs,charlist_sort_order),    conf_type_str,    0,                             "ASC"                      },
     { NULL,                     0,                                        conf_type_none,   0,                             NULL                       }
 };
 
@@ -331,4 +333,14 @@ extern unsigned int prefs_get_char_expire_time(void)
 extern char const * prefs_get_d2gsconffile(void)
 {
 	return prefs_conf.d2gsconffile;
+}
+
+extern char const * prefs_get_charlist_sort(void)
+{
+	return prefs_conf.charlist_sort;
+}
+
+extern char const * prefs_get_charlist_sort_order(void)
+{
+	return prefs_conf.charlist_sort_order;
 }

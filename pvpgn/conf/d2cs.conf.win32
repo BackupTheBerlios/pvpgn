@@ -106,6 +106,13 @@ check_multilogin	=	0
 # Maxinum number of character per account
 maxchar			=	8
 
+# Character sorting. Options are: level, mtime, name, none. (none assumed if
+# not specified).
+#charlist_sort = "none"
+
+# Do we need ascending or descending order for charlist?
+#charlist_sort_order = "ASC"
+
 # Maxinum number of games will be shown in join game list
 # Zero = infinite
 maxgamelist		=	20

@@ -148,6 +148,9 @@
 				<File
 					RelativePath="..\d2cs\d2charfile.c">
 				</File>
+ 				<File
+ 					RelativePath="..\d2cs\d2charlist.c">
+ 				</File>
 				<File
 					RelativePath="..\d2cs\d2gs.c">
 				</File>
@@ -340,6 +343,9 @@
 				<File
 					RelativePath="..\d2cs\d2charfile.h">
 				</File>
+ 				<File
+ 					RelativePath="..\d2cs\d2charlist.h">
+ 				</File>
 				<File
 					RelativePath="..\d2cs\d2cs_bnetd_protocol.h">
 				</File>

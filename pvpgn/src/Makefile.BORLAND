@@ -280,6 +280,7 @@ d2cs_OBJECTS    = \
     ${SRC_D2CSDIR}\handle_init.obj \ 
     ${SRC_D2CSDIR}\handle_d2cs.obj \ 
     ${SRC_D2CSDIR}\d2charfile.obj \ 
+    ${SRC_D2CSDIR}\d2charlist.obj \ 
     ${SRC_D2CSDIR}\xstring.obj \ 
     ${SRC_D2CSDIR}\gamequeue.obj \ 
     ${SRC_D2CSDIR}\conf.obj \ 

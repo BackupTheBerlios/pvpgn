@@ -218,6 +218,7 @@ ${SRC_D2CSDIR}/server.o \
 ${SRC_D2CSDIR}/handle_init.o \
 ${SRC_D2CSDIR}/handle_d2cs.o \
 ${SRC_D2CSDIR}/d2charfile.o \
+${SRC_D2CSDIR}/d2charlist.o \
 ${SRC_D2CSDIR}/xstring.o \
 ${SRC_D2CSDIR}/gamequeue.o \
 ${SRC_D2CSDIR}/conf.o \

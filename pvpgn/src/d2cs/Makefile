@@ -23,7 +23,7 @@ LINK		= ${CC} -g2 -O2 -Wall
 
 d2cs_SBIN	= ../../sbin/d2cs
 d2cs_OBJECTS	= main.o d2gs.o handle_d2gs.o serverqueue.o connection.o game.o server.o\
-handle_init.o handle_d2cs.o d2charfile.o xstring.o gamequeue.o conf.o prefs.o cmdline_parse.o\
+handle_init.o handle_d2cs.o d2charfile.o d2charlist.o xstring.o gamequeue.o conf.o prefs.o cmdline_parse.o\
 bnetd.o handle_bnetd.o s2s.o net.o d2ladder.o handle_signal.o\
 ${commondir}/check_alloc.o ${commondir}/hashtable.o ${commondir}/hexdump.o\
 ${commondir}/eventlog.o ${commondir}/list.o ${commondir}/packet.o ${commondir}/bn_type.o\

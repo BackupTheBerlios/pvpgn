@@ -63,6 +63,8 @@ typedef struct
 	unsigned int	d2gs_restart_delay;
 	unsigned int	ladder_start_time;
 	unsigned int	char_expire_day;
+	char const      * charlist_sort;
+	char const      * charlist_sort_order;
 } t_prefs;
 
 extern int d2cs_prefs_load(char const * filename);
@@ -113,5 +115,8 @@ extern unsigned int prefs_get_d2gs_restart_delay(void);
 extern unsigned int prefs_get_ladder_start_time(void);
 extern unsigned int prefs_get_char_expire_time(void);
 extern char const * prefs_get_d2gsconffile(void);
+
+extern char const * prefs_get_charlist_sort(void);
+extern char const * prefs_get_charlist_sort_order(void);
 
 #endif

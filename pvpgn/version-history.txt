@@ -2,6 +2,9 @@ PvPGN Version History:
 
 1.7.0 since 1.6.2
 
+[D2CS]
+  -- made ordering of chars on char-selection screen configurable
+
 [STAR/SEXP/W2BN]:
   -- changed handling of gameresults to be democratic
   -- fixed problem with win/games ladder
