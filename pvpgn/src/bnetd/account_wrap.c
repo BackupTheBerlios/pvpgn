@@ -3032,10 +3032,8 @@ extern int account_get_icon_profile(t_account * account, char const * clienttag)
 
         eventlog(eventlog_level_info,"account_get_icon_profile","race -> %u; level -> %u; wins -> %u; profileicon -> 0x%X", race, level, wins, profileicon[race][level]);
 
-	if (!wins) return 0x6E736865; // Sheep
-	
         if (!level) return 0x6F70656F; // Sheep - Remove to use race icons ie. Peasant, Peon, Wisp, etc. (Not tested) maybe add option in config
 				       // changed to Peon by Dizzy, this is how BNET does it
-        
+
 	return profileicon[race][level];
 }
