@@ -1500,12 +1500,6 @@ extern int server_process(void)
 {
     t_addrlist *    laddrs;
 
-    if (psock_init()<0)
-    {
-	eventlog(eventlog_level_error,__FUNCTION__,"could not initialize socket functions");
-	return -1;
-    }
-    
     laddrs = NULL;
     /* Start with the Battle.net address list */
     if (_setup_add_addrs(&laddrs, prefs_get_bnetdserv_addrs(),INADDR_ANY,BNETD_SERV_PORT,laddr_type_bnet))

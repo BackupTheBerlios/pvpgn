@@ -47,6 +47,7 @@
 # include <unistd.h>
 #endif
 #include "compat/stdfileno.h"
+#include "compat/psock.h"
 #include "common/hexdump.h"
 #include "channel.h"
 #include "game.h"
@@ -139,12 +140,13 @@ static void usage(char const * progname)
 
 
 // added some more exit status --> put in "compat/exitstatus.h" ???
-#define STATUS_STORAGE_FAILURE		3
-#define STATUS_MAPLISTS_FAILURE		4
-#define STATUS_MATCHLISTS_FAILURE	5
-#define STATUS_LADDERLIST_FAILURE	6
-#define STATUS_WAR3XPTABLES_FAILURE	7
-#define STATUS_SUPPORT_FAILURE          8
+#define STATUS_STORAGE_FAILURE		30
+#define STATUS_PSOCK_FAILURE		35
+#define STATUS_MAPLISTS_FAILURE		40
+#define STATUS_MATCHLISTS_FAILURE	50
+#define STATUS_LADDERLIST_FAILURE	60
+#define STATUS_WAR3XPTABLES_FAILURE	70
+#define STATUS_SUPPORT_FAILURE          80
 
 // new functions extracted from Fw()
 int read_commandline(int argc, char * * argv, int *foreground, char const *preffile[], char *hexfile[]);
@@ -396,6 +398,10 @@ int pre_server_startup(void)
 	eventlog(eventlog_level_error, "pre_server_startup", "storage init failed");
 	return STATUS_STORAGE_FAILURE;
     }
+    if (psock_init() < 0) {
+	eventlog(eventlog_level_error, __FUNCTION__, "could not initialize socket functions");
+	return STATUS_PSOCK_FAILURE;
+    }
     if (support_check_files(prefs_get_supportfile()) < 0) {
         eventlog(eventlog_level_error, "pre_server_startup","some needed files are missing");
 	eventlog(eventlog_level_error, "pre_server_startup","please make sure you installed the supportfiles in %s",prefs_get_filedir());
@@ -501,8 +507,10 @@ void post_server_shutdown(int status)
 	case STATUS_MATCHLISTS_FAILURE:
 	    anongame_maplists_destroy();
 	case STATUS_MAPLISTS_FAILURE:
-	    storage_close();
 	case STATUS_SUPPORT_FAILURE:
+	    psock_deinit();
+	case STATUS_PSOCK_FAILURE:
+	    storage_close();
 	case STATUS_STORAGE_FAILURE:
 	case -1:
 	    break;
