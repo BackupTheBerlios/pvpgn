@@ -56,100 +56,92 @@
 #include "common/eventlog.h"
 #include "prefs.h"
 #include "common/bnettime.h"
+#include "common/util.h"
 #include "file.h"
 #include "common/setup_after.h"
 
 
 static char const * file_get_info(char const * rawname, unsigned int * len, bn_long * modtime);
 
+static char * file_find_default(const char *rawname)
+{
+    /* Add new default files here */
+    const char * defaultfiles[]={"termsofservice-",".txt",
+				 "newaccount-",".txt",
+				 "chathelp-war3-",".txt",
+				 "matchmaking-war3-",".dat",
+				 NULL,NULL};
+    const char ** pattern, **extension;
+    char *filename = NULL;
+
+    for (pattern = defaultfiles, extension = defaultfiles + 1; *pattern; pattern++, extension++)
+    	if (!strcmp(rawname, *pattern)) {	/* Check if there is a default file available for this kind of file */
+	    filename = (char*)malloc(strlen(prefs_get_filedir()) + 1 + strlen(*pattern) + 7 + strlen(*extension));
+	    if (!filename) {
+		eventlog(eventlog_level_error,__FUNCTION__,"could not allocate memory for filename");
+		break;
+	    }
+
+	    strcpy(filename, prefs_get_filedir());
+	    strcat(filename, "/");
+	    strcat(filename, *pattern);
+	    strcat(filename, "default");
+	    strcat(filename, *extension);
+
+	    break;
+	}
+
+    return filename;
+}
 
 static char const * file_get_info(char const * rawname, unsigned int * len, bn_long * modtime)
 {
     char *filename;
     struct stat  sfile;
     t_bnettime   bt;
-    unsigned int i;
-    char extension[10];
-	char pattern[40];
-	/* Add new default files in this format: "pattern:.extension" */
-    char defaultfiles[][50]={"termsofservice-:.txt","newaccount-:.txt","chathelp-war3-:.txt","matchmaking-war3-:.dat"};
-        
-    if (!rawname)
-    {
-	eventlog(eventlog_level_error,"file_get_info","got NULL rawname");
-	return NULL;
-    }
-    if (!len)
-    {
-	eventlog(eventlog_level_error,"file_get_info","got NULL len");
-	return NULL;
-    }
-    if (!modtime)
-    {
-	eventlog(eventlog_level_error,"file_get_info","got NULL modtime");
-	return NULL;
-    }
-    
-    if (strchr(rawname,'/') || strchr(rawname,'\\'))
-    {
-	eventlog(eventlog_level_warn,"file_get_info","got rawname containing '/' or '\\' \"%s\"",rawname);
-	return NULL;
-    }
-    if (!(filename = malloc(strlen(prefs_get_filedir())+1+strlen(rawname)+1)))
-    {
-	eventlog(eventlog_level_error,"file_get_info","could not allocate memory for filename");
-	return NULL;
-    }
-    sprintf(filename,"%s/%s",prefs_get_filedir(),rawname);
-    
-    /* From here */
-    if (stat(filename,&sfile)<0) /* if it doesn't exist, try to replace with default file */
-    {
-    	for (i=0; i < sizeof(defaultfiles)/sizeof(defaultfiles[0]);i++) {		
-    		sscanf(defaultfiles[i],"%[^:]:%[^:]",pattern,extension);
-    		if (memcmp(rawname, pattern, strlen(pattern)) == 0) {	/* Check if there is a default file available for this kind of file */
-    			eventlog(eventlog_level_warn,"file_get_info","requested file %s not found, trying to send default file instead",rawname);
-    	//		strcpy(rawname,pattern);									
-    	//		strcat(rawname,"default");
-    	//		strcat(rawname,extension);									/* default files are called e.g. chathelp-war3-default */
-		
-				free(filename);
-				if (!(filename = malloc(strlen(prefs_get_filedir()) + 1 +
-					strlen(pattern) + strlen("default") + strlen(extension) + 1))) {
-					eventlog(eventlog_level_error,"file_get_info","could not allocate memory for filename [2]");
-					return NULL;
-				}
-    			//sprintf(filename,"%s/%s",prefs_get_filedir(),rawname);		/* return default filename instead of original */
 
-				strcpy(filename, prefs_get_filedir());
-				strcat(filename, "/");
-				strcat(filename, pattern);
-				strcat(filename, "default");
-				strcat(filename, extension);
+    if (!rawname) {
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL rawname");
+	return NULL;
+    }
 
-    			break;
-    		}
-    	}
-	}
-	/* to here 
-	Note: We could use a new config file with the files for which defaults can be sent
-	format would be: 
-	matchmaking-war3-	matchmaking-war3-default.dat
-	chathelp-war3-		chathelp-war3-default.txt
-	The number of chars of first coloum would have to be counted so we can compare that part of the string using memcmp
-	*/
-	
-    if (stat(filename,&sfile)<0) /* if it doesn't exist */
-    {
+    if (!len) {
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL len");
+	return NULL;
+    }
+
+    if (!modtime) {
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL modtime");
+	return NULL;
+    }
+
+    if (strchr(rawname,'/') || strchr(rawname,'\\')) {
+	eventlog(eventlog_level_warn,__FUNCTION__,"got rawname containing '/' or '\\' \"%s\"",rawname);
+	return NULL;
+    }
+
+    filename = buildpath(prefs_get_filedir(), rawname);
+    if (!filename) {
+	eventlog(eventlog_level_error,__FUNCTION__,"could not allocate memory for filename");
+	return NULL;
+    }
+
+    if (stat(filename,&sfile)<0) { /* if it doesn't exist, try to replace with default file */
+	free((void*)filename);
+	filename = file_find_default(rawname);
+	if (!filename) return NULL; /* no default version */
+    }
+
+    if (stat(filename,&sfile)<0) { /* if it doesn't exist */
 	/* FIXME: check for lower-case version of filename */
 	free(filename);
 	return NULL;
     }
-    
+
     *len = (unsigned int)sfile.st_size;
     bt = time_to_bnettime(sfile.st_mtime,0);
     bnettime_to_bn_long(bt,modtime);
-    
+
     return filename;
 }
 

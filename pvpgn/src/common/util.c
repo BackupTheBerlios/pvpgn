@@ -643,3 +643,14 @@ extern int hex_to_str(char const * source, char * data, int datalen)
     
     return i;
 }
+
+extern char * buildpath(char const *root, const char *suffix)
+{
+    char *result;
+
+    result = (char*) malloc(strlen(root) + 1 + strlen(suffix) + 1);
+    if (!result) return NULL;
+
+    strcpy(result,root); strcat(result,"/"); strcat(result,suffix);
+    return result;
+}
