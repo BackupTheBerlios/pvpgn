@@ -255,11 +255,8 @@ extern int account_set_soloxp(t_account * account, char const * clienttag, t_gam
 extern int account_get_soloxp(t_account * account, char const * clienttag);
 extern int account_set_sololevel(t_account * account, char const * clienttag);
 extern int account_get_sololevel(t_account * account, char const * clienttag);
-extern int account_set_solorank(t_account * account, char const * clienttag);
 extern int account_get_solorank(t_account * account, char const * clienttag);
-// aaron - 2 new funcs for optimized access used in ladder
-extern int account_set_solorank_ladder(t_account * account, char const * clienttag, int rank);
-extern int account_get_solorank_ladder(t_account * account, char const * clienttag);
+extern int account_set_solorank(t_account * account, char const * clienttag, int rank);
 // Any Team Game great then 1v1 .. so thats (2v2,3v3,4v4)
 extern int account_set_teamwin(t_account * account, char const * clienttag);
 extern int account_get_teamwin(t_account * account, char const * clienttag);
@@ -269,11 +266,8 @@ extern int account_set_teamxp(t_account * account, char const * clienttag, t_gam
 extern int account_get_teamxp(t_account * account, char const * clienttag);
 extern int account_set_teamlevel(t_account * account, char const * clienttag);
 extern int account_get_teamlevel(t_account * account, char const * clienttag);
-extern int account_set_teamrank(t_account * account, char const * clienttag);
 extern int account_get_teamrank(t_account * account, char const * clienttag);
-// aaron - another 2 funcs for ladder optimized access
-extern int account_set_teamrank_ladder(t_account * account, char const * clienttag, int rank);
-extern int account_get_teamrank_ladder(t_account * account, char const * clienttag);
+extern int account_set_teamrank(t_account * account, char const * clienttag, int rank);
 // Funcs for small and big FFA
 extern int account_set_ffawin(t_account * account, char const * clienttag);
 extern int account_get_ffawin(t_account * account, char const * clienttag);
@@ -285,9 +279,7 @@ extern int account_set_ffalevel(t_account * account, char const * clienttag);
 extern int account_get_ffalevel(t_account * account, char const * clienttag);
 extern int account_set_ffalevel(t_account * account, char const * clienttag);
 extern int account_get_ffarank(t_account * account, char const * clienttag);
-// aaron - those 2 functions again for this ladder
-extern int account_set_ffarank_ladder(t_account * account, char const * clienttag, int rank);
-extern int account_get_ffarank_ladder(t_account * account, char const * clienttag);
+extern int account_set_ffarank(t_account * account, char const * clienttag, int rank);
 // Funcs for Arranged Teams - THEUNDYING
 extern int account_set_atteamcount(t_account * account, char const * clienttag, unsigned int teamcount);
 extern int account_get_atteamcount(t_account * account, char const * clienttag);
@@ -299,18 +291,15 @@ extern int account_get_atteamwin(t_account * account, unsigned int teamcount, ch
 extern int account_set_atteamloss(t_account * account, unsigned int teamcount, char const * clienttag, int loss);
 extern int account_atteamloss(t_account * account, unsigned int teamcount, char const * clienttag);
 extern int account_get_atteamloss(t_account * account, unsigned int teamcount, char const * clienttag);
-extern int account_set_atteamxp(t_account * account, unsigned int teamcount, char const * clienttag, int xp);
 extern int account_update_atteamxp(t_account * account, t_game_result gameresult, unsigned int opponlevel, unsigned int teamcount, char const * clienttag, int * xp_diff);
 extern int account_get_atteamxp(t_account * account, unsigned int teamcount, char const * clienttag);
-extern int account_set_atteamlevel(t_account * account, unsigned int teamcount, char const * clienttag, int teamlevel);
-extern int account_update_atteamlevel(t_account * account, unsigned int teamcount, char const * clienttag);
 extern int account_get_atteamlevel(t_account * account, unsigned int teamcount, char const * clienttag);
+extern int account_set_atteamxp(t_account * account, unsigned int teamcount, char const * clienttag, int xp);
+extern int account_set_atteamlevel(t_account * account, unsigned int teamcount, char const * clienttag, int level);
+extern int account_update_atteamlevel(t_account * account, unsigned int teamcount, char const * clienttag);
 //aaron: --->
 extern int account_set_atteamrank(t_account * account, unsigned int teamcount, char const * clienttag, int teamrank);
-extern int account_update_atteamrank(t_account * account, unsigned int teamcount, char const * clienttag);
 extern int account_get_atteamrank(t_account * account, unsigned int teamcount, char const * clienttag);
-extern int account_set_atteamrank_ladder(t_account * account, int rank, unsigned int teamcount, char const * clienttag);
-extern int account_get_atteamrank_ladder(t_account * account, unsigned int teamcount, char const * clienttag);
 // <---
 extern int account_set_atteammembers(t_account * account, unsigned int teamcount, char const * clienttag, char const *members);
 extern char const * account_get_atteammembers(t_account * account, unsigned int teamcount, char const * clienttag);

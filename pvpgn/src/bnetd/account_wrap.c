@@ -2187,22 +2187,7 @@ extern int account_get_sololevel(t_account * account, char const * clienttag)
   return account_get_numattr(account,key);
 }
 
-// 11-20-2002 aaron -->
-extern int account_set_solorank(t_account * account, char const * clienttag)
-{
-  char key[256];
-
-  sprintf(key,"Record\\%s\\solo\\rank",clienttag);
-
-  return account_set_numattr(account, key ,war3_ladder_get_rank(solo_ladder(clienttag),account_get_uid(account),0,clienttag));
-}
-
-extern int account_get_solorank_ladder(t_account * account, char const * clienttag)
-{
-   return war3_ladder_get_rank(solo_ladder(clienttag), account_get_uid(account),0,clienttag);
-}
-
-extern int account_set_solorank_ladder(t_account * account, char const * clienttag, int rank)
+extern int account_set_solorank(t_account * account, char const * clienttag, int rank)
 {
   char key[256];
 
@@ -2294,7 +2279,7 @@ extern int account_set_teamxp(t_account * account, char const * clienttag, t_gam
     case game_result_loss:
       ladder_war3_xpdiff(opponlevel, mylevel, &placeholder, &xpdiff); break;
     default:
-      eventlog(eventlog_level_error, "account_set_atteamxp", "got invalid game result: %d", gameresult);
+      eventlog(eventlog_level_error, "account_set_teamxp", "got invalid game result: %d", gameresult);
       return -1;
     }  
 
@@ -2351,23 +2336,7 @@ extern int account_get_teamlevel(t_account * account, char const * clienttag)
   return account_get_numattr(account, key);
 }
 
-// 11-20-2002 aaron --->
-extern int account_set_teamrank(t_account * account, char const * clienttag)
-{
-  char key[256];
-
-  sprintf(key,"Record\\%s\\team\\rank",clienttag);
-  
-  return account_set_numattr(account,key,war3_ladder_get_rank(team_ladder(clienttag),account_get_uid(account),0,clienttag));
-}
-
-extern int account_get_teamrank_ladder(t_account * account, char const * clienttag)
-{
-  
-  return war3_ladder_get_rank(team_ladder(clienttag),account_get_uid(account),0,clienttag);
-}
-
-extern int account_set_teamrank_ladder(t_account * account, char const * clienttag, int rank)
+extern int account_set_teamrank(t_account * account, char const * clienttag, int rank)
 {
   char key[256];
 
@@ -2460,7 +2429,7 @@ extern int account_set_ffaxp(t_account * account, char const * clienttag,t_game_
     case game_result_loss:
       ladder_war3_xpdiff(opponlevel, mylevel, &placeholder, &xpdiff); break;
     default:
-      eventlog(eventlog_level_error, "account_set_atteamxp", "got invalid game result: %d", gameresult);
+      eventlog(eventlog_level_error, "account_set_ffaxp", "got invalid game result: %d", gameresult);
       return -1;
     }
     
@@ -2526,21 +2495,7 @@ extern int account_get_ffarank(t_account * account, char const * clienttag)
 }
 
 // aaron --->
-extern int account_set_ffarank(t_account * account, char const * clienttag)
-{
-  char key[256];
-
-  sprintf(key,"Record\\%s\\ffa\\rank",clienttag);
-  
-  return account_set_numattr(account,key,war3_ladder_get_rank(ffa_ladder(clienttag),account_get_uid(account),0,clienttag));
-}
-
-extern int account_get_ffarank_ladder(t_account * account, char const * clienttag)
-{
-	return war3_ladder_get_rank(ffa_ladder(clienttag),account_get_uid(account),0,clienttag);
-}
-
-extern int account_set_ffarank_ladder(t_account * account, char const * clienttag, int rank)
+extern int account_set_ffarank(t_account * account, char const * clienttag, int rank)
 {
   char key[256];
 
@@ -2859,15 +2814,6 @@ extern int account_get_atteamloss(t_account * account, unsigned int teamcount, c
   return account_get_numattr(account,key);
 }
 
-extern int account_set_atteamxp(t_account * account, unsigned int teamcount, char const * clienttag, int xp)
-{ 
-    char key[256];
-
-    sprintf(key,"Team\\%s\\%u\\teamxp",clienttag,teamcount);
-
-    return account_set_numattr(account,key,xp);
-}
-
 extern int account_update_atteamxp(t_account * account, t_game_result gameresult, unsigned int opponlevel, unsigned int teamcount, char const * clienttag, int * xp_diff)
 { 
   int xp;
@@ -2922,12 +2868,13 @@ extern int account_get_atteamxp(t_account * account, unsigned int teamcount, cha
   return account_get_numattr(account,key);
 }
 
-extern int account_set_atteamlevel(t_account * account, unsigned int teamcount, char const * clienttag, int teamlevel)
+extern int account_set_atteamxp(t_account * account, unsigned int teamcount, char const * clienttag, int xp)
 {
   char key[256];
-   
-  sprintf(key,"Team\\%s\\%u\\teamlevel",clienttag,teamcount);
-  return account_set_numattr(account,key,teamlevel);
+  
+  sprintf(key,"Team\\%s\\%u\\teamxp",clienttag,teamcount);
+  
+  return account_set_numattr(account,key,xp);
 }
 
 extern int account_update_atteamlevel(t_account * account, unsigned int teamcount, char const * clienttag)
@@ -2962,6 +2909,15 @@ extern int account_get_atteamlevel(t_account * account, unsigned int teamcount, 
   return account_get_numattr(account,key);
 }
 
+extern int account_set_atteamlevel(t_account * account, unsigned int teamcount, char const * clienttag, int level)
+{
+  char key[256];
+
+  sprintf(key,"Team\\%s\\%u\\teamlevel",clienttag, teamcount);
+
+  return account_set_numattr(account,key,level);
+}
+
 //aaron 
 extern int account_get_atteamrank(t_account * account, unsigned int teamcount,char const * clienttag)
 {
@@ -2979,27 +2935,6 @@ extern int account_set_atteamrank(t_account * account, unsigned int teamcount, c
   sprintf(key,"Team\\%s\\%u\\rank",clienttag, teamcount);
 
   return account_set_numattr(account, key, teamrank);
-}
-
-extern int account_update_atteamrank(t_account * account, unsigned int teamcount, char const * clienttag)
-{
-  char key[256];
-  
-  sprintf(key,"Team\\%s\\%u\\rank",clienttag, teamcount);
-
-  return account_set_numattr(account,key,war3_ladder_get_rank(at_ladder(clienttag),account_get_uid(account),teamcount,clienttag));
-}
-
-extern int account_get_atteamrank_ladder(t_account * account, unsigned int teamcount, char const * clienttag)
-{
-  return war3_ladder_get_rank(at_ladder(clienttag),account_get_uid(account), teamcount,clienttag);
-}
-
-extern int account_set_atteamrank_ladder(t_account * account, int rank, unsigned int teamcount, char const * clienttag)
-{
-  char key[256];
-  sprintf(key,"Team\\%s\\%u\\rank",clienttag,teamcount);
-  return account_set_numattr(account,key,rank);
 }
 // <---
 
