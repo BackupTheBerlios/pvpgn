@@ -50,16 +50,16 @@ static t_conf_table param_conf_table[]={
 #endif
 	{ "-c",          offsetof(t_param,prefs_file),    conf_type_str, 0, D2DBS_DEFAULT_CONF_FILE},
 	{ "-l",          offsetof(t_param,logfile),       conf_type_str, 0, NULL                   },
-	{ "-h",          offsetof(t_param,help),          conf_type_bool,0,                        },
-	{ "--help",      offsetof(t_param,help),          conf_type_bool,0,                        },
-	{ "-v",          offsetof(t_param,version),       conf_type_bool,0,                        },
-	{ "--version",   offsetof(t_param,version),       conf_type_bool,0,                        },
-	{ "-f",          offsetof(t_param,foreground),    conf_type_bool,0,                        },
-	{ "--foreground",offsetof(t_param,foreground),    conf_type_bool,0,                        },
-	{ "-D",          offsetof(t_param,debugmode),     conf_type_bool,0,                        },
-	{ "--debug",     offsetof(t_param,debugmode),     conf_type_bool,0,                        },
+	{ "-h",          offsetof(t_param,help),          conf_type_bool,0, NULL                   },
+	{ "--help",      offsetof(t_param,help),          conf_type_bool,0, NULL                   },
+	{ "-v",          offsetof(t_param,version),       conf_type_bool,0, NULL                   },
+	{ "--version",   offsetof(t_param,version),       conf_type_bool,0, NULL                   },
+	{ "-f",          offsetof(t_param,foreground),    conf_type_bool,0, NULL                   },
+	{ "--foreground",offsetof(t_param,foreground),    conf_type_bool,0, NULL                   },
+	{ "-D",          offsetof(t_param,debugmode),     conf_type_bool,0, NULL                   },
+	{ "--debug",     offsetof(t_param,debugmode),     conf_type_bool,0, NULL                   },
 #ifdef WIN32
-	{ "--service",	 offsetof(t_param,run_as_service),conf_type_bool,0,                        },
+	{ "--service",	 offsetof(t_param,run_as_service),conf_type_bool,0, NULL                   },
 	{ "-s",          offsetof(t_param,make_service),  conf_type_str, 0, NULL                   },
 #endif
 	{ NULL,          0,                               conf_type_none,0, NULL                   }
