@@ -61,6 +61,7 @@ SRC_COMPATDIR	= ${SRC_SRCDIR}/compat
 SRC_DEBUGDIR	= ${SRC_SRCDIR}/debug
 SRC_CDBDIR	= ${SRC_SRCDIR}/tinycdb
 SRC_ZLIBDIR     = ${SRC_SRCDIR}/zlib
+SRC_SQLITE3DIR  = ${SRC_SRCDIR}/sqlite3
 
 RMF		= rm -f
 
@@ -84,7 +85,7 @@ COMPILE		= @CC@ @CFLAGS@ ${CPPFLAGS} -fno-strict-aliasing -c
 LINK		= @CC@ @CFLAGS@ @LDFLAGS@
 LINK_LIBS	= @LIBS@
 
-PARTS            = bnetd bniutils bnpass bnpcap bnproxy bntrackd client common compat d2cs d2dbs tinycdb zlib
+PARTS            = bnetd bniutils bnpass bnpcap bnproxy bntrackd client common compat d2cs d2dbs tinycdb zlib sqlite3
 
 ifeq (@enable_bnetd@,no)
 bnetd_SBIN	=
@@ -220,7 +221,38 @@ ${SRC_CDBDIR}/cdb_hash.o \
 ${SRC_ZLIBDIR}/pvpgn_adler32.o \
 ${SRC_ZLIBDIR}/pvpgn_deflate.o \
 ${SRC_ZLIBDIR}/pvpgn_trees.o \
-${SRC_ZLIBDIR}/pvpgn_zutil.o
+${SRC_ZLIBDIR}/pvpgn_zutil.o \
+${SRC_SQLITE3DIR}/attach.o \
+${SRC_SQLITE3DIR}/auth.o \
+${SRC_SQLITE3DIR}/btree.o \
+${SRC_SQLITE3DIR}/build.o \
+${SRC_SQLITE3DIR}/date.o \
+${SRC_SQLITE3DIR}/delete.o \
+${SRC_SQLITE3DIR}/expr.o \
+${SRC_SQLITE3DIR}/func.o \
+${SRC_SQLITE3DIR}/hash.o \
+${SRC_SQLITE3DIR}/insert.o \
+${SRC_SQLITE3DIR}/legacy.o \
+${SRC_SQLITE3DIR}/main.o \
+${SRC_SQLITE3DIR}/opcodes.o \
+${SRC_SQLITE3DIR}/os_unix.o \
+${SRC_SQLITE3DIR}/pager.o \
+${SRC_SQLITE3DIR}/parse.o \
+${SRC_SQLITE3DIR}/pragma.o \
+${SRC_SQLITE3DIR}/printf.o \
+${SRC_SQLITE3DIR}/random.o \
+${SRC_SQLITE3DIR}/select.o \
+${SRC_SQLITE3DIR}/tokenize.o \
+${SRC_SQLITE3DIR}/trigger.o \
+${SRC_SQLITE3DIR}/update.o \
+${SRC_SQLITE3DIR}/utf.o \
+${SRC_SQLITE3DIR}/util.o \
+${SRC_SQLITE3DIR}/vacuum.o \
+${SRC_SQLITE3DIR}/vdbe.o \
+${SRC_SQLITE3DIR}/vdbeapi.o \
+${SRC_SQLITE3DIR}/vdbeaux.o \
+${SRC_SQLITE3DIR}/vdbemem.o \
+${SRC_SQLITE3DIR}/where.o
 endif
 
 ifeq (@enable_d2cs@,no)
