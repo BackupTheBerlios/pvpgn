@@ -618,7 +618,7 @@ static int _client_anongame_infos(t_connection * c, t_packet const * const packe
 
 	    switch (client_tag){
 		case CLIENT_FINDANONGAME_INFOTAG_URL:
-		    server_tag_unk=0xBF1F1047;
+		    bn_int_set((bn_int*)&server_tag_unk,0xBF1F1047);
 		    packet_append_data(rpacket, "LRU\0" , 4);
 		    packet_append_data(rpacket, &server_tag_unk , 4);
 		    // FIXME: Maybe need do do some checks to avoid prefs empty strings.
@@ -626,10 +626,10 @@ static int _client_anongame_infos(t_connection * c, t_packet const * const packe
 		    packet_append_data(rpacket, tmpdata, tmplen);
 		    noitems++;
 		    server_tag_count++;
-		    eventlog(eventlog_level_debug,__FUNCTION__,"client_tag request tagid=(0x%01x) tag=(%s)  tag_unk=(0x%04x)",i,"CLIENT_FINDANONGAME_INFOTAG_URL",client_tag_unk);
+		    eventlog(eventlog_level_debug,__FUNCTION__,"client_tag version=(0x%01x) request tagid=(0x%01x) tag=(%s)  tag_unk=(0x%04x)",conn_get_versionid(c),i,"CLIENT_FINDANONGAME_INFOTAG_URL",client_tag_unk);
 		    break;
 		case CLIENT_FINDANONGAME_INFOTAG_MAP:
-		    server_tag_unk=0x70E2E0D5;
+		    bn_int_set((bn_int*)&server_tag_unk,0x70E2E0D5);
 		    packet_append_data(rpacket, "PAM\0" , 4);
 		    packet_append_data(rpacket, &server_tag_unk , 4);
 			tmpdata = anongame_infos_data_get_map(clienttag, conn_get_versionid(c), &tmplen);
@@ -639,7 +639,7 @@ static int _client_anongame_infos(t_connection * c, t_packet const * const packe
 		    eventlog(eventlog_level_debug,__FUNCTION__,"client_tag request tagid=(0x%01x) tag=(%s)  tag_unk=(0x%04x)",i,"CLIENT_FINDANONGAME_INFOTAG_MAP",client_tag_unk);
 		    break;
 		case CLIENT_FINDANONGAME_INFOTAG_TYPE:
-		    server_tag_unk=0x7C87DEEE;
+		    bn_int_set((bn_int*)&server_tag_unk,0x7C87DEEE);
 		    packet_append_data(rpacket, "EPYT" , 4);
 		    packet_append_data(rpacket, &server_tag_unk , 4);
 			tmpdata = anongame_infos_data_get_type(clienttag, conn_get_versionid(c), &tmplen);
@@ -649,7 +649,7 @@ static int _client_anongame_infos(t_connection * c, t_packet const * const packe
 		    eventlog(eventlog_level_debug,__FUNCTION__,"client_tag request tagid=(0x%01x) tag=(%s) tag_unk=(0x%04x)",i,"CLIENT_FINDANONGAME_INFOTAG_TYPE",client_tag_unk);
 		    break;
 		case CLIENT_FINDANONGAME_INFOTAG_DESC:
-		    server_tag_unk=0xA4F0A22F;
+		    bn_int_set((bn_int*)&server_tag_unk,0xA4F0A22F);
 		    packet_append_data(rpacket, "CSED" , 4);
 		    packet_append_data(rpacket,&server_tag_unk,4);
 			tmpdata = anongame_infos_data_get_desc((char *)conn_get_country(c), clienttag, conn_get_versionid(c), &tmplen);
@@ -659,7 +659,7 @@ static int _client_anongame_infos(t_connection * c, t_packet const * const packe
 		    server_tag_count++;
 		    break;
 		case CLIENT_FINDANONGAME_INFOTAG_LADR:
-		    server_tag_unk=0x3BADE25A;
+		    bn_int_set((bn_int*)&server_tag_unk,0x3BADE25A);
 		    packet_append_data(rpacket, "RDAL" , 4);
 		    packet_append_data(rpacket, &server_tag_unk , 4);
 			tmpdata = anongame_infos_data_get_ladr((char *)conn_get_country(c), clienttag, conn_get_versionid(c), &tmplen);
