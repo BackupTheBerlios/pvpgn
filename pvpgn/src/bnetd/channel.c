@@ -64,6 +64,7 @@
 #include "common/list.h"
 #include "message.h"
 #include "account.h"
+#include "account_wrap.h"
 #include "common/util.h"
 #include "prefs.h"
 #include "common/token.h"

@@ -65,6 +65,7 @@
 #include "prefs.h"
 #include "connection.h"
 #include "account.h"
+#include "account_wrap.h"
 #include "ladder.h"
 #include "ladder_calc.h"
 #include "common/bnettime.h"

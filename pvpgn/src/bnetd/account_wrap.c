@@ -41,6 +41,7 @@
 #include "common/bnettime.h"
 #include "ladder.h"
 #include "account.h"
+#include "account_wrap.h"
 #include "character.h"
 #include "connection.h"
 #include "compat/strcasecmp.h"

@@ -46,6 +46,7 @@
 #include "common/eventlog.h"
 #include "command.h"
 #include "account.h"
+#include "account_wrap.h"
 #include "connection.h"
 #include "channel.h"
 #include "common/queue.h"

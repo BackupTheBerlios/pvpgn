@@ -81,6 +81,7 @@
 #include "common/eventlog.h"
 #include "common/addr.h"
 #include "account.h"
+#include "account_wrap.h"
 #include "realm.h"
 #include "channel.h"
 #include "game.h"

@@ -27,6 +27,7 @@
 # endif
 #endif
 #include "account.h"
+#include "account_wrap.h"
 #include "common/eventlog.h"
 #include "game.h"
 #include "common/tag.h"

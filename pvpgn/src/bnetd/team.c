@@ -64,6 +64,7 @@
 #include "storage.h"
 #include "team.h"
 #include "account.h"
+#include "account_wrap.h"
 #include "ladder.h"
 #ifdef HAVE_ASSERT_H
 # include <assert.h>

@@ -31,6 +31,7 @@
 #include "connection.h"
 #include "realm.h"
 #include "account.h"
+#include "account_wrap.h"
 #include "d2cs/d2cs_bnetd_protocol.h"
 #include "common/bnethash.h"
 #include "common/bnethashconv.h"

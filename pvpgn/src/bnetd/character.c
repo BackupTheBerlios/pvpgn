@@ -52,6 +52,7 @@
 #include "compat/uint.h"
 #include "common/bnet_protocol.h"
 #include "account.h"
+#include "account_wrap.h"
 #include "common/bn_type.h"
 #include "common/util.h"
 #include "common/xalloc.h"

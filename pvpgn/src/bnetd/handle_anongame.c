@@ -48,6 +48,7 @@
 #include "connection.h"
 #include "team.h"
 #include "account.h"
+#include "account_wrap.h"
 #include "channel.h"
 #include "anongame.h"
 #include "anongame_infos.h"

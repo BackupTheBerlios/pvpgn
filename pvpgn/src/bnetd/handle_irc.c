@@ -53,6 +53,7 @@
 #include "common/bnethashconv.h"
 #include "message.h"
 #include "account.h"
+#include "account_wrap.h"
 #include "channel.h"
 #include "irc.h"
 #include "prefs.h"

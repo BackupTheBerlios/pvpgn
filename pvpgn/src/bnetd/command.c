@@ -75,6 +75,7 @@
 #include "common/version.h"
 #include "team.h"
 #include "account.h"
+#include "account_wrap.h"
 #include "server.h"
 #include "prefs.h"
 #include "common/eventlog.h"

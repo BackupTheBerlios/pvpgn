@@ -66,6 +66,7 @@
 #include "command.h"
 #include "team.h"
 #include "account.h"
+#include "account_wrap.h"
 #include "connection.h"
 #include "channel.h"
 #include "game.h"

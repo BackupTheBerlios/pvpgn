@@ -44,6 +44,7 @@
 #include <compat/strerror.h>
 #include "common/field_sizes.h"
 #include "account.h"
+#include "account_wrap.h"
 #include "common/eventlog.h"
 #include "common/util.h"
 #include "game.h"

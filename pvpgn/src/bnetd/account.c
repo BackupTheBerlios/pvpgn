@@ -71,6 +71,7 @@
 #include "common/bnethash.h"
 #include "common/introtate.h"
 #include "account.h"
+#include "account_wrap.h"
 #include "common/hashtable.h"
 #include "storage.h"
 #include "connection.h"

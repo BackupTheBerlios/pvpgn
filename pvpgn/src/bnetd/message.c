@@ -60,6 +60,7 @@
 #include "common/version.h"
 #include "common/addr.h"
 #include "account.h"
+#include "account_wrap.h"
 #include "game.h"
 #include "channel.h"
 #include "channel_conv.h"

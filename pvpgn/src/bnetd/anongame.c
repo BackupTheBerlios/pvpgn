@@ -50,6 +50,7 @@
 #include "common/tag.h"
 #include "team.h"
 #include "account.h"
+#include "account_wrap.h"
 #include "connection.h"
 #include "common/queue.h"
 #include "prefs.h"

@@ -155,5 +155,3 @@ extern t_list * account_get_teams(t_account * account);
 
 #endif
 #endif
-
-#include "account_wrap.h"
