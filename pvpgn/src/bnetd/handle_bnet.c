@@ -1798,15 +1798,22 @@ static int _client_loginreq1(t_connection * c, t_packet const * const packet)
 	   }
 	}
 		
+	/* fail if no account */
+	if ((!(account = accountlist_find_account(username))) && (!(account = account_load_new(username))))
+	  {
+	     eventlog(eventlog_level_info,__FUNCTION__,"[%d] login for \"%s\" refused (no such account)",conn_get_socket(c),username);
+	     bn_int_set(&rpacket->u.server_loginreply1.message,SERVER_LOGINREPLY1_MESSAGE_FAIL);
+	  }
+	else
 	/* already logged in */
-	if (connlist_find_connection_by_accountname(username) &&
+	if (connlist_find_connection_by_account(account) &&
 	    prefs_get_kick_old_login()==0)
 	  {
 	     eventlog(eventlog_level_info,__FUNCTION__,"[%d] login for \"%s\" refused (already logged in)",conn_get_socket(c),username);
 	     bn_int_set(&rpacket->u.server_loginreply1.message,SERVER_LOGINREPLY1_MESSAGE_FAIL);
 	  }
-	else
 #ifdef WITH_BITS
+	else
 	  if (!bits_master)
 	    {
 	       t_query * q;
@@ -1833,12 +1840,6 @@ static int _client_loginreq1(t_connection * c, t_packet const * const packet)
 	       /* Account is ready for use now */
 	    }
 #endif
-	/* fail if no account */
-	if (!(account = accountlist_find_account(username)))
-	  {
-	     eventlog(eventlog_level_info,__FUNCTION__,"[%d] login for \"%s\" refused (no such account)",conn_get_socket(c),username);
-	     bn_int_set(&rpacket->u.server_loginreply1.message,SERVER_LOGINREPLY1_MESSAGE_FAIL);
-	  }
 	else if (account_get_auth_bnetlogin(account)==0) /* default to true */
 	  {
 	     eventlog(eventlog_level_info,__FUNCTION__,"[%d] login for \"%s\" refused (no bnet access)",conn_get_socket(c),username);
@@ -2003,15 +2004,21 @@ static int _client_loginreq2(t_connection * c, t_packet const * const packet)
 	   }
 	}
 	
+	/* fail if no account */
+	if ((!(account = accountlist_find_account(username))) && (!(account = account_load_new(username))))
+	  {
+	     eventlog(eventlog_level_info,__FUNCTION__,"[%d] login for \"%s\" refused (no such account)",conn_get_socket(c),username);
+	     bn_int_set(&rpacket->u.server_loginreply2.message,SERVER_LOGINREPLY2_MESSAGE_BADPASS);
+	  }
 	/* already logged in */
-	if (connlist_find_connection_by_accountname(username) &&
+	else if (connlist_find_connection_by_account(account) &&
 	    prefs_get_kick_old_login()==0)
 	  {
 	     eventlog(eventlog_level_info,__FUNCTION__,"[%d] login for \"%s\" refused (already logged in)",conn_get_socket(c),username);
 	     bn_int_set(&rpacket->u.server_loginreply2.message,SERVER_LOGINREPLY2_MESSAGE_ALREADY);
 	  }
-	else
 #ifdef WITH_BITS
+	else
 	  if (!bits_master)
 	    {
 	       if (account_name_is_unknown(username)) {
@@ -2024,12 +2031,6 @@ static int _client_loginreq2(t_connection * c, t_packet const * const packet)
 	       account = accountlist_find_account(username);
 	    }
 #endif
-	/* fail if no account */
-	if (!(account = accountlist_find_account(username)))
-	  {
-	     eventlog(eventlog_level_info,__FUNCTION__,"[%d] login for \"%s\" refused (no such account)",conn_get_socket(c),username);
-	     bn_int_set(&rpacket->u.server_loginreply2.message,SERVER_LOGINREPLY2_MESSAGE_BADPASS);
-	  }
 	else if (account_get_auth_bnetlogin(account)==0) /* default to true */
 	  {
 	     eventlog(eventlog_level_info,__FUNCTION__,"[%d] login for \"%s\" refused (no bnet access)",conn_get_socket(c),username);
@@ -2189,72 +2190,50 @@ static int _client_loginreqw3(t_connection * c, t_packet const * const packet)
 	for (i=0; i<16; i++)
 	    bn_int_set (&rpacket->u.server_loginreply_w3.unknown[i], 0);
 
-	do {
+	{
 	    /* too many logins? */
 	    if (prefs_get_max_concurrent_logins()>0 && 
 		prefs_get_max_concurrent_logins()<=connlist_login_get_length())
 	    {
 		eventlog(eventlog_level_error,__FUNCTION__,"[%d] login denied, too many concurrent logins. max: %d. current: %d.",conn_get_socket(c),prefs_get_max_concurrent_logins(),connlist_login_get_length());
 		bn_int_set(&rpacket->u.server_loginreply_w3.message,SERVER_LOGINREPLY_W3_MESSAGE_BADACCT);
-		break;
 	    }
-
+		else
 	    /* fail if no account */
-	    account = accountlist_find_account(username);
-	    if (!account)
+	    if ((!(account = accountlist_find_account(username))) && (!(account = account_load_new(username))))
 	    {
 		eventlog(eventlog_level_info,__FUNCTION__,"[%d] (W3) login for \"%s\" refused (no such account)",conn_get_socket(c),username);
 		bn_int_set(&rpacket->u.server_loginreply_w3.message,SERVER_LOGINREPLY_W3_MESSAGE_BADACCT);
-		break;
 	    }
-
+		else
 	    /* already logged in */
 	    if (connlist_find_connection_by_account(account) &&
 		prefs_get_kick_old_login()==0)
 	    {
 		eventlog(eventlog_level_info,__FUNCTION__,"[%d] (W3) login for \"%s\" refused (already logged in)",conn_get_socket(c),username);
 	        bn_int_set(&rpacket->u.server_loginreply_w3.message,SERVER_LOGINREPLY_W3_MESSAGE_ALREADY);
-		break;
 	    }
-
+		else
 	    if (account_get_auth_bnetlogin(account)==0) /* default to true */
 	    {
 		eventlog(eventlog_level_info,__FUNCTION__,"[%d] (W3) login for \"%s\" refused (no bnet access)",conn_get_socket(c),username);
 		bn_int_set(&rpacket->u.server_loginreply_w3.message,SERVER_LOGINREPLY_W3_MESSAGE_BADACCT);
-		break;
 	    }
-
+		else
 	    if (account_get_auth_lock(account)==1) /* default to false */
 	    {
 		eventlog(eventlog_level_info,__FUNCTION__,"[%d] login for \"%s\" refused (this account is locked)",conn_get_socket(c),username);
 		bn_int_set(&rpacket->u.server_loginreply1.message,SERVER_LOGINREPLY_W3_MESSAGE_BADACCT);
-		break;
 	    }
-
+		else
+		{
 	    eventlog(eventlog_level_info,__FUNCTION__,"[%d] (W3) \"%s\" passed account check",conn_get_socket(c),(tname = account_get_name(account)));
 	    conn_set_w3_username(c,tname);
 	    account_unget_name(tname);
 	    bn_int_set(&rpacket->u.server_loginreply_w3.message,SERVER_LOGINREPLY_W3_MESSAGE_SUCCESS);
+		}
 
-	    /* FIXME: is this shit really needed ?
-	      bn_int_set (&rpacket->u.server_loginreply_w3.unknown[ 0], 0xdc24d96e);
-	      bn_int_set (&rpacket->u.server_loginreply_w3.unknown[ 1], 0xd104c9b2);
-	      bn_int_set (&rpacket->u.server_loginreply_w3.unknown[ 2], 0x419d2f2c);
-	      bn_int_set (&rpacket->u.server_loginreply_w3.unknown[ 3], 0xfad3cce2);
-	      bn_int_set (&rpacket->u.server_loginreply_w3.unknown[ 4], 0x56cdacfa);
-	      bn_int_set (&rpacket->u.server_loginreply_w3.unknown[ 5], 0xceb6cd85);
-	      bn_int_set (&rpacket->u.server_loginreply_w3.unknown[ 6], 0x150475cf);
-	      bn_int_set (&rpacket->u.server_loginreply_w3.unknown[ 7], 0xdda39a85);
-	      bn_int_set (&rpacket->u.server_loginreply_w3.unknown[ 8], 0x816c594e);
-	      bn_int_set (&rpacket->u.server_loginreply_w3.unknown[ 9], 0xf8331b22);
-	      bn_int_set (&rpacket->u.server_loginreply_w3.unknown[10], 0xe722a8d7);
-	      bn_int_set (&rpacket->u.server_loginreply_w3.unknown[11], 0xc3065ae8);
-	      bn_int_set (&rpacket->u.server_loginreply_w3.unknown[12], 0xb2e8f8ba);
-	      bn_int_set (&rpacket->u.server_loginreply_w3.unknown[13], 0x6ce0cde1);
-	      bn_int_set (&rpacket->u.server_loginreply_w3.unknown[14], 0x3fc7e303);
-	      bn_int_set (&rpacket->u.server_loginreply_w3.unknown[15], 0x1fa27892);
-	     */
-	} while(0);
+	}
 
 	conn_push_outqueue(c,rpacket);
 	packet_del_ref(rpacket);     

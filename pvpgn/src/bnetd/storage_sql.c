@@ -95,6 +95,7 @@ static int sql_read_attrs(t_storage_info *, t_read_attr_func, void *);
 static void *sql_read_attr(t_storage_info *, const char *);
 static int sql_write_attrs(t_storage_info *, void *);
 static int sql_read_accounts(t_read_accounts_func, void *);
+static void * sql_read_account(t_read_account_func, const char *);
 static int sql_cmp_info(t_storage_info *, t_storage_info *);
 static const char *sql_escape_key(const char *);
 static int sql_load_clans(t_load_clans_func cb);
@@ -112,6 +113,7 @@ t_storage storage_sql = {
     sql_write_attrs,
     sql_read_attr,
     sql_read_accounts,
+	sql_read_account,
     sql_cmp_info,
     sql_escape_key,
     sql_load_clans,
@@ -718,6 +720,65 @@ static int sql_read_accounts(t_read_accounts_func cb, void *data)
     }
 
     return 0;
+}
+
+static void * sql_read_account(t_read_account_func cb, const char *name)
+{
+    char query[1024];
+    t_sql_res *result = NULL;
+    t_sql_row *row;
+    t_storage_info *info;
+	void * temp = NULL;
+
+    if (!sql)
+    {
+	eventlog(eventlog_level_error, __FUNCTION__, "sql layer not initilized");
+	return NULL;
+    }
+
+    if (cb == NULL)
+    {
+	eventlog(eventlog_level_error, __FUNCTION__, "get NULL callback");
+	return NULL;
+    }
+
+    sprintf(query, "SELECT uid FROM BNET WHERE acct_username='%s'", name);
+    if ((result = sql->query_res(query)) != NULL)
+    {
+	if (sql->num_rows(result) <= 1)
+	{
+	    sql->free_result(result);
+	    return 0;		/* empty user list */
+	}
+
+	if ((row = sql->fetch_row(result)) != NULL)
+	{
+	    if (row[0] == NULL)
+	    {
+		eventlog(eventlog_level_error, __FUNCTION__, "got NULL uid from db");
+	    }
+		else
+	    if ((unsigned int) atoi(row[0]) == defacct);
+			/* skip default account */
+		else
+	    if ((info = malloc(sizeof(t_sql_info))) == NULL)
+	    {
+		eventlog(eventlog_level_error, __FUNCTION__, "not enough memory for sql info");
+	    }
+		else
+		{
+			*((unsigned int *) info) = atoi(row[0]);
+			temp = cb(info);
+		}
+	}
+	sql->free_result(result);
+    } else
+    {
+	eventlog(eventlog_level_error, __FUNCTION__, "error query db (query:\"%s\")", query);
+	return NULL;
+    }
+
+    return temp;
 }
 
 static int sql_cmp_info(t_storage_info * info1, t_storage_info * info2)

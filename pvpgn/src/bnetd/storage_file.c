@@ -64,6 +64,9 @@
 #ifdef HAVE_SYS_TYPES_H
 # include <sys/types.h>
 #endif
+#ifdef HAVE_SYS_STAT_H
+# include <sys/stat.h>
+#endif
 #include "compat/pdir.h"
 #include "common/eventlog.h"
 #include "prefs.h"
@@ -101,6 +104,7 @@ static int file_read_attrs(t_storage_info *, t_read_attr_func, void *);
 static void * file_read_attr(t_storage_info *, const char *);
 static int file_write_attrs(t_storage_info *, void *);
 static int file_read_accounts(t_read_accounts_func, void *);
+static void * file_read_account(t_read_account_func, const char *);
 static int file_cmp_info(t_storage_info *, t_storage_info *);
 static const char * file_escape_key(const char *);
 static int file_load_clans(t_load_clans_func);
@@ -120,6 +124,7 @@ t_storage storage_file = {
     file_write_attrs,
     file_read_attr,
     file_read_accounts,
+	file_read_account,
     file_cmp_info,
     file_escape_key,
     file_load_clans,
@@ -509,6 +514,36 @@ static int file_read_accounts(t_read_accounts_func cb, void *data)
 	eventlog(eventlog_level_error, __FUNCTION__,"unable to close user directory \"%s\" (p_closedir: %s)", accountsdir,strerror(errno));
 
     return 0;
+}
+
+static void * file_read_account(t_read_account_func cb, const char * accname)
+{
+    char *       pathname;
+    struct stat  sfile;
+
+    if (accountsdir == NULL) {
+	eventlog(eventlog_level_error, __FUNCTION__, "file storage not initilized");
+	return NULL;
+    }
+
+    if (cb == NULL) {
+	eventlog(eventlog_level_error, __FUNCTION__, "got NULL callback");
+	return NULL;
+    }
+
+	if (!(pathname = malloc(strlen(accountsdir)+1+strlen(accname)+1))) /* dir + / + file + NUL */
+	 {
+	   eventlog(eventlog_level_error, __FUNCTION__, "could not allocate memory for pathname");
+	   return NULL;
+	 }
+	sprintf(pathname,"%s/%s", accountsdir, accname);
+    if (stat(pathname,&sfile)<0) /* if it doesn't exist */
+	{
+		free((void *) pathname);
+		return NULL;
+	}
+
+	return cb(pathname);
 }
 
 static int file_cmp_info(t_storage_info *info1, t_storage_info *info2)

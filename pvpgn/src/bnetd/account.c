@@ -968,6 +968,40 @@ extern int accountlist_reload(void)
   return 0;
 }
 
+static t_account * _cb_read_accounts3(t_storage_info *info)
+{
+    t_account *account;
+
+    if (!(account = account_load(info)))
+    {
+        eventlog(eventlog_level_error,"_cb_read_accounts3","could not load account from storage");
+        storage->free_info(info);
+        return NULL;
+    }
+	
+    if (!accountlist_add_account(account))
+    {
+        eventlog(eventlog_level_error,"_cb_read_accounts3","could not add account to list");
+        account_destroy(account);
+        return NULL;
+    }
+
+    /* might as well free up the memory since we probably won't need it */
+    account->accessed = 0; /* lie */
+    account_save(account,1000); /* big delta to force unload */
+	
+    return account;
+}
+
+extern t_account * account_load_new(char const * name)
+{
+	t_account * account;
+    force_account_add = 1; /* disable the protection */
+	account = storage->read_account(_cb_read_accounts3, name);
+    force_account_add = 0;
+	return account;
+}
+
 static int _cb_read_accounts2(t_storage_info *info, void *data)
 {
     unsigned int *count = (unsigned int *)data;
@@ -975,14 +1009,14 @@ static int _cb_read_accounts2(t_storage_info *info, void *data)
 
     if (!(account = account_load(info)))
     {
-        eventlog(eventlog_level_error,"accountlist_create","could not load account from storage");
+        eventlog(eventlog_level_error,"_cb_read_accounts2","could not load account from storage");
         storage->free_info(info);
         return 0;
     }
 	
     if (!accountlist_add_account(account))
     {
-        eventlog(eventlog_level_error,"accountlist_create","could not add account to list");
+        eventlog(eventlog_level_error,"_cb_read_accounts2","could not add account to list");
         account_destroy(account);
         return 0;
     }
@@ -1279,9 +1313,8 @@ extern t_account * accountlist_add_account(t_account * account)
     if (uid<1)
     {
 #ifndef WITH_BITS
-        eventlog(eventlog_level_error,"accountlist_add_account","got bad account (bad uid)");
-	account_unget_name(username);
-	return NULL;
+        eventlog(eventlog_level_error,"accountlist_add_account","got bad account (bad uid), fix it!");
+	uid = maxuserid + 1;
 #else
 	uid = 0;
 #endif
@@ -1302,7 +1335,8 @@ extern t_account * accountlist_add_account(t_account * account)
 	t_entry *    curr;
 	t_account *  curraccount;
 	char const * tname;
-	
+
+	if(uid <= maxuserid)
 	HASHTABLE_TRAVERSE_MATCHING(accountlist_uid_head,curr,uid)
 	{
 	    curraccount = entry_get_data(curr);
@@ -1651,7 +1685,7 @@ extern char const * account_get_name(t_account * account)
 	eventlog(eventlog_level_error,"account_get_name","account has no username");
     else
 	account->name = strdup(temp);
-    return temp;
+    return account->name;
 }
 
 extern int account_set_tmpOP_channel(t_account * account, char const * tmpOP_channel)

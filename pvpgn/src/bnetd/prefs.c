@@ -183,6 +183,7 @@ static struct {
     unsigned int passfail_count;
     unsigned int passfail_bantime;
     unsigned int maxusers_per_channel;
+	unsigned int load_new_account;
 } prefs_runtime_config;
 
 /*    directive                 type               defcharval            defintval                 */
@@ -308,6 +309,7 @@ static Bconf_t conf_table[] =
     { "passfail_count",		conf_type_int,     NULL,                 0                   , (void *)&prefs_runtime_config.passfail_count},
     { "passfail_bantime",	conf_type_int,     NULL,                 300                 , (void *)&prefs_runtime_config.passfail_bantime},
     { "maxusers_per_channel",	conf_type_int,	   NULL,				 0					 , (void *)&prefs_runtime_config.maxusers_per_channel},
+    { "load_new_account",		conf_type_bool,	   NULL,				 0					 , (void *)&prefs_runtime_config.load_new_account},
     { NULL,             		conf_type_none,    NULL,                 NONE                , NULL},
 };
 
@@ -1305,4 +1307,9 @@ extern unsigned int prefs_get_passfail_bantime(void)
 extern unsigned int prefs_get_maxusers_per_channel(void)
 {
     return prefs_runtime_config.maxusers_per_channel;
+}
+
+extern unsigned int prefs_get_load_new_account(void)
+{
+	return prefs_runtime_config.load_new_account;
 }
