@@ -18,6 +18,8 @@
 #
 
 # Process this file with autoconf to produce a configure script.
+AC_DEFUN(GMAKE_DEP, [gmake dep])
+AC_DEFUN(MAKE_DEP, [make dep])
 AC_INIT(bnetd/handle_bnet.c)
 AC_CONFIG_HEADER(config.h)
 
@@ -27,6 +29,15 @@ builtin(include,autoconf/ccstdc.m4)
 builtin(include,autoconf/mkdir.m4)
 
 AC_CANONICAL_SYSTEM
+case $host_os in
+  *bsd* )
+    ac_os_bsd="yes"
+    ;;
+  * )
+    ac_os_bsd="no"
+    ;;
+esac
+
 
 # Checks for programs.
 AC_PROG_CC
@@ -294,3 +305,9 @@ AC_SUBST(ANSI2KNR_TMP)
 AC_SUBST(ANSI2KNR_DEP)
 
 AC_OUTPUT(Makefile)
+
+if test "$ac_os_bsd" = yes; then
+GMAKE_DEP
+else
+MAKE_DEP
+fi
