@@ -909,6 +909,11 @@ extern int main(int argc, char * argv[])
 	    printf("\n");
 	    if (status<0)
 		continue;
+	    if (strlen(password)>USER_PASS_MAX)
+	    {
+		printf("password must not be more than %u characters long. Try again.\n",USER_PASS_MAX);
+		continue;
+	    }
 	    for (i=0; i<strlen(password); i++)
 		if (isupper((int)password[i]))
 		    password[i] = tolower((int)password[i]);
