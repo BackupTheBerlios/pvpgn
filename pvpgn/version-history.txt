@@ -59,6 +59,7 @@ were modified. Make sure to note changes.
 -- fixed a little bug concerning MySQL. now Diablo II clients should display
 lastlogin_time correct. (this was a general problem for ALL attributes that
 contained a '_')
+-- make clan show up on war3 profile screen
 
 1.2.3:
 -- fixed some crash related bugs
