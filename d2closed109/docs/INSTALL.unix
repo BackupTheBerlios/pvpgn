@@ -14,12 +14,6 @@ your custom options, ex.
 It will configure the source distribution to compile and install in the <path> 
 location.
 
-./configure --with-mysql
-
-It will configure the source distribution to compile with MySQL support (in 
-it just tells configure to try to find mysql libs/includes, if it doesnt it 
-WONT compiled MySQL support; read README.MySQL for more details).
-
 Check using ./configure --help for all available options.
 
 3. Compile and install PvPGN using

@@ -1,24 +1,18 @@
-
-            >>>>> IMPORTANT: THIS IS A BETA RELEASE !! <<<<<<
-
               Readme for Player vs. Player Gaming Network
              ---------------------------------------------
+	     		  D2Closed 1.09
+			  -------------
 
     PvPGN is a BNETD mod which aims to provide support for all Blizzard 
 clients (thus it supports all BNETD supported clients plus the most recent 
 ones). 
+    This release only includes d2cs/d2dbs as needed to host a Diablo II 1.09 
+closed realm. It only supports d2gs 1.09d
 
 The list of supported clients and their minimum verion required is:
-- Diablo 1 v1.09
-- Starcraft v1.08
-- BroodWar v1.08
-- Warcraft II Battle.Net Edition v2.05
-- Diablo 2 v1.07 (*)
-- Diablo 2 LOD v1.07 (*)
-- Warcraft III Reign Of Chaos v1.10
-- Warcraft III Frozen Throne v1.10
+- Diablo 2 v1.09 
+- Diablo 2 LOD v1.09 
 ------------
-(*) no support for v1.10 yet
 
     The documentation is located in the docs directory. Please read docs/INDEX 
 for a list of files and what they contain.
