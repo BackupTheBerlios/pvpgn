@@ -1,3 +1,3 @@
-void Win32_Service_Install();
-void Win32_Service_Uninstall();
-void Win32_Service_Run();
+void Win32_ServiceInstall();
+void Win32_ServiceUninstall();
+void Win32_ServiceRun();
