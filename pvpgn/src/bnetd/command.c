@@ -94,6 +94,7 @@
 #include "command_groups.h"
 #include "common/queue.h"
 #include "common/bn_type.h"
+#include "common/xalloc.h"
 #include "command.h"
 #include "news.h"
 #include "common/trans.h"
@@ -281,7 +282,7 @@ static void user_timer_cb(t_connection * c, time_t now, t_timer_data str)
     
     if (now!=(time_t)0) /* zero means user logged out before expiration */
 	message_send_text(c,message_type_info,c,str.p);
-    free(str.p);
+    xfree(str.p);
 }
 
 typedef int (* t_command)(t_connection * c, char const * text);
@@ -659,7 +660,7 @@ static int _handle_clan_command(t_connection * c, char const * text)
       sprintf( msgtemp, "Left Clan %s and Joined Clan %s", oldclanname, text );
     }
   message_send_text(c,message_type_info,c,msgtemp);
-  free((void *)oldclanname);
+  xfree((void *)oldclanname);
   return 0;
 }
 */
@@ -2761,7 +2762,7 @@ static int _handle_news_command(t_connection * c, char const *text)
 		  for (j=0; (temp2[j] != '\n')&&(temp2[j] != '\0'); j++);
 		  temp2[j] = '\0';
 		  message_send_text(c,message_type_info,c,temp2);
-		  free((void *)temp2);
+		  xfree((void *)temp2);
 		  i = i+j;
 		  }
 	    }
@@ -3954,7 +3955,7 @@ static int _handle_timer_command(t_connection * c, char const *text)
   if (timerlist_add_timer(c,time(NULL)+(time_t)delta,user_timer_cb,data)<0)
     {
       eventlog(eventlog_level_error,"handle_command","could not add timer");
-      free(data.p);
+      xfree(data.p);
       message_send_text(c,message_type_error,c,"Could not set timer.");
     }
   else

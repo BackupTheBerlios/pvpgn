@@ -47,6 +47,7 @@
 #include "common/util.h"
 #include "common/eventlog.h"
 #include "common/list.h"
+#include "common/xalloc.h"
 #include "message.h"
 #include "connection.h"
 #include "alias_command.h"
@@ -215,14 +216,14 @@ static char * replace_args(char const * in, unsigned int * offsets, int numargs,
         {
             char * newout;
 	    
-            if (!(newout = malloc(size+(off2-off1)+1))) /* curr + new + nul */
+            if (!(newout = xmalloc(size+(off2-off1)+1))) /* curr + new + nul */
             {
-                free(out);
+                xfree(out);
                 return NULL;
             }
 	    size = size+(off2-off1)+1;
 	    memmove(newout,out,outpos);
-	    free(out);
+	    xfree(out);
             out = newout;
 	    
 	    while (off1<off2)
@@ -280,7 +281,7 @@ static int do_alias(t_connection * c, char const * cmd, char const * text)
     int match = -1;
     
     numargs = count_args(text)-1; 
-    offsets=malloc(sizeof(unsigned int *)*(numargs+1));
+    offsets=xmalloc(sizeof(unsigned int *)*(numargs+1));
     get_offsets(text,offsets);
     
     LIST_TRAVERSE_CONST(aliaslist_head,elem1)
@@ -317,10 +318,10 @@ static int do_alias(t_connection * c, char const * cmd, char const * text)
 		  {
 		    if ((msgtmp[0]=='/')&&(msgtmp[1]!='/')) // to make sure we don't get endless aliasing loop
 		    {
-		      if ((tmp2 = malloc(strlen(msgtmp)+3)))
+		      if ((tmp2 = xmalloc(strlen(msgtmp)+3)))
 		      {
 			sprintf(tmp2,"%s%s",cmd,msgtmp);
-			free((void *)msgtmp);
+			xfree((void *)msgtmp);
 			msgtmp=tmp2;
 		      }
 
@@ -332,14 +333,14 @@ static int do_alias(t_connection * c, char const * cmd, char const * text)
 		    }
 		    message_send_formatted(c,msgtmp);
 		  }
-		  free((void *)msgtmp); /* avoid warning */
+		  xfree((void *)msgtmp); /* avoid warning */
 		}
 		else
 		    eventlog(eventlog_level_error,"do_alias","could not perform argument replacement");
 	    }
 	}
     }
-    free(offsets);    
+    xfree(offsets);    
     return match;
 }
 
@@ -377,7 +378,7 @@ extern int aliasfile_load(char const * filename)
 	for (pos=0; buff[pos]=='\t' || buff[pos]==' '; pos++);
 	if (buff[pos]=='\0' || buff[pos]=='#')
 	{
-	    free((void *)buff);
+	    xfree((void *)buff);
 	    continue;
 	}
 	if (!(temp = strrchr(buff,'"'))) /* FIXME: assumes comments don't contain " */
@@ -409,7 +410,7 @@ extern int aliasfile_load(char const * filename)
 		if (buff[pos]=='\0') break;
 		    
 		inalias = 2;
-		if ((alias = malloc(sizeof(t_alias))))
+		if ((alias = xmalloc(sizeof(t_alias))))
 		{
 		  alias->output=0;
 		  alias->alias=strdup(&buff[pos]);
@@ -458,10 +459,10 @@ extern int aliasfile_load(char const * filename)
 
 	      if (out!=NULL)
 	      {
-		if (!(output = malloc(sizeof(t_output))))
+		if (!(output = xmalloc(sizeof(t_output))))
 		{
 		  eventlog(eventlog_level_error,__FUNCTION__,"could not allocate mem for alias output");
-		  free((void *)out);
+		  xfree((void *)out);
 		  break;
 		}
 		output->min=min;
@@ -470,15 +471,15 @@ extern int aliasfile_load(char const * filename)
 		if (!(alias->output = list_create()))
 		{
 		  eventlog(eventlog_level_error,__FUNCTION__,"could not allocate mem for alias output list");
-		  free((void *)out);
-		  free((void *)output);
+		  xfree((void *)out);
+		  xfree((void *)output);
 		  break;
 		}
 		if (list_append_data(alias->output,output)<0)
 		{
 			eventlog(eventlog_level_error,__FUNCTION__,"could not appen output to alias output list");
-			free((void *)out);
-			free((void *)output);
+			xfree((void *)out);
+			xfree((void *)output);
 			list_destroy(alias->output);
 			break;
 		}
@@ -531,10 +532,10 @@ extern int aliasfile_load(char const * filename)
 
 		if (out!=NULL)
 		  {
-		    if (!(output = malloc(sizeof(t_output))))
+		    if (!(output = xmalloc(sizeof(t_output))))
 		      {
 			eventlog(eventlog_level_error,__FUNCTION__,"could not allocate mem for alias output");
-			free((void *)out);
+			xfree((void *)out);
 			break;
 		      }
 		    output->min=min;
@@ -544,8 +545,8 @@ extern int aliasfile_load(char const * filename)
 		    if (list_append_data(alias->output,output)<0)
 		      {
 			eventlog(eventlog_level_error,__FUNCTION__,"could not appen output to alias output list");
-			free((void *)out);
-			free((void *)output);
+			xfree((void *)out);
+			xfree((void *)output);
 			break;
 		      }
 		  }
@@ -555,7 +556,7 @@ extern int aliasfile_load(char const * filename)
 	    break;
 	  }
 	}
-	free((void *)buff);
+	xfree((void *)buff);
     }
     if (alias!=NULL) list_append_data(aliaslist_head,alias);
     
@@ -602,13 +603,13 @@ extern int aliasfile_unload(void)
 		        eventlog(eventlog_level_error,"aliasfile_unload","could not remove output");
 			continue;
 		    }
-		    free((void *)output->line); /* avoid warning */
-		    free((void *)output);
+		    xfree((void *)output->line); /* avoid warning */
+		    xfree((void *)output);
 		}
 		list_destroy(alias->output);
 	    }
-	    if (alias->alias) free((void *)alias->alias);
-	    free((void *)alias);
+	    if (alias->alias) xfree((void *)alias->alias);
+	    xfree((void *)alias);
 	}
 	
 	if (list_destroy(aliaslist_head)<0)

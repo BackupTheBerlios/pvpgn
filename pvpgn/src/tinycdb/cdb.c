@@ -22,6 +22,7 @@
 #include <stdarg.h>
 #include "compat/getopt.h"
 #include <errno.h>
+#include "common/xalloc.h"
 #include "cdb.h"
 #include "common/setup_after.h"
 
@@ -64,8 +65,8 @@ error(int errnum, const char *fmt, ...)
 
 static void allocbuf(unsigned len) {
   if (blen < len) {
-    if (buf) buf = (char*)realloc(buf, len);
-    else buf = (char*)malloc(len);
+    if (buf) buf = (char*)xrealloc(buf, len);
+    else buf = (char*)xmalloc(len);
     if (!buf) error(ENOMEM, "unable to allocate %u bytes", len);
     blen = len;
   }
@@ -367,7 +368,7 @@ cmode(char *dbname, char *tmpname, int argc, char **argv, int flags)
   struct cdb_make cdb;
   FILE *fd;
   if (!tmpname) {
-    tmpname = (char*)malloc(strlen(dbname) + 5);
+    tmpname = (char*)xmalloc(strlen(dbname) + 5);
     if (!tmpname)
       error(ENOMEM, "unable to allocate memory");
     strcat(strcpy(tmpname, dbname), ".tmp");

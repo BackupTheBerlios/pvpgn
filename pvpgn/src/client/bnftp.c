@@ -102,6 +102,7 @@
 #endif
 #include "common/hexdump.h"
 #include "client.h"
+#include "common/xalloc.h"
 #include "common/setup_after.h"
 
 
@@ -614,7 +615,7 @@ extern int main(int argc, char * argv[])
 		unsigned int bnr;
 		int          renamed=0;
 		
-		if (!(bakfile = malloc(strlen(reqfile)+1+2+1))) /* assuming we go up to bnr 99 we need reqfile+'.'+'99'+'\0' */
+		if (!(bakfile = xmalloc(strlen(reqfile)+1+2+1))) /* assuming we go up to bnr 99 we need reqfile+'.'+'99'+'\0' */
 		{
 		    fprintf(stderr,"%s: unable to allocate memory for backup filename.\n",argv[0]);
 		    if (changed_in)
@@ -639,7 +640,7 @@ extern int main(int argc, char * argv[])
 		    }
 		    break;
 		}
-		free(bakfile);
+		xfree(bakfile);
 		if (!renamed)
 		{
 		    fprintf(stderr,"%s: could not create backup for \"%s\".\n",argv[0],reqfile);

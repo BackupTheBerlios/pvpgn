@@ -12,6 +12,7 @@
 #  include <malloc.h>
 # endif
 #endif
+#include "common/xalloc.h"
 #include "cdb_int.h"
 #include "common/setup_after.h"
 
@@ -49,7 +50,7 @@ cdb_make_put(struct cdb_make *cdbmp,
     case CDB_PUT_ADD:
       rl = cdbmp->cdb_rec[hval&255];
       if (!rl || rl->cnt >= sizeof(rl->rec)/sizeof(rl->rec[0])) {
- 	rl = (struct cdb_rl*)malloc(sizeof(struct cdb_rl));
+ 	rl = (struct cdb_rl*)xmalloc(sizeof(struct cdb_rl));
 	if (!rl)
 	  return errno = ENOMEM, -1;
 	rl->cnt = 0;

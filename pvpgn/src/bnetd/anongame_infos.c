@@ -38,6 +38,7 @@
 #include "common/packet.h"
 #include "common/tag.h"
 #include "common/bn_type.h"
+#include "common/xalloc.h"
 #include "zlib/pvpgn_zlib.h"
 #include "tournament.h"
 #include "anongame_maplists.h"
@@ -61,7 +62,7 @@ static int anongame_infos_URL_init(t_anongame_infos * anongame_infos)
 	return -1;
     }
 
-    if (!(anongame_infos_URL = malloc(sizeof(t_anongame_infos_URL))))
+    if (!(anongame_infos_URL = xmalloc(sizeof(t_anongame_infos_URL))))
     {
 	eventlog(eventlog_level_error, __FUNCTION__, "could not allocate mem for anongame_infos_URL");
 	return -1;
@@ -99,38 +100,38 @@ static int anongame_infos_URL_destroy(t_anongame_infos_URL * anongame_infos_URL)
     }
 
     if (anongame_infos_URL->player_URL)
-	free((void *) anongame_infos_URL->player_URL);
+	xfree((void *) anongame_infos_URL->player_URL);
     if (anongame_infos_URL->server_URL)
-	free((void *) anongame_infos_URL->server_URL);
+	xfree((void *) anongame_infos_URL->server_URL);
     if (anongame_infos_URL->tourney_URL)
-	free((void *) anongame_infos_URL->tourney_URL);
+	xfree((void *) anongame_infos_URL->tourney_URL);
     if (anongame_infos_URL->clan_URL)
-	free((void *) anongame_infos_URL->clan_URL);
+	xfree((void *) anongame_infos_URL->clan_URL);
 
     if (anongame_infos_URL->ladder_PG_1v1_URL)
-	free((void *) anongame_infos_URL->ladder_PG_1v1_URL);
+	xfree((void *) anongame_infos_URL->ladder_PG_1v1_URL);
     if (anongame_infos_URL->ladder_PG_ffa_URL)
-	free((void *) anongame_infos_URL->ladder_PG_ffa_URL);
+	xfree((void *) anongame_infos_URL->ladder_PG_ffa_URL);
     if (anongame_infos_URL->ladder_PG_team_URL)
-	free((void *) anongame_infos_URL->ladder_PG_team_URL);
+	xfree((void *) anongame_infos_URL->ladder_PG_team_URL);
 
     if (anongame_infos_URL->ladder_AT_2v2_URL)
-	free((void *) anongame_infos_URL->ladder_AT_2v2_URL);
+	xfree((void *) anongame_infos_URL->ladder_AT_2v2_URL);
     if (anongame_infos_URL->ladder_AT_3v3_URL)
-	free((void *) anongame_infos_URL->ladder_AT_3v3_URL);
+	xfree((void *) anongame_infos_URL->ladder_AT_3v3_URL);
     if (anongame_infos_URL->ladder_AT_4v4_URL)
-	free((void *) anongame_infos_URL->ladder_AT_4v4_URL);
+	xfree((void *) anongame_infos_URL->ladder_AT_4v4_URL);
 
 
     if (anongame_infos_URL->ladder_clan_1v1_URL)
-	free((void *) anongame_infos_URL->ladder_clan_1v1_URL);
+	xfree((void *) anongame_infos_URL->ladder_clan_1v1_URL);
     if (anongame_infos_URL->ladder_clan_2v2_URL)
-	free((void *) anongame_infos_URL->ladder_clan_2v2_URL);
+	xfree((void *) anongame_infos_URL->ladder_clan_2v2_URL);
     if (anongame_infos_URL->ladder_clan_3v3_URL)
-	free((void *) anongame_infos_URL->ladder_clan_3v3_URL);
+	xfree((void *) anongame_infos_URL->ladder_clan_3v3_URL);
     if (anongame_infos_URL->ladder_clan_4v4_URL)
-	free((void *) anongame_infos_URL->ladder_clan_4v4_URL);
-    free((void *) anongame_infos_URL);
+	xfree((void *) anongame_infos_URL->ladder_clan_4v4_URL);
+    xfree((void *) anongame_infos_URL);
 
     return 0;
 }
@@ -139,7 +140,7 @@ static t_anongame_infos_DESC *anongame_infos_DESC_init(void)
 {
     t_anongame_infos_DESC *anongame_infos_DESC;
 
-    if (!(anongame_infos_DESC = malloc(sizeof(t_anongame_infos_DESC))))
+    if (!(anongame_infos_DESC = xmalloc(sizeof(t_anongame_infos_DESC))))
     {
 	eventlog(eventlog_level_error, __FUNCTION__, "could not allocate mem for anongame_infos_DESC");
 	return NULL;
@@ -200,85 +201,85 @@ static int anongame_infos_DESC_destroy(t_anongame_infos_DESC * anongame_infos_DE
     }
 
     if (anongame_infos_DESC->langID)
-	free((void *) anongame_infos_DESC->langID);
+	xfree((void *) anongame_infos_DESC->langID);
     if (anongame_infos_DESC->ladder_PG_1v1_desc)
-	free((void *) anongame_infos_DESC->ladder_PG_1v1_desc);
+	xfree((void *) anongame_infos_DESC->ladder_PG_1v1_desc);
     if (anongame_infos_DESC->ladder_PG_ffa_desc)
-	free((void *) anongame_infos_DESC->ladder_PG_ffa_desc);
+	xfree((void *) anongame_infos_DESC->ladder_PG_ffa_desc);
     if (anongame_infos_DESC->ladder_PG_team_desc)
-	free((void *) anongame_infos_DESC->ladder_PG_team_desc);
+	xfree((void *) anongame_infos_DESC->ladder_PG_team_desc);
 
     if (anongame_infos_DESC->ladder_AT_2v2_desc)
-	free((void *) anongame_infos_DESC->ladder_AT_2v2_desc);
+	xfree((void *) anongame_infos_DESC->ladder_AT_2v2_desc);
     if (anongame_infos_DESC->ladder_AT_3v3_desc)
-	free((void *) anongame_infos_DESC->ladder_AT_3v3_desc);
+	xfree((void *) anongame_infos_DESC->ladder_AT_3v3_desc);
     if (anongame_infos_DESC->ladder_AT_4v4_desc)
-	free((void *) anongame_infos_DESC->ladder_AT_4v4_desc);
+	xfree((void *) anongame_infos_DESC->ladder_AT_4v4_desc);
 
     if (anongame_infos_DESC->ladder_clan_1v1_desc)
-	free((void *) anongame_infos_DESC->ladder_clan_1v1_desc);
+	xfree((void *) anongame_infos_DESC->ladder_clan_1v1_desc);
     if (anongame_infos_DESC->ladder_clan_2v2_desc)
-	free((void *) anongame_infos_DESC->ladder_clan_2v2_desc);
+	xfree((void *) anongame_infos_DESC->ladder_clan_2v2_desc);
     if (anongame_infos_DESC->ladder_clan_3v3_desc)
-	free((void *) anongame_infos_DESC->ladder_clan_3v3_desc);
+	xfree((void *) anongame_infos_DESC->ladder_clan_3v3_desc);
     if (anongame_infos_DESC->ladder_clan_4v4_desc)
-	free((void *) anongame_infos_DESC->ladder_clan_4v4_desc);
+	xfree((void *) anongame_infos_DESC->ladder_clan_4v4_desc);
 
     if (anongame_infos_DESC->gametype_1v1_short)
-	free((void *) anongame_infos_DESC->gametype_1v1_short);
+	xfree((void *) anongame_infos_DESC->gametype_1v1_short);
     if (anongame_infos_DESC->gametype_1v1_long)
-	free((void *) anongame_infos_DESC->gametype_1v1_long);
+	xfree((void *) anongame_infos_DESC->gametype_1v1_long);
     if (anongame_infos_DESC->gametype_2v2_short)
-	free((void *) anongame_infos_DESC->gametype_2v2_short);
+	xfree((void *) anongame_infos_DESC->gametype_2v2_short);
     if (anongame_infos_DESC->gametype_2v2_long)
-	free((void *) anongame_infos_DESC->gametype_2v2_long);
+	xfree((void *) anongame_infos_DESC->gametype_2v2_long);
     if (anongame_infos_DESC->gametype_3v3_short)
-	free((void *) anongame_infos_DESC->gametype_3v3_short);
+	xfree((void *) anongame_infos_DESC->gametype_3v3_short);
     if (anongame_infos_DESC->gametype_3v3_long)
-	free((void *) anongame_infos_DESC->gametype_3v3_long);
+	xfree((void *) anongame_infos_DESC->gametype_3v3_long);
     if (anongame_infos_DESC->gametype_4v4_short)
-	free((void *) anongame_infos_DESC->gametype_4v4_short);
+	xfree((void *) anongame_infos_DESC->gametype_4v4_short);
     if (anongame_infos_DESC->gametype_4v4_long)
-	free((void *) anongame_infos_DESC->gametype_4v4_long);
+	xfree((void *) anongame_infos_DESC->gametype_4v4_long);
     if (anongame_infos_DESC->gametype_sffa_short)
-	free((void *) anongame_infos_DESC->gametype_sffa_short);
+	xfree((void *) anongame_infos_DESC->gametype_sffa_short);
     if (anongame_infos_DESC->gametype_sffa_long)
-	free((void *) anongame_infos_DESC->gametype_sffa_long);
+	xfree((void *) anongame_infos_DESC->gametype_sffa_long);
     if (anongame_infos_DESC->gametype_tffa_short)
-	free((void *) anongame_infos_DESC->gametype_tffa_short);
+	xfree((void *) anongame_infos_DESC->gametype_tffa_short);
     if (anongame_infos_DESC->gametype_tffa_long)
-	free((void *) anongame_infos_DESC->gametype_tffa_long);
+	xfree((void *) anongame_infos_DESC->gametype_tffa_long);
     if (anongame_infos_DESC->gametype_2v2v2_short)
-	free((void *) anongame_infos_DESC->gametype_2v2v2_short);
+	xfree((void *) anongame_infos_DESC->gametype_2v2v2_short);
     if (anongame_infos_DESC->gametype_2v2v2_long)
-	free((void *) anongame_infos_DESC->gametype_2v2v2_long);
+	xfree((void *) anongame_infos_DESC->gametype_2v2v2_long);
     if (anongame_infos_DESC->gametype_3v3v3_short)
-	free((void *) anongame_infos_DESC->gametype_3v3v3_short);
+	xfree((void *) anongame_infos_DESC->gametype_3v3v3_short);
     if (anongame_infos_DESC->gametype_3v3v3_long)
-	free((void *) anongame_infos_DESC->gametype_3v3v3_long);
+	xfree((void *) anongame_infos_DESC->gametype_3v3v3_long);
     if (anongame_infos_DESC->gametype_4v4v4_short)
-	free((void *) anongame_infos_DESC->gametype_4v4v4_short);
+	xfree((void *) anongame_infos_DESC->gametype_4v4v4_short);
     if (anongame_infos_DESC->gametype_4v4v4_long)
-	free((void *) anongame_infos_DESC->gametype_4v4v4_long);
+	xfree((void *) anongame_infos_DESC->gametype_4v4v4_long);
     if (anongame_infos_DESC->gametype_2v2v2v2_short)
-	free((void *) anongame_infos_DESC->gametype_2v2v2v2_short);
+	xfree((void *) anongame_infos_DESC->gametype_2v2v2v2_short);
     if (anongame_infos_DESC->gametype_2v2v2v2_long)
-	free((void *) anongame_infos_DESC->gametype_2v2v2v2_long);
+	xfree((void *) anongame_infos_DESC->gametype_2v2v2v2_long);
     if (anongame_infos_DESC->gametype_3v3v3v3_short)
-	free((void *) anongame_infos_DESC->gametype_3v3v3v3_short);
+	xfree((void *) anongame_infos_DESC->gametype_3v3v3v3_short);
     if (anongame_infos_DESC->gametype_3v3v3v3_long)
-	free((void *) anongame_infos_DESC->gametype_3v3v3v3_long);
+	xfree((void *) anongame_infos_DESC->gametype_3v3v3v3_long);
     if (anongame_infos_DESC->gametype_5v5_short)
-	free((void *) anongame_infos_DESC->gametype_5v5_short);
+	xfree((void *) anongame_infos_DESC->gametype_5v5_short);
     if (anongame_infos_DESC->gametype_5v5_long)
-	free((void *) anongame_infos_DESC->gametype_5v5_long);
+	xfree((void *) anongame_infos_DESC->gametype_5v5_long);
     if (anongame_infos_DESC->gametype_6v6_short)
-	free((void *) anongame_infos_DESC->gametype_6v6_short);
+	xfree((void *) anongame_infos_DESC->gametype_6v6_short);
     if (anongame_infos_DESC->gametype_6v6_long)
-	free((void *) anongame_infos_DESC->gametype_6v6_long);
+	xfree((void *) anongame_infos_DESC->gametype_6v6_long);
 
 
-    free((void *) anongame_infos_DESC);
+    xfree((void *) anongame_infos_DESC);
 
     return 0;
 }
@@ -293,7 +294,7 @@ static int anongame_infos_THUMBSDOWN_init(t_anongame_infos * anongame_infos)
 	return -1;
     }
 
-    if (!(anongame_infos_THUMBSDOWN = malloc(sizeof(t_anongame_infos_THUMBSDOWN))))
+    if (!(anongame_infos_THUMBSDOWN = xmalloc(sizeof(t_anongame_infos_THUMBSDOWN))))
     {
 	eventlog(eventlog_level_error, __FUNCTION__, "could not allocate mem for anongame_infos_THUMBSDOWN");
 	return -1;
@@ -330,7 +331,7 @@ static int anongame_infos_THUMBSDOWN_destroy(t_anongame_infos_THUMBSDOWN * anong
 	return -1;
     }
 
-    free((void *) anongame_infos_THUMBSDOWN);
+    xfree((void *) anongame_infos_THUMBSDOWN);
 
     return 0;
 }
@@ -345,7 +346,7 @@ static int anongame_infos_ICON_REQ_WAR3_init(t_anongame_infos * anongame_infos)
 	return -1;
     }
 
-    if (!(anongame_infos_ICON_REQ_WAR3 = malloc(sizeof(t_anongame_infos_ICON_REQ_WAR3))))
+    if (!(anongame_infos_ICON_REQ_WAR3 = xmalloc(sizeof(t_anongame_infos_ICON_REQ_WAR3))))
     {
 	eventlog(eventlog_level_error, __FUNCTION__, "could not allocate mem for anongame_infos_ICON_REQ_WAR3");
 	return -1;
@@ -369,7 +370,7 @@ static int anongame_infos_ICON_REQ_WAR3_destroy(t_anongame_infos_ICON_REQ_WAR3 *
 	return -1;
     }
 
-    free((void *) anongame_infos_ICON_REQ_WAR3);
+    xfree((void *) anongame_infos_ICON_REQ_WAR3);
 
     return 0;
 }
@@ -384,7 +385,7 @@ static int anongame_infos_ICON_REQ_W3XP_init(t_anongame_infos * anongame_infos)
 	return -1;
     }
 
-    if (!(anongame_infos_ICON_REQ_W3XP = malloc(sizeof(t_anongame_infos_ICON_REQ_W3XP))))
+    if (!(anongame_infos_ICON_REQ_W3XP = xmalloc(sizeof(t_anongame_infos_ICON_REQ_W3XP))))
     {
 	eventlog(eventlog_level_error, __FUNCTION__, "could not allocate mem for anongame_infos_ICON_REQ_W3XP");
 	return -1;
@@ -409,7 +410,7 @@ static int anongame_infos_ICON_REQ_W3XP_destroy(t_anongame_infos_ICON_REQ_W3XP *
 	return -1;
     }
 
-    free((void *) anongame_infos_ICON_REQ_W3XP);
+    xfree((void *) anongame_infos_ICON_REQ_W3XP);
 
     return 0;
 }
@@ -425,7 +426,7 @@ static int anongame_infos_ICON_REQ_TOURNEY_init(t_anongame_infos * anongame_info
 	return -1;
     }
 
-    if (!(anongame_infos_ICON_REQ_TOURNEY = malloc(sizeof(t_anongame_infos_ICON_REQ_TOURNEY))))
+    if (!(anongame_infos_ICON_REQ_TOURNEY = xmalloc(sizeof(t_anongame_infos_ICON_REQ_TOURNEY))))
     {
 	eventlog(eventlog_level_error, __FUNCTION__, "could not allocate mem for anongame_infos_ICON_REQ_TOURNEY");
 	return -1;
@@ -450,7 +451,7 @@ static int anongame_infos_ICON_REQ_TOURNEY_destroy(t_anongame_infos_ICON_REQ_TOU
 	return -1;
     }
 
-    free((void *) anongame_infos_ICON_REQ_TOURNEY);
+    xfree((void *) anongame_infos_ICON_REQ_TOURNEY);
 
     return 0;
 }
@@ -459,7 +460,7 @@ static t_anongame_infos_data_lang *anongame_infos_data_lang_init(char *langID)
 {
     t_anongame_infos_data_lang *anongame_infos_data_lang;
 
-    if (!(anongame_infos_data_lang = malloc(sizeof(t_anongame_infos_data_lang))))
+    if (!(anongame_infos_data_lang = xmalloc(sizeof(t_anongame_infos_data_lang))))
     {
 	eventlog(eventlog_level_error, __FUNCTION__, "could not allocate mem for anongame_infos_data_lang");
 	return NULL;
@@ -491,19 +492,19 @@ static int anongame_infos_data_lang_destroy(t_anongame_infos_data_lang * anongam
     }
 
     if (anongame_infos_data_lang->langID)
-	free((void *) anongame_infos_data_lang->langID);
+	xfree((void *) anongame_infos_data_lang->langID);
 
     if (anongame_infos_data_lang->desc_data)
-	free((void *) anongame_infos_data_lang->desc_data);
+	xfree((void *) anongame_infos_data_lang->desc_data);
     if (anongame_infos_data_lang->ladr_data)
-	free((void *) anongame_infos_data_lang->ladr_data);
+	xfree((void *) anongame_infos_data_lang->ladr_data);
 
     if (anongame_infos_data_lang->desc_comp_data)
-	free((void *) anongame_infos_data_lang->desc_comp_data);
+	xfree((void *) anongame_infos_data_lang->desc_comp_data);
     if (anongame_infos_data_lang->ladr_comp_data)
-	free((void *) anongame_infos_data_lang->ladr_comp_data);
+	xfree((void *) anongame_infos_data_lang->ladr_comp_data);
 
-    free((void *) anongame_infos_data_lang);
+    xfree((void *) anongame_infos_data_lang);
 
     return 0;
 }
@@ -519,7 +520,7 @@ static int anongame_infos_data_init(t_anongame_infos * anongame_infos)
 	return -1;
     }
 
-    if (!(anongame_infos_data = malloc(sizeof(t_anongame_infos_data))))
+    if (!(anongame_infos_data = xmalloc(sizeof(t_anongame_infos_data))))
     {
 	eventlog(eventlog_level_error, __FUNCTION__, "could not allocate mem for anongame_infos_data");
 	return -1;
@@ -548,7 +549,7 @@ static int anongame_infos_data_init(t_anongame_infos * anongame_infos)
     anongame_infos->anongame_infos_data_war3 = anongame_infos_data;
     anongame_infos->anongame_infos_data_lang_war3 = anongame_infos_data_lang;
 
-    if (!(anongame_infos_data = malloc(sizeof(t_anongame_infos_data))))
+    if (!(anongame_infos_data = xmalloc(sizeof(t_anongame_infos_data))))
     {
 	eventlog(eventlog_level_error, __FUNCTION__, "could not allocate mem for anongame_infos_data");
 	return -1;
@@ -586,19 +587,19 @@ static int anongame_infos_data_destroy(t_anongame_infos_data * anongame_infos_da
     t_anongame_infos_data_lang *entry;
 
     if (anongame_infos_data->url_comp_data)
-	free((void *) anongame_infos_data->url_comp_data);
+	xfree((void *) anongame_infos_data->url_comp_data);
     if (anongame_infos_data->url_comp_data_115)
-	free((void *) anongame_infos_data->url_comp_data_115);
+	xfree((void *) anongame_infos_data->url_comp_data_115);
     if (anongame_infos_data->map_comp_data)
-	free((void *) anongame_infos_data->map_comp_data);
+	xfree((void *) anongame_infos_data->map_comp_data);
     if (anongame_infos_data->type_comp_data)
-	free((void *) anongame_infos_data->type_comp_data);
+	xfree((void *) anongame_infos_data->type_comp_data);
     if (anongame_infos_data->desc_comp_data)
-	free((void *) anongame_infos_data->desc_comp_data);
+	xfree((void *) anongame_infos_data->desc_comp_data);
     if (anongame_infos_data->ladr_comp_data)
-	free((void *) anongame_infos_data->ladr_comp_data);
+	xfree((void *) anongame_infos_data->ladr_comp_data);
 
-    free((void *) anongame_infos_data);
+    xfree((void *) anongame_infos_data);
 
     if (anongame_infos_data_lang)
     {
@@ -621,7 +622,7 @@ t_anongame_infos *anongame_infos_init(void)
 {
     t_anongame_infos *anongame_infos;
 
-    if (!(anongame_infos = malloc(sizeof(t_anongame_infos))))
+    if (!(anongame_infos = xmalloc(sizeof(t_anongame_infos))))
     {
 	eventlog(eventlog_level_error, __FUNCTION__, "could not allocate mem for anongame_infos");
 	return NULL;
@@ -629,14 +630,14 @@ t_anongame_infos *anongame_infos_init(void)
 
     if (anongame_infos_URL_init(anongame_infos) != 0)
     {
-	free((void *) anongame_infos);
+	xfree((void *) anongame_infos);
 	return NULL;
     }
 
     if (anongame_infos_THUMBSDOWN_init(anongame_infos) != 0)
     {
 	anongame_infos_URL_destroy(anongame_infos->anongame_infos_URL);
-	free((void *) anongame_infos);
+	xfree((void *) anongame_infos);
 	return NULL;
     }
 
@@ -644,7 +645,7 @@ t_anongame_infos *anongame_infos_init(void)
     {
 	anongame_infos_URL_destroy(anongame_infos->anongame_infos_URL);
 	anongame_infos_THUMBSDOWN_destroy(anongame_infos->anongame_infos_THUMBSDOWN);
-	free((void *) anongame_infos);
+	xfree((void *) anongame_infos);
 	return NULL;
     }
 
@@ -653,7 +654,7 @@ t_anongame_infos *anongame_infos_init(void)
 	anongame_infos_URL_destroy(anongame_infos->anongame_infos_URL);
 	anongame_infos_THUMBSDOWN_destroy(anongame_infos->anongame_infos_THUMBSDOWN);
 	anongame_infos_ICON_REQ_WAR3_destroy(anongame_infos->anongame_infos_ICON_REQ_WAR3);
-	free((void *) anongame_infos);
+	xfree((void *) anongame_infos);
 	return NULL;
     }
 
@@ -663,7 +664,7 @@ t_anongame_infos *anongame_infos_init(void)
 	anongame_infos_THUMBSDOWN_destroy(anongame_infos->anongame_infos_THUMBSDOWN);
 	anongame_infos_ICON_REQ_WAR3_destroy(anongame_infos->anongame_infos_ICON_REQ_WAR3);
 	anongame_infos_ICON_REQ_W3XP_destroy(anongame_infos->anongame_infos_ICON_REQ_W3XP);
-	free((void *) anongame_infos);
+	xfree((void *) anongame_infos);
 	return NULL;
     }
 
@@ -674,7 +675,7 @@ t_anongame_infos *anongame_infos_init(void)
 	anongame_infos_ICON_REQ_WAR3_destroy(anongame_infos->anongame_infos_ICON_REQ_WAR3);
 	anongame_infos_ICON_REQ_W3XP_destroy(anongame_infos->anongame_infos_ICON_REQ_W3XP);
 	anongame_infos_ICON_REQ_TOURNEY_destroy(anongame_infos->anongame_infos_ICON_REQ_TOURNEY);
-	free((void *) anongame_infos);
+	xfree((void *) anongame_infos);
 	return NULL;
     }
 
@@ -691,7 +692,7 @@ t_anongame_infos *anongame_infos_init(void)
 	anongame_infos_URL_destroy(anongame_infos->anongame_infos_URL);
 	anongame_infos_data_destroy(anongame_infos->anongame_infos_data_war3, anongame_infos->anongame_infos_data_lang_war3);
 	anongame_infos_data_destroy(anongame_infos->anongame_infos_data_w3xp, anongame_infos->anongame_infos_data_lang_w3xp);
-	free((void *) anongame_infos);
+	xfree((void *) anongame_infos);
 	return NULL;
     }
     return anongame_infos;
@@ -733,7 +734,7 @@ static int anongame_infos_destroy(t_anongame_infos * anongame_infos)
     anongame_infos_data_destroy(anongame_infos->anongame_infos_data_war3, anongame_infos->anongame_infos_data_lang_war3);
     anongame_infos_data_destroy(anongame_infos->anongame_infos_data_w3xp, anongame_infos->anongame_infos_data_lang_w3xp);
 
-    free((void *) anongame_infos);
+    xfree((void *) anongame_infos);
 
     return 0;
 }
@@ -754,7 +755,7 @@ static int anongame_infos_set_str(char **dst, char *src, char *errstr)
 	return -1;
     }
     if (*dst)
-	free((void *) *dst);
+	xfree((void *) *dst);
     *dst = temp;
 
     return 0;
@@ -2914,7 +2915,7 @@ extern int anongame_infos_load(char const *filename)
 	for (pos = 0; buff[pos] == '\t' || buff[pos] == ' '; pos++);
 	if (buff[pos] == '\0' || buff[pos] == '#')
 	{
-	    free(buff);
+	    xfree(buff);
 	    continue;
 	}
 	if ((temp = strrchr(buff, '#')))
@@ -3115,7 +3116,7 @@ extern int anongame_infos_load(char const *filename)
 		    break;
 		}
 	    }
-	free(buff);
+	xfree(buff);
     }
 
     if (anongame_infos_DESC)
@@ -3519,14 +3520,14 @@ static int anongame_infos_data_load(void)
 	    packet_append_string(raw, anongame_infos_DESC_get_ladder_clan_4v4_desc(anongame_infos_DESC->langID));
 	    packet_append_string(raw, anongame_infos_URL_get_ladder_clan_3v3_url());
 	    anongame_infos_data_lang_war3->ladr_len = packet_get_size(raw);
-	    if ((anongame_infos_data_lang_war3->ladr_data = (char *) malloc(anongame_infos_data_lang_war3->ladr_len)) != NULL)
+	    if ((anongame_infos_data_lang_war3->ladr_data = (char *) xmalloc(anongame_infos_data_lang_war3->ladr_len)) != NULL)
 	    {
 		memcpy(anongame_infos_data_lang_war3->ladr_data, packet_get_data_const(raw, 0, anongame_infos_data_lang_war3->ladr_len), anongame_infos_data_lang_war3->ladr_len);
 		zlib_compress(anongame_infos_data_lang_war3->ladr_data, anongame_infos_data_lang_war3->ladr_len, &anongame_infos_data_lang_war3->ladr_comp_data, &anongame_infos_data_lang_war3->ladr_comp_len);
 	    }
 	    list_append_data(anongame_infos->anongame_infos_data_lang_war3, anongame_infos_data_lang_war3);
 	    anongame_infos_data_lang_w3xp->ladr_len = packet_get_size(raw);
-	    if ((anongame_infos_data_lang_w3xp->ladr_data = (char *) malloc(anongame_infos_data_lang_w3xp->ladr_len)) != NULL)
+	    if ((anongame_infos_data_lang_w3xp->ladr_data = (char *) xmalloc(anongame_infos_data_lang_w3xp->ladr_len)) != NULL)
 	    {
 		memcpy(anongame_infos_data_lang_w3xp->ladr_data, packet_get_data_const(raw, 0, anongame_infos_data_lang_w3xp->ladr_len), anongame_infos_data_lang_w3xp->ladr_len);
 		zlib_compress(anongame_infos_data_lang_w3xp->ladr_data, anongame_infos_data_lang_w3xp->ladr_len, &anongame_infos_data_lang_w3xp->ladr_comp_data, &anongame_infos_data_lang_w3xp->ladr_comp_len);
@@ -3557,7 +3558,7 @@ static int zlib_compress(void const *src, int srclen, char **dest, int *destlen)
     lorigdone = 0;
     *dest = NULL;
 
-    tmpdata = (unsigned char *) malloc(srclen + (srclen / 0x10) + 0x200 + 0x8000);
+    tmpdata = (unsigned char *) xmalloc(srclen + (srclen / 0x10) + 0x200 + 0x8000);
     if (!tmpdata)
     {
 	eventlog(eventlog_level_error, __FUNCTION__, "not enough memory for tmpdata");
@@ -3582,12 +3583,12 @@ static int zlib_compress(void const *src, int srclen, char **dest, int *destlen)
     (*destlen) = zcpr.total_out;
     if ((*destlen) > 0)
     {
-	(*dest) = malloc((*destlen) + 4);
+	(*dest) = xmalloc((*destlen) + 4);
 	if (!(*dest))
 	{
 	    eventlog(eventlog_level_error, __FUNCTION__, "not enough memory for dest");
 	    pvpgn_deflateEnd(&zcpr);
-	    free((void *) tmpdata);
+	    xfree((void *) tmpdata);
 	    return -1;
 	}
 	bn_short_set((bn_short *) (*dest), lorigdone);
@@ -3597,7 +3598,7 @@ static int zlib_compress(void const *src, int srclen, char **dest, int *destlen)
     }
     pvpgn_deflateEnd(&zcpr);
 
-    free((void *) tmpdata);
+    xfree((void *) tmpdata);
 
     return 0;
 }

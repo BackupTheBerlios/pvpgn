@@ -63,6 +63,7 @@
 #include "message.h"
 #include "prefs.h"
 #include "common/list.h"
+#include "common/xalloc.h"
 #include "ipban.h"
 #include "common/setup_after.h"
 
@@ -148,7 +149,7 @@ extern int ipbanlist_load(char const * filename)
 	while (*ip=='\t' || *ip==' ') ip++;
 	if (*ip=='\0' || *ip=='#')
 	{
-	    free(buff);
+	    xfree(buff);
 	    continue;
 	}
 	
@@ -178,12 +179,12 @@ extern int ipbanlist_load(char const * filename)
 	
 	if (ipbanlist_add(NULL,ip,endtime)!=0)
 	{
-	    free(buff);
+	    xfree(buff);
 	    eventlog(eventlog_level_warn,"ipbanlist_load","error in %.64s at line %u",filename,currline);
 	    continue;
 	}
 	
-	free(buff);
+	xfree(buff);
     }
     
     if (fclose(fp)<0)
@@ -237,7 +238,7 @@ extern int ipbanlist_save(char const * filename)
 	    sprintf(line,"%s %ld\n",ipstr,entry->endtime);
 	if (!(fwrite(line,strlen(line),1,fp)))
 	    eventlog(eventlog_level_error,"ipbanlist_save","could not write to banlist file (write: %s)",strerror(errno));
-	free(ipstr);
+	xfree(ipstr);
     }
 	
     if (fclose(fp)<0)
@@ -291,7 +292,7 @@ extern int ipbanlist_check(char const * ipaddr)
     if (!ip1 || !ip2 || !ip3 || !ip4)
     {
 	eventlog(eventlog_level_warn,"ipban_check","got bad IP address \"%s\"",ipaddr);
-	free(whole);
+	xfree(whole);
 	return -1;
     }
     
@@ -313,7 +314,7 @@ extern int ipbanlist_check(char const * ipaddr)
 	    if (strcmp(entry->info1,ipaddr)==0)
 	    {
 		eventlog(eventlog_level_debug,"ipbanlist_check","address %s matched exact %s",ipaddr,entry->info1);
-		free(whole);
+		xfree(whole);
 		return counter;
 	    }
 	    eventlog(eventlog_level_debug,"ipbanlist_check","address %s does not match exact %s",ipaddr,entry->info1);
@@ -342,7 +343,7 @@ extern int ipbanlist_check(char const * ipaddr)
 	    }
 	    
 	    eventlog(eventlog_level_debug,"ipbanlist_check","address %s matched wildcard %s.%s.%s.%s",ipaddr,entry->info1,entry->info2,entry->info3,entry->info4);
-	    free(whole);
+	    xfree(whole);
 	    return counter;
 	    
 	case ipban_type_range:
@@ -350,7 +351,7 @@ extern int ipbanlist_check(char const * ipaddr)
 		(ipban_str_to_ulong(ipaddr) <= ipban_str_to_ulong(entry->info2)))
 	    {
 		eventlog(eventlog_level_debug,"ipbanlist_check","address %s matched range %s-%s",ipaddr,entry->info1,entry->info2);
-		free(whole);
+		xfree(whole);
 		return counter;
 	    }
 	    eventlog(eventlog_level_debug,"ipbanlist_check","address %s does not match range %s-%s",ipaddr,entry->info1,entry->info2);
@@ -374,7 +375,7 @@ extern int ipbanlist_check(char const * ipaddr)
 		if (lip1 == lip2)
 		{
 		    eventlog(eventlog_level_debug,"ipbanlist_check","address %s matched netmask %s/%s",ipaddr,entry->info1,entry->info2);
-		    free(whole);
+		    xfree(whole);
 		    return counter;
 		}
 		eventlog(eventlog_level_debug,"ipbanlist_check","address %s does not match netmask %s/%s",ipaddr,entry->info1,entry->info2);
@@ -398,7 +399,7 @@ extern int ipbanlist_check(char const * ipaddr)
 		if (lip1 == lip2)
 		{
 		    eventlog(eventlog_level_debug,"ipbanlist_check","address %s matched prefix %s/%s",ipaddr,entry->info1,entry->info2);
-		    free(whole);
+		    xfree(whole);
 		    return counter;
 		}
 		eventlog(eventlog_level_debug,"ipbanlist_check","address %s does not match prefix %s/%s",ipaddr,entry->info1,entry->info2);
@@ -409,7 +410,7 @@ extern int ipbanlist_check(char const * ipaddr)
 	}
     }    
 
-    free(whole);
+    xfree(whole);
 
     return 0;
 }
@@ -727,7 +728,7 @@ static int ipban_func_list(t_connection * c)
 	}
 	sprintf(tstr,"%u: %s %s",counter,ipstr,timestr);
 	message_send_text(c,message_type_info,c,tstr);
-	free(ipstr);
+	xfree(ipstr);
     }
 
     if (counter == 0)
@@ -804,21 +805,21 @@ static int ipban_unload_entry(t_ipban_entry * e)
     	case ipban_type_exact:
 	case ipban_type_wildcard:
 	    if (e->info1)
-		free(e->info1);
+		xfree(e->info1);
 	    break;
 	case ipban_type_range:
 	case ipban_type_netmask:
 	case ipban_type_prefix:
 	    if (e->info1)
-		free(e->info1);
+		xfree(e->info1);
 	    if (e->info2)
-		free(e->info2);
+		xfree(e->info2);
 	    break;
 	default:  /* unknown type */
     	    eventlog(eventlog_level_warn,"ipbanlist_unload","found bad ban type %d",(int)e->type);
 	    return -1;
     }
-    free(e);
+    xfree(e);
     return 0;
 }
 
@@ -830,7 +831,7 @@ static t_ipban_entry * ipban_str_to_ipban_entry(char const * ipstr)
     char *          cp;
     t_ipban_entry * entry;
     
-    if (!(entry = malloc(sizeof(t_ipban_entry))))
+    if (!(entry = xmalloc(sizeof(t_ipban_entry))))
     {
         eventlog(eventlog_level_error,"ipban_str_to_t_ipban_entry","could not allocate memory for entry %s", ipstr);
         return NULL;
@@ -838,26 +839,26 @@ static t_ipban_entry * ipban_str_to_ipban_entry(char const * ipstr)
     if (!ipstr)
     {
 	eventlog(eventlog_level_error,"ipban_str_to_ipban_entry","got NULL IP");
-	free(entry);
+	xfree(entry);
 	return NULL;
     }
     if (ipstr[0] == '\0')
     {
         eventlog(eventlog_level_warn,"ipban_str_to_ipban_entry","got empty IP string");
-	free(entry);
+	xfree(entry);
         return NULL;
     }
     if (!(cp = strdup(ipstr)))
     {
 	eventlog(eventlog_level_warn,"ipban_str_to_ipban_entry","could not allocate memory for cp");
-	free(entry);
+	xfree(entry);
 	return NULL;
     }
 
     if (ipban_could_be_ip_str(cp)==0)
     {
 	eventlog(eventlog_level_debug,"ipban_str_to_ipban_entry","string: \"%.32s\" can not be valid IP",cp);
-	free(entry);
+	xfree(entry);
 	return NULL;
     }
     if ((matched = strchr(cp,'-'))) /* range */
@@ -868,16 +869,16 @@ static t_ipban_entry * ipban_str_to_ipban_entry(char const * ipstr)
         if (!(entry->info1 = strdup(cp))) /* start of range */
         {
 	    eventlog(eventlog_level_error,"ipban_str_to_ipban_entry","could not allocate memory for info on entry %s",cp);
-	    free(entry);
-	    free(cp);
+	    xfree(entry);
+	    xfree(cp);
 	    return NULL;
 	}
 	if (!(entry->info2 = strdup(&matched[1]))) /* end of range */
 	{
 	    eventlog(eventlog_level_error,"ipban_str_to_ipban_entry","could not allocate memory for info on entry %s",cp);
-	    free(entry->info1);
-	    free(entry);
-	    free(cp);
+	    xfree(entry->info1);
+	    xfree(entry);
+	    xfree(cp);
 	    return NULL;
 	}
 	entry->info3 = NULL; /* clear unused elements so debugging is nicer */
@@ -889,12 +890,12 @@ static t_ipban_entry * ipban_str_to_ipban_entry(char const * ipstr)
 	    entry->type = ipban_type_wildcard;
 	    eventlog(eventlog_level_debug,"ipban_str_to_ipban_entry","entry: %s matched as ipban_type_wildcard",cp);
 		
-	    /* only free() info1! */
+	    /* only xfree() info1! */
 	    if (!(whole = strdup(cp)))
 	    {
 	        eventlog(eventlog_level_error,"ipban_str_to_ipban_entry","could not allocate memory for info on entry \"%s\"",cp);
-	        free(entry);
-		free(cp);
+	        xfree(entry);
+		xfree(cp);
 	        return NULL;
 	    }
 	    entry->info1 = strtok(whole,".");
@@ -904,9 +905,9 @@ static t_ipban_entry * ipban_str_to_ipban_entry(char const * ipstr)
 	    if (!entry->info4) /* not enough dots */
 	    {
 	        eventlog(eventlog_level_error,"ipban_str_to_ipban_entry","wildcard entry \"%s\" does not contain all four octets",cp);
-	        free(entry->info1);
-	        free(entry);
-		free(cp);
+	        xfree(entry->info1);
+	        xfree(entry);
+		xfree(cp);
 	        return NULL;
 	    }
 	}
@@ -928,16 +929,16 @@ static t_ipban_entry * ipban_str_to_ipban_entry(char const * ipstr)
 		if (!(entry->info1 = strdup(cp)))
 		{
 		    eventlog(eventlog_level_error,"ipban_str_to_ipban_entry","could not allocate memory for info on entry \"%s\"",cp);
-	    	    free(entry);
-		    free(cp);
+	    	    xfree(entry);
+		    xfree(cp);
 		    return NULL;
 		}
 		if (!(entry->info2 = strdup(&matched[1])))
 		{
 		    eventlog(eventlog_level_error,"ipban_str_to_ipban_entry","could not allocate memory for info on entry \"%s\"",cp);
-		    free(entry->info1);
-		    free(entry);
-		    free(cp);
+		    xfree(entry->info1);
+		    xfree(entry);
+		    xfree(cp);
 		    return NULL;
 		}
 		entry->info3 = NULL; /* clear unused elements so debugging is nicer */
@@ -951,15 +952,15 @@ static t_ipban_entry * ipban_str_to_ipban_entry(char const * ipstr)
 		if (!(entry->info1 = strdup(cp)))
 		{
 		    eventlog(eventlog_level_error,"ipban_str_to_ipban_entry","could not allocate memory for info on entry \"%s\"",cp);
-		    free(entry);
-		    free(cp);
+		    xfree(entry);
+		    xfree(cp);
 		    return NULL;
 		}
 		entry->info2 = NULL; /* clear unused elements so debugging is nicer */
 		entry->info3 = NULL;
 		entry->info4 = NULL;
 	    }
-    free(cp);
+    xfree(cp);
     
     return entry;
 }
@@ -1019,7 +1020,7 @@ static unsigned long ipban_str_to_ulong(char const * ipaddr)
     ip4 = strtok(NULL,".");
     lip = (atoi(ip1) << 24) + (atoi(ip2) << 16) + (atoi(ip3) << 8) + (atoi(ip4));
 
-    free(tipaddr);
+    xfree(tipaddr);
 
     return lip;
 }
@@ -1044,12 +1045,12 @@ static int ipban_could_be_exact_ip_str(char const * str)
 	ttok = (char *)strsep(&ipstr, ".");
 	if (!ttok || strlen(ttok)<1 || strlen(ttok)>3)
 	{
-	    free(s);
+	    xfree(s);
 	    return 0;
 	}
     }
 
-    free(s);
+    xfree(s);
     return 1;
 }
 
@@ -1083,7 +1084,7 @@ static int ipban_could_be_ip_str(char const * str)
 	if ((ipban_could_be_exact_ip_str(ipstr)==0) ||
 	    (ipban_could_be_exact_ip_str(&matched[1])==0))
 	{
-	    free(ipstr);
+	    xfree(ipstr);
 	    return 0;
 	}
     }
@@ -1091,7 +1092,7 @@ static int ipban_could_be_ip_str(char const * str)
     {
 	if (ipban_could_be_exact_ip_str(ipstr)==0) /* FIXME: 123.123.1*.123 allowed */
 	{
-	    free(ipstr);
+	    xfree(ipstr);
 	    return 0;
 	}
     }
@@ -1103,7 +1104,7 @@ static int ipban_could_be_ip_str(char const * str)
 	    if ((ipban_could_be_exact_ip_str(ipstr)==0) ||
 		(ipban_could_be_exact_ip_str(&matched[1])==0))
 	    {
-		free(ipstr);
+		xfree(ipstr);
 		return 0;
 	    }
 	}
@@ -1111,18 +1112,18 @@ static int ipban_could_be_ip_str(char const * str)
 	{
     	    if (ipban_could_be_exact_ip_str(ipstr)==0)
 	    {
-		free(ipstr);
+		xfree(ipstr);
 		return 0;
 	    }
 	    for (i=1; i<strlen(&matched[1]); i++)
 		if (!isdigit((int)matched[i]))
 		{
-		    free(ipstr);
+		    xfree(ipstr);
 		    return 0;
 		}
 	    if (atoi(&matched[1])>32) /* can not be less than 0 because IP/-24 is matched as range */
 	    {
-		free(ipstr);
+		xfree(ipstr);
 		return 0;
 	    }
 	}
@@ -1131,11 +1132,11 @@ static int ipban_could_be_ip_str(char const * str)
     {
 	if (ipban_could_be_exact_ip_str(ipstr)==0)
 	{
-	    free(ipstr);
+	    xfree(ipstr);
 	    return 0;
 	}
     }
-    free(ipstr);
+    xfree(ipstr);
     
     return 1;    
 }

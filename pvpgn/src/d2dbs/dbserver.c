@@ -98,6 +98,7 @@
 # include <conio.h> /* for kbhit() and getch() */
 #endif
 #include "common/addr.h"
+#include "common/xalloc.h"
 #include "common/setup_after.h"
 
 
@@ -330,8 +331,8 @@ int dbs_server_list_add_socket(int sd, unsigned int ipaddr)
 	t_d2dbs_connection	*it;
 	struct in_addr		in;
 
-	if (!(it=malloc(sizeof(t_d2dbs_connection)))) {
-		eventlog(eventlog_level_error,__FUNCTION__,"malloc() failed");
+	if (!(it=xmalloc(sizeof(t_d2dbs_connection)))) {
+		eventlog(eventlog_level_error,__FUNCTION__,"xmalloc() failed");
 		return 0;
 	}
 	memset(it, 0, sizeof(t_d2dbs_connection));
@@ -514,7 +515,7 @@ static void dbs_on_exit(void)
 		for (curr=preset_d2gsid_head; curr; curr=next)
 		{
 			next = curr->next;
-			free(curr);
+			xfree(curr);
 		}
 	}
 	eventlog(eventlog_level_info,__FUNCTION__,"dbserver stopped");
@@ -530,7 +531,7 @@ int dbs_server_shutdown_connection(t_d2dbs_connection* conn)
 		eventlog_step(prefs_get_logfile_gs(),eventlog_level_info,__FUNCTION__,"close connection to gs on socket %d", conn->sd);
 		cl_unlock_all_char_by_gsid(conn->serverid);
 	}
-	free(conn);
+	xfree(conn);
 	return 1;
 }
 
@@ -562,7 +563,7 @@ static unsigned int get_preset_d2gsid(unsigned int ipaddr)
 		pgsid = pgsid->next;
 	}
 	/* not found, build a new item */
-	pgsid = malloc(sizeof(t_preset_d2gsid));
+	pgsid = xmalloc(sizeof(t_preset_d2gsid));
 	if (!pgsid) {
 		eventlog(eventlog_level_warn,__FUNCTION__,"failed malloc memory for t_preset_d2gsid");
 		return ++dbs_packet_gs_id;

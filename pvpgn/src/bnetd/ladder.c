@@ -59,6 +59,7 @@
 #include "ladder_binary.h"
 #include "account.h"
 #include "common/bnet_protocol.h"
+#include "common/xalloc.h"
 #include "common/setup_after.h"
 
 #define MaxRankKeptInLadder 1000
@@ -680,7 +681,7 @@ void ladder_destroy(t_ladder *ladder)
   {
     pointer = ladder->first;
     ladder->first = pointer->prev;
-    free((void *)pointer);
+    xfree((void *)pointer);
   }
 }
 
@@ -688,7 +689,7 @@ void ladder_destroy(t_ladder *ladder)
   {
 
    t_ladder_internal *ladder_entry;
-   ladder_entry = malloc(sizeof(t_ladder_internal));
+   ladder_entry = xmalloc(sizeof(t_ladder_internal));
 
    if (ladder_entry != NULL)
    {
@@ -1102,7 +1103,7 @@ extern int ladder_update_accounts(t_ladder *ladder, int (*set_fct)(), int (*get_
 	if (ladder->last == pointer)  ladder->last  = pointer->next;
 	if (ladder->first == pointer) ladder->first = pointer->prev;
 	tmp_pointer = pointer->prev;
-	free((void *)pointer);
+	xfree((void *)pointer);
 	pointer = tmp_pointer;
       }
       }
@@ -1613,7 +1614,7 @@ int XML_writer(FILE * fp, t_ladder * ladder, t_clienttag clienttag)
 		     member;
 		     member = strtok(NULL," "))
 		 fprintf(fp,"\t\t<member>%s</member>\n",member);
-	       free(members);
+	       xfree(members);
 	       fprintf(fp,"\t\t<xp>%u</xp>\n\t\t<rank>%u</rank>\n\t</team>\n",pointer->xp,rank);
 	     }
 	 }
@@ -1737,7 +1738,7 @@ extern int ladders_write_to_file()
 extern char * create_filename(const char * path, const char * filename, const char * ending)
 {
   char * result;
-  if (!(result = malloc(strlen(path)+1+strlen(filename)+strlen(ending)+1)))
+  if (!(result = xmalloc(strlen(path)+1+strlen(filename)+strlen(ending)+1)))
   {
     eventlog(eventlog_level_error,"create_filename","could not allocate name for filename %s%s",filename,ending);
     return NULL;
@@ -1751,7 +1752,7 @@ extern char * create_filename(const char * path, const char * filename, const ch
 
 static void dispose_filename(char * filename)
 {
-  if (filename) free(filename);
+  if (filename) xfree(filename);
 }
 
 void create_filenames(void)
@@ -2025,7 +2026,7 @@ extern int ladder_createxptable(const char *xplevelfile, const char *xpcalcfile)
    }
    
    /* then lets allocate mem for all the arrays */
-   if ((xpcalc = malloc(sizeof(t_xpcalc_entry) * W3_XPCALC_MAXLEVEL)) == NULL) { //presume the maximal leveldiff is level number
+   if ((xpcalc = xmalloc(sizeof(t_xpcalc_entry) * W3_XPCALC_MAXLEVEL)) == NULL) { //presume the maximal leveldiff is level number
       eventlog(eventlog_level_error, "ladder_createxptable", "could not allocate for calc types");
       fclose(fd1); fclose(fd2);
       return -1;
@@ -2034,7 +2035,7 @@ extern int ladder_createxptable(const char *xplevelfile, const char *xpcalcfile)
    w3_xpcalc_maxleveldiff = -1;
    memset(xpcalc, 0, sizeof(t_xpcalc_entry) * W3_XPCALC_MAXLEVEL);
 
-   if ((xplevels = malloc(sizeof(t_xplevel_entry) * W3_XPCALC_MAXLEVEL)) == NULL) {
+   if ((xplevels = xmalloc(sizeof(t_xplevel_entry) * W3_XPCALC_MAXLEVEL)) == NULL) {
       eventlog(eventlog_level_error, "ladder_createxptable", "coould not allocate for XP levels");
       ladder_destroyxptable();
       fclose(fd2); fclose(fd1);
@@ -2104,7 +2105,7 @@ extern int ladder_createxptable(const char *xplevelfile, const char *xpcalcfile)
    }
    fclose(fd2);
 
-   if (!(newxpcalc = realloc(xpcalc, sizeof(t_xpcalc_entry) * (w3_xpcalc_maxleveldiff+1))))
+   if (!(newxpcalc = xrealloc(xpcalc, sizeof(t_xpcalc_entry) * (w3_xpcalc_maxleveldiff+1))))
    {
      eventlog(eventlog_level_error,__FUNCTION__,"error resizing xpcalc array to size %d",w3_xpcalc_maxleveldiff+1);
      ladder_destroyxptable();
@@ -2147,8 +2148,8 @@ extern int ladder_createxptable(const char *xplevelfile, const char *xpcalcfile)
 
 extern void ladder_destroyxptable()
 {
-   if (xpcalc != NULL) free(xpcalc);
-   if (xplevels != NULL) free(xplevels);
+   if (xpcalc != NULL) xfree(xpcalc);
+   if (xplevels != NULL) xfree(xplevels);
 }
 
 extern int war3_get_maxleveldiff()

@@ -103,6 +103,7 @@
 #include "friends.h"
 #include "compat/uint.h"
 #include "common/trans.h"
+#include "common/xalloc.h"
 #include "common/setup_after.h"
 
 extern int last_news;
@@ -1200,7 +1201,7 @@ static int _client_authreq1(t_connection * c, t_packet const * const packet)
 		    }
 		  
 		  if (mpqfilename)
-		    free((void *)mpqfilename);
+		    xfree((void *)mpqfilename);
 	       }
 	     
 	     packet_append_string(rpacket,""); /* FIXME: what's the second string for? */
@@ -1337,7 +1338,7 @@ static int _client_authreq109(t_connection * c, t_packet const * const packet)
 		       packet_append_string(rpacket,"");
 		    }
 	          if (mpqfilename)
-		    free((void *)mpqfilename);
+		    xfree((void *)mpqfilename);
 	       }
 	     
 	     conn_push_outqueue(c,rpacket);
@@ -3306,7 +3307,7 @@ static int _client_charlistreq(t_connection * c, t_packet const * const packet)
 		  tok1 = strtok(NULL,",");
 		  tok2 = strtok(NULL,",");
 	       }
-	     free(temp);
+	     xfree(temp);
 	     
 	     bn_int_set(&rpacket->u.server_unknown_37.count,count);
 	     conn_push_outqueue(c,rpacket);
@@ -4404,7 +4405,7 @@ static int _client_gamereport(t_connection * c, t_packet const * const packet)
 	    return -1;
 	}
 
-	if (!(results = malloc(sizeof(t_game_result)*game_get_count(game))))
+	if (!(results = xmalloc(sizeof(t_game_result)*game_get_count(game))))
 	{
 	    eventlog(eventlog_level_error,__FUNCTION__,"could not allocate memory to store game results");
 	    return -1;
@@ -4462,7 +4463,7 @@ static int _client_gamereport(t_connection * c, t_packet const * const packet)
 	  }
 	
 	if (game_set_reported_results(game,my_account,results)<0)
-	  free((void *)results);
+	  xfree((void *)results);
 
 	eventlog(eventlog_level_debug,__FUNCTION__,"[%d] finished parsing result... now leaving game",conn_get_socket(c));
 	conn_set_game(c,NULL,NULL,NULL,game_type_none,0);

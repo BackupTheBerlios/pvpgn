@@ -45,6 +45,7 @@
 #endif
 #include "fdwatch.h"
 #include "common/eventlog.h"
+#include "common/xalloc.h"
 #include "common/setup_after.h"
 
 #ifdef HAVE_POLL
@@ -73,8 +74,8 @@ static int fdw_poll_init(int nfds)
 {
     int i;
 
-    fdw_ridx = malloc(sizeof(int) * nfds);
-    fds = malloc(sizeof(struct pollfd) * nfds);
+    fdw_ridx = xmalloc(sizeof(int) * nfds);
+    fds = xmalloc(sizeof(struct pollfd) * nfds);
     if (fdw_ridx == NULL || fds == NULL) {
 	fdw_poll_close();
 	return -1;
@@ -91,8 +92,8 @@ static int fdw_poll_init(int nfds)
 
 static int fdw_poll_close(void)
 {
-    if (fds) { free((void *)fds); fds = NULL; }
-    if (fdw_ridx) { free((void *)fdw_ridx); fdw_ridx = NULL; }
+    if (fds) { xfree((void *)fds); fds = NULL; }
+    if (fdw_ridx) { xfree((void *)fdw_ridx); fdw_ridx = NULL; }
     nofds = sr = 0;
 
     return 0;

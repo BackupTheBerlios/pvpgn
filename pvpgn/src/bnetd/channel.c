@@ -68,9 +68,10 @@
 #include "prefs.h"
 #include "common/token.h"
 #include "channel.h"
-#include "common/setup_after.h"
 #include "irc.h"
 #include "common/tag.h"
+#include "common/xalloc.h"
+#include "common/setup_after.h"
 
 
 static t_list * channellist_head=NULL;
@@ -132,7 +133,7 @@ extern t_channel * channel_create(char const * fullname, char const * shortname,
 	}
     }
     
-    if (!(channel = malloc(sizeof(t_channel))))
+    if (!(channel = xmalloc(sizeof(t_channel))))
     {
         eventlog(eventlog_level_error,"channel_create","could not allocate memory for channel");
         return NULL;
@@ -171,7 +172,7 @@ extern t_channel * channel_create(char const * fullname, char const * shortname,
     if (!(channel->name = strdup(fullname)))
     {
         eventlog(eventlog_level_info,"channel_create","unable to allocate memory for channel->name");
-	free(channel);
+	xfree(channel);
 	return NULL;
     }
     
@@ -181,8 +182,8 @@ extern t_channel * channel_create(char const * fullname, char const * shortname,
 	if (!(channel->shortname = strdup(shortname)))
 	{
 	    eventlog(eventlog_level_info,"channel_create","unable to allocate memory for channel->shortname");
-	    free((void *)channel->name); /* avoid warning */
-	    free(channel);
+	    xfree((void *)channel->name); /* avoid warning */
+	    xfree(channel);
 	    return NULL;
 	}
     
@@ -192,9 +193,9 @@ extern t_channel * channel_create(char const * fullname, char const * shortname,
 	{
 	    eventlog(eventlog_level_error,"channel_create","could not allocate memory for channel->clienttag");
 	    if (channel->shortname)
-		free((void *)channel->shortname); /* avoid warning */
-	    free((void *)channel->name); /* avoid warning */
-	    free(channel);
+		xfree((void *)channel->shortname); /* avoid warning */
+	    xfree((void *)channel->name); /* avoid warning */
+	    xfree(channel);
 	    return NULL;
 	}
     }
@@ -207,11 +208,11 @@ extern t_channel * channel_create(char const * fullname, char const * shortname,
 	{
             eventlog(eventlog_level_info,"channel_create","unable to allocate memory for channel->country");
 	    if (channel->clienttag)
-	        free((void *)channel->clienttag); /* avoid warning */
+	        xfree((void *)channel->clienttag); /* avoid warning */
 	    if (channel->shortname)
-	        free((void *)channel->shortname); /* avoid warning */
-	    free((void *)channel->name); /* avoid warning */
-	    free(channel);
+	        xfree((void *)channel->shortname); /* avoid warning */
+	    xfree((void *)channel->name); /* avoid warning */
+	    xfree(channel);
 	    return NULL;
     	}
     }
@@ -224,13 +225,13 @@ extern t_channel * channel_create(char const * fullname, char const * shortname,
         {
             eventlog(eventlog_level_info,"channel_create","unable to allocate memory for channel->realmname");
 	    if (channel->country)
-	    	free((void *)channel->country); /* avoid warning */
+	    	xfree((void *)channel->country); /* avoid warning */
 	    if (channel->clienttag)
-	        free((void *)channel->clienttag); /* avoid warning */
+	        xfree((void *)channel->clienttag); /* avoid warning */
 	    if (channel->shortname)
-	        free((void *)channel->shortname); /* avoid warning */
-	    free((void *)channel->name); /* avoid warning */
-	    free(channel);
+	        xfree((void *)channel->shortname); /* avoid warning */
+	    xfree((void *)channel->name); /* avoid warning */
+	    xfree(channel);
 	    return NULL;
     	}
     }
@@ -241,15 +242,15 @@ extern t_channel * channel_create(char const * fullname, char const * shortname,
     {
 	eventlog(eventlog_level_error,"channel_create","could not create list");
 	if (channel->country)
-	    free((void *)channel->country); /* avoid warning */
+	    xfree((void *)channel->country); /* avoid warning */
         if (channel->realmname)
-            free((void *)channel->realmname); /*avoid warining */
+            xfree((void *)channel->realmname); /*avoid warining */
 	if (channel->clienttag)
-	    free((void *)channel->clienttag); /* avoid warning */
+	    xfree((void *)channel->clienttag); /* avoid warning */
 	if (channel->shortname)
-	    free((void *)channel->shortname); /* avoid warning */
-	free((void *)channel->name); /* avoid warning */
-	free(channel);
+	    xfree((void *)channel->shortname); /* avoid warning */
+	xfree((void *)channel->name); /* avoid warning */
+	xfree(channel);
 	return NULL;
     }
     
@@ -286,20 +287,20 @@ extern t_channel * channel_create(char const * fullname, char const * shortname,
 		    tmnow->tm_min,
 		    tmnow->tm_sec);
 	
-	if (!(channel->logname = malloc(strlen(prefs_get_chanlogdir())+9+strlen(dstr)+1+6+1))) /* dir + "/chanlog-" + dstr + "-" + id + NUL */
+	if (!(channel->logname = xmalloc(strlen(prefs_get_chanlogdir())+9+strlen(dstr)+1+6+1))) /* dir + "/chanlog-" + dstr + "-" + id + NUL */
 	{
 	    eventlog(eventlog_level_error,"channel_create","could not allocate memory for channel->logname");
 	    list_destroy(channel->banlist);
 	    if (channel->country)
-		free((void *)channel->country); /* avoid warning */
+		xfree((void *)channel->country); /* avoid warning */
             if (channel->realmname)
-                free((void *) channel->realmname); /* avoid warning */
+                xfree((void *) channel->realmname); /* avoid warning */
 	    if (channel->clienttag)
-		free((void *)channel->clienttag); /* avoid warning */
+		xfree((void *)channel->clienttag); /* avoid warning */
 	    if (channel->shortname)
-		free((void *)channel->shortname); /* avoid warning */
-	    free((void *)channel->name); /* avoid warning */
-	    free(channel);
+		xfree((void *)channel->shortname); /* avoid warning */
+	    xfree((void *)channel->name); /* avoid warning */
+	    xfree(channel);
 	    return NULL;
 	}
 	sprintf(channel->logname,"%s/chanlog-%s-%06u",prefs_get_chanlogdir(),dstr,channel->id);
@@ -342,18 +343,18 @@ extern t_channel * channel_create(char const * fullname, char const * shortname,
 	    if (fclose(channel->log)<0)
 		eventlog(eventlog_level_error,"channel_create","could not close channel log \"%s\" after writing (fclose: %s)",channel->logname,strerror(errno));
 	if (channel->logname)
-	    free((void *)channel->logname); /* avoid warning */
+	    xfree((void *)channel->logname); /* avoid warning */
 	list_destroy(channel->banlist);
 	if (channel->country)
-	    free((void *)channel->country); /* avoid warning */
+	    xfree((void *)channel->country); /* avoid warning */
         if (channel->realmname)
-            free((void *) channel->realmname); /* avoid warning */
+            xfree((void *) channel->realmname); /* avoid warning */
 	if (channel->clienttag)
-	    free((void *)channel->clienttag); /* avoid warning */
+	    xfree((void *)channel->clienttag); /* avoid warning */
 	if (channel->shortname)
-	    free((void *)channel->shortname); /* avoid warning */
-	free((void *)channel->name); /* avoid warning */
-	free(channel);
+	    xfree((void *)channel->shortname); /* avoid warning */
+	xfree((void *)channel->name); /* avoid warning */
+	xfree(channel);
         return NULL;
     }
     
@@ -394,7 +395,7 @@ extern int channel_destroy(t_channel * channel, t_elem ** curr)
 	if (!(banned = elem_get_data(ban)))
 	    eventlog(eventlog_level_error,"channel_destroy","found NULL name in banlist");
 	else
-	    free((void *)banned); /* avoid warning */
+	    xfree((void *)banned); /* avoid warning */
 	if (list_remove_elem(channel->banlist,&ban)<0)
 	    eventlog(eventlog_level_error,"channel_destroy","unable to remove item from list");
     }
@@ -418,23 +419,23 @@ extern int channel_destroy(t_channel * channel, t_elem ** curr)
     }
     
     if (channel->logname)
-	free((void *)channel->logname); /* avoid warning */
+	xfree((void *)channel->logname); /* avoid warning */
     
     if (channel->country)
-	free((void *)channel->country); /* avoid warning */
+	xfree((void *)channel->country); /* avoid warning */
     
     if (channel->realmname)
-	free((void *)channel->realmname); /* avoid warning */
+	xfree((void *)channel->realmname); /* avoid warning */
 
     if (channel->clienttag)
-	free((void *)channel->clienttag); /* avoid warning */
+	xfree((void *)channel->clienttag); /* avoid warning */
     
     if (channel->shortname)
-	free((void *)channel->shortname); /* avoid warning */
+	xfree((void *)channel->shortname); /* avoid warning */
 
-    free((void *)channel->name); /* avoid warning */
+    xfree((void *)channel->name); /* avoid warning */
     
-    free(channel);
+    xfree(channel);
     
     return 0;
 }
@@ -538,7 +539,7 @@ extern int channel_rejoin(t_connection * conn)
     conn_set_channel(conn, NULL);
     if (conn_set_channel(conn,chname)<0)
       conn_set_channel(conn,CHANNEL_NAME_BANNED);
-    free((void *)chname);
+    xfree((void *)chname);
   }
   return 0;  
 }
@@ -566,7 +567,7 @@ extern int channel_add_connection(t_channel * channel, t_connection * connection
 	return -1;
     }
     
-    if (!(member = malloc(sizeof(t_channelmember))))
+    if (!(member = xmalloc(sizeof(t_channelmember))))
     {
 	eventlog(eventlog_level_error,"channel_add_connection","could not allocate memory for channelmember");
 	return -1;
@@ -632,7 +633,7 @@ extern int channel_del_connection(t_channel * channel, t_connection * connection
     if (curr->connection==connection)
     {
         channel->memberlist = channel->memberlist->next;
-        free(curr);
+        xfree(curr);
     }
     else
     {
@@ -643,7 +644,7 @@ extern int channel_del_connection(t_channel * channel, t_connection * connection
         {
             temp = curr->next;
             curr->next = curr->next->next;
-            free(temp);
+            xfree(temp);
         }
 	else
 	{
@@ -856,7 +857,7 @@ extern int channel_ban_user(t_channel * channel, char const * user)
     }
     if (list_append_data(channel->banlist,temp)<0)
     {
-	free(temp);
+	xfree(temp);
         eventlog(eventlog_level_error,"channel_ban_user","unable to append to list");
         return -1;
     }
@@ -895,7 +896,7 @@ extern int channel_unban_user(t_channel * channel, char const * user)
                 eventlog(eventlog_level_error,"channel_unban_user","unable to remove item from list");
                 return -1;
             }
-            free((void *)banned); /* avoid warning */
+            xfree((void *)banned); /* avoid warning */
             return 0;
         }
     }
@@ -1032,68 +1033,68 @@ static int channellist_load_permanent(char const * filename)
     {
 	if (buff[0]=='#' || buff[0]=='\0')
 	{
-	    free(buff);
+	    xfree(buff);
 	    continue;
 	}
         pos = 0;
 	if (!(name = next_token(buff,&pos)))
 	{
 	    eventlog(eventlog_level_error,__FUNCTION__,"missing name in line %u in file \"%s\"",line,filename);
-	    free(buff);
+	    xfree(buff);
 	    continue;
 	}
 	if (!(sname = next_token(buff,&pos)))
 	{
 	    eventlog(eventlog_level_error,__FUNCTION__,"missing sname in line %u in file \"%s\"",line,filename);
-	    free(buff);
+	    xfree(buff);
 	    continue;
 	}
 	if (!(tag = next_token(buff,&pos)))
 	{
 	    eventlog(eventlog_level_error,__FUNCTION__,"missing tag in line %u in file \"%s\"",line,filename);
-	    free(buff);
+	    xfree(buff);
 	    continue;
 	}
 	if (!(bot = next_token(buff,&pos)))
 	{
 	    eventlog(eventlog_level_error,__FUNCTION__,"missing bot in line %u in file \"%s\"",line,filename);
-	    free(buff);
+	    xfree(buff);
 	    continue;
 	}
 	if (!(oper = next_token(buff,&pos)))
 	{
 	    eventlog(eventlog_level_error,__FUNCTION__,"missing oper in line %u in file \"%s\"",line,filename);
-	    free(buff);
+	    xfree(buff);
 	    continue;
 	}
 	if (!(log = next_token(buff,&pos)))
 	{
 	    eventlog(eventlog_level_error,__FUNCTION__,"missing log in line %u in file \"%s\"",line,filename);
-	    free(buff);
+	    xfree(buff);
 	    continue;
 	}
 	if (!(country = next_token(buff,&pos)))
 	{
 	    eventlog(eventlog_level_error,__FUNCTION__,"missing country in line %u in file \"%s\"",line,filename);
-	    free(buff);
+	    xfree(buff);
 	    continue;
 	}
         if (!(realmname = next_token(buff,&pos)))
         {
            eventlog(eventlog_level_error,__FUNCTION__,"missing realmname in line %u in file \"%s\"",line,filename);
-           free(buff);
+           xfree(buff);
            continue;
         }
 	if (!(max = next_token(buff,&pos)))
 	{
 	    eventlog(eventlog_level_error,__FUNCTION__,"missing max in line %u in file \"%s\"",line,filename);
-	    free(buff);
+	    xfree(buff);
 	    continue;
 	}
 	if (!(moderated = next_token(buff,&pos)))
 	{
 	    eventlog(eventlog_level_error,__FUNCTION__,"missing mod in line %u in file \"%s\"",line,filename);
-	    free(buff);
+	    xfree(buff);
 	    continue;
 	}
 	
@@ -1107,7 +1108,7 @@ static int channellist_load_permanent(char const * filename)
 	    break;
 	default:
 	    eventlog(eventlog_level_error,"channellist_load_permanent","invalid boolean value \"%s\" for field 4 on line %u in file \"%s\"",bot,line,filename);
-	    free(buff);
+	    xfree(buff);
 	    continue;
         }
 	
@@ -1121,7 +1122,7 @@ static int channellist_load_permanent(char const * filename)
 	    break;
 	default:
 	    eventlog(eventlog_level_error,"channellist_load_permanent","invalid boolean value \"%s\" for field 5 on line %u in file \"%s\"",oper,line,filename);
-	    free(buff);
+	    xfree(buff);
 	    continue;
         }
 	
@@ -1135,7 +1136,7 @@ static int channellist_load_permanent(char const * filename)
 	    break;
 	default:
 	    eventlog(eventlog_level_error,"channellist_load_permanent","invalid boolean value \"%s\" for field 5 on line %u in file \"%s\"",log,line,filename);
-	    free(buff);
+	    xfree(buff);
 	    continue;
         }
 
@@ -1149,7 +1150,7 @@ static int channellist_load_permanent(char const * filename)
 		break;
 	    default:
 		eventlog(eventlog_level_error,__FUNCTION__,"invalid boolean value \"%s\" for field 10 on line %u in file \"%s\"",moderated,line,filename);
-		free(buff);
+		xfree(buff);
 		continue;
 	}
 	
@@ -1174,7 +1175,7 @@ static int channellist_load_permanent(char const * filename)
             if (newname)
 		{
                    channel_create(newname,sname,tag,1,botflag,operflag,logflag,country,realmname,atoi(max),modflag,0);
-                   free(newname);
+                   xfree(newname);
 	    }
             else
 	    {
@@ -1186,7 +1187,7 @@ static int channellist_load_permanent(char const * filename)
 	   channellist_find_channel() and set the long name, perm flag, etc,
 	   otherwise call channel_create(). This will make HUPing the server
            handle re-reading this file correctly. */
-	free(buff);
+	xfree(buff);
     }
     
     if (fclose(fp)<0)
@@ -1211,7 +1212,7 @@ static char * channel_format_name(char const * sname, char const * country, char
     	len = len + strlen(realmname) + 1;
     len = len + 32 + 1;
 
-    if (!(fullname=malloc(len)))
+    if (!(fullname=xmalloc(len)))
     {
         eventlog(eventlog_level_error,"channel_format_name","could not allocate memory for fullname");
         return NULL;
@@ -1253,7 +1254,7 @@ extern int channellist_reload(void)
 	{
 	  /* we need only channel name and memberlist */
 
-	  old_channel = (t_channel *) malloc(sizeof(t_channel));
+	  old_channel = (t_channel *) xmalloc(sizeof(t_channel));
 	  old_channel->shortname = strdup(channel->shortname);
 	  old_channel->memberlist = NULL;
 	  member = channel->memberlist;
@@ -1261,7 +1262,7 @@ extern int channellist_reload(void)
 	  /* First pass */
 	  while (member)
 	  {
-	    if (!(old_member = malloc(sizeof(t_channelmember))))
+	    if (!(old_member = xmalloc(sizeof(t_channelmember))))
 	    {
 	      /* FIX-ME: need free */
 	      eventlog(eventlog_level_error,"channellist_reload","could not allocate memory for channelmember");
@@ -1296,7 +1297,7 @@ extern int channellist_reload(void)
 	    {
 	      member = memberlist;
 	      memberlist = memberlist->next;
-	      free((void*)member);
+	      xfree((void*)member);
 	    }
 	    goto old_channel_destroy;
 	  }
@@ -1354,15 +1355,15 @@ extern int channellist_reload(void)
 	{
 	  member = memberlist;
 	  memberlist = memberlist->next;
-	  free((void*)member);
+	  xfree((void*)member);
 	}
 
 	if (channel->shortname)
-	  free((void*)channel->shortname);
+	  xfree((void*)channel->shortname);
 
 	if (list_remove_data(channellist_old,channel,&curr)<0)
 	  eventlog(eventlog_level_error,"channellist_reload","could not remove item from list");
-	free((void*)channel);
+	xfree((void*)channel);
 
       }
 
@@ -1614,7 +1615,7 @@ extern t_channel * channellist_find_channel_by_name(char const * name, char cons
                 return NULL;
 
         channel = channel_create(channelname,saveshortname,savetag,1,savebotflag,saveoperflag,savelogflag,savecountry,saverealmname,savemaxmembers,savemoderated,0);
-        free(channelname);
+        xfree(channelname);
 	
 	eventlog(eventlog_level_debug,"channellist_find_channel_by_name","created copy \"%s\" of channel \"%s\"",(channel)?(channel->name):("<failed>"),name);
         return channel;

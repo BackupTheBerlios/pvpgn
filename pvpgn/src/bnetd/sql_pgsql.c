@@ -21,6 +21,7 @@
 #include <libpq-fe.h>
 #include <stdlib.h>
 #include "common/eventlog.h"
+#include "common/xalloc.h"
 #include "storage_sql.h"
 #include "sql_pgsql.h"
 #include "common/setup_after.h"
@@ -124,15 +125,15 @@ static t_sql_res * sql_pgsql_query_res(const char * query)
 	return NULL;
     }
 
-    if ((res = (t_pgsql_res *)malloc(sizeof(t_pgsql_res))) == NULL) {
+    if ((res = (t_pgsql_res *)xmalloc(sizeof(t_pgsql_res))) == NULL) {
         eventlog(eventlog_level_error, __FUNCTION__, "not enough memory for pgsql result");
 	PQclear(pgres);
 	return NULL;
     }
 
-    if ((res->rowbuf = malloc(sizeof(char *) * PQnfields(pgres))) == NULL) {
+    if ((res->rowbuf = xmalloc(sizeof(char *) * PQnfields(pgres))) == NULL) {
 	eventlog(eventlog_level_error, __FUNCTION__, "not enough memory for row buffer");
-	free((void*)res);
+	xfree((void*)res);
 	PQclear(pgres);
 	return NULL;
     }
@@ -216,8 +217,8 @@ static void sql_pgsql_free_result(t_sql_res *result)
 /*    eventlog(eventlog_level_debug, __FUNCTION__, "res: %p res->rowbuf: %p res->crow: %d res->pgres: %p", res, res->rowbuf, res->crow, res->pgres); */
 
     if (res->pgres) PQclear(res->pgres);
-    if (res->rowbuf) free((void*)res->rowbuf);
-    free((void*)res);
+    if (res->rowbuf) xfree((void*)res->rowbuf);
+    xfree((void*)res);
 }
 
 static unsigned int sql_pgsql_num_rows(t_sql_res *result)
@@ -258,7 +259,7 @@ static t_sql_field * sql_pgsql_fetch_fields(t_sql_res *result)
 
     fieldno = PQnfields(res->pgres);
 
-    if ((rfields = malloc(sizeof(t_sql_field) * (fieldno + 1))) == NULL) {
+    if ((rfields = xmalloc(sizeof(t_sql_field) * (fieldno + 1))) == NULL) {
 	eventlog(eventlog_level_error, __FUNCTION__, "not enough memory for field list");
 	return NULL;
     }
@@ -277,7 +278,7 @@ static int sql_pgsql_free_fields(t_sql_field *fields)
 	return -1;
     }
 
-    free((void*)fields);
+    xfree((void*)fields);
     return 0; /* PQclear() should free the rest properly */
 }
 

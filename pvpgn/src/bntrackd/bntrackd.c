@@ -86,6 +86,7 @@
 #include "common/eventlog.h"
 #include "common/util.h"
 #include "common/tracker.h"
+#include "common/xalloc.h"
 #include "common/setup_after.h"
 
 
@@ -311,7 +312,7 @@ static int server_process(int sockfd)
 		if (server->updated+(signed)prefs.expire<last)
 		{
 		    list_remove_elem(serverlist_head,&curr);
-		    free(server);
+		    xfree(server);
 		}
 		else
 		{
@@ -427,7 +428,7 @@ static int server_process(int sockfd)
 			    if (ntohl(packet.flags)&TF_SHUTDOWN)
 			    {
 				list_remove_elem(serverlist_head,&curr);
-				free(server);
+				xfree(server);
 			    }
 			    else
 			    {
@@ -442,7 +443,7 @@ static int server_process(int sockfd)
 		    /* Not found? Make a new slot */
 		    if (!(ntohl(packet.flags)&TF_SHUTDOWN) && !curr)
 		    {
-			if ((server = malloc(sizeof(t_server))))
+			if ((server = xmalloc(sizeof(t_server))))
 			{
 			    server->address = cliaddr.sin_addr;
 			    server->info = packet;

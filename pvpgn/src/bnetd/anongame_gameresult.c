@@ -38,6 +38,7 @@
 #include "common/tag.h"
 #include "common/bn_type.h"
 #include "common/packet.h"
+#include "common/xalloc.h"
 #define ANONGAME_GAMERESULT_INTERNAL_ACCESS
 #include "anongame_gameresult.h"
 #include "common/setup_after.h"
@@ -50,9 +51,9 @@ extern int gameresult_destroy(t_anongame_gameresult * gameresult)
     return -1;
   }
 
-  if ((gameresult->players)) free((void *)gameresult->players);
-  if ((gameresult->heroes)) free((void *)gameresult->heroes);
-  free((void *)gameresult);
+  if ((gameresult->players)) xfree((void *)gameresult->players);
+  if ((gameresult->heroes)) xfree((void *)gameresult->heroes);
+  xfree((void *)gameresult);
 
   return 0;
 }
@@ -81,16 +82,16 @@ extern t_anongame_gameresult * anongame_gameresult_parse(t_packet const * const 
 	return NULL;
   }
 
-  if (!(gameresult = malloc(sizeof(t_anongame_gameresult))))
+  if (!(gameresult = xmalloc(sizeof(t_anongame_gameresult))))
   {
 	eventlog(eventlog_level_error,__FUNCTION__,"could not allocate memory for gameresult");
 	return NULL;
   }
 
-  if (!(gameresult->players = malloc(sizeof(t_anongame_player)*result_count)))
+  if (!(gameresult->players = xmalloc(sizeof(t_anongame_player)*result_count)))
   {
 	eventlog(eventlog_level_error,__FUNCTION__,"could not allocate memory for players");
-	free((void *)gameresult);
+	xfree((void *)gameresult);
 	return NULL;
   }
 
@@ -126,11 +127,11 @@ extern t_anongame_gameresult * anongame_gameresult_parse(t_packet const * const 
 
   if ((heroes_count))
   {
-    if (!(gameresult->heroes = malloc(sizeof(t_anongame_hero)*heroes_count)))
+    if (!(gameresult->heroes = xmalloc(sizeof(t_anongame_hero)*heroes_count)))
     {
 	eventlog(eventlog_level_error,__FUNCTION__,"could not allocate memory for heroes");
-	free((void *)gameresult->players);
-	free((void *)gameresult);
+	xfree((void *)gameresult->players);
+	xfree((void *)gameresult);
 	return NULL;
     }
 

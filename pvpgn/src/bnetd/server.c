@@ -144,6 +144,7 @@
 #include "common/fdwatch.h"
 #include "clan.h"
 #include "common/trans.h"
+#include "common/xalloc.h"
 #include "tournament.h"
 #include <ctype.h>
 #include "common/setup_after.h"
@@ -827,7 +828,7 @@ extern void server_set_name(void)
 #endif
 
     if (server_name) {
-	free((void *)server_name); /* avoid warning */
+	xfree((void *)server_name); /* avoid warning */
 	server_name = NULL;
     }
     
@@ -883,7 +884,7 @@ extern char const * server_get_name(void)
 extern void server_clear_name(void)
 {
     if (server_name) {
-	free((void *)server_name); /* avoid warning */
+	xfree((void *)server_name); /* avoid warning */
         server_name = NULL;
     }
 }
@@ -934,7 +935,7 @@ static int _setup_add_addrs(t_addrlist **pladdrs, const char *str, unsigned int 
 	curr_laddr = elem_get_data(acurr);
 	if (addr_get_data(curr_laddr).p)
 	    continue;
-	if (!(laddr_info = malloc(sizeof(t_laddr_info))))
+	if (!(laddr_info = xmalloc(sizeof(t_laddr_info))))
 	{
 	    eventlog(eventlog_level_error, __FUNCTION__,"could not create %s address info (malloc: %s)",laddr_type_get_str(type),strerror(psock_errno()));
 	    return -1;
@@ -1480,7 +1481,7 @@ static void _shutdown_addrs(t_addrlist *laddrs)
 		psock_close(laddr_info->usocket);
 	    if (laddr_info->ssocket!=-1)
 		psock_close(laddr_info->ssocket);
-	    free(laddr_info);
+	    xfree(laddr_info);
 	}
     }
     addrlist_destroy(laddrs);

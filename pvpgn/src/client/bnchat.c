@@ -109,6 +109,7 @@
 #include "ansi_term.h"
 #include "common/version.h"
 #include "common/util.h"
+#include "common/xalloc.h"
 #ifdef CLIENTDEBUG
 # include "common/eventlog.h"
 #endif
@@ -1237,7 +1238,7 @@ extern int main(int argc, char * argv[])
 	unsigned int chann_off;
 	char const * chann;
 	
-	if (!(channellist = malloc(sizeof(char const *)*1)))
+	if (!(channellist = xmalloc(sizeof(char const *)*1)))
 	{
 	    fprintf(stderr,"%s: could not allocate memory for channellist\n",argv[0]);
             psock_close(sd);
@@ -1251,7 +1252,7 @@ extern int main(int argc, char * argv[])
         {
 	    if (chann[0] == '\0') break;  /* channel list ends with a "" */
 
-	    if (!(channellist = realloc(channellist,sizeof(char const *)*(i+2))))
+	    if (!(channellist = xrealloc(channellist,sizeof(char const *)*(i+2))))
 	    {
 		fprintf(stderr,"%s: could not allocate memory for channellist\n",argv[0]);
 		psock_close(sd);

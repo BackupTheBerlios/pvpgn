@@ -55,6 +55,7 @@
 #include "common/bn_type.h"
 #include "common/list.h"
 #include "common/addr.h"
+#include "common/xalloc.h"
 #include "versioncheck.h"
 #include "anongame.h"
 #include "tournament.h"
@@ -546,7 +547,7 @@ static int _anongame_queue(t_connection * c, int queue, t_uint32 map_prefs)
     if (!matchlists[queue][level])
 	matchlists[queue][level] = list_create();
     
-    md = malloc(sizeof(t_matchdata));
+    md = xmalloc(sizeof(t_matchdata));
     md->c = c;
     md->map_prefs = map_prefs;
     md->versiontag = _conn_get_versiontag(c);
@@ -950,7 +951,7 @@ static int _anongame_search_found(int queue)
     }
 
     /* create data to be appended to end of packet */
-    pt2 = malloc(sizeof(t_saf_pt2));
+    pt2 = xmalloc(sizeof(t_saf_pt2));
     bn_int_set(&pt2->unknown1, -1);
     bn_int_set(&pt2->anongame_string, _anongame_get_gametype_tab(queue));
     bn_byte_set(&pt2->totalplayers, _anongame_totalplayers(queue));
@@ -963,7 +964,7 @@ static int _anongame_search_found(int queue)
     for(i=0; i<players[queue]; i++) {
 	if(!(a = conn_get_anongame(player[queue][i]))) {
 	    eventlog(eventlog_level_error,__FUNCTION__,"no anongame struct for queued player");
-	    free(pt2);
+	    xfree(pt2);
 	    return -1;
 	}
 	
@@ -976,7 +977,7 @@ static int _anongame_search_found(int queue)
 	}
 	
 	if (!(rpacket = packet_create(packet_class_bnet))) {
-	    free(pt2);
+	    xfree(pt2);
 	    return -1;
 	}
 	
@@ -1014,7 +1015,7 @@ static int _anongame_search_found(int queue)
 
     /* clear queue */
     players[queue] = 0;
-    free(pt2);
+    xfree(pt2);
     return 0;
 }
 
@@ -1083,7 +1084,7 @@ extern int anongame_unqueue(t_connection * c, int queue)
 	    if (md->c == c) {
 		eventlog(eventlog_level_trace,__FUNCTION__, "unqueued player [%d] level %d", conn_get_socket(c), i);
 		list_remove_elem(matchlists[queue][i], &curr);
-		free(md);
+		xfree(md);
 		return 0;
 	    }
 	}
@@ -1302,7 +1303,7 @@ extern t_anongameinfo * anongameinfo_create(int totalplayers)
 	t_anongameinfo *temp;
 	int i;
 
-	temp = malloc(sizeof(t_anongameinfo));
+	temp = xmalloc(sizeof(t_anongameinfo));
 	if(!temp) {
 		eventlog(eventlog_level_error, "anongameinfo_create", "could not allocate memory for temp");
 		return NULL;
@@ -1324,7 +1325,7 @@ extern void anongameinfo_destroy(t_anongameinfo * i)
 		eventlog(eventlog_level_error, "anongameinfo_destroy", "got NULL anongameinfo");
 		return;
 	}
-	free(i);
+	xfree(i);
 }
 
 /**********/

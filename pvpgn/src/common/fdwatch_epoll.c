@@ -44,6 +44,7 @@
 #endif
 #include "fdwatch.h"
 #include "common/eventlog.h"
+#include "common/xmalloc.h"
 #include "common/setup_after.h"
 
 static int sr;
@@ -71,7 +72,7 @@ static int fdw_epoll_init(int nfds)
 {
     if ((epfd = epoll_create(nfds)) < 0)
 	return -1;
-    epevents = (struct epoll_event *) malloc(sizeof(struct epoll_event) * nfds);
+    epevents = (struct epoll_event *) xmalloc(sizeof(struct epoll_event) * nfds);
     if (epevents == NULL)
     {
 	fdw_epoll_close();
@@ -88,7 +89,7 @@ static int fdw_epoll_init(int nfds)
 static int fdw_epoll_close(void)
 {
     if (epevents != NULL)
-	free((void *) epevents);
+	xfree((void *) epevents);
     sr = 0;
 
     return 0;

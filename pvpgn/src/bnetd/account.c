@@ -29,10 +29,6 @@
 #endif
 #ifdef STDC_HEADERS
 # include <stdlib.h>
-#else
-# ifdef HAVE_MALLOC_H
-#  include <malloc.h>
-# endif
 #endif
 #ifdef HAVE_STRING_H
 # include <string.h>
@@ -84,6 +80,7 @@
 #include "ladder.h"
 #include "clan.h"
 #include "common/flags.h"
+#include "common/xalloc.h"
 #include "common/setup_after.h"
 
 static t_hashtable * accountlist_head=NULL;
@@ -124,7 +121,7 @@ extern t_account * account_create(char const * username, char const * passhash1)
 {
     t_account * account;
     
-    if (!(account = malloc(sizeof(t_account))))
+    if (!(account = xmalloc(sizeof(t_account))))
     {
 	eventlog(eventlog_level_error,"account_create","could not allocate memory for account");
 	return NULL;
@@ -205,15 +202,15 @@ static void account_unload_attrs(t_account * account)
     for (attr=account->attrs; attr; attr=temp)
     {
 	if (attr->key)
-	    free((void *)attr->key); /* avoid warning */
+	    xfree((void *)attr->key); /* avoid warning */
 	if (attr->val)
-	    free((void *)attr->val); /* avoid warning */
+	    xfree((void *)attr->val); /* avoid warning */
         temp = attr->next;
-	free((void *)attr); /* avoid warning */
+	xfree((void *)attr); /* avoid warning */
     }
     account->attrs = NULL;
     if (account->name) {
-	free(account->name);
+	xfree(account->name);
 	account->name = NULL;
     }
     FLAG_CLEAR(&account->flags,ACCOUNT_FLAG_LOADED);
@@ -231,7 +228,7 @@ extern void account_destroy(t_account * account)
     if (account->storage)
 	storage->free_info(account->storage);
 
-    free(account);
+    xfree(account);
 }
 
 
@@ -338,7 +335,7 @@ static int account_insert_attr(t_account * account, char const * key, char const
     char *        nkey;
     char *        nval;
     
-    if (!(nattr = malloc(sizeof(t_attribute))))
+    if (!(nattr = xmalloc(sizeof(t_attribute))))
     {
 	eventlog(eventlog_level_error,"account_insert_attr","could not allocate attribute");
 	return -1;
@@ -348,14 +345,14 @@ static int account_insert_attr(t_account * account, char const * key, char const
     if (nkey == key && !(nkey = strdup(key)))
     {
 	eventlog(eventlog_level_error,"account_insert_attr","could not allocate attribute key");
-	free(nattr);
+	xfree(nattr);
 	return -1;
     }
     if (!(nval = strdup(val)))
     {
 	eventlog(eventlog_level_error,"account_insert_attr","could not allocate attribute value");
-	free(nkey);
-	free(nattr);
+	xfree(nkey);
+	xfree(nattr);
 	return -1;
     }
     nattr->key  = nkey;
@@ -444,7 +441,7 @@ extern char const * account_get_strattr(t_account * account, char const * key)
     if (newkey != key) {
 	newkey2 = storage->escape_key(newkey);
 	if (newkey2 != newkey) {
-	    free((void*)newkey);
+	    xfree((void*)newkey);
 	    newkey = newkey2;
 	}
     } else newkey = storage->escape_key(key);
@@ -465,7 +462,7 @@ extern char const * account_get_strattr(t_account * account, char const * key)
 	    if (strcasecmp(curr->key,newkey)==0)
 	    {
 		if (newkey!=key)
-		    free((void *)newkey); /* avoid warning */
+		    xfree((void *)newkey); /* avoid warning */
 /*	        eventlog(eventlog_level_trace,"account_get_strattr","found for \"%s\" value \"%s\"", newkey, curr->val); */
 		/* DIZZY: found a match, lets promote it so it would be found faster next time */
 		if (last) { 
@@ -492,11 +489,11 @@ extern char const * account_get_strattr(t_account * account, char const * key)
     if ((curr = (t_attribute *)storage->read_attr(account->storage, newkey)) != NULL) {
 	curr->next = account->attrs;
 	account->attrs = curr;
-	if (newkey!=key) free((void *)newkey); /* avoid warning */
+	if (newkey!=key) xfree((void *)newkey); /* avoid warning */
 	return curr->val;
     }
 
-    if (newkey!=key) free((void *)newkey); /* avoid warning */
+    if (newkey!=key) xfree((void *)newkey); /* avoid warning */
 
     if (account==default_acct) /* don't recurse infinitely */
 	return NULL;
@@ -512,7 +509,7 @@ extern int account_unget_strattr(char const * val)
 	return -1;
     }
 #ifdef TESTUNGET
-    free((void *)val); /* avoid warning */
+    xfree((void *)val); /* avoid warning */
 #endif
     return 0;
 }
@@ -562,7 +559,7 @@ extern int account_set_strattr(t_account * account, char const * key, char const
 	    if (!(temp = strdup(val)))
 	    {
 		eventlog(eventlog_level_error,"account_set_strattr","could not allocate attribute value");
-		if (key != newkey) free((void*)newkey);
+		if (key != newkey) xfree((void*)newkey);
 		return -1;
 	    }
 	    
@@ -570,7 +567,7 @@ extern int account_set_strattr(t_account * account, char const * key, char const
 	    {	
 		FLAG_SET(&account->flags,ACCOUNT_FLAG_DIRTY); /* we are changing an entry */
 	    }
-	    free((void *)curr->val); /* avoid warning */
+	    xfree((void *)curr->val); /* avoid warning */
 	    curr->val = temp;
 	    curr->dirty = 1;
 	}
@@ -581,14 +578,14 @@ extern int account_set_strattr(t_account * account, char const * key, char const
 	    temp = curr->next;
 
 	    FLAG_SET(&account->flags,ACCOUNT_FLAG_DIRTY); /* we are deleting an entry */
-	    free((void *)curr->key); /* avoid warning */
-	    free((void *)curr->val); /* avoid warning */
-	    free((void *)curr); /* avoid warning */
+	    xfree((void *)curr->key); /* avoid warning */
+	    xfree((void *)curr->val); /* avoid warning */
+	    xfree((void *)curr); /* avoid warning */
 
 	    account->attrs = temp;
 	}
 
-	if (key != newkey) free((void*)newkey);
+	if (key != newkey) xfree((void*)newkey);
 	return 0;
     }
     
@@ -605,7 +602,7 @@ extern int account_set_strattr(t_account * account, char const * key, char const
 	    if (!(temp = strdup(val)))
 	    {
 		eventlog(eventlog_level_error,"account_set_strattr","could not allocate attribute value");
-		if (key != newkey) free((void*)newkey);
+		if (key != newkey) xfree((void*)newkey);
 		return -1;
 	    }
 	    
@@ -614,7 +611,7 @@ extern int account_set_strattr(t_account * account, char const * key, char const
 		FLAG_SET(&account->flags,ACCOUNT_FLAG_DIRTY); /* we are changing an entry */
 		curr->next->dirty = 1;
 	    }
-	    free((void *)curr->next->val); /* avoid warning */
+	    xfree((void *)curr->next->val); /* avoid warning */
 	    curr->next->val = temp;
 	}
 	else
@@ -624,18 +621,18 @@ extern int account_set_strattr(t_account * account, char const * key, char const
 	    temp = curr->next->next;
 	    
 	    FLAG_SET(&account->flags,ACCOUNT_FLAG_DIRTY); /* we are deleting an entry */
-	    free((void *)curr->next->key); /* avoid warning */
-	    free((void *)curr->next->val); /* avoid warning */
-	    free(curr->next);
+	    xfree((void *)curr->next->key); /* avoid warning */
+	    xfree((void *)curr->next->val); /* avoid warning */
+	    xfree(curr->next);
 	    
 	    curr->next = temp;
 	}
 
-	if (key != newkey) free((void*)newkey);
+	if (key != newkey) xfree((void*)newkey);
 	return 0;
     }
     
-    if (key != newkey) free((void*)newkey);
+    if (key != newkey) xfree((void*)newkey);
 
     if (val)
     {
@@ -685,7 +682,7 @@ static int account_load_attrs(t_account * account)
 
     if (account->name) {
 	eventlog(eventlog_level_error,"account_load_attrs","found old username chache, check out!");
-	free(account->name);
+	xfree(account->name);
     }
     account->name = NULL;
 

@@ -84,8 +84,9 @@
 #include "common/queue.h"
 #include "common/packet.h"
 #include "common/eventlog.h"
-#include "common/setup_after.h"
 #include "d2charlist.h"
+#include "common/xalloc.h"
+#include "common/setup_after.h"
 
 
 static int d2cs_send_client_ladder(t_connection * c, unsigned char type, unsigned short from);
@@ -209,7 +210,7 @@ static int on_client_createcharreq(t_connection * c, t_packet * packet)
 	class=bn_short_get(packet->u.client_d2cs_createcharreq.class);
 	status=bn_short_get(packet->u.client_d2cs_createcharreq.status);
 
-	if (!(path=malloc(strlen(prefs_get_charinfo_dir())+1+strlen(account)+1))) {
+	if (!(path=xmalloc(strlen(prefs_get_charinfo_dir())+1+strlen(account)+1))) {
 		eventlog(eventlog_level_error,__FUNCTION__,"error allocate memory for path");
 		return 0;
 	}
@@ -220,7 +221,7 @@ static int on_client_createcharreq(t_connection * c, t_packet * packet)
 	}
 	else
 	  p_closedir(dir);
-	free(path);
+	xfree(path);
 
 	if (d2char_create(account,charname,class,status)<0) {
 		eventlog(eventlog_level_warn,__FUNCTION__,"error create character %s for account %s",charname,account);
@@ -857,11 +858,11 @@ static int on_client_charlistreq(t_connection * c, t_packet * packet)
 		eventlog(eventlog_level_error,__FUNCTION__,"missing account for connection");
 		return -1;
 	}
-	if (!(path=malloc(strlen(prefs_get_charinfo_dir())+1+strlen(account)+1))) {
+	if (!(path=xmalloc(strlen(prefs_get_charinfo_dir())+1+strlen(account)+1))) {
 		eventlog(eventlog_level_error,__FUNCTION__,"error allocate memory for path");
 		return 0;
 	}
-	if (!(d2c=malloc(sizeof(t_d2charlist)))) {
+	if (!(d2c=xmalloc(sizeof(t_d2charlist)))) {
 		eventlog(eventlog_level_error,__FUNCTION__,"cannot allocate memory for charlist");
 		return -1;
 	}
@@ -931,9 +932,9 @@ static int on_client_charlistreq(t_connection * c, t_packet * packet)
 		conn_push_outqueue(c,rpacket);
 		packet_del_ref(rpacket);
 	}
-	free(path);
+	xfree(path);
 	d2charlist_destroy(d2c);
-	free((void *)d2c);
+	xfree((void *)d2c);
 	return 0;
 }
 
@@ -961,11 +962,11 @@ static int on_client_charlistreq_110(t_connection * c, t_packet * packet)
 		eventlog(eventlog_level_error,__FUNCTION__,"missing account for connection");
 		return -1;
 	}
-	if (!(path=malloc(strlen(prefs_get_charinfo_dir())+1+strlen(account)+1))) {
+	if (!(path=xmalloc(strlen(prefs_get_charinfo_dir())+1+strlen(account)+1))) {
 		eventlog(eventlog_level_error,__FUNCTION__,"error allocate memory for path");
 		return 0;
 	}
-	if (!(d2c=malloc(sizeof(t_d2charlist)))) {
+	if (!(d2c=xmalloc(sizeof(t_d2charlist)))) {
 		eventlog(eventlog_level_error,__FUNCTION__,"cannot allocate memory for charlist");
 		return -1;
 	}
@@ -1043,9 +1044,9 @@ static int on_client_charlistreq_110(t_connection * c, t_packet * packet)
 		conn_push_outqueue(c,rpacket);
 		packet_del_ref(rpacket);
 	}
-	free(path);
+	xfree(path);
 	d2charlist_destroy(d2c);
-	free((void *)d2c);
+	xfree((void *)d2c);
 	return 0;
 }
 

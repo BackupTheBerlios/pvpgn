@@ -43,6 +43,7 @@
 #include "common/tag.h"
 #include "common/list.h"
 #include "common/util.h"
+#include "common/xalloc.h"
 #include "connection.h"
 #include "account.h"
 #include "channel.h"
@@ -333,7 +334,7 @@ static int _client_anongame_profile(t_connection * c, t_packet const * const pac
 	    unsigned char *atcountp;
 
 	    cnt = temp;
-	    teamlevels = malloc(cnt * sizeof(int));
+	    teamlevels = xmalloc(cnt * sizeof(int));
 
 	    /* we need to store the AT team count but we dont know yet the no
 	     * of corectly stored teams so we cache the pointer for later use 
@@ -361,7 +362,7 @@ static int _client_anongame_profile(t_connection * c, t_packet const * const pac
 	    // <-- end of picking indices
 	    // 
 
-	    free((void*)teamlevels);
+	    xfree((void*)teamlevels);
 
 	    cnt = 0;
 	    invalid = 0;
@@ -417,7 +418,7 @@ static int _client_anongame_profile(t_connection * c, t_packet const * const pac
 		    p2 = p3;
 		}
 
-		free((void *)teammembers);
+		xfree((void *)teammembers);
 		cnt++;
 	    }
 

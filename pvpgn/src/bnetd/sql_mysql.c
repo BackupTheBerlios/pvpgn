@@ -26,6 +26,7 @@
 #endif
 #include <stdlib.h>
 #include "common/eventlog.h"
+#include "common/xalloc.h"
 #include "storage_sql.h"
 #include "sql_mysql.h"
 #include "common/setup_after.h"
@@ -193,7 +194,7 @@ static t_sql_field * sql_mysql_fetch_fields(t_sql_res *result)
     fieldno = mysql_num_fields((MYSQL_RES *)result);
     fields = mysql_fetch_fields((MYSQL_RES *)result);
 
-    if ((rfields = malloc(sizeof(t_sql_field) * (fieldno + 1))) == NULL) {
+    if ((rfields = xmalloc(sizeof(t_sql_field) * (fieldno + 1))) == NULL) {
 	eventlog(eventlog_level_error, __FUNCTION__, "not enough memory for field list");
 	return NULL;
     }
@@ -212,7 +213,7 @@ static int sql_mysql_free_fields(t_sql_field *fields)
 	return -1;
     }
 
-    free((void*)fields);
+    xfree((void*)fields);
     return 0; /* mysql_free_result() should free the rest properly */
 }
 

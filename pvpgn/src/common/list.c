@@ -32,6 +32,7 @@
 # endif
 #endif
 #include "common/eventlog.h"
+#include "common/xalloc.h"
 #include "common/list.h"
 #include "common/setup_after.h"
 
@@ -43,7 +44,7 @@ extern t_list * list_create(void)
 {
     t_list * new;
     
-    if (!(new = malloc(sizeof(t_list))))
+    if (!(new = xmalloc(sizeof(t_list))))
     {
 	eventlog(eventlog_level_error,"list_create","could not allocate memory for new");
 	return NULL;
@@ -68,7 +69,7 @@ extern int list_destroy(t_list * list)
     if (list->head)
 	eventlog(eventlog_level_error,"list_destroy","got non-empty list");
     
-    free(list);
+    xfree(list);
     
     return 0;
 }
@@ -147,7 +148,7 @@ extern int list_prepend_data(t_list * list, void * data)
 	return -1;
     }
     
-    if (!(elem = malloc(sizeof(t_elem))))
+    if (!(elem = xmalloc(sizeof(t_elem))))
     {
 	eventlog(eventlog_level_error,"list_prepend_data","could not allocate memory for elem");
 	return -1;
@@ -177,7 +178,7 @@ extern int list_append_data(t_list * list, void * data)
 	return -1;
     }
     
-    if (!(elem = malloc(sizeof(t_elem))))
+    if (!(elem = xmalloc(sizeof(t_elem))))
     {
 	eventlog(eventlog_level_error,"list_append_data","could not allocate memory for elem");
 	return -1;
@@ -279,7 +280,7 @@ extern int list_remove_elem(t_list * list, t_elem ** elem)
 
     target->next = NULL;
     target->prev = NULL;
-    free(target);
+    xfree(target);
     
     list->len--;
     

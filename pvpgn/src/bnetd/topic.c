@@ -59,6 +59,7 @@
 #include "common/eventlog.h"
 #include "common/list.h"
 #include "common/field_sizes.h"
+#include "common/xalloc.h"
 #include "prefs.h"
 #include "topic.h"
 #include "common/setup_after.h"
@@ -131,7 +132,7 @@ int topiclist_add_topic(char const * channel_name, char const * topic_text, int 
 {
   t_topic * topic;
   
-  if (!(topic = malloc(sizeof(t_topic))))
+  if (!(topic = xmalloc(sizeof(t_topic))))
     {
       eventlog(eventlog_level_error,__FUNCTION__,"could not allocate memory for topic");
       return -1;
@@ -139,21 +140,21 @@ int topiclist_add_topic(char const * channel_name, char const * topic_text, int 
   if (!(topic->channel_name = strdup(channel_name)))
     {
       eventlog(eventlog_level_error,__FUNCTION__,"could not allocate memory for channel name");
-      free((void *)topic);
+      xfree((void *)topic);
       return -1;
     }
   if (!(topic->topic = strdup(topic_text)))
     {
       eventlog(eventlog_level_error,__FUNCTION__,"could not allocate memory for topic text");
-      free((void *)topic->channel_name);
-      free((void *)topic);
+      xfree((void *)topic->channel_name);
+      xfree((void *)topic);
     }
   if (list_prepend_data(topiclist_head,topic)<0)
     {
       eventlog(eventlog_level_error,__FUNCTION__,"could not append item");
-      free((void *)topic->channel_name);
-      free((void *)topic->topic);
-      free((void *)topic);
+      xfree((void *)topic->channel_name);
+      xfree((void *)topic->topic);
+      xfree((void *)topic);
       return -1;
     }
   topic->save = do_save;
@@ -184,7 +185,7 @@ int channel_set_topic(char const * channel_name, char const * topic_text, int do
       eventlog(eventlog_level_error,__FUNCTION__,"could not allocate memory for topic");
       return -1;
     }
-    free((void *)topic->topic);
+    xfree((void *)topic->topic);
     topic->topic = new_topic;
   }
   else
@@ -253,9 +254,9 @@ int topiclist_unload(void)
         continue;
       }
 
-      if (topic->channel_name) free((void *)topic->channel_name);
-      if (topic->topic) free((void *)topic->topic);
-      free((void *)topic);
+      if (topic->channel_name) xfree((void *)topic->channel_name);
+      if (topic->topic) xfree((void *)topic->topic);
+      xfree((void *)topic);
       list_remove_elem(topiclist_head,&curr);
     }
     if (list_destroy(topiclist_head)<0)

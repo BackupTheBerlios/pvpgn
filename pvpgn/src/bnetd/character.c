@@ -54,6 +54,7 @@
 #include "account.h"
 #include "common/bn_type.h"
 #include "common/util.h"
+#include "common/xalloc.h"
 #include "character.h"
 #include "common/setup_after.h"
 
@@ -298,7 +299,7 @@ extern int character_create(t_account * account, t_clienttag clienttag, char con
 	return -1;
     }
     
-    if (!(ch = malloc(sizeof(t_character))))
+    if (!(ch = xmalloc(sizeof(t_character))))
     {
 	eventlog(eventlog_level_error,"character_create","could not allocate memory for character");
 	return -1;
@@ -306,31 +307,31 @@ extern int character_create(t_account * account, t_clienttag clienttag, char con
     if (!(ch->name = strdup(name)))
     {
 	eventlog(eventlog_level_error,"character_create","could not allocate memory for name");
-	free(ch);
+	xfree(ch);
 	return -1;
     }
     if (!(ch->realmname = strdup(realmname)))
     {
 	eventlog(eventlog_level_error,"character_create","could not allocate memory for realmname");
-	free((void *)ch->name); /* avoid warning */
-	free(ch);
+	xfree((void *)ch->name); /* avoid warning */
+	xfree(ch);
 	return -1;
     }
     if (!(ch->guildname = strdup(""))) /* FIXME: how does this work on Battle.net? */
     {
 	eventlog(eventlog_level_error,"character_create","could not allocate memory for guildname");
-	free((void *)ch->realmname); /* avoid warning */
-	free((void *)ch->name); /* avoid warning */
-	free(ch);
+	xfree((void *)ch->realmname); /* avoid warning */
+	xfree((void *)ch->name); /* avoid warning */
+	xfree(ch);
 	return -1;
     }
 
     if (account_check_closed_character(account, clienttag, realmname, name))
     {
 	eventlog(eventlog_level_error,"character_create","a character with the name \"%s\" does already exist in realm \"%s\"",name,realmname);
-	free((void *)ch->realmname); /* avoid warning */
-	free((void *)ch->name); /* avoid warning */
-	free(ch);
+	xfree((void *)ch->realmname); /* avoid warning */
+	xfree((void *)ch->name); /* avoid warning */
+	xfree(ch);
 	return -1;
     }
 
@@ -482,14 +483,14 @@ extern int character_verify_charlist(t_character const * ch, char const * charli
 	
 	if (strcasecmp(tok1,ch->realmname)==0 && strcasecmp(tok2,ch->name)==0)
 	{
-	    free(temp);
+	    xfree(temp);
 	    return 0;
 	}
 	
         tok1 = strtok(NULL,",");
         tok2 = strtok(NULL,",");
     }
-    free(temp);
+    xfree(temp);
     
     return -1;
 }
@@ -521,7 +522,7 @@ extern int characterlist_destroy(void)
             
             if (list_remove_elem(characterlist_head,&curr)<0)
                 eventlog(eventlog_level_error,"characterlist_destroy","could not remove item from list");
-            free(ch);
+            xfree(ch);
         }
 
         if (list_destroy(characterlist_head)<0)

@@ -64,6 +64,7 @@
 #ifdef WIN32
 #include "win32/service.h"
 #endif
+#include "common/xalloc.h"
 #include "common/setup_after.h"
 
 int g_ServiceStatus = 1;
@@ -206,7 +207,7 @@ if (cmdline_get_make_service())
         tok = strtok(NULL,",");
         }
 
-        free(temp);
+        xfree(temp);
     }
 
 	if (cmdline_get_debugmode()) {

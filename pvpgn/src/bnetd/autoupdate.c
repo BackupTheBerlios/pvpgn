@@ -51,6 +51,7 @@
 #include "common/util.h"
 #include "common/proginfo.h"
 #include "common/tag.h"
+#include "common/xalloc.h"
 #include "autoupdate.h"
 #include "common/setup_after.h"
 
@@ -104,7 +105,7 @@ extern int autoupdate_load(char const * filename)
 	for (pos=0; buff[pos]=='\t' || buff[pos]==' '; pos++);
 	
 	if (buff[pos]=='\0' || buff[pos]=='#') {
-	    free(buff);
+	    xfree(buff);
 	    continue;
 	}
 	
@@ -121,65 +122,65 @@ extern int autoupdate_load(char const * filename)
 	/* FIXME: use next_token instead of strtok */
 	if (!(archtag = strtok(buff, " \t"))) { /* strtok modifies the string it is passed */
 	    eventlog(eventlog_level_error,__FUNCTION__,"missing archtag on line %u of file \"%s\"",line,filename);
-	    free(buff);
+	    xfree(buff);
 	    continue;
 	}
 	if (!(clienttag = strtok(NULL," \t"))) {
 	    eventlog(eventlog_level_error,__FUNCTION__,"missing clienttag on line %u of file \"%s\"",line,filename);
-	    free(buff);
+	    xfree(buff);
 	    continue;
 	}
         if (!(versiontag = strtok(NULL, " \t"))) {
 	    eventlog(eventlog_level_error,__FUNCTION__,"missing versiontag on line %u of file \"%s\"",line,filename);
-	    free(buff);
+	    xfree(buff);
 	    continue;
 	}
 	if (!(mpqfile = strtok(NULL," \t"))) {
 	    eventlog(eventlog_level_error,__FUNCTION__,"missing mpqfile on line %u of file \"%s\"",line,filename);
-	    free(buff);
+	    xfree(buff);
 	    continue;
 	}
 	
-	if (!(entry = malloc(sizeof(t_autoupdate)))) {
+	if (!(entry = xmalloc(sizeof(t_autoupdate)))) {
 	    eventlog(eventlog_level_error,__FUNCTION__,"could not allocate memory for entry");
-	    free(buff);
+	    xfree(buff);
 	    continue;
 	}
 	
 	if (!tag_check_arch((entry->archtag = tag_str_to_uint(archtag)))) {
 	    eventlog(eventlog_level_error,__FUNCTION__,"got unknown archtag");
-	    free(entry);
-	    free(buff);
+	    xfree(entry);
+	    xfree(buff);
 	    continue;
 	}
 	if (!tag_check_client((entry->clienttag = tag_str_to_uint(clienttag)))) {
 	    eventlog(eventlog_level_error,__FUNCTION__,"got unknown clienttag");
-	    free(entry);
-	    free(buff);
+	    xfree(entry);
+	    xfree(buff);
 	    continue;
 	}
 	if ((!(entry->versiontag = strdup(versiontag)))) {
 	    eventlog(eventlog_level_error,__FUNCTION__,"could not allocate memory for versiontag");
-	    free(entry);
-	    free(buff);
+	    xfree(entry);
+	    xfree(buff);
 	    continue;
 	}
 	if (!(entry->mpqfile = strdup(mpqfile))) {
 	    eventlog(eventlog_level_error,__FUNCTION__,"could not allocate memory for mpqfile");
-	    free((void *)entry->versiontag);
-	    free(entry);
-	    free(buff);
+	    xfree((void *)entry->versiontag);
+	    xfree(entry);
+	    xfree(buff);
 	    continue;
 	}
 	
 	eventlog(eventlog_level_debug,__FUNCTION__,"update '%s' version '%s' with file %s",clienttag,versiontag,mpqfile);
-	free(buff);
+	xfree(buff);
 	
 	if (list_append_data(autoupdate_head,entry)<0) {
 	    eventlog(eventlog_level_error,__FUNCTION__,"could not append item");
-	    free((void *)entry->versiontag);
-	    free((void *)entry->mpqfile);
-	    free(entry);
+	    xfree((void *)entry->versiontag);
+	    xfree((void *)entry->mpqfile);
+	    xfree(entry);
 	    continue;
 	}
     }
@@ -201,9 +202,9 @@ extern int autoupdate_unload(void)
 	    if (!(entry = elem_get_data(curr)))
 		eventlog(eventlog_level_error,__FUNCTION__,"found NULL entry in list");
 	    else {
-		free((void *)entry->versiontag);	/* avoid warning */
-		free((void *)entry->mpqfile);		/* avoid warning */
-		free(entry);
+		xfree((void *)entry->versiontag);	/* avoid warning */
+		xfree((void *)entry->mpqfile);		/* avoid warning */
+		xfree(entry);
 	    }
 	    list_remove_elem(autoupdate_head,&curr);
 	}
@@ -250,7 +251,7 @@ extern char * autoupdate_check(t_tag archtag, t_tag clienttag, t_tag gamelang, c
 		tag_uint_to_str(gltag,gamelang);
 		tempmpq = strdup(entry->mpqfile);
 		
-		if (!(temp = malloc(strlen(tempmpq)+6))) {
+		if (!(temp = xmalloc(strlen(tempmpq)+6))) {
 		    eventlog(eventlog_level_error,__FUNCTION__,"could not allocate memory for mpq file name");
 		    return NULL;
 		}
@@ -261,7 +262,7 @@ extern char * autoupdate_check(t_tag archtag, t_tag clienttag, t_tag gamelang, c
 		
 		sprintf(temp, "%s_%s.%s", tempmpq, gltag, extention);
 		
-		free((void *)tempmpq);
+		xfree((void *)tempmpq);
 		return temp;
 	    }
 	    temp = strdup(entry->mpqfile);

@@ -50,6 +50,7 @@
 #endif
 #include "compat/strerror.h"
 #include "common/eventlog.h"
+#include "common/xalloc.h"
 #include "support.h"
 #include "prefs.h"
 #include "common/util.h"
@@ -83,14 +84,14 @@ extern int support_check_files(char const * supportfile)
   {
     if (buff[0]=='#' || buff[0]=='\0')
     {
-      free((void *)buff);
+      xfree((void *)buff);
       continue;
     }
     
-    if (!(namebuff = malloc(filedirlen + 1 + strlen(buff) + 1)))
+    if (!(namebuff = xmalloc(filedirlen + 1 + strlen(buff) + 1)))
     {
       eventlog(eventlog_level_error,__FUNCTION__,"could not allocate memory for namebuff");
-      free((void *)buff);
+      xfree((void *)buff);
       fclose(fp);
       return -1;
     }
@@ -99,14 +100,14 @@ extern int support_check_files(char const * supportfile)
     if (access(namebuff, F_OK) < 0)
     {
       eventlog(eventlog_level_fatal,__FUNCTION__,"necessary file \"%s\" missing",namebuff);
-      free((void *)buff);
-      free((void *)namebuff);
+      xfree((void *)buff);
+      xfree((void *)namebuff);
       fclose(fp);
       return -1;
     }
 
-    free((void *)buff);
-    free((void *)namebuff);
+    xfree((void *)buff);
+    xfree((void *)namebuff);
   }
 
   fclose(fp);

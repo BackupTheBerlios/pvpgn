@@ -42,6 +42,7 @@
 #include "common/packet.h"
 #include "common/tag.h"
 #include "common/eventlog.h"
+#include "common/xalloc.h"
 #include "prefs.h"
 #include "anongame_maplists.h"
 #include "common/setup_after.h"
@@ -298,9 +299,9 @@ extern void anongame_maplists_destroy()
    
     for (i = 0; i < MAXMAPS; i++) {
 	if (maplist_war3[i])
-	    free((void *)maplist_war3[i]);
+	    xfree((void *)maplist_war3[i]);
 	if (maplist_w3xp[i])
-	    free((void *)maplist_w3xp[i]);
+	    xfree((void *)maplist_w3xp[i]);
     }
 }
 

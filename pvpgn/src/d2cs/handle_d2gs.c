@@ -54,6 +54,7 @@
 #include "common/queue.h"
 #include "common/bn_type.h"
 #include "common/packet.h"
+#include "common/xalloc.h"
 #include "common/setup_after.h"
 
 DECLARE_PACKET_HANDLER(on_d2gs_authreply)
@@ -148,7 +149,7 @@ static void d2gs_send_server_conffile(t_d2gs *gs, t_connection *c)
 	}
 	fseek(fp, 0L, SEEK_SET);
 	/* read config file content */
-	confs = malloc(size+8);
+	confs = xmalloc(size+8);
 	if (confs==NULL) {
 		fclose(fp);
 		eventlog(eventlog_level_error,__FUNCTION__,"not enough memory");
@@ -156,7 +157,7 @@ static void d2gs_send_server_conffile(t_d2gs *gs, t_connection *c)
 	}
 	if (fread(confs, size, 1, fp) != 1) {
 		fclose(fp);
-		free(confs);
+		xfree(confs);
 		eventlog(eventlog_level_error,__FUNCTION__,"failed fread()");
 		return;
 	}
@@ -174,7 +175,7 @@ static void d2gs_send_server_conffile(t_d2gs *gs, t_connection *c)
 		packet_del_ref(rpacket);
 		eventlog(eventlog_level_info,__FUNCTION__,"send config file to d2gs %s", addr_num_to_ip_str(d2cs_conn_get_addr(c)));
 	}
-	free(confs);
+	xfree(confs);
 	return;
 }
 

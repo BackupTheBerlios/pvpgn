@@ -47,6 +47,7 @@
 #endif
 #include "fdwatch.h"
 #include "common/eventlog.h"
+#include "common/xalloc.h"
 #include "common/setup_after.h"
 
 #ifdef HAVE_KQUEUE
@@ -79,10 +80,10 @@ static int fdw_kqueue_init(int nfds)
 
     if ((kq = kqueue()) == -1)
 	return -1;
-    kqevents = (struct kevent *) malloc(sizeof(struct kevent) * nfds);
-    kqchanges = (struct kevent *) malloc(sizeof(struct kevent) * nfds * 2);
-    fdw_rridx = (int *) malloc(sizeof(int) * nfds);
-    fdw_wridx = (int *) malloc(sizeof(int) * nfds);
+    kqevents = (struct kevent *) xmalloc(sizeof(struct kevent) * nfds);
+    kqchanges = (struct kevent *) xmalloc(sizeof(struct kevent) * nfds * 2);
+    fdw_rridx = (int *) xmalloc(sizeof(int) * nfds);
+    fdw_wridx = (int *) xmalloc(sizeof(int) * nfds);
     if (fdw_rridx == NULL || fdw_wridx == NULL || kqevents == NULL || kqchanges == NULL)
     {
 	fdw_kqueue_close();
@@ -104,10 +105,10 @@ static int fdw_kqueue_init(int nfds)
 
 static int fdw_kqueue_close(void)
 {
-    if (fdw_rridx) { free((void *) fdw_rridx); fdw_rridx = NULL; }
-    if (fdw_wridx) { free((void *) fdw_wridx); fdw_wridx = NULL; }
-    if (kqchanges) { free((void *) kqchanges); kqchanges = NULL; }
-    if (kqevents) { free((void *) kqevents); kqevents = NULL; }
+    if (fdw_rridx) { xfree((void *) fdw_rridx); fdw_rridx = NULL; }
+    if (fdw_wridx) { xfree((void *) fdw_wridx); fdw_wridx = NULL; }
+    if (kqchanges) { xfree((void *) kqchanges); kqchanges = NULL; }
+    if (kqevents) { xfree((void *) kqevents); kqevents = NULL; }
     sr = 0;
     nofds = 0;
 

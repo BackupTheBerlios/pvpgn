@@ -44,6 +44,7 @@
 #include "watch.h"
 #include "friends.h"
 #include "common/tag.h"
+#include "common/xalloc.h"
 #include "common/setup_after.h"
 
 
@@ -77,7 +78,7 @@ extern int watchlist_add_events(t_connection * owner, t_account * who, t_clientt
 	}
     }
     
-    if (!(pair = malloc(sizeof(t_watch_pair))))
+    if (!(pair = xmalloc(sizeof(t_watch_pair))))
     {
 	eventlog(eventlog_level_error,"watchlist_add_events","could not allocate memory for pair");
 	return -1;
@@ -90,7 +91,7 @@ extern int watchlist_add_events(t_connection * owner, t_account * who, t_clientt
     
     if (list_prepend_data(watchlist_head,pair)<0)
     {
-	free(pair);
+	xfree(pair);
 	eventlog(eventlog_level_error,"watchlist_add_events","could not prepend temp");
 	return -1;
     }
@@ -130,7 +131,7 @@ extern int watchlist_del_events(t_connection * owner, t_account * who, t_clientt
 		    pair->owner = NULL;
 		}
 		else
-		    free(pair);
+		    xfree(pair);
 	    }
 	    
 	    return 0;
@@ -169,7 +170,7 @@ extern int watchlist_del_all_events(t_connection * owner)
 		pair->owner = NULL;
 	    }
 	    else
-	      { free(pair); }
+	      { xfree(pair); }
 	}
     }
     
@@ -204,7 +205,7 @@ extern int watchlist_del_by_account(t_account * who)
 		pair->owner = NULL;
 	    }
 	    else
-	      { free(pair); }
+	      { xfree(pair); }
 	}
     }
     
@@ -353,7 +354,7 @@ extern int watchlist_destroy(void)
 	    
 	    if (list_remove_elem(watchlist_head,&curr)<0)
         	eventlog(eventlog_level_error,"watchlist_destroy","could not remove item from list");
-	    free(pair);
+	    xfree(pair);
 	}
 	
 	if (list_destroy(watchlist_head)<0)

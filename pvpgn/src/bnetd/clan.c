@@ -68,6 +68,7 @@
 #include "common/list.h"
 #include "common/proginfo.h"
 #include "common/bn_type.h"
+#include "common/xalloc.h"
 #include "connection.h"
 #include "anongame.h"
 #include "prefs.h"
@@ -520,7 +521,7 @@ extern int clan_unload_members(t_clan * clan)
 		continue;
 	    }
 	    list_remove_elem(clan->members, &curr);
-	    free((void *) member);
+	    xfree((void *) member);
 	}
 
 	if (list_destroy(clan->members) < 0)
@@ -549,7 +550,7 @@ extern int clan_remove_all_members(t_clan * clan)
 	    if (member->memberacc != NULL)
 		account_set_clanmember(member->memberacc, NULL);
 	    list_remove_elem(clan->members, &curr);
-	    free((void *) member);
+	    xfree((void *) member);
 	}
 
 	if (list_destroy(clan->members) < 0)
@@ -622,10 +623,10 @@ extern int clanlist_add_clan(t_clan * clan)
 	eventlog(eventlog_level_error, __FUNCTION__, "could not append item");
 	clan_remove_all_members(clan);
 	if (clan->clan_motd)
-	    free((void *) clan->clan_motd);
+	    xfree((void *) clan->clan_motd);
 	if (clan->clanname)
-	    free((void *) clan->clanname);
-	free((void *) clan);
+	    xfree((void *) clan->clanname);
+	xfree((void *) clan);
 	return -1;
     }
 
@@ -687,11 +688,11 @@ extern int clanlist_unload(void)
 		continue;
 	    }
 	    if (clan->clanname)
-		free((void *) clan->clanname);
+		xfree((void *) clan->clanname);
 	    if (clan->clan_motd)
-		free((void *) clan->clan_motd);
+		xfree((void *) clan->clan_motd);
 	    clan_unload_members(clan);
-	    free((void *) clan);
+	    xfree((void *) clan);
 	    list_remove_elem(clanlist_head, &curr);
 	}
 
@@ -1146,7 +1147,7 @@ extern int clan_set_motd(t_clan * clan, const char *motd)
     } else
     {
 	if (clan->clan_motd)
-	    free((void *) clan->clan_motd);
+	    xfree((void *) clan->clan_motd);
 	clan->clan_motd = strdup(motd);
     }
     return 0;
@@ -1203,7 +1204,7 @@ extern t_clanmember *clan_add_member(t_clan * clan, t_account * memberacc, t_con
 	return NULL;
     }
 
-    if (!(member = malloc(sizeof(t_clanmember))))
+    if (!(member = xmalloc(sizeof(t_clanmember))))
     {
 	eventlog(eventlog_level_error, __FUNCTION__, "could not allocate memory for clanmember");
 	return NULL;
@@ -1221,7 +1222,7 @@ extern t_clanmember *clan_add_member(t_clan * clan, t_account * memberacc, t_con
     if (list_append_data(clan->members, member) < 0)
     {
 	eventlog(eventlog_level_error, __FUNCTION__, "could not append item");
-	free((void *) member);
+	xfree((void *) member);
 	return NULL;
     }
 
@@ -1248,7 +1249,7 @@ extern int clan_remove_member(t_clan * clan, t_clanmember * member)
 	account_set_clanmember(member->memberacc, NULL);
 	storage->remove_clanmember(account_get_uid(member->memberacc));
     }
-    free((void *) member);
+    xfree((void *) member);
     clan->modified = 1;
     return 0;
 }
@@ -1258,32 +1259,32 @@ extern t_clan *clan_create(t_account * chieftain_acc, t_connection * chieftain_c
     t_clan *clan;
     t_clanmember *member;
 
-    if (!(clan = malloc(sizeof(t_clan))))
+    if (!(clan = xmalloc(sizeof(t_clan))))
     {
 	eventlog(eventlog_level_error, __FUNCTION__, "could not allocate memory for new clan");
 	return NULL;
     }
 
-    if (!(member = malloc(sizeof(t_clanmember))))
+    if (!(member = xmalloc(sizeof(t_clanmember))))
     {
 	eventlog(eventlog_level_error, __FUNCTION__, "could not allocate memory for clanmember");
-	free((void *) clan);
+	xfree((void *) clan);
 	return NULL;
     }
 
     if (!(clanname))
     {
 	eventlog(eventlog_level_error, __FUNCTION__, "got NULL clanname");
-	free((void *) clan);
-	free((void *) member);
+	xfree((void *) clan);
+	xfree((void *) member);
 	return NULL;
     }
 
     if (!(clan->clanname = strdup(clanname)))
     {
 	eventlog(eventlog_level_error, __FUNCTION__, "could not allocate memory for clanname");
-	free((void *) clan);
-	free((void *) member);
+	xfree((void *) clan);
+	xfree((void *) member);
 	return NULL;
     }
 
@@ -1298,9 +1299,9 @@ extern t_clan *clan_create(t_account * chieftain_acc, t_connection * chieftain_c
     {
 	eventlog(eventlog_level_error, __FUNCTION__, "could not allocate memory for clan_motd");
 	if (clan->clanname)
-	    free((void *) clan->clanname);
-	free((void *) member);
-	free((void *) clan);
+	    xfree((void *) clan->clanname);
+	xfree((void *) member);
+	xfree((void *) clan);
 	return NULL;
     }
 
@@ -1315,11 +1316,11 @@ extern t_clan *clan_create(t_account * chieftain_acc, t_connection * chieftain_c
     {
 	eventlog(eventlog_level_error, __FUNCTION__, "could not create memberlist");
 	if (clan->clanname)
-	    free((void *) clan->clanname);
+	    xfree((void *) clan->clanname);
 	if (clan->clan_motd)
-	    free((void *) clan->clan_motd);
-	free((void *) member);
-	free((void *) clan);
+	    xfree((void *) clan->clan_motd);
+	xfree((void *) member);
+	xfree((void *) clan);
 	return NULL;
     }
 
@@ -1337,19 +1338,19 @@ extern t_clan *clan_create(t_account * chieftain_acc, t_connection * chieftain_c
 	t_elem *curr;
 	eventlog(eventlog_level_error, __FUNCTION__, "could not append item");
 	if (clan->clanname)
-	    free((void *) clan->clanname);
+	    xfree((void *) clan->clanname);
 	if (clan->clan_motd)
-	    free((void *) clan->clan_motd);
-	free((void *) member);
+	    xfree((void *) clan->clan_motd);
+	xfree((void *) member);
 	LIST_TRAVERSE(clan->members, curr)
 	{
 	    t_clanmember *member;
 	    if ((member = elem_get_data(curr)) != NULL)
-		free(member);
+		xfree(member);
 	    list_remove_elem(clan->members, &curr);
 	}
 	list_destroy(clan->members);
-	free((void *) clan);
+	xfree((void *) clan);
 	return NULL;
     }
     account_set_clanmember(chieftain_acc, member);
@@ -1362,11 +1363,11 @@ extern int clan_destroy(t_clan * clan)
     if (!clan)
 	return 0;
     if (clan->clanname)
-	free((void *) clan->clanname);
+	xfree((void *) clan->clanname);
     if (clan->clan_motd)
-	free((void *) clan->clan_motd);
+	xfree((void *) clan->clan_motd);
     clan_remove_all_members(clan);
-    free((void *) clan);
+    xfree((void *) clan);
     return 0;
 }
 

@@ -71,6 +71,7 @@
 #include "common/eventlog.h"
 #include "common/list.h"
 #include "common/util.h"
+#include "common/xalloc.h"
 #include "common/addr.h"
 #include "common/setup_after.h"
 
@@ -193,7 +194,7 @@ extern t_addr * addr_create_num(unsigned int ipaddr, unsigned short port)
 {
     t_addr * temp;
     
-    if (!(temp = malloc(sizeof(t_addr))))
+    if (!(temp = xmalloc(sizeof(t_addr))))
     {
 	eventlog(eventlog_level_error,"addr_create_num","unable to allocate memory for addr");
 	return NULL;
@@ -202,7 +203,7 @@ extern t_addr * addr_create_num(unsigned int ipaddr, unsigned short port)
     if (!(temp->str = strdup(addr_num_to_addr_str(ipaddr,port))))
     {
 	eventlog(eventlog_level_error,"addr_create_num","could not allocate memory for str");
-	free(temp);
+	xfree(temp);
 	return NULL;
     }
     temp->str    = NULL;
@@ -260,7 +261,7 @@ extern t_addr * addr_create_str(char const * str, unsigned int defipaddr, unsign
 #endif
 		{
 		    eventlog(eventlog_level_error,"addr_create_str","could not convert \"%s\" to a port number",portstr);
-		    free(tstr);
+		    xfree(tstr);
 		    return NULL;
 		}
 #ifdef HAVE_GETSERVBYNAME
@@ -287,25 +288,25 @@ extern t_addr * addr_create_str(char const * str, unsigned int defipaddr, unsign
     if (!(hostname = host_lookup(hoststr,&ipaddr)))
     {
 	eventlog(eventlog_level_error,"addr_create_str","could not lookup host \"%s\"",hoststr);
-	free(tstr);
+	xfree(tstr);
 	return NULL;
     }
     
-    if (!(temp = malloc(sizeof(t_addr))))
+    if (!(temp = xmalloc(sizeof(t_addr))))
     {
 	eventlog(eventlog_level_error,"addr_create_str","unable to allocate memory for addr");
-	free(tstr);
+	xfree(tstr);
 	return NULL;
     }
     
     if (!(temp->str = strdup(hostname)))
     {
 	eventlog(eventlog_level_error,"addr_create_str","could not allocate memory for str");
-	free(temp);
-	free(tstr);
+	xfree(temp);
+	xfree(tstr);
 	return NULL;
     }
-    free(tstr);
+    xfree(tstr);
     
     temp->ip     = ipaddr;
     temp->port   = port;
@@ -324,8 +325,8 @@ extern int addr_destroy(t_addr const * addr)
     }
     
     if (addr->str)
-	free((void *)addr->str); /* avoid warning */
-    free((void *)addr); /* avoid warning */
+	xfree((void *)addr->str); /* avoid warning */
+    xfree((void *)addr); /* avoid warning */
     
     return 0;
 }
@@ -463,19 +464,19 @@ extern t_netaddr * netaddr_create_str(char const * netstr)
     }
     if (!(netipstr = strtok(temp,"/")))
     {
-	free(temp);
+	xfree(temp);
 	return NULL;
     }
     if (!(netmaskstr = strtok(NULL,"/")))
     {
-	free(temp);
+	xfree(temp);
 	return NULL;
     }
     
-    if (!(netaddr = malloc(sizeof(t_netaddr))))
+    if (!(netaddr = xmalloc(sizeof(t_netaddr))))
     {
 	eventlog(eventlog_level_error,"netaddr_create_str","could not allocate memory for netaddr");
-	free(temp);
+	xfree(temp);
 	return NULL;
     }
     
@@ -483,8 +484,8 @@ extern t_netaddr * netaddr_create_str(char const * netstr)
     if (!host_lookup(netipstr,&netip))
     {
 	eventlog(eventlog_level_error,"netaddr_create_str","could not lookup net");
-	free(netaddr);
-	free(temp);
+	xfree(netaddr);
+	xfree(temp);
 	return NULL;
     }
     netaddr->ip = netip;
@@ -498,8 +499,8 @@ extern t_netaddr * netaddr_create_str(char const * netstr)
 	else
 	{
 	    eventlog(eventlog_level_error,"netaddr_create_str","could not convert mask");
-	    free(netaddr);
-	    free(temp);
+	    xfree(netaddr);
+	    xfree(temp);
 	    return NULL;
 	}
     }
@@ -508,8 +509,8 @@ extern t_netaddr * netaddr_create_str(char const * netstr)
 	if (netmask>32)
 	{
 	    eventlog(eventlog_level_error,"netaddr_create_str","network bits must be less than or equal to 32 (%u)",netmask);
-	    free(netaddr);
-	    free(temp);
+	    xfree(netaddr);
+	    xfree(temp);
 	    return NULL;
 	}
 	/* for example, 8 -> 11111111000000000000000000000000 */
@@ -518,7 +519,7 @@ extern t_netaddr * netaddr_create_str(char const * netstr)
     }
     netaddr->mask = netmask;
     
-    free(temp);		// [zap-zero] 20020731 - (hopefully) fixed memory leak
+    xfree(temp);		// [zap-zero] 20020731 - (hopefully) fixed memory leak
     
     return netaddr;
 }
@@ -532,7 +533,7 @@ extern int netaddr_destroy(t_netaddr const * netaddr)
 	return -1;
     }
     
-    free((void *)netaddr); /* avoid warning */
+    xfree((void *)netaddr); /* avoid warning */
     
     return 0;
 }
@@ -603,19 +604,19 @@ extern int addrlist_append(t_addrlist * addrlist, char const * str, unsigned int
 	if (!(addr = addr_create_str(tok,defipaddr,defport)))
 	{
 	    eventlog(eventlog_level_error,"addrlist_append","could not create addr");
-	    free(tstr);
+	    xfree(tstr);
 	    return -1;
 	}
 	if (list_append_data(addrlist,addr)<0)
 	{
 	    eventlog(eventlog_level_error,"addrlist_append","could not add item to list");
 	    addr_destroy(addr);
-	    free(tstr);
+	    xfree(tstr);
 	    return -1;
 	}
     }
     
-    free(tstr);
+    xfree(tstr);
     
     return 0;
 }

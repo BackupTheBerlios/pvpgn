@@ -44,6 +44,7 @@
 
 #include "compat/strdup.h"
 #include "common/list.h"
+#include "common/xalloc.h"
 #include "prefs.h"
 #include "common/setup_after.h"
 
@@ -68,7 +69,7 @@ t_column * create_column(char * name, char * value)
       return NULL;
     }
   
-  if (!(column = malloc(sizeof(t_column))))
+  if (!(column = xmalloc(sizeof(t_column))))
     {
       eventlog(eventlog_level_error,__FUNCTION__,"could not alloc mem for column");
       return NULL;
@@ -77,15 +78,15 @@ t_column * create_column(char * name, char * value)
   if (!(column->name  = strdup(name)))
     {
       eventlog(eventlog_level_error,__FUNCTION__,"could not strdup column name");
-      free((void *)column);
+      xfree((void *)column);
       return NULL;
     }
   
   if (!(column->value = strdup(value)))
     {
       eventlog(eventlog_level_error,__FUNCTION__,"could not strdup column value");
-      free((void *)column->name);
-      free((void *)column);
+      xfree((void *)column->name);
+      xfree((void *)column);
       return NULL;
     }
   
@@ -96,9 +97,9 @@ void dispose_column(t_column * column)
 {
   if (column)
     {
-      if (column->name)  free((void *)column->name);
-      if (column->value) free((void *)column->value);
-      free((void *)column);
+      if (column->name)  xfree((void *)column->name);
+      if (column->value) xfree((void *)column->value);
+      xfree((void *)column);
     }
 }
 
@@ -112,7 +113,7 @@ t_table * create_table(char * name)
       return NULL;
     }
   
-  if (!(table = malloc(sizeof(t_table))))
+  if (!(table = xmalloc(sizeof(t_table))))
     {
       eventlog(eventlog_level_error,__FUNCTION__,"could not alloc mem for table");
       return NULL;
@@ -121,14 +122,14 @@ t_table * create_table(char * name)
   if (!(table->name = strdup(name)))
     {
       eventlog(eventlog_level_error,__FUNCTION__,"could not strdup table name");
-      free((void *)table);
+      xfree((void *)table);
     }
   
   if (!(table->columns = list_create()))
     {
       eventlog(eventlog_level_error,__FUNCTION__,"could not create list");
-      free((void *)table->name);
-      free((void *)table);
+      xfree((void *)table->name);
+      xfree((void *)table);
     }
   
   return table;
@@ -141,7 +142,7 @@ void dispose_table(t_table * table)
   
   if (table)
     {
-      if (table->name) free((void *)table->name);
+      if (table->name) xfree((void *)table->name);
       // free list
       if (table->columns)
         {
@@ -160,7 +161,7 @@ void dispose_table(t_table * table)
 	  
         }
       
-      free((void *)table);
+      xfree((void *)table);
     }
 }
 
@@ -180,7 +181,7 @@ t_db_layout * create_db_layout()
 {
   t_db_layout * db_layout;
   
-  if (!(db_layout = malloc(sizeof(t_db_layout))))
+  if (!(db_layout = xmalloc(sizeof(t_db_layout))))
     {
       eventlog(eventlog_level_error,__FUNCTION__,"could not alloc mem for db_layout");
       return NULL;
@@ -189,7 +190,7 @@ t_db_layout * create_db_layout()
   if (!(db_layout->tables = list_create()))
     {
       eventlog(eventlog_level_error,__FUNCTION__,"could not create list");
-      free((void *)db_layout);
+      xfree((void *)db_layout);
       return NULL;
     }
   
@@ -218,7 +219,7 @@ void dispose_db_layout(t_db_layout * db_layout)
 	    }
           list_destroy(db_layout->tables);
         }
-      free((void *)db_layout);
+      xfree((void *)db_layout);
     }
   
 }
@@ -383,7 +384,7 @@ int load_db_layout(char const * filename)
         if (!(tmp = strchr(table,']')))
         {
           eventlog(eventlog_level_error,__FUNCTION__,"missing ']' in line %i",lineno);
-          free((void *)line);
+          xfree((void *)line);
           continue;
         }
         tmp[0]='\0';
@@ -396,14 +397,14 @@ int load_db_layout(char const * filename)
         if (!(_table))
         {
           eventlog(eventlog_level_error,__FUNCTION__,"found a column without previous table in line %i",lineno);
-          free((void *)line);
+          xfree((void *)line);
           continue;
         }
         column = &line[1];
         if (!(tmp = strchr(column,'"')))
         {
           eventlog(eventlog_level_error,__FUNCTION__,"missing '\"' at the end of column definitioni in line %i",lineno);
-          free((void *)line);
+          xfree((void *)line);
           continue;
         }
         tmp[0]='\0';
@@ -411,14 +412,14 @@ int load_db_layout(char const * filename)
         if (!(tmp = strchr(tmp,'"')))
         {
           eventlog(eventlog_level_error,__FUNCTION__,"missing default value in line %i",lineno);
-          free((void *)line);
+          xfree((void *)line);
           continue;
         }
         value = ++tmp;
         if (!(tmp = strchr(value,'"')))
         {
           eventlog(eventlog_level_error,__FUNCTION__,"missing '\"' at the end of default value in line %i",lineno);
-          free((void *)line);
+          xfree((void *)line);
           continue;
         }
         tmp[0]='\0';
@@ -432,7 +433,7 @@ int load_db_layout(char const * filename)
       default:
         eventlog(eventlog_level_error,__FUNCTION__,"illegal starting symbol at line %i",lineno);
     }
-    free((void *)line);
+    xfree((void *)line);
   }
   if (_table) db_layout_add_table(db_layout,_table);
 

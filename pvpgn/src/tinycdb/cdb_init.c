@@ -61,7 +61,7 @@ cdb_init(struct cdb *cdbp, FILE *fd)
 }
 
 void
-cdb_free(struct cdb *cdbp)
+cdb_xfree(struct cdb *cdbp)
 {
   if (cdbp->cdb_mem) {
     pmunmap((void*)cdbp->cdb_mem, cdbp->cdb_fsize);

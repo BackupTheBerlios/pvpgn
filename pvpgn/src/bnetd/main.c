@@ -84,6 +84,7 @@
 #include "topic.h"
 #include "support.h"
 #include "common/trans.h"
+#include "common/xalloc.h"
 #include "common/setup_after.h"
 
 #ifdef WIN32
@@ -276,7 +277,7 @@ int eventlog_startup(void)
 		eventlog(eventlog_level_error,"eventlog_startup","could not add log level \"%s\"",tok);
 	    tok = strtok(NULL,",");
 	}
-	free(temp);
+	xfree(temp);
     }
     if (eventlog_open(prefs_get_logfile())<0) {
 	if (prefs_get_logfile()) {
@@ -355,7 +356,7 @@ char * write_to_pidfile(void)
     char *pidfile = strdup(prefs_get_pidfile());
     
     if (pidfile[0]=='\0') {
-	free((void *)pidfile); /* avoid warning */
+	xfree((void *)pidfile); /* avoid warning */
 	return NULL;
     }
     if (pidfile) {
@@ -364,7 +365,7 @@ char * write_to_pidfile(void)
 	
     if (!(fp = fopen(pidfile,"w"))) {
 	eventlog(eventlog_level_error,"write_to_pidfile","unable to open pid file \"%s\" for writing (fopen: %s)",pidfile,strerror(errno));
-	free((void *)pidfile); /* avoid warning */
+	xfree((void *)pidfile); /* avoid warning */
 	return NULL;
     } else {
 	fprintf(fp,"%u",(unsigned int)getpid());
@@ -373,7 +374,7 @@ char * write_to_pidfile(void)
     }
 #else
     eventlog(eventlog_level_warn,"write_to_pidfile","no getpid() system call, disable pid file in bnetd.conf");
-    free((void *)pidfile); /* avoid warning */
+    xfree((void *)pidfile); /* avoid warning */
     return NULL;
 #endif
     }
@@ -607,7 +608,7 @@ extern int main(int argc, char * * argv)
     if (pidfile) {
 	if (remove(pidfile)<0)
 	    eventlog(eventlog_level_error,"main","could not remove pid file \"%s\" (remove: %s)",pidfile,strerror(errno));
-	free((void *)pidfile); /* avoid warning */
+	xfree((void *)pidfile); /* avoid warning */
     }
 
     if (a == 0)

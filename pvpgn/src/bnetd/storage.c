@@ -41,6 +41,7 @@
 
 #include "compat/strdup.h"
 #include "common/eventlog.h"
+#include "common/xalloc.h"
 #include "common/setup_after.h"
 
 t_storage *storage = NULL;
@@ -63,7 +64,7 @@ extern int storage_init(const char *spath)
 
     if ((p = strchr(spath, ':')) == NULL) {
 	eventlog(eventlog_level_error, __FUNCTION__, "malformed storage_path , driver not found");
-	free((void*)temp);
+	xfree((void*)temp);
 	return -1;
     }
 
@@ -93,7 +94,7 @@ extern int storage_init(const char *spath)
 	res = -1;
     }
 
-    free((void*)temp);
+    xfree((void*)temp);
 
     return res;
 }

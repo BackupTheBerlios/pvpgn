@@ -47,6 +47,7 @@
 #include "common/bnet_protocol.h"
 #include "common/util.h"
 #include "common/bn_type.h"
+#include "common/xalloc.h"
 #include "game_conv.h"
 #include "common/setup_after.h"
 
@@ -989,7 +990,7 @@ If the corresponding bit is a '0' then subtract 1 from the character.
         game_set_mapsize_x(game, bn_short_get(*((bn_short*)(pstr + 5))));
         game_set_mapsize_y(game, bn_short_get(*((bn_short*)(pstr + 7))));
         game_set_mapname(game, pstr + 13);
-	free((void*)pstr);
+	xfree((void*)pstr);
 
 	return 0;
     }
@@ -1004,13 +1005,13 @@ If the corresponding bit is a '0' then subtract 1 from the character.
     if (!(line1  = strtok(save,"\r"))) /* actual game info fields */
     {
 	eventlog(eventlog_level_error,"game_parse_info","bad gameinfo format (missing line1) \"%s\"",gameinfo);
-	free(save);
+	xfree(save);
 	return -1;
     }
     if (!(line2  = strtok(NULL,"\r")))
     {
 	eventlog(eventlog_level_error,"game_parse_info","bad gameinfo format (missing player) \"%s\"",gameinfo);
-	free(save);
+	xfree(save);
 	return -1;
     }
     /* is there room for another field after that? */
@@ -1026,61 +1027,61 @@ If the corresponding bit is a '0' then subtract 1 from the character.
     if (!(unknown    = strsep(&currtok,","))) /* skip past first field (always empty?) */
     {
 	eventlog(eventlog_level_error,"game_parse_info","bad gameinfo format (missing unknown)");
-	free(save);
+	xfree(save);
 	return -1;
     }
     if (!(mapsize    = strsep(&currtok,",")))
     {
 	eventlog(eventlog_level_error,"game_parse_info","bad gameinfo format (missing mapsize)");
-	free(save);
+	xfree(save);
 	return -1;
     }
     if (!(maxplayers = strsep(&currtok,","))) /* for later use (FIXME: what is upper field, max observers?) */
     {
 	eventlog(eventlog_level_error,"game_parse_info","bad gameinfo format (missing maxplayers)");
-	free(save);
+	xfree(save);
 	return -1;
     }
     if (!(speed      = strsep(&currtok,",")))
     {
 	eventlog(eventlog_level_error,"game_parse_info","bad gameinfo format (missing speed)");
-	free(save);
+	xfree(save);
 	return -1;
     }
     if (!(maptype    = strsep(&currtok,",")))
     {
 	eventlog(eventlog_level_error,"game_parse_info","bad gameinfo format (missing maptype)");
-	free(save);
+	xfree(save);
 	return -1;
     }
     if (!(gametype   = strsep(&currtok,","))) /* this is set from another field */
     {
 	eventlog(eventlog_level_error,"game_parse_info","bad gameinfo format (missing gametype)");
-	free(save);
+	xfree(save);
 	return -1;
     }
     if (!(option     = strsep(&currtok,","))) /* this is set from another field */
     {
 	eventlog(eventlog_level_error,"game_parse_info","bad gameinfo format (missing option)");
-	free(save);
+	xfree(save);
 	return -1;
     }
     if (!(checksum   = strsep(&currtok,","))) /* FIXME */
     {
 	eventlog(eventlog_level_error,"game_parse_info","bad gameinfo format (missing checksum)");
-	free(save);
+	xfree(save);
 	return -1;
     }
     if (!(tileset    = strsep(&currtok,",")))
     {
 	eventlog(eventlog_level_error,"game_parse_info","bad gameinfo format (missing tileset)");
-	free(save);
+	xfree(save);
 	return -1;
     }
     if (!(player     = strsep(&currtok,",")))
     {
 	eventlog(eventlog_level_error,"game_parse_info","bad gameinfo format (missing player)");
-	free(save);
+	xfree(save);
 	return -1;
     }
     
@@ -1130,7 +1131,7 @@ If the corresponding bit is a '0' then subtract 1 from the character.
     
     game_set_mapname(game,mapname);
     
-    free(save);
+    xfree(save);
     
     return 0;
 }

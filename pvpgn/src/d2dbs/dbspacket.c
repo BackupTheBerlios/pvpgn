@@ -111,6 +111,7 @@
 #include "common/list.h"
 #include "common/eventlog.h"
 #include "common/addr.h"
+#include "common/xalloc.h"
 #include "common/setup_after.h"
 
 static unsigned int dbs_packet_savedata_charsave(t_d2dbs_connection* conn,char * AccountName,char * CharName,char * data,unsigned int datalen);
@@ -746,7 +747,7 @@ static int dbs_verify_ipaddr(char const * addrlist,t_d2dbs_connection * c)
 			break;
 		}
 	}
-	free(adlist);
+	xfree(adlist);
 	if (valid) {
 		eventlog(eventlog_level_info,__FUNCTION__,"ip address %s is valid",ipaddr);
 		LIST_TRAVERSE(dbs_server_connection_list,elem)

@@ -49,6 +49,7 @@
 #include "common/eventlog.h"
 #include "common/list.h"
 #include "common/util.h"
+#include "common/xalloc.h"
 #include "connection.h"
 #include "adbanner.h"
 #include "common/setup_after.h"
@@ -89,7 +90,7 @@ static t_adbanner * adbanner_create(unsigned int id, unsigned int next_id, unsig
 	return NULL;
     }
     
-    if (!(ad = malloc(sizeof(t_adbanner))))
+    if (!(ad = xmalloc(sizeof(t_adbanner))))
     {
 	eventlog(eventlog_level_error,"adbanner_create","could not allocate memory for ad");
 	return NULL;
@@ -102,14 +103,14 @@ static t_adbanner * adbanner_create(unsigned int id, unsigned int next_id, unsig
     if (!(ad->filename = strdup(filename)))
     {
 	eventlog(eventlog_level_error,"adbanner_create","could not allocate memory for filename");
-	free(ad);
+	xfree(ad);
 	return NULL;
     }
     if (!(ad->link = strdup(link)))
     {
 	eventlog(eventlog_level_error,"adbanner_create","could not allocate memory for link");
-	free((void *)ad->filename); /* avoid warning */
-	free(ad);
+	xfree((void *)ad->filename); /* avoid warning */
+	xfree(ad);
 	return NULL;
     }
 
@@ -122,9 +123,9 @@ static t_adbanner * adbanner_create(unsigned int id, unsigned int next_id, unsig
     if (ad->client && (!tag_check_client(ad->client)))
     {
     	eventlog(eventlog_level_error,__FUNCTION__,"banner with invalid clienttag \"%s\"encountered",client);
-	free((void *)ad->link);
-	free((void *)ad->filename); /* avoid warning */
-	free(ad);
+	xfree((void *)ad->link);
+	xfree((void *)ad->filename); /* avoid warning */
+	xfree(ad);
 	return NULL;
     }
 
@@ -142,9 +143,9 @@ static int adbanner_destroy(t_adbanner const * ad)
 	return -1;
     }
     
-    free((void *)ad->filename); /* avoid warning */
-    free((void *)ad->link); /* avoid warning */
-    free((void *)ad); /* avoid warning */
+    xfree((void *)ad->filename); /* avoid warning */
+    xfree((void *)ad->link); /* avoid warning */
+    xfree((void *)ad); /* avoid warning */
     
     return 0;
 }
@@ -379,7 +380,7 @@ static int adbannerlist_insert(t_list * head, unsigned int * count, char const *
 	return -1;
     }
     
-    if (!(ext = malloc(strlen(filename))))
+    if (!(ext = xmalloc(strlen(filename))))
     {
 	eventlog(eventlog_level_error,"adbannerlist_insert","could not allocate memory for ext");
 	return -1;
@@ -388,7 +389,7 @@ static int adbannerlist_insert(t_list * head, unsigned int * count, char const *
     if (sscanf(filename,"%*c%*c%x.%s",&id,ext)!=2)
     {
 	eventlog(eventlog_level_error,"adbannerlist_insert","got bad ad filename \"%s\"",filename);
-	free(ext);
+	xfree(ext);
 	return -1;
     }
     
@@ -401,10 +402,10 @@ static int adbannerlist_insert(t_list * head, unsigned int * count, char const *
     else
     {
 	eventlog(eventlog_level_error,"adbannerlist_insert","unknown extension on filename \"%s\"",filename);
-	free(ext);
+	xfree(ext);
 	return -1;
     }
-    free(ext);
+    xfree(ext);
     
     if (!(ad = adbanner_create(id,next_id,delay,bntag,filename,link,client)))
     {
@@ -481,7 +482,7 @@ extern int adbannerlist_create(char const * filename)
         for (pos=0; buff[pos]=='\t' || buff[pos]==' '; pos++);
         if (buff[pos]=='\0' || buff[pos]=='#')
         {
-            free(buff);
+            xfree(buff);
             continue;
         }
         if ((temp = strrchr(buff,'#')))
@@ -495,45 +496,45 @@ extern int adbannerlist_create(char const * filename)
         }
         len = strlen(buff)+1;
 	
-        if (!(name = malloc(len)))
+        if (!(name = xmalloc(len)))
         {
             eventlog(eventlog_level_error,"adbannerlist_create","could not allocate memory for name");
-            free(buff);
+            xfree(buff);
             continue;
         }
-        if (!(when = malloc(len)))
+        if (!(when = xmalloc(len)))
         {
             eventlog(eventlog_level_error,"adbannerlist_create","could not allocate memory for name");
-            free(name);
-            free(buff);
+            xfree(name);
+            xfree(buff);
             continue;
         }
-        if (!(link = malloc(len)))
+        if (!(link = xmalloc(len)))
         {
             eventlog(eventlog_level_error,"adbannerlist_create","could not allocate memory for link");
-            free(name);
-            free(when);
-            free(buff);
+            xfree(name);
+            xfree(when);
+            xfree(buff);
             continue;
         }
-        if (!(client = malloc(len)))
+        if (!(client = xmalloc(len)))
         {
             eventlog(eventlog_level_error,"adbannerlist_create","could not allocate memory for client");
-	    free(link);
-            free(name);
-            free(when);
-            free(buff);
+	    xfree(link);
+            xfree(name);
+            xfree(when);
+            xfree(buff);
             continue;
         }
 	
 	if (sscanf(buff," \"%[^\"]\" %[a-z] %u \"%[^\"]\" %x \"%[^\"]\"",name,when,&delay,link,&next_id,client)!=6)
 	    {
 		eventlog(eventlog_level_error,"adbannerlist_create","malformed line %u in file \"%s\"",line,filename);
-		free(client);
-		free(link);
-		free(name);
-         	free(when);
-		free(buff);
+		xfree(client);
+		xfree(link);
+		xfree(name);
+         	xfree(when);
+		xfree(buff);
 		continue;
 	    }
 	
@@ -546,11 +547,11 @@ extern int adbannerlist_create(char const * filename)
 	else
 	    eventlog(eventlog_level_error,"adbannerlist_create","when field has unknown value on line %u in file \"%s\"",line,filename);
 	
-	free(client);
-	free(link);
-	free(name);
-        free(when);
-	free(buff);
+	xfree(client);
+	xfree(link);
+	xfree(name);
+        xfree(when);
+	xfree(buff);
     }
     
     if (fclose(fp)<0)

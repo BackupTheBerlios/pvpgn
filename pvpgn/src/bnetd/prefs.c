@@ -48,6 +48,7 @@
 #include <ctype.h>
 #include "common/util.h"
 #include "common/eventlog.h"
+#include "common/xalloc.h"
 #include "prefs.h"
 #include "common/setup_after.h"
 
@@ -327,7 +328,7 @@ static int processDirective(char const * directive, char const * value, unsigned
 			return -1;
 		    }
 		    if (PREFS_STORE_CHAR(conf_table[i].store))
-			free((void *)PREFS_STORE_CHAR(conf_table[i].store)); /* avoid warning */
+			xfree((void *)PREFS_STORE_CHAR(conf_table[i].store)); /* avoid warning */
 		    PREFS_STORE_CHAR(conf_table[i].store) = temp;
 		}
 		break;
@@ -384,7 +385,7 @@ extern int prefs_load(char const * filename)
 		
 	    case conf_type_char:
 		if (PREFS_STORE_CHAR(conf_table[i].store))
-		    free((void *)PREFS_STORE_CHAR(conf_table[i].store)); /* avoid warning */
+		    xfree((void *)PREFS_STORE_CHAR(conf_table[i].store)); /* avoid warning */
 		if (!conf_table[i].defcharval)
 		    PREFS_STORE_CHAR(conf_table[i].store) = NULL;
 		else
@@ -449,7 +450,7 @@ extern int prefs_load(char const * filename)
             while (*cp=='\t' || *cp==' ') cp++;
 	    if (*cp=='\0')
 	    {
-		free(buff);
+		xfree(buff);
 		continue;
 	    }
 	    temp = cp;
@@ -462,15 +463,15 @@ extern int prefs_load(char const * filename)
 	    if (!(directive = strdup(temp)))
 	    {
 		eventlog(eventlog_level_error,"prefs_load","could not allocate memory for directive");
-		free(buff);
+		xfree(buff);
 		continue;
 	    }
             while (*cp=='\t' || *cp==' ') cp++;
 	    if (*cp!='=')
 	    {
 		eventlog(eventlog_level_error,"prefs_load","missing = on line %u",currline);
-		free((void *)directive); /* avoid warning */
-		free(buff);
+		xfree((void *)directive); /* avoid warning */
+		xfree(buff);
 		continue;
 	    }
 	    cp++;
@@ -478,15 +479,15 @@ extern int prefs_load(char const * filename)
 	    if (*cp=='\0')
 	    {
 		eventlog(eventlog_level_error,"prefs_load","missing value after = on line %u",currline);
-		free((void *)directive); /* avoid warning */
-		free(buff);
+		xfree((void *)directive); /* avoid warning */
+		xfree(buff);
 		continue;
 	    }
 	    if (!(rawvalue = strdup(cp)))
 	    {
 		eventlog(eventlog_level_error,"prefs_load","could not allocate memory for rawvalue");
-		free((void *)directive); /* avoid warning */
-		free(buff);
+		xfree((void *)directive); /* avoid warning */
+		xfree(buff);
 		continue;
 	    }
 	    
@@ -518,18 +519,18 @@ extern int prefs_load(char const * filename)
 		if (rawvalue[j]!='"')
 		{
 		    eventlog(eventlog_level_error,"prefs_load","missing end quote for value of element \"%s\" on line %u",directive,currline);
-		    free(rawvalue);
-		    free((void *)directive); /* avoid warning */
-		    free(buff);
+		    xfree(rawvalue);
+		    xfree((void *)directive); /* avoid warning */
+		    xfree(buff);
 		    continue;
 		}
 		rawvalue[j] = '\0';
 		if (rawvalue[j+1]!='\0')
 		{
 		    eventlog(eventlog_level_error,"prefs_load","extra characters after the value for element \"%s\" on line %u",directive,currline);
-		    free(rawvalue);
-		    free((void *)directive); /* avoid warning */
-		    free(buff);
+		    xfree(rawvalue);
+		    xfree((void *)directive); /* avoid warning */
+		    xfree(buff);
 		    continue;
 		}
 		value = &rawvalue[1];
@@ -544,9 +545,9 @@ extern int prefs_load(char const * filename)
 		if (rawvalue[k]!='\0')
 		{
 		    eventlog(eventlog_level_error,"prefs_load","extra characters after the value for element \"%s\" on line %u (%s)",directive,currline,&rawvalue[k]);
-		    free(rawvalue);
-		    free((void *)directive); /* avoid warning */
-		    free(buff);
+		    xfree(rawvalue);
+		    xfree((void *)directive); /* avoid warning */
+		    xfree(buff);
 		    continue;
 		}
 		rawvalue[j] = '\0';
@@ -555,9 +556,9 @@ extern int prefs_load(char const * filename)
             
 	    processDirective(directive,value,currline);
 	    
-	    free(rawvalue);
-	    free((void *)directive); /* avoid warning */
-	    free(buff);
+	    xfree(rawvalue);
+	    xfree((void *)directive); /* avoid warning */
+	    xfree(buff);
 	}
 	if (fclose(fp)<0)
 	    eventlog(eventlog_level_error,"prefs_load","could not close prefs file \"%s\" after reading (fclose: %s)",filename,strerror(errno));
@@ -581,7 +582,7 @@ extern void prefs_unload(void)
 	case conf_type_char:
 	    if (PREFS_STORE_CHAR(conf_table[i].store))
 	    {
-		free((void *)PREFS_STORE_CHAR(conf_table[i].store)); /* avoid warning */
+		xfree((void *)PREFS_STORE_CHAR(conf_table[i].store)); /* avoid warning */
 		PREFS_STORE_CHAR(conf_table[i].store) = NULL;
 	    }
 	    break;

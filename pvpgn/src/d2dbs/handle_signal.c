@@ -68,6 +68,7 @@
 #include "cmdline_parse.h"
 #include "handle_signal.h"
 #include "common/eventlog.h"
+#include "common/xalloc.h"
 #include "common/setup_after.h"
 
 static void on_signal(int s);
@@ -136,7 +137,7 @@ extern int d2dbs_handle_signal(void)
               eventlog(eventlog_level_error,__FUNCTION__,"could not add log level \"%s\"",tok);
           tok = strtok(NULL,",");
           }
-          free(temp);
+          xfree(temp);
         }
 
 		if (!d2dbs_cmdline_get_debugmode()) eventlog_open(d2dbs_prefs_get_logfile());

@@ -48,6 +48,7 @@
 #include "common/list.h"
 #include "common/util.h"
 #include "common/proginfo.h"
+#include "common/xalloc.h"
 #include "news.h"
 #include <time.h>
 #include "common/setup_after.h"
@@ -86,14 +87,14 @@ extern int news_load(const char *filename)
 
 	setbuf(fp,NULL);
 
-    date=malloc(sizeof(struct tm));
+    date=xmalloc(sizeof(struct tm));
     
     for (line=1; (buff = news_read_file(fp)); line++) {
 	len = strlen(buff);
 	
 	if (buff[0]=='{') {
 	    int		flag;
-	    char	*dpart = malloc(5);
+	    char	*dpart = xmalloc(5);
 	    int		dpos;
 	    unsigned 	pos;
 
@@ -124,9 +125,9 @@ extern int news_load(const char *filename)
 		    	    break;
 			default:
 		    	    eventlog(eventlog_level_error,__FUNCTION__,"error parsing news date on line %u",line);
-		    	    free((void *)dpart);
-					free((void *)date);
-					free((void *)buff);
+		    	    xfree((void *)dpart);
+					xfree((void *)date);
+					xfree((void *)buff);
 					fclose(fp);
 		    		return -1;
 		    }
@@ -143,16 +144,16 @@ extern int news_load(const char *filename)
 	    if (((dpos>1) && (flag<2)) || ((dpos>3) && (flag>1))) {
 		eventlog(eventlog_level_error,__FUNCTION__,"dpos: %d, flag: %d", dpos, flag);
 	    	eventlog(eventlog_level_error,"news_load","error parsing news date");
-	    	free((void *)dpart);
-		free((void *)date);
-		free((void *)buff);
+	    	xfree((void *)dpart);
+		xfree((void *)date);
+		xfree((void *)buff);
 		fclose(fp);
 		return -1;
 	    }
 	    date_set = 1;
-	    free((void *)dpart);
+	    xfree((void *)dpart);
 	} else {
-	    if (!(ni = (t_news_index*)malloc(sizeof(t_news_index)))) {
+	    if (!(ni = (t_news_index*)xmalloc(sizeof(t_news_index)))) {
 		eventlog(eventlog_level_error,"news_load","could not allocate memory for news index");
 		return -1;
 	    }
@@ -172,13 +173,13 @@ extern int news_load(const char *filename)
 		if ((strlen(previous_ni->body) + strlen(buff) +2) > 1023)
 		{
 		  eventlog(eventlog_level_error,__FUNCTION__,"failed in joining news, cause news too long - skipping");
-		  free((void *)ni);
+		  xfree((void *)ni);
 		}
 		else
 		{
-		  previous_ni->body = realloc(previous_ni->body,strlen(previous_ni->body)+1+strlen(buff)+1);
+		  previous_ni->body = xrealloc(previous_ni->body,strlen(previous_ni->body)+1+strlen(buff)+1);
 		  sprintf(previous_ni->body,"%s\n%s",previous_ni->body,buff);
-		  free((void *)ni);
+		  xfree((void *)ni);
 		}
 		
 	    }
@@ -193,8 +194,8 @@ extern int news_load(const char *filename)
 		  eventlog(eventlog_level_error,"news_load","could not append item");
 		  if (ni)
 		  {
-		    if (ni->body) free(ni->body);
-		    free(ni);
+		    if (ni->body) xfree(ni->body);
+		    xfree(ni);
 		  }
 		  continue;
 	        }
@@ -203,13 +204,13 @@ extern int news_load(const char *filename)
 	      else
 	      {
 		eventlog(eventlog_level_error,__FUNCTION__,"news too long - skipping");
-		free((void*)ni);
+		xfree((void*)ni);
 	      }
 	    }
 	}
-	free((void *)buff);
+	xfree((void *)buff);
     }	
-    free((void *)date);
+    xfree((void *)date);
     
     fclose(fp);
     fp = NULL;
@@ -224,7 +225,7 @@ static char * news_read_file(FILE * fp)
     unsigned int pos=0;
     int          curr_char;
     
-    if (!(line = malloc(256)))
+    if (!(line = xmalloc(256)))
 	return NULL;
 
     while ((curr_char = fgetc(fp))!=EOF) {
@@ -238,8 +239,8 @@ static char * news_read_file(FILE * fp)
 	line[pos++] = (char)curr_char;
 	if ((pos+1)>=len) {
 	    len += 64;
-	    if (!(newline = realloc(line,len))) {
-		free(line);
+	    if (!(newline = xrealloc(line,len))) {
+		xfree(line);
 		return NULL;
 	    }
 	    line = newline;
@@ -253,12 +254,12 @@ static char * news_read_file(FILE * fp)
     }
     
     if (curr_char==EOF && pos<1)  { /* not even an empty line */
-	free(line);
+	xfree(line);
 	return NULL;
     }
 			    
     if (pos+1<len)
-	if ((newline = realloc(line,pos+1))) /* bump the size back down to what we need */
+	if ((newline = xrealloc(line,pos+1))) /* bump the size back down to what we need */
 	    line = newline; /* if it fails just ignore it */
     line[pos] = '\0';
     return line;
@@ -278,8 +279,8 @@ extern int news_unload(void)
 		continue;
 	    }
 	    
-	    free((void *)ni->body);
-	    free((void *)ni);
+	    xfree((void *)ni->body);
+	    xfree((void *)ni);
 	    list_remove_elem(news_head,&curr);
 
 	}

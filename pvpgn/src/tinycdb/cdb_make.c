@@ -23,6 +23,7 @@
 #  include <memory.h>
 # endif
 #endif
+#include "common/xalloc.h"
 #include "cdb_int.h"
 #include "common/setup_after.h"
 
@@ -117,7 +118,7 @@ cdb_make_finish_internal(struct cdb_make *cdbmp)
   }
 
   /* allocate memory to hold max htable */
-  htab = (struct cdb_rec*)malloc((hsize + 2) * sizeof(struct cdb_rec));
+  htab = (struct cdb_rec*)xmalloc((hsize + 2) * sizeof(struct cdb_rec));
   if (!htab)
     return errno = ENOENT, -1;
   p = (unsigned char *)htab;
@@ -144,11 +145,11 @@ cdb_make_finish_internal(struct cdb_make *cdbmp)
       cdb_pack(htab[i].rpos, p + (i << 3) + 4);
     }
     if (_cdb_make_write(cdbmp, p, len << 3) < 0) {
-      free(p);
+      xfree(p);
       return -1;
     }
   }
-  free(p);
+  xfree(p);
   if (cdbmp->cdb_bpos != cdbmp->cdb_buf &&
       ewrite(cdbmp->cdb_fd, cdbmp->cdb_buf,
 	     cdbmp->cdb_bpos - cdbmp->cdb_buf) != 0)
@@ -166,7 +167,7 @@ cdb_make_finish_internal(struct cdb_make *cdbmp)
 }
 
 static void
-cdb_make_free(struct cdb_make *cdbmp)
+cdb_make_xfree(struct cdb_make *cdbmp)
 {
   unsigned t;
   for(t = 0; t < 256; ++t) {
@@ -174,7 +175,7 @@ cdb_make_free(struct cdb_make *cdbmp)
     while(rl) {
       struct cdb_rl *tm = rl;
       rl = rl->next;
-      free(tm);
+      xfree(tm);
     }
   }
 }
@@ -183,7 +184,7 @@ int
 cdb_make_finish(struct cdb_make *cdbmp)
 {
   int r = cdb_make_finish_internal(cdbmp);
-  cdb_make_free(cdbmp);
+  cdb_make_xfree(cdbmp);
   return r;
 }
 

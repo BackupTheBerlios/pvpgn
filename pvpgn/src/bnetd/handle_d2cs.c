@@ -44,6 +44,7 @@
 #include "common/field_sizes.h"
 #include "handle_d2cs.h"
 #include "common/tag.h"
+#include "common/xalloc.h"
 #include "common/setup_after.h"
 
 static int on_d2cs_accountloginreq(t_connection * c, t_packet const * packet);
@@ -277,7 +278,7 @@ static int on_d2cs_charloginreq(t_connection * c, t_packet const * packet)
 	} else if (!(realmname=conn_get_realmname(client))) {
 		eventlog(eventlog_level_error,"on_d2cs_charloginreq","got NULL realm name");
 		reply = BNETD_D2CS_CHARLOGINREPLY_FAILED;
-	} else if (!(temp=malloc(strlen(clienttag)+strlen(realmname)+1+strlen(charname)+1+
+	} else if (!(temp=xmalloc(strlen(clienttag)+strlen(realmname)+1+strlen(charname)+1+
 			strlen(portrait)+1))) {
 		eventlog(eventlog_level_error,"on_d2cs_charloginreq","error allocate temp");
 		reply = BNETD_D2CS_CHARLOGINREPLY_FAILED;
@@ -290,7 +291,7 @@ static int on_d2cs_charloginreq(t_connection * c, t_packet const * packet)
 		sprintf(temp,"%4s%s,%s,%s",revtag,realmname,charname,portrait);
 		conn_set_charname(client,charname);
 		conn_set_realminfo(client,temp);
-		free(temp);
+		xfree(temp);
 		eventlog(eventlog_level_debug,"on_d2cs_charloginreq",
 			"loaded portrait for character %s",charname);
 	}

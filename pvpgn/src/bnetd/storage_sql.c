@@ -66,6 +66,7 @@
 #undef ACCOUNT_INTERNAL_ACCESS
 #undef CLAN_INTERNAL_ACCESS
 #include "common/tag.h"
+#include "common/xalloc.h"
 #include "sql_dbcreator.h"
 #include "storage_sql.h"
 #ifdef WITH_SQL_MYSQL
@@ -191,7 +192,7 @@ static int sql_init(const char *dbpath)
 	if ((p = strchr(tok, '=')) == NULL)
 	{
 	    eventlog(eventlog_level_error, __FUNCTION__, "invalid storage_path, no '=' present in token");
-	    free((void *) path);
+	    xfree((void *) path);
 	    return -1;
 	}
 	*p = '\0';
@@ -218,7 +219,7 @@ static int sql_init(const char *dbpath)
     if (driver == NULL)
     {
 	eventlog(eventlog_level_error, __FUNCTION__, "no mode specified");
-	free((void *) path);
+	xfree((void *) path);
 	return -1;
     }
 
@@ -237,7 +238,7 @@ static int sql_init(const char *dbpath)
 	    {
 		eventlog(eventlog_level_error, __FUNCTION__, "got error init db");
 		sql = NULL;
-		free((void *) path);
+		xfree((void *) path);
 		return -1;
 	    }
 	    break;
@@ -251,19 +252,19 @@ static int sql_init(const char *dbpath)
 	    {
 		eventlog(eventlog_level_error, __FUNCTION__, "got error init db");
 		sql = NULL;
-		free((void *) path);
+		xfree((void *) path);
 		return -1;
 	    }
 	    break;
 	}
 #endif				/* WITH_SQL_PGSQL */
 	eventlog(eventlog_level_error, __FUNCTION__, "no driver found for '%s'", driver);
-	free((void *) path);
+	xfree((void *) path);
 	return -1;
     }
     while (0);
 
-    free((void *) path);
+    xfree((void *) path);
 
     if (_sql_dbcheck())
     {
@@ -330,7 +331,7 @@ static t_storage_info *sql_create_account(char const *username)
 	return NULL;
     }
 
-    if ((info = malloc(sizeof(t_sql_info))) == NULL)
+    if ((info = xmalloc(sizeof(t_sql_info))) == NULL)
     {
 	eventlog(eventlog_level_error, __FUNCTION__, "not enough memory for sql info");
 	return NULL;
@@ -343,7 +344,7 @@ static t_storage_info *sql_create_account(char const *username)
     if (sql->query(query))
     {
 	eventlog(eventlog_level_error, __FUNCTION__, "user insert failed");
-	free((void *) info);
+	xfree((void *) info);
 	return NULL;
     }
 
@@ -353,7 +354,7 @@ static t_storage_info *sql_create_account(char const *username)
     if (sql->query(query))
     {
 	eventlog(eventlog_level_error, __FUNCTION__, "user insert failed");
-	free((void *) info);
+	xfree((void *) info);
 	return NULL;
     }
 
@@ -363,7 +364,7 @@ static t_storage_info *sql_create_account(char const *username)
     if (sql->query(query))
     {
 	eventlog(eventlog_level_error, __FUNCTION__, "user insert failed");
-	free((void *) info);
+	xfree((void *) info);
 	return NULL;
     }
 
@@ -373,7 +374,7 @@ static t_storage_info *sql_create_account(char const *username)
     if (sql->query(query))
     {
 	eventlog(eventlog_level_error, __FUNCTION__, "user insert failed");
-	free((void *) info);
+	xfree((void *) info);
 	return NULL;
     }
 
@@ -450,7 +451,7 @@ static int sql_read_attrs(t_storage_info * info, t_read_attr_func cb, void *data
 		if (cb(_db_add_tab(*tab, *fentry), (output = unescape_chars(row[i])), data))
 		    eventlog(eventlog_level_error, __FUNCTION__, "got error from callback on UID: %u", uid);
 		if (output)
-		    free((void *) output);
+		    xfree((void *) output);
 //              eventlog(eventlog_level_trace, __FUNCTION__, "read key (final): '%s' val: '%s'", _db_add_tab(*tab, *fentry), unescape_chars(row[i]));
 	    }
 
@@ -524,7 +525,7 @@ static void *sql_read_attr(t_storage_info * info, const char *key)
 	return NULL;
     }
 
-    if ((attr = (t_attribute *) malloc(sizeof(t_attribute))) == NULL)
+    if ((attr = (t_attribute *) xmalloc(sizeof(t_attribute))) == NULL)
     {
 	eventlog(eventlog_level_error, __FUNCTION__, "not enough memory for result");
 	sql->free_result(result);
@@ -534,7 +535,7 @@ static void *sql_read_attr(t_storage_info * info, const char *key)
     if ((attr->key = strdup(key)) == NULL)
     {
 	eventlog(eventlog_level_error, __FUNCTION__, "not enough memory for result key");
-	free((void *) attr);
+	xfree((void *) attr);
 	sql->free_result(result);
 	return NULL;
     }
@@ -542,8 +543,8 @@ static void *sql_read_attr(t_storage_info * info, const char *key)
     if ((attr->val = strdup(row[0])) == NULL)
     {
 	eventlog(eventlog_level_error, __FUNCTION__, "not enough memory for result val");
-	free((void *) attr->key);
-	free((void *) attr);
+	xfree((void *) attr->key);
+	xfree((void *) attr);
 	sql->free_result(result);
 	return NULL;
     }
@@ -702,7 +703,7 @@ static int sql_read_accounts(t_read_accounts_func cb, void *data)
 	    if ((unsigned int) atoi(row[0]) == defacct)
 		continue;	/* skip default account */
 
-	    if ((info = malloc(sizeof(t_sql_info))) == NULL)
+	    if ((info = xmalloc(sizeof(t_sql_info))) == NULL)
 	    {
 		eventlog(eventlog_level_error, __FUNCTION__, "not enough memory for sql info");
 		continue;
@@ -764,7 +765,7 @@ static t_storage_info * sql_read_account(const char *name, unsigned uid)
 	eventlog(eventlog_level_error, __FUNCTION__, "got NULL uid from db");
     else if ((unsigned int) atoi(row[0]) == defacct);
     /* skip default account */
-    else if ((info = malloc(sizeof(t_sql_info))) == NULL)
+    else if ((info = xmalloc(sizeof(t_sql_info))) == NULL)
 	eventlog(eventlog_level_error, __FUNCTION__, "not enough memory for sql info");
     else
     {
@@ -785,7 +786,7 @@ static int sql_cmp_info(t_storage_info * info1, t_storage_info * info2)
 static int sql_free_info(t_storage_info * info)
 {
     if (info)
-	free((void *) info);
+	xfree((void *) info);
 
     return 0;
 }
@@ -794,7 +795,7 @@ static t_storage_info *sql_get_defacct(void)
 {
     t_storage_info *info;
 
-    if ((info = malloc(sizeof(t_sql_info))) == NULL)
+    if ((info = xmalloc(sizeof(t_sql_info))) == NULL)
     {
 	eventlog(eventlog_level_error, __FUNCTION__, "not enough memory for sql info");
 	return NULL;
@@ -993,7 +994,7 @@ static int sql_load_clans(t_load_clans_func cb)
 		continue;
 	    }
 
-	    if (!(clan = malloc(sizeof(t_clan))))
+	    if (!(clan = xmalloc(sizeof(t_clan))))
 	    {
 		eventlog(eventlog_level_error, __FUNCTION__, "could not allocate memory for clan");
 		sql->free_result(result);
@@ -1024,15 +1025,15 @@ static int sql_load_clans(t_load_clans_func cb)
 		if (sql->num_rows(result2) >= 1)
 		    while ((row2 = sql->fetch_row(result2)) != NULL)
 		    {
-			if (!(member = malloc(sizeof(t_clanmember))))
+			if (!(member = xmalloc(sizeof(t_clanmember))))
 			{
 			    eventlog(eventlog_level_error, __FUNCTION__, "cannot allocate memory for clan member");
 			    clan_remove_all_members(clan);
 			    if (clan->clanname)
-				free((void *) clan->clanname);
+				xfree((void *) clan->clanname);
 			    if (clan->clan_motd)
-				free((void *) clan->clan_motd);
-			    free((void *) clan);
+				xfree((void *) clan->clan_motd);
+			    xfree((void *) clan);
 			    sql->free_result(result);
 			    sql->free_result(result2);
 			    return -1;
@@ -1047,7 +1048,7 @@ static int sql_load_clans(t_load_clans_func cb)
 			if (!(member->memberacc = accountlist_find_account_by_uid(member_uid)))
 			{
 			    eventlog(eventlog_level_error, __FUNCTION__, "cannot find uid %u", member_uid);
-			    free((void *) member);
+			    xfree((void *) member);
 			    continue;
 			}
 			member->memberconn = NULL;
@@ -1065,13 +1066,13 @@ static int sql_load_clans(t_load_clans_func cb)
 			if (list_append_data(clan->members, member) < 0)
 			{
 			    eventlog(eventlog_level_error, __FUNCTION__, "could not append item");
-			    free((void *) member);
+			    xfree((void *) member);
 			    clan_remove_all_members(clan);
 			    if (clan->clanname)
-				free((void *) clan->clanname);
+				xfree((void *) clan->clanname);
 			    if (clan->clan_motd)
-				free((void *) clan->clan_motd);
-			    free((void *) clan);
+				xfree((void *) clan->clan_motd);
+			    xfree((void *) clan);
 			    sql->free_result(result2);
 			    sql->free_result(result);
 			    return -1;

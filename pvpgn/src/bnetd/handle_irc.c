@@ -64,6 +64,7 @@
 #include "topic.h"
 #include "command_groups.h"
 #include "common/tag.h"
+#include "common/xalloc.h"
 #include "ctype.h"
 #include "common/setup_after.h"
 
@@ -201,7 +202,7 @@ static int handle_irc_line(t_connection * conn, char const * ircline)
 	if (!(command = strchr(line,' '))) {
 	    eventlog(eventlog_level_warn,"handle_irc_line","got malformed line (missing command)");
 	    /* FIXME: send message instead of eventlog? */
-	    free(line);
+	    xfree(line);
 	    return -1;
 	}
 	*command++ = '\0';
@@ -280,7 +281,7 @@ static int handle_irc_line(t_connection * conn, char const * ircline)
 		if (handle_irc_log_command(conn, command, numparams, params, text)!=-1) {}
 		else if ((strstart(command,"LAG")!=0)&&(strstart(command,"JOIN")!=0)){
 			linelen = strlen (ircline);
-			bnet_command = malloc(linelen + 2);
+			bnet_command = xmalloc(linelen + 2);
 			if (bnet_command == NULL) 
 			{
 				eventlog(eventlog_level_error, __FUNCTION__, "insufficient memory available");
@@ -289,12 +290,12 @@ static int handle_irc_line(t_connection * conn, char const * ircline)
 			bnet_command[0]='/';
 			strcpy(bnet_command + 1, ircline);
 			handle_command(conn,bnet_command); 
-			free((void*)bnet_command);
+			xfree((void*)bnet_command);
 		}
     } /* loggedin */
     if (params)
 	irc_unget_paramelems(params);
-    free(line);
+    xfree(line);
     return 0;
 }
 
@@ -904,7 +905,7 @@ static int _handle_join_command(t_connection * conn, int numparams, char ** para
 					}
 		    		}
 			}
-			if (old_channel_name) free((void *)old_channel_name);
+			if (old_channel_name) xfree((void *)old_channel_name);
 		}
     		if (e)
 			irc_unget_listelems(e);

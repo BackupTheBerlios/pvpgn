@@ -48,6 +48,7 @@
 #include "common/list.h"
 #include "common/proginfo.h"
 #include "compat/strerror.h"
+#include "common/xalloc.h"
 #include "common/tag.h"
 
 char * status_filename;
@@ -207,5 +208,5 @@ extern int output_write_to_file(void)
 
 extern void output_dispose_filename(void)
 {
-  if (status_filename) free(status_filename);
+  if (status_filename) xfree(status_filename);
 }

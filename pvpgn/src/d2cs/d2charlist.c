@@ -41,7 +41,9 @@
 #include "common/eventlog.h"
 #include "compat/strcasecmp.h"
 #include "compat/strdup.h"
+#include "common/xalloc.h"
 #include "d2charlist.h"
+#include "common/setup_after.h"
 
 extern void d2charlist_init(t_d2charlist * clist)
 {
@@ -57,8 +59,8 @@ extern void d2charlist_destroy(t_d2charlist * clist)
     {
         pointer = clist->first;
         clist->first = pointer->next;
-	free((void *)pointer->name);
-        free((void *)pointer);
+	xfree((void *)pointer->name);
+        xfree((void *)pointer);
     }
 }
 
@@ -68,7 +70,7 @@ extern int d2charlist_add_char(t_d2charlist *charlist, char const * name, bn_int
     t_d2charlist_internal * search;
     char const * d2char_sort;
     d2char_sort = prefs_get_charlist_sort();
-    charlist_internal = malloc(sizeof(t_d2charlist_internal));
+    charlist_internal = xmalloc(sizeof(t_d2charlist_internal));
     if(charlist_internal!=NULL)
     {
 	charlist_internal->name = strdup(name);

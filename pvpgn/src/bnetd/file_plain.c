@@ -85,6 +85,7 @@
 #include "storage.h"
 #include "storage_file.h"
 #include "common/list.h"
+#include "common/xalloc.h"
 #include "connection.h"
 #include "watch.h"
 #include "clan.h"
@@ -144,8 +145,8 @@ static int plain_write_attrs(const char *filename, void *attributes)
 	    }
 	} else eventlog(eventlog_level_error, __FUNCTION__,"could not save attribute key=\"%s\"",attr->key);
 
-	if (key) free((void *)key); /* avoid warning */
-	if (val) free((void *)val); /* avoid warning */
+	if (key) xfree((void *)key); /* avoid warning */
+	if (val) xfree((void *)val); /* avoid warning */
     }
 
     if (fclose(accountfile)<0) {
@@ -174,53 +175,53 @@ static int plain_read_attrs(const char *filename, t_read_attr_func cb, void *dat
 
     for (line=1; (buff=file_get_line(accountfile)); line++) {
 	if (buff[0]=='#' || buff[0]=='\0') {
-	    free((void *)buff); /* avoid warning */
+	    xfree((void *)buff); /* avoid warning */
 	    continue;
 	}
 
 	if (strlen(buff)<6) /* "?"="" */ {
 	    eventlog(eventlog_level_error, __FUNCTION__, "malformed line %d of account file \"%s\"", line, filename);
-	    free((void *)buff); /* avoid warning */
+	    xfree((void *)buff); /* avoid warning */
 	    continue;
 	}
 	
 	len = strlen(buff)-5+1; /* - ""="" + NUL */
-	if (!(esckey = malloc(len))) {
+	if (!(esckey = xmalloc(len))) {
 	    eventlog(eventlog_level_error, __FUNCTION__, "could not allocate memory for esckey on line %d of account file \"%s\"", line, filename);
-	    free((void *)buff); /* avoid warning */
+	    xfree((void *)buff); /* avoid warning */
 	    continue;
 	}
-	if (!(escval = malloc(len))) {
+	if (!(escval = xmalloc(len))) {
 	    eventlog(eventlog_level_error, __FUNCTION__,"could not allocate memory for escval on line %d of account file \"%s\"", line, filename);
-	    free((void *)buff); /* avoid warning */
-	    free(esckey);
+	    xfree((void *)buff); /* avoid warning */
+	    xfree(esckey);
 	    continue;
 	}
 	
 	if (sscanf(buff,"\"%[^\"]\" = \"%[^\"]\"",esckey,escval)!=2) {
 	    if (sscanf(buff,"\"%[^\"]\" = \"\"",esckey)!=1) /* hack for an empty value field */ {
 		eventlog(eventlog_level_error, __FUNCTION__,"malformed entry on line %d of account file \"%s\"", line, filename);
-		free(escval);
-		free(esckey);
-		free((void *)buff); /* avoid warning */
+		xfree(escval);
+		xfree(esckey);
+		xfree((void *)buff); /* avoid warning */
 		continue;
 	    }
 	    escval[0] = '\0';
 	}
-	free((void *)buff); /* avoid warning */
+	xfree((void *)buff); /* avoid warning */
 	
 	key = unescape_chars(esckey);
 	val = unescape_chars(escval);
 
 /* eventlog(eventlog_level_debug,"account_load_attrs","strlen(esckey)=%u (%c), len=%u",strlen(esckey),esckey[0],len);*/
-	free(esckey);
-	free(escval);
+	xfree(esckey);
+	xfree(escval);
 	
 	if (cb(key,val,data))
 	    eventlog(eventlog_level_error, __FUNCTION__, "got error from callback (key: '%s' val:'%s')", key, val);
 
-	if (key) free((void *)key); /* avoid warning */
-	if (val) free((void *)val); /* avoid warning */
+	if (key) xfree((void *)key); /* avoid warning */
+	if (val) xfree((void *)val); /* avoid warning */
     }
 
 

@@ -42,6 +42,7 @@
 #endif
 #include "compat/strcasecmp.h"
 #include "compat/strncasecmp.h"
+#include "common/xalloc.h"
 #include <ctype.h>
 #include "common/util.h"
 #include "common/setup_after.h"
@@ -74,7 +75,7 @@ extern char * file_get_line(FILE * fp)
     unsigned int pos=0;
     int          prev_char,curr_char;
     
-    if (!(line = malloc(DEF_LEN)))
+    if (!(line = xmalloc(DEF_LEN)))
 	return NULL;
     
     prev_char = '\0';
@@ -96,9 +97,9 @@ extern char * file_get_line(FILE * fp)
 	if ((pos+1)>=len)
 	{
 	    len += INC_LEN;
-	    if (!(newline = realloc(line,len)))
+	    if (!(newline = xrealloc(line,len)))
 	    {
-		free(line);
+		xfree(line);
 		return NULL;
 	    }
 	    line = newline;
@@ -107,12 +108,12 @@ extern char * file_get_line(FILE * fp)
     
     if (curr_char==EOF && pos<1) /* not even an empty line */
     {
-	free(line);
+	xfree(line);
 	return NULL;
     }
     
     if (pos+1<len)
-	if ((newline = realloc(line,pos+1))) /* bump the size back down to what we need */
+	if ((newline = xrealloc(line,pos+1))) /* bump the size back down to what we need */
 	    line = newline; /* if it fails just ignore it */
     
     line[pos] = '\0';
@@ -409,7 +410,7 @@ extern char * escape_fs_chars(char const * in, unsigned int len)
     
     if (!in)
 	return NULL;
-    if (!(out = malloc(len*3+1))) /* if all turn into %XX */
+    if (!(out = xmalloc(len*3+1))) /* if all turn into %XX */
 	return NULL;
     
     for (inpos=0,outpos=0; inpos<len; inpos++)
@@ -440,7 +441,7 @@ extern char * escape_chars(char const * in, unsigned int len)
     
     if (!in)
 	return NULL;
-    if (!(out = malloc(len*4+1))) /* if all turn into \xxx */
+    if (!(out = xmalloc(len*4+1))) /* if all turn into \xxx */
 	return NULL;
     
     for (inpos=0,outpos=0; inpos<len; inpos++)
@@ -515,7 +516,7 @@ extern char * unescape_chars(char const * in)
     
     if (!in)
 	return NULL;
-    if (!(out = malloc(strlen(in)+1)))
+    if (!(out = xmalloc(strlen(in)+1)))
 	return NULL;
     
     for (inpos=0,outpos=0; inpos<strlen(in); inpos++)
@@ -648,7 +649,7 @@ extern char * buildpath(char const *root, const char *suffix)
 {
     char *result;
 
-    result = (char*) malloc(strlen(root) + 1 + strlen(suffix) + 1);
+    result = (char*) xmalloc(strlen(root) + 1 + strlen(suffix) + 1);
     if (!result) return NULL;
 
     strcpy(result,root); strcat(result,"/"); strcat(result,suffix);

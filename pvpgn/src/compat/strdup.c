@@ -38,6 +38,7 @@
 #  include <strings.h>
 # endif
 #endif
+#include "common/xalloc.h"
 #include "strdup.h"
 #include "common/setup_after.h"
 
@@ -48,7 +49,7 @@ extern char * strdup(char const * str)
 
     if (!str)
         return NULL;
-    if (!(out = malloc(strlen(str)+1)))
+    if (!(out = xmalloc(strlen(str)+1)))
         return NULL;
     strcpy(out,str);
     return out;

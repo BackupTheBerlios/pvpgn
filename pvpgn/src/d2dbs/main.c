@@ -57,6 +57,7 @@
 #endif
 #include "handle_signal.h"
 #include "dbserver.h"
+#include "common/xalloc.h"
 #include "common/setup_after.h"
 
 static FILE * eventlog_fp;
@@ -184,7 +185,7 @@ if (d2dbs_cmdline_get_make_service())
         tok = strtok(NULL,",");
         }
 
-        free(temp);
+        xfree(temp);
     }
 
 

@@ -43,6 +43,7 @@
 #include "common/list.h"
 #include "prefs.h"
 #include "common/util.h"
+#include "common/xalloc.h"
 #include "command_groups.h"
 #include "common/setup_after.h"
 
@@ -78,7 +79,7 @@ extern int command_groups_load(char const * filename)
     for (line=1; (buff = file_get_line(fp)); line++) {
         for (pos=0; buff[pos]=='\t' || buff[pos]==' '; pos++);
 	if (buff[pos]=='\0' || buff[pos]=='#') {
-            free(buff);
+            xfree(buff);
             continue;
         }
 	if ((temp = strrchr(buff,'#'))) {
@@ -92,38 +93,38 @@ extern int command_groups_load(char const * filename)
         }
 	if (!(temp = strtok(buff," \t"))) { /* strtok modifies the string it is passed */
 	    eventlog(eventlog_level_error,"command_groups_load","missing group on line %u of file \"%s\"",line,filename);
-	    free(buff);
+	    xfree(buff);
 	    continue;
 	}
 	if (str_to_uint(temp,&group)<0) {
 	    eventlog(eventlog_level_error,"command_groups_load","group '%s' not a valid group (1-8)",temp);
-	    free(buff);
+	    xfree(buff);
 	    continue;
 	}
 	if (group == 0 || group > 8) {
 	    eventlog(eventlog_level_error,"command_groups_load","group '%u' not within groups limits (1-8)",group);
-	    free(buff);
+	    xfree(buff);
 	    continue;
 	} 
 	while ((command = strtok(NULL," \t"))) {
-	    if (!(entry = malloc(sizeof(t_command_groups)))) {
+	    if (!(entry = xmalloc(sizeof(t_command_groups)))) {
 		eventlog(eventlog_level_error,"command_groups_load","could not allocate memory for entry");
 		continue;
 	    }
 	    if (!(entry->group = pow(2,group-1))) {
 		eventlog(eventlog_level_error,"command_groups_load","could not allocate memory for group");
-		free(entry);
+		xfree(entry);
 		continue;
 	    }
 	    if (!(entry->command = strdup(command))) {
 		eventlog(eventlog_level_error,"command_groups_load","could not allocate memory for client address");
-		free(entry);
+		xfree(entry);
 		continue;
 	    }
 	    if (list_append_data(command_groups_head,entry)<0) {
 		eventlog(eventlog_level_error,"command_groups_load","could not append item");
-		free(entry->command);
-		free(entry);
+		xfree(entry->command);
+		xfree(entry);
 	    }
 #ifdef COMMANDGROUPSDEBUG
 	    else {
@@ -131,7 +132,7 @@ extern int command_groups_load(char const * filename)
 	    }
 #endif
 	}
-	free(buff);
+	xfree(buff);
     }
     fclose(fp);
     return 0;
@@ -147,8 +148,8 @@ extern int command_groups_unload(void)
 	    if (!(entry = elem_get_data(curr)))
 		eventlog(eventlog_level_error,"command_groups_unload","found NULL entry in list");
 	    else {
-		free(entry->command);
-		free(entry);
+		xfree(entry->command);
+		xfree(entry);
 	    }
 	    list_remove_elem(command_groups_head,&curr);
 	}

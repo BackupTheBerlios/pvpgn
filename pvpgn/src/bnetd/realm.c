@@ -48,6 +48,7 @@
 #include "common/list.h"
 #include "common/util.h"
 #include "common/addr.h"
+#include "common/xalloc.h"
 #include "connection.h"
 #include "realm.h"
 #include "common/setup_after.h"
@@ -73,7 +74,7 @@ static t_realm * realm_create(char const * name, char const * description, unsig
 	return NULL;
     }
     
-    if (!(realm = malloc(sizeof(t_realm))))
+    if (!(realm = xmalloc(sizeof(t_realm))))
     {
 	eventlog(eventlog_level_error,"realm_create","could not allocate memory for ad");
 	return NULL;
@@ -85,15 +86,15 @@ static t_realm * realm_create(char const * name, char const * description, unsig
     if (realm_set_name(realm ,name)<0)
     {
         eventlog(eventlog_level_error,"realm_create","failed to set name for realm");
-	free(realm);
+	xfree(realm);
 	return NULL;
     }
-    if (realm->description != NULL) free((void *)realm->description);
+    if (realm->description != NULL) xfree((void *)realm->description);
     if (!(realm->description = strdup(description)))
     {
 	eventlog(eventlog_level_error,"realm_create","could not allocate memory for description");
-	free((void *)realm->name); /* avoid warning */
-	free(realm);
+	xfree((void *)realm->name); /* avoid warning */
+	xfree(realm);
 	return NULL;
     }
     realm->ip = ip;
@@ -120,9 +121,9 @@ static int realm_destroy(t_realm * realm)
     if (realm->active)
     	realm_deactive(realm);
 
-    free((void *)realm->name); /* avoid warning */
-    free((void *)realm->description); /* avoid warning */
-    free((void *)realm); /* avoid warning */
+    xfree((void *)realm->name); /* avoid warning */
+    xfree((void *)realm->description); /* avoid warning */
+    xfree((void *)realm); /* avoid warning */
     
     return 0;
 }
@@ -173,7 +174,7 @@ extern int realm_set_name(t_realm * realm, char const * name)
       temp = NULL;
 
     if (realm->name)
-      free((void *)realm->name); /* avoid warning */
+      xfree((void *)realm->name); /* avoid warning */
     realm->name = temp;
 
     return 0;
@@ -368,7 +369,7 @@ extern int realmlist_create(char const * filename)
         for (pos=0; buff[pos]=='\t' || buff[pos]==' '; pos++);
         if (buff[pos]=='\0' || buff[pos]=='#')
         {
-            free(buff);
+            xfree(buff);
             continue;
         }
         if ((temp = strrchr(buff,'#')))
@@ -385,7 +386,7 @@ extern int realmlist_create(char const * filename)
 	for (temp = buff; *temp && (*temp == ' ' || *temp == '\t');temp++);
 	if (*temp != '"') {
 	    eventlog(eventlog_level_error,"realmlist_create","malformed line %u in file \"%s\" (no realmname)",line,filename);
-	    free(buff);
+	    xfree(buff);
 	    continue;
 	}
 	
@@ -394,7 +395,7 @@ extern int realmlist_create(char const * filename)
 	for (temp = temp2; *temp && *temp != '"';temp++);
 	if (*temp != '"' || temp == temp2) {
 	    eventlog(eventlog_level_error,"realmlist_create","malformed line %u in file \"%s\" (no realmname)",line,filename);
-	    free(buff);
+	    xfree(buff);
 	    continue;
 	}
 	
@@ -403,7 +404,7 @@ extern int realmlist_create(char const * filename)
         if (!(name = strdup(temp2)))
         {
             eventlog(eventlog_level_error,"realmlist_create","could not allocate memory for name");
-            free(buff);
+            xfree(buff);
             continue;
         }
 	
@@ -418,8 +419,8 @@ extern int realmlist_create(char const * filename)
 	    for(temp = temp2;*temp && *temp != '"';temp++);
 	    if (*temp != '"' || temp == temp2) {
 		eventlog(eventlog_level_error,"realmlist_create","malformed line %u in file \"%s\" (no valid description)",line,filename);
-		free(name);
-		free(buff);
+		xfree(name);
+		xfree(buff);
 		continue;
 	    }
 	    
@@ -427,8 +428,8 @@ extern int realmlist_create(char const * filename)
 	    *temp = '\0';
     	    if (!(desc = strdup(temp2))) {
         	eventlog(eventlog_level_error,"realmlist_create","could not allocate memory for desc");
-        	free(name);
-        	free(buff);
+        	xfree(name);
+        	xfree(buff);
         	continue;
     	    }
 	    
@@ -448,9 +449,9 @@ extern int realmlist_create(char const * filename)
 
 	if (!(raddr = addr_create_str(temp2,0,BNETD_REALM_PORT))) /* 0 means "this computer" */ {
 	    eventlog(eventlog_level_error,"realmlist_create","invalid address value for field 3 on line %u in file \"%s\"",line,filename);
-	    free(name);
-	    free(buff);
-	    free(desc);
+	    xfree(name);
+	    xfree(buff);
+	    xfree(desc);
 	    continue;
 	}
 	
@@ -458,16 +459,16 @@ extern int realmlist_create(char const * filename)
 	{
 	    eventlog(eventlog_level_error,"realmlist_create","could not create realm");
 	    addr_destroy(raddr);
-	    free(name);
-	    free(buff);
-	    free(desc);
+	    xfree(name);
+	    xfree(buff);
+	    xfree(desc);
 	    continue;
 	}
 
 	addr_destroy(raddr);
-	free(name);
-	free(buff);
-	free(desc);
+	xfree(name);
+	xfree(buff);
+	xfree(desc);
 	
 	if (list_prepend_data(realmlist_head,realm)<0)
 	{

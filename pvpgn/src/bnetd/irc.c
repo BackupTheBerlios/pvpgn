@@ -70,6 +70,7 @@
 #include "message.h"
 #include "command_groups.h"
 #include "common/util.h"
+#include "common/xalloc.h"
 #include "common/setup_after.h"
 
 typedef struct {
@@ -390,9 +391,9 @@ extern int irc_welcome(t_connection * conn)
 		  formatted_line[0]=' ';
 		  sprintf(send_line,":-%s",formatted_line);
 		  irc_send(conn,RPL_MOTD,send_line);
-		  free(formatted_line);
+		  xfree(formatted_line);
 		}
-		free(line);
+		xfree(line);
 	  }
 
 	  fclose(fp);
@@ -575,7 +576,7 @@ static char ** irc_split_elems(char * list, int separator, int ignoreblank)
     }
     count++; /* count separators -> we have one more element ... */
     /* we also need a terminating element */
-    out = malloc((count+1)*sizeof(char *));
+    out = xmalloc((count+1)*sizeof(char *));
     if (!out) {
 	eventlog(eventlog_level_error,"irc_get_elems","could not allocate memory for elements: %s",strerror(errno));
 	return NULL;
@@ -587,7 +588,7 @@ static char ** irc_split_elems(char * list, int separator, int ignoreblank)
 	    out[i] = strchr(out[i-1],separator);
 	    if (!out[i]) {
 		eventlog(eventlog_level_error,"irc_get_elems","BUG: wrong number of separators");
-		free(out);
+		xfree(out);
 		return NULL;
 	    }
 	    if (ignoreblank)
@@ -610,7 +611,7 @@ static int irc_unget_elems(char ** elems)
 	eventlog(eventlog_level_error,"irc_unget_elems","got NULL elems");
 	return -1;
     }
-    free(elems);
+    xfree(elems);
     return 0;
 }
 
@@ -651,7 +652,7 @@ static char * irc_message_preformat(t_irc_message_from const * from, char const 
 	    eventlog(eventlog_level_error,"irc_message_preformat","got malformed from");
 	    return NULL;
 	}
-	myfrom = malloc(strlen(from->nick)+1+strlen(from->user)+1+strlen(from->host)+1); /* nick + "!" + user + "@" + host + "\0" */
+	myfrom = xmalloc(strlen(from->nick)+1+strlen(from->user)+1+strlen(from->host)+1); /* nick + "!" + user + "@" + host + "\0" */
 	if (!myfrom) {
 	    eventlog(eventlog_level_error,"irc_message_preformat","could not allocate memory: %s",strerror(errno));
 	    return NULL;
@@ -673,13 +674,13 @@ static char * irc_message_preformat(t_irc_message_from const * from, char const 
     	  1+strlen(mytext)+1;
 
      
-    if (!(msg = malloc(len))) {
+    if (!(msg = xmalloc(len))) {
         eventlog(eventlog_level_error,"irc_message_preformat","could not allocate memory for message: %s",strerror(errno));
-        free(myfrom);
+        xfree(myfrom);
         return NULL;
     }
     sprintf(msg,":%s\n%s\n%s\n%s",myfrom,command,mydest,mytext);
-    free(myfrom);
+    xfree(myfrom);
     return msg;
 }
 
@@ -866,7 +867,7 @@ extern int irc_message_format(t_packet * packet, t_message_type type, t_connecti
 
     if (msg) {
 	packet_append_string(packet,msg);
-	free(msg);
+	xfree(msg);
         return 0;
     }
     return -1;

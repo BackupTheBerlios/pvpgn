@@ -70,6 +70,7 @@
 #include "prefs.h"
 #include "versioncheck.h"
 #include "common/tag.h"
+#include "common/xalloc.h"
 #include "common/setup_after.h"
 
 
@@ -104,7 +105,7 @@ extern t_versioncheck * versioncheck_create(t_tag archtag, t_tag clienttag)
 	    continue;
 	
 	/* FIXME: randomize the selection if more than one match */
-	if (!(vc = malloc(sizeof(t_versioncheck))))
+	if (!(vc = xmalloc(sizeof(t_versioncheck))))
 	{
 	    eventlog(eventlog_level_error,__FUNCTION__,"unable to allocate memory for vc");
 	    return &dummyvc;
@@ -112,14 +113,14 @@ extern t_versioncheck * versioncheck_create(t_tag archtag, t_tag clienttag)
 	if (!(vc->eqn = strdup(vi->eqn)))
 	{
 	    eventlog(eventlog_level_error,__FUNCTION__,"unable to allocate memory for eqn");
-	    free(vc);
+	    xfree(vc);
 	    return &dummyvc;
 	}
 	if (!(vc->mpqfile = strdup(vi->mpqfile)))
 	{
 	    eventlog(eventlog_level_error,__FUNCTION__,"unable to allocate memory for mpqfile");
-	    free((void *)vc->eqn); /* avoid warning */
-	    free(vc);
+	    xfree((void *)vc->eqn); /* avoid warning */
+	    xfree(vc);
 	    return &dummyvc;
 	}
 	vc->versiontag = strdup(tag_uint_to_str(clienttag_str,clienttag));
@@ -147,10 +148,10 @@ extern int versioncheck_destroy(t_versioncheck * vc)
     if (vc==&dummyvc)
 	return 0;
     
-    free((void *)vc->versiontag);
-    free((void *)vc->mpqfile);
-    free((void *)vc->eqn);
-    free(vc);
+    xfree((void *)vc->versiontag);
+    xfree((void *)vc->mpqfile);
+    xfree((void *)vc->eqn);
+    xfree(vc);
     
     return 0;
 }
@@ -166,7 +167,7 @@ extern int versioncheck_set_versiontag(t_versioncheck * vc, char const * version
 	return -1;
     }
     
-    if (vc->versiontag!=NULL) free((void *)vc->versiontag);
+    if (vc->versiontag!=NULL) xfree((void *)vc->versiontag);
     vc->versiontag = strdup(versiontag);
     return 0;
 }
@@ -214,7 +215,7 @@ t_parsed_exeinfo * parse_exeinfo(char const * exeinfo)
 	return NULL;
     }
 
-    if (!(parsed_exeinfo = malloc(sizeof(t_parsed_exeinfo))))
+    if (!(parsed_exeinfo = xmalloc(sizeof(t_parsed_exeinfo))))
     {
       eventlog(eventlog_level_error,__FUNCTION__,"could not allocate memory for parsed exeinfo");
       return NULL;
@@ -222,7 +223,7 @@ t_parsed_exeinfo * parse_exeinfo(char const * exeinfo)
 
     if (!(parsed_exeinfo->exe = strdup(exeinfo)))
     {
-      free((void *)parsed_exeinfo);
+      xfree((void *)parsed_exeinfo);
       eventlog(eventlog_level_error,__FUNCTION__,"could not duplicate exeinfo");
       return NULL;
     }
@@ -242,8 +243,8 @@ t_parsed_exeinfo * parse_exeinfo(char const * exeinfo)
 	if ((exeinfo[0]=='\0') ||	   //happens when using war3-noCD and having deleted war3.org
 	    (strcmp(exeinfo,"badexe")==0)) //happens when AUTHREQ had no owner/exeinfo entry
 	{
-          free((void *)parsed_exeinfo->exe);
-          free((void *)parsed_exeinfo);
+          xfree((void *)parsed_exeinfo->exe);
+          xfree((void *)parsed_exeinfo);
           eventlog(eventlog_level_error,__FUNCTION__,"found empty exeinfo");
           return NULL;
 	}
@@ -254,24 +255,24 @@ t_parsed_exeinfo * parse_exeinfo(char const * exeinfo)
         exeinfo    = strreverse((char *)exeinfo);
         if (!(marker     = strchr(exeinfo,' ')))
         {
-	  free((void *)parsed_exeinfo->exe);
-	  free((void *)parsed_exeinfo);
+	  xfree((void *)parsed_exeinfo->exe);
+	  xfree((void *)parsed_exeinfo);
 	  return NULL;
         }
 	for (; marker[0]==' ';marker++); 
 
         if (!(marker     = strchr(marker,' ')))
         {
-	  free((void *)parsed_exeinfo->exe);
-	  free((void *)parsed_exeinfo);
+	  xfree((void *)parsed_exeinfo->exe);
+	  xfree((void *)parsed_exeinfo);
 	  return NULL;
 	} 
 	for (; marker[0]==' ';marker++);
 
         if (!(marker     = strchr(marker,' ')))
         {
-	  free((void *)parsed_exeinfo->exe);
-	  free((void *)parsed_exeinfo);
+	  xfree((void *)parsed_exeinfo->exe);
+	  xfree((void *)parsed_exeinfo);
 	  return NULL;
 	}
         for (; marker[0]==' ';marker++);
@@ -281,12 +282,12 @@ t_parsed_exeinfo * parse_exeinfo(char const * exeinfo)
         
         if (!(exe = strdup(marker)))
         {
-          free((void *)parsed_exeinfo->exe);
-          free((void *)parsed_exeinfo);
+          xfree((void *)parsed_exeinfo->exe);
+          xfree((void *)parsed_exeinfo);
           eventlog(eventlog_level_error,__FUNCTION__,"could not duplicate exe");
           return NULL;
         }
-        free((void *)parsed_exeinfo->exe);
+        xfree((void *)parsed_exeinfo->exe);
         parsed_exeinfo->exe = strreverse((char *)exe);
 
         exeinfo    = strreverse((char *)exeinfo);
@@ -298,8 +299,8 @@ t_parsed_exeinfo * parse_exeinfo(char const * exeinfo)
             {
 
 	      eventlog(eventlog_level_warn,__FUNCTION__,"parser error while parsing pattern \"%s\"",exeinfo);
-	      free((void *)parsed_exeinfo->exe);
-	      free((void *)parsed_exeinfo);
+	      xfree((void *)parsed_exeinfo->exe);
+	      xfree((void *)parsed_exeinfo);
 	      return NULL; /* neq */
             }
             time_invalid=1;
@@ -389,8 +390,8 @@ void free_parsed_exeinfo(t_parsed_exeinfo * parsed_exeinfo)
   if (parsed_exeinfo)
   {
     if (parsed_exeinfo->exe) 
-      free((void *)parsed_exeinfo->exe);
-    free((void *)parsed_exeinfo);
+      xfree((void *)parsed_exeinfo->exe);
+    xfree((void *)parsed_exeinfo);
   }
 }
 
@@ -458,7 +459,7 @@ extern int versioncheck_validate(t_versioncheck * vc, t_tag archtag, t_tag clien
 	    badcs = 0;
 	
 	if (vc->versiontag)
-	    free((void *)vc->versiontag);
+	    xfree((void *)vc->versiontag);
 	vc->versiontag = strdup(vi->versiontag);
 	
 	if (badexe || badcs)
@@ -533,7 +534,7 @@ extern int versioncheck_load(char const * filename)
 	for (pos=0; buff[pos]=='\t' || buff[pos]==' '; pos++);
 	if (buff[pos]=='\0' || buff[pos]=='#')
 	{
-	    free(buff);
+	    xfree(buff);
 	    continue;
 	}
 	if ((temp = strrchr(buff,'#')))
@@ -550,56 +551,56 @@ extern int versioncheck_load(char const * filename)
 	if (!(eqn = next_token(buff,&pos)))
 	{
 	    eventlog(eventlog_level_error,__FUNCTION__,"missing eqn near line %u of file \"%s\"",line,filename);
-	    free(buff);
+	    xfree(buff);
 	    continue;
 	}
 	line++;
 	if (!(mpqfile = next_token(buff,&pos)))
 	{
 	    eventlog(eventlog_level_error,__FUNCTION__,"missing mpqfile near line %u of file \"%s\"",line,filename);
-	    free(buff);
+	    xfree(buff);
 	    continue;
 	}
 	line++;
 	if (!(archtag = next_token(buff,&pos)))
 	{
 	    eventlog(eventlog_level_error,__FUNCTION__,"missing archtag near line %u of file \"%s\"",line,filename);
-	    free(buff);
+	    xfree(buff);
 	    continue;
 	}
 	line++;
 	if (!(clienttag = next_token(buff,&pos)))
 	{
 	    eventlog(eventlog_level_error,__FUNCTION__,"missing clienttag near line %u of file \"%s\"",line,filename);
-	    free(buff);
+	    xfree(buff);
 	    continue;
 	}
 	line++;
 	if (!(exeinfo = next_token(buff,&pos)))
 	{
 	    eventlog(eventlog_level_error,__FUNCTION__,"missing exeinfo near line %u of file \"%s\"",line,filename);
-	    free(buff);
+	    xfree(buff);
 	    continue;
 	}
 	line++;
 	if (!(versionid = next_token(buff,&pos)))
 	{
 	    eventlog(eventlog_level_error,__FUNCTION__,"missing versionid near line %u of file \"%s\"",line,filename);
-	    free(buff);
+	    xfree(buff);
 	    continue;
 	}
 	line++;
 	if (!(gameversion = next_token(buff,&pos)))
 	{
 	    eventlog(eventlog_level_error,__FUNCTION__,"missing gameversion near line %u of file \"%s\"",line,filename);
-	    free(buff);
+	    xfree(buff);
 	    continue;
 	}
 	line++;
 	if (!(checksum = next_token(buff,&pos)))
 	{
 	    eventlog(eventlog_level_error,__FUNCTION__,"missing checksum near line %u of file \"%s\"",line,filename);
-	    free(buff);
+	    xfree(buff);
 	    continue;
 	}
 	line++;
@@ -608,61 +609,61 @@ extern int versioncheck_load(char const * filename)
 	    versiontag = NULL;
 	}
 	
-	if (!(vi = malloc(sizeof(t_versioninfo))))
+	if (!(vi = xmalloc(sizeof(t_versioninfo))))
 	{
 	    eventlog(eventlog_level_error,__FUNCTION__,"could not allocate memory for vi");
-	    free(buff);
+	    xfree(buff);
 	    continue;
 	}
 	if (!(vi->eqn = strdup(eqn)))
 	{
 	    eventlog(eventlog_level_error,__FUNCTION__,"could not allocate memory for eqn");
-	    free(vi);
-	    free(buff);
+	    xfree(vi);
+	    xfree(buff);
 	    continue;
 	}
 	if (!(vi->mpqfile = strdup(mpqfile)))
 	{
 	    eventlog(eventlog_level_error,__FUNCTION__,"could not allocate memory for mpqfile");
-	    free((void *)vi->eqn); /* avoid warning */
-	    free(vi);
-	    free(buff);
+	    xfree((void *)vi->eqn); /* avoid warning */
+	    xfree(vi);
+	    xfree(buff);
 	    continue;
 	}
 	if (strlen(archtag)!=4)
 	{
 	    eventlog(eventlog_level_error,__FUNCTION__,"invalid arch tag on line %u of file \"%s\"",line,filename);
-	    free((void *)vi->mpqfile); /* avoid warning */
-	    free((void *)vi->eqn); /* avoid warning */
-	    free(vi);
-	    free(buff);
+	    xfree((void *)vi->mpqfile); /* avoid warning */
+	    xfree((void *)vi->eqn); /* avoid warning */
+	    xfree(vi);
+	    xfree(buff);
 	    continue;
 	}
 	if (!tag_check_arch((vi->archtag = tag_str_to_uint(archtag))))
 	{
 	    eventlog(eventlog_level_error,__FUNCTION__,"got unknown archtag \"%s\"",archtag);
-	    free((void *)vi->mpqfile); /* avoid warning */
-	    free((void *)vi->eqn); /* avoid warning */
-	    free(vi);
-	    free(buff);
+	    xfree((void *)vi->mpqfile); /* avoid warning */
+	    xfree((void *)vi->eqn); /* avoid warning */
+	    xfree(vi);
+	    xfree(buff);
 	    continue;
 	}
 	if (strlen(clienttag)!=4)
 	{
 	    eventlog(eventlog_level_error,__FUNCTION__,"invalid client tag on line %u of file \"%s\"",line,filename);
-	    free((void *)vi->mpqfile); /* avoid warning */
-	    free((void *)vi->eqn); /* avoid warning */
-	    free(vi);
-	    free(buff);
+	    xfree((void *)vi->mpqfile); /* avoid warning */
+	    xfree((void *)vi->eqn); /* avoid warning */
+	    xfree(vi);
+	    xfree(buff);
 	    continue;
 	}
 	if (!tag_check_client((vi->clienttag = tag_str_to_uint(clienttag))))
 	{
 	    eventlog(eventlog_level_error,__FUNCTION__,"got unknown clienttag\"%s\"",clienttag);
-	    free((void *)vi->mpqfile); /* avoid warning */
-	    free((void *)vi->eqn); /* avoid warning */
-	    free(vi);
-	    free(buff);
+	    xfree((void *)vi->mpqfile); /* avoid warning */
+	    xfree((void *)vi->eqn); /* avoid warning */
+	    xfree(vi);
+	    xfree(buff);
 	    continue;
 	}
 	if (strcmp(exeinfo, "NULL") == 0)
@@ -672,10 +673,10 @@ extern int versioncheck_load(char const * filename)
 	    if (!(vi->parsed_exeinfo = parse_exeinfo(exeinfo)))
 	    {
 		eventlog(eventlog_level_error,__FUNCTION__,"encountered an error while parsing exeinfo");
-		free((void *)vi->mpqfile); /* avoid warning */
-		free((void *)vi->eqn); /* avoid warning */
-		free(vi);
-		free(buff);
+		xfree((void *)vi->mpqfile); /* avoid warning */
+		xfree((void *)vi->eqn); /* avoid warning */
+		xfree(vi);
+		xfree(buff);
 		continue;
 	    }
 	}
@@ -684,11 +685,11 @@ extern int versioncheck_load(char const * filename)
 	if (verstr_to_vernum(gameversion,&vi->gameversion)<0)
 	{
 	    eventlog(eventlog_level_error,__FUNCTION__,"malformed version on line %u of file \"%s\"",line,filename);
-	    free((void *)vi->parsed_exeinfo); /* avoid warning */
-	    free((void *)vi->mpqfile); /* avoid warning */
-	    free((void *)vi->eqn); /* avoid warning */
-	    free(vi);
-	    free(buff);
+	    xfree((void *)vi->parsed_exeinfo); /* avoid warning */
+	    xfree((void *)vi->mpqfile); /* avoid warning */
+	    xfree((void *)vi->eqn); /* avoid warning */
+	    xfree(vi);
+	    xfree(buff);
 	    continue;
         }
 
@@ -698,28 +699,28 @@ extern int versioncheck_load(char const * filename)
 	    if (!(vi->versiontag = strdup(versiontag)))
 	    {
 		eventlog(eventlog_level_error,__FUNCTION__,"could not allocate memory for versiontag");
-		free((void *)vi->parsed_exeinfo); /* avoid warning */
-		free((void *)vi->mpqfile); /* avoid warning */
-		free((void *)vi->eqn); /* avoid warning */
-		free(vi);
-		free(buff);
+		xfree((void *)vi->parsed_exeinfo); /* avoid warning */
+		xfree((void *)vi->mpqfile); /* avoid warning */
+		xfree((void *)vi->eqn); /* avoid warning */
+		xfree(vi);
+		xfree(buff);
 		continue;
 	    }
 	}
 	else
 	    vi->versiontag = NULL;
 	
-	free(buff);
+	xfree(buff);
 	
 	if (list_append_data(versioninfo_head,vi)<0)
 	{
 	    eventlog(eventlog_level_error,__FUNCTION__,"could not append item");
 	    if (vi->versiontag)
-	      free((void *)vi->versiontag); /* avoid warning */
-	    free((void *)vi->parsed_exeinfo); /* avoid warning */
-	    free((void *)vi->mpqfile); /* avoid warning */
-	    free((void *)vi->eqn); /* avoid warning */
-	    free(vi);
+	      xfree((void *)vi->versiontag); /* avoid warning */
+	    xfree((void *)vi->parsed_exeinfo); /* avoid warning */
+	    xfree((void *)vi->mpqfile); /* avoid warning */
+	    xfree((void *)vi->eqn); /* avoid warning */
+	    xfree(vi);
 	    continue;
 	}
     }
@@ -752,14 +753,14 @@ extern int versioncheck_unload(void)
 	    if (vi->parsed_exeinfo)
             {
                 if (vi->parsed_exeinfo->exe)
-                    free((void *)vi->parsed_exeinfo->exe);
-		free((void *)vi->parsed_exeinfo); /* avoid warning */
+                    xfree((void *)vi->parsed_exeinfo->exe);
+		xfree((void *)vi->parsed_exeinfo); /* avoid warning */
             }
-	    free((void *)vi->mpqfile); /* avoid warning */
-	    free((void *)vi->eqn); /* avoid warning */
+	    xfree((void *)vi->mpqfile); /* avoid warning */
+	    xfree((void *)vi->eqn); /* avoid warning */
 	    if (vi->versiontag)
-		free((void *)vi->versiontag); /* avoid warning */
-	    free(vi);
+		xfree((void *)vi->versiontag); /* avoid warning */
+	    xfree(vi);
 	}
 	
 	if (list_destroy(versioninfo_head)<0)

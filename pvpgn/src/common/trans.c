@@ -46,6 +46,7 @@
 #include "common/list.h"
 #include "common/addr.h"
 #include "common/util.h"
+#include "common/xalloc.h"
 #include "trans.h"
 #include "common/setup_after.h"
 
@@ -89,7 +90,7 @@ extern int trans_load(char const * filename, int program)
     for (line=1; (buff = file_get_line(fp)); line++) {
 	for (pos=0; buff[pos]=='\t' || buff[pos]==' '; pos++);
 	if (buff[pos]=='\0' || buff[pos]=='#') {
-            free(buff);
+            xfree(buff);
             continue;
         }
         if ((temp = strrchr(buff,'#'))) {
@@ -103,13 +104,13 @@ extern int trans_load(char const * filename, int program)
         }
 	if (!(input = strtok(buff," \t"))) { /* strtok modifies the string it is passed */
 	    eventlog(eventlog_level_error,__FUNCTION__,"missing input line %u of file \"%s\"",line,filename);
-	    free(buff);
+	    xfree(buff);
 	    continue;
 	}
 	/* check for port number - this tells us what programs will use this entry */
 	if (!(temp = strrchr(input,':'))) {
 	    eventlog(eventlog_level_error,__FUNCTION__,"missing port # on input line %u of file \"%s\"",line,filename);
-	    free(buff);
+	    xfree(buff);
 	    continue;
 	}
 	*temp++;
@@ -118,7 +119,7 @@ extern int trans_load(char const * filename, int program)
 #ifdef DEBUG_TRANS
 	    eventlog(eventlog_level_debug,__FUNCTION__,"d2gs input (ignoring) \"%s\"",input);
 #endif
-	    free(buff);
+	    xfree(buff);
 	    continue;
 	}
 	/* d2cs only wants the port 4000 entries */
@@ -126,28 +127,28 @@ extern int trans_load(char const * filename, int program)
 #ifdef DEBUG_TRANS
 	    eventlog(eventlog_level_debug,__FUNCTION__,"non d2gs input (ignoring) \"%s\"",input);
 #endif
-	    free(buff);
+	    xfree(buff);
 	    continue;
 	}
 	if (!(output = strtok(NULL," \t"))) {
 	    eventlog(eventlog_level_error,__FUNCTION__,"missing output on line %u of file \"%s\"",line,filename);
-	    free(buff);
+	    xfree(buff);
 	    continue;
 	}
 	if (!(exclude = strtok(NULL," \t"))) {
 	    eventlog(eventlog_level_error,__FUNCTION__,"missing exclude on line %u of file \"%s\"",line,filename);
-	    free(buff);
+	    xfree(buff);
 	    continue;
 	}
 	if (!(include = strtok(NULL," \t"))) {
 	    eventlog(eventlog_level_error,__FUNCTION__,"missing include on line %u of file \"%s\"",line,filename);
-	    free(buff);
+	    xfree(buff);
 	    continue;
 	}
 	/* add exlude networks */
 	if (!(tmp = strdup(exclude))) {
 	    eventlog(eventlog_level_error,__FUNCTION__,"could not allocate memory for temp");
-	    free(buff);
+	    xfree(buff);
 	    continue;
 	}
 	npos=0;
@@ -162,21 +163,21 @@ extern int trans_load(char const * filename, int program)
 		npos++;
 		continue;
 	    }
-	    if (!(entry = malloc(sizeof(t_trans)))) {
+	    if (!(entry = xmalloc(sizeof(t_trans)))) {
 		eventlog(eventlog_level_error,__FUNCTION__,"could not allocate memory for entry");
 		npos++;
 		continue;
 	    }
 	    if (!(entry->input = addr_create_str(input,0,0))) {
 		eventlog(eventlog_level_error,__FUNCTION__,"could not allocate memory for input address");
-		free(entry);
+		xfree(entry);
 		npos++;
 		continue;
 	    }
 	    if (!(entry->output = addr_create_str(input,0,0))) {
 		eventlog(eventlog_level_error,__FUNCTION__,"could not allocate memory for output address");
 		addr_destroy(entry->input);
-		free(entry);
+		xfree(entry);
 		npos++;
 		continue;
 	    }
@@ -185,7 +186,7 @@ extern int trans_load(char const * filename, int program)
 		    eventlog(eventlog_level_error,__FUNCTION__,"could not allocate memory for network address");
 		    addr_destroy(entry->output);
 		    addr_destroy(entry->input);
-		    free(entry);
+		    xfree(entry);
 		    npos++;
 		    continue;
 		}
@@ -194,7 +195,7 @@ extern int trans_load(char const * filename, int program)
 		    eventlog(eventlog_level_error,__FUNCTION__,"could not allocate memory for network address");
 		    addr_destroy(entry->output);
 		    addr_destroy(entry->input);
-		    free(entry);
+		    xfree(entry);
 		    npos++;
 		    continue;
 		}
@@ -211,15 +212,15 @@ extern int trans_load(char const * filename, int program)
 	        netaddr_destroy(entry->network);
 	        addr_destroy(entry->output);
 	        addr_destroy(entry->input);
-	        free(entry);
+	        xfree(entry);
 	    }
 	    npos++;
 	}
-	free(tmp);
+	xfree(tmp);
 	/* add include networks */
 	if (!(tmp = strdup(include))) {
 	    eventlog(eventlog_level_error,__FUNCTION__,"could not allocate memory for temp");
-	    free(buff);
+	    xfree(buff);
 	    continue;
 	}
 	npos=0;
@@ -234,21 +235,21 @@ extern int trans_load(char const * filename, int program)
 		npos++;
 		continue;
 	    }
-	    if (!(entry = malloc(sizeof(t_trans)))) {
+	    if (!(entry = xmalloc(sizeof(t_trans)))) {
 	        eventlog(eventlog_level_error,__FUNCTION__,"could not allocate memory for entry");
 		npos++;
 	        continue;
 	    }
 	    if (!(entry->input = addr_create_str(input,0,0))) {
 		eventlog(eventlog_level_error,__FUNCTION__,"could not allocate memory for input address");
-		free(entry);
+		xfree(entry);
 		npos++;
 		continue;
 	    }
 	    if (!(entry->output = addr_create_str(output,0,0))) {
 		eventlog(eventlog_level_error,__FUNCTION__,"could not allocate memory for output address");
 		addr_destroy(entry->input);
-		free(entry);
+		xfree(entry);
 		npos++;
 		continue;
 	    }
@@ -257,7 +258,7 @@ extern int trans_load(char const * filename, int program)
 		    eventlog(eventlog_level_error,__FUNCTION__,"could not allocate memory for network address");
 		    addr_destroy(entry->output);
 		    addr_destroy(entry->input);
-		    free(entry);
+		    xfree(entry);
 		    npos++;
 		    continue;
 		}
@@ -266,7 +267,7 @@ extern int trans_load(char const * filename, int program)
 		    eventlog(eventlog_level_error,__FUNCTION__,"could not allocate memory for network address");
 		    addr_destroy(entry->output);
 		    addr_destroy(entry->input);
-		    free(entry);
+		    xfree(entry);
 		    npos++;
 		    continue;
 		}
@@ -283,12 +284,12 @@ extern int trans_load(char const * filename, int program)
 		netaddr_destroy(entry->network);
 		addr_destroy(entry->output);
 		addr_destroy(entry->input);
-		free(entry);
+		xfree(entry);
 	    }
 	    npos++;
 	}
-	free(tmp);
-	free(buff);
+	xfree(tmp);
+	xfree(buff);
     }
     fclose(fp);
     eventlog(eventlog_level_info,__FUNCTION__,"trans file loaded");
@@ -309,7 +310,7 @@ extern int trans_unload(void)
 		netaddr_destroy(entry->network);
 		addr_destroy(entry->output);
 		addr_destroy(entry->input);
-		free(entry);
+		xfree(entry);
 	    }
 	    list_remove_elem(trans_head,&curr);
 	}

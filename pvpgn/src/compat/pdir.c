@@ -62,6 +62,7 @@
 #include <errno.h>
 #include "compat/strerror.h"
 #include "common/eventlog.h"
+#include "common/xalloc.h"
 #include "pdir.h"
 #include "common/setup_after.h"
 
@@ -78,7 +79,7 @@ extern t_pdir * p_opendir(const char * path) {
    }
 /*   while(path[strlen(path)]=='/') path[strlen(path)]='\0'; */
    /* win32 can use slash in addition to backslash  */
-   if ((pdir=malloc(sizeof(t_pdir)))==NULL) {
+   if ((pdir=xmalloc(sizeof(t_pdir)))==NULL) {
       eventlog(eventlog_level_error,"p_opendir","not enough memory for pdir");
       return NULL;
    }
@@ -86,7 +87,7 @@ extern t_pdir * p_opendir(const char * path) {
 #ifdef WIN32
    if (strlen(path)+1+3+1>_MAX_PATH) {
       eventlog(eventlog_level_error,"p_opendir","WIN32: path too long");
-      free(pdir);
+      xfree(pdir);
       return NULL;
    }
    strcpy(npath, path);
@@ -94,7 +95,7 @@ extern t_pdir * p_opendir(const char * path) {
    if (!(pdir->path=strdup(npath)))
    {
       eventlog(eventlog_level_error,"p_opendir","WIN32: could not allocate memory for path");
-      free(pdir);
+      xfree(pdir);
       return NULL;
    }
    
@@ -103,8 +104,8 @@ extern t_pdir * p_opendir(const char * path) {
    pdir->lFindHandle = _findfirst(npath, &pdir->fileinfo);
    if (pdir->lFindHandle < 0) {
       eventlog(eventlog_level_error,"p_opendir","WIN32: unable to open directory \"%s\" for reading (_findfirst: %s)",npath,strerror(errno));
-      free((void *)pdir->path); /* avoid warning */
-      free(pdir);
+      xfree((void *)pdir->path); /* avoid warning */
+      xfree(pdir);
       return NULL;
    }
 
@@ -113,13 +114,13 @@ extern t_pdir * p_opendir(const char * path) {
    if (!(pdir->path=strdup(path)))
    {
       eventlog(eventlog_level_error,"p_opendir","POSIX: unable to allocate memory for path");
-      free(pdir);
+      xfree(pdir);
       return NULL;
    }
    if ((pdir->dir=opendir(path))==NULL) {
       eventlog(eventlog_level_error,"p_opendir","POSIX: unable to open directory \"%s\" for reading (opendir: %s)",path,strerror(errno));
-      free((void *)pdir->path); /* avoid warning */
-      free(pdir);
+      xfree((void *)pdir->path); /* avoid warning */
+      xfree(pdir);
       return NULL;
    }
    
@@ -251,7 +252,7 @@ extern int p_closedir(t_pdir * pdir) {
 # endif
 #endif /* WIN32-POSIX */
    
-   free((void *)pdir->path); /* avoid warning */
-   free(pdir);
+   xfree((void *)pdir->path); /* avoid warning */
+   xfree(pdir);
    return ret;
 }

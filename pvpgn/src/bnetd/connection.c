@@ -110,6 +110,7 @@
 #include "topic.h"
 #include "common/fdwatch.h"
 #include "common/elist.h"
+#include "common/xalloc.h"
 #include "common/setup_after.h"
 
 
@@ -357,7 +358,7 @@ extern t_connection * conn_create(int tsock, int usock, unsigned int real_local_
         return NULL;
     }
     
-    if (!(temp = malloc(sizeof(t_connection))))
+    if (!(temp = xmalloc(sizeof(t_connection))))
     {
         eventlog(eventlog_level_error,"conn_create","could not allocate memory for temp");
 	return NULL;
@@ -387,7 +388,7 @@ extern t_connection * conn_create(int tsock, int usock, unsigned int real_local_
     temp->protocol.chat.quota.totcount           = 0;
     if (!(temp->protocol.chat.quota.list = list_create()))
     {
-	free(temp);
+	xfree(temp);
         eventlog(eventlog_level_error,"conn_create","could not create quota list");
 	return NULL;
     }
@@ -441,7 +442,7 @@ extern t_connection * conn_create(int tsock, int usock, unsigned int real_local_
     if (list_prepend_data(conn_head,temp)<0)
     {
 	list_destroy(temp->protocol.chat.quota.list);
-	free(temp);
+	xfree(temp);
 	eventlog(eventlog_level_error,"conn_create","could not prepend temp");
 	return NULL;
     }
@@ -462,7 +463,7 @@ extern t_anongame * conn_create_anongame(t_connection *c)
 	return c->protocol.w3.anongame;
     }
 
-    if (!(temp = malloc(sizeof(t_anongame))))
+    if (!(temp = xmalloc(sizeof(t_anongame))))
     {
         eventlog(eventlog_level_error,"conn_create_anongame","could not allocate memory for temp");
 	return NULL;
@@ -532,7 +533,7 @@ extern void conn_destroy_anongame(t_connection *c)
 	} else {
 		anongame_unqueue(c, a->queue);
 	}
-    free(c->protocol.w3.anongame);
+    xfree(c->protocol.w3.anongame);
     c->protocol.w3.anongame = NULL;
 }
 
@@ -585,7 +586,7 @@ extern void conn_destroy(t_connection * c, t_elem ** elem, int conn_or_dead_list
 	LIST_TRAVERSE(c->protocol.chat.quota.list,curr)
 	{
 	    qline = elem_get_data(curr);
-	    free(qline);
+	    xfree(qline);
 	    list_remove_elem(c->protocol.chat.quota.list,&curr);
 	}
 	list_destroy(c->protocol.chat.quota.list);
@@ -619,45 +620,45 @@ extern void conn_destroy(t_connection * c, t_elem ** elem, int conn_or_dead_list
 	versioncheck_destroy((void *)c->protocol.client.versioncheck); /* avoid warning */
 
     if (c->protocol.chat.lastsender)
-	free((void *)c->protocol.chat.lastsender); /* avoid warning */
+	xfree((void *)c->protocol.chat.lastsender); /* avoid warning */
     
     if (c->protocol.chat.away)
-	free((void *)c->protocol.chat.away); /* avoid warning */
+	xfree((void *)c->protocol.chat.away); /* avoid warning */
     if (c->protocol.chat.dnd)
-	free((void *)c->protocol.chat.dnd); /* avoid warning */
+	xfree((void *)c->protocol.chat.dnd); /* avoid warning */
     if (c->protocol.chat.tmpOP_channel)
-	free((void *)c->protocol.chat.tmpOP_channel); /* avoid warning */
+	xfree((void *)c->protocol.chat.tmpOP_channel); /* avoid warning */
     if (c->protocol.chat.tmpVOICE_channel)
-	free((void *)c->protocol.chat.tmpVOICE_channel); /* avoid warning */
+	xfree((void *)c->protocol.chat.tmpVOICE_channel); /* avoid warning */
     
     if (c->protocol.client.clientver)
-	free((void *)c->protocol.client.clientver); /* avoid warning */
+	xfree((void *)c->protocol.client.clientver); /* avoid warning */
     if (c->protocol.client.country)
-	free((void *)c->protocol.client.country); /* avoid warning */
+	xfree((void *)c->protocol.client.country); /* avoid warning */
     if (c->protocol.client.host)
-	free((void *)c->protocol.client.host); /* avoid warning */
+	xfree((void *)c->protocol.client.host); /* avoid warning */
     if (c->protocol.client.user)
-	free((void *)c->protocol.client.user); /* avoid warning */
+	xfree((void *)c->protocol.client.user); /* avoid warning */
     if (c->protocol.client.clientexe)
-	free((void *)c->protocol.client.clientexe); /* avoid warning */
+	xfree((void *)c->protocol.client.clientexe); /* avoid warning */
     if (c->protocol.client.owner)
-	free((void *)c->protocol.client.owner); /* avoid warning */
+	xfree((void *)c->protocol.client.owner); /* avoid warning */
     if (c->protocol.client.cdkey)
-	free((void *)c->protocol.client.cdkey); /* avoid warning */
+	xfree((void *)c->protocol.client.cdkey); /* avoid warning */
     if (c->protocol.d2.realmname)
-	free((void *)c->protocol.d2.realmname); /* avoid warning */
+	xfree((void *)c->protocol.d2.realmname); /* avoid warning */
     if (c->protocol.d2.realminfo)
-	free((void *)c->protocol.d2.realminfo); /* avoid warning */
+	xfree((void *)c->protocol.d2.realminfo); /* avoid warning */
     if (c->protocol.d2.charname)
-	free((void *)c->protocol.d2.charname); /* avoid warning */
+	xfree((void *)c->protocol.d2.charname); /* avoid warning */
     if (c->protocol.chat.irc.ircline)
-	free((void *)c->protocol.chat.irc.ircline); /* avoid warning */
+	xfree((void *)c->protocol.chat.irc.ircline); /* avoid warning */
     if (c->protocol.chat.irc.ircpass)
-	free((void *)c->protocol.chat.irc.ircpass); /* avoid warning */
+	xfree((void *)c->protocol.chat.irc.ircpass); /* avoid warning */
 
     /* ADDED BY UNDYING SOULZZ 4/8/02 */
     if (c->protocol.w3.w3_playerinfo)
-	free((void *)c->protocol.w3.w3_playerinfo); /* avoid warning */ 
+	xfree((void *)c->protocol.w3.w3_playerinfo); /* avoid warning */ 
 
     if (c->protocol.bound)
 	c->protocol.bound->protocol.bound = NULL;
@@ -667,7 +668,7 @@ extern void conn_destroy(t_connection * c, t_elem ** elem, int conn_or_dead_list
 	if (!c->protocol.chat.ignore_list)
 	  { eventlog(eventlog_level_error,"conn_destroy","found NULL ignore_list with ignore_count=%u",c->protocol.chat.ignore_count); }
 	else
-	  { free(c->protocol.chat.ignore_list); }
+	  { xfree(c->protocol.chat.ignore_list); }
     }
 
     if (c->protocol.account)
@@ -677,7 +678,7 @@ extern void conn_destroy(t_connection * c, t_elem ** elem, int conn_or_dead_list
 #ifdef WIN32_GUI
 						guiOnUpdateUserList();
 #endif
-	if (c->protocol.loggeduser) free((void*)c->protocol.loggeduser);
+	if (c->protocol.loggeduser) xfree((void*)c->protocol.loggeduser);
 	if (account_get_conn(c->protocol.account)==c)  /* make sure you don't set this when allready on new conn (relogin with same account) */
 	    account_set_conn(c->protocol.account,NULL);
 	c->protocol.account = NULL; /* the account code will free the memory later */
@@ -709,7 +710,7 @@ extern void conn_destroy(t_connection * c, t_elem ** elem, int conn_or_dead_list
 
     eventlog(eventlog_level_info,"conn_destroy","[%d] closed %s connection",c->socket.tcp_sock,classstr);
     
-    free(c);
+    xfree(c);
 }
 
 
@@ -1023,7 +1024,7 @@ extern void conn_set_host(t_connection * c, char const * host)
     }
     
     if (c->protocol.client.host)
-	free((void *)c->protocol.client.host); /* avoid warning */
+	xfree((void *)c->protocol.client.host); /* avoid warning */
     if (!(c->protocol.client.host = strdup(host)))
 	eventlog(eventlog_level_error,"conn_set_host","could not allocate memory for c->protocol.client.host");
 }
@@ -1043,7 +1044,7 @@ extern void conn_set_user(t_connection * c, char const * user)
     }
 
     if (c->protocol.client.user)
-	free((void *)c->protocol.client.user); /* avoid warning */
+	xfree((void *)c->protocol.client.user); /* avoid warning */
     if (!(c->protocol.client.user = strdup(user)))
 	eventlog(eventlog_level_error,"conn_set_user","could not allocate memory for c->protocol.client.user");
 }
@@ -1063,7 +1064,7 @@ extern void conn_set_owner(t_connection * c, char const * owner)
     }
     
     if (c->protocol.client.owner)
-	free((void *)c->protocol.client.owner); /* avoid warning */
+	xfree((void *)c->protocol.client.owner); /* avoid warning */
     if (!(c->protocol.client.owner = strdup(owner)))
 	eventlog(eventlog_level_error,"conn_set_owner","could not allocate memory for c->protocol.client.owner");
 }
@@ -1100,7 +1101,7 @@ extern void conn_set_cdkey(t_connection * c, char const * cdkey)
     }
 
     if (c->protocol.client.cdkey)
-	free((void *)c->protocol.client.cdkey); /* avoid warning */
+	xfree((void *)c->protocol.client.cdkey); /* avoid warning */
     if (!(c->protocol.client.cdkey = strdup(cdkey)))
 	eventlog(eventlog_level_error,"conn_set_cdkey","could not allocate memory for c->protocol.client.cdkey");
 }
@@ -1141,7 +1142,7 @@ extern void conn_set_clientexe(t_connection * c, char const * clientexe)
 	return;
     }
     if (c->protocol.client.clientexe)
-	free((void *)c->protocol.client.clientexe); /* avoid warning */
+	xfree((void *)c->protocol.client.clientexe); /* avoid warning */
     c->protocol.client.clientexe = temp;
 }
 
@@ -1181,7 +1182,7 @@ extern void conn_set_clientver(t_connection * c, char const * clientver)
 	return;
     }
     if (c->protocol.client.clientver)
-	free((void *)c->protocol.client.clientver); /* avoid warning */
+	xfree((void *)c->protocol.client.clientver); /* avoid warning */
     c->protocol.client.clientver = temp;
 }
 
@@ -1454,27 +1455,27 @@ static void conn_set_account(t_connection * c, t_account * account)
       
     if (c->protocol.client.host)
     {
-	free((void *)c->protocol.client.host); /* avoid warning */
+	xfree((void *)c->protocol.client.host); /* avoid warning */
 	c->protocol.client.host = NULL;
     }
     if (c->protocol.client.user)
     {
-	free((void *)c->protocol.client.user); /* avoid warning */
+	xfree((void *)c->protocol.client.user); /* avoid warning */
 	c->protocol.client.user = NULL;
     }
     if (c->protocol.client.clientexe)
     {
-	free((void *)c->protocol.client.clientexe); /* avoid warning */
+	xfree((void *)c->protocol.client.clientexe); /* avoid warning */
 	c->protocol.client.clientexe = NULL;
     }
     if (c->protocol.client.owner)
     {
-	free((void *)c->protocol.client.owner); /* avoid warning */
+	xfree((void *)c->protocol.client.owner); /* avoid warning */
 	c->protocol.client.owner = NULL;
     }
     if (c->protocol.client.cdkey)
     {
-	free((void *)c->protocol.client.cdkey); /* avoid warning */
+	xfree((void *)c->protocol.client.cdkey); /* avoid warning */
 	c->protocol.client.cdkey = NULL;
     }
     
@@ -1525,7 +1526,7 @@ extern int conn_set_loggeduser(t_connection * c, char const * username)
 	eventlog(eventlog_level_error, __FUNCTION__,"unable to duplicate username");
 	return -1;
     }
-    if (c->protocol.loggeduser) free((void*)c->protocol.loggeduser);
+    if (c->protocol.loggeduser) xfree((void*)c->protocol.loggeduser);
 
     c->protocol.loggeduser = temp;
 
@@ -1660,7 +1661,7 @@ extern int conn_set_awaystr(t_connection * c, char const * away)
     }
     
     if (c->protocol.chat.away)
-	free((void *)c->protocol.chat.away); /* avoid warning */
+	xfree((void *)c->protocol.chat.away); /* avoid warning */
     if (!away)
         c->protocol.chat.away = NULL;
     else
@@ -1695,7 +1696,7 @@ extern int conn_set_dndstr(t_connection * c, char const * dnd)
     }
     
     if (c->protocol.chat.dnd)
-	free((void *)c->protocol.chat.dnd); /* avoid warning */
+	xfree((void *)c->protocol.chat.dnd); /* avoid warning */
     if (!dnd)
         c->protocol.chat.dnd = NULL;
     else
@@ -1724,7 +1725,7 @@ extern int conn_add_ignore(t_connection * c, t_account * account)
         return -1;
     }
     
-    if (!(newlist = realloc(c->protocol.chat.ignore_list,sizeof(t_account const *)*(c->protocol.chat.ignore_count+1))))
+    if (!(newlist = xrealloc(c->protocol.chat.ignore_list,sizeof(t_account const *)*(c->protocol.chat.ignore_count+1))))
     {
 	eventlog(eventlog_level_error,"conn_add_ignore","could not allocate memory for newlist");
 	return -1;
@@ -1765,13 +1766,13 @@ extern int conn_del_ignore(t_connection * c, t_account const * account)
     c->protocol.chat.ignore_list[c->protocol.chat.ignore_count-1] = c->protocol.chat.ignore_list[i];
     c->protocol.chat.ignore_list[i] = temp;
     
-    if (c->protocol.chat.ignore_count==1) /* some realloc()s are buggy */
+    if (c->protocol.chat.ignore_count==1) /* some xrealloc()s are buggy */
     {
-	free(c->protocol.chat.ignore_list);
+	xfree(c->protocol.chat.ignore_list);
 	newlist = NULL;
     }
     else
-	newlist = realloc(c->protocol.chat.ignore_list,sizeof(t_account const *)*(c->protocol.chat.ignore_count-1));
+	newlist = xrealloc(c->protocol.chat.ignore_list,sizeof(t_account const *)*(c->protocol.chat.ignore_count-1));
     
     c->protocol.chat.ignore_count--;
     c->protocol.chat.ignore_list = newlist;
@@ -2389,7 +2390,7 @@ extern char const * conn_get_chatcharname(t_connection const * c, t_connection c
 
 	if (c->protocol.d2.charname) mychar = c->protocol.d2.charname;
 	else mychar = "";
-    	if ((chatcharname = malloc(strlen(accname) + 2 + strlen(mychar))))
+    	if ((chatcharname = xmalloc(strlen(accname) + 2 + strlen(mychar))))
     	    sprintf(chatcharname, "%s*%s", mychar, accname);
     } else chatcharname = strdup(accname);
 
@@ -2410,7 +2411,7 @@ extern int conn_unget_chatcharname(t_connection const * c, char const * name)
 	return -1;
     }
     
-    free((void *)name); /* avoid warning */
+    xfree((void *)name); /* avoid warning */
     return 0;
 }
 
@@ -2799,7 +2800,7 @@ extern int conn_set_realminfo(t_connection * c, char const * realminfo)
       temp = NULL;
     
     if (c->protocol.d2.realminfo) /* if it was set before, free it now */
-	free((void *)c->protocol.d2.realminfo); /* avoid warning */
+	xfree((void *)c->protocol.d2.realminfo); /* avoid warning */
     c->protocol.d2.realminfo = temp;
     return 0;
 }
@@ -2838,7 +2839,7 @@ extern int conn_set_charname(t_connection * c, char const * charname)
 	temp = charname;
 
     if (c->protocol.d2.charname) /* free it, if it was previously set */
-       free((void *)c->protocol.d2.charname); /* avoid warning */
+       xfree((void *)c->protocol.d2.charname); /* avoid warning */
     c->protocol.d2.charname = temp;
     return 0;
 }
@@ -2892,7 +2893,7 @@ extern int conn_set_realmname(t_connection * c, char const * realmname)
     }
     
     if (c->protocol.d2.realmname)
-	free((void *)c->protocol.d2.realmname); /* avoid warning */
+	xfree((void *)c->protocol.d2.realmname); /* avoid warning */
     if (!realmname)
         c->protocol.d2.realmname = NULL;
     else
@@ -2941,7 +2942,7 @@ extern void conn_set_country(t_connection * c, char const * country)
     }
 
     if (c->protocol.client.country)
-	free((void *)c->protocol.client.country); /* avoid warning */
+	xfree((void *)c->protocol.client.country); /* avoid warning */
     if (!(c->protocol.client.country = strdup(country)))
 	eventlog(eventlog_level_error,"conn_set_country","could not allocate memory for c->protocol.client.country");
 }
@@ -2990,7 +2991,7 @@ extern int conn_set_ircline(t_connection * c, char const * line)
 	return -1;
     }
     if (c->protocol.chat.irc.ircline)
-    	free((void *)c->protocol.chat.irc.ircline); /* avoid warning */
+    	xfree((void *)c->protocol.chat.irc.ircline); /* avoid warning */
     if (!(c->protocol.chat.irc.ircline = strdup(line)))
 	eventlog(eventlog_level_error,"conn_set_ircline","could not allocate memory for c->protocol.chat.irc.ircline");
     return 0;
@@ -3014,7 +3015,7 @@ extern int conn_set_ircpass(t_connection * c, char const * pass)
 	return -1;
     }
     if (c->protocol.chat.irc.ircpass)
-    	free((void *)c->protocol.chat.irc.ircpass); /* avoid warning */
+    	xfree((void *)c->protocol.chat.irc.ircpass); /* avoid warning */
     if (!pass)
     	c->protocol.chat.irc.ircpass = NULL;
     else
@@ -3092,7 +3093,7 @@ extern int conn_set_w3_playerinfo( t_connection * c, const char * w3_playerinfo 
     temp = strdup( w3_playerinfo );
 
     if ( c->protocol.w3.w3_playerinfo )
-	free((void *)c->protocol.w3.w3_playerinfo);
+	xfree((void *)c->protocol.w3.w3_playerinfo);
 
     c->protocol.w3.w3_playerinfo = temp;
 
@@ -3135,13 +3136,13 @@ extern int conn_quota_exceeded(t_connection * con, char const * text)
 	    if (qline->count>con->protocol.chat.quota.totcount)
 		eventlog(eventlog_level_error,"conn_quota_exceeded","qline->count=%u but con->protocol.chat.quota.totcount=%u",qline->count,con->protocol.chat.quota.totcount);
 	    con->protocol.chat.quota.totcount -= qline->count;
-	    free(qline);
+	    xfree(qline);
 	}
 	else
 	    break; /* old items are first, so we know nothing else will match */
     }
     
-    if ((qline = malloc(sizeof(t_qline)))==NULL)
+    if ((qline = xmalloc(sizeof(t_qline)))==NULL)
     {
 	eventlog(eventlog_level_error,"conn_quota_exceeded","could not allocate qline");
 	return 0;
@@ -3155,7 +3156,7 @@ extern int conn_quota_exceeded(t_connection * con, char const * text)
     if (list_append_data(con->protocol.chat.quota.list,qline)<0)
     {
 	eventlog(eventlog_level_error,"conn_quota_exceeded","could not append to list");
-	free(qline);
+	xfree(qline);
 	return 0;
     }
     con->protocol.chat.quota.totcount += qline->count;
@@ -3186,7 +3187,7 @@ extern int conn_set_lastsender(t_connection * c, char const * sender)
 	return -1;
     }
     if (c->protocol.chat.lastsender)
-	free((void *)c->protocol.chat.lastsender); /* avoid warning */
+	xfree((void *)c->protocol.chat.lastsender); /* avoid warning */
     if (!sender)
     {
 	c->protocol.chat.lastsender = NULL;
@@ -3872,7 +3873,7 @@ extern int conn_set_tmpOP_channel(t_connection * c, char const * tmpOP_channel)
 
 	if (c->protocol.chat.tmpOP_channel)
 	{
-	  free((void *)c->protocol.chat.tmpOP_channel);
+	  xfree((void *)c->protocol.chat.tmpOP_channel);
 	  c->protocol.chat.tmpOP_channel = NULL;
 	}
 
@@ -3912,7 +3913,7 @@ extern int conn_set_tmpVOICE_channel(t_connection * c, char const * tmpVOICE_cha
 
 	if (c->protocol.chat.tmpVOICE_channel)
 	{
-	  free((void *)c->protocol.chat.tmpVOICE_channel);
+	  xfree((void *)c->protocol.chat.tmpVOICE_channel);
 	  c->protocol.chat.tmpVOICE_channel = NULL;
 	}
 

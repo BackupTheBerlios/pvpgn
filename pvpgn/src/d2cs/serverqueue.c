@@ -41,6 +41,7 @@
 #include "common/packet.h"
 #include "common/list.h"
 #include "common/eventlog.h"
+#include "common/xalloc.h"
 #include "common/setup_after.h"
 
 static t_list		* sqlist_head=NULL;
@@ -108,7 +109,7 @@ extern t_sq * sq_create(unsigned int clientid, t_packet * packet,unsigned int ga
 {
 	t_sq	* sq;
 	
-	if (!(sq=malloc(sizeof(t_sq)))) return NULL;
+	if (!(sq=xmalloc(sizeof(t_sq)))) return NULL;
 	sq->seqno=++sqlist_seqno;
 	sq->ctime=time(NULL);
 	sq->clientid=clientid;
@@ -119,7 +120,7 @@ extern t_sq * sq_create(unsigned int clientid, t_packet * packet,unsigned int ga
 	if (list_append_data(sqlist_head,sq)<0) {
 		eventlog(eventlog_level_error,__FUNCTION__,"error append server queue to list");
 		if (packet) packet_del_ref(packet);
-		free(sq);
+		xfree(sq);
 		return NULL;
 	}
 	return sq;
@@ -133,7 +134,7 @@ extern int sq_destroy(t_sq * sq,t_elem ** curr)
 		return -1;
 	}
 	if (sq->packet) packet_del_ref(sq->packet);
-	free(sq);
+	xfree(sq);
 	return 0;
 }
 	  

@@ -52,6 +52,7 @@
 #include "common/tag.h"
 #include "common/list.h"
 #include "common/util.h"
+#include "common/xalloc.h"
 #include "account.h"
 #include "anongame_maplists.h"
 #include "tournament.h"
@@ -90,9 +91,9 @@ static int gamelist_destroy(void)
 		eventlog(eventlog_level_error,__FUNCTION__,"could not remove item from list");
 	    
 	    if (user->name)
-		free((void *)user->name); /* avoid warning */
+		xfree((void *)user->name); /* avoid warning */
 	    
-	    free(user);
+	    xfree(user);
 	    
 	}
 	
@@ -126,7 +127,7 @@ extern int tournament_signup_user(t_account * account)
 	return 0;
     }
     
-    if (!(user = malloc(sizeof(t_tournament_user)))) {
+    if (!(user = xmalloc(sizeof(t_tournament_user)))) {
 	eventlog(eventlog_level_error,__FUNCTION__,"could not allocate memory for tournament user");
 	return -1;
     }
@@ -140,8 +141,8 @@ extern int tournament_signup_user(t_account * account)
         
     if (list_prepend_data(tournament_head,user)<0) {
 	eventlog(eventlog_level_error,__FUNCTION__,"could not insert user");
-	free((void *)user->name); /* avoid warning */
-	free(user);
+	xfree((void *)user->name); /* avoid warning */
+	xfree(user);
 	return -1;
     }
     
@@ -326,11 +327,11 @@ extern int tournament_init(char const * filename)
     char *sponsor = NULL;
     char *have_sponsor = NULL;
     char *have_icon = NULL;
-    struct tm * timestamp = malloc(sizeof(struct tm));
+    struct tm * timestamp = xmalloc(sizeof(struct tm));
     
     sprintf(format,"%%02u/%%02u/%%04u %%02u:%%02u:%%02u");
 
-    tournament_info = malloc(sizeof(t_tournament_info));
+    tournament_info = xmalloc(sizeof(t_tournament_info));
     tournament_info->start_preliminary	= 0;
     tournament_info->end_signup		= 0;
     tournament_info->end_preliminary	= 0;
@@ -351,20 +352,20 @@ extern int tournament_init(char const * filename)
     
     if (!filename) {
 	eventlog(eventlog_level_error,__FUNCTION__,"got NULL filename");
-        free((void *)timestamp);
+        xfree((void *)timestamp);
 	return -1;
     }
     
     if (!(fp = fopen(filename,"r"))) {
 	eventlog(eventlog_level_error,__FUNCTION__,"could not open file \"%s\" for reading (fopen: %s)",filename,strerror(errno));
-	free((void *)timestamp);
+	xfree((void *)timestamp);
 	return -1;
     }
     
     for (line=1; (buff = file_get_line(fp)); line++) {
 	for (pos=0; buff[pos]=='\t' || buff[pos]==' '; pos++);
 	if (buff[pos]=='\0' || buff[pos]=='#') {
-	    free(buff);
+	    xfree(buff);
 	    continue;
 	}
 	if ((temp = strrchr(buff,'#'))) {
@@ -381,11 +382,11 @@ extern int tournament_init(char const * filename)
 	    char *clienttag, *mapname, *mname;
 	    t_clienttag ctag;
 	    
-	    free(buff);
+	    xfree(buff);
 	    for (; (buff = file_get_line(fp));) {
 		for (pos=0; buff[pos]=='\t' || buff[pos]==' '; pos++);
 		if (buff[pos]=='\0' || buff[pos]=='#') {
-		    free(buff);
+		    xfree(buff);
 		    continue;
 		}
 		if ((temp = strrchr(buff,'#'))) {
@@ -399,27 +400,27 @@ extern int tournament_init(char const * filename)
 		}
 		/* FIXME: use next_token() */
 		if (!(clienttag = strtok(buff, " \t"))) { /* strtok modifies the string it is passed */
-		    free(buff);
+		    xfree(buff);
 		    continue;
 		}
 		if (strcmp(buff,"[ENDMAPS]") == 0) {
-		    free(buff);
+		    xfree(buff);
 		    break;
 		}
 		if (!(mapname = strtok(NULL," \t"))) {
-		    free(buff);
+		    xfree(buff);
 		    continue;
 		}
 		if (!tag_check_client((ctag = tag_case_str_to_uint(clienttag)))) {
-		    free(buff);
+		    xfree(buff);
 		    continue;
 		}
 		mname = strdup(mapname);
 		
 		anongame_add_tournament_map(ctag, mname);
 		eventlog(eventlog_level_trace,__FUNCTION__,"added tournament map \"%s\" for %s",mname,clienttag);
-		free(mname);
-		free(buff);
+		xfree(mname);
+		xfree(buff);
 	    }
 	} else {
 	    variable = buff;
@@ -618,7 +619,7 @@ extern int tournament_init(char const * filename)
 	        pointer = strchr(pointer,'\"');
 	        pointer[0]='\0';
 	        
-	        if (tournament_info->format) free((void *)tournament_info->format);
+	        if (tournament_info->format) xfree((void *)tournament_info->format);
 	        tournament_info->format = strdup(value);
 	    }
 	    else if (strcmp(variable,"races") == 0) {
@@ -669,7 +670,7 @@ extern int tournament_init(char const * filename)
 	        eventlog(eventlog_level_error,__FUNCTION__,"bad option \"%s\" in \"%s\"",variable,filename);
 	    
 	    if (have_sponsor && have_icon) {
-	        sponsor = malloc(strlen(have_sponsor)+6);
+	        sponsor = xmalloc(strlen(have_sponsor)+6);
 		
 		if (strlen(have_icon) == 4)
 		    sprintf(sponsor, "%c%c%c%c,%s",have_icon[3],have_icon[2],have_icon[1],have_icon[0],have_sponsor);
@@ -681,21 +682,21 @@ extern int tournament_init(char const * filename)
 		}
 		
 		if (tournament_info->sponsor)
-		    free((void *)tournament_info->sponsor);
+		    xfree((void *)tournament_info->sponsor);
 	        
 		tournament_info->sponsor = strdup(sponsor);
-	        free((void *)have_sponsor);
-		free((void *)have_icon);
-	        free((void *)sponsor);
+	        xfree((void *)have_sponsor);
+		xfree((void *)have_icon);
+	        xfree((void *)sponsor);
 		have_sponsor = NULL;
 	        have_icon = NULL;
 	    }
-	    free(buff);
+	    xfree(buff);
 	}
     }
-    if (have_sponsor) free((void *)have_sponsor);
-    if (have_icon) free((void *)have_icon);
-    free((void *)timestamp);
+    if (have_sponsor) xfree((void *)have_sponsor);
+    if (have_icon) xfree((void *)have_icon);
+    xfree((void *)timestamp);
     fclose(fp);
     
     /* check if we have timestamps for all the times */ 
@@ -718,9 +719,9 @@ extern int tournament_init(char const * filename)
 
 extern int tournament_destroy(void)
 {
-    if (tournament_info->format) free((void *)tournament_info->format);
-    if (tournament_info->sponsor) free((void *)tournament_info->sponsor);
-    if (tournament_info) free((void *)tournament_info);
+    if (tournament_info->format) xfree((void *)tournament_info->format);
+    if (tournament_info->sponsor) xfree((void *)tournament_info->sponsor);
+    if (tournament_info) xfree((void *)tournament_info);
     tournament_info = NULL;
     gamelist_destroy();
     return 0;

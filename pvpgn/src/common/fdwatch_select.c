@@ -53,6 +53,7 @@
 #include "compat/psock.h"
 #include "fdwatch.h"
 #include "common/eventlog.h"
+#include "common/xalloc.h"
 #include "common/setup_after.h"
 
 #ifdef HAVE_SELECT
@@ -87,12 +88,12 @@ static int fdw_select_init(int nfds)
 
     if (nfds > FD_SETSIZE) return -1; /* this should not happen */
 
-    rfds = malloc(sizeof(t_psock_fd_set));
-    wfds = malloc(sizeof(t_psock_fd_set));
-    trfds = malloc(sizeof(t_psock_fd_set));
-    twfds = malloc(sizeof(t_psock_fd_set));
-    fds = malloc(sizeof(int) * nfds);
-    fdw_ridx = malloc(sizeof(int) * nfds);
+    rfds = xmalloc(sizeof(t_psock_fd_set));
+    wfds = xmalloc(sizeof(t_psock_fd_set));
+    trfds = xmalloc(sizeof(t_psock_fd_set));
+    twfds = xmalloc(sizeof(t_psock_fd_set));
+    fds = xmalloc(sizeof(int) * nfds);
+    fdw_ridx = xmalloc(sizeof(int) * nfds);
     if (rfds == NULL || wfds == NULL || trfds == NULL || twfds == NULL ||
 	fds == NULL || fdw_ridx == NULL)
     {
@@ -110,12 +111,12 @@ static int fdw_select_init(int nfds)
 
 static int fdw_select_close(void)
 {
-    if (rfds) { free((void *)rfds); rfds = NULL; }
-    if (wfds) { free((void *)wfds); wfds = NULL; }
-    if (trfds) { free((void *)trfds); trfds = NULL; }
-    if (twfds) { free((void *)twfds); twfds = NULL; }
-    if (fds) { free((void *)fds); fds = NULL; }
-    if (fdw_ridx) { free((void *)fdw_ridx); fdw_ridx = NULL; }
+    if (rfds) { xfree((void *)rfds); rfds = NULL; }
+    if (wfds) { xfree((void *)wfds); wfds = NULL; }
+    if (trfds) { xfree((void *)trfds); trfds = NULL; }
+    if (twfds) { xfree((void *)twfds); twfds = NULL; }
+    if (fds) { xfree((void *)fds); fds = NULL; }
+    if (fdw_ridx) { xfree((void *)fdw_ridx); fdw_ridx = NULL; }
     smaxfd = nofds = sr = 0;
 
     return 0;

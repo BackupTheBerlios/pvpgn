@@ -93,6 +93,7 @@
 #undef ACCOUNT_INTERNAL_ACCESS
 #undef CLAN_INTERNAL_ACCESS
 #include "common/tag.h"
+#include "common/xalloc.h"
 #include "common/setup_after.h"
 
 /* file storage API functions */
@@ -169,7 +170,7 @@ static int file_init(const char *path)
 	if ((p = strchr(tok, '=')) == NULL)
 	{
 	    eventlog(eventlog_level_error, __FUNCTION__, "invalid storage_path, no '=' present in token");
-	    free((void *) copy);
+	    xfree((void *) copy);
 	    return -1;
 	}
 	*p = '\0';
@@ -188,7 +189,7 @@ static int file_init(const char *path)
     if (def == NULL || clan == NULL || dir == NULL || driver == NULL)
     {
 	eventlog(eventlog_level_error, __FUNCTION__, "invalid storage_path line for file module (doesnt have a 'dir', a 'clan', a 'default' token and a 'mode' token)");
-	free((void *) copy);
+	xfree((void *) copy);
 	return -1;
     }
 
@@ -199,7 +200,7 @@ static int file_init(const char *path)
     else
     {
 	eventlog(eventlog_level_error, __FUNCTION__, "unknown mode '%s' must be either plain or cdb", driver);
-	free((void *) copy);
+	xfree((void *) copy);
 	return -1;
     }
 
@@ -209,7 +210,7 @@ static int file_init(const char *path)
     if ((accountsdir = strdup(dir)) == NULL)
     {
 	eventlog(eventlog_level_error, __FUNCTION__, "not enough memory to store accounts dir");
-	free((void *) copy);
+	xfree((void *) copy);
 	return -1;
     }
 
@@ -217,7 +218,7 @@ static int file_init(const char *path)
     {
 	eventlog(eventlog_level_error, __FUNCTION__, "not enough memory to store clans dir");
 	file_close();
-	free((void *) copy);
+	xfree((void *) copy);
 	return -1;
     }
 
@@ -225,11 +226,11 @@ static int file_init(const char *path)
     {
 	eventlog(eventlog_level_error, __FUNCTION__, "not enough memory to store default account path");
 	file_close();
-	free((void *) copy);
+	xfree((void *) copy);
 	return -1;
     }
 
-    free((void *) copy);
+    xfree((void *) copy);
 
     return 0;
 }
@@ -237,15 +238,15 @@ static int file_init(const char *path)
 static int file_close(void)
 {
     if (accountsdir)
-	free((void *) accountsdir);
+	xfree((void *) accountsdir);
     accountsdir = NULL;
 
     if (clansdir)
-	free((void *) clansdir);
+	xfree((void *) clansdir);
     clansdir = NULL;
 
     if (defacct)
-	free((void *) defacct);
+	xfree((void *) defacct);
     defacct = NULL;
 
     file = NULL;
@@ -278,17 +279,17 @@ static t_storage_info *file_create_account(const char *username)
 	    eventlog(eventlog_level_error, __FUNCTION__, "could not escape username");
 	    return NULL;
 	}
-	if (!(temp = malloc(strlen(accountsdir) + 1 + strlen(safename) + 1)))	/* dir + / + name + NUL */
+	if (!(temp = xmalloc(strlen(accountsdir) + 1 + strlen(safename) + 1)))	/* dir + / + name + NUL */
 	{
 	    eventlog(eventlog_level_error, __FUNCTION__, "could not allocate memory for temp");
-	    free((void *) safename);
+	    xfree((void *) safename);
 	    return NULL;
 	}
 	sprintf(temp, "%s/%s", accountsdir, safename);
-	free((void *) safename);	/* avoid warning */
+	xfree((void *) safename);	/* avoid warning */
     } else
     {
-	if (!(temp = malloc(strlen(accountsdir) + 1 + 8 + 1)))	/* dir + / + uid + NUL */
+	if (!(temp = xmalloc(strlen(accountsdir) + 1 + 8 + 1)))	/* dir + / + uid + NUL */
 	{
 	    eventlog(eventlog_level_error, __FUNCTION__, "could not allocate memory for temp");
 	    return NULL;
@@ -321,7 +322,7 @@ static int file_write_attrs(t_storage_info * info, void *attributes)
 	return -1;
     }
 
-    if (!(tempname = malloc(strlen(accountsdir) + 1 + strlen(BNETD_ACCOUNT_TMP) + 1)))
+    if (!(tempname = xmalloc(strlen(accountsdir) + 1 + strlen(BNETD_ACCOUNT_TMP) + 1)))
     {
 	eventlog(eventlog_level_error, __FUNCTION__, "unable to allocate memory for tempname");
 	return -1;
@@ -332,7 +333,7 @@ static int file_write_attrs(t_storage_info * info, void *attributes)
     if (file->write_attrs(tempname, attributes))
     {
 	/* no eventlog here, it should be reported from the file layer */
-	free(tempname);
+	xfree(tempname);
 	return -1;
     }
 #ifdef WIN32
@@ -349,7 +350,7 @@ static int file_write_attrs(t_storage_info * info, void *attributes)
 	if (remove((const char *) info) < 0)
 	{
 	    eventlog(eventlog_level_error, __FUNCTION__, "could not delete account file \"%s\" (remove: %s)", (char *) info, strerror(errno));
-	    free(tempname);
+	    xfree(tempname);
 	    return -1;
 	}
     }
@@ -358,11 +359,11 @@ static int file_write_attrs(t_storage_info * info, void *attributes)
     if (rename(tempname, (const char *) info) < 0)
     {
 	eventlog(eventlog_level_error, __FUNCTION__, "could not rename account file to \"%s\" (rename: %s)", (char *) info, strerror(errno));
-	free(tempname);
+	xfree(tempname);
 	return -1;
     }
 
-    free(tempname);
+    xfree(tempname);
 
     return 0;
 }
@@ -424,7 +425,7 @@ static void *file_read_attr(t_storage_info * info, const char *key)
 static int file_free_info(t_storage_info * info)
 {
     if (info)
-	free((void *) info);
+	xfree((void *) info);
     return 0;
 }
 
@@ -476,7 +477,7 @@ static int file_read_accounts(t_read_accounts_func cb, void *data)
 	if (dentry[0] == '.')
 	    continue;
 
-	if (!(pathname = malloc(strlen(accountsdir) + 1 + strlen(dentry) + 1)))	/* dir + / + file + NUL */
+	if (!(pathname = xmalloc(strlen(accountsdir) + 1 + strlen(dentry) + 1)))	/* dir + / + file + NUL */
 	{
 	    eventlog(eventlog_level_error, __FUNCTION__, "could not allocate memory for pathname");
 	    continue;
@@ -506,7 +507,7 @@ static t_storage_info *file_read_account(const char *accname, unsigned uid)
      * PS: yes its kind of a hack, we will make a proper index file
      */
     if (accname && prefs_get_savebyname()) {
-	if (!(pathname = malloc(strlen(accountsdir) + 1 + strlen(accname) + 1)))	/* dir + / + file + NUL */
+	if (!(pathname = xmalloc(strlen(accountsdir) + 1 + strlen(accname) + 1)))	/* dir + / + file + NUL */
 	{
 	    eventlog(eventlog_level_error, __FUNCTION__, "could not allocate memory for pathname");
 	    return NULL;
@@ -514,7 +515,7 @@ static t_storage_info *file_read_account(const char *accname, unsigned uid)
 	sprintf(pathname, "%s/%s", accountsdir, accname);
 	if (access(pathname, 0))	/* if it doesn't exist */
 	{
-	    free((void *) pathname);
+	    xfree((void *) pathname);
 	    return NULL;
 	}
 	return pathname;
@@ -561,7 +562,7 @@ static int file_load_clans(t_load_clans_func cb)
     }
     eventlog(eventlog_level_trace, __FUNCTION__, "start reading clans");
 
-    if (!(pathname = malloc(strlen(clansdir) + 1 + 4 + 1)))
+    if (!(pathname = xmalloc(strlen(clansdir) + 1 + 4 + 1)))
     {
 	eventlog(eventlog_level_error, __FUNCTION__, "could not allocate memory for pathname");
 	return -1;
@@ -588,10 +589,10 @@ static int file_load_clans(t_load_clans_func cb)
 	    continue;
 	}
 
-	if (!(clan = malloc(sizeof(t_clan))))
+	if (!(clan = xmalloc(sizeof(t_clan))))
 	{
 	    eventlog(eventlog_level_error, __FUNCTION__, "could not allocate memory for clan");
-	    free((void *) pathname);
+	    xfree((void *) pathname);
 	    p_closedir(clandir);
 	    return -1;
 	}
@@ -601,7 +602,7 @@ static int file_load_clans(t_load_clans_func cb)
 	if (!fgets(line, 1024, fp))
 	{
 	    eventlog(eventlog_level_error, __FUNCTION__, "invalid clan file: no first line");
-	    free((void*)clan);
+	    xfree((void*)clan);
 	    continue;
 	}
 
@@ -609,7 +610,7 @@ static int file_load_clans(t_load_clans_func cb)
 	if (*clanname != '"')
 	{
 	    eventlog(eventlog_level_error, __FUNCTION__, "invalid clan file: invalid first line");
-	    free((void*)clan);
+	    xfree((void*)clan);
 	    continue;
 	}
 	clanname++;
@@ -617,14 +618,14 @@ static int file_load_clans(t_load_clans_func cb)
 	if (!p)
 	{
 	    eventlog(eventlog_level_error, __FUNCTION__, "invalid clan file: invalid first line");
-	    free((void*)clan);
+	    xfree((void*)clan);
 	    continue;
 	}
 	*p = '\0';
 	if (strlen(clanname) >= CLAN_NAME_MAX)
 	{
 	    eventlog(eventlog_level_error, __FUNCTION__, "invalid clan file: invalid first line");
-	    free((void*)clan);
+	    xfree((void*)clan);
 	    continue;
 	}
 
@@ -632,14 +633,14 @@ static int file_load_clans(t_load_clans_func cb)
 	if (*p != ',')
 	{
 	    eventlog(eventlog_level_error, __FUNCTION__, "invalid clan file: invalid first line");
-	    free((void*)clan);
+	    xfree((void*)clan);
 	    continue;
 	}
 	p++;
 	if (*p != '"')
 	{
 	    eventlog(eventlog_level_error, __FUNCTION__, "invalid clan file: invalid first line");
-	    free((void*)clan);
+	    xfree((void*)clan);
 	    continue;
 	}
 	motd = p + 1;
@@ -647,7 +648,7 @@ static int file_load_clans(t_load_clans_func cb)
 	if (!p)
 	{
 	    eventlog(eventlog_level_error, __FUNCTION__, "invalid clan file: invalid first line");
-	    free((void*)clan);
+	    xfree((void*)clan);
 	    continue;
 	}
 	*p = '\0';
@@ -655,19 +656,19 @@ static int file_load_clans(t_load_clans_func cb)
 	if (sscanf(p + 1, ",%d,%d\n", &cid, &creation_time) != 2)
 	{
 	    eventlog(eventlog_level_error, __FUNCTION__, "invalid first line in clanfile");
-	    free((void*)clan);
+	    xfree((void*)clan);
 	    continue;
 	}
 	if ((clan->clanname = strdup(clanname)) == NULL)
 	{
 	    eventlog(eventlog_level_error, __FUNCTION__, "not enough memory to store clanname");
-	    free((void*)clan);
+	    xfree((void*)clan);
 	    continue;
 	}
 	if ((clan->clan_motd = strdup(motd)) == NULL)
 	{
 	    eventlog(eventlog_level_error, __FUNCTION__, "not enough memory to store motd");
-	    free((void*)clan);
+	    xfree((void*)clan);
 	    continue;
 	}
 	clan->clanid = cid;
@@ -681,30 +682,30 @@ static int file_load_clans(t_load_clans_func cb)
 	if ((clan->members = list_create()) == NULL)
 	{
 	    eventlog(eventlog_level_error, __FUNCTION__, "could not allocate memory for clan members");
-	    free((void*)clan);
-	    free((void *) pathname);
+	    xfree((void*)clan);
+	    xfree((void *) pathname);
 	    p_closedir(clandir);
 	    return -1;
 	}
 
 	while (fscanf(fp, "%i,%c,%i\n", &member_uid, &member_status, &member_join_time) == 3)
 	{
-	    if (!(member = malloc(sizeof(t_clanmember))))
+	    if (!(member = xmalloc(sizeof(t_clanmember))))
 	    {
 		eventlog(eventlog_level_error, __FUNCTION__, "cannot allocate memory for clan member");
 		clan_remove_all_members(clan);
-		free((void *) clan->clanname);
-		free((void *) clan->clan_motd);
-		free((void *) clan);
+		xfree((void *) clan->clanname);
+		xfree((void *) clan->clan_motd);
+		xfree((void *) clan);
 		fclose(fp);
-		free((void *) pathname);
+		xfree((void *) pathname);
 		p_closedir(clandir);
 		return -1;
 	    }
 	    if (!(member->memberacc = accountlist_find_account_by_uid(member_uid)))
 	    {
 		eventlog(eventlog_level_error, __FUNCTION__, "cannot find uid %u", member_uid);
-		free((void *) member);
+		xfree((void *) member);
 		continue;
 	    }
 	    member->memberconn = NULL;
@@ -721,13 +722,13 @@ static int file_load_clans(t_load_clans_func cb)
 	    if (list_append_data(clan->members, member) < 0)
 	    {
 		eventlog(eventlog_level_error, __FUNCTION__, "could not append item");
-		free((void *) member);
+		xfree((void *) member);
 		clan_remove_all_members(clan);
-		free((void *) clan->clanname);
-		free((void *) clan->clan_motd);
-		free((void *) clan);
+		xfree((void *) clan->clanname);
+		xfree((void *) clan->clan_motd);
+		xfree((void *) clan);
 		fclose(fp);
-		free((void *) pathname);
+		xfree((void *) pathname);
 		p_closedir(clandir);
 		return -1;
 	    }
@@ -741,7 +742,7 @@ static int file_load_clans(t_load_clans_func cb)
 
     }
 
-    free((void *) pathname);
+    xfree((void *) pathname);
 
     if (p_closedir(clandir) < 0)
     {
@@ -759,7 +760,7 @@ static int file_write_clan(void *data)
     t_clanmember *member;
     char *clanfile;
     t_clan *clan = (t_clan *) data;
-    if (!(clanfile = malloc(strlen(clansdir) + 1 + 4 + 1)))
+    if (!(clanfile = xmalloc(strlen(clansdir) + 1 + 4 + 1)))
     {
 	eventlog(eventlog_level_error, __FUNCTION__, "could not allocate memory for filename");
 	return -1;
@@ -770,7 +771,7 @@ static int file_write_clan(void *data)
     if ((fp = fopen(clanfile, "w")) == NULL)
     {
 	eventlog(eventlog_level_error, __FUNCTION__, "can't open clanfile \"%s\"", clanfile);
-	free((void *) clanfile);
+	xfree((void *) clanfile);
 	return -1;
     }
 
@@ -789,14 +790,14 @@ static int file_write_clan(void *data)
     }
 
     fclose(fp);
-    free((void *) clanfile);
+    xfree((void *) clanfile);
     return 0;
 }
 
 static int file_remove_clan(int clantag)
 {
     char *tempname;
-    if (!(tempname = malloc(strlen(clansdir) + 1 + 4 + 1)))
+    if (!(tempname = xmalloc(strlen(clansdir) + 1 + 4 + 1)))
     {
 	eventlog(eventlog_level_error, __FUNCTION__, "could not allocate memory for pathname");
 	return -1;
@@ -805,10 +806,10 @@ static int file_remove_clan(int clantag)
     if (remove((const char *) tempname) < 0)
     {
 	eventlog(eventlog_level_error, __FUNCTION__, "could not delete clan file \"%s\" (remove: %s)", (char *) tempname, strerror(errno));
-	free(tempname);
+	xfree(tempname);
 	return -1;
     }
-    free(tempname);
+    xfree(tempname);
     return 0;
 }
 

@@ -57,6 +57,7 @@
 #include "prefs.h"
 #include "common/bnettime.h"
 #include "common/util.h"
+#include "common/xalloc.h"
 #include "file.h"
 #include "common/setup_after.h"
 
@@ -76,7 +77,7 @@ static char * file_find_default(const char *rawname)
 
     for (pattern = defaultfiles, extension = defaultfiles + 1; *pattern; pattern++, extension++)
     	if (!strcmp(rawname, *pattern)) {	/* Check if there is a default file available for this kind of file */
-	    filename = (char*)malloc(strlen(prefs_get_filedir()) + 1 + strlen(*pattern) + 7 + strlen(*extension));
+	    filename = (char*)xmalloc(strlen(prefs_get_filedir()) + 1 + strlen(*pattern) + 7 + strlen(*extension));
 	    if (!filename) {
 		eventlog(eventlog_level_error,__FUNCTION__,"could not allocate memory for filename");
 		break;
@@ -127,14 +128,14 @@ static char const * file_get_info(char const * rawname, unsigned int * len, bn_l
     }
 
     if (stat(filename,&sfile)<0) { /* if it doesn't exist, try to replace with default file */
-	free((void*)filename);
+	xfree((void*)filename);
 	filename = file_find_default(rawname);
 	if (!filename) return NULL; /* no default version */
     }
 
     if (stat(filename,&sfile)<0) { /* if it doesn't exist */
 	/* FIXME: check for lower-case version of filename */
-	free(filename);
+	xfree(filename);
 	return NULL;
     }
 
@@ -165,7 +166,7 @@ extern int file_to_mod_time(char const * rawname, bn_long * modtime)
     if (!(filename = file_get_info(rawname, &len, modtime)))
 	return -1;
     
-    free((void *)filename); /* avoid warning */
+    xfree((void *)filename); /* avoid warning */
     
     return 0;
 }
@@ -210,7 +211,7 @@ extern int file_send(t_connection * c, char const * rawname, unsigned int adid, 
 	    eventlog(eventlog_level_error,"file_send","stat() succeeded yet could not open file \"%s\" for reading (fclose: %s)",filename,strerror(errno));
 	    filelen = 0;
 	}
-	free((void *)filename); /* avoid warning */
+	xfree((void *)filename); /* avoid warning */
     }
     else
     {

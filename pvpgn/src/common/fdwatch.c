@@ -49,6 +49,7 @@
 #include "fdwatch_epoll.h"
 #endif
 #include "common/rlimit.h"
+#include "common/xalloc.h"
 #include "common/setup_after.h"
 
 int fdw_maxfd;
@@ -62,9 +63,9 @@ extern int fdwatch_init(void)
 {
     fdw_maxfd = get_socket_limit();
 
-    fdw_rw = malloc(sizeof(int) * fdw_maxfd);
-    fdw_data = malloc(sizeof(void *) * fdw_maxfd);
-    fdw_hnd = malloc(sizeof(fdwatch_handler) * fdw_maxfd);
+    fdw_rw = xmalloc(sizeof(int) * fdw_maxfd);
+    fdw_data = xmalloc(sizeof(void *) * fdw_maxfd);
+    fdw_hnd = xmalloc(sizeof(fdwatch_handler) * fdw_maxfd);
 
     if (fdw_rw == NULL || fdw_data == NULL || fdw_hnd == NULL) {
 	eventlog(eventlog_level_error, __FUNCTION__, "not enough memory to allocate fdwatch data");
@@ -107,9 +108,9 @@ ok:
 extern int fdwatch_close(void)
 {
     if (fdw) { fdw->close(); fdw = NULL; }
-    if (fdw_rw) { free((void*)fdw_rw); fdw_rw = NULL; }
-    if (fdw_data) { free((void*)fdw_data); fdw_data = NULL; }
-    if (fdw_hnd) { free((void*)fdw_hnd); fdw_hnd = NULL; }
+    if (fdw_rw) { xfree((void*)fdw_rw); fdw_rw = NULL; }
+    if (fdw_data) { xfree((void*)fdw_data); fdw_data = NULL; }
+    if (fdw_hnd) { xfree((void*)fdw_hnd); fdw_hnd = NULL; }
 
     return 0;
 }

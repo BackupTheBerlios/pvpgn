@@ -43,6 +43,7 @@
 #include "common/packet.h"
 #include "common/list.h"
 #include "common/eventlog.h"
+#include "common/xalloc.h"
 #include "common/setup_after.h"
 
 static t_list	* gqlist_head=NULL;
@@ -81,7 +82,7 @@ extern t_gq * gq_create(unsigned int clientid, t_packet * packet, char const * g
 {
 	t_gq	* gq;
 
-	if (!(gq=malloc(sizeof(t_gq)))) return NULL;
+	if (!(gq=xmalloc(sizeof(t_gq)))) return NULL;
 	gq->seqno=++gqlist_seqno;
 	gq->clientid=clientid;
 	gq->packet=packet;
@@ -90,7 +91,7 @@ extern t_gq * gq_create(unsigned int clientid, t_packet * packet, char const * g
 	if (list_append_data(gqlist_head,gq)<0) {
 		eventlog(eventlog_level_error,__FUNCTION__,"error add game queue to list");
 		if (packet) packet_del_ref(packet);
-		free(gq);
+		xfree(gq);
 		return NULL;
 	}
 	return gq;
@@ -104,7 +105,7 @@ extern int gq_destroy(t_gq * gq, t_elem ** elem)
 		return -1;
 	}
 	if (gq->packet) packet_del_ref(gq->packet);
-	free(gq);
+	xfree(gq);
 	return 0;
 }
 

@@ -43,6 +43,7 @@
 
 #include "common/eventlog.h"
 #include "common/list.h"
+#include "common/xalloc.h"
 #include "account.h"
 #include "prefs.h"
 #include "friends.h"
@@ -136,7 +137,7 @@ extern int friendlist_close(t_list * flist)
 
 	if (list_remove_elem(flist, &curr) < 0) 
 	    eventlog(eventlog_level_error, __FUNCTION__, "could not remove elem from flist");
-        free((void *) fr);
+        xfree((void *) fr);
     }
     list_destroy(flist);
     return 0;
@@ -172,7 +173,7 @@ extern int friendlist_add_account(t_list * flist, t_account * acc, int mutual)
     if(flist==NULL)
         return -1;
 
-    if (!(fr = malloc(sizeof(t_friend))))
+    if (!(fr = xmalloc(sizeof(t_friend))))
     {
         eventlog(eventlog_level_error,__FUNCTION__,"could not allocate memory for friend");
         return -1;
@@ -198,7 +199,7 @@ extern int friendlist_remove_friend(t_list * flist, t_friend * fr)
             return -1;
         }
 
-	free((void *)fr);
+	xfree((void *)fr);
         return 0;
     }
     return -1;
@@ -221,7 +222,7 @@ extern int friendlist_remove_account(t_list * flist, t_account * acc)
             return -1;
         }
 
-	free((void *)fr);
+	xfree((void *)fr);
         return 0;
     }
     return -1;
@@ -244,7 +245,7 @@ extern int friendlist_remove_username(t_list * flist, const char * accname)
             return -1;
         }
 
-	free((void *)fr);
+	xfree((void *)fr);
         return 0;
     }
     return -1;

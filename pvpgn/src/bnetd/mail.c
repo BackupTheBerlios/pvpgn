@@ -77,6 +77,7 @@
 #include "connection.h"
 #include "common/util.h"
 #include "common/eventlog.h"
+#include "common/xalloc.h"
 #include "account.h"
 #include "prefs.h"
 #include "mail.h"
@@ -111,15 +112,15 @@ static t_mailbox * mailbox_open(t_account * user) {
    char * path;
    char const * maildir;
 
-   if ((rez=malloc(sizeof(t_mailbox)))==NULL) {
+   if ((rez=xmalloc(sizeof(t_mailbox)))==NULL) {
       eventlog(eventlog_level_error,"mailbox_open","not enough memory");
       return NULL;
    }
    maildir=prefs_get_maildir();
    p_mkdir(maildir,S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
-   if ((path=malloc(strlen(maildir)+1+8+1))==NULL) {
+   if ((path=xmalloc(strlen(maildir)+1+8+1))==NULL) {
       eventlog(eventlog_level_error,"mailbox_open","not enough memory");
-      free(rez);
+      xfree(rez);
       return NULL;
    }
    if (maildir[0]!='\0' && maildir[strlen(maildir)-1]=='/')
@@ -129,8 +130,8 @@ static t_mailbox * mailbox_open(t_account * user) {
    p_mkdir(path,S_IRWXU | S_IXGRP | S_IRGRP | S_IROTH | S_IXOTH);
    if ((rez->maildir=p_opendir(path))==NULL) {
       eventlog(eventlog_level_error,"mailbox_open","error opening maildir");
-      free(path);
-      free(rez);
+      xfree(path);
+      xfree(rez);
       return NULL;
    }
    rez->uid=account_get_uid(user);
@@ -171,20 +172,20 @@ static int mailbox_deliver(t_mailbox * mailbox, const char * sender, const char 
       eventlog(eventlog_level_error,"mailbox_deliver","got NULL path");
       return -1;
    }
-   if ((filename=malloc(strlen(mailbox->path)+1+15+1))==NULL) {
+   if ((filename=xmalloc(strlen(mailbox->path)+1+15+1))==NULL) {
       eventlog(eventlog_level_error,"mailbox_deliver","not enough memory for filename");
       return -1;
    }
    sprintf(filename,"%s/%015lu",mailbox->path,(unsigned long)time(NULL));
    if ((fd=fopen(filename,"wb"))==NULL) {
       eventlog(eventlog_level_error,"mailbox_deliver","got NULL file descriptor. check permissions");
-      free(filename);
+      xfree(filename);
       return -1;
    }
    fprintf(fd,"%s\n",sender); /* write the sender on the first line of message */
    fprintf(fd,"%s\n",message); /* then write the actual message */
    fclose(fd);
-   free(filename);
+   xfree(filename);
    return 0;
 }
 
@@ -203,7 +204,7 @@ static t_mail * mailbox_read(t_mailbox * mailbox, unsigned int idx) {
       eventlog(eventlog_level_error,"mailbox_read","got NULL maildir");
       return NULL;
    }
-   if ((rez=malloc(sizeof(t_mail)))==NULL) {
+   if ((rez=xmalloc(sizeof(t_mail)))==NULL) {
       eventlog(eventlog_level_error,"mailbox_read","not enough memory for message");
       return NULL;
    }
@@ -213,36 +214,36 @@ static t_mail * mailbox_read(t_mailbox * mailbox, unsigned int idx) {
      if (dentry[0]=='.') i--;
    if (dentry==NULL) {
       eventlog(eventlog_level_error,"mailbox_read","index out of range");
-      free(rez);
+      xfree(rez);
       return NULL;
    }
    rez->timestamp=atoi(dentry);
-   if ((filename=malloc(strlen(dentry)+1+strlen(mailbox->path)+1))==NULL) {
+   if ((filename=xmalloc(strlen(dentry)+1+strlen(mailbox->path)+1))==NULL) {
       eventlog(eventlog_level_error,"mailbox_read","not enough memory for filename");
-      free(rez);
+      xfree(rez);
       return NULL;
    }
    sprintf(filename,"%s/%s",mailbox->path,dentry);
    if ((fd=fopen(filename,"rb"))==NULL) {
       eventlog(eventlog_level_error,"mailbox_read","error while opening message");
-      free(rez);
-      free(filename);
+      xfree(rez);
+      xfree(filename);
       return NULL;
    }
-   free(filename);
-   if ((rez->sender=malloc(256))==NULL) {
+   xfree(filename);
+   if ((rez->sender=xmalloc(256))==NULL) {
       eventlog(eventlog_level_error,"mailbox_read","not enough memory for storing sender");
       fclose(fd);
-      free(rez);
+      xfree(rez);
       return NULL;
    }
    fgets(rez->sender,256,fd); /* maybe 256 isnt the right value to bound a line but right now its all i have :) */
    clean_str(rez->sender);
-   if ((rez->message=malloc(256))==NULL) {
+   if ((rez->message=xmalloc(256))==NULL) {
       eventlog(eventlog_level_error,"mailbox_read","not enough memory for storing message");
       fclose(fd);
-      free(rez->sender);
-      free(rez);
+      xfree(rez->sender);
+      xfree(rez);
       return NULL;
    }
    fgets(rez->message,256,fd);
@@ -258,11 +259,11 @@ static void mailbox_unread(t_mail * mail) {
    else {
       if (mail->sender==NULL)
 	eventlog(eventlog_level_error,"mailbox_unread","got NULL sender");
-      else free(mail->sender);
+      else xfree(mail->sender);
       if (mail->message==NULL)
 	eventlog(eventlog_level_error,"mailbox_unread","got NULL message");
-      else free(mail->message);
-      free(mail);
+      else xfree(mail->message);
+      xfree(mail);
    }
 }
 
@@ -280,31 +281,31 @@ static struct maillist_struct * mailbox_get_list(t_mailbox *mailbox) {
       eventlog(eventlog_level_error,"mailbox_get_list","got NULL maildir");
       return NULL;
    }
-   if ((filename=malloc(strlen(mailbox->path)+1+15+1))==NULL) {
+   if ((filename=xmalloc(strlen(mailbox->path)+1+15+1))==NULL) {
       eventlog(eventlog_level_error,"mailbox_get_list","not enough memory for filename");
       return NULL;
    }
    p_rewinddir(mailbox->maildir);
    for(;(dentry=p_readdir(mailbox->maildir))!=NULL;)
      if (dentry[0]!='.') {
-	q=malloc(sizeof(struct maillist_struct));
+	q=xmalloc(sizeof(struct maillist_struct));
 	if (q==NULL) {
 	   eventlog(eventlog_level_error,"mailbox_get_list","not enough memory for list");
-	   free(filename);
+	   xfree(filename);
 	   return rez;
 	}
 	sprintf(filename,"%s/%s",mailbox->path,dentry);
 	if ((fd=fopen(filename,"rb"))==NULL) {
 	   eventlog(eventlog_level_error,"mailbox_get_list","error while opening message file");
-	   free(filename);
-	   free(q);
+	   xfree(filename);
+	   xfree(q);
 	   return rez;
 	}
-	if ((sender=malloc(256))==NULL) {
+	if ((sender=xmalloc(256))==NULL) {
 	   eventlog(eventlog_level_error,"mailbox_get_list","not enough memory for sender");
 	   fclose(fd);
-	   free(filename);
-	   free(q);
+	   xfree(filename);
+	   xfree(q);
 	}
 	fgets(sender,256,fd);
 	clean_str(sender);
@@ -316,7 +317,7 @@ static struct maillist_struct * mailbox_get_list(t_mailbox *mailbox) {
 	else p->next=q;
 	p=q;
      }
-   free(filename);
+   xfree(filename);
    return rez;
 }
 
@@ -324,9 +325,9 @@ static void mailbox_unget_list(struct maillist_struct * maill) {
    struct maillist_struct *p, *q;
    
    for(p=maill;p!=NULL;p=q) {
-      if (p->sender!=NULL) free(p->sender);
+      if (p->sender!=NULL) xfree(p->sender);
       q=p->next;
-      free(p);
+      xfree(p);
    }
 }
 
@@ -352,7 +353,7 @@ static int mailbox_delete(t_mailbox * mailbox, unsigned int idx) {
       eventlog(eventlog_level_error,"mailbox_delete","index out of range");
       return -1;
    }
-   if ((filename=malloc(strlen(dentry)+1+strlen(mailbox->path)+1))==NULL) {
+   if ((filename=xmalloc(strlen(dentry)+1+strlen(mailbox->path)+1))==NULL) {
       eventlog(eventlog_level_error,"mailbox_delete","not enough memory for filename");
       return -1;
    }
@@ -361,7 +362,7 @@ static int mailbox_delete(t_mailbox * mailbox, unsigned int idx) {
    if (rez<0) {
        eventlog(eventlog_level_info,"mailbox_delete","could not remove file \"%s\" (remove: %s)",filename,strerror(errno));
     }
-   free(filename);
+   xfree(filename);
    return rez;
 }
 
@@ -378,7 +379,7 @@ static int mailbox_delete_all(t_mailbox * mailbox) {
       eventlog(eventlog_level_error,"mailbox_delete_all","got NULL maildir");
       return -1;
    }
-   if ((filename=malloc(strlen(mailbox->path)+1+15+1))==NULL) {
+   if ((filename=xmalloc(strlen(mailbox->path)+1+15+1))==NULL) {
       eventlog(eventlog_level_error,"mailbox_delete_all","not enough memory for filename");
       return -1;
    }
@@ -389,7 +390,7 @@ static int mailbox_delete_all(t_mailbox * mailbox) {
 	sprintf(filename,"%s/%s",mailbox->path,dentry);
 	if (!remove(filename)) count++;
      }
-   free(filename);
+   xfree(filename);
    return count;
 }
 
@@ -403,8 +404,8 @@ static void mailbox_close(t_mailbox *mailbox) {
    } else {
       eventlog(eventlog_level_error,"mailbox_close","got NULL maildir");
    }
-   if (mailbox->path) free(mailbox->path);
-   free(mailbox);
+   if (mailbox->path) xfree(mailbox->path);
+   xfree(mailbox);
 }
 
 static char * clean_str(char * str) {
@@ -514,7 +515,7 @@ static void mail_func_send(t_connection * c, const char * str) {
       message_send_text(c,message_type_error,c,"Syntax: /mail send <receiver> <message>");
       return;
    }
-   if ((dest=malloc(i+1))==NULL) {
+   if ((dest=xmalloc(i+1))==NULL) {
       eventlog(eventlog_level_error,"mail_func_send","not enough memory for receiver");
       message_send_text(c,message_type_error,c,"Not enough resources to complete request!");
       return;
@@ -522,10 +523,10 @@ static void mail_func_send(t_connection * c, const char * str) {
    memmove(dest,p,i); dest[i]='\0'; /* copy receiver in his separate string */
    if ((recv=accountlist_find_account(dest))==NULL) { /* is dest a valid account on this server ? */
       message_send_text(c,message_type_error,c,"Receiver UNKNOWN!");
-      free(dest);
+      xfree(dest);
       return;
    }
-   free(dest); /* free dest here, the sooner the better */
+   xfree(dest); /* free dest here, the sooner the better */
    if ((mailbox=mailbox_open(recv))==NULL) {
       message_send_text(c,message_type_error,c,"There was an error completing your request!");
       return;

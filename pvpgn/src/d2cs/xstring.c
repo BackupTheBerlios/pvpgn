@@ -41,6 +41,7 @@
 #include "compat/memmove.h"
 #include "compat/strdup.h"
 
+#include "common/xalloc.h"
 #include "xstring.h"
 #include "common/setup_after.h"
 
@@ -181,10 +182,10 @@ extern char * * strtoargv(char const * str, unsigned int * count)
 	void		* realloc_tmp;
 
 	if (!str || !count) return NULL;
-	temp=malloc(strlen(str)+1);
+	temp=xmalloc(strlen(str)+1);
 	if (!temp) return NULL;
 	n = SPLIT_STRING_INIT_COUNT;
-	pindex=malloc(n * sizeof (int));
+	pindex=xmalloc(n * sizeof (int));
 	if (!pindex) return NULL;
 
 	i=j=0;
@@ -194,9 +195,9 @@ extern char * * strtoargv(char const * str, unsigned int * count)
 		if (!str[i]) break;
 		if (*count >=n ) {
 			n += SPLIT_STRING_INCREASEMENT;
-			if (!(realloc_tmp=realloc(pindex,n * sizeof(int)))) {
-				free(pindex);
-				free(temp);
+			if (!(realloc_tmp=xrealloc(pindex,n * sizeof(int)))) {
+				xfree(pindex);
+				xfree(temp);
 				return NULL;
 			}
 			pindex=(int *)realloc_tmp;
@@ -224,32 +225,32 @@ extern char * * strtoargv(char const * str, unsigned int * count)
 	}
 	index_size= *count * sizeof(char *);
 	if (!index_size) {
-		free(temp);
-		free(pindex);
+		xfree(temp);
+		xfree(pindex);
 		return NULL;
 	}
-	result=malloc(j+index_size);
+	result=xmalloc(j+index_size);
 	if (!result) {
-		free(temp);
-		free(pindex);
+		xfree(temp);
+		xfree(pindex);
 		return NULL;
 	}
 	memcpy(result+index_size,temp,j);
 
-	ptrindex=malloc(*count * sizeof (char*));
+	ptrindex=xmalloc(*count * sizeof (char*));
 	if (!ptrindex) {
-	    free(temp);
-	    free(pindex);
-	    free(result);
+	    xfree(temp);
+	    xfree(pindex);
+	    xfree(result);
 	    return NULL;
 	}
 	for (i=0; i< *count; i++) {
 		ptrindex[i] = result + index_size + pindex[i];
 	}
 	memcpy(result,ptrindex,index_size);
-	free(temp);
-	free(pindex);
-	free(ptrindex);
+	xfree(temp);
+	xfree(pindex);
+	xfree(ptrindex);
 	return (char * *)result;
 }
 
@@ -266,7 +267,7 @@ extern char * arraytostr(char * * array, char const * delim, int count)
 	if (!delim || !array) return NULL;
 
 	n=COMBINE_STRING_INIT_LEN;
-	result=malloc(n);
+	result=xmalloc(n);
 	if (!result) return NULL;
 	result[0]='\0';
 
@@ -275,8 +276,8 @@ extern char * arraytostr(char * * array, char const * delim, int count)
 		if (!array[i]) continue;	
 		if (strlen(result)+strlen(array[i])+strlen(delim)>=n) {
 			n+=COMBINE_STRING_INCREASEMENT;
-			if (!(realloc_tmp=realloc(result,n))) {
-				free(result);
+			if (!(realloc_tmp=xrealloc(result,n))) {
+				xfree(result);
 				return NULL;
 			}
 			result=realloc_tmp;
@@ -287,7 +288,7 @@ extern char * arraytostr(char * * array, char const * delim, int count)
 		strcat(result,array[i]);
 		need_delim=1;
 	}
-	if (!(realloc_tmp=realloc(result,strlen(result)+1))) {
+	if (!(realloc_tmp=xrealloc(result,strlen(result)+1))) {
 		return result;
 	}
 	result=realloc_tmp;

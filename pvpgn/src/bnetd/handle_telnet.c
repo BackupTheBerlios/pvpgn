@@ -52,6 +52,7 @@
 #include "common/bn_type.h"
 #include "common/field_sizes.h"
 #include "common/list.h"
+#include "common/xalloc.h"
 #include "handle_telnet.h"
 #include "common/setup_after.h"
 
@@ -246,7 +247,7 @@ extern int handle_telnet_packet(t_connection * c, t_packet const * const packet)
 		    {
 			eventlog(eventlog_level_info,"handle_telnet_packet","[%d] bot login for \"%s\" refused (unable to hash password)",conn_get_socket(c),(tname = account_get_name(account)));
 			account_unget_name(tname);
-			free(testpass);
+			xfree(testpass);
 			
 			conn_set_state(c,conn_state_bot_username);
 			
@@ -261,7 +262,7 @@ extern int handle_telnet_packet(t_connection * c, t_packet const * const packet)
 			packet_del_ref(rpacket);
 			break;
 		    }
-		    free(testpass);
+		    xfree(testpass);
 		    if (hash_eq(trypasshash1,oldpasshash1)!=1)
 		    {
 			eventlog(eventlog_level_info,"handle_telnet_packet","[%d] bot login for \"%s\" refused (wrong password)",conn_get_socket(c),(tname = account_get_name(account)));

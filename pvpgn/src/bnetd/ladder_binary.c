@@ -42,6 +42,7 @@
 #include "compat/strerror.h"
 #include "account.h"
 #include "common/eventlog.h"
+#include "common/xalloc.h"
 #include "ladder_binary.h"
 #include "ladder.h"
 #include "prefs.h"
@@ -49,7 +50,7 @@
 
 static void dispose_filename(const char * filename)
 {
-    if (filename) free((void*)filename);
+    if (filename) xfree((void*)filename);
 }
 
 static const char * binary_ladder_type_to_filename(t_binary_ladder_types type)

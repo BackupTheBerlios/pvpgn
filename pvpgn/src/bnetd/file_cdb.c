@@ -83,6 +83,7 @@
 #include "storage.h"
 #include "storage_file.h"
 #include "common/list.h"
+#include "common/xalloc.h"
 #include "connection.h"
 #include "watch.h"
 #include "clan.h"
@@ -192,12 +193,12 @@ static const char * fcpy(FILE *fd, cdbi_t len, cdbi_t *posp, cdbi_t limit, unsig
 
     if (strl < len + 1) {
 	char *tmp;
-	if ((tmp = malloc(len + 1)) == NULL) {
+	if ((tmp = xmalloc(len + 1)) == NULL) {
 	    eventlog(eventlog_level_error, __FUNCTION__, "could not alloc memory to read from db");
 	    return NULL;
 	}
 
-	if (str) free((void*)str);
+	if (str) xfree((void*)str);
 	str = tmp;
 	strl = len + 1;
     }
@@ -254,7 +255,7 @@ static int cdb_read_attrs(const char *filename, t_read_attr_func cb, void *data)
 
 	if ((val = fcpy(f, vlen, &pos, eod, buf)) == NULL) {
 	    eventlog(eventlog_level_error, __FUNCTION__, "error reading attribute val");
-	    free((void *)key);
+	    xfree((void *)key);
 	    fclose(f);
 	    return -1;
 	}
@@ -262,7 +263,7 @@ static int cdb_read_attrs(const char *filename, t_read_attr_func cb, void *data)
 //	eventlog(eventlog_level_trace, __FUNCTION__, "read atribute : '%s' -> '%s'", key, val);
 	if (cb(key, val, data))
 	    eventlog(eventlog_level_error, __FUNCTION__, "got error from callback on account file '%s'", filename);
-	free((void *)key);
+	xfree((void *)key);
     }
 
     fclose(f);
@@ -295,7 +296,7 @@ static void * cdb_read_attr(const char *filename, const char *key)
 	return NULL;
     }
 
-    if ((attr = malloc(sizeof(t_attribute))) == NULL) {
+    if ((attr = xmalloc(sizeof(t_attribute))) == NULL) {
 	eventlog(eventlog_level_error, __FUNCTION__, "not enough memory for attr result");
 	fclose(cdbfile);
 	return NULL;
@@ -303,15 +304,15 @@ static void * cdb_read_attr(const char *filename, const char *key)
 
     if ((attr->key = strdup(key)) == NULL) {
 	eventlog(eventlog_level_error, __FUNCTION__, "not enough memory for attr key result");
-	free((void*)attr);
+	xfree((void*)attr);
 	fclose(cdbfile);
 	return NULL;
     }
 
-    if ((val = malloc(vlen + 1)) == NULL) {
+    if ((val = xmalloc(vlen + 1)) == NULL) {
 	eventlog(eventlog_level_error, __FUNCTION__, "not enough memory for attr val result");
-	free((void*)attr->key);
-	free((void*)attr);
+	xfree((void*)attr->key);
+	xfree((void*)attr);
 	fclose(cdbfile);
 	return NULL;
     }

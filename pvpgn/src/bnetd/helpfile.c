@@ -46,6 +46,7 @@
 #include "connection.h"
 #include "common/util.h"
 #include "common/eventlog.h"
+#include "common/xalloc.h"
 #include "helpfile.h"
 #include "common/setup_after.h"
 #include "account_wrap.h"
@@ -138,11 +139,11 @@ static int list_commands(t_connection * c)
 	    
             /* ok. now we must see if there are any aliases */
             length=MAX_COMMAND_LEN+1; position=0;
-            buffer=malloc(length+1); /* initial memory allocation = pretty fair */
+            buffer=xmalloc(length+1); /* initial memory allocation = pretty fair */
             if (buffer==NULL) { /* out of memory ? */
                 eventlog(eventlog_level_error,"list_commands","could not allocate memory using malloc of size %u for printing aliases (malloc)",length+1);
                 message_send_text(c,message_type_error,c," Not Enough Memory!");
-		free(line);
+		xfree(line);
                 return 0;
             }
             p=line+i;
@@ -161,13 +162,13 @@ static int list_commands(t_connection * c)
 		    
                     /* if we don't have enough space in the buffer then get some */
                     length=strlen(p)+position+1; /* the new length */
-                    aux=realloc(buffer,length+1);
+                    aux=xrealloc(buffer,length+1);
                     if (aux==NULL)
 		    { /* out of memory ? */
                         eventlog(eventlog_level_error,"list_commands","could not allocate memory using malloc of size %u for printing aliases (malloc)",length+1);
                         message_send_text(c,message_type_error,c," Not Enough Memory!");
-                        free(buffer);
-			free(line); /* free the memory allocated in file_get_line */
+                        xfree(buffer);
+			xfree(line); /* free the memory allocated in file_get_line */
                         return 0;
                     }
                     buffer = aux;
@@ -186,9 +187,9 @@ static int list_commands(t_connection * c)
                 }
             } while (al);
             if (!skip) message_send_text(c,message_type_info,c,buffer); /* print out the buffer */
-            free(buffer);
+            xfree(buffer);
         }
-        free(line); /* free the memory allocated in file_get_line */
+        xfree(line); /* free the memory allocated in file_get_line */
     }
     return 0;
 }
@@ -217,13 +218,13 @@ static int describe_command(t_connection * c, char const * comm)
                 p[i]='\0'; /* end the string at the end of the command */
                 if (strcasecmp(comm,p+1)==0) /* is this the command the user asked for help ? */
                 {
-                    free(line);
+                    xfree(line);
                     while ((line=file_get_line(hfd))!=NULL)
                     { /* write everything until we get another % or EOF */
                         for (i=0;line[i]==' ';i++); /* skip spaces in front of a possible % */
                         if (line[i]=='%')
 			{
-                            free(line); break; /* we reached another command */
+                            xfree(line); break; /* we reached another command */
                         }
                         if (line[0]!='#')
 			{ /* is this a whole line comment ? */
@@ -232,7 +233,7 @@ static int describe_command(t_connection * c, char const * comm)
                             if (line[i]=='#') line[i]='\0';
                             message_send_text(c,message_type_info,c,line);
                         }
-                        free(line);
+                        xfree(line);
                     }
                     return 0;
                 }
@@ -247,7 +248,7 @@ static int describe_command(t_connection * c, char const * comm)
                 }
             } while (al);
         }
-        free(line);
+        xfree(line);
     }
     
     return -1;

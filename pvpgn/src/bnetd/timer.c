@@ -28,6 +28,7 @@
 #include "common/elist.h"
 #include "connection.h"
 #include "common/eventlog.h"
+#include "common/xalloc.h"
 #include "timer.h"
 #include "common/setup_after.h"
 
@@ -46,7 +47,7 @@ extern int timerlist_add_timer(t_connection * owner, time_t when, t_timer_cb cb,
 	return -1;
     }
     
-    if (!(timer = malloc(sizeof(t_timer))))
+    if (!(timer = xmalloc(sizeof(t_timer))))
     {
 	eventlog(eventlog_level_error,"timerlist_add_timer","could not allocate memory for timer");
 	return -1;
@@ -89,7 +90,7 @@ extern int timerlist_del_all_timers(t_connection * owner)
 	    timer->cb(timer->owner,(time_t)0,timer->data);
 	elist_del(&timer->owners);
 	elist_del(&timer->timers);
-	free((void*)timer);
+	xfree((void*)timer);
     }
 
     return 0;
@@ -110,7 +111,7 @@ extern int timerlist_check_timers(time_t when)
 		timer->cb(timer->owner,timer->when,timer->data);
 	    elist_del(&timer->owners);
 	    elist_del(&timer->timers);
-	    free((void*)timer);
+	    xfree((void*)timer);
 	} else break; /* beeing sorted there is no need to go beyond this point */
     }
 
@@ -134,7 +135,7 @@ extern int timerlist_destroy(void)
         timer = elist_entry(curr,t_timer,timers);
 	elist_del(&timer->owners);
 	elist_del(&timer->timers);
-	free((void*)timer);
+	xfree((void*)timer);
     }
     elist_init(&timerlist_head);
     

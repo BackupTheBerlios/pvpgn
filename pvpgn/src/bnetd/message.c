@@ -69,6 +69,7 @@
 #include "mail.h"
 #include "prefs.h"
 #include "common/tag.h"
+#include "common/xalloc.h"
 #include "common/setup_after.h"
 
 static int message_telnet_format(t_packet * packet, t_message_type type, t_connection * me, t_connection * dst, char const * text, unsigned int dstflags);
@@ -136,7 +137,7 @@ extern char * message_format_line(t_connection const * c, char const * in)
     unsigned int inlen;
     char         clienttag_str[5];
     
-    if (!(out = malloc(outlen+1)))
+    if (!(out = xmalloc(outlen+1)))
 	return NULL;
     
     inlen = strlen(in);
@@ -278,9 +279,9 @@ extern char * message_format_line(t_connection const * c, char const * in)
 	    char * newout;
 	    
 	    outlen += MAX_INC;
-	    if (!(newout = realloc(out,outlen)))
+	    if (!(newout = xrealloc(out,outlen)))
 	    {
-		free(out);
+		xfree(out);
 		return NULL;
 	    }
 	    out = newout;
@@ -310,7 +311,7 @@ static int message_telnet_format(t_packet * packet, t_message_type type, t_conne
 	    eventlog(eventlog_level_error,"message_telnet_format","got NULL text for %s",message_type_get_str(type));
 	    return -1;
 	}
-	if (!(msgtemp = malloc(strlen(text)+32)))
+	if (!(msgtemp = xmalloc(strlen(text)+32)))
 	{
 	    eventlog(eventlog_level_error,"message_telnet_format","could not allocate memory for msgtemp");
 	    return -1;
@@ -327,7 +328,7 @@ static int message_telnet_format(t_packet * packet, t_message_type type, t_conne
 	    char const * tname;
 	    
 	    tname = conn_get_chatcharname(me, dst);
-	    if (!(msgtemp = malloc(strlen(tname)+32)))
+	    if (!(msgtemp = xmalloc(strlen(tname)+32)))
 	    {
 		eventlog(eventlog_level_error,"message_telnet_format","could not allocate memory for msgtemp");
 		return -1;
@@ -346,7 +347,7 @@ static int message_telnet_format(t_packet * packet, t_message_type type, t_conne
 	    char const * tname;
 	    
 	    tname = conn_get_chatcharname(me, dst);
-	    if (!(msgtemp = malloc(strlen(tname)+32)))
+	    if (!(msgtemp = xmalloc(strlen(tname)+32)))
 	    {
 		eventlog(eventlog_level_error,"message_telnet_format","could not allocate memory for msgtemp");
 		return -1;
@@ -365,7 +366,7 @@ static int message_telnet_format(t_packet * packet, t_message_type type, t_conne
 	    char const * tname;
 	    
 	    tname = conn_get_chatcharname(me, dst);
-	    if (!(msgtemp = malloc(strlen(tname)+32)))
+	    if (!(msgtemp = xmalloc(strlen(tname)+32)))
 	    {
 		eventlog(eventlog_level_error,"message_telnet_format","could not allocate memory for msgtemp");
 		return -1;
@@ -394,18 +395,18 @@ static int message_telnet_format(t_packet * packet, t_message_type type, t_conne
 	    tname = conn_get_chatcharname(me, dst);
 	    if ((newtext = escape_chars(text,strlen(text))))
 	    {
-		if (!(msgtemp = malloc(strlen(tname)+8+strlen(newtext)+4)))
+		if (!(msgtemp = xmalloc(strlen(tname)+8+strlen(newtext)+4)))
 		{
 		    eventlog(eventlog_level_error,"message_telnet_format","could not allocate memory for msgtemp");
-		    free((void *)newtext); /* avoid warning */
+		    xfree((void *)newtext); /* avoid warning */
 		    return -1;
 		}
 		sprintf(msgtemp,"<from %s> %s\r\n",tname,newtext);
-		free((void *)newtext); /* avoid warning */
+		xfree((void *)newtext); /* avoid warning */
 	    }
 	    else
 	    {
-		if (!(msgtemp = malloc(16+strlen(tname))))
+		if (!(msgtemp = xmalloc(16+strlen(tname))))
 		{
 		    eventlog(eventlog_level_error,"message_telnet_format","could not allocate memory for msgtemp");
 		    return -1;
@@ -435,17 +436,17 @@ static int message_telnet_format(t_packet * packet, t_message_type type, t_conne
 	    tname = conn_get_chatcharname(me, me); /* FIXME: second should be dst but cache gets in the way */
 	    if ((newtext = escape_chars(text,strlen(text))))
 	    {
-		if (!(msgtemp = malloc(strlen(tname)+4+strlen(newtext)+4)))
+		if (!(msgtemp = xmalloc(strlen(tname)+4+strlen(newtext)+4)))
 		{
 		    eventlog(eventlog_level_error,"message_telnet_format","could not allocate memory for msgtemp");
 		    return -1;
 		}
 		sprintf(msgtemp,"<%s> %s\r\n",tname,newtext);
-		free((void *)newtext); /* avoid warning */
+		xfree((void *)newtext); /* avoid warning */
 	    }
 	    else
 	    {
-		if (!(msgtemp = malloc(strlen(tname)+8)))
+		if (!(msgtemp = xmalloc(strlen(tname)+8)))
 		{
 		    eventlog(eventlog_level_error,"message_telnet_format","could not allocate memory for msgtemp");
 		    return -1;
@@ -468,17 +469,17 @@ static int message_telnet_format(t_packet * packet, t_message_type type, t_conne
 	    
 	    if ((newtext = escape_chars(text,strlen(text))))
 	    {
-		if (!(msgtemp = malloc(16+strlen(newtext)+4)))
+		if (!(msgtemp = xmalloc(16+strlen(newtext)+4)))
 		{
 		    eventlog(eventlog_level_error,"message_telnet_format","could not allocate memory for msgtemp");
 		    return -1;
 		}
 		sprintf(msgtemp,"Broadcast: %s\r\n",newtext); /* FIXME: show source? */
-		free((void *)newtext); /* avoid warning */
+		xfree((void *)newtext); /* avoid warning */
 	    }
 	    else
 	    {
-		if (!(msgtemp = malloc(16)))
+		if (!(msgtemp = xmalloc(16)))
 		{
 		    eventlog(eventlog_level_error,"message_telnet_format","could not allocate memory for msgtemp");
 		    return -1;
@@ -493,7 +494,7 @@ static int message_telnet_format(t_packet * packet, t_message_type type, t_conne
 	    eventlog(eventlog_level_error,"message_telnet_format","got NULL text for %s",message_type_get_str(type));
 	    return -1;
 	}
-	if (!(msgtemp = malloc(strlen(text)+32)))
+	if (!(msgtemp = xmalloc(strlen(text)+32)))
 	{
 	    eventlog(eventlog_level_error,"message_telnet_format","could not allocate memory for msgtemp");
 	    return -1;
@@ -531,17 +532,17 @@ static int message_telnet_format(t_packet * packet, t_message_type type, t_conne
 	    tname = conn_get_chatcharname(me, dst);
 	    if ((newtext = escape_chars(text,strlen(text))))
 	    {
-		if (!(msgtemp = malloc(strlen(tname)+8+strlen(newtext)+4)))
+		if (!(msgtemp = xmalloc(strlen(tname)+8+strlen(newtext)+4)))
 		{
 		    eventlog(eventlog_level_error,"message_telnet_format","could not allocate memory for msgtemp");
 		    return -1;
 		}
 		sprintf(msgtemp,"<to %s> %s\r\n",tname,newtext);
-		free((void *)newtext); /* avoid warning */
+		xfree((void *)newtext); /* avoid warning */
 	    }
 	    else
 	    {
-		if (!(msgtemp = malloc(strlen(tname)+8+strlen(text)+4)))
+		if (!(msgtemp = xmalloc(strlen(tname)+8+strlen(text)+4)))
 		{
 		    eventlog(eventlog_level_error,"message_telnet_format","could not allocate memory for msgtemp");
 		    return -1;
@@ -567,17 +568,17 @@ static int message_telnet_format(t_packet * packet, t_message_type type, t_conne
 	    
 	    if ((newtext = escape_chars(text,strlen(text))))
 	    {
-		if (!(msgtemp = malloc(14+8+strlen(newtext)+4)))
+		if (!(msgtemp = xmalloc(14+8+strlen(newtext)+4)))
 		{
 		    eventlog(eventlog_level_error,"message_telnet_format","could not allocate memory for msgtemp");
 		    return -1;
 		}
 		sprintf(msgtemp,"<to your friends> %s\r\n",newtext);
-		free((void *)newtext); /* avoid warning */
+		xfree((void *)newtext); /* avoid warning */
 	    }
 	    else
 	    {
-		if (!(msgtemp = malloc(14+8+strlen(text)+4)))
+		if (!(msgtemp = xmalloc(14+8+strlen(text)+4)))
 		{
 		    eventlog(eventlog_level_error,"message_telnet_format","could not allocate memory for msgtemp");
 		    return -1;
@@ -622,17 +623,17 @@ static int message_telnet_format(t_packet * packet, t_message_type type, t_conne
 	    
 	    if ((newtext = escape_chars(text,strlen(text))))
 	    {
-		if (!(msgtemp = malloc(strlen(newtext)+4)))
+		if (!(msgtemp = xmalloc(strlen(newtext)+4)))
 		{
 		    eventlog(eventlog_level_error,"message_telnet_format","could not allocate memory for msgtemp");
 		    return -1;
 		}
 		sprintf(msgtemp,"%s\r\n",newtext);
-		free((void *)newtext); /* avoid warning */
+		xfree((void *)newtext); /* avoid warning */
 	    }
 	    else
 	    {
-		if (!(msgtemp = malloc(strlen(text)+4)))
+		if (!(msgtemp = xmalloc(strlen(text)+4)))
 		{
 		    eventlog(eventlog_level_error,"message_telnet_format","could not allocate memory for msgtemp");
 		    return -1;
@@ -652,17 +653,17 @@ static int message_telnet_format(t_packet * packet, t_message_type type, t_conne
 	    
 	    if ((newtext = escape_chars(text,strlen(text))))
 	    {
-		if (!(msgtemp = malloc(8+strlen(newtext)+4)))
+		if (!(msgtemp = xmalloc(8+strlen(newtext)+4)))
 		{
 		    eventlog(eventlog_level_error,"message_telnet_format","could not allocate memory for msgtemp");
 		    return -1;
 		}
 		sprintf(msgtemp,"ERROR: %s\r\n",newtext);
-		free((void *)newtext); /* avoid warning */
+		xfree((void *)newtext); /* avoid warning */
 	    }
 	    else
 	    {
-		if (!(msgtemp = malloc(8+strlen(text)+4)))
+		if (!(msgtemp = xmalloc(8+strlen(text)+4)))
 		{
 		    eventlog(eventlog_level_error,"message_telnet_format","could not allocate memory for msgtemp");
 		    return -1;
@@ -691,17 +692,17 @@ static int message_telnet_format(t_packet * packet, t_message_type type, t_conne
 	    tname = conn_get_chatcharname(me, me); /* FIXME: second should be dst but cache gets in the way */
 	    if ((newtext = escape_chars(text,strlen(text))))
 	    {
-		if (!(msgtemp = malloc(strlen(tname)+4+strlen(newtext)+4)))
+		if (!(msgtemp = xmalloc(strlen(tname)+4+strlen(newtext)+4)))
 		{
 		    eventlog(eventlog_level_error,"message_telnet_format","could not allocate memory for msgtemp");
 		    return -1;
 		}
 		sprintf(msgtemp,"<%s %s>\r\n",tname,newtext);
-		free((void *)newtext); /* avoid warning */
+		xfree((void *)newtext); /* avoid warning */
 	    }
 	    else
 	    {
-		if (!(msgtemp = malloc(strlen(tname)+4+strlen(text)+4)))
+		if (!(msgtemp = xmalloc(strlen(tname)+4+strlen(text)+4)))
 		{
 		    eventlog(eventlog_level_error,"message_telnet_format","could not allocate memory for msgtemp");
 		    return -1;
@@ -721,7 +722,7 @@ static int message_telnet_format(t_packet * packet, t_message_type type, t_conne
 	    char const * tname;
 
 	    tname = conn_get_chatcharname(me,dst);
-	    if (!(msgtemp = malloc(strlen(tname)+32)))
+	    if (!(msgtemp = xmalloc(strlen(tname)+32)))
 	    {
 		eventlog(eventlog_level_error,__FUNCTION__,"could not allocate memory for msgtmp");
 		return -1;
@@ -738,7 +739,7 @@ static int message_telnet_format(t_packet * packet, t_message_type type, t_conne
 	int retval;
 	
 	retval = packet_append_ntstring(packet,msgtemp);
-	free(msgtemp);
+	xfree(msgtemp);
 	return retval;
     }
 }
@@ -773,7 +774,7 @@ static int message_bot_format(t_packet * packet, t_message_type type, t_connecti
             eventlog(eventlog_level_error,"message_bot_format","got NULL text for non-loggedin state");
             return -1;
         }
-	if (!(msgtemp = malloc(strlen(text)+4)))
+	if (!(msgtemp = xmalloc(strlen(text)+4)))
 	{
 	    eventlog(eventlog_level_error,"message_bot_format","could not allocate memory for msgtemp");
 	    return -1;
@@ -784,7 +785,7 @@ static int message_bot_format(t_packet * packet, t_message_type type, t_connecti
 	switch (type)
 	{
 	case message_type_null:
-	    if (!(msgtemp = malloc(32)))
+	    if (!(msgtemp = xmalloc(32)))
 	    {
 		eventlog(eventlog_level_error,"message_bot_format","could not allocate memory for msgtemp");
 		return -1;
@@ -797,7 +798,7 @@ static int message_bot_format(t_packet * packet, t_message_type type, t_connecti
 		eventlog(eventlog_level_error,"message_bot_format","got NULL text for %s",message_type_get_str(type));
 		return -1;
 	    }
-	    if (!(msgtemp = malloc(strlen(text)+32)))
+	    if (!(msgtemp = xmalloc(strlen(text)+32)))
 	    {
 		eventlog(eventlog_level_error,"message_bot_format","could not allocate memory for msgtemp");
 		return -1;
@@ -814,7 +815,7 @@ static int message_bot_format(t_packet * packet, t_message_type type, t_connecti
 		char const * tname;
 		
 		tname = conn_get_chatcharname(me, dst);
-		if (!(msgtemp = malloc(32+strlen(tname)+32)))
+		if (!(msgtemp = xmalloc(32+strlen(tname)+32)))
 		{
 		    eventlog(eventlog_level_error,"message_bot_format","could not allocate memory for msgtemp");
 		    return -1;
@@ -833,7 +834,7 @@ static int message_bot_format(t_packet * packet, t_message_type type, t_connecti
 		char const * tname;
 		
 		tname = conn_get_chatcharname(me, dst);
-		if (!(msgtemp = malloc(32+strlen(tname)+32)))
+		if (!(msgtemp = xmalloc(32+strlen(tname)+32)))
 		{
 		    eventlog(eventlog_level_error,"message_bot_format","could not allocate memory for msgtemp");
 		    return -1;
@@ -852,7 +853,7 @@ static int message_bot_format(t_packet * packet, t_message_type type, t_connecti
 		char const * tname;
 		
 		tname = conn_get_chatcharname(me, dst);
-		if (!(msgtemp = malloc(32+strlen(tname)+32)))
+		if (!(msgtemp = xmalloc(32+strlen(tname)+32)))
 		{
 		    eventlog(eventlog_level_error,"message_bot_format","could not allocate memory for msgtemp");
 		    return -1;
@@ -878,7 +879,7 @@ static int message_bot_format(t_packet * packet, t_message_type type, t_connecti
 		char const * tname;
 		
 		tname = conn_get_chatcharname(me, dst);
-		if (!(msgtemp = malloc(32+strlen(tname)+32+strlen(text))))
+		if (!(msgtemp = xmalloc(32+strlen(tname)+32+strlen(text))))
 		{
 		    eventlog(eventlog_level_error,"message_bot_format","could not allocate memory for msgtemp");
 		    return -1;
@@ -904,7 +905,7 @@ static int message_bot_format(t_packet * packet, t_message_type type, t_connecti
 		char const * tname;
 		
 		tname = conn_get_chatcharname(me, me); /* FIXME: second should be dst but cache gets in the way */
-		if (!(msgtemp = malloc(32+strlen(tname)+32+strlen(text))))
+		if (!(msgtemp = xmalloc(32+strlen(tname)+32+strlen(text))))
 		{
 		    eventlog(eventlog_level_error,"message_bot_format","could not allocate memory for msgtemp");
 		    return -1;
@@ -921,7 +922,7 @@ static int message_bot_format(t_packet * packet, t_message_type type, t_connecti
 	    }
 	    if (dstflags&MF_X)
 		return -1; /* player is ignored */
-	    if (!(msgtemp = malloc(32+32+strlen(text))))
+	    if (!(msgtemp = xmalloc(32+32+strlen(text))))
 	    {
 		eventlog(eventlog_level_error,"message_bot_format","could not allocate memory for msgtemp");
 		return -1;
@@ -934,7 +935,7 @@ static int message_bot_format(t_packet * packet, t_message_type type, t_connecti
 		eventlog(eventlog_level_error,"message_bot_format","got NULL text for %s",message_type_get_str(type));
 		return -1;
 	    }
-	    if (!(msgtemp = malloc(32+strlen(text))))
+	    if (!(msgtemp = xmalloc(32+strlen(text))))
 	    {
 		eventlog(eventlog_level_error,"message_bot_format","could not allocate memory for msgtemp");
 		return -1;
@@ -951,7 +952,7 @@ static int message_bot_format(t_packet * packet, t_message_type type, t_connecti
 		char const * tname;
 		
 		tname = conn_get_chatcharname(me, dst);
-		if (!(msgtemp = malloc(32+strlen(tname)+16)))
+		if (!(msgtemp = xmalloc(32+strlen(tname)+16)))
 		{
 		    eventlog(eventlog_level_error,"message_bot_format","could not allocate memory for msgtemp");
 		    return -1;
@@ -975,7 +976,7 @@ static int message_bot_format(t_packet * packet, t_message_type type, t_connecti
 		char const * tname;
 		
 		tname = conn_get_chatcharname(me, dst);
-		if (!(msgtemp = malloc(32+strlen(tname)+32+strlen(text))))
+		if (!(msgtemp = xmalloc(32+strlen(tname)+32+strlen(text))))
 		{
 		    eventlog(eventlog_level_error,"message_bot_format","could not allocate memory for msgtemp");
 		    return -1;
@@ -996,7 +997,7 @@ static int message_bot_format(t_packet * packet, t_message_type type, t_connecti
 		return -1;
 	    }
 	    {
-		if (!(msgtemp = malloc(32+16+32+strlen(text))))
+		if (!(msgtemp = xmalloc(32+16+32+strlen(text))))
 		{
 		    eventlog(eventlog_level_error,"message_bot_format","could not allocate memory for msgtemp");
 		    return -1;
@@ -1006,7 +1007,7 @@ static int message_bot_format(t_packet * packet, t_message_type type, t_connecti
 	    break;
 
 	case message_type_channelfull:
-	    if (!(msgtemp = malloc(32)))
+	    if (!(msgtemp = xmalloc(32)))
 	    {
 		eventlog(eventlog_level_error,"message_bot_format","could not allocate memory for msgtemp");
 		return -1;
@@ -1014,7 +1015,7 @@ static int message_bot_format(t_packet * packet, t_message_type type, t_connecti
 	    sprintf(msgtemp,"%u \r\n",EID_CHANNELFULL); /* FIXME */
 	    break;
 	case message_type_channeldoesnotexist:
-	    if (!(msgtemp = malloc(32)))
+	    if (!(msgtemp = xmalloc(32)))
 	    {
 		eventlog(eventlog_level_error,"message_bot_format","could not allocate memory for msgtemp");
 		return -1;
@@ -1022,7 +1023,7 @@ static int message_bot_format(t_packet * packet, t_message_type type, t_connecti
 	    sprintf(msgtemp,"%u \r\n",EID_CHANNELDOESNOTEXIST); /* FIXME */
 	    break;
 	case message_type_channelrestricted:
-	    if (!(msgtemp = malloc(32)))
+	    if (!(msgtemp = xmalloc(32)))
 	    {
 		eventlog(eventlog_level_error,"message_bot_format","could not allocate memory for msgtemp");
 		return -1;
@@ -1035,7 +1036,7 @@ static int message_bot_format(t_packet * packet, t_message_type type, t_connecti
 		eventlog(eventlog_level_error,"message_bot_format","got NULL text for %s",message_type_get_str(type));
 		return -1;
 	    }
-	    if (!(msgtemp = malloc(32+16+strlen(text))))
+	    if (!(msgtemp = xmalloc(32+16+strlen(text))))
 	    {
 		eventlog(eventlog_level_error,"message_bot_format","could not allocate memory for msgtemp");
 		return -1;
@@ -1048,7 +1049,7 @@ static int message_bot_format(t_packet * packet, t_message_type type, t_connecti
 		eventlog(eventlog_level_error,"message_bot_format","got NULL text for %s",message_type_get_str(type));
 		return -1;
 	    }
-	    if (!(msgtemp = malloc(32+16+strlen(text))))
+	    if (!(msgtemp = xmalloc(32+16+strlen(text))))
 	    {
 		eventlog(eventlog_level_error,"message_bot_format","could not allocate memory for msgtemp");
 		return -1;
@@ -1072,7 +1073,7 @@ static int message_bot_format(t_packet * packet, t_message_type type, t_connecti
 		char const * tname;
 		
 		tname = conn_get_chatcharname(me, me); /* FIXME: second should be dst but cache gets in the way */
-		if (!(msgtemp = malloc(32+strlen(tname)+32+strlen(text))))
+		if (!(msgtemp = xmalloc(32+strlen(tname)+32+strlen(text))))
 		{
 		    eventlog(eventlog_level_error,"message_bot_format","could not allocate memory for msgtemp");
 		    return -1;
@@ -1093,7 +1094,7 @@ static int message_bot_format(t_packet * packet, t_message_type type, t_connecti
 	int retval;
 	
 	retval = packet_append_ntstring(packet,msgtemp);
-	free(msgtemp);
+	xfree(msgtemp);
 	return retval;
     }
 }
@@ -1453,7 +1454,7 @@ extern t_message * message_create(t_message_type type, t_connection * src, t_con
 {
     t_message * message;
     
-    if (!(message = malloc(sizeof(t_message))))
+    if (!(message = xmalloc(sizeof(t_message))))
     {
 	eventlog(eventlog_level_error,"message_create","got NULL packet");
 	return NULL;
@@ -1486,14 +1487,14 @@ extern int message_destroy(t_message * message)
 	if (message->packets[i])
 	    packet_del_ref(message->packets[i]);
     if (message->packets)
-	free(message->packets);
+	xfree(message->packets);
     if (message->classes)
-	free(message->classes);
+	xfree(message->classes);
     if (message->dstflags)
-	free(message->dstflags);
+	xfree(message->dstflags);
     if (message->mclasses)
-	free(message->mclasses);
-    free(message);
+	xfree(message->mclasses);
+    xfree(message);
     
     return 0;
 }
@@ -1526,9 +1527,9 @@ static t_packet * message_cache_lookup(t_message * message, t_connection *dst, u
 	t_message_class *temp_mclasses;
 	
 	if (!message->packets)
-	    temp_packets = malloc(sizeof(t_packet *)*(message->num_cached+1));
+	    temp_packets = xmalloc(sizeof(t_packet *)*(message->num_cached+1));
 	else
-	    temp_packets = realloc(message->packets,sizeof(t_packet *)*(message->num_cached+1));
+	    temp_packets = xrealloc(message->packets,sizeof(t_packet *)*(message->num_cached+1));
 	if (!temp_packets)
 	{
 	    eventlog(eventlog_level_error,"message_cache_lookup","unable to allocate memory for packets");
@@ -1536,9 +1537,9 @@ static t_packet * message_cache_lookup(t_message * message, t_connection *dst, u
 	}
 	
 	if (!message->classes)
-	    temp_classes = malloc(sizeof(t_conn_class)*(message->num_cached+1));
+	    temp_classes = xmalloc(sizeof(t_conn_class)*(message->num_cached+1));
 	else
-	    temp_classes = realloc(message->classes,sizeof(t_conn_class)*(message->num_cached+1));
+	    temp_classes = xrealloc(message->classes,sizeof(t_conn_class)*(message->num_cached+1));
 	if (!temp_classes)
 	{
 	    eventlog(eventlog_level_error,"message_cache_lookup","unable to allocate memory for classes");
@@ -1546,9 +1547,9 @@ static t_packet * message_cache_lookup(t_message * message, t_connection *dst, u
 	}
 	
 	if (!message->dstflags)
-	    temp_dstflags = malloc(sizeof(unsigned int)*(message->num_cached+1));
+	    temp_dstflags = xmalloc(sizeof(unsigned int)*(message->num_cached+1));
 	else
-	    temp_dstflags = realloc(message->dstflags,sizeof(unsigned int)*(message->num_cached+1));
+	    temp_dstflags = xrealloc(message->dstflags,sizeof(unsigned int)*(message->num_cached+1));
 	if (!temp_dstflags)
 	{
 	    eventlog(eventlog_level_error,"message_cache_lookup","unable to allocate memory for dstflags");
@@ -1556,9 +1557,9 @@ static t_packet * message_cache_lookup(t_message * message, t_connection *dst, u
 	}
 	
 	if (!message->mclasses)
-	    temp_mclasses = malloc(sizeof(t_message_class)*(message->num_cached+1));
+	    temp_mclasses = xmalloc(sizeof(t_message_class)*(message->num_cached+1));
 	else
-	    temp_mclasses = realloc(message->mclasses,sizeof(t_message_class)*(message->num_cached+1));
+	    temp_mclasses = xrealloc(message->mclasses,sizeof(t_message_class)*(message->num_cached+1));
 	if (!temp_mclasses)
 	{
 	    eventlog(eventlog_level_error,"message_cache_lookup","unable to allocate memory for mclasses");
@@ -1809,11 +1810,11 @@ extern int message_send_formatted(t_connection * dst, char const * text)
 	break;
     default:
 	eventlog(eventlog_level_error,"message_send_formatted","unknown message type '%c'",line[0]);
-	free(line);
+	xfree(line);
 	return -1;
     }
     
-    free(line);
+    xfree(line);
     return 0;
 }
 
@@ -1836,7 +1837,7 @@ extern int message_send_file(t_connection * dst, FILE * fd)
     while ((buff = file_get_line(fd)))
     {
 	message_send_formatted(dst,buff);
-	free(buff);
+	xfree(buff);
     }
     
     return 0;

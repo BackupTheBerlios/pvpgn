@@ -115,6 +115,7 @@
    GNU application programs can use a third alternative mode in which
    they can distinguish the relative order of options and other arguments.  */
 
+#include "common/xalloc.h"
 #include "getopt.h"
 
 #include "common/setup_after.h"
@@ -274,7 +275,7 @@ static void
 store_args (int argc, char *const *argv)
 {
   /* XXX This is no good solution.  We should rather copy the args so
-     that we can compare them later.  But we must not use malloc(3).  */
+     that we can compare them later.  But we must not use xmalloc(3).  */
   original_argc = argc;
   original_argv = argv;
 }
