@@ -200,19 +200,25 @@ typedef struct
 {
     t_bnet_header       h;
     bn_byte             option;     /* 07 */
-    bn_int              count;      /* 00 00 00 01 */
-    bn_byte             noitems;    /* type - 01 = notice, 02 = signups , maybe more...*/
+    bn_int              count;      /* 00 00 00 01 reply with same number */
+    bn_byte             type;	    /* type - 	01 = notice - time = prelim round begins
+				     *		02 = signups - time = signups end
+				     *		03 = signups over - time = prelim round ends
+				     *		04 = prelim over - time = finals round 1 begins
+				     */
     bn_byte             unknown;    /* 00 */
-    bn_short            unknown4;   /* 25 F4 = notice, 08 28 = signups */
+    bn_short            unknown4;   /* random ? might be part of time/date ? */
     bn_int              timestamp;
     bn_byte             unknown5;   /* 01 effects time/date */
-    bn_short            unknown1;   /* countdown until notice is over (seconds?) */
-    bn_int              unknown2;   /* 00 00 00 00 */
-    bn_byte             unknown6;   /* 00 */
-    bn_byte             unknown3;   /* 00 = notice.  08 = signups */
-    bn_byte             anonpacket; /* matches anongame_TY_section of DESC */
+    bn_short            countdown;  /* countdown until next timestamp (seconds?) */
+    bn_short            unknown2;   /* 00 00 */
+    bn_byte		wins;	    /* during prelim */
+    bn_byte		losses;     /* during prelim */
+    bn_byte             ties;	    /* during prelim */
+    bn_byte             unknown3;   /* 00 = notice.  08 = signups thru prelim over (02-04) */
+    bn_byte             selection;  /* matches anongame_TY_section of DESC */
     bn_byte             descnum;    /* matches desc_count of DESC */
-    bn_byte             nulltag;
+    bn_byte             nulltag;    /* 00 */
 } t_server_anongame_tournament_reply PACKED_ATTR();
 
 /***********************************************************************************/

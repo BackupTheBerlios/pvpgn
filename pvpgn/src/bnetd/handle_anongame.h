@@ -18,8 +18,14 @@
 
 typedef struct
 {
-    unsigned int start_time;
-    unsigned int end_time;
+    unsigned int start_preliminary;
+    unsigned int end_signup;
+    unsigned int end_preliminary;
+    unsigned int start_round_1;
+    unsigned int start_round_2;
+    unsigned int start_round_3;
+    unsigned int start_round_4;
+    unsigned int tournament_end;
     unsigned int game_selection;
     unsigned int game_type;
     char *	 format;

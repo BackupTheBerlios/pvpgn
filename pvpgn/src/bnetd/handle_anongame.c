@@ -57,7 +57,7 @@ static t_tournament_info * tournament_info = NULL;
 /* 0x04 */ static int _client_anongame_profile(t_connection * c, t_packet const * const packet);
 /* 0x05 */ /* AT style search - handle_anongame_search() in anongame.c */
 /* 0x06 */ /* AT style search (Inviter) handle_anongame_search() in anongame.c */
-/* 0x07 */ static int _client_anongame_tournament(t_connection * c);
+/* 0x07 */ static int _client_anongame_tournament(t_connection * c, t_packet const * const packet);
 /* 0x08 */ /* unknown if it even exists */
 /* 0x09 */ static int _client_anongame_get_icon(t_connection * c, t_packet const * const packet);
 /* 0x0A */ static int _client_anongame_set_icon(t_connection * c, t_packet const * const packet);
@@ -967,17 +967,15 @@ static int _client_anongame_infos(t_connection * c, t_packet const * const packe
 }
 
 /* tournament notice disabled at this time, but responce is sent to cleint */
-static int _client_anongame_tournament(t_connection * c)
+static int _client_anongame_tournament(t_connection * c, t_packet const * const packet)
 {
     t_packet * rpacket = NULL;
     
     unsigned int now		= time(NULL);
-    unsigned int start		= tournament_info->start_time;
-    unsigned int end		= tournament_info->end_time;
-    unsigned int start2		= _tournament_time_convert(start);
-    unsigned int end2		= _tournament_time_convert(end);
-    
-    eventlog(eventlog_level_trace,__FUNCTION__,"now: 0x%08x, start: 0x%08x, end: 0x%08x, start2: 0x%08x, end2: 0x%08x",now,start,end,start2,end2);
+    unsigned int start_prelim	= tournament_info->start_preliminary;
+    unsigned int end_signup	= tournament_info->end_signup;
+    unsigned int end_prelim	= tournament_info->end_preliminary;
+    unsigned int start_r1	= tournament_info->start_round_1;
     
     if ((rpacket = packet_create(packet_class_bnet)) == NULL) {
 	eventlog(eventlog_level_error, __FUNCTION__, "could not create new packet");
@@ -987,43 +985,148 @@ static int _client_anongame_tournament(t_connection * c)
     packet_set_size(rpacket, sizeof(t_server_anongame_tournament_reply));
     packet_set_type(rpacket, SERVER_FINDANONGAME_TOURNAMENT_REPLY);
     bn_byte_set(&rpacket->u.server_anongame_tournament_reply.option, 7);
-    bn_int_set(&rpacket->u.server_anongame_tournament_reply.count, 1);
+    bn_int_set(&rpacket->u.server_anongame_tournament_reply.count,
+    bn_int_get(packet->u.client_anongame_tournament_request.count));
     
-    if (!start || !end || end<=now) { /* No Tournament Notice */
-	bn_byte_set(&rpacket->u.server_anongame_tournament_reply.noitems, 0);
-	bn_short_set(&rpacket->u.server_anongame_tournament_reply.unknown4, 0);
-	bn_int_set(&rpacket->u.server_anongame_tournament_reply.timestamp, 0);
-	bn_byte_set(&rpacket->u.server_anongame_tournament_reply.unknown5, 0);
-	bn_short_set(&rpacket->u.server_anongame_tournament_reply.unknown1, 0);
-	bn_byte_set(&rpacket->u.server_anongame_tournament_reply.unknown3, 0);
-	bn_byte_set(&rpacket->u.server_anongame_tournament_reply.anonpacket, 0);
-	bn_byte_set(&rpacket->u.server_anongame_tournament_reply.descnum, 0);
+    /* (1) forces tournament to be disabled */
+    if ( (1) || !start_prelim || (end_signup <= now && (0) /* check if user has signed up */ )) { /* No Tournament Notice */
+	bn_byte_set(	&rpacket->u.server_anongame_tournament_reply.type,		0);
+	bn_byte_set(	&rpacket->u.server_anongame_tournament_reply.unknown,		0);
+	bn_short_set(	&rpacket->u.server_anongame_tournament_reply.unknown4,		0);
+	bn_int_set(	&rpacket->u.server_anongame_tournament_reply.timestamp,		0);
+	bn_byte_set(	&rpacket->u.server_anongame_tournament_reply.unknown5,		0);
+	bn_short_set(	&rpacket->u.server_anongame_tournament_reply.countdown,		0);
+	bn_short_set(	&rpacket->u.server_anongame_tournament_reply.unknown2,		0);
+	bn_byte_set(	&rpacket->u.server_anongame_tournament_reply.wins,		0);
+	bn_byte_set(	&rpacket->u.server_anongame_tournament_reply.losses,		0);
+	bn_byte_set(	&rpacket->u.server_anongame_tournament_reply.ties,		0);
+	bn_byte_set(	&rpacket->u.server_anongame_tournament_reply.unknown3,		0);
+	bn_byte_set(	&rpacket->u.server_anongame_tournament_reply.selection,		0);
+	bn_byte_set(	&rpacket->u.server_anongame_tournament_reply.descnum,		0);
+	bn_byte_set(	&rpacket->u.server_anongame_tournament_reply.nulltag,		0);
     }
-    else if (start && end && start>=now) { /* Tournament Notice */
-	bn_byte_set(&rpacket->u.server_anongame_tournament_reply.noitems, 1);
-	bn_short_set(&rpacket->u.server_anongame_tournament_reply.unknown4, 0x25F4);
-	bn_int_set(&rpacket->u.server_anongame_tournament_reply.timestamp, start2);
-	bn_byte_set(&rpacket->u.server_anongame_tournament_reply.unknown5, 0x01);
-	bn_short_set(&rpacket->u.server_anongame_tournament_reply.unknown1, (start-now));
-	bn_byte_set(&rpacket->u.server_anongame_tournament_reply.unknown3, 0x00);
-	bn_byte_set(&rpacket->u.server_anongame_tournament_reply.anonpacket, 2);
-	bn_byte_set(&rpacket->u.server_anongame_tournament_reply.descnum, 0);
+    else if (start_prelim>=now) { /* Tournament Notice */
+	bn_byte_set(	&rpacket->u.server_anongame_tournament_reply.type,		1);
+	bn_byte_set(	&rpacket->u.server_anongame_tournament_reply.unknown,		0);
+	bn_short_set(	&rpacket->u.server_anongame_tournament_reply.unknown4,		0x25F4); /* random */
+	bn_int_set(	&rpacket->u.server_anongame_tournament_reply.timestamp,		_tournament_time_convert(start_prelim));
+	bn_byte_set(	&rpacket->u.server_anongame_tournament_reply.unknown5,		0x01);
+	bn_short_set(	&rpacket->u.server_anongame_tournament_reply.countdown,		start_prelim-now);
+	bn_short_set(	&rpacket->u.server_anongame_tournament_reply.unknown2,		0);
+	bn_byte_set(	&rpacket->u.server_anongame_tournament_reply.wins,		0);
+	bn_byte_set(	&rpacket->u.server_anongame_tournament_reply.losses,		0);
+	bn_byte_set(	&rpacket->u.server_anongame_tournament_reply.ties,		0);
+	bn_byte_set(	&rpacket->u.server_anongame_tournament_reply.unknown3,		0x00);
+	bn_byte_set(	&rpacket->u.server_anongame_tournament_reply.selection,		2);
+	bn_byte_set(	&rpacket->u.server_anongame_tournament_reply.descnum,		0);
+	bn_byte_set(	&rpacket->u.server_anongame_tournament_reply.nulltag,		0);
     }
-    else if (start && end && start<=now && end>=now) { /* Tournament Signup Notice */
-	bn_byte_set(&rpacket->u.server_anongame_tournament_reply.noitems, 2);
-	bn_short_set(&rpacket->u.server_anongame_tournament_reply.unknown4, 0x0828);
-	bn_int_set(&rpacket->u.server_anongame_tournament_reply.timestamp, end2);
-	bn_byte_set(&rpacket->u.server_anongame_tournament_reply.unknown5, 0x01);
-	bn_short_set(&rpacket->u.server_anongame_tournament_reply.unknown1, (end-now));
-	bn_byte_set(&rpacket->u.server_anongame_tournament_reply.unknown3, 0x08);
-	bn_byte_set(&rpacket->u.server_anongame_tournament_reply.anonpacket, 2);
-	bn_byte_set(&rpacket->u.server_anongame_tournament_reply.descnum, 0);
+    else if (end_signup>=now) { /* Tournament Signup Notice - Play Game Active */
+	bn_byte_set(	&rpacket->u.server_anongame_tournament_reply.type,		2);
+	bn_byte_set(	&rpacket->u.server_anongame_tournament_reply.unknown,		0);
+	bn_short_set(	&rpacket->u.server_anongame_tournament_reply.unknown4,		0x0828); /* random */
+	bn_int_set(	&rpacket->u.server_anongame_tournament_reply.timestamp,		_tournament_time_convert(end_signup));
+	bn_byte_set(	&rpacket->u.server_anongame_tournament_reply.unknown5,		0x01);
+	bn_short_set(	&rpacket->u.server_anongame_tournament_reply.countdown,		end_signup-now);
+	bn_short_set(	&rpacket->u.server_anongame_tournament_reply.unknown2,		0);
+	bn_byte_set(	&rpacket->u.server_anongame_tournament_reply.wins,		0); /* FIXME-TY: set wins */
+	bn_byte_set(	&rpacket->u.server_anongame_tournament_reply.losses,		0); /* FIXME-TY: set losses */
+	bn_byte_set(	&rpacket->u.server_anongame_tournament_reply.ties,		0); /* FIXME-TY: set ties */
+	bn_byte_set(	&rpacket->u.server_anongame_tournament_reply.unknown3,		0x08);
+	bn_byte_set(	&rpacket->u.server_anongame_tournament_reply.selection,		2);
+	bn_byte_set(	&rpacket->u.server_anongame_tournament_reply.descnum,		0);
+	bn_byte_set(	&rpacket->u.server_anongame_tournament_reply.nulltag,		0);
     }
-
-    bn_byte_set(&rpacket->u.server_anongame_tournament_reply.unknown, 0);
-    bn_int_set(&rpacket->u.server_anongame_tournament_reply.unknown2, 0);
-    bn_byte_set(&rpacket->u.server_anongame_tournament_reply.unknown6, 0);
-    bn_byte_set(&rpacket->u.server_anongame_tournament_reply.nulltag, 0);
+    else if (end_prelim>=now) { /* Tournament Prelim Period - Play Game Active */
+	bn_byte_set(	&rpacket->u.server_anongame_tournament_reply.type,		3);
+	bn_byte_set(	&rpacket->u.server_anongame_tournament_reply.unknown,		0);
+	bn_short_set(	&rpacket->u.server_anongame_tournament_reply.unknown4,		0x0828); /* random */
+	bn_int_set(	&rpacket->u.server_anongame_tournament_reply.timestamp,		_tournament_time_convert(end_prelim));
+	bn_byte_set(	&rpacket->u.server_anongame_tournament_reply.unknown5,		0x01);
+	bn_short_set(	&rpacket->u.server_anongame_tournament_reply.countdown,		end_prelim-now);
+	bn_short_set(	&rpacket->u.server_anongame_tournament_reply.unknown2,		0);
+	bn_byte_set(	&rpacket->u.server_anongame_tournament_reply.wins,		0); /* FIXME-TY: set wins */
+	bn_byte_set(	&rpacket->u.server_anongame_tournament_reply.losses,		0); /* FIXME-TY: set losses */
+	bn_byte_set(	&rpacket->u.server_anongame_tournament_reply.ties,		0); /* FIXME-TY: set ties */
+	bn_byte_set(	&rpacket->u.server_anongame_tournament_reply.unknown3,		0x08);
+	bn_byte_set(	&rpacket->u.server_anongame_tournament_reply.selection,		2);
+	bn_byte_set(	&rpacket->u.server_anongame_tournament_reply.descnum,		0);
+	bn_byte_set(	&rpacket->u.server_anongame_tournament_reply.nulltag,		0);
+    }
+    else if (start_r1>=now && (0) /* check if all prelim games are done */ ) { /* Prelim Period Over - Shows user stats (not all prelim games finished) */
+	bn_byte_set(	&rpacket->u.server_anongame_tournament_reply.type,		4);
+	bn_byte_set(	&rpacket->u.server_anongame_tournament_reply.unknown,		0);
+	bn_short_set(	&rpacket->u.server_anongame_tournament_reply.unknown4,		0x0000); /* random */
+	bn_int_set(	&rpacket->u.server_anongame_tournament_reply.timestamp,		_tournament_time_convert(start_r1));
+	bn_byte_set(	&rpacket->u.server_anongame_tournament_reply.unknown5,		0x01);
+	bn_short_set(	&rpacket->u.server_anongame_tournament_reply.countdown,		start_r1-now);
+	bn_short_set(	&rpacket->u.server_anongame_tournament_reply.unknown2,		0); /* 00 00 */
+	bn_byte_set(	&rpacket->u.server_anongame_tournament_reply.wins,		7); /* FIXME-TY: set wins */
+	bn_byte_set(	&rpacket->u.server_anongame_tournament_reply.losses,		1); /* FIXME-TY: set losses */
+	bn_byte_set(	&rpacket->u.server_anongame_tournament_reply.ties,		2); /* FIXME-TY: set ties */
+	bn_byte_set(	&rpacket->u.server_anongame_tournament_reply.unknown3,		0x08);
+	bn_byte_set(	&rpacket->u.server_anongame_tournament_reply.selection,		2);
+	bn_byte_set(	&rpacket->u.server_anongame_tournament_reply.descnum,		0);
+	bn_byte_set(	&rpacket->u.server_anongame_tournament_reply.nulltag,		0);
+    }
+    else if ( (0) /* check if user made finals */ ) { /* Prelim Period Over - user did not make finals - Shows user stats */
+	bn_byte_set(	&rpacket->u.server_anongame_tournament_reply.type,		5);
+	bn_byte_set(	&rpacket->u.server_anongame_tournament_reply.unknown,		0);
+	bn_short_set(	&rpacket->u.server_anongame_tournament_reply.unknown4,		0);
+	bn_int_set(	&rpacket->u.server_anongame_tournament_reply.timestamp,		0);
+	bn_byte_set(	&rpacket->u.server_anongame_tournament_reply.unknown5,		0);
+	bn_short_set(	&rpacket->u.server_anongame_tournament_reply.countdown,		0);
+	bn_short_set(	&rpacket->u.server_anongame_tournament_reply.unknown2,		0);
+	bn_byte_set(	&rpacket->u.server_anongame_tournament_reply.wins,		7); /* FIXME-TY: set wins */
+	bn_byte_set(	&rpacket->u.server_anongame_tournament_reply.losses,		1); /* FIXME-TY: set losses */
+	bn_byte_set(	&rpacket->u.server_anongame_tournament_reply.ties,		2); /* FIXME-TY: set ties */
+	bn_byte_set(	&rpacket->u.server_anongame_tournament_reply.unknown3,		0x04);
+	bn_byte_set(	&rpacket->u.server_anongame_tournament_reply.selection,		2);
+	bn_byte_set(	&rpacket->u.server_anongame_tournament_reply.descnum,		0);
+	bn_byte_set(	&rpacket->u.server_anongame_tournament_reply.nulltag,		0);
+    }
+    /* cycle through [type-6] & [type-7] packets
+     *
+     * use [type-6] to show client "eliminated" or "continue"
+     *     timestamp , countdown & round number (of next round) must be set if clinet continues
+     *
+     * use [type-7] to make cleint wait for 44FF packet option 1 to start game (A guess, not tested)
+     *
+     * not sure if there is overall winner packet sent at end of last final round
+     */
+    
+    else if ( (0) ) { /* User in finals - Shows user stats and start of next round*/
+	bn_byte_set(	&rpacket->u.server_anongame_tournament_reply.type,		6);
+	bn_byte_set(	&rpacket->u.server_anongame_tournament_reply.unknown,		0);
+	bn_short_set(	&rpacket->u.server_anongame_tournament_reply.unknown4,		0x0000);
+	bn_int_set(	&rpacket->u.server_anongame_tournament_reply.timestamp,		_tournament_time_convert(start_r1));
+	bn_byte_set(	&rpacket->u.server_anongame_tournament_reply.unknown5,		0x01);
+	bn_short_set(	&rpacket->u.server_anongame_tournament_reply.countdown,		start_r1-now);
+	bn_short_set(	&rpacket->u.server_anongame_tournament_reply.unknown2,		0x0000); /* 00 00 */
+	bn_byte_set(	&rpacket->u.server_anongame_tournament_reply.wins,		4); /* round number */
+	bn_byte_set(	&rpacket->u.server_anongame_tournament_reply.losses,		0); /* 0 = continue , 1= eliminated */
+	bn_byte_set(	&rpacket->u.server_anongame_tournament_reply.ties,		0);
+	bn_byte_set(	&rpacket->u.server_anongame_tournament_reply.unknown3,		0x04); /* number of rounds in finals */
+	bn_byte_set(	&rpacket->u.server_anongame_tournament_reply.selection,		2);
+	bn_byte_set(	&rpacket->u.server_anongame_tournament_reply.descnum,		0);
+	bn_byte_set(	&rpacket->u.server_anongame_tournament_reply.nulltag,		0);
+    }
+    else if ( (0) ) { /* user waiting for match to be made */
+	bn_byte_set(	&rpacket->u.server_anongame_tournament_reply.type,		7);
+	bn_byte_set(	&rpacket->u.server_anongame_tournament_reply.unknown,		0);
+	bn_short_set(	&rpacket->u.server_anongame_tournament_reply.unknown4,		0);
+	bn_int_set(	&rpacket->u.server_anongame_tournament_reply.timestamp,		0);
+	bn_byte_set(	&rpacket->u.server_anongame_tournament_reply.unknown5,		0);
+	bn_short_set(	&rpacket->u.server_anongame_tournament_reply.countdown,		0);
+	bn_short_set(	&rpacket->u.server_anongame_tournament_reply.unknown2,		0);
+	bn_byte_set(	&rpacket->u.server_anongame_tournament_reply.wins,		1); /* round number */
+	bn_byte_set(	&rpacket->u.server_anongame_tournament_reply.losses,		0);
+	bn_byte_set(	&rpacket->u.server_anongame_tournament_reply.ties,		0);
+	bn_byte_set(	&rpacket->u.server_anongame_tournament_reply.unknown3,		0x04); /* number of finals */
+	bn_byte_set(	&rpacket->u.server_anongame_tournament_reply.selection,		2);
+	bn_byte_set(	&rpacket->u.server_anongame_tournament_reply.descnum,		0);
+	bn_byte_set(	&rpacket->u.server_anongame_tournament_reply.nulltag,		0);
+    }
     
     queue_push_packet(conn_get_out_queue(c),rpacket);
     packet_del_ref(rpacket);
@@ -1066,7 +1169,7 @@ extern int handle_anongame_packet(t_connection * c, t_packet const * const packe
 	return _client_anongame_infos(c, packet);
     
     if (bn_byte_get(packet->u.client_anongame.option)==CLIENT_ANONGAME_TOURNAMENT)
-	return _client_anongame_tournament(c);
+	return _client_anongame_tournament(c, packet);
     
     eventlog(eventlog_level_error,__FUNCTION__,"got unhandled option %d",bn_byte_get(packet->u.client_findanongame.option));
     return -1;
@@ -1074,7 +1177,6 @@ extern int handle_anongame_packet(t_connection * c, t_packet const * const packe
 
 extern int tournament_is_arranged(void)
 {
-    /* FIXME-TY: THIS NEED TO READ FROM CONFIG FILES */
     if (tournament_info->game_selection == 2)
 	return 1;
     else
@@ -1083,64 +1185,31 @@ extern int tournament_is_arranged(void)
 
 extern int tournament_get_totalplayers(void)
 {
-    /* FIXME-TY: THIS NEED TO READ FROM CONFIG FILES */
     return tournament_info->game_type * 2;
 }
-
-/* starttime = time when signups start (notice gets "Play Game" button) */
-//static unsigned int _tournament_get_starttime(void)
-//{
-    /* FIXME-TY: THIS NEED TO READ FROM CONFIG FILES */
-//    struct tm * timestamp = malloc(sizeof(struct tm));
-//    unsigned int value;
-    
-//    timestamp->tm_mon	= 7	-1;
-//    timestamp->tm_mday	= 29	-0;
-//    timestamp->tm_year	= 2003	-1900;
-//    timestamp->tm_hour	= 0	-0;
-//    timestamp->tm_min	= 15	-0;
-//    timestamp->tm_sec	= 0	-0;
-//    timestamp->tm_isdst	= 	-1;
-    
-//    value = mktime(timestamp);
-//    free((void *)timestamp);
-    
-//    return value;
-//}
-
-/* endtime = time when signups are over (entire notice goes away) */
-//static unsigned int _tournament_get_endtime(void)
-//{
-    /* FIXME-TY: THIS NEED TO READ FROM CONFIG FILES */
-//    struct tm * timestamp = malloc(sizeof(struct tm));
-//    unsigned int value;
-    
-//    timestamp->tm_mon		= 7	-1;
-//    timestamp->tm_mday	= 29	-0;
-//    timestamp->tm_year	= 2003	-1900;
-//    timestamp->tm_hour	= 7	-0;
-//    timestamp->tm_min		= 30	-0;
-//    timestamp->tm_sec		= 0	-0;
-//    timestamp->tm_isdst	= 	-1;
-    
-//    value = mktime(timestamp);
-//    free((void *)timestamp);
-
-//    return value;
-//}
 
 extern int tournament_init(char const * filename)
 {
     FILE * fp;
-    unsigned int line,pos;
-    char *buff,*temp,*variable,*pointer;
+    unsigned int line,pos,mon,day,year,hour,min,sec;
+    char *buff,*temp,*variable,*pointer,*value;
+    char format[30];
     char *sponsor = NULL;
     char *have_sponsor = NULL;
     char *have_icon = NULL;
+    struct tm * timestamp = malloc(sizeof(struct tm));
     
+    sprintf(format,"%%02u/%%02u/%%04u %%02u:%%02u:%%02u");
+
     tournament_info = malloc(sizeof(t_tournament_info));
-    tournament_info->start_time		= 0;
-    tournament_info->end_time		= 0;
+    tournament_info->start_preliminary	= 0;
+    tournament_info->end_signup		= 0;
+    tournament_info->end_preliminary	= 0;
+    tournament_info->start_round_1	= 0;
+    tournament_info->start_round_2	= 0;
+    tournament_info->start_round_3	= 0;
+    tournament_info->start_round_4	= 0;
+    tournament_info->tournament_end	= 0;
     tournament_info->game_selection	= 1;
     tournament_info->game_type		= 1;
     tournament_info->format		= strdup("");
@@ -1149,11 +1218,13 @@ extern int tournament_init(char const * filename)
     
     if (!filename) {
 	eventlog(eventlog_level_error,__FUNCTION__,"got NULL filename");
+        free((void *)timestamp);
 	return -1;
     }
     
     if (!(fp = fopen(filename,"r"))) {
 	eventlog(eventlog_level_error,__FUNCTION__,"could not open file \"%s\" for reading (fopen: %s)",filename,strerror(errno));
+	free((void *)timestamp);
 	return -1;
     }
     
@@ -1182,19 +1253,13 @@ extern int tournament_init(char const * filename)
 	pointer = strchr(pointer,'=');
 	pointer++;
 	
-	if (strcmp(variable,"start_time") == 0) {
-	    struct tm * timestamp = malloc(sizeof(struct tm));
-	    char format[100];
-	    char * value;
-	    unsigned int mon,day,year,hour,min,sec;
-	    
+	if (strcmp(variable,"start_preliminary") == 0) {
 	    pointer = strchr(pointer,'\"');
 	    pointer++;
 	    value = pointer;
 	    pointer = strchr(pointer,'\"');
 	    pointer[0]='\0';
 	    
-	    sprintf(format,"%%02u/%%02u/%%04u %%02u:%%02u:%%02u");
 	    sscanf(value,format,&mon,&day,&year,&hour,&min,&sec);
 	    
 	    timestamp->tm_mon	= mon-1;
@@ -1205,22 +1270,15 @@ extern int tournament_init(char const * filename)
 	    timestamp->tm_sec	= sec;
 	    timestamp->tm_isdst	= -1;
 	    
-	    tournament_info->start_time = mktime(timestamp);
-	    free((void *)timestamp);
+	    tournament_info->start_preliminary = mktime(timestamp);
 	}
-	else if (strcmp(variable,"end_time") == 0) {
-	    struct tm * timestamp = malloc(sizeof(struct tm));
-	    char format[100];
-	    char * value;
-	    unsigned int mon,day,year,hour,min,sec;
-	    
+	else if (strcmp(variable,"end_signup") == 0) {
 	    pointer = strchr(pointer,'\"');
 	    pointer++;
 	    value = pointer;
 	    pointer = strchr(pointer,'\"');
 	    pointer[0]='\0';
 	    
-	    sprintf(format,"%%02u/%%02u/%%04u %%02u:%%02u:%%02u");    
 	    sscanf(value,format,&mon,&day,&year,&hour,&min,&sec);
 	    
 	    timestamp->tm_mon	= mon-1;
@@ -1231,8 +1289,121 @@ extern int tournament_init(char const * filename)
 	    timestamp->tm_sec	= sec;
 	    timestamp->tm_isdst	= -1;
 
-	    tournament_info->end_time = mktime(timestamp);
-	    free((void *)timestamp);
+	    tournament_info->end_signup = mktime(timestamp);
+	}
+	else if (strcmp(variable,"end_preliminary") == 0) {
+	    pointer = strchr(pointer,'\"');
+	    pointer++;
+	    value = pointer;
+	    pointer = strchr(pointer,'\"');
+	    pointer[0]='\0';
+	    
+	    sscanf(value,format,&mon,&day,&year,&hour,&min,&sec);
+	    
+	    timestamp->tm_mon	= mon-1;
+	    timestamp->tm_mday	= day;
+	    timestamp->tm_year	= year-1900;
+	    timestamp->tm_hour	= hour;
+	    timestamp->tm_min	= min;
+	    timestamp->tm_sec	= sec;
+	    timestamp->tm_isdst	= -1;
+
+	    tournament_info->end_preliminary = mktime(timestamp);
+	}
+	else if (strcmp(variable,"start_round_1") == 0) {
+	    pointer = strchr(pointer,'\"');
+	    pointer++;
+	    value = pointer;
+	    pointer = strchr(pointer,'\"');
+	    pointer[0]='\0';
+	    
+	    sscanf(value,format,&mon,&day,&year,&hour,&min,&sec);
+	    
+	    timestamp->tm_mon	= mon-1;
+	    timestamp->tm_mday	= day;
+	    timestamp->tm_year	= year-1900;
+	    timestamp->tm_hour	= hour;
+	    timestamp->tm_min	= min;
+	    timestamp->tm_sec	= sec;
+	    timestamp->tm_isdst	= -1;
+
+	    tournament_info->start_round_1 = mktime(timestamp);
+	}
+	else if (strcmp(variable,"start_round_2") == 0) {
+	    pointer = strchr(pointer,'\"');
+	    pointer++;
+	    value = pointer;
+	    pointer = strchr(pointer,'\"');
+	    pointer[0]='\0';
+	    
+	    sscanf(value,format,&mon,&day,&year,&hour,&min,&sec);
+	    
+	    timestamp->tm_mon	= mon-1;
+	    timestamp->tm_mday	= day;
+	    timestamp->tm_year	= year-1900;
+	    timestamp->tm_hour	= hour;
+	    timestamp->tm_min	= min;
+	    timestamp->tm_sec	= sec;
+	    timestamp->tm_isdst	= -1;
+
+	    tournament_info->start_round_2 = mktime(timestamp);
+	}
+	else if (strcmp(variable,"start_round_3") == 0) {
+	    pointer = strchr(pointer,'\"');
+	    pointer++;
+	    value = pointer;
+	    pointer = strchr(pointer,'\"');
+	    pointer[0]='\0';
+	    
+	    sscanf(value,format,&mon,&day,&year,&hour,&min,&sec);
+	    
+	    timestamp->tm_mon	= mon-1;
+	    timestamp->tm_mday	= day;
+	    timestamp->tm_year	= year-1900;
+	    timestamp->tm_hour	= hour;
+	    timestamp->tm_min	= min;
+	    timestamp->tm_sec	= sec;
+	    timestamp->tm_isdst	= -1;
+
+	    tournament_info->start_round_3 = mktime(timestamp);
+	}
+	else if (strcmp(variable,"start_round_4") == 0) {
+	    pointer = strchr(pointer,'\"');
+	    pointer++;
+	    value = pointer;
+	    pointer = strchr(pointer,'\"');
+	    pointer[0]='\0';
+	    
+	    sscanf(value,format,&mon,&day,&year,&hour,&min,&sec);
+	    
+	    timestamp->tm_mon	= mon-1;
+	    timestamp->tm_mday	= day;
+	    timestamp->tm_year	= year-1900;
+	    timestamp->tm_hour	= hour;
+	    timestamp->tm_min	= min;
+	    timestamp->tm_sec	= sec;
+	    timestamp->tm_isdst	= -1;
+
+	    tournament_info->start_round_4 = mktime(timestamp);
+	}
+	else if (strcmp(variable,"tournament_end") == 0) {
+	    pointer = strchr(pointer,'\"');
+	    pointer++;
+	    value = pointer;
+	    pointer = strchr(pointer,'\"');
+	    pointer[0]='\0';
+	    
+	    sscanf(value,format,&mon,&day,&year,&hour,&min,&sec);
+	    
+	    timestamp->tm_mon	= mon-1;
+	    timestamp->tm_mday	= day;
+	    timestamp->tm_year	= year-1900;
+	    timestamp->tm_hour	= hour;
+	    timestamp->tm_min	= min;
+	    timestamp->tm_sec	= sec;
+	    timestamp->tm_isdst	= -1;
+
+	    tournament_info->tournament_end = mktime(timestamp);
 	}
 	else if (strcmp(variable,"game_selection") == 0) {
 	    tournament_info->game_selection = atoi(pointer);
@@ -1241,7 +1412,6 @@ extern int tournament_init(char const * filename)
 	    tournament_info->game_type = atoi(pointer);
 	}
 	else if (strcmp(variable,"format") == 0) {
-	    char * value;
 	    pointer = strchr(pointer,'\"');
 	    pointer++;
 	    value = pointer;
@@ -1252,7 +1422,6 @@ extern int tournament_init(char const * filename)
 	    tournament_info->format = strdup(value);
 	}
 	else if (strcmp(variable,"sponsor") == 0) {
-	    char * value;
 	    pointer = strchr(pointer,'\"');
 	    pointer++;
 	    value = pointer;
@@ -1262,7 +1431,6 @@ extern int tournament_init(char const * filename)
 	    have_sponsor = strdup(value);
 	}
 	else if (strcmp(variable,"icon") == 0) {
-	    char * value;
 	    pointer = strchr(pointer,'\"');
 	    pointer++;
 	    value = pointer;
@@ -1290,7 +1458,25 @@ extern int tournament_init(char const * filename)
 	}
 	free(buff);
     }
+    if (have_sponsor) free((void *)have_sponsor);
+    if (have_icon) free((void *)have_icon);
+    free((void *)timestamp);
     fclose(fp);
+    
+    /* check if we have timestamps for all the times */ 
+    /* if not disable tournament by setting "start_preliminary" to 0 */
+    if (tournament_info->end_signup	 == 0 ||
+	tournament_info->end_preliminary == 0 ||
+	tournament_info->start_round_1	 == 0 ||
+	tournament_info->start_round_2	 == 0 ||
+	tournament_info->start_round_3	 == 0 ||
+	tournament_info->start_round_4	 == 0 ||
+	tournament_info->tournament_end	 == 0)
+	{
+	    tournament_info->start_preliminary = 0;
+	    eventlog(eventlog_level_warn,__FUNCTION__,"one or more timestamps for tournaments is not valid, tournament has been disabled");
+	}
+    
     return 0;
 }
 
