@@ -3250,7 +3250,7 @@ static int _handle_ladderinfo_command(t_connection * c, char const *text)
   else if (strcasecmp(clienttag,CLIENTTAG_WARCRAFT3)==0 || strcasecmp(clienttag,CLIENTTAG_WAR3XP)==0)
     {
       unsigned int teamcount = 0;
-      if ((account = war3_ladder_get_account(solo_ladder(clienttag),rank,teamcount,clienttag)))
+      if ((account = war3_ladder_get_account(solo_ladder(clienttag),rank,&teamcount,clienttag)))
 	{
 	  sprintf(msgtemp,"WarCraft3 Solo   %5u: %-20.20s %u/%u/0",
 		  rank,
@@ -3263,7 +3263,7 @@ static int _handle_ladderinfo_command(t_connection * c, char const *text)
 	sprintf(msgtemp,"WarCraft3 Solo   %5u: <none>",rank);
       message_send_text(c,message_type_info,c,msgtemp);
       
-      if ((account = war3_ladder_get_account(team_ladder(clienttag),rank,teamcount,clienttag)))
+      if ((account = war3_ladder_get_account(team_ladder(clienttag),rank,&teamcount,clienttag)))
 	{
 	  sprintf(msgtemp,"WarCraft3 Team   %5u: %-20.20s %u/%u/0",
 		  rank,
@@ -3276,7 +3276,7 @@ static int _handle_ladderinfo_command(t_connection * c, char const *text)
 	sprintf(msgtemp,"WarCraft3 Team   %5u: <none>",rank);
       message_send_text(c,message_type_info,c,msgtemp);
       
-      if ((account = war3_ladder_get_account(ffa_ladder(clienttag),rank,teamcount,clienttag)))
+      if ((account = war3_ladder_get_account(ffa_ladder(clienttag),rank,&teamcount,clienttag)))
 	{
 	  sprintf(msgtemp,"WarCraft3 FFA   %5u: %-20.20s %u/%u/0",
 		  rank,
@@ -3289,7 +3289,7 @@ static int _handle_ladderinfo_command(t_connection * c, char const *text)
 	sprintf(msgtemp,"WarCraft3 FFA   %5u: <none>",rank);
       message_send_text(c,message_type_info,c,msgtemp);
       
-      if ((account = war3_ladder_get_account(at_ladder(clienttag),rank,teamcount,clienttag)))
+      if ((account = war3_ladder_get_account(at_ladder(clienttag),rank,&teamcount,clienttag)))
 	{
 	  if (account_get_atteammembers(account,teamcount,clienttag))
 	    sprintf(msgtemp,"WarCraft3 AT Team   %5u: %-80.80s %u/%u/0",
