@@ -1782,7 +1782,6 @@ extern int game_del_player(t_game * game, unsigned int sessionid)
 	    game->ref--;
             game->lastaccess_time = time(NULL);
 	    
-	    if (game->ref > 1)
 	    game_choose_host(game);
 	    
 	    return 0;
