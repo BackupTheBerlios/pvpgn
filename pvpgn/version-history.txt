@@ -23,6 +23,8 @@ ads configured
 -- added ladder_start_time to d2cs.conf
 -- removed the "static" motd part and included this stuff in conf/bnmotd.txt
 -- added docs/bnmotd.txt that explains the usage
+-- added the possibilty to add new lines to bnxpcalc.txt to increase the
+WAR3/W3XP +/-6 level ladder-rule
 
 War3 users
 

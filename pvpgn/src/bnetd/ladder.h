@@ -34,8 +34,6 @@
 
 #endif
 
-#define W3_XPCALC_TYPES		1
-#define W3_XPCALC_MAXLEVELDIFF	6
 #define W3_XPCALC_MAXLEVEL	50
 
 
@@ -103,11 +101,6 @@ typedef struct
 {
     int higher_winxp, higher_lossxp, lower_winxp, lower_lossxp;
 } t_xpcalc_entry;
-
-typedef struct
-{
-    t_xpcalc_entry * xpchart;
-} t_xpcalc;
 #endif
 
 #endif
@@ -140,6 +133,7 @@ extern void ladder_destroyxptable(void);
 extern int ladder_war3_xpdiff(unsigned int winnerlevel, unsigned int looserlevel, int *, int *);
 extern int ladder_war3_updatelevel(unsigned int oldlevel, int xp);
 extern int ladder_war3_get_min_xp(unsigned int level);
+extern unsigned int war3_get_maxleveldiff(void);
 
 
  extern int war3_ladder_add(t_ladder *ladder, int uid, int xp, int level, t_account *account, unsigned int teamcount,char const * clienttag);

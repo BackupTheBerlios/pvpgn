@@ -813,6 +813,7 @@ static int _anongame_match(t_connection * c, int queue)
     int i;
     t_matchdata *md;
     t_elem *curr;
+    unsigned int diff;
     t_anongame * a = conn_get_anongame(c);
     t_uint32 cur_prefs = a->map_prefs;
     t_connection * inv_c[ANONGAME_MAX_TEAMS];
@@ -821,11 +822,12 @@ static int _anongame_match(t_connection * c, int queue)
     players[queue] = 0;
 
     eventlog(eventlog_level_trace,__FUNCTION__, "[%d] matching started for level %d player in queue %d", conn_get_socket(c), level, queue);
+   
+    diff = war3_get_maxleveldiff();
+    maxlevel = level + diff;
+    minlevel = (level - diff < 0) ? 0 : level - diff;
     
-    maxlevel = level + 6;
-    minlevel = (level - 6 < 0) ? 0 : level - 6;
-    
-    while (abs(delta) < 7) {
+    while (abs(delta) < (diff+1)) {
 	if ((level + delta <= maxlevel) && (level + delta >= minlevel)) {
 	    eventlog(eventlog_level_trace,__FUNCTION__, "Traversing level %d players", level + delta);
 	    
@@ -834,8 +836,8 @@ static int _anongame_match(t_connection * c, int queue)
 		md = elem_get_data(curr);
 		if (md->versiontag && _conn_get_versiontag(c) && !strcmp(md->versiontag, _conn_get_versiontag(c)) && (cur_prefs & md->map_prefs)) {
 		    /* set maxlevel and minlevel to keep all players within 6 levels */
-		    maxlevel = (level + delta + 6 < maxlevel) ? level + delta + 6 : maxlevel;
-		    minlevel = (level + delta - 6 > minlevel) ? level + delta - 6 : minlevel;
+		    maxlevel = (level + delta + diff < maxlevel) ? level + delta + diff : maxlevel;
+		    minlevel = (level + delta - diff > minlevel) ? level + delta - diff : minlevel;
 		    cur_prefs &= md->map_prefs;
 		    
 		    /* AT match */

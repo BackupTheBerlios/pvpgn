@@ -64,8 +64,9 @@
 #define MaxRankKeptInLadder 1000
 
 /* for War3 XP computations */
-static t_xpcalc *xpcalc;
+static t_xpcalc_entry  * xpcalc;
 static t_xplevel_entry * xplevels;
+unsigned int w3_xpcalc_maxleveldiff;
 
 const char * WAR3_solo_file = "WAR3_solo";
 const char * W3XP_solo_file = "W3XP_solo";
@@ -1915,6 +1916,7 @@ extern int ladder_createxptable(const char *xplevelfile, const char *xpcalcfile)
    FILE *fd1, *fd2;
    char buffer[256];
    char *p;
+   t_xpcalc_entry * newxpcalc;
    int len,i ,j;
    int level, startxp, neededxp, mingames, calctype;
    float lossfactor;
@@ -1938,24 +1940,15 @@ extern int ladder_createxptable(const char *xplevelfile, const char *xpcalcfile)
    }
    
    /* then lets allocate mem for all the arrays */
-   if ((xpcalc = malloc(sizeof(t_xpcalc) * W3_XPCALC_TYPES)) == NULL) {
+   if ((xpcalc = malloc(sizeof(t_xpcalc_entry) * W3_XPCALC_MAXLEVEL)) == NULL) { //presume the maximal leveldiff is level number
       eventlog(eventlog_level_error, "ladder_createxptable", "could not allocate for calc types");
       fclose(fd1); fclose(fd2);
       return -1;
    }
    
-   memset(xpcalc, 0, sizeof(t_xpcalc) * W3_XPCALC_TYPES);
+   w3_xpcalc_maxleveldiff = -1;
+   memset(xpcalc, 0, sizeof(t_xpcalc_entry) * W3_XPCALC_MAXLEVEL);
 
-   for(i=0; i<W3_XPCALC_TYPES;i++) {
-      if ((xpcalc[i].xpchart = malloc(sizeof(t_xpcalc_entry) * (W3_XPCALC_MAXLEVELDIFF +1 ))) == NULL) {
-	 eventlog(eventlog_level_error, "ladder_createxptable", "could not allocate for XP charts");
-	 ladder_destroyxptable();
-	 fclose(fd2); fclose(fd1);
-	 return -1;
-      }
-      memset(xpcalc[i].xpchart, 0, sizeof(t_xpcalc_entry) * (W3_XPCALC_MAXLEVELDIFF + 1));
-   }
-   
    if ((xplevels = malloc(sizeof(t_xplevel_entry) * W3_XPCALC_MAXLEVEL)) == NULL) {
       eventlog(eventlog_level_error, "ladder_createxptable", "coould not allocate for XP levels");
       ladder_destroyxptable();
@@ -2005,34 +1998,51 @@ extern int ladder_createxptable(const char *xplevelfile, const char *xpcalcfile)
       if (sscanf(buffer, " %d %d %d %d %d %d ", &minlevel, &leveldiff, &higher_xpgained, &higher_xplost, &lower_xpgained, &lower_xplost) != 6)
 	continue;
       
-      eventlog(eventlog_level_trace, "ladder_createxptable", "parsed 1 minlevel: %d leveldiff : %d", minlevel, leveldiff);
-      if (minlevel != 50 && minlevel != 25 && minlevel != 0) {
-	 eventlog(eventlog_level_error, "ladder_createxptable", "got invalid minim level : %d", minlevel);
-	 continue;
-      }
+      eventlog(eventlog_level_trace, "ladder_createxptable", "parsed xpcalc leveldiff : %d", leveldiff);
       
-      if (leveldiff <0 || leveldiff > W3_XPCALC_MAXLEVELDIFF) {
+      if (leveldiff <0) {
 	 eventlog(eventlog_level_error, "ladder_createxptable", "got invalid level diff : %d", leveldiff);
 	 continue;
       }
+
+      if (leveldiff> (w3_xpcalc_maxleveldiff+1)) {
+         eventlog(eventlog_level_error, __FUNCTION__,"expected entry for leveldiff=%u but found %u",w3_xpcalc_maxleveldiff+1,leveldiff);
+	 continue;
+      }
+
+      w3_xpcalc_maxleveldiff = leveldiff;
             
-      calctype = minlevel / 25;
-      if (calctype>W3_XPCALC_TYPES) calctype=W3_XPCALC_TYPES-1;
-      eventlog(eventlog_level_trace, "ladder_createxptable", "parsed 2 minlevel: %d ", calctype);
-      xpcalc[calctype].xpchart[leveldiff].higher_winxp = higher_xpgained;
-      xpcalc[calctype].xpchart[leveldiff].higher_lossxp = higher_xplost;
-      xpcalc[calctype].xpchart[leveldiff].lower_winxp = lower_xpgained;
-      xpcalc[calctype].xpchart[leveldiff].lower_lossxp = lower_xplost;
+      xpcalc[leveldiff].higher_winxp = higher_xpgained;
+      xpcalc[leveldiff].higher_lossxp = higher_xplost;
+      xpcalc[leveldiff].lower_winxp = lower_xpgained;
+      xpcalc[leveldiff].lower_lossxp = lower_xplost;
    }
    fclose(fd2);
+
+   if (!(newxpcalc = realloc(xpcalc, sizeof(t_xpcalc_entry) * (w3_xpcalc_maxleveldiff+1))))
+   {
+     eventlog(eventlog_level_error,__FUNCTION__,"error resizing xpcalc array to size %d",w3_xpcalc_maxleveldiff+1);
+     ladder_destroyxptable();
+     return -1;
+   }
+   xpcalc=newxpcalc;
    
    /* OK, now we need to test couse if the user forgot to put some values
     * lots of profiles could get screwed up
     */
-   for(i=0; i<W3_XPCALC_TYPES; i++)
-     for(j=0;j<=W3_XPCALC_MAXLEVELDIFF;j++)
-       if (xpcalc[i].xpchart[j].higher_winxp == 0 || xpcalc[i].xpchart[j].higher_lossxp == 0 ||
-           xpcalc[i].xpchart[j].lower_winxp  == 0 || xpcalc[i].xpchart[j].lower_lossxp  == 0) {
+
+    if (w3_xpcalc_maxleveldiff<0)
+    {
+      eventlog(eventlog_level_error,__FUNCTION__,"found no valid entries for WAR3 xp calculation");
+      ladder_destroyxptable();
+      return -1;
+    }
+
+    eventlog(eventlog_level_info,__FUNCTION__,"set war3 xpcalc maxleveldiff to %u",w3_xpcalc_maxleveldiff);
+
+     for(j=0;j<=w3_xpcalc_maxleveldiff;j++)
+       if (xpcalc[j].higher_winxp == 0 || xpcalc[j].higher_lossxp == 0 ||
+           xpcalc[j].lower_winxp  == 0 || xpcalc[j].lower_lossxp  == 0) {
 	  eventlog(eventlog_level_error, "ladder_createxptable", "i found 0 for a win/loss XP, please check your config file");
 	  ladder_destroyxptable();
 	  return -1;
@@ -2054,15 +2064,15 @@ extern void ladder_destroyxptable()
 {
    int i;
    
-   if (xpcalc != NULL) {
-      for(i=0; i < W3_XPCALC_TYPES; i++)
-	if (xpcalc[i].xpchart != NULL) free(xpcalc[i].xpchart);
-      free(xpcalc);
-      xpcalc = NULL;
-   }
-   
+   if (xpcalc != NULL) free(xpcalc);
    if (xplevels != NULL) free(xplevels);
 }
+
+extern unsigned int war3_get_maxleveldiff()
+{
+  return w3_xpcalc_maxleveldiff;
+}
+
 
 extern int ladder_war3_xpdiff(unsigned int winnerlevel, unsigned int looserlevel, int *winxpdiff, int *loosxpdiff)
 {
@@ -2071,7 +2081,7 @@ extern int ladder_war3_xpdiff(unsigned int winnerlevel, unsigned int looserlevel
    diff = winnerlevel - looserlevel;
    absdiff = (diff < 0)?(-diff):diff;
    
-   if (absdiff > W3_XPCALC_MAXLEVELDIFF) {
+   if (absdiff > w3_xpcalc_maxleveldiff) {
       eventlog(eventlog_level_error, "ladder_war3_xpdiff", "got invalid level difference : %d", absdiff);
       return -1;
    }
@@ -2092,11 +2102,11 @@ extern int ladder_war3_xpdiff(unsigned int winnerlevel, unsigned int looserlevel
     * DON'T CARE, cause current win/loss values aren't symetrical any more
     */
    if (diff >= 0) {
-      *winxpdiff = xpcalc[0].xpchart[absdiff].higher_winxp;
-      *loosxpdiff = - (xpcalc[0].xpchart[absdiff].lower_lossxp * xplevels[looserlevel - 1].lossfactor) / 100;
+      *winxpdiff = xpcalc[absdiff].higher_winxp;
+      *loosxpdiff = - (xpcalc[absdiff].lower_lossxp * xplevels[looserlevel - 1].lossfactor) / 100;
    } else {
-      *winxpdiff = xpcalc[0].xpchart[absdiff].lower_winxp;
-      *loosxpdiff = - (xpcalc[0].xpchart[absdiff].higher_lossxp * xplevels[looserlevel - 1].lossfactor) / 100;
+      *winxpdiff = xpcalc[absdiff].lower_winxp;
+      *loosxpdiff = - (xpcalc[absdiff].higher_lossxp * xplevels[looserlevel - 1].lossfactor) / 100;
    }
    
    return 0;
