@@ -549,60 +549,73 @@ extern int ladder_calc_info(t_clienttag clienttag, t_ladder_id id, unsigned int 
     sorted = xmalloc(sizeof(unsigned int)*count);
 
     for (curr=0; curr<count; curr++)
-        rating[curr] = account_get_ladder_rating(players[7],clienttag,id);
+        rating[curr] = account_get_ladder_rating(players[curr],clienttag,id);
     
     for (curr=0; curr<count; curr++)
     {
 	double k;
 	double prob;
 	double delta;
+	t_game_result myresult;
+	unsigned int  opponent_count;
+	unsigned int  team_members;
 	
 	k = coefficient(players[curr],clienttag,id);
+	opponent_count = 0;
+	myresult = results[curr];
 	
 	{
 	    unsigned int i,j;
 	    
-	    /* Put the current user into slot 0, others into other slots
+	    /* Put the current user into slot 0, his opponents into other slots
 	       order is not important for the other players */
 	    for (i=0,j=1; i<count; i++)
 		if (i==curr)
 		    sorted[0] = rating[i];
 		else
-		    sorted[j++] = rating[i];
+		{
+		    if (results[i]!=myresult)
+		    {
+		        sorted[j++] = rating[i];
+			opponent_count++;
+		    }
+		}
 	}
+
+	team_members = count - opponent_count;
 	
-	switch (count)
+	switch (opponent_count)
 	{
-	case 2:
+	case 1:
 	    prob = two_player(sorted);
             break;
-	case 3:
+	case 2:
 	    prob = three_player(sorted);
             break;
-	case 4:
+	case 3:
 	    prob = four_player(sorted);
             break;
-	case 5:
+	case 4:
 	    prob = five_player(sorted);
 	    break;
-	case 6:
+	case 5:
 	    prob = six_player(sorted);
 	    break;
-	case 7:
+	case 6:
 	    prob = seven_player(sorted);
 	    break;
-	case 8:
+	case 7:
 	    prob = eight_player(sorted);
 	    break;
 	default:
-	    eventlog(eventlog_level_error,__FUNCTION__,"sorry, unsupported number of ladder players (%u)",count);
+	    eventlog(eventlog_level_error,__FUNCTION__,"sorry, unsupported number of ladder opponents (%u)",opponent_count);
             xfree((void *)rating);
             xfree((void *)sorted);
 	    return -1;
 	}
 	
 	if (results[curr]==game_result_win)
-	    delta = fabs(k * (1.0 - prob)); /* better the chance of winning -> fewer points added */
+	    delta = fabs(k * (1.0 - prob) / team_members); /* better the chance of winning -> fewer points added */
 	else
 	    delta = -fabs(k * prob); /* better the chance of winning -> more points subtracted */
 	
@@ -611,7 +624,7 @@ extern int ladder_calc_info(t_clienttag clienttag, t_ladder_id id, unsigned int 
 	info[curr].prob      = prob;
 	info[curr].k         = (unsigned int)k;
 	info[curr].adj       = (int)delta;
-	info[curr].oldrating = account_get_ladder_rating(players[curr],clienttag,id);
+	info[curr].oldrating = rating[curr];
 	info[curr].oldrank   = account_get_ladder_rank(players[curr],clienttag,id);
     }
 
