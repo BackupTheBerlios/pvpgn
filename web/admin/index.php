@@ -18,9 +18,7 @@ Password: <input type="password" name="password"><br />
 </form></p>
 <?php
 } else {
-	if ($_GET['action'] == 'login' || $_GET['action'] == 'donewuser' || $_GET['action'] == 'dosubmit' || $_GET['action'] == 'downloads' || $_GET['action'] == 'dodownloads' || $_GET['action'] == 'edit' || $_GET['action'] == 'dodelete' || $_GET['action'] == 'd
-
-oedit' || $_GET['action'] == 'edititem') {
+	if ($_GET['action'] == 'login' || $_GET['action'] == 'donewuser' || $_GET['action'] == 'dosubmit' || $_GET['action'] == 'downloads' || $_GET['action'] == 'dodownloads' || $_GET['action'] == 'edit' || $_GET['action'] == 'dodelete' || $_GET['action'] == 'doedit' || $_GET['action'] == 'edititem') {
 		$dbh = mysql_connect($dbhost,$dbuser,$dbpass);
 		mysql_select_db($dbname,$dbh);
 	}
@@ -40,9 +38,7 @@ oedit' || $_GET['action'] == 'edititem') {
 	} else {
 		if ($_GET['action'] != 'logout') {
 			?>
-			<p align="center"><a href="<?php echo $_SERVER['PHP_SELF']; ?>?action=submit">Submit news</a> | <a href="<?php echo $_SERVER['PHP_SELF']; ?>?action=edit">Edit news</a> | <a href="<?php echo $_SERVER['PHP_SELF']; ?>?action=newuser">Create new user</a> |
-
- <a href="links.php">Edit links</a> | <a href="<?php echo $_SERVER['PHP_SELF']; ?>?action=downloads">Edit downloads</a> | <a href="<?php echo $_SERVER['PHP_SELF']; ?>?action=logout">Logout</a></p>
+			<p align="center"><a href="<?php echo $_SERVER['PHP_SELF']; ?>?action=submit">Submit news</a> | <a href="<?php echo $_SERVER['PHP_SELF']; ?>?action=edit">Edit news</a> | <a href="<?php echo $_SERVER['PHP_SELF']; ?>?action=newuser">Create new user</a> | <a href="links.php">Edit links</a> | <a href="<?php echo $_SERVER['PHP_SELF']; ?>?action=downloads">Edit downloads</a> | <a href="<?php echo $_SERVER['PHP_SELF']; ?>?action=logout">Logout</a></p>
 			<?php
 		}
 		if ($_GET['action'] == 'newuser') {
