@@ -7,7 +7,11 @@ if (!isset($filesphp)) {
 <tr>
 <td colspan="4" class="text13">
 <?php
-echo "<p><strong>Latest ".$filesphp['type']." release: PvPGN ".$filesphp['version']."</strong></p>";
+if ($filesphp['type'] == 'd2pack109') {
+    echo "<p><strong>Diablo II 1.09d support</strong></p>";
+} else {
+    echo "<p><strong>Latest ".$filesphp['type']." release: PvPGN ".$filesphp['version']."</strong></p>";
+}
 ?>
 </td>
 </tr>

@@ -2,7 +2,7 @@
 require_once('../config.php');
 $dateformat = 'l F j, Y G:i:s';
 session_start();
-if (!session_is_registered('user') || !($_GET['type'] == 'unstable' || $_GET['type'] == 'stable')) {
+if (!session_is_registered('user') || !($_GET['type'] == 'unstable' || $_GET['type'] == 'stable' || $_GET['type'] == 'd2pack109')) {
 	header("Location: index.php");
 	die();
 }

@@ -96,6 +96,9 @@ if ($row = mysql_fetch_row($query)) {
 				  $row = mysql_fetch_row($temp = mysql_query("SELECT value FROM config WHERE `key` = 'latest_unstable'",$dbh));
 				  $latest_unstable = $row[0];
 				  mysql_free_result($temp);
+				  $row = mysql_fetch_row($temp = mysql_query("SELECT value FROM config WHERE `key` = 'latest_d2pack109'",$dbh));
+				  $latest_d2pack109 = $row[0];
+				  mysql_free_result($temp);
 				  unset($temp);
 				  unset($row);
 
@@ -124,6 +127,11 @@ if ($row = mysql_fetch_row($query)) {
 				  $filesphp = array(
 								'type' => 'stable',
 								'version' => $latest_stable);
+				  include('files.php');
+				// And finally, d2pack109
+				  $filesphp = array(
+								'type' => 'd2pack109',
+								'version' => $latest_d2pack109);
 				  include('files.php');
 
 				// Show downloads for support files.  There is no reason to keep these in a database

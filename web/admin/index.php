@@ -152,6 +152,9 @@ Password: <input type="password" name="password"><br />
 			$row = mysql_fetch_row($temp = mysql_query("SELECT value FROM config WHERE `key` = 'latest_unstable'",$dbh));
 			$latest_unstable = $row[0];
 			mysql_free_result($temp);
+			$row = mysql_fetch_row($temp = mysql_query("SELECT value FROM config WHERE `key` = 'latest_d2pack109'",$dbh));
+			$latest_d2pack109 = $row[0];
+			mysql_free_result($temp);
 			unset($temp);
 			unset($row);
 			echo "<form action=\"".$_SERVER['PHP_SELF']."?action=dodownloads\" method=\"post\">\n";
@@ -159,10 +162,12 @@ Password: <input type="password" name="password"><br />
 			echo "<a href=\"downloads.php?type=unstable\">Edit files for unstable</a><br />\n<br />\n";
 			echo "Latest stable release: <input type=\"text\" name=\"stable\" value=\"".$latest_stable."\"><br />\n";
 			echo "<a href=\"downloads.php?type=stable\">Edit files for stable</a><br />\n<br />\n";
+			echo "Latest d2pack109 release: <input type=\"text\" name=\"d2pack109\" value=\"".$latest_d2pack109."\"><br />\n";
+			echo "<a href=\"downloads.php?type=d2pack109\">Edit files for d2pack109</a><br />\n<br />\n";
 			echo "<input type=\"submit\" value=\"Apply changes\">\n";
 			echo "</form>\n";
 		} else if ($_GET['action'] == 'dodownloads') {
-			if (mysql_query("UPDATE config SET `value` = '".$_POST['unstable']."' WHERE `key` = 'latest_unstable';",$dbh) && mysql_query("UPDATE config SET `value` = '".$_POST['stable']."' WHERE `key` = 'latest_stable';",$dbh)) {
+			if (mysql_query("UPDATE config SET `value` = '".$_POST['unstable']."' WHERE `key` = 'latest_unstable';",$dbh) && mysql_query("UPDATE config SET `value` = '".$_POST['stable']."' WHERE `key` = 'latest_stable';",$dbh) && mysql_query("UPDATE config SET `value` = '".$_POST['d2pack109']."' WHERE `key` = 'latest_d2pack109';",$dbh)) {
 				echo "<p align=\"center\">Updated successfully</p>\n";
 			} else {
 				echo "<p align=\"center\">Error: Could not apply changes</p>\n";
