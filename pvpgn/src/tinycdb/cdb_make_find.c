@@ -1,4 +1,4 @@
-/* $Id: cdb_make_find.c,v 1.5 2003/08/01 01:57:48 zakmcrofl Exp $
+/* $Id: cdb_make_find.c,v 1.6 2003/09/10 10:48:50 aaron Exp $
  * routines to search in in-progress cdb file
  *
  * This file is a part of tinycdb package by Michael Tokarev, mjt@corpit.ru.
@@ -6,6 +6,7 @@
  */
 
 #include "common/setup_before.h"
+#include <stdio.h> /* vs.net wants this for SEEK_SET, maybe others, too? */
 #ifdef HAVE_UNISTD_H
 # include <unistd.h>
 #else
