@@ -3772,21 +3772,20 @@ static int _handle_lockacct_command(t_connection * c, char const *text)
   unsigned int   i;
   t_connection * user;
   t_account *    account;
+ 
+  text = skip_command(text); 
   
-  for (i=0; text[i]!=' ' && text[i]!='\0'; i++); /* skip command */
-  for (; text[i]==' '; i++);
-  
-  if (text[i]=='\0')
+  if (text[0]=='\0')
     {
       message_send_text(c,message_type_info,c,"usage: /lockacct <username>");
       return 0;
     }
 #ifdef WITH_BITS
-  if (bits_va_command_with_account_name(c,text,&text[i]))
+  if (bits_va_command_with_account_name(c,text,text))
     return 0;
 #endif
   
-  if (!(account = accountlist_find_account(&text[i])))
+  if (!(account = accountlist_find_account(text)))
     {
       message_send_text(c,message_type_error,c,"Invalid user.");
       return 0;
@@ -3797,7 +3796,7 @@ static int _handle_lockacct_command(t_connection * c, char const *text)
     return 0;
   }
 #endif
-  if ((user = connlist_find_connection_by_accountname(&text[i])))
+  if ((user = connlist_find_connection_by_accountname(text)))
     message_send_text(user,message_type_info,user,"Your account has just been locked by admin.");
   
   /* FIXME: this account attribute changing should be advertised on BITS right ?  (Yes.) */
@@ -3812,20 +3811,19 @@ static int _handle_unlockacct_command(t_connection * c, char const *text)
   unsigned int   i;
   t_connection * user;
   t_account *    account;
+ 
+  text = skip_command(text); 
   
-  for (i=0; text[i]!=' ' && text[i]!='\0'; i++); /* skip command */
-  for (; text[i]==' '; i++);
-  
-  if (text[i]=='\0')
+  if (text[0]=='\0')
     {
       message_send_text(c,message_type_info,c,"usage: /unlockacct <username>");
       return 0;
     }
 #ifdef WITH_BITS
-  if (bits_va_command_with_account_name(c,text,&text[i]))
+  if (bits_va_command_with_account_name(c,text,text))
     return 0;
 #endif
-  if (!(account = accountlist_find_account(&text[i])))
+  if (!(account = accountlist_find_account(text)))
     {
       message_send_text(c,message_type_error,c,"Invalid user.");
       return 0;
