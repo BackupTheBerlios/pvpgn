@@ -269,7 +269,7 @@ static int file_write_attrs(t_storage_info *info, void *attributes)
     * operation.  At least the race window is small.
     */
     if (access((const char *)info, 0) == 0) {
-	if (remove(info->file)<0) {
+	if (remove((const char *)info)<0) {
 	    eventlog(eventlog_level_error, __FUNCTION__, "could not delete account file \"%s\" (remove: %s)", info, strerror(errno));
             free(tempname);
 	    return -1;
