@@ -1823,46 +1823,46 @@ extern int account_set_friend( t_account * account, int friendnum, unsigned int 
 
 extern unsigned int account_get_friend( t_account * account, int friendnum)
 {
-	char key[256];
-	int tmp;
-        char const * name;
-        t_account * acct;
+    char key[256];
+    int tmp;
+    char const * name;
+    t_account * acct;
 
-	if (friendnum < 0 || friendnum >= prefs_get_max_friends()) {
-		// bogus name (user himself) instead of NULL, otherwise clients might crash
-		return 0;  
-	}
+    if (friendnum < 0 || friendnum >= prefs_get_max_friends()) {
+	// bogus name (user himself) instead of NULL, otherwise clients might crash
+	eventlog(eventlog_level_error, __FUNCTION__, "invalid friendnum %d (max: %d)", friendnum, prefs_get_max_friends);
+	return 0;  
+    }
 
-	sprintf(key, "friend\\%d\\uid", friendnum);
-	tmp = account_get_numattr(account, key);
-	if(!tmp) {
-                // ok, looks like we have a problem. Maybe friends still stored in old format?
-		int n;
+    sprintf(key, "friend\\%d\\uid", friendnum);
+    tmp = account_get_numattr(account, key);
+    if(!tmp) {
+        // ok, looks like we have a problem. Maybe friends still stored in old format?
+	int n;
 
-                sprintf(key,"friend\\%d\\name",friendnum);
-                name = account_get_strattr(account,key);
+        sprintf(key,"friend\\%d\\name",friendnum);
+        name = account_get_strattr(account,key);
 
-                if (name) 
-                {
-                  if ((acct = accountlist_find_account(name)) != NULL)
-                  {
-                    tmp = account_get_uid(acct);
-                    account_set_friend(account,friendnum,tmp);
-                    account_set_strattr(account,key,NULL); //remove old username-based friend now                  
-                    
-                    return tmp;
-                  }
-                  account_set_strattr(account,key,NULL); //remove old username-based friend now                  
-                }
+        if (name) 
+        {
+    	    if ((acct = accountlist_find_account(name)) != NULL)
+            {
+        	tmp = account_get_uid(acct);
+                account_set_friend(account,friendnum,tmp);
+                account_set_strattr(account,key,NULL); //remove old username-based friend now                  
 
-		n = account_get_friendcount(account);
-		eventlog(eventlog_level_warn,"account_get_friend","NULL friend, decrementing friendcount (%d) and sending bogus friend name '%s'", n, account_get_name(account));
-		if(--n >= 0)
-			account_set_friendcount(account, n);
-		return 0;
+                return tmp;
+	    }
+            account_set_strattr(account,key,NULL); //remove old username-based friend now                  
+	    eventlog(eventlog_level_warn, __FUNCTION__, "unexistant friend name ('%s') in old storage format", name);
+	    return 0;
+        }
 
-	}
-	return tmp;
+	eventlog(eventlog_level_error, __FUNCTION__, "could not find friend (friendno: %d of '%s')", friendnum, account_get_name(account));
+	return 0;
+    }
+
+    return tmp;
 }
 
 extern int account_set_friendcount( t_account * account, int count)
@@ -1925,7 +1925,7 @@ extern int account_remove_friend( t_account * account, int friendnum )
     }
 
     if (friendnum < 0 || friendnum >= n) {
-	eventlog(eventlog_level_error, __FUNCTION__, "got invalid friendnum");
+	eventlog(eventlog_level_error, __FUNCTION__, "got invalid friendnum (friendnum: %d max: %d)", friendnum, n);
 	return -1;
     }
 
