@@ -604,7 +604,6 @@ static int sd_tcpinput(t_connection * c)
 	default:
 	    eventlog(eventlog_level_error,"sd_tcpinput","[%d] connection has bad class (closing connection)",conn_get_socket(c));
 	    // [quetzal] 20020808 - marking connection as "destroyed", memory will be freed later
-		//conn_destroy(c);
 		conn_set_state(c, conn_state_destroy);
 	    return -2;
 	}
@@ -621,7 +620,6 @@ static int sd_tcpinput(t_connection * c)
     case -1:
 	eventlog(eventlog_level_debug,"sd_tcpinput","[%d] read FAILED (closing connection)",conn_get_socket(c));
 	// [quetzal] 20020808 - marking connection as "destroyed", memory will be freed later
-	//conn_destroy(c);
 	conn_set_state(c, conn_state_destroy);
 	return -2;
 	
@@ -748,7 +746,6 @@ static int sd_tcpinput(t_connection * c)
 		if (ret<0)
 		{
 			// [quetzal] 20020808 - marking connection as "destroyed", memory will be freed later
-			//conn_destroy(c);
 			conn_set_state(c, conn_state_destroy);
 		    return -2;
 		}
@@ -781,7 +778,6 @@ static int sd_tcpoutput(t_connection * c)
 	{
 	case -1:
 		// [quetzal] 20020808 - marking connection as "destroyed", memory will be freed later
-		//conn_destroy(c);
 		conn_set_state(c, conn_state_destroy);
 	    return -2;
 	    
