@@ -4482,11 +4482,11 @@ static int _client_startgame4(t_connection * c, t_packet const * const packet)
 		  eventlog(eventlog_level_info,__FUNCTION__,"[%d] game \"%s\" is finished",conn_get_socket(c),gamename);
 		  break;
 		default:
-		  eventlog(eventlog_level_debug,__FUNCTION__,"[%d] unknown startgame4 status %d",conn_get_socket(c),status);
+		  eventlog(eventlog_level_error,__FUNCTION__,"[%d] unknown startgame4 status %d",conn_get_socket(c),status);
 	       }
 	  }
-	if (status!=CLIENT_STARTGAME4_STATUS_DONE1 &&
-	    status!=CLIENT_STARTGAME4_STATUS_DONE2)
+	else if (status!=CLIENT_STARTGAME4_STATUS_DONE1 &&
+	         status!=CLIENT_STARTGAME4_STATUS_DONE2)
 	  {
 	     t_game_type gtype;
 	     
@@ -4501,8 +4501,10 @@ static int _client_startgame4(t_connection * c, t_packet const * const packet)
 	       }
 	     else if (status != CLIENT_STARTGAME4_STATUS_FULL_W3 &&
 		      conn_set_game(c,gamename,gamepass,gameinfo,gtype,STARTVER_GW4)==0) {
+/* Dizzy: I have yet to find any code that does game_get_option except the 
+          /gameinfo command
 		game_set_option(conn_get_game(c),bngoption_to_goption(conn_get_clienttag(c),gtype,option));
-		
+*/
 		if (flag & 0x0001) {
 		   eventlog(eventlog_level_debug,__FUNCTION__,"game created with private flag");
 		   game_set_flag_private(conn_get_game(c),1);
