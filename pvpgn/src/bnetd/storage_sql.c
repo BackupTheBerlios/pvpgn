@@ -55,6 +55,9 @@
 #ifdef WITH_SQL_MYSQL
 #include "sql_mysql.h"
 #endif
+#ifdef WITH_SQL_PGSQL
+#include "sql_pgsql.h"
+#endif
 #include "common/setup_after.h"
 
 #define CURRENT_DB_VERSION 150
@@ -288,25 +291,36 @@ static t_storage_info * sql_create_account(char const * username)
     }
 
     *((unsigned int*)info) = uid;
-    sprintf(query, "REPLACE INTO BNET (uid) VALUES('%s');", str_uid);
+    sprintf(query, "DELETE FROM BNET WHERE uid = '%s';", str_uid);
+    sql->query(query);
+    sprintf(query, "INSERT INTO BNET (uid) VALUES('%s');", str_uid);
     if (sql->query(query)) {
         eventlog(eventlog_level_error, __FUNCTION__, "user insert failed");
 	free((void*)info);
 	return NULL;
     }
-    sprintf(query, "REPLACE INTO profile (uid) VALUES('%s');", str_uid);
+
+    sprintf(query, "DELETE FROM profile WHERE uid = '%s';", str_uid);
+    sql->query(query);
+    sprintf(query, "INSERT INTO profile (uid) VALUES('%s');", str_uid);
     if (sql->query(query)) {
         eventlog(eventlog_level_error, __FUNCTION__, "user insert failed");
 	free((void*)info);
 	return NULL;
     }
-    sprintf(query, "REPLACE INTO Record (uid) VALUES('%s');", str_uid);
+
+    sprintf(query, "DELETE FROM Record WHERE uid = '%s';", str_uid);
+    sql->query(query);
+    sprintf(query, "INSERT INTO Record (uid) VALUES('%s');", str_uid);
     if (sql->query(query)) {
         eventlog(eventlog_level_error, __FUNCTION__, "user insert failed");
 	free((void*)info);
 	return NULL;
     }
-    sprintf(query, "REPLACE INTO friend (uid) VALUES('%s');", str_uid);
+
+    sprintf(query, "DELETE FROM friend WHERE uid = '%s';", str_uid);
+    sql->query(query);
+    sprintf(query, "INSERT INTO friend (uid) VALUES('%s');", str_uid);
     if (sql->query(query)) {
         eventlog(eventlog_level_error, __FUNCTION__, "user insert failed");
 	free((void*)info);
@@ -380,7 +394,7 @@ static int sql_read_attrs(t_storage_info *info, t_read_attr_func cb, void *data)
 
 	    sql->free_fields(fields);
 	}
-    if (result) sql->free_result(result);
+	if (result) sql->free_result(result);
     }
 #endif /* SQL_ON_DEMAND */
     return 0;
@@ -418,7 +432,7 @@ static void * sql_read_attr(t_storage_info *info, const char * key)
         return NULL;
     }
 
-    sprintf(query, "SELECT `%s` FROM `%s` WHERE `"SQL_UID_FIELD"` = %d", col, tab, uid);
+    sprintf(query, "SELECT %s FROM %s WHERE "SQL_UID_FIELD" = %d", col, tab, uid);
     if ((result = sql->query_res(query)) == NULL) return NULL;
 
     if (sql->num_rows(result) != 1) {
@@ -584,7 +598,12 @@ static int sql_read_accounts(t_read_accounts_func cb, void *data)
     }
 
     strcpy(query,"SELECT uid FROM BNET");
-    if((result = sql->query_res(query)) != NULL && (sql->num_rows(result) > 1)) {
+    if((result = sql->query_res(query)) != NULL) {
+	if (sql->num_rows(result) <= 1) {
+	    sql->free_result(result);
+	    return 0; /* empty user list */
+	}
+
 	while((row = sql->fetch_row(result)) != NULL) {
 	    if (row[0] == NULL) {
 		eventlog(eventlog_level_error, __FUNCTION__, "got NULL uid from db");
@@ -604,7 +623,6 @@ static int sql_read_accounts(t_read_accounts_func cb, void *data)
 	sql->free_result(result);
     } else {
 	eventlog(eventlog_level_error, __FUNCTION__, "error query db (query:\"%s\")", query);
-	if (result) sql->free_result(result);
 	return -1;
     }
 
@@ -708,15 +726,15 @@ static int _sql_dbcreator()
 {
     char **pstr;
     char * querys[] = {
-	"CREATE TABLE BNET (uid int(11) NOT NULL default '0' PRIMARY KEY,acct_username varchar(128) default NULL,acct_userid varchar(128) default NULL,acct_passhash1 varchar(128) default NULL,flags_initial varchar(128) default NULL,auth_admin varchar(128) NOT NULL default 'false',auth_normallogin varchar(128) NOT NULL default 'true',auth_changepass varchar(128) NOT NULL default 'true',auth_changeprofile varchar(128) NOT NULL default 'true',auth_botlogin varchar(128) NOT NULL default 'true',auth_operator varchar(128) NOT NULL default 'false',new_at_team_flag varchar(128) default '0',auth_lockk varchar(128) NOT NULL default 'false',auth_command_groups varchar(128) NOT NULL default '1');",
+	"CREATE TABLE BNET (uid int NOT NULL default '0' PRIMARY KEY,acct_username varchar(128) default NULL,acct_userid varchar(128) default NULL,acct_passhash1 varchar(128) default NULL,flags_initial varchar(128) default NULL,auth_admin varchar(128) NOT NULL default 'false',auth_normallogin varchar(128) NOT NULL default 'true',auth_changepass varchar(128) NOT NULL default 'true',auth_changeprofile varchar(128) NOT NULL default 'true',auth_botlogin varchar(128) NOT NULL default 'true',auth_operator varchar(128) NOT NULL default 'false',new_at_team_flag varchar(128) default '0',auth_lockk varchar(128) NOT NULL default 'false',auth_command_groups varchar(128) NOT NULL default '1');",
 	"INSERT INTO BNET VALUES (0,NULL,NULL,NULL,NULL,'false','true','true','true','true','false','0','false','1');",
-	"CREATE TABLE friend (uid int(11) NOT NULL default '0' PRIMARY KEY);",
+	"CREATE TABLE friend (uid int NOT NULL default '0' PRIMARY KEY);",
 	"INSERT INTO friend VALUES (0);",
-	"CREATE TABLE profile (uid int(11) NOT NULL default '0' PRIMARY KEY);",
+	"CREATE TABLE profile (uid int NOT NULL default '0' PRIMARY KEY);",
 	"INSERT INTO profile VALUES (0);",
-	"CREATE TABLE Record (uid int(11) NOT NULL default '0' PRIMARY KEY, WAR3_solo_xp int(11) default '0', WAR3_solo_level int(11) default '0', WAR3_solo_wins int(11) default '0', WAR3_solo_rank int(11) default '0', WAR3_solo_losses int(11) default '0', WAR3_team_xp int(11) default '0', WAR3_team_level int(11) default '0', WAR3_team_rank int(11) default '0', WAR3_team_wins int(11) default '0', WAR3_team_losses int(11) default '0', WAR3_ffa_xp int(11) default '0', WAR3_ffa_rank int(11) default '0', WAR3_ffa_level int(11) default '0', WAR3_ffa_wins int(11) default '0', WAR3_ffa_losses int(11) default '0', WAR3_orcs_wins int(11) default '0', WAR3_orcs_losses int(11) default '0', WAR3_humans_wins int(11) default '0', WAR3_humans_losses int(11) default '0', WAR3_undead_wins int(11) default '0', WAR3_undead_losses int(11) default '0', WAR3_nightelves_wins int(11) default '0', WAR3_nightelves_losses int(11) default '0', WAR3_random_wins int(11) default '0', WAR3_random_losses int(11) default '0', WAR3_teamcount int(11) default '0', W3XP_solo_xp int(11) default '0', W3XP_solo_level int(11) default '0', W3XP_solo_wins int(11) default '0', W3XP_solo_rank int(11) default '0', W3XP_solo_losses int(11) default '0', W3XP_team_xp int(11) default '0', W3XP_team_level int(11) default '0', W3XP_team_rank int(11) default '0', W3XP_team_wins int(11) default '0', W3XP_team_losses int(11) default '0', W3XP_ffa_xp int(11) default '0', W3XP_ffa_rank int(11) default '0', W3XP_ffa_level int(11) default '0', W3XP_ffa_wins int(11) default '0', W3XP_ffa_losses int(11) default '0', W3XP_orcs_wins int(11) default '0', W3XP_orcs_losses int(11) default '0', W3XP_humans_wins int(11) default '0', W3XP_humans_losses int(11) default '0', W3XP_undead_wins int(11) default '0', W3XP_undead_losses int(11) default '0', W3XP_nightelves_wins int(11) default '0', W3XP_nightelves_losses int(11) default '0', W3XP_random_wins int(11) default '0', W3XP_random_losses int(11) default '0', W3XP_teamcount int(11) default '0');",
+	"CREATE TABLE Record (uid int NOT NULL default '0' PRIMARY KEY, WAR3_solo_xp int default '0', WAR3_solo_level int default '0', WAR3_solo_wins int default '0', WAR3_solo_rank int default '0', WAR3_solo_losses int default '0', WAR3_team_xp int default '0', WAR3_team_level int default '0', WAR3_team_rank int default '0', WAR3_team_wins int default '0', WAR3_team_losses int default '0', WAR3_ffa_xp int default '0', WAR3_ffa_rank int default '0', WAR3_ffa_level int default '0', WAR3_ffa_wins int default '0', WAR3_ffa_losses int default '0', WAR3_orcs_wins int default '0', WAR3_orcs_losses int default '0', WAR3_humans_wins int default '0', WAR3_humans_losses int default '0', WAR3_undead_wins int default '0', WAR3_undead_losses int default '0', WAR3_nightelves_wins int default '0', WAR3_nightelves_losses int default '0', WAR3_random_wins int default '0', WAR3_random_losses int default '0', WAR3_teamcount int default '0', W3XP_solo_xp int default '0', W3XP_solo_level int default '0', W3XP_solo_wins int default '0', W3XP_solo_rank int default '0', W3XP_solo_losses int default '0', W3XP_team_xp int default '0', W3XP_team_level int default '0', W3XP_team_rank int default '0', W3XP_team_wins int default '0', W3XP_team_losses int default '0', W3XP_ffa_xp int default '0', W3XP_ffa_rank int default '0', W3XP_ffa_level int default '0', W3XP_ffa_wins int default '0', W3XP_ffa_losses int default '0', W3XP_orcs_wins int default '0', W3XP_orcs_losses int default '0', W3XP_humans_wins int default '0', W3XP_humans_losses int default '0', W3XP_undead_wins int default '0', W3XP_undead_losses int default '0', W3XP_nightelves_wins int default '0', W3XP_nightelves_losses int default '0', W3XP_random_wins int default '0', W3XP_random_losses int default '0', W3XP_teamcount int default '0');",
 	"INSERT INTO Record VALUES (0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0);",
-	"CREATE TABLE Team (uid int(11) NOT NULL PRIMARY KEY);",
+	"CREATE TABLE Team (uid int NOT NULL PRIMARY KEY);",
 	"INSERT INTO Team VALUES (0);",
 	"CREATE TABLE pvpgn (name varchar(128) NOT NULL PRIMARY KEY, value varchar(255));",
 	"INSERT INTO pvpgn (name, value) VALUES('db_version', '0');",
@@ -755,9 +773,9 @@ static void _sql_update_DB_v0_to_v150(void)
 		if (strncmp(*fentry,CLIENTTAG_SHAREWARE,4)==0) continue;
 		if (strcmp(*fentry,SQL_UID_FIELD)==0) continue;
 
-		sprintf(query,"ALTER TABLE Record CHANGE %s WAR3_%s int(11) default '0';",*fentry,*fentry);
+		sprintf(query,"ALTER TABLE Record CHANGE %s WAR3_%s int default '0';",*fentry,*fentry);
 		sql->query(query);
-		sprintf(query,"ALTER TABLE Record ADD W3XP_%s int(11) default '0';",*fentry);
+		sprintf(query,"ALTER TABLE Record ADD W3XP_%s int default '0';",*fentry);
 		sql->query(query); 
 	    }
 	    sql->free_fields(fields);

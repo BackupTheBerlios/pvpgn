@@ -80,9 +80,11 @@ esac])
 extra_lib=""
 AC_ARG_WITH(efence, [  --with-efence           link with Electric Fence to find memory problems], [extra_lib="${extra_lib} -lefence"])
 
-AC_ARG_WITH(mysql, [  --with-mysql            include mysql support], [ac_with_mysql='yes'])
+AC_ARG_WITH(cdb, [  --with-cdb              include cdb user accounts file support], [ac_with_cdb='yes'])
 
-AC_ARG_WITH(cdb, [  --with-cdb              include cdb file support], [ac_with_cdb='yes'])
+AC_ARG_WITH(mysql, [  --with-mysql            include MySQL user accounts support], [ac_with_mysql='yes'])
+
+AC_ARG_WITH(mysql, [  --with-pgsql            include PostgreSQL user accounts support], [ac_with_pgsql='yes'])
 
 extra_define=""
 AC_ARG_WITH(bits, [  --with-bits             include BITS patch. (EXPERIMENTAL)], [extra_define="${extra_define} -DWITH_BITS"])
@@ -200,6 +202,38 @@ if test "$ac_with_mysql" = "yes" ; then
 	    fi
 	done
     ])
+fi
+
+pgsql_include_path=""
+dnl Detecting pgsql paths
+if test "$ac_with_pgsql" = "yes" ; then
+	echo -n "checking for pgsql include path ... "
+	pgsql_try_includes="/usr/include /usr/include/pgsql /usr/local/include /usr/local/include/pgsql /usr/local/pgsql/include"
+	for i in `echo ${pgsql_try_includes}`; do
+	    if test -f "${i}/libpq-fe.h" ; then
+		echo ${i}
+		CPPFLAGS="${CPPFLAGS} -I${i}"
+		pgsql_include_path=${i}
+		break
+	    fi
+	done
+fi
+
+pgsql_lib_path=""
+if test "$ac_with_pgsql" = "yes" ; then
+     AC_CHECK_LIB(pq, PQsetdbLogin , [DEFINES="${DEFINES} -DWITH_SQL -DWITH_SQL_PGSQL" ; LIBS="${LIBS} -lpq"], [
+	echo -n "checking for pgsql lib path ... "
+	pgsql_try_libs="/usr/lib /usr/lib/pgsql /usr/local/lib /usr/local/lib/pgsql /usr/local/pgsql/lib"
+	for i in `echo ${pgsql_try_libs}`; do
+	    if test -f "${i}/libpq.so" -o -f "${i}/libpq.a" ; then
+		echo ${i}
+		save_ldflags="${LDFLAGS}"
+		LDFLAGS="${LDFLAGS} -L${i}"
+		AC_CHECK_LIB(pq, PQfinish , [DEFINES="${DEFINES} -DWITH_SQL -DWITH_SQL_PGSQL" ; LIBS="${LIBS} -lpq" ; pgsql_lib_path="${i}"], [LDFLAGS="${save_ldflags}"])
+		break
+	    fi
+	done
+     ])
 fi
 
 # Checks for header files.
