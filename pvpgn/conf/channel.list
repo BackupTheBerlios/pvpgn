@@ -21,8 +21,8 @@ NONE                 "Starcraft Shareware" SSHR true  false false "USA" NULL 30
 NONE                 "Diablo Retail"      DRTL  true  false false "USA" NULL 30
 NONE                 "War2BNE"            W2BN  true  false false "USA" NULL 30
 NONE                 "Diablo II"          D2DV  true  false false "USA" NULL 30
-"Chat"                "Chat"              CHAT  true  false false  NULL NULL -1
-"PvPGN Warcraft 3 - USA"     "W3"         WAR3  true  false false NULL NULL -1
-"PvPGN Warcraft 3 - KOR"     "W3"         WAR3  true  false false NULL NULL -1
+"Chat"               "Chat"               CHAT  true  false false  NULL NULL -1
+"Warcraft 3"         "W3"                 WAR3  true  false false NULL NULL -1
+"Warcraft 3 Expansion" "W3"               W3XP  true  false false NULL NULL -1
 #                                                                            #
 ##############################################################################
