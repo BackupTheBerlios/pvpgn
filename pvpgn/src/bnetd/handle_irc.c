@@ -1022,13 +1022,16 @@ static int _handle_ison_command(t_connection * conn, int numparams, char ** para
 static int _handle_whois_command(t_connection * conn, int numparams, char ** params, char * text)
 {
 	char temp[MAX_IRC_MESSAGE_LEN];
+	char temp2[MAX_IRC_MESSAGE_LEN];
 	if (numparams>=1) 
 	{
 	    int i;
 	    char ** e;
 	    t_connection * c;
+	    t_channel * chan;
 
 	    temp[0]='\0';
+	    temp2[0]='\0';
 	    e = irc_get_listelems(params[0]);
 	    for (i=0; ((e)&&(e[i]));i++) 
 		{
@@ -1039,6 +1042,26 @@ static int _handle_whois_command(t_connection * conn, int numparams, char ** par
 		    else
 		      sprintf(temp,"%s %s %s * :%s",e[i],clienttag_uint_to_str(conn_get_clienttag(c)),addr_num_to_ip_str(conn_get_addr(c)),"PvPGN user");
 		    irc_send(conn,RPL_WHOISUSER,temp);
+		    
+		    if ( chan = conn_get_channel(conn) ) 
+		    {
+			char const * name = conn_get_chatname(c);
+			char flg;
+			unsigned int flags;
+			
+			flags = conn_get_flags(c);
+			
+	            	if (flags & MF_BLIZZARD)
+		            flg='@';
+	            	else if ((flags & MF_BNET) || (flags & MF_GAVEL))
+		            flg='%'; 
+	            	else if (flags & MF_VOICE)
+		            flg='+';
+		        else flg = '';
+			sprintf(temp2,"%s :%c%s",e[i],flg,irc_convert_channel(chan));
+			irc_send(conn,RPL_WHOISCHANNELS,temp2);
+		    }
+		    
 		  }
 		  else
 		    irc_send(conn,ERR_NOSUCHNICK,":No such nick/channel");
