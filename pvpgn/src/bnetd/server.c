@@ -826,14 +826,17 @@ static int sd_tcpoutput(int csocket, t_connection * c)
 			packet_get_size(packet));
 		hexdump(hexstrm,packet_get_raw_data(packet,0),packet_get_size(packet));
 	    }
-	    
-	    packet_del_ref(newpacket);
+
+	    packet_del_ref(packet);
 	    conn_set_out_size(c,0);
 	    
 	    /* stop at about 2KB (or until out of packets or EWOULDBLOCK) */
 	    if (totsize>2048 || queue_get_length((t_queue const * const *)conn_get_out_queue(c))<1)
 		return 0;
 	    totsize += currsize;
+	    break;
+	default:
+	    packet_del_ref(newpacket);
 	}
     }
     
