@@ -1288,7 +1288,7 @@ extern int accountlist_reload(int all)
         {
 	  if (!((old_acc->dirty) || account_logged_in(old_acc)))
 	  {
-	    war3_ladders_remove_account(old_acc,"WAR3");
+	    war3_ladders_remove_account(old_acc);
 	    watchlist_del_by_account(old_acc);
 	    account_destroy(old_acc);
 	    hashtable_remove_entry(accountlist_head,curr);
@@ -1754,77 +1754,6 @@ extern t_account * accountlist_add_account(t_account * account)
     if (uid>maxuserid)
         maxuserid = uid;
 
-    // 11-20-2002 aaron --->
-    if (account)
-      { int rank;
-	char const * ct = "WAR3";
-	if ((rank = account_get_solorank(account,ct)))
-	  {
-	    if (war3_ladder_add(&solo_ladder,
-				uid,
-				account_get_soloxp(account,ct),
-				rank,
-				account,0,ct)<0)
-	      {    
-		eventlog(eventlog_level_error,"accountlist_add_account","could not add to war3_ladder(solo)");
-		hashtable_remove_data(accountlist_head,account,account->namehash);
-		return NULL;
-	      }
-	  }
-	if ((rank = account_get_teamrank(account,ct)))
-	  {
-	    if (war3_ladder_add(&team_ladder,
-				uid,
-				account_get_teamxp(account,ct),
-				rank,
-				account,0,ct )<0)
-	      {
-		eventlog(eventlog_level_error,"accountlist_add_account","could not add to war3_ladder(team)");	
-		hashtable_remove_data(accountlist_head,account,account->namehash);
-		return NULL;
-	      }
-	  }
-	if ((rank = account_get_ffarank(account,ct)))
-	{
-          if (war3_ladder_add(&ffa_ladder,
-			      uid,
-			      account_get_ffaxp(account,ct),
-			      rank,
-			      account,0,ct )<0)
-	  {
-	    eventlog(eventlog_level_error,"accountlist_add_account","could not add to war_ladder(ffa)");
-	    hashtable_remove_data(accountlist_head,account,account->namehash);
-	    return NULL;
-	  }
-	}
-	// user is part of a team
-	if (account_get_atteamcount(account,ct))
-	{
-	  int counter, rank;
-	  // for each team he is in...
-          for (counter=1; counter<=account_get_atteamcount(account,ct); counter++)
-          {
-	    rank = account_get_atteamrank(account,counter,ct);
-	    // make sure... user has ranking... and team is valid...
-	    if ((rank) && account_get_atteammembers(account,counter,ct))
-	    {
-	       if (war3_ladder_add(&at_ladder,
-				   uid,
-				   account_get_atteamxp(account,counter,ct),
-				   rank,
-				   account,
-				   counter,ct)<0)
-	       {
-		 eventlog(eventlog_level_error,"accountlist_add_account","could not add to war3_ladder(at)");
-		 hashtable_remove_data(accountlist_head,account,account->namehash);
-		 return NULL;
-
-	       }
-	    }
-          }	   
-	}
-      }
-
     return account;
 }
 
@@ -1865,18 +1794,51 @@ extern int accounts_rank_all(void)
     HASHTABLE_TRAVERSE(accountlist_head,curr)
     {
       int counter;
-      char const * ct = "WAR3";
       
       account = entry_get_data(curr);
       uid = account_get_uid(account);
-      war3_ladder_add(&solo_ladder,uid,account_get_soloxp(account,ct),account_get_solorank(account,ct),account,0,ct);
-      war3_ladder_add(&team_ladder,uid,account_get_teamxp(account,ct),account_get_teamrank(account,ct),account,0,ct);
-      war3_ladder_add(&ffa_ladder,uid,account_get_ffaxp(account,ct),account_get_ffarank(account,ct),account,0,ct);
-      for (counter=1; counter<=account_get_atteamcount(account,ct);counter++)
+      war3_ladder_add(solo_ladder(CLIENTTAG_WARCRAFT3),
+		      uid,account_get_soloxp(account,CLIENTTAG_WARCRAFT3),
+		      account_get_solorank(account,CLIENTTAG_WARCRAFT3),
+		      account,0,CLIENTTAG_WARCRAFT3);
+      war3_ladder_add(team_ladder(CLIENTTAG_WARCRAFT3),
+		      uid,account_get_teamxp(account,CLIENTTAG_WARCRAFT3),
+		      account_get_teamrank(account,CLIENTTAG_WARCRAFT3),
+		      account,0,CLIENTTAG_WARCRAFT3);
+      war3_ladder_add(ffa_ladder(CLIENTTAG_WARCRAFT3),
+		      uid,account_get_ffaxp(account,CLIENTTAG_WARCRAFT3),
+		      account_get_ffarank(account,CLIENTTAG_WARCRAFT3),
+		      account,0,CLIENTTAG_WARCRAFT3);
+      for (counter=1; counter<=account_get_atteamcount(account,CLIENTTAG_WARCRAFT3);counter++)
       {
-	    if (account_get_atteammembers(account,counter,ct) != NULL)
-          war3_ladder_add(&at_ladder,uid,account_get_atteamxp(account,counter,ct),account_get_atteamrank(account,counter,ct),account,counter,ct);
+	    if (account_get_atteammembers(account,counter,CLIENTTAG_WARCRAFT3) != NULL)
+          war3_ladder_add(at_ladder(CLIENTTAG_WARCRAFT3),
+			  uid,account_get_atteamxp(account,counter,CLIENTTAG_WARCRAFT3),
+			  account_get_atteamrank(account,counter,CLIENTTAG_WARCRAFT3),
+			  account,counter,CLIENTTAG_WARCRAFT3);
       }
+
+      war3_ladder_add(solo_ladder(CLIENTTAG_WAR3XP),
+		      uid,account_get_soloxp(account,CLIENTTAG_WAR3XP),
+		      account_get_solorank(account,CLIENTTAG_WAR3XP),
+		      account,0,CLIENTTAG_WAR3XP);
+      war3_ladder_add(team_ladder(CLIENTTAG_WAR3XP),
+		      uid,account_get_teamxp(account,CLIENTTAG_WAR3XP),
+		      account_get_teamrank(account,CLIENTTAG_WAR3XP),
+		      account,0,CLIENTTAG_WAR3XP);
+      war3_ladder_add(ffa_ladder(CLIENTTAG_WAR3XP),
+		      uid,account_get_ffaxp(account,CLIENTTAG_WAR3XP),
+		      account_get_ffarank(account,CLIENTTAG_WAR3XP),
+		      account,0,CLIENTTAG_WAR3XP);
+      for (counter=1; counter<=account_get_atteamcount(account,CLIENTTAG_WAR3XP);counter++)
+      {
+	    if (account_get_atteammembers(account,counter,CLIENTTAG_WAR3XP) != NULL)
+          war3_ladder_add(at_ladder(CLIENTTAG_WAR3XP),
+			  uid,account_get_atteamxp(account,counter,CLIENTTAG_WAR3XP),
+			  account_get_atteamrank(account,counter,CLIENTTAG_WAR3XP),
+			  account,counter,CLIENTTAG_WAR3XP);
+      }
+
     }
     war3_ladder_update_all_accounts();
     return 0;

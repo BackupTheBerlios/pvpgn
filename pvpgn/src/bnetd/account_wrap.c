@@ -2078,7 +2078,7 @@ extern int account_set_soloxp(t_account * account, char const * clienttag, t_gam
     }
   
   // aaron
-  war3_ladder_update(&solo_ladder,account_get_uid(account),xpdiff,account,0,clienttag);
+  war3_ladder_update(solo_ladder(clienttag),account_get_uid(account),xpdiff,account,0,clienttag);
    
   xp += xpdiff;
   if (xp < 0) xp = 0;
@@ -2137,12 +2137,12 @@ extern int account_set_solorank(t_account * account, char const * clienttag)
 
   sprintf(key,"Record\\%s\\solo\\rank",clienttag);
 
-  return account_set_numattr(account, key ,war3_ladder_get_rank(&solo_ladder,account_get_uid(account),0,clienttag));
+  return account_set_numattr(account, key ,war3_ladder_get_rank(solo_ladder(clienttag),account_get_uid(account),0,clienttag));
 }
 
 extern int account_get_solorank_ladder(t_account * account, char const * clienttag)
 {
-   return war3_ladder_get_rank(&solo_ladder, account_get_uid(account),0,clienttag);
+   return war3_ladder_get_rank(solo_ladder(clienttag), account_get_uid(account),0,clienttag);
 }
 
 extern int account_set_solorank_ladder(t_account * account, char const * clienttag, int rank)
@@ -2238,7 +2238,7 @@ extern int account_set_teamxp(t_account * account, char const * clienttag, t_gam
       xpdiff = lvldiff_2_xpdiff_win[lvldiff+6];
     }
   
-  war3_ladder_update(&team_ladder,account_get_uid(account), xpdiff, account,0,clienttag);
+  war3_ladder_update(team_ladder(clienttag),account_get_uid(account), xpdiff, account,0,clienttag);
   
   xp += xpdiff;
   
@@ -2295,13 +2295,13 @@ extern int account_set_teamrank(t_account * account, char const * clienttag)
 
   sprintf(key,"Record\\%s\\team\\rank",clienttag);
   
-  return account_set_numattr(account,key,war3_ladder_get_rank(&team_ladder,account_get_uid(account),0,clienttag));
+  return account_set_numattr(account,key,war3_ladder_get_rank(team_ladder(clienttag),account_get_uid(account),0,clienttag));
 }
 
 extern int account_get_teamrank_ladder(t_account * account, char const * clienttag)
 {
   
-  return war3_ladder_get_rank(&team_ladder,account_get_uid(account),0,clienttag);
+  return war3_ladder_get_rank(team_ladder(clienttag),account_get_uid(account),0,clienttag);
 }
 
 extern int account_set_teamrank_ladder(t_account * account, char const * clienttag, int rank)
@@ -2396,7 +2396,7 @@ extern int account_set_ffaxp(t_account * account, char const * clienttag,t_game_
       xpdiff=lvldiff_2_xpdiff_win[lvldiff+6];
     }
   
-  war3_ladder_update(&ffa_ladder, account_get_uid(account), xpdiff, account, 0, clienttag);
+  war3_ladder_update(ffa_ladder(clienttag), account_get_uid(account), xpdiff, account, 0, clienttag);
   
   xp += xpdiff;
   
@@ -2459,14 +2459,14 @@ extern int account_set_ffarank(t_account * account, char const * clienttag)
 {
   char key[256];
 
-  sprintf(key,"Record\\%s\\ffa\rank",clienttag);
+  sprintf(key,"Record\\%s\\ffa\\rank",clienttag);
   
-  return account_set_numattr(account,key,war3_ladder_get_rank(&ffa_ladder,account_get_uid(account),0,clienttag));
+  return account_set_numattr(account,key,war3_ladder_get_rank(ffa_ladder(clienttag),account_get_uid(account),0,clienttag));
 }
 
 extern int account_get_ffarank_ladder(t_account * account, char const * clienttag)
 {
-	return war3_ladder_get_rank(&ffa_ladder,account_get_uid(account),0,clienttag);
+	return war3_ladder_get_rank(ffa_ladder(clienttag),account_get_uid(account),0,clienttag);
 }
 
 extern int account_set_ffarank_ladder(t_account * account, char const * clienttag, int rank)
@@ -2779,7 +2779,7 @@ extern int account_set_atteamxp(t_account * account, t_game_result gameresult, u
     }
   
    // aaron:
-   war3_ladder_update(&at_ladder,account_get_uid(account),xpdiff,account, teamcount,clienttag);
+   war3_ladder_update(at_ladder(clienttag),account_get_uid(account),xpdiff,account, teamcount,clienttag);
    
    xp += xpdiff;
    if (xp < 0) xp = 0;
@@ -2846,12 +2846,12 @@ extern int account_set_atteamrank(t_account * account, unsigned int teamcount, c
   
   sprintf(key,"Team\\%s\\%u\\rank",clienttag, teamcount);
 
-  return account_set_numattr(account,key,war3_ladder_get_rank(&at_ladder,account_get_uid(account),teamcount,clienttag));
+  return account_set_numattr(account,key,war3_ladder_get_rank(at_ladder(clienttag),account_get_uid(account),teamcount,clienttag));
 }
 
 extern int account_get_atteamrank_ladder(t_account * account, unsigned int teamcount, char const * clienttag)
 {
-  return war3_ladder_get_rank(&at_ladder,account_get_uid(account), teamcount,clienttag);
+  return war3_ladder_get_rank(at_ladder(clienttag),account_get_uid(account), teamcount,clienttag);
 }
 
 extern int account_set_atteamrank_ladder(t_account * account, int rank, unsigned int teamcount, char const * clienttag)
