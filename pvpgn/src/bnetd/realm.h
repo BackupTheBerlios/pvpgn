@@ -18,6 +18,14 @@
 #ifndef INCLUDED_REALM_TYPES
 #define INCLUDED_REALM_TYPES
 
+#ifdef JUST_NEED_TYPES
+#include "common/addr.h"
+#else
+#define JUST_NEED_TYPES
+#include "common/addr.h"
+#undef JUST_NEED_TYPES
+#endif
+
 typedef struct realm
 #ifdef REALM_INTERNAL_ACCESS
 {
@@ -29,6 +37,7 @@ typedef struct realm
     unsigned short port;
     unsigned int   showip;
     unsigned short showport;
+    t_netaddr *	   exclude_net;
     unsigned int   player_number;
     unsigned int   game_number;
     int			   tcp_sock;
@@ -46,6 +55,7 @@ t_realm;
 
 #define JUST_NEED_TYPES
 #include "common/list.h"
+#include "common/addr.h"
 #include "connection.h"
 #undef JUST_NEED_TYPES
 
@@ -55,6 +65,7 @@ extern unsigned short realm_get_port(t_realm const * realm) PURE_ATTR();
 extern unsigned int realm_get_ip(t_realm const * realm) PURE_ATTR();
 extern unsigned short realm_get_showport(t_realm const * realm) PURE_ATTR();
 extern unsigned int realm_get_showip(t_realm const * realm) PURE_ATTR();
+extern t_netaddr * realm_get_exclude_net(t_realm const * realm);
 extern int realm_set_name(t_realm * realm, char const * name);
 extern unsigned int realm_get_active(t_realm const * realm);
 extern unsigned int realm_get_player_number(t_realm const * realm);
