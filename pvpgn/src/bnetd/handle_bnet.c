@@ -632,7 +632,13 @@ static int _client_countryinfo109(t_connection * c, t_packet const * const packe
 	     file_to_mod_time(versioncheck_get_mpqfile(vc),&rpacket->u.server_authreq_109.timestamp);
 	     packet_append_string(rpacket,versioncheck_get_mpqfile(vc));
 	     packet_append_string(rpacket,versioncheck_get_eqn(vc));
-	     eventlog(eventlog_level_debug,__FUNCTION__,"[%d] selected \"%s\" \"%s\"",conn_get_socket(c),versioncheck_get_mpqfile(vc),versioncheck_get_eqn(vc));                   
+	     eventlog(eventlog_level_debug,__FUNCTION__,"[%d] selected \"%s\" \"%s\"",conn_get_socket(c),versioncheck_get_mpqfile(vc),versioncheck_get_eqn(vc));
+	     if (strcmp(conn_get_clienttag(c),CLIENTTAG_WARCRAFT3)==0
+	         || strcmp(conn_get_clienttag(c), CLIENTTAG_WAR3XP) == 0) {
+		 char padding[128];
+		 memset(padding, 0, 128);
+		 packet_append_data(rpacket, padding, 128);
+	     }
 	     queue_push_packet(conn_get_out_queue(c),rpacket);
 	     packet_del_ref(rpacket);
 	  }
