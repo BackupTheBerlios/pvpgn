@@ -1299,13 +1299,7 @@ extern int handle_anongame_join(t_connection * c)
 				level = account_get_ffalevel(conn_get_account(anongame_get_player(ja,i)));
 				break;
 			case ANONGAME_TYPE_AT_2V2:
-				acct = conn_get_account(anongame_get_player(ja,i));
-				level = account_get_atteamlevel((acct),account_get_currentatteam(acct));
-				break;
 			case ANONGAME_TYPE_AT_3V3:
-				acct = conn_get_account(anongame_get_player(ja,i));
-				level = account_get_atteamlevel((acct),account_get_currentatteam(acct));
-				break;
 			case ANONGAME_TYPE_AT_4V4:
 				acct = conn_get_account(anongame_get_player(ja,i));
 				level = account_get_atteamlevel((acct),account_get_currentatteam(acct));
