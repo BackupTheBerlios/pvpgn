@@ -180,7 +180,10 @@ static Bconf_t conf_table[] =
     { "war3_ladder_update_secs",conf_type_int,     NULL,                 0,                     ACT },
     { "ladderdir",              conf_type_char,    BNETD_LADDER_DIR,     NONE,                  ACT },
 
-    { "reduced_accounting",     conf_type_bool,     NULL,                 0,                     ACT },
+    { "reduced_accounting",     conf_type_bool,    NULL,                 0,                     ACT },
+
+    { "XML_output_ladder",      conf_type_bool,    NULL,                 0,	    ACT },
+    { "XML_output_tracker",     conf_type_bool,    NULL,                 0,                     ACT }, 
 
     { NULL,             	conf_type_none,    NULL,                 NONE,                  ACT },
 
@@ -1152,5 +1155,15 @@ extern char const * prefs_get_ladderdir(void)
 extern int prefs_get_reduced_accounting(void)
 {
         return get_bool_conf("reduced_accounting");
+}
+
+extern int prefs_get_XML_output_ladder(void)
+{
+        return get_bool_conf("XML_output_ladder");
+}
+
+extern int prefs_get_XML_output_tracker(void)
+{
+        return get_bool_conf("XML_output_tracker");
 }
 
