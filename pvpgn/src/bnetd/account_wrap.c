@@ -2615,6 +2615,7 @@ extern void account_get_raceicon(t_account * account, char * raceicon, unsigned 
 
 extern int account_get_profile_calcs(t_account * account, int xp, unsigned int j)
 {
+  // FIXME: these static tables should get removed cause a) those infos are stored in bnxplevel.txt and b) they are incolmplete anyways
 	static const int xp_min[] = {-1, 0, 100, 200, 400, 600, 900, 1200, 1600, 2000, 2500, 
 	3000, 3500, 4000, 4500, 5000, 5500, 6000, 6500, 7000, 7500, 8000, 8500, 9000};
 	static const int xp_max[] = {-1, 100, 200, 400, 600, 900, 1200, 1600, 2000, 2500, 
@@ -2645,6 +2646,10 @@ extern int account_set_saveladderstats(t_account * account,unsigned int gametype
 		eventlog(eventlog_level_error, "account_set_saveladderstats", "got NULL account");
 		return -1;
 	}
+
+
+	//added for better tracking down of problems with gameresults
+	eventlog(eventlog_level_trace,__FUNCTION__,"parsing game result for player: %s result: %s",account_get_name(account),(result==game_result_win)?"WIN":"LOSS");
 
 	intrace = account_get_w3pgrace(account, clienttag);
 	
@@ -2999,6 +3004,9 @@ extern int account_set_saveATladderstats(t_account * account, unsigned int gamet
       return -1;
     }
   
+    //added for better tracking down of problems with gameresults
+    eventlog(eventlog_level_trace,__FUNCTION__,"parsing game result for player: %s result: %s",account_get_name(account),(result==game_result_win)?"WIN":"LOSS");
+
   intrace = account_get_w3pgrace(account,clienttag);
   
   if(result == game_result_win)
