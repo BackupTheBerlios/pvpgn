@@ -1102,7 +1102,7 @@ extern int anongame_unqueue(t_connection * c, int queue)
      * [Omega]
      */
     if (anongame_arranged(queue) == 0) {
-	eventlog(eventlog_level_error, __FUNCTION__, "[%d] player not found in \"%s\" queue", conn_get_socket(c), _anongame_queue_to_string(queue));
+	eventlog(eventlog_level_trace, __FUNCTION__, "[%d] player not found in \"%s\" queue", conn_get_socket(c), _anongame_queue_to_string(queue));
 	return -1;
     }
 
