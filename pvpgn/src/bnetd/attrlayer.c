@@ -92,7 +92,7 @@ extern int attrlayer_flush(int flags)
     }
 
     /* elist_for_each_safe splitted into separate startup for userstep function */
-    for (; curr != &loadedlist; curr = next, next = hlist_next(curr)) {
+    for (; curr != &loadedlist; curr = next, next = elist_next(curr)) {
 	if (!FLAG_ISSET(flags, FS_ALL) && tcount >= prefs_get_user_step()) break;
 
 	attrgroup = elist_entry(curr, t_attrgroup, loadedlist);
@@ -133,7 +133,7 @@ extern int attrlayer_save(int flags)
     }
 
     /* elist_for_each_safe splitted into separate startup for userstep function */
-    for (; curr != &dirtylist; curr = next, next = hlist_next(curr)) {
+    for (; curr != &dirtylist; curr = next, next = elist_next(curr)) {
 	if (!FLAG_ISSET(flags, FS_ALL) && tcount >= prefs_get_user_step()) break;
 
 	attrgroup = elist_entry(curr, t_attrgroup, dirtylist);
