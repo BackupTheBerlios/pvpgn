@@ -1842,7 +1842,11 @@ static int account_load_friends(t_account * account)
         {
             if((acc = accountlist_find_account_by_uid(friend))==NULL)
             {
-                account_remove_friend(account, i);
+                if(account_remove_friend(account, i) == 0)
+		{
+		    i--;
+		    n--;
+		}
                 continue;
             }
             if(account_check_mutual(acc, account_get_uid(account))==0)
