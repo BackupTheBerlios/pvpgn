@@ -61,6 +61,7 @@ static t_conf_table prefs_conf_table[]={
     { "idletime",             offsetof(t_prefs,idletime),            conf_type_int,  DEFAULT_IDLETIME             },  
     { "keepalive_interval",   offsetof(t_prefs,keepalive_interval),  conf_type_int,  DEFAULT_KEEPALIVE_INTERVAL   },  
     { "timeout_checkinterval",offsetof(t_prefs,timeout_checkinterval),conf_type_int, DEFAULT_TIMEOUT_CHECKINTERVAL},  
+    { "XML_ladder_output"    ,offsetof(t_prefs,XML_ladder_output),   conf_type_int,  0                            },
     { NULL,                   0,                                     conf_type_none, 0                            }
 };
 
@@ -170,4 +171,9 @@ extern unsigned int d2dbs_prefs_get_idletime(void)
 extern unsigned int d2dbs_prefs_get_timeout_checkinterval(void)
 {
 	return prefs_conf.timeout_checkinterval;
+}
+
+extern unsigned int d2dbs_prefs_get_XML_output_ladder(void)
+{
+        return prefs_conf.XML_ladder_output;
 }

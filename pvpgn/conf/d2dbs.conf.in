@@ -68,6 +68,11 @@ laddersave_interval	=	3600
 # These code should be rewritted to support string formmated time
 ladderinit_time		=	0
 
+# create extra ladder file in XML format that can be parsed more easy
+# 0 = turn extra output off (default)
+# 1 = turn on the XML output
+XML_ladder_output       =       0
+
 # Amount of time to delay shutting down server in seconds.
 shutdown_delay          =       360
 

@@ -77,6 +77,7 @@ t_d2ladderlist    	* d2ladder_list = NULL;
 unsigned long 		d2ladder_maxtype;
 int 			d2ladder_change_count=0;
 int			d2ladder_need_rebuild = 0;
+char                    * XMLname = "d2ladder.xml";
 
 
 int d2ladderlist_init(void);
@@ -580,6 +581,67 @@ int d2ladder_empty(void)
 	return 0;
 }
 
+int d2ladder_print_XML(FILE *ladderstrm)
+{
+  // modified version of d2ladder_print - changes done by jfro with a little help of aaron
+  t_d2ladder * d2ladder;
+  t_d2ladder_info * ldata;
+  int i,type,overalltype,classtype;
+  char laddermode[4][20]={"Hardcore", "Standard","Expansion HC","Expansion" };
+  char charclass[11][12]={"OverAll", "Amazon", "Sorceress", "Necromancer", "Paladin",\
+			  "Barbarian", "Druid", "Assassin", "","",""} ;
+
+  fprintf(ladderstrm,"<?xml version=\"1.0\"?>\n<D2_ladders>\n");
+  for(type=0; type <d2ladder_maxtype; type++) {
+    d2ladder=d2ladderlist_find_type(type);
+    if (!d2ladder) 
+      continue;
+    if(d2ladder->len<=0) 
+      continue;
+    ldata=d2ladder->info;
+
+    overalltype=0;
+    classtype=0;
+
+    if(type >= D2LADDER_HC_OVERALL && type<= D2LADDER_HC_OVERALL+D2CHAR_CLASS_MAX +1) 
+      {
+	overalltype=0 ;
+	classtype=type-D2LADDER_HC_OVERALL;
+      }
+    else if(type >= D2LADDER_STD_OVERALL && type<= D2LADDER_STD_OVERALL+D2CHAR_CLASS_MAX +1) 
+      {
+	overalltype=1;
+	classtype=type-D2LADDER_STD_OVERALL;
+      }
+    else if(type >= D2LADDER_EXP_HC_OVERALL && type<= D2LADDER_EXP_HC_OVERALL+D2CHAR_EXP_CLASS_MAX +1) 
+      {
+	overalltype=2;
+	classtype=type-D2LADDER_EXP_HC_OVERALL;
+      }
+    else if(type >= D2LADDER_EXP_STD_OVERALL && type<= D2LADDER_EXP_STD_OVERALL+D2CHAR_EXP_CLASS_MAX +1) 
+      {
+	overalltype=3;
+	classtype=type-D2LADDER_EXP_STD_OVERALL ;
+      }
+
+    fprintf(ladderstrm,"<ladder>\n\t<type>%d</type>\n\t<mode>%s</mode>\n\t<class>%s</class>\n",
+                       type,laddermode[overalltype],charclass[classtype]);
+    for(i=0; i<d2ladder->len; i++)
+      {
+	fprintf(ladderstrm,"\t<char>\n\t\t<rank>%2d</rank>\n\t\t<name>%s</name>\n\t\t<level>%2d</level>\n",
+		           i+1,ldata[i].charname,ldata[i].level);
+	fprintf(ladderstrm,"\t\t<experience>%d</experience>\n\t\t<status>%2X</status>\n\t\t<unk>%1X</unk>\n",
+		           ldata[i].experience,ldata[i].status,1);
+	fprintf(ladderstrm,"\t\t<class>%s</class>\n\t</char>\n",
+		           charclass[ldata[i].class+1]);
+      }
+    fprintf(ladderstrm,"</ladder>\n");
+    fflush(ladderstrm);
+  }
+  fprintf(ladderstrm,"</D2_ladders>\n");
+  return 0;
+}
+
 extern int d2ladder_saveladder(void)
 {
 	t_d2ladderfile_ladderindex	lhead[D2LADDER_MAXTYPE];
@@ -589,6 +651,8 @@ extern int d2ladder_saveladder(void)
 	unsigned int			i,j, number;
 	t_d2ladder			* d2ladder;
 	t_d2ladderfile_ladderinfo	* ldata;
+	char                            * XMLfilename;
+        FILE                            * XMLfile;
 
 /*
 	if(!d2ladder_change_count) {
@@ -619,6 +683,33 @@ extern int d2ladder_saveladder(void)
 		log_error("error open ladder file %s",d2ladder_ladder_file);
 		return -1;
 	}
+
+	// aaron: add extra output for XML ladder here --->
+	if (d2dbs_prefs_get_XML_output_ladder())
+	{
+	  XMLfilename = malloc(strlen(d2dbs_prefs_get_ladder_dir())+1+strlen(XMLname)+1);
+	  if (!XMLfilename) 
+	  { 
+	    log_error("could not alloc mem for XML ladder filename");
+	  }
+	  else
+	  {
+	    sprintf(XMLfilename,"%s/%s",d2dbs_prefs_get_ladder_dir(),XMLname);
+	    if (!(XMLfile = fopen(XMLfilename,"w")))
+	    {
+	      log_error("could not open XML ladder file for output");
+	    }
+	    else
+	    {
+              d2ladder_print_XML(XMLfile);
+	      fclose(XMLfile);
+	      free(XMLfilename);
+	    }
+	  }
+	}
+	
+	// <---
+	
 	bn_int_set(&fileheader.maxtype,d2ladder_maxtype);
 	write(fdladder,&fileheader,sizeof(fileheader));
 	write(fdladder,lhead,sizeof(lhead));
