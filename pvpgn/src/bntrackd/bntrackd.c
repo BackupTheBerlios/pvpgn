@@ -316,6 +316,28 @@ static int server_process(int sockfd)
 		}
 		else
 		{
+		  if (prefs_get_XML_output_tracker())
+		  {
+		    fprintf(outfile,"<server>\n\t<address>%s</address>\n",inet_ntoa(server->address));
+		    fprintf(outfile,"\t<port>%hu</port>\n",(unsigned short)ntohs(server->info.port));
+		    fprintf(outfile,"\t<location>%s</location>\n",server->info.server_location);
+		    fprintf(outfile,"\t<software>%s</software>\n",server->info.software);
+		    fprintf(outfile,"\t<version>%s</version>\n",server->info.version);
+		    fprintf(outfile,"\t<users>%lu</users>\n",(unsigned long)ntohl(server->info.users));
+		    fprintf(outfile,"\t<channels>%lu</channels>\n",(unsigned long)ntohl(server->info.channels));
+		    fprintf(outfile,"\t<games>%lu</games>\n",(unsigned long)ntohl(server->info.games));
+		    fprintf(outfile,"\t<description>%s</description>\n",server->info.server_desc);
+		    fprintf(outfile,"\t<platform>%s</platform>\n",server->info.platform);
+		    fprintf(outfile,"\t<url>%s</url>\n",server->info.server_url);
+		    fprintf(outfile,"\t<contact_name>%s</contact_name>\n",server->info.contact_name);
+		    fprintf(outfile,"\t<contact_email>%s</contact_email>\n",server->info.contact_email);
+		    fprintf(outfile,"\t<uptime>%lu</uptime>\n",(unsigned long)ntohl(server->info.uptime));
+		    fprintf(outfile,"\t<total_games>%lu</total_games>\n",(unsigned long)ntohl(server->info.total_games));
+		    fprintf(outfile,"\t<logins>%lu</logins>\n",(unsigned long)ntohl(server->info.total_logins));
+		    fprintf(outfile,"</server>\n");
+		  }
+		  else
+		  {
 		    fprintf(outfile,"%s\n##\n",inet_ntoa(server->address));
 		    fprintf(outfile,"%hu\n##\n",(unsigned short)ntohs(server->info.port));
 		    fprintf(outfile,"%s\n##\n",server->info.server_location);
@@ -333,6 +355,7 @@ static int server_process(int sockfd)
 		    fprintf(outfile,"%lu\n##\n",(unsigned long)ntohl(server->info.total_games));
 		    fprintf(outfile,"%lu\n##\n",(unsigned long)ntohl(server->info.total_logins));
 		    fprintf(outfile,"###\n");
+		  }
 		}
 	    }
             if (fclose(outfile)<0)
