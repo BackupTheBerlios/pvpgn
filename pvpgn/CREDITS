@@ -1,11 +1,19 @@
-PvPGN CREDITS:
--------------------------------
+PvPGN CREDITS (also please see the original BNETD credits bellow):
+--------------------------------------------------------------------
+
+CREDITS
+	This file contains the names of people who have contributed to the 
+	development of the PvPGN BNETD mod in some way. This file is not 
+	complete and we would like to thank everyone who helped us in any way.
 
 PROGRAMMING CONTRIBUTORS
-...
+	Lots of people who do not whish to be mentioned here.
 
-
-
+BINARY PACKAGES:
+- Birzan George Cristian <gcbirzan@wolfheart.ro> (Debian packages)
+- Dorin Lazar <spooky_cbs@yahoo.com> (RPMs)
+- Mihai Maties <mihai@xcyb.org> (RPMs & src.rpm snapshot script)
+- Radu Radoveneanu <rakware@go.ro> (Slackware packages)
 
 ORIGINAL BNETD CREDITS:
 -------------------------------
