@@ -438,9 +438,9 @@ int pre_server_startup(void)
     if (versioncheck_load(prefs_get_versioncheck_file())<0)
 	eventlog(eventlog_level_error,"pre_server_startup","could not load versioncheck list");
     watchlist_create();
-    war3_ladders_init();
     accountlist_load_default();
     accountlist_create();
+    war3_ladders_init();
     war3_ladder_update_all_accounts();
     if (ladderlist_create()<0) {
 	eventlog(eventlog_level_error, "pre_server_startup", "could not create ladders");
@@ -466,9 +466,9 @@ void post_server_shutdown(int status)
     	    ladderlist_destroy();
 	case STATUS_LADDERLIST_FAILURE:
 	    war3_ladder_update_all_accounts();
+    	    war3_ladders_destroy();
 	    accountlist_destroy();
     	    accountlist_unload_default();
-    	    war3_ladders_destroy();
     	    watchlist_destroy();
     	    versioncheck_unload();
     	    autoupdate_unload();
@@ -537,11 +537,6 @@ extern int main(int argc, char * * argv)
     char *hexfile = NULL;
     char *pidfile = NULL;
 
-#ifndef WITH_D2
-    eventlog_set(stderr);
-    /* errors to eventlog from here on... */
-#endif
-
 // Read the command line and set variables
     if (!(a = read_commandline(argc, argv, &foreground, &preffile, &hexfile)) == 1)
 	return a;
@@ -550,10 +545,8 @@ extern int main(int argc, char * * argv)
     if (!(a = fork_bnetd(foreground)) == 0)
 	return a;
 
-#ifdef WITH_D2
     eventlog_set(stderr);
     /* errors to eventlog from here on... */
-#endif
 
 // Load the prefs
     if (preffile) {
