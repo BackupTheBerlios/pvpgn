@@ -58,28 +58,29 @@
 
 # -=-=-=-=-=-=- Latest Versions -=-=-=-=-=-=- No Update Required -=-=-=-=-=-=-
 
-# Warcraft III - TFT (Expansion) 1.11a
+# Warcraft III - TFT (Expansion) 1.12a
 # Note: this version check is sent in both FT and ROC mode
 "A=3845581634 B=880823580 C=1363937103 4 A=A-S B=B-C C=C-A A=A-B" \
  IX86ver1.mpq \
  IX86 \
  W3XP \
- "war3.exe 07/01/03 18:22:52 1568211" \
- 0x0000000b \
- 1.0.11.147 \
- 0x5fce4f04 \
- W3XP_111a
+ "war3.exe 07/22/03 22:43:15 1568211" \
+ 0x0000000c \
+ 1.0.12.148 \
+ 0xa9c022bd \
+ W3XP_112A
 
-# Warcraft III - RoC 1.11a
+# Warcraft III - ROC 1.12a
+# Note: this version check is sent in both FT and ROC mode
 "A=3845581634 B=880823580 C=1363937103 4 A=A-S B=B-C C=C-A A=A-B" \
  IX86ver1.mpq \
  IX86 \
  WAR3 \
- "war3.exe 07/01/03 18:22:52 1568211" \
- 0x0000000b \
- 1.0.11.147 \
- 0x5fce4f04 \
- WAR3_111a
+ "war3.exe 07/22/03 22:43:15 1568211" \
+ 0x0000000c \
+ 1.0.12.148 \
+ 0xa9c022bd \
+ WAR3_112A
 
 # Diablo II - LoD (Expansion) 1.09d
 "A=3845581634 B=880823580 C=1363937103 4 A=A-S B=B-C C=C-A A=A-B" \
@@ -140,6 +141,18 @@
 
 # =================== WarCraft 3 Expansion Entries ==================
 
+# Warcraft III - TFT (Expansion) 1.11a
+# Note: this version check is sent in both FT and ROC mode
+"A=3845581634 B=880823580 C=1363937103 4 A=A-S B=B-C C=C-A A=A-B" \
+ IX86ver1.mpq \
+ IX86 \
+ W3XP \
+ "war3.exe 07/01/03 18:22:52 1568211" \
+ 0x0000000b \
+ 1.0.11.147 \
+ 0x5fce4f04 \
+ W3XP_111a
+
 # Warcraft III - TFT (Expansion) 1.10a
 # Note: this version check is sent in both FT and ROC mode
 "A=3845581634 B=880823580 C=1363937103 4 A=A-S B=B-C C=C-A A=A-B" \
@@ -167,6 +180,17 @@
  W3XP_107a
 
 # ====================== WarCraft 3 Entries ========================
+
+# Warcraft III - RoC 1.11a
+"A=3845581634 B=880823580 C=1363937103 4 A=A-S B=B-C C=C-A A=A-B" \
+ IX86ver1.mpq \
+ IX86 \
+ WAR3 \
+ "war3.exe 07/01/03 18:22:52 1568211" \
+ 0x0000000b \
+ 1.0.11.147 \
+ 0x5fce4f04 \
+ WAR3_111a
 
 # Warcraft III - RoC 1.10a
 "A=3845581634 B=880823580 C=1363937103 4 A=A-S B=B-C C=C-A A=A-B" \
