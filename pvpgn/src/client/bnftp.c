@@ -141,7 +141,7 @@ static void usage(char const * progname)
 extern int main(int argc, char * argv[])
 {
     int                a;
-    int                sdfile, sdbnet;
+    int                sd;
     struct sockaddr_in saddr;
     t_packet *         packet;
     t_packet *         rpacket;
@@ -178,7 +178,6 @@ extern int main(int argc, char * argv[])
     char               timestr[FILE_TIME_MAXLEN];
     unsigned int       screen_width,screen_height;
     int                munged;
-    char	       *user = NULL, *pass = NULL;
 
     if (argc<1 || !argv || !argv[0])
     {
