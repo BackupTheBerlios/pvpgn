@@ -3944,7 +3944,7 @@ static int _client_ladderreq(t_connection * c, t_packet const *const packet)
 		bn_int_set(&entry.active.loss, account_get_ladder_active_losses(account, clienttag, id));
 		bn_int_set(&entry.active.disconnect, account_get_ladder_active_disconnects(account, clienttag, id));
 		bn_int_set(&entry.active.rating, account_get_ladder_active_rating(account, clienttag, id));
-		bn_int_set(&entry.active.unknown, 10);	/* FIXME: rank,draws,?! */
+		bn_int_set(&entry.active.rank, account_get_ladder_active_rank(account,clienttag,id)-1);
 		if (!(timestr = account_get_ladder_active_last_time(account, clienttag, id)))
 		    timestr = BNETD_LADDER_DEFAULT_TIME;
 		bnettime_set_str(&bt, timestr);
@@ -3954,7 +3954,7 @@ static int _client_ladderreq(t_connection * c, t_packet const *const packet)
 		bn_int_set(&entry.current.loss, account_get_ladder_losses(account, clienttag, id));
 		bn_int_set(&entry.current.disconnect, account_get_ladder_disconnects(account, clienttag, id));
 		bn_int_set(&entry.current.rating, account_get_ladder_rating(account, clienttag, id));
-		bn_int_set(&entry.current.unknown, 5);	/* FIXME: rank,draws,?! */
+		bn_int_set(&entry.current.rank, account_get_ladder_rank(account,clienttag,id)-1);
 		if (!(timestr = account_get_ladder_last_time(account, clienttag, id)))
 		    timestr = BNETD_LADDER_DEFAULT_TIME;
 		bnettime_set_str(&bt, timestr);
@@ -3964,14 +3964,14 @@ static int _client_ladderreq(t_connection * c, t_packet const *const packet)
 		bn_int_set(&entry.active.loss, 0);
 		bn_int_set(&entry.active.disconnect, 0);
 		bn_int_set(&entry.active.rating, 0);
-		bn_int_set(&entry.active.unknown, 0);
+		bn_int_set(&entry.active.rank, 0);
 		bn_long_set_a_b(&entry.lastgame_active, 0, 0);
 
 		bn_int_set(&entry.current.wins, 0);
 		bn_int_set(&entry.current.loss, 0);
 		bn_int_set(&entry.current.disconnect, 0);
 		bn_int_set(&entry.current.rating, 0);
-		bn_int_set(&entry.current.unknown, 0);
+		bn_int_set(&entry.current.rank, 0);
 		bn_long_set_a_b(&entry.lastgame_current, 0, 0);
 	    }
 
@@ -3979,7 +3979,7 @@ static int _client_ladderreq(t_connection * c, t_packet const *const packet)
 	    bn_int_set(&entry.ttest[1], 0);	//
 	    bn_int_set(&entry.ttest[2], 0);	//
 	    if (account)
-		bn_int_set(&entry.ttest[3], account_get_ladder_active_rating(account, clienttag, id));
+		bn_int_set(&entry.ttest[3], account_get_ladder_high_rating(account, clienttag, id));
 	    else
 		bn_int_set(&entry.ttest[3], 0);
 	    bn_int_set(&entry.ttest[4], 0);	//

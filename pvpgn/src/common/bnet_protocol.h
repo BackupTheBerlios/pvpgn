@@ -3354,7 +3354,7 @@ typedef struct
     bn_int loss;
     bn_int disconnect;
     bn_int rating;
-    bn_int unknown;
+    bn_int rank;
 } PACKED_ATTR() t_ladder_data;
 
 typedef struct
