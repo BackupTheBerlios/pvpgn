@@ -5013,12 +5013,7 @@ static int _client_mapauthreq2(t_connection * c, t_packet const * const packet)
 		 }
 	     else
 	       {
-		  /* MODIFIED BY UNDYING SOULZZ 4/14/02 */
-		  /*			    game_set_status(game,game_status_started); */
-		  if (strcmp( CLIENTTAG_WARCRAFT3, conn_get_clienttag(c) ) == 0  || strcmp( CLIENTTAG_WAR3XP, conn_get_clienttag(c) ) == 0)
-		    game_set_status(game,game_status_open );
-		  else
-		    game_set_status(game,game_status_started );
+		  game_set_status(game,game_status_started );
 		  
 		  if (game_get_type(game)==game_type_ladder)
 		    {
