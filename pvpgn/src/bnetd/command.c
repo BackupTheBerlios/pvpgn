@@ -1373,7 +1373,7 @@ static int _handle_friends_command(t_connection * c, char const * text)
           }
 	  else 
           {
-	    bn_int_set(&status.clienttag, *((int const *)conn_get_clienttag(dest_c)));
+	    bn_int_set(&status.clienttag, conn_get_clienttag(dest_c));
             stat = 0;
 	    flist = account_get_friends(my_acc);
 	    fr = friendlist_find_account(flist,friend_acc);
