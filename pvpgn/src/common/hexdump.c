@@ -1,6 +1,7 @@
 /*
  * Copyright (C) 1998  Mark Baysinger (mbaysing@ucsd.edu)
  * Copyright (C) 1998,1999  Ross Combs (rocombs@cs.nmsu.edu)
+ * Copyright (C) 2004  Donny Redmond (digitill@adelphia.net)
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -25,52 +26,87 @@
 #  define NULL ((void *)0)
 # endif
 #endif
+#include <string.h>
+#include "common/packet.h"
 #include "common/hexdump.h"
 #include "common/setup_after.h"
 
+static void hexdump_string(unsigned char * data, unsigned int datalen, char * dst, unsigned int counter);
 
-extern void hexdump(FILE * stream, void const * data, unsigned int len)
+extern void hexdump_eventlog(t_eventlog_level level, void const * data, unsigned int len)
 {
     unsigned int i;
-    unsigned int r,c;
-    
-    if (!stream)
-        return;
-    if (!data)
+    char dst[100];
+    unsigned char * datac;
+
+    if (!data) {
+	eventlog(eventlog_level_error, __FUNCTION__, "got NULL data");
 	return;
-    
-    for (r=0,i=0; r<(len/16+(len%16!=0)); r++,i+=16)
-    {
-        fprintf(stream,"%04X:   ",i); /* location of first byte in line */
-	
-        for (c=i; c<i+8; c++) /* left half of hex dump */
-	    if (c<len)
-        	fprintf(stream,"%02X ",((unsigned char const *)data)[c]);
-	    else
-		fprintf(stream,"   "); /* pad if short line */
-	
-	fprintf(stream,"  ");
-	
-	for (c=i+8; c<i+16; c++) /* right half of hex dump */
-	    if (c<len)
-		fprintf(stream,"%02X ",((unsigned char const *)data)[c]);
-	    else
-		fprintf(stream,"   "); /* pad if short line */
-	
-	fprintf(stream,"   ");
-	
-	for (c=i; c<i+16; c++) /* ASCII dump */
-	    if (c<len)
-		if (((unsigned char const *)data)[c]>=32 &&
-		    ((unsigned char const *)data)[c]<127)
-		    fprintf(stream,"%c",((char const *)data)[c]);
-		else
-		    fprintf(stream,"."); /* put this for non-printables */
-	    else
-		fprintf(stream," "); /* pad if short line */
-	
-	fprintf(stream,"\n");
     }
-    
-    fflush(stream);
+
+    for (i = 0, datac = (char*)data; i < len; i += 16, datac += 16)
+    {
+	hexdump_string(datac, (len - i < 16) ? (len - i) : 16, dst, i);
+	eventlog(level, "eventlog_dump_packet", "%s", dst);
+    }
+}
+
+extern void hexdump(FILE * stream, void const * data, unsigned int len) 
+{
+    unsigned int i;
+    char dst[100];
+    unsigned char * datac;
+
+    if (!data) {
+	eventlog(eventlog_level_error, __FUNCTION__, "got NULL data");
+        return;
+    }
+
+    if (!stream) {
+	eventlog(eventlog_level_error, __FUNCTION__, "got NULL stream");
+	return;
+    }
+
+    for (i = 0, datac = (char*)data ; i < len; i += 16, datac += 16)
+    {
+	hexdump_string(datac, (len - i < 16) ? (len - i) : 16, dst, i);
+	fprintf(stream, "%s", dst);
+	fflush(stream);
+    }
+}
+
+static void hexdump_string(unsigned char * data, unsigned int datalen, char * dst, unsigned int counter)
+{
+    unsigned int c;
+    int tlen = 0;
+    unsigned char *datatmp;
+
+    datatmp = data;
+    tlen += sprintf((dst+tlen), "%04X:   ", counter);
+	
+    for (c=0; c<8; c++) /* left half of hex dump */
+        if (c<datalen)
+    	    tlen += sprintf((dst+tlen), "%02X ", *(datatmp++));
+	else
+	    tlen += sprintf((dst+tlen), "   "); /* pad if short line */
+
+    tlen += sprintf((dst+tlen),"  ");
+
+    for (c=8; c<16; c++) /* right half of hex dump */
+        if (c<datalen)
+	    tlen += sprintf((dst+tlen), "%02X ", *(datatmp++));
+	else
+	    tlen += sprintf((dst+tlen),"   "); /* pad if short line */
+
+    tlen += sprintf((dst+tlen),"   ");
+
+    for (c=0, datatmp = data; c<16; c++, datatmp++) /* ASCII dump */
+        if (c<datalen) {
+	    if (*datatmp >=32 && *datatmp<127)
+		tlen += sprintf((dst+tlen), "%c", *datatmp);
+	    else
+		tlen += sprintf((dst+tlen), "."); /* put this for non-printables */
+	}
+
+    tlen += sprintf((dst+tlen), "\n");
 }

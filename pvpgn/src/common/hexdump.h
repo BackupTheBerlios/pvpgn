@@ -1,6 +1,7 @@
 /*
  * Copyright (C) 1998  Mark Baysinger (mbaysing@ucsd.edu)
  * Copyright (C) 1998,1999  Ross Combs (rocombs@cs.nmsu.edu)
+ * Copyright (C) 2004  Donny Redmond (digitill@adelphia.net)
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -25,7 +26,9 @@
 #define JUST_NEED_TYPES
 #include <stdio.h>
 #undef JUST_NEED_TYPES
+#include "common/eventlog.h"
 
+extern void hexdump_eventlog(t_eventlog_level level, void const * data, unsigned int len);
 extern void hexdump(FILE * stream, void const * data, unsigned int len);
 
 #endif
