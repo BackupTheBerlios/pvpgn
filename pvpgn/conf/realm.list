@@ -13,8 +13,9 @@
 # <realmname> : the realm name (mandatory; must start and end with " )			#
 # <description> : the realm description (optional; must start and end with " )		#
 # ip:port - actual ip the d2cs server is running on (mandatory)				#
-# showip:showport - ip sent to client (optional)    					#
-# ip/netmast - netmask of network to be excluded from translation (optional)		#
+# showip:showport - ip sent to client (optional, ONLY needed if d2cs is inside private LAN )#
+# ip/netmast - netmask of network to be excluded from translation (optional, ONLY needed if#
+#              d2cs is inside the private LAN and you want LAN players to play too)	#
 #											#
 # use showip:showport if you are forwarding to a d2cs server behind a gateway on a	#
 # private lan.										#
