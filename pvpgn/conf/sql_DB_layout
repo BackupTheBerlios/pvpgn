@@ -26,6 +26,9 @@
 "sex varchar(16)","NULL"
 "location varchar(128)","NULL"
 "description varchar(256)","NULL"
+"age varchar(16)","NULL"
+"clanname varchar(48)","NULL"
+
 [Record]
 "uid int(11) NOT NULL PRIMARY KEY","'0'"
 "WAR3_solo_xp int(11)","'0'"
@@ -54,6 +57,7 @@
 "WAR3_random_wins int(11)","'0'"
 "WAR3_random_losses int(11)","'0'"
 "WAR3_teamcount int(11)","'0'"
+"WAR3_userselected_icon varchar(16)","NULL"
 "W3XP_solo_xp int(11)","'0'"
 "W3XP_solo_level int(11)","'0'"
 "W3XP_solo_wins int(11)","'0'"
@@ -80,6 +84,7 @@
 "W3XP_random_wins int(11)","'0'"
 "W3XP_random_losses int(11)","'0'"
 "W3XP_teamcount int(11)","'0'"
+"W3XP_userselected_icon varchar(16)","NULL"
 "STAR_0_wins int(11)","'0'"
 "STAR_0_losses int(11)","'0'"
 "STAR_0_disconnects int(11)","'0'"
