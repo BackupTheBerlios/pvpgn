@@ -73,13 +73,14 @@ extern void output_init(void)
 
 int output_standard_writer(FILE * fp)
 {
-    t_elem const *	curr;
-    t_connection *	conn;
-    t_channel const *	channel;
-    t_game const *	game;
-    char const *	channel_name;
-    char const *	game_name;
-    char const *	tname;
+    t_elem const	*		curr;
+    t_connection	*		conn;
+    t_channel const *		channel;
+    t_game const	*		game;
+    char const		*		channel_name;
+    char const		*		game_name;
+    char const		*		tname;
+	int						number;
     
     if (prefs_get_XML_status_output_ladder())
     {
@@ -135,39 +136,42 @@ int output_standard_writer(FILE * fp)
     {
 	fprintf(fp,"[STATUS]\nUptime=%s\nGames=%d\nUsers=%d\nChannels=%d\n",seconds_to_timestr(server_get_uptime()),gamelist_get_length(),connlist_login_get_length(),channellist_get_length()); // Status
 	fprintf(fp,"[CHANNELS]\n");
-
+	number=1;
 	LIST_TRAVERSE_CONST(channellist(),curr)
 	{
     	    channel = elem_get_data(curr);
     	    if (channel_get_name(channel)!=NULL)
 	    {
 		channel_name = channel_get_name(channel);
-		fprintf(fp,"%s\n",channel_name);
+		fprintf(fp,"channel%d=%s\n",number,channel_name);
+		number++;
 	    }
 	}
 
 	fprintf(fp,"[GAMES]\n");
-
+	number=1;
 	LIST_TRAVERSE_CONST(gamelist(),curr)
 	{
     	    game = elem_get_data(curr);
 	    if (game_get_name(game)!=NULL)
 	    {
 		game_name = game_get_name(game);
-		fprintf(fp,"%s\n",game_name);
+		fprintf(fp,"game%d=%s\n",number,game_name);
+		number++;
 	    }
 	}
 
 	fprintf(fp,"[USERS]\n");
-
+	number=1;
 	LIST_TRAVERSE_CONST(connlist(),curr)
 	{
     	    conn = elem_get_data(curr);
     	    if (conn_get_account(conn))
 	    {
 		tname = conn_get_username(conn);
-		fprintf(fp,"%.16s\n",tname);
+		fprintf(fp,"user%d=%s\n",number,tname);
 		conn_unget_username(conn,tname);
+		number++;
 	    }
 	}
 	
