@@ -5,6 +5,10 @@ PvPGN Version History:
 [MISC]
   -- made topics.conf being reloaded on SIGHUP
 
+[D2CS/D2DBS]
+  -- fixed problem with d2cs and d2dbs not exiting when exit signal is
+  received and exit_time has expired
+
  Changelog for 1.7.2 (since 1.7.1)
 ===================================
 [WIN32 GUI]
