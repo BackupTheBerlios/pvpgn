@@ -21,6 +21,6 @@
 #define D2CS_VERSION_NUMBER     0x010A0101
 #define D2CS_VERSION_STRING     "1.10.1.1"
 #define D2CS_VERSION		"D2CS Version " D2CS_VERSION_STRING " Built " __DATE__
-#define D2CS_GUI_VERSION	"D2CS Version 1.10.1.1"
+#define D2CS_GUI_VERSION	"D2CS Version " D2CS_VERSION_STRING
 
 #endif
