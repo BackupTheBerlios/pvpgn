@@ -1848,10 +1848,16 @@ extern int conn_set_channel(t_connection * c, char const * channelname)
     if (channelname)
     {
 	unsigned int created;
+	char const * realmname;
 
-    oldchannel=c->protocol.chat.channel;
+	oldchannel=c->protocol.chat.channel;
 
-	channel = channellist_find_channel_by_name(channelname,conn_get_country(c),realm_get_name(conn_get_realm(c)));
+	if (conn_get_realm(c))
+		realmname = realm_get_name(conn_get_realm(c));
+	else
+		realmname = NULL;
+
+	channel = channellist_find_channel_by_name(channelname,conn_get_country(c),realmname);
 
 	if(channel && (channel == oldchannel))
 		return 0;
