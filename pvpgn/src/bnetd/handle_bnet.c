@@ -4290,12 +4290,6 @@ static int _client_gamereport(t_connection * c, t_packet const * const packet)
 	eventlog(eventlog_level_info,__FUNCTION__,"[%d] CLIENT_GAME_REPORT: %s (%u players)",conn_get_socket(c),conn_get_username(c),player_count);
 	my_account = conn_get_account(c);
 
-	if (player_count > game_get_count(game))
-	{
-	    eventlog(eventlog_level_error,__FUNCTION__,"[%d] rejecting report - more reported results(%d) than player slots(%d)",conn_get_socket(c),player_count,game_get_count(game));
-	    return -1;
-	}
-
 	results = xmalloc(sizeof(t_game_result)*game_get_count(game));
 
 	for (i=0;i<game_get_count(game);i++) results[i]=game_result_none;
@@ -4315,14 +4309,19 @@ static int _client_gamereport(t_connection * c, t_packet const * const packet)
 		  break;
 	       }
 	     
-	     result = bngresult_to_gresult(bn_int_get(result_data->result));
-	     results[i] = result;
-	      
 	     if (player[0]=='\0') /* empty slots have empty player name */
 	       continue;
 
+ 		 if (i>game_get_count(game))
+		 {
+			eventlog(eventlog_level_error,__FUNCTION__,"[%d] got more results than the game had players - ignoring extra results",conn_get_socket(c));
+			break;
+		 }
+
+	     result = bngresult_to_gresult(bn_int_get(result_data->result));
+	     results[i] = result;
+
 	     eventlog(eventlog_level_debug,__FUNCTION__,"[%d] got player %d (\"%s\") result %s",conn_get_socket(c),i,player,game_result_get_str(result));
-	     
 	     
 	     if (!(other_account = accountlist_find_account(player)))
 	       {
