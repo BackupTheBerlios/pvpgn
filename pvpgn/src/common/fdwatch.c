@@ -149,13 +149,21 @@ extern int fdwatch_update_fd(int idx, t_fdwatch_type rw)
 
 extern int fdwatch_del_fd(int idx)
 {
+    t_fdwatch_fd *cfd;
+
     if (idx<0) return -1;
 
     fdw->del_fd(idx);
+    cfd = fdw_fds + idx;
 
     /* remove it from uselist, add it to freelist */
-    elist_del(&fdw_fds[idx].uselist);
-    elist_add_tail(&freelist,&fdw_fds[idx].freelist);
+    elist_del(&cfd->uselist);
+    elist_add_tail(&freelist,&cfd->freelist);
+
+    fdw_fd(cfd) = 0;
+    fdw_rw(cfd) = 0;
+    fdw_data(cfd) = NULL;
+    fdw_hnd(cfd) = NULL;
 
     return 0;
 }
