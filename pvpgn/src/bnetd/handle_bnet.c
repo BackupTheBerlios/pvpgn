@@ -177,7 +177,7 @@ static int _client_mapauthreq2(t_connection * c, t_packet const * const packet);
 
 
 /* connection state connected handler table */
-static t_htable_row bnet_htable_con[] = {
+static const t_htable_row bnet_htable_con[] = {
      { CLIENT_UNKNOWN_1B,       _client_unknown_1b},
      { CLIENT_COMPINFO1,        _client_compinfo1},
      { CLIENT_COMPINFO2,        _client_compinfo2},
@@ -210,7 +210,7 @@ static t_htable_row bnet_htable_con[] = {
 };
 
 /* connection state loggedin handlers */
-static t_htable_row bnet_htable_log [] = {
+static const t_htable_row bnet_htable_log [] = {
      { CLIENT_CHANGEGAMEPORT,   _client_changegameport},
      { CLIENT_FRIENDSLISTREQ,   _client_friendslistreq},
      { CLIENT_FRIENDINFOREQ,    _client_friendinforeq},
@@ -253,7 +253,7 @@ static t_htable_row bnet_htable_log [] = {
 };
 
 /* main handler function */
-static int handle(t_htable_row * htable, int type, t_connection * c, t_packet const * const packet);
+static int handle(const t_htable_row * htable, int type, t_connection * c, t_packet const * const packet);
 
 extern int handle_bnet_packet(t_connection * c, t_packet const * const packet)
 {
@@ -312,9 +312,9 @@ static int compar(const void* a, const void* b)
 	return strcasecmp(*(char **)a, *(char **)b);
 }
 
-static int handle(t_htable_row *htable, int type, t_connection * c, t_packet const * const packet)
+static int handle(const t_htable_row *htable, int type, t_connection * c, t_packet const * const packet)
 {
-   t_htable_row *p;
+   t_htable_row const *p;
    int res = 1;
    
    for(p = htable; p->type != -1; p++)
