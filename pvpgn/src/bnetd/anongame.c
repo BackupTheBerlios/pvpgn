@@ -814,7 +814,7 @@ static int _anongame_match(t_connection * c, int queue)
     int i;
     t_matchdata *md;
     t_elem *curr;
-    unsigned int diff;
+    int diff;
     t_anongame * a = conn_get_anongame(c);
     t_uint32 cur_prefs = a->map_prefs;
     t_connection * inv_c[ANONGAME_MAX_TEAMS];

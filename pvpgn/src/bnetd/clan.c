@@ -1302,7 +1302,7 @@ extern t_clan *clan_create(t_account * chieftain_acc, t_connection * chieftain_c
     clan->modified = 1;
     clan->channel_type = prefs_get_clan_channel_default_private();
 
-    if ((clan->members = list_create()) < 0)
+    if ((clan->members = list_create()) == NULL)
     {
 	eventlog(eventlog_level_error, __FUNCTION__, "could not create memberlist");
 	if (clan->clanname)
