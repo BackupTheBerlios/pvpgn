@@ -1794,12 +1794,6 @@ extern int game_del_player(t_game * game, t_connection * c)
 }
 
 
-extern int game_check_result(t_game * game, t_account * account, t_game_result result)
-{
-    return 0; /* return success even though it didn't check */
-}
-
-
 extern int game_set_report(t_game * game, t_account * account, char const * rephead, char const * repbody)
 {
     unsigned int pos;
