@@ -628,7 +628,6 @@ void static guiOnServerConfig()
 //by amadeo: new userlist-handle (based on greini's richedit-window handle)
 void extern guiOnUpdateUserList()
 {
-	const char *name;
 	t_connection * c;
 	t_elem const * curr;
 	t_account * acc;
@@ -642,9 +641,7 @@ void extern guiOnUpdateUserList()
 		if (!(c = elem_get_data(curr))) continue;
 		if (!(acc = conn_get_account(c))) continue;
 		
-		name = (account_get_name(acc));
-		SendMessage(gui.hwndUsers, LB_ADDSTRING, 0, (LPARAM)name);
-		account_unget_name(name);
+		SendMessage(gui.hwndUsers, LB_ADDSTRING, 0, (LPARAM)account_get_name(acc));
 		
 		//sessionkey follows
 		
