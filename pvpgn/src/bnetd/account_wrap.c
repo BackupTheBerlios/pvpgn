@@ -481,24 +481,6 @@ extern int account_set_ll_clienttag(t_account * account, char const * clienttag)
 }
 
 
-extern char const * account_get_ll_host(t_account * account)
-{
-    return account_get_strattr(account,"BNET\\acct\\lastlogin_host");
-}
-
-
-extern int account_unget_ll_host(char const * host)
-{
-    return account_unget_strattr(host);
-}
-
-
-extern int account_set_ll_host(t_account * account, char const * host)
-{
-    return account_set_strattr(account,"BNET\\acct\\lastlogin_host",host);
-}
-
-
 extern char const * account_get_ll_user(t_account * account)
 {
     return account_get_strattr(account,"BNET\\acct\\lastlogin_user");

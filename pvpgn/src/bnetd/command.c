@@ -3908,8 +3908,6 @@ static int _handle_netinfo_command(t_connection * c, char const *text)
   char           dest[USER_NAME_MAX];
   unsigned int   i,j;
   t_connection * conn;
-  char const *   host;
-  char const *   thost;
   t_game const * game;
   unsigned int   addr;
   unsigned short port;
@@ -3947,11 +3945,7 @@ static int _handle_netinfo_command(t_connection * c, char const *text)
   sprintf(msgtemp,"Server TCP: %s (bind %s)",addr_num_to_addr_str(conn_get_real_local_addr(conn),conn_get_real_local_port(conn)),addr_num_to_addr_str(conn_get_local_addr(conn),conn_get_local_port(conn)));
   message_send_text(c,message_type_info,c,msgtemp);
   
-  if (!(host=thost = account_get_ll_host(conn_get_account(conn))))
-    host = "unknown";
-  sprintf(msgtemp,"Client TCP: %s (%.32s)",addr_num_to_addr_str(conn_get_addr(conn),conn_get_port(conn)),host);
-  if (thost)
-    account_unget_ll_host(thost);
+  sprintf(msgtemp,"Client TCP: %s",addr_num_to_addr_str(conn_get_addr(conn),conn_get_port(conn)));
   message_send_text(c,message_type_info,c,msgtemp);
   
   taddr=addr = conn_get_game_addr(conn);

@@ -90,9 +90,6 @@ extern int account_unget_desc(char const * desc);
 /* last login */
 extern unsigned int account_get_ll_time(t_account * account);
 extern int account_set_ll_time(t_account * account, unsigned int t);
-extern char const * account_get_ll_host(t_account * account);
-extern int account_unget_ll_host(char const * clientexe);
-extern int account_set_ll_host(t_account * account, char const * host);
 extern char const * account_get_ll_user(t_account * account);
 extern int account_unget_ll_user(char const * clientexe);
 extern int account_set_ll_user(t_account * account, char const * user);
