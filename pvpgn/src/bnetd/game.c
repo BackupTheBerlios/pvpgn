@@ -632,13 +632,13 @@ static int game_match_type(t_game_type type,const char *gametypes)
     do {
 	q = strchr(gametypes,',');
 	if (q) *q = '\0';
-	if (strcasecmp(p,"topvbot")) {
+	if (!strcasecmp(p,"topvbot")) {
 	    if (type == game_type_topvbot) { res = 1; break; }
-	} else if (strcasecmp(p,"melee")) {
+	} else if (!strcasecmp(p,"melee")) {
 	    if (type == game_type_melee) { res = 1; break; }
-	} else if (strcasecmp(p,"ffa")) {
+	} else if (!strcasecmp(p,"ffa")) {
 	    if (type == game_type_ffa) { res = 1; break; }
-	} else if (strcasecmp(p,"oneonone")) {
+	} else if (!strcasecmp(p,"oneonone")) {
 	    if (type == game_type_oneonone) { res = 1; break; }
 	}
 	if (q) p = q + 1;
