@@ -779,18 +779,29 @@ W2BN_202
 
 # ==================== WARCRAFT3 entries =======================
 
-# Warcraft III Retail v1.04 (english)
+# WarCraft 3 1.04b
 "A=3845581634 B=880823580 C=1363937103 4 A=A-S B=B-C C=C-A A=A-B" \
 IX86ver1.mpq \
-IX86 \
-WAR3 \
+ix86 \
+war3 \
 "war3.exe 10/31/02 17:29:22 1068499" \
 0x00000004 \
 1.0.3.0 \
 0x56f4cc37 \
-WAR3_104
+WAR3_104b
 
-# Warcraft III v1.03(a) RZR
+# WarCraft 3 1.04a
+"A=3845581634 B=880823580 C=1363937103 4 A=A-S B=B-C C=C-A A=A-B" \
+IX86ver1.mpq \
+IX86 \
+WAR3 \
+"war3.exe 10/29/02 23:26:17 713495" \
+0x00000004 \
+1.0.3.0 \
+0x0e529b2d \
+WAR3_104a
+
+# Warcraft III v1.03a RZR
 #"A=3845581634 B=880823580 C=1363937103 4 A=A-S B=B-C C=C-A A=A-B" \
 #IX86ver1.mpq \
 #IX86 \
@@ -801,7 +812,7 @@ WAR3_104
 #0x01dd2de7 \
 #WAR3_103a
 
-# Warcraft III Retail v1.03(a)
+# Warcraft III Retail v1.03a
 "A=3845581634 B=880823580 C=1363937103 4 A=A-S B=B-C C=C-A A=A-B" \
 IX86ver1.mpq \
 IX86 \
@@ -813,26 +824,26 @@ WAR3 \
 WAR3_103a
 
 # Warcraft III Retail v1.02a
-"A=3845581634 B=880823580 C=1363937103 4 A=A-S B=B-C C=C-A A=A-B" \
-IX86ver1.mpq \
-IX86 \
-WAR3 \
-"war3.exe 09/06/02 02:41:02 713495" \
-0x00000002 \
-1.0.1.0 \
-0xa67d9a0e \
-WAR3_102a
+#"A=3845581634 B=880823580 C=1363937103 4 A=A-S B=B-C C=C-A A=A-B" \
+#IX86ver1.mpq \
+#IX86 \
+#WAR3 \
+#"war3.exe 09/06/02 02:41:02 713495" \
+#0x00000002 \
+#1.0.1.0 \
+#0xa67d9a0e \
+#WAR3_102a
 
 # Warcraft III Retail v1.02
-"A=3845581634 B=880823580 C=1363937103 4 A=A-S B=B-C C=C-A A=A-B" \
-IX86ver1.mpq \
-IX86 \
-WAR3 \
-"war3.exe 08/12/02 18:21:15 713495" \
-0x00000002 \
-1.0.1.0 \
-0x03d8be54 \
-WAR3
+#"A=3845581634 B=880823580 C=1363937103 4 A=A-S B=B-C C=C-A A=A-B" \
+#IX86ver1.mpq \
+#IX86 \
+#WAR3 \
+#"war3.exe 08/12/02 18:21:15 713495" \
+#0x00000002 \
+#1.0.1.0 \
+#0x03d8be54 \
+#WAR3
 
 # Warcraft III RzR v1.02
 #"A=3845581634 B=880823580 C=1363937103 4 A=A-S B=B-C C=C-A A=A-B" \
@@ -848,58 +859,14 @@ WAR3
 # WARCRAFT 3 RETAIL SUPPORT - PVPGN
 
 # Warcraft III Retail v1.01b
-"A=3845581634 B=880823580 C=1363937103 4 A=A-S B=B-C C=C-A A=A-B" \
-IX86ver1.mpq \
-IX86 \
-WAR3 \
-"war3.exe 07/10/02 18:59:10 713495" \
-0x00000001 \
-1.0.1.1 \
-0x062ef7dc \
-WAR3
-
-# Warcraft III Retail 1.01
-"A=3845581634 B=880823580 C=1363937103 4 A=A-S B=B-C C=C-A A=A-B" \
-IX86ver1.mpq \
-IX86 \
-WAR3 \
-"war3.exe 06/28/02 18:41:18 713495" \
-0x00000001 \
-1.0.1.0 \
-0x62c2e1a2 \
-WAR3
-
-# Warcraft III Retail 1.01 Deviance Cracked 
-"A=3845581634 B=880823580 C=1363937103 4 A=A-S B=B-C C=C-A A=A-B" \
-IX86ver1.mpq \
-IX86 \
-WAR3 \
-"War3.exe 07/03/02 07:36:00 637440" \
-0x00000001 \
-1.0.1.0 \
-0x9d84aa4e \
-WAR3
-
-# Warcraft III Retail 1.00
 #"A=3845581634 B=880823580 C=1363937103 4 A=A-S B=B-C C=C-A A=A-B" \
 #IX86ver1.mpq \
 #IX86 \
 #WAR3 \
-#"War3.exe 07/03/02 22:48:23 713495" \
-#0x00000000 \
-#1.0.0.0 \
-#0xf891f129 \
-#WAR3
-
-# Warcraft III Retail 1.00 RZR
-#"A=3845581634 B=880823580 C=1363937103 4 A=A-S B=B-C C=C-A A=A-B" \
-#IX86ver1.mpq \
-#IX86 \
-#WAR3 \
-#"War3.exe 06/14/02 05:00:00 713495" \
-#0x00000000 \
-#1.0.0.0 \
-#0x540f5100 \
+#"war3.exe 07/10/02 18:59:10 713495" \
+#0x00000001 \
+#1.0.1.1 \
+#0x062ef7dc \
 #WAR3
 
 #                                                                            #
