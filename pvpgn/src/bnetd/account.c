@@ -1200,6 +1200,25 @@ extern t_account * accountlist_find_account(char const * username)
 }
 
 
+extern t_account * accountlist_find_account_by_uid(unsigned int uid)
+{
+    t_entry *    curr;
+    t_account *  account;
+    
+    if (uid) {
+	HASHTABLE_TRAVERSE(accountlist_head,curr)
+	{
+	    account = entry_get_data(curr);
+	    if (account->uid==uid) {
+		hashtable_entry_release(curr);
+		return account;
+	    }
+	}
+    }
+    return NULL;
+}
+
+
 extern t_account * accountlist_find_account_by_storage(t_storage_info *info)
 {
     t_entry *    curr;

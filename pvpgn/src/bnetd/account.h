@@ -131,6 +131,7 @@ extern void accountlist_unload_default(void);
 extern unsigned int accountlist_get_length(void);
 extern int accountlist_save(unsigned int delta);
 extern t_account * accountlist_find_account(char const * username);
+extern t_account * accountlist_find_account_by_uid(unsigned int uid);
 extern t_account * accountlist_find_account_by_storage(t_storage_info *);
 extern int accountlist_allow_add(void);
 extern t_account * accountlist_add_account(t_account * account);
