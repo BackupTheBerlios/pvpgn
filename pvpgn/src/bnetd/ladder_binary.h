@@ -24,12 +24,14 @@
 typedef enum 
 {	WAR3_SOLO, WAR3_TEAM, WAR3_FFA, WAR3_AT, 
 	W3XP_SOLO, W3XP_TEAM, W3XP_FFA, W3XP_AT,
-	STAR_AR, STAR_AW, STAR_AG,	// AR = active-rating, AW = active-wins, AG = active-games
-	STAR_CR, STAR_CW, STAR_CG,	// CR = current-rating, CW = current-wins, CG = current-games
-	SEXP_AR, SEXP_AW, SEXP_AG,
-	SEXP_CR, SEXP_CW, SEXP_CG,
-	W2BN_CR, W2BN_CW, W2BN_CG,
-	W2BN_CRI, W2BN_CWI, W2BN_CGI //I = Ironman
+	STAR_AR,   STAR_AW,   STAR_AG,	// AR = active-rating, AW = active-wins, AG = active-games
+	STAR_CR,   STAR_CW,   STAR_CG,	// CR = current-rating, CW = current-wins, CG = current-games
+	SEXP_AR,   SEXP_AW,   SEXP_AG,
+	SEXP_CR,   SEXP_CW,   SEXP_CG,
+	W2BN_AR,   W2BN_AW,   W2BN_AG,
+	W2BN_CR,   W2BN_CW,   W2BN_CG,
+	W2BN_ARI,  W2BN_AWI,  W2BN_AGI, //I = Ironman
+	W2BN_CRI,  W2BN_CWI,  W2BN_CGI
 
 } t_binary_ladder_types;
 

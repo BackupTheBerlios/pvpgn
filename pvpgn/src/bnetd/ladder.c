@@ -83,11 +83,13 @@ char * W3XP_solo_filename, * W3XP_team_filename, * W3XP_ffa_filename, * W3XP_at_
 
 t_ladder WAR3_solo_ladder, WAR3_team_ladder, WAR3_ffa_ladder, WAR3_at_ladder;
 t_ladder W3XP_solo_ladder, W3XP_team_ladder, W3XP_ffa_ladder, W3XP_at_ladder;
-t_ladder STAR_active_rating, STAR_active_wins, STAR_active_games, 
-         STAR_current_rating, STAR_current_wins, STAR_current_games;
-t_ladder SEXP_active_rating, SEXP_active_wins, SEXP_active_games, 
-         SEXP_current_rating, SEXP_current_wins, SEXP_current_games;
-t_ladder W2BN_current_rating, W2BN_current_wins, W2BN_current_games,
+t_ladder STAR_active_rating,          STAR_active_wins,          STAR_active_games, 
+         STAR_current_rating,         STAR_current_wins,         STAR_current_games;
+t_ladder SEXP_active_rating,          SEXP_active_wins,          SEXP_active_games, 
+         SEXP_current_rating,         SEXP_current_wins,         SEXP_current_games;
+t_ladder W2BN_active_rating,          W2BN_active_wins,          W2BN_active_games,
+         W2BN_active_rating_ironman,  W2BN_active_wins_ironman,  W2BN_active_games_ironman;
+t_ladder W2BN_current_rating,         W2BN_current_wins,         W2BN_current_games,
          W2BN_current_rating_ironman, W2BN_current_wins_ironman, W2BN_current_games_ironman;
 
 t_ladder_internal * last_internal = NULL;
@@ -100,12 +102,18 @@ int 		       last_rank     = 0;
 
 extern int ladderlist_make_all_active(void)
 {
-	ladder_make_active(ladder_cr(CLIENTTAG_STARCRAFT,ladder_id_normal),ladder_ar(CLIENTTAG_STARCRAFT,ladder_id_normal));
-	ladder_make_active(ladder_cw(CLIENTTAG_STARCRAFT,ladder_id_normal),ladder_aw(CLIENTTAG_STARCRAFT,ladder_id_normal));
-	ladder_make_active(ladder_cg(CLIENTTAG_STARCRAFT,ladder_id_normal),ladder_ag(CLIENTTAG_STARCRAFT,ladder_id_normal));
-	ladder_make_active(ladder_cr(CLIENTTAG_BROODWARS,ladder_id_normal),ladder_ar(CLIENTTAG_BROODWARS,ladder_id_normal));
-	ladder_make_active(ladder_cw(CLIENTTAG_BROODWARS,ladder_id_normal),ladder_aw(CLIENTTAG_BROODWARS,ladder_id_normal));
-	ladder_make_active(ladder_cg(CLIENTTAG_BROODWARS,ladder_id_normal),ladder_ag(CLIENTTAG_BROODWARS,ladder_id_normal));
+	ladder_make_active(ladder_cr(CLIENTTAG_STARCRAFT,ladder_id_normal), ladder_ar(CLIENTTAG_STARCRAFT,ladder_id_normal));
+	ladder_make_active(ladder_cw(CLIENTTAG_STARCRAFT,ladder_id_normal), ladder_aw(CLIENTTAG_STARCRAFT,ladder_id_normal));
+	ladder_make_active(ladder_cg(CLIENTTAG_STARCRAFT,ladder_id_normal), ladder_ag(CLIENTTAG_STARCRAFT,ladder_id_normal));
+	ladder_make_active(ladder_cr(CLIENTTAG_BROODWARS,ladder_id_normal), ladder_ar(CLIENTTAG_BROODWARS,ladder_id_normal));
+	ladder_make_active(ladder_cw(CLIENTTAG_BROODWARS,ladder_id_normal), ladder_aw(CLIENTTAG_BROODWARS,ladder_id_normal));
+	ladder_make_active(ladder_cg(CLIENTTAG_BROODWARS,ladder_id_normal), ladder_ag(CLIENTTAG_BROODWARS,ladder_id_normal));
+	ladder_make_active(ladder_cr(CLIENTTAG_WARCIIBNE,ladder_id_normal), ladder_ar(CLIENTTAG_WARCIIBNE,ladder_id_normal));
+	ladder_make_active(ladder_cw(CLIENTTAG_WARCIIBNE,ladder_id_normal), ladder_aw(CLIENTTAG_WARCIIBNE,ladder_id_normal));
+	ladder_make_active(ladder_cg(CLIENTTAG_WARCIIBNE,ladder_id_normal), ladder_ag(CLIENTTAG_WARCIIBNE,ladder_id_normal));
+	ladder_make_active(ladder_cr(CLIENTTAG_WARCIIBNE,ladder_id_ironman),ladder_ar(CLIENTTAG_WARCIIBNE,ladder_id_ironman));
+	ladder_make_active(ladder_cw(CLIENTTAG_WARCIIBNE,ladder_id_ironman),ladder_aw(CLIENTTAG_WARCIIBNE,ladder_id_ironman));
+	ladder_make_active(ladder_cg(CLIENTTAG_WARCIIBNE,ladder_id_ironman),ladder_ag(CLIENTTAG_WARCIIBNE,ladder_id_ironman));
 	ladder_update_all_accounts();
     return 0;
 }
@@ -422,6 +430,13 @@ extern t_ladder * at_ladder(char const * clienttag)
 	   return &STAR_active_rating;
    else if (strcmp(clienttag, CLIENTTAG_BROODWARS)==0)
 	   return &SEXP_active_rating;
+   else if (strcmp(clienttag, CLIENTTAG_WARCIIBNE)==0)
+   {
+           if (ladder_id == ladder_id_normal)
+	           return &W2BN_active_rating;
+	   else
+	           return &W2BN_active_rating_ironman;
+   }
    else return NULL;
  }
 
@@ -431,6 +446,13 @@ extern t_ladder * at_ladder(char const * clienttag)
 	   return &STAR_active_wins;
    else if (strcmp(clienttag, CLIENTTAG_BROODWARS)==0)
 	   return &SEXP_active_wins;
+   else if (strcmp(clienttag, CLIENTTAG_WARCIIBNE)==0)
+   {
+           if (ladder_id == ladder_id_normal)
+	           return &W2BN_active_wins;
+	   else
+	           return &W2BN_active_wins_ironman;
+   }
    else return NULL;
  }
 
@@ -440,6 +462,13 @@ extern t_ladder * at_ladder(char const * clienttag)
 	   return &STAR_active_games;
    else if (strcmp(clienttag, CLIENTTAG_BROODWARS)==0)
 	   return &SEXP_active_games;
+   else if (strcmp(clienttag, CLIENTTAG_WARCIIBNE)==0)
+   {
+           if (ladder_id == ladder_id_normal)
+	           return &W2BN_active_games;
+	   else
+	           return &W2BN_active_games_ironman;
+   }
    else return NULL;
  }
 
@@ -567,6 +596,15 @@ t_ladder * binary_ladder_types_to_w3_ladder(t_binary_ladder_types type)
 	case SEXP_CG  : 
 	ladder = &SEXP_current_games;
 	break;
+	case W2BN_AR  : 
+	ladder = &W2BN_active_rating;
+	break;
+	case W2BN_AW  : 
+	ladder = &W2BN_active_wins;
+	break;
+	case W2BN_AG  : 
+	ladder = &W2BN_active_games;
+	break;
 	case W2BN_CR  : 
 	ladder = &W2BN_current_rating;
 	break;
@@ -575,6 +613,15 @@ t_ladder * binary_ladder_types_to_w3_ladder(t_binary_ladder_types type)
 	break;
 	case W2BN_CG  : 
 	ladder = &W2BN_current_games;
+	break;
+	case W2BN_ARI : 
+	ladder = &W2BN_active_rating_ironman;
+	break;
+	case W2BN_AWI : 
+	ladder = &W2BN_active_wins_ironman;
+	break;
+	case W2BN_AGI : 
+	ladder = &W2BN_active_games_ironman;
 	break;
 	case W2BN_CRI : 
 	ladder = &W2BN_current_rating_ironman;
@@ -1067,9 +1114,15 @@ extern int ladder_update_all_accounts(void)
   ladder_update_accounts(&W2BN_current_rating, &account_set_ladder_rank, &account_get_ladder_rank);
   ladder_update_accounts(&W2BN_current_wins,  NULL,                      NULL);
   ladder_update_accounts(&W2BN_current_games, NULL,                      NULL);
+  ladder_update_accounts(&W2BN_active_rating, &account_set_ladder_rank, &account_get_ladder_rank);
+  ladder_update_accounts(&W2BN_active_wins,   NULL,                      NULL);
+  ladder_update_accounts(&W2BN_active_games,  NULL,                      NULL);
   ladder_update_accounts(&W2BN_current_rating_ironman, &account_set_ladder_rank, &account_get_ladder_rank);
   ladder_update_accounts(&W2BN_current_wins_ironman,  NULL,                      NULL);
   ladder_update_accounts(&W2BN_current_games_ironman, NULL,                      NULL);
+  ladder_update_accounts(&W2BN_active_rating_ironman, &account_set_ladder_rank, &account_get_ladder_rank);
+  ladder_update_accounts(&W2BN_active_wins_ironman,  NULL,                      NULL);
+  ladder_update_accounts(&W2BN_active_games_ironman, NULL,                      NULL);
 
   eventlog(eventlog_level_info,"ladder_update_all_accounts","finished updating ranking for all accounts");
   return 0;
@@ -1107,6 +1160,7 @@ extern void ladders_load_accounts_to_ladderlists(void)
   t_binary_ladder_load_result star_ar_res, star_aw_res, star_ag_res, star_cr_res, star_cw_res, star_cg_res;
   t_binary_ladder_load_result sexp_ar_res, sexp_aw_res, sexp_ag_res, sexp_cr_res, sexp_cw_res, sexp_cg_res;
   t_binary_ladder_load_result w2bn_cr_res, w2bn_cw_res, w2bn_cg_res, w2bn_cri_res, w2bn_cwi_res, w2bn_cgi_res;
+  t_binary_ladder_load_result w2bn_ar_res, w2bn_aw_res, w2bn_ag_res, w2bn_ari_res, w2bn_awi_res, w2bn_agi_res;
 
   war3_solo_res = binary_load(WAR3_SOLO);
   war3_team_res = binary_load(WAR3_TEAM);
@@ -1134,13 +1188,21 @@ extern void ladders_load_accounts_to_ladderlists(void)
   w2bn_cri_res  = binary_load(W2BN_CRI);
   w2bn_cwi_res  = binary_load(W2BN_CWI);
   w2bn_cgi_res  = binary_load(W2BN_CGI);
+  w2bn_ar_res   = binary_load(W2BN_AR);
+  w2bn_aw_res   = binary_load(W2BN_AW);
+  w2bn_ag_res   = binary_load(W2BN_AG);
+  w2bn_ari_res  = binary_load(W2BN_ARI);
+  w2bn_awi_res  = binary_load(W2BN_AWI);
+  w2bn_agi_res  = binary_load(W2BN_AGI);
 
   if ((war3_solo_res + war3_team_res + war3_ffa_res + war3_at_res +
        w3xp_solo_res + w3xp_team_res + w3xp_ffa_res + w3xp_at_res +
        star_ar_res   + star_aw_res   + star_ag_res  + star_cr_res + star_cw_res + star_cg_res +
        sexp_ar_res   + sexp_aw_res   + sexp_ag_res  + sexp_cr_res + sexp_cw_res + sexp_cg_res +
        w2bn_cr_res   + w2bn_cw_res   + w2bn_cg_res  + 
-       w2bn_cri_res  + w2bn_cwi_res  + w2bn_cgi_res ) == load_success)
+       w2bn_cri_res  + w2bn_cwi_res  + w2bn_cgi_res +
+       w2bn_ar_res   + w2bn_aw_res   + w2bn_ag_res  + 
+       w2bn_ari_res  + w2bn_awi_res  + w2bn_agi_res ) == load_success)
   {
     eventlog(eventlog_level_trace,__FUNCTION__,"everything went smooth... taking shortcut");
     return;
@@ -1356,10 +1418,36 @@ extern void ladders_load_accounts_to_ladderlists(void)
 	     	 {
 	 			 int games = account_get_ladder_wins(account,CLIENTTAG_WARCIIBNE,ladder_id_normal)+
 		 		             account_get_ladder_losses(account,CLIENTTAG_WARCIIBNE,ladder_id_normal)+
-	     	                 account_get_ladder_draws(account,CLIENTTAG_WARCIIBNE,ladder_id_normal)+
-	         	             account_get_ladder_disconnects(account,CLIENTTAG_WARCIIBNE,ladder_id_normal);
+	     	                             account_get_ladder_draws(account,CLIENTTAG_WARCIIBNE,ladder_id_normal)+
+	         	                     account_get_ladder_disconnects(account,CLIENTTAG_WARCIIBNE,ladder_id_normal);
 
 	 		      war3_ladder_add(&W2BN_current_games, uid,
+		 			              games, 0,account,0,CLIENTTAG_WARCIIBNE);
+	     	 }
+		  }
+
+		  if(account_get_ladder_active_rating(account,CLIENTTAG_WARCIIBNE,ladder_id_normal)>0)
+		  {
+		 	 if (w2bn_ar_res!=load_success)
+	     	 {
+		     	  war3_ladder_add(&W2BN_active_rating, uid,
+				 	              account_get_ladder_active_rating(account,CLIENTTAG_WARCIIBNE,ladder_id_normal),
+						 		  0,account,0,CLIENTTAG_WARCIIBNE);
+	 	     }
+		 	 if (w2bn_aw_res!=load_success)
+	     	 {
+	 		      war3_ladder_add(&W2BN_active_wins, uid,
+		 			              account_get_ladder_active_wins(account,CLIENTTAG_WARCIIBNE,ladder_id_normal),
+			 					  0,account,0,CLIENTTAG_WARCIIBNE);
+	 	     }
+		 	 if (w2bn_ag_res!=load_success)
+	     	 {
+	 			 int games = account_get_ladder_active_wins(account,CLIENTTAG_WARCIIBNE,ladder_id_normal)+
+		 		             account_get_ladder_active_losses(account,CLIENTTAG_WARCIIBNE,ladder_id_normal)+
+	     	                             account_get_ladder_active_draws(account,CLIENTTAG_WARCIIBNE,ladder_id_normal)+
+	         	                     account_get_ladder_active_disconnects(account,CLIENTTAG_WARCIIBNE,ladder_id_normal);
+
+	 		      war3_ladder_add(&W2BN_active_games, uid,
 		 			              games, 0,account,0,CLIENTTAG_WARCIIBNE);
 	     	 }
 		  }
@@ -1386,6 +1474,32 @@ extern void ladders_load_accounts_to_ladderlists(void)
 	         	             account_get_ladder_disconnects(account,CLIENTTAG_WARCIIBNE,ladder_id_ironman);
 
 	 		      war3_ladder_add(&W2BN_current_games_ironman, uid,
+		 			              games, 0,account,0,CLIENTTAG_WARCIIBNE);
+	     	 }
+		  }
+
+		  if(account_get_ladder_active_rating(account,CLIENTTAG_WARCIIBNE,ladder_id_ironman)>0)
+		  {
+		 	 if (w2bn_ari_res!=load_success)
+	     	 {
+		     	  war3_ladder_add(&W2BN_active_rating_ironman, uid,
+				 	              account_get_ladder_active_rating(account,CLIENTTAG_WARCIIBNE,ladder_id_ironman),
+						 		  0,account,0,CLIENTTAG_WARCIIBNE);
+	 	     }
+		 	 if (w2bn_awi_res!=load_success)
+	     	 {
+	 		      war3_ladder_add(&W2BN_active_wins_ironman, uid,
+		 			              account_get_ladder_active_wins(account,CLIENTTAG_WARCIIBNE,ladder_id_ironman),
+			 					  0,account,0,CLIENTTAG_WARCIIBNE);
+	 	     }
+		 	 if (w2bn_agi_res!=load_success)
+	     	 {
+	 			 int games = account_get_ladder_active_wins(account,CLIENTTAG_WARCIIBNE,ladder_id_ironman)+
+		 		             account_get_ladder_active_losses(account,CLIENTTAG_WARCIIBNE,ladder_id_ironman)+
+	     	                             account_get_ladder_active_draws(account,CLIENTTAG_WARCIIBNE,ladder_id_ironman)+
+	         	                     account_get_ladder_active_disconnects(account,CLIENTTAG_WARCIIBNE,ladder_id_ironman);
+
+	 		      war3_ladder_add(&W2BN_active_games_ironman, uid,
 		 			              games, 0,account,0,CLIENTTAG_WARCIIBNE);
 	     	 }
 		  }
@@ -1637,12 +1751,18 @@ extern void ladders_init(void)
   ladder_init(&SEXP_current_rating, SEXP_CR,   CLIENTTAG_BROODWARS,ladder_id_normal);
   ladder_init(&SEXP_current_wins,   SEXP_CW,   CLIENTTAG_BROODWARS,ladder_id_normal);
   ladder_init(&SEXP_current_games,  SEXP_CG,   CLIENTTAG_BROODWARS,ladder_id_normal);
-  ladder_init(&W2BN_current_rating, W2BN_CR,   CLIENTTAG_WARCIIBNE,ladder_id_normal);
-  ladder_init(&W2BN_current_wins,   W2BN_CW,   CLIENTTAG_WARCIIBNE,ladder_id_normal);
-  ladder_init(&W2BN_current_games,  W2BN_CG,   CLIENTTAG_WARCIIBNE,ladder_id_normal);
+  ladder_init(&W2BN_current_rating,         W2BN_CR,   CLIENTTAG_WARCIIBNE,ladder_id_normal);
+  ladder_init(&W2BN_current_wins,           W2BN_CW,   CLIENTTAG_WARCIIBNE,ladder_id_normal);
+  ladder_init(&W2BN_current_games,          W2BN_CG,   CLIENTTAG_WARCIIBNE,ladder_id_normal);
   ladder_init(&W2BN_current_rating_ironman, W2BN_CRI,  CLIENTTAG_WARCIIBNE,ladder_id_ironman);
   ladder_init(&W2BN_current_wins_ironman,   W2BN_CWI,  CLIENTTAG_WARCIIBNE,ladder_id_ironman);
   ladder_init(&W2BN_current_games_ironman,  W2BN_CGI,  CLIENTTAG_WARCIIBNE,ladder_id_ironman);
+  ladder_init(&W2BN_active_rating,          W2BN_AR,   CLIENTTAG_WARCIIBNE,ladder_id_normal);
+  ladder_init(&W2BN_active_wins,            W2BN_AW,   CLIENTTAG_WARCIIBNE,ladder_id_normal);
+  ladder_init(&W2BN_active_games,           W2BN_AG,   CLIENTTAG_WARCIIBNE,ladder_id_normal);
+  ladder_init(&W2BN_active_rating_ironman,  W2BN_ARI,  CLIENTTAG_WARCIIBNE,ladder_id_ironman);
+  ladder_init(&W2BN_active_wins_ironman,    W2BN_AWI,  CLIENTTAG_WARCIIBNE,ladder_id_ironman);
+  ladder_init(&W2BN_active_games_ironman,   W2BN_AGI,  CLIENTTAG_WARCIIBNE,ladder_id_ironman);
 
   create_filenames();
 }
@@ -1688,6 +1808,12 @@ extern void ladders_destroy(void)
   ladder_destroy(&W2BN_current_rating_ironman);
   ladder_destroy(&W2BN_current_wins_ironman);
   ladder_destroy(&W2BN_current_games_ironman);
+  ladder_destroy(&W2BN_active_rating);
+  ladder_destroy(&W2BN_active_wins);
+  ladder_destroy(&W2BN_active_games);
+  ladder_destroy(&W2BN_active_rating_ironman);
+  ladder_destroy(&W2BN_active_wins_ironman);
+  ladder_destroy(&W2BN_active_games_ironman);
   dispose_filenames();
 }
 
