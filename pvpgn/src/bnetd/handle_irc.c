@@ -862,6 +862,7 @@ static int _handle_join_command(t_connection * conn, int numparams, char ** para
 				t_channel * channel;
 
 
+				channel_set_flags(conn);
 				channel = conn_get_channel(conn);
 				if (channel) 
 				{
