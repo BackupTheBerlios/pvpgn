@@ -1,8 +1,3 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
-<HTML><HEAD>
-<META http-equiv=Content-Type content="text/html; charset=windows-1252"></HEAD>
-<BODY onunload=""><PRE>/* War3 Frozen Throne Beta */
-
 /*
 0000  ff 72 3a 00 00 00 00 00 - 36 38 58 49 50 58 33 57   .r:.....68XIPX3W
 0010  2d 01 00 00 53 55 6e 65 - 43 08 45 1f 2c 01 00 00   -...SUneC.E.,...
