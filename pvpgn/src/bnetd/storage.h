@@ -38,6 +38,11 @@ typedef struct readacct_struct {
     unsigned int pos;
 } t_readacct;
 
+typedef struct readattrs_struct {
+   t_attr_from_all *attr_from_all;
+   unsigned int pos;
+} t_readattrs;
+
 extern int storage_init(void);
 extern void storage_destroy(void);
 extern unsigned int storage_create_account(const char *);
@@ -49,6 +54,10 @@ extern int storage_attr_close(t_readattr *);
 extern t_readacct * storage_account_getfirst(unsigned int*);
 extern int storage_account_getnext(t_readacct *, unsigned int*);
 extern int storage_account_close(t_readacct *);
+
+extern t_readattrs * storage_attrs_getfirst(char const *, unsigned int *, char **);
+extern int storage_attrs_getnext(t_readattrs *, unsigned int*, char **);
+extern int storage_attrs_close(t_readattrs *);
 
 extern int storage_set(unsigned int, const char *, const char *);
 extern char const * storage_get(unsigned int, char const *);

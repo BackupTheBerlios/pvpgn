@@ -313,7 +313,12 @@ extern void conn_set_account(t_connection * c, t_account * account);
 extern int conn_get_socket(t_connection const * c) PURE_ATTR();
 extern int conn_get_game_socket(t_connection const * c) PURE_ATTR();
 extern int conn_set_game_socket(t_connection * c, int usock);
+#ifdef DEBUG_ACCOUNT
+extern char const * conn_get_username_real(t_connection const * c, char const * fn, unsigned int ln);
+#define conn_get_username(C) conn_get_username_real(C,__FILE__,__LINE__)
+#else
 extern char const * conn_get_username(t_connection const * c);
+#endif
 extern void conn_unget_username(t_connection const * c, char const * name);
 extern char const * conn_get_chatname(t_connection const * c);
 extern int conn_unget_chatname(t_connection const * c, char const * name);

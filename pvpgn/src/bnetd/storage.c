@@ -39,6 +39,7 @@
 #include <malloc.h>
 #endif
 #endif
+#include "account.h"
 
 extern int storage_init(void)
 {
@@ -260,6 +261,78 @@ extern char const * storage_get(unsigned int sid, const char *key)
    }
    
    return result;
+}
+
+extern t_readattrs * storage_attrs_getfirst(char const * attr, unsigned int * uid, char ** value)
+{
+   t_readattrs * readattrs;
+
+   if (attr == NULL) {
+      eventlog(eventlog_level_error,"storage_get", "got NULL attr");
+      return NULL;
+   }
+   
+   if (db_init()<0) {
+      eventlog(eventlog_level_error,"storage_get","faild to init db");
+      return NULL;
+   }
+
+   if ((readattrs = malloc(sizeof(t_readattrs))) == NULL) {
+      eventlog(eventlog_level_error,__FUNCTION__,"could not allocate for readattrs");
+      if (!prefs_get_mysql_persistent()) {
+         db_close();
+      }
+      return NULL;
+   }
+
+   if ((readattrs->attr_from_all = db_get_attr_from_all(attr))==NULL) {
+      eventlog(eventlog_level_error,__FUNCTION__,"could not get the list");
+      free(readattrs);
+      if (!prefs_get_mysql_persistent()) {
+         db_close();
+      }
+      return NULL;
+   }
+   
+   if (!prefs_get_mysql_persistent()) {
+      db_close();
+    }
+
+   readattrs->pos = 0;
+   *uid = readattrs->attr_from_all->uids[0];
+   *value = readattrs->attr_from_all->values[0];
+
+   return readattrs;
+}
+
+extern int storage_attrs_getnext(t_readattrs *readattrs, unsigned int *uid, char ** value)
+{
+   if (readattrs == NULL) {
+      eventlog(eventlog_level_error,__FUNCTION__, "Got NULL readattrs");
+      return -1;
+   }
+   
+   if (readattrs->pos >= readattrs->attr_from_all->len - 1)
+     return -1;
+   
+   readattrs->pos++;
+   *uid   = readattrs->attr_from_all->uids[readattrs->pos];
+   *value = readattrs->attr_from_all->values[readattrs->pos];
+   
+   return 0;
+}
+
+extern int storage_attrs_close(t_readattrs * readattrs)
+{
+   if (readattrs == NULL) {
+      eventlog(eventlog_level_error,__FUNCTION__,"Got NULL readattrs");
+      return -1;
+   }
+   
+   if (readattrs->attr_from_all) db_free_attrs(readattrs->attr_from_all);
+   free(readattrs);
+
+   return 0;
 }
 
 #endif

@@ -1144,6 +1144,51 @@ static int account_load_attrs(t_account * account)
     
 }
 
+extern void accounts_get_attr(const char * attribute)
+{
+#ifdef WITH_MYSQL
+  t_readattrs * readattrs;
+  unsigned int uid;
+  char * value;
+  t_account * account;
+  char uidstr[40];
+
+  if (prefs_get_mysql_persistent())
+  {
+    if (!( readattrs = storage_attrs_getfirst(attribute,&uid,&value)))
+    {
+      eventlog(eventlog_level_error,__FUNCTION__,"unable to start attrs read");
+      return;
+    }
+    else
+    {
+      doing_loadattrs = 1;
+      do
+      {
+	  if ((uid) && (value))
+	  {
+	    sprintf(uidstr,"#%u",uid);
+	    if (!(account = accountlist_find_account(uidstr)))
+	    {
+	      eventlog(eventlog_level_error,__FUNCTION__,"could not find account with given uid");
+            }
+	    else
+	    {
+	      //TODO: search if attribute is allready set to prevent double adding
+	      account_set_strattr(account,attribute,value);
+	    }
+	  }
+      }
+      while (storage_attrs_getnext(readattrs,&uid,&value)==0);
+      doing_loadattrs = 0;
+
+      if (storage_attrs_close(readattrs)<0)
+	  eventlog(eventlog_level_error,__FUNCTION__,"unable to close read attrs list");
+    }
+  }
+#endif
+}
+
 #ifndef WITH_MYSQL
 static t_account * account_load(char const * filename)
 {
@@ -1686,8 +1731,8 @@ extern t_account * accountlist_add_account(t_account * account)
         return NULL;
     }
     
-    username = account_get_strattr(account,"BNET\\acct\\username");
-    uid = account_get_numattr(account,"BNET\\acct\\userid");
+    username = account_get_name(account);
+    uid = account_get_uid(account);
     
     if (!username || strlen(username)<1)
     {

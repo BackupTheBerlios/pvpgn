@@ -2217,9 +2217,13 @@ extern void conn_set_out_size(t_connection * c, unsigned int size)
     c->outsize = size;
 }
 
-
+#ifdef DEBUG_ACCOUNT
+extern char const * conn_get_username_real(t_connection const * c,char const * fn,unsigned int ln)
+#else
 extern char const * conn_get_username(t_connection const * c)
+#endif
 {
+  char const * result;
     if (!c)
     {
         eventlog(eventlog_level_error,"conn_get_username","got NULL connection");
@@ -2235,7 +2239,13 @@ extern char const * conn_get_username(t_connection const * c)
     }
     if (c->class==conn_class_auth && c->bound)
 	return account_get_name(c->bound->account);
-    return account_get_name(c->account);
+    result = account_get_name(c->account);
+    if (result == NULL)
+    { 
+	eventlog(eventlog_level_error,__FUNCTION__,"returned previous error after being called by %s:%u",fn,ln);
+
+    }
+    return result;
 }
 
 
