@@ -175,7 +175,7 @@ typedef struct connection
 	    } irc; /* irc chat specific data */
 	} chat; /* chat and messages specific data */
 	t_game *		game;
-	char const *		botuser;   /* username for remote connections (not taken from account) */
+	char const *		loggeduser;   /* username as logged in or given (not taken from account) */
 	struct connection *	bound; /* matching Diablo II auth connection */
 	/* FIXME: this d2/w3 specific data could be unified into an union */
 	struct {
@@ -282,8 +282,8 @@ extern char const * conn_get_clientver(t_connection const * c) ;
 extern void conn_set_clientver(t_connection * c, char const * clientver);
 extern int conn_get_tzbias(t_connection const * c) ;
 extern void conn_set_tzbias(t_connection * c, int tzbias);
-extern int conn_set_botuser(t_connection * c, char const * username);
-extern char const * conn_get_botuser(t_connection const * c);
+extern int conn_set_loggeduser(t_connection * c, char const * username);
+extern char const * conn_get_loggeduser(t_connection const * c);
 extern unsigned int conn_get_flags(t_connection const * c) ;
 extern int conn_set_flags(t_connection * c, unsigned int flags);
 extern void conn_add_flags(t_connection * c, unsigned int flags);

@@ -188,7 +188,7 @@ extern char * message_format_line(t_connection const * c, char const * in)
 	        {
 		    char const * tname;
 		    
-		    strncpy(&out[outpos],(tname = (conn_get_chatname(c)?conn_get_chatname(c):conn_get_botuser(c))),USER_NAME_MAX-1);
+		    strncpy(&out[outpos],(tname = (conn_get_chatname(c)?conn_get_chatname(c):conn_get_loggeduser(c))),USER_NAME_MAX-1);
 		    conn_unget_chatname(c,tname);
 		}
 		out[outpos+USER_NAME_MAX-1] = '\0';

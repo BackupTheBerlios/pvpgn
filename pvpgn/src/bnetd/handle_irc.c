@@ -14,10 +14,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
- amadeo: i added my name in front of all changes i made, just to find my erros :)
- i also implemented some idea from other ppl and because sometimes, i really don't
- know anymore who sent me the code, i also took my name, to keep the changes clear.
- this is not meant as any stealing of credits.
  */
 #define CONNECTION_INTERNAL_ACCESS
 #include "common/setup_before.h"
@@ -356,7 +352,7 @@ static int _handle_nick_command(t_connection * conn, int numparams, char ** para
 {
 	/* FIXME: more strict param checking */
 
-	if ((conn_get_botuser(conn))&&
+	if ((conn_get_loggeduser(conn))&&
 	    (conn_get_state(conn)!=conn_state_bot_password && 
 	     conn_get_state(conn)!=conn_state_bot_username)) 
 	{
@@ -366,19 +362,19 @@ static int _handle_nick_command(t_connection * conn, int numparams, char ** para
 	{
 	    if ((params)&&(params[0]))
 	    {
-			if (conn_get_botuser(conn))
-			    irc_send_cmd2(conn,conn_get_botuser(conn),"NICK","",params[0]);
-			conn_set_botuser(conn,params[0]);
+			if (conn_get_loggeduser(conn))
+			    irc_send_cmd2(conn,conn_get_loggeduser(conn),"NICK","",params[0]);
+			conn_set_loggeduser(conn,params[0]);
 	    }
 	    else if (text)
 	    {
-			if (conn_get_botuser(conn))
-			    irc_send_cmd2(conn,conn_get_botuser(conn),"NICK","",text);
-			conn_set_botuser(conn,text);
+			if (conn_get_loggeduser(conn))
+			    irc_send_cmd2(conn,conn_get_loggeduser(conn),"NICK","",text);
+			conn_set_loggeduser(conn,text);
 	    }
 	    else
 	        irc_send(conn,ERR_NEEDMOREPARAMS,":Too few arguments to NICK");
-	    if ((conn_get_user(conn))&&(conn_get_botuser(conn)))
+	    if ((conn_get_user(conn))&&(conn_get_loggeduser(conn)))
 			irc_welcome(conn); /* only send the welcome if we have USER and NICK */
 	}
 	return 0;
@@ -413,7 +409,7 @@ static int _handle_user_command(t_connection * conn, int numparams, char ** para
 			eventlog(eventlog_level_debug,__FUNCTION__,"[%d] got USER: user=\"%s\" mode=\"%s\" unused=\"%s\" realname=\"%s\"",conn_get_socket(conn),user,mode,unused,realname);
 			conn_set_user(conn,user);
 			conn_set_owner(conn,realname);
-			if (conn_get_botuser(conn))
+			if (conn_get_loggeduser(conn))
 				irc_welcome(conn); /* only send the welcome if we have USER and NICK */
 	    	}
     	} 
@@ -560,7 +556,7 @@ static int _handle_privmsg_command(t_connection * conn, int numparams, char ** p
 					t_hash       passhash;
 					t_account  * temp;
 					char         msgtemp[MAX_MESSAGE_LEN];
-					char       * username=(char *)conn_get_botuser(conn);						
+					char       * username=(char *)conn_get_loggeduser(conn);						
 					
 					if (account_check_name(username)<0) 
 					{
@@ -681,7 +677,7 @@ static int _handle_notice_command(t_connection * conn, int numparams, char ** pa
 
 				if ((user = connlist_find_connection_by_accountname(e[i]))) 
 				{
-					irc_send_cmd2(user,conn_get_botuser(conn),"NOTICE",conn_get_botuser(user),text);
+					irc_send_cmd2(user,conn_get_loggeduser(conn),"NOTICE",conn_get_loggeduser(user),text);
 				}
 				else 
 				{

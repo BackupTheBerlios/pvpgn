@@ -105,7 +105,7 @@ extern int irc_send_cmd(t_connection * conn, char const * command, char const * 
 	return -1;
     }
 
-    nick = conn_get_botuser(conn);
+    nick = conn_get_loggeduser(conn);
     if (!nick)
     	nick = ""; /* FIXME: Is this good? */
     /* snprintf isn't portable -> check message length first */
@@ -282,12 +282,12 @@ extern int irc_authenticate(t_connection * conn, char const * passhash)
 	eventlog(eventlog_level_error,"irc_authenticate","got NULL passhash");
 	return 0;
     }
-    if (!conn_get_botuser(conn)) {
+    if (!conn_get_loggeduser(conn)) {
 	/* redundant sanity check */
-	eventlog(eventlog_level_error,"irc_authenticate","got NULL conn->botuser");
+	eventlog(eventlog_level_error,"irc_authenticate","got NULL conn->protocol.loggeduser");
 	return 0;
     }	
-    a = accountlist_find_account(conn_get_botuser(conn));
+    a = accountlist_find_account(conn_get_loggeduser(conn));
     if (!a) {
     	irc_send_cmd(conn,"NOTICE",":Authentication failed."); /* user does not exist */
 	return 0;
@@ -309,7 +309,7 @@ extern int irc_authenticate(t_connection * conn, char const * passhash)
         account_unget_pass(temphash);
         if (hash_eq(h1,h2)) {
             conn_set_account(conn,a);
-            conn_set_botuser(conn,(tempname = conn_get_username(conn)));
+            conn_set_loggeduser(conn,(tempname = conn_get_username(conn)));
             conn_unget_username(conn,tempname);
             conn_set_state(conn,conn_state_loggedin);
 	    /* FIXME: set clienttag to "ircd" or something (and make an icon) */
@@ -341,7 +341,7 @@ extern int irc_welcome(t_connection * conn)
 	return -1;
     }
 
-    tempname = conn_get_botuser(conn);
+    tempname = conn_get_loggeduser(conn);
 
 
     if ((34+strlen(tempname)+1)<=MAX_IRC_MESSAGE_LEN)
@@ -414,7 +414,7 @@ extern int irc_welcome(t_connection * conn)
     irc_send(conn,RPL_ENDOFMOTD,":End of /MOTD command");
     irc_send_cmd(conn,"NOTICE",":This is an experimental service.");
     conn_set_state(conn,conn_state_bot_password);
-    if (connlist_find_connection_by_accountname(conn_get_botuser(conn))) {
+    if (connlist_find_connection_by_accountname(conn_get_loggeduser(conn))) {
 	irc_send_cmd(conn,"NOTICE","This account is allready logged in, use another account.");
 	return -1;
     }

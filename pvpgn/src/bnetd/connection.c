@@ -419,7 +419,7 @@ extern t_connection * conn_create(int tsock, int usock, unsigned int real_local_
     temp->protocol.queues.outsizep               = 0;
     temp->protocol.queues.inqueue                = NULL;
     temp->protocol.queues.insize                 = 0;
-    temp->protocol.botuser              = NULL;
+    temp->protocol.loggeduser                    = NULL;
     temp->protocol.d2.realmname                  = NULL;
     temp->protocol.d2.character                  = NULL;
     temp->protocol.d2.realminfo                  = NULL;
@@ -635,8 +635,8 @@ extern void conn_destroy(t_connection * c)
 	free((void *)c->protocol.client.owner); /* avoid warning */
     if (c->protocol.client.cdkey)
 	free((void *)c->protocol.client.cdkey); /* avoid warning */
-    if (c->protocol.botuser)
-	free((void *)c->protocol.botuser); /* avoid warning */
+    if (c->protocol.loggeduser)
+	free((void *)c->protocol.loggeduser); /* avoid warning */
     if (c->protocol.d2.realmname)
 	free((void *)c->protocol.d2.realmname); /* avoid warning */
     if (c->protocol.d2.realminfo)
@@ -1485,10 +1485,10 @@ extern void conn_set_account(t_connection * c, t_account * account)
 	c->protocol.client.cdkey = NULL;
     }
     
-    if (c->protocol.botuser)
+    if (c->protocol.loggeduser)
     {
-	free((void *)c->protocol.botuser); /* avoid warning */
-	c->protocol.botuser = NULL;
+	free((void *)c->protocol.loggeduser); /* avoid warning */
+	c->protocol.loggeduser = NULL;
     }
     
     clanmember_set_online(c);
@@ -1515,44 +1515,44 @@ extern t_account * conn_get_account(t_connection const * c)
 }
 
 
-extern int conn_set_botuser(t_connection * c, char const * username)
+extern int conn_set_loggeduser(t_connection * c, char const * username)
 {
     char const * temp;
     
     if (!c)
     {
-	eventlog(eventlog_level_error,"conn_set_botuser","got NULL connection");
+	eventlog(eventlog_level_error, __FUNCTION__, "got NULL connection");
 	return -1;
     }
     if (!username)
     {
-	eventlog(eventlog_level_error,"conn_set_botuser","got NULL username");
+	eventlog(eventlog_level_error, __FUNCTION__, "got NULL username");
 	return -1;
     }
     
     if (!(temp = strdup(username)))
     {
-	eventlog(eventlog_level_error,"conn_set_botuser","unable to duplicate username");
+	eventlog(eventlog_level_error, __FUNCTION__,"unable to duplicate username");
 	return -1;
     }
-    if (c->protocol.botuser)
-	free((void *)c->protocol.botuser); /* avoid warning */
+    if (c->protocol.loggeduser)
+	free((void *)c->protocol.loggeduser); /* avoid warning */
     
-    c->protocol.botuser = temp;
+    c->protocol.loggeduser = temp;
     
     return 0;
 }
 
 
-extern char const * conn_get_botuser(t_connection const * c)
+extern char const * conn_get_loggeduser(t_connection const * c)
 {
     if (!c)
     {
-	eventlog(eventlog_level_error,"conn_get_botuser","got NULL connection");
+	eventlog(eventlog_level_error, __FUNCTION__, "got NULL connection");
 	return NULL;
     }
     
-    return c->protocol.botuser;
+    return c->protocol.loggeduser;
 }
 
 

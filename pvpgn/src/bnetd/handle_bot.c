@@ -109,7 +109,7 @@ extern int handle_bot_packet(t_connection * c, t_packet const * const packet)
 		
 		conn_set_state(c,conn_state_bot_password);
 		
-		if (conn_set_botuser(c,temp)<0)
+		if (conn_set_loggeduser(c,temp)<0)
 		    eventlog(eventlog_level_error,"handle_bot_packet","[%d] could not set username to \"%s\"",conn_get_socket(c),temp);
 		
 		{
@@ -121,7 +121,7 @@ extern int handle_bot_packet(t_connection * c, t_packet const * const packet)
 			break;
 		    }
 #if 1 /* don't echo */
-		    packet_append_ntstring(rpacket,conn_get_botuser(c));
+		    packet_append_ntstring(rpacket,conn_get_loggeduser(c));
 #endif
 		    packet_append_ntstring(rpacket,msg);
 		    conn_push_outqueue(c,rpacket);
@@ -133,7 +133,7 @@ extern int handle_bot_packet(t_connection * c, t_packet const * const packet)
 	case conn_state_bot_username:
 	    conn_set_state(c,conn_state_bot_password);
 	    
-	    if (conn_set_botuser(c,linestr)<0)
+	    if (conn_set_loggeduser(c,linestr)<0)
 		eventlog(eventlog_level_error,"handle_bot_packet","[%d] could not set username to \"%s\"",conn_get_socket(c),linestr);
 	    
 	    {
@@ -157,7 +157,7 @@ extern int handle_bot_packet(t_connection * c, t_packet const * const packet)
 	    {
 		char const * const tempa="\r\nLogin failed.\r\n\r\nUsername: ";
 		char const * const tempb="\r\nAccount has no bot access.\r\n\r\nUsername: ";
-		char const * const botuser=conn_get_botuser(c);
+		char const * const loggeduser=conn_get_loggeduser(c);
 		t_account *        account;
 		char const *       oldstrhash1;
 		t_hash             trypasshash1;
@@ -165,7 +165,7 @@ extern int handle_bot_packet(t_connection * c, t_packet const * const packet)
 		char const *       tname;
 		char *             testpass;
 		
-		if (!botuser) /* error earlier in login */
+		if (!loggeduser) /* error earlier in login */
 		{
 		    /* no log message... */
 		    conn_set_state(c,conn_state_bot_username);
@@ -181,9 +181,9 @@ extern int handle_bot_packet(t_connection * c, t_packet const * const packet)
 		    packet_del_ref(rpacket);
 		    break;
 		}
-		if (connlist_find_connection_by_accountname(botuser))
+		if (connlist_find_connection_by_accountname(loggeduser))
 		{
-		    eventlog(eventlog_level_info,"handle_bot_packet","[%d] bot login for \"%s\" refused (already logged in)",conn_get_socket(c),botuser);
+		    eventlog(eventlog_level_info,"handle_bot_packet","[%d] bot login for \"%s\" refused (already logged in)",conn_get_socket(c),loggeduser);
 		    conn_set_state(c,conn_state_bot_username);
 		    
 		    if (!(rpacket = packet_create(packet_class_raw)))
@@ -197,9 +197,9 @@ extern int handle_bot_packet(t_connection * c, t_packet const * const packet)
 		    packet_del_ref(rpacket);
 		    break;
 		}
-		if (!(account = accountlist_find_account(botuser)))
+		if (!(account = accountlist_find_account(loggeduser)))
 		{
-			eventlog(eventlog_level_info,"handle_bot_packet","[%d] bot login for \"%s\" refused (bad account)",conn_get_socket(c),botuser);
+			eventlog(eventlog_level_info,"handle_bot_packet","[%d] bot login for \"%s\" refused (bad account)",conn_get_socket(c),loggeduser);
 			conn_set_state(c,conn_state_bot_username);
 			
 			if (!(rpacket = packet_create(packet_class_raw)))
