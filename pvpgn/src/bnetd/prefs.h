@@ -188,6 +188,7 @@ extern char const * prefs_get_supportfile(void);
 extern char const * prefs_get_allowed_clients(void);
 extern char const * prefs_get_ladder_games(void);
 extern unsigned int prefs_get_max_connections(void);
+extern unsigned int prefs_get_sync_on_logoff(void);
 
 #endif
 #endif
