@@ -43,7 +43,7 @@
 #include "account.h"
 #include "common/eventlog.h"
 #include "ladder_binary.h"
-#include "war3ladder.h"
+#include "ladder.h"
 #include "prefs.h"
 #include "common/setup_after.h"
 
@@ -63,6 +63,25 @@ static const char * binary_ladder_type_to_filename(t_binary_ladder_types type)
     case W3XP_TEAM: return "W3XP_TEAM";
     case W3XP_FFA : return "W3XP_FFA";
     case W3XP_AT  : return "W3XP_AT";
+	case STAR_AR  : return "STAR_AR";
+	case STAR_AW  : return "STAR_AW";
+	case STAR_AG  : return "STAR_AG";
+	case STAR_CR  : return "STAR_CR";
+	case STAR_CW  : return "STAR_CW";
+	case STAR_CG  : return "STAR_CG";
+	case SEXP_AR  : return "SEXP_AR";
+	case SEXP_AW  : return "SEXP_AW";
+	case SEXP_AG  : return "SEXP_AG";
+	case SEXP_CR  : return "SEXP_CR";
+	case SEXP_CW  : return "SEXP_CW";
+	case SEXP_CG  : return "SEXP_CG";
+	case W2BN_CR  : return "W2BN_CR";
+	case W2BN_CW  : return "W2BN_CW";
+	case W2BN_CG  : return "W2BN_CG";
+	case W2BN_CRI : return "W2BN_CRI";
+	case W2BN_CWI : return "W2BN_CWI";
+	case W2BN_CGI : return "W2BN_CGI";
+
     default:
       eventlog(eventlog_level_error,__FUNCTION__,"got invalid binary ladder type");
       return NULL;
@@ -170,6 +189,7 @@ extern t_binary_ladder_load_result binary_ladder_load(t_binary_ladder_types type
   }
 
   fclose(fp);
+  eventlog(eventlog_level_info,__FUNCTION__,"sucessfully loaded %s",filename);
   dispose_filename(filename);
   return load_success;
 

@@ -8,6 +8,11 @@ fail to login due to wrong file-time. That's not our problem.
 1.6.0beta (since 1.6.0pre5)
 -- fixed bug in d2cs where it didnt accepted new chars if lod_realm was set 
 to any 0 or 1 value (but worked with 2 set by default)
+-- now there are binary ladder files for all ladder types. This significantly
+decreases server startup time when having many accounts. Those files are stored
+in the ladderdir. If you want/need the ladder to be rebuild from accounts,
+simply shutdown server, delete the corresponding binary ladder file(s) and 
+startup server again. The /rank_all_accounts command has been removed.
 
 1.6.0pre5 (since 1.6.0pre4):
 -- added support for loading new accounts at runtime (ex. if made by some 

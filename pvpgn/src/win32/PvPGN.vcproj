@@ -319,9 +319,6 @@
 					RelativePath="..\bnetd\w3trans.c">
 				</File>
 				<File
-					RelativePath="..\bnetd\war3ladder.c">
-				</File>
-				<File
 					RelativePath="..\bnetd\watch.c">
 				</File>
 			</Filter>
@@ -750,9 +747,6 @@
 				</File>
 				<File
 					RelativePath="..\bnetd\w3trans.h">
-				</File>
-				<File
-					RelativePath="..\bnetd\war3ladder.h">
 				</File>
 				<File
 					RelativePath="..\bnetd\watch.h">

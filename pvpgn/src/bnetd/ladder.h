@@ -23,9 +23,12 @@
 
 #ifdef JUST_NEED_TYPES
 # include "account.h"
+# include "ladder_binary.h"
 #else
 # define JUST_NEED_TYPES
+
 # include "account.h"
+# include "ladder_binary.h"
 # undef JUST_NEED_TYPES
 #endif
 
@@ -51,6 +54,7 @@ typedef enum
 
 typedef enum
 {
+    ladder_id_none=0,
     ladder_id_normal=1,
     ladder_id_ironman=3,
 } t_ladder_id;
@@ -61,17 +65,34 @@ typedef enum
     ladder_option_disconnectisloss=1
 } t_ladder_option;
 
+typedef struct ladder_internal
 #ifdef LADDER_INTERNAL_ACCESS
-typedef struct
-{
-    char const *  clienttag;
-    t_ladder_id   id;
-    t_ladder_time ltime;
-    t_account * * highestrated;
-    t_account * * mostwins;
-    t_account * * mostgames;
-    unsigned int  len;
-} t_ladder;
+ {
+   int uid;
+   int xp;
+   int level;
+   unsigned int teamcount;            // needed for AT ladder
+   t_account *account;
+   struct ladder_internal *prev; // user with less XP
+   struct ladder_internal *next; // user with more XP
+ }
+#endif
+ t_ladder_internal;
+
+ typedef struct ladder
+#ifdef LADDER_INTERNAL_ACCESS
+ {
+    t_ladder_internal *first;
+    t_ladder_internal *last;
+    int dirty;                        // 0==no changes, 1==something changed
+    t_binary_ladder_types type;
+	char const * clienttag;
+    t_ladder_id  ladder_id;
+ }
+#endif
+ t_ladder;
+
+#ifdef LADDER_INTERNAL_ACCESS
 
 typedef struct
 {
@@ -100,6 +121,7 @@ typedef struct
 #include "account.h"
 #include "game.h"
 #include "ladder_calc.h"
+#include "ladder_binary.h"
 #undef JUST_NEED_TYPES
 
 extern int ladder_init_account(t_account * account, char const * clienttag, t_ladder_id id);
@@ -110,8 +132,6 @@ extern unsigned int ladder_get_rank_by_account(t_account * account, t_ladder_sor
 
 extern int ladder_update(char const * clienttag, t_ladder_id id, unsigned int count, t_account * * players, t_game_result * results, t_ladder_info * info, t_ladder_option opns);
 
-extern int ladderlist_create(void);
-extern int ladderlist_destroy(void);
 extern int ladderlist_make_all_active(void);
 
 extern int  ladder_createxptable(const char *xplevelfile, const char *xpcalcfile);
@@ -121,5 +141,64 @@ extern int ladder_war3_xpdiff(unsigned int winnerlevel, unsigned int looserlevel
 extern int ladder_war3_updatelevel(unsigned int oldlevel, int xp);
 extern int ladder_war3_get_min_xp(unsigned int level);
 
+
+ extern int war3_ladder_add(t_ladder *ladder, int uid, int xp, int level, t_account *account, unsigned int teamcount,char const * clienttag);
+ // this function adds a user to the ladder and keeps the ladder sorted
+ // returns 0 if everything is fine and -1 when error occured
+
+ extern int war3_ladder_update(t_ladder *ladder, int uid, int xp, int level, t_account *account, unsigned int teamcount);
+ // this functions increases the xp of user with UID uid and corrects ranking
+ // returns 0 if everything is fine
+ // if user is not yet in ladder, he gets added automatically
+
+ extern int ladder_get_rank(t_ladder *ladder, int uid, unsigned int teamcount, char const * clienttag);
+ // this function returns the rank of a user with a given uid
+ // returns 0 if no such user is found
+ 
+ extern int ladder_update_all_accounts(void);
+ // write the correct ranking information to all user accounts
+ // and cut down ladder size to given limit
+ 
+ extern int ladders_write_to_file(void);
+ // outputs the ladders into  files - for the guys that wanna make ladder pages
+ 
+ extern void ladders_init(void);
+ // initialize the ladders
+
+ extern void ladders_destroy(void);
+ // remove all ladder data from memory
+ 
+ extern void ladders_load_accounts_to_ladderlists(void);
+ // enters all accounts from accountlist into the ladders
+ 
+ extern void ladder_reload_conf(void);
+ // reloads relevant parameters from bnetd.conf (xml/std mode for ladder)
+ 
+ extern t_account * ladder_get_account(t_ladder *ladder,int rank, unsigned int * teamcount, char const * clienttag);
+ // returns the account that is on specified rank in specified ladder. also return teamcount for AT ladder
+ // returns NULL if this rank is still vacant
+ 
+ extern t_ladder * solo_ladder(char const * clienttag);
+ extern t_ladder * team_ladder(char const * clienttag);
+ extern t_ladder * ffa_ladder(char const * clienttag);
+ extern t_ladder * at_ladder(char const * clienttag);
+ extern t_ladder * ladder_ar(char const * clienttag, t_ladder_id ladder_id);
+ extern t_ladder * ladder_aw(char const * clienttag, t_ladder_id ladder_id);
+ extern t_ladder * ladder_ag(char const * clienttag, t_ladder_id ladder_id);
+ extern t_ladder * ladder_cr(char const * clienttag, t_ladder_id ladder_id);
+ extern t_ladder * ladder_cw(char const * clienttag, t_ladder_id ladder_id);
+ extern t_ladder * ladder_cg(char const * clienttag, t_ladder_id ladder_id);
+
+ // for external clienttag specific reference of the ladders
+
+ extern int ladder_get_from_ladder(t_binary_ladder_types type, int rank, int * results);
+ extern int ladder_put_into_ladder(t_binary_ladder_types type, int * values);
+
+ extern int ladder_make_active(t_ladder *current, t_ladder *active);
+
+
 #endif
 #endif
+
+ extern char * create_filename(const char * path, const char * filename, const char * ending);
+ // Add by DJP for output.c

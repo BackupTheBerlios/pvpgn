@@ -150,7 +150,6 @@ bnetd_OBJECTS       = \
     ${SRC_BNETDDIR}\handle_anongame.obj \
     ${SRC_BNETDDIR}\channel.obj \
     ${SRC_BNETDDIR}\channel_conv.obj \
-    ${SRC_BNETDDIR}\war3ladder.obj \
     ${SRC_BNETDDIR}\game.obj \
     ${SRC_BNETDDIR}\anongame.obj \
     ${SRC_BNETDDIR}\friends.obj \

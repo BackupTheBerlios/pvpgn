@@ -164,7 +164,7 @@ extern unsigned int account_get_ladder_active_disconnects(t_account * account, c
 extern int account_set_ladder_active_disconnects(t_account * account, char const * clienttag, t_ladder_id id, unsigned int disconnects);
 extern unsigned int account_get_ladder_active_rating(t_account * account, char const * clienttag, t_ladder_id id);
 extern int account_set_ladder_active_rating(t_account * account, char const * clienttag, t_ladder_id id, unsigned int rating);
-extern unsigned int account_get_ladder_active_rank(t_account * account, char const * clienttag, t_ladder_id id);
+extern int account_get_ladder_active_rank(t_account * account, char const * clienttag, t_ladder_id id);
 extern int account_set_ladder_active_rank(t_account * account, char const * clienttag, t_ladder_id id, unsigned int rank);
 extern char const * account_get_ladder_active_last_time(t_account * account, char const * clienttag, t_ladder_id id);
 extern int account_set_ladder_active_last_time(t_account * account, char const * clienttag, t_ladder_id id, t_bnettime t);
@@ -180,7 +180,7 @@ extern unsigned int account_get_ladder_disconnects(t_account * account, char con
 extern int account_inc_ladder_disconnects(t_account * account, char const * clienttag, t_ladder_id id);
 extern unsigned int account_get_ladder_rating(t_account * account, char const * clienttag, t_ladder_id id);
 extern int account_adjust_ladder_rating(t_account * account, char const * clienttag, t_ladder_id id, int delta);
-extern unsigned int account_get_ladder_rank(t_account * account, char const * clienttag, t_ladder_id id);
+extern int account_get_ladder_rank(t_account * account, char const * clienttag, t_ladder_id id);
 extern int account_set_ladder_rank(t_account * account, char const * clienttag, t_ladder_id id, unsigned int rank);
 extern unsigned int account_get_ladder_high_rating(t_account * account, char const * clienttag, t_ladder_id id);
 extern unsigned int account_get_ladder_high_rank(t_account * account, char const * clienttag, t_ladder_id id);

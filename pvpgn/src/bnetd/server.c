@@ -145,7 +145,7 @@
 # include "win32/service.h"
 #endif
 // aaron
-#include "war3ladder.h"
+#include "ladder.h"
 #include "output.h"
 #include "alias_command.h"
 #include "anongame_infos.h"
@@ -1469,7 +1469,7 @@ extern int server_process(void)
 	if (prefs_get_war3_ladder_update_secs() && war3_ladder_updatetime+(time_t)prefs_get_war3_ladder_update_secs()<=now)
 	{
            war3_ladder_updatetime = now;
-	   war3_ladders_write_to_file();
+	       ladders_write_to_file();
 	}
 
 	if (prefs_get_output_update_secs() && output_updatetime+(time_t)prefs_get_output_update_secs()<=now)
@@ -1554,7 +1554,7 @@ extern int server_process(void)
 	    if (gametrans_load(prefs_get_transfile())<0)
 		eventlog(eventlog_level_error,"server_process","could not load new gametrans list");
 
-	    war3_ladder_reload_conf();
+	    ladder_reload_conf();
 	    
 	    if (prefs_get_track())
 		tracker_set_servers(prefs_get_trackserv_addrs());

@@ -38,7 +38,7 @@
 #include "prefs.h"
 #include "connection.h"
 #include "game.h"
-#include "war3ladder.h"
+#include "ladder.h"
 #include "server.h"
 #include "channel.h"
 #include "common/util.h"

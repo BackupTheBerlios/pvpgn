@@ -50,7 +50,6 @@
 #include "common/tag.h"
 #include "command.h"
 //aaron
-#include "war3ladder.h"
 #include "prefs.h"
 #include "friends.h"
 #include "clan.h"
@@ -1037,7 +1036,7 @@ extern int account_set_ladder_active_rating(t_account * account, char const * cl
 }
 
 
-extern unsigned int account_get_ladder_active_rank(t_account * account, char const * clienttag, t_ladder_id id)
+extern int account_get_ladder_active_rank(t_account * account, char const * clienttag, t_ladder_id id)
 {
     char key[256];
     
@@ -1255,7 +1254,7 @@ extern int account_adjust_ladder_rating(t_account * account, char const * client
 }
 
 
-extern unsigned int account_get_ladder_rank(t_account * account, char const * clienttag, t_ladder_id id)
+extern int account_get_ladder_rank(t_account * account, char const * clienttag, t_ladder_id id)
 {
     char key[256];
     
@@ -1280,8 +1279,8 @@ extern int account_set_ladder_rank(t_account * account, char const * clienttag, 
        eventlog(eventlog_level_error,"account_set_ladder_rank","got bad clienttag");
        return -1;
     }
-    if (rank==0)
-        eventlog(eventlog_level_warn,"account_set_ladder_rank","setting rank to zero?");
+    // if (rank==0)
+    //    eventlog(eventlog_level_warn,"account_set_ladder_rank","setting rank to zero?");
     sprintf(key,"Record\\%s\\%d\\rank",clienttag,(int)id);
     if (account_set_numattr(account,key,rank)<0)
 	retval = -1;
@@ -1293,7 +1292,6 @@ extern int account_set_ladder_rank(t_account * account, char const * clienttag, 
 	if (account_set_numattr(account,key,rank)<0)
 	    retval = -1;
     }
-    
     return retval;
 }
 

@@ -82,7 +82,6 @@
 #include "storage.h"
 #include "anongame.h"
 //aaron
-#include "war3ladder.h"
 #include "command_groups.h"
 #include "output.h"
 #include "alias_command.h"
@@ -447,17 +446,13 @@ int pre_server_startup(void)
     output_init();
     accountlist_load_default();
     accountlist_create();
-    if (ladderlist_create()<0) {
-	eventlog(eventlog_level_error, "pre_server_startup", "could not create ladders");
-	return STATUS_LADDERLIST_FAILURE;
-    }
     if (ladder_createxptable(prefs_get_xplevel_file(),prefs_get_xpcalc_file())<0) {
         eventlog(eventlog_level_error, "pre_server_startup", "could not load WAR3 xp calc tables");
         return STATUS_WAR3XPTABLES_FAILURE;
     }
-    war3_ladders_init();
-    war3_ladders_load_accounts_to_ladderlists();
-    war3_ladder_update_all_accounts();
+    ladders_init();
+    ladders_load_accounts_to_ladderlists();
+    ladder_update_all_accounts();
     if (realmlist_create(prefs_get_realmfile())<0)
 	eventlog(eventlog_level_error,"pre_server_startup","could not load realm list");
     if (characterlist_create("")<0)
@@ -493,10 +488,10 @@ void post_server_shutdown(int status)
     	    realmlist_destroy();
             ladder_destroyxptable();
         case STATUS_WAR3XPTABLES_FAILURE:
-    	    ladderlist_destroy();
+    	    
 	case STATUS_LADDERLIST_FAILURE:
-	    war3_ladder_update_all_accounts();
-    	    war3_ladders_destroy();
+	    ladder_update_all_accounts();
+    	    ladders_destroy();
 	    output_dispose_filename();
 	    accountlist_destroy();
     	    accountlist_unload_default();

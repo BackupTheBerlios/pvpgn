@@ -51,7 +51,7 @@
 #include "anongame.h"
 #include "tournament.h"
 #include "timer.h"
-#include "war3ladder.h"
+#include "ladder.h"
 #include "anongame_maplists.h"
 #include "w3trans.h"
 #include "common/setup_after.h"
@@ -1276,7 +1276,7 @@ extern int anongame_stats(t_connection * c)
 	}
     }
     /* aaron: now update war3 ladders */
-    war3_ladder_update_all_accounts();
+    ladder_update_all_accounts();
     return 1;
 }
 

@@ -106,7 +106,6 @@
 #include "news.h"
 #include "common/setup_after.h"
 // aaron
-#include "war3ladder.h"
 #include "topic.h"
 
 #include "friends.h"
@@ -379,7 +378,7 @@ static int _handle_killsession_command(t_connection * c, char const * text);
 static int _handle_gameinfo_command(t_connection * c, char const * text);
 static int _handle_ladderactivate_command(t_connection * c, char const * text);
 static int _handle_rehash_command(t_connection * c, char const * text);
-static int _handle_rank_all_accounts_command(t_connection * c, char const * text);
+//static int _handle_rank_all_accounts_command(t_connection * c, char const * text);
 static int _handle_shutdown_command(t_connection * c, char const * text);
 static int _handle_ladderinfo_command(t_connection * c, char const * text);
 static int _handle_timer_command(t_connection * c, char const * text);
@@ -485,7 +484,7 @@ static const t_command_table_row extended_command_table[] =
 	{ "/gameinfo"           , _handle_gameinfo_command },
 	{ "/ladderactivate"     , _handle_ladderactivate_command },
 	{ "/rehash"             , _handle_rehash_command },
-	{ "/rank_all_accounts"  , _handle_rank_all_accounts_command },
+//	{ "/rank_all_accounts"  , _handle_rank_all_accounts_command },
 	{ "/shutdown"           , _handle_shutdown_command },
 	{ "/ladderinfo"         , _handle_ladderinfo_command },
 	{ "/timer"              , _handle_timer_command },
@@ -3557,12 +3556,14 @@ static int _handle_rehash_command(t_connection * c, char const *text)
   return 0;
 }
 
+/*
 static int _handle_rank_all_accounts_command(t_connection * c, char const *text)
 {
   // rank all accounts here
   accounts_rank_all();
   return 0;
 }
+*/
 
 static int _handle_shutdown_command(t_connection * c, char const *text)
 {
@@ -3769,7 +3770,7 @@ static int _handle_ladderinfo_command(t_connection * c, char const *text)
   else if (strcasecmp(clienttag,CLIENTTAG_WARCRAFT3)==0 || strcasecmp(clienttag,CLIENTTAG_WAR3XP)==0)
     {
       unsigned int teamcount = 0;
-      if ((account = war3_ladder_get_account(solo_ladder(clienttag),rank,&teamcount,clienttag)))
+      if ((account = ladder_get_account(solo_ladder(clienttag),rank,&teamcount,clienttag)))
 	{
 	  sprintf(msgtemp,"WarCraft3 Solo   %5u: %-20.20s %u/%u/0",
 		  rank,
@@ -3782,7 +3783,7 @@ static int _handle_ladderinfo_command(t_connection * c, char const *text)
 	sprintf(msgtemp,"WarCraft3 Solo   %5u: <none>",rank);
       message_send_text(c,message_type_info,c,msgtemp);
       
-      if ((account = war3_ladder_get_account(team_ladder(clienttag),rank,&teamcount,clienttag)))
+      if ((account = ladder_get_account(team_ladder(clienttag),rank,&teamcount,clienttag)))
 	{
 	  sprintf(msgtemp,"WarCraft3 Team   %5u: %-20.20s %u/%u/0",
 		  rank,
@@ -3795,7 +3796,7 @@ static int _handle_ladderinfo_command(t_connection * c, char const *text)
 	sprintf(msgtemp,"WarCraft3 Team   %5u: <none>",rank);
       message_send_text(c,message_type_info,c,msgtemp);
       
-      if ((account = war3_ladder_get_account(ffa_ladder(clienttag),rank,&teamcount,clienttag)))
+      if ((account = ladder_get_account(ffa_ladder(clienttag),rank,&teamcount,clienttag)))
 	{
 	  sprintf(msgtemp,"WarCraft3 FFA   %5u: %-20.20s %u/%u/0",
 		  rank,
@@ -3808,7 +3809,7 @@ static int _handle_ladderinfo_command(t_connection * c, char const *text)
 	sprintf(msgtemp,"WarCraft3 FFA   %5u: <none>",rank);
       message_send_text(c,message_type_info,c,msgtemp);
       
-      if ((account = war3_ladder_get_account(at_ladder(clienttag),rank,&teamcount,clienttag)))
+      if ((account = ladder_get_account(at_ladder(clienttag),rank,&teamcount,clienttag)))
 	{
 	  if (account_get_atteammembers(account,teamcount,clienttag))
 	    sprintf(msgtemp,"WarCraft3 AT Team   %5u: %-80.80s %u/%u/0",

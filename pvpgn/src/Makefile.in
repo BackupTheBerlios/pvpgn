@@ -100,7 +100,6 @@ ${SRC_BNETDDIR}/handle_udp.o \
 ${SRC_BNETDDIR}/handle_auth.o \
 ${SRC_BNETDDIR}/channel.o \
 ${SRC_BNETDDIR}/channel_conv.o \
-${SRC_BNETDDIR}/war3ladder.o \
 ${SRC_BNETDDIR}/game.o \
 ${SRC_BNETDDIR}/anongame.o \
 ${SRC_BNETDDIR}/command.o \

@@ -87,7 +87,7 @@
 #include "friends.h"
 #include "common/tag.h"
 //aaron
-#include "war3ladder.h"
+#include "ladder.h"
 #include "clan.h"
 #include "common/setup_after.h"
 
@@ -1397,7 +1397,7 @@ extern t_account * accountlist_add_account(t_account * account)
 }
 
 // aaron --->
-
+/*
 extern int accounts_rank_all(void)
 {
     t_entry *    curr;
@@ -1405,8 +1405,8 @@ extern int accounts_rank_all(void)
     unsigned int uid;
 
     // unload ladders, create new.... !!!
-    war3_ladders_destroy();
-    war3_ladders_init();
+    ladders_destroy();
+    ladders_init();
     
     
     HASHTABLE_TRAVERSE(accountlist_head,curr)
@@ -1458,9 +1458,10 @@ extern int accounts_rank_all(void)
       }
 
     }
-    war3_ladder_update_all_accounts();
+    ladder_update_all_accounts();
     return 0;
 }
+*/
 // <---
 
 #ifdef WITH_BITS

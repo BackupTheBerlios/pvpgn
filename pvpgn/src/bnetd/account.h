@@ -146,7 +146,7 @@ extern t_account * accountlist_find_account_by_storage(t_storage_info *);
 extern int accountlist_allow_add(void);
 extern t_account * accountlist_add_account(t_account * account);
 // aaron
-extern int accounts_rank_all(void);
+//extern int accounts_rank_all(void);
 extern void accounts_get_attr(char const *);
 /* names and passwords */
 #ifdef DEBUG_ACCOUNT
