@@ -44,7 +44,7 @@
 #endif
 #include "fdwatch.h"
 #include "common/eventlog.h"
-#include "common/xmalloc.h"
+#include "common/xalloc.h"
 #include "common/setup_after.h"
 
 static int sr;
