@@ -659,6 +659,12 @@ extern char const * account_get_strattr(t_account * account, char const * key)
 {
     char const *        newkey;
     t_attribute * curr, *last, *last2;
+#ifdef WITH_MYSQL
+   char const * result1;
+   char const * result2;
+   char const * result;
+   t_attribute * attr;
+#endif
    
 /*    eventlog(eventlog_level_trace,"account_get_strattr","<<<< ENTER!"); */
     if (!account)
@@ -755,14 +761,11 @@ extern char const * account_get_strattr(t_account * account, char const * key)
 	free((void *)newkey); /* avoid warning */
 
 #ifdef WITH_MYSQL
-   char const * result1 = NULL;
-   char const * result2 = NULL;
-   char const * result  = NULL;
+   result = result1 = result2 = NULL;
    result1 = storage_get(account->storageid,key);
    if (account == default_acct) return result1;
    if (result1 == NULL) result2=account_get_strattr(default_acct,key);
    if (result1 != NULL) result=result1; else result=result2;
-   t_attribute * attr;
    attr = malloc(sizeof(t_attribute));
    attr->key = strdup(key);
    attr->val = result;
