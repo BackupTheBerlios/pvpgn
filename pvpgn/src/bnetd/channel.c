@@ -2025,7 +2025,9 @@ extern int channel_set_flags(t_connection * c)
   currflags = conn_get_flags(c);
   acc = conn_get_account(c);
   
-  if (!(channel = channel_get_name(conn_get_channel(c))))
+  /* well... unfortunatly channel_get_name never returns NULL but "" instead 
+     so we first have to check if user is in a channel at all */
+  if ((!conn_get_channel(c)) || (!(channel = channel_get_name(conn_get_channel(c)))))
     return -1;
   
   if (account_get_auth_admin(acc,channel) == 1 || account_get_auth_admin(acc,NULL) == 1)
