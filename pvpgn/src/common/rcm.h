@@ -54,8 +54,8 @@ typedef struct {
 
 extern void rcm_init(t_rcm *rcm);
 extern void rcm_regref_init(t_rcm_regref *regref, t_chref_cb cb, void *data);
-extern void rcm_get(t_rcm *rcm, t_elist *refs_link);
-extern void rcm_put(t_rcm *rcm, t_elist *refs_link);
+extern void rcm_get(t_rcm *rcm, t_rcm_regref *regref);
+extern void rcm_put(t_rcm *rcm, t_rcm_regref *regref);
 /* the main function, cycles through the registered references and calls the 
  * registered callback with the new reference */
 extern void rcm_chref(t_rcm *rcm, void *newref);

@@ -42,23 +42,23 @@ extern void rcm_regref_init(t_rcm_regref *regref, t_chref_cb cb, void *data)
     regref->data = data;
 }
 
-extern void rcm_get(t_rcm *rcm, t_elist *refs_link)
+extern void rcm_get(t_rcm *rcm, t_rcm_regref *regref)
 {
     assert(rcm);
-    assert(refs_link);
+    assert(regref);
 
     rcm->count++;
-    elist_add_tail(&rcm->refs,refs_link);
+    elist_add_tail(&rcm->refs,&regref->refs_link);
 }
 
-extern void rcm_put(t_rcm *rcm, t_elist *refs_link)
+extern void rcm_put(t_rcm *rcm, t_rcm_regref *regref)
 {
     assert(rcm);
-    assert(refs_link);
+    assert(regref);
     assert(rcm->count);	/* might use eventlog but I want this stopped fast */
 
     rcm->count--;
-    elist_del(refs_link);
+    elist_del(&regref->refs_link);
 }
 
 extern void rcm_chref(t_rcm *rcm, void *newref)
