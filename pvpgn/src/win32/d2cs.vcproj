@@ -216,6 +216,21 @@
 					RelativePath="..\common\eventlog.c">
 				</File>
 				<File
+					RelativePath="..\common\fdwatch.c">
+				</File>
+				<File
+					RelativePath="..\common\fdwatch_epoll.c">
+				</File>
+				<File
+					RelativePath="..\common\fdwatch_kqueue.c">
+				</File>
+				<File
+					RelativePath="..\common\fdwatch_poll.c">
+				</File>
+				<File
+					RelativePath="..\common\fdwatch_select.c">
+				</File>
+				<File
 					RelativePath="..\common\hashtable.c">
 				</File>
 				<File
@@ -232,6 +247,9 @@
 				</File>
 				<File
 					RelativePath="..\common\queue.c">
+				</File>
+				<File
+					RelativePath="..\common\rlimit.c">
 				</File>
 				<File
 					RelativePath="..\common\util.c">
@@ -402,6 +420,21 @@
 					RelativePath="..\common\eventlog.h">
 				</File>
 				<File
+					RelativePath="..\common\fdwatch.h">
+				</File>
+				<File
+					RelativePath="..\common\fdwatch_epoll.h">
+				</File>
+				<File
+					RelativePath="..\common\fdwatch_kqueue.h">
+				</File>
+				<File
+					RelativePath="..\common\fdwatch_poll.h">
+				</File>
+				<File
+					RelativePath="..\common\fdwatch_select.h">
+				</File>
+				<File
 					RelativePath="..\common\hashtable.h">
 				</File>
 				<File
@@ -415,6 +448,9 @@
 				</File>
 				<File
 					RelativePath="..\common\packet.h">
+				</File>
+				<File
+					RelativePath="..\common\rlimit.h">
 				</File>
 				<File
 					RelativePath="..\common\queue.h">
