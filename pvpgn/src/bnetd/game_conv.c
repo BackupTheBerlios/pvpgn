@@ -234,6 +234,8 @@ extern t_game_type bngtype_to_gtype(char const * clienttag, unsigned short bngty
     {
 	switch (bngtype)
 	{
+	case CLIENT_GAMELISTREQ_ALL:
+	    return game_type_all;
 	case CLIENT_GAMELISTREQ_MELEE:
 	    return game_type_melee;
 	case CLIENT_GAMELISTREQ_FFA:
