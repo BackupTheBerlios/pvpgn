@@ -2991,7 +2991,10 @@ extern int conn_quota_exceeded(t_connection * con, char const * text)
     t_qline * qline;
     t_elem *  curr;
     
-    if (!prefs_get_quota()) return 0;
+    if (!prefs_get_quota() ||
+	!conn_get_account(con) ||
+	(account_get_command_groups(conn_get_account(con)) & command_get_group("/admin-con"))) return 0;
+
     if (strlen(text)>prefs_get_quota_maxline())
     {
 	message_send_text(con,message_type_error,con,"Your line length quota has been exceeded!");
