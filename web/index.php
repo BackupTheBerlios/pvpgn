@@ -168,12 +168,12 @@ color: #FFB019
 				  <?php
 				  if ($_GET['page'] == 'files') {
 				// This is how we process the files page
-				// We start by getting the latest version numbers from the "misc" table
+				// We start by getting the latest version numbers from the "config" table
 				// Then we'll save these version numbers into variables and free the result
-				  $row = mysql_fetch_row($temp = mysql_query("SELECT value FROM misc WHERE `key` = 'latest_stable'",$dbh));
+				  $row = mysql_fetch_row($temp = mysql_query("SELECT value FROM config WHERE `key` = 'latest_stable'",$dbh));
 				  $latest_stable = $row[0];
 				  mysql_free_result($temp);
-				  $row = mysql_fetch_row($temp = mysql_query("SELECT value FROM misc WHERE `key` = 'latest_unstable'",$dbh));
+				  $row = mysql_fetch_row($temp = mysql_query("SELECT value FROM config WHERE `key` = 'latest_unstable'",$dbh));
 				  $latest_unstable = $row[0];
 				  mysql_free_result($temp);
 				  unset($temp);
@@ -329,7 +329,7 @@ color: #FFB019
 </table>
 <div align="center"><font color="#666666" size="1" face="Verdana, Arial, Helvetica, sans-serif">
 <?php
-$footer = mysql_fetch_row($temp = mysql_query("SELECT value FROM misc WHERE `key` = 'footer'"));
+$footer = mysql_fetch_row($temp = mysql_query("SELECT value FROM config WHERE `key` = 'footer'"));
 echo " ".$footer[0]."\n";
 mysql_free_result($temp);
 ?>

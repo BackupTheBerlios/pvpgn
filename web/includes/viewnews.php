@@ -1,5 +1,5 @@
 <?php
-$query = mysql_query("SELECT t1.username,t1.email,t2.timestamp,t2.subject,t2.text FROM news_users AS t1, news_posts AS t2 WHERE t1.uid = t2.poster ORDER BY t2.timestamp DESC LIMIT 0,5",$dbh);
+$query = mysql_query("SELECT t1.username,t1.email,t2.timestamp,t2.subject,t2.text FROM users AS t1, news AS t2 WHERE t1.uid = t2.poster ORDER BY t2.timestamp DESC LIMIT 0,5",$dbh);
 
 if ($row = mysql_fetch_row($query)) {
 	do {

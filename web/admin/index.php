@@ -31,7 +31,7 @@ Password: <input type="password" name="password"><br />
 		mysql_select_db($dbname,$dbh);
 	}
 	if ($_GET['action'] == 'login') {
-		$row = mysql_fetch_row(mysql_query("SELECT * FROM news_users WHERE username = '".$_POST['username']."';",$dbh));
+		$row = mysql_fetch_row(mysql_query("SELECT * FROM users WHERE username = '".$_POST['username']."';",$dbh));
 		if (!$row) {
 			echo "<p align=\"center\">User \"".$_POST['username']."\" does not exist</p>\n";
 		} else if ($row[2] != md5($_POST['password'])) {
@@ -63,7 +63,7 @@ Password: <input type="password" name="password"><br />
 			if ($_POST['pass1'] <> $_POST['pass2']) {
 				echo "<p align=\"center\">Password and repeated password do not match</p>\n";
 			} else {
-				if (@mysql_query("INSERT INTO `news_users`(`username`,`passhash`,`email`) VALUES('".$_POST['username']."','".md5($_POST['pass1'])."','".$_POST['email']."');",$dbh)) {
+				if (@mysql_query("INSERT INTO `users`(`username`,`passhash`,`email`) VALUES('".$_POST['username']."','".md5($_POST['pass1'])."','".$_POST['email']."');",$dbh)) {
 					echo "<p align=\"center\">User \"".$_POST['username']."\" created successfully</p>\n";
 				} else {
 					echo "<p align=\"center\">Error: Could not create new user</p>\n";
@@ -83,7 +83,7 @@ Password: <input type="password" name="password"><br />
 		</form></p>
 		<?php
 		} else if ($_GET['action'] == 'dosubmit') {
-			if (@mysql_query("INSERT INTO `news_posts` VALUES(".time().",".$_SESSION['uid'].",'".$_POST['subject']."','".$_POST['text']."');",$dbh)) {
+			if (@mysql_query("INSERT INTO `news` VALUES(".time().",".$_SESSION['uid'].",'".$_POST['subject']."','".$_POST['text']."');",$dbh)) {
 				echo "<p align=\"center\">News added successfully</p>\n";
 			} else {
 				echo "<p align=\"center\">Error: Could not insert news</p>\n";
@@ -92,7 +92,7 @@ Password: <input type="password" name="password"><br />
 		} else if ($_GET['action'] == 'edit') {
 			echo "<div align=\"center\"><table width=\"90%\">";
 			echo "<tr bgcolor=\"#CCCCCC\"><td>Timestamp</td><td>Subject</td><td>Edit</td><td>Delete</td></tr>\n";
-			$query = mysql_query("SELECT timestamp,subject FROM news_posts ORDER BY `timestamp` DESC",$dbh);
+			$query = mysql_query("SELECT timestamp,subject FROM news ORDER BY `timestamp` DESC",$dbh);
 			if ($row = mysql_fetch_row($query)) {
 				do {
 					echo "<tr><td>".$row[0]."</td><td>".$row[1]."</td><td><a href=\"".$_SERVER['PHP_SELF']."?action=edititem&x=".$row[0]."\">edit</a></td><td><a href=\"".$_SERVER['PHP_SELF']."?action=dodelete&x=".$row[0]."\">delete</a></td>\n";
@@ -102,10 +102,10 @@ Password: <input type="password" name="password"><br />
 			}
 			echo "</table></div>\n";
 		} else if ($_GET['action'] == 'dodelete') {
-			mysql_query("DELETE FROM news_posts WHERE `timestamp` = ".$_GET['x'].";",$dbh);
+			mysql_query("DELETE FROM news WHERE `timestamp` = ".$_GET['x'].";",$dbh);
 			echo "<p align=\"center\">Newsitem deleted</p>\n";
 		} else if ($_GET['action'] == 'edititem') {
-			$row = mysql_fetch_row($temp = mysql_query("SELECT subject,text FROM news_posts WHERE `timestamp` = ".$_GET['x'].";",$dbh));
+			$row = mysql_fetch_row($temp = mysql_query("SELECT subject,text FROM news WHERE `timestamp` = ".$_GET['x'].";",$dbh));
 			echo "<p><form action=\"".$_SERVER['PHP_SELF']."?action=doedit&x=".$_GET['x']."\" method=\"post\">\n";
 			echo "Date: ".date($dateformat,$_GET['x'])."<br />\n";
 			echo "Subject: <input type=\"text\" name=\"subject\" value=\"".$row[0]."\"><br />\n";
@@ -116,14 +116,14 @@ Password: <input type="password" name="password"><br />
 			unset($temp);
 			unset($row);
 		} else if ($_GET['action'] == 'doedit') {
-			if (@mysql_query("UPDATE news_posts SET `subject` = '".$_POST['subject']."', `text` = '".$_POST['text']."' WHERE `timestamp` = ".$_GET['x'].";",$dbh)) {
+			if (@mysql_query("UPDATE news SET `subject` = '".$_POST['subject']."', `text` = '".$_POST['text']."' WHERE `timestamp` = ".$_GET['x'].";",$dbh)) {
 				echo "<p align=\"center\">News updated successfully</p>\n";
 			} else {
 				echo "<p align=\"center\">Error: Could not update news</p>\n";
 				echo "<p align=\"center\">MySQL said: ".mysql_error()."</p>\n";		
 			}
 		} else if ($_GET['action'] == 'chpass') {
-			$row = mysql_fetch_row(mysql_query("SELECT username,email FROM news_users WHERE uid = ".$_SESSION['uid'].";",$dbh));
+			$row = mysql_fetch_row(mysql_query("SELECT username,email FROM users WHERE uid = ".$_SESSION['uid'].";",$dbh));
 			?>
 			<p><form action="<?php echo $_SERVER['PHP_SELF']; ?>?action=dochpass" method="post">
 			Username: <input type="text" name="username" value="<?php echo $row[0]; ?>" maxlength="32"><br />
@@ -135,7 +135,7 @@ Password: <input type="password" name="password"><br />
 			<?php
 		} else if ($_GET['action'] == 'dochpass') {
 			if ($_POST['pass1'] == $_POST['pass2']) {
-				if (@mysql_query("UPDATE news_users SET `username` = '".$_POST['username']."', `passhash` = '".md5($_POST['pass1'])."', `email` = '".$_POST['email']."' WHERE `uid` = ".$uid.";",$dbh)) {
+				if (@mysql_query("UPDATE users SET `username` = '".$_POST['username']."', `passhash` = '".md5($_POST['pass1'])."', `email` = '".$_POST['email']."' WHERE `uid` = ".$uid.";",$dbh)) {
 					echo "<p align=\"center\">Profile updated successfully</p>\n";
 					echo "<p align=\"center\">You must <a href=\"".$_SERVER['PHP_SELF']."\">log in</a> again before you can perform further actions.</p>\n";
 				} else {
@@ -146,10 +146,10 @@ Password: <input type="password" name="password"><br />
 				echo "<p align=\"center\">Error: Password and repeated password do not match</p>\n";
 			}
 		} else if ($_GET['action'] == 'downloads') {
-			$row = mysql_fetch_row($temp = mysql_query("SELECT value FROM misc WHERE `key` = 'latest_stable'",$dbh));
+			$row = mysql_fetch_row($temp = mysql_query("SELECT value FROM config WHERE `key` = 'latest_stable'",$dbh));
 			$latest_stable = $row[0];
 			mysql_free_result($temp);
-			$row = mysql_fetch_row($temp = mysql_query("SELECT value FROM misc WHERE `key` = 'latest_unstable'",$dbh));
+			$row = mysql_fetch_row($temp = mysql_query("SELECT value FROM config WHERE `key` = 'latest_unstable'",$dbh));
 			$latest_unstable = $row[0];
 			mysql_free_result($temp);
 			unset($temp);
@@ -162,7 +162,7 @@ Password: <input type="password" name="password"><br />
 			echo "<input type=\"submit\" value=\"Apply changes\">\n";
 			echo "</form>\n";
 		} else if ($_GET['action'] == 'dodownloads') {
-			if (mysql_query("UPDATE misc SET `value` = '".$_POST['unstable']."' WHERE `key` = 'latest_unstable';",$dbh) && mysql_query("UPDATE misc SET `value` = '".$_POST['stable']."' WHERE `key` = 'latest_stable';",$dbh)) {
+			if (mysql_query("UPDATE config SET `value` = '".$_POST['unstable']."' WHERE `key` = 'latest_unstable';",$dbh) && mysql_query("UPDATE config SET `value` = '".$_POST['stable']."' WHERE `key` = 'latest_stable';",$dbh)) {
 				echo "<p align=\"center\">Updated successfully</p>\n";
 			} else {
 				echo "<p align=\"center\">Error: Could not apply changes</p>\n";
