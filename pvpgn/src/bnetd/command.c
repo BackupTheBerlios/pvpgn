@@ -1561,7 +1561,7 @@ static int _handle_stats_command(t_connection * c, char const *text)
       if (account_get_atteamcount(account,clienttag))
 	{
 	  int teamcount;
-	  for (teamcount=0; teamcount<account_get_atteamcount(account,clienttag); teamcount++)
+	  for (teamcount=1; teamcount<=account_get_atteamcount(account,clienttag); teamcount++)
 	    {
 	      sprintf(msgtemp,"Users AT Team No. %u",teamcount);
 	      message_send_text(c,message_type_info,c,msgtemp);
