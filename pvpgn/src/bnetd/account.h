@@ -103,6 +103,7 @@ extern int accountlist_reload(void);
 extern int account_check_name(char const * name);
 extern unsigned int account_get_uid(t_account const * account);
 extern int account_match(t_account * account, char const * username);
+extern int account_save(t_account *account, unsigned flags);
 extern char const * account_get_strattr_real(t_account * account, char const * key, char const * fn, unsigned int ln);
 #define account_get_strattr(A,K) account_get_strattr_real(A,K,__FILE__,__LINE__)
 extern int account_set_strattr(t_account * account, char const * key, char const * val);
@@ -151,8 +152,6 @@ extern void account_add_team(t_account * account, t_team * team);
 extern t_team * account_find_team_by_accounts(t_account * account, t_account **accounts, t_clienttag clienttag);
 extern t_team * account_find_team_by_teamid(t_account * account, unsigned int teamid);
 extern t_list * account_get_teams(t_account * account);
-
-
 
 #endif
 #endif

@@ -8,6 +8,8 @@ PvPGN Version History:
 [MISC]
   -- fixed problem with language specific channels
   -- added UNIX build configure options to disable bnetd/d2cs/d2dbs builds
+  -- added "sync_on_logoff" bnetd.conf directive to enable saving of account 
+  data on user's logoff
 
  ChangeLog for 1.7.1 (since 1.7.0)
 ===================================

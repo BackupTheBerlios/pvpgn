@@ -654,7 +654,7 @@ extern void conn_destroy(t_connection * c, t_elem ** elem, int conn_or_dead_list
     if (c->protocol.chat.ignore_count>0)
     {
 	if (!c->protocol.chat.ignore_list)
-	  { eventlog(eventlog_level_error,"conn_destroy","found NULL ignore_list with ignore_count=%u",c->protocol.chat.ignore_count); }
+	  { eventlog(eventlog_level_error,__FUNCTION__,"found NULL ignore_list with ignore_count=%u",c->protocol.chat.ignore_count); }
 	else
 	  { xfree(c->protocol.chat.ignore_list); }
     }
@@ -666,6 +666,11 @@ extern void conn_destroy(t_connection * c, t_elem ** elem, int conn_or_dead_list
 #ifdef WIN32_GUI
 						guiOnUpdateUserList();
 #endif
+	if (prefs_get_sync_on_logoff()) {
+	    if (account_save(conn_get_account(c),FS_FORCE) < 0)
+		eventlog(eventlog_level_error,__FUNCTION__,"cannot sync account (sync_on_logoff)");
+	}
+
 	if (account_get_conn(c->protocol.account)==c)  /* make sure you don't set this when allready on new conn (relogin with same account) */
 	    account_set_conn(c->protocol.account,NULL);
 	c->protocol.account = NULL; /* the account code will free the memory later */
@@ -2005,7 +2010,7 @@ extern int conn_set_game(t_connection * c, char const * gamename, char const * g
 {
     if (!c)
     {
-        eventlog(eventlog_level_error,"conn_set_game","got NULL connection");
+        eventlog(eventlog_level_error,__FUNCTION__,"got NULL connection");
         return -1;
     }
 
@@ -2013,7 +2018,7 @@ extern int conn_set_game(t_connection * c, char const * gamename, char const * g
     {
         if (gamename) {
 	    if (strcasecmp(gamename,game_get_name(c->protocol.game)))
-        	eventlog(eventlog_level_error,"conn_set_game","[%d] tried to join a new game \"%s\" while already in a game \"%s\"!",conn_get_socket(c),gamename,game_get_name(c->protocol.game));
+        	eventlog(eventlog_level_error,__FUNCTION__,"[%d] tried to join a new game \"%s\" while already in a game \"%s\"!",conn_get_socket(c),gamename,game_get_name(c->protocol.game));
 	    else return 0;
 	}
     	game_del_player(conn_get_game(c),c);

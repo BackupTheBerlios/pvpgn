@@ -48,7 +48,3 @@ very nice ideea from Mivabe
 entries (like while server is online doing /config "allow_unknown_version" "false")
 
 * optimize PvPGN using "inline" functions in all "small" functions
-
-* add a bnetd.conf "sync_on_logoff" parameter which should tell PvPGN to force 
-or not a account_save() when the user logoffs (increases storage I/O but also 
-eliminates most of the account data beeing outdated because of server crash)

@@ -336,7 +336,7 @@ extern int account_match(t_account * account, char const * username)
 }
 
 
-static int account_save(t_account * account, unsigned flags)
+extern int account_save(t_account * account, unsigned flags)
 {
     assert(account);
 

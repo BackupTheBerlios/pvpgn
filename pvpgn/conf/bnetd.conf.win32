@@ -346,6 +346,9 @@ maxusers_per_channel = 0
 # Should account files be named by the account number or the player name?
 savebyname = true
 
+# Save the account data on logoff
+sync_on_logoff = false
+
 # How man rows should the account lookup hash table have?  Servers with
 # more accounts should use a larger table for better performance.
 hashtable_size = 61
