@@ -399,16 +399,7 @@ extern unsigned int ladder_get_rank_by_account(t_account * account, t_ladder_sor
 
 int in_same_team(t_account * acc1, t_account * acc2, unsigned int tc1, unsigned int tc2, t_clienttag clienttag)
 {
-   char const * teammembers1;
-   char const * teammembers2;
-   //teammembers1 = account_get_atteammembers(acc1,tc1,clienttag);
-   //teammembers2 = account_get_atteammembers(acc2,tc2,clienttag);
-   if ((teammembers1 == NULL) || (teammembers2 == NULL))
-   {
-      if (teammembers1 != NULL) return 1; else return 0;
-   }
-   if (strcasecmp(teammembers1, teammembers2)==0) return 1;
-   else return 0;
+   return 0;
 }
 
 extern t_ladder * solo_ladder(t_clienttag clienttag)
