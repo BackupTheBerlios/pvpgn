@@ -24,10 +24,12 @@
    write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
    Boston, MA 02111-1307, USA.  */
 
+#ifndef __BORLANDC__ /* caused problems to compile on bcc otherwise */
+#include <common/setup_before.h>
+#endif
+
 /* This tells Alpha OSF/1 not to define a getopt prototype in <stdio.h>.
    Ditto for AIX 3.2 and <stdlib.h>.  */
-#include <common/setup_before.h>
-
 #ifndef _NO_PROTO
 #define _NO_PROTO
 #endif
@@ -44,7 +46,8 @@
 #endif
 
 #include <stdio.h>
-#include "common/setup_before.h"
+#include <common/setup_before.h>
+
 
 /* Comment out all this code if we are using the GNU C Library, and are not
    actually compiling the library itself.  This code is part of the GNU C
