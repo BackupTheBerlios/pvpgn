@@ -1435,7 +1435,7 @@ extern t_channel * channellist_find_channel_by_name(char const * name, char cons
 		    }
 		    maxchannel++;
 		}
-		else
+
 		   // eventlog(eventlog_level_debug,__FUNCTION__,"countries didn't match");
 		
 		foundperm = 1;
@@ -1451,7 +1451,7 @@ extern t_channel * channellist_find_channel_by_name(char const * name, char cons
                     savelogflag = 0;
                 if (country)
 		    savecountry = country;
-		else
+		else 
 		    savecountry = channel->country;
                 if (realmname)
                     saverealmname = realmname;
