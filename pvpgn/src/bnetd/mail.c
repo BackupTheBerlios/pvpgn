@@ -720,8 +720,14 @@ extern char const * check_mail(t_connection const * c) {
    }
 
    if ((user=conn_get_account(c))==NULL) {
-      eventlog(eventlog_level_error,"check_mail","got NULL account");
-      return "";
+   
+   /* IRC connections don't have account set before identifying - so we take the nick and query that user */
+      char const * botuser;
+      if (!(botuser = conn_get_botuser(c)) || (!(user=accountlist_find_account(botuser))))
+      {
+          eventlog(eventlog_level_error,"check_mail","got NULL account");
+          return "";
+      }
    }
 
    if ((mailbox=mailbox_open(user))==NULL) {
