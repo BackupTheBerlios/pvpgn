@@ -1394,7 +1394,7 @@ extern t_channel * channellist_find_channel_by_name(char const * name, char cons
     // try to make gcc happy and initialize all variables
     saveshortname = savetag = savecountry = saverealmname = NULL;
     savebotflag = saveoperflag = savelogflag = savemaxmembers = savemoderated = 0;
-    
+
     maxchannel = 0;
     foundperm = 0;
     if (channellist_head)
@@ -1410,14 +1410,14 @@ extern t_channel * channellist_find_channel_by_name(char const * name, char cons
 
 	    if (strcasecmp(channel->name,name)==0)
 	    {
-		eventlog(eventlog_level_debug,"channellist_find_channel_by_name","found exact match for \"%s\"",name);
+		// eventlog(eventlog_level_debug,"channellist_find_channel_by_name","found exact match for \"%s\"",name);
 		return channel;
 	    }
 	    
             if (channel->shortname && strcasecmp(channel->shortname,name)==0)
 	    {
 	    	special_channel = channellist_find_channel_by_name(channel->name,country,realmname);
-	    	if (special_channel) return special_channel;
+	    	if (special_channel) channel= special_channel;
 	    	
 		/* FIXME: what should we do if the client doesn't have a country?  For now, just take the first
 		 * channel that would otherwise match. */
@@ -1435,7 +1435,7 @@ extern t_channel * channellist_find_channel_by_name(char const * name, char cons
 		    maxchannel++;
 		}
 		else
-		    eventlog(eventlog_level_debug,"channellist_find_channel_by_name","countries didn't match");
+		   // eventlog(eventlog_level_debug,"channellist_find_channel_by_name","countries didn't match");
 		
 		foundperm = 1;
 		

@@ -1,5 +1,10 @@
 PvPGN Version History:
 
+ Changelog for 1.7.2 (since 1.7.1)
+===================================
+[MISC]
+  -- fixed problem with language specific channels
+
  ChangeLog for 1.7.1 (since 1.7.0)
 ===================================
 
