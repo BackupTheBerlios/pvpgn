@@ -181,38 +181,27 @@
  0x9b01cc98 \
  D2XP_110
 
-# StarCraft v1.10 MacOS X
+# Starcraft - Broodwar (Expansion) 1.11 - (Broodwar mode) MacOS X
 "A=2521522835 B=3428392135 C=218673704 4 A=A^S B=B-C C=C+A A=A-B" \
- "XMACver1.mpq" \
- XMAC \
- STAR \
- "Starcraft (Carbon) 03/24/103 19:00:00 1350192" \
- 0x000000c7 \
- 1.1.0.0 \
- 0x8ae3c718 \
- STAR_110
+  "XMACver1.mpq" \
+  XMAC \
+  SEXP \
+  "Starcraft (Carbon) 04/26/104 21:00:00 1358518" \
+  0x000000c9 \
+  1.1.1.1 \
+  0x0c065d2d \
+  SEXP_111
 
-# StarCraft (Broodwar Mode) v1.10 MacOS X
+# Starcraft - Broodwar (Expansion) 1.11 - (Starcraft Mode) MacOS X
 "A=2521522835 B=3428392135 C=218673704 4 A=A^S B=B-C C=C+A A=A-B" \
- "XMACver1.mpq" \
- XMAC \
- SEXP \
- "Starcraft (Carbon) 03/24/103 19:00:00 1350192" \
- 0x000000c7 \
- 1.1.0.1 \
- 0x8ae3c718 \
- SEXP_110
-
-# StarCraft (Starcraft Mode) v1.10 MacOS X
-"A=2521522835 B=3428392135 C=218673704 4 A=A^S B=B-C C=C+A A=A-B" \
- "XMACver1.mpq" \
- XMAC \
- STAR \
- "Starcraft (Carbon) 03/24/103 19:00:00 1350192" \
- 0x000000c7 \
- 1.1.0.1 \
- 0x8ae3c718 \
- SEXP_110_STAR
+  "XMACver1.mpq" \
+  XMAC \
+  STAR \
+  "Starcraft (Carbon) 04/26/104 21:00:00 1358518" \
+  0x000000c9 \
+  1.1.1.1 \
+  0x0c065d2d \
+  STAR_111
 
 ##### Mac OS Classic (PMAC) ##################################################
 
@@ -229,38 +218,27 @@
  0xcc2c2193 \
  D2XP_110
 
-# StarCraft (Broodwar mode) v1.10 MacOS Classic
+# Starcraft - Broodwar (Expansion) 1.11 - (Broodwar mode) MacOS Classic
 "A=2521522835 B=3428392135 C=218673704 4 A=A^S B=B-C C=C+A A=A-B" \
- "PMACver1.mpq" \
- PMAC \
- SEXP \
- "Starcraft 03/24/103 19:00:00 1561070" \
- 0x000000c7 \
- 1.1.0.1 \
- 0xec432fff \
- SEXP_110
+  "PMACver1.mpq" \
+  PMAC \
+  SEXP \
+  "Starcraft 04/26/104 21:00:00 1563244" \
+  0x000000c9 \
+  1.1.1.1 \
+  0x780fe83e \
+  SEXP_111
 
-# StarCraft (Starcraft mode) v1.10 MacOS Classic
+# Starcraft - Broodwar (Expansion) 1.11 - (Starcraft Mode) MacOS Classic
 "A=2521522835 B=3428392135 C=218673704 4 A=A^S B=B-C C=C+A A=A-B" \
- "PMACver1.mpq" \
- PMAC \
- STAR \
- "Starcraft 03/24/103 19:00:00 1561070" \
- 0x000000c7 \
- 1.1.0.1 \
- 0xec432fff \
- SEXP_110_STAR
-
-# StarCraft v1.10 MacOS Classic
-"A=2521522835 B=3428392135 C=218673704 4 A=A^S B=B-C C=C+A A=A-B" \
- "PMACver1.mpq" \
- PMAC \
- STAR \
- "Starcraft 03/24/103 19:01:00 1561070" \
- 0x000000c7 \
- 1.1.0.0 \
- 0xec432fff \
- STAR_110
+  "PMACver1.mpq" \
+  PMAC \
+  STAR \
+  "Starcraft 04/26/104 21:00:00 1563244" \
+  0x000000c9 \
+  1.1.1.1 \
+  0x780fe83e \
+  STAR_111
 
 ##### Intel (IX86) ###########################################################
 
@@ -1180,6 +1158,17 @@
 
 # ================ StarCraft (original) entries =====================
 
+# StarCraft v1.10 MacOS X
+"A=2521522835 B=3428392135 C=218673704 4 A=A^S B=B-C C=C+A A=A-B" \
+ "XMACver1.mpq" \
+ XMAC \
+ STAR \
+ "Starcraft (Carbon) 03/24/103 19:00:00 1350192" \
+ 0x000000c7 \
+ 1.1.0.0 \
+ 0x8ae3c718 \
+ STAR_110
+
 # StarCraft v1.09b MacOS X
 "A=2521522835 B=3428392135 C=218673704 4 A=A^S B=B-C C=C+A A=A-B" \
  "XMACver1.mpq" \
@@ -1203,6 +1192,28 @@
  STAR_1xx
 
 # ================== StarCraft Broodwar entries =====================
+
+# StarCraft (Broodwar Mode) v1.10 MacOS X
+"A=2521522835 B=3428392135 C=218673704 4 A=A^S B=B-C C=C+A A=A-B" \
+ "XMACver1.mpq" \
+ XMAC \
+ SEXP \
+ "Starcraft (Carbon) 03/24/103 19:00:00 1350192" \
+ 0x000000c7 \
+ 1.1.0.1 \
+ 0x8ae3c718 \
+ SEXP_110
+
+# StarCraft (Starcraft Mode) v1.10 MacOS X
+"A=2521522835 B=3428392135 C=218673704 4 A=A^S B=B-C C=C+A A=A-B" \
+ "XMACver1.mpq" \
+ XMAC \
+ STAR \
+ "Starcraft (Carbon) 03/24/103 19:00:00 1350192" \
+ 0x000000c7 \
+ 1.1.0.1 \
+ 0x8ae3c718 \
+ SEXP_110_STAR
 
 # StarCraft (Broodwar mode) v1.09b MacOS X
 "A=2521522835 B=3428392135 C=218673704 4 A=A^S B=B-C C=C+A A=A-B" \
@@ -1280,6 +1291,17 @@
 
 # ================== StarCraft (original) entries ===================
 
+# StarCraft v1.10 MacOS Classic
+"A=2521522835 B=3428392135 C=218673704 4 A=A^S B=B-C C=C+A A=A-B" \
+ "PMACver1.mpq" \
+ PMAC \
+ STAR \
+ "Starcraft 03/24/103 19:01:00 1561070" \
+ 0x000000c7 \
+ 1.1.0.0 \
+ 0xec432fff \
+ STAR_110
+
 # StarCraft v1.09b MacOS Classic
 "A=2521522835 B=3428392135 C=218673704 4 A=A^S B=B-C C=C+A A=A-B" \
  "PMACver1.mpq" \
@@ -1303,6 +1325,28 @@
  STAR_1xx
 
 # ================== StarCraft Broodwar entries =====================
+
+# StarCraft (Broodwar mode) v1.10 MacOS Classic
+"A=2521522835 B=3428392135 C=218673704 4 A=A^S B=B-C C=C+A A=A-B" \
+ "PMACver1.mpq" \
+ PMAC \
+ SEXP \
+ "Starcraft 03/24/103 19:00:00 1561070" \
+ 0x000000c7 \
+ 1.1.0.1 \
+ 0xec432fff \
+ SEXP_110
+
+# StarCraft (Starcraft mode) v1.10 MacOS Classic
+"A=2521522835 B=3428392135 C=218673704 4 A=A^S B=B-C C=C+A A=A-B" \
+ "PMACver1.mpq" \
+ PMAC \
+ STAR \
+ "Starcraft 03/24/103 19:00:00 1561070" \
+ 0x000000c7 \
+ 1.1.0.1 \
+ 0xec432fff \
+ SEXP_110_STAR
 
 # StarCraft (Broodwar mode) v1.09b MacOS Classic
 "A=2521522835 B=3428392135 C=218673704 4 A=A^S B=B-C C=C+A A=A-B" \
