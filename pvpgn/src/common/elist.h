@@ -22,6 +22,11 @@ typedef struct elist_struct {
     struct elist_struct *next, *prev;
 } t_elist;
 
+/* hlist are single linked elists */
+typedef struct hlist_struct {
+    struct hlist_struct *next;
+} t_hlist;
+
 #endif /* INCLUDED_ELIST_TYPES */
 
 #ifndef INCLUDED_ELIST_PROTOS
@@ -87,5 +92,51 @@ static inline void elist_del(t_elist *what)
 			pos = save, save = pos->prev)
 
 #define elist_empty(ptr) ((ptr)->next == (ptr))
+
+#define hlist_next(ptr) elist_next(ptr)
+
+#define __hlist_init(hlist,val) { (hlist)->next = (val); }
+#define hlist_init(hlist) __hlist_init(hlist,hlist)
+#define DECLARE_HLIST_INIT(var) \
+    t_hlist var = { &var };
+
+/* link an new node just after "where" */
+static inline void hlist_add(t_hlist *where, t_hlist *what)
+{
+    what->next = where->next;
+    where->next = what;
+}
+
+/* unlink "what" from it's list, prev->next = what */
+static inline void hlist_del(t_hlist *what, t_hlist *prev)
+{
+    prev->next = what->next;
+}
+
+/* move "what" back in the list with one position, never NULL
+ * prev: the previous element in the list, never NULL
+ * prev2: the previous element of "prev", if NULL means "what" is first
+ */
+static inline void hlist_promote(t_hlist *what, t_hlist *prev, t_hlist *prev2)
+{
+    if (prev2) {
+	prev->next = what->next;
+	prev2->next = what;
+	what->next = prev;
+    }
+}
+
+/* finds out the container address by computing it from the list node 
+ * address substracting the offset inside the container of the list node 
+ * member */
+#define hlist_entry(ptr,type,member) elist_entry(ptr,type,member)
+
+/* DONT remove while traversing with this ! */
+#define hlist_for_each(pos,head) elist_for_each(pos,head)
+
+/* safe for removals while traversing */
+#define hlist_for_each_safe(pos,head,save) elist_for_each_safe(pos,head,save)
+
+#define hlist_empty(ptr) elist_empty(ptr)
 
 #endif /* INCLUDED_ELIST_PROTOS */
