@@ -960,7 +960,6 @@ static int _handle_ison_command(t_connection * conn, int numparams, char ** para
 	char temp[MAX_IRC_MESSAGE_LEN];
 	char first = 1;
 	
-	eventlog(eventlog_level_trace,__FUNCTION__,"in ISON");
 	if (numparams>=1) 
 	{
 	    int i;
@@ -988,7 +987,6 @@ static int _handle_ison_command(t_connection * conn, int numparams, char ** para
 static int _handle_whois_command(t_connection * conn, int numparams, char ** params, char * text)
 {
 	char temp[MAX_IRC_MESSAGE_LEN];
-	eventlog(eventlog_level_trace,__FUNCTION__,"in WHOIS");
 	if (numparams>=1) 
 	{
 	    int i;
