@@ -1083,9 +1083,9 @@ static int message_bnet_format(t_packet * packet, t_message_type type, t_connect
     
     packet_set_size(packet,sizeof(t_server_message));
     packet_set_type(packet,SERVER_MESSAGE);
-    bn_int_set(&packet->u.server_message.unknown1,SERVER_MESSAGE_UNKNOWN1);
-    bn_int_nset(&packet->u.server_message.player_ip,SERVER_MESSAGE_PLAYER_IP_DUMMY);
-    bn_int_set(&packet->u.server_message.unknown3,SERVER_MESSAGE_UNKNOWN3);
+    bn_int_set(&packet->u.server_message.player_ip,SERVER_MESSAGE_PLAYER_IP_DUMMY);
+    bn_int_nset(&packet->u.server_message.account_num,SERVER_MESSAGE_ACCOUNT_NUM);
+    bn_int_set(&packet->u.server_message.reg_auth,SERVER_MESSAGE_REG_AUTH);
   
     switch (type)
     {

@@ -527,7 +527,7 @@ extern int main(int argc, char * argv[])
 	packet_set_size(packet,sizeof(t_client_statsreq));
 	packet_set_type(packet,CLIENT_STATSREQ);
 	bn_int_set(&packet->u.client_statsreq.name_count,1);
-	bn_int_set(&packet->u.client_statsreq.unknown1,CLIENT_STATSREQ_UNKNOWN1);
+	bn_int_set(&packet->u.client_statsreq.requestid,0);
 	packet_append_string(packet,text);
 	count = 0;
 	

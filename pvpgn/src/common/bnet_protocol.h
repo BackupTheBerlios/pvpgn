@@ -788,23 +788,22 @@ FF 50 47 00 00 00 00 00   36 38 58 49 56 44 32 44    .PG.....68XIVD2D
 typedef struct
 {
     t_bnet_header h;
-    bn_int        unknown1;  /* 00 00 00 00 always zero */
+    bn_int        protocol;  /* 00 00 00 00 always zero */
     bn_int        archtag;
     bn_int        clienttag;
     bn_int        versionid; /* 09 00 00 00 */ /* FIXME: what is this? */
-    bn_int        unknown2;  /* 00 00 00 00 always zero */
-    bn_int        unknown3;  /* 00 00 00 00 always zero */
+    bn_int        gamelang;  /* 00 00 00 00 always zero */
+    bn_int        localip;  /* 00 00 00 00 always zero */
     bn_int        bias;      /* (gmt-local)/60  (using signed math) */
     bn_int        lcid;      /* Win32 LCID */
     bn_int        langid;    /* Win32 LangID */
     /* langstr */
     /* countryname */
 } t_client_countryinfo_109 PACKED_ATTR();
-#define CLIENT_COUNTRYINFO_109_UNKNOWN1            0x00000000
+#define CLIENT_COUNTRYINFO_109_PROTOCOL            0x00000000
 #define CLIENT_COUNTRYINFO_109_VERSIONID_D2DV      0x00000009
-#define CLIENT_COUNTRYINFO_109_UNKNOWN2            0x00000000
-#define CLIENT_COUNTRYINFO_109_UNKNOWN3            0x00000000
-#define CLIENT_COUNTRYINFO_109_UNKNOWN4            0xfffffe20
+#define CLIENT_COUNTRYINFO_109_GAMELANG            0x00000000
+#define CLIENT_COUNTRYINFO_109_LOCALIP             0x00000000
 #define CLIENT_COUNTRYINFO_109_LANGID_AUSNGLISH    0x00000c09
 #define CLIENT_COUNTRYINFO_109_LANGID_USENGLISH    0x00000409
 #define CLIENT_COUNTRYINFO_109_LANGID_KOREAN       0x00000412
@@ -852,17 +851,9 @@ typedef struct
 {
     t_bnet_header h;
     bn_int        result;
-    bn_int        unknown1;
-    bn_int        unknown2;
-    bn_int        unknown3;
-    bn_int        unknown4;
 } t_server_createacctreply1 PACKED_ATTR();
 #define SERVER_CREATEACCTREPLY1_RESULT_OK 0x00000001
 #define SERVER_CREATEACCTREPLY1_RESULT_NO 0x00000000
-#define SERVER_CREATEACCTREPLY1_UNKNOWN1  0x00000013
-#define SERVER_CREATEACCTREPLY1_UNKNOWN2  0x02825278
-#define SERVER_CREATEACCTREPLY1_UNKNOWN3  0x00000000
-#define SERVER_CREATEACCTREPLY1_UNKNOWN4  0x00000000
 /******************************************************/
 
 
@@ -1012,16 +1003,16 @@ FF 50 65 00 00 00 00 00   36 1A 6C 45 76 BC 00 00    .Pe.....6.lEv...
 typedef struct
 {
     t_bnet_header h;
-    bn_int        unknown1;  /* 00 00 00 00 always zero */
+    bn_int        logontype;  /* 00 00 00 00 always zero */
     bn_int        sessionkey;
     bn_int        sessionnum;
     bn_long       timestamp;
     /* versioncheck filename */
     /* equation */
 } t_server_authreq_109 PACKED_ATTR();
-#define SERVER_AUTHREQ_109_UNKNOWN1 0x0000000
-#define SERVER_AUTHREQ_109_UNKNOWN1_W3 0x00000001
-#define SERVER_AUTHREQ_109_UNKNOWN1_W3XP 0x00000002
+#define SERVER_AUTHREQ_109_LOGONTYPE 0x0000000
+#define SERVER_AUTHREQ_109_LOGONTYPE_W3 0x00000001
+#define SERVER_AUTHREQ_109_LOGONTYPE_W3XP 0x00000002
 #define SERVER_AUTHREQ_109_EQN      "A=3845581634 B=880823580 C=1363937103 4 A=A-S B=B-C C=C-A A=A-B"
 /******************************************************/
 
@@ -2041,7 +2032,13 @@ typedef struct
 	bn_int       result;
 } t_server_createaccount_w3 PACKED_ATTR();
 #define SERVER_CREATEACCOUNT_W3_RESULT_OK    0x00000000
-#define SERVER_CREATEACCOUNT_W3_RESULT_NO    0x00000004
+#define SERVER_CREATEACCOUNT_W3_RESULT_EXIST 0x00000004
+#define SERVER_CREATEACCOUNT_W3_RESULT_EMPTY 0x00000007
+#define SERVER_CREATEACCOUNT_W3_RESULT_INVALID 0x00000008
+#define SERVER_CREATEACCOUNT_W3_RESULT_BANNED 0x00000009
+#define SERVER_CREATEACCOUNT_W3_RESULT_SHORT 0x0000000A
+#define SERVER_CREATEACCOUNT_W3_RESULT_PUNCTUATION 0x0000000B
+#define SERVER_CREATEACCOUNT_W3_RESULT_PUNCTUATION2 0x0000000C
 /******************************************************/
 
 /******************************************************/
@@ -2092,17 +2089,16 @@ typedef struct
 {
     t_bnet_header h;
     bn_int        result;
-    bn_int        unknown1;
-    bn_int        unknown2;
-    bn_int        unknown3;
-    bn_int        unknown4;
 } t_server_createacctreply2 PACKED_ATTR();
 #define SERVER_CREATEACCTREPLY2_RESULT_OK    0x00000000
 #define SERVER_CREATEACCTREPLY2_RESULT_SHORT 0x00000001 /* Username must be a minimum of 2 characters */
-#define SERVER_CREATEACCTREPLY2_UNKNOWN1     0x00000013
-#define SERVER_CREATEACCTREPLY2_UNKNOWN2     0x02825278
-#define SERVER_CREATEACCTREPLY2_UNKNOWN3     0x00000000
-#define SERVER_CREATEACCTREPLY2_UNKNOWN4     0x00000000
+#define SERVER_CREATEACCTREPLY2_RESULT_INVALID 0x00000002
+#define SERVER_CREATEACCTREPLY2_RESULT_BANNED 0x00000003
+#define SERVER_CREATEACCTREPLY2_RESULT_EXIST 0x00000004
+#define SERVER_CREATEACCTREPLY2_RESULT_LAST_CREATE_IN_PROGRESS 0x00000005
+#define SERVER_CREATEACCTREPLY2_RESULT_ALPHANUM 0x00000006
+#define SERVER_CREATEACCTREPLY2_RESULT_PUNCTUATION 0x00000007
+#define SERVER_CREATEACCTREPLY2_RESULT_PUNCTUATION2 0x00000008
 /******************************************************/
 
 
@@ -2261,7 +2257,7 @@ typedef struct
     t_bnet_header h;
     bn_int        name_count;
     bn_int        key_count;
-    bn_int        unknown1; /* 78 52 82 02 */
+    bn_int        requestid; /* 78 52 82 02 */
     /* player name */
     /* field key ... */
 } t_client_statsreq PACKED_ATTR();
@@ -2316,7 +2312,7 @@ typedef struct
     t_bnet_header h;
     bn_int        name_count;
     bn_int        key_count;
-    bn_int        unknown1; /* 78 52 82 02 */ /* EE E4 84 03 */ /* same as request */
+    bn_int        requestid; /* 78 52 82 02 */ /* EE E4 84 03 */ /* same as request */
     /* field values ... */
 } t_server_statsreply PACKED_ATTR();
 /******************************************************/
@@ -2651,17 +2647,17 @@ typedef struct
     bn_int        type;
     bn_int        flags;     /* player flags (or channel flags for MT_CHANNEL) */
     bn_int        latency;
-    bn_int        unknown1;  /* always zero? */
-    bn_int        player_ip; /* player's IP (big endian), no longer used, always 0D F0 AD BA */
-    bn_int        unknown3;  /* server ip and/or reg auth? CD key and/or account number? */
+    bn_int        player_ip;  /* always zero? */
+    bn_int        account_num; /* player's IP (big endian), no longer used, always 0D F0 AD BA */
+    bn_int        reg_auth;  /* server ip and/or reg auth? CD key and/or account number? */
     /* player name */
     /* text */
 } t_server_message PACKED_ATTR();
-#define SERVER_MESSAGE_UNKNOWN1 0x00000000
+#define SERVER_MESSAGE_PLAYER_IP_DUMMY 0x00000000
 // nok
-#define SERVER_MESSAGE_UNKNOWN3 0xBAADF00D /* 0D F0 AD BA */
-//#define SERVER_MESSAGE_UNKNOWN3 0x07f694d8
-#define SERVER_MESSAGE_PLAYER_IP_DUMMY 0x0df0adba
+#define SERVER_MESSAGE_REG_AUTH 0xBAADF00D /* 0D F0 AD BA */
+//#define SERVER_MESSAGE_REG_AUTH 0x07f694d8
+#define SERVER_MESSAGE_ACCOUNT_NUM 0x0df0adba
 /* For MT_ADD, MT_JOIN, the text portion looks like:
  *
  * for STAR, SEXP, SSHR:

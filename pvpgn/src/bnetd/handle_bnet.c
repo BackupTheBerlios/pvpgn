@@ -580,7 +580,7 @@ static int _client_countryinfo109(t_connection * c, t_packet const * const packe
 		 bn_int_get(packet->u.client_countryinfo_109.archtag),
 		 bn_int_get(packet->u.client_countryinfo_109.clienttag),
 		 bn_int_get(packet->u.client_countryinfo_109.versionid),
-		 bn_int_get(packet->u.client_countryinfo_109.unknown2));
+		 bn_int_get(packet->u.client_countryinfo_109.gamelang));
 	
 	eventlog(eventlog_level_debug,__FUNCTION__,"[%d] COUNTRYINFO_109 packet from \"%s\" \"%s\"", conn_get_socket(c),countryname,langstr);
 	
@@ -620,7 +620,7 @@ static int _client_countryinfo109(t_connection * c, t_packet const * const packe
 	  eventlog(eventlog_level_error,__FUNCTION__,"[%d] unknown client program type 0x%08x, don't expect this to work",conn_get_socket(c),bn_int_get(packet->u.client_countryinfo_109.clienttag));
 	
 	if ((bn_int_tag_eq(packet->u.client_countryinfo_109.clienttag,CLIENTTAG_WARCRAFT3)==0) || (bn_int_tag_eq(packet->u.client_countryinfo_109.clienttag,CLIENTTAG_WAR3XP)==0))
-	    conn_set_gamelang(c, bn_int_get(packet->u.client_countryinfo_109.unknown2));
+	    conn_set_gamelang(c, bn_int_get(packet->u.client_countryinfo_109.gamelang));
 		
 	/* First, send an ECHO_REQ */
 	
@@ -648,12 +648,12 @@ static int _client_countryinfo109(t_connection * c, t_packet const * const packe
 		      conn_get_clienttag(c), CLIENTTAG_WARCRAFT3);
 	     if (strcmp(conn_get_clienttag(c),CLIENTTAG_WARCRAFT3)==0) {
 		eventlog(eventlog_level_trace,__FUNCTION__,"Responding with WarCraft III AUTHREQ response.");
-		bn_int_set(&rpacket->u.server_authreq_109.unknown1,SERVER_AUTHREQ_109_UNKNOWN1_W3);
+		bn_int_set(&rpacket->u.server_authreq_109.logontype,SERVER_AUTHREQ_109_LOGONTYPE_W3);
 	     } else if (strcmp(conn_get_clienttag(c), CLIENTTAG_WAR3XP) == 0) {
 		eventlog(eventlog_level_trace,__FUNCTION__,"Responding with WarCraft III XP AUTHREQ response.");
-		bn_int_set(&rpacket->u.server_authreq_109.unknown1,SERVER_AUTHREQ_109_UNKNOWN1_W3);
+		bn_int_set(&rpacket->u.server_authreq_109.logontype,SERVER_AUTHREQ_109_LOGONTYPE_W3);
 	     } else {
-		bn_int_set(&rpacket->u.server_authreq_109.unknown1,SERVER_AUTHREQ_109_UNKNOWN1);
+		bn_int_set(&rpacket->u.server_authreq_109.logontype,SERVER_AUTHREQ_109_LOGONTYPE);
 	     }
 	     
 	     bn_int_set(&rpacket->u.server_authreq_109.sessionkey,conn_get_sessionkey(c));
@@ -804,7 +804,7 @@ static int _client_createaccountw3(t_connection * c, t_packet const * const pack
 	if (prefs_get_allow_new_accounts()==0)
 	  {
 	     eventlog(eventlog_level_info,__FUNCTION__,"[%d] (W3) account not created (disabled)",conn_get_socket(c));
-	     bn_int_set(&rpacket->u.server_createaccount_w3.result,SERVER_CREATEACCOUNT_W3_RESULT_NO);
+	     bn_int_set(&rpacket->u.server_createaccount_w3.result,SERVER_CREATEACCOUNT_W3_RESULT_EXIST);
 	  }
 	else
 	  {
@@ -817,7 +817,7 @@ static int _client_createaccountw3(t_connection * c, t_packet const * const pack
 	     
 	     if (!plainpass) {
 		eventlog(eventlog_level_error,__FUNCTION__,"[%d] (W3) got bad CREATEACCOUNT_W3 (missing password)",conn_get_socket(c));
-		bn_int_set(&rpacket->u.server_createaccount_w3.result,SERVER_CREATEACCOUNT_W3_RESULT_NO);
+		bn_int_set(&rpacket->u.server_createaccount_w3.result,SERVER_CREATEACCOUNT_W3_RESULT_EXIST);
 	     } else {
 		/* convert plaintext password to uppercase */
 		strncpy(upass,plainpass,16);
@@ -840,13 +840,13 @@ static int _client_createaccountw3(t_connection * c, t_packet const * const pack
 		if (!(temp = account_create(username,hash_get_str(sc_hash))))
 		  {
 		     eventlog(eventlog_level_info,__FUNCTION__,"[%d] (W3) account not created (failed)",conn_get_socket(c));
-		     bn_int_set(&rpacket->u.server_createaccount_w3.result,SERVER_CREATEACCOUNT_W3_RESULT_NO);
+		     bn_int_set(&rpacket->u.server_createaccount_w3.result,SERVER_CREATEACCOUNT_W3_RESULT_INVALID);
 		  }
 		else if (!accountlist_add_account(temp))
 		  {
 		     account_destroy(temp);
 		     eventlog(eventlog_level_info,__FUNCTION__,"[%d] (W3) account not inserted",conn_get_socket(c));
-		     bn_int_set(&rpacket->u.server_createaccount_w3.result,SERVER_CREATEACCOUNT_W3_RESULT_NO);
+		     bn_int_set(&rpacket->u.server_createaccount_w3.result,SERVER_CREATEACCOUNT_W3_RESULT_EXIST);
 		  } else {
 		     eventlog(eventlog_level_info,__FUNCTION__,"[%d] account created",conn_get_socket(c));
 		     bn_int_set(&rpacket->u.server_createaccount_w3.result,SERVER_CREATEACCOUNT_W3_RESULT_OK);
@@ -854,10 +854,6 @@ static int _client_createaccountw3(t_connection * c, t_packet const * const pack
 		  }
 	     }
 	  }
-	bn_int_set(&rpacket->u.server_createacctreply1.unknown1,SERVER_CREATEACCTREPLY1_UNKNOWN1);
-	bn_int_set(&rpacket->u.server_createacctreply1.unknown2,SERVER_CREATEACCTREPLY1_UNKNOWN2);
-	bn_int_set(&rpacket->u.server_createacctreply1.unknown3,SERVER_CREATEACCTREPLY1_UNKNOWN3);
-	bn_int_set(&rpacket->u.server_createacctreply1.unknown4,SERVER_CREATEACCTREPLY1_UNKNOWN4);
 	conn_push_outqueue(c,rpacket);
 	packet_del_ref(rpacket);
      }
@@ -932,10 +928,6 @@ static int _client_createacctreq1(t_connection * c, t_packet const * const packe
 		  account_save(temp, 3600); /* force account save for new created accounts */
 	       }
 	  }
-	bn_int_set(&rpacket->u.server_createacctreply1.unknown1,SERVER_CREATEACCTREPLY1_UNKNOWN1);
-	bn_int_set(&rpacket->u.server_createacctreply1.unknown2,SERVER_CREATEACCTREPLY1_UNKNOWN2);
-	bn_int_set(&rpacket->u.server_createacctreply1.unknown3,SERVER_CREATEACCTREPLY1_UNKNOWN3);
-	bn_int_set(&rpacket->u.server_createacctreply1.unknown4,SERVER_CREATEACCTREPLY1_UNKNOWN4);
 	conn_push_outqueue(c,rpacket);
 	packet_del_ref(rpacket);
      }
@@ -987,7 +979,7 @@ static int _client_createacctreq2(t_connection * c, t_packet const * const packe
 	if (prefs_get_allow_new_accounts()==0)
 	  {
 	     eventlog(eventlog_level_info,__FUNCTION__,"[%d] account not created (disabled)",conn_get_socket(c));
-	     bn_int_set(&rpacket->u.server_createacctreply2.result,SERVER_CREATEACCTREPLY2_RESULT_SHORT);
+	     bn_int_set(&rpacket->u.server_createacctreply2.result,SERVER_CREATEACCTREPLY2_RESULT_EXIST);
 	  }
 	else
 	  {
@@ -995,13 +987,13 @@ static int _client_createacctreq2(t_connection * c, t_packet const * const packe
 	     if (!(temp = account_create(username,hash_get_str(newpasshash1))))
 	       {
 		  eventlog(eventlog_level_info,__FUNCTION__,"[%d] account not created (failed)",conn_get_socket(c));
-		  bn_int_set(&rpacket->u.server_createacctreply2.result,SERVER_CREATEACCTREPLY2_RESULT_SHORT); /* FIXME: return reason for failure */
+		  bn_int_set(&rpacket->u.server_createacctreply2.result,SERVER_CREATEACCTREPLY2_RESULT_INVALID); /* FIXME: return reason for failure */
 	       }
 	     else if (!accountlist_add_account(temp))
 	       {
 		  account_destroy(temp);
 		  eventlog(eventlog_level_info,__FUNCTION__,"[%d] account not inserted",conn_get_socket(c));
-		  bn_int_set(&rpacket->u.server_createacctreply2.result,SERVER_CREATEACCTREPLY2_RESULT_SHORT);
+		  bn_int_set(&rpacket->u.server_createacctreply2.result,SERVER_CREATEACCTREPLY2_RESULT_EXIST);
 	       }
 	     else
 	       {
@@ -1010,10 +1002,6 @@ static int _client_createacctreq2(t_connection * c, t_packet const * const packe
 		  account_save(temp, 3600); /* force account save for new created accounts */
 	       }
 	  }
-	bn_int_set(&rpacket->u.server_createacctreply2.unknown1,SERVER_CREATEACCTREPLY2_UNKNOWN1);
-	bn_int_set(&rpacket->u.server_createacctreply2.unknown2,SERVER_CREATEACCTREPLY2_UNKNOWN2);
-	bn_int_set(&rpacket->u.server_createacctreply2.unknown3,SERVER_CREATEACCTREPLY2_UNKNOWN3);
-	bn_int_set(&rpacket->u.server_createacctreply2.unknown4,SERVER_CREATEACCTREPLY2_UNKNOWN4);
 	conn_push_outqueue(c,rpacket);
 	packet_del_ref(rpacket);
      }
@@ -1701,7 +1689,7 @@ static int _client_statsreq(t_connection * c, t_packet const * const packet)
 	packet_set_type(rpacket,SERVER_STATSREPLY);
 	bn_int_set(&rpacket->u.server_statsreply.name_count,name_count);
 	bn_int_set(&rpacket->u.server_statsreply.key_count,key_count);
-	bn_int_set(&rpacket->u.server_statsreply.unknown1,bn_int_get(packet->u.client_statsreq.unknown1));
+	bn_int_set(&rpacket->u.server_statsreply.requestid,bn_int_get(packet->u.client_statsreq.requestid));
 	
 	for (i=0,name_off=sizeof(t_client_statsreq);
 	     i<name_count && (name = packet_get_str_const(packet,name_off,UNCHECKED_NAME_STR));

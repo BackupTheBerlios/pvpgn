@@ -1486,7 +1486,7 @@ extern int main(int argc, char * argv[])
 				    bn_int_set(&packet->u.client_statsreq.name_count,1);
 				    bn_int_set(&packet->u.client_statsreq.key_count,4);
 				    statsmatch = (unsigned int)time(NULL);
-				    bn_int_set(&packet->u.client_statsreq.unknown1,statsmatch);
+				    bn_int_set(&packet->u.client_statsreq.requestid,statsmatch);
 				    packet_append_string(packet,&text[i]);
 #if 0
 				    packet_append_string(packet,"BNET\\acct\\username");
@@ -1685,7 +1685,7 @@ extern int main(int argc, char * argv[])
 			    
 			    names = bn_int_get(rpacket->u.server_statsreply.name_count);
 			    keys  = bn_int_get(rpacket->u.server_statsreply.key_count);
-			    match = bn_int_get(rpacket->u.server_statsreply.unknown1);
+			    match = bn_int_get(rpacket->u.server_statsreply.requestid);
 			    
 			    if (names!=1 || keys!=4 || match!=statsmatch)
 				printf("mangled reply (name_count=%u key_count=%u unknown1=%u)\n",

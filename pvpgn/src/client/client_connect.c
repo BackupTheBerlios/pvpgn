@@ -387,12 +387,12 @@ extern int client_connect(char const * progname, char const * servname, unsigned
     }
     packet_set_size(packet,sizeof(t_client_countryinfo_109));
     packet_set_type(packet,CLIENT_COUNTRYINFO_109);
-    bn_int_set(&packet->u.client_countryinfo_109.unknown1,CLIENT_COUNTRYINFO_109_UNKNOWN1);
+    bn_int_set(&packet->u.client_countryinfo_109.protocol,CLIENT_COUNTRYINFO_109_PROTOCOL);
     bn_int_tag_set(&packet->u.client_countryinfo_109.archtag,archtag);
     bn_int_tag_set(&packet->u.client_countryinfo_109.clienttag,clienttag);
     bn_int_set(&packet->u.client_countryinfo_109.versionid,CLIENT_COUNTRYINFO_109_VERSIONID_D2DV);
-    bn_int_set(&packet->u.client_countryinfo_109.unknown2,CLIENT_COUNTRYINFO_109_UNKNOWN2);
-    bn_int_set(&packet->u.client_countryinfo_109.unknown3,CLIENT_COUNTRYINFO_109_UNKNOWN3);
+    bn_int_set(&packet->u.client_countryinfo_109.gamelang,CLIENT_COUNTRYINFO_109_GAMELANG);
+    bn_int_set(&packet->u.client_countryinfo_109.localip,CLIENT_COUNTRYINFO_109_LOCALIP);
     {
 	int bias;
 	

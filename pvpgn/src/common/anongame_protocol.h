@@ -621,6 +621,14 @@ typedef struct
 } t_server_frienddel_ack PACKED_ATTR();
 /******************************************************/
 
+#define SERVER_FRIENDMOVE_ACK 0x69ff
+typedef struct
+{
+    t_bnet_header h;
+    bn_byte pos1;
+    bn_byte pos2;
+} t_server_friendmove_ack PACKED_ATTR();
+
 #define FRIENDSTATUS_OFFLINE    	0x00
 #define FRIENDSTATUS_ONLINE     	0x01
 #define FRIENDSTATUS_CHAT       	0x02

@@ -365,6 +365,7 @@ typedef struct
 	t_server_friendinforeply	server_friendinforeply;
 	t_server_friendadd_ack		server_friendadd_ack;
 	t_server_frienddel_ack		server_frienddel_ack;
+	t_server_friendmove_ack		server_friendmove_ack;
 
 	// 5/19/02 - THEUNDYING - used for arranged teams
 	t_client_arrangedteam_friendscreen		client_arrangedteam_friendscreen;
