@@ -4387,4 +4387,13 @@ typedef struct
 } t_server_realmjoinreply_109 PACKED_ATTR();
 /******************************************************/
 
+#define CLIENT_SEARCH_LAN_GAMES 0x2ff7
+typedef struct
+{
+  t_bnet_header h;
+  bn_byte game_tag[4]; // 3WAR
+  bn_int unknown1;
+  bn_int unknown2;
+} t_client_search_lan_games PACKED_ATTR();
+
 #endif

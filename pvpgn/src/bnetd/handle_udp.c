@@ -119,9 +119,15 @@ extern int handle_udp_packet(int usock, unsigned int src_addr, unsigned short sr
 	    udptest_send(c);
 	}
 	return 0;
+
+	case CLIENT_SEARCH_LAN_GAMES: //added by Spider
+	{
+	  eventlog(eventlog_level_debug,__FUNCTION__,"[%d] got SEARCH_LAN_GAMES packet from %s",usock,addr_num_to_addr_str(src_addr,src_port));
+	  return 0;
+	}
 	
     default:
-	eventlog(eventlog_level_error,"handle_udp_packet","[%d] got unknown udp packet type 0x%04x, len %u",usock,(unsigned int)packet_get_type(packet),packet_get_size(packet));
+	eventlog(eventlog_level_error,"handle_udp_packet","[%d] got unknown udp packet type 0x%04x, len %u from %s",usock,(unsigned int)packet_get_type(packet),packet_get_size(packet),addr_num_to_addr_str(src_addr,src_port));
     }
     
     return 0;
