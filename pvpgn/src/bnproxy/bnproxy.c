@@ -774,7 +774,6 @@ static int proxy_process(unsigned short server_listen_port, struct sockaddr_in s
 	    }
 	}
 	eventlog(eventlog_level_debug,"proxy_process","done checking");
-	list_purge(virtconnlist());
     }
     
     return 0;
