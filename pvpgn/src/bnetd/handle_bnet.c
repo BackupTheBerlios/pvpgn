@@ -3527,7 +3527,7 @@ static int _client_findanongame(t_connection * c, t_packet const * const packet)
 				packet_append_data(rpacket, "CSED" , 4);
 				packet_append_data(rpacket,&server_tag_unk,4);
 				// total descriptions
-				desc_count=7;
+				desc_count=8;
                                 packet_append_data(rpacket,&desc_count,1);
 				// PG description section
 				desc_count=0;
@@ -3568,7 +3568,11 @@ static int _client_findanongame(t_connection * c, t_packet const * const packet)
 				desc_count++;
 				packet_append_string(rpacket,anongame_infos_DESC_get_gametype_3v3_short((char *)conn_get_country(c)));
 				packet_append_string(rpacket,anongame_infos_DESC_get_gametype_3v3_long((char *)conn_get_country(c)));
-				
+				packet_append_data(rpacket,&anongame_AT_section,1);
+				packet_append_data(rpacket,&desc_count,1);
+				desc_count++;
+				packet_append_string(rpacket,anongame_infos_DESC_get_gametype_4v4_short((char *)conn_get_country(c)));
+				packet_append_string(rpacket,anongame_infos_DESC_get_gametype_4v4_long((char *)conn_get_country(c)));
 				
 				server_tag_count++;
 				eventlog(eventlog_level_debug,__FUNCTION__,"client_tag request tagid=(0x%01x) tag=(%s) tag_unk=(0x%04x)",i,"CLIENT_FINDANONGAME_INFOTAG_DESC",client_tag_unk);
@@ -3579,7 +3583,7 @@ static int _client_findanongame(t_connection * c, t_packet const * const packet)
 				packet_append_data(rpacket, &server_tag_unk , 4);
 				/*FIXME: Still adding a static number (5)
 				Also maybe need do do some checks to avoid prefs empty strings.*/
-				ladr_count=5;
+				ladr_count=6;
 				packet_append_data(rpacket, &ladr_count, 1);
 				packet_append_data(rpacket, "OLOS", 4);
 				packet_append_string(rpacket, anongame_infos_DESC_get_ladder_PG_1v1_desc((char *)conn_get_country(c)));
@@ -3587,15 +3591,18 @@ static int _client_findanongame(t_connection * c, t_packet const * const packet)
 				packet_append_data(rpacket, "MAET", 4);
 				packet_append_string(rpacket, anongame_infos_DESC_get_ladder_PG_team_desc((char *)conn_get_country(c)));
 				packet_append_string(rpacket, anongame_infos_URL_get_ladder_PG_team_url());
-				packet_append_data(rpacket, "2SV2", 4);
-				packet_append_string(rpacket, anongame_infos_DESC_get_ladder_AT_2v2_desc((char *)conn_get_country(c)));
-				packet_append_string(rpacket, anongame_infos_URL_get_ladder_AT_2v2_url());
 				packet_append_data(rpacket, " AFF", 4);
 				packet_append_string(rpacket, anongame_infos_DESC_get_ladder_PG_ffa_desc((char *)conn_get_country(c)));
 				packet_append_string(rpacket, anongame_infos_URL_get_ladder_PG_ffa_url());
+				packet_append_data(rpacket, "2SV2", 4);
+				packet_append_string(rpacket, anongame_infos_DESC_get_ladder_AT_2v2_desc((char *)conn_get_country(c)));
+				packet_append_string(rpacket, anongame_infos_URL_get_ladder_AT_2v2_url());
 				packet_append_data(rpacket, "3SV3", 4);
 				packet_append_string(rpacket, anongame_infos_DESC_get_ladder_AT_3v3_desc((char *)conn_get_country(c)));
 				packet_append_string(rpacket, anongame_infos_URL_get_ladder_AT_3v3_url());
+				packet_append_data(rpacket, "4SV4", 4);
+				packet_append_string(rpacket, anongame_infos_DESC_get_ladder_AT_4v4_desc((char *)conn_get_country(c)));
+				packet_append_string(rpacket, anongame_infos_URL_get_ladder_AT_4v4_url());
 				server_tag_count++;
 				eventlog(eventlog_level_debug,__FUNCTION__,"client_tag request tagid=(0x%01x) tag=(%s) tag_unk=(0x%04x)",i,"CLIENT_FINDANONGAME_INFOTAG_LADR",client_tag_unk);
 				break;
