@@ -26,6 +26,8 @@
 
 /* This tells Alpha OSF/1 not to define a getopt prototype in <stdio.h>.
    Ditto for AIX 3.2 and <stdlib.h>.  */
+#include <common/setup_before.h>
+
 #ifndef _NO_PROTO
 #define _NO_PROTO
 #endif
