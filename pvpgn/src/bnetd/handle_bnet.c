@@ -372,6 +372,41 @@ static int handle(const t_htable_row *htable, int type, t_connection * c, t_pack
    return res;
 }
 
+/* checks if a clienttag is in the allowed_clients list
+ * @ctag : clienttag integer to check
+ * if it's allowed returns 0
+ * if it's not allowed returns -1
+ */
+static int _check_allowed_client(t_clienttag ctag)
+{
+    char *list, *p, *q;
+
+    /* by default allow all */
+    if (!prefs_get_allowed_clients()) return 0;
+
+    /* this shortcut check should make server as fast as before if 
+     * the configuration is left in default mode */
+    if (!strcasecmp(prefs_get_allowed_clients(),"all")) return 0;
+
+    list = xstrdup(prefs_get_allowed_clients());
+    p = list;
+    do {
+	q = strchr(p,',');
+	if (q) *q = '\0';
+	if (!strcasecmp(p,"all")) goto ok;
+	if (strlen(p) != 4) continue;
+	if (ctag == tag_case_str_to_uint(p)) goto ok; /* client allowed */
+	if (q) p = q + 1;
+    } while(q);
+    xfree((void*)list);
+
+    return -1; /* client NOT allowed */
+
+ok:
+    xfree((void*)list);
+    return 0;
+}
+
 /* handlers for bnet packets */
 static int _client_unknown_1b(t_connection * c, t_packet const * const packet)
 {
@@ -578,7 +613,13 @@ static int _client_countryinfo109(t_connection * c, t_packet const * const packe
 	     eventlog(eventlog_level_error,__FUNCTION__,"[%d] got bad COUNTRYINFO_109 packet (missing or too long countryname)",conn_get_socket(c));
 	     return -1;
 	  }
-	
+
+	/* check if it's an allowed client type */
+	if (_check_allowed_client(bn_int_get(packet->u.client_countryinfo_109.clienttag))) {
+	    conn_set_state(c,conn_state_destroy);
+	    return 0;
+	}
+
 	tzbias = bn_int_get(packet->u.client_countryinfo_109.bias);
 	
 	eventlog(eventlog_level_debug,__FUNCTION__,"[%d] COUNTRYINFO_109 packet tzbias=0x%04x(%+d) lcid=%u langid=%u arch=\"%s\" client=\"%s\" versionid=0x%08x gamelang=\"%s\"",conn_get_socket(c),
@@ -664,8 +705,13 @@ static int _client_progident(t_connection * c, t_packet const * const packet)
 	eventlog(eventlog_level_error,__FUNCTION__,"[%d] got bad PROGIDENT packet (expected %u bytes, got %u)",conn_get_socket(c),sizeof(t_client_progident),packet_get_size(packet));
 	return -1;
      }
-   
-   eventlog(eventlog_level_info,__FUNCTION__,"[%d] CLIENT_PROGIDENT archtag=0x%08x clienttag=0x%08x versionid=0x%08x unknown1=0x%08x",
+
+    if (_check_allowed_client(bn_int_get(packet->u.client_progident.clienttag))) {
+	conn_set_state(c,conn_state_destroy);
+	return 0;
+    }
+
+   eventlog(eventlog_level_debug,__FUNCTION__,"[%d] CLIENT_PROGIDENT archtag=0x%08x clienttag=0x%08x versionid=0x%08x unknown1=0x%08x",
 	    conn_get_socket(c),
 	    bn_int_get(packet->u.client_progident.archtag),
 	    bn_int_get(packet->u.client_progident.clienttag),
@@ -674,7 +720,7 @@ static int _client_progident(t_connection * c, t_packet const * const packet)
 
    conn_set_archtag(c,bn_int_get(packet->u.client_progident.archtag));
    conn_set_clienttag(c,bn_int_get(packet->u.client_progident.clienttag));
-      
+
    if (prefs_get_skip_versioncheck())
      {
 	eventlog(eventlog_level_debug,__FUNCTION__,"[%d] attempting to skip version check by sending early authreply",conn_get_socket(c));
@@ -3478,10 +3524,14 @@ static int _client_progident2(t_connection * c, t_packet const * const packet)
    /* d2 uses this packet with clienttag = 0 to request the channel list */
    if (bn_int_get(packet->u.client_progident2.clienttag))
      {
+        if (_check_allowed_client(bn_int_get(packet->u.client_progident2.clienttag))) {
+	    conn_set_state(c,conn_state_destroy);
+	    return 0;
+	}
 	eventlog(eventlog_level_debug,__FUNCTION__,"[%d] CLIENT_PROGIDENT2 clienttag=0x%08x",conn_get_socket(c),bn_int_get(packet->u.client_progident2.clienttag));
-	
+
 	/* Hmm... no archtag.  Hope we get it in CLIENT_AUTHREQ1 (but we won't if we use the shortcut) */
-	
+
 	conn_set_clienttag(c,bn_int_get(packet->u.client_progident2.clienttag));
      }
    
@@ -4751,7 +4801,12 @@ static int _client_changeclient(t_connection * c, t_packet const * const packet)
 	eventlog(eventlog_level_error,__FUNCTION__,"[%d] got bad CLIENT_CHANGECLIENT packet (expected %u bytes, got %u)",conn_get_socket(c),sizeof(t_client_changeclient),packet_get_size(packet));
 	return -1;
     }
-    
+
+    if (_check_allowed_client(bn_int_get(packet->u.client_changeclient.clienttag))) {
+	conn_set_state(c,conn_state_destroy);
+	return 0;
+    }
+
     conn_set_clienttag(c,bn_int_get(packet->u.client_changeclient.clienttag));
     
     vc = conn_get_versioncheck(c);

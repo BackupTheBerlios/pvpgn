@@ -135,6 +135,25 @@ tosfile = "tos.txt"
 # Client verification and upgrades                                           #
 #----------------------------------------------------------------------------#
 
+# This option lists the client types allowed to connect (only valid for 
+# the bnet protocol). The list is a comma separated list of any of the 
+# following elements: 
+# all  : all client types allowed (default)
+# chat : client type "CHAT" allowed (used by some bot software)
+# dshr : client type Diablo 1 Shareware
+# drtl : client type Diablo 1 (Retail)
+# sshr : client type Starcraft Shareware
+# star : client type Starcraft
+# sexp : client type Starcraft Broodwar
+# w2bn : client type Warcraft II Battle.Net Edition
+# d2dv : client type Diablo 2
+# d2xp : client type Diablo 2 LOD
+# war3 : client type Warcraft III (Reign Of Chaos)
+# w3xp : client type Warcraft III Frozen Throne
+#
+# Example: allowed_clients = war3,w3xp
+allowed_clients = all
+
 # If this option is enabled, the verification step is skipped if possible.
 # This only works with clients < 109.  It is useful because you no longer
 # need any of the IX86AUTH?.MPQ and PMACAUTH?.MPQ files.  Note that it will

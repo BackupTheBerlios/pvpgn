@@ -173,6 +173,7 @@ static struct {
     unsigned int maxusers_per_channel;
     unsigned int load_new_account;
     char const * supportfile;
+    char const * allowed_clients;
 } prefs_runtime_config;
 
 /*    directive                 type               defcharval            defintval                 */
@@ -290,6 +291,7 @@ static Bconf_t conf_table[] =
     { "passfail_bantime",	conf_type_int,     NULL,                 300                 , (void *)&prefs_runtime_config.passfail_bantime},
     { "maxusers_per_channel",	conf_type_int,	   NULL,		 0		     , (void *)&prefs_runtime_config.maxusers_per_channel},
     { "load_new_account",	conf_type_bool,	   NULL,		 0		     , (void *)&prefs_runtime_config.load_new_account},
+    { "allowed_clients",	conf_type_char,    NULL,		 0                   , (void *)&prefs_runtime_config.allowed_clients},
     { NULL,             	conf_type_none,    NULL,                 NONE                , NULL},
 };
 
@@ -1242,3 +1244,9 @@ extern char const * prefs_get_supportfile(void)
 {
     return prefs_runtime_config.supportfile;
 }
+
+extern char const * prefs_get_allowed_clients(void)
+{
+    return prefs_runtime_config.allowed_clients;
+}
+
