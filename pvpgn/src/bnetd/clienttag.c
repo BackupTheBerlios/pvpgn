@@ -46,7 +46,7 @@
 
 static t_uint32 str_to_uint(char const * str)
 {
-    unsigned int result;
+    t_uint32 result;
 
     result  = str[0]<<24;
     result |= str[1]<<16;
