@@ -121,7 +121,10 @@ static int bnetd_oom_handler(void)
 
 static int oom_setup(void)
 {
-    oom_buffer = malloc(OOM_SAFE_MEM);
+    /* use calloc so it initilizez the memory so it will make some lazy 
+     * allocators really alocate it (ex. the linux kernel)
+     */
+    oom_buffer = calloc(1, OOM_SAFE_MEM);
     if (!oom_buffer) return -1;
 
     xalloc_setcb(bnetd_oom_handler);
