@@ -950,7 +950,7 @@ extern const char *clanmember_get_online_status_by_connection(t_connection * con
 	t_channel *channel;
 	if ((game = conn_get_game(conn)) != NULL)
 	{
-	    if (game_get_flag_private(game))
+	    if (game_get_flag(game) == game_flag_private)
 		(*status) = SERVER_W3XP_CLAN_MEMBER_PRIVATE_GAME;
 	    else
 		(*status) = SERVER_W3XP_CLAN_MEMBER_GAME;

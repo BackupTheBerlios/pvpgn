@@ -500,7 +500,7 @@ extern t_game * game_create(char const * name, char const * pass, char const * i
     game->maxplayers    = 0;
     game->bad           = 0;
     game->description   = NULL;
-    game->flag_private  = 0;
+    game->flag  	= strcmp(pass,"") ? game_flag_private : game_flag_none;
     game->difficulty    = game_difficulty_none;
 
     game_parse_info(game,info);
@@ -2276,29 +2276,25 @@ extern void gamelist_check_voidgame(void)
     }
 }
 
-extern void game_set_flag_private(t_game * game, unsigned int flag_private)
+extern void game_set_flag(t_game * game, t_game_flag flag)
 {
     if (!game)
     {
-	eventlog(eventlog_level_error,"game_set_flag_private","got NULL game");
+	eventlog(eventlog_level_error, __FUNCTION__, "got NULL game");
         return;
     }
-    game->flag_private = flag_private;
-//#ifdef WITH_BITS
-//    bits_game_update_status(game_get_id(game),status);
-//#endif
-// W3_FIXME: breaks BITS
+    game->flag = flag;
 }
 
 
-extern unsigned int game_get_flag_private(t_game const * game)
+extern t_game_flag game_get_flag(t_game const * game)
 {
     if (!game)
     {
-	eventlog(eventlog_level_error,"game_get_flag_private","got NULL game");
+	eventlog(eventlog_level_error, __FUNCTION__, "got NULL game");
         return 0;
     }
-    return game->flag_private;
+    return game->flag;
 }
 
 extern int game_get_count_by_clienttag(char const * ct)

@@ -2463,7 +2463,7 @@ static int _client_friendslistreq(t_connection * c, t_packet const * const packe
 	      bn_byte_set(&status.status,stat);
               if((game = conn_get_game(dest_c))) 
 	        {
-		  if (game_get_flag_private(game)==0)
+		  if (game_get_flag(game) != game_flag_private)
 		    bn_byte_set(&status.location,FRIENDSTATUS_PUBLIC_GAME);
 		  else
                     bn_byte_set(&status.location,FRIENDSTATUS_PRIVATE_GAME);
@@ -2556,7 +2556,7 @@ static int _client_friendinforeq(t_connection * c, t_packet const * const packet
 	bn_byte_set(&rpacket->u.server_friendinforeply.type, type);
 	if((game = conn_get_game(dest_c))) 
 	  {
-	    if (game_get_flag_private(game)==0)
+	    if (game_get_flag(game) != game_flag_private)
 	      bn_byte_set(&rpacket->u.server_friendinforeply.status, FRIENDSTATUS_PUBLIC_GAME);
 	    else
               bn_byte_set(&rpacket->u.server_friendinforeply.status, FRIENDSTATUS_PRIVATE_GAME);
@@ -3984,14 +3984,9 @@ static int _client_gamelistreq(t_connection * c, t_packet const * const packet)
 		  tcount++;
 		  eventlog(eventlog_level_debug,__FUNCTION__,"[%d] considering listing game=\"%s\", pass=\"%s\" clienttag=\"%s\" gtype=%d",conn_get_socket(c),game_get_name(game),game_get_pass(game),game_get_clienttag(game),(int)game_get_type(game));
 		  
-		  if (prefs_get_hide_pass_games() && strcmp(game_get_pass(game),"")!=0)
+		  if (prefs_get_hide_pass_games() && game_get_flag(game) == game_flag_private)
 		    {
-		       eventlog(eventlog_level_debug,__FUNCTION__,"[%d] not listing because game is private",conn_get_socket(c));
-		       continue;
-		    }
-		  if (prefs_get_hide_pass_games() && game_get_flag_private(game))
-		    {
-		       eventlog(eventlog_level_debug,__FUNCTION__,"[%d] not listing because game has private flag",conn_get_socket(c));
+		       eventlog(eventlog_level_debug,__FUNCTION__,"[%d] not listing because game is passworded or has private flag",conn_get_socket(c));
 		       continue;
 		    }
 		  if (prefs_get_hide_started_games() && game_get_status(game)!=game_status_open)
@@ -4506,10 +4501,8 @@ static int _client_startgame4(t_connection * c, t_packet const * const packet)
 	       }
 	     else if (conn_set_game(c,gamename,gamepass,gameinfo,gtype,STARTVER_GW4)==0) {
 		game_set_option(conn_get_game(c),bngoption_to_goption(conn_get_clienttag(c),gtype,option));
-		if (flag & 0x0001) {
-		   eventlog(eventlog_level_debug,__FUNCTION__,"game created with private flag");
-		   game_set_flag_private(conn_get_game(c),1);
-		}
+		if (status == CLIENT_STARTGAME4_STATUS_INITPRIVATE)
+		    game_set_flag(conn_get_game(c),game_flag_private);
 	     }
 	     
 	     if ((rpacket = packet_create(packet_class_bnet)))

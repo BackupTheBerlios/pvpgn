@@ -234,37 +234,24 @@ static void do_whois(t_connection * c, char const * dest)
     
     if ((game = conn_get_game(dest_c)))
     {
-	if (strcmp(game_get_pass(game),"")==0)
-	    sprintf(msgtemp,"%s %s logged on from account "UID_FORMAT", and %s currently in game \"%.64s\".",
-		    namepart,
-		    verb,
-		    conn_get_userid(dest_c),
-		    verb,
-		    game_get_name(game));
-	else
-	    sprintf(msgtemp,"%s %s logged on from account "UID_FORMAT", and %s currently in private game \"%.64s\".",
-		    namepart,
-		    verb,
-		    conn_get_userid(dest_c),
-		    verb,
-		    game_get_name(game));
+	sprintf(msgtemp,"%s %s logged on from account "UID_FORMAT", and %s currently in %s game \"%.64s\".",
+		namepart,
+		verb,
+		conn_get_userid(dest_c),
+		verb,
+		game_get_flag(game) == game_flag_private ? "private" : "",
+		game_get_name(game));
     }
     else if ((channel = conn_get_channel(dest_c)))
     {
 	if (channel_get_permanent(channel)==1)
-            sprintf(msgtemp,"%s %s logged on from account "UID_FORMAT", and %s currently in channel \"%.64s\".",
-		    namepart,
-		    verb,
-		    conn_get_userid(dest_c),
-		    verb,
-		    channel_get_name(channel));
-	else
-            sprintf(msgtemp,"%s %s logged on from account "UID_FORMAT", and %s currently in private channel \"%.64s\".",
-		    namepart,
-		    verb,
-		    conn_get_userid(dest_c),
-		    verb,
-		    channel_get_name(channel));
+        sprintf(msgtemp,"%s %s logged on from account "UID_FORMAT", and %s currently in %s channel \"%.64s\".",
+		namepart,
+		verb,
+		conn_get_userid(dest_c),
+		verb,
+		channel_get_permanent(channel) != 1 ? "private" : "",
+		channel_get_name(channel));
     }
     else
 	sprintf(msgtemp,"%s %s logged on from account "UID_FORMAT".",
@@ -272,8 +259,6 @@ static void do_whois(t_connection * c, char const * dest)
 		verb,
 		conn_get_userid(dest_c));
     message_send_text(c,message_type_info,c,msgtemp);
-    if (game && strcmp(game_get_pass(game),"")!=0)
-	message_send_text(c,message_type_info,c,"(This game is password protected.)");
     
     if (conn_get_dndstr(dest_c))
     {
@@ -1281,7 +1266,7 @@ static int _handle_friends_command(t_connection * c, char const * text)
 	    bn_byte_set(&status.status,stat);
             if((game = conn_get_game(dest_c))) 
 	      {
-	        if (game_get_flag_private(game)==0)
+	        if (game_get_flag(game) != game_flag_private)
 		  bn_byte_set(&status.location,FRIENDSTATUS_PUBLIC_GAME);
 		else
                   bn_byte_set(&status.location,FRIENDSTATUS_PRIVATE_GAME);
@@ -2763,20 +2748,20 @@ static int _handle_games_command(t_connection * c, char const *text)
 #else
       game = elem_get_data(curr);
 #endif
-      if ((!tag || !prefs_get_hide_pass_games() || strcmp(game_get_pass(game),"")==0) &&
+      if ((!tag || !prefs_get_hide_pass_games() || game_get_flag(game) != game_flag_private) &&
 	  (!tag || strcasecmp(game_get_clienttag(game),tag)==0))
 	{
 	  if (prefs_get_hide_addr() && !(account_get_command_groups(conn_get_account(c)) & command_get_group("/admin-addr"))) /* default to false */
 	    sprintf(msgtemp," %-16.16s %1.1s %-8.8s %-21.21s %5u",
 		    game_get_name(game),
-		    strcmp(game_get_pass(game),"")==0 ? "n":"y",
+		    game_get_flag(game) != game_flag_private ? "n":"y",
 		    game_status_get_str(game_get_status(game)),
 		    game_type_get_str(game_get_type(game)),
 		    game_get_ref(game));
 	  else
 	    sprintf(msgtemp," %-16.16s %1.1s %-8.8s %-21.21s %5u %s",
 		    game_get_name(game),
-		    strcmp(game_get_pass(game),"")==0 ? "n":"y",
+		    game_get_flag(game) != game_flag_private ? "n":"y",
 		    game_status_get_str(game_get_status(game)),
 		    game_type_get_str(game_get_type(game)),
 		    game_get_ref(game),
@@ -3424,7 +3409,7 @@ static int _handle_gameinfo_command(t_connection * c, char const *text)
 	return 0;
       }
   
-  sprintf(msgtemp,"Name: %-20.20s    ID: "GAMEID_FORMAT" (%s)",game_get_name(game),game_get_id(game),strcmp(game_get_pass(game),"")==0?"public":"private");
+  sprintf(msgtemp,"Name: %-20.20s    ID: "GAMEID_FORMAT" (%s)",game_get_name(game),game_get_id(game),game_get_flag(game) != game_flag_private ? "public":"private");
   message_send_text(c,message_type_info,c,msgtemp);
   
   {

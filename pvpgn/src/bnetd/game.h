@@ -185,6 +185,11 @@ typedef enum
     game_difficulty_hardcore_hell
 } t_game_difficulty;
 
+typedef enum {
+    game_flag_none,
+    game_flag_private
+} t_game_flag;
+
 /* Just a quick note for BITS: The original gamelist is only
  * kept by the master server. The bits clients only have a
  * 'stripped down' bits_gamelist. Information which is not
@@ -248,7 +253,7 @@ typedef struct game
     int               bad; /* if 1, then the results will be ignored */
     t_game_difficulty difficulty;
     char const *      description;
-	unsigned int      flag_private; // added by NonReal
+    t_game_flag       flag;
 }
 #endif
 t_game;
@@ -360,8 +365,8 @@ extern char const * game_get_realmname(t_game const * game);
 extern int game_set_realmname(t_game * game, char const * realmname); 
 extern void gamelist_check_voidgame(void);
 
-extern void game_set_flag_private(t_game * game, unsigned int flag_private);
-extern unsigned int game_get_flag_private(t_game const * game);
+extern void game_set_flag(t_game * game, t_game_flag flag);
+extern t_game_flag game_get_flag(t_game const * game);
 
 extern int game_get_count_by_clienttag(char const * ct);
 
