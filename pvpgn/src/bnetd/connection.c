@@ -3747,10 +3747,7 @@ extern void connlist_reap(void)
 
 	if (!c)
 	    eventlog(eventlog_level_error, __FUNCTION__, "found NULL entry in conn_dead list");
-	else {
-	    fdwatch_del_fd(conn_get_socket(c));
-	    conn_destroy(c); /* also removes from conn_dead list */
-	}
+	else conn_destroy(c); /* also removes from conn_dead list and fdwatch */
     }
     list_purge(conn_dead);
     list_purge(conn_head); /* remove deleted elements from the connlist */
