@@ -3,6 +3,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "cdb tool", "cdb tool.vcproj
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "d2cs", "d2cs.vcproj", "{300F80E0-1A0E-4639-AEB9-18A692FF35F3}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "d2dbs", "d2dbs.vcproj", "{300F80E0-1A0E-4639-AEB9-18A692FF35F3}"
+EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PvPGN", "PvPGN.vcproj", "{300F80E0-1A0E-4639-AEB9-18A692FF35F3}"
 EndProject
 Global
