@@ -445,6 +445,8 @@ static int handle(const t_htable_row *htable, int type, t_connection * c, t_pack
 	if (res != 2) break; /* return 2 means we want to continue parsing */
      }
    
+   if (conn_get_pmap(c) && packet_get_type(packet) == 0) /* packet needed to map get message from previous code */
+    return 0;
    return res;
 }
 
@@ -4025,7 +4027,11 @@ static int _client_progident2(t_connection * c, t_packet const * const packet)
 	       {
 		  ch = elem_get_data(curr);
 		  if ((!prefs_get_hide_temp_channels() || channel_get_permanent(ch)) &&
-		      (!channel_get_clienttag(ch) || strcmp(channel_get_clienttag(ch),conn_get_clienttag(c))==0))
+		      (!channel_get_clienttag(ch) || strcmp(channel_get_clienttag(ch),conn_get_clienttag(c))==0) &&
+		      (!channel_get_clienttag(ch) || !conn_get_channel(c) || 
+		        strcmp(channel_get_clienttag(ch), CLIENTTAG_WARCRAFT3) || strcmp(channel_get_clienttag(ch), CLIENTTAG_WAR3XP) ||
+			strcmp(channel_get_name(ch),channel_get_name(conn_get_channel(c)))))
+		    
 		    packet_append_string(rpacket,channel_get_name(ch));
 	       }
 	  }

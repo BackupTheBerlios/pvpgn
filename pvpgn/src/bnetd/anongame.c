@@ -930,24 +930,33 @@ extern void handle_anongame_search(t_connection * c, t_packet const * packet)
 		bn_byte_set(&rpacket->u.server_anongame_found.type,1);
 		bn_int_set(&rpacket->u.server_anongame_found.count,anongame_get_count(conn_get_anongame(player[gametype][i])));
 		bn_int_set(&rpacket->u.server_anongame_found.unknown1,0);
-		bn_int_set(&rpacket->u.server_anongame_found.ip,w3routeip);
-		bn_short_set(&rpacket->u.server_anongame_found.port,w3routeport);
-		bn_byte_set(&rpacket->u.server_anongame_found.numplayers,anongame_totalplayers(gametype));
-		bn_byte_set(&rpacket->u.server_anongame_found.playernum, i+1);
-		bn_byte_set(&rpacket->u.server_anongame_found.gametype,gametype);
-		bn_byte_set(&rpacket->u.server_anongame_found.unknown2,0);
-		bn_int_set(&rpacket->u.server_anongame_found.id,0xdeadbeef);
-		bn_byte_set(&rpacket->u.server_anongame_found.unknown4,6);
-		bn_short_set(&rpacket->u.server_anongame_found.unknown5,0);
 		
 		if (strcmp(conn_get_clienttag(c), CLIENTTAG_WAR3XP) == 0) {
-		    bn_short_set(&rpacket->u.server_anongame_found2.unknown3, SERVER_ANONGAME_FOUND2_UNKNOWN3);
-		    bn_byte_set(&rpacket->u.server_anongame_found2.unknown6, SERVER_ANONGAME_FOUND2_UNKNOWN6);
-		    bn_short_set(&rpacket->u.server_anongame_found2.unknown7, SERVER_ANONGAME_FOUND2_UNKNOWN7);
-		    bn_short_set(&rpacket->u.server_anongame_found2.unknown8, SERVER_ANONGAME_FOUND2_UNKNOWN8);
+		    bn_byte_set(&rpacket->u.server_anongame_found2.unknown3, SERVER_ANONGAME_FOUND2_UNKNOWN3);
+		    bn_short_set(&rpacket->u.server_anongame_found2.unknown6, SERVER_ANONGAME_FOUND2_UNKNOWN6);
+		    bn_int_set(&rpacket->u.server_anongame_found2.unknown7, SERVER_ANONGAME_FOUND2_UNKNOWN7);
+		    bn_int_set(&rpacket->u.server_anongame_found2.unknown8, SERVER_ANONGAME_FOUND2_UNKNOWN8);
 		    bn_int_set(&rpacket->u.server_anongame_found2.unknown9, SERVER_ANONGAME_FOUND2_UNKNOWN9);
-		    bn_int_set(&rpacket->u.server_anongame_found2.unknown10, SERVER_ANONGAME_FOUND2_UNKNOWN10);
+		    bn_int_set(&rpacket->u.server_anongame_found2.ip,w3routeip);
+		    bn_short_set(&rpacket->u.server_anongame_found2.port,w3routeport);
+		    bn_byte_set(&rpacket->u.server_anongame_found2.numplayers,anongame_totalplayers(gametype));
+		    bn_byte_set(&rpacket->u.server_anongame_found2.playernum, i+1);
+		    bn_byte_set(&rpacket->u.server_anongame_found2.gametype,gametype);
+		    bn_byte_set(&rpacket->u.server_anongame_found2.unknown2,0);
+		    bn_int_set(&rpacket->u.server_anongame_found2.id,0xdeadbeef);
+		    bn_byte_set(&rpacket->u.server_anongame_found2.unknown4,6);
+		    bn_short_set(&rpacket->u.server_anongame_found2.unknown5,0);
 		    mapname = "Maps\\FrozenThrone\\Beta\\(4)TrtleRock.w3x";
+		} else {
+		    bn_int_set(&rpacket->u.server_anongame_found.ip,w3routeip);
+		    bn_short_set(&rpacket->u.server_anongame_found.port,w3routeport);
+		    bn_byte_set(&rpacket->u.server_anongame_found.numplayers,anongame_totalplayers(gametype));
+		    bn_byte_set(&rpacket->u.server_anongame_found.playernum, i+1);
+		    bn_byte_set(&rpacket->u.server_anongame_found.gametype,gametype);
+		    bn_byte_set(&rpacket->u.server_anongame_found.unknown2,0);
+		    bn_int_set(&rpacket->u.server_anongame_found.id,0xdeadbeef);
+		    bn_byte_set(&rpacket->u.server_anongame_found.unknown4,6);
+		    bn_short_set(&rpacket->u.server_anongame_found.unknown5,0);
 		}
 
 		if (!mapname) {
