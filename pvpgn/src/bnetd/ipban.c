@@ -507,7 +507,7 @@ extern time_t ipbanlist_str_to_time_t(t_connection * c, char const * timestr)
     char		tstr[MAX_MESSAGE_LEN];
     time_t		now;
     
-    for (i=0; isdigit(timestr[i]) && i<sizeof(minstr)-1; i++)
+    for (i=0; isdigit((int)timestr[i]) && i<sizeof(minstr)-1; i++)
 	minstr[i] = timestr[i];
     minstr[i] = '\0';
 
@@ -1069,7 +1069,7 @@ static int ipban_could_be_ip_str(char const * str)
 	return 0;
     }
     for (i=0; i<strlen(str); i++)
-	if (!isdigit(str[i]) && str[i]!='.' && str[i]!='*' && str[i]!='/' && str[i]!='-')
+	if (!isdigit((int)str[i]) && str[i]!='.' && str[i]!='*' && str[i]!='/' && str[i]!='-')
 	{
 	    eventlog(eventlog_level_debug,"ipban_could_be_ip_str","illegal character on position %i",i);
 	    return 0;
@@ -1118,7 +1118,7 @@ static int ipban_could_be_ip_str(char const * str)
 		return 0;
 	    }
 	    for (i=1; i<strlen(&matched[1]); i++)
-		if (!isdigit(matched[i]))
+		if (!isdigit((int)matched[i]))
 		{
 		    free(ipstr);
 		    return 0;

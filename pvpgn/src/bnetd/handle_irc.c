@@ -512,7 +512,7 @@ static int _handle_privmsg_command(t_connection * conn, int numparams, char ** p
  		    				t_hash h;
  
 							for (p = pass; *p; p++)
-								if (isupper(*p)) *p = tolower(*p);
+								if (isupper((int)*p)) *p = tolower(*p);
  		    				bnet_hash(&h,strlen(pass),pass);
  		    				irc_authenticate(conn,hash_get_str(h));
  						}

@@ -1055,7 +1055,7 @@ extern t_account * accountlist_find_account(char const * username)
         if(account!=NULL)
             return account;
     }
-    if ((!(userid)) || (userid && ((username[0]=='#') || (isdigit(username[0])))))
+    if ((!(userid)) || (userid && ((username[0]=='#') || (isdigit((int)username[0])))))
     {
 	unsigned int namehash;
 	char const * tname;
@@ -1358,7 +1358,7 @@ extern int account_check_name(char const * name)
          * instead of what is.
          */
         ch = name[i];
-        if (isalnum(ch)) continue;
+        if (isalnum((int)ch)) continue;
 	if (strchr(prefs_get_account_allowed_symbols(),ch)) continue;
         return -1;
     }
