@@ -179,12 +179,13 @@ static Bconf_t conf_table[] =
 
     //aaron
     { "war3_ladder_update_secs",conf_type_int,     NULL,                 0,                     ACT },
+	{ "war3_output_update_secs",conf_type_int,     NULL,                 0,                     ACT },
     { "ladderdir",              conf_type_char,    BNETD_LADDER_DIR,     NONE,                  ACT },
-
+	{ "statusdir",              conf_type_char,    BNETD_STATUS_DIR,     NONE,                  ACT },
     { "reduced_accounting",     conf_type_bool,    NULL,                 0,                     ACT },
 
     { "XML_output_ladder",      conf_type_bool,    NULL,                 0,	    		ACT },
-
+    { "XML_status_output_ladder",      conf_type_bool,    NULL,                 0,	    		ACT },
     { "account_allowed_symbols",conf_type_char,    PVPGN_DEFAULT_SYMB,   NONE,                  ACT },
 
     { "reload_new_accounts",    conf_type_bool,    NULL,                 0,                     ACT },
@@ -1156,9 +1157,19 @@ extern int prefs_get_war3_ladder_update_secs(void)
         return get_int_conf("war3_ladder_update_secs");
 }
 
+extern int prefs_get_war3_output_update_secs(void)
+{
+        return get_int_conf("war3_output_update_secs");
+}
+
 extern char const * prefs_get_ladderdir(void)
 {
         return get_char_conf("ladderdir");
+}
+
+extern char const * prefs_get_outputdir(void)
+{
+        return get_char_conf("statusdir");
 }
 
 extern int prefs_get_reduced_accounting(void)
@@ -1169,6 +1180,11 @@ extern int prefs_get_reduced_accounting(void)
 extern int prefs_get_XML_output_ladder(void)
 {
         return get_bool_conf("XML_output_ladder");
+}
+
+extern int prefs_get_XML_status_output_ladder(void)
+{
+        return get_bool_conf("XML_status_output_ladder");
 }
 
 extern char const * prefs_get_account_allowed_symbols(void)
