@@ -1041,7 +1041,6 @@ static int sql_load_clans(t_load_clans_func cb)
 			    xfree((void *) member);
 			    continue;
 			}
-			member->memberconn = NULL;
 			member->status = atoi(row2[1]);
 			member->join_time = atoi(row2[2]);
 			member->clan	  = clan;

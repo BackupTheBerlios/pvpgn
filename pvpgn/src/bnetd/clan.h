@@ -64,7 +64,6 @@ typedef struct _clanmember
 #ifdef CLAN_INTERNAL_ACCESS
 {
     void *memberacc;
-    void *memberconn;
     char status;
     time_t join_time;
     t_clan * clan;
@@ -104,8 +103,7 @@ extern t_clan *clanlist_find_clan_by_clantag(int clantag);
 
 extern t_account *clanmember_get_account(t_clanmember * member);
 extern int clanmember_set_account(t_clanmember * member, t_account * memberacc);
-extern t_connection *clanmember_get_connection(t_clanmember * member);
-extern int clanmember_set_connection(t_clanmember * member, t_connection * memberconn);
+extern t_connection *clanmember_get_conn(t_clanmember * member);
 extern char clanmember_get_status(t_clanmember * member);
 extern int clanmember_set_status(t_clanmember * member, char status);
 extern time_t clanmember_get_join_time(t_clanmember * member);
@@ -117,7 +115,7 @@ extern int clanmember_on_change_status(t_clanmember * member);
 extern const char *clanmember_get_online_status_by_connection(t_connection * conn, char *status);
 extern int clanmember_on_change_status_by_connection(t_connection * conn);
 
-extern t_clan *clan_create(t_account * chieftain_acc, t_connection * chieftain_conn, int clantag, const char *clanname, const char *motd);
+extern t_clan *clan_create(t_account * chieftain_acc, int clantag, const char *clanname, const char *motd);
 extern int clan_destroy(t_clan * clan);
 
 extern int clan_unload_members(t_clan * clan);
@@ -142,7 +140,7 @@ extern int clan_set_creation_time(t_clan * clan, time_t c_time);
 extern time_t clan_get_creation_time(t_clan * clan);
 extern int clan_get_member_count(t_clan * clan);
 
-extern t_clanmember *clan_add_member(t_clan * clan, t_account * memberacc, t_connection * memberconn, char status);
+extern t_clanmember *clan_add_member(t_clan * clan, t_account * memberacc, char status);
 extern int clan_remove_member(t_clan * clan, t_clanmember * member);
 
 extern t_clanmember *clan_find_member(t_clan * clan, t_account * memberacc);

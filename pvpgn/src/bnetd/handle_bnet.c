@@ -4345,7 +4345,7 @@ static int _client_w3xp_clan_createinvitereq(t_connection * c, t_packet const *c
 	offset += (strlen(clanname) + 1);
 	clantag = *((int *) packet_get_data_const(packet, offset, 4));
 	offset += 4;
-	if ((clan = clan_create(conn_get_account(c), c, clantag, clanname, NULL)) && clanlist_add_clan(clan)) {
+	if ((clan = clan_create(conn_get_account(c), clantag, clanname, NULL)) && clanlist_add_clan(clan)) {
 	    char membercount = *((char *) packet_get_data_const(packet, offset, 1));
 	    clan_set_created(clan, -membercount);
 	    packet_set_size(rpacket, sizeof(t_server_w3xp_clan_createinvitereq));
@@ -4363,9 +4363,9 @@ static int _client_w3xp_clan_createinvitereq(t_connection * c, t_packet const *c
 		    offset += (strlen(username) + 1);
 		    if ((conn = connlist_find_connection_by_accountname(username)) != NULL) {
 			if (prefs_get_clan_newer_time() > 0)
-			    clan_add_member(clan, conn_get_account(conn), conn, CLAN_NEW);
+			    clan_add_member(clan, conn_get_account(conn), CLAN_NEW);
 			else
-			    clan_add_member(clan, conn_get_account(conn), conn, CLAN_PEON);
+			    clan_add_member(clan, conn_get_account(conn), CLAN_PEON);
 			conn_push_outqueue(conn, rpacket);
 		    }
 		}
@@ -4500,7 +4500,7 @@ static int _client_w3xp_clan_memberdelreq(t_connection * c, t_packet const *cons
 	bn_int_set(&rpacket->u.server_w3xp_clan_memberdelreply.count, bn_int_get(packet->u.client_w3xp_clan_memberdelreq.count));
 	username = packet_get_str_const(packet, sizeof(t_client_w3xp_clan_memberdelreq), USER_NAME_MAX);
 	if ((acc = conn_get_account(c)) && (clan = account_get_clan(acc)) && (member = clan_find_member_by_name(clan, username))) {
-	    dest_conn = clanmember_get_connection(member);
+	    dest_conn = clanmember_get_conn(member);
 	    if (clan_remove_member(clan, member) == 0) {
 		t_packet *rpacket2;
 		if (dest_conn) {
@@ -4625,7 +4625,7 @@ static int _client_w3xp_clan_invitereply(t_connection * c, t_packet const *const
 	    char channelname[10];
 	    int clantag;
 	    if (clan_get_member_count(clan) < prefs_get_clan_max_members()) {
-		t_clanmember *member = clan_add_member(clan, conn_get_account(c), c, 1);
+		t_clanmember *member = clan_add_member(clan, conn_get_account(c), 1);
 		if ((member != NULL) && (clantag = clan_get_clantag(clan))) {
 		    sprintf(channelname, "Clan %c%c%c%c", (clantag >> 24), (clantag >> 16) & 0xff, (clantag >> 8) & 0xff, clantag & 0xff);
 		    if (conn_get_channel(c)) {

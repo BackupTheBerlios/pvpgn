@@ -622,7 +622,6 @@ static int file_load_clans(t_load_clans_func cb)
 		xfree((void *) member);
 		continue;
 	    }
-	    member->memberconn = NULL;
 	    member->status = member_status - '0';
 	    member->join_time = member_join_time;
 	    member->clan = clan;

@@ -72,7 +72,7 @@ typedef struct account_struct
     unsigned int  flags;
     struct connection * conn;
     t_storage_info * storage;
-    t_clanmember * clanmember;
+    t_clanmember   * clanmember;
     t_list * friends;
     time_t	lastaccess;	/* timestamp of last access moment */
     time_t	dirtytime;	/* timestamp of first dirty moment */
