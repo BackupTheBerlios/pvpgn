@@ -634,6 +634,10 @@ static int conf_set_sync_on_logoff(const char *valstr);
 static const char *conf_get_sync_on_logoff(void);
 static int conf_setdef_sync_on_logoff(void);
 
+static int conf_set_ladder_prefix(const char *valstr);
+static const char *conf_get_ladder_prefix(void);
+static int conf_setdef_ladder_prefix(void);
+
 /*    directive                 set method                     get method         */
 static t_conf_entry conf_table[] =
   {
@@ -751,6 +755,7 @@ static t_conf_entry conf_table[] =
     { "ladder_games",           conf_set_ladder_games,         conf_get_ladder_games, conf_setdef_ladder_games},
     { "max_connections",      	conf_set_max_connections,      conf_get_max_connections,conf_setdef_max_connections},
     { "sync_on_logoff",         conf_set_sync_on_logoff,       conf_get_sync_on_logoff,conf_setdef_sync_on_logoff},
+    { "ladder_prefix",		conf_set_ladder_prefix,		conf_get_ladder_prefix,conf_setdef_ladder_prefix},
     { NULL,             	NULL,                          NONE},
   };
 
