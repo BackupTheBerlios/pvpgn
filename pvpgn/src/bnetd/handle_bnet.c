@@ -2895,14 +2895,14 @@ static int _client_atacceptdeclineinvite(t_connection * c, t_packet const * cons
 
 static int _client_atacceptinvite(t_connection * c, t_packet const * const packet)
 {
-   t_packet * rpacket = NULL;
+   // t_packet * rpacket = NULL;
    
    if (packet_get_size(packet)<sizeof(t_client_arrangedteam_accept_invite)) {
       eventlog(eventlog_level_error,__FUNCTION__,"[%d] got bad ARRANGEDTEAM_ACCEPT_INVITE packet (expected %u bytes, got %u)",conn_get_socket(c),sizeof(t_client_arrangedteam_accept_invite),packet_get_size(packet));
       return -1;
    }
-
    /* conn_set_channel(c, "Arranged Teams"); */
+   return 0;
 }
 
 static int _client_findanongame(t_connection * c, t_packet const * const packet)

@@ -66,6 +66,7 @@
 #include "command.h"
 #include "handle_irc.h"
 #include "common/setup_after.h"
+#include "ctype.h"
 
 #ifdef WIN32
 #include <windows.h> //amadeo (needed for GlobalAlloc (GPTR-def)

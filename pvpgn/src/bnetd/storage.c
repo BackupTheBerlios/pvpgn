@@ -32,6 +32,13 @@
 #endif
 #include "storage.h"
 #include "common/setup_after.h"
+#ifdef STDC_HEADERS
+#include <stdlib.h>
+#else
+#ifdef HAVE_MALLOC_H
+#include <malloc.h>
+#endif
+#endif
 
 extern int storage_init(void)
 {

@@ -159,6 +159,7 @@
 #include "output.h"
 #include "common/setup_after.h"
 #include "bnpmap.h"
+#include "alias_command.h"
 
 extern FILE * hexstrm; /* from main.c */
 extern int g_ServiceStatus;
@@ -855,8 +856,12 @@ extern void server_set_name(void)
     sn = prefs_get_servername();
     if ((!sn)||(sn[0]=='\0')) {
     	if (gethostname(temp,sizeof(temp))<0) {
+#ifdef WIN32
+	    sprintf(temp,"localhost");
+#else
 	    eventlog(eventlog_level_error,"server_set_name","could not get hostname: %s",strerror(errno));
 	    return;
+#endif
     	}
 #ifdef HAVE_GETHOSTBYNAME
     	hp = gethostbyname(temp);

@@ -86,6 +86,7 @@
 #include "command_groups.h"
 #include "output.h"
 #include "common/setup_after.h"
+#include "alias_command.h"
 
 #ifdef WIN32
 # include "win32/service.h"
