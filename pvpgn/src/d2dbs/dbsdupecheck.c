@@ -109,7 +109,7 @@ extern int dbsdupecheck(char * data, unsigned int datalen)
       {
 	eventlog(eventlog_level_info,__FUNCTION__,"extended item");
 	uid = bn_int_get(&datap[14]);
-	eventlog(eventlog_level_info,__FUNCTION__,"unique ID: &ul",uid);
+	eventlog(eventlog_level_info,__FUNCTION__,"unique ID: %lu",uid);
 	pointer = find_delimiter(datap,restlen);
 	restlen-= (pointer-datap);
 	datap = pointer;
