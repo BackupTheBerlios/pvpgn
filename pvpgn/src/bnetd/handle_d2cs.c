@@ -135,7 +135,7 @@ static int on_d2cs_authreply(t_connection * c, t_packet const * packet)
 	}
 
 	if (reply==BNETD_D2CS_AUTHREPLY_SUCCEED) {
-		eventlog(eventlog_level_error,"on_d2cs_authreply","d2cs %s authed",
+		eventlog(eventlog_level_info,"on_d2cs_authreply","d2cs %s authed",
 			addr_num_to_ip_str(conn_get_addr(c)));
 		conn_set_state(c,conn_state_loggedin);
 		if (prefs_allow_d2cs_setname()) realm_set_name(realm,realmname);
