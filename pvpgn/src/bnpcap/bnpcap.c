@@ -24,7 +24,6 @@
 #include "compat/strerror.h"
 #include <getopt.h>
 #include "common/init_protocol.h"
-#include "common/bits_protocol.h"
 #include "common/bnet_protocol.h"
 #include "common/udp_protocol.h"
 #include "common/packet.h"
