@@ -1574,99 +1574,82 @@ static int _client_fileinforeq(t_connection * c, t_packet const * const packet)
    return 0;
 }
 
+static const char *_attribute_req(t_account *reqacc, t_account *myacc, const char *key)
+{
+    const char *result = "";
+    const char *tval;
+
+    if (!reqacc) goto out;
+    if (reqacc != myacc && !strncasecmp(key,"BNET",4)) goto out;
+
+    tval = account_get_strattr(reqacc,key);
+    if (tval) result = tval;
+
+out:
+    return result;
+}
+
 static int _client_statsreq(t_connection * c, t_packet const * const packet)
 {
-   t_packet * rpacket;
-   
-   if (packet_get_size(packet)<sizeof(t_client_statsreq))
-     {
+    t_packet * rpacket;
+    char const * name;
+    char const * key;
+    unsigned int name_count;
+    unsigned int key_count;
+    unsigned int i,j;
+    unsigned int name_off;
+    unsigned int keys_off;
+    unsigned int key_off;
+    t_account *  reqacc, *myacc;
+
+    if (packet_get_size(packet)<sizeof(t_client_statsreq)) {
 	eventlog(eventlog_level_error,__FUNCTION__,"[%d] got bad STATSREQ packet (expected %u bytes, got %u)",conn_get_socket(c),sizeof(t_client_statsreq),packet_get_size(packet));
 	return -1;
-     }
-   
-     {
-	char const * name;
-	char const * key;
-	unsigned int name_count;
-	unsigned int key_count;
-	unsigned int i,j;
-	unsigned int name_off;
-	unsigned int keys_off;
-	unsigned int key_off;
-	t_account *  account;
-	char const * tval;
-	
-	name_count = bn_int_get(packet->u.client_statsreq.name_count);
-	key_count = bn_int_get(packet->u.client_statsreq.key_count);
-	
-	for (i=0,name_off=sizeof(t_client_statsreq);
-	     i<name_count && (name = packet_get_str_const(packet,name_off,UNCHECKED_NAME_STR));
-	     i++,name_off+=strlen(name)+1);
-	if (i<name_count)
-	  {
-	     eventlog(eventlog_level_error,__FUNCTION__,"[%d] got bad STATSREQ packet (only %u names of %u)",conn_get_socket(c),i,name_count);
-	     return -1;
-	  }
-	keys_off = name_off;
-	
-	if (!(rpacket = packet_create(packet_class_bnet)))
-	  return -1;
-	packet_set_size(rpacket,sizeof(t_server_statsreply));
-	packet_set_type(rpacket,SERVER_STATSREPLY);
-	bn_int_set(&rpacket->u.server_statsreply.name_count,name_count);
-	bn_int_set(&rpacket->u.server_statsreply.key_count,key_count);
-	bn_int_set(&rpacket->u.server_statsreply.requestid,bn_int_get(packet->u.client_statsreq.requestid));
-	
-	for (i=0,name_off=sizeof(t_client_statsreq);
-	     i<name_count && (name = packet_get_str_const(packet,name_off,UNCHECKED_NAME_STR));
-	     i++,name_off+=strlen(name)+1)
-	  {
-	     if (!(account = accountlist_find_account(name)))
-	     {
-	       if ((account = conn_get_account(c)))
-	       {
-		 eventlog(eventlog_level_debug,__FUNCTION__,"[%d] client_statsreply no name, use self \"%s\"",conn_get_socket(c), name);
-	       }
-	     }
-	     
-	     for (j=0,key_off=keys_off;
-		  j<key_count && (key = packet_get_str_const(packet,key_off,MAX_ATTRKEY_STR));
-		  j++,key_off+=strlen(key)+1)
-	       if (account && (strncmp(key,"BNET\\acct\\passhash1",19)!=0))
-		 {
+    }
+
+    name_count = bn_int_get(packet->u.client_statsreq.name_count);
+    key_count = bn_int_get(packet->u.client_statsreq.key_count);
+
+    for (i=0,name_off=sizeof(t_client_statsreq);
+	 i<name_count && (name = packet_get_str_const(packet,name_off,UNCHECKED_NAME_STR));
+	 i++,name_off+=strlen(name)+1);
+
+    if (i<name_count) {
+	eventlog(eventlog_level_error,__FUNCTION__,"[%d] got bad STATSREQ packet (only %u names of %u)",conn_get_socket(c),i,name_count);
+	return -1;
+    }
+    keys_off = name_off;
+
+    if (!(rpacket = packet_create(packet_class_bnet)))
+	return -1;
+
+    packet_set_size(rpacket,sizeof(t_server_statsreply));
+    packet_set_type(rpacket,SERVER_STATSREPLY);
+    bn_int_set(&rpacket->u.server_statsreply.name_count,name_count);
+    bn_int_set(&rpacket->u.server_statsreply.key_count,key_count);
+    bn_int_set(&rpacket->u.server_statsreply.requestid,bn_int_get(packet->u.client_statsreq.requestid));
+
+    myacc = conn_get_account(c);
+
+    for (i=0,name_off=sizeof(t_client_statsreq);
+	 i<name_count && (name = packet_get_str_const(packet,name_off,UNCHECKED_NAME_STR));
+	 i++,name_off+=strlen(name)+1)
+    {
+	reqacc = accountlist_find_account(name);
+	if (!reqacc) reqacc = myacc;
+
+	for (j=0,key_off=keys_off;
+	     j<key_count && (key = packet_get_str_const(packet,key_off,MAX_ATTRKEY_STR));
+	     j++,key_off+=strlen(key)+1) {
 	    if (*key == '\0') continue;
-            if(strcmp(key,"clan\\name")==0)
-            {
-              t_clan * clan;
-              const char * clanname;
-              if((clan=account_get_clan(account))&&(clanname=clan_get_name(clan)))
-                packet_append_string(rpacket,clanname);
-              else
-    		    packet_append_string(rpacket,"");
-            }
-            else
-            if((tval = account_get_strattr(account,key)) != NULL)
-            {
-		      packet_append_string(rpacket,tval);
-		      account_unget_strattr(tval);
-            }
-		else
-		packet_append_string(rpacket,"");
-		 }
-	       else
-	         {
-		    packet_append_string(rpacket,""); /* FIXME: what should really happen here? */
-		    if (account && key[0]!='\0')
-		      {
-		         eventlog(eventlog_level_debug,__FUNCTION__,"[%d] no entry \"%s\" in account \"%s\" or access denied",conn_get_socket(c),key,name);
-		      }
-	         }
-	  }
-	conn_push_outqueue(c,rpacket);
-	packet_del_ref(rpacket);
-     }
-   
-   return 0;
+	    packet_append_string(rpacket,_attribute_req(reqacc,myacc,key));
+	}
+    }
+
+    conn_push_outqueue(c,rpacket);
+    packet_del_ref(rpacket);
+
+    return 0;
 }
 
 static int _client_loginreq1(t_connection * c, t_packet const * const packet)
