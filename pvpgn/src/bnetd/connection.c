@@ -2021,7 +2021,7 @@ extern int conn_set_channel(t_connection * c, char const * channelname)
       message_send_text(c,message_type_info,c,msgtemp);
     }
 
-    if (channel_get_topic(channel_get_name(c->channel)))
+    if (channel_get_topic(channel_get_name(c->channel)) && (conn_get_class(c)!=conn_class_irc))
     {
       char msgtemp[MAX_MESSAGE_LEN];
 
