@@ -64,12 +64,12 @@ extern unsigned int account_get_numattr_real(t_account * account, char const * k
 
     if (!account)
     {
-	eventlog(eventlog_level_error,"account_get_numattr","got NULL account (from %s:%u)",fn,ln);
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL account (from %s:%u)",fn,ln);
 	return 0;
     }
     if (!key)
     {
-	eventlog(eventlog_level_error,"account_get_numattr","got NULL key (from %s:%u)",fn,ln);
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL key (from %s:%u)",fn,ln);
 	return 0;
     }
     
@@ -78,7 +78,7 @@ extern unsigned int account_get_numattr_real(t_account * account, char const * k
     
     if (str_to_uint(temp,&val)<0)
     {
-	eventlog(eventlog_level_error,"account_get_numattr","not a numeric string \"%s\" for key \"%s\"",temp,key);
+	eventlog(eventlog_level_error,__FUNCTION__,"not a numeric string \"%s\" for key \"%s\"",temp,key);
 	return 0;
     }
     
@@ -92,12 +92,12 @@ extern int account_set_numattr(t_account * account, char const * key, unsigned i
     
     if (!account)
     {
-	eventlog(eventlog_level_error,"account_set_numattr","got NULL account");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL account");
 	return -1;
     }
     if (!key)
     {
-	eventlog(eventlog_level_error,"account_set_numattr","got NULL key");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL key");
 	return -1;
     }
     
@@ -112,12 +112,12 @@ extern int account_get_boolattr_real(t_account * account, char const * key, char
     
     if (!account)
     {
-	eventlog(eventlog_level_error,"account_get_boolattr","got NULL account (from %s:%u)",fn,ln);
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL account (from %s:%u)",fn,ln);
 	return -1;
     }
     if (!key)
     {
-	eventlog(eventlog_level_error,"account_get_boolattr","got NULL key (from %s:%u)",fn,ln);
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL key (from %s:%u)",fn,ln);
 	return -1;
     }
     
@@ -131,7 +131,7 @@ extern int account_get_boolattr_real(t_account * account, char const * key, char
     case 0:
 	return 0;
     default:
-	eventlog(eventlog_level_error,"account_get_boolattr","bad boolean value \"%s\" for key \"%s\"",temp,key);
+	eventlog(eventlog_level_error,__FUNCTION__,"bad boolean value \"%s\" for key \"%s\"",temp,key);
 	return -1;
     }
 }
@@ -141,12 +141,12 @@ extern int account_set_boolattr(t_account * account, char const * key, int val)
 {
     if (!account)
     {
-	eventlog(eventlog_level_error,"account_set_boolattr","got NULL account");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL account");
 	return -1;
     }
     if (!key)
     {
-	eventlog(eventlog_level_error,"account_set_boolattr","got NULL key");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL key");
 	return -1;
     }
     
@@ -310,7 +310,7 @@ extern char const * account_get_sex(t_account * account)
     
     if (!account)
     {
-	eventlog(eventlog_level_error,"account_get_sex","got NULL account");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL account");
 	return NULL;
     }
     
@@ -326,7 +326,7 @@ extern char const * account_get_age(t_account * account)
     
     if (!account)
     {
-	eventlog(eventlog_level_error,"account_get_age","got NULL account");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL account");
 	return NULL;
     }
     
@@ -342,7 +342,7 @@ extern char const * account_get_loc(t_account * account)
     
     if (!account)
     {
-	eventlog(eventlog_level_error,"account_get_loc","got NULL account");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL account");
 	return NULL;
     }
     
@@ -358,7 +358,7 @@ extern char const * account_get_desc(t_account * account)
     
     if (!account)
     {
-	eventlog(eventlog_level_error,"account_get_desc","got NULL account");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL account");
 	return NULL;
     }
     
@@ -448,7 +448,7 @@ extern unsigned int account_get_normal_wins(t_account * account, t_clienttag cli
     
     if (!clienttag)
     {
-	eventlog(eventlog_level_error,"account_get_normal_wins","got bad clienttag");
+	eventlog(eventlog_level_error,__FUNCTION__,"got bad clienttag");
 	return 0;
     }
     sprintf(key,"Record\\%s\\0\\wins",tag_uint_to_str(clienttag_str,clienttag));
@@ -463,7 +463,7 @@ extern int account_inc_normal_wins(t_account * account, t_clienttag clienttag)
     
     if (!clienttag)
     {
-	eventlog(eventlog_level_error,"account_inc_normal_wins","got bad clienttag");
+	eventlog(eventlog_level_error,__FUNCTION__,"got bad clienttag");
 	return -1;
     }
     sprintf(key,"Record\\%s\\0\\wins",tag_uint_to_str(clienttag_str,clienttag));
@@ -493,7 +493,7 @@ extern unsigned int account_get_normal_losses(t_account * account, t_clienttag c
     
     if (!clienttag)
     {
-	eventlog(eventlog_level_error,"account_get_normal_losses","got bad clienttag");
+	eventlog(eventlog_level_error,__FUNCTION__,"got bad clienttag");
 	return 0;
     }
     sprintf(key,"Record\\%s\\0\\losses",tag_uint_to_str(clienttag_str,clienttag));
@@ -508,7 +508,7 @@ extern int account_inc_normal_losses(t_account * account, t_clienttag clienttag)
     
     if (!clienttag)
     {
-	eventlog(eventlog_level_error,"account_inc_normal_losses","got bad clienttag");
+	eventlog(eventlog_level_error,__FUNCTION__,"got bad clienttag");
 	return -1;
     }
     sprintf(key,"Record\\%s\\0\\losses",tag_uint_to_str(clienttag_str,clienttag));
@@ -537,7 +537,7 @@ extern unsigned int account_get_normal_draws(t_account * account, t_clienttag cl
     
     if (!clienttag)
     {
-	eventlog(eventlog_level_error,"account_get_normal_draws","got bad clienttag");
+	eventlog(eventlog_level_error,__FUNCTION__,"got bad clienttag");
 	return 0;
     }
     sprintf(key,"Record\\%s\\0\\draws",tag_uint_to_str(clienttag_str,clienttag));
@@ -552,7 +552,7 @@ extern int account_inc_normal_draws(t_account * account, t_clienttag clienttag)
     
     if (!clienttag)
     {
-	eventlog(eventlog_level_error,"account_inc_normal_draws","got bad clienttag");
+	eventlog(eventlog_level_error,__FUNCTION__,"got bad clienttag");
 	return -1;
     }
     sprintf(key,"Record\\%s\\0\\draws",tag_uint_to_str(clienttag_str,clienttag));
@@ -567,7 +567,7 @@ extern unsigned int account_get_normal_disconnects(t_account * account, t_client
     
     if (!clienttag)
     {
-	eventlog(eventlog_level_error,"account_get_normal_disconnects","got bad clienttag");
+	eventlog(eventlog_level_error,__FUNCTION__,"got bad clienttag");
 	return 0;
     }
     sprintf(key,"Record\\%s\\0\\disconnects",tag_uint_to_str(clienttag_str,clienttag));
@@ -582,7 +582,7 @@ extern int account_inc_normal_disconnects(t_account * account, t_clienttag clien
     
     if (!clienttag)
     {
-	eventlog(eventlog_level_error,"account_inc_normal_disconnects","got bad clienttag");
+	eventlog(eventlog_level_error,__FUNCTION__,"got bad clienttag");
 	return -1;
     }
     sprintf(key,"Record\\%s\\0\\disconnects",tag_uint_to_str(clienttag_str,clienttag));
@@ -596,7 +596,7 @@ extern int account_set_normal_disconnects(t_account * account, t_clienttag clien
     char clienttag_str[5];
 
     if (!clienttag) {
-	eventlog(eventlog_level_error,"account_inc_normal_disconnects","got bad clienttag");
+	eventlog(eventlog_level_error,__FUNCTION__,"got bad clienttag");
 	return -1;
     }
     sprintf(key,"Record\\%s\\0\\disconnects",tag_uint_to_str(clienttag_str,clienttag));
@@ -611,7 +611,7 @@ extern int account_set_normal_last_time(t_account * account, t_clienttag clientt
     
     if (!clienttag)
     {
-	eventlog(eventlog_level_error,"account_set_normal_last_time","got bad clienttag");
+	eventlog(eventlog_level_error,__FUNCTION__,"got bad clienttag");
 	return -1;
     }
     sprintf(key,"Record\\%s\\0\\last game",tag_uint_to_str(clienttag_str,clienttag));
@@ -626,7 +626,7 @@ extern int account_set_normal_last_result(t_account * account, t_clienttag clien
     
     if (!clienttag)
     {
-	eventlog(eventlog_level_error,"account_set_normal_last_result","got bad clienttag");
+	eventlog(eventlog_level_error,__FUNCTION__,"got bad clienttag");
 	return -1;
     }
     sprintf(key,"Record\\%s\\0\\last game result",tag_uint_to_str(clienttag_str,clienttag));
@@ -644,7 +644,7 @@ extern unsigned int account_get_ladder_active_wins(t_account * account, t_client
     
     if (!clienttag)
     {
-	eventlog(eventlog_level_error,"account_get_ladder_active_wins","got bad clienttag");
+	eventlog(eventlog_level_error,__FUNCTION__,"got bad clienttag");
 	return 0;
     }
     sprintf(key,"Record\\%s\\%d\\active wins",tag_uint_to_str(clienttag_str,clienttag),(int)id);
@@ -659,7 +659,7 @@ extern int account_set_ladder_active_wins(t_account * account, t_clienttag clien
     
     if (!clienttag)
     {
-	eventlog(eventlog_level_error,"account_set_ladder_active_wins","got bad clienttag");
+	eventlog(eventlog_level_error,__FUNCTION__,"got bad clienttag");
 	return -1;
     }
     sprintf(key,"Record\\%s\\%d\\active wins",tag_uint_to_str(clienttag_str,clienttag),(int)id);
@@ -674,7 +674,7 @@ extern unsigned int account_get_ladder_active_losses(t_account * account, t_clie
     
     if (!clienttag)
     {
-	eventlog(eventlog_level_error,"account_get_ladder_active_losses","got bad clienttag");
+	eventlog(eventlog_level_error,__FUNCTION__,"got bad clienttag");
 	return 0;
     }
     sprintf(key,"Record\\%s\\%d\\active losses",tag_uint_to_str(clienttag_str,clienttag),(int)id);
@@ -689,7 +689,7 @@ extern int account_set_ladder_active_losses(t_account * account, t_clienttag cli
     
     if (!clienttag)
     {
-	eventlog(eventlog_level_error,"account_set_ladder_active_losses","got bad clienttag");
+	eventlog(eventlog_level_error,__FUNCTION__,"got bad clienttag");
 	return -1;
     }
     sprintf(key,"Record\\%s\\%d\\active losses",tag_uint_to_str(clienttag_str,clienttag),(int)id);
@@ -704,7 +704,7 @@ extern unsigned int account_get_ladder_active_draws(t_account * account, t_clien
     
     if (!clienttag)
     {
-	eventlog(eventlog_level_error,"account_get_ladder_active_draws","got bad clienttag");
+	eventlog(eventlog_level_error,__FUNCTION__,"got bad clienttag");
 	return 0;
     }
     sprintf(key,"Record\\%s\\%d\\active draws",tag_uint_to_str(clienttag_str,clienttag),(int)id);
@@ -719,7 +719,7 @@ extern int account_set_ladder_active_draws(t_account * account, t_clienttag clie
     
     if (!clienttag)
     {
-	eventlog(eventlog_level_error,"account_set_ladder_active_draws","got bad clienttag");
+	eventlog(eventlog_level_error,__FUNCTION__,"got bad clienttag");
 	return -1;
     }
     sprintf(key,"Record\\%s\\%d\\active draws",tag_uint_to_str(clienttag_str,clienttag),(int)id);
@@ -734,7 +734,7 @@ extern unsigned int account_get_ladder_active_disconnects(t_account * account, t
     
     if (!clienttag)
     {
-	eventlog(eventlog_level_error,"account_get_ladder_active_disconnects","got bad clienttag");
+	eventlog(eventlog_level_error,__FUNCTION__,"got bad clienttag");
 	return 0;
     }
     sprintf(key,"Record\\%s\\%d\\active disconnects",tag_uint_to_str(clienttag_str,clienttag),(int)id);
@@ -749,7 +749,7 @@ extern int account_set_ladder_active_disconnects(t_account * account, t_clientta
     
     if (!clienttag)
     {
-	eventlog(eventlog_level_error,"account_set_ladder_active_disconnects","got bad clienttag");
+	eventlog(eventlog_level_error,__FUNCTION__,"got bad clienttag");
 	return -1;
     }
     sprintf(key,"Record\\%s\\%d\\active disconnects",tag_uint_to_str(clienttag_str,clienttag),(int)id);
@@ -764,7 +764,7 @@ extern unsigned int account_get_ladder_active_rating(t_account * account, t_clie
     
     if (!clienttag)
     {
-	eventlog(eventlog_level_error,"account_get_ladder_active_rating","got bad clienttag");
+	eventlog(eventlog_level_error,__FUNCTION__,"got bad clienttag");
 	return 0;
     }
     sprintf(key,"Record\\%s\\%d\\active rating",tag_uint_to_str(clienttag_str,clienttag),(int)id);
@@ -779,7 +779,7 @@ extern int account_set_ladder_active_rating(t_account * account, t_clienttag cli
     
     if (!clienttag)
     {
-	eventlog(eventlog_level_error,"account_set_ladder_active_rating","got bad clienttag");
+	eventlog(eventlog_level_error,__FUNCTION__,"got bad clienttag");
 	return -1;
     }
     sprintf(key,"Record\\%s\\%d\\active rating",tag_uint_to_str(clienttag_str,clienttag),(int)id);
@@ -794,7 +794,7 @@ extern int account_get_ladder_active_rank(t_account * account, t_clienttag clien
     
     if (!clienttag)
     {
-	eventlog(eventlog_level_error,"account_get_ladder_active_rank","got bad clienttag");
+	eventlog(eventlog_level_error,__FUNCTION__,"got bad clienttag");
 	return 0;
     }
     sprintf(key,"Record\\%s\\%d\\active rank",tag_uint_to_str(clienttag_str,clienttag),(int)id);
@@ -809,7 +809,7 @@ extern int account_set_ladder_active_rank(t_account * account, t_clienttag clien
     
     if (!clienttag)
     {
-	eventlog(eventlog_level_error,"account_set_ladder_active_rank","got bad clienttag");
+	eventlog(eventlog_level_error,__FUNCTION__,"got bad clienttag");
 	return -1;
     }
     sprintf(key,"Record\\%s\\%d\\active rank",tag_uint_to_str(clienttag_str,clienttag),(int)id);
@@ -824,7 +824,7 @@ extern char const * account_get_ladder_active_last_time(t_account * account, t_c
     
     if (!clienttag)
     {
-	eventlog(eventlog_level_error,"account_get_ladder_active_last_time","got bad clienttag");
+	eventlog(eventlog_level_error,__FUNCTION__,"got bad clienttag");
 	return NULL;
     }
     sprintf(key,"Record\\%s\\%d\\active last game",tag_uint_to_str(clienttag_str,clienttag),(int)id);
@@ -839,7 +839,7 @@ extern int account_set_ladder_active_last_time(t_account * account, t_clienttag 
     
     if (!clienttag)
     {
-	eventlog(eventlog_level_error,"account_set_ladder_active_last_time","got bad clienttag");
+	eventlog(eventlog_level_error,__FUNCTION__,"got bad clienttag");
 	return -1;
     }
     sprintf(key,"Record\\%s\\%d\\active last game",tag_uint_to_str(clienttag_str,clienttag),(int)id);
@@ -856,7 +856,7 @@ extern unsigned int account_get_ladder_wins(t_account * account, t_clienttag cli
     
     if (!clienttag)
     {
-	eventlog(eventlog_level_error,"account_get_ladder_wins","got bad clienttag");
+	eventlog(eventlog_level_error,__FUNCTION__,"got bad clienttag");
 	return 0;
     }
     sprintf(key,"Record\\%s\\%s\\wins",tag_uint_to_str(clienttag_str,clienttag),ladder_id_str[(int)id]);
@@ -871,7 +871,7 @@ extern int account_inc_ladder_wins(t_account * account, t_clienttag clienttag, t
     
     if (!clienttag)
     {
-	eventlog(eventlog_level_error,"account_inc_ladder_wins","got bad clienttag");
+	eventlog(eventlog_level_error,__FUNCTION__,"got bad clienttag");
 	return -1;
     }
     sprintf(key,"Record\\%s\\%s\\wins",tag_uint_to_str(clienttag_str,clienttag),ladder_id_str[(int)id]);
@@ -900,7 +900,7 @@ extern unsigned int account_get_ladder_losses(t_account * account, t_clienttag c
     
     if (!clienttag)
     {
-	eventlog(eventlog_level_error,"account_get_ladder_losses","got bad clienttag");
+	eventlog(eventlog_level_error,__FUNCTION__,"got bad clienttag");
 	return 0;
     }
     sprintf(key,"Record\\%s\\%s\\losses",tag_uint_to_str(clienttag_str,clienttag),ladder_id_str[(int)id]);
@@ -915,7 +915,7 @@ extern int account_inc_ladder_losses(t_account * account, t_clienttag clienttag,
     
     if (!clienttag)
     {
-       eventlog(eventlog_level_error,"account_inc_ladder_losses","got bad clienttag");
+       eventlog(eventlog_level_error,__FUNCTION__,"got bad clienttag");
        return -1;
     }
     sprintf(key,"Record\\%s\\%s\\losses",tag_uint_to_str(clienttag_str,clienttag),ladder_id_str[(int)id]);
@@ -944,7 +944,7 @@ extern unsigned int account_get_ladder_draws(t_account * account, t_clienttag cl
     
     if (!clienttag)
     {
-	eventlog(eventlog_level_error,"account_get_ladder_draws","got bad clienttag");
+	eventlog(eventlog_level_error,__FUNCTION__,"got bad clienttag");
 	return 0;
     }
     sprintf(key,"Record\\%s\\%d\\draws",tag_uint_to_str(clienttag_str,clienttag),(int)id);
@@ -959,7 +959,7 @@ extern int account_inc_ladder_draws(t_account * account, t_clienttag clienttag, 
     
     if (!clienttag)
     {
-       eventlog(eventlog_level_error,"account_inc_ladder_draws","got bad clienttag");
+       eventlog(eventlog_level_error,__FUNCTION__,"got bad clienttag");
        return -1;
     }
     sprintf(key,"Record\\%s\\%d\\draws",tag_uint_to_str(clienttag_str,clienttag),(int)id);
@@ -974,7 +974,7 @@ extern unsigned int account_get_ladder_disconnects(t_account * account, t_client
     
     if (!clienttag)
     {
-	eventlog(eventlog_level_error,"account_get_ladder_disconnects","got bad clienttag");
+	eventlog(eventlog_level_error,__FUNCTION__,"got bad clienttag");
 	return 0;
     }
     sprintf(key,"Record\\%s\\%d\\disconnects",tag_uint_to_str(clienttag_str,clienttag),(int)id);
@@ -989,7 +989,7 @@ extern int account_inc_ladder_disconnects(t_account * account, t_clienttag clien
     
     if (!clienttag)
     {
-       eventlog(eventlog_level_error,"account_inc_ladder_disconnects","got bad clienttag");
+       eventlog(eventlog_level_error,__FUNCTION__,"got bad clienttag");
        return -1;
     }
     sprintf(key,"Record\\%s\\%d\\disconnects",tag_uint_to_str(clienttag_str,clienttag),(int)id);
@@ -1018,7 +1018,7 @@ extern unsigned int account_get_ladder_rating(t_account * account, t_clienttag c
     
     if (!clienttag)
     {
-	eventlog(eventlog_level_error,"account_get_ladder_rating","got bad clienttag");
+	eventlog(eventlog_level_error,__FUNCTION__,"got bad clienttag");
 	return 0;
     }
     sprintf(key,"Record\\%s\\%d\\rating",tag_uint_to_str(clienttag_str,clienttag),(int)id);
@@ -1033,7 +1033,7 @@ extern int account_set_ladder_rating(t_account * account, t_clienttag clienttag,
     
     if (!clienttag)
     {
-	eventlog(eventlog_level_error,"account_get_ladder_rating","got bad clienttag");
+	eventlog(eventlog_level_error,__FUNCTION__,"got bad clienttag");
 	return 0;
     }
     sprintf(key,"Record\\%s\\%d\\rating",tag_uint_to_str(clienttag_str,clienttag),(int)id);
@@ -1051,7 +1051,7 @@ extern int account_adjust_ladder_rating(t_account * account, t_clienttag clientt
     
     if (!clienttag)
     {
-       eventlog(eventlog_level_error,"account_adjust_ladder_rating","got bad clienttag");
+       eventlog(eventlog_level_error,__FUNCTION__,"got bad clienttag");
        return -1;
     }
     sprintf(key,"Record\\%s\\%d\\rating",tag_uint_to_str(clienttag_str,clienttag),(int)id);
@@ -1083,7 +1083,7 @@ extern int account_get_ladder_rank(t_account * account, t_clienttag clienttag, t
     
     if (!clienttag)
     {
-	eventlog(eventlog_level_error,"account_get_ladder_rank","got bad clienttag");
+	eventlog(eventlog_level_error,__FUNCTION__,"got bad clienttag");
 	return 0;
     }
     sprintf(key,"Record\\%s\\%s\\rank",tag_uint_to_str(clienttag_str,clienttag),ladder_id_str[(int)id]);
@@ -1100,11 +1100,11 @@ extern int account_set_ladder_rank(t_account * account, t_clienttag clienttag, t
     
     if (!clienttag)
     {
-       eventlog(eventlog_level_error,"account_set_ladder_rank","got bad clienttag");
+       eventlog(eventlog_level_error,__FUNCTION__,"got bad clienttag");
        return -1;
     }
     // if (rank==0)
-    //    eventlog(eventlog_level_warn,"account_set_ladder_rank","setting rank to zero?");
+    //    eventlog(eventlog_level_warn,__FUNCTION__,"setting rank to zero?");
     sprintf(key,"Record\\%s\\%s\\rank",tag_uint_to_str(clienttag_str,clienttag),ladder_id_str[(int)id]);
     if (account_set_numattr(account,key,rank)<0)
 	retval = -1;
@@ -1126,7 +1126,7 @@ extern unsigned int account_get_ladder_high_rating(t_account * account, t_client
     
     if (!clienttag)
     {
-	eventlog(eventlog_level_error,"account_get_ladder_high_rating","got bad clienttag");
+	eventlog(eventlog_level_error,__FUNCTION__,"got bad clienttag");
 	return 0;
     }
     sprintf(key,"Record\\%s\\%d\\high rating",tag_uint_to_str(clienttag_str,clienttag),(int)id);
@@ -1141,7 +1141,7 @@ extern unsigned int account_get_ladder_high_rank(t_account * account, t_clientta
     
     if (!clienttag)
     {
-	eventlog(eventlog_level_error,"account_get_ladder_high_rank","got bad clienttag");
+	eventlog(eventlog_level_error,__FUNCTION__,"got bad clienttag");
 	return 0;
     }
     sprintf(key,"Record\\%s\\%d\\high_rank",tag_uint_to_str(clienttag_str,clienttag),(int)id);
@@ -1156,7 +1156,7 @@ extern int account_set_ladder_last_time(t_account * account, t_clienttag clientt
     
     if (!clienttag)
     {
-	eventlog(eventlog_level_error,"account_set_ladder_last_time","got bad clienttag");
+	eventlog(eventlog_level_error,__FUNCTION__,"got bad clienttag");
 	return -1;
     }
     sprintf(key,"Record\\%s\\%d\\last game",tag_uint_to_str(clienttag_str,clienttag),(int)id);
@@ -1171,7 +1171,7 @@ extern char const * account_get_ladder_last_time(t_account * account, t_clientta
     
     if (!clienttag)
     {
-	eventlog(eventlog_level_error,"account_get_ladder_last_time","got bad clienttag");
+	eventlog(eventlog_level_error,__FUNCTION__,"got bad clienttag");
 	return NULL;
     }
     sprintf(key,"Record\\%s\\%d\\last game",tag_uint_to_str(clienttag_str,clienttag),(int)id);
@@ -1186,7 +1186,7 @@ extern int account_set_ladder_last_result(t_account * account, t_clienttag clien
     
     if (!clienttag)
     {
-	eventlog(eventlog_level_error,"account_set_ladder_last_result","got bad clienttag");
+	eventlog(eventlog_level_error,__FUNCTION__,"got bad clienttag");
 	return -1;
     }
     sprintf(key,"Record\\%s\\%d\\last game result",tag_uint_to_str(clienttag_str,clienttag),(int)id);
@@ -1204,7 +1204,7 @@ extern unsigned int account_get_normal_level(t_account * account, t_clienttag cl
     
     if (!clienttag)
     {
-	eventlog(eventlog_level_error,"account_get_normal_level","got bad clienttag");
+	eventlog(eventlog_level_error,__FUNCTION__,"got bad clienttag");
 	return 0;
     }
     sprintf(key,"Record\\%s\\0\\level",tag_uint_to_str(clienttag_str,clienttag));
@@ -1219,7 +1219,7 @@ extern int account_set_normal_level(t_account * account, t_clienttag clienttag, 
     
     if (!clienttag)
     {
-	eventlog(eventlog_level_error,"account_set_normal_level","got bad clienttag");
+	eventlog(eventlog_level_error,__FUNCTION__,"got bad clienttag");
 	return -1;
     }
     sprintf(key,"Record\\%s\\0\\level",tag_uint_to_str(clienttag_str,clienttag));
@@ -1234,7 +1234,7 @@ extern unsigned int account_get_normal_class(t_account * account, t_clienttag cl
     
     if (!clienttag)
     {
-	eventlog(eventlog_level_error,"account_get_normal_class","got bad clienttag");
+	eventlog(eventlog_level_error,__FUNCTION__,"got bad clienttag");
 	return 0;
     }
     sprintf(key,"Record\\%s\\0\\class",tag_uint_to_str(clienttag_str,clienttag));
@@ -1249,7 +1249,7 @@ extern int account_set_normal_class(t_account * account, t_clienttag clienttag, 
     
     if (!clienttag)
     {
-	eventlog(eventlog_level_error,"account_set_normal_class","got bad clienttag");
+	eventlog(eventlog_level_error,__FUNCTION__,"got bad clienttag");
 	return -1;
     }
     sprintf(key,"Record\\%s\\0\\class",tag_uint_to_str(clienttag_str,clienttag));
@@ -1264,7 +1264,7 @@ extern unsigned int account_get_normal_diablo_kills(t_account * account, t_clien
     
     if (!clienttag)
     {
-	eventlog(eventlog_level_error,"account_get_normal_diablo_kills","got bad clienttag");
+	eventlog(eventlog_level_error,__FUNCTION__,"got bad clienttag");
 	return 0;
     }
     sprintf(key,"Record\\%s\\0\\diablo kills",tag_uint_to_str(clienttag_str,clienttag));
@@ -1279,7 +1279,7 @@ extern int account_set_normal_diablo_kills(t_account * account, t_clienttag clie
     
     if (!clienttag)
     {
-	eventlog(eventlog_level_error,"account_set_normal_diablo_kills","got bad clienttag");
+	eventlog(eventlog_level_error,__FUNCTION__,"got bad clienttag");
 	return -1;
     }
     sprintf(key,"Record\\%s\\0\\diablo kills",tag_uint_to_str(clienttag_str,clienttag));
@@ -1294,7 +1294,7 @@ extern unsigned int account_get_normal_strength(t_account * account, t_clienttag
     
     if (!clienttag)
     {
-	eventlog(eventlog_level_error,"account_get_normal_strength","got bad clienttag");
+	eventlog(eventlog_level_error,__FUNCTION__,"got bad clienttag");
 	return 0;
     }
     sprintf(key,"Record\\%s\\0\\strength",tag_uint_to_str(clienttag_str,clienttag));
@@ -1309,7 +1309,7 @@ extern int account_set_normal_strength(t_account * account, t_clienttag clientta
     
     if (!clienttag)
     {
-	eventlog(eventlog_level_error,"account_set_normal_strength","got bad clienttag");
+	eventlog(eventlog_level_error,__FUNCTION__,"got bad clienttag");
 	return -1;
     }
     sprintf(key,"Record\\%s\\0\\strength",tag_uint_to_str(clienttag_str,clienttag));
@@ -1324,7 +1324,7 @@ extern unsigned int account_get_normal_magic(t_account * account, t_clienttag cl
     
     if (!clienttag)
     {
-	eventlog(eventlog_level_error,"account_get_normal_magic","got bad clienttag");
+	eventlog(eventlog_level_error,__FUNCTION__,"got bad clienttag");
 	return 0;
     }
     sprintf(key,"Record\\%s\\0\\magic",tag_uint_to_str(clienttag_str,clienttag));
@@ -1339,7 +1339,7 @@ extern int account_set_normal_magic(t_account * account, t_clienttag clienttag, 
     
     if (!clienttag)
     {
-	eventlog(eventlog_level_error,"account_set_normal_magic","got bad clienttag");
+	eventlog(eventlog_level_error,__FUNCTION__,"got bad clienttag");
 	return -1;
     }
     sprintf(key,"Record\\%s\\0\\magic",tag_uint_to_str(clienttag_str,clienttag));
@@ -1354,7 +1354,7 @@ extern unsigned int account_get_normal_dexterity(t_account * account, t_clientta
     
     if (!clienttag)
     {
-	eventlog(eventlog_level_error,"account_get_normal_dexterity","got bad clienttag");
+	eventlog(eventlog_level_error,__FUNCTION__,"got bad clienttag");
 	return 0;
     }
     sprintf(key,"Record\\%s\\0\\dexterity",tag_uint_to_str(clienttag_str,clienttag));
@@ -1369,7 +1369,7 @@ extern int account_set_normal_dexterity(t_account * account, t_clienttag clientt
     
     if (!clienttag)
     {
-	eventlog(eventlog_level_error,"account_set_normal_dexterity","got bad clienttag");
+	eventlog(eventlog_level_error,__FUNCTION__,"got bad clienttag");
 	return -1;
     }
     sprintf(key,"Record\\%s\\0\\dexterity",tag_uint_to_str(clienttag_str,clienttag));
@@ -1384,7 +1384,7 @@ extern unsigned int account_get_normal_vitality(t_account * account, t_clienttag
     
     if (!clienttag)
     {
-	eventlog(eventlog_level_error,"account_get_normal_vitality","got bad clienttag");
+	eventlog(eventlog_level_error,__FUNCTION__,"got bad clienttag");
 	return 0;
     }
     sprintf(key,"Record\\%s\\0\\vitality",tag_uint_to_str(clienttag_str,clienttag));
@@ -1399,7 +1399,7 @@ extern int account_set_normal_vitality(t_account * account, t_clienttag clientta
     
     if (!clienttag)
     {
-	eventlog(eventlog_level_error,"account_set_normal_vitality","got bad clienttag");
+	eventlog(eventlog_level_error,__FUNCTION__,"got bad clienttag");
 	return -1;
     }
     sprintf(key,"Record\\%s\\0\\vitality",tag_uint_to_str(clienttag_str,clienttag));
@@ -1414,7 +1414,7 @@ extern unsigned int account_get_normal_gold(t_account * account, t_clienttag cli
     
     if (!clienttag)
     {
-	eventlog(eventlog_level_error,"account_get_normal_gold","got bad clienttag");
+	eventlog(eventlog_level_error,__FUNCTION__,"got bad clienttag");
 	return 0;
     }
     sprintf(key,"Record\\%s\\0\\gold",tag_uint_to_str(clienttag_str,clienttag));
@@ -1429,7 +1429,7 @@ extern int account_set_normal_gold(t_account * account, t_clienttag clienttag, u
     
     if (!clienttag)
     {
-	eventlog(eventlog_level_error,"account_set_normal_gold","got bad clienttag");
+	eventlog(eventlog_level_error,__FUNCTION__,"got bad clienttag");
 	return -1;
     }
     sprintf(key,"Record\\%s\\0\\gold",tag_uint_to_str(clienttag_str,clienttag));
@@ -1447,7 +1447,7 @@ extern int account_check_closed_character(t_account * account, t_clienttag clien
 
     if (charlist == NULL)
     {
-        eventlog(eventlog_level_debug,"account_check_closed_character","no characters in Realm %s",realmname);
+        eventlog(eventlog_level_debug,__FUNCTION__,"no characters in Realm %s",realmname);
     }
     else
     {
@@ -1457,7 +1457,7 @@ extern int account_check_closed_character(t_account * account, t_clienttag clien
 	int    name_len;
 	int    i;
 
-	eventlog(eventlog_level_debug,"account_check_closed_character","got characterlist \"%s\" for Realm %s",charlist,realmname);
+	eventlog(eventlog_level_debug,__FUNCTION__,"got characterlist \"%s\" for Realm %s",charlist,realmname);
 
 	list_len  = strlen(charlist);
 	start     = charlist;
@@ -1471,7 +1471,7 @@ extern int account_check_closed_character(t_account * account, t_clienttag clien
 	        strncpy(tempname, start, name_len);
 		tempname[name_len] = '\0';
 
-	        eventlog(eventlog_level_debug,"account_check_closed_character","found character \"%s\"",tempname);
+	        eventlog(eventlog_level_debug,__FUNCTION__,"found character \"%s\"",tempname);
 
 		if (strcmp(tempname, charname) == 0)
 		    return 1;
@@ -1485,7 +1485,7 @@ extern int account_check_closed_character(t_account * account, t_clienttag clien
 	strncpy(tempname, start, name_len);
 	tempname[name_len] = '\0';
 
-	eventlog(eventlog_level_debug,"account_check_closed_character","found tail character \"%s\"",tempname);
+	eventlog(eventlog_level_debug,__FUNCTION__,"found tail character \"%s\"",tempname);
 
 	if (strcmp(tempname, charname) == 0)
 	    return 1;
@@ -1502,24 +1502,24 @@ extern char const * account_get_closed_characterlist(t_account * account, t_clie
     
     if (!clienttag)
     {
-	eventlog(eventlog_level_error,"account_get_closed_characterlist","got bad clienttag");
+	eventlog(eventlog_level_error,__FUNCTION__,"got bad clienttag");
 	return NULL;
     }
 
     if (!realmname)
     {
-        eventlog(eventlog_level_error,"account_get_closed_characterlist","got NULL realmname");
+        eventlog(eventlog_level_error,__FUNCTION__,"got NULL realmname");
 	return NULL;
     }
 
     if (!account)
     {
-        eventlog(eventlog_level_error,"account_get_closed_characterlist","got NULL account");
+        eventlog(eventlog_level_error,__FUNCTION__,"got NULL account");
 	return NULL;
     }
 
     sprintf(realmkey,"BNET\\CharacterList\\%s\\%s\\0",tag_uint_to_str(clienttag_str,clienttag),realmname);
-    eventlog(eventlog_level_debug,"account_get_closed_characterlist","looking for '%s'",realmkey);
+    eventlog(eventlog_level_debug,__FUNCTION__,"looking for '%s'",realmkey);
 
     return account_get_strattr(account, realmkey);
 }
@@ -1532,11 +1532,11 @@ extern int account_set_closed_characterlist(t_account * account, t_clienttag cli
     
     if (!clienttag)
     {
-	eventlog(eventlog_level_error,"account_set_closed_characterlist","got bad clienttag");
+	eventlog(eventlog_level_error,__FUNCTION__,"got bad clienttag");
 	return -1;
     }
 
-    eventlog(eventlog_level_debug,"account_set_closed_characterlist, clienttag='%s', charlist='%s'",tag_uint_to_str(clienttag_str,clienttag),charlist);
+    eventlog(eventlog_level_debug,__FUNCTION__ ,"clienttag='%s', charlist='%s'",tag_uint_to_str(clienttag_str,clienttag),charlist);
 
     sprintf(key,"BNET\\Characters\\%s\\0",tag_uint_to_str(clienttag_str,clienttag));
     return account_set_strattr(account,key,charlist);
@@ -1552,17 +1552,17 @@ extern int account_add_closed_character(t_account * account, t_clienttag clientt
     
     if (!clienttag)
     {
-	eventlog(eventlog_level_error,"account_add_closed_character","got bad clienttag");
+	eventlog(eventlog_level_error,__FUNCTION__,"got bad clienttag");
 	return -1;
     }
 
     if (!ch)
     {
-	eventlog(eventlog_level_error,"account_add_closed_character","got NULL character");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL character");
 	return -1;
     }
 
-    eventlog(eventlog_level_debug,"account_add_closed_character","clienttag=\"%s\", realm=\"%s\", name=\"%s\"",tag_uint_to_str(clienttag_str,clienttag),ch->realmname,ch->name);
+    eventlog(eventlog_level_debug,__FUNCTION__,"clienttag=\"%s\", realm=\"%s\", name=\"%s\"",tag_uint_to_str(clienttag_str,clienttag),ch->realmname,ch->name);
 
     sprintf(key,"BNET\\CharacterList\\%s\\%s\\0",tag_uint_to_str(clienttag_str,clienttag),ch->realmname);
     old_list = account_get_strattr(account, key);
@@ -1575,7 +1575,7 @@ extern int account_add_closed_character(t_account * account, t_clienttag clientt
         sprintf(chars_in_realm, "%s", ch->name);
     }
 
-    eventlog(eventlog_level_debug,"account_add_closed_character","new character list for realm \"%s\" is \"%s\"", ch->realmname, chars_in_realm);
+    eventlog(eventlog_level_debug,__FUNCTION__,"new character list for realm \"%s\" is \"%s\"", ch->realmname, chars_in_realm);
     account_set_strattr(account, key, chars_in_realm);
 
     sprintf(key,"BNET\\Characters\\%s\\%s\\%s\\0",tag_uint_to_str(clienttag_str,clienttag),ch->realmname,ch->name);
@@ -1583,8 +1583,8 @@ extern int account_add_closed_character(t_account * account, t_clienttag clientt
     account_set_strattr(account,key,hex_buffer);
 
     /*
-    eventlog(eventlog_level_debug,"account_add_closed_character","key \"%s\"", key);
-    eventlog(eventlog_level_debug,"account_add_closed_character","value \"%s\"", hex_buffer);
+    eventlog(eventlog_level_debug,__FUNCTION__,"key \"%s\"", key);
+    eventlog(eventlog_level_debug,__FUNCTION__,"value \"%s\"", hex_buffer);
     */
 
     return 0;
@@ -1802,7 +1802,7 @@ extern char const * race_get_str(unsigned int race)
 	case W3_ICON_DEMONS:
 		return "demons";
 	default:
-	    eventlog(eventlog_level_warn,"race_get_str","unknown race: %x", race);
+	    eventlog(eventlog_level_warn,__FUNCTION__,"unknown race: %x", race);
 	    return NULL;
 	}
 }
@@ -2046,7 +2046,7 @@ extern int account_set_saveladderstats(t_account * account,unsigned int gametype
 	t_ladder * ladder;
 
 	if(!account) {
-		eventlog(eventlog_level_error, "account_set_saveladderstats", "got NULL account");
+		eventlog(eventlog_level_error, __FUNCTION__, "got NULL account");
 		return -1;
 	}
 
@@ -2088,7 +2088,7 @@ extern int account_set_saveladderstats(t_account * account,unsigned int gametype
                 break;
 	  }
 	  default:
-		eventlog(eventlog_level_error,"account_set_saveladderstats","Invalid Gametype? %u",gametype);
+		eventlog(eventlog_level_error,__FUNCTION__,"Invalid Gametype? %u",gametype);
 		return -1;
 	}
 
@@ -2170,8 +2170,8 @@ extern int account_get_highestladderlevel(t_account * account,t_clienttag client
 		}
 	}
 
-	eventlog(eventlog_level_debug,"account_get_highestladderlevel","Checking for highest level in Solo,Team,FFA,AT Ladder Stats");
-	eventlog(eventlog_level_debug,"account_get_highestladderlevel","Solo Level: %d, Team Level %d, FFA Level %d, Highest AT Team Level: %d",sololevel,teamlevel,ffalevel,atlevel);
+	eventlog(eventlog_level_debug,__FUNCTION__,"Checking for highest level in Solo,Team,FFA,AT Ladder Stats");
+	eventlog(eventlog_level_debug,__FUNCTION__,"Solo Level: %d, Team Level %d, FFA Level %d, Highest AT Team Level: %d",sololevel,teamlevel,ffalevel,atlevel);
 			
 	if(sololevel >= teamlevel && sololevel >= atlevel && sololevel >= ffalevel)
 		return sololevel;
@@ -2280,7 +2280,7 @@ extern unsigned int account_get_icon_profile(t_account * account, t_clienttag cl
 	  number_ctag = 6;
 	}
         
-        eventlog(eventlog_level_info,"account_get_icon_profile","race -> %u; level -> %u; wins -> %u; profileicon -> %s", race, level, wins, profile_code[race+number_ctag][level]);
+        eventlog(eventlog_level_info,__FUNCTION__,"race -> %u; level -> %u; wins -> %u; profileicon -> %s", race, level, wins, profile_code[race+number_ctag][level]);
 
 	return char_icon_to_uint(profile_code[race+number_ctag][level]);
 }
@@ -2312,17 +2312,17 @@ extern unsigned int account_icon_to_profile_icon(char const * icon,t_account * a
 			}else if (tmp_icon[1]=='D'){
 				result = profile_code[5+number_ctag][tmp_icon[0]-1];
 			}else{
-				eventlog(eventlog_level_warn,"account_icon_to_profile_icon","got unrecognized race on [%s] icon ",icon);
+				eventlog(eventlog_level_warn,__FUNCTION__,"got unrecognized race on [%s] icon ",icon);
 				result = profile_code[2][0];} /* "opeo" */
 			}else{
-				eventlog(eventlog_level_warn,"account_icon_to_profile_icon","got race_level<1 on [%s] icon ",icon);
+				eventlog(eventlog_level_warn,__FUNCTION__,"got race_level<1 on [%s] icon ",icon);
 				result = NULL;
 			}
 	}else{
-	    eventlog(eventlog_level_error,"account_icon_to_profile_icon","got invalid icon lenght [%s] icon ",icon);
+	    eventlog(eventlog_level_error,__FUNCTION__,"got invalid icon lenght [%s] icon ",icon);
 	    result = NULL;
 	}
-	//eventlog(eventlog_level_debug,"account_icon_to_profile_icon","from [%4.4s] icon returned [0x%X]",icon,char_icon_to_uint(result));
+	//eventlog(eventlog_level_debug,__FUNCTION__,"from [%4.4s] icon returned [0x%X]",icon,char_icon_to_uint(result));
 	return char_icon_to_uint(result);
 }
 
@@ -2355,7 +2355,7 @@ extern char const * account_get_email(t_account * account)
 {
 	if(!account)
 	{
-		eventlog(eventlog_level_error,"account_get_new_at_team","Unable to set account flag to TRUE");
+		eventlog(eventlog_level_error,__FUNCTION__,"Unable to set account flag to TRUE");
 		return NULL;
 	}
 
@@ -2366,7 +2366,7 @@ extern int account_set_email(t_account * account, char const * email)
 {
 	if(!account)
 	{
-		eventlog(eventlog_level_error,"account_get_new_at_team","Unable to set account flag to TRUE");
+		eventlog(eventlog_level_error,__FUNCTION__,"Unable to set account flag to TRUE");
 		return -1;
 	}
 

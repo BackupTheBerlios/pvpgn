@@ -288,7 +288,7 @@ extern unsigned int account_get_uid(t_account const * account)
 {
     if (!account)
     {
-	eventlog(eventlog_level_error,"account_get_uid","got NULL account");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL account");
 	return -1;
     }
     return account->uid;
@@ -303,12 +303,12 @@ extern int account_match(t_account * account, char const * username)
     
     if (!account)
     {
-	eventlog(eventlog_level_error,"account_match","got NULL account");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL account");
 	return -1;
     }
     if (!username)
     {
-	eventlog(eventlog_level_error,"account_match","got NULL username");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL username");
 	return -1;
     }
     
@@ -414,12 +414,12 @@ extern char const * account_get_strattr_real(t_account * account, char const * k
 
     if (!account)
     {
-	eventlog(eventlog_level_error,"account_get_strattr","got NULL account (from %s:%u)",fn,ln);
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL account (from %s:%u)",fn,ln);
 	return NULL;
     }
     if (!key)
     {
-	eventlog(eventlog_level_error,"account_get_strattr","got NULL key (from %s:%u)",fn,ln);
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL key (from %s:%u)",fn,ln);
 	return NULL;
     }
 
@@ -427,7 +427,7 @@ extern char const * account_get_strattr_real(t_account * account, char const * k
     {
         if (account_load_attrs(account)<0)
         {
-            eventlog(eventlog_level_error,"account_get_strattr","could not load attributes");
+            eventlog(eventlog_level_error,__FUNCTION__,"could not load attributes");
             return NULL;
         }
     }
@@ -512,12 +512,12 @@ extern int account_set_strattr(t_account * account, char const * key, char const
     
     if (!account)
     {
-	eventlog(eventlog_level_error,"account_set_strattr","got NULL account");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL account");
 	return -1;
     }
     if (!key)
     {
-	eventlog(eventlog_level_error,"account_set_strattr","got NULL key");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL key");
 	return -1;
     }
 
@@ -525,7 +525,7 @@ extern int account_set_strattr(t_account * account, char const * key, char const
     {
         if (account_load_attrs(account)<0)
 	    {
-	        eventlog(eventlog_level_error,"account_set_strattr","could not load attributes");
+	        eventlog(eventlog_level_error,__FUNCTION__,"could not load attributes");
 	        return -1;
     	}
     }
@@ -624,12 +624,12 @@ static int _cb_load_attr(const char *key, const char *val, void *data)
 static int account_load_attrs(t_account * account)
 {
     if (!account) {
-	eventlog(eventlog_level_error,"account_load_attrs","got NULL account");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL account");
 	return -1;
     }
 
     if (!account->storage) {
-	eventlog(eventlog_level_error,"account_load_attrs","account has NULL filename");
+	eventlog(eventlog_level_error,__FUNCTION__,"account has NULL filename");
 	return -1;
     }
 
@@ -638,7 +638,7 @@ static int account_load_attrs(t_account * account)
 	return 0;
     if (FLAG_ISSET(account->flags,ACCOUNT_FLAG_DIRTY)) /* if not loaded, how dirty? */
     {
-	eventlog(eventlog_level_error,"account_load_attrs","can not load modified account");
+	eventlog(eventlog_level_error,__FUNCTION__,"can not load modified account");
 	return -1;
     }
 
@@ -666,7 +666,7 @@ static t_account * account_load(t_storage_info *storage)
 
     if (!(account = account_create(NULL,NULL)))
     {
-	eventlog(eventlog_level_error,"account_load","could not load account");
+	eventlog(eventlog_level_error,__FUNCTION__,"could not load account");
 	return NULL;
     }
 
@@ -682,17 +682,17 @@ extern int accountlist_load_default(void)
 
     if (!(default_acct = account_load(storage->get_defacct())))
     {
-        eventlog(eventlog_level_error,"accountlist_load_default","could not load default account template");
+        eventlog(eventlog_level_error,__FUNCTION__,"could not load default account template");
 	return -1;
     }
 
     if (account_load_attrs(default_acct)<0)
     {
-	eventlog(eventlog_level_error,"accountlist_load_default","could not load default account template attributes");
+	eventlog(eventlog_level_error,__FUNCTION__,"could not load default account template attributes");
 	return -1;
     }
     
-    eventlog(eventlog_level_debug,"accountlist_load_default","loaded default account template");
+    eventlog(eventlog_level_debug,__FUNCTION__,"loaded default account template");
 
     return 0;
 }
@@ -817,11 +817,11 @@ extern int accountlist_destroy(void)
     HASHTABLE_TRAVERSE(accountlist_head,curr)
     {
 	if (!(account = entry_get_data(curr)))
-	    eventlog(eventlog_level_error,"accountlist_destroy","found NULL account in list");
+	    eventlog(eventlog_level_error,__FUNCTION__,"found NULL account in list");
 	else
 	{
 	    if (account_flush(account, FS_FORCE)<0)
-		eventlog(eventlog_level_error,"accountlist_destroy","could not save account");
+		eventlog(eventlog_level_error,__FUNCTION__,"could not save account");
 	    
 	    account_destroy(account);
 	}
@@ -958,7 +958,7 @@ extern t_account * accountlist_find_account(char const * username)
     
     if (!username)
     {
-	eventlog(eventlog_level_error,"accountlist_find_account","got NULL username");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL username");
 	return NULL;
     }
     
@@ -1139,7 +1139,7 @@ extern t_account * accountlist_create_account(const char *username, const char *
 extern char const * account_get_first_key(t_account * account)
 {
 	if (!account) {
-		eventlog(eventlog_level_error,"account_get_first_key","got NULL account");
+		eventlog(eventlog_level_error,__FUNCTION__,"got NULL account");
 		return NULL;
 	}
 	if (!account->attrs) {
@@ -1153,7 +1153,7 @@ extern char const * account_get_next_key(t_account * account, char const * key)
 	t_attribute * attr;
 
 	if (!account) {
-		eventlog(eventlog_level_error,"account_get_next_key","got NULL account");
+		eventlog(eventlog_level_error,__FUNCTION__,"got NULL account");
 		return NULL;
 	}
 	attr = account->attrs;
@@ -1231,7 +1231,7 @@ extern int account_check_mutual( t_account * account, int myuserid)
     }
 
     if(!myuserid) {
-	eventlog(eventlog_level_error,"account_check_mutual","got NULL userid");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL userid");
 	return -1;
     }
 
@@ -1253,7 +1253,7 @@ extern int account_check_mutual( t_account * account, int myuserid)
 	{
 	    friend = account_get_friend(account,i);
 	    if(!friend)  {
-		eventlog(eventlog_level_error,"account_check_mutual","got NULL friend");
+		eventlog(eventlog_level_error,__FUNCTION__,"got NULL friend");
 		continue;
 	    }
 
