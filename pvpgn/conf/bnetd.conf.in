@@ -288,8 +288,8 @@ hashtable_size = 61
 
 # don't keep track of al the not yet needed accounting infos like
 # lastlogin_owner or lastlogin_clientexe
-# 0 = keep track of all infos; 1 = just keep track of lastlogin_time
-reduced_accounting = 0
+# false = keep track of all infos; true = just keep track of lastlogin_time
+reduced_accounting = false
 
 #                                                                            #
 ##############################################################################
