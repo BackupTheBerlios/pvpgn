@@ -694,10 +694,16 @@ void static guiAddText_user (const char *str, COLORREF clr){
 void static guiAddText(const char *str, COLORREF clr){
  int start_lines, text_length, end_lines;
  CHARRANGE cr;
+ CHARRANGE ds;
  CHARFORMAT fmt;
-     
-	start_lines = SendMessage(gui.hwndConsole, EM_GETLINECOUNT,0,0);
     text_length = SendMessage(gui.hwndConsole, WM_GETTEXTLENGTH, 0, 0);
+    if ( text_length >30000 ){
+	ds.cpMin = 0;
+	ds.cpMax = text_length - 30000;
+	SendMessage(gui.hwndConsole, EM_EXSETSEL, 0, (LPARAM)&ds);
+	SendMessage(gui.hwndConsole, EM_REPLACESEL, FALSE, NULL);
+	}
+	
     cr.cpMin = text_length;
     cr.cpMax = text_length;
     SendMessage(gui.hwndConsole, EM_EXSETSEL, 0, (LPARAM)&cr); 
@@ -712,9 +718,6 @@ void static guiAddText(const char *str, COLORREF clr){
 
     SendMessage(gui.hwndConsole, EM_SETCHARFORMAT, SCF_SELECTION, (LPARAM)&fmt);
     SendMessage(gui.hwndConsole, EM_REPLACESEL, FALSE, (LPARAM)str);
-    end_lines = SendMessage(gui.hwndConsole, EM_GETLINECOUNT,0,0);
-
-    SendMessage(gui.hwndConsole, EM_LINESCROLL, 0, end_lines - start_lines);
 }
 
 
