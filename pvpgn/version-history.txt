@@ -35,6 +35,10 @@ chanel and /op other users to make them tempOPs, too. Also they can deOP other
 tempOPs and can be deOPd by server/channel OPs/admins
 -- made sure that restricted channels only get displayed in channellist for
 operators/admins
+-- the /channels command now doesn't list TheVoid anymore and shows restricted
+channels only to server admin/opers. Also you get the admins/opers in a
+channel listed again, now. ((A)=server admin,(O)=server operator,(a)=channel
+admin,(o)=channel operator)
 
 
 1.4.6-D2
