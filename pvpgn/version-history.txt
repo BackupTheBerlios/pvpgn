@@ -30,6 +30,7 @@ warned. ALWAYS keep both variables at the same value!!!
 This fix solves the problem with accounts not beeing able to play D2 closed
 games, cause bnetd and d2cs were accepting different symbols.
 -- fixed /time command
+-- added war3 ladder info output to /ladderinfo command
 
 1.2.3:
 -- fixed some crash related bugs
