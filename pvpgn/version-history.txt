@@ -62,6 +62,7 @@ timestamp in a news entry. The symphtom was, that after your first connect to
 any PvPGN server news items weren't updateing anymore, even when news.txt seemed
 to have news that were more recent. Also ask your users to once delete their
 bncache.dat or this fix won't help them.
+-- fixed fdwatch select() backend broken a couple of releases ago :-/
 
 1.6.0pre5 (since 1.6.0pre4):
 -- added support for loading new accounts at runtime (ex. if made by some 
