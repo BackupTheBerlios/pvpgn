@@ -155,8 +155,7 @@ dmode(char *dbname, char mode, int flags)
       if (printf(mode == 'd' ? "+%u,%u:" : "+%u:", klen, vlen) < 0) return -1;
     if (fcpy(f, stdout, klen, &pos, eod) != 0) return -1;
     if (mode == 'd')
-      if (fputs(flags & F_MAP ? " " : "->", stdout) < 0)
-        return -1;
+      fputs(flags & F_MAP ? " " : "->", stdout);
     if (fcpy(f, mode == 'd' ? stdout : NULL, vlen, &pos, eod) != 0)
       return -1;
     if (putc('\n', stdout) < 0)
