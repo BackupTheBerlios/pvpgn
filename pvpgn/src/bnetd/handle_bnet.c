@@ -2991,6 +2991,8 @@ static int _client_claninforeq(t_connection * c, t_packet const * const packet)
 	bn_int_set(&rpacket->u.server_profilereply.count,count);
 	if (clantag1 == clantag2)
 	{  int temp;
+	   t_bnettime	bn_time;
+	   bn_long	ltime;
 	
 	  bn_byte_set(&rpacket->u.server_claninforeply.fail,0);
 	
@@ -2998,7 +3000,10 @@ static int _client_claninforeq(t_connection * c, t_packet const * const packet)
 	  temp = clanmember_get_status(clanmember);
 	  packet_append_data(rpacket,&temp,1);
 	  temp = clanmember_get_join_time(clanmember);
-	  packet_append_data(rpacket,&temp,8);
+	  bn_time = time_to_bnettime(temp,0);
+	  bn_time = bnettime_add_tzbias(bn_time,-conn_get_tzbias(c));
+	  bnettime_to_bn_long(bn_time,&ltime);
+	  packet_append_data(rpacket,&ltime,8);
 	}
 	else
 	  bn_byte_set(&rpacket->u.server_claninforeply.fail,1);
