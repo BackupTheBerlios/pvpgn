@@ -404,8 +404,8 @@ typedef struct
     t_server_w3xp_clan_invitereply      server_w3xp_clan_invitereply;
 	t_server_w3xp_clan_invitereq        server_w3xp_clan_invitereq;
 	t_client_w3xp_clan_invitereply      client_w3xp_clan_invitereply;
-	t_client_w3xp_clan_delreq           client_w3xp_clan_delreq;
-	t_server_w3xp_clan_delreply         server_w3xp_clan_delreply;
+	t_client_w3xp_clan_disbandreq       client_w3xp_clan_disbandreq;
+	t_server_w3xp_clan_disbandreply     server_w3xp_clan_disbandreply;
 	t_client_w3xp_clan_motdchg          client_w3xp_clan_motdchg;
 	t_client_w3xp_clan_motdreq          client_w3xp_clan_motdreq;
 	t_server_w3xp_clan_motdreply        server_w3xp_clan_motdreply;

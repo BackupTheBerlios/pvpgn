@@ -526,7 +526,7 @@ static int file_load_clans(t_load_clans_func cb)
   char const	*dentry;
   t_pdir	*clandir;
   char		*pathname;
-  int       clanshort;
+  int       clantag;
   t_clan	*clan;
   FILE		*fp;
   char		clanname[CLAN_NAME_MAX+1];
@@ -566,7 +566,7 @@ static int file_load_clans(t_load_clans_func cb)
 	  continue;
 	}
     
-      clanshort = str_to_clanshort(dentry);
+      clantag = str_to_clantag(dentry);
 
   if ((fp = fopen(pathname,"r"))==NULL)
     {
@@ -582,7 +582,7 @@ static int file_load_clans(t_load_clans_func cb)
     return -1;
   }
 
-  clan->clanshort=clanshort;
+  clan->clantag=clantag;
 
   fscanf(fp,"\"%[^\"]\",\"%[^\"]\",%i,%i\n",clanname,motd,&cid,&creation_time);
   clan->clanname = strdup(clanname);
@@ -680,8 +680,8 @@ static int file_write_clan(void * data)
     }
 
   sprintf(clanfile,"%s/%c%c%c%c",clansdir,
-	  clan->clanshort>>24,(clan->clanshort>>16)&0xff,
-	  (clan->clanshort>>8)&0xff,clan->clanshort&0xff);
+	  clan->clantag>>24,(clan->clantag>>16)&0xff,
+	  (clan->clantag>>8)&0xff,clan->clantag&0xff);
 
   if ((fp = fopen(clanfile,"w"))==NULL)
     {
@@ -709,7 +709,7 @@ static int file_write_clan(void * data)
   return 0;
 }
 
-static int file_remove_clan(int clanshort)
+static int file_remove_clan(int clantag)
 {
     char * tempname;
     if (!(tempname = malloc(strlen(clansdir)+1+4+1)))
@@ -717,7 +717,7 @@ static int file_remove_clan(int clanshort)
 	  eventlog(eventlog_level_error,__FUNCTION__,"could not allocate memory for pathname");
 	  return -1;
 	}
-    sprintf(tempname, "%s/%c%c%c%c", clansdir, clanshort>>24, (clanshort>>16)&0xff, (clanshort>>8)&0xff, clanshort&0xff);
+    sprintf(tempname, "%s/%c%c%c%c", clansdir, clantag>>24, (clantag>>16)&0xff, (clantag>>8)&0xff, clantag&0xff);
 	if (remove((const char *)tempname)<0) {
 	    eventlog(eventlog_level_error, __FUNCTION__, "could not delete clan file \"%s\" (remove: %s)", (char *)tempname, strerror(errno));
         free(tempname);

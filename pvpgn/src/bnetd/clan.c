@@ -142,12 +142,12 @@ extern int clan_send_status_window_on_create(t_clan * clan)
     if ((rpacket = packet_create(packet_class_bnet)) != NULL)
     {
 	char channelname[10];
-	if (clan->clanshort)
-	    sprintf(channelname, "Clan %c%c%c%c", (clan->clanshort >> 24), (clan->clanshort >> 16) & 0xff, (clan->clanshort >> 8) & 0xff, clan->clanshort & 0xff);
+	if (clan->clantag)
+	    sprintf(channelname, "Clan %c%c%c%c", (clan->clantag >> 24), (clan->clantag >> 16) & 0xff, (clan->clantag >> 8) & 0xff, clan->clantag & 0xff);
 	packet_set_size(rpacket, sizeof(t_server_w3xp_clan_clanack));
 	packet_set_type(rpacket, SERVER_W3XP_CLAN_CLANACK);
 	bn_byte_set(&rpacket->u.server_w3xp_clan_clanack.unknow1, 0);
-	bn_int_set(&rpacket->u.server_w3xp_clan_clanack.clanshort, clan->clanshort);
+	bn_int_set(&rpacket->u.server_w3xp_clan_clanack.clantag, clan->clantag);
 	LIST_TRAVERSE(clan->members, curr)
 	{
 	    t_clanmember *member;
@@ -213,14 +213,14 @@ extern int clan_send_status_window(t_connection * c)
     if (acc == NULL)
 	return 0;
 
-    if ((member = account_get_clanmember(acc)) && member->clan && (member->clan->clanshort) && (clienttag = conn_get_clienttag(c)) && ((strcasecmp(clienttag, CLIENTTAG_WARCRAFT3) == 0) || (strcasecmp(clienttag, CLIENTTAG_WAR3XP) == 0)))
+    if ((member = account_get_clanmember(acc)) && member->clan && (member->clan->clantag) && (clienttag = conn_get_clienttag(c)) && ((strcasecmp(clienttag, CLIENTTAG_WARCRAFT3) == 0) || (strcasecmp(clienttag, CLIENTTAG_WAR3XP) == 0)))
     {
 	if ((rpacket = packet_create(packet_class_bnet)) != NULL)
 	{
 	    packet_set_size(rpacket, sizeof(t_server_w3xp_clan_clanack));
 	    packet_set_type(rpacket, SERVER_W3XP_CLAN_CLANACK);
 	    bn_byte_set(&rpacket->u.server_w3xp_clan_clanack.unknow1, 0);
-	    bn_int_set(&rpacket->u.server_w3xp_clan_clanack.clanshort, member->clan->clanshort);
+	    bn_int_set(&rpacket->u.server_w3xp_clan_clanack.clantag, member->clan->clantag);
 	    bn_byte_set(&rpacket->u.server_w3xp_clan_clanack.status, member->status);
 	    conn_push_outqueue(c, rpacket);
 	    packet_del_ref(rpacket);
@@ -358,10 +358,11 @@ extern int clan_get_possible_member(t_connection * c, t_packet const *const pack
     t_channel *channel;
     t_connection *conn;
     char const *username;
+    t_account * account;
 
     int friend_count = 0;
-    int clanshort;
-    clanshort = bn_int_get(packet->u.client_w3xp_clan_createreq.clanshort);
+    int clantag;
+    clantag = bn_int_get(packet->u.client_w3xp_clan_createreq.clantag);
     if ((rpacket = packet_create(packet_class_bnet)) == NULL)
     {
 	return -1;
@@ -369,15 +370,23 @@ extern int clan_get_possible_member(t_connection * c, t_packet const *const pack
     packet_set_size(rpacket, sizeof(t_server_w3xp_clan_createreply));
     packet_set_type(rpacket, SERVER_W3XP_CLAN_CREATEREPLY);
     bn_int_set(&rpacket->u.server_w3xp_clan_createreply.count, bn_int_get(packet->u.client_w3xp_clan_createreq.count));
-    if (clanlist_find_clan_by_clanshort(clanshort) != NULL)
+    if (clanlist_find_clan_by_clantag(clantag) != NULL)
     {
-	bn_byte_set(&rpacket->u.server_w3xp_clan_createreply.check_clanshort, SERVER_W3XP_CLAN_CREATEREPLY_CHECK_ALLREADY_IN_USE);
+	bn_byte_set(&rpacket->u.server_w3xp_clan_createreply.check_result, SERVER_W3XP_CLAN_CREATEREPLY_CHECK_ALLREADY_IN_USE);
 	bn_byte_set(&rpacket->u.server_w3xp_clan_createreply.friend_count, 0);
 	conn_push_outqueue(c, rpacket);
 	packet_del_ref(rpacket);
 	return 0;
     }
-    bn_byte_set(&rpacket->u.server_w3xp_clan_createreply.check_clanshort, SERVER_W3XP_CLAN_CREATEREPLY_CHECK_OK);
+    if ((account = conn_get_account(c)) && (account_get_clan(account) != NULL || account_get_creating_clan(account) != NULL))
+    {
+	bn_byte_set(&rpacket->u.server_w3xp_clan_createreply.check_result, SERVER_W3XP_CLAN_CREATEREPLY_CHECK_EXCEPTION);
+	bn_byte_set(&rpacket->u.server_w3xp_clan_createreply.friend_count, 0);
+	conn_push_outqueue(c, rpacket);
+	packet_del_ref(rpacket);
+	return 0;
+    }
+    bn_byte_set(&rpacket->u.server_w3xp_clan_createreply.check_result, SERVER_W3XP_CLAN_CREATEREPLY_CHECK_OK);
     channel = conn_get_channel(c);
     if (channel_get_permanent(channel))
     {
@@ -558,9 +567,9 @@ extern int clanlist_remove_clan(t_clan * clan)
     return 0;
 }
 
-extern int clan_remove(int clanshort)
+extern int clan_remove(int clantag)
 {
-    return storage->remove_clan(clanshort);
+    return storage->remove_clan(clantag);
 }
 
 extern int clan_save(t_clan * clan)
@@ -709,12 +718,12 @@ extern t_clan *clanlist_find_clan_by_clanid(int cid)
     return NULL;
 }
 
-extern t_clan *clanlist_find_clan_by_clanshort(int clanshort)
+extern t_clan *clanlist_find_clan_by_clantag(int clantag)
 {
     t_elem *curr;
     t_clan *clan;
 
-    if (clanshort == 0)
+    if (clantag == 0)
 	return NULL;
     if (clanlist_head)
     {
@@ -725,7 +734,7 @@ extern t_clan *clanlist_find_clan_by_clanshort(int clanshort)
 		eventlog(eventlog_level_error, __FUNCTION__, "found NULL entry in list");
 		continue;
 	    }
-	    if (clan->created && (clan->clanshort == clanshort))
+	    if (clan->created && (clan->clantag == clantag))
 		return clan;
 	}
 
@@ -1112,7 +1121,7 @@ extern char const *clan_get_name(t_clan * clan)
     return clan->clanname;
 }
 
-extern int clan_get_clanshort(t_clan * clan)
+extern int clan_get_clantag(t_clan * clan)
 {
     if (!(clan))
     {
@@ -1120,7 +1129,7 @@ extern int clan_get_clanshort(t_clan * clan)
 	return 0;
     }
 
-    return clan->clanshort;
+    return clan->clantag;
 }
 
 extern char const *clan_get_motd(t_clan * clan)
@@ -1163,6 +1172,19 @@ extern unsigned int clan_get_clanid(t_clan * clan)
     }
 
     return clan->clanid;
+}
+
+extern int clan_set_creation_time(t_clan * clan, time_t c_time)
+{
+    if (!(clan))
+    {
+	eventlog(eventlog_level_error, __FUNCTION__, "got NULL clan");
+	return -1;
+    }
+
+    clan->creation_time = c_time;
+
+    return 0;
 }
 
 extern time_t clan_get_creation_time(t_clan * clan)
@@ -1241,7 +1263,7 @@ extern int clan_remove_member(t_clan * clan, t_clanmember * member)
     return 0;
 }
 
-extern t_clan *clan_create(t_account * chieftain_acc, t_connection * chieftain_conn, int clanshort, const char *clanname, const char *motd)
+extern t_clan *clan_create(t_account * chieftain_acc, t_connection * chieftain_conn, int clantag, const char *clanname, const char *motd)
 {
     t_clan *clan;
     t_clanmember *member;
@@ -1293,7 +1315,7 @@ extern t_clan *clan_create(t_account * chieftain_acc, t_connection * chieftain_c
     }
 
     clan->creation_time = time(0);
-    clan->clanshort = clanshort;
+    clan->clantag = clantag;
     clan->clanid = ++max_clanid;
     clan->created = 0;
     clan->modified = 1;
@@ -1370,27 +1392,27 @@ extern int clan_get_member_count(t_clan * clan)
     return count;
 }
 
-extern int str_to_clanshort(const char *str)
+extern int str_to_clantag(const char *str)
 {
-    int clanshort = 0;
+    int clantag = 0;
 
     if (!str)
 	return 0;
 
     if (str[0])
     {
-	clanshort = str[0] << 24;
+	clantag = str[0] << 24;
 	if (str[1])
 	{
-	    clanshort += str[1] << 16;
+	    clantag += str[1] << 16;
 	    if (str[2])
 	    {
-		clanshort += str[2] << 8;
+		clantag += str[2] << 8;
 		if (str[3])
-		    clanshort += str[3];
+		    clantag += str[3];
 	    }
 	}
     }
-    return clanshort;
+    return clantag;
 
 }

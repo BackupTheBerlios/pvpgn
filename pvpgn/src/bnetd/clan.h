@@ -42,7 +42,7 @@ typedef struct clan
 #ifdef CLAN_INTERNAL_ACCESS
 {
     unsigned int clanid;
-    int clanshort;
+    int clantag;
     char const *clanname;
     time_t creation_time;
     char const *clan_motd;
@@ -99,7 +99,7 @@ extern int clanlist_unload(void);
 extern int clanlist_remove_clan(t_clan * clan);
 extern int clanlist_add_clan(t_clan * clan);
 extern t_clan *clanlist_find_clan_by_clanid(int cid);
-extern t_clan *clanlist_find_clan_by_clanshort(int clanshort);
+extern t_clan *clanlist_find_clan_by_clantag(int clantag);
 
 
 extern t_account *clanmember_get_account(t_clanmember * member);
@@ -117,14 +117,14 @@ extern int clanmember_on_change_status(t_clanmember * member);
 extern const char *clanmember_get_online_status_by_connection(t_connection * conn, char *status);
 extern int clanmember_on_change_status_by_connection(t_connection * conn);
 
-extern t_clan *clan_create(t_account * chieftain_acc, t_connection * chieftain_conn, int clanshort, const char *clanname, const char *motd);
+extern t_clan *clan_create(t_account * chieftain_acc, t_connection * chieftain_conn, int clantag, const char *clanname, const char *motd);
 extern int clan_destroy(t_clan * clan);
 
 extern int clan_unload_members(t_clan * clan);
 extern int clan_remove_all_members(t_clan * clan);
 
 extern int clan_save(t_clan * clan);
-extern int clan_remove(int clanshort);
+extern int clan_remove(int clantag);
 
 extern int clan_get_created(t_clan * clan);
 extern int clan_set_created(t_clan * clan, int created);
@@ -134,10 +134,11 @@ extern char clan_get_channel_type(t_clan * clan);
 extern int clan_set_channel_type(t_clan * clan, char channel_type);
 extern t_list *clan_get_members(t_clan * clan);
 extern char const *clan_get_name(t_clan * clan);
-extern int clan_get_clanshort(t_clan * clan);
+extern int clan_get_clantag(t_clan * clan);
 extern char const *clan_get_motd(t_clan * clan);
 extern int clan_set_motd(t_clan * clan, const char *motd);
 extern unsigned int clan_get_clanid(t_clan * clan);
+extern int clan_set_creation_time(t_clan * clan, time_t c_time);
 extern time_t clan_get_creation_time(t_clan * clan);
 extern int clan_get_member_count(t_clan * clan);
 
@@ -159,7 +160,7 @@ extern int clan_change_member_status(t_connection * c, t_packet const *const pac
 extern int clan_send_motd_reply(t_connection * c, t_packet const *const packet);
 extern int clan_save_motd_chg(t_connection * c, t_packet const *const packet);
 
-extern int str_to_clanshort(const char *str);
+extern int str_to_clantag(const char *str);
 
 #endif
 #endif

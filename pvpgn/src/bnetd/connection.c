@@ -1974,7 +1974,7 @@ extern int conn_set_channel(t_connection * c, char const * channelname)
     t_channel * channel;
     t_channel * oldchannel;
     t_account * acc;
-    int clanshort=0;
+    int clantag=0;
     t_clan * clan;
 
     if (!c)
@@ -1999,11 +1999,11 @@ extern int conn_set_channel(t_connection * c, char const * channelname)
 
     clan=account_get_clan(acc);
     if((strncasecmp(channelname, "clan ", 5)==0)&&(strlen(channelname)<10))
-      clanshort = str_to_clanshort(&channelname[5]);
+      clantag = str_to_clantag(&channelname[5]);
 
 	channel = channellist_find_channel_by_name(channelname,conn_get_country(c),conn_get_realmname(c));
 
-    if(clanshort&&((!clan)||(clan_get_clanshort(clan)!=clanshort)))
+    if(clantag&&((!clan)||(clan_get_clantag(clan)!=clantag)))
     {
         if (!channel)
         {
@@ -2015,7 +2015,7 @@ extern int conn_set_channel(t_connection * c, char const * channelname)
         else
         {
             t_clan * ch_clan;
-            if((ch_clan=clanlist_find_clan_by_clanshort(clanshort))&&(clan_get_channel_type(ch_clan)==1))
+            if((ch_clan=clanlist_find_clan_by_clantag(clantag))&&(clan_get_channel_type(ch_clan)==1))
             {
                 message_send_text(c, message_type_error, c, "This is a private clan channel, unable to join!");
                 return 0;
@@ -2138,7 +2138,7 @@ extern int conn_set_channel(t_connection * c, char const * channelname)
 
     if (!channel)
 	{
-        if(clanshort)
+        if(clantag)
             channel = channel_create(channelname,channelname,CLIENTTAG_WAR3XP,0,1,0,prefs_get_chanlog(), NULL, NULL, -1,0);
         else
             channel = channel_create(channelname,channelname,NULL,0,1,1,prefs_get_chanlog(), NULL, NULL, -1,0);
@@ -2190,7 +2190,7 @@ extern int conn_set_channel(t_connection * c, char const * channelname)
    
     if(c->channel && (channel_get_flags(c->channel) & channel_flags_thevoid))
 	    message_send_text(c,message_type_info,c,"This channel does not have chat privileges.");
-    if (clanshort&&clan&&(clan_get_clanshort(clan)==clanshort))
+    if (clantag&&clan&&(clan_get_clantag(clan)==clantag))
     {
       char msgtemp[MAX_MESSAGE_LEN];
       sprintf(msgtemp,"%s",clan_get_motd(clan));
@@ -4125,7 +4125,7 @@ extern int conn_update_w3_playerinfo(t_connection * c)
     t_account * 	account;
     char const * 	clienttag;
     t_clan * 		user_clan;
-    int 		clanshort=0;
+    int 		clantag=0;
     unsigned int	acctlevel;
     char		tempplayerinfo[40];
     char		raceicon; /* appeared in 1.03 */
@@ -4133,8 +4133,8 @@ extern int conn_update_w3_playerinfo(t_connection * c)
     unsigned int    	wins;
     char *          	client;
     char const *	usericon;
-    char 		clanshort_str_tmp[5];
-    const char * 	clanshort_str = NULL;
+    char 		clantag_str_tmp[5];
+    const char * 	clantag_str = NULL;
 
     if (c == NULL) {
 	eventlog(eventlog_level_error, __FUNCTION__, "got NULL connection");
@@ -4159,31 +4159,31 @@ extern int conn_update_w3_playerinfo(t_connection * c)
     account_get_raceicon(account, &raceicon, &raceiconnumber, &wins, clienttag);
 
     if((user_clan = account_get_clan(account)) != NULL)
-	clanshort = clan_get_clanshort(user_clan);
+	clantag = clan_get_clantag(user_clan);
 
-    if(clanshort) {
-	sprintf(clanshort_str_tmp, "%c%c%c%c", clanshort&0xff, (clanshort>>8)&0xff, (clanshort>>16)&0xff, clanshort>>24);
-        clanshort_str=clanshort_str_tmp;
-        while((* clanshort_str) == 0) clanshort_str++;
+    if(clantag) {
+	sprintf(clantag_str_tmp, "%c%c%c%c", clantag&0xff, (clantag>>8)&0xff, (clantag>>16)&0xff, clantag>>24);
+        clantag_str=clantag_str_tmp;
+        while((* clantag_str) == 0) clantag_str++;
     }
 
     if(acctlevel == 0) {
-	if(clanshort)
-	    sprintf(tempplayerinfo, "%s 1R3W 0 %s", client, clanshort_str);
+	if(clantag)
+	    sprintf(tempplayerinfo, "%s 1R3W 0 %s", client, clantag_str);
 	else
 	    strcpy(tempplayerinfo, client);
 	eventlog(eventlog_level_info,__FUNCTION__,"[%d] %s",conn_get_socket(c), client);
     } else {
 	usericon = account_get_user_icon(account,clienttag);
 	if (!usericon) {
-    	    if(clanshort)
-		sprintf(tempplayerinfo, "%s %1u%c3W %u %s", client, raceiconnumber, raceicon, acctlevel, clanshort_str); 
+    	    if(clantag)
+		sprintf(tempplayerinfo, "%s %1u%c3W %u %s", client, raceiconnumber, raceicon, acctlevel, clantag_str); 
             else
 		sprintf(tempplayerinfo, "%s %1u%c3W %u", client, raceiconnumber, raceicon, acctlevel); 
 	    eventlog(eventlog_level_info,__FUNCTION__,"[%d] %s using generated icon [%1u%c3W]",conn_get_socket(c), client, raceiconnumber, raceicon);
 	} else {
-            if(clanshort)
-		sprintf(tempplayerinfo, "%s %s %u %s",client, usericon, acctlevel, clanshort_str);
+            if(clantag)
+		sprintf(tempplayerinfo, "%s %s %u %s",client, usericon, acctlevel, clantag_str);
             else
 		sprintf(tempplayerinfo, "%s %s %u",client, usericon, acctlevel);
 	    eventlog(eventlog_level_info,__FUNCTION__,"[%d] %s using user-selected icon [%s]",conn_get_socket(c),client,usericon);

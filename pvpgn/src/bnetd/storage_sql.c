@@ -99,7 +99,7 @@ static int sql_cmp_info(t_storage_info *, t_storage_info *);
 static const char *sql_escape_key(const char *);
 static int sql_load_clans(t_load_clans_func cb);
 static int sql_write_clan(void *data);
-static int sql_remove_clan(int clanshort);
+static int sql_remove_clan(int clantag);
 static int sql_remove_clanmember(int);
 
 t_storage storage_sql = {
@@ -950,7 +950,7 @@ static int sql_load_clans(t_load_clans_func cb)
 		return -1;
 	    }
 
-	    clan->clanshort = atoi(row[1]);
+	    clan->clantag = atoi(row[1]);
 
 	    clan->clanname = strdup(row[2]);
 	    clan->clan_motd = strdup(row[3]);
@@ -1069,9 +1069,9 @@ static int sql_write_clan(void *data)
 	num = atol(row[0]);
 	sql->free_result(result);
 	if (num < 1)
-	    sprintf(query, "INSERT INTO clan (cid, short, name, motd, creation_time) VALUES('%u', '%d', '%s', '%s', '%u')", clan->clanid, clan->clanshort, clan->clanname, clan->clan_motd, (unsigned) clan->creation_time);
+	    sprintf(query, "INSERT INTO clan (cid, short, name, motd, creation_time) VALUES('%u', '%d', '%s', '%s', '%u')", clan->clanid, clan->clantag, clan->clanname, clan->clan_motd, (unsigned) clan->creation_time);
 	else
-	    sprintf(query, "UPDATE clan SET short='%d', name='%s', motd='%s', creation_time='%u' WHERE cid='%u'", clan->clanshort, clan->clanname, clan->clan_motd, (unsigned) clan->creation_time, clan->clanid);
+	    sprintf(query, "UPDATE clan SET short='%d', name='%s', motd='%s', creation_time='%u' WHERE cid='%u'", clan->clantag, clan->clanname, clan->clan_motd, (unsigned) clan->creation_time, clan->clanid);
 	if (sql->query(query) < 0)
 	{
 	    eventlog(eventlog_level_error, __FUNCTION__, "error trying query: \"%s\"", query);
@@ -1132,7 +1132,7 @@ static int sql_write_clan(void *data)
     return 0;
 }
 
-static int sql_remove_clan(int clanshort)
+static int sql_remove_clan(int clantag)
 {
     char query[1024];
     t_sql_res *result;
@@ -1144,7 +1144,7 @@ static int sql_remove_clan(int clanshort)
 	return -1;
     }
 
-    sprintf(query, "SELECT cid FROM clan WHERE short = '%d'", clanshort);
+    sprintf(query, "SELECT cid FROM clan WHERE short = '%d'", clantag);
     if (!(result = sql->query_res(query)))
     {
 	eventlog(eventlog_level_error, __FUNCTION__, "error query db (query:\"%s\")", query);

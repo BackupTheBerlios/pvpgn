@@ -1830,7 +1830,7 @@ extern unsigned int account_get_friend( t_account * account, int friendnum)
 
     if (friendnum < 0 || friendnum >= prefs_get_max_friends()) {
 	// bogus name (user himself) instead of NULL, otherwise clients might crash
-	eventlog(eventlog_level_error, __FUNCTION__, "invalid friendnum %d (max: %d)", friendnum, prefs_get_max_friends);
+	eventlog(eventlog_level_error, __FUNCTION__, "invalid friendnum %d (max: %d)", friendnum, prefs_get_max_friends());
 	return 0;  
     }
 
@@ -1838,7 +1838,6 @@ extern unsigned int account_get_friend( t_account * account, int friendnum)
     tmp = account_get_numattr(account, key);
     if(!tmp) {
         // ok, looks like we have a problem. Maybe friends still stored in old format?
-	int n;
 
         sprintf(key,"friend\\%d\\name",friendnum);
         name = account_get_strattr(account,key);
