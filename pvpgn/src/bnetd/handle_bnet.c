@@ -4481,7 +4481,11 @@ static int _client_startgame4(t_connection * c, t_packet const * const packet)
 
 static int _client_closegame(t_connection * c, t_packet const * const packet)
 {
+	t_game * game;
+
    eventlog(eventlog_level_info,__FUNCTION__,"[%d] client closing game",conn_get_socket(c));
+   if(((game = conn_get_game(c)) != NULL) && (game_get_status(game) != game_status_started))
+	   game_set_status(game, game_status_started);
    conn_set_game(c,NULL,NULL,NULL,game_type_none,0);
 
    //to prevent whispering over and over that user joined channel
