@@ -412,6 +412,7 @@ static int sd_accept(t_addr const * curr_laddr, t_laddr_info const * laddr_info,
 	}
 	
 	eventlog(eventlog_level_debug,"sd_accept","[%d] client connected to a %s listening address",csocket,laddr_type_get_str(laddr_info->type));
+	fdwatch_add_fd(csocket, fdwatch_type_read, handle_tcp, c);
 	switch (laddr_info->type)
 	{
 	case laddr_type_irc:
@@ -433,8 +434,6 @@ static int sd_accept(t_addr const * curr_laddr, t_laddr_info const * laddr_info,
              */
 	    break;
 	}
-
-	fdwatch_add_fd(csocket, fdwatch_type_read, handle_tcp, c);
     }
 
     return 0;
