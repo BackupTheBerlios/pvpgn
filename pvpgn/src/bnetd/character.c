@@ -298,33 +298,11 @@ extern int character_create(t_account * account, t_clienttag clienttag, char con
 	eventlog(eventlog_level_error,"character_create","got NULL name");
 	return -1;
     }
-    
-    if (!(ch = xmalloc(sizeof(t_character))))
-    {
-	eventlog(eventlog_level_error,"character_create","could not allocate memory for character");
-	return -1;
-    }
-    if (!(ch->name = xstrdup(name)))
-    {
-	eventlog(eventlog_level_error,"character_create","could not allocate memory for name");
-	xfree(ch);
-	return -1;
-    }
-    if (!(ch->realmname = xstrdup(realmname)))
-    {
-	eventlog(eventlog_level_error,"character_create","could not allocate memory for realmname");
-	xfree((void *)ch->name); /* avoid warning */
-	xfree(ch);
-	return -1;
-    }
-    if (!(ch->guildname = xstrdup(""))) /* FIXME: how does this work on Battle.net? */
-    {
-	eventlog(eventlog_level_error,"character_create","could not allocate memory for guildname");
-	xfree((void *)ch->realmname); /* avoid warning */
-	xfree((void *)ch->name); /* avoid warning */
-	xfree(ch);
-	return -1;
-    }
+
+    ch = xmalloc(sizeof(t_character));
+    ch->name = xstrdup(name);
+    ch->realmname = xstrdup(realmname);
+    ch->guildname = xstrdup(""); /* FIXME: how does this work on Battle.net? */
 
     if (account_check_closed_character(account, clienttag, realmname, name))
     {
@@ -464,13 +442,9 @@ extern int character_verify_charlist(t_character const * ch, char const * charli
 	eventlog(eventlog_level_error,"character_verify_charlist","got NULL character");
 	return -1;
     }
-    
-    if (!(temp = xstrdup(charlist)))
-    {
-	eventlog(eventlog_level_error,"character_verify_charlist","unable to allocate memory for characterlist");
-        return -1;
-    }
-    
+
+    temp = xstrdup(charlist);
+
     tok1 = (char const *)strtok(temp,","); /* strtok modifies the string it is passed */
     tok2 = strtok(NULL,",");
     while (tok1)

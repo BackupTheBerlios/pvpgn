@@ -1204,12 +1204,7 @@ extern t_clanmember *clan_add_member(t_clan * clan, t_account * memberacc, t_con
 	return NULL;
     }
 
-    if (!(member = xmalloc(sizeof(t_clanmember))))
-    {
-	eventlog(eventlog_level_error, __FUNCTION__, "could not allocate memory for clanmember");
-	return NULL;
-    }
-
+    member = xmalloc(sizeof(t_clanmember));
     member->memberacc = memberacc;
     member->memberconn = memberconn;
     member->status = status;
@@ -1259,18 +1254,8 @@ extern t_clan *clan_create(t_account * chieftain_acc, t_connection * chieftain_c
     t_clan *clan;
     t_clanmember *member;
 
-    if (!(clan = xmalloc(sizeof(t_clan))))
-    {
-	eventlog(eventlog_level_error, __FUNCTION__, "could not allocate memory for new clan");
-	return NULL;
-    }
-
-    if (!(member = xmalloc(sizeof(t_clanmember))))
-    {
-	eventlog(eventlog_level_error, __FUNCTION__, "could not allocate memory for clanmember");
-	xfree((void *) clan);
-	return NULL;
-    }
+    clan = xmalloc(sizeof(t_clan));
+    member = xmalloc(sizeof(t_clanmember));
 
     if (!(clanname))
     {
@@ -1280,30 +1265,12 @@ extern t_clan *clan_create(t_account * chieftain_acc, t_connection * chieftain_c
 	return NULL;
     }
 
-    if (!(clan->clanname = xstrdup(clanname)))
-    {
-	eventlog(eventlog_level_error, __FUNCTION__, "could not allocate memory for clanname");
-	xfree((void *) clan);
-	xfree((void *) member);
-	return NULL;
-    }
+    clan->clanname = xstrdup(clanname);
 
     if (!(motd))
-    {
 	clan->clan_motd = xstrdup("This is a newly created clan");
-    } else
-    {
+    else
 	clan->clan_motd = xstrdup(motd);
-    }
-    if (!(clan->clan_motd))
-    {
-	eventlog(eventlog_level_error, __FUNCTION__, "could not allocate memory for clan_motd");
-	if (clan->clanname)
-	    xfree((void *) clan->clanname);
-	xfree((void *) member);
-	xfree((void *) clan);
-	return NULL;
-    }
 
     clan->creation_time = time(0);
     clan->clantag = clantag;
