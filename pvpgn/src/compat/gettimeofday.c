@@ -32,7 +32,6 @@
 #ifdef HAVE_SYS_TIMEB_H
 # include <sys/timeb.h>
 #endif
-#include "common/xalloc.h"
 #include "gettimeofday.h"
 #include "common/setup_after.h"
 
