@@ -19,9 +19,10 @@
 #include <stdio.h>
 #ifdef HAVE_STDARG_H
 # include <stdarg.h>
-#endif
-#ifdef HAVE_VARARGS_H
-# include <varargs.h>
+#else
+# ifdef HAVE_VARARGS_H
+#  include <varargs.h>
+# endif
 #endif
 #include "common/setup_after.h"
 
