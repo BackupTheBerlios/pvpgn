@@ -1508,7 +1508,9 @@ extern int server_process(void)
 	    server_set_name();
 	    
 	    accountlist_load_default(); /* FIXME: free old one */
-	    accountlist_reload();
+	    /* Dizzy: disabled for the moment, lets see who really needs it, 
+	    also it can be the cause for a lot of problems
+	    accountlist_reload(); */
 	    
 	    /* FIXME: reload channel list, need some tests, bits is disabled */
 	    #ifndef WITH_BITS
