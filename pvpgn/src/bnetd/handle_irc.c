@@ -972,7 +972,7 @@ static int _handle_userhost_command(t_connection * conn, int numparams, char ** 
 
 static int _handle_quit_command(t_connection * conn, int numparams, char ** params, char * text)
 {
-	conn_set_channel_var(conn, NULL);
+	conn_set_channel(conn, NULL);
 	conn_set_state(conn, conn_state_destroy);
 	return 0;
 }
