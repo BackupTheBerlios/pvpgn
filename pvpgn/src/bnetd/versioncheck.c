@@ -232,23 +232,44 @@ t_parsed_exeinfo * parse_exeinfo(char const * exeinfo)
 	int size;
         char time_invalid = 0;
 
-		if (exeinfo[0]=='\0') //happens when using war3-noCD and having deleted war3.org
-		{
+	if (exeinfo[0]=='\0') //happens when using war3-noCD and having deleted war3.org
+	{
           free((void *)parsed_exeinfo->exe);
           free((void *)parsed_exeinfo);
           eventlog(eventlog_level_error,__FUNCTION__,"found empty exeinfo");
           return NULL;
-		}
+	}
 
         memset(&t1,0,sizeof(t1));
         t1.tm_isdst = -1;
 
         exeinfo    = strreverse((char *)exeinfo);
-        marker     = strchr(exeinfo,' ')+1; //skip file size
-        marker     = strchr(marker,' ')+1;  //skip file time
-        marker     = strchr(marker,' ');    //skip file date
+        if (!(marker     = strchr(exeinfo,' ')))
+        {
+	  free((void *)parsed_exeinfo->exe);
+	  free((void *)parsed_exeinfo);
+	  return NULL;
+        }
+	for (; marker[0]==' ';marker++); 
+
+        if (!(marker     = strchr(marker,' ')))
+        {
+	  free((void *)parsed_exeinfo->exe);
+	  free((void *)parsed_exeinfo);
+	  return NULL;
+	} 
+	for (; marker[0]==' ';marker++);
+
+        if (!(marker     = strchr(marker,' ')))
+        {
+	  free((void *)parsed_exeinfo->exe);
+	  free((void *)parsed_exeinfo);
+	  return NULL;
+	}
+        for (; marker[0]==' ';marker++);
+        marker--;
         marker[0]  = '\0';
-        marker++;
+        marker++; 
         
         if (!(exe = strdup(marker)))
         {
@@ -402,6 +423,7 @@ extern int versioncheck_validate(t_versioncheck * vc, char const * archtag, char
 	
 	if (vi->gameversion && vi->gameversion != gameversion)
 	    continue;
+
 	
 	if (vi->parsed_exeinfo && (versioncheck_compare_exeinfo(vi->parsed_exeinfo,parsed_exeinfo) != 0))
 	{
