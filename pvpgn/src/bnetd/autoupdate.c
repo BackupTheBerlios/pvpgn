@@ -259,7 +259,7 @@ extern char * autoupdate_check(char const * archtag, char const * clienttag, uns
 		gltag[4] = '\0';
 		
 		if (strcmp(gltag, "enUS") != 0) {
-		    char * tempmpq = NULL;
+		    char * tempmpq;
 		    char * extention;
 		    
 		    tempmpq = strdup(entry->mpqfile);

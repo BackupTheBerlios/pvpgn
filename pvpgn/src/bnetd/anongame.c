@@ -336,9 +336,9 @@ static int _anongame_totalteams(int queue)
 static int _handle_anongame_search(t_connection * c, t_packet const * packet)
 {
     int			i, j, temp, set = 1;
-    t_packet		*rpacket = NULL;
+    t_packet		*rpacket;
     t_connection	*tc[6];
-    t_anongame		*a = NULL, *ta = NULL;
+    t_anongame		*a, *ta;
     t_uint8		teamsize = 0;
     t_uint8     	option = bn_byte_get(packet->u.client_findanongame.option);
     
@@ -859,9 +859,9 @@ static unsigned short w3routeport = BNETD_W3ROUTE_PORT;
 
 static int _anongame_search_found(int queue)
 {
-    t_packet		*rpacket = NULL;
+    t_packet		*rpacket;
     t_anongameinfo	*info;
-    t_anongame		*a = NULL; 
+    t_anongame		*a; 
     int i, j;
     t_saf_pt2		*pt2;
 
@@ -1494,8 +1494,8 @@ extern int handle_w3route_packet(t_connection * c, t_packet const * const packet
 //[smith] 20030427 fixed Big-Endian/Little-Endian conversion (Solaris bug) then use  packet_append_data for append platform dependent data types - like "int", cos this code was broken for BE platforms. it's rewriten in platform independent style whis usege bn_int and other bn_* like datatypes and fuctions for wor with datatypes - bn_int_set(), what provide right byteorder, not depended on LE/BE
 //  fixed broken htonl() conversion for BE platforms - change it to  bn_int_nset(). i hope it's worked on intel too %) 
 
-   t_packet * rpacket=NULL;
-   t_connection * gamec=NULL;
+   t_packet * rpacket;
+   t_connection * gamec;
    char const * username;
    t_anongame * a = NULL;
    t_uint8 gametype, plnum;
@@ -1723,8 +1723,8 @@ extern int handle_w3route_packet(t_connection * c, t_packet const * const packet
 extern int handle_anongame_join(t_connection * c)
 {
 	t_anongame *a, *ja, *oa;
-	t_connection *rc, *jc, *o;
-	t_packet * rpacket = NULL;
+	t_connection *jc, *o;
+	t_packet * rpacket;
 	int tp, level;
 	char gametype;
 	t_account *acct;
@@ -1740,7 +1740,7 @@ extern int handle_anongame_join(t_connection * c)
 		eventlog(eventlog_level_error,"handle_anongame_join","[%d] got NULL connection",conn_get_socket(c));
 		return -1;
 	}
-	if(!(rc = conn_get_routeconn(c))) {
+	if(!(conn_get_routeconn(c))) {
 		eventlog(eventlog_level_info,"handle_anongame_join","[%d] no route connection",conn_get_socket(c));
 		return 0;
 	}

@@ -201,7 +201,7 @@ extern char const * versioncheck_get_eqn(t_versioncheck const * vc)
 
 t_parsed_exeinfo * parse_exeinfo(char const * exeinfo)
 {
-  t_parsed_exeinfo * parsed_exeinfo = NULL;
+  t_parsed_exeinfo * parsed_exeinfo;
 
     if (!exeinfo) {
 	return NULL;

@@ -534,7 +534,7 @@ extern int irc_unget_paramelems(char ** elems)
 
 static char * irc_message_preformat(t_irc_message_from const * from, char const * command, char const * dest, char const * text)
 {
-    char * myfrom = NULL;
+    char * myfrom;
     char const * mydest = "";
     char const * mytext = "";
     int len;

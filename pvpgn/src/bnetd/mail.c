@@ -106,8 +106,8 @@ static char * clean_str(char *);
 
 
 static t_mailbox * mailbox_open(t_account * user) {
-   t_mailbox * rez=NULL;
-   char * path=NULL;
+   t_mailbox * rez;
+   char * path;
    char const * maildir;
 
    if ((rez=malloc(sizeof(t_mailbox)))==NULL) {
@@ -267,7 +267,6 @@ static void mailbox_unread(t_mail * mail) {
 
 static struct maillist_struct * mailbox_get_list(t_mailbox *mailbox) {
    char const * dentry;
-   int i;
    FILE * fd;
    struct maillist_struct *rez=NULL, *p=NULL,*q;
    char *sender,*filename;
@@ -285,7 +284,7 @@ static struct maillist_struct * mailbox_get_list(t_mailbox *mailbox) {
       return NULL;
    }
    p_rewinddir(mailbox->maildir);
-   for(i=0;(dentry=p_readdir(mailbox->maildir))!=NULL;)
+   for(;(dentry=p_readdir(mailbox->maildir))!=NULL;)
      if (dentry[0]!='.') {
 	q=malloc(sizeof(struct maillist_struct));
 	if (q==NULL) {
@@ -315,7 +314,6 @@ static struct maillist_struct * mailbox_get_list(t_mailbox *mailbox) {
 	if (p==NULL) rez=q;
 	else p->next=q;
 	p=q;
-	i++;
      }
    free(filename);
    return rez;
@@ -474,7 +472,7 @@ static int identify_mail_function(const char *funcstr) {
 }
 
 static int get_mail_quota(t_account * user) {
-   int quota=0;
+   int quota;
    char const * user_quota;
 
    user_quota=account_get_strattr(user,"BNET\\auth\\mailquota");

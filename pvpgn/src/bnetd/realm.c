@@ -419,8 +419,7 @@ extern int realmlist_create(char const * filename)
             for (endpos=len-1;  buff[endpos]=='\t' || buff[endpos]==' '; endpos--);
             buff[endpos+1] = '\0';
         }
-        len = strlen(buff)+1;
-
+        
 	/* skip any separators */
 	for (temp = buff; *temp && (*temp == ' ' || *temp == '\t');temp++);
 	if (*temp != '"') {

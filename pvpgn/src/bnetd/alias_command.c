@@ -110,7 +110,7 @@ static char * replace_args(char const * in, unsigned int * offsets, int numargs,
     unsigned int   outpos;
     unsigned int   off1;
     unsigned int   off2;
-    unsigned int   size = 0;
+    unsigned int   size;
 
     off1 = off2 = 0;
 
@@ -275,8 +275,8 @@ static int do_alias(t_connection * c, char const * cmd, char const * text)
     t_elem const *  elem2;
     t_alias const * alias;
     t_output *      output;
-    unsigned int *  offsets = NULL; // [quetzal] 20020805 - inital value to avoid warning
-    int    numargs = 0; // [quetzal] 20020805 - initial value to avoid warning
+    unsigned int *  offsets;
+    int    numargs;
     int match = -1;
     
     numargs = count_args(text)-1; 
@@ -309,7 +309,6 @@ static int do_alias(t_connection * c, char const * cmd, char const * text)
 		char * msgtmp;
 		char * tmp2;
 		char * cmd = "%C";
-		msgtmp = tmp2 = NULL;
 		match = 1;
 		
 		if ((msgtmp = replace_args(output->line,offsets,numargs+1,text)))
@@ -420,10 +419,10 @@ extern int aliasfile_load(char const * filename)
 	
 	case 2:
 	    {
-	      char * dummy = NULL;
+	      char * dummy;
 	      char * out   = NULL;
 	      int min, max;
-	      t_output * output = NULL;
+	      t_output * output;
 
 	      min = max = 0;
 	      if (buff[pos]!='[')
@@ -498,10 +497,10 @@ extern int aliasfile_load(char const * filename)
 	      }
 	    else if (buff[pos]=='[')
 	      {
-		char * dummy = NULL;
+		char * dummy;
 		char * out   = NULL;
 		int min, max;
-		t_output * output = NULL;
+		t_output * output;
 
 		min = max = 0;
 		if ((dummy=strchr(&buff[pos],']')))
@@ -529,11 +528,6 @@ extern int aliasfile_load(char const * filename)
 	      {
 		eventlog(eventlog_level_error,__FUNCTION__,"error parsing min/max value for alias output");
 	      }
-
-
-
-
-
 
 		if (out!=NULL)
 		  {

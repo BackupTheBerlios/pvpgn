@@ -102,7 +102,7 @@ int anongame_infos_URL_destroy(t_anongame_infos_URL * anongame_infos_URL)
 	return 0;
 }
 
-t_anongame_infos_DESC * anongame_infos_DESC_init()
+t_anongame_infos_DESC * anongame_infos_DESC_init(void)
 {
 	t_anongame_infos_DESC * anongame_infos_DESC;
 
@@ -375,7 +375,7 @@ int anongame_infos_ICON_REQ_TOURNEY_destroy(t_anongame_infos_ICON_REQ_TOURNEY * 
 	return 0;
 }
 
-t_anongame_infos *  anongame_infos_init()
+t_anongame_infos *  anongame_infos_init(void)
 {
   t_anongame_infos * anongame_infos;
 
@@ -507,11 +507,9 @@ int anongame_infos_URL_set_server_URL(t_anongame_infos_URL * anongame_infos_URL,
 	}
 
 	return anongame_infos_set_str(&anongame_infos_URL->server_URL,server_URL,"server_URL");
-
-	return 0;
 }
 
-extern char * anongame_infos_URL_get_server_url()
+extern char * anongame_infos_URL_get_server_url(void)
 {
 	return anongame_infos->anongame_infos_URL->server_URL;
 }
@@ -528,7 +526,7 @@ int anongame_infos_URL_set_player_URL(t_anongame_infos_URL * anongame_infos_URL,
 	return anongame_infos_set_str(&anongame_infos_URL->player_URL,player_URL,"player_URL");
 }
 
-extern char * anongame_infos_URL_get_player_url()
+extern char * anongame_infos_URL_get_player_url(void)
 {
 	return anongame_infos->anongame_infos_URL->player_URL;
 }
@@ -546,7 +544,7 @@ int anongame_infos_URL_set_tourney_URL(t_anongame_infos_URL * anongame_infos_URL
 
 }
 
-extern char * anongame_infos_URL_get_tourney_url()
+extern char * anongame_infos_URL_get_tourney_url(void)
 {
 	return anongame_infos->anongame_infos_URL->tourney_URL;
 }
@@ -564,7 +562,7 @@ int anongame_infos_URL_set_ladder_PG_1v1_URL(t_anongame_infos_URL * anongame_inf
 
 }
 
-extern char * anongame_infos_URL_get_ladder_PG_1v1_url()
+extern char * anongame_infos_URL_get_ladder_PG_1v1_url(void)
 {
 	return anongame_infos->anongame_infos_URL->ladder_PG_1v1_URL;
 }
@@ -580,7 +578,7 @@ int anongame_infos_URL_set_ladder_PG_ffa_URL(t_anongame_infos_URL * anongame_inf
 	return anongame_infos_set_str(&anongame_infos_URL->ladder_PG_ffa_URL,ladder_PG_ffa_URL,"ladder_PG_ffa_URL");
 }
 
-extern char * anongame_infos_URL_get_ladder_PG_ffa_url()
+extern char * anongame_infos_URL_get_ladder_PG_ffa_url(void)
 {
 	return anongame_infos->anongame_infos_URL->ladder_PG_ffa_URL;
 }
@@ -596,7 +594,7 @@ int anongame_infos_URL_set_ladder_PG_team_URL(t_anongame_infos_URL * anongame_in
 	return anongame_infos_set_str(&anongame_infos_URL->ladder_PG_team_URL,ladder_PG_team_URL,"ladder_PG_team_URL");
 }
 
-extern char * anongame_infos_URL_get_ladder_PG_team_url()
+extern char * anongame_infos_URL_get_ladder_PG_team_url(void)
 {
 	return anongame_infos->anongame_infos_URL->ladder_PG_team_URL;
 }
@@ -612,7 +610,7 @@ int anongame_infos_URL_set_ladder_AT_2v2_URL(t_anongame_infos_URL * anongame_inf
 	return anongame_infos_set_str(&anongame_infos_URL->ladder_AT_2v2_URL,ladder_AT_2v2_URL,"ladder_AT_2v2_URL");
 }
 
-extern char * anongame_infos_URL_get_ladder_AT_2v2_url()
+extern char * anongame_infos_URL_get_ladder_AT_2v2_url(void)
 {
 	return anongame_infos->anongame_infos_URL->ladder_AT_2v2_URL;
 }
@@ -628,7 +626,7 @@ int anongame_infos_URL_set_ladder_AT_3v3_URL(t_anongame_infos_URL * anongame_inf
 	return anongame_infos_set_str(&anongame_infos_URL->ladder_AT_3v3_URL,ladder_AT_3v3_URL,"ladder_AT_3v3_URL");
 }
 
-extern char * anongame_infos_URL_get_ladder_AT_3v3_url()
+extern char * anongame_infos_URL_get_ladder_AT_3v3_url(void)
 {
 	return anongame_infos->anongame_infos_URL->ladder_AT_3v3_URL;
 }
@@ -644,7 +642,7 @@ int anongame_infos_URL_set_ladder_AT_4v4_URL(t_anongame_infos_URL * anongame_inf
 	return anongame_infos_set_str(&anongame_infos_URL->ladder_AT_4v4_URL,ladder_AT_4v4_URL,"ladder_AT_4v4_URL");
 }
 
-extern char * anongame_infos_URL_get_ladder_AT_4v4_url()
+extern char * anongame_infos_URL_get_ladder_AT_4v4_url(void)
 {
 	return anongame_infos->anongame_infos_URL->ladder_AT_4v4_URL;
 }
@@ -2295,7 +2293,7 @@ extern int anongame_infos_load(char const * filename)
     t_parse_state			parse_state			= unchanged;
     t_anongame_infos_DESC *		anongame_infos_DESC		= NULL;
     char *				pointer;
-    char *				variable			= NULL;
+    char *				variable;
     char *				value				= NULL;
     t_anongame_infos_DESC_table_row	const *		DESC_table_row;
     t_anongame_infos_URL_table_row	const *		URL_table_row;
@@ -2375,7 +2373,7 @@ extern int anongame_infos_load(char const * filename)
 	      {
 		if ((buff[0]!='[') || (buff[strlen(buff)-1]!=']'))
 		  {
-		    eventlog(eventlog_level_error,__FUNCTION__,"expected [] section start, but found %s",buff);
+		    eventlog(eventlog_level_error,__FUNCTION__,"expected [] section start, but found %s on line %u",buff,line);
 		  }
 		else
 		  {

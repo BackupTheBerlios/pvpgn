@@ -557,7 +557,7 @@ extern int main(int argc, char * * argv)
     int a;
     int foreground = 0;
     char *hexfile = NULL;
-    char *pidfile = NULL;
+    char *pidfile;
 
 // Read the command line and set variables
     if ((a = read_commandline(argc, argv, &foreground, &preffile, &hexfile)) != 1)

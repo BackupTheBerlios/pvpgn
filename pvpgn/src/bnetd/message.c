@@ -131,7 +131,7 @@ extern char * message_format_line(t_connection const * c, char const * in)
     unsigned int inpos;
     unsigned int outpos;
     unsigned int outlen=MAX_INC;
-    int		 inlen;
+    unsigned int inlen;
     
     if (!(out = malloc(outlen+1)))
 	return NULL;

@@ -130,7 +130,7 @@ extern int clan_send_packet_to_online_members(t_clan * clan, t_packet * packet)
 
 extern int clan_send_status_window_on_create(t_clan * clan)
 {
-    t_packet *rpacket = NULL;
+    t_packet * rpacket;
     t_elem *curr;
 
     if (clan == NULL)
@@ -172,7 +172,7 @@ extern int clan_send_status_window_on_create(t_clan * clan)
 
 extern int clan_close_status_window_on_disband(t_clan * clan)
 {
-    t_packet *rpacket = NULL;
+    t_packet * rpacket;
     t_elem *curr;
 
     if (clan == NULL)
@@ -205,7 +205,7 @@ extern int clan_close_status_window_on_disband(t_clan * clan)
 
 extern int clan_send_status_window(t_connection * c)
 {
-    t_packet *rpacket = NULL;
+    t_packet * rpacket;
     t_account *acc = conn_get_account(c);
     t_clanmember *member;
     char const *clienttag;
@@ -231,7 +231,7 @@ extern int clan_send_status_window(t_connection * c)
 
 extern int clan_close_status_window(t_connection * c)
 {
-    t_packet *rpacket = NULL;
+    t_packet * rpacket;
     char const *clienttag;
 
     if ((clienttag = conn_get_clienttag(c)) && ((strcasecmp(clienttag, CLIENTTAG_WARCRAFT3) == 0) || (strcasecmp(clienttag, CLIENTTAG_WAR3XP) == 0)) && ((rpacket = packet_create(packet_class_bnet)) != NULL))
@@ -247,7 +247,7 @@ extern int clan_close_status_window(t_connection * c)
 
 extern int clan_send_member_status(t_connection * c, t_packet const *const packet)
 {
-    t_packet *rpacket = NULL;
+    t_packet * rpacket;
     t_elem *curr;
     char const *username;
     t_clanmember *member;
@@ -255,7 +255,7 @@ extern int clan_send_member_status(t_connection * c, t_packet const *const packe
     t_account *account;
     int count = 0;
     char tmpstr[2];
-    const char *append_str = NULL;
+    const char *append_str;
 
     if ((account = conn_get_account(c)) == NULL)
 	return -1;
@@ -321,7 +321,7 @@ extern int clan_save_motd_chg(t_connection * c, t_packet const *const packet)
 
 extern int clan_send_motd_reply(t_connection * c, t_packet const *const packet)
 {
-    t_packet *rpacket = NULL;
+    t_packet * rpacket;
     t_account *account;
     t_clan *clan;
 
@@ -354,7 +354,7 @@ extern int clan_send_motd_reply(t_connection * c, t_packet const *const packet)
 
 extern int clan_get_possible_member(t_connection * c, t_packet const *const packet)
 {
-    t_packet *rpacket = NULL;
+    t_packet * rpacket;
     t_channel *channel;
     t_connection *conn;
     char const *username;
@@ -420,7 +420,7 @@ extern int clan_get_possible_member(t_connection * c, t_packet const *const pack
 
 extern int clanmember_on_change_status(t_clanmember * member)
 {
-    t_packet *rpacket = NULL;
+    t_packet * rpacket;
     if (member == NULL)
     {
 	eventlog(eventlog_level_error, __FUNCTION__, "got NULL clanmember");
@@ -434,7 +434,7 @@ extern int clanmember_on_change_status(t_clanmember * member)
     if ((rpacket = packet_create(packet_class_bnet)) != NULL)
     {
 	char tmpstr[2];
-	const char *append_str = NULL;
+	const char *append_str;
 	packet_set_size(rpacket, sizeof(t_server_w3xp_clan_memberchangeack));
 	packet_set_type(rpacket, SERVER_W3XP_CLAN_MEMBERCHANGEACK);
 	packet_append_string(rpacket, account_get_name(member->memberacc));
@@ -453,7 +453,7 @@ extern int clanmember_on_change_status(t_clanmember * member)
 
 extern int clanmember_on_change_status_by_connection(t_connection * conn)
 {
-    t_packet *rpacket = NULL;
+    t_packet * rpacket;
     t_account *acc;
     t_clanmember *member;
     if (conn == NULL)
@@ -470,7 +470,7 @@ extern int clanmember_on_change_status_by_connection(t_connection * conn)
     if ((rpacket = packet_create(packet_class_bnet)) != NULL)
     {
 	char tmpstr[2];
-	const char *append_str = NULL;
+	const char *append_str;
 	packet_set_size(rpacket, sizeof(t_server_w3xp_clan_memberchangeack));
 	packet_set_type(rpacket, SERVER_W3XP_CLAN_MEMBERCHANGEACK);
 	packet_append_string(rpacket, account_get_name(acc));
@@ -582,7 +582,7 @@ extern int clan_save(t_clan * clan)
     return 0;
 }
 
-extern t_list *clanlist()
+extern t_list *clanlist(void)
 {
     return clanlist_head;
 }
@@ -613,7 +613,7 @@ extern int clanlist_add_clan(t_clan * clan)
     return clan->clanid;
 }
 
-int clanlist_load()
+int clanlist_load(void)
 {
     // make sure to unload previous clanlist before loading again
     if (clanlist_head)
@@ -630,7 +630,7 @@ int clanlist_load()
     return 0;
 }
 
-extern int clanlist_save()
+extern int clanlist_save(void)
 {
     t_elem *curr;
     t_clan *clan;
@@ -653,7 +653,7 @@ extern int clanlist_save()
     return 0;
 }
 
-extern int clanlist_unload()
+extern int clanlist_unload(void)
 {
     t_elem *curr;
     t_clan *clan;
@@ -1364,8 +1364,7 @@ extern int clan_get_member_count(t_clan * clan)
     int count = 0;
     LIST_TRAVERSE(clan->members, curr)
     {
-	t_clanmember *member;
-	if ((member = elem_get_data(curr)) != NULL)
+	if ((elem_get_data(curr)) != NULL)
 	    count++;
     }
     return count;

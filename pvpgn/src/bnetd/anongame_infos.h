@@ -143,15 +143,15 @@ typedef struct {
 extern int anongame_infos_load(char const * filename);
 extern int anongame_infos_unload(void);
 
-extern char * anongame_infos_URL_get_server_url();
-extern char * anongame_infos_URL_get_player_url();
-extern char * anongame_infos_URL_get_tourney_url();
-extern char * anongame_infos_URL_get_ladder_PG_1v1_url();
-extern char * anongame_infos_URL_get_ladder_PG_ffa_url();
-extern char * anongame_infos_URL_get_ladder_PG_team_url();
-extern char * anongame_infos_URL_get_ladder_AT_2v2_url();
-extern char * anongame_infos_URL_get_ladder_AT_3v3_url();
-extern char * anongame_infos_URL_get_ladder_AT_4v4_url();
+extern char * anongame_infos_URL_get_server_url(void);
+extern char * anongame_infos_URL_get_player_url(void);
+extern char * anongame_infos_URL_get_tourney_url(void);
+extern char * anongame_infos_URL_get_ladder_PG_1v1_url(void);
+extern char * anongame_infos_URL_get_ladder_PG_ffa_url(void);
+extern char * anongame_infos_URL_get_ladder_PG_team_url(void);
+extern char * anongame_infos_URL_get_ladder_AT_2v2_url(void);
+extern char * anongame_infos_URL_get_ladder_AT_3v3_url(void);
+extern char * anongame_infos_URL_get_ladder_AT_4v4_url(void);
 
 extern char * anongame_infos_DESC_get_ladder_PG_1v1_desc(char * langID);
 extern char * anongame_infos_DESC_get_ladder_PG_ffa_desc(char * langID);

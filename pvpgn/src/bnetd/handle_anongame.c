@@ -71,7 +71,7 @@ static unsigned int _tournament_time_convert(unsigned int time);
 /* and now the functions */
 static int _client_anongame_profile(t_connection * c, t_packet const * const packet)
 {
-    t_packet * rpacket = NULL;
+    t_packet * rpacket;
     char const * username;
     int Count;
     int temp;
@@ -299,7 +299,7 @@ static int _client_anongame_profile(t_connection * c, t_packet const * const pac
 	    {
 		int n;
 		int teamsize;
-		char * teammembers = NULL, *self = NULL, *p2, *p3;
+		char * teammembers, *self, *p2, *p3;
 		int teamtype[] = {0, 0x32565332, 0x33565333, 0x34565334, 0x35565335, 0x36565336};
 		
 		n = highest_lvl[i] + 1;
@@ -385,7 +385,7 @@ static int _client_anongame_profile(t_connection * c, t_packet const * const pac
 
 static int _client_anongame_cancel(t_connection * c)
 {
-    t_packet * rpacket = NULL;
+    t_packet * rpacket;
     t_connection * tc[ANONGAME_MAX_GAMECOUNT/2];
     
     // [quetzal] 20020809 - added a_count, so we dont refer to already destroyed anongame
@@ -426,7 +426,7 @@ static int _client_anongame_cancel(t_connection * c)
 
 static int _client_anongame_get_icon(t_connection * c, t_packet const * const packet)
 {
-    t_packet * rpacket = NULL;
+    t_packet * rpacket;
     
     //BlacKDicK 04/20/2003 Need some huge re-work on this.
     {
@@ -572,7 +572,7 @@ static int _client_anongame_set_icon(t_connection * c, t_packet const * const pa
 
 static int _client_anongame_infos(t_connection * c, t_packet const * const packet)
 {
-    t_packet * rpacket = NULL;
+    t_packet * rpacket;
     
     if (bn_int_get(packet->u.client_findanongame_inforeq.count) > 1) {
 	/* reply with 0 entries found */
@@ -600,7 +600,7 @@ static int _client_anongame_infos(t_connection * c, t_packet const * const packe
 	int server_tag_unk;
 	char ladr_count		= 0;
 	char server_tag_count	= 0;
-	char noitems		= 0;
+	char noitems;
 	char desc_count		= 0;
 	char mapscount_total	= 0;
 	char value		= 0;
@@ -895,7 +895,7 @@ static int _client_anongame_infos(t_connection * c, t_packet const * const packe
 /* tournament notice disabled at this time, but responce is sent to cleint */
 static int _client_anongame_tournament(t_connection * c, t_packet const * const packet)
 {
-    t_packet * rpacket = NULL;
+    t_packet * rpacket;
     
     t_account * account = conn_get_account(c);
     char const * clienttag = conn_get_clienttag(c);

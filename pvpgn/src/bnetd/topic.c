@@ -99,7 +99,7 @@ int topiclist_save(char const * topic_file)
 {
   t_elem  * curr;
   t_topic * topic;
-  FILE * fp = NULL;
+  FILE * fp;
 
   if (topiclist_head)
   {
@@ -206,7 +206,7 @@ int channel_set_topic(char const * channel_name, char const * topic_text, int do
 
 int topiclist_load(char const * topicfile)
 {
-  FILE * fp = NULL;
+  FILE * fp;
   char channel_name[CHANNEL_NAME_LEN];
   char topic[MAX_TOPIC_LEN];
 
@@ -238,7 +238,7 @@ int topiclist_load(char const * topicfile)
   return 0;
 }
 
-int topiclist_unload()
+int topiclist_unload(void)
 {
   t_elem  * curr;
   t_topic * topic;

@@ -92,10 +92,10 @@ t_clanmember;
 #undef JUST_NEED_TYPES
 
 
-extern t_list *clanlist();
-extern int clanlist_load();
-extern int clanlist_save();
-extern int clanlist_unload();
+extern t_list *clanlist(void);
+extern int clanlist_load(void);
+extern int clanlist_save(void);
+extern int clanlist_unload(void);
 extern int clanlist_remove_clan(t_clan * clan);
 extern int clanlist_add_clan(t_clan * clan);
 extern t_clan *clanlist_find_clan_by_clanid(int cid);

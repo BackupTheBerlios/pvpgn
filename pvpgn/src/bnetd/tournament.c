@@ -167,9 +167,7 @@ static t_tournament_user * tournament_get_user(t_account * account)
 
 extern int tournament_user_signed_up(t_account * account)
 {
-    t_tournament_user * user;
-    
-    if (!(user = tournament_get_user(account)))
+    if (!(tournament_get_user(account)))
 	return -1;
         
     return 0;
@@ -294,7 +292,7 @@ extern int tournament_init(char const * filename)
     unsigned int line,pos,mon,day,year,hour,min,sec;
     char *buff,*temp,*pointer,*value;
     char format[30];
-    char *variable = NULL;
+    char *variable;
     char *sponsor = NULL;
     char *have_sponsor = NULL;
     char *have_icon = NULL;
@@ -350,11 +348,10 @@ extern int tournament_init(char const * filename)
 	}
 	
 	if (strcmp(buff,"[MAPS]") == 0) {
-	    int mapsline;
 	    char *clienttag, *ctag, *mapname, *mname;
 	    
 	    free(buff);
-	    for (mapsline=1; (buff = file_get_line(fp)); mapsline++) {
+	    for (; (buff = file_get_line(fp));) {
 		for (pos=0; buff[pos]=='\t' || buff[pos]==' '; pos++);
 		if (buff[pos]=='\0' || buff[pos]=='#') {
 		    free(buff);

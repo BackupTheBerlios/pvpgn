@@ -1204,7 +1204,7 @@ static int _handle_friends_command(t_connection * c, char const * text)
 
     if (strstart(text,"add")==0 || strstart(text,"a")==0) {
 	char msgtemp[MAX_MESSAGE_LEN];
-	t_packet 	* rpacket=NULL;
+	t_packet 	* rpacket;
 	t_connection 	* dest_c;
 	t_account    	* friend_acc;
 	char tmp[7];
@@ -1316,7 +1316,7 @@ static int _handle_friends_command(t_connection * c, char const * text)
 
 	int num;
 	char msgtemp[MAX_MESSAGE_LEN];
-	t_packet * rpacket=NULL;
+	t_packet * rpacket;
     
 	text = skip_command(text);
 
@@ -2527,10 +2527,10 @@ static int _handle_news_command(t_connection * c, char const *text)
 	t_news_index const 	*newsindex;
 	t_elem const 		*curr;
 	char			date[64];
-	char			*body = NULL;
+	char			*body;
 	struct tm 		*temp;
 	time_t			temp1;
-	char			*temp2 = NULL;
+	char			*temp2;
 	int			i,j;
 	
 	LIST_TRAVERSE_CONST(newslist(),curr)
@@ -2539,7 +2539,7 @@ static int _handle_news_command(t_connection * c, char const *text)
 
 	    temp1 = news_get_date(newsindex);
 	    temp = localtime(&temp1);
-	    i = strftime(date, 64,"%B %d, %Y", temp);
+	    strftime(date, 64,"%B %d, %Y", temp);
 	    message_send_text(c,message_type_info,c,date);
 
 	    if ((body = news_get_body(newsindex)))

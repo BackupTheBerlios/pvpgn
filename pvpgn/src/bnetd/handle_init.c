@@ -113,10 +113,9 @@ extern int handle_init_packet(t_connection * c, t_packet const * const packet)
 
         case CLIENT_INITCONN_CLASS_D2CS_BNETD:
             {
-              t_realm   * realm;
               eventlog(eventlog_level_info,"handle_init_packet","[%d] client initiated d2cs_bnetd connection",conn_get_socket(c));
 
-              if (!(realm=realmlist_find_realm_by_ip(conn_get_addr(c))))
+              if (!(realmlist_find_realm_by_ip(conn_get_addr(c))))
               {
                  eventlog(eventlog_level_info,"handle_init_packet", "[%d] d2cs connection from unknown ip address %s",conn_get_socket(c),addr_num_to_addr_str(conn_get_addr(c),conn_get_port(c)));
                  return -1;

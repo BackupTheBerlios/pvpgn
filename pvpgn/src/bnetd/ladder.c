@@ -1101,9 +1101,9 @@ static int ladder_createxptable(const char *xplevelfile, const char *xpcalcfile)
    char buffer[256];
    char *p;
    int len,i ,j;
-   int level, startxp, neededxp, mingames;
+   int level, startxp, neededxp, mingames, calctype;
    float lossfactor;
-   int minlevel, leveldiff, higher_xpgained, higher_xplost, lower_xpgained, lower_xplost, calctype = 10;
+   int minlevel, leveldiff, higher_xpgained, higher_xplost, lower_xpgained, lower_xplost  = 10;
    
    if (xplevelfile == NULL || xpcalcfile == NULL) {
       eventlog(eventlog_level_error, "ladder_createxptable", "got NULL filename(s)");

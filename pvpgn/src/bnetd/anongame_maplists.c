@@ -166,7 +166,6 @@ extern int anongame_maplists_create(void)
       if (len < 1) continue;
       if (buffer[len-1] == '\n') {
 	 buffer[len-1] = '\0';
-	 len--;
       }
       
       /* search for comments and comment them out */

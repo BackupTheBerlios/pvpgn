@@ -1994,7 +1994,7 @@ extern int conn_set_channel(t_connection * c, char const * channelname)
     if (channelname)
     {
 #ifndef WITH_BITS
-	unsigned int created = 0;
+	unsigned int created;
 #endif
 
     clan=account_get_clan(acc);
@@ -4126,7 +4126,7 @@ extern int conn_update_w3_playerinfo(t_connection * c)
     char const * 	clienttag;
     t_clan * 		user_clan;
     int 		clanshort=0;
-    unsigned int	acctlevel = 0;
+    unsigned int	acctlevel;
     char		tempplayerinfo[40];
     char		raceicon; /* appeared in 1.03 */
     unsigned int	raceiconnumber;

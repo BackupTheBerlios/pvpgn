@@ -1675,8 +1675,6 @@ extern int account_check_closed_character(t_account * account, char const * clie
 
 	if (strcmp(tempname, charname) == 0)
 	    return 1;
-
-	start = next_char + 1;
     }
     
     return 0;
@@ -1686,7 +1684,6 @@ extern int account_check_closed_character(t_account * account, char const * clie
 extern char const * account_get_closed_characterlist(t_account * account, char const * clienttag, char const * realmname)
 {
     char realmkey[256];
-    int  realmkeylen;
     
     if (!clienttag || strlen(clienttag)!=4)
     {
@@ -1707,7 +1704,6 @@ extern char const * account_get_closed_characterlist(t_account * account, char c
     }
 
     sprintf(realmkey,"BNET\\CharacterList\\%s\\%s\\0",clienttag,realmname);
-    realmkeylen=strlen(realmkey);
     eventlog(eventlog_level_debug,"account_get_closed_characterlist","looking for '%s'",realmkey);
 
     return account_get_strattr(account, realmkey);
@@ -2619,8 +2615,8 @@ extern void account_get_raceicon(t_account * account, char * raceicon, unsigned 
 
 extern int account_get_profile_calcs(t_account * account, int xp, unsigned int Level)
 {
-        unsigned int xp_min;
-	unsigned int xp_max;
+        int xp_min;
+	int xp_max;
 	unsigned int i;
 	int  t;
 	unsigned int startlvl;
@@ -3236,9 +3232,9 @@ extern unsigned int account_get_icon_profile(t_account * account, char const * c
 	unsigned int nightelf	= account_get_racewin(account,W3_RACE_NIGHTELVES,clienttag);	        //  4;
 	unsigned int undead	= account_get_racewin(account,W3_RACE_UNDEAD,clienttag);		//  8;
 	unsigned int random	= account_get_racewin(account,W3_RACE_RANDOM,clienttag);		// 32;
-	unsigned int race	= 0; // 0 = Humans, 1 = Orcs, 2 = Night Elves, 3 = Undead, 4 = Ramdom
+	unsigned int race; 	     // 0 = Humans, 1 = Orcs, 2 = Night Elves, 3 = Undead, 4 = Ramdom
 	unsigned int level	= 0; // 0 = under 25, 1 = 25 to 249, 2 = 250 to 499, 3 = 500 to 1499, 4 = 1500 or more (wins)
-	unsigned int wins	= 0;
+	unsigned int wins;
 	int number_ctag		= 0;
 
 	/* moved the check for orcs in the first place so people with 0 wins get peon */
@@ -3285,7 +3281,7 @@ extern unsigned int account_icon_to_profile_icon(char const * icon,t_account * a
 	int number_ctag=0;
 
 	if (icon==NULL) return account_get_icon_profile(account,ctag);
-	if (sizeof(icon)>=4){
+	if (strlen(icon)>=4){
 		strncpy(tmp_icon,icon,4);
 		tmp_icon[0]=tmp_icon[0]-48;
 		if (strcmp(ctag,CLIENTTAG_WAR3XP) == 0) {

@@ -61,14 +61,12 @@ extern int news_load(const char *filename)
 {
     unsigned int	line;
     unsigned int	len;
-    unsigned long	loffset;	
     char		*buff;
     struct tm		*date;
-	char date_set;
-    t_news_index	*ni=NULL;
+    char date_set;
+    t_news_index	*ni;
     
-    loffset = 0;
-	date_set = 0;
+    date_set = 0;
 
     if (!filename) {
 	eventlog(eventlog_level_error, __FUNCTION__,"got NULL fullname");
@@ -113,18 +111,18 @@ extern int news_load(const char *filename)
 			case 0:
 		    	    date->tm_mon=atoi(dpart)-1;
 					if ((date->tm_mon<1) || (date->tm_mon>12))
-						eventlog(eventlog_level_error,__FUNCTION__,"found invalid month (%i) in news date. (format: {MM/DD/YYYY})",date->tm_mon);
+						eventlog(eventlog_level_error,__FUNCTION__,"found invalid month (%i) in news date. (format: {MM/DD/YYYY}) on line %u",date->tm_mon,line);
 		    	    break;
 			case 1:
 		    	    date->tm_mday=atoi(dpart);
 					if ((date->tm_mday<1) || (date->tm_mday>31))
-						eventlog(eventlog_level_error,__FUNCTION__,"found invalid month day (%i) in news date. (format: {MM/DD/YYYY})",date->tm_mday);
+						eventlog(eventlog_level_error,__FUNCTION__,"found invalid month day (%i) in news date. (format: {MM/DD/YYYY}) on line %u",date->tm_mday,line);
 		    	    break;
 			case 2:
 		    	    date->tm_year=atoi(dpart)-1900;
 		    	    break;
 			default:
-		    	    eventlog(eventlog_level_error,__FUNCTION__,"error parsing news date");
+		    	    eventlog(eventlog_level_error,__FUNCTION__,"error parsing news date on line %u",line);
 		    	    free((void *)dpart);
 					free((void *)date);
 					free((void *)buff);
@@ -163,7 +161,7 @@ extern int news_load(const char *filename)
 		else
 		{
 			ni->date=time(0);
-			eventlog(eventlog_level_error,__FUNCTION__,"(first) news entry seems to be missing a timestamp, please check your news file");
+			eventlog(eventlog_level_error,__FUNCTION__,"(first) news entry seems to be missing a timestamp, please check your news file on line %u",line);
 		}
 	    ni->body=strdup(buff);
 	    
@@ -171,7 +169,6 @@ extern int news_load(const char *filename)
 		eventlog(eventlog_level_error,"news_load","could not append item");
 		if (ni)
 		    free(ni);
-		ni=NULL;
 		continue;
 	    }
 	}

@@ -97,7 +97,7 @@ static char * channel_format_name(char const * sname, char const * country, char
 
 extern int channel_set_flags(t_connection * c);
 
-extern t_channel * channel_create(char const * fullname, char const * shortname, char const * clienttag, int permflag, int botflag, int operflag, int logflag, char const * country, char const * realmname, int maxmembers, unsigned int moderated)
+extern t_channel * channel_create(char const * fullname, char const * shortname, char const * clienttag, int permflag, int botflag, int operflag, int logflag, char const * country, char const * realmname, int maxmembers,int moderated)
 {
     t_channel * channel;
     
@@ -1594,7 +1594,7 @@ extern int channellist_reload(void)
   t_elem * curr;
   t_channel * channel, * old_channel;
   t_channelmember * memberlist, * member, * old_member;
-  t_list * channellist_old=NULL;
+  t_list * channellist_old;
 
   if (channellist_head)
     {
@@ -1731,7 +1731,6 @@ extern int channellist_reload(void)
 
       if (list_destroy(channellist_old)<0)
 	return -1;
-      channellist_old = NULL;
     }
   return 0;
 
@@ -2017,14 +2016,12 @@ extern t_channel * channellist_find_channel_bychannelid(unsigned int channelid)
 
 extern int channel_set_flags(t_connection * c)
 {
-  unsigned int	currflags;
   unsigned int	newflags;
   char const *	channel;
   t_account  *	acc;
   
   if (!c) return -1; // user not connected, no need to update his flags
   
-  currflags = conn_get_flags(c);
   acc = conn_get_account(c);
   
   /* well... unfortunatly channel_get_name never returns NULL but "" instead 

@@ -76,9 +76,9 @@ static int handle_irc_line(t_connection * conn, char const * ircline)
 {   /* [:prefix] <command> [[param1] [param2] ... [paramN]] [:<text>]*/
     char * line; /* copy of ircline */
     char * prefix = NULL; /* optional; mostly NULL */
-    char * command = NULL; /* mandatory */
+    char * command; /* mandatory */
     char ** params = NULL; /* optional (array of params) */
-    char * text = NULL; /* optional */
+    char * text; /* optional */
 	char * bnet_command = NULL;  //amadeo: used for battle.net.commands
     int unrecognized_before = 0;
 	int linelen; //amadeo: counter for stringlenghts
@@ -180,9 +180,8 @@ static int handle_irc_line(t_connection * conn, char const * ircline)
 
     if (strcmp(command,"NICK")==0) {
     	/* FIXME: more strict param checking */
-	char const * temp;
 
-	if ((temp = conn_get_botuser(conn))) {
+	if ((conn_get_botuser(conn))) {
 	    irc_send(conn,ERR_RESTRICTED,":You can only set your nickname once");
 	} else {
 	    if ((params)&&(params[0]))
@@ -415,10 +414,7 @@ else if (conn_get_state(conn)==conn_state_loggedin) {
 	if (numparams>=1) {
 	    int i;
 	    char ** e;
-	    int oflag = 0;
 
-	    if ((numparams>=2)&&(strcmp(params[1],"o"))==0)
-	    	oflag = 1;
 	    e = irc_get_listelems(params[0]);
 	    for (i=0; ((e)&&(e[i]));i++) {
 	    	irc_who(conn,e[i]);

@@ -1774,7 +1774,7 @@ extern int account_check_mutual( t_account * account, int myuserid)
     }
     else
     {
-	int i=0;
+	int i;
 	int n = account_get_friendcount(account);
 	int friend;
 	for(i=0; i<n; i++) 
@@ -1814,7 +1814,7 @@ extern t_list * account_get_friends(t_account * account)
 
 static int account_load_friends(t_account * account)
 {
-    int i=0;
+    int i;
     int n;
     int friend;
     t_account * acc;

@@ -469,8 +469,6 @@ extern int adbannerlist_create(char const * filename)
     
     for (line=1; (buff = file_get_line(fp)); line++)
     {
-	name = NULL; when = NULL; link = NULL; client = NULL;
-	
         for (pos=0; buff[pos]=='\t' || buff[pos]==' '; pos++);
         if (buff[pos]=='\0' || buff[pos]=='#')
         {
