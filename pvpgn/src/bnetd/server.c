@@ -1253,7 +1253,7 @@ static void _server_mainloop(t_addrlist *laddrs)
     {
 #ifdef WIN32
 # ifndef WIN32_GUI
-	if (kbhit() && getch()=='q')
+	if (g_ServiceStatus<0 && kbhit() && getch()=='q')
 	    server_quit_wraper();
 # endif
 	if (g_ServiceStatus == 0) server_quit_wraper();

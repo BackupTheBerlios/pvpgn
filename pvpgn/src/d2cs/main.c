@@ -67,7 +67,7 @@
 #include "common/xalloc.h"
 #include "common/setup_after.h"
 
-int g_ServiceStatus = 1;
+int g_ServiceStatus = -1;
 
 static int init(void);
 static int cleanup(void);

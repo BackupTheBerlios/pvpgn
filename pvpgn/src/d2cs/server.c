@@ -284,7 +284,7 @@ static int server_loop(void)
 	while (1) {
 
 #ifdef WIN32
-	if (kbhit() && getch()=='q')
+	if (g_ServiceStatus<0 && kbhit() && getch()=='q')
 	    signal_quit_wrapper();
 	if (g_ServiceStatus == 0) signal_quit_wrapper();
 

@@ -194,6 +194,7 @@ void WINAPI ServiceMain(DWORD argc, char *argv[])
 		// service main cycle //
 		////////////////////////
 
+		g_ServiceStatus = 1;
 		argc = 1;
 
 		main(argc, argv);

@@ -62,7 +62,7 @@
 
 static FILE * eventlog_fp;
 
-int g_ServiceStatus = 1;
+int g_ServiceStatus = -1;
 
 static int init(void);
 static int cleanup(void);

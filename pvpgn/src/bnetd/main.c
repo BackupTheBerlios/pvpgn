@@ -144,10 +144,11 @@ static void oom_free(void)
 FILE	*hexstrm = NULL;
 
 // by quetzal. indicates service status
-// 0 - stopped
-// 1 - running
-// 2 - paused
-int g_ServiceStatus = 1;
+// -1 - not in service mode
+//  0 - stopped
+//  1 - running
+//  2 - paused
+int g_ServiceStatus = -1;
 
 static void usage(char const * progname);
 

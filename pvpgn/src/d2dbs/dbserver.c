@@ -386,7 +386,7 @@ void dbs_server_loop(int lsocket)
 	while (1) {
 
 #ifdef WIN32
-	if (kbhit() && getch()=='q')
+	if (g_ServiceStatus<0 && kbhit() && getch()=='q')
 	    d2dbs_signal_quit_wrapper();
 	if (g_ServiceStatus == 0) d2dbs_signal_quit_wrapper();
 
