@@ -929,7 +929,7 @@ extern void handle_anongame_search(t_connection * c, t_packet const * packet)
 		bn_int_set(&rpacket->u.server_anongame_found.unknown1,0);
 		
 		if (strcmp(conn_get_clienttag(c), CLIENTTAG_WAR3XP) == 0)
-		    mapname = "Maps\\FrozenThrone\\Beta\\(4)TrtleRock.w3x";
+		    mapname = "Maps\\FrozenThrone\\Beta\\(4)TurtleRock.w3x";
 		
 		bn_int_set(&rpacket->u.server_anongame_found.ip,w3routeip);
 		bn_short_set(&rpacket->u.server_anongame_found.port,w3routeport);
