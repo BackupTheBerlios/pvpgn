@@ -87,7 +87,8 @@ static t_conf_table prefs_conf_table[]={
     { "account_allowed_symbols",offsetof(t_prefs,account_allowed_symbols),conf_type_str,(int)DEFAULT_ACC_ALLOWED_SYMBOLS},
     { "d2gs_restart_delay",	offsetof(t_prefs,d2gs_restart_delay),conf_type_int,    DEFAULT_D2GS_RESTART_DELAY   },
     { "char_expire_day",	offsetof(t_prefs,char_expire_day),   conf_type_int,    0                            },
-    { NULL,                     0,                                   conf_type_none,   0                            }
+	{ "d2gsconffile",		offsetof(t_prefs,d2gsconffile),		conf_type_str,    (int)""                           },
+	{ NULL,                     0,                                   conf_type_none,   0                            }
 };
 
 static t_prefs prefs_conf;
@@ -326,4 +327,9 @@ extern unsigned int prefs_get_d2gs_restart_delay(void)
 extern unsigned int prefs_get_char_expire_time(void)
 {
 	return prefs_conf.char_expire_day * 3600 * 24;
+}
+
+extern char const * prefs_get_d2gsconffile(void)
+{
+	return prefs_conf.d2gsconffile;
 }

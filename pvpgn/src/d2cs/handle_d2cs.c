@@ -54,6 +54,19 @@
 # include <sys/stat.h>
 #endif
 
+#ifdef HAVE_SYS_SOCKET_H
+# include <sys/socket.h>
+#endif
+#ifdef HAVE_NETINET_IN_H
+# include <netinet/in.h>
+#endif
+#include "compat/socket.h"
+#include "compat/netinet_in.h"
+#ifdef HAVE_ARPA_INET_H
+# include <arpa/inet.h>
+#endif
+#include "compat/inet_ntoa.h"
+
 #include "compat/pdir.h"
 #include "compat/mkdir.h"
 #include "d2charfile.h"
@@ -338,6 +351,7 @@ static int on_client_creategamereq(t_connection * c, t_packet * packet)
 	} else {
 		t_packet	* gspacket;
 		t_sq		* sq;
+		struct in_addr	addr;
 
 		if ((gspacket=packet_create(packet_class_d2gs))) {
 			if ((sq=sq_create(d2cs_conn_get_sessionnum(c),packet,d2cs_game_get_id(game)))) {
@@ -349,6 +363,12 @@ static int on_client_creategamereq(t_connection * c, t_packet * packet)
 				bn_byte_set(&gspacket->u.d2cs_d2gs_creategamereq.expansion,expansion);
 				bn_byte_set(&gspacket->u.d2cs_d2gs_creategamereq.ladder,ladder);
 				packet_append_string(gspacket,gamename);
+				packet_append_string(gspacket,gamepass);
+				packet_append_string(gspacket,gamedesc);
+				packet_append_string(gspacket,d2cs_conn_get_account(c));
+				packet_append_string(gspacket,d2cs_conn_get_charname(c));
+				addr.s_addr = htonl(d2cs_conn_get_addr(c));
+				packet_append_string(gspacket,inet_ntoa(addr));
 				queue_push_packet(d2cs_conn_get_out_queue(d2gs_get_connection(gs)),gspacket);
 			}
 			packet_del_ref(gspacket);
@@ -422,6 +442,7 @@ static int on_client_joingamereq(t_connection * c, t_packet * packet)
 	} else {
 		t_packet	* gspacket;
 		t_sq		* sq;
+		struct in_addr	addr;
 		
 		if ((gspacket=packet_create(packet_class_d2gs))) {
 			if ((sq=sq_create(d2cs_conn_get_sessionnum(c),packet,d2cs_game_get_id(game)))) {
@@ -434,6 +455,8 @@ static int on_client_joingamereq(t_connection * c, t_packet * packet)
 				bn_int_set(&gspacket->u.d2cs_d2gs_joingamereq.token,sq_get_gametoken(sq));
 				packet_append_string(gspacket,charname);
 				packet_append_string(gspacket,account);
+				addr.s_addr = htonl(d2cs_conn_get_addr(c));
+				packet_append_string(gspacket,inet_ntoa(addr));
 				queue_push_packet(d2cs_conn_get_out_queue(d2gs_get_connection(gs)),gspacket);
 			}
 			packet_del_ref(gspacket);

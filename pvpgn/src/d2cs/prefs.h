@@ -34,6 +34,7 @@ typedef struct
 	char const	* d2gs_password;
 	char const	* d2gstransfile;
 	char const      * account_allowed_symbols;
+	char const	* d2gsconffile;
 	unsigned int	ladder_refresh_interval;
 	unsigned int	maxchar;
 	unsigned int	listpurgeinterval;

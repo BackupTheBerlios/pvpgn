@@ -89,7 +89,7 @@ extern t_gq * gq_create(unsigned int clientid, t_packet * packet, char const * g
 	if (packet) packet_add_ref(packet);
 	if (list_append_data(gqlist_head,gq)<0) {
 		eventlog(eventlog_level_error,__FUNCTION__,"error add game queue to list");
-		packet_del_ref(packet);
+		if (packet) packet_del_ref(packet);
 		free(gq);
 		return NULL;
 	}

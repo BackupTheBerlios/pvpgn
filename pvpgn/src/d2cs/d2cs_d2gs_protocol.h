@@ -125,6 +125,14 @@ typedef struct
 	/* ac_checksum */
 } t_d2cs_d2gs_setinitinfo;
 
+#define D2CS_D2GS_SETCONFFILE		0x16
+typedef struct
+{
+	t_d2cs_d2gs_header	h;
+	bn_int			size;
+	bn_int			reserved1;
+	/* conf file (null terminated string) */
+} t_d2cs_d2gs_setconffile;
 
 #define D2CS_D2GS_CREATEGAMEREQ		0x20
 typedef struct
@@ -135,6 +143,11 @@ typedef struct
 	bn_byte			difficulty;
 	bn_byte			hardcore;
 	/* gamename */
+	/* gamepass */
+	/* gamedesc */
+	/* create by acctname */
+	/* create by charname */
+	/* create by ip address(string) */
 } t_d2cs_d2gs_creategamereq;
 #define D2GAME_DIFFICULTY_NORMAL	0
 #define D2GAME_DIFFICULTY_NIGHTMARE	1
@@ -159,6 +172,7 @@ typedef struct
 	bn_int			token;
 	/* character name */
 	/* account name */
+	/* client ip address(string) */
 } t_d2cs_d2gs_joingamereq;
 
 #define D2GS_D2CS_JOINGAMEREPLY		0x21

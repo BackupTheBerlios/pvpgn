@@ -125,7 +125,56 @@ static void d2gs_send_init_info(t_d2gs * gs, t_connection * c)
 	return;
 }
 
+static void d2gs_send_server_conffile(t_d2gs *gs, t_connection *c)
+{
+	t_packet	*rpacket;
+	FILE		*fp;
+	char		*confs;
+	long		size;
 
+	/* open d2gs server config file */
+	if ((fp=fopen(prefs_get_d2gsconffile(), "r"))==NULL)
+		return;
+	/* get file size */
+	if (fseek(fp, 0L, SEEK_END)) {
+		fclose(fp);
+		eventlog(eventlog_level_debug,__FUNCTION__,"failed fseek(), %d", errno);
+		return;
+	}
+	if ((size = ftell(fp)) <= 0) {
+		fclose(fp);
+		eventlog(eventlog_level_error,__FUNCTION__,"failed ftell(), %d", errno);
+		return;
+	}
+	fseek(fp, 0L, SEEK_SET);
+	/* read config file content */
+	confs = malloc(size+8);
+	if (confs==NULL) {
+		fclose(fp);
+		eventlog(eventlog_level_error,__FUNCTION__,"not enough memory");
+		return;
+	}
+	if (fread(confs, size, 1, fp) != 1) {
+		fclose(fp);
+		free(confs);
+		eventlog(eventlog_level_error,__FUNCTION__,"failed fread(), %d", errno);
+		return;
+	}
+	fclose(fp);
+	/* send the config within a packet */
+	if ((rpacket=packet_create(packet_class_d2gs))) {
+		packet_set_size(rpacket,sizeof(t_d2cs_d2gs_setconffile));
+		packet_set_type(rpacket,D2CS_D2GS_SETCONFFILE);
+		bn_int_set(&rpacket->u.d2cs_d2gs_setconffile.size, size);
+		bn_int_set(&rpacket->u.d2cs_d2gs_setconffile.reserved1, time(NULL));
+		packet_append_string(rpacket,confs);
+		queue_push_packet(d2cs_conn_get_out_queue(c),rpacket);
+		packet_del_ref(rpacket);
+		eventlog(eventlog_level_info,__FUNCTION__,"send config file to d2gs %s", addr_num_to_ip_str(d2cs_conn_get_addr(c)));
+	}
+	free(confs);
+	return;
+}
 
 static int on_d2gs_authreply(t_connection * c, t_packet * packet)
 {
@@ -158,9 +207,9 @@ static int on_d2gs_authreply(t_connection * c, t_packet * packet)
 		eventlog(eventlog_level_error,__FUNCTION__,"game server %d major version mismatch 0x%X - 0x%X",conn_get_d2gs_id(c),
 			version,conf_version);
 		reply=D2CS_D2GS_AUTHREPLY_BAD_VERSION;
-//	} else if (prefs_get_d2gs_checksum() && try_checksum != checksum) {
-//		eventlog(eventlog_level_error,__FUNCTION__,"game server %d checksum mismach 0x%X - 0x%X",conn_get_d2gs_id(c),try_checksum,checksum);
-//		reply=D2CS_D2GS_AUTHREPLY_BAD_CHECKSUM;
+	} else if (prefs_get_d2gs_checksum() && try_checksum != checksum) {
+		eventlog(eventlog_level_error,__FUNCTION__,"game server %d checksum mismach 0x%X - 0x%X",conn_get_d2gs_id(c),try_checksum,checksum);
+		reply=D2CS_D2GS_AUTHREPLY_BAD_CHECKSUM;
 //	} else if (license_verify_reply(c, randnum, sign, signlen)) {
 //		eventlog(eventlog_level_error,__FUNCTION__,"game server %d signal mismach", conn_get_d2gs_id(c));
 //		reply=D2CS_D2GS_AUTHREPLY_BAD_CHECKSUM;
@@ -171,6 +220,7 @@ static int on_d2gs_authreply(t_connection * c, t_packet * packet)
 	if (reply==D2CS_D2GS_AUTHREPLY_SUCCEED) {
 		eventlog(eventlog_level_info,__FUNCTION__,"game server %s authed",addr_num_to_ip_str(d2cs_conn_get_addr(c)));
 		d2cs_conn_set_state(c,conn_state_authed);
+		d2gs_send_server_conffile(gs, c);
 		d2gs_send_init_info(gs, c);
 		d2gs_active(gs,c);
 	} else {
@@ -351,7 +401,11 @@ static int on_d2gs_joingamereply(t_connection * c, t_packet * packet)
 		packet_set_type(rpacket,D2CS_CLIENT_JOINGAMEREPLY);
 		bn_short_set(&rpacket->u.d2cs_client_joingamereply.seqno,
 				bn_short_get(opacket->u.client_d2cs_joingamereq.seqno));
-		bn_short_set(&rpacket->u.d2cs_client_joingamereply.gameid,game_get_d2gs_gameid(game));
+		/* specific flag for anti-cheating support */
+		/*
+		bn_short_set(&rpacket->u.d2cs_client_joingamereply.gameid,(unsigned short)game_get_d2gs_gameid(game)|0x8000);
+		*/
+		bn_short_set(&rpacket->u.d2cs_client_joingamereply.gameid,(unsigned short)game_get_d2gs_gameid(game));
 
 		bn_short_set(&rpacket->u.d2cs_client_joingamereply.u1,0);
 		bn_int_set(&rpacket->u.d2cs_client_joingamereply.reply,reply);
