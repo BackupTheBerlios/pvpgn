@@ -235,7 +235,7 @@ extern int conf_parse_param(int argc, char ** argv, t_conf_table * conf_table, v
 						break;
 					case conf_type_timestr:
 						if (i+1>=argc) {
-							eventlog(eventlog_level_error,"got bad timestr conf %s without value",argv[i]);
+							eventlog(eventlog_level_error,__FUNCTION__,argv[i]);
 							break;
 						}
 						i++;
