@@ -43,11 +43,11 @@
 #define CLIENT_EXEINFO_DRTL     "Diablo.exe 05/18/01 23:10:57 767760"
 #define CLIENT_CHECKSUM_DRTL    0xac337ef9
 
-//plain Starcraft 1.11
+//plain Starcraft 1.11b
 #define CLIENT_VERSIONID_STAR   0x000000c9
-#define CLIENT_GAMEVERSION_STAR 0x01010101
-#define CLIENT_EXEINFO_STAR     "starcraft.exe 04/27/04 05:46:02 1048576"
-#define CLIENT_CHECKSUM_STAR    0xf0f41f2d
+#define CLIENT_GAMEVERSION_STAR 0x01010103
+#define CLIENT_EXEINFO_STAR     "starcraft.exe 05/26/04 00:46:00 1048576"
+#define CLIENT_CHECKSUM_STAR    0xe6380bff
 
 
 #define CLIENT_VERSIONID_SSHR   0x000000a5 /* FIXME: wrong? */
@@ -55,11 +55,11 @@
 #define CLIENT_EXEINFO_SSHR     "starcraft.exe 03/08/99 22:41:50 1042432" /* FIXME: wrong */
 #define CLIENT_CHECKSUM_SSHR    0x12345678
 
-//Broodwar 1.11
+//Broodwar 1.11b
 #define CLIENT_VERSIONID_SEXP   0x000000c9
-#define CLIENT_GAMEVERSION_SEXP 0x01010101
-#define CLIENT_EXEINFO_SEXP     "starcraft.exe 04/27/04 05:12:02 1048576"
-#define CLIENT_CHECKSUM_SEXP    0xb977ab00
+#define CLIENT_GAMEVERSION_SEXP 0x01010103
+#define CLIENT_EXEINFO_SEXP     "starcraft.exe 05/26/04 00:46:00 1048576"
+#define CLIENT_CHECKSUM_SEXP    0xe6380bff
 
 //Warcraft 2 Battle.Net Edition 2.02b
 #define CLIENT_VERSIONID_W2BN   0x0000004f
