@@ -562,7 +562,7 @@ extern int main(int argc, char * * argv)
 
 // Fork to child process if not set to foreground    
     if ((a = fork_bnetd(foreground)) != 0)
-	return a < 0 ? a : 0; /* dizzy: dont return code != 0 when things are OK! */
+	return a;
 
     eventlog_set(stderr);
     /* errors to eventlog from here on... */

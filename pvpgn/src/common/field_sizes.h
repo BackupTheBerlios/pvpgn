@@ -55,6 +55,7 @@
 #define MAX_ATTRKEY_STR      1024 /* including terminating NUL char */
 #define MAX_ATTRVAL_STR      4096 /* including terminating NUL char */
 #define MAX_IRC_MESSAGE_LEN 512 /* including CRLF (according to RFC 2812) */
+#define MAX_TOPIC_LEN         201 /* including terminating NUL char */
 
 
 #endif

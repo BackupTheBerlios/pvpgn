@@ -58,6 +58,7 @@ extern char const * prefs_get_motdfile(void) PURE_ATTR();
 extern char const * prefs_get_newsfile(void) PURE_ATTR();
 extern char const * prefs_get_adfile(void) PURE_ATTR();
 extern char const * prefs_get_clandir(void) PURE_ATTR();
+extern char const * prefs_get_topicfile(void) PURE_ATTR();
 extern unsigned int prefs_get_user_sync_timer(void) PURE_ATTR();
 extern unsigned int prefs_get_user_flush_timer(void) PURE_ATTR();
 extern char const * prefs_get_servername(void) PURE_ATTR();

@@ -155,6 +155,7 @@ ${SRC_BNETDDIR}/handle_anongame.o \
 ${SRC_BNETDDIR}/tournament.o \
 ${SRC_BNETDDIR}/anongame_maplists.o\
 ${SRC_BNETDDIR}/clan.o\
+${SRC_BNETDDIR}/topic.o\
 ${SRC_COMMONDIR}/hexdump.o \
 ${SRC_COMMONDIR}/bn_type.o \
 ${SRC_COMMONDIR}/packet.o \

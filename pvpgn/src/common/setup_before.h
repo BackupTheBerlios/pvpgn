@@ -156,6 +156,7 @@
 #define BNETD_LADDER_DIR        "var/ladders"
 #define BNETD_STATUS_DIR        "var/status"
 #define BNETD_CLAN_DIR		"var/clans"
+#define BNETD_TOPIC_FILE	"var/topics"
 
 #define BNETD_COMMAND_GROUPS_FILE "conf/command_groups.txt"
 #define BNETD_TOURNAMENT_FILE	"conf/tournament.conf"

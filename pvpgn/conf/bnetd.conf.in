@@ -72,6 +72,7 @@ channelfile = /usr/local/etc/channel.list
 newsfile    = /usr/local/etc/news.txt
 adfile      = /usr/local/etc/ad.list
 clandir     = /usr/local/var/clans
+topicfile   = /usr/local/etc/topics
 ipbanfile   = /usr/local/etc/bnban
 helpfile    = /usr/local/etc/bnhelp
 transfile   = /usr/local/etc/gametrans

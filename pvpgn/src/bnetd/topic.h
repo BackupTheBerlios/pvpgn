@@ -36,13 +36,9 @@ typedef struct topic
 {
   char *   channel_name;
   char *   topic;
-  int      save;
 }
 #endif
 t_topic;
-
-#define DO_SAVE_TOPIC 1
-#define NO_SAVE_TOPIC 0
 
 #endif
 
@@ -56,8 +52,8 @@ t_topic;
 
 int    topiclist_load(char const * topicfile);
 int    topiclist_unload();
-int    channel_set_topic(char const * channel_name, char const * topic_text, int do_save);
-char * channel_get_topic(char const * channel_name);
+int    channel_set_topic(char * channel_name, char * topic_text);
+char * channel_get_topic(char * channel_name);
 
 #endif
 #endif
