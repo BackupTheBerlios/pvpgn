@@ -433,7 +433,7 @@ max_conns_per_IP = 0
 w3routeaddr = "0.0.0.0:6200"
 
 # w3routeshow has been removed.
-# see the w3trans file for translating the w3route ip for local networks
+# see the address_translation.conf for translating the w3route ip for local networks
 
 # initkill_timer sets up a periodic timer on init/defer class connections
 # this should detect and clean up stale connections to your server
