@@ -112,6 +112,7 @@ extern int d2dbs_handle_signal(void)
 	if (signal_data.exit_time) {
 		now=time(NULL);
 		if (now >= (signed)signal_data.exit_time) {
+			signal_data.exit_time=0;
 			eventlog(eventlog_level_info,__FUNCTION__,"shutdown server due to signal");
 			return -1;
 		}
@@ -167,7 +168,6 @@ extern void d2dbs_signal_save_ladder_wrapper(void)
 extern void d2dbs_signal_exit_wrapper(void)
 {
     signal_data.exit_time = 1;
-    signal_data.do_quit = 1;
 }
 #else
 extern int d2dbs_handle_signal_init(void)

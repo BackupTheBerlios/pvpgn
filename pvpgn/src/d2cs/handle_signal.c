@@ -115,6 +115,7 @@ extern int handle_signal(void)
 	if (signal_data.exit_time) {
 		now=time(NULL);
 		if (now >= (signed)signal_data.exit_time) {
+			signal_data.exit_time=0;
 			eventlog(eventlog_level_info,__FUNCTION__,"shutdown server due to signal");
 			return -1;
 		}
@@ -185,7 +186,6 @@ extern void signal_load_ladder_wrapper(void)
 extern void signal_exit_wrapper(void)
 {
     signal_data.exit_time = 1;
-    signal_data.do_quit = 1;
 }
 
 extern void signal_restart_d2gs_wrapper(void)
