@@ -62,7 +62,7 @@ static int sql_pgsql_init(const char *host, const char *port, const char *socket
     }
 
     if (PQstatus(pgsql) != CONNECTION_OK) {
-        eventlog(eventlog_level_error, __FUNCTION__, "error connecting to database");
+        eventlog(eventlog_level_error, __FUNCTION__, "error connecting to database (db said: '%s')", PQerrorMessage(pgsql));
 	PQfinish(pgsql);
 	pgsql = NULL;
         return -1;
