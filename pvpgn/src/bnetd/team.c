@@ -108,7 +108,7 @@ int teamlist_add_team(t_team * team)
     }
     
     for (i=0; i<team->size; i++)
-      ;//account_add_team(account[i],team);
+      account_add_team(account[i],team);
     
     if (!(team->teamid))
 	team->teamid = ++max_teamid;
