@@ -1736,7 +1736,7 @@ extern int game_add_player(t_game * game, char const * pass, int startver, t_con
     {
 	char const * tname;
 
-	eventlog(eventlog_level_error,"game_add_player","player \"%s\" client \"%s\" startver %u joining game startver %u (count=%u ref=%u)",(tname = account_get_name(conn_get_account(c))),conn_get_clienttag(c),startver,game->startver,game->count,game->ref);
+	eventlog(eventlog_level_error,"game_add_player","player \"%s\" client \"%s\" startver %u joining game startver %u (count=%u ref=%u)",(tname = account_get_name(conn_get_account(c))),clienttag_uint_to_str(conn_get_clienttag(c)),startver,game->startver,game->count,game->ref);
 	account_unget_name(tname);
     }
     
