@@ -329,24 +329,18 @@ extern int realmlist_create(char const * filename)
     
     if (!filename)
     {
-        eventlog(eventlog_level_error,"realmlist_create","got NULL filename");
-        return -1;
-    }
-    
-    if (!(realmlist_head = list_create()))
-    {
-        eventlog(eventlog_level_error,"realmlist_create","could not create list");
+        eventlog(eventlog_level_error,__FUNCTION__,"got NULL filename");
         return -1;
     }
     
     if (!(fp = fopen(filename,"r")))
     {
-        eventlog(eventlog_level_error,"realmlist_create","could not open realm file \"%s\" for reading (fopen: %s)",filename,strerror(errno));
-	list_destroy(realmlist_head);
-	realmlist_head = NULL;
+        eventlog(eventlog_level_error,__FUNCTION__,"could not open realm file \"%s\" for reading (fopen: %s)",filename,strerror(errno));
         return -1;
     }
     
+    realmlist_head = list_create();
+
     for (line=1; (buff = file_get_line(fp)); line++)
     {
         for (pos=0; buff[pos]=='\t' || buff[pos]==' '; pos++);
@@ -368,7 +362,7 @@ extern int realmlist_create(char const * filename)
 	/* skip any separators */
 	for (temp = buff; *temp && (*temp == ' ' || *temp == '\t');temp++);
 	if (*temp != '"') {
-	    eventlog(eventlog_level_error,"realmlist_create","malformed line %u in file \"%s\" (no realmname)",line,filename);
+	    eventlog(eventlog_level_error,__FUNCTION__,"malformed line %u in file \"%s\" (no realmname)",line,filename);
 	    xfree(buff);
 	    continue;
 	}
@@ -377,7 +371,7 @@ extern int realmlist_create(char const * filename)
 	/* find the next " */
 	for (temp = temp2; *temp && *temp != '"';temp++);
 	if (*temp != '"' || temp == temp2) {
-	    eventlog(eventlog_level_error,"realmlist_create","malformed line %u in file \"%s\" (no realmname)",line,filename);
+	    eventlog(eventlog_level_error,__FUNCTION__,"malformed line %u in file \"%s\" (no realmname)",line,filename);
 	    xfree(buff);
 	    continue;
 	}
@@ -386,7 +380,7 @@ extern int realmlist_create(char const * filename)
 	*temp = '\0';
         name = xstrdup(temp2);
 	
-	/* eventlog(eventlog_level_trace, "realmlist_create","found realmname: %s",name); */
+	/* eventlog(eventlog_level_trace, __FUNCTION__,"found realmname: %s",name); */
 
 	/* skip any separators */
 	for(temp = temp + 1; *temp && (*temp == '\t' || *temp == ' ');temp++);
@@ -396,7 +390,7 @@ extern int realmlist_create(char const * filename)
 	    /* find the next " */
 	    for(temp = temp2;*temp && *temp != '"';temp++);
 	    if (*temp != '"' || temp == temp2) {
-		eventlog(eventlog_level_error,"realmlist_create","malformed line %u in file \"%s\" (no valid description)",line,filename);
+		eventlog(eventlog_level_error,__FUNCTION__,"malformed line %u in file \"%s\" (no valid description)",line,filename);
 		xfree(name);
 		xfree(buff);
 		continue;
@@ -406,7 +400,7 @@ extern int realmlist_create(char const * filename)
 	    *temp = '\0';
     	    desc = xstrdup(temp2);
 	    
-	    /* eventlog(eventlog_level_trace, "realmlist_create","found realm desc: %s",desc); */
+	    /* eventlog(eventlog_level_trace, __FUNCTION__,"found realm desc: %s",desc); */
 
 	    /* skip any separators */
 	    for(temp = temp + 1; *temp && (*temp == ' ' || *temp == '\t');temp++);
@@ -418,10 +412,10 @@ extern int realmlist_create(char const * filename)
 
 	if (*temp) *temp++ = '\0'; /* if is not the end of the file, end addr and move forward */
 
-	/* eventlog(eventlog_level_trace, "realmlist_create","found realm ip: %s",temp2); */
+	/* eventlog(eventlog_level_trace, __FUNCTION__,"found realm ip: %s",temp2); */
 
 	if (!(raddr = addr_create_str(temp2,0,BNETD_REALM_PORT))) /* 0 means "this computer" */ {
-	    eventlog(eventlog_level_error,"realmlist_create","invalid address value for field 3 on line %u in file \"%s\"",line,filename);
+	    eventlog(eventlog_level_error,__FUNCTION__,"invalid address value for field 3 on line %u in file \"%s\"",line,filename);
 	    xfree(name);
 	    xfree(buff);
 	    xfree(desc);
@@ -430,7 +424,7 @@ extern int realmlist_create(char const * filename)
 	
 	if (!(realm = realm_create(name,desc,addr_get_ip(raddr),addr_get_port(raddr))))
 	{
-	    eventlog(eventlog_level_error,"realmlist_create","could not create realm");
+	    eventlog(eventlog_level_error,__FUNCTION__,"could not create realm");
 	    addr_destroy(raddr);
 	    xfree(name);
 	    xfree(buff);
@@ -445,13 +439,13 @@ extern int realmlist_create(char const * filename)
 	
 	if (list_prepend_data(realmlist_head,realm)<0)
 	{
-	    eventlog(eventlog_level_error,"realmlist_create","could not prepend realm");
+	    eventlog(eventlog_level_error,__FUNCTION__,"could not prepend realm");
 	    realm_destroy(realm);
 	    continue;
 	}
     }
     if (fclose(fp)<0)
-	eventlog(eventlog_level_error,"realmlist_create","could not close realm file \"%s\" after reading (fclose: %s)",filename,strerror(errno));
+	eventlog(eventlog_level_error,__FUNCTION__,"could not close realm file \"%s\" after reading (fclose: %s)",filename,strerror(errno));
     return 0;
 }
 
@@ -466,7 +460,7 @@ extern int realmlist_destroy(void)
 	LIST_TRAVERSE(realmlist_head,curr)
 	{
 	    if (!(realm = elem_get_data(curr)))
-		eventlog(eventlog_level_error,"realmlist_destroy","found NULL realm in list");
+		eventlog(eventlog_level_error,__FUNCTION__,"found NULL realm in list");
 	    else
 		realm_destroy(realm);
 	    list_remove_elem(realmlist_head,&curr);

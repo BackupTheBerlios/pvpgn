@@ -75,17 +75,14 @@ extern int news_load(const char *filename)
 	return -1;
     }
 
-    if (!(news_head = list_create())) {
-	eventlog(eventlog_level_error, __FUNCTION__,"could create list");
-	return -1;
-    }
-
     if ((fp = fopen(filename,"r"))==NULL) {
 	eventlog(eventlog_level_error, __FUNCTION__,"can't open news file");
 	return -1;
     }
 
-	setbuf(fp,NULL);
+    news_head = list_create();
+     
+    setbuf(fp,NULL);
 
     date=xmalloc(sizeof(struct tm));
     

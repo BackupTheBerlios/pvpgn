@@ -91,17 +91,6 @@ extern int friend_set_mutual(t_friend * fr, char mutual)
     return 0;
 }
 
-extern t_list * friendlist_init(void)
-{
-    t_list * new;
-    if((new = list_create())==NULL)
-    {
-        eventlog(eventlog_level_error,__FUNCTION__,"could not create friendlist");
-        return NULL;
-    }
-    return new;
-}
-
 extern int friendlist_unload(t_list * flist)
 {
     t_elem  * curr;

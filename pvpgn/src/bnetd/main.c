@@ -409,8 +409,7 @@ int pre_server_startup(void)
     channellist_create();
     if (helpfile_init(prefs_get_helpfile())<0)
 	eventlog(eventlog_level_error,"pre_server_startup","could not load helpfile");
-    if (ipbanlist_create()<0)
-        eventlog(eventlog_level_error,"pre_server_startup","could not create new IP ban list");
+    ipbanlist_create();
     if (ipbanlist_load(prefs_get_ipbanfile())<0)
 	eventlog(eventlog_level_error,"pre_server_startup","could not load IP ban list");
     if (adbannerlist_create(prefs_get_adfile())<0)

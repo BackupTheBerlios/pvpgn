@@ -381,12 +381,7 @@ extern t_connection * conn_create(int tsock, int usock, unsigned int real_local_
     temp->protocol.chat.ignore_list              = NULL;
     temp->protocol.chat.ignore_count             = 0;
     temp->protocol.chat.quota.totcount           = 0;
-    if (!(temp->protocol.chat.quota.list = list_create()))
-    {
-	xfree(temp);
-        eventlog(eventlog_level_error,"conn_create","could not create quota list");
-	return NULL;
-    }
+    temp->protocol.chat.quota.list = list_create();
     temp->protocol.client.versionid              = 0;
     temp->protocol.client.gameversion            = 0;
     temp->protocol.client.checksum               = 0;
@@ -827,10 +822,8 @@ extern void conn_set_state(t_connection * c, t_conn_state state)
 
     /* special case for destroying connections, add them to conn_dead list */
     if (state == conn_state_destroy && c->protocol.state != conn_state_destroy) {
-	if (!conn_dead && !(conn_dead = list_create())) {
-	    eventlog(eventlog_level_error, __FUNCTION__, "could not initilize conn_dead list");
-	    return;
-	}
+	if (!conn_dead)
+	    conn_dead = list_create();
 	list_append_data(conn_dead, c);
     }
     else if (state != conn_state_destroy && c->protocol.state == conn_state_destroy)
@@ -3410,8 +3403,7 @@ extern char const * conn_get_user_game_title(t_clienttag ct)
 
 extern int connlist_create(void)
 {
-    if (!(conn_head = list_create()))
-	return -1;
+    conn_head = list_create();
     return 0;
 }
 

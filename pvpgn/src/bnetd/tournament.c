@@ -69,8 +69,7 @@ static t_tournament_user * tournament_get_user(t_account * account);
 /*****/
 static int tournamentlist_create(void)
 {
-    if (!(tournament_head = list_create()))
-	return -1;
+    tournament_head = list_create();
     return 0;
 }
 
@@ -708,10 +707,7 @@ extern int tournament_init(char const * filename)
 	tournament_info->start_preliminary = 0;
 	eventlog(eventlog_level_warn,__FUNCTION__,"one or more timestamps for tournaments is not valid, tournament has been disabled");
     } else {
-    	if (tournamentlist_create()<0) {
-	    tournament_info->start_preliminary = 0;
-	    eventlog(eventlog_level_warn,__FUNCTION__,"unable to create tournament list, tournament has been disabled");
-	}
+    	tournamentlist_create();
     }
     
     return 0;

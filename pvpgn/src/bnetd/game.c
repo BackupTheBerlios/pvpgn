@@ -2039,8 +2039,7 @@ extern t_game_option game_get_option(t_game const * game)
 
 extern int gamelist_create(void)
 {
-    if (!(gamelist_head = list_create()))
-	return -1;
+    gamelist_head = list_create();
     return 0;
 }
 

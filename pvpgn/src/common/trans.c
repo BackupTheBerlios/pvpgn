@@ -77,16 +77,11 @@ extern int trans_load(char const * filename, int program)
         eventlog(eventlog_level_error,__FUNCTION__,"got NULL filename");
         return -1;
     }
-    if (!(trans_head = list_create())) {
-        eventlog(eventlog_level_error,__FUNCTION__,"could not create list");
-        return -1;
-    }
     if (!(fp = fopen(filename,"r"))) {
         eventlog(eventlog_level_error,__FUNCTION__,"could not open file \"%s\" for reading (fopen: %s)",filename,strerror(errno));
-	list_destroy(trans_head);
-	trans_head = NULL;
         return -1;
     }
+    trans_head = list_create();
     for (line=1; (buff = file_get_line(fp)); line++) {
 	for (pos=0; buff[pos]=='\t' || buff[pos]==' '; pos++);
 	if (buff[pos]=='\0' || buff[pos]=='#') {

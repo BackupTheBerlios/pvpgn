@@ -194,17 +194,14 @@ int topiclist_load(char const * topicfile)
   // make sure to unload previous topiclist before loading again
   if (topiclist_head) topiclist_unload();
 
-  if (!(topiclist_head = list_create()))
-  {
-    eventlog(eventlog_level_error,__FUNCTION__,"could not create topiclist");
-    return -1;
-  }
-
   if ((fp = fopen(topicfile,"r"))==NULL) 
   {
     eventlog(eventlog_level_error, __FUNCTION__,"can't open topic file");
     return -1;
   }
+  
+  topiclist_head = list_create();
+  
   eventlog(eventlog_level_trace,__FUNCTION__,"start reading topic file");
 
   while (fscanf(fp,"\"%[^\"]\",\"%[^\"]\"\n",channel_name,topic)==2)

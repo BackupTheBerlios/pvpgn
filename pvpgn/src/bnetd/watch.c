@@ -325,8 +325,7 @@ extern int watchlist_notify_event(t_account * who, char const * gamename, t_clie
 
 extern int watchlist_create(void)
 {
-    if (!(watchlist_head = list_create()))
-        return -1;
+    watchlist_head = list_create();
     return 0;
 }
 

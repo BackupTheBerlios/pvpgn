@@ -1398,8 +1398,7 @@ static int account_load_friends(t_account * account)
 
     if(account->friends==NULL)
     {
-        if((account->friends=friendlist_init())==NULL)
-            return -1;
+        account->friends=list_create();
         newlist=1;
     }
 

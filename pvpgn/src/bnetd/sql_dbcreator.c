@@ -99,12 +99,7 @@ t_table * create_table(char * name)
   table = xmalloc(sizeof(t_table));
   table->name = xstrdup(name);
 
-  if (!(table->columns = list_create()))
-    {
-      eventlog(eventlog_level_error,__FUNCTION__,"could not create list");
-      xfree((void *)table->name);
-      xfree((void *)table);
-    }
+  table->columns = list_create();
   
   return table;
 }
@@ -157,12 +152,7 @@ t_db_layout * create_db_layout()
   
   db_layout = xmalloc(sizeof(t_db_layout));
 
-  if (!(db_layout->tables = list_create()))
-    {
-      eventlog(eventlog_level_error,__FUNCTION__,"could not create list");
-      xfree((void *)db_layout);
-      return NULL;
-    }
+  db_layout->tables = list_create();
   
   return db_layout;
 }

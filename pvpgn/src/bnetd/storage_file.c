@@ -607,14 +607,7 @@ static int file_load_clans(t_load_clans_func cb)
 
 	eventlog(eventlog_level_trace, __FUNCTION__, "name: %s motd: %s clanid: %i time: %i", clanname, motd, cid, creation_time);
 
-	if ((clan->members = list_create()) == NULL)
-	{
-	    eventlog(eventlog_level_error, __FUNCTION__, "could not allocate memory for clan members");
-	    xfree((void*)clan);
-	    xfree((void *) pathname);
-	    p_closedir(clandir);
-	    return -1;
-	}
+	clan->members = list_create();
 
 	while (fscanf(fp, "%i,%c,%i\n", &member_uid, &member_status, &member_join_time) == 3)
 	{

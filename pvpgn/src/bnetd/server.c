@@ -1376,8 +1376,7 @@ static void _server_mainloop(t_addrlist *laddrs)
 	    	    
 	    if (ipbanlist_destroy()<0)
 		eventlog(eventlog_level_error,"server_process","could not unload old IP ban list");
-            if (ipbanlist_create()<0)
-                eventlog(eventlog_level_error,"server_process","could not create new IP ban list");
+            ipbanlist_create();
 	    if (ipbanlist_load(prefs_get_ipbanfile())<0)
 		eventlog(eventlog_level_error,"server_process","could not load new IP ban list");
 	    

@@ -29,7 +29,6 @@ extern int friend_set_account(t_friend *, t_account * acc);
 extern char friend_get_mutual(t_friend *);
 extern int friend_set_mutual(t_friend *, char);
 
-extern t_list * friendlist_init(void);
 extern int friendlist_unload(t_list *);
 extern int friendlist_close(t_list *);
 extern int friendlist_purge(t_list *);

@@ -85,9 +85,7 @@ static time_t lastchecktime = 0;
 
 extern int ipbanlist_create(void)
 {
-    if (!(ipbanlist_head = list_create()))
-	return -1;
-
+    ipbanlist_head = list_create();
     return 0;
 }
 
