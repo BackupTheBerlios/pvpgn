@@ -234,7 +234,6 @@ static int handle_irc_line(t_connection * conn, char const * ircline)
 	for (numparams=0;params[numparams];numparams++);
     }
 
-    /*eventlog(eventlog_level_debug,"handle_irc_line","[%d] got \"%s\"",conn_get_socket(conn),ircline);*/
     {
 	int i;
     	char paramtemp[MAX_IRC_MESSAGE_LEN*2];

@@ -115,7 +115,6 @@ extern t_bnettime secs_to_bnettime(double secs)
 {
     t_bnettime temp;
     
-/*eventlog(eventlog_level_debug,"secs_to_bnettime","got %+13.8f",secs);*/
     temp.u = (unsigned int)(secs*UPPER_PER_SEC);
     temp.l = (unsigned int)(secs*LOWER_PER_SEC);
     

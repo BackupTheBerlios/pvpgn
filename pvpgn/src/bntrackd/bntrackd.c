@@ -149,7 +149,7 @@ extern int main(int argc, char * argv[])
 	eventlog_set(stderr);
         if (eventlog_open(prefs.logfile)<0)
 	{
-            eventlog(eventlog_level_fatal,"main","could not use file \"%s\" for the eventlog (exiting)",prefs.logfile);
+            eventlog(eventlog_level_fatal,__FUNCTION__,"could not use file \"%s\" for the eventlog (exiting)",prefs.logfile);
 	    return STATUS_FAILURE;
 	}
     }

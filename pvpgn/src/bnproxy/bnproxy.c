@@ -965,7 +965,7 @@ extern int main(int argc, char * argv[])
 	
 	if (eventlog_open(logfile)<0)
 	{
-	    eventlog(eventlog_level_fatal,"main","could not use file \"%s\" for the eventlog (exiting)",logfile);
+	    eventlog(eventlog_level_fatal,__FUNCTION__,"could not use file \"%s\" for the eventlog (exiting)",logfile);
 	    return STATUS_FAILURE;
 	}
     }
@@ -1036,7 +1036,7 @@ extern int main(int argc, char * argv[])
     
     if (proxy_process(port,servaddr)<0)
     {
-        eventlog(eventlog_level_fatal,"main","failed to initialize network (exiting)");
+        eventlog(eventlog_level_fatal,__FUNCTION__,"failed to initialize network (exiting)");
         return STATUS_FAILURE;
     }
     

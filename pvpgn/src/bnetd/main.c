@@ -314,9 +314,9 @@ int eventlog_startup(void)
     }
     if (eventlog_open(prefs_get_logfile())<0) {
 	if (prefs_get_logfile()) {
-	    eventlog(eventlog_level_fatal,"eventlog_startup","could not use file \"%s\" for the eventlog (exiting)",prefs_get_logfile());
+	    eventlog(eventlog_level_fatal,__FUNCTION__,"could not use file \"%s\" for the eventlog (exiting)",prefs_get_logfile());
 	} else {
-	    eventlog(eventlog_level_fatal,"eventlog_startup","no logfile specified in configuration file \"%s\" (exiting)",preffile);
+	    eventlog(eventlog_level_fatal,__FUNCTION__,"no logfile specified in configuration file \"%s\" (exiting)",preffile);
 	}
 	return -1;
     }
@@ -600,7 +600,7 @@ extern int main(int argc, char * * argv)
 // Load the prefs
     if (preffile) {
 	if (prefs_load(preffile)<0) { // prefs are loaded here ...
-	    eventlog(eventlog_level_fatal,"main","could not parse specified configuration file (exiting)");
+	    eventlog(eventlog_level_fatal,__FUNCTION__,"could not parse specified configuration file (exiting)");
 	    return -1;
 	}
     } else {
@@ -616,7 +616,7 @@ extern int main(int argc, char * * argv)
 // Give up root privileges
     /* Hakan: That's way too late to give up root privileges... Have to look for a better place */
     if (give_up_root_privileges(prefs_get_effective_user(),prefs_get_effective_group())<0) {
-        eventlog(eventlog_level_fatal,"main","could not give up privileges (exiting)");
+        eventlog(eventlog_level_fatal,__FUNCTION__,"could not give up privileges (exiting)");
         return -1;
     }
 	
@@ -637,7 +637,7 @@ extern int main(int argc, char * * argv)
 // now process connections and network traffic
     if (a == 0) {
 	if (server_process() < 0) 
-	    eventlog(eventlog_level_fatal,"main","failed to initialize network (exiting)");
+	    eventlog(eventlog_level_fatal,__FUNCTION__,"failed to initialize network (exiting)");
     }
     
 // run post server stuff and exit

@@ -2377,8 +2377,6 @@ extern char const * conn_get_playerinfo(t_connection const * c)
     if (clienttag==CLIENTTAG_BNCHATBOT_UINT)
     {
 	strcpy(playerinfo,revtag); /* FIXME: what to return here? */
-	// commented cause i'm sick of seeing this in the logs
-	//eventlog(eventlog_level_debug,"conn_get_playerinfo","got CHAT clienttag, using best guess");
     }
     else if (clienttag==CLIENTTAG_STARCRAFT_UINT)
     {
