@@ -100,6 +100,7 @@ static const char *sql_escape_key(const char *);
 static int sql_load_clans(t_load_clans_func cb);
 static int sql_write_clan(void *data);
 static int sql_remove_clan(int clanshort);
+static int sql_remove_clanmember(int);
 
 t_storage storage_sql = {
     sql_init,
@@ -115,7 +116,8 @@ t_storage storage_sql = {
     sql_escape_key,
     sql_load_clans,
     sql_write_clan,
-    sql_remove_clan
+    sql_remove_clan,
+    sql_remove_clanmember
 };
 
 static t_sql_engine *sql = NULL;
@@ -999,6 +1001,7 @@ static int sql_load_clans(t_load_clans_func cb)
 			{
 			    member->status = CLAN_PEON;
 			    clan->modified = 1;
+			    member->modified = 1;
 			}
 
 			if (list_append_data(clan->members, member) < 0)
@@ -1015,8 +1018,8 @@ static int sql_load_clans(t_load_clans_func cb)
 			    sql->free_result(result);
 			    return -1;
 			}
-			account_set_clan(member->memberacc, clan);
-			eventlog(eventlog_level_trace, __FUNCTION__, "added member: uid: %i status: %c join_time: %u", member_uid, member->status + '0', (unsigned)member->join_time);
+			account_set_clanmember(member->memberacc, member);
+			eventlog(eventlog_level_trace, __FUNCTION__, "added member: uid: %i status: %c join_time: %u", member_uid, member->status + '0', (unsigned) member->join_time);
 		    }
 		sql->free_result(result2);
 		cb(clan);
@@ -1063,9 +1066,9 @@ static int sql_write_clan(void *data)
 	num = atol(row[0]);
 	sql->free_result(result);
 	if (num < 1)
-	    sprintf(query, "INSERT INTO clan (cid, short, name, motd, creation_time) VALUES('%u', '%d', '%s', '%s', '%u')", clan->clanid, clan->clanshort, clan->clanname, clan->clan_motd, (unsigned)clan->creation_time);
+	    sprintf(query, "INSERT INTO clan (cid, short, name, motd, creation_time) VALUES('%u', '%d', '%s', '%s', '%u')", clan->clanid, clan->clanshort, clan->clanname, clan->clan_motd, (unsigned) clan->creation_time);
 	else
-	    sprintf(query, "UPDATE clan SET short='%d', name='%s', motd='%s', creation_time='%u' WHERE cid='%u'", clan->clanshort, clan->clanname, clan->clan_motd, (unsigned)clan->creation_time, clan->clanid);
+	    sprintf(query, "UPDATE clan SET short='%d', name='%s', motd='%s', creation_time='%u' WHERE cid='%u'", clan->clanshort, clan->clanname, clan->clan_motd, (unsigned) clan->creation_time, clan->clanid);
 	if (sql->query(query) < 0)
 	{
 	    eventlog(eventlog_level_error, __FUNCTION__, "error trying query: \"%s\"", query);
@@ -1074,39 +1077,47 @@ static int sql_write_clan(void *data)
 	LIST_TRAVERSE(clan->members, curr)
 	{
 	    unsigned int uid;
+
 	    if (!(member = elem_get_data(curr)))
 	    {
 		eventlog(eventlog_level_error, __FUNCTION__, "got NULL elem in list");
 		continue;
 	    }
 	    if ((member->status == CLAN_NEW) && (time(NULL) - member->join_time > prefs_get_clan_newer_time() * 3600))
-		member->status = CLAN_PEON;
-	    uid = account_get_uid(member->memberacc);
-	    sprintf(query, "SELECT count(*) FROM clanmember WHERE uid='%u'", uid);
-	    if ((result = sql->query_res(query)) != NULL)
 	    {
-		row = sql->fetch_row(result);
-		if (row == NULL || row[0] == NULL)
+		member->status = CLAN_PEON;
+		member->modified = 1;
+	    }
+	    if (member->modified)
+	    {
+		uid = account_get_uid(member->memberacc);
+		sprintf(query, "SELECT count(*) FROM clanmember WHERE uid='%u'", uid);
+		if ((result = sql->query_res(query)) != NULL)
 		{
+		    row = sql->fetch_row(result);
+		    if (row == NULL || row[0] == NULL)
+		    {
+			sql->free_result(result);
+			eventlog(eventlog_level_error, __FUNCTION__, "got NULL count");
+			return -1;
+		    }
+		    num = atol(row[0]);
 		    sql->free_result(result);
-		    eventlog(eventlog_level_error, __FUNCTION__, "got NULL count");
-		    return -1;
-		}
-		num = atol(row[0]);
-		sql->free_result(result);
-		if (num < 1)
-		    sprintf(query, "INSERT INTO clanmember (cid, uid, status, join_time) VALUES('%u', '%u', '%d', '%u')", clan->clanid, uid, member->status, (unsigned)member->join_time);
-		else
-		    sprintf(query, "UPDATE clanmember SET cid='%u', status='%d', join_time='%u' WHERE uid='%u'", clan->clanid, member->status, (unsigned)member->join_time, uid);
-		if (sql->query(query) < 0)
+		    if (num < 1)
+			sprintf(query, "INSERT INTO clanmember (cid, uid, status, join_time) VALUES('%u', '%u', '%d', '%u')", clan->clanid, uid, member->status, (unsigned) member->join_time);
+		    else
+			sprintf(query, "UPDATE clanmember SET cid='%u', status='%d', join_time='%u' WHERE uid='%u'", clan->clanid, member->status, (unsigned) member->join_time, uid);
+		    if (sql->query(query) < 0)
+		    {
+			eventlog(eventlog_level_error, __FUNCTION__, "error trying query: \"%s\"", query);
+			return -1;
+		    }
+		} else
 		{
 		    eventlog(eventlog_level_error, __FUNCTION__, "error trying query: \"%s\"", query);
 		    return -1;
 		}
-	    } else
-	    {
-		eventlog(eventlog_level_error, __FUNCTION__, "error trying query: \"%s\"", query);
-		return -1;
+		member->modified = 0;
 	    }
 	}
     } else
@@ -1155,6 +1166,26 @@ static int sql_remove_clan(int clanshort)
     }
 
     sql->free_result(result);
+
+    return 0;
+}
+
+static int sql_remove_clanmember(int uid)
+{
+    char query[1024];
+
+    if (!sql)
+    {
+	eventlog(eventlog_level_error, __FUNCTION__, "sql layer not initilized");
+	return -1;
+    }
+
+    sprintf(query, "DELETE FROM clanmember WHERE uid='%u'", uid);
+    if (sql->query(query) != 0)
+    {
+	eventlog(eventlog_level_error, __FUNCTION__, "error trying query: \"%s\"", query);
+	return -1;
+    }
 
     return 0;
 }

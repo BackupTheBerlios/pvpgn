@@ -22,6 +22,7 @@ to uid-based friends is done
 location for the preffile (bnetd.conf)
 -- fixed profile display on broken team records accounts (disconnected clients);
 now also the profile code autmatically fixes broken team records if it detects any
+-- reorganized some clan stuff
 
 1.6.0pre1 (since 1.5.0beta3):
 -- fixed IRC auth bug (when using passwords with upper cases)

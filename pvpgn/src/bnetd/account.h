@@ -70,7 +70,7 @@ typedef struct account_struct
     int           friend_loaded;
     unsigned int  age;      /* number of times it has not been accessed */
     t_storage_info * storage;
-    t_clan * clan;
+    t_clanmember * clanmember;
     t_list * friends;
 #ifdef WITH_BITS
     t_bits_account_state bits_state;
@@ -167,7 +167,8 @@ extern int account_check_mutual( t_account * account,  int myuserid);
 extern t_list * account_get_friends(t_account * account);
 
 //clan thingy by DJP & Soar
-extern int account_set_clan(t_account * account, t_clan * clan);
+extern int account_set_clanmember(t_account * account, t_clanmember * clanmember);
+extern t_clanmember * account_get_clanmember(t_account * account);
 extern t_clan * account_get_clan(t_account * account);
 extern t_clan * account_get_creating_clan(t_account * account);
 

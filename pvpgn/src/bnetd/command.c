@@ -603,7 +603,7 @@ static int _handle_clan_command(t_connection * c, char const * text)
       return 0;
     }
 
-  if((acc=conn_get_account(c))&&(clan=account_get_clan(acc))&&(member=clan_find_member(clan, acc)))
+  if((acc = conn_get_account(c)) && (member = account_get_clanmember(acc)) && (clan = clanmember_get_clan(member)))
   {
     if(clanmember_get_status(member)>=CLAN_SHAMAN)
     {

@@ -38,17 +38,6 @@
 
 #endif
 
-typedef struct _clanmember
-#ifdef CLAN_INTERNAL_ACCESS
-{
-    void *memberacc;
-    void *memberconn;
-    char status;
-    time_t join_time;
-}
-#endif
-t_clanmember;
-
 typedef struct clan
 #ifdef CLAN_INTERNAL_ACCESS
 {
@@ -70,6 +59,21 @@ typedef struct clan
 }
 #endif
 t_clan;
+
+typedef struct _clanmember
+#ifdef CLAN_INTERNAL_ACCESS
+{
+    void *memberacc;
+    void *memberconn;
+    char status;
+    time_t join_time;
+    t_clan * clan;
+#ifdef WITH_SQL
+    char modified;
+#endif
+}
+#endif
+t_clanmember;
 
 #define CLAN_CHIEFTAIN 0x04
 #define CLAN_SHAMAN    0x03
@@ -105,10 +109,11 @@ extern int clanmember_set_connection(t_clanmember * member, t_connection * membe
 extern char clanmember_get_status(t_clanmember * member);
 extern int clanmember_set_status(t_clanmember * member, char status);
 extern time_t clanmember_get_join_time(t_clanmember * member);
+extern t_clan * clanmember_get_clan(t_clanmember * member);
 extern int clanmember_set_online(t_connection * c);
 extern int clanmember_set_offline(t_connection * c);
 extern const char *clanmember_get_online_status(t_clanmember * member, char *status);
-extern int clanmember_on_change_status(t_clan * clan, t_clanmember * member);
+extern int clanmember_on_change_status(t_clanmember * member);
 extern const char *clanmember_get_online_status_by_connection(t_connection * conn, char *status);
 extern int clanmember_on_change_status_by_connection(t_connection * conn);
 

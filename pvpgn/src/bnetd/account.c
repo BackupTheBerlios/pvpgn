@@ -170,7 +170,7 @@ extern t_account * account_create(char const * username, char const * passhash1)
 
     account->name     = NULL;
     account->storage  = NULL;
-	account->clan    =  NULL;
+    account->clanmember = NULL;
     account->attrs    = NULL;
     account->dirty    = 0;
     account->accessed = 0;
@@ -1880,39 +1880,56 @@ static int account_unload_friends(t_account * account)
     return 0;
 }
 
-extern int account_set_clan(t_account * account, t_clan * clan)
+extern int account_set_clanmember(t_account * account, t_clanmember * clanmember)
 {
-  if(account==NULL)
-  {
+    if(account==NULL)
+    {
 	eventlog(eventlog_level_error,__FUNCTION__,"got NULL account");
-    return -1;
-  }
-  account->clan=clan;
-  return 0;
+	return -1;
+    }
+
+    account->clanmember = clanmember;
+    return 0;
+}
+
+extern t_clanmember * account_get_clanmember(t_account * account)
+{
+    if(account==NULL)
+    {
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL account");
+	return NULL;
+    }
+
+    if(account->clanmember && clanmember_get_clan(account->clanmember) && (clan_get_created(clanmember_get_clan(account->clanmember)) > 0))
+	return account->clanmember;
+    else
+	return NULL;
 }
 
 extern t_clan * account_get_clan(t_account * account)
 {
-  if(account==NULL)
-  {
+    if(account==NULL)
+    {
 	eventlog(eventlog_level_error,__FUNCTION__,"got NULL account");
-    return NULL;
-  }
-  if(account->clan&&(clan_get_created(account->clan)>0))
-    return account->clan;
-  else
-    return NULL;
+	return NULL;
+    }
+
+    if(account->clanmember && (clanmember_get_clan(account->clanmember) != NULL) && (clan_get_created(clanmember_get_clan(account->clanmember)) > 0))
+	return clanmember_get_clan(account->clanmember);
+    else
+	return NULL;
 }
 
 extern t_clan * account_get_creating_clan(t_account * account)
 {
-  if(account==NULL)
-  {
+    if(account==NULL)
+    {
 	eventlog(eventlog_level_error,__FUNCTION__,"got NULL account");
-    return NULL;
-  }
-  if(account->clan&&(clan_get_created(account->clan)<=0))
-    return account->clan;
-  else
-    return NULL;
+	return NULL;
+    }
+
+    if(account->clanmember && (clanmember_get_clan(account->clanmember) != NULL) && (clan_get_created(clanmember_get_clan(account->clanmember)) <= 0))
+	return clanmember_get_clan(account->clanmember);
+    else
+	return NULL;
 }

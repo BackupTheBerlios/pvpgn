@@ -106,6 +106,7 @@ static const char * file_escape_key(const char *);
 static int file_load_clans(t_load_clans_func);
 static int file_write_clan(void *);
 static int file_remove_clan(int);
+static int file_remove_clanmember(int);
 
 /* storage struct populated with the functions above */
 
@@ -123,7 +124,8 @@ t_storage storage_file = {
     file_escape_key,
     file_load_clans,
     file_write_clan,
-    file_remove_clan
+    file_remove_clan,
+    file_remove_clanmember
 };
 
 /* start of actual file storage code */
@@ -620,11 +622,12 @@ static int file_load_clans(t_load_clans_func cb)
       member->memberconn  = NULL;
       member->status    = member_status-'0';
       member->join_time = member_join_time;
+      member->clan = clan;
 
       if((member->status==CLAN_NEW)&&(time(NULL)-member->join_time>prefs_get_clan_newer_time()*3600))
       {
-          member->status=CLAN_PEON;
-          clan->modified=1;
+          member->status = CLAN_PEON;
+          clan->modified = 1;
       }
 
       if (list_append_data(clan->members,member)<0)
@@ -642,7 +645,7 @@ static int file_load_clans(t_load_clans_func cb)
       p_closedir(clandir);
 	  return -1;
 	}
-      account_set_clan(member->memberacc, clan);
+      account_set_clanmember(member->memberacc, member);
       eventlog(eventlog_level_trace,__FUNCTION__,"added member: uid: %i status: %c join_time: %i",member_uid,member_status+'0',member_join_time);
     }
 
@@ -697,7 +700,7 @@ static int file_write_clan(void * data)
 	  continue;
 	}
     if((member->status==CLAN_NEW)&&(time(NULL)-member->join_time>prefs_get_clan_newer_time()*3600))
-      member->status=CLAN_PEON;
+      member->status = CLAN_PEON;
     fprintf(fp,"%i,%c,%u\n",account_get_uid(member->memberacc),member->status+'0',(unsigned)member->join_time);
     }
 
@@ -721,5 +724,10 @@ static int file_remove_clan(int clanshort)
 	    return -1;
 	}
     free(tempname);
+    return 0;
+}
+
+static int file_remove_clanmember(int uid)
+{
     return 0;
 }

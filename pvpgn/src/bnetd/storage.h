@@ -54,6 +54,7 @@ typedef struct {
     int (*load_clans)(t_load_clans_func);
     int (*write_clan)(void *);
     int (*remove_clan)(int);
+    int (*remove_clanmember)(int);
 } t_storage;
 
 #endif /* INCLUDED_STORAGE_TYPES */
