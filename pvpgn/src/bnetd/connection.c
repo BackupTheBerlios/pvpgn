@@ -1540,7 +1540,7 @@ extern void conn_set_account(t_connection * c, t_account * account)
     if ((other = connlist_find_connection_by_accountname((tname = account_get_name(account)))))
     {
 	eventlog(eventlog_level_info,"conn_set_account","[%d] forcing logout of previous login for \"%s\"",conn_get_socket(c),tname);
-	other->state = conn_state_destroy;
+	conn_set_state(other, conn_state_destroy);
     }
     account_unget_name(tname);
     
