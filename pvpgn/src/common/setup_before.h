@@ -161,6 +161,8 @@
 /* default files relative to FILE_DIR */
 #define BNETD_TOS_FILE     "tos.txt"
 #define BNETD_ICON_FILE    "icons.bni"
+#define BNETD_WAR3_ICON_FILE	"icons-WAR3.bni"
+#define BNETD_STAR_ICON_FILE	"icons_STAR.bni"
 #define BNETD_MPQ_FILE     "autoupdate"
 
 /* other default configuration values */

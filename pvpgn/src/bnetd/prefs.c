@@ -103,6 +103,8 @@ static Bconf_t conf_table[] =
     { "report_all_games",       conf_type_bool,    NULL,                 0,                     ACT },
     { "report_diablo_games",    conf_type_bool,    NULL,                 0,                     ACT },
     { "iconfile",               conf_type_char,    BNETD_ICON_FILE,      NONE,                  ACT },
+    { "war3_iconfile",          conf_type_char,    BNETD_WAR3_ICON_FILE, NONE,                  ACT },
+    { "star_iconfile",          conf_type_char,    BNETD_STAR_ICON_FILE, NONE,                  ACT },
     { "tosfile",                conf_type_char,    BNETD_TOS_FILE,       NONE,                  ACT },
     { "mpqfile",                conf_type_char,    BNETD_MPQ_FILE,       NONE,                  ACT },
     { "trackaddrs",             conf_type_char,    BNETD_TRACK_ADDRS,    NONE,                  ACT },
@@ -725,6 +727,16 @@ extern char const * prefs_get_pidfile(void)
 extern char const * prefs_get_iconfile(void)
 {
     return get_char_conf("iconfile");
+}
+
+extern char const * prefs_get_war3_iconfile(void)
+{
+    return get_char_conf("war3_iconfile");
+}
+
+extern char const * prefs_get_star_iconfile(void)
+{
+    return get_char_conf("star_iconfile");
 }
 
 

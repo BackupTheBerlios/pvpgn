@@ -101,6 +101,9 @@ allow_d2cs_setname = true
 # These filenames are reported directly to the client and are relative to
 # the "filedir" directory specified above.
 iconfile = "icons.bni"
+war3_iconfile = "icons-WAR3.bni"
+star_iconfile = "icons_STAR.bni"
+
 tosfile = "tos.txt"
 
 #                                                                            #

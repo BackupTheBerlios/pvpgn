@@ -89,6 +89,8 @@ extern unsigned int prefs_get_report_all_games(void) PURE_ATTR();
 extern unsigned int prefs_get_report_diablo_games(void) PURE_ATTR();
 extern char const * prefs_get_pidfile(void) PURE_ATTR();
 extern char const * prefs_get_iconfile(void) PURE_ATTR();
+extern char const * prefs_get_war3_iconfile(void) PURE_ATTR();
+extern char const * prefs_get_star_iconfile(void) PURE_ATTR();
 extern char const * prefs_get_tosfile(void) PURE_ATTR();
 extern char const * prefs_get_mpqauthfile(void) PURE_ATTR();
 extern char const * prefs_get_mpqfile(void) PURE_ATTR();

@@ -1415,7 +1415,18 @@ static int _client_iconreq(t_connection * c, t_packet const * const packet)
 	packet_set_size(rpacket,sizeof(t_server_iconreply));
 	packet_set_type(rpacket,SERVER_ICONREPLY);
 	file_to_mod_time(prefs_get_iconfile(),&rpacket->u.server_iconreply.timestamp);
-	packet_append_string(rpacket,prefs_get_iconfile());
+	
+	// select the icon file based on the client
+	// FIXME: what about diablo II? does it have its own icon file? [Omega]
+	if (strcmp(conn_get_clienttag(c),CLIENTTAG_WARCRAFT3)==0)
+	    packet_append_string(rpacket,prefs_get_war3_iconfile());
+	else if (strcmp(conn_get_clienttag(c),CLIENTTAG_STARCRAFT)==0)
+	    packet_append_string(rpacket,prefs_get_star_iconfile());
+	else if (strcmp(conn_get_clienttag(c),CLIENTTAG_BROODWARS)==0)
+	    packet_append_string(rpacket,prefs_get_star_iconfile());
+	else
+	    packet_append_string(rpacket,prefs_get_iconfile());
+	
 	queue_push_packet(conn_get_out_queue(c),rpacket);
 	packet_del_ref(rpacket);
      }
