@@ -1,31 +1,18 @@
 
->>>>> IMPORTANT: THIS IS A BETA RELEASE !! READ README.BETA FIRST !! <<<<<<
+  >>>>> IMPORTANT: THIS IS A BETA RELEASE !! READ README.BETA FIRST !! <<<<<<
 
-Readme for Player vs. Player Gaming Network
--------------------------------------------
+              Readme for Player vs. Player Gaming Network
+             ---------------------------------------------
 
+    PvPGN is a BNETD mod which aims to provide support for all Blizzard 
+clients (thus it supports all BNETD supported clients plus the most recent 
+ones).
 
-Install instructions for the Linux version:
+    The documentation is located in the docs directory. Please read docs/INDEX 
+for a list of files and what they contain.
+    If you are updating from a previous PvPGN version check the file UPDATE 
+first.
 
-Without database support (accounts stored in user files):
-~~~~~~~~~~~~~~~~~~~~~~~~
-
-cd src
-./configure
-make
-make install
-
-With database support (accounts stored in mysql database):
-~~~~~~~~~~~~~~~~~~~~~
-(only use this if you have mysql installed and are somewhat familiar with it!)
-
-cd src
-./configure --with-mysql
-make
-make install
-
-Remember to edit your bnetd.conf (installed in /usr/local/etc by default) to
-setup your mysql host, username, password and socket (usually /tmp/mysql.sock).
 
 -----
 

@@ -70,6 +70,7 @@ using POSIX timers (where available)
 -- changed the db_creator, it now uses a config file (conf/sql_DB_layout) and 
 creates missing tables and columns if needed. (can add columns to an allready
 existant table). Also can add the default user (uid==0) when it was deleted
+-- updated documentation
 
 1.5.0beta3:
 -- fixed a long standing bug regarding bnmaps.txt and AT maps
