@@ -18,6 +18,7 @@
 #ifndef INCLUDED_VSNPRINTF_PROTOS
 #define INCLUDED_VSNPRINTF_PROTOS
 
+#include <stdio.h>
 #ifdef HAVE_STDARG_H
 # include <stdarg.h>
 #endif
