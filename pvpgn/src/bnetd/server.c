@@ -1257,7 +1257,7 @@ static void _server_mainloop(t_addrlist *laddrs)
 	time(&now);
 #endif
 	curr_exittime = sigexittime;
-	if (curr_exittime && (curr_exittime<=now || connlist_get_length()<1))
+	if (curr_exittime && (curr_exittime<=now || connlist_login_get_length()<1))
 	{
 	    eventlog(eventlog_level_info,"server_process","the server is shutting down (%d connections left)",connlist_get_length());
     	    clanlist_save();
