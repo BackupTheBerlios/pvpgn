@@ -167,7 +167,7 @@ cdb_make_finish_internal(struct cdb_make *cdbmp)
 }
 
 static void
-cdb_make_xfree(struct cdb_make *cdbmp)
+cdb_make_free(struct cdb_make *cdbmp)
 {
   unsigned t;
   for(t = 0; t < 256; ++t) {
@@ -184,7 +184,7 @@ int
 cdb_make_finish(struct cdb_make *cdbmp)
 {
   int r = cdb_make_finish_internal(cdbmp);
-  cdb_make_xfree(cdbmp);
+  cdb_make_free(cdbmp);
   return r;
 }
 
