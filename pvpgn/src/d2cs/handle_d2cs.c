@@ -55,6 +55,7 @@
 #endif
 
 #include "compat/pdir.h"
+#include "compat/mkdir.h"
 #include "d2charfile.h"
 #include "connection.h"
 #include "game.h"
@@ -135,20 +136,20 @@ static int on_client_loginreq(t_connection * c, t_packet * packet)
 	unsigned int	sessionnum;
 
 	if (!(account=packet_get_str_const(packet,sizeof(t_client_d2cs_loginreq),MAX_CHARNAME_LEN))) {
-		log_error("got bad account name");
+		eventlog(eventlog_level_error,__FUNCTION__,"got bad account name");
 		return -1;
 	}
 	if (d2char_check_acctname(account)<0) {
-		log_error("got bad account name");
+		eventlog(eventlog_level_error,__FUNCTION__,"got bad account name");
 		return -1;
 	}
 	if (!bnetd_conn()) {
-		log_warn("d2cs is offline with bnetd, login request will be rejected");
+		eventlog(eventlog_level_warn,__FUNCTION__,"d2cs is offline with bnetd, login request will be rejected");
 		return -1;
 	}
 	sessionnum=bn_int_get(packet->u.client_d2cs_loginreq.sessionnum);
 	conn_set_bnetd_sessionnum(c,sessionnum);
-	log_info("got client (*%s) login request sessionnum=0x%X",account,sessionnum);
+	eventlog(eventlog_level_info,__FUNCTION__,"got client (*%s) login request sessionnum=0x%X",account,sessionnum);
 	if ((bnpacket=packet_create(packet_class_d2cs_bnetd))) {
 		if ((sq=sq_create(d2cs_conn_get_sessionnum(c),packet,0))) {
 			packet_set_size(bnpacket,sizeof(t_d2cs_bnetd_accountloginreq));
@@ -183,35 +184,35 @@ static int on_client_createcharreq(t_connection * c, t_packet * packet)
 	t_d2charinfo_file	data;
 
 	if (!(charname=packet_get_str_const(packet,sizeof(t_client_d2cs_createcharreq),MAX_CHARNAME_LEN))) {
-		log_error("got bad character name");
+		eventlog(eventlog_level_error,__FUNCTION__,"got bad character name");
 		return -1;
 	}
 	if (!(account=d2cs_conn_get_account(c))) {
-		log_error("missing account for character %s",charname);
+		eventlog(eventlog_level_error,__FUNCTION__,"missing account for character %s",charname);
 		return -1;
 	}
 	class=bn_short_get(packet->u.client_d2cs_createcharreq.class);
 	status=bn_short_get(packet->u.client_d2cs_createcharreq.status);
 
 	if (!(path=malloc(strlen(prefs_get_charinfo_dir())+1+strlen(account)+1))) {
-		log_error("error allocate memory for path");
+		eventlog(eventlog_level_error,__FUNCTION__,"error allocate memory for path");
 		return 0;
 	}
 	d2char_get_infodir_name(path,account);
 	if (!(dir=p_opendir(path))) {
-	        log_info("(*%s) charinfo directory do not exist, building it",account);
-		mkdir(path,S_IRWXU);
+	        eventlog(eventlog_level_info,__FUNCTION__,"(*%s) charinfo directory do not exist, building it",account);
+		p_mkdir(path,S_IRWXU);
 	}
 		free(path);
 
 	if (d2char_create(account,charname,class,status)<0) {
-		log_warn("error create character %s for account %s",charname,account);
+		eventlog(eventlog_level_warn,__FUNCTION__,"error create character %s for account %s",charname,account);
 		reply=D2CS_CLIENT_CREATECHARREPLY_ALREADY_EXIST;
 	} else if (d2charinfo_load(account,charname,&data)<0) {
-		log_error("error loading charinfo for character %s(*%s)",charname,account);
+		eventlog(eventlog_level_error,__FUNCTION__,"error loading charinfo for character %s(*%s)",charname,account);
 		reply=D2CS_CLIENT_CREATECHARREPLY_FAILED;
 	} else {
-		log_info("character %s(*%s) created",charname,account);
+		eventlog(eventlog_level_info,__FUNCTION__,"character %s(*%s) created",charname,account);
 		reply=D2CS_CLIENT_CREATECHARREPLY_SUCCEED;
 		conn_set_charinfo(c,&data.summary);
 		if ((bnpacket=packet_create(packet_class_d2cs_bnetd))) {
@@ -254,17 +255,17 @@ static int on_client_creategamereq(t_connection * c, t_packet * packet)
 
 	pos=sizeof(t_client_creategamereq);
 	if (!(gamename=packet_get_str_const(packet,pos,MAX_GAMENAME_LEN))) {
-		log_error("got bad game name");
+		eventlog(eventlog_level_error,__FUNCTION__,"got bad game name");
 		return -1;
 	}
 	pos+=strlen(gamename)+1;
 	if (!(gamepass=packet_get_str_const(packet,pos,MAX_GAMEPASS_LEN))) {
-		log_error("got bad game pass");
+		eventlog(eventlog_level_error,__FUNCTION__,"got bad game pass");
 		return -1;
 	}
 	pos+=strlen(gamepass)+1;
 	if (!(gamedesc=packet_get_str_const(packet,pos,MAX_GAMEDESC_LEN))) {
-		log_error("got bad game desc");
+		eventlog(eventlog_level_error,__FUNCTION__,"got bad game desc");
 		return -1;
 	}
 	tempflag=bn_int_get(packet->u.client_d2cs_creategamereq.gameflag);
@@ -272,7 +273,7 @@ static int on_client_creategamereq(t_connection * c, t_packet * packet)
 	maxchar=bn_byte_get(packet->u.client_d2cs_creategamereq.maxchar);
 	difficulty=gameflag_get_difficulty(tempflag);
 	if (difficulty > conn_get_charinfo_difficulty(c)) {
-		log_error("game difficulty exceed character limit %d %d",difficulty,
+		eventlog(eventlog_level_error,__FUNCTION__,"game difficulty exceed character limit %d %d",difficulty,
 			conn_get_charinfo_difficulty(c));
 		return 0;
 	}
@@ -285,14 +286,14 @@ static int on_client_creategamereq(t_connection * c, t_packet * packet)
 	game = NULL;
 	gq=conn_get_gamequeue(c);
 	if (d2cs_gamelist_find_game(gamename)) {
-		log_info("game name %s is already exist in gamelist",gamename);
+		eventlog(eventlog_level_info,__FUNCTION__,"game name %s is already exist in gamelist",gamename);
 		reply=D2CS_CLIENT_CREATEGAMEREPLY_NAME_EXIST;
 	} else if (!gq && gqlist_find_game(gamename)) {
-		log_info("game name %s is already exist in game queue",gamename);
+		eventlog(eventlog_level_info,__FUNCTION__,"game name %s is already exist in game queue",gamename);
 		reply=D2CS_CLIENT_CREATEGAMEREPLY_NAME_EXIST;
 	} else if (!(gs=d2gslist_choose_server())) {
 		if (gq) {
-			log_error("client %d is already in game queue",d2cs_conn_get_sessionnum(c));
+			eventlog(eventlog_level_error,__FUNCTION__,"client %d is already in game queue",d2cs_conn_get_sessionnum(c));
 			conn_set_gamequeue(c,NULL);
 			gq_destroy(gq);
 			return 0;
@@ -351,7 +352,7 @@ static int on_client_creategamereq(t_connection * c, t_packet * packet)
 				queue_push_packet(d2cs_conn_get_out_queue(d2gs_get_connection(gs)),gspacket);
 			}
 			packet_del_ref(gspacket);
-			log_info("request create game %s on gs %d",gamename,d2gs_get_id(gs));
+			eventlog(eventlog_level_info,__FUNCTION__,"request create game %s on gs %d",gamename,d2gs_get_id(gs));
 		}
 	}
 	return 0;
@@ -372,31 +373,31 @@ static int on_client_joingamereq(t_connection * c, t_packet * packet)
 	gs = NULL;
 	pos=sizeof(t_client_d2cs_joingamereq);
 	if (!(gamename=packet_get_str_const(packet,pos,MAX_GAMENAME_LEN))) {
-		log_error("got bad game name");
+		eventlog(eventlog_level_error,__FUNCTION__,"got bad game name");
 		return -1;
 	}
 	pos+=strlen(gamename)+1;
 	if (!(gamepass=packet_get_str_const(packet,pos,MAX_GAMEPASS_LEN))) {
-		log_error("got bad game pass");
+		eventlog(eventlog_level_error,__FUNCTION__,"got bad game pass");
 		return -1;
 	}
 	if (!(charname=d2cs_conn_get_charname(c))) {
-		log_error("missing character name for connection");
+		eventlog(eventlog_level_error,__FUNCTION__,"missing character name for connection");
 		return -1;
 	}
 	if (!(account=d2cs_conn_get_account(c))) {
-		log_error("missing account for connection");
+		eventlog(eventlog_level_error,__FUNCTION__,"missing account for connection");
 		return -1;
 	}
 	if (conn_check_multilogin(c,charname)<0) {
-		log_error("character %s is already logged in",charname);
+		eventlog(eventlog_level_error,__FUNCTION__,"character %s is already logged in",charname);
 		return -1;
 	}
 	if (!(game=d2cs_gamelist_find_game(gamename))) {
-		log_info("game %s not found",gamename);
+		eventlog(eventlog_level_info,__FUNCTION__,"game %s not found",gamename);
 		reply=D2CS_CLIENT_JOINGAMEREPLY_NOT_EXIST;
 	} else if (!(gs=game_get_d2gs(game))) {
-		log_error("missing game server for game %s",gamename);
+		eventlog(eventlog_level_error,__FUNCTION__,"missing game server for game %s",gamename);
 		reply=D2CS_CLIENT_JOINGAMEREPLY_NOT_EXIST;
 	} else { 
 		reply=d2cs_try_joingame(c,game,gamepass);
@@ -436,7 +437,7 @@ static int on_client_joingamereq(t_connection * c, t_packet * packet)
 				queue_push_packet(d2cs_conn_get_out_queue(d2gs_get_connection(gs)),gspacket);
 			}
 			packet_del_ref(gspacket);
-			log_info("request join game %s for character %s on gs %d",gamename,
+			eventlog(eventlog_level_info,__FUNCTION__,"request join game %s for character %s on gs %d",gamename,
 				charname,d2gs_get_id(gs));
 		}
 	}
@@ -470,7 +471,7 @@ static int on_client_gamelistreq(t_connection * c, t_packet * packet)
 			if (elem == start_elem) break;
 		}
 		if (!(game=elem_get_data(elem))) {
-			log_error("got NULL game");
+			eventlog(eventlog_level_error,__FUNCTION__,"got NULL game");
 			break;
 		}
 		if (maxlifetime && (now-game->create_time>maxlifetime)) continue;
@@ -522,11 +523,11 @@ static int on_client_gameinforeq(t_connection * c, t_packet * packet)
 	unsigned int	seqno, n;
 
 	if (!(gamename=packet_get_str_const(packet,sizeof(t_client_d2cs_gameinforeq),MAX_GAMENAME_LEN))) {
-		log_error("got bad game name");
+		eventlog(eventlog_level_error,__FUNCTION__,"got bad game name");
 		return -1;
 	}
 	if (!(game=d2cs_gamelist_find_game(gamename))) {
-		log_error("game %s not found",gamename);
+		eventlog(eventlog_level_error,__FUNCTION__,"game %s not found",gamename);
 		return 0;
 	}
 	seqno=bn_short_get(packet->u.client_d2cs_gameinforeq.seqno);
@@ -545,7 +546,7 @@ static int on_client_gameinforeq(t_connection * c, t_packet * packet)
 		BEGIN_LIST_TRAVERSE_DATA_CONST(game_get_charlist(game),info)
 		{
 			if (!info->charname) {
-				log_error("got NULL charname in game %s char list",gamename);
+				eventlog(eventlog_level_error,__FUNCTION__,"got NULL charname in game %s char list",gamename);
 				continue;
 			}
 			packet_append_string(rpacket,info->charname);
@@ -557,7 +558,7 @@ static int on_client_gameinforeq(t_connection * c, t_packet * packet)
 
 		bn_byte_set(&rpacket->u.d2cs_client_gameinforeply.currchar,n);
 		if (n!=game_get_currchar(game)) {
-			log_error("game %s character list corrupted",gamename);
+			eventlog(eventlog_level_error,__FUNCTION__,"game %s character list corrupted",gamename);
 		}
 		queue_push_packet(d2cs_conn_get_out_queue(c),rpacket);
 		packet_del_ref(rpacket);
@@ -575,18 +576,18 @@ static int on_client_charloginreq(t_connection * c, t_packet * packet)
 	unsigned int		expire_time;
 
 	if (!(charname=packet_get_str_const(packet,sizeof(t_client_d2cs_charloginreq),MAX_CHARNAME_LEN))) {
-		log_error("got bad character name");
+		eventlog(eventlog_level_error,__FUNCTION__,"got bad character name");
 		return -1;
 	}
 	if (!(account=d2cs_conn_get_account(c))) {
-		log_error("missing account for connection");
+		eventlog(eventlog_level_error,__FUNCTION__,"missing account for connection");
 		return -1;
 	}
 	if (d2charinfo_load(account,charname,&data)<0) {
-		log_error("error loading charinfo for character %s(*%s)",charname,account);
+		eventlog(eventlog_level_error,__FUNCTION__,"error loading charinfo for character %s(*%s)",charname,account);
 		return -1;
 	} else if (!bnetd_conn()) {
-		log_error("no bnetd connection available,character login rejected");
+		eventlog(eventlog_level_error,__FUNCTION__,"no bnetd connection available,character login rejected");
 		return -1;
 	}
 	expire_time = prefs_get_char_expire_time();
@@ -600,12 +601,12 @@ static int on_client_charloginreq(t_connection * c, t_packet * packet)
 			queue_push_packet(d2cs_conn_get_out_queue(c),rpacket);
 			packet_del_ref(rpacket);
 		}
-		log_info("character %s(*%s) login rejected due to char expired",charname,account);
+		eventlog(eventlog_level_info,__FUNCTION__,"character %s(*%s) login rejected due to char expired",charname,account);
 		return 0;
 	}
 
 	conn_set_charinfo(c,&data.summary);
-	log_info("got character %s(*%s) login request",charname,account);
+	eventlog(eventlog_level_info,__FUNCTION__,"got character %s(*%s) login request",charname,account);
 	if ((bnpacket=packet_create(packet_class_d2cs_bnetd))) {
 		if ((sq=sq_create(d2cs_conn_get_sessionnum(c),packet,0))) {
 			packet_set_size(bnpacket,sizeof(t_d2cs_bnetd_charloginreq));
@@ -630,17 +631,17 @@ static int on_client_deletecharreq(t_connection * c, t_packet * packet)
 	unsigned int	reply;
 
 	if (!(charname=packet_get_str_const(packet,sizeof(t_client_d2cs_deletecharreq),MAX_CHARNAME_LEN))) {
-		log_error("got bad character name");
+		eventlog(eventlog_level_error,__FUNCTION__,"got bad character name");
 		return -1;
 	}
 	if (conn_check_multilogin(c,charname)<0) {
-		log_error("character %s is already logged in",charname);
+		eventlog(eventlog_level_error,__FUNCTION__,"character %s is already logged in",charname);
 		return -1;
 	}
 	d2cs_conn_set_charname(c,NULL);
 	account=d2cs_conn_get_account(c);
 	if (d2char_delete(account,charname)<0) {
-		log_error("failed to delete character %s(*%s)",charname,account);
+		eventlog(eventlog_level_error,__FUNCTION__,"failed to delete character %s(*%s)",charname,account);
 		reply = D2CS_CLIENT_DELETECHARREPLY_FAILED;
 	} else {
 		reply = D2CS_CLIENT_DELETECHARREPLY_SUCCEED;
@@ -680,7 +681,7 @@ static int d2cs_send_client_ladder(t_connection * c, unsigned char type, unsigne
 	start_pos=from;
 	count=prefs_get_ladderlist_count();
 	if (d2ladder_get_ladder(&start_pos,&count,type,&ladderinfo)<0) {
-		log_error("error get ladder for type %d start_pos %d",type,from);
+		eventlog(eventlog_level_error,__FUNCTION__,"error get ladder for type %d start_pos %d",type,from);
 		return 0;
 	}
 
@@ -773,7 +774,7 @@ static int on_client_charladderreq(t_connection * c, t_packet * packet)
 	int		pos;
 
 	if (!(charname=packet_get_str_const(packet,sizeof(t_client_d2cs_charladderreq),MAX_CHARNAME_LEN))) {
-		log_error("got bad character name");
+		eventlog(eventlog_level_error,__FUNCTION__,"got bad character name");
 		return -1;
 	}
 	expansion=bn_int_get(packet->u.client_d2cs_charladderreq.expansion);
@@ -821,11 +822,11 @@ static int on_client_charlistreq(t_connection * c, t_packet * packet)
 	    return -1;
 	
 	if (!(account=d2cs_conn_get_account(c))) {
-		log_error("missing account for connection");
+		eventlog(eventlog_level_error,__FUNCTION__,"missing account for connection");
 		return -1;
 	}
 	if (!(path=malloc(strlen(prefs_get_charinfo_dir())+1+strlen(account)+1))) {
-		log_error("error allocate memory for path");
+		eventlog(eventlog_level_error,__FUNCTION__,"error allocate memory for path");
 		return 0;
 	}
 	d2char_get_infodir_name(path,account);
@@ -841,13 +842,13 @@ static int on_client_charlistreq(t_connection * c, t_packet * packet)
 		}
 		n=0;
 		if (!(dir=p_opendir(path))) {
-			log_info("(*%s) charinfo directory do not exist, building it",account);
-			mkdir(path,S_IRWXU);
+			eventlog(eventlog_level_info,__FUNCTION__,"(*%s) charinfo directory do not exist, building it",account);
+			p_mkdir(path,S_IRWXU);
 		} else {
 			while ((charname=p_readdir(dir))) {
 				if (charname[0]=='.') continue;
 				if (d2charinfo_load(account,charname,&charinfo)<0) {
-					log_error("error loading charinfo for %s(*%s)",charname,account);
+					eventlog(eventlog_level_error,__FUNCTION__,"error loading charinfo for %s(*%s)",charname,account);
 					continue;
 				}
 				packet_append_string(rpacket,charinfo.header.charname);
@@ -883,11 +884,11 @@ static int on_client_charlistreq_110(t_connection * c, t_packet * packet)
 	    return -1;
 	
 	if (!(account=d2cs_conn_get_account(c))) {
-		log_error("missing account for connection");
+		eventlog(eventlog_level_error,__FUNCTION__,"missing account for connection");
 		return -1;
 	}
 	if (!(path=malloc(strlen(prefs_get_charinfo_dir())+1+strlen(account)+1))) {
-		log_error("error allocate memory for path");
+		eventlog(eventlog_level_error,__FUNCTION__,"error allocate memory for path");
 		return 0;
 	}
 	d2char_get_infodir_name(path,account);
@@ -903,14 +904,14 @@ static int on_client_charlistreq_110(t_connection * c, t_packet * packet)
 		}
 		n=0;
 		if (!(dir=p_opendir(path))) {
-			log_info("(*%s) charinfo directory do not exist, building it",account);
-			mkdir(path,S_IRWXU);
+			eventlog(eventlog_level_info,__FUNCTION__,"(*%s) charinfo directory do not exist, building it",account);
+			p_mkdir(path,S_IRWXU);
 		} else {
 			exp_time = prefs_get_char_expire_time();
 			while ((charname=p_readdir(dir))) {
 				if (charname[0]=='.') continue;
 				if (d2charinfo_load(account,charname,&charinfo)<0) {
-					log_error("error loading charinfo for %s(*%s)",charname,account);
+					eventlog(eventlog_level_error,__FUNCTION__,"error loading charinfo for %s(*%s)",charname,account);
 					continue;
 				}
 				if (exp_time) {
@@ -943,16 +944,16 @@ static int on_client_convertcharreq(t_connection * c, t_packet * packet)
 	unsigned int	reply;
 
 	if (!(charname=packet_get_str_const(packet,sizeof(t_client_d2cs_convertcharreq),MAX_CHARNAME_LEN))) {
-		log_error("got bad character name");
+		eventlog(eventlog_level_error,__FUNCTION__,"got bad character name");
 		return -1;
 	}
 	if (conn_check_multilogin(c,charname)<0) {
-		log_error("character %s is already logged in",charname);
+		eventlog(eventlog_level_error,__FUNCTION__,"character %s is already logged in",charname);
 		return -1;
 	}
 	account=d2cs_conn_get_account(c);
 	if (d2char_convert(account,charname)<0) {
-		log_error("failed to convert character %s(*%s)",charname,account);
+		eventlog(eventlog_level_error,__FUNCTION__,"failed to convert character %s(*%s)",charname,account);
 		reply = D2CS_CLIENT_CONVERTCHARREPLY_FAILED;
 	} else {
 		reply = D2CS_CLIENT_CONVERTCHARREPLY_SUCCEED;

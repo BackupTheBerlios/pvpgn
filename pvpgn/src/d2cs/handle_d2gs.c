@@ -138,7 +138,7 @@ static int on_d2gs_authreply(t_connection * c, t_packet * packet)
 	unsigned char	*sign;
 
 	if (!(gs=d2gslist_find_gs(conn_get_d2gs_id(c)))) {
-		log_error("game server %d not found",conn_get_d2gs_id(c));
+		eventlog(eventlog_level_error,__FUNCTION__,"game server %d not found",conn_get_d2gs_id(c));
 		return -1;
 	}
 
@@ -151,30 +151,30 @@ static int on_d2gs_authreply(t_connection * c, t_packet * packet)
 	signlen = bn_int_get(packet->u.d2gs_d2cs_authreply.signlen);
 	sign    = packet->u.d2gs_d2cs_authreply.sign;
 	if (conf_version && conf_version != version) {
-		log_warn("game server %d version mismatch 0x%X - 0x%X",conn_get_d2gs_id(c),
+		eventlog(eventlog_level_warn,__FUNCTION__,"game server %d version mismatch 0x%X - 0x%X",conn_get_d2gs_id(c),
 			version,conf_version);
 	}
 	if (conf_version && !MAJOR_VERSION_EQUAL(version, conf_version, D2GS_MAJOR_VERSION_MASK)) {
-		log_error("game server %d major version mismatch 0x%X - 0x%X",conn_get_d2gs_id(c),
+		eventlog(eventlog_level_error,__FUNCTION__,"game server %d major version mismatch 0x%X - 0x%X",conn_get_d2gs_id(c),
 			version,conf_version);
 		reply=D2CS_D2GS_AUTHREPLY_BAD_VERSION;
 //	} else if (prefs_get_d2gs_checksum() && try_checksum != checksum) {
-//		log_error("game server %d checksum mismach 0x%X - 0x%X",conn_get_d2gs_id(c),try_checksum,checksum);
+//		eventlog(eventlog_level_error,__FUNCTION__,"game server %d checksum mismach 0x%X - 0x%X",conn_get_d2gs_id(c),try_checksum,checksum);
 //		reply=D2CS_D2GS_AUTHREPLY_BAD_CHECKSUM;
 //	} else if (license_verify_reply(c, randnum, sign, signlen)) {
-//		log_error("game server %d signal mismach", conn_get_d2gs_id(c));
+//		eventlog(eventlog_level_error,__FUNCTION__,"game server %d signal mismach", conn_get_d2gs_id(c));
 //		reply=D2CS_D2GS_AUTHREPLY_BAD_CHECKSUM;
 	} else {
 		reply=D2CS_D2GS_AUTHREPLY_SUCCEED;
 	}
 
 	if (reply==D2CS_D2GS_AUTHREPLY_SUCCEED) {
-		log_info("game server %s authed",addr_num_to_ip_str(d2cs_conn_get_addr(c)));
+		eventlog(eventlog_level_info,__FUNCTION__,"game server %s authed",addr_num_to_ip_str(d2cs_conn_get_addr(c)));
 		d2cs_conn_set_state(c,conn_state_authed);
 		d2gs_send_init_info(gs, c);
 		d2gs_active(gs,c);
 	} else {
-		log_error("game server %s failed to auth",addr_num_to_ip_str(d2cs_conn_get_addr(c)));
+		eventlog(eventlog_level_error,__FUNCTION__,"game server %s failed to auth",addr_num_to_ip_str(d2cs_conn_get_addr(c)));
 		/* 
 		d2cs_conn_set_state(c,conn_state_destroy); 
 		*/
@@ -242,21 +242,21 @@ static int on_d2gs_creategamereply(t_connection * c, t_packet * packet)
 
 	seqno=bn_int_get(packet->u.d2cs_d2gs.h.seqno);
 	if (!(sq=sqlist_find_sq(seqno))) {
-		log_error("seqno %d not found",seqno);
+		eventlog(eventlog_level_error,__FUNCTION__,"seqno %d not found",seqno);
 		return 0;
 	}
 	if (!(client=d2cs_connlist_find_connection_by_sessionnum(sq_get_clientid(sq)))) {
-		log_error("client %d not found",sq_get_clientid(sq));
+		eventlog(eventlog_level_error,__FUNCTION__,"client %d not found",sq_get_clientid(sq));
 		sq_destroy(sq);
 		return 0;
 	}
 	if (!(game=gamelist_find_game_by_id(sq_get_gameid(sq)))) {
-		log_error("game %d not found",sq_get_gameid(sq));
+		eventlog(eventlog_level_error,__FUNCTION__,"game %d not found",sq_get_gameid(sq));
 		sq_destroy(sq);
 		return 0;
 	}
 	if (!(opacket=sq_get_packet(sq))) {
-		log_error("previous packet not found (seqno: %d)",seqno);
+		eventlog(eventlog_level_error,__FUNCTION__,"previous packet not found (seqno: %d)",seqno);
 		sq_destroy(sq);
 		return 0;
 	}
@@ -265,10 +265,10 @@ static int on_d2gs_creategamereply(t_connection * c, t_packet * packet)
 	if (result==D2GS_D2CS_CREATEGAME_SUCCEED) {
 		game_set_d2gs_gameid(game,bn_int_get(packet->u.d2gs_d2cs_creategamereply.gameid));
 		game_set_created(game,1);
-		log_info("game %s created on gs %d",d2cs_game_get_name(game),conn_get_d2gs_id(c));
+		eventlog(eventlog_level_info,__FUNCTION__,"game %s created on gs %d",d2cs_game_get_name(game),conn_get_d2gs_id(c));
 		reply=D2CS_CLIENT_CREATEGAMEREPLY_SUCCEED;
 	} else {
-		log_warn("failed to create game %s on gs %d",d2cs_game_get_name(game),conn_get_d2gs_id(c));
+		eventlog(eventlog_level_warn,__FUNCTION__,"failed to create game %s on gs %d",d2cs_game_get_name(game),conn_get_d2gs_id(c));
 		game_destroy(game);
 		reply=D2CS_CLIENT_CREATEGAMEREPLY_FAILED;
 	}
@@ -303,26 +303,26 @@ static int on_d2gs_joingamereply(t_connection * c, t_packet * packet)
 
 	seqno=bn_int_get(packet->u.d2cs_d2gs.h.seqno);
 	if (!(sq=sqlist_find_sq(seqno))) {
-		log_error("seqno %d not found",seqno);
+		eventlog(eventlog_level_error,__FUNCTION__,"seqno %d not found",seqno);
 		return 0;
 	}
 	if (!(client=d2cs_connlist_find_connection_by_sessionnum(sq_get_clientid(sq)))) {
-		log_error("client %d not found",sq_get_clientid(sq));
+		eventlog(eventlog_level_error,__FUNCTION__,"client %d not found",sq_get_clientid(sq));
 		sq_destroy(sq);
 		return 0;
 	}
 	if (!(game=gamelist_find_game_by_id(sq_get_gameid(sq)))) {
-		log_error("game %d not found",sq_get_gameid(sq));
+		eventlog(eventlog_level_error,__FUNCTION__,"game %d not found",sq_get_gameid(sq));
 		sq_destroy(sq);
 		return 0;
 	}
 	if (!(gs=game_get_d2gs(game))) {
-		log_error("try join game without game server set");
+		eventlog(eventlog_level_error,__FUNCTION__,"try join game without game server set");
 		sq_destroy(sq);
 		return 0;
 	}
 	if (!(opacket=sq_get_packet(sq))) {
-		log_error("previous packet not found (seqno: %d)",seqno);
+		eventlog(eventlog_level_error,__FUNCTION__,"previous packet not found (seqno: %d)",seqno);
 		sq_destroy(sq);
 		return 0;
 	}
@@ -330,18 +330,18 @@ static int on_d2gs_joingamereply(t_connection * c, t_packet * packet)
 	result=bn_int_get(packet->u.d2gs_d2cs_joingamereply.result);
 	switch (result) {
 	case D2GS_D2CS_JOINGAME_SUCCEED:
-		log_info("added %s to game %s on gs %d",d2cs_conn_get_charname(client),
+		eventlog(eventlog_level_info,__FUNCTION__,"added %s to game %s on gs %d",d2cs_conn_get_charname(client),
 			d2cs_game_get_name(game),conn_get_d2gs_id(c));
 		reply=D2CS_CLIENT_JOINGAMEREPLY_SUCCEED;
 		break;
 
 	case D2GS_D2CS_JOINGAME_GAME_FULL:
-		log_info("failed to add %s to game %s on gs %d (game full)",d2cs_conn_get_charname(client),
+		eventlog(eventlog_level_info,__FUNCTION__,"failed to add %s to game %s on gs %d (game full)",d2cs_conn_get_charname(client),
 			d2cs_game_get_name(game),conn_get_d2gs_id(c));
 		reply=D2CS_CLIENT_JOINGAMEREPLY_GAME_FULL;
 		break;
 	default:
-		log_info("failed to add %s to game %s on gs %d",d2cs_conn_get_charname(client),
+		eventlog(eventlog_level_info,__FUNCTION__,"failed to add %s to game %s on gs %d",d2cs_conn_get_charname(client),
 			d2cs_game_get_name(game),conn_get_d2gs_id(c));
 		reply=D2CS_CLIENT_JOINGAMEREPLY_FAILED;
 	}
@@ -393,7 +393,7 @@ static int on_d2gs_updategameinfo(t_connection * c, t_packet * packet)
 	unsigned int	d2gs_id;
 
 	if (!(charname=packet_get_str_const(packet,sizeof(t_d2gs_d2cs_updategameinfo),MAX_CHARNAME_LEN))) {
-		log_error("got bad charname");
+		eventlog(eventlog_level_error,__FUNCTION__,"got bad charname");
 		return 0;
 	}
 	d2gs_id=conn_get_d2gs_id(c);
@@ -402,7 +402,7 @@ static int on_d2gs_updategameinfo(t_connection * c, t_packet * packet)
 	charlevel=bn_int_get(packet->u.d2gs_d2cs_updategameinfo.charlevel);
 	flag=bn_int_get(packet->u.d2gs_d2cs_updategameinfo.flag);
 	if (!(game=gamelist_find_game_by_d2gs_and_id(d2gs_id,d2gs_gameid))) {
-		log_error("game %d not found on gs %d",d2gs_gameid,d2gs_id);
+		eventlog(eventlog_level_error,__FUNCTION__,"game %d not found on gs %d",d2gs_gameid,d2gs_id);
 		return -1;
 	}
 	if (flag==D2GS_D2CS_UPDATEGAMEINFO_FLAG_ENTER) {
@@ -412,7 +412,7 @@ static int on_d2gs_updategameinfo(t_connection * c, t_packet * packet)
 	} else if (flag==D2GS_D2CS_UPDATEGAMEINFO_FLAG_UPDATE) {
 		game_add_character(game,charname,charclass,charlevel);
 	} else {
-		log_error("got bad updategameinfo flag %d",flag);
+		eventlog(eventlog_level_error,__FUNCTION__,"got bad updategameinfo flag %d",flag);
 	}
 	return 0;
 }
@@ -450,6 +450,6 @@ extern int handle_d2gs_init(t_connection * c)
 		queue_push_packet(d2cs_conn_get_out_queue(c),packet);
 		packet_del_ref(packet);
 	}
-	log_info("sent init packet to d2gs %d (sessionnum=%d)",conn_get_d2gs_id(c),d2cs_conn_get_sessionnum(c));
+	eventlog(eventlog_level_info,__FUNCTION__,"sent init packet to d2gs %d (sessionnum=%d)",conn_get_d2gs_id(c),d2cs_conn_get_sessionnum(c));
 	return 0;
 }

@@ -59,6 +59,8 @@ SRC_SHAREDIR    = ${SRCDIR}\..\files
 
 SRC_ACDIR       = ${SRC_SRCDIR}\autoconf
 SRC_BNETDDIR    = ${SRC_SRCDIR}\bnetd
+SRC_D2CSDIR	= ${SRC_SRCDIR}\d2cs
+SRC_D2DBSDIR	= ${SRC_SRCDIR}\d2dbs
 SRC_BNIUTILSDIR = ${SRC_SRCDIR}\bniutils
 SRC_BNPASSDIR   = ${SRC_SRCDIR}\bnpass
 SRC_BNPROXYDIR  = ${SRC_SRCDIR}\bnproxy
@@ -119,7 +121,10 @@ CDBFLAGS = -DWITH_CDB
 
 CFLAGS      = -v -y -O2 -d -j2 -w-8060 -w-8057
 CPPFLAGS    = -DWIN32 -DHAVE_CONFIG_H -I${SRC_SRCDIR} \
-                -DBNETD_DEFAULT_CONF_FILE=\"${bnetd_DEFCONFFILE:\=\\}\" ${SQLFLAGS} ${CDBFLAGS}
+                -DBNETD_DEFAULT_CONF_FILE=\"${bnetd_DEFCONFFILE:\=\\}\" \
+		-DD2CS_DEFAULT_CONF_FILE=\"${d2cs_DEFCONFFILE:\=\\}\" \
+		-DD2DBS_DEFAULT_CONF_FILE=\"${d2dbs_DEFCONFFILE:\=\\}\" \
+		${SQLFLAGS} ${CDBFLAGS}
 COMPILE     = ${CC} ${CFLAGS} ${CPPFLAGS} -c
 LINK        = ilink32 -v -L${LINK_LIBS_PATH}
 !ifdef WITH_SQL_MYSQL
@@ -270,6 +275,80 @@ bnetg_CFLAGS        = -DWIN32_GUI -tWM
 sbnetd_SBIN	= ${SRC_SBINDIR}\sbnetd.exe
 sbnetd_OBJECTS	= ${SRC_DEBUGDIR}\sbnetd.obj \
      ${SRC_COMPATDIR}\strerror.obj
+
+d2cs_DEFCONFFILE = ${confdir}\d2cs.conf 
+d2cs_SBIN = ${SRC_SBINDIR}\d2cs.exe 
+d2cs_OBJECTS    = \ 
+    ${SRC_D2CSDIR}\main.obj \ 
+    ${SRC_D2CSDIR}\d2gs.obj \ 
+    ${SRC_D2CSDIR}\handle_d2gs.obj \ 
+    ${SRC_D2CSDIR}\serverqueue.obj \ 
+    ${SRC_D2CSDIR}\connection.obj \ 
+    ${SRC_D2CSDIR}\game.obj \ 
+    ${SRC_D2CSDIR}\server.obj \ 
+    ${SRC_D2CSDIR}\handle_init.obj \ 
+    ${SRC_D2CSDIR}\handle_d2cs.obj \ 
+    ${SRC_D2CSDIR}\d2charfile.obj \ 
+    ${SRC_D2CSDIR}\xstring.obj \ 
+    ${SRC_D2CSDIR}\gamequeue.obj \ 
+    ${SRC_D2CSDIR}\conf.obj \ 
+    ${SRC_D2CSDIR}\prefs.obj \ 
+    ${SRC_D2CSDIR}\cmdline_parse.obj \ 
+    ${SRC_D2CSDIR}\bnetd.obj \ 
+    ${SRC_D2CSDIR}\handle_bnetd.obj \ 
+    ${SRC_D2CSDIR}\s2s.obj \ 
+    ${SRC_D2CSDIR}\net.obj \ 
+    ${SRC_D2CSDIR}\d2ladder.obj \ 
+    ${SRC_D2CSDIR}\d2gstrans.obj \
+    ${SRC_COMMONDIR}\check_alloc.obj \ 
+    ${SRC_COMMONDIR}\hashtable.obj \ 
+    ${SRC_COMMONDIR}\hexdump.obj \ 
+    ${SRC_COMMONDIR}\eventlog.obj \ 
+    ${SRC_COMMONDIR}\list.obj \ 
+    ${SRC_COMMONDIR}\packet.obj \ 
+    ${SRC_COMMONDIR}\bn_type.obj \ 
+    ${SRC_COMMONDIR}\addr.obj \ 
+    ${SRC_COMMONDIR}\util.obj \ 
+    ${SRC_COMMONDIR}\queue.obj \ 
+    ${SRC_COMMONDIR}\network.obj \ 
+    ${SRC_COMPATDIR}\inet_aton.obj \ 
+    ${SRC_COMPATDIR}\inet_ntoa.obj \ 
+    ${SRC_COMPATDIR}\strdup.obj \ 
+    ${SRC_COMPATDIR}\strerror.obj \ 
+    ${SRC_COMPATDIR}\strtoul.obj \ 
+    ${SRC_COMPATDIR}\strftime.obj \ 
+    ${SRC_COMPATDIR}\strcasecmp.obj \ 
+    ${SRC_COMPATDIR}\strncasecmp.obj \ 
+    ${SRC_COMPATDIR}\psock.obj \ 
+    ${SRC_COMPATDIR}\uname.obj \ 
+    ${SRC_COMPATDIR}\gettimeofday.obj \ 
+    ${SRC_COMPATDIR}\difftime.obj \ 
+    ${SRC_COMPATDIR}\pdir.obj \ 
+    ${SRC_COMPATDIR}\strsep.obj 
+
+d2dbs_DEFCONFFILE = ${confdir}\d2dbs.conf 
+d2dbs_SBIN = ${SRC_SBINDIR}\d2dbs.exe 
+d2dbs_OBJECTS = \ 
+    ${SRC_D2DBSDIR}\main.obj \ 
+    ${SRC_D2DBSDIR}\charlock.obj \ 
+    ${SRC_D2DBSDIR}\d2ladder.obj \ 
+    ${SRC_D2DBSDIR}\dbserver.obj \ 
+    ${SRC_D2DBSDIR}\dbspacket.obj \ 
+    ${SRC_D2DBSDIR}\cmdline_parse.obj \ 
+    ${SRC_D2DBSDIR}\prefs.obj \ 
+    ${SRC_D2DBSDIR}\dbsdupecheck.obj \ 
+    ${SRC_D2CSDIR}\conf.obj \ 
+    ${SRC_D2CSDIR}\xstring.obj \ 
+    ${SRC_COMMONDIR}\list.obj \ 
+    ${SRC_COMMONDIR}\eventlog.obj \ 
+    ${SRC_COMMONDIR}\bn_type.obj \ 
+    ${SRC_COMMONDIR}\check_alloc.obj \ 
+    ${SRC_COMMONDIR}\util.obj \
+    ${SRC_COMMONDIR}\addr.obj \
+    ${SRC_COMPATDIR}\inet_aton.obj \
+    ${SRC_COMPATDIR}\psock.obj \
+    ${SRC_COMPATDIR}\strerror.obj \ 
+    ${SRC_COMPATDIR}\strsep.obj 
 
 bnproxy_SBIN    = ${SRC_SBINDIR}\bnproxy.exe
 bnproxy_OBJECTS = ${SRC_BNPROXYDIR}\bnproxy.obj \
@@ -466,7 +545,7 @@ ${SRC_COMPATDIR}\mmap.obj \
 ${SRC_COMPATDIR}\getopt.obj
 
 OBJECTS		= ${bnetd_OBJECTS} ${d2cs_OBJECTS} ${d2dbs_OBJECTS} ${bntrackd_OBJECTS} ${bnchat_OBJECTS} ${bnpass_OBJECTS} ${bnbot_OBJECTS} ${bnftp_OBJECTS} ${bnstat_OBJECTS} ${bnilist_OBJECTS} ${bni2tga_OBJECTS} ${bniextract_OBJECTS} ${bnibuild_OBJECTS} ${tgainfo_OBJECTS} ${timetest_OBJECTS} ${listtest_OBJECTS} ${hashtabletest_OBJECTS} ${addrtest_OBJECTS} ${cdb_OBJECTS}
-SBINS       = ${bnetd_SBIN} ${bnetg_SBIN} ${bnproxy_SBIN} ${bntrackd_SBIN}
+SBINS       = ${bnetd_SBIN} ${bnetg_SBIN} ${d2cs_SBIN} ${d2dbs_SBIN} ${bnproxy_SBIN} ${bntrackd_SBIN}
 BINS        = ${bnchat_BIN} ${bnpass_BIN} ${bnftp_BIN} ${bnbot_BIN} ${bnstat_BIN} ${bnilist_BIN} ${bni2tga_BIN} ${bniextract_BIN} ${bnibuild_BIN} ${tgainfo_BIN} ${cdb_BIN}
 CONFS       = ad.list bnetd.conf bnetd_default_user bnmotd.txt channel.list news.txt bnban bnhelp gametrans d2gstrans autoupdate realm.list bnmaps.txt bnxplevel.txt bnxpcalc.txt news.txt command_groups.txt bnban bnhelp bnalias.list anongame_infos.conf tournament.conf topics sql_DB_layout w3trans
 SHARES      = ad000001.pcx tos.txt
@@ -487,6 +566,8 @@ clean:
     -${RMF} ${SRC_COMMONDIR}\*.obj
     -${RMF} ${SRC_WIN32DIR}\*.obj    
     -${RMF} ${SRC_BNETDDIR}\*.obj
+    -${RMF} ${SRC_D2DBSDIR}\*.obj
+    -${RMF} ${SRC_D2CSDIR}\*.obj
     -${RMF} ${SRC_CDBDIR}\*.obj
     -${RMF} ${SRC_ZLIBDIR}\*.obj
     -${RMF} ${SRC_BNETDDIR}\*.res
@@ -503,6 +584,7 @@ clean:
 
 distclean: clean
     -${RMF} ${SRC_CONFDIR}\bnetd.conf
+    -${RMF} ${SRC_CONFDIR}\d2dbs.conf
     -${RMF} ${SRC_SRCDIR}\config.cache 
     -${RMF} ${SRC_SRCDIR}\config.log
     -${RMF} ${SRC_SRCDIR}\config.status
@@ -540,6 +622,8 @@ install: config all
     copy ${TOPDIR}\files\*.* ${INSTALLDIR}\var\files
     copy ${TOPDIR}\conf\*.* ${INSTALLDIR}\etc
     copy ${INSTALLDIR}\etc\bnetd.conf.win32 ${INSTALLDIR}\etc\bnetd.conf
+    copy ${INSTALLDIR}\etc\d2cs.conf.win32 ${INSTALLDIR}\etc\d2cs.conf
+    copy ${INSTALLDIR}\etc\d2dbs.conf.win32 ${INSTALLDIR}\etc\d2dbs.conf
     copy ${TOPDIR}\sbin\*.exe ${INSTALLDIR}\sbin
     copy ${TOPDIR}\bin\*.exe ${INSTALLDIR}\bin
     copy ${TOPDIR}\*.* ${INSTALLDIR}
@@ -564,6 +648,12 @@ ${bnetd_SBIN}: ${bnetd_OBJECTS} ${SRC_SBINDIR}
 
 ${bnetg_SBIN}: ${bnetg_OBJECTS} ${bnetg_RESOURCES} ${SRC_SBINDIR}
     ${LINK} /aa c0w32 ${bnetg_OBJECTS}, $@, , ${LINK_LIBS} cw32mt import32, , ${bnetg_RESOURCES}
+
+${d2cs_SBIN}: ${d2cs_OBJECTS} ${SRC_SBINDIR}
+    ${LINK} /ap c0x32 ${d2cs_OBJECTS}, $@, , ${LINK_LIBS} cw32 import32
+
+${d2dbs_SBIN}: ${d2dbs_OBJECTS} ${SRC_SBINDIR}
+    ${LINK} /ap c0x32 ${d2dbs_OBJECTS}, $@, , ${LINK_LIBS} cw32 import32 
 
 ${bnproxy_SBIN}: ${bnproxy_OBJECTS} ${SRC_SBINDIR}
     ${LINK} /ap c0x32 ${bnproxy_OBJECTS}, $@, , ${LINK_LIBS} cw32 import32

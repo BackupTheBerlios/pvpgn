@@ -22,7 +22,7 @@
 #include "dbserver.h"
 #include "common/bn_type.h"
 
-#pragma pack(1)
+/* #pragma pack(1) */
   
 typedef struct { 
   bn_short  size;

@@ -124,15 +124,15 @@ static unsigned int dbs_packet_savedata_charsave(t_d2dbs_connection* conn, char 
 	char savefile[MAX_PATH];
 	char bakfile[MAX_PATH];
 	unsigned short curlen,readlen,leftlen,writelen;
-	int	fd;
+	FILE * fd;
 	
 	strtolower(AccountName);
 	strtolower(CharName);
 
 	sprintf(filename,"%s/.%s.tmp",d2dbs_prefs_get_charsave_dir(),CharName);
-	fd = open(filename, O_WRONLY|O_CREAT|O_TRUNC,S_IREAD|S_IWRITE );
-	if (fd<=0) {
-		log_error("open() failed : %s",filename);
+	fd = fopen(filename, "wb");
+	if (!fd) {
+		eventlog(eventlog_level_error,__FUNCTION__,"open() failed : %s",filename);
 		return 0;
 	}
 	curlen=0;
@@ -140,27 +140,27 @@ static unsigned int dbs_packet_savedata_charsave(t_d2dbs_connection* conn, char 
 	while(curlen<datalen) {
 		if (leftlen>2000) writelen=2000;
 		else writelen=leftlen;
-		readlen=write(fd,data+curlen,writelen);
+		readlen=fwrite(data+curlen,1,writelen,fd);
 		if (readlen<=0) {
-			close(fd);
-			log_error("write() failed error : %s",strerror(errno));
+			fclose(fd);
+			eventlog(eventlog_level_error,__FUNCTION__,"write() failed error : %s",strerror(errno));
 			return 0;
 		}
 		curlen+=readlen;
 		leftlen-=readlen;
 	}
-	close(fd);
+	fclose(fd);
 
 	sprintf(bakfile,"%s/%s",prefs_get_charsave_bak_dir(),CharName);
 	sprintf(savefile,"%s/%s",d2dbs_prefs_get_charsave_dir(),CharName);
 	if (rename(savefile, bakfile)==-1) {
-		log_warn("error rename %s to %s", savefile, bakfile);
+		eventlog(eventlog_level_warn,__FUNCTION__,"error rename %s to %s", savefile, bakfile);
 	}
 	if (rename(filename, savefile)==-1) {
-		log_error("error rename %s to %s", filename, savefile);
+		eventlog(eventlog_level_error,__FUNCTION__,"error rename %s to %s", filename, savefile);
 		return 0;
 	}
-	log_info("saved charsave %s(*%s) for gs %s(%d)", CharName, AccountName, conn->serverip, conn->serverid);
+	eventlog(eventlog_level_info,__FUNCTION__,"saved charsave %s(*%s) for gs %s(%d)", CharName, AccountName, conn->serverip, conn->serverid);
 	return datalen;
 }
 
@@ -170,7 +170,7 @@ static unsigned int dbs_packet_savedata_charinfo(t_d2dbs_connection* conn,char *
 	char bakfile[MAX_PATH];
 	char filepath[MAX_PATH];
 	char filename[MAX_PATH];
-	int  fd;
+	FILE * fd;
 	unsigned short curlen,readlen,leftlen,writelen;
 	struct stat statbuf;
 	
@@ -179,14 +179,14 @@ static unsigned int dbs_packet_savedata_charinfo(t_d2dbs_connection* conn,char *
 
 	sprintf(filepath,"%s/%s",prefs_get_charinfo_bak_dir(),AccountName);
 	if (stat(filepath,&statbuf)==-1) {
-		mkdir(filepath,S_IRWXU|S_IRWXG|S_IRWXO );
-		log_info("created charinfo directory: %s",filepath);
+		p_mkdir(filepath,S_IRWXU|S_IRWXG|S_IRWXO );
+		eventlog(eventlog_level_info,__FUNCTION__,"created charinfo directory: %s",filepath);
 	}
 
 	sprintf(filename,"%s/%s/.%s.tmp",d2dbs_prefs_get_charinfo_dir(),AccountName,CharName);
-	fd = open(filename, O_WRONLY|O_CREAT|O_TRUNC,S_IREAD|S_IWRITE );
-	if (fd<=0) {
-		log_error("open() failed : %s",filename);
+	fd = fopen(filename, "wb");
+	if (!fd) {
+		eventlog(eventlog_level_error,__FUNCTION__,"open() failed : %s",filename);
 		return 0;
 	}
 
@@ -195,34 +195,34 @@ static unsigned int dbs_packet_savedata_charinfo(t_d2dbs_connection* conn,char *
 	while(curlen<datalen) {
 		if (leftlen>2000) writelen=2000;
 		else writelen=leftlen;
-		readlen=write(fd,data+curlen,writelen);
+		readlen=fwrite(data+curlen,1,writelen,fd);
 		if (readlen<=0) {
-			close(fd);
-			log_error("write() failed error : %s",strerror(errno));
+			fclose(fd);
+			eventlog(eventlog_level_error,__FUNCTION__,"write() failed error : %s",strerror(errno));
 			return 0;
 		}
 		curlen+=readlen;
 		leftlen-=readlen;
 	}
-	close(fd);
+	fclose(fd);
 
 	sprintf(bakfile,"%s/%s/%s",prefs_get_charinfo_bak_dir(),AccountName,CharName);
 	sprintf(savefile,"%s/%s/%s",d2dbs_prefs_get_charinfo_dir(),AccountName,CharName);
 	if (rename(savefile, bakfile)==-1) {
-		log_info("error rename %s to %s", savefile, bakfile);
+		eventlog(eventlog_level_info,__FUNCTION__,"error rename %s to %s", savefile, bakfile);
 	}
 	if (rename(filename, savefile)==-1) {
-		log_error("error rename %s to %s", filename, savefile);
+		eventlog(eventlog_level_error,__FUNCTION__,"error rename %s to %s", filename, savefile);
 		return 0;
 	}
-	log_info("saved charinfo %s(*%s) for gs %s(%d)", CharName, AccountName, conn->serverip, conn->serverid);
+	eventlog(eventlog_level_info,__FUNCTION__,"saved charinfo %s(*%s) for gs %s(%d)", CharName, AccountName, conn->serverip, conn->serverid);
 	return datalen;
 }
 
 static unsigned int dbs_packet_getdata_charsave(t_d2dbs_connection* conn,char * AccountName,char * CharName,char * data,unsigned int bufsize)
 {
 	char filename[MAX_PATH];
-	int				fd;
+	FILE * fd;
 	unsigned short curlen,readlen,leftlen,writelen;
 	long filesize;
 	
@@ -230,21 +230,22 @@ static unsigned int dbs_packet_getdata_charsave(t_d2dbs_connection* conn,char * 
 	strtolower(CharName);
 	
 	sprintf(filename,"%s/%s",d2dbs_prefs_get_charsave_dir(),CharName);
-	fd = open(filename, O_RDONLY);
-	if (fd<=0) {
-		log_error("open() failed : %s",filename);
+	fd = fopen(filename, "rb");
+	if (!fd) {
+		eventlog(eventlog_level_error,__FUNCTION__,"open() failed : %s",filename);
 		return 0;
 	}
-	filesize=lseek(fd,0,SEEK_END);
-	lseek(fd,0,SEEK_SET);
+	fseek(fd,0,SEEK_END);
+	filesize=ftell(fd);
+	rewind(fd);
 	if (filesize==-1) {
-		close(fd);
-		log_error("lseek() failed");
+		fclose(fd);
+		eventlog(eventlog_level_error,__FUNCTION__,"lseek() failed");
 		return 0;
 	}
 	if ((signed)bufsize < filesize) {
-		close(fd);
-		log_error("not enough buffer");
+		fclose(fd);
+		eventlog(eventlog_level_error,__FUNCTION__,"not enough buffer");
 		return 0;
 	}
 
@@ -253,24 +254,24 @@ static unsigned int dbs_packet_getdata_charsave(t_d2dbs_connection* conn,char * 
 	while(curlen < filesize) {
 		if (leftlen>2000) writelen=2000;
 		else writelen=leftlen;
-		readlen=read(fd,data+curlen,writelen);
+		readlen=fread(data+curlen,1,writelen,fd);
 		if (readlen<=0) {
-			close(fd);
-			log_error("read() failed error : %s",strerror(errno));
+			fclose(fd);
+			eventlog(eventlog_level_error,__FUNCTION__,"read() failed error : %s",strerror(errno));
 			return 0;
 		}
 		leftlen-=readlen;
 		curlen+=readlen;
 	}
-	close(fd);
-	log_info("loaded charsave %s(*%s) for gs %s(%d)", CharName, AccountName, conn->serverip, conn->serverid);
+	fclose(fd);
+	eventlog(eventlog_level_info,__FUNCTION__,"loaded charsave %s(*%s) for gs %s(%d)", CharName, AccountName, conn->serverip, conn->serverid);
 	return filesize;
 }
 
 static unsigned int dbs_packet_getdata_charinfo(t_d2dbs_connection* conn,char * AccountName,char * CharName,char * data,unsigned int bufsize)
 {
 	char filename[MAX_PATH];
-	int  fd;
+	FILE * fd;
 	unsigned short curlen,readlen,leftlen,writelen;
 	long filesize;
 	
@@ -278,21 +279,22 @@ static unsigned int dbs_packet_getdata_charinfo(t_d2dbs_connection* conn,char * 
 	strtolower(CharName);
 
 	sprintf(filename,"%s/%s/%s",d2dbs_prefs_get_charinfo_dir(),AccountName,CharName);
-	fd = open(filename, O_RDONLY);
-	if (fd<=0) {
-		log_error("open() failed : %s",filename);
+	fd = fopen(filename, "rb");
+	if (!fd) {
+		eventlog(eventlog_level_error,__FUNCTION__,"open() failed : %s",filename);
 		return 0;
 	}
-	filesize=lseek(fd,0,SEEK_END);
-	lseek(fd,0,SEEK_SET);
+	fseek(fd,0,SEEK_END);
+	filesize=ftell(fd);
+	rewind(fd);
 	if (filesize==-1) {
-		close(fd);
-		log_error("lseek() failed");
+		fclose(fd);
+		eventlog(eventlog_level_error,__FUNCTION__,"lseek() failed");
 		return 0;
 	}
 	if ((signed)bufsize < filesize) {
-		close(fd);
-		log_error("not enough buffer");
+		fclose(fd);
+		eventlog(eventlog_level_error,__FUNCTION__,"not enough buffer");
 		return 0;
 	}
 
@@ -303,18 +305,18 @@ static unsigned int dbs_packet_getdata_charinfo(t_d2dbs_connection* conn,char * 
 			writelen=2000;
 		else
 			writelen=leftlen;
-		readlen=read(fd,data+curlen,writelen);
+		readlen=fread(data+curlen,1,writelen,fd);
 	    if (readlen<=0)
 		{
-			close(fd);
-			log_error("read() failed error : %s",strerror(errno));
+			fclose(fd);
+			eventlog(eventlog_level_error,__FUNCTION__,"read() failed error : %s",strerror(errno));
 			return 0;
 		}
 		leftlen-=readlen;
 		curlen+=readlen;
 	}
-	close(fd);
-	log_info("loaded charinfo %s(*%s) for gs %s(%d)", CharName, AccountName, conn->serverip, conn->serverid);
+	fclose(fd);
+	eventlog(eventlog_level_info,__FUNCTION__,"loaded charinfo %s(*%s) for gs %s(%d)", CharName, AccountName, conn->serverip, conn->serverid);
 	return filesize;
 }
 
@@ -349,7 +351,7 @@ static unsigned int dbs_packet_savedata(t_d2dbs_connection * conn)
 	readpos+=strlen(RealmName)+1;
 
 	if (readpos+datalen!=conn->ReadBuf+bn_short_get(savecom->h.size)) {
-		log_error("request packet size error");
+		eventlog(eventlog_level_error,__FUNCTION__,"request packet size error");
 		return -1;
 	}
 
@@ -368,7 +370,7 @@ static unsigned int dbs_packet_savedata(t_d2dbs_connection * conn)
 			result=D2DBS_SAVE_DATA_FAILED;
 		}
 	} else {
-		log_error("unknown data type %d",datatype);
+		eventlog(eventlog_level_error,__FUNCTION__,"unknown data type %d",datatype);
 		return -1;
 	}
 	writelen=sizeof(*saveret)+strlen(CharName)+1;
@@ -426,7 +428,7 @@ static unsigned int dbs_packet_getdata(t_d2dbs_connection * conn)
 	readpos+=strlen(RealmName)+1;
 
 	if (readpos != conn->ReadBuf+bn_short_get(getcom->h.size)) {
-		log_error("request packet size error");
+		eventlog(eventlog_level_error,__FUNCTION__,"request packet size error");
 		return -1;
 	}
 	writepos=conn->WriteBuf+conn->nCharsInWriteBuffer;
@@ -434,13 +436,13 @@ static unsigned int dbs_packet_getdata(t_d2dbs_connection * conn)
 	datalen=0;
 	if (datatype==D2GS_DATA_CHARSAVE) {
 		if (cl_query_charlock_status(CharName,RealmName,&gsid)!=0) {
-			log_warn("char %s(*%s)@%s is already locked on gs %u",CharName,AccountName,RealmName,gsid);
+			eventlog(eventlog_level_warn,__FUNCTION__,"char %s(*%s)@%s is already locked on gs %u",CharName,AccountName,RealmName,gsid);
 			result=D2DBS_GET_DATA_CHARLOCKED;
 		} else if (cl_lock_char(CharName,RealmName,conn->serverid) != 0) {
-			log_error("failed to lock char %s(*%s)@%s for gs %s(%d)",CharName,AccountName,RealmName,conn->serverip,conn->serverid);
+			eventlog(eventlog_level_error,__FUNCTION__,"failed to lock char %s(*%s)@%s for gs %s(%d)",CharName,AccountName,RealmName,conn->serverip,conn->serverid);
 			result=D2DBS_GET_DATA_CHARLOCKED;
 		} else {
-			log_info("lock char %s(*%s)@%s for gs %s(%d)",CharName,AccountName,RealmName,conn->serverip,conn->serverid);
+			eventlog(eventlog_level_info,__FUNCTION__,"lock char %s(*%s)@%s for gs %s(%d)",CharName,AccountName,RealmName,conn->serverip,conn->serverid);
 			datalen=dbs_packet_getdata_charsave(conn,AccountName,CharName,databuf,kBufferSize );
 			if (datalen>0) {
 				result=D2DBS_GET_DATA_SUCCESS;
@@ -450,10 +452,10 @@ static unsigned int dbs_packet_getdata(t_d2dbs_connection * conn)
 				} else {
 					result=D2DBS_GET_DATA_FAILED;
 					if (cl_unlock_char(CharName,RealmName,gsid)!=0) {
-						log_error("failed to unlock char %s(*%s)@%s for gs %s(%d)",CharName,\
+						eventlog(eventlog_level_error,__FUNCTION__,"failed to unlock char %s(*%s)@%s for gs %s(%d)",CharName,\
 							AccountName,RealmName,conn->serverip,conn->serverid);
 					} else {
-						log_info("unlock char %s(*%s)@%s for gs %s(%d)",CharName,\
+						eventlog(eventlog_level_info,__FUNCTION__,"unlock char %s(*%s)@%s for gs %s(%d)",CharName,\
 							AccountName,RealmName,conn->serverip,conn->serverid);
 					}
 				}
@@ -461,10 +463,10 @@ static unsigned int dbs_packet_getdata(t_d2dbs_connection * conn)
 				datalen=0;
 				result=D2DBS_GET_DATA_FAILED;
 				if (cl_unlock_char(CharName,RealmName,gsid)!=0) {
-					log_error("faled to unlock char %s(*%s)@%s for gs %s(%d)",CharName,\
+					eventlog(eventlog_level_error,__FUNCTION__,"faled to unlock char %s(*%s)@%s for gs %s(%d)",CharName,\
 						AccountName,RealmName,conn->serverip,conn->serverid);
 				} else {
-					log_info("unlock char %s(*%s)@%s for gs %s(%d)",CharName,\
+					eventlog(eventlog_level_info,__FUNCTION__,"unlock char %s(*%s)@%s for gs %s(%d)",CharName,\
 						AccountName,RealmName,conn->serverip,conn->serverid);
 				}
 					
@@ -490,7 +492,7 @@ static unsigned int dbs_packet_getdata(t_d2dbs_connection * conn)
 			result=D2DBS_GET_DATA_FAILED    ;
 		}
 	} else {
-		log_error("unknown data type %d",datatype);
+		eventlog(eventlog_level_error,__FUNCTION__,"unknown data type %d",datatype);
 		return -1;
 	}
 	writelen=datalen+sizeof(*getret)+strlen(CharName)+1;
@@ -528,7 +530,7 @@ static unsigned int dbs_packet_updateladder(t_d2dbs_connection * conn)
 	RealmName[MAX_NAME_LEN]=0;
 	readpos+=strlen(RealmName)+1;
 	if (readpos != conn->ReadBuf+bn_short_get(updateladder->h.size)) {
-		log_error("request packet size error");
+		eventlog(eventlog_level_error,__FUNCTION__,"request packet size error");
 		return -1;
 	}
 
@@ -537,7 +539,7 @@ static unsigned int dbs_packet_updateladder(t_d2dbs_connection * conn)
 	charladderinfo.level=bn_int_get(updateladder->charlevel);
 	charladderinfo.status=bn_short_get(updateladder->charstatus);
 	charladderinfo.class=bn_short_get(updateladder->charclass);
-	log_info("update ladder for %s@%s for gs %s(%d)",CharName,RealmName,conn->serverip,conn->serverid);
+	eventlog(eventlog_level_info,__FUNCTION__,"update ladder for %s@%s for gs %s(%d)",CharName,RealmName,conn->serverip,conn->serverid);
 	d2ladder_update(&charladderinfo);
 	return 1;
 }
@@ -565,21 +567,21 @@ static unsigned int dbs_packet_charlock(t_d2dbs_connection * conn)
 	readpos+=strlen(RealmName)+1;
 
 	if (readpos != conn->ReadBuf+ bn_short_get(charlock->h.size)) {
-		log_error("request packet size error");
+		eventlog(eventlog_level_error,__FUNCTION__,"request packet size error");
 		return -1;
 	}
 
 	if (bn_int_get(charlock->lockstatus)) {
 		if (cl_lock_char(CharName,RealmName,conn->serverid)!=0) {
-			log_error("failed to lock character %s(*%s)@%s for gs %s(%d)",CharName,AccountName,RealmName,conn->serverip,conn->serverid);
+			eventlog(eventlog_level_error,__FUNCTION__,"failed to lock character %s(*%s)@%s for gs %s(%d)",CharName,AccountName,RealmName,conn->serverip,conn->serverid);
 		} else {
-			log_info("lock character %s(*%s)@%s for gs %s(%d)",CharName,AccountName,RealmName,conn->serverip,conn->serverid);
+			eventlog(eventlog_level_info,__FUNCTION__,"lock character %s(*%s)@%s for gs %s(%d)",CharName,AccountName,RealmName,conn->serverip,conn->serverid);
 		}
 	} else {
 		if (cl_unlock_char(CharName,RealmName,conn->serverid) != 0) {
-			log_error("failed to unlock character %s(*%s)@%s for gs %s(%d)",CharName,AccountName,RealmName,conn->serverip,conn->serverid);
+			eventlog(eventlog_level_error,__FUNCTION__,"failed to unlock character %s(*%s)@%s for gs %s(%d)",CharName,AccountName,RealmName,conn->serverip,conn->serverid);
 		} else {
-			log_info("unlock character %s(*%s)@%s for gs %s(%d)",CharName,AccountName,RealmName,conn->serverip,conn->serverid);
+			eventlog(eventlog_level_info,__FUNCTION__,"unlock character %s(*%s)@%s for gs %s(%d)",CharName,AccountName,RealmName,conn->serverip,conn->serverid);
 		}
 	}
 	return 1;
@@ -606,15 +608,15 @@ extern int dbs_packet_handle(t_d2dbs_connection* conn)
 
 		if (conn->type==CONNECT_CLASS_D2GS_TO_D2DBS) {
 			if (dbs_verify_ipaddr(d2dbs_prefs_get_d2gs_list(),conn)<0) {
-				log_error("d2gs connection from unknown ip address");
+				eventlog(eventlog_level_error,__FUNCTION__,"d2gs connection from unknown ip address");
 				return -1;
 			}
 			readlen=1;
 			writelen=0;
-			log_info("set connection type for gs %s(%d) on socket %d", conn->serverip, conn->serverid, conn->sd);
-			log_d2gs("set connection type for gs %s(%d) on socket %d", conn->serverip, conn->serverid, conn->sd);
+			eventlog(eventlog_level_info,__FUNCTION__,"set connection type for gs %s(%d) on socket %d", conn->serverip, conn->serverid, conn->sd);
+			eventlog_step(prefs_get_logfile_gs(),eventlog_level_info,__FUNCTION__,"set connection type for gs %s(%d) on socket %d", conn->serverip, conn->serverid, conn->sd);
 		} else {
-			log_error("unknown connection type");
+			eventlog(eventlog_level_error,__FUNCTION__,"unknown connection type");
 			return -1;
 		}
 		conn->nCharsInReadBuffer -= readlen;
@@ -642,7 +644,7 @@ extern int dbs_packet_handle(t_d2dbs_connection* conn)
 						retval=dbs_packet_echoreply(conn);
 						break;
 					default:
-						log_error("unknown request type %d",\
+						eventlog(eventlog_level_error,__FUNCTION__,"unknown request type %d",\
 							bn_short_get(readhead->type));
 						retval=-1;
 				}
@@ -651,11 +653,11 @@ extern int dbs_packet_handle(t_d2dbs_connection* conn)
 				memmove(conn->ReadBuf,conn->ReadBuf+readlen,conn->nCharsInReadBuffer);
 			}
 		} else {
-			log_error("unknown connection type %d",conn->type);
+			eventlog(eventlog_level_error,__FUNCTION__,"unknown connection type %d",conn->type);
 			return -1;
 		}
 	} else {
-		log_error("unknown connection stats");
+		eventlog(eventlog_level_error,__FUNCTION__,"unknown connection stats");
 		return -1;
 	}
 	return 1;
@@ -689,12 +691,12 @@ static int dbs_verify_ipaddr(char const * addrlist,t_d2dbs_connection * c)
 	}
 	free(adlist);
 	if (valid) {
-		log_info("ip address %s is valid",ipaddr);
+		eventlog(eventlog_level_info,__FUNCTION__,"ip address %s is valid",ipaddr);
 		LIST_TRAVERSE(dbs_server_connection_list,elem)
 		{
 			if (!(tempc=elem_get_data(elem))) continue;
 			if (tempc !=c && tempc->ipaddr==c->ipaddr) {
-				log_info("destroying previous connection %d",tempc->serverid);
+				eventlog(eventlog_level_info,__FUNCTION__,"destroying previous connection %d",tempc->serverid);
 				dbs_server_shutdown_connection(tempc);
 				list_remove_elem(dbs_server_connection_list,elem);
 			}
@@ -702,7 +704,7 @@ static int dbs_verify_ipaddr(char const * addrlist,t_d2dbs_connection * c)
 		c->verified = 1;
 		return 0;
 	} else {
-		log_info("ip address %s is invalid",ipaddr);
+		eventlog(eventlog_level_info,__FUNCTION__,"ip address %s is invalid",ipaddr);
 	}
 	return -1;
 }
@@ -720,7 +722,7 @@ int dbs_check_timeout(void)
 	{
 		if (!(tempc=elem_get_data(elem))) continue;
 		if (now-tempc->last_active>timeout) {
-			log_debug("connection %d timed out",tempc->serverid);
+			eventlog(eventlog_level_debug,__FUNCTION__,"connection %d timed out",tempc->serverid);
 			dbs_server_shutdown_connection(tempc);
 			list_remove_elem(dbs_server_connection_list,elem);
 			continue;
