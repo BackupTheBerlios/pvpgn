@@ -437,7 +437,7 @@ int read_commandline(int argc, char * * argv,
 	{
 	    if (*clienttag)
 	    {
-		fprintf(stderr,"%s: client type was already specified as \"%s\"\n",argv[0],clienttag);
+		fprintf(stderr,"%s: client type was already specified as \"%s\"\n",argv[0],*clienttag);
 		usage(argv[0]);
 	    }
 	    *clienttag = CLIENTTAG_BNCHATBOT;
@@ -447,7 +447,7 @@ int read_commandline(int argc, char * * argv,
 	{
 	    if (*clienttag)
 	    {
-		fprintf(stderr,"%s: client type was already specified as \"%s\"\n",argv[0],clienttag);
+		fprintf(stderr,"%s: client type was already specified as \"%s\"\n",argv[0],*clienttag);
 		usage(argv[0]);
 	    }
 	    *clienttag = CLIENTTAG_BROODWARS;
@@ -457,7 +457,7 @@ int read_commandline(int argc, char * * argv,
 	{
 	    if (*clienttag)
 	    {
-		fprintf(stderr,"%s: client type was already specified as \"%s\"\n",argv[0],clienttag);
+		fprintf(stderr,"%s: client type was already specified as \"%s\"\n",argv[0],*clienttag);
 		usage(argv[0]);
 	    }
 	    *clienttag = CLIENTTAG_DIABLORTL;
@@ -467,7 +467,7 @@ int read_commandline(int argc, char * * argv,
 	{
 	    if (*clienttag)
 	    {
-		fprintf(stderr,"%s: client type was already specified as \"%s\"\n",argv[0],clienttag);
+		fprintf(stderr,"%s: client type was already specified as \"%s\"\n",argv[0],*clienttag);
 		usage(argv[0]);
 	    }
 	    *clienttag = CLIENTTAG_DIABLOSHR;
@@ -477,7 +477,7 @@ int read_commandline(int argc, char * * argv,
 	{
 	    if (*clienttag)
 	    {
-		fprintf(stderr,"%s: client type was already specified as \"%s\"\n",argv[0],clienttag);
+		fprintf(stderr,"%s: client type was already specified as \"%s\"\n",argv[0],*clienttag);
 		usage(argv[0]);
 	    }
 	    *clienttag = CLIENTTAG_STARCRAFT;
@@ -487,7 +487,7 @@ int read_commandline(int argc, char * * argv,
 	{
 	    if (*clienttag)
 	    {
-		fprintf(stderr,"%s: client type was already specified as \"%s\"\n",argv[0],clienttag);
+		fprintf(stderr,"%s: client type was already specified as \"%s\"\n",argv[0],*clienttag);
 		usage(argv[0]);
 	    }
 	    *clienttag = CLIENTTAG_SHAREWARE;
@@ -497,7 +497,7 @@ int read_commandline(int argc, char * * argv,
 	{
 	    if (*clienttag)
 	    {
-		fprintf(stderr,"%s: client type was already specified as \"%s\"\n",argv[0],clienttag);
+		fprintf(stderr,"%s: client type was already specified as \"%s\"\n",argv[0],*clienttag);
 		usage(argv[0]);
 	    }
 	    *clienttag = CLIENTTAG_WARCIIBNE;
@@ -507,7 +507,7 @@ int read_commandline(int argc, char * * argv,
 	{
 	    if (*clienttag)
 	    {
-		fprintf(stderr,"%s: client type was already specified as \"%s\"\n",argv[0],clienttag);
+		fprintf(stderr,"%s: client type was already specified as \"%s\"\n",argv[0],*clienttag);
 		usage(argv[0]);
 	    }
 	    *clienttag = CLIENTTAG_DIABLO2DV;
@@ -517,7 +517,7 @@ int read_commandline(int argc, char * * argv,
 	{
 	    if (*clienttag)
 	    {
-		fprintf(stderr,"%s: client type was already specified as \"%s\"\n",argv[0],clienttag);
+		fprintf(stderr,"%s: client type was already specified as \"%s\"\n",argv[0],*clienttag);
 		usage(argv[0]);
 	    }
 	    *clienttag = CLIENTTAG_DIABLO2XP;
@@ -527,7 +527,7 @@ int read_commandline(int argc, char * * argv,
 	{
 	    if (*clienttag)
 	    {
-		fprintf(stderr,"%s: client type was already specified as \"%s\"\n",argv[0],clienttag);
+		fprintf(stderr,"%s: client type was already specified as \"%s\"\n",argv[0],*clienttag);
 		usage(argv[0]);
 	    }
 	    *clienttag = CLIENTTAG_WARCRAFT3;
@@ -537,7 +537,7 @@ int read_commandline(int argc, char * * argv,
 	{
 	    if (*clienttag)
 	    {
-		fprintf(stderr,"%s: client type was already specified as \"%s\"\n",argv[0],clienttag);
+		fprintf(stderr,"%s: client type was already specified as \"%s\"\n",argv[0],*clienttag);
 		usage(argv[0]);
 	    }
 	    *clienttag = CLIENTTAG_WAR3XP;
@@ -557,7 +557,7 @@ int read_commandline(int argc, char * * argv,
             }
 	    if (*cdowner)
 	    {
-		fprintf(stderr,"%s: CD owner was already specified as \"%s\"\n",argv[0],cdowner);
+		fprintf(stderr,"%s: CD owner was already specified as \"%s\"\n",argv[0],*cdowner);
 		usage(argv[0]);
 	    }
 	    *cdowner = argv[++a];
@@ -566,7 +566,7 @@ int read_commandline(int argc, char * * argv,
 	{
 	    if (*cdowner)
 	    {
-		fprintf(stderr,"%s: CD owner was already specified as \"%s\"\n",argv[0],cdowner);
+		fprintf(stderr,"%s: CD owner was already specified as \"%s\"\n",argv[0],*cdowner);
 		usage(argv[0]);
 	    }
 	    *cdowner = &argv[a][8];
@@ -580,7 +580,7 @@ int read_commandline(int argc, char * * argv,
             }
 	    if (*cdkey)
 	    {
-		fprintf(stderr,"%s: CD key was already specified as \"%s\"\n",argv[0],cdkey);
+		fprintf(stderr,"%s: CD key was already specified as \"%s\"\n",argv[0],*cdkey);
 		usage(argv[0]);
 	    }
 	    *cdkey = argv[++a];
@@ -589,7 +589,7 @@ int read_commandline(int argc, char * * argv,
 	{
 	    if (*cdkey)
 	    {
-		fprintf(stderr,"%s: CD key was already specified as \"%s\"\n",argv[0],cdkey);
+		fprintf(stderr,"%s: CD key was already specified as \"%s\"\n",argv[0],*cdkey);
 		usage(argv[0]);
 	    }
 	    *cdkey = &argv[a][8];
@@ -599,8 +599,7 @@ int read_commandline(int argc, char * * argv,
             printf("version "PVPGN_VERSION"\n");
             return STATUS_SUCCESS;
 	}
-	else if (strcmp(argv[a],"-h")==0 || strcmp(argv[a],"--help")==0 || strcmp(argv[a],"--usage")
-==0)
+	else if (strcmp(argv[a],"-h")==0 || strcmp(argv[a],"--help")==0 || strcmp(argv[a],"--usage")==0)
             usage(argv[0]);
         else if (strcmp(argv[a],"--client")==0 || strcmp(argv[a],"--owner")==0 || strcmp(argv[a],"--cdkey")==0)
 	{
@@ -633,7 +632,6 @@ int read_commandline(int argc, char * * argv,
 
 extern int main(int argc, char * argv[])
 {
-    int                a;
     int                useansi=0;
     int                newacct=0;
     int                changepass=0;
