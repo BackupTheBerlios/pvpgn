@@ -430,7 +430,6 @@ extern int adbannerlist_create(char const * filename)
         for (pos=0; buff[pos]=='\t' || buff[pos]==' '; pos++);
         if (buff[pos]=='\0' || buff[pos]=='#')
         {
-            xfree(buff);
             continue;
         }
         if ((temp = strrchr(buff,'#')))
@@ -456,7 +455,6 @@ extern int adbannerlist_create(char const * filename)
 		xfree(link);
 		xfree(name);
          	xfree(when);
-		xfree(buff);
 		continue;
 	    }
 	
@@ -473,9 +471,9 @@ extern int adbannerlist_create(char const * filename)
 	xfree(link);
 	xfree(name);
         xfree(when);
-	xfree(buff);
     }
     
+    file_get_line(NULL); // clear file_get_line buffer
     if (fclose(fp)<0)
 	eventlog(eventlog_level_error,__FUNCTION__,"could not close adbanner file \"%s\" after reading (fclose: %s)",filename,strerror(errno));
     return 0;

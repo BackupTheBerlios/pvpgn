@@ -100,7 +100,6 @@ extern int autoupdate_load(char const * filename)
 	for (pos=0; buff[pos]=='\t' || buff[pos]==' '; pos++);
 	
 	if (buff[pos]=='\0' || buff[pos]=='#') {
-	    xfree(buff);
 	    continue;
 	}
 	
@@ -117,22 +116,18 @@ extern int autoupdate_load(char const * filename)
 	/* FIXME: use next_token instead of strtok */
 	if (!(archtag = strtok(buff, " \t"))) { /* strtok modifies the string it is passed */
 	    eventlog(eventlog_level_error,__FUNCTION__,"missing archtag on line %u of file \"%s\"",line,filename);
-	    xfree(buff);
 	    continue;
 	}
 	if (!(clienttag = strtok(NULL," \t"))) {
 	    eventlog(eventlog_level_error,__FUNCTION__,"missing clienttag on line %u of file \"%s\"",line,filename);
-	    xfree(buff);
 	    continue;
 	}
         if (!(versiontag = strtok(NULL, " \t"))) {
 	    eventlog(eventlog_level_error,__FUNCTION__,"missing versiontag on line %u of file \"%s\"",line,filename);
-	    xfree(buff);
 	    continue;
 	}
 	if (!(mpqfile = strtok(NULL," \t"))) {
 	    eventlog(eventlog_level_error,__FUNCTION__,"missing mpqfile on line %u of file \"%s\"",line,filename);
-	    xfree(buff);
 	    continue;
 	}
 
@@ -141,23 +136,21 @@ extern int autoupdate_load(char const * filename)
 	if (!tag_check_arch((entry->archtag = tag_str_to_uint(archtag)))) {
 	    eventlog(eventlog_level_error,__FUNCTION__,"got unknown archtag");
 	    xfree(entry);
-	    xfree(buff);
 	    continue;
 	}
 	if (!tag_check_client((entry->clienttag = tag_str_to_uint(clienttag)))) {
 	    eventlog(eventlog_level_error,__FUNCTION__,"got unknown clienttag");
 	    xfree(entry);
-	    xfree(buff);
 	    continue;
 	}
 	entry->versiontag = xstrdup(versiontag);
 	entry->mpqfile = xstrdup(mpqfile);
 
 	eventlog(eventlog_level_debug,__FUNCTION__,"update '%s' version '%s' with file %s",clienttag,versiontag,mpqfile);
-	xfree(buff);
 	
 	list_append_data(autoupdate_head,entry);
     }
+    file_get_line(NULL); // clear file_get_line buffer
     fclose(fp);
     return 0;
 }

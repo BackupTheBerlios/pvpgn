@@ -503,7 +503,6 @@ extern int versioncheck_load(char const * filename)
 	for (pos=0; buff[pos]=='\t' || buff[pos]==' '; pos++);
 	if (buff[pos]=='\0' || buff[pos]=='#')
 	{
-	    xfree(buff);
 	    continue;
 	}
 	if ((temp = strrchr(buff,'#')))
@@ -520,56 +519,48 @@ extern int versioncheck_load(char const * filename)
 	if (!(eqn = next_token(buff,&pos)))
 	{
 	    eventlog(eventlog_level_error,__FUNCTION__,"missing eqn near line %u of file \"%s\"",line,filename);
-	    xfree(buff);
 	    continue;
 	}
 	line++;
 	if (!(mpqfile = next_token(buff,&pos)))
 	{
 	    eventlog(eventlog_level_error,__FUNCTION__,"missing mpqfile near line %u of file \"%s\"",line,filename);
-	    xfree(buff);
 	    continue;
 	}
 	line++;
 	if (!(archtag = next_token(buff,&pos)))
 	{
 	    eventlog(eventlog_level_error,__FUNCTION__,"missing archtag near line %u of file \"%s\"",line,filename);
-	    xfree(buff);
 	    continue;
 	}
 	line++;
 	if (!(clienttag = next_token(buff,&pos)))
 	{
 	    eventlog(eventlog_level_error,__FUNCTION__,"missing clienttag near line %u of file \"%s\"",line,filename);
-	    xfree(buff);
 	    continue;
 	}
 	line++;
 	if (!(exeinfo = next_token(buff,&pos)))
 	{
 	    eventlog(eventlog_level_error,__FUNCTION__,"missing exeinfo near line %u of file \"%s\"",line,filename);
-	    xfree(buff);
 	    continue;
 	}
 	line++;
 	if (!(versionid = next_token(buff,&pos)))
 	{
 	    eventlog(eventlog_level_error,__FUNCTION__,"missing versionid near line %u of file \"%s\"",line,filename);
-	    xfree(buff);
 	    continue;
 	}
 	line++;
 	if (!(gameversion = next_token(buff,&pos)))
 	{
 	    eventlog(eventlog_level_error,__FUNCTION__,"missing gameversion near line %u of file \"%s\"",line,filename);
-	    xfree(buff);
 	    continue;
 	}
 	line++;
 	if (!(checksum = next_token(buff,&pos)))
 	{
 	    eventlog(eventlog_level_error,__FUNCTION__,"missing checksum near line %u of file \"%s\"",line,filename);
-	    xfree(buff);
 	    continue;
 	}
 	line++;
@@ -587,7 +578,6 @@ extern int versioncheck_load(char const * filename)
 	    xfree((void *)vi->mpqfile); /* avoid warning */
 	    xfree((void *)vi->eqn); /* avoid warning */
 	    xfree(vi);
-	    xfree(buff);
 	    continue;
 	}
 	if (!tag_check_arch((vi->archtag = tag_str_to_uint(archtag))))
@@ -596,7 +586,6 @@ extern int versioncheck_load(char const * filename)
 	    xfree((void *)vi->mpqfile); /* avoid warning */
 	    xfree((void *)vi->eqn); /* avoid warning */
 	    xfree(vi);
-	    xfree(buff);
 	    continue;
 	}
 	if (strlen(clienttag)!=4)
@@ -605,7 +594,6 @@ extern int versioncheck_load(char const * filename)
 	    xfree((void *)vi->mpqfile); /* avoid warning */
 	    xfree((void *)vi->eqn); /* avoid warning */
 	    xfree(vi);
-	    xfree(buff);
 	    continue;
 	}
 	if (!tag_check_client((vi->clienttag = tag_str_to_uint(clienttag))))
@@ -614,7 +602,6 @@ extern int versioncheck_load(char const * filename)
 	    xfree((void *)vi->mpqfile); /* avoid warning */
 	    xfree((void *)vi->eqn); /* avoid warning */
 	    xfree(vi);
-	    xfree(buff);
 	    continue;
 	}
 	if (strcmp(exeinfo, "NULL") == 0)
@@ -627,7 +614,6 @@ extern int versioncheck_load(char const * filename)
 		xfree((void *)vi->mpqfile); /* avoid warning */
 		xfree((void *)vi->eqn); /* avoid warning */
 		xfree(vi);
-		xfree(buff);
 		continue;
 	    }
 	}
@@ -640,7 +626,6 @@ extern int versioncheck_load(char const * filename)
 	    xfree((void *)vi->mpqfile); /* avoid warning */
 	    xfree((void *)vi->eqn); /* avoid warning */
 	    xfree(vi);
-	    xfree(buff);
 	    continue;
         }
 
@@ -650,11 +635,11 @@ extern int versioncheck_load(char const * filename)
 	else
 	    vi->versiontag = NULL;
 	
-	xfree(buff);
 	
 	list_append_data(versioninfo_head,vi);
     }
     
+    file_get_line(NULL); // clear file_get_line buffer
     if (fclose(fp)<0)
 	eventlog(eventlog_level_error,__FUNCTION__,"could not close versioncheck file \"%s\" after reading (fclose: %s)",filename,strerror(errno));
     

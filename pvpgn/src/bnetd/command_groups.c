@@ -76,7 +76,6 @@ extern int command_groups_load(char const * filename)
     for (line=1; (buff = file_get_line(fp)); line++) {
         for (pos=0; buff[pos]=='\t' || buff[pos]==' '; pos++);
 	if (buff[pos]=='\0' || buff[pos]=='#') {
-            xfree(buff);
             continue;
         }
 	if ((temp = strrchr(buff,'#'))) {
@@ -90,17 +89,14 @@ extern int command_groups_load(char const * filename)
         }
 	if (!(temp = strtok(buff," \t"))) { /* strtok modifies the string it is passed */
 	    eventlog(eventlog_level_error,__FUNCTION__,"missing group on line %u of file \"%s\"",line,filename);
-	    xfree(buff);
 	    continue;
 	}
 	if (str_to_uint(temp,&group)<0) {
 	    eventlog(eventlog_level_error,__FUNCTION__,"group '%s' not a valid group (1-8)",temp);
-	    xfree(buff);
 	    continue;
 	}
 	if (group == 0 || group > 8) {
 	    eventlog(eventlog_level_error,__FUNCTION__,"group '%u' not within groups limits (1-8)",group);
-	    xfree(buff);
 	    continue;
 	} 
 	while ((command = strtok(NULL," \t"))) {
@@ -112,8 +108,8 @@ extern int command_groups_load(char const * filename)
 	    eventlog(eventlog_level_info,__FUNCTION__,"Added command: %s - with group %u",entry->command,entry->group);
 #endif
 	}
-	xfree(buff);
     }
+    file_get_line(NULL); // clear file_get_line buffer
     fclose(fp);
     return 0;
 }

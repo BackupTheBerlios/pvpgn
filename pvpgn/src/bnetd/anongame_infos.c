@@ -2851,7 +2851,6 @@ extern int anongame_infos_load(char const *filename)
 	for (pos = 0; buff[pos] == '\t' || buff[pos] == ' '; pos++);
 	if (buff[pos] == '\0' || buff[pos] == '#')
 	{
-	    xfree(buff);
 	    continue;
 	}
 	if ((temp = strrchr(buff, '#')))
@@ -3052,7 +3051,6 @@ extern int anongame_infos_load(char const *filename)
 		    break;
 		}
 	    }
-	xfree(buff);
     }
 
     if (anongame_infos_DESC)
@@ -3073,6 +3071,7 @@ extern int anongame_infos_load(char const *filename)
 	}
     }
 
+    file_get_line(NULL); // clear file_get_line buffer
     fclose(fp);
 
     anongame_infos_set_defaults(anongame_infos);

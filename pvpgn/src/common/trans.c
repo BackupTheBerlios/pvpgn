@@ -85,7 +85,6 @@ extern int trans_load(char const * filename, int program)
     for (line=1; (buff = file_get_line(fp)); line++) {
 	for (pos=0; buff[pos]=='\t' || buff[pos]==' '; pos++);
 	if (buff[pos]=='\0' || buff[pos]=='#') {
-            xfree(buff);
             continue;
         }
         if ((temp = strrchr(buff,'#'))) {
@@ -99,13 +98,11 @@ extern int trans_load(char const * filename, int program)
         }
 	if (!(input = strtok(buff," \t"))) { /* strtok modifies the string it is passed */
 	    eventlog(eventlog_level_error,__FUNCTION__,"missing input line %u of file \"%s\"",line,filename);
-	    xfree(buff);
 	    continue;
 	}
 	/* check for port number - this tells us what programs will use this entry */
 	if (!(temp = strrchr(input,':'))) {
 	    eventlog(eventlog_level_error,__FUNCTION__,"missing port # on input line %u of file \"%s\"",line,filename);
-	    xfree(buff);
 	    continue;
 	}
 	temp++;
@@ -114,7 +111,6 @@ extern int trans_load(char const * filename, int program)
 #ifdef DEBUG_TRANS
 	    eventlog(eventlog_level_debug,__FUNCTION__,"d2gs input (ignoring) \"%s\"",input);
 #endif
-	    xfree(buff);
 	    continue;
 	}
 	/* d2cs only wants the port 4000 entries */
@@ -122,22 +118,18 @@ extern int trans_load(char const * filename, int program)
 #ifdef DEBUG_TRANS
 	    eventlog(eventlog_level_debug,__FUNCTION__,"non d2gs input (ignoring) \"%s\"",input);
 #endif
-	    xfree(buff);
 	    continue;
 	}
 	if (!(output = strtok(NULL," \t"))) {
 	    eventlog(eventlog_level_error,__FUNCTION__,"missing output on line %u of file \"%s\"",line,filename);
-	    xfree(buff);
 	    continue;
 	}
 	if (!(exclude = strtok(NULL," \t"))) {
 	    eventlog(eventlog_level_error,__FUNCTION__,"missing exclude on line %u of file \"%s\"",line,filename);
-	    xfree(buff);
 	    continue;
 	}
 	if (!(include = strtok(NULL," \t"))) {
 	    eventlog(eventlog_level_error,__FUNCTION__,"missing include on line %u of file \"%s\"",line,filename);
-	    xfree(buff);
 	    continue;
 	}
 	/* add exlude networks */
@@ -256,8 +248,8 @@ extern int trans_load(char const * filename, int program)
 	    npos++;
 	}
 	xfree(tmp);
-	xfree(buff);
     }
+    file_get_line(NULL); // clear file_get_line buffer
     fclose(fp);
     eventlog(eventlog_level_info,__FUNCTION__,"trans file loaded");
     return 0;

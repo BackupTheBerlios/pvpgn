@@ -355,7 +355,6 @@ extern int tournament_init(char const * filename)
     for (line=1; (buff = file_get_line(fp)); line++) {
 	for (pos=0; buff[pos]=='\t' || buff[pos]==' '; pos++);
 	if (buff[pos]=='\0' || buff[pos]=='#') {
-	    xfree(buff);
 	    continue;
 	}
 	if ((temp = strrchr(buff,'#'))) {
@@ -372,11 +371,9 @@ extern int tournament_init(char const * filename)
 	    char *clienttag, *mapname, *mname;
 	    t_clienttag ctag;
 	    
-	    xfree(buff);
 	    for (; (buff = file_get_line(fp));) {
 		for (pos=0; buff[pos]=='\t' || buff[pos]==' '; pos++);
 		if (buff[pos]=='\0' || buff[pos]=='#') {
-		    xfree(buff);
 		    continue;
 		}
 		if ((temp = strrchr(buff,'#'))) {
@@ -390,23 +387,18 @@ extern int tournament_init(char const * filename)
 		}
 		/* FIXME: use next_token() */
 		if (!(clienttag = strtok(buff, " \t"))) { /* strtok modifies the string it is passed */
-		    xfree(buff);
 		    continue;
 		}
 		if (strlen(clienttag) != 4) {
-		    xfree(buff);
 		    continue;
 		}
 		if (strcmp(buff,"[ENDMAPS]") == 0) {
-		    xfree(buff);
 		    break;
 		}
 		if (!(mapname = strtok(NULL," \t"))) {
-		    xfree(buff);
 		    continue;
 		}
 		if (!tag_check_client((ctag = tag_case_str_to_uint(clienttag)))) {
-		    xfree(buff);
 		    continue;
 		}
 		mname = xstrdup(mapname);
@@ -414,7 +406,6 @@ extern int tournament_init(char const * filename)
 		anongame_add_tournament_map(ctag, mname);
 		eventlog(eventlog_level_trace,__FUNCTION__,"added tournament map \"%s\" for %s",mname,clienttag);
 		xfree(mname);
-		xfree(buff);
 	    }
 	} else {
 	    variable = buff;
@@ -685,12 +676,12 @@ extern int tournament_init(char const * filename)
 		have_sponsor = NULL;
 	        have_icon = NULL;
 	    }
-	    xfree(buff);
 	}
     }
     if (have_sponsor) xfree((void *)have_sponsor);
     if (have_icon) xfree((void *)have_icon);
     xfree((void *)timestamp);
+    file_get_line(NULL); // clear file_get_line buffer
     fclose(fp);
     
     /* check if we have timestamps for all the times */ 

@@ -69,12 +69,27 @@ extern int strstart(char const * full, char const * part)
 
 extern char * file_get_line(FILE * fp)
 {
-    char *       line;
-    unsigned int len=DEF_LEN;
-    unsigned int pos=0;
-    int          prev_char,curr_char;
+    static char *       line = NULL;
+    static unsigned int	len = 0;
+    unsigned int 	pos = 0;
+    int          	prev_char,curr_char;
     
-    line = xmalloc(DEF_LEN);
+    // use file_get_line with NULL argument to clear the buffer
+    if (!(fp))
+    {
+        len = 0;
+	if ((line))
+	    xfree((void *)line);
+	line = NULL;
+	return NULL;
+    }
+    
+    if (!(line))
+    {
+        line = xmalloc(DEF_LEN);
+	len = DEF_LEN;
+    }
+    
     prev_char = '\0';
     while ((curr_char = fgetc(fp))!=EOF)
     {
@@ -100,12 +115,8 @@ extern char * file_get_line(FILE * fp)
     
     if (curr_char==EOF && pos<1) /* not even an empty line */
     {
-	xfree(line);
 	return NULL;
     }
-
-    if (pos+1<len)
-	line = xrealloc(line,pos+1); /* bump the size back down to what we need */
 
     line[pos] = '\0';
     

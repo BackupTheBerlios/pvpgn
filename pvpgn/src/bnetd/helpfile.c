@@ -170,8 +170,8 @@ static int list_commands(t_connection * c)
             if (!skip) message_send_text(c,message_type_info,c,buffer); /* print out the buffer */
             xfree(buffer);
         }
-        xfree(line); /* free the memory allocated in file_get_line */
     }
+    file_get_line(NULL); // clear file_get_line buffer
     return 0;
 }
 
@@ -199,13 +199,12 @@ static int describe_command(t_connection * c, char const * comm)
                 p[i]='\0'; /* end the string at the end of the command */
                 if (strcasecmp(comm,p+1)==0) /* is this the command the user asked for help ? */
                 {
-                    xfree(line);
                     while ((line=file_get_line(hfd))!=NULL)
                     { /* write everything until we get another % or EOF */
                         for (i=0;line[i]==' ';i++); /* skip spaces in front of a possible % */
                         if (line[i]=='%')
 			{
-                            xfree(line); break; /* we reached another command */
+                            break; /* we reached another command */
                         }
                         if (line[0]!='#')
 			{ /* is this a whole line comment ? */
@@ -214,7 +213,6 @@ static int describe_command(t_connection * c, char const * comm)
                             if (line[i]=='#') line[i]='\0';
                             message_send_text(c,message_type_info,c,line);
                         }
-                        xfree(line);
                     }
                     return 0;
                 }
@@ -229,8 +227,8 @@ static int describe_command(t_connection * c, char const * comm)
                 }
             } while (al);
         }
-        xfree(line);
     }
+    file_get_line(NULL); // clear file_get_line buffer
     
     return -1;
 }

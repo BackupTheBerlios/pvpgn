@@ -275,14 +275,11 @@ extern int conf_load_file(char const * filename, t_conf_table * conf_table, void
 	}
 	for (line=1; (buff=file_get_line(fp)); line++) {
 		if (buff[0]=='#') {
-			xfree(buff);
 			continue;
 		}
 		if (!(item=strtoargv(buff,&count))) {
-			xfree(buff);
 			continue;
 		}
-		xfree(buff);
 		if (!count) {
 			xfree(item);
 			continue;
@@ -309,6 +306,7 @@ extern int conf_load_file(char const * filename, t_conf_table * conf_table, void
 		}
 		xfree(item);
 	}
+	file_get_line(NULL); // clear file_get_line_buffer
 	fclose(fp);
 	return 0;
 }

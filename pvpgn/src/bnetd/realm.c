@@ -354,7 +354,6 @@ t_list * realmlist_load(char const * filename)
         for (pos=0; buff[pos]=='\t' || buff[pos]==' '; pos++);
         if (buff[pos]=='\0' || buff[pos]=='#')
         {
-            xfree(buff);
             continue;
         }
         if ((temp = strrchr(buff,'#')))
@@ -371,7 +370,6 @@ t_list * realmlist_load(char const * filename)
 	for (temp = buff; *temp && (*temp == ' ' || *temp == '\t');temp++);
 	if (*temp != '"') {
 	    eventlog(eventlog_level_error,__FUNCTION__,"malformed line %u in file \"%s\" (no realmname)",line,filename);
-	    xfree(buff);
 	    continue;
 	}
 	
@@ -380,7 +378,6 @@ t_list * realmlist_load(char const * filename)
 	for (temp = temp2; *temp && *temp != '"';temp++);
 	if (*temp != '"' || temp == temp2) {
 	    eventlog(eventlog_level_error,__FUNCTION__,"malformed line %u in file \"%s\" (no realmname)",line,filename);
-	    xfree(buff);
 	    continue;
 	}
 	
@@ -400,7 +397,6 @@ t_list * realmlist_load(char const * filename)
 	    if (*temp != '"' || temp == temp2) {
 		eventlog(eventlog_level_error,__FUNCTION__,"malformed line %u in file \"%s\" (no valid description)",line,filename);
 		xfree(name);
-		xfree(buff);
 		continue;
 	    }
 	    
@@ -425,7 +421,6 @@ t_list * realmlist_load(char const * filename)
 	if (!(raddr = addr_create_str(temp2,0,BNETD_REALM_PORT))) /* 0 means "this computer" */ {
 	    eventlog(eventlog_level_error,__FUNCTION__,"invalid address value for field 3 on line %u in file \"%s\"",line,filename);
 	    xfree(name);
-	    xfree(buff);
 	    xfree(desc);
 	    continue;
 	}
@@ -435,18 +430,17 @@ t_list * realmlist_load(char const * filename)
 	    eventlog(eventlog_level_error,__FUNCTION__,"could not create realm");
 	    addr_destroy(raddr);
 	    xfree(name);
-	    xfree(buff);
 	    xfree(desc);
 	    continue;
 	}
 
 	addr_destroy(raddr);
 	xfree(name);
-	xfree(buff);
 	xfree(desc);
 	
 	list_prepend_data(list_head,realm);
     }
+    file_get_line(NULL); // clear file_get_line buffer
     if (fclose(fp)<0)
 	eventlog(eventlog_level_error,__FUNCTION__,"could not close realm file \"%s\" after reading (fclose: %s)",filename,strerror(errno));
     return list_head;

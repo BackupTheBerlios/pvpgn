@@ -798,8 +798,6 @@ static int file_load_teams(t_load_teams_func cb)
 	}
 	team->lastgame = (time_t)lastgame;
 
-	xfree((void *)line);
-
 	if (!(line= file_get_line(fp)))
 	{
 	    eventlog(eventlog_level_error,__FUNCTION__,"invalid team file: missing 2nd line");
@@ -834,8 +832,6 @@ static int file_load_teams(t_load_teams_func cb)
 	   team->members[i] = NULL;
 	}
 
-	xfree((void *)line);
-	
 	if (!(line= file_get_line(fp)))
 	{
 	    eventlog(eventlog_level_error,__FUNCTION__,"invalid team file: missing 3rd line");
@@ -848,19 +844,17 @@ static int file_load_teams(t_load_teams_func cb)
 	    goto load_team_failure;
 	}
 
-	xfree((void *)line);
-
 	eventlog(eventlog_level_trace,__FUNCTION__,"succesfully loaded team %s",dentry);
 	cb(team);
 	
 	goto load_team_success;
 	load_team_failure:
-	  if (line) xfree((void*)line);
 	  xfree((void*)team);
 	  eventlog(eventlog_level_error,__FUNCTION__,"error while reading file \"%s\"",dentry);
 
 	load_team_success:
 
+	file_get_line(NULL); // clear file_get_line buffer
 	fclose(fp);
 
 

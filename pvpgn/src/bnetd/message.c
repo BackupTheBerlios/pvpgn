@@ -1625,8 +1625,8 @@ extern int message_send_file(t_connection * dst, FILE * fd)
     while ((buff = file_get_line(fd)))
     {
 	message_send_formatted(dst,buff);
-	xfree(buff);
     }
+    file_get_line(NULL); // clear file_get_line buffer
     
     return 0;
 }

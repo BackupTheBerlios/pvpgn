@@ -175,13 +175,11 @@ static int plain_read_attrs(const char *filename, t_read_attr_func cb, void *dat
 
     for (line=1; (buff=file_get_line(accountfile)); line++) {
 	if (buff[0]=='#' || buff[0]=='\0') {
-	    xfree((void *)buff); /* avoid warning */
 	    continue;
 	}
 
 	if (strlen(buff)<6) /* "?"="" */ {
 	    eventlog(eventlog_level_error, __FUNCTION__, "malformed line %d of account file \"%s\"", line, filename);
-	    xfree((void *)buff); /* avoid warning */
 	    continue;
 	}
 
@@ -194,12 +192,10 @@ static int plain_read_attrs(const char *filename, t_read_attr_func cb, void *dat
 		eventlog(eventlog_level_error, __FUNCTION__,"malformed entry on line %d of account file \"%s\"", line, filename);
 		xfree(escval);
 		xfree(esckey);
-		xfree((void *)buff); /* avoid warning */
 		continue;
 	    }
 	    escval[0] = '\0';
 	}
-	xfree((void *)buff); /* avoid warning */
 	
 	key = unescape_chars(esckey);
 	val = unescape_chars(escval);
@@ -215,6 +211,7 @@ static int plain_read_attrs(const char *filename, t_read_attr_func cb, void *dat
 	if (val) xfree((void *)val); /* avoid warning */
     }
 
+    file_get_line(NULL); // clear file_get_line buffer
 
     if (fclose(accountfile)<0) 
 	eventlog(eventlog_level_error, __FUNCTION__, "could not close account file \"%s\" after reading (fclose: %s)", filename, strerror(errno));

@@ -919,68 +919,57 @@ static int channellist_load_permanent(char const * filename)
     {
 	if (buff[0]=='#' || buff[0]=='\0')
 	{
-	    xfree(buff);
 	    continue;
 	}
         pos = 0;
 	if (!(name = next_token(buff,&pos)))
 	{
 	    eventlog(eventlog_level_error,__FUNCTION__,"missing name in line %u in file \"%s\"",line,filename);
-	    xfree(buff);
 	    continue;
 	}
 	if (!(sname = next_token(buff,&pos)))
 	{
 	    eventlog(eventlog_level_error,__FUNCTION__,"missing sname in line %u in file \"%s\"",line,filename);
-	    xfree(buff);
 	    continue;
 	}
 	if (!(tag = next_token(buff,&pos)))
 	{
 	    eventlog(eventlog_level_error,__FUNCTION__,"missing tag in line %u in file \"%s\"",line,filename);
-	    xfree(buff);
 	    continue;
 	}
 	if (!(bot = next_token(buff,&pos)))
 	{
 	    eventlog(eventlog_level_error,__FUNCTION__,"missing bot in line %u in file \"%s\"",line,filename);
-	    xfree(buff);
 	    continue;
 	}
 	if (!(oper = next_token(buff,&pos)))
 	{
 	    eventlog(eventlog_level_error,__FUNCTION__,"missing oper in line %u in file \"%s\"",line,filename);
-	    xfree(buff);
 	    continue;
 	}
 	if (!(log = next_token(buff,&pos)))
 	{
 	    eventlog(eventlog_level_error,__FUNCTION__,"missing log in line %u in file \"%s\"",line,filename);
-	    xfree(buff);
 	    continue;
 	}
 	if (!(country = next_token(buff,&pos)))
 	{
 	    eventlog(eventlog_level_error,__FUNCTION__,"missing country in line %u in file \"%s\"",line,filename);
-	    xfree(buff);
 	    continue;
 	}
         if (!(realmname = next_token(buff,&pos)))
         {
            eventlog(eventlog_level_error,__FUNCTION__,"missing realmname in line %u in file \"%s\"",line,filename);
-           xfree(buff);
            continue;
         }
 	if (!(max = next_token(buff,&pos)))
 	{
 	    eventlog(eventlog_level_error,__FUNCTION__,"missing max in line %u in file \"%s\"",line,filename);
-	    xfree(buff);
 	    continue;
 	}
 	if (!(moderated = next_token(buff,&pos)))
 	{
 	    eventlog(eventlog_level_error,__FUNCTION__,"missing mod in line %u in file \"%s\"",line,filename);
-	    xfree(buff);
 	    continue;
 	}
 	
@@ -994,7 +983,6 @@ static int channellist_load_permanent(char const * filename)
 	    break;
 	default:
 	    eventlog(eventlog_level_error,__FUNCTION__,"invalid boolean value \"%s\" for field 4 on line %u in file \"%s\"",bot,line,filename);
-	    xfree(buff);
 	    continue;
         }
 	
@@ -1008,7 +996,6 @@ static int channellist_load_permanent(char const * filename)
 	    break;
 	default:
 	    eventlog(eventlog_level_error,__FUNCTION__,"invalid boolean value \"%s\" for field 5 on line %u in file \"%s\"",oper,line,filename);
-	    xfree(buff);
 	    continue;
         }
 	
@@ -1022,7 +1009,6 @@ static int channellist_load_permanent(char const * filename)
 	    break;
 	default:
 	    eventlog(eventlog_level_error,__FUNCTION__,"invalid boolean value \"%s\" for field 5 on line %u in file \"%s\"",log,line,filename);
-	    xfree(buff);
 	    continue;
         }
 
@@ -1036,7 +1022,6 @@ static int channellist_load_permanent(char const * filename)
 		break;
 	    default:
 		eventlog(eventlog_level_error,__FUNCTION__,"invalid boolean value \"%s\" for field 10 on line %u in file \"%s\"",moderated,line,filename);
-		xfree(buff);
 		continue;
 	}
 	
@@ -1073,9 +1058,9 @@ static int channellist_load_permanent(char const * filename)
 	   channellist_find_channel() and set the long name, perm flag, etc,
 	   otherwise call channel_create(). This will make HUPing the server
            handle re-reading this file correctly. */
-	xfree(buff);
     }
     
+    file_get_line(NULL); // clear file_get_line buffer
     if (fclose(fp)<0)
 	eventlog(eventlog_level_error,__FUNCTION__,"could not close channel file \"%s\" after reading (fclose: %s)",filename,strerror(errno));
     return 0;

@@ -448,7 +448,6 @@ extern int prefs_load(char const * filename)
             while (*cp=='\t' || *cp==' ') cp++;
 	    if (*cp=='\0')
 	    {
-		xfree(buff);
 		continue;
 	    }
 	    temp = cp;
@@ -464,7 +463,6 @@ extern int prefs_load(char const * filename)
 	    {
 		eventlog(eventlog_level_error,__FUNCTION__,"missing = on line %u",currline);
 		xfree((void *)directive); /* avoid warning */
-		xfree(buff);
 		continue;
 	    }
 	    cp++;
@@ -473,7 +471,6 @@ extern int prefs_load(char const * filename)
 	    {
 		eventlog(eventlog_level_error,__FUNCTION__,"missing value after = on line %u",currline);
 		xfree((void *)directive); /* avoid warning */
-		xfree(buff);
 		continue;
 	    }
 	    rawvalue = xstrdup(cp);
@@ -508,7 +505,6 @@ extern int prefs_load(char const * filename)
 		    eventlog(eventlog_level_error,__FUNCTION__,"missing end quote for value of element \"%s\" on line %u",directive,currline);
 		    xfree(rawvalue);
 		    xfree((void *)directive); /* avoid warning */
-		    xfree(buff);
 		    continue;
 		}
 		rawvalue[j] = '\0';
@@ -517,7 +513,6 @@ extern int prefs_load(char const * filename)
 		    eventlog(eventlog_level_error,__FUNCTION__,"extra characters after the value for element \"%s\" on line %u",directive,currline);
 		    xfree(rawvalue);
 		    xfree((void *)directive); /* avoid warning */
-		    xfree(buff);
 		    continue;
 		}
 		value = &rawvalue[1];
@@ -534,7 +529,6 @@ extern int prefs_load(char const * filename)
 		    eventlog(eventlog_level_error,__FUNCTION__,"extra characters after the value for element \"%s\" on line %u (%s)",directive,currline,&rawvalue[k]);
 		    xfree(rawvalue);
 		    xfree((void *)directive); /* avoid warning */
-		    xfree(buff);
 		    continue;
 		}
 		rawvalue[j] = '\0';
@@ -545,8 +539,8 @@ extern int prefs_load(char const * filename)
 	    
 	    xfree(rawvalue);
 	    xfree((void *)directive); /* avoid warning */
-	    xfree(buff);
 	}
+	file_get_line(NULL); // clear file_get_line buffer
 	if (fclose(fp)<0)
 	    eventlog(eventlog_level_error,__FUNCTION__,"could not close prefs file \"%s\" after reading (fclose: %s)",filename,strerror(errno));
     }

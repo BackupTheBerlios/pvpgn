@@ -368,7 +368,6 @@ extern int aliasfile_load(char const * filename)
 	for (pos=0; buff[pos]=='\t' || buff[pos]==' '; pos++);
 	if (buff[pos]=='\0' || buff[pos]=='#')
 	{
-	    xfree((void *)buff);
 	    continue;
 	}
 	if (!(temp = strrchr(buff,'"'))) /* FIXME: assumes comments don't contain " */
@@ -515,10 +514,10 @@ extern int aliasfile_load(char const * filename)
 	    break;
 	  }
 	}
-	xfree((void *)buff);
     }
     if (alias!=NULL) list_append_data(aliaslist_head,alias);
     
+    file_get_line(NULL); // clear file_get_line buffer
     fclose(afp);
     eventlog(eventlog_level_info,__FUNCTION__,"done loading aliases");
     return 0;

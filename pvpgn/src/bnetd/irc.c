@@ -393,9 +393,9 @@ extern int irc_welcome(t_connection * conn)
 		  irc_send(conn,RPL_MOTD,send_line);
 		  xfree(formatted_line);
 		}
-		xfree(line);
 	  }
 
+	  file_get_line(NULL); // clear file_get_line buffer
 	  fclose(fp);
 	}
 	else motd_failed = 1;

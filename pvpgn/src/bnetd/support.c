@@ -80,7 +80,6 @@ extern int support_check_files(char const * supportfile)
   {
     if (buff[0]=='#' || buff[0]=='\0')
     {
-      xfree((void *)buff);
       continue;
     }
     
@@ -90,16 +89,15 @@ extern int support_check_files(char const * supportfile)
     if (access(namebuff, F_OK) < 0)
     {
       eventlog(eventlog_level_fatal,__FUNCTION__,"necessary file \"%s\" missing",namebuff);
-      xfree((void *)buff);
       xfree((void *)namebuff);
       fclose(fp);
       return -1;
     }
 
-    xfree((void *)buff);
     xfree((void *)namebuff);
   }
 
+  file_get_line(NULL); // clear file_get_line buffer
   fclose(fp);
 
   return 0;

@@ -148,7 +148,6 @@ extern int ipbanlist_load(char const * filename)
 	while (*ip=='\t' || *ip==' ') ip++;
 	if (*ip=='\0' || *ip=='#')
 	{
-	    xfree(buff);
 	    continue;
 	}
 	
@@ -178,14 +177,13 @@ extern int ipbanlist_load(char const * filename)
 	
 	if (ipbanlist_add(NULL,ip,endtime)!=0)
 	{
-	    xfree(buff);
 	    eventlog(eventlog_level_warn,__FUNCTION__,"error in %.64s at line %u",filename,currline);
 	    continue;
 	}
 	
-	xfree(buff);
     }
     
+    file_get_line(NULL); // clear file_get_line buffer
     if (fclose(fp)<0)
         eventlog(eventlog_level_error,__FUNCTION__,"could not close banlist file \"%s\" after reading (fclose: %s)",filename,strerror(errno));
     

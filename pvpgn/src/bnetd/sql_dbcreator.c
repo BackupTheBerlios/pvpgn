@@ -336,7 +336,6 @@ int load_db_layout(char const * filename)
         if (!(tmp = strchr(table,']')))
         {
           eventlog(eventlog_level_error,__FUNCTION__,"missing ']' in line %i",lineno);
-          xfree((void *)line);
           continue;
         }
         tmp[0]='\0';
@@ -349,14 +348,12 @@ int load_db_layout(char const * filename)
         if (!(_table))
         {
           eventlog(eventlog_level_error,__FUNCTION__,"found a column without previous table in line %i",lineno);
-          xfree((void *)line);
           continue;
         }
         column = &line[1];
         if (!(tmp = strchr(column,'"')))
         {
           eventlog(eventlog_level_error,__FUNCTION__,"missing '\"' at the end of column definitioni in line %i",lineno);
-          xfree((void *)line);
           continue;
         }
         tmp[0]='\0';
@@ -364,14 +361,12 @@ int load_db_layout(char const * filename)
         if (!(tmp = strchr(tmp,'"')))
         {
           eventlog(eventlog_level_error,__FUNCTION__,"missing default value in line %i",lineno);
-          xfree((void *)line);
           continue;
         }
         value = ++tmp;
         if (!(tmp = strchr(value,'"')))
         {
           eventlog(eventlog_level_error,__FUNCTION__,"missing '\"' at the end of default value in line %i",lineno);
-          xfree((void *)line);
           continue;
         }
         tmp[0]='\0';
@@ -385,10 +380,10 @@ int load_db_layout(char const * filename)
       default:
         eventlog(eventlog_level_error,__FUNCTION__,"illegal starting symbol at line %i",lineno);
     }
-    xfree((void *)line);
   }
   if (_table) db_layout_add_table(db_layout,_table);
 
+  file_get_line(NULL); // clear file_get_line buffer
   fclose(fp);
   return 0;
 }
