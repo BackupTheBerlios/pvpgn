@@ -481,28 +481,33 @@ ${SRC_COMPATDIR}\gettimeofday.obj
 bnilist_BIN = ${SRC_BINDIR}\bnilist.exe
 bnilist_OBJECTS = ${SRC_BNIUTILSDIR}\bnilist.obj \
 ${SRC_BNIUTILSDIR}\fileio.obj \
-${SRC_BNIUTILSDIR}\tga.obj
+${SRC_BNIUTILSDIR}\tga.obj \
+${SRC_COMPATDIR}\strerror.obj
 
 bni2tga_BIN = ${SRC_BINDIR}\bni2tga.exe
 bni2tga_OBJECTS = ${SRC_BNIUTILSDIR}\bni2tga.obj \
-${SRC_BNIUTILSDIR}\fileio.obj
+${SRC_BNIUTILSDIR}\fileio.obj \
+${SRC_COMPATDIR}\strerror.obj
 
 bniextract_BIN  = ${SRC_BINDIR}\bniextract.exe
 bniextract_OBJECTS= ${SRC_BNIUTILSDIR}\bniextract.obj \
 ${SRC_BNIUTILSDIR}\fileio.obj \
 ${SRC_BNIUTILSDIR}\tga.obj \
-${SRC_BNIUTILSDIR}\bni.obj
+${SRC_BNIUTILSDIR}\bni.obj \
+${SRC_COMPATDIR}\strerror.obj
 
 bnibuild_BIN    = ${SRC_BINDIR}\bnibuild.exe
 bnibuild_OBJECTS= ${SRC_BNIUTILSDIR}\bnibuild.obj \
 ${SRC_BNIUTILSDIR}\fileio.obj \
 ${SRC_BNIUTILSDIR}\tga.obj \
-${SRC_BNIUTILSDIR}\bni.obj
+${SRC_BNIUTILSDIR}\bni.obj \
+${SRC_COMPATDIR}\strerror.obj
 
 tgainfo_BIN = ${SRC_BINDIR}\tgainfo.exe
 tgainfo_OBJECTS = ${SRC_BNIUTILSDIR}\tgainfo.obj \
 ${SRC_BNIUTILSDIR}\fileio.obj \
-${SRC_BNIUTILSDIR}\tga.obj
+${SRC_BNIUTILSDIR}\tga.obj \
+${SRC_COMPATDIR}\strerror.obj
 
 timetest_BIN 		= ${SRC_BINDIR}\timetest.exe
 timetest_OBJECTS 	= ${SRC_DEBUGDIR}\timetest.obj \
@@ -561,7 +566,8 @@ ${SRC_COMMONDIR}\eventlog.obj \
 ${SRC_COMMONDIR}\hexdump.obj \        
 ${SRC_COMMONDIR}\xalloc.obj \        
 ${SRC_COMPATDIR}\mmap.obj \
-${SRC_COMPATDIR}\getopt.obj
+${SRC_COMPATDIR}\getopt.obj \
+${SRC_COMPATDIR}\strerror.obj
 
 OBJECTS		= ${bnetd_OBJECTS} ${d2cs_OBJECTS} ${d2dbs_OBJECTS} ${bntrackd_OBJECTS} ${bnchat_OBJECTS} ${bnpass_OBJECTS} ${bnbot_OBJECTS} ${bnftp_OBJECTS} ${bnstat_OBJECTS} ${bnilist_OBJECTS} ${bni2tga_OBJECTS} ${bniextract_OBJECTS} ${bnibuild_OBJECTS} ${tgainfo_OBJECTS} ${timetest_OBJECTS} ${listtest_OBJECTS} ${hashtabletest_OBJECTS} ${addrtest_OBJECTS} ${cdb_OBJECTS}
 GUISBINS	= ${bnetd_SBIN} ${d2cs_SBIN} ${d2dbs_SBIN} 
