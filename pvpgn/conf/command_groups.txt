@@ -25,6 +25,8 @@
 #
 #	Add the following line to your user file to get access to all groups
 #	    "BNET\\auth\\command_groups"="255"
+#	or for sql issue the following command
+#	    UPDATE BNET SET `auth_command_groups`=255 WHERE `uid`=youruserid
 #
 
 
