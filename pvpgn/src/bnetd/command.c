@@ -2214,7 +2214,6 @@ static int _handle_dnd_command(t_connection * c, char const *text)
 static int _handle_squelch_command(t_connection * c, char const *text)
 {
   t_account *  account;
-  t_connection * dest_c;
 
   text = skip_command(text);
   
@@ -2244,18 +2243,8 @@ static int _handle_squelch_command(t_connection * c, char const *text)
     message_send_text(c,message_type_error,c,"Could not squelch user.");
   else
     {
-      t_message *message;
-      
       sprintf(msgtemp,"%-.20s has been squelched.",account_get_name(account));
       message_send_text(c,message_type_info,c,msgtemp);
-      
-      if ((dest_c = account_get_conn(account)))
-      {
-        if (!(message = message_create(message_type_userflags,dest_c,NULL,NULL))) /* handles NULL text */
-	    return 0;
-        message_send(message,c);
-        message_destroy(message);
-      }
     }
   
   return 0;

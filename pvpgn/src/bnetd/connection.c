@@ -1685,14 +1685,14 @@ extern int conn_set_dndstr(t_connection * c, char const * dnd)
 extern int conn_add_ignore(t_connection * c, t_account * account)
 {
     t_account * * newlist;
-    
-    if (!c)
-    {
+    t_connection *dest_c;
+
+    if (!c) {
         eventlog(eventlog_level_error,__FUNCTION__,"got NULL connection");
         return -1;
     }
-    if (!account)
-    {
+
+    if (!account) {
         eventlog(eventlog_level_error,__FUNCTION__,"got NULL account");
         return -1;
     }
@@ -1700,6 +1700,16 @@ extern int conn_add_ignore(t_connection * c, t_account * account)
     newlist = xrealloc(c->protocol.chat.ignore_list,sizeof(t_account const *)*(c->protocol.chat.ignore_count+1));
     newlist[c->protocol.chat.ignore_count++] = account;
     c->protocol.chat.ignore_list = newlist;
+
+    dest_c = account_get_conn(account);
+    if (dest_c) {
+	t_message *message;
+
+	message = message_create(message_type_userflags,dest_c,NULL,NULL);
+	if (!message) return 0;
+	message_send(message,c);
+	message_destroy(message);
+    }
 
     return 0;
 }
