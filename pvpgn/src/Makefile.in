@@ -27,6 +27,7 @@ confdir		= @sysconfdir@
 sharedir	= @localstatedir@
 filesdir	= @localstatedir@/files
 usersdir	= @localstatedir@/users
+userscdbdir	= @localstatedir@/userscdb
 bnmaildir	= @localstatedir@/bnmail
 reportsdir	= @localstatedir@/reports
 chanlogsdir	= @localstatedir@/chanlogs
@@ -589,7 +590,7 @@ install-conf:
 
 .PHONY: install-share
 install-share:
-	${INSTALL_DIRS} ${sharedir} ${filesdir} ${usersdir} ${bnmaildir} ${reportsdir} \
+	${INSTALL_DIRS} ${sharedir} ${filesdir} ${usersdir} ${userscdbdir} ${bnmaildir} ${reportsdir} \
 	${chanlogsdir} ${charinfodir} ${charsavedir} ${bak_charsavedir} \
 	${bak_charinfodir} ${ladderdir} ${statusdir}
 	@list='${SHARES}'; for p in $$list; do \
