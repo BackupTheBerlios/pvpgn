@@ -610,8 +610,8 @@ clean-compile: clean all
 
 config: ${SRC_SRCDIR}\Makefile ${SRC_SRCDIR}\config.h
 
-${SRC_SRCDIR}\config.h: ${SRC_SRCDIR}\config.h.win32borland
-    copy ${SRC_SRCDIR}\config.h.win32borland ${SRC_SRCDIR}\config.h
+${SRC_SRCDIR}\config.h: ${SRC_SRCDIR}\win32\configwin.h
+    copy ${SRC_SRCDIR}\win32\configwin.h ${SRC_SRCDIR}\config.h
 
 ${SRC_SRCDIR}\Makefile: ${SRC_SRCDIR}\Makefile.BORLAND
     copy ${SRC_SRCDIR}\Makefile.BORLAND ${SRC_SRCDIR}\Makefile
