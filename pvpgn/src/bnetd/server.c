@@ -1540,12 +1540,6 @@ extern int server_process(void)
 	return -1;
     }
 
-    if (fdwatch_init()) {
-	eventlog(eventlog_level_error, __FUNCTION__, "could not initilize fdwatch layer");
-	_shutdown_addrs(laddrs);
-	return -1;
-    }
-
     if (_setup_listensock(laddrs)) {
 	_shutdown_addrs(laddrs);
 	return -1;
@@ -1561,7 +1555,6 @@ extern int server_process(void)
 
     /* cleanup for server shutdown */
     _shutdown_conns();
-    fdwatch_close();
     _shutdown_addrs(laddrs);
 
     return 0;    

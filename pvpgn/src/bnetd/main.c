@@ -85,6 +85,7 @@
 #include "support.h"
 #include "common/trans.h"
 #include "common/xalloc.h"
+#include "common/fdwatch.h"
 #include "common/setup_after.h"
 
 /* out of memory safety */
@@ -185,6 +186,7 @@ static void usage(char const * progname)
 #define STATUS_LADDERLIST_FAILURE	60
 #define STATUS_WAR3XPTABLES_FAILURE	70
 #define STATUS_SUPPORT_FAILURE          80
+#define STATUS_FDWATCH_FAILURE          90
 
 // new functions extracted from Fw()
 int read_commandline(int argc, char * * argv, int *foreground, char const *preffile[], char *hexfile[]);
@@ -445,6 +447,10 @@ int pre_server_startup(void)
 	eventlog(eventlog_level_error, "pre_server_startup", "could not create matchlists");
 	return STATUS_MATCHLISTS_FAILURE;
     }
+    if (fdwatch_init()) {
+	eventlog(eventlog_level_error, __FUNCTION__, "error initilizing fdwatch");
+	return STATUS_FDWATCH_FAILURE;
+    }
     connlist_create();
     gamelist_create();
     timerlist_create();
@@ -529,6 +535,8 @@ void post_server_shutdown(int status)
     	    timerlist_destroy();
 	    gamelist_destroy();
 	    connlist_destroy();
+	    fdwatch_close();
+	case STATUS_FDWATCH_FAILURE:
 	    anongame_matchlists_destroy();
 	case STATUS_MATCHLISTS_FAILURE:
 	    anongame_maplists_destroy();
