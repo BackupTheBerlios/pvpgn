@@ -305,7 +305,6 @@ int anongame_infos_set_str(char ** dst, char * src,char * errstr)
 
 int anongame_infos_URL_set_server_URL(t_anongame_infos_URL * anongame_infos_URL, char * server_URL)
 {
-	char * temp;
 	if (!(anongame_infos_URL))
 	{
 		eventlog(eventlog_level_error,__FUNCTION__,"got NULL anongame_infos_URL");
@@ -324,7 +323,6 @@ extern char * anongame_infos_URL_get_server_url()
 
 int anongame_infos_URL_set_player_URL(t_anongame_infos_URL * anongame_infos_URL, char * player_URL)
 {
-	char * temp;
 	if (!(anongame_infos_URL))
 	{
 		eventlog(eventlog_level_error,__FUNCTION__,"got NULL anongame_infos_URL");
@@ -343,7 +341,6 @@ extern char * anongame_infos_URL_get_player_url()
 
 int anongame_infos_URL_set_tourney_URL(t_anongame_infos_URL * anongame_infos_URL, char * tourney_URL)
 {
-	char * temp;
 	if (!(anongame_infos_URL))
 	{
 		eventlog(eventlog_level_error,__FUNCTION__,"got NULL anongame_infos_URL");
@@ -362,7 +359,6 @@ extern char * anongame_infos_URL_get_tourney_url()
 
 int anongame_infos_URL_set_ladder_PG_1v1_URL(t_anongame_infos_URL * anongame_infos_URL, char * ladder_PG_1v1_URL)
 {
-	char * temp;
 	if (!(anongame_infos_URL))
 	{
 		eventlog(eventlog_level_error,__FUNCTION__,"got NULL anongame_infos_URL");
@@ -380,7 +376,6 @@ extern char * anongame_infos_URL_get_ladder_PG_1v1_url()
 
 int anongame_infos_URL_set_ladder_PG_ffa_URL(t_anongame_infos_URL * anongame_infos_URL, char * ladder_PG_ffa_URL)
 {
-	char * temp;
 	if (!(anongame_infos_URL))
 	{
 		eventlog(eventlog_level_error,__FUNCTION__,"got NULL anongame_infos_URL");
@@ -397,7 +392,6 @@ extern char * anongame_infos_URL_get_ladder_PG_ffa_url()
 
 int anongame_infos_URL_set_ladder_PG_team_URL(t_anongame_infos_URL * anongame_infos_URL, char * ladder_PG_team_URL)
 {
-	char * temp;
 	if (!(anongame_infos_URL))
 	{
 		eventlog(eventlog_level_error,__FUNCTION__,"got NULL anongame_infos_URL");
@@ -414,7 +408,6 @@ extern char * anongame_infos_URL_get_ladder_PG_team_url()
 
 int anongame_infos_URL_set_ladder_AT_2v2_URL(t_anongame_infos_URL * anongame_infos_URL, char * ladder_AT_2v2_URL)
 {
-	char * temp;
 	if (!(anongame_infos_URL))
 	{
 		eventlog(eventlog_level_error,__FUNCTION__,"got NULL anongame_infos_URL");
@@ -431,7 +424,6 @@ extern char * anongame_infos_URL_get_ladder_AT_2v2_url()
 
 int anongame_infos_URL_set_ladder_AT_3v3_URL(t_anongame_infos_URL * anongame_infos_URL, char * ladder_AT_3v3_URL)
 {
-	char * temp;
 	if (!(anongame_infos_URL))
 	{
 		eventlog(eventlog_level_error,__FUNCTION__,"got NULL anongame_infos_URL");
@@ -448,7 +440,6 @@ extern char * anongame_infos_URL_get_ladder_AT_3v3_url()
 
 int anongame_infos_URL_set_ladder_AT_4v4_URL(t_anongame_infos_URL * anongame_infos_URL, char * ladder_AT_4v4_URL)
 {
-	char * temp;
 	if (!(anongame_infos_URL))
 	{
 		eventlog(eventlog_level_error,__FUNCTION__,"got NULL anongame_infos_URL");
@@ -466,7 +457,6 @@ extern char * anongame_infos_URL_get_ladder_AT_4v4_url()
 
 int anongame_infos_DESC_set_ladder_PG_1v1_desc(t_anongame_infos_DESC * anongame_infos_DESC, char * ladder_PG_1v1_desc)
 {
-	char * temp;
 	if (!(anongame_infos_DESC))
 	{
 		eventlog(eventlog_level_error,__FUNCTION__,"got NULL anongame_infos_DESC");
@@ -477,7 +467,6 @@ int anongame_infos_DESC_set_ladder_PG_1v1_desc(t_anongame_infos_DESC * anongame_
 }
 int anongame_infos_DESC_set_ladder_PG_ffa_desc(t_anongame_infos_DESC * anongame_infos_DESC, char * ladder_PG_ffa_desc)
 {
-	char * temp;
 	if (!(anongame_infos_DESC))
 	{
 		eventlog(eventlog_level_error,__FUNCTION__,"got NULL anongame_infos_DESC");
@@ -489,7 +478,6 @@ int anongame_infos_DESC_set_ladder_PG_ffa_desc(t_anongame_infos_DESC * anongame_
 
 int anongame_infos_DESC_set_ladder_PG_team_desc(t_anongame_infos_DESC * anongame_infos_DESC, char * ladder_PG_team_desc)
 {
-	char * temp;
 	if (!(anongame_infos_DESC))
 	{
 		eventlog(eventlog_level_error,__FUNCTION__,"got NULL anongame_infos_DESC");
@@ -500,7 +488,6 @@ int anongame_infos_DESC_set_ladder_PG_team_desc(t_anongame_infos_DESC * anongame
 }
 int anongame_infos_DESC_set_ladder_AT_2v2_desc(t_anongame_infos_DESC * anongame_infos_DESC, char * ladder_AT_2v2_desc)
 {
-	char * temp;
 	if (!(anongame_infos_DESC))
 	{
 		eventlog(eventlog_level_error,__FUNCTION__,"got NULL anongame_infos_DESC");
@@ -512,7 +499,6 @@ int anongame_infos_DESC_set_ladder_AT_2v2_desc(t_anongame_infos_DESC * anongame_
 
 int anongame_infos_DESC_set_ladder_AT_3v3_desc(t_anongame_infos_DESC * anongame_infos_DESC, char * ladder_AT_3v3_desc)
 {
-	char * temp;
 	if (!(anongame_infos_DESC))
 	{
 		eventlog(eventlog_level_error,__FUNCTION__,"got NULL anongame_infos_DESC");
@@ -524,7 +510,6 @@ int anongame_infos_DESC_set_ladder_AT_3v3_desc(t_anongame_infos_DESC * anongame_
 
 int anongame_infos_DESC_set_ladder_AT_4v4_desc(t_anongame_infos_DESC * anongame_infos_DESC, char * ladder_AT_4v4_desc)
 {
-	char * temp;
 	if (!(anongame_infos_DESC))
 	{
 		eventlog(eventlog_level_error,__FUNCTION__,"got NULL anongame_infos_DESC");
@@ -536,7 +521,6 @@ int anongame_infos_DESC_set_ladder_AT_4v4_desc(t_anongame_infos_DESC * anongame_
 
 int anongame_infos_DESC_set_gametype_1v1_short(t_anongame_infos_DESC * anongame_infos_DESC, char * gametype_1v1_short)
 {
-	char * temp;
 	if (!(anongame_infos_DESC))
 	{
 		eventlog(eventlog_level_error,__FUNCTION__,"got NULL anongame_infos_DESC");
@@ -548,7 +532,6 @@ int anongame_infos_DESC_set_gametype_1v1_short(t_anongame_infos_DESC * anongame_
 
 int anongame_infos_DESC_set_gametype_1v1_long(t_anongame_infos_DESC * anongame_infos_DESC, char * gametype_1v1_long)
 {
-	char * temp;
 	if (!(anongame_infos_DESC))
 	{
 		eventlog(eventlog_level_error,__FUNCTION__,"got NULL anongame_infos_DESC");
@@ -560,7 +543,6 @@ int anongame_infos_DESC_set_gametype_1v1_long(t_anongame_infos_DESC * anongame_i
 
 int anongame_infos_DESC_set_gametype_2v2_short(t_anongame_infos_DESC * anongame_infos_DESC, char * gametype_2v2_short)
 {
-	char * temp;
 	if (!(anongame_infos_DESC))
 	{
 		eventlog(eventlog_level_error,__FUNCTION__,"got NULL anongame_infos_DESC");
@@ -572,7 +554,6 @@ int anongame_infos_DESC_set_gametype_2v2_short(t_anongame_infos_DESC * anongame_
 
 int anongame_infos_DESC_set_gametype_2v2_long(t_anongame_infos_DESC * anongame_infos_DESC, char * gametype_2v2_long)
 {
-	char * temp;
 	if (!(anongame_infos_DESC))
 	{
 		eventlog(eventlog_level_error,__FUNCTION__,"got NULL anongame_infos_DESC");
@@ -584,7 +565,6 @@ int anongame_infos_DESC_set_gametype_2v2_long(t_anongame_infos_DESC * anongame_i
 
 int anongame_infos_DESC_set_gametype_3v3_short(t_anongame_infos_DESC * anongame_infos_DESC, char * gametype_3v3_short)
 {
-	char * temp;
 	if (!(anongame_infos_DESC))
 	{
 		eventlog(eventlog_level_error,__FUNCTION__,"got NULL anongame_infos_DESC");
@@ -596,7 +576,6 @@ int anongame_infos_DESC_set_gametype_3v3_short(t_anongame_infos_DESC * anongame_
 
 int anongame_infos_DESC_set_gametype_3v3_long(t_anongame_infos_DESC * anongame_infos_DESC, char * gametype_3v3_long)
 {
-	char * temp;
 	if (!(anongame_infos_DESC))
 	{
 		eventlog(eventlog_level_error,__FUNCTION__,"got NULL anongame_infos_DESC");
@@ -608,7 +587,6 @@ int anongame_infos_DESC_set_gametype_3v3_long(t_anongame_infos_DESC * anongame_i
 
 int anongame_infos_DESC_set_gametype_4v4_short(t_anongame_infos_DESC * anongame_infos_DESC, char * gametype_4v4_short)
 {
-	char * temp;
 	if (!(anongame_infos_DESC))
 	{
 		eventlog(eventlog_level_error,__FUNCTION__,"got NULL anongame_infos_DESC");
@@ -620,7 +598,6 @@ int anongame_infos_DESC_set_gametype_4v4_short(t_anongame_infos_DESC * anongame_
 
 int anongame_infos_DESC_set_gametype_4v4_long(t_anongame_infos_DESC * anongame_infos_DESC, char * gametype_4v4_long)
 {
-	char * temp;
 	if (!(anongame_infos_DESC))
 	{
 		eventlog(eventlog_level_error,__FUNCTION__,"got NULL anongame_infos_DESC");
@@ -632,7 +609,6 @@ int anongame_infos_DESC_set_gametype_4v4_long(t_anongame_infos_DESC * anongame_i
 
 int anongame_infos_DESC_set_gametype_ffa_short(t_anongame_infos_DESC * anongame_infos_DESC, char * gametype_ffa_short)
 {
-	char * temp;
 	if (!(anongame_infos_DESC))
 	{
 		eventlog(eventlog_level_error,__FUNCTION__,"got NULL anongame_infos_DESC");
@@ -644,7 +620,6 @@ int anongame_infos_DESC_set_gametype_ffa_short(t_anongame_infos_DESC * anongame_
 
 int anongame_infos_DESC_set_gametype_ffa_long(t_anongame_infos_DESC * anongame_infos_DESC, char * gametype_ffa_long)
 {
-	char * temp;
 	if (!(anongame_infos_DESC))
 	{
 		eventlog(eventlog_level_error,__FUNCTION__,"got NULL anongame_infos_DESC");
