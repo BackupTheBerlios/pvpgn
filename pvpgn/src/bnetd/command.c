@@ -803,8 +803,7 @@ static int _handle_op_command(t_connection * c, char const * text)
     acc = conn_get_account(c);
     OP_lvl = 0;
     
-    if (account_get_auth_admin(acc,NULL)==1 || account_get_auth_admin(acc,channel)==1 ||
-        account_get_auth_operator(acc,NULL)==1 || account_get_auth_operator(acc,channel)==1)
+    if (account_is_operator_or_admin(acc,channel))
       OP_lvl = 1;
     else if (channel_account_is_tmpOP(conn_get_channel(c),acc))
       OP_lvl = 2;
@@ -864,8 +863,7 @@ static int _handle_deop_command(t_connection * c, char const * text)
     acc = conn_get_account(c);
     OP_lvl = 0;
     
-    if (account_get_auth_admin(acc,NULL)==1 || account_get_auth_admin(acc,channel)==1 ||
-        account_get_auth_operator(acc,NULL)==1 || account_get_auth_operator(acc,channel)==1)
+    if (account_is_operator_or_admin(acc,channel))
       OP_lvl = 1;
     else if (channel_account_is_tmpOP(conn_get_channel(c),acc))
       OP_lvl = 2;

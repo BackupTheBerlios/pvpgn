@@ -333,5 +333,7 @@ extern char const * account_get_user_icon( t_account * account, char const * cli
 extern unsigned int account_icon_to_profile_icon(char const * icon,t_account * account, char const * ctag);
 extern char const * account_icon_default(t_account * account, char const * clienttag);
 
+extern int account_is_operator_or_admin(t_account * account, char const * channel);
+
 #endif
 #endif

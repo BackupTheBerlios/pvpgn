@@ -4392,7 +4392,10 @@ static int _client_progident2(t_connection * c, t_packet const * const packet)
 		        strcmp(channel_get_clienttag(ch), CLIENTTAG_WARCRAFT3) || strcmp(channel_get_clienttag(ch), CLIENTTAG_WAR3XP) ||
 			strcmp(channel_get_name(ch),channel_get_name(conn_get_channel(c)))))
 		    
-		    if (!(channel_get_flags(ch) & channel_flags_thevoid)) // don't display theVoid in channel list
+		    if ((!(channel_get_flags(ch) & channel_flags_thevoid)) &&  // don't display theVoid in channel list
+			( (channel_get_max(ch)!=0) || 
+			( (channel_get_max(ch)==0) && 
+			  (account_is_operator_or_admin(conn_get_account(c),channel_get_name(ch))==1) ) ))	// don't display restricted channel for no admins/ops
 			packet_append_string(rpacket,channel_get_name(ch));
 	       }
 	  }

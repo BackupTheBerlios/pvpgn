@@ -3114,3 +3114,13 @@ extern unsigned int account_icon_to_profile_icon(char const * icon,t_account * a
 	eventlog(eventlog_level_debug,"account_icon_to_profile_icon","from [%4.4s] icon returned [0x%X]",icon,result);
 	return result;
 }
+
+extern int account_is_operator_or_admin(t_account * account, char const * channel)
+{
+   if ((account_get_auth_operator(account,channel)==1) || (account_get_auth_operator(account,NULL)==1) ||
+       (account_get_auth_admin(account,channel)==1) || (account_get_auth_admin(account,NULL)==1) )
+      return 1;
+   else
+      return 0;
+
+}
