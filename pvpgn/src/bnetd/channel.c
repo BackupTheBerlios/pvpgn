@@ -339,7 +339,7 @@ extern t_channel * channel_create(char const * fullname, char const * shortname,
 	channel->log = NULL;
     }
     
-    if (list_prepend_data(channellist_head,channel)<0)
+    if (list_append_data(channellist_head,channel)<0)
     {
         eventlog(eventlog_level_error,"channel_create","could not prepend temp");
 	if (channel->log)
