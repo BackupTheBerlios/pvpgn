@@ -958,7 +958,11 @@ static int on_client_charlistreq_110(t_connection * c, t_packet * packet)
 	d2charlist_init(d2c);
 	charlist_sort_order = prefs_get_charlist_sort_order();
 	d2char_get_infodir_name(path,account);
-	maxchar=prefs_get_maxchar();
+	if (prefs_allow_newchar()) 
+		maxchar=prefs_get_maxchar();
+	else
+		maxchar=0;
+	
 	if ((rpacket=packet_create(packet_class_d2cs))) {
 		packet_set_size(rpacket,sizeof(t_d2cs_client_charlistreply_110));
 		packet_set_type(rpacket,D2CS_CLIENT_CHARLISTREPLY_110);
@@ -985,11 +989,9 @@ static int on_client_charlistreq_110(t_connection * c, t_packet * packet)
 				n++;
 				if (n>=maxchar) break;
 			}
-			if (prefs_allow_newchar() && (n<maxchar)) {
-				bn_short_set(&rpacket->u.d2cs_client_charlistreply.maxchar,maxchar);
-			} else {
-				bn_short_set(&rpacket->u.d2cs_client_charlistreply.maxchar,0);
-			}
+			if (n>=maxchar) 
+				maxchar = 0;
+			
 			p_closedir(dir);
 			if (!strcmp(charlist_sort_order, "ASC"))
 			{
@@ -1026,6 +1028,8 @@ static int on_client_charlistreq_110(t_connection * c, t_packet * packet)
 		}
 		bn_short_set(&rpacket->u.d2cs_client_charlistreply.currchar,n);
 		bn_short_set(&rpacket->u.d2cs_client_charlistreply.currchar2,n);
+		bn_short_set(&rpacket->u.d2cs_client_charlistreply.maxchar,maxchar);
+
 		conn_push_outqueue(c,rpacket);
 		packet_del_ref(rpacket);
 	}
