@@ -300,6 +300,9 @@
 				<File
 					RelativePath="..\common\util.h">
 				</File>
+				<File
+					RelativePath="..\common\xalloc.h">
+				</File>
 			</Filter>
 			<Filter
 				Name="compat"
@@ -316,9 +319,6 @@
 				<File
 					RelativePath="..\compat\strsep.h">
 				</File>
-				<File
-					RelativePath="..\common\xalloc.h">
-				</File>								
 			</Filter>
 			<Filter
 				Name="d2cs"
