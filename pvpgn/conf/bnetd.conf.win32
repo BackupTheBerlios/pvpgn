@@ -196,7 +196,7 @@ userflush = 1200
 userstep = 100
 
 # How often to send user latency tests in seconds.
-latency = 10
+latency = 600
 
 # How often to send null or keepalive packets in seconds.
 nullmsg = 120
