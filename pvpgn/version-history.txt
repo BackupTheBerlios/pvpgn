@@ -27,8 +27,8 @@ realm
 of that cleint tag, or 'all' for all cleints) ie. /users w3xp , /users all
 -- added PG 2v2v2 game type (three teams with two players on each team)
 -- optimized bnetd.conf pref.c code (should improve speed a lot)
--- optimized account_hash() by instructing compiler to use registers for some
-vars (tests with GCC proved it surely helps)
+-- optimized account_hash() by replacing it with the CDB hash func (3 times
+faster and seems to distribute more even)
 
 1.5.0beta3:
 -- fixed a long standing bug regarding bnmaps.txt and AT maps
