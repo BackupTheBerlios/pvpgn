@@ -759,8 +759,6 @@ static t_conf_entry conf_table[] =
     { NULL,             	NULL,                          NONE},
   };
 
-char const * preffile;
-
 extern int prefs_load(char const * filename)
 {
     FILE *fd;

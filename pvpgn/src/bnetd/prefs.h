@@ -27,8 +27,6 @@
 #ifndef INCLUDED_PREFS_PROTOS
 #define INCLUDED_PREFS_PROTOS
 
-extern char const * preffile;
-
 extern int prefs_load(char const * filename);
 extern void prefs_unload(void);
 extern char const * prefs_get_storage_path(void) ;

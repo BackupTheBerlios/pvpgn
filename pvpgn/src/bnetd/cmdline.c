@@ -41,10 +41,75 @@
 # include "win32/winmain.h"
 # define printf gui_printf
 #endif
+#include "compat/strcasecmp.h"
 #include "common/eventlog.h"
+#include "common/conf.h"
 #include "common/setup_after.h"
 
-static void usage(char const * progname)
+static struct {
+#ifdef DO_DAEMONIZE
+    unsigned foreground;
+#endif
+    const char *preffile;
+    const char *hexfile;
+    unsigned debug;
+} cmdline_config;
+
+static unsigned exitflag;
+static const char *progname;
+
+#ifdef DO_DAEMONIZE
+static int conf_set_foreground(const char *valstr);
+static int conf_setdef_foreground(void);
+#endif
+
+static int conf_set_preffile(const char *valstr);
+static int conf_setdef_preffile(void);
+
+static int conf_set_hexfile(const char *valstr);
+static int conf_setdef_hexfile(void);
+
+static int conf_set_debug(const char *valstr);
+static int conf_setdef_debug(void);
+
+static int conf_set_help(const char *valstr);
+static int conf_setdef_help(void);
+
+static int conf_set_version(const char *valstr);
+static int conf_setdef_version(void);
+
+#ifdef WIN32
+static int conf_set_service(const char *valstr);
+static int conf_setdef_service(void);
+
+static int conf_set_servaction(const char *valstr);
+static int conf_setdef_servaction(void);
+#endif
+
+static t_conf_entry conftab[] = {
+    { "c",		conf_set_preffile,	NULL,	conf_setdef_preffile },
+    { "config",		conf_set_preffile,	NULL,	conf_setdef_preffile },
+    { "d",		conf_set_hexfile,	NULL,	conf_setdef_hexfile },
+    { "hexdump",	conf_set_hexfile,	NULL,	conf_setdef_hexfile },
+#ifdef DO_DAEMONIZE
+    { "f",		conf_set_foreground,	NULL,	conf_setdef_foreground },
+    { "foreground",	conf_set_foreground,	NULL,	conf_setdef_foreground },
+#endif
+    { "D",		conf_set_debug,		NULL,	conf_setdef_debug },
+    { "debug",		conf_set_debug,		NULL,	conf_setdef_debug },
+    { "h",		conf_set_help,		NULL,	conf_setdef_help },
+    { "help",		conf_set_help,		NULL,	conf_setdef_help },
+    { "usage",		conf_set_help,		NULL,	conf_setdef_help },
+    { "v",		conf_set_version,	NULL,	conf_setdef_version },
+    { "version",	conf_set_version,	NULL,	conf_setdef_version },
+#ifdef WIN32
+    { "service",	conf_set_service,	NULL,	conf_setdef_service },
+    { "s",		conf_set_servaction,	NULL,	conf_setdef_servaction },
+#endif
+    { NULL,		NULL,			NULL,	NULL }
+};
+
+static void usage(void)
 {
     fprintf(stderr,
             "usage: %s [<options>]\n"
@@ -52,8 +117,6 @@ static void usage(char const * progname)
             "    -d FILE, --hexdump=FILE  do hex dump of packets into FILE\n"
 #ifdef DO_DAEMONIZE
             "    -f, --foreground         don't daemonize\n"
-#else
-            "    -f, --foreground         don't daemonize (default)\n"
 #endif
             "    -D, --debug              run in debug mode (run in foreground and log to stdout)\n"
             "    -h, --help, --usage      show this information and exit\n"
@@ -67,104 +130,173 @@ static void usage(char const * progname)
             ,progname);
 }
 
-extern int read_commandline(int argc, char * * argv, int *foreground, char const *preffile[], char *hexfile[])
+extern int cmdline_load(int argc, char** argv)
 {
-    int a;
-    
+    int res;
+
     if (argc<1 || !argv || !argv[0]) {
 	fprintf(stderr,"bad arguments\n");
         return -1;
     }
-#ifdef WIN32
-    if (argc > 1 && strncmp(argv[1], "--service", 9) == 0) {
-	Win32_ServiceRun();
-	return 0;
-    }
-#endif
-    for (a=1; a<argc; a++) {
-	if (strncmp(argv[a],"--config=",9)==0) {
-	    if (*preffile) {
-		fprintf(stderr,"%s: configuration file was already specified as \"%s\"\n",argv[0],preffile[0]);
-                usage(argv[0]);
-                return -1;
-            }
-	    *preffile = &argv[a][9];
-	}
-	else if (strcmp(argv[a],"-c")==0) {
-            if (a+1>=argc) {
-                fprintf(stderr,"%s: option \"%s\" requires an argument\n",argv[0],argv[a]);
-                usage(argv[0]);
-                return -1;
-            }
-            if (*preffile) {
-                fprintf(stderr,"%s: configuration file was already specified as \"%s\"\n",argv[0],preffile[0]);
-                usage(argv[0]);
-                return -1;
-            }
-            a++;
-	    *preffile = argv[a];
-        }
-        else if (strncmp(argv[a],"--hexdump=",10)==0) {
-            if (*hexfile) {
-                fprintf(stderr,"%s: configuration file was already specified as \"%s\"\n",argv[0],hexfile[0]);
-                usage(argv[0]);
-                return -1;
-            }
-            *hexfile = &argv[a][10];
-        }
-        else if (strcmp(argv[a],"-d")==0) {
-            if (a+1>=argc) {
-                fprintf(stderr,"%s: option \"%s\" requires an argument\n",argv[0],argv[a]);
-                usage(argv[0]);
-                return -1;
-            }
-            if (*hexfile) {
-                fprintf(stderr,"%s: configuration file was already specified as \"%s\"\n",argv[0],hexfile[0]);
-                usage(argv[0]);
-                return -1;
-            }
-            a++;
-            *hexfile = argv[a];
-        }
-        else if (strcmp(argv[a],"-f")==0 || strcmp(argv[a],"--foreground")==0)
-            *foreground = 1;
-        else if (strcmp(argv[a],"-D")==0 || strcmp(argv[a],"--debug")==0) {
-	    eventlog_set_debugmode(1);
-            *foreground = 1;
-        }
-#ifdef WIN32
-	else if (strcmp(argv[a],"-s") == 0) {
-	    if (a < argc - 1) {
-		if (strcmp(argv[a+1], "install") == 0) {
-		    fprintf(stderr, "Installing service");
-		    Win32_ServiceInstall();
-		}
-		if (strcmp(argv[a+1], "uninstall") == 0) {
-		    fprintf(stderr, "Uninstalling service");
-		    Win32_ServiceUninstall();
-		}
-	    }
-	    return 0;
-        }
-#endif
-        else if (strcmp(argv[a],"-v")==0 || strcmp(argv[a],"--version")==0) {
-            printf(PVPGN_SOFTWARE" version "PVPGN_VERSION"\n");
-            return 0;
-	}
-        else if (strcmp(argv[a],"-h")==0 || strcmp(argv[a],"--help")==0 || strcmp(argv[a],"--usage")==0) {
-	    usage(argv[0]);
-	    return 0;
-	}
-	else if (strcmp(argv[a],"--config")==0 || strcmp(argv[a],"--hexdump")==0) {
-            fprintf(stderr,"%s: option \"%s\" requires and argument.\n",argv[0],argv[a]);
-            usage(argv[0]);
-            return -1;
-	}
-	else {
-            fprintf(stderr,"%s: bad option \"%s\"\n",argv[0],argv[a]);
-            usage(argv[0]);
-            return -1;
-        }
-    }
-    return 1;
+
+    exitflag = 0;
+    progname = argv[0];
+
+    res = conf_load_cmdline(argc, argv, conftab);
+    if (res < 0) return -1;
+    return exitflag ? 0 : 1;
 }
+
+extern void cmdline_unload(void)
+{
+    conf_unload(conftab);
+}
+
+#ifdef DO_DAEMONIZE
+extern int cmdline_get_foreground(void)
+{
+    return cmdline_config.foreground;
+}
+
+static int conf_set_foreground(const char *valstr)
+{
+    return conf_set_bool(&cmdline_config.foreground, valstr, 0);
+}
+
+static int conf_setdef_foreground(void)
+{
+    return conf_set_bool(&cmdline_config.foreground, NULL, 0);
+}
+#endif
+
+extern const char* cmdline_get_preffile(void)
+{
+    return cmdline_config.preffile;
+}
+
+static int conf_set_preffile(const char *valstr)
+{
+    return conf_set_str(&cmdline_config.preffile, valstr, NULL);
+}
+
+static int conf_setdef_preffile(void)
+{
+    return conf_set_str(&cmdline_config.preffile, NULL, BNETD_DEFAULT_CONF_FILE);
+}
+
+
+extern const char* cmdline_get_hexfile(void)
+{
+    return cmdline_config.hexfile;
+}
+
+static int conf_set_hexfile(const char *valstr)
+{
+    return conf_set_str(&cmdline_config.hexfile, valstr, NULL);
+}
+
+static int conf_setdef_hexfile(void)
+{
+    return conf_set_str(&cmdline_config.hexfile, NULL, NULL);
+}
+
+
+static int conf_set_debug(const char *valstr)
+{
+    conf_set_bool(&cmdline_config.debug, valstr, 0);
+    if (cmdline_config.debug) eventlog_set_debugmode(1);
+    cmdline_config.foreground = 1;
+    return 0;
+}
+
+static int conf_setdef_debug(void)
+{
+    return conf_set_bool(&cmdline_config.debug, NULL, 0);
+}
+
+static int conf_set_help(const char *valstr)
+{
+    unsigned tmp = 0;
+
+    conf_set_bool(&tmp, valstr, 0);
+    if (tmp) {
+	usage();
+	exitflag = 1;
+    }
+
+    return 0;
+}
+
+static int conf_setdef_help(void)
+{
+    return 0;
+}
+
+
+static int conf_set_version(const char *valstr)
+{
+    unsigned tmp = 0;
+
+    conf_set_bool(&tmp, valstr, 0);
+    if (tmp) {
+        printf(PVPGN_SOFTWARE" version "PVPGN_VERSION"\n");
+	exitflag = 1;
+    }
+
+    return 0;
+}
+
+static int conf_setdef_version(void)
+{
+    return 0;
+}
+
+#ifdef WIN32
+static int conf_set_service(const char *valstr)
+{
+    unsigned tmp = 0;
+
+    conf_set_bool(&tmp, valstr, 0);
+    if (tmp) {
+        Win32_ServiceRun();
+	exitflag = 1;
+    }
+
+    return 0;
+}
+
+static int conf_setdef_service(void)
+{
+    return 0;
+}
+
+
+static int conf_set_servaction(const char *valstr)
+{
+    const char* action = NULL;
+
+    conf_set_str(&tmp, valstr, NULL);
+
+    if (tmp) {
+	if (!strcasecmp(tmp, "install")) {
+	    fprintf(stderr, "Installing service");
+	    Win32_ServiceInstall();
+	} else (!strcasecmp(tmp, "uninstall")) {
+	    fprintf(stderr, "Uninstalling service");
+	    Win32_ServiceUninstall();
+	} else {
+	    fprintf(stderr, "Unknown service action '%s'\n", tmp);
+	}
+
+	exitflag = 1;
+	xfree(tmp);
+    }
+
+    return 0;
+}
+
+static int conf_setdef_servaction(void)
+{
+    return 0;
+}
+#endif

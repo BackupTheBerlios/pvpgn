@@ -19,6 +19,14 @@
 #ifndef __CMDLINE_H_PROTOS__
 #define __CMDLINE_H_PROTOS__
 
-extern int read_commandline(int argc, char * * argv, int *foreground, char const *preffile[], char *hexfile[]);
+extern int cmdline_load(int argc, char * * argv);
+extern void cmdline_unload(void);
+
+/* options exported by cmdline */
+#ifdef DO_DAEMONIZE
+extern int cmdline_get_foreground(void);
+#endif
+extern const char* cmdline_get_preffile(void);
+extern const char* cmdline_get_hexfile(void);
 
 #endif /* __CMDLINE_H_PROTOS__ */

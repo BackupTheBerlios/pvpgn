@@ -147,6 +147,7 @@
 #include <ctype.h>
 #include "topic.h"
 #include "attrlayer.h"
+#include "cmdline.h"
 #include "common/setup_after.h"
 
 extern FILE * hexstrm; /* from main.c */
@@ -1324,9 +1325,9 @@ static void _server_mainloop(t_addrlist *laddrs)
 	if (do_restart)
 	{
 	    eventlog(eventlog_level_info,__FUNCTION__,"reading configuration files");
-	    if (preffile)
+	    if (cmdline_get_preffile())
 	    {
-        	if (prefs_load(preffile)<0)
+        	if (prefs_load(cmdline_get_preffile())<0)
 		    eventlog(eventlog_level_error,__FUNCTION__,"could not parse configuration file");
 	    }
 	    else
