@@ -86,6 +86,7 @@ charinfodir		=	/usr/local/var/charinfo
 ladderdir		=	/usr/local/var/ladders
 newbiefile		=	/usr/local/var/files/newbie.save
 d2gstransfile		=	/usr/local/etc/d2gstrans
+d2gsconffile		=	/usr/local/etc/d2server.ini
 #										#
 #################################################################################
 

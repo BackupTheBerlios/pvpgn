@@ -86,6 +86,7 @@ charinfodir		=	var\charinfo
 ladderdir		=	var\ladders
 newbiefile		=	files\newbie.save
 d2gstransfile		=	conf\d2gstrans
+d2gsconffile		=	conf\d2server.ini
 #										#
 #################################################################################
 
