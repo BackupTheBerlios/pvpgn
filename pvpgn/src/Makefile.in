@@ -515,6 +515,10 @@ distclean: clean
 	-${RMF} ${SRC_SRCDIR}/Makefile ${SRC_SRCDIR}/config.h
 	-${RMDIR} ${DIRS}
 
+.PHONY: cvsclean
+cvsclean: distclean
+	-${RMF} ${SRC_SRCDIR}/configure ${SRC_SRCDIR}/config.h.in
+
 .PHONY: clean-compile
 clean-compile: clean all
 
