@@ -93,12 +93,8 @@
 #endif
 #include "compat/inet_ntoa.h"
 #include "compat/psock.h"
-
-#ifdef WIN32
-# include <io.h>
-# define F_OK 0
-#endif
-
+#include "compat/access.h"
+#include "compat/rename.h"
 #include "dbserver.h"
 #include "dbspacket.h"
 #include "d2ladder.h"
@@ -176,26 +172,10 @@ static unsigned int dbs_packet_savedata_charsave(t_d2dbs_connection* conn, char 
 
 	sprintf(bakfile,"%s/%s",prefs_get_charsave_bak_dir(),CharName);
 	sprintf(savefile,"%s/%s",d2dbs_prefs_get_charsave_dir(),CharName);
-#ifdef WIN32	
-	if (access(bakfile, 0) == 0) {
-		if (remove(bakfile)<0) {
-			eventlog(eventlog_level_error,__FUNCTION__,"could not delete backup charsave file \"%s\" (remove: %s)",bakfile);
-			return 0;
-		}
-	}
-#endif
-	if (rename(savefile, bakfile)==-1) {
+	if (p_rename(savefile, bakfile)==-1) {
 		eventlog(eventlog_level_warn,__FUNCTION__,"error rename %s to %s", savefile, bakfile);
 	}
-#ifdef WIN32
-	if (access(savefile, 0) == 0) {
-		if (remove(savefile)<0) {
-			eventlog(eventlog_level_error,__FUNCTION__,"could not delete charsave file \"%s\" (remove: %s)",savefile);
-			return 0;
-		}
-	}
-#endif
-	if (rename(filename, savefile)==-1) {
+	if (p_rename(filename, savefile)==-1) {
 		eventlog(eventlog_level_error,__FUNCTION__,"error rename %s to %s", filename, savefile);
 		return 0;
 	}
@@ -247,26 +227,10 @@ static unsigned int dbs_packet_savedata_charinfo(t_d2dbs_connection* conn,char *
 
 	sprintf(bakfile,"%s/%s/%s",prefs_get_charinfo_bak_dir(),AccountName,CharName);
 	sprintf(savefile,"%s/%s/%s",d2dbs_prefs_get_charinfo_dir(),AccountName,CharName);
-#ifdef WIN32
-	if (access(bakfile, 0) == 0) {
-		if (remove(bakfile)<0) {
-			eventlog(eventlog_level_error,__FUNCTION__,"could not delete backup charinfo file \"%s\" (remove: %s)",bakfile);
-			return 0;
-		}
-	}
-#endif
-	if (rename(savefile, bakfile)==-1) {
+	if (p_rename(savefile, bakfile)==-1) {
 		eventlog(eventlog_level_info,__FUNCTION__,"error rename %s to %s", savefile, bakfile);
 	}
-#ifdef WIN32
-	if (access(savefile, 0) == 0) {
-		if (remove(savefile)<0) {
-			eventlog(eventlog_level_error,__FUNCTION__,"could not delete charinfo file \"%s\" (remove: %s)",savefile);
-			return 0;
-		}
-	}
-#endif
-	if (rename(filename, savefile)==-1) {
+	if (p_rename(filename, savefile)==-1) {
 		eventlog(eventlog_level_error,__FUNCTION__,"error rename %s to %s", filename, savefile);
 		return 0;
 	}

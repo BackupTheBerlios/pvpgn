@@ -42,12 +42,8 @@
 #include <errno.h>
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
-#else
-# ifdef WIN32
-#  include <io.h>
-#  define F_OK 0
-# endif
 #endif
+#include "compat/access.h"
 #include "compat/strerror.h"
 #include "common/eventlog.h"
 #include "common/xalloc.h"

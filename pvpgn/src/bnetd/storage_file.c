@@ -66,12 +66,9 @@
 #endif
 #ifdef HAVE_UNISTD_H
 # include <unistd.h>
-#else
-# ifdef WIN32
-#  include <io.h>
-#  define F_OK 0
-# endif
 #endif
+#include "compat/access.h"
+#include "compat/rename.h"
 #include "compat/pdir.h"
 #include "common/eventlog.h"
 #include "prefs.h"
@@ -324,27 +321,8 @@ static int file_write_attrs(t_storage_info * info, void *attributes)
 	xfree(tempname);
 	return -1;
     }
-#ifdef WIN32
-    /* We are about to rename the temporary file
-     * to replace the existing account.  In Windows,
-     * we have to remove the previous file or the
-     * rename function will fail saying the file
-     * already exists.  This defeats the purpose of
-     * the rename which was to make this an atomic
-     * operation.  At least the race window is small.
-     */
-    if (access((const char *) info, F_OK) == 0)
-    {
-	if (remove((const char *) info) < 0)
-	{
-	    eventlog(eventlog_level_error, __FUNCTION__, "could not delete account file \"%s\" (remove: %s)", (char *) info, strerror(errno));
-	    xfree(tempname);
-	    return -1;
-	}
-    }
-#endif
 
-    if (rename(tempname, (const char *) info) < 0)
+    if (p_rename(tempname, (const char *) info) < 0)
     {
 	eventlog(eventlog_level_error, __FUNCTION__, "could not rename account file to \"%s\" (rename: %s)", (char *) info, strerror(errno));
 	xfree(tempname);

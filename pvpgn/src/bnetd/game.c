@@ -79,6 +79,7 @@
 #include "game_conv.h"
 #include "game.h"
 #include "compat/uint.h"
+#include "compat/rename.h"
 #include "common/setup_after.h"
 
 DECLARE_ELIST_INIT(gamelist_head);
@@ -1061,7 +1062,7 @@ static int game_report(t_game * game)
 	return -1;
     }
     
-    if (rename(tempname,realname)<0)
+    if (p_rename(tempname,realname)<0)
     {
 	eventlog(eventlog_level_error,__FUNCTION__,"could not rename report file to \"%s\" (rename: %s)",realname,strerror(errno));
 	xfree(realname);
