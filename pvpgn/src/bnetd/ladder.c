@@ -1155,11 +1155,11 @@ extern void ladders_load_accounts_to_ladderlists(void)
   war3_solo_res = binary_load(WAR3_SOLO);
   war3_team_res = binary_load(WAR3_TEAM);
   war3_ffa_res  = binary_load(WAR3_FFA);
-  war3_at_res   = binary_load(WAR3_AT);
+  war3_at_res   = load_success; // binary_load(WAR3_AT);
   w3xp_solo_res = binary_load(W3XP_SOLO);
   w3xp_team_res = binary_load(W3XP_TEAM);
   w3xp_ffa_res  = binary_load(W3XP_FFA);
-  w3xp_at_res   = binary_load(W3XP_AT);
+  w3xp_at_res   = load_success; // binary_load(W3XP_AT);
   star_ar_res   = binary_load(STAR_AR);
   star_aw_res   = binary_load(STAR_AW);
   star_ag_res   = binary_load(STAR_AG);
