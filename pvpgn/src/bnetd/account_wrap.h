@@ -33,20 +33,12 @@
 #undef JUST_NEED_TYPES
 
 /* convenience functions */
-#ifdef DEBUG_ACCOUNT
 extern unsigned int account_get_numattr_real(t_account * account, char const * key, char const * fn, unsigned int ln);
 #define account_get_numattr(A,K) account_get_numattr_real(A,K,__FILE__,__LINE__)
-#else
-extern unsigned int account_get_numattr(t_account * account, char const * key);
-#endif
 extern int account_set_numattr(t_account * account, char const * key, unsigned int val);
 
-#ifdef DEBUG_ACCOUNT
 extern int account_get_boolattr_real(t_account * account, char const * key, char const * fn, unsigned int ln);
 #define account_get_boolattr(A,K) account_get_boolattr_real(A,K,__FILE__,__LINE__)
-#else
-extern int account_get_boolattr(t_account * account, char const * key);
-#endif
 extern int account_set_boolattr(t_account * account, char const * key, int val);
 
 extern char const * account_get_pass(t_account * account);

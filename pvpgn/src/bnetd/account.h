@@ -95,12 +95,8 @@ extern void account_destroy(t_account * account);
 extern unsigned int account_get_uid(t_account const * account);
 extern int account_match(t_account * account, char const * username);
 extern int account_save(t_account * account, unsigned int delta);
-#ifdef DEBUG_ACCOUNT
 extern char const * account_get_strattr_real(t_account * account, char const * key, char const * fn, unsigned int ln);
 #define account_get_strattr(A,K) account_get_strattr_real(A,K,__FILE__,__LINE__)
-#else
-extern char const * account_get_strattr(t_account * account, char const * key);
-#endif
 extern int account_set_strattr(t_account * account, char const * key, char const * val);
 
 extern char const * account_get_first_key(t_account * account);
@@ -122,12 +118,8 @@ extern t_account * accountlist_add_account(t_account * account);
 //extern int accounts_rank_all(void);
 extern void accounts_get_attr(char const *);
 /* names and passwords */
-#ifdef DEBUG_ACCOUNT
 extern char const * account_get_name_real(t_account * account, char const * fn, unsigned int ln);
 # define account_get_name(A) account_get_name_real(A,__FILE__,__LINE__)
-#else
-extern char const * account_get_name(t_account * account);
-#endif
 
 
 // THEUNDYING MUTUAL FRIEND CHECK 7/27/02 UPDATED!

@@ -57,31 +57,19 @@
 
 static unsigned int char_icon_to_uint(char * icon);
 
-#ifdef DEBUG_ACCOUNT
 extern unsigned int account_get_numattr_real(t_account * account, char const * key, char const * fn, unsigned int ln)
-#else
-extern unsigned int account_get_numattr(t_account * account, char const * key)
-#endif
 {
     char const * temp;
     unsigned int val;
-    
+
     if (!account)
     {
-#ifdef DEBUG_ACCOUNT
 	eventlog(eventlog_level_error,"account_get_numattr","got NULL account (from %s:%u)",fn,ln);
-#else
-	eventlog(eventlog_level_error,"account_get_numattr","got NULL account");
-#endif
 	return 0;
     }
     if (!key)
     {
-#ifdef DEBUG_ACCOUNT
 	eventlog(eventlog_level_error,"account_get_numattr","got NULL key (from %s:%u)",fn,ln);
-#else
-	eventlog(eventlog_level_error,"account_get_numattr","got NULL key");
-#endif
 	return 0;
     }
     
@@ -118,30 +106,18 @@ extern int account_set_numattr(t_account * account, char const * key, unsigned i
 }
 
 
-#ifdef DEBUG_ACCOUNT
 extern int account_get_boolattr_real(t_account * account, char const * key, char const * fn, unsigned int ln)
-#else
-extern int account_get_boolattr(t_account * account, char const * key)
-#endif
 {
     char const * temp;
     
     if (!account)
     {
-#ifdef DEBUG_ACCOUNT
 	eventlog(eventlog_level_error,"account_get_boolattr","got NULL account (from %s:%u)",fn,ln);
-#else
-	eventlog(eventlog_level_error,"account_get_boolattr","got NULL account");
-#endif
 	return -1;
     }
     if (!key)
     {
-#ifdef DEBUG_ACCOUNT
 	eventlog(eventlog_level_error,"account_get_boolattr","got NULL key (from %s:%u)",fn,ln);
-#else
-	eventlog(eventlog_level_error,"account_get_boolattr","got NULL key");
-#endif
 	return -1;
     }
     

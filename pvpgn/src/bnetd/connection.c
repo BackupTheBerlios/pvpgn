@@ -2199,30 +2199,25 @@ extern t_packet * conn_pull_outqueue(t_connection * c)
     return NULL;
 }
 
-#ifdef DEBUG_ACCOUNT
 extern char const * conn_get_username_real(t_connection const * c,char const * fn,unsigned int ln)
-#else
-extern char const * conn_get_username(t_connection const * c)
-#endif
 {
-  char const * result;
+    char const * result;
+
     if (!c)
     {
-        eventlog(eventlog_level_error,"conn_get_username","got NULL connection");
+        eventlog(eventlog_level_error,"conn_get_username","got NULL connection (from %s:%u)",fn,ln);
         return NULL;
     }
 
     if(!c->protocol.account)
     {
-        eventlog(eventlog_level_error,"conn_get_username","got NULL account");
+        eventlog(eventlog_level_error,"conn_get_username","got NULL account (from %s:%u)",fn,ln);
         return NULL;
     }
     result = account_get_name(c->protocol.account);
     if (result == NULL)
-    { 
 	eventlog(eventlog_level_error,__FUNCTION__,"returned previous error after being called by %s:%u",fn,ln);
 
-    }
     return result;
 }
 

@@ -188,8 +188,7 @@ static void account_unload_attrs(t_account * account)
 {
     t_attribute const * attr;
     t_attribute const * temp;
-    
-/*    eventlog(eventlog_level_debug,"account_unload_attrs","unloading \"%s\"",account->filename);*/
+
     if (!account)
     {
 	eventlog(eventlog_level_error,"account_unload_attrs","got NULL account");
@@ -344,31 +343,19 @@ static int account_insert_attr(t_account * account, char const * key, char const
     return 0;
 }
 
-#ifdef DEBUG_ACCOUNT
 extern char const * account_get_strattr_real(t_account * account, char const * key, char const * fn, unsigned int ln)
-#else
-extern char const * account_get_strattr(t_account * account, char const * key)
-#endif
 {
     char const *        newkey = key, *newkey2;
     t_attribute * curr, *last, *last2;
-   
+
     if (!account)
     {
-#ifdef DEBUG_ACCOUNT
 	eventlog(eventlog_level_error,"account_get_strattr","got NULL account (from %s:%u)",fn,ln);
-#else
-	eventlog(eventlog_level_error,"account_get_strattr","got NULL account");
-#endif
 	return NULL;
     }
     if (!key)
     {
-#ifdef DEBUG_ACCOUNT
 	eventlog(eventlog_level_error,"account_get_strattr","got NULL key (from %s:%u)",fn,ln);
-#else
-	eventlog(eventlog_level_error,"account_get_strattr","got NULL key");
-#endif
 	return NULL;
     }
 
@@ -1105,24 +1092,16 @@ extern int account_check_name(char const * name)
     return 0;
 }
 
-#ifdef DEBUG_ACCOUNT
 extern char const * account_get_name_real(t_account * account, char const * fn, unsigned int ln)
-#else
-extern char const * account_get_name(t_account * account)
-#endif
 {
     char const * temp;
-    
+
     if (!account)
     {
-#ifdef DEBUG_ACCOUNT
 	eventlog(eventlog_level_error,"account_get_name","got NULL account (from %s:%u)",fn,ln);
-#else
-	eventlog(eventlog_level_error,"account_get_name","got NULL account");
-#endif
 	return NULL; /* FIXME: places assume this can't fail */
     }
-    
+
     if (account->name) /* we have a cached username so return it */
        return account->name;
 
