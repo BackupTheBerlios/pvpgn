@@ -188,6 +188,8 @@ d2gs_restart_delay	=	300
 
 # ladder start time
 # format: yyyy-mm-dd hh:mm:ss
+# be carefull:
+# all chars created before this date will revert to non-ladder chars
 ladder_start_time	=	""
 
 # number of days before a char expires (default 0=unlimited)
