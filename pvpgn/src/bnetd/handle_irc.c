@@ -409,7 +409,7 @@ static int _handle_user_command(t_connection * conn, int numparams, char ** para
         } 
 		else 
 		{
-			eventlog(eventlog_level_debug,"handle_irc_line","[%d] got USER: user=\"%s\" mode=\"%s\" unused=\"%s\" realname=\"%s\"",conn_get_socket(conn),user,mode,unused,realname);
+			eventlog(eventlog_level_debug,__FUNCTION__,"[%d] got USER: user=\"%s\" mode=\"%s\" unused=\"%s\" realname=\"%s\"",conn_get_socket(conn),user,mode,unused,realname);
 			conn_set_user(conn,user);
 			conn_set_owner(conn,realname);
 			if (conn_get_botuser(conn))
@@ -445,7 +445,7 @@ static int _handle_pong_command(t_connection * conn, int numparams, char ** para
 	/* NOTE: RFC2812 doesn't seem to be very expressive about this ... */
 	if (conn_get_ircping(conn)==0) 
 	{
-	    eventlog(eventlog_level_warn,"handle_irc_line","[%d] PONG without PING",conn_get_socket(conn));
+	    eventlog(eventlog_level_warn,__FUNCTION__,"[%d] PONG without PING",conn_get_socket(conn));
 	} 
 	else 
 	{
@@ -466,14 +466,14 @@ static int _handle_pong_command(t_connection * conn, int numparams, char ** para
 	    if (conn_get_ircping(conn) != val) 
 		{
 	    	if ((sname)&&(strcmp(sname,server_get_name())!=0)) 
-			{
-				/* Actually the servername should not be always accepted but we aren't that pedantic :) */
-				eventlog(eventlog_level_warn,"handle_irc_line","[%d] got bad PONG (%u!=%u && %s!=%s)",conn_get_socket(conn),val,conn_get_ircping(conn),sname,server_get_name());
-				return -1;
-			}
+		{
+			/* Actually the servername should not be always accepted but we aren't that pedantic :) */
+			eventlog(eventlog_level_warn,__FUNCTION__,"[%d] got bad PONG (%u!=%u && %s!=%s)",conn_get_socket(conn),val,conn_get_ircping(conn),sname,server_get_name());
+			return -1;
+		}
 	    }
 	    conn_set_latency(conn,get_ticks()-conn_get_ircping(conn));
-	    eventlog(eventlog_level_debug,"handle_irc_line","[%d] latency is now %d (%u-%u)",conn_get_socket(conn),get_ticks()-conn_get_ircping(conn),get_ticks(),conn_get_ircping(conn));
+	    eventlog(eventlog_level_debug,__FUNCTION__,"[%d] latency is now %d (%u-%u)",conn_get_socket(conn),get_ticks()-conn_get_ircping(conn),get_ticks(),conn_get_ircping(conn));
 	    conn_set_ircping(conn,0);
 	}
 	return 0;
@@ -495,7 +495,7 @@ static int _handle_pass_command(t_connection * conn, int numparams, char ** para
     } 
 	else 
 	{
-	    eventlog(eventlog_level_warn,"handle_irc_line","[%d] client tried to set password twice with PASS",conn_get_socket(conn));
+	    eventlog(eventlog_level_warn,__FUNCTION__,"[%d] client tried to set password twice with PASS",conn_get_socket(conn));
     }
 	return 0;
 }
@@ -578,7 +578,7 @@ static int _handle_privmsg_command(t_connection * conn, int numparams, char ** p
 					if (!(temp = account_create(username,hash_get_str(passhash))))
 					{
 						message_send_text(conn,message_type_error,conn,"Failed to create account!");
-						eventlog(eventlog_level_info,"handle_irc_line","[%d] account \"%s\" not created by IRC (failed)",conn_get_socket(conn),username);
+						eventlog(eventlog_level_info,__FUNCTION__,"[%d] account \"%s\" not created by IRC (failed)",conn_get_socket(conn),username);
 						conn_unget_chatname(conn,username);
 						break;
 					}
@@ -586,13 +586,13 @@ static int _handle_privmsg_command(t_connection * conn, int numparams, char ** p
 					{
 						account_destroy(temp);
 						message_send_text(conn,message_type_error,conn,"Failed to register account. Account already exists.");
-						eventlog(eventlog_level_info,"handle_irc_line","[%d] account \"%s\" could not be created by IRC (insert failed)",conn_get_socket(conn),username);
+						eventlog(eventlog_level_info,__FUNCTION__,"[%d] account \"%s\" could not be created by IRC (insert failed)",conn_get_socket(conn),username);
 					}
 					else
 					{
 						sprintf(msgtemp,"Account "UID_FORMAT" created.",account_get_uid(temp));
 						message_send_text(conn,message_type_info,conn,msgtemp);
-						eventlog(eventlog_level_info,"handle_irc_line","[%d] account \"%s\" created by IRC",conn_get_socket(conn),username);
+						eventlog(eventlog_level_info,__FUNCTION__,"[%d] account \"%s\" created by IRC",conn_get_socket(conn),username);
 					}
 
 					conn_unget_chatname(conn,username);
@@ -735,14 +735,14 @@ static int _handle_list_command(t_connection * conn, int numparams, char ** para
 	        		if (strlen(tempname)+1+20+1+1+strlen(topic)<MAX_IRC_MESSAGE_LEN)
 		    			sprintf(temp,"%s %u :%s",tempname,channel_get_length(channel),topic);
 	        		else
-	            			eventlog(eventlog_level_warn,"handle_irc_line","LISTREPLY length exceeded");
+	            			eventlog(eventlog_level_warn,__FUNCTION__,"LISTREPLY length exceeded");
 			}
 			else
 			{
 	        		if (strlen(tempname)+1+20+1+1+strlen(notopic)<MAX_IRC_MESSAGE_LEN)
 		    			sprintf(temp,"%s %u :%s",tempname,channel_get_length(channel),notopic);
 	        		else
-	            			eventlog(eventlog_level_warn,"handle_irc_line","LISTREPLY length exceeded");
+	            			eventlog(eventlog_level_warn,__FUNCTION__,"LISTREPLY length exceeded");
 			}
 	        	irc_send(conn,RPL_LIST,temp);
     	}
@@ -777,14 +777,14 @@ static int _handle_list_command(t_connection * conn, int numparams, char ** para
 	       		if (strlen(tempname)+1+20+1+1+strlen(topic)<MAX_IRC_MESSAGE_LEN)
 	    			sprintf(temp,"%s %u :%s",tempname,channel_get_length(channel),topic);
 	       		else
-	       			eventlog(eventlog_level_warn,"handle_irc_line","LISTREPLY length exceeded");
+	       			eventlog(eventlog_level_warn,__FUNCTION__,"LISTREPLY length exceeded");
 		}
 		else
 		{
 	       		if (strlen(tempname)+1+20+1+1+strlen(notopic)<MAX_IRC_MESSAGE_LEN)
 	    			sprintf(temp,"%s %u :%s",tempname,channel_get_length(channel),notopic);
 	       		else
-	       			eventlog(eventlog_level_warn,"handle_irc_line","LISTREPLY length exceeded");
+	       			eventlog(eventlog_level_warn,__FUNCTION__,"LISTREPLY length exceeded");
 		}
 	       	irc_send(conn,RPL_LIST,temp);
 	}
