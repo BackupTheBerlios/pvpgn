@@ -200,6 +200,7 @@ ${SRC_CDBDIR}/cdb_init.o \
 ${SRC_CDBDIR}/cdb_find.o \
 ${SRC_CDBDIR}/cdb_findnext.o \
 ${SRC_CDBDIR}/cdb_seek.o \
+${SRC_CDBDIR}/cdb_seq.o \
 ${SRC_CDBDIR}/cdb_unpack.o \
 ${SRC_CDBDIR}/cdb_make_add.o \
 ${SRC_CDBDIR}/cdb_make_put.o \
@@ -461,6 +462,7 @@ ${SRC_CDBDIR}/cdb_init.o \
 ${SRC_CDBDIR}/cdb_find.o \
 ${SRC_CDBDIR}/cdb_findnext.o \
 ${SRC_CDBDIR}/cdb_seek.o \
+${SRC_CDBDIR}/cdb_seq.o \
 ${SRC_CDBDIR}/cdb_unpack.o \
 ${SRC_CDBDIR}/cdb_make_add.o \
 ${SRC_CDBDIR}/cdb_make_put.o \

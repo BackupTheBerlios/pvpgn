@@ -246,6 +246,7 @@ bnetd_OBJECTS       = \
     ${SRC_CDBDIR}\cdb_find.obj \
     ${SRC_CDBDIR}\cdb_findnext.obj \
     ${SRC_CDBDIR}\cdb_seek.obj \
+    ${SRC_CDBDIR}\cdb_seq.obj \
     ${SRC_CDBDIR}\cdb_unpack.obj \
     ${SRC_CDBDIR}\cdb_make_add.obj \
     ${SRC_CDBDIR}\cdb_make_put.obj \
@@ -446,6 +447,7 @@ cdb_BIN			= ${SRC_BINDIR}\cdb.exe
 cdb_OBJECTS		= ${SRC_CDBDIR}\cdb.obj \
 ${SRC_CDBDIR}\cdb_init.obj \
 ${SRC_CDBDIR}\cdb_seek.obj \
+${SRC_CDBDIR}\cdb_seq.obj \
 ${SRC_CDBDIR}\cdb_find.obj \
 ${SRC_CDBDIR}\cdb_findnext.obj \
 ${SRC_CDBDIR}\cdb_unpack.obj \

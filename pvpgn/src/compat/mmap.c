@@ -31,6 +31,9 @@
 # include <unistd.h>
 #endif
 #include "mmap.h"
+#ifdef WIN32
+# include <windows.h>
+#endif
 #include "common/setup_after.h"
 
 extern void * pmmap(void *addr, unsigned len, int prot, int flags, int fd, unsigned offset)
@@ -38,7 +41,17 @@ extern void * pmmap(void *addr, unsigned len, int prot, int flags, int fd, unsig
     void *mem;
     unsigned pos;
     int res;
+#ifdef WIN32 
+    HANDLE	hFile, hMapping;
 
+    /* under win32 we only support readonly mappings, the only ones used in pvpgn now :) */
+    if (prot != PROT_READ) return NULL;
+    hFile = (HANDLE) _get_osfhandle(fd);
+    if (hFile == (HANDLE) - 1) return -1;
+    hMapping = CreateFileMapping(hFile, NULL, PAGE_READONLY, 0, 0, NULL);
+    if (!hMapping) return -1;
+    mem = MapViewOfFile(hMapping, FILE_MAP_READ, 0, 0 ,0);
+#else /* systems without mmap or win32 */
     if ((mem = malloc(len)) == NULL) return MAP_FAILED;
     pos = 0;
     while(pos < len) {
@@ -49,13 +62,18 @@ extern void * pmmap(void *addr, unsigned len, int prot, int flags, int fd, unsig
 	}
 	pos += res;
     }
+#endif
 
     return mem;
 }
 
 extern int pmunmap(void *addr, unsigned len)
 {
+#ifdef WIN32
+    UnmapViewOfFile(addr);
+#else
     free(addr);
+#endif
     return 0;
 }
 #else

@@ -1,5 +1,4 @@
-/* $Id: cdb_findnext.c,v 1.3 2003/07/31 01:57:43 dizzy Exp $
- * sequential cdb_find routines
+/* sequential cdb_find routines
  *
  * This file is a part of tinycdb package by Michael Tokarev, mjt@corpit.ru.
  * Public domain.
@@ -13,9 +12,9 @@
 
 int
 cdb_findinit(struct cdb_find *cdbfp, struct cdb *cdbp,
-             const void *key, cdbi_t klen)
+             const void *key, unsigned klen)
 {
-  cdbi_t n, pos;
+  unsigned n, pos;
 
   cdbfp->cdb_cdbp = cdbp;
   cdbfp->cdb_key = key;
@@ -29,23 +28,23 @@ cdb_findinit(struct cdb_find *cdbfp, struct cdb *cdbp,
     return 0;
   pos = cdb_unpack(cdbfp->cdb_htp);
   if (n > (cdbp->cdb_fsize >> 3)
+      || pos < cdbp->cdb_dend
       || pos > cdbp->cdb_fsize
       || cdbfp->cdb_httodo > cdbp->cdb_fsize - pos)
-  {
-    errno = EPROTO;
-    return -1;
-  }
+    return errno = EPROTO, -1;
 
   cdbfp->cdb_htab = cdbp->cdb_mem + pos;
   cdbfp->cdb_htend = cdbfp->cdb_htab + cdbfp->cdb_httodo;
   cdbfp->cdb_htp = cdbfp->cdb_htab + (((cdbfp->cdb_hval >> 8) % n) << 3);
 
-  return 0;
+  return 1;
 }
 
-int cdb_findnext(struct cdb_find *cdbfp) {
-  cdbi_t pos, n;
+int
+cdb_findnext(struct cdb_find *cdbfp) {
   struct cdb *cdbp = cdbfp->cdb_cdbp;
+  unsigned pos, n;
+  unsigned klen = cdbfp->cdb_klen;
 
   while(cdbfp->cdb_httodo) {
     pos = cdb_unpack(cdbfp->cdb_htp + 4);
@@ -56,24 +55,21 @@ int cdb_findnext(struct cdb_find *cdbfp) {
       cdbfp->cdb_htp = cdbfp->cdb_htab;
     cdbfp->cdb_httodo -= 8;
     if (n) {
-      if (pos > cdbp->cdb_fsize - 8) {
-	errno = EPROTO;
-	return -1;
-      }
-      if (cdb_unpack(cdbp->cdb_mem + pos) == cdbfp->cdb_klen) {
-	if (cdbp->cdb_fsize - cdbfp->cdb_klen < pos + 8) {
-	  errno = EPROTO;
-	  return -1;
-	}
+      if (pos > cdbp->cdb_fsize - 8)
+	return errno = EPROTO, -1;
+      if (cdb_unpack(cdbp->cdb_mem + pos) == klen) {
+	if (cdbp->cdb_fsize - klen < pos + 8)
+	  return errno = EPROTO, -1;
 	if (memcmp(cdbfp->cdb_key,
-	    cdbp->cdb_mem + pos + 8, cdbfp->cdb_klen) == 0) {
+	    cdbp->cdb_mem + pos + 8, klen) == 0) {
 	  n = cdb_unpack(cdbp->cdb_mem + pos + 4);
-	  pos += 8 + cdbfp->cdb_klen;
-	  if (cdbp->cdb_fsize < n || cdbp->cdb_fsize - n < pos) {
-	    errno = EPROTO;
-	    return -1;
-	  }
-	  cdbp->cdb_vpos = pos;
+	  pos += 8;
+	  if (cdbp->cdb_fsize < n ||
+              cdbp->cdb_fsize - n < pos + klen)
+	    return errno = EPROTO, -1;
+	  cdbp->cdb_kpos = pos;
+	  cdbp->cdb_klen = klen;
+	  cdbp->cdb_vpos = pos + klen;
 	  cdbp->cdb_vlen = n;
 	  return 1;
 	}

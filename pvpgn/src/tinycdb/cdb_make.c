@@ -1,5 +1,4 @@
-/* $Id: cdb_make.c,v 1.3 2003/09/10 17:05:22 aaron Exp $
- * basic cdb creation routines
+/* basic cdb creation routines
  *
  * This file is a part of tinycdb package by Michael Tokarev, mjt@corpit.ru.
  * Public domain.
@@ -32,7 +31,7 @@
 #include "common/setup_after.h"
 
 void
-cdb_pack(cdbi_t num, unsigned char buf[4])
+cdb_pack(unsigned num, unsigned char buf[4])
 {
   buf[0] = num & 255; num >>= 8;
   buf[1] = num & 255; num >>= 8;
@@ -64,9 +63,9 @@ ewrite(int fd, const char *buf, int len)
 }
 
 int
-_cdb_make_write(struct cdb_make *cdbmp, const char *ptr, cdbi_t len)
+_cdb_make_write(struct cdb_make *cdbmp, const char *ptr, unsigned len)
 {
-  cdbi_t l = sizeof(cdbmp->cdb_buf) - (cdbmp->cdb_bpos - cdbmp->cdb_buf);
+  unsigned l = sizeof(cdbmp->cdb_buf) - (cdbmp->cdb_bpos - cdbmp->cdb_buf);
   cdbmp->cdb_dpos += len;
   if (len > l) {
     memcpy(cdbmp->cdb_bpos, ptr, l);
@@ -92,18 +91,16 @@ _cdb_make_write(struct cdb_make *cdbmp, const char *ptr, cdbi_t len)
 static int
 cdb_make_finish_internal(struct cdb_make *cdbmp)
 {
-  cdbi_t hcnt[256];		/* hash table counts */
-  cdbi_t hpos[256];		/* hash table positions */
+  unsigned hcnt[256];		/* hash table counts */
+  unsigned hpos[256];		/* hash table positions */
   struct cdb_rec *htab;
   unsigned char *p;
   struct cdb_rl *rl;
-  cdbi_t hsize;
+  unsigned hsize;
   unsigned t, i;
 
-  if (((0xffffffff - cdbmp->cdb_dpos) >> 3) < cdbmp->cdb_rcnt) {
-    errno = ENOMEM;
-    return -1;
-  }
+  if (((0xffffffff - cdbmp->cdb_dpos) >> 3) < cdbmp->cdb_rcnt)
+    return errno = ENOMEM, -1;
 
   /* count htab sizes and reorder reclists */
   hsize = 0;
@@ -125,16 +122,14 @@ cdb_make_finish_internal(struct cdb_make *cdbmp)
 
   /* allocate memory to hold max htable */
   htab = (struct cdb_rec*)malloc((hsize + 2) * sizeof(struct cdb_rec));
-  if (!htab) {
-    errno = ENOENT;
-    return -1;
-  }
+  if (!htab)
+    return errno = ENOENT, -1;
   p = (unsigned char *)htab;
   htab += 2;
 
   /* build hash tables */
   for (t = 0; t < 256; ++t) {
-    cdbi_t len, hi;
+    unsigned len, hi;
     hpos[t] = cdbmp->cdb_dpos;
     if ((len = hcnt[t]) == 0)
       continue;

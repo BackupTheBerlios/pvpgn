@@ -1,5 +1,4 @@
-/* $Id: cdb_init.c,v 1.4 2003/07/31 03:44:32 dizzy Exp $
- * cdb_init, cdb_free and cdb_read routines
+/* cdb_init, cdb_free and cdb_read routines
  *
  * This file is a part of tinycdb package by Michael Tokarev, mjt@corpit.ru.
  * Public domain.
@@ -17,25 +16,25 @@ int
 cdb_init(struct cdb *cdbp, int fd)
 {
   struct stat st;
-  unsigned char *mem = NULL;
+  unsigned char *mem;
+  unsigned fsize, dend;
 
   /* get file size */
   if (fstat(fd, &st) < 0)
     return -1;
   /* trivial sanity check: at least toc should be here */
-  if (st.st_size < 2048) {
-    errno = EPROTO;
-    return -1;
-  }
+  if (st.st_size < 2048)
+    return errno = EPROTO, -1;
+  fsize = (unsigned)(st.st_size & 0xffffffffu);
 
   /* memory-map file */
-  if ((mem = pmmap(NULL, st.st_size, PROT_READ, MAP_SHARED, fd, 0)) ==
+  if ((mem = pmmap(NULL, fsize, PROT_READ, MAP_SHARED, fd, 0)) ==
       (unsigned char *)-1)
     return -1;
 
-  cdbp->cdb_mem = mem;
   cdbp->cdb_fd = fd;
-  cdbp->cdb_fsize = st.st_size;
+  cdbp->cdb_fsize = fsize;
+  cdbp->cdb_mem = mem;
 
 #if 0
   /* XXX don't know well about madvise syscall -- is it legal
@@ -51,6 +50,11 @@ cdb_init(struct cdb *cdbp, int fd)
 #endif
 
   cdbp->cdb_vpos = cdbp->cdb_vlen = 0;
+  cdbp->cdb_kpos = cdbp->cdb_klen = 0;
+  dend = cdb_unpack(mem);
+  if (dend < 2048) dend = 2048;
+  else if (dend >= fsize) dend = fsize;
+  cdbp->cdb_dend = dend;
 
   return 0;
 }
@@ -65,13 +69,21 @@ cdb_free(struct cdb *cdbp)
   cdbp->cdb_fsize = 0;
 }
 
-int
-cdb_read(const struct cdb *cdbp, void *buf, unsigned len, cdbi_t pos)
+const void *
+cdb_get(const struct cdb *cdbp, unsigned len, unsigned pos)
 {
   if (pos > cdbp->cdb_fsize || cdbp->cdb_fsize - pos < len) {
     errno = EPROTO;
-    return -1;
+    return NULL;
   }
-  memcpy(buf, cdbp->cdb_mem + pos, len);
+  return cdbp->cdb_mem + pos;
+}
+
+int
+cdb_read(const struct cdb *cdbp, void *buf, unsigned len, unsigned pos)
+{
+  const void *data = cdb_get(cdbp, len, pos);
+  if (!data) return -1;
+  memcpy(buf, data, len);
   return 0;
 }

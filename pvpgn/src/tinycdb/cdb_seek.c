@@ -1,5 +1,4 @@
-/* $Id: cdb_seek.c,v 1.3 2003/09/10 17:05:22 aaron Exp $
- * old interface for reading cdb file
+/* old interface for reading cdb file
  *
  * This file is a part of tinycdb package by Michael Tokarev, mjt@corpit.ru.
  * Public domain.
@@ -42,14 +41,14 @@ cdb_bread(int fd, void *buf, int len)
    place data length to *dlenp. */
 
 int
-cdb_seek(int fd, const void *key, unsigned klen, cdbi_t *dlenp)
+cdb_seek(int fd, const void *key, unsigned klen, unsigned *dlenp)
 {
-  cdbi_t htstart;		/* hash table start position */
-  cdbi_t htsize;		/* number of elements in a hash table */
-  cdbi_t httodo;		/* hash table elements left to look */
-  cdbi_t hti;			/* hash table index */
-  cdbi_t pos;			/* position in a file */
-  cdbi_t hval;			/* key's hash value */
+  unsigned htstart;		/* hash table start position */
+  unsigned htsize;		/* number of elements in a hash table */
+  unsigned httodo;		/* hash table elements left to look */
+  unsigned hti;			/* hash table index */
+  unsigned pos;			/* position in a file */
+  unsigned hval;			/* key's hash value */
   unsigned char rbuf[64];	/* read buffer */
   int needseek = 1;		/* if we should seek to a hash slot */
 
@@ -79,7 +78,7 @@ cdb_seek(int fd, const void *key, unsigned klen, cdbi_t *dlenp)
 	return -1;
       if (cdb_unpack(rbuf) == klen) { /* key length matches */
 	/* read the key from file and compare with wanted */
-	cdbi_t l = klen, c;
+	unsigned l = klen, c;
 	const char *k = (const char*)key;
 	if (*dlenp)
 	  *dlenp = cdb_unpack(rbuf + 4); /* save value length */
@@ -99,9 +98,8 @@ cdb_seek(int fd, const void *key, unsigned klen, cdbi_t *dlenp)
     if (!--httodo)
       return 0;
     if (++hti == htsize) {
-      hti = htstart;
+      hti = 0;
       needseek = 1;
     }
   }
 }
-

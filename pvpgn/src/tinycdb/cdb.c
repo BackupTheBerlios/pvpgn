@@ -1,6 +1,4 @@
-/* $Id: cdb.c,v 1.7 2003/09/10 17:05:22 aaron Exp $
- * cdb command line tool
- *
+/*
  * This file is a part of tinycdb package by Michael Tokarev, mjt@corpit.ru.
  * Public domain.
  */
@@ -28,7 +26,6 @@
 #include <io.h>
 #endif
 #include "compat/getopt.h"
-
 #ifdef HAVE_FCNTL_H
 # include <fcntl.h>
 #else
@@ -52,9 +49,13 @@ static char *progname;
 #define F_MAP		0x1000	/* map format (or else CDB native format) */
 
 static char *buf;
-static cdbi_t blen;
+static unsigned blen;
 
-static void error(int errnum, const char *fmt, ...)
+static void
+#ifdef __GNUC__
+__attribute__((noreturn,format(printf,2,3)))
+#endif
+error(int errnum, const char *fmt, ...)
 {
   if (fmt) {
     va_list ap;
@@ -73,7 +74,7 @@ static void error(int errnum, const char *fmt, ...)
   exit(errnum ? 111 : 2);
 }
 
-static void allocbuf(cdbi_t len) {
+static void allocbuf(unsigned len) {
   if (blen < len) {
     if (buf) buf = (char*)realloc(buf, len);
     else buf = (char*)malloc(len);
@@ -82,47 +83,42 @@ static void allocbuf(cdbi_t len) {
   }
 }
 
-static int qmode(char *dbname, char *key, int n)
+static int qmode(char *dbname, char *key, int num, int flags)
 {
   struct cdb c;
+  struct cdb_find cf;
   int r;
+  int n, found;
 
   r = open(dbname, O_RDONLY);
   if (r < 0 || cdb_init(&c, r) != 0)
     error(errno, "unable to open database `%s'", dbname);
 
-#if 1
-  r = cdb_find(&c, key, strlen(key));
-  if (r < 0)
-    error(errno, "%s", key);
-  else if (!r)
+  r = cdb_findinit(&cf, &c, key, strlen(key));
+  if (!r)
     return 100;
-  else if (cdb_datalen(&c)) {
-    allocbuf(cdb_datalen(&c));
-    if (cdb_read(&c, buf, cdb_datalen(&c), cdb_datapos(&c)) != 0)
-      error(errno, "unable to read value");
-    fwrite(buf, 1, cdb_datalen(&c), stdout);
-  }
-#else
-  {
-  struct cdb_find cf;
-  if (cdb_findinit(&cf, &c, key, strlen(key)) < 0)
-   error(errno, "unable to findinit");
+  else if (r < 0)
+    error(errno, "%s", key);
+  n = 0; found = 0;
   while((r = cdb_findnext(&cf)) > 0) {
- if (cdb_datalen(&c)) {
+    ++n;
+    if (num && num != n) continue;
+    ++found;
     allocbuf(cdb_datalen(&c));
     if (cdb_read(&c, buf, cdb_datalen(&c), cdb_datapos(&c)) != 0)
       error(errno, "unable to read value");
     fwrite(buf, 1, cdb_datalen(&c), stdout);
-puts("");
+    if (flags & F_MAP) putchar('\n');
+    if (num)
+      break;
   }
-}}
-#endif
-  return 0;
-} 
+  if (r < 0)
+    error(0, "%s", key);
+  return found ? 0 : 100;
+}
 
 static void
-fget(FILE *f, unsigned char *b, cdbi_t len, cdbi_t *posp, cdbi_t limit)
+fget(FILE *f, unsigned char *b, unsigned len, unsigned *posp, unsigned limit)
 {
   if (posp && limit - *posp < len)
     error(EPROTO, "invalid database format");
@@ -135,7 +131,7 @@ fget(FILE *f, unsigned char *b, cdbi_t len, cdbi_t *posp, cdbi_t limit)
 }
 
 static int
-fcpy(FILE *fi, FILE *fo, cdbi_t len, cdbi_t *posp, cdbi_t limit)
+fcpy(FILE *fi, FILE *fo, unsigned len, unsigned *posp, unsigned limit)
 {
   while(len > blen) {
     fget(fi, buf, blen, posp, limit);
@@ -152,8 +148,8 @@ fcpy(FILE *fi, FILE *fo, cdbi_t len, cdbi_t *posp, cdbi_t limit)
 static int
 dmode(char *dbname, char mode, int flags)
 {
-  cdbi_t eod, klen, vlen;
-  cdbi_t pos = 0;
+  unsigned eod, klen, vlen;
+  unsigned pos = 0;
   FILE *f;
   if (strcmp(dbname, "-") == 0)
     f = stdin;
@@ -171,7 +167,7 @@ dmode(char *dbname, char mode, int flags)
     if (fcpy(f, stdout, klen, &pos, eod) != 0) return -1;
     if (mode == 'd')
       if (!fputs(flags & F_MAP ? " " : "->", stdout))
-	return -1;
+        return -1;
     if (fcpy(f, mode == 'd' ? stdout : NULL, vlen, &pos, eod) != 0)
       return -1;
     if (putc('\n', stdout) < 0)
@@ -187,15 +183,15 @@ dmode(char *dbname, char mode, int flags)
 
 static int smode(char *dbname) {
   FILE *f;
-  cdbi_t pos, eod;
-  cdbi_t cnt = 0;
-  cdbi_t kmin = 0, kmax = 0, ktot = 0;
-  cdbi_t vmin = 0, vmax = 0, vtot = 0;
-  cdbi_t hmin = 0, hmax = 0, htot = 0, hcnt = 0;
+  unsigned pos, eod;
+  unsigned cnt = 0;
+  unsigned kmin = 0, kmax = 0, ktot = 0;
+  unsigned vmin = 0, vmax = 0, vtot = 0;
+  unsigned hmin = 0, hmax = 0, htot = 0, hcnt = 0;
 #define NDIST 11
-  cdbi_t dist[NDIST];
+  unsigned dist[NDIST];
   unsigned char toc[2048];
-  cdbi_t k;
+  unsigned k;
 
   if (strcmp(dbname, "-") == 0)
     f = stdin;
@@ -209,7 +205,7 @@ static int smode(char *dbname) {
 
   eod = cdb_unpack(toc);
   while(pos < eod) {
-    cdbi_t klen, vlen;
+    unsigned klen, vlen;
     fget(f, buf, 8, &pos, eod);
     klen = cdb_unpack(buf);
     vlen = cdb_unpack(buf + 4);
@@ -229,20 +225,20 @@ static int smode(char *dbname) {
   for (k = 0; k < NDIST; ++k)
     dist[k] = 0;
   for (k = 0; k < 256; ++k) {
-    cdbi_t i = cdb_unpack(toc + (k << 3));
-    cdbi_t hlen = cdb_unpack(toc + (k << 3) + 4);
+    unsigned i = cdb_unpack(toc + (k << 3));
+    unsigned hlen = cdb_unpack(toc + (k << 3) + 4);
     if (i != pos) error(EPROTO, "invalid cdb hash table");
     if (!hlen) continue;
     for (i = 0; i < hlen; ++i) {
-      cdbi_t h;
+      unsigned h;
       fget(f, buf, 8, &pos, 0xffffffff);
       if (!cdb_unpack(buf + 4)) continue;
       h = (cdb_unpack(buf) >> 8) % hlen;
       if (h == i) h = 0;
       else {
-	if (h < i) h = i - h;
-	else h = hlen - h + i;
-	if (h >= NDIST) h = NDIST - 1;
+        if (h < i) h = i - h;
+        else h = hlen - h + i;
+        if (h >= NDIST) h = NDIST - 1;
       }
       ++dist[h];
     }
@@ -273,8 +269,8 @@ static void badinput(const char *fn) {
   exit(2);
 }
 
-static int getnum(FILE *f, cdbi_t *np, const char *fn) {
-  cdbi_t n;
+static int getnum(FILE *f, unsigned *np, const char *fn) {
+  unsigned n;
   int c = getc(f);
   if (c < '0' || c > '9') badinput(fn);
   n = c - '0';
@@ -289,8 +285,8 @@ static int getnum(FILE *f, cdbi_t *np, const char *fn) {
 
 static void
 addrec(struct cdb_make *cdbmp,
-       char *key, cdbi_t klen,
-       char *val, cdbi_t vlen,
+       char *key, unsigned klen,
+       char *val, unsigned vlen,
        int flags)
 {
   int r = cdb_make_put(cdbmp, key, klen, val, vlen, flags & F_DUPMASK);
@@ -308,7 +304,7 @@ addrec(struct cdb_make *cdbmp,
 static void
 dofile_cdb(struct cdb_make *cdbmp, FILE *f, const char *fn, int flags)
 {
-  cdbi_t klen, vlen;
+  unsigned klen, vlen;
   int c;
   while((c = getc(f)) == '+') {
     if ((c = getnum(f, &klen, fn)) != ',' ||
@@ -330,18 +326,18 @@ dofile_ln(struct cdb_make *cdbmp, FILE *f, const char *fn, int flags)
 {
   char *k, *v;
   while(fgets(buf, blen, f) != NULL) {
-    cdbi_t l = 0;
+    unsigned l = 0;
     for (;;) {
       l += strlen(buf + l);
       v = buf + l;
       if (v > buf && v[-1] == '\n') {
-	v[-1] = '\0';
-	break;
+        v[-1] = '\0';
+        break;
       }
       if (l < blen)
-	allocbuf(l + 512);
+        allocbuf(l + 512);
       if (!fgets(buf + l, blen - l, f))
-	break;
+        break;
     }
     k = buf;
     while(*k == ' ' || *k == '\t') ++k;
@@ -377,8 +373,7 @@ cmode(char *dbname, char *tmpname, int argc, char **argv, int flags)
       error(ENOMEM, "unable to allocate memory");
     strcat(strcpy(tmpname, dbname), ".tmp");
   }
-  fd = open(tmpname,
-            (flags & F_WARNDUP ? O_RDWR : O_WRONLY) | O_CREAT | O_TRUNC, 0644);
+  fd = open(tmpname, O_RDWR | O_CREAT | O_TRUNC, 0644);
   if (fd < 0)
     error(errno, "unable to create %s", tmpname);
   cdb_make_start(&cdb, fd);
@@ -387,13 +382,13 @@ cmode(char *dbname, char *tmpname, int argc, char **argv, int flags)
     int i;
     for (i = 0; i < argc; ++i) {
       if (strcmp(argv[i], "-") == 0)
-	dofile(&cdb, stdin, "(stdin)", flags);
+        dofile(&cdb, stdin, "(stdin)", flags);
       else {
-	FILE *f = fopen(argv[i], "r");
-	if (!f)
-	  error(errno, "%s", argv[i]);
-	dofile(&cdb, f, argv[i], flags);
-	fclose(f);
+        FILE *f = fopen(argv[i], "r");
+        if (!f)
+          error(errno, "%s", argv[i]);
+        dofile(&cdb, f, argv[i], flags);
+        fclose(f);
       }
     }
   }
@@ -413,6 +408,8 @@ int main(int argc, char **argv)
   char mode = 0;
   char *tmpname = NULL;
   int flags = 0;
+  int num = 0;
+  int r;
   extern char *optarg;
   extern int optind;
 
@@ -424,7 +421,7 @@ int main(int argc, char **argv)
   if (argc == 1)
     error(0, "no arguments given");
 
-  while((c = getopt(argc, argv, "qdlcsht:mwrue")) != EOF)
+  while((c = getopt(argc, argv, "qdlcsht:n:mwrue")) != EOF)
     switch(c) {
     case 'q': case 'd':  case 'l': case 'c': case 's':
       if (mode && mode != c)
@@ -437,10 +434,14 @@ int main(int argc, char **argv)
     case 'r': flags = (flags & ~F_DUPMASK) | CDB_PUT_REPLACE; break;
     case 'u': flags = (flags & ~F_DUPMASK) | CDB_PUT_INSERT; break;
     case 'm': flags |= F_MAP; break;
+    case 'n':
+      if ((num = atoi(optarg)) <= 0)
+        error(0, "invalid record number `%s'", optarg);
+      break;
     case 'h':
       printf("\
 %s: Constant DataBase (CDB) tool. Usage is:\n\
- query:  %s -q cdbfile key\n\
+ query:  %s -q [-m] [-n recno|-a] cdbfile key\n\
  dump:   %s -d [-m] [cdbfile|-]\n\
  list:   %s -l [-m] [cdbfile|-]\n\
  create: %s -c [-m] [-wrue] [-t tempfile] cdbfile [infile...]\n\
@@ -458,31 +459,28 @@ int main(int argc, char **argv)
   switch(mode) {
     case 'q':
       if (argc < 2) error(0, "no database or key to query specified");
-      else if (argc > 2) error(0, "extra arguments in command line");
-      c = qmode(argv[0], argv[1], 0);
+      if (argc > 2) error(0, "extra arguments in command line");
+      r = qmode(argv[0], argv[1], num, flags);
       break;
     case 'c':
       if (!argc) error(0, "no database name specified");
       if ((flags & F_WARNDUP) && !(flags & F_DUPMASK))
-	flags |= CDB_PUT_WARN;
-      c = cmode(argv[0], tmpname, argc - 1, argv + 1, flags);
+        flags |= CDB_PUT_WARN;
+      r = cmode(argv[0], tmpname, argc - 1, argv + 1, flags);
       break;
     case 'd':
     case 'l':
-      if (!argc) c = dmode("-", mode, flags);
-      else if (argc == 1) c = dmode(argv[0], mode, flags);
-      else error(0, "extra arguments for dump/list");
+      if (argc > 1) error(0, "extra arguments for dump/list");
+      r = dmode(argc ? argv[0] : "-", mode, flags);
       break;
     case 's':
-      if (!argc) c = smode("-");
-      else if (argc == 1) c = smode(argv[0]);
-      else error(0, "extra argument(s) for stats");
+      if (argc > 1) error(0, "extra argument(s) for stats");
+      r = smode(argc ? argv[0] : "-");
       break;
     default:
       error(0, "no -q, -c, -d, -l or -s option specified");
   }
-  if (c < 0 || fflush(stdout) < 0)
+  if (r < 0 || fflush(stdout) < 0)
     error(errno, "unable to write: %d", c);
-  return c;
+  return r;
 }
-

@@ -1,5 +1,4 @@
-/* $Id: cdb_find.c,v 1.3 2003/07/31 01:57:43 dizzy Exp $
- * cdb_find routine
+/* cdb_find routine
  *
  * This file is a part of tinycdb package by Michael Tokarev, mjt@corpit.ru.
  * Public domain.
@@ -10,17 +9,17 @@
 #include "common/setup_after.h"
 
 int
-cdb_find(struct cdb *cdbp, const void *key, cdbi_t klen)
+cdb_find(struct cdb *cdbp, const void *key, unsigned klen)
 {
   const unsigned char *htp;	/* hash table pointer */
   const unsigned char *htab;	/* hash table */
   const unsigned char *htend;	/* end of hash table */
-  cdbi_t httodo;		/* ht bytes left to look */
-  cdbi_t pos, n;
+  unsigned httodo;		/* ht bytes left to look */
+  unsigned pos, n;
 
-  cdbi_t hval;
+  unsigned hval;
 
-  if (klen > cdbp->cdb_fsize)	/* if key size is larger than file */
+  if (klen >= cdbp->cdb_dend)	/* if key size is too large */
     return 0;
 
   hval = cdb_hash(key, klen);
@@ -35,12 +34,10 @@ cdb_find(struct cdb *cdbp, const void *key, cdbi_t klen)
   httodo = n << 3;		/* bytes of htab to lookup */
   pos = cdb_unpack(htp);	/* htab position */
   if (n > (cdbp->cdb_fsize >> 3) /* overflow of httodo ? */
+      || pos < cdbp->cdb_dend /* is htab inside data section ? */
       || pos > cdbp->cdb_fsize /* htab start within file ? */
       || httodo > cdbp->cdb_fsize - pos) /* entrie htab within file ? */
-  {
-    errno = EPROTO;
-    return -1;
-  }
+    return errno = EPROTO, -1;
 
   htab = cdbp->cdb_mem + pos;	/* htab pointer */
   htend = htab + httodo;	/* after end of htab */
@@ -52,23 +49,19 @@ cdb_find(struct cdb *cdbp, const void *key, cdbi_t klen)
     if (!pos)
       return 0;
     if (cdb_unpack(htp) == hval) {
-      if (pos > cdbp->cdb_fsize - 8) { /* key+val lengths */
-	errno = EPROTO;
-	return -1;
-      }
+      if (pos > cdbp->cdb_dend - 8) /* key+val lengths */
+	return errno = EPROTO, -1;
       if (cdb_unpack(cdbp->cdb_mem + pos) == klen) {
-	if (cdbp->cdb_fsize - klen < pos + 8) {
-	  errno = EPROTO;
-	  return -1;
-	}
+	if (cdbp->cdb_dend - klen < pos + 8)
+	  return errno = EPROTO, -1;
 	if (memcmp(key, cdbp->cdb_mem + pos + 8, klen) == 0) {
 	  n = cdb_unpack(cdbp->cdb_mem + pos + 4);
-	  pos += 8 + klen;
-	  if (cdbp->cdb_fsize < n || cdbp->cdb_fsize - n < pos) {
-	    errno = EPROTO;
-	    return -1;
-	  }
-	  cdbp->cdb_vpos = pos;
+	  pos += 8;
+	  if (cdbp->cdb_dend < n || cdbp->cdb_dend - n < pos + klen)
+	    return errno = EPROTO, -1;
+	  cdbp->cdb_kpos = pos;
+	  cdbp->cdb_klen = klen;
+	  cdbp->cdb_vpos = pos + klen;
 	  cdbp->cdb_vlen = n;
 	  return 1;
 	}

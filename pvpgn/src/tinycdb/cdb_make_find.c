@@ -1,5 +1,4 @@
-/* $Id: cdb_make_find.c,v 1.7 2003/09/10 17:05:22 aaron Exp $
- * routines to search in in-progress cdb file
+/* routines to search in in-progress cdb file
  *
  * This file is a part of tinycdb package by Michael Tokarev, mjt@corpit.ru.
  * Public domain.
@@ -16,7 +15,7 @@
 #include "common/setup_after.h"
 
 static int
-match(int fd, cdbi_t pos, const char *key, cdbi_t klen)
+match(int fd, unsigned pos, const char *key, unsigned klen)
 {
   unsigned char buf[64]; /*XXX cdb_buf may be used here instead */
   if (lseek(fd, pos, SEEK_SET) < 0 || read(fd, buf, 8) != 8)
@@ -43,7 +42,7 @@ match(int fd, cdbi_t pos, const char *key, cdbi_t klen)
 
 int
 _cdb_make_find(struct cdb_make *cdbmp,
-	       const void *key, cdbi_t klen, cdbi_t hval,
+	       const void *key, unsigned klen, unsigned hval,
 	       struct cdb_rl **rlp)
 {
   struct cdb_rl *rl = cdbmp->cdb_rec[hval&255];
@@ -84,8 +83,7 @@ _cdb_make_find(struct cdb_make *cdbmp,
 
 int
 cdb_make_exists(struct cdb_make *cdbmp,
-                const void *key, cdbi_t klen)
+                const void *key, unsigned klen)
 {
   return _cdb_make_find(cdbmp, key, klen, cdb_hash(key, klen), NULL);
 }
-

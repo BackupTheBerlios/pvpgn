@@ -1,5 +1,4 @@
-/* $Id: cdb_int.h,v 1.1 2003/07/30 20:04:42 dizzy Exp $
- * internal cdb library declarations
+/* internal cdb library declarations
  *
  * This file is a part of tinycdb package by Michael Tokarev, mjt@corpit.ru.
  * Public domain.
@@ -40,4 +39,3 @@ int _cdb_make_find(struct cdb_make *cdbmp,
 		   struct cdb_rl **rlp);
 int _cdb_make_write(struct cdb_make *cdbmp,
 		    const char *ptr, cdbi_t len);
-

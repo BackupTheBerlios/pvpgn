@@ -1,5 +1,4 @@
-/* $Id: cdb_make_add.c,v 1.2 2003/07/30 21:12:31 dizzy Exp $
- * basic cdb_make_add routine
+/* basic cdb_make_add routine
  *
  * This file is a part of tinycdb package by Michael Tokarev, mjt@corpit.ru.
  * Public domain.
@@ -18,25 +17,21 @@
 
 int
 cdb_make_add(struct cdb_make *cdbmp,
-	     const void *key, cdbi_t klen,
-	     const void *val, cdbi_t vlen)
+	     const void *key, unsigned klen,
+	     const void *val, unsigned vlen)
 {
   unsigned char rlen[8];
-  cdbi_t hval;
+  unsigned hval;
   struct cdb_rl *rl;
   if (klen > 0xffffffff - (cdbmp->cdb_dpos + 8) ||
-      vlen > 0xffffffff - (cdbmp->cdb_dpos + klen + 8)) {
-    errno = ENOMEM;
-    return -1;
-  }
+      vlen > 0xffffffff - (cdbmp->cdb_dpos + klen + 8))
+    return errno = ENOMEM, -1;
   hval = cdb_hash(key, klen);
   rl = cdbmp->cdb_rec[hval&255];
   if (!rl || rl->cnt >= sizeof(rl->rec)/sizeof(rl->rec[0])) {
     rl = (struct cdb_rl*)malloc(sizeof(struct cdb_rl));
-    if (!rl) {
-      errno = ENOMEM;
-      return -1;
-    }
+    if (!rl)
+      return errno = ENOMEM, -1;
     rl->cnt = 0;
     rl->next = cdbmp->cdb_rec[hval&255];
     cdbmp->cdb_rec[hval&255] = rl;

@@ -1,5 +1,4 @@
-/* $Id: cdb_make_put.c,v 1.2 2003/07/30 21:12:31 dizzy Exp $
- * "advanced" cdb_make_put routine
+/* "advanced" cdb_make_put routine
  *
  * This file is a part of tinycdb package by Michael Tokarev, mjt@corpit.ru.
  * Public domain.
@@ -18,12 +17,12 @@
 
 int
 cdb_make_put(struct cdb_make *cdbmp,
-	     const void *key, cdbi_t klen,
-	     const void *val, cdbi_t vlen,
+	     const void *key, unsigned klen,
+	     const void *val, unsigned vlen,
 	     int flags)
 {
   unsigned char rlen[8];
-  cdbi_t hval = cdb_hash(key, klen);
+  unsigned hval = cdb_hash(key, klen);
   struct cdb_rl *rl;
   int c, r;
 
@@ -35,10 +34,8 @@ cdb_make_put(struct cdb_make *cdbmp,
       if (c < 0)
 	return -1;
       if (c) {
-	if (flags == CDB_PUT_INSERT) {
-	  errno = EEXIST;
-	  return 1;
-	}
+	if (flags == CDB_PUT_INSERT)
+	  return errno = EEXIST, 1;
 	else if (flags == CDB_PUT_REPLACE) {
 	  --c;
 	  r = 1;
@@ -53,10 +50,8 @@ cdb_make_put(struct cdb_make *cdbmp,
       rl = cdbmp->cdb_rec[hval&255];
       if (!rl || rl->cnt >= sizeof(rl->rec)/sizeof(rl->rec[0])) {
  	rl = (struct cdb_rl*)malloc(sizeof(struct cdb_rl));
-	if (!rl) {
-	  errno = ENOMEM;
-	  return -1;
-	}
+	if (!rl)
+	  return errno = ENOMEM, -1;
 	rl->cnt = 0;
 	rl->next = cdbmp->cdb_rec[hval&255];
 	cdbmp->cdb_rec[hval&255] = rl;
@@ -66,18 +61,15 @@ cdb_make_put(struct cdb_make *cdbmp,
       break;
 
     default:
-      errno = EINVAL;
-      return -1;
+      return errno = EINVAL, -1;
   }
 
   if (klen > 0xffffffff - (cdbmp->cdb_dpos + 8) ||
-      vlen > 0xffffffff - (cdbmp->cdb_dpos + klen + 8)) {
-    errno = ENOMEM;
-    return -1;
-  }
+      vlen > 0xffffffff - (cdbmp->cdb_dpos + klen + 8))
+    return errno = ENOMEM, -1;
   rl->rec[c].hval = hval;
   rl->rec[c].rpos = cdbmp->cdb_dpos;
-  if (c == rl->cnt) {
+  if ((unsigned)c == rl->cnt) {
     ++rl->cnt;
     ++cdbmp->cdb_rcnt;
   }
@@ -89,4 +81,3 @@ cdb_make_put(struct cdb_make *cdbmp,
     return -1;
   return r;
 }
-
