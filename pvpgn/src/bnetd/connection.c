@@ -2131,17 +2131,6 @@ extern void conn_set_in_size(t_connection * c, unsigned int size)
 }
 
 
-extern t_queue * * conn_get_out_queue(t_connection * c)
-{
-    if (!c)
-    {
-        eventlog(eventlog_level_error,"conn_get_out_queue","got NULL connection");
-        return NULL;
-    }
-    return &c->protocol.queues.outqueue;
-}
-
-
 extern unsigned int conn_get_out_size(t_connection const * c)
 {
     if (!c)

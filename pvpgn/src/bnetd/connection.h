@@ -314,7 +314,6 @@ extern t_packet * conn_get_in_queue(t_connection * c) ;
 extern void conn_put_in_queue(t_connection * c, t_packet *packet) ;
 extern unsigned int conn_get_in_size(t_connection const * c) ;
 extern void conn_set_in_size(t_connection * c, unsigned int size);
-extern t_queue * * conn_get_out_queue(t_connection * c) ;
 extern unsigned int conn_get_out_size(t_connection const * c) ;
 extern void conn_set_out_size(t_connection * c, unsigned int size);
 extern int conn_push_outqueue(t_connection * c, t_packet * packet);
