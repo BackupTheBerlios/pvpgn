@@ -88,7 +88,6 @@ static int anongame_infos_URL_destroy(char ** anongame_infos_URL)
         if (anongame_infos_URL[i])
 	{
             xfree((void *)anongame_infos_URL[i]);
-	    anongame_infos_URL[i] = NULL;
 	}
     }
 
@@ -99,58 +98,28 @@ static int anongame_infos_URL_destroy(char ** anongame_infos_URL)
 
 static t_anongame_infos_DESC *anongame_infos_DESC_init(void)
 {
+    int i;
+    char ** descs;
     t_anongame_infos_DESC *anongame_infos_DESC;
 
     anongame_infos_DESC = xmalloc(sizeof(t_anongame_infos_DESC));
 
     anongame_infos_DESC->langID = NULL;
+    descs = xmalloc(sizeof(char *)*anongame_infos_DESC_count);
 
-    anongame_infos_DESC->ladder_PG_1v1_desc = NULL;
-    anongame_infos_DESC->ladder_PG_ffa_desc = NULL;
-    anongame_infos_DESC->ladder_PG_team_desc = NULL;
+    for (i=0; i<anongame_infos_DESC_count; i++)
+        descs[i] = NULL;
 
-    anongame_infos_DESC->ladder_AT_2v2_desc = NULL;
-    anongame_infos_DESC->ladder_AT_3v3_desc = NULL;
-    anongame_infos_DESC->ladder_AT_4v4_desc = NULL;
-
-    anongame_infos_DESC->ladder_clan_1v1_desc = NULL;
-    anongame_infos_DESC->ladder_clan_2v2_desc = NULL;
-    anongame_infos_DESC->ladder_clan_3v3_desc = NULL;
-    anongame_infos_DESC->ladder_clan_4v4_desc = NULL;
-
-    anongame_infos_DESC->gametype_1v1_short = NULL;
-    anongame_infos_DESC->gametype_1v1_long = NULL;
-    anongame_infos_DESC->gametype_2v2_short = NULL;
-    anongame_infos_DESC->gametype_2v2_long = NULL;
-    anongame_infos_DESC->gametype_3v3_short = NULL;
-    anongame_infos_DESC->gametype_3v3_long = NULL;
-    anongame_infos_DESC->gametype_4v4_short = NULL;
-    anongame_infos_DESC->gametype_4v4_long = NULL;
-    anongame_infos_DESC->gametype_sffa_short = NULL;
-    anongame_infos_DESC->gametype_sffa_long = NULL;
-    anongame_infos_DESC->gametype_tffa_short = NULL;
-    anongame_infos_DESC->gametype_tffa_long = NULL;
-    anongame_infos_DESC->gametype_2v2v2_short = NULL;
-    anongame_infos_DESC->gametype_2v2v2_long = NULL;
-    anongame_infos_DESC->gametype_3v3v3_short = NULL;
-    anongame_infos_DESC->gametype_3v3v3_long = NULL;
-    anongame_infos_DESC->gametype_4v4v4_short = NULL;
-    anongame_infos_DESC->gametype_4v4v4_long = NULL;
-    anongame_infos_DESC->gametype_2v2v2v2_short = NULL;
-    anongame_infos_DESC->gametype_2v2v2v2_long = NULL;
-    anongame_infos_DESC->gametype_3v3v3v3_short = NULL;
-    anongame_infos_DESC->gametype_3v3v3v3_long = NULL;
-    anongame_infos_DESC->gametype_5v5_short = NULL;
-    anongame_infos_DESC->gametype_5v5_long = NULL;
-    anongame_infos_DESC->gametype_6v6_short = NULL;
-    anongame_infos_DESC->gametype_6v6_long = NULL;
-
+    anongame_infos_DESC->descs = descs;
 
     return anongame_infos_DESC;
 }
 
 static int anongame_infos_DESC_destroy(t_anongame_infos_DESC * anongame_infos_DESC)
 {
+    int i;
+    char ** descs;
+    
     if (!(anongame_infos_DESC))
     {
 	eventlog(eventlog_level_error, __FUNCTION__, "got NULL anongame_infos_DESC");
@@ -159,82 +128,15 @@ static int anongame_infos_DESC_destroy(t_anongame_infos_DESC * anongame_infos_DE
 
     if (anongame_infos_DESC->langID)
 	xfree((void *) anongame_infos_DESC->langID);
-    if (anongame_infos_DESC->ladder_PG_1v1_desc)
-	xfree((void *) anongame_infos_DESC->ladder_PG_1v1_desc);
-    if (anongame_infos_DESC->ladder_PG_ffa_desc)
-	xfree((void *) anongame_infos_DESC->ladder_PG_ffa_desc);
-    if (anongame_infos_DESC->ladder_PG_team_desc)
-	xfree((void *) anongame_infos_DESC->ladder_PG_team_desc);
-
-    if (anongame_infos_DESC->ladder_AT_2v2_desc)
-	xfree((void *) anongame_infos_DESC->ladder_AT_2v2_desc);
-    if (anongame_infos_DESC->ladder_AT_3v3_desc)
-	xfree((void *) anongame_infos_DESC->ladder_AT_3v3_desc);
-    if (anongame_infos_DESC->ladder_AT_4v4_desc)
-	xfree((void *) anongame_infos_DESC->ladder_AT_4v4_desc);
-
-    if (anongame_infos_DESC->ladder_clan_1v1_desc)
-	xfree((void *) anongame_infos_DESC->ladder_clan_1v1_desc);
-    if (anongame_infos_DESC->ladder_clan_2v2_desc)
-	xfree((void *) anongame_infos_DESC->ladder_clan_2v2_desc);
-    if (anongame_infos_DESC->ladder_clan_3v3_desc)
-	xfree((void *) anongame_infos_DESC->ladder_clan_3v3_desc);
-    if (anongame_infos_DESC->ladder_clan_4v4_desc)
-	xfree((void *) anongame_infos_DESC->ladder_clan_4v4_desc);
-
-    if (anongame_infos_DESC->gametype_1v1_short)
-	xfree((void *) anongame_infos_DESC->gametype_1v1_short);
-    if (anongame_infos_DESC->gametype_1v1_long)
-	xfree((void *) anongame_infos_DESC->gametype_1v1_long);
-    if (anongame_infos_DESC->gametype_2v2_short)
-	xfree((void *) anongame_infos_DESC->gametype_2v2_short);
-    if (anongame_infos_DESC->gametype_2v2_long)
-	xfree((void *) anongame_infos_DESC->gametype_2v2_long);
-    if (anongame_infos_DESC->gametype_3v3_short)
-	xfree((void *) anongame_infos_DESC->gametype_3v3_short);
-    if (anongame_infos_DESC->gametype_3v3_long)
-	xfree((void *) anongame_infos_DESC->gametype_3v3_long);
-    if (anongame_infos_DESC->gametype_4v4_short)
-	xfree((void *) anongame_infos_DESC->gametype_4v4_short);
-    if (anongame_infos_DESC->gametype_4v4_long)
-	xfree((void *) anongame_infos_DESC->gametype_4v4_long);
-    if (anongame_infos_DESC->gametype_sffa_short)
-	xfree((void *) anongame_infos_DESC->gametype_sffa_short);
-    if (anongame_infos_DESC->gametype_sffa_long)
-	xfree((void *) anongame_infos_DESC->gametype_sffa_long);
-    if (anongame_infos_DESC->gametype_tffa_short)
-	xfree((void *) anongame_infos_DESC->gametype_tffa_short);
-    if (anongame_infos_DESC->gametype_tffa_long)
-	xfree((void *) anongame_infos_DESC->gametype_tffa_long);
-    if (anongame_infos_DESC->gametype_2v2v2_short)
-	xfree((void *) anongame_infos_DESC->gametype_2v2v2_short);
-    if (anongame_infos_DESC->gametype_2v2v2_long)
-	xfree((void *) anongame_infos_DESC->gametype_2v2v2_long);
-    if (anongame_infos_DESC->gametype_3v3v3_short)
-	xfree((void *) anongame_infos_DESC->gametype_3v3v3_short);
-    if (anongame_infos_DESC->gametype_3v3v3_long)
-	xfree((void *) anongame_infos_DESC->gametype_3v3v3_long);
-    if (anongame_infos_DESC->gametype_4v4v4_short)
-	xfree((void *) anongame_infos_DESC->gametype_4v4v4_short);
-    if (anongame_infos_DESC->gametype_4v4v4_long)
-	xfree((void *) anongame_infos_DESC->gametype_4v4v4_long);
-    if (anongame_infos_DESC->gametype_2v2v2v2_short)
-	xfree((void *) anongame_infos_DESC->gametype_2v2v2v2_short);
-    if (anongame_infos_DESC->gametype_2v2v2v2_long)
-	xfree((void *) anongame_infos_DESC->gametype_2v2v2v2_long);
-    if (anongame_infos_DESC->gametype_3v3v3v3_short)
-	xfree((void *) anongame_infos_DESC->gametype_3v3v3v3_short);
-    if (anongame_infos_DESC->gametype_3v3v3v3_long)
-	xfree((void *) anongame_infos_DESC->gametype_3v3v3v3_long);
-    if (anongame_infos_DESC->gametype_5v5_short)
-	xfree((void *) anongame_infos_DESC->gametype_5v5_short);
-    if (anongame_infos_DESC->gametype_5v5_long)
-	xfree((void *) anongame_infos_DESC->gametype_5v5_long);
-    if (anongame_infos_DESC->gametype_6v6_short)
-	xfree((void *) anongame_infos_DESC->gametype_6v6_short);
-    if (anongame_infos_DESC->gametype_6v6_long)
-	xfree((void *) anongame_infos_DESC->gametype_6v6_long);
-
+    if ((descs = anongame_infos_DESC->descs))
+    {
+        for (i=0; i<anongame_infos_DESC_count; i++)
+        {
+            if ((descs[i]))
+                free((void *)descs[i]);
+	}
+	xfree((void *)descs);
+    }
 
     xfree((void *) anongame_infos_DESC);
 
@@ -685,401 +587,23 @@ extern char *anongame_infos_URL_get_URL(int member)
 }
 
 
-static int anongame_infos_DESC_set_ladder_PG_1v1_desc(t_anongame_infos_DESC * anongame_infos_DESC, char *ladder_PG_1v1_desc)
+static int anongame_infos_DESC_set_DESC(t_anongame_infos_DESC * anongame_infos_DESC, int member, char *DESC)
 {
+    char ** descs;
+    
     if (!(anongame_infos_DESC))
     {
 	eventlog(eventlog_level_error, __FUNCTION__, "got NULL anongame_infos_DESC");
 	return -1;
     }
 
-    return anongame_infos_set_str(&anongame_infos_DESC->ladder_PG_1v1_desc, ladder_PG_1v1_desc, "ladder_PG_1v1_desc");
-}
-static int anongame_infos_DESC_set_ladder_PG_ffa_desc(t_anongame_infos_DESC * anongame_infos_DESC, char *ladder_PG_ffa_desc)
-{
-    if (!(anongame_infos_DESC))
+    if (!(descs = anongame_infos_DESC->descs))
     {
-	eventlog(eventlog_level_error, __FUNCTION__, "got NULL anongame_infos_DESC");
+	eventlog(eventlog_level_error, __FUNCTION__, "anongame_infos_DESC had NULL descs");
 	return -1;
     }
 
-    return anongame_infos_set_str(&anongame_infos_DESC->ladder_PG_ffa_desc, ladder_PG_ffa_desc, "ladder_PG_ffa_desc");
-}
-
-static int anongame_infos_DESC_set_ladder_PG_team_desc(t_anongame_infos_DESC * anongame_infos_DESC, char *ladder_PG_team_desc)
-{
-    if (!(anongame_infos_DESC))
-    {
-	eventlog(eventlog_level_error, __FUNCTION__, "got NULL anongame_infos_DESC");
-	return -1;
-    }
-
-    return anongame_infos_set_str(&anongame_infos_DESC->ladder_PG_team_desc, ladder_PG_team_desc, "ladder_PG_team_desc");
-}
-static int anongame_infos_DESC_set_ladder_AT_2v2_desc(t_anongame_infos_DESC * anongame_infos_DESC, char *ladder_AT_2v2_desc)
-{
-    if (!(anongame_infos_DESC))
-    {
-	eventlog(eventlog_level_error, __FUNCTION__, "got NULL anongame_infos_DESC");
-	return -1;
-    }
-
-    return anongame_infos_set_str(&anongame_infos_DESC->ladder_AT_2v2_desc, ladder_AT_2v2_desc, "ladder_AT_2v2_desc");
-}
-
-static int anongame_infos_DESC_set_ladder_AT_3v3_desc(t_anongame_infos_DESC * anongame_infos_DESC, char *ladder_AT_3v3_desc)
-{
-    if (!(anongame_infos_DESC))
-    {
-	eventlog(eventlog_level_error, __FUNCTION__, "got NULL anongame_infos_DESC");
-	return -1;
-    }
-
-    return anongame_infos_set_str(&anongame_infos_DESC->ladder_AT_3v3_desc, ladder_AT_3v3_desc, "ladder_AT_3v3_desc");
-}
-
-static int anongame_infos_DESC_set_ladder_AT_4v4_desc(t_anongame_infos_DESC * anongame_infos_DESC, char *ladder_AT_4v4_desc)
-{
-    if (!(anongame_infos_DESC))
-    {
-	eventlog(eventlog_level_error, __FUNCTION__, "got NULL anongame_infos_DESC");
-	return -1;
-    }
-
-    return anongame_infos_set_str(&anongame_infos_DESC->ladder_AT_4v4_desc, ladder_AT_4v4_desc, "ladder_AT_4v4_desc");
-}
-
-static int anongame_infos_DESC_set_ladder_clan_1v1_desc(t_anongame_infos_DESC * anongame_infos_DESC, char *ladder_clan_1v1_desc)
-{
-    if (!(anongame_infos_DESC))
-    {
-	eventlog(eventlog_level_error, __FUNCTION__, "got NULL anongame_infos_DESC");
-	return -1;
-    }
-
-    return anongame_infos_set_str(&anongame_infos_DESC->ladder_clan_1v1_desc, ladder_clan_1v1_desc, "ladder_clan_1v1_desc");
-}
-
-static int anongame_infos_DESC_set_ladder_clan_2v2_desc(t_anongame_infos_DESC * anongame_infos_DESC, char *ladder_clan_2v2_desc)
-{
-    if (!(anongame_infos_DESC))
-    {
-	eventlog(eventlog_level_error, __FUNCTION__, "got NULL anongame_infos_DESC");
-	return -1;
-    }
-
-    return anongame_infos_set_str(&anongame_infos_DESC->ladder_clan_2v2_desc, ladder_clan_2v2_desc, "ladder_clan_2v2_desc");
-}
-
-static int anongame_infos_DESC_set_ladder_clan_3v3_desc(t_anongame_infos_DESC * anongame_infos_DESC, char *ladder_clan_3v3_desc)
-{
-    if (!(anongame_infos_DESC))
-    {
-	eventlog(eventlog_level_error, __FUNCTION__, "got NULL anongame_infos_DESC");
-	return -1;
-    }
-
-    return anongame_infos_set_str(&anongame_infos_DESC->ladder_clan_3v3_desc, ladder_clan_3v3_desc, "ladder_clan_3v3_desc");
-}
-
-static int anongame_infos_DESC_set_ladder_clan_4v4_desc(t_anongame_infos_DESC * anongame_infos_DESC, char *ladder_clan_4v4_desc)
-{
-    if (!(anongame_infos_DESC))
-    {
-	eventlog(eventlog_level_error, __FUNCTION__, "got NULL anongame_infos_DESC");
-	return -1;
-    }
-
-    return anongame_infos_set_str(&anongame_infos_DESC->ladder_clan_4v4_desc, ladder_clan_4v4_desc, "ladder_clan_4v4_desc");
-}
-
-static int anongame_infos_DESC_set_gametype_1v1_short(t_anongame_infos_DESC * anongame_infos_DESC, char *gametype_1v1_short)
-{
-    if (!(anongame_infos_DESC))
-    {
-	eventlog(eventlog_level_error, __FUNCTION__, "got NULL anongame_infos_DESC");
-	return -1;
-    }
-
-    return anongame_infos_set_str(&anongame_infos_DESC->gametype_1v1_short, gametype_1v1_short, "gametype_1v1_short");
-}
-
-static int anongame_infos_DESC_set_gametype_1v1_long(t_anongame_infos_DESC * anongame_infos_DESC, char *gametype_1v1_long)
-{
-    if (!(anongame_infos_DESC))
-    {
-	eventlog(eventlog_level_error, __FUNCTION__, "got NULL anongame_infos_DESC");
-	return -1;
-    }
-
-    return anongame_infos_set_str(&anongame_infos_DESC->gametype_1v1_long, gametype_1v1_long, "gametype_1v1_long");
-}
-
-static int anongame_infos_DESC_set_gametype_2v2_short(t_anongame_infos_DESC * anongame_infos_DESC, char *gametype_2v2_short)
-{
-    if (!(anongame_infos_DESC))
-    {
-	eventlog(eventlog_level_error, __FUNCTION__, "got NULL anongame_infos_DESC");
-	return -1;
-    }
-
-    return anongame_infos_set_str(&anongame_infos_DESC->gametype_2v2_short, gametype_2v2_short, "gametype_2v2_short");
-}
-
-static int anongame_infos_DESC_set_gametype_2v2_long(t_anongame_infos_DESC * anongame_infos_DESC, char *gametype_2v2_long)
-{
-    if (!(anongame_infos_DESC))
-    {
-	eventlog(eventlog_level_error, __FUNCTION__, "got NULL anongame_infos_DESC");
-	return -1;
-    }
-
-    return anongame_infos_set_str(&anongame_infos_DESC->gametype_2v2_long, gametype_2v2_long, "gametype_2v2_long");
-}
-
-static int anongame_infos_DESC_set_gametype_3v3_short(t_anongame_infos_DESC * anongame_infos_DESC, char *gametype_3v3_short)
-{
-    if (!(anongame_infos_DESC))
-    {
-	eventlog(eventlog_level_error, __FUNCTION__, "got NULL anongame_infos_DESC");
-	return -1;
-    }
-
-    return anongame_infos_set_str(&anongame_infos_DESC->gametype_3v3_short, gametype_3v3_short, "gametype_3v3_short");
-}
-
-static int anongame_infos_DESC_set_gametype_3v3_long(t_anongame_infos_DESC * anongame_infos_DESC, char *gametype_3v3_long)
-{
-    if (!(anongame_infos_DESC))
-    {
-	eventlog(eventlog_level_error, __FUNCTION__, "got NULL anongame_infos_DESC");
-	return -1;
-    }
-
-    return anongame_infos_set_str(&anongame_infos_DESC->gametype_3v3_long, gametype_3v3_long, "gametype_3v3_long");
-}
-
-static int anongame_infos_DESC_set_gametype_4v4_short(t_anongame_infos_DESC * anongame_infos_DESC, char *gametype_4v4_short)
-{
-    if (!(anongame_infos_DESC))
-    {
-	eventlog(eventlog_level_error, __FUNCTION__, "got NULL anongame_infos_DESC");
-	return -1;
-    }
-
-    return anongame_infos_set_str(&anongame_infos_DESC->gametype_4v4_short, gametype_4v4_short, "gametype_4v4_short");
-}
-
-static int anongame_infos_DESC_set_gametype_4v4_long(t_anongame_infos_DESC * anongame_infos_DESC, char *gametype_4v4_long)
-{
-    if (!(anongame_infos_DESC))
-    {
-	eventlog(eventlog_level_error, __FUNCTION__, "got NULL anongame_infos_DESC");
-	return -1;
-    }
-
-    return anongame_infos_set_str(&anongame_infos_DESC->gametype_4v4_long, gametype_4v4_long, "gametype_4v4_long");
-}
-
-
-int anongame_infos_DESC_set_gametype_5v5_short(t_anongame_infos_DESC * anongame_infos_DESC, char *gametype_5v5_short)
-{
-    if (!(anongame_infos_DESC))
-    {
-	eventlog(eventlog_level_error, __FUNCTION__, "got NULL anongame_infos_DESC");
-	return -1;
-    }
-
-    return anongame_infos_set_str(&anongame_infos_DESC->gametype_5v5_short, gametype_5v5_short, "gametype_5v5_short");
-}
-
-static int anongame_infos_DESC_set_gametype_5v5_long(t_anongame_infos_DESC * anongame_infos_DESC, char *gametype_5v5_long)
-{
-    if (!(anongame_infos_DESC))
-    {
-	eventlog(eventlog_level_error, __FUNCTION__, "got NULL anongame_infos_DESC");
-	return -1;
-    }
-
-    return anongame_infos_set_str(&anongame_infos_DESC->gametype_5v5_long, gametype_5v5_long, "gametype_5v5_long");
-}
-
-static int anongame_infos_DESC_set_gametype_6v6_short(t_anongame_infos_DESC * anongame_infos_DESC, char *gametype_6v6_short)
-{
-    if (!(anongame_infos_DESC))
-    {
-	eventlog(eventlog_level_error, __FUNCTION__, "got NULL anongame_infos_DESC");
-	return -1;
-    }
-
-    return anongame_infos_set_str(&anongame_infos_DESC->gametype_6v6_short, gametype_6v6_short, "gametype_6v6_short");
-}
-
-static int anongame_infos_DESC_set_gametype_6v6_long(t_anongame_infos_DESC * anongame_infos_DESC, char *gametype_6v6_long)
-{
-    if (!(anongame_infos_DESC))
-    {
-	eventlog(eventlog_level_error, __FUNCTION__, "got NULL anongame_infos_DESC");
-	return -1;
-    }
-
-    return anongame_infos_set_str(&anongame_infos_DESC->gametype_6v6_long, gametype_6v6_long, "gametype_6v6_long");
-}
-
-
-static int anongame_infos_DESC_set_gametype_sffa_short(t_anongame_infos_DESC * anongame_infos_DESC, char *gametype_sffa_short)
-{
-    if (!(anongame_infos_DESC))
-    {
-	eventlog(eventlog_level_error, __FUNCTION__, "got NULL anongame_infos_DESC");
-	return -1;
-    }
-
-    return anongame_infos_set_str(&anongame_infos_DESC->gametype_sffa_short, gametype_sffa_short, "gametype_sffa_short");
-}
-
-static int anongame_infos_DESC_set_gametype_sffa_long(t_anongame_infos_DESC * anongame_infos_DESC, char *gametype_sffa_long)
-{
-    if (!(anongame_infos_DESC))
-    {
-	eventlog(eventlog_level_error, __FUNCTION__, "got NULL anongame_infos_DESC");
-	return -1;
-    }
-
-    return anongame_infos_set_str(&anongame_infos_DESC->gametype_sffa_long, gametype_sffa_long, "gametype_sffa_long");
-}
-
-static int anongame_infos_DESC_set_gametype_tffa_short(t_anongame_infos_DESC * anongame_infos_DESC, char *gametype_tffa_short)
-{
-    if (!(anongame_infos_DESC))
-    {
-	eventlog(eventlog_level_error, __FUNCTION__, "got NULL anongame_infos_DESC");
-	return -1;
-    }
-
-    return anongame_infos_set_str(&anongame_infos_DESC->gametype_tffa_short, gametype_tffa_short, "gametype_tffa_short");
-}
-
-static int anongame_infos_DESC_set_gametype_tffa_long(t_anongame_infos_DESC * anongame_infos_DESC, char *gametype_tffa_long)
-{
-    if (!(anongame_infos_DESC))
-    {
-	eventlog(eventlog_level_error, __FUNCTION__, "got NULL anongame_infos_DESC");
-	return -1;
-    }
-
-    return anongame_infos_set_str(&anongame_infos_DESC->gametype_tffa_long, gametype_tffa_long, "gametype_tffa_long");
-}
-
-static int anongame_infos_DESC_set_gametype_2v2v2_short(t_anongame_infos_DESC * anongame_infos_DESC, char *gametype_2v2v2_short)
-{
-    if (!(anongame_infos_DESC))
-    {
-	eventlog(eventlog_level_error, __FUNCTION__, "got NULL anongame_infos_DESC");
-	return -1;
-    }
-
-    return anongame_infos_set_str(&anongame_infos_DESC->gametype_2v2v2_short, gametype_2v2v2_short, "gametype_2v2v2_short");
-}
-
-static int anongame_infos_DESC_set_gametype_2v2v2_long(t_anongame_infos_DESC * anongame_infos_DESC, char *gametype_2v2v2_long)
-{
-    if (!(anongame_infos_DESC))
-    {
-	eventlog(eventlog_level_error, __FUNCTION__, "got NULL anongame_infos_DESC");
-	return -1;
-    }
-
-    return anongame_infos_set_str(&anongame_infos_DESC->gametype_2v2v2_long, gametype_2v2v2_long, "gametype_2v2v2_long");
-}
-
-
-static int anongame_infos_DESC_set_gametype_3v3v3_short(t_anongame_infos_DESC * anongame_infos_DESC, char *gametype_3v3v3_short)
-{
-    if (!(anongame_infos_DESC))
-    {
-	eventlog(eventlog_level_error, __FUNCTION__, "got NULL anongame_infos_DESC");
-	return -1;
-    }
-
-    return anongame_infos_set_str(&anongame_infos_DESC->gametype_3v3v3_short, gametype_3v3v3_short, "gametype_3v3v3_short");
-}
-
-static int anongame_infos_DESC_set_gametype_3v3v3_long(t_anongame_infos_DESC * anongame_infos_DESC, char *gametype_3v3v3_long)
-{
-    if (!(anongame_infos_DESC))
-    {
-	eventlog(eventlog_level_error, __FUNCTION__, "got NULL anongame_infos_DESC");
-	return -1;
-    }
-
-    return anongame_infos_set_str(&anongame_infos_DESC->gametype_3v3v3_long, gametype_3v3v3_long, "gametype_3v3v3_long");
-}
-
-static int anongame_infos_DESC_set_gametype_4v4v4_short(t_anongame_infos_DESC * anongame_infos_DESC, char *gametype_4v4v4_short)
-{
-    if (!(anongame_infos_DESC))
-    {
-	eventlog(eventlog_level_error, __FUNCTION__, "got NULL anongame_infos_DESC");
-	return -1;
-    }
-
-    return anongame_infos_set_str(&anongame_infos_DESC->gametype_4v4v4_short, gametype_4v4v4_short, "gametype_4v4v4_short");
-}
-
-static int anongame_infos_DESC_set_gametype_4v4v4_long(t_anongame_infos_DESC * anongame_infos_DESC, char *gametype_4v4v4_long)
-{
-    if (!(anongame_infos_DESC))
-    {
-	eventlog(eventlog_level_error, __FUNCTION__, "got NULL anongame_infos_DESC");
-	return -1;
-    }
-
-    return anongame_infos_set_str(&anongame_infos_DESC->gametype_4v4v4_long, gametype_4v4v4_long, "gametype_4v4v4_long");
-}
-
-static int anongame_infos_DESC_set_gametype_2v2v2v2_short(t_anongame_infos_DESC * anongame_infos_DESC, char *gametype_2v2v2v2_short)
-{
-    if (!(anongame_infos_DESC))
-    {
-	eventlog(eventlog_level_error, __FUNCTION__, "got NULL anongame_infos_DESC");
-	return -1;
-    }
-
-    return anongame_infos_set_str(&anongame_infos_DESC->gametype_2v2v2v2_short, gametype_2v2v2v2_short, "gametype_2v2v2v2_short");
-}
-
-static int anongame_infos_DESC_set_gametype_2v2v2v2_long(t_anongame_infos_DESC * anongame_infos_DESC, char *gametype_2v2v2v2_long)
-{
-    if (!(anongame_infos_DESC))
-    {
-	eventlog(eventlog_level_error, __FUNCTION__, "got NULL anongame_infos_DESC");
-	return -1;
-    }
-
-    return anongame_infos_set_str(&anongame_infos_DESC->gametype_2v2v2v2_long, gametype_2v2v2v2_long, "gametype_2v2v2v2_long");
-}
-
-static int anongame_infos_DESC_set_gametype_3v3v3v3_short(t_anongame_infos_DESC * anongame_infos_DESC, char *gametype_3v3v3v3_short)
-{
-    if (!(anongame_infos_DESC))
-    {
-	eventlog(eventlog_level_error, __FUNCTION__, "got NULL anongame_infos_DESC");
-	return -1;
-    }
-
-    return anongame_infos_set_str(&anongame_infos_DESC->gametype_3v3v3v3_short, gametype_3v3v3v3_short, "gametype_3v3v3v3_short");
-}
-
-static int anongame_infos_DESC_set_gametype_3v3v3v3_long(t_anongame_infos_DESC * anongame_infos_DESC, char *gametype_3v3v3v3_long)
-{
-    if (!(anongame_infos_DESC))
-    {
-	eventlog(eventlog_level_error, __FUNCTION__, "got NULL anongame_infos_DESC");
-	return -1;
-    }
-
-    return anongame_infos_set_str(&anongame_infos_DESC->gametype_3v3v3v3_long, gametype_3v3v3v3_long, "gametype_3v3v3v3_long");
+    return anongame_infos_set_str(&descs[member], DESC, "DESC");
 }
 
 static t_anongame_infos_DESC *anongame_infos_get_anongame_infos_DESC_by_langID(t_anongame_infos * anongame_infos, char *langID)
@@ -1116,461 +640,154 @@ static t_anongame_infos_DESC *anongame_infos_get_anongame_infos_DESC_by_langID(t
     return anongame_infos->anongame_infos_DESC;
 }
 
-extern char *anongame_infos_DESC_get_ladder_PG_1v1_desc(char *langID)
+extern char *anongame_infos_DESC_get_DESC(char *langID, int member)
 {
     char *result;
+    t_anongame_infos_DESC * DESC;
 
-    if ((result = ((anongame_infos_get_anongame_infos_DESC_by_langID(anongame_infos, langID))->ladder_PG_1v1_desc)))
+    if ((DESC = anongame_infos_get_anongame_infos_DESC_by_langID(anongame_infos, langID)))
+      if ((DESC->descs) && (result = DESC->descs[member]))
 	return result;
-    else
-	return anongame_infos->anongame_infos_DESC->ladder_PG_1v1_desc;
-
-}
-
-extern char *anongame_infos_DESC_get_ladder_PG_ffa_desc(char *langID)
-{
-    char *result;
-
-    if ((result = ((anongame_infos_get_anongame_infos_DESC_by_langID(anongame_infos, langID))->ladder_PG_ffa_desc)))
+	
+    if ((DESC = anongame_infos->anongame_infos_DESC))
+      if ((DESC->descs) && (result = DESC->descs[member]))
 	return result;
-    else
-	return anongame_infos->anongame_infos_DESC->ladder_PG_ffa_desc;
-}
 
-extern char *anongame_infos_DESC_get_ladder_PG_team_desc(char *langID)
-{
-    char *result;
-
-    if ((result = ((anongame_infos_get_anongame_infos_DESC_by_langID(anongame_infos, langID))->ladder_PG_team_desc)))
-	return result;
-    else
-	return anongame_infos->anongame_infos_DESC->ladder_PG_team_desc;
-}
-
-extern char *anongame_infos_DESC_get_ladder_AT_2v2_desc(char *langID)
-{
-    char *result;
-
-    if ((result = ((anongame_infos_get_anongame_infos_DESC_by_langID(anongame_infos, langID))->ladder_AT_2v2_desc)))
-	return result;
-    else
-	return anongame_infos->anongame_infos_DESC->ladder_AT_2v2_desc;
-}
-
-extern char *anongame_infos_DESC_get_ladder_AT_3v3_desc(char *langID)
-{
-    char *result;
-
-    if ((result = ((anongame_infos_get_anongame_infos_DESC_by_langID(anongame_infos, langID))->ladder_AT_3v3_desc)))
-	return result;
-    else
-	return anongame_infos->anongame_infos_DESC->ladder_AT_3v3_desc;
-}
-
-extern char *anongame_infos_DESC_get_ladder_AT_4v4_desc(char *langID)
-{
-    char *result;
-
-    if ((result = ((anongame_infos_get_anongame_infos_DESC_by_langID(anongame_infos, langID))->ladder_AT_4v4_desc)))
-	return result;
-    else
-	return anongame_infos->anongame_infos_DESC->ladder_AT_4v4_desc;
-}
-
-extern char *anongame_infos_DESC_get_ladder_clan_1v1_desc(char *langID)
-{
-    char *result;
-
-    if ((result = ((anongame_infos_get_anongame_infos_DESC_by_langID(anongame_infos, langID))->ladder_clan_1v1_desc)))
-	return result;
-    else
-	return anongame_infos->anongame_infos_DESC->ladder_clan_1v1_desc;
-}
-
-extern char *anongame_infos_DESC_get_ladder_clan_2v2_desc(char *langID)
-{
-    char *result;
-
-    if ((result = ((anongame_infos_get_anongame_infos_DESC_by_langID(anongame_infos, langID))->ladder_clan_2v2_desc)))
-	return result;
-    else
-	return anongame_infos->anongame_infos_DESC->ladder_clan_2v2_desc;
-}
-
-extern char *anongame_infos_DESC_get_ladder_clan_3v3_desc(char *langID)
-{
-    char *result;
-
-    if ((result = ((anongame_infos_get_anongame_infos_DESC_by_langID(anongame_infos, langID))->ladder_clan_3v3_desc)))
-	return result;
-    else
-	return anongame_infos->anongame_infos_DESC->ladder_clan_3v3_desc;
-}
-
-extern char *anongame_infos_DESC_get_ladder_clan_4v4_desc(char *langID)
-{
-    char *result;
-
-    if ((result = ((anongame_infos_get_anongame_infos_DESC_by_langID(anongame_infos, langID))->ladder_clan_4v4_desc)))
-	return result;
-    else
-	return anongame_infos->anongame_infos_DESC->ladder_clan_4v4_desc;
-}
-
-/**********/
-
-static char *anongame_infos_DESC_get_gametype_1v1_short(char *langID)
-{
-    char *result;
-
-    if ((result = ((anongame_infos_get_anongame_infos_DESC_by_langID(anongame_infos, langID))->gametype_1v1_short)))
-	return result;
-    else
-	return anongame_infos->anongame_infos_DESC->gametype_1v1_short;
-}
-
-static char *anongame_infos_DESC_get_gametype_1v1_long(char *langID)
-{
-    char *result;
-
-    if ((result = ((anongame_infos_get_anongame_infos_DESC_by_langID(anongame_infos, langID))->gametype_1v1_long)))
-	return result;
-    else
-	return anongame_infos->anongame_infos_DESC->gametype_2v2_long;
-}
-
-static char *anongame_infos_DESC_get_gametype_2v2_short(char *langID)
-{
-    char *result;
-
-    if ((result = ((anongame_infos_get_anongame_infos_DESC_by_langID(anongame_infos, langID))->gametype_2v2_short)))
-	return result;
-    else
-	return anongame_infos->anongame_infos_DESC->gametype_2v2_short;
-}
-
-static char *anongame_infos_DESC_get_gametype_2v2_long(char *langID)
-{
-    char *result;
-
-    if ((result = ((anongame_infos_get_anongame_infos_DESC_by_langID(anongame_infos, langID))->gametype_2v2_long)))
-	return result;
-    else
-	return anongame_infos->anongame_infos_DESC->gametype_2v2_long;
-}
-
-static char *anongame_infos_DESC_get_gametype_3v3_short(char *langID)
-{
-    char *result;
-
-    if ((result = ((anongame_infos_get_anongame_infos_DESC_by_langID(anongame_infos, langID))->gametype_3v3_short)))
-	return result;
-    else
-	return anongame_infos->anongame_infos_DESC->gametype_3v3_short;
-}
-
-static char *anongame_infos_DESC_get_gametype_3v3_long(char *langID)
-{
-    char *result;
-
-    if ((result = ((anongame_infos_get_anongame_infos_DESC_by_langID(anongame_infos, langID))->gametype_3v3_long)))
-	return result;
-    else
-	return anongame_infos->anongame_infos_DESC->gametype_3v3_long;
-}
-
-static char *anongame_infos_DESC_get_gametype_4v4_short(char *langID)
-{
-    char *result;
-
-    if ((result = ((anongame_infos_get_anongame_infos_DESC_by_langID(anongame_infos, langID))->gametype_4v4_short)))
-	return result;
-    else
-	return anongame_infos->anongame_infos_DESC->gametype_4v4_short;
-}
-
-static char *anongame_infos_DESC_get_gametype_4v4_long(char *langID)
-{
-    char *result;
-
-    if ((result = ((anongame_infos_get_anongame_infos_DESC_by_langID(anongame_infos, langID))->gametype_4v4_long)))
-	return result;
-    else
-	return anongame_infos->anongame_infos_DESC->gametype_4v4_long;
-}
-
-static char *anongame_infos_DESC_get_gametype_5v5_short(char *langID)
-{
-    char *result;
-
-    if ((result = ((anongame_infos_get_anongame_infos_DESC_by_langID(anongame_infos, langID))->gametype_5v5_short)))
-	return result;
-    else
-	return anongame_infos->anongame_infos_DESC->gametype_5v5_short;
-}
-
-static char *anongame_infos_DESC_get_gametype_5v5_long(char *langID)
-{
-    char *result;
-
-    if ((result = ((anongame_infos_get_anongame_infos_DESC_by_langID(anongame_infos, langID))->gametype_5v5_long)))
-	return result;
-    else
-	return anongame_infos->anongame_infos_DESC->gametype_5v5_long;
-}
-
-static char *anongame_infos_DESC_get_gametype_6v6_short(char *langID)
-{
-    char *result;
-
-    if ((result = ((anongame_infos_get_anongame_infos_DESC_by_langID(anongame_infos, langID))->gametype_6v6_short)))
-	return result;
-    else
-	return anongame_infos->anongame_infos_DESC->gametype_6v6_short;
-}
-
-static char *anongame_infos_DESC_get_gametype_6v6_long(char *langID)
-{
-    char *result;
-
-    if ((result = ((anongame_infos_get_anongame_infos_DESC_by_langID(anongame_infos, langID))->gametype_6v6_long)))
-	return result;
-    else
-	return anongame_infos->anongame_infos_DESC->gametype_6v6_long;
-}
-
-static char *anongame_infos_DESC_get_gametype_sffa_short(char *langID)
-{
-    char *result;
-
-    if ((result = ((anongame_infos_get_anongame_infos_DESC_by_langID(anongame_infos, langID))->gametype_sffa_short)))
-	return result;
-    else
-	return anongame_infos->anongame_infos_DESC->gametype_sffa_short;
-}
-
-static char *anongame_infos_DESC_get_gametype_sffa_long(char *langID)
-{
-    char *result;
-
-    if ((result = ((anongame_infos_get_anongame_infos_DESC_by_langID(anongame_infos, langID))->gametype_sffa_long)))
-	return result;
-    else
-	return anongame_infos->anongame_infos_DESC->gametype_sffa_long;
-}
-
-static char *anongame_infos_DESC_get_gametype_tffa_short(char *langID)
-{
-    char *result;
-
-    if ((result = ((anongame_infos_get_anongame_infos_DESC_by_langID(anongame_infos, langID))->gametype_tffa_short)))
-	return result;
-    else
-	return anongame_infos->anongame_infos_DESC->gametype_tffa_short;
-}
-
-static char *anongame_infos_DESC_get_gametype_tffa_long(char *langID)
-{
-    char *result;
-
-    if ((result = ((anongame_infos_get_anongame_infos_DESC_by_langID(anongame_infos, langID))->gametype_tffa_long)))
-	return result;
-    else
-	return anongame_infos->anongame_infos_DESC->gametype_tffa_long;
-}
-
-static char *anongame_infos_DESC_get_gametype_2v2v2_short(char *langID)
-{
-    char *result;
-
-    if ((result = ((anongame_infos_get_anongame_infos_DESC_by_langID(anongame_infos, langID))->gametype_2v2v2_short)))
-	return result;
-    else
-	return anongame_infos->anongame_infos_DESC->gametype_2v2v2_short;
-}
-
-static char *anongame_infos_DESC_get_gametype_2v2v2_long(char *langID)
-{
-    char *result;
-
-    if ((result = ((anongame_infos_get_anongame_infos_DESC_by_langID(anongame_infos, langID))->gametype_2v2v2_long)))
-	return result;
-    else
-	return anongame_infos->anongame_infos_DESC->gametype_2v2v2_long;
-}
-
-static char *anongame_infos_DESC_get_gametype_3v3v3_short(char *langID)
-{
-    char *result;
-
-    if ((result = ((anongame_infos_get_anongame_infos_DESC_by_langID(anongame_infos, langID))->gametype_3v3v3_short)))
-	return result;
-    else
-	return anongame_infos->anongame_infos_DESC->gametype_3v3v3_short;
-}
-
-static char *anongame_infos_DESC_get_gametype_3v3v3_long(char *langID)
-{
-    char *result;
-
-    if ((result = ((anongame_infos_get_anongame_infos_DESC_by_langID(anongame_infos, langID))->gametype_3v3v3_long)))
-	return result;
-    else
-	return anongame_infos->anongame_infos_DESC->gametype_3v3v3_long;
-}
-
-static char *anongame_infos_DESC_get_gametype_4v4v4_short(char *langID)
-{
-    char *result;
-
-    if ((result = ((anongame_infos_get_anongame_infos_DESC_by_langID(anongame_infos, langID))->gametype_4v4v4_short)))
-	return result;
-    else
-	return anongame_infos->anongame_infos_DESC->gametype_4v4v4_short;
-}
-
-static char *anongame_infos_DESC_get_gametype_4v4v4_long(char *langID)
-{
-    char *result;
-
-    if ((result = ((anongame_infos_get_anongame_infos_DESC_by_langID(anongame_infos, langID))->gametype_4v4v4_long)))
-	return result;
-    else
-	return anongame_infos->anongame_infos_DESC->gametype_4v4v4_long;
-}
-
-static char *anongame_infos_DESC_get_gametype_2v2v2v2_short(char *langID)
-{
-    char *result;
-
-    if ((result = ((anongame_infos_get_anongame_infos_DESC_by_langID(anongame_infos, langID))->gametype_2v2v2v2_short)))
-	return result;
-    else
-	return anongame_infos->anongame_infos_DESC->gametype_2v2v2v2_short;
-}
-
-static char *anongame_infos_DESC_get_gametype_2v2v2v2_long(char *langID)
-{
-    char *result;
-
-    if ((result = ((anongame_infos_get_anongame_infos_DESC_by_langID(anongame_infos, langID))->gametype_2v2v2v2_long)))
-	return result;
-    else
-	return anongame_infos->anongame_infos_DESC->gametype_2v2v2v2_long;
-}
-
-static char *anongame_infos_DESC_get_gametype_3v3v3v3_short(char *langID)
-{
-    char *result;
-
-    if ((result = ((anongame_infos_get_anongame_infos_DESC_by_langID(anongame_infos, langID))->gametype_3v3v3v3_short)))
-	return result;
-    else
-	return anongame_infos->anongame_infos_DESC->gametype_3v3v3v3_short;
-}
-
-static char *anongame_infos_DESC_get_gametype_3v3v3v3_long(char *langID)
-{
-    char *result;
-
-    if ((result = ((anongame_infos_get_anongame_infos_DESC_by_langID(anongame_infos, langID))->gametype_3v3v3v3_long)))
-	return result;
-    else
-	return anongame_infos->anongame_infos_DESC->gametype_3v3v3v3_long;
+    return NULL;
 }
 
 
 /**********/
 extern char *anongame_infos_get_short_desc(char *langID, int queue)
 {
+    int member = 0;
+    
     switch (queue)
     {
     case ANONGAME_TYPE_1V1:
-	return anongame_infos_DESC_get_gametype_1v1_short(langID);
+	member = gametype_1v1_short;
+	break;
     case ANONGAME_TYPE_2V2:
-	return anongame_infos_DESC_get_gametype_2v2_short(langID);
+	member = gametype_2v2_short;
+	break;
     case ANONGAME_TYPE_3V3:
-	return anongame_infos_DESC_get_gametype_3v3_short(langID);
+	member = gametype_3v3_short;
+	break;
     case ANONGAME_TYPE_4V4:
-	return anongame_infos_DESC_get_gametype_4v4_short(langID);
+	member = gametype_4v4_short;
+	break;
     case ANONGAME_TYPE_5V5:
-	return anongame_infos_DESC_get_gametype_5v5_short(langID);
+	member = gametype_5v5_short;
+	break;
     case ANONGAME_TYPE_6V6:
-	return anongame_infos_DESC_get_gametype_6v6_short(langID);
+	member = gametype_6v6_short;
+	break;
     case ANONGAME_TYPE_2V2V2:
-	return anongame_infos_DESC_get_gametype_2v2v2_short(langID);
+	member = gametype_2v2v2_short;
+	break;
     case ANONGAME_TYPE_3V3V3:
-	return anongame_infos_DESC_get_gametype_3v3v3_short(langID);
+	member = gametype_3v3v3_short;
+	break;
     case ANONGAME_TYPE_4V4V4:
-	return anongame_infos_DESC_get_gametype_4v4v4_short(langID);
+	member = gametype_4v4v4_short;
+	break;
     case ANONGAME_TYPE_2V2V2V2:
-	return anongame_infos_DESC_get_gametype_2v2v2v2_short(langID);
+	member = gametype_2v2v2v2_short;
+	break;
     case ANONGAME_TYPE_3V3V3V3:
-	return anongame_infos_DESC_get_gametype_3v3v3v3_short(langID);
+	member = gametype_3v3v3v3_short;
+	break;
     case ANONGAME_TYPE_SMALL_FFA:
-	return anongame_infos_DESC_get_gametype_sffa_short(langID);
+	member = gametype_sffa_short;
+	break;
     case ANONGAME_TYPE_TEAM_FFA:
-	return anongame_infos_DESC_get_gametype_tffa_short(langID);
+	member = gametype_tffa_short;
+	break;
     case ANONGAME_TYPE_AT_2V2:
-	return anongame_infos_DESC_get_gametype_2v2_short(langID);
+	member = gametype_2v2_short;
+	break;
     case ANONGAME_TYPE_AT_3V3:
-	return anongame_infos_DESC_get_gametype_3v3_short(langID);
+	member = gametype_3v3_short;
+	break;
     case ANONGAME_TYPE_AT_4V4:
-	return anongame_infos_DESC_get_gametype_4v4_short(langID);
+	member = gametype_4v4_short;
+	break;
     case ANONGAME_TYPE_AT_2V2V2:
-	return anongame_infos_DESC_get_gametype_2v2v2_short(langID);
+	member = gametype_2v2v2_short;
+	break;
     case ANONGAME_TYPE_TY:
 	return tournament_get_format();
     default:
 	eventlog(eventlog_level_error, __FUNCTION__, "invalid queue (%d)", queue);
 	return NULL;
     }
+    return anongame_infos_DESC_get_DESC(langID,member);
 }
 
 extern char *anongame_infos_get_long_desc(char *langID, int queue)
 {
+    int member = 0;
+    
     switch (queue)
     {
     case ANONGAME_TYPE_1V1:
-	return anongame_infos_DESC_get_gametype_1v1_long(langID);
+	member = gametype_1v1_long;
+	break;
     case ANONGAME_TYPE_2V2:
-	return anongame_infos_DESC_get_gametype_2v2_long(langID);
+	member = gametype_2v2_long;
+	break;
     case ANONGAME_TYPE_3V3:
-	return anongame_infos_DESC_get_gametype_3v3_long(langID);
+	member = gametype_3v3_long;
+	break;
     case ANONGAME_TYPE_4V4:
-	return anongame_infos_DESC_get_gametype_4v4_long(langID);
+	member = gametype_4v4_long;
+	break;
     case ANONGAME_TYPE_5V5:
-	return anongame_infos_DESC_get_gametype_5v5_long(langID);
+	member = gametype_5v5_long;
+	break;
     case ANONGAME_TYPE_6V6:
-	return anongame_infos_DESC_get_gametype_6v6_long(langID);
+	member = gametype_6v6_long;
+	break;
     case ANONGAME_TYPE_2V2V2:
-	return anongame_infos_DESC_get_gametype_2v2v2_long(langID);
+	member = gametype_2v2v2_long;
+	break;
     case ANONGAME_TYPE_3V3V3:
-	return anongame_infos_DESC_get_gametype_3v3v3_long(langID);
+	member = gametype_3v3v3_long;
+	break;
     case ANONGAME_TYPE_4V4V4:
-	return anongame_infos_DESC_get_gametype_4v4v4_long(langID);
+	member = gametype_4v4v4_long;
+	break;
     case ANONGAME_TYPE_2V2V2V2:
-	return anongame_infos_DESC_get_gametype_2v2v2v2_long(langID);
+	member = gametype_2v2v2v2_long;
+	break;
     case ANONGAME_TYPE_3V3V3V3:
-	return anongame_infos_DESC_get_gametype_3v3v3v3_long(langID);
+	member = gametype_3v3v3v3_long;
+	break;
     case ANONGAME_TYPE_SMALL_FFA:
-	return anongame_infos_DESC_get_gametype_sffa_long(langID);
+	member = gametype_sffa_long;
+	break;
     case ANONGAME_TYPE_TEAM_FFA:
-	return anongame_infos_DESC_get_gametype_tffa_long(langID);
+	member = gametype_tffa_long;
+	break;
     case ANONGAME_TYPE_AT_2V2:
-	return anongame_infos_DESC_get_gametype_2v2_long(langID);
+	member = gametype_2v2_long;
+	break;
     case ANONGAME_TYPE_AT_3V3:
-	return anongame_infos_DESC_get_gametype_3v3_long(langID);
+	member = gametype_3v3_long;
+	break;
     case ANONGAME_TYPE_AT_4V4:
-	return anongame_infos_DESC_get_gametype_4v4_long(langID);
+	member = gametype_4v4_long;
+	break;
     case ANONGAME_TYPE_AT_2V2V2:
-	return anongame_infos_DESC_get_gametype_2v2v2_long(langID);
+	member = gametype_2v2v2_long;
+	break;
     case ANONGAME_TYPE_TY:
 	return tournament_get_sponsor();;
     default:
 	eventlog(eventlog_level_error, __FUNCTION__, "invalid queue (%d)", queue);
 	return NULL;
     }
+    return anongame_infos_DESC_get_DESC(langID,member);
 }
 
 /**********/
@@ -2227,6 +1444,8 @@ static void anongame_infos_set_defaults(t_anongame_infos * anongame_infos)
 {
     char ** anongame_infos_URL;
     t_anongame_infos_DESC *anongame_infos_DESC;
+    char ** anongame_infos_DESCs;
+    
 
     if (!(anongame_infos))
     {
@@ -2288,79 +1507,82 @@ static void anongame_infos_set_defaults(t_anongame_infos * anongame_infos)
     if (!(anongame_infos_URL[URL_ladder_clan_4v4]))
 	anongame_infos_URL_set_URL(URL_ladder_clan_4v4, PVPGN_DEFAULT_URL);
 
-    if (!(anongame_infos_DESC->ladder_PG_1v1_desc))
-	anongame_infos_DESC_set_ladder_PG_1v1_desc(anongame_infos_DESC, PVPGN_PG_1V1_DESC);
-    if (!(anongame_infos_DESC->ladder_PG_ffa_desc))
-	anongame_infos_DESC_set_ladder_PG_ffa_desc(anongame_infos_DESC, PVPGN_PG_FFA_DESC);
-    if (!(anongame_infos_DESC->ladder_PG_team_desc))
-	anongame_infos_DESC_set_ladder_PG_team_desc(anongame_infos_DESC, PVPGN_PG_TEAM_DESC);
-    if (!(anongame_infos_DESC->ladder_AT_2v2_desc))
-	anongame_infos_DESC_set_ladder_AT_2v2_desc(anongame_infos_DESC, PVPGN_AT_2V2_DESC);
-    if (!(anongame_infos_DESC->ladder_AT_3v3_desc))
-	anongame_infos_DESC_set_ladder_AT_3v3_desc(anongame_infos_DESC, PVPGN_AT_3V3_DESC);
-    if (!(anongame_infos_DESC->ladder_AT_4v4_desc))
-	anongame_infos_DESC_set_ladder_AT_4v4_desc(anongame_infos_DESC, PVPGN_AT_4V4_DESC);
-    if (!(anongame_infos_DESC->ladder_clan_1v1_desc))
-	anongame_infos_DESC_set_ladder_clan_1v1_desc(anongame_infos_DESC, PVPGN_CLAN_1V1_DESC);
-    if (!(anongame_infos_DESC->ladder_clan_2v2_desc))
-	anongame_infos_DESC_set_ladder_clan_2v2_desc(anongame_infos_DESC, PVPGN_CLAN_2V2_DESC);
-    if (!(anongame_infos_DESC->ladder_clan_3v3_desc))
-	anongame_infos_DESC_set_ladder_clan_3v3_desc(anongame_infos_DESC, PVPGN_CLAN_3V3_DESC);
-    if (!(anongame_infos_DESC->ladder_clan_4v4_desc))
-	anongame_infos_DESC_set_ladder_clan_4v4_desc(anongame_infos_DESC, PVPGN_CLAN_4V4_DESC);
+    if (!(anongame_infos_DESCs = anongame_infos_DESC->descs))
+        return;
 
-    if (!(anongame_infos_DESC->gametype_1v1_short))
-	anongame_infos_DESC_set_gametype_1v1_short(anongame_infos_DESC, PVPGN_1V1_GT_DESC);
-    if (!(anongame_infos_DESC->gametype_1v1_long))
-	anongame_infos_DESC_set_gametype_1v1_long(anongame_infos_DESC, PVPGN_1V1_GT_LONG);
-    if (!(anongame_infos_DESC->gametype_2v2_short))
-	anongame_infos_DESC_set_gametype_2v2_short(anongame_infos_DESC, PVPGN_2V2_GT_DESC);
-    if (!(anongame_infos_DESC->gametype_2v2_long))
-	anongame_infos_DESC_set_gametype_2v2_long(anongame_infos_DESC, PVPGN_2V2_GT_LONG);
-    if (!(anongame_infos_DESC->gametype_3v3_short))
-	anongame_infos_DESC_set_gametype_3v3_short(anongame_infos_DESC, PVPGN_3V3_GT_DESC);
-    if (!(anongame_infos_DESC->gametype_3v3_long))
-	anongame_infos_DESC_set_gametype_3v3_long(anongame_infos_DESC, PVPGN_3V3_GT_LONG);
-    if (!(anongame_infos_DESC->gametype_4v4_short))
-	anongame_infos_DESC_set_gametype_4v4_short(anongame_infos_DESC, PVPGN_4V4_GT_DESC);
-    if (!(anongame_infos_DESC->gametype_4v4_long))
-	anongame_infos_DESC_set_gametype_4v4_long(anongame_infos_DESC, PVPGN_4V4_GT_LONG);
-    if (!(anongame_infos_DESC->gametype_sffa_short))
-	anongame_infos_DESC_set_gametype_sffa_short(anongame_infos_DESC, PVPGN_SFFA_GT_DESC);
-    if (!(anongame_infos_DESC->gametype_sffa_long))
-	anongame_infos_DESC_set_gametype_sffa_long(anongame_infos_DESC, PVPGN_SFFA_GT_LONG);
-    if (!(anongame_infos_DESC->gametype_tffa_short))
-	anongame_infos_DESC_set_gametype_tffa_short(anongame_infos_DESC, PVPGN_TFFA_GT_DESC);
-    if (!(anongame_infos_DESC->gametype_tffa_long))
-	anongame_infos_DESC_set_gametype_tffa_long(anongame_infos_DESC, PVPGN_TFFA_GT_LONG);
-    if (!(anongame_infos_DESC->gametype_2v2v2_short))
-	anongame_infos_DESC_set_gametype_2v2v2_short(anongame_infos_DESC, PVPGN_2V2V2_GT_DESC);
-    if (!(anongame_infos_DESC->gametype_2v2v2_long))
-	anongame_infos_DESC_set_gametype_2v2v2_long(anongame_infos_DESC, PVPGN_2V2V2_GT_LONG);
-    if (!(anongame_infos_DESC->gametype_3v3v3_short))
-	anongame_infos_DESC_set_gametype_3v3v3_short(anongame_infos_DESC, PVPGN_3V3V3_GT_DESC);
-    if (!(anongame_infos_DESC->gametype_3v3v3_long))
-	anongame_infos_DESC_set_gametype_3v3v3_long(anongame_infos_DESC, PVPGN_3V3V3_GT_LONG);
-    if (!(anongame_infos_DESC->gametype_4v4v4_short))
-	anongame_infos_DESC_set_gametype_4v4v4_short(anongame_infos_DESC, PVPGN_4V4V4_GT_DESC);
-    if (!(anongame_infos_DESC->gametype_4v4v4_long))
-	anongame_infos_DESC_set_gametype_4v4v4_long(anongame_infos_DESC, PVPGN_4V4V4_GT_LONG);
-    if (!(anongame_infos_DESC->gametype_2v2v2v2_short))
-	anongame_infos_DESC_set_gametype_2v2v2v2_short(anongame_infos_DESC, PVPGN_2V2V2V2_GT_DESC);
-    if (!(anongame_infos_DESC->gametype_2v2v2v2_long))
-	anongame_infos_DESC_set_gametype_2v2v2v2_long(anongame_infos_DESC, PVPGN_2V2V2V2_GT_LONG);
-    if (!(anongame_infos_DESC->gametype_3v3v3v3_short))
-	anongame_infos_DESC_set_gametype_3v3v3v3_short(anongame_infos_DESC, PVPGN_3V3V3V3_GT_DESC);
-    if (!(anongame_infos_DESC->gametype_3v3v3v3_long))
-	anongame_infos_DESC_set_gametype_3v3v3v3_long(anongame_infos_DESC, PVPGN_3V3V3V3_GT_LONG);
-    if (!(anongame_infos_DESC->gametype_5v5_short))
-	anongame_infos_DESC_set_gametype_5v5_short(anongame_infos_DESC, PVPGN_5V5_GT_DESC);
-    if (!(anongame_infos_DESC->gametype_5v5_long))
-	anongame_infos_DESC_set_gametype_5v5_long(anongame_infos_DESC, PVPGN_5V5_GT_LONG);
-    if (!(anongame_infos_DESC->gametype_6v6_short))
-	anongame_infos_DESC_set_gametype_6v6_short(anongame_infos_DESC, PVPGN_6V6_GT_DESC);
-    if (!(anongame_infos_DESC->gametype_6v6_long))
-	anongame_infos_DESC_set_gametype_6v6_long(anongame_infos_DESC, PVPGN_6V6_GT_LONG);
+    if (!(anongame_infos_DESCs[ladder_PG_1v1_desc]))
+	anongame_infos_DESC_set_DESC(anongame_infos_DESC, ladder_PG_1v1_desc, PVPGN_PG_1V1_DESC);
+    if (!(anongame_infos_DESCs[ladder_PG_ffa_desc]))
+	anongame_infos_DESC_set_DESC(anongame_infos_DESC, ladder_PG_ffa_desc, PVPGN_PG_FFA_DESC);
+    if (!(anongame_infos_DESCs[ladder_PG_team_desc]))
+	anongame_infos_DESC_set_DESC(anongame_infos_DESC, ladder_PG_team_desc, PVPGN_PG_TEAM_DESC);
+    if (!(anongame_infos_DESCs[ladder_AT_2v2_desc]))
+	anongame_infos_DESC_set_DESC(anongame_infos_DESC, ladder_AT_2v2_desc, PVPGN_AT_2V2_DESC);
+    if (!(anongame_infos_DESCs[ladder_AT_3v3_desc]))
+	anongame_infos_DESC_set_DESC(anongame_infos_DESC, ladder_AT_3v3_desc, PVPGN_AT_3V3_DESC);
+    if (!(anongame_infos_DESCs[ladder_AT_4v4_desc]))
+	anongame_infos_DESC_set_DESC(anongame_infos_DESC, ladder_AT_4v4_desc, PVPGN_AT_4V4_DESC);
+    if (!(anongame_infos_DESCs[ladder_clan_1v1_desc]))
+	anongame_infos_DESC_set_DESC(anongame_infos_DESC, ladder_clan_1v1_desc, PVPGN_CLAN_1V1_DESC);
+    if (!(anongame_infos_DESCs[ladder_clan_2v2_desc]))
+	anongame_infos_DESC_set_DESC(anongame_infos_DESC, ladder_clan_2v2_desc, PVPGN_CLAN_2V2_DESC);
+    if (!(anongame_infos_DESCs[ladder_clan_3v3_desc]))
+	anongame_infos_DESC_set_DESC(anongame_infos_DESC, ladder_clan_3v3_desc, PVPGN_CLAN_3V3_DESC);
+    if (!(anongame_infos_DESCs[ladder_clan_4v4_desc]))
+	anongame_infos_DESC_set_DESC(anongame_infos_DESC, ladder_clan_4v4_desc, PVPGN_CLAN_4V4_DESC);
+
+    if (!(anongame_infos_DESCs[gametype_1v1_short]))
+	anongame_infos_DESC_set_DESC(anongame_infos_DESC, gametype_1v1_short, PVPGN_1V1_GT_DESC);
+    if (!(anongame_infos_DESCs[gametype_1v1_long]))
+	anongame_infos_DESC_set_DESC(anongame_infos_DESC, gametype_1v1_long, PVPGN_1V1_GT_LONG);
+    if (!(anongame_infos_DESCs[gametype_2v2_short]))
+	anongame_infos_DESC_set_DESC(anongame_infos_DESC, gametype_2v2_short, PVPGN_2V2_GT_DESC);
+    if (!(anongame_infos_DESCs[gametype_2v2_long]))
+	anongame_infos_DESC_set_DESC(anongame_infos_DESC, gametype_2v2_long, PVPGN_2V2_GT_LONG);
+    if (!(anongame_infos_DESCs[gametype_3v3_short]))
+	anongame_infos_DESC_set_DESC(anongame_infos_DESC, gametype_3v3_short, PVPGN_3V3_GT_DESC);
+    if (!(anongame_infos_DESCs[gametype_3v3_long]))
+	anongame_infos_DESC_set_DESC(anongame_infos_DESC, gametype_3v3_long, PVPGN_3V3_GT_LONG);
+    if (!(anongame_infos_DESCs[gametype_4v4_short]))
+	anongame_infos_DESC_set_DESC(anongame_infos_DESC, gametype_4v4_short, PVPGN_4V4_GT_DESC);
+    if (!(anongame_infos_DESCs[gametype_4v4_long]))
+	anongame_infos_DESC_set_DESC(anongame_infos_DESC, gametype_4v4_long, PVPGN_4V4_GT_LONG);
+    if (!(anongame_infos_DESCs[gametype_sffa_short]))
+	anongame_infos_DESC_set_DESC(anongame_infos_DESC, gametype_sffa_short, PVPGN_SFFA_GT_DESC);
+    if (!(anongame_infos_DESCs[gametype_sffa_long]))
+	anongame_infos_DESC_set_DESC(anongame_infos_DESC, gametype_sffa_long, PVPGN_SFFA_GT_LONG);
+    if (!(anongame_infos_DESCs[gametype_tffa_short]))
+	anongame_infos_DESC_set_DESC(anongame_infos_DESC, gametype_tffa_short, PVPGN_TFFA_GT_DESC);
+    if (!(anongame_infos_DESCs[gametype_tffa_long]))
+	anongame_infos_DESC_set_DESC(anongame_infos_DESC, gametype_tffa_long, PVPGN_TFFA_GT_LONG);
+    if (!(anongame_infos_DESCs[gametype_2v2v2_short]))
+	anongame_infos_DESC_set_DESC(anongame_infos_DESC, gametype_2v2v2_short, PVPGN_2V2V2_GT_DESC);
+    if (!(anongame_infos_DESCs[gametype_2v2v2_long]))
+	anongame_infos_DESC_set_DESC(anongame_infos_DESC, gametype_2v2v2_long, PVPGN_2V2V2_GT_LONG);
+    if (!(anongame_infos_DESCs[gametype_3v3v3_short]))
+	anongame_infos_DESC_set_DESC(anongame_infos_DESC, gametype_3v3v3_short, PVPGN_3V3V3_GT_DESC);
+    if (!(anongame_infos_DESCs[gametype_3v3v3_long]))
+	anongame_infos_DESC_set_DESC(anongame_infos_DESC, gametype_3v3v3_long, PVPGN_3V3V3_GT_LONG);
+    if (!(anongame_infos_DESCs[gametype_4v4v4_short]))
+	anongame_infos_DESC_set_DESC(anongame_infos_DESC, gametype_4v4v4_short, PVPGN_4V4V4_GT_DESC);
+    if (!(anongame_infos_DESCs[gametype_4v4v4_long]))
+	anongame_infos_DESC_set_DESC(anongame_infos_DESC, gametype_4v4v4_long, PVPGN_4V4V4_GT_LONG);
+    if (!(anongame_infos_DESCs[gametype_2v2v2v2_short]))
+	anongame_infos_DESC_set_DESC(anongame_infos_DESC, gametype_2v2v2v2_short, PVPGN_2V2V2V2_GT_DESC);
+    if (!(anongame_infos_DESCs[gametype_2v2v2v2_long]))
+	anongame_infos_DESC_set_DESC(anongame_infos_DESC, gametype_2v2v2v2_long, PVPGN_2V2V2V2_GT_LONG);
+    if (!(anongame_infos_DESCs[gametype_3v3v3v3_short]))
+	anongame_infos_DESC_set_DESC(anongame_infos_DESC, gametype_3v3v3v3_short, PVPGN_3V3V3V3_GT_DESC);
+    if (!(anongame_infos_DESCs[gametype_3v3v3v3_long]))
+	anongame_infos_DESC_set_DESC(anongame_infos_DESC, gametype_3v3v3v3_long, PVPGN_3V3V3V3_GT_LONG);
+    if (!(anongame_infos_DESCs[gametype_5v5_short]))
+	anongame_infos_DESC_set_DESC(anongame_infos_DESC, gametype_5v5_short, PVPGN_5V5_GT_DESC);
+    if (!(anongame_infos_DESCs[gametype_5v5_long]))
+	anongame_infos_DESC_set_DESC(anongame_infos_DESC, gametype_5v5_long, PVPGN_5V5_GT_LONG);
+    if (!(anongame_infos_DESCs[gametype_6v6_short]))
+	anongame_infos_DESC_set_DESC(anongame_infos_DESC, gametype_6v6_short, PVPGN_6V6_GT_DESC);
+    if (!(anongame_infos_DESCs[gametype_6v6_long]))
+	anongame_infos_DESC_set_DESC(anongame_infos_DESC, gametype_6v6_long, PVPGN_6V6_GT_LONG);
 
 
 }
@@ -2374,7 +1596,7 @@ typedef int (*t_DESC_string_handler) (t_anongame_infos_DESC * anongame_infos_DES
 
 typedef struct {
     const char *anongame_infos_DESC_string;
-    t_DESC_string_handler DESC_string_handler;
+    int member;
 } t_anongame_infos_DESC_table_row;
 
 typedef int (*t_THUMBSDOWN_string_handler) (t_anongame_infos_THUMBSDOWN * anongame_infos_THUMBSDOWN, char value);
@@ -2426,45 +1648,45 @@ static const t_anongame_infos_URL_table_row URL_handler_table[] = {
 };
 
 static const t_anongame_infos_DESC_table_row DESC_handler_table[] = {
-    {"ladder_PG_1v1_desc", anongame_infos_DESC_set_ladder_PG_1v1_desc},
-    {"ladder_PG_ffa_desc", anongame_infos_DESC_set_ladder_PG_ffa_desc},
-    {"ladder_PG_team_desc", anongame_infos_DESC_set_ladder_PG_team_desc},
-    {"ladder_AT_2v2_desc", anongame_infos_DESC_set_ladder_AT_2v2_desc},
-    {"ladder_AT_3v3_desc", anongame_infos_DESC_set_ladder_AT_3v3_desc},
-    {"ladder_AT_4v4_desc", anongame_infos_DESC_set_ladder_AT_4v4_desc},
-    {"ladder_clan_1v1_desc", anongame_infos_DESC_set_ladder_clan_1v1_desc},
-    {"ladder_clan_2v2_desc", anongame_infos_DESC_set_ladder_clan_2v2_desc},
-    {"ladder_clan_3v3_desc", anongame_infos_DESC_set_ladder_clan_3v3_desc},
-    {"ladder_clan_4v4_desc", anongame_infos_DESC_set_ladder_clan_4v4_desc},
+    {"ladder_PG_1v1_desc",	ladder_PG_1v1_desc},
+    {"ladder_PG_ffa_desc",	ladder_PG_ffa_desc},
+    {"ladder_PG_team_desc",	ladder_PG_team_desc},
+    {"ladder_AT_2v2_desc",	ladder_AT_2v2_desc},
+    {"ladder_AT_3v3_desc",	ladder_AT_3v3_desc},
+    {"ladder_AT_4v4_desc",	ladder_AT_4v4_desc},
+    {"ladder_clan_1v1_desc",	ladder_clan_1v1_desc},
+    {"ladder_clan_2v2_desc",	ladder_clan_2v2_desc},
+    {"ladder_clan_3v3_desc",	ladder_clan_3v3_desc},
+    {"ladder_clan_4v4_desc",	ladder_clan_4v4_desc},
 
-    {"gametype_1v1_short", anongame_infos_DESC_set_gametype_1v1_short},
-    {"gametype_1v1_long", anongame_infos_DESC_set_gametype_1v1_long},
-    {"gametype_2v2_short", anongame_infos_DESC_set_gametype_2v2_short},
-    {"gametype_2v2_long", anongame_infos_DESC_set_gametype_2v2_long},
-    {"gametype_3v3_short", anongame_infos_DESC_set_gametype_3v3_short},
-    {"gametype_3v3_long", anongame_infos_DESC_set_gametype_3v3_long},
-    {"gametype_4v4_short", anongame_infos_DESC_set_gametype_4v4_short},
-    {"gametype_4v4_long", anongame_infos_DESC_set_gametype_4v4_long},
-    {"gametype_sffa_short", anongame_infos_DESC_set_gametype_sffa_short},
-    {"gametype_sffa_long", anongame_infos_DESC_set_gametype_sffa_long},
-    {"gametype_tffa_short", anongame_infos_DESC_set_gametype_tffa_short},
-    {"gametype_tffa_long", anongame_infos_DESC_set_gametype_tffa_long},
-    {"gametype_2v2v2_short", anongame_infos_DESC_set_gametype_2v2v2_short},
-    {"gametype_2v2v2_long", anongame_infos_DESC_set_gametype_2v2v2_long},
-    {"gametype_3v3v3_short", anongame_infos_DESC_set_gametype_3v3v3_short},
-    {"gametype_3v3v3_long", anongame_infos_DESC_set_gametype_3v3v3_long},
-    {"gametype_4v4v4_short", anongame_infos_DESC_set_gametype_4v4v4_short},
-    {"gametype_4v4v4_long", anongame_infos_DESC_set_gametype_4v4v4_long},
-    {"gametype_2v2v2v2_short", anongame_infos_DESC_set_gametype_2v2v2v2_short},
-    {"gametype_2v2v2v2_long", anongame_infos_DESC_set_gametype_2v2v2v2_long},
-    {"gametype_3v3v3v3_short", anongame_infos_DESC_set_gametype_3v3v3v3_short},
-    {"gametype_3v3v3v3_long", anongame_infos_DESC_set_gametype_3v3v3v3_long},
-    {"gametype_5v5_short", anongame_infos_DESC_set_gametype_5v5_short},
-    {"gametype_5v5_long", anongame_infos_DESC_set_gametype_5v5_long},
-    {"gametype_6v6_short", anongame_infos_DESC_set_gametype_6v6_short},
-    {"gametype_6v6_long", anongame_infos_DESC_set_gametype_6v6_long},
+    {"gametype_1v1_short",	gametype_1v1_short},
+    {"gametype_1v1_long",	gametype_1v1_long},
+    {"gametype_2v2_short",	gametype_2v2_short},
+    {"gametype_2v2_long",	gametype_2v2_long},
+    {"gametype_3v3_short",	gametype_3v3_short},
+    {"gametype_3v3_long",	gametype_3v3_long},
+    {"gametype_4v4_short",	gametype_4v4_short},
+    {"gametype_4v4_long",	gametype_4v4_long},
+    {"gametype_sffa_short",	gametype_sffa_short},
+    {"gametype_sffa_long",	gametype_sffa_long},
+    {"gametype_tffa_short",	gametype_tffa_short},
+    {"gametype_tffa_long",	gametype_tffa_long},
+    {"gametype_2v2v2_short",	gametype_2v2v2_short},
+    {"gametype_2v2v2_long",	gametype_2v2v2_long},
+    {"gametype_3v3v3_short",	gametype_3v3v3_short},
+    {"gametype_3v3v3_long",	gametype_3v3v3_long},
+    {"gametype_4v4v4_short",	gametype_4v4v4_short},
+    {"gametype_4v4v4_long",	gametype_4v4v4_long},
+    {"gametype_2v2v2v2_short",	gametype_2v2v2v2_short},
+    {"gametype_2v2v2v2_long",	gametype_2v2v2v2_long},
+    {"gametype_3v3v3v3_short",	gametype_3v3v3v3_short},
+    {"gametype_3v3v3v3_long",	gametype_3v3v3v3_long},
+    {"gametype_5v5_short",	gametype_5v5_short},
+    {"gametype_5v5_long",	gametype_5v5_long},
+    {"gametype_6v6_short",	gametype_6v6_short},
+    {"gametype_6v6_long",	gametype_6v6_long},
 
-    {NULL, NULL}
+    {NULL, 0}
 };
 
 static const t_anongame_infos_THUMBSDOWN_table_row THUMBSDOWN_handler_table[] = {
@@ -2704,8 +1926,7 @@ extern int anongame_infos_load(char const *filename)
 		    for (DESC_table_row = DESC_handler_table; DESC_table_row->anongame_infos_DESC_string != NULL; DESC_table_row++)
 			if (strcmp(DESC_table_row->anongame_infos_DESC_string, variable) == 0)
 			{
-			    if (DESC_table_row->DESC_string_handler != NULL)
-				DESC_table_row->DESC_string_handler(anongame_infos_DESC, value);
+			    anongame_infos_DESC_set_DESC(anongame_infos_DESC, DESC_table_row->member, value);
 			}
 		    break;
 		}
@@ -3017,7 +2238,6 @@ static int anongame_infos_data_load(void)
 	        zlib_compress(packet_get_data_const(raw,0,size), size, &anongame_infos->anongame_infos_data_w3xp->type_comp_data, &anongame_infos->anongame_infos_data_w3xp->type_comp_len);
 	}
 
-
 	for (k = 0; k < 2; k++)
 	{
 	    desc_count = 0;
@@ -3068,41 +2288,40 @@ static int anongame_infos_data_load(void)
 	        zlib_compress(packet_get_data_const(raw,0,size), size, &anongame_infos->anongame_infos_data_w3xp->desc_comp_data, &anongame_infos->anongame_infos_data_w3xp->desc_comp_len);
 	}
 
-
 	packet_set_size(raw, 0);
 	/*FIXME: Still adding a static number (10)
 	   Also maybe need do do some checks to avoid prefs empty strings. */
 	ladr_count = 10;
 	packet_append_data(raw, &ladr_count, 1);
 	packet_append_data(raw, "OLOS", 4);
-	packet_append_string(raw, anongame_infos_DESC_get_ladder_PG_1v1_desc(NULL));
+	packet_append_string(raw, anongame_infos_DESC_get_DESC(NULL,ladder_PG_1v1_desc));
 	packet_append_string(raw, anongame_infos_URL_get_URL(URL_ladder_PG_1v1));
 	packet_append_data(raw, "MAET", 4);
-	packet_append_string(raw, anongame_infos_DESC_get_ladder_PG_team_desc(NULL));
+	packet_append_string(raw, anongame_infos_DESC_get_DESC(NULL,ladder_PG_team_desc));
 	packet_append_string(raw, anongame_infos_URL_get_URL(URL_ladder_PG_team));
 	packet_append_data(raw, " AFF", 4);
-	packet_append_string(raw, anongame_infos_DESC_get_ladder_PG_ffa_desc(NULL));
+	packet_append_string(raw, anongame_infos_DESC_get_DESC(NULL,ladder_PG_ffa_desc));
 	packet_append_string(raw, anongame_infos_URL_get_URL(URL_ladder_PG_ffa));
 	packet_append_data(raw, "2SV2", 4);
-	packet_append_string(raw, anongame_infos_DESC_get_ladder_AT_2v2_desc(NULL));
+	packet_append_string(raw, anongame_infos_DESC_get_DESC(NULL,ladder_AT_2v2_desc));
 	packet_append_string(raw, anongame_infos_URL_get_URL(URL_ladder_AT_2v2));
 	packet_append_data(raw, "3SV3", 4);
-	packet_append_string(raw, anongame_infos_DESC_get_ladder_AT_3v3_desc(NULL));
+	packet_append_string(raw, anongame_infos_DESC_get_DESC(NULL,ladder_AT_3v3_desc));
 	packet_append_string(raw, anongame_infos_URL_get_URL(URL_ladder_AT_3v3));
 	packet_append_data(raw, "4SV4", 4);
-	packet_append_string(raw, anongame_infos_DESC_get_ladder_AT_4v4_desc(NULL));
+	packet_append_string(raw, anongame_infos_DESC_get_DESC(NULL,ladder_AT_4v4_desc));
 	packet_append_string(raw, anongame_infos_URL_get_URL(URL_ladder_AT_4v4));
 	packet_append_data(raw, "SNLC", 4);
-	packet_append_string(raw, anongame_infos_DESC_get_ladder_clan_1v1_desc(NULL));
+	packet_append_string(raw, anongame_infos_DESC_get_DESC(NULL,ladder_clan_1v1_desc));
 	packet_append_string(raw, anongame_infos_URL_get_URL(URL_ladder_clan_1v1));
 	packet_append_data(raw, "2NLC", 4);
-	packet_append_string(raw, anongame_infos_DESC_get_ladder_clan_2v2_desc(NULL));
+	packet_append_string(raw, anongame_infos_DESC_get_DESC(NULL,ladder_clan_2v2_desc));
 	packet_append_string(raw, anongame_infos_URL_get_URL(URL_ladder_clan_2v2));
 	packet_append_data(raw, "3NLC", 4);
-	packet_append_string(raw, anongame_infos_DESC_get_ladder_clan_3v3_desc(NULL));
+	packet_append_string(raw, anongame_infos_DESC_get_DESC(NULL,ladder_clan_3v3_desc));
 	packet_append_string(raw, anongame_infos_URL_get_URL(URL_ladder_clan_3v3));
 	packet_append_data(raw, "4NLC", 4);
-	packet_append_string(raw, anongame_infos_DESC_get_ladder_clan_4v4_desc(NULL));
+	packet_append_string(raw, anongame_infos_DESC_get_DESC(NULL,ladder_clan_4v4_desc));
 	packet_append_string(raw, anongame_infos_URL_get_URL(URL_ladder_clan_4v4));
 
         size = packet_get_size(raw);
@@ -3111,7 +2330,7 @@ static int anongame_infos_data_load(void)
 
 	packet_destroy(raw);
     }
-
+    
     if ((raw = packet_create(packet_class_raw)) != NULL)
     {
 	LIST_TRAVERSE(anongame_infos->anongame_infos_DESC_list, curr)
@@ -3120,8 +2339,9 @@ static int anongame_infos_data_load(void)
 	    t_anongame_infos_data_lang *anongame_infos_data_lang_war3;
 	    t_anongame_infos_data_lang *anongame_infos_data_lang_w3xp;
 	    anongame_infos_DESC = elem_get_data(curr);
-	    anongame_infos_data_lang_war3 = anongame_infos_data_lang_init(anongame_infos_DESC->langID);
-	    anongame_infos_data_lang_w3xp = anongame_infos_data_lang_init(anongame_infos_DESC->langID);
+	    char * langID = anongame_infos_DESC->langID;
+	    anongame_infos_data_lang_war3 = anongame_infos_data_lang_init(langID);
+	    anongame_infos_data_lang_w3xp = anongame_infos_data_lang_init(langID);
 	    for (k = 0; k < 2; k++)
 	    {
 		desc_count = 0;
@@ -3137,15 +2357,15 @@ static int anongame_infos_data_load(void)
 			packet_append_data(raw, &anongame_PG_section, 1);
 			packet_append_data(raw, &anongame_prefix[j][0], 1);
 
-			if (anongame_infos_get_short_desc(anongame_infos_DESC->langID, j) == NULL)
+			if (anongame_infos_get_short_desc(langID, j) == NULL)
 			    packet_append_string(raw, anongame_gametype_names[j]);
 			else
-			    packet_append_string(raw, anongame_infos_get_short_desc(anongame_infos_DESC->langID, j));
+			    packet_append_string(raw, anongame_infos_get_short_desc(langID, j));
 
-			if (anongame_infos_get_long_desc(anongame_infos_DESC->langID, j) == NULL)
+			if (anongame_infos_get_long_desc(langID, j) == NULL)
 			    packet_append_string(raw, "No Descreption");
 			else
-			    packet_append_string(raw, anongame_infos_get_long_desc(anongame_infos_DESC->langID, j));
+			    packet_append_string(raw, anongame_infos_get_long_desc(langID, j));
 		    }
 		/* AT description section */
 		for (j = 0; j < ANONGAME_TYPES; j++)
@@ -3153,8 +2373,8 @@ static int anongame_infos_data_load(void)
 		    {
 			packet_append_data(raw, &anongame_AT_section, 1);
 			packet_append_data(raw, &anongame_prefix[j][0], 1);
-			packet_append_string(raw, anongame_infos_get_short_desc(anongame_infos_DESC->langID, j));
-			packet_append_string(raw, anongame_infos_get_long_desc(anongame_infos_DESC->langID, j));
+			packet_append_string(raw, anongame_infos_get_short_desc(langID, j));
+			packet_append_string(raw, anongame_infos_get_long_desc(langID, j));
 		    }
 		/* TY description section */
 		for (j = 0; j < ANONGAME_TYPES; j++)
@@ -3162,8 +2382,8 @@ static int anongame_infos_data_load(void)
 		    {
 			packet_append_data(raw, &anongame_TY_section, 1);
 			packet_append_data(raw, &anongame_prefix[j][0], 1);
-			packet_append_string(raw, anongame_infos_get_short_desc(anongame_infos_DESC->langID, j));
-			packet_append_string(raw, anongame_infos_get_long_desc(anongame_infos_DESC->langID, j));
+			packet_append_string(raw, anongame_infos_get_short_desc(langID, j));
+			packet_append_string(raw, anongame_infos_get_long_desc(langID, j));
 		    }
 		size = packet_get_size(raw);
 		if (k == 0)
@@ -3172,41 +2392,40 @@ static int anongame_infos_data_load(void)
 		    zlib_compress(packet_get_data_const(raw,0,size), size, &anongame_infos_data_lang_w3xp->desc_comp_data, &anongame_infos_data_lang_w3xp->desc_comp_len);
 	    }
 
-
 	    packet_set_size(raw, 0);
 	    /*FIXME: Still adding a static number (10)
 	       Also maybe need do do some checks to avoid prefs empty strings. */
 	    ladr_count = 10;
 	    packet_append_data(raw, &ladr_count, 1);
 	    packet_append_data(raw, "OLOS", 4);
-	    packet_append_string(raw, anongame_infos_DESC_get_ladder_PG_1v1_desc(anongame_infos_DESC->langID));
+	    packet_append_string(raw, anongame_infos_DESC_get_DESC(langID, ladder_PG_1v1_desc));
 	    packet_append_string(raw, anongame_infos_URL_get_URL(URL_ladder_PG_1v1));
 	    packet_append_data(raw, "MAET", 4);
-	    packet_append_string(raw, anongame_infos_DESC_get_ladder_PG_team_desc(anongame_infos_DESC->langID));
+	    packet_append_string(raw, anongame_infos_DESC_get_DESC(langID, ladder_PG_team_desc));
 	    packet_append_string(raw, anongame_infos_URL_get_URL(URL_ladder_PG_team));
 	    packet_append_data(raw, " AFF", 4);
-	    packet_append_string(raw, anongame_infos_DESC_get_ladder_PG_ffa_desc(anongame_infos_DESC->langID));
+	    packet_append_string(raw, anongame_infos_DESC_get_DESC(langID, ladder_PG_ffa_desc));
 	    packet_append_string(raw, anongame_infos_URL_get_URL(URL_ladder_PG_ffa));
 	    packet_append_data(raw, "2SV2", 4);
-	    packet_append_string(raw, anongame_infos_DESC_get_ladder_AT_2v2_desc(anongame_infos_DESC->langID));
+	    packet_append_string(raw, anongame_infos_DESC_get_DESC(langID, ladder_AT_2v2_desc));
 	    packet_append_string(raw, anongame_infos_URL_get_URL(URL_ladder_AT_2v2));
 	    packet_append_data(raw, "3SV3", 4);
-	    packet_append_string(raw, anongame_infos_DESC_get_ladder_AT_3v3_desc(anongame_infos_DESC->langID));
+	    packet_append_string(raw, anongame_infos_DESC_get_DESC(langID, ladder_AT_3v3_desc));
 	    packet_append_string(raw, anongame_infos_URL_get_URL(URL_ladder_AT_3v3));
 	    packet_append_data(raw, "4SV4", 4);
-	    packet_append_string(raw, anongame_infos_DESC_get_ladder_AT_4v4_desc(anongame_infos_DESC->langID));
+	    packet_append_string(raw, anongame_infos_DESC_get_DESC(langID, ladder_AT_4v4_desc));
 	    packet_append_string(raw, anongame_infos_URL_get_URL(URL_ladder_AT_4v4));
 	    packet_append_data(raw, "SNLC", 4);
-	    packet_append_string(raw, anongame_infos_DESC_get_ladder_clan_1v1_desc(anongame_infos_DESC->langID));
+	    packet_append_string(raw, anongame_infos_DESC_get_DESC(langID, ladder_clan_1v1_desc));
 	    packet_append_string(raw, anongame_infos_URL_get_URL(URL_ladder_clan_1v1));
 	    packet_append_data(raw, "2NLC", 4);
-	    packet_append_string(raw, anongame_infos_DESC_get_ladder_clan_2v2_desc(anongame_infos_DESC->langID));
+	    packet_append_string(raw, anongame_infos_DESC_get_DESC(langID, ladder_clan_2v2_desc));
 	    packet_append_string(raw, anongame_infos_URL_get_URL(URL_ladder_clan_2v2));
 	    packet_append_data(raw, "3NLC", 4);
-	    packet_append_string(raw, anongame_infos_DESC_get_ladder_clan_3v3_desc(anongame_infos_DESC->langID));
+	    packet_append_string(raw, anongame_infos_DESC_get_DESC(langID, ladder_clan_3v3_desc));
 	    packet_append_string(raw, anongame_infos_URL_get_URL(URL_ladder_clan_3v3));
 	    packet_append_data(raw, "4NLC", 4);
-	    packet_append_string(raw, anongame_infos_DESC_get_ladder_clan_4v4_desc(anongame_infos_DESC->langID));
+	    packet_append_string(raw, anongame_infos_DESC_get_DESC(langID, ladder_clan_4v4_desc));
 	    packet_append_string(raw, anongame_infos_URL_get_URL(URL_ladder_clan_4v4));
 	    anongame_infos_data_lang_war3->ladr_len = packet_get_size(raw);
 	    anongame_infos_data_lang_war3->ladr_data = (char *) xmalloc(anongame_infos_data_lang_war3->ladr_len);

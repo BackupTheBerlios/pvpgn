@@ -47,52 +47,57 @@ typedef enum
 	URL_ladder_clan_4v4
 } t_anongame_infos_URLs;
 
-typedef struct {
-	char * langID;
-	
-	char * ladder_PG_1v1_desc;
-	char * ladder_PG_ffa_desc;
-	char * ladder_PG_team_desc;
+#define anongame_infos_DESC_count 38
 
-	char * ladder_AT_2v2_desc;
-	char * ladder_AT_3v3_desc;
-	char * ladder_AT_4v4_desc;
+typedef enum {
+	ladder_PG_1v1_desc,
+	ladder_PG_ffa_desc,
+	ladder_PG_team_desc,
 
-	char * ladder_clan_1v1_desc;
-	char * ladder_clan_2v2_desc;
-	char * ladder_clan_3v3_desc;
-	char * ladder_clan_4v4_desc;
+	ladder_AT_2v2_desc,
+	ladder_AT_3v3_desc,
+	ladder_AT_4v4_desc,
 
-	char * gametype_1v1_short;
-	char * gametype_1v1_long;
-	char * gametype_2v2_short;
-	char * gametype_2v2_long;
-	char * gametype_3v3_short;
-	char * gametype_3v3_long;
-	char * gametype_4v4_short;
-	char * gametype_4v4_long;
-	char * gametype_ffa_short;
-	char * gametype_ffa_long;
-	char * gametype_2v2v2_short;
-	char * gametype_2v2v2_long;
+	ladder_clan_1v1_desc,
+	ladder_clan_2v2_desc,
+	ladder_clan_3v3_desc,
+	ladder_clan_4v4_desc,
 
-	char * gametype_sffa_short;
-	char * gametype_sffa_long;
-	char * gametype_tffa_short;
-	char * gametype_tffa_long;
-	char * gametype_3v3v3_short;
-	char * gametype_3v3v3_long;
-	char * gametype_4v4v4_short;
-	char * gametype_4v4v4_long;
-	char * gametype_2v2v2v2_short;
-	char * gametype_2v2v2v2_long;
-	char * gametype_3v3v3v3_short;
-	char * gametype_3v3v3v3_long;
-	char * gametype_5v5_short;
-	char * gametype_5v5_long;
-	char * gametype_6v6_short;
-	char * gametype_6v6_long;
+	gametype_1v1_short,
+	gametype_1v1_long,
+	gametype_2v2_short,
+	gametype_2v2_long,
+	gametype_3v3_short,
+	gametype_3v3_long,
+	gametype_4v4_short,
+	gametype_4v4_long,
+	gametype_ffa_short,
+	gametype_ffa_long,
+	gametype_2v2v2_short,
+	gametype_2v2v2_long,
 
+	gametype_sffa_short,
+	gametype_sffa_long,
+	gametype_tffa_short,
+	gametype_tffa_long,
+	gametype_3v3v3_short,
+	gametype_3v3v3_long,
+	gametype_4v4v4_short,
+	gametype_4v4v4_long,
+	gametype_2v2v2v2_short,
+	gametype_2v2v2v2_long,
+	gametype_3v3v3v3_short,
+	gametype_3v3v3v3_long,
+	gametype_5v5_short,
+	gametype_5v5_long,
+	gametype_6v6_short,
+	gametype_6v6_long
+} t_anongame_infos_DESCs;
+
+typedef struct
+{
+  char *  langID;
+  char ** descs;
 } t_anongame_infos_DESC;
 
 typedef struct {
@@ -198,19 +203,6 @@ typedef struct {
 
 extern int anongame_infos_load(char const * filename);
 extern int anongame_infos_unload(void);
-
-extern char * anongame_infos_URL_get_URL(int member);
-
-extern char * anongame_infos_DESC_get_ladder_PG_1v1_desc(char * langID);
-extern char * anongame_infos_DESC_get_ladder_PG_ffa_desc(char * langID);
-extern char * anongame_infos_DESC_get_ladder_PG_team_desc(char * langID);
-
-extern char * anongame_infos_DESC_get_ladder_AT_2v2_desc(char * langID);
-extern char * anongame_infos_DESC_get_ladder_AT_3v3_desc(char * langID);
-extern char * anongame_infos_DESC_get_ladder_AT_4v4_desc(char * langID);
-
-extern char * anongame_infos_get_short_desc(char * langID, int queue);
-extern char * anongame_infos_get_long_desc(char * langID, int queue);
 
 extern char anongame_infos_get_thumbsdown(int queue);
 
