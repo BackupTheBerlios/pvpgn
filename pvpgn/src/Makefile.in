@@ -627,7 +627,7 @@ install-man:
 	@list='${MAN5S}'; for p in $$list; do \
 	  if test -f ${SRC_MANDIR}/$$p; then \
 	    ${ECHO} "  ${INSTALL_DATA} ${SRC_MANDIR}/$$p ${DESTDIR}/${mandir}/man5"; \
-	    ${INSTALL_DATA} ${SRC_MANDIR}/$$p ${mandir}/man5; \
+	    ${INSTALL_DATA} ${SRC_MANDIR}/$$p ${DESTDIR}/${mandir}/man5; \
 	  else :; fi; \
 	done
 
