@@ -2477,7 +2477,7 @@ static int _client_friendslistreq(t_connection * c, t_packet const * const packe
 	int n = account_get_friendcount(conn_get_account(c));
 	
 	if(n==0)
-	  return -1;
+	  return 0; // changed from -1 to 0. This is no packet handling error, just no friends exist.
 	if (!(rpacket = packet_create(packet_class_bnet)))
 	  return -1;
 	
