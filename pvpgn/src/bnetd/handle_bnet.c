@@ -176,6 +176,7 @@ static int _client_ladderreq(t_connection * c, t_packet const * const packet);
 static int _client_laddersearchreq(t_connection * c, t_packet const * const packet);
 static int _client_mapauthreq1(t_connection * c, t_packet const * const packet);
 static int _client_mapauthreq2(t_connection * c, t_packet const * const packet);
+static int _client_command(t_connection * c, t_packet const * const packet);
 
 
 /* connection state connected handler table */
@@ -237,6 +238,7 @@ static const t_htable_row bnet_htable_log [] = {
      { CLIENT_ADCLICK2,         _client_adclick2},
      { CLIENT_STATSREQ,         _client_statsreq},
      { CLIENT_STATSUPDATE,      _client_statsupdate},
+     { CLIENT_COMMAND,    	_client_command},
      { CLIENT_PLAYERINFOREQ,    _client_playerinforeq},
      { CLIENT_PROGIDENT2,       _client_progident2},
      { CLIENT_JOINCHANNEL,      _client_joinchannel},
@@ -5249,6 +5251,43 @@ static int _client_mapauthreq2(t_connection * c, t_packet const * const packet)
 #ifdef WITH_BITS
 	if (game) bits_game_destroy_temp(game);
 #endif		
+     }
+   
+   return 0;
+}
+
+static int _client_command(t_connection * c, t_packet const * const packet)
+{
+   if (strcmp(conn_get_clienttag(c), CLIENTTAG_WAR3XP)  == 0)
+	return 0; /* client_command's id is the same as client_playerloginreq */
+   if (packet_get_size(packet)<sizeof(t_client_command)) {
+      eventlog(eventlog_level_error,__FUNCTION__,"[%d] got bad COMMAND packet (expected %u bytes, got %u)",conn_get_socket(c),sizeof(t_client_command),packet_get_size(packet));
+      return -1;
+   }
+   
+     {
+	char const *      text;
+	t_channel const * channel;
+	
+	if (!(text = packet_get_str_const(packet,sizeof(t_client_command),MAX_MESSAGE_LEN)))
+	  {
+	     eventlog(eventlog_level_error,__FUNCTION__,"[%d] got bad COMMAND (missing or too long text)",conn_get_socket(c));
+	     return -1;
+	  }
+	
+	conn_set_idletime(c);
+	
+	if ((channel = conn_get_channel(c)))
+	  channel_message_log(channel,c,1,text);
+	/* we don't log game commands currently */
+	
+	
+	
+	if (text[0]=='/')
+	  handle_command(c,text);	
+	else
+	  eventlog(eventlog_level_error, __FUNCTION__, "command doesnt start with /");
+	/* else discard */
      }
    
    return 0;
