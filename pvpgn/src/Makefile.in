@@ -589,7 +589,8 @@ install-share:
 	    ${INSTALL_DATA} ${SRC_SHAREDIR}/$$p ${filesdir}; \
 	  else :; fi; \
 	done
-	-. ${SRC_SCRIPTDIR}/tos.sh ${filesdir}
+	chmod u+x ${SRC_SCRIPTDIR}/tos.sh
+	${SRC_SCRIPTDIR}/tos.sh ${filesdir}
 
 .PHONY: uninstall
 uninstall: uninstall-sbin uninstall-bin uninstall-man uninstall-conf uninstall-share
