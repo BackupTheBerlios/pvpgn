@@ -49,7 +49,7 @@ extern void d2charlist_destroy(t_d2charlist * clist)
     while (clist->first!=NULL)
     {
         pointer = clist->first;
-        clist->first = pointer->prev;
+        clist->first = pointer->next;
 	free((void *)pointer->name);
         free((void *)pointer);
     }
