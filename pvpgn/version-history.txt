@@ -4,6 +4,9 @@ PvPGN Version History:
 -- fixed searching for connection of a acccount uid (thus getting rid of all 
 those useless eventlogs got NULL account in account_get_uid)
 -- merged patch from Zzzzoom for protection against brute force attacks
+-- fixed friends problem when accounts got deleted and they were referenced 
+by some other accounts, those who referenced them got fewer friends then they 
+should have
 
 1.6.0pre1 (since 1.5.0beta3):
 -- fixed IRC auth bug (when using passwords with upper cases)
