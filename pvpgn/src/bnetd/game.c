@@ -1252,6 +1252,7 @@ extern int game_set_description(t_game * game, char const * description)
 	return -1;
     }
     
+    if (game->description != NULL) free(game->description);
     if (!(game->description = strdup(description)))
     {
 	eventlog(eventlog_level_error,"game_set_description","could not allocate memory for description");

@@ -88,6 +88,7 @@ static t_realm * realm_create(char const * name, char const * description, unsig
 	free(realm);
 	return NULL;
     }
+    if (realm->description != NULL) free(realm->description);
     if (!(realm->description = strdup(description)))
     {
 	eventlog(eventlog_level_error,"realm_create","could not allocate memory for description");
