@@ -723,7 +723,8 @@ extern char const * account_get_strattr(t_account * account, char const * key)
 	return account_get_w3_clanname(account);
       }
 #ifdef WITH_MYSQL
-    else if ((!(prefs_get_mysql_persistent())) && (strchr(key,'_')!=NULL))
+    else if ((!(prefs_get_mysql_persistent())) && 
+	     ((strchr(key,'_')!=NULL) || (strchr(key,'-')!=NULL) || (strchr(key,' ')!=NULL)))
     {
       char * temp;
       char * modkey;
@@ -733,7 +734,7 @@ extern char const * account_get_strattr(t_account * account, char const * key)
 	      return NULL;
       }
       for (modkey = temp; *modkey; modkey++)
-	      if (*modkey=='_') *modkey='\\';
+	      if ((*modkey=='_') || (*modkey=='-') || (*modkey==' ')) *modkey='\\';
       newkey = temp;
     }
 #endif
