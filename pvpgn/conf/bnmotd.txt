@@ -7,3 +7,5 @@
 %Iand %u users playing %g games and chatting in %c channels.
 %IHaving trouble with a command?  Type   /help   to
 %Ilearn more about it.
+%I
+%I%m

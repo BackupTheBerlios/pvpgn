@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2001            Dizzy 
+ * Copyright (C) 2004            Donny Redmond (dredmond@linuxmail.org)
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -99,7 +100,7 @@ typedef struct maillist_struct {
 #undef JUST_NEED_TYPES
 
 extern int handle_mail_command(t_connection *, char const *);
-extern int check_mail(t_connection *);
+extern char const * check_mail(t_connection const * c);
 
 #endif
 #endif

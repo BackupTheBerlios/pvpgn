@@ -11,6 +11,7 @@ Here is a short note of how to use and configure the conf/bnmotd.txt
 -- %i = userid of the user
 -- %l = username
 -- %N = name of the game the user has connected with.
+-- %m = check users mail when they login
 -- %r = IP of the user
 -- %t = clienttag of the user
 -- %u = number of users currently logged in

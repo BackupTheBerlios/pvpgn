@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2001  Dizzy 
+ * Copyright (C) 2004  Donny Redmond (dredmond@linuxmail.org)
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -689,7 +690,6 @@ static void mail_func_delete(t_connection * c, const char * str) {
    mailbox_close(mailbox);
 }
 
-
 static void mail_usage(t_connection * c) {
    message_send_text(c,message_type_info,c,"to print this information:");
    message_send_text(c,message_type_info,c,"    /mail help");
@@ -706,4 +706,39 @@ static void mail_usage(t_connection * c) {
    message_send_text(c,message_type_info,c,"    read: r");
    message_send_text(c,message_type_info,c,"    send: s");
    message_send_text(c,message_type_info,c,"    delete: del");
+}
+
+extern char const * check_mail(t_connection const * c) {
+   t_account * user;
+   t_mailbox * mailbox;
+   static char tmp[64];
+   int count;
+
+   if (c==NULL) {
+      eventlog(eventlog_level_error,"check_mail","got NULL connection");
+      return "";
+   }
+
+   if ((user=conn_get_account(c))==NULL) {
+      eventlog(eventlog_level_error,"check_mail","got NULL account");
+      return "";
+   }
+
+   if ((mailbox=mailbox_open(user))==NULL) {
+      eventlog(eventlog_level_error,"check_mail","got NULL mailbox");
+      return "";
+   }
+
+   count = mailbox_count(mailbox);
+   mailbox_close(mailbox);
+   
+   if (count == 0) 
+   {
+      return "You have no mail.";
+   }
+   else
+   {
+      sprintf(tmp,"You have %d message(s) in your mailbox.",count);
+      return tmp;
+   }
 }

@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 1998  Mark Baysinger (mbaysing@ucsd.edu)
  * Copyright (C) 1998,1999  Ross Combs (rocombs@cs.nmsu.edu)
- * Copyright (C) 2004  Donny Redmond (digitill@adelphia.net)
+ * Copyright (C) 2004  Donny Redmond (dredmond@linuxmail.org)
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License

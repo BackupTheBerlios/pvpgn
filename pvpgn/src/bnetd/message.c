@@ -66,6 +66,7 @@
 #include "command.h"
 #include "irc.h"
 #include "message.h"
+#include "mail.h"
 #include "prefs.h"
 #include "clienttag.h"
 #include "common/setup_after.h"
@@ -193,6 +194,11 @@ extern char * message_format_line(t_connection const * c, char const * in)
 		out[outpos+USER_NAME_MAX-1] = '\0';
 		outpos += strlen(&out[outpos]);
 		break;
+
+            case 'm':
+	    	sprintf(&out[outpos],"%s",check_mail(c));
+		outpos += strlen(&out[outpos]);
+                break;
 		
 	    case 'r':
 		strncpy(&out[outpos],addr_num_to_ip_str(conn_get_addr(c)),MAX_INC-1);
