@@ -94,7 +94,7 @@ extern t_list *	d2gslist(void)
 
 extern int d2gslist_create(void)
 {
-	if (!(d2gslist_head=list_create())) return -1;
+	d2gslist_head=list_create();
 	return d2gslist_reload(prefs_get_d2gs_list());
 }
 

@@ -54,7 +54,7 @@ extern t_list * sqlist(void)
 
 extern int sqlist_create(void)
 {
-	if (!(sqlist_head=list_create())) return -1;
+	sqlist_head=list_create();
   	return 0;
 }
 

@@ -518,10 +518,8 @@ extern int d2cs_conn_set_state(t_connection * c, t_conn_state state)
 	ASSERT(c,-1);
 	/* special case for destroying connections, add them to connlist_dead list */
 	if (state == conn_state_destroy && c->state != conn_state_destroy) {
-	    if (!connlist_dead && !(connlist_dead = list_create())) {
-		eventlog(eventlog_level_error, __FUNCTION__, "could not initilize connlist_dead list");
-		return -1;
-	    }
+	    if (!connlist_dead)
+	        connlist_dead = list_create();
 	    list_append_data(connlist_dead, c);
 	} else if (state != conn_state_destroy && c->state == conn_state_destroy) {
 	    if (list_remove_data(connlist_dead, c, &curr)) {

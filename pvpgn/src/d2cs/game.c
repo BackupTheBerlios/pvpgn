@@ -80,7 +80,7 @@ extern void gamelist_set_curr_elem(t_elem const * elem)
 
 extern int d2cs_gamelist_create(void)
 {
-	if (!(gamelist_head=list_create())) return -1;
+	gamelist_head=list_create();
 	return 0;
 }
 
@@ -193,13 +193,7 @@ extern t_game * d2cs_game_create(char const * gamename, char const * gamepass, c
 	game->name=xstrdup(gamename);
 	game->pass=xstrdup(gamepass);
 	game->desc=xstrdup(gamedesc);
-	if (!(game->charlist=list_create())) {
-		xfree((void *)game->name);
-		xfree((void *)game->pass);
-		xfree((void *)game->desc);
-		xfree(game);
-		return NULL;
-	}
+	game->charlist=list_create();
 	now=time(NULL);
 	game_id++;
 	if (game_id==0) game_id=1;

@@ -56,7 +56,7 @@ extern t_list * gqlist(void)
 
 extern int gqlist_create(void)
 {
-	if (!(gqlist_head=list_create())) return -1;
+	gqlist_head=list_create();
 	return 0;
 }
 
