@@ -281,14 +281,12 @@ static int server_handle_socket(void)
 			}
 			/* fall through */
 		case 0:
-			d2cs_connlist_reap();
 			return 0;
 		default:
 			break;
 	}
 
 	fdwatch_handle();
-	d2cs_connlist_reap();
 /*
         BEGIN_HASHTABLE_TRAVERSE_DATA(d2cs_connlist(),c)
         {
@@ -323,6 +321,7 @@ static int server_loop(void)
 			count=0;
 		}
 		server_handle_socket();
+		d2cs_connlist_reap();
 	}
 	return 0;
 }
