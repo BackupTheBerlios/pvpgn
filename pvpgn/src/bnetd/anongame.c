@@ -1059,6 +1059,11 @@ extern int anongame_unqueue(t_connection * c, int queue)
     t_elem *curr;
     t_matchdata *md;
     
+    if (queue < 0) {
+	eventlog(eventlog_level_error, __FUNCTION__, "got negative queue id (%d)", queue);
+	return -1;
+    }
+
     if(queue >= ANONGAME_TYPES) {
 	eventlog(eventlog_level_error,__FUNCTION__, "unknown queue: %d", queue);
 	return -1;
