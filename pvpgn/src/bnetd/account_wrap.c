@@ -1950,7 +1950,6 @@ extern int account_notify_friends_logoff ( char const *tname )
 	char const *friend;
 	char msg[512];
 	int i;
-	int cnt = 0;
 	int n;
 		
 	useraccount = accountlist_find_account(username);
@@ -2226,6 +2225,7 @@ extern int account_set_teamxp(t_account * account,t_game_result gameresult, unsi
 	int lvldiff_2_xpdiff_win[] = { 184, 178, 172, 163, 152, 140, 100, 60, 48, 37, 28, 22, 16};
 	int lvldiff, xpdiff;
 	xp = account_get_teamxp(account); //get current xp
+	xpdiff = 0;
 	mylevel = account_get_teamlevel(account); //get accounts level
 
 	if(mylevel==0) //if level is 0 then set it to 1
@@ -2342,6 +2342,7 @@ extern int account_set_ffaxp(t_account * account,t_game_result gameresult, unsig
 	int lvldiff_2_xpdiff_win[] = { 184, 178, 172, 163, 152, 140, 100, 60, 48, 37, 28, 22, 16};
 	int lvldiff, xpdiff;
 	xp = account_get_ffaxp(account); //get current xp
+	xpdiff = 0;
 	mylevel = account_get_ffalevel(account); //get accounts level
 
 	if(mylevel==0) //if level is 0 then set it to 1
@@ -2489,7 +2490,6 @@ extern int account_get_profile_calcs(t_account * account, unsigned int xp, unsig
 extern int account_set_saveladderstats(t_account * account,unsigned int gametype, t_game_result result, unsigned int opponlevel)
 {
 	unsigned int intrace;
-	char const *race;
 
 	if(!account) {
 		eventlog(eventlog_level_error, "account_set_saveladderstats", "got NULL account");
@@ -2830,7 +2830,6 @@ extern int account_get_currentatteam(t_account * account)
 extern int account_set_saveATladderstats(t_account * account, unsigned int gametype, t_game_result result, unsigned int opponlevel, unsigned int current_teamnum)
 {
 	unsigned int intrace;
-	char const *race;
 	
 	if(!account) 
 	{
