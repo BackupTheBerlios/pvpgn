@@ -112,7 +112,7 @@ SQLFLAGS = -DWITH_SQL_MYSQL -DWITH_SQL -a8
 !endif
 
 CFLAGS      = -v -y -O2 -d -j2 -w-8060 -w-8057
-CPPFLAGS    = -DWIN32 -DHAVE_CONFIG_H -I${SRC_SRCDIR}\
+CPPFLAGS    = -DWIN32 -DHAVE_CONFIG_H -I${SRC_SRCDIR} \
                 -DBNETD_DEFAULT_CONF_FILE=\"${bnetd_DEFCONFFILE:\=\\}\" ${SQLFLAGS}
 COMPILE     = ${CC} ${CFLAGS} ${CPPFLAGS} -c
 LINK        = ilink32 -v -L${LINK_LIBS_PATH}
@@ -187,7 +187,8 @@ bnetd_OBJECTS       = \
     ${SRC_BNETDDIR}\bits_game.obj \
     ${SRC_BNETDDIR}\bits_motd.obj \
     ${SRC_BNETDDIR}\storage_sql.obj \
-    ${SRC_BNETDDIR}\storage_file.obj \    
+    ${SRC_BNETDDIR}\storage_file.obj \ 
+    ${SRC_BNETDDIR}\storage_cdb.obj \     
     ${SRC_BNETDDIR}\sql_mysql.obj \    
     ${SRC_BNETDDIR}\command_groups.obj \
     ${SRC_BNETDDIR}\output.obj \
@@ -229,6 +230,7 @@ bnetd_OBJECTS       = \
     ${SRC_COMPATDIR}\memset.obj \
     ${SRC_COMPATDIR}\memcpy.obj \
     ${SRC_COMPATDIR}\mmap.obj \
+    ${SRC_COMPATDIR}\getopt.obj \    
     ${SRC_CDBDIR}\cdb_init.obj \
     ${SRC_CDBDIR}\cdb_find.obj \
     ${SRC_CDBDIR}\cdb_findnext.obj \
