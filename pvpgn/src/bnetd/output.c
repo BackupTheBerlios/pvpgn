@@ -99,7 +99,7 @@ int output_standard_writer(FILE * fp)
 	    if (conn_get_account(conn))
 	    {
 		tname = conn_get_username(conn);
-		fprintf(fp,"\t\t<user><name>%s</name><clienttag>%s</clienttag><version>%s</version></user>\n",tname,clienttag_uint_to_str(conn_get_clienttag(conn)),vernum_to_verstr(conn_get_gameversion(conn)));
+		fprintf(fp,"\t\t<user><name>%s</name><clienttag>%s</clienttag><version>%s</version></user>\n",tname,clienttag_uint_to_str(conn_get_clienttag(conn)),conn_get_clientver(conn));
 		conn_unget_username(conn,tname);
 	    }
         }
