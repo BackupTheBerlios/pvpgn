@@ -5,6 +5,10 @@ PvPGN Version History:
 
 [BNCHAT]
  -- fixed win32 specific problem (can't read while writing)
+ 
+[D2CS]
+ -- reduce enforced maxchar value down to 18 (fixing possible
+ problems when having many chars with long charnames)
 
  Changelog for 1.7.4 (since 1.7.3)
 ===================================

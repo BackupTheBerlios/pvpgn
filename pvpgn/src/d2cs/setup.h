@@ -121,8 +121,8 @@
 #define BNETD_SERVER_LIST	"192.168.0.1"
 #define MAX_D2GAME_NUMBER	30
 #define MAX_CHAR_PER_ACCT	8
-// MAX_MAX_CHAR_PER_ACCT is needed cause D2 client can only handle 21 character
-#define MAX_MAX_CHAR_PER_ACCT	21
+// MAX_MAX_CHAR_PER_ACCT is needed cause D2 client can at worst case only handle 18 chars
+#define MAX_MAX_CHAR_PER_ACCT	18
 #define MAX_CLIENT_IDLETIME	30 * 60
 
 #define D2CS_CHARINFO_DIR	"/usr/local/var/charinfo"
