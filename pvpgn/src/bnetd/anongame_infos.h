@@ -28,6 +28,7 @@ typedef struct {
 	char * server_URL;
 	char * player_URL;
 	char * tourney_URL;
+	char * clan_URL;
 
 	char * ladder_PG_1v1_URL;
 	char * ladder_PG_ffa_URL;
@@ -36,6 +37,12 @@ typedef struct {
 	char * ladder_AT_2v2_URL;
 	char * ladder_AT_3v3_URL;
 	char * ladder_AT_4v4_URL;
+
+	char * ladder_clan_1v1_URL;
+	char * ladder_clan_2v2_URL;
+	char * ladder_clan_3v3_URL;
+	char * ladder_clan_4v4_URL;
+	
 } t_anongame_infos_URL;
 
 typedef struct {
@@ -48,6 +55,11 @@ typedef struct {
 	char * ladder_AT_2v2_desc;
 	char * ladder_AT_3v3_desc;
 	char * ladder_AT_4v4_desc;
+
+	char * ladder_clan_1v1_desc;
+	char * ladder_clan_2v2_desc;
+	char * ladder_clan_3v3_desc;
+	char * ladder_clan_4v4_desc;
 
 	char * gametype_1v1_short;
 	char * gametype_1v1_long;
@@ -78,7 +90,7 @@ typedef struct {
 	char * gametype_5v5_long;
 	char * gametype_6v6_short;
 	char * gametype_6v6_long;
-	
+
 } t_anongame_infos_DESC;
 
 typedef struct {

@@ -252,6 +252,10 @@
 #define PVPGN_AT_4V4_DESC       "4 player team"
 #define PVPGN_PG_TEAM_DESC      "Team Games"
 #define PVPGN_PG_FFA_DESC       "Free for All Games"
+#define PVPGN_CLAN_1V1_DESC	"Solo Games"
+#define PVPGN_CLAN_2V2_DESC	"2 player team"
+#define PVPGN_CLAN_3V3_DESC	"3 player team"
+#define PVPGN_CLAN_4V4_DESC	"4 player team"
 
 #define PVPGN_1V1_GT_DESC   "One vs. One"
 #define PVPGN_1V1_GT_LONG   "Two players fight to the death"
