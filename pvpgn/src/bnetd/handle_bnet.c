@@ -4782,7 +4782,10 @@ static int _client_ladderreq(t_connection * c, t_packet const * const packet)
 	     bn_int_set(&entry.ttest[0],i); // rank
 	     bn_int_set(&entry.ttest[1],0); //
 	     bn_int_set(&entry.ttest[2],0); //
-	     bn_int_set(&entry.ttest[3],account_get_ladder_active_rating(account,clienttag,id));
+	     if (account)
+	       bn_int_set(&entry.ttest[3],account_get_ladder_active_rating(account,clienttag,id));
+	     else
+	       bn_int_set(&entry.ttest[3],0);
 	     bn_int_set(&entry.ttest[4],0); //
 	     bn_int_set(&entry.ttest[5],0); //
 	     
