@@ -197,7 +197,6 @@ bnetd_OBJECTS       = \
     ${SRC_BNETDDIR}\topic.obj \
     ${SRC_BNETDDIR}\ladder_binary.obj \
     ${SRC_BNETDDIR}\support.obj \
-    ${SRC_BNETDDIR}\clienttag.obj \
     ${SRC_WIN32DIR}\service.obj \
     ${SRC_COMMONDIR}\hexdump.obj \
     ${SRC_COMMONDIR}\bn_type.obj \
@@ -217,6 +216,7 @@ bnetd_OBJECTS       = \
     ${SRC_COMMONDIR}\token.obj \
     ${SRC_COMMONDIR}\proginfo.obj \
     ${SRC_COMMONDIR}\rlimit.obj \
+    ${SRC_COMMONDIR}\tag.obj \
     ${SRC_COMMONDIR}\trans.obj \
     ${SRC_COMMONDIR}\fdwatch.obj \    
     ${SRC_COMMONDIR}\fdwatch_poll.obj \    
