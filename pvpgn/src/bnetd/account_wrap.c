@@ -45,15 +45,15 @@
 #include "connection.h"
 #include "compat/strcasecmp.h"
 #include "compat/strncasecmp.h"
-#include "common/setup_after.h"
 #include "common/bnet_protocol.h"
 #include "common/tag.h"
 #include "command.h"
-//aaron
 #include "prefs.h"
 #include "friends.h"
 #include "clan.h"
 #include "anongame_infos.h"
+#include "team.h"
+#include "common/setup_after.h"
 
 static unsigned int char_icon_to_uint(char * icon);
 
@@ -2587,8 +2587,6 @@ extern int account_get_currentatteam(t_account * account)
 
 extern int account_get_highestladderlevel(t_account * account,t_clienttag clienttag)
 {
-	// [quetzal] 20020827 - AT level part rewritten
-	int i;
 	t_elem * curr;
 	t_team * team;
 
@@ -2596,7 +2594,7 @@ extern int account_get_highestladderlevel(t_account * account,t_clienttag client
 	unsigned int teamlevel = account_get_teamlevel(account,clienttag);
 	unsigned int ffalevel  = account_get_ffalevel(account,clienttag);
 	unsigned int atlevel = 0;
-	unsigned int t; // [quetzal] 20020827 - not really needed, but could speed things up a bit
+	unsigned int t;
 	
 	if (account_get_teams(account))
 	{

@@ -1165,10 +1165,9 @@ t_binary_ladder_load_result binary_load(t_binary_ladder_types type)
 
 extern void ladders_load_accounts_to_ladderlists(void)
 {
-  // use new binary ladder here
   t_entry   * curr;
   t_account * account;
-  int teamcount,xp;
+  int xp;
 
   t_binary_ladder_load_result war3_solo_res, war3_team_res, war3_ffa_res, war3_at_res;
   t_binary_ladder_load_result w3xp_solo_res, w3xp_team_res, w3xp_ffa_res, w3xp_at_res;
@@ -1572,8 +1571,6 @@ int XML_writer(FILE * fp, t_ladder * ladder, t_clienttag clienttag)
   unsigned int discs;
   unsigned int orc_wins,human_wins,undead_wins,nightelf_wins,random_wins;
   unsigned int orc_losses,human_losses,undead_losses,nightelf_losses,random_losses;
-  char *members;
-  char *member;
 
   fprintf(fp,"<?xml version=\"1.0\"?>\n<ladder>\n");
   pointer = ladder->first;
