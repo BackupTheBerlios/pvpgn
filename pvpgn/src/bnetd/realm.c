@@ -128,7 +128,6 @@ extern char const * realm_get_name(t_realm const * realm)
 {
     if (!realm)
     {
-	eventlog(eventlog_level_error,__FUNCTION__,"got NULL realm");
 	return NULL;
     }
     return realm->name;
