@@ -5,6 +5,13 @@ PvPGN Version History:
 [D2CS]
   -- made ordering of chars on char-selection screen configurable
   -- fixed "d2cs not trying to reconnect" issue
+  -- made sure maxchar limit for an account is enforced
+
+[D2DBS]
+  -- fixed "deleted a ladder char and created one with the same name
+     breaks the ladder" problem. If your ladder is broken, delete it.
+     If your players want their chars to stay in ladder they shouldn't
+     delete them cause new chars with same name will remove the old entry
 
 [STAR/SEXP/W2BN]:
   -- changed handling of gameresults to be democratic
