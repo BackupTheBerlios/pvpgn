@@ -233,7 +233,7 @@ int clanlist_load(char const * clansdir)
   char const * dentry;
   t_pdir     * clandir;
   char       * pathname;
-  char       clanshort[4];
+  char       clanshort[5];
   t_clan     * clan;
 
   // make sure to unload previous clanlist before loading again
