@@ -359,16 +359,16 @@ extern t_connection * conn_create(int tsock, int usock, unsigned int real_local_
 	return NULL;
     }
     
-    temp->tcp_sock               = tsock;
-    temp->tcp_addr               = addr;
-    temp->tcp_port               = port;
-    temp->udp_sock               = usock;
-    temp->udp_addr               = addr; /* same for now but client can request it to be different */
-    temp->local_addr             = local_addr;
-    temp->local_port             = local_port;
-    temp->real_local_addr        = real_local_addr;
-    temp->real_local_port        = real_local_port;
-    temp->udp_port               = port;
+    temp->socket.tcp_sock               = tsock;
+    temp->socket.tcp_addr               = addr;
+    temp->socket.tcp_port               = port;
+    temp->socket.udp_sock               = usock;
+    temp->socket.udp_addr               = addr; /* same for now but client can request it to be different */
+    temp->socket.udp_port               = port;
+    temp->socket.local_addr             = local_addr;
+    temp->socket.local_port             = local_port;
+    temp->socket.real_local_addr        = real_local_addr;
+    temp->socket.real_local_port        = real_local_port;
     temp->class                  = conn_class_init;
     temp->state                  = conn_state_initial;
     temp->sessionkey             = ((unsigned int)rand())^((unsigned int)time(NULL)+(unsigned int)real_local_port);
@@ -391,22 +391,22 @@ extern t_connection * conn_create(int tsock, int usock, unsigned int real_local_
     temp->gameversion		 = 0;
     temp->checksum		 = 0;
     temp->archtag                = NULL;
-    temp->clienttag              = NULL;
-    temp->clientver              = NULL;
-    temp->gamelang		 = 0;
+    temp->clienttag       = NULL;
+    temp->clientver       = NULL;
+    temp->gamelang	 = 0;
     temp->country                = NULL;
     temp->tzbias                 = 0;
     temp->account                = NULL;
     temp->channel                = NULL;
     temp->game                   = NULL;
-    temp->outqueue               = NULL;
-    temp->outsize                = 0;
-    temp->outsizep               = 0;
-    temp->inqueue                = NULL;
-    temp->insize                 = 0;
+    temp->queues.outqueue        = NULL;
+    temp->queues.outsize         = 0;
+    temp->queues.outsizep        = 0;
+    temp->queues.inqueue         = NULL;
+    temp->queues.insize          = 0;
     temp->host                   = NULL;
     temp->user                   = NULL;
-    temp->clientexe              = NULL;
+    temp->clientexe       = NULL;
     temp->owner                  = NULL;
     temp->cdkey                  = NULL;
     temp->botuser                = NULL;
@@ -418,18 +418,18 @@ extern t_connection * conn_create(int tsock, int usock, unsigned int real_local_
     temp->realminfo              = NULL;
     temp->charname               = NULL;
     temp->versioncheck           = NULL;
-    temp->ircline		 = NULL;
-    temp->ircping		 = 0;
-    temp->ircpass		 = NULL;
+    temp->irc.ircline		 = NULL;
+    temp->irc.ircping		 = 0;
+    temp->irc.ircpass		 = NULL;
     temp->w3_username    = NULL;
-    temp->routeconn      = NULL;
-    temp->anongame	 = NULL;
+    temp->anon.routeconn      = NULL;
+    temp->anon.anongame	 = NULL;
     temp->cr_time        = time(NULL);
     temp->passfail_count = 0;
 	
     temp->w3_playerinfo = NULL;
 
-    temp->anongame_search_starttime = 0;
+    temp->anon.anongame_search_starttime = 0;
     temp->cflags		= 0;
 	
     if (list_prepend_data(conn_head,temp)<0)
@@ -439,7 +439,7 @@ extern t_connection * conn_create(int tsock, int usock, unsigned int real_local_
 	return NULL;
     }
     
-    eventlog(eventlog_level_info,"conn_create","[%d][%d] sessionkey=0x%08x sessionnum=0x%08x",temp->tcp_sock,temp->udp_sock,temp->sessionkey,temp->sessionnum);
+    eventlog(eventlog_level_info,"conn_create","[%d][%d] sessionkey=0x%08x sessionnum=0x%08x",temp->socket.tcp_sock,temp->socket.udp_sock,temp->sessionkey,temp->sessionnum);
     
     return temp;
 }
@@ -450,9 +450,9 @@ extern t_anongame * conn_create_anongame(t_connection *c)
     t_anongame * temp;
     int i;
 
-    if(c->anongame) {
+    if(c->anon.anongame) {
         eventlog(eventlog_level_error,"conn_create_anongame","anongame already allocated");
-	return c->anongame;
+	return c->anon.anongame;
     }
 
     if (!(temp = malloc(sizeof(t_anongame))))
@@ -480,7 +480,7 @@ extern t_anongame * conn_create_anongame(t_connection *c)
     temp->queue		= 0;
     temp->info		= NULL;
 
-    c->anongame = temp;
+    c->anon.anongame = temp;
 
     return temp;
 }
@@ -491,7 +491,7 @@ extern t_anongame * conn_get_anongame(t_connection *c)
 	eventlog(eventlog_level_error,"conn_get_anongame","got NULL connection");
 	return NULL;
     }
-    return c->anongame;
+    return c->anon.anongame;
 }
 
 extern void conn_destroy_anongame(t_connection *c)
@@ -504,7 +504,7 @@ extern void conn_destroy_anongame(t_connection *c)
 	return;
     }
 
-    if (!(a = c->anongame))
+    if (!(a = c->anon.anongame))
     {
 	eventlog(eventlog_level_error,"conn_destroy_anongame","NULL anongame");
 	return;
@@ -520,13 +520,13 @@ extern void conn_destroy_anongame(t_connection *c)
 	// [quetzal] 20020824 
     // unqueue from anongame search list,
 	// if we got AT game, unqueue entire team.
-	if (anongame_arranged(a->queue)) {
-		anongame_unqueue(a->tc[0], a->queue);
-	} else {
-		anongame_unqueue(c, a->queue);
-	}
-    free(c->anongame);
-	c->anongame = NULL;
+    if (anongame_arranged(a->queue)) {
+	anongame_unqueue(a->tc[0], a->queue);
+    } else {
+	anongame_unqueue(c, a->queue);
+    }
+    free(c->anon.anongame);
+    c->anon.anongame = NULL;
 }
 
 extern void conn_destroy(t_connection * c)
@@ -559,10 +559,10 @@ extern void conn_destroy(t_connection * c)
              eventlog(eventlog_level_error,"conn_destroy","could not find realm for d2cs connection");
         }
     }
-    else if (c->class == conn_class_w3route && c->routeconn && c->routeconn->anongame)
+    else if (c->class == conn_class_w3route && c->anon.routeconn && c->anon.routeconn->anon.anongame)
     {
 	anongame_stats(c);
-	conn_destroy_anongame(c->routeconn);  // [zap-zero] destroy anongame too when game connection is invalid
+	conn_destroy_anongame(c->anon.routeconn);  // [zap-zero] destroy anongame too when game connection is invalid
     }
 
     if (c->realmname) {
@@ -636,10 +636,10 @@ extern void conn_destroy(t_connection * c)
 	free((void *)c->realminfo); /* avoid warning */
     if (c->charname)
 	free((void *)c->charname); /* avoid warning */
-    if (c->ircline)
-	free((void *)c->ircline); /* avoid warning */
-    if (c->ircpass)
-	free((void *)c->ircpass); /* avoid warning */
+    if (c->irc.ircline)
+	free((void *)c->irc.ircline); /* avoid warning */
+    if (c->irc.ircpass)
+	free((void *)c->irc.ircpass); /* avoid warning */
     if (c->w3_username)
 	free((void *)c->w3_username); /* avoid warning */
 
@@ -663,7 +663,7 @@ extern void conn_destroy(t_connection * c)
 	char const * tname;
 	
 	tname = account_get_name(c->account);
-	eventlog(eventlog_level_info,"conn_destroy","[%d] \"%s\" logged out",c->tcp_sock,tname);
+	eventlog(eventlog_level_info,"conn_destroy","[%d] \"%s\" logged out",c->socket.tcp_sock,tname);
 	account_unget_name(tname);
 	//amadeo
 #ifdef WIN32_GUI
@@ -676,30 +676,30 @@ extern void conn_destroy(t_connection * c)
     }
     
     /* make sure the connection is closed */
-    if (c->tcp_sock!=-1) { /* -1 means that the socket was already closed by conn_close() */
-	fdwatch_del_fd(c->tcp_sock);
-	psock_shutdown(c->tcp_sock,PSOCK_SHUT_RDWR);
-	psock_close(c->tcp_sock);
+    if (c->socket.tcp_sock!=-1) { /* -1 means that the socket was already closed by conn_close() */
+	fdwatch_del_fd(c->socket.tcp_sock);
+	psock_shutdown(c->socket.tcp_sock,PSOCK_SHUT_RDWR);
+	psock_close(c->socket.tcp_sock);
     }
     /* clear out the packet queues */
-    queue_clear(&c->inqueue);
-    queue_clear(&c->outqueue);
+    queue_clear(&c->queues.inqueue);
+    queue_clear(&c->queues.outqueue);
 
     // [zap-zero] 20020601
-    if (c->routeconn) {
-	c->routeconn->routeconn = NULL;
-	if(c->routeconn->class == conn_class_w3route)
-	    conn_set_state(c->routeconn, conn_state_destroy);
+    if (c->anon.routeconn) {
+	c->anon.routeconn->anon.routeconn = NULL;
+	if(c->anon.routeconn->class == conn_class_w3route)
+	    conn_set_state(c->anon.routeconn, conn_state_destroy);
     }
 
-    if(c->anongame)
+    if(c->anon.anongame)
 	conn_destroy_anongame(c);
     
     /* delete the conn from the dead list if its there, we dont check for error
      * because connections may be destroyed without first setting state to destroy */
     list_remove_data(conn_dead, c);
 
-    eventlog(eventlog_level_info,"conn_destroy","[%d] closed %s connection",c->tcp_sock,classstr);
+    eventlog(eventlog_level_info,"conn_destroy","[%d] closed %s connection",c->socket.tcp_sock,classstr);
     
     free(c);
 }
@@ -885,7 +885,7 @@ extern unsigned int conn_get_addr(t_connection const * c)
         return 0;
     }
     
-    return c->tcp_addr;
+    return c->socket.tcp_addr;
 }
 
 
@@ -897,7 +897,7 @@ extern unsigned short conn_get_port(t_connection const * c)
         return 0;
     }
     
-    return c->tcp_port;
+    return c->socket.tcp_port;
 }
 
 
@@ -909,7 +909,7 @@ extern unsigned int conn_get_local_addr(t_connection const * c)
         return 0;
     }
     
-    return c->local_addr;
+    return c->socket.local_addr;
 }
 
 
@@ -921,7 +921,7 @@ extern unsigned short conn_get_local_port(t_connection const * c)
         return 0;
     }
     
-    return c->local_port;
+    return c->socket.local_port;
 }
 
 
@@ -933,7 +933,7 @@ extern unsigned int conn_get_real_local_addr(t_connection const * c)
         return 0;
     }
     
-    return c->real_local_addr;
+    return c->socket.real_local_addr;
 }
 
 
@@ -945,7 +945,7 @@ extern unsigned short conn_get_real_local_port(t_connection const * c)
         return 0;
     }
     
-    return c->real_local_port;
+    return c->socket.real_local_port;
 }
 
 
@@ -957,7 +957,7 @@ extern unsigned int conn_get_game_addr(t_connection const * c)
         return 0;
     }
     
-    return c->udp_addr;
+    return c->socket.udp_addr;
 }
 
 
@@ -969,7 +969,7 @@ extern int conn_set_game_addr(t_connection * c, unsigned int game_addr)
         return -1;
     }
     
-    c->udp_addr = game_addr;
+    c->socket.udp_addr = game_addr;
     return 0;
 }
 
@@ -982,7 +982,7 @@ extern unsigned short conn_get_game_port(t_connection const * c)
         return 0;
     }
     
-    return c->udp_port;
+    return c->socket.udp_port;
 }
 
 
@@ -994,7 +994,7 @@ extern int conn_set_game_port(t_connection * c, unsigned short game_port)
         return -1;
     }
     
-    c->udp_port = game_port;
+    c->socket.udp_port = game_port;
     return 0;
 }
 
@@ -1472,7 +1472,7 @@ extern void conn_set_account(t_connection * c, t_account * account)
     account_set_ll_time(c->account,now);
     account_set_ll_owner(c->account,c->owner);
     account_set_ll_clienttag(c->account,c->clienttag);
-    account_set_ll_ip(c->account,addr_num_to_ip_str(c->tcp_addr));
+    account_set_ll_ip(c->account,addr_num_to_ip_str(c->socket.tcp_addr));
       
     if (c->host)
     {
@@ -2148,7 +2148,7 @@ extern unsigned int conn_get_tcpaddr(t_connection * c)
 	return 0;
 	}
 	
-	return c->tcp_addr;
+	return c->socket.tcp_addr;
 }
 
 
@@ -2160,7 +2160,7 @@ extern t_queue * * conn_get_in_queue(t_connection * c)
         return NULL;
     }
     
-    return &c->inqueue;
+    return &c->queues.inqueue;
 }
 
 
@@ -2172,7 +2172,7 @@ extern unsigned int conn_get_in_size(t_connection const * c)
         return 0;
     }
     
-    return c->insize;
+    return c->queues.insize;
 }
 
 
@@ -2184,7 +2184,7 @@ extern void conn_set_in_size(t_connection * c, unsigned int size)
         return;
     }
     
-    c->insize = size;
+    c->queues.insize = size;
 }
 
 
@@ -2195,7 +2195,7 @@ extern t_queue * * conn_get_out_queue(t_connection * c)
         eventlog(eventlog_level_error,"conn_get_out_queue","got NULL connection");
         return NULL;
     }
-    return &c->outqueue;
+    return &c->queues.outqueue;
 }
 
 
@@ -2206,7 +2206,7 @@ extern unsigned int conn_get_out_size(t_connection const * c)
         eventlog(eventlog_level_error,"conn_get_out_size","got NULL connection");
         return -1;
     }
-    return c->outsize;
+    return c->queues.outsize;
 }
 
 
@@ -2218,7 +2218,7 @@ extern void conn_set_out_size(t_connection * c, unsigned int size)
         return;
     }
     
-    c->outsize = size;
+    c->queues.outsize = size;
 }
 
 extern int conn_push_outqueue(t_connection * c, t_packet * packet)
@@ -2235,8 +2235,8 @@ extern int conn_push_outqueue(t_connection * c, t_packet * packet)
         return -1;
     }
 
-    queue_push_packet((t_queue * *)&c->outqueue, packet);
-    if (!c->outsizep++) fdwatch_update_fd(c->tcp_sock, fdwatch_type_read | fdwatch_type_write);
+    queue_push_packet((t_queue * *)&c->queues.outqueue, packet);
+    if (!c->queues.outsizep++) fdwatch_update_fd(c->socket.tcp_sock, fdwatch_type_read | fdwatch_type_write);
 
     return 0;
 }
@@ -2249,7 +2249,7 @@ extern t_packet * conn_peek_outqueue(t_connection * c)
         return NULL;
     }
 
-    return queue_peek_packet((t_queue const * const *)&c->outqueue);
+    return queue_peek_packet((t_queue const * const *)&c->queues.outqueue);
 }
 
 extern t_packet * conn_pull_outqueue(t_connection * c)
@@ -2260,9 +2260,9 @@ extern t_packet * conn_pull_outqueue(t_connection * c)
         return NULL;
     }
 
-    if (c->outsizep) {
-	if (!(--c->outsizep)) fdwatch_update_fd(c->tcp_sock, fdwatch_type_read);
-	return queue_pull_packet((t_queue * *)&c->outqueue);
+    if (c->queues.outsizep) {
+	if (!(--c->queues.outsizep)) fdwatch_update_fd(c->socket.tcp_sock, fdwatch_type_read);
+	return queue_pull_packet((t_queue * *)&c->queues.outqueue);
     }
 
     return NULL;
@@ -2282,7 +2282,7 @@ extern int conn_push_inqueue(t_connection * c, t_packet * packet)
         return -1;
     }
 
-    queue_push_packet((t_queue * *)&c->inqueue, packet);
+    queue_push_packet((t_queue * *)&c->queues.inqueue, packet);
 
     return 0;
 }
@@ -2295,7 +2295,7 @@ extern t_packet * conn_peek_inqueue(t_connection * c)
         return NULL;
     }
 
-    return queue_peek_packet((t_queue const * const *)&c->inqueue);
+    return queue_peek_packet((t_queue const * const *)&c->queues.inqueue);
 }
 
 extern t_packet * conn_pull_inqueue(t_connection * c)
@@ -2306,7 +2306,7 @@ extern t_packet * conn_pull_inqueue(t_connection * c)
         return NULL;
     }
 
-    return queue_pull_packet((t_queue * *)&c->inqueue);
+    return queue_pull_packet((t_queue * *)&c->queues.inqueue);
 }
 
 #ifdef DEBUG_ACCOUNT
@@ -2474,7 +2474,7 @@ extern int conn_get_socket(t_connection const * c)
         return -1;
     }
     
-    return c->tcp_sock;
+    return c->socket.tcp_sock;
 }
 
 
@@ -2486,7 +2486,7 @@ extern int conn_get_game_socket(t_connection const * c)
         return -1;
     }
     
-    return c->udp_sock;
+    return c->socket.udp_sock;
 }
 
 
@@ -2498,7 +2498,7 @@ extern int conn_set_game_socket(t_connection * c, int usock)
         return -1;
     }
     
-    c->udp_sock = usock;
+    c->socket.udp_sock = usock;
     return 0;
 }
 
@@ -2987,10 +2987,10 @@ extern int conn_set_ircline(t_connection * c, char const * line)
 	eventlog(eventlog_level_error,"conn_set_ircline","got NULL line");
 	return -1;
     }
-    if (c->ircline)
-    	free((void *)c->ircline); /* avoid warning */
-    if (!(c->ircline = strdup(line)))
-	eventlog(eventlog_level_error,"conn_set_ircline","could not allocate memory for c->ircline");
+    if (c->irc.ircline)
+    	free((void *)c->irc.ircline); /* avoid warning */
+    if (!(c->irc.ircline = strdup(line)))
+	eventlog(eventlog_level_error,"conn_set_ircline","could not allocate memory for c->irc.ircline");
     return 0;
 }
 
@@ -3001,7 +3001,7 @@ extern char const * conn_get_ircline(t_connection const * c)
 	eventlog(eventlog_level_error,"conn_get_ircline","got NULL connection");
 	return NULL;
     }
-    return c->ircline;
+    return c->irc.ircline;
 }
 
 
@@ -3011,13 +3011,13 @@ extern int conn_set_ircpass(t_connection * c, char const * pass)
 	eventlog(eventlog_level_error,"conn_set_ircpass","got NULL connection");
 	return -1;
     }
-    if (c->ircpass)
-    	free((void *)c->ircpass); /* avoid warning */
+    if (c->irc.ircpass)
+    	free((void *)c->irc.ircpass); /* avoid warning */
     if (!pass)
-    	c->ircpass = NULL;
+    	c->irc.ircpass = NULL;
     else
-	if (!(c->ircpass = strdup(pass)))
-	    eventlog(eventlog_level_error,"conn_set_ircpass","could not allocate memory for c->ircpass");
+	if (!(c->irc.ircpass = strdup(pass)))
+	    eventlog(eventlog_level_error,"conn_set_ircpass","could not allocate memory for c->irc.ircpass");
     return 0;
 }
 
@@ -3028,7 +3028,7 @@ extern char const * conn_get_ircpass(t_connection const * c)
 	eventlog(eventlog_level_error,"conn_get_ircpass","got NULL connection");
 	return NULL;
     }
-    return c->ircpass;
+    return c->irc.ircpass;
 }
 
 
@@ -3038,7 +3038,7 @@ extern int conn_set_ircping(t_connection * c, unsigned int ping)
 	eventlog(eventlog_level_error,"conn_set_ircping","got NULL connection");
 	return -1;
     }
-    c->ircping = ping;
+    c->irc.ircping = ping;
     return 0;
 }
 
@@ -3049,7 +3049,7 @@ extern unsigned int conn_get_ircping(t_connection const * c)
 	eventlog(eventlog_level_error,"conn_get_ircping","got NULL connection");
 	return 0;
     }
-    return c->ircping;
+    return c->irc.ircping;
 }
 
 // NonReal
@@ -3334,7 +3334,7 @@ extern t_connection * conn_get_routeconn(t_connection const * c)
         return NULL;
     }
     
-	return c->routeconn;
+	return c->anon.routeconn;
 }
 
 
@@ -3344,7 +3344,7 @@ extern int conn_set_routeconn(t_connection * c, t_connection * rc)
 		eventlog(eventlog_level_error,"conn_set_routeconn","got NULL conection");
 		return -1;
     }
-	c->routeconn = rc;
+	c->anon.routeconn = rc;
     
     return 0;
 }
@@ -3411,7 +3411,7 @@ extern int conn_set_anongame_search_starttime(t_connection * c, time_t t)
       eventlog(eventlog_level_error, "conn_set_anongame_search_starttime", "got NULL connection");
       return -1;
    }
-   c->anongame_search_starttime = t;
+   c->anon.anongame_search_starttime = t;
    return 0;
 }
 
@@ -3421,7 +3421,7 @@ extern time_t conn_get_anongame_search_starttime(t_connection * c)
 	  eventlog(eventlog_level_error, "conn_set_anongame_search_starttime", "got NULL connection");
       return ((time_t) 0);
     }
-  return c->anongame_search_starttime;
+  return c->anon.anongame_search_starttime;
 }
 
 
@@ -3617,7 +3617,7 @@ extern t_connection * connlist_find_connection_by_socket(int socket)
     LIST_TRAVERSE_CONST(conn_head,curr)
     {
 	c = elem_get_data(curr);
-	if (c->tcp_sock==socket)
+	if (c->socket.tcp_sock==socket)
 	    return c;
     }
     
@@ -3767,7 +3767,7 @@ extern unsigned int connlist_count_connections(unsigned int addr)
   LIST_TRAVERSE_CONST(conn_head,curr)
   {
 	c = (t_connection *)elem_get_data(curr);
-	if (c->tcp_addr == addr)
+	if (c->socket.tcp_addr == addr)
 	  count++;
   }
 
