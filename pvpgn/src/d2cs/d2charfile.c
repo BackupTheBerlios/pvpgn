@@ -100,13 +100,14 @@ static int d2charinfo_init(t_d2charinfo_file * chardata, char const * account, c
 	bn_int_set(&chardata->header.version,D2CHARINFO_VERSION);
 	bn_int_set(&chardata->header.create_time,now);
 	bn_int_set(&chardata->header.last_time,now);
+	bn_int_set(&chardata->header.total_play_time,0);
 
+	memset(chardata->header.charname, 0,MAX_CHARNAME_LEN);
 	strncpy(chardata->header.charname,charname,MAX_CHARNAME_LEN);
-	chardata->header.charname[MAX_CHARNAME_LEN-1]='\0';
+	memset(chardata->header.account, 0,MAX_ACCTNAME_LEN);
 	strncpy(chardata->header.account,account,MAX_ACCTNAME_LEN);
-	chardata->header.account[MAX_ACCTNAME_LEN-1]='\0';
+	memset(chardata->header.realmname, 0,MAX_REALMNAME_LEN);
 	strncpy(chardata->header.realmname,prefs_get_realmname(),MAX_REALMNAME_LEN);
-	chardata->header.realmname[MAX_REALMNAME_LEN-1]='\0';
 	bn_int_set(&chardata->header.checksum,0);
 	for (i=0; i<NELEMS(chardata->header.reserved); i++) {
 		bn_int_set(&chardata->header.reserved[i],0);
@@ -118,15 +119,22 @@ static int d2charinfo_init(t_d2charinfo_file * chardata, char const * account, c
 
 	memset(chardata->portrait.gfx,D2CHARINFO_PORTRAIT_PADBYTE,sizeof(chardata->portrait.gfx));
 	memset(chardata->portrait.color,D2CHARINFO_PORTRAIT_PADBYTE,sizeof(chardata->portrait.color));
-	memset(chardata->portrait.u2,D2CHARINFO_PORTRAIT_PADBYTE,sizeof(chardata->portrait.u1));
-	memset(chardata->portrait.u1,D2CHARINFO_PORTRAIT_MASK,sizeof(chardata->portrait.u2));
+	memset(chardata->portrait.u2,D2CHARINFO_PORTRAIT_PADBYTE,sizeof(chardata->portrait.u2));
+	memset(chardata->portrait.u1,D2CHARINFO_PORTRAIT_MASK,sizeof(chardata->portrait.u1));
 	memset(chardata->pad,0,sizeof(chardata->pad));
 
 	bn_short_set(&chardata->portrait.header,D2CHARINFO_PORTRAIT_HEADER);
 	bn_byte_set(&chardata->portrait.status,status|D2CHARINFO_PORTRAIT_MASK);
 	bn_byte_set(&chardata->portrait.class,class+1);
 	bn_byte_set(&chardata->portrait.level,1);
+	if (charstatus_get_ladder(status))
+		bn_byte_set(&chardata->portrait.ladder, 1);
+	else
+		bn_byte_set(&chardata->portrait.ladder, D2CHARINFO_PORTRAIT_PADBYTE);
 	bn_byte_set(&chardata->portrait.end,'\0');
+
+	memset(chardata->pad,0,sizeof(chardata->pad));
+	
 	return 0;
 }
 
@@ -137,13 +145,14 @@ extern int d2char_create(char const * account, char const * charname, unsigned c
 	char			* savefile, * infofile;
 	char			buffer[1024];
 	unsigned int		size;
+	int			ladder_time, now;
 	FILE			* fp;
 
 
 	ASSERT(account,-1);
 	ASSERT(charname,-1);
 	if (class>D2CHAR_MAX_CLASS) class=0;
-	status &= 0xFF;
+	status &= D2CHARINFO_STATUS_FLAG_INIT_MASK;
 	charstatus_set_init(status,1);
 	
 /*	We need to make sure we are creating the correct character (Classic or Expansion)
@@ -203,7 +212,13 @@ extern int d2char_create(char const * account, char const * charname, unsigned c
 		free(savefile);
 		return -1;
 	}
+
 	d2char_get_infofile_name(infofile,account,charname);
+
+	now = time(NULL);
+	ladder_time = prefs_get_ladder_start_time();
+	if ((ladder_time > 0) && (now < ladder_time))
+		charstatus_set_ladder(status, 0);
 	
 	d2charsave_init(buffer,charname,class,status);
 	d2charinfo_init(&chardata,account,charname,class,status);
