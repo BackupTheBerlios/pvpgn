@@ -146,7 +146,7 @@ extern int trans_load(char const * filename, int program)
 	    continue;
 	}
 	/* add exlude networks */
-	if (!(tmp = strdup(exclude))) {
+	if (!(tmp = xstrdup(exclude))) {
 	    eventlog(eventlog_level_error,__FUNCTION__,"could not allocate memory for temp");
 	    xfree(buff);
 	    continue;
@@ -218,7 +218,7 @@ extern int trans_load(char const * filename, int program)
 	}
 	xfree(tmp);
 	/* add include networks */
-	if (!(tmp = strdup(include))) {
+	if (!(tmp = xstrdup(include))) {
 	    eventlog(eventlog_level_error,__FUNCTION__,"could not allocate memory for temp");
 	    xfree(buff);
 	    continue;

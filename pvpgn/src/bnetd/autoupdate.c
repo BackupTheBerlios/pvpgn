@@ -159,13 +159,13 @@ extern int autoupdate_load(char const * filename)
 	    xfree(buff);
 	    continue;
 	}
-	if ((!(entry->versiontag = strdup(versiontag)))) {
+	if ((!(entry->versiontag = xstrdup(versiontag)))) {
 	    eventlog(eventlog_level_error,__FUNCTION__,"could not allocate memory for versiontag");
 	    xfree(entry);
 	    xfree(buff);
 	    continue;
 	}
-	if (!(entry->mpqfile = strdup(mpqfile))) {
+	if (!(entry->mpqfile = xstrdup(mpqfile))) {
 	    eventlog(eventlog_level_error,__FUNCTION__,"could not allocate memory for mpqfile");
 	    xfree((void *)entry->versiontag);
 	    xfree(entry);
@@ -249,7 +249,7 @@ extern char * autoupdate_check(t_tag archtag, t_tag clienttag, t_tag gamelang, c
 		char * extention;
 		
 		tag_uint_to_str(gltag,gamelang);
-		tempmpq = strdup(entry->mpqfile);
+		tempmpq = xstrdup(entry->mpqfile);
 		
 		if (!(temp = xmalloc(strlen(tempmpq)+6))) {
 		    eventlog(eventlog_level_error,__FUNCTION__,"could not allocate memory for mpq file name");
@@ -265,7 +265,7 @@ extern char * autoupdate_check(t_tag archtag, t_tag clienttag, t_tag gamelang, c
 		xfree((void *)tempmpq);
 		return temp;
 	    }
-	    temp = strdup(entry->mpqfile);
+	    temp = xstrdup(entry->mpqfile);
 	    return temp;
 	}
     }

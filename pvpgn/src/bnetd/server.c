@@ -846,27 +846,27 @@ extern void server_set_name(void)
     	hp = gethostbyname(temp);
     	if (!hp || !hp->h_name) {
 #endif
-    	    server_name = strdup(temp);
+    	    server_name = xstrdup(temp);
 #ifdef HAVE_GETHOSTBYNAME
     	} else {
 	    int i=0;
 
 	    if (strchr(hp->h_name,'.'))
 	    	/* Default name is already a FQDN */
-	    	server_name = strdup(hp->h_name);
+	    	server_name = xstrdup(hp->h_name);
 	    /* ... if not we have to examine the aliases */
 	    while (!server_name && hp->h_aliases && hp->h_aliases[i]) {
 		if (strchr(hp->h_aliases[i],'.'))
-		    server_name = strdup(hp->h_aliases[i]);
+		    server_name = xstrdup(hp->h_aliases[i]);
 	    	i++;
 	    }
 	    if (!server_name)
 		/* Fall back to default name which might not be a FQDN */
-    	    	server_name = strdup(hp->h_name);
+    	    	server_name = xstrdup(hp->h_name);
     	}
 #endif
     } else {
-	server_name = strdup(sn);
+	server_name = xstrdup(sn);
     }
     server_check_and_fix_name(server_name);
     eventlog(eventlog_level_info,"server_set_name","set servername to \"%s\"",server_name);

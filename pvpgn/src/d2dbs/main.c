@@ -170,7 +170,7 @@ if (d2dbs_cmdline_get_make_service())
     eventlog_clear_level();
     if ((levels = d2dbs_prefs_get_loglevels()))
     {
-        if (!(temp = strdup(levels)))
+        if (!(temp = xstrdup(levels)))
         {
          eventlog(eventlog_level_fatal,__FUNCTION__,"could not allocate memory for temp (exiting)");
          return -1;

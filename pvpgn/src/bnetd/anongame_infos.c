@@ -466,7 +466,7 @@ static t_anongame_infos_data_lang *anongame_infos_data_lang_init(char *langID)
 	return NULL;
     }
 
-    anongame_infos_data_lang->langID = strdup(langID);
+    anongame_infos_data_lang->langID = xstrdup(langID);
 
     anongame_infos_data_lang->desc_data = NULL;
     anongame_infos_data_lang->ladr_data = NULL;
@@ -749,7 +749,7 @@ static int anongame_infos_set_str(char **dst, char *src, char *errstr)
 	return -1;
     }
 
-    if (!(temp = strdup(src)))
+    if (!(temp = xstrdup(src)))
     {
 	eventlog(eventlog_level_error, __FUNCTION__, "could not allocate mem for %s", errstr);
 	return -1;
@@ -2997,7 +2997,7 @@ extern int anongame_infos_load(char const *filename)
 			parse_state = unchanged;
 			eventlog(eventlog_level_info, __FUNCTION__, "got langID: [%s]", langID);
 			if (langID[0] != '\0')
-			    anongame_infos_DESC->langID = strdup(langID);
+			    anongame_infos_DESC->langID = xstrdup(langID);
 		    }
 
 		    variable = buff;

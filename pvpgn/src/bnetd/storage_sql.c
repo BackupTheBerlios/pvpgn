@@ -179,7 +179,7 @@ static int sql_init(const char *dbpath)
     const char *dbsocket = NULL;
     const char *def = NULL;
 
-    if ((path = strdup(dbpath)) == NULL)
+    if ((path = xstrdup(dbpath)) == NULL)
     {
 	eventlog(eventlog_level_error, __FUNCTION__, "could not duplicate dbpath");
 	return -1;
@@ -532,7 +532,7 @@ static void *sql_read_attr(t_storage_info * info, const char *key)
 	return NULL;
     }
 
-    if ((attr->key = strdup(key)) == NULL)
+    if ((attr->key = xstrdup(key)) == NULL)
     {
 	eventlog(eventlog_level_error, __FUNCTION__, "not enough memory for result key");
 	xfree((void *) attr);
@@ -540,7 +540,7 @@ static void *sql_read_attr(t_storage_info * info, const char *key)
 	return NULL;
     }
 
-    if ((attr->val = strdup(row[0])) == NULL)
+    if ((attr->val = xstrdup(row[0])) == NULL)
     {
 	eventlog(eventlog_level_error, __FUNCTION__, "not enough memory for result val");
 	xfree((void *) attr->key);
@@ -814,7 +814,7 @@ static const char *sql_escape_key(const char *key)
 
     for(idx = 0, p = (char *)newkey; *p; p++, idx++)
 	if ((*p < '0' || *p > '9') && (*p < 'a' || *p > 'z') && (*p < 'A' || *p > 'Z')) {
-	    if ((newkey = strdup(key)) == NULL) {
+	    if ((newkey = xstrdup(key)) == NULL) {
 		eventlog(eventlog_level_error, __FUNCTION__, "not enough memory for escaped key");
 		return key;
 	    }
@@ -1010,8 +1010,8 @@ static int sql_load_clans(t_load_clans_func cb)
 
 	    clan->clantag = atoi(row[1]);
 
-	    clan->clanname = strdup(row[2]);
-	    clan->clan_motd = strdup(row[3]);
+	    clan->clanname = xstrdup(row[2]);
+	    clan->clan_motd = xstrdup(row[3]);
 	    clan->creation_time = atoi(row[4]);
 	    clan->created = 1;
 	    clan->modified = 0;

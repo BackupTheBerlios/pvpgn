@@ -169,7 +169,7 @@ extern t_channel * channel_create(char const * fullname, char const * shortname,
              realmname?"\"":")");
 
     
-    if (!(channel->name = strdup(fullname)))
+    if (!(channel->name = xstrdup(fullname)))
     {
         eventlog(eventlog_level_info,"channel_create","unable to allocate memory for channel->name");
 	xfree(channel);
@@ -179,7 +179,7 @@ extern t_channel * channel_create(char const * fullname, char const * shortname,
     if (!shortname)
 	channel->shortname = NULL;
     else
-	if (!(channel->shortname = strdup(shortname)))
+	if (!(channel->shortname = xstrdup(shortname)))
 	{
 	    eventlog(eventlog_level_info,"channel_create","unable to allocate memory for channel->shortname");
 	    xfree((void *)channel->name); /* avoid warning */
@@ -189,7 +189,7 @@ extern t_channel * channel_create(char const * fullname, char const * shortname,
     
     if (clienttag)
     {
-	if (!(channel->clienttag = strdup(clienttag)))
+	if (!(channel->clienttag = xstrdup(clienttag)))
 	{
 	    eventlog(eventlog_level_error,"channel_create","could not allocate memory for channel->clienttag");
 	    if (channel->shortname)
@@ -204,7 +204,7 @@ extern t_channel * channel_create(char const * fullname, char const * shortname,
 
     if (country)
     {
-	if (!(channel->country = strdup(country)))
+	if (!(channel->country = xstrdup(country)))
 	{
             eventlog(eventlog_level_info,"channel_create","unable to allocate memory for channel->country");
 	    if (channel->clienttag)
@@ -221,7 +221,7 @@ extern t_channel * channel_create(char const * fullname, char const * shortname,
 	
     if (realmname)
     {
-	if (!(channel->realmname = strdup(realmname)))
+	if (!(channel->realmname = xstrdup(realmname)))
         {
             eventlog(eventlog_level_info,"channel_create","unable to allocate memory for channel->realmname");
 	    if (channel->country)
@@ -534,7 +534,7 @@ extern int channel_rejoin(t_connection * conn)
   if (!(temp = channel_get_name(channel)))
     return -1;
 
-  if ((chname=strdup(temp)))
+  if ((chname=xstrdup(temp)))
   {
     conn_set_channel(conn, NULL);
     if (conn_set_channel(conn,chname)<0)
@@ -850,7 +850,7 @@ extern int channel_ban_user(t_channel * channel, char const * user)
         if (strcasecmp(elem_get_data(curr),user)==0)
             return 0;
     
-    if (!(temp = strdup(user)))
+    if (!(temp = xstrdup(user)))
     {
         eventlog(eventlog_level_error,"channel_ban_user","could not allocate memory for temp");
         return -1;
@@ -1255,7 +1255,7 @@ extern int channellist_reload(void)
 	  /* we need only channel name and memberlist */
 
 	  old_channel = (t_channel *) xmalloc(sizeof(t_channel));
-	  old_channel->shortname = strdup(channel->shortname);
+	  old_channel->shortname = xstrdup(channel->shortname);
 	  old_channel->memberlist = NULL;
 	  member = channel->memberlist;
 

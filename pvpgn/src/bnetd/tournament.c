@@ -132,7 +132,7 @@ extern int tournament_signup_user(t_account * account)
 	return -1;
     }
     
-    user->name		= strdup(account_get_name(account));
+    user->name		= xstrdup(account_get_name(account));
     user->wins		= 0;
     user->losses	= 0;
     user->ties		= 0;
@@ -344,8 +344,8 @@ extern int tournament_init(char const * filename)
     tournament_info->game_type		= 1; /* Default to 1v1 */
     tournament_info->game_client	= 2; /* Default to FT */
     tournament_info->races		= 0x3F; /* Default to all races */
-    tournament_info->format		= strdup("");
-    tournament_info->sponsor		= strdup("");
+    tournament_info->format		= xstrdup("");
+    tournament_info->sponsor		= xstrdup("");
     tournament_info->thumbs_down	= 0;
     
     anongame_tournament_maplists_destroy();
@@ -415,7 +415,7 @@ extern int tournament_init(char const * filename)
 		    xfree(buff);
 		    continue;
 		}
-		mname = strdup(mapname);
+		mname = xstrdup(mapname);
 		
 		anongame_add_tournament_map(ctag, mname);
 		eventlog(eventlog_level_trace,__FUNCTION__,"added tournament map \"%s\" for %s",mname,clienttag);
@@ -620,7 +620,7 @@ extern int tournament_init(char const * filename)
 	        pointer[0]='\0';
 	        
 	        if (tournament_info->format) xfree((void *)tournament_info->format);
-	        tournament_info->format = strdup(value);
+	        tournament_info->format = xstrdup(value);
 	    }
 	    else if (strcmp(variable,"races") == 0) {
 	        unsigned int intvalue = 0;
@@ -652,7 +652,7 @@ extern int tournament_init(char const * filename)
 	        pointer = strchr(pointer,'\"');
 	        pointer[0]='\0';
 		
-	        have_sponsor = strdup(value);
+	        have_sponsor = xstrdup(value);
 	    }
 	    else if (strcmp(variable,"icon") == 0) {
 	        pointer = strchr(pointer,'\"');
@@ -661,7 +661,7 @@ extern int tournament_init(char const * filename)
 	        pointer = strchr(pointer,'\"');
 	        pointer[0]='\0';
 		
-	        have_icon = strdup(value);
+	        have_icon = xstrdup(value);
 	    }
 	    else if (strcmp(variable,"thumbs_down") == 0) {
 	        tournament_info->thumbs_down = atoi(pointer);
@@ -684,7 +684,7 @@ extern int tournament_init(char const * filename)
 		if (tournament_info->sponsor)
 		    xfree((void *)tournament_info->sponsor);
 	        
-		tournament_info->sponsor = strdup(sponsor);
+		tournament_info->sponsor = xstrdup(sponsor);
 	        xfree((void *)have_sponsor);
 		xfree((void *)have_icon);
 	        xfree((void *)sponsor);

@@ -90,7 +90,7 @@ static t_realm * realm_create(char const * name, char const * description, unsig
 	return NULL;
     }
     if (realm->description != NULL) xfree((void *)realm->description);
-    if (!(realm->description = strdup(description)))
+    if (!(realm->description = xstrdup(description)))
     {
 	eventlog(eventlog_level_error,"realm_create","could not allocate memory for description");
 	xfree((void *)realm->name); /* avoid warning */
@@ -164,7 +164,7 @@ extern int realm_set_name(t_realm * realm, char const * name)
 
     if (name)
       {
-	if (!(temp=strdup(name)))
+	if (!(temp=xstrdup(name)))
 	  {
 	    eventlog(eventlog_level_error,"realm_set_name","could not allocate memory for new realmname");
 	    return -1;
@@ -401,7 +401,7 @@ extern int realmlist_create(char const * filename)
 	
 	/* save the realmname */
 	*temp = '\0';
-        if (!(name = strdup(temp2)))
+        if (!(name = xstrdup(temp2)))
         {
             eventlog(eventlog_level_error,"realmlist_create","could not allocate memory for name");
             xfree(buff);
@@ -426,7 +426,7 @@ extern int realmlist_create(char const * filename)
 	    
 	    /* save the description */
 	    *temp = '\0';
-    	    if (!(desc = strdup(temp2))) {
+    	    if (!(desc = xstrdup(temp2))) {
         	eventlog(eventlog_level_error,"realmlist_create","could not allocate memory for desc");
         	xfree(name);
         	xfree(buff);
@@ -437,7 +437,7 @@ extern int realmlist_create(char const * filename)
 
 	    /* skip any separators */
 	    for(temp = temp + 1; *temp && (*temp == ' ' || *temp == '\t');temp++);
-	} else desc = strdup("\0");
+	} else desc = xstrdup("\0");
 	
 	temp2 = temp;
 	/* find out where address ends */

@@ -121,11 +121,7 @@ extern t_account * account_create(char const * username, char const * passhash1)
 {
     t_account * account;
     
-    if (!(account = xmalloc(sizeof(t_account))))
-    {
-	eventlog(eventlog_level_error,"account_create","could not allocate memory for account");
-	return NULL;
-    }
+    account = xmalloc(sizeof(t_account));
 
     account->name     = NULL;
     account->storage  = NULL;
@@ -155,13 +151,9 @@ extern t_account * account_create(char const * username, char const * passhash1)
 	    return NULL;
 	}
 	FLAG_SET(&account->flags,ACCOUNT_FLAG_LOADED);
-	
-	if ((account->name = strdup(username)) == NULL) {
-	    eventlog(eventlog_level_error, "account_create", "could not duplicate username to cache it");
-	    account_destroy(account);
-	    return NULL;
-	}
-	
+
+	account->name = xstrdup(username);
+
 	if (account_set_strattr(account,"BNET\\acct\\username",username)<0)
 	{
 	    eventlog(eventlog_level_error,"account_create","could not set username");
@@ -335,26 +327,11 @@ static int account_insert_attr(t_account * account, char const * key, char const
     char *        nkey;
     char *        nval;
     
-    if (!(nattr = xmalloc(sizeof(t_attribute))))
-    {
-	eventlog(eventlog_level_error,"account_insert_attr","could not allocate attribute");
-	return -1;
-    }
+    nattr = xmalloc(sizeof(t_attribute));
 
     nkey = (char *)storage->escape_key(key);
-    if (nkey == key && !(nkey = strdup(key)))
-    {
-	eventlog(eventlog_level_error,"account_insert_attr","could not allocate attribute key");
-	xfree(nattr);
-	return -1;
-    }
-    if (!(nval = strdup(val)))
-    {
-	eventlog(eventlog_level_error,"account_insert_attr","could not allocate attribute value");
-	xfree(nkey);
-	xfree(nattr);
-	return -1;
-    }
+    if (nkey == key) nkey = xstrdup(key);
+    nval = xstrdup(val);
     nattr->key  = nkey;
     nattr->val  = nval;
     nattr->dirty = 1;
@@ -406,11 +383,7 @@ extern char const * account_get_strattr(t_account * account, char const * key)
 	/* Recent Starcraft clients seems to query DynKey\*\1\rank instead of
 	 * Record\*\1\rank. So replace Dynkey with Record for key lookup.
 	 */
-	if (!(temp = strdup(key)))
-	  {
-	    eventlog(eventlog_level_error,"account_get_strattr","could not allocate memory for temp");
-	    return NULL;
-	  }
+	temp = xstrdup(key);
 	strncpy(temp,"Record",6);
 	newkey = temp;
       }
@@ -420,11 +393,7 @@ extern char const * account_get_strattr(t_account * account, char const * key)
 	
 	/* Starcraft clients query Star instead of STAR on logon screen.
 	 */
-	if (!(temp = strdup(key)))
-	  {
-	    eventlog(eventlog_level_error,"account_get_strattr","could not allocate memory for temp");
-	    return NULL;
-	  }
+	temp = xstrdup(key);
 	strncpy(temp,"STAR",6);
 	newkey = temp;
       }
@@ -477,7 +446,7 @@ extern char const * account_get_strattr(t_account * account, char const * key)
 		    
 		}
 #ifdef TESTUNGET
-		return strdup(curr->val);
+		return xstrdup(curr->val);
 #else
                 return curr->val;
 #endif
@@ -556,12 +525,7 @@ extern int account_set_strattr(t_account * account, char const * key, char const
 	{
 	    char * temp;
 	    
-	    if (!(temp = strdup(val)))
-	    {
-		eventlog(eventlog_level_error,"account_set_strattr","could not allocate attribute value");
-		if (key != newkey) xfree((void*)newkey);
-		return -1;
-	    }
+	    temp = xstrdup(val);
 	    
 	    if (strcmp(curr->val,temp)!=0)
 	    {	
@@ -599,12 +563,7 @@ extern int account_set_strattr(t_account * account, char const * key, char const
 	{
 	    char * temp;
 	    
-	    if (!(temp = strdup(val)))
-	    {
-		eventlog(eventlog_level_error,"account_set_strattr","could not allocate attribute value");
-		if (key != newkey) xfree((void*)newkey);
-		return -1;
-	    }
+	    temp = xstrdup(val);
 	    
 	    if (strcmp(curr->next->val,temp)!=0)
 	    {
@@ -1343,7 +1302,7 @@ extern char const * account_get_name(t_account * account)
     if (account->name) { /* we have a cached username so return it */
 /*	eventlog(eventlog_level_trace, "account_get_name", "we use the cached value, good!"); */
 #ifdef TEST_UNGET
-       return strdup(account->name);
+       return xstrdup(account->name);
 #else
        return account->name;
 #endif
@@ -1353,7 +1312,7 @@ extern char const * account_get_name(t_account * account)
     if (!(temp = account_get_strattr(account,"BNET\\acct\\username")))
 	eventlog(eventlog_level_error,"account_get_name","account has no username");
     else
-	account->name = strdup(temp);
+	account->name = xstrdup(temp);
     return account->name;
 }
 

@@ -709,7 +709,7 @@ extern int d2cs_conn_set_account(t_connection * c, char const * account)
 		if (c->account) xfree((void *)c->account);
 		c->account=NULL;
 	}
-	if (!(temp=strdup(account))) {
+	if (!(temp=xstrdup(account))) {
 		eventlog(eventlog_level_error,__FUNCTION__,"error allocate temp for account");
 		return -1;
 	}
@@ -730,7 +730,7 @@ extern int d2cs_conn_set_charname(t_connection * c, char const * charname)
 
 	ASSERT(c,-1);
 	temp=NULL;
-	if (charname && !(temp=strdup(charname))) {
+	if (charname && !(temp=xstrdup(charname))) {
 		eventlog(eventlog_level_error,__FUNCTION__,"error allocate temp for charname");
 		return -1;
 	}

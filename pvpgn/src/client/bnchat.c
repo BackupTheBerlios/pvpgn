@@ -1260,7 +1260,7 @@ extern int main(int argc, char * argv[])
 		    tcsetattr(fd_stdin,TCSAFLUSH,&in_attr_old);
 		return STATUS_FAILURE;
 	    }
-	    if (!(channellist[i] = strdup(chann)))
+	    if (!(channellist[i] = xstrdup(chann)))
 	    {
                 fprintf(stderr,"%s: could not allocate memory for channellist[i]\n",argv[0]);
                 psock_close(sd);

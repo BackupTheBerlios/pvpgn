@@ -110,7 +110,7 @@ extern char * hexstrdup(unsigned char const * src)
 	int	len;
 
 	if (!src) return NULL;
-	if (!(dest=strdup(src))) return NULL;
+	if (!(dest=xstrdup(src))) return NULL;
 	len=hexstrtoraw(src,dest,strlen(dest)+1);
 	dest[len]='\0';
 	return dest;

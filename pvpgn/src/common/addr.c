@@ -200,7 +200,7 @@ extern t_addr * addr_create_num(unsigned int ipaddr, unsigned short port)
 	return NULL;
     }
     
-    if (!(temp->str = strdup(addr_num_to_addr_str(ipaddr,port))))
+    if (!(temp->str = xstrdup(addr_num_to_addr_str(ipaddr,port))))
     {
 	eventlog(eventlog_level_error,"addr_create_num","could not allocate memory for str");
 	xfree(temp);
@@ -231,7 +231,7 @@ extern t_addr * addr_create_str(char const * str, unsigned int defipaddr, unsign
 	return NULL;
     }
     
-    if (!(tstr = strdup(str)))
+    if (!(tstr = xstrdup(str)))
     {
 	eventlog(eventlog_level_error,"addr_create_str","could not allocate memory for str");
 	return NULL;
@@ -299,7 +299,7 @@ extern t_addr * addr_create_str(char const * str, unsigned int defipaddr, unsign
 	return NULL;
     }
     
-    if (!(temp->str = strdup(hostname)))
+    if (!(temp->str = xstrdup(hostname)))
     {
 	eventlog(eventlog_level_error,"addr_create_str","could not allocate memory for str");
 	xfree(temp);
@@ -457,7 +457,7 @@ extern t_netaddr * netaddr_create_str(char const * netstr)
 	return NULL;
     }
     
-    if (!(temp = strdup(netstr)))
+    if (!(temp = xstrdup(netstr)))
     {
 	eventlog(eventlog_level_error,"netaddr_create_str","could not allocate memory for temp");
 	return NULL;
@@ -593,7 +593,7 @@ extern int addrlist_append(t_addrlist * addrlist, char const * str, unsigned int
 	return -1;
     }
         
-    if (!(tstr = strdup(str)))
+    if (!(tstr = xstrdup(str)))
     {
 	eventlog(eventlog_level_error,"addrlist_append","could not allocate memory for tstr");
 	return -1;

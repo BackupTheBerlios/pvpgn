@@ -193,16 +193,16 @@ extern t_game * d2cs_game_create(char const * gamename, char const * gamepass, c
 		eventlog(eventlog_level_error,__FUNCTION__,"error allocate memory for game");
 		return NULL;
 	}
-	if (!(game->name=strdup(gamename))) {
+	if (!(game->name=xstrdup(gamename))) {
 		xfree(game);
 		return NULL;
 	}
-	if (!(game->pass=strdup(gamepass))) {
+	if (!(game->pass=xstrdup(gamepass))) {
 		xfree((void *)game->name);
 		xfree(game);
 		return NULL;
 	}
-	if (!(game->desc=strdup(gamedesc))) {
+	if (!(game->desc=xstrdup(gamedesc))) {
 		xfree((void *)game->name);
 		xfree((void *)game->pass);
 		xfree(game);
@@ -317,7 +317,7 @@ extern int game_add_character(t_game * game, char const * charname, unsigned cha
 		eventlog(eventlog_level_error,__FUNCTION__,"error allocate charinfo");
 		return -1;
 	}
-	if (!(charinfo->charname=strdup(charname))) {
+	if (!(charinfo->charname=xstrdup(charname))) {
 		return -1;
 	}
 	charinfo->class=class;

@@ -101,7 +101,7 @@ static int conf_str_set(void * data, char const * value)
 	
 	p=(char * *)data;
 	tmp=NULL;
-	if (value && !(tmp=strdup(value))) return -1;
+	if (value && !(tmp=xstrdup(value))) return -1;
 	if (*p) xfree(*p);
 	*p=tmp;
 	return 0;

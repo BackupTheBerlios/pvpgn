@@ -57,7 +57,7 @@ extern int storage_init(const char *spath)
 	return -1;
     }
 
-    if ((temp = strdup(spath)) == NULL) {
+    if ((temp = xstrdup(spath)) == NULL) {
 	eventlog(eventlog_level_error, __FUNCTION__, "could not duplicate spath");
 	return -1;
     }

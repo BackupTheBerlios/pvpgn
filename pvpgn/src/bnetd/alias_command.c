@@ -115,7 +115,7 @@ static char * replace_args(char const * in, unsigned int * offsets, int numargs,
 
     off1 = off2 = 0;
 
-    if (!(out = strdup(in)))
+    if (!(out = xstrdup(in)))
         return NULL;
     size = strlen(out);
     
@@ -413,7 +413,7 @@ extern int aliasfile_load(char const * filename)
 		if ((alias = xmalloc(sizeof(t_alias))))
 		{
 		  alias->output=0;
-		  alias->alias=strdup(&buff[pos]);
+		  alias->alias=xstrdup(&buff[pos]);
 		}
 	    }
 	    break;
@@ -434,7 +434,7 @@ extern int aliasfile_load(char const * filename)
 
 	      if ((dummy=strchr(&buff[pos],']')))
 	      {
-		if (dummy[1]!='\0') out = strdup(&dummy[1]);
+		if (dummy[1]!='\0') out = xstrdup(&dummy[1]);
 	      }
 
 	      if (buff[pos+1]=='*')
@@ -506,7 +506,7 @@ extern int aliasfile_load(char const * filename)
 		min = max = 0;
 		if ((dummy=strchr(&buff[pos],']')))
 		  {
-		    if (dummy[1]!='\0') out = strdup(&dummy[1]);
+		    if (dummy[1]!='\0') out = xstrdup(&dummy[1]);
 		  }
 
 

@@ -73,7 +73,7 @@ extern int d2charlist_add_char(t_d2charlist *charlist, char const * name, bn_int
     charlist_internal = xmalloc(sizeof(t_d2charlist_internal));
     if(charlist_internal!=NULL)
     {
-	charlist_internal->name = strdup(name);
+	charlist_internal->name = xstrdup(name);
 	charlist_internal->mtime = bn_int_get(mtime);
 	charlist_internal->level = bn_int_get(level);
 	charlist_internal->exp = bn_int_get(exp);

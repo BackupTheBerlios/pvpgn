@@ -116,7 +116,7 @@ extern int command_groups_load(char const * filename)
 		xfree(entry);
 		continue;
 	    }
-	    if (!(entry->command = strdup(command))) {
+	    if (!(entry->command = xstrdup(command))) {
 		eventlog(eventlog_level_error,"command_groups_load","could not allocate memory for client address");
 		xfree(entry);
 		continue;

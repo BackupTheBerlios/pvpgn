@@ -1148,7 +1148,7 @@ extern int clan_set_motd(t_clan * clan, const char *motd)
     {
 	if (clan->clan_motd)
 	    xfree((void *) clan->clan_motd);
-	clan->clan_motd = strdup(motd);
+	clan->clan_motd = xstrdup(motd);
     }
     return 0;
 }
@@ -1280,7 +1280,7 @@ extern t_clan *clan_create(t_account * chieftain_acc, t_connection * chieftain_c
 	return NULL;
     }
 
-    if (!(clan->clanname = strdup(clanname)))
+    if (!(clan->clanname = xstrdup(clanname)))
     {
 	eventlog(eventlog_level_error, __FUNCTION__, "could not allocate memory for clanname");
 	xfree((void *) clan);
@@ -1290,10 +1290,10 @@ extern t_clan *clan_create(t_account * chieftain_acc, t_connection * chieftain_c
 
     if (!(motd))
     {
-	clan->clan_motd = strdup("This is a newly created clan");
+	clan->clan_motd = xstrdup("This is a newly created clan");
     } else
     {
-	clan->clan_motd = strdup(motd);
+	clan->clan_motd = xstrdup(motd);
     }
     if (!(clan->clan_motd))
     {

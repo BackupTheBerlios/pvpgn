@@ -649,7 +649,7 @@ static int _handle_clan_command(t_connection * c, char const * text)
     return 0;
   }
   
-  oldclanname = strdup(account_get_w3_clanname(conn_get_account(c)));
+  oldclanname = xstrdup(account_get_w3_clanname(conn_get_account(c)));
   account_set_w3_clanname(conn_get_account(c),text);
   if(!oldclanname || !(*oldclanname))
     {
@@ -2758,7 +2758,7 @@ static int _handle_news_command(t_connection * c, char const *text)
 	    if ((body = news_get_body(newsindex)))
 		{
 	      for (i=0; body[i] != '\0'; i++) {
-		  temp2 = strdup(&body[i]);
+		  temp2 = xstrdup(&body[i]);
 		  for (j=0; (temp2[j] != '\n')&&(temp2[j] != '\0'); j++);
 		  temp2[j] = '\0';
 		  message_send_text(c,message_type_info,c,temp2);
@@ -3948,9 +3948,9 @@ static int _handle_timer_command(t_connection * c, char const *text)
     }
   
   if (text[i]=='\0')
-    data.p = strdup("Your timer has expired.");
+    data.p = xstrdup("Your timer has expired.");
   else
-    data.p = strdup(&text[i]);
+    data.p = xstrdup(&text[i]);
   
   if (timerlist_add_timer(c,time(NULL)+(time_t)delta,user_timer_cb,data)<0)
     {

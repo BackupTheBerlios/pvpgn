@@ -75,14 +75,14 @@ t_column * create_column(char * name, char * value)
       return NULL;
     }
   
-  if (!(column->name  = strdup(name)))
+  if (!(column->name  = xstrdup(name)))
     {
       eventlog(eventlog_level_error,__FUNCTION__,"could not strdup column name");
       xfree((void *)column);
       return NULL;
     }
   
-  if (!(column->value = strdup(value)))
+  if (!(column->value = xstrdup(value)))
     {
       eventlog(eventlog_level_error,__FUNCTION__,"could not strdup column value");
       xfree((void *)column->name);
@@ -119,7 +119,7 @@ t_table * create_table(char * name)
       return NULL;
     }
   
-  if (!(table->name = strdup(name)))
+  if (!(table->name = xstrdup(name)))
     {
       eventlog(eventlog_level_error,__FUNCTION__,"could not strdup table name");
       xfree((void *)table);

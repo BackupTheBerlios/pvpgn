@@ -92,7 +92,7 @@ extern t_pdir * p_opendir(const char * path) {
    }
    strcpy(npath, path);
    strcat(npath, "/*.*");
-   if (!(pdir->path=strdup(npath)))
+   if (!(pdir->path=xstrdup(npath)))
    {
       eventlog(eventlog_level_error,"p_opendir","WIN32: could not allocate memory for path");
       xfree(pdir);
@@ -111,7 +111,7 @@ extern t_pdir * p_opendir(const char * path) {
 
 #else /* POSIX style */
 
-   if (!(pdir->path=strdup(path)))
+   if (!(pdir->path=xstrdup(path)))
    {
       eventlog(eventlog_level_error,"p_opendir","POSIX: unable to allocate memory for path");
       xfree(pdir);

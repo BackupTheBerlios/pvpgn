@@ -770,7 +770,7 @@ static const char * _w3_decrypt_mapinfo(const char *enc)
     unsigned    pos;
     unsigned char bitmask;
 
-    if (!(mapinfo = strdup(enc))) {
+    if (!(mapinfo = xstrdup(enc))) {
 	eventlog(eventlog_level_error, __FUNCTION__, "not enough memory to setup temporary buffer");
 	return NULL;
     }
@@ -996,7 +996,7 @@ If the corresponding bit is a '0' then subtract 1 from the character.
     }
     
     /* otherwise it's Starcraft, Brood War, or Warcraft II */
-    if (!(save = strdup(gameinfo)))
+    if (!(save = xstrdup(gameinfo)))
     {
 	eventlog(eventlog_level_error,"game_parse_info","could not allocate memory for save");
 	return -1;

@@ -157,7 +157,7 @@ static int file_init(const char *path)
 	return -1;
     }
 
-    if ((copy = strdup(path)) == NULL)
+    if ((copy = xstrdup(path)) == NULL)
     {
 	eventlog(eventlog_level_error, __FUNCTION__, "could not duplicate path");
 	return -1;
@@ -207,14 +207,14 @@ static int file_init(const char *path)
     if (accountsdir)
 	file_close();
 
-    if ((accountsdir = strdup(dir)) == NULL)
+    if ((accountsdir = xstrdup(dir)) == NULL)
     {
 	eventlog(eventlog_level_error, __FUNCTION__, "not enough memory to store accounts dir");
 	xfree((void *) copy);
 	return -1;
     }
 
-    if ((clansdir = strdup(clan)) == NULL)
+    if ((clansdir = xstrdup(clan)) == NULL)
     {
 	eventlog(eventlog_level_error, __FUNCTION__, "not enough memory to store clans dir");
 	file_close();
@@ -222,7 +222,7 @@ static int file_init(const char *path)
 	return -1;
     }
 
-    if ((defacct = strdup(def)) == NULL)
+    if ((defacct = xstrdup(def)) == NULL)
     {
 	eventlog(eventlog_level_error, __FUNCTION__, "not enough memory to store default account path");
 	file_close();
@@ -439,7 +439,7 @@ static t_storage_info *file_get_defacct(void)
 	return NULL;
     }
 
-    if ((info = strdup(defacct)) == NULL)
+    if ((info = xstrdup(defacct)) == NULL)
     {
 	eventlog(eventlog_level_error, __FUNCTION__, "could not duplicate default account filename");
 	return NULL;
@@ -659,13 +659,13 @@ static int file_load_clans(t_load_clans_func cb)
 	    xfree((void*)clan);
 	    continue;
 	}
-	if ((clan->clanname = strdup(clanname)) == NULL)
+	if ((clan->clanname = xstrdup(clanname)) == NULL)
 	{
 	    eventlog(eventlog_level_error, __FUNCTION__, "not enough memory to store clanname");
 	    xfree((void*)clan);
 	    continue;
 	}
-	if ((clan->clan_motd = strdup(motd)) == NULL)
+	if ((clan->clan_motd = xstrdup(motd)) == NULL)
 	{
 	    eventlog(eventlog_level_error, __FUNCTION__, "not enough memory to store motd");
 	    xfree((void*)clan);

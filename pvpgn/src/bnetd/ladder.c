@@ -1608,7 +1608,7 @@ int XML_writer(FILE * fp, t_ladder * ladder, t_clienttag clienttag)
 	       continue;
 	     }
 	   
-	   if ((members = strdup(account_get_atteammembers(pointer->account,pointer->teamcount,clienttag))))
+	   if ((members = xstrdup(account_get_atteammembers(pointer->account,pointer->teamcount,clienttag))))
 	     {
 	       for ( member = strtok(members," ");
 		     member;

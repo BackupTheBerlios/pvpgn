@@ -100,13 +100,13 @@ static t_adbanner * adbanner_create(unsigned int id, unsigned int next_id, unsig
     ad->extensiontag = bn_int_get(tag);
     ad->delay        = delay;
     ad->next         = next_id;
-    if (!(ad->filename = strdup(filename)))
+    if (!(ad->filename = xstrdup(filename)))
     {
 	eventlog(eventlog_level_error,"adbanner_create","could not allocate memory for filename");
 	xfree(ad);
 	return NULL;
     }
-    if (!(ad->link = strdup(link)))
+    if (!(ad->link = xstrdup(link)))
     {
 	eventlog(eventlog_level_error,"adbanner_create","could not allocate memory for link");
 	xfree((void *)ad->filename); /* avoid warning */

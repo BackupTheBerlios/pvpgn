@@ -187,7 +187,7 @@ extern int news_load(const char *filename)
 	    {
 	      if ( strlen(buff)<1023 )
 	      {
-	        ni->body=strdup(buff);
+	        ni->body=xstrdup(buff);
 	    
 	        if (list_append_data(news_head,ni)<0) {
 		

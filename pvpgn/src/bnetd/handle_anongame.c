@@ -383,7 +383,7 @@ static int _client_anongame_profile(t_connection * c, t_packet const * const pac
 		    continue;
 		}
 
-		p2 = p3 = teammembers = strdup(teammembers);
+		p2 = p3 = teammembers = xstrdup(teammembers);
 		eventlog(eventlog_level_debug, __FUNCTION__,"profile/AT - processing team %d", n);
 
 		bn_int_set((bn_int*)&temp,teamtype[teamsize]);

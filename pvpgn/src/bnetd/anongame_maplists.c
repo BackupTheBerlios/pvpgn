@@ -112,7 +112,7 @@ static void _maplists_add_map(t_clienttag clienttag, char * mapname, int queue)
 	}
 	
 	if (!in_list)
-	    maplist_war3[number_maps_war3++] = strdup(mapname);
+	    maplist_war3[number_maps_war3++] = xstrdup(mapname);
 	
 	if (maplists_war3[queue][0] < MAXMAPS_PER_QUEUE) {
 	    maplists_war3[queue][0]++;
@@ -133,7 +133,7 @@ static void _maplists_add_map(t_clienttag clienttag, char * mapname, int queue)
 	}
 	
 	if (!in_list)
-	    maplist_w3xp[number_maps_w3xp++] = strdup(mapname);
+	    maplist_w3xp[number_maps_w3xp++] = xstrdup(mapname);
 	
 	if (maplists_w3xp[queue][0] < MAXMAPS_PER_QUEUE) {
 	    maplists_w3xp[queue][0]++;

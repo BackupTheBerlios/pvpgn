@@ -123,7 +123,7 @@ extern int d2dbs_handle_signal(void)
         eventlog_clear_level();
         if ((levels = d2dbs_prefs_get_loglevels()))
         {
-          if (!(temp = strdup(levels)))
+          if (!(temp = xstrdup(levels)))
           {
            eventlog(eventlog_level_fatal,__FUNCTION__,"could not allocate memory for temp (exiting)");
          return -1;

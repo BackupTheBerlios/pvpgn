@@ -247,7 +247,7 @@ static int cdb_read_attrs(const char *filename, t_read_attr_func cb, void *data)
 	    return -1;
 	}
 
-	if ((key = strdup(key)) == NULL) {
+	if ((key = xstrdup(key)) == NULL) {
 	    eventlog(eventlog_level_error, __FUNCTION__, "error duplicating attribute key");
 	    fclose(f);
 	    return -1;
@@ -302,7 +302,7 @@ static void * cdb_read_attr(const char *filename, const char *key)
 	return NULL;
     }
 
-    if ((attr->key = strdup(key)) == NULL) {
+    if ((attr->key = xstrdup(key)) == NULL) {
 	eventlog(eventlog_level_error, __FUNCTION__, "not enough memory for attr key result");
 	xfree((void*)attr);
 	fclose(cdbfile);

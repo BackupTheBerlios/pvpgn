@@ -322,7 +322,7 @@ static int processDirective(char const * directive, char const * value, unsigned
 		{
 		    char const * temp;
 		    
-		    if (!(temp = strdup(value)))
+		    if (!(temp = xstrdup(value)))
 		    {
 			eventlog(eventlog_level_error,"processDirective","could not allocate memory for value");
 			return -1;
@@ -389,7 +389,7 @@ extern int prefs_load(char const * filename)
 		if (!conf_table[i].defcharval)
 		    PREFS_STORE_CHAR(conf_table[i].store) = NULL;
 		else
-		    if (!(PREFS_STORE_CHAR(conf_table[i].store) = strdup(conf_table[i].defcharval)))
+		    if (!(PREFS_STORE_CHAR(conf_table[i].store) = xstrdup(conf_table[i].defcharval)))
 		    {
 			eventlog(eventlog_level_error,"prefs_load","could not allocate memory for conf_table[i].charval");
 			return -1;
@@ -460,7 +460,7 @@ extern int prefs_load(char const * filename)
 		*cp = '\0';
 		cp++;
 	    }
-	    if (!(directive = strdup(temp)))
+	    if (!(directive = xstrdup(temp)))
 	    {
 		eventlog(eventlog_level_error,"prefs_load","could not allocate memory for directive");
 		xfree(buff);
@@ -483,7 +483,7 @@ extern int prefs_load(char const * filename)
 		xfree(buff);
 		continue;
 	    }
-	    if (!(rawvalue = strdup(cp)))
+	    if (!(rawvalue = xstrdup(cp)))
 	    {
 		eventlog(eventlog_level_error,"prefs_load","could not allocate memory for rawvalue");
 		xfree((void *)directive); /* avoid warning */

@@ -267,7 +267,7 @@ int eventlog_startup(void)
     
     eventlog_clear_level();
     if ((levels = prefs_get_loglevels())) {
-	if (!(temp = strdup(levels))) {
+	if (!(temp = xstrdup(levels))) {
 	    eventlog(eventlog_level_fatal,"eventlog_startup","could not allocate memory for temp (exiting)");
 	    return -1;
 	}
@@ -353,7 +353,7 @@ return 0;
 
 char * write_to_pidfile(void)
 {
-    char *pidfile = strdup(prefs_get_pidfile());
+    char *pidfile = xstrdup(prefs_get_pidfile());
     
     if (pidfile[0]=='\0') {
 	xfree((void *)pidfile); /* avoid warning */

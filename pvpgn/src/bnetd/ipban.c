@@ -269,7 +269,7 @@ extern int ipbanlist_check(char const * ipaddr)
 	return -1;
     }
     
-    if (!(whole = strdup(ipaddr)))
+    if (!(whole = xstrdup(ipaddr)))
     {
     	eventlog(eventlog_level_warn,"ipban_check","could not allocate memory to check ip against wildcard");
 	return -1;
@@ -848,7 +848,7 @@ static t_ipban_entry * ipban_str_to_ipban_entry(char const * ipstr)
 	xfree(entry);
         return NULL;
     }
-    if (!(cp = strdup(ipstr)))
+    if (!(cp = xstrdup(ipstr)))
     {
 	eventlog(eventlog_level_warn,"ipban_str_to_ipban_entry","could not allocate memory for cp");
 	xfree(entry);
@@ -866,14 +866,14 @@ static t_ipban_entry * ipban_str_to_ipban_entry(char const * ipstr)
         entry->type = ipban_type_range;
 	eventlog(eventlog_level_debug,"ipban_str_to_ipban_entry","entry: %s matched as ipban_type_range",cp);
         matched[0] = '\0';
-        if (!(entry->info1 = strdup(cp))) /* start of range */
+        if (!(entry->info1 = xstrdup(cp))) /* start of range */
         {
 	    eventlog(eventlog_level_error,"ipban_str_to_ipban_entry","could not allocate memory for info on entry %s",cp);
 	    xfree(entry);
 	    xfree(cp);
 	    return NULL;
 	}
-	if (!(entry->info2 = strdup(&matched[1]))) /* end of range */
+	if (!(entry->info2 = xstrdup(&matched[1]))) /* end of range */
 	{
 	    eventlog(eventlog_level_error,"ipban_str_to_ipban_entry","could not allocate memory for info on entry %s",cp);
 	    xfree(entry->info1);
@@ -891,7 +891,7 @@ static t_ipban_entry * ipban_str_to_ipban_entry(char const * ipstr)
 	    eventlog(eventlog_level_debug,"ipban_str_to_ipban_entry","entry: %s matched as ipban_type_wildcard",cp);
 		
 	    /* only xfree() info1! */
-	    if (!(whole = strdup(cp)))
+	    if (!(whole = xstrdup(cp)))
 	    {
 	        eventlog(eventlog_level_error,"ipban_str_to_ipban_entry","could not allocate memory for info on entry \"%s\"",cp);
 	        xfree(entry);
@@ -926,14 +926,14 @@ static t_ipban_entry * ipban_str_to_ipban_entry(char const * ipstr)
 		}
 	    
 		matched[0] = '\0';
-		if (!(entry->info1 = strdup(cp)))
+		if (!(entry->info1 = xstrdup(cp)))
 		{
 		    eventlog(eventlog_level_error,"ipban_str_to_ipban_entry","could not allocate memory for info on entry \"%s\"",cp);
 	    	    xfree(entry);
 		    xfree(cp);
 		    return NULL;
 		}
-		if (!(entry->info2 = strdup(&matched[1])))
+		if (!(entry->info2 = xstrdup(&matched[1])))
 		{
 		    eventlog(eventlog_level_error,"ipban_str_to_ipban_entry","could not allocate memory for info on entry \"%s\"",cp);
 		    xfree(entry->info1);
@@ -949,7 +949,7 @@ static t_ipban_entry * ipban_str_to_ipban_entry(char const * ipstr)
 		entry->type = ipban_type_exact;
 		eventlog(eventlog_level_debug,"ipban_str_to_ipban_entry","entry: %s matched as ipban_type_exact",cp);
 	        
-		if (!(entry->info1 = strdup(cp)))
+		if (!(entry->info1 = xstrdup(cp)))
 		{
 		    eventlog(eventlog_level_error,"ipban_str_to_ipban_entry","could not allocate memory for info on entry \"%s\"",cp);
 		    xfree(entry);
@@ -991,7 +991,7 @@ static char * ipban_entry_to_str(t_ipban_entry const * entry)
 	    eventlog(eventlog_level_warn,"ipban_entry_to_str","found bad ban type %d",(int)entry->type);
 	    return NULL;
     }
-    if (!(str = strdup(tstr)))
+    if (!(str = xstrdup(tstr)))
     {
 	eventlog(eventlog_level_error,"ipban_entry_to_str","could not allocate memmory for str");
 	return NULL;
@@ -1009,7 +1009,7 @@ static unsigned long ipban_str_to_ulong(char const * ipaddr)
     char *    		ip4;
     char *		tipaddr;
     
-    if (!(tipaddr = strdup(ipaddr)))
+    if (!(tipaddr = xstrdup(ipaddr)))
     {
         eventlog(eventlog_level_warn,"ipban_ipstr_to_ulong","could not allocate memory for tipaddr");
 	return 0;
@@ -1033,7 +1033,7 @@ static int ipban_could_be_exact_ip_str(char const * str)
     char * 	ttok;
     int 	i;
     
-    if (!(ipstr = strdup(str)))
+    if (!(ipstr = xstrdup(str)))
     {
 	eventlog(eventlog_level_error,"ipban_could_be_exact_ip_str","could not allocate memmory for ipstr");
 	return 0;
@@ -1073,7 +1073,7 @@ static int ipban_could_be_ip_str(char const * str)
 	    return 0;
 	}
 
-    if (!(ipstr = strdup(str)))
+    if (!(ipstr = xstrdup(str)))
     {
 	eventlog(eventlog_level_error,"ipban_could_be_ip_str","could not allocate memory for ipstr");
 	return 0;

@@ -421,18 +421,18 @@ extern t_game * game_create(char const * name, char const * pass, char const * i
 	return NULL;
     }
     
-    if (!(game->name = strdup(name)))
+    if (!(game->name = xstrdup(name)))
     {
 	xfree(game);
 	return NULL;
     }
-    if (!(game->pass = strdup(pass)))
+    if (!(game->pass = xstrdup(pass)))
     {
 	xfree((void *)game->name); /* avoid warning */
 	xfree(game);
 	return NULL;
     }
-    if (!(game->info = strdup(info)))
+    if (!(game->info = xstrdup(info)))
     {
 	xfree((void *)game->pass); /* avoid warning */
 	xfree((void *)game->name); /* avoid warning */
@@ -1328,7 +1328,7 @@ extern int game_set_description(t_game * game, char const * description)
     }
     
     if (game->description != NULL) xfree((void *)game->description);
-    if (!(game->description = strdup(description)))
+    if (!(game->description = xstrdup(description)))
     {
 	eventlog(eventlog_level_error,"game_set_description","could not allocate memory for description");
 	return -1;
@@ -1865,12 +1865,12 @@ extern int game_set_report(t_game * game, t_account * account, char const * reph
 	return -1;
     }
     
-    if (!(game->report_heads[pos] = strdup(rephead)))
+    if (!(game->report_heads[pos] = xstrdup(rephead)))
     {
 	eventlog(eventlog_level_error,"game_set_result","could not allocate memory for report_heads in slot %u",pos);
 	return -1;
     }
-    if (!(game->report_bodies[pos] = strdup(repbody)))
+    if (!(game->report_bodies[pos] = xstrdup(repbody)))
     {
 	eventlog(eventlog_level_error,"game_set_result","could not allocate memory for report_bodies in slot %u",pos);
 	return -1;
@@ -2094,7 +2094,7 @@ extern int game_set_mapname(t_game * game, char const * mapname)
     
     if (game->mapname != NULL) xfree((void *)game->mapname);
     
-    if (!(game->mapname = strdup(mapname)))
+    if (!(game->mapname = xstrdup(mapname)))
     {
 	eventlog(eventlog_level_error,"game_set_mapname","could not allocate memory for mapname");
 	return -1;
@@ -2270,7 +2270,7 @@ extern int game_set_realmname(t_game * game, char const * realmname)
 
     if (realmname)
       {
-	if (!(temp=strdup(realmname)))
+	if (!(temp=xstrdup(realmname)))
 	  {
 	    eventlog(eventlog_level_error,"game_set_realmname","could not allocate memory for new realmname");
 	    return -1;

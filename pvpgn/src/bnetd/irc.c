@@ -659,7 +659,7 @@ static char * irc_message_preformat(t_irc_message_from const * from, char const 
 	}
 	sprintf(myfrom,"%s!%s@%s",from->nick,from->user,from->host);
     } else
-    	if (!(myfrom = strdup(server_get_name()))) {
+    	if (!(myfrom = xstrdup(server_get_name()))) {
 	    eventlog(eventlog_level_error,"irc_message_preformat","could not allocate memory: %s",strerror(errno));
 	    return NULL;
 	}

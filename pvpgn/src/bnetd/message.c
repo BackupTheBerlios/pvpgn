@@ -508,7 +508,7 @@ static int message_telnet_format(t_packet * packet, t_message_type type, t_conne
 	    return -1;
 	}
 	/* FIXME: should we show any of these? */
-	if (!(msgtemp = strdup("")))
+	if (!(msgtemp = xstrdup("")))
 	{
 	    eventlog(eventlog_level_error,"message_telnet_format","could not allocate memory for msgtemp");
 	    return -1;
@@ -590,7 +590,7 @@ static int message_telnet_format(t_packet * packet, t_message_type type, t_conne
 
     case message_type_channelfull:
 	/* FIXME */
-	if (!(msgtemp = strdup("")))
+	if (!(msgtemp = xstrdup("")))
 	{
 	    eventlog(eventlog_level_error,"message_telnet_format","could not allocate memory for msgtemp");
 	    return -1;
@@ -598,7 +598,7 @@ static int message_telnet_format(t_packet * packet, t_message_type type, t_conne
 	break;
     case message_type_channeldoesnotexist:
 	/* FIXME */
-	if (!(msgtemp = strdup("")))
+	if (!(msgtemp = xstrdup("")))
 	{
 	    eventlog(eventlog_level_error,"message_telnet_format","could not allocate memory for msgtemp");
 	    return -1;
@@ -606,7 +606,7 @@ static int message_telnet_format(t_packet * packet, t_message_type type, t_conne
 	break;
     case message_type_channelrestricted:
 	/* FIXME */
-	if (!(msgtemp = strdup("")))
+	if (!(msgtemp = xstrdup("")))
 	{
 	    eventlog(eventlog_level_error,"message_telnet_format","could not allocate memory for msgtemp");
 	    return -1;

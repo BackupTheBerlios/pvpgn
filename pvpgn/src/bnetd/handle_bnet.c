@@ -3262,7 +3262,7 @@ static int _client_charlistreq(t_connection * c, t_packet const * const packet)
 	     packet_del_ref(rpacket);
 	     return 0;
 	  }
-	if (!(temp = strdup(charlist)))
+	if (!(temp = xstrdup(charlist)))
 	  {
 	     eventlog(eventlog_level_error,__FUNCTION__,"[%d] unable to allocate memory for characterlist",conn_get_socket(c));
 	     bn_int_set(&rpacket->u.server_unknown_37.count,0);

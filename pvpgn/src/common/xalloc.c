@@ -9,6 +9,14 @@
 #  include <malloc.h>
 # endif
 #endif
+#ifdef HAVE_STRING_H
+# include <string.h>
+#else
+# ifdef HAVE_STRINGS_H
+#  include <strings.h>
+# endif
+#endif
+#include "compat/strdup.h"
 #include "common/eventlog.h"
 #include "common/xalloc.h"
 #define XALLOC_INTERNAL_ACCESS
@@ -46,6 +54,19 @@ void *xrealloc_real(void *ptr, size_t size, const char *fn, unsigned ln)
     void *res;
 
     res = realloc(ptr,size);
+    if (!res) {
+	eventlog(eventlog_level_fatal, __FUNCTION__, "out of memory (from %s:%u)",fn,ln);
+	abort();
+    }
+
+    return res;
+}
+
+char *xstrdup_real(const char *str, const char *fn, unsigned ln)
+{
+    char *res;
+
+    res = strdup(str);
     if (!res) {
 	eventlog(eventlog_level_fatal, __FUNCTION__, "out of memory (from %s:%u)",fn,ln);
 	abort();

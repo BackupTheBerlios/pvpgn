@@ -190,7 +190,7 @@ static int handle_irc_line(t_connection * conn, char const * ircline)
 	tmp[254]='\0';
     }    
 
-    if (!(line = strdup(ircline))) {
+    if (!(line = xstrdup(ircline))) {
 	eventlog(eventlog_level_error,"handle_irc_line","could not allocate memory for line");
 	return -1;
     }
@@ -855,7 +855,7 @@ static int _handle_join_command(t_connection * conn, int numparams, char ** para
 
 			if (old_channel)
 			{
-			  old_channel_name = strdup(irc_convert_channel(old_channel));
+			  old_channel_name = xstrdup(irc_convert_channel(old_channel));
 			}
 			
 			if ((!(ircname)) || (conn_set_channel(conn,ircname)<0))
