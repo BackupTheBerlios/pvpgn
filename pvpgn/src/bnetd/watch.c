@@ -238,7 +238,7 @@ static int handle_event_whisper(t_account *account, char const *gamename, t_uint
     int cnt = 0;
     char const *myusername;
     t_list * flist;
-    t_connection * dest_c;
+    t_connection * dest_c, * my_c;
     t_friend * fr;
     char const * game_title;
 
@@ -253,6 +253,8 @@ static int handle_event_whisper(t_account *account, char const *gamename, t_uint
 	eventlog(eventlog_level_error,"handle_event_whisper","got NULL account name");
 	return -1;
     }
+
+    my_c = account_get_conn(account);
 
     game_title = conn_get_user_game_title(clienttag);
 
@@ -284,7 +286,7 @@ static int handle_event_whisper(t_account *account, char const *gamename, t_uint
             else { 
     		cnt++;	/* keep track of successful whispers */
 	    	if(friend_get_mutual(fr))
-        	    message_send_text(dest_c,message_type_info,dest_c,msg);
+        	    message_send_text(dest_c,message_type_whisper,my_c,msg);
 	    }
     	}
     }
@@ -315,7 +317,7 @@ static int handle_event_whisper(t_account *account, char const *gamename, t_uint
 	  return -1;
 	}
 	if (pair->owner && (!pair->who || pair->who==account) && ((!pair->clienttag) || (clienttag == pair->clienttag)) && (pair->what&event))
-	message_send_text(pair->owner,message_type_info,pair->owner,msg);
+	message_send_text(pair->owner,message_type_whisper,my_c,msg);
     }
   
     return 0;

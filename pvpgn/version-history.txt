@@ -47,6 +47,8 @@ PvPGN Version History:
      implementation of the commonly used passhash algorithm
   -- fixed problem with topaz-chat (and maybe other clients, too)
      not propperly displaying tmpOP on initial channel join
+  -- adjusted friends/watch game/server join/leave message to be more like b.net
+     (changed message type from info to whisper)
 
 a general 1.6.x note:
 versioncheck exe-time parsing now REALLY works as it was intended to.
