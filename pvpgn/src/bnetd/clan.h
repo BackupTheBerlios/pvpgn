@@ -55,6 +55,7 @@ typedef struct clan
   char     clanshort[4];
   char *   clanname;
   time_t   creation_time;
+  char *   clan_motd;
   t_list * members;
 }
 #endif
@@ -87,6 +88,15 @@ t_clan * get_clan_by_clanshort(char clanshort[4]);
 
 t_clanmember * clan_get_first_member(t_clan * clan);
 t_clanmember * clan_get_next_member();
+
+int    clanmember_get_uid(t_clanmember * member);
+char   clanmember_get_status(t_clanmember * member);
+time_t clanmember_get_join_time(t_clanmember * member);
+
+char  * clan_get_clanname(t_clan * clan);
+char  * clan_get_clan_motd(t_clan * clan);
+int     clan_get_clanid(t_clan * clan);
+time_t  clan_get_creation_time(t_clan * clan);
 
 #endif
 #endif

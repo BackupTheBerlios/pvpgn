@@ -117,7 +117,7 @@ int clan_save(t_clan * clan)
     return -1;
   }
 
-  fprintf(fp,"\"%s\",%i,%i",clan->clanname,clan->clanid,(int)clan->creation_time);
+  fprintf(fp,"\"%s\",\"%s\"%i,%i",clan->clanname,clan->clan_motd,clan->clanid,(int)clan->creation_time);
 
   LIST_TRAVERSE(clan->members,curr)
   {
@@ -139,7 +139,8 @@ t_clan * clan_load(char * clanfile, char * clanshort)
 {
   t_clan       * clan;
   FILE         * fp;
-  char           clanname[21];
+  char           clanname[26];
+  char           motd[51];
   int            cid, creation_time;
   int            member_uid, member_join_time;
   char           member_status;
@@ -160,12 +161,13 @@ t_clan * clan_load(char * clanfile, char * clanshort)
   clan = malloc(sizeof(t_clan));
   memcpy(clan->clanshort,clanshort,4);
 
-  fscanf(fp,"\"%[^\"]\",%i,%i",clanname,&cid,&creation_time);
+  fscanf(fp,"\"%[^\"]\",\"%[^\"]\",%i,%i",clanname,motd,&cid,&creation_time);
   clan->clanname = strdup(clanname);
+  clan->clan_motd = strdup(motd);
   clan->clanid = cid;
   clan->creation_time=(time_t)creation_time;
  
-  eventlog(eventlog_level_trace,__FUNCTION__,"name: %s clanid: %i time: %i",clanname,cid,creation_time);
+  eventlog(eventlog_level_trace,__FUNCTION__,"name: %s motd: %s clanid: %i time: %i",clanname,motd,cid,creation_time);
 
   if (cid>max_clanid) max_clanid=cid;
 
@@ -192,6 +194,7 @@ t_clan * clan_load(char * clanfile, char * clanshort)
        free((void *)member);
        clan_memberlist_unload(clan);
        free((void *)clan->clanname);
+       free((void *)clan->clan_motd);
        free((void *)clan);
        return NULL;
      }
@@ -297,6 +300,7 @@ int clanlist_unload()
         continue;
       }
       if (clan->clanname) free((void *)clan->clanname);
+      if (clan->clan_motd) free((void *)clan->clan_motd);
       clan_memberlist_unload(clan);
       free((void *)clan);
       list_remove_elem(clanlist_head,curr);
@@ -413,3 +417,81 @@ t_clanmember * clan_get_next_member()
 
   return member;
 }
+
+int clanmember_get_uid(t_clanmember * member)
+{
+  if (!(member))
+  {
+    eventlog(eventlog_level_error,__FUNCTION__,"got NULL clanmember");
+    return -1;
+  }
+  
+  return member->uid;
+}
+
+char clanmember_get_status(t_clanmember * member)
+{
+  if (!(member))
+  {
+    eventlog(eventlog_level_error,__FUNCTION__,"got NULL clanmember");
+    return 0;
+  }
+
+  return member->status;
+}
+
+time_t clanmember_get_join_time(t_clanmember * member)
+{
+  if (!(member))
+  {
+    eventlog(eventlog_level_error,__FUNCTION__,"got NULL clanmember");
+    return 0;
+  }
+
+  return member->join_time;
+}
+
+char * clan_get_clanname(t_clan * clan)
+{
+  if (!(clan))
+  {
+    eventlog(eventlog_level_error,__FUNCTION__,"got NULL clan");
+    return NULL;
+  }
+
+  return clan->clanname;
+}
+
+char * clan_get_clan_motd(t_clan * clan)
+{
+  if (!(clan))
+  {
+    eventlog(eventlog_level_error,__FUNCTION__,"got NULL clan");
+    return NULL;
+  }
+
+  return clan->clan_motd;
+}
+
+int clan_get_clanid(t_clan * clan)
+{
+  if (!(clan))
+  {
+    eventlog(eventlog_level_error,__FUNCTION__,"got NULL clan");
+    return -1;
+  }
+
+  return clan->clanid;
+}
+
+time_t clan_get_creation_time(t_clan * clan)
+{
+  if (!(clan))
+  {
+    eventlog(eventlog_level_error,__FUNCTION__,"got NULL clan");
+    return 0;
+  }
+
+  return clan->creation_time;
+}
+
