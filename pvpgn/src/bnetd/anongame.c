@@ -1081,18 +1081,12 @@ extern int handle_w3route_packet(t_connection * c, t_packet const * const packet
 	   anongame_set_result(a, result);
 	   conn_set_state(c, conn_state_destroy);
 	   
-/*
- *	How the hell does this timerlist_add_timer() function work?????
- *
- *	I added a check for the win packet and a loop to find open w3routes
- *	but can not get the fimerlist_add_timer function to work....ahhhh!!!!!!
- *
- */
+	   // activate timers on open w3route connectons
 	   if (result = W3_GAMERESULT_WIN) {
 	      for(i=0; i<tp; i++) {
-	         if(ac = anongame_get_player(a,i)) { // activate timers on open w3route connections
-//		    data.p = ac;
-//		    timerlist_add_timer(ac,time(NULL)+(time_t)300,conn_destroy,data); // 300 seconds or 5 minute timer
+	         if(ac = anongame_get_player(a,i)) {
+		    timerlist_add_timer(ac,time(NULL)+(time_t)300,conn_shutdown,data); // 300 seconds or 5 minute timer
+		    eventlog(eventlog_level_trace,"handle_w3route_packet","[%d] started timer to close w3route -> USER: %s",conn_get_socket(ac),conn_get_username(ac));
 		 }
 	      }
 	   }

@@ -187,9 +187,12 @@ extern void conn_shutdown(t_connection * c, time_t now, t_timer_data foo)
     }
 
     if (now==(time_t)0) /* zero means user logged out before expiration */
+    {
+	eventlog(eventlog_level_trace,"conn_shutdown","[%d] connection allready closed -> USER: %s",conn_get_socket(c),conn_get_username(c));
 	return;
+    }
 
-    eventlog(eventlog_level_trace,"conn_shutdown","[%d] closing connection",conn_get_socket(c));
+    eventlog(eventlog_level_trace,"conn_shutdown","[%d] closing connection -> USER: %s",conn_get_socket(c),conn_get_username(c));
 
     conn_set_state(c, conn_state_destroy);
 }
