@@ -59,7 +59,7 @@ static t_list * aliaslist_head=NULL;
 
 
 static int list_aliases(t_connection * c);
-static char * replace_args(char const * in, unsigned int * offsets, unsigned int numargs);
+static char * replace_args(char const * in, unsigned int * offsets, unsigned int numargs, char const * text);
 static int do_alias(t_connection * c, char const * cmd, char const * args);
 
 
@@ -88,7 +88,14 @@ static int list_aliases(t_connection * c)
 	     * FIXME: need a more user-friendly way to express this... maybe
              * add a help line to the file format?
 	     */
-	    sprintf(temp,"[%u-%u]%.128s",output->min,output->max,output->line);
+	    if (output->min==-1)
+		    sprintf(temp,"[*]%.128s",output->line);
+	    else if (output->max==-1)
+		    sprintf(temp,"[%d+]%.128s",output->min,output->line);
+	    else if (output->min == output->max)
+		    sprintf(temp,"[%d]%.128s",output->min,output->line);
+	    else		  
+		    sprintf(temp,"[%d-%d]%.128s",output->min,output->max,output->line);
 	    message_send_text(c,message_type_info,c,temp);
 	}
     }
@@ -96,18 +103,20 @@ static int list_aliases(t_connection * c)
 }
 
 
-static char * replace_args(char const * in, unsigned int * offsets, unsigned int numargs)
+static char * replace_args(char const * in, unsigned int * offsets, unsigned int numargs, char const * text)
 {
     char *         out;
     unsigned int   inpos;
     unsigned int   outpos;
     unsigned int   off1;
     unsigned int   off2;
+    unsigned int   size = 0;
 
     off1 = off2 = 0;
-    
-    if (!(out = malloc(1))) /* for nul */
+
+    if (!(out = strdup(in)))
         return NULL;
+    size = strlen(out);
     
     for (inpos=outpos=0; inpos<strlen(in); inpos++)
     {
@@ -122,33 +131,49 @@ static char * replace_args(char const * in, unsigned int * offsets, unsigned int
 	
 	if (in[inpos]=='*')
 	{
-	    off1 = 0;
-	    off2 = strlen(in)-1;
+	    off1 = offsets[0];
+	    off2 = strlen(text);
 	}
         else if (in[inpos]=='{')
 	{
 	    unsigned int arg1;
-	    unsigned int arg2;
+	    int arg2;
+	    char symbol;
 	    
 	    if (sscanf(&in[inpos],"{%u-%u}",&arg1,&arg2)!=2)
 	    {
-		if (sscanf(&in[inpos],"{%u-}",&arg1)!=1)
+		if (sscanf(&in[inpos],"{%d%c",&arg2,&symbol)!=2)
 		{
-		    if (sscanf(&in[inpos],"{-%u}",&arg2)!=1)
-		    {
-			if (sscanf(&in[inpos],"{%u}",&arg1)==1)
-			{
-/* FIXME: no goto, but should be same as isdigit case... */
-			}
-			while (in[inpos]!='\0' && in[inpos]!='}')
-			    inpos++;
-			continue;
-		    }
-		    else
-			arg1 = 0;
+		    while (in[inpos]!='\0' && in[inpos]!='}')
+		      inpos++;
+		    continue;
 		}
 		else
+		{
+		  if (symbol=='}')
+		  {
+		    if (arg2<0)
+		    {
+		      arg1 = 0;
+		      arg2 = -arg2;
+		    }
+		    else
+		    {
+		      arg1 = arg2;
+		    }
+		  }
+		  else if (symbol=='-')
+		  {
+		    arg1 = arg2;
 		    arg2 = numargs-1;
+		  }
+		  else
+		  {
+		    while (in[inpos]!='\0' && in[inpos]!='}') inpos++;
+		    continue;
+		  }
+		  
+		}
 	    }
 	    
 	    if (arg2>=numargs)
@@ -161,7 +186,7 @@ static char * replace_args(char const * in, unsigned int * offsets, unsigned int
 	    }
 	    off1 = offsets[arg1];
 	    if (arg2+1==numargs)
-		off2 = strlen(in)-1;
+		off2 = strlen(text);
 	    else
 		off2 = offsets[arg2+1]-1;
 	    
@@ -185,23 +210,24 @@ static char * replace_args(char const * in, unsigned int * offsets, unsigned int
 	    
 	    if (arg>=numargs)
 		continue;
-	    for (off1=off2=offsets[arg]; in[off2]!='\0' && in[off2]!=' ' && in[off2]!='\t'; off2++);
-	    if (in[off2]!='\0')
-		off2--;
+	    for (off1=off2=offsets[arg]; text[off2]!='\0' && text[off2]!=' ' && text[off2]!='\t'; off2++);
 	}
 	
         {
             char * newout;
 	    
-            if (!(newout = realloc(out,outpos+(off2-off1)+1))) /* curr + new + nul */
+            if (!(newout = malloc(size+(off2-off1)+1))) /* curr + new + nul */
             {
                 free(out);
                 return NULL;
             }
+	    size = size+(off2-off1)+1;
+	    memmove(newout,out,outpos);
+	    free(out);
             out = newout;
 	    
 	    while (off1<off2)
-		out[outpos++] = in[off1++];
+		out[outpos++] = text[off1++];
         }
     }
     out[outpos] = '\0';
@@ -209,6 +235,40 @@ static char * replace_args(char const * in, unsigned int * offsets, unsigned int
     return out;
 }
 
+int count_args(char const * text)
+{
+  int args = 1;
+  char * pointer = (char *)text;
+  int not_ws = 1;
+
+  for (;*pointer!='\0';pointer++)
+  {
+    if ((not_ws) && (*pointer==' ')) not_ws = 0;
+    if ((not_ws == 0) && (*pointer!=' ')) { not_ws = 1; args++; }
+  }
+  
+  return args;	
+}
+
+void get_offsets(char const * text, unsigned int * offsets)
+{
+  char * pointer = (char *)text;
+  int counter = 1;
+  int not_ws = 1;
+
+  offsets[0]=0;
+  for (;*pointer!='\0';pointer++)
+  {
+    if ((not_ws) && (*pointer==' ')) not_ws = 0;
+    if ((not_ws == 0) && (*pointer!=' ')) 
+    	{ 
+	  not_ws = 1; 
+	  offsets[counter]=(unsigned int)(pointer-text); 
+	  counter++; 
+	}
+  }
+
+}
 
 static int do_alias(t_connection * c, char const * cmd, char const * text)
 {
@@ -218,8 +278,11 @@ static int do_alias(t_connection * c, char const * cmd, char const * text)
     t_output *      output;
     unsigned int *  offsets = NULL; // [quetzal] 20020805 - inital value to avoid warning
     unsigned int    numargs = 0; // [quetzal] 20020805 - initial value to avoid warning
+    int match = -1;
     
-    
+    numargs = count_args(text)-1; 
+    offsets=malloc(sizeof(unsigned int *)*(numargs+1));
+    get_offsets(text,offsets);
     
     LIST_TRAVERSE_CONST(aliaslist_head,elem1)
     {
@@ -236,11 +299,18 @@ static int do_alias(t_connection * c, char const * cmd, char const * text)
 	    
 	    if (!output->line)
 		continue;
+
+	    if ((output->min==-1) || 
+	       ((output->min<=numargs) && (output->max==-1)) || 
+	       ((output->min<=numargs) && (output->max>=numargs)))
+	    
+	    //TODO: initialize offsets
 	    
             {
 		char const * msgtmp;
+		match = 1;
 		
-		if ((msgtmp = replace_args(output->line,offsets,numargs)))
+		if ((msgtmp = replace_args(output->line,offsets,numargs+1,text)))
 		{
 /* FIXME: add %C to start of line */
 		    message_send_formatted(c,msgtmp);
@@ -249,11 +319,10 @@ static int do_alias(t_connection * c, char const * cmd, char const * text)
 		else
 		    eventlog(eventlog_level_error,"do_alias","could not perform argument replacement");
 	    }
-	    return 0;
 	}
     }
-    
-    return -1;
+    free(offsets);    
+    return match;
 }
 
 
@@ -319,20 +388,13 @@ extern int aliasfile_load(char const * filename)
 	
 	case 1:
 	    {
-		unsigned int j;
-		char         cmd[MAX_ALIAS_LEN];
-		
-		for (j=0; buff[pos]!=' ' && buff[pos]!='\0'; pos++) /* get command */
-		if (j<sizeof(cmd)-1) cmd[j++] = buff[pos];
-		cmd[j] = '\0';
-    
-		if (cmd[0]=='\0') break;
+		if (buff[pos]=='\0') break;
 		    
 		inalias = 2;
 		if (alias = malloc(sizeof(t_alias)))
 		{
 		  alias->output=0;
-		  alias->alias=strdup(cmd);
+		  alias->alias=strdup(&buff[pos]);
 		}
 	    }
 	    break;
@@ -341,6 +403,8 @@ extern int aliasfile_load(char const * filename)
 	    {
 	      char * dummy = NULL;
 	      char * out   = NULL;
+	      int min, max;
+	      min = max = 0;
 	      t_output * output = NULL;
 	      if (buff[pos]!='[')
 	      {
@@ -353,6 +417,26 @@ extern int aliasfile_load(char const * filename)
 		if (dummy[1]!='\0') out = strdup(&dummy[1]);
 	      }
 
+	      if (buff[pos+1]=='*')
+	      {
+		min = max = -1;
+	      }
+	      else if (buff[pos+1]=='+')
+	      {
+		min =  1;
+		max = -1;
+	      }
+	      else if (sscanf(&buff[pos],"[%u",&min)==1)
+	      {
+		if (*(dummy-1)=='+')
+		  max = -1;
+		else max = min;
+	      }
+	      else
+	      {
+		eventlog(eventlog_level_error,__FUNCTION__,"error parsing min/max value for alias output");
+	      }
+
 	      if (out!=NULL)
 	      {
 		if (!(output = malloc(sizeof(t_output))))
@@ -361,8 +445,8 @@ extern int aliasfile_load(char const * filename)
 		  free((void *)out);
 		  break;
 		}
-		output->min=0;
-		output->max=0;
+		output->min=min;
+		output->max=max;
 		output->line = out;
 		if (!(alias->output = list_create()))
 		{
@@ -396,11 +480,40 @@ extern int aliasfile_load(char const * filename)
 	      {
 		char * dummy = NULL;
 		char * out   = NULL;
+		int min, max;
+		min = max = 0;
 		t_output * output = NULL;
 		if (dummy=strchr(&buff[pos],']'))
 		  {
 		    if (dummy[1]!='\0') out = strdup(&dummy[1]);
 		  }
+
+
+	      if (buff[pos+1]=='*')
+	      {
+		min = max = -1;
+	      }
+	      else if (buff[pos+1]=='+')
+	      {
+		min =  1;
+		max = -1;
+	      }
+	      else if (sscanf(&buff[pos],"[%u",&min)==1)
+	      {
+		if (*(dummy-1)=='+')
+		  max = -1;
+		else max = min;
+	      }
+	      else
+	      {
+		eventlog(eventlog_level_error,__FUNCTION__,"error parsing min/max value for alias output");
+	      }
+
+
+
+
+
+
 		if (out!=NULL)
 		  {
 		    if (!(output = malloc(sizeof(t_output))))
@@ -409,8 +522,8 @@ extern int aliasfile_load(char const * filename)
 			free((void *)out);
 			break;
 		      }
-		    output->min=0;
-		    output->max=0;
+		    output->min=min;
+		    output->max=max;
 		    output->line = out;
 		    
 		    if (list_append_data(alias->output,output)<0)
