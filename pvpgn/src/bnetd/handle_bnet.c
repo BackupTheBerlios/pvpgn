@@ -5532,10 +5532,7 @@ static int _client_setemailreply(t_connection * c, t_packet const * const packet
 {
 	char const * email;
 	t_account * account;
-	struct in_addr caddr;
 
-	memset(&caddr, 0, sizeof(caddr));
-	caddr.s_addr = ntohl(conn_get_addr(c));
 	if (!(email = packet_get_str_const(packet, sizeof(t_client_setemailreply), MAX_EMAIL_STR))) {
 		eventlog(eventlog_level_error,__FUNCTION__,"[%d] got bad SETEMAILREPLY packet",conn_get_socket(c));
 		return -1;
@@ -5566,11 +5563,8 @@ static int _client_changeemailreq(t_connection * c, t_packet const * const packe
 	char const * username;
 	char const * email;
 	t_account * account;
-	struct in_addr caddr;
 	int pos;
 
-	memset(&caddr, 0, sizeof(caddr));
-	caddr.s_addr = ntohl(conn_get_addr(c));
 	pos = sizeof(t_client_changeemailreq);
 	if (!(username = packet_get_str_const(packet, pos, USER_NAME_MAX))) {
 		eventlog(eventlog_level_error,__FUNCTION__,"[%d] got bad username in CHANGEEMAILREQ packet",conn_get_socket(c));
@@ -5598,8 +5592,6 @@ static int _client_changeemailreq(t_connection * c, t_packet const * const packe
 	if (strcasecmp(email, old)) {
 		eventlog(eventlog_level_error,__FUNCTION__,"[%d] account \"%s\" email mismatch, ignore changing", conn_get_socket(c), 
 			account_get_name(account));
-//  what should I do? a reply packet needed?
-//		conn_set_state(c, conn_state_destroy);
 		return 0;
 	}
 	if (account_set_email(account, new) < 0) {
@@ -5617,11 +5609,8 @@ static int _client_getpasswordreq(t_connection * c, t_packet const * const packe
 	char const * try_email;
 	char const * email;
 	t_account * account;
-	struct in_addr caddr;
 	int pos;
 
-	memset(&caddr, 0, sizeof(caddr));
-	caddr.s_addr = ntohl(conn_get_addr(c));
 	pos = sizeof(t_client_getpasswordreq);
 	if (!(username = packet_get_str_const(packet, pos, USER_NAME_MAX))) {
 		eventlog(eventlog_level_error,__FUNCTION__,"[%d] got bad username in GETPASSWORDREQ packet",conn_get_socket(c));
@@ -5644,9 +5633,10 @@ static int _client_getpasswordreq(t_connection * c, t_packet const * const packe
 	if (strcasecmp(email, try_email)) {
 		eventlog(eventlog_level_error,__FUNCTION__,"[%d] account \"%s\" email mismatch, ignore get password", conn_get_socket(c), 
 			account_get_name(account));
-//  what should I do? a reply packet needed?
 		return 0;
 	}
+	/* TODO: send mail to user with the real password or changed password!?
+	 * (as we cannot get the real password back, we should only change the password)     --Soar */
 	eventlog(eventlog_level_info,__FUNCTION__,"[%d] get password for account \"%s\" to email \"%s\"", conn_get_socket(c), 
 		account_get_name(account), email);
 	return 0;
