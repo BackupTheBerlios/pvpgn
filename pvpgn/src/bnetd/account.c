@@ -694,61 +694,6 @@ extern int accountlist_load_default(void)
     return 0;
 }
 
-static int _cb_read_accounts(t_storage_info *info, void *data)
-{
-    unsigned int *count = (unsigned int *)data;
-    t_account *account;
-
-    if (accountlist_find_account_by_storage(info)) {
-	storage->free_info(info);
-	return 0;
-    }
-
-    if (!(account = account_load(info))) {
-        eventlog(eventlog_level_error,"accountlist_reload","could not load account from storage");
-        storage->free_info(info);
-        return -1;
-    }
-
-    if (!accountlist_add_account(account)) {
-        eventlog(eventlog_level_error,"accountlist_reload","could not add account to list");
-        account_destroy(account);
-        return 0;
-    }
-
-    /* might as well free up the memory since we probably won't need it */
-    FLAG_CLEAR(&account->flags,ACCOUNT_FLAG_ACCESSED); /* lie */
-    account_save(account,0); /* force unload */
-
-    (*count)++;
-
-    return 0;
-}
-
-extern int accountlist_reload(void)
-{
-    unsigned int count;
-
-    int starttime = time(NULL);
-
-  
-  force_account_add = 1; /* disable the protection */
-  
-  count = 0;
-
-  if (storage->read_accounts(_cb_read_accounts, &count)) {
-      eventlog(eventlog_level_error, __FUNCTION__, "could not read accounts");
-      return -1;
-  }
-
-  force_account_add = 0; /* enable the protection */
-
-  if (count)
-    eventlog(eventlog_level_info,"accountlist_reload","loaded %u user accounts in %ld seconds",count,time(NULL) - starttime);
-
-  return 0;
-}
-
 extern t_account * account_load_new(char const * name, unsigned uid)
 {
     t_account *account;
@@ -1012,29 +957,6 @@ extern t_account * accountlist_find_account_by_uid(unsigned int uid)
 	}
     }
     return prefs_get_load_new_account() ? account_load_new(NULL,uid) : NULL;
-}
-
-
-extern t_account * accountlist_find_account_by_storage(t_storage_info *info)
-{
-    t_entry *    curr;
-    t_account *  account;
-
-    if (!info) {
-	eventlog(eventlog_level_error, __FUNCTION__, "got NULL storage info");
-	return NULL;
-    }
-    
-    /* all accounts in list must be hashed already, no need to check */
-    
-    HASHTABLE_TRAVERSE(accountlist_head,curr)
-    {
-	account = (t_account *) entry_get_data(curr);
-	if (storage->cmp_info(info, account->storage) == 0)
-	    return account;
-    }
-    
-    return NULL;
 }
 
 
