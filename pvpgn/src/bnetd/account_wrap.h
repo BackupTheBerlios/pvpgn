@@ -295,22 +295,28 @@ extern int account_set_atteamcount(t_account * account, char const * clienttag, 
 extern int account_get_atteamcount(t_account * account, char const * clienttag);
 extern int account_set_atteamsize(t_account * account, unsigned int teamcount, char const * clienttag, unsigned int teamsize);
 extern int account_get_atteamsize(t_account * account, unsigned int teamcount, char const * clienttag);
-extern int account_set_atteamwin(t_account * account, unsigned int teamcount, char const * clienttag);
+extern int account_set_atteamwin(t_account * account, unsigned int teamcount, char const * clienttag, int wins);
+extern int account_atteamwin(t_account * account, unsigned int teamcount, char const * clienttag);
 extern int account_get_atteamwin(t_account * account, unsigned int teamcount, char const * clienttag);
-extern int account_set_atteamloss(t_account * account, unsigned int teamcount, char const * clienttag);
+extern int account_set_atteamloss(t_account * account, unsigned int teamcount, char const * clienttag, int loss);
+extern int account_atteamloss(t_account * account, unsigned int teamcount, char const * clienttag);
 extern int account_get_atteamloss(t_account * account, unsigned int teamcount, char const * clienttag);
-extern int account_set_atteamxp(t_account * account, t_game_result gameresult, unsigned int opponlevel, unsigned int teamcount, char const * clienttag);
+extern int account_set_atteamxp(t_account * account, unsigned int teamcount, char const * clienttag, int xp);
+extern int account_update_atteamxp(t_account * account, t_game_result gameresult, unsigned int opponlevel, unsigned int teamcount, char const * clienttag);
 extern int account_get_atteamxp(t_account * account, unsigned int teamcount, char const * clienttag);
-extern int account_set_atteamlevel(t_account * account, unsigned int teamcount, char const * clienttag);
+extern int account_set_atteamlevel(t_account * account, unsigned int teamcount, char const * clienttag, int teamlevel);
+extern int account_update_atteamlevel(t_account * account, unsigned int teamcount, char const * clienttag);
 extern int account_get_atteamlevel(t_account * account, unsigned int teamcount, char const * clienttag);
 //aaron: --->
-extern int account_set_atteamrank(t_account * account, unsigned int teamcount, char const * clienttag);
+extern int account_set_atteamrank(t_account * account, unsigned int teamcount, char const * clienttag, int teamrank);
+extern int account_update_atteamrank(t_account * account, unsigned int teamcount, char const * clienttag);
 extern int account_get_atteamrank(t_account * account, unsigned int teamcount, char const * clienttag);
 extern int account_set_atteamrank_ladder(t_account * account, int rank, unsigned int teamcount, char const * clienttag);
 extern int account_get_atteamrank_ladder(t_account * account, unsigned int teamcount, char const * clienttag);
 // <---
 extern int account_set_atteammembers(t_account * account, unsigned int teamcount, char const * clienttag, char const *members);
 extern char const * account_get_atteammembers(t_account * account, unsigned int teamcount, char const * clienttag);
+extern int account_fix_at(t_account * account, const char * ctag);
 
 extern int account_set_saveATladderstats(t_account * account, unsigned int gametype, t_game_result result, unsigned int opponlevel, unsigned int current_teamnum, char const * clienttag);
 
