@@ -152,6 +152,9 @@
 					RelativePath="..\d2dbs\dbspacket.c">
 				</File>
 				<File
+					RelativePath="..\d2dbs\handle_signal.c">
+				</File>
+				<File
 					RelativePath="..\d2dbs\main.c">
 				</File>
 				<File
@@ -206,6 +209,13 @@
 					RelativePath="..\d2cs\xstring.c">
 				</File>
 			</Filter>
+			<Filter
+				Name="win32"
+				Filter="">
+				<File
+					RelativePath=".\service_d2dbs.c">
+				</File>
+			</Filter>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -231,6 +241,9 @@
 				</File>
 				<File
 					RelativePath="..\d2dbs\dbspacket.h">
+				</File>
+				<File
+					RelativePath="..\d2dbs\handle_signal.h">
 				</File>
 				<File
 					RelativePath="..\d2dbs\prefs.h">
@@ -288,6 +301,13 @@
 				</File>
 				<File
 					RelativePath="..\d2cs\xstring.h">
+				</File>
+			</Filter>
+			<Filter
+				Name="win32"
+				Filter="">
+				<File
+					RelativePath=".\service.h">
 				</File>
 			</Filter>
 		</Filter>

@@ -52,14 +52,19 @@
 #include "cmdline_parse.h"
 #include "version.h"
 #include "common/eventlog.h"
-#include "common/setup_after.h"
+#ifdef WIN32
+#include "win32/service.h"
+#endif
 #include "handle_signal.h"
 #include "dbserver.h"
+#include "common/setup_after.h"
 
 static FILE * eventlog_fp;
 #ifdef USE_CHECK_ALLOC
 static FILE * memlog_fp;
 #endif
+
+int g_ServiceStatus = 1;
 
 static int init(void);
 static int cleanup(void);
@@ -118,6 +123,15 @@ static int config_init(int argc, char * * argv)
 	if (d2dbs_cmdline_parse(argc, argv)<0) {
 		return -1;
 	}
+
+#ifdef WIN32
+	if (d2dbs_cmdline_get_run_as_service())
+	{
+  		Win32_ServiceRun();
+		return 1;
+	}
+#endif
+
 	if (d2dbs_cmdline_get_version()) {
 		d2dbs_cmdline_show_version();
 		return -1;
@@ -127,12 +141,29 @@ static int config_init(int argc, char * * argv)
 		return -1;
 	}
 #ifdef DO_DAEMONIZE
-	if (!d2dbs_cmdline_get_foreground()) {
+	if ((!d2dbs_cmdline_get_foreground()) && (!d2dbs_commandline_get_debugmode())) {
 	    	if (!((pid = setup_daemon()) == 0)) {
 		        return pid;
 		}
 	}
 #endif
+
+#ifdef WIN32
+if (d2dbs_cmdline_get_make_service())
+{
+		if (strcmp(d2dbs_cmdline_get_make_service(), "install") == 0) {
+		    fprintf(stderr, "Installing service");
+		    Win32_ServiceInstall();
+			return 1;
+		}
+		if (strcmp(d2dbs_cmdline_get_make_service(), "uninstall") == 0) {
+		    fprintf(stderr, "Uninstalling service");
+		    Win32_ServiceUninstall();
+			return 1;
+		}
+}
+#endif
+
 	if (d2dbs_prefs_load(d2dbs_cmdline_get_prefs_file())<0) {
 		eventlog(eventlog_level_error,__FUNCTION__,"error loading configuration file %s",d2dbs_cmdline_get_prefs_file());
 		return -1;
@@ -160,7 +191,7 @@ static int config_init(int argc, char * * argv)
     }
 
 
-	if (d2dbs_cmdline_get_logstderr()) {
+	if (d2dbs_cmdline_get_debugmode()) {
 		eventlog_set(stderr);
 	} else if (d2dbs_cmdline_get_logfile()) {
 		if (eventlog_open(d2dbs_cmdline_get_logfile())<0) {
@@ -207,6 +238,7 @@ extern int main(int argc, char * * argv)
 	eventlog_set(stderr);
 	pid = config_init(argc, argv);
 	if (!(pid == 0)) {
+		if (pid==1) pid=0;
 		return pid;
 	}
 	eventlog(eventlog_level_info,__FUNCTION__,D2DBS_VERSION);

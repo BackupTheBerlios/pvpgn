@@ -339,6 +339,7 @@ d2dbs_OBJECTS = \
     ${SRC_D2DBSDIR}\cmdline_parse.obj \ 
     ${SRC_D2DBSDIR}\prefs.obj \ 
     ${SRC_D2DBSDIR}\dbsdupecheck.obj \ 
+    ${SRC_D2DBSDIR}\handle_signal.obj \     
     ${SRC_D2CSDIR}\conf.obj \ 
     ${SRC_D2CSDIR}\xstring.obj \ 
     ${SRC_COMMONDIR}\list.obj \ 
@@ -351,6 +352,7 @@ d2dbs_OBJECTS = \
     ${SRC_COMPATDIR}\psock.obj \
     ${SRC_COMPATDIR}\strerror.obj \ 
     ${SRC_COMPATDIR}\strsep.obj 
+    ${SRC_WIN32DIR}\service_d2dbs.obj         
 
 bnproxy_SBIN    = ${SRC_SBINDIR}\bnproxy.exe
 bnproxy_OBJECTS = ${SRC_BNPROXYDIR}\bnproxy.obj \

@@ -139,7 +139,7 @@ extern int d2dbs_handle_signal(void)
           free(temp);
         }
 
-		if (!d2dbs_cmdline_get_logstderr()) eventlog_open(d2dbs_prefs_get_logfile());
+		if (!d2dbs_cmdline_get_debugmode()) eventlog_open(d2dbs_prefs_get_logfile());
 	}
 	if (signal_data.save_ladder) {
 		signal_data.save_ladder=0;
@@ -149,6 +149,13 @@ extern int d2dbs_handle_signal(void)
 	return 0;
 }
 
+#ifdef WIN32
+extern void d2dbs_signal_quit_wrapper(void)
+{
+  signal_data.do_quit=1;
+}
+
+#else
 extern int d2dbs_handle_signal_init(void)
 {
 	signal(SIGINT,on_signal);
@@ -189,3 +196,4 @@ static void on_signal(int s)
 	}
 	signal(s,on_signal);
 }
+#endif
