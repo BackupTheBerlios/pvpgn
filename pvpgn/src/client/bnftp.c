@@ -122,6 +122,7 @@ static void usage(char const * progname)
             "    --client=D2DV               report client as Diablo II\n"
             "    --client=D2XP               report client as Diablo II: LoD\n"
             "    --client=WAR3               report client as Warcraft III\n"
+            "    --client=W3XP               report client as Warcraft III: FT\n"
             "    --hexdump=FILE              do hex dump of packets into FILE\n");
     fprintf(stderr,
 	    "    --arch=IX86                 report architecture as Windows (x86)\n"
@@ -276,6 +277,15 @@ extern int main(int argc, char * argv[])
                 usage(argv[0]);
             }
             clienttag = CLIENTTAG_WARCRAFT3;
+        }
+        else if (strcmp(argv[a],"--client=W3XP")==0)
+        {
+            if (clienttag)
+            {
+                fprintf(stderr,"%s: client type was already specified as \"%s\"\n",argv[0],clienttag);
+                usage(argv[0]);
+            }
+            clienttag = CLIENTTAG_WAR3XP;
         }
         else if (strncmp(argv[a],"--client=",9)==0)
         {
