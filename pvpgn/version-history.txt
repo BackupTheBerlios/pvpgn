@@ -23,6 +23,8 @@ especially on servers with many accounts)
 properly, too (previously only /serverban's were saved)
 -- the first D2 1.10 changes which should enable PvPGN to fully support open 
 Battle.net
+-- server status file now also contains the server version (for external
+programs that need to know what PvPGN version is running)
 
 1.6.0pre3 (since 1.6.0pre2):
 -- fixed clan crash bug (when any user with clans logged in on sql/cdb pvpgn 
