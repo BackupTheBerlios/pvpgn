@@ -119,6 +119,11 @@ extern int news_load(const char *filename)
 		    	    break;
 			case 2:
 		    	    date->tm_year=atoi(dpart)-1900;
+					if (date->tm_year>137) //limited due to 32bit t_time
+					{
+						eventlog(eventlog_level_error,__FUNCTION__,"found invalid year (%i) (>2037) in news date.  on line %u",date->tm_year+1900,line);
+						date->tm_year=137;
+					}
 		    	    break;
 			default:
 		    	    eventlog(eventlog_level_error,__FUNCTION__,"error parsing news date on line %u",line);
