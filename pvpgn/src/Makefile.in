@@ -27,6 +27,7 @@ confdir		= @sysconfdir@
 sharedir	= @localstatedir@
 filesdir	= @localstatedir@/files
 usersdir	= @localstatedir@/users
+bnmaildir	= @localstatedir@/bnmail
 reportsdir	= @localstatedir@/reports
 chanlogsdir	= @localstatedir@/chanlogs
 charinfodir     = @localstatedir@/charinfo
@@ -458,7 +459,7 @@ DIRS		= ${SRC_BINDIR} ${SRC_SBINDIR}
 
 
 .PHONY: all
-all: @ANSI2KNR_DEP@ config ${SBINS} ${BINS}
+all: @ANSI2KNR_DEP@ config ${SBINS} ${BINS} ${SRC_CONFDIR}/bnetd.conf ${SRC_CONFDIR}/d2cs.conf ${SRC_CONFDIR}/d2dbs.conf
 
 .PHONY: clean
 clean:
@@ -572,7 +573,7 @@ install-man:
 	done
 
 .PHONY: install-conf
-install-conf: ${SRC_CONFDIR}/bnetd.conf ${SRC_CONFDIR}/d2cs.conf ${SRC_CONFDIR}/d2dbs.conf
+install-conf: 
 	${INSTALL_DIRS} ${confdir}
 	@list='${CONFS}'; for p in $$list; do \
 	  if test -f ${SRC_CONFDIR}/$$p; then \
@@ -583,7 +584,7 @@ install-conf: ${SRC_CONFDIR}/bnetd.conf ${SRC_CONFDIR}/d2cs.conf ${SRC_CONFDIR}/
 
 .PHONY: install-share
 install-share:
-	${INSTALL_DIRS} ${sharedir} ${filesdir} ${usersdir} ${reportsdir} \
+	${INSTALL_DIRS} ${sharedir} ${filesdir} ${usersdir} ${bnmaildir} ${reportsdir} \
 	${chanlogsdir} ${charinfodir} ${charsavedir} ${bak_charsavedir} \
 	${bak_charinfodir} ${ladderdir} ${statusdir}
 	@list='${SHARES}'; for p in $$list; do \
