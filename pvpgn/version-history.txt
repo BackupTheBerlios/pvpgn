@@ -12,6 +12,9 @@ removed last compiler warnings from win32-release
 a players game-connection but his connection to the server
 -- fixed some error in war3ladder causing ladder not to be updated
 -- better handling of "broken" atteams in war3ladder
+-- new bnetd.conf options:
+ - added boolean option XML_output_ladder for supporting jfro's latest ladder
+ - added boolean option XML_output_tracker for supporting jfro's tracker site
 
 1.2.3:
 -- fixed some crash related bugs
