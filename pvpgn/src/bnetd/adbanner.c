@@ -65,7 +65,7 @@ static unsigned int adbannerlist_norm_count=0;
 static t_adbanner * adbanner_create(unsigned int id, unsigned int next_id, unsigned int delay, bn_int tag, char const * filename, char const * link, char const * client);
 static int adbanner_destroy(t_adbanner const * ad);
 static int adbannerlist_insert(t_list * head, unsigned int * count, char const * filename, unsigned int delay, char const * link, unsigned int next_id, char const * client);
-static t_adbanner * adbannerlist_find_adbanner_by_id(t_list const * head, unsigned int id);
+static t_adbanner * adbannerlist_find_adbanner_by_id(t_list const * head, unsigned int id, const char * clienttag);
 static t_adbanner * adbannerlist_get_random(t_list const * head, char const * client);
 
 
@@ -164,11 +164,11 @@ extern t_adbanner * adbanner_pick(t_connection const * c, unsigned int prev_id)
     /* eventlog(eventlog_level_debug,"adbanner_choose","not sending init banner"); */
     
     /* find the previous adbanner */
-    if ((prev = adbannerlist_find_adbanner_by_id(adbannerlist_init_head,prev_id)))
+    if ((prev = adbannerlist_find_adbanner_by_id(adbannerlist_init_head,prev_id,conn_get_clienttag(c))))
 	next_id = prev->next;
-    else if ((prev = adbannerlist_find_adbanner_by_id(adbannerlist_start_head,prev_id)))
+    else if ((prev = adbannerlist_find_adbanner_by_id(adbannerlist_start_head,prev_id,conn_get_clienttag(c))))
 	next_id = prev->next;
-    else if ((prev = adbannerlist_find_adbanner_by_id(adbannerlist_norm_head,prev_id)))
+    else if ((prev = adbannerlist_find_adbanner_by_id(adbannerlist_norm_head,prev_id,conn_get_clienttag(c))))
 	next_id = prev->next;
     else
 	next_id = 0;
@@ -178,11 +178,11 @@ extern t_adbanner * adbanner_pick(t_connection const * c, unsigned int prev_id)
     {
 	t_adbanner * curr;
 	
-	if ((curr = adbannerlist_find_adbanner_by_id(adbannerlist_init_head,next_id)) && strcasecmp(adbanner_get_client(curr),conn_get_clienttag(c)) == 0)
+	if ((curr = adbannerlist_find_adbanner_by_id(adbannerlist_init_head,next_id,conn_get_clienttag(c))))
 	    return curr;
-	if ((curr = adbannerlist_find_adbanner_by_id(adbannerlist_start_head,next_id)) && strcasecmp(adbanner_get_client(curr),conn_get_clienttag(c)) == 0)
+	if ((curr = adbannerlist_find_adbanner_by_id(adbannerlist_start_head,next_id,conn_get_clienttag(c))))
 	    return curr;
-	if ((curr = adbannerlist_find_adbanner_by_id(adbannerlist_norm_head,next_id)) && strcasecmp(adbanner_get_client(curr),conn_get_clienttag(c)) == 0)
+	if ((curr = adbannerlist_find_adbanner_by_id(adbannerlist_norm_head,next_id,conn_get_clienttag(c))))
 	    return curr;
 	
 	eventlog(eventlog_level_error,"adbanner_pick","could not locate next requested ad with id 0x%06x",next_id);
@@ -253,7 +253,7 @@ extern char const * adbanner_get_client(t_adbanner const * ad)
 }
 
 
-static t_adbanner * adbannerlist_find_adbanner_by_id(t_list const * head, unsigned int id)
+static t_adbanner * adbannerlist_find_adbanner_by_id(t_list const * head, unsigned int id, const char *clienttag)
 {
     t_elem const * curr;
     t_adbanner *   temp;
@@ -268,7 +268,7 @@ static t_adbanner * adbannerlist_find_adbanner_by_id(t_list const * head, unsign
 	    eventlog(eventlog_level_error,"adbannerlist_find_adbanner_by_id","found NULL adbanner in list");
 	    continue;
 	}
-	if (temp->id==id)
+	if (temp->id==id && (temp->client == NULL || strcmp(temp->client,clienttag) == 0))
 	    return temp;
     }
     
