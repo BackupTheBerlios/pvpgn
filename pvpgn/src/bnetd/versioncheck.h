@@ -20,7 +20,6 @@
 #ifndef INCLUDED_VERSIONCHECK_TYPES
 #define INCLUDED_VERSIONCHECK_TYPES
 
-#ifdef VERSIONCHECK_INTERNAL_ACCESS
 typedef struct
 {
     char const *  eqn;
@@ -33,7 +32,6 @@ typedef struct
     unsigned long gameversion;
     unsigned long checksum;
 } t_versioninfo;
-#endif
 
 typedef t_versioninfo t_versioncheck;
 
