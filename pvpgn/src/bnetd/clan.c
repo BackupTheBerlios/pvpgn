@@ -982,8 +982,8 @@ extern const char *clanmember_get_online_status_by_connection(t_connection * con
 	}
 
 	(*status) = SERVER_W3XP_CLAN_MEMBER_ONLINE;
-    }
-    (*status) = SERVER_W3XP_CLAN_MEMBER_OFFLINE;
+    } else
+	(*status) = SERVER_W3XP_CLAN_MEMBER_OFFLINE;
     return NULL;
 }
 
