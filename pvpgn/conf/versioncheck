@@ -768,7 +768,6 @@
  0xb977ab00 \
  STAR_111
 
-# Starcraft 1.11
 # Starcraft - Broodwar (Expansion) 1.10 - (Broodwar mode)
 "A=2521522835 B=3428392135 C=218673704 4 A=A^S B=B-C C=C+A A=A-B" \
  "IX86ver1.mpq" \
