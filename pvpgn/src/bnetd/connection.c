@@ -2210,14 +2210,14 @@ extern int conn_set_channel(t_connection * c, char const * channelname)
     if(c->channel!=oldchannel)
       clanmember_on_change_status_by_connection(c);
     }
-    /*else
+    else
     {
       if (c->channel)
       {
         channel_del_connection(c->channel,c);
         c->channel = NULL;
       }
-    }*/
+    }
 
     return 0;
 }
