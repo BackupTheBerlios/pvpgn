@@ -161,7 +161,6 @@ extern char const * prefs_get_mapsfile(void) PURE_ATTR();
 extern char const * prefs_get_xplevel_file(void) PURE_ATTR();
 extern char const * prefs_get_xpcalc_file(void) PURE_ATTR();
 
-extern char const * prefs_get_war3ladder_url(void) PURE_ATTR();
 extern int prefs_get_initkill_timer(void) PURE_ATTR();
 
 //aaron

@@ -577,21 +577,6 @@ static int _client_countryinfo109(t_connection * c, t_packet const * const packe
 	else
 	  eventlog(eventlog_level_error,"handle_bnet_packet","[%d] unknown client program type 0x%08x, don't expect this to work",conn_get_socket(c),bn_int_get(packet->u.client_countryinfo_109.clienttag));
 	
-	// if we got war3ladder url, send it to client
-	// client should be using special loader
-	// 
-	if ((rpacket = packet_create(packet_class_bnet)))
-	  {
-	     char *url = (char *)prefs_get_war3ladder_url(); 
-	     if (url) {
-		packet_set_size(rpacket, sizeof(t_bnet_generic));
-		packet_set_type(rpacket, 0x6aff);
-		packet_append_string(rpacket, url);
-		queue_push_packet(conn_get_out_queue(c), rpacket);
-	     }
-	     packet_del_ref(rpacket);
-	  }
-	
 	/* First, send an ECHO_REQ */
 	
 	if ((rpacket = packet_create(packet_class_bnet)))

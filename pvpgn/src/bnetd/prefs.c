@@ -173,7 +173,6 @@ static Bconf_t conf_table[] =
     { "mapsfile",		conf_type_char,	   NULL,		 0,          		ACT },
     { "xplevelfile",    	conf_type_char,	   NULL,		 0,          		ACT },
     { "xpcalcfile",		conf_type_char,	   NULL,		 0,          		ACT },
-    { "war3ladder_url",		conf_type_char,	   NULL,		 0,			ACT },
     { "initkill_timer", 	conf_type_int,     NULL,       		 0,			ACT },
 
     //aaron
@@ -1131,11 +1130,6 @@ extern char const * prefs_get_xplevel_file(void)
 extern char const * prefs_get_xpcalc_file(void)
 {
     return get_char_conf("xpcalcfile");
-}
-
-extern char const * prefs_get_war3ladder_url(void)
-{
-	return get_char_conf("war3ladder_url");
 }
 
 extern int prefs_get_initkill_timer(void)
