@@ -84,7 +84,7 @@ AC_ARG_WITH(cdb, [  --with-cdb              include cdb user accounts file suppo
 
 AC_ARG_WITH(mysql, [  --with-mysql            include MySQL user accounts support], [ac_with_mysql='yes'])
 
-AC_ARG_WITH(mysql, [  --with-pgsql            include PostgreSQL user accounts support], [ac_with_pgsql='yes'])
+AC_ARG_WITH(pgsql, [  --with-pgsql            include PostgreSQL user accounts support], [ac_with_pgsql='yes'])
 
 extra_define=""
 AC_ARG_WITH(bits, [  --with-bits             include BITS patch. (EXPERIMENTAL)], [extra_define="${extra_define} -DWITH_BITS"])
