@@ -25,6 +25,11 @@ Check using ./configure --help for all available options.
 
 3. Compile and install PvPGN using
 
+*** NOTE ***
+you need to use GNU make to compile PvPGN (ie under linux this is 
+just "make" but under *BSD it is usually named "gmake")
+************
+
 $ make
 $ make install
 
