@@ -217,7 +217,7 @@ static int on_client_createcharreq(t_connection * c, t_packet * packet)
 		p_mkdir(path,S_IRWXU);
 	}
 	free(path);
-	p_closedir(dir);
+	if (dir) p_closedir(dir);
 
 	if (d2char_create(account,charname,class,status)<0) {
 		eventlog(eventlog_level_warn,__FUNCTION__,"error create character %s for account %s",charname,account);
