@@ -862,12 +862,6 @@ static int _client_createacctreq1(t_connection * c, t_packet const * const packe
 	goto out;
     }
 
-    if (account_check_name(username)<0) {
-	eventlog(eventlog_level_info,__FUNCTION__,"[%d] account not created (invalid symbols)",conn_get_socket(c));
-	bn_int_set(&rpacket->u.server_createaccount_w3.result,SERVER_CREATEACCTREPLY1_RESULT_NO);
-	goto out;
-    }
-
     bnhash_to_hash(packet->u.client_createacctreq1.password_hash1,&newpasshash1);
     if (!accountlist_create_account(username,hash_get_str(newpasshash1))) {
 	eventlog(eventlog_level_debug,__FUNCTION__,"[%d] account not created (failed)",conn_get_socket(c));
