@@ -70,6 +70,7 @@
 #include "common/list.h"
 #include "common/eventlog.h"
 #include "compat/strncasecmp.h"
+#include "compat/strerror.h"
 #include "d2cs/d2charfile.h"
 #include "common/xalloc.h"
 #include "common/setup_after.h"

@@ -58,6 +58,7 @@
 #include "handle_signal.h"
 #include "dbserver.h"
 #include "common/xalloc.h"
+#include "compat/strerror.h"
 #ifdef WIN32_GUI
 # include "win32/winmain.h"
 #endif

@@ -354,9 +354,6 @@ extern char const * pstrerror(int errornum)
     default: return strerror(errornum);
 	}
 }
-
-#else
-#define pstrerror(e) strerror(e)
 #endif
 
 #endif

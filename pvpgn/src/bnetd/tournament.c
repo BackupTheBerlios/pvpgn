@@ -53,6 +53,7 @@
 #include "common/list.h"
 #include "common/util.h"
 #include "common/xalloc.h"
+#include "compat/strerror.h"
 #include "account.h"
 #include "anongame_maplists.h"
 #include "tournament.h"
