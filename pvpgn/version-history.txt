@@ -1,5 +1,9 @@
 PvPGN Version History:
 
+1.6.0pre2 (since 1.6.0pre1):
+-- fixed searching for connection of a acccount uid (thus getting rid of all 
+those useless eventlogs got NULL account in account_get_uid)
+
 1.6.0pre1 (since 1.5.0beta3):
 -- fixed IRC auth bug (when using passwords with upper cases)
 -- fixed FT/ROC icons
