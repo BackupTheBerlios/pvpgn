@@ -1520,60 +1520,60 @@ static int _handle_stats_command(t_connection * c, char const *text)
       account_unget_name(tname);
       message_send_text(c,message_type_info,c,msgtemp);
       sprintf(msgtemp,"Users Solo Level: %u, Experience: %u",
-	      account_get_sololevel(account),
-	      account_get_soloxp(account));
+	      account_get_sololevel(account,clienttag),
+	      account_get_soloxp(account,clienttag));
       message_send_text(c,message_type_info,c,msgtemp);
       sprintf(msgtemp,"SOLO Ladder Record: %u-%u-0",
-	      account_get_solowin(account),
-	      account_get_sololoss(account));
+	      account_get_solowin(account,clienttag),
+	      account_get_sololoss(account,clienttag));
       message_send_text(c,message_type_info,c,msgtemp);
       // aaron -->
       sprintf(msgtemp,"SOLO Rank: %u",
-	      account_get_solorank(account));
+	      account_get_solorank(account,clienttag));
       message_send_text(c,message_type_info,c,msgtemp);
       // <---
       
       sprintf(msgtemp,"Users Team Level: %u, Experience: %u",
-	      account_get_teamlevel(account),
-	      account_get_teamxp(account));
+	      account_get_teamlevel(account,clienttag),
+	      account_get_teamxp(account,clienttag));
       message_send_text(c,message_type_info,c,msgtemp);
       sprintf(msgtemp,"TEAM Ladder Record: %u-%u-0",
-	      account_get_teamwin(account),
-	      account_get_teamloss(account));
+	      account_get_teamwin(account,clienttag),
+	      account_get_teamloss(account,clienttag));
       message_send_text(c,message_type_info,c,msgtemp);
       // aaron -->
       sprintf(msgtemp,"TEAM Rank: %u",
-	      account_get_teamrank(account));
+	      account_get_teamrank(account,clienttag));
       message_send_text(c,message_type_info,c,msgtemp);
       
       sprintf(msgtemp,"Users FFA Level: %u, Experience: %u",
-	      account_get_ffalevel(account),
-	      account_get_ffaxp(account));
+	      account_get_ffalevel(account,clienttag),
+	      account_get_ffaxp(account,clienttag));
       message_send_text(c,message_type_info,c,msgtemp);
       sprintf(msgtemp,"FFA Ladder Record: %u-%u-0",
-	      account_get_ffawin(account),
-	      account_get_ffaloss(account));
+	      account_get_ffawin(account,clienttag),
+	      account_get_ffaloss(account,clienttag));
       message_send_text(c,message_type_info,c,msgtemp);
       sprintf(msgtemp,"FFA Rank: %u",
-	      account_get_ffarank(account));
+	      account_get_ffarank(account,clienttag));
       message_send_text(c,message_type_info,c,msgtemp);
-      if (account_get_atteamcount(account))
+      if (account_get_atteamcount(account,clienttag))
 	{
 	  int teamcount;
-	  for (teamcount=0; teamcount<account_get_atteamcount(account); teamcount++)
+	  for (teamcount=0; teamcount<account_get_atteamcount(account,clienttag); teamcount++)
 	    {
 	      sprintf(msgtemp,"Users AT Team No. %u",teamcount);
 	      message_send_text(c,message_type_info,c,msgtemp);
 	      sprintf(msgtemp,"Users AT TEAM Level: %u, Experience: %u",
-		      account_get_atteamlevel(account,teamcount),
-		      account_get_atteamxp(account,teamcount));
+		      account_get_atteamlevel(account,teamcount,clienttag),
+		      account_get_atteamxp(account,teamcount,clienttag));
 	      message_send_text(c,message_type_info,c,msgtemp);
 	      sprintf(msgtemp,"AT TEAM Ladder Record: %u-%u-0",
-		      account_get_atteamwin(account,teamcount),
-		      account_get_atteamloss(account,teamcount));
+		      account_get_atteamwin(account,teamcount,clienttag),
+		      account_get_atteamloss(account,teamcount,clienttag));
 	      message_send_text(c,message_type_info,c,msgtemp);
 	      sprintf(msgtemp,"AT TEAM Rank: %u",
-		      account_get_atteamrank(account,teamcount));
+		      account_get_atteamrank(account,teamcount,clienttag));
 	      message_send_text(c,message_type_info,c,msgtemp);
 	    }
 	  
@@ -3249,53 +3249,53 @@ static int _handle_ladderinfo_command(t_connection * c, char const *text)
   else if (strcasecmp(clienttag,CLIENTTAG_WARCRAFT3)==0 || strcasecmp(clienttag,CLIENTTAG_WAR3XP)==0)
     {
       unsigned int teamcount = 0;
-      if ((account = war3_ladder_get_account(&solo_ladder,rank,teamcount)))
+      if ((account = war3_ladder_get_account(&solo_ladder,rank,teamcount,clienttag)))
 	{
 	  sprintf(msgtemp,"WarCraft3 Solo   %5u: %-20.20s %u/%u/0",
 		  rank,
 		  (tname = account_get_name(account)),
-		  account_get_solowin(account),
-		  account_get_sololoss(account));
+		  account_get_solowin(account,clienttag),
+		  account_get_sololoss(account,clienttag));
 	  account_unget_name(tname);
 	}
       else
 	sprintf(msgtemp,"WarCraft3 Solo   %5u: <none>",rank);
       message_send_text(c,message_type_info,c,msgtemp);
       
-      if ((account = war3_ladder_get_account(&team_ladder,rank,teamcount)))
+      if ((account = war3_ladder_get_account(&team_ladder,rank,teamcount,clienttag)))
 	{
 	  sprintf(msgtemp,"WarCraft3 Team   %5u: %-20.20s %u/%u/0",
 		  rank,
 		  (tname = account_get_name(account)),
-		  account_get_teamwin(account),
-		  account_get_teamloss(account));
+		  account_get_teamwin(account,clienttag),
+		  account_get_teamloss(account,clienttag));
 	  account_unget_name(tname);
 	}
       else
 	sprintf(msgtemp,"WarCraft3 Team   %5u: <none>",rank);
       message_send_text(c,message_type_info,c,msgtemp);
       
-      if ((account = war3_ladder_get_account(&ffa_ladder,rank,teamcount)))
+      if ((account = war3_ladder_get_account(&ffa_ladder,rank,teamcount,clienttag)))
 	{
 	  sprintf(msgtemp,"WarCraft3 FFA   %5u: %-20.20s %u/%u/0",
 		  rank,
 		  (tname = account_get_name(account)),
-		  account_get_ffawin(account),
-		  account_get_ffaloss(account));
+		  account_get_ffawin(account,clienttag),
+		  account_get_ffaloss(account,clienttag));
 	  account_unget_name(tname);
 	}
       else
 	sprintf(msgtemp,"WarCraft3 FFA   %5u: <none>",rank);
       message_send_text(c,message_type_info,c,msgtemp);
       
-      if ((account = war3_ladder_get_account(&at_ladder,rank,teamcount)))
+      if ((account = war3_ladder_get_account(&at_ladder,rank,teamcount,clienttag)))
 	{
-	  if (account_get_atteammembers(account,teamcount))
+	  if (account_get_atteammembers(account,teamcount,clienttag))
 	    sprintf(msgtemp,"WarCraft3 AT Team   %5u: %-80.80s %u/%u/0",
 		    rank,
-		    account_get_atteammembers(account,teamcount),
-		    account_get_atteamwin(account,teamcount),
-		    account_get_atteamloss(account,teamcount));
+		    account_get_atteammembers(account,teamcount,clienttag),
+		    account_get_atteamwin(account,teamcount,clienttag),
+		    account_get_atteamloss(account,teamcount,clienttag));
 	  else
 	    sprintf(msgtemp,"WarCraft3 AT Team   %5u: <invalid team info>",rank);
 	}

@@ -1939,44 +1939,44 @@ extern char const * race_get_str(unsigned int race)
 	}
 }
 
-extern int account_set_racewin( t_account * account, unsigned int intrace )
+extern int account_set_racewin( t_account * account, unsigned int intrace, char const * clienttag)
 {
-	char table[25];
+	char table[256];
 	unsigned int wins;
 	char const * race = race_get_str(intrace);
 
 	if(!race)
 	    return -1;
 
-	sprintf(table,"Record\\%s\\wins",race);
+	sprintf(table,"Record\\%s\\%s\\wins",clienttag, race);
 	wins = account_get_numattr(account,table);
 	wins++;
 		
 	return account_set_numattr(account,table,wins);
 }
 
-extern int account_get_racewin( t_account * account, unsigned int intrace)
+extern int account_get_racewin( t_account * account, unsigned int intrace, char const * clienttag)
 {	
-	char table[25];
+	char table[256];
 	char const *race = race_get_str(intrace);
 
 	if(!race)
 	    return 0;
 	
-	sprintf(table,"Record\\%s\\wins",race);
+	sprintf(table,"Record\\%s\\%s\\wins",clienttag, race);
 	return account_get_numattr(account,table);
 }
 
-extern int account_set_raceloss( t_account * account, unsigned int intrace )
+extern int account_set_raceloss( t_account * account, unsigned int intrace, char const * clienttag)
 {
-	char table[25];
+	char table[256];
 	unsigned int losses;
 	char const *race = race_get_str(intrace);
 
 	if(!race)
 	    return -1;
 
-	sprintf(table,"Record\\%s\\losses",race);
+	sprintf(table,"Record\\%s\\%s\\losses",clienttag,race);
 
 	losses=account_get_numattr(account,table);
 	
@@ -1986,71 +1986,88 @@ extern int account_set_raceloss( t_account * account, unsigned int intrace )
 	
 }
 
-extern int account_get_raceloss( t_account * account, unsigned int intrace )
+extern int account_get_raceloss( t_account * account, unsigned int intrace, char const * clienttag)
 {	
-	char table[25];
+	char table[256];
 	char const *race = race_get_str(intrace);
 	
 	if(!race)
 	    return 0;
 	
-	sprintf(table,"Record\\%s\\losses",race);
+	sprintf(table,"Record\\%s\\%s\\losses",clienttag,race);
 	
 	return account_get_numattr(account,table);
 	
 }	
 
-extern int account_set_solowin( t_account * account )
+extern int account_set_solowin( t_account * account, char const * clienttag)
 {
-	unsigned int win;
-	win = account_get_numattr(account,"Record\\solo\\wins");
-	win++;
-	return account_set_numattr(account,"Record\\solo\\wins",win);
+  char key[256];
+  unsigned int win;
+
+  sprintf(key,"Record\\%s\\solo\\wins",clienttag);
+
+  win = account_get_numattr(account,key);
+  win++;
+  return account_set_numattr(account,key,win);
 }
 
-extern int account_get_solowin( t_account * account )
+extern int account_get_solowin( t_account * account, char const * clienttag )
 {
-	return account_get_numattr(account,"Record\\solo\\wins");
+  char key[256];
+
+  sprintf(key,"Record\\%s\\solo\\wins",clienttag);
+
+  return account_get_numattr(account,key);
 }
 
-extern int account_set_sololoss( t_account * account)
+extern int account_set_sololoss( t_account * account, char const * clienttag)
 {
-	unsigned int loss;
-	loss = account_get_numattr(account,"Record\\solo\\losses");
-	loss++;
-	return account_set_numattr(account,"Record\\solo\\losses",loss);
+  char key[256];
+  unsigned int loss;
+
+  sprintf(key,"Record\\%s\\solo\\losses",clienttag);
+  
+  loss = account_get_numattr(account,key);
+  loss++;
+  return account_set_numattr(account,key,loss);
 }
 
-extern int account_get_sololoss( t_account * account)
+extern int account_get_sololoss( t_account * account, char const * clienttag)
 {
-	return account_get_numattr(account,"Record\\solo\\losses");
+  char key[256];
+
+  sprintf(key,"Record\\%s\\solo\\losses",clienttag);
+
+  return account_get_numattr(account,key);
 }
 
-extern int account_set_soloxp(t_account * account,t_game_result gameresult, unsigned int opponlevel)
+extern int account_set_soloxp(t_account * account, char const * clienttag, t_game_result gameresult, unsigned int opponlevel)
 { 
-   int xp;
-   int mylevel;
-   int xpdiff = 0, placeholder;
+  char key[256];
+  int xp;
+  int mylevel;
+  int xpdiff = 0, placeholder;
+  
+  xp = account_get_soloxp(account, clienttag); //get current xp
+  if (xp < 0) {
+    eventlog(eventlog_level_error, "account_set_soloxp", "got negative XP");
+    return -1;
+  }
    
-   xp = account_get_soloxp(account); //get current xp
-   if (xp < 0) {
-      eventlog(eventlog_level_error, "account_set_soloxp", "got negative XP");
-      return -1;
-   }
-   
-   mylevel = account_get_sololevel(account); //get accounts level
-   if (mylevel > W3_XPCALC_MAXLEVEL) {
-      eventlog(eventlog_level_error, "account_set_soloxp", "got invalid level: %d", mylevel);
-      return -1;
-   }
-   
-   if(mylevel<=0) //if level is 0 then set it to 1
-     mylevel=1;
-   
-   if (opponlevel < 1) opponlevel = 1;
-
-   switch (gameresult) 
-   {
+  mylevel = account_get_sololevel(account,clienttag); //get accounts level
+  if (mylevel > W3_XPCALC_MAXLEVEL) {
+    eventlog(eventlog_level_error, "account_set_soloxp", "got invalid level: %d", mylevel);
+    return -1;
+  }
+  
+  if(mylevel<=0) //if level is 0 then set it to 1
+    mylevel=1;
+  
+  if (opponlevel < 1) opponlevel = 1;
+  
+  switch (gameresult) 
+    {
     case game_result_win:
       ladder_war3_xpdiff(mylevel, opponlevel, &xpdiff, &placeholder); break;
     case game_result_loss:
@@ -2058,304 +2075,413 @@ extern int account_set_soloxp(t_account * account,t_game_result gameresult, unsi
     default:
       eventlog(eventlog_level_error, "account_set_soloxp", "got invalid game result: %d", gameresult);
       return -1;
-   }
+    }
+  
+  // aaron
+  war3_ladder_update(&solo_ladder,account_get_uid(account),xpdiff,account,0,clienttag);
    
-   // aaron
-   war3_ladder_update(&solo_ladder,account_get_uid(account),xpdiff,account,0);
-   
-   xp += xpdiff;
-   if (xp < 0) xp = 0;
-   
-   return account_set_numattr(account,"Record\\solo\\xp",xp);
+  xp += xpdiff;
+  if (xp < 0) xp = 0;
+
+  sprintf(key,"Record\\%s\\solo\\xp",clienttag);
+  
+  return account_set_numattr(account,key,xp);
 }
 
-extern int account_get_soloxp(t_account * account)
+extern int account_get_soloxp(t_account * account, char const * clienttag)
 {
-	return account_get_numattr(account,"Record\\solo\\xp");
+  char key[256];
+  
+  sprintf(key,"Record\\%s\\solo\\xp",clienttag);
+  
+  return account_get_numattr(account,key);
 }
 
-extern int account_set_sololevel(t_account * account)
+extern int account_set_sololevel(t_account * account, char const * clienttag)
 { 
-   int xp, mylevel;
-   
-   xp = account_get_soloxp(account);
-   if (xp < 0) xp = 0;
-   
-   mylevel = account_get_sololevel(account);
-   if (mylevel < 1) mylevel = 1;
-   
-   if (mylevel > W3_XPCALC_MAXLEVEL) {
-      eventlog(eventlog_level_error, "account_set_sololevel", "got invalid level: %d", mylevel);
-      return -1;
-   }
-   
-   mylevel = ladder_war3_updatelevel(mylevel, xp);
+  char key[256];
 
-   return account_set_numattr(account, "Record\\solo\\level", mylevel);
+  int xp, mylevel;
+  
+  xp = account_get_soloxp(account, clienttag);
+  if (xp < 0) xp = 0;
+   
+  mylevel = account_get_sololevel(account,clienttag);
+  if (mylevel < 1) mylevel = 1;
+   
+  if (mylevel > W3_XPCALC_MAXLEVEL) {
+    eventlog(eventlog_level_error, "account_set_sololevel", "got invalid level: %d", mylevel);
+    return -1;
+  }
+   
+  mylevel = ladder_war3_updatelevel(mylevel, xp);
+
+  sprintf(key,"Record\\%s\\solo\\level",clienttag);
+
+  return account_set_numattr(account, key, mylevel);
 }
 
-extern int account_get_sololevel(t_account * account)
+extern int account_get_sololevel(t_account * account, char const * clienttag)
 {
-	return account_get_numattr(account,"Record\\solo\\level");
+  char key[256];
+  
+  sprintf(key,"Record\\%s\\solo\\level",clienttag);
+
+  return account_get_numattr(account,key);
 }
 
 // 11-20-2002 aaron -->
-extern int account_set_solorank(t_account * account)
+extern int account_set_solorank(t_account * account, char const * clienttag)
 {
-  return account_set_numattr(account,"Record\\solo\\rank" ,war3_ladder_get_rank(&solo_ladder,account_get_uid(account),0));
+  char key[256];
+
+  sprintf(key,"Record\\%s\\solo\\rank",clienttag);
+
+  return account_set_numattr(account, key ,war3_ladder_get_rank(&solo_ladder,account_get_uid(account),0,clienttag));
 }
 
-extern int account_get_solorank_ladder(t_account * account)
+extern int account_get_solorank_ladder(t_account * account, char const * clienttag)
 {
-   return war3_ladder_get_rank(&solo_ladder, account_get_uid(account),0);
+   return war3_ladder_get_rank(&solo_ladder, account_get_uid(account),0,clienttag);
 }
 
-extern int account_set_solorank_ladder(t_account * account, int rank)
+extern int account_set_solorank_ladder(t_account * account, char const * clienttag, int rank)
 {
-  return account_set_numattr(account,"Record\\solo\\rank",rank);
+  char key[256];
+
+  sprintf(key,"Record\\%s\\solo\\rank",clienttag);
+
+  return account_set_numattr(account, key, rank);
 }
 
-extern int account_get_solorank(t_account * account)
+extern int account_get_solorank(t_account * account, char const * clienttag)
 {
-       return account_get_numattr(account,"Record\\solo\\rank");
+  char key[256];
+
+  sprintf(key,"Record\\%s\\solo\\rank",clienttag);
+  
+  return account_get_numattr(account,key);
 }
 
 // Team Game - Play Game Funcs
-extern int account_set_teamwin(t_account * account)
+extern int account_set_teamwin(t_account * account, char const * clienttag)
 {
-	unsigned int win;
-	win = account_get_numattr(account,"Record\\team\\wins");
-	win++;
-	return account_set_numattr(account,"Record\\team\\wins",win);
+  char key[256];
+  unsigned int win;
+
+  sprintf(key,"Record\\%s\\team\\wins",clienttag);
+  
+  win = account_get_numattr(account,key);
+  win++;
+  return account_set_numattr(account,key,win);
 }
 
-extern int account_get_teamwin(t_account * account)
+extern int account_get_teamwin(t_account * account, char const * clienttag)
 {
-	return account_get_numattr(account,"Record\\team\\wins");
+  char key[256];
+  
+  sprintf(key,"Record\\%s\\team\\wins",clienttag);
+  
+  return account_get_numattr(account,key);
 }
 
-extern int account_set_teamloss(t_account * account)
+extern int account_set_teamloss(t_account * account, char const * clienttag)
 {
-	unsigned int loss;
-	loss = account_get_numattr(account,"Record\\team\\losses");
-	loss++;
-	return account_set_numattr(account,"Record\\team\\losses",loss);
+  char key[256];
+  unsigned int loss;
+
+  sprintf(key,"Record\\%s\\team\\losses",clienttag);
+
+  loss = account_get_numattr(account,key);
+  loss++;
+  return account_set_numattr(account,key,loss);
 }
 
-extern int account_get_teamloss(t_account * account)
+extern int account_get_teamloss(t_account * account, char const * clienttag)
 {
-	return account_get_numattr(account,"Record\\team\\losses");
+  char key[256];
+
+  sprintf(key,"Record\\%s\\team\\losses",clienttag);
+
+  return account_get_numattr(account,key);
 }
 
-extern int account_set_teamxp(t_account * account,t_game_result gameresult, unsigned int opponlevel)
+extern int account_set_teamxp(t_account * account, char const * clienttag, t_game_result gameresult, unsigned int opponlevel)
 {
-	int xp;
-	int mylevel;
-	int lvldiff_2_xpdiff_loss[] = {-16, -22, -28, -37, -48, -60, -100, -140, -152, -163, -172, -178, -184};
-	int lvldiff_2_xpdiff_win[] = { 184, 178, 172, 163, 152, 140, 100, 60, 48, 37, 28, 22, 16};
-	int lvldiff, xpdiff;
-	xp = account_get_teamxp(account); //get current xp
-	xpdiff = 0;
-	mylevel = account_get_teamlevel(account); //get accounts level
+  char key[256];
+  int xp;
+  int mylevel;
+  int lvldiff_2_xpdiff_loss[] = {-16, -22, -28, -37, -48, -60, -100, -140, -152, -163, -172, -178, -184};
+  int lvldiff_2_xpdiff_win[] = { 184, 178, 172, 163, 152, 140, 100, 60, 48, 37, 28, 22, 16};
+  int lvldiff, xpdiff;
+  xp = account_get_teamxp(account,clienttag); //get current xp
+  xpdiff = 0;
+  mylevel = account_get_teamlevel(account,clienttag); //get accounts level
+  
+  if(mylevel==0) //if level is 0 then set it to 1
+    mylevel=1;
+  
+  //I know its ugly, how bout some help putting this into a array? -THEUNDYING
+  //made 2 nice arrays and added update of war3ladder(team) - aaron
+  
+  lvldiff = mylevel-opponlevel;
+  if (lvldiff>6) lvldiff=6;
+  if (lvldiff<-6) lvldiff=-6;
+  
+  
+  if(gameresult == game_result_loss) //loss
+    {
+      xpdiff = lvldiff_2_xpdiff_loss[lvldiff+6];
+    }
+  if(gameresult == game_result_win) //win
+    {
+      xpdiff = lvldiff_2_xpdiff_win[lvldiff+6];
+    }
+  
+  war3_ladder_update(&team_ladder,account_get_uid(account), xpdiff, account,0,clienttag);
+  
+  xp += xpdiff;
+  
+  //now check see if xp is negative, if it is, just set it to 0
+  if(xp<0) xp=0;
+  
+  sprintf(key,"Record\\%s\\team\\xp",clienttag);
 
-	if(mylevel==0) //if level is 0 then set it to 1
-		mylevel=1;
-
-	//I know its ugly, how bout some help putting this into a array? -THEUNDYING
-	//made 2 nice arrays and added update of war3ladder(team) - aaron
-	
-
-	lvldiff = mylevel-opponlevel;
-	if (lvldiff>6) lvldiff=6;
-	if (lvldiff<-6) lvldiff=-6;
-	
-	
-	if(gameresult == game_result_loss) //loss
-	  {
-	    xpdiff = lvldiff_2_xpdiff_loss[lvldiff+6];
-	  }
-	if(gameresult == game_result_win) //win
-	  {
-	    xpdiff = lvldiff_2_xpdiff_win[lvldiff+6];
-	  }
-	
-	war3_ladder_update(&team_ladder,account_get_uid(account), xpdiff, account,0);
-	
-	xp += xpdiff;
-	
-	//now check see if xp is negative, if it is, just set it to 0
-	if(xp<0) xp=0;
-	
-	
-	return account_set_numattr(account,"Record\\team\\xp",xp);
+  return account_set_numattr(account, key, xp);
 }
 
-extern int account_get_teamxp(t_account * account)
+extern int account_get_teamxp(t_account * account, char const * clienttag)
 {
-	return account_get_numattr(account,"Record\\team\\xp");
+  char key[256];
+
+  sprintf(key,"Record\\%s\\team\\xp",clienttag);
+  
+  return account_get_numattr(account, key);
 }
 
-extern int account_set_teamlevel(t_account * account)
+extern int account_set_teamlevel(t_account * account, char const * clienttag)
 { 
-	int xp;
-	unsigned int i;
-	static const int xp_to_level[] = {100, 200, 300, 400, 500, 600, 700, 800,
-		900, 1000, 1100, 1200, 1300, 1400, 1600, 1900, 2200, 2500, 2800, 3200,
-	    3600, 4000, 4500, 5000, 5500, 6000, 6600, 7200, 7800, 8400, 9000}; //Supports up to level 31
+  char key[256];
+  int xp;
+  unsigned int i;
+  static const int xp_to_level[] = {100, 200, 300, 400, 500, 600, 700, 800,
+				    900, 1000, 1100, 1200, 1300, 1400, 1600, 1900, 2200, 2500, 2800, 3200,
+				    3600, 4000, 4500, 5000, 5500, 6000, 6600, 7200, 7800, 8400, 9000}; //Supports up to level 31
+  
+  xp = account_get_teamxp(account,clienttag);
+  
+  for (i = 0; i < sizeof(xp_to_level) / sizeof(int); i++) {
+    if (xp_to_level[i] > xp) break;
+  }
+  
+  sprintf(key,"Record\\%s\\team\\level",clienttag);
 
-	xp = account_get_teamxp(account);
-	
-	for (i = 0; i < sizeof(xp_to_level) / sizeof(int); i++) {
-		if (xp_to_level[i] > xp) break;
-	}
-
-	return account_set_numattr(account, "Record\\team\\level", ++i);
+  return account_set_numattr(account, key, ++i);
 }
 
-extern int account_get_teamlevel(t_account * account)
+extern int account_get_teamlevel(t_account * account, char const * clienttag)
 {
-	return account_get_numattr(account,"Record\\team\\level");
+  char key[256];
+
+  sprintf(key,"Record\\%s\\team\\level",clienttag);
+  
+  return account_get_numattr(account, key);
 }
 
 // 11-20-2002 aaron --->
-extern int account_set_teamrank(t_account * account)
+extern int account_set_teamrank(t_account * account, char const * clienttag)
 {
-        return account_set_numattr(account,"Record\\team\\rank",war3_ladder_get_rank(&team_ladder,account_get_uid(account),0));
+  char key[256];
+
+  sprintf(key,"Record\\%s\\team\\rank",clienttag);
+  
+  return account_set_numattr(account,key,war3_ladder_get_rank(&team_ladder,account_get_uid(account),0,clienttag));
 }
 
-extern int account_get_teamrank_ladder(t_account * account)
+extern int account_get_teamrank_ladder(t_account * account, char const * clienttag)
 {
-	return war3_ladder_get_rank(&team_ladder,account_get_uid(account),0);
+  
+  return war3_ladder_get_rank(&team_ladder,account_get_uid(account),0,clienttag);
 }
 
-extern int account_set_teamrank_ladder(t_account * account, int rank)
+extern int account_set_teamrank_ladder(t_account * account, char const * clienttag, int rank)
 {
-        return account_set_numattr(account,"Record\\team\\rank",rank);
+  char key[256];
+
+  sprintf(key,"Record\\%s\\team\\rank",clienttag);
+  
+  return account_set_numattr(account,key,rank);
 }
 
-extern int account_get_teamrank(t_account * account)
+extern int account_get_teamrank(t_account * account, char const * clienttag)
 {
-       return account_get_numattr(account,"Record\\team\\rank");
+  char key[256];
+
+  sprintf(key,"Record\\%s\\team\\rank",clienttag);
+  
+  return account_get_numattr(account,key);
 }
 
 // FFA code
-extern int account_set_ffawin(t_account * account)
+extern int account_set_ffawin(t_account * account, char const * clienttag)
 {
-	unsigned int win;
-	win = account_get_numattr(account,"Record\\ffa\\wins");
-	win++;
-	return account_set_numattr(account,"Record\\ffa\\wins",win);
+  char key[256];
+  unsigned int win;
+
+  sprintf(key,"Record\\%s\\ffa\\wins",clienttag);
+  
+  win = account_get_numattr(account,key);
+  win++;
+  return account_set_numattr(account,key,win);
 }
 
-extern int account_get_ffawin(t_account * account)
+extern int account_get_ffawin(t_account * account, char const * clienttag)
 {
-	return account_get_numattr(account,"Record\\ffa\\wins");
+  char key[256];
+
+  sprintf(key,"Record\\%s\\ffa\\wins",clienttag);
+  
+  return account_get_numattr(account,key);
 }
 
-extern int account_set_ffaloss(t_account * account)
+extern int account_set_ffaloss(t_account * account, char const * clienttag)
 {
-	unsigned int loss;
-	loss = account_get_numattr(account,"Record\\ffa\\losses");
-	loss++;
-	return account_set_numattr(account,"Record\\ffa\\losses",loss);
+  char key[256];
+  unsigned int loss;
+
+  sprintf(key,"Record\\%s\\ffa\\losses",clienttag);
+
+  loss = account_get_numattr(account,key);
+  loss++;
+  return account_set_numattr(account,key,loss);
 }
 
-extern int account_get_ffaloss(t_account * account)
+extern int account_get_ffaloss(t_account * account, char const * clienttag)
 {
-	return account_get_numattr(account,"Record\\ffa\\losses");
+  char key[256];
+
+  sprintf(key,"Record\\%s\\ffa\\losses",clienttag);
+  
+  return account_get_numattr(account,key);
 }
 
-extern int account_set_ffaxp(t_account * account,t_game_result gameresult, unsigned int opponlevel)
+extern int account_set_ffaxp(t_account * account, char const * clienttag,t_game_result gameresult, unsigned int opponlevel)
 { 
-	int xp;
-	int mylevel;
-	int lvldiff_2_xpdiff_loss[] = {-16, -22, -28, -37, -48, -60, -100, -140, -152, -163, -172, -178, -184};
-	int lvldiff_2_xpdiff_win[] = { 184, 178, 172, 163, 152, 140, 100, 60, 48, 37, 28, 22, 16};
-	int lvldiff, xpdiff;
-	xp = account_get_ffaxp(account); //get current xp
-	xpdiff = 0;
-	mylevel = account_get_ffalevel(account); //get accounts level
+  char key[256];
+  int xp;
+  int mylevel;
+  int lvldiff_2_xpdiff_loss[] = {-16, -22, -28, -37, -48, -60, -100, -140, -152, -163, -172, -178, -184};
+  int lvldiff_2_xpdiff_win[] = { 184, 178, 172, 163, 152, 140, 100, 60, 48, 37, 28, 22, 16};
+  int lvldiff, xpdiff;
+  xp = account_get_ffaxp(account,clienttag); //get current xp
+  xpdiff = 0;
+  mylevel = account_get_ffalevel(account,clienttag); //get accounts level
+  
+  if(mylevel==0) //if level is 0 then set it to 1
+    mylevel=1;
+  
+  //I know its ugly, how bout some help putting this into a array? -THEUNDYING
+  //aaron: done the array stuff
+  
+  lvldiff = mylevel-opponlevel;
+  if (lvldiff>6) lvldiff=6;
+  if (lvldiff<-6) lvldiff=-6;
+  
+  if(gameresult == game_result_loss) //loss
+    {
+      xpdiff=lvldiff_2_xpdiff_loss[lvldiff+6];
+    }
+  if(gameresult == game_result_win) //win
+    {
+      xpdiff=lvldiff_2_xpdiff_win[lvldiff+6];
+    }
+  
+  war3_ladder_update(&ffa_ladder, account_get_uid(account), xpdiff, account, 0, clienttag);
+  
+  xp += xpdiff;
+  
+  if (xp<0) xp=0;
+  
+  sprintf(key,"Record\\%s\\ffa\\xp",clienttag);
 
-	if(mylevel==0) //if level is 0 then set it to 1
-		mylevel=1;
-
-	//I know its ugly, how bout some help putting this into a array? -THEUNDYING
-	//aaron: done the array stuff
-	
-	lvldiff = mylevel-opponlevel;
-	if (lvldiff>6) lvldiff=6;
-	if (lvldiff<-6) lvldiff=-6;
-	
-	if(gameresult == game_result_loss) //loss
-	{
-	  xpdiff=lvldiff_2_xpdiff_loss[lvldiff+6];
-	}
-	if(gameresult == game_result_win) //win
-	{
-	  xpdiff=lvldiff_2_xpdiff_win[lvldiff+6];
-	}
-
-	war3_ladder_update(&ffa_ladder, account_get_uid(account), xpdiff, account, 0);
-
-	xp += xpdiff;
-
-	if (xp<0) xp=0;
-
-	return account_set_numattr(account,"Record\\ffa\\xp",xp);
+  return account_set_numattr(account,key,xp);
 }
 
-extern int account_get_ffaxp(t_account * account)
+extern int account_get_ffaxp(t_account * account, char const * clienttag)
 {
-	return account_get_numattr(account,"Record\\ffa\\xp");
+  char key[256];
+
+  sprintf(key,"Record\\%s\\ffa\\xp",clienttag);
+
+  return account_get_numattr(account,key);
 }
 
-extern int account_set_ffalevel(t_account * account)
+extern int account_set_ffalevel(t_account * account, char const * clienttag)
 { 
-	int xp;
-	unsigned int i;
-	static const int xp_to_level[] = {100, 200, 300, 400, 500, 600, 700, 800,
-		900, 1000, 1100, 1200, 1300, 1400, 1600, 1900, 2200, 2500, 2800, 3200,
-	    3600, 4000, 4500, 5000, 5500, 6000, 6600, 7200, 7800, 8400, 9000}; //Supports up to level 31
-
-	xp = account_get_ffaxp(account);
+  char key[256];
+  int xp;
+  unsigned int i;
+  static const int xp_to_level[] = {100, 200, 300, 400, 500, 600, 700, 800,
+				    900, 1000, 1100, 1200, 1300, 1400, 1600, 1900, 2200, 2500, 2800, 3200,
+				    3600, 4000, 4500, 5000, 5500, 6000, 6600, 7200, 7800, 8400, 9000}; //Supports up to level 31
+  
+  xp = account_get_ffaxp(account,clienttag);
 	
-	for (i = 0; i < sizeof(xp_to_level) / sizeof(int); i++) {
-		if (xp_to_level[i] > xp) break;
-	}
+  for (i = 0; i < sizeof(xp_to_level) / sizeof(int); i++) {
+    if (xp_to_level[i] > xp) break;
+  }
+  
+  sprintf(key,"Record\\%s\\ffa\\level",clienttag);
 
-	return account_set_numattr(account, "Record\\ffa\\level", ++i);
+  return account_set_numattr(account, key, ++i);
 }
 
-extern int account_get_ffalevel(t_account * account)
+extern int account_get_ffalevel(t_account * account, char const * clienttag)
 {
-	return account_get_numattr(account,"Record\\ffa\\level");
+  char key[256];
+
+  sprintf(key,"Record\\%s\\ffa\\level",clienttag);
+  
+  return account_get_numattr(account,key);
 }
 
-extern int account_get_ffarank(t_account * account)
+extern int account_get_ffarank(t_account * account, char const * clienttag)
 {
-	return account_get_numattr(account,"Record\\ffa\\rank");
+  char key[256];
+
+  sprintf(key,"Record\\%s\\ffa\\rank",clienttag);
+
+  return account_get_numattr(account,key);
 }
 
 // aaron --->
-extern int account_set_ffarank(t_account * account)
+extern int account_set_ffarank(t_account * account, char const * clienttag)
 {
-	return account_set_numattr(account,"Record\\ffa\\rank",war3_ladder_get_rank(&ffa_ladder,account_get_uid(account),0));
+  char key[256];
+
+  sprintf(key,"Record\\%s\\ffa\rank",clienttag);
+  
+  return account_set_numattr(account,key,war3_ladder_get_rank(&ffa_ladder,account_get_uid(account),0,clienttag));
 }
 
-extern int account_get_ffarank_ladder(t_account * account)
+extern int account_get_ffarank_ladder(t_account * account, char const * clienttag)
 {
-	return war3_ladder_get_rank(&ffa_ladder,account_get_uid(account),0);
+	return war3_ladder_get_rank(&ffa_ladder,account_get_uid(account),0,clienttag);
 }
 
-extern int account_set_ffarank_ladder(t_account * account, int rank)
+extern int account_set_ffarank_ladder(t_account * account, char const * clienttag, int rank)
 {
-	return account_set_numattr(account,"Record\\ffa\\rank",rank);
+  char key[256];
+
+  sprintf(key,"Record\\%s\\ffa\\rank",clienttag);
+
+  return account_set_numattr(account,key,rank);
 }
 // <---
 
 
 //Other funcs used in profiles and PG saving
-extern void account_get_raceicon(t_account * account, char * raceicon, unsigned int * raceiconnumber, unsigned int * wins) //Based of wins for each race, Race with most wins, gets shown in chat channel
+extern void account_get_raceicon(t_account * account, char * raceicon, unsigned int * raceiconnumber, unsigned int * wins, char const * clienttag) //Based of wins for each race, Race with most wins, gets shown in chat channel
 {
 	unsigned int humans;
 	unsigned int orcs;
@@ -2365,11 +2491,11 @@ extern void account_get_raceicon(t_account * account, char * raceicon, unsigned 
 	int icons_limits[] = {25, 250, 500, 1500, -1};
 	unsigned int i;
 
-	random = account_get_racewin(account,W3_RACE_RANDOM);
-	humans = account_get_racewin(account,W3_RACE_HUMANS); 
-	orcs = account_get_racewin(account,W3_RACE_ORCS); 
-	undead = account_get_racewin(account,W3_RACE_UNDEAD);
-	nightelf = account_get_racewin(account,W3_RACE_NIGHTELVES);
+	random = account_get_racewin(account,W3_RACE_RANDOM,clienttag);
+	humans = account_get_racewin(account,W3_RACE_HUMANS,clienttag); 
+	orcs = account_get_racewin(account,W3_RACE_ORCS,clienttag); 
+	undead = account_get_racewin(account,W3_RACE_UNDEAD,clienttag);
+	nightelf = account_get_racewin(account,W3_RACE_NIGHTELVES,clienttag);
 	if(humans>=orcs && humans>=undead && humans>=nightelf && humans>=random) {
 	    *raceicon = 'H';
 	    *wins = humans;
@@ -2397,7 +2523,6 @@ extern void account_get_raceicon(t_account * account, char * raceicon, unsigned 
 
 extern int account_get_profile_calcs(t_account * account, int xp, unsigned int j)
 {
-
 	static const int xp_min[] = {-1, 0, 100, 200, 400, 600, 900, 1200, 1600, 2000, 2500, 
 	3000, 3500, 4000, 4500, 5000, 5500, 6000, 6500, 7000, 7500, 8000, 8500, 9000};
 	static const int xp_max[] = {-1, 100, 200, 400, 600, 900, 1200, 1600, 2000, 2500, 
@@ -2420,7 +2545,7 @@ extern int account_get_profile_calcs(t_account * account, int xp, unsigned int j
 	return 0;
 }
 
-extern int account_set_saveladderstats(t_account * account,unsigned int gametype, t_game_result result, unsigned int opponlevel)
+extern int account_set_saveladderstats(t_account * account,unsigned int gametype, t_game_result result, unsigned int opponlevel, char const * clienttag)
 {
 	unsigned int intrace;
 
@@ -2429,7 +2554,7 @@ extern int account_set_saveladderstats(t_account * account,unsigned int gametype
 		return -1;
 	}
 
-	intrace = account_get_w3pgrace(account);
+	intrace = account_get_w3pgrace(account, clienttag);
 	
 	switch (gametype)
 	{
@@ -2438,18 +2563,18 @@ extern int account_set_saveladderstats(t_account * account,unsigned int gametype
 
 		if(result == game_result_win) //win
 		{
-			account_set_solowin(account);
-			account_set_racewin(account,intrace);
+			account_set_solowin(account, clienttag);
+			account_set_racewin(account, intrace, clienttag);
 			
 		}
 		if(result == game_result_loss) //loss
 		{
-			account_set_sololoss(account);
-			account_set_raceloss(account,intrace);
+			account_set_sololoss(account, clienttag);
+			account_set_raceloss(account,intrace, clienttag);
 		}
 			
-		account_set_soloxp(account,result,opponlevel);
-		account_set_sololevel(account);
+		account_set_soloxp(account,clienttag,result,opponlevel);
+		account_set_sololevel(account,clienttag);
 		break;
 	  }
 	  case ANONGAME_TYPE_2V2:
@@ -2458,17 +2583,17 @@ extern int account_set_saveladderstats(t_account * account,unsigned int gametype
 	  {
 		if(result == game_result_win) //win
 		{
-			account_set_teamwin(account);
-			account_set_racewin(account,intrace);
+			account_set_teamwin(account,clienttag);
+			account_set_racewin(account,intrace,clienttag);
 		}
 		if(result == game_result_loss) //loss
 		{
-			account_set_teamloss(account);
-			account_set_raceloss(account,intrace);
+			account_set_teamloss(account,clienttag);
+			account_set_raceloss(account,intrace,clienttag);
 		}
 
-		account_set_teamxp(account,result,opponlevel); //Not done yet
-		account_set_teamlevel(account);
+		account_set_teamxp(account,clienttag,result,opponlevel); //Not done yet
+		account_set_teamlevel(account,clienttag);
 		break;
 	  }
 
@@ -2476,17 +2601,17 @@ extern int account_set_saveladderstats(t_account * account,unsigned int gametype
 	  {
 		if(result == game_result_win) //win
 		{
-			account_set_ffawin(account);
-			account_set_racewin(account,intrace);
+			account_set_ffawin(account,clienttag);
+			account_set_racewin(account,intrace,clienttag);
 		}
 		if(result == game_result_loss) //loss
 		{
-			account_set_ffaloss(account);
-			account_set_raceloss(account,intrace);
+			account_set_ffaloss(account,clienttag);
+			account_set_raceloss(account,intrace,clienttag);
 		}
 
-		account_set_ffaxp(account,result,opponlevel);
-		account_set_ffalevel(account);
+		account_set_ffaxp(account,clienttag,result,opponlevel);
+		account_set_ffalevel(account,clienttag);
                 break;
 	  }
 	  default:
@@ -2496,130 +2621,154 @@ extern int account_set_saveladderstats(t_account * account,unsigned int gametype
 	return 0;
 }
 
-extern int account_set_w3pgrace( t_account * account, unsigned int race)
+extern int account_set_w3pgrace( t_account * account, char const * clienttag, unsigned int race)
 {
-	return account_set_numattr( account, "Record\\w3pgrace", race);
+  char key[256];
+  sprintf(key,"Record\\%s\\w3pgrace",clienttag);
+  return account_set_numattr( account, key, race);
 }
 
-extern int account_get_w3pgrace( t_account * account )
+extern int account_get_w3pgrace( t_account * account, char const * clienttag )
 {
-    return account_get_numattr( account, "Record\\w3pgrace" );
+  char key[256];
+  sprintf(key,"Record\\%s\\w3pgrace",clienttag);
+  return account_get_numattr( account, key);
 }
 // Arranged Team Functions
-extern int account_check_team(t_account * account, const char * members_usernames)
+extern int account_check_team(t_account * account, const char * members_usernames, char const * clienttag)
 {
-	int teams_cnt = account_get_atteamcount(account);
-	int i;
+  int teams_cnt = account_get_atteamcount(account,clienttag);
+  int i;
 	    
-    if(teams_cnt==0) //user has never play at before
-		return -1;
+  if(teams_cnt==0) //user has never play at before
+    return -1;
 	
-	for(i=1;i<=teams_cnt;i++)
+  for(i=1;i<=teams_cnt;i++)
+    {
+      char const * members = account_get_atteammembers(account,i,clienttag);
+      if(members && members_usernames && strcasecmp(members,members_usernames)==0)
 	{
-		char const * members = account_get_atteammembers(account,i);
-		if(members && members_usernames && strcasecmp(account_get_atteammembers(account,i),members_usernames)==0)
-		{
-			eventlog(eventlog_level_debug,"account_check_team","Use have played before! Team num is %d",i);
-			return i;
-		}
+	  eventlog(eventlog_level_debug,"account_check_team","Use have played before! Team num is %d",i);
+	  return i;
 	}
-	//if your here this group of people have never played a AT game yet
-	return -1;
+    }
+  //if your here this group of people have never played a AT game yet
+  return -1;
 }
 
-extern int account_create_newteam(t_account * account, const char * members_usernames, unsigned int teamsize)
+extern int account_create_newteam(t_account * account, const char * members_usernames, unsigned int teamsize, char const * clienttag)
 {
-	int teams_cnt = account_get_atteamcount(account);
+  int teams_cnt = account_get_atteamcount(account,clienttag);
 	
-	teams_cnt++; //since we making a new team here add+1 to the count
+  teams_cnt++; //since we making a new team here add+1 to the count
 
-    account_set_atteamcount(account,teams_cnt);
-	account_set_atteammembers(account,teams_cnt,members_usernames);
-	account_set_atteamsize(account,teams_cnt,teamsize);
-	    	
-	return teams_cnt;
+  account_set_atteamcount(account,clienttag,teams_cnt);
+  account_set_atteammembers(account,teams_cnt,clienttag,members_usernames);
+  account_set_atteamsize(account,teams_cnt,clienttag,teamsize);
+  
+  return teams_cnt;
 }
 
-extern int account_set_atteamcount(t_account * account, unsigned int teamcount)
+extern int account_set_atteamcount(t_account * account, char const * clienttag, unsigned int teamcount)
 {
-	return account_set_numattr(account,"Record\\teamcount",teamcount);
+  char key[256];
+
+  sprintf(key,"Record\\%s\\teamcount",clienttag);
+  
+  return account_set_numattr(account,key,teamcount);
 }
 
-extern int account_get_atteamcount(t_account * account)
+extern int account_get_atteamcount(t_account * account, char const * clienttag)
 {
-	return account_get_numattr(account,"Record\\teamcount");
+  char key[256];
+
+  sprintf(key,"Record\\%s\\teamcount",clienttag);
+
+  return account_get_numattr(account,"Record\\teamcount");
 }
 
-extern int account_set_atteamsize(t_account * account, unsigned int teamcount, unsigned int teamsize)
+extern int account_set_atteamsize(t_account * account, unsigned int teamcount, char const * clienttag, unsigned int teamsize)
 {
-	char key[120];
-	sprintf(key,"Team\\%u\\teamsize",teamcount);
-	return account_set_numattr(account,key,teamsize);
+  char key[356];
+  
+  sprintf(key,"Team\\%s\\%u\\teamsize",clienttag,teamcount);
+  
+  return account_set_numattr(account,key,teamsize);
 }
-extern int account_get_atteamsize(t_account * account, unsigned int teamcount)
-{
-	char key[120];
-	sprintf(key,"Team\\%u\\teamsize",teamcount);
-	return account_get_numattr(account,key);
-}
-extern int account_set_atteamwin(t_account * account, unsigned int teamcount)
-{
-	char key[120];
-	int wins = account_get_atteamwin(account,teamcount);
-	wins++;
 
-	sprintf(key,"Team\\%u\\teamwins",teamcount);
+extern int account_get_atteamsize(t_account * account, unsigned int teamcount, char const * clienttag)
+{
+  char key[256];
+  
+  sprintf(key,"Team\\%s\\%u\\teamsize",clienttag, teamcount);
+
+  return account_get_numattr(account,key);
+}
+
+extern int account_set_atteamwin(t_account * account, unsigned int teamcount, char const * clienttag)
+{
+  char key[256];
+  int wins = account_get_atteamwin(account,teamcount,clienttag);
+  wins++;
+  
+  sprintf(key,"Team\\%s\\%u\\teamwins",clienttag,teamcount);
 	
-	return account_set_numattr(account,key,wins);
+  return account_set_numattr(account,key,wins);
 }
-extern int account_get_atteamwin(t_account * account, unsigned int teamcount)
-{
-	char key[120];
-	sprintf(key,"Team\\%u\\teamwins",teamcount);
-	return account_get_numattr(account,key);
-}
-extern int account_set_atteamloss(t_account * account, unsigned int teamcount)
-{
-	char key[120];
-	int loss = account_get_atteamloss(account,teamcount);
-	loss++;
 
-	sprintf(key,"Team\\%u\\teamlosses",teamcount);
-	
-	return account_set_numattr(account,key,loss);
-}
-extern int account_get_atteamloss(t_account * account, unsigned int teamcount)
+extern int account_get_atteamwin(t_account * account, unsigned int teamcount, char const * clienttag)
 {
-	char key[120];
-	sprintf(key,"Team\\%u\\teamlosses",teamcount);
-	return account_get_numattr(account,key);
+  char key[256];
+
+  sprintf(key,"Team\\%s\\%u\\teamwins",clienttag,teamcount);
+  
+  return account_get_numattr(account,key);
 }
-extern int account_set_atteamxp(t_account * account, t_game_result gameresult, unsigned int opponlevel, unsigned int teamcount)
+extern int account_set_atteamloss(t_account * account, unsigned int teamcount, char const * clienttag)
+{
+  char key[256];
+  int loss = account_get_atteamloss(account,teamcount,clienttag);
+  loss++;
+
+  sprintf(key,"Team\\%s\\%u\\teamlosses",clienttag,teamcount);
+	
+  return account_set_numattr(account,key,loss);
+}
+
+extern int account_get_atteamloss(t_account * account, unsigned int teamcount, char const * clienttag)
+{
+  char key[256];
+  
+  sprintf(key,"Team\\%s\\%u\\teamlosses",clienttag,teamcount);
+
+  return account_get_numattr(account,key);
+}
+extern int account_set_atteamxp(t_account * account, t_game_result gameresult, unsigned int opponlevel, unsigned int teamcount, char const * clienttag)
 { 
-   int xp;
-   int mylevel;
-   int xpdiff = 0, placeholder;
-   char key[120];
+  int xp;
+  int mylevel;
+  int xpdiff = 0, placeholder;
+  char key[256];
    
-   xp = account_get_atteamxp(account,teamcount); //get current xp
-   if (xp < 0) {
-      eventlog(eventlog_level_error, "account_set_atteamxp", "got negative XP");
-      return -1;
-   }
-   
-   mylevel = account_get_atteamlevel(account,teamcount); //get accounts level
-   if (mylevel > W3_XPCALC_MAXLEVEL) {
-      eventlog(eventlog_level_error, "account_set_atteamxp", "got invalid level: %d", mylevel);
-      return -1;
-   }
-   
-   if(mylevel<=0) //if level is 0 then set it to 1
-     mylevel=1;
-   
-   if (opponlevel < 1) opponlevel = 1;
-
-   switch (gameresult) 
-   {
+  xp = account_get_atteamxp(account,teamcount,clienttag); //get current xp
+  if (xp < 0) {
+    eventlog(eventlog_level_error, "account_set_atteamxp", "got negative XP");
+    return -1;
+  }
+  
+  mylevel = account_get_atteamlevel(account,teamcount,clienttag); //get accounts level
+  if (mylevel > W3_XPCALC_MAXLEVEL) {
+    eventlog(eventlog_level_error, "account_set_atteamxp", "got invalid level: %d", mylevel);
+    return -1;
+  }
+  
+  if(mylevel<=0) //if level is 0 then set it to 1
+    mylevel=1;
+  
+  if (opponlevel < 1) opponlevel = 1;
+  
+  switch (gameresult) 
+    {
     case game_result_win:
       ladder_war3_xpdiff(mylevel, opponlevel, &xpdiff, &placeholder); break;
     case game_result_loss:
@@ -2627,137 +2776,160 @@ extern int account_set_atteamxp(t_account * account, t_game_result gameresult, u
     default:
       eventlog(eventlog_level_error, "account_set_atteamxp", "got invalid game result: %d", gameresult);
       return -1;
-   }
-   
+    }
+  
    // aaron:
-   war3_ladder_update(&at_ladder,account_get_uid(account),xpdiff,account, teamcount);
+   war3_ladder_update(&at_ladder,account_get_uid(account),xpdiff,account, teamcount,clienttag);
    
    xp += xpdiff;
    if (xp < 0) xp = 0;
    
-   sprintf(key,"Team\\%u\\teamxp",teamcount);
+   sprintf(key,"Team\\%s\\%u\\teamxp",clienttag,teamcount);
+
    return account_set_numattr(account,key,xp);
 }
-extern int account_get_atteamxp(t_account * account, unsigned int teamcount)
+
+extern int account_get_atteamxp(t_account * account, unsigned int teamcount, char const * clienttag)
 {
-	char key[120];
-	sprintf(key,"Team\\%u\\teamxp",teamcount);
-	return account_get_numattr(account,key);
-}
-extern int account_set_atteamlevel(t_account * account, unsigned int teamcount)
-{
-   int xp, mylevel;
-   char key[255];
-   
-   xp = account_get_atteamxp(account,teamcount);
-   
-   if (xp < 0) xp = 0;
-   
-   mylevel = account_get_atteamlevel(account,teamcount);
-   if (mylevel < 1) mylevel = 1;
-   
-   if (mylevel > W3_XPCALC_MAXLEVEL) 
-   {
-      eventlog(eventlog_level_error, "account_set_atteamlevel", "got invalid level: %d", mylevel);
-      return -1;
-   }
-   
-   mylevel = ladder_war3_updatelevel(mylevel, xp);
-   sprintf(key,"Team\\%u\\teamlevel",teamcount);
-   return account_set_numattr(account,key,mylevel);
-}
-extern int account_get_atteamlevel(t_account * account, unsigned int teamcount)
-{
-	char key[120];
-	sprintf(key,"Team\\%u\\teamlevel",teamcount);
-	return account_get_numattr(account,key);
-}
-//aaron 
-extern int account_get_atteamrank(t_account * account, unsigned int teamcount)
-{
-  char key[120];
-  sprintf(key,"Team\\%u\\rank",teamcount);
+  char key[256];
+  
+  sprintf(key,"Team\\%s\\%u\\teamxp",clienttag,teamcount);
+  
   return account_get_numattr(account,key);
 }
 
-extern int account_set_atteamrank(t_account * account, unsigned int teamcount)
+extern int account_set_atteamlevel(t_account * account, unsigned int teamcount, char const * clienttag)
 {
-  char key[120];
-  sprintf(key,"Team\\%u\\rank",teamcount);
-  return account_set_numattr(account,key,war3_ladder_get_rank(&at_ladder,account_get_uid(account),teamcount));
+  int xp, mylevel;
+  char key[256];
+   
+  xp = account_get_atteamxp(account,teamcount,clienttag);
+   
+  if (xp < 0) xp = 0;
+   
+  mylevel = account_get_atteamlevel(account,teamcount,clienttag);
+  if (mylevel < 1) mylevel = 1;
+  
+  if (mylevel > W3_XPCALC_MAXLEVEL) 
+    {
+      eventlog(eventlog_level_error, "account_set_atteamlevel", "got invalid level: %d", mylevel);
+      return -1;
+    }
+  
+  mylevel = ladder_war3_updatelevel(mylevel, xp);
+  sprintf(key,"Team\\%s\\%u\\teamlevel",clienttag,teamcount);
+  return account_set_numattr(account,key,mylevel);
 }
 
-extern int account_get_atteamrank_ladder(t_account * account, unsigned int teamcount)
+extern int account_get_atteamlevel(t_account * account, unsigned int teamcount, char const * clienttag)
 {
-  return war3_ladder_get_rank(&at_ladder,account_get_uid(account), teamcount);
+  char key[256];
+
+  sprintf(key,"Team\\%s\\%u\\teamlevel",clienttag, teamcount);
+
+  return account_get_numattr(account,key);
 }
 
-extern int account_set_atteamrank_ladder(t_account * account, int rank, unsigned int teamcount)
+//aaron 
+extern int account_get_atteamrank(t_account * account, unsigned int teamcount,char const * clienttag)
 {
-  char key[120];
-  sprintf(key,"Team\\%u\\rank",teamcount);
+  char key[256];
+  
+  sprintf(key,"Team\\%s\\%u\\rank",clienttag, teamcount);
+  
+  return account_get_numattr(account,key);
+}
+
+extern int account_set_atteamrank(t_account * account, unsigned int teamcount, char const * clienttag)
+{
+  char key[256];
+  
+  sprintf(key,"Team\\%s\\%u\\rank",clienttag, teamcount);
+
+  return account_set_numattr(account,key,war3_ladder_get_rank(&at_ladder,account_get_uid(account),teamcount,clienttag));
+}
+
+extern int account_get_atteamrank_ladder(t_account * account, unsigned int teamcount, char const * clienttag)
+{
+  return war3_ladder_get_rank(&at_ladder,account_get_uid(account), teamcount,clienttag);
+}
+
+extern int account_set_atteamrank_ladder(t_account * account, int rank, unsigned int teamcount, char const * clienttag)
+{
+  char key[256];
+  sprintf(key,"Team\\%s\\%u\\rank",clienttag,teamcount);
   return account_set_numattr(account,key,rank);
 }
 // <---
 
-extern int account_set_atteammembers(t_account * account, unsigned int teamcount, char const *members)
+extern int account_set_atteammembers(t_account * account, unsigned int teamcount, char const * clienttag, char const *members)
 {
-	char key[120];
-	sprintf(key,"Team\\%u\\teammembers",teamcount);
-	return account_set_strattr(account,key,members);
+  char key[256];
+  
+  sprintf(key,"Team\\%s\\%u\\teammembers",clienttag,teamcount);
+	
+  return account_set_strattr(account,key,members);
 }
-extern char const * account_get_atteammembers(t_account * account, unsigned int teamcount)
+
+extern char const * account_get_atteammembers(t_account * account, unsigned int teamcount, char const * clienttag)
 {
-	char key[120];
-	sprintf(key,"Team\\%u\\teammembers",teamcount);
-	return account_get_strattr(account,key);
+  char key[256];
+  
+  sprintf(key,"Team\\%s\\%u\\teammembers",clienttag,teamcount);
+  
+  return account_get_strattr(account,key);
 }
+
 extern int account_set_currentatteam(t_account * account, unsigned int teamcount)
 {
 	return account_set_numattr(account,"BNET\\current_at_team",teamcount);
 }
+
 extern int account_get_currentatteam(t_account * account)
 {
 	return account_get_numattr(account,"BNET\\current_at_team");
 }
-extern int account_set_saveATladderstats(t_account * account, unsigned int gametype, t_game_result result, unsigned int opponlevel, unsigned int current_teamnum)
+
+extern int account_set_saveATladderstats(t_account * account, unsigned int gametype, t_game_result result, unsigned int opponlevel, unsigned int current_teamnum, char const * clienttag)
 {
-	unsigned int intrace;
+  unsigned int intrace;
 	
-	if(!account) 
-	{
-		eventlog(eventlog_level_error, "account_set_saveATladderstats", "got NULL account");
-		return -1;
-	}
-	
-	intrace = account_get_w3pgrace(account);
-	
-	if(result == game_result_win)
-	{
-		account_set_atteamwin(account,current_teamnum);
-		account_set_racewin(account,intrace);
-	}
-	if(result == game_result_loss)
-	{
-		account_set_atteamloss(account,current_teamnum);
-		account_set_raceloss(account,intrace);
-	}
-	account_set_atteamxp(account,result,opponlevel,current_teamnum);
-	account_set_atteamlevel(account,current_teamnum);
-	return 0;
+  if(!account) 
+    {
+      eventlog(eventlog_level_error, "account_set_saveATladderstats", "got NULL account");
+      return -1;
+    }
+  
+  intrace = account_get_w3pgrace(account,clienttag);
+  
+  if(result == game_result_win)
+    {
+      account_set_atteamwin(account,current_teamnum,clienttag);
+      account_set_racewin(account,intrace,clienttag);
+    }
+  if(result == game_result_loss)
+    {
+      account_set_atteamloss(account,current_teamnum,clienttag);
+      account_set_raceloss(account,intrace,clienttag);
+    }
+  account_set_atteamxp(account,result,opponlevel,current_teamnum,clienttag);
+  account_set_atteamlevel(account,current_teamnum,clienttag);
+  return 0;
 }
-extern int account_get_highestladderlevel(t_account * account)
+
+extern int account_get_highestladderlevel(t_account * account,char const * clienttag)
 {
 	// [quetzal] 20020827 - AT level part rewritten
 	int i;
 
-	unsigned int sololevel = account_get_sololevel(account);
-	unsigned int teamlevel = account_get_teamlevel(account);
+	unsigned int sololevel = account_get_sololevel(account,clienttag);
+	unsigned int teamlevel = account_get_teamlevel(account,clienttag);
+	unsigned int ffalevel  = account_get_ffalevel(account,clienttag);
 	unsigned int atlevel = 0;
 	unsigned int t; // [quetzal] 20020827 - not really needed, but could speed things up a bit
 	
-	for (i = 0; i < account_get_atteamcount(account); i++) {
-		if ((t = account_get_atteamlevel(account, i+1)) > atlevel) {
+	for (i = 0; i < account_get_atteamcount(account,clienttag); i++) {
+		if ((t = account_get_atteamlevel(account, i+1,clienttag)) > atlevel) {
 			atlevel = t;
 		}
 	}
@@ -2765,12 +2937,13 @@ extern int account_get_highestladderlevel(t_account * account)
 	eventlog(eventlog_level_debug,"account_get_highestladderlevel","Checking for highest level in Solo,Team,AT Ladder Stats");
 	eventlog(eventlog_level_debug,"account_get_highestladderlevel","Solo Level: %d, Team Level %d, Highest AT Team Level: %d",sololevel,teamlevel,atlevel);
 			
-	if(sololevel >= teamlevel && sololevel >= atlevel)
+	if(sololevel >= teamlevel && sololevel >= atlevel && sololevel >= ffalevel)
 		return sololevel;
-	if(teamlevel >= sololevel && teamlevel >= atlevel)
-        return teamlevel;
-	if(atlevel >= sololevel && atlevel >= teamlevel)
-        return atlevel;
+	if(teamlevel >= sololevel && teamlevel >= atlevel && teamlevel >= ffalevel)
+        	return teamlevel;
+	if(atlevel >= sololevel && atlevel >= teamlevel && atlevel >= ffalevel)
+        	return atlevel;
+	return ffalevel;
 
     // we should never get here
 
@@ -2797,13 +2970,13 @@ extern int account_get_new_at_team(t_account * account)
 	return account_get_numattr(account,"BNET\\new_at_team_flag");
 }
 
-extern int account_get_icon_profile(t_account * account)
+extern int account_get_icon_profile(t_account * account, char const * clienttag)
 {
-	unsigned int humans	= account_get_racewin(account,W3_RACE_HUMANS);		//  1;
-	unsigned int orcs	= account_get_racewin(account,W3_RACE_ORCS);		//  2;
-	unsigned int nightelf	= account_get_racewin(account,W3_RACE_NIGHTELVES);	//  4;
-	unsigned int undead	= account_get_racewin(account,W3_RACE_UNDEAD);		//  8;
-	unsigned int random	= account_get_racewin(account,W3_RACE_RANDOM);		// 32;
+	unsigned int humans	= account_get_racewin(account,W3_RACE_HUMANS,clienttag);		//  1;
+	unsigned int orcs	= account_get_racewin(account,W3_RACE_ORCS,clienttag); 		        //  2;
+	unsigned int nightelf	= account_get_racewin(account,W3_RACE_NIGHTELVES,clienttag);	        //  4;
+	unsigned int undead	= account_get_racewin(account,W3_RACE_UNDEAD,clienttag);		//  8;
+	unsigned int random	= account_get_racewin(account,W3_RACE_RANDOM,clienttag);		// 32;
 	unsigned int race	= 0; // 0 = Humans, 1 = Orcs, 2 = Night Elves, 3 = Undead, 4 = Ramdom
 	unsigned int level	= 0; // 0 = under 25, 1 = 25 to 249, 2 = 250 to 499, 3 = 500 to 1499, 4 = 1500 or more (wins)
 	unsigned int wins	= 0;

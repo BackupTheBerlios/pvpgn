@@ -1905,9 +1905,9 @@ extern int conn_set_channel(t_connection * c, char const * channelname)
 		if(account_get_new_at_team(conn_get_account(c))==1)
 		{
 			int temp;
-			temp = account_get_atteamcount(conn_get_account(c));
+			temp = account_get_atteamcount(conn_get_account(c),conn_get_clienttag(c));
 			temp = temp-1;
-			account_set_atteamcount(conn_get_account(c),temp);
+			account_set_atteamcount(conn_get_account(c),conn_get_clienttag(c),temp);
 			account_set_new_at_team(conn_get_account(c),0);
 		}
 	}

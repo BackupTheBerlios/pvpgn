@@ -445,6 +445,7 @@ extern char anongame_arranged(t_uint8 gametype)
 
 int _anongame_level_by_gametype(t_connection *c, t_uint8 gametype) 
 {
+	char const * ct = conn_get_clienttag(c);
 	if(gametype >= ANONGAME_TYPES) {
 		eventlog(eventlog_level_fatal, "_anongame_level_by_gametype", "unknown gametype: %d", (int)gametype);
 		return -1;
@@ -452,14 +453,14 @@ int _anongame_level_by_gametype(t_connection *c, t_uint8 gametype)
 
 	switch(gametype) {
 		case ANONGAME_TYPE_1V1:
-			return account_get_sololevel(conn_get_account(c));
+			return account_get_sololevel(conn_get_account(c),ct);
 		case ANONGAME_TYPE_2V2:
 		case ANONGAME_TYPE_3V3:
 		case ANONGAME_TYPE_4V4:
-			return account_get_teamlevel(conn_get_account(c));
+			return account_get_teamlevel(conn_get_account(c),ct);
 		case ANONGAME_TYPE_SMALL_FFA:
 		case ANONGAME_TYPE_TEAM_FFA:
-			return account_get_ffalevel(conn_get_account(c));
+			return account_get_ffalevel(conn_get_account(c),ct);
 		case ANONGAME_TYPE_AT_2V2:
 		case ANONGAME_TYPE_AT_3V3:
 		case ANONGAME_TYPE_AT_4V4:
@@ -850,7 +851,7 @@ extern void handle_anongame_search(t_connection * c, t_packet const * packet)
 
 
 	anongame_set_race(a,race);
-	account_set_w3pgrace(conn_get_account(c), race);
+	account_set_w3pgrace(conn_get_account(c), conn_get_clienttag(c), race);
 
 	Count = bn_int_get(packet->u.client_findanongame.count);
 	anongame_set_count(a,Count);
@@ -1231,6 +1232,7 @@ extern int handle_anongame_join(t_connection * c)
 	int tp, level;
 	char gametype;
 	t_account *acct;
+	char const * ct = conn_get_clienttag(c);
 
 	static t_server_w3route_playerinfo2 pl2;
 	static t_server_w3route_levelinfo2 li2;
@@ -1345,20 +1347,20 @@ extern int handle_anongame_join(t_connection * c)
 
 				switch(gametype) {
 			case ANONGAME_TYPE_1V1:
-				level = account_get_sololevel(conn_get_account(anongame_get_player(ja,i)));
+				level = account_get_sololevel(conn_get_account(anongame_get_player(ja,i)),ct);
 				break;
 			case ANONGAME_TYPE_SMALL_FFA:
 			case ANONGAME_TYPE_TEAM_FFA:
-				level = account_get_ffalevel(conn_get_account(anongame_get_player(ja,i)));
+				level = account_get_ffalevel(conn_get_account(anongame_get_player(ja,i)),ct);
 				break;
 			case ANONGAME_TYPE_AT_2V2:
 			case ANONGAME_TYPE_AT_3V3:
 			case ANONGAME_TYPE_AT_4V4:
 				acct = conn_get_account(anongame_get_player(ja,i));
-				level = account_get_atteamlevel((acct),account_get_currentatteam(acct));
+				level = account_get_atteamlevel((acct),account_get_currentatteam(acct),ct);
 				break;
 			default:
-				level = account_get_teamlevel(conn_get_account(anongame_get_player(ja,i)));
+				level = account_get_teamlevel(conn_get_account(anongame_get_player(ja,i)),ct);
 				break;
 				}
 
@@ -1832,6 +1834,7 @@ extern int anongame_stats(t_connection * c)
     int                 oppon_level[8];
     t_uint8		gametype = anongame_get_type(a);
     t_uint8		plnum = anongame_get_playernum(a);
+    char const *        ct = conn_get_clienttag(c);
     
     // do nothing till all other players have w3route conn closed
     for(i=0; i<tp; i++)
@@ -1886,15 +1889,15 @@ extern int anongame_stats(t_connection * c)
     for (i=0; i<tp; i++)
     {
       int j,k;
-      t_account * oacc;
+      t_account * oacc; 
       oppon_level[i]=0;
       switch(gametype) {
       case ANONGAME_TYPE_1V1:
-	oppon_level[i] = account_get_sololevel(anongame_get_account(a,(i+1)%tp));
+	oppon_level[i] = account_get_sololevel(anongame_get_account(a,(i+1)%tp),ct);
 	break;
       case ANONGAME_TYPE_SMALL_FFA:
 	// oppon_level = average level of all other players
-	for (j=0; j<tp; j++) if (i!=j) oppon_level[i]+=account_get_ffalevel(anongame_get_account(a,j));
+	for (j=0; j<tp; j++) if (i!=j) oppon_level[i]+=account_get_ffalevel(anongame_get_account(a,j),ct);
 	oppon_level[i]/=(tp-1);
 	break;
       case ANONGAME_TYPE_AT_2V2:
@@ -1902,14 +1905,14 @@ extern int anongame_stats(t_connection * c)
       case ANONGAME_TYPE_AT_4V4:
 	if (i<(tp/2)) j=(tp/2); else j=0;	
 	oacc = anongame_get_account(a,j);
-	oppon_level[i]= account_get_atteamlevel(oacc,account_get_currentatteam(oacc));
+	oppon_level[i]= account_get_atteamlevel(oacc,account_get_currentatteam(oacc),ct);
 	break;
       default:
 	// oppon_level = average level of all opponents (which are every 2nd player in the list)
 	k = i+1;
 	for (j=0; j<(tp/2); j++) 
 	  {
-	    oppon_level[i]+= account_get_teamlevel(anongame_get_account(a,k%tp));
+	    oppon_level[i]+= account_get_teamlevel(anongame_get_account(a,k%tp),ct);
 	    k = k+2;
 	  }
 	oppon_level[i]/=(tp/2);
@@ -1917,10 +1920,13 @@ extern int anongame_stats(t_connection * c)
     }
     
     for(i=0; i<tp; i++) {
+      t_account * acc;
       int result = anongame_get_result(a,i);
       
       if(result == -1)
 	result = W3_GAMERESULT_LOSS;
+      
+      acc = anongame_get_account(a,i);
       
       switch(gametype)
 	{
@@ -1934,15 +1940,15 @@ extern int anongame_stats(t_connection * c)
 		int temp;
 		
 		account_set_new_at_team(conn_get_account(c),0);
-		temp = account_get_atteamcount(conn_get_account(c));
+		temp = account_get_atteamcount(conn_get_account(c),ct);
 		temp = temp+1;
-		account_set_atteamcount(conn_get_account(c),temp);
+		account_set_atteamcount(conn_get_account(c),ct,temp);
 	      }
 		 
 	    if(result == W3_GAMERESULT_WIN)
-	      account_set_saveATladderstats(anongame_get_account(a,i),gametype,game_result_win,oppon_level[i],account_get_currentatteam(anongame_get_account(a,i)));
+	      account_set_saveATladderstats(acc,gametype,game_result_win,oppon_level[i],account_get_currentatteam(acc),conn_get_clienttag(c));
 	    if(result == W3_GAMERESULT_LOSS) 
-	      account_set_saveATladderstats(anongame_get_account(a,i),gametype,game_result_loss,oppon_level[i],account_get_currentatteam(anongame_get_account(a,i)));	     
+	      account_set_saveATladderstats(acc,gametype,game_result_loss,oppon_level[i],account_get_currentatteam(acc),conn_get_clienttag(c));
 	    break;
 	  }
 	case ANONGAME_TYPE_1V1:
@@ -1952,9 +1958,9 @@ extern int anongame_stats(t_connection * c)
 	case ANONGAME_TYPE_SMALL_FFA:
 	default:
 	if(result == W3_GAMERESULT_WIN)
-	  account_set_saveladderstats(anongame_get_account(a,i),gametype,game_result_win,oppon_level[i]);
+	  account_set_saveladderstats(acc,gametype,game_result_win,oppon_level[i],conn_get_clienttag(c));
 	if(result == W3_GAMERESULT_LOSS)
-	  account_set_saveladderstats(anongame_get_account(a,i),gametype,game_result_loss,oppon_level[i]);
+	  account_set_saveladderstats(acc,gametype,game_result_loss,oppon_level[i],conn_get_clienttag(c));
 	break;
 	}
     }

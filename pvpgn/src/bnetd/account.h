@@ -44,6 +44,10 @@ typedef enum
 } t_bits_account_state;
 #endif
 
+#define ACCOUNT_CLIENTTAG_UNKN 0x00; // used for all non warcraft 3 clients so far
+#define ACCOUNT_CLIENTTAG_WAR3 0x01;
+#define ACCOUNT_CLIENTTAG_W3XP 0x02;
+
 typedef struct account_struct
 #ifdef ACCOUNT_INTERNAL_ACCESS
 {
@@ -54,7 +58,7 @@ typedef struct account_struct
     int           dirty;    /* 1==needs to be saved, 0==clean */
     int           loaded;   /* 1==loaded, 0==only on disk */
     int           accessed; /* 1==yes, 0==no */
-    unsigned int  age; /* number of times it has not been accessed */
+    unsigned int  age;      /* number of times it has not been accessed */
 #ifndef WITH_MYSQL
     char const *  filename; /* for BITS: NULL means it's a "virtual" account */
 #else

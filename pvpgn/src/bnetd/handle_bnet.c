@@ -2738,9 +2738,9 @@ static int _client_atinvitefriend(t_connection * c, t_packet const * const packe
 	eventlog(eventlog_level_debug,"handle_bnet","All AT Team Members: %s",atmembers_usernames);
 	
 	//check see if inviter has ever played AT before
-	if(account_check_team(conn_get_account(c),atmembers_usernames)<0)
+	if(account_check_team(conn_get_account(c),atmembers_usernames,conn_get_clienttag(c))<0)
 	  {
-	     if(account_set_currentatteam(conn_get_account(c),account_create_newteam(conn_get_account(c),atmembers_usernames,count_to_invite))<0)
+	     if(account_set_currentatteam(conn_get_account(c),account_create_newteam(conn_get_account(c),atmembers_usernames,count_to_invite,conn_get_clienttag(c)))<0)
 	       eventlog(eventlog_level_debug,"handle_bnet","Unable to properly create team info for user. No Stats will be saved");
 	     if(account_set_new_at_team(conn_get_account(c),1)<0)
 	       eventlog(eventlog_level_error,"handle_bnet","Unable to set flag new_at_team to 1 for YES");
@@ -2748,10 +2748,10 @@ static int _client_atinvitefriend(t_connection * c, t_packet const * const packe
 	  }
 	else
 	  {
-	     teamnumber = account_check_team(conn_get_account(c),atmembers_usernames);
+	     teamnumber = account_check_team(conn_get_account(c),atmembers_usernames,conn_get_clienttag(c));
 	     eventlog(eventlog_level_debug,"handle_bnet","AT Team has played before! - Team number %d",teamnumber);
 	     account_set_currentatteam(conn_get_account(c),teamnumber);
-	     account_set_atteamsize(conn_get_account(c),teamnumber,count_to_invite);
+	     account_set_atteamsize(conn_get_account(c),teamnumber,conn_get_clienttag(c),count_to_invite);
 	     account_set_new_at_team(conn_get_account(c),0); //avoid warning
 	  }
 	//<--- end of stat saving shit
@@ -2796,19 +2796,19 @@ static int _client_atinvitefriend(t_connection * c, t_packet const * const packe
 	     packet_del_ref(rpacket);
 	     
 	     //start of stat shit for each invitee -->
-	     if(account_check_team(conn_get_account(dest_c),atmembers_usernames)<0)
+	     if(account_check_team(conn_get_account(dest_c),atmembers_usernames,conn_get_clienttag(c))<0)
 	       {
-		  if(account_set_currentatteam(conn_get_account(dest_c),account_create_newteam(conn_get_account(dest_c),atmembers_usernames,count_to_invite))<0)
+		  if(account_set_currentatteam(conn_get_account(dest_c),account_create_newteam(conn_get_account(dest_c),atmembers_usernames,count_to_invite,conn_get_clienttag(c)))<0)
 		    eventlog(eventlog_level_debug,"handle_bnet","Unable to properly create team info for user. No Stats will be saved");
 		  if(account_set_new_at_team(conn_get_account(dest_c),1)<0)
 		    eventlog(eventlog_level_error,"handle_bnet","Unable to set flag new_at_team to 1 for YES");
 	       }
 	     else
 	       {
-		  teamnumber = account_check_team(conn_get_account(dest_c),atmembers_usernames);
+		  teamnumber = account_check_team(conn_get_account(dest_c),atmembers_usernames,conn_get_clienttag(c));
 		  eventlog(eventlog_level_debug,"handle_bnet","AT Team has played before! - Team number %d",teamnumber);
 		  account_set_currentatteam(conn_get_account(dest_c),teamnumber);
-		  account_set_atteamsize(conn_get_account(dest_c),teamnumber,count_to_invite);
+		  account_set_atteamsize(conn_get_account(dest_c),teamnumber,conn_get_clienttag(c),count_to_invite);
 		  account_set_new_at_team(conn_get_account(dest_c),0); //avoid warning
 	       }
 	     //<--- end of stat saving shit
@@ -2853,9 +2853,9 @@ static int _client_atacceptdeclineinvite(t_connection * c, t_packet const * cons
 	if(account_get_new_at_team(conn_get_account(c))==1)
 	  {
 	     int temp;
-	     temp = account_get_atteamcount(conn_get_account(c));
+	     temp = account_get_atteamcount(conn_get_account(c),conn_get_clienttag(c));
 	     temp = temp-1;
-	     account_set_atteamcount(conn_get_account(c),temp);
+	     account_set_atteamcount(conn_get_account(c),conn_get_clienttag(c),temp);
 	     account_set_new_at_team(conn_get_account(c),0);
 	  }
 	
@@ -2888,6 +2888,7 @@ static int _client_atacceptdeclineinvite(t_connection * c, t_packet const * cons
 static int _client_findanongame(t_connection * c, t_packet const * const packet)
 {
    t_packet * rpacket = NULL;
+   char const * ct = conn_get_clienttag(c);
 
    if (bn_byte_get(packet->u.client_findanongame.option)==CLIENT_FINDANONGAME_PROFILE)
      {
@@ -2914,7 +2915,7 @@ static int _client_findanongame(t_connection * c, t_packet const * const packet)
 	
 	eventlog(eventlog_level_info,__FUNCTION__,"Looking up %s's WAR3 Stats.",username);
 			
-	if (account_get_sololevel(account)==0 && account_get_teamlevel(account)==0 && account_get_atteamcount(account)==0)
+	if (account_get_sololevel(account,ct)==0 && account_get_teamlevel(account,ct)==0 && account_get_atteamcount(account,ct)==0)
 	  {
 	     eventlog(eventlog_level_info,__FUNCTION__,"%s does not have WAR3 Stats.",username);
 	     if (!(rpacket = packet_create(packet_class_bnet)))
@@ -2932,34 +2933,34 @@ static int _client_findanongame(t_connection * c, t_packet const * const packet)
 	  }
 	else // If they do have a profile then:
 	  {
-	     int solowins=account_get_solowin(account); 
-	     int sololoss=account_get_sololoss(account);
-	     int soloxp=account_get_soloxp(account);
-	     int sololevel=account_get_sololevel(account);
-	     int solorank=account_get_solorank(account);
+	     int solowins=account_get_solowin(account,ct); 
+	     int sololoss=account_get_sololoss(account,ct);
+	     int soloxp=account_get_soloxp(account,ct);
+	     int sololevel=account_get_sololevel(account,ct);
+	     int solorank=account_get_solorank(account,ct);
 	     
-	     int teamwins=account_get_teamwin(account);
-	     int teamloss=account_get_teamloss(account);
-	     int teamxp=account_get_teamxp(account);
-	     int teamlevel=account_get_teamlevel(account);
-	     int teamrank=account_get_teamrank(account);
+	     int teamwins=account_get_teamwin(account,ct);
+	     int teamloss=account_get_teamloss(account,ct);
+	     int teamxp=account_get_teamxp(account,ct);
+	     int teamlevel=account_get_teamlevel(account,ct);
+	     int teamrank=account_get_teamrank(account,ct);
 	     
-	     int ffawins=account_get_ffawin(account);
-	     int ffaloss=account_get_ffaloss(account);
-	     int ffaxp=account_get_ffaxp(account);
-	     int ffalevel=account_get_ffalevel(account);
-	     int ffarank=account_get_ffarank(account);
+	     int ffawins=account_get_ffawin(account,ct);
+	     int ffaloss=account_get_ffaloss(account,ct);
+	     int ffaxp=account_get_ffaxp(account,ct);
+	     int ffalevel=account_get_ffalevel(account,ct);
+	     int ffarank=account_get_ffarank(account,ct);
 	     
-	     int humanwins=account_get_racewin(account,1);
-	     int humanlosses=account_get_raceloss(account,1);
-	     int orcwins=account_get_racewin(account,2);
-	     int orclosses=account_get_raceloss(account,2);
-	     int undeadwins=account_get_racewin(account,8);
-	     int undeadlosses=account_get_raceloss(account,8);
-	     int nightelfwins=account_get_racewin(account,4);
-	     int nightelflosses=account_get_raceloss(account,4);
-	     int randomwins=account_get_racewin(account,0);
-	     int randomlosses=account_get_raceloss(account,0);
+	     int humanwins=account_get_racewin(account,1,ct);
+	     int humanlosses=account_get_raceloss(account,1,ct);
+	     int orcwins=account_get_racewin(account,2,ct);
+	     int orclosses=account_get_raceloss(account,2,ct);
+	     int undeadwins=account_get_racewin(account,8,ct);
+	     int undeadlosses=account_get_raceloss(account,8,ct);
+	     int nightelfwins=account_get_racewin(account,4,ct);
+	     int nightelflosses=account_get_raceloss(account,4,ct);
+	     int randomwins=account_get_racewin(account,0,ct);
+	     int randomlosses=account_get_raceloss(account,0,ct);
 	     
 	     unsigned char rescount;
 	     
@@ -2969,7 +2970,7 @@ static int _client_findanongame(t_connection * c, t_packet const * const packet)
 	     packet_set_type(rpacket,SERVER_FINDANONGAME_PROFILE);
 	     bn_byte_set(&rpacket->u.server_findanongame_profile2.option,SERVER_FINDANONGAME_PROFILE_OPTION);
 	     bn_int_set(&rpacket->u.server_findanongame_profile2.count,Count); //job count
-	     bn_int_set(&rpacket->u.server_findanongame_profile2.unknown1,account_get_icon_profile(account));
+	     bn_int_set(&rpacket->u.server_findanongame_profile2.unknown1,account_get_icon_profile(account,ct));
 	     rescount = 0;
 	     if (sololevel) {
 		temp=0x534F4C4F; // SOLO backwards
@@ -3030,26 +3031,26 @@ static int _client_findanongame(t_connection * c, t_packet const * const packet)
 	     temp=0;
 	     packet_append_data(rpacket,&temp,4);
 	     //end of normal stats - Start of AT stats
-	     temp=account_get_atteamcount(account);
-				if (account_get_atteammembers(account, temp) == NULL && temp > 0) {
+	     temp=account_get_atteamcount(account,ct);
+				if (account_get_atteammembers(account, temp,ct) == NULL && temp > 0) {
 					temp = temp - 1;
 					eventlog(eventlog_level_error, "handle_bnet_packet", "teammembers is NULL : Decrease atteamcount of 1 !");
-					account_set_atteamcount(account,temp);
+					account_set_atteamcount(account,ct,temp);
 				}
 	     if (temp > 6) temp = 6; //byte (num of AT teams) 
 	     
 	     packet_append_data(rpacket,&temp,1); 
 	     
-	     if(account_get_atteamcount(account)>0)
+	     if(account_get_atteamcount(account,ct)>0)
 	       {
 		  // [quetzal] 20020827 - partially rewritten AT part
-		  int i, j, lvl, highest_lvl[6], cnt = account_get_atteamcount(account);
+		  int i, j, lvl, highest_lvl[6], cnt = account_get_atteamcount(account,ct);
 		  // allocate array for teamlevels
 		  int *teamlevels = malloc(cnt * sizeof(int));
 		  
 		  // populate our array
 		  for (i = 0; i < cnt; i++) {
-		     teamlevels[i] = account_get_atteamlevel(account, i+1);
+		     teamlevels[i] = account_get_atteamlevel(account, i+1,ct);
 		  }
 		  
 		  // now lets pick indices of 6 highest levels
@@ -3072,32 +3073,32 @@ static int _client_findanongame(t_connection * c, t_packet const * const packet)
 		  for(i = 0; i < j; i++)
 		    {
 		       int n = highest_lvl[i] + 1;
-		       int teamsize = account_get_atteamsize(account, n);
+		       int teamsize = account_get_atteamsize(account, n, ct);
 		       char * teammembers = NULL, *self = NULL, *p2, *p3;
 		       int teamtype[] = {0, 0x32565332, 0x33565333, 0x34565334, 0x35565335, 0x36565336};
 		       
 		       // [quetzal] 20020907 - sometimes we get NULL string, even if
 		       // teamcount is not 0. that should prevent crash.
-		       if (!account_get_atteammembers(account, n) || teamsize < 1 || teamsize > 5) continue;
+		       if (!account_get_atteammembers(account, n,ct) || teamsize < 1 || teamsize > 5) continue;
 		       
-		       p2 = p3 = teammembers = strdup(account_get_atteammembers(account, n));
+		       p2 = p3 = teammembers = strdup(account_get_atteammembers(account, n,ct));
 		       
 		       eventlog(eventlog_level_debug, __FUNCTION__, 
 				"profile/AT - processing team %d", n);
 		       
 		       temp = teamtype[teamsize];
 		       packet_append_data(rpacket,&temp,4);
-		       temp=account_get_atteamwin(account,n); //at team wins
+		       temp=account_get_atteamwin(account,n,ct); //at team wins
 		       packet_append_data(rpacket,&temp,2);
-		       temp=account_get_atteamloss(account,n); //at team losses
+		       temp=account_get_atteamloss(account,n,ct); //at team losses
 		       packet_append_data(rpacket,&temp,2);
-		       temp=account_get_atteamlevel(account,n); 
+		       temp=account_get_atteamlevel(account,n,ct); 
 		       packet_append_data(rpacket,&temp,1);
-		       temp=account_get_profile_calcs(account,account_get_atteamxp(account,n),account_get_atteamlevel(account,n)); // xp bar calc
+		       temp=account_get_profile_calcs(account,account_get_atteamxp(account,n,ct),account_get_atteamlevel(account,n,ct)); // xp bar calc
 		       packet_append_data(rpacket,&temp,1);
-		       temp=account_get_atteamxp(account,n);
+		       temp=account_get_atteamxp(account,n,ct);
 		       packet_append_data(rpacket,&temp,2);
-		       temp=account_get_atteamrank(account,n);; //rank on AT ladder
+		       temp=account_get_atteamrank(account,n,ct);; //rank on AT ladder
 		       packet_append_data(rpacket,&temp,4);
 		       temp=0;
 		       packet_append_data(rpacket,&temp,4); //some unknown packet? random shit
@@ -4067,8 +4068,8 @@ static int _client_joinchannel(t_connection * c, t_packet const * const packet)
 	   else
 	     client = "PX3W";
 	   
-	   acctlevel = account_get_highestladderlevel(conn_get_account(c));
-	   account_get_raceicon(conn_get_account(c), &raceicon, &raceiconnumber, &wins);
+	   acctlevel = account_get_highestladderlevel(conn_get_account(c),conn_get_clienttag(c));
+	   account_get_raceicon(conn_get_account(c), &raceicon, &raceiconnumber, &wins,conn_get_clienttag(c));
 	   if(acctlevel==0)
 	     {
 	        strcpy(tempplayerinfo, client);
@@ -4090,9 +4091,9 @@ static int _client_joinchannel(t_connection * c, t_packet const * const packet)
 	   if(account_get_new_at_team(conn_get_account(c))==1)
 	     {
 		int temp;
-		temp = account_get_atteamcount(conn_get_account(c));
+		temp = account_get_atteamcount(conn_get_account(c),conn_get_clienttag(c));
 		temp = temp-1;
-		account_set_atteamcount(conn_get_account(c),temp);
+		account_set_atteamcount(conn_get_account(c),conn_get_clienttag(c),temp);
 		account_set_new_at_team(conn_get_account(c),0);
 	     }
 	}
