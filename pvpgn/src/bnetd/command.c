@@ -3060,21 +3060,30 @@ static int _handle_kill_command(t_connection * c, char const *text)
   usrnick[j]='\0';
   for (; text[i]==' '; i++);
   
-  if (usrnick[0]=='\0')
+  if (usrnick[0]=='\0' || (usrnick[0]=='#' && (usrnick[1] < '0' || usrnick[1] > '9')))
     {
-      message_send_text(c,message_type_info,c,"usage: /kill <username>");
+      message_send_text(c,message_type_info,c,"usage: /kill {<username>|#<socket>} [<min>]");
       return 0;
     }
-  if (!(user = connlist_find_connection_by_accountname(usrnick)))
-    {
-      message_send_text(c,message_type_error,c,"That user is not logged in?");
-      return 0;
-    }
+
+  if (usrnick[0] == '#') {
+     if (!(user = connlist_find_connection_by_socket(atoi(usrnick + 1)))) {
+        message_send_text(c,message_type_error,c,"That connection doesnt exist.");
+        return 0;
+     }
+  } else {
+     if (!(user = connlist_find_connection_by_accountname(usrnick))) {
+        message_send_text(c,message_type_error,c,"That user is not logged in?");
+        return 0;
+     }
+  }
+
   if (text[i]!='\0' && ipbanlist_add(c,addr_num_to_ip_str(conn_get_addr(user)),ipbanlist_str_to_time_t(c,&text[i]))==0)
     message_send_text(user,message_type_info,user,"Connection closed by admin and banned your ip.");
   else
     message_send_text(user,message_type_info,user,"Connection closed by admin.");
   conn_set_state(user,conn_state_destroy);
+
   return 0;
 }
 

@@ -75,7 +75,7 @@ whois <player> - looks up some basic information on a user, including their acco
 %logout quit exit
 /logout /quit /exit - closes your connection to the server
 %kill
-/kill [<player>] [min] - close a player's connection to the server and ban players IP for min minutes
+/kill {<player>|#<socket>} [min] - close a player's connection to the server and ban players IP for min minutes
 %killsession
 /killsession [<sessionid>] [min] - close a connection to the server and ban sesion's IP for min minutes
 %watch

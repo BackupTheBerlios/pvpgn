@@ -385,6 +385,7 @@ extern int connlist_create(void);
 extern int connlist_destroy(void);
 extern t_list * connlist(void) PURE_ATTR();
 extern t_connection * connlist_find_connection_by_sessionkey(unsigned int sessionkey);
+extern t_connection * connlist_find_connection_by_socket(int socket);
 extern t_connection * connlist_find_connection_by_sessionnum(unsigned int sessionnum);
 extern t_connection * connlist_find_connection_by_name(char const * name, char const * realmname); /* any chat name format */
 extern t_connection * connlist_find_connection_by_accountname(char const * username);

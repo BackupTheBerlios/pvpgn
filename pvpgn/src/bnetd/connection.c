@@ -3341,6 +3341,22 @@ extern t_connection * connlist_find_connection_by_sessionnum(unsigned int sessio
 }
 
 
+extern t_connection * connlist_find_connection_by_socket(int socket)
+{
+    t_connection * c;
+    t_elem const * curr;
+    
+    LIST_TRAVERSE_CONST(conn_head,curr)
+    {
+	c = elem_get_data(curr);
+	if (c->tcp_sock==socket)
+	    return c;
+    }
+    
+    return NULL;
+}
+
+
 extern t_connection * connlist_find_connection_by_name(char const * name, char const * realmname)
 {
     char         charname[CHAR_NAME_LEN];
