@@ -233,9 +233,8 @@ extern int handle_bot_packet(t_connection * c, t_packet const * const packet)
 			break;
 		    }
 		    account_unget_pass(oldstrhash1);
-		    
-                    if (!(testpass = xstrdup(linestr)))
-                        break;
+
+                    testpass = xstrdup(linestr);
 		    {
 			unsigned int i;
 			
