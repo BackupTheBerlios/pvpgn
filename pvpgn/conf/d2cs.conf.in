@@ -44,6 +44,16 @@ lod_realm = 2
 # Don't allow Convert = 0
 allow_convert = 0
 
+# here u can enter the symbols allowed in accountnames (additional to 
+# alphanumerical symbals which are always accepted). please note that
+# it is absolutly mandatory that u set up the same symbols here as in
+# bnetd.conf or else u wont be able to play D2 with some characters
+# (those whose symbols are allowed in bnetd.conf but not here)
+# same warnings as in bnetd.conf apply here - be warned - and just
+# change something if you know what you are doing
+#default setting is "-_[]"
+account_allowed_symbols = "-_[]"
+
 #										#
 #################################################################################
 
