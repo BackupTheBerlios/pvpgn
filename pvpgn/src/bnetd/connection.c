@@ -2003,14 +2003,15 @@ extern int conn_set_channel(t_connection * c, char const * channelname)
 	    created = 1;
 	}
 
+    c->channel=channel;
+
     if (channel_add_connection(channel,c)<0)
 	{
 	    if (created)
 		    channel_destroy(channel);
+	c->channel = NULL;
         return -1;
 	}
-
-    c->channel=channel;
 
 	eventlog(eventlog_level_info,"conn_set_channel","[%d] joined channel \"%s\"",conn_get_socket(c),channel_get_name(c->channel));
 	conn_send_welcome(c);
