@@ -20,8 +20,10 @@ void *xmalloc_real(size_t size, const char *fn, unsigned ln)
     void *res;
 
     res = malloc(size);
-    if (!res)
+    if (!res) {
 	eventlog(eventlog_level_fatal, __FUNCTION__, "out of memory (from %s:%u)",fn,ln);
+	abort();
+    }
 
     return res;
 }
@@ -31,8 +33,10 @@ void *xcalloc_real(size_t nmemb, size_t size, const char *fn, unsigned ln)
     void *res;
 
     res = calloc(nmemb,size);
-    if (!res)
+    if (!res) {
 	eventlog(eventlog_level_fatal, __FUNCTION__, "out of memory (from %s:%u)",fn,ln);
+	abort();
+    }
 
     return res;
 }
@@ -42,8 +46,10 @@ void *xrealloc_real(void *ptr, size_t size, const char *fn, unsigned ln)
     void *res;
 
     res = realloc(ptr,size);
-    if (!res)
+    if (!res) {
 	eventlog(eventlog_level_fatal, __FUNCTION__, "out of memory (from %s:%u)",fn,ln);
+	abort();
+    }
 
     return res;
 }
