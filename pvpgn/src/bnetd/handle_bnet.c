@@ -3919,13 +3919,13 @@ static int _client_joinchannel(t_connection * c, t_packet const * const packet)
 	   account_get_raceicon(conn_get_account(c), &raceicon, &raceiconnumber, &wins);
 	   if(acctlevel==0)
 	     {
-		sprintf( tempplayerinfo, "%s %s 0 0", client, client);
-		eventlog(eventlog_level_info,__FUNCTION__,"[%d] %s %s",conn_get_socket(c), client, client);
+	        strcpy(tempplayerinfo, client);
+		eventlog(eventlog_level_info,__FUNCTION__,"[%d] %s",conn_get_socket(c), client);
 	     }
 	   else if (wins==0)
 	     {
-		sprintf( tempplayerinfo, "%s %s 0 0", client, client);
-		eventlog(eventlog_level_info,__FUNCTION__,"[%d] %s %s",conn_get_socket(c), client, client);
+	        strcpy(tempplayerinfo, client);
+		eventlog(eventlog_level_info,__FUNCTION__,"[%d] %s",conn_get_socket(c), client);
 	     }
 	   else 
 	     {
