@@ -8,8 +8,8 @@ CREDITS
 
 PROGRAMMING CONTRIBUTORS
 	Dizzy 
-	 Project release engineering, project management, storage development, 
-	 fdwatch development, documentations and lots others.
+	 Project release engineering, general code maintenance, storage 
+	 development, fdwatch development, some documentation and lots others.
 
 	pandaemonium a.k.a. aaron
 	 W3 ladders, binary ladders, commands aliases, channel topics, 
@@ -21,15 +21,22 @@ PROGRAMMING CONTRIBUTORS
 
 	Zzzoom (servers@3dgames.com.ar)
 	 For persistent SQL connections patch, password brute force attacks 
-	 protection and various bug reports.
+	 protection, various bug reports and very usefull profile dumps.
 
 	AmAdEuS a.k.a. amadeo
 	 WIN32GUI-mod, WIN32-Installer, WIN32 services code, initial IRC mods
 
 MISC
 	Eggy (eggy@neostats.net)
-	Win32 binary packager, QA testing/reporting, supporter (IRC, forums), 
-	misc documentation.
+	 Win32 binary packager, QA testing/reporting, supporter (IRC, forums), 
+	 misc documentation.
+
+        U-238 (mark@darkterrorsdomain.cjb.net)
+	 Mac binary packager, Mac versioncheck maintainer, supporter (IRC, 
+	 forums), tester, documentation writer.
+
+        David Wilson (dgwilson@paradise.net.nz)
+	 Documentation writer, supporter (IRC, forums).
 
 	Lots of other people who do not wish to be mentioned here.
 
