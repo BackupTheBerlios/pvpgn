@@ -10,6 +10,7 @@ a client lib)
 describing all configuration options)
 5. reorganize and clean prefs.c system (now its replicated between bnetd and 
 d2cs/d2dbs not to mention beeing very inflexible)
+6. i18n or some sort to support different language messages to users
 
 Stuff not programmed for any specific version release:			      
 
