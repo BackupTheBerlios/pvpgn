@@ -1,6 +1,8 @@
 #include <windows.h>
 
-char serviceName[] = "d2cs service";
+char serviceLongName[] = "d2cs service";
+char serviceName[] = "d2cs";
+char serviceDescription[] = "Diablo 2 closed server";
 
 extern int g_ServiceStatus;
 extern int main(int argc, char *argv[]);
@@ -10,6 +12,7 @@ SERVICE_STATUS_HANDLE serviceStatusHandle = 0;
 
 void Win32_ServiceInstall()
 {
+	SERVICE_DESCRIPTION sdBuf; 
 	SC_HANDLE serviceControlManager = OpenSCManager(0, 0, SC_MANAGER_CREATE_SERVICE);
 
 	if (serviceControlManager)
@@ -20,12 +23,19 @@ void Win32_ServiceInstall()
 			SC_HANDLE service;
 			strcat(path, " --service");
 			service = CreateService(serviceControlManager,
-							serviceName, serviceName,
+							serviceName, serviceLongName,
 							SERVICE_ALL_ACCESS, SERVICE_WIN32_OWN_PROCESS,
 							SERVICE_AUTO_START, SERVICE_ERROR_IGNORE, path,
 							0, 0, 0, 0, 0);
 			if (service)
+			{
+				sdBuf.lpDescription = serviceDescription;
+				ChangeServiceConfig2(  
+										service,                // handle to service  
+										SERVICE_CONFIG_DESCRIPTION, // change: description  
+										&sdBuf);
 				CloseServiceHandle(service);
+			}
 		}
 		CloseServiceHandle(serviceControlManager);
 	}
