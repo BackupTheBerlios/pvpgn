@@ -6,6 +6,9 @@ instructions.
 Known Bugs:
 - tournament support has only first round and it doesnt show the map after 
 25 minutes nor it stops the game after 30 minutes
+- there are some reported issues with PG/quickgame (network errors plus people 
+getting lost game results when they shouldnt be, unfortunetly we havent been 
+able to reproduce those)
 
 Bug report instructions:
 - first read this webpage and only after you have read it come back:
