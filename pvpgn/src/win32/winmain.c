@@ -640,25 +640,19 @@ void extern guiOnUpdateUserList()
 		return;
 	SendMessage(gui.hwndUsers, LB_RESETCONTENT, 0, 0);
 
-	for (curr=(conn_head_gui)?list_get_first_const(conn_head_gui):(NULL); curr; curr=elem_get_next_const(curr))
+	LIST_TRAVERSE_CONST(connlist(),curr)
 	{
 		//the connectionstruct is nearly empty it only contains a link on an accountstruct
 	    //amadeo fixes some crashes
-		if (elem_get_data(curr))
-		{
-		c = (t_connection *)elem_get_data(curr);
-		}
-		if (conn_get_account(c)!= NULL)
-		{
-		acc = conn_get_account(c);
+		if (!(c = elem_get_data(curr))) continue;
+		if (!(acc = conn_get_account(c))) continue;
 		
 		name = (account_get_name(acc));
 		SendMessage(gui.hwndUsers, LB_ADDSTRING, 0, (LPARAM)name);
-
+		account_unget_name(name);
 		
 		//sessionkey follows
 		
-		}
 	}//amadeo updates USerCount
 	sprintf(UserCount, "%d", connlist_login_get_length());
 	strcat (UserCount, " user(s) online:");
