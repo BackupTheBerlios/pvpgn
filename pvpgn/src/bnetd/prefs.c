@@ -185,6 +185,8 @@ static Bconf_t conf_table[] =
 
     { "account_allowed_symbols",conf_type_char,    PVPGN_DEFAULT_SYMB,   NONE,                  ACT },
 
+    { "reload_new_accounts",    conf_type_bool,    NULL,                 0,                     ACT },
+
     { NULL,             	conf_type_none,    NULL,                 NONE,                  ACT },
 
 };
@@ -1162,3 +1164,7 @@ extern char const * prefs_get_account_allowed_symbols(void)
 	return get_char_conf("account_allowed_symbols");
 }
 
+extern int prefs_get_reload_new_accounts(void)
+{
+	return get_bool_conf("reload_new_accounts");
+}

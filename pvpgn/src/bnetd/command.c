@@ -2637,7 +2637,7 @@ if (strstart(text,"/rank_all_accounts")==0)
 	return 0;
     }
 
-    if (strstart(text,"/reload_accounts")==0)
+    if (strstart(text,"/reload_accounts_all")==0)
     {
 	if (account_get_auth_admin(conn_get_account(c))!=1) /* default to false */
         {
@@ -2645,8 +2645,20 @@ if (strstart(text,"/rank_all_accounts")==0)
 	    return 0;
         }
 
-	// rank all accounts here
 	accountlist_reload(RELOAD_UPDATE_ALL);
+	
+	return 0;
+    }
+
+    if (strstart(text,"/reload_accounts_new")==0)
+    {
+	if (account_get_auth_admin(conn_get_account(c))!=1) /* default to false */
+        {
+            message_send_text(c,message_type_error,c,"This command is reserved for admins.");
+	    return 0;
+        }
+
+	accountlist_reload(RELOAD_ADD_ONLY_NEW);
 	
 	return 0;
     }
