@@ -996,6 +996,7 @@ static int sql_load_clans(t_load_clans_func cb)
 			member->memberconn = NULL;
 			member->status = atoi(row2[1]);
 			member->join_time = atoi(row2[2]);
+			member->clan	  = clan;
 
 			if ((member->status == CLAN_NEW) && (time(NULL) - member->join_time > prefs_get_clan_newer_time() * 3600))
 			{
