@@ -1572,14 +1572,6 @@ extern int game_add_player(t_game * game, char const * pass, int startver, t_con
 	    eventlog(eventlog_level_error,"game_add_player","could not get clienttag for game");
 	    return -1;
 	}
-/* FIXME: What's wrong with this?  *** I dunno, when does it print this message? */
-/*
-	if (strcmp(conn_get_clienttag(c),gt)!=0)
-	{
-	    eventlog(eventlog_level_error,"game_add_player","player clienttag (\"%s\") does not match game clienttag (\"%s\")",conn_get_clienttag(c),gt);
-	    return -1;
-	}
-*/
     }
     
     if (game->pass[0]!='\0' && strcasecmp(game->pass,pass)!=0)
