@@ -327,23 +327,20 @@ extern t_account * ladder_get_account_by_rank(unsigned int rank, t_ladder_sort l
 			return ladder_get_account(ladder_cr(clienttag,id),rank,&dummy,clienttag);
 		else
 			return ladder_get_account(ladder_ar(clienttag,id),rank,&dummy,clienttag);
-	break;
     case ladder_sort_mostwins:
 		if (ltime == ladder_time_current)
 			return ladder_get_account(ladder_cw(clienttag,id),rank,&dummy,clienttag);
 		else
 			return ladder_get_account(ladder_aw(clienttag,id),rank,&dummy,clienttag);
-	break;
     case ladder_sort_mostgames:
 		if (ltime == ladder_time_current)
 			return ladder_get_account(ladder_cg(clienttag,id),rank,&dummy,clienttag);
 		else
 			return ladder_get_account(ladder_ag(clienttag,id),rank,&dummy,clienttag);
-	break;
     default:
 	eventlog(eventlog_level_error,"ladder_get_account_by_rank","got bad ladder sort %u",(unsigned int)lsort);
-	return NULL;
     }
+    return NULL;
 }
 
 
