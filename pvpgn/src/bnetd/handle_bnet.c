@@ -2469,7 +2469,7 @@ static int _client_friendinforeq(t_connection * c, t_packet const * const packet
 	       {
 		  bn_byte_set(&rpacket->u.server_friendinforeply.status, FRIENDSTATUS_CHAT);
 		  bn_int_set(&rpacket->u.server_friendinforeply.clienttag, *((int const *)conn_get_clienttag(dest_c)));
-		  packet_append_string(rpacket, channel_get_name(channel)); // Displays actual channel name now THEUNDYING 5/16/2002
+		  packet_append_string(rpacket, channel_get_name(channel));
 		  
 	       }
 	     else 
@@ -2487,13 +2487,13 @@ static int _client_friendinforeq(t_connection * c, t_packet const * const packet
 	       {
 		  bn_byte_set(&rpacket->u.server_friendinforeply.status, FRIENDSTATUS_GAME);
 		  bn_int_set(&rpacket->u.server_friendinforeply.clienttag, *((int const *)conn_get_clienttag(dest_c)));
-		  packet_append_string(rpacket, "");
+		  packet_append_string(rpacket, game_get_name(game));
 	       }
 	     else if((channel = conn_get_channel(dest_c))) 
 	       {
 		  bn_byte_set(&rpacket->u.server_friendinforeply.status, FRIENDSTATUS_CHAT);
 		  bn_int_set(&rpacket->u.server_friendinforeply.clienttag, *((int const *)conn_get_clienttag(dest_c)));
-		  packet_append_string(rpacket, "Not Mutual"); // Displays actual channel name now THEUNDYING 5/16/2002
+		  packet_append_string(rpacket, channel_get_name(channel));
 	       }
 	     else 
 	       {
