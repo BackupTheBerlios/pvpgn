@@ -999,7 +999,7 @@ extern int ladderlist_create(void)
 	    }
 	    else
 	    {
-		if (account_get_ladder_active_rating(account,CLIENTTAG_STARCRAFT,ladder_id_normal)>0)
+		if (account_get_ladder_active_rating(account,ladder->clienttag,ladder->id)>0)
 		    ladder_insert_account(ladder,account);
 	    }
 	}
