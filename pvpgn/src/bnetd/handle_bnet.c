@@ -4043,23 +4043,29 @@ static int _client_laddersearchreq(t_connection * c, t_packet const *const packe
 	else {
 	    switch (bn_int_get(packet->u.client_laddersearchreq.type)) {
 		case CLIENT_LADDERSEARCHREQ_TYPE_HIGHESTRATED:
-		    if ((rank = ladder_get_rank_by_account(account, ladder_sort_highestrated, ladder_time_active, ctag, id)) == 0) {
-			rank = ladder_get_rank_by_account(account, ladder_sort_highestrated, ladder_time_current, ctag, id);
-			if (ladder_get_account_by_rank(rank, ladder_sort_highestrated, ladder_time_active, ctag, id))
+		    if (!(rank=ladder_get_rank_by_account(account, ladder_sort_highestrated, ladder_time_active, ctag, id))) 
+		    {
+			if (!(rank = ladder_get_rank_by_account(account, ladder_sort_highestrated, 
+			                                        ladder_time_current, ctag, id)) ||
+			   (ladder_get_account_by_rank(rank, ladder_sort_highestrated, ladder_time_active, ctag, id)))
 			    rank = 0;
 		    }
 		    break;
 		case CLIENT_LADDERSEARCHREQ_TYPE_MOSTWINS:
-		    if ((rank = ladder_get_rank_by_account(account, ladder_sort_mostwins, ladder_time_active, ctag, id)) == 0) {
-			rank = ladder_get_rank_by_account(account, ladder_sort_mostwins, ladder_time_current, ctag, id);
-			if (ladder_get_account_by_rank(rank, ladder_sort_mostwins, ladder_time_active, ctag, id))
+		    if (!(rank=ladder_get_rank_by_account(account, ladder_sort_mostwins, ladder_time_active, ctag, id))) 
+		    {
+			if (!(rank = ladder_get_rank_by_account(account, ladder_sort_mostwins, 
+			                                        ladder_time_current, ctag, id)) ||
+			   (ladder_get_account_by_rank(rank, ladder_sort_mostwins, ladder_time_active, ctag, id)))
 			    rank = 0;
 		    }
 		    break;
 		case CLIENT_LADDERSEARCHREQ_TYPE_MOSTGAMES:
-		    if ((rank = ladder_get_rank_by_account(account, ladder_sort_mostgames, ladder_time_active, ctag, id)) == 0) {
-			rank = ladder_get_rank_by_account(account, ladder_sort_mostgames, ladder_time_current, ctag, id);
-			if (ladder_get_account_by_rank(rank, ladder_sort_mostgames, ladder_time_active, ctag, id))
+		    if (!(rank=ladder_get_rank_by_account(account, ladder_sort_mostgames, ladder_time_active, ctag, id))) 
+		    {
+			if (!(rank = ladder_get_rank_by_account(account, ladder_sort_mostgames,
+			                                        ladder_time_current, ctag, id)) ||
+			   (ladder_get_account_by_rank(rank, ladder_sort_mostgames, ladder_time_active, ctag, id)))
 			    rank = 0;
 		    }
 		    break;
