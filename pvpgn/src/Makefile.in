@@ -505,6 +505,7 @@ SHARES		= ad000001.smk ad000001.mng ad000004.mng ad000666.mng ad000004.smk \
 		  newbie.save \
 		  termsofservice-default.txt termsofservice-enUS.txt \
 		  chathelp-war3-default.txt chathelp-war3-enUS.txt \
+		  chathelp-war3-frFR.txt chathelp-war3-zhCN.txt chathelp-war3-ruRU.txt \
 		  newaccount-default.txt newaccount-enUS.txt
 
 OTHERRM		= ${sbnetd_OBJECTS} ${sbnetd_SBIN} ${timetest_BIN} ${listtest_BIN} ${hashtabletest_BIN} ${addrtest_BIN} ${cdb_BIN} ${SRC_ACDIR}/ansi2knr ${SRC_ACDIR}/ansi2knr.o @ANSI2KNR_TMP@
