@@ -1348,13 +1348,13 @@ extern void game_set_status(t_game * game, t_game_status status)
 	if (game->status == game_status_started && 
 		(status == game_status_open || status == game_status_full)) {
 		eventlog(eventlog_level_error, "game_set_status", 
-		"attempting to set status %d to started game", game->status);
+		"attempting to set status '%s' (%d) to started game", game_status_get_str(status), status);
 		return;
 	}
 
 	if (game->status == game_status_done && status != game_status_done) {
 		eventlog(eventlog_level_error, "game_set_status", 
-		"attempting to set status '%s' (%d) to done game", game_status_get_str(game->status), game->status);
+		"attempting to set status '%s' (%d) to done game", game_status_get_str(status), status);
 		return;
 	}
 
