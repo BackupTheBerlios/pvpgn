@@ -8,14 +8,14 @@
 # You can enter comments by starting a line with #.  Comments extend to the  #
 # end of the line.                                                           #
 #                                                                            #
-%whois
+%whois whereis where
 whois <player> - looks up some basic information on a user, including their account number and their current location
-%whereis
-whereis <player> - looks up some basic information on a user, including their account number and their current location
 %msg whisper m w
 /msg, /whisper, /m, /w <player> <message> - sends a private message to a user online regardless of the channel they are in
 %ignore squelch
 /ignore, /squelch <player> - ignores any future messages from that user effectively muting that user to you
+%unignore unsquelch
+/unignore /unsquelch <player> - unignores a user so u can listen to him again
 %away
 /away [<message>] - displays a message that you are away from your keyboard whenever someone whispers to you or does a /whois command on you
 %dnd
@@ -68,10 +68,15 @@ whereis <player> - looks up some basic information on a user, including their ac
 /operator, /op - shows the current operator of this channel
 %admins
 /admins - shows all currently logged in administrators
+%admin
+/admin +<username> - promote <username> to admin
+/admin -<username> - demote <username> from admin
 %reply r
-/reply /r [<message>] - reply to the last person that whispered to you
+/reply /r <message> - reply to the last person that whispered to you
 %announce ann
-/announce /ann [<message>] - announces a message in all channels
+/announce /ann <message> - announces a message in all channels
+%realmann
+/realmann <message> - makes an announcement in the real u are currenlty in
 %copyright warranty license
 /copyright /warranty /license - shows the legal information for bnetd
 %news
@@ -96,6 +101,8 @@ whereis <player> - looks up some basic information on a user, including their ac
 /ladderactivate - copy current ladder stats to active ladder stats
 %ladderinfo
 /ladderinfo <rank> [<gameid>] - display ladder info for given rank
+%bitsinfo
+/bitsinfo - reports BITS status of server
 %timer
 /timer [<duration>] [<message>] - send notification after a period of time
 %netinfo
@@ -112,8 +119,11 @@ whereis <player> - looks up some basic information on a user, including their ac
 /lockacct <player> - locks that users account
 %unlockacct 
 /unlockacct <player> - unlocks that users account
-%fortune
-/fortune - print a random amusing message
+% friends f
+/friends add <username> - add user to your friends list
+/friends del <username> - remove user from your friends list
+/friends list - list all users in your friends list
+/friends msg <msgtext> - whispers to all your online friends
 %mail
 /mail <command> [<options>] - mail management commands
     Syntax:
@@ -147,13 +157,14 @@ whereis <player> - looks up some basic information on a user, including their ac
 /remove_accounting_infos - remove extra accounting infos from all accounts - may take some while...
 %rehash
 /rehash - forces reload of bnetd.conf
-&clan
+%clan
 /clan <clanname> - sets the clanname to be displayed in your profile
-&ping
+%ping p latency
 /ping, /p, /latency - returns your latency to the server
-&reload_accounts_all
+%reload_accounts_all
 /reload_accounts_all - reload account data for all users currently not logged in
-&reload_accounts_new
+ WARNING: STILL EXPERIMANTAL
+%reload_accounts_new
 /reload_accounts_new - load accounts added manually to DB or userfiles folder
 #                                                                            #
 ##############################################################################
