@@ -2251,6 +2251,7 @@ static int _handle_dnd_command(t_connection * c, char const *text)
 static int _handle_squelch_command(t_connection * c, char const *text)
 {
   t_account *  account;
+  t_connection * dest_c;
 
   text = skip_command(text);
   
@@ -2282,10 +2283,19 @@ static int _handle_squelch_command(t_connection * c, char const *text)
   else
     {
       char const * tname;
+      t_message *message;
       
       sprintf(msgtemp,"%-.20s has been squelched.",(tname = account_get_name(account)));
       account_unget_name(tname);
       message_send_text(c,message_type_info,c,msgtemp);
+      
+      if ((dest_c = account_get_conn(account)))
+      {
+        if (!(message = message_create(message_type_userflags,dest_c,NULL,NULL))) /* handles NULL text */
+	    return 0;
+        message_send(message,c);
+        message_destroy(message);
+      }
     }
   
   return 0;
@@ -2294,6 +2304,7 @@ static int _handle_squelch_command(t_connection * c, char const *text)
 static int _handle_unsquelch_command(t_connection * c, char const *text)
 {
   t_account const * account;
+  t_connection * dest_c;
 
   text = skip_command(text);
   
@@ -2317,7 +2328,19 @@ static int _handle_unsquelch_command(t_connection * c, char const *text)
   if (conn_del_ignore(c,account)<0)
     message_send_text(c,message_type_info,c,"User was not being ignored.");
   else
-    message_send_text(c,message_type_info,c,"No longer ignoring.");
+    {
+      t_message * message;
+
+      message_send_text(c,message_type_info,c,"No longer ignoring.");
+      
+      if ((dest_c = account_get_conn(account)))
+      {
+        if (!(message = message_create(message_type_userflags,dest_c,NULL,NULL))) /* handles NULL text */
+	    return 0;
+        message_send(message,c);
+        message_destroy(message);
+      }
+    }
   
   return 0;
 }
