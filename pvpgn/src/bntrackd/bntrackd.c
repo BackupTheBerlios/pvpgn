@@ -317,7 +317,7 @@ static int server_process(int sockfd)
 		}
 		else
 		{
-		  if (prefs_get_XML_output_tracker())
+		  /* if (prefs_get_XML_output_tracker())
 		  {
 		    fprintf(outfile,"<server>\n\t<address>%s</address>\n",inet_ntoa(server->address));
 		    fprintf(outfile,"\t<port>%hu</port>\n",(unsigned short)ntohs(server->info.port));
@@ -338,7 +338,7 @@ static int server_process(int sockfd)
 		    fprintf(outfile,"</server>\n");
 		  }
 		  else
-		  {
+		  { */
 		    fprintf(outfile,"%s\n##\n",inet_ntoa(server->address));
 		    fprintf(outfile,"%hu\n##\n",(unsigned short)ntohs(server->info.port));
 		    fprintf(outfile,"%s\n##\n",server->info.server_location);
@@ -356,7 +356,7 @@ static int server_process(int sockfd)
 		    fprintf(outfile,"%lu\n##\n",(unsigned long)ntohl(server->info.total_games));
 		    fprintf(outfile,"%lu\n##\n",(unsigned long)ntohl(server->info.total_logins));
 		    fprintf(outfile,"###\n");
-		  }
+		 // }
 		}
 	    }
             if (fclose(outfile)<0)
