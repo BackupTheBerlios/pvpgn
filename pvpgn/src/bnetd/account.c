@@ -1149,9 +1149,9 @@ extern int account_logged_in(t_account * account)
 
   LIST_TRAVERSE_CONST(connlist(),curr)
   {
-    if (tc = elem_get_data(curr)) 
+    if ((tc = elem_get_data(curr))) 
     {
-      if (acc = conn_get_account(tc))
+      if ((acc = conn_get_account(tc)))
       {
 	if (acc == account) return 1;
       }
@@ -1212,7 +1212,7 @@ extern int accountlist_reload(int all)
     {
       if (curr)
       {
-        if (old_acc = (t_account *)entry_get_data(curr))
+        if ((old_acc = (t_account *)entry_get_data(curr)))
         {
 	  if (!((old_acc->dirty) || account_logged_in(old_acc)))
 	  {
