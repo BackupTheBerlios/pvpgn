@@ -33,6 +33,7 @@ typedef struct
 	char const	* realmname;
 	char const	* d2gs_password;
 	char const	* d2gstransfile;
+	char const      * account_allowed_symbols;
 	unsigned int	ladder_refresh_interval;
 	unsigned int	maxchar;
 	unsigned int	listpurgeinterval;
@@ -103,5 +104,6 @@ extern unsigned int prefs_get_timeout_checkinterval(void);
 extern unsigned int prefs_get_max_game_idletime(void);
 extern unsigned int prefs_get_lod_realm(void);
 extern unsigned int prefs_get_allow_convert(void);
+extern char const * prefs_get_d2cs_account_allowed_symbols(void);
 
 #endif

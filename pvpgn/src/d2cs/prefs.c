@@ -82,6 +82,7 @@ static t_conf_table prefs_conf_table[]={
     { "timeout_checkinterval",  offsetof(t_prefs,timeout_checkinterval), conf_type_int,DEFAULT_TIMEOUT_CHECKINTERVAL},
     { "lod_realm",		offsetof(t_prefs,lod_realm),         conf_type_int,    2			    },
     { "allow_convert",		offsetof(t_prefs,allow_convert),     conf_type_int,    0			    },
+    { "account_allowed_symbols",offsetof(t_prefs,account_allowed_symbols),conf_type_str,(int)DEFAULT_ACC_ALLOWED_SYMBOLS},
     { NULL,                     0,                                   conf_type_none,   0                            }
 };
 
@@ -301,4 +302,9 @@ extern unsigned int prefs_get_allow_convert(void)
 extern char const * prefs_get_d2gstrans_file(void)
 {
 	return prefs_conf.d2gstransfile;
+}
+
+extern char const * prefs_get_d2cs_account_allowed_symbols(void)
+{
+	return prefs_conf.account_allowed_symbols;
 }

@@ -1807,7 +1807,6 @@ static int account_check_name(char const * name)
     for (i=0; i<strlen(name); i++)
     {
 	// Changed by NonReal -- idiots are using ASCII names and it is annoying
-#if 1
         /* These are the Battle.net rules but they are too strict.
          * We want to allow any characters that wouldn't cause
          * problems so this should test for what is _not_ allowed
@@ -1815,21 +1814,8 @@ static int account_check_name(char const * name)
          */
         ch = name[i];
         if (isalnum(ch)) continue;
-        if (ch=='-') continue;
-        if (ch=='_') continue;
-/*      if (ch=='.') continue;  [zap-zero] causes problems on stupid winblows with savebyname */
-        if (ch=='[') continue; // NR
-        if (ch==']') continue; // NR
+	if (strchr(prefs_get_account_allowed_symbols(),ch)) continue;
         return -1;
-#else
-	if (name[i]==' ')
-	    return -1;
-	if (name[i]==',')
-	    return -1;
-	if (i==0 && name[i]=='#')
-	    return -1;
-/* what about * and @? */
-#endif
     }
     if (i<USER_NAME_MIN || i>=USER_NAME_MAX)
 	return -1;

@@ -182,7 +182,9 @@ static Bconf_t conf_table[] =
 
     { "reduced_accounting",     conf_type_bool,    NULL,                 0,                     ACT },
 
-    { "XML_output_ladder",      conf_type_bool,    NULL,                 0,	    ACT },
+    { "XML_output_ladder",      conf_type_bool,    NULL,                 0,	    		ACT },
+
+    { "account_allowed_symbols",conf_type_char,    PVPGN_DEFAULT_SYMB,   NONE,                  ACT },
 
     { NULL,             	conf_type_none,    NULL,                 NONE,                  ACT },
 
@@ -1159,5 +1161,10 @@ extern int prefs_get_reduced_accounting(void)
 extern int prefs_get_XML_output_ladder(void)
 {
         return get_bool_conf("XML_output_ladder");
+}
+
+extern char const * prefs_get_account_allowed_symbols(void)
+{
+	return get_char_conf("account_allowed_symbols");
 }
 

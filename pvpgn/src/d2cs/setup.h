@@ -105,7 +105,8 @@
 #define DEFAULT_S2S_IDLETIME		300
 #define DEFAULT_S2S_KEEPALIVE_INTERVAL	60
 #define DEFAULT_TIMEOUT_CHECKINTERVAL	60
-
+#define DEFAULT_ACC_ALLOWED_SYMBOLS     "-_[]"
+				
 #ifndef D2CS_DEFAULT_CONF_FILE
 # define D2CS_DEFAULT_CONF_FILE       "/usr/local/etc/d2cs.conf"
 #endif

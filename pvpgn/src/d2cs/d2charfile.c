@@ -544,9 +544,7 @@ extern int d2char_check_acctname(char const * name)
 		ch=name[i];
 		if (ch=='\0') break;
 		if (isalnum(ch)) continue;
-		if (ch=='-') continue;
-		if (ch=='_') continue;
-		if (ch=='.') continue;
+		if (strchr(prefs_get_d2cs_account_allowed_symbols(),ch)) continue;
 		return -1;
 	}
 	if (i >= MIN_NAME_LEN || i<= MAX_ACCTNAME_LEN) return 0;

@@ -204,6 +204,7 @@
 #define BNETD_EXEINFO_MATCH   "exact"
 #define PVPGN_VERSION_TIMEDIV 3600 /* 1 hour */
 #define PVPGN_CACHE_MEMLIMIT  5000000  /* bytes */
+#define PVPGN_DEFAULT_SYMB    "-_[]"
 
 /* BITS (uplink) defaults */
 #define BITS_DO_UPLINK        0
