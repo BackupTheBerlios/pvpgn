@@ -65,7 +65,7 @@
 
 static t_list * topiclist_head=NULL;
 
-t_topic * get_topic(char * channel_name)
+t_topic * get_topic(char const * channel_name)
 {
   t_elem  * curr;
   t_topic * topic;
@@ -79,13 +79,13 @@ t_topic * get_topic(char * channel_name)
         eventlog(eventlog_level_error,__FUNCTION__,"found NULL entry in list");
         continue;
       }
+      if (strcasecmp(channel_name,topic->channel_name)==0) return topic;
     }
-    if (strcmp(channel_name,topic->channel_name)==0) return topic;
   }
   return NULL;
 }
 
-char * channel_get_topic(char * channel_name)
+char * channel_get_topic(char const * channel_name)
 {
   t_topic * topic;
 
@@ -117,7 +117,8 @@ int topiclist_save(char const * topic_file)
         eventlog(eventlog_level_error,__FUNCTION__,"found NULL entry in list");
         continue;
       }
-      fprintf(fp,"\"%s\",\"%s\"",topic->channel_name,topic->topic);
+      if (topic->save == DO_SAVE_TOPIC) 
+        fprintf(fp,"\"%s\",\"%s\"\n",topic->channel_name,topic->topic);
     }
 
     fclose(fp);
@@ -126,7 +127,40 @@ int topiclist_save(char const * topic_file)
   return 0;
 }
 
-int channel_set_topic(char * channel_name, char * topic_text)
+int topiclist_add_topic(char const * channel_name, char const * topic_text, int do_save)
+{
+  t_topic * topic;
+  
+  if (!(topic = malloc(sizeof(t_topic))))
+    {
+      eventlog(eventlog_level_error,__FUNCTION__,"could not allocate memory for topic");
+      return -1;
+    }
+  if (!(topic->channel_name = strdup(channel_name)))
+    {
+      eventlog(eventlog_level_error,__FUNCTION__,"could not allocate memory for channel name");
+      free((void *)topic);
+      return -1;
+    }
+  if (!(topic->topic = strdup(topic_text)))
+    {
+      eventlog(eventlog_level_error,__FUNCTION__,"could not allocate memory for topic text");
+      free((void *)topic->channel_name);
+      free((void *)topic);
+    }
+  if (list_prepend_data(topiclist_head,topic)<0)
+    {
+      eventlog(eventlog_level_error,__FUNCTION__,"could not append item");
+      free((void *)topic->channel_name);
+      free((void *)topic->topic);
+      free((void *)topic);
+      return -1;
+    }
+  topic->save = do_save;
+  return 0;
+}
+
+int channel_set_topic(char const * channel_name, char const * topic_text, int do_save)
 {
   t_topic * topic;
   char * new_topic;
@@ -143,7 +177,7 @@ int channel_set_topic(char * channel_name, char * topic_text)
     return -1;
   }
 
-  if (topic = get_topic(channel_name))
+  if ((topic = get_topic(channel_name)))
   {
     if (!(new_topic = strdup(topic_text)))
     {
@@ -155,37 +189,16 @@ int channel_set_topic(char * channel_name, char * topic_text)
   }
   else
   {
-    if (!(topic = malloc(sizeof(t_topic))))
-    {
-      eventlog(eventlog_level_error,__FUNCTION__,"could not allocate memory for topic");
-      return -1;
-    }
-    if (!(topic->channel_name = strdup(channel_name)))
-    {
-      eventlog(eventlog_level_error,__FUNCTION__,"could not allocate memory for channel name");
-      free((void *)topic);
-      return -1;
-    }
-    if (!(topic->topic = strdup(topic_text)))
-    {
-      eventlog(eventlog_level_error,__FUNCTION__,"could not allocate memory for topic text");
-      free((void *)topic->channel_name);
-      free((void *)topic);
-    }
-    if (list_append_data(topiclist_head,topic)<0)
-    {
-      eventlog(eventlog_level_error,__FUNCTION__,"could not append item");
-      free((void *)topic->channel_name);
-      free((void *)topic->topic);
-      free((void *)topic);
-      return -1;
-    }
+    topiclist_add_topic(channel_name, topic_text,do_save);
   }
 
-  if (topiclist_save(prefs_get_topicfile())<0)
+  if (do_save == DO_SAVE_TOPIC)
   {
-    eventlog(eventlog_level_error,__FUNCTION__,"error saving topic list");
-    return -1;
+    if (topiclist_save(prefs_get_topicfile())<0)
+    {
+      eventlog(eventlog_level_error,__FUNCTION__,"error saving topic list");
+      return -1;
+    }
   }
 
   return 0;
@@ -194,8 +207,8 @@ int channel_set_topic(char * channel_name, char * topic_text)
 int topiclist_load(char const * topicfile)
 {
   FILE * fp = NULL;
-  char * channel_name[CHANNEL_NAME_LEN];
-  char * topic[MAX_TOPIC_LEN];
+  char channel_name[CHANNEL_NAME_LEN];
+  char topic[MAX_TOPIC_LEN];
 
   // make sure to unload previous topiclist before loading again
   if (topiclist_head) topiclist_unload();
@@ -213,9 +226,9 @@ int topiclist_load(char const * topicfile)
   }
   eventlog(eventlog_level_trace,__FUNCTION__,"start reading topic file");
 
-  while (fscanf(fp,"\"%[^\"]\",\"%[^\"]\"",channel_name,topic)==2)
+  while (fscanf(fp,"\"%[^\"]\",\"%[^\"]\"\n",channel_name,topic)==2)
   {
-
+    topiclist_add_topic(channel_name,topic,DO_SAVE_TOPIC);
     eventlog(eventlog_level_trace,__FUNCTION__,"channel: %s topic: \"%s\"",channel_name,topic);
   }
 
