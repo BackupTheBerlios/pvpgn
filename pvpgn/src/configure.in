@@ -182,6 +182,8 @@ AC_C_INLINE
 # Checks for libraries.
 AC_CHECK_LIB(m, pow, [LIBS="$LIBS -lm"])
 
+AC_CHECK_LIB(z, compress, [LIBS="$LIBS -lz"])
+
 mysql_include_path=""
 dnl Detecting mysql paths
 if test "$ac_with_mysql" = "yes" ; then
@@ -293,8 +295,6 @@ case "$host" in
 		fi
 		;;
 esac
-
-AC_CHECK_LIB(z, compress, [LIBS="$LIBS -lz"])
 
 # Checks for header files.
 AC_HEADER_DIRENT
