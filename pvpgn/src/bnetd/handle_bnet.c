@@ -1797,9 +1797,11 @@ static int _client_loginreq1(t_connection * c, t_packet const * const packet)
 	      return -1;
 	   }
 	}
-		
+
 	/* fail if no account */
-	if ((!(account = accountlist_find_account(username))) && prefs_get_load_new_account() && (!(account = account_load_new(username))))
+	if (!(account = accountlist_find_account(username)) 
+	    && prefs_get_load_new_account() 
+	    && !(account = account_load_new(username)))
 	  {
 	     eventlog(eventlog_level_info,__FUNCTION__,"[%d] login for \"%s\" refused (no such account)",conn_get_socket(c),username);
 	     bn_int_set(&rpacket->u.server_loginreply1.message,SERVER_LOGINREPLY1_MESSAGE_FAIL);
@@ -2003,16 +2005,18 @@ static int _client_loginreq2(t_connection * c, t_packet const * const packet)
 	      return -1;
 	   }
 	}
-	
+
 	/* fail if no account */
-	if ((!(account = accountlist_find_account(username))) && prefs_get_load_new_account() && (!(account = account_load_new(username))))
+	if (!(account = accountlist_find_account(username)) 
+	    && prefs_get_load_new_account() 
+	    && !(account = account_load_new(username)))
 	  {
 	     eventlog(eventlog_level_info,__FUNCTION__,"[%d] login for \"%s\" refused (no such account)",conn_get_socket(c),username);
 	     bn_int_set(&rpacket->u.server_loginreply2.message,SERVER_LOGINREPLY2_MESSAGE_BADPASS);
 	  }
 	/* already logged in */
 	else if (connlist_find_connection_by_account(account) &&
-	    prefs_get_kick_old_login()==0)
+	         prefs_get_kick_old_login()==0)
 	  {
 	     eventlog(eventlog_level_info,__FUNCTION__,"[%d] login for \"%s\" refused (already logged in)",conn_get_socket(c),username);
 	     bn_int_set(&rpacket->u.server_loginreply2.message,SERVER_LOGINREPLY2_MESSAGE_ALREADY);
@@ -2198,14 +2202,16 @@ static int _client_loginreqw3(t_connection * c, t_packet const * const packet)
 		eventlog(eventlog_level_error,__FUNCTION__,"[%d] login denied, too many concurrent logins. max: %d. current: %d.",conn_get_socket(c),prefs_get_max_concurrent_logins(),connlist_login_get_length());
 		bn_int_set(&rpacket->u.server_loginreply_w3.message,SERVER_LOGINREPLY_W3_MESSAGE_BADACCT);
 	    }
-		else
+	    else
 	    /* fail if no account */
-	    if ((!(account = accountlist_find_account(username))) && prefs_get_load_new_account() && (!(account = account_load_new(username))))
+	    if (!(account = accountlist_find_account(username)) 
+	        && prefs_get_load_new_account() 
+		&& !(account = account_load_new(username)))
 	    {
 		eventlog(eventlog_level_info,__FUNCTION__,"[%d] (W3) login for \"%s\" refused (no such account)",conn_get_socket(c),username);
 		bn_int_set(&rpacket->u.server_loginreply_w3.message,SERVER_LOGINREPLY_W3_MESSAGE_BADACCT);
 	    }
-		else
+	    else
 	    /* already logged in */
 	    if (connlist_find_connection_by_account(account) &&
 		prefs_get_kick_old_login()==0)
@@ -2213,26 +2219,25 @@ static int _client_loginreqw3(t_connection * c, t_packet const * const packet)
 		eventlog(eventlog_level_info,__FUNCTION__,"[%d] (W3) login for \"%s\" refused (already logged in)",conn_get_socket(c),username);
 	        bn_int_set(&rpacket->u.server_loginreply_w3.message,SERVER_LOGINREPLY_W3_MESSAGE_ALREADY);
 	    }
-		else
+	    else
 	    if (account_get_auth_bnetlogin(account)==0) /* default to true */
 	    {
 		eventlog(eventlog_level_info,__FUNCTION__,"[%d] (W3) login for \"%s\" refused (no bnet access)",conn_get_socket(c),username);
 		bn_int_set(&rpacket->u.server_loginreply_w3.message,SERVER_LOGINREPLY_W3_MESSAGE_BADACCT);
 	    }
-		else
+	    else
 	    if (account_get_auth_lock(account)==1) /* default to false */
 	    {
 		eventlog(eventlog_level_info,__FUNCTION__,"[%d] login for \"%s\" refused (this account is locked)",conn_get_socket(c),username);
 		bn_int_set(&rpacket->u.server_loginreply1.message,SERVER_LOGINREPLY_W3_MESSAGE_BADACCT);
 	    }
-		else
-		{
-	    eventlog(eventlog_level_info,__FUNCTION__,"[%d] (W3) \"%s\" passed account check",conn_get_socket(c),(tname = account_get_name(account)));
-	    conn_set_w3_username(c,tname);
-	    account_unget_name(tname);
-	    bn_int_set(&rpacket->u.server_loginreply_w3.message,SERVER_LOGINREPLY_W3_MESSAGE_SUCCESS);
-		}
-
+	    else
+	    {
+		eventlog(eventlog_level_info,__FUNCTION__,"[%d] (W3) \"%s\" passed account check",conn_get_socket(c),(tname = account_get_name(account)));
+		conn_set_w3_username(c,tname);
+		account_unget_name(tname);
+		bn_int_set(&rpacket->u.server_loginreply_w3.message,SERVER_LOGINREPLY_W3_MESSAGE_SUCCESS);
+	    }
 	}
 
 	conn_push_outqueue(c,rpacket);

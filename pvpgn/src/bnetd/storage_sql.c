@@ -113,7 +113,7 @@ t_storage storage_sql = {
     sql_write_attrs,
     sql_read_attr,
     sql_read_accounts,
-	sql_read_account,
+    sql_read_account,
     sql_cmp_info,
     sql_escape_key,
     sql_load_clans,
@@ -728,7 +728,7 @@ static void * sql_read_account(t_read_account_func cb, const char *name)
     t_sql_res *result = NULL;
     t_sql_row *row;
     t_storage_info *info;
-	void * temp = NULL;
+    void * temp = NULL;
 
     if (!sql)
     {
@@ -745,7 +745,7 @@ static void * sql_read_account(t_read_account_func cb, const char *name)
     sprintf(query, "SELECT uid FROM BNET WHERE acct_username='%s'", name);
     if ((result = sql->query_res(query)) != NULL)
     {
-	if (sql->num_rows(result) <= 1)
+	if (sql->num_rows(result) < 1)
 	{
 	    sql->free_result(result);
 	    return 0;		/* empty user list */
@@ -757,19 +757,17 @@ static void * sql_read_account(t_read_account_func cb, const char *name)
 	    {
 		eventlog(eventlog_level_error, __FUNCTION__, "got NULL uid from db");
 	    }
-		else
-	    if ((unsigned int) atoi(row[0]) == defacct);
-			/* skip default account */
-		else
-	    if ((info = malloc(sizeof(t_sql_info))) == NULL)
+	    else if ((unsigned int) atoi(row[0]) == defacct);
+	    /* skip default account */
+	    else if ((info = malloc(sizeof(t_sql_info))) == NULL)
 	    {
 		eventlog(eventlog_level_error, __FUNCTION__, "not enough memory for sql info");
 	    }
-		else
-		{
-			*((unsigned int *) info) = atoi(row[0]);
-			temp = cb(info);
-		}
+	    else
+	    {
+		*((unsigned int *) info) = atoi(row[0]);
+		temp = cb(info);
+	    }
 	}
 	sql->free_result(result);
     } else

@@ -64,8 +64,8 @@
 #ifdef HAVE_SYS_TYPES_H
 # include <sys/types.h>
 #endif
-#ifdef HAVE_SYS_STAT_H
-# include <sys/stat.h>
+#ifdef HAVE_UNISTD_H
+# include <unistd.h>
 #endif
 #include "compat/pdir.h"
 #include "common/eventlog.h"
@@ -124,7 +124,7 @@ t_storage storage_file = {
     file_write_attrs,
     file_read_attr,
     file_read_accounts,
-	file_read_account,
+    file_read_account,
     file_cmp_info,
     file_escape_key,
     file_load_clans,
@@ -519,7 +519,6 @@ static int file_read_accounts(t_read_accounts_func cb, void *data)
 static void * file_read_account(t_read_account_func cb, const char * accname)
 {
     char *       pathname;
-    struct stat  sfile;
 
     if (accountsdir == NULL) {
 	eventlog(eventlog_level_error, __FUNCTION__, "file storage not initilized");
@@ -531,19 +530,19 @@ static void * file_read_account(t_read_account_func cb, const char * accname)
 	return NULL;
     }
 
-	if (!(pathname = malloc(strlen(accountsdir)+1+strlen(accname)+1))) /* dir + / + file + NUL */
-	 {
-	   eventlog(eventlog_level_error, __FUNCTION__, "could not allocate memory for pathname");
-	   return NULL;
-	 }
-	sprintf(pathname,"%s/%s", accountsdir, accname);
-    if (stat(pathname,&sfile)<0) /* if it doesn't exist */
-	{
-		free((void *) pathname);
-		return NULL;
-	}
+    if (!(pathname = malloc(strlen(accountsdir)+1+strlen(accname)+1))) /* dir + / + file + NUL */
+    {
+	eventlog(eventlog_level_error, __FUNCTION__, "could not allocate memory for pathname");
+	return NULL;
+    }
+    sprintf(pathname,"%s/%s", accountsdir, accname);
+    if (access(pathname,0)) /* if it doesn't exist */
+    {
+	free((void *) pathname);
+	return NULL;
+    }
 
-	return cb(pathname);
+    return cb(pathname);
 }
 
 static int file_cmp_info(t_storage_info *info1, t_storage_info *info2)

@@ -968,20 +968,20 @@ extern int accountlist_reload(void)
   return 0;
 }
 
-static t_account * _cb_read_accounts3(t_storage_info *info)
+static t_account * _cb_read_account(t_storage_info *info)
 {
     t_account *account;
 
     if (!(account = account_load(info)))
     {
-        eventlog(eventlog_level_error,"_cb_read_accounts3","could not load account from storage");
+        eventlog(eventlog_level_error, __FUNCTION__,"could not load account from storage");
         storage->free_info(info);
         return NULL;
     }
 	
     if (!accountlist_add_account(account))
     {
-        eventlog(eventlog_level_error,"_cb_read_accounts3","could not add account to list");
+        eventlog(eventlog_level_error, __FUNCTION__,"could not add account to list");
         account_destroy(account);
         return NULL;
     }
@@ -989,17 +989,24 @@ static t_account * _cb_read_accounts3(t_storage_info *info)
     /* might as well free up the memory since we probably won't need it */
     account->accessed = 0; /* lie */
     account_save(account,1000); /* big delta to force unload */
-	
+
     return account;
 }
 
 extern t_account * account_load_new(char const * name)
 {
-	t_account * account;
+    t_account * account;
+
+    if (name == NULL) {
+	eventlog(eventlog_level_error, __FUNCTION__, "got NULL name");
+	return NULL;
+    }
+
     force_account_add = 1; /* disable the protection */
-	account = storage->read_account(_cb_read_accounts3, name);
+    account = storage->read_account((t_read_account_func)_cb_read_account, name);
     force_account_add = 0;
-	return account;
+
+    return account;
 }
 
 static int _cb_read_accounts2(t_storage_info *info, void *data)
@@ -1009,14 +1016,14 @@ static int _cb_read_accounts2(t_storage_info *info, void *data)
 
     if (!(account = account_load(info)))
     {
-        eventlog(eventlog_level_error,"_cb_read_accounts2","could not load account from storage");
+        eventlog(eventlog_level_error, __FUNCTION__,"could not load account from storage");
         storage->free_info(info);
         return 0;
     }
 	
     if (!accountlist_add_account(account))
     {
-        eventlog(eventlog_level_error,"_cb_read_accounts2","could not add account to list");
+        eventlog(eventlog_level_error, __FUNCTION__,"could not add account to list");
         account_destroy(account);
         return 0;
     }

@@ -183,7 +183,7 @@ static struct {
     unsigned int passfail_count;
     unsigned int passfail_bantime;
     unsigned int maxusers_per_channel;
-	unsigned int load_new_account;
+    unsigned int load_new_account;
 } prefs_runtime_config;
 
 /*    directive                 type               defcharval            defintval                 */
@@ -277,40 +277,40 @@ static Bconf_t conf_table[] =
     { "allow_d2cs_setname",     conf_type_bool,    NULL,                 1                   , (void *)&prefs_runtime_config.allow_d2cs_setname},
     { "hashtable_size",         conf_type_int,     NULL,                 BNETD_HASHTABLE_SIZE , (void *)&prefs_runtime_config.hashtable_size},
     { "telnetaddrs",            conf_type_char,    BNETD_TELNET_ADDRS,   NONE                , (void *)&prefs_runtime_config.telnetaddrs},
-    { "ipban_check_int",		conf_type_int,	   NULL,				 30					 , (void *)&prefs_runtime_config.ipban_check_int},
+    { "ipban_check_int",	conf_type_int,	   NULL,		 30		     , (void *)&prefs_runtime_config.ipban_check_int},
     { "bits_ping_interval",     conf_type_int,     NULL,                 BITS_PING_INTERVAL  , (void *)&prefs_runtime_config.bits_ping_interval},
     { "bits_ping_timeout",      conf_type_int,     NULL,                 BITS_PING_TIMEOUT   , (void *)&prefs_runtime_config.bits_ping_timeout},
     { "version_exeinfo_match",  conf_type_char,    BNETD_EXEINFO_MATCH,  NONE                , (void *)&prefs_runtime_config.version_exeinfo_match},
     { "version_exeinfo_maxdiff",conf_type_int,     NULL,                 PVPGN_VERSION_TIMEDIV , (void *)&prefs_runtime_config.version_exeinfo_maxdiff},
-    { "max_concurrent_logins",  conf_type_int,     NULL,                 0         			 , (void *)&prefs_runtime_config.max_concurrent_logins},
-    { "identify_timeout_secs",  conf_type_int,	   NULL,				 W3_IDENTTIMEOUT     , (void *)&prefs_runtime_config.identify_timeout_secs},
-    { "server_info", 			conf_type_char,	   "",	 				 NONE				 , (void *)&prefs_runtime_config.server_info},
-    { "mapsfile",				conf_type_char,	   NULL,				 0          	     , (void *)&prefs_runtime_config.mapsfile},
-    { "xplevelfile",    		conf_type_char,	   NULL,				 0          	     , (void *)&prefs_runtime_config.xplevelfile},
-    { "xpcalcfile",				conf_type_char,	   NULL,				 0          	     , (void *)&prefs_runtime_config.xpcalcfile},
-    { "initkill_timer", 		conf_type_int,     NULL,       			 0					 , (void *)&prefs_runtime_config.initkill_timer},
+    { "max_concurrent_logins",  conf_type_int,     NULL,                 0         	     , (void *)&prefs_runtime_config.max_concurrent_logins},
+    { "identify_timeout_secs",  conf_type_int,	   NULL,		 W3_IDENTTIMEOUT     , (void *)&prefs_runtime_config.identify_timeout_secs},
+    { "server_info", 		conf_type_char,	   "",	 		 NONE		     , (void *)&prefs_runtime_config.server_info},
+    { "mapsfile",		conf_type_char,	   NULL,		 0          	     , (void *)&prefs_runtime_config.mapsfile},
+    { "xplevelfile",    	conf_type_char,	   NULL,		 0          	     , (void *)&prefs_runtime_config.xplevelfile},
+    { "xpcalcfile",		conf_type_char,	   NULL,		 0          	     , (void *)&prefs_runtime_config.xpcalcfile},
+    { "initkill_timer", 	conf_type_int,     NULL,       		 0		     , (void *)&prefs_runtime_config.initkill_timer},
     { "war3_ladder_update_secs",conf_type_int,     NULL,                 0                   , (void *)&prefs_runtime_config.war3_ladder_update_secs},
-    { "output_update_secs",		conf_type_int,     NULL,                 0                   , (void *)&prefs_runtime_config.output_update_secs},
+    { "output_update_secs",	conf_type_int,     NULL,                 0                   , (void *)&prefs_runtime_config.output_update_secs},
     { "ladderdir",              conf_type_char,    BNETD_LADDER_DIR,     NONE                , (void *)&prefs_runtime_config.ladderdir},
     { "statusdir",              conf_type_char,    BNETD_STATUS_DIR,     NONE                , (void *)&prefs_runtime_config.statusdir},
-    { "XML_output_ladder",      conf_type_bool,    NULL,                 0	    			 , (void *)&prefs_runtime_config.XML_output_ladder},
-    { "XML_status_output",      conf_type_bool,    NULL,                 0	     			 , (void *)&prefs_runtime_config.XML_status_output},
+    { "XML_output_ladder",      conf_type_bool,    NULL,                 0	    	     , (void *)&prefs_runtime_config.XML_output_ladder},
+    { "XML_status_output",      conf_type_bool,    NULL,                 0	     	     , (void *)&prefs_runtime_config.XML_status_output},
     { "account_allowed_symbols",conf_type_char,    PVPGN_DEFAULT_SYMB,   NONE                , (void *)&prefs_runtime_config.account_allowed_symbols},
     { "command_groups_file",	conf_type_char,    BNETD_COMMAND_GROUPS_FILE,	NONE	     , (void *)&prefs_runtime_config.command_groups_file},
-    { "tournament_file",		conf_type_char,    BNETD_TOURNAMENT_FILE, NONE			     , (void *)&prefs_runtime_config.tournament_file},
+    { "tournament_file",	conf_type_char,    BNETD_TOURNAMENT_FILE,NONE		     , (void *)&prefs_runtime_config.tournament_file},
     { "aliasfile"          ,    conf_type_char,    BNETD_ALIASFILE   ,   NONE                , (void *)&prefs_runtime_config.aliasfile},
-    { "w3trans_file",		conf_type_char,		BNETD_W3TRANS_FILE,	NONE,	(void *)&prefs_runtime_config.w3trans_file},
-    { "anongame_infos_file",	conf_type_char,	   PVPGN_AINFO_FILE,	 NONE				 , (void *)&prefs_runtime_config.anongame_infos_file},
-    { "max_conns_per_IP",		conf_type_int,	   NULL,				 0					 , (void *)&prefs_runtime_config.max_conns_per_IP},
-    { "max_friends",			conf_type_int,     NULL,                 MAX_FRIENDS         , (void *)&prefs_runtime_config.max_friends},
+    { "w3trans_file",		conf_type_char,	   BNETD_W3TRANS_FILE,	 NONE		     , (void *)&prefs_runtime_config.w3trans_file},
+    { "anongame_infos_file",	conf_type_char,	   PVPGN_AINFO_FILE,	 NONE		     , (void *)&prefs_runtime_config.anongame_infos_file},
+    { "max_conns_per_IP",	conf_type_int,	   NULL,		 0		     , (void *)&prefs_runtime_config.max_conns_per_IP},
+    { "max_friends",		conf_type_int,     NULL,                 MAX_FRIENDS         , (void *)&prefs_runtime_config.max_friends},
     { "clan_newer_time",        conf_type_int,     NULL,                 CLAN_NEWER_TIME     , (void *)&prefs_runtime_config.clan_newer_time},
     { "clan_max_members",       conf_type_int,     NULL,                 CLAN_MAX_MEMBERS    , (void *)&prefs_runtime_config.clan_max_members},
     { "clan_channel_default_private",   conf_type_bool,    NULL,         0                   , (void *)&prefs_runtime_config.clan_channel_default_private},
     { "passfail_count",		conf_type_int,     NULL,                 0                   , (void *)&prefs_runtime_config.passfail_count},
     { "passfail_bantime",	conf_type_int,     NULL,                 300                 , (void *)&prefs_runtime_config.passfail_bantime},
-    { "maxusers_per_channel",	conf_type_int,	   NULL,				 0					 , (void *)&prefs_runtime_config.maxusers_per_channel},
-    { "load_new_account",		conf_type_bool,	   NULL,				 0					 , (void *)&prefs_runtime_config.load_new_account},
-    { NULL,             		conf_type_none,    NULL,                 NONE                , NULL},
+    { "maxusers_per_channel",	conf_type_int,	   NULL,		 0		     , (void *)&prefs_runtime_config.maxusers_per_channel},
+    { "load_new_account",	conf_type_bool,	   NULL,		 0		     , (void *)&prefs_runtime_config.load_new_account},
+    { NULL,             	conf_type_none,    NULL,                 NONE                , NULL},
 };
 
 #define PREFS_STORE_UINT(addr) (*((unsigned int *)(addr)))
@@ -1311,5 +1311,5 @@ extern unsigned int prefs_get_maxusers_per_channel(void)
 
 extern unsigned int prefs_get_load_new_account(void)
 {
-	return prefs_runtime_config.load_new_account;
+    return prefs_runtime_config.load_new_account;
 }
