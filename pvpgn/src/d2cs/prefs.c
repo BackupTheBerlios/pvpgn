@@ -80,8 +80,8 @@ static t_conf_table prefs_conf_table[]={
     { "s2s_idletime",           offsetof(t_prefs,s2s_idletime),      conf_type_int,    DEFAULT_S2S_IDLETIME         },
     { "s2s_keepalive_interval", offsetof(t_prefs,s2s_keepalive_interval),conf_type_int,DEFAULT_S2S_KEEPALIVE_INTERVAL},
     { "timeout_checkinterval",  offsetof(t_prefs,timeout_checkinterval), conf_type_int,DEFAULT_TIMEOUT_CHECKINTERVAL},
-    { "lod_realm",				offsetof(t_prefs,lod_realm),		 conf_type_int,	   1							},
-    { "allow_convert",			offsetof(t_prefs,allow_convert),	 conf_type_int,	   0							},
+    { "lod_realm",		offsetof(t_prefs,lod_realm),         conf_type_int,    2			    },
+    { "allow_convert",		offsetof(t_prefs,allow_convert),     conf_type_int,    0			    },
     { NULL,                     0,                                   conf_type_none,   0                            }
 };
 

@@ -151,13 +151,15 @@ extern int d2char_create(char const * account, char const * charname, unsigned c
 	characters can be created and if set to 0 then only Classic character can
 	be created	*/
 	
-	if (prefs_get_lod_realm() && ((status != 0x21) && (status != 0x25))) {
-		log_warn("This Realm is for LOD Characters Only");
-		return -1;
-	}
-	if (!prefs_get_lod_realm() && ((status != 0x01) && (status != 0x05))) {
-		log_warn("This Realm is for Classic Characters Only");
-		return -1;
+	if (!(prefs_get_lod_realm() == 2)) {
+		if (prefs_get_lod_realm() && ((status != 0x21) && (status != 0x25))) {
+		    log_warn("This Realm is for LOD Characters Only");
+		    return -1;
+		}
+		if (!prefs_get_lod_realm() && ((status != 0x01) && (status != 0x05))) {
+		    log_warn("This Realm is for Classic Characters Only");
+		    return -1;
+		}
 	}
 	
 /*	Once correct type of character is varified then continue with creation of character */	
