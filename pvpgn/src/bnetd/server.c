@@ -1388,7 +1388,7 @@ extern int server_process(void)
 	if (prefs_get_war3_output_update_secs() && war3_output_updatetime+(time_t)prefs_get_war3_output_update_secs()<=now)
 	{
            war3_output_updatetime = now;
-	       output_write_to_file();
+	       output1_write_to_file();
 	}
 	
 
