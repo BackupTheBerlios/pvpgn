@@ -172,7 +172,8 @@ static int conf_type_get_size(e_conf_type type)
 
 extern int conf_parse_param(int argc, char ** argv, t_conf_table * conf_table, void * data,  int datalen)
 {
-	unsigned int	i, j;
+	int		i;
+	unsigned int	j;
 	char		* p;
 	int		match;
 

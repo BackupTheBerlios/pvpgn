@@ -92,7 +92,7 @@ static int d2charsave_init(void * buffer,char const * charname,unsigned char cla
 static int d2charinfo_init(t_d2charinfo_file * chardata, char const * account, char const * charname,
 			   unsigned char class, unsigned short status)
 {
-	int		i;
+	unsigned int		i;
 	time_t		now;
 
 	now=time(NULL);
@@ -480,7 +480,7 @@ extern int d2charinfo_check(t_d2charinfo_file * data)
 
 extern int d2char_portrait_init(t_d2charinfo_portrait * portrait)
 {
-	int		i;
+	unsigned int		i;
 	unsigned char	* p;
 
 	p=(unsigned char *)portrait;
@@ -673,7 +673,7 @@ static int d2charsave_checksum(unsigned char const * data, unsigned int len,unsi
 extern int file_read(char const * filename, void * data, unsigned int * size)
 {
 	FILE		* fp;
-	int		n;
+	unsigned int	n;
 
 	ASSERT(filename,-1);
 	ASSERT(data,-1);

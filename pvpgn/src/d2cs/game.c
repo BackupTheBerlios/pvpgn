@@ -157,7 +157,7 @@ extern void gamelist_check_voidgame(void)
 {
 	t_game	* game;
 	time_t	now;
-	unsigned int timeout;
+	int timeout;
 
 	timeout=prefs_get_max_game_idletime();
 	if (!timeout) return;

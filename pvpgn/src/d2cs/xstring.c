@@ -260,7 +260,8 @@ extern char * * strtoargv(char const * str, unsigned int * count)
 {
 	unsigned int	n, index_size;
 	char		* temp;
-	int		i, j;
+	unsigned int	i;
+	int		j;
 	int		* pindex;
 	char		* result;
 	char		* realloc_tmp;
@@ -333,7 +334,8 @@ extern char * * strtoargv(char const * str, unsigned int * count)
 #define COMBINE_STRING_INCREASEMENT	1024
 extern char * arraytostr(char * * array, char const * delim, int count)
 {
-	int	i,n;
+	int	i;
+	unsigned int n;
 	char	* result;
 	char	* realloc_tmp;
 	int	need_delim;

@@ -126,6 +126,9 @@ static int on_bnetd_accountloginreply(t_connection * c, t_packet * packet)
 	int		result, reply;
 	char const	* account;
 
+	if (!packet || !c)
+	    return -1;
+
 	seqno=bn_int_get(packet->u.d2cs_bnetd.h.seqno);
 	if (!(sq=sqlist_find_sq(seqno))) {
 		log_error("seqno %d not found",seqno);
@@ -171,7 +174,10 @@ static int on_bnetd_charloginreply(t_connection * c, t_packet * packet)
 	t_packet	* opacket, * rpacket;
 	int		result, reply, type;
 	char const	* charname;
-
+	
+	if (!packet || !c)
+	    return -1;
+	
 	seqno=bn_int_get(packet->u.d2cs_bnetd.h.seqno);
 	if (!(sq=sqlist_find_sq(seqno))) {
 		log_error("seqno %d not found",seqno);

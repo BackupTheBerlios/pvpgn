@@ -172,6 +172,8 @@ static int on_d2gs_setgsinfo(t_connection * c, t_packet * packet)
 
 static int on_d2gs_echoreply(t_connection * c, t_packet * packet)
 {
+	if (!c || !packet)
+	    return 0;
 	return 0;
 }
 

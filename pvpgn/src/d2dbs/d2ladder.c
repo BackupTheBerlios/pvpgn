@@ -268,14 +268,14 @@ int d2ladder_update_info_and_pos(t_d2ladder * d2ladder, t_d2ladder_info * info, 
 
 	/* character not in ladder before */
 	outflag=0;
-	if (oldpos < 0 || oldpos >= d2ladder->len) {
+	if (oldpos < 0 || oldpos >= (signed)d2ladder->len) {
 		oldpos = d2ladder->len-1;
 	}
-	if (newpos < 0 || newpos >= d2ladder->len) {
+	if (newpos < 0 || newpos >= (signed)d2ladder->len) {
 		newpos = d2ladder->len-1;
 		outflag = 1;
 	}
-	if ((oldpos == d2ladder->len -1) && outflag) {
+	if ((oldpos == (signed)d2ladder->len -1) && outflag) {
 		return 0;
 	}
 	if (newpos > oldpos && !outflag ) newpos--;
@@ -405,7 +405,7 @@ int d2ladder_readladder(void)
 	unsigned int		laddertype;
 	unsigned int		tempmaxtype;
 	int 			readlen;
-	int			i, number;
+	unsigned int			i, number;
 
 	if (!d2ladder_ladder_file) return -1;
 	fdladder=open(d2ladder_ladder_file,O_RDONLY|O_BINARY);
@@ -652,7 +652,8 @@ int d2ladder_print(FILE *ladderstrm)
 {
 	t_d2ladder * d2ladder;
 	t_d2ladder_info * ldata;
-	int i,type,overalltype,classtype;
+	unsigned int i,type;
+	int overalltype,classtype;
 	char laddermode[4][20]={"Hardcore", "Standard","Expansion HC","Expansion" };
 	char charclass[11][12]={"OverAll", "Amazon", "Sorceress", "Necromancer", "Paladin",\
 	       			"Barbarian", "Druid", "Assassin", "","",""} ;
@@ -668,7 +669,7 @@ int d2ladder_print(FILE *ladderstrm)
 		overalltype=0;
 		classtype=0;
 
-		if(type >= D2LADDER_HC_OVERALL && type<= D2LADDER_HC_OVERALL+D2CHAR_CLASS_MAX +1) 
+		if(type<= D2LADDER_HC_OVERALL+D2CHAR_CLASS_MAX +1) 
 		{
 			overalltype=0 ;
 			classtype=type-D2LADDER_HC_OVERALL;
@@ -746,7 +747,7 @@ int d2ladder_checksum_set(void)
 		close(fdladder);
 		return -1;
 	}
-	if(filesize<sizeof(t_d2ladderfile_header)) {
+	if(filesize<(signed)sizeof(t_d2ladderfile_header)) {
 		log_error("ladder file size error :%s",d2ladder_ladder_file);
 		close(fdladder);
 		return -1;
@@ -800,7 +801,7 @@ int d2ladder_checksum_check(void)
 		close(fdladder);
 		return -1;
 	}
-	if(filesize<sizeof(t_d2ladderfile_header)) {
+	if(filesize<(signed)sizeof(t_d2ladderfile_header)) {
 		log_error("ladder file size error :%s",d2ladder_ladder_file);
 		close(fdladder);
 		return -1;

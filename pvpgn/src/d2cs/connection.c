@@ -535,8 +535,8 @@ extern int conn_add_socket_flag(t_connection * c, unsigned int flag)
 extern int conn_process_packet(t_connection * c, t_packet * packet, t_packet_handle_table * table,
 				unsigned int table_size)
 {
-        int     type;
-        int     size;
+        unsigned int     type;
+        unsigned int     size;
 
 	ASSERT(c,-1);
         ASSERT(packet,-1);

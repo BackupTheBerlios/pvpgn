@@ -357,15 +357,15 @@ static int dbs_handle_timed_events(void)
 	time_t			now;
 
 	now=time(NULL);
-	if (now-prev_ladder_save_time>prefs_get_laddersave_interval()) {
+	if (now-prev_ladder_save_time>(signed)prefs_get_laddersave_interval()) {
 		d2ladder_saveladder();
 		prev_ladder_save_time=now;
 	}
-	if (now-prev_keepalive_save_time>prefs_get_keepalive_interval()) {
+	if (now-prev_keepalive_save_time>(signed)prefs_get_keepalive_interval()) {
 		dbs_keepalive();
 		prev_keepalive_save_time=now;
 	}
-	if (now-prev_timeout_checktime>prefs_get_timeout_checkinterval()) {
+	if (now-prev_timeout_checktime>(signed)prefs_get_timeout_checkinterval()) {
 		dbs_check_timeout();
 		prev_timeout_checktime=now;
 	}

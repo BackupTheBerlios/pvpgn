@@ -53,7 +53,7 @@ extern int bnetd_init(void)
 
 extern int bnetd_check(void)
 {
-	static int	prev_connecting_checktime=0;
+	static unsigned int	prev_connecting_checktime=0;
 
 	if (bnetd_connection) {
 		if (conn_get_state(bnetd_connection)==conn_state_connecting) {

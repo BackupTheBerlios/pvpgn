@@ -106,7 +106,7 @@ extern int handle_signal(void)
 		} else {
 			signal_data.exit_time-=prefs_get_shutdown_decr();
 		}
-		if (now >= signal_data.exit_time) {
+		if (now >= (signed)signal_data.exit_time) {
 			log_info("shutdown server due to signal");
 			return -1;
 		}

@@ -230,7 +230,7 @@ static unsigned int dbs_packet_getdata_charsave(t_d2dbs_connection* conn,char * 
 		log_error("lseek() failed");
 		return 0;
 	}
-	if (bufsize < filesize) {
+	if ((signed)bufsize < filesize) {
 		close(fd);
 		log_error("not enough buffer");
 		return 0;
@@ -275,7 +275,7 @@ static unsigned int dbs_packet_getdata_charinfo(t_d2dbs_connection* conn,char * 
 		log_error("lseek() failed");
 		return 0;
 	}
-	if (bufsize < filesize) {
+	if ((signed)bufsize < filesize) {
 		close(fd);
 		log_error("not enough buffer");
 		return 0;
@@ -583,7 +583,7 @@ extern int dbs_packet_handle(t_d2dbs_connection* conn)
 	unsigned short		retval; 
 
 	if (conn->stats==0) {
-		if (conn->nCharsInReadBuffer<sizeof(t_d2gs_d2dbs_connect)) {
+		if (conn->nCharsInReadBuffer<(signed)sizeof(t_d2gs_d2dbs_connect)) {
 			return 0;
 		}
 		conn->stats=1;
@@ -606,7 +606,7 @@ extern int dbs_packet_handle(t_d2dbs_connection* conn)
 		memmove(conn->ReadBuf,conn->ReadBuf+readlen,conn->nCharsInReadBuffer);
 	} else if (conn->stats==1) {
 		if (conn->type==CONNECT_CLASS_D2GS_TO_D2DBS) {
-			while (conn->nCharsInReadBuffer >= sizeof(*readhead)) {
+			while (conn->nCharsInReadBuffer >= (signed)sizeof(*readhead)) {
 				readhead=(t_d2dbs_d2gs_header *)conn->ReadBuf;
 				readlen=bn_short_get(readhead->size);
 				if (conn->nCharsInReadBuffer < readlen) break;
@@ -693,7 +693,7 @@ int dbs_check_timeout(void)
 	t_elem				*elem;
 	t_d2dbs_connection		*tempc;
 	time_t				now;
-	unsigned int			timeout;
+	int				timeout;
 
 	now=time(NULL);
 	timeout=prefs_get_idletime();

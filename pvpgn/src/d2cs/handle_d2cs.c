@@ -431,7 +431,7 @@ static int on_client_gamelistreq(t_connection * c, t_packet * packet)
 	unsigned int	count;
 	unsigned int	seqno;
 	time_t		now;
-	unsigned int	maxlifetime;
+	int		maxlifetime;
 	t_elem const	* start_elem;
 	t_elem const	* elem;
 
@@ -701,6 +701,9 @@ static int on_client_motdreq(t_connection * c, t_packet * packet)
 {
 	t_packet	* rpacket;
 
+	if (!packet)
+	    return -1;
+	
 	if ((rpacket=packet_create(packet_class_d2cs))) {
 		packet_set_size(rpacket,sizeof(t_d2cs_client_motdreply));
 		packet_set_type(rpacket,D2CS_CLIENT_MOTDREPLY);
@@ -716,6 +719,9 @@ static int on_client_cancelcreategame(t_connection * c, t_packet * packet)
 {
 	t_gq	* gq;
 
+	if (!packet)
+	    return -1;
+	
 	if (!(gq=conn_get_gamequeue(c))) {
 		return 0;
 	}
@@ -776,6 +782,9 @@ static int on_client_charlistreq(t_connection * c, t_packet * packet)
 	t_d2charinfo_file       charinfo;
 	unsigned int		n, maxchar;
 
+	if (!packet)
+	    return -1;
+	
 	if (!(account=conn_get_account(c))) {
 		log_error("missing account for connection");
 		return -1;

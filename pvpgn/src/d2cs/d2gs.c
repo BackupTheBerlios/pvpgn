@@ -172,7 +172,7 @@ extern t_d2gs * d2gslist_find_gs(unsigned int id)
 extern t_d2gs * d2gs_create(char const * ipaddr)
 {
 	t_d2gs 	* gs;
-	int	ip;
+	unsigned int	ip;
 
 	ASSERT(ipaddr,NULL);
 	if ((ip=net_inet_addr(ipaddr))==~0UL) {

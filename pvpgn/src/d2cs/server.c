@@ -200,32 +200,32 @@ static int server_handle_timed_event(void)
 	time_t		now;
 
 	now=time(NULL);
-	if (now-prev_list_purgetime>prefs_get_list_purgeinterval()) {
+	if (now-prev_list_purgetime>(signed)prefs_get_list_purgeinterval()) {
 		server_purge_list();
 		gamelist_check_voidgame();
 		prev_list_purgetime=now;
 	}
-	if (now-prev_gamequeue_checktime>prefs_get_gamequeue_checkinterval()) {
+	if (now-prev_gamequeue_checktime>(signed)prefs_get_gamequeue_checkinterval()) {
 		gqlist_update_all_clients();
 		prev_gamequeue_checktime=now;
 	}
-	if (now-prev_s2s_checktime>prefs_get_s2s_retryinterval()) {
+	if (now-prev_s2s_checktime>(signed)prefs_get_s2s_retryinterval()) {
 		s2s_check();
 		prev_s2s_checktime=now;
 	}
-	if (now-prev_sq_checktime>prefs_get_sq_checkinterval()) {
+	if (now-prev_sq_checktime>(signed)prefs_get_sq_checkinterval()) {
 		sqlist_check_timeout();
 		prev_sq_checktime=now;
 	}
-	if (now-prev_d2ladder_refresh_time>prefs_get_d2ladder_refresh_interval()) {
+	if (now-prev_d2ladder_refresh_time>(signed)prefs_get_d2ladder_refresh_interval()) {
 		d2ladder_refresh();
 		prev_d2ladder_refresh_time=now;
 	}
-	if (now-prev_s2s_keepalive_time>prefs_get_s2s_keepalive_interval()) {
+	if (now-prev_s2s_keepalive_time>(signed)prefs_get_s2s_keepalive_interval()) {
 		d2gs_keepalive();
 		prev_s2s_keepalive_time=now;
 	}
-	if (now-prev_timeout_checktime>prefs_get_timeout_checkinterval()) {
+	if (now-prev_timeout_checktime>(signed)prefs_get_timeout_checkinterval()) {
 		connlist_check_timeout();
 		prev_timeout_checktime=now;
 	}
