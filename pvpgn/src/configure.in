@@ -169,8 +169,8 @@ AC_CHECK_LIB(nsl, gethostbyname, [LIBS="$LIBS -lnsl"])
 AC_CHECK_LIB(socket, socket, [LIBS="$LIBS -lsocket"])
 AC_CHECK_LIB(resolv, inet_aton, [LIBS="$LIBS -lresolv"])
 AC_CHECK_LIB(z, compress, [LIBS="$LIBS -lz"])
-AC_CHECK_LIB(cdb, cdb_init, [LIBS="$LIBS -lcdb" DEFINES="${DEFINES} -DWITH_CDB"])
 
+mysql_include_path=""
 dnl Detecting mysql paths
 if test "$ac_with_mysql" = "yes" ; then
 	echo -n "checking for mysql include path ... "
@@ -179,11 +179,13 @@ if test "$ac_with_mysql" = "yes" ; then
 	    if test -f "${i}/mysql.h" ; then
 		echo ${i}
 		CPPFLAGS="${CPPFLAGS} -I${i}"
+		mysql_include_path=${i}
 		break
 	    fi
 	done
 fi
 
+mysql_lib_path=""
 if test "$ac_with_mysql" = "yes" ; then
     AC_CHECK_LIB(mysqlclient, mysql_init , [DEFINES="${DEFINES} -DWITH_SQL -DWITH_SQL_MYSQL" ; LIBS="${LIBS} -lmysqlclient"], [
 	echo -n "checking for mysql lib path ... "
@@ -193,7 +195,7 @@ if test "$ac_with_mysql" = "yes" ; then
 		echo ${i}
 		save_ldflags="${LDFLAGS}"
 		LDFLAGS="${LDFLAGS} -L${i}"
-		AC_CHECK_LIB(mysqlclient, mysql_close , [DEFINES="${DEFINES} -DWITH_SQL -DWITH_SQL_MYSQL" ; LIBS="${LIBS} -lmysqlclient"], [LDFLAGS="${save_ldflags}"])
+		AC_CHECK_LIB(mysqlclient, mysql_close , [DEFINES="${DEFINES} -DWITH_SQL -DWITH_SQL_MYSQL" ; LIBS="${LIBS} -lmysqlclient" ; mysql_lib_path="${i}"], [LDFLAGS="${save_ldflags}"])
 		break
 	    fi
 	done
@@ -226,6 +228,12 @@ AC_FUNC_SETPGRP
 AC_FUNC_CLOSEDIR_VOID
 AC_FUNC_MKDIR_ARGS
 AC_CHECK_FUNCS(gethostname gettimeofday select socket strdup strtoul strerror inet_aton inet_ntoa uname recv send recvfrom sendto uname fork getpid sigaction sigprocmask sigaddset setpgid setpgrp ftime strcasecmp strncasecmp stricmp strnicmp chdir difftime strchr strrchr index rindex memcpy memset memmove bcopy wait waitpid pipe getenv ioctl setsid mktime poll gethostbyname getservbyname getlogin pow getpwnam getgrnam getuid getgid setuid setgid mkdir _mkdir strsep)
+
+dnl Enabling CDB support if chosen
+if test "$ac_with_cdb" = "yes" ; then
+    echo "enabling CDB support ... "
+    DEFINES="${DEFINES} -DWITH_CDB"
+fi
 
 if test X"${am_cv_prog_cc_stdc}" = X"no"; then
     COMPILEANSI1='${PREPROCESS} $< | sed '"'"'s/^# *\([0-9][0-9]*\)  *\([^ ]*[a-z][^ ]*\) *.*$$/#line \1 \2/'"'"' | ${SRC_ACDIR}/ansi2knr > ${SRC_SRCDIR}/.ansi2knr_tmp.c'

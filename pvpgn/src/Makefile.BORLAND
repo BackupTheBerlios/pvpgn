@@ -67,6 +67,7 @@ SRC_COMMONDIR   = ${SRC_SRCDIR}\common
 SRC_COMPATDIR   = ${SRC_SRCDIR}\compat
 SRC_DEBUGDIR    = ${SRC_SRCDIR}\debug
 SRC_WIN32DIR	= ${SRC_SRCDIR}\win32
+SRC_CDBDIR      = ${SRC_SRCDIR}\tinycdb
 
 MKDIR           = md
 
@@ -224,7 +225,17 @@ bnetd_OBJECTS       = \
     ${SRC_COMPATDIR}\gettimeofday.obj \
     ${SRC_COMPATDIR}\difftime.obj \
     ${SRC_COMPATDIR}\memset.obj \
-    ${SRC_COMPATDIR}\memcpy.obj
+    ${SRC_COMPATDIR}\memcpy.obj \
+    ${SRC_CDBDIR}\cdb_find.obj \
+    ${SRC_CDBDIR}\cdb_findnext.obj \
+    ${SRC_CDBDIR}\cdb_hash.obj \
+    ${SRC_CDBDIR}\cdb_init.obj \
+    ${SRC_CDBDIR}\cdb_make.obj \
+    ${SRC_CDBDIR}\cdb_make_add.obj \
+    ${SRC_CDBDIR}\cdb_make_find.obj \
+    ${SRC_CDBDIR}\cdb_make_put.obj \
+    ${SRC_CDBDIR}\cdb_seek.obj \
+    ${SRC_CDBDIR}\cdb_unpack.obj
 
 bnetg_SBIN          = ${SRC_SBINDIR}\bnetg.exe
 bnetg_OBJECTS       = ${bnetd_OBJECTS:.obj=.bnetg_obj}\
