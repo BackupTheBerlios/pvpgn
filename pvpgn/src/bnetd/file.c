@@ -77,7 +77,7 @@ static char * file_find_default(const char *rawname)
 
     for (pattern = defaultfiles, extension = defaultfiles + 1; *pattern; pattern+=2, extension+=2)
     	if (!strncmp(rawname, *pattern,strlen(*pattern))) {	/* Check if there is a default file available for this kind of file */
-	    filename = (char*)xmalloc(strlen(prefs_get_filedir()) + 1 + strlen(*pattern) + 7 + strlen(*extension));
+	    filename = (char*)xmalloc(strlen(prefs_get_filedir()) + 1 + strlen(*pattern) + 7 + strlen(*extension) + 1);
 
 	    strcpy(filename, prefs_get_filedir());
 	    strcat(filename, "/");
