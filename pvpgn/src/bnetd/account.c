@@ -925,6 +925,8 @@ static int _cb_read_accounts(t_storage_info *info, void *data)
     account_save(account,1000); /* big delta to force unload */
 
     (*count)++;
+
+    return 0;
 }
 
 extern int accountlist_reload(int all)
@@ -989,7 +991,7 @@ extern int accountlist_reload(int all)
 
   return 0;
 }
-  
+
 static int _cb_read_accounts2(t_storage_info *info, void *data)
 {
     unsigned int *count = (unsigned int *)data;
@@ -1014,6 +1016,8 @@ static int _cb_read_accounts2(t_storage_info *info, void *data)
     account_save(account,1000); /* big delta to force unload */
 	
     (*count)++;
+
+    return 0;
 }
 
 extern int accountlist_create(void)

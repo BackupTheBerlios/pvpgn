@@ -139,6 +139,8 @@ static int file_close(void)
 {
     if (accountsdir) free((void*)accountsdir);
     accountsdir = NULL;
+
+    return 0;
 }
 
 static t_storage_info * file_create_account(const char * username)
@@ -148,11 +150,6 @@ static t_storage_info * file_create_account(const char * username)
 
     if (accountsdir == NULL) {
 	eventlog(eventlog_level_error, __FUNCTION__, "file storage not initilized");
-	return NULL;
-    }
-
-    if ((info = malloc(sizeof(t_storage_info))) == NULL) {
-	eventlog(eventlog_level_error, __FUNCTION__, "not enough memory for storage info");
 	return NULL;
     }
 
@@ -402,7 +399,6 @@ static int file_read_accounts(t_read_accounts_func cb, void *data)
     char const * dentry;
     char *       pathname;
     t_pdir *     accountdir;
-    t_storage_info *info;
 
     if (accountsdir == NULL) {
 	eventlog(eventlog_level_error, __FUNCTION__, "file storage not initilized");
@@ -429,13 +425,7 @@ static int file_read_accounts(t_read_accounts_func cb, void *data)
 	 }
 	sprintf(pathname,"%s/%s", accountsdir, dentry);
 
-	if ((info = malloc(sizeof(t_storage_info))) == NULL) {
-	   eventlog(eventlog_level_error, __FUNCTION__, "could not allocate memory for storage path");
-	   continue;
-	}
-	info = pathname;
-
-	cb(info, data);
+	cb(pathname, data);
     }
 
     if (p_closedir(accountdir)<0)
