@@ -112,6 +112,7 @@
 #include "compat/netinet_in.h"
 #include "watch.h"
 
+
 static int compar(const void* a, const void* b);
 
 /* handlers prototypes */
@@ -176,7 +177,6 @@ static int _client_ladderreq(t_connection * c, t_packet const * const packet);
 static int _client_laddersearchreq(t_connection * c, t_packet const * const packet);
 static int _client_mapauthreq1(t_connection * c, t_packet const * const packet);
 static int _client_mapauthreq2(t_connection * c, t_packet const * const packet);
-
 
 /* connection state connected handler table */
 static const t_htable_row bnet_htable_con[] = {

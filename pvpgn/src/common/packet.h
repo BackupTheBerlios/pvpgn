@@ -391,7 +391,8 @@ typedef struct
 	t_server_w3route_ready			server_w3route_host;
 	t_client_w3route_gameresult		client_w3route_gameresult;
 
-	t_client_command			client_command;
+	t_client_findanongame_inforeq		client_findanongame_inforeq;
+	t_server_findanongame_inforeply		server_findanongame_inforeply;
 	} u;
 } t_packet;
 

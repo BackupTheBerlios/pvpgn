@@ -383,7 +383,7 @@ typedef struct
 typedef struct
 {
 	t_bnet_header h;
-	bn_byte      option;    /* 03 if cancel, 00 if search 04 for PROFILE - THEUNDYING UPDATE 5/24/02*/
+	bn_byte      option;    /* 03 if cancel, 00 if search 04 for PROFILE , 02 for info */
 	bn_int	     count;     //Goes up each time client clicks search -01 00 00 00 
 	bn_int       unknown1;  // 15 00 00 00
 	bn_byte      unknown2;  // 00
@@ -393,6 +393,68 @@ typedef struct
 	bn_int       id;        // random
 	bn_int	     race;      // see defines
 } t_client_findanongame PACKED_ATTR();
+
+/*
+0000:   FF 34 4A 00 02 01 00 00   00 08 4C 52 55 00 00 00    .4J.......LRU...
+0010:   00 00 50 41 4D 00 00 00   00 00 45 50 59 54 00 00    ..PAM.....EPYT..
+0020:   00 00 43 53 45 44 00 00   00 00 52 44 41 4C 00 00    ..CSED....RDAL..
+0030:   00 00 4F 4C 4F 53 52 94   AB CB 4D 41 45 54 52 94    ..OLOSR...MAETR.
+0040:   AB CB 20 41 46 46 00 00   00 00                      .. AFF....      
+*/
+#define CLIENT_FINDANONGAME_INFOREQ		0x44ff
+typedef struct {
+    t_bnet_header	h;
+    bn_byte		option;		/* type of request: 
+					 * 0x02 for matchmaking infos */
+    bn_int		count;		/* 0x00000001 increments each request of same type */
+    bn_byte		noitems;
+/*
+    bn_byte		url[4];		
+    bn_int		unknown2;	
+
+    bn_byte		map[4];		
+    bn_int		unknown3; 	
+
+    bn_byte		type[4];	
+    bn_int		unknown4; 	
+
+    bn_byte		desc[4];	
+    bn_int		unknown5;	
+
+    bn_byte		ladr[4];	
+    bn_int		unknown6;	
+
+    bn_byte		solo[4];	
+    bn_int		unknown7;	
+    
+    bn_byte		team[4];	
+    bn_int		unknown8;	
+    
+    bn_byte		ffa[4];		
+    bn_int		unknown9;	
+*/
+} t_client_findanongame_inforeq PACKED_ATTR();
+
+/*
+0000:   FF 34 67 04 02                                       .4g..           
+*/
+#define SERVER_FINDANONGAME_INFOREPLY		0x44ff
+typedef struct {
+    t_bnet_header	h;
+    bn_byte		option; /* as received from client */
+    bn_int		count; /* as received from client */
+    bn_byte		noitems; /* not very sure about it */
+    /* data */
+/*
+for type 0x02 :
+    <type of info><unknown int><info>
+    if <type of info> is :
+	URL\0 : <info> contains 3 NULL terminated urls/strings
+	MAP\0 : <info> contains 7 (seen so far) maps names
+	TYPE  : <info> unknown 38 bytes probably meaning anongame types
+	DESC  : <info> 
+*/
+} t_server_findanongame_inforeply PACKED_ATTR();
 
 typedef struct
 {
@@ -427,8 +489,9 @@ typedef struct
 
 //client Sends race/type info :
 //FF 44-18 00 00 03 00 00 00 00 00 0F 00 00 00 08 A6 DD-34 02 20 00 00 00 
-#define CLIENT_FINDANONGAME_CANCEL		0x03
 #define CLIENT_FINDANONGAME_SEARCH		0x00
+#define CLIENT_FINDANONGAME_INFOS		0x02
+#define CLIENT_FINDANONGAME_CANCEL		0x03
 #define CLIENT_FINDANONGAME_PROFILE		0x04 // 5/24/02 THEUNDYING
 #define CLIENT_FINDANONGAME_AT_SEARCH		0x05	// [zap-zero] 20020820
 #define CLIENT_FINDANONGAME_AT_INVITER_SEARCH	0x06	// [zap-zero] 20020820
@@ -445,6 +508,8 @@ typedef struct
 /* AT 2v2, 3v3 and 4v4 are remapped, not originally 5, 7 and 8! */
 
 #define ANONGAME_TYPES 9
+
+#define SERVER_FINDANONGAME 0x44ff
 
 // 5/24/02 - THEUNDYING - NEW ANONGAME PROFILE SERVER PACKET
 #define SERVER_FINDANONGAME_PROFILE 0x44ff
@@ -4303,11 +4368,5 @@ typedef struct
     /* account name */
 } t_server_realmjoinreply_109 PACKED_ATTR();
 /******************************************************/
-
-#define CLIENT_COMMAND		0x03ff
-typedef struct {
-    t_bnet_header	h;
-    /* command string */
-} t_client_command PACKED_ATTR();
 
 #endif

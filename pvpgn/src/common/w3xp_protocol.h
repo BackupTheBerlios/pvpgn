@@ -405,23 +405,6 @@ typedef struct
     /* field values ... */
 } t_server_w3xp_statsreply PACKED_ATTR();
 
-/*
-0000:   FF 34 15 00 04 01 00 00   00 42 69 5A 61 52 52 65    .4.......BiZaRRe
-0010:   00 50 58 33 57                                       .PX3W           
-*/
-#define CLIENT_W3XP_PROFILEREQ	0x34ff
-typedef struct   
-{   
-    t_bnet_header h;   
-    bn_byte     option;    
-    bn_int          count;
-    // USERNAME TO LOOKUP //
-    // CLIENT TAG //
-} t_client_wa3xp_profilereq PACKED_ATTR();
-
-
-/*
-*/
 typedef struct
 {
     t_bnet_header h; //header
@@ -498,5 +481,25 @@ typedef struct
 //#define CLIENT_W3XP_CLOSEGAME		0x67FF
 
 #define CLIENT_W3XP_MESSAGE		0x0aff
+
+#define SERVER_W3XP_FRIENDADD_ACK	0x0bff
+
+#define CLIENT_W3XP_FRIENDSLIST_REQ	0x33ff
+
+#define SERVER_W3XP_FRIENDSLIST_REPLY	0x33ff
+
+#define	SERVER_W3XP_FRIENDDEL_ACK	0x3fff
+
+#define	CLIENT_W3XP_FRIENDINFO_REQ	0x20ff
+
+#define	SERVER_W3XP_FRIENDINFO_REPLY	0x20ff
+
+#define CLIENT_W3XP_ANONGAME_REQ	0x34ff
+
+#define SERVER_W3XP_ANONGAME_REPLY	0x34ff
+
+#define CLIENT_W3XP_ADREQ		0x42ff
+
+#define SERVER_W3XP_ADREPLY		0x42ff
 
 #endif
