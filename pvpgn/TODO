@@ -37,14 +37,6 @@ wanted to do)
 * according to forum post, sometimes the teamcount gets reduced too much 
 (set to -1) only i W3XP, when the team is disbanded before the first play 
 
-* make a "gametrans" like file for realms.list too so internal clients
-can get a internal IP for the d2cs server
-
-* get BITS working (even considering on starting from JEBs version
-which he claims to fully work BITS and add war3 to it)
-
-* make a separate daemon w3route server
-
 * design a plugins support and move in time all the code in plugins (except
 the core code of course)
 
