@@ -203,7 +203,7 @@ extern int news_load(const char *filename)
 	      else
 	      {
 		eventlog(eventlog_level_error,__FUNCTION__,"news too long - skipping");
-		if (ni) free(ni);
+		free((void*)ni);
 	      }
 	    }
 	}
