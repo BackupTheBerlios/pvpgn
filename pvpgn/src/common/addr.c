@@ -194,18 +194,8 @@ extern t_addr * addr_create_num(unsigned int ipaddr, unsigned short port)
 {
     t_addr * temp;
     
-    if (!(temp = xmalloc(sizeof(t_addr))))
-    {
-	eventlog(eventlog_level_error,"addr_create_num","unable to allocate memory for addr");
-	return NULL;
-    }
-    
-    if (!(temp->str = xstrdup(addr_num_to_addr_str(ipaddr,port))))
-    {
-	eventlog(eventlog_level_error,"addr_create_num","could not allocate memory for str");
-	xfree(temp);
-	return NULL;
-    }
+    temp = xmalloc(sizeof(t_addr));
+    temp->str = xstrdup(addr_num_to_addr_str(ipaddr,port));
     temp->str    = NULL;
     temp->ip     = ipaddr;
     temp->port   = port;
@@ -231,12 +221,8 @@ extern t_addr * addr_create_str(char const * str, unsigned int defipaddr, unsign
 	return NULL;
     }
     
-    if (!(tstr = xstrdup(str)))
-    {
-	eventlog(eventlog_level_error,"addr_create_str","could not allocate memory for str");
-	return NULL;
-    }
-    
+    tstr = xstrdup(str);
+
     if ((portstr = strrchr(tstr,':')))
     {
 	char * protstr;
@@ -292,22 +278,10 @@ extern t_addr * addr_create_str(char const * str, unsigned int defipaddr, unsign
 	return NULL;
     }
     
-    if (!(temp = xmalloc(sizeof(t_addr))))
-    {
-	eventlog(eventlog_level_error,"addr_create_str","unable to allocate memory for addr");
-	xfree(tstr);
-	return NULL;
-    }
-    
-    if (!(temp->str = xstrdup(hostname)))
-    {
-	eventlog(eventlog_level_error,"addr_create_str","could not allocate memory for str");
-	xfree(temp);
-	xfree(tstr);
-	return NULL;
-    }
+    temp = xmalloc(sizeof(t_addr));
+    temp->str = xstrdup(hostname);
     xfree(tstr);
-    
+
     temp->ip     = ipaddr;
     temp->port   = port;
     temp->data.p = NULL;
@@ -457,11 +431,7 @@ extern t_netaddr * netaddr_create_str(char const * netstr)
 	return NULL;
     }
     
-    if (!(temp = xstrdup(netstr)))
-    {
-	eventlog(eventlog_level_error,"netaddr_create_str","could not allocate memory for temp");
-	return NULL;
-    }
+    temp = xstrdup(netstr);
     if (!(netipstr = strtok(temp,"/")))
     {
 	xfree(temp);
@@ -473,13 +443,8 @@ extern t_netaddr * netaddr_create_str(char const * netstr)
 	return NULL;
     }
     
-    if (!(netaddr = xmalloc(sizeof(t_netaddr))))
-    {
-	eventlog(eventlog_level_error,"netaddr_create_str","could not allocate memory for netaddr");
-	xfree(temp);
-	return NULL;
-    }
-    
+    netaddr = xmalloc(sizeof(t_netaddr));
+
     /* FIXME: call getnetbyname() first, then host_lookup() */
     if (!host_lookup(netipstr,&netip))
     {
@@ -593,12 +558,7 @@ extern int addrlist_append(t_addrlist * addrlist, char const * str, unsigned int
 	return -1;
     }
         
-    if (!(tstr = xstrdup(str)))
-    {
-	eventlog(eventlog_level_error,"addrlist_append","could not allocate memory for tstr");
-	return -1;
-    }
-    
+    tstr = xstrdup(str);
     for (tok=strtok(tstr,","); tok; tok=strtok(NULL,",")) /* strtok modifies the string it is passed */
     {
 	if (!(addr = addr_create_str(tok,defipaddr,defport)))

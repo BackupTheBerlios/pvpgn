@@ -70,14 +70,11 @@ extern int strstart(char const * full, char const * part)
 extern char * file_get_line(FILE * fp)
 {
     char *       line;
-    char *       newline;
     unsigned int len=DEF_LEN;
     unsigned int pos=0;
     int          prev_char,curr_char;
     
-    if (!(line = xmalloc(DEF_LEN)))
-	return NULL;
-    
+    line = xmalloc(DEF_LEN);
     prev_char = '\0';
     while ((curr_char = fgetc(fp))!=EOF)
     {
@@ -97,12 +94,7 @@ extern char * file_get_line(FILE * fp)
 	if ((pos+1)>=len)
 	{
 	    len += INC_LEN;
-	    if (!(newline = xrealloc(line,len)))
-	    {
-		xfree(line);
-		return NULL;
-	    }
-	    line = newline;
+	    line = xrealloc(line,len);
 	}
     }
     
@@ -111,11 +103,10 @@ extern char * file_get_line(FILE * fp)
 	xfree(line);
 	return NULL;
     }
-    
+
     if (pos+1<len)
-	if ((newline = xrealloc(line,pos+1))) /* bump the size back down to what we need */
-	    line = newline; /* if it fails just ignore it */
-    
+	line = xrealloc(line,pos+1); /* bump the size back down to what we need */
+
     line[pos] = '\0';
     
     return line;
@@ -410,9 +401,8 @@ extern char * escape_fs_chars(char const * in, unsigned int len)
     
     if (!in)
 	return NULL;
-    if (!(out = xmalloc(len*3+1))) /* if all turn into %XX */
-	return NULL;
-    
+    out = xmalloc(len*3+1); /* if all turn into %XX */
+
     for (inpos=0,outpos=0; inpos<len; inpos++)
     {
 	if (in[inpos]=='\0' || in[inpos]=='%' || in[inpos]=='/' ||
@@ -441,9 +431,8 @@ extern char * escape_chars(char const * in, unsigned int len)
     
     if (!in)
 	return NULL;
-    if (!(out = xmalloc(len*4+1))) /* if all turn into \xxx */
-	return NULL;
-    
+    out = xmalloc(len*4+1); /* if all turn into \xxx */
+
     for (inpos=0,outpos=0; inpos<len; inpos++)
     {
 	if (in[inpos]=='\\')
@@ -516,9 +505,8 @@ extern char * unescape_chars(char const * in)
     
     if (!in)
 	return NULL;
-    if (!(out = xmalloc(strlen(in)+1)))
-	return NULL;
-    
+    out = xmalloc(strlen(in)+1);
+
     for (inpos=0,outpos=0; inpos<strlen(in); inpos++)
     {
         if (in[inpos]!='\\')
@@ -650,7 +638,6 @@ extern char * buildpath(char const *root, const char *suffix)
     char *result;
 
     result = (char*) xmalloc(strlen(root) + 1 + strlen(suffix) + 1);
-    if (!result) return NULL;
 
     strcpy(result,root); strcat(result,"/"); strcat(result,suffix);
     return result;

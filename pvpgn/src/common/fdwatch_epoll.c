@@ -73,11 +73,6 @@ static int fdw_epoll_init(int nfds)
     if ((epfd = epoll_create(nfds)) < 0)
 	return -1;
     epevents = (struct epoll_event *) xmalloc(sizeof(struct epoll_event) * nfds);
-    if (epevents == NULL)
-    {
-	fdw_epoll_close();
-	return -1;
-    }
 
     memset(epevents, 0, sizeof(struct epoll_event) * nfds);
     sr = 0;

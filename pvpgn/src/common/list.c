@@ -44,12 +44,7 @@ extern t_list * list_create(void)
 {
     t_list * new;
     
-    if (!(new = xmalloc(sizeof(t_list))))
-    {
-	eventlog(eventlog_level_error,"list_create","could not allocate memory for new");
-	return NULL;
-    }
-    
+    new = xmalloc(sizeof(t_list));
     new->head = NULL;
     new->tail = NULL;
     new->len = 0;
@@ -147,14 +142,10 @@ extern int list_prepend_data(t_list * list, void * data)
 	eventlog(eventlog_level_error,"list_prepend_data","got NULL list");
 	return -1;
     }
-    
-    if (!(elem = xmalloc(sizeof(t_elem))))
-    {
-	eventlog(eventlog_level_error,"list_prepend_data","could not allocate memory for elem");
-	return -1;
-    }
+
+    elem = xmalloc(sizeof(t_elem));
     elem->data = data;
-    
+
     if (list->head)
        list->head->prev = elem;
     elem->next = list->head;
@@ -177,14 +168,10 @@ extern int list_append_data(t_list * list, void * data)
 	eventlog(eventlog_level_error,"list_append_data","got NULL list");
 	return -1;
     }
-    
-    if (!(elem = xmalloc(sizeof(t_elem))))
-    {
-	eventlog(eventlog_level_error,"list_append_data","could not allocate memory for elem");
-	return -1;
-    }
+
+    elem = xmalloc(sizeof(t_elem));
     elem->data = data;
-    
+
     elem->next = NULL;
     if (!list->head)
     	{

@@ -1,5 +1,4 @@
 /*
-
  * Copyright (C) 1998,1999,2000  Ross Combs (rocombs@cs.nmsu.edu)
  * Copyright (C) 1999,2000,2001  Marco Ziech (mmz@gmx.net)
  *
@@ -70,13 +69,8 @@ extern t_packet * packet_create(t_packet_class class)
 	eventlog(eventlog_level_error,"packet_create","invalid packet class %d",(int)class);
         return NULL;
     }
-    
-    if (!(temp = xmalloc(sizeof(t_packet))))
-    {
-	eventlog(eventlog_level_error,"packet_create","unable to allocate memory for temp");
-	return NULL;
-    }
-    
+
+    temp = xmalloc(sizeof(t_packet));
     temp->ref   = 1;
     temp->class = class;
     temp->flags = 0;

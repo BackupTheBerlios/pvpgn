@@ -76,10 +76,6 @@ static int fdw_poll_init(int nfds)
 
     fdw_ridx = xmalloc(sizeof(int) * nfds);
     fds = xmalloc(sizeof(struct pollfd) * nfds);
-    if (fdw_ridx == NULL || fds == NULL) {
-	fdw_poll_close();
-	return -1;
-    }
 
     memset(fds, 0, sizeof(struct pollfd) * nfds);
 /* I would use a memset with 255 but that is dirty and doesnt gain us anything */

@@ -84,11 +84,6 @@ static int fdw_kqueue_init(int nfds)
     kqchanges = (struct kevent *) xmalloc(sizeof(struct kevent) * nfds * 2);
     fdw_rridx = (int *) xmalloc(sizeof(int) * nfds);
     fdw_wridx = (int *) xmalloc(sizeof(int) * nfds);
-    if (fdw_rridx == NULL || fdw_wridx == NULL || kqevents == NULL || kqchanges == NULL)
-    {
-	fdw_kqueue_close();
-	return -1;
-    }
 
     memset(kqchanges, 0, sizeof(struct kevent) * nfds);
     for (i = 0; i < nfds; i++)

@@ -146,11 +146,7 @@ extern int trans_load(char const * filename, int program)
 	    continue;
 	}
 	/* add exlude networks */
-	if (!(tmp = xstrdup(exclude))) {
-	    eventlog(eventlog_level_error,__FUNCTION__,"could not allocate memory for temp");
-	    xfree(buff);
-	    continue;
-	}
+	tmp = xstrdup(exclude);
 	npos=0;
 	while (tmp[npos]) {
 	    network = &tmp[npos];
@@ -163,11 +159,7 @@ extern int trans_load(char const * filename, int program)
 		npos++;
 		continue;
 	    }
-	    if (!(entry = xmalloc(sizeof(t_trans)))) {
-		eventlog(eventlog_level_error,__FUNCTION__,"could not allocate memory for entry");
-		npos++;
-		continue;
-	    }
+	    entry = xmalloc(sizeof(t_trans));
 	    if (!(entry->input = addr_create_str(input,0,0))) {
 		eventlog(eventlog_level_error,__FUNCTION__,"could not allocate memory for input address");
 		xfree(entry);
@@ -218,11 +210,7 @@ extern int trans_load(char const * filename, int program)
 	}
 	xfree(tmp);
 	/* add include networks */
-	if (!(tmp = xstrdup(include))) {
-	    eventlog(eventlog_level_error,__FUNCTION__,"could not allocate memory for temp");
-	    xfree(buff);
-	    continue;
-	}
+	tmp = xstrdup(include);
 	npos=0;
 	while (tmp[npos]) {
 	    network = &tmp[npos];
@@ -235,11 +223,7 @@ extern int trans_load(char const * filename, int program)
 		npos++;
 		continue;
 	    }
-	    if (!(entry = xmalloc(sizeof(t_trans)))) {
-	        eventlog(eventlog_level_error,__FUNCTION__,"could not allocate memory for entry");
-		npos++;
-	        continue;
-	    }
+	    entry = xmalloc(sizeof(t_trans));
 	    if (!(entry->input = addr_create_str(input,0,0))) {
 		eventlog(eventlog_level_error,__FUNCTION__,"could not allocate memory for input address");
 		xfree(entry);

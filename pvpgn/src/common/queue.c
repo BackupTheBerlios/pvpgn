@@ -130,11 +130,7 @@ extern void queue_push_packet(t_queue * * queue, t_packet * packet)
     if (!temp)
     {
 //	eventlog(eventlog_level_debug, __FUNCTION__, "queue is NULL , initilizing");
-        if (!(temp = xmalloc(sizeof(t_queue))))
-        {
-	    eventlog(eventlog_level_error,"queue_push_packet","could not allocate memory for head of queue");
-            return;
-        }
+        temp = xmalloc(sizeof(t_queue));
 	temp->alen = temp->ulen = 0;
 	temp->ring = NULL;
 	temp->head = temp->tail = 0;
@@ -147,11 +143,7 @@ extern void queue_push_packet(t_queue * * queue, t_packet * packet)
 	    eventlog(eventlog_level_error, __FUNCTION__, "queue is full (resizing) (oldsize: %u)", temp->alen);
 */
 
-	if (!(ptr = xrealloc(temp->ring, sizeof(t_packet *) * (temp->alen + QUEUE_QUANTUM)))) {
-	    eventlog(eventlog_level_error, __FUNCTION__, "not enough memory for ring buffer");
-	    return ;
-	}
-
+	ptr = xrealloc(temp->ring, sizeof(t_packet *) * (temp->alen + QUEUE_QUANTUM));
 	temp->ring = (t_packet **)ptr;
 	temp->alen += QUEUE_QUANTUM;
 

@@ -94,12 +94,6 @@ static int fdw_select_init(int nfds)
     twfds = xmalloc(sizeof(t_psock_fd_set));
     fds = xmalloc(sizeof(int) * nfds);
     fdw_ridx = xmalloc(sizeof(int) * nfds);
-    if (rfds == NULL || wfds == NULL || trfds == NULL || twfds == NULL ||
-	fds == NULL || fdw_ridx == NULL)
-    {
-	fdw_select_close();
-	return -1;
-    }
 
     PSOCK_FD_ZERO(trfds); PSOCK_FD_ZERO(twfds);
     smaxfd = nofds = sr = 0;

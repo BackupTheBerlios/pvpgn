@@ -67,12 +67,6 @@ extern int fdwatch_init(void)
     fdw_data = xmalloc(sizeof(void *) * fdw_maxfd);
     fdw_hnd = xmalloc(sizeof(fdwatch_handler) * fdw_maxfd);
 
-    if (fdw_rw == NULL || fdw_data == NULL || fdw_hnd == NULL) {
-	eventlog(eventlog_level_error, __FUNCTION__, "not enough memory to allocate fdwatch data");
-	fdwatch_close();
-	return -1;
-    }
-
     /* initilize the arrays (poisoning) */
     memset(fdw_rw, 0, sizeof(int) * fdw_maxfd);
     memset(fdw_data, 0, sizeof(void*) * fdw_maxfd);
