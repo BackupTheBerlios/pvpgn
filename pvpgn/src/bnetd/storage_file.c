@@ -81,6 +81,7 @@
 #define TEAM_INTERNAL_ACCESS
 #define ACCOUNT_INTERNAL_ACCESS
 #include "common/introtate.h"
+#include "team.h"
 #include "account.h"
 #include "common/hashtable.h"
 #include "storage.h"
@@ -91,7 +92,6 @@
 #include "connection.h"
 #include "watch.h"
 #include "clan.h"
-#include "team.h"
 #undef ACCOUNT_INTERNAL_ACCESS
 #undef TEAM_INTERNAL_ACCESS
 #undef CLAN_INTERNAL_ACCESS
@@ -838,6 +838,7 @@ static int file_load_teams(t_load_teams_func cb)
 		}
 
 	   }
+	   team->members[i] = NULL;
 	}
 
 	xfree((void *)line);

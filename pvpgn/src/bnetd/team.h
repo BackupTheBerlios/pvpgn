@@ -20,6 +20,13 @@
 #define INCLUDED_TEAM_TYPES
 
 # include "common/list.h"
+#ifndef JUST_NEED_TYPES
+# define JUST_NEED_TYPES
+# include "account.h"
+# undef JUST_NEED_TYPES
+#else
+# include "account.h"
+#endif
 
 #define MAX_TEAMSIZE 4
 
@@ -34,6 +41,7 @@ typedef struct team
 	int		rank;
 	unsigned int	teamid;
 	unsigned int	teammembers[MAX_TEAMSIZE];
+	t_account *     members[MAX_TEAMSIZE];
 }
 #endif
 t_team;

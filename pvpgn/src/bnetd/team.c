@@ -62,8 +62,8 @@
 #include "common/xalloc.h"
 #include "common/list.h"
 #include "storage.h"
-#include "account.h"
 #include "team.h"
+#include "account.h"
 #include "common/setup_after.h"
 
 static t_list *teamlist_head = NULL;
@@ -88,7 +88,6 @@ static int _cb_load_teams(void *team)
 
 int teamlist_add_team(t_team * team)
 {
-    t_account * account[MAX_TEAMSIZE];
     int i;
     
     if (!(team))
@@ -99,7 +98,7 @@ int teamlist_add_team(t_team * team)
 
     for (i=0; i<team->size; i++)
     {
-	if (!(account[i] = accountlist_find_account_by_uid(team->teammembers[i])))
+	if (!(team->members[i] = accountlist_find_account_by_uid(team->teammembers[i])))
 	{
 	    eventlog(eventlog_level_error,__FUNCTION__,"at least one non-existant member in team %u - discarding team",team->teamid);
 	    //FIXME: delete team file now???
@@ -108,7 +107,7 @@ int teamlist_add_team(t_team * team)
     }
     
     for (i=0; i<team->size; i++)
-      account_add_team(account[i],team);
+      account_add_team(team->members[i],team);
     
     if (!(team->teamid))
 	team->teamid = ++max_teamid;

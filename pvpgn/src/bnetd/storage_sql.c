@@ -60,9 +60,12 @@
 
 #define CLAN_INTERNAL_ACCESS
 #define ACCOUNT_INTERNAL_ACCESS
+#define TEAM_INTERNAL_ACCESS
+#include "team.h"
 #include "account.h"
 #include "connection.h"
 #include "clan.h"
+#undef TEAM_INTERNAL_ACCESS
 #undef ACCOUNT_INTERNAL_ACCESS
 #undef CLAN_INTERNAL_ACCESS
 #include "common/tag.h"
