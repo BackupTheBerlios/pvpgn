@@ -509,7 +509,7 @@
 			Name="Header Files"
 			Filter="h;hpp;hxx;hm;inl;inc">
 			<File
-				RelativePath="win32/resource.h">
+				RelativePath="..\win32\resource.h">
 			</File>
 			<Filter
 				Name="bnetd"
