@@ -41,6 +41,7 @@
 #include "prefs.h"
 #include "common/eventlog.h"
 #include "compat/strcasecmp.h"
+#include "compat/strncasecmp.h"
 #include "compat/strdup.h"
 #include "common/xalloc.h"
 #include "common/elist.h"
