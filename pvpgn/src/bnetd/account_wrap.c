@@ -3281,7 +3281,7 @@ extern unsigned int account_icon_to_profile_icon(char const * icon,t_account * a
 	int number_ctag=0;
 
 	if (icon==NULL) return account_get_icon_profile(account,ctag);
-	if (strlen(icon)>=4){
+	if (sizeof(icon)>=4){
 		strncpy(tmp_icon,icon,4);
 		tmp_icon[0]=tmp_icon[0]-48;
 		if (strcmp(ctag,CLIENTTAG_WAR3XP) == 0) {

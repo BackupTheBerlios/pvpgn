@@ -432,7 +432,7 @@ static int _client_anongame_get_icon(t_connection * c, t_packet const * const pa
     {
 	struct
 	{
-	    char	 icon_code[5];
+	    char	 icon_code[4];
 	    unsigned int portrait_code;
 	    char	 race;
 	    bn_short	 required_wins;
@@ -500,7 +500,6 @@ static int _client_anongame_get_icon(t_connection * c, t_packet const * const pa
 	        tempicon.icon_code[1] = race_char[i];
 	        tempicon.icon_code[2] = '3';
 	        tempicon.icon_code[3] = 'W';
-		tempicon.icon_code[4] = '\0';
 	        tempicon.portrait_code = (account_icon_to_profile_icon(tempicon.icon_code,acc,clienttag));
 	        if (i<=4){
 	    	    //Building the icon for the races
