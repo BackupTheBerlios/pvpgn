@@ -1,5 +1,16 @@
 PvPGN Version History:
 
+1.5.0beta3:
+-- added support to autoupdate for multiple game languages as seen in 
+Warcraft III RoC and Frozen Throne
+-- restructured autoupdate file to select correct mpq file base on version tag
+and removed all references to version numbers
+-- reorganized versioncheck file with latest versions first for faster
+client matching
+-- fixed some memory leaks in mysql mode
+-- added chathelp-war3-frFR.txt, newaccount-frFR.txt, termsofservice-frFR.txt
+for our French players
+
 1.5.0beta2:
 -- fixed PlayGame for ROC 1.07/1.10 (pure ROC or ROC mode from FT installation),
 note that this BRAKES PlayGame for ROC < 1.07 (ie. 1.06, 1.05 et...)
