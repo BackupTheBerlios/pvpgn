@@ -232,7 +232,7 @@ extern int ipbanlist_save(char const * filename)
 	if (entry->endtime == 0)
 	    sprintf(line,"%s\n",ipstr);
 	else    
-	    sprintf(line,"%s %u\n",ipstr,entry->endtime);
+	    sprintf(line,"%s %ld\n",ipstr,entry->endtime);
 	if (fwrite(line,strlen(line),1,fp)<0)
 	    eventlog(eventlog_level_error,"ipbanlist_save","could not write to banlist file (write: %s)",strerror(errno));
 	free(ipstr);
