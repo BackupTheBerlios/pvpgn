@@ -191,7 +191,7 @@ extern int ladder_update(t_clienttag clienttag, t_ladder_id id, unsigned int cou
     unsigned int draws=0;
 	int uid;
     
-    if (count<2 || count>8)
+    if (count<1 || count>8)
     {
 	eventlog(eventlog_level_error,__FUNCTION__,"got invalid player count %u",count);
 	return -1;
