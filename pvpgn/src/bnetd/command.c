@@ -3398,6 +3398,8 @@ static int _handle_kill_command(t_connection * c, char const *text)
     message_send_text(user,message_type_info,user,"Connection closed by admin.");
   conn_set_state(user,conn_state_destroy);
 
+  message_send_text(c,message_type_info,c,"Operation successful.");
+
   return 0;
 }
 
