@@ -115,6 +115,8 @@ static void do_whisper(t_connection * user_c, char const * dest, char const * te
 static void do_whois(t_connection * c, char const * dest);
 static void user_timer_cb(t_connection * c, time_t now, t_timer_data str);
 
+char msgtemp[MAX_MESSAGE_LEN];
+
 static char const * bnclass_get_str(unsigned int class)
 {
     switch (class)
@@ -134,7 +136,6 @@ static char const * bnclass_get_str(unsigned int class)
 static void do_whisper(t_connection * user_c, char const * dest, char const * text)
 {
     t_connection * dest_c;
-    char           temp[MAX_MESSAGE_LEN];
     char const *   tname;
     
     if (!(dest_c = connlist_find_connection_by_name(dest,conn_get_realmname(user_c))))
@@ -151,9 +152,9 @@ static void do_whisper(t_connection * user_c, char const * dest, char const * te
     
     if (conn_get_dndstr(dest_c))
     {
-        sprintf(temp,"%.64s is unavailable (%.128s)",(tname = conn_get_username(dest_c)),conn_get_dndstr(dest_c));
+        sprintf(msgtemp,"%.64s is unavailable (%.128s)",(tname = conn_get_username(dest_c)),conn_get_dndstr(dest_c));
 	conn_unget_username(dest_c,tname);
-        message_send_text(user_c,message_type_info,user_c,temp);
+        message_send_text(user_c,message_type_info,user_c,msgtemp);
         return;
     }
     
@@ -161,9 +162,9 @@ static void do_whisper(t_connection * user_c, char const * dest, char const * te
     
     if (conn_get_awaystr(dest_c))
     {
-        sprintf(temp,"%.64s is away (%.128s)",(tname = conn_get_username(dest_c)),conn_get_awaystr(dest_c));
+        sprintf(msgtemp,"%.64s is away (%.128s)",(tname = conn_get_username(dest_c)),conn_get_awaystr(dest_c));
 	conn_unget_username(dest_c,tname);
-        message_send_text(user_c,message_type_info,user_c,temp);
+        message_send_text(user_c,message_type_info,user_c,msgtemp);
     }
     
     message_send_text(dest_c,message_type_whisper,user_c,text);
@@ -186,7 +187,6 @@ static void do_whois(t_connection * c, char const * dest)
 {
     t_connection *    dest_c;
     char              namepart[136]; /* 64 + " (" + 64 + ")" + NUL */
-    char              temp[MAX_MESSAGE_LEN];
     char const *      verb;
     t_game const *    game;
     t_channel const * channel;
@@ -208,11 +208,11 @@ static void do_whois(t_connection * c, char const * dest)
 	    btlogin = bnettime_add_tzbias(btlogin, conn_get_tzbias(c));
 	    ulogin = bnettime_to_time(btlogin);
 	    if (!(tmlogin = gmtime(&ulogin)))
-		strcpy(temp, "User was last seen on ?");
+		strcpy(msgtemp, "User was last seen on ?");
 	    else
-		strftime(temp, sizeof(temp), "User was last seen on : %a %b %d %H:%M:%S",tmlogin);
-	} else strcpy(temp, "User is offline");
-	message_send_text(c, message_type_info, c, temp);
+		strftime(msgtemp, sizeof(msgtemp), "User was last seen on : %a %b %d %H:%M:%S",tmlogin);
+	} else strcpy(msgtemp, "User is offline");
+	message_send_text(c, message_type_info, c, msgtemp);
 	return;
     }
     
@@ -233,14 +233,14 @@ static void do_whois(t_connection * c, char const * dest)
     if ((game = conn_get_game(dest_c)))
     {
 	if (strcmp(game_get_pass(game),"")==0)
-	    sprintf(temp,"%s %s logged on from account "UID_FORMAT", and %s currently in game \"%.64s\".",
+	    sprintf(msgtemp,"%s %s logged on from account "UID_FORMAT", and %s currently in game \"%.64s\".",
 		    namepart,
 		    verb,
 		    conn_get_userid(dest_c),
 		    verb,
 		    game_get_name(game));
 	else
-	    sprintf(temp,"%s %s logged on from account "UID_FORMAT", and %s currently in private game \"%.64s\".",
+	    sprintf(msgtemp,"%s %s logged on from account "UID_FORMAT", and %s currently in private game \"%.64s\".",
 		    namepart,
 		    verb,
 		    conn_get_userid(dest_c),
@@ -250,14 +250,14 @@ static void do_whois(t_connection * c, char const * dest)
     else if ((channel = conn_get_channel(dest_c)))
     {
 	if (channel_get_permanent(channel)==1)
-            sprintf(temp,"%s %s logged on from account "UID_FORMAT", and %s currently in channel \"%.64s\".",
+            sprintf(msgtemp,"%s %s logged on from account "UID_FORMAT", and %s currently in channel \"%.64s\".",
 		    namepart,
 		    verb,
 		    conn_get_userid(dest_c),
 		    verb,
 		    channel_get_name(channel));
 	else
-            sprintf(temp,"%s %s logged on from account "UID_FORMAT", and %s currently in private channel \"%.64s\".",
+            sprintf(msgtemp,"%s %s logged on from account "UID_FORMAT", and %s currently in private channel \"%.64s\".",
 		    namepart,
 		    verb,
 		    conn_get_userid(dest_c),
@@ -265,29 +265,29 @@ static void do_whois(t_connection * c, char const * dest)
 		    channel_get_name(channel));
     }
     else
-	sprintf(temp,"%s %s logged on from account "UID_FORMAT".",
+	sprintf(msgtemp,"%s %s logged on from account "UID_FORMAT".",
 		namepart,
 		verb,
 		conn_get_userid(dest_c));
-    message_send_text(c,message_type_info,c,temp);
+    message_send_text(c,message_type_info,c,msgtemp);
     if (game && strcmp(game_get_pass(game),"")!=0)
 	message_send_text(c,message_type_info,c,"(This game is password protected.)");
     
     if (conn_get_dndstr(dest_c))
     {
-        sprintf(temp,"%s %s refusing messages (%.128s)",
+        sprintf(msgtemp,"%s %s refusing messages (%.128s)",
 		namepart,
 		verb,
 		conn_get_dndstr(dest_c));
-	message_send_text(c,message_type_info,c,temp);
+	message_send_text(c,message_type_info,c,msgtemp);
     }
     else
         if (conn_get_awaystr(dest_c))
         {
-            sprintf(temp,"%s away (%.128s)",
+            sprintf(msgtemp,"%s away (%.128s)",
 		    namepart,
 		    conn_get_awaystr(dest_c));
-	    message_send_text(c,message_type_info,c,temp);
+	    message_send_text(c,message_type_info,c,msgtemp);
         }
 }
 
@@ -583,7 +583,6 @@ static int _handle_clan_command(t_connection * c, char const * text)
 {
   t_channel const * channel;
   char const      * oldclanname;
-  char         	    clansendmessage[MAX_MESSAGE_LEN];
   
   if (!(channel = conn_get_channel(c)))
     {
@@ -610,13 +609,13 @@ static int _handle_clan_command(t_connection * c, char const * text)
   account_set_w3_clanname(conn_get_account(c),text);
   if(!oldclanname || !(*oldclanname))
     {
-      sprintf( clansendmessage, "Joined Clan %s", text );
+      sprintf( msgtemp, "Joined Clan %s", text );
     }
   else
     {
-      sprintf( clansendmessage, "Left Clan %s and Joined Clan %s", oldclanname, text );
+      sprintf( msgtemp, "Left Clan %s and Joined Clan %s", oldclanname, text );
     }
-  message_send_text(c,message_type_info,c,clansendmessage);
+  message_send_text(c,message_type_info,c,msgtemp);
   free((void *)oldclanname);
   return 0;
 }
@@ -628,7 +627,6 @@ static int command_set_flags(t_connection * c)
 
 static int _handle_admin_command(t_connection * c, char const * text)
 {
-    char		msg[MAX_MESSAGE_LEN];
     char const *	username;
     char		command;
     t_account *		acc;
@@ -650,35 +648,34 @@ static int _handle_admin_command(t_connection * c, char const * text)
     }
     
     if(!(acc = accountlist_find_account(username))) {
-	sprintf(msg, "There's no account with username %.64s.", username);
-	message_send_text(c, message_type_info, c, msg);
+	sprintf(msgtemp, "There's no account with username %.64s.", username);
+	message_send_text(c, message_type_info, c, msgtemp);
 	return -1;
     }
     
     if (command == '+') {
 	if (account_get_auth_admin(acc,NULL) == 1) {
-	    sprintf(msg,"%s is already a Server Admin",username);
+	    sprintf(msgtemp,"%s is already a Server Admin",username);
 	} else {
 	    account_set_auth_admin(acc,NULL,1);
-	    sprintf(msg,"%s has been promoted to a Server Admin",username);
+	    sprintf(msgtemp,"%s has been promoted to a Server Admin",username);
 	}
     } else {
 	if (account_get_auth_admin(acc,NULL) != 1)
-    	    sprintf(msg,"%s is no Server Admin, so you can't demote him",username);
+    	    sprintf(msgtemp,"%s is no Server Admin, so you can't demote him",username);
 	else {
 	    account_set_auth_admin(acc,NULL,0);
-	    sprintf(msg,"%s has been demoted from a Server Admin",username);
+	    sprintf(msgtemp,"%s has been demoted from a Server Admin",username);
 	}
     }
     
-    message_send_text(c, message_type_info, c, msg);
+    message_send_text(c, message_type_info, c, msgtemp);
     command_set_flags(connlist_find_connection_by_accountname(username));
     return 0;
 }
 
 static int _handle_operator_command(t_connection * c, char const * text)
 {
-    char		msg[MAX_MESSAGE_LEN];
     char const *	username;
     char		command;
     t_account *		acc;
@@ -700,35 +697,34 @@ static int _handle_operator_command(t_connection * c, char const * text)
     }
     
     if(!(acc = accountlist_find_account(username))) {
-	sprintf(msg, "There's no account with username %.64s.", username);
-	message_send_text(c, message_type_info, c, msg);
+	sprintf(msgtemp, "There's no account with username %.64s.", username);
+	message_send_text(c, message_type_info, c, msgtemp);
 	return -1;
     }
     
     if (command == '+') {
 	if (account_get_auth_operator(acc,NULL) == 1)
-	    sprintf(msg,"%s is already a Server Operator",username);
+	    sprintf(msgtemp,"%s is already a Server Operator",username);
 	else {
 	    account_set_auth_operator(acc,NULL,1);
-	    sprintf(msg,"%s has been promoted to a Server Operator",username);
+	    sprintf(msgtemp,"%s has been promoted to a Server Operator",username);
 	}
     } else {
 	if (account_get_auth_operator(acc,NULL) != 1)
-    	    sprintf(msg,"%s is no Server Operator, so you can't demote him",username);
+    	    sprintf(msgtemp,"%s is no Server Operator, so you can't demote him",username);
 	else {
 	    account_set_auth_operator(acc,NULL,0);
-	    sprintf(msg,"%s has been demoted from a Server Operator",username);
+	    sprintf(msgtemp,"%s has been demoted from a Server Operator",username);
 	}
     }
     
-    message_send_text(c, message_type_info, c, msg);
+    message_send_text(c, message_type_info, c, msgtemp);
     command_set_flags(connlist_find_connection_by_accountname(username));
     return 0;
 }
 
 static int _handle_aop_command(t_connection * c, char const * text)
 {
-    char		msg[MAX_MESSAGE_LEN];
     char const *	username;
     char const *	channel;
     t_account *		acc;
@@ -751,26 +747,25 @@ static int _handle_aop_command(t_connection * c, char const * text)
     }
     
     if(!(acc = accountlist_find_account(username))) {
-	sprintf(msg, "There's no account with username %.64s.", username);
-	message_send_text(c, message_type_info, c, msg);
+	sprintf(msgtemp, "There's no account with username %.64s.", username);
+	message_send_text(c, message_type_info, c, msgtemp);
 	return -1;
     }
     
     if (account_get_auth_admin(acc,channel) == 1)
-	sprintf(msg,"%s is already a Channel Admin",username);
+	sprintf(msgtemp,"%s is already a Channel Admin",username);
     else {
 	account_set_auth_admin(acc,channel,1);
-	sprintf(msg,"%s has been promoted to a Channel Admin",username);
+	sprintf(msgtemp,"%s has been promoted to a Channel Admin",username);
     }
     
-    message_send_text(c, message_type_info, c, msg);
+    message_send_text(c, message_type_info, c, msgtemp);
     command_set_flags(connlist_find_connection_by_accountname(username));
     return 0;
 }
 
 static int _handle_vop_command(t_connection * c, char const * text)
 {
-    char		msg[MAX_MESSAGE_LEN];
     char const *	username;
     char const *	channel;
     t_account *		acc;
@@ -793,26 +788,25 @@ static int _handle_vop_command(t_connection * c, char const * text)
     }
     
     if(!(acc = accountlist_find_account(username))) {
-	sprintf(msg, "There's no account with username %.64s.", username);
-	message_send_text(c, message_type_info, c, msg);
+	sprintf(msgtemp, "There's no account with username %.64s.", username);
+	message_send_text(c, message_type_info, c, msgtemp);
 	return -1;
     }
     
     if (account_get_auth_voice(acc,channel) == 1)
-	sprintf(msg,"%s is already on VOP list",username);
+	sprintf(msgtemp,"%s is already on VOP list",username);
     else {
 	account_set_auth_voice(acc,channel,1);
-	sprintf(msg,"%s has been added to the VOP list",username);
+	sprintf(msgtemp,"%s has been added to the VOP list",username);
     }
     
-    message_send_text(c, message_type_info, c, msg);
+    message_send_text(c, message_type_info, c, msgtemp);
     command_set_flags(connlist_find_connection_by_accountname(username));
     return 0;
 }
 
 static int _handle_voice_command(t_connection * c, char const * text)
 {
-    char		msg[MAX_MESSAGE_LEN];
     char const *	username;
     char const *	channel;
     t_account *		acc;
@@ -835,30 +829,29 @@ static int _handle_voice_command(t_connection * c, char const * text)
     }
     
     if(!(acc = accountlist_find_account(username))) {
-	sprintf(msg, "There's no account with username %.64s.", username);
-	message_send_text(c, message_type_info, c, msg);
+	sprintf(msgtemp, "There's no account with username %.64s.", username);
+	message_send_text(c, message_type_info, c, msgtemp);
 	return -1;
     }
     if (account_get_auth_voice(acc,channel)==1)
-	sprintf(msg,"%s is already on VOP list, no need to Voice him", username);
+	sprintf(msgtemp,"%s is already on VOP list, no need to Voice him", username);
     else
     {
       if (channel_account_has_tmpVOICE(conn_get_channel(c),acc))
-	  sprintf(msg,"%s has already Voice in this channel",username);
+	  sprintf(msgtemp,"%s has already Voice in this channel",username);
       else {
 	  account_set_tmpVOICE_channel(acc,channel);
-	  sprintf(msg,"%s has been granted Voice in this channel",username);
+	  sprintf(msgtemp,"%s has been granted Voice in this channel",username);
       }
     }
     
-    message_send_text(c, message_type_info, c, msg);
+    message_send_text(c, message_type_info, c, msgtemp);
     command_set_flags(connlist_find_connection_by_accountname(username));
     return 0;
 }
 
 static int _handle_devoice_command(t_connection * c, char const * text)
 {
-    char		msg[MAX_MESSAGE_LEN];
     char const *	username;
     char const *	channel;
     t_account *		acc;
@@ -881,8 +874,8 @@ static int _handle_devoice_command(t_connection * c, char const * text)
     }
     
     if(!(acc = accountlist_find_account(username))) {
-	sprintf(msg, "There's no account with username %.64s.", username);
-	message_send_text(c, message_type_info, c, msg);
+	sprintf(msgtemp, "There's no account with username %.64s.", username);
+	message_send_text(c, message_type_info, c, msgtemp);
 	return -1;
     }
     
@@ -892,12 +885,12 @@ static int _handle_devoice_command(t_connection * c, char const * text)
 	{
 	    account_set_auth_voice(acc,channel,0);
 	    account_set_tmpVOICE_channel(acc,NULL);
-	    sprintf(msg,"%s has been removed from VOP list.",username);
+	    sprintf(msgtemp,"%s has been removed from VOP list.",username);
 	}
 	else
 	{
 	    account_set_tmpVOICE_channel(acc,NULL);
-	    sprintf(msg,"You must be at least Channel Admin to remove %s from the VOP list",username);
+	    sprintf(msgtemp,"You must be at least Channel Admin to remove %s from the VOP list",username);
 	}
     }
     else
@@ -905,21 +898,20 @@ static int _handle_devoice_command(t_connection * c, char const * text)
       if (channel_account_has_tmpVOICE(conn_get_channel(c),acc))
 	  {
 	    account_set_tmpVOICE_channel(acc,NULL);
-	    sprintf(msg,"Voice has been taken from %s in this channel",username);
+	    sprintf(msgtemp,"Voice has been taken from %s in this channel",username);
 	  }
       else {
-	  sprintf(msg,"%s has no Voice, so it can't be taken away",username);
+	  sprintf(msgtemp,"%s has no Voice, so it can't be taken away",username);
       }
     }
     
-    message_send_text(c, message_type_info, c, msg);
+    message_send_text(c, message_type_info, c, msgtemp);
     command_set_flags(connlist_find_connection_by_accountname(username));
     return 0;
 }
 
 static int _handle_op_command(t_connection * c, char const * text)
 {
-    char		msg[MAX_MESSAGE_LEN];
     char const *	username;
     char const *	channel;
     t_account *		acc;
@@ -952,8 +944,8 @@ static int _handle_op_command(t_connection * c, char const * text)
     }
     
     if(!(acc = accountlist_find_account(username))) {
-	sprintf(msg, "There's no account with username %.64s.", username);
-	message_send_text(c, message_type_info, c, msg);
+	sprintf(msgtemp, "There's no account with username %.64s.", username);
+	message_send_text(c, message_type_info, c, msgtemp);
 	return -1;
     }
     
@@ -961,25 +953,24 @@ static int _handle_op_command(t_connection * c, char const * text)
     if (OP_lvl==1) // user is full op so he may fully op others
     {
       if (account_get_auth_operator(acc,channel) == 1)
-	  sprintf(msg,"%s is allready a Channel Operator",username);
+	  sprintf(msgtemp,"%s is allready a Channel Operator",username);
       else {
 	  account_set_auth_operator(acc,channel,1);
-	  sprintf(msg,"%s has been promoted to a Channel Operator",username);
+	  sprintf(msgtemp,"%s has been promoted to a Channel Operator",username);
       }
     }
     else { // user is only tempOP so he may only tempOP others
          account_set_tmpOP_channel(acc,channel);
-	 sprintf(msg,"%s has been promoted to a tempOP",username);
+	 sprintf(msgtemp,"%s has been promoted to a tempOP",username);
     }
     
-    message_send_text(c, message_type_info, c, msg);
+    message_send_text(c, message_type_info, c, msgtemp);
     command_set_flags(connlist_find_connection_by_accountname(username));
     return 0;
 }
 
 static int _handle_tmpop_command(t_connection * c, char const * text)
 {
-    char		msg[MAX_MESSAGE_LEN];
     char const *	username;
     char const *	channel;
     t_account *		acc;
@@ -1002,25 +993,24 @@ static int _handle_tmpop_command(t_connection * c, char const * text)
     }
     
     if(!(acc = accountlist_find_account(username))) {
-	sprintf(msg, "There's no account with username %.64s.", username);
-	message_send_text(c, message_type_info, c, msg);
+	sprintf(msgtemp, "There's no account with username %.64s.", username);
+	message_send_text(c, message_type_info, c, msgtemp);
 	return -1;
     }
     if (channel_account_is_tmpOP(conn_get_channel(c),acc))
-       sprintf(msg,"%s has already tmpOP in this channel",username);
+       sprintf(msgtemp,"%s has already tmpOP in this channel",username);
     else {
        account_set_tmpOP_channel(acc,channel);
-       sprintf(msg,"%s has been promoted to tmpOP in this channel",username);
+       sprintf(msgtemp,"%s has been promoted to tmpOP in this channel",username);
     }
     
-    message_send_text(c, message_type_info, c, msg);
+    message_send_text(c, message_type_info, c, msgtemp);
     command_set_flags(connlist_find_connection_by_accountname(username));
     return 0;
 }
 
 static int _handle_deop_command(t_connection * c, char const * text)
 {
-    char		msg[MAX_MESSAGE_LEN];
     char const *	username;
     char const *	channel;
     t_account *		acc;
@@ -1053,8 +1043,8 @@ static int _handle_deop_command(t_connection * c, char const * text)
     }
     
     if(!(acc = accountlist_find_account(username))) {
-	sprintf(msg, "There's no account with username %.64s.", username);
-	message_send_text(c, message_type_info, c, msg);
+	sprintf(msgtemp, "There's no account with username %.64s.", username);
+	message_send_text(c, message_type_info, c, msgtemp);
 	return -1;
     }
   
@@ -1067,26 +1057,26 @@ static int _handle_deop_command(t_connection * c, char const * text)
 	    else {
 	      account_set_auth_admin(acc,channel,0);
 	      account_set_tmpOP_channel(acc,NULL);
-	      sprintf(msg, "%s has been demoted from a Channel Admin.", username);
-	      message_send_text(c, message_type_info, c, msg);
+	      sprintf(msgtemp, "%s has been demoted from a Channel Admin.", username);
+	      message_send_text(c, message_type_info, c, msgtemp);
 	    }
 	  }
 	  if (account_get_auth_operator(acc,channel) == 1) {
 	    account_set_auth_operator(acc,channel,0);
 	    account_set_tmpOP_channel(acc,NULL);
-	    sprintf(msg,"%s has been demoted from a Channel Operator",username);
-	    message_send_text(c, message_type_info, c, msg);
+	    sprintf(msgtemp,"%s has been demoted from a Channel Operator",username);
+	    message_send_text(c, message_type_info, c, msgtemp);
 	  }
 	} 
 	else if (channel_account_is_tmpOP(conn_get_channel(c),acc))
 	  {
 	    account_set_tmpOP_channel(acc,NULL);
-	    sprintf(msg,"%s has been demoted from a tempOP of this channel",username);
-	    message_send_text(c, message_type_info, c, msg);
+	    sprintf(msgtemp,"%s has been demoted from a tempOP of this channel",username);
+	    message_send_text(c, message_type_info, c, msgtemp);
 	  }
 	else {
-	  sprintf(msg,"%s is no Channel Admin or Channel Operator or tempOP, so you can't demote him.",username);
-	  message_send_text(c, message_type_info, c, msg);
+	  sprintf(msgtemp,"%s is no Channel Admin or Channel Operator or tempOP, so you can't demote him.",username);
+	  message_send_text(c, message_type_info, c, msgtemp);
 	}
       }
     else //user is just a tempOP and may only deOP other tempOPs
@@ -1094,13 +1084,13 @@ static int _handle_deop_command(t_connection * c, char const * text)
 	if (channel_account_is_tmpOP(conn_get_channel(c),acc))
 	  {
 	    account_set_tmpOP_channel(acc,NULL);
-	    sprintf(msg,"%s has been demoted from a tempOP of this channel",username);
-	    message_send_text(c, message_type_info, c, msg);
+	    sprintf(msgtemp,"%s has been demoted from a tempOP of this channel",username);
+	    message_send_text(c, message_type_info, c, msgtemp);
 	  }
 	else
 	  {
-	    sprintf(msg,"%s is no tempOP, so you can't demote him",username);
-	    message_send_text(c, message_type_info, c, msg);
+	    sprintf(msgtemp,"%s is no tempOP, so you can't demote him",username);
+	    message_send_text(c, message_type_info, c, msgtemp);
 	  }
       }
     
@@ -1422,7 +1412,6 @@ static int _handle_whisper_command(t_connection * c, char const *text)
 
 static int _handle_status_command(t_connection * c, char const *text)
 {
-    char msgtemp[MAX_MESSAGE_LEN];
     char ctag[5];
     unsigned int i,j;
     
@@ -1506,7 +1495,6 @@ static int _handle_status_command(t_connection * c, char const *text)
 
 static int _handle_who_command(t_connection * c, char const *text)
 {
-  char                 msgtemp[MAX_MESSAGE_LEN];
 #ifndef WITH_BITS
   t_connection const * conn;
 #else
@@ -1610,7 +1598,6 @@ static int _handle_whoami_command(t_connection * c, char const *text)
 
 static int _handle_announce_command(t_connection * c, char const *text)
 {
-  char         msgtemp[MAX_MESSAGE_LEN];
   unsigned int i;
   char const * tname;
   t_message *  message;
@@ -1687,7 +1674,6 @@ static int _handle_copyright_command(t_connection * c, char const *text)
 
 static int _handle_uptime_command(t_connection * c, char const *text)
 {
-  char msgtemp[MAX_MESSAGE_LEN];
   
   sprintf(msgtemp,"Uptime: %s",seconds_to_timestr(server_get_uptime()));
   message_send_text(c,message_type_info,c,msgtemp);
@@ -1697,7 +1683,6 @@ static int _handle_uptime_command(t_connection * c, char const *text)
 
 static int _handle_stats_command(t_connection * c, char const *text)
 {
-  char         msgtemp[MAX_MESSAGE_LEN];
   char         dest[USER_NAME_MAX];
   unsigned int i,j;
   t_account *  account;
@@ -1904,7 +1889,6 @@ static int _handle_stats_command(t_connection * c, char const *text)
 
 static int _handle_time_command(t_connection * c, char const *text)
 {
-  char        msgtemp[MAX_MESSAGE_LEN];
   t_bnettime  btsystem;
   t_bnettime  btlocal;
   time_t      now;
@@ -2039,7 +2023,6 @@ static int _handle_dnd_command(t_connection * c, char const *text)
 
 static int _handle_squelch_command(t_connection * c, char const *text)
 {
-  char         msgtemp[MAX_MESSAGE_LEN];
   unsigned int i;
   t_account *  account;
   
@@ -2118,7 +2101,6 @@ static int _handle_unsquelch_command(t_connection * c, char const *text)
 
 static int _handle_kick_command(t_connection * c, char const *text)
 {
-  char              msgtemp[MAX_MESSAGE_LEN];
   char              dest[USER_NAME_MAX];
   unsigned int      i,j;
   t_channel const * channel;
@@ -2200,7 +2182,6 @@ static int _handle_kick_command(t_connection * c, char const *text)
 
 static int _handle_ban_command(t_connection * c, char const *text)
 {
-  char           msgtemp[MAX_MESSAGE_LEN];
   char           dest[USER_NAME_MAX];
   unsigned int   i,j;
   t_channel *    channel;
@@ -2277,7 +2258,6 @@ static int _handle_ban_command(t_connection * c, char const *text)
 
 static int _handle_unban_command(t_connection * c, char const *text)
 {
-  char         msgtemp[MAX_MESSAGE_LEN];
   t_channel *  channel;
   unsigned int i;
   
@@ -2340,7 +2320,6 @@ static int _handle_reply_command(t_connection * c, char const *text)
 
 static int _handle_realmann_command(t_connection * c, char const *text)
 {
-  char         msgtemp[MAX_MESSAGE_LEN];
   unsigned int i;
   char const * realmname;
   char const * tname;
@@ -2387,7 +2366,6 @@ static int _handle_realmann_command(t_connection * c, char const *text)
 static int _handle_watch_command(t_connection * c, char const *text)
 {
   unsigned int i;
-  char         msgtemp[MAX_MESSAGE_LEN];
   t_account *  account;
   
   for (i=0; text[i]!=' ' && text[i]!='\0'; i++); /* skip command */
@@ -2418,7 +2396,6 @@ static int _handle_watch_command(t_connection * c, char const *text)
 static int _handle_unwatch_command(t_connection * c, char const *text)
  {
    unsigned int i;
-   char         msgtemp[MAX_MESSAGE_LEN];
    t_account *  account;
    
    for (i=0; text[i]!=' ' && text[i]!='\0'; i++); /* skip command */
@@ -2466,7 +2443,6 @@ static int _handle_unwatchall_command(t_connection * c, char const *text)
 
 static int _handle_lusers_command(t_connection * c, char const *text)
 {
-  char           msgtemp[MAX_MESSAGE_LEN];
   t_channel *    channel;
   t_elem const * curr;
   char const *   banned;
@@ -2537,7 +2513,6 @@ static int _handle_news_command(t_connection * c, char const *text)
 static int _handle_games_command(t_connection * c, char const *text)
 {
   unsigned int   i;
-  char           msgtemp[MAX_MESSAGE_LEN];
   t_elem const * curr;
 #ifndef WITH_BITS
   t_game const * game;
@@ -2616,7 +2591,6 @@ static int _handle_games_command(t_connection * c, char const *text)
 static int _handle_channels_command(t_connection * c, char const *text)
 {
   unsigned int      i;
-  char              msgtemp[MAX_MESSAGE_LEN];
   t_elem const *    curr;
   t_channel const * channel;
   char const *      tag;
@@ -2704,7 +2678,6 @@ static int _handle_addacct_command(t_connection * c, char const *text)
   t_account  * temp;
   t_hash       passhash;
   char         username[USER_NAME_MAX];
-  char         msgtemp[MAX_MESSAGE_LEN];
   char         pass[256];
   
   for (i=0; text[i]!=' ' && text[i]!='\0'; i++);
@@ -2764,7 +2737,6 @@ static int _handle_chpass_command(t_connection * c, char const *text)
   t_account  * account;
   t_account  * temp;
   t_hash       passhash;
-  char         msgtemp[MAX_MESSAGE_LEN];
   char         arg1[256];
   char         arg2[256];
   char const * username;
@@ -2863,7 +2835,6 @@ static int _handle_chpass_command(t_connection * c, char const *text)
 
 static int _handle_connections_command(t_connection *c, char const *text)
 {
-  char           msgtemp[MAX_MESSAGE_LEN];
   t_elem const * curr;
   t_connection * conn;
   char           name[19];
@@ -2966,7 +2937,6 @@ static int _handle_connections_command(t_connection *c, char const *text)
 static int _handle_finger_command(t_connection * c, char const *text)
 {
   char           dest[USER_NAME_MAX];
-  char           msgtemp[MAX_MESSAGE_LEN];
   unsigned int   i,j;
   t_account *    account;
   t_connection * conn;
@@ -3074,7 +3044,6 @@ static int _handle_finger_command(t_connection * c, char const *text)
 /*
 static int _handle_operator_command(t_connection * c, char const *text)
 {
-  char                 msgtemp[MAX_MESSAGE_LEN];
   t_connection const * opr;
   t_channel const *    channel;
   
@@ -3101,7 +3070,6 @@ static int _handle_operator_command(t_connection * c, char const *text)
 /* FIXME: do we want to show just Server Admin or Channel Admin Also? [Omega] */
 static int _handle_admins_command(t_connection * c, char const *text)
 {
-  char            msgtemp[MAX_MESSAGE_LEN];
   unsigned int    i;
   t_elem const *  curr;
   t_connection *  tc;
@@ -3221,7 +3189,6 @@ static int _handle_killsession_command(t_connection * c, char const *text)
 static int _handle_gameinfo_command(t_connection * c, char const *text)
 {
   unsigned int   i;
-  char           msgtemp[MAX_MESSAGE_LEN];
   t_game const * game;
   
   for (i=0; text[i]!=' ' && text[i]!='\0'; i++); /* skip command */
@@ -3416,7 +3383,6 @@ static int _handle_shutdown_command(t_connection * c, char const *text)
 static int _handle_ladderinfo_command(t_connection * c, char const *text)
 {
   char         dest[32];
-  char         msgtemp[MAX_MESSAGE_LEN];
   unsigned int rank;
   unsigned int i,j;
   t_account *  account;
@@ -3691,8 +3657,6 @@ static int _handle_timer_command(t_connection * c, char const *text)
     }
   else
     {
-      char msgtemp[MAX_MESSAGE_LEN];
-      
       sprintf(msgtemp,"Timer set for %s",seconds_to_timestr(delta));
       message_send_text(c,message_type_info,c,msgtemp);
     }
@@ -3704,7 +3668,6 @@ static int _handle_serverban_command(t_connection *c, char const *text)
 {
   char dest[USER_NAME_MAX];
   char messagetemp[MAX_MESSAGE_LEN];
-  char msg[MAX_MESSAGE_LEN];
   t_connection * dest_c;
   unsigned int i,j;
   
@@ -3729,12 +3692,12 @@ static int _handle_serverban_command(t_connection *c, char const *text)
       sprintf(messagetemp,"Banning User %s who is using IP %s",conn_get_username(dest_c),addr_num_to_ip_str(conn_get_game_addr(dest_c)));
       message_send_text(c,message_type_info,c,messagetemp);
       message_send_text(c,message_type_info,c,"Users Account is also LOCKED! Only a Admin can Unlock it!");
-      sprintf(msg,"/ipban a %s",addr_num_to_ip_str(conn_get_game_addr(dest_c)));
-      handle_ipban_command(c,msg);
+      sprintf(msgtemp,"/ipban a %s",addr_num_to_ip_str(conn_get_game_addr(dest_c)));
+      handle_ipban_command(c,msgtemp);
       account_set_auth_lock(conn_get_account(dest_c),1);
       //now kill the connection
-      sprintf(msg,"You have been banned by Admin: %s",conn_get_username(c));
-      message_send_text(dest_c,message_type_error,dest_c,msg);
+      sprintf(msgtemp,"You have been banned by Admin: %s",conn_get_username(c));
+      message_send_text(dest_c,message_type_error,dest_c,msgtemp);
       message_send_text(dest_c,message_type_error,dest_c,"Your account is also LOCKED! Only a admin can UNLOCK it!");
       conn_destroy(dest_c);
       //now save the ipban file
@@ -3745,7 +3708,6 @@ static int _handle_serverban_command(t_connection *c, char const *text)
 static int _handle_netinfo_command(t_connection * c, char const *text)
 {
   char           dest[USER_NAME_MAX];
-  char           msgtemp[MAX_MESSAGE_LEN];
   unsigned int   i,j;
   t_connection * conn;
   char const *   host;
@@ -3830,8 +3792,6 @@ static int _handle_netinfo_command(t_connection * c, char const *text)
 
 static int _handle_quota_command(t_connection * c, char const * text)
 {
-  char msgtemp[MAX_MESSAGE_LEN];
-  
   sprintf(msgtemp,"Your quota allows you to write %u lines per %u seconds.",prefs_get_quota_lines(),prefs_get_quota_time());
   message_send_text(c,message_type_info,c,msgtemp);
   sprintf(msgtemp,"Long lines will be considered to wrap every %u characters.",prefs_get_quota_wrapline());
@@ -3924,7 +3884,6 @@ static int _handle_unlockacct_command(t_connection * c, char const *text)
 
 static int _handle_flag_command(t_connection * c, char const *text)
 {
-  char         msgtemp[MAX_MESSAGE_LEN];
   char         dest[32];
   unsigned int i,j;
   unsigned int newflag;
@@ -3952,7 +3911,6 @@ static int _handle_flag_command(t_connection * c, char const *text)
 
 static int _handle_tag_command(t_connection * c, char const *text)
 {
-  char         msgtemp[MAX_MESSAGE_LEN];
   char         dest[8];
   unsigned int i,j;
   
@@ -3985,13 +3943,12 @@ static int _handle_bitsinfo_command(t_connection * c, char const *text)
 #ifndef WITH_BITS
   message_send_text(c,message_type_info,c,"This PvPGN Server was compiled WITHOUT BITS support.");
 #else
-  char temp[MAX_MESSAGE_LEN];
   t_elem const * curr;
   int count;
   
   message_send_text(c,message_type_info,c,"This PvPGN Server was compiled WITH BITS support.");
-  sprintf(temp,"Server address: 0x%04x",bits_get_myaddr());
-  message_send_text(c,message_type_info,c,temp);
+  sprintf(msgtemp,"Server address: 0x%04x",bits_get_myaddr());
+  message_send_text(c,message_type_info,c,msgtemp);
   if (bits_uplink_connection) {
     message_send_text(c,message_type_info,c,"Server type: client/slave");
   } else {
@@ -4003,8 +3960,8 @@ static int _handle_bitsinfo_command(t_connection * c, char const *text)
     t_bits_routing_table_entry *e = elem_get_data(curr);
     count++;
     
-    sprintf(temp,"Route %d: [%d] -> 0x%04x",count,conn_get_socket(e->conn),e->bits_addr);
-    message_send_text(c,message_type_info,c,temp);
+    sprintf(msgtemp,"Route %d: [%d] -> 0x%04x",count,conn_get_socket(e->conn),e->bits_addr);
+    message_send_text(c,message_type_info,c,msgtemp);
   }
   if (bits_master) {
     message_send_text(c,message_type_info,c,"BITS host list:");
@@ -4013,14 +3970,14 @@ static int _handle_bitsinfo_command(t_connection * c, char const *text)
       
       if (e->name)
 	if (strlen(e->name)>128)
-	  sprintf(temp,"[0x%04x] name=(too long)",e->address);
+	  sprintf(msgtemp,"[0x%04x] name=(too long)",e->address);
 	else
-	  sprintf(temp,"[0x%04x] name=\"%s\"",e->address,e->name);
+	  sprintf(msgtemp,"[0x%04x] name=\"%s\"",e->address,e->name);
       else {
 	eventlog(eventlog_level_error,"handle_command","corruption in bits_hostlist detected");
-	sprintf(temp,"[0x%04x] name=(null)",e->address);
+	sprintf(msgtemp,"[0x%04x] name=(null)",e->address);
       }
-      message_send_text(c,message_type_info,c,temp);
+      message_send_text(c,message_type_info,c,msgtemp);
     }
   }
 #endif
@@ -4034,7 +3991,6 @@ static int _handle_set_command(t_connection * c, char const *text)
   char *key;
   char *value;
   char t[MAX_MESSAGE_LEN];
-  char msgtemp[MAX_MESSAGE_LEN];
   unsigned int i,j;
   char         arg1[256];
   char         arg2[256];
@@ -4137,7 +4093,6 @@ static int _handle_ping_command(t_connection * c, char const *text)
   unsigned int i;
   t_connection *	user;
   t_game 	*	game;
-  char msgtemp[MAX_MESSAGE_LEN];
   char const *   tname;
   
   for (i=0; text[i]!=' ' && text[i]!='\0'; i++); /* skip command */
@@ -4186,7 +4141,6 @@ static int _handle_commandgroups_command(t_connection * c, char const * text)
     unsigned int groups = 0;	// converted from arg3
     char	tempgroups[8];	// converted from usergroups
     char 	t[MAX_MESSAGE_LEN];
-    char 	msgtemp[MAX_MESSAGE_LEN];
     unsigned int i,j;
     char	arg1[256];
     char	arg2[256];
@@ -4294,14 +4248,25 @@ static int _handle_commandgroups_command(t_connection * c, char const * text)
 
 static int _handle_topic_command(t_connection * c, char const * text)
 {
-  char msgtemp[MAX_MESSAGE_LEN];
   char const * channel_name;
   char const * topic;
+  char * tmp;
   t_channel * channel;
   int  do_save = NO_SAVE_TOPIC;
 
   channel_name = skip_command(text);
-  topic = skip_command(channel_name);
+
+  if (topic = strchr(channel_name,'"'))
+  {
+    tmp = (char *)topic;
+    for (tmp--;tmp[0]==' ';tmp--);
+    tmp[1]='\0';
+    topic++;
+    tmp  = strchr(topic,'"');
+    if (tmp) tmp[0]='\0';
+  }
+
+  eventlog(eventlog_level_trace,__FUNCTION__,"channel: %s topic: %s",channel_name,topic);
 
   if (channel_name[0]=='\0')
   {
@@ -4318,7 +4283,7 @@ static int _handle_topic_command(t_connection * c, char const * text)
     return 0;
   }
 
-  if (topic[0]=='\0')
+  if (!(topic))
   {
     if (channel_get_topic(channel_name))
     {
