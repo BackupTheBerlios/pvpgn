@@ -1311,7 +1311,7 @@ extern int ladder_war3_updatelevel(unsigned int oldlevel, int xp)
 
 extern int ladder_war3_get_min_xp(unsigned int Level)
 {
-  if ((Level < 1) || (Level>=W3_XPCALC_MAXLEVEL))
+  if (Level < 1 || Level > W3_XPCALC_MAXLEVEL)
   {
 	eventlog(eventlog_level_error,__FUNCTION__,"got invalid Level %d",Level);
 	return -1;
