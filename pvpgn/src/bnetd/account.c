@@ -166,6 +166,7 @@ extern t_account * account_create(char const * username, char const * passhash1)
     account->tmpVOICE_channel = NULL;
     account->friends  = NULL;
     account->friend_loaded = 0;
+    account->conn = NULL;
     
     account->namehash = 0; /* hash it later before inserting */
     account->uid      = 0; /* hash it later before inserting */
@@ -1679,4 +1680,28 @@ extern t_clan * account_get_creating_clan(t_account * account)
 	return clanmember_get_clan(account->clanmember);
     else
 	return NULL;
+}
+
+int account_set_conn(t_account * account, t_connection * conn)
+{
+  if (!(account))
+  {
+    eventlog(eventlog_level_error,__FUNCTION__,"got NULL account");
+    return -1;
+  }
+
+  account->conn = conn;
+  
+  return 0;
+}
+
+t_connection * account_get_conn(t_account * account)
+{
+  if (!(account))
+  {
+    eventlog(eventlog_level_error,__FUNCTION__,"got NULL account");
+    return NULL;
+  }
+
+  return account->conn;
 }

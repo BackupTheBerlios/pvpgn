@@ -670,6 +670,8 @@ extern void conn_destroy(t_connection * c)
 						guiOnUpdateUserList();
 #endif
 
+	if (account_get_conn(c->account)==c)  /* make sure you don't set this when allready on new conn (relogin with same account) */
+	    account_set_conn(c->account,NULL);
 	c->account = NULL; /* the account code will free the memory later */
     }
     
@@ -1459,6 +1461,7 @@ extern void conn_set_account(t_connection * c, t_account * account)
     
     c->account = account;
     c->state = conn_state_loggedin;
+    account_set_conn(account,c);
     {
 	char const * flagstr;
 	
@@ -3557,9 +3560,7 @@ extern t_list * connlist(void)
 
 extern t_connection * connlist_find_connection_by_accountname(char const * accountname)
 {
-    t_connection *    c;
-    t_account const * temp;
-    t_elem const *    curr;
+    t_account * temp;
     
     if (!accountname)
     {
@@ -3569,35 +3570,17 @@ extern t_connection * connlist_find_connection_by_accountname(char const * accou
     
     if (!(temp = accountlist_find_account(accountname)))
 	return NULL;
-    
-    LIST_TRAVERSE_CONST(conn_head,curr)
-    {
-	c = elem_get_data(curr);
-	if (c->account==temp)
-	    return c;
-    }
-    
-    return NULL;
+   
+    return account_get_conn(temp);
 }
 
 extern t_connection * connlist_find_connection_by_account(t_account * account)
 {
-    t_connection *    c;
-    t_elem const *    curr;
-    
     if (!account) {
 	eventlog(eventlog_level_error,__FUNCTION__,"got NULL account");
 	return NULL;
     }
-    
-    LIST_TRAVERSE_CONST(conn_head,curr)
-    {
-	c = elem_get_data(curr);
-	if (c->account==account)
-	    return c;
-    }
-    
-    return NULL;
+    return account_get_conn(account);
 }
 
 
@@ -3740,17 +3723,13 @@ extern t_connection * connlist_find_connection_by_charname(char const * charname
 
 extern t_connection * connlist_find_connection_by_uid(unsigned int uid)
 {
-    t_connection * c;
-    t_elem const * curr;
+    t_account * temp;
     
-    LIST_TRAVERSE_CONST(conn_head,curr)
+    if (!(temp = accountlist_find_account_by_uid(uid)))
     {
-	c = elem_get_data(curr);
-	if (c->account && conn_get_userid(c)==uid)
-	    return c;
+        return NULL;
     }
-    
-    return NULL;
+    return account_get_conn(temp);
 }
 
 extern int connlist_get_length(void)

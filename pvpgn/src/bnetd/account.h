@@ -44,6 +44,8 @@ typedef struct attribute_struct
 #define ACCOUNT_CLIENTTAG_WAR3 0x01;
 #define ACCOUNT_CLIENTTAG_W3XP 0x02;
 
+struct connection;
+
 typedef struct account_struct
 #ifdef ACCOUNT_INTERNAL_ACCESS
 {
@@ -58,6 +60,7 @@ typedef struct account_struct
     int           accessed; /* 1==yes, 0==no */
     int           friend_loaded;
     unsigned int  age;      /* number of times it has not been accessed */
+    struct connection * conn;
     t_storage_info * storage;
     t_clanmember * clanmember;
     t_list * friends;
@@ -74,6 +77,7 @@ t_account;
 
 #define JUST_NEED_TYPES
 #include "common/hashtable.h"
+#include "connection.h"
 #undef JUST_NEED_TYPES
 
 extern unsigned int maxuserid;
@@ -140,6 +144,9 @@ extern int account_set_clanmember(t_account * account, t_clanmember * clanmember
 extern t_clanmember * account_get_clanmember(t_account * account);
 extern t_clan * account_get_clan(t_account * account);
 extern t_clan * account_get_creating_clan(t_account * account);
+
+int account_set_conn(t_account * account, t_connection * conn);
+t_connection * account_get_conn(t_account * account);
 
 #endif
 #endif
