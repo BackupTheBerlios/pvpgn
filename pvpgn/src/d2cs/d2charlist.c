@@ -43,6 +43,7 @@
 #include "compat/strcasecmp.h"
 #include "compat/strdup.h"
 #include "common/xalloc.h"
+#include "common/elist.h"
 #include "d2charlist.h"
 #include "common/setup_after.h"
 
@@ -50,9 +51,9 @@ extern int d2charlist_add_char(t_elist * list_head, t_d2charinfo_file * charinfo
 {
     t_d2charlist * charlist, * ccharlist;
     char const * d2char_sort;
-    d2char_sort = prefs_get_charlist_sort();
     t_elist * curr;
     
+    d2char_sort = prefs_get_charlist_sort();
     charlist = xmalloc(sizeof(t_d2charlist));
     charlist->charinfo = charinfo;
     charlist->expiration_time = expiration_time;
