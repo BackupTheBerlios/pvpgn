@@ -147,10 +147,13 @@ extern int d2cs_connlist_destroy(void)
 	t_connection 	* c;
 	t_elem		* curr;
 	
-	d2cs_connlist_reap();
-	if (list_destroy(connlist_dead))
-		eventlog(eventlog_level_error,__FUNCTION__,"error destroy conndead list");
-	connlist_dead = NULL;
+
+        if (connlist_dead) {
+                d2cs_connlist_reap();
+                if (list_destroy(connlist_dead))
+                        eventlog(eventlog_level_error,__FUNCTION__,"error destroy conndead list");
+                connlist_dead = NULL;
+        }
 
 	BEGIN_HASHTABLE_TRAVERSE_DATA(connlist_head, c)
 	{
