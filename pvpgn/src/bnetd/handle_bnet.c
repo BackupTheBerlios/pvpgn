@@ -3896,7 +3896,7 @@ static int _client_gamelistreq(t_connection * c, t_packet const * const packet)
 		       eventlog(eventlog_level_debug,__FUNCTION__,"[%d] not listing because game is not open",conn_get_socket(c));
 		       continue;
 		    }
-		  if (game_get_clienttag(game)==clienttag)
+		  if (game_get_clienttag(game)!=clienttag)
 		    {
 		       eventlog(eventlog_level_debug,__FUNCTION__,"[%d] not listing because game is for a different client",conn_get_socket(c));
 		       continue;
