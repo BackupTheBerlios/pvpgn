@@ -471,6 +471,7 @@ static int account_insert_attr(t_account * account, char const * key, char const
     }
     nattr->key  = nkey;
     nattr->val  = nval;
+    nattr->dirty = 1;
 
     nattr->next = account->attrs;
     
@@ -687,6 +688,7 @@ extern int account_set_strattr(t_account * account, char const * key, char const
 	    }
 	    free((void *)curr->val); /* avoid warning */
 	    curr->val = temp;
+	    curr->dirty = 1;
 	}
 	else
 	{
@@ -726,6 +728,7 @@ extern int account_set_strattr(t_account * account, char const * key, char const
 	    if (strcmp(curr->next->val,temp)!=0)
 	    {
 		account->dirty = 1; /* we are changing an entry */
+		curr->next->dirty = 1;
 	    }
 	    free((void *)curr->next->val); /* avoid warning */
 	    curr->next->val = temp;
