@@ -24,6 +24,9 @@
 #ifdef HAVE_SYS_MMAN_H
 # include <sys/mman.h>
 #endif
+#ifdef __BORLANDC__
+# include <io.h>
+#endif
 
 #ifndef PROT_NONE
 #define PROT_NONE       0x00    /* no permissions */

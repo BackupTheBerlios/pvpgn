@@ -1,4 +1,4 @@
-/* $Id: cdb_make_find.c,v 1.2 2003/07/30 21:12:31 dizzy Exp $
+/* $Id: cdb_make_find.c,v 1.3 2003/08/01 01:06:55 zakmcrofl Exp $
  * routines to search in in-progress cdb file
  *
  * This file is a part of tinycdb package by Michael Tokarev, mjt@corpit.ru.
@@ -8,6 +8,9 @@
 #include "common/setup_before.h"
 #ifdef HAVE_UNISTD_H
 # include <unistd.h>
+#endif
+#ifdef __BORLANDC__
+# include <io.h>
 #endif
 #include "cdb_int.h"
 #include "common/setup_after.h"
