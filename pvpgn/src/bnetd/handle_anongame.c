@@ -34,6 +34,8 @@
 # include <bnetd/winmain.h>
 #endif
 
+#include "zlib/zlib.h"
+
 #include "common/bn_type.h"
 #include "common/eventlog.h"
 #include "common/packet.h"
@@ -67,6 +69,8 @@
 
 /* misc functions used by _client_anongame_tournament() */
 static unsigned int _tournament_time_convert(unsigned int time);
+
+static int zlib_compress(void const * src, int srclen, char ** dest, int * destlen);
 
 /* and now the functions */
 static int _client_anongame_profile(t_connection * c, t_packet const * const packet)
@@ -594,6 +598,10 @@ static int _client_anongame_infos(t_connection * c, t_packet const * const packe
 	packet_del_ref(rpacket);
     } else {
 	int i, j;
+	t_packet * rawpacket;
+	void const * rawdata;
+	char * tmpdata = NULL;
+	int tmplen;
 	bn_int temp;
 	int client_tag;
 	int client_tag_unk;
@@ -688,7 +696,8 @@ static int _client_anongame_infos(t_connection * c, t_packet const * const packe
 	    client_tag=bn_int_get(temp);
 	    memcpy(&temp,packet_get_data_const(packet,14+(i*8),4),sizeof(int));
 	    client_tag_unk=bn_int_get(temp);
-	    
+
+		if(conn_get_versionid(c)<0x0000000D)
 	    switch (client_tag){
 		case CLIENT_FINDANONGAME_INFOTAG_URL:
 		    server_tag_unk=0xBF1F1047;
@@ -876,6 +885,240 @@ static int _client_anongame_infos(t_connection * c, t_packet const * const packe
 		     eventlog(eventlog_level_debug,__FUNCTION__,"unrec client_tag request tagid=(0x%01x) tag=(0x%04x)",i,client_tag);
 		
 	    }
+		else
+		switch (client_tag){
+		case CLIENT_FINDANONGAME_INFOTAG_URL:
+		    packet_append_data(rpacket, "LRU\0" , 4);
+			if ((rawpacket = packet_create(packet_class_raw)) == NULL)
+				return -1;
+	
+			packet_append_string(rawpacket, anongame_infos_URL_get_server_url());
+		    packet_append_string(rawpacket, anongame_infos_URL_get_player_url());
+		    packet_append_string(rawpacket, anongame_infos_URL_get_tourney_url());
+
+			if((rawdata = packet_get_raw_data_const(rawpacket, 0)) != NULL)
+				zlib_compress(rawdata, packet_get_size(rawpacket), &tmpdata, &tmplen);
+			packet_destroy(rawpacket);
+			if(tmpdata != NULL)
+			{
+				packet_append_data(rpacket, tmpdata, tmplen);
+				free(tmpdata);
+			}
+		    noitems++;
+		    server_tag_count++;
+		    eventlog(eventlog_level_debug,__FUNCTION__,"client_tag request tagid=(0x%01x) tag=(%s)  tag_unk=(0x%04x)",i,"CLIENT_FINDANONGAME_INFOTAG_URL",client_tag_unk);
+		    break;
+		case CLIENT_FINDANONGAME_INFOTAG_MAP:
+		    packet_append_data(rpacket, "PAM\0" , 4);
+			if ((rawpacket = packet_create(packet_class_raw)) == NULL)
+				return -1;
+	
+			mapscount_total = maplists_get_totalmaps(clienttag);
+		    packet_append_data(rawpacket, &mapscount_total, 1);
+		    maplists_add_maps_to_packet(rawpacket, clienttag);
+			if((rawdata = packet_get_raw_data_const(rawpacket, 0)) != NULL)
+				zlib_compress(rawdata, packet_get_size(rawpacket), &tmpdata, &tmplen);
+			packet_destroy(rawpacket);
+			if(tmpdata != NULL)
+			{
+				packet_append_data(rpacket, tmpdata, tmplen);
+				free(tmpdata);
+			}
+		    noitems++;
+		    server_tag_count++;
+		    eventlog(eventlog_level_debug,__FUNCTION__,"client_tag request tagid=(0x%01x) tag=(%s)  tag_unk=(0x%04x)",i,"CLIENT_FINDANONGAME_INFOTAG_MAP",client_tag_unk);
+		    break;
+		case CLIENT_FINDANONGAME_INFOTAG_TYPE:
+		    packet_append_data(rpacket, "EPYT" , 4);
+			if ((rawpacket = packet_create(packet_class_raw)) == NULL)
+				return -1;
+	
+			/* count of gametypes (PG, AT, TY) */
+			for (j=0; j < ANONGAME_TYPES; j++)
+			if (maplists_get_totalmaps_by_queue(clienttag, j)) {
+			    if (!anongame_prefix[j][1] && !anongame_prefix[j][4])
+				PG_gamestyles++;
+			    if (!anongame_prefix[j][1] && anongame_prefix[j][4])
+				AT_gamestyles++;
+			    if (anongame_prefix[j][1])
+				TY_gamestyles++;
+			}
+	    
+		    if (PG_gamestyles)
+				value++;
+			if (AT_gamestyles)
+				value++;
+		    if (TY_gamestyles)
+				value++;
+	    
+			packet_append_data(rawpacket, &value, 1);
+	    
+		    /* PG */
+		    if (PG_gamestyles) {
+			packet_append_data(rawpacket, &anongame_PG_section,1);
+			packet_append_data(rawpacket, &PG_gamestyles,1);
+			for (j=0; j < ANONGAME_TYPES; j++)
+			    if (!anongame_prefix[j][1] && !anongame_prefix[j][4] &&
+				    maplists_get_totalmaps_by_queue(clienttag,j))
+			    {
+				packet_append_data(rawpacket, &anongame_prefix[j], 5);
+				maplists_add_map_info_to_packet(rawpacket, clienttag, j);
+			    }
+			}
+	    
+		    /* AT */
+		    if (AT_gamestyles) {
+			packet_append_data(rawpacket,&anongame_AT_section,1);
+			packet_append_data(rawpacket,&AT_gamestyles,1);
+			for (j=0; j < ANONGAME_TYPES; j++)
+			    if (!anongame_prefix[j][1] && anongame_prefix[j][4] &&
+				    maplists_get_totalmaps_by_queue(clienttag,j))
+			    {
+				packet_append_data(rawpacket, &anongame_prefix[j], 5);
+				maplists_add_map_info_to_packet(rawpacket, clienttag, j);
+			    }
+		    }
+	    
+			/* TY */
+		    if (TY_gamestyles) {
+			packet_append_data(rawpacket, &anongame_TY_section,1);
+			packet_append_data(rawpacket, &TY_gamestyles,1);
+			for (j=0; j < ANONGAME_TYPES; j++)
+			    if (anongame_prefix[j][1] &&
+				    maplists_get_totalmaps_by_queue(clienttag,j))
+			    {
+				/* set tournament races available */
+				anongame_prefix[j][3] = tournament_get_races();
+				/* set tournament type (PG or AT)
+				 * PG = 0
+				 * AT = number players per team */
+				if (tournament_is_arranged())
+				    anongame_prefix[j][4] = tournament_get_game_type();
+				else
+				    anongame_prefix[j][4] = 0;
+				
+				packet_append_data(rawpacket, &anongame_prefix[j], 5);
+				maplists_add_map_info_to_packet(rawpacket, clienttag, j);
+			    }
+		    }
+
+			if((rawdata = packet_get_raw_data_const(rawpacket, 0)) != NULL)
+				zlib_compress(rawdata, packet_get_size(rawpacket), &tmpdata, &tmplen);
+			packet_destroy(rawpacket);
+			if(tmpdata != NULL)
+			{
+				packet_append_data(rpacket, tmpdata, tmplen);
+				free(tmpdata);
+			}
+		    noitems++;
+		    server_tag_count++;
+		    eventlog(eventlog_level_debug,__FUNCTION__,"client_tag request tagid=(0x%01x) tag=(%s) tag_unk=(0x%04x)",i,"CLIENT_FINDANONGAME_INFOTAG_TYPE",client_tag_unk);
+		    break;
+			case CLIENT_FINDANONGAME_INFOTAG_DESC:
+		    packet_append_data(rpacket, "CSED" , 4);
+			if ((rawpacket = packet_create(packet_class_raw)) == NULL)
+				return -1;
+	
+		    /* total descriptions */
+		    for (j=0; j < ANONGAME_TYPES; j++)
+			if (maplists_get_totalmaps_by_queue(clienttag, j))
+			    desc_count++;
+			packet_append_data(rawpacket,&desc_count,1);
+		    /* PG description section */
+		    for (j=0; j < ANONGAME_TYPES; j++)
+			if (!anongame_prefix[j][1] && !anongame_prefix[j][4] &&
+				maplists_get_totalmaps_by_queue(clienttag, j))
+			{
+			    packet_append_data(rawpacket, &anongame_PG_section, 1);
+			    packet_append_data(rawpacket, &anongame_prefix[j][0], 1);
+			    
+			    if (anongame_infos_get_short_desc((char *)conn_get_country(c), j) == NULL)
+				packet_append_string(rawpacket,anongame_gametype_names[j]);
+			    else
+				packet_append_string(rawpacket,anongame_infos_get_short_desc((char *)conn_get_country(c), j));
+			    
+			    if (anongame_infos_get_long_desc((char *)conn_get_country(c), j) == NULL)
+				packet_append_string(rawpacket,"No Descreption");
+			    else
+				packet_append_string(rawpacket,anongame_infos_get_long_desc((char *)conn_get_country(c), j));
+			}
+		    /* AT description section */
+		    for (j=0; j < ANONGAME_TYPES; j++)
+			if (!anongame_prefix[j][1] && anongame_prefix[j][4] &&
+				maplists_get_totalmaps_by_queue(clienttag, j))
+			{
+			    packet_append_data(rawpacket, &anongame_AT_section, 1);
+			    packet_append_data(rawpacket, &anongame_prefix[j][0], 1);
+			    packet_append_string(rawpacket,anongame_infos_get_short_desc((char *)conn_get_country(c), j));
+			    packet_append_string(rawpacket,anongame_infos_get_long_desc((char *)conn_get_country(c), j));
+			}
+		    /* TY description section */
+		    for (j=0; j < ANONGAME_TYPES; j++)
+			if (anongame_prefix[j][1] &&
+				maplists_get_totalmaps_by_queue(clienttag, j))
+			{
+			    packet_append_data(rawpacket, &anongame_TY_section, 1);
+			    packet_append_data(rawpacket, &anongame_prefix[j][0], 1);
+			    packet_append_string(rawpacket,anongame_infos_get_short_desc((char *)conn_get_country(c), j));
+			    packet_append_string(rawpacket,anongame_infos_get_long_desc((char *)conn_get_country(c), j));
+			}
+
+			if((rawdata = packet_get_raw_data_const(rawpacket, 0)) != NULL)
+				zlib_compress(rawdata, packet_get_size(rawpacket), &tmpdata, &tmplen);
+			packet_destroy(rawpacket);
+			if(tmpdata != NULL)
+			{
+				packet_append_data(rpacket, tmpdata, tmplen);
+				free(tmpdata);
+			}
+		    eventlog(eventlog_level_debug,__FUNCTION__,"client_tag request tagid=(0x%01x) tag=(%s) tag_unk=(0x%04x)",i,"CLIENT_FINDANONGAME_INFOTAG_DESC",client_tag_unk);
+		    noitems++;
+		    server_tag_count++;
+		    break;
+		case CLIENT_FINDANONGAME_INFOTAG_LADR:
+		    packet_append_data(rpacket, "RDAL" , 4);
+			if ((rawpacket = packet_create(packet_class_raw)) == NULL)
+				return -1;
+	
+		    /*FIXME: Still adding a static number (5)
+		    Also maybe need do do some checks to avoid prefs empty strings.*/
+			ladr_count=6;
+		    packet_append_data(rawpacket, &ladr_count, 1);
+		    packet_append_data(rawpacket, "OLOS", 4);
+			packet_append_string(rawpacket, anongame_infos_DESC_get_ladder_PG_1v1_desc((char *)conn_get_country(c)));
+		    packet_append_string(rawpacket, anongame_infos_URL_get_ladder_PG_1v1_url());
+		    packet_append_data(rawpacket, "MAET", 4);
+			packet_append_string(rawpacket, anongame_infos_DESC_get_ladder_PG_team_desc((char *)conn_get_country(c)));
+		    packet_append_string(rawpacket, anongame_infos_URL_get_ladder_PG_team_url());
+		    packet_append_data(rawpacket, " AFF", 4);
+			packet_append_string(rawpacket, anongame_infos_DESC_get_ladder_PG_ffa_desc((char *)conn_get_country(c)));
+		    packet_append_string(rawpacket, anongame_infos_URL_get_ladder_PG_ffa_url());
+		    packet_append_data(rawpacket, "2SV2", 4);
+			packet_append_string(rawpacket, anongame_infos_DESC_get_ladder_AT_2v2_desc((char *)conn_get_country(c)));
+		    packet_append_string(rawpacket, anongame_infos_URL_get_ladder_AT_2v2_url());
+		    packet_append_data(rawpacket, "3SV3", 4);
+			packet_append_string(rawpacket, anongame_infos_DESC_get_ladder_AT_3v3_desc((char *)conn_get_country(c)));
+		    packet_append_string(rawpacket, anongame_infos_URL_get_ladder_AT_3v3_url());
+		    packet_append_data(rawpacket, "4SV4", 4);
+		    packet_append_string(rawpacket, anongame_infos_DESC_get_ladder_AT_4v4_desc((char *)conn_get_country(c)));
+		    packet_append_string(rawpacket, anongame_infos_URL_get_ladder_AT_4v4_url());
+
+			if((rawdata = packet_get_raw_data_const(rawpacket, 0)) != NULL)
+				zlib_compress(rawdata, packet_get_size(rawpacket), &tmpdata, &tmplen);
+			packet_destroy(rawpacket);
+			if(tmpdata != NULL)
+			{
+				packet_append_data(rpacket, tmpdata, tmplen);
+				free(tmpdata);
+			}
+		    noitems++;
+		    server_tag_count++;
+		    eventlog(eventlog_level_debug,__FUNCTION__,"client_tag request tagid=(0x%01x) tag=(%s) tag_unk=(0x%04x)",i,"CLIENT_FINDANONGAME_INFOTAG_LADR",client_tag_unk);
+		    break;
+		default:
+		     eventlog(eventlog_level_debug,__FUNCTION__,"unrec client_tag request tagid=(0x%01x) tag=(0x%04x)",i,client_tag);
+		
+	    }
 	    //Adding a last padding null-byte
 	    if (server_tag_count == bn_byte_get(packet->u.client_findanongame_inforeq.noitems))
 		packet_append_data(rpacket, &last_packet, 1); /* only last packet in group gets 0x00 */
@@ -884,7 +1127,6 @@ static int _client_anongame_infos(t_connection * c, t_packet const * const packe
 		
 	    //Go,go,go
 	    bn_byte_set(&rpacket->u.server_findanongame_inforeply.noitems, noitems);
-	    packet_set_size(rpacket,packet_get_size(rpacket));
 	    conn_push_outqueue(c,rpacket);
 	    packet_del_ref(rpacket);
 	}
@@ -1102,4 +1344,47 @@ extern int handle_anongame_packet(t_connection * c, t_packet const * const packe
     
     eventlog(eventlog_level_error,__FUNCTION__,"got unhandled option %d",bn_byte_get(packet->u.client_findanongame.option));
     return -1;
+}
+
+static int zlib_compress(void const * src, int srclen, char ** dest, int * destlen)
+{
+	long tmpsize;
+	char* tmpdata;
+
+	tmpsize = srclen + (srclen/0x10) + 0x200 + 0x8000;
+
+	tmpdata=(unsigned char*)malloc(tmpsize);
+
+	{
+		z_stream zcpr;
+		int ret=Z_OK;
+		int lorigtodo = srclen;
+		int lorigdone = 0;
+		memset(&zcpr,0,sizeof(z_stream));
+		deflateInit(&zcpr, 9);
+		zcpr.next_in = (void *)src;
+		zcpr.next_out = tmpdata;
+		do {
+			int all_read_before = zcpr.total_in;
+			zcpr.avail_in = (lorigtodo < 0x8000) ? lorigtodo : 0x8000;
+			zcpr.avail_out = 0x8000;
+			ret=deflate(&zcpr,(zcpr.avail_in == lorigtodo) ? Z_FINISH : Z_SYNC_FLUSH);
+			lorigdone += (zcpr.total_in-all_read_before);
+			lorigtodo -= (zcpr.total_in-all_read_before);
+		} while (ret == Z_OK);
+
+		(*destlen)=zcpr.total_out;
+		if((*destlen)>0)
+		{
+			(*dest) = malloc((*destlen) + 8);
+			memcpy((*dest), &zcpr.adler, 4);
+			memcpy((*dest)+4, &lorigdone, 2);
+			memcpy((*dest)+6, destlen, 2);
+			memcpy((*dest)+8, tmpdata, (*destlen));
+			(*destlen) += 8;
+		}
+		deflateEnd(&zcpr);
+	}
+
+	return 0;
 }
