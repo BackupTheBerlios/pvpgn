@@ -115,8 +115,7 @@ static char * replace_args(char const * in, unsigned int * offsets, int numargs,
 
     off1 = off2 = 0;
 
-    if (!(out = xstrdup(in)))
-        return NULL;
+    out = xstrdup(in);
     size = strlen(out);
     
     for (inpos=outpos=0; inpos<strlen(in); inpos++)
@@ -216,11 +215,7 @@ static char * replace_args(char const * in, unsigned int * offsets, int numargs,
         {
             char * newout;
 	    
-            if (!(newout = xmalloc(size+(off2-off1)+1))) /* curr + new + nul */
-            {
-                xfree(out);
-                return NULL;
-            }
+            newout = xmalloc(size+(off2-off1)+1); /* curr + new + nul */
 	    size = size+(off2-off1)+1;
 	    memmove(newout,out,outpos);
 	    xfree(out);
@@ -318,12 +313,10 @@ static int do_alias(t_connection * c, char const * cmd, char const * text)
 		  {
 		    if ((msgtmp[0]=='/')&&(msgtmp[1]!='/')) // to make sure we don't get endless aliasing loop
 		    {
-		      if ((tmp2 = xmalloc(strlen(msgtmp)+3)))
-		      {
-			sprintf(tmp2,"%s%s",cmd,msgtmp);
-			xfree((void *)msgtmp);
-			msgtmp=tmp2;
-		      }
+		      tmp2 = xmalloc(strlen(msgtmp)+3);
+		      sprintf(tmp2,"%s%s",cmd,msgtmp);
+		      xfree((void *)msgtmp);
+		      msgtmp=tmp2;
 
 		    }
 		    if (strlen(msgtmp)>MAX_MESSAGE_LEN) 
@@ -410,11 +403,9 @@ extern int aliasfile_load(char const * filename)
 		if (buff[pos]=='\0') break;
 		    
 		inalias = 2;
-		if ((alias = xmalloc(sizeof(t_alias))))
-		{
-		  alias->output=0;
-		  alias->alias=xstrdup(&buff[pos]);
-		}
+		alias = xmalloc(sizeof(t_alias));
+		alias->output=0;
+		alias->alias=xstrdup(&buff[pos]);
 	    }
 	    break;
 	
@@ -459,12 +450,7 @@ extern int aliasfile_load(char const * filename)
 
 	      if (out!=NULL)
 	      {
-		if (!(output = xmalloc(sizeof(t_output))))
-		{
-		  eventlog(eventlog_level_error,__FUNCTION__,"could not allocate mem for alias output");
-		  xfree((void *)out);
-		  break;
-		}
+		output = xmalloc(sizeof(t_output));
 		output->min=min;
 		output->max=max;
 		output->line = out;
@@ -532,12 +518,7 @@ extern int aliasfile_load(char const * filename)
 
 		if (out!=NULL)
 		  {
-		    if (!(output = xmalloc(sizeof(t_output))))
-		      {
-			eventlog(eventlog_level_error,__FUNCTION__,"could not allocate mem for alias output");
-			xfree((void *)out);
-			break;
-		      }
+		    output = xmalloc(sizeof(t_output));
 		    output->min=min;
 		    output->max=max;
 		    output->line = out;

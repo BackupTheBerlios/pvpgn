@@ -90,29 +90,14 @@ static t_adbanner * adbanner_create(unsigned int id, unsigned int next_id, unsig
 	return NULL;
     }
     
-    if (!(ad = xmalloc(sizeof(t_adbanner))))
-    {
-	eventlog(eventlog_level_error,"adbanner_create","could not allocate memory for ad");
-	return NULL;
-    }
+    ad = xmalloc(sizeof(t_adbanner));
     
     ad->id           = id;
     ad->extensiontag = bn_int_get(tag);
     ad->delay        = delay;
     ad->next         = next_id;
-    if (!(ad->filename = xstrdup(filename)))
-    {
-	eventlog(eventlog_level_error,"adbanner_create","could not allocate memory for filename");
-	xfree(ad);
-	return NULL;
-    }
-    if (!(ad->link = xstrdup(link)))
-    {
-	eventlog(eventlog_level_error,"adbanner_create","could not allocate memory for link");
-	xfree((void *)ad->filename); /* avoid warning */
-	xfree(ad);
-	return NULL;
-    }
+    ad->filename = xstrdup(filename);
+    ad->link = xstrdup(link);
 
     if (strcasecmp(client,"NULL")==0)
     	ad->client = 0;
@@ -380,11 +365,7 @@ static int adbannerlist_insert(t_list * head, unsigned int * count, char const *
 	return -1;
     }
     
-    if (!(ext = xmalloc(strlen(filename))))
-    {
-	eventlog(eventlog_level_error,"adbannerlist_insert","could not allocate memory for ext");
-	return -1;
-    }
+    ext = xmalloc(strlen(filename));
     
     if (sscanf(filename,"%*c%*c%x.%s",&id,ext)!=2)
     {
@@ -495,37 +476,11 @@ extern int adbannerlist_create(char const * filename)
             buff[endpos+1] = '\0';
         }
         len = strlen(buff)+1;
-	
-        if (!(name = xmalloc(len)))
-        {
-            eventlog(eventlog_level_error,"adbannerlist_create","could not allocate memory for name");
-            xfree(buff);
-            continue;
-        }
-        if (!(when = xmalloc(len)))
-        {
-            eventlog(eventlog_level_error,"adbannerlist_create","could not allocate memory for name");
-            xfree(name);
-            xfree(buff);
-            continue;
-        }
-        if (!(link = xmalloc(len)))
-        {
-            eventlog(eventlog_level_error,"adbannerlist_create","could not allocate memory for link");
-            xfree(name);
-            xfree(when);
-            xfree(buff);
-            continue;
-        }
-        if (!(client = xmalloc(len)))
-        {
-            eventlog(eventlog_level_error,"adbannerlist_create","could not allocate memory for client");
-	    xfree(link);
-            xfree(name);
-            xfree(when);
-            xfree(buff);
-            continue;
-        }
+
+        name = xmalloc(len);
+        when = xmalloc(len);
+        link = xmalloc(len);
+        client = xmalloc(len);
 	
 	if (sscanf(buff," \"%[^\"]\" %[a-z] %u \"%[^\"]\" %x \"%[^\"]\"",name,when,&delay,link,&next_id,client)!=6)
 	    {
