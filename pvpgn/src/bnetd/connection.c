@@ -2275,7 +2275,6 @@ extern int conn_set_game(t_connection * c, char const * gamename, char const * g
 	}
 	if (c->game)
 	{
-	  game_parse_info(c->game,gameinfo);
 	  if (game_add_player(conn_get_game(c),gamepass,version,c)<0)
 	  {
 	    c->game = NULL; // bad password or version #

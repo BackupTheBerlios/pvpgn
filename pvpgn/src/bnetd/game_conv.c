@@ -774,8 +774,6 @@ extern int game_parse_info(t_game * game, char const * gameinfo)
     unsigned int bngspeed;
     unsigned int bngmaptype;
     unsigned int bngtileset;
-    char const * mapsize_x; // W3 - nonreal
-    char const * mapsize_y; // W3 - nonreal
     
     if (!game)
     {
@@ -912,63 +910,71 @@ Also, what is the upper player limit on WCII... 8 like on Starcraft?
 	/* warcraft3 - by nonreal */
 	if (strcmp(clienttag,CLIENTTAG_WARCRAFT3)==0 || strcmp(clienttag,CLIENTTAG_WAR3XP)==0)
     {
-		if (!(save = strdup(gameinfo)))
-		{
-			eventlog(eventlog_level_error,"game_parse_info","could not allocate memory for save");
-			return -1;
-		}
+/*  Warcraft 3 game info format -- by Soar
+    0x00 -- 1 byte  (char, Empty slots)
+    0x01 -- 8 bytes (char[8], Count of games created)
 
-		currtok = save;
+From offset 0x11 there is a bitmask byte before every 7 bytes, offset 0x09 to 0x10 also has bitmask 0.
+Bit 0 corresponds to byte 0, bit 1 to byte 1, and so on.
+Except offset 0x09, only Byte 1-7 contribute to the info data, bit 0 seems to be always 1;
+Decoding these bytes works as follows:
+If the corresponding bit is a '1' then the character is moved over directly.
+If the corresponding bit is a '0' then subtract 1 from the character.
+(We decode info data and remove the bitmask bytes from info data in following description)
+    0x09 -- 5 bytes (char[5], map options)
+    0x0e -- 1 bytes (0, seems to be a seperate sign)
+    0x0f -- 2 bytes (short, mapsize x)
+    0x11 -- 2 bytes (short, mapsize y)
+    0x13 -- 4 bytes (long, unknown, map checksum ?)
+    0x17 -- n bytes (string, mapname \0 terminated)
+    0x17+n -- bitmask encoding stops from here, but we don't know what following bytes mean.
+*/
+        int mapsize_x;
+        int mapsize_y;
+        char mapname[255];
+        int mpos = 0;
+        int dpos = 0;
+        unsigned char bitmask;
+        const char * pstr;
 
-		if (!(unknown    = strsep(&currtok,"\01")))
-		{
-			eventlog(eventlog_level_error,"game_parse_info","(W3) bad gameinfo format (missing unknown 1)");
-			free(save);
-			return -1;
-		}
+        pstr = gameinfo + 0x0f;
 
-		if (!(unknown    = strsep(&currtok,"\01")))
-		{
-			eventlog(eventlog_level_error,"game_parse_info","(W3) bad gameinfo format (missing unknown 2)");
-			free(save);
-			return -1;
-		}
+        mapsize_x = (unsigned int)((unsigned char)pstr[0] - 1) + (((unsigned int)((unsigned char)pstr[1] - 1)) << 8);
+        pstr += 0x02;
+        bitmask = * pstr;
+        pstr ++;
+        mapsize_y = (unsigned int)((unsigned char)pstr[0]) + (((unsigned int)((unsigned char)pstr[1])) << 8);
+        if((bitmask & 0x02) == 0)
+            mapsize_y -= 1;
+        if((bitmask & 0x04) == 0)
+            mapsize_y -= 0x100;
+        pstr += 6;
+        mapname[0] = pstr[0];
+        mapname[1] = 0;
+        if((bitmask & 0x80) == 0)
+            mapname[0]--;
+        pstr ++;
+        mpos ++;
+        while (mapname[mpos - 1] != 0)
+        {
+            dpos++;
+            if ((dpos-1)%8 == 0)
+            {
+                bitmask = *pstr;
+                strncat(mapname, pstr+1, 7);
+                pstr += 8;
+            }
+            else
+            {
+                if ((bitmask & (0x1 << ((dpos-1)%8))) == 0)
+                    mapname[mpos] --;
+                mpos ++;
+            }
+        }
+        game_set_mapsize_x(game, mapsize_x);
+        game_set_mapsize_x(game, mapsize_y);
+        game_set_mapname(game, mapname);
 
-		if (!(unknown    = strsep(&currtok,"\01")))
-		{
-			eventlog(eventlog_level_error,"game_parse_info","(W3) bad gameinfo format (missing unknown 3)");
-			free(save);
-			return -1;
-		}
-
-		if (!(mapsize_x    = strsep(&currtok,"\01")))
-		{
-			eventlog(eventlog_level_error,"game_parse_info","(W3) bad gameinfo format (map size - x?)");
-			free(save);
-			return -1;
-		}
-
-		if (!(mapsize_y    = strsep(&currtok,"\01")))
-		{
-			eventlog(eventlog_level_error,"game_parse_info","(W3) bad gameinfo format (map size - y?)");
-			free(save);
-			return -1;
-		}
-
-		// map size
-		// note -- this is not the best way to do it
-		if (mapsize_x[0]!='\01') {
-			bngmapsize=((bn_basic)mapsize_x[0])-1;
-			eventlog(eventlog_level_trace,"game_parse_info","(W3) map size x = %d (%d)",bngmapsize,mapsize_x[0]);
-			game_set_mapsize_x(game,bngmapsize);
-		}
-		if (mapsize_y[0]!='\01') {
-			bngmapsize=((bn_basic)mapsize_y[0])-1;
-			eventlog(eventlog_level_trace,"game_parse_info","(W3) map size y = %d",bngmapsize);
-			game_set_mapsize_y(game,bngmapsize);
-		}
-
-		free(save);
 		return 0;
     }
     
