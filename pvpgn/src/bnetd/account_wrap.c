@@ -1839,6 +1839,8 @@ extern unsigned int account_get_friend( t_account * account, int friendnum)
 	tmp = account_get_numattr(account, key);
 	if(!tmp) {
                 // ok, looks like we have a problem. Maybe friends still stored in old format?
+		int n;
+
                 sprintf(key,"friend\\%d\\name",friendnum);
                 name = account_get_strattr(account,key);
                 if ((name) && (acct = accountlist_find_account(name)))
@@ -1847,8 +1849,8 @@ extern unsigned int account_get_friend( t_account * account, int friendnum)
                   account_set_friend(account,friendnum,tmp);
                   return tmp;
                 }
-                
-		int n = account_get_friendcount(account);
+
+		n = account_get_friendcount(account);
 		eventlog(eventlog_level_warn,"account_get_friend","NULL friend, decrementing friendcount (%d) and sending bogus friend name '%s'", n, account_get_name(account));
 		if(--n >= 0)
 			account_set_friendcount(account, n);
