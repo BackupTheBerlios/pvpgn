@@ -69,58 +69,6 @@ extern int list_destroy(t_list * list)
     return 0;
 }
 
-
-extern int list_check(t_list const * list)
-{
-    t_elem const * tail;
-    t_elem const * curr;
-    int            ret=0;
-    
-    if (!list)
-    {
-        eventlog(eventlog_level_error,"list_check","got NULL list");
-        return -1;
-    }
-    
-    tail = NULL;
-    for (curr=list->head; curr; curr=curr->next)
-    {
-	if (tail)
-	{
-	    if (curr==tail) /* tail is currently the previous node */
-	    {
-		eventlog(eventlog_level_error,"list_check","list is circular (curr==prev==%p)",curr);
-		return -1;
-	    }
-	    if (curr->next==tail)
-	    {
-		eventlog(eventlog_level_error,"list_check","list is circular (curr->next==prev==%p)",curr);
-		return -1;
-	    }
-	    if (curr==list->head)
-	    {
-		eventlog(eventlog_level_error,"list_check","list is circular (curr==list->head==%p)",curr);
-		return -1;
-	    }
-	}
-	tail = curr;
-    }
-    
-    if (list->head && !list->tail)
-    {
-	eventlog(eventlog_level_error,"list_check","list->head=%p but list->tail=%p (len=%u)",list->head,list->tail,list->len);
-	ret = -1;
-    }
-    if (list->tail!=tail)
-    {
-	eventlog(eventlog_level_error,"list_check","list->tail=%p but tail=%p",list->tail,tail);
-	ret = -1;
-    }
-    
-    return ret;
-}
-
-
 extern unsigned int list_get_length(t_list const * list)
 {
     if (!list)
