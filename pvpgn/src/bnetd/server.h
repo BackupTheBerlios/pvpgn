@@ -52,7 +52,7 @@ extern time_t now;
 
 extern unsigned int server_get_uptime(void);
 extern unsigned int server_get_starttime(void);
-extern void server_quit_delay(unsigned int delay);
+extern void server_quit_delay(int delay);
 extern void server_set_name(void);
 extern char const * server_get_name(void);
 extern void server_clear_name(void);

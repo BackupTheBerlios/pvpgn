@@ -171,10 +171,12 @@ static volatile int do_save=0;
 static volatile int got_epipe=0;
 static char const * server_name=NULL;
 
-extern void server_quit_delay(unsigned int delay)
+extern void server_quit_delay(int delay)
 {
+    /* getting negative delay is ok too because it will force immediate
+     * shutdown */
     if (delay)
-	sigexittime = time(NULL)+(time_t)delay;
+	sigexittime = time(NULL)+delay;
     else
 	sigexittime = 0;
 }
