@@ -46,6 +46,7 @@
 #include "common/bn_type.h"
 #include "common/field_sizes.h"
 #include "common/xalloc.h"
+#include "common/lstr.h"
 #include "common/packet.h"
 #include "common/setup_after.h"
 
@@ -1276,6 +1277,41 @@ extern int packet_append_ntstring(t_packet * packet, char const * str)
 	return -1;
     
     memcpy(packet->u.data+size,str,addlen);
+    packet_set_size(packet,size+addlen);
+    
+    return (int)addlen;
+}
+
+
+extern int packet_append_lstr(t_packet * packet, t_lstr *lstr)
+{
+    unsigned short addlen;
+    unsigned short size;
+    
+    if (!packet)
+    {
+        eventlog(eventlog_level_error,"packet_append_string","got NULL packet");
+        return -1;
+    }
+    if (!lstr || !lstr_get_str(lstr))
+    {
+        eventlog(eventlog_level_error,"packet_append_string","got NULL string");
+        return -1;
+    }
+
+    size = packet_get_size(packet);
+    if (size>=MAX_PACKET_SIZE)
+        return -1;
+    
+    if (MAX_PACKET_SIZE-(unsigned int)size>lstr_get_len(lstr))
+	    addlen = lstr_get_len(lstr);
+    else
+	    addlen = MAX_PACKET_SIZE-size;
+    if (addlen<1)
+	return -1;
+    
+    memcpy(packet->u.data+size,lstr_get_str(lstr),addlen-1);
+    packet->u.data[size+addlen-1] = '\0';
     packet_set_size(packet,size+addlen);
     
     return (int)addlen;

@@ -403,6 +403,8 @@ typedef struct
 #ifndef INCLUDED_PACKET_PROTOS
 #define INCLUDED_PACKET_PROTOS
 
+#include "common/lstr.h"
+
 extern t_packet * packet_create(t_packet_class class) ;
 extern void packet_destroy(t_packet const * packet);
 extern t_packet * packet_add_ref(t_packet * packet);
@@ -420,6 +422,7 @@ extern unsigned int packet_get_flags(t_packet const * packet);
 extern int packet_set_flags(t_packet * packet, unsigned int flags);
 extern int packet_append_string(t_packet * packet, char const * str);
 extern int packet_append_ntstring(t_packet * packet, char const * str);
+extern int packet_append_lstr(t_packet * packet, t_lstr *lstr);
 extern int packet_append_data(t_packet * packet, void const * data, unsigned int len);
 extern void const * packet_get_raw_data_const(t_packet const * packet, unsigned int offset);
 extern void * packet_get_raw_data(t_packet * packet, unsigned int offset);
