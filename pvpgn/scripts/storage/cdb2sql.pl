@@ -100,8 +100,7 @@ sub db_set {
 sub add_slashes {
     my $str = shift;
 
-    $str =~ s/\\/\\\\/g;
-    $str =~ s/\'/\\\'/g;
+    $str =~ s/\'/\'\'/g;
 
     return $str;
 }
