@@ -240,3 +240,44 @@ extern void conf_unload(t_conf_entry *conftab)
 	curr->set(NULL);
 }
 
+extern int conf_load_cmdline(int argc, char **argv, t_conf_entry *conftab)
+{
+    int i;
+    char *key, *val, *newkey;
+
+    if (!conftab) {
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL conftab");
+	return -1;
+    }
+
+    /* restore defaults */
+    _conf_reset_defaults(conftab);
+
+    for(i = 1; i < argc; ++i) {
+	newkey = NULL;
+	key = argv[i];
+
+	if (*(key++) != '-') /* skip non options */
+	    continue;
+
+	if (*key == '-') key++;	/* allow both - and -- options */
+
+	if ((val = strchr(key, '='))) {	/* we got option=value format */
+	    newkey = xstrdup(key);
+	    key = newkey;
+	    val = strchr(key, '=');
+	    *(val++) = '\0';
+	} else if (i + 1 < argc && argv[i + 1][0] != '-') {
+	    val = argv[++i];
+	}
+
+	if (!val)	/* option without argument, so it's like boolean */
+	    val = "true";
+
+	_process_option(key, val, conftab);
+
+	if (newkey) xfree(newkey);
+    }
+
+    return 0;
+}
