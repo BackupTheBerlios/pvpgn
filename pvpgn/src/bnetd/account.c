@@ -539,7 +539,7 @@ extern char const * account_get_strattr(t_account * account, char const * key)
 	strncpy(temp,"Record",6);
 	newkey = temp;
       }
-    if (strncmp(key,"Star",4)==0)
+    else if (strncmp(key,"Star",4)==0)
       {
 	char * temp;
 	
