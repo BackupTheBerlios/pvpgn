@@ -527,7 +527,7 @@ static void game_destroy(t_game const * game)
 
     xfree((void *)game->info); /* avoid warning */
     xfree((void *)game->pass); /* avoid warning */
-    xfree((void *)game->name); /* avoid warning */
+    if (game->name) xfree((void *)game->name); /* avoid warning */
     xfree((void *)game); /* avoid warning */
     
     eventlog(eventlog_level_info,__FUNCTION__,"game deleted");
@@ -909,7 +909,7 @@ static int game_report(t_game * game)
     if (game->bad)
 	fprintf(fp,"[ game results ignored due to inconsistencies ]\n\n");
     fprintf(fp,"name=\"%s\" id="GAMEID_FORMAT"\n",
-	    game->name,
+	    game_get_name(game),
 	    game->id);
     fprintf(fp,"clienttag=%4s type=\"%s\" option=\"%s\"\n",
 	    tag_uint_to_str(clienttag_str,game->clienttag),
@@ -1080,7 +1080,7 @@ extern char const * game_get_name(t_game const * game)
 	eventlog(eventlog_level_error,__FUNCTION__,"got NULL game");
         return NULL;
     }
-    return game->name;
+    return game->name ? game->name : "BNet";
 }
 
 
@@ -1424,17 +1424,17 @@ extern unsigned int game_get_latency(t_game const * game)
     }
     if (game->ref<1)
     {
-	eventlog(eventlog_level_error,__FUNCTION__,"game \"%s\" has no players",game->name);
+	eventlog(eventlog_level_error,__FUNCTION__,"game \"%s\" has no players",game_get_name(game));
 	return 0;
     }
     if (!game->players)
     {
-	eventlog(eventlog_level_error,__FUNCTION__,"game \"%s\" has NULL players array (ref=%u)",game->name,game->ref);
+	eventlog(eventlog_level_error,__FUNCTION__,"game \"%s\" has NULL players array (ref=%u)",game_get_name(game),game->ref);
 	return 0;
     }
     if (!game->players[0])
     {
-	eventlog(eventlog_level_error,__FUNCTION__,"game \"%s\" has NULL players[0] entry (ref=%u)",game->name,game->ref);
+	eventlog(eventlog_level_error,__FUNCTION__,"game \"%s\" has NULL players[0] entry (ref=%u)",game_get_name(game),game->ref);
 	return 0;
     }
     
@@ -1450,17 +1450,17 @@ extern t_connection * game_get_player_conn(t_game const * game, unsigned int i)
   }
   if (game->ref<1)
   {
-    eventlog(eventlog_level_error,__FUNCTION__,"game \"%s\" has no players",game->name);
+    eventlog(eventlog_level_error,__FUNCTION__,"game \"%s\" has no players",game_get_name(game));
     return NULL;
   }
   if (!game->players)
   {
-    eventlog(eventlog_level_error,__FUNCTION__,"game \"%s\" has NULL player array (ref=%u)",game->name,game->ref);
+    eventlog(eventlog_level_error,__FUNCTION__,"game \"%s\" has NULL player array (ref=%u)",game_get_name(game),game->ref);
     return NULL;
   }
   if (!game->players[i])
   {
-    eventlog(eventlog_level_error,__FUNCTION__,"game \"%s\" has NULL players[i] entry (ref=%u)",game->name,game->ref);
+    eventlog(eventlog_level_error,__FUNCTION__,"game \"%s\" has NULL players[i] entry (ref=%u)",game_get_name(game),game->ref);
     return NULL;
   }
   return game->connections[i];
@@ -1526,7 +1526,7 @@ extern int game_add_player(t_game * game, char const * pass, int startver, t_con
     
     if (game->pass[0]!='\0' && strcasecmp(game->pass,pass)!=0)
     {
-        eventlog(eventlog_level_debug,__FUNCTION__,"game \"%s\" password mismatch \"%s\"!=\"%s\"",game->name,game->pass,pass); 
+        eventlog(eventlog_level_debug,__FUNCTION__,"game \"%s\" password mismatch \"%s\"!=\"%s\"",game_get_name(game),game->pass,pass); 
 	return -1;
     }
 
@@ -2044,7 +2044,7 @@ extern t_game * gamelist_find_game(char const * name, t_game_type type)
 	LIST_TRAVERSE_CONST(gamelist_head,curr)
 	{
 	    game = elem_get_data(curr);
-	    if ((type==game_type_all || game->type==type) && strcasecmp(name,game->name)==0)
+	    if ((type==game_type_all || game->type==type) && game->name && strcasecmp(name,game->name)==0)
 		return game;
 	}
     
