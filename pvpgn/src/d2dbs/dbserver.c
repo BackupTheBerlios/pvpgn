@@ -150,8 +150,6 @@ SOCKET dbs_server_init(void)
 	struct sockaddr_in sinInterface;
 	int val;
 	t_addr	* servaddr;
-	unsigned int	addr;
-	unsigned short	port;
 		
 	if (! (dbs_server_connection_list=list_create()))
 	{

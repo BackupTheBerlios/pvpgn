@@ -149,13 +149,15 @@ extern int watchlist_del_all_events(t_connection * owner)
 	    return -1;
 	}
 	if (pair->owner==owner)
+	{
 	    if (list_remove_elem(watchlist_head,curr)<0)
 	    {
 		eventlog(eventlog_level_error,"watchlist_del_all_events","could not remove item");
 		pair->owner = NULL;
 	    }
 	    else
-		free(pair);
+	      { free(pair); }
+	}
     }
     
     list_purge(watchlist_head);

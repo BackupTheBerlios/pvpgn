@@ -140,15 +140,16 @@ static void conn_send_welcome(t_connection * c)
     bits_motd_send(c);
 #endif
     if ((filename = prefs_get_motdfile()))
+    {
 	if ((fp = fopen(filename,"r")))
 	{
 	    message_send_file(c,fp);
 	    if (fclose(fp)<0)
-		eventlog(eventlog_level_error,"conn_send_welcome","could not close MOTD file \"%s\" after reading (fopen: %s)",filename,strerror(errno));
+	      { eventlog(eventlog_level_error,"conn_send_welcome","could not close MOTD file \"%s\" after reading (fopen: %s)",filename,strerror(errno)); }
 	}
 	else
-	    eventlog(eventlog_level_error,"conn_send_welcome","could not open MOTD file \"%s\" for reading (fopen: %s)",filename,strerror(errno));
-    
+	  { eventlog(eventlog_level_error,"conn_send_welcome","could not open MOTD file \"%s\" for reading (fopen: %s)",filename,strerror(errno)); }
+    }
     c->welcomed = 1;
 }
 
@@ -242,6 +243,7 @@ extern void conn_test_latency(t_connection * c, time_t now, t_timer_data delta)
 
     	/* FIXME: I think real Battle.net sends these even before login */
     	if (!conn_get_game(c))
+	{
             if ((packet = packet_create(packet_class_bnet)))
 	    {
 	    	packet_set_size(packet,sizeof(t_server_echoreq));
@@ -251,7 +253,8 @@ extern void conn_test_latency(t_connection * c, time_t now, t_timer_data delta)
 	    	packet_del_ref(packet);
 	    }
 	    else
-	    	eventlog(eventlog_level_error,"conn_test_latency","could not create packet");
+	      { eventlog(eventlog_level_error,"conn_test_latency","could not create packet"); }
+	}
     }
     
     if (timerlist_add_timer(c,now+(time_t)delta.n,conn_test_latency,delta)<0)
@@ -343,8 +346,7 @@ extern char const * conn_state_get_str(t_conn_state state)
 
 extern t_connection * conn_create(int tsock, int usock, unsigned int real_local_addr, unsigned short real_local_port, unsigned int local_addr, unsigned short local_port, unsigned int addr, unsigned short port)
 {
-    int i;
-	static unsigned int sessionnum;
+    static unsigned int sessionnum;
     t_connection * temp;
 	
     
@@ -456,7 +458,6 @@ extern t_connection * conn_create(int tsock, int usock, unsigned int real_local_
 extern t_anongame * conn_create_anongame(t_connection *c)
 {
     t_anongame * temp;
-    int i;
 
     if(c->anongame) {
         eventlog(eventlog_level_error,"conn_create_anongame","anongame already allocated");
@@ -644,10 +645,12 @@ extern void conn_destroy(t_connection * c)
 	c->bound->bound = NULL;
     
     if (c->settings.ignore_count>0)
+    {
 	if (!c->settings.ignore_list)
-	    eventlog(eventlog_level_error,"conn_destroy","found NULL ignore_list with ignore_count=%u",c->settings.ignore_count);
+	  { eventlog(eventlog_level_error,"conn_destroy","found NULL ignore_list with ignore_count=%u",c->settings.ignore_count); }
 	else
-	    free(c->settings.ignore_list);
+	  { free(c->settings.ignore_list); }
+    }
     
     if (c->account)
     {

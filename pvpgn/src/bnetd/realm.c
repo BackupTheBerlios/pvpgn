@@ -404,6 +404,7 @@ extern int realmlist_create(char const * filename)
         }
 	
 	if (sscanf(buff," \"%[^\"]\" \"%[^\"]\" %s",name,desc,addr)!=3)
+	{
 	    if (sscanf(buff," \"%[^\"]\" \"\" %s",name,addr)==2)
 		desc[0] = '\0';
 	    else
@@ -415,6 +416,7 @@ extern int realmlist_create(char const * filename)
 		free(buff);
 		continue;
 	    }
+	}
 	
 	free(buff);
 	

@@ -371,7 +371,7 @@ extern int handle_command(t_connection * c,  char const * text)
 		for (i=0; text[i]!=' ' && text[i]!='\0'; i++); /* skip command */
 		for (; text[i]==' '; i++);
 
-		if (!text[i] || text[i] != '+' && text[i] != '-') {
+		if ((!text[i]) || ((text[i] != '+') && (text[i] != '-'))) {
 			message_send_text(c, message_type_info, c,
 				"Use /admin +username and /admin -username to set/unset admin status.");
 			return -1;
@@ -2905,7 +2905,6 @@ if (strstart(text,"/rank_all_accounts")==0)
 		char messagetemp[MAX_MESSAGE_LEN];
 		char msg[MAX_MESSAGE_LEN];
 		t_connection * dest_c;
-		unsigned int addr;
 		unsigned int i,j;
 
 		for (i=0; text[i]!=' ' && text[i]!='\0'; i++); // skip command 

@@ -421,13 +421,15 @@ extern int account_match(t_account * account, char const * username)
 	namehash = account_hash(username);
         if (account->namehash==namehash &&
 	    (tname = account_get_name(account)))
+	{
 	    if (strcasecmp(tname,username)==0)
 	    {
 		account_unget_name(tname);
 		return 1;
 	    }
 	    else
-		account_unget_name(tname);
+	      { account_unget_name(tname); }
+	}
     }
     
     return 0;
@@ -1378,6 +1380,7 @@ extern t_account * accountlist_find_account(char const * username)
 	{
 	    account = entry_get_data(curr);
             if ((tname = account_get_name(account)))
+	    {
 		if (strcasecmp(tname,username)==0)
 		{
 		    account_unget_name(tname);
@@ -1385,7 +1388,8 @@ extern t_account * accountlist_find_account(char const * username)
 		    return account;
 		}
 		else
-		    account_unget_name(tname);
+		  { account_unget_name(tname); }
+	    }
 	}
     }
     
@@ -1473,6 +1477,7 @@ extern t_account * accountlist_add_account(t_account * account)
 	    
 	    if (curraccount->namehash==account->namehash &&
 		(tname = account_get_name(curraccount)))
+	    {
 		if (strcasecmp(tname,username)==0)
 		{
 		    eventlog(eventlog_level_error,"accountlist_add_account","user \"%s\":"UID_FORMAT" already has an account (\"%s\":"UID_FORMAT")",username,uid,tname,curraccount->uid);
@@ -1482,7 +1487,8 @@ extern t_account * accountlist_add_account(t_account * account)
 		    return NULL;
 		}
 		else
-		    account_unget_name(tname);
+		  { account_unget_name(tname); }
+	    }
 	}
     }
     account_unget_strattr(username);

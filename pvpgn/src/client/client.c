@@ -201,13 +201,15 @@ extern int client_get_comm(char const * prompt, char * text, unsigned int maxlen
 	    (*curpos)--;
 	    text[*curpos] = '\0';
 	    if (visible==1)
+	    {
 		if (beg_pos>0)
 		{
 		    beg_pos--;
 		    printf("\r%s%s",prompt,text+beg_pos);
 		}
 		else
-		    printf("\b \b");
+		  { printf("\b \b"); }
+	    }
 	    continue;
 	case '\024': /* ^T */
 	    if (*curpos<2)

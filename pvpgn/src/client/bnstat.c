@@ -176,11 +176,11 @@ extern int main(int argc, char * argv[])
     unsigned int       sessionkey;
     unsigned int       sessionnum;
     unsigned int       val;
-    int                fd_stdin;
+    int                fd_stdin=0;
     int                use_bnetd=0;
     int                use_fsgs=0;
     unsigned int       screen_width,screen_height;
-    int                munged;
+    int                munged=0;
     
     if (argc<1 || !argv || !argv[0])
     {

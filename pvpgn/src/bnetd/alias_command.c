@@ -103,7 +103,8 @@ static char * replace_args(char const * in, unsigned int * offsets, unsigned int
     unsigned int   outpos;
     unsigned int   off1;
     unsigned int   off2;
-    unsigned int   i;
+
+    off1 = off2 = 0;
     
     if (!(out = malloc(1))) /* for nul */
         return NULL;
@@ -130,6 +131,7 @@ static char * replace_args(char const * in, unsigned int * offsets, unsigned int
 	    unsigned int arg2;
 	    
 	    if (sscanf(&in[inpos],"{%u-%u}",&arg1,&arg2)!=2)
+	    {
 		if (sscanf(&in[inpos],"{%u-}",&arg1)!=1)
 		{
 		    if (sscanf(&in[inpos],"{-%u}",&arg2)!=1)
@@ -147,6 +149,7 @@ static char * replace_args(char const * in, unsigned int * offsets, unsigned int
 		}
 		else
 		    arg2 = numargs-1;
+	    }
 	    
 	    if (arg2>=numargs)
 		arg2 = numargs-1;

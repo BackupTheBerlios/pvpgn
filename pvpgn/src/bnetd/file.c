@@ -228,6 +228,7 @@ extern int file_send(t_connection * c, char const * rawname, unsigned int adid, 
     }
     
     if (fp)
+    {
 	if (startoffset<filelen) {
 	    fseek(fp,startoffset,SEEK_SET);
 	} else {
@@ -236,6 +237,7 @@ extern int file_send(t_connection * c, char const * rawname, unsigned int adid, 
 	    fclose(fp);
 	    fp = NULL;
 	}
+    }
 
     if (need_header)
     {

@@ -677,6 +677,7 @@ static int game_report(t_game * game)
     eventlog(eventlog_level_debug,"game_report","realcount=%d count=%u",realcount,game->count);
     
     if (realcount>=1 && !game->bad)
+    {
 	if (game_get_type(game)==game_type_ladder ||
 	    game_get_type(game)==game_type_ironman)
 	{
@@ -791,6 +792,7 @@ static int game_report(t_game * game)
 		}
 		account_set_normal_last_time(game->players[i],game->clienttag,bnettime());
 	    }
+	}
     }
     
     if (game_get_type(game)!=game_type_ladder && prefs_get_report_all_games()!=1)

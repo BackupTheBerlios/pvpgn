@@ -64,15 +64,19 @@ extern int give_up_root_privileges(char const * user_name, char const * group_na
     eventlog(eventlog_level_debug,"give_up_root_privileges","about to give up root privileges");
     
     if (user_name)
+    {
 	if ((user_id = gurp_uname2id(user_name))==ILLEGAL_ID)
-	    return -1;
+	  { return -1; }
         else
-            eventlog(eventlog_level_debug,"give_up_root_privileges","should change to user = '%s' (%d)", user_name, user_id);
+	  { eventlog(eventlog_level_debug,"give_up_root_privileges","should change to user = '%s' (%d)", user_name, user_id); }
+    }
     if (group_name)
+    {
 	if ((group_id = gurp_gname2id(group_name))==ILLEGAL_ID)
-	    return -1;
+	  { return -1; }
         else
-            eventlog(eventlog_level_debug,"give_up_root_privileges","should change to group = '%s' (%d)", group_name, group_id);
+	  { eventlog(eventlog_level_debug,"give_up_root_privileges","should change to group = '%s' (%d)", group_name, group_id); }
+    }
     
     /*  Change first the group ID, later we might not be able to anymore
      *  We can use setgid safely because we don't want to return to root
