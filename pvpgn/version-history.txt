@@ -1,5 +1,11 @@
 PvPGN Version History:
 
+ Changelog for 1.7.4 (since 1.7.3)
+===================================
+
+[BNETD]
+  -- made difficulty of a closed D2 game known to bnetd
+
  Changelog for 1.7.3 (since 1.7.2)
 ===================================
 

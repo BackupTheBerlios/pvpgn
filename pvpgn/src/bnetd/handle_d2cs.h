@@ -20,6 +20,7 @@
 
 extern int handle_d2cs_packet(t_connection * c, t_packet const * packet);
 extern int handle_d2cs_init(t_connection * c);
+extern int handle_d2cs_gameinforeq(t_connection * c);
 
 #endif
 

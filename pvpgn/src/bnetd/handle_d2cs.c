@@ -32,6 +32,7 @@
 #include "realm.h"
 #include "account.h"
 #include "account_wrap.h"
+#include "game.h"
 #include "d2cs/d2cs_bnetd_protocol.h"
 #include "common/bnethash.h"
 #include "common/bnethashconv.h"
@@ -51,6 +52,7 @@
 static int on_d2cs_accountloginreq(t_connection * c, t_packet const * packet);
 static int on_d2cs_charloginreq(t_connection * c, t_packet const * packet);
 static int on_d2cs_authreply(t_connection * c, t_packet const * packet);
+static int on_d2cs_gameinforeply(t_connection * c, t_packet const * packet);
 
 extern int handle_d2cs_packet(t_connection * c, t_packet const * packet)
 {
@@ -86,6 +88,9 @@ extern int handle_d2cs_packet(t_connection * c, t_packet const * packet)
 					break;
 				case D2CS_BNETD_CHARLOGINREQ:
 					on_d2cs_charloginreq(c,packet);
+					break;
+				case D2CS_BNETD_GAMEINFOREPLY:
+					on_d2cs_gameinforeply(c,packet);
 					break;
 				default:
 					eventlog(eventlog_level_error,__FUNCTION__,
@@ -321,3 +326,86 @@ extern int handle_d2cs_init(t_connection * c)
 		conn_get_sessionnum(c));
 	return 0;
 }
+
+extern int handle_d2cs_gameinforeq(t_connection * c)
+{
+	t_packet	* packet;
+	t_game		* game;
+	t_realm		* realm;
+
+	if (!(c))
+	{
+		eventlog(eventlog_level_error,__FUNCTION__,"got NULL conn");
+		return -1;
+	}
+	
+	if (!(game = conn_get_game(c)))
+	{
+		eventlog(eventlog_level_error,__FUNCTION__,"conn had NULL game");
+		return -1;
+	}
+
+	if (!(realm = conn_get_realm(c)))
+	{
+		eventlog(eventlog_level_error,__FUNCTION__,"conn had NULL realm");
+		return -1;
+	}
+
+
+	if ((packet=packet_create(packet_class_d2cs_bnetd))) {
+		packet_set_size(packet,sizeof(t_bnetd_d2cs_gameinforeq));
+		packet_set_type(packet,BNETD_D2CS_GAMEINFOREQ);
+		bn_int_set(&packet->u.bnetd_d2cs_gameinforeq.h.seqno,0);
+		packet_append_string(packet,game_get_name(game));
+		conn_push_outqueue(realm_get_conn(realm),packet);
+		packet_del_ref(packet);
+	}
+	return 0;
+}
+
+static int on_d2cs_gameinforeply(t_connection * c, t_packet const * packet)
+{
+	t_game *		game;
+	char const *		gamename;
+	unsigned int		difficulty;
+	t_game_difficulty	diff;
+
+	if (!(c)) {
+		eventlog(eventlog_level_error,__FUNCTION__,"got NULL connection");
+		return -1;
+	}
+
+	if (!(gamename = packet_get_str_const(packet,sizeof(t_d2cs_bnetd_gameinforeply),GAME_NAME_LEN))) 
+	{
+		eventlog(eventlog_level_error,__FUNCTION__,"missing or too long gamename");
+		return -1;
+	}
+
+	if (!(game = gamelist_find_game(gamename,game_type_diablo2closed)))
+	{
+	       eventlog(eventlog_level_error,__FUNCTION__,"reply for unknown game \"%s\"",gamename);
+               return -1;
+	}
+
+	difficulty = bn_byte_get(packet->u.d2cs_bnetd_gameinforeply.difficulty);
+
+	switch (difficulty)
+	{
+		case 0:
+			diff = game_difficulty_normal;
+			break;
+		case 1:
+			diff = game_difficulty_nightmare;
+			break;
+		case 2:
+			diff = game_difficulty_hell;
+			break;
+		default: 
+			diff = game_difficulty_none;
+	}
+
+	game_set_difficulty(game,diff);
+	
+	return 0;	
+}
+
