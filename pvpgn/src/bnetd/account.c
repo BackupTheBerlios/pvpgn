@@ -1635,7 +1635,6 @@ extern int accountlist_save(unsigned int delta)
     return 0;
 }
 
-
 extern t_account * accountlist_find_account(char const * username)
 {
     unsigned int userid=0;
@@ -1657,7 +1656,6 @@ extern t_account * accountlist_find_account(char const * username)
 	if (str_to_uint(username,&userid)<0)
 	    userid = 0;
 #endif
-
 
     /* all accounts in list must be hashed already, no need to check */
     
@@ -1731,8 +1729,8 @@ extern t_account * accountlist_add_account(t_account * account)
         return NULL;
     }
     
-    username = account_get_name(account);
-    uid = account_get_uid(account);
+    username = account_get_strattr(account,"BNET\\acct\\username");
+    uid = account_get_numattr(account,"BNET\\acct\\userid");
     
     if (!username || strlen(username)<1)
     {
