@@ -178,7 +178,7 @@ if test "$ac_with_mysql" = "yes" ; then
 		echo ${i}
 		save_ldflags="${LDFLAGS}"
 		LDFLAGS="${LDFLAGS} -L${i}"
-		AC_CHECK_LIB(mysqlclient, mysql_connect , [DEFINES="${DEFINES} -DWITH_MYSQL" ; LIBS="${LIBS} -lmysqlclient"], [LDFLAGS="${save_ldflags}"])
+		AC_CHECK_LIB(mysqlclient, mysql_close , [DEFINES="${DEFINES} -DWITH_MYSQL" ; LIBS="${LIBS} -lmysqlclient"], [LDFLAGS="${save_ldflags}"])
 		break
 	    fi
 	done
