@@ -56,6 +56,7 @@ issuefile   = conf\bnissue.txt
 channelfile = conf\channel.list
 newsfile    = conf\news.txt
 adfile      = conf\ad.list
+clandir     = var\clans
 ipbanfile   = conf\bnban
 helpfile    = conf\bnhelp
 transfile   = conf\gametrans

@@ -43,6 +43,7 @@ confdir     = ${prefix}\conf
 sharedir    = ${prefix}\var
 filesdir    = ${sharedir}\files
 usersdir    = ${sharedir}\users
+clandir	    = ${sharedir}\clans
 reportsdir  = ${sharedir}\reports
 chanlogsdir = ${sharedir}\chanlogs
 

@@ -69,6 +69,7 @@ static struct {
     char const * channelfile;
     char const * pidfile;
     char const * adfile;
+    char const * clandir;
 
     unsigned int usersync;
     unsigned int userflush;
@@ -189,6 +190,7 @@ static Bconf_t conf_table[] =
     { "channelfile",            conf_type_char,    BNETD_CHANNEL_FILE,   NONE                , (void *)&prefs_runtime_config.channelfile},
     { "pidfile",                conf_type_char,    BNETD_PID_FILE,       NONE                , (void *)&prefs_runtime_config.pidfile},
     { "adfile",                 conf_type_char,    BNETD_AD_FILE,        NONE                , (void *)&prefs_runtime_config.adfile},
+    { "clandir",		conf_type_char,	   BNETD_CLAN_DIR,	 NONE		     , (void *)&prefs_runtime_config.clandir},
     { "usersync",               conf_type_int,     NULL,                 BNETD_USERSYNC      , (void *)&prefs_runtime_config.usersync},
     { "userflush",              conf_type_int,     NULL,                 BNETD_USERFLUSH     , (void *)&prefs_runtime_config.userflush},
     { "servername",             conf_type_char,    "",                   NONE                , (void *)&prefs_runtime_config.servername},
@@ -612,6 +614,11 @@ extern char const * prefs_get_newsfile(void)
 extern char const * prefs_get_adfile(void)
 {
     return prefs_runtime_config.adfile;
+}
+
+extern char const * prefs_get_clandir(void)
+{
+    return prefs_runtime_config.clandir;
 }
 
 

@@ -90,6 +90,7 @@
 #include "anongame_maplists.h"
 #include "tournament.h"
 #include "news.h"
+#include "clan.h"
 #include "common/setup_after.h"
 
 #ifdef WIN32
@@ -461,6 +462,7 @@ int pre_server_startup(void)
     aliasfile_load(prefs_get_aliasfile());
     anongame_infos_load(prefs_get_anongame_infos_file());
     tournament_init(prefs_get_tournament_file());
+    clanlist_load(prefs_get_clandir());
     return 0;
 }
 
@@ -469,6 +471,7 @@ void post_server_shutdown(int status)
     switch (status)
     {
 	case 0:
+            clanlist_unload();
 	    tournament_destroy();
 	    anongame_infos_unload();
 	    aliasfile_unload();

@@ -71,6 +71,7 @@ issuefile   = /usr/local/etc/bnissue.txt
 channelfile = /usr/local/etc/channel.list
 newsfile    = /usr/local/etc/news.txt
 adfile      = /usr/local/etc/ad.list
+clandir     = /usr/local/var/clans
 ipbanfile   = /usr/local/etc/bnban
 helpfile    = /usr/local/etc/bnhelp
 transfile   = /usr/local/etc/gametrans

@@ -28,6 +28,7 @@ sharedir	= @localstatedir@
 filesdir	= @localstatedir@/files
 usersdir	= @localstatedir@/users
 userscdbdir	= @localstatedir@/userscdb
+clandir		= @localstatedir@/clans
 bnmaildir	= @localstatedir@/bnmail
 reportsdir	= @localstatedir@/reports
 chanlogsdir	= @localstatedir@/chanlogs
@@ -153,6 +154,7 @@ ${SRC_BNETDDIR}/output.o \
 ${SRC_BNETDDIR}/handle_anongame.o \
 ${SRC_BNETDDIR}/tournament.o \
 ${SRC_BNETDDIR}/anongame_maplists.o\
+${SRC_BNETDDIR}/clan.o\
 ${SRC_COMMONDIR}/hexdump.o \
 ${SRC_COMMONDIR}/bn_type.o \
 ${SRC_COMMONDIR}/packet.o \
@@ -627,7 +629,7 @@ install-conf:
 install-share:
 	${INSTALL_DIRS} ${sharedir} ${filesdir} ${usersdir} ${userscdbdir} ${bnmaildir} ${reportsdir} \
 	${chanlogsdir} ${charinfodir} ${charsavedir} ${bak_charsavedir} \
-	${bak_charinfodir} ${ladderdir} ${statusdir}
+	${bak_charinfodir} ${ladderdir} ${statusdir} ${clandir}
 	@list='${SHARES}'; for p in $$list; do \
 	  if test -f ${SRC_SHAREDIR}/$$p; then \
 	    ${ECHO} "  ${INSTALL_DATA} ${SRC_SHAREDIR}/$$p ${filesdir}"; \
