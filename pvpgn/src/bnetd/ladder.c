@@ -1037,13 +1037,10 @@ extern int ladder_update_accounts(t_ladder *ladder, int (*set_fct)(), int (*get_
 		   }
 		   else //other clienttags...
 		   {
-			   if ((*get_fct1)(account,clienttag,ladder->ladder_id)!=rank)
-               {	
-	       			eventlog(eventlog_level_trace,__FUNCTION__,"need to set rank to %u",rank);
-				 (*set_fct)(account,clienttag,ladder->ladder_id,rank);
-	             update++;	
-			   if ((*get_fct1)(account,clienttag,ladder->ladder_id)!=rank)
-			    eventlog(eventlog_level_error,__FUNCTION__,"failed to previouly set rank");
+		     if ((*get_fct1)(account,clienttag,ladder->ladder_id)!=rank)
+                     {	
+		       (*set_fct)(account,clienttag,ladder->ladder_id,rank);
+	               update++;	
 		     }
 		   }
 
