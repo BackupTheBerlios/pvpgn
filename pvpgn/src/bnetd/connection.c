@@ -650,9 +650,6 @@ extern void conn_destroy(t_connection * c, t_elem ** elem, int conn_or_dead_list
 	  { xfree(c->protocol.chat.ignore_list); }
     }
 
-    /* we might store logged user before login, so free it here */
-    if (c->protocol.loggeduser) xfree((void*)c->protocol.loggeduser);
-
     if (c->protocol.account)
     {
 	eventlog(eventlog_level_info,"conn_destroy","[%d] \"%s\" logged out",c->socket.tcp_sock,conn_get_loggeduser(c));
@@ -664,6 +661,9 @@ extern void conn_destroy(t_connection * c, t_elem ** elem, int conn_or_dead_list
 	    account_set_conn(c->protocol.account,NULL);
 	c->protocol.account = NULL; /* the account code will free the memory later */
     }
+
+    /* logged user is no longer only for logged in users */
+    if (c->protocol.loggeduser) xfree((void*)c->protocol.loggeduser);
 
     /* make sure the connection is closed */
     if (c->socket.tcp_sock!=-1) { /* -1 means that the socket was already closed by conn_close() */
