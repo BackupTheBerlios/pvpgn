@@ -56,6 +56,17 @@
 #									     #
 # =================== WarCraft 3 Expansion Entries ==================
 
+# WarCraft 3 Expansion 3.04a
+"A=3845581634 B=880823580 C=1363937103 4 A=A-S B=B-C C=C-A A=A-B" \
+IX86ver1.mpq \
+IX86 \
+W3XP \
+"war3.exe 03/22/03 00:36:18 1211859" \
+0x00000130 \
+1.0.7.125 \
+0x43da2361 \
+W3XP_304A
+
 # WarCraft 3 Expansion 3.03a
 "A=3845581634 B=880823580 C=1363937103 4 A=A-S B=B-C C=C-A A=A-B" \
 IX86ver1.mpq \
