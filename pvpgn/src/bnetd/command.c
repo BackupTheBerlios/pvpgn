@@ -631,9 +631,10 @@ static int command_set_flags(t_connection * c)
     if (account_get_auth_admin(acc,channel) == 1 || account_get_auth_admin(acc,NULL) == 1)
 	newflags = MF_BLIZZARD;
     else if (account_get_auth_operator(acc,channel) == 1 || 
-	     account_get_auth_operator(acc,NULL) == 1 ||
-	     channel_account_is_tmpOP(conn_get_channel(c),acc) )
-        newflags = MF_BNET;
+	     account_get_auth_operator(acc,NULL) == 1)
+	newflags = MF_BNET;
+    else if (channel_account_is_tmpOP(conn_get_channel(c),acc))
+        newflags = MF_GAVEL;
     else
         newflags = 0;
         

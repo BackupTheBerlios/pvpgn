@@ -4508,8 +4508,10 @@ static int _client_joinchannel(t_connection * c, t_packet const * const packet)
        //ADDED THEUNDYING - UPDATED 7/31/02
        if ((account_get_auth_admin(account,cname)>0) || (account_get_auth_admin(account,NULL)>0))
 	 conn_set_flags( c, MF_BLIZZARD );
-       else if ((account_get_auth_operator(account,cname)>0) || (account_get_auth_operator(account,NULL)>0) || (channel_account_is_tmpOP(conn_get_channel(c),account)))
+       else if ((account_get_auth_operator(account,cname)>0) || (account_get_auth_operator(account,NULL)>0))
 	 conn_set_flags( c, MF_BNET );
+       else if ((channel_account_is_tmpOP(conn_get_channel(c),account)))
+	 conn_set_flags( c, MF_GAVEL );
        else
 	 conn_set_flags( c, W3_ICON_SET );	
      }   
@@ -4524,11 +4526,11 @@ static int _client_joinchannel(t_connection * c, t_packet const * const packet)
        //ADDED THEUNDYING - UPDATED 7/31/02
        if ((account_get_auth_admin(account,cname)>0) || (account_get_auth_admin(account,NULL)>0))
 	 conn_set_flags( c, MF_BLIZZARD );
-       else if ((account_get_auth_operator(account,cname)>0) || (account_get_auth_operator(account,NULL)>0) ||
-		channel_account_is_tmpOP(conn_get_channel(c),acc))
-	{
+       else if ((account_get_auth_operator(account,cname)>0) || (account_get_auth_operator(account,NULL)>0))
 	 conn_set_flags( c, MF_BNET );
-	}
+       else if (channel_account_is_tmpOP(conn_get_channel(c),acc))
+	 conn_set_flags( c, MF_GAVEL );
+       else conn_set_flags( c, W3_ICON_SET );
      }
    
    if(conn_get_motd_loggedin(c)==0)
