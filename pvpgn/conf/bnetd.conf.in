@@ -55,6 +55,7 @@ xpcalcfile  = /usr/local/etc/bnxpcalc.txt
 ladderdir   = /usr/local/var/ladders
 command_groups_file = /usr/local/etc/command_groups.txt
 statusdir   = /usr/local/var/status
+aliasfile   = /usr/local/etc/bnalias.list
 
 fortunecmd  = /usr/games/fortune
 

@@ -158,6 +158,7 @@
 #define BNETD_STATUS_DIR        "var/status"
 
 #define BNETD_COMMAND_GROUPS_FILE "conf/command_groups.txt"
+#define BNETD_ALIASFILE         "conf/bnalias.list"
 /* ADDED BY UNDYING SOULZZ 4/9/02 */
 /* default identify timeout value */
 #define W3_IDENTTIMEOUT		15	/* seconds */

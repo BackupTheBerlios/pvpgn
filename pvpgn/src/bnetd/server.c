@@ -1496,6 +1496,9 @@ extern int server_process(void)
 #endif
 	    if (command_groups_reload(prefs_get_command_groups_file())<0)
 		eventlog(eventlog_level_error,"server_process","could not load new command_groups list");
+
+	    aliasfile_unload();
+	    aliasfile_load(prefs_get_aliasfile());
 	    
 	    syncdelta = prefs_get_user_sync_timer();
 	    

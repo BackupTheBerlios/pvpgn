@@ -458,6 +458,7 @@ int pre_server_startup(void)
         tracker_set_servers(prefs_get_trackserv_addrs());
     if (command_groups_load(prefs_get_command_groups_file())<0)
 	eventlog(eventlog_level_error,"pre_server_startup","could not load command_groups list");
+    aliasfile_load(prefs_get_aliasfile());
     return 0;
 }
 
@@ -466,6 +467,7 @@ void post_server_shutdown(int status)
     switch (status)
     {
 	case 0:
+	    aliasfile_unload();
 	    command_groups_unload();
 	    tracker_set_servers(NULL);
 	    characterlist_destroy();

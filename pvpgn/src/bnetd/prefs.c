@@ -190,6 +190,7 @@ static Bconf_t conf_table[] =
 
     { "reload_new_accounts",    conf_type_bool,    NULL,                 0,                     ACT },
     { "command_groups_file",	conf_type_char,    BNETD_COMMAND_GROUPS_FILE,	NONE,		ACT },
+    { "aliasfile"          ,    conf_type_char,    BNETD_ALIASFILE   ,   NONE,                  ACT },
     { NULL,             	conf_type_none,    NULL,                 NONE,                  ACT },
 
 };
@@ -1200,4 +1201,9 @@ extern int prefs_get_reload_new_accounts(void)
 extern char const * prefs_get_command_groups_file(void)
 {
     return get_char_conf("command_groups_file");
+}
+
+extern char const * prefs_get_aliasfile(void)
+{
+   return get_char_conf("aliasfile");
 }

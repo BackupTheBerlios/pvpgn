@@ -226,12 +226,15 @@ static int do_alias(t_connection * c, char const * cmd, char const * text)
 	if (!(alias = elem_get_data(elem1)))
 	    continue;
 	
+	if (strstr(alias->alias,cmd)==NULL)
+	    continue;
+	
 	LIST_TRAVERSE_CONST(alias->output,elem2)
 	{
 	    if (!(output = elem_get_data(elem2)))
 		continue;
 	    
-	    if (!output->line || strcasecmp(output->line,cmd)!=0)
+	    if (!output->line)
 		continue;
 	    
             {
@@ -262,6 +265,13 @@ extern int aliasfile_load(char const * filename)
     unsigned int line;
     unsigned int pos;
     int          inalias;
+    t_alias *    alias = NULL;
+
+    if (!(aliaslist_head = list_create()))
+    {
+	eventlog(eventlog_level_error,__FUNCTION__,"failed to create aliaslist");
+	return -1;
+    }
     
     if (!filename)
     {
@@ -280,7 +290,7 @@ extern int aliasfile_load(char const * filename)
 	for (pos=0; buff[pos]=='\t' || buff[pos]==' '; pos++);
 	if (buff[pos]=='\0' || buff[pos]=='#')
 	{
-	    free(buff);
+	    free((void *)buff);
 	    continue;
 	}
 	if (!(temp = strrchr(buff,'"'))) /* FIXME: assumes comments don't contain " */
@@ -312,34 +322,117 @@ extern int aliasfile_load(char const * filename)
 		unsigned int j;
 		char         cmd[MAX_ALIAS_LEN];
 		
-		for (;;)
-		{
-		    for (; buff[pos]==' '; pos++);
-		    for (j=0; buff[pos]!=' ' && buff[pos]!='\0'; pos++) /* get command */
-			if (j<sizeof(cmd)-1) cmd[j++] = buff[pos];
-		    cmd[j] = '\0';
+		for (j=0; buff[pos]!=' ' && buff[pos]!='\0'; pos++) /* get command */
+		if (j<sizeof(cmd)-1) cmd[j++] = buff[pos];
+		cmd[j] = '\0';
     
-		    if (cmd[0]=='\0')
-			break;
+		if (cmd[0]=='\0') break;
 		    
-		    
-		}
 		inalias = 2;
-		continue;
+		if (alias = malloc(sizeof(t_alias)))
+		{
+		  alias->output=0;
+		  alias->alias=strdup(cmd);
+		}
 	    }
 	    break;
 	
 	case 2:
-	    if (buff[pos]!='[')
 	    {
-		eventlog(eventlog_level_error,"aliasfile_load","expected output entry on line %u of alias file \"%s\" but found \"%s\"",line,filename,&buff[pos]);
-		break;
+	      char * dummy = NULL;
+	      char * out   = NULL;
+	      t_output * output = NULL;
+	      if (buff[pos]!='[')
+	      {
+		  eventlog(eventlog_level_error,"aliasfile_load","expected output entry on line %u of alias file \"%s\" but found \"%s\"",line,filename,&buff[pos]);
+		  break;
+	      }
+
+	      if (dummy=strchr(&buff[pos],']'))
+	      {
+		if (dummy[1]!='\0') out = strdup(&dummy[1]);
+	      }
+
+	      if (out!=NULL)
+	      {
+		if (!(output = malloc(sizeof(t_output))))
+		{
+		  eventlog(eventlog_level_error,__FUNCTION__,"could not allocate mem for alias output");
+		  free((void *)out);
+		  break;
+		}
+		output->min=0;
+		output->max=0;
+		output->line = out;
+		if (!(alias->output = list_create()))
+		{
+		  eventlog(eventlog_level_error,__FUNCTION__,"could not allocate mem for alias output list");
+		  free((void *)out);
+		  free((void *)output);
+		  break;
+		}
+		if (list_append_data(alias->output,output)<0)
+		{
+			eventlog(eventlog_level_error,__FUNCTION__,"could not appen output to alias output list");
+			free((void *)out);
+			free((void *)output);
+			list_destroy(alias->output);
+			break;
+		}
+		inalias = 3;
+	      }
 	    }
+	    break;
+	case 3:
+	  {
+	    if (buff[pos]=='@')
+	      {
+		inalias = 1;
+		if (alias!=NULL) list_append_data(aliaslist_head,alias);
+		alias=NULL;
+		break;
+	      }
+	    else if (buff[pos]=='[')
+	      {
+		char * dummy = NULL;
+		char * out   = NULL;
+		t_output * output = NULL;
+		if (dummy=strchr(&buff[pos],']'))
+		  {
+		    if (dummy[1]!='\0') out = strdup(&dummy[1]);
+		  }
+		if (out!=NULL)
+		  {
+		    if (!(output = malloc(sizeof(t_output))))
+		      {
+			eventlog(eventlog_level_error,__FUNCTION__,"could not allocate mem for alias output");
+			free((void *)out);
+			break;
+		      }
+		    output->min=0;
+		    output->max=0;
+		    output->line = out;
+		    
+		    if (list_append_data(alias->output,output)<0)
+		      {
+			eventlog(eventlog_level_error,__FUNCTION__,"could not appen output to alias output list");
+			free((void *)out);
+			free((void *)output);
+			break;
+		      }
+		  }
+	      }
+	    else		    
+	      eventlog(eventlog_level_error,"aliasfile_load","expected output entry or next alias stanza on line %u of file \"%s\"i but found \"%s\"",line,filename,&buff[pos]);
+	    break;
+	  }
 	}
-	free(buff);
+	free((void *)buff);
     }
+    if (alias!=NULL) list_append_data(aliaslist_head,alias);
     
     fclose(afp);
+    eventlog(eventlog_level_info,__FUNCTION__,"done loading aliases");
     return 0;
 }
 
@@ -382,9 +475,12 @@ extern int aliasfile_unload(void)
 			continue;
 		    }
 		    free((void *)output->line); /* avoid warning */
-		    free(output);
+		    free((void *)output);
 		}
+		list_destroy(alias->output);
 	    }
+	    if (alias->alias) free((void *)alias->alias);
+	    free((void *)alias);
 	}
 	
 	if (list_destroy(aliaslist_head)<0)
@@ -405,7 +501,7 @@ extern int handle_alias_command(t_connection * c, char const * text)
         if (j<sizeof(cmd)-1) cmd[j++] = text[i];
     cmd[j] = '\0';
     
-    if (cmd[0]=='\0')
+    if (cmd[2]=='\0')
 	return list_aliases(c);
     
     if (do_alias(c,cmd,text)<0)
