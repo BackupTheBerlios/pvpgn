@@ -25,21 +25,38 @@
 # include <sys/mman.h>
 #endif
 
-#ifndef HAVE_MMAP
-
+#ifndef PROT_NONE
 #define PROT_NONE       0x00    /* no permissions */
+#endif
+#ifndef PROT_READ
 #define PROT_READ       0x01    /* pages can be read */
+#endif
+#ifndef PROT_WRITE
 #define PROT_WRITE      0x02    /* pages can be written */
+#endif
+#ifndef PROT_EXEC
 #define PROT_EXEC       0x04    /* pages can be executed */
-
+#endif
+#ifndef MAP_SHARED
 #define MAP_SHARED      0x0001          /* share changes */
+#endif
+#ifndef MAP_PRIVATE
 #define MAP_PRIVATE     0x0002          /* changes are private */
+#endif
+#ifndef MAP_COPY
 #define MAP_COPY        MAP_PRIVATE     /* Obsolete */
-
+#endif
+#ifndef MAP_FAILED
 #define MAP_FAILED      ((void *)-1)
+#endif
 
-extern void * mmap(void *addr, unsigned len, int prot, int flags, int fd, unsigned offset);
-extern int munmap(void *addr, unsigned len);
+#ifdef HAVE_MMAP
+#define pmmap(a,b,c,d,e,f) mmap(a,b,c,d,e,f)
+#define pmunmap(a,b) munmap(a,b)
+#else
+
+extern void * pmmap(void *addr, unsigned len, int prot, int flags, int fd, unsigned offset);
+extern int pmunmap(void *addr, unsigned len);
 
 #endif
 

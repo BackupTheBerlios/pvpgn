@@ -33,7 +33,7 @@
 #include "mmap.h"
 #include "common/setup_after.h"
 
-extern void * mmap(void *addr, unsigned len, int prot, int flags, int fd, unsigned offset)
+extern void * pmmap(void *addr, unsigned len, int prot, int flags, int fd, unsigned offset)
 {
     void *mem;
     int pos, res;
@@ -52,7 +52,7 @@ extern void * mmap(void *addr, unsigned len, int prot, int flags, int fd, unsign
     return mem;
 }
 
-extern int munmap(void *addr, unsigned len)
+extern int pmunmap(void *addr, unsigned len)
 {
     free(addr);
     return 0;

@@ -1,4 +1,4 @@
-/* $Id: cdb_init.c,v 1.3 2003/07/31 01:57:43 dizzy Exp $
+/* $Id: cdb_init.c,v 1.4 2003/07/31 03:44:32 dizzy Exp $
  * cdb_init, cdb_free and cdb_read routines
  *
  * This file is a part of tinycdb package by Michael Tokarev, mjt@corpit.ru.
@@ -29,7 +29,7 @@ cdb_init(struct cdb *cdbp, int fd)
   }
 
   /* memory-map file */
-  if ((mem = mmap(NULL, st.st_size, PROT_READ, MAP_SHARED, fd, 0)) ==
+  if ((mem = pmmap(NULL, st.st_size, PROT_READ, MAP_SHARED, fd, 0)) ==
       (unsigned char *)-1)
     return -1;
 
@@ -59,7 +59,7 @@ void
 cdb_free(struct cdb *cdbp)
 {
   if (cdbp->cdb_mem) {
-    munmap((void*)cdbp->cdb_mem, cdbp->cdb_fsize);
+    pmunmap((void*)cdbp->cdb_mem, cdbp->cdb_fsize);
     cdbp->cdb_mem = NULL;
   }
   cdbp->cdb_fsize = 0;
