@@ -1087,7 +1087,7 @@ extern int handle_w3route_packet(t_connection * c, t_packet const * const packet
 	   // activate timers on open w3route connectons
 	   if (result == W3_GAMERESULT_WIN) {
 	      for(i=0; i<tp; i++) {
-	         ac = anongame_get_player(a,i);
+	         ac = conn_get_routeconn(anongame_get_player(a,i));
 	         if(ac) {
 		    timerlist_add_timer(ac,time(NULL)+(time_t)300,conn_shutdown,data); // 300 seconds or 5 minute timer
 		    eventlog(eventlog_level_trace,"handle_w3route_packet","[%d] started timer to close w3route -> USER: %s",conn_get_socket(ac),conn_get_username(ac));
@@ -1802,6 +1802,11 @@ extern int anongame_stats(t_connection * c)
 	    }
 	    break;
     }
+    
+    // prevent users from getting loss if server is shutdown (does not prevent errors from crash) - creep
+    if (discs == tp)
+	if (!wins)
+    	    return -1;
     
     for(i=0; i<tp; i++) {
 	t_account * oacc = anongame_get_account(a, (i+1)%tp);
