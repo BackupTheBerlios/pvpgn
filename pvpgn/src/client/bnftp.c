@@ -254,8 +254,7 @@ extern int main(int argc, char * argv[])
         {
             if (clienttag)
             {
-                fprintf(stderr,"%s: client type was already specified as \"%s\"\n",argv[0],clienttag
-);
+                fprintf(stderr,"%s: client type was already specified as \"%s\"\n",argv[0],clienttag);
                 usage(argv[0]);
             }
             clienttag = CLIENTTAG_DIABLO2DV;
@@ -264,8 +263,7 @@ extern int main(int argc, char * argv[])
         {
             if (clienttag)
             {
-                fprintf(stderr,"%s: client type was already specified as \"%s\"\n",argv[0],clienttag
-);
+                fprintf(stderr,"%s: client type was already specified as \"%s\"\n",argv[0],clienttag);
                 usage(argv[0]);
             }
             clienttag = CLIENTTAG_DIABLO2XP;
@@ -274,8 +272,7 @@ extern int main(int argc, char * argv[])
         {
             if (clienttag)
             {
-                fprintf(stderr,"%s: client type was already specified as \"%s\"\n",argv[0],clienttag
-);
+                fprintf(stderr,"%s: client type was already specified as \"%s\"\n",argv[0],clienttag);
                 usage(argv[0]);
             }
             clienttag = CLIENTTAG_WARCRAFT3;
@@ -289,8 +286,7 @@ extern int main(int argc, char * argv[])
         {
             if (archtag)
             {
-                fprintf(stderr,"%s: architecture type was already specified as \"%s\"\n",argv[0],archtag
-);
+                fprintf(stderr,"%s: architecture type was already specified as \"%s\"\n",argv[0],archtag);
                 usage(argv[0]);
             }
             archtag = ARCHTAG_WINX86;
@@ -299,8 +295,7 @@ extern int main(int argc, char * argv[])
         {
             if (archtag)
             {
-                fprintf(stderr,"%s: architecture type was already specified as \"%s\"\n",argv[0],archtag
-);
+                fprintf(stderr,"%s: architecture type was already specified as \"%s\"\n",argv[0],archtag);
                 usage(argv[0]);
             }
             archtag = ARCHTAG_MACPPC;
@@ -309,8 +304,7 @@ extern int main(int argc, char * argv[])
         {
             if (archtag)
             {
-                fprintf(stderr,"%s: architecture type was already specified as \"%s\"\n",argv[0],archtag
-);
+                fprintf(stderr,"%s: architecture type was already specified as \"%s\"\n",argv[0],archtag);
                 usage(argv[0]);
             }
             archtag = ARCHTAG_OSXPPC;
