@@ -156,13 +156,7 @@ extern int autoupdate_load(char const * filename)
 	eventlog(eventlog_level_debug,__FUNCTION__,"update '%s' version '%s' with file %s",clienttag,versiontag,mpqfile);
 	xfree(buff);
 	
-	if (list_append_data(autoupdate_head,entry)<0) {
-	    eventlog(eventlog_level_error,__FUNCTION__,"could not append item");
-	    xfree((void *)entry->versiontag);
-	    xfree((void *)entry->mpqfile);
-	    xfree(entry);
-	    continue;
-	}
+	list_append_data(autoupdate_head,entry);
     }
     fclose(fp);
     return 0;

@@ -84,12 +84,7 @@ extern int watchlist_add_events(t_connection * owner, t_account * who, t_clientt
     pair->what  = events;
     pair->clienttag = clienttag;
     
-    if (list_prepend_data(watchlist_head,pair)<0)
-    {
-	xfree(pair);
-	eventlog(eventlog_level_error,"watchlist_add_events","could not prepend temp");
-	return -1;
-    }
+    list_prepend_data(watchlist_head,pair);
     
     return 0;
 }

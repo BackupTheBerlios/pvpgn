@@ -134,12 +134,7 @@ extern int tournament_signup_user(t_account * account)
     user->in_game	= 0;
     user->in_finals	= 0;
         
-    if (list_prepend_data(tournament_head,user)<0) {
-	eventlog(eventlog_level_error,__FUNCTION__,"could not insert user");
-	xfree((void *)user->name); /* avoid warning */
-	xfree(user);
-	return -1;
-    }
+    list_prepend_data(tournament_head,user);
     
     eventlog(eventlog_level_info,__FUNCTION__,"added user \"%s\" to tournament",account_get_name(account));
     return 0;

@@ -465,15 +465,7 @@ extern t_game * game_create(char const * name, char const * pass, char const * i
 
     game_parse_info(game,info);
     
-    if (list_prepend_data(gamelist_head,game)<0)
-    {
-	eventlog(eventlog_level_error,"game_create","could not insert game");
-	xfree((void *)game->info); /* avoid warning */
-	xfree((void *)game->pass); /* avoid warning */
-	xfree((void *)game->name); /* avoid warning */
-	xfree(game);
-	return NULL;
-    }
+    list_prepend_data(gamelist_head,game);
 
     eventlog(eventlog_level_info,"game_create","game \"%s\" (pass \"%s\") type %hu(%s) startver %d created",name,pass,(unsigned short)type,game_type_get_str(type),startver);
     

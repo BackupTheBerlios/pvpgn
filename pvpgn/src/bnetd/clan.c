@@ -618,17 +618,7 @@ extern int clanlist_add_clan(t_clan * clan)
     if (!(clan->clanid))
 	clan->clanid = ++max_clanid;
 
-    if (list_append_data(clanlist_head, clan) < 0)
-    {
-	eventlog(eventlog_level_error, __FUNCTION__, "could not append item");
-	clan_remove_all_members(clan);
-	if (clan->clan_motd)
-	    xfree((void *) clan->clan_motd);
-	if (clan->clanname)
-	    xfree((void *) clan->clanname);
-	xfree((void *) clan);
-	return -1;
-    }
+    list_append_data(clanlist_head, clan);
 
     return clan->clanid;
 }
@@ -1210,12 +1200,7 @@ extern t_clanmember *clan_add_member(t_clan * clan, t_account * memberacc, t_con
     member->modified = 1;
 #endif
 
-    if (list_append_data(clan->members, member) < 0)
-    {
-	eventlog(eventlog_level_error, __FUNCTION__, "could not append item");
-	xfree((void *) member);
-	return NULL;
-    }
+    list_append_data(clan->members, member);
 
     account_set_clanmember(memberacc, member);
 
@@ -1286,26 +1271,8 @@ extern t_clan *clan_create(t_account * chieftain_acc, t_connection * chieftain_c
     member->modified = 1;
 #endif
 
-    if (list_append_data(clan->members, member) < 0)
-    {
-	t_elem *curr;
-	eventlog(eventlog_level_error, __FUNCTION__, "could not append item");
-	if (clan->clanname)
-	    xfree((void *) clan->clanname);
-	if (clan->clan_motd)
-	    xfree((void *) clan->clan_motd);
-	xfree((void *) member);
-	LIST_TRAVERSE(clan->members, curr)
-	{
-	    t_clanmember *member;
-	    if ((member = elem_get_data(curr)) != NULL)
-		xfree(member);
-	    list_remove_elem(clan->members, &curr);
-	}
-	list_destroy(clan->members);
-	xfree((void *) clan);
-	return NULL;
-    }
+    list_append_data(clan->members, member);
+
     account_set_clanmember(chieftain_acc, member);
 
     return clan;

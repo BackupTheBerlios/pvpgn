@@ -437,12 +437,7 @@ extern int realmlist_create(char const * filename)
 	xfree(buff);
 	xfree(desc);
 	
-	if (list_prepend_data(realmlist_head,realm)<0)
-	{
-	    eventlog(eventlog_level_error,__FUNCTION__,"could not prepend realm");
-	    realm_destroy(realm);
-	    continue;
-	}
+	list_prepend_data(realmlist_head,realm);
     }
     if (fclose(fp)<0)
 	eventlog(eventlog_level_error,__FUNCTION__,"could not close realm file \"%s\" after reading (fclose: %s)",filename,strerror(errno));

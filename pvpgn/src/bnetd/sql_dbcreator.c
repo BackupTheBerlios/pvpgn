@@ -138,11 +138,7 @@ void table_add_column(t_table * table, t_column * column)
 {
   if ((table) && (column))
     {
-      if (list_append_data(table->columns,column)<0)
-        {
-          eventlog(eventlog_level_error,__FUNCTION__,"failed to add column");
-          dispose_column(column);
-        }
+      list_append_data(table->columns,column);
     }
 }
 
@@ -188,11 +184,7 @@ void db_layout_add_table(t_db_layout * db_layout, t_table * table)
 {
   if ((db_layout) && (table))
     {
-      if (list_append_data(db_layout->tables,table)<0)
-        {
-          eventlog(eventlog_level_error,__FUNCTION__,"failed to add table");
-          dispose_table(table);
-        }
+      list_append_data(db_layout->tables,table);
     }
 }
 

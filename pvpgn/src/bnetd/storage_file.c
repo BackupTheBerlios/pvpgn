@@ -629,19 +629,8 @@ static int file_load_clans(t_load_clans_func cb)
 		clan->modified = 1;
 	    }
 
-	    if (list_append_data(clan->members, member) < 0)
-	    {
-		eventlog(eventlog_level_error, __FUNCTION__, "could not append item");
-		xfree((void *) member);
-		clan_remove_all_members(clan);
-		xfree((void *) clan->clanname);
-		xfree((void *) clan->clan_motd);
-		xfree((void *) clan);
-		fclose(fp);
-		xfree((void *) pathname);
-		p_closedir(clandir);
-		return -1;
-	    }
+	    list_append_data(clan->members, member);
+
 	    account_set_clanmember(member->memberacc, member);
 	    eventlog(eventlog_level_trace, __FUNCTION__, "added member: uid: %i status: %c join_time: %i", member_uid, member_status + '0', member_join_time);
 	}

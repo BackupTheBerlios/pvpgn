@@ -452,14 +452,7 @@ extern int aliasfile_load(char const * filename)
 		output->max=max;
 		output->line = out;
 		alias->output = list_create();
-		if (list_append_data(alias->output,output)<0)
-		{
-			eventlog(eventlog_level_error,__FUNCTION__,"could not appen output to alias output list");
-			xfree((void *)out);
-			xfree((void *)output);
-			list_destroy(alias->output);
-			break;
-		}
+		list_append_data(alias->output,output);
 		inalias = 3;
 	      }
 	    }
@@ -514,13 +507,7 @@ extern int aliasfile_load(char const * filename)
 		    output->max=max;
 		    output->line = out;
 		    
-		    if (list_append_data(alias->output,output)<0)
-		      {
-			eventlog(eventlog_level_error,__FUNCTION__,"could not appen output to alias output list");
-			xfree((void *)out);
-			xfree((void *)output);
-			break;
-		      }
+		    list_append_data(alias->output,output);
 		  }
 	      }
 	    else		    

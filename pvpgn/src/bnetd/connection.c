@@ -429,13 +429,7 @@ extern t_connection * conn_create(int tsock, int usock, unsigned int real_local_
 
     temp->protocol.cflags                        = 0;
 	
-    if (list_prepend_data(conn_head,temp)<0)
-    {
-	list_destroy(temp->protocol.chat.quota.list);
-	xfree(temp);
-	eventlog(eventlog_level_error,"conn_create","could not prepend temp");
-	return NULL;
-    }
+    list_prepend_data(conn_head,temp);
     
     eventlog(eventlog_level_info,"conn_create","[%d][%d] sessionkey=0x%08x sessionnum=0x%08x",temp->socket.tcp_sock,temp->socket.udp_sock,temp->protocol.sessionkey,temp->protocol.sessionnum);
     
@@ -3086,12 +3080,8 @@ extern int conn_quota_exceeded(t_connection * con, char const * text)
     else
 	qline->count = 1;
     
-    if (list_append_data(con->protocol.chat.quota.list,qline)<0)
-    {
-	eventlog(eventlog_level_error,"conn_quota_exceeded","could not append to list");
-	xfree(qline);
-	return 0;
-    }
+    list_append_data(con->protocol.chat.quota.list,qline);
+
     con->protocol.chat.quota.totcount += qline->count;
     
     if (con->protocol.chat.quota.totcount>=prefs_get_quota_lines())

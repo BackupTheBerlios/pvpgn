@@ -256,27 +256,7 @@ extern t_channel * channel_create(char const * fullname, char const * shortname,
 	channel->log = NULL;
     }
     
-    if (list_append_data(channellist_head,channel)<0)
-    {
-        eventlog(eventlog_level_error,"channel_create","could not prepend temp");
-	if (channel->log)
-	    if (fclose(channel->log)<0)
-		eventlog(eventlog_level_error,"channel_create","could not close channel log \"%s\" after writing (fclose: %s)",channel->logname,strerror(errno));
-	if (channel->logname)
-	    xfree((void *)channel->logname); /* avoid warning */
-	list_destroy(channel->banlist);
-	if (channel->country)
-	    xfree((void *)channel->country); /* avoid warning */
-        if (channel->realmname)
-            xfree((void *) channel->realmname); /* avoid warning */
-	if (channel->clienttag)
-	    xfree((void *)channel->clienttag); /* avoid warning */
-	if (channel->shortname)
-	    xfree((void *)channel->shortname); /* avoid warning */
-	xfree((void *)channel->name); /* avoid warning */
-	xfree(channel);
-        return NULL;
-    }
+    list_append_data(channellist_head,channel);
     
     eventlog(eventlog_level_debug,"channel_create","channel created successfully");
     return channel;
@@ -765,12 +745,8 @@ extern int channel_ban_user(t_channel * channel, char const * user)
             return 0;
     
     temp = xstrdup(user);
-    if (list_append_data(channel->banlist,temp)<0)
-    {
-	xfree(temp);
-        eventlog(eventlog_level_error,"channel_ban_user","unable to append to list");
-        return -1;
-    }
+    list_append_data(channel->banlist,temp);
+
     return 0;
 }
 
@@ -1188,19 +1164,7 @@ extern int channellist_reload(void)
 	    member = member->next;
 	  }
 	  
-	  if (list_prepend_data(channellist_old,old_channel)<0)
-	  {
-	    eventlog(eventlog_level_error,"channellist_reload","error reloading channel list, destroying channellist_old");
-	    memberlist = old_channel->memberlist;
-	    while (memberlist)
-	    {
-	      member = memberlist;
-	      memberlist = memberlist->next;
-	      xfree((void*)member);
-	    }
-	    goto old_channel_destroy;
-	  }
-
+	  list_prepend_data(channellist_old,old_channel);
 	}
 	
 	/* Channel is empty - Destroying it */
@@ -1240,7 +1204,6 @@ extern int channellist_reload(void)
 
       /* Ross don't blame me for this but this way the code is cleaner */
  
-   old_channel_destroy:
       LIST_TRAVERSE(channellist_old,curr)
       {
 	if (!(channel = elem_get_data(curr)))

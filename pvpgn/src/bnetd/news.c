@@ -183,16 +183,8 @@ extern int news_load(const char *filename)
 	      {
 	        ni->body=xstrdup(buff);
 	    
-	        if (list_append_data(news_head,ni)<0) {
-		
-		  eventlog(eventlog_level_error,"news_load","could not append item");
-		  if (ni)
-		  {
-		    if (ni->body) xfree(ni->body);
-		    xfree(ni);
-		  }
-		  continue;
-	        }
+	        list_append_data(news_head,ni);
+
 	        previous_ni = ni;
 	      }
 	      else

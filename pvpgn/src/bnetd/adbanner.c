@@ -382,12 +382,8 @@ static int adbannerlist_insert(t_list * head, unsigned int * count, char const *
 	return -1;
     }
     
-    if (list_prepend_data(head,ad)<0)
-    {
-	eventlog(eventlog_level_error,__FUNCTION__,"could not insert ad");
-	adbanner_destroy(ad);
-	return -1;
-    }
+    list_prepend_data(head,ad);
+
     (*count)++;
     
     return 0;

@@ -424,12 +424,7 @@ extern int ipbanlist_add(t_connection * c, char const * cp, time_t endtime)
     }
 
     entry->endtime = endtime;
-    if (list_append_data(ipbanlist_head,entry)<0)
-    {
-	ipban_unload_entry(entry);
-	eventlog(eventlog_level_error,"ipbanlist_add","could not append entry");
-	return -1;
-    }
+    list_append_data(ipbanlist_head,entry);
     
     if (c)
     {

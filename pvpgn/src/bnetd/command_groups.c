@@ -107,15 +107,9 @@ extern int command_groups_load(char const * filename)
 	    entry = xmalloc(sizeof(t_command_groups));
 	    entry->group = 1 << (group-1);
 	    entry->command = xstrdup(command);
-	    if (list_append_data(command_groups_head,entry)<0) {
-		eventlog(eventlog_level_error,"command_groups_load","could not append item");
-		xfree(entry->command);
-		xfree(entry);
-	    }
+	    list_append_data(command_groups_head,entry);
 #ifdef COMMANDGROUPSDEBUG
-	    else {
-		eventlog(eventlog_level_info,"command_groups_load","Added command: %s - with group %u",entry->command,entry->group);
-	    }
+	    eventlog(eventlog_level_info,"command_groups_load","Added command: %s - with group %u",entry->command,entry->group);
 #endif
 	}
 	xfree(buff);

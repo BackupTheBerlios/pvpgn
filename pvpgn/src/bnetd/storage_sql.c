@@ -1001,20 +1001,8 @@ static int sql_load_clans(t_load_clans_func cb)
 			    member->modified = 1;
 			}
 
-			if (list_append_data(clan->members, member) < 0)
-			{
-			    eventlog(eventlog_level_error, __FUNCTION__, "could not append item");
-			    xfree((void *) member);
-			    clan_remove_all_members(clan);
-			    if (clan->clanname)
-				xfree((void *) clan->clanname);
-			    if (clan->clan_motd)
-				xfree((void *) clan->clan_motd);
-			    xfree((void *) clan);
-			    sql->free_result(result2);
-			    sql->free_result(result);
-			    return -1;
-			}
+			list_append_data(clan->members, member);
+
 			account_set_clanmember(member->memberacc, member);
 			eventlog(eventlog_level_trace, __FUNCTION__, "added member: uid: %i status: %c join_time: %u", member_uid, member->status + '0', (unsigned) member->join_time);
 		    }

@@ -652,17 +652,7 @@ extern int versioncheck_load(char const * filename)
 	
 	xfree(buff);
 	
-	if (list_append_data(versioninfo_head,vi)<0)
-	{
-	    eventlog(eventlog_level_error,__FUNCTION__,"could not append item");
-	    if (vi->versiontag)
-	      xfree((void *)vi->versiontag); /* avoid warning */
-	    xfree((void *)vi->parsed_exeinfo); /* avoid warning */
-	    xfree((void *)vi->mpqfile); /* avoid warning */
-	    xfree((void *)vi->eqn); /* avoid warning */
-	    xfree(vi);
-	    continue;
-	}
+	list_append_data(versioninfo_head,vi);
     }
     
     if (fclose(fp)<0)

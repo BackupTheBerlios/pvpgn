@@ -135,14 +135,7 @@ int topiclist_add_topic(char const * channel_name, char const * topic_text, int 
   topic = xmalloc(sizeof(t_topic));
   topic->channel_name = xstrdup(channel_name);
   topic->topic = xstrdup(topic_text);
-  if (list_prepend_data(topiclist_head,topic)<0)
-    {
-      eventlog(eventlog_level_error,__FUNCTION__,"could not append item");
-      xfree((void *)topic->channel_name);
-      xfree((void *)topic->topic);
-      xfree((void *)topic);
-      return -1;
-    }
+  list_prepend_data(topiclist_head,topic);
   topic->save = do_save;
   return 0;
 }
