@@ -520,7 +520,7 @@ static int on_client_gameinforeq(t_connection * c, t_packet * packet)
 		bn_byte_set(&rpacket->u.d2cs_client_gameinforeply.charlevel,game_get_charlevel(game));
 		bn_byte_set(&rpacket->u.d2cs_client_gameinforeply.leveldiff,game_get_leveldiff(game));
 		bn_byte_set(&rpacket->u.d2cs_client_gameinforeply.maxchar,game_get_maxchar(game));
-		bn_byte_set(&rpacket->u.d2cs_client_gameinforeply.u1,0);
+		packet_append_string(rpacket, game_get_desc(game) ? game_get_desc(game) : NULL);
 
 		n=0;
 		BEGIN_LIST_TRAVERSE_DATA_CONST(game_get_charlist(game),info)
