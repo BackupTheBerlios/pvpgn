@@ -3817,7 +3817,7 @@ static int _client_gamereport(t_connection * c, t_packet const *const packet)
 	    if (player[0] == '\0')	/* empty slots have empty player name */
 		continue;
 
-	    if (i > game_get_count(game)) {
+	    if (i >= game_get_count(game)) {
 		eventlog(eventlog_level_error, __FUNCTION__, "[%d] got more results than the game had players - ignoring extra results", conn_get_socket(c));
 		break;
 	    }
