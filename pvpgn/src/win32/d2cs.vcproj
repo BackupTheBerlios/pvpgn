@@ -155,9 +155,6 @@
 					RelativePath="..\d2cs\d2gs.c">
 				</File>
 				<File
-					RelativePath="..\d2cs\d2gstrans.c">
-				</File>
-				<File
 					RelativePath="..\d2cs\d2ladder.c">
 				</File>
 				<File
@@ -256,6 +253,9 @@
 				</File>
 				<File
 					RelativePath="..\common\rlimit.c">
+				</File>
+				<File
+					RelativePath="..\common\trans.c">
 				</File>
 				<File
 					RelativePath="..\common\util.c">
@@ -365,9 +365,6 @@
 					RelativePath="..\d2cs\d2gs.h">
 				</File>
 				<File
-					RelativePath="..\d2cs\d2gstrans.h">
-				</File>
-				<File
 					RelativePath="..\d2cs\d2ladder.h">
 				</File>
 				<File
@@ -467,6 +464,9 @@
 				<File
 					RelativePath="..\common\queue.h">
 				</File>
+				<File
+					RelativePath="..\common\trans.h">
+				</File>				
 				<File
 					RelativePath="..\common\util.h">
 				</File>
