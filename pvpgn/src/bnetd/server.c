@@ -791,7 +791,7 @@ static int sd_tcpoutput(int csocket, t_connection * c)
             return -2;
 
         if(conn_get_pmap(c) && !(packet_get_flags(packet) & PACKET_FLAG_PMAPPED)) {
-  	    packet_set_type(packet, bnpmap_real(packet_get_type(packet), conn_get_pmap(c)));
+  	    packet_set_type(packet, bnpmap_show(packet_get_type(packet), conn_get_pmap(c)));
 	    packet_set_flags(packet, packet_get_flags(packet) | PACKET_FLAG_PMAPPED);
     	}
 
