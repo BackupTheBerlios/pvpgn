@@ -221,9 +221,6 @@
 					RelativePath="..\bnetd\handle_anongame.c">
 				</File>
 				<File
-					RelativePath="..\bnetd\handle_auth.c">
-				</File>
-				<File
 					RelativePath="..\bnetd\handle_bnet.c">
 				</File>
 				<File
@@ -622,9 +619,6 @@
 				</File>
 				<File
 					RelativePath="..\bnetd\handle_anongame.h">
-				</File>
-				<File
-					RelativePath="..\bnetd\handle_auth.h">
 				</File>
 				<File
 					RelativePath="..\bnetd\handle_bnet.h">

@@ -150,7 +150,6 @@ bnetd_OBJECTS       = \
     ${SRC_BNETDDIR}\handle_telnet.obj \
     ${SRC_BNETDDIR}\handle_irc.obj \
     ${SRC_BNETDDIR}\handle_udp.obj \
-    ${SRC_BNETDDIR}\handle_auth.obj \
     ${SRC_BNETDDIR}\handle_anongame.obj \
     ${SRC_BNETDDIR}\channel.obj \
     ${SRC_BNETDDIR}\channel_conv.obj \
