@@ -188,7 +188,7 @@ extern int anongame_matchmaking_process_map(FILE *f, int gametype, char *title, 
 			fwrite(elem_get_data(curr), strlen(elem_get_data(curr)) + 1, 1, f);
 			fwrite(&i32, sizeof(i32), 1, f);
 			eventlog(eventlog_level_info, "anongame_matchmaking_process_map", 
-				"Adding map: %s", elem_get_data(curr));
+				"Adding map: %p", elem_get_data(curr));
 		}
 	}
 	fwrite(desc, strlen(desc) + 1, 1, f);
@@ -384,6 +384,7 @@ extern void anongame_maplists_destroy()
 	}
 }
 
+/* Function not called anymore - CreepLord
 static char const * anongame_maplists_getmap(t_list *list, unsigned int idx)
 {
 	if (list == NULL) return NULL;
@@ -391,6 +392,7 @@ static char const * anongame_maplists_getmap(t_list *list, unsigned int idx)
 
 	return (char const *)list_get_data_by_pos(list, idx);
 }
+*/
 
 extern int anongame_totalplayers(t_uint8 gametype)
 {
@@ -1083,9 +1085,10 @@ extern int handle_w3route_packet(t_connection * c, t_packet const * const packet
 	   conn_set_state(c, conn_state_destroy);
 	   
 	   // activate timers on open w3route connectons
-	   if (result = W3_GAMERESULT_WIN) {
+	   if (result == W3_GAMERESULT_WIN) {
 	      for(i=0; i<tp; i++) {
-	         if(ac = anongame_get_player(a,i)) {
+	         ac = anongame_get_player(a,i);
+	         if(ac) {
 		    timerlist_add_timer(ac,time(NULL)+(time_t)300,conn_shutdown,data); // 300 seconds or 5 minute timer
 		    eventlog(eventlog_level_trace,"handle_w3route_packet","[%d] started timer to close w3route -> USER: %s",conn_get_socket(ac),conn_get_username(ac));
 		 }
