@@ -167,24 +167,44 @@ extern int news_load(const char *filename)
 
 	    if ((previous_ni) && (ni->date == previous_ni->date))
 	    {
-		eventlog(eventlog_level_error,__FUNCTION__,"found another news item for same date, joining both");
-
-		previous_ni->body = realloc(previous_ni->body,strlen(previous_ni->body)+1+strlen(buff)+1);
-		sprintf(previous_ni->body,"%s\n%s",previous_ni->body,buff);
-		free((void *)ni);
+		eventlog(eventlog_level_error,__FUNCTION__,"found another news item for same date, trying to join both");
+		
+		if ((strlen(previous_ni->body) + strlen(buff) +2) > 1023)
+		{
+		  eventlog(eventlog_level_error,__FUNCTION__,"failed in joining news, cause news too long - skipping");
+		  free((void *)ni);
+		}
+		else
+		{
+		  previous_ni->body = realloc(previous_ni->body,strlen(previous_ni->body)+1+strlen(buff)+1);
+		  sprintf(previous_ni->body,"%s\n%s",previous_ni->body,buff);
+		  free((void *)ni);
+		}
 		
 	    }
 	    else
 	    {
-	      ni->body=strdup(buff);
+	      if ( strlen(buff)<1023 )
+	      {
+	        ni->body=strdup(buff);
 	    
-	      if (list_append_data(news_head,ni)<0) {
+	        if (list_append_data(news_head,ni)<0) {
+		
 		  eventlog(eventlog_level_error,"news_load","could not append item");
 		  if (ni)
-		      free(ni);
+		  {
+		    if (ni->body) free(ni->body);
+		    free(ni);
+		  }
 		  continue;
+	        }
+	        previous_ni = ni;
 	      }
-	      previous_ni = ni;
+	      else
+	      {
+		eventlog(eventlog_level_error,__FUNCTION__,"news too long - skipping");
+		if (ni) free(ni);
+	      }
 	    }
 	}
 	free((void *)buff);
