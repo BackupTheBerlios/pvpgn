@@ -821,7 +821,7 @@ static int sql_load_clans(t_load_clans_func cb)
 	return -1;
     }
 
-    strcpy(query,"SELECT cid, short, name, motd, creation_time FROM clan");
+    strcpy(query,"SELECT cid, short, name, motd, creation_time FROM clan WHERE cid > 0");
     if((result = sql->query_res(query)) != NULL) {
 	if (sql->num_rows(result) < 1) {
 	    sql->free_result(result);
@@ -856,6 +856,7 @@ static int sql_load_clans(t_load_clans_func cb)
         clan->created = 1;
         clan->modified = 0;
         clan->channel_type = prefs_get_clan_channel_default_private();
+	clan->members = list_create();
 
         sprintf(query,"SELECT uid, status, join_time FROM clanmember WHERE cid='%u'",clan->clanid);
 
@@ -1051,101 +1052,5 @@ static int sql_remove_clan(int clanshort)
 
   return 0;
 }
-
-#ifdef KAKAMAKA
-
-t_attr_from_all * db_get_attr_from_all(char const * attr)
-{
-   char query[1024];
-   char *tab, *col;
-   MYSQL_RES* result = NULL;
-   MYSQL_ROW row;
-   t_attr_from_all * attr_from_all;
-   unsigned int * uids;
-   char ** values;
-   
-   if(!mysql) {
-      eventlog(eventlog_level_error, __FUNCTION__, "NULL mysql");
-      return NULL;
-   }
-
-   if (_db_get_tab(attr, &tab, &col)<0) {
-      eventlog(eventlog_level_error,__FUNCTION__,"error from db_get_tab");
-      return NULL;
-   }
-   
-   sprintf(query, "SELECT uid , %s FROM %s;",col,tab);
-   
-   eventlog(eventlog_level_trace, __FUNCTION__, "query: %s", query);
-   mysql_query(mysql,query);
-
-   result = mysql_store_result(mysql);
-
-   if(result && (mysql_num_rows(result) > 1)) {
-      int norows, count;
-      unsigned int num;
-      
-      norows = mysql_num_rows(result) - 1;
-      if ((attr_from_all = malloc(sizeof(t_attr_from_all))) == NULL) {
-	 eventlog(eventlog_level_error, __FUNCTION__,"could not allocate for list");
-	 mysql_free_result(result);
-	 return NULL;
-      }
-      
-      if ((uids = malloc(sizeof(unsigned int) * norows)) == NULL) {
-	 eventlog(eventlog_level_error, __FUNCTION__,"could not allocate for uids");
-	 free(attr_from_all);
-	 mysql_free_result(result);
-	 return NULL;
-      }
-
-      if ((values = malloc(sizeof(char *) * norows)) == NULL) {
-	eventlog(eventlog_level_error,__FUNCTION__,"could not allocate for values");
-	free(attr_from_all->uids);
-	free(attr_from_all);
-	mysql_free_result(result);
-	return NULL;
-      }
-
-      for (count = 0; count < norows; count++)
-      {
-        values[count]=NULL;
-      }
-
-      attr_from_all->uids = uids;
-      attr_from_all->values = values;
-      attr_from_all->len    = norows;
-
-      count = 0;
-      for(count = 0; ((row = mysql_fetch_row(result))) && count < norows; count++) {
-	 if (row[0] == NULL) {
-	    db_free_attrs(attr_from_all);
-	    mysql_free_result(result);
-	    eventlog(eventlog_level_error, __FUNCTION__, "got NULL uid");
-	    return NULL;
-	 }
-	 num = atol(row[0]);
-	 
-	 if (num == 0) {count--; continue;}
-	 attr_from_all->uids[count] = num;
-	 if (row[1]==NULL)
-	   attr_from_all->values[count] = NULL;
-	 else
-	   attr_from_all->values[count] = strdup(row[1]);
-      }
-
-      mysql_free_result(result);
-   } else {
-      eventlog(eventlog_level_error,__FUNCTION__,"error query db (query:\"%s\")", query);
-      if (result) mysql_free_result(result);
-      return NULL;
-   }
-   
-   if (!result) return NULL;
- 
-   return attr_from_all;   
-}
-
-#endif
 
 #endif /* WITH_SQL */
