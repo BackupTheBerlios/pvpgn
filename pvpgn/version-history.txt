@@ -3,6 +3,12 @@ PvPGN Version History:
  Changelog for 1.7.4 (since 1.7.3)
 ===================================
 
+[SC/BW/W2BNE]
+ -- write a message to creators/joiners of ladder games of alternative types
+ (those specified with "ladder_games" in bnetd.conf)
+ -- adder "ladder_prefix" to allow only matching game names to be counted as 
+ ladder games for the alternative ladder game types
+
 [D2DBS]
  -- changed codes to use the common network API for send/recv on sockets and 
  error checking thus hopefully fixing bugs of not ignoring properly some errors 

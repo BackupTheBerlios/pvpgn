@@ -2207,13 +2207,28 @@ extern int game_get_count_by_clienttag(t_clienttag ct)
    return clienttaggames;
 }
 
+static int game_match_name(const char *name, const char *prefix)
+{
+    /* the easy cases */
+    if (!name || !*name) return 1;
+    if (!prefix || !*prefix) return 1;
+
+    if (!strncmp(name,prefix,strlen(prefix))) return 1;
+
+    return 0;
+}
+
 extern int game_is_ladder(t_game *game)
 {
     assert(game);
 
+    /* all normal ladder games are still counted as ladder games */
     if (game->type == game_type_ladder ||
-        game->type == game_type_ironman ||
-	game_match_type(game_get_type(game),prefs_get_ladder_games())) return 1;
+        game->type == game_type_ironman) return 1;
+
+    /* addition game types are also checked against gamename prefix if set */
+    if (game_match_type(game_get_type(game),prefs_get_ladder_games()) && 
+	game_match_name(game_get_name(game),prefs_get_ladder_prefix())) return 1;
 
     return 0;
 }

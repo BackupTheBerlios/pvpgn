@@ -9,6 +9,12 @@ It should contain:
 -- all new/changed config files in the conf/ subfolder
 The path's specified are those of the default unix installation
 
+ Updating from 1.7.3 to 1.7.4
+==============================
+- conf/bnetd.conf : added "ladder_prefix" paremeter to allow only games with 
+    matching gamename to be counted as ladder (applies only to alternative 
+    ladder game types as specified by "ladder_games" directive)
+
  Updating from 1.7.1 to 1.7.2
 ==============================
 

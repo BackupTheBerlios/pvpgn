@@ -302,6 +302,16 @@ disc_is_loss = false
 # Example: ladder_games = "topvbot,oneonone"
 ladder_games = "none"
 
+# If additional game types are configured (see above) to be counted as ladder 
+# games then this setting configures a game name prefix to make only games 
+# which match this game name prefix be counted as ladder. This allows to 
+# still have normal games of the game types configured with "ladder_games" 
+# directive. However if this setting is commented or "" then ALL games 
+# which match the game types configured with "ladder_games" are to be 
+# considered as ladder games. The prefix checking is CASE SENSITIVE!
+# Example: ladder_prefix = "ldr_"
+ladder_prefix = ""
+
 # Should all users be able to use the /con and /connections commands?
 enable_conn_all = true
 

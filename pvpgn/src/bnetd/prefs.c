@@ -174,6 +174,7 @@ static struct {
     char const * supportfile;
     char const * allowed_clients;
     char const * ladder_games;
+    char const * ladder_prefix;
     unsigned int max_connections;
     unsigned int sync_on_logoff;
 } prefs_runtime_config;
@@ -294,6 +295,7 @@ static Bconf_t conf_table[] =
     { "maxusers_per_channel",	conf_type_int,	   NULL,		 0		     , (void *)&prefs_runtime_config.maxusers_per_channel},
     { "allowed_clients",	conf_type_char,    NULL,		 0                   , (void *)&prefs_runtime_config.allowed_clients},
     { "ladder_games",           conf_type_char,    NULL,                 NONE                , (void *)&prefs_runtime_config.ladder_games},
+    { "ladder_prefix",          conf_type_char,    NULL,                 NONE                , (void *)&prefs_runtime_config.ladder_prefix},
     { "max_connections",      	conf_type_int,     NULL,                 BNETD_MAX_SOCKETS   , (void *)&prefs_runtime_config.max_connections},
     { "sync_on_logoff",         conf_type_bool,    NULL,                 0                   , (void *)&prefs_runtime_config.sync_on_logoff},
     { NULL,             	conf_type_none,    NULL,                 NONE                , NULL},
@@ -1246,6 +1248,11 @@ extern char const * prefs_get_allowed_clients(void)
 extern char const * prefs_get_ladder_games(void)
 {
     return prefs_runtime_config.ladder_games;
+}
+
+extern char const * prefs_get_ladder_prefix(void)
+{
+    return prefs_runtime_config.ladder_prefix;
 }
 
 extern unsigned int prefs_get_max_connections(void)
