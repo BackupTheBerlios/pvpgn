@@ -1802,22 +1802,6 @@ static int _client_loginreq1(t_connection * c, t_packet const * const packet)
 	     t_hash       trypasshash2;
 	     char const * tname;
 	     
-	     if(!strcmp(account_get_pass(account),"a") && account_get_w3_acctpass(account)) {
-		char lpass[20];
-		unsigned int i;
-		
-		/* convert plaintext password to lowercase */
-		strncpy(lpass,account_get_w3_acctpass(account),16);
-		lpass[16] = 0;
-		for (i=0; i<strlen(lpass); i++)
-		  if (isascii((int)lpass[i]) && isupper((int)lpass[i]))
-		    lpass[i] = tolower((int)lpass[i]);
-		
-		bnet_hash(&oldpasshash1, strlen(lpass), lpass);
-		account_set_pass(account, hash_get_str(oldpasshash1));
-	     }
-	     
-	     
 	     if ((oldstrhash1 = account_get_pass(account)))
 	       {
 		  bn_int_set(&temp.ticks,bn_int_get(packet->u.client_loginreq1.ticks));

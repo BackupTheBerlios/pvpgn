@@ -1784,72 +1784,6 @@ extern int account_add_closed_character(t_account * account, char const * client
     return 0;
 }
 
-/* ADDED BY UNDYING SOULZZ 4/7/02 */
-extern int account_set_w3_race( t_account * account, char const * race )
-{
-    if ( race == NULL )
-    {
-	eventlog( eventlog_level_error,"account_set_w3_race","got NULL race. Not setting." );
-	return -1;
-    }
-    eventlog( eventlog_level_debug,"account_set_w3_race","setting race to %s", race );
-
-    return account_set_strattr( account, "Record\\WAR3\\0\\race", race );
-}
-
-extern char const * account_get_w3_race( t_account * account )
-{
-    if ( account_get_strattr( account, "Record\\WAR3\\0\\race") == NULL ) /* doesn't exist, so add it */
-    {
-   	account_set_w3_race( account, "humans" );	/* humans are the default race */
-	if ( account_get_strattr(account, "Record\\WAR3\\0\\race") == NULL )
-	{
-	    eventlog( eventlog_level_error, "account_get_w3_race", "couldn't get race" );
-	    return NULL;
-        }	
-    }
-
-    return account_get_strattr( account, "Record\\WAR3\\0\\race" );
-}
-
-extern int account_set_w3_accountlevel( t_account * account, unsigned int level )
-{
-    eventlog( eventlog_level_debug,"account_set_w3_race","setting account level to %d", level );
-    return account_set_numattr( account, "Record\\WAR3\\0\\accountlevel", level );
-}
-
-extern unsigned int account_get_w3_accountlevel( t_account * account )
-{
-    if ( account_get_strattr( account, "Record\\WAR3\\0\\accountlevel") == NULL ) /* doesn't exist, so add it */
-    {
-   	account_set_w3_accountlevel( account, 0 );	/* 0 is the default account level */
-	if ( account_get_strattr(account, "Record\\WAR3\\0\\accountlevel") == NULL )
-	{
-	    eventlog( eventlog_level_error, "account_get_w3_accountlevel", "couldn't get accountlevel" );
-	    return 0xffff;
-        }	
-    }
-
-    return account_get_numattr( account, "Record\\WAR3\\0\\accountlevel" );
-}
-   
-/* ADDED BY UNDYING SOULZZ 4/8/02 - Secure password Function SET/GET */
-extern int account_set_w3_acctpass( t_account * account, char const * acctsetpass )
-{
-	if ( acctsetpass == NULL )
-	{
-		eventlog( eventlog_level_error,"account_set_w3_acctpass","got NULL pass. Not setting." );
-		return -1;
-    }
-	eventlog( eventlog_level_debug,"account_set_w3_acctpass","setting password to %s", acctsetpass );
-	return account_set_strattr( account, "Record\\WAR3\\0\\securepass", acctsetpass );
-}
-
-extern char const * account_get_w3_acctpass( t_account * account)
-{
-	return account_get_strattr( account, "Record\\WAR3\\0\\securepass" );
-}
-
 /* ADDED BY THE UNDYING SOULZZ 4/10/02 - Clan Name for Profile Setting */
 extern int account_set_w3_clanname( t_account * account, char const * acctsetclanname )
 {
@@ -2497,8 +2431,10 @@ extern int account_set_saveladderstats(t_account * account,unsigned int gametype
 
 	intrace = account_get_w3pgrace(account);
 	
-	if(gametype==ANONGAME_TYPE_1V1) //1v1
+	switch (gametype)
 	{
+	  case ANONGAME_TYPE_1V1: //1v1
+	  {
 
 		if(result == game_result_win) //win
 		{
@@ -2514,9 +2450,12 @@ extern int account_set_saveladderstats(t_account * account,unsigned int gametype
 			
 		account_set_soloxp(account,result,opponlevel);
 		account_set_sololevel(account);
-	}
-	else if(gametype==ANONGAME_TYPE_2V2)
-	{
+		break;
+	  }
+	  case ANONGAME_TYPE_2V2:
+	  case ANONGAME_TYPE_3V3:
+	  case ANONGAME_TYPE_4V4:
+	  {
 		if(result == game_result_win) //win
 		{
 			account_set_teamwin(account);
@@ -2530,42 +2469,11 @@ extern int account_set_saveladderstats(t_account * account,unsigned int gametype
 
 		account_set_teamxp(account,result,opponlevel); //Not done yet
 		account_set_teamlevel(account);
-	}
-	else if(gametype==ANONGAME_TYPE_3V3)
-	{
-		if(result == game_result_win) //win
-		{
-			account_set_teamwin(account);
-			account_set_racewin(account,intrace);
-		}
-		if(result == game_result_loss) //loss
-		{
-			account_set_teamloss(account);
-			account_set_raceloss(account,intrace);
-		}
+		break;
+	  }
 
-		account_set_teamxp(account,result,opponlevel); //Not done yet
-		account_set_teamlevel(account);
-	}
-	else if(gametype==ANONGAME_TYPE_4V4)
-	{
-		if(result == game_result_win) //win
-		{
-			account_set_teamwin(account);
-			account_set_racewin(account,intrace);
-		}
-		if(result == game_result_loss) //loss
-		{
-			account_set_teamloss(account);
-			account_set_raceloss(account,intrace);
-		}
-
-		account_set_teamxp(account,result,opponlevel); //Not done yet
-		account_set_teamlevel(account);
-	}
-
-	else if(gametype==ANONGAME_TYPE_SMALL_FFA)
-	{
+	  case ANONGAME_TYPE_SMALL_FFA:
+	  {
 		if(result == game_result_win) //win
 		{
 			account_set_ffawin(account);
@@ -2579,9 +2487,11 @@ extern int account_set_saveladderstats(t_account * account,unsigned int gametype
 
 		account_set_ffaxp(account,result,opponlevel);
 		account_set_ffalevel(account);
-	}
-	else
+                break;
+	  }
+	  default:
 		eventlog(eventlog_level_error,"account_set_saveladderstats","Invalid Gametype? %u",gametype);
+	}
 
 	return 0;
 }

@@ -216,15 +216,6 @@ extern int account_set_closed_characterlist(t_account * account, char const * cl
 extern int account_add_closed_character(t_account * account, char const * clienttag, t_character * ch);
 extern int account_check_closed_character(t_account * account, char const * clienttag, char const * realmname, char const * charname);
 
-/* ADDED BY UNDYING SOULZZ 4/7/02 */
-/* WARCRAFT 3 RACE PREFERENCE */
-extern int account_set_w3_race( t_account * account, char const * race );
-extern char const * account_get_w3_race( t_account * account );
-extern int account_set_w3_accountlevel( t_account * account, unsigned int level );
-extern unsigned int account_get_w3_accountlevel( t_account * account );
-/* UNDYING SECURE ACCOUNT */
-extern char const * account_get_w3_acctpass( t_account * account);
-extern int account_set_w3_acctpass( t_account * account, char const * acctsetpass );
 /* UNDYING CLAN NAME ADDITION */
 extern char const * account_get_w3_clanname( t_account * account);
 extern int account_set_w3_clanname( t_account * account, char const * acctsetclanname );
