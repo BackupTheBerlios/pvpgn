@@ -237,6 +237,7 @@ static const t_htable_row bnet_htable_con[] = {
      { CLIENT_CHANGECLIENT,	_client_changeclient},
      { CLIENT_GETPASSWORDREQ,   _client_getpasswordreq },
      { CLIENT_CHANGEEMAILREQ,   _client_changeemailreq },
+     { CLIENT_CRASHDUMP,        _client_crashdump },
      { -1,                       NULL}
 };
 
