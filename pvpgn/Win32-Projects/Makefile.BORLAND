@@ -214,6 +214,7 @@ bnetd_OBJECTS       = \
     ${SRC_BNETDDIR}\team.obj \
     ${SRC_BNETDDIR}\attrgroup.obj \    
     ${SRC_BNETDDIR}\attrlayer.obj \            
+    ${SRC_BNETDDIR}\cmdline.obj \            
     ${SRC_WIN32DIR}\service.obj \
     ${SRC_COMMONDIR}\hexdump.obj \
     ${SRC_COMMONDIR}\bn_type.obj \
@@ -239,6 +240,7 @@ bnetd_OBJECTS       = \
     ${SRC_COMMONDIR}\fdwatch_select.obj \    
     ${SRC_COMMONDIR}\xalloc.obj \        
     ${SRC_COMMONDIR}\rcm.obj \            
+    ${SRC_COMMONDIR}\conf.obj \            
     ${SRC_COMPATDIR}\pdir.obj \
     ${SRC_COMPATDIR}\inet_aton.obj \
     ${SRC_COMPATDIR}\inet_ntoa.obj \

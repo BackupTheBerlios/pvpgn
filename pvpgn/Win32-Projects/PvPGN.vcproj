@@ -198,6 +198,9 @@
 					RelativePath="..\src\bnetd\clan.c">
 				</File>
 				<File
+					RelativePath="..\src\bnetd\cmdline.c">
+				</File>
+				<File
 					RelativePath="..\src\bnetd\command.c">
 				</File>
 				<File
@@ -362,6 +365,9 @@
 				</File>
 				<File
 					RelativePath="..\src\common\bnettime.c">
+				</File>
+				<File
+					RelativePath="..\src\common\conf.c">
 				</File>
 				<File
 					RelativePath="..\src\common\eventlog.c">
@@ -610,6 +616,9 @@
 					RelativePath="..\src\bnetd\clan.h">
 				</File>
 				<File
+					RelativePath="..\src\bnetd\cmdline.h">
+				</File>
+				<File
 					RelativePath="..\src\bnetd\command.h">
 				</File>
 				<File
@@ -786,6 +795,9 @@
 				</File>
 				<File
 					RelativePath="..\src\common\bot_protocol.h">
+				</File>
+				<File
+					RelativePath="..\src\common\conf.h">
 				</File>
 				<File
 					RelativePath="..\src\common\d2game_protocol.h">
