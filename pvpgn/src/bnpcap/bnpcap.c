@@ -22,7 +22,7 @@
 #include <netinet/in.h>
 #include <string.h>
 #include "compat/strerror.h"
-#include <getopt.h>
+#include "compat/getopt.h"
 #include "common/init_protocol.h"
 #include "common/bnet_protocol.h"
 #include "common/udp_protocol.h"

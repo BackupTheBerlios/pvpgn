@@ -505,7 +505,7 @@ static t_storage_info *file_read_account(const char *accname, unsigned uid)
     /* ONLY if requesting for a username and if savebyname() is true
      * PS: yes its kind of a hack, we will make a proper index file
      */
-    if (accname && prefs_get_savebyname) {
+    if (accname && prefs_get_savebyname()) {
 	if (!(pathname = malloc(strlen(accountsdir) + 1 + strlen(accname) + 1)))	/* dir + / + file + NUL */
 	{
 	    eventlog(eventlog_level_error, __FUNCTION__, "could not allocate memory for pathname");
