@@ -218,6 +218,7 @@ extern void w3trans_net(unsigned int clientaddr, unsigned int *w3ip, unsigned sh
 
 	    *w3ip = addr_get_ip(entry->output);
 	    *w3port = addr_get_port(entry->output);
+	    break;
 	}
 
     }
