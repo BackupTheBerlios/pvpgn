@@ -830,6 +830,7 @@ extern void handle_anongame_search(t_connection * c, t_packet const * packet)
 		t_uint8 teamsize = bn_byte_get(packet->u.client_findanongame_at_inv.teamsize);
 		map_prefs = bn_int_get(packet->u.client_findanongame_at_inv.map_prefs);
 		switch(teamsize) {
+		case 1:
 		case 2:
 			gametype = ANONGAME_TYPE_AT_2V2;
 			break;
