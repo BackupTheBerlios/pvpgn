@@ -510,4 +510,22 @@ w3xp_matchmaking_team_url_desc = "Team Games"
 
 w3xp_matchmaking_ffa_url  = "http://www.google.com"
 w3xp_matchmaking_ffa_url_desc = "Free for All Games"
+
+
+w3xp_matchmaking_solo_desc = "One vs. One"
+w3xp_matchmaking_solo_desc_long = "Two players fight to the death"
+
+w3xp_matchmaking_2vs2_desc = "Two vs. Two"
+w3xp_matchmaking_2vs2_desc_long = "Two teams of two vie for dominance"
+
+w3xp_matchmaking_3vs3_desc = "Three vs. Three"
+w3xp_matchmaking_3vs3_desc_long = "Two teams of three face off on the battlefield"
+
+w3xp_matchmaking_4vs4_desc = "Four vs. Four"
+w3xp_matchmaking_4vs4_desc_long = "Two teams of four head to battle"
+
+w3xp_matchmaking_ffa_desc = "Small Free for All"
+w3xp_matchmaking_ffa_desc_long = "Can you defeat 3-5 opponents alone?"
+
+
 ###############################################################################

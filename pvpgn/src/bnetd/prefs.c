@@ -215,6 +215,23 @@ static Bconf_t conf_table[] =
 
     { "w3xp_matchmaking_ffa_url",	conf_type_char,    PVPGN_DEFAULT_URL,	 NONE,         	ACT },
     { "w3xp_matchmaking_ffa_url_desc",  conf_type_char,    PVPGN_FFA_DESC,	 NONE,         	ACT },
+
+    //DESC
+    { "w3xp_matchmaking_solo_desc",	conf_type_char,    PVPGN_SOLO_GT_DESC,	 NONE,         	ACT },
+    { "w3xp_matchmaking_solo_desc_long",conf_type_char,    PVPGN_SOLO_GT_LONG,	 NONE,         	ACT },
+
+    { "w3xp_matchmaking_2vs2_desc",	conf_type_char,    PVPGN_2V2_GT_DESC,	 NONE,         	ACT },
+    { "w3xp_matchmaking_2vs2_desc_long",conf_type_char,    PVPGN_2V2_GT_LONG,	 NONE,         	ACT },
+
+    { "w3xp_matchmaking_3vs3_desc",	conf_type_char,    PVPGN_3V3_GT_DESC,	 NONE,         	ACT },
+    { "w3xp_matchmaking_3vs3_desc_long",conf_type_char,    PVPGN_3V3_GT_LONG,	 NONE,         	ACT },
+
+    { "w3xp_matchmaking_4vs4_desc",	conf_type_char,    PVPGN_4V4_GT_DESC,	 NONE,         	ACT },
+    { "w3xp_matchmaking_4vs4_desc_long",conf_type_char,    PVPGN_4V4_GT_LONG,	 NONE,         	ACT },
+
+    { "w3xp_matchmaking_ffa_desc",	conf_type_char,    PVPGN_FFA_GT_DESC,	 NONE,         	ACT },
+    { "w3xp_matchmaking_ffa_desc_long", conf_type_char,    PVPGN_FFA_GT_LONG,	 NONE,         	ACT },
+    
     
     { NULL,             	conf_type_none,    NULL,                 NONE,                  ACT },
 
@@ -1307,4 +1324,55 @@ extern char const * prefs_get_w3xp_matchmaking_ffa_url(void)
 extern char const * prefs_get_w3xp_matchmaking_ffa_url_desc(void)
 {
 	return get_char_conf("w3xp_matchmaking_ffa_url_desc");
+}
+
+//DESC
+extern char const * prefs_get_w3xp_matchmaking_solo_desc(void)
+{
+	return get_char_conf("w3xp_matchmaking_solo_desc");
+}
+
+extern char const * prefs_get_w3xp_matchmaking_solo_desc_long(void)
+{
+	return get_char_conf("w3xp_matchmaking_solo_desc_long");
+}
+
+extern char const * prefs_get_w3xp_matchmaking_2vs2_desc(void)
+{
+	return get_char_conf("w3xp_matchmaking_2vs2_desc");
+}
+
+extern char const * prefs_get_w3xp_matchmaking_2vs2_desc_long(void)
+{
+	return get_char_conf("w3xp_matchmaking_2vs2_desc_long");
+}
+
+extern char const * prefs_get_w3xp_matchmaking_3vs3_desc(void)
+{
+	return get_char_conf("w3xp_matchmaking_3vs3_desc");
+}
+
+extern char const * prefs_get_w3xp_matchmaking_3vs3_desc_long(void)
+{
+	return get_char_conf("w3xp_matchmaking_3vs3_desc_long");
+}
+
+extern char const * prefs_get_w3xp_matchmaking_4vs4_desc(void)
+{
+	return get_char_conf("w3xp_matchmaking_4vs4_desc");
+}
+
+extern char const * prefs_get_w3xp_matchmaking_4vs4_desc_long(void)
+{
+	return get_char_conf("w3xp_matchmaking_4vs4_desc_long");
+}
+
+extern char const * prefs_get_w3xp_matchmaking_ffa_desc(void)
+{
+	return get_char_conf("w3xp_matchmaking_ffa_desc");
+}
+
+extern char const * prefs_get_w3xp_matchmaking_ffa_desc_long(void)
+{
+	return get_char_conf("w3xp_matchmaking_ffa_desc_long");
 }

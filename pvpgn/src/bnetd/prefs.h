@@ -209,5 +209,20 @@ extern char const * prefs_get_w3xp_matchmaking_team_url_desc(void) PURE_ATTR();
 extern char const * prefs_get_w3xp_matchmaking_ffa_url(void) PURE_ATTR();
 extern char const * prefs_get_w3xp_matchmaking_ffa_url_desc(void) PURE_ATTR();
 
+extern char const * prefs_get_w3xp_matchmaking_solo_desc(void) PURE_ATTR();
+extern char const * prefs_get_w3xp_matchmaking_solo_desc_long(void) PURE_ATTR();
+
+extern char const * prefs_get_w3xp_matchmaking_2vs2_desc(void) PURE_ATTR();
+extern char const * prefs_get_w3xp_matchmaking_2vs2_desc_long(void) PURE_ATTR();
+
+extern char const * prefs_get_w3xp_matchmaking_3vs3_desc(void) PURE_ATTR();
+extern char const * prefs_get_w3xp_matchmaking_3vs3_desc_long(void) PURE_ATTR();
+
+extern char const * prefs_get_w3xp_matchmaking_4vs4_desc(void) PURE_ATTR();
+extern char const * prefs_get_w3xp_matchmaking_4vs4_desc_long(void) PURE_ATTR();
+
+extern char const * prefs_get_w3xp_matchmaking_ffa_desc(void) PURE_ATTR();
+extern char const * prefs_get_w3xp_matchmaking_ffa_desc_long(void) PURE_ATTR();
+
 #endif
 #endif

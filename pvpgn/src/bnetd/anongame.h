@@ -176,6 +176,7 @@ extern int anongame_get_result(t_anongame *a, int plnum);
 extern int anongame_maplists_create(void);
 extern void anongame_maplists_destroy(void);
 extern t_list * anongame_get_w3xp_maplist(int gametype);
+extern void anongame_add_maps_to_packet(t_packet * packet, int gametype);
 
 extern int anongame_totalplayers(t_uint8 gametype);
 extern char anongame_arranged(t_uint8 gametype);

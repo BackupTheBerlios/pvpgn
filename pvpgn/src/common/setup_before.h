@@ -251,6 +251,21 @@
 #define PVPGN_TEAM_DESC      "Team Games"
 #define PVPGN_FFA_DESC       "Free for All Games"
 
+#define PVPGN_SOLO_GT_DESC   "One vs. One"
+#define PVPGN_SOLO_GT_LONG   "Two players fight to the death"
+
+#define PVPGN_2V2_GT_DESC    "Two vs. Two"
+#define PVPGN_2V2_GT_LONG    "Two teams of two vie for dominance"
+
+#define PVPGN_3V3_GT_DESC    "Three vs. Three"
+#define PVPGN_3V3_GT_LONG    "Two teams of three face off on the battlefield"
+
+#define PVPGN_4V4_GT_DESC    "Four vs. Four"
+#define PVPGN_4V4_GT_LONG    "Two teams of four head to battle"
+
+#define PVPGN_FFA_GT_DESC    "Small Free for All"
+#define PVPGN_FFA_GT_LONG    "Can you defeat 3-5 opponents alone?"
+
 /***************************************************************/
 /* platform dependent features */
 

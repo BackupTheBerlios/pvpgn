@@ -291,6 +291,23 @@ extern t_list * anongame_get_w3xp_maplist(int gametype)
   return mapnames_w3xp[gametype];
 }
 
+extern void anongame_add_maps_to_packet(t_packet * packet, int gametype)
+{
+  t_list * mapslist;
+  t_elem * curr;
+  char * mapname;
+  if ((mapslist = anongame_get_w3xp_maplist(gametype)))
+    {
+      LIST_TRAVERSE(mapslist, curr)
+	{
+	  if ((mapname = (char *)elem_get_data(curr)))
+	    packet_append_string(packet,mapname);
+	  else
+	    eventlog(eventlog_level_error,__FUNCTION__,"got NULL mapname, check your bnmaps.txt");
+	}
+    }
+}
+
 extern int anongame_maplists_create(void)
 {
    FILE *mapfd;
