@@ -16,6 +16,10 @@ changes to bnetd.conf:
 ----------------------
 -- added: load_new_account = false
 
+changes to d2cs.conf:
+----------------------
+-- added: char_expire_day = 0
+
  Updating from 1.6.0 pre 3 to 1.6.0 pre 4
 ===========================================
 
