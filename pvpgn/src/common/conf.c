@@ -32,6 +32,7 @@
 #include "common/xalloc.h"
 #include "common/util.h"
 #include "common/conf.h"
+#include "compat/snprintf.h"
 #include "common/setup_after.h"
 
 extern int conf_set_int(unsigned *pint, const char *valstr, unsigned def)
