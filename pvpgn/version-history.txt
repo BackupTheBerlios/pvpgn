@@ -17,7 +17,7 @@ work fine now, still problems for W3XP remaining)
 -- make sure war3 lan game search does not cause server to report strange
 errors -  by Alexey
 -- support for multiple news - by Alexey
--- added "thumbs down" limitation for W3XP
+-- added "thumbs down" limitation for W3XP (still hardcoded but config later)
 -- support for the "select icon" function added
 -- fixed problems with chat/profile icons not being sync'ed
 -- friends list in war3/w3xp should now properly show channel for non-mutual
@@ -30,6 +30,9 @@ channel.list)
 -- new option max_connection_per_IP in bnetd.conf allows u to limit
 connections from same IP - by z0rm
 -- added mapping for all version up to 315 to get rid of annoying warning
+-- added tempOPs for non permanent channels. those can kick users from the
+chanel and /op other users to make them tempOPs, too (no OP icon so far, this
+will be added later)
 
 1.4.6
 -- MOTD and join chat welcome message now show users per client
