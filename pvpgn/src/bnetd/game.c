@@ -1539,6 +1539,7 @@ extern int game_add_player(t_game * game, char const * pass, int startver, t_con
     t_game_result ** temprr;
     char const * *   temprh;
     char const * *   temprb;
+    unsigned int i;
     
     if (!game)
     {
@@ -1591,124 +1592,150 @@ extern int game_add_player(t_game * game, char const * pass, int startver, t_con
 	return -1;
     }
 
-    if (!game->connections) /* some realloc()s are broken */
+    if (game->connections && (game->count > 0))
     {
-	if (!(tempc = malloc((game->count+1)*sizeof(t_connection *))))
+	for (i=0; i<game->count; i++)
 	{
-	    eventlog(eventlog_level_error,"game_add_player","unable to allocate memory for game connections");
-	    return -1;
-	}
-    }
-    else
-    {
-	if (!(tempc = realloc(game->connections,(game->count+1)*sizeof(t_connection *))))
-	{
-	    eventlog(eventlog_level_error,"game_add_player","unable to allocate memory for game connections");
-	    return -1;
-	}
-    }
-    game->connections = tempc;
-    if (!game->players) /* some realloc()s are broken */
-    {
-	if (!(tempp = malloc((game->count+1)*sizeof(t_account *))))
-	{
-	    eventlog(eventlog_level_error,"game_add_player","unable to allocate memory for game players");
-	    return -1;
-	}
-    }
-    else
-    {
-	if (!(tempp = realloc(game->players,(game->count+1)*sizeof(t_account *))))
-	{
-	    eventlog(eventlog_level_error,"game_add_player","unable to allocate memory for game players");
-	    return -1;
-	}
-    }
-    game->players = tempp;
+	    if (game->connections[i] == NULL)
+	    {
+		game->connections[i]   = c;
+		game->players[i]       = conn_get_account(c);
+		game->results[i]       = game_result_none;
+		game->reported_results[i] = NULL;
+		game->report_heads[i]  = NULL;
+		game->report_bodies[i] = NULL;
     
-    if (!game->results) /* some realloc()s are broken */
-    {
-	if (!(tempr = malloc((game->count+1)*sizeof(t_game_result))))
-	{
-	    eventlog(eventlog_level_error,"game_add_player","unable to allocate memory for game results");
-	    return -1;
+		game->ref++;
+		game->lastaccess_time = time(NULL);
+		break;
+	    }
 	}
+	
     }
-    else
+    
+    if ((i == game->count) || (game->count == 0))
     {
-	if (!(tempr = realloc(game->results,(game->count+1)*sizeof(t_game_result))))
-	{
-	    eventlog(eventlog_level_error,"game_add_player","unable to allocate memory for game results");
-	    return -1;
-	}
-    }
-    game->results = tempr;
 
-    if (!game->reported_results)
-    {
-        if (!(temprr = malloc((game->count+1)*sizeof(t_game_result *))))
-	{
-	    eventlog(eventlog_level_error,__FUNCTION__,"unable to allocate memory for game reported results");
-	    return -1;
-	}
-    }
-    else
-    {
-	if (!(temprr = realloc(game->reported_results,(game->count+1)*sizeof(t_game_result *))))
-	{
-	    eventlog(eventlog_level_error,"game_add_player","unable to allocate memory for game reported results");
-	    return -1;
-	}
-    }
-    game->reported_results = temprr;
+        if (!game->connections) /* some realloc()s are broken */
+        {
+	    if (!(tempc = malloc((game->count+1)*sizeof(t_connection *))))
+	    {
+	        eventlog(eventlog_level_error,"game_add_player","unable to allocate memory for game connections");
+	        return -1;
+	    }
+        }
+        else
+        {
+	    if (!(tempc = realloc(game->connections,(game->count+1)*sizeof(t_connection *))))
+	    {
+	        eventlog(eventlog_level_error,"game_add_player","unable to allocate memory for game connections");
+	        return -1;
+	    }
+        }
+        game->connections = tempc;
+        if (!game->players) /* some realloc()s are broken */
+        {
+	    if (!(tempp = malloc((game->count+1)*sizeof(t_account *))))
+	    {
+	        eventlog(eventlog_level_error,"game_add_player","unable to allocate memory for game players");
+	        return -1;
+	    }
+        }
+        else
+        {
+	    if (!(tempp = realloc(game->players,(game->count+1)*sizeof(t_account *))))
+	    {
+	        eventlog(eventlog_level_error,"game_add_player","unable to allocate memory for game players");
+	        return -1;
+	    }
+        }
+        game->players = tempp;
     
-    if (!game->report_heads) /* some realloc()s are broken */
-    {
-	if (!(temprh = malloc((game->count+1)*sizeof(char const *))))
-	{
-	    eventlog(eventlog_level_error,"game_add_player","unable to allocate memory for game report headers");
-	    return -1;
-	}
-    }
-    else
-    {
-	if (!(temprh = realloc((void *)game->report_heads,(game->count+1)*sizeof(char const *)))) /* avoid compiler warning */
-	{
-	    eventlog(eventlog_level_error,"game_add_player","unable to allocate memory for game report headers");
-	    return -1;
-	}
-    }
-    game->report_heads = temprh;
+        if (!game->results) /* some realloc()s are broken */
+        {
+	    if (!(tempr = malloc((game->count+1)*sizeof(t_game_result))))
+	    {
+	        eventlog(eventlog_level_error,"game_add_player","unable to allocate memory for game results");
+	        return -1;
+	    }
+        }
+        else
+        {
+	    if (!(tempr = realloc(game->results,(game->count+1)*sizeof(t_game_result))))
+	    {
+	        eventlog(eventlog_level_error,"game_add_player","unable to allocate memory for game results");
+	        return -1;
+	    }
+        }
+        game->results = tempr;
+
+        if (!game->reported_results)
+        {
+            if (!(temprr = malloc((game->count+1)*sizeof(t_game_result *))))
+	    {
+	        eventlog(eventlog_level_error,__FUNCTION__,"unable to allocate memory for game reported results");
+	        return -1;
+	    }
+        }
+        else
+        {
+	    if (!(temprr = realloc(game->reported_results,(game->count+1)*sizeof(t_game_result *))))
+	    {
+	        eventlog(eventlog_level_error,"game_add_player","unable to allocate memory for game reported results");
+	        return -1;
+	    }
+        }
+        game->reported_results = temprr;
     
-    if (!game->report_bodies) /* some realloc()s are broken */
-    {
-	if (!(temprb = malloc((game->count+1)*sizeof(char const *))))
-	{
-	    eventlog(eventlog_level_error,"game_add_player","unable to allocate memory for game report bodies");
-	    return -1;
-	}
-    }
-    else
-    {
-	if (!(temprb = realloc((void *)game->report_bodies,(game->count+1)*sizeof(char const *)))) /* avoid compiler warning */
-	{
-	    eventlog(eventlog_level_error,"game_add_player","unable to allocate memory for game report bodies");
-	    return -1;
-	}
-    }
-    game->report_bodies = temprb;
+        if (!game->report_heads) /* some realloc()s are broken */
+        {
+	    if (!(temprh = malloc((game->count+1)*sizeof(char const *))))
+	    {
+	        eventlog(eventlog_level_error,"game_add_player","unable to allocate memory for game report headers");
+	        return -1;
+	    }
+        }
+        else
+        {
+	    if (!(temprh = realloc((void *)game->report_heads,(game->count+1)*sizeof(char const *)))) /* avoid compiler warning */
+	    {
+	        eventlog(eventlog_level_error,"game_add_player","unable to allocate memory for game report headers");
+	        return -1;
+	    }
+        }
+        game->report_heads = temprh;
     
-    game->connections[game->count]   = c;
-    game->players[game->count]       = conn_get_account(c);
-    game->results[game->count]       = game_result_none;
-    game->reported_results[game->count] = NULL;
-    game->report_heads[game->count]  = NULL;
-    game->report_bodies[game->count] = NULL;
+        if (!game->report_bodies) /* some realloc()s are broken */
+        {
+	    if (!(temprb = malloc((game->count+1)*sizeof(char const *))))
+	    {
+	        eventlog(eventlog_level_error,"game_add_player","unable to allocate memory for game report bodies");
+	        return -1;
+	    }
+        }
+        else
+        {
+	    if (!(temprb = realloc((void *)game->report_bodies,(game->count+1)*sizeof(char const *)))) /* avoid compiler warning */
+	    {
+	        eventlog(eventlog_level_error,"game_add_player","unable to allocate memory for game report bodies");
+	        return -1;
+	    }
+        }
+        game->report_bodies = temprb;
     
-    game->count++;
-    game->ref++;
-    game->lastaccess_time = time(NULL);
+        game->connections[game->count]   = c;
+        game->players[game->count]       = conn_get_account(c);
+        game->results[game->count]       = game_result_none;
+        game->reported_results[game->count] = NULL;
+        game->report_heads[game->count]  = NULL;
+        game->report_bodies[game->count] = NULL;
     
+        game->count++;
+        game->ref++;
+        game->lastaccess_time = time(NULL);
+    
+    } // end of "if ((i == game->count) || (game->count == 0))"
+
     if (game->startver!=startver && startver!=STARTVER_UNKNOWN) /* with join startver ALWAYS unknown [KWS] */
     {
 	char const * tname;
