@@ -2036,7 +2036,7 @@ extern int conn_set_game(t_connection * c, char const * gamename, char const * g
 #else    
     if (c->game)
     {
-        if (gamename && !strcasecmp(gamename,game_get_name(c->game)))
+        if (gamename && strcasecmp(gamename,game_get_name(c->game)))
         {
              eventlog(eventlog_level_error,"conn_set_game","[%d] tried to join a new game \"%s\" while already in a game \"%s\"!",conn_get_socket(c),gamename,game_get_name(c->game));
              return 0;
