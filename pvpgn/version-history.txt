@@ -1,6 +1,96 @@
 PvPGN Version History:
-Latest changes:
--- MYSQL support compileable with Borland C compiler now
+
+1.5.0
+-- added conf/anongame_infos.conf so u can freely name gametypes for W3XP
+-- maps/gametypes for W3XP can now be changed in bnmaps.txt
+-- fixed some possible mySQL problems with savebyname=false for usernames
+beginning with a digit
+-- some more mySQL loading speedups for mysql_persistent=true
+-- changed line number counting for versioncheck file a bit, so on possible
+errors the reported line numbers are now much closer to the problem
+-- allows delimiting of mapnames with " " in bnmaps.txt
+-- changed versioncheck exe parsing so it should now accept filenames containg
+spaces (like War2-BNE)
+-- some first fixes to get PvPGN working on BigEndian machines (WAR3 should
+work fine now, still problems for W3XP remaining)
+-- added /NAMES command (rfc 1459) - by Alexey
+-- make sure war3 lan game search does not cause server to report strange
+errors -  by Alexey
+-- support for multiple news - by Alexey
+-- added "thumbs down" limitation for W3XP
+-- support for the "select icon" function added
+-- fixed problems with chat/profile icons not being sync'ed
+-- friends list in war3/w3xp should now properly show channel for non-mutual
+friends, too
+-- solved "can't create duplicate channel" problems when trying to create a
+common channel for war3 and w3xp
+-- made sure The Void is not shown in channellist
+-- added the possibility for server admin/oper only channels (via max==0 in
+channel.list)
+-- new option max_connection_per_IP in bnetd.conf allows u to limit
+connections from same IP - by z0rm
+-- added mapping for all version up to 315 to get rid of annoying warning
+
+1.4.6
+-- MOTD and join chat welcome message now show users per client
+-- fixed the 1.4.5 mySQL problems with DB autoupdate
+-- fixed channel icons (WAR3)
+-- fixed problems with profile (falsely showing WAR3 profile for W3XP player)
+-- show lastlogin time for offline users on /whois
+-- added client statsupdate mapping for FT (now u can again edit your stuff in
+profile screen)
+-- security tweak to permit ppl to grab BNET\\acct\\passhash1 with a packet
+sender
+-- removed a few tiny memleaks
+-- added --arch option to bnftp (for grabbing MAC files on IX86)
+-- added W3XP icon for WAR3 and STAR
+-- made changes to the irc module to make it safer
+-- made FT PG/AT stats work again !!!! (along with latest loader from aCiD)
+
+1.4.5:
+** IMPORTANT !!!! **
+** this release contains a stats splitup for War3 versus War3 Frozen Throne
+clients, for this to work with file accounts you need to use convert_w3.pl
+from the scripts directory to convert your existent accounts **
+-- FULL support for Frozen Throne 3.05 (CG/PlayGame/AT)
+-- fixed icons in channel and profiles to show exactly as on Battle.net
+-- dont send part server message to the user who parts the channel
+-- added CLIENT_ADCLICK2 for FT 3.03 and 3.01
+-- fixed a tiny memleak in mysql code
+-- optimized versioncheck file based on popularity
+-- some win32 fixes
+-- fixed another small memleak in game.c
+-- added Borland compilers MySQL support (see the docs)
+-- fixed old standing bug for full (no open slots) games still showing in
+game lists
+
+
+1.4.4:
+-- Frozen Throne 3.04 support added
+-- introduced CLIENT_NULL for FF 40 mapping (to avoid warning)
+-- fixed bogus error: 'tried to join new game "foo" while already in a game
+"foo"!'
+-- fixed /friends list, offline friends showing with game client
+-- fixed THE VOID
+-- dont send part server message to the user who parts the channel
+-- Removed anongame_found2 as it is not used by 3.03 w3xp
+-- added CLIENT_ADCLICK2 for FT 3.03 and 3.01
+-- fixed a tiny memleak in mysql code
+-- optimized versioncheck file based on popularity
+-- some win32 fixes
+-- fixed another small memleak in game.c
+-- added Warcraft 3 Expansion Play Game / AT support (no stats yet)
+
+1.4.3:
+-- fixed channel not leaving issue for W3XP 3.03
+
+1.4.2:
+-- added W3XP 3.03 support
+-- begin PG support
+
+1.4.1:
+-- fix for memleak
+-- LOTS of other fixes (crashes and some other)
 
 1.4.0:
 -- fixes for PG/AT and late War3 versions
