@@ -1,4 +1,4 @@
-/* $Id: cdb.c,v 1.4 2003/08/01 01:50:42 zakmcrofl Exp $
+/* $Id: cdb.c,v 1.5 2003/08/01 01:57:23 zakmcrofl Exp $
  * cdb command line tool
  *
  * This file is a part of tinycdb package by Michael Tokarev, mjt@corpit.ru.
@@ -27,6 +27,7 @@
 #else
 #ifdef __BORLANDC__
 #include <io.h>
+#endif
 #endif
 
 #ifdef HAVE_FCNTL_H
