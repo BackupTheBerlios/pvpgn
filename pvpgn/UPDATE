@@ -9,6 +9,14 @@ It should contain:
 -- all new/changed config files in the conf/ subfolder
 The path's specified are those of the default unix installation
 
+ Updating from 1.6.0 beta to 1.6.0 RC1
+==========================================
+
+changed config files:
+---------------------
+-- conf/sql_DB_layout has been changed, update it when you are currently not using
+a SQL storage mode, but plan to do so in the near future
+
  Updating from 1.6.0 pre 5 to 1.6.0 beta
 ===========================================
 
