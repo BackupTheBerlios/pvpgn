@@ -1311,7 +1311,6 @@ extern void ladders_load_accounts_to_ladderlists(void)
 	     	 {
 	 			 int games = account_get_ladder_wins(account,CLIENTTAG_STARCRAFT,ladder_id_normal)+
 		 		             account_get_ladder_losses(account,CLIENTTAG_STARCRAFT,ladder_id_normal)+
-	     	                 account_get_ladder_draws(account,CLIENTTAG_STARCRAFT,ladder_id_normal)+
 	         	             account_get_ladder_disconnects(account,CLIENTTAG_STARCRAFT,ladder_id_normal);
 
 	 		      war3_ladder_add(&STAR_current_games, uid,
@@ -1336,7 +1335,6 @@ extern void ladders_load_accounts_to_ladderlists(void)
 	     	 {
 			 	 int games = account_get_ladder_active_wins(account,CLIENTTAG_STARCRAFT,ladder_id_normal)+
 			     	         account_get_ladder_active_losses(account,CLIENTTAG_STARCRAFT,ladder_id_normal)+
-	                 	     account_get_ladder_active_draws(account,CLIENTTAG_STARCRAFT,ladder_id_normal)+
 	                     	 account_get_ladder_active_disconnects(account,CLIENTTAG_STARCRAFT,ladder_id_normal);
 
 	 		      war3_ladder_add(&STAR_active_games, uid,
@@ -1362,7 +1360,6 @@ extern void ladders_load_accounts_to_ladderlists(void)
 	     	 {
 	 			 int games = account_get_ladder_wins(account,CLIENTTAG_BROODWARS,ladder_id_normal)+
 		 		             account_get_ladder_losses(account,CLIENTTAG_BROODWARS,ladder_id_normal)+
-	     	                 account_get_ladder_draws(account,CLIENTTAG_BROODWARS,ladder_id_normal)+
 	         	             account_get_ladder_disconnects(account,CLIENTTAG_BROODWARS,ladder_id_normal);
 
 	 		      war3_ladder_add(&SEXP_current_games, uid,
@@ -1387,7 +1384,6 @@ extern void ladders_load_accounts_to_ladderlists(void)
 	     	 {
 			 	 int games = account_get_ladder_active_wins(account,CLIENTTAG_BROODWARS,ladder_id_normal)+
 			     	         account_get_ladder_active_losses(account,CLIENTTAG_BROODWARS,ladder_id_normal)+
-	                 	     account_get_ladder_active_draws(account,CLIENTTAG_BROODWARS,ladder_id_normal)+
 	                     	 account_get_ladder_active_disconnects(account,CLIENTTAG_BROODWARS,ladder_id_normal);
 
 	 		      war3_ladder_add(&SEXP_active_games, uid,
@@ -1413,7 +1409,6 @@ extern void ladders_load_accounts_to_ladderlists(void)
 	     	 {
 	 			 int games = account_get_ladder_wins(account,CLIENTTAG_WARCIIBNE,ladder_id_normal)+
 		 		             account_get_ladder_losses(account,CLIENTTAG_WARCIIBNE,ladder_id_normal)+
-	     	                             account_get_ladder_draws(account,CLIENTTAG_WARCIIBNE,ladder_id_normal)+
 	         	                     account_get_ladder_disconnects(account,CLIENTTAG_WARCIIBNE,ladder_id_normal);
 
 	 		      war3_ladder_add(&W2BN_current_games, uid,
@@ -1439,7 +1434,6 @@ extern void ladders_load_accounts_to_ladderlists(void)
 	     	 {
 	 			 int games = account_get_ladder_active_wins(account,CLIENTTAG_WARCIIBNE,ladder_id_normal)+
 		 		             account_get_ladder_active_losses(account,CLIENTTAG_WARCIIBNE,ladder_id_normal)+
-	     	                             account_get_ladder_active_draws(account,CLIENTTAG_WARCIIBNE,ladder_id_normal)+
 	         	                     account_get_ladder_active_disconnects(account,CLIENTTAG_WARCIIBNE,ladder_id_normal);
 
 	 		      war3_ladder_add(&W2BN_active_games, uid,
@@ -1465,7 +1459,6 @@ extern void ladders_load_accounts_to_ladderlists(void)
 	     	 {
 	 			 int games = account_get_ladder_wins(account,CLIENTTAG_WARCIIBNE,ladder_id_ironman)+
 		 		             account_get_ladder_losses(account,CLIENTTAG_WARCIIBNE,ladder_id_ironman)+
-	     	                 account_get_ladder_draws(account,CLIENTTAG_WARCIIBNE,ladder_id_ironman)+
 	         	             account_get_ladder_disconnects(account,CLIENTTAG_WARCIIBNE,ladder_id_ironman);
 
 	 		      war3_ladder_add(&W2BN_current_games_ironman, uid,
@@ -1491,7 +1484,6 @@ extern void ladders_load_accounts_to_ladderlists(void)
 	     	 {
 	 			 int games = account_get_ladder_active_wins(account,CLIENTTAG_WARCIIBNE,ladder_id_ironman)+
 		 		             account_get_ladder_active_losses(account,CLIENTTAG_WARCIIBNE,ladder_id_ironman)+
-	     	                             account_get_ladder_active_draws(account,CLIENTTAG_WARCIIBNE,ladder_id_ironman)+
 	         	                     account_get_ladder_active_disconnects(account,CLIENTTAG_WARCIIBNE,ladder_id_ironman);
 
 	 		      war3_ladder_add(&W2BN_active_games_ironman, uid,
