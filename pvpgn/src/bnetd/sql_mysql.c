@@ -57,6 +57,7 @@ static int sql_mysql_init(const char *host, const char *port, const char *socket
 
     if (mysql_real_connect(mysql, host, user, pass, name, port ? atoi(port) : 0, socket, CLIENT_FOUND_ROWS) == NULL) {
         eventlog(eventlog_level_error, __FUNCTION__, "error connecting to database (db said: '%s')", mysql_error(mysql));
+	mysql_close(mysql);
         return -1;
     }
 
