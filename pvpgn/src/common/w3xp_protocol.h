@@ -1,6 +1,8 @@
 #ifndef __W3XP_PROTOCOL_H__
 #define __W3XP_PROTOCOL_H__
 
+#include "common/bnet_protocol.h"
+
 /*
 0000  ff 72 3a 00 00 00 00 00 - 36 38 58 49 50 58 33 57   .r:.....68XIPX3W
 0010  2d 01 00 00 53 55 6e 65 - 43 08 45 1f 2c 01 00 00   -...SUneC.E.,...
@@ -16,7 +18,7 @@
 #define CLIENT_W3XP_COUNTRYINFO 0x72ff
 typedef struct
 {
-    t_bnet_header	h;
+	t_bnet_header	h;
 	bn_int			unknown1; /* 00 00 00 00 */
 	bn_int			arch_tag;
 	bn_int			client_tag;
