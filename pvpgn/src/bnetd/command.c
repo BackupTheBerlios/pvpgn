@@ -480,7 +480,7 @@ extern int handle_command(t_connection * c,  char const * text)
 
   for (p = standard_command_table; p->command_string != NULL; p++)
     {
-      if (strcmp(p->command_string, text))
+      if (strcmp(p->command_string, text)==0)
 	if (p->command_handler != NULL) return ((p->command_handler)(c,text));
     }
 
@@ -494,7 +494,7 @@ extern int handle_command(t_connection * c,  char const * text)
     
     for (p = extended_command_table; p->command_string != NULL; p++)
       {
-      if (strcmp(p->command_string, text))
+      if (strcmp(p->command_string, text)==0)
 	if (p->command_handler != NULL) return ((p->command_handler)(c,text));
     }
      
