@@ -1258,7 +1258,6 @@ static int _handle_friends_command(t_connection * c, char const * text)
       || strstart(text,"d")==0 || strstart(text,"del")==0) {
     int n;
     char msgtemp[MAX_MESSAGE_LEN];
-    char const * oldfriend;
     t_account * my_acc;
     t_packet * rpacket=NULL;
     
@@ -1270,26 +1269,15 @@ static int _handle_friends_command(t_connection * c, char const * text)
 	return 0;
     }
     
-    // [quetzal] 20020822 - we DO care if we del UserName or username from friends list
-    // [quetzal] 20020907 - dont do anything if oldfriend is NULL
-    oldfriend = account_get_name(accountlist_find_account(text));
-    if (oldfriend)
-      {
-	
 	n = account_get_friendcount(my_acc = conn_get_account(c));
 	
 	for(i=0; i<n; i++)
-	  if(!strcasecmp(account_get_friend(my_acc, i), oldfriend)) {
+	  if(!strcasecmp(account_get_friend(my_acc, i), text)) {
 	    char num = (char)i;
 	    if (i<n-1) account_set_friend(my_acc, i, account_get_friend(my_acc, n-1));
 	    
 	    account_set_friend(conn_get_account(c), n-1, "");
 	    account_set_friendcount(conn_get_account(c), n-1);
-	    
-	    sprintf(msgtemp, "Removed %s from your friends list.", oldfriend);
-	    message_send_text(c,message_type_info,c,msgtemp);
-
-            account_unget_name(oldfriend);	    
 	    
 	    if (!(rpacket = packet_create(packet_class_bnet)))
 	      return 0;
@@ -1301,10 +1289,19 @@ static int _handle_friends_command(t_connection * c, char const * text)
 	    
 	    queue_push_packet(conn_get_out_queue(c),rpacket);
 	    packet_del_ref(rpacket);
-	    
+
+		if (accountlist_find_account(text))
+		{
+	       sprintf(msgtemp, "Removed %s from your friends list.", text);			
+		}
+		else
+		{
+		   sprintf(msgtemp, "Removed no longer existent friend %s from your friends list.", text);			
+		}
+	    message_send_text(c,message_type_info,c,msgtemp);
+
 	    return 0;
 	  };
-      }
     
     sprintf(msgtemp, "%s was not found on your friends list.", text);
     message_send_text(c,message_type_info,c,msgtemp);
