@@ -2033,7 +2033,7 @@ extern int conn_set_game(t_connection * c, char const * gamename, char const * g
 	    {
 		game_set_realmname(c->protocol.game,realm_get_name(conn_get_realm(c)));
 		realm_add_game_number(conn_get_realm(c),1);
-		handle_d2cs_gameinforeq(c);
+		send_d2cs_gameinforeq(c);
 	    }
 	}
 	if (c->protocol.game)
