@@ -138,9 +138,11 @@ Password: <input type="password" name="password"><br />
 				echo "<p align=\"center\">MySQL said: ".mysql_error()."</p>\n";
 			}
 		} else if ($_GET['action'] == 'logout') {
-			session_unregister('uid');
-			session_unregister('user');
-			session_unregister('email');
+			$_SESSION = array();
+			if (isset($_COOKIE[session_name()])) {
+				setcookie(session_name(), '', time()-42000, '/');
+			}
+			session_destroy();
 			echo "<p align=\"center\">Logout successful</p>\n";
 		}
 	}
