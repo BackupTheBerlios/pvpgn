@@ -172,7 +172,7 @@ version_exeinfo_match = parse
 
 # If you have choosen [parse] above, this is the tolerance with which
 # the time can differ. The value must be given in seconds. 
-version_exeinfo_maxdiff = 3600
+version_exeinfo_maxdiff = 4800
 
 #                                                                            #
 ##############################################################################
