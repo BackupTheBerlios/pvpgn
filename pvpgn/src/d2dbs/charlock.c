@@ -167,7 +167,7 @@ int cl_lock_char(unsigned char *charname,
 }
 
 
-int cl_unlock_char(unsigned char *charname, unsigned char *realmname)
+int cl_unlock_char(unsigned char *charname, unsigned char *realmname, unsigned int gsid)
 {
 	t_charlockinfo	*pcl, *ptmp;
 	unsigned int	hashval;
@@ -181,7 +181,7 @@ int cl_unlock_char(unsigned char *charname, unsigned char *realmname)
 	ptmp = NULL;
 	while(pcl)
 	{
-		if (strcasecmp(pcl->charname, charname) == 0) {
+		if ((strcasecmp(pcl->charname, charname) == 0) && (pcl->gsid==gsid)) {
 			cl_delete_from_gsq_list(pcl);
 			if (ptmp) ptmp->next = pcl->next;
 			else clitbl[hashval] = pcl->next;
@@ -205,7 +205,7 @@ int cl_unlock_all_char_by_gsid(unsigned int gsid)
 	while(pcl)
 	{
 		pnext = pcl->gsqnext;
-		cl_unlock_char(pcl->charname, pcl->realmname);
+		cl_unlock_char(pcl->charname, pcl->realmname, gsid);
 		pcl = pnext;
 	}
 	return 0;

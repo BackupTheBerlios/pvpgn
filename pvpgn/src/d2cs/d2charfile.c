@@ -434,7 +434,7 @@ extern int d2char_get_summary(char const * account, char const * charname,t_d2ch
 extern int d2charinfo_load(char const * account, char const * charname, t_d2charinfo_file * data)
 {
 	char			* file;
-	unsigned int		size;
+	int			size, ladder_time;
 
 	if (d2char_check_charname(charname)<0) {
 		log_error("got bad character name \"%s\"",charname);
@@ -455,15 +455,98 @@ extern int d2charinfo_load(char const * account, char const * charname, t_d2char
 		free(file);
 		return -1;
 	}
-	free(file);
 	if (size!=sizeof(t_d2charinfo_file)) {
 		log_error("got bad charinfo file %s (length %d)",charname,size);
+		free(file);
 		return -1;
 	}
 	d2char_portrait_init(&data->portrait);
-	return d2charinfo_check(data);
-}
+	if (d2charinfo_check(data) < 0) {
+		free(file);
+		return -1;
+	}
+	if (!(charstatus_get_ladder(bn_int_get(data->summary.charstatus)))) {
+		bn_byte_set(&data->portrait.ladder, D2CHARINFO_PORTRAIT_PADBYTE);
+		return 0;
+	}
+	ladder_time = prefs_get_ladder_start_time();
+	if ((ladder_time > 0) && bn_int_get(data->header.create_time) < ladder_time) {
+		char			buffer[MAX_SAVEFILE_SIZE];
+		unsigned int		status_offset;
+		unsigned char		status;
+		unsigned int		charstatus;
+		unsigned int		size;
+		unsigned int		version;
+		unsigned int		checksum;
+		FILE			* fp;
 
+		log_info("%s(*%s) was created in old ladder season, set to non-ladder", charname, account);
+		if (!(fp=fopen(file,"wb"))) {
+			log_error("charinfo file \"%s\" does not exist for account \"%s\"",file,account);
+			free(file);
+			return 0;
+		}
+		free(file);
+		charstatus = bn_int_get(data->summary.charstatus);
+		charstatus_set_ladder(charstatus, 0);
+		bn_int_set(&data->summary.charstatus, charstatus);
+
+		status=bn_byte_get(data->portrait.status);
+		charstatus_set_ladder(status,0);
+		bn_byte_set(&data->portrait.status,status);
+		bn_byte_set(&data->portrait.ladder, D2CHARINFO_PORTRAIT_PADBYTE);
+
+		if (fwrite(data,1,sizeof(*data),fp)!=sizeof(*data)) {
+			log_error("error writing charinfo file for character \"%s\" (fwrite: %s)",charname,strerror(errno));
+			fclose(fp);
+			return 0;
+}
+		fclose(fp);
+
+		if (!(file=malloc(strlen(prefs_get_charsave_dir())+1+strlen(charname)+1))) {
+			log_error("error allocate memory for charsave file");
+			return -1;
+		}
+		d2char_get_savefile_name(file,charname);
+
+		if (!(fp=fopen(file,"rb+"))) {
+			log_error("could not open charsave file \"%s\" for reading and writing (fopen: %s)",file,strerror(errno));
+			free(file);
+			return 0;
+		}
+		free(file);
+		size=fread(buffer,1,sizeof(buffer),fp);
+		if (!feof(fp)) {
+			log_error("error reading charsave file for character \"%s\" (fread: %s)",charname,strerror(errno));
+			fclose(fp);
+			return 0;
+		}
+		version=bn_int_get(buffer+D2CHARSAVE_VERSION_OFFSET);
+		if (version>=0x5C) {
+			status_offset=D2CHARSAVE_STATUS_OFFSET_109;
+		} else {
+			status_offset=D2CHARSAVE_STATUS_OFFSET;
+		}
+		status=bn_byte_get(buffer+status_offset);
+		charstatus_set_ladder(status,0);
+		/* FIXME: shouldn't abuse bn_*_set()... what's the best way to do this? */
+		bn_byte_set((bn_byte *)(buffer+status_offset),status);
+		if (version>=0x5C) {
+			checksum=d2charsave_checksum(buffer,size,D2CHARSAVE_CHECKSUM_OFFSET);
+			bn_int_set((bn_int *)(buffer+D2CHARSAVE_CHECKSUM_OFFSET),checksum);
+		}
+		fseek(fp,0,SEEK_SET);
+		if (fwrite(buffer,1,size,fp)!=size) {
+			log_error("error writing charsave file for character %s (fwrite: %s)",charname,strerror(errno));
+			fclose(fp);
+			return 0;
+		}
+		fclose(fp);
+	} else {
+		bn_byte_set(&data->portrait.ladder, 1);
+	}
+	return 0;
+}
 
 extern int d2charinfo_check(t_d2charinfo_file * data)
 {
@@ -600,6 +683,11 @@ extern int d2char_get_infofile_name(char * filename, char const * account, char 
 	return 0;
 }
 
+extern unsigned int d2charinfo_get_ladder(t_d2charinfo_summary const * charinfo)
+{
+	ASSERT(charinfo,0);
+	return charstatus_get_ladder(bn_int_get(charinfo->charstatus));
+}
 
 extern unsigned int d2charinfo_get_expansion(t_d2charinfo_summary const * charinfo)
 {

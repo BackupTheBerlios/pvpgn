@@ -48,6 +48,7 @@
 # endif
 #endif
 
+#include "bit.h"
 #include "prefs.h"
 #include "game.h"
 #include "common/list.h"
@@ -269,9 +270,7 @@ extern int game_destroy(t_game * game)
 
 	if (game->d2gs) {
 		d2gs_add_gamenum(game->d2gs,-1);
-		if (d2gs_get_gamenum(game->d2gs) < d2gs_get_maxgame(game->d2gs)) {
-			gqlist_check_creategame();
-		}
+		gqlist_check_creategame(d2gs_get_maxgame(game->d2gs) - d2gs_get_gamenum(game->d2gs));
 	}
 	if (game->desc) free((void *)game->desc);
 	if (game->pass) free((void *)game->pass);
@@ -374,6 +373,13 @@ extern unsigned int d2cs_game_get_id(t_game const * game)
 	return game->id;
 }
 
+extern unsigned int game_get_gameflag_ladder(t_game const * game)
+{
+	ASSERT(game,0);
+	return gameflag_get_ladder(game->gameflag);
+}
+
+
 extern int game_set_d2gs(t_game * game, t_d2gs * gs)
 {
 	ASSERT(game,-1);
@@ -449,6 +455,13 @@ extern unsigned int game_get_gameflag_difficulty(t_game const * game)
 {
 	ASSERT(game,0);
 	return gameflag_get_difficulty(game->gameflag);
+}
+
+extern int game_set_gameflag_ladder(t_game * game, unsigned int ladder)
+{
+	ASSERT(game,-1);
+	gameflag_set_ladder(game->gameflag,ladder);
+	return 0;
 }
 
 extern int game_set_gameflag_expansion(t_game * game, unsigned int expansion)

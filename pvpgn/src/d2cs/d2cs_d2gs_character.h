@@ -40,7 +40,8 @@ typedef struct
 	bn_int		create_time;	/* character creation time */
 	bn_int		last_time;	/* character last access time */
 	bn_int		checksum;
-	bn_int		reserved[7];
+        bn_int          total_play_time;        /* total in game play time */
+	bn_int		reserved[6];
 	unsigned char	charname[MAX_CHARNAME_LEN];
 	unsigned char	account[MAX_ACCTNAME_LEN];
 	unsigned char	realmname[MAX_REALMNAME_LEN];
@@ -62,8 +63,13 @@ typedef struct
         bn_byte         color[11];
         bn_byte         level;
         bn_byte         status;
+
+
+
         bn_byte         u1[3];
-        bn_byte         u2[3];
+	bn_byte		ladder;	/* need not be 0xff and 0 to make character displayed as ladder character */
+				/* client only check this bit */
+	bn_byte         u2[2];
         bn_byte         end;	/* 0x00 */
 } t_d2charinfo_portrait;
 

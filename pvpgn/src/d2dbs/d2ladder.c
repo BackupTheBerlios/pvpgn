@@ -207,7 +207,7 @@ int d2ladder_find_pos(t_d2ladder * d2ladder, t_d2ladder_info * info)
 	i=d2ladder->len;
 	while (i--) {
 		if (d2ladder->info[i].experience >= info->experience) {
-			if (strcmp(d2ladder->info[i].charname,info->charname)) {
+			if (strncasecmp(d2ladder->info[i].charname,info->charname, MAX_CHARNAME_LEN)) {
 				i++;
 			}
 			break;
@@ -241,7 +241,7 @@ int d2ladder_find_char_all(t_d2ladder * d2ladder, t_d2ladder_info * info)
 	if (!ladderdata) return -1;
 	i=d2ladder->len;
 	while (i--) {
-		if (!strncmp(ladderdata[i].charname,info->charname,MAX_CHARNAME_LEN)) return i;
+		if (!strncasecmp(ladderdata[i].charname,info->charname,MAX_CHARNAME_LEN)) return i;
 	}
 	return -1;
 }
@@ -257,7 +257,7 @@ int d2ladder_find_char(t_d2ladder * d2ladder, t_d2ladder_info * info)
 	i=d2ladder->len;
 	while (i--) {
 		if (ladderdata[i].level > info->level) return -1;
-		if (!strncmp(ladderdata[i].charname,info->charname,MAX_CHARNAME_LEN)) return i;
+		if (!strncasecmp(ladderdata[i].charname,info->charname,MAX_CHARNAME_LEN)) return i;
 	}
 	return -1;
 }
@@ -799,7 +799,7 @@ int d2ladder_print(FILE *ladderstrm)
 		overalltype=0;
 		classtype=0;
 
-		if(type<= D2LADDER_HC_OVERALL+D2CHAR_CLASS_MAX +1) 
+		if(type >= D2LADDER_HC_OVERALL && type<= D2LADDER_HC_OVERALL+D2CHAR_CLASS_MAX +1)
 		{
 			overalltype=0 ;
 			classtype=type-D2LADDER_HC_OVERALL;

@@ -111,6 +111,7 @@ extern int d2cs_conn_set_charname(t_connection * c, char const * charname);
 extern char const * d2cs_conn_get_account(t_connection const * c);
 extern char const * d2cs_conn_get_charname(t_connection const * c);
 extern int conn_set_charinfo(t_connection * c, t_d2charinfo_summary const * charinfo);
+extern unsigned int conn_get_charinfo_ladder(t_connection const * c);
 extern unsigned int conn_get_charinfo_expansion(t_connection const * c);
 extern unsigned int conn_get_charinfo_hardcore(t_connection const * c);
 extern unsigned int conn_get_charinfo_dead(t_connection const * c);

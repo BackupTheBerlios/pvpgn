@@ -184,5 +184,8 @@ timeout_checkinterval	=	60
 # game server restart interval
 d2gs_restart_delay	=	300
 
+# number of days before a char expires (default 0=unlimited)
+char_expire_day		=	0
+
 #
 #################################################################################

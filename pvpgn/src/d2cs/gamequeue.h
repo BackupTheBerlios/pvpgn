@@ -37,7 +37,7 @@ extern int gqlist_create(void);
 extern t_list * gqlist(void);
 extern unsigned int gqlist_get_gq_position(t_gq * gq);
 extern int gqlist_update_all_clients(void);
-extern int gqlist_check_creategame(void);
+extern int gqlist_check_creategame(int number);
 extern t_gq * gqlist_find_game(char const * gamename);
 extern unsigned int gqlist_get_length(void);
 

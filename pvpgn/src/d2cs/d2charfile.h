@@ -18,14 +18,22 @@
 #ifndef INCLUDED_D2CHARFILE_H
 #define INCLUDED_D2CHARFILE_H
 
+/* only used in char convert */
 #define D2CHARSAVE_VERSION_OFFSET			0x04
 #define D2CHARSAVE_CHECKSUM_OFFSET			0x0C
-#define D2CHAR_MAX_CLASS				0x06
+
+/* used in both save init and convert */
+#define D2CHARSAVE_STATUS_OFFSET			0x18	/* newbie.save offset or old version */
+#define D2CHARSAVE_STATUS_OFFSET_109			0x24	/* 1.09 or later version (1.10) */
+
+/* only used for save init to newbie.save file */
 #define D2CHARSAVE_CLASS_OFFSET				0x22
-#define D2CHARSAVE_LEVEL_OFFSET				0x24
-#define D2CHARSAVE_STATUS_OFFSET			0x18
 #define D2CHARSAVE_CHARNAME_OFFSET			0x08
-#define D2CHARSAVE_STATUS_OFFSET_109			0x24
+
+/* unused */
+#define D2CHARSAVE_LEVEL_OFFSET				0x24
+
+#define D2CHAR_MAX_CLASS				0x06
 
 #define D2CHARINFO_PORTRAIT_PADBYTE			0xff
 #define D2CHARINFO_PORTRAIT_HEADER			0x8084
@@ -33,20 +41,30 @@
 
 #define D2CHARINFO_STATUS_FLAG_INIT			0x01
 #define D2CHARINFO_STATUS_FLAG_EXPANSION		0x20
+#define D2CHARINFO_STATUS_FLAG_LADDER			0x40
 #define D2CHARINFO_STATUS_FLAG_HARDCORE			0x04
 #define D2CHARINFO_STATUS_FLAG_DEAD			0x08
 
-#define charstatus_set_init(status,n)		( status |= ( n ? D2CHARINFO_STATUS_FLAG_INIT : 0 ) )
-#define charstatus_set_expansion(status,n)	( status |= (n?D2CHARINFO_STATUS_FLAG_EXPANSION:0))
-#define charstatus_set_hardcore(status,n)	( status |= (n?D2CHARINFO_STATUS_FLAG_HARDCORE:0))
-#define charstatus_set_dead(status,n)		( status |= (n?D2CHARINFO_STATUS_FLAG_DEAD:0))
+#define D2CHARINFO_STATUS_FLAG_INIT_MASK		(D2CHARINFO_STATUS_FLAG_INIT | \
+	D2CHARINFO_STATUS_FLAG_EXPANSION| D2CHARINFO_STATUS_FLAG_LADDER |D2CHARINFO_STATUS_FLAG_HARDCORE)
 
-#define charstatus_get_init(status)		tf( status & D2CHARINFO_STATUS_FLAG_INIT)
-#define	charstatus_get_expansion(status)	tf( status & D2CHARINFO_STATUS_FLAG_EXPANSION)
-#define charstatus_get_hardcore(status)		tf( status & D2CHARINFO_STATUS_FLAG_HARDCORE)
-#define charstatus_get_dead(status)		tf( status & D2CHARINFO_STATUS_FLAG_DEAD)
-#define charstatus_get_difficulty(status)		((( status >> 0x08) & 0x0f )/4)
-#define charstatus_get_difficulty_expansion(status)	((( status >> 0x08) & 0x0f )/5)
+#include "bit.h"
+
+#define charstatus_set_init(status,n)		BIT_SET_CLR_FLAG(status, D2CHARINFO_STATUS_FLAG_INIT, n)
+#define charstatus_set_expansion(status,n)	BIT_SET_CLR_FLAG(status, D2CHARINFO_STATUS_FLAG_EXPANSION, n)
+#define charstatus_set_ladder(status,n)		BIT_SET_CLR_FLAG(status, D2CHARINFO_STATUS_FLAG_LADDER, n)
+#define charstatus_set_hardcore(status,n)	BIT_SET_CLR_FLAG(status, D2CHARINFO_STATUS_FLAG_HARDCORE, n)
+#define charstatus_set_dead(status,n)		BIT_SET_CLR_FLAG(status, D2CHARINFO_STATUS_FLAG_DEAD, n)
+
+
+#define charstatus_get_init(status)		BIT_TST_FLAG(status, D2CHARINFO_STATUS_FLAG_INIT)
+#define	charstatus_get_expansion(status)	BIT_TST_FLAG(status, D2CHARINFO_STATUS_FLAG_EXPANSION)
+#define	charstatus_get_ladder(status)		BIT_TST_FLAG(status, D2CHARINFO_STATUS_FLAG_LADDER)
+#define charstatus_get_hardcore(status)		BIT_TST_FLAG(status, D2CHARINFO_STATUS_FLAG_HARDCORE)
+#define charstatus_get_dead(status)		BIT_TST_FLAG(status, D2CHARINFO_STATUS_FLAG_DEAD)
+#define charstatus_get_difficulty(status)		((( status >> 0x08) & 0x0f )/4)	/* number of act = 4 */
+#define charstatus_get_difficulty_expansion(status)	((( status >> 0x08) & 0x0f )/5)	/* number of act = 5 */
+
 
 #ifndef JUST_NEED_TYPES
 #include "d2cs_d2gs_character.h"
@@ -63,6 +81,7 @@ extern unsigned int d2charinfo_get_expansion(t_d2charinfo_summary const * charin
 extern unsigned int d2charinfo_get_level(t_d2charinfo_summary const * charinfo);
 extern unsigned int d2charinfo_get_class(t_d2charinfo_summary const * charinfo);
 extern unsigned int d2charinfo_get_hardcore(t_d2charinfo_summary const * charinfo);
+extern unsigned int d2charinfo_get_ladder(t_d2charinfo_summary const * charinfo);
 extern unsigned int d2charinfo_get_dead(t_d2charinfo_summary const * charinfo);
 extern unsigned int d2charinfo_get_difficulty(t_d2charinfo_summary const * charinfo);
 extern int d2char_convert(char const * account, char const * charname);

@@ -21,10 +21,15 @@
 #define BIT_POS(n)		( 1u << (n) )
 #define BIT_SET_FLAG(n,f)	( (n) |= (f) )
 #define BIT_CLR_FLAG(n,f)	( (n) &= ~(f) )
-#define BIT_TST_FLAG(n,f)	( (n) & (f) )
+#define BIT_TST_FLAG(n,f)		( ((n) & (f)) ? 1: 0 )
+#define BIT_SET_CLR_FLAG(n, f, v)	( (v)?(BIT_SET_FLAG(n,f)):(BIT_CLR_FLAG(n,f)) )
 
 #define BIT_RANGE(n,m)		( BIT_POS((m)+1-(n)) - BIT_POS(n) )
 #define BIT_LSHIFT(n,m)		( (n) << (m) )
 #define BIT_RSHIFT(n,m)		( (n) >> (m) )
+
+#define BIT_GET(n, m)			( ((n) >> (m)) & 1)
+#define BIT_GET_RANGE(n, m, l)		( ((n) >> (m)) & (1u << (l) -1))
+#define BIT_GET_RANGE_MASK(n, m, mask)	( ((n) >> (m)) & (mask))
 
 #endif

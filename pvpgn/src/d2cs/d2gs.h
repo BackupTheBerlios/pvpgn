@@ -39,7 +39,6 @@ typedef struct d2gs
 	unsigned int      	maxgame;
 	unsigned int      	gamenum;
 	t_connection *		connection;
-	unsigned int		d2gs_version;
 } t_d2gs;
 
 #define D2GS_FLAG_VALID		0x01
@@ -63,12 +62,14 @@ extern int d2gs_set_maxgame(t_d2gs * gs,unsigned int maxgame);
 extern unsigned int d2gs_get_gamenum(t_d2gs const * gs);
 extern int d2gs_add_gamenum(t_d2gs * gs,int number);
 extern unsigned int d2gs_get_token(t_d2gs const * gs);
-extern unsigned int d2gs_add_token(t_d2gs * gs);
+extern unsigned int d2gs_make_token(t_d2gs * gs);
 extern t_connection * d2gs_get_connection(t_d2gs const * gs);
 extern int d2gs_active(t_d2gs * gs, t_connection * c);
 extern int d2gs_deactive(t_d2gs * gs, t_connection * c);
 extern unsigned int d2gs_calc_checksum(t_connection * c);
 extern int d2gs_keepalive(void);
 extern int d2gs_restart_all_gs(void);
+
+#define D2GS_MAJOR_VERSION_MASK			0xffffff00
 
 #endif

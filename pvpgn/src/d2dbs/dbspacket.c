@@ -449,7 +449,7 @@ static unsigned int dbs_packet_getdata(t_d2dbs_connection * conn)
 					result=D2DBS_GET_DATA_SUCCESS;
 				} else {
 					result=D2DBS_GET_DATA_FAILED;
-					if (cl_unlock_char(CharName,RealmName)!=0) {
+					if (cl_unlock_char(CharName,RealmName,gsid)!=0) {
 						log_error("failed to unlock char %s(*%s)@%s for gs %s(%d)",CharName,\
 							AccountName,RealmName,conn->serverip,conn->serverid);
 					} else {
@@ -460,7 +460,7 @@ static unsigned int dbs_packet_getdata(t_d2dbs_connection * conn)
 			} else {
 				datalen=0;
 				result=D2DBS_GET_DATA_FAILED;
-				if (cl_unlock_char(CharName,RealmName)!=0) {
+				if (cl_unlock_char(CharName,RealmName,gsid)!=0) {
 					log_error("faled to unlock char %s(*%s)@%s for gs %s(%d)",CharName,\
 						AccountName,RealmName,conn->serverip,conn->serverid);
 				} else {
@@ -576,7 +576,7 @@ static unsigned int dbs_packet_charlock(t_d2dbs_connection * conn)
 			log_info("lock character %s(*%s)@%s for gs %s(%d)",CharName,AccountName,RealmName,conn->serverip,conn->serverid);
 		}
 	} else {
-		if (cl_unlock_char(CharName,RealmName) != 0) {
+		if (cl_unlock_char(CharName,RealmName,conn->serverid) != 0) {
 			log_error("failed to unlock character %s(*%s)@%s for gs %s(%d)",CharName,AccountName,RealmName,conn->serverip,conn->serverid);
 		} else {
 			log_info("unlock character %s(*%s)@%s for gs %s(%d)",CharName,AccountName,RealmName,conn->serverip,conn->serverid);

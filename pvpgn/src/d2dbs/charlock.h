@@ -38,7 +38,7 @@ int cl_query_charlock_status(unsigned char *charname,
 		unsigned char *realmnamei, unsigned int *gsid);
 int cl_lock_char(unsigned char *charname,
 	        unsigned char *realmname, unsigned int gsid);
-int cl_unlock_char(unsigned char *charname, unsigned char *realmname);
+int cl_unlock_char(unsigned char *charname, unsigned char *realmname, unsigned int gsid);
 int cl_unlock_all_char_by_gsid(unsigned int gsid);
 
 

@@ -107,6 +107,9 @@
 #define DEFAULT_TIMEOUT_CHECKINTERVAL	60
 #define DEFAULT_ACC_ALLOWED_SYMBOLS     "-_[]"
 #define DEFAULT_D2GS_RESTART_DELAY	300
+
+#define MAJOR_VERSION_EQUAL(v1,v2,mask)         (((v1) & (mask)) == ((v2) & (mask)))
+
 				
 #ifndef D2CS_DEFAULT_CONF_FILE
 # define D2CS_DEFAULT_CONF_FILE       "/usr/local/etc/d2cs.conf"

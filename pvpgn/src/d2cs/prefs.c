@@ -52,6 +52,8 @@ static t_conf_table prefs_conf_table[]={
     { "charsavedir",            offsetof(t_prefs,charsavedir),       conf_type_str,    (int)D2CS_CHARSAVE_DIR       },
     { "charinfodir",            offsetof(t_prefs,charinfodir),       conf_type_str,    (int)D2CS_CHARINFO_DIR       },
     { "ladderdir",              offsetof(t_prefs,ladderdir),         conf_type_str,    (int)D2CS_LADDER_DIR         },
+// FIXME: ladder_start_time should be conf_type_timestr
+    { "ladder_start_time",	offsetof(t_prefs,ladder_start_time), conf_type_int,    0		            },
     { "ladder_refresh_interval",offsetof(t_prefs,ladder_refresh_interval),conf_type_int,3600                        },
     { "newbiefile",             offsetof(t_prefs,newbiefile),        conf_type_str,    (int)D2CS_CHARSAVE_NEWBIE    },
     { "d2gstransfile",		offsetof(t_prefs,d2gstransfile),     conf_type_str,    (int)D2CS_D2GSTRANS_FILE	    },
@@ -84,6 +86,7 @@ static t_conf_table prefs_conf_table[]={
     { "allow_convert",		offsetof(t_prefs,allow_convert),     conf_type_int,    0			    },
     { "account_allowed_symbols",offsetof(t_prefs,account_allowed_symbols),conf_type_str,(int)DEFAULT_ACC_ALLOWED_SYMBOLS},
     { "d2gs_restart_delay",	offsetof(t_prefs,d2gs_restart_delay),conf_type_int,    DEFAULT_D2GS_RESTART_DELAY   },
+    { "char_expire_day",	offsetof(t_prefs,char_expire_day),   conf_type_int,    0                            },
     { NULL,                     0,                                   conf_type_none,   0                            }
 };
 
@@ -310,7 +313,17 @@ extern char const * prefs_get_d2cs_account_allowed_symbols(void)
 	return prefs_conf.account_allowed_symbols;
 }
 
+extern unsigned int prefs_get_ladder_start_time(void)
+{
+	return prefs_conf.ladder_start_time;
+}
+
 extern unsigned int prefs_get_d2gs_restart_delay(void)
 {
 	return prefs_conf.d2gs_restart_delay;
+}
+
+extern unsigned int prefs_get_char_expire_time(void)
+{
+	return prefs_conf.char_expire_day * 3600 * 24;
 }

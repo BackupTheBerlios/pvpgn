@@ -20,6 +20,7 @@
 
 #include "d2gs.h"
 #include "connection.h"
+#include "bit.h"
 
 typedef struct
 {
@@ -47,15 +48,29 @@ typedef struct
 	t_d2gs			* d2gs;
 } t_game;
 
+#define D2_GAMEFLAG_BETA			0x00000001
+#define D2_GAMEFLAG_RELEASE			0x00000002
+#define D2_GAMEFLAG_TEMPLATE			0x00000008
+#define D2_GAMEFLAG_SINGLE			0x00000010
+#define D2_GAMEFLAG_HARDCORE			0x00000800
+#define D2_GAMEFLAG_EXPANSION			0x00100000
+#define D2_GAMEFLAG_LADDER			0x00200000
+
 #define gameflag_get_difficulty(gameflag) ( (gameflag >> 0x0C) & 0x07 )
-#define gameflag_get_expansion(gameflag)  tf( gameflag & 0x100000 )
-#define gameflag_get_hardcore(gameflag)   tf( gameflag & 0x800 )
+#define gameflag_get_expansion(gameflag)	BIT_TST_FLAG(gameflag, D2_GAMEFLAG_EXPANSION)
+#define gameflag_get_ladder(gameflag)		BIT_TST_FLAG(gameflag, D2_GAMEFLAG_LADDER)
+#define gameflag_get_hardcore(gameflag)		BIT_TST_FLAG(gameflag, D2_GAMEFLAG_HARDCORE)
+#define gameflag_get_beta(gameflag)		BIT_TST_FLAG(gameflag, D2_GAMEFLAG_BETA)	/* true if the game is a beta version with limitations */
+#define gameflag_get_release(gameflag)		BIT_TST_FLAG(gameflag, D2_GAMEFLAG_RELEASE)	/* this bit must always not be zero */
+#define gameflag_get_single(gameflag)		BIT_TST_FLAG(gameflag, D2_GAMEFLAG_SINGLE)	/* true if the game is single mode without party */
+#define gameflag_get_template(gameflag)		BIT_TST_FLAG(gameflag, D2_GAMEFLAG_TEMPLATE)	/* true if use template settings */
 
 #define gameflag_set_difficulty(gameflag,n) ( gameflag |= ((n & 0x07) << 0x0C) )
-#define gameflag_set_expansion(gameflag,n)  ( gameflag |= (n ? 0x100000 : 0)) 
-#define gameflag_set_hardcore(gameflag,n)   ( gameflag |= (n ? 0x800 : 0)) 
+#define gameflag_set_expansion(gameflag,n)  BIT_SET_CLR_FLAG(gameflag, D2_GAMEFLAG_EXPANSION, n) 
+#define gameflag_set_ladder(gameflag,n)     BIT_SET_CLR_FLAG(gameflag, D2_GAMEFLAG_LADDER, n)
+#define gameflag_set_hardcore(gameflag,n)   BIT_SET_CLR_FLAG(gameflag, D2_GAMEFLAG_HARDCORE, n) 
 
-#define gameflag_create(e,h,d) (0x04|(e?0x100000:0) | (h?0x800:0) | ((d & 0x07) << 0x0c))
+#define gameflag_create(l,e,h,d) (0x04|(e?D2_GAMEFLAG_EXPANSION:0) | (h?D2_GAMEFLAG_HARDCORE:0) | ((d & 0x07) << 0x0c) | (l?D2_GAMEFLAG_LADDER:0))
 
 
 extern t_list * d2cs_gamelist(void);
@@ -86,9 +101,11 @@ extern unsigned int game_get_charlevel(t_game const * game);
 extern unsigned int game_get_leveldiff(t_game const * game);
 extern unsigned int game_get_maxlevel(t_game const * game);
 extern unsigned int game_get_minlevel(t_game const * game);
-extern int game_set_gameflag_expansion(t_game * game, unsigned int hardcore);
+extern int game_set_gameflag_ladder(t_game * game, unsigned int ladder);
+extern int game_set_gameflag_expansion(t_game * game, unsigned int expansion);
 extern int game_set_gameflag_hardcore(t_game * game, unsigned int hardcore);
-extern int game_set_gameflag_difficulty(t_game * game, unsigned int hardcore);
+extern int game_set_gameflag_difficulty(t_game * game, unsigned int difficulty);
+extern unsigned int game_get_gameflag_ladder(t_game const * game);
 extern unsigned int game_get_gameflag_expansion(t_game const * game);
 extern unsigned int game_get_gameflag_hardcore(t_game const * game);
 extern unsigned int game_get_gameflag_difficulty(t_game const * game);

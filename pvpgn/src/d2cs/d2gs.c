@@ -58,6 +58,16 @@
 #ifdef HAVE_ARPA_INET_H
 # include <arpa/inet.h> /* FIXME: probably not needed... do some systems put types in here or something? */
 #endif
+#ifdef TIME_WITH_SYS_TIME
+# include <sys/time.h>
+# include <time.h>
+#else
+# ifdef HAVE_SYS_TIME_H
+#  include <sys/time.h>
+# else
+#  include <time.h>
+# endif
+#endif
 #include "compat/psock.h"
 
 #include "d2gs.h"
@@ -317,9 +327,9 @@ extern unsigned int d2gs_get_token(t_d2gs const * gs)
 	return gs->token;
 }
 
-extern unsigned int d2gs_add_token(t_d2gs * gs)
+extern unsigned int d2gs_make_token(t_d2gs * gs)
 {
-	return ++(gs->token);
+	return ((unsigned int)rand())^((++(gs->token))+((unsigned int)time(NULL)));
 }
 
 extern t_connection * d2gs_get_connection(t_d2gs const * gs)
@@ -453,7 +463,7 @@ extern int d2gs_restart_all_gs(void)
 	
         BEGIN_LIST_TRAVERSE_DATA(d2gslist_head,gs)
         {
-    		if (gs->connection && gs->d2gs_version > 0x1090007) {
+    		if (gs->connection) {
             	    queue_push_packet(d2cs_conn_get_out_queue(gs->connection),packet);
                 }
         }

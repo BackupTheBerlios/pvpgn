@@ -635,6 +635,12 @@ extern unsigned int d2cs_conn_get_sessionnum(t_connection const * c)
 	return c->sessionnum;
 }
 
+extern unsigned int conn_get_charinfo_ladder(t_connection const * c)
+{
+	ASSERT(c,0);
+	return d2charinfo_get_ladder(c->charinfo);
+}
+
 extern unsigned int conn_get_charinfo_expansion(t_connection const * c)
 {
 	ASSERT(c,0);

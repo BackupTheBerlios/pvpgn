@@ -114,10 +114,13 @@ extern unsigned int gq_get_clientid(t_gq const * gq)
 	return gq->clientid;
 }
 
-extern int gqlist_check_creategame(void)
+extern int gqlist_check_creategame(int number)
 {
 	t_connection	* c;
 	t_gq		* gq;
+	int		i=0;
+
+	if (number <= 0) return -1;
 
 	BEGIN_LIST_TRAVERSE_DATA(gqlist_head,gq)
 	{
@@ -135,7 +138,8 @@ extern int gqlist_check_creategame(void)
 			d2cs_handle_client_creategame(c,gq->packet);
 			conn_set_gamequeue(c,NULL);
 			gq_destroy(gq);
-			break;
+			i++;
+			if(i >= number) break;
 		}
 	}
 	END_LIST_TRAVERSE_DATA()

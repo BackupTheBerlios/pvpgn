@@ -104,6 +104,27 @@ static t_packet_handle_table d2gs_packet_handle_table[]={
 /* 0x23 */ { sizeof(t_d2gs_d2cs_closegame),      conn_state_authed,     on_d2gs_closegame       },
 };
 
+static void d2gs_send_init_info(t_d2gs * gs, t_connection * c)
+{
+	t_packet * rpacket;
+
+	if ((rpacket=packet_create(packet_class_d2gs))) {
+		packet_set_size(rpacket,sizeof(t_d2cs_d2gs_setinitinfo));
+		packet_set_type(rpacket,D2CS_D2GS_SETINITINFO);
+		bn_int_set(&rpacket->u.d2cs_d2gs_setinitinfo.time, time(NULL));
+		bn_int_set(&rpacket->u.d2cs_d2gs_setinitinfo.gs_id, d2gs_get_id(gs));
+		bn_int_set(&rpacket->u.d2cs_d2gs_setinitinfo.ac_version, 0);
+//		packet_append_string(rpacket,prefs_get_d2gs_ac_checksum());
+		packet_append_string(rpacket,"bogus_ac_checksum");
+//		packet_append_string(rpacket,prefs_get_d2gs_ac_string());
+		packet_append_string(rpacket,"bogus_ac_string");
+		queue_push_packet(d2cs_conn_get_out_queue(c),rpacket);
+		packet_del_ref(rpacket);
+	}
+	return;
+}
+
+
 
 static int on_d2gs_authreply(t_connection * c, t_packet * packet)
 {
@@ -111,7 +132,9 @@ static int on_d2gs_authreply(t_connection * c, t_packet * packet)
 	t_packet	* rpacket;
 	unsigned int	reply;
 	unsigned int	try_checksum, checksum;
-	unsigned int	version;
+	unsigned int	version, conf_version;
+	unsigned int	randnum, signlen;
+	unsigned char	*sign;
 
 	if (!(gs=d2gslist_find_gs(conn_get_d2gs_id(c)))) {
 		log_error("game server %d not found",conn_get_d2gs_id(c));
@@ -121,13 +144,25 @@ static int on_d2gs_authreply(t_connection * c, t_packet * packet)
 	version=bn_int_get(packet->u.d2gs_d2cs_authreply.version);
 	try_checksum=bn_int_get(packet->u.d2gs_d2cs_authreply.checksum);
 	checksum=d2gs_calc_checksum(c);
-	if (prefs_get_d2gs_version() && (version != prefs_get_d2gs_version())) {
-		log_error("game server %d version mismatch 0x%X - 0x%X",conn_get_d2gs_id(c),
-			version,prefs_get_d2gs_version());
+
+	conf_version = prefs_get_d2gs_version();
+	randnum = bn_int_get(packet->u.d2gs_d2cs_authreply.randnum);
+	signlen = bn_int_get(packet->u.d2gs_d2cs_authreply.signlen);
+	sign    = packet->u.d2gs_d2cs_authreply.sign;
+	if (conf_version && conf_version != version) {
+		log_warn("game server %d version mismatch 0x%X - 0x%X",conn_get_d2gs_id(c),
+			version,conf_version);
+	}
+	if (conf_version && !MAJOR_VERSION_EQUAL(version, conf_version, D2GS_MAJOR_VERSION_MASK)) {
+		log_error("game server %d major version mismatch 0x%X - 0x%X",conn_get_d2gs_id(c),
+			version,conf_version);
 		reply=D2CS_D2GS_AUTHREPLY_BAD_VERSION;
-	} else if (prefs_get_d2gs_checksum() && try_checksum != checksum) {
-		log_error("game server %d checksum mismach 0x%X - 0x%X",conn_get_d2gs_id(c),try_checksum,checksum);
-		reply=D2CS_D2GS_AUTHREPLY_BAD_CHECKSUM;
+//	} else if (prefs_get_d2gs_checksum() && try_checksum != checksum) {
+//		log_error("game server %d checksum mismach 0x%X - 0x%X",conn_get_d2gs_id(c),try_checksum,checksum);
+//		reply=D2CS_D2GS_AUTHREPLY_BAD_CHECKSUM;
+//	} else if (license_verify_reply(c, randnum, sign, signlen)) {
+//		log_error("game server %d signal mismach", conn_get_d2gs_id(c));
+//		reply=D2CS_D2GS_AUTHREPLY_BAD_CHECKSUM;
 	} else {
 		reply=D2CS_D2GS_AUTHREPLY_SUCCEED;
 	}
@@ -135,6 +170,7 @@ static int on_d2gs_authreply(t_connection * c, t_packet * packet)
 	if (reply==D2CS_D2GS_AUTHREPLY_SUCCEED) {
 		log_info("game server %s authed",addr_num_to_ip_str(d2cs_conn_get_addr(c)));
 		d2cs_conn_set_state(c,conn_state_authed);
+		d2gs_send_init_info(gs, c);
 		d2gs_active(gs,c);
 	} else {
 		log_error("game server %s failed to auth",addr_num_to_ip_str(d2cs_conn_get_addr(c)));
@@ -145,14 +181,10 @@ static int on_d2gs_authreply(t_connection * c, t_packet * packet)
 	if ((rpacket=packet_create(packet_class_d2gs))) {
 		packet_set_size(rpacket,sizeof(t_d2cs_d2gs_authreply));
 		packet_set_type(rpacket,D2CS_D2GS_AUTHREPLY);
-		bn_int_set(&rpacket->u.d2cs_d2gs_authreply.h.seqno,1);
 		bn_int_set(&rpacket->u.d2cs_d2gs_authreply.reply,reply);
 		queue_push_packet(d2cs_conn_get_out_queue(c),rpacket);
 		packet_del_ref(rpacket);
 	}
-	
-	// set d2gs version
-	gs->d2gs_version = version;
 	
 	return 0;
 }
@@ -169,27 +201,22 @@ static int on_d2gs_setgsinfo(t_connection * c, t_packet * packet)
 		return -1;
 	}
 	maxgame=bn_int_get(packet->u.d2gs_d2cs_setgsinfo.maxgame);
+	gameflag=bn_int_get(packet->u.d2gs_d2cs_setgsinfo.gameflag);
 	prev_maxgame=d2gs_get_maxgame(gs);
 	currgame = d2gs_get_gamenum(gs);
 	eventlog(eventlog_level_info, "on_d2gs_setgsinfo", "change game server %s max game from %d to %d (%d current)",addr_num_to_ip_str(d2cs_conn_get_addr(c)),prev_maxgame, maxgame, currgame);
 	d2gs_set_maxgame(gs,maxgame);
-	
-	if(gs->d2gs_version > 0x1090007)
-	{
-		gameflag=bn_int_get(packet->u.d2gs_d2cs_setgsinfo.gameflag);
-		
-                if ((rpacket=packet_create(packet_class_d2gs))) {
-		    packet_set_size(rpacket,sizeof(t_d2cs_d2gs_setgsinfo));
-		    packet_set_type(rpacket,D2CS_D2GS_SETGSINFO);
-		    bn_int_set(&rpacket->u.d2cs_d2gs_setgsinfo.h.seqno,1);
-		    bn_int_set(&rpacket->u.d2cs_d2gs_setgsinfo.maxgame,maxgame);
-		    bn_int_set(&rpacket->u.d2cs_d2gs_setgsinfo.gameflag,gameflag);
-		    queue_push_packet(d2cs_conn_get_out_queue(c),rpacket);
-		    packet_del_ref(rpacket);
-                }
+
+        if ((rpacket=packet_create(packet_class_d2gs))) {
+	    packet_set_size(rpacket,sizeof(t_d2cs_d2gs_setgsinfo));
+	    packet_set_type(rpacket,D2CS_D2GS_SETGSINFO);
+	    bn_int_set(&rpacket->u.d2cs_d2gs_setgsinfo.maxgame,maxgame);
+	    bn_int_set(&rpacket->u.d2cs_d2gs_setgsinfo.gameflag,gameflag);
+	    queue_push_packet(d2cs_conn_get_out_queue(c),rpacket);
+	    packet_del_ref(rpacket);
         }
-	
-	gqlist_check_creategame();
+
+	gqlist_check_creategame(maxgame - currgame);
 	return 0;
 }
 
@@ -237,9 +264,6 @@ static int on_d2gs_creategamereply(t_connection * c, t_packet * packet)
 		game_set_created(game,1);
 		log_info("game %s created on gs %d",d2cs_game_get_name(game),conn_get_d2gs_id(c));
 		reply=D2CS_CLIENT_CREATEGAMEREPLY_SUCCEED;
-	} else if (result==D2GS_D2CS_JOINGAME_GAME_FULL) {
-		eventlog(eventlog_level_info, "on_d2gs_joingamereply", "failed to add %s to game %s on gs %d (game full)",d2cs_conn_get_charname(client),d2cs_game_get_name(game),conn_get_d2gs_id(c));
-		reply=D2CS_CLIENT_JOINGAMEREPLY_GAME_FULL;
 	} else {
 		log_warn("failed to create game %s on gs %d",d2cs_game_get_name(game),conn_get_d2gs_id(c));
 		game_destroy(game);
@@ -301,11 +325,19 @@ static int on_d2gs_joingamereply(t_connection * c, t_packet * packet)
 	}
 
 	result=bn_int_get(packet->u.d2gs_d2cs_joingamereply.result);
-	if (result==D2GS_D2CS_JOINGAME_SUCCEED) {
+	switch (result) {
+	case D2GS_D2CS_JOINGAME_SUCCEED:
 		log_info("added %s to game %s on gs %d",d2cs_conn_get_charname(client),
 			d2cs_game_get_name(game),conn_get_d2gs_id(c));
 		reply=D2CS_CLIENT_JOINGAMEREPLY_SUCCEED;
-	} else {
+		break;
+
+	case D2GS_D2CS_JOINGAME_GAME_FULL:
+		log_info("failed to add %s to game %s on gs %d (game full)",d2cs_conn_get_charname(client),
+			d2cs_game_get_name(game),conn_get_d2gs_id(c));
+		reply=D2CS_CLIENT_JOINGAMEREPLY_GAME_FULL;
+		break;
+	default:
 		log_info("failed to add %s to game %s on gs %d",d2cs_conn_get_charname(client),
 			d2cs_game_get_name(game),conn_get_d2gs_id(c));
 		reply=D2CS_CLIENT_JOINGAMEREPLY_FAILED;
@@ -317,9 +349,11 @@ static int on_d2gs_joingamereply(t_connection * c, t_packet * packet)
 		bn_short_set(&rpacket->u.d2cs_client_joingamereply.seqno,
 				bn_short_get(opacket->u.client_d2cs_joingamereq.seqno));
 		bn_short_set(&rpacket->u.d2cs_client_joingamereply.gameid,game_get_d2gs_gameid(game));
+
 		bn_short_set(&rpacket->u.d2cs_client_joingamereply.u1,0);
 		bn_int_set(&rpacket->u.d2cs_client_joingamereply.reply,reply);
-		if (reply == SERVER_JOINGAMEREPLY2_REPLY_OK) {
+//		if (reply == SERVER_JOINGAMEREPLY2_REPLY_OK) {
+		if (reply == D2CS_CLIENT_JOINGAMEREPLY_SUCCEED) {
 			bn_int_set(&rpacket->u.d2cs_client_joingamereply.token,sq_get_gametoken(sq));
 
 			gsaddr = d2gs_get_ip(gs);
@@ -394,19 +428,6 @@ static int on_d2gs_closegame(t_connection * c, t_packet * packet)
 
 extern int handle_d2gs_packet(t_connection * c, t_packet * packet)
 {
-	int	type;
-	t_d2gs	* gs;
-	
-	type=packet_get_type(packet);
-	
-	// ugly d2gs hack, used in backward campability...
-	if(type == D2GS_D2CS_SETGSINFO)
-	{
-		gs=d2gslist_find_gs(conn_get_d2gs_id(c));
-		if(gs->d2gs_version <= 0x1090007)
-		    d2gs_packet_handle_table[type].size = sizeof(t_d2gs_d2cs_setgsinfo) - sizeof(bn_int);
-	}
-	
 	conn_process_packet(c,packet,d2gs_packet_handle_table,NELEMS(d2gs_packet_handle_table));
 	return 0;
 }
@@ -418,9 +439,10 @@ extern int handle_d2gs_init(t_connection * c)
 	if ((packet=packet_create(packet_class_d2gs))) {
 		packet_set_size(packet,sizeof(t_d2cs_d2gs_authreq));
 		packet_set_type(packet,D2CS_D2GS_AUTHREQ);
-		bn_int_set(&packet->u.d2cs_d2gs_authreq.h.seqno,1);
 		bn_int_set(&packet->u.d2cs_d2gs_authreq.sessionnum,d2cs_conn_get_sessionnum(c));
+		bn_int_set(&packet->u.d2cs_d2gs_authreq.signlen, 0);
 		packet_append_string(packet,prefs_get_realmname());
+//		packet_append_data(packet, sign, signlen);
 		queue_push_packet(d2cs_conn_get_out_queue(c),packet);
 		packet_del_ref(packet);
 	}

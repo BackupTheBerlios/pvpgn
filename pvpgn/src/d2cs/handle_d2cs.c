@@ -88,6 +88,7 @@ DECLARE_PACKET_HANDLER(on_client_motdreq)
 DECLARE_PACKET_HANDLER(on_client_cancelcreategame)
 DECLARE_PACKET_HANDLER(on_client_charladderreq)
 DECLARE_PACKET_HANDLER(on_client_charlistreq)
+DECLARE_PACKET_HANDLER(on_client_charlistreq_110)
 DECLARE_PACKET_HANDLER(on_client_convertcharreq)
 
 
@@ -116,7 +117,8 @@ static t_packet_handle_table d2cs_packet_handle_table[]={
 /* 0x15 */ { 0,                                     conn_state_none,                          NULL                      },
 /* 0x16 */ { sizeof(t_client_d2cs_charladderreq),   conn_state_char_authed,                   on_client_charladderreq	},
 /* 0x17 */ { sizeof(t_client_d2cs_charlistreq),     conn_state_authed|conn_state_char_authed, on_client_charlistreq	},
-/* 0x18 */ { sizeof(t_client_d2cs_convertcharreq),  conn_state_authed|conn_state_char_authed, on_client_convertcharreq  }
+/* 0x18 */ { sizeof(t_client_d2cs_convertcharreq),  conn_state_authed|conn_state_char_authed, on_client_convertcharreq  },
+/* 0x19 */ { sizeof(t_client_d2cs_charlistreq_110), conn_state_authed|conn_state_char_authed, on_client_charlistreq_110 }
 };
 
 
@@ -232,7 +234,7 @@ static int on_client_creategamereq(t_connection * c, t_packet * packet)
 	t_d2gs		* gs;
 	t_gq		* gq;
 	unsigned int	tempflag,gameflag;
-	unsigned int	leveldiff, maxchar, difficulty, expansion, hardcore;
+	unsigned int	leveldiff, maxchar, difficulty, expansion, hardcore, ladder;
 	unsigned int	seqno, reply;
 	unsigned int	pos;
 
@@ -262,7 +264,8 @@ static int on_client_creategamereq(t_connection * c, t_packet * packet)
 	}
 	expansion=conn_get_charinfo_expansion(c);
 	hardcore=conn_get_charinfo_hardcore(c);
-	gameflag=gameflag_create(expansion,hardcore,difficulty);
+	ladder=conn_get_charinfo_ladder(c);
+	gameflag=gameflag_create(ladder,expansion,hardcore,difficulty);
 
 	gs = NULL;
 	game = NULL;
@@ -293,6 +296,7 @@ static int on_client_creategamereq(t_connection * c, t_packet * packet)
 		reply=D2CS_CLIENT_CREATEGAMEREPLY_SUCCEED;
 		game_set_d2gs(game,gs);
 		d2gs_add_gamenum(gs, 1);
+		game_set_gameflag_ladder(game,ladder);
 		game_set_gameflag_expansion(game,expansion);
 		game_set_created(game,0);
 		game_set_leveldiff(game,leveldiff);
@@ -328,6 +332,7 @@ static int on_client_creategamereq(t_connection * c, t_packet * packet)
 				bn_byte_set(&gspacket->u.d2cs_d2gs_creategamereq.difficulty,difficulty);
 				bn_byte_set(&gspacket->u.d2cs_d2gs_creategamereq.hardcore,hardcore);
 				bn_byte_set(&gspacket->u.d2cs_d2gs_creategamereq.expansion,expansion);
+				bn_byte_set(&gspacket->u.d2cs_d2gs_creategamereq.ladder,ladder);
 				packet_append_string(gspacket,gamename);
 				queue_push_packet(d2cs_conn_get_out_queue(d2gs_get_connection(gs)),gspacket);
 			}
@@ -410,7 +415,7 @@ static int on_client_joingamereq(t_connection * c, t_packet * packet)
 				bn_int_set(&gspacket->u.d2cs_d2gs_joingamereq.h.seqno,sq_get_seqno(sq));
 				bn_int_set(&gspacket->u.d2cs_d2gs_joingamereq.gameid,
 					game_get_d2gs_gameid(game));
-				sq_set_gametoken(sq,d2gs_add_token(gs));
+				sq_set_gametoken(sq,d2gs_make_token(gs));
 				bn_int_set(&gspacket->u.d2cs_d2gs_joingamereq.token,sq_get_gametoken(sq));
 				packet_append_string(gspacket,charname);
 				packet_append_string(gspacket,account);
@@ -431,7 +436,7 @@ static int on_client_gamelistreq(t_connection * c, t_packet * packet)
 	unsigned int	count;
 	unsigned int	seqno;
 	time_t		now;
-	int		maxlifetime;
+	unsigned int	maxlifetime;
 	t_elem const	* start_elem;
 	t_elem const	* elem;
 
@@ -553,6 +558,7 @@ static int on_client_charloginreq(t_connection * c, t_packet * packet)
 	char const		* account;
 	t_sq			* sq;
 	t_d2charinfo_file	data;
+	unsigned int		expire_time;
 
 	if (!(charname=packet_get_str_const(packet,sizeof(t_client_d2cs_charloginreq),MAX_CHARNAME_LEN))) {
 		log_error("got bad character name");
@@ -569,6 +575,21 @@ static int on_client_charloginreq(t_connection * c, t_packet * packet)
 		log_error("no bnetd connection available,character login rejected");
 		return -1;
 	}
+	expire_time = prefs_get_char_expire_time();
+	if (expire_time && (time(NULL) > bn_int_get(data.header.last_time) + expire_time)) {
+		t_packet * rpacket;
+
+		if ((rpacket=packet_create(packet_class_d2cs))) {
+			packet_set_size(rpacket,sizeof(t_d2cs_client_charloginreply));
+			packet_set_type(rpacket,D2CS_CLIENT_CHARLOGINREPLY);
+			bn_int_set(&rpacket->u.d2cs_client_charloginreply.reply, D2CS_CLIENT_CHARLOGINREPLY_EXPIRED);
+			queue_push_packet(d2cs_conn_get_out_queue(c),rpacket);
+			packet_del_ref(rpacket);
+		}
+		log_info("character %s(*%s) login rejected due to char expired",charname,account);
+		return 0;
+	}
+
 	conn_set_charinfo(c,&data.summary);
 	log_info("got character %s(*%s) login request",charname,account);
 	if ((bnpacket=packet_create(packet_class_d2cs_bnetd))) {
@@ -831,6 +852,75 @@ static int on_client_charlistreq(t_connection * c, t_packet * packet)
 	return 0;
 }
 
+static int on_client_charlistreq_110(t_connection * c, t_packet * packet)
+{
+	t_packet		* rpacket;
+	t_pdir			* dir;
+	char const		* account; 
+	char const		* charname; 
+	char			* path;
+	t_d2charinfo_file       charinfo;
+	unsigned int		n, maxchar;
+
+	t_d2cs_client_chardata	chardata;
+	unsigned int		exp_time;
+
+	if (!packet)
+	    return -1;
+	
+	if (!(account=d2cs_conn_get_account(c))) {
+		log_error("missing account for connection");
+		return -1;
+	}
+	if (!(path=malloc(strlen(prefs_get_charinfo_dir())+1+strlen(account)+1))) {
+		log_error("error allocate memory for path");
+		return 0;
+	}
+	d2char_get_infodir_name(path,account);
+	maxchar=prefs_get_maxchar();
+	if ((rpacket=packet_create(packet_class_d2cs))) {
+		packet_set_size(rpacket,sizeof(t_d2cs_client_charlistreply_110));
+		packet_set_type(rpacket,D2CS_CLIENT_CHARLISTREPLY_110);
+		bn_short_set(&rpacket->u.d2cs_client_charlistreply_110.u1,0);
+		if (prefs_allow_newchar()) {
+			bn_short_set(&rpacket->u.d2cs_client_charlistreply.maxchar,maxchar);
+		} else {
+			bn_short_set(&rpacket->u.d2cs_client_charlistreply.maxchar,0);
+		}
+		n=0;
+		if (!(dir=p_opendir(path))) {
+			log_info("(*%s) charinfo directory do not exist, building it",account);
+			mkdir(path,S_IRWXU);
+		} else {
+			exp_time = prefs_get_char_expire_time();
+			while ((charname=p_readdir(dir))) {
+				if (charname[0]=='.') continue;
+				if (d2charinfo_load(account,charname,&charinfo)<0) {
+					log_error("error loading charinfo for %s(*%s)",charname,account);
+					continue;
+				}
+				if (exp_time) {
+					bn_int_set(&chardata.expire_time, bn_int_get(charinfo.header.last_time)+exp_time);
+				} else {
+					bn_int_set(&chardata.expire_time, 0x7FFFFFFF);
+				}
+				packet_append_data(rpacket, &chardata, sizeof(chardata));
+				packet_append_string(rpacket,charinfo.header.charname);
+				packet_append_string(rpacket,(char *)&charinfo.portrait);
+				n++;
+				if (n>=maxchar) break;
+			}
+			p_closedir(dir);
+		}
+		bn_short_set(&rpacket->u.d2cs_client_charlistreply.currchar,n);
+		bn_short_set(&rpacket->u.d2cs_client_charlistreply.currchar2,n);
+		queue_push_packet(d2cs_conn_get_out_queue(c),rpacket);
+		packet_del_ref(rpacket);
+	}
+	free(path);
+	return 0;
+}
+
 static int on_client_convertcharreq(t_connection * c, t_packet * packet)
 {
 	t_packet	* rpacket;
@@ -893,12 +983,14 @@ static unsigned int d2cs_try_joingame(t_connection const * c, t_game const * gam
 		reply=D2CS_CLIENT_JOINGAMEREPLY_NOT_EXIST;
 	} else if (!game_get_d2gs(game)) {
 		reply=D2CS_CLIENT_JOINGAMEREPLY_NOT_EXIST;
+	} else if (conn_get_charinfo_ladder(c) != game_get_gameflag_ladder(game)) {
+		reply=D2CS_CLIENT_JOINGAMEREPLY_NORMAL_LADDER;
 	} else if (conn_get_charinfo_expansion(c) != game_get_gameflag_expansion(game)) {
-		reply=D2CS_CLIENT_JOINGAMEREPLY_LEVEL_LIMIT;
+		reply=D2CS_CLIENT_JOINGAMEREPLY_CLASSIC_EXPANSION;
 	} else if (conn_get_charinfo_hardcore(c) != game_get_gameflag_hardcore(game)) {
-		reply=D2CS_CLIENT_JOINGAMEREPLY_LEVEL_LIMIT;
+		reply=D2CS_CLIENT_JOINGAMEREPLY_HARDCORE_SOFTCORE;
 	} else if (conn_get_charinfo_difficulty(c) < game_get_gameflag_difficulty(game))  {
-		reply=D2CS_CLIENT_JOINGAMEREPLY_LEVEL_LIMIT;
+		reply=D2CS_CLIENT_JOINGAMEREPLY_NORMAL_NIGHTMARE;
 	} else if (prefs_allow_gamelimit()) {
 		if (game_get_maxchar(game) <= game_get_currchar(game)) {
 			reply=D2CS_CLIENT_JOINGAMEREPLY_GAME_FULL;
