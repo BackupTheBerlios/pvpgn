@@ -47,6 +47,7 @@
 #endif
 #include "compat/strdup.h"
 #include "compat/strcasecmp.h"
+#include "compat/snprintf.h"
 #include <ctype.h>
 #include <errno.h>
 #include "compat/strerror.h"
@@ -558,7 +559,7 @@ static int _handle_clan_command(t_connection * c, char const * text)
 {
   t_channel const * channel;
   char const      * oldclanname;
-  char         	    clansendmessage[200];
+  char         	    clansendmessage[MAX_MESSAGE_LEN];
   
   if (!(channel = conn_get_channel(c)))
     {
@@ -574,6 +575,13 @@ static int _handle_clan_command(t_connection * c, char const * text)
       message_send_text(c,message_type_info,c,"Using this option will allow you to join a clan which displays in your profile.  ");
       return 0;
     }
+
+  if (strlen(text) > MAX_CLANNAME_LEN)
+  {
+    message_send_text(c,message_type_error,c,"the length of your clanname is limited to 64 characters.");
+    return 0;
+  }
+  
   oldclanname = strdup(account_get_w3_clanname(conn_get_account(c)));
   account_set_w3_clanname(conn_get_account(c),text);
   if(!oldclanname || !(*oldclanname))
@@ -617,7 +625,7 @@ static int command_set_flags(t_connection * c)
 
 static int _handle_admin_command(t_connection * c, char const * text)
 {
-    char		msg[255];
+    char		msg[MAX_MESSAGE_LEN];
     char const *	username;
     char		command;
     t_account *		acc;
@@ -639,7 +647,7 @@ static int _handle_admin_command(t_connection * c, char const * text)
     }
     
     if(!(acc = accountlist_find_account(username))) {
-	sprintf(msg, "There's no account with username %s.", username);
+	snprintf(msg,MAX_MESSAGE_LEN, "There's no account with username %s.", username);
 	message_send_text(c, message_type_info, c, msg);
 	return -1;
     }
@@ -667,7 +675,7 @@ static int _handle_admin_command(t_connection * c, char const * text)
 
 static int _handle_operator_command(t_connection * c, char const * text)
 {
-    char		msg[255];
+    char		msg[MAX_MESSAGE_LEN];
     char const *	username;
     char		command;
     t_account *		acc;
@@ -689,7 +697,7 @@ static int _handle_operator_command(t_connection * c, char const * text)
     }
     
     if(!(acc = accountlist_find_account(username))) {
-	sprintf(msg, "There's no account with username %s.", username);
+	snprintf(msg, MAX_MESSAGE_LEN, "There's no account with username %s.", username);
 	message_send_text(c, message_type_info, c, msg);
 	return -1;
     }
@@ -717,7 +725,7 @@ static int _handle_operator_command(t_connection * c, char const * text)
 
 static int _handle_aop_command(t_connection * c, char const * text)
 {
-    char		msg[255];
+    char		msg[MAX_MESSAGE_LEN];
     char const *	username;
     char const *	channel;
     t_account *		acc;
@@ -740,7 +748,7 @@ static int _handle_aop_command(t_connection * c, char const * text)
     }
     
     if(!(acc = accountlist_find_account(username))) {
-	sprintf(msg, "There's no account with username %s.", username);
+	snprintf(msg, MAX_MESSAGE_LEN, "There's no account with username %s.", username);
 	message_send_text(c, message_type_info, c, msg);
 	return -1;
     }
@@ -759,7 +767,7 @@ static int _handle_aop_command(t_connection * c, char const * text)
 
 static int _handle_op_command(t_connection * c, char const * text)
 {
-    char		msg[255];
+    char		msg[MAX_MESSAGE_LEN];
     char const *	username;
     char const *	channel;
     t_account *		acc;
@@ -783,7 +791,7 @@ static int _handle_op_command(t_connection * c, char const * text)
     }
     
     if(!(acc = accountlist_find_account(username))) {
-	sprintf(msg, "There's no account with username %s.", username);
+	snprintf(msg, MAX_MESSAGE_LEN, "There's no account with username %s.", username);
 	message_send_text(c, message_type_info, c, msg);
 	return -1;
     }
@@ -802,7 +810,7 @@ static int _handle_op_command(t_connection * c, char const * text)
 
 static int _handle_deop_command(t_connection * c, char const * text)
 {
-    char		msg[255];
+    char		msg[MAX_MESSAGE_LEN];
     char const *	username;
     char const *	channel;
     t_account *		acc;
@@ -826,7 +834,7 @@ static int _handle_deop_command(t_connection * c, char const * text)
     }
     
     if(!(acc = accountlist_find_account(username))) {
-	sprintf(msg, "There's no account with username %s.", username);
+	snprintf(msg, MAX_MESSAGE_LEN, "There's no account with username %s.", username);
 	message_send_text(c, message_type_info, c, msg);
 	return -1;
     }
@@ -1063,7 +1071,7 @@ static int _handle_friends_command(t_connection * c, char const * text)
   if (strstart(text,"list")==0 || strstart(text,"l")==0) {
     char const * friend;
     char status[128];
-    char software[1000];
+    char software[64];
     char msgtemp[MAX_MESSAGE_LEN];
     int n;
     char const *myusername;
@@ -1133,8 +1141,8 @@ static int _handle_friends_command(t_connection * c, char const * text)
 	      }
 	  }
 	
-	if (software[0]) sprintf(msgtemp, "%d: %s%s, %s", i+1, friend, status,software);
-	else sprintf(msgtemp, "%d: %s%s", i+1, friend, status);
+	if (software[0]) snprintf(msgtemp, MAX_MESSAGE_LEN, "%d: %s%s, %s", i+1, friend, status,software);
+	else snprintf(msgtemp, MAX_MESSAGE_LEN, "%d: %s%s", i+1, friend, status);
 	message_send_text(c,message_type_info,c,msgtemp);
       }
     
@@ -2316,7 +2324,7 @@ static int _handle_channels_command(t_connection * c, char const *text)
   else
     {
       tag = &text[i];
-      sprintf(msgtemp,"Current chnanels of type %s",tag);
+      sprintf(msgtemp,"Current channels of type %s",tag);
       message_send_text(c,message_type_info,c,msgtemp);
     }
   
@@ -2778,7 +2786,7 @@ static int _handle_kill_command(t_connection * c, char const *text)
 {
   unsigned int	i,j;
   t_connection *	user;
-  char		usrnick[16]; /* max length of nick + \0 */  /* FIXME: Is it somewhere defined? */
+  char		usrnick[USER_NAME_MAX]; /* max length of nick + \0 */  /* FIXME: Is it somewhere defined? */
   
   for (i=0; text[i]!=' ' && text[i]!='\0'; i++); /* skip command */
   for (; text[i]==' '; i++);
@@ -3015,7 +3023,6 @@ static int _handle_rank_all_accounts_command(t_connection * c, char const *text)
 {
   // rank all accounts here
   accounts_rank_all();
-//  output_write_to_file(); // why do this here? force output with command? lets add new command... [Omega]
   return 0;
 }
 
@@ -3746,7 +3753,7 @@ static int _handle_set_command(t_connection * c, char const *text)
     {
       if (account_get_strattr(account,key))
 	{
-	  sprintf(msgtemp,"current value us \"%s\"",account_get_strattr(account,key));
+	  snprintf(msgtemp, MAX_MESSAGE_LEN, "current value of %s is \"%s\"",key,account_get_strattr(account,key));
 	  message_send_text(c,message_type_error,c,msgtemp);
 	}
       else
