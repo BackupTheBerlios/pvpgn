@@ -1,6 +1,7 @@
 PvPGN Version History:
 
 1.5.0beta3:
+-- fixed a long standing bug regarding bnmaps.txt and AT maps
 -- added support to autoupdate for multiple game languages as seen in 
 Warcraft III RoC and Frozen Throne
 -- restructured autoupdate file to select correct mpq file base on version tag
