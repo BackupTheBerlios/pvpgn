@@ -25,12 +25,12 @@ changes to bnetd.conf:
 ----------------------
 -- storage_path now supports file,sql(mySQL&pgSQL) and cdb (a constant database)
    please make sure that this parameter fits your needs fine
--- added: clandir          = /usr/local/var/clans
 -- added: topicfile        = /usr/local/etc/topics
 -- added: tournament_file  = /usr/local/etc/tournament.conf
 -- added: DBlayoutfile     = /usr/local/etc/sql_DB_layout
 -- changed: version_exeinfo_maxdiff default value to 4800 
    (cause exetime parsing now really works)
+-- changed: storage_path now includes clan folder for file/cdb mode   
 -- removed: reduced_accounting (this mode is now the default mode and can't be turned off)
 -- removed: reload_new_accounts (no longer supported)
 -- renamed: war3_output_update_secs to output_update_secs (old name was confusing)
@@ -39,6 +39,7 @@ changes to bnetd.conf:
 new/changed config files/folders:
 ---------------------------------
 -- /usr/local/var/clans           (this folder contains all clan stuff)
+-- /usr/local/var/clanscdb        (this folder contains all clan stuff when using cdb mode)
 -- /usr/local/etc/topics          (in this file the channel topics are stored)
 -- /usr/local/etc/tournament.conf (here to configure your tournament support)
 -- /usr/local/etc/sql_DB_layout   (this file contains infos for the sql_DB_creator)
