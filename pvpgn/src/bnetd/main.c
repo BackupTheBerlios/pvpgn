@@ -175,7 +175,7 @@ int read_commandline(int argc, char * * argv, int *foreground, char *preffile[],
 #endif
     for (a=1; a<argc; a++) {
 	if (strncmp(argv[a],"--config=",9)==0) {
-	    if (preffile) {
+	    if (*preffile) {
 		fprintf(stderr,"%s: configuration file was already specified as \"%s\"\n",argv[0],preffile[0]);
                 usage(argv[0]);
                 return -1;
@@ -188,7 +188,7 @@ int read_commandline(int argc, char * * argv, int *foreground, char *preffile[],
                 usage(argv[0]);
                 return -1;
             }
-            if (preffile) {
+            if (*preffile) {
                 fprintf(stderr,"%s: configuration file was already specified as \"%s\"\n",argv[0],preffile[0]);
                 usage(argv[0]);
                 return -1;
@@ -197,7 +197,7 @@ int read_commandline(int argc, char * * argv, int *foreground, char *preffile[],
 	    *preffile = argv[a];
         }
         else if (strncmp(argv[a],"--hexdump=",10)==0) {
-            if (hexfile) {
+            if (*hexfile) {
                 fprintf(stderr,"%s: configuration file was already specified as \"%s\"\n",argv[0],hexfile[0]);
                 usage(argv[0]);
                 return -1;
@@ -210,7 +210,7 @@ int read_commandline(int argc, char * * argv, int *foreground, char *preffile[],
                 usage(argv[0]);
                 return -1;
             }
-            if (hexfile) {
+            if (*hexfile) {
                 fprintf(stderr,"%s: configuration file was already specified as \"%s\"\n",argv[0],hexfile[0]);
                 usage(argv[0]);
                 return -1;
