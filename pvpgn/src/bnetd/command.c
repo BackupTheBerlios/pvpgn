@@ -2782,6 +2782,7 @@ static int _handle_channels_command(t_connection * c, char const *text)
   t_account * acc;
   char const * name;
   int first;
+  t_clan * clan;
 
   
   for (i=0; text[i]!=' ' && text[i]!='\0'; i++); /* skip command */
@@ -2814,7 +2815,8 @@ static int _handle_channels_command(t_connection * c, char const *text)
 	   strcasecmp(channel_get_clienttag(channel),tag)==0) &&
 	   ((channel_get_max(channel)!=0) || //only show restricted channels to OPs and Admins
 	    ((channel_get_max(channel)==0 && account_is_operator_or_admin(conn_get_account(c),NULL)))) &&
-	    (!(channel_get_flags(channel) & channel_flags_thevoid)) // don't list TheVoid
+	    (!(channel_get_flags(channel) & channel_flags_thevoid)) && // don't list TheVoid
+		( (!(channel_get_flags(channel) & channel_flags_clan)) || ((!(acc = conn_get_account(c))) || (!(clan = account_get_clan(acc)))) || (str_to_clantag(channel_get_name(channel) + 5) == clan_get_clantag(clan)) )	// only display your clan channel
 	)
 	{
 

@@ -97,7 +97,7 @@ static char * channel_format_name(char const * sname, char const * country, char
 
 extern int channel_set_flags(t_connection * c);
 
-extern t_channel * channel_create(char const * fullname, char const * shortname, char const * clienttag, int permflag, int botflag, int operflag, int logflag, char const * country, char const * realmname, int maxmembers,int moderated)
+extern t_channel * channel_create(char const * fullname, char const * shortname, char const * clienttag, int permflag, int botflag, int operflag, int logflag, char const * country, char const * realmname, int maxmembers, int moderated, int clanflag)
 {
     t_channel * channel;
     
@@ -282,6 +282,7 @@ extern t_channel * channel_create(char const * fullname, char const * shortname,
     if (permflag) channel->flags |= channel_flags_permanent;
     if (botflag)  channel->flags |= channel_flags_allowbots;
     if (operflag) channel->flags |= channel_flags_allowopers;
+    if (clanflag) channel->flags |= channel_flags_clan;
     
     if (logflag)
     {
@@ -1528,14 +1529,14 @@ static int channellist_load_permanent(char const * filename)
 	
 	if (name)
 	    {
-            channel_create(name,sname,tag,1,botflag,operflag,logflag,country,realmname,atoi(max),modflag);
+            channel_create(name,sname,tag,1,botflag,operflag,logflag,country,realmname,atoi(max),modflag,0);
 	    }
 	else
 	    {
             newname = channel_format_name(sname,country,realmname,1);
             if (newname)
 		{
-                   channel_create(newname,sname,tag,1,botflag,operflag,logflag,country,realmname,atoi(max),modflag);
+                   channel_create(newname,sname,tag,1,botflag,operflag,logflag,country,realmname,atoi(max),modflag,0);
                    free(newname);
 	    }
             else
@@ -1978,7 +1979,7 @@ extern t_channel * channellist_find_channel_by_name(char const * name, char cons
         if (!(channelname=channel_format_name(saveshortname,savecountry,saverealmname,maxchannel+1)))
                 return NULL;
 
-        channel = channel_create(channelname,saveshortname,savetag,1,savebotflag,saveoperflag,savelogflag,savecountry,saverealmname,savemaxmembers,savemoderated);
+        channel = channel_create(channelname,saveshortname,savetag,1,savebotflag,saveoperflag,savelogflag,savecountry,saverealmname,savemaxmembers,savemoderated,0);
         free(channelname);
 	
 	eventlog(eventlog_level_debug,"channellist_find_channel_by_name","created copy \"%s\" of channel \"%s\"",(channel)?(channel->name):("<failed>"),name);

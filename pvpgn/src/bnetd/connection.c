@@ -1997,13 +1997,12 @@ extern int conn_set_channel(t_connection * c, char const * channelname)
 	unsigned int created;
 #endif
 
-    clan=account_get_clan(acc);
-    if((strncasecmp(channelname, "clan ", 5)==0)&&(strlen(channelname)<10))
-      clantag = str_to_clantag(&channelname[5]);
-
 	channel = channellist_find_channel_by_name(channelname,conn_get_country(c),conn_get_realmname(c));
 
-    if(clantag&&((!clan)||(clan_get_clantag(clan)!=clantag)))
+	if((channel_get_flags(channel) & channel_flags_clan) == channel_flags_clan)
+		clantag = str_to_clantag(&channelname[5]);
+
+    if(clantag && ((!(clan = account_get_clan(acc))) || (clan_get_clantag(clan) != clantag)))
     {
         if (!channel)
         {
@@ -2138,10 +2137,7 @@ extern int conn_set_channel(t_connection * c, char const * channelname)
 
     if (!channel)
 	{
-        if(clantag)
-            channel = channel_create(channelname,channelname,CLIENTTAG_WAR3XP,0,1,0,prefs_get_chanlog(), NULL, NULL, (prefs_get_maxusers_per_channel() > 0) ? prefs_get_maxusers_per_channel() : -1,0);
-        else
-			channel = channel_create(channelname,channelname,NULL,0,1,1,prefs_get_chanlog(), NULL, NULL, (prefs_get_maxusers_per_channel() > 0) ? prefs_get_maxusers_per_channel() : -1,0);
+		channel = channel_create(channelname,channelname,NULL,0,1,1,prefs_get_chanlog(), NULL, NULL, (prefs_get_maxusers_per_channel() > 0) ? prefs_get_maxusers_per_channel() : -1, 0, 0);
 	    if (!channel)
 	    {
 		eventlog(eventlog_level_error,"conn_set_channel","[%d] could not create channel on join \"%s\"",conn_get_socket(c),channelname);

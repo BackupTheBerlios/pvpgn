@@ -83,7 +83,8 @@ typedef enum
     channel_flags_official=0x20,
     channel_flags_permanent=0x40,
     channel_flags_allowbots=0x80,
-    channel_flags_allowopers=0x100
+    channel_flags_allowopers=0x100,
+	channel_flags_clan=0x200
 } t_channel_flags;
 
 /* Just a quick note for BITS: Only the master server decides whether
@@ -152,7 +153,7 @@ t_channel;
 #define CHANNEL_NAME_CHAT   "Chat"
 
 extern int channel_set_flags(t_connection * c);
-extern t_channel * channel_create(char const * fullname, char const * shortname, char const * clienttag, int permflag, int botflag, int operflag, int logflag, char const * country, char const * realmname, int maxmembers,int moderated) ;
+extern t_channel * channel_create(char const * fullname, char const * shortname, char const * clienttag, int permflag, int botflag, int operflag, int logflag, char const * country, char const * realmname, int maxmembers, int moderated, int clan) ;
 extern int channel_destroy(t_channel * channel);
 extern char const * channel_get_name(t_channel const * channel);
 extern char const * channel_get_shortname(t_channel const * channel);

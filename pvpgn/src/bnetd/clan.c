@@ -87,11 +87,17 @@ int max_clanid = 0;
 
 static int _cb_load_clans(void *clan)
 {
+	char channel_name[10];
+	int clantag;
     if (clanlist_add_clan(clan) < 0)
     {
 	eventlog(eventlog_level_error, __FUNCTION__, "failed to add clan to clanlist");
 	return -1;
     }
+	clantag = clan_get_clantag(clan);
+	sprintf(channel_name, "Clan %c%c%c%c", (clantag>>24), (clantag>>16)&0xff, (clantag>>8)&0xff, clantag&0xff);
+	channel_create(channel_name, channel_name, NULL, 1, 1, 0, prefs_get_chanlog(), NULL, NULL, (prefs_get_maxusers_per_channel() > 0) ? prefs_get_maxusers_per_channel() : -1, 0, 1);
+
     if (((t_clan *) clan)->clanid > max_clanid)
 	max_clanid = ((t_clan *) clan)->clanid;
     return 0;
@@ -132,6 +138,7 @@ extern int clan_send_status_window_on_create(t_clan * clan)
 {
     t_packet * rpacket;
     t_elem *curr;
+	char channelname[10];
 
     if (clan == NULL)
     {
@@ -139,11 +146,11 @@ extern int clan_send_status_window_on_create(t_clan * clan)
 	return -1;
     }
 
-    if ((rpacket = packet_create(packet_class_bnet)) != NULL)
+	sprintf(channelname, "Clan %c%c%c%c", (clan->clantag >> 24), (clan->clantag >> 16) & 0xff, (clan->clantag >> 8) & 0xff, clan->clantag & 0xff);
+	channel_create(channelname, channelname, NULL, 1, 1, 0, prefs_get_chanlog(), NULL, NULL, (prefs_get_maxusers_per_channel() > 0) ? prefs_get_maxusers_per_channel() : -1, 0, 1);
+
+	if ((rpacket = packet_create(packet_class_bnet)) != NULL)
     {
-	char channelname[10];
-	if (clan->clantag)
-	    sprintf(channelname, "Clan %c%c%c%c", (clan->clantag >> 24), (clan->clantag >> 16) & 0xff, (clan->clantag >> 8) & 0xff, clan->clantag & 0xff);
 	packet_set_size(rpacket, sizeof(t_server_w3xp_clan_clanack));
 	packet_set_type(rpacket, SERVER_W3XP_CLAN_CLANACK);
 	bn_byte_set(&rpacket->u.server_w3xp_clan_clanack.unknow1, 0);
@@ -174,6 +181,8 @@ extern int clan_close_status_window_on_disband(t_clan * clan)
 {
     t_packet * rpacket;
     t_elem *curr;
+	char channelname[10];
+	t_channel * ch;
 
     if (clan == NULL)
     {
@@ -181,7 +190,11 @@ extern int clan_close_status_window_on_disband(t_clan * clan)
 	return -1;
     }
 
-    if ((rpacket = packet_create(packet_class_bnet)) != NULL)
+	sprintf(channelname, "Clan %c%c%c%c", (clan->clantag >> 24), (clan->clantag >> 16) & 0xff, (clan->clantag >> 8) & 0xff, clan->clantag & 0xff);
+	if((ch = channellist_find_channel_by_name(channelname, NULL, NULL)) != NULL)
+		channel_destroy(ch);
+
+	if ((rpacket = packet_create(packet_class_bnet)) != NULL)
     {
 	packet_set_size(rpacket, sizeof(t_server_w3xp_clan_clanleaveack));
 	packet_set_type(rpacket, SERVER_W3XP_CLAN_CLANLEAVEACK);

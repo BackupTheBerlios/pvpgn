@@ -3670,17 +3670,18 @@ static int _client_progident2(t_connection * c, t_packet const * const packet)
 	  {
 	     t_channel *    ch;
 	     t_elem const * curr;
+		 t_clan * clan;
+		 t_account * acc;
 	     
 	     LIST_TRAVERSE_CONST(channellist(),curr)
 	       {
 		  ch = elem_get_data(curr);
 		  if ((!prefs_get_hide_temp_channels() || channel_get_permanent(ch)) &&
-		      (!channel_get_clienttag(ch) || strcmp(channel_get_clienttag(ch),conn_get_clienttag(c))==0))
-		    
-		    if ((!(channel_get_flags(ch) & channel_flags_thevoid)) &&  // don't display theVoid in channel list
+		      (!channel_get_clienttag(ch) || strcmp(channel_get_clienttag(ch),conn_get_clienttag(c))==0) &&
+			  (!(channel_get_flags(ch) & channel_flags_thevoid)) &&  // don't display theVoid in channel list
 			( (channel_get_max(ch)!=0) || 
-			( (channel_get_max(ch)==0) && 
-			  (account_is_operator_or_admin(conn_get_account(c),channel_get_name(ch))==1) ) ))	// don't display restricted channel for no admins/ops
+			( (channel_get_max(ch)==0) && (account_is_operator_or_admin(conn_get_account(c),channel_get_name(ch))==1) ) ) &&	// don't display restricted channel for no admins/ops
+			( (!(channel_get_flags(ch) & channel_flags_clan)) || ((!(acc = conn_get_account(c))) || (!(clan = account_get_clan(acc)))) || (str_to_clantag(channel_get_name(ch) + 5) == clan_get_clantag(clan)) ) )	// only display your clan channel
 			packet_append_string(rpacket,channel_get_name(ch));
 	       }
 	  }
