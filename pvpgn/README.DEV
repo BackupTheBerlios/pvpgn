@@ -1,15 +1,27 @@
 
-		    PVPGN (wannabe) DEVELOPERS README
+		    PVPGN (wannabe) DEVELOPERS GUIDE
 
            Please read this file before asking any questions !
 
+0. About this document
+=======================
+
+This document was initially started by dizzy , then beeing
+updated by other devs too, also updated considering other people's sugestions.
+This document is intended to be read by all of you out there wanting to devs
+for PvPGN.
+
+ChangeLog:
+29-07-2003: dizzy : Initial version
 
 1. Why ?
+=========
 
 You want to start coding for PvPGN ? Why ? What do you expect to get from it ?
 Answer yourself this questions and then go to the next paragraph.
 
 2. History
+===========
 
 PvPGN has started as a game server emulation project, taking the excelent's
 bnetd project source and working on it. While initially it has started as
@@ -22,12 +34,15 @@ from us to the bnetd coders we keep their names on the code they written (but
 on the new code of course we may name them different).
 
 3. Objective
+=============
 
 PvPGN's main objective is to support all Battle.Net clients (games) but are
 considering in the near future to extend it to support other game protocols
 as well.
 
-4. Layout of files:
+4. Layout of files
+===================
+
 Note: Starting here on you may find lots of terms and wors which may sound
 "strange" to you and for this reason we have included a glossary of terms
 in the end of this file.
@@ -51,6 +66,8 @@ PvPGN follows the bnetd's layout of files:
 The build process takes place in the "src" dir.
 
 5. Coding Style
+================
+
 a. General
 
 PvPGN is mainly developed on and for UNIX/Linux. The reasons are because we
@@ -127,4 +144,24 @@ class of the connection. The handle functions usualy are a big switch/case or
 a for/if (which is equivalent) and they check for the packet type received, then
 they act acordingly to the data received (many of them responing with packets
 by adding them to the output packet queue of the connection).
+
+6. Glossary of terms
+=====================
+
+* autoupdate: the feature of Battle.Net servers to send a (MPQ, see MPQ) file
+to the client which after downloading it, it is used to update the client
+
+* connection class: when a connection is established to a bnet listening
+address the client sends an initial byte which tells the server of what class
+of connection the following packets will be; classes of connections determine
+what packets can go through that connection.
+
+* MPQ: a format archive which is used by Blizzard clients and Battle.Net 
+servers. This files are used for containing verious files (sound/graphics in
+clients, AI scripts, update patches etc...)
+
+* versioncheck: also know as vcheck and sometimes just vc ; a client 
+verification system used by Battle.Net servers to identify client version and 
+"purity". Based on this the server may accept/refuse connection or ask for 
+upgrade (see autoupdate).
 
