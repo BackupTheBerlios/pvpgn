@@ -12,6 +12,8 @@ fail to login due to wrong file-time. That's not our problem.
 also gets things compiling on BeOS)
 -- made sure D2 charsave files created with D2Closed (with file ending .d2s)
 will be automatically renamed on use
+-- IRC: fixed error messages sent on client sent PINGs (this is a temporary fix 
+in the future the IRC codes will be cleaned up)
 
 1.6.0beta (since 1.6.0pre5)
 !!! IMPORTANT !!!
