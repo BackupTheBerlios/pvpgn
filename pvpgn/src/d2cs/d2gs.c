@@ -423,7 +423,7 @@ extern int d2gs_keepalive(void)
 	packet_set_size(packet,sizeof(t_d2cs_d2gs_echoreq));
 	packet_set_type(packet,D2CS_D2GS_ECHOREQ);
         /* FIXME: sequence number not set */
-        bn_short_set(&packet->u.d2cs_d2gs.h.seqno,0);       	
+        bn_int_set(&packet->u.d2cs_d2gs.h.seqno,0);       	
 	BEGIN_LIST_TRAVERSE_DATA(d2gslist_head,gs)
 	{
 		if (gs->active && gs->connection) {
@@ -447,7 +447,7 @@ extern int d2gs_restart_all_gs(void)
         packet_set_size(packet,sizeof(t_d2cs_d2gs_control));
         packet_set_type(packet,D2CS_D2GS_CONTROL);
         /* FIXME: sequence number not set */
-        bn_short_set(&packet->u.d2cs_d2gs.h.seqno,0);        		
+        bn_int_set(&packet->u.d2cs_d2gs.h.seqno,0);        		
         bn_int_set(&packet->u.d2cs_d2gs_control.cmd, D2CS_D2GS_CONTROL_CMD_RESTART);
         bn_int_set(&packet->u.d2cs_d2gs_control.value, prefs_get_d2gs_restart_delay());
 	
