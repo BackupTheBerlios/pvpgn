@@ -2722,7 +2722,7 @@ extern int anongame_infos_load(char const * filename)
     unsigned int			pos;
     char *				buff;
     char *				temp;
-    char 				langID[4]			= "    ";
+    char 				langID[5];
     t_parse_mode			parse_mode			= parse_UNKNOWN;
     t_parse_state			parse_state			= unchanged;
     t_anongame_infos_DESC *		anongame_infos_DESC		= NULL;
