@@ -82,7 +82,7 @@
 				RuntimeLibrary="0"
 				StructMemberAlignment="1"
 				EnableFunctionLevelLinking="TRUE"
-				WarningLevel="3"
+				WarningLevel="1"
 				WarnAsError="FALSE"
 				Detect64BitPortabilityProblems="TRUE"
 				DebugInformationFormat="3"
