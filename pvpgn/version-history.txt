@@ -39,6 +39,10 @@ PvPGN Version History:
   -- fixed handling of comments (previously it skipped the whole line no 
   matter where '#' was)
 
+[FDWATCH]
+  -- removed useless template usage because events field is r/o for pollfd
+  structs
+
 [MISC]:
   -- updated autoupdate with latest clients versions
   -- fixed "message_cache_lookup: unsupported connection class" errors when 

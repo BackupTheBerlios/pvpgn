@@ -49,8 +49,7 @@
 
 #ifdef HAVE_POLL
 static int sr;
-static struct pollfd *fds = NULL, /* working set */
-		     *tfds = NULL; /* template */
+static struct pollfd *fds = NULL; /* working set */
 static int *fdw_ridx = NULL;
 static unsigned nofds;
 
@@ -76,13 +75,12 @@ static int fdw_poll_init(int nfds)
 
     fdw_ridx = malloc(sizeof(int) * nfds);
     fds = malloc(sizeof(struct pollfd) * nfds);
-    tfds = malloc(sizeof(struct pollfd) * nfds);
-    if (fdw_ridx == NULL || fds == NULL || tfds == NULL) {
+    if (fdw_ridx == NULL || fds == NULL) {
 	fdw_poll_close();
 	return -1;
     }
 
-    memset(tfds, 0, sizeof(struct pollfd) * nfds);
+    memset(fds, 0, sizeof(struct pollfd) * nfds);
 /* I would use a memset with 255 but that is dirty and doesnt gain us anything */
     for(i = 0; i < nfds; i++) fdw_ridx[i] = -1;
     nofds = sr = 0;
@@ -93,7 +91,6 @@ static int fdw_poll_init(int nfds)
 
 static int fdw_poll_close(void)
 {
-    if (tfds) { free((void *)tfds); tfds = NULL; }
     if (fds) { free((void *)fds); fds = NULL; }
     if (fdw_ridx) { free((void *)fdw_ridx); fdw_ridx = NULL; }
     nofds = sr = 0;
@@ -108,20 +105,20 @@ static int fdw_poll_add_fd(int fd, t_fdwatch_type rw)
 //    eventlog(eventlog_level_trace, __FUNCTION__, "called fd: %d rw: %d", fd, rw);
     if (fdw_ridx[fd] < 0) {
 	ridx = nofds++;
-	tfds[ridx].fd = fd;
+	fds[ridx].fd = fd;
 	fdw_ridx[fd] = ridx;
 //	eventlog(eventlog_level_trace, __FUNCTION__, "adding new fd on %d", ridx);
     } else {
-	if (tfds[fdw_ridx[fd]].fd != fd) {
+	if (fds[fdw_ridx[fd]].fd != fd) {
 	    return -1;
 	}
 	ridx = fdw_ridx[fd];
 //	eventlog(eventlog_level_trace, __FUNCTION__, "updating fd on %d", ridx);
     }
 
-    tfds[ridx].events = 0;
-    if (rw & fdwatch_type_read) tfds[ridx].events |= POLLIN;
-    if (rw & fdwatch_type_write) tfds[ridx].events |= POLLOUT;
+    fds[ridx].events = 0;
+    if (rw & fdwatch_type_read) fds[ridx].events |= POLLIN;
+    if (rw & fdwatch_type_write) fds[ridx].events |= POLLOUT;
 
     return 0;
 }
@@ -137,8 +134,8 @@ static int fdw_poll_del_fd(int fd)
     nofds--;
     if (fdw_ridx[fd] < nofds) {
 //	eventlog(eventlog_level_trace, __FUNCTION__, "not last, moving %d", tfds[nofds].fd);
-	fdw_ridx[tfds[nofds].fd] = fdw_ridx[fd];
-	memcpy(tfds + fdw_ridx[fd], tfds + nofds, sizeof(struct pollfd));
+	fdw_ridx[fds[nofds].fd] = fdw_ridx[fd];
+	memcpy(fds + fdw_ridx[fd], fds + nofds, sizeof(struct pollfd));
     }
     fdw_ridx[fd] = -1;
 
@@ -147,7 +144,6 @@ static int fdw_poll_del_fd(int fd)
 
 static int fdw_poll_watch(long timeout_msec)
 {
-    memcpy(fds, tfds, sizeof(struct pollfd) * nofds);
     return (sr = poll(fds, nofds, timeout_msec));
 }
 
