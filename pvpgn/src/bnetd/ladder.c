@@ -82,7 +82,7 @@ static int ladder_make_active(t_ladder const * ladder);
 static t_ladder * ladderlist_find_ladder(t_ladder_time ltime, char const * clienttag, t_ladder_id id);
 
 static int ladder_createxptable(const char *, const char *);
-static void ladder_destroyxptable();
+static void ladder_destroyxptable(void);
 
 static int ladder_create(char const * clienttag, t_ladder_id id)
 {
