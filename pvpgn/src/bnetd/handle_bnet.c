@@ -1800,8 +1800,8 @@ static int _client_loginreq1(t_connection * c, t_packet const * const packet)
 
 	/* fail if no account */
 	if (!(account = accountlist_find_account(username)) 
-	    && prefs_get_load_new_account() 
-	    && !(account = account_load_new(username)))
+	    && (!prefs_get_load_new_account() || (prefs_get_load_new_account() 
+	    && !(account = account_load_new(username)))))
 	  {
 	     eventlog(eventlog_level_info,__FUNCTION__,"[%d] login for \"%s\" refused (no such account)",conn_get_socket(c),username);
 	     bn_int_set(&rpacket->u.server_loginreply1.message,SERVER_LOGINREPLY1_MESSAGE_FAIL);
@@ -2008,8 +2008,8 @@ static int _client_loginreq2(t_connection * c, t_packet const * const packet)
 
 	/* fail if no account */
 	if (!(account = accountlist_find_account(username)) 
-	    && prefs_get_load_new_account() 
-	    && !(account = account_load_new(username)))
+	    && (!prefs_get_load_new_account() || (prefs_get_load_new_account() 
+	    && !(account = account_load_new(username)))))
 	  {
 	     eventlog(eventlog_level_info,__FUNCTION__,"[%d] login for \"%s\" refused (no such account)",conn_get_socket(c),username);
 	     bn_int_set(&rpacket->u.server_loginreply2.message,SERVER_LOGINREPLY2_MESSAGE_BADPASS);
@@ -2205,8 +2205,8 @@ static int _client_loginreqw3(t_connection * c, t_packet const * const packet)
 	    else
 	    /* fail if no account */
 	    if (!(account = accountlist_find_account(username)) 
-	        && prefs_get_load_new_account() 
-		&& !(account = account_load_new(username)))
+		&& (!prefs_get_load_new_account() || (prefs_get_load_new_account() 
+		&& !(account = account_load_new(username)))))
 	    {
 		eventlog(eventlog_level_info,__FUNCTION__,"[%d] (W3) login for \"%s\" refused (no such account)",conn_get_socket(c),username);
 		bn_int_set(&rpacket->u.server_loginreply_w3.message,SERVER_LOGINREPLY_W3_MESSAGE_BADACCT);
