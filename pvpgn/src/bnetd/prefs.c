@@ -192,6 +192,8 @@ static Bconf_t conf_table[] =
     { "aliasfile"          ,    conf_type_char,    BNETD_ALIASFILE   ,   NONE,                  ACT },
 
     { "anongame_infos_file",		conf_type_char,	   PVPGN_AINFO_FILE,	NONE,		ACT },
+
+    { "max_conns_per_IP",	conf_type_int,	   NULL,		 0,			ACT },
     
     
     { NULL,             	conf_type_none,    NULL,                 NONE,                  ACT },
@@ -1215,3 +1217,9 @@ extern char const * prefs_get_anongame_infos_file(void)
 {
 	return get_char_conf("anongame_infos_file");
 }
+
+extern int prefs_get_max_conns_per_IP(void)
+{
+	return get_int_conf("max_conns_per_IP");
+}
+
