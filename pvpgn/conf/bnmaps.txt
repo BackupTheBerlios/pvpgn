@@ -106,7 +106,7 @@ W3XP		2v2		Maps\FrozenThrone\(4)Avalanche.w3x
 W3XP		2v2		Maps\FrozenThrone\(4)BridgeTooNear.w3x
 W3XP		2v2		Maps\FrozenThrone\(4)BrokenShard.w3x
 W3XP		2v2		Maps\(4)Frostsabre.w3m
-W3XP		2v2		Maps\FrozenThrone\(4)LostTemple.w3m
+W3XP		2v2		Maps\(4)LostTemple.w3m
 W3XP		2v2		Maps\FrozenThrone\(4)Roundabout.w3x
 W3XP		2v2		Maps\FrozenThrone\(4)TwistedMeadows.w3x
 W3XP		2v2		Maps\FrozenThrone\(4)Wetlands.w3x
@@ -150,7 +150,7 @@ W3XP		at2v2		Maps\FrozenThrone\(4)Avalanche.w3x
 W3XP		at2v2		Maps\FrozenThrone\(4)BridgeTooNear.w3x
 W3XP		at2v2		Maps\FrozenThrone\(4)BrokenShard.w3x
 W3XP		at2v2		Maps\(4)Frostsabre.w3m
-W3XP		at2v2		Maps\FrozenThrone\(4)LostTemple.w3m
+W3XP		at2v2		Maps\(4)LostTemple.w3m
 W3XP		at2v2		Maps\FrozenThrone\(4)Roundabout.w3x
 W3XP		at2v2		Maps\FrozenThrone\(4)TwistedMeadows.w3x
 W3XP		at2v2		Maps\FrozenThrone\(4)Wetlands.w3x
