@@ -196,6 +196,7 @@ typedef struct connection
    int					  cr_time;
 
    time_t                 anongame_search_starttime;
+   int			  echoback;
 }
 #endif
 t_connection;
@@ -298,6 +299,7 @@ extern int conn_set_channel_var(t_connection * c, t_channel * channel);
 extern int conn_set_channel(t_connection * c, char const * channelname);
 extern t_game * conn_get_game(t_connection const * c) PURE_ATTR();
 extern int conn_set_game(t_connection * c, char const * gamename, char const * gamepass, char const * gameinfo, t_game_type type, int version);
+extern unsigned int conn_get_tcpaddr(t_connection * c) PURE_ATTR();
 #ifdef WITH_BITS
 extern int conn_set_game_bits(t_connection * c, char const * gamename, char const * gamepass, char const * gameinfo, t_game_type type, int version, t_game_option option);
 #endif
@@ -344,6 +346,8 @@ extern int conn_set_lastsender(t_connection * c, char const * sender);
 extern char const * conn_get_lastsender(t_connection const * c);
 extern t_versioncheck * conn_get_versioncheck(t_connection * c) PURE_ATTR();
 extern int conn_set_versioncheck(t_connection * c, t_versioncheck * versioncheck);
+extern int conn_get_echoback(t_connection * c) PURE_ATTR();
+extern void conn_set_echoback(t_connection * c, int echoback);
 extern int conn_set_ircline(t_connection * c, char const * line);
 extern char const * conn_get_ircline(t_connection const * c);
 extern int conn_set_ircpass(t_connection * c, char const * pass);
@@ -399,6 +403,8 @@ extern time_t conn_get_anongame_search_starttime(t_connection * c);
 
 extern int conn_get_user_count_by_clienttag(char const * ct);
 extern char const * conn_get_user_game_title(char const * ct);
+
+extern unsigned int connlist_count_connections(unsigned int addr);
 
 #endif
 #endif

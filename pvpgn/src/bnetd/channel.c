@@ -123,7 +123,7 @@ extern t_channel * channel_create(char const * fullname, char const * shortname,
     /* non-permanent already checks for this in conn_set_channel */
     if (permflag)
     {
-	if (channel = channellist_find_channel_by_fullname(fullname))
+	if ((channel = channellist_find_channel_by_fullname(fullname)))
 	{
 	    if ((channel_get_clienttag(channel)) && (clienttag) && (strcmp(channel_get_clienttag(channel),clienttag)==0))
 	    {
@@ -1882,6 +1882,29 @@ extern t_list * channellist(void)
 extern int channellist_get_length(void)
 {
     return list_get_length(channellist_head);
+}
+
+extern unsigned int channel_get_max(t_channel const * channel)
+{
+  if (!channel)
+  {
+    eventlog(eventlog_level_error,__FUNCTION__,"got NULL channel");
+    return 0;
+  }
+
+  return channel->maxmembers;
+}
+
+extern unsigned int channel_get_curr(t_channel const * channel)
+{
+  if (!channel)
+  {
+    eventlog(eventlog_level_error,__FUNCTION__,"got NULL channel");
+    return 0;
+  }
+  
+  return channel->currmembers;
+
 }
 
 

@@ -409,6 +409,7 @@ extern t_connection * conn_create(int tsock, int usock, unsigned int real_local_
     temp->outsize                = 0;
     temp->inqueue                = NULL;
     temp->insize                 = 0;
+    temp->echoback		 = 0;
     temp->welcomed               = 0;
     temp->host                   = NULL;
     temp->user                   = NULL;
@@ -1876,10 +1877,41 @@ extern int conn_set_channel_var(t_connection * c, t_channel * channel)
 
 extern int conn_set_channel(t_connection * c, char const * channelname)
 {
+    t_channel * channel;
+    t_account * acc;
+
     if (!c)
     {
         eventlog(eventlog_level_error,"conn_set_channel","got NULL connection");
         return -1;
+    }
+
+    acc = conn_get_account(c);
+
+    if (channelname)
+    {
+	if (!(channel = channellist_find_channel_by_name(channelname,conn_get_country(c),conn_get_realmname(c))))
+	{
+	    //
+	}
+	else
+	{
+	    if (channel_check_banning(channel,c))
+	    {
+		message_send_text(c,message_type_error,c,"You are banned from that channel.");
+		return -1;
+	    }
+	    //FIXME: channel restrictions for usergroups like admins/opers/clans
+	    //       can be solved with channels with max_users = 0 ;-)
+
+	    if ((account_get_auth_admin(acc,NULL)!=1) && (account_get_auth_admin(acc,channelname)!=1) &&
+		(account_get_auth_operator(acc,NULL)!=1) && (account_get_auth_operator(acc,channelname)!=1) &&
+		(channel_get_max(channel) != -1) && (channel_get_curr(channel)>=channel_get_max(channel)))
+	    {
+		message_send_text(c,message_type_error,c,"The channel is currently full");
+		return -1;
+	    }
+	}
     }
     
     if (c->channel)
@@ -2092,6 +2124,17 @@ extern int conn_set_game(t_connection * c, char const * gamename, char const * g
 	c->game = NULL;
     return 0;
 #endif /* !WITH_BITS */
+}
+
+extern unsigned int conn_get_tcpaddr(t_connection * c)
+{
+	if (!c)
+	{
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL connection");
+	return 0;
+	}
+	
+	return c->tcp_addr;
 }
 
 #ifdef WITH_BITS
@@ -3485,6 +3528,27 @@ extern int conn_set_versioncheck(t_connection * c, t_versioncheck * versioncheck
     return 0;
 }
 
+extern int conn_get_echoback(t_connection * c)
+{
+	if (!c)
+	{
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL connection");
+	return 0;
+	}
+
+	return c->echoback;
+}
+
+extern void conn_set_echoback(t_connection * c, int echoback)
+{
+	if (!c)
+	{
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL connection");
+	return;
+	}
+
+	c->echoback = echoback;
+}
 
 extern int conn_set_udpok(t_connection * c)
 {
@@ -3717,4 +3781,22 @@ extern char const * conn_get_user_game_title(char const * ct)
      return "Chat";
    else
      return "Unknown";
+}
+
+extern unsigned int connlist_count_connections(unsigned int addr)
+{
+  t_connection * c;
+  t_elem const * curr;
+  unsigned int count;
+
+  count = 0;
+
+  LIST_TRAVERSE_CONST(conn_head,curr)
+  {
+	c = (t_connection *)elem_get_data(curr);
+	if (c->tcp_addr == addr)
+	  count++;
+  }
+
+  return count;
 }
