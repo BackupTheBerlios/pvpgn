@@ -6,4 +6,7 @@ echo Parameter -DWITH_GUI to build GUI versions of bnetd, d2cs and d2dbs
 echo ===================================================================
 echo Parameter clean deletes object files
 echo ===================================================================
+copy Makefile.BORLAND ..\src\Makefile.BORLAND
+cd ..\src
 make -fMakefile.BORLAND %1 %2
+cd ..\Win32-Projects
