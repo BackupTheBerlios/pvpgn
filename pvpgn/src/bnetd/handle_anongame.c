@@ -432,7 +432,7 @@ static int _client_anongame_get_icon(t_connection * c, t_packet const * const pa
     {
 	struct
 	{
-	    char	 icon_code[4];
+	    char	 icon_code[5];
 	    unsigned int portrait_code;
 	    char	 race;
 	    bn_short	 required_wins;
@@ -496,11 +496,12 @@ static int _client_anongame_get_icon(t_connection * c, t_packet const * const pa
 		icon_req_race_wins = anongame_infos_get_ICON_REQ_W3XP(j+1);
 	    for (i=0;i<table_width;i++){
 		tempicon.race=i;
-	        tempicon.icon_code[0]=icon_pos[j];
-	        tempicon.icon_code[1]=race_char[i];
-	        tempicon.icon_code[2]='3';
-	        tempicon.icon_code[3]='W';
-	        tempicon.portrait_code=(account_icon_to_profile_icon(tempicon.icon_code,acc,clienttag));
+	        tempicon.icon_code[0] = icon_pos[j];
+	        tempicon.icon_code[1] = race_char[i];
+	        tempicon.icon_code[2] = '3';
+	        tempicon.icon_code[3] = 'W';
+		tempicon.icon_code[4] = '\0';
+	        tempicon.portrait_code = (account_icon_to_profile_icon(tempicon.icon_code,acc,clienttag));
 	        if (i<=4){
 	    	    //Building the icon for the races
 	    	    bn_short_set(&tempicon.required_wins,icon_req_race_wins);
