@@ -160,11 +160,13 @@ static void d2gs_send_server_conffile(t_d2gs *gs, t_connection *c)
 		eventlog(eventlog_level_error,__FUNCTION__,"failed fread()");
 		return;
 	}
+	confs[size]='\0';
 	fclose(fp);
 	/* send the config within a packet */
 	if ((rpacket=packet_create(packet_class_d2gs))) {
 		packet_set_size(rpacket,sizeof(t_d2cs_d2gs_setconffile));
 		packet_set_type(rpacket,D2CS_D2GS_SETCONFFILE);
+		bn_int_set(&rpacket->u.d2cs_d2gs_setconffile.h.seqno,0);
 		bn_int_set(&rpacket->u.d2cs_d2gs_setconffile.size, size);
 		bn_int_set(&rpacket->u.d2cs_d2gs_setconffile.reserved1, time(NULL));
 		packet_append_string(rpacket,confs);
