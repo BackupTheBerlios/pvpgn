@@ -63,6 +63,7 @@ static t_conf_table prefs_conf_table[]={
     { "XML_ladder_output"    , offsetof(t_prefs,XML_ladder_output),     conf_type_int, 0,                             NULL                 },
     { "ladderupdate_threshold",offsetof(t_prefs,ladderupdate_threshold),conf_type_int, DEFAULT_LADDERUPDATE_THRESHOLD,NULL                 },
     { "ladder_chars_only",     offsetof(t_prefs,ladder_chars_only),     conf_type_int, 0,                             NULL                 },
+    { "difficulty_hack",       offsetof(t_prefs,difficulty_hack),	conf_type_int, 0,                             NULL                 },
     { NULL,                   0,                                        conf_type_none,0,                             NULL                 }
 };
 
@@ -187,4 +188,9 @@ extern unsigned int prefs_get_ladderupdate_threshold(void)
 extern unsigned int prefs_get_ladder_chars_only(void)
 {
 	return prefs_conf.ladder_chars_only;
+}
+
+extern unsigned int prefs_get_difficulty_hack(void)
+{
+	return prefs_conf.difficulty_hack;
 }
