@@ -185,6 +185,11 @@ static t_account * account_create(char const * username, char const * passhash1)
 	return NULL;
     }
 
+    if (username && account_check_name(username)) {
+	eventlog(eventlog_level_error,__FUNCTION__,"got invalid chars in username");
+	return NULL;
+    }
+
     account = xmalloc(sizeof(t_account));
 
     account->name     = NULL;
@@ -697,6 +702,8 @@ static t_account * account_load_new(char const * name, unsigned uid)
     t_account *account;
     t_storage_info *info;
 
+    if (name && account_check_name(name)) return NULL;
+
     force_account_add = 1; /* disable the protection */
     info = storage->read_account(name,uid);
     if (!info) return NULL;
@@ -964,12 +971,11 @@ extern t_account * accountlist_find_account(char const * username)
 
     /* all accounts in list must be hashed already, no need to check */
     
-    if (userid)
-    {
+    if (userid) {
         account=accountlist_find_account_by_uid(userid);
-        if(account!=NULL)
-            return account;
+        if (account) return account;
     }
+
     if ((!(userid)) || (userid && ((username[0]=='#') || (isdigit((int)username[0])))))
     {
 	unsigned int namehash;
@@ -1172,16 +1178,12 @@ extern int account_check_name(char const * name)
 	char ch;
     
     if (!name) {
-	eventlog(eventlog_level_error,"account_check_name","got NULL name");
+	eventlog(eventlog_level_error, __FUNCTION__,"got NULL name");
 	return -1;
     }
-/*    if (!isalnum(name[0]))
-	return -1;
-*/
     
     for (i=0; i<strlen(name); i++)
     {
-	// Changed by NonReal -- idiots are using ASCII names and it is annoying
         /* These are the Battle.net rules but they are too strict.
          * We want to allow any characters that wouldn't cause
          * problems so this should test for what is _not_ allowed
