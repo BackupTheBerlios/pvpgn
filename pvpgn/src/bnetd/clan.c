@@ -226,9 +226,9 @@ extern int clan_close_status_window_on_disband(t_clan * clan)
 
     if ((rpacket = packet_create(packet_class_bnet)))
     {
-	packet_set_size(rpacket, sizeof(t_server_w3xp_clan_clanleaveack));
-	packet_set_type(rpacket, SERVER_W3XP_CLAN_CLANLEAVEACK);
-	bn_byte_set(&rpacket->u.server_w3xp_clan_clanack.unknow1, SERVER_W3XP_CLAN_CLANLEAVEACK_UNKNOWN1);
+	packet_set_size(rpacket, sizeof(t_server_w3xp_clanquitnotify));
+	packet_set_type(rpacket, SERVER_W3XP_CLANQUITNOTIFY);
+	bn_byte_set(&rpacket->u.server_w3xp_clan_clanack.status, SERVER_W3XP_CLANQUITNOTIFY_STATUS_REMOVED_FROM_CLAN);
 	LIST_TRAVERSE(clan->members, curr)
 	{
 	    t_clanmember *	member;
@@ -326,16 +326,16 @@ extern int clan_close_status_window(t_connection * c)
 	
     if ((rpacket = packet_create(packet_class_bnet)))
     {
-	packet_set_size(rpacket, sizeof(t_server_w3xp_clan_clanleaveack));
-	packet_set_type(rpacket, SERVER_W3XP_CLAN_CLANLEAVEACK);
-	bn_byte_set(&rpacket->u.server_w3xp_clan_clanack.unknow1, SERVER_W3XP_CLAN_CLANLEAVEACK_UNKNOWN1);
+	packet_set_size(rpacket, sizeof(t_server_w3xp_clanquitnotify));
+	packet_set_type(rpacket, SERVER_W3XP_CLANQUITNOTIFY);
+	bn_byte_set(&rpacket->u.server_w3xp_clanquitnotify.status, SERVER_W3XP_CLANQUITNOTIFY_STATUS_REMOVED_FROM_CLAN);
 	conn_push_outqueue(c, rpacket);
 	packet_del_ref(rpacket);
     }
     return 0;
 }
 
-extern int clan_send_member_status(t_connection * c, t_packet const *const packet)
+extern int clan_send_memberlist(t_connection * c, t_packet const *const packet)
 {
     t_packet * rpacket;
     t_elem *curr;
@@ -357,9 +357,10 @@ extern int clan_send_member_status(t_connection * c, t_packet const *const packe
     {
     	t_account * memberacc;
 	
-	packet_set_size(rpacket, sizeof(t_server_w3xp_clan_memberreply));
-	packet_set_type(rpacket, SERVER_W3XP_CLAN_MEMBERREPLY);
-	bn_int_set(&rpacket->u.server_w3xp_clan_memberreply.count, bn_int_get(packet->u.client_w3xp_clan_memberreq.count));
+	packet_set_size(rpacket, sizeof(t_server_w3xp_clanmemberlist_reply));
+	packet_set_type(rpacket, SERVER_W3XP_CLANMEMBERLIST_REPLY);
+	bn_int_set(&rpacket->u.server_w3xp_clanmemberlist_reply.count, 
+	           bn_int_get(packet->u.client_w3xp_clanmemberlist_req.count));
 	LIST_TRAVERSE(clan->members, curr)
 	{
 	    if (!(member = elem_get_data(curr)))
@@ -385,7 +386,7 @@ extern int clan_send_member_status(t_connection * c, t_packet const *const packe
 		packet_append_string(rpacket, "");
 	    count++;
 	}
-	bn_byte_set(&rpacket->u.server_w3xp_clan_memberreply.member_count, count);
+	bn_byte_set(&rpacket->u.server_w3xp_clanmemberlist_reply.member_count, count);
 	conn_push_outqueue(c, rpacket);
 	packet_del_ref(rpacket);
 	return 0;
@@ -550,8 +551,8 @@ extern int clanmember_on_change_status(t_clanmember * member)
     {
 	char tmpstr[2];
 	const char *append_str;
-	packet_set_size(rpacket, sizeof(t_server_w3xp_clan_memberchangeack));
-	packet_set_type(rpacket, SERVER_W3XP_CLAN_MEMBERCHANGEACK);
+	packet_set_size(rpacket, sizeof(t_server_w3xp_clanmemberupdate));
+	packet_set_type(rpacket, SERVER_W3XP_CLANMEMBERUPDATE);
 	packet_append_string(rpacket, account_get_name(member->memberacc));
 	tmpstr[0] = member->status;
 	append_str = clanmember_get_online_status(member, &tmpstr[1]);
@@ -586,8 +587,8 @@ extern int clanmember_on_change_status_by_connection(t_connection * conn)
     {
 	char tmpstr[2];
 	const char *append_str;
-	packet_set_size(rpacket, sizeof(t_server_w3xp_clan_memberchangeack));
-	packet_set_type(rpacket, SERVER_W3XP_CLAN_MEMBERCHANGEACK);
+	packet_set_size(rpacket, sizeof(t_server_w3xp_clanmemberupdate));
+	packet_set_type(rpacket, SERVER_W3XP_CLANMEMBERUPDATE);
 	packet_append_string(rpacket, account_get_name(acc));
 	tmpstr[0] = member->status;
 	append_str = clanmember_get_online_status_by_connection(conn, &tmpstr[1]);

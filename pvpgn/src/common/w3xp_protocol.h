@@ -279,12 +279,12 @@ typedef struct{
   bn_byte		status;  /* member status */
 } PACKED_ATTR() t_server_w3xp_clan_clanack;
 
-#define SERVER_W3XP_CLAN_CLANLEAVEACK 0x76ff
+#define SERVER_W3XP_CLANQUITNOTIFY 0x76ff
 typedef struct{
   t_bnet_header        h;
-  bn_byte              unknown1; /* always be zero? */
-} PACKED_ATTR() t_server_w3xp_clan_clanleaveack;
-#define SERVER_W3XP_CLAN_CLANLEAVEACK_UNKNOWN1 0x00
+  bn_byte              status; 
+} PACKED_ATTR() t_server_w3xp_clanquitnotify;
+#define SERVER_W3XP_CLANQUITNOTIFY_STATUS_REMOVED_FROM_CLAN 0x01
 
 /*
 3876: recv class=bnet[0x02] type=unknown[0x77ff] length=13
@@ -303,21 +303,21 @@ typedef struct{
   bn_byte              result;  /* 0x04--decline 0x05--Cannot contact(not in channel screen) or already in clan */
 } PACKED_ATTR() t_server_w3xp_clan_invitereply;
 
-#define CLIENT_W3XP_CLAN_MEMBERDELREQ 0x78ff
+#define CLIENT_W3XP_CLANMEMBER_REMOVE_REQ 0x78ff
 typedef struct{
   t_bnet_header        h;
   bn_int               count;
   //Player_Name deleted(\0 terminated)
-} PACKED_ATTR() t_client_w3xp_clan_memberdelreq;
+} PACKED_ATTR() t_client_w3xp_clanmember_remove_req;
 
-#define SERVER_W3XP_CLAN_MEMBERDELREPLY 0x78ff
+#define SERVER_W3XP_CLANMEMBER_REMOVE_REPLY 0x78ff
 typedef struct{
   t_bnet_header        h;
   bn_int               count;
   bn_byte              result; /* 0-successful 1-failed */
-} PACKED_ATTR() t_server_w3xp_clan_memberdelreply;
-#define SERVER_W3XP_CLAN_MEMBERDELREPLY_SUCCESS 0x00
-#define SERVER_W3XP_CLAN_MEMBERDELREPLY_FAILED 0x01
+} PACKED_ATTR() t_server_w3xp_clanmember_remove_reply;
+#define SERVER_W3XP_CLANMEMBER_REMOVE_SUCCESS 0x00
+#define SERVER_W3XP_CLANMEMBER_REMOVE_FAILED 0x01
 
 #define SERVER_W3XP_CLAN_INVITEREQ 0x79ff
 typedef struct{
@@ -344,22 +344,22 @@ typedef struct{
 #define W3XP_CLAN_INVITEREPLY_CANNOT 0x08
 #define W3XP_CLAN_INVITEREPLY_CLANFULL 0x09
 
-#define CLIENT_W3XP_CLAN_MEMBERCHANGEREQ 0x7aff
+#define CLIENT_W3XP_CLANMEMBER_RANKUPDATE_REQ 0x7aff
 typedef struct{
   t_bnet_header        h;
   bn_int               count;
   //Player_Name invited(\0 terminated)
   //Player_Status(bn_byte: 1~4)
-} PACKED_ATTR() t_client_w3xp_clan_memberchangereq;
+} PACKED_ATTR() t_client_w3xp_clanmember_rankupdate_req;
 
-#define SERVER_W3XP_CLAN_MEMBERCHANGEREPLY 0x7aff
+#define SERVER_W3XP_CLANMEMBER_RANKUPDATE_REPLY 0x7aff
 typedef struct{
   t_bnet_header        h;
   bn_int               count;
   bn_byte              result; /* 0-successful 1-failed */
-} PACKED_ATTR() t_server_w3xp_clan_memberchangereply;
-#define SERVER_W3XP_CLAN_MEMBERCHANGEREPLY_SUCCESS 0x00
-#define SERVER_W3XP_CLAN_MEMBERCHANGEREPLY_FAILED 0x01
+} PACKED_ATTR() t_server_w3xp_clanmember_rankupdate_reply;
+#define SERVER_W3XP_CLANMEMBER_RANKUPDATE_SUCCESS 0x00
+#define SERVER_W3XP_CLANMEMBER_RANKUPDATE_FAILED 0x01
 
 #define CLIENT_W3XP_CLAN_MOTDCHG 0x7bff
 typedef struct{
@@ -403,7 +403,7 @@ Paquet #52
 0x00F0   53 77 5A 00 02 00 00 54-72 6F 6C 6C 6F 00 02 00   SwZ....Trollo...
 0x0100   00 53 69 6C 76 65 72 62-65 61 72 64 00 00 00 00   .Silverbeard....
 */
-#define SERVER_W3XP_CLAN_MEMBERREPLY 0x7dff
+#define SERVER_W3XP_CLANMEMBERLIST_REPLY 0x7dff
 typedef struct{
   t_bnet_header        h;
   bn_int               count;
@@ -418,31 +418,31 @@ typedef struct{
   // bn_byte		   online status
   // unknown(always \0)
   // repeat end
-} PACKED_ATTR() t_server_w3xp_clan_memberreply;
+} PACKED_ATTR() t_server_w3xp_clanmemberlist_reply;
 
 /*
 Paquet #51
 0x0000   FF 7D 08 00 01 00 00 00-                          ÿ}......
 */
 
-#define CLIENT_W3XP_CLAN_MEMBERREQ 0x7dff
+#define CLIENT_W3XP_CLANMEMBERLIST_REQ 0x7dff
 typedef struct{
   t_bnet_header        h;
   bn_int               count;
-} PACKED_ATTR() t_client_w3xp_clan_memberreq;
+} PACKED_ATTR() t_client_w3xp_clanmemberlist_req;
 
-#define SERVER_W3XP_CLAN_MEMBERLEAVEACK 0x7eff
+#define SERVER_W3XP_CLANMEMBER_REMOVED_NOTIFY 0x7eff
 typedef struct{
   t_bnet_header        h;
   //Player_Name deleted(\0 terminated)
-} PACKED_ATTR() t_server_w3xp_clan_memberleaveack;
+} PACKED_ATTR() t_server_w3xp_clanmember_removed_notify;
 
-#define SERVER_W3XP_CLAN_MEMBERCHANGEACK 0x7fff
+#define SERVER_W3XP_CLANMEMBERUPDATE 0x7fff
 typedef struct{
   t_bnet_header        h;
   //Player_Name invited(\0 terminated)
   //Player_Status(bn_byte: 1~4)
   //Player_Online(bn_short: 0x0/0x1)
-} PACKED_ATTR() t_server_w3xp_clan_memberchangeack;
+} PACKED_ATTR() t_server_w3xp_clanmemberupdate;
 
 #endif

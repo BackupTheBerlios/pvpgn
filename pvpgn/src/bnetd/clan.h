@@ -153,7 +153,7 @@ extern int clan_send_status_window(t_connection * c);
 extern int clan_send_status_window_on_create(t_clan * clan);
 extern int clan_close_status_window(t_connection * c);
 extern int clan_close_status_window_on_disband(t_clan * clan);
-extern int clan_send_member_status(t_connection * c, t_packet const *const packet);
+extern int clan_send_memberlist(t_connection * c, t_packet const *const packet);
 extern int clan_change_member_status(t_connection * c, t_packet const *const packet);
 extern int clan_send_motd_reply(t_connection * c, t_packet const *const packet);
 extern int clan_save_motd_chg(t_connection * c, t_packet const *const packet);

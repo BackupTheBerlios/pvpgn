@@ -177,15 +177,15 @@ static int _client_laddersearchreq(t_connection * c, t_packet const *const packe
 static int _client_mapauthreq1(t_connection * c, t_packet const *const packet);
 static int _client_mapauthreq2(t_connection * c, t_packet const *const packet);
 static int _client_changeclient(t_connection * c, t_packet const *const packet);
-static int _client_w3xp_clan_memberreq(t_connection * c, t_packet const *const packet);
+static int _client_w3xp_clanmemberlistreq(t_connection * c, t_packet const *const packet);
 static int _client_w3xp_clan_motdreq(t_connection * c, t_packet const *const packet);
 static int _client_w3xp_clan_motdchg(t_connection * c, t_packet const *const packet);
 static int _client_w3xp_clan_createreq(t_connection * c, t_packet const *const packet);
 static int _client_w3xp_clan_createinvitereq(t_connection * c, t_packet const *const packet);
 static int _client_w3xp_clan_createinvitereply(t_connection * c, t_packet const *const packet);
 static int _client_w3xp_clan_disbandreq(t_connection * c, t_packet const *const packet);
-static int _client_w3xp_clan_memberchangereq(t_connection * c, t_packet const *const packet);
-static int _client_w3xp_clan_memberdelreq(t_connection * c, t_packet const *const packet);
+static int _client_w3xp_clanmember_rankupdatereq(t_connection * c, t_packet const *const packet);
+static int _client_w3xp_clanmember_removereq(t_connection * c, t_packet const *const packet);
 static int _client_w3xp_clan_membernewchiefreq(t_connection * c, t_packet const *const packet);
 static int _client_w3xp_clan_invitereq(t_connection * c, t_packet const *const packet);
 static int _client_w3xp_clan_invitereply(t_connection * c, t_packet const *const packet);
@@ -279,14 +279,14 @@ static const t_htable_row bnet_htable_log[] = {
     {CLIENT_MAPAUTHREQ1, _client_mapauthreq1},
     {CLIENT_MAPAUTHREQ2, _client_mapauthreq2},
     {CLIENT_W3XP_CLAN_DISBANDREQ, _client_w3xp_clan_disbandreq},
-    {CLIENT_W3XP_CLAN_MEMBERREQ, _client_w3xp_clan_memberreq},
+    {CLIENT_W3XP_CLANMEMBERLIST_REQ, _client_w3xp_clanmemberlistreq},
     {CLIENT_W3XP_CLAN_MOTDCHG, _client_w3xp_clan_motdchg},
     {CLIENT_W3XP_CLAN_MOTDREQ, _client_w3xp_clan_motdreq},
     {CLIENT_W3XP_CLAN_CREATEREQ, _client_w3xp_clan_createreq},
     {CLIENT_W3XP_CLAN_CREATEINVITEREQ, _client_w3xp_clan_createinvitereq},
     {CLIENT_W3XP_CLAN_CREATEINVITEREPLY, _client_w3xp_clan_createinvitereply},
-    {CLIENT_W3XP_CLAN_MEMBERCHANGEREQ, _client_w3xp_clan_memberchangereq},
-    {CLIENT_W3XP_CLAN_MEMBERDELREQ, _client_w3xp_clan_memberdelreq},
+    {CLIENT_W3XP_CLANMEMBER_RANKUPDATE_REQ, _client_w3xp_clanmember_rankupdatereq},
+    {CLIENT_W3XP_CLANMEMBER_REMOVE_REQ, _client_w3xp_clanmember_removereq},
     {CLIENT_W3XP_CLAN_MEMBERNEWCHIEFREQ, _client_w3xp_clan_membernewchiefreq},
     {CLIENT_W3XP_CLAN_INVITEREQ, _client_w3xp_clan_invitereq},
     {CLIENT_W3XP_CLAN_INVITEREPLY, _client_w3xp_clan_invitereply},
@@ -4247,14 +4247,14 @@ static int _client_changeclient(t_connection * c, t_packet const *const packet)
     return 0;
 }
 
-static int _client_w3xp_clan_memberreq(t_connection * c, t_packet const *const packet)
+static int _client_w3xp_clanmemberlistreq(t_connection * c, t_packet const *const packet)
 {
-    if (packet_get_size(packet) < sizeof(t_client_w3xp_clan_memberreq)) {
-	eventlog(eventlog_level_error, __FUNCTION__, "[%d] got bad W3XP_CLAN_MEMBERREQ packet (expected %u bytes, got %u)", conn_get_socket(c), sizeof(t_client_w3xp_clan_memberreq), packet_get_size(packet));
+    if (packet_get_size(packet) < sizeof(t_client_w3xp_clanmemberlist_req)) {
+	eventlog(eventlog_level_error, __FUNCTION__, "[%d] got bad W3XP_CLANMEMBERLIST_REQ packet (expected %u bytes, got %u)", conn_get_socket(c), sizeof(t_client_w3xp_clanmemberlist_req), packet_get_size(packet));
 	return -1;
     }
 
-    clan_send_member_status(c, packet);
+    clan_send_memberlist(c, packet);
     return 0;
 }
 
@@ -4440,52 +4440,56 @@ static int _client_w3xp_clan_createinvitereply(t_connection * c, t_packet const 
     return 0;
 }
 
-static int _client_w3xp_clan_memberchangereq(t_connection * c, t_packet const *const packet)
+static int _client_w3xp_clanmember_rankupdatereq(t_connection * c, t_packet const *const packet)
 {
     t_packet *rpacket;
 
-    if (packet_get_size(packet) < sizeof(t_client_w3xp_clan_memberchangereq)) {
-	eventlog(eventlog_level_error, __FUNCTION__, "[%d] got bad W3XP_CLAN_MEMBERCHANGEREQ packet (expected %u bytes, got %u)", conn_get_socket(c), sizeof(t_client_w3xp_clan_createreq), packet_get_size(packet));
+    if (packet_get_size(packet) < sizeof(t_client_w3xp_clanmember_rankupdate_req)) {
+	eventlog(eventlog_level_error, __FUNCTION__, "[%d] got bad W3XP_CLANMEMBER_RANKUPDATE_REQ packet (expected %u bytes, got %u)", conn_get_socket(c), sizeof(t_client_w3xp_clanmember_rankupdate_req), packet_get_size(packet));
 	return -1;
     }
 
     if ((rpacket = packet_create(packet_class_bnet)) != NULL) {
-	int offset = sizeof(t_client_w3xp_clan_memberchangereq);
+	int offset = sizeof(t_client_w3xp_clanmember_rankupdate_req);
 	const char *username;
 	char status;
 	t_clan *clan;
 	t_clanmember *dest_member;
 
-	packet_set_size(rpacket, sizeof(t_server_w3xp_clan_memberchangereply));
-	packet_set_type(rpacket, SERVER_W3XP_CLAN_MEMBERCHANGEREPLY);
-	bn_int_set(&rpacket->u.server_w3xp_clan_memberchangereply.count, bn_int_get(packet->u.client_w3xp_clan_memberchangereq.count));
+	packet_set_size(rpacket, sizeof(t_server_w3xp_clanmember_rankupdate_reply));
+	packet_set_type(rpacket, SERVER_W3XP_CLANMEMBER_RANKUPDATE_REPLY);
+	bn_int_set(&rpacket->u.server_w3xp_clanmember_rankupdate_reply.count, 
+	           bn_int_get(packet->u.client_w3xp_clanmember_rankupdate_req.count));
 	username = packet_get_str_const(packet, offset, USER_NAME_MAX);
 	offset += (strlen(username) + 1);
 	status = *((char *) packet_get_data_const(packet, offset, 1));
 
 	clan = account_get_clan(conn_get_account(c));
 	dest_member = clan_find_member_by_name(clan, username);
-	if (clanmember_set_status(dest_member, status) == 0) {
-	    bn_byte_set(&rpacket->u.server_w3xp_clan_memberchangereply.result, SERVER_W3XP_CLAN_MEMBERCHANGEREPLY_SUCCESS);
+	if (clanmember_set_status(dest_member, status) == 0) 
+	{
+	    bn_byte_set(&rpacket->u.server_w3xp_clanmember_rankupdate_reply.result, 
+	                SERVER_W3XP_CLANMEMBER_RANKUPDATE_SUCCESS);
 	    clanmember_on_change_status(dest_member);
-	    clan_send_packet_to_online_members(clan, rpacket);
-	    packet_del_ref(rpacket);
-	} else {
-	    bn_byte_set(&rpacket->u.server_w3xp_clan_memberchangereply.result, SERVER_W3XP_CLAN_MEMBERCHANGEREPLY_FAILED);
-	    conn_push_outqueue(c, rpacket);
-	    packet_del_ref(rpacket);
+	} 
+	else 
+	{
+	    bn_byte_set(&rpacket->u.server_w3xp_clanmember_rankupdate_reply.result, 
+	                SERVER_W3XP_CLANMEMBER_RANKUPDATE_FAILED);
 	}
+	conn_push_outqueue(c, rpacket);
+	packet_del_ref(rpacket);
     }
 
     return 0;
 }
 
-static int _client_w3xp_clan_memberdelreq(t_connection * c, t_packet const *const packet)
+static int _client_w3xp_clanmember_removereq(t_connection * c, t_packet const *const packet)
 {
     t_packet *rpacket;
 
-    if (packet_get_size(packet) < sizeof(t_client_w3xp_clan_memberdelreq)) {
-	eventlog(eventlog_level_error, __FUNCTION__, "[%d] got bad W3XP_CLAN_MEMBERDELREQ packet (expected %u bytes, got %u)", conn_get_socket(c), sizeof(t_client_w3xp_clan_createreq), packet_get_size(packet));
+    if (packet_get_size(packet) < sizeof(t_client_w3xp_clanmember_remove_req)) {
+	eventlog(eventlog_level_error, __FUNCTION__, "[%d] got bad W3XP_CLANMEMBER_REMOVE_REQ packet (expected %u bytes, got %u)", conn_get_socket(c), sizeof(t_client_w3xp_clanmember_remove_req), packet_get_size(packet));
 	return -1;
     }
 
@@ -4495,10 +4499,14 @@ static int _client_w3xp_clan_memberdelreq(t_connection * c, t_packet const *cons
 	const char *username;
 	t_clanmember *member;
 	t_connection *dest_conn;
-	packet_set_size(rpacket, sizeof(t_server_w3xp_clan_memberdelreply));
-	packet_set_type(rpacket, SERVER_W3XP_CLAN_MEMBERDELREPLY);
-	bn_int_set(&rpacket->u.server_w3xp_clan_memberdelreply.count, bn_int_get(packet->u.client_w3xp_clan_memberdelreq.count));
-	username = packet_get_str_const(packet, sizeof(t_client_w3xp_clan_memberdelreq), USER_NAME_MAX);
+	packet_set_size(rpacket, sizeof(t_server_w3xp_clanmember_remove_reply));
+	packet_set_type(rpacket, SERVER_W3XP_CLANMEMBER_REMOVE_REPLY);
+	bn_int_set(&rpacket->u.server_w3xp_clanmember_remove_reply.count, 
+	           bn_int_get(packet->u.client_w3xp_clanmember_remove_req.count));
+	username = packet_get_str_const(packet, sizeof(t_client_w3xp_clanmember_remove_req), USER_NAME_MAX);
+	bn_byte_set(&rpacket->u.server_w3xp_clanmember_remove_reply.result, 
+	            SERVER_W3XP_CLANMEMBER_REMOVE_FAILED); // initially presume it failed
+	
 	if ((acc = conn_get_account(c)) && (clan = account_get_clan(acc)) && (member = clan_find_member_by_name(clan, username))) {
 	    dest_conn = clanmember_get_conn(member);
 	    if (clan_remove_member(clan, member) == 0) {
@@ -4506,22 +4514,19 @@ static int _client_w3xp_clan_memberdelreq(t_connection * c, t_packet const *cons
 		if (dest_conn) {
 		    clan_close_status_window(dest_conn);
 		    conn_update_w3_playerinfo(dest_conn);
-		    conn_push_outqueue(dest_conn, rpacket);
+		    channel_rejoin(dest_conn);
 		}
-		bn_byte_set(&rpacket->u.server_w3xp_clan_memberdelreply.result, SERVER_W3XP_CLAN_MEMBERDELREPLY_SUCCESS);
 		if ((rpacket2 = packet_create(packet_class_bnet)) != NULL) {
-		    packet_set_size(rpacket2, sizeof(t_server_w3xp_clan_memberleaveack));
-		    packet_set_type(rpacket2, SERVER_W3XP_CLAN_MEMBERLEAVEACK);
+		    packet_set_size(rpacket2, sizeof(t_server_w3xp_clanmember_removed_notify));
+		    packet_set_type(rpacket2, SERVER_W3XP_CLANMEMBER_REMOVED_NOTIFY);
 		    packet_append_string(rpacket2, username);
 		    clan_send_packet_to_online_members(clan, rpacket2);
-		    clan_send_packet_to_online_members(clan, rpacket);
 		    packet_del_ref(rpacket2);
-		    packet_del_ref(rpacket);
-		    return 0;
 		}
+		bn_byte_set(&rpacket->u.server_w3xp_clanmember_remove_reply.result, 
+		            SERVER_W3XP_CLANMEMBER_REMOVE_SUCCESS);
 	    }
 	}
-	bn_byte_set(&rpacket->u.server_w3xp_clan_memberdelreply.result, SERVER_W3XP_CLAN_MEMBERDELREPLY_FAILED);
 	conn_push_outqueue(c, rpacket);
 	packet_del_ref(rpacket);
     }
