@@ -3059,7 +3059,7 @@ extern char const * account_get_user_icon( t_account * account, char const * cli
   sprintf(key,"Record\\%s\\userselected_icon",clienttag);
   retval = account_get_strattr(account,key);
 
-  if (strcmp(retval,"NULL")!=0)
+  if ((retval) && ((strcmp(retval,"NULL")!=0)))
     return retval;
   else
     return NULL;
