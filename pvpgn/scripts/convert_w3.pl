@@ -42,6 +42,10 @@ sub convertfile {
     my ($tab, $col, $val);
 
     open FILE, $dirpath ."/". $filen or die "Error opening file ". $dirpath ."/". $filen ."\n";
+    if (open FILEOUT, $dirpath2 ."/". $filen) {
+	die "Found existent file : ". $dirpath2 ."/". $filen ."!! Plese provide an empty output directory !!";
+    }
+
     open FILEOUT, ">". $dirpath2 ."/". $filen or die "Error opening output file ". $dirpath2 ."/". $filen ."\n";
     print "Converting file ". $filen ."... ";
 
