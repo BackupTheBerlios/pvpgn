@@ -1972,9 +1972,29 @@ static int _client_loginreq1(t_connection * c, t_packet const * const packet)
    return 0;
 }
 
+void client_init_email(t_connection * c, t_account * account)
+{
+  t_packet * packet;
+  char const * email;
+
+  if (!c || !account) return;
+  if (!(email = account_get_email(account)))
+  {
+    if ((packet = packet_create(packet_class_bnet)))
+    {
+    	packet_set_size(packet,sizeof(t_server_setemailreq));
+	packet_set_type(packet,SERVER_SETEMAILREQ);
+	conn_push_outqueue(c,packet);
+	packet_del_ref(packet);
+    }
+  }
+  return;
+}
+
 static int _client_loginreq2(t_connection * c, t_packet const * const packet)
 {
    t_packet * rpacket;
+   int success = 0;
 
    if (packet_get_size(packet)<sizeof(t_client_loginreq2))
      {
@@ -2132,6 +2152,7 @@ static int _client_loginreq2(t_connection * c, t_packet const * const packet)
 			       eventlog(eventlog_level_info,__FUNCTION__,"[%d] \"%s\" logged in (correct password)",conn_get_socket(c),(tname = conn_get_username(c)));
 			       conn_unget_username(c,tname);
 			       bn_int_set(&rpacket->u.server_loginreply2.message,SERVER_LOGINREPLY2_MESSAGE_SUCCESS);
+			       success = 1;
 #ifdef WITH_BITS
 			    } else {
 			       eventlog(eventlog_level_info,__FUNCTION__,"[%d] login for \"%s\" refused (bits_loginlist_add returned %d)",conn_get_socket(c),(tname = account_get_name(account)),rc);
@@ -2155,8 +2176,12 @@ static int _client_loginreq2(t_connection * c, t_packet const * const packet)
 		  eventlog(eventlog_level_info,__FUNCTION__,"[%d] \"%s\" logged in (no password)",conn_get_socket(c),(tname = account_get_name(account)));
 		  account_unget_name(tname);
 		  bn_int_set(&rpacket->u.server_loginreply2.message,SERVER_LOGINREPLY2_MESSAGE_SUCCESS);
+		  success = 1;
 	       }
 	  }
+	if (success && account)
+	  client_init_email(c,account);
+	  
 	conn_push_outqueue(c,rpacket);
 	packet_del_ref(rpacket);
      }
