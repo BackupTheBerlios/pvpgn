@@ -840,7 +840,7 @@ static int _client_createaccountw3(t_connection * c, t_packet const * const pack
 		if (!(temp = account_create(username,hash_get_str(sc_hash))))
 		  {
 		     eventlog(eventlog_level_info,__FUNCTION__,"[%d] (W3) account not created (failed)",conn_get_socket(c));
-		     bn_int_set(&rpacket->u.server_createaccount_w3.result,SERVER_CREATEACCOUNT_W3_RESULT_INVALID);
+		     bn_int_set(&rpacket->u.server_createaccount_w3.result,SERVER_CREATEACCOUNT_W3_RESULT_EXIST);
 		  }
 		else if (!accountlist_add_account(temp))
 		  {
@@ -987,7 +987,7 @@ static int _client_createacctreq2(t_connection * c, t_packet const * const packe
 	     if (!(temp = account_create(username,hash_get_str(newpasshash1))))
 	       {
 		  eventlog(eventlog_level_info,__FUNCTION__,"[%d] account not created (failed)",conn_get_socket(c));
-		  bn_int_set(&rpacket->u.server_createacctreply2.result,SERVER_CREATEACCTREPLY2_RESULT_INVALID); /* FIXME: return reason for failure */
+		  bn_int_set(&rpacket->u.server_createacctreply2.result,SERVER_CREATEACCTREPLY2_RESULT_EXIST); /* FIXME: return reason for failure */
 	       }
 	     else if (!accountlist_add_account(temp))
 	       {
