@@ -1620,7 +1620,8 @@ extern int accounts_rank_all(void)
       war3_ladder_add(&ffa_ladder,uid,account_get_ffaxp(account),account_get_ffarank(account),account,0);
       for (counter=1; counter<=account_get_atteamcount(account);counter++)
       {
-        war3_ladder_add(&at_ladder,uid,account_get_atteamxp(account,counter),account_get_atteamrank(account,counter),account,counter);
+	    if (account_get_atteammembers(account,counter) != NULL)
+          war3_ladder_add(&at_ladder,uid,account_get_atteamxp(account,counter),account_get_atteamrank(account,counter),account,counter);
       }
     }
     war3_ladder_update_all_accounts();
