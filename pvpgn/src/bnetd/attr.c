@@ -30,6 +30,8 @@
 #include "common/eventlog.h"
 #include "common/flags.h"
 #include "common/xalloc.h"
+#include "compat/strcasecmp.h"
+#include "compat/strncasecmp.h"
 #include "storage.h"
 #include "prefs.h"
 #include "server.h"
