@@ -20,5 +20,6 @@
 
 #define D2DBS_VERSION_NUMBER	"1.10.1.1"
 #define D2DBS_VERSION		"D2DBS Version " D2DBS_VERSION_NUMBER " Built " __DATE__ " " __TIME__
+#define D2DBS_GUI_VERSION	"D2DBS Version 1.10.1.1"
 
 #endif

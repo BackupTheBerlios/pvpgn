@@ -151,6 +151,21 @@ extern void d2dbs_signal_quit_wrapper(void)
   signal_data.do_quit=1;
 }
 
+extern void d2dbs_signal_reload_config_wrapper(void)
+{
+    signal_data.reload_config = 1;
+}
+
+extern void d2dbs_signal_save_ladder_wrapper(void)
+{
+    signal_data.save_ladder = 1;
+}
+
+extern void d2dbs_signal_exit_wrapper(void)
+{
+    signal_data.exit_time = 1;
+    signal_data.do_quit = 1;
+}
 #else
 extern int d2dbs_handle_signal_init(void)
 {

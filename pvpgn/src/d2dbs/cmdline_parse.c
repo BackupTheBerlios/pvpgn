@@ -64,7 +64,7 @@ static t_conf_table param_conf_table[]={
 
 static t_param cmdline_param;
 
-static char help_message[]="Usage: d2cs [<options>]\n"
+static char help_message[]="Usage: d2dbs [<options>]\n"
 "	-m <FILE>:		set memory debug logging file to FILE\n"
 "	-c <FILE>:		set configuration file to FILE\n"
 "	-l <FILE>:		set log to FILE\n"

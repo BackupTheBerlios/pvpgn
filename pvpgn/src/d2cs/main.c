@@ -229,7 +229,7 @@ static int config_cleanup(void)
 	return 0;
 }
 
-#ifdef D2CLOSED
+#ifdef WIN32_GUI
 extern int d2cs_main(int argc, char * * argv)
 #else
 extern int main(int argc, char * * argv)

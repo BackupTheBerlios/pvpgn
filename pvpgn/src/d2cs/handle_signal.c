@@ -169,6 +169,26 @@ extern void signal_quit_wrapper(void)
   signal_data.do_quit=1;
 }
 
+extern void signal_reload_config_wrapper(void)
+{
+    signal_data.reload_config = 1;
+}
+
+extern void signal_load_ladder_wrapper(void)
+{
+    signal_data.reload_ladder = 1;
+}
+
+extern void signal_exit_wrapper(void)
+{
+    signal_data.exit_time = 1;
+    signal_data.do_quit = 1;
+}
+
+extern void signal_restart_d2gs_wrapper(void)
+{
+    signal_data.restart_d2gs = 1;
+}
 #else
 extern int handle_signal_init(void)
 {
