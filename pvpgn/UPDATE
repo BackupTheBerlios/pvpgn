@@ -13,13 +13,14 @@ The path's specified are those of the default unix installation
 ==============================
 
 changed config files:
+---------------------
 - conf/bnetd.conf : changed storage_path so it combines plain and cdb file 
-storage into "file"
-- conf/autoupdate : updated with latest client versions entries
+    storage into "file"
+- conf/autoupdate.conf : updated with latest client versions entries
 - conf/anongame_infos.conf : added some clan related lines
 - conf/bnmotd.txt : changed example file to show new feature
-- conf/versioncheck: commented unsupported versions and added new
-- conf/bnetd.conf : updated for renamed conf files
+- conf/versioncheck.conf : commented unsupported versions and added new
+- conf/bnetd.conf : updated for renamed, removed, & added  conf files
 
 changes to d2cs.conf:
 ---------------------
@@ -30,11 +31,9 @@ rename configuration files:
 ---------------------------
 - renamed: autoupdate to autoupdate.conf
 - renamed: versioncheck to versioncheck.conf
-- renamed: w3trans to w3trans.conf
 - renamed: topics to topics.conf
 - renamed: supportfile to supportfile.conf
 - renamed: sql_SB_layout to sql_DB_layout.conf
-- renamed: gametrans to gametrans.conf
 - renamed: d2gstrans to d2gstrans.conf
 - renamed: bnhelp to bnhelp.conf
 - renamed: bnban to bnban.conf
@@ -43,6 +42,16 @@ rename configuration files:
 - renamed: bnmaps.txt bnmaps.conf
 - renamed: command_groups.txt command_groups.conf
 - renamed: bnetd_default_user to bnetd_default_user.plain
+
+removed configuration files:
+----------------------------
+- gametrans
+- w3trans
+
+added configuration files:
+--------------------------
+- address_translation.conf
+
 
  Updating from 1.6.0 beta to 1.6.0 (final)
 ==========================================

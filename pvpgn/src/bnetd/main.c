@@ -61,7 +61,6 @@
 #include "ladder.h"
 #include "adbanner.h"
 #include "ipban.h"
-#include "gametrans.h"
 #include "autoupdate.h"
 #include "helpfile.h"
 #include "timer.h"
@@ -84,8 +83,8 @@
 #include "news.h"
 #include "clan.h"
 #include "topic.h"
-#include "w3trans.h"
 #include "support.h"
+#include "common/trans.h"
 #include "common/setup_after.h"
 
 #ifdef WIN32
@@ -428,8 +427,6 @@ int pre_server_startup(void)
 	eventlog(eventlog_level_error,"pre_server_startup","could not load IP ban list");
     if (adbannerlist_create(prefs_get_adfile())<0)
 	eventlog(eventlog_level_error,"pre_server_startup","could not load adbanner list");
-    if (gametrans_load(prefs_get_transfile())<0)
-	eventlog(eventlog_level_error,"pre_server_startup","could not load gametrans list");
     if (autoupdate_load(prefs_get_mpqfile())<0)
 	eventlog(eventlog_level_error,"pre_server_startup","could not load autoupdate list");
     if (versioncheck_load(prefs_get_versioncheck_file())<0)
@@ -456,8 +453,8 @@ int pre_server_startup(void)
     if (command_groups_load(prefs_get_command_groups_file())<0)
 	eventlog(eventlog_level_error,"pre_server_startup","could not load command_groups list");
     aliasfile_load(prefs_get_aliasfile());
-    if (w3trans_load(prefs_get_w3trans_file())<0)
-	eventlog(eventlog_level_error,__FUNCTION__,"could not load w3trans list");
+    if (trans_load(prefs_get_transfile())<0)
+	eventlog(eventlog_level_error,__FUNCTION__,"could not load trans list");
     tournament_init(prefs_get_tournament_file());
     anongame_infos_load(prefs_get_anongame_infos_file());
     clanlist_load();
@@ -474,7 +471,7 @@ void post_server_shutdown(int status)
             clanlist_unload();
 	    tournament_destroy();
 	    anongame_infos_unload();
-	    w3trans_unload();
+	    trans_unload();
 	    aliasfile_unload();
 	    command_groups_unload();
 	    tracker_set_servers(NULL);
@@ -493,7 +490,6 @@ void post_server_shutdown(int status)
 	    news_unload();
     	    versioncheck_unload();
     	    autoupdate_unload();
-    	    gametrans_unload();
     	    adbannerlist_destroy();
     	    ipbanlist_save(prefs_get_ipbanfile());
     	    ipbanlist_destroy();

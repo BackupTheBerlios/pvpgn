@@ -82,7 +82,6 @@
 #include "common/bnettime.h"
 #include "common/addr.h"
 #include "common/packet.h"
-#include "gametrans.h"
 #include "helpfile.h"
 #include "mail.h"
 #include "common/bnethash.h"
@@ -98,6 +97,7 @@
 #include "command.h"
 #include "news.h"
 #include "clienttag.h"
+#include "common/trans.h"
 #include "common/setup_after.h"
 // aaron
 #include "topic.h"
@@ -3538,7 +3538,7 @@ static int _handle_gameinfo_command(t_connection * c, char const *text)
       
       taddr=addr = game_get_addr(game);
       tport=port = game_get_port(game);
-      gametrans_net(conn_get_addr(c),conn_get_port(c),conn_get_local_addr(c),conn_get_local_port(c),&taddr,&tport);
+      trans_net(conn_get_addr(c),&taddr,&tport);
       
       if (taddr==addr && tport==port)
 	sprintf(msgtemp,"Address: %s",
@@ -4046,7 +4046,7 @@ static int _handle_netinfo_command(t_connection * c, char const *text)
   
   taddr=addr = conn_get_game_addr(conn);
   tport=port = conn_get_game_port(conn);
-  gametrans_net(conn_get_addr(c),conn_get_port(c),addr,port,&taddr,&tport);
+  trans_net(conn_get_addr(c),&taddr,&tport);
   
   if (taddr==addr && tport==port)
     sprintf(msgtemp,"Client UDP: %s",
@@ -4061,7 +4061,7 @@ static int _handle_netinfo_command(t_connection * c, char const *text)
     {
       taddr=addr = game_get_addr(game);
       tport=port = game_get_port(game);
-      gametrans_net(conn_get_addr(c),conn_get_port(c),addr,port,&taddr,&tport);
+      trans_net(conn_get_addr(c),&taddr,&tport);
       
       if (taddr==addr && tport==port)
 	sprintf(msgtemp,"Game UDP:  %s",

@@ -83,7 +83,6 @@
 #include "common/bnettime.h"
 #include "common/addr.h"
 #include "game_conv.h"
-#include "gametrans.h"
 #include "autoupdate.h"
 #include "realm.h"
 #include "character.h"
@@ -104,6 +103,7 @@
 #include "friends.h"
 #include "clienttag.h"
 #include "compat/uint.h"
+#include "common/trans.h"
 #include "common/setup_after.h"
 
 extern int last_news;
@@ -2609,13 +2609,11 @@ static int _client_atinvitefriend(t_connection * c, t_packet const * const packe
 	     
 	     bn_int_set(&rpacket->u.server_arrangedteam_send_invite.count,bn_int_get(packet->u.client_arrangedteam_invite_friend.count));
 	     bn_int_set(&rpacket->u.server_arrangedteam_send_invite.id,bn_int_get(packet->u.client_arrangedteam_invite_friend.id));
-	     { /* gametrans support */
+	     { /* trans support */
 	        unsigned short port = conn_get_game_port(c);
 		unsigned int addr = conn_get_addr(c);
 		
-		gametrans_net(conn_get_addr(dest_c), conn_get_game_port(dest_c),
-			      conn_get_local_addr(dest_c), conn_get_local_port(dest_c),
-			      &addr, &port);
+		trans_net(conn_get_addr(dest_c), &addr, &port);
 		
 		bn_int_nset(&rpacket->u.server_arrangedteam_send_invite.inviterip, addr);
 		bn_short_set(&rpacket->u.server_arrangedteam_send_invite.port, port);
@@ -3928,7 +3926,7 @@ static int _client_gamelistreq(t_connection * c, t_packet const * const packet)
 		       bn_short_set(&glgame.unknown3,SERVER_GAMELISTREPLY_GAME_UNKNOWN3);
 		       addr = game_get_addr(game);
 		       port = game_get_port(game);
-		       gametrans_net(conn_get_addr(c),conn_get_port(c),conn_get_local_addr(c),conn_get_local_port(c),&addr,&port);
+		       trans_net(conn_get_addr(c),&addr,&port);
 		       bn_short_nset(&glgame.port,port);
 		       bn_int_nset(&glgame.game_ip,addr);
 		       bn_int_set(&glgame.unknown4,SERVER_GAMELISTREPLY_GAME_UNKNOWN4);
@@ -4009,7 +4007,7 @@ static int _client_gamelistreq(t_connection * c, t_packet const * const packet)
 		  bn_short_set(&glgame.unknown3,SERVER_GAMELISTREPLY_GAME_UNKNOWN3);
 		  addr = game_get_addr(game);
 		  port = game_get_port(game);
-		  gametrans_net(conn_get_addr(c),conn_get_port(c),conn_get_local_addr(c),conn_get_local_port(c),&addr,&port);
+		  trans_net(conn_get_addr(c),&addr,&port);
 		  bn_short_nset(&glgame.port,port);
 		  bn_int_nset(&glgame.game_ip,addr);
 		  bn_int_set(&glgame.unknown4,SERVER_GAMELISTREPLY_GAME_UNKNOWN4);

@@ -46,7 +46,6 @@
 #include "common/bn_type.h"
 #include "common/list.h"
 #include "common/addr.h"
-#include "gametrans.h"
 #include "versioncheck.h"
 #include "anongame.h"
 #include "tournament.h"
@@ -54,8 +53,8 @@
 #include "ladder.h"
 #include "anongame_maplists.h"
 #include "anongame_gameresult.h"
-#include "w3trans.h"
 #include "clienttag.h"
+#include "common/trans.h"
 #include "common/setup_after.h"
 
 #define MAX_LEVEL 100
@@ -978,11 +977,11 @@ static int _anongame_search_found(int queue)
 	bn_byte_set(&rpacket->u.server_anongame_found.option,1);
 	bn_int_set(&rpacket->u.server_anongame_found.count,a->count);
 	bn_int_set(&rpacket->u.server_anongame_found.unknown1,0);
-	{ /* w3trans support */
+	{ /* trans support */
 	    unsigned int w3ip = w3routeip;
 	    unsigned short w3port = w3routeport;
 	    
-	    w3trans_net(conn_get_addr(player[queue][i]), &w3ip, &w3port);
+	    trans_net(conn_get_addr(player[queue][i]), &w3ip, &w3port);
 	    
 	    bn_int_nset(&rpacket->u.server_anongame_found.ip,w3ip);
 	    bn_short_set(&rpacket->u.server_anongame_found.port,w3port);
@@ -1875,13 +1874,11 @@ extern int handle_anongame_join(t_connection * c)
 
 					// external addr
 					bn_short_set(&pl_addr.unknown1,2);
-					{ /* gametrans support */
+					{ /* trans support */
 					    unsigned short port = conn_get_game_port(o);
 					    unsigned int addr = conn_get_game_addr(o);
 					    
-					    gametrans_net(conn_get_game_addr(jc), conn_get_game_port(jc),
-							  conn_get_local_addr(jc), conn_get_local_port(jc),
-							  &addr, &port);
+					    trans_net(conn_get_game_addr(jc), &addr, &port);
 					    
 					    bn_short_nset(&pl_addr.port,port);
     					    bn_int_nset(&pl_addr.ip,addr);

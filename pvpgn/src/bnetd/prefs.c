@@ -162,7 +162,6 @@ static struct {
     char const * tournament_file;
     char const * aliasfile;
     char const * anongame_infos_file;
-    char const * w3trans_file;
     unsigned int max_conns_per_IP;
     unsigned int max_friends;
     unsigned int clan_newer_time;
@@ -280,7 +279,6 @@ static Bconf_t conf_table[] =
     { "command_groups_file",	conf_type_char,    BNETD_COMMAND_GROUPS_FILE,	NONE	     , (void *)&prefs_runtime_config.command_groups_file},
     { "tournament_file",	conf_type_char,    BNETD_TOURNAMENT_FILE,NONE		     , (void *)&prefs_runtime_config.tournament_file},
     { "aliasfile"          ,    conf_type_char,    BNETD_ALIASFILE   ,   NONE                , (void *)&prefs_runtime_config.aliasfile},
-    { "w3trans_file",		conf_type_char,	   BNETD_W3TRANS_FILE,	 NONE		     , (void *)&prefs_runtime_config.w3trans_file},
     { "anongame_infos_file",	conf_type_char,	   PVPGN_AINFO_FILE,	 NONE		     , (void *)&prefs_runtime_config.anongame_infos_file},
     { "max_conns_per_IP",	conf_type_int,	   NULL,		 0		     , (void *)&prefs_runtime_config.max_conns_per_IP},
     { "max_friends",		conf_type_int,     NULL,                 MAX_FRIENDS         , (void *)&prefs_runtime_config.max_friends},
@@ -1206,11 +1204,6 @@ extern char const * prefs_get_tournament_file(void)
 extern char const * prefs_get_aliasfile(void)
 {
    return prefs_runtime_config.aliasfile;
-}
-
-extern char const * prefs_get_w3trans_file(void)
-{
-    return prefs_runtime_config.w3trans_file;
 }
 
 extern char const * prefs_get_anongame_infos_file(void)

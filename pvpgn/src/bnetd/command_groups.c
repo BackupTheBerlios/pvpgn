@@ -116,7 +116,7 @@ extern int command_groups_load(char const * filename)
 		continue;
 	    }
 	    if (!(entry->command = strdup(command))) {
-		eventlog(eventlog_level_error,"gametrans_load","could not allocate memory for client address");
+		eventlog(eventlog_level_error,"command_groups_load","could not allocate memory for client address");
 		free(entry);
 		continue;
 	    }

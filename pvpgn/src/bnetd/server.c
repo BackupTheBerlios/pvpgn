@@ -124,7 +124,6 @@
 #include "common/rlimit.h"
 #include "ipban.h"
 #include "helpfile.h"
-#include "gametrans.h"
 #include "autoupdate.h"
 #include "versioncheck.h"
 #include "realm.h"
@@ -144,7 +143,7 @@
 #include "news.h"
 #include "common/fdwatch.h"
 #include "clan.h"
-#include "w3trans.h"
+#include "common/trans.h"
 #include "tournament.h"
 #include <ctype.h>
 #include "common/setup_after.h"
@@ -1422,11 +1421,6 @@ static void _server_mainloop(t_addrlist *laddrs)
 	    if (adbannerlist_create(prefs_get_adfile())<0)
 		eventlog(eventlog_level_error,"server_process","could not load new adbanner list");
 	    
-	    if (gametrans_unload()<0)
-		eventlog(eventlog_level_error,"server_process","could not unload old gametrans list");
-	    if (gametrans_load(prefs_get_transfile())<0)
-		eventlog(eventlog_level_error,"server_process","could not load new gametrans list");
-
 	    ladder_reload_conf();
 	    
 	    if (prefs_get_track())
@@ -1437,8 +1431,8 @@ static void _server_mainloop(t_addrlist *laddrs)
 	    aliasfile_unload();
 	    aliasfile_load(prefs_get_aliasfile());
 	    
-	    if(w3trans_reload(prefs_get_w3trans_file())<0)
-		eventlog(eventlog_level_error,__FUNCTION__,"could not reload w3trans list");
+	    if(trans_reload(prefs_get_transfile())<0)
+		eventlog(eventlog_level_error,__FUNCTION__,"could not reload trans list");
 
 	    tournament_reload(prefs_get_tournament_file());
 

@@ -74,7 +74,6 @@ adfile      = /usr/local/etc/ad.conf
 topicfile   = /usr/local/etc/topics.conf
 ipbanfile   = /usr/local/etc/bnban.conf
 helpfile    = /usr/local/etc/bnhelp.conf
-transfile   = /usr/local/etc/gametrans.conf
 mpqfile     = /usr/local/etc/autoupdate.conf
 logfile     = /usr/local/var/bnetd.log
 realmfile   = /usr/local/etc/realm.conf
@@ -89,10 +88,10 @@ command_groups_file = /usr/local/etc/command_groups.conf
 tournament_file = /usr/local/etc/tournament.conf
 statusdir   = /usr/local/var/status
 aliasfile   = /usr/local/etc/bnalias.conf
-w3trans_file = /usr/local/etc/w3trans.conf
 anongame_infos_file = /usr/local/etc/anongame_infos.conf
 DBlayoutfile = /usr/local/etc/sql_DB_layout.conf
 supportfile = /usr/local/etc/supportfile.conf
+transfile   = /usr/local/etc/address_translation.conf
 
 fortunecmd  = /usr/games/fortune
 
