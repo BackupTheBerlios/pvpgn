@@ -401,7 +401,7 @@ extern int irc_welcome(t_connection * conn)
     irc_send(conn,RPL_ENDOFMOTD,":End of /MOTD command");
     irc_send_cmd(conn,"NOTICE",":This is an experimental service.");
     if (connlist_find_connection_by_accountname(conn_get_botuser(conn))) {
-	irc_send_cmd(conn,"NOTICE","You are already logged in.");
+	irc_send_cmd(conn,"NOTICE","This account is allready logged in, user another.");
 	return -1;
     }
     conn_set_state(conn,conn_state_bot_password);

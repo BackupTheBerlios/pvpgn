@@ -355,16 +355,26 @@ static int _handle_nick_command(t_connection * conn, int numparams, char ** para
 {
 	/* FIXME: more strict param checking */
 
-	if ((conn_get_botuser(conn))) 
+	if ((conn_get_botuser(conn))&&
+	    (conn_get_state(conn)!=conn_state_bot_password && 
+	     conn_get_state(conn)!=conn_state_bot_username)) 
 	{
-	    irc_send(conn,ERR_RESTRICTED,":You can only set your nickname once");
+	    irc_send(conn,ERR_RESTRICTED,":You can't change your nick after login");
 	} 
 	else 
 	{
 	    if ((params)&&(params[0]))
+	    {
+			if (conn_get_botuser(conn))
+			    irc_send_cmd2(conn,conn_get_botuser(conn),"NICK","",params[0]);
 			conn_set_botuser(conn,params[0]);
+	    }
 	    else if (text)
+	    {
+			if (conn_get_botuser(conn))
+			    irc_send_cmd2(conn,conn_get_botuser(conn),"NICK","",text);
 			conn_set_botuser(conn,text);
+	    }
 	    else
 	        irc_send(conn,ERR_NEEDMOREPARAMS,":Too few arguments to NICK");
 	    if ((conn_get_user(conn))&&(conn_get_botuser(conn)))
