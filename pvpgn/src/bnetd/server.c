@@ -872,27 +872,6 @@ extern void server_clear_name(void)
 }
 
 
-static void _server_setup_listensock(t_addrlist *laddrs)
-{
-    t_elem const *  acurr;
-    t_addr *        curr_laddr;
-    t_laddr_info *  laddr_info;
-
-    LIST_TRAVERSE_CONST(laddrs,acurr)
-    {
-	curr_laddr = elem_get_data(acurr);
-	if (!(laddr_info = addr_get_data(curr_laddr).p))
-	{
-	    eventlog(eventlog_level_error,"server_process","NULL address info");
-	    continue;
-	}
-
-	if (laddr_info->ssocket!=-1) fdwatch_add_fd(laddr_info->ssocket, fdwatch_type_read, handle_accept, curr_laddr);
-	if (laddr_info->usocket!=-1) fdwatch_add_fd(laddr_info->usocket, fdwatch_type_read, handle_udp, curr_laddr);
-    }
-}
-
-
 static int handle_accept(void *data, t_fdwatch_type rw)
 {
     t_laddr_info *laddr_info = addr_get_data((t_addr *)data).p;
@@ -920,55 +899,36 @@ static int handle_tcp(void *data, t_fdwatch_type rw)
 }
 
 
-extern int server_process(void)
+static int _setup_add_addrs(t_addrlist **pladdrs, const char *str, unsigned int defaddr, unsigned short defport, t_laddr_type type)
 {
-    t_addrlist *    laddrs;
     t_addr *        curr_laddr;
     t_addr_data     laddr_data;
     t_laddr_info *  laddr_info;
-    time_t          prev_exittime, prev_savetime, track_time;
-    time_t          war3_ladder_updatetime;
-    time_t          output_updatetime;
-    int	            syncdelta;
-    t_connection *  c;
     t_elem const *  acurr;
-    t_elem const *  ccurr;
-#ifdef DO_POSIXSIG
-    sigset_t        block_set;
-    sigset_t        save_set;
-#endif
-    unsigned int    count;
-    
-    if (psock_init()<0)
-    {
-	eventlog(eventlog_level_error,"server_process","could not initialize socket functions");
-	return -1;
-    }
-    
-    /* Start with the Battle.net address list */
-    if (!(laddrs = addrlist_create(prefs_get_bnetdserv_addrs(),INADDR_ANY,BNETD_SERV_PORT)))
-    {
-	eventlog(eventlog_level_error,"server_process","could not create %s server address list from \"%s\"",laddr_type_get_str(laddr_type_bnet),prefs_get_bnetdserv_addrs());
-	return -1;
-    }
+
+    if (*pladdrs == NULL) {
+	*pladdrs = addrlist_create(str, defaddr, defport);
+	if (*pladdrs == NULL) return -1;
+    } else if (addrlist_append(*pladdrs, str, defaddr, defport)) return -1;
+
     /* Mark all these laddrs for being classic Battle.net service */
-    LIST_TRAVERSE_CONST(laddrs,acurr)
+    LIST_TRAVERSE_CONST(*pladdrs,acurr)
     {
 	curr_laddr = elem_get_data(acurr);
 	if (addr_get_data(curr_laddr).p)
 	    continue;
 	if (!(laddr_info = malloc(sizeof(t_laddr_info))))
 	{
-	    eventlog(eventlog_level_error,"server_process","could not create %s address info (malloc: %s)",laddr_type_get_str(laddr_type_bnet),strerror(psock_errno()));
-	    goto error_addr_list;
+	    eventlog(eventlog_level_error, __FUNCTION__,"could not create %s address info (malloc: %s)",laddr_type_get_str(type),strerror(psock_errno()));
+	    return -1;
 	}
         laddr_info->usocket = -1;
         laddr_info->ssocket = -1;
-        laddr_info->type = laddr_type_bnet;
+        laddr_info->type = type;
 	laddr_data.p = laddr_info;
         if (addr_set_data(curr_laddr,laddr_data)<0)
 	{
-	    eventlog(eventlog_level_error,"server_process","could not set address data");
+	    eventlog(eventlog_level_error, __FUNCTION__,"could not set address data");
 	    if (laddr_info->usocket!=-1)
 	    {
 		psock_close(laddr_info->usocket);
@@ -979,171 +939,60 @@ extern int server_process(void)
 		psock_close(laddr_info->ssocket);
 		laddr_info->ssocket = -1;
 	    }
-	    goto error_poll;
-	}
-    }
-    
-    /* Append list of addresses to listen for IRC connections */
-    if (addrlist_append(laddrs,prefs_get_irc_addrs(),INADDR_ANY,BNETD_IRC_PORT)<0)
-    {
-	eventlog(eventlog_level_error,"server_process","could not create %s server address list from \"%s\"",laddr_type_get_str(laddr_type_irc),prefs_get_irc_addrs());
-	goto error_addr_list;
-    }
-    /* Mark all new laddrs for being IRC service */
-    LIST_TRAVERSE_CONST(laddrs,acurr)
-    { 
-	curr_laddr = elem_get_data(acurr);
-	if (addr_get_data(curr_laddr).p)
-	    continue;
-	if (!(laddr_info = malloc(sizeof(t_laddr_info))))
-	{
-	    eventlog(eventlog_level_error,"server_process","could not create %s address info (malloc: %s)",laddr_type_get_str(laddr_type_irc),strerror(psock_errno()));
-	    goto error_addr_list;
-	}
-        laddr_info->usocket = -1;
-        laddr_info->ssocket = -1;
-        laddr_info->type = laddr_type_irc;
-	laddr_data.p = laddr_info;
-	if (addr_set_data(curr_laddr,laddr_data)<0)
-	{
-	    eventlog(eventlog_level_error,"server_process","could not set address data");
-	    if (laddr_info->usocket!=-1)
-	    {
-		psock_close(laddr_info->usocket);
-		laddr_info->usocket = -1;
-	    }
-	    if (laddr_info->ssocket!=-1)
-	    {
-		psock_close(laddr_info->ssocket);
-		laddr_info->ssocket = -1;
-	    }
-	    goto error_poll;
+	    return -1;
 	}
     }
 
-    /* Append list of addresses to listen for W3ROUTE connections */
-    if (addrlist_append(laddrs,prefs_get_w3route_addr(),INADDR_ANY,BNETD_W3ROUTE_PORT)<0)
-    {
-	eventlog(eventlog_level_error,"server_process","could not create %s server address list from \"%s\"",laddr_type_get_str(laddr_type_w3route),prefs_get_w3route_addr());
-	goto error_addr_list;
-    }
-    /* Mark all new laddrs for being W3ROUTE service */
-    LIST_TRAVERSE_CONST(laddrs,acurr)
-    { 
-	curr_laddr = elem_get_data(acurr);
-	if (addr_get_data(curr_laddr).p)
-	    continue;
-	if (!(laddr_info = malloc(sizeof(t_laddr_info))))
-	{
-	    eventlog(eventlog_level_error,"server_process","could not create %s address info (malloc: %s)",laddr_type_get_str(laddr_type_w3route),strerror(psock_errno()));
-	    goto error_addr_list;
-	}
-        laddr_info->usocket = -1;
-        laddr_info->ssocket = -1;
-        laddr_info->type = laddr_type_w3route;
-	laddr_data.p = laddr_info;
-	if (addr_set_data(curr_laddr,laddr_data)<0)
-	{
-	    eventlog(eventlog_level_error,"server_process","could not set address data");
-	    if (laddr_info->usocket!=-1)
-	    {
-		psock_close(laddr_info->usocket);
-		laddr_info->usocket = -1;
-	    }
-	    if (laddr_info->ssocket!=-1)
-	    {
-		psock_close(laddr_info->ssocket);
-		laddr_info->ssocket = -1;
-	    }
-	    goto error_poll;
-	}
-    }
+    return 0;
+}
 
-    
-    /* Append list of addresses to listen for telnet connections */
-    if (addrlist_append(laddrs,prefs_get_telnet_addrs(),INADDR_ANY,BNETD_TELNET_PORT)<0)
-    {
-	eventlog(eventlog_level_error,"server_process","could not create %s server address list from \"%s\"",laddr_type_get_str(laddr_type_telnet),prefs_get_telnet_addrs());
-	goto error_addr_list;
-    }
-    /* Mark all new laddrs for being telnet service */
-    LIST_TRAVERSE_CONST(laddrs,acurr)
-    { 
-	curr_laddr = elem_get_data(acurr);
-	if (addr_get_data(curr_laddr).p)
-	    continue;
-	if (!(laddr_info = malloc(sizeof(t_laddr_info))))
-	{
-	    eventlog(eventlog_level_error,"server_process","could not create %s address info (malloc: %s)",laddr_type_get_str(laddr_type_telnet),strerror(psock_errno()));
-	    goto error_addr_list;
-	}
-        laddr_info->usocket = -1;
-        laddr_info->ssocket = -1;
-        laddr_info->type = laddr_type_telnet;
-	laddr_data.p = laddr_info;
-	if (addr_set_data(curr_laddr,laddr_data)<0)
-	{
-	    eventlog(eventlog_level_error,"server_process","could not set address data");
-	    if (laddr_info->usocket!=-1)
-	    {
-		psock_close(laddr_info->usocket);
-		laddr_info->usocket = -1;
-	    }
-	    if (laddr_info->ssocket!=-1)
-	    {
-		psock_close(laddr_info->ssocket);
-		laddr_info->ssocket = -1;
-	    }
-	    goto error_poll;
-	}
-    }
-    
-    if (fdwatch_init()) {
-	eventlog(eventlog_level_error, __FUNCTION__, "could not initilized fdwatch layer");
-	goto error_poll;
-    }
+static int _setup_listensock(t_addrlist *laddrs)
+{
+    t_addr *        curr_laddr;
+    t_laddr_info *  laddr_info;
+    t_elem const *  acurr;
 
     LIST_TRAVERSE_CONST(laddrs,acurr)
     {
 	curr_laddr = elem_get_data(acurr);
 	if (!(laddr_info = addr_get_data(curr_laddr).p))
 	{
-	    eventlog(eventlog_level_error,"server_process","NULL address info");
-	    goto error_poll;
+	    eventlog(eventlog_level_error,__FUNCTION__,"NULL address info");
+	    return -1;
 	}
 	
 	if ((laddr_info->ssocket = psock_socket(PSOCK_PF_INET,PSOCK_SOCK_STREAM,PSOCK_IPPROTO_TCP))<0)
 	{
-	    eventlog(eventlog_level_error,"server_process","could not create a %s listening socket (psock_socket: %s)",laddr_type_get_str(laddr_info->type),strerror(psock_errno()));
-	    goto error_poll;
+	    eventlog(eventlog_level_error,__FUNCTION__,"could not create a %s listening socket (psock_socket: %s)",laddr_type_get_str(laddr_info->type),strerror(psock_errno()));
+	    return -1;
 	}
 
 	if (laddr_info->ssocket >= fdw_maxfd)
 	{
-	    eventlog(eventlog_level_error,"server_process","%s TCP socket is beyond range allowed by FD_SETSIZE for select() (%d>=%d)",laddr_type_get_str(laddr_info->type),laddr_info->ssocket,fdw_maxfd);
+	    eventlog(eventlog_level_error,__FUNCTION__,"%s TCP socket is beyond range allowed by FD_SETSIZE for select() (%d>=%d)",laddr_type_get_str(laddr_info->type),laddr_info->ssocket,fdw_maxfd);
 	    psock_close(laddr_info->ssocket);
 	    laddr_info->ssocket = -1;
-	    goto error_poll;
+	    return -1;
 	}
 
 	if (laddr_info->type==laddr_type_bnet)
 	{
 	    if ((laddr_info->usocket = psock_socket(PSOCK_PF_INET,PSOCK_SOCK_DGRAM,PSOCK_IPPROTO_UDP))<0)
 	    {
-		eventlog(eventlog_level_error,"server_process","could not create UDP socket (psock_socket: %s)",strerror(psock_errno()));
+		eventlog(eventlog_level_error,__FUNCTION__,"could not create UDP socket (psock_socket: %s)",strerror(psock_errno()));
 		psock_close(laddr_info->ssocket);
 		laddr_info->ssocket = -1;
-		goto error_poll;
+		return -1;
 	    }
 
 	    if (laddr_info->usocket >= fdw_maxfd)
 	    {
-		eventlog(eventlog_level_error,"server_process","%s UDP socket is beyond range allowed by FD_SETSIZE for select() (%d>=%d)",laddr_type_get_str(laddr_info->type),laddr_info->usocket,fdw_maxfd);
+		eventlog(eventlog_level_error,__FUNCTION__,"%s UDP socket is beyond range allowed by FD_SETSIZE for select() (%d>=%d)",laddr_type_get_str(laddr_info->type),laddr_info->usocket,fdw_maxfd);
 		psock_close(laddr_info->usocket);
 		laddr_info->usocket = -1;
 		psock_close(laddr_info->ssocket);
 		laddr_info->ssocket = -1;
-		goto error_poll;
+		return -1;
 	    }
 	}
 	
@@ -1154,7 +1003,7 @@ extern int server_process(void)
 	    {
 		val = 1;
 		if (psock_setsockopt(laddr_info->ssocket,PSOCK_SOL_SOCKET,PSOCK_SO_REUSEADDR,&val,(psock_t_socklen)sizeof(int))<0)
-		    eventlog(eventlog_level_error,"server_process","could not set option SO_REUSEADDR on %s socket %d (psock_setsockopt: %s)",laddr_type_get_str(laddr_info->type),laddr_info->usocket,strerror(psock_errno()));
+		    eventlog(eventlog_level_error,__FUNCTION__,"could not set option SO_REUSEADDR on %s socket %d (psock_setsockopt: %s)",laddr_type_get_str(laddr_info->type),laddr_info->usocket,strerror(psock_errno()));
 		/* not a fatal error... */
 	    }
 	    
@@ -1162,7 +1011,7 @@ extern int server_process(void)
 	    {
 		val = 1;
 		if (psock_setsockopt(laddr_info->usocket,PSOCK_SOL_SOCKET,PSOCK_SO_REUSEADDR,&val,(psock_t_socklen)sizeof(int))<0)
-		    eventlog(eventlog_level_error,"server_process","could not set option SO_REUSEADDR on %s socket %d (psock_setsockopt: %s)",laddr_type_get_str(laddr_info->type),laddr_info->usocket,strerror(psock_errno()));
+		    eventlog(eventlog_level_error,__FUNCTION__,"could not set option SO_REUSEADDR on %s socket %d (psock_setsockopt: %s)",laddr_type_get_str(laddr_info->type),laddr_info->usocket,strerror(psock_errno()));
 		/* not a fatal error... */
 	    }
 	}
@@ -1181,8 +1030,8 @@ extern int server_process(void)
 		{
 		    if (!addr_get_addr_str(curr_laddr,tempa,sizeof(tempa)))
 			strcpy(tempa,"x.x.x.x:x");
-		    eventlog(eventlog_level_error,"server_process","could not bind %s socket to address %s TCP (psock_bind: %s)",laddr_type_get_str(laddr_info->type),tempa,strerror(psock_errno()));
-		    goto error_poll;
+		    eventlog(eventlog_level_error,__FUNCTION__,"could not bind %s socket to address %s TCP (psock_bind: %s)",laddr_type_get_str(laddr_info->type),tempa,strerror(psock_errno()));
+		    return -1;
 		}
 	    }
 	    
@@ -1196,8 +1045,8 @@ extern int server_process(void)
 		{
 		    if (!addr_get_addr_str(curr_laddr,tempa,sizeof(tempa)))
 			strcpy(tempa,"x.x.x.x:x");
-		    eventlog(eventlog_level_error,"server_process","could not bind %s socket to address %s UDP (psock_bind: %s)",laddr_type_get_str(laddr_info->type),tempa,strerror(psock_errno()));
-		    goto error_poll;
+		    eventlog(eventlog_level_error,__FUNCTION__,"could not bind %s socket to address %s UDP (psock_bind: %s)",laddr_type_get_str(laddr_info->type),tempa,strerror(psock_errno()));
+		    return -1;
 		}
 	    }
 	    
@@ -1206,67 +1055,75 @@ extern int server_process(void)
 		/* tell socket to listen for connections */
 		if (psock_listen(laddr_info->ssocket,LISTEN_QUEUE)<0)
 		{
-		    eventlog(eventlog_level_error,"server_process","could not set %s socket %d to listen (psock_listen: %s)",laddr_type_get_str(laddr_info->type),laddr_info->ssocket,strerror(psock_errno()));
-		    goto error_poll;
+		    eventlog(eventlog_level_error,__FUNCTION__,"could not set %s socket %d to listen (psock_listen: %s)",laddr_type_get_str(laddr_info->type),laddr_info->ssocket,strerror(psock_errno()));
+		    return -1;
 		}
 	    }
 	    
 	    if (!addr_get_addr_str(curr_laddr,tempa,sizeof(tempa)))
 		strcpy(tempa,"x.x.x.x:x");
-	    eventlog(eventlog_level_info,"server_process","listening for %s connections on %s TCP",laddr_type_get_str(laddr_info->type),tempa);
+	    eventlog(eventlog_level_info,__FUNCTION__,"listening for %s connections on %s TCP",laddr_type_get_str(laddr_info->type),tempa);
 	}
 	
 	if (laddr_info->ssocket!=-1)
 	    if (psock_ctl(laddr_info->ssocket,PSOCK_NONBLOCK)<0)
-		eventlog(eventlog_level_error,"server_process","could not set %s TCP listen socket to non-blocking mode (psock_ctl: %s)",laddr_type_get_str(laddr_info->type),strerror(psock_errno()));
+		eventlog(eventlog_level_error,__FUNCTION__,"could not set %s TCP listen socket to non-blocking mode (psock_ctl: %s)",laddr_type_get_str(laddr_info->type),strerror(psock_errno()));
 	if (laddr_info->usocket!=-1)
 	    if (psock_ctl(laddr_info->usocket,PSOCK_NONBLOCK)<0)
-		eventlog(eventlog_level_error,"server_process","could not set %s UDP socket to non-blocking mode (psock_ctl: %s)",laddr_type_get_str(laddr_info->type),strerror(psock_errno()));
+		eventlog(eventlog_level_error,__FUNCTION__,"could not set %s UDP socket to non-blocking mode (psock_ctl: %s)",laddr_type_get_str(laddr_info->type),strerror(psock_errno()));
+
+	if (laddr_info->ssocket!=-1) fdwatch_add_fd(laddr_info->ssocket, fdwatch_type_read, handle_accept, curr_laddr);
+	if (laddr_info->usocket!=-1) fdwatch_add_fd(laddr_info->usocket, fdwatch_type_read, handle_udp, curr_laddr);
     }
-    
-    /* setup signal handlers */
-    prev_exittime = sigexittime;
-    
+
+    return 0;
+}
+
 #ifdef DO_POSIXSIG
+static sigset_t        block_set;
+static sigset_t        save_set;
+
+static int _setup_posixsig(void)
+{
     if (sigemptyset(&save_set)<0)
     {
-	eventlog(eventlog_level_error,"server_process","could not initialize signal set (sigemptyset: %s)",strerror(errno));
-	goto error_poll;
+	eventlog(eventlog_level_error,__FUNCTION__,"could not initialize signal set (sigemptyset: %s)",strerror(errno));
+	return -1;
     }
     if (sigemptyset(&block_set)<0)
     {
-	eventlog(eventlog_level_error,"server_process","could not initialize signal set (sigemptyset: %s)",strerror(errno));
-	goto error_poll;
+	eventlog(eventlog_level_error,__FUNCTION__,"could not initialize signal set (sigemptyset: %s)",strerror(errno));
+	return -1;
     }
     if (sigaddset(&block_set,SIGINT)<0)
     {
-	eventlog(eventlog_level_error,"server_process","could not add signal to set (sigemptyset: %s)",strerror(errno));
-	goto error_poll;
+	eventlog(eventlog_level_error,__FUNCTION__,"could not add signal to set (sigemptyset: %s)",strerror(errno));
+	return -1;
     }
     if (sigaddset(&block_set,SIGHUP)<0)
     {
-	eventlog(eventlog_level_error,"server_process","could not add signal to set (sigemptyset: %s)",strerror(errno));
-	goto error_poll;
+	eventlog(eventlog_level_error,__FUNCTION__,"could not add signal to set (sigemptyset: %s)",strerror(errno));
+	return -1;
     }
     if (sigaddset(&block_set,SIGTERM)<0)
     {
-	eventlog(eventlog_level_error,"server_process","could not add signal to set (sigemptyset: %s)",strerror(errno));
-	goto error_poll;
+	eventlog(eventlog_level_error,__FUNCTION__,"could not add signal to set (sigemptyset: %s)",strerror(errno));
+	return -1;
     }
     if (sigaddset(&block_set,SIGUSR1)<0)
     {
-	eventlog(eventlog_level_error,"server_process","could not add signal to set (sigemptyset: %s)",strerror(errno));
-	goto error_poll;
+	eventlog(eventlog_level_error,__FUNCTION__,"could not add signal to set (sigemptyset: %s)",strerror(errno));
+	return -1;
     }
     if (sigaddset(&block_set,SIGUSR2)<0)
     {
-	eventlog(eventlog_level_error,"server_process","could not add signal to set (sigemptyset: %s)",strerror(errno));
-	goto error_poll;
+	eventlog(eventlog_level_error,__FUNCTION__,"could not add signal to set (sigemptyset: %s)",strerror(errno));
+	return -1;
     }
     if (sigaddset(&block_set,SIGALRM)<0)
     {
-	eventlog(eventlog_level_error,"server_process","could not add signal to set (sigemptyset: %s)",strerror(errno));
-	goto error_poll;
+	eventlog(eventlog_level_error,__FUNCTION__,"could not add signal to set (sigemptyset: %s)",strerror(errno));
+	return -1;
     }
     
     {
@@ -1283,55 +1140,55 @@ extern int server_process(void)
 	
 	quit_action.sa_handler = quit_sig_handle;
 	if (sigemptyset(&quit_action.sa_mask)<0)
-	    eventlog(eventlog_level_error,"server_process","could not initialize signal set (sigemptyset: %s)",strerror(errno));
+	    eventlog(eventlog_level_error,__FUNCTION__,"could not initialize signal set (sigemptyset: %s)",strerror(errno));
 	quit_action.sa_flags = SA_RESTART;
 	
 	restart_action.sa_handler = restart_sig_handle;
 	if (sigemptyset(&restart_action.sa_mask)<0)
-	    eventlog(eventlog_level_error,"server_process","could not initialize signal set (sigemptyset: %s)",strerror(errno));
+	    eventlog(eventlog_level_error,__FUNCTION__,"could not initialize signal set (sigemptyset: %s)",strerror(errno));
 	restart_action.sa_flags = SA_RESTART;
 	
 	save_action.sa_handler = save_sig_handle;
 	if (sigemptyset(&save_action.sa_mask)<0)
-	    eventlog(eventlog_level_error,"server_process","could not initialize signal set (sigemptyset: %s)",strerror(errno));
+	    eventlog(eventlog_level_error,__FUNCTION__,"could not initialize signal set (sigemptyset: %s)",strerror(errno));
 	save_action.sa_flags = SA_RESTART;
 	
 # ifdef USE_CHECK_ALLOC
 	memstat_action.sa_handler = memstat_sig_handle;
 	if (sigemptyset(&memstat_action.sa_mask)<0)
-	    eventlog(eventlog_level_error,"server_process","could not initialize signal set (sigemptyset: %s)",strerror(errno));
+	    eventlog(eventlog_level_error,__FUNCTION__,"could not initialize signal set (sigemptyset: %s)",strerror(errno));
 	memstat_action.sa_flags = SA_RESTART;
 # endif
 	
 	pipe_action.sa_handler = pipe_sig_handle;
 	if (sigemptyset(&pipe_action.sa_mask)<0)
-	    eventlog(eventlog_level_error,"server_process","could not initialize signal set (sigemptyset: %s)",strerror(errno));
+	    eventlog(eventlog_level_error,__FUNCTION__,"could not initialize signal set (sigemptyset: %s)",strerror(errno));
 	pipe_action.sa_flags = SA_RESTART;
 #ifdef HAVE_SETITIMER
 	timer_action.sa_handler = timer_sig_handle;
 	if (sigemptyset(&timer_action.sa_mask)<0)
-	    eventlog(eventlog_level_error,"server_process","could not initialize signal set (sigemptyset: %s)",strerror(errno));
+	    eventlog(eventlog_level_error,__FUNCTION__,"could not initialize signal set (sigemptyset: %s)",strerror(errno));
 	timer_action.sa_flags = SA_RESTART;
 #endif /* HAVE_SETITIMER */
 	
 	if (sigaction(SIGINT,&quit_action,NULL)<0) /* control-c */
-	    eventlog(eventlog_level_error,"server_process","could not set SIGINT signal handler (sigaction: %s)",strerror(errno));
+	    eventlog(eventlog_level_error,__FUNCTION__,"could not set SIGINT signal handler (sigaction: %s)",strerror(errno));
 	if (sigaction(SIGHUP,&restart_action,NULL)<0)
-	    eventlog(eventlog_level_error,"server_process","could not set SIGHUP signal handler (sigaction: %s)",strerror(errno));
+	    eventlog(eventlog_level_error,__FUNCTION__,"could not set SIGHUP signal handler (sigaction: %s)",strerror(errno));
 	if (sigaction(SIGTERM,&quit_action,NULL)<0)
-	    eventlog(eventlog_level_error,"server_process","could not set SIGTERM signal handler (sigaction: %s)",strerror(errno));
+	    eventlog(eventlog_level_error,__FUNCTION__,"could not set SIGTERM signal handler (sigaction: %s)",strerror(errno));
 	if (sigaction(SIGUSR1,&save_action,NULL)<0)
-	    eventlog(eventlog_level_error,"server_process","could not set SIGUSR1 signal handler (sigaction: %s)",strerror(errno));
+	    eventlog(eventlog_level_error,__FUNCTION__,"could not set SIGUSR1 signal handler (sigaction: %s)",strerror(errno));
 # ifdef USE_CHECK_ALLOC
 	if (sigaction(SIGUSR2,&memstat_action,NULL)<0)
-	    eventlog(eventlog_level_error,"server_process","could not set SIGUSR2 signal handler (sigaction: %s)",strerror(errno));
+	    eventlog(eventlog_level_error,__FUNCTION__,"could not set SIGUSR2 signal handler (sigaction: %s)",strerror(errno));
 # endif
 	if (sigaction(SIGPIPE,&pipe_action,NULL)<0)
-	    eventlog(eventlog_level_error,"server_process","could not set SIGPIPE signal handler (sigaction: %s)",strerror(errno));
+	    eventlog(eventlog_level_error,__FUNCTION__,"could not set SIGPIPE signal handler (sigaction: %s)",strerror(errno));
 #ifdef HAVE_SETITIMER
 	/* setup asynchronus timestamp update timer */
 	if (sigaction(SIGALRM,&timer_action,NULL)<0)
-	    eventlog(eventlog_level_error,"server_process","could not set SIGALRM signal handler (sigaction: %s)",strerror(errno));
+	    eventlog(eventlog_level_error,__FUNCTION__,"could not set SIGALRM signal handler (sigaction: %s)",strerror(errno));
 
 	{
 	    struct itimerval it;
@@ -1343,18 +1200,27 @@ extern int server_process(void)
 
 	    if (setitimer(ITIMER_REAL, &it, NULL)) {
 		eventlog(eventlog_level_fatal, __FUNCTION__, "failed to set timers (setitimer(): %s)", strerror(errno));
-		goto error_poll;
+		return -1;
 	    }
 	}
 #endif
     }
+
+    return 0;
+}
 #endif
 
-    /* setup listening sockets */
-    _server_setup_listensock(laddrs);
+static time_t prev_exittime;
+
+static void _server_mainloop(t_addrlist *laddrs)
+{
+    time_t          prev_savetime, track_time;
+    time_t          war3_ladder_updatetime;
+    time_t          output_updatetime;
+    int	            syncdelta;
+    unsigned int    count;
 
     syncdelta = prefs_get_user_sync_timer();
-
     track_time = time(NULL)-prefs_get_track();
     starttime=prev_savetime = time(NULL);
     war3_ladder_updatetime  = time(NULL)-prefs_get_war3_ladder_update_secs();
@@ -1379,7 +1245,6 @@ extern int server_process(void)
 	/* receive signals here */
 	if (sigprocmask(SIG_SETMASK,&block_set,NULL)<0)
 	    eventlog(eventlog_level_error,"server_process","could not block signals");
-#else
 #endif
 	if (got_epipe)
 	{
@@ -1594,16 +1459,27 @@ extern int server_process(void)
 	/* reap dead connections */
 	connlist_reap();
     }
-    
-    /* cleanup for server shutdown */
-    
+}
+
+
+static void _shutdown_conns(void)
+{
+    t_elem const *ccurr;
+    t_connection *c;
+
     LIST_TRAVERSE_CONST(connlist(),ccurr)
     {
-	c = elem_get_data(ccurr);
+	c = (t_connection *)elem_get_data(ccurr);
 	conn_destroy(c);
     }
-    
-    fdwatch_close();
+}
+
+
+static void _shutdown_addrs(t_addrlist *laddrs)
+{
+    t_addr *        curr_laddr;
+    t_laddr_info *  laddr_info;
+    t_elem const *  acurr;
 
     LIST_TRAVERSE_CONST(laddrs,acurr)
     {
@@ -1618,29 +1494,73 @@ extern int server_process(void)
 	}
     }
     addrlist_destroy(laddrs);
-    
-    return 0;
-    
-    /************************************************************************/
-    
-    /* error cleanup */
-    
-error_poll:
-    
-error_addr_list:
-    LIST_TRAVERSE_CONST(laddrs,acurr)
+}
+
+extern int server_process(void)
+{
+    t_addrlist *    laddrs;
+
+    if (psock_init()<0)
     {
-	curr_laddr = elem_get_data(acurr);
-	if ((laddr_info = addr_get_data(curr_laddr).p))
-	{
-	    if (laddr_info->usocket!=-1)
-		psock_close(laddr_info->usocket);
-	    if (laddr_info->ssocket!=-1)
-		psock_close(laddr_info->ssocket);
-	    free(laddr_info);
-	}
+	eventlog(eventlog_level_error,__FUNCTION__,"could not initialize socket functions");
+	return -1;
     }
-    addrlist_destroy(laddrs);
-	
-    return -1;
+    
+    laddrs = NULL;
+    /* Start with the Battle.net address list */
+    if (_setup_add_addrs(&laddrs, prefs_get_bnetdserv_addrs(),INADDR_ANY,BNETD_SERV_PORT,laddr_type_bnet))
+    {
+	eventlog(eventlog_level_error,__FUNCTION__,"could not create %s server address list from \"%s\"",laddr_type_get_str(laddr_type_bnet),prefs_get_bnetdserv_addrs());
+	return -1;
+    }
+    
+    /* Append list of addresses to listen for IRC connections */
+    if (_setup_add_addrs(&laddrs, prefs_get_irc_addrs(),INADDR_ANY,BNETD_IRC_PORT, laddr_type_irc))
+    {
+	eventlog(eventlog_level_error,__FUNCTION__,"could not create %s server address list from \"%s\"",laddr_type_get_str(laddr_type_irc),prefs_get_irc_addrs());
+	_shutdown_addrs(laddrs);
+	return -1;
+    }
+
+    /* Append list of addresses to listen for W3ROUTE connections */
+    if (_setup_add_addrs(&laddrs,prefs_get_w3route_addr(),INADDR_ANY,BNETD_W3ROUTE_PORT, laddr_type_w3route))
+    {
+	eventlog(eventlog_level_error,__FUNCTION__,"could not create %s server address list from \"%s\"",laddr_type_get_str(laddr_type_w3route),prefs_get_w3route_addr());
+	_shutdown_addrs(laddrs);
+	return -1;
+    }
+
+    /* Append list of addresses to listen for telnet connections */
+    if (_setup_add_addrs(&laddrs,prefs_get_telnet_addrs(),INADDR_ANY,BNETD_TELNET_PORT,laddr_type_telnet))
+    {
+	eventlog(eventlog_level_error,__FUNCTION__,"could not create %s server address list from \"%s\"",laddr_type_get_str(laddr_type_telnet),prefs_get_telnet_addrs());
+	_shutdown_addrs(laddrs);
+	return -1;
+    }
+
+    if (fdwatch_init()) {
+	eventlog(eventlog_level_error, __FUNCTION__, "could not initilize fdwatch layer");
+	_shutdown_addrs(laddrs);
+	return -1;
+    }
+
+    if (_setup_listensock(laddrs)) {
+	_shutdown_addrs(laddrs);
+	return -1;
+    }
+
+    /* setup signal handlers */
+    prev_exittime = sigexittime;
+#ifdef DO_POSIXSIG
+    _setup_posixsig();
+#endif
+
+    _server_mainloop(laddrs);
+
+    /* cleanup for server shutdown */
+    _shutdown_conns();
+    fdwatch_close();
+    _shutdown_addrs(laddrs);
+
+    return 0;    
 }
