@@ -132,12 +132,8 @@ extern t_channel * channel_create(char const * fullname, char const * shortname,
 	    }
 	}
     }
-    
-    if (!(channel = xmalloc(sizeof(t_channel))))
-    {
-        eventlog(eventlog_level_error,"channel_create","could not allocate memory for channel");
-        return NULL;
-    }
+
+    channel = xmalloc(sizeof(t_channel));
     
     if (permflag)
     {
@@ -169,72 +165,25 @@ extern t_channel * channel_create(char const * fullname, char const * shortname,
              realmname?"\"":")");
 
     
-    if (!(channel->name = xstrdup(fullname)))
-    {
-        eventlog(eventlog_level_info,"channel_create","unable to allocate memory for channel->name");
-	xfree(channel);
-	return NULL;
-    }
+    channel->name = xstrdup(fullname);
     
     if (!shortname)
 	channel->shortname = NULL;
     else
-	if (!(channel->shortname = xstrdup(shortname)))
-	{
-	    eventlog(eventlog_level_info,"channel_create","unable to allocate memory for channel->shortname");
-	    xfree((void *)channel->name); /* avoid warning */
-	    xfree(channel);
-	    return NULL;
-	}
+	channel->shortname = xstrdup(shortname);
     
     if (clienttag)
-    {
-	if (!(channel->clienttag = xstrdup(clienttag)))
-	{
-	    eventlog(eventlog_level_error,"channel_create","could not allocate memory for channel->clienttag");
-	    if (channel->shortname)
-		xfree((void *)channel->shortname); /* avoid warning */
-	    xfree((void *)channel->name); /* avoid warning */
-	    xfree(channel);
-	    return NULL;
-	}
-    }
+	channel->clienttag = xstrdup(clienttag);
     else
 	channel->clienttag = NULL;
 
     if (country)
-    {
-	if (!(channel->country = xstrdup(country)))
-	{
-            eventlog(eventlog_level_info,"channel_create","unable to allocate memory for channel->country");
-	    if (channel->clienttag)
-	        xfree((void *)channel->clienttag); /* avoid warning */
-	    if (channel->shortname)
-	        xfree((void *)channel->shortname); /* avoid warning */
-	    xfree((void *)channel->name); /* avoid warning */
-	    xfree(channel);
-	    return NULL;
-    	}
-    }
+	channel->country = xstrdup(country);
     else
 	channel->country = NULL;
 	
     if (realmname)
-    {
-	if (!(channel->realmname = xstrdup(realmname)))
-        {
-            eventlog(eventlog_level_info,"channel_create","unable to allocate memory for channel->realmname");
-	    if (channel->country)
-	    	xfree((void *)channel->country); /* avoid warning */
-	    if (channel->clienttag)
-	        xfree((void *)channel->clienttag); /* avoid warning */
-	    if (channel->shortname)
-	        xfree((void *)channel->shortname); /* avoid warning */
-	    xfree((void *)channel->name); /* avoid warning */
-	    xfree(channel);
-	    return NULL;
-    	}
-    }
+	channel->realmname = xstrdup(realmname);
     else
         channel->realmname=NULL;
 	
@@ -286,23 +235,8 @@ extern t_channel * channel_create(char const * fullname, char const * shortname,
 		    tmnow->tm_hour,
 		    tmnow->tm_min,
 		    tmnow->tm_sec);
-	
-	if (!(channel->logname = xmalloc(strlen(prefs_get_chanlogdir())+9+strlen(dstr)+1+6+1))) /* dir + "/chanlog-" + dstr + "-" + id + NUL */
-	{
-	    eventlog(eventlog_level_error,"channel_create","could not allocate memory for channel->logname");
-	    list_destroy(channel->banlist);
-	    if (channel->country)
-		xfree((void *)channel->country); /* avoid warning */
-            if (channel->realmname)
-                xfree((void *) channel->realmname); /* avoid warning */
-	    if (channel->clienttag)
-		xfree((void *)channel->clienttag); /* avoid warning */
-	    if (channel->shortname)
-		xfree((void *)channel->shortname); /* avoid warning */
-	    xfree((void *)channel->name); /* avoid warning */
-	    xfree(channel);
-	    return NULL;
-	}
+
+	channel->logname = xmalloc(strlen(prefs_get_chanlogdir())+9+strlen(dstr)+1+6+1); /* dir + "/chanlog-" + dstr + "-" + id + NUL */
 	sprintf(channel->logname,"%s/chanlog-%s-%06u",prefs_get_chanlogdir(),dstr,channel->id);
 	
 	if (!(channel->log = fopen(channel->logname,"w")))
@@ -534,13 +468,11 @@ extern int channel_rejoin(t_connection * conn)
   if (!(temp = channel_get_name(channel)))
     return -1;
 
-  if ((chname=xstrdup(temp)))
-  {
-    conn_set_channel(conn, NULL);
-    if (conn_set_channel(conn,chname)<0)
-      conn_set_channel(conn,CHANNEL_NAME_BANNED);
-    xfree((void *)chname);
-  }
+  chname=xstrdup(temp);
+  conn_set_channel(conn, NULL);
+  if (conn_set_channel(conn,chname)<0)
+    conn_set_channel(conn,CHANNEL_NAME_BANNED);
+  xfree((void *)chname);
   return 0;  
 }
 
@@ -566,12 +498,8 @@ extern int channel_add_connection(t_channel * channel, t_connection * connection
 	channel_message_log(channel,connection,0,"JOIN FAILED (banned)");
 	return -1;
     }
-    
-    if (!(member = xmalloc(sizeof(t_channelmember))))
-    {
-	eventlog(eventlog_level_error,"channel_add_connection","could not allocate memory for channelmember");
-	return -1;
-    }
+
+    member = xmalloc(sizeof(t_channelmember));
     member->connection = connection;
     member->next = channel->memberlist;
     channel->memberlist = member;
@@ -850,11 +778,7 @@ extern int channel_ban_user(t_channel * channel, char const * user)
         if (strcasecmp(elem_get_data(curr),user)==0)
             return 0;
     
-    if (!(temp = xstrdup(user)))
-    {
-        eventlog(eventlog_level_error,"channel_ban_user","could not allocate memory for temp");
-        return -1;
-    }
+    temp = xstrdup(user);
     if (list_append_data(channel->banlist,temp)<0)
     {
 	xfree(temp);
@@ -1212,11 +1136,7 @@ static char * channel_format_name(char const * sname, char const * country, char
     	len = len + strlen(realmname) + 1;
     len = len + 32 + 1;
 
-    if (!(fullname=xmalloc(len)))
-    {
-        eventlog(eventlog_level_error,"channel_format_name","could not allocate memory for fullname");
-        return NULL;
-    }
+    fullname=xmalloc(len);
     sprintf(fullname,"%s%s%s%s%s-%d",
             realmname?realmname:"",
             realmname?" ":"",
@@ -1262,13 +1182,7 @@ extern int channellist_reload(void)
 	  /* First pass */
 	  while (member)
 	  {
-	    if (!(old_member = xmalloc(sizeof(t_channelmember))))
-	    {
-	      /* FIX-ME: need free */
-	      eventlog(eventlog_level_error,"channellist_reload","could not allocate memory for channelmember");
-	      goto old_channel_destroy;
-	    }
-
+	    old_member = xmalloc(sizeof(t_channelmember));
 	    old_member->connection = member->connection;
 	    
 	    if (old_channel->memberlist)
