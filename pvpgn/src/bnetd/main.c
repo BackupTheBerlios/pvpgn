@@ -148,10 +148,8 @@ static void usage(char const * progname)
 #define STATUS_MATCHLISTS_FAILURE	5
 #define STATUS_LADDERLIST_FAILURE	6
 
-#define STATUS_CONTINUE	-1
-
 // new functions extracted from old_main()
-int read_commandline(int argc, char *argv[], int *foreground, char *preffile[], char *hexfile[]);
+int read_commandline(int argc, char * * argv, int *foreground, char *preffile[], char *hexfile[]);
 int pre_server_startup(void);
 void post_server_shutdown(int status);
 int eventlog_startup(void);
@@ -160,18 +158,18 @@ char * write_to_pidfile(void);
 void pvpgn_greeting(void);
 
 // The functions 
-int read_commandline(int argc, char *argv[], int *foreground, char *preffile[], char *hexfile[])
+int read_commandline(int argc, char * * argv, int *foreground, char *preffile[], char *hexfile[])
 {
     int a;
     
     if (argc<1 || !argv || !argv[0]) {
 	fprintf(stderr,"bad arguments\n");
-        return STATUS_FAILURE;
+        return -1;
     }
 #ifdef WIN32
     if (argc > 1 && strncmp(argv[1], "--service", 9) == 0) {
 	Win32_ServiceRun();
-	return STATUS_SUCCESS;
+	return 0;
     }
 #endif
     for (a=1; a<argc; a++) {
@@ -179,7 +177,7 @@ int read_commandline(int argc, char *argv[], int *foreground, char *preffile[], 
 	    if (preffile) {
 		fprintf(stderr,"%s: configuration file was already specified as \"%s\"\n",argv[0],preffile[0]);
                 usage(argv[0]);
-                return STATUS_FAILURE;
+                return -1;
             }
 	    *preffile = &argv[a][9];
 	}
@@ -187,12 +185,12 @@ int read_commandline(int argc, char *argv[], int *foreground, char *preffile[], 
             if (a+1>=argc) {
                 fprintf(stderr,"%s: option \"%s\" requires an argument\n",argv[0],argv[a]);
                 usage(argv[0]);
-                return STATUS_FAILURE;
+                return -1;
             }
             if (preffile) {
                 fprintf(stderr,"%s: configuration file was already specified as \"%s\"\n",argv[0],preffile[0]);
                 usage(argv[0]);
-                return STATUS_FAILURE;
+                return -1;
             }
             a++;
 	    *preffile = argv[a];
@@ -201,7 +199,7 @@ int read_commandline(int argc, char *argv[], int *foreground, char *preffile[], 
             if (hexfile) {
                 fprintf(stderr,"%s: configuration file was already specified as \"%s\"\n",argv[0],hexfile[0]);
                 usage(argv[0]);
-                return STATUS_FAILURE;
+                return -1;
             }
             *hexfile = &argv[a][10];
         }
@@ -209,12 +207,12 @@ int read_commandline(int argc, char *argv[], int *foreground, char *preffile[], 
             if (a+1>=argc) {
                 fprintf(stderr,"%s: option \"%s\" requires an argument\n",argv[0],argv[a]);
                 usage(argv[0]);
-                return STATUS_FAILURE;
+                return -1;
             }
             if (hexfile) {
                 fprintf(stderr,"%s: configuration file was already specified as \"%s\"\n",argv[0],hexfile[0]);
                 usage(argv[0]);
-                return STATUS_FAILURE;
+                return -1;
             }
             a++;
             *hexfile = argv[a];
@@ -237,29 +235,29 @@ int read_commandline(int argc, char *argv[], int *foreground, char *preffile[], 
 		    Win32_ServiceUninstall();
 		}
 	    }
-	    return STATUS_SUCCESS;
+	    return 0;
         }
 #endif
         else if (strcmp(argv[a],"-v")==0 || strcmp(argv[a],"--version")==0) {
             printf("version "PVPGN_VERSION"\n");
-            return STATUS_SUCCESS;
+            return 0;
 	}
         else if (strcmp(argv[a],"-h")==0 || strcmp(argv[a],"--help")==0 || strcmp(argv[a],"--usage")==0) {
 	    usage(argv[0]);
-	    return STATUS_SUCCESS;
+	    return 0;
 	}
 	else if (strcmp(argv[a],"--config")==0 || strcmp(argv[a],"--hexdump")==0) {
             fprintf(stderr,"%s: option \"%s\" requires and argument.\n",argv[0],argv[a]);
             usage(argv[0]);
-            return STATUS_FAILURE;
+            return -1;
 	}
 	else {
             fprintf(stderr,"%s: bad option \"%s\"\n",argv[0],argv[a]);
             usage(argv[0]);
-            return STATUS_FAILURE;
+            return -1;
         }
     }
-    return STATUS_CONTINUE; // continue without exiting
+    return 1; // continue without exiting
 }
 
 int eventlog_startup(void)
@@ -272,7 +270,7 @@ int eventlog_startup(void)
     if ((levels = prefs_get_loglevels())) {
 	if (!(temp = strdup(levels))) {
 	    eventlog(eventlog_level_fatal,"eventlog_startup","could not allocate memory for temp (exiting)");
-	    return STATUS_FAILURE;
+	    return -1;
 	}
 	tok = strtok(temp,","); /* strtok modifies the string it is passed */
 	while (tok) {
@@ -288,14 +286,16 @@ int eventlog_startup(void)
 	} else {
 	    eventlog(eventlog_level_fatal,"eventlog_startup","no logfile specified in configuration file \"%s\" (exiting)",preffile);
 	}
-	return STATUS_FAILURE;
+	return -1;
     }
     eventlog(eventlog_level_info,"eventlog_startup","logging event levels: %s",prefs_get_loglevels());
-    return STATUS_CONTINUE;
+    return 0;
 }
 
 int fork_bnetd(int foreground)
 {
+    int		pid;
+    
 #ifdef USE_CHECK_ALLOC
     if (foreground)
 	check_set_file(stderr);
@@ -306,48 +306,49 @@ int fork_bnetd(int foreground)
     if (!foreground) {
 	if (chdir("/")<0) {
 	    eventlog(eventlog_level_error,"fork_bnetd","could not change working directory to / (chdir: %s)",strerror(errno));
-	    return STATUS_FAILURE;
+	    return -1;
 	}
 	
-	switch (fork()) {
+	switch ((pid = fork())) {
 	    case -1:
 		eventlog(eventlog_level_error,"fork_bnetd","could not fork (fork: %s)",strerror(errno));
-		return STATUS_FAILURE;
+		return -1;
 	    case 0: /* child */
 		break;
 	    default: /* parent */
-		return STATUS_SUCCESS;
+		return pid;
 	}
-	
+#ifndef WITH_D2	
 	close(STDINFD);
 	close(STDOUTFD);
 	close(STDERRFD);
+#endif
 #ifdef USE_CHECK_ALLOC
 	check_set_file(NULL);
 #endif
 # ifdef HAVE_SETPGID
 	if (setpgid(0,0)<0) {
 	    eventlog(eventlog_level_error,"fork_bnetd","could not create new process group (setpgid: %s)",strerror(errno));
-	    return STATUS_FAILURE;
+	    return -1;
 	}
 # else
 #  ifdef HAVE_SETPGRP
 #   ifdef SETPGRP_VOID
         if (setpgrp()<0) {
             eventlog(eventlog_level_error,"fork_bnetd","could not create new process group (setpgrp: %s)",strerror(errno));
-            return STATUS_FAILURE;
+            return -1;
         }
 #   else
 	if (setpgrp(0,0)<0) {
 	    eventlog(eventlog_level_error,"fork_bnetd","could not create new process group (setpgrp: %s)",strerror(errno));
-	    return STATUS_FAILURE;
+	    return -1;
 	}
 #   endif
 #  else
 #   ifdef HAVE_SETSID
 	if (setsid()<0) {
 	    eventlog(eventlog_level_error,"fork_bnetd","could not create new process group (setsid: %s)",strerror(errno));
-	    return STATUS_FAILURE;
+	    return -1;
 	}
 #   else
 #    error "One of setpgid(), setpgrp(), or setsid() is required"
@@ -355,7 +356,7 @@ int fork_bnetd(int foreground)
 #  endif
 # endif
     }
-    return STATUS_CONTINUE;
+    return 0;
 #endif
 }
 
@@ -451,14 +452,14 @@ int pre_server_startup(void)
 	eventlog(eventlog_level_error,"pre_server_startup","could not load character list");
     if (prefs_get_track()) /* setup the tracking mechanism */
         tracker_set_servers(prefs_get_trackserv_addrs());
-    return STATUS_CONTINUE;
+    return 0;
 }
 
 void post_server_shutdown(int status)
 {
     switch (status)
     {
-	case STATUS_CONTINUE:
+	case 0:
 	    tracker_set_servers(NULL);
 	    characterlist_destroy();
     	    realmlist_destroy();
@@ -495,7 +496,7 @@ void post_server_shutdown(int status)
 	    storage_destroy();
 	case STATUS_STORAGE_FAILURE:
 #endif
-	case STATUS_FAILURE:
+	case -1:
 	    break;
 	default:
 	    eventlog(eventlog_level_error,"post_server_shutdown","got bad status \"%d\" during shutdown",status);
@@ -536,21 +537,29 @@ extern int main(int argc, char * * argv)
     char *hexfile = NULL;
     char *pidfile = NULL;
 
-// Read the command line and set variables
-    a = read_commandline(argc, argv, &foreground, &preffile, &hexfile);
-	if (a == STATUS_FAILURE)
-	    return STATUS_FAILURE; // command line problems
-	else if (a == STATUS_SUCCESS)
-	    return STATUS_SUCCESS; // command line ok but still exiting. ie. -v or -h
-
+#ifndef WITH_D2
     eventlog_set(stderr);
     /* errors to eventlog from here on... */
+#endif
+
+// Read the command line and set variables
+    if (!(a = read_commandline(argc, argv, &foreground, &preffile, &hexfile)) == 1)
+	return a;
+
+// Fork to child process if not set to foreground    
+    if (!(a = fork_bnetd(foreground)) == 0)
+	return a;
+
+#ifdef WITH_D2
+    eventlog_set(stderr);
+    /* errors to eventlog from here on... */
+#endif
 
 // Load the prefs
     if (preffile) {
 	if (prefs_load(preffile)<0) { // prefs are loaded here ...
 	    eventlog(eventlog_level_fatal,"main","could not parse specified configuration file (exiting)");
-	    return STATUS_FAILURE;
+	    return -1;
 	}
     } else {
 	if (prefs_load(BNETD_DEFAULT_CONF_FILE)<0) // or prefs are loaded here ..  if not defined on command line ...
@@ -558,22 +567,15 @@ extern int main(int argc, char * * argv)
     }
 
 // Start logging to log file
-    if (eventlog_startup() == STATUS_FAILURE)
-	return STATUS_FAILURE;
+    if (eventlog_startup() == -1)
+	return -1;
     /* eventlog goes to log file from here on... */
-
-// Fork to child process if not set to foreground    
-    a = fork_bnetd(foreground);
-    if (a == STATUS_FAILURE)
-	return STATUS_FAILURE; // if fork fails
-    else if (a == STATUS_SUCCESS)
-	return STATUS_SUCCESS; // parent process exiting - child will return with -1 and continue
 
 // Give up root privileges
     /* Hakan: That's way too late to give up root privileges... Have to look for a better place */
     if (give_up_root_privileges(prefs_get_effective_user(),prefs_get_effective_group())<0) {
         eventlog(eventlog_level_fatal,"main","could not give up privileges (exiting)");
-        return STATUS_FAILURE;
+        return -1;
     }
 	
 // Write the pidfile
@@ -591,11 +593,9 @@ extern int main(int argc, char * * argv)
     a = pre_server_startup();
     
 // now process connections and network traffic
-    if (a == STATUS_CONTINUE) {
+    if (a == 0) {
 	if (server_process() < 0) 
 	    eventlog(eventlog_level_fatal,"main","failed to initialize network (exiting)");
-	else
-	    eventlog(eventlog_level_info,"main","server has shut down");
     }
     
 // run post server stuff and exit
@@ -619,8 +619,13 @@ extern int main(int argc, char * * argv)
     check_cleanup();
 #endif
 
+    if (a == 0)
+	eventlog(eventlog_level_info,"main","server has shut down");
     prefs_unload();
     eventlog_close();
-    return a;
-}
+    
+    if (a == 0)
+	return 0;
 
+    return -1;
+}

@@ -75,23 +75,27 @@ static int setup_daemon(void);
 
 static int setup_daemon(void)
 {
+	int pid;
+	
 	if (chdir("/")<0) {
 		log_error("can not change working directory to root directory (chdir: %s)",strerror(errno));
 		return -1;
 	}
+#ifndef WITH_D2
 	close(STDIN_FILENO);
 	close(STDOUT_FILENO);
 	if (!cmdline_get_logstderr()) {
 		close(STDERR_FILENO);
 	}
-	switch (fork()) {
+#endif
+	switch ((pid = fork())) {
 		case 0:
 			break;
 		case -1:
 			log_error("error create child process (fork: %s)",strerror(errno));
 			return -1;
 		default:
-			return -1;
+			return pid;
 	}
 	umask(0);
 	setsid();
@@ -131,6 +135,7 @@ static int config_init(int argc, char * * argv)
     char const * levels;
     char *       temp;
     char const * tok;
+    int		 pid;
 
 	if (cmdline_parse(argc, argv)<0) {
 		return -1;
@@ -144,10 +149,13 @@ static int config_init(int argc, char * * argv)
 		return -1;
 	}
 	if (!cmdline_get_foreground()) {
-		if (setup_daemon()<0) {
-			return -1;
+		if (!((pid = setup_daemon()) == 0)) {
+			return pid;
 		}
 	}
+#ifdef WITH_D2
+	eventlog_set(stderr);
+#endif
 	if (d2cs_prefs_load(cmdline_get_prefs_file())<0) {
 		log_error("error loading configuration file %s",cmdline_get_prefs_file());
 		return -1;
@@ -212,23 +220,26 @@ extern int d2cs_main(int argc, char * * argv)
 extern int main(int argc, char * * argv)
 #endif
 {
+	int pid;
 #ifdef USE_CHECK_ALLOC
 	check_set_file(stderr);
 #endif
+#ifndef WITH_D2
 	eventlog_set(stderr);
-	if (config_init(argc, argv)<0) {
-		return 1;
+#endif
+	if (!((pid = config_init(argc, argv)) == 0)) {
+		return pid;
 	}
 	log_info(D2CS_VERSION);
 	if (init()<0) {
 		log_error("failed to init");
-		return 1;
+		return -1;
 	} else {
 		log_info("server initialized");
 	}
 	if (d2cs_server_process()<0) {
 		log_error("failed to run server");
-		return 1;
+		return -1;
 	}
 	cleanup();
 	config_cleanup();
