@@ -123,12 +123,12 @@ static char const * file_get_info(char const * rawname, unsigned int * len, bn_l
 	xfree((void*)filename);
 	filename = file_find_default(rawname);
 	if (!filename) return NULL; /* no default version */
-    }
 
-    if (stat(filename,&sfile)<0) { /* if it doesn't exist */
-	/* FIXME: check for lower-case version of filename */
-	xfree(filename);
-	return NULL;
+	if (stat(filename,&sfile)<0) { /* try again */
+	    /* FIXME: check for lower-case version of filename */
+	    xfree(filename);
+	    return NULL;
+	}
     }
 
     *len = (unsigned int)sfile.st_size;
