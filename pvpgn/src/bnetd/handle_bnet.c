@@ -3444,7 +3444,7 @@ static int _client_adreq(t_connection * c, t_packet const * const packet)
 	t_adbanner * ad;
 	
 	if (!(ad = adbanner_pick(c,bn_int_get(packet->u.client_adreq.prev_adid))))
-	  return -1;
+	  return 0;
 	
 	/*		    eventlog(eventlog_level_debug,__FUNCTION__,"[%d] picking ad file=\"%s\" id=0x%06x tag=%u",conn_get_socket(c),adbanner_get_filename(ad),adbanner_get_id(ad),adbanner_get_extensiontag(ad));*/
 	if ((rpacket = packet_create(packet_class_bnet)))
