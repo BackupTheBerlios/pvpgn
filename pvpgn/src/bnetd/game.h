@@ -363,7 +363,7 @@ extern void gamelist_check_voidgame(void);
 extern void game_set_flag_private(t_game * game, unsigned int flag_private);
 extern unsigned int game_get_flag_private(t_game const * game);
 
-extern int game_get_count_by_clienttag(t_connection * c, char const * client_tag);
+extern int game_get_count_by_clienttag(char const * ct);
 
 #endif
 #endif

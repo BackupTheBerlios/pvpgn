@@ -2294,20 +2294,24 @@ extern unsigned int game_get_flag_private(t_game const * game)
     return game->flag_private;
 }
 
-extern int game_get_count_by_clienttag(t_connection * c, char const * client_tag)
+extern int game_get_count_by_clienttag(char const * ct)
 {
-	t_game * game;
-	t_elem const * curr;
-	int clienttaggames = 0;
+   t_game * game;
+   t_elem const * curr;
+   int clienttaggames = 0;
+   
+   if (ct == NULL) {
+      eventlog(eventlog_level_error, __FUNCTION__, "got NULL clienttag");
+      return 0;
+   }
 
-	 /* Get number of games for client tag specific */
-	 LIST_TRAVERSE_CONST(gamelist(),curr)
-	 {
-		game = elem_get_data(curr);
-		if(strcasecmp(game_get_clienttag(game),conn_get_clienttag(c))==0)
-			clienttaggames++;
-	 }
-
-	 return clienttaggames;
+   /* Get number of games for client tag specific */
+   LIST_TRAVERSE_CONST(gamelist(),curr)
+     {
+	game = elem_get_data(curr);
+	if(strcmp(game_get_clienttag(game),ct)==0)
+	  clienttaggames++;
+     }
+   
+   return clienttaggames;
 }
-		 
