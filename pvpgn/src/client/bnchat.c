@@ -633,6 +633,24 @@ int read_commandline(int argc, char * * argv,
     return 0;
 }
 
+int munge(int munged, int screen_width, t_mode mode, char *text)
+{
+    int i;
+
+    if (!munged)
+    {
+	printf("\r");
+	for (i=0; i<strlen(mode_get_prompt(mode)); i++)
+	    printf(" ");
+	for (i=0; i<strlen(text) && i<screen_width-strlen(mode_get_prompt(mode)); i++)
+	    printf(" ");
+	printf("\r");
+	munged = 1;
+    }
+    
+   return munged; 
+}
+
 
 extern int main(int argc, char * argv[])
 {
@@ -1192,25 +1210,6 @@ extern int main(int argc, char * argv[])
 	}
     }
     
-#if 0 /* FIXME: what was this for? */
-    if (!(packet = packet_create(packet_class_bnet)))
-    {
-	fprintf(stderr,"%s: could not create packet\n",argv[0]);
-	psock_close(sd);
-	if (changed_in)
-	    tcsetattr(fd_stdin,TCSAFLUSH,&in_attr_old);
-	return STATUS_FAILURE;
-    }
-    packet_set_size(packet,sizeof(t_client_playerinforeq));
-    packet_set_type(packet,CLIENT_PLAYERINFOREQ);
-    packet_append_string(packet,player);
-    packet_append_string(packet,"");
-    client_blocksend_packet(sd,packet);
-    packet_del_ref(packet);
-    
-    /* wait for playerinforeply */
-#endif
-    
     if (!(packet = packet_create(packet_class_bnet)))
     {
 	fprintf(stderr,"%s: could not create packet\n",argv[0]);
@@ -1332,15 +1331,7 @@ extern int main(int argc, char * argv[])
 	    {
 			if (psock_errno()!=PSOCK_EINTR)
 			{
-				if (!munged)
-				{
-				printf("\r");
-				for (i=0; i<strlen(mode_get_prompt(mode)); i++)
-					printf(" ");
-				for (i=0; i<strlen(text) && i<screen_width-strlen(mode_get_prompt(mode)); i++)
-					printf(" ");
-				printf("\r");
-				}
+				munged = munge(munged,screen_width,mode,text);
 				printf("Select failed (select: %s)\n",strerror(psock_errno()));
 			}
 			continue;
@@ -1356,13 +1347,7 @@ extern int main(int argc, char * argv[])
 		switch (client_get_comm(mode_get_prompt(mode),text,MAX_MESSAGE_LEN,&commpos,1,0,screen_width))
 		{
 		case -1: /* cancel */
-		    printf("\r");
-		    for (i=0; i<strlen(mode_get_prompt(mode)); i++)
-			printf(" ");
-		    for (i=0; i<strlen(text) && i<screen_width-strlen(mode_get_prompt(mode)); i++)
-			printf(" ");
-		    printf("\r");
-		    munged = 1;
+		    munged = munge(munged,screen_width,mode,text);
 		    if (mode==mode_command)
 			mode = mode_chat;
 		    else
@@ -1381,13 +1366,8 @@ extern int main(int argc, char * argv[])
 		    case mode_gamename:
 			if (text[0]=='\0')
 			{
-			    printf("\r");
-			    for (i=0; i<strlen(mode_get_prompt(mode)); i++)
-				printf(" ");
-			    for (i=0; i<strlen(text) && i<screen_width-strlen(mode_get_prompt(mode)); i++)
-				printf(" ");
-			    printf("\rGames must have a name.\n");
-			    munged = 1;
+		            munged = munge(munged,screen_width,mode,text);
+			    printf("Games must have a name.\n");
 			    break;
 			}
 			printf("\n");
@@ -1554,13 +1534,7 @@ extern int main(int argc, char * argv[])
 			    break;
 			if (text[0]=='/')
 			{
-			    printf("\r");
-			    for (i=0; i<strlen(mode_get_prompt(mode)); i++)
-				printf(" ");
-			    for (i=0; i<strlen(text) && i<screen_width-strlen(mode_get_prompt(mode)); i++)
-				printf(" ");
-			    printf("\r");
-			    munged = 1;
+		            munged = munge(munged,screen_width,mode,text);
 			}
 			else
 			{
@@ -1592,13 +1566,7 @@ extern int main(int argc, char * argv[])
 			
 		    default:
 			/* one of the wait states; erase what they typed */
-			printf("\r");
-			for (i=0; i<strlen(mode_get_prompt(mode)); i++)
-			    printf(" ");
-			for (i=0; i<strlen(text) && i<screen_width-strlen(mode_get_prompt(mode)); i++)
-			    printf(" ");
-			printf("\r");
-			munged = 1;
+		        munged = munge(munged,screen_width,mode,text);
 			break;
 		    }
 		    
@@ -1622,32 +1590,14 @@ extern int main(int argc, char * argv[])
 		    case SERVER_ECHOREQ: /* might as well support it */
 			if (packet_get_size(rpacket)<sizeof(t_server_echoreq))
 			{
-			    if (!munged)
-			    {
-				printf("\r");
-				for (i=0; i<strlen(mode_get_prompt(mode)); i++)
-				    printf(" ");
-				for (i=0; i<strlen(text) && i<screen_width-strlen(mode_get_prompt(mode)); i++)
-				    printf(" ");
-				printf("\r");
-				munged = 1;
-			    }
+		            munged = munge(munged,screen_width,mode,text);
 			    printf("Got bad SERVER_ECHOREQ packet (expected %u bytes, got %u)\n",sizeof(t_server_echoreq),packet_get_size(rpacket));
 			    break;
 			}
 			
 			if (!(packet = packet_create(packet_class_bnet)))
 			{
-			    if (!munged)
-			    {
-				printf("\r");
-				for (i=0; i<strlen(mode_get_prompt(mode)); i++)
-				    printf(" ");
-				for (i=0; i<strlen(text) && i<screen_width-strlen(mode_get_prompt(mode)); i++)
-				    printf(" ");
-				printf("\r");
-				munged = 1;
-			    }
+		            munged = munge(munged,screen_width,mode,text);
 			    fprintf(stderr,"%s: could not create packet\n",argv[0]);
 			    psock_close(sd);
 			    if (changed_in)
@@ -1665,16 +1615,7 @@ extern int main(int argc, char * argv[])
 		    case SERVER_STARTGAME4_ACK:
 			if (mode==mode_gamewait)
 			{
-			    if (!munged)
-			    {
-				printf("\r");
-				for (i=0; i<strlen(mode_get_prompt(mode)); i++)
-				    printf(" ");
-				for (i=0; i<strlen(text) && i<screen_width-strlen(mode_get_prompt(mode)); i++)
-				    printf(" ");
-				printf("\r");
-				munged = 1;
-			    }
+		            munged = munge(munged,screen_width,mode,text);
 			    
 			    if (bn_int_get(rpacket->u.server_startgame4_ack.reply)==SERVER_STARTGAME4_ACK_OK)
 			    {
@@ -1697,16 +1638,7 @@ extern int main(int argc, char * argv[])
 			    unsigned int strpos;
 			    char const * temp;
 			    
-			    if (!munged)
-			    {
-				printf("\r");
-				for (i=0; i<strlen(mode_get_prompt(mode)); i++)
-				    printf(" ");
-				for (i=0; i<strlen(text) && i<screen_width-strlen(mode_get_prompt(mode)); i++)
-				    printf(" ");
-				printf("\r");
-				munged = 1;
-			    }
+		            munged = munge(munged,screen_width,mode,text);
 			    
 			    names = bn_int_get(rpacket->u.server_statsreply.name_count);
 			    keys  = bn_int_get(rpacket->u.server_statsreply.key_count);
@@ -1775,16 +1707,7 @@ extern int main(int argc, char * argv[])
 		    case SERVER_MESSAGE:
 			if (packet_get_size(rpacket)<sizeof(t_server_message))
 			{
-			    if (!munged)
-			    {
-				printf("\r");
-				for (i=0; i<strlen(mode_get_prompt(mode)); i++)
-				    printf(" ");
-				for (i=0; i<strlen(text) && i<screen_width-strlen(mode_get_prompt(mode)); i++)
-				    printf(" ");
-				printf("\r");
-				munged = 1;
-			    }
+		            munged = munge(munged,screen_width,mode,text);
 			    printf("Got bad SERVER_MESSAGE packet (expected %u bytes, got %u)",sizeof(t_server_message),packet_get_size(rpacket));
 			    break;
 			}
@@ -1795,31 +1718,13 @@ extern int main(int argc, char * argv[])
 			    
 			    if (!(speaker = packet_get_str_const(rpacket,sizeof(t_server_message),32)))
 			    {
-				if (!munged)
-				{
-				    printf("\r");
-				    for (i=0; i<strlen(mode_get_prompt(mode)); i++)
-					printf(" ");
-				    for (i=0; i<strlen(text) && i<screen_width-strlen(mode_get_prompt(mode)); i++)
-					printf(" ");
-				    printf("\r");
-				    munged = 1;
-				}
+		                munged = munge(munged,screen_width,mode,text);
 				printf("Got SERVER_MESSAGE packet with bad or missing speaker\n");
 				break;
 			    }
 			    if (!(message = packet_get_str_const(rpacket,sizeof(t_server_message)+strlen(speaker)+1,1024)))
 			    {
-				if (!munged)
-				{
-				    printf("\r");
-				    for (i=0; i<strlen(mode_get_prompt(mode)); i++)
-					printf(" ");
-				    for (i=0; i<strlen(text) && i<screen_width-strlen(mode_get_prompt(mode)); i++)
-					printf(" ");
-				    printf("\r");
-				    munged = 1;
-				}
+		                munged = munge(munged,screen_width,mode,text);
 				printf("Got SERVER_MESSAGE packet with bad or missing message (speaker=\"%s\" start=%u len=%u)\n",speaker,sizeof(t_server_message)+strlen(speaker)+1,packet_get_size(rpacket));
 				break;
 			    }
@@ -1827,16 +1732,7 @@ extern int main(int argc, char * argv[])
 			    switch (bn_int_get(rpacket->u.server_message.type))
 			    {
 			    case SERVER_MESSAGE_TYPE_JOIN:
-				if (!munged)
-				{
-				    printf("\r");
-				    for (i=0; i<strlen(mode_get_prompt(mode)); i++)
-					printf(" ");
-				    for (i=0; i<strlen(text) && i<screen_width-strlen(mode_get_prompt(mode)); i++)
-					printf(" ");
-				    printf("\r");
-				    munged = 1;
-				}
+		                munged = munge(munged,screen_width,mode,text);
 				if (useansi)
 				    ansi_text_color_fore(ansi_text_color_green);
 				printf("\"");
@@ -1846,16 +1742,7 @@ extern int main(int argc, char * argv[])
 				    ansi_text_reset();
 				break;
 			    case SERVER_MESSAGE_TYPE_CHANNEL:
-				if (!munged)
-				{
-				    printf("\r");
-				    for (i=0; i<strlen(mode_get_prompt(mode)); i++)
-					printf(" ");
-				    for (i=0; i<strlen(text) && i<screen_width-strlen(mode_get_prompt(mode)); i++)
-					printf(" ");
-				    printf("\r");
-				    munged = 1;
-				}
+		                munged = munge(munged,screen_width,mode,text);
 				if (useansi)
 				    ansi_text_color_fore(ansi_text_color_green);
 				printf("Joining channel: \"");
@@ -1865,16 +1752,7 @@ extern int main(int argc, char * argv[])
 				    ansi_text_reset();
 				break;
 			    case SERVER_MESSAGE_TYPE_ADDUSER:
-				if (!munged)
-				{
-				    printf("\r");
-				    for (i=0; i<strlen(mode_get_prompt(mode)); i++)
-					printf(" ");
-				    for (i=0; i<strlen(text) && i<screen_width-strlen(mode_get_prompt(mode)); i++)
-					printf(" ");
-				    printf("\r");
-				    munged = 1;
-				}
+		                munged = munge(munged,screen_width,mode,text);
 				if (useansi)
 				    ansi_text_color_fore(ansi_text_color_green);
 				printf("\"");
@@ -1886,16 +1764,7 @@ extern int main(int argc, char * argv[])
 			    case SERVER_MESSAGE_TYPE_USERFLAGS:
 				break;
 			    case SERVER_MESSAGE_TYPE_PART:
-				if (!munged)
-				{
-				    printf("\r");
-				    for (i=0; i<strlen(mode_get_prompt(mode)); i++)
-					printf(" ");
-				    for (i=0; i<strlen(text) && i<screen_width-strlen(mode_get_prompt(mode)); i++)
-					printf(" ");
-				    printf("\r");
-				    munged = 1;
-				}
+		                munged = munge(munged,screen_width,mode,text);
 				if (useansi)
 				    ansi_text_color_fore(ansi_text_color_green);
 				printf("\"");
@@ -1905,16 +1774,7 @@ extern int main(int argc, char * argv[])
 				    ansi_text_reset();
 				break;
 			    case SERVER_MESSAGE_TYPE_WHISPER:
-				if (!munged)
-				{
-				    printf("\r");
-				    for (i=0; i<strlen(mode_get_prompt(mode)); i++)
-					printf(" ");
-				    for (i=0; i<strlen(text) && i<screen_width-strlen(mode_get_prompt(mode)); i++)
-					printf(" ");
-				    printf("\r");
-				    munged = 1;
-				}
+		                munged = munge(munged,screen_width,mode,text);
 				if (useansi)
 				    ansi_text_color_fore(ansi_text_color_blue);
 				printf("<From: ");
@@ -1927,16 +1787,7 @@ extern int main(int argc, char * argv[])
 				printf("\n");
 				break;
 			    case SERVER_MESSAGE_TYPE_WHISPERACK:
-				if (!munged)
-				{
-				    printf("\r");
-				    for (i=0; i<strlen(mode_get_prompt(mode)); i++)
-					printf(" ");
-				    for (i=0; i<strlen(text) && i<screen_width-strlen(mode_get_prompt(mode)); i++)
-					printf(" ");
-				    printf("\r");
-				    munged = 1;
-				}
+		                munged = munge(munged,screen_width,mode,text);
 				if (useansi)
 				    ansi_text_color_fore(ansi_text_color_blue);
 				printf("<To: ");
@@ -1949,16 +1800,7 @@ extern int main(int argc, char * argv[])
 				printf("\n");
 				break;
 			    case SERVER_MESSAGE_TYPE_BROADCAST:
-				if (!munged)
-				{
-				    printf("\r");
-				    for (i=0; i<strlen(mode_get_prompt(mode)); i++)
-					printf(" ");
-				    for (i=0; i<strlen(text) && i<screen_width-strlen(mode_get_prompt(mode)); i++)
-					printf(" ");
-				    printf("\r");
-				    munged = 1;
-				}
+		                munged = munge(munged,screen_width,mode,text);
 				if (useansi)
 				    ansi_text_color_fore(ansi_text_color_yellow);
 				printf("<Broadcast: ");
@@ -1970,16 +1812,7 @@ extern int main(int argc, char * argv[])
 				    ansi_text_reset();
 				break;
 			    case SERVER_MESSAGE_TYPE_ERROR:
-				if (!munged)
-				{
-				    printf("\r");
-				    for (i=0; i<strlen(mode_get_prompt(mode)); i++)
-					printf(" ");
-				    for (i=0; i<strlen(text) && i<screen_width-strlen(mode_get_prompt(mode)); i++)
-					printf(" ");
-				    printf("\r");
-				    munged = 1;
-				}
+		                munged = munge(munged,screen_width,mode,text);
 				if (useansi)
 				    ansi_text_color_fore(ansi_text_color_red);
 				printf("<Error> ");
@@ -1989,16 +1822,7 @@ extern int main(int argc, char * argv[])
 				    ansi_text_reset();
 				break;
 			    case SERVER_MESSAGE_TYPE_INFO:
-				if (!munged)
-				{
-				    printf("\r");
-				    for (i=0; i<strlen(mode_get_prompt(mode)); i++)
-					printf(" ");
-				    for (i=0; i<strlen(text) && i<screen_width-strlen(mode_get_prompt(mode)); i++)
-					printf(" ");
-				    printf("\r");
-				    munged = 1;
-				}
+		                munged = munge(munged,screen_width,mode,text);
 				if (useansi)
 				    ansi_text_color_fore(ansi_text_color_yellow);
 				printf("<Info> ");
@@ -2008,16 +1832,7 @@ extern int main(int argc, char * argv[])
 				    ansi_text_reset();
 				break;
 			    case SERVER_MESSAGE_TYPE_EMOTE:
-				if (!munged)
-				{
-				    printf("\r");
-				    for (i=0; i<strlen(mode_get_prompt(mode)); i++)
-					printf(" ");
-				    for (i=0; i<strlen(text) && i<screen_width-strlen(mode_get_prompt(mode)); i++)
-					printf(" ");
-				    printf("\r");
-				    munged = 1;
-				}
+		                munged = munge(munged,screen_width,mode,text);
 				if (useansi)
 				    ansi_text_color_fore(ansi_text_color_yellow);
 				printf("<");
@@ -2030,16 +1845,7 @@ extern int main(int argc, char * argv[])
 				break;
 			    default:
 			    case SERVER_MESSAGE_TYPE_TALK:
-				if (!munged)
-				{
-				    printf("\r");
-				    for (i=0; i<strlen(mode_get_prompt(mode)); i++)
-					printf(" ");
-				    for (i=0; i<strlen(text) && i<screen_width-strlen(mode_get_prompt(mode)); i++)
-					printf(" ");
-				    printf("\r");
-				    munged = 1;
-				}
+		                munged = munge(munged,screen_width,mode,text);
 				if (useansi)
 				    ansi_text_color_fore(ansi_text_color_yellow);
 				printf("<");
@@ -2055,16 +1861,7 @@ extern int main(int argc, char * argv[])
 			break;
 			
 		    default:
-			if (!munged)
-			{
-			    printf("\r");
-			    for (i=0; i<strlen(mode_get_prompt(mode)); i++)
-				printf(" ");
-			    for (i=0; i<strlen(text) && i<screen_width-strlen(mode_get_prompt(mode)); i++)
-				printf(" ");
-			    printf("\r");
-			    munged = 1;
-			}
+		        munged = munge(munged,screen_width,mode,text);
 			printf("Unsupported server packet type 0x%04x\n",packet_get_type(rpacket));
 		    }
 		    
@@ -2073,16 +1870,7 @@ extern int main(int argc, char * argv[])
 		    
 		case -1: /* error (probably connection closed) */
 		default:
-		    if (!munged)
-		    {
-			printf("\r");
-			for (i=0; i<strlen(mode_get_prompt(mode)); i++)
-			    printf(" ");
-			for (i=0; i<strlen(text) && i<screen_width-strlen(mode_get_prompt(mode)); i++)
-			    printf(" ");
-			printf("\r");
-			munged = 1;
-		    }
+		    munged = munge(munged,screen_width,mode,text);
 		    printf("----\nConnection closed by server.\n");
 		    psock_close(sd);
 		    if (changed_in)
