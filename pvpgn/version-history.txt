@@ -66,6 +66,9 @@ general API for watching socket status (fdwatch); the new code should be
 many times faster (especially when having a lot of concurrent connections)
 -- now includes a better sql_DB_creator with config file, that adds new/missing
 tables/columns to your database
+-- fixed the 99% CPU usage while it shutdown phase
+-- optimized unnecesary often update of "now" timestamp inside server main loop 
+using POSIX timers (where available)
 
 1.5.0beta3:
 -- fixed a long standing bug regarding bnmaps.txt and AT maps
