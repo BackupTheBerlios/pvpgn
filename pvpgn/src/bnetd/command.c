@@ -628,6 +628,8 @@ static int command_set_flags(t_connection * c)
     char const *	channel;
     t_account  *	acc;
     
+    if (!c) return -1; // user not connected, no need to update his flags
+
     currflags = conn_get_flags(c);
     acc = conn_get_account(c);
     
