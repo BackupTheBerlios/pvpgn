@@ -168,7 +168,7 @@ typedef z_stream FAR *z_streamp;
 
                         /* basic functions */
 
-ZEXTERN const char * ZEXPORT zlibVersion OF((void));
+ZEXTERN const char * ZEXPORT pvpgn_zlibVersion OF((void));
 /* The application can compare zlibVersion and ZLIB_VERSION for consistency.
    If the first character differs, the library code actually used is
    not compatible with the zlib.h header file used by the application.
@@ -198,7 +198,7 @@ ZEXTERN int ZEXPORT deflateInit OF((z_streamp strm, int level));
 */
 
 
-ZEXTERN int ZEXPORT deflate OF((z_streamp strm, int flush));
+ZEXTERN int ZEXPORT pvpgn_deflate OF((z_streamp strm, int flush));
 /*
     deflate compresses as much data as possible, and stops when the input
   buffer becomes empty or the output buffer becomes full. It may introduce some
@@ -276,7 +276,7 @@ ZEXTERN int ZEXPORT deflate OF((z_streamp strm, int flush));
 */
 
 
-ZEXTERN int ZEXPORT deflateEnd OF((z_streamp strm));
+ZEXTERN int ZEXPORT pvpgn_deflateEnd OF((z_streamp strm));
 /*
      All dynamically allocated data structures for this stream are freed.
    This function discards any unprocessed input and does not flush any
@@ -289,7 +289,7 @@ ZEXTERN int ZEXPORT deflateEnd OF((z_streamp strm));
    deallocated).
 */
 
-ZEXTERN int ZEXPORT deflateReset OF((z_streamp strm));
+ZEXTERN int ZEXPORT pvpgn_deflateReset OF((z_streamp strm));
 /*
      This function is equivalent to deflateEnd followed by deflateInit,
    but does not free and reallocate all the internal compression state.
@@ -308,7 +308,7 @@ ZEXTERN int ZEXPORT deflateReset OF((z_streamp strm));
    compression library.
 */
 
-ZEXTERN uLong ZEXPORT adler32 OF((uLong adler, const Bytef *buf, uInt len));
+ZEXTERN uLong ZEXPORT pvpgn_adler32 OF((uLong adler, const Bytef *buf, uInt len));
 
 /*
      Update a running Adler-32 checksum with the bytes buf[0..len-1] and
@@ -328,29 +328,29 @@ ZEXTERN uLong ZEXPORT adler32 OF((uLong adler, const Bytef *buf, uInt len));
 /* deflateInit and inflateInit are macros to allow checking the zlib version
  * and the compiler's view of z_stream:
  */
-ZEXTERN int ZEXPORT deflateInit_ OF((z_streamp strm, int level,
+ZEXTERN int ZEXPORT pvpgn_deflateInit_ OF((z_streamp strm, int level,
                                      const char *version, int stream_size));
-ZEXTERN int ZEXPORT deflateInit2_ OF((z_streamp strm, int  level, int  method,
+ZEXTERN int ZEXPORT pvpgn_deflateInit2_ OF((z_streamp strm, int  level, int  method,
                                       int windowBits, int memLevel,
                                       int strategy, const char *version,
                                       int stream_size));
-#define deflateInit(strm, level) \
-        deflateInit_((strm), (level),       ZLIB_VERSION, sizeof(z_stream))
-#define inflateInit(strm) \
-        inflateInit_((strm),                ZLIB_VERSION, sizeof(z_stream))
-#define deflateInit2(strm, level, method, windowBits, memLevel, strategy) \
-        deflateInit2_((strm),(level),(method),(windowBits),(memLevel),\
+#define pvpgn_deflateInit(strm, level) \
+        pvpgn_deflateInit_((strm), (level),       ZLIB_VERSION, sizeof(z_stream))
+#define pvpgn_inflateInit(strm) \
+        pvpgn_inflateInit_((strm),                ZLIB_VERSION, sizeof(z_stream))
+#define pvpgn_deflateInit2(strm, level, method, windowBits, memLevel, strategy) \
+        pvpgn_deflateInit2_((strm),(level),(method),(windowBits),(memLevel),\
                       (strategy),           ZLIB_VERSION, sizeof(z_stream))
-#define inflateInit2(strm, windowBits) \
-        inflateInit2_((strm), (windowBits), ZLIB_VERSION, sizeof(z_stream))
+#define pvpgn_inflateInit2(strm, windowBits) \
+        pvpgn_inflateInit2_((strm), (windowBits), ZLIB_VERSION, sizeof(z_stream))
 
 
 #if !defined(_Z_UTIL_H) && !defined(NO_DUMMY_DECL)
     struct internal_state {int dummy;}; /* hack for buggy compilers */
 #endif
 
-ZEXTERN const char   * ZEXPORT zError           OF((int err));
-ZEXTERN const uLongf * ZEXPORT get_crc_table    OF((void));
+ZEXTERN const char   * ZEXPORT pvpgn_zError           OF((int err));
+ZEXTERN const uLongf * ZEXPORT pvpgn_get_crc_table    OF((void));
 
 #ifdef __cplusplus
 }

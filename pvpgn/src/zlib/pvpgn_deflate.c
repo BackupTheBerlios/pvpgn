@@ -81,8 +81,8 @@ local void putShortMSB    OF((deflate_state *s, uInt b));
 local void flush_pending  OF((z_streamp strm));
 local int read_buf        OF((z_streamp strm, Bytef *buf, unsigned size));
 #ifdef ASMV
-      void match_init OF((void)); /* asm code initialization */
-      uInt longest_match  OF((deflate_state *s, IPos cur_match));
+      void pvpgn_match_init OF((void)); /* asm code initialization */
+      uInt pvpgn_longest_match  OF((deflate_state *s, IPos cur_match));
 #else
 local uInt longest_match  OF((deflate_state *s, IPos cur_match));
 #endif
@@ -186,19 +186,19 @@ struct static_tree_desc_s {int dummy;}; /* for buggy compilers */
     zmemzero((Bytef *)s->head, (unsigned)(s->hash_size-1)*sizeof(*s->head));
 
 /* ========================================================================= */
-int ZEXPORT deflateInit_(strm, level, version, stream_size)
+int ZEXPORT pvpgn_deflateInit_(strm, level, version, stream_size)
     z_streamp strm;
     int level;
     const char *version;
     int stream_size;
 {
-    return deflateInit2_(strm, level, Z_DEFLATED, MAX_WBITS, DEF_MEM_LEVEL,
+    return pvpgn_deflateInit2_(strm, level, Z_DEFLATED, MAX_WBITS, DEF_MEM_LEVEL,
 			 Z_DEFAULT_STRATEGY, version, stream_size);
     /* To do: ignore strm->next_in if we use it as window */
 }
 
 /* ========================================================================= */
-int ZEXPORT deflateInit2_(strm, level, method, windowBits, memLevel, strategy,
+int ZEXPORT pvpgn_deflateInit2_(strm, level, method, windowBits, memLevel, strategy,
 		  version, stream_size)
     z_streamp strm;
     int  level;
@@ -226,10 +226,10 @@ int ZEXPORT deflateInit2_(strm, level, method, windowBits, memLevel, strategy,
 
     strm->msg = Z_NULL;
     if (strm->zalloc == Z_NULL) {
-	strm->zalloc = zcalloc;
+	strm->zalloc = pvpgn_zcalloc;
 	strm->opaque = (voidpf)0;
     }
-    if (strm->zfree == Z_NULL) strm->zfree = zcfree;
+    if (strm->zfree == Z_NULL) strm->zfree = pvpgn_zcfree;
 
     if (level == Z_DEFAULT_COMPRESSION) level = 6;
 #ifdef FASTEST
@@ -273,7 +273,7 @@ int ZEXPORT deflateInit2_(strm, level, method, windowBits, memLevel, strategy,
     if (s->window == Z_NULL || s->prev == Z_NULL || s->head == Z_NULL ||
         s->pending_buf == Z_NULL) {
         strm->msg = (char*)ERR_MSG(Z_MEM_ERROR);
-        deflateEnd (strm);
+        pvpgn_deflateEnd (strm);
         return Z_MEM_ERROR;
     }
     s->d_buf = overlay + s->lit_bufsize/sizeof(ush);
@@ -283,11 +283,11 @@ int ZEXPORT deflateInit2_(strm, level, method, windowBits, memLevel, strategy,
     s->strategy = strategy;
     s->method = (Byte)method;
 
-    return deflateReset(strm);
+    return pvpgn_deflateReset(strm);
 }
 
 /* ========================================================================= */
-int ZEXPORT deflateReset (strm)
+int ZEXPORT pvpgn_deflateReset (strm)
     z_streamp strm;
 {
     deflate_state *s;
@@ -310,7 +310,7 @@ int ZEXPORT deflateReset (strm)
     strm->adler = 1;
     s->last_flush = Z_NO_FLUSH;
 
-    _tr_init(s);
+    pvpgn_tr_init(s);
     lm_init(s);
 
     return Z_OK;
@@ -355,7 +355,7 @@ local void flush_pending(strm)
 }
 
 /* ========================================================================= */
-int ZEXPORT deflate (strm, flush)
+int ZEXPORT pvpgn_deflate (strm, flush)
     z_streamp strm;
     int flush;
 {
@@ -455,9 +455,9 @@ int ZEXPORT deflate (strm, flush)
 	}
         if (bstate == block_done) {
             if (flush == Z_PARTIAL_FLUSH) {
-                _tr_align(s);
+                pvpgn_tr_align(s);
             } else { /* FULL_FLUSH or SYNC_FLUSH */
-                _tr_stored_block(s, (char*)0, 0L, 0);
+                pvpgn_tr_stored_block(s, (char*)0, 0L, 0);
                 /* For a full flush, this empty block will be recognized
                  * as a special marker by inflate_sync().
                  */
@@ -489,7 +489,7 @@ int ZEXPORT deflate (strm, flush)
 }
 
 /* ========================================================================= */
-int ZEXPORT deflateEnd (strm)
+int ZEXPORT pvpgn_deflateEnd (strm)
     z_streamp strm;
 {
     int status;
@@ -519,7 +519,7 @@ int ZEXPORT deflateEnd (strm)
  * To simplify the source, this is not supported for 16-bit MSDOS (which
  * doesn't have enough memory anyway to duplicate compression states).
  */
-int ZEXPORT deflateCopy (dest, source)
+int ZEXPORT pvpgn_deflateCopy (dest, source)
     z_streamp dest;
     z_streamp source;
 {
@@ -553,7 +553,7 @@ int ZEXPORT deflateCopy (dest, source)
 
     if (ds->window == Z_NULL || ds->prev == Z_NULL || ds->head == Z_NULL ||
         ds->pending_buf == Z_NULL) {
-        deflateEnd (dest);
+        pvpgn_deflateEnd (dest);
         return Z_MEM_ERROR;
     }
     /* following zmemcpy do not work for 16-bit MSDOS */
@@ -594,7 +594,7 @@ local int read_buf(strm, buf, size)
     strm->avail_in  -= len;
 
     if (!strm->state->noheader) {
-        strm->adler = adler32(strm->adler, strm->next_in, len);
+        strm->adler = pvpgn_adler32(strm->adler, strm->next_in, len);
     }
     zmemcpy(buf, strm->next_in, len);
     strm->next_in  += len;
@@ -975,7 +975,7 @@ local void fill_window(s)
  * IN assertion: strstart is set to the end of the current match.
  */
 #define FLUSH_BLOCK_ONLY(s, eof) { \
-   _tr_flush_block(s, (s->block_start >= 0L ? \
+   pvpgn_tr_flush_block(s, (s->block_start >= 0L ? \
                    (charf *)&s->window[(unsigned)s->block_start] : \
                    (charf *)Z_NULL), \
 		(ulg)((long)s->strstart - s->block_start), \

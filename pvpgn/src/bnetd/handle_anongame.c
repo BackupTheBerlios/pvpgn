@@ -1367,25 +1367,25 @@ static int zlib_compress(void const * src, int srclen, char ** dest, int * destl
     }
 
     memset(&zcpr,0,sizeof(z_stream));
-    deflateInit(&zcpr, 9);
+    pvpgn_deflateInit(&zcpr, 9);
     zcpr.next_in = (void *)src;
     zcpr.next_out = tmpdata;
     do {
 	all_read_before = zcpr.total_in;
 	zcpr.avail_in = (lorigtodo < 0x8000) ? lorigtodo : 0x8000;
 	zcpr.avail_out = 0x8000;
-	ret=deflate(&zcpr,(zcpr.avail_in == lorigtodo) ? Z_FINISH : Z_SYNC_FLUSH);
+	ret = pvpgn_deflate(&zcpr,(zcpr.avail_in == lorigtodo) ? Z_FINISH : Z_SYNC_FLUSH);
 	lorigdone += (zcpr.total_in-all_read_before);
 	lorigtodo -= (zcpr.total_in-all_read_before);
     } while (ret == Z_OK);
 
-    (*destlen)=zcpr.total_out;
+    (*destlen) = zcpr.total_out;
     if((*destlen)>0)
     {
 	(*dest) = malloc((*destlen) + 8);
 	if (!(*dest)) {
 	    eventlog(eventlog_level_error, __FUNCTION__, "not enough memory for dest");
-	    deflateEnd(&zcpr);
+	    pvpgn_deflateEnd(&zcpr);
 	    free((void*)tmpdata);
 	    return -1;
 	}
@@ -1395,7 +1395,7 @@ static int zlib_compress(void const * src, int srclen, char ** dest, int * destl
 	memcpy((*dest)+8, tmpdata, (*destlen));
 	(*destlen) += 8;
     }
-    deflateEnd(&zcpr);
+    pvpgn_deflateEnd(&zcpr);
 
     free((void*)tmpdata);
 

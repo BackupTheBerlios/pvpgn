@@ -265,16 +265,16 @@ typedef struct internal_state {
  */
 
         /* in trees.c */
-void _tr_init         OF((deflate_state *s));
-int  _tr_tally        OF((deflate_state *s, unsigned dist, unsigned lc));
-void _tr_flush_block  OF((deflate_state *s, charf *buf, ulg stored_len,
+void pvpgn_tr_init         OF((deflate_state *s));
+int  pvpgn_tr_tally        OF((deflate_state *s, unsigned dist, unsigned lc));
+void pvpgn_tr_flush_block  OF((deflate_state *s, charf *buf, ulg stored_len,
 			  int eof));
-void _tr_align        OF((deflate_state *s));
-void _tr_stored_block OF((deflate_state *s, charf *buf, ulg stored_len,
+void pvpgn_tr_align        OF((deflate_state *s));
+void pvpgn_tr_stored_block OF((deflate_state *s, charf *buf, ulg stored_len,
                           int eof));
 
 #define d_code(dist) \
-   ((dist) < 256 ? _dist_code[dist] : _dist_code[256+((dist)>>7)])
+   ((dist) < 256 ? pvpgn_dist_code[dist] : pvpgn_dist_code[256+((dist)>>7)])
 /* Mapping from a distance to a distance code. dist is the distance - 1 and
  * must not have side effects. _dist_code[256] and _dist_code[257] are never
  * used.
@@ -284,11 +284,11 @@ void _tr_stored_block OF((deflate_state *s, charf *buf, ulg stored_len,
 /* Inline versions of _tr_tally for speed: */
 
 #if defined(GEN_TREES_H) || !defined(STDC)
-  extern uch _length_code[];
-  extern uch _dist_code[];
+  extern uch pvpgn_length_code[];
+  extern uch pvpgn_dist_code[];
 #else
-  extern const uch _length_code[];
-  extern const uch _dist_code[];
+  extern const uch pvpgn_length_code[];
+  extern const uch pvpgn_dist_code[];
 #endif
 
 # define _tr_tally_lit(s, c, flush) \
@@ -304,7 +304,7 @@ void _tr_stored_block OF((deflate_state *s, charf *buf, ulg stored_len,
     s->d_buf[s->last_lit] = dist; \
     s->l_buf[s->last_lit++] = len; \
     dist--; \
-    s->dyn_ltree[_length_code[len]+LITERALS+1].Freq++; \
+    s->dyn_ltree[pvpgn_length_code[len]+LITERALS+1].Freq++; \
     s->dyn_dtree[d_code(dist)].Freq++; \
     flush = (s->last_lit == s->lit_bufsize-1); \
   }

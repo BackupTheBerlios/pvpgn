@@ -97,13 +97,13 @@ local ct_data static_dtree[D_CODES];
  * 5 bits.)
  */
 
-uch _dist_code[DIST_CODE_LEN];
+uch pvpgn_dist_code[DIST_CODE_LEN];
 /* Distance codes. The first 256 values correspond to the distances
  * 3 .. 258, the last 256 values correspond to the top 8 bits of
  * the 15 bit distances.
  */
 
-uch _length_code[MAX_MATCH-MIN_MATCH+1];
+uch pvpgn_length_code[MAX_MATCH-MIN_MATCH+1];
 /* length code for each normalized match length (0 == MIN_MATCH) */
 
 local int base_length[LENGTH_CODES];
@@ -326,7 +326,7 @@ local void tr_static_init()
       ((i) == (last)? "\n};\n\n" :    \
        ((i) % (width) == (width)-1 ? ",\n" : ", "))
 
-void gen_trees_header()
+void pvpgn_gen_trees_header()
 {
     FILE *header = fopen("trees.h", "w");
     int i;
@@ -378,7 +378,7 @@ void gen_trees_header()
 /* ===========================================================================
  * Initialize the tree data structures for a new zlib stream.
  */
-void _tr_init(s)
+void pvpgn_tr_init(s)
     deflate_state *s;
 {
     tr_static_init();
@@ -862,7 +862,7 @@ local void send_all_trees(s, lcodes, dcodes, blcodes)
 /* ===========================================================================
  * Send a stored block
  */
-void _tr_stored_block(s, buf, stored_len, eof)
+void pvpgn_tr_stored_block(s, buf, stored_len, eof)
     deflate_state *s;
     charf *buf;       /* input block */
     ulg stored_len;   /* length of input block */
@@ -887,7 +887,7 @@ void _tr_stored_block(s, buf, stored_len, eof)
  * To simplify the code, we assume the worst case of last real code encoded
  * on one bit only.
  */
-void _tr_align(s)
+void pvpgn_tr_align(s)
     deflate_state *s;
 {
     send_bits(s, STATIC_TREES<<1, 3);
@@ -916,7 +916,7 @@ void _tr_align(s)
  * Determine the best encoding for the current block: dynamic trees, static
  * trees or store, and output the encoded block to the zip file.
  */
-void _tr_flush_block(s, buf, stored_len, eof)
+void pvpgn_tr_flush_block(s, buf, stored_len, eof)
     deflate_state *s;
     charf *buf;       /* input block, or NULL if too old */
     ulg stored_len;   /* length of input block */
@@ -975,7 +975,7 @@ void _tr_flush_block(s, buf, stored_len, eof)
          * successful. If LIT_BUFSIZE <= WSIZE, it is never too late to
          * transform a block into a stored block.
          */
-        _tr_stored_block(s, buf, stored_len, eof);
+        pvpgn_tr_stored_block(s, buf, stored_len, eof);
 
 #ifdef FORCE_STATIC
     } else if (static_lenb >= 0) { /* force static trees */
@@ -1016,7 +1016,7 @@ void _tr_flush_block(s, buf, stored_len, eof)
  * Save the match info and tally the frequency counts. Return true if
  * the current block must be flushed.
  */
-int _tr_tally (s, dist, lc)
+int pvpgn_tr_tally (s, dist, lc)
     deflate_state *s;
     unsigned dist;  /* distance of matched string */
     unsigned lc;    /* match length-MIN_MATCH or unmatched char (if dist==0) */
@@ -1034,7 +1034,7 @@ int _tr_tally (s, dist, lc)
                (ush)lc <= (ush)(MAX_MATCH-MIN_MATCH) &&
                (ush)d_code(dist) < (ush)D_CODES,  "_tr_tally: bad match");
 
-        s->dyn_ltree[_length_code[lc]+LITERALS+1].Freq++;
+        s->dyn_ltree[pvpgn_length_code[lc]+LITERALS+1].Freq++;
         s->dyn_dtree[d_code(dist)].Freq++;
     }
 
@@ -1085,7 +1085,7 @@ local void compress_block(s, ltree, dtree)
             Tracecv(isgraph(lc), (stderr," '%c' ", lc));
         } else {
             /* Here, lc is the match length - MIN_MATCH */
-            code = _length_code[lc];
+            code = pvpgn_length_code[lc];
             send_code(s, code+LITERALS+1, ltree); /* send the length code */
             extra = extra_lbits[code];
             if (extra != 0) {

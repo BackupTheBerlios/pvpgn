@@ -51,10 +51,10 @@ typedef unsigned short ush;
 typedef ush FAR ushf;
 typedef unsigned long  ulg;
 
-extern const char *z_errmsg[10]; /* indexed by 2-zlib_error */
+extern const char *pvpgn_z_errmsg[10]; /* indexed by 2-zlib_error */
 /* (size given to avoid silly warnings with Visual C++) */
 
-#define ERR_MSG(err) z_errmsg[Z_NEED_DICT-(err)]
+#define ERR_MSG(err) pvpgn_z_errmsg[Z_NEED_DICT-(err)]
 
 #define ERR_RETURN(strm,err) \
   return (strm->msg = (char*)ERR_MSG(err), (err))
@@ -195,16 +195,16 @@ extern const char *z_errmsg[10]; /* indexed by 2-zlib_error */
 #    define zmemzero(dest, len) memset(dest, 0, len)
 #  endif
 #else
-   extern void zmemcpy  OF((Bytef* dest, const Bytef* source, uInt len));
-   extern int  zmemcmp  OF((const Bytef* s1, const Bytef* s2, uInt len));
-   extern void zmemzero OF((Bytef* dest, uInt len));
+   extern void pvpgn_zmemcpy  OF((Bytef* dest, const Bytef* source, uInt len));
+   extern int  pvpgn_zmemcmp  OF((const Bytef* s1, const Bytef* s2, uInt len));
+   extern void pvpgn_zmemzero OF((Bytef* dest, uInt len));
 #endif
 
 /* Diagnostic functions */
 #ifdef DEBUG
 #  include <stdio.h>
-   extern int z_verbose;
-   extern void z_error    OF((char *m));
+   extern int pvpgn_z_verbose;
+   extern void pvpgn_z_error    OF((char *m));
 #  define Assert(cond,msg) {if(!(cond)) z_error(msg);}
 #  define Trace(x) {if (z_verbose>=0) fprintf x ;}
 #  define Tracev(x) {if (z_verbose>0) fprintf x ;}
@@ -223,8 +223,8 @@ extern const char *z_errmsg[10]; /* indexed by 2-zlib_error */
 
 typedef uLong (ZEXPORT *check_func) OF((uLong check, const Bytef *buf,
 				       uInt len));
-voidpf zcalloc OF((voidpf opaque, unsigned items, unsigned size));
-void   zcfree  OF((voidpf opaque, voidpf ptr));
+voidpf pvpgn_zcalloc OF((voidpf opaque, unsigned items, unsigned size));
+void   pvpgn_zcfree  OF((voidpf opaque, voidpf ptr));
 
 #define ZALLOC(strm, items, size) \
            (*((strm)->zalloc))((strm)->opaque, (items), (size))
