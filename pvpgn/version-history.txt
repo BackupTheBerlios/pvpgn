@@ -56,7 +56,7 @@ command)
 -- speedup of versioncheck parsing (note: it seems like comparing file time
 wasn't working as it should before, so u might now need to increase
 version_exeinfo_maxdiff a bit [for me I had 3601 secs diff but 3600 allowed)
-
+-- added new boot script for pvpgn (BSD style)
 
 1.5.0beta3:
 -- fixed a long standing bug regarding bnmaps.txt and AT maps
