@@ -197,8 +197,6 @@ case "$host" in
 		;;
 esac
 
-AC_CHECK_LIB(z, compress, [LIBS="$LIBS -lz"])
-
 mysql_include_path=""
 dnl Detecting mysql paths
 if test "$ac_with_mysql" = "yes" ; then
@@ -294,6 +292,8 @@ if test "$ac_with_mssql" = "yes" ; then
 	done
      ])
 fi
+
+AC_CHECK_LIB(z, compress, [LIBS="$LIBS -lz"])
 
 # Checks for header files.
 AC_HEADER_DIRENT
