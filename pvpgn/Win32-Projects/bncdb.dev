@@ -1,7 +1,7 @@
 [Project]
 FileName=bncdb.dev
 Name=bncdb
-UnitCount=24
+UnitCount=26
 Type=1
 Ver=1
 ObjFiles=
@@ -286,4 +286,24 @@ OriginalFilename=bncdb.exe
 ProductName=bncdb
 ProductVersion=0.1
 AutoIncBuildNr=0
+
+[Unit25]
+FileName=..\src\compat\strerror.h
+CompileCpp=0
+Folder=compat/Header Files
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit26]
+FileName=..\src\compat\strerror.c
+CompileCpp=0
+Folder=compat/Source Files
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
 
