@@ -3334,6 +3334,8 @@ static int _handle_admins_command(t_connection * c, char const *text)
       tc = elem_get_data(curr);
       if (!tc)
 	continue;
+      if (!conn_get_account(tc))
+        continue;
       if (account_get_auth_admin(conn_get_account(tc),NULL)==1)
 	{
 	  if ((nick = conn_get_username(tc)))
