@@ -1487,7 +1487,6 @@ extern int server_process(void)
 		eventlog(eventlog_level_error,"server_process","could not use the file \"%s\" for the eventlog",prefs_get_logfile());
 
 	    /* FIXME: load new network settings */
-	    /* FIXME: load new ad banners */
 
 	    /* reload server name */
 	    server_set_name();
@@ -1553,6 +1552,9 @@ extern int server_process(void)
 	    
 	    if(w3trans_reload(prefs_get_w3trans_file())<0)
 		eventlog(eventlog_level_error,__FUNCTION__,"could not reload w3trans list");
+
+		tournament_destroy();
+		tournament_init(prefs_get_tournament_file());
 
 	    anongame_infos_unload();
 	    anongame_infos_load(prefs_get_anongame_infos_file());
