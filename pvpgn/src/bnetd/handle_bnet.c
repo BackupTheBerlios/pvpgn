@@ -4477,6 +4477,7 @@ static int _client_startgame4(t_connection * c, t_packet const * const packet)
 	     switch (status)
 	       {
 		case CLIENT_STARTGAME4_STATUS_INIT:
+		case CLIENT_STARTGAME4_STATUS_INITPRIVATE:
 		  game_set_status(currgame,game_status_open);
 		  break;
 		case CLIENT_STARTGAME4_STATUS_PLAYING:
@@ -4489,7 +4490,8 @@ static int _client_startgame4(t_connection * c, t_packet const * const packet)
 		  eventlog(eventlog_level_error,__FUNCTION__,"[%d] unknown startgame4 status %d (clienttag: %s)",conn_get_socket(c),status, conn_get_clienttag(c));
 	       }
 	  }
-	else if (status==CLIENT_STARTGAME4_STATUS_INIT)
+	else if (status==CLIENT_STARTGAME4_STATUS_INIT ||
+	         status==CLIENT_STARTGAME4_STATUS_INITPRIVATE)
 	  {
 	     t_game_type gtype;
 	     
