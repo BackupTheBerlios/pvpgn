@@ -109,6 +109,7 @@
 #include "clan.h"
 #include "connection.h"
 #include "topic.h"
+#include "server.h"
 #include "handle_d2cs.h"
 #include "command_groups.h"
 #include "common/rcm.h"
@@ -385,9 +386,9 @@ extern t_connection * conn_create(int tsock, int usock, unsigned int real_local_
     temp->socket.fdw_idx		= -1;
     temp->protocol.class                = conn_class_init;
     temp->protocol.state                = conn_state_initial;
-    temp->protocol.sessionkey           = ((unsigned int)rand())^((unsigned int)time(NULL)+(unsigned int)real_local_port);
+    temp->protocol.sessionkey           = ((unsigned int)rand())^((unsigned int)now+(unsigned int)real_local_port);
     temp->protocol.sessionnum           = connarray_add_conn(temp);
-    temp->protocol.secret               = ((unsigned int)rand())^(totalcount+((unsigned int)time(NULL)));
+    temp->protocol.secret               = ((unsigned int)rand())^(totalcount+((unsigned int)now));
     temp->protocol.flags                = MF_PLUG;
     temp->protocol.latency              = 0;
     temp->protocol.chat.dnd                      = NULL;
@@ -413,7 +414,7 @@ extern t_connection * conn_create(int tsock, int usock, unsigned int real_local_
     temp->protocol.client.versioncheck           = NULL;
     temp->protocol.account                       = NULL;
     temp->protocol.chat.channel                  = NULL;
-    temp->protocol.chat.last_message             = time(NULL);
+    temp->protocol.chat.last_message             = now;
     temp->protocol.chat.lastsender               = NULL;
     temp->protocol.chat.irc.ircline              = NULL;
     temp->protocol.chat.irc.ircping              = 0;
@@ -438,7 +439,7 @@ extern t_connection * conn_create(int tsock, int usock, unsigned int real_local_
     temp->protocol.w3.anongame_search_starttime  = 0;
     temp->protocol.bound                         = NULL;
     elist_init(&temp->protocol.timers);
-    temp->protocol.cr_time                       = time(NULL);
+    temp->protocol.cr_time                       = now;
     temp->protocol.passfail_count                = 0;
 
 
@@ -775,7 +776,7 @@ extern void conn_set_class(t_connection * c, t_conn_class class)
 	    if (oldclass == conn_class_init) timerlist_del_all_timers(c);
 	    delta = prefs_get_latency();
 	    data.n = delta;
-	    if (timerlist_add_timer(c,time(NULL)+(time_t)delta,conn_test_latency,data)<0)
+	    if (timerlist_add_timer(c,now+(time_t)delta,conn_test_latency,data)<0)
 		eventlog(eventlog_level_error,__FUNCTION__,"could not add timer");
 
     	    eventlog(eventlog_level_debug,__FUNCTION__,"added latency check timer");
@@ -784,7 +785,7 @@ extern void conn_set_class(t_connection * c, t_conn_class class)
 	case conn_class_w3route:
 	    delta = prefs_get_latency();
 	    data.n = delta;
-	    if (timerlist_add_timer(c,time(NULL)+(time_t)delta,conn_test_latency,data)<0)
+	    if (timerlist_add_timer(c,now+(time_t)delta,conn_test_latency,data)<0)
 		eventlog(eventlog_level_error,__FUNCTION__,"could not add timer");
 	    break;
 
@@ -795,7 +796,7 @@ extern void conn_set_class(t_connection * c, t_conn_class class)
 	    if (class==conn_class_bot) {
 		if ((delta = prefs_get_nullmsg())>0) {
 		    data.n = delta;
-		    if (timerlist_add_timer(c,time(NULL)+(time_t)delta,conn_send_nullmsg,data)<0)
+		    if (timerlist_add_timer(c,now+(time_t)delta,conn_send_nullmsg,data)<0)
 		    eventlog(eventlog_level_error,__FUNCTION__,"could not add timer");
 		}
 	    }
@@ -1406,7 +1407,6 @@ extern void conn_set_tzbias(t_connection * c, int tzbias)
 static void conn_set_account(t_connection * c, t_account * account)
 {
     t_connection * other;
-    unsigned int   now;
     char const *   tname;
     
     if (!c)
@@ -1419,7 +1419,6 @@ static void conn_set_account(t_connection * c, t_account * account)
         eventlog(eventlog_level_error,__FUNCTION__,"got NULL account");
         return;
     }
-    now = (unsigned int)time(NULL);
     
     if ((other = connlist_find_connection_by_accountname((tname = account_get_name(account)))))
     {
@@ -1437,7 +1436,7 @@ static void conn_set_account(t_connection * c, t_account * account)
 	    conn_add_flags(c,strtoul(flagstr,NULL,0));
     }
     
-    account_set_ll_time(c->protocol.account,now);
+    account_set_ll_time(c->protocol.account,(unsigned int)now);
     account_set_ll_owner(c->protocol.account,c->protocol.client.owner);
     account_set_ll_clienttag(c->protocol.account,c->protocol.client.clienttag);
     account_set_ll_ip(c->protocol.account,addr_num_to_ip_str(c->socket.tcp_addr));
@@ -2707,7 +2706,7 @@ extern int conn_set_idletime(t_connection * c)
         return -1;
     }
     
-    c->protocol.chat.last_message = time(NULL);
+    c->protocol.chat.last_message = now;
     return 0;
 }
 
@@ -2720,7 +2719,7 @@ extern unsigned int conn_get_idletime(t_connection const * c)
         return 0;
     }
     
-    return (unsigned int)difftime(time(NULL),c->protocol.chat.last_message);
+    return (unsigned int)difftime(now,c->protocol.chat.last_message);
 }
 
 
@@ -2982,7 +2981,6 @@ extern const char * conn_get_w3_playerinfo( t_connection * c )
 
 extern int conn_quota_exceeded(t_connection * con, char const * text)
 {
-    time_t    now;
     t_qline * qline;
     t_elem *  curr;
     
@@ -2995,8 +2993,6 @@ extern int conn_quota_exceeded(t_connection * con, char const * text)
 	message_send_text(con,message_type_error,con,"Your line length quota has been exceeded!");
 	return 1;
     }
-    
-    now = time(NULL);
     
     LIST_TRAVERSE(con->protocol.chat.quota.list,curr)
     {
@@ -3643,7 +3639,7 @@ extern int conn_increment_passfail_count (t_connection * c)
 	count = conn_get_passfail_count(c) + 1;
 	if (count == prefs_get_passfail_count())
 	{
-	    ipbanlist_add(NULL, addr_num_to_ip_str(conn_get_addr(c)), time(NULL)+(time_t)prefs_get_passfail_bantime());
+	    ipbanlist_add(NULL, addr_num_to_ip_str(conn_get_addr(c)), now+(time_t)prefs_get_passfail_bantime());
 	    eventlog(eventlog_level_info,__FUNCTION__,"[%d] failed password tries: %d (banned ip)",conn_get_socket(c), count);
 	    conn_set_state(c, conn_state_destroy);
 	    return -1;

@@ -2305,7 +2305,7 @@ static int _client_atinvitefriend(t_connection * c, t_packet const *const packet
 
 	bn_int_set(&rpacket->u.server_arrangedteam_invite_friend_ack.count, count);
 	bn_int_set(&rpacket->u.server_arrangedteam_invite_friend_ack.id, id);
-	bn_int_set(&rpacket->u.server_arrangedteam_invite_friend_ack.timestamp, time(NULL));
+	bn_int_set(&rpacket->u.server_arrangedteam_invite_friend_ack.timestamp, now);
 	bn_byte_set(&rpacket->u.server_arrangedteam_invite_friend_ack.teamsize, count_to_invite + 1);
 
 	/*
@@ -2457,7 +2457,7 @@ static int _client_motdw3(t_connection * c, t_packet const *const packet)
 
     //bn_int_set(&rpacket->u.server_motd_w3.ticks,get_ticks());
     bn_byte_set(&rpacket->u.server_motd_w3.msgtype, SERVER_MOTD_W3_MSGTYPE);
-    bn_int_set(&rpacket->u.server_motd_w3.curr_time, time(NULL));
+    bn_int_set(&rpacket->u.server_motd_w3.curr_time, now);
     bn_int_set(&rpacket->u.server_motd_w3.first_news_time, motdd.fnews);
     bn_int_set(&rpacket->u.server_motd_w3.timestamp, motdd.fnews + 1);
     bn_int_set(&rpacket->u.server_motd_w3.timestamp2, SERVER_MOTD_W3_WELCOME);

@@ -64,6 +64,7 @@
 #include "prefs.h"
 #include "common/list.h"
 #include "common/xalloc.h"
+#include "server.h"
 #include "ipban.h"
 #include "common/setup_after.h"
 
@@ -259,7 +260,6 @@ extern int ipbanlist_check(char const * ipaddr)
     char const *    ip3;
     char const *    ip4;
     int		    counter;
-    time_t	    now;
     
     if (!ipaddr)
     {
@@ -269,7 +269,6 @@ extern int ipbanlist_check(char const * ipaddr)
     
     whole = xstrdup(ipaddr);
 
-    time(&now);
     eventlog(eventlog_level_debug,__FUNCTION__,"lastcheck: %u, now: %u, now-lc: %u.",(unsigned)lastchecktime,(unsigned)now,(unsigned)(now-lastchecktime));
     
     if (now - lastchecktime >= (signed)prefs_get_ipban_check_int()) /* unsigned; no need to check prefs < 0 */
@@ -428,9 +427,7 @@ extern int ipbanlist_add(t_connection * c, char const * cp, time_t endtime)
     
     if (c)
     {
-	time_t		now;
 	
-	time(&now);
 	if (endtime == 0)
 	{
             sprintf(tstr,"%s banned permamently by %s.",cp,conn_get_username(c));
@@ -457,10 +454,8 @@ extern int ipbanlist_unload_expired(void)
 {
     t_elem *		curr;
     t_ipban_entry * 	entry;
-    time_t		now;
     char removed;
     
-    time(&now);
     removed = 0;
     LIST_TRAVERSE(ipbanlist_head,curr)
     {
@@ -491,7 +486,6 @@ extern time_t ipbanlist_str_to_time_t(t_connection * c, char const * timestr)
     char		minstr[MAX_TIME_STR];
     unsigned int	i;
     char		tstr[MAX_MESSAGE_LEN];
-    time_t		now;
     
     for (i=0; isdigit((int)timestr[i]) && i<sizeof(minstr)-1; i++)
 	minstr[i] = timestr[i];
@@ -520,7 +514,6 @@ extern time_t ipbanlist_str_to_time_t(t_connection * c, char const * timestr)
     	return 0;
     else
     {	
-	time(&now);
 	return now + bmin*60;
     }
 }
@@ -687,10 +680,8 @@ static int ipban_func_list(t_connection * c)
     char		tstr[MAX_MESSAGE_LEN];
     unsigned int	counter;
     char	 	timestr[50];
-    time_t		now;
     char *		ipstr;
     
-    time(&now);
     counter = 0;
     message_send_text(c,message_type_info,c,"Banned IPs:");
     LIST_TRAVERSE_CONST(ipbanlist_head,curr)

@@ -55,6 +55,7 @@
 #include "anongame_maplists.h"
 #include "handle_anongame.h"
 #include "tournament.h"
+#include "server.h"
 #include "clan.h"
 #include "common/setup_after.h"
 
@@ -720,7 +721,7 @@ static int _client_anongame_tournament(t_connection * c, t_packet const * const 
     t_account * account = conn_get_account(c);
     t_clienttag clienttag = conn_get_clienttag(c);
     
-    unsigned int now		= time(NULL);
+    unsigned int now		= now;
     unsigned int start_prelim	= tournament_get_start_preliminary();
     unsigned int end_signup	= tournament_get_end_signup();
     unsigned int end_prelim	= tournament_get_end_preliminary();

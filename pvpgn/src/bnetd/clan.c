@@ -79,6 +79,7 @@
 #include "channel.h"
 #include "anongame.h"
 #include "storage.h"
+#include "server.h"
 #include "compat/uint.h"
 #include "common/setup_after.h"
 
@@ -684,7 +685,7 @@ extern int clan_save(t_clan * clan)
 {
     if (clan->created <= 0)
     {
-	if (time(NULL) - clan->creation_time > 120)
+	if (now - clan->creation_time > 120)
 	{
 	    clanlist_remove_clan(clan);
 	    clan_destroy(clan);
@@ -971,7 +972,7 @@ extern char clanmember_get_status(t_clanmember * member)
 	return 0;
     }
 
-    if ((member->status == CLAN_NEW) && (time(NULL) - member->join_time > prefs_get_clan_newer_time() * 3600))
+    if ((member->status == CLAN_NEW) && (now - member->join_time > prefs_get_clan_newer_time() * 3600))
     {
 	member->status = CLAN_PEON;
 	member->clan->modified = 1;
@@ -1283,7 +1284,7 @@ extern t_clanmember *clan_add_member(t_clan * clan, t_account * memberacc, char 
     member = xmalloc(sizeof(t_clanmember));
     member->memberacc = memberacc;
     member->status = status;
-    member->join_time = time(0);
+    member->join_time = now;
     member->clan = clan;
 #ifdef WITH_SQL
     member->modified = 1;
@@ -1342,7 +1343,7 @@ extern t_clan *clan_create(t_account * chieftain_acc, int clantag, const char *c
     else
 	clan->clan_motd = xstrdup(motd);
 
-    clan->creation_time = time(0);
+    clan->creation_time = now;
     clan->clantag = clantag;
     clan->clanid = ++max_clanid;
     clan->created = 0;

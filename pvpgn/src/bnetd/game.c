@@ -78,6 +78,7 @@
 #include "watch.h"
 #include "game_conv.h"
 #include "game.h"
+#include "server.h"
 #include "compat/uint.h"
 #include "compat/rename.h"
 #include "common/setup_after.h"
@@ -407,9 +408,6 @@ extern char const * game_difficulty_get_str(t_game_difficulty difficulty)
 extern t_game * game_create(char const * name, char const * pass, char const * info, t_game_type type, int startver, t_clienttag clienttag, unsigned long gameversion)
 {
     t_game * game;
-    time_t now;
-
-    now = time(NULL);
     
     if (!name)
     {
@@ -670,7 +668,6 @@ static int game_report(t_game * game)
     char *          tempname;
     unsigned int    i;
     unsigned int    realcount;
-    time_t          now=time(NULL);
     t_ladder_info * ladder_info=NULL;
     int             discisloss;
     char            clienttag_str[5];
@@ -1390,7 +1387,7 @@ extern void game_set_status(t_game * game, t_game_status status)
 	}
 
     if (status==game_status_started && game->start_time==(time_t)0)
-	game->start_time = time(NULL);
+	game->start_time = now;
     game->status = status;
 }
 
@@ -1559,7 +1556,7 @@ extern int game_add_player(t_game * game, char const * pass, int startver, t_con
 		game->report_bodies[i] = NULL;
     
 		game->ref++;
-		game->lastaccess_time = time(NULL);
+		game->lastaccess_time = now;
 		break;
 	    }
 	}
@@ -1613,7 +1610,7 @@ extern int game_add_player(t_game * game, char const * pass, int startver, t_con
     
         game->count++;
         game->ref++;
-        game->lastaccess_time = time(NULL);
+        game->lastaccess_time = now;
     
     } // end of "if ((i == game->count) || (game->count == 0))"
 
@@ -1681,7 +1678,7 @@ extern int game_del_player(t_game * game, t_connection * c)
 	    }
 	    
 	    game->ref--;
-            game->lastaccess_time = time(NULL);
+            game->lastaccess_time = now;
 	    
 	    game_choose_host(game);
 	    
@@ -2152,9 +2149,7 @@ extern void gamelist_check_voidgame(void)
 { 
     t_elist *curr, *save;
     t_game *game;
-    time_t now;
 
-    time(&now);
     elist_for_each_safe(curr,&gamelist_head,save)
     { 
     	game = elist_entry(curr,t_game,glist_link);

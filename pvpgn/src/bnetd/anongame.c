@@ -63,6 +63,7 @@
 #include "tournament.h"
 #include "timer.h"
 #include "ladder.h"
+#include "server.h"
 #include "anongame_maplists.h"
 #include "anongame_gameresult.h"
 #include "common/trans.h"
@@ -407,7 +408,7 @@ static int _handle_anongame_search(t_connection * c, t_packet const *packet)
 	}
     }
 
-    conn_set_anongame_search_starttime(c, time(NULL));
+    conn_set_anongame_search_starttime(c, now);
 
     switch (option) {
 	case CLIENT_FINDANONGAME_AT_INVITER_SEARCH:
@@ -1778,7 +1779,7 @@ extern int handle_w3route_packet(t_connection * c, t_packet const *const packet)
 			    ac = conn_get_routeconn(anongame_get_player(a, i));
 			    if (ac) {
 				/* 300 seconds or 5 minute timer */
-				timerlist_add_timer(ac, time(NULL) + (time_t) 300, conn_shutdown, data);
+				timerlist_add_timer(ac, now + (time_t) 300, conn_shutdown, data);
 				eventlog(eventlog_level_trace, __FUNCTION__, "[%d] started timer to close w3route", conn_get_socket(ac));
 			    }
 			}
