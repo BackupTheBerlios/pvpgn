@@ -64,8 +64,8 @@ typedef struct
 
 extern int watchlist_create(void);
 extern int watchlist_destroy(void);
-extern int watchlist_add_events(t_connection * owner, t_account * who, char const * clienttag, t_watch_event events);
-extern int watchlist_del_events(t_connection * owner, t_account * who, char const * clienttag, t_watch_event events);
+extern int watchlist_add_events(t_connection * owner, t_account * who, t_clienttag clienttag, t_watch_event events);
+extern int watchlist_del_events(t_connection * owner, t_account * who, t_clienttag clienttag, t_watch_event events);
 extern int watchlist_del_all_events(t_connection * owner);
 extern int watchlist_del_by_account(t_account * account);
 extern int watchlist_notify_event(t_account * who, char const * gamename, t_clienttag clienttag, t_watch_event event);

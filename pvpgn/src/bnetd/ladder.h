@@ -24,11 +24,12 @@
 #ifdef JUST_NEED_TYPES
 # include "account.h"
 # include "ladder_binary.h"
+# include "common/tag.h"
 #else
 # define JUST_NEED_TYPES
-
 # include "account.h"
 # include "ladder_binary.h"
+# include "common/tag.h"
 # undef JUST_NEED_TYPES
 #endif
 
@@ -84,7 +85,7 @@ typedef struct ladder_internal
     t_ladder_internal *last;
     int dirty;                        // 0==no changes, 1==something changed
     t_binary_ladder_types type;
-	char const * clienttag;
+    t_clienttag clienttag;
     t_ladder_id  ladder_id;
  }
 #endif
@@ -115,15 +116,16 @@ typedef struct
 #include "game.h"
 #include "ladder_calc.h"
 #include "ladder_binary.h"
+#include "common/tag.h"
 #undef JUST_NEED_TYPES
 
-extern int ladder_init_account(t_account * account, char const * clienttag, t_ladder_id id);
-extern int ladder_check_map(char const * mapname, t_game_maptype maptype, char const * clienttag);
+extern int ladder_init_account(t_account * account, t_clienttag clienttag, t_ladder_id id);
+extern int ladder_check_map(char const * mapname, t_game_maptype maptype, t_clienttag clienttag);
 
-extern t_account * ladder_get_account_by_rank(unsigned int rank, t_ladder_sort lsort, t_ladder_time ltime, char const * clienttag, t_ladder_id id);
-extern unsigned int ladder_get_rank_by_account(t_account * account, t_ladder_sort lsort, t_ladder_time ltime, char const * clienttag, t_ladder_id id);
+extern t_account * ladder_get_account_by_rank(unsigned int rank, t_ladder_sort lsort, t_ladder_time ltime, t_clienttag clienttag, t_ladder_id id);
+extern unsigned int ladder_get_rank_by_account(t_account * account, t_ladder_sort lsort, t_ladder_time ltime, t_clienttag clienttag, t_ladder_id id);
 
-extern int ladder_update(char const * clienttag, t_ladder_id id, unsigned int count, t_account * * players, t_game_result * results, t_ladder_info * info, t_ladder_option opns);
+extern int ladder_update(t_clienttag clienttag, t_ladder_id id, unsigned int count, t_account * * players, t_game_result * results, t_ladder_info * info, t_ladder_option opns);
 
 extern int ladderlist_make_all_active(void);
 
@@ -136,7 +138,7 @@ extern int ladder_war3_get_min_xp(unsigned int level);
 extern int war3_get_maxleveldiff(void);
 
 
- extern int war3_ladder_add(t_ladder *ladder, int uid, int xp, int level, t_account *account, unsigned int teamcount,char const * clienttag);
+ extern int war3_ladder_add(t_ladder *ladder, int uid, int xp, int level, t_account *account, unsigned int teamcount,t_clienttag clienttag);
  // this function adds a user to the ladder and keeps the ladder sorted
  // returns 0 if everything is fine and -1 when error occured
 
@@ -145,7 +147,7 @@ extern int war3_get_maxleveldiff(void);
  // returns 0 if everything is fine
  // if user is not yet in ladder, he gets added automatically
 
- extern int ladder_get_rank(t_ladder *ladder, int uid, unsigned int teamcount, char const * clienttag);
+ extern int ladder_get_rank(t_ladder *ladder, int uid, unsigned int teamcount, t_clienttag clienttag);
  // this function returns the rank of a user with a given uid
  // returns 0 if no such user is found
  
@@ -168,20 +170,20 @@ extern int war3_get_maxleveldiff(void);
  extern void ladder_reload_conf(void);
  // reloads relevant parameters from bnetd.conf (xml/std mode for ladder)
  
- extern t_account * ladder_get_account(t_ladder *ladder,int rank, unsigned int * teamcount, char const * clienttag);
+ extern t_account * ladder_get_account(t_ladder *ladder,int rank, unsigned int * teamcount, t_clienttag clienttag);
  // returns the account that is on specified rank in specified ladder. also return teamcount for AT ladder
  // returns NULL if this rank is still vacant
  
- extern t_ladder * solo_ladder(char const * clienttag);
- extern t_ladder * team_ladder(char const * clienttag);
- extern t_ladder * ffa_ladder(char const * clienttag);
- extern t_ladder * at_ladder(char const * clienttag);
- extern t_ladder * ladder_ar(char const * clienttag, t_ladder_id ladder_id);
- extern t_ladder * ladder_aw(char const * clienttag, t_ladder_id ladder_id);
- extern t_ladder * ladder_ag(char const * clienttag, t_ladder_id ladder_id);
- extern t_ladder * ladder_cr(char const * clienttag, t_ladder_id ladder_id);
- extern t_ladder * ladder_cw(char const * clienttag, t_ladder_id ladder_id);
- extern t_ladder * ladder_cg(char const * clienttag, t_ladder_id ladder_id);
+ extern t_ladder * solo_ladder(t_clienttag clienttag);
+ extern t_ladder * team_ladder(t_clienttag clienttag);
+ extern t_ladder * ffa_ladder(t_clienttag clienttag);
+ extern t_ladder * at_ladder(t_clienttag clienttag);
+ extern t_ladder * ladder_ar(t_clienttag clienttag, t_ladder_id ladder_id);
+ extern t_ladder * ladder_aw(t_clienttag clienttag, t_ladder_id ladder_id);
+ extern t_ladder * ladder_ag(t_clienttag clienttag, t_ladder_id ladder_id);
+ extern t_ladder * ladder_cr(t_clienttag clienttag, t_ladder_id ladder_id);
+ extern t_ladder * ladder_cw(t_clienttag clienttag, t_ladder_id ladder_id);
+ extern t_ladder * ladder_cg(t_clienttag clienttag, t_ladder_id ladder_id);
 
  // for external clienttag specific reference of the ladders
 

@@ -34,6 +34,7 @@
 # endif
 # include "account.h"
 # include "connection.h"
+# include "common/tag.h"
 #else
 # define JUST_NEED_TYPES
 # ifdef TIME_WITH_SYS_TIME
@@ -48,6 +49,7 @@
 # endif
 # include "account.h"
 # include "connection.h"
+# include "common/tag.h"
 # undef JUST_NEED_TYPES
 #endif
 
@@ -124,9 +126,6 @@ typedef enum
     game_option_teamffa_2,
     game_option_teamctf_4,
     game_option_teamctf_3,
-
-    /* EDITED BY CREEPLORD - ADDED TOP VS. BOTTOM SUPPORT */
-
     game_option_teamctf_2, 
     game_option_topvbot_7, 
     game_option_topvbot_6, 
@@ -135,9 +134,6 @@ typedef enum
     game_option_topvbot_3, 
     game_option_topvbot_2, 
     game_option_topvbot_1 
-
-    /* END OF EDIT */
-
 } t_game_option;
 
 typedef enum
@@ -199,7 +195,7 @@ typedef struct game
     t_game_type       type;
     unsigned int      realm;
     char const *      realmname;
-    char const *      clienttag; /* type of client (STAR, SEXP, etc) */
+    t_clienttag       clienttag; /* type of client (STAR, SEXP, etc) */
     unsigned int      addr; /* host IP */
     unsigned short    port; /* host port */
     int               startver;
@@ -264,6 +260,7 @@ t_game;
 #include "account.h"
 #include "connection.h"
 #include "common/list.h"
+#include "common/tag.h"
 #undef JUST_NEED_TYPES
 
 extern char const * game_type_get_str(t_game_type type) ;
@@ -275,7 +272,7 @@ extern char const * game_tileset_get_str(t_game_tileset tileset) ;
 extern char const * game_speed_get_str(t_game_speed speed) ;
 extern char const * game_difficulty_get_str(t_game_difficulty difficulty) ;
 
-extern t_game * game_create(char const * name, char const * pass, char const * info, t_game_type type, int startver, char const * clienttag,unsigned long gameversion) ;
+extern t_game * game_create(char const * name, char const * pass, char const * info, t_game_type type, int startver, t_clienttag clienttag,unsigned long gameversion) ;
 extern unsigned int game_get_id(t_game const * game);
 extern char const * game_get_name(t_game const * game);
 extern t_game_type game_get_type(t_game const * game);
@@ -307,7 +304,7 @@ extern unsigned int game_get_addr(t_game const * game);
 extern unsigned short game_get_port(t_game const * game);
 extern unsigned int game_get_latency(t_game const * game);
 extern t_connection * game_get_player_conn(t_game const * game, unsigned int i);
-extern char const * game_get_clienttag(t_game const * game);
+extern t_clienttag game_get_clienttag(t_game const * game);
 extern int game_add_player(t_game * game, char const * pass, int startver, t_connection * c);
 extern int game_del_player(t_game * game, t_connection * c);
 extern int game_set_report(t_game * game, t_account * account, char const * head, char const * body);
@@ -339,7 +336,7 @@ extern void gamelist_check_voidgame(void);
 extern void game_set_flag(t_game * game, t_game_flag flag);
 extern t_game_flag game_get_flag(t_game const * game);
 
-extern int game_get_count_by_clienttag(char const * ct);
+extern int game_get_count_by_clienttag(t_clienttag ct);
 
 #endif
 #endif

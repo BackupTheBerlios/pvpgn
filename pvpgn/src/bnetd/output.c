@@ -76,14 +76,15 @@ extern void output_init(void)
 
 int output_standard_writer(FILE * fp)
 {
-    t_elem const	*		curr;
-    t_connection	*		conn;
-    t_channel const *		channel;
-    t_game const	*		game;
-    char const		*		channel_name;
-    char const		*		game_name;
-    char const		*		tname;
-	int						number;
+    t_elem const	*curr;
+    t_connection	*conn;
+    t_channel const	*channel;
+    t_game const	*game;
+    char const		*channel_name;
+    char const		*game_name;
+    char const		*tname;
+    int			number;
+    char		clienttag_str[5];
     
     if (prefs_get_XML_status_output())
     {
@@ -99,7 +100,7 @@ int output_standard_writer(FILE * fp)
 	    if (conn_get_account(conn))
 	    {
 		tname = conn_get_username(conn);
-		fprintf(fp,"\t\t<user><name>%s</name><clienttag>%s</clienttag><version>%s</version></user>\n",tname,clienttag_uint_to_str(conn_get_clienttag(conn)),conn_get_clientver(conn));
+		fprintf(fp,"\t\t<user><name>%s</name><clienttag>%s</clienttag><version>%s</version></user>\n",tname,tag_uint_to_str(clienttag_str,conn_get_clienttag(conn)),conn_get_clientver(conn));
 		conn_unget_username(conn,tname);
 	    }
         }
@@ -114,7 +115,7 @@ int output_standard_writer(FILE * fp)
 	    if (game_get_name(game)!=NULL)
 	    {
 		game_name = game_get_name(game);
-		fprintf(fp,"\t\t<game><name>%s</name><clienttag>%s</clienttag></game>\n",game_name,game_get_clienttag(game));
+		fprintf(fp,"\t\t<game><name>%s</name><clienttag>%s</clienttag></game>\n",game_name,tag_uint_to_str(clienttag_str,game_get_clienttag(game)));
 	    }
 	}
 
@@ -160,7 +161,7 @@ int output_standard_writer(FILE * fp)
 	    if (game_get_name(game)!=NULL)
 	    {
 		game_name = game_get_name(game);
-		fprintf(fp,"game%d=%s,%s\n",number,game_get_clienttag(game),game_name);
+		fprintf(fp,"game%d=%s,%s\n",number,tag_uint_to_str(clienttag_str,game_get_clienttag(game)),game_name);
 		number++;
 	    }
 	}
@@ -173,7 +174,7 @@ int output_standard_writer(FILE * fp)
     	    if (conn_get_account(conn))
 	    {
 		tname = conn_get_username(conn);
-		fprintf(fp,"user%d=%s,%s\n",number,clienttag_uint_to_str(conn_get_clienttag(conn)),tname);
+		fprintf(fp,"user%d=%s,%s\n",number,tag_uint_to_str(clienttag_str,conn_get_clienttag(conn)),tname);
 		conn_unget_username(conn,tname);
 		number++;
 	    }

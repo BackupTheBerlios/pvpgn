@@ -36,28 +36,28 @@
 
 
 static double probability(unsigned int a, unsigned int b) ;
-static int coefficient(t_account * account, char const * clienttag, t_ladder_id id);
+static int coefficient(t_account * account, t_clienttag clienttag, t_ladder_id id);
 
-static double two_player(t_account * * players, char const * clienttag, t_ladder_id id);
+static double two_player(t_account * * players, t_clienttag clienttag, t_ladder_id id);
 
-static double three_player(t_account * * players, char const * clienttag, t_ladder_id id);
+static double three_player(t_account * * players, t_clienttag clienttag, t_ladder_id id);
 
-static double four_player(t_account * * players, char const * clienttag, t_ladder_id id);
+static double four_player(t_account * * players, t_clienttag clienttag, t_ladder_id id);
 
-static double five_player(t_account * * players, char const * clienttag, t_ladder_id id);
+static double five_player(t_account * * players, t_clienttag clienttag, t_ladder_id id);
 static double five_f1(int a, int b, int c, int d, int e) ;
 static double five_f2(int a, int b, int c) ;
 
-static double six_player(t_account * * players, char const * clienttag, t_ladder_id id);
+static double six_player(t_account * * players, t_clienttag clienttag, t_ladder_id id);
 static double six_f1(int a, int b, int c, int d, int e, int f) ;
 static double six_f2(int a, int b, int c, int d, int e, int f) ;
 static double six_f3(int a, int b, int c, int d) ;
 
-static double seven_player(t_account * * players, char const * clienttag, t_ladder_id id);
+static double seven_player(t_account * * players, t_clienttag clienttag, t_ladder_id id);
 static double seven_f1(int a, int b, int c, int d, int e, int f, int g) ;
 static double seven_f2(int a, int b, int c, int d, int e, int f, int g) ;
 
-static double eight_player(t_account * * players, char const * clienttag, t_ladder_id id);
+static double eight_player(t_account * * players, t_clienttag clienttag, t_ladder_id id);
 static double eight_f1(int a, int b, int c, int d, int e, int f, int g) ;
 static double eight_f2(int a, int b, int c, int d, int e, int f, int g) ;
 static double eight_f3(int a, int b, int c, int d, int e) ;
@@ -98,7 +98,7 @@ static double probability(unsigned int a, unsigned int b)
  *  K=30 for players who have played 30 or more ladder games
  *  K=20 for players who have attained a rating of 2400 or higher
  */
-static int coefficient(t_account * account, char const * clienttag, t_ladder_id id)
+static int coefficient(t_account * account, t_clienttag clienttag, t_ladder_id id)
 {
     int const total_ladder_games=account_get_ladder_wins(account,clienttag,id) +
 				 account_get_ladder_losses(account,clienttag,id) +
@@ -120,7 +120,7 @@ static int coefficient(t_account * account, char const * clienttag, t_ladder_id 
  * in a tournament. It turns out the math for this is really ugly,
  * so we have hardcoded the equations for every number of players.
  */
-static double two_player(t_account * * players, char const * clienttag, t_ladder_id id)
+static double two_player(t_account * * players, t_clienttag clienttag, t_ladder_id id)
 {
     unsigned int a,b;
     double       ab;
@@ -133,7 +133,7 @@ static double two_player(t_account * * players, char const * clienttag, t_ladder
     return ab;
 }
 
-static double three_player(t_account * * players, char const * clienttag, t_ladder_id id)
+static double three_player(t_account * * players, t_clienttag clienttag, t_ladder_id id)
 {
     unsigned int a,b,c;
     double       ab,ac,bc,cb;
@@ -150,7 +150,7 @@ static double three_player(t_account * * players, char const * clienttag, t_ladd
     return (2*(ab*ac)+(bc*ab)+(cb*ac))/3;
 }
 
-static double four_player(t_account * * players, char const * clienttag, t_ladder_id id)
+static double four_player(t_account * * players, t_clienttag clienttag, t_ladder_id id)
 {
     unsigned int a,b,c,d;
     double       ab,ac,ad,bc,bd,cb,cd,db,dc;
@@ -185,7 +185,7 @@ static double four_player(t_account * * players, char const * clienttag, t_ladde
  * of the 2-player subtree if A is in the 3-players subtree.
  */
 
-static double five_player(t_account * * players, char const * clienttag, t_ladder_id id)
+static double five_player(t_account * * players, t_clienttag clienttag, t_ladder_id id)
 {
     unsigned int a,b,c,d,e;
     
@@ -238,7 +238,7 @@ static double five_f2(int a, int b, int c)
 }
 
 
-static double six_player(t_account * * players, char const * clienttag, t_ladder_id id)
+static double six_player(t_account * * players, t_clienttag clienttag, t_ladder_id id)
 {
     unsigned int a,b,c,d,e,f;
     
@@ -336,7 +336,7 @@ static double six_f3(int a, int b, int c, int d)
 }
 
 
-static double seven_player(t_account * * players, char const * clienttag, t_ladder_id id)
+static double seven_player(t_account * * players, t_clienttag clienttag, t_ladder_id id)
 {
     unsigned int a,b,c,d,e,f,g;
     
@@ -408,7 +408,7 @@ return
      
 }
 
-static double eight_player(t_account * * players, char const * clienttag, t_ladder_id id)
+static double eight_player(t_account * * players, t_clienttag clienttag, t_ladder_id id)
 {
     unsigned int a,b,c,d,e,f,g,h;
     double       ab,ac,ad,ae,af,ag,ah;
@@ -515,7 +515,7 @@ static double eight_f3(int a, int b, int c, int d, int e)
 }
 
 /* Determine changes in ratings due to game results. */
-extern int ladder_calc_info(char const * clienttag, t_ladder_id id, unsigned int count, t_account * * players, t_account * * sorted, t_game_result * results, t_ladder_info * info)
+extern int ladder_calc_info(t_clienttag clienttag, t_ladder_id id, unsigned int count, t_account * * players, t_account * * sorted, t_game_result * results, t_ladder_info * info)
 {
     unsigned int curr;
     
@@ -534,7 +534,7 @@ extern int ladder_calc_info(char const * clienttag, t_ladder_id id, unsigned int
 	eventlog(eventlog_level_error,"ladder_calc_info","got NULL results");
 	return -1;
     }
-    if (!clienttag || strlen(clienttag)!=4)
+    if (!clienttag)
     {
 	eventlog(eventlog_level_error,"ladder_calc_info","got bad clienttag");
 	return -1;

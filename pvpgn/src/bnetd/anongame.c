@@ -87,7 +87,7 @@ static char const *	_conn_get_versiontag(t_connection * c);
 
 static int		_anongame_gametype_to_queue(int type, int gametype);
 static int		_anongame_level_by_queue(t_connection *c, int queue);
-static char *		_get_map_from_prefs(int queue, t_uint32 cur_prefs, const char * clienttag);
+static char *		_get_map_from_prefs(int queue, t_uint32 cur_prefs, t_clienttag clienttag);
 static unsigned int	_anongame_get_gametype_tab(int queue);
 
 static int		_anongame_totalplayers(int queue);
@@ -216,7 +216,7 @@ static int _anongame_gametype_to_queue(int type, int gametype)
 
 static int _anongame_level_by_queue(t_connection * c, int queue) 
 {
-    char const * ct = clienttag_uint_to_str(conn_get_clienttag(c));
+    t_clienttag ct = conn_get_clienttag(c);
     
     switch(queue) {
 	case ANONGAME_TYPE_1V1:
@@ -248,15 +248,15 @@ static int _anongame_level_by_queue(t_connection * c, int queue)
     }
 }
 
-static char * _get_map_from_prefs(int queue, t_uint32 cur_prefs, const char * clienttag)
+static char * _get_map_from_prefs(int queue, t_uint32 cur_prefs, t_clienttag clienttag)
 {
     int i, j = 0;
     char * default_map, * selected;
     char * res_maps[32];
     
-    if (strcmp(clienttag, CLIENTTAG_WARCRAFT3) == 0)
+    if (clienttag==CLIENTTAG_WARCRAFT3_UINT)
 	default_map = "Maps\\(8)PlainsOfSnow.w3m";
-    else if (strcmp(clienttag, CLIENTTAG_WAR3XP) == 0)
+    else if (clienttag==CLIENTTAG_WAR3XP_UINT)
 	default_map = "Maps\\(8)PlainsOfSnow.w3m";
     else {
 	eventlog(eventlog_level_error,__FUNCTION__, "invalid clienttag : %s", clienttag);
@@ -444,7 +444,7 @@ static int _handle_anongame_search(t_connection * c, t_packet const * packet)
 	    return -1;
 	}
     
-    account_set_w3pgrace(conn_get_account(c), clienttag_uint_to_str(conn_get_clienttag(c)), a->race);
+    account_set_w3pgrace(conn_get_account(c), conn_get_clienttag(c), a->race);
 
     /* send search reply to client */
     if (!(rpacket = packet_create(packet_class_bnet)))
@@ -871,7 +871,7 @@ static int _anongame_match(t_connection * c, int queue)
 			    for (i = 0; i < teams; i++)
 				anongame_unqueue(inv_c[i], queue);
 			    
-			    mapname = _get_map_from_prefs(queue, cur_prefs, clienttag_uint_to_str(conn_get_clienttag(c)));
+			    mapname = _get_map_from_prefs(queue, cur_prefs, conn_get_clienttag(c));
 			    return 0;
 			}
 		    
@@ -888,7 +888,7 @@ static int _anongame_match(t_connection * c, int queue)
 			    for (i = 0; i < players[queue]; i++)
 				anongame_unqueue(player[queue][i], queue);
 			    
-			    mapname = _get_map_from_prefs(queue, cur_prefs, clienttag_uint_to_str(conn_get_clienttag(c)));
+			    mapname = _get_map_from_prefs(queue, cur_prefs, conn_get_clienttag(c));
 			    return 0;
 			}
 		    }
@@ -1128,7 +1128,7 @@ extern int anongame_stats(t_connection * c)
     int                 oppon_level[ANONGAME_MAX_GAMECOUNT];
     t_uint8		gametype = a->queue;
     t_uint8		plnum = a->playernum;
-    char const *        ct = clienttag_uint_to_str(conn_get_clienttag(c));
+    t_clienttag		ct = conn_get_clienttag(c);
     int			tt = _anongame_totalteams(gametype);
     
     /* do nothing till all other players have w3route conn closed */
@@ -1810,7 +1810,7 @@ extern int handle_anongame_join(t_connection * c)
 	int tp, level;
 	char gametype;
 	t_account *acct;
-	char const * ct = clienttag_uint_to_str(conn_get_clienttag(c));
+	t_clienttag ct = conn_get_clienttag(c);
 
 	static t_server_w3route_playerinfo2 pl2;
 	static t_server_w3route_levelinfo2 li2;

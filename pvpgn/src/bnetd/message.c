@@ -134,6 +134,7 @@ extern char * message_format_line(t_connection const * c, char const * in)
     unsigned int outpos;
     unsigned int outlen=MAX_INC;
     unsigned int inlen;
+    char         clienttag_str[5];
     
     if (!(out = malloc(outlen+1)))
 	return NULL;
@@ -206,7 +207,7 @@ extern char * message_format_line(t_connection const * c, char const * in)
 		break;
 		
 	    case 't':
-		sprintf(&out[outpos],"%s",clienttag_uint_to_str(conn_get_clienttag(c)));
+		sprintf(&out[outpos],"%s",tag_uint_to_str(clienttag_str,conn_get_clienttag(c)));
 		outpos += strlen(&out[outpos]);
 		break;
 		
@@ -233,7 +234,7 @@ extern char * message_format_line(t_connection const * c, char const * in)
 		break;
 
 	    case 'G':
-	    	sprintf(&out[outpos],"%d",game_get_count_by_clienttag(clienttag_uint_to_str(conn_get_clienttag(c))));
+	    	sprintf(&out[outpos],"%d",game_get_count_by_clienttag(conn_get_clienttag(c)));
 		outpos += strlen(&out[outpos]);
 		break;
 		
@@ -746,6 +747,7 @@ static int message_telnet_format(t_packet * packet, t_message_type type, t_conne
 static int message_bot_format(t_packet * packet, t_message_type type, t_connection * me, t_connection * dst, char const * text, unsigned int dstflags)
 {
     char * msgtemp;
+    char clienttag_str[5];
     
     if (!packet)
     {
@@ -817,7 +819,7 @@ static int message_bot_format(t_packet * packet, t_message_type type, t_connecti
 		    eventlog(eventlog_level_error,"message_bot_format","could not allocate memory for msgtemp");
 		    return -1;
 		}
-		sprintf(msgtemp,"%u %s %s %04x [%s]\r\n",EID_SHOWUSER,"USER",tname,conn_get_flags(me)|dstflags,conn_get_fake_clienttag(me));
+		sprintf(msgtemp,"%u %s %s %04x [%s]\r\n",EID_SHOWUSER,"USER",tname,conn_get_flags(me)|dstflags,tag_uint_to_str(clienttag_str,conn_get_fake_clienttag(me)));
 		conn_unget_chatcharname(me,tname);
 	    }
 	    break;
@@ -836,7 +838,7 @@ static int message_bot_format(t_packet * packet, t_message_type type, t_connecti
 		    eventlog(eventlog_level_error,"message_bot_format","could not allocate memory for msgtemp");
 		    return -1;
 		}
-		sprintf(msgtemp,"%u %s %s %04x [%s]\r\n",EID_JOIN,"JOIN",tname,conn_get_flags(me)|dstflags,conn_get_fake_clienttag(me));
+		sprintf(msgtemp,"%u %s %s %04x [%s]\r\n",EID_JOIN,"JOIN",tname,conn_get_flags(me)|dstflags,tag_uint_to_str(clienttag_str,conn_get_fake_clienttag(me)));
 		conn_unget_chatcharname(me,tname);
 	    }
 	    break;

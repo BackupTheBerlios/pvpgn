@@ -67,7 +67,7 @@ extern int tournament_get_player_score(t_account * account);
 extern int tournament_set_in_game_status(t_account * account, int status);
 extern int tournament_get_in_finals_status(t_account * account);
 extern int tournament_get_game_in_progress(void);
-extern int tournament_check_client(char const * clienttag);
+extern int tournament_check_client(t_clienttag clienttag);
 
 extern int tournament_get_totalplayers(void);
 extern int tournament_is_arranged(void);

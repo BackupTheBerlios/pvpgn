@@ -26,10 +26,10 @@
 #include "game.h"
 #undef JUST_NEED_TYPES
 
-extern t_game_type bngreqtype_to_gtype(char const * clienttag, unsigned short bngtype) ;
-extern t_game_type bngtype_to_gtype(char const * clienttag, unsigned short bngtype) ;
+extern t_game_type bngreqtype_to_gtype(t_clienttag clienttag, unsigned short bngtype) ;
+extern t_game_type bngtype_to_gtype(t_clienttag clienttag, unsigned short bngtype) ;
 extern unsigned short gtype_to_bngtype(t_game_type gtype) ;
-extern t_game_option bngoption_to_goption(char const * clienttag, t_game_type gtype, unsigned short bngoption) ;
+extern t_game_option bngoption_to_goption(t_clienttag clienttag, t_game_type gtype, unsigned short bngoption) ;
 extern t_game_result bngresult_to_gresult(unsigned int bngresult) ;
 extern t_game_maptype bngmaptype_to_gmaptype(unsigned int bngmaptype) ;
 extern t_game_tileset bngtileset_to_gtileset(unsigned int bngtileset) ;

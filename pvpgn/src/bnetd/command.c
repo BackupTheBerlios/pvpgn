@@ -1697,6 +1697,7 @@ static int _handle_status_command(t_connection * c, char const *text)
 {
     char ctag[5];
     unsigned int i,j;
+    t_clienttag clienttag;
     
     for (i=0; text[i]!=' ' && text[i]!='\0'; i++); /* skip command */
     for (; text[i]==' '; i++);
@@ -1710,67 +1711,83 @@ static int _handle_status_command(t_connection * c, char const *text)
 	    gamelist_get_length(),
 	    channellist_get_length());
 	message_send_text(c,message_type_info,c,msgtemp);
+	tag_uint_to_str(ctag,conn_get_clienttag(c));
     }
     
     for (i=0; i<strlen(ctag); i++)
 	if (isascii((int)ctag[i]) && islower((int)ctag[i]))
 	    ctag[i] = toupper((int)ctag[i]);
     
-    if ((strcmp(ctag,"ALL") == 0) || (strcmp(ctag,CLIENTTAG_WAR3XP) == 0)) {
-	sprintf(msgtemp,"There are currently %u user(s) in %u games of %s",
-	    conn_get_user_count_by_clienttag(CLIENTTAG_WAR3XP_UINT),
-	    game_get_count_by_clienttag(CLIENTTAG_WAR3XP),
-	    conn_get_user_game_title(CLIENTTAG_WAR3XP_UINT));
-	message_send_text(c,message_type_info,c,msgtemp);
-    }
-    if ((strcmp(ctag,"ALL") == 0) || (strcmp(ctag,CLIENTTAG_WARCRAFT3) == 0)) {
-	sprintf(msgtemp,"There are currently %u user(s) in %u games of %s",
-	    conn_get_user_count_by_clienttag(CLIENTTAG_WARCRAFT3_UINT),
-	    game_get_count_by_clienttag(CLIENTTAG_WARCRAFT3),
-	    conn_get_user_game_title(CLIENTTAG_WARCRAFT3_UINT));
-	message_send_text(c,message_type_info,c,msgtemp);
-    }
-    if ((strcmp(ctag,"ALL") == 0) || (strcmp(ctag,CLIENTTAG_DIABLO2XP) == 0)) {
-	sprintf(msgtemp,"There are currently %u user(s) in %u games of %s",
-	    conn_get_user_count_by_clienttag(CLIENTTAG_DIABLO2XP_UINT),
-	    game_get_count_by_clienttag(CLIENTTAG_DIABLO2XP),
-	    conn_get_user_game_title(CLIENTTAG_DIABLO2XP_UINT));
-	message_send_text(c,message_type_info,c,msgtemp);
-    }
-    if ((strcmp(ctag,"ALL") == 0) || (strcmp(ctag,CLIENTTAG_DIABLO2DV) == 0)) {
-	sprintf(msgtemp,"There are currently %u user(s) in %u games of %s",
-	    conn_get_user_count_by_clienttag(CLIENTTAG_DIABLO2DV_UINT),
-	    game_get_count_by_clienttag(CLIENTTAG_DIABLO2DV),
-	    conn_get_user_game_title(CLIENTTAG_DIABLO2DV_UINT));
-	message_send_text(c,message_type_info,c,msgtemp);
-    }
-    if ((strcmp(ctag,"ALL") == 0) || (strcmp(ctag,CLIENTTAG_BROODWARS) == 0)) {
-	sprintf(msgtemp,"There are currently %u user(s) in %u games of %s",
-	    conn_get_user_count_by_clienttag(CLIENTTAG_BROODWARS_UINT),
-	    game_get_count_by_clienttag(CLIENTTAG_BROODWARS),
-	    conn_get_user_game_title(CLIENTTAG_BROODWARS_UINT));
-	message_send_text(c,message_type_info,c,msgtemp);
-    }
-    if ((strcmp(ctag,"ALL") == 0) || (strcmp(ctag,CLIENTTAG_STARCRAFT) == 0)) {
-	sprintf(msgtemp,"There are currently %u user(s) in %u games of %s",
-	    conn_get_user_count_by_clienttag(CLIENTTAG_STARCRAFT_UINT),
-	    game_get_count_by_clienttag(CLIENTTAG_STARCRAFT),
-	    conn_get_user_game_title(CLIENTTAG_STARCRAFT_UINT));
-	message_send_text(c,message_type_info,c,msgtemp);
-    }
-    if ((strcmp(ctag,"ALL") == 0) || (strcmp(ctag,CLIENTTAG_WARCIIBNE) == 0)) {
-	sprintf(msgtemp,"There are currently %u user(s) in %u games of %s",
-	    conn_get_user_count_by_clienttag(CLIENTTAG_WARCIIBNE_UINT),
-	    game_get_count_by_clienttag(CLIENTTAG_WARCIIBNE),
-	    conn_get_user_game_title(CLIENTTAG_WARCIIBNE_UINT));
-	message_send_text(c,message_type_info,c,msgtemp);
-    }
-    if ((strcmp(ctag,"ALL") == 0) || (strcmp(ctag,CLIENTTAG_DIABLORTL) == 0)) {
-	sprintf(msgtemp,"There are currently %u user(s) in %u games of %s",
-	    conn_get_user_count_by_clienttag(CLIENTTAG_DIABLORTL_UINT),
-	    game_get_count_by_clienttag(CLIENTTAG_DIABLORTL),
-	    conn_get_user_game_title(CLIENTTAG_DIABLORTL_UINT));
-	message_send_text(c,message_type_info,c,msgtemp);
+    if (strcmp(ctag,"ALL") == 0)
+	clienttag = 0;
+    else
+	clienttag = tag_case_str_to_uint(ctag);
+    
+    switch (clienttag)
+    {
+	case 0:
+	case CLIENTTAG_WAR3XP_UINT:
+	    sprintf(msgtemp,"There are currently %u user(s) in %u games of %s",
+		conn_get_user_count_by_clienttag(CLIENTTAG_WAR3XP_UINT),
+		game_get_count_by_clienttag(CLIENTTAG_WAR3XP_UINT),
+		conn_get_user_game_title(CLIENTTAG_WAR3XP_UINT));
+	    message_send_text(c,message_type_info,c,msgtemp);
+	    if (clienttag) break;
+	case CLIENTTAG_WARCRAFT3_UINT:
+	    sprintf(msgtemp,"There are currently %u user(s) in %u games of %s",
+		conn_get_user_count_by_clienttag(CLIENTTAG_WARCRAFT3_UINT),
+		game_get_count_by_clienttag(CLIENTTAG_WARCRAFT3_UINT),
+		conn_get_user_game_title(CLIENTTAG_WARCRAFT3_UINT));
+	    message_send_text(c,message_type_info,c,msgtemp);
+	    if (clienttag) break;
+	case CLIENTTAG_DIABLO2XP_UINT:
+	    sprintf(msgtemp,"There are currently %u user(s) in %u games of %s",
+		conn_get_user_count_by_clienttag(CLIENTTAG_DIABLO2XP_UINT),
+		game_get_count_by_clienttag(CLIENTTAG_DIABLO2XP_UINT),
+		conn_get_user_game_title(CLIENTTAG_DIABLO2XP_UINT));
+	    message_send_text(c,message_type_info,c,msgtemp);
+	    if (clienttag) break;
+	case CLIENTTAG_DIABLO2DV_UINT:
+	    sprintf(msgtemp,"There are currently %u user(s) in %u games of %s",
+		conn_get_user_count_by_clienttag(CLIENTTAG_DIABLO2DV_UINT),
+		game_get_count_by_clienttag(CLIENTTAG_DIABLO2DV_UINT),
+		conn_get_user_game_title(CLIENTTAG_DIABLO2DV_UINT));
+	    message_send_text(c,message_type_info,c,msgtemp);
+	    if (clienttag) break;
+	case CLIENTTAG_BROODWARS_UINT:
+	    sprintf(msgtemp,"There are currently %u user(s) in %u games of %s",
+		conn_get_user_count_by_clienttag(CLIENTTAG_BROODWARS_UINT),
+		game_get_count_by_clienttag(CLIENTTAG_BROODWARS_UINT),
+		conn_get_user_game_title(CLIENTTAG_BROODWARS_UINT));
+	    message_send_text(c,message_type_info,c,msgtemp);
+	    if (clienttag) break;
+	case CLIENTTAG_STARCRAFT_UINT:
+	    sprintf(msgtemp,"There are currently %u user(s) in %u games of %s",
+		conn_get_user_count_by_clienttag(CLIENTTAG_STARCRAFT_UINT),
+		game_get_count_by_clienttag(CLIENTTAG_STARCRAFT_UINT),
+		conn_get_user_game_title(CLIENTTAG_STARCRAFT_UINT));
+	    message_send_text(c,message_type_info,c,msgtemp);
+	    if (clienttag) break;
+	case CLIENTTAG_WARCIIBNE_UINT:
+	    sprintf(msgtemp,"There are currently %u user(s) in %u games of %s",
+		conn_get_user_count_by_clienttag(CLIENTTAG_WARCIIBNE_UINT),
+		game_get_count_by_clienttag(CLIENTTAG_WARCIIBNE_UINT),
+		conn_get_user_game_title(CLIENTTAG_WARCIIBNE_UINT));
+	    message_send_text(c,message_type_info,c,msgtemp);
+	    if (clienttag) break;
+	case CLIENTTAG_DIABLORTL_UINT:
+	    sprintf(msgtemp,"There are currently %u user(s) in %u games of %s",
+		conn_get_user_count_by_clienttag(CLIENTTAG_DIABLORTL_UINT),
+		game_get_count_by_clienttag(CLIENTTAG_DIABLORTL_UINT),
+		conn_get_user_game_title(CLIENTTAG_DIABLORTL_UINT));
+	    message_send_text(c,message_type_info,c,msgtemp);
+	    if (clienttag) break;
+	default:
+	    sprintf(msgtemp,"There are currently %u user(s) in %u games of %s",
+		conn_get_user_count_by_clienttag(conn_get_clienttag(c)),
+		game_get_count_by_clienttag(conn_get_clienttag(c)),
+		conn_get_user_game_title(conn_get_clienttag(c)));
+	    message_send_text(c,message_type_info,c,msgtemp);
     }
     
     return 0;
@@ -1947,8 +1964,10 @@ static int _handle_stats_command(t_connection * c, char const *text)
   char         dest[USER_NAME_MAX];
   unsigned int i,j;
   t_account *  account;
-  char const * clienttag;
+  char const * clienttag=NULL;
   char const * tname;
+  t_clienttag  clienttag_uint;
+  char         clienttag_str[5];
   
   for (i=0; text[i]!=' ' && text[i]!='\0'; i++); /* skip command */
   for (; text[i]==' '; i++);
@@ -1958,184 +1977,161 @@ static int _handle_stats_command(t_connection * c, char const *text)
   for (; text[i]==' '; i++);
   
   
-  // [quetzal] 20020815 - /stats without an argument should work as doing /stats yourself
-  if (!dest[0]) {
-    account = conn_get_account(c);
-  } else if (!(account = accountlist_find_account(dest)))	{
-    message_send_text(c,message_type_error,c,"Invalid user.");
-    return 0;
-  }
-		
-  if (text[i]!='\0')
-    clienttag = &text[i];
-  else if (!(clienttag = clienttag_uint_to_str(conn_get_clienttag(c))))
-    {
-      message_send_text(c,message_type_error,c,"Unable to determine client game.");
-      return 0;
+    // [quetzal] 20020815 - /stats without an argument should work as doing /stats yourself
+    if (!dest[0]) {
+	account = conn_get_account(c);
+    } else if (!(account = accountlist_find_account(dest))) {
+	message_send_text(c,message_type_error,c,"Invalid user.");
+	return 0;
     }
-  
-  if (strlen(clienttag)!=4)
-    {
-      sprintf(msgtemp,"You must supply a user name and a valid program ID. (Program ID \"%.32s\" is invalid.)",clienttag);
-      message_send_text(c,message_type_error,c,msgtemp);
-      message_send_text(c,message_type_error,c,"Example: /stats joe STAR");
-      return 0;
+    
+    if (text[i]!='\0')
+	clienttag = &text[i];
+    else if (!(clienttag = tag_uint_to_str(clienttag_str,conn_get_clienttag(c)))) {
+	message_send_text(c,message_type_error,c,"Unable to determine client game.");
+	return 0;
     }
-  
-  if (strcasecmp(clienttag,CLIENTTAG_BNCHATBOT)==0)
-    {
-      message_send_text(c,message_type_error,c,"This game does not support win/loss records.");
-      message_send_text(c,message_type_error,c,"You must supply a user name and a valid program ID.");
-      message_send_text(c,message_type_error,c,"Example: /stats joe STAR");
-      return 0;
+    
+    if (strlen(clienttag)!=4) {
+	sprintf(msgtemp,"You must supply a user name and a valid program ID. (Program ID \"%.32s\" is invalid.)",clienttag);
+	message_send_text(c,message_type_error,c,msgtemp);
+	message_send_text(c,message_type_error,c,"Example: /stats joe STAR");
+	return 0;
     }
-  else if (strcasecmp(clienttag,CLIENTTAG_DIABLORTL)==0 ||
-	   strcasecmp(clienttag,CLIENTTAG_DIABLOSHR)==0)
+    
+    clienttag_uint = tag_case_str_to_uint(clienttag);
+    
+    switch (clienttag_uint)
     {
-      sprintf(msgtemp,"%.64s's record:",(tname = account_get_name(account)));
-      account_unget_name(tname);
-      message_send_text(c,message_type_info,c,msgtemp);
-      
-      sprintf(msgtemp,"level: %u",account_get_normal_level(account,clienttag));
-      message_send_text(c,message_type_info,c,msgtemp);
-      
-      sprintf(msgtemp,"class: %.16s",bnclass_get_str(account_get_normal_class(account,clienttag)));
-      
-      message_send_text(c,message_type_info,c,msgtemp);
-      
-      sprintf(msgtemp,"stats: %u str  %u mag  %u dex  %u vit  %u gld",
-	      account_get_normal_strength(account,clienttag),
-	      account_get_normal_magic(account,clienttag),
-	      account_get_normal_dexterity(account,clienttag),
-	      account_get_normal_vitality(account,clienttag),
-	      account_get_normal_gold(account,clienttag));
-      message_send_text(c,message_type_info,c,msgtemp);
-      
-      sprintf(msgtemp,"Diablo kills: %u",account_get_normal_diablo_kills(account,clienttag));
-      message_send_text(c,message_type_info,c,msgtemp);
-    }
-  else if (strcasecmp(clienttag,CLIENTTAG_WARCIIBNE)==0)
-    {
-      sprintf(msgtemp,"%.64s's record:",(tname = account_get_name(account)));
-      account_unget_name(tname);
-      message_send_text(c,message_type_info,c,msgtemp);
-      
-      sprintf(msgtemp,"Normal games: %u-%u-%u",
-	      account_get_normal_wins(account,clienttag),
-	      account_get_normal_losses(account,clienttag),
-	      account_get_normal_disconnects(account,clienttag));
-      message_send_text(c,message_type_info,c,msgtemp);
-      
-      if (account_get_ladder_rating(account,clienttag,ladder_id_normal)>0)
-	sprintf(msgtemp,"Ladder games: %u-%u-%u (rating %d)",
-		account_get_ladder_wins(account,clienttag,ladder_id_normal),
-		account_get_ladder_losses(account,clienttag,ladder_id_normal),
-		account_get_ladder_disconnects(account,clienttag,ladder_id_normal),
-		account_get_ladder_rating(account,clienttag,ladder_id_normal));
+	case CLIENTTAG_BNCHATBOT_UINT:
+	    message_send_text(c,message_type_error,c,"This game does not support win/loss records.");
+	    message_send_text(c,message_type_error,c,"You must supply a user name and a valid program ID.");
+	    message_send_text(c,message_type_error,c,"Example: /stats joe STAR");
+	    return 0;
+	case CLIENTTAG_DIABLORTL_UINT:
+	case CLIENTTAG_DIABLOSHR_UINT:
+	    sprintf(msgtemp,"%.64s's record:",(tname = account_get_name(account)));
+	    account_unget_name(tname);
+	    message_send_text(c,message_type_info,c,msgtemp);
+	    sprintf(msgtemp,"level: %u",account_get_normal_level(account,clienttag_uint));
+	    message_send_text(c,message_type_info,c,msgtemp);
+	    sprintf(msgtemp,"class: %.16s",bnclass_get_str(account_get_normal_class(account,clienttag_uint)));
+	    message_send_text(c,message_type_info,c,msgtemp);
+	    sprintf(msgtemp,"stats: %u str  %u mag  %u dex  %u vit  %u gld",
+		account_get_normal_strength(account,clienttag_uint),
+		account_get_normal_magic(account,clienttag_uint),
+		account_get_normal_dexterity(account,clienttag_uint),
+		account_get_normal_vitality(account,clienttag_uint),
+		account_get_normal_gold(account,clienttag_uint));
+	    message_send_text(c,message_type_info,c,msgtemp);
+	    sprintf(msgtemp,"Diablo kills: %u",account_get_normal_diablo_kills(account,clienttag_uint));
+	    message_send_text(c,message_type_info,c,msgtemp);
+	    return 0;
+	case CLIENTTAG_WARCIIBNE_UINT:
+	    sprintf(msgtemp,"%.64s's record:",(tname = account_get_name(account)));
+	    account_unget_name(tname);
+	    message_send_text(c,message_type_info,c,msgtemp);
+	    sprintf(msgtemp,"Normal games: %u-%u-%u",
+		account_get_normal_wins(account,clienttag_uint),
+		account_get_normal_losses(account,clienttag_uint),
+		account_get_normal_disconnects(account,clienttag_uint));
+	    message_send_text(c,message_type_info,c,msgtemp);
+	    if (account_get_ladder_rating(account,clienttag_uint,ladder_id_normal)>0)
+		sprintf(msgtemp,"Ladder games: %u-%u-%u (rating %d)",
+		    account_get_ladder_wins(account,clienttag_uint,ladder_id_normal),
+		    account_get_ladder_losses(account,clienttag_uint,ladder_id_normal),
+		    account_get_ladder_disconnects(account,clienttag_uint,ladder_id_normal),
+		    account_get_ladder_rating(account,clienttag_uint,ladder_id_normal));
 	    else
-	      strcpy(msgtemp,"Ladder games: 0-0-0");
-      message_send_text(c,message_type_info,c,msgtemp);
-      
-      if (account_get_ladder_rating(account,clienttag,ladder_id_ironman)>0)
-	sprintf(msgtemp,"IronMan games: %u-%u-%u (rating %d)",
-		account_get_ladder_wins(account,clienttag,ladder_id_ironman),
-		account_get_ladder_losses(account,clienttag,ladder_id_ironman),
-		account_get_ladder_disconnects(account,clienttag,ladder_id_ironman),
-		account_get_ladder_rating(account,clienttag,ladder_id_ironman));
-      else
-	strcpy(msgtemp,"IronMan games: 0-0-0");
-      message_send_text(c,message_type_info,c,msgtemp);
-    }
-  else if (strcasecmp(clienttag,CLIENTTAG_WARCRAFT3)==0 || strcasecmp(clienttag,CLIENTTAG_WAR3XP)==0) // 7-31-02 THEUNDYING - Display stats for war3
-    {
-      sprintf(msgtemp,"%.64s's Ladder Record's:",(tname=account_get_name(account)));
-      account_unget_name(tname);
-      message_send_text(c,message_type_info,c,msgtemp);
-      sprintf(msgtemp,"Users Solo Level: %u, Experience: %u",
-	      account_get_sololevel(account,clienttag),
-	      account_get_soloxp(account,clienttag));
-      message_send_text(c,message_type_info,c,msgtemp);
-      sprintf(msgtemp,"SOLO Ladder Record: %u-%u-0",
-	      account_get_solowin(account,clienttag),
-	      account_get_sololoss(account,clienttag));
-      message_send_text(c,message_type_info,c,msgtemp);
-      // aaron -->
-      sprintf(msgtemp,"SOLO Rank: %u",
-	      account_get_solorank(account,clienttag));
-      message_send_text(c,message_type_info,c,msgtemp);
-      // <---
-      
-      sprintf(msgtemp,"Users Team Level: %u, Experience: %u",
-	      account_get_teamlevel(account,clienttag),
-	      account_get_teamxp(account,clienttag));
-      message_send_text(c,message_type_info,c,msgtemp);
-      sprintf(msgtemp,"TEAM Ladder Record: %u-%u-0",
-	      account_get_teamwin(account,clienttag),
-	      account_get_teamloss(account,clienttag));
-      message_send_text(c,message_type_info,c,msgtemp);
-      // aaron -->
-      sprintf(msgtemp,"TEAM Rank: %u",
-	      account_get_teamrank(account,clienttag));
-      message_send_text(c,message_type_info,c,msgtemp);
-      
-      sprintf(msgtemp,"Users FFA Level: %u, Experience: %u",
-	      account_get_ffalevel(account,clienttag),
-	      account_get_ffaxp(account,clienttag));
-      message_send_text(c,message_type_info,c,msgtemp);
-      sprintf(msgtemp,"FFA Ladder Record: %u-%u-0",
-	      account_get_ffawin(account,clienttag),
-	      account_get_ffaloss(account,clienttag));
-      message_send_text(c,message_type_info,c,msgtemp);
-      sprintf(msgtemp,"FFA Rank: %u",
-	      account_get_ffarank(account,clienttag));
-      message_send_text(c,message_type_info,c,msgtemp);
-      if (account_get_atteamcount(account,clienttag))
-	{
-	  int teamcount;
-	  for (teamcount=1; teamcount<=account_get_atteamcount(account,clienttag); teamcount++)
-	    {
-	      sprintf(msgtemp,"Users AT Team No. %u",teamcount);
-	      message_send_text(c,message_type_info,c,msgtemp);
-	      sprintf(msgtemp,"Users AT TEAM Level: %u, Experience: %u",
-		      account_get_atteamlevel(account,teamcount,clienttag),
-		      account_get_atteamxp(account,teamcount,clienttag));
-	      message_send_text(c,message_type_info,c,msgtemp);
-	      sprintf(msgtemp,"AT TEAM Ladder Record: %u-%u-0",
-		      account_get_atteamwin(account,teamcount,clienttag),
-		      account_get_atteamloss(account,teamcount,clienttag));
-	      message_send_text(c,message_type_info,c,msgtemp);
-	      sprintf(msgtemp,"AT TEAM Rank: %u",
-		      account_get_atteamrank(account,teamcount,clienttag));
-	      message_send_text(c,message_type_info,c,msgtemp);
+		strcpy(msgtemp,"Ladder games: 0-0-0");
+	    message_send_text(c,message_type_info,c,msgtemp);
+	    if (account_get_ladder_rating(account,clienttag_uint,ladder_id_ironman)>0)
+		sprintf(msgtemp,"IronMan games: %u-%u-%u (rating %d)",
+		    account_get_ladder_wins(account,clienttag_uint,ladder_id_ironman),
+		    account_get_ladder_losses(account,clienttag_uint,ladder_id_ironman),
+		    account_get_ladder_disconnects(account,clienttag_uint,ladder_id_ironman),
+		    account_get_ladder_rating(account,clienttag_uint,ladder_id_ironman));
+	    else
+		strcpy(msgtemp,"IronMan games: 0-0-0");
+	    message_send_text(c,message_type_info,c,msgtemp);
+	    return 0;
+	case CLIENTTAG_WARCRAFT3_UINT:
+	case CLIENTTAG_WAR3XP_UINT:
+	    sprintf(msgtemp,"%.64s's Ladder Record's:",(tname=account_get_name(account)));
+	    account_unget_name(tname);
+	    message_send_text(c,message_type_info,c,msgtemp);
+	    sprintf(msgtemp,"Users Solo Level: %u, Experience: %u",
+		account_get_sololevel(account,clienttag_uint),
+		account_get_soloxp(account,clienttag_uint));
+	    message_send_text(c,message_type_info,c,msgtemp);
+	    sprintf(msgtemp,"SOLO Ladder Record: %u-%u-0",
+		account_get_solowin(account,clienttag_uint),
+		account_get_sololoss(account,clienttag_uint));
+	    message_send_text(c,message_type_info,c,msgtemp);
+	    sprintf(msgtemp,"SOLO Rank: %u",
+		account_get_solorank(account,clienttag_uint));
+	    message_send_text(c,message_type_info,c,msgtemp);
+	    sprintf(msgtemp,"Users Team Level: %u, Experience: %u",
+		account_get_teamlevel(account,clienttag_uint),
+		account_get_teamxp(account,clienttag_uint));
+	    message_send_text(c,message_type_info,c,msgtemp);
+	    sprintf(msgtemp,"TEAM Ladder Record: %u-%u-0",
+		account_get_teamwin(account,clienttag_uint),
+		account_get_teamloss(account,clienttag_uint));
+	    message_send_text(c,message_type_info,c,msgtemp);
+	    sprintf(msgtemp,"TEAM Rank: %u",
+		account_get_teamrank(account,clienttag_uint));
+	    message_send_text(c,message_type_info,c,msgtemp);
+	    sprintf(msgtemp,"Users FFA Level: %u, Experience: %u",
+		account_get_ffalevel(account,clienttag_uint),
+		account_get_ffaxp(account,clienttag_uint));
+	    message_send_text(c,message_type_info,c,msgtemp);
+	    sprintf(msgtemp,"FFA Ladder Record: %u-%u-0",
+		account_get_ffawin(account,clienttag_uint),
+		account_get_ffaloss(account,clienttag_uint));
+	    message_send_text(c,message_type_info,c,msgtemp);
+	    sprintf(msgtemp,"FFA Rank: %u",
+		account_get_ffarank(account,clienttag_uint));
+	    message_send_text(c,message_type_info,c,msgtemp);
+	    if (account_get_atteamcount(account,clienttag_uint)) {
+		int teamcount;
+		for (teamcount=1; teamcount<=account_get_atteamcount(account,clienttag_uint); teamcount++) {
+		    sprintf(msgtemp,"Users AT Team No. %u",teamcount);
+		    message_send_text(c,message_type_info,c,msgtemp);
+		    sprintf(msgtemp,"Users AT TEAM Level: %u, Experience: %u",
+			account_get_atteamlevel(account,teamcount,clienttag_uint),
+			account_get_atteamxp(account,teamcount,clienttag_uint));
+		    message_send_text(c,message_type_info,c,msgtemp);
+		    sprintf(msgtemp,"AT TEAM Ladder Record: %u-%u-0",
+			account_get_atteamwin(account,teamcount,clienttag_uint),
+			account_get_atteamloss(account,teamcount,clienttag_uint));
+		    message_send_text(c,message_type_info,c,msgtemp);
+		    sprintf(msgtemp,"AT TEAM Rank: %u",
+			account_get_atteamrank(account,teamcount,clienttag_uint));
+		    message_send_text(c,message_type_info,c,msgtemp);
+		}
 	    }
-	  
-	}
-      // <---
-    }	
-  else
-    {
-      sprintf(msgtemp,"%.64s's record:",(tname = account_get_name(account)));
-      account_unget_name(tname);
-      message_send_text(c,message_type_info,c,msgtemp);
-      
-      sprintf(msgtemp,"Normal games: %u-%u-%u",
-	      account_get_normal_wins(account,clienttag),
-	      account_get_normal_losses(account,clienttag),
-	      account_get_normal_disconnects(account,clienttag));
-      message_send_text(c,message_type_info,c,msgtemp);
-      
-      if (account_get_ladder_rating(account,clienttag,ladder_id_normal)>0)
-	sprintf(msgtemp,"Ladder games: %u-%u-%u (rating %d)",
-		account_get_ladder_wins(account,clienttag,ladder_id_normal),
-		account_get_ladder_losses(account,clienttag,ladder_id_normal),
-		account_get_ladder_disconnects(account,clienttag,ladder_id_normal),
-		account_get_ladder_rating(account,clienttag,ladder_id_normal));
-      else
-	strcpy(msgtemp,"Ladder games: 0-0-0");
-      message_send_text(c,message_type_info,c,msgtemp);
+	    return 0;
+	default:
+	    sprintf(msgtemp,"%.64s's record:",(tname = account_get_name(account)));
+	    account_unget_name(tname);
+	    message_send_text(c,message_type_info,c,msgtemp);
+	    sprintf(msgtemp,"Normal games: %u-%u-%u",
+		account_get_normal_wins(account,clienttag_uint),
+		account_get_normal_losses(account,clienttag_uint),
+		account_get_normal_disconnects(account,clienttag_uint));
+	    message_send_text(c,message_type_info,c,msgtemp);
+	    if (account_get_ladder_rating(account,clienttag_uint,ladder_id_normal)>0)
+		sprintf(msgtemp,"Ladder games: %u-%u-%u (rating %d)",
+		    account_get_ladder_wins(account,clienttag_uint,ladder_id_normal),
+		    account_get_ladder_losses(account,clienttag_uint,ladder_id_normal),
+		    account_get_ladder_disconnects(account,clienttag_uint,ladder_id_normal),
+		    account_get_ladder_rating(account,clienttag_uint,ladder_id_normal));
+	    else
+		strcpy(msgtemp,"Ladder games: 0-0-0");
+	    message_send_text(c,message_type_info,c,msgtemp);
+	    return 0;
     }
-  
-  return 0;
 }
 
 static int _handle_time_command(t_connection * c, char const *text)
@@ -2631,7 +2627,7 @@ static int _handle_watch_command(t_connection * c, char const *text)
       return 0;
     }
   
-  if (conn_add_watch(c,account,NULL)<0) /* FIXME: adds all events for now */
+  if (conn_add_watch(c,account,0)<0) /* FIXME: adds all events for now */
     message_send_text(c,message_type_error,c,"Add to watch list failed.");
   else
     {
@@ -2661,7 +2657,7 @@ static int _handle_unwatch_command(t_connection * c, char const *text)
        return 0;
      }
    
-   if (conn_del_watch(c,account,NULL)<0) /* FIXME: deletes all events for now */
+   if (conn_del_watch(c,account,0)<0) /* FIXME: deletes all events for now */
      message_send_text(c,message_type_error,c,"Removal from watch list failed.");
    else
      {
@@ -2674,42 +2670,50 @@ static int _handle_unwatch_command(t_connection * c, char const *text)
 
 static int _handle_watchall_command(t_connection * c, char const *text)
 {
-	char const * clienttag = NULL;
-	text = skip_command(text);
-	if(text[0] != '\0')
-		clienttag = text;
-  if (conn_add_watch(c,NULL,clienttag)<0) /* FIXME: adds all events for now */
-    message_send_text(c,message_type_error,c,"Add to watch list failed.");
-  else
-	if(clienttag)
-	{
-	char msgtemp[MAX_MESSAGE_LEN];
-	sprintf(msgtemp, "All %s users added to your watch list.", clienttag);
-    message_send_text(c,message_type_info,c,msgtemp);
+    t_clienttag clienttag=0;
+    char clienttag_str[5];
+    
+    text = skip_command(text);
+    
+    if(text[0] != '\0')
+	clienttag = tag_case_str_to_uint(text);
+	
+    if (conn_add_watch(c,NULL,clienttag)<0) /* FIXME: adds all events for now */
+	message_send_text(c,message_type_error,c,"Add to watch list failed.");
+    else
+	if(clienttag) {
+	    char msgtemp[MAX_MESSAGE_LEN];
+	    sprintf(msgtemp, "All %s users added to your watch list.", tag_uint_to_str(clienttag_str,clienttag));
+	    message_send_text(c,message_type_info,c,msgtemp);
 	}
 	else
-    message_send_text(c,message_type_info,c,"All users added to your watch list.");
-  return 0;
+	    message_send_text(c,message_type_info,c,"All users added to your watch list.");
+    
+    return 0;
 }
 
 static int _handle_unwatchall_command(t_connection * c, char const *text)
 {
-	char const * clienttag = NULL;
-	text = skip_command(text);
-	if(text[0] != '\0')
-		clienttag = text;
-  if (conn_del_watch(c,NULL,clienttag)<0) /* FIXME: deletes all events for now */
-    message_send_text(c,message_type_error,c,"Removal from watch list failed.");
-  else
-	if(clienttag)
-	{
-	char msgtemp[MAX_MESSAGE_LEN];
-	sprintf(msgtemp, "All %s users removed from your watch list.", clienttag);
-    message_send_text(c,message_type_info,c,msgtemp);
+    t_clienttag clienttag=0;
+    char clienttag_str[5];
+    
+    text = skip_command(text);
+    
+    if(text[0] != '\0')
+	clienttag = tag_case_str_to_uint(text);
+    
+    if (conn_del_watch(c,NULL,clienttag)<0) /* FIXME: deletes all events for now */
+	message_send_text(c,message_type_error,c,"Removal from watch list failed.");
+    else
+	if(clienttag) {
+	    char msgtemp[MAX_MESSAGE_LEN];
+	    sprintf(msgtemp, "All %s users removed from your watch list.", tag_uint_to_str(clienttag_str,clienttag));
+	    message_send_text(c,message_type_info,c,msgtemp);
 	}
 	else
-    message_send_text(c,message_type_info,c,"All users removed from your watch list.");
-  return 0;
+	    message_send_text(c,message_type_info,c,"All users removed from your watch list.");
+    
+    return 0;
 }
 
 static int _handle_lusers_command(t_connection * c, char const *text)
@@ -2788,7 +2792,8 @@ static int _handle_games_command(t_connection * c, char const *text)
   unsigned int   j;
   t_elem const * curr;
   t_game const * game;
-  char const *   tag;
+  t_clienttag    tag;
+  char           clienttag_str[5];
   char           dest[5];
   t_game_difficulty   difficulty;
   
@@ -2810,21 +2815,21 @@ static int _handle_games_command(t_connection * c, char const *text)
   
   if (dest[0]=='\0')
     {
-      tag = clienttag_uint_to_str(conn_get_clienttag(c));
+      tag = conn_get_clienttag(c);
       message_send_text(c,message_type_info,c,"Currently accessable games:");
     }
   else if (strcmp(&dest[0],"all")==0)
     {
-      tag = NULL;
+      tag = 0;
       message_send_text(c,message_type_info,c,"All current games:");
     }
   else
     {
-      tag = &dest[0];
+      tag = tag_case_str_to_uint(&dest[0]);
       if(difficulty==game_difficulty_none)
-        sprintf(msgtemp,"Current games of type %s",tag);
+        sprintf(msgtemp,"Current games of type %s",tag_uint_to_str(clienttag_str,tag));
       else
-        sprintf(msgtemp,"Current games of type %s %s",tag,&text[i]);
+        sprintf(msgtemp,"Current games of type %s %s",tag_uint_to_str(clienttag_str,tag),&text[i]);
       message_send_text(c,message_type_info,c,msgtemp);
     }
   
@@ -2837,7 +2842,7 @@ static int _handle_games_command(t_connection * c, char const *text)
     {
       game = elem_get_data(curr);
       if ((!tag || !prefs_get_hide_pass_games() || game_get_flag(game) != game_flag_private) &&
-	  (!tag || strcasecmp(game_get_clienttag(game),tag)==0) && 
+	  (!tag || game_get_clienttag(game)==tag) && 
          (difficulty==game_difficulty_none || game_get_difficulty(game)==difficulty))
 	{
 	  if (prefs_get_hide_addr() && !(account_get_command_groups(conn_get_account(c)) & command_get_group("/admin-addr"))) /* default to false */
@@ -3117,6 +3122,7 @@ static int _handle_connections_command(t_connection *c, char const *text)
   unsigned int   i; /* for loop */
   char const *   channel_name;
   char const *   game_name;
+  char           clienttag_str[5];
   
   if (!prefs_get_enable_conn_all() && !(account_get_command_groups(conn_get_account(c)) & command_get_group("/admin-con"))) /* default to false */
     {
@@ -3172,7 +3178,7 @@ static int _handle_connections_command(t_connection *c, char const *text)
       if (text[i]=='\0')
 	sprintf(msgtemp," %-6.6s %4.4s %-15.15s %9u %-16.16s %-8.8s",
 		conn_class_get_str(conn_get_class(conn)),
-		conn_get_fake_clienttag(conn),
+		tag_uint_to_str(clienttag_str,conn_get_fake_clienttag(conn)),
 		name, 
 		conn_get_latency(conn), 
 		channel_name,
@@ -3183,7 +3189,7 @@ static int _handle_connections_command(t_connection *c, char const *text)
 		  conn_get_socket(conn),
 		  conn_class_get_str(conn_get_class(conn)), 
 		  conn_state_get_str(conn_get_state(conn)),
-		  conn_get_fake_clienttag(conn),
+		  tag_uint_to_str(clienttag_str,conn_get_fake_clienttag(conn)),
 		  name,
 		  conn_get_sessionkey(conn),
 		  conn_get_flags(conn),
@@ -3195,7 +3201,7 @@ static int _handle_connections_command(t_connection *c, char const *text)
 		  conn_get_socket(conn),
 		  conn_class_get_str(conn_get_class(conn)),
 		  conn_state_get_str(conn_get_state(conn)),
-		  conn_get_fake_clienttag(conn),
+		  tag_uint_to_str(clienttag_str,conn_get_fake_clienttag(conn)),
 		  name,
 		  conn_get_sessionkey(conn),
 		  conn_get_flags(conn),
@@ -3503,6 +3509,7 @@ static int _handle_gameinfo_command(t_connection * c, char const *text)
 {
   unsigned int   i;
   t_game const * game;
+  char clienttag_str[5];
   
   for (i=0; text[i]!=' ' && text[i]!='\0'; i++); /* skip command */
   for (; text[i]==' '; i++);
@@ -3569,7 +3576,7 @@ static int _handle_gameinfo_command(t_connection * c, char const *text)
       message_send_text(c,message_type_info,c,msgtemp);
     }
   
-  sprintf(msgtemp,"Client: %4s (version %s, startver %u)",game_get_clienttag(game),vernum_to_verstr(game_get_version(game)),game_get_startver(game));
+  sprintf(msgtemp,"Client: %4s (version %s, startver %u)",tag_uint_to_str(clienttag_str,game_get_clienttag(game)),vernum_to_verstr(game_get_version(game)),game_get_startver(game));
   message_send_text(c,message_type_info,c,msgtemp);
   
   {
@@ -3701,7 +3708,7 @@ static int _handle_ladderinfo_command(t_connection * c, char const *text)
   unsigned int rank;
   unsigned int i,j;
   t_account *  account;
-  char const * clienttag;
+  t_clienttag clienttag;
   char const * tname;
   
   for (i=0; text[i]!=' ' && text[i]!='\0'; i++); /* skip command */
@@ -3723,13 +3730,13 @@ static int _handle_ladderinfo_command(t_connection * c, char const *text)
     }
   
   if (text[i]!='\0')
-    clienttag = &text[i];
-  else if (!(clienttag = clienttag_uint_to_str(conn_get_clienttag(c))))
+    clienttag = tag_case_str_to_uint(&text[i]);
+  else if (!(clienttag = conn_get_clienttag(c)))
     {
       message_send_text(c,message_type_error,c,"Unable to determine client game.");
       return 0;
     }
-  
+/*  
   if (strlen(clienttag)!=4)
     {
       sprintf(msgtemp,"You must supply a rank and a valid program ID. (Program ID \"%.32s\" is invalid.)",clienttag);
@@ -3737,127 +3744,127 @@ static int _handle_ladderinfo_command(t_connection * c, char const *text)
       message_send_text(c,message_type_error,c,"Example: /ladderinfo 1 STAR");
       return 0;
     }
-  
-  if (strcasecmp(clienttag,CLIENTTAG_STARCRAFT)==0)
+*/  
+  if (clienttag==CLIENTTAG_STARCRAFT_UINT)
     {
-      if ((account = ladder_get_account_by_rank(rank,ladder_sort_highestrated,ladder_time_active,CLIENTTAG_STARCRAFT,ladder_id_normal)))
+      if ((account = ladder_get_account_by_rank(rank,ladder_sort_highestrated,ladder_time_active,CLIENTTAG_STARCRAFT_UINT,ladder_id_normal)))
 	{
 	  sprintf(msgtemp,"Starcraft active  %5u: %-20.20s %u/%u/%u rating %u",
 		  rank,
 		  (tname = account_get_name(account)),
-		  account_get_ladder_active_wins(account,CLIENTTAG_STARCRAFT,ladder_id_normal),
-		  account_get_ladder_active_losses(account,CLIENTTAG_STARCRAFT,ladder_id_normal),
-		  account_get_ladder_active_disconnects(account,CLIENTTAG_STARCRAFT,ladder_id_normal),
-		  account_get_ladder_active_rating(account,CLIENTTAG_STARCRAFT,ladder_id_normal));
+		  account_get_ladder_active_wins(account,CLIENTTAG_STARCRAFT_UINT,ladder_id_normal),
+		  account_get_ladder_active_losses(account,CLIENTTAG_STARCRAFT_UINT,ladder_id_normal),
+		  account_get_ladder_active_disconnects(account,CLIENTTAG_STARCRAFT_UINT,ladder_id_normal),
+		  account_get_ladder_active_rating(account,CLIENTTAG_STARCRAFT_UINT,ladder_id_normal));
 	  account_unget_name(tname);
 	}
       else
 	sprintf(msgtemp,"Starcraft active  %5u: <none>",rank);
       message_send_text(c,message_type_info,c,msgtemp);
       
-      if ((account = ladder_get_account_by_rank(rank,ladder_sort_highestrated,ladder_time_current,CLIENTTAG_STARCRAFT,ladder_id_normal)))
+      if ((account = ladder_get_account_by_rank(rank,ladder_sort_highestrated,ladder_time_current,CLIENTTAG_STARCRAFT_UINT,ladder_id_normal)))
 	{
 	  sprintf(msgtemp,"Starcraft current %5u: %-20.20s %u/%u/%u rating %u",
 		  rank,
 		  (tname = account_get_name(account)),
-		  account_get_ladder_wins(account,CLIENTTAG_STARCRAFT,ladder_id_normal),
-		  account_get_ladder_losses(account,CLIENTTAG_STARCRAFT,ladder_id_normal),
-		  account_get_ladder_disconnects(account,CLIENTTAG_STARCRAFT,ladder_id_normal),
-		  account_get_ladder_rating(account,CLIENTTAG_STARCRAFT,ladder_id_normal));
+		  account_get_ladder_wins(account,CLIENTTAG_STARCRAFT_UINT,ladder_id_normal),
+		  account_get_ladder_losses(account,CLIENTTAG_STARCRAFT_UINT,ladder_id_normal),
+		  account_get_ladder_disconnects(account,CLIENTTAG_STARCRAFT_UINT,ladder_id_normal),
+		  account_get_ladder_rating(account,CLIENTTAG_STARCRAFT_UINT,ladder_id_normal));
 	  account_unget_name(tname);
 	}
       else
 	sprintf(msgtemp,"Starcraft current %5u: <none>",rank);
       message_send_text(c,message_type_info,c,msgtemp);
     }
-  else if (strcasecmp(clienttag,CLIENTTAG_BROODWARS)==0)
+  else if (clienttag==CLIENTTAG_BROODWARS_UINT)
     {
-      if ((account = ladder_get_account_by_rank(rank,ladder_sort_highestrated,ladder_time_active,CLIENTTAG_BROODWARS,ladder_id_normal)))
+      if ((account = ladder_get_account_by_rank(rank,ladder_sort_highestrated,ladder_time_active,CLIENTTAG_BROODWARS_UINT,ladder_id_normal)))
 	{
 	  sprintf(msgtemp,"Brood War active  %5u: %-20.20s %u/%u/%u rating %u",
 		  rank,
 		  (tname = account_get_name(account)),
-		  account_get_ladder_active_wins(account,CLIENTTAG_BROODWARS,ladder_id_normal),
-		  account_get_ladder_active_losses(account,CLIENTTAG_BROODWARS,ladder_id_normal),
-		  account_get_ladder_active_disconnects(account,CLIENTTAG_BROODWARS,ladder_id_normal),
-		  account_get_ladder_active_rating(account,CLIENTTAG_BROODWARS,ladder_id_normal));
+		  account_get_ladder_active_wins(account,CLIENTTAG_BROODWARS_UINT,ladder_id_normal),
+		  account_get_ladder_active_losses(account,CLIENTTAG_BROODWARS_UINT,ladder_id_normal),
+		  account_get_ladder_active_disconnects(account,CLIENTTAG_BROODWARS_UINT,ladder_id_normal),
+		  account_get_ladder_active_rating(account,CLIENTTAG_BROODWARS_UINT,ladder_id_normal));
 	  account_unget_name(tname);
 	}
       else
 	sprintf(msgtemp,"Brood War active  %5u: <none>",rank);
       message_send_text(c,message_type_info,c,msgtemp);
       
-      if ((account = ladder_get_account_by_rank(rank,ladder_sort_highestrated,ladder_time_current,CLIENTTAG_BROODWARS,ladder_id_normal)))
+      if ((account = ladder_get_account_by_rank(rank,ladder_sort_highestrated,ladder_time_current,CLIENTTAG_BROODWARS_UINT,ladder_id_normal)))
 	{
 	  sprintf(msgtemp,"Brood War current %5u: %-20.20s %u/%u/%u rating %u",
 		  rank,
 		  (tname = account_get_name(account)),
-		  account_get_ladder_wins(account,CLIENTTAG_BROODWARS,ladder_id_normal),
-		  account_get_ladder_losses(account,CLIENTTAG_BROODWARS,ladder_id_normal),
-		  account_get_ladder_disconnects(account,CLIENTTAG_BROODWARS,ladder_id_normal),
-		  account_get_ladder_rating(account,CLIENTTAG_BROODWARS,ladder_id_normal));
+		  account_get_ladder_wins(account,CLIENTTAG_BROODWARS_UINT,ladder_id_normal),
+		  account_get_ladder_losses(account,CLIENTTAG_BROODWARS_UINT,ladder_id_normal),
+		  account_get_ladder_disconnects(account,CLIENTTAG_BROODWARS_UINT,ladder_id_normal),
+		  account_get_ladder_rating(account,CLIENTTAG_BROODWARS_UINT,ladder_id_normal));
 	  account_unget_name(tname);
 	}
       else
 	sprintf(msgtemp,"Brood War current %5u: <none>",rank);
       message_send_text(c,message_type_info,c,msgtemp);
     }
-  else if (strcasecmp(clienttag,CLIENTTAG_WARCIIBNE)==0)
+  else if (clienttag==CLIENTTAG_WARCIIBNE_UINT)
     {
-      if ((account = ladder_get_account_by_rank(rank,ladder_sort_highestrated,ladder_time_active,CLIENTTAG_WARCIIBNE,ladder_id_normal)))
+      if ((account = ladder_get_account_by_rank(rank,ladder_sort_highestrated,ladder_time_active,CLIENTTAG_WARCIIBNE_UINT,ladder_id_normal)))
 	{
 	  sprintf(msgtemp,"Warcraft II standard active  %5u: %-20.20s %u/%u/%u rating %u",
 		  rank,
 		  (tname = account_get_name(account)),
-		  account_get_ladder_active_wins(account,CLIENTTAG_WARCIIBNE,ladder_id_normal),
-		  account_get_ladder_active_losses(account,CLIENTTAG_WARCIIBNE,ladder_id_normal),
-		  account_get_ladder_active_disconnects(account,CLIENTTAG_WARCIIBNE,ladder_id_normal),
-		  account_get_ladder_active_rating(account,CLIENTTAG_WARCIIBNE,ladder_id_normal));
+		  account_get_ladder_active_wins(account,CLIENTTAG_WARCIIBNE_UINT,ladder_id_normal),
+		  account_get_ladder_active_losses(account,CLIENTTAG_WARCIIBNE_UINT,ladder_id_normal),
+		  account_get_ladder_active_disconnects(account,CLIENTTAG_WARCIIBNE_UINT,ladder_id_normal),
+		  account_get_ladder_active_rating(account,CLIENTTAG_WARCIIBNE_UINT,ladder_id_normal));
 	  account_unget_name(tname);
 	}
       else
 	sprintf(msgtemp,"Warcraft II standard active  %5u: <none>",rank);
       message_send_text(c,message_type_info,c,msgtemp);
       
-      if ((account = ladder_get_account_by_rank(rank,ladder_sort_highestrated,ladder_time_active,CLIENTTAG_WARCIIBNE,ladder_id_ironman)))
+      if ((account = ladder_get_account_by_rank(rank,ladder_sort_highestrated,ladder_time_active,CLIENTTAG_WARCIIBNE_UINT,ladder_id_ironman)))
 	{
 	  sprintf(msgtemp,"Warcraft II IronMan active   %5u: %-20.20s %u/%u/%u rating %u",
 		  rank,
 		  (tname = account_get_name(account)),
-		  account_get_ladder_active_wins(account,CLIENTTAG_WARCIIBNE,ladder_id_ironman),
-		  account_get_ladder_active_losses(account,CLIENTTAG_WARCIIBNE,ladder_id_ironman),
-		  account_get_ladder_active_disconnects(account,CLIENTTAG_WARCIIBNE,ladder_id_ironman),
-		  account_get_ladder_active_rating(account,CLIENTTAG_WARCIIBNE,ladder_id_ironman));
+		  account_get_ladder_active_wins(account,CLIENTTAG_WARCIIBNE_UINT,ladder_id_ironman),
+		  account_get_ladder_active_losses(account,CLIENTTAG_WARCIIBNE_UINT,ladder_id_ironman),
+		  account_get_ladder_active_disconnects(account,CLIENTTAG_WARCIIBNE_UINT,ladder_id_ironman),
+		  account_get_ladder_active_rating(account,CLIENTTAG_WARCIIBNE_UINT,ladder_id_ironman));
 	  account_unget_name(tname);
 	}
       else
 	sprintf(msgtemp,"Warcraft II IronMan active   %5u: <none>",rank);
       message_send_text(c,message_type_info,c,msgtemp);
       
-      if ((account = ladder_get_account_by_rank(rank,ladder_sort_highestrated,ladder_time_current,CLIENTTAG_WARCIIBNE,ladder_id_normal)))
+      if ((account = ladder_get_account_by_rank(rank,ladder_sort_highestrated,ladder_time_current,CLIENTTAG_WARCIIBNE_UINT,ladder_id_normal)))
 	{
 	  sprintf(msgtemp,"Warcraft II standard current %5u: %-20.20s %u/%u/%u rating %u",
 		  rank,
 		  (tname = account_get_name(account)),
-		  account_get_ladder_wins(account,CLIENTTAG_WARCIIBNE,ladder_id_normal),
-		  account_get_ladder_losses(account,CLIENTTAG_WARCIIBNE,ladder_id_normal),
-		  account_get_ladder_disconnects(account,CLIENTTAG_WARCIIBNE,ladder_id_normal),
-		  account_get_ladder_rating(account,CLIENTTAG_WARCIIBNE,ladder_id_normal));
+		  account_get_ladder_wins(account,CLIENTTAG_WARCIIBNE_UINT,ladder_id_normal),
+		  account_get_ladder_losses(account,CLIENTTAG_WARCIIBNE_UINT,ladder_id_normal),
+		  account_get_ladder_disconnects(account,CLIENTTAG_WARCIIBNE_UINT,ladder_id_normal),
+		  account_get_ladder_rating(account,CLIENTTAG_WARCIIBNE_UINT,ladder_id_normal));
 	  account_unget_name(tname);
 	}
       else
 	sprintf(msgtemp,"Warcraft II standard current %5u: <none>",rank);
       message_send_text(c,message_type_info,c,msgtemp);
       
-      if ((account = ladder_get_account_by_rank(rank,ladder_sort_highestrated,ladder_time_current,CLIENTTAG_WARCIIBNE,ladder_id_ironman)))
+      if ((account = ladder_get_account_by_rank(rank,ladder_sort_highestrated,ladder_time_current,CLIENTTAG_WARCIIBNE_UINT,ladder_id_ironman)))
 	{
 	  sprintf(msgtemp,"Warcraft II IronMan current  %5u: %-20.20s %u/%u/%u rating %u",
 		  rank,
 		  (tname = account_get_name(account)),
-		  account_get_ladder_wins(account,CLIENTTAG_WARCIIBNE,ladder_id_ironman),
-		  account_get_ladder_losses(account,CLIENTTAG_WARCIIBNE,ladder_id_ironman),
-		  account_get_ladder_disconnects(account,CLIENTTAG_WARCIIBNE,ladder_id_ironman),
-		  account_get_ladder_rating(account,CLIENTTAG_WARCIIBNE,ladder_id_ironman));
+		  account_get_ladder_wins(account,CLIENTTAG_WARCIIBNE_UINT,ladder_id_ironman),
+		  account_get_ladder_losses(account,CLIENTTAG_WARCIIBNE_UINT,ladder_id_ironman),
+		  account_get_ladder_disconnects(account,CLIENTTAG_WARCIIBNE_UINT,ladder_id_ironman),
+		  account_get_ladder_rating(account,CLIENTTAG_WARCIIBNE_UINT,ladder_id_ironman));
 	  account_unget_name(tname);
 	}
       else
@@ -3865,7 +3872,7 @@ static int _handle_ladderinfo_command(t_connection * c, char const *text)
       message_send_text(c,message_type_info,c,msgtemp);
     }
   // --> aaron
-  else if (strcasecmp(clienttag,CLIENTTAG_WARCRAFT3)==0 || strcasecmp(clienttag,CLIENTTAG_WAR3XP)==0)
+  else if (clienttag==CLIENTTAG_WARCRAFT3_UINT || clienttag==CLIENTTAG_WAR3XP_UINT)
     {
       unsigned int teamcount = 0;
       if ((account = ladder_get_account(solo_ladder(clienttag),rank,&teamcount,clienttag)))
@@ -4190,31 +4197,30 @@ static int _handle_flag_command(t_connection * c, char const *text)
 
 static int _handle_tag_command(t_connection * c, char const *text)
 {
-  char         dest[8];
-  unsigned int i,j;
-  
-  for (i=0; text[i]!=' ' && text[i]!='\0'; i++); /* skip command */
-  for (; text[i]==' '; i++);
-  for (j=0; text[i]!=' ' && text[i]!='\0'; i++) /* get dest */
+    char         dest[8];
+    unsigned int i,j;
+    
+    for (i=0; text[i]!=' ' && text[i]!='\0'; i++); /* skip command */
+    for (; text[i]==' '; i++);
+    for (j=0; text[i]!=' ' && text[i]!='\0'; i++) /* get dest */
     if (j<sizeof(dest)-1) dest[j++] = text[i];
-  dest[j] = '\0';
-  for (; text[i]==' '; i++);
- 
-  if (dest[0]=='\0')
-  {
+    dest[j] = '\0';
+    for (; text[i]==' '; i++);
+    
+    if (dest[0]=='\0')
+    {
 	message_send_text(c,message_type_info,c,"usage: /tag <clienttag>");
 	return 0;
-  }
-  if (strlen(dest)!=4)
-    {
-      message_send_text(c,message_type_error,c,"Client tag should be four characters long.");
-      return 0;
     }
-    
-  conn_set_clienttag(c,clienttag_str_to_uint(dest));
-  sprintf(msgtemp,"Client tag set to %s.",dest);
-  message_send_text(c,message_type_info,c,msgtemp);
-  return 0;
+    if (strlen(dest)!=4)
+    {
+	message_send_text(c,message_type_error,c,"Client tag should be four characters long.");
+	return 0;
+    }
+    conn_set_clienttag(c,tag_case_str_to_uint(dest));
+    sprintf(msgtemp,"Client tag set to %s.",dest);
+    message_send_text(c,message_type_info,c,msgtemp);
+    return 0;
 }
 
 static int _handle_set_command(t_connection * c, char const *text)

@@ -28,8 +28,10 @@
 #undef JUST_NEED_TYPES
 #endif
 
-typedef t_uint32 t_clienttag;
-typedef t_uint32 t_tag;
+typedef t_uint32	t_tag;
+typedef t_tag		t_archtag;
+typedef t_tag		t_clienttag;
+typedef t_tag		t_gamelang;
 
 #endif
 
@@ -114,6 +116,7 @@ extern t_clienttag clienttag_str_to_uint(char const * clienttag);
 extern char const * clienttag_uint_to_str(t_clienttag clienttag);
 
 extern t_tag	tag_str_to_uint(char const * tag_str);
+extern t_tag	tag_case_str_to_uint(char const * tag_str);
 extern char *	tag_uint_to_str(char * tag_str, t_tag tag_uint);
 extern int	tag_check_arch(t_tag tag_uint);
 extern int	tag_check_client(t_tag tag_uint);

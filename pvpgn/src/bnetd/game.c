@@ -385,7 +385,7 @@ extern char const * game_difficulty_get_str(t_game_difficulty difficulty)
 }
 
 
-extern t_game * game_create(char const * name, char const * pass, char const * info, t_game_type type, int startver, char const * clienttag, unsigned long gameversion)
+extern t_game * game_create(char const * name, char const * pass, char const * info, t_game_type type, int startver, t_clienttag clienttag, unsigned long gameversion)
 {
     t_game * game;
     time_t now;
@@ -438,9 +438,9 @@ extern t_game * game_create(char const * name, char const * pass, char const * i
 	free(game);
 	return NULL;
     }
-    if (!(game->clienttag = strdup(clienttag)))
+    if (!(game->clienttag = clienttag))
     {
-	eventlog(eventlog_level_error,"game_create","could not allocate memory for game->clienttag");
+	eventlog(eventlog_level_error,"game_create","got UNKNOWN clienttag");
 	free((void *)game->info); /* avoid warning */
 	free((void *)game->pass); /* avoid warning */
 	free((void *)game->name); /* avoid warning */
@@ -487,7 +487,6 @@ extern t_game * game_create(char const * name, char const * pass, char const * i
     if (list_prepend_data(gamelist_head,game)<0)
     {
 	eventlog(eventlog_level_error,"game_create","could not insert game");
-	free((void *)game->clienttag); /* avoid warning */
 	free((void *)game->info); /* avoid warning */
 	free((void *)game->pass); /* avoid warning */
 	free((void *)game->name); /* avoid warning */
@@ -550,10 +549,6 @@ static void game_destroy(t_game const * game)
 	free((void *)game->players); /* avoid warning */
     if (game->mapname)
 	free((void *)game->mapname); /* avoid warning */
-    // [zap-zero] 20020731 - fixed small memory leak
-    if (game->clienttag)
-	free((void *)game->clienttag); /* avoid warning */
-
     if (game->description)
 	free((void *)game->description); /* avoid warning */
 
@@ -663,15 +658,16 @@ static int game_report(t_game * game)
     time_t          now=time(NULL);
     t_ladder_info * ladder_info=NULL;
     int             discisloss;
+    char            clienttag_str[5];
     
     if (!game)
     {
 	eventlog(eventlog_level_error,"game_report","got NULL game");
 	return -1;
     }
-    if (!game->clienttag || strlen(game->clienttag)!=4)
+    if (!game->clienttag)
     {
-	eventlog(eventlog_level_error,"game_report","got bad clienttag");
+	eventlog(eventlog_level_error,"game_report","got UNKNOWN clienttag");
 	return -1;
     }
     if (!game->players)
@@ -695,15 +691,15 @@ static int game_report(t_game * game)
     else
 	discisloss = 0;
 
-    if (strcmp(game->clienttag,CLIENTTAG_WARCRAFT3)==0 || strcmp(game->clienttag,CLIENTTAG_WAR3XP)==0)
+    if (game->clienttag==CLIENTTAG_WARCRAFT3_UINT || game->clienttag==CLIENTTAG_WAR3XP_UINT)
     // war3 game reporting is done elsewhere, so we can skip this function
 	    return 0;
     
-    if (strcmp(game->clienttag,CLIENTTAG_DIABLOSHR)==0 ||
-        strcmp(game->clienttag,CLIENTTAG_DIABLORTL)==0 ||
-        strcmp(game->clienttag,CLIENTTAG_DIABLO2ST)==0 ||
-        strcmp(game->clienttag,CLIENTTAG_DIABLO2DV)==0 ||
-        strcmp(game->clienttag,CLIENTTAG_DIABLO2XP)==0)
+    if (game->clienttag==CLIENTTAG_DIABLOSHR_UINT ||
+        game->clienttag==CLIENTTAG_DIABLORTL_UINT ||
+        game->clienttag==CLIENTTAG_DIABLO2ST_UINT ||
+        game->clienttag==CLIENTTAG_DIABLO2DV_UINT ||
+        game->clienttag==CLIENTTAG_DIABLO2XP_UINT)
     {
       if (prefs_get_report_diablo_games() == 1)
 	/* diablo games have transient players and no reported winners/losers */
@@ -930,7 +926,7 @@ static int game_report(t_game * game)
 	    game->name,
 	    game->id);
     fprintf(fp,"clienttag=%4s type=\"%s\" option=\"%s\"\n",
-	    game->clienttag,
+	    tag_uint_to_str(clienttag_str,game->clienttag),
 	    game_type_get_str(game->type),
 	    game_option_get_str(game->option));
     {
@@ -976,7 +972,7 @@ static int game_report(t_game * game)
     
     fprintf(fp,"\n\n");
     
-    if (strcmp(game->clienttag,CLIENTTAG_DIABLORTL)==0)
+    if (game->clienttag==CLIENTTAG_DIABLORTL_UINT)
 	for (i=0; i<game->count; i++)
 	{
 	    tname = account_get_name(game->players[i]);
@@ -1033,10 +1029,10 @@ static int game_report(t_game * game)
     }
     fprintf(fp,"\n\n");
     
-    if (strcmp(game->clienttag,CLIENTTAG_STARCRAFT)==0 ||
-	strcmp(game->clienttag,CLIENTTAG_SHAREWARE)==0 ||
-        strcmp(game->clienttag,CLIENTTAG_BROODWARS)==0 ||
-        strcmp(game->clienttag,CLIENTTAG_WARCIIBNE)==0)
+    if (game->clienttag==CLIENTTAG_STARCRAFT_UINT ||
+	game->clienttag==CLIENTTAG_SHAREWARE_UINT ||
+        game->clienttag==CLIENTTAG_BROODWARS_UINT ||
+        game->clienttag==CLIENTTAG_WARCIIBNE_UINT)
     {
 	for (i=0; i<realcount; i++)
 	{
@@ -1050,9 +1046,9 @@ static int game_report(t_game * game)
 	    account_unget_name(tname);
 	}
     }
-    if (strcmp(game->clienttag,CLIENTTAG_STARCRAFT)==0 ||
-        strcmp(game->clienttag,CLIENTTAG_BROODWARS)==0 ||
-        strcmp(game->clienttag,CLIENTTAG_WARCIIBNE)==0)
+    if (game->clienttag==CLIENTTAG_STARCRAFT_UINT ||
+        game->clienttag==CLIENTTAG_BROODWARS_UINT ||
+        game->clienttag==CLIENTTAG_WARCIIBNE_UINT)
     {
 	fprintf(fp,"\n");
 	for (i=0; i<realcount; i++)
@@ -1069,7 +1065,7 @@ static int game_report(t_game * game)
 	    account_unget_name(tname);
 	}
     }
-    if (strcmp(game->clienttag,CLIENTTAG_WARCIIBNE)==0)
+    if (game->clienttag==CLIENTTAG_WARCIIBNE_UINT)
     {
 	fprintf(fp,"\n");
 	for (i=0; i<realcount; i++)
@@ -1520,12 +1516,12 @@ extern t_connection * game_get_player_conn(t_game const * game, unsigned int i)
   return game->connections[i];
 }
 
-extern char const * game_get_clienttag(t_game const * game)
+extern t_clienttag game_get_clienttag(t_game const * game)
 {
     if (!game)
     {
 	eventlog(eventlog_level_error,"game_get_clienttag","got NULL game");
-        return NULL;
+        return 0;
     }
     return game->clienttag;
 }
@@ -1561,7 +1557,7 @@ extern int game_add_player(t_game * game, char const * pass, int startver, t_con
 	eventlog(eventlog_level_error,"game_add_player","got NULL connection");
         return -1;
     }
-    if (game->type==game_type_ladder && account_get_normal_wins(conn_get_account(c),clienttag_uint_to_str(conn_get_clienttag(c)))<10)
+    if (game->type==game_type_ladder && account_get_normal_wins(conn_get_account(c),conn_get_clienttag(c))<10)
     /* if () ... */
     {
 	eventlog(eventlog_level_error,"game_add_player","can not join ladder game without 10 normal wins");
@@ -1569,7 +1565,7 @@ extern int game_add_player(t_game * game, char const * pass, int startver, t_con
     }
     
     {
-	char const * gt;
+	t_clienttag gt;
 	
 	if (!(gt = game_get_clienttag(game)))
 	{
@@ -1980,7 +1976,7 @@ extern int game_set_reported_results(t_game * game, t_account * account, t_game_
 
 extern int game_set_self_report(t_game * game, t_account * account, t_game_result result)
 {
-    int i;
+    unsigned int i;
     t_game_result * results;
     
     if (!game)
@@ -2349,14 +2345,14 @@ extern t_game_flag game_get_flag(t_game const * game)
     return game->flag;
 }
 
-extern int game_get_count_by_clienttag(char const * ct)
+extern int game_get_count_by_clienttag(t_clienttag ct)
 {
    t_game * game;
    t_elem const * curr;
    int clienttaggames = 0;
    
-   if (ct == NULL) {
-      eventlog(eventlog_level_error, __FUNCTION__, "got NULL clienttag");
+   if (!ct) {
+      eventlog(eventlog_level_error, __FUNCTION__, "got UNKNOWN clienttag");
       return 0;
    }
 
@@ -2364,7 +2360,7 @@ extern int game_get_count_by_clienttag(char const * ct)
    LIST_TRAVERSE_CONST(gamelist(),curr)
      {
 	game = elem_get_data(curr);
-	if(strcmp(game_get_clienttag(game),ct)==0)
+	if(game_get_clienttag(game)==ct)
 	  clienttaggames++;
      }
    

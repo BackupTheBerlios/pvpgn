@@ -273,7 +273,7 @@ static int load_initial_data (t_character * character, t_character_class class, 
 }
 
 
-extern int character_create(t_account * account, char const * clienttag, char const * realmname, char const * name, t_character_class class, t_character_expansion expansion)
+extern int character_create(t_account * account, t_clienttag clienttag, char const * realmname, char const * name, t_character_class class, t_character_expansion expansion)
 {
     t_character * ch;
     
@@ -282,7 +282,7 @@ extern int character_create(t_account * account, char const * clienttag, char co
 	eventlog(eventlog_level_error,"character_create","got NULL account");
 	return -1;
     }
-    if (!clienttag || strlen(clienttag)!=4)
+    if (!clienttag)
     {
 	eventlog(eventlog_level_error,"character_create","got bad clienttag");
 	return -1;

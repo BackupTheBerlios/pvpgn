@@ -51,11 +51,10 @@ static t_list * watchlist_head=NULL;
 
 
 /* who == NULL means anybody */
-extern int watchlist_add_events(t_connection * owner, t_account * who, char const * clienttag, t_watch_event events)
+extern int watchlist_add_events(t_connection * owner, t_account * who, t_clienttag clienttag, t_watch_event events)
 {
     t_elem const * curr;
     t_watch_pair * pair;
-    t_clienttag	   ctag;
     
     if (!owner)
     {
@@ -63,11 +62,6 @@ extern int watchlist_add_events(t_connection * owner, t_account * who, char cons
 	return -1;
     }
 
-    if (clienttag)
-        ctag = clienttag_str_to_uint(clienttag);
-    else
-        ctag = 0;
-    
     LIST_TRAVERSE_CONST(watchlist_head,curr)
     {
 	pair = elem_get_data(curr);
@@ -76,7 +70,7 @@ extern int watchlist_add_events(t_connection * owner, t_account * who, char cons
 	    eventlog(eventlog_level_error,"watchlist_add_events","watchlist contains NULL item");
 	    return -1;
 	}
-	if (pair->owner==owner && pair->who==who && ((ctag == pair->clienttag)))
+	if (pair->owner==owner && pair->who==who && ((clienttag == pair->clienttag)))
 	{
 	    pair->what |= events;
 	    return 0;
@@ -92,7 +86,7 @@ extern int watchlist_add_events(t_connection * owner, t_account * who, char cons
     pair->owner = owner;
     pair->who   = who;
     pair->what  = events;
-    pair->clienttag = ctag;
+    pair->clienttag = clienttag;
     
     if (list_prepend_data(watchlist_head,pair)<0)
     {
@@ -106,22 +100,16 @@ extern int watchlist_add_events(t_connection * owner, t_account * who, char cons
 
 
 /* who == NULL means anybody */
-extern int watchlist_del_events(t_connection * owner, t_account * who, char const * clienttag, t_watch_event events)
+extern int watchlist_del_events(t_connection * owner, t_account * who, t_clienttag clienttag, t_watch_event events)
 {
     t_elem *       curr;
     t_watch_pair * pair;
-    t_clienttag    ctag;
     
     if (!owner)
     {
 	eventlog(eventlog_level_error,"watchlist_del_events","got NULL owner");
 	return -1;
     }
-    
-    if (clienttag)
-        ctag = clienttag_str_to_uint(clienttag);
-    else
-        ctag = 0;
     
     LIST_TRAVERSE(watchlist_head,curr)
     {
@@ -131,7 +119,7 @@ extern int watchlist_del_events(t_connection * owner, t_account * who, char cons
 	    eventlog(eventlog_level_error,"watchlist_del_events","watchlist contains NULL item");
 	    return -1;
 	}
-	if (pair->owner==owner && pair->who==who && ((!ctag) || (ctag == pair->clienttag)))
+	if (pair->owner==owner && pair->who==who && ((!clienttag) || (clienttag == pair->clienttag)))
 	{
 	    pair->what &= ~events;
 	    if (pair->what==0)

@@ -1273,40 +1273,42 @@ extern t_clienttag conn_get_clienttag(t_connection const * c)
 }
 
 
-extern char const * conn_get_fake_clienttag(t_connection const * c)
+extern t_clienttag conn_get_fake_clienttag(t_connection const * c)
 {
-    char const * clienttag;
+    t_clienttag clienttag;
     t_account *  account;
 
     if (!c)
     {
         eventlog(eventlog_level_error,"conn_get_fake_clienttag","got NULL connection");
-        return NULL;
+        return 0; /* unknown */
     }
 
     account = conn_get_account(c);
     if (account) /* BITS remote connections don't need to have an account */
-	if ((clienttag = account_get_strattr(account,"BNET\\fakeclienttag")))
+	if ((clienttag = tag_str_to_uint(account_get_strattr(account,"BNET\\fakeclienttag"))))
 	    return clienttag;
-    return clienttag_uint_to_str(c->protocol.client.clienttag);
+    return c->protocol.client.clienttag;
 }
 
 
 extern void conn_set_clienttag(t_connection * c, t_clienttag clienttag)
 {
-    if (!c)
-    {
+    char clienttag_str[5];
+    
+    if (!c) {
         eventlog(eventlog_level_error,"conn_set_clienttag","got NULL connection");
         return;
     }
-    
-    if (c->protocol.client.clienttag!=clienttag)
-    {
-	eventlog(eventlog_level_info,"conn_set_clienttag","[%d] setting client type to \"%s\"",conn_get_socket(c),clienttag_uint_to_str(clienttag));
+    if (!tag_check_client(clienttag)) {
+	eventlog(eventlog_level_error,__FUNCTION__,"got UNKNOWN clienttag");
+	return;
+    }
+    if (c->protocol.client.clienttag!=clienttag) {
+	eventlog(eventlog_level_info,"conn_set_clienttag","[%d] setting client type to \"%s\"",conn_get_socket(c),tag_uint_to_str(clienttag_str,clienttag));
         c->protocol.client.clienttag = clienttag;
         if (c->protocol.chat.channel)
 	    channel_update_flags(c);
-
     }
     
 }
@@ -1448,7 +1450,7 @@ extern void conn_set_account(t_connection * c, t_account * account)
     
     account_set_ll_time(c->protocol.account,now);
     account_set_ll_owner(c->protocol.account,c->protocol.client.owner);
-    account_set_ll_clienttag(c->protocol.account,clienttag_uint_to_str(c->protocol.client.clienttag));
+    account_set_ll_clienttag(c->protocol.account,c->protocol.client.clienttag);
     account_set_ll_ip(c->protocol.account,addr_num_to_ip_str(c->socket.tcp_addr));
       
     if (c->protocol.client.host)
@@ -1781,7 +1783,7 @@ extern int conn_del_ignore(t_connection * c, t_account const * account)
 }
 
 
-extern int conn_add_watch(t_connection * c, t_account * account, char const * clienttag)
+extern int conn_add_watch(t_connection * c, t_account * account, t_clienttag clienttag)
 {
     if (!c)
     {
@@ -1795,7 +1797,7 @@ extern int conn_add_watch(t_connection * c, t_account * account, char const * cl
 }
 
 
-extern int conn_del_watch(t_connection * c, t_account * account, char const * clienttag)
+extern int conn_del_watch(t_connection * c, t_account * account, t_clienttag clienttag)
 {
     if (!c)
     {
@@ -1956,9 +1958,9 @@ extern int conn_set_channel(t_connection * c, char const * channelname)
         if(account_get_new_at_team(acc)==1)
 		{
 			int temp;
-			temp = account_get_atteamcount(acc,clienttag_uint_to_str(c->protocol.client.clienttag));
+			temp = account_get_atteamcount(acc,c->protocol.client.clienttag);
 			temp = temp-1;
-			account_set_atteamcount(acc,clienttag_uint_to_str(c->protocol.client.clienttag),temp);
+			account_set_atteamcount(acc,c->protocol.client.clienttag,temp);
 			account_set_new_at_team(acc,0);
 		}
 
@@ -2096,7 +2098,7 @@ extern int conn_set_game(t_connection * c, char const * gamename, char const * g
 	*/
 	// original code
 	{
-	  c->protocol.game = game_create(gamename,gamepass,gameinfo,type,version,clienttag_uint_to_str(c->protocol.client.clienttag),conn_get_gameversion(c));
+	  c->protocol.game = game_create(gamename,gamepass,gameinfo,type,version,c->protocol.client.clienttag,conn_get_gameversion(c));
 	    if (c->protocol.game && conn_get_realmname(c) && conn_get_charname(c))
 	    {
 		game_set_realmname(c->protocol.game,conn_get_realmname(c));
@@ -2485,8 +2487,9 @@ extern char const * conn_get_playerinfo(t_connection const * c)
 {
     t_account *  account;
     static char  playerinfo[MAX_PLAYERINFO_STR];
-    char const * clienttag;
+    t_clienttag  clienttag;
     char         revtag[5];
+    char         clienttag_str[5];
         
     if (!c)
     {
@@ -2504,16 +2507,17 @@ extern char const * conn_get_playerinfo(t_connection const * c)
 	eventlog(eventlog_level_error,"conn_get_playerinfo","connection has NULL fakeclienttag");
 	return NULL;
     }
-    strncpy(revtag,clienttag,5); revtag[4] = '\0';
+    tag_uint_to_str(clienttag_str,clienttag);
+    strncpy(revtag,clienttag_str,5); revtag[4] = '\0';
     strreverse(revtag);
     
-    if (strcmp(clienttag,CLIENTTAG_BNCHATBOT)==0)
+    if (clienttag==CLIENTTAG_BNCHATBOT_UINT)
     {
 	strcpy(playerinfo,revtag); /* FIXME: what to return here? */
 	// commented cause i'm sick of seeing this in the logs
 	//eventlog(eventlog_level_debug,"conn_get_playerinfo","got CHAT clienttag, using best guess");
     }
-    else if (strcmp(clienttag,CLIENTTAG_STARCRAFT)==0)
+    else if (clienttag==CLIENTTAG_STARCRAFT_UINT)
     {
         if (conn_get_versionid(c)<=0x000000c7)
 	{
@@ -2535,7 +2539,7 @@ extern char const * conn_get_playerinfo(t_connection const * c)
 		  revtag);
 	}
     }
-    else if (strcmp(clienttag,CLIENTTAG_BROODWARS)==0)
+    else if (clienttag==CLIENTTAG_BROODWARS_UINT)
     {
         if (conn_get_versionid(c)<=0x000000c7)
 	{
@@ -2557,7 +2561,7 @@ extern char const * conn_get_playerinfo(t_connection const * c)
 		  revtag);
 	}
     }
-    else if (strcmp(clienttag,CLIENTTAG_SHAREWARE)==0)
+    else if (clienttag==CLIENTTAG_SHAREWARE_UINT)
     {
 	sprintf(playerinfo,"%s %u %u %u %u %u",
 		revtag,
@@ -2566,7 +2570,7 @@ extern char const * conn_get_playerinfo(t_connection const * c)
 		account_get_normal_wins(account,clienttag),
 		0,0);
     }
-    else if (strcmp(clienttag,CLIENTTAG_DIABLORTL)==0)
+    else if (clienttag==CLIENTTAG_DIABLORTL_UINT)
     {
 	sprintf(playerinfo,"%s %u %u %u %u %u %u %u %u %u",
 		revtag,
@@ -2580,7 +2584,7 @@ extern char const * conn_get_playerinfo(t_connection const * c)
 		account_get_normal_gold(account,clienttag),
 		0);
     }
-    else if (strcmp(clienttag,CLIENTTAG_DIABLOSHR)==0)
+    else if (clienttag==CLIENTTAG_DIABLOSHR_UINT)
     {
 	sprintf(playerinfo,"%s %u %u %u %u %u %u %u %u %u",
 		revtag,
@@ -2594,7 +2598,7 @@ extern char const * conn_get_playerinfo(t_connection const * c)
 		account_get_normal_gold(account,clienttag),
 		0);
     }
-    else if (strcmp(clienttag,CLIENTTAG_WARCIIBNE)==0)
+    else if (clienttag==CLIENTTAG_WARCIIBNE_UINT)
     {
 	unsigned int a,b;
 	
@@ -2612,7 +2616,7 @@ extern char const * conn_get_playerinfo(t_connection const * c)
 		b,
 		account_get_ladder_rank(account,clienttag,ladder_id_ironman));
     }
-    else if ((strcmp(clienttag,CLIENTTAG_DIABLO2DV)==0) || (strcmp(clienttag,CLIENTTAG_DIABLO2XP)==0))
+    else if (clienttag==CLIENTTAG_DIABLO2DV_UINT || clienttag==CLIENTTAG_DIABLO2XP_UINT)
 #if 0
     /* FIXME: Was this the old code? Can this stuff vanish? */
     /* Yes, this was the pre-d2close code, however I'm not sure the new code
@@ -2645,8 +2649,9 @@ extern char const * conn_get_playerinfo(t_connection const * c)
        /* This sets portrait of character */
        if (!conn_get_realmname(c) || !conn_get_realminfo(c))
        {
-           bn_int_tag_set((bn_int *)playerinfo,clienttag); /* FIXME: Is this attempting to reverse the tag?  This isn't really correct... why not use the revtag stuff like above or below? */
-           playerinfo[strlen(clienttag)]='\0';
+           tag_uint_to_str(playerinfo,clienttag);
+           //bn_int_tag_set((bn_int *)playerinfo,clienttag); /* FIXME: Is this attempting to reverse the tag?  This isn't really correct... why not use the revtag stuff like above or below? */
+           //playerinfo[strlen(clienttag)]='\0';
        }
        else
        {
@@ -2662,7 +2667,8 @@ extern char const * conn_get_playerinfo(t_connection const * c)
 
 extern int conn_set_playerinfo(t_connection const * c, char const * playerinfo)
 {
-    char const * clienttag;
+    t_clienttag clienttag;
+    char	clienttag_str[5];
     
     if (!c)
     {
@@ -2674,9 +2680,9 @@ extern int conn_set_playerinfo(t_connection const * c, char const * playerinfo)
 	eventlog(eventlog_level_error,"conn_set_playerinfo","got NULL playerinfo");
 	return -1;
     }
-    clienttag = clienttag_uint_to_str(c->protocol.client.clienttag);
+    clienttag = c->protocol.client.clienttag;
     
-    if (strcmp(clienttag,CLIENTTAG_DIABLORTL)==0)
+    if (clienttag==CLIENTTAG_DIABLORTL_UINT)
     {
 	unsigned int level;
 	unsigned int class;
@@ -2710,7 +2716,7 @@ extern int conn_set_playerinfo(t_connection const * c, char const * playerinfo)
 	account_set_normal_vitality(conn_get_account(c),clienttag,vitality);
 	account_set_normal_gold(conn_get_account(c),clienttag,gold);
     }
-    else if (strcmp(clienttag,CLIENTTAG_DIABLOSHR)==0)
+    else if (clienttag==CLIENTTAG_DIABLOSHR_UINT)
     {
 	unsigned int level;
 	unsigned int class;
@@ -2744,19 +2750,19 @@ extern int conn_set_playerinfo(t_connection const * c, char const * playerinfo)
 	account_set_normal_vitality(conn_get_account(c),clienttag,vitality);
 	account_set_normal_gold(conn_get_account(c),clienttag,gold);
     }
-    else if (strcmp(clienttag,CLIENTTAG_DIABLO2DV)==0)
+    else if (clienttag==CLIENTTAG_DIABLO2DV_UINT)
     {
 	/* not much to do */ /* FIXME: get char name here? */
-	eventlog(eventlog_level_trace,"conn_set_playerinfo","[%d] playerinfo request for client \"%s\" playerinfo=\"%s\"",conn_get_socket(c),clienttag,playerinfo);
+	eventlog(eventlog_level_trace,"conn_set_playerinfo","[%d] playerinfo request for client \"%s\" playerinfo=\"%s\"",conn_get_socket(c),tag_uint_to_str(clienttag_str,clienttag),playerinfo);
     }
-    else if (strcmp(clienttag,CLIENTTAG_DIABLO2XP)==0)
+    else if (clienttag==CLIENTTAG_DIABLO2XP_UINT)
     {
         /* in playerinfo we get strings of the form "Realmname,charname" */
-	eventlog(eventlog_level_trace,"conn_set_playerinfo","[%d] playerinfo request for client \"%s\" playerinfo=\"%s\"",conn_get_socket(c),clienttag,playerinfo);
+	eventlog(eventlog_level_trace,"conn_set_playerinfo","[%d] playerinfo request for client \"%s\" playerinfo=\"%s\"",conn_get_socket(c),tag_uint_to_str(clienttag_str,clienttag),playerinfo);
     }
     else
     {
-	eventlog(eventlog_level_warn,"conn_set_playerinfo","setting playerinfo for client \"%s\" not supported (playerinfo=\"%s\")",clienttag,playerinfo);
+	eventlog(eventlog_level_warn,"conn_set_playerinfo","setting playerinfo for client \"%s\" not supported (playerinfo=\"%s\")",tag_uint_to_str(clienttag_str,clienttag),playerinfo);
 	return -1;
     }
     
@@ -3725,7 +3731,7 @@ extern unsigned int connlist_count_connections(unsigned int addr)
 extern int conn_update_w3_playerinfo(t_connection * c)
 {
     t_account * 	account;
-    char const * 	clienttag;
+    t_clienttag		clienttag;
     t_clan * 		user_clan;
     int 		clantag=0;
     unsigned int	acctlevel;
@@ -3736,7 +3742,8 @@ extern int conn_update_w3_playerinfo(t_connection * c)
     char const *	usericon;
     char 		clantag_str_tmp[5];
     const char * 	clantag_str = NULL;
-    char        revtag[5];
+    char        	revtag[5];
+    char		clienttag_str[5];
 
     if (c == NULL) {
 	eventlog(eventlog_level_error, __FUNCTION__, "got NULL connection");
@@ -3750,10 +3757,10 @@ extern int conn_update_w3_playerinfo(t_connection * c)
 	return -1;
     }
 
-    strncpy(revtag, conn_get_fake_clienttag(c),5); revtag[4] = '\0';
+    strncpy(revtag, tag_uint_to_str(clienttag_str,conn_get_fake_clienttag(c)),5); revtag[4] = '\0';
     strreverse(revtag);
 
-    clienttag = clienttag_uint_to_str(c->protocol.client.clienttag);
+    clienttag = c->protocol.client.clienttag;
 
     acctlevel = account_get_highestladderlevel(account,clienttag);
     account_get_raceicon(account, &raceicon, &raceiconnumber, &wins, clienttag);

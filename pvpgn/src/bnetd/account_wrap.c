@@ -463,21 +463,30 @@ extern int account_set_ll_time(t_account * account, unsigned int t)
 
 
 
-extern char const * account_get_ll_clienttag(t_account * account)
+extern t_clienttag account_get_ll_clienttag(t_account * account)
 {
-    return account_get_strattr(account,"BNET\\acct\\lastlogin_clienttag");
+    char const * clienttag;
+    t_clienttag clienttag_uint;
+    
+    clienttag = account_get_strattr(account,"BNET\\acct\\lastlogin_clienttag");
+    clienttag_uint= tag_str_to_uint(clienttag);
+    account_unget_strattr(clienttag);
+    
+    return clienttag_uint;
 }
 
-
+/*
 extern int account_unget_ll_clienttag(char const * clienttag)
 {
     return account_unget_strattr(clienttag);
 }
+*/
 
-
-extern int account_set_ll_clienttag(t_account * account, char const * clienttag)
+extern int account_set_ll_clienttag(t_account * account, t_clienttag clienttag)
 {
-    return account_set_strattr(account,"BNET\\acct\\lastlogin_clienttag",clienttag);
+    char clienttag_str[5];
+    
+    return account_set_strattr(account,"BNET\\acct\\lastlogin_clienttag",tag_uint_to_str(clienttag_str,clienttag));
 }
 
 
@@ -537,142 +546,152 @@ extern int account_set_ll_ip(t_account * account, char const * ip)
 /****************************************************************/
 
 
-extern unsigned int account_get_normal_wins(t_account * account, char const * clienttag)
+extern unsigned int account_get_normal_wins(t_account * account, t_clienttag clienttag)
 {
     char key[256];
+    char clienttag_str[5];
     
-    if (!clienttag || strlen(clienttag)!=4)
+    if (!clienttag)
     {
 	eventlog(eventlog_level_error,"account_get_normal_wins","got bad clienttag");
 	return 0;
     }
-    sprintf(key,"Record\\%s\\0\\wins",clienttag);
+    sprintf(key,"Record\\%s\\0\\wins",tag_uint_to_str(clienttag_str,clienttag));
     return account_get_numattr(account,key);
 }
 
 
-extern int account_inc_normal_wins(t_account * account, char const * clienttag)
+extern int account_inc_normal_wins(t_account * account, t_clienttag clienttag)
 {
     char key[256];
+    char clienttag_str[5];
     
-    if (!clienttag || strlen(clienttag)!=4)
+    if (!clienttag)
     {
 	eventlog(eventlog_level_error,"account_inc_normal_wins","got bad clienttag");
 	return -1;
     }
-    sprintf(key,"Record\\%s\\0\\wins",clienttag);
+    sprintf(key,"Record\\%s\\0\\wins",tag_uint_to_str(clienttag_str,clienttag));
     return account_set_numattr(account,key,account_get_normal_wins(account,clienttag)+1);
 }
 
 
-extern unsigned int account_get_normal_losses(t_account * account, char const * clienttag)
+extern unsigned int account_get_normal_losses(t_account * account, t_clienttag clienttag)
 {
     char key[256];
+    char clienttag_str[5];
     
-    if (!clienttag || strlen(clienttag)!=4)
+    if (!clienttag)
     {
 	eventlog(eventlog_level_error,"account_get_normal_losses","got bad clienttag");
 	return 0;
     }
-    sprintf(key,"Record\\%s\\0\\losses",clienttag);
+    sprintf(key,"Record\\%s\\0\\losses",tag_uint_to_str(clienttag_str,clienttag));
     return account_get_numattr(account,key);
 }
 
 
-extern int account_inc_normal_losses(t_account * account, char const * clienttag)
+extern int account_inc_normal_losses(t_account * account, t_clienttag clienttag)
 {
     char key[256];
+    char clienttag_str[5];
     
-    if (!clienttag || strlen(clienttag)!=4)
+    if (!clienttag)
     {
 	eventlog(eventlog_level_error,"account_inc_normal_losses","got bad clienttag");
 	return -1;
     }
-    sprintf(key,"Record\\%s\\0\\losses",clienttag);
+    sprintf(key,"Record\\%s\\0\\losses",tag_uint_to_str(clienttag_str,clienttag));
     return account_set_numattr(account,key,account_get_normal_losses(account,clienttag)+1);
 }
 
 
-extern unsigned int account_get_normal_draws(t_account * account, char const * clienttag)
+extern unsigned int account_get_normal_draws(t_account * account, t_clienttag clienttag)
 {
     char key[256];
+    char clienttag_str[5];
     
-    if (!clienttag || strlen(clienttag)!=4)
+    if (!clienttag)
     {
 	eventlog(eventlog_level_error,"account_get_normal_draws","got bad clienttag");
 	return 0;
     }
-    sprintf(key,"Record\\%s\\0\\draws",clienttag);
+    sprintf(key,"Record\\%s\\0\\draws",tag_uint_to_str(clienttag_str,clienttag));
     return account_get_numattr(account,key);
 }
 
 
-extern int account_inc_normal_draws(t_account * account, char const * clienttag)
+extern int account_inc_normal_draws(t_account * account, t_clienttag clienttag)
 {
     char key[256];
+    char clienttag_str[5];
     
-    if (!clienttag || strlen(clienttag)!=4)
+    if (!clienttag)
     {
 	eventlog(eventlog_level_error,"account_inc_normal_draws","got bad clienttag");
 	return -1;
     }
-    sprintf(key,"Record\\%s\\0\\draws",clienttag);
+    sprintf(key,"Record\\%s\\0\\draws",tag_uint_to_str(clienttag_str,clienttag));
     return account_set_numattr(account,key,account_get_normal_draws(account,clienttag)+1);
 }
 
 
-extern unsigned int account_get_normal_disconnects(t_account * account, char const * clienttag)
+extern unsigned int account_get_normal_disconnects(t_account * account, t_clienttag clienttag)
 {
     char key[256];
+    char clienttag_str[5];
     
-    if (!clienttag || strlen(clienttag)!=4)
+    if (!clienttag)
     {
 	eventlog(eventlog_level_error,"account_get_normal_disconnects","got bad clienttag");
 	return 0;
     }
-    sprintf(key,"Record\\%s\\0\\disconnects",clienttag);
+    sprintf(key,"Record\\%s\\0\\disconnects",tag_uint_to_str(clienttag_str,clienttag));
     return account_get_numattr(account,key);
 }
 
 
-extern int account_inc_normal_disconnects(t_account * account, char const * clienttag)
+extern int account_inc_normal_disconnects(t_account * account, t_clienttag clienttag)
 {
     char key[256];
+    char clienttag_str[5];
     
-    if (!clienttag || strlen(clienttag)!=4)
+    if (!clienttag)
     {
 	eventlog(eventlog_level_error,"account_inc_normal_disconnects","got bad clienttag");
 	return -1;
     }
-    sprintf(key,"Record\\%s\\0\\disconnects",clienttag);
+    sprintf(key,"Record\\%s\\0\\disconnects",tag_uint_to_str(clienttag_str,clienttag));
     return account_set_numattr(account,key,account_get_normal_disconnects(account,clienttag)+1);
 }
 
 
-extern int account_set_normal_last_time(t_account * account, char const * clienttag, t_bnettime t)
+extern int account_set_normal_last_time(t_account * account, t_clienttag clienttag, t_bnettime t)
 {
     char key[256];
+    char clienttag_str[5];
     
-    if (!clienttag || strlen(clienttag)!=4)
+    if (!clienttag)
     {
 	eventlog(eventlog_level_error,"account_set_normal_last_time","got bad clienttag");
 	return -1;
     }
-    sprintf(key,"Record\\%s\\0\\last game",clienttag);
+    sprintf(key,"Record\\%s\\0\\last game",tag_uint_to_str(clienttag_str,clienttag));
     return account_set_strattr(account,key,bnettime_get_str(t));
 }
 
 
-extern int account_set_normal_last_result(t_account * account, char const * clienttag, char const * result)
+extern int account_set_normal_last_result(t_account * account, t_clienttag clienttag, char const * result)
 {
     char key[256];
+    char clienttag_str[5];
     
-    if (!clienttag || strlen(clienttag)!=4)
+    if (!clienttag)
     {
 	eventlog(eventlog_level_error,"account_set_normal_last_result","got bad clienttag");
 	return -1;
     }
-    sprintf(key,"Record\\%s\\0\\last game result",clienttag);
+    sprintf(key,"Record\\%s\\0\\last game result",tag_uint_to_str(clienttag_str,clienttag));
     return account_set_strattr(account,key,result);
 }
 
@@ -680,344 +699,367 @@ extern int account_set_normal_last_result(t_account * account, char const * clie
 /****************************************************************/
 
 
-extern unsigned int account_get_ladder_active_wins(t_account * account, char const * clienttag, t_ladder_id id)
+extern unsigned int account_get_ladder_active_wins(t_account * account, t_clienttag clienttag, t_ladder_id id)
 {
     char key[256];
+    char clienttag_str[5];
     
-    if (!clienttag || strlen(clienttag)!=4)
+    if (!clienttag)
     {
 	eventlog(eventlog_level_error,"account_get_ladder_active_wins","got bad clienttag");
 	return 0;
     }
-    sprintf(key,"Record\\%s\\%d\\active wins",clienttag,(int)id);
+    sprintf(key,"Record\\%s\\%d\\active wins",tag_uint_to_str(clienttag_str,clienttag),(int)id);
     return account_get_numattr(account,key);
 }
 
 
-extern int account_set_ladder_active_wins(t_account * account, char const * clienttag, t_ladder_id id, unsigned int wins)
+extern int account_set_ladder_active_wins(t_account * account, t_clienttag clienttag, t_ladder_id id, unsigned int wins)
 {
     char key[256];
+    char clienttag_str[5];
     
-    if (!clienttag || strlen(clienttag)!=4)
+    if (!clienttag)
     {
 	eventlog(eventlog_level_error,"account_set_ladder_active_wins","got bad clienttag");
 	return -1;
     }
-    sprintf(key,"Record\\%s\\%d\\active wins",clienttag,(int)id);
+    sprintf(key,"Record\\%s\\%d\\active wins",tag_uint_to_str(clienttag_str,clienttag),(int)id);
     return account_set_numattr(account,key,wins);
 }
 
 
-extern unsigned int account_get_ladder_active_losses(t_account * account, char const * clienttag, t_ladder_id id)
+extern unsigned int account_get_ladder_active_losses(t_account * account, t_clienttag clienttag, t_ladder_id id)
 {
     char key[256];
+    char clienttag_str[5];
     
-    if (!clienttag || strlen(clienttag)!=4)
+    if (!clienttag)
     {
 	eventlog(eventlog_level_error,"account_get_ladder_active_losses","got bad clienttag");
 	return 0;
     }
-    sprintf(key,"Record\\%s\\%d\\active losses",clienttag,(int)id);
+    sprintf(key,"Record\\%s\\%d\\active losses",tag_uint_to_str(clienttag_str,clienttag),(int)id);
     return account_get_numattr(account,key);
 }
 
 
-extern int account_set_ladder_active_losses(t_account * account, char const * clienttag, t_ladder_id id, unsigned int losses)
+extern int account_set_ladder_active_losses(t_account * account, t_clienttag clienttag, t_ladder_id id, unsigned int losses)
 {
     char key[256];
+    char clienttag_str[5];
     
-    if (!clienttag || strlen(clienttag)!=4)
+    if (!clienttag)
     {
 	eventlog(eventlog_level_error,"account_set_ladder_active_losses","got bad clienttag");
 	return -1;
     }
-    sprintf(key,"Record\\%s\\%d\\active losses",clienttag,(int)id);
+    sprintf(key,"Record\\%s\\%d\\active losses",tag_uint_to_str(clienttag_str,clienttag),(int)id);
     return account_set_numattr(account,key,losses);
 }
 
 
-extern unsigned int account_get_ladder_active_draws(t_account * account, char const * clienttag, t_ladder_id id)
+extern unsigned int account_get_ladder_active_draws(t_account * account, t_clienttag clienttag, t_ladder_id id)
 {
     char key[256];
+    char clienttag_str[5];
     
-    if (!clienttag || strlen(clienttag)!=4)
+    if (!clienttag)
     {
 	eventlog(eventlog_level_error,"account_get_ladder_active_draws","got bad clienttag");
 	return 0;
     }
-    sprintf(key,"Record\\%s\\%d\\active draws",clienttag,(int)id);
+    sprintf(key,"Record\\%s\\%d\\active draws",tag_uint_to_str(clienttag_str,clienttag),(int)id);
     return account_get_numattr(account,key);
 }
 
 
-extern int account_set_ladder_active_draws(t_account * account, char const * clienttag, t_ladder_id id, unsigned int draws)
+extern int account_set_ladder_active_draws(t_account * account, t_clienttag clienttag, t_ladder_id id, unsigned int draws)
 {
     char key[256];
+    char clienttag_str[5];
     
-    if (!clienttag || strlen(clienttag)!=4)
+    if (!clienttag)
     {
 	eventlog(eventlog_level_error,"account_set_ladder_active_draws","got bad clienttag");
 	return -1;
     }
-    sprintf(key,"Record\\%s\\%d\\active draws",clienttag,(int)id);
+    sprintf(key,"Record\\%s\\%d\\active draws",tag_uint_to_str(clienttag_str,clienttag),(int)id);
     return account_set_numattr(account,key,draws);
 }
 
 
-extern unsigned int account_get_ladder_active_disconnects(t_account * account, char const * clienttag, t_ladder_id id)
+extern unsigned int account_get_ladder_active_disconnects(t_account * account, t_clienttag clienttag, t_ladder_id id)
 {
     char key[256];
+    char clienttag_str[5];
     
-    if (!clienttag || strlen(clienttag)!=4)
+    if (!clienttag)
     {
 	eventlog(eventlog_level_error,"account_get_ladder_active_disconnects","got bad clienttag");
 	return 0;
     }
-    sprintf(key,"Record\\%s\\%d\\active disconnects",clienttag,(int)id);
+    sprintf(key,"Record\\%s\\%d\\active disconnects",tag_uint_to_str(clienttag_str,clienttag),(int)id);
     return account_get_numattr(account,key);
 }
 
 
-extern int account_set_ladder_active_disconnects(t_account * account, char const * clienttag, t_ladder_id id, unsigned int disconnects)
+extern int account_set_ladder_active_disconnects(t_account * account, t_clienttag clienttag, t_ladder_id id, unsigned int disconnects)
 {
     char key[256];
+    char clienttag_str[5];
     
-    if (!clienttag || strlen(clienttag)!=4)
+    if (!clienttag)
     {
 	eventlog(eventlog_level_error,"account_set_ladder_active_disconnects","got bad clienttag");
 	return -1;
     }
-    sprintf(key,"Record\\%s\\%d\\active disconnects",clienttag,(int)id);
+    sprintf(key,"Record\\%s\\%d\\active disconnects",tag_uint_to_str(clienttag_str,clienttag),(int)id);
     return account_set_numattr(account,key,disconnects);
 }
 
 
-extern unsigned int account_get_ladder_active_rating(t_account * account, char const * clienttag, t_ladder_id id)
+extern unsigned int account_get_ladder_active_rating(t_account * account, t_clienttag clienttag, t_ladder_id id)
 {
     char key[256];
+    char clienttag_str[5];
     
-    if (!clienttag || strlen(clienttag)!=4)
+    if (!clienttag)
     {
 	eventlog(eventlog_level_error,"account_get_ladder_active_rating","got bad clienttag");
 	return 0;
     }
-    sprintf(key,"Record\\%s\\%d\\active rating",clienttag,(int)id);
+    sprintf(key,"Record\\%s\\%d\\active rating",tag_uint_to_str(clienttag_str,clienttag),(int)id);
     return account_get_numattr(account,key);
 }
 
 
-extern int account_set_ladder_active_rating(t_account * account, char const * clienttag, t_ladder_id id, unsigned int rating)
+extern int account_set_ladder_active_rating(t_account * account, t_clienttag clienttag, t_ladder_id id, unsigned int rating)
 {
     char key[256];
+    char clienttag_str[5];
     
-    if (!clienttag || strlen(clienttag)!=4)
+    if (!clienttag)
     {
 	eventlog(eventlog_level_error,"account_set_ladder_active_rating","got bad clienttag");
 	return -1;
     }
-    sprintf(key,"Record\\%s\\%d\\active rating",clienttag,(int)id);
+    sprintf(key,"Record\\%s\\%d\\active rating",tag_uint_to_str(clienttag_str,clienttag),(int)id);
     return account_set_numattr(account,key,rating);
 }
 
 
-extern int account_get_ladder_active_rank(t_account * account, char const * clienttag, t_ladder_id id)
+extern int account_get_ladder_active_rank(t_account * account, t_clienttag clienttag, t_ladder_id id)
 {
     char key[256];
+    char clienttag_str[5];
     
-    if (!clienttag || strlen(clienttag)!=4)
+    if (!clienttag)
     {
 	eventlog(eventlog_level_error,"account_get_ladder_active_rank","got bad clienttag");
 	return 0;
     }
-    sprintf(key,"Record\\%s\\%d\\active rank",clienttag,(int)id);
+    sprintf(key,"Record\\%s\\%d\\active rank",tag_uint_to_str(clienttag_str,clienttag),(int)id);
     return account_get_numattr(account,key);
 }
 
 
-extern int account_set_ladder_active_rank(t_account * account, char const * clienttag, t_ladder_id id, unsigned int rank)
+extern int account_set_ladder_active_rank(t_account * account, t_clienttag clienttag, t_ladder_id id, unsigned int rank)
 {
     char key[256];
+    char clienttag_str[5];
     
-    if (!clienttag || strlen(clienttag)!=4)
+    if (!clienttag)
     {
 	eventlog(eventlog_level_error,"account_set_ladder_active_rank","got bad clienttag");
 	return -1;
     }
-    sprintf(key,"Record\\%s\\%d\\active rank",clienttag,(int)id);
+    sprintf(key,"Record\\%s\\%d\\active rank",tag_uint_to_str(clienttag_str,clienttag),(int)id);
     return account_set_numattr(account,key,rank);
 }
 
 
-extern char const * account_get_ladder_active_last_time(t_account * account, char const * clienttag, t_ladder_id id)
+extern char const * account_get_ladder_active_last_time(t_account * account, t_clienttag clienttag, t_ladder_id id)
 {
     char key[256];
+    char clienttag_str[5];
     
-    if (!clienttag || strlen(clienttag)!=4)
+    if (!clienttag)
     {
 	eventlog(eventlog_level_error,"account_get_ladder_active_last_time","got bad clienttag");
 	return NULL;
     }
-    sprintf(key,"Record\\%s\\%d\\active last game",clienttag,(int)id);
+    sprintf(key,"Record\\%s\\%d\\active last game",tag_uint_to_str(clienttag_str,clienttag),(int)id);
     return account_get_strattr(account,key);
 }
 
 
-extern int account_set_ladder_active_last_time(t_account * account, char const * clienttag, t_ladder_id id, t_bnettime t)
+extern int account_set_ladder_active_last_time(t_account * account, t_clienttag clienttag, t_ladder_id id, t_bnettime t)
 {
     char key[256];
+    char clienttag_str[5];
     
-    if (!clienttag || strlen(clienttag)!=4)
+    if (!clienttag)
     {
 	eventlog(eventlog_level_error,"account_set_ladder_active_last_time","got bad clienttag");
 	return -1;
     }
-    sprintf(key,"Record\\%s\\%d\\active last game",clienttag,(int)id);
+    sprintf(key,"Record\\%s\\%d\\active last game",tag_uint_to_str(clienttag_str,clienttag),(int)id);
     return account_set_strattr(account,key,bnettime_get_str(t));
 }
-
 
 /****************************************************************/
 
 
-extern unsigned int account_get_ladder_wins(t_account * account, char const * clienttag, t_ladder_id id)
+extern unsigned int account_get_ladder_wins(t_account * account, t_clienttag clienttag, t_ladder_id id)
 {
     char key[256];
+    char clienttag_str[5];
     
-    if (!clienttag || strlen(clienttag)!=4)
+    if (!clienttag)
     {
 	eventlog(eventlog_level_error,"account_get_ladder_wins","got bad clienttag");
 	return 0;
     }
-    sprintf(key,"Record\\%s\\%d\\wins",clienttag,(int)id);
+    sprintf(key,"Record\\%s\\%d\\wins",tag_uint_to_str(clienttag_str,clienttag),(int)id);
     return account_get_numattr(account,key);
 }
 
 
-extern int account_inc_ladder_wins(t_account * account, char const * clienttag, t_ladder_id id)
+extern int account_inc_ladder_wins(t_account * account, t_clienttag clienttag, t_ladder_id id)
 {
     char key[256];
+    char clienttag_str[5];
     
-    if (!clienttag || strlen(clienttag)!=4)
+    if (!clienttag)
     {
 	eventlog(eventlog_level_error,"account_inc_ladder_wins","got bad clienttag");
 	return -1;
     }
-    sprintf(key,"Record\\%s\\%d\\wins",clienttag,(int)id);
+    sprintf(key,"Record\\%s\\%d\\wins",tag_uint_to_str(clienttag_str,clienttag),(int)id);
     return account_set_numattr(account,key,account_get_ladder_wins(account,clienttag,id)+1);
 }
 
 
-extern unsigned int account_get_ladder_losses(t_account * account, char const * clienttag, t_ladder_id id)
+extern unsigned int account_get_ladder_losses(t_account * account, t_clienttag clienttag, t_ladder_id id)
 {
     char key[256];
+    char clienttag_str[5];
     
-    if (!clienttag || strlen(clienttag)!=4)
+    if (!clienttag)
     {
 	eventlog(eventlog_level_error,"account_get_ladder_losses","got bad clienttag");
 	return 0;
     }
-    sprintf(key,"Record\\%s\\%d\\losses",clienttag,(int)id);
+    sprintf(key,"Record\\%s\\%d\\losses",tag_uint_to_str(clienttag_str,clienttag),(int)id);
     return account_get_numattr(account,key);
 }
 
 
-extern int account_inc_ladder_losses(t_account * account, char const * clienttag, t_ladder_id id)
+extern int account_inc_ladder_losses(t_account * account, t_clienttag clienttag, t_ladder_id id)
 {
     char key[256];
+    char clienttag_str[5];
     
-    if (!clienttag || strlen(clienttag)!=4)
+    if (!clienttag)
     {
        eventlog(eventlog_level_error,"account_inc_ladder_losses","got bad clienttag");
        return -1;
     }
-    sprintf(key,"Record\\%s\\%d\\losses",clienttag,(int)id);
+    sprintf(key,"Record\\%s\\%d\\losses",tag_uint_to_str(clienttag_str,clienttag),(int)id);
     return account_set_numattr(account,key,account_get_ladder_losses(account,clienttag,id)+1);
 }
 
 
-extern unsigned int account_get_ladder_draws(t_account * account, char const * clienttag, t_ladder_id id)
+extern unsigned int account_get_ladder_draws(t_account * account, t_clienttag clienttag, t_ladder_id id)
 {
     char key[256];
+    char clienttag_str[5];
     
-    if (!clienttag || strlen(clienttag)!=4)
+    if (!clienttag)
     {
 	eventlog(eventlog_level_error,"account_get_ladder_draws","got bad clienttag");
 	return 0;
     }
-    sprintf(key,"Record\\%s\\%d\\draws",clienttag,(int)id);
+    sprintf(key,"Record\\%s\\%d\\draws",tag_uint_to_str(clienttag_str,clienttag),(int)id);
     return account_get_numattr(account,key);
 }
 
 
-extern int account_inc_ladder_draws(t_account * account, char const * clienttag, t_ladder_id id)
+extern int account_inc_ladder_draws(t_account * account, t_clienttag clienttag, t_ladder_id id)
 {
     char key[256];
+    char clienttag_str[5];
     
-    if (!clienttag || strlen(clienttag)!=4)
+    if (!clienttag)
     {
        eventlog(eventlog_level_error,"account_inc_ladder_draws","got bad clienttag");
        return -1;
     }
-    sprintf(key,"Record\\%s\\%d\\draws",clienttag,(int)id);
+    sprintf(key,"Record\\%s\\%d\\draws",tag_uint_to_str(clienttag_str,clienttag),(int)id);
     return account_set_numattr(account,key,account_get_ladder_draws(account,clienttag,id)+1);
 }
 
 
-extern unsigned int account_get_ladder_disconnects(t_account * account, char const * clienttag, t_ladder_id id)
+extern unsigned int account_get_ladder_disconnects(t_account * account, t_clienttag clienttag, t_ladder_id id)
 {
     char key[256];
+    char clienttag_str[5];
     
-    if (!clienttag || strlen(clienttag)!=4)
+    if (!clienttag)
     {
 	eventlog(eventlog_level_error,"account_get_ladder_disconnects","got bad clienttag");
 	return 0;
     }
-    sprintf(key,"Record\\%s\\%d\\disconnects",clienttag,(int)id);
+    sprintf(key,"Record\\%s\\%d\\disconnects",tag_uint_to_str(clienttag_str,clienttag),(int)id);
     return account_get_numattr(account,key);
 }
 
 
-extern int account_inc_ladder_disconnects(t_account * account, char const * clienttag, t_ladder_id id)
+extern int account_inc_ladder_disconnects(t_account * account, t_clienttag clienttag, t_ladder_id id)
 {
     char key[256];
+    char clienttag_str[5];
     
-    if (!clienttag || strlen(clienttag)!=4)
+    if (!clienttag)
     {
        eventlog(eventlog_level_error,"account_inc_ladder_disconnects","got bad clienttag");
        return -1;
     }
-    sprintf(key,"Record\\%s\\%d\\disconnects",clienttag,(int)id);
+    sprintf(key,"Record\\%s\\%d\\disconnects",tag_uint_to_str(clienttag_str,clienttag),(int)id);
     return account_set_numattr(account,key,account_get_ladder_disconnects(account,clienttag,id)+1);
 }
 
 
-extern unsigned int account_get_ladder_rating(t_account * account, char const * clienttag, t_ladder_id id)
+extern unsigned int account_get_ladder_rating(t_account * account, t_clienttag clienttag, t_ladder_id id)
 {
     char key[256];
+    char clienttag_str[5];
     
-    if (!clienttag || strlen(clienttag)!=4)
+    if (!clienttag)
     {
 	eventlog(eventlog_level_error,"account_get_ladder_rating","got bad clienttag");
 	return 0;
     }
-    sprintf(key,"Record\\%s\\%d\\rating",clienttag,(int)id);
+    sprintf(key,"Record\\%s\\%d\\rating",tag_uint_to_str(clienttag_str,clienttag),(int)id);
     return account_get_numattr(account,key);
 }
 
 
-extern int account_adjust_ladder_rating(t_account * account, char const * clienttag, t_ladder_id id, int delta)
+extern int account_adjust_ladder_rating(t_account * account, t_clienttag clienttag, t_ladder_id id, int delta)
 {
     char         key[256];
+    char clienttag_str[5];
     unsigned int oldrating;
     unsigned int newrating;
     int          retval=0;
     
-    if (!clienttag || strlen(clienttag)!=4)
+    if (!clienttag)
     {
        eventlog(eventlog_level_error,"account_adjust_ladder_rating","got bad clienttag");
        return -1;
     }
-    sprintf(key,"Record\\%s\\%d\\rating",clienttag,(int)id);
+    sprintf(key,"Record\\%s\\%d\\rating",tag_uint_to_str(clienttag_str,clienttag),(int)id);
     /* don't allow rating to go below 1 */
     oldrating = account_get_ladder_rating(account,clienttag,id);
     if (delta<0 && oldrating<=(unsigned int)-delta)
@@ -1029,7 +1071,7 @@ extern int account_adjust_ladder_rating(t_account * account, char const * client
     
     if (newrating>account_get_ladder_high_rating(account,clienttag,id))
     {
-	sprintf(key,"Record\\%s\\%d\\high rating",clienttag,(int)id);
+	sprintf(key,"Record\\%s\\%d\\high rating",tag_uint_to_str(clienttag_str,clienttag),(int)id);
 	if (account_set_numattr(account,key,newrating)<0)
 	    retval = -1;
     }
@@ -1038,41 +1080,43 @@ extern int account_adjust_ladder_rating(t_account * account, char const * client
 }
 
 
-extern int account_get_ladder_rank(t_account * account, char const * clienttag, t_ladder_id id)
+extern int account_get_ladder_rank(t_account * account, t_clienttag clienttag, t_ladder_id id)
 {
     char key[256];
+    char clienttag_str[5];
     
-    if (!clienttag || strlen(clienttag)!=4)
+    if (!clienttag)
     {
 	eventlog(eventlog_level_error,"account_get_ladder_rank","got bad clienttag");
 	return 0;
     }
-    sprintf(key,"Record\\%s\\%d\\rank",clienttag,(int)id);
+    sprintf(key,"Record\\%s\\%d\\rank",tag_uint_to_str(clienttag_str,clienttag),(int)id);
     return account_get_numattr(account,key);
 }
 
 
-extern int account_set_ladder_rank(t_account * account, char const * clienttag, t_ladder_id id, unsigned int rank)
+extern int account_set_ladder_rank(t_account * account, t_clienttag clienttag, t_ladder_id id, unsigned int rank)
 {
     char         key[256];
+    char clienttag_str[5];
     unsigned int oldrank;
     int          retval=0;
     
-    if (!clienttag || strlen(clienttag)!=4)
+    if (!clienttag)
     {
        eventlog(eventlog_level_error,"account_set_ladder_rank","got bad clienttag");
        return -1;
     }
     // if (rank==0)
     //    eventlog(eventlog_level_warn,"account_set_ladder_rank","setting rank to zero?");
-    sprintf(key,"Record\\%s\\%d\\rank",clienttag,(int)id);
+    sprintf(key,"Record\\%s\\%d\\rank",tag_uint_to_str(clienttag_str,clienttag),(int)id);
     if (account_set_numattr(account,key,rank)<0)
 	retval = -1;
     
     oldrank = account_get_ladder_high_rank(account,clienttag,id);
     if (oldrank==0 || rank<oldrank)
     {
-	sprintf(key,"Record\\%s\\%d\\high rank",clienttag,(int)id);
+	sprintf(key,"Record\\%s\\%d\\high rank",tag_uint_to_str(clienttag_str,clienttag),(int)id);
 	if (account_set_numattr(account,key,rank)<0)
 	    retval = -1;
     }
@@ -1080,72 +1124,77 @@ extern int account_set_ladder_rank(t_account * account, char const * clienttag, 
 }
 
 
-extern unsigned int account_get_ladder_high_rating(t_account * account, char const * clienttag, t_ladder_id id)
+extern unsigned int account_get_ladder_high_rating(t_account * account, t_clienttag clienttag, t_ladder_id id)
 {
     char key[256];
+    char clienttag_str[5];
     
-    if (!clienttag || strlen(clienttag)!=4)
+    if (!clienttag)
     {
 	eventlog(eventlog_level_error,"account_get_ladder_high_rating","got bad clienttag");
 	return 0;
     }
-    sprintf(key,"Record\\%s\\%d\\high rating",clienttag,(int)id);
+    sprintf(key,"Record\\%s\\%d\\high rating",tag_uint_to_str(clienttag_str,clienttag),(int)id);
     return account_get_numattr(account,key);
 }
 
 
-extern unsigned int account_get_ladder_high_rank(t_account * account, char const * clienttag, t_ladder_id id)
+extern unsigned int account_get_ladder_high_rank(t_account * account, t_clienttag clienttag, t_ladder_id id)
 {
     char key[256];
+    char clienttag_str[5];
     
-    if (!clienttag || strlen(clienttag)!=4)
+    if (!clienttag)
     {
 	eventlog(eventlog_level_error,"account_get_ladder_high_rank","got bad clienttag");
 	return 0;
     }
-    sprintf(key,"Record\\%s\\%d\\high_rank",clienttag,(int)id);
+    sprintf(key,"Record\\%s\\%d\\high_rank",tag_uint_to_str(clienttag_str,clienttag),(int)id);
     return account_get_numattr(account,key);
 }
 
 
-extern int account_set_ladder_last_time(t_account * account, char const * clienttag, t_ladder_id id, t_bnettime t)
+extern int account_set_ladder_last_time(t_account * account, t_clienttag clienttag, t_ladder_id id, t_bnettime t)
 {
     char key[256];
+    char clienttag_str[5];
     
-    if (!clienttag || strlen(clienttag)!=4)
+    if (!clienttag)
     {
 	eventlog(eventlog_level_error,"account_set_ladder_last_time","got bad clienttag");
 	return -1;
     }
-    sprintf(key,"Record\\%s\\%d\\last game",clienttag,(int)id);
+    sprintf(key,"Record\\%s\\%d\\last game",tag_uint_to_str(clienttag_str,clienttag),(int)id);
     return account_set_strattr(account,key,bnettime_get_str(t));
 }
 
 
-extern char const * account_get_ladder_last_time(t_account * account, char const * clienttag, t_ladder_id id)
+extern char const * account_get_ladder_last_time(t_account * account, t_clienttag clienttag, t_ladder_id id)
 {
     char key[256];
+    char clienttag_str[5];
     
-    if (!clienttag || strlen(clienttag)!=4)
+    if (!clienttag)
     {
 	eventlog(eventlog_level_error,"account_get_ladder_last_time","got bad clienttag");
 	return NULL;
     }
-    sprintf(key,"Record\\%s\\%d\\last game",clienttag,(int)id);
+    sprintf(key,"Record\\%s\\%d\\last game",tag_uint_to_str(clienttag_str,clienttag),(int)id);
     return account_get_strattr(account,key);
 }
 
 
-extern int account_set_ladder_last_result(t_account * account, char const * clienttag, t_ladder_id id, char const * result)
+extern int account_set_ladder_last_result(t_account * account, t_clienttag clienttag, t_ladder_id id, char const * result)
 {
     char key[256];
+    char clienttag_str[5];
     
-    if (!clienttag || strlen(clienttag)!=4)
+    if (!clienttag)
     {
 	eventlog(eventlog_level_error,"account_set_ladder_last_result","got bad clienttag");
 	return -1;
     }
-    sprintf(key,"Record\\%s\\%d\\last game result",clienttag,(int)id);
+    sprintf(key,"Record\\%s\\%d\\last game result",tag_uint_to_str(clienttag_str,clienttag),(int)id);
     return account_set_strattr(account,key,result);
 }
 
@@ -1153,226 +1202,242 @@ extern int account_set_ladder_last_result(t_account * account, char const * clie
 /****************************************************************/
 
 
-extern unsigned int account_get_normal_level(t_account * account, char const * clienttag)
+extern unsigned int account_get_normal_level(t_account * account, t_clienttag clienttag)
 {
     char key[256];
+    char clienttag_str[5];
     
-    if (!clienttag || strlen(clienttag)!=4)
+    if (!clienttag)
     {
 	eventlog(eventlog_level_error,"account_get_normal_level","got bad clienttag");
 	return 0;
     }
-    sprintf(key,"Record\\%s\\0\\level",clienttag);
+    sprintf(key,"Record\\%s\\0\\level",tag_uint_to_str(clienttag_str,clienttag));
     return account_get_numattr(account,key);
 }
 
 
-extern int account_set_normal_level(t_account * account, char const * clienttag, unsigned int level)
+extern int account_set_normal_level(t_account * account, t_clienttag clienttag, unsigned int level)
 {
     char key[256];
+    char clienttag_str[5];
     
-    if (!clienttag || strlen(clienttag)!=4)
+    if (!clienttag)
     {
 	eventlog(eventlog_level_error,"account_set_normal_level","got bad clienttag");
 	return -1;
     }
-    sprintf(key,"Record\\%s\\0\\level",clienttag);
+    sprintf(key,"Record\\%s\\0\\level",tag_uint_to_str(clienttag_str,clienttag));
     return account_set_numattr(account,key,level);
 }
 
 
-extern unsigned int account_get_normal_class(t_account * account, char const * clienttag)
+extern unsigned int account_get_normal_class(t_account * account, t_clienttag clienttag)
 {
     char key[256];
+    char clienttag_str[5];
     
-    if (!clienttag || strlen(clienttag)!=4)
+    if (!clienttag)
     {
 	eventlog(eventlog_level_error,"account_get_normal_class","got bad clienttag");
 	return 0;
     }
-    sprintf(key,"Record\\%s\\0\\class",clienttag);
+    sprintf(key,"Record\\%s\\0\\class",tag_uint_to_str(clienttag_str,clienttag));
     return account_get_numattr(account,key);
 }
 
 
-extern int account_set_normal_class(t_account * account, char const * clienttag, unsigned int class)
+extern int account_set_normal_class(t_account * account, t_clienttag clienttag, unsigned int class)
 {
     char key[256];
+    char clienttag_str[5];
     
-    if (!clienttag || strlen(clienttag)!=4)
+    if (!clienttag)
     {
 	eventlog(eventlog_level_error,"account_set_normal_class","got bad clienttag");
 	return -1;
     }
-    sprintf(key,"Record\\%s\\0\\class",clienttag);
+    sprintf(key,"Record\\%s\\0\\class",tag_uint_to_str(clienttag_str,clienttag));
     return account_set_numattr(account,key,class);
 }
 
 
-extern unsigned int account_get_normal_diablo_kills(t_account * account, char const * clienttag)
+extern unsigned int account_get_normal_diablo_kills(t_account * account, t_clienttag clienttag)
 {
     char key[256];
+    char clienttag_str[5];
     
-    if (!clienttag || strlen(clienttag)!=4)
+    if (!clienttag)
     {
 	eventlog(eventlog_level_error,"account_get_normal_diablo_kills","got bad clienttag");
 	return 0;
     }
-    sprintf(key,"Record\\%s\\0\\diablo kills",clienttag);
+    sprintf(key,"Record\\%s\\0\\diablo kills",tag_uint_to_str(clienttag_str,clienttag));
     return account_get_numattr(account,key);
 }
 
 
-extern int account_set_normal_diablo_kills(t_account * account, char const * clienttag, unsigned int diablo_kills)
+extern int account_set_normal_diablo_kills(t_account * account, t_clienttag clienttag, unsigned int diablo_kills)
 {
     char key[256];
+    char clienttag_str[5];
     
-    if (!clienttag || strlen(clienttag)!=4)
+    if (!clienttag)
     {
 	eventlog(eventlog_level_error,"account_set_normal_diablo_kills","got bad clienttag");
 	return -1;
     }
-    sprintf(key,"Record\\%s\\0\\diablo kills",clienttag);
+    sprintf(key,"Record\\%s\\0\\diablo kills",tag_uint_to_str(clienttag_str,clienttag));
     return account_set_numattr(account,key,diablo_kills);
 }
 
 
-extern unsigned int account_get_normal_strength(t_account * account, char const * clienttag)
+extern unsigned int account_get_normal_strength(t_account * account, t_clienttag clienttag)
 {
     char key[256];
+    char clienttag_str[5];
     
-    if (!clienttag || strlen(clienttag)!=4)
+    if (!clienttag)
     {
 	eventlog(eventlog_level_error,"account_get_normal_strength","got bad clienttag");
 	return 0;
     }
-    sprintf(key,"Record\\%s\\0\\strength",clienttag);
+    sprintf(key,"Record\\%s\\0\\strength",tag_uint_to_str(clienttag_str,clienttag));
     return account_get_numattr(account,key);
 }
 
 
-extern int account_set_normal_strength(t_account * account, char const * clienttag, unsigned int strength)
+extern int account_set_normal_strength(t_account * account, t_clienttag clienttag, unsigned int strength)
 {
     char key[256];
+    char clienttag_str[5];
     
-    if (!clienttag || strlen(clienttag)!=4)
+    if (!clienttag)
     {
 	eventlog(eventlog_level_error,"account_set_normal_strength","got bad clienttag");
 	return -1;
     }
-    sprintf(key,"Record\\%s\\0\\strength",clienttag);
+    sprintf(key,"Record\\%s\\0\\strength",tag_uint_to_str(clienttag_str,clienttag));
     return account_set_numattr(account,key,strength);
 }
 
 
-extern unsigned int account_get_normal_magic(t_account * account, char const * clienttag)
+extern unsigned int account_get_normal_magic(t_account * account, t_clienttag clienttag)
 {
     char key[256];
+    char clienttag_str[5];
     
-    if (!clienttag || strlen(clienttag)!=4)
+    if (!clienttag)
     {
 	eventlog(eventlog_level_error,"account_get_normal_magic","got bad clienttag");
 	return 0;
     }
-    sprintf(key,"Record\\%s\\0\\magic",clienttag);
+    sprintf(key,"Record\\%s\\0\\magic",tag_uint_to_str(clienttag_str,clienttag));
     return account_get_numattr(account,key);
 }
 
 
-extern int account_set_normal_magic(t_account * account, char const * clienttag, unsigned int magic)
+extern int account_set_normal_magic(t_account * account, t_clienttag clienttag, unsigned int magic)
 {
     char key[256];
+    char clienttag_str[5];
     
-    if (!clienttag || strlen(clienttag)!=4)
+    if (!clienttag)
     {
 	eventlog(eventlog_level_error,"account_set_normal_magic","got bad clienttag");
 	return -1;
     }
-    sprintf(key,"Record\\%s\\0\\magic",clienttag);
+    sprintf(key,"Record\\%s\\0\\magic",tag_uint_to_str(clienttag_str,clienttag));
     return account_set_numattr(account,key,magic);
 }
 
 
-extern unsigned int account_get_normal_dexterity(t_account * account, char const * clienttag)
+extern unsigned int account_get_normal_dexterity(t_account * account, t_clienttag clienttag)
 {
     char key[256];
+    char clienttag_str[5];
     
-    if (!clienttag || strlen(clienttag)!=4)
+    if (!clienttag)
     {
 	eventlog(eventlog_level_error,"account_get_normal_dexterity","got bad clienttag");
 	return 0;
     }
-    sprintf(key,"Record\\%s\\0\\dexterity",clienttag);
+    sprintf(key,"Record\\%s\\0\\dexterity",tag_uint_to_str(clienttag_str,clienttag));
     return account_get_numattr(account,key);
 }
 
 
-extern int account_set_normal_dexterity(t_account * account, char const * clienttag, unsigned int dexterity)
+extern int account_set_normal_dexterity(t_account * account, t_clienttag clienttag, unsigned int dexterity)
 {
     char key[256];
+    char clienttag_str[5];
     
-    if (!clienttag || strlen(clienttag)!=4)
+    if (!clienttag)
     {
 	eventlog(eventlog_level_error,"account_set_normal_dexterity","got bad clienttag");
 	return -1;
     }
-    sprintf(key,"Record\\%s\\0\\dexterity",clienttag);
+    sprintf(key,"Record\\%s\\0\\dexterity",tag_uint_to_str(clienttag_str,clienttag));
     return account_set_numattr(account,key,dexterity);
 }
 
 
-extern unsigned int account_get_normal_vitality(t_account * account, char const * clienttag)
+extern unsigned int account_get_normal_vitality(t_account * account, t_clienttag clienttag)
 {
     char key[256];
+    char clienttag_str[5];
     
-    if (!clienttag || strlen(clienttag)!=4)
+    if (!clienttag)
     {
 	eventlog(eventlog_level_error,"account_get_normal_vitality","got bad clienttag");
 	return 0;
     }
-    sprintf(key,"Record\\%s\\0\\vitality",clienttag);
+    sprintf(key,"Record\\%s\\0\\vitality",tag_uint_to_str(clienttag_str,clienttag));
     return account_get_numattr(account,key);
 }
 
 
-extern int account_set_normal_vitality(t_account * account, char const * clienttag, unsigned int vitality)
+extern int account_set_normal_vitality(t_account * account, t_clienttag clienttag, unsigned int vitality)
 {
     char key[256];
+    char clienttag_str[5];
     
-    if (!clienttag || strlen(clienttag)!=4)
+    if (!clienttag)
     {
 	eventlog(eventlog_level_error,"account_set_normal_vitality","got bad clienttag");
 	return -1;
     }
-    sprintf(key,"Record\\%s\\0\\vitality",clienttag);
+    sprintf(key,"Record\\%s\\0\\vitality",tag_uint_to_str(clienttag_str,clienttag));
     return account_set_numattr(account,key,vitality);
 }
 
 
-extern unsigned int account_get_normal_gold(t_account * account, char const * clienttag)
+extern unsigned int account_get_normal_gold(t_account * account, t_clienttag clienttag)
 {
     char key[256];
+    char clienttag_str[5];
     
-    if (!clienttag || strlen(clienttag)!=4)
+    if (!clienttag)
     {
 	eventlog(eventlog_level_error,"account_get_normal_gold","got bad clienttag");
 	return 0;
     }
-    sprintf(key,"Record\\%s\\0\\gold",clienttag);
+    sprintf(key,"Record\\%s\\0\\gold",tag_uint_to_str(clienttag_str,clienttag));
     return account_get_numattr(account,key);
 }
 
 
-extern int account_set_normal_gold(t_account * account, char const * clienttag, unsigned int gold)
+extern int account_set_normal_gold(t_account * account, t_clienttag clienttag, unsigned int gold)
 {
     char key[256];
+    char clienttag_str[5];
     
-    if (!clienttag || strlen(clienttag)!=4)
+    if (!clienttag)
     {
 	eventlog(eventlog_level_error,"account_set_normal_gold","got bad clienttag");
 	return -1;
     }
-    sprintf(key,"Record\\%s\\0\\gold",clienttag);
+    sprintf(key,"Record\\%s\\0\\gold",tag_uint_to_str(clienttag_str,clienttag));
     return account_set_numattr(account,key,gold);
 }
 
@@ -1380,7 +1445,7 @@ extern int account_set_normal_gold(t_account * account, char const * clienttag, 
 /****************************************************************/
 
 
-extern int account_check_closed_character(t_account * account, char const * clienttag, char const * realmname, char const * charname)
+extern int account_check_closed_character(t_account * account, t_clienttag clienttag, char const * realmname, char const * charname)
 {
     char const * charlist = account_get_closed_characterlist (account, clienttag, realmname);
     char         tempname[32];
@@ -1435,11 +1500,12 @@ extern int account_check_closed_character(t_account * account, char const * clie
 }
 
 
-extern char const * account_get_closed_characterlist(t_account * account, char const * clienttag, char const * realmname)
+extern char const * account_get_closed_characterlist(t_account * account, t_clienttag clienttag, char const * realmname)
 {
     char realmkey[256];
+    char clienttag_str[5];
     
-    if (!clienttag || strlen(clienttag)!=4)
+    if (!clienttag)
     {
 	eventlog(eventlog_level_error,"account_get_closed_characterlist","got bad clienttag");
 	return NULL;
@@ -1457,7 +1523,7 @@ extern char const * account_get_closed_characterlist(t_account * account, char c
 	return NULL;
     }
 
-    sprintf(realmkey,"BNET\\CharacterList\\%s\\%s\\0",clienttag,realmname);
+    sprintf(realmkey,"BNET\\CharacterList\\%s\\%s\\0",tag_uint_to_str(clienttag_str,clienttag),realmname);
     eventlog(eventlog_level_debug,"account_get_closed_characterlist","looking for '%s'",realmkey);
 
     return account_get_strattr(account, realmkey);
@@ -1470,30 +1536,32 @@ extern int account_unget_closed_characterlist(t_account * account, char const * 
 }
 
 
-extern int account_set_closed_characterlist(t_account * account, char const * clienttag, char const * charlist)
+extern int account_set_closed_characterlist(t_account * account, t_clienttag clienttag, char const * charlist)
 {
     char key[256];
+    char clienttag_str[5];
     
-    if (!clienttag || strlen(clienttag)!=4)
+    if (!clienttag)
     {
 	eventlog(eventlog_level_error,"account_set_closed_characterlist","got bad clienttag");
 	return -1;
     }
 
-    eventlog(eventlog_level_debug,"account_set_closed_characterlist, clienttag='%s', charlist='%s'",clienttag,charlist);
+    eventlog(eventlog_level_debug,"account_set_closed_characterlist, clienttag='%s', charlist='%s'",tag_uint_to_str(clienttag_str,clienttag),charlist);
 
-    sprintf(key,"BNET\\Characters\\%s\\0",clienttag);
+    sprintf(key,"BNET\\Characters\\%s\\0",tag_uint_to_str(clienttag_str,clienttag));
     return account_set_strattr(account,key,charlist);
 }
 
-extern int account_add_closed_character(t_account * account, char const * clienttag, t_character * ch)
+extern int account_add_closed_character(t_account * account, t_clienttag clienttag, t_character * ch)
 {
     char key[256];
+    char clienttag_str[5];
     char hex_buffer[356];
     char chars_in_realm[256];
     char const * old_list;
     
-    if (!clienttag || strlen(clienttag)!=4)
+    if (!clienttag)
     {
 	eventlog(eventlog_level_error,"account_add_closed_character","got bad clienttag");
 	return -1;
@@ -1505,9 +1573,9 @@ extern int account_add_closed_character(t_account * account, char const * client
 	return -1;
     }
 
-    eventlog(eventlog_level_debug,"account_add_closed_character","clienttag=\"%s\", realm=\"%s\", name=\"%s\"",clienttag,ch->realmname,ch->name);
+    eventlog(eventlog_level_debug,"account_add_closed_character","clienttag=\"%s\", realm=\"%s\", name=\"%s\"",tag_uint_to_str(clienttag_str,clienttag),ch->realmname,ch->name);
 
-    sprintf(key,"BNET\\CharacterList\\%s\\%s\\0",clienttag,ch->realmname);
+    sprintf(key,"BNET\\CharacterList\\%s\\%s\\0",tag_uint_to_str(clienttag_str,clienttag),ch->realmname);
     old_list = account_get_strattr(account, key);
     if (old_list)
     {
@@ -1521,7 +1589,7 @@ extern int account_add_closed_character(t_account * account, char const * client
     eventlog(eventlog_level_debug,"account_add_closed_character","new character list for realm \"%s\" is \"%s\"", ch->realmname, chars_in_realm);
     account_set_strattr(account, key, chars_in_realm);
 
-    sprintf(key,"BNET\\Characters\\%s\\%s\\%s\\0",clienttag,ch->realmname,ch->name);
+    sprintf(key,"BNET\\Characters\\%s\\%s\\%s\\0",tag_uint_to_str(clienttag_str,clienttag),ch->realmname,ch->name);
     str_to_hex(hex_buffer, ch->data, ch->datalen);
     account_set_strattr(account,key,hex_buffer);
 
@@ -1780,44 +1848,47 @@ extern char const * race_get_str(unsigned int race)
 	}
 }
 
-extern int account_set_racewin( t_account * account, unsigned int intrace, char const * clienttag)
+extern int account_set_racewin( t_account * account, unsigned int intrace, t_clienttag clienttag)
 {
 	char table[256];
+	char clienttag_str[5];
 	unsigned int wins;
 	char const * race = race_get_str(intrace);
 
 	if(!race)
 	    return -1;
 
-	sprintf(table,"Record\\%s\\%s\\wins",clienttag, race);
+	sprintf(table,"Record\\%s\\%s\\wins",tag_uint_to_str(clienttag_str,clienttag), race);
 	wins = account_get_numattr(account,table);
 	wins++;
 		
 	return account_set_numattr(account,table,wins);
 }
 
-extern int account_get_racewin( t_account * account, unsigned int intrace, char const * clienttag)
+extern int account_get_racewin( t_account * account, unsigned int intrace, t_clienttag clienttag)
 {	
 	char table[256];
+	char clienttag_str[5];
 	char const *race = race_get_str(intrace);
 
 	if(!race)
 	    return 0;
 	
-	sprintf(table,"Record\\%s\\%s\\wins",clienttag, race);
+	sprintf(table,"Record\\%s\\%s\\wins",tag_uint_to_str(clienttag_str,clienttag), race);
 	return account_get_numattr(account,table);
 }
 
-extern int account_set_raceloss( t_account * account, unsigned int intrace, char const * clienttag)
+extern int account_set_raceloss( t_account * account, unsigned int intrace, t_clienttag clienttag)
 {
 	char table[256];
+	char clienttag_str[5];
 	unsigned int losses;
 	char const *race = race_get_str(intrace);
 
 	if(!race)
 	    return -1;
 
-	sprintf(table,"Record\\%s\\%s\\losses",clienttag,race);
+	sprintf(table,"Record\\%s\\%s\\losses",tag_uint_to_str(clienttag_str,clienttag),race);
 
 	losses=account_get_numattr(account,table);
 	
@@ -1827,65 +1898,71 @@ extern int account_set_raceloss( t_account * account, unsigned int intrace, char
 	
 }
 
-extern int account_get_raceloss( t_account * account, unsigned int intrace, char const * clienttag)
+extern int account_get_raceloss( t_account * account, unsigned int intrace, t_clienttag clienttag)
 {	
 	char table[256];
+	char clienttag_str[5];
 	char const *race = race_get_str(intrace);
 	
 	if(!race)
 	    return 0;
 	
-	sprintf(table,"Record\\%s\\%s\\losses",clienttag,race);
+	sprintf(table,"Record\\%s\\%s\\losses",tag_uint_to_str(clienttag_str,clienttag),race);
 	
 	return account_get_numattr(account,table);
 	
 }	
 
-extern int account_set_solowin( t_account * account, char const * clienttag)
+extern int account_set_solowin( t_account * account, t_clienttag clienttag)
 {
   char key[256];
+  char clienttag_str[5];
   unsigned int win;
 
-  sprintf(key,"Record\\%s\\solo\\wins",clienttag);
+  sprintf(key,"Record\\%s\\solo\\wins",tag_uint_to_str(clienttag_str,clienttag));
 
   win = account_get_numattr(account,key);
   win++;
   return account_set_numattr(account,key,win);
 }
 
-extern int account_get_solowin( t_account * account, char const * clienttag )
+extern int account_get_solowin( t_account * account, t_clienttag clienttag )
 {
   char key[256];
+  char clienttag_str[5];
 
-  sprintf(key,"Record\\%s\\solo\\wins",clienttag);
+  sprintf(key,"Record\\%s\\solo\\wins",tag_uint_to_str(clienttag_str,clienttag));
 
   return account_get_numattr(account,key);
 }
 
-extern int account_set_sololoss( t_account * account, char const * clienttag)
+extern int account_set_sololoss( t_account * account, t_clienttag clienttag)
 {
   char key[256];
+  char clienttag_str[5];
   unsigned int loss;
 
-  sprintf(key,"Record\\%s\\solo\\losses",clienttag);
+  sprintf(key,"Record\\%s\\solo\\losses",tag_uint_to_str(clienttag_str,clienttag));
   
   loss = account_get_numattr(account,key);
   loss++;
   return account_set_numattr(account,key,loss);
 }
 
-extern int account_get_sololoss( t_account * account, char const * clienttag)
+extern int account_get_sololoss( t_account * account, t_clienttag clienttag)
 {
   char key[256];
+  char clienttag_str[5];
 
-  sprintf(key,"Record\\%s\\solo\\losses",clienttag);
+  sprintf(key,"Record\\%s\\solo\\losses",tag_uint_to_str(clienttag_str,clienttag));
 
   return account_get_numattr(account,key);
 }
 
-extern int account_set_soloxp(t_account * account, char const * clienttag, t_game_result gameresult, unsigned int opponlevel, int * xp_diff)
+extern int account_set_soloxp(t_account * account, t_clienttag clienttag, t_game_result gameresult, unsigned int opponlevel, int * xp_diff)
 { 
   char key[256];
+  char clienttag_str[5];
   int xp;
   int mylevel;
   int xpdiff = 0, placeholder;
@@ -1922,23 +1999,25 @@ extern int account_set_soloxp(t_account * account, char const * clienttag, t_gam
   xp += xpdiff;
   if (xp < 0) xp = 0;
 
-  sprintf(key,"Record\\%s\\solo\\xp",clienttag);
+  sprintf(key,"Record\\%s\\solo\\xp",tag_uint_to_str(clienttag_str,clienttag));
   
   return account_set_numattr(account,key,xp);
 }
 
-extern int account_get_soloxp(t_account * account, char const * clienttag)
+extern int account_get_soloxp(t_account * account, t_clienttag clienttag)
 {
   char key[256];
+  char clienttag_str[5];
   
-  sprintf(key,"Record\\%s\\solo\\xp",clienttag);
+  sprintf(key,"Record\\%s\\solo\\xp",tag_uint_to_str(clienttag_str,clienttag));
   
   return account_get_numattr(account,key);
 }
 
-extern int account_set_sololevel(t_account * account, char const * clienttag)
+extern int account_set_sololevel(t_account * account, t_clienttag clienttag)
 { 
   char key[256];
+  char clienttag_str[5];
 
   int xp, mylevel;
   
@@ -1955,84 +2034,92 @@ extern int account_set_sololevel(t_account * account, char const * clienttag)
    
   mylevel = ladder_war3_updatelevel(mylevel, xp);
 
-  sprintf(key,"Record\\%s\\solo\\level",clienttag);
+  sprintf(key,"Record\\%s\\solo\\level",tag_uint_to_str(clienttag_str,clienttag));
 
   return account_set_numattr(account, key, mylevel);
 }
 
-extern int account_get_sololevel(t_account * account, char const * clienttag)
+extern int account_get_sololevel(t_account * account, t_clienttag clienttag)
 {
   char key[256];
+  char clienttag_str[5];
   
-  sprintf(key,"Record\\%s\\solo\\level",clienttag);
+  sprintf(key,"Record\\%s\\solo\\level",tag_uint_to_str(clienttag_str,clienttag));
 
   return account_get_numattr(account,key);
 }
 
-extern int account_set_solorank(t_account * account, char const * clienttag, int rank)
+extern int account_set_solorank(t_account * account, t_clienttag clienttag, int rank)
 {
   char key[256];
+  char clienttag_str[5];
 
-  sprintf(key,"Record\\%s\\solo\\rank",clienttag);
+  sprintf(key,"Record\\%s\\solo\\rank",tag_uint_to_str(clienttag_str,clienttag));
 
   return account_set_numattr(account, key, rank);
 }
 
-extern int account_get_solorank(t_account * account, char const * clienttag)
+extern int account_get_solorank(t_account * account, t_clienttag clienttag)
 {
   char key[256];
+  char clienttag_str[5];
 
-  sprintf(key,"Record\\%s\\solo\\rank",clienttag);
+  sprintf(key,"Record\\%s\\solo\\rank",tag_uint_to_str(clienttag_str,clienttag));
   
   return account_get_numattr(account,key);
 }
 
 // Team Game - Play Game Funcs
-extern int account_set_teamwin(t_account * account, char const * clienttag)
+extern int account_set_teamwin(t_account * account, t_clienttag clienttag)
 {
   char key[256];
+  char clienttag_str[5];
   unsigned int win;
 
-  sprintf(key,"Record\\%s\\team\\wins",clienttag);
+  sprintf(key,"Record\\%s\\team\\wins",tag_uint_to_str(clienttag_str,clienttag));
   
   win = account_get_numattr(account,key);
   win++;
   return account_set_numattr(account,key,win);
 }
 
-extern int account_get_teamwin(t_account * account, char const * clienttag)
+extern int account_get_teamwin(t_account * account, t_clienttag clienttag)
 {
   char key[256];
+  char clienttag_str[5];
   
-  sprintf(key,"Record\\%s\\team\\wins",clienttag);
+  sprintf(key,"Record\\%s\\team\\wins",tag_uint_to_str(clienttag_str,clienttag));
   
   return account_get_numattr(account,key);
 }
 
-extern int account_set_teamloss(t_account * account, char const * clienttag)
+extern int account_set_teamloss(t_account * account, t_clienttag clienttag)
 {
   char key[256];
+  char clienttag_str[5];
   unsigned int loss;
 
-  sprintf(key,"Record\\%s\\team\\losses",clienttag);
+  sprintf(key,"Record\\%s\\team\\losses",tag_uint_to_str(clienttag_str,clienttag));
 
   loss = account_get_numattr(account,key);
   loss++;
   return account_set_numattr(account,key,loss);
 }
 
-extern int account_get_teamloss(t_account * account, char const * clienttag)
+extern int account_get_teamloss(t_account * account, t_clienttag clienttag)
 {
   char key[256];
+  char clienttag_str[5];
 
-  sprintf(key,"Record\\%s\\team\\losses",clienttag);
+  sprintf(key,"Record\\%s\\team\\losses",tag_uint_to_str(clienttag_str,clienttag));
 
   return account_get_numattr(account,key);
 }
 
-extern int account_set_teamxp(t_account * account, char const * clienttag, t_game_result gameresult, unsigned int opponlevel,int * xp_diff)
+extern int account_set_teamxp(t_account * account, t_clienttag clienttag, t_game_result gameresult, unsigned int opponlevel,int * xp_diff)
 {
   char key[256];
+  char clienttag_str[5];
   int xp;
   int mylevel;
   int xpdiff = 0, placeholder;
@@ -2070,23 +2157,25 @@ extern int account_set_teamxp(t_account * account, char const * clienttag, t_gam
   xp += xpdiff;
   if(xp<0) xp=0;
   
-  sprintf(key,"Record\\%s\\team\\xp",clienttag);
+  sprintf(key,"Record\\%s\\team\\xp",tag_uint_to_str(clienttag_str,clienttag));
 
   return account_set_numattr(account, key, xp);
 }
 
-extern int account_get_teamxp(t_account * account, char const * clienttag)
+extern int account_get_teamxp(t_account * account, t_clienttag clienttag)
 {
   char key[256];
+  char clienttag_str[5];
 
-  sprintf(key,"Record\\%s\\team\\xp",clienttag);
+  sprintf(key,"Record\\%s\\team\\xp",tag_uint_to_str(clienttag_str,clienttag));
   
   return account_get_numattr(account, key);
 }
 
-extern int account_set_teamlevel(t_account * account, char const * clienttag)
+extern int account_set_teamlevel(t_account * account, t_clienttag clienttag)
 { 
   char key[256];
+  char clienttag_str[5];
   int xp,mylevel;
   
   xp = account_get_teamxp(account,clienttag);
@@ -2104,84 +2193,92 @@ extern int account_set_teamlevel(t_account * account, char const * clienttag)
   
   mylevel = ladder_war3_updatelevel(mylevel, xp);
   
-  sprintf(key,"Record\\%s\\team\\level",clienttag);
+  sprintf(key,"Record\\%s\\team\\level",tag_uint_to_str(clienttag_str,clienttag));
 
   return account_set_numattr(account, key, mylevel);
 }
 
-extern int account_get_teamlevel(t_account * account, char const * clienttag)
+extern int account_get_teamlevel(t_account * account, t_clienttag clienttag)
 {
   char key[256];
+  char clienttag_str[5];
 
-  sprintf(key,"Record\\%s\\team\\level",clienttag);
+  sprintf(key,"Record\\%s\\team\\level",tag_uint_to_str(clienttag_str,clienttag));
   
   return account_get_numattr(account, key);
 }
 
-extern int account_set_teamrank(t_account * account, char const * clienttag, int rank)
+extern int account_set_teamrank(t_account * account, t_clienttag clienttag, int rank)
 {
   char key[256];
+  char clienttag_str[5];
 
-  sprintf(key,"Record\\%s\\team\\rank",clienttag);
+  sprintf(key,"Record\\%s\\team\\rank",tag_uint_to_str(clienttag_str,clienttag));
   
   return account_set_numattr(account,key,rank);
 }
 
-extern int account_get_teamrank(t_account * account, char const * clienttag)
+extern int account_get_teamrank(t_account * account, t_clienttag clienttag)
 {
   char key[256];
+  char clienttag_str[5];
 
-  sprintf(key,"Record\\%s\\team\\rank",clienttag);
+  sprintf(key,"Record\\%s\\team\\rank",tag_uint_to_str(clienttag_str,clienttag));
   
   return account_get_numattr(account,key);
 }
 
 // FFA code
-extern int account_set_ffawin(t_account * account, char const * clienttag)
+extern int account_set_ffawin(t_account * account, t_clienttag clienttag)
 {
   char key[256];
+  char clienttag_str[5];
   unsigned int win;
 
-  sprintf(key,"Record\\%s\\ffa\\wins",clienttag);
+  sprintf(key,"Record\\%s\\ffa\\wins",tag_uint_to_str(clienttag_str,clienttag));
   
   win = account_get_numattr(account,key);
   win++;
   return account_set_numattr(account,key,win);
 }
 
-extern int account_get_ffawin(t_account * account, char const * clienttag)
+extern int account_get_ffawin(t_account * account, t_clienttag clienttag)
 {
   char key[256];
+  char clienttag_str[5];
 
-  sprintf(key,"Record\\%s\\ffa\\wins",clienttag);
+  sprintf(key,"Record\\%s\\ffa\\wins",tag_uint_to_str(clienttag_str,clienttag));
   
   return account_get_numattr(account,key);
 }
 
-extern int account_set_ffaloss(t_account * account, char const * clienttag)
+extern int account_set_ffaloss(t_account * account, t_clienttag clienttag)
 {
   char key[256];
+  char clienttag_str[5];
   unsigned int loss;
 
-  sprintf(key,"Record\\%s\\ffa\\losses",clienttag);
+  sprintf(key,"Record\\%s\\ffa\\losses",tag_uint_to_str(clienttag_str,clienttag));
 
   loss = account_get_numattr(account,key);
   loss++;
   return account_set_numattr(account,key,loss);
 }
 
-extern int account_get_ffaloss(t_account * account, char const * clienttag)
+extern int account_get_ffaloss(t_account * account, t_clienttag clienttag)
 {
   char key[256];
+  char clienttag_str[5];
 
-  sprintf(key,"Record\\%s\\ffa\\losses",clienttag);
+  sprintf(key,"Record\\%s\\ffa\\losses",tag_uint_to_str(clienttag_str,clienttag));
   
   return account_get_numattr(account,key);
 }
 
-extern int account_set_ffaxp(t_account * account, char const * clienttag,t_game_result gameresult, unsigned int opponlevel, int * xp_diff)
+extern int account_set_ffaxp(t_account * account, t_clienttag clienttag,t_game_result gameresult, unsigned int opponlevel, int * xp_diff)
 { 
   char key[256];
+  char clienttag_str[5];
   int xp;
   int mylevel;
   int xpdiff = 0, placeholder;
@@ -2219,23 +2316,25 @@ extern int account_set_ffaxp(t_account * account, char const * clienttag,t_game_
   xp += xpdiff;
   if (xp<0) xp=0;
   
-  sprintf(key,"Record\\%s\\ffa\\xp",clienttag);
+  sprintf(key,"Record\\%s\\ffa\\xp",tag_uint_to_str(clienttag_str,clienttag));
 
   return account_set_numattr(account,key,xp);
 }
 
-extern int account_get_ffaxp(t_account * account, char const * clienttag)
+extern int account_get_ffaxp(t_account * account, t_clienttag clienttag)
 {
   char key[256];
+  char clienttag_str[5];
 
-  sprintf(key,"Record\\%s\\ffa\\xp",clienttag);
+  sprintf(key,"Record\\%s\\ffa\\xp",tag_uint_to_str(clienttag_str,clienttag));
 
   return account_get_numattr(account,key);
 }
 
-extern int account_set_ffalevel(t_account * account, char const * clienttag)
+extern int account_set_ffalevel(t_account * account, t_clienttag clienttag)
 { 
   char key[256];
+  char clienttag_str[5];
   int xp, mylevel;
 
   xp = account_get_ffaxp(account,clienttag);
@@ -2253,35 +2352,38 @@ extern int account_set_ffalevel(t_account * account, char const * clienttag)
   
   mylevel = ladder_war3_updatelevel(mylevel, xp);
   
-  sprintf(key,"Record\\%s\\ffa\\level",clienttag);
+  sprintf(key,"Record\\%s\\ffa\\level",tag_uint_to_str(clienttag_str,clienttag));
 
   return account_set_numattr(account, key, mylevel);
 }
 
-extern int account_get_ffalevel(t_account * account, char const * clienttag)
+extern int account_get_ffalevel(t_account * account, t_clienttag clienttag)
 {
   char key[256];
+  char clienttag_str[5];
 
-  sprintf(key,"Record\\%s\\ffa\\level",clienttag);
+  sprintf(key,"Record\\%s\\ffa\\level",tag_uint_to_str(clienttag_str,clienttag));
   
   return account_get_numattr(account,key);
 }
 
-extern int account_get_ffarank(t_account * account, char const * clienttag)
+extern int account_get_ffarank(t_account * account, t_clienttag clienttag)
 {
   char key[256];
+  char clienttag_str[5];
 
-  sprintf(key,"Record\\%s\\ffa\\rank",clienttag);
+  sprintf(key,"Record\\%s\\ffa\\rank",tag_uint_to_str(clienttag_str,clienttag));
 
   return account_get_numattr(account,key);
 }
 
 // aaron --->
-extern int account_set_ffarank(t_account * account, char const * clienttag, int rank)
+extern int account_set_ffarank(t_account * account, t_clienttag clienttag, int rank)
 {
   char key[256];
+  char clienttag_str[5];
 
-  sprintf(key,"Record\\%s\\ffa\\rank",clienttag);
+  sprintf(key,"Record\\%s\\ffa\\rank",tag_uint_to_str(clienttag_str,clienttag));
 
   return account_set_numattr(account,key,rank);
 }
@@ -2289,7 +2391,7 @@ extern int account_set_ffarank(t_account * account, char const * clienttag, int 
 
 
 //Other funcs used in profiles and PG saving
-extern void account_get_raceicon(t_account * account, char * raceicon, unsigned int * raceiconnumber, unsigned int * wins, char const * clienttag) //Based of wins for each race, Race with most wins, gets shown in chat channel
+extern void account_get_raceicon(t_account * account, char * raceicon, unsigned int * raceiconnumber, unsigned int * wins, t_clienttag clienttag) //Based of wins for each race, Race with most wins, gets shown in chat channel
 {
 	unsigned int humans;
 	unsigned int orcs;
@@ -2355,7 +2457,7 @@ extern int account_get_profile_calcs(t_account * account, int xp, unsigned int L
 	return 0;
 }
 
-extern int account_set_saveladderstats(t_account * account,unsigned int gametype, t_game_result result, unsigned int opponlevel, char const * clienttag)
+extern int account_set_saveladderstats(t_account * account,unsigned int gametype, t_game_result result, unsigned int opponlevel, t_clienttag clienttag)
 {
 	unsigned int intrace;
         int xpdiff,uid,level;
@@ -2453,21 +2555,27 @@ extern int account_set_saveladderstats(t_account * account,unsigned int gametype
 	return 0;
 }
 
-extern int account_set_w3pgrace( t_account * account, char const * clienttag, unsigned int race)
+extern int account_set_w3pgrace( t_account * account, t_clienttag clienttag, unsigned int race)
 {
   char key[256];
-  sprintf(key,"Record\\%s\\w3pgrace",clienttag);
+  char clienttag_str[5];
+  
+  sprintf(key,"Record\\%s\\w3pgrace",tag_uint_to_str(clienttag_str,clienttag));
+  
   return account_set_numattr( account, key, race);
 }
 
-extern int account_get_w3pgrace( t_account * account, char const * clienttag )
+extern int account_get_w3pgrace( t_account * account, t_clienttag clienttag )
 {
   char key[256];
-  sprintf(key,"Record\\%s\\w3pgrace",clienttag);
+  char clienttag_str[5];
+  
+  sprintf(key,"Record\\%s\\w3pgrace",tag_uint_to_str(clienttag_str,clienttag));
+  
   return account_get_numattr( account, key);
 }
 // Arranged Team Functions
-extern int account_check_team(t_account * account, const char * members_usernames, char const * clienttag)
+extern int account_check_team(t_account * account, const char * members_usernames, t_clienttag clienttag)
 {
   int teams_cnt = account_get_atteamcount(account,clienttag);
   int i;
@@ -2488,7 +2596,7 @@ extern int account_check_team(t_account * account, const char * members_username
   return -1;
 }
 
-extern int account_create_newteam(t_account * account, const char * members_usernames, unsigned int teamsize, char const * clienttag)
+extern int account_create_newteam(t_account * account, const char * members_usernames, unsigned int teamsize, t_clienttag clienttag)
 {
     int teams_cnt = account_get_atteamcount(account,clienttag);
 
@@ -2502,106 +2610,119 @@ extern int account_create_newteam(t_account * account, const char * members_user
     return teams_cnt;
 }
 
-extern int account_set_atteamcount(t_account * account, char const * clienttag, unsigned int teamcount)
+extern int account_set_atteamcount(t_account * account, t_clienttag clienttag, unsigned int teamcount)
 {
   char key[256];
+  char clienttag_str[5];
 
-  sprintf(key,"Record\\%s\\teamcount",clienttag);
+  sprintf(key,"Record\\%s\\teamcount",tag_uint_to_str(clienttag_str,clienttag));
   
   return account_set_numattr(account,key,teamcount);
 }
 
-extern int account_get_atteamcount(t_account * account, char const * clienttag)
+extern int account_get_atteamcount(t_account * account, t_clienttag clienttag)
 {
   char key[256];
+  char clienttag_str[5];
 
-  sprintf(key,"Record\\%s\\teamcount",clienttag);
+  sprintf(key,"Record\\%s\\teamcount",tag_uint_to_str(clienttag_str,clienttag));
 
   return account_get_numattr(account,key);
 }
 
-extern int account_set_atteamsize(t_account * account, unsigned int teamcount, char const * clienttag, unsigned int teamsize)
+extern int account_set_atteamsize(t_account * account, unsigned int teamcount, t_clienttag clienttag, unsigned int teamsize)
 {
   char key[356];
+  char clienttag_str[5];
   
-  sprintf(key,"Team\\%s\\%u\\teamsize",clienttag,teamcount);
+  sprintf(key,"Team\\%s\\%u\\teamsize",tag_uint_to_str(clienttag_str,clienttag),teamcount);
   
   return account_set_numattr(account,key,teamsize);
 }
 
-extern int account_get_atteamsize(t_account * account, unsigned int teamcount, char const * clienttag)
+extern int account_get_atteamsize(t_account * account, unsigned int teamcount, t_clienttag clienttag)
 {
   char key[256];
+  char clienttag_str[5];
   
-  sprintf(key,"Team\\%s\\%u\\teamsize",clienttag, teamcount);
+  sprintf(key,"Team\\%s\\%u\\teamsize",tag_uint_to_str(clienttag_str,clienttag), teamcount);
 
   return account_get_numattr(account,key);
 }
 
-extern int account_set_atteamwin(t_account * account, unsigned int teamcount, char const * clienttag, int wins)
+extern int account_set_atteamwin(t_account * account, unsigned int teamcount, t_clienttag clienttag, int wins)
 {
   char key[256];
+  char clienttag_str[5];
   
-  sprintf(key,"Team\\%s\\%u\\teamwins",clienttag,teamcount);
+  sprintf(key,"Team\\%s\\%u\\teamwins",tag_uint_to_str(clienttag_str,clienttag),teamcount);
 	
   return account_set_numattr(account,key,wins);
 }
 
-extern int account_atteamwin(t_account * account, unsigned int teamcount, char const * clienttag)
+extern int account_atteamwin(t_account * account, unsigned int teamcount, t_clienttag clienttag)
 {
   char key[256];
+  char clienttag_str[5];
+  
   int wins = account_get_atteamwin(account,teamcount,clienttag);
   wins++;
   
-  sprintf(key,"Team\\%s\\%u\\teamwins",clienttag,teamcount);
+  sprintf(key,"Team\\%s\\%u\\teamwins",tag_uint_to_str(clienttag_str,clienttag),teamcount);
 	
   return account_set_numattr(account,key,wins);
 }
 
-extern int account_get_atteamwin(t_account * account, unsigned int teamcount, char const * clienttag)
+extern int account_get_atteamwin(t_account * account, unsigned int teamcount, t_clienttag clienttag)
 {
   char key[256];
+  char clienttag_str[5];
 
-  sprintf(key,"Team\\%s\\%u\\teamwins",clienttag,teamcount);
+  sprintf(key,"Team\\%s\\%u\\teamwins",tag_uint_to_str(clienttag_str,clienttag),teamcount);
   
   return account_get_numattr(account,key);
 }
 
-extern int account_set_atteamloss(t_account * account, unsigned int teamcount, char const * clienttag, int loss)
+extern int account_set_atteamloss(t_account * account, unsigned int teamcount, t_clienttag clienttag, int loss)
 {
   char key[256];
+  char clienttag_str[5];
 
-  sprintf(key,"Team\\%s\\%u\\teamlosses",clienttag,teamcount);
+  sprintf(key,"Team\\%s\\%u\\teamlosses",tag_uint_to_str(clienttag_str,clienttag),teamcount);
 	
   return account_set_numattr(account,key,loss);
 }
 
-extern int account_atteamloss(t_account * account, unsigned int teamcount, char const * clienttag)
+extern int account_atteamloss(t_account * account, unsigned int teamcount, t_clienttag clienttag)
 {
   char key[256];
+  char clienttag_str[5];
+  
   int loss = account_get_atteamloss(account,teamcount,clienttag);
   loss++;
 
-  sprintf(key,"Team\\%s\\%u\\teamlosses",clienttag,teamcount);
+  sprintf(key,"Team\\%s\\%u\\teamlosses",tag_uint_to_str(clienttag_str,clienttag),teamcount);
 	
   return account_set_numattr(account,key,loss);
 }
 
-extern int account_get_atteamloss(t_account * account, unsigned int teamcount, char const * clienttag)
+extern int account_get_atteamloss(t_account * account, unsigned int teamcount, t_clienttag clienttag)
 {
   char key[256];
+  char clienttag_str[5];
   
-  sprintf(key,"Team\\%s\\%u\\teamlosses",clienttag,teamcount);
+  sprintf(key,"Team\\%s\\%u\\teamlosses",tag_uint_to_str(clienttag_str,clienttag),teamcount);
 
   return account_get_numattr(account,key);
 }
 
-extern int account_update_atteamxp(t_account * account, t_game_result gameresult, unsigned int opponlevel, unsigned int teamcount, char const * clienttag, int * xp_diff)
+extern int account_update_atteamxp(t_account * account, t_game_result gameresult, unsigned int opponlevel, unsigned int teamcount, t_clienttag clienttag, int * xp_diff)
 { 
   int xp;
   int mylevel;
   int xpdiff = 0, placeholder;
   char key[256];
+  char clienttag_str[5];
    
   xp = account_get_atteamxp(account,teamcount,clienttag); //get current xp
   if (xp < 0) {
@@ -2636,33 +2757,36 @@ extern int account_update_atteamxp(t_account * account, t_game_result gameresult
    xp += xpdiff;
    if (xp < 0) xp = 0;
    
-   sprintf(key,"Team\\%s\\%u\\teamxp",clienttag,teamcount);
+   sprintf(key,"Team\\%s\\%u\\teamxp",tag_uint_to_str(clienttag_str,clienttag),teamcount);
 
    return account_set_numattr(account,key,xp);
 }
 
-extern int account_get_atteamxp(t_account * account, unsigned int teamcount, char const * clienttag)
+extern int account_get_atteamxp(t_account * account, unsigned int teamcount, t_clienttag clienttag)
 {
   char key[256];
+  char clienttag_str[5];
   
-  sprintf(key,"Team\\%s\\%u\\teamxp",clienttag,teamcount);
+  sprintf(key,"Team\\%s\\%u\\teamxp",tag_uint_to_str(clienttag_str,clienttag),teamcount);
   
   return account_get_numattr(account,key);
 }
 
-extern int account_set_atteamxp(t_account * account, unsigned int teamcount, char const * clienttag, int xp)
+extern int account_set_atteamxp(t_account * account, unsigned int teamcount, t_clienttag clienttag, int xp)
 {
   char key[256];
+  char clienttag_str[5];
   
-  sprintf(key,"Team\\%s\\%u\\teamxp",clienttag,teamcount);
+  sprintf(key,"Team\\%s\\%u\\teamxp",tag_uint_to_str(clienttag_str,clienttag),teamcount);
   
   return account_set_numattr(account,key,xp);
 }
 
-extern int account_update_atteamlevel(t_account * account, unsigned int teamcount, char const * clienttag)
+extern int account_update_atteamlevel(t_account * account, unsigned int teamcount, t_clienttag clienttag)
 {
   int xp, mylevel;
   char key[256];
+  char clienttag_str[5];
    
   xp = account_get_atteamxp(account,teamcount,clienttag);
    
@@ -2678,62 +2802,68 @@ extern int account_update_atteamlevel(t_account * account, unsigned int teamcoun
     }
   
   mylevel = ladder_war3_updatelevel(mylevel, xp);
-  sprintf(key,"Team\\%s\\%u\\teamlevel",clienttag,teamcount);
+  sprintf(key,"Team\\%s\\%u\\teamlevel",tag_uint_to_str(clienttag_str,clienttag),teamcount);
   return account_set_numattr(account,key,mylevel);
 }
 
-extern int account_get_atteamlevel(t_account * account, unsigned int teamcount, char const * clienttag)
+extern int account_get_atteamlevel(t_account * account, unsigned int teamcount, t_clienttag clienttag)
 {
   char key[256];
+  char clienttag_str[5];
 
-  sprintf(key,"Team\\%s\\%u\\teamlevel",clienttag, teamcount);
+  sprintf(key,"Team\\%s\\%u\\teamlevel",tag_uint_to_str(clienttag_str,clienttag), teamcount);
 
   return account_get_numattr(account,key);
 }
 
-extern int account_set_atteamlevel(t_account * account, unsigned int teamcount, char const * clienttag, int level)
+extern int account_set_atteamlevel(t_account * account, unsigned int teamcount, t_clienttag clienttag, int level)
 {
   char key[256];
+  char clienttag_str[5];
 
-  sprintf(key,"Team\\%s\\%u\\teamlevel",clienttag, teamcount);
+  sprintf(key,"Team\\%s\\%u\\teamlevel",tag_uint_to_str(clienttag_str,clienttag), teamcount);
 
   return account_set_numattr(account,key,level);
 }
 
 //aaron 
-extern int account_get_atteamrank(t_account * account, unsigned int teamcount,char const * clienttag)
+extern int account_get_atteamrank(t_account * account, unsigned int teamcount,t_clienttag clienttag)
 {
   char key[256];
+  char clienttag_str[5];
   
-  sprintf(key,"Team\\%s\\%u\\rank",clienttag, teamcount);
+  sprintf(key,"Team\\%s\\%u\\rank",tag_uint_to_str(clienttag_str,clienttag), teamcount);
   
   return account_get_numattr(account,key);
 }
 
-extern int account_set_atteamrank(t_account * account, unsigned int teamcount, char const * clienttag, int teamrank)
+extern int account_set_atteamrank(t_account * account, unsigned int teamcount, t_clienttag clienttag, int teamrank)
 {
   char key[256];
+  char clienttag_str[5];
   
-  sprintf(key,"Team\\%s\\%u\\rank",clienttag, teamcount);
+  sprintf(key,"Team\\%s\\%u\\rank",tag_uint_to_str(clienttag_str,clienttag), teamcount);
 
   return account_set_numattr(account, key, teamrank);
 }
 // <---
 
-extern int account_set_atteammembers(t_account * account, unsigned int teamcount, char const * clienttag, char const *members)
+extern int account_set_atteammembers(t_account * account, unsigned int teamcount, t_clienttag clienttag, char const *members)
 {
   char key[256];
+  char clienttag_str[5];
   
-  sprintf(key,"Team\\%s\\%u\\teammembers",clienttag,teamcount);
+  sprintf(key,"Team\\%s\\%u\\teammembers",tag_uint_to_str(clienttag_str,clienttag),teamcount);
 	
   return account_set_strattr(account,key,members);
 }
 
-extern char const * account_get_atteammembers(t_account * account, unsigned int teamcount, char const * clienttag)
+extern char const * account_get_atteammembers(t_account * account, unsigned int teamcount, t_clienttag clienttag)
 {
   char key[256];
+  char clienttag_str[5];
   
-  sprintf(key,"Team\\%s\\%u\\teammembers",clienttag,teamcount);
+  sprintf(key,"Team\\%s\\%u\\teammembers",tag_uint_to_str(clienttag_str,clienttag),teamcount);
   
   return account_get_strattr(account,key);
 }
@@ -2748,7 +2878,7 @@ extern int account_get_currentatteam(t_account * account)
 	return account_get_numattr(account,"BNET\\current_at_team");
 }
 
-extern int account_fix_at(t_account *account, const char * ctag)
+extern int account_fix_at(t_account *account, t_clienttag ctag)
 {
     int n, i, j;
     int teamsize;
@@ -2759,7 +2889,7 @@ extern int account_fix_at(t_account *account, const char * ctag)
 	return -1;
     }
 
-    if (ctag == NULL) {
+    if (ctag == 0) {
 	eventlog(eventlog_level_error, __FUNCTION__, "got NULL clienttag");
 	return -1;
     }
@@ -2786,7 +2916,7 @@ extern int account_fix_at(t_account *account, const char * ctag)
     return 0;
 }
 
-extern int account_set_saveATladderstats(t_account * account, unsigned int gametype, t_game_result result, unsigned int opponlevel, unsigned int current_teamnum, char const * clienttag)
+extern int account_set_saveATladderstats(t_account * account, unsigned int gametype, t_game_result result, unsigned int opponlevel, unsigned int current_teamnum, t_clienttag clienttag)
 {
   unsigned int intrace;
   int xpdiff,uid,level;
@@ -2821,7 +2951,7 @@ extern int account_set_saveATladderstats(t_account * account, unsigned int gamet
   return 0;
 }
 
-extern int account_get_highestladderlevel(t_account * account,char const * clienttag)
+extern int account_get_highestladderlevel(t_account * account,t_clienttag clienttag)
 {
 	// [quetzal] 20020827 - AT level part rewritten
 	int i;
@@ -2876,21 +3006,25 @@ extern int account_get_new_at_team(t_account * account)
 
 
 //BlacKDicK 04/20/2003
-extern int account_set_user_icon( t_account * account, char const * clienttag,char const * usericon)
+extern int account_set_user_icon( t_account * account, t_clienttag clienttag,char const * usericon)
 {
   char key[256];
-  sprintf(key,"Record\\%s\\userselected_icon",clienttag);
+  char clienttag_str[5];
+  
+  sprintf(key,"Record\\%s\\userselected_icon",tag_uint_to_str(clienttag_str,clienttag));
   if (usericon)
     return account_set_strattr(account,key,usericon);
   else
     return account_set_strattr(account,key,"NULL");
 }
 
-extern char const * account_get_user_icon( t_account * account, char const * clienttag )
+extern char const * account_get_user_icon( t_account * account, t_clienttag clienttag )
 {
   char key[256];
   char const * retval;
-  sprintf(key,"Record\\%s\\userselected_icon",clienttag);
+  char clienttag_str[5];
+  
+  sprintf(key,"Record\\%s\\userselected_icon",tag_uint_to_str(clienttag_str,clienttag));
   retval = account_get_strattr(account,key);
 
   if ((retval) && ((strcmp(retval,"NULL")!=0)))
@@ -2921,7 +3055,7 @@ static char * profile_code[12][6] = {
 	    {NULL  , "nfgu", "ninf", "nbal", "Nplh", "Uwar"}
 	};
 
-extern unsigned int account_get_icon_profile(t_account * account, char const * clienttag)
+extern unsigned int account_get_icon_profile(t_account * account, t_clienttag clienttag)
 {
 	unsigned int humans	= account_get_racewin(account,W3_RACE_HUMANS,clienttag);		//  1;
 	unsigned int orcs	= account_get_racewin(account,W3_RACE_ORCS,clienttag); 		        //  2;
@@ -2955,7 +3089,7 @@ extern unsigned int account_get_icon_profile(t_account * account, char const * c
             race = 0;
         }
 
-	if (strcmp(clienttag,CLIENTTAG_WARCRAFT3)==0) 
+	if (clienttag==CLIENTTAG_WARCRAFT3_UINT) 
 	{
           while(wins >= anongame_infos_get_ICON_REQ_WAR3(level+1) && anongame_infos_get_ICON_REQ_WAR3(level+1) > 0) level++;
 	}
@@ -2970,7 +3104,7 @@ extern unsigned int account_get_icon_profile(t_account * account, char const * c
 	return char_icon_to_uint(profile_code[race+number_ctag][level]);
 }
 
-extern unsigned int account_icon_to_profile_icon(char const * icon,t_account * account, char const * ctag)
+extern unsigned int account_icon_to_profile_icon(char const * icon,t_account * account, t_clienttag ctag)
 {
 	char tmp_icon[4];
 	char * result;
@@ -2980,7 +3114,7 @@ extern unsigned int account_icon_to_profile_icon(char const * icon,t_account * a
 	if (sizeof(icon)>=4){
 		strncpy(tmp_icon,icon,4);
 		tmp_icon[0]=tmp_icon[0]-48;
-		if (strcmp(ctag,CLIENTTAG_WAR3XP) == 0) {
+		if (ctag==CLIENTTAG_WAR3XP_UINT) {
 			number_ctag = 6;
 		}
 		if (tmp_icon[0]>=1) {

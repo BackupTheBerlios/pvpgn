@@ -39,9 +39,10 @@ typedef struct
 #include "ladder.h"
 #include "account.h"
 #include "game.h"
+#include "common/tag.h"
 #undef JUST_NEED_TYPES
 
-extern int ladder_calc_info(char const * clienttag, t_ladder_id id, unsigned int count, t_account * * players, t_account * * sorted, t_game_result * results, t_ladder_info * info);
+extern int ladder_calc_info(t_clienttag clienttag, t_ladder_id id, unsigned int count, t_account * * players, t_account * * sorted, t_game_result * results, t_ladder_info * info);
 
 #endif
 #endif

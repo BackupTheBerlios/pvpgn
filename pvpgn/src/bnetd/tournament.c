@@ -104,11 +104,11 @@ static int gamelist_destroy(void)
 }
 
 /*****/
-extern int tournament_check_client(char const * clienttag)
+extern int tournament_check_client(t_clienttag clienttag)
 {
-    if ((strcmp(clienttag,CLIENTTAG_WAR3XP) == 0) && (tournament_info->game_client == 2))
+    if (clienttag==CLIENTTAG_WAR3XP_UINT && tournament_info->game_client==2)
 	return 1;
-    if ((strcmp(clienttag,CLIENTTAG_WARCRAFT3) == 0) && (tournament_info->game_client == 1))
+    if (clienttag==CLIENTTAG_WARCRAFT3_UINT && tournament_info->game_client==1)
 	return 1;
 	
     return -1;
@@ -378,7 +378,8 @@ extern int tournament_init(char const * filename)
 	}
 	
 	if (strcmp(buff,"[MAPS]") == 0) {
-	    char *clienttag, *ctag, *mapname, *mname;
+	    char *clienttag, *mapname, *mname;
+	    t_clienttag ctag;
 	    
 	    free(buff);
 	    for (; (buff = file_get_line(fp));) {
@@ -396,7 +397,7 @@ extern int tournament_init(char const * filename)
 		    for (endpos=len-1; buff[endpos]=='\t' || buff[endpos]==' '; endpos--);
 		    buff[endpos+1] = '\0';
 		}
-		
+		/* FIXME: use next_token() */
 		if (!(clienttag = strtok(buff, " \t"))) { /* strtok modifies the string it is passed */
 		    free(buff);
 		    continue;
@@ -409,12 +410,14 @@ extern int tournament_init(char const * filename)
 		    free(buff);
 		    continue;
 		}
-		ctag = strdup(clienttag);
+		if (!tag_check_client((ctag = tag_case_str_to_uint(clienttag)))) {
+		    free(buff);
+		    continue;
+		}
 		mname = strdup(mapname);
 		
 		anongame_add_tournament_map(ctag, mname);
-		eventlog(eventlog_level_trace,__FUNCTION__,"added tournament map \"%s\" for %s",mname,ctag);
-		free(ctag);
+		eventlog(eventlog_level_trace,__FUNCTION__,"added tournament map \"%s\" for %s",mname,clienttag);
 		free(mname);
 		free(buff);
 	    }

@@ -146,7 +146,8 @@ static int _client_anongame_profile(t_connection * c, t_packet const * const pac
     int temp;
     t_account * account; 
     t_connection * dest_c;
-    char const * ctag;
+    t_clienttag ctag;
+    char clienttag_str[5];
     
     Count = bn_int_get(packet->u.client_findanongame.count);
     eventlog(eventlog_level_info,__FUNCTION__,"[%d] got a FINDANONGAME PROFILE packet",conn_get_socket(c));
@@ -169,9 +170,9 @@ static int _client_anongame_profile(t_connection * c, t_packet const * const pac
 	if (!(ctag = account_get_ll_clienttag(account))) return -1;
     }
     else
-    ctag = clienttag_uint_to_str(conn_get_clienttag(dest_c));
+    ctag = conn_get_clienttag(dest_c);
 
-    eventlog(eventlog_level_info,__FUNCTION__,"Looking up %s's %s Stats.",username,ctag);
+    eventlog(eventlog_level_info,__FUNCTION__,"Looking up %s's %s Stats.",username,tag_uint_to_str(clienttag_str,ctag));
 
     if (account_get_sololevel(account,ctag)<=0 && account_get_teamlevel(account,ctag)<=0 && account_get_atteamcount(account,ctag)<=0)
     {
@@ -520,16 +521,16 @@ static int _client_anongame_get_icon(t_connection * c, t_packet const * const pa
         int i,j;
         char rico;
         unsigned int rlvl,rwins;
-	char const * clienttag;
+	t_clienttag clienttag;
 	t_account * acc;
         
         char user_icon[5];
         char const * uicon;
 
-	clienttag = clienttag_uint_to_str(conn_get_clienttag(c));
+	clienttag = conn_get_clienttag(c);
 	acc = conn_get_account(c);
 	/* WAR3 uses a different table size, might change if blizzard add tournament support to RoC */
-	if (strcmp(clienttag,CLIENTTAG_WARCRAFT3)==0) {
+	if (clienttag==CLIENTTAG_WARCRAFT3_UINT) {
     	    table_width = 5;
 	    table_height= 4;
 	}
@@ -559,7 +560,7 @@ static int _client_anongame_get_icon(t_connection * c, t_packet const * const pa
 	bn_byte_set(&rpacket->u.server_findanongame_iconreply.table_width, table_width);
         bn_byte_set(&rpacket->u.server_findanongame_iconreply.table_size, table_width*table_height);
         for (j=0;j<table_height;j++){
-	    if (strcmp(clienttag,CLIENTTAG_WARCRAFT3)==0)
+	    if (clienttag==CLIENTTAG_WARCRAFT3_UINT)
 		icon_req_race_wins = anongame_infos_get_ICON_REQ_WAR3(j+1);
 	    else
 		icon_req_race_wins = anongame_infos_get_ICON_REQ_W3XP(j+1);
@@ -616,7 +617,7 @@ static int _client_anongame_set_icon(t_connection * c, t_packet const * const pa
 	eventlog(eventlog_level_info,__FUNCTION__,"[%d] Set icon packet to ICON [%s]",conn_get_socket(c),user_icon);
     }
     
-    account_set_user_icon(conn_get_account(c),clienttag_uint_to_str(conn_get_clienttag(c)),user_icon);
+    account_set_user_icon(conn_get_account(c),conn_get_clienttag(c),user_icon);
     //FIXME: Still need a way to 'refresh the user/channel' 
     //_handle_rejoin_command(conn_get_account(c),""); 
     /* ??? channel_update_flags() */
@@ -651,21 +652,19 @@ static int _client_anongame_infos(t_connection * c, t_packet const * const packe
     } else {
 	int i;
 	int client_tag;
-	int server_tag_count = 0;
+	int server_tag_count	= 0;
 	int client_tag_unk;
 	int server_tag_unk;
 	bn_int temp;
 	char noitems;
 	char * tmpdata;
 	int tmplen;
-	char const * clienttag	= clienttag_uint_to_str(conn_get_clienttag(c));
-	
-	char last_packet		= 0x00;
-	char other_packet		= 0x01;
-    char langstr[5];
-    int gamelang = conn_get_gamelang(c);
-
-    bn_int_tag_get((bn_int const *)&gamelang, langstr, 5);
+	t_clienttag clienttag	= conn_get_clienttag(c);
+	char last_packet	= 0x00;
+	char other_packet	= 0x01;
+	char langstr[5];
+	t_gamelang gamelang = conn_get_gamelang(c);
+	bn_int_tag_get((bn_int const *)&gamelang, langstr, 5);
 	
 	/* Send seperate packet for each item requested
 	 * sending all at once overloaded w3xp
@@ -766,7 +765,7 @@ static int _client_anongame_tournament(t_connection * c, t_packet const * const 
     t_packet * rpacket;
     
     t_account * account = conn_get_account(c);
-    char const * clienttag = clienttag_uint_to_str(conn_get_clienttag(c));
+    t_clienttag clienttag = conn_get_clienttag(c);
     
     unsigned int now		= time(NULL);
     unsigned int start_prelim	= tournament_get_start_preliminary();

@@ -2400,9 +2400,9 @@ extern short anongame_infos_get_ICON_REQ_TOURNEY(int Level)
 
 /**********/
 
-extern char *anongame_infos_data_get_url(char const *clienttag, int versionid, int *len)
+extern char *anongame_infos_data_get_url(t_clienttag clienttag, int versionid, int *len)
 {
-    if (strcmp(clienttag, CLIENTTAG_WARCRAFT3) == 0)
+    if (clienttag==CLIENTTAG_WARCRAFT3_UINT)
     {
 	if (versionid <= 0x0000000E)
 	{
@@ -2427,9 +2427,9 @@ extern char *anongame_infos_data_get_url(char const *clienttag, int versionid, i
     }
 }
 
-extern char *anongame_infos_data_get_map(char const *clienttag, int versionid, int *len)
+extern char *anongame_infos_data_get_map(t_clienttag clienttag, int versionid, int *len)
 {
-    if (strcmp(clienttag, CLIENTTAG_WARCRAFT3) == 0)
+    if (clienttag==CLIENTTAG_WARCRAFT3_UINT)
     {
 	(*len) = anongame_infos->anongame_infos_data_war3->map_comp_len;
 	return anongame_infos->anongame_infos_data_war3->map_comp_data;
@@ -2440,9 +2440,9 @@ extern char *anongame_infos_data_get_map(char const *clienttag, int versionid, i
     }
 }
 
-extern char *anongame_infos_data_get_type(char const *clienttag, int versionid, int *len)
+extern char *anongame_infos_data_get_type(t_clienttag clienttag, int versionid, int *len)
 {
-    if (strcmp(clienttag, CLIENTTAG_WARCRAFT3) == 0)
+    if (clienttag==CLIENTTAG_WARCRAFT3_UINT)
     {
 	(*len) = anongame_infos->anongame_infos_data_war3->type_comp_len;
 	return anongame_infos->anongame_infos_data_war3->type_comp_data;
@@ -2453,11 +2453,11 @@ extern char *anongame_infos_data_get_type(char const *clienttag, int versionid, 
     }
 }
 
-extern char *anongame_infos_data_get_desc(char const *langID, char const *clienttag, int versionid, int *len)
+extern char *anongame_infos_data_get_desc(char const *langID, t_clienttag clienttag, int versionid, int *len)
 {
     t_elem *curr;
     t_anongame_infos_data_lang *entry;
-    if (strcmp(clienttag, CLIENTTAG_WARCRAFT3) == 0)
+    if (clienttag==CLIENTTAG_WARCRAFT3_UINT)
     {
 	if (langID != NULL)
 	{
@@ -2490,11 +2490,11 @@ extern char *anongame_infos_data_get_desc(char const *langID, char const *client
     }
 }
 
-extern char *anongame_infos_data_get_ladr(char const *langID, char const *clienttag, int versionid, int *len)
+extern char *anongame_infos_data_get_ladr(char const *langID, t_clienttag clienttag, int versionid, int *len)
 {
     t_elem *curr;
     t_anongame_infos_data_lang *entry;
-    if (strcmp(clienttag, CLIENTTAG_WARCRAFT3) == 0)
+    if (clienttag==CLIENTTAG_WARCRAFT3_UINT)
     {
 	if (langID != NULL)
 	{
@@ -3202,7 +3202,7 @@ static int anongame_infos_data_load(void)
 	"Two vs. Two vs. Two"
     };
 
-    char const *game_clienttag[2] = { CLIENTTAG_WARCRAFT3, CLIENTTAG_WAR3XP };
+    t_clienttag game_clienttag[2] = { CLIENTTAG_WARCRAFT3_UINT, CLIENTTAG_WAR3XP_UINT };
 
     char anongame_PG_section = 0x00;
     char anongame_AT_section = 0x01;

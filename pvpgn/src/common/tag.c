@@ -38,6 +38,7 @@
 #  include <strings.h>
 # endif
 #endif
+#include <ctype.h>
 #include "errno.h"
 #include "compat/strerror.h"
 #include "common/eventlog.h"
@@ -93,6 +94,23 @@ extern char const * clienttag_uint_to_str(t_clienttag clienttag)
 }
 
 /*****/
+/* make all letters in string upper case - used in command.c*/
+extern t_tag tag_case_str_to_uint(char const * tag_str)
+{
+    unsigned int i;
+    char temp_str[5];
+    
+    for (i=0; i<strlen(tag_str); i++)
+	if (isascii((int)tag_str[i]) && islower((int)tag_str[i]))
+	    temp_str[i] = toupper((int)tag_str[i]);
+	else
+	    temp_str[i] = tag_str[i];
+	    
+    temp_str[4] = '\0';
+    
+    return tag_str_to_uint(temp_str);
+}
+
 extern t_tag tag_str_to_uint(char const * tag_str)
 {
     t_tag	tag_uint;
@@ -104,12 +122,11 @@ extern t_tag tag_str_to_uint(char const * tag_str)
     
     tag_uint  = tag_str[0]<<24;
     tag_uint |= tag_str[1]<<16;
-    tag_uint |= tag_str[2]<<8;
-    tag_uint |= tag_str[3];
+    tag_uint |= tag_str[2]<< 8;
+    tag_uint |= tag_str[3]    ;
     
     return tag_uint;
 }
-
 /* tag_uint_to_str()
  *
  * from calling function:

@@ -190,6 +190,10 @@ typedef struct {
 #ifndef INCLUDED_ANONGAME_INFOS_PROTOS
 #define INCLUDED_ANONGAME_INFOS_PROTOS
 
+#define JUST_NEED_TYPES
+#include "common/tag.h"
+#undef JUST_NEED_TYPES
+
 extern int anongame_infos_load(char const * filename);
 extern int anongame_infos_unload(void);
 
@@ -220,11 +224,11 @@ extern short anongame_infos_get_ICON_REQ_WAR3(int Level);
 extern short anongame_infos_get_ICON_REQ_W3XP(int Level);
 extern short anongame_infos_get_ICON_REQ_TOURNEY(int Level);
 
-extern char * anongame_infos_data_get_url(char const * clienttag, int versionid, int * len);
-extern char * anongame_infos_data_get_map(char const * clienttag, int versionid, int * len);
-extern char * anongame_infos_data_get_type(char const * clienttag, int versionid, int * len);
-extern char * anongame_infos_data_get_desc(char const * langID, char const * clienttag, int versionid, int * len);
-extern char * anongame_infos_data_get_ladr(char const * langID, char const * clienttag, int versionid, int * len);
+extern char * anongame_infos_data_get_url(t_clienttag clienttag, int versionid, int * len);
+extern char * anongame_infos_data_get_map(t_clienttag clienttag, int versionid, int * len);
+extern char * anongame_infos_data_get_type(t_clienttag clienttag, int versionid, int * len);
+extern char * anongame_infos_data_get_desc(char const * langID, t_clienttag clienttag, int versionid, int * len);
+extern char * anongame_infos_data_get_ladr(char const * langID, t_clienttag clienttag, int versionid, int * len);
 
 #endif
 #endif
