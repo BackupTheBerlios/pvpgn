@@ -425,10 +425,13 @@ extern int prefs_load(char const * filename)
 	/* Read the configuration file */
 	for (currline=1; (buff = file_get_line(fp)); currline++)
 	{
+	    for(cp = buff; *cp && *cp != '#'; cp++);
+	    if (*cp == '#') *cp = '\0';
+
 	    cp = buff;
 	    
             while (*cp=='\t' || *cp==' ') cp++;
-	    if (*cp=='\0' || *cp=='#')
+	    if (*cp=='\0')
 	    {
 		free(buff);
 		continue;
@@ -505,7 +508,7 @@ extern int prefs_load(char const * filename)
 		    continue;
 		}
 		rawvalue[j] = '\0';
-		if (rawvalue[j+1]!='\0' && rawvalue[j+1]!='#')
+		if (rawvalue[j+1]!='\0')
 		{
 		    eventlog(eventlog_level_error,"prefs_load","extra characters after the value for element \"%s\" on line %u",directive,currline);
 		    free(rawvalue);
@@ -522,7 +525,7 @@ extern int prefs_load(char const * filename)
 		for (j=0; rawvalue[j]!='\0' && rawvalue[j]!=' ' && rawvalue[j]!='\t'; j++);
 		k = j;
 		while (rawvalue[k]==' ' || rawvalue[k]=='\t') k++;
-		if (rawvalue[k]!='\0' && rawvalue[k]!='#')
+		if (rawvalue[k]!='\0')
 		{
 		    eventlog(eventlog_level_error,"prefs_load","extra characters after the value for element \"%s\" on line %u (%s)",directive,currline,&rawvalue[k]);
 		    free(rawvalue);

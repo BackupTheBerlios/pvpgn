@@ -37,6 +37,10 @@ codes)
   portable (now pvpgn compiles fine on 64 bit archs)
   -- fixed an error with opened directory handles not being closed
 
+[PREFS]
+  -- fixed handling of comments (previously it skipped the whole line no 
+  matter where '#' was)
+
 [MISC]:
   -- fixed crash in versioncheck for clients who didnt sent proper informations
 
