@@ -18,6 +18,10 @@ which is distributed separately. To setup a fresh server you will need to get
 the "files" package too and unpack it into "files" directory of your PvPGN 
 installation.
 
+new config files:
+-----------------
+-- added /usr/local/etc/supportfile
+
 changed config files:
 ---------------------
 -- updated bnmotd.txt

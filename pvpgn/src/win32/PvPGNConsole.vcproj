@@ -286,6 +286,9 @@
 					RelativePath="..\bnetd\storage_sql.c">
 				</File>
 				<File
+					RelativePath="..\bnetd\support.c">
+				</File>
+				<File
 					RelativePath="..\bnetd\tick.c">
 				</File>
 				<File
@@ -714,6 +717,9 @@
 				</File>
 				<File
 					RelativePath="..\bnetd\storage_sql.h">
+				</File>
+				<File
+					RelativePath="..\bnetd\support.h">
 				</File>
 				<File
 					RelativePath="..\bnetd\tick.h">

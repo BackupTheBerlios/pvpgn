@@ -195,6 +195,7 @@ extern unsigned int prefs_get_passfail_count(void) ;
 extern unsigned int prefs_get_passfail_bantime(void) ;
 extern unsigned int prefs_get_maxusers_per_channel(void) ;
 extern unsigned int prefs_get_load_new_account(void) ;
+extern char const * prefs_get_supportfile(void);
 
 #endif
 #endif

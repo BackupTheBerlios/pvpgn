@@ -154,6 +154,7 @@ static void usage(char const * progname)
 #define STATUS_MATCHLISTS_FAILURE	5
 #define STATUS_LADDERLIST_FAILURE	6
 #define STATUS_WAR3XPTABLES_FAILURE	7
+#define STATUS_SUPPORT_FAILURE          8
 
 // new functions extracted from Fw()
 int read_commandline(int argc, char * * argv, int *foreground, char const *preffile[], char *hexfile[]);
@@ -405,6 +406,11 @@ int pre_server_startup(void)
 	eventlog(eventlog_level_error, "pre_server_startup", "storage init failed");
 	return STATUS_STORAGE_FAILURE;
     }
+    if (support_check_files(prefs_get_supportfile()) < 0) {
+        eventlog(eventlog_level_error, "pre_server_startup","some needed files are missing");
+	eventlog(eventlog_level_error, "pre_server_startup","please make sure you installed the supportfiles in %s",prefs_get_filedir());
+	return STATUS_SUPPORT_FAILURE;
+    }
     if (anongame_maplists_create() < 0) {
 	eventlog(eventlog_level_error, "pre_server_startup", "could not load maps");
 	return STATUS_MAPLISTS_FAILURE;
@@ -520,6 +526,7 @@ void post_server_shutdown(int status)
 	    anongame_maplists_destroy();
 	case STATUS_MAPLISTS_FAILURE:
 	    storage_close();
+	case STATUS_SUPPORT_FAILURE:
 	case STATUS_STORAGE_FAILURE:
 	case -1:
 	    break;

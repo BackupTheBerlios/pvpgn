@@ -184,6 +184,7 @@ static struct {
     unsigned int passfail_bantime;
     unsigned int maxusers_per_channel;
     unsigned int load_new_account;
+    char const * supportfile;
 } prefs_runtime_config;
 
 /*    directive                 type               defcharval            defintval                 */
@@ -200,6 +201,7 @@ static Bconf_t conf_table[] =
     { "adfile",                 conf_type_char,    BNETD_AD_FILE,        NONE                , (void *)&prefs_runtime_config.adfile},
     { "topicfile",		conf_type_char,	   BNETD_TOPIC_FILE,	 NONE		     , (void *)&prefs_runtime_config.topicfile},
     { "DBlayoutfile",		conf_type_char,    BNETD_DBLAYOUT_FILE,  NONE		     , (void *)&prefs_runtime_config.DBlayoutfile},
+    { "supportfile",		conf_type_char,    BNETD_SUPPORT_FILE,   NONE                , (void *)&prefs_runtime_config.supportfile},
     { "usersync",               conf_type_int,     NULL,                 BNETD_USERSYNC      , (void *)&prefs_runtime_config.usersync},
     { "userflush",              conf_type_int,     NULL,                 BNETD_USERFLUSH     , (void *)&prefs_runtime_config.userflush},
     { "userstep",               conf_type_int,     NULL,                 BNETD_USERSTEP      , (void *)&prefs_runtime_config.userstep},
@@ -1312,4 +1314,9 @@ extern unsigned int prefs_get_maxusers_per_channel(void)
 extern unsigned int prefs_get_load_new_account(void)
 {
     return prefs_runtime_config.load_new_account;
+}
+
+extern char const * prefs_get_supportfile(void)
+{
+    return prefs_runtime_config.supportfile;
 }

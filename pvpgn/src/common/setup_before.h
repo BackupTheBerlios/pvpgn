@@ -157,6 +157,7 @@
 #define BNETD_STATUS_DIR        "var/status"
 #define BNETD_TOPIC_FILE	"var/topics"
 #define BNETD_DBLAYOUT_FILE     "conf/sql_DB_layout"
+#define BNETD_SUPPORT_FILE      "conf/supportfile"
 
 #define BNETD_COMMAND_GROUPS_FILE "conf/command_groups.txt"
 #define BNETD_TOURNAMENT_FILE	"conf/tournament.conf"
