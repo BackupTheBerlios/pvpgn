@@ -281,22 +281,35 @@ extern int anongame_matchmaking_create(void)
 }
 */
 
-extern t_list * anongame_get_w3xp_maplist(int gametype)
+extern t_list * anongame_get_w3xp_maplist(int gametype, const char *clienttag)
 {
   if ((gametype<0) || (gametype>=ANONGAME_TYPES))
   {
     eventlog(eventlog_level_error,__FUNCTION__,"got invalid gametype for request");
     return NULL;
   }
-  return mapnames_w3xp[gametype];
+  if (clienttag == NULL || strlen(clienttag) != 4)
+  {
+    eventlog(eventlog_level_error,__FUNCTION__,"got invalid clienttag");
+    return NULL;
+  }
+
+  if (strcmp(clienttag, CLIENTTAG_WARCRAFT3) == 0)
+    return mapnames_war3[gametype];
+  if (strcmp(clienttag, CLIENTTAG_WAR3XP) == 0)
+    return mapnames_w3xp[gametype];
+  else {
+    eventlog(eventlog_level_error, __FUNCTION__, "got unknown clienttag '%s'", clienttag);
+    return NULL;
+  }
 }
 
-extern void anongame_add_maps_to_packet(t_packet * packet, int gametype)
+extern void anongame_add_maps_to_packet(t_packet * packet, int gametype, const char *clienttag)
 {
   t_list * mapslist;
   t_elem * curr;
   char * mapname;
-  if ((mapslist = anongame_get_w3xp_maplist(gametype)))
+  if ((mapslist = anongame_get_w3xp_maplist(gametype, clienttag)))
     {
       LIST_TRAVERSE(mapslist, curr)
 	{
@@ -315,6 +328,7 @@ extern int anongame_maplists_create(void)
    int len, i, type;
    char *p, *q, *r, *mapname, *u;
    t_list * * mapnames;
+   int war3count, w3xpcount;
 
    if (prefs_get_mapsfile() == NULL) {
       eventlog(eventlog_level_error, "anongame_maplists_create","invalid mapsfile, check your config");
@@ -332,6 +346,8 @@ extern int anongame_maplists_create(void)
       mapnames_w3xp[i] = NULL;
    }
    
+   war3count = 0;
+   w3xpcount = 0;
    while(fgets(buffer, 256, mapfd)) {
       len = strlen(buffer);
       if (len < 1) continue;
@@ -384,10 +400,14 @@ extern int anongame_maplists_create(void)
 	}
       *u = '\0';
       
-      if (strcmp(p, CLIENTTAG_WARCRAFT3) == 0)
+      if (strcmp(p, CLIENTTAG_WARCRAFT3) == 0) {
+        if (++war3count > 255) continue;
 	mapnames = mapnames_war3;
-      else if (strcmp(p, CLIENTTAG_WAR3XP) == 0)
+      }
+      else if (strcmp(p, CLIENTTAG_WAR3XP) == 0) {
+        if (++w3xpcount > 255) continue;
 	mapnames = mapnames_w3xp;
+      }
       else continue; /* invalid clienttag */
 
       if ((type = _anongame_type_getid(q)) < 0) continue; /* invalid game type */

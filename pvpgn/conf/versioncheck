@@ -70,6 +70,18 @@
 
 # ==================== Warcraft III entries =======================
 
+# Warcraft III v1.10 RETAIL
+# Note: this version check is sent in both FT 1.10 and ROC 1.10
+"A=3845581634 B=880823580 C=1363937103 4 A=A-S B=B-C C=C-A A=A-B" \
+ IX86ver1.mpq \
+ IX86 \
+ WAR3 \
+ "war3.exe 06/17/03 16:37:46 1568211" \
+ 0x0000000a \
+ 1.0.10.146 \
+ 0x75d1c16f \
+ WAR3_110A
+
 # Warcraft III Retail v1.06a
 "A=3845581634 B=880823580 C=1363937103 4 A=A-S B=B-C C=C-A A=A-B" \
  IX86ver1.mpq \

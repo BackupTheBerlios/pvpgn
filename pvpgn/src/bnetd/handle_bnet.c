@@ -1,4 +1,3 @@
-
 /*
  * Copyright (C) 1998  Mark Baysinger (mbaysing@ucsd.edu)
  * Copyright (C) 1998,1999,2000,2001  Ross Combs (rocombs@cs.nmsu.edu)
@@ -3333,7 +3332,9 @@ static int _client_findanongame(t_connection * c, t_packet const * const packet)
 		char mapscount_sffa;
 		char mapscount_total;
 		char value;
-		char PG_gamestyles, AT_gamestyles, counter1, counter2;
+		char PG_gamestyles, AT_gamestyles;
+		int counter1, counter2;
+		char const * clienttag = conn_get_clienttag(c);
 
 		// value changes according to Fr3DBr. the 3rd value is the allowed thumbs down count
 		// maybe make it configurable via anongame_infos.conf later on...
@@ -3364,11 +3365,11 @@ static int _client_findanongame(t_connection * c, t_packet const * const packet)
 		anongame_AT_3v3_prefix[2] = anongame_infos_THUMBSDOWN_get_AT_3v3();
 		anongame_AT_4v4_prefix[2] = anongame_infos_THUMBSDOWN_get_AT_4v4();
 
-		mapscount_1v1  = list_get_length(anongame_get_w3xp_maplist(ANONGAME_TYPE_1V1));
-		mapscount_2v2  = list_get_length(anongame_get_w3xp_maplist(ANONGAME_TYPE_2V2));
-		mapscount_3v3  = list_get_length(anongame_get_w3xp_maplist(ANONGAME_TYPE_3V3));
-		mapscount_4v4  = list_get_length(anongame_get_w3xp_maplist(ANONGAME_TYPE_4V4));
-		mapscount_sffa = list_get_length(anongame_get_w3xp_maplist(ANONGAME_TYPE_SMALL_FFA));
+		mapscount_1v1  = list_get_length(anongame_get_w3xp_maplist(ANONGAME_TYPE_1V1, clienttag));
+		mapscount_2v2  = list_get_length(anongame_get_w3xp_maplist(ANONGAME_TYPE_2V2, clienttag));
+		mapscount_3v3  = list_get_length(anongame_get_w3xp_maplist(ANONGAME_TYPE_3V3, clienttag));
+		mapscount_4v4  = list_get_length(anongame_get_w3xp_maplist(ANONGAME_TYPE_4V4, clienttag));
+		mapscount_sffa = list_get_length(anongame_get_w3xp_maplist(ANONGAME_TYPE_SMALL_FFA, clienttag));
 		mapscount_total = mapscount_1v1 + mapscount_2v2 + mapscount_3v3 + mapscount_4v4 + mapscount_sffa;
 
 		if ((rpacket = packet_create(packet_class_bnet)) == NULL) {
@@ -3407,11 +3408,11 @@ static int _client_findanongame(t_connection * c, t_packet const * const packet)
 				
 				packet_append_data(rpacket, &mapscount_total, 1);
 				
-				anongame_add_maps_to_packet(rpacket, ANONGAME_TYPE_1V1);
-				anongame_add_maps_to_packet(rpacket, ANONGAME_TYPE_2V2);
-				anongame_add_maps_to_packet(rpacket, ANONGAME_TYPE_3V3);
-				anongame_add_maps_to_packet(rpacket, ANONGAME_TYPE_4V4);
-				anongame_add_maps_to_packet(rpacket, ANONGAME_TYPE_SMALL_FFA);
+				anongame_add_maps_to_packet(rpacket, ANONGAME_TYPE_1V1, clienttag);
+				anongame_add_maps_to_packet(rpacket, ANONGAME_TYPE_2V2, clienttag);
+				anongame_add_maps_to_packet(rpacket, ANONGAME_TYPE_3V3, clienttag);
+				anongame_add_maps_to_packet(rpacket, ANONGAME_TYPE_4V4, clienttag);
+				anongame_add_maps_to_packet(rpacket, ANONGAME_TYPE_SMALL_FFA, clienttag);
 				
 				server_tag_count++;
 				eventlog(eventlog_level_debug,__FUNCTION__,"client_tag request tagid=(0x%01x) tag=(%s)  tag_unk=(0x%04x)",i,"CLIENT_FINDANONGAME_INFOTAG_MAP",client_tag_unk);
