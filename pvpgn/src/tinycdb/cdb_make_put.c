@@ -1,6 +1,4 @@
-#ifdef WITH_CDB
-
-/* $Id: cdb_make_put.c,v 1.1 2003/07/30 20:04:42 dizzy Exp $
+/* $Id: cdb_make_put.c,v 1.2 2003/07/30 21:12:31 dizzy Exp $
  * "advanced" cdb_make_put routine
  *
  * This file is a part of tinycdb package by Michael Tokarev, mjt@corpit.ru.
@@ -92,4 +90,3 @@ cdb_make_put(struct cdb_make *cdbmp,
   return r;
 }
 
-#endif /* WITH_CDB */

@@ -1,6 +1,4 @@
-#ifdef WITH_CDB
-
-/* $Id: cdb_seek.c,v 1.1 2003/07/30 20:04:42 dizzy Exp $
+/* $Id: cdb_seek.c,v 1.2 2003/07/30 21:12:31 dizzy Exp $
  * old interface for reading cdb file
  *
  * This file is a part of tinycdb package by Michael Tokarev, mjt@corpit.ru.
@@ -105,4 +103,3 @@ cdb_seek(int fd, const void *key, unsigned klen, cdbi_t *dlenp)
   }
 }
 
-#endif /* WITH_CDB */

@@ -1,14 +1,15 @@
-#ifdef WITH_CDB
-
-/* $Id: cdb_find.c,v 1.1 2003/07/30 20:04:42 dizzy Exp $
+/* $Id: cdb_find.c,v 1.2 2003/07/30 21:12:31 dizzy Exp $
  * cdb_find routine
  *
  * This file is a part of tinycdb package by Michael Tokarev, mjt@corpit.ru.
  * Public domain.
  */
 
+#include "common/setup_before.h"
 #include "cdb_int.h"
+#include "common/setup_after.h"
 
+#ifdef HAVE_MMAP
 int
 cdb_find(struct cdb *cdbp, const void *key, cdbi_t klen)
 {
@@ -82,5 +83,4 @@ cdb_find(struct cdb *cdbp, const void *key, cdbi_t klen)
   }
 
 }
-
-#endif /* WITH_CDB */
+#endif /* HAVE_MMAP */

@@ -1,9 +1,12 @@
-/* $Id: cdb.h,v 1.1 2003/07/30 20:04:42 dizzy Exp $
+/* $Id: cdb.h,v 1.2 2003/07/30 21:12:31 dizzy Exp $
  * public cdb include file
  *
  * This file is a part of tinycdb package by Michael Tokarev, mjt@corpit.ru.
  * Public domain.
  */
+
+#include "common/setup_before.h"
+#include "common/setup_after.h"
 
 #ifndef TINYCDB_VERSION
 #define TINYCDB_VERSION 0.73
@@ -19,7 +22,9 @@ struct cdb {
   int cdb_fd;			/* file descriptor */
   /* private members */
   cdbi_t cdb_fsize;		/* datafile size */
+#ifdef HAVE_MMAP
   const unsigned char *cdb_mem; /* mmap'ed file memory */
+#endif
   cdbi_t cdb_vpos, cdb_vlen;	/* found data */
 };
 

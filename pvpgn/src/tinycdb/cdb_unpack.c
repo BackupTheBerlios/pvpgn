@@ -1,6 +1,4 @@
-#ifdef WITH_CDB
-
-/* $Id: cdb_unpack.c,v 1.1 2003/07/30 20:04:42 dizzy Exp $
+/* $Id: cdb_unpack.c,v 1.2 2003/07/30 21:12:31 dizzy Exp $
  * unpack 32bit integer
  *
  * This file is a part of tinycdb package by Michael Tokarev, mjt@corpit.ru.
@@ -19,4 +17,3 @@ cdb_unpack(const unsigned char buf[4])
   return n;
 }
 
-#endif /* WITH_CDB */

@@ -1,6 +1,4 @@
-#ifdef WITH_CDB
-
-/* $Id: cdb_make_find.c,v 1.1 2003/07/30 20:04:42 dizzy Exp $
+/* $Id: cdb_make_find.c,v 1.2 2003/07/30 21:12:31 dizzy Exp $
  * routines to search in in-progress cdb file
  *
  * This file is a part of tinycdb package by Michael Tokarev, mjt@corpit.ru.
@@ -88,4 +86,3 @@ cdb_make_exists(struct cdb_make *cdbmp,
   return _cdb_make_find(cdbmp, key, klen, cdb_hash(key, klen), NULL);
 }
 
-#endif /* WITH_CDB */

@@ -1,6 +1,4 @@
-#ifdef WITH_CDB
-
-/* $Id: cdb_hash.c,v 1.1 2003/07/30 20:04:42 dizzy Exp $
+/* $Id: cdb_hash.c,v 1.2 2003/07/30 21:12:31 dizzy Exp $
  * cdb hashing routine
  *
  * This file is a part of tinycdb package by Michael Tokarev, mjt@corpit.ru.
@@ -19,5 +17,3 @@ cdb_hash(const void *buf, cdbi_t len)
     hash = (hash + (hash << 5)) ^ *p++;
   return hash;
 }
-
-#endif /* WITH_CDB */
