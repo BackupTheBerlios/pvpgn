@@ -201,7 +201,7 @@ static t_bnpcap_conn * bnpcap_conn_new(t_bnpcap_addr const *s, t_bnpcap_addr con
       eventlog(eventlog_level_error,"bnpcap_conn_new","malloc failed: %s",strerror(errno));
       return NULL;
    }
-   if (d->port==listen_port) { /* FIXME: That's dirty: We assume the server is on port 6112 */
+   if (d->port==listen_port || d->port==6200) { /* FIXME: That's dirty: We assume the server is on port 6112 */
       memcpy(&c->client,s,sizeof(t_bnpcap_addr));
       memcpy(&c->server,d,sizeof(t_bnpcap_addr));
    } else {
@@ -515,7 +515,7 @@ static int bnpcap_process_tcp(t_ip_header const * ip, unsigned char const *data,
 	       }
 	    }
 	 }
-      } else if ((h.sport!=listen_port)&&(h.dport!=listen_port)) {
+      } else if (((h.sport!=listen_port)&&(h.dport!=listen_port)) && ((h.sport!=6200)&&(h.dport!=6200))) {
 	 eventlog(eventlog_level_info,"bnpcap_process_tcp","other packet (%d)",((signed)len-(h.doffset*4)));
       } else {
 	 eventlog(eventlog_level_info,"bnpcap_process_tcp","valid packet (%d)",((signed)len-(h.doffset*4)));
@@ -550,7 +550,7 @@ static int bnpcap_process_udp(unsigned char const *data, unsigned int len)
       eventlog(eventlog_level_error,"bnpcap_process_udp","malloc failed: %s",strerror(errno));
       return -1;
    }
-   if (h.dport==listen_port) {
+   if (h.dport==listen_port || h.dport==6200) {
       bp->dir = packet_dir_from_client;
    } else {
       bp->dir = packet_dir_from_server;

@@ -595,9 +595,11 @@ typedef struct
 	bn_byte   playgameack1;
 	bn_int    count;
 	bn_int    playgameack2;
+	bn_short  avgtime; /* average time in seconds of search */
 } t_server_playgame_ack PACKED_ATTR();
 #define SERVER_PLAYGAME_ACK1  0x00
 #define SERVER_PLAYGAME_ACK2  0x00000000
+#define SERVER_PLAYGAME_AVGTIME 0x0032
 
 
 /*****************************************************/

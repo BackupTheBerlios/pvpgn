@@ -836,6 +836,7 @@ extern void handle_anongame_search(t_connection * c, t_packet const * packet)
 	bn_byte_set(&rpacket->u.server_playgame_ack.playgameack1,SERVER_PLAYGAME_ACK1);
 	bn_int_set(&rpacket->u.server_playgame_ack.count,Count);
 	bn_int_set(&rpacket->u.server_playgame_ack.playgameack2,SERVER_PLAYGAME_ACK2);
+	bn_short_set(&rpacket->u.server_playgame_ack.avgtime,SERVER_PLAYGAME_AVGTIME);
 	queue_push_packet(conn_get_out_queue(c),rpacket);
 	packet_del_ref(rpacket);
 

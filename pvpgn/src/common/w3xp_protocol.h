@@ -502,4 +502,14 @@ typedef struct
 
 #define SERVER_W3XP_ADREPLY		0x42ff
 
+
+/* W3 ROUTE packets */
+
+#define CLIENT_W3XP_W3ROUTE_REQ		0x1EF7
+
+#define CLIENT_W3XP_W3ROUTE_LOADINGDONE	0x23F7
+
+#define SERVER_W3XP_W3ROUTE_ECHOREQ	0x46F7
+
+
 #endif
