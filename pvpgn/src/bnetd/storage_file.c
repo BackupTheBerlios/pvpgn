@@ -66,6 +66,10 @@
 #endif
 #ifdef HAVE_UNISTD_H
 # include <unistd.h>
+#else
+# ifdef WIN32
+#  include <io.h>
+# endif
 #endif
 #include "compat/pdir.h"
 #include "common/eventlog.h"
