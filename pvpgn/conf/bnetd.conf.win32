@@ -40,7 +40,7 @@ ladderdir    = var\ladders
 command_groups_file = conf\command_groups.txt
 statusdir   = var\status
 aliasfile   = conf\bnalias.list
-anonagem_infos_file = conf\anongame_infos.conf
+anongame_infos_file = conf\anongame_infos.conf
 
 fortunecmd  = bin\fortune.exe
 
