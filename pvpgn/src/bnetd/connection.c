@@ -2391,7 +2391,7 @@ extern char const * conn_get_playerinfo(t_connection const * c)
     {
 	strcpy(playerinfo,revtag); /* FIXME: what to return here? */
     }
-    else if (clienttag==CLIENTTAG_STARCRAFT_UINT)
+    else if ((clienttag==CLIENTTAG_STARCRAFT_UINT) || (clienttag==CLIENTTAG_BROODWARS_UINT))
     {
         if (conn_get_versionid(c)<=0x000000c7)
 	{
@@ -2409,29 +2409,9 @@ extern char const * conn_get_playerinfo(t_connection const * c)
 		  account_get_ladder_rating(account,clienttag,ladder_id_normal),
 		  account_get_ladder_rank(account,clienttag,ladder_id_normal),
 		  account_get_normal_wins(account,clienttag),
-		  0,0,0,0,0,
-		  revtag);
-	}
-    }
-    else if (clienttag==CLIENTTAG_BROODWARS_UINT)
-    {
-        if (conn_get_versionid(c)<=0x000000c7)
-	{
-	  sprintf(playerinfo,"%s %u %u %u %u %u",
-		  revtag,
-		  account_get_ladder_rating(account,clienttag,ladder_id_normal),
-		  account_get_ladder_rank(account,clienttag,ladder_id_normal),
-		  account_get_normal_wins(account,clienttag),
-		  0,0);
-	}
-	else
-	{
-	  sprintf(playerinfo,"%s %u %u %u %u %u %u %u %u %s",
-		  revtag,
-		  account_get_ladder_rating(account,clienttag,ladder_id_normal),
-		  account_get_ladder_rank(account,clienttag,ladder_id_normal),
-		  account_get_normal_wins(account,clienttag),
-		  0,0,0,0,0,
+		  0,0,
+		  account_get_ladder_high_rating(account,clienttag,ladder_id_normal),
+		  0,0,
 		  revtag);
 	}
     }
