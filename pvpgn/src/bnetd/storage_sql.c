@@ -288,6 +288,8 @@ static int sql_init(const char *dbpath)
 
     xfree((void *) path);
 
+    sql_dbcreator(sql);
+
     return 0;
 }
 
