@@ -2705,10 +2705,10 @@ static t_parse_mode switch_parse_mode(char * text, char * langID)
 		langID[0] = '\0';
 		return parse_DESC;
 	}
-	else if (strlen(text)==5) 
+	else if (strlen(text)==6) 
 	{
-		strncpy(langID,&(text[1]),3);
-		langID[3] = '\0';
+		strncpy(langID,&(text[1]),4);
+		langID[4] = '\0';
 		return parse_DESC;
 	}
 	else

@@ -593,6 +593,10 @@ static int _client_anongame_infos(t_connection * c, t_packet const * const packe
 	
 	char last_packet		= 0x00;
 	char other_packet		= 0x01;
+    char langstr[5];
+    int gamelang = conn_get_gamelang(c);
+
+    bn_int_tag_get((bn_int const *)&gamelang, langstr, 5);
 	
 	/* Send seperate packet for each item requested
 	 * sending all at once overloaded w3xp
@@ -652,7 +656,7 @@ static int _client_anongame_infos(t_connection * c, t_packet const * const packe
 		    bn_int_set((bn_int*)&server_tag_unk,0xA4F0A22F);
 		    packet_append_data(rpacket, "CSED" , 4);
 		    packet_append_data(rpacket,&server_tag_unk,4);
-			tmpdata = anongame_infos_data_get_desc((char *)conn_get_country(c), clienttag, conn_get_versionid(c), &tmplen);
+			tmpdata = anongame_infos_data_get_desc(langstr, clienttag, conn_get_versionid(c), &tmplen);
 		    packet_append_data(rpacket, tmpdata, tmplen);
 		    eventlog(eventlog_level_debug,__FUNCTION__,"client_tag request tagid=(0x%01x) tag=(%s) tag_unk=(0x%04x)",i,"CLIENT_FINDANONGAME_INFOTAG_DESC",client_tag_unk);
 		    noitems++;
@@ -662,7 +666,7 @@ static int _client_anongame_infos(t_connection * c, t_packet const * const packe
 		    bn_int_set((bn_int*)&server_tag_unk,0x3BADE25A);
 		    packet_append_data(rpacket, "RDAL" , 4);
 		    packet_append_data(rpacket, &server_tag_unk , 4);
-			tmpdata = anongame_infos_data_get_ladr((char *)conn_get_country(c), clienttag, conn_get_versionid(c), &tmplen);
+			tmpdata = anongame_infos_data_get_ladr(langstr, clienttag, conn_get_versionid(c), &tmplen);
 		    packet_append_data(rpacket, tmpdata, tmplen);
 		    noitems++;
 		    server_tag_count++;
