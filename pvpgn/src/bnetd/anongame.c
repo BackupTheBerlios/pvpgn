@@ -1236,7 +1236,7 @@ extern int handle_w3route_packet(t_connection * c, t_packet const * const packet
 	           ac = conn_get_routeconn(anongame_get_player(a,i));
 	           if(ac) {
 		      timerlist_add_timer(ac,time(NULL)+(time_t)300,conn_shutdown,data); // 300 seconds or 5 minute timer
-		      eventlog(eventlog_level_trace,"handle_w3route_packet","[%d] started timer to close w3route -> USER: %s",conn_get_socket(ac),conn_get_username(ac));
+		      eventlog(eventlog_level_trace,"handle_w3route_packet","[%d] started timer to close w3route",conn_get_socket(ac));
 		    }
 		 }
 	      }
