@@ -113,6 +113,7 @@
 #include "watch.h"
 #include "anongame_infos.h"
 #include "news.h" //by Spider
+#include "friends.h"
 
 extern int last_news;
 extern int first_news;
@@ -2353,46 +2354,47 @@ static int _client_changegameport(t_connection * c, t_packet const * const packe
 
 static int _client_friendslistreq(t_connection * c, t_packet const * const packet)
 {
-   t_packet * rpacket = NULL;
+    t_packet * rpacket = NULL;
 
-   if (packet_get_size(packet)<sizeof(t_client_friendslistreq))
-     {
+    if (packet_get_size(packet)<sizeof(t_client_friendslistreq)) {
 	eventlog(eventlog_level_error,__FUNCTION__,"[%d] got bad FRIENDSLISTREQ packet (expected %u bytes, got %u)",conn_get_socket(c),sizeof(t_client_friendslistreq),packet_get_size(packet));
 	return -1;
-     }
-     {
-	
+    }
+    {
 	char tmp[7];
-	char const *friend;
+	int friend;
+	t_list * flist;
+	t_friend * fr;
+	t_account * account=conn_get_account(c);
 	int i;
-	int n = account_get_friendcount(conn_get_account(c));
-	
-	if(n==0)
-	  return 0; // changed from -1 to 0. This is no packet handling error, just no friends exist.
+	int n = account_get_friendcount(account);
+
+	if(n==0) return 0;
 	if (!(rpacket = packet_create(packet_class_bnet)))
-	  return -1;
-	
+	    return -1;
+
 	packet_set_size(rpacket,sizeof(t_server_friendslistreply));
 	packet_set_type(rpacket,SERVER_FRIENDSLISTREPLY);
-	
-	
+
 	tmp[0]=(unsigned char) n;    //set number of friends
 	packet_append_data(rpacket, tmp, 1);
-	
+
 	for(i=0; i<n; i++) {
-	   friend = account_get_friend(conn_get_account(c),i);
-	   packet_append_string(rpacket, friend);
-	   memset(tmp, 0, 7);
-	   if(connlist_find_connection_by_accountname(friend))
-	     tmp[1] = FRIENDSTATUS_ONLINE;
+	    friend = account_get_friend(account,i);
+	    if ((flist = account_get_friends(account))==NULL) return -1;
+	    if ((fr=friendlist_find_accountuid(flist, friend))==NULL) return -1;
+	    packet_append_string(rpacket, account_get_name(friend_get_account(fr)));
+	    memset(tmp, 0, 7);
+	    if(connlist_find_connection_by_uid(friend))
+		tmp[1] = FRIENDSTATUS_ONLINE;
 	   packet_append_data(rpacket, tmp, 7);
 	}
-	
+
 	queue_push_packet(conn_get_out_queue(c),rpacket);
 	packet_del_ref(rpacket);
-     }
-   
-   return 0;
+    }
+
+    return 0;
 }
 
 static int _client_friendinforeq(t_connection * c, t_packet const * const packet)
@@ -2408,36 +2410,38 @@ static int _client_friendinforeq(t_connection * c, t_packet const * const packet
 	t_connection const * dest_c;
 	t_game const * game;
 	t_channel const * channel;
-	t_account * account;
-	char const *friend;
+	t_account * account=conn_get_account(c);
+	int friend;
 	char const *myusername;
-	int n = account_get_friendcount(conn_get_account(c));
-	
+	t_friend * fr;
+	t_list * flist;
+	int n=account_get_friendcount(account);
+
 	myusername = conn_get_username(c);
 	if(bn_byte_get(packet->u.client_friendinforeq.friendnum) > n) {
 	   eventlog(eventlog_level_error,__FUNCTION__,"[%d] bad friend number in FRIENDINFOREQ packet",conn_get_socket(c));
 	   return -1;
 	}
-	
+
 	if (!(rpacket = packet_create(packet_class_bnet)))
 	  return -1;
-	
+
 	packet_set_size(rpacket,sizeof(t_server_friendinforeply));
 	packet_set_type(rpacket,SERVER_FRIENDINFOREPLY);
-	
-	friend = account_get_friend(conn_get_account(c),bn_byte_get(packet->u.client_friendinforeq.friendnum));
-	if(!friend) 
+
+	friend = account_get_friend(account,bn_byte_get(packet->u.client_friendinforeq.friendnum));
+	if(friend<0) 
 	  {
 	     eventlog(eventlog_level_error,__FUNCTION__,"[%d] friend number %d not found",conn_get_socket(c), (int) bn_byte_get(packet->u.client_friendinforeq.friendnum));
 	     return -1;
 	  }
-	
+
 	bn_byte_set(&rpacket->u.server_friendinforeply.friendnum, bn_byte_get(packet->u.client_friendinforeq.friendnum));
-	// Updated - THEUNDYING 7/26/02 - Mutual Friends Check - Fixed by me w00t w00t
-	account = accountlist_find_account(friend); //Get the friends account
-	
-	if(!(dest_c = connlist_find_connection_by_accountname(friend))) 
-	  {
+
+        flist = account_get_friends(account);
+	fr=friendlist_find_accountuid(flist, friend);
+
+	if(fr==NULL || (dest_c = connlist_find_connection_by_account(friend_get_account(fr)))==NULL) {
 	     bn_byte_set(&rpacket->u.server_friendinforeply.unknown1, 0);
 	     bn_byte_set(&rpacket->u.server_friendinforeply.status, FRIENDSTATUS_OFFLINE);
 	     bn_int_set(&rpacket->u.server_friendinforeply.clienttag, 0);
@@ -2445,11 +2449,10 @@ static int _client_friendinforeq(t_connection * c, t_packet const * const packet
 	     queue_push_packet(conn_get_out_queue(c),rpacket);
 	     packet_del_ref(rpacket);
 	     return 0;
-	  }
-	
-	if(account_check_mutual(account,myusername)==0)
+	}
+
+	if(friend_get_mutual(fr))
 	  {
-	     eventlog(eventlog_level_trace,"handle_bnet","%s is mutual to %s",myusername,friend);
 	     bn_byte_set(&rpacket->u.server_friendinforeply.unknown1, 1); // This is if a mutal friend or not 6/28/02 THEUNDYING 0 = no, 1 = yes
 	     
 	     if((game = conn_get_game(dest_c))) 
@@ -2474,7 +2477,6 @@ static int _client_friendinforeq(t_connection * c, t_packet const * const packet
 	  }
 	else
 	  {
-	     eventlog(eventlog_level_trace,"handle_bnet","%s is not mutual to %s",myusername,friend);
 	     bn_byte_set(&rpacket->u.server_friendinforeply.unknown1, 0); // This is if a mutal friend or not 6/28/02 THEUNDYING 0 = no, 1 = yes
 	     
 	     if((game = conn_get_game(dest_c))) 
@@ -2508,13 +2510,17 @@ static int _client_friendinforeq(t_connection * c, t_packet const * const packet
 
 static int _client_atfriendscreen(t_connection * c, t_packet const * const packet)
 {
-   char const *f;
    char const *myusername;
+   char const *fname;
    t_connection * dest_c;
-   int i;
    unsigned char f_cnt = 0;
+   t_account * account;
    t_packet * rpacket = NULL;
    char const * vt;
+   char const * nvt;
+   t_friend * fr;
+   t_list * flist;
+   t_elem * curr;
    
    eventlog(eventlog_level_info,__FUNCTION__,"[%d] got CLIENT_ARRANGEDTEAM_FRIENDSCREEN packet",conn_get_socket(c));
    
@@ -2530,41 +2536,45 @@ static int _client_atfriendscreen(t_connection * c, t_packet const * const packe
       return -1;
    }
    
-   packet_set_size(rpacket,sizeof(t_server_arrangedteam_friendscreen));
-			packet_set_type(rpacket,SERVER_ARRANGEDTEAM_FRIENDSCREEN);
-   
-   vt = versioncheck_get_versiontag(conn_get_versioncheck(c));
-   // cycle through friends, taking those who is currently available
-   for(i = 0; i < account_get_friendcount(conn_get_account(c)); i++) 
-     {
-	f = account_get_friend(conn_get_account(c), i);
+    packet_set_size(rpacket,sizeof(t_server_arrangedteam_friendscreen));
+		    packet_set_type(rpacket,SERVER_ARRANGEDTEAM_FRIENDSCREEN);
+
+    vt = versioncheck_get_versiontag(conn_get_versioncheck(c));
+    flist=account_get_friends(conn_get_account(c));
+    LIST_TRAVERSE(flist,curr)
+    {
+        if (!(fr = elem_get_data(curr)))
+        {
+            eventlog(eventlog_level_error,__FUNCTION__,"found NULL entry in list");
+            continue;
+        }
 	
-	if(!(dest_c = connlist_find_connection_by_accountname(f))) 
-	  continue; // if user is offline, then continue to next friend
+        account = friend_get_account(fr);
+	if(!(dest_c = connlist_find_connection_by_account(account))) 
+	    continue; // if user is offline, then continue to next friend
+        nvt = versioncheck_get_versiontag(conn_get_versioncheck(dest_c));
+	if (vt && nvt && strcmp(vt, nvt))
+    	    continue; /* friend is using another game/version */
 
-	if (vt && versioncheck_get_versiontag(conn_get_versioncheck(dest_c)) && strcmp(vt, versioncheck_get_versiontag(conn_get_versioncheck(dest_c))))
-	    continue; /* friend is using another game/version */
+	if(friend_get_mutual(fr))
+    	{		
+	    if(conn_get_dndstr(dest_c)) 
+	        continue; // user is dnd
+	    if(conn_get_game(dest_c)) 
+	        continue; // user is some game
+	    if (!conn_get_channel(dest_c))
+	        continue;
 
-	if(account_check_mutual(conn_get_account(dest_c), myusername) == 0)
-	  {		
-	     if(conn_get_dndstr(dest_c)) 
-	       continue; // user is dnd
-	     if(conn_get_game(dest_c)) 
-	       continue; // user is some game
-	     if (!conn_get_channel(dest_c))
-	       continue;
-	     
-	     eventlog(eventlog_level_trace,"handle_bnet","AT - Friend: %s is available for a AT Game.", f);
-	     f_cnt++;
-	     packet_append_string(rpacket, f);
-	  }
-     }
-   // <- end of cycle
+            fname=account_get_name(account);
+	    eventlog(eventlog_level_trace,"handle_bnet","AT - Friend: %s is available for a AT Game.", fname);
+	    f_cnt++;
+	    packet_append_string(rpacket, fname);
+	}
+    }
 		
-   if(!f_cnt)
-     {
+    if(!f_cnt)
 	eventlog(eventlog_level_info, "handle_bnet", "AT - no friends available for AT game.");
-     } else {
+    else {
 	bn_byte_set(&rpacket->u.server_arrangedteam_friendscreen.f_count, f_cnt);
 	queue_push_packet(conn_get_out_queue(c), rpacket);
      }
@@ -3615,7 +3625,7 @@ static int _client_progident2(t_connection * c, t_packet const * const packet)
 		  if ((!prefs_get_hide_temp_channels() || channel_get_permanent(ch)) &&
 		      (!channel_get_clienttag(ch) || strcmp(channel_get_clienttag(ch),conn_get_clienttag(c))==0) &&
 		      (!channel_get_clienttag(ch) || !conn_get_channel(c) || 
-		        strcmp(channel_get_clienttag(ch), CLIENTTAG_WARCRAFT3) || strcmp(channel_get_clienttag(ch), CLIENTTAG_WAR3XP) ||
+		        (strcmp(channel_get_clienttag(ch), CLIENTTAG_WARCRAFT3) && strcmp(channel_get_clienttag(ch), CLIENTTAG_WAR3XP)) ||
 			strcmp(channel_get_name(ch),channel_get_name(conn_get_channel(c)))))
 		    
 		    if ((!(channel_get_flags(ch) & channel_flags_thevoid)) &&  // don't display theVoid in channel list

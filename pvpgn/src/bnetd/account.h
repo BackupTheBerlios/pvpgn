@@ -20,6 +20,13 @@
 #define INCLUDED_ACCOUNT_TYPES
 
 #include "storage.h"
+#ifndef JUST_NEED_TYPES
+#define JUST_NEED_TYPES
+#include "common/list.h"
+#undef JUST_NEED_TYPES
+#else
+#include "common/list.h"
+#endif
 
 #define MAX_FRIENDS 20
 
@@ -60,8 +67,10 @@ typedef struct account_struct
     int           dirty;    /* 1==needs to be saved, 0==clean */
     int           loaded;   /* 1==loaded, 0==only on disk */
     int           accessed; /* 1==yes, 0==no */
+    int           friend_loaded;
     unsigned int  age;      /* number of times it has not been accessed */
     t_storage_info * storage;
+    t_list * friends;
 #ifdef WITH_BITS
     t_bits_account_state bits_state;
  /*   int           locked;    0==lock request not yet answered,
@@ -123,6 +132,7 @@ extern char const * account_get_next_key(t_account * account, char const * key);
 extern int accountlist_create(void);
 extern int accountlist_destroy(void);
 extern t_hashtable * accountlist(void);
+extern t_hashtable * accountlist_uid(void);
 extern int accountlist_load_default(void);
 extern void accountlist_unload_default(void);
 extern unsigned int accountlist_get_length(void);
@@ -149,6 +159,11 @@ extern char * account_get_tmpOP_channel(t_account * account);
 
 extern int    account_set_tmpVOICE_channel(t_account * account, char const * tmpVOICE_channel);
 extern char * account_get_tmpVOICE_channel(t_account * account);
+
+// THEUNDYING MUTUAL FRIEND CHECK 7/27/02 UPDATED!
+// moved to account.c/account.h by Soar to direct access struct t_account
+extern int account_check_mutual( t_account * account,  int myuserid);
+extern t_list * account_get_friends(t_account * account);
 
 #endif
 #endif

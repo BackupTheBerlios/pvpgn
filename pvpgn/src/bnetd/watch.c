@@ -31,6 +31,7 @@
 #include "common/eventlog.h"
 #include "message.h"
 #include "watch.h"
+#include "friends.h"
 #include "common/setup_after.h"
 
 
@@ -204,78 +205,78 @@ extern int watchlist_del_by_account(t_account * who)
 
 extern int handle_event_whisper(t_account *account, char const *gamename, t_watch_event event)
 {
-  t_elem const * curr;
-  t_watch_pair * pair;
-  char const *friend;
-  char msg[512];
-  int i;
-  int cnt = 0;
-  int n = account_get_friendcount(account);
-  char const *myusername;
-  t_connection * dest_c;
+    t_elem const * curr;
+    t_watch_pair * pair;
+    char msg[512];
+    int cnt = 0;
+    char const *myusername;
+    t_list * flist;
+    t_connection * dest_c;
+    t_friend * fr;
 
-  if (!account)
+    if (!account)
     {
 	eventlog(eventlog_level_error,"handle_event_whisper","got NULL account");
 	return -1;
     }
-  
-  if (!(myusername = account_get_name(account)))
-  {
+
+    if (!(myusername = account_get_name(account)))
+    {
 	eventlog(eventlog_level_error,"handle_event_whisper","got NULL account name");
 	return -1;
-  }
-
-  
-  // mutual friends handling
-  
-  for(i=0; i<n; i++) 
-    { 
-      friend = account_get_friend(account,i);
-      dest_c = connlist_find_connection_by_accountname(friend);
-      
-      if (event == watch_event_joingame) 
-	{
-	  if (gamename)
-	    sprintf(msg,"Your friend %s has entered game %s.",myusername,gamename);
-	  else
-	    sprintf(msg,"Your friend %s has entered a game",myusername);
-	}
-      if (event == watch_event_leavegame)sprintf(msg,"Your friend %s has left a game.",myusername);
-      if (event == watch_event_login)    sprintf(msg,"Your friend %s has entered the PvPGN Realm.",myusername);
-      if (event == watch_event_logout)   sprintf(msg,"Your friend %s has left the PvPGN Realm",myusername);
-
-      
-      if (dest_c==NULL) //If friend is offline, go on to next
-	continue;
-      else 
-	{ 
-	  cnt++;	// keep track of successful whispers
-	  if(account_check_mutual(conn_get_account(dest_c),myusername)==0)
-	    {
-	      message_send_text(dest_c,message_type_info,dest_c,msg);
-	      
-	    }
-	}
-      if (cnt) eventlog(eventlog_level_info,"handle_event_whisper","notified %d friends about %s",cnt,myusername);
     }
-  
-  // watchlist handling
-  
-  if (event == watch_event_joingame) 
-  {
-    if (gamename)
-      sprintf(msg,"Watched user %s has entered game %s.",myusername,gamename);
-    else
-      sprintf(msg,"Watched user %s has entered a game",myusername);
-  }
-  if (event == watch_event_leavegame)sprintf(msg,"Your friend %s has left a game.",myusername);
-  if (event == watch_event_login)    sprintf(msg,"Watched user %s has entered the PvPGN Realm.",myusername);
-  if (event == watch_event_logout)   sprintf(msg,"Watched user %s has left the PvPGN Realm",myusername);
-  
-  account_unget_name(myusername);
-  
-  LIST_TRAVERSE_CONST(watchlist_head,curr)
+
+    /* mutual friends handling */
+    flist = account_get_friends(account);
+    if(flist)
+    {
+        if (event == watch_event_joingame) {
+    	    if (gamename)
+	        sprintf(msg,"Your friend %s has entered game %s.",myusername,gamename);
+    	    else
+	        sprintf(msg,"Your friend %s has entered a game",myusername);
+    	}
+        if (event == watch_event_leavegame)sprintf(msg,"Your friend %s has left a game.",myusername);
+        if (event == watch_event_login)    sprintf(msg,"Your friend %s has entered the PvPGN Realm.",myusername);
+        if (event == watch_event_logout)   sprintf(msg,"Your friend %s has left the PvPGN Realm",myusername);
+        LIST_TRAVERSE(flist,curr)
+        { 
+            if (!(fr = elem_get_data(curr)))
+            {
+                eventlog(eventlog_level_error,__FUNCTION__,"found NULL entry in list");
+                continue;
+            }
+        
+            dest_c = connlist_find_connection_by_account(fr->friendacc);
+      
+            if (dest_c==NULL) /* If friend is offline, go on to next */
+	        continue;
+            else { 
+    		cnt++;	/* keep track of successful whispers */
+	    	if(friend_get_mutual(fr))
+        	    message_send_text(dest_c,message_type_info,dest_c,msg);
+	    }
+    	}
+    }
+    if (cnt) eventlog(eventlog_level_info,"handle_event_whisper","notified %d friends about %s",cnt,myusername);
+
+    /* watchlist handling */
+
+    if (event == watch_event_joingame) 
+    {
+	if (gamename)
+    	    sprintf(msg,"Watched user %s has entered game %s.",myusername,gamename);
+	else
+	    sprintf(msg,"Watched user %s has entered a game",myusername);
+    }
+
+    if (event == watch_event_leavegame)sprintf(msg,"Your friend %s has left a game.",myusername);
+    if (event == watch_event_login)    sprintf(msg,"Watched user %s has entered the PvPGN Realm.",myusername);
+    if (event == watch_event_logout)   sprintf(msg,"Watched user %s has left the PvPGN Realm",myusername);
+
+    account_unget_name(myusername);
+
+    LIST_TRAVERSE_CONST(watchlist_head,curr)
     {
       pair = elem_get_data(curr);
       if (!pair) /* should not happen */
@@ -287,8 +288,7 @@ extern int handle_event_whisper(t_account *account, char const *gamename, t_watc
 	message_send_text(pair->owner,message_type_info,pair->owner,msg);
     }
   
-  
-  return 0;
+    return 0;
 }
 
 extern int watchlist_notify_event(t_account * who, char const * gamename, t_watch_event event)

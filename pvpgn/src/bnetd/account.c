@@ -66,6 +66,7 @@
 # include <sys/types.h>
 #endif
 #include "compat/pdir.h"
+#include "common/list.h"
 #include "common/eventlog.h"
 #include "prefs.h"
 #include "common/util.h"
@@ -84,11 +85,13 @@
 #include "common/list.h"
 #include "connection.h"
 #include "watch.h"
+#include "friends.h"
 #include "common/tag.h"
 //aaron
 #include "war3ladder.h"
 
 static t_hashtable * accountlist_head=NULL;
+static t_hashtable * accountlist_uid_head=NULL;
 
 static t_account * default_acct=NULL;
 unsigned int maxuserid=0;
@@ -104,6 +107,8 @@ static t_account * account_load(t_storage_info *);
 static int account_load_attrs(t_account * account);
 static void account_unload_attrs(t_account * account);
 static int account_check_name(char const * name);
+static int account_load_friends(t_account * account);
+static int account_unload_friends(t_account * account);
 
 /*
 static unsigned int account_hash(char const * username)
@@ -170,6 +175,8 @@ extern t_account * account_create(char const * username, char const * passhash1)
     account->age      = 0;
     account->tmpOP_channel = NULL;
     account->tmpVOICE_channel = NULL;
+    account->friends  = NULL;
+    account->friend_loaded = 0;
     
     account->namehash = 0; /* hash it later before inserting */
     account->uid      = 0; /* hash it later before inserting */
@@ -327,6 +334,7 @@ extern void account_destroy(t_account * account)
 	eventlog(eventlog_level_error,"account_destroy","got NULL account");
 	return;
     }
+    friendlist_close(account->friends);
     account_unload_attrs(account);
     if (account->storage)
 	storage->free_info(account->storage);
@@ -438,13 +446,14 @@ extern int account_save(t_account * account, unsigned int delta)
 
    if (!account->loaded)
      return 0;
-   
-   if (!account->dirty)
-     {
-	if (account->age>=prefs_get_user_flush_timer())
-	  account_unload_attrs(account);
+
+   if (!account->dirty) {
+	if (account->age>=prefs_get_user_flush_timer()) {
+	    account_unload_friends(account);
+	    account_unload_attrs(account);
+	}
 	return 0;
-     }
+   }
    
    storage->write_attrs(account->storage, account->attrs);
 
@@ -572,11 +581,18 @@ extern char const * account_get_strattr(t_account * account, char const * key)
     } else newkey = storage->escape_key(key);
 
     if (!account->loaded)
+    {
         if (account_load_attrs(account)<0)
-	{
-	    eventlog(eventlog_level_error,"account_get_strattr","could not load attributes");
-	    return NULL;
-	}
+	    {
+	        eventlog(eventlog_level_error,"account_get_strattr","could not load attributes");
+	        return NULL;
+	    }
+        if (account_load_friends(account)<0)
+	    {
+	        eventlog(eventlog_level_error,"account_get_strattr","could not load friends");
+	        return NULL;
+	    }
+    }
     
       
     last = NULL;
@@ -681,11 +697,18 @@ extern int account_set_strattr(t_account * account, char const * key, char const
     
 #ifndef WITH_BITS
     if (!account->loaded)
+    {
         if (account_load_attrs(account)<0)
-	{
-	    eventlog(eventlog_level_error,"account_set_strattr","could not load attributes");
-	    return -1;
-	}
+	    {
+	        eventlog(eventlog_level_error,"account_set_strattr","could not load attributes");
+	        return -1;
+    	}
+        if (account_load_friends(account)<0)
+	    {
+	        eventlog(eventlog_level_error,"account_get_strattr","could not load friends");
+	        return -1;
+	    }
+    }
 #endif
     curr = account->attrs;
     if (!curr) /* if no keys in attr list then we need to insert it */
@@ -1010,6 +1033,12 @@ extern int accountlist_create(void)
 	return -1;
     }
     
+    if (!(accountlist_uid_head = hashtable_create(prefs_get_hashtable_size())))
+    {
+        eventlog(eventlog_level_error,"accountlist_create","could not create accountlist_uid_head");
+	return -1;
+    }
+    
 #ifdef WITH_BITS
     if (!bits_master)
     {
@@ -1054,9 +1083,17 @@ extern int accountlist_destroy(void)
 	hashtable_remove_entry(accountlist_head,curr);
     }
     
+    HASHTABLE_TRAVERSE(accountlist_uid_head,curr)
+    {
+	    hashtable_remove_entry(accountlist_head,curr);
+    }
+
     if (hashtable_destroy(accountlist_head)<0)
 	return -1;
     accountlist_head = NULL;
+    if (hashtable_destroy(accountlist_uid_head)<0)
+	return -1;
+    accountlist_uid_head = NULL;
     return 0;
 }
 
@@ -1064,6 +1101,11 @@ extern int accountlist_destroy(void)
 extern t_hashtable * accountlist(void)
 {
     return accountlist_head;
+}
+
+extern t_hashtable * accountlist_uid(void)
+{
+    return accountlist_uid_head;
 }
 
 
@@ -1136,15 +1178,9 @@ extern t_account * accountlist_find_account(char const * username)
     
     if (userid)
     {
-	HASHTABLE_TRAVERSE(accountlist_head,curr)
-	{
-	    account = entry_get_data(curr);
-	    if (account->uid==userid)
-	    {
-		hashtable_entry_release(curr);
-		return account;
-	    }
-	}
+        account=accountlist_find_account_by_uid(userid);
+        if(account!=NULL)
+            return account;
     }
     if ((!(userid)) || (userid && ((username[0]=='#') || (isdigit(username[0])))))
     {
@@ -1179,7 +1215,7 @@ extern t_account * accountlist_find_account_by_uid(unsigned int uid)
     t_account *  account;
     
     if (uid) {
-	HASHTABLE_TRAVERSE(accountlist_head,curr)
+	HASHTABLE_TRAVERSE_MATCHING(accountlist_uid_head,curr,uid)
 	{
 	    account = entry_get_data(curr);
 	    if (account->uid==uid) {
@@ -1281,7 +1317,7 @@ extern t_account * accountlist_add_account(t_account * account)
 	t_account *  curraccount;
 	char const * tname;
 	
-	HASHTABLE_TRAVERSE(accountlist_head,curr)
+	HASHTABLE_TRAVERSE_MATCHING(accountlist_uid_head,curr,uid)
 	{
 	    curraccount = entry_get_data(curr);
 	    if (curraccount->uid==uid)
@@ -1292,26 +1328,34 @@ extern t_account * accountlist_add_account(t_account * account)
 		account_unget_strattr(username);
 		return NULL;
 	    }
-	    
-	    if (curraccount->namehash==account->namehash &&
-		(tname = account_get_name(curraccount)))
+        }
+
+	HASHTABLE_TRAVERSE_MATCHING(accountlist_head,curr,account->namehash)
+	{
+	    curraccount = entry_get_data(curr);
+	    if ((tname = account_get_name(curraccount)))
 	    {
-		if (strcasecmp(tname,username)==0)
-		{
-		    eventlog(eventlog_level_error,"accountlist_add_account","user \"%s\":"UID_FORMAT" already has an account (\"%s\":"UID_FORMAT")",username,uid,tname,curraccount->uid);
+		    if (strcasecmp(tname,username)==0)
+		    {
+		        eventlog(eventlog_level_error,"accountlist_add_account","user \"%s\":"UID_FORMAT" already has an account (\"%s\":"UID_FORMAT")",username,uid,tname,curraccount->uid);
+		        account_unget_name(tname);
+		        hashtable_entry_release(curr);
+		        account_unget_strattr(username);
+		        return NULL;
+		    }
 		    account_unget_name(tname);
-		    hashtable_entry_release(curr);
-		    account_unget_strattr(username);
-		    return NULL;
-		}
-		else
-		  { account_unget_name(tname); }
 	    }
 	}
     }
     account_unget_strattr(username);
-    
+
     if (hashtable_insert_data(accountlist_head,account,account->namehash)<0)
+    {
+	eventlog(eventlog_level_error,"accountlist_add_account","could not add account to list");
+	return NULL;
+    }
+    
+    if (hashtable_insert_data(accountlist_uid_head,account,uid)<0)
     {
 	eventlog(eventlog_level_error,"accountlist_add_account","could not add account to list");
 	return NULL;
@@ -1396,7 +1440,11 @@ extern int accounts_rank_all(void)
 
 extern int accountlist_remove_account(t_account const * account)
 {
-    return hashtable_remove_data(accountlist_head,account,account->namehash);
+    if(hashtable_remove_data(accountlist_head,account,account->namehash)!=0)
+        return -1;
+    if(hashtable_remove_data(accountlist_uid_head,account,account->uid)!=0)
+        return -1;
+    return 0;
 }
 
 /* This function checks whether the server knows if an account exists or not. 
@@ -1698,5 +1746,142 @@ extern char * account_get_tmpVOICE_channel(t_account * account)
 	}
 	
 	return account->tmpVOICE_channel;
+}
+
+// THEUNDYING - MUTUAL FRIEND CHECK 
+// fixed by zap-zero-tested and working 100% TheUndying
+// modified by Soar to support account->friends list direct access
+extern int account_check_mutual( t_account * account, int myuserid)
+{
+    if (account == NULL) {
+	eventlog(eventlog_level_error, __FUNCTION__, "got NULL account");
+	return -1;
+    }
+
+    if(!myuserid) {
+	eventlog(eventlog_level_error,"account_check_mutual","got NULL userid");
+	return -1;
+    }
+
+    if(account->friends!=NULL)
+    {
+        t_friend * fr;
+        if((fr=friendlist_find_accountuid(account->friends, myuserid))!=NULL)
+        {
+            friend_set_mutual(fr, 1);
+            return 0;
+        }
+    }
+    else
+    {
+	int i=0;
+	int n = account_get_friendcount(account);
+	int friend;
+	for(i=0; i<n; i++) 
+	{
+	    friend = account_get_friend(account,i);
+	    if(!friend)  {
+		eventlog(eventlog_level_error,"account_check_mutual","got NULL friend");
+		continue;
+	    }
+
+	    if(myuserid==friend)
+		return 0;
+	}
+    }
+
+    // If friend isnt in list return -1 to tell func NO
+    return -1;
+}
+
+extern t_list * account_get_friends(t_account * account)
+{
+    if (!account)
+    {
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL account");
+	return NULL;
+    }
+
+    if(!account->friend_loaded)
+    {
+	if(account_load_friends(account)<0)
+        {
+    	    eventlog(eventlog_level_error,__FUNCTION__,"could not load friend list");
+            return NULL;
+        }
+    }
+    return account->friends;
+}
+
+static int account_load_friends(t_account * account)
+{
+    int i=0;
+    int n;
+    int friend;
+    t_account * acc;
+    t_friend * fr;
+
+    int newlist=0;
+    if (!account)
+    {
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL account");
+	return -1;
+    }
+
+    if(account->friend_loaded)
+        return 0;
+
+    if(account->friends==NULL)
+    {
+        if((account->friends=friendlist_init())==NULL)
+            return -1;
+        newlist=1;
+    }
+
+    n = account_get_friendcount(account);
+    for(i=0; i<n; i++)
+    {
+	friend = account_get_friend(account,i);
+        if(!friend)  {
+            account_remove_friend(account, i);
+            continue;
+        }
+        fr=NULL;
+        if(newlist || (fr=friendlist_find_accountuid(account->friends, friend))==NULL)
+        {
+            if((acc = accountlist_find_account_by_uid(friend))==NULL)
+            {
+                account_remove_friend(account, i);
+                continue;
+            }
+            if(account_check_mutual(acc, account_get_uid(account))==0)
+                friendlist_add_account(account->friends, acc, 1);
+            else
+                friendlist_add_account(account->friends, acc, 0);
+        }
+        else {
+            if((acc=friend_get_account(fr))==NULL)
+            {
+                account_remove_friend(account, i);
+                continue;
+            }
+            if(account_check_mutual(acc, account_get_uid(account))==0)
+                friend_set_mutual(fr, 1);
+            else
+                friend_set_mutual(fr, 0);
+        }
+    }
+    if(!newlist)
+        friendlist_purge(account->friends);
+    account->friend_loaded=1;
+    return 0;
+}
+
+static int account_unload_friends(t_account * account)
+{
+    if(friendlist_unload(account->friends)<0)
+        return -1;
+    account->friend_loaded=0;
+    return 0;
 }
 

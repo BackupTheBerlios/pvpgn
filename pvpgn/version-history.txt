@@ -57,6 +57,10 @@ command)
 wasn't working as it should before, so u might now need to increase
 version_exeinfo_maxdiff a bit [for me I had 3601 secs diff but 3600 allowed)
 -- added new boot script for pvpgn (BSD style)
+-- optimized friends handling code (this also changes the method how friends
+are stored into storage; pvpgn will automagically convert from old format to
+new format but once you run this pvpgn version you will have trouble to use
+older versions)
 
 1.5.0beta3:
 -- fixed a long standing bug regarding bnmaps.txt and AT maps

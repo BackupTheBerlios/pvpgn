@@ -389,6 +389,7 @@ extern t_connection * connlist_find_connection_by_account(t_account * account);
 #ifdef WITH_BITS
 extern t_connection * connlist_find_connection_by_sessionid(unsigned int sessionid);
 #endif
+extern t_connection * connlist_find_connection_by_uid(unsigned int uid);
 extern int connlist_get_length(void) PURE_ATTR();
 extern unsigned int connlist_login_get_length(void) PURE_ATTR();
 extern int connlist_total_logins(void) PURE_ATTR();

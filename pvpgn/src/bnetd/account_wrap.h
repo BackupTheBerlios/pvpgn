@@ -222,12 +222,11 @@ extern int account_set_w3_clanname( t_account * account, char const * acctsetcla
 // UNDYING FRIENDS LIST SAVE/GET 5/15/02
 // [zap-zero] 20020516
 
-extern int account_set_friend( t_account * account, int friendnum, char const * friendname );
-extern char const * account_get_friend( t_account * account, int friendnum);
+extern int account_set_friend( t_account * account, int friendnum, unsigned int frienduid );
+extern unsigned int account_get_friend( t_account * account, int friendnum);
 extern int account_set_friendcount( t_account * account, int count);
 extern int account_get_friendcount( t_account * account );
-// THEUNDYING MUTUAL FRIEND CHECK 7/27/02 UPDATED!
-extern int account_check_mutual( t_account * account, char const *myusername);
+extern int account_remove_friend( t_account * account, int friendnum );
 
 extern char const * race_get_str(unsigned int race);
 extern int account_set_admin( t_account * account );

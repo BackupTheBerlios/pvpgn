@@ -35,6 +35,7 @@
 #  include <strings.h>
 # endif
 #endif
+#include "common/list.h"
 #include "common/eventlog.h"
 #include "common/util.h"
 #include "common/bnettime.h"
@@ -51,6 +52,7 @@
 //aaron
 #include "war3ladder.h"
 #include "prefs.h"
+#include "friends.h"
 
 static unsigned int char_icon_to_uint(char * icon);
 
@@ -1809,39 +1811,49 @@ extern char const * account_get_w3_clanname( t_account * account)
 // THEUNDYING 5/24/02 - PROFILE GET WINS/LOSSES/LEVELS..etc.. 
 
 
-// THEUNDYING 5/15/02 - FRIENDS LISTS GET/ADD/DELETE Functions
-// [zap-zero] 20020516
-extern int account_set_friend( t_account * account, int friendnum, char const * friendname )
+extern int account_set_friend( t_account * account, int friendnum, unsigned int frienduid )
 {
 	char key[256];
-	if ( friendname == NULL || friendnum < 0 || friendnum >= prefs_get_max_friends())
+	if ( frienduid == 0 || friendnum < 0 || friendnum >= prefs_get_max_friends())
 	{
 		return -1;
 	}
-	sprintf(key, "friend\\%d\\name", friendnum);
+	sprintf(key, "friend\\%d\\uid", friendnum);
 
-	return account_set_strattr( account, key, friendname);
+	return account_set_numattr( account, key, frienduid);
 }
 
-extern char const * account_get_friend( t_account * account, int friendnum)
+extern unsigned int account_get_friend( t_account * account, int friendnum)
 {
 	char key[256];
-	char const * tmp;
+	int tmp;
+        char const * name;
+        t_account * acct;
 
 	if (friendnum < 0 || friendnum >= prefs_get_max_friends()) {
 		// bogus name (user himself) instead of NULL, otherwise clients might crash
-		return account_get_name(account);  
-
+		return 0;  
 	}
 
-	sprintf(key, "friend\\%d\\name", friendnum);
-	tmp = account_get_strattr(account, key);
+	sprintf(key, "friend\\%d\\uid", friendnum);
+	tmp = account_get_numattr(account, key);
 	if(!tmp) {
+                // ok, looks like we have a problem. Maybe friends still stored in old format?
+                sprintf(key,"friend\\%d\\name",friendnum);
+                name = account_get_strattr(account,key);
+                if ((name) && (acct = accountlist_find_account(name)))
+                {
+                  tmp = account_get_uid(acct);
+                  account_set_friend(account,friendnum,tmp);
+                  return tmp;
+                }
+                
 		int n = account_get_friendcount(account);
 		eventlog(eventlog_level_warn,"account_get_friend","NULL friend, decrementing friendcount (%d) and sending bogus friend name '%s'", n, account_get_name(account));
 		if(--n >= 0)
 			account_set_friendcount(account, n);
-		tmp = account_get_name(account);
+		return 0;
+
 	}
 	return tmp;
 }
@@ -1861,32 +1873,18 @@ extern int account_get_friendcount( t_account * account )
     return account_get_numattr( account, "friend\\count" );
 }
 
-// THEUNDYING - MUTUAL FRIEND CHECK 
-// fixed by zap-zero-tested and working 100% TheUndying
-extern int account_check_mutual( t_account * account, char const *myusername)
+extern int account_remove_friend( t_account * account, int friendnum )
 {
-	int i=0;
-	int n = account_get_friendcount(account);
-	char const *friend;
+    unsigned i;
+    int n = account_get_friendcount(account);
 
-	if(!myusername) {
-		eventlog(eventlog_level_error,"account_check_mutual","got NULL username");
-		return -1;
-	}
+    for(i = friendnum ; i < n - 1; i++)
+	account_set_friend(account, i, account_get_friend(account, i + 1));
 
-	for(i=0; i<n; i++) 
-	{ //Cycle through your friend list and whisper the ones that are online
-	  friend = account_get_friend(account,i);
-	  if(!friend)  {
-		eventlog(eventlog_level_error,"account_check_mutual","got NULL friend");
-		return -1;
-	  }
- 
-	  if(!strcasecmp(myusername,friend))
-		  return 0;
-	}
-	// If friend isnt in list return -1 to tell func NO
-	return -1;
+    account_set_friend(account, n-1, 0); /* FIXME: should delete the attribute */
+    account_set_friendcount(account, n-1);
+
+    return 0;
 }
 
 // Some Extra Commands for REAL admins to promote other users to Admins

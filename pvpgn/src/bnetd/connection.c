@@ -3479,6 +3479,21 @@ extern t_connection * connlist_find_connection_by_sessionid(unsigned int session
 }
 #endif
 
+extern t_connection * connlist_find_connection_by_uid(unsigned int uid)
+{
+    t_connection * c;
+    t_elem const * curr;
+    
+    LIST_TRAVERSE_CONST(conn_head,curr)
+    {
+	c = elem_get_data(curr);
+	if (account_get_uid(c->account)==uid)
+	    return c;
+    }
+    
+    return NULL;
+}
+
 extern int connlist_get_length(void)
 {
     return list_get_length(conn_head);

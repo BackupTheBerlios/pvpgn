@@ -156,6 +156,7 @@ ${SRC_BNETDDIR}/tournament.o \
 ${SRC_BNETDDIR}/anongame_maplists.o\
 ${SRC_BNETDDIR}/clan.o\
 ${SRC_BNETDDIR}/topic.o\
+${SRC_BNETDDIR}/friends.o\
 ${SRC_COMMONDIR}/hexdump.o \
 ${SRC_COMMONDIR}/bn_type.o \
 ${SRC_COMMONDIR}/packet.o \
@@ -475,7 +476,7 @@ CONFS		= bnetd.conf d2cs.conf d2dbs.conf \
 		  ad.list channel.list realm.list \
 		  autoupdate bnetd_default_user bnetd_default_user.cdb gametrans d2gstrans versioncheck \
 		  bnmotd.txt bnbitsmotd.txt bnissue.txt bnmaps.txt bnxplevel.txt bnxpcalc.txt news.txt command_groups.txt \
-		  bnban bnhelp bnbitspasswd bnalias.list anongame_infos.conf tournament.conf
+		  bnban bnhelp bnbitspasswd bnalias.list anongame_infos.conf tournament.conf topics
 
 SHARES		= ad000001.pcx ad000001.mng ad000004.mng ad000666.mng ad000666.pcx \
 		  icons.bni icons_STAR.bni icons-WAR3.bni \

@@ -109,6 +109,8 @@
 #include "war3ladder.h"
 #include "topic.h"
 
+#include "friends.h"
+
 
 static char const * bnclass_get_str(unsigned int class);
 static void do_whisper(t_connection * user_c, char const * dest, char const * text);
@@ -1100,274 +1102,278 @@ static int _handle_deop_command(t_connection * c, char const * text)
 
 static int _handle_friends_command(t_connection * c, char const * text)
 {
-  int i;
-	
-  text = skip_command(text);;
-  
-  if(text[0]=='\0' || strstart(text,"help")==0 || strstart(text, "h")==0) {
-    message_send_text(c,message_type_info,c,"Friends List (Used in Arranged Teams and finding online friends.)");
-    message_send_text(c,message_type_info,c,"Type: /f add <username> (adds a friend to your list)");
-    message_send_text(c,message_type_info,c,"Type: /f del <username> (removes a friend from your list)");
-    message_send_text(c,message_type_info,c,"Type: /f list (shows your full friends list)");
-    message_send_text(c,message_type_info,c,"Type: /f msg (whispers a message to all your friends at once)");
-    return 0;
-  }
-  if (strstart(text,"add")==0 || strstart(text,"a")==0) {
-    char const * newfriend;
-    char msgtemp[MAX_MESSAGE_LEN];
-    int n;
-    t_packet * rpacket=NULL;
-    t_connection * dest_c;
-    t_connection * friend_c;
-    t_account    * my_acc;
-    t_account    * friend_acc;
-    char tmp[7];
-    
-    text = skip_command(text);
+    int i;
+    t_account *my_acc = conn_get_account(c);
+    unsigned my_uid = account_get_uid(my_acc);
 
-    if (text[0] == '\0')
-    {
-	message_send_text(c,message_type_info,c,"usage: /f add <username>");
+    text = skip_command(text);;
+
+    if(text[0]=='\0' || strstart(text,"help")==0 || strstart(text, "h")==0) {
+	message_send_text(c,message_type_info,c,"Friends List (Used in Arranged Teams and finding online friends.)");
+	message_send_text(c,message_type_info,c,"Type: /f add <username> (adds a friend to your list)");
+	message_send_text(c,message_type_info,c,"Type: /f del <username> (removes a friend from your list)");
+	message_send_text(c,message_type_info,c,"Type: /f list (shows your full friends list)");
+	message_send_text(c,message_type_info,c,"Type: /f msg (whispers a message to all your friends at once)");
 	return 0;
     }
-    
-    if (!(friend_acc = accountlist_find_account(text)))
-      {
-	message_send_text(c,message_type_info,c,"That user does not exist.");
-	return 0;
-      }
-    
-    // [quetzal] 20020822 - we DO care if we add UserName or username to friends list
-    newfriend = account_get_name(friend_acc);
-    
-    if(!strcasecmp(newfriend, conn_get_username(c))) {
-      message_send_text(c,message_type_info,c,"You can't add yourself to your friends list.");
-      account_unget_name(newfriend);
-      return 0;
-    }
-    
-    n = account_get_friendcount(my_acc = conn_get_account(c));
-    
-    if(n >= prefs_get_max_friends()) {
-      sprintf(msgtemp, "You can only have a maximum of %d friends.", prefs_get_max_friends());
-      message_send_text(c,message_type_info,c,msgtemp);
-      account_unget_name(newfriend);
-      return 0;
-    }
-    
-    
-    // check if the friend was already added
-    
-    for(i=0; i<n; i++)
-      if(!strcasecmp(account_get_friend(my_acc, i), newfriend)) 
-	{
-	  sprintf(msgtemp, "%s is already on your friends list!", newfriend);
-	  message_send_text(c,message_type_info,c,msgtemp);
-	  account_unget_name(newfriend);
-	  return 0;
-	}
-    
-    account_set_friendcount(my_acc, n+1);
-    account_set_friend(my_acc, n, newfriend);
-    
-    sprintf( msgtemp, "Added %s to your friends list.", newfriend);
-    message_send_text(c,message_type_info,c,msgtemp);
-    // 7/27/02 - THEUNDYING - Inform friend that you added them to your list
-    friend_c = connlist_find_connection_by_accountname(newfriend);
-    sprintf(msgtemp,"%s added you to his/her friends list.",conn_get_username(c));
-    message_send_text(friend_c,message_type_info,friend_c,msgtemp);
-    
-    if (!(rpacket = packet_create(packet_class_bnet)))
-    {
-      account_unget_name(newfriend);
-      return 0;
-    }
-    
-    packet_set_size(rpacket,sizeof(t_server_friendadd_ack));
-    packet_set_type(rpacket,SERVER_FRIENDADD_ACK);
-    
-    packet_append_string(rpacket, newfriend);
-    memset(tmp, 0, 7);
-    if ((dest_c = connlist_find_connection_by_accountname(newfriend))) {
-      if (conn_get_channel(dest_c)) 
-	tmp[1] = FRIENDSTATUS_CHAT;
-      else
-	tmp[1] = FRIENDSTATUS_ONLINE;
-    }
-    
-    packet_append_data(rpacket, tmp, 7);
-    
-    queue_push_packet(conn_get_out_queue(c),rpacket);
-    packet_del_ref(rpacket);
 
-    account_unget_name(newfriend);
-    
-    return 0;
-		}
-  // THEUNDYING 5/17/02 - WHISPERS ALL ONLINE FRIENDS AT ONCE
-  // [zap-zero] 20020518 - some changes
-  if (strstart(text,"msg")==0 || strstart(text,"w")==0 || strstart(text,"whisper")==0 || strstart(text,"m")==0) 
-    {
-      char const *friend;
-      char const *msg;
-      int i;
-      int cnt = 0;
-      t_account * my_acc;
-      int n = account_get_friendcount(my_acc = conn_get_account(c));
-      char const *myusername;
-      t_connection * dest_c;
-      
-      msg = skip_command(text);
-      //if the message test is empty then ignore command
-      if (msg[0]=='\0')
-	{
-	  message_send_text(c,message_type_info,c,"Did not message any friends. Type some text next time.");
-	  return 0; 
-	}
-      
-      myusername = conn_get_username(c);
-      for(i=0; i<n; i++) 
-	{ //Cycle through your friend list and whisper the ones that are online
-	  friend = account_get_friend(my_acc,i);
-	  dest_c = connlist_find_connection_by_accountname(friend);
-	  if (dest_c==NULL) //If friend is offline, go on to next
-	    continue;
-	  else { 
-	    cnt++;	// keep track of successful whispers
-	    if(account_check_mutual(conn_get_account(dest_c),myusername)==0)
-	      {
-		message_send_text(dest_c,message_type_whisper,c,msg);
-	      }
-	  }
-	}
-      if(cnt)
-	message_send_text(c,message_type_friendwhisperack,c,msg);
-      else
-	message_send_text(c,message_type_info,c,"All your friends are offline.");
-      
-      return 0;
-    }
-  if (strstart(text,"r")==0 || strstart(text,"remove")==0
-      || strstart(text,"d")==0 || strstart(text,"del")==0) {
-    int n;
-    char msgtemp[MAX_MESSAGE_LEN];
-    t_account * my_acc;
-    t_packet * rpacket=NULL;
-    
-    text = skip_command(text);
-    
-    if (text[0]=='\0')
-    {
-	message_send_text(c,message_type_info,c,"usage: /f remove <username>");
-	return 0;
-    }
-    
-	n = account_get_friendcount(my_acc = conn_get_account(c));
-	
-	for(i=0; i<n; i++)
-	  if(!strcasecmp(account_get_friend(my_acc, i), text)) {
-	    char num = (char)i;
-	    if (i<n-1) account_set_friend(my_acc, i, account_get_friend(my_acc, n-1));
-	    
-	    account_set_friend(conn_get_account(c), n-1, "");
-	    account_set_friendcount(conn_get_account(c), n-1);
-	    
-	    if (!(rpacket = packet_create(packet_class_bnet)))
-	      return 0;
-	    
-	    packet_set_size(rpacket,sizeof(t_server_frienddel_ack));
-	    packet_set_type(rpacket,SERVER_FRIENDDEL_ACK);
-	    
-	    bn_byte_set(&rpacket->u.server_frienddel_ack.friendnum, num);
-	    
-	    queue_push_packet(conn_get_out_queue(c),rpacket);
-	    packet_del_ref(rpacket);
+    if (strstart(text,"add")==0 || strstart(text,"a")==0) {
+	int newfriend;
+	char msgtemp[MAX_MESSAGE_LEN];
+	int n;
+	t_packet 	* rpacket=NULL;
+	t_connection 	* dest_c;
+	t_account    	* friend_acc;
+	t_list       	* flist;
+	char tmp[7];
 
-		if (accountlist_find_account(text))
-		{
-	       sprintf(msgtemp, "Removed %s from your friends list.", text);			
-		}
-		else
-		{
-		   sprintf(msgtemp, "Removed no longer existent friend %s from your friends list.", text);			
-		}
-	    message_send_text(c,message_type_info,c,msgtemp);
+	text = skip_command(text);
 
+	if (text[0] == '\0') {
+	    message_send_text(c,message_type_info,c,"usage: /f add <username>");
 	    return 0;
-	  };
-    
-    sprintf(msgtemp, "%s was not found on your friends list.", text);
-    message_send_text(c,message_type_info,c,msgtemp);
-    return 0;
-  }
-  if (strstart(text,"list")==0 || strstart(text,"l")==0) {
-    char const * friend;
-    char status[128];
-    char software[64];
-    char msgtemp[MAX_MESSAGE_LEN];
-    int n;
-    char const *myusername;
-    t_connection const * dest_c;
-    t_game const * game;
-    t_channel const * channel;
-    t_account * my_acc;
-    
-    message_send_text(c,message_type_info,c,"Your PvPGN - Friends List");
-    message_send_text(c,message_type_info,c,"=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=");
-    
-    n = account_get_friendcount(my_acc = conn_get_account(c));
-    myusername = conn_get_username(c);
-    
-    for(i=0; i<n; i++) 
-     {
-        software[0]='\0';
+	}
 
-	friend = account_get_friend(my_acc, i);
-	
-	if (!(dest_c = connlist_find_connection_by_accountname(friend)))
-	  sprintf(status, ", offline");
+	if (!(friend_acc = accountlist_find_account(text))) {
+	    message_send_text(c,message_type_info,c,"That user does not exist.");
+	    return 0;
+	}
+
+	newfriend = account_get_uid(friend_acc);
+
+	if(newfriend == my_uid) {
+    	    message_send_text(c,message_type_info,c,"You can't add yourself to your friends list.");
+    	    return 0;
+	}
+
+	n = account_get_friendcount(my_acc);
+
+	if(n >= prefs_get_max_friends()) {
+    	    sprintf(msgtemp, "You can only have a maximum of %d friends.", prefs_get_max_friends());
+    	    message_send_text(c,message_type_info,c,msgtemp);
+    	    return 0;
+	}
+
+
+	/* check if the friend was already added */
+	flist=account_get_friends(my_acc);
+	if(flist==NULL)
+    	    return -1;
+
+	if(friendlist_find_account(flist, friend_acc)!=NULL) {
+	    sprintf(msgtemp, "%s is already on your friends list!", text);
+	    message_send_text(c,message_type_info,c,msgtemp);
+	    return 0;
+	}
+
+	account_set_friend(my_acc, n, newfriend);
+	account_set_friendcount(my_acc, n+1);
+	if(account_check_mutual(friend_acc, my_uid)==0)
+    	    friendlist_add_account(flist, friend_acc, 1);
 	else
-	  {
-	    sprintf(software," using %s", conn_get_user_game_title(conn_get_clienttag(dest_c)));
+    	    friendlist_add_account(flist, friend_acc, 0);
 
-	    if(account_check_mutual(conn_get_account(dest_c),myusername)==0)
-	      {
-		if ((game = conn_get_game(dest_c)))
-		  {
-		    sprintf(status, ", in game \"%.64s\",", game_get_name(game));
-		  }
-		else if ((channel = conn_get_channel(dest_c))) 
-		  {
-		    if(strcasecmp(channel_get_name(channel),"Arranged Teams")==0)
-		      sprintf(status, ", in game AT Preparation...");
-		    else                        			
-		      sprintf(status, ", in channel \"%.64s\",", channel_get_name(channel));
-		  } 
-		else
-		  sprintf(status, ", is in AT Preparation");
-	      }
-	    else
-	      {
-		if ((game = conn_get_game(dest_c)))
-		  sprintf(status, ", is in a game.");
-		else if ((channel = conn_get_channel(dest_c))) 
-		  sprintf(status, ", is in a chat channel.");
-		else
-		  sprintf(status, ", is in AT Preparation");
-	      }
-	  }
-	
-	if (software[0]) sprintf(msgtemp, "%d: %.16s%.128s, %.64s", i+1, friend, status,software);
-	else sprintf(msgtemp, "%d: %.16s%.128s", i+1, friend, status);
+	sprintf( msgtemp, "Added %s to your friends list.", text);
 	message_send_text(c,message_type_info,c,msgtemp);
-      }
+	dest_c = connlist_find_connection_by_uid(newfriend);
+	if(dest_c!=NULL) {
+    	    sprintf(msgtemp,"%s added you to his/her friends list.",conn_get_username(c));
+    	    message_send_text(dest_c,message_type_info,dest_c,msgtemp);
+	}
+
+	if (!(rpacket = packet_create(packet_class_bnet)))
+    	    return 0;
+
+	packet_set_size(rpacket,sizeof(t_server_friendadd_ack));
+	packet_set_type(rpacket,SERVER_FRIENDADD_ACK);
+
+	packet_append_string(rpacket, account_get_name(friend_acc));
+	memset(tmp, 0, 7);
+	if (dest_c!=NULL) {
+    	    if (conn_get_channel(dest_c)) 
+		tmp[1] = FRIENDSTATUS_CHAT;
+    	    else if (conn_get_game(dest_c)) 
+		tmp[1] = FRIENDSTATUS_GAME;
+    	    else
+		tmp[1] = FRIENDSTATUS_ONLINE;
+	}
+
+	packet_append_data(rpacket, tmp, 7);
+
+	queue_push_packet(conn_get_out_queue(c),rpacket);
+	packet_del_ref(rpacket);
+
+	return 0;
+    }
+
+    if (strstart(text,"msg")==0 || strstart(text,"w")==0 || strstart(text,"whisper")==0 || strstart(text,"m")==0) 
+    {
+	char const *msg;
+	int cnt = 0;
+	t_connection * dest_c;
+	t_elem  * curr;
+	t_friend * fr;
+	t_list  * flist;
+
+	msg = skip_command(text);
+	/* if the message test is empty then ignore command */
+	if (msg[0]=='\0') {
+	    message_send_text(c,message_type_info,c,"Did not message any friends. Type some text next time.");
+	    return 0; 
+	}
+  
+	flist=account_get_friends(my_acc);
+	if(flist==NULL)
+    	    return -1;
+
+	LIST_TRAVERSE(flist,curr)
+	{
+    	    if (!(fr = elem_get_data(curr))) {
+        	eventlog(eventlog_level_error,__FUNCTION__,"found NULL entry in list");
+        	continue;
+    	    }
+    	    if(friend_get_mutual(fr)) {
+        	dest_c = connlist_find_connection_by_account(friend_get_account(fr));
+        	message_send_text(dest_c,message_type_whisper,c,msg);
+        	cnt++;
+    	    }
+	}
+	if(cnt)
+	    message_send_text(c,message_type_friendwhisperack,c,msg);
+        else
+	    message_send_text(c,message_type_info,c,"All your friends are offline.");
+
+	return 0;
+    }
+
+    if (strstart(text,"r")==0 || strstart(text,"remove")==0
+	|| strstart(text,"d")==0 || strstart(text,"del")==0) {
+
+	int n;
+	char msgtemp[MAX_MESSAGE_LEN];
+	t_packet * rpacket=NULL;
+	int accuid;
+	t_list * flist;
+	t_friend * fr;
     
-    message_send_text(c,message_type_info,c,"=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=");
-    message_send_text(c,message_type_info,c,"End of Friends List");
-    
+	text = skip_command(text);
+
+	if (text[0]=='\0') {
+	    message_send_text(c,message_type_info,c,"usage: /f remove <username>");
+	    return 0;
+	}
+
+	flist=account_get_friends(my_acc);
+	if(flist==NULL)
+    	    return -1;
+	fr=friendlist_find_accountname(flist, text);
+	if (fr!=NULL) {
+	    n = account_get_friendcount(my_acc);
+	    accuid = account_get_uid(friend_get_account(fr));
+	    for(i=0; i<n; i++) {
+		if(account_get_friend(my_acc, i) == accuid) {
+		    char num = (char)i;
+
+		    for (;i<n-1;i++)
+                	account_set_friend(my_acc,i,account_get_friend(my_acc,i+1));
+
+  		    account_set_friend(my_acc, n-1, 0);
+		    account_set_friendcount(my_acc, n-1);
+
+    		    friendlist_remove_friend(flist, fr);
+
+    		    sprintf(msgtemp, "Removed %s from your friends list.", text);
+		    message_send_text(c,message_type_info,c,msgtemp);
+
+		    if (!(rpacket = packet_create(packet_class_bnet)))
+	    		return 0;
+
+		    packet_set_size(rpacket,sizeof(t_server_frienddel_ack));
+		    packet_set_type(rpacket,SERVER_FRIENDDEL_ACK);
+
+		    bn_byte_set(&rpacket->u.server_frienddel_ack.friendnum, num);
+
+		    queue_push_packet(conn_get_out_queue(c),rpacket);
+		    packet_del_ref(rpacket);
+
+    		    return 0; 
+		}
+    	    }
+	}
+
+	sprintf(msgtemp, "%s was not found on your friends list.", text);
+	message_send_text(c,message_type_info,c,msgtemp);
+	return 0;
+    }
+
+    if (strstart(text,"list")==0 || strstart(text,"l")==0) {
+	char const * friend;
+	char status[128];
+	char software[64];
+	char msgtemp[MAX_MESSAGE_LEN];
+	t_connection * dest_c;
+	t_account * friend_acc;
+	t_game const * game;
+	t_channel const * channel;
+	t_elem  * curr;
+	t_friend * fr;
+	t_list  * flist;
+
+	message_send_text(c,message_type_info,c,"Your PvPGN - Friends List");
+	message_send_text(c,message_type_info,c,"=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=");
+
+	flist=account_get_friends(my_acc);
+	if(flist!=NULL) {
+	    i=1;
+    	    LIST_TRAVERSE(flist,curr)
+	    {
+    		if (!(fr = elem_get_data(curr)))
+    		{
+        	    eventlog(eventlog_level_error,__FUNCTION__,"found NULL entry in list");
+        	    continue;
+    		}
+    		software[0]='\0';
+    		friend_acc=friend_get_account(fr);
+		if (!(dest_c = connlist_find_connection_by_account(friend_acc)))
+	    	    sprintf(status, ", offline");
+		else {
+	    	    sprintf(software," using %s", conn_get_user_game_title(conn_get_clienttag(dest_c)));
+
+	    	    if(friend_get_mutual(fr)) {
+		        if ((game = conn_get_game(dest_c)))
+		            sprintf(status, ", in game \"%.64s\"", game_get_name(game));
+		        else if ((channel = conn_get_channel(dest_c))) {
+		            if(strcasecmp(channel_get_name(channel),"Arranged Teams")==0)
+		                sprintf(status, ", in game AT Preparation");
+		            else                        			
+		                sprintf(status, ", in channel \"%.64s\",", channel_get_name(channel));
+		    	    }
+		        else
+		            sprintf(status, ", is in AT Preparation");
+	    	    } else {
+		        if ((game = conn_get_game(dest_c)))
+		            sprintf(status, ", is in a game");
+		        else if ((channel = conn_get_channel(dest_c))) 
+		            sprintf(status, ", is in a chat channel");
+		        else
+		            sprintf(status, ", is in AT Preparation");
+	    	    }
+		}
+
+		friend=account_get_name(friend_acc);
+    		if (software[0]) sprintf(msgtemp, "%d: %s%.16s%.128s, %.64s", i, friend_get_mutual(fr)?"*":" ", friend, status,software);
+		else sprintf(msgtemp, "%d: %.16s%.128s", i, friend, status);
+		message_send_text(c,message_type_info,c,msgtemp);
+		i++;
+	    }
+	}
+	message_send_text(c,message_type_info,c,"=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=");
+	message_send_text(c,message_type_info,c,"End of Friends List");
+
+	return 0;
+    }
+
     return 0;
-  } 
-  return 0;
 }
 
 static int _handle_me_command(t_connection * c, char const * text)
@@ -4256,7 +4262,7 @@ static int _handle_topic_command(t_connection * c, char const * text)
 
   channel_name = skip_command(text);
 
-  if (topic = strchr(channel_name,'"'))
+  if ((topic = strchr(channel_name,'"')))
   {
     tmp = (char *)topic;
     for (tmp--;tmp[0]==' ';tmp--);
