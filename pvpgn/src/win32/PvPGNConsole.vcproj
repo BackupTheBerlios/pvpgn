@@ -723,6 +723,9 @@
 					RelativePath="..\common\file_protocol.h">
 				</File>
 				<File
+					RelativePath="..\common\flags.h">
+				</File>
+				<File
 					RelativePath="..\common\give_up_root_privileges.h">
 				</File>
 				<File
