@@ -557,7 +557,7 @@ doesn't work now, causes accesviolations, but isn't needed @ all, cause gameclie
 			if (!channel)
 			  continue; /* channel doesn't exist */
 			irc_send_rpl_namreply(conn,channel);
-			ircname = ircname=irc_convert_channel(channel);
+			ircname=irc_convert_channel(channel);
 			if ((strlen(ircname)+1+strlen(":End of NAMES list")+1)<MAX_IRC_MESSAGE_LEN) {
 			  sprintf(temp,"%s :End of NAMES list",ircname);
 			  irc_send(conn,RPL_ENDOFNAMES,temp);
