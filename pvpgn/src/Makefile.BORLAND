@@ -540,7 +540,7 @@ ${SRC_COMPATDIR}\memcpy.obj \
 ${SRC_COMPATDIR}\strdup.obj
 
 cdb_BIN			= ${SRC_BINDIR}\bncdb.exe
-cdb_OBJECTS		= ${SRC_CDBDIR}\bncdb.obj \
+cdb_OBJECTS		= ${SRC_CDBDIR}\cdb.obj \
 ${SRC_CDBDIR}\cdb_init.obj \
 ${SRC_CDBDIR}\cdb_seek.obj \
 ${SRC_CDBDIR}\cdb_seq.obj \
