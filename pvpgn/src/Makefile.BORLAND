@@ -168,6 +168,7 @@ bnetd_OBJECTS       = \
     ${SRC_BNETDDIR}\pvpgn_mysql.obj \
     ${SRC_BNETDDIR}\command_groups.obj \
     ${SRC_BNETDDIR}\output.obj \
+    ${SRC_BNETDDIR}\bnpmap.obj \
     ${SRC_WIN32DIR}\service.obj \
     ${SRC_COMMONDIR}\hexdump.obj \
     ${SRC_COMMONDIR}\bn_type.obj \
