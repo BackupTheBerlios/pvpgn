@@ -4312,6 +4312,8 @@ static int _handle_topic_command(t_connection * c, char const * text)
   if (channel_get_permanent(channel)==1)
     do_save = DO_SAVE_TOPIC;
 
+  channel_name = channel_get_name(channel);
+
   channel_set_topic(channel_name, topic, do_save);
 
   sprintf(msgtemp,"%s topic: %s",channel_name, topic);
