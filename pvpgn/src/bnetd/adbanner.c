@@ -144,6 +144,16 @@ static int adbanner_destroy(t_adbanner const * ad)
     return 0;
 }
 
+extern t_adbanner * adbanner_get(t_connection const * c, unsigned int id)
+{
+  t_adbanner * banner;
+
+  banner = adbannerlist_find_adbanner_by_id(adbannerlist_init_head,id,conn_get_clienttag(c));
+  if (!banner) banner = adbannerlist_find_adbanner_by_id(adbannerlist_start_head,id,conn_get_clienttag(c));
+  if (!banner) banner = adbannerlist_find_adbanner_by_id(adbannerlist_norm_head,id,conn_get_clienttag(c));
+
+  return banner;
+}
 
 extern t_adbanner * adbanner_pick(t_connection const * c, unsigned int prev_id)
 {
@@ -155,7 +165,7 @@ extern t_adbanner * adbanner_pick(t_connection const * c, unsigned int prev_id)
 	eventlog(eventlog_level_error,"adbanner_pick","got NULL connection");
 	return NULL;
     }
-    
+
     /* eventlog(eventlog_level_debug,"adbanner_choose","prev_id=%u init_count=%u start_count=%u norm_count=%u",prev_id,adbannerlist_init_count,adbannerlist_start_count,adbannerlist_norm_count); */
     /* if this is the first ad, randomly choose an init sequence (if there is one) */
     if (prev_id==0 && adbannerlist_init_count>0)

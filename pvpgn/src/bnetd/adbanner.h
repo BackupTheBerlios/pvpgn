@@ -45,6 +45,7 @@ t_adbanner;
 #undef JUST_NEED_TYPES
 
 extern t_adbanner * adbanner_pick(t_connection const * c, unsigned int prev_id);
+extern t_adbanner * adbanner_get(t_connection const * c, unsigned int id);
 extern unsigned int adbanner_get_id(t_adbanner const * ad);
 extern unsigned int adbanner_get_extensiontag(t_adbanner const * ad);
 extern char const * adbanner_get_filename(t_adbanner const * ad);

@@ -3333,7 +3333,7 @@ static int _client_adreq(t_connection * c, t_packet const * const packet)
 	if (!(ad = adbanner_pick(c,bn_int_get(packet->u.client_adreq.prev_adid))))
 	  return -1;
 	
-	/*		    eventlog(eventlog_level_debug,__FUNCTION__,"[%d] picking ad file=\"%s\" id=0x%06x tag=%u",conn_get_socket(c),adbanner_get_filename(ad),adbanner_get_id(ad),adbanner_get_extensiontag(ad));*/
+	    // eventlog(eventlog_level_debug,__FUNCTION__,"[%d] picking ad file=\"%s\" id=0x%06x tag=%u",conn_get_socket(c),adbanner_get_filename(ad),adbanner_get_id(ad),adbanner_get_extensiontag(ad));
 	if ((rpacket = packet_create(packet_class_bnet)))
 	  {
 	     packet_set_size(rpacket,sizeof(t_server_adreply));
@@ -3405,7 +3405,7 @@ static int _client_adclick2(t_connection * c, t_packet const * const packet)
      {
 	t_adbanner * ad;
 	
-	if (!(ad = adbanner_pick(c,bn_int_get(packet->u.client_adclick2.adid))))
+	if (!(ad = adbanner_get(c,bn_int_get(packet->u.client_adclick2.adid))))
 	  return -1;
 	
 	if ((rpacket = packet_create(packet_class_bnet)))
