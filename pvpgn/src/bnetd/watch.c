@@ -165,6 +165,43 @@ extern int watchlist_del_all_events(t_connection * owner)
     return 0;
 }
 
+/* this differs from del_events because it doesn't return an error if nothing was found */
+extern int watchlist_del_by_account(t_account * who)
+{
+    t_elem *       curr;
+    t_watch_pair * pair;
+    
+    if (!who)
+    {
+	eventlog(eventlog_level_error,"watchlist_del_by_account","got NULL account");
+	return -1;
+    }
+    
+    LIST_TRAVERSE(watchlist_head,curr)
+    {
+	pair = elem_get_data(curr);
+	if (!pair) /* should not happen */
+	{
+	    eventlog(eventlog_level_error,"watchlist_del_all_events","watchlist contains NULL item");
+	    return -1;
+	}
+	if (pair->who==who)
+	{
+	    if (list_remove_elem(watchlist_head,curr)<0)
+	    {
+		eventlog(eventlog_level_error,"watchlist_del_all_events","could not remove item");
+		pair->owner = NULL;
+	    }
+	    else
+	      { free(pair); }
+	}
+    }
+    
+    list_purge(watchlist_head);
+    
+    return 0;
+}
+
 extern int handle_event_whisper(t_account *account, char const *gamename, t_watch_event event)
 {
   t_elem const * curr;

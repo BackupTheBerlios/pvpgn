@@ -83,6 +83,7 @@
 #include "storage.h"
 #include "common/list.h"
 #include "connection.h"
+#include "watch.h"
 //aaron
 #include "war3ladder.h"
 
@@ -1217,6 +1218,7 @@ extern int accountlist_reload(int all)
 	  if (!((old_acc->dirty) || account_logged_in(old_acc)))
 	  {
 	    war3_ladders_remove_account(old_acc);
+	    watchlist_del_by_account(old_acc);
 	    account_destroy(old_acc);
 	    hashtable_remove_entry(accountlist_head,curr);
   	  }
