@@ -572,7 +572,7 @@ extern int channel_add_connection(t_channel * channel, t_connection * connection
 	&& (account_is_operator_or_admin(conn_get_account(connection),channel_get_name(channel))==0))
     {
 	message_send_text(connection,message_type_info,connection,"you are now tempOP for this channel");
-	account_set_tmpOP_channel(conn_get_account(connection),(char *)channel_get_name(channel));
+	conn_set_tmpOP_channel(connection,(char *)channel_get_name(channel));
     }
     
     channel_message_log(channel,connection,0,"JOINED");
@@ -599,7 +599,6 @@ extern int channel_del_connection(t_channel * channel, t_connection * connection
 {
     t_channelmember * curr;
     t_channelmember * temp;
-    t_account 	    * acc;
     
     if (!channel)
     {
@@ -641,12 +640,10 @@ extern int channel_del_connection(t_channel * channel, t_connection * connection
     }
     channel->currmembers--;
 
-    acc = conn_get_account(connection);
-
-    if (account_get_tmpOP_channel(acc) && 
-	strcmp(account_get_tmpOP_channel(acc),channel_get_name(channel))==0)
+    if (conn_get_tmpOP_channel(connection) && 
+	strcmp(conn_get_tmpOP_channel(connection),channel_get_name(channel))==0)
     {
-	account_set_tmpOP_channel(acc,NULL);
+	conn_set_tmpOP_channel(connection,NULL);
     }
     
     if (!channel->memberlist && !(channel->flags & channel_flags_permanent)) /* if channel is empty, delete it unless it's a permanent channel */
@@ -775,7 +772,7 @@ extern void channel_message_send(t_channel const * channel, t_message_type type,
 	if (type==message_type_talk || type==message_type_emote)
 	{
 	    if (!((account_is_operator_or_admin(conn_get_account(me),channel_get_name(channel))) ||
-		 (channel_account_has_tmpVOICE(channel,conn_get_account(me)))))
+		 (channel_conn_has_tmpVOICE(channel,me))))
 	    {
 		message_send_text(me,message_type_error,me,"This channel is moderated");
 	        return;
@@ -1434,7 +1431,7 @@ extern int channel_get_curr(t_channel const * channel)
 
 }
 
-extern int channel_account_is_tmpOP(t_channel const * channel, t_account * account)
+extern int channel_conn_is_tmpOP(t_channel const * channel, t_connection * c)
 {
 	if (!channel)
 	{
@@ -1442,20 +1439,20 @@ extern int channel_account_is_tmpOP(t_channel const * channel, t_account * accou
 	  return 0;
 	}
 
-	if (!account)
+	if (!c)
 	{
 	  eventlog(eventlog_level_error,__FUNCTION__,"got NULL account");
 	  return 0;
 	}
 
-	if (!account_get_tmpOP_channel(account)) return 0;
+	if (!conn_get_tmpOP_channel(c)) return 0;
 	
-	if (strcmp(account_get_tmpOP_channel(account),channel_get_name(channel))==0) return 1;
+	if (strcmp(conn_get_tmpOP_channel(c),channel_get_name(channel))==0) return 1;
 
 	return 0;
 }
 
-extern int channel_account_has_tmpVOICE(t_channel const * channel, t_account * account)
+extern int channel_conn_has_tmpVOICE(t_channel const * channel, t_connection * c)
 {
 	if (!channel)
 	{
@@ -1463,15 +1460,15 @@ extern int channel_account_has_tmpVOICE(t_channel const * channel, t_account * a
 	  return 0;
 	}
 
-	if (!account)
+	if (!c)
 	{
 	  eventlog(eventlog_level_error,__FUNCTION__,"got NULL account");
 	  return 0;
 	}
 
-	if (!account_get_tmpVOICE_channel(account)) return 0;
+	if (!conn_get_tmpVOICE_channel(c)) return 0;
 
-	if (strcmp(account_get_tmpVOICE_channel(account),channel_get_name(channel))==0) return 1;
+	if (strcmp(conn_get_tmpVOICE_channel(c),channel_get_name(channel))==0) return 1;
 
 	return 0;
 }
@@ -1656,10 +1653,10 @@ extern int channel_set_flags(t_connection * c)
   else if (account_get_auth_operator(acc,channel) == 1 || 
 	   account_get_auth_operator(acc,NULL) == 1)
     newflags = MF_BNET;
-  else if (channel_account_is_tmpOP(conn_get_channel(c),acc))
+  else if (channel_conn_is_tmpOP(conn_get_channel(c),c))
     newflags = MF_GAVEL;
   else if ((account_get_auth_voice(acc,channel) == 1) ||
-	   (channel_account_has_tmpVOICE(conn_get_channel(c),acc)))
+	   (channel_conn_has_tmpVOICE(conn_get_channel(c),c)))
     newflags = MF_VOICE;
   else
     if (strcmp(conn_get_clienttag(c), CLIENTTAG_WARCRAFT3) == 0 || 

@@ -158,6 +158,8 @@ typedef struct connection
 	} queues; /* network queues and related data */
 	struct {
 	    t_channel *		channel;
+	    char const *	tmpOP_channel;
+	    char const *	tmpVOICE_channel;
 	    char const *	away;
 	    char const * 	dnd;
 	    t_account * *	ignore_list;
@@ -411,6 +413,11 @@ extern int conn_update_w3_playerinfo(t_connection * c);
 extern int conn_get_passfail_count(t_connection * c);
 extern int conn_set_passfail_count(t_connection * c, unsigned int failcount);
 extern int conn_increment_passfail_count (t_connection * c);
+
+extern int conn_set_tmpOP_channel(t_connection * c, char const * tmpOP_channel);
+extern char const * conn_get_tmpOP_channel(t_connection * c);
+extern int conn_set_tmpVOICE_channel(t_connection * c, char const * tmpVOICE_channel);
+extern char const * conn_get_tmpVOICE_channel(t_connection * c);
 
 #endif
 #endif

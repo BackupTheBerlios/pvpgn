@@ -709,7 +709,7 @@ static int _handle_admin_command(t_connection * c, char const * text)
     }
     
     message_send_text(c, message_type_info, c, msgtemp);
-    command_set_flags(connlist_find_connection_by_accountname(username));
+    command_set_flags(account_get_conn(acc));
     return 0;
 }
 
@@ -758,7 +758,7 @@ static int _handle_operator_command(t_connection * c, char const * text)
     }
     
     message_send_text(c, message_type_info, c, msgtemp);
-    command_set_flags(connlist_find_connection_by_accountname(username));
+    command_set_flags(account_get_conn(acc));
     return 0;
 }
 
@@ -799,7 +799,7 @@ static int _handle_aop_command(t_connection * c, char const * text)
     }
     
     message_send_text(c, message_type_info, c, msgtemp);
-    command_set_flags(connlist_find_connection_by_accountname(username));
+    command_set_flags(account_get_conn(acc));
     return 0;
 }
 
@@ -840,7 +840,7 @@ static int _handle_vop_command(t_connection * c, char const * text)
     }
     
     message_send_text(c, message_type_info, c, msgtemp);
-    command_set_flags(connlist_find_connection_by_accountname(username));
+    command_set_flags(account_get_conn(acc));
     return 0;
 }
 
@@ -849,6 +849,7 @@ static int _handle_voice_command(t_connection * c, char const * text)
     char const *	username;
     char const *	channel;
     t_account *		acc;
+    t_connection *	dst_c;
     
     if (!(channel = channel_get_name(conn_get_channel(c)))) {
 	message_send_text(c,message_type_error,c,"This command can only be used inside a channel.");
@@ -872,20 +873,33 @@ static int _handle_voice_command(t_connection * c, char const * text)
 	message_send_text(c, message_type_info, c, msgtemp);
 	return -1;
     }
+    dst_c = account_get_conn(acc);
     if (account_get_auth_voice(acc,channel)==1)
 	sprintf(msgtemp,"%s is already on VOP list, no need to Voice him", username);
     else
     {
-      if (channel_account_has_tmpVOICE(conn_get_channel(c),acc))
-	  sprintf(msgtemp,"%s has already Voice in this channel",username);
-      else {
-	  account_set_tmpVOICE_channel(acc,channel);
-	  sprintf(msgtemp,"%s has been granted Voice in this channel",username);
+      if ((!dst_c) || conn_get_channel(c)!=conn_get_channel(dst_c))
+      {
+	sprintf(msgtemp,"%s must be on the same channel to voice him",username);
+      }
+      else
+      {
+        if (channel_conn_has_tmpVOICE(conn_get_channel(c),dst_c))
+	    sprintf(msgtemp,"%s has already Voice in this channel",username);
+        else {
+	  if (account_is_operator_or_admin(acc,channel))
+	    sprintf(msgtemp,"%s allready is operator or admin, no need to voice him",username);
+	  else
+	  {
+	    conn_set_tmpVOICE_channel(dst_c,channel);
+	    sprintf(msgtemp,"%s has been granted Voice in this channel",username);
+	  }
+	}
       }
     }
     
     message_send_text(c, message_type_info, c, msgtemp);
-    command_set_flags(connlist_find_connection_by_accountname(username));
+    command_set_flags(dst_c);
     return 0;
 }
 
@@ -894,6 +908,8 @@ static int _handle_devoice_command(t_connection * c, char const * text)
     char const *	username;
     char const *	channel;
     t_account *		acc;
+    t_connection *	dst_c;
+    int			done = 0;
     
     if (!(channel = channel_get_name(conn_get_channel(c)))) {
 	message_send_text(c,message_type_error,c,"This command can only be used inside a channel.");
@@ -917,35 +933,36 @@ static int _handle_devoice_command(t_connection * c, char const * text)
 	message_send_text(c, message_type_info, c, msgtemp);
 	return -1;
     }
+    dst_c = account_get_conn(acc);
     
     if (account_get_auth_voice(acc,channel)==1)
     {
 	if ((account_get_auth_admin(conn_get_account(c),channel)==1) || (account_get_auth_admin(conn_get_account(c),NULL)==1))
 	{
 	    account_set_auth_voice(acc,channel,0);
-	    account_set_tmpVOICE_channel(acc,NULL);
 	    sprintf(msgtemp,"%s has been removed from VOP list.",username);
 	}
 	else
 	{
-	    account_set_tmpVOICE_channel(acc,NULL);
 	    sprintf(msgtemp,"You must be at least Channel Admin to remove %s from the VOP list",username);
 	}
+	done = 1;
     }
-    else
+
+    if ((dst_c) && channel_conn_has_tmpVOICE(conn_get_channel(c),dst_c)==1)
     {
-      if (channel_account_has_tmpVOICE(conn_get_channel(c),acc))
-	  {
-	    account_set_tmpVOICE_channel(acc,NULL);
-	    sprintf(msgtemp,"Voice has been taken from %s in this channel",username);
-	  }
-      else {
-	  sprintf(msgtemp,"%s has no Voice, so it can't be taken away",username);
-      }
+      conn_set_tmpVOICE_channel(dst_c,NULL);
+      sprintf(msgtemp,"Voice has been taken from %s in this channel",username);
+      done = 1;
+    }
+    
+    if (!done)
+    {
+     sprintf(msgtemp,"%s has no Voice in this channel, so it can't be taken away",username);
     }
     
     message_send_text(c, message_type_info, c, msgtemp);
-    command_set_flags(connlist_find_connection_by_accountname(username));
+    command_set_flags(dst_c);
     return 0;
 }
 
@@ -955,6 +972,7 @@ static int _handle_op_command(t_connection * c, char const * text)
     char const *	channel;
     t_account *		acc;
     int			OP_lvl;
+    t_connection * 	dst_c;
     
     if (!(channel = channel_get_name(conn_get_channel(c)))) {
 	message_send_text(c,message_type_error,c,"This command can only be used inside a channel.");
@@ -966,7 +984,7 @@ static int _handle_op_command(t_connection * c, char const * text)
     
     if (account_is_operator_or_admin(acc,channel))
       OP_lvl = 1;
-    else if (channel_account_is_tmpOP(conn_get_channel(c),acc))
+    else if (channel_conn_is_tmpOP(conn_get_channel(c),c))
       OP_lvl = 2;
 
     if (OP_lvl==0)
@@ -988,6 +1006,7 @@ static int _handle_op_command(t_connection * c, char const * text)
 	return -1;
     }
     
+    dst_c = account_get_conn(acc);
     
     if (OP_lvl==1) // user is full op so he may fully op others
     {
@@ -999,19 +1018,22 @@ static int _handle_op_command(t_connection * c, char const * text)
       }
     }
     else { // user is only tempOP so he may only tempOP others
-         t_connection * con;
-         if ((!(con = connlist_find_connection_by_account(acc))) || 
-             (conn_get_channel(c) != conn_get_channel(con)))
+         if ((!(dst_c)) || (conn_get_channel(c) != conn_get_channel(dst_c)))
           sprintf(msgtemp,"%s must be on the same channel to tempOP him",username);
          else
          {
-           account_set_tmpOP_channel(acc,channel);
-	   sprintf(msgtemp,"%s has been promoted to a tempOP",username);
+	   if (account_is_operator_or_admin(acc,channel))
+	     sprintf(msgtemp,"%s allready is operator or admin, no need to tempOP him",username);
+	   else
+	   {
+             conn_set_tmpOP_channel(dst_c,channel);
+	     sprintf(msgtemp,"%s has been promoted to a tempOP",username);
+	   }
          }
     }
     
     message_send_text(c, message_type_info, c, msgtemp);
-    command_set_flags(connlist_find_connection_by_accountname(username));
+    command_set_flags(dst_c);
     return 0;
 }
 
@@ -1020,13 +1042,14 @@ static int _handle_tmpop_command(t_connection * c, char const * text)
     char const *	username;
     char const *	channel;
     t_account *		acc;
+    t_connection *	dst_c;
     
     if (!(channel = channel_get_name(conn_get_channel(c)))) {
 	message_send_text(c,message_type_error,c,"This command can only be used inside a channel.");
 	return -1;
     }
     
-    if (!(account_is_operator_or_admin(conn_get_account(c),channel_get_name(conn_get_channel(c))) || channel_account_is_tmpOP(conn_get_channel(c),conn_get_account(c)))) {
+    if (!(account_is_operator_or_admin(conn_get_account(c),channel_get_name(conn_get_channel(c))) || channel_conn_is_tmpOP(conn_get_channel(c),c))) {
 	message_send_text(c,message_type_error,c,"You must be at least a Channel Operator or tmpOP to use this command.");
 	return -1;
     }
@@ -1043,23 +1066,29 @@ static int _handle_tmpop_command(t_connection * c, char const * text)
 	message_send_text(c, message_type_info, c, msgtemp);
 	return -1;
     }
-    if (channel_account_is_tmpOP(conn_get_channel(c),acc))
+
+    dst_c = account_get_conn(acc);
+    
+    if (channel_conn_is_tmpOP(conn_get_channel(c),dst_c))
        sprintf(msgtemp,"%s has already tmpOP in this channel",username);
     else 
     {
-       t_connection * con;
-       if ((!(con = connlist_find_connection_by_account(acc))) ||
-           (conn_get_channel(c) != conn_get_channel(con)))
+       if ((!(dst_c)) || (conn_get_channel(c) != conn_get_channel(dst_c)))
        sprintf(msgtemp,"%s must be on the same channel to tempOP him",username);
        else
        {
-         account_set_tmpOP_channel(acc,channel);
-         sprintf(msgtemp,"%s has been promoted to tmpOP in this channel",username);
+	 if (account_is_operator_or_admin(acc,channel))
+	   sprintf(msgtemp,"%s allready is operator or admin, no need to tempOP him",username);
+	 else
+	 {
+           conn_set_tmpOP_channel(dst_c,channel);
+           sprintf(msgtemp,"%s has been promoted to tmpOP in this channel",username);
+	 }
        }
     }
     
     message_send_text(c, message_type_info, c, msgtemp);
-    command_set_flags(connlist_find_connection_by_accountname(username));
+    command_set_flags(dst_c);
     return 0;
 }
 
@@ -1069,6 +1098,7 @@ static int _handle_deop_command(t_connection * c, char const * text)
     char const *	channel;
     t_account *		acc;
     int			OP_lvl;
+    t_connection *	dst_c;
     
     if (!(channel = channel_get_name(conn_get_channel(c)))) {
 	message_send_text(c,message_type_error,c,"This command can only be used inside a channel.");
@@ -1080,7 +1110,7 @@ static int _handle_deop_command(t_connection * c, char const * text)
     
     if (account_is_operator_or_admin(acc,channel))
       OP_lvl = 1;
-    else if (channel_account_is_tmpOP(conn_get_channel(c),acc))
+    else if (channel_conn_is_tmpOP(conn_get_channel(c),account_get_conn(acc)))
       OP_lvl = 2;
 
     if (OP_lvl==0)
@@ -1101,6 +1131,8 @@ static int _handle_deop_command(t_connection * c, char const * text)
 	message_send_text(c, message_type_info, c, msgtemp);
 	return -1;
     }
+
+    dst_c = account_get_conn(acc);
   
     if (OP_lvl==1) // user is real OP and allowed to deOP
       {    
@@ -1110,24 +1142,22 @@ static int _handle_deop_command(t_connection * c, char const * text)
 	      message_send_text(c,message_type_info,c,"You must be at least a Channel Admin to demote another Channel Admin");
 	    else {
 	      account_set_auth_admin(acc,channel,0);
-	      account_set_tmpOP_channel(acc,NULL);
 	      sprintf(msgtemp, "%s has been demoted from a Channel Admin.", username);
 	      message_send_text(c, message_type_info, c, msgtemp);
 	    }
 	  }
 	  if (account_get_auth_operator(acc,channel) == 1) {
 	    account_set_auth_operator(acc,channel,0);
-	    account_set_tmpOP_channel(acc,NULL);
 	    sprintf(msgtemp,"%s has been demoted from a Channel Operator",username);
 	    message_send_text(c, message_type_info, c, msgtemp);
 	  }
 	} 
-	else if (channel_account_is_tmpOP(conn_get_channel(c),acc))
-	  {
-	    account_set_tmpOP_channel(acc,NULL);
+	else if ((dst_c) && channel_conn_is_tmpOP(conn_get_channel(c),dst_c))
+	{
+	    conn_set_tmpOP_channel(dst_c,NULL);
 	    sprintf(msgtemp,"%s has been demoted from a tempOP of this channel",username);
 	    message_send_text(c, message_type_info, c, msgtemp);
-	  }
+	}
 	else {
 	  sprintf(msgtemp,"%s is no Channel Admin or Channel Operator or tempOP, so you can't demote him.",username);
 	  message_send_text(c, message_type_info, c, msgtemp);
@@ -1135,15 +1165,15 @@ static int _handle_deop_command(t_connection * c, char const * text)
       }
     else //user is just a tempOP and may only deOP other tempOPs
       {
-	if (channel_account_is_tmpOP(conn_get_channel(c),acc))
+	if (dst_c && channel_conn_is_tmpOP(conn_get_channel(c),dst_c))
 	  {
-	    account_set_tmpOP_channel(acc,NULL);
+	    conn_set_tmpOP_channel(account_get_conn(acc),NULL);
 	    sprintf(msgtemp,"%s has been demoted from a tempOP of this channel",username);
 	    message_send_text(c, message_type_info, c, msgtemp);
 	  }
 	else
 	  {
-	    sprintf(msgtemp,"%s is no tempOP, so you can't demote him",username);
+	    sprintf(msgtemp,"%s is no tempOP in this channel, so you can't demote him",username);
 	    message_send_text(c, message_type_info, c, msgtemp);
 	  }
       }
@@ -2246,7 +2276,7 @@ static int _handle_kick_command(t_connection * c, char const *text)
       account_get_auth_admin(acc,channel_get_name(channel))!=1 && /* default to false */
       account_get_auth_operator(acc,NULL)!=1 && /* default to false */
       account_get_auth_operator(acc,channel_get_name(channel))!=1 && /* default to false */
-      !channel_account_is_tmpOP(channel,acc))
+      !channel_conn_is_tmpOP(channel,account_get_conn(acc)))
     {
       message_send_text(c,message_type_error,c,"You have to be at least a Channel Operator or tempOP to use this command.");
       return 0;
@@ -2766,7 +2796,7 @@ static int _handle_channels_command(t_connection * c, char const *text)
 
 		acc = conn_get_account(conn);
 		if (account_is_operator_or_admin(acc,channel_get_name(channel)) ||
-		    channel_account_is_tmpOP(channel,acc))
+		    channel_conn_is_tmpOP(channel,account_get_conn(acc)))
 		{
 		  name = account_get_name(acc);
 		  if (strlen(msgtemp) + strlen(name) +6 >= MAX_MESSAGE_LEN) break;

@@ -162,8 +162,6 @@ extern t_account * account_create(char const * username, char const * passhash1)
     account->dirty    = 0;
     account->accessed = 0;
     account->age      = 0;
-    account->tmpOP_channel = NULL;
-    account->tmpVOICE_channel = NULL;
     account->friends  = NULL;
     account->friend_loaded = 0;
     account->conn = NULL;
@@ -1400,86 +1398,6 @@ extern char const * account_get_name(t_account * account)
     else
 	account->name = strdup(temp);
     return account->name;
-}
-
-extern int account_set_tmpOP_channel(t_account * account, char const * tmpOP_channel)
-{
-	char * tmp;
-
-	if (!account)
-	{
-	  eventlog(eventlog_level_error,__FUNCTION__,"got NULL account");
-	  return -1;
-	}
-
-	if (account->tmpOP_channel)
-	{
-	  free((void *)account->tmpOP_channel);
-	  account->tmpOP_channel = NULL;
-	}
-
-	if (tmpOP_channel)
-	{
-	  if (!(tmp = strdup(tmpOP_channel)))
-	  {
-	    eventlog(eventlog_level_error,__FUNCTION__,"could not strdup tmpOP_channel");
-	    return -1;
-	  }
-	  account->tmpOP_channel = tmp;
-	}
-
-	return 0;
-}
-
-extern char * account_get_tmpOP_channel(t_account * account)
-{
-	if (!account)
-	{
-	  eventlog(eventlog_level_error,__FUNCTION__,"got NULL account");
-	  return NULL;
-	}
-	
-	return account->tmpOP_channel;
-}
-
-extern int account_set_tmpVOICE_channel(t_account * account, char const * tmpVOICE_channel)
-{
-	char * tmp;
-
-	if (!account)
-	{
-	  eventlog(eventlog_level_error,__FUNCTION__,"got NULL account");
-	  return -1;
-	}
-
-	if (account->tmpVOICE_channel)
-	{
-	  free((void *)account->tmpVOICE_channel);
-	  account->tmpVOICE_channel = NULL;
-	}
-
-	if (tmpVOICE_channel)
-	{
-	  if (!(tmp = strdup(tmpVOICE_channel)))
-	  {
-	    eventlog(eventlog_level_error,__FUNCTION__,"could not strdup tmpVOICE_channel");
-	    return -1;
-	  }
-	  account->tmpVOICE_channel = tmp;
-	}
-
-	return 0;
-}
-
-extern char * account_get_tmpVOICE_channel(t_account * account)
-{
-	if (!account)
-	{
-	  eventlog(eventlog_level_error,__FUNCTION__,"got NULL account");
-	  return NULL;
-	}
-	
-	return account->tmpVOICE_channel;
 }
 
 

@@ -409,6 +409,8 @@ extern t_connection * conn_create(int tsock, int usock, unsigned int real_local_
     temp->protocol.chat.irc.ircline              = NULL;
     temp->protocol.chat.irc.ircping              = 0;
     temp->protocol.chat.irc.ircpass              = NULL;
+    temp->protocol.chat.tmpOP_channel		 = NULL;
+    temp->protocol.chat.tmpVOICE_channel	 = NULL;
     temp->protocol.game                     = NULL;
     temp->protocol.queues.outqueue               = NULL;
     temp->protocol.queues.outsize                = 0;
@@ -610,6 +612,10 @@ extern void conn_destroy(t_connection * c)
 	free((void *)c->protocol.chat.away); /* avoid warning */
     if (c->protocol.chat.dnd)
 	free((void *)c->protocol.chat.dnd); /* avoid warning */
+    if (c->protocol.chat.tmpOP_channel)
+	free((void *)c->protocol.chat.tmpOP_channel); /* avoid warning */
+    if (c->protocol.chat.tmpVOICE_channel)
+	free((void *)c->protocol.chat.tmpVOICE_channel); /* avoid warning */
     
     if (c->protocol.client.clienttag)
 	free((void *)c->protocol.client.clienttag); /* avoid warning */
@@ -3898,3 +3904,84 @@ extern int conn_increment_passfail_count (t_connection * c)
     }
     return 0;
 }
+
+extern int conn_set_tmpOP_channel(t_connection * c, char const * tmpOP_channel)
+{
+	char * tmp;
+
+	if (!c)
+	{
+	  eventlog(eventlog_level_error,__FUNCTION__,"got NULL conn");
+	  return -1;
+	}
+
+	if (c->protocol.chat.tmpOP_channel)
+	{
+	  free((void *)c->protocol.chat.tmpOP_channel);
+	  c->protocol.chat.tmpOP_channel = NULL;
+	}
+
+	if (tmpOP_channel)
+	{
+	  if (!(tmp = strdup(tmpOP_channel)))
+	  {
+	    eventlog(eventlog_level_error,__FUNCTION__,"could not strdup tmpOP_channel");
+	    return -1;
+	  }
+	  c->protocol.chat.tmpOP_channel = tmp;
+	}
+
+	return 0;
+}
+
+extern char const * conn_get_tmpOP_channel(t_connection * c)
+{
+	if (!c)
+	{
+	  eventlog(eventlog_level_error,__FUNCTION__,"got NULL conn");
+	  return NULL;
+	}
+	
+	return c->protocol.chat.tmpOP_channel;
+}
+
+extern int conn_set_tmpVOICE_channel(t_connection * c, char const * tmpVOICE_channel)
+{
+	char * tmp;
+
+	if (!c)
+	{
+	  eventlog(eventlog_level_error,__FUNCTION__,"got NULL conn");
+	  return -1;
+	}
+
+	if (c->protocol.chat.tmpVOICE_channel)
+	{
+	  free((void *)c->protocol.chat.tmpVOICE_channel);
+	  c->protocol.chat.tmpVOICE_channel = NULL;
+	}
+
+	if (tmpVOICE_channel)
+	{
+	  if (!(tmp = strdup(tmpVOICE_channel)))
+	  {
+	    eventlog(eventlog_level_error,__FUNCTION__,"could not strdup tmpVOICE_channel");
+	    return -1;
+	  }
+	  c->protocol.chat.tmpVOICE_channel = tmp;
+	}
+
+	return 0;
+}
+
+extern char const * conn_get_tmpVOICE_channel(t_connection * c)
+{
+	if (!c)
+	{
+	  eventlog(eventlog_level_error,__FUNCTION__,"got NULL conn");
+	  return NULL;
+	}
+	
+	return c->protocol.chat.tmpVOICE_channel;
+}
+
