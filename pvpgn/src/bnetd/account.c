@@ -1252,7 +1252,7 @@ extern int accountlist_create(void)
 	eventlog(eventlog_level_error,"accountlist_create","unable to close read user list");
 #endif
     
-    eventlog(eventlog_level_info,"accountlist_create","loaded %u user accounts in %d seconds",count,time(NULL) - starttime);
+    eventlog(eventlog_level_info,"accountlist_create","loaded %u user accounts in %ld seconds",count,time(NULL) - starttime);
 	
 	
     return 0;
@@ -1542,7 +1542,6 @@ extern t_account * accountlist_add_account(t_account * account)
 	if (account_get_atteamcount(account))
 	{
 	  int counter, rank;
-	  char key[120];
 	  // for each team he is in...
           for (counter=1; counter<=account_get_atteamcount(account); counter++)
           {
