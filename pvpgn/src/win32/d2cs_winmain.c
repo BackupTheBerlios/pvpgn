@@ -63,6 +63,13 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
     HWND		hwnd;
     MSG			msg;
     
+    /* if running as a service skip starting the GUI and go straight to starting d2cs */
+    if (__argc==2 && strcmp(__argv[1],"--service")==0)
+    {
+        Win32_ServiceRun();
+        return 1;
+    }
+    
     LoadLibrary("RichEd20.dll");
 
     wc.cbSize = sizeof(WNDCLASSEX);
@@ -87,6 +94,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 			NULL,
                         LoadMenu(hInstance, MAKEINTRESOURCE(ID_MENU)),
                         hInstance,NULL);
+    
     if(hwnd) {
         ShowWindow(hwnd, nCmdShow);
         UpdateWindow(hwnd);
@@ -323,10 +331,21 @@ static void guiAddText(const char *str, COLORREF clr)
     SendMessage(ghwndConsole, EM_REPLACESEL, FALSE, (LPARAM)str);
 }
 
+#define EXIT_ERROR	 -1
+#define EXIT_OK		  0
+#define EXIT_SERVICE  1
+
 static void d2cs(void * dummy)
 {
-    if (d2cs_main(__argc, __argv))
-	d2cs_run = FALSE;
+    switch (d2cs_main(__argc, __argv))
+    {
+        case EXIT_SERVICE:
+            gui_run = FALSE; /* close gui */
+        case EXIT_ERROR:
+            d2cs_run = FALSE; /* don't restart */
+        case EXIT_OK:
+           ; /* do nothing */
+    }
     
     eventlog(eventlog_level_warn,__FUNCTION__,"Server Stopped");
     d2cs_running = FALSE;

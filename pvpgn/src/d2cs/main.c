@@ -75,6 +75,18 @@ static int config_init(int argc, char * * argv);
 static int config_cleanup(void);
 static int setup_daemon(void);
 
+#ifdef WIN32_GUI
+#include "win32/winmain.h"
+static int fprintf(FILE *stream, const char *format, ...)
+{
+    va_list args;
+    va_start(args, format);
+    if(stream == stderr || stream == stdout)
+        return gui_lvprintf(eventlog_level_error, format, args);
+    else
+        return vfprintf(stream, format, args);
+}
+#endif
 
 #ifdef DO_DAEMONIZE
 static int setup_daemon(void)
@@ -172,12 +184,12 @@ if (cmdline_get_run_as_service())
 if (cmdline_get_make_service())
 {
 		if (strcmp(cmdline_get_make_service(), "install") == 0) {
-		    fprintf(stderr, "Installing service");
+		    fprintf(stderr, "Installing service\n");
 		    Win32_ServiceInstall();
 			return 1;
 		}
 		if (strcmp(cmdline_get_make_service(), "uninstall") == 0) {
-		    fprintf(stderr, "Uninstalling service");
+		    fprintf(stderr, "Uninstalling service\n");
 		    Win32_ServiceUninstall();
 			return 1;
 		}
@@ -238,7 +250,7 @@ extern int main(int argc, char * * argv)
 	int pid;
 	eventlog_set(stderr);
 	if (!((pid = config_init(argc, argv)) == 0)) {
-		if (pid==1) pid=0;
+//		if (pid==1) pid=0;
 		return pid;
 	}
 	eventlog(eventlog_level_info,__FUNCTION__,D2CS_VERSION);
