@@ -751,34 +751,6 @@ extern int account_set_ll_cdkey(t_account * account, char const * cdkey)
     return account_set_strattr(account,"BNET\\acct\\lastlogin_cdkey",cdkey);
 }
 
-/***************************************************************/
-// aaron:
-// cleanup function for those ppl that don't want or need all
-// the accounting infos logged in the accounts
-
-extern int account_remove_verbose_accounting(t_account * account)
-{
-  if (account_get_fl_time(account)!=0)
-    {
-      account_set_strattr(account,"BNET\\acct\\firstlogin_time",NULL);
-      account_set_strattr(account,"BNET\\acct\\firstlogin_connection",NULL);
-      account_set_fl_host(account,NULL);
-      account_set_fl_user(account,NULL);
-      account_set_fl_clientexe(account,NULL);
-      account_set_fl_clienttag(account,NULL);
-      account_set_fl_clientver(account,NULL);
-      account_set_fl_owner(account,NULL);
-      account_set_fl_cdkey(account,NULL);
-      account_set_strattr(account,"BNET\\acct\\lastlogin_connection",NULL);
-      account_set_ll_user(account,NULL);
-      account_set_ll_clientexe(account,NULL);
-      account_set_ll_clienttag(account,NULL);
-      account_set_ll_clientver(account,NULL);
-      account_set_ll_cdkey(account,NULL);
-    }
-    return 0;
-}
-
 /****************************************************************/
 
 

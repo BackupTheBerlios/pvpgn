@@ -141,8 +141,6 @@ extern char const * account_get_ll_cdkey(t_account * account);
 extern int account_unget_ll_cdkey(char const * cdkey);
 extern int account_set_ll_cdkey(t_account * account, char const * cdkey);
 
-extern int account_remove_verbose_accounting(t_account * account);
-
 /* normal stats */
 extern unsigned int account_get_normal_wins(t_account * account, char const * clienttag);
 extern int account_inc_normal_wins(t_account * account, char const * clienttag);
