@@ -277,6 +277,7 @@ static int handle_irc_line(t_connection * conn, char const * ircline)
     	
     	if (strcasecmp(e[i],"NICKSERV")==0) {
  		    char * pass;
+		    char * p;
 			
  		    pass = strchr(text,' ');
  		    if (pass)
@@ -286,6 +287,8 @@ static int handle_irc_line(t_connection * conn, char const * ircline)
 					if (pass) {
  		    	t_hash h;
  
+			for (p = pass; *p; p++)
+			    if (isupper(*p)) *p = tolower(*p);
  		    	bnet_hash(&h,strlen(pass),pass);
  		    	irc_authenticate(conn,hash_get_str(h));
  		    } else {
