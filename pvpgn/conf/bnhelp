@@ -34,10 +34,6 @@ whois <player> - looks up some basic information on a user, including their acco
 /rejoin - join the channel you are already in
 %me
 /me <message> - displays emotion text, as in 'tN is rolling on the floor laughing'
-%designate
-/designate <player> - selects user as the next channel operator when you step down, either by resigning or by leaving the channel
-%resign
-/resign - lets you step down as channel operator and become a normal user again
 %kick
 /kick <player> - kicks a user out of the channel
 %ban
@@ -64,13 +60,8 @@ whois <player> - looks up some basic information on a user, including their acco
 /connections /con - displays current connections
 %finger
 /finger [<player>] - displays information about player
-%operator op
-/operator, /op - shows the current operator of this channel
 %admins
 /admins - shows all currently logged in administrators
-%admin
-/admin +<username> - promote <username> to admin
-/admin -<username> - demote <username> from admin
 %reply r
 /reply /r <message> - reply to the last person that whispered to you
 %announce ann
@@ -173,5 +164,22 @@ whois <player> - looks up some basic information on a user, including their acco
 	/cg add <user> <group(s)> - adds group(s) to users command groups
 	/cg del <user> <group(s)> - deletes groups from users command groups
 	/cg help - show help screen
+%admin
+/admin +<username> - promote <username> to Server Admin
+/admin -<username> - demote <username> from Server Admin
+%operator
+/operator +<username> - promote <username> to Server Operator
+/operator -<username> - demote <username> from Server Operator
+%aop
+/aop <username> - make user Channel Admin
+%op
+/op <username> - make user Channel Operator
+/deop - take away channel Admin/Operator privileges
+%vop
+/vop <username> - add user to VOP list
+%voice
+/voice <username> - give temporary voice to user
+%devoice
+/devoice <username> - remove user from VOP list and take away temporary voice
 #                                                                            #
 ##############################################################################

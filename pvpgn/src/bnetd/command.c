@@ -828,10 +828,10 @@ static int _handle_vop_command(t_connection * c, char const * text)
     }
     
     if (account_get_auth_voice(acc,channel) == 1)
-	sprintf(msg,"%s has allready AutoVoice in this channel",username);
+	sprintf(msg,"%s is allready on VOP list",username);
     else {
 	account_set_auth_voice(acc,channel,1);
-	sprintf(msg,"%s has been granted AutoVoice in this channel",username);
+	sprintf(msg,"%s has been added to the VOP list",username);
     }
     
     message_send_text(c, message_type_info, c, msg);
@@ -868,12 +868,16 @@ static int _handle_voice_command(t_connection * c, char const * text)
 	message_send_text(c, message_type_info, c, msg);
 	return -1;
     }
-    
-    if (channel_account_has_tmpVOICE(conn_get_channel(c),acc))
-	sprintf(msg,"%s has allready Voice in this channel",username);
-    else {
-	account_set_tmpVOICE_channel(acc,channel);
-	sprintf(msg,"%s has been granted Voice in this channel",username);
+    if (account_get_auth_voice(acc,channel))
+	sprintf(msg,"%s is allready on VOP list, no need to Voice him");
+    else
+    {
+      if (channel_account_has_tmpVOICE(conn_get_channel(c),acc))
+	  sprintf(msg,"%s has allready Voice in this channel",username);
+      else {
+	  account_set_tmpVOICE_channel(acc,channel);
+	  sprintf(msg,"%s has been granted Voice in this channel",username);
+      }
     }
     
     message_send_text(c, message_type_info, c, msg);
@@ -911,13 +915,30 @@ static int _handle_devoice_command(t_connection * c, char const * text)
 	return -1;
     }
     
-    if (channel_account_has_tmpVOICE(conn_get_channel(c),acc))
+    if (account_get_auth_voice(acc,channel))
+    {
+	if ((account_get_auth_admin(conn_get_account(c),channel)==1) || (account_get_auth_admin(conn_get_account(c),NULL)==1))
 	{
-	  account_set_tmpVOICE_channel(acc,NULL);
-	  sprintf(msg,"Voice has been taken from %s in this channel",username);
+	    account_set_auth_voice(acc,channel,0);
+	    account_set_tmpVOICE_channel(acc,NULL);
+	    sprintf(msg,"%s has been removed from VOP list.",username);
 	}
-    else {
-	sprintf(msg,"%s has no Voice, so it can't be taken away",username);
+	else
+	{
+	    account_set_tmpVOICE_channel(acc,NULL);
+	    sprintf(msg,"You must be at least Channel Admin to remove %s from the VOP list",username);
+	}
+    }
+    else
+    {
+      if (channel_account_has_tmpVOICE(conn_get_channel(c),acc))
+	  {
+	    account_set_tmpVOICE_channel(acc,NULL);
+	    sprintf(msg,"Voice has been taken from %s in this channel",username);
+	  }
+      else {
+	  sprintf(msg,"%s has no Voice, so it can't be taken away",username);
+      }
     }
     
     message_send_text(c, message_type_info, c, msg);
