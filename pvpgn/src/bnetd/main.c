@@ -91,6 +91,7 @@
 #include "tournament.h"
 #include "news.h"
 #include "clan.h"
+#include "topic.h"
 #include "common/setup_after.h"
 
 #ifdef WIN32
@@ -463,6 +464,7 @@ int pre_server_startup(void)
     anongame_infos_load(prefs_get_anongame_infos_file());
     tournament_init(prefs_get_tournament_file());
     clanlist_load(prefs_get_clandir());
+    topiclist_load(prefs_get_topicfile());
     return 0;
 }
 
@@ -471,6 +473,7 @@ void post_server_shutdown(int status)
     switch (status)
     {
 	case 0:
+	    topiclist_unload();
             clanlist_unload();
 	    tournament_destroy();
 	    anongame_infos_unload();
@@ -559,7 +562,7 @@ extern int main(int argc, char * * argv)
 
 // Fork to child process if not set to foreground    
     if ((a = fork_bnetd(foreground)) != 0)
-	return a;
+	return a < 0 ? a : 0; /* dizzy: dont return code != 0 when things are OK! */
 
     eventlog_set(stderr);
     /* errors to eventlog from here on... */
