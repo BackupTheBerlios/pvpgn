@@ -220,6 +220,9 @@ case $basic_machine in
 		basic_machine=m68k-apple
 		os=-aux
 		;;
+	pmac | pmac-mpw)
+		basic_machine=powerpc-apple
+		;;
 	balance)
 		basic_machine=ns32k-sequent
 		os=-dynix
@@ -689,7 +692,7 @@ case $os in
 	      | -ptx* | -coff* | -ecoff* | -winnt* | -domain* | -vsta* \
 	      | -udi* | -eabi* | -lites* | -ieee* | -go32* | -aux* \
 	      | -cygwin32* | -pe* | -psos* | -moss* | -proelf* | -rtems* \
-	      | -linux-gnu* | -uxpv*)
+	      | -linux-gnu* | -uxpv* | -darwin*)
 	# Remember, each alternative MUST END IN *, to match a version number.
 		;;
 	-linux*)
@@ -853,6 +856,9 @@ case $basic_machine in
         *-highlevel)
 		os=-bsd
 		;;
+	*-apple)
+		os=-macos
+		;;
 	*-encore)
 		os=-bsd
 		;;
@@ -917,6 +923,9 @@ case $basic_machine in
 				vendor=wrs
 				;;
 			-aux*)
+				vendor=apple
+				;;
+			-mpw* | -macos*)
 				vendor=apple
 				;;
 		esac
