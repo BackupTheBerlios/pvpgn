@@ -74,7 +74,7 @@
 static t_list * versioninfo_head=NULL;
 static t_versioncheck dummyvc={ "A=42 B=42 C=42 4 A=A^S B=B^B C=C^C A=A^S", "IX86ver1.mpq", "NoVC" };
 
-static int versioncheck_compare_exeinfo(char const * pattern, char const * match);
+static int versioncheck_compare_exeinfo(t_parsed_exeinfo * pattern, t_parsed_exeinfo * match);
 
 extern t_versioncheck * versioncheck_create(char const * archtag, char const * clienttag)
 {
@@ -199,6 +199,87 @@ extern char const * versioncheck_get_eqn(t_versioncheck const * vc)
     return vc->eqn;
 }
 
+t_parsed_exeinfo * parse_exeinfo(char const * exeinfo)
+{
+  t_parsed_exeinfo * parsed_exeinfo = NULL;
+
+    if (!exeinfo) {
+	return NULL;
+    }
+
+    if (!(parsed_exeinfo = malloc(sizeof(t_parsed_exeinfo))))
+    {
+      eventlog(eventlog_level_error,__FUNCTION__,"could not allocate memory for parsed exeinfo");
+      return NULL;
+    }
+
+    if (!(parsed_exeinfo->exe = strdup(exeinfo)))
+    {
+      free((void *)parsed_exeinfo);
+      eventlog(eventlog_level_error,__FUNCTION__,"could not duplicate exeinfo");
+      return NULL;
+    }
+    parsed_exeinfo->time = 0;
+    parsed_exeinfo->size = 0;
+    
+    if (strcmp(prefs_get_version_exeinfo_match(),"parse")==0) 
+    {
+#ifdef HAVE_MKTIME
+	struct tm t1;
+	char *exe;
+	char mask[MAX_EXEINFO_STR+1];
+	char * marker;
+	int size;
+
+	memset(&t1,0,sizeof(t1));
+        t1.tm_isdst = -1;
+
+        exeinfo    = strreverse((char *)exeinfo);
+        marker     = strchr(exeinfo,' ')+1; //skip file size
+        marker     = strchr(marker,' ')+1;  //skip file time
+        marker     = strchr(marker,' ');    //skip file date
+        marker[0]  = '\0';
+        marker++;
+        
+        if (!(exe = strdup(marker)))
+        {
+          free((void *)parsed_exeinfo->exe);
+          free((void *)parsed_exeinfo);
+          eventlog(eventlog_level_error,__FUNCTION__,"could not duplicate exe");
+          return NULL;
+        }
+        free((void *)parsed_exeinfo->exe);
+        parsed_exeinfo->exe = strreverse((char *)exe);
+
+        exeinfo    = strreverse((char *)exeinfo);
+
+	sprintf(mask,"%%02u/%%02u/%%02u %%02u:%%02u:%%02u %%u");
+
+	if (sscanf(exeinfo,mask,&t1.tm_mon,&t1.tm_mday,&t1.tm_year,&t1.tm_hour,&t1.tm_min,&t1.tm_sec,&size)!=7) {
+	    eventlog(eventlog_level_warn,__FUNCTION__,"parser error while parsing pattern \"%s\"",exeinfo);
+	    free((void *)parsed_exeinfo->exe);
+	    free((void *)parsed_exeinfo);
+	    return NULL; /* neq */
+	}
+
+       /* Now we have a Y2K problem :)  Thanks for using a 2 digit decimal years, Blizzard. */ 
+       /* 00-79 -> 2000-2079 
+	*             * 80-99 -> 1980-1999 
+	*             * 100+ unchanged */ 
+       if (t1.tm_year<80) 
+	 t1.tm_year = t1.tm_year + 100; 
+
+       parsed_exeinfo->time = mktime(&t1);
+       parsed_exeinfo->size = size;
+
+#else
+	eventlog(eventlog_level_error,"versioncheck_compare_exeinfo","Your system does not support mktime(). Please select another exeinfo matching method.");
+	return NULL;
+#endif
+  }
+
+  return parsed_exeinfo;
+}
 
 #define safe_toupper(X) (islower((int)X)?toupper((int)X):(X))
 
@@ -206,7 +287,8 @@ extern char const * versioncheck_get_eqn(t_versioncheck const * vc)
  * signs in the pattern are treated as "don't care" signs. This
  * means that it doesn't matter what's on this place in the match.
  */
-static int versioncheck_compare_exeinfo(char const * pattern, char const * match)
+//static int versioncheck_compare_exeinfo(char const * pattern, char const * match)
+static int versioncheck_compare_exeinfo(t_parsed_exeinfo * pattern, t_parsed_exeinfo * match)
 {
     if (!pattern) {
 	eventlog(eventlog_level_error,"versioncheck_compare_exeinfo","got NULL pattern");
@@ -217,99 +299,63 @@ static int versioncheck_compare_exeinfo(char const * pattern, char const * match
 	return -1; /* neq/fail */
     }
 
-    eventlog(eventlog_level_trace,"versioncheck_compare_exeinfo","pattern=\"%s\" match=\"%s\"",pattern,match);
+    eventlog(eventlog_level_trace,"versioncheck_compare_exeinfo","pattern=\"%s\" match=\"%s\"",pattern->exe,match->exe);
 
-    if (strlen(pattern)!=strlen(match))
+    if (strlen(pattern->exe)!=strlen(match->exe))
     	return 1; /* neq */
     
     if (strcmp(prefs_get_version_exeinfo_match(),"exact")==0) {
-	return strcasecmp(pattern,match);
+	return strcasecmp(pattern->exe,match->exe);
     } else if (strcmp(prefs_get_version_exeinfo_match(),"exactcase")==0) {
-	return strcmp(pattern,match);
+	return strcmp(pattern->exe,match->exe);
     } else if (strcmp(prefs_get_version_exeinfo_match(),"wildcard")==0) {
     	unsigned int i;
     	
-    	for (i=0;i<strlen(pattern);i++)
-    	    if ((pattern[i]!='?')&& /* out "don't care" sign */
-    	    	(safe_toupper(pattern[i])!=safe_toupper(match[i])))
+    	for (i=0;i<strlen(pattern->exe);i++)
+    	    if ((pattern->exe[i]!='?')&& /* out "don't care" sign */
+    	    	(safe_toupper(pattern->exe[i])!=safe_toupper(match->exe[i])))
     	    	return 1; /* neq */
     	return 0; /* ok */
     } else if (strcmp(prefs_get_version_exeinfo_match(),"parse")==0) {
-#ifdef HAVE_MKTIME
-	struct tm t1;
-	struct tm t2;
-	char exe1[MAX_EXEINFO_STR+1];
-	char exe2[MAX_EXEINFO_STR+1];
-	char mask[MAX_EXEINFO_STR+1];
-	char * marker1;
-	char * marker2;
-	int size1,size2;
-
-	memset(&t1,0,sizeof(t1));
-	memset(&t2,0,sizeof(t2));
-
-	// presume exe filenames may only contain one '.' 
-	// then scan for next whitespace, after which old parsing method is applied
-	marker1 = strchr(pattern,'.');
-	marker1 = strchr(marker1,' ');
-	marker1++;
-	marker2 = strchr(match,'.');
-	marker2 = strchr(marker2,' ');
-	marker2++;
-
-	strncpy((char *)exe1,pattern,marker1-pattern);
-	strncpy((char *)exe2,match,marker2-match);
-	exe1[marker1-pattern]='\0';
-	exe2[marker2-match]='\0';
-
-	sprintf(mask,"%%02u/%%02u/%%02u %%02u:%%02u:%%02u %%u");
-
-	if (sscanf(marker1,mask,&t1.tm_mon,&t1.tm_mday,&t1.tm_year,&t1.tm_hour,&t1.tm_min,&t1.tm_sec,&size1)!=7) {
-	    eventlog(eventlog_level_warn,"versioncheck_compare_exeinfo","parser error while parsing pattern \"%s\"",pattern);
-		free((void *)pattern);
-	    return 1; /* neq */
-	}
-	if (sscanf(marker2,mask,&t2.tm_mon,&t2.tm_mday,&t2.tm_year,&t2.tm_hour,&t2.tm_min,&t2.tm_sec,&size2)!=7) {
-	    eventlog(eventlog_level_warn,"versioncheck_compare_exeinfo","parser error while parsing match \"%s\"",match);
-	    return 1; /* neq */
-	}
-
-       /* Now we have a Y2K problem :)  Thanks for using a 2 digit decimal years, Blizzard. */ 
-       /* 00-79 -> 2000-2079 
-	*             * 80-99 -> 1980-1999 
-	*             * 100+ unchanged */ 
-       if (t1.tm_year<80) 
-	 t1.tm_year = t1.tm_year + 2000; 
-       else if (t1.tm_year<100) 
-	 t1.tm_year = t1.tm_year + 1900; 
-       if (t2.tm_year<80)
-	 t2.tm_year = t2.tm_year + 2000;
-       else if (t2.tm_year<100)
-	 t2.tm_year = t2.tm_year + 1900;
        
-       if (strcasecmp(exe1,exe2)!=0)
+       if (strcasecmp(pattern->exe,match->exe)!=0)
+            {
+            eventlog(eventlog_level_trace,__FUNCTION__,"filename differs");
 	    return 1; /* neq */
-	if (size1!=size2)
+            }
+	if (pattern->size!=match->size)
+            {
+            eventlog(eventlog_level_trace,__FUNCTION__,"size differs");
 	    return 1; /* neq */
-	if (abs((int)mktime(&t1)-mktime(&t2))>(signed)prefs_get_version_exeinfo_maxdiff())
+            }
+	if (abs(pattern->time-match->time)>(signed)prefs_get_version_exeinfo_maxdiff())
+            {
+            eventlog(eventlog_level_trace,__FUNCTION__,"time differs by %i",abs(pattern->time-match->time));
 	    return 1;
+            }
 	return 0; /* ok */
-#else
-	eventlog(eventlog_level_error,"versioncheck_compare_exeinfo","Your system does not support mktime(). Please select another exeinfo matching method.");
-	return -1; /* neq/fail */
-#endif
     } else {
 	eventlog(eventlog_level_error,"versioncheck_compare_exeinfo","unknown version exeinfo match method \"%s\"",prefs_get_version_exeinfo_match());
 	return -1; /* neq/fail */
     }
 }
 
+void free_parsed_exeinfo(t_parsed_exeinfo * parsed_exeinfo)
+{
+  if (parsed_exeinfo)
+  {
+    if (parsed_exeinfo->exe) 
+      free((void *)parsed_exeinfo->exe);
+    free((void *)parsed_exeinfo);
+  }
+}
 
 extern int versioncheck_validate(t_versioncheck * vc, char const * archtag, char const * clienttag, char const * exeinfo, unsigned long versionid, unsigned long gameversion, unsigned long checksum)
 {
-    t_elem const *  curr;
-    t_versioninfo * vi;
-    int             badexe,badcs;
+    t_elem const     * curr;
+    t_versioninfo    * vi;
+    int                badexe,badcs;
+    t_parsed_exeinfo * parsed_exeinfo;
     
     if (!vc)
     {
@@ -318,6 +364,7 @@ extern int versioncheck_validate(t_versioncheck * vc, char const * archtag, char
     }
     
     badexe=badcs = 0;
+    parsed_exeinfo = parse_exeinfo(exeinfo);
     LIST_TRAVERSE_CONST(versioninfo_head,curr)
     {
         if (!(vi = elem_get_data(curr))) /* should not happen */
@@ -341,7 +388,7 @@ extern int versioncheck_validate(t_versioncheck * vc, char const * archtag, char
 	if (vi->gameversion && vi->gameversion != gameversion)
 	    continue;
 	
-	if (vi->exeinfo && (versioncheck_compare_exeinfo(vi->exeinfo,exeinfo) != 0))
+	if (vi->parsed_exeinfo && (versioncheck_compare_exeinfo(vi->parsed_exeinfo,parsed_exeinfo) != 0))
 	{
 	    /*
 	     * Found an entry matching but the exeinfo doesn't match.
@@ -375,22 +422,26 @@ extern int versioncheck_validate(t_versioncheck * vc, char const * archtag, char
 	/* Ok, version and checksum matches or exeinfo/checksum are disabled
 	 * anyway we have found a complete match */
 	eventlog(eventlog_level_info,"versioncheck_validate","got a matching entry: %s",vc->versiontag);
+        free_parsed_exeinfo(parsed_exeinfo);
 	return 1;
     }
     
     if (badcs) /* A match was found but the checksum was different */
     {
 	eventlog(eventlog_level_info,"versioncheck_validate","bad checksum, closest match is: %s",vc->versiontag);
+        free_parsed_exeinfo(parsed_exeinfo);
 	return -1;
     }
     if (badexe) /* A match was found but the exeinfo string was different */
     {
 	eventlog(eventlog_level_info,"versioncheck_validate","bad exeinfo, closest match is: %s",vc->versiontag);
+        free_parsed_exeinfo(parsed_exeinfo);
 	return -1;
     }
     
     /* No match in list */
     eventlog(eventlog_level_info,"versioncheck_validate","no match in list, setting to: %s",vc->versiontag);
+    free_parsed_exeinfo(parsed_exeinfo);
     return 0;
 }
 
@@ -572,10 +623,10 @@ extern int versioncheck_load(char const * filename)
 	    continue;
 	}
 	if (strcmp(exeinfo, "NULL") == 0)
-	    vi->exeinfo = NULL;
+	    vi->parsed_exeinfo = NULL;
 	else
 	{
-	    if (!(vi->exeinfo = strdup(exeinfo)))
+	    if (!(vi->parsed_exeinfo = parse_exeinfo(exeinfo)))
 	    {
 		eventlog(eventlog_level_error,"versioncheck_load","could not allocate memory for exeinfo");
 		free((void *)vi->clienttag); /* avoid warning */
@@ -587,11 +638,12 @@ extern int versioncheck_load(char const * filename)
 		continue;
 	    }
 	}
+
 	vi->versionid = strtoul(versionid,NULL,0);
 	if (verstr_to_vernum(gameversion,&vi->gameversion)<0)
 	{
 	    eventlog(eventlog_level_error,"versioncheck_load","malformed version on line %u of file \"%s\"",line,filename);
-	    free((void *)vi->exeinfo); /* avoid warning */
+	    free((void *)vi->parsed_exeinfo); /* avoid warning */
 	    free((void *)vi->clienttag); /* avoid warning */
 	    free((void *)vi->archtag); /* avoid warning */
 	    free((void *)vi->mpqfile); /* avoid warning */
@@ -607,7 +659,7 @@ extern int versioncheck_load(char const * filename)
 	    if (!(vi->versiontag = strdup(versiontag)))
 	    {
 		eventlog(eventlog_level_error,"versioncheck_load","could not allocate memory for versiontag");
-		free((void *)vi->exeinfo); /* avoid warning */
+		free((void *)vi->parsed_exeinfo); /* avoid warning */
 		free((void *)vi->clienttag); /* avoid warning */
 		free((void *)vi->archtag); /* avoid warning */
 		free((void *)vi->mpqfile); /* avoid warning */
@@ -627,7 +679,7 @@ extern int versioncheck_load(char const * filename)
 	    eventlog(eventlog_level_error,"versioncheck_load","could not append item");
 	    if (vi->versiontag)
 	      free((void *)vi->versiontag); /* avoid warning */
-	    free((void *)vi->exeinfo); /* avoid warning */
+	    free((void *)vi->parsed_exeinfo); /* avoid warning */
 	    free((void *)vi->clienttag); /* avoid warning */
 	    free((void *)vi->archtag); /* avoid warning */
 	    free((void *)vi->mpqfile); /* avoid warning */
@@ -662,8 +714,12 @@ extern int versioncheck_unload(void)
 	    if (list_remove_elem(versioninfo_head,curr)<0)
 		eventlog(eventlog_level_error,"versioncheck_unload","could not remove item from list");
 
-	    if (vi->exeinfo)
-		free((void *)vi->exeinfo); /* avoid warning */
+	    if (vi->parsed_exeinfo)
+            {
+                if (vi->parsed_exeinfo->exe)
+                    free((void *)vi->parsed_exeinfo->exe);
+		free((void *)vi->parsed_exeinfo); /* avoid warning */
+            }
 	    free((void *)vi->clienttag); /* avoid warning */
 	    free((void *)vi->archtag); /* avoid warning */
 	    free((void *)vi->mpqfile); /* avoid warning */

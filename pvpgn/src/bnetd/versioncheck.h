@@ -23,15 +23,24 @@
 #ifdef VERSIONCHECK_INTERNAL_ACCESS
 typedef struct
 {
-    char const *  eqn;
-    char const *  mpqfile;
-    char const *  archtag;
-    char const *  clienttag;
-    char const *  versiontag;
-    char const *  exeinfo;
-    unsigned long versionid;
-    unsigned long gameversion;
-    unsigned long checksum;
+    char const * exe;
+    int          time;
+    int		 size;
+} t_parsed_exeinfo;
+#endif
+
+#ifdef VERSIONCHECK_INTERNAL_ACCESS
+typedef struct
+{
+    char const *       eqn;
+    char const *       mpqfile;
+    char const *       archtag;
+    char const *       clienttag;
+    char const *       versiontag;
+    t_parsed_exeinfo * parsed_exeinfo;
+    unsigned long      versionid;
+    unsigned long      gameversion;
+    unsigned long      checksum;
 } t_versioninfo;
 #endif
 

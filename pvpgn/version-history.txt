@@ -53,6 +53,9 @@ that have allready been deleted from the server earlier
 (caused due to unwanted renaming of the columns on next server startup)
 -- added IRC style channel topics that get shown on channel join (with /topic
 command)
+-- speedup of versioncheck parsing (note: it seems like comparing file time
+wasn't working as it should before, so u might now need to increase
+version_exeinfo_maxdiff a bit [for me I had 3601 secs diff but 3600 allowed)
 
 
 1.5.0beta3:
