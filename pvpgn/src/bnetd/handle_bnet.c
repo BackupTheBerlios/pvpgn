@@ -3462,13 +3462,14 @@ static int _client_adack(t_connection * c, t_packet const * const packet)
       return -1;
    }
    
+   /*
      {
 	char const * tname;
 	
 	eventlog(eventlog_level_info,__FUNCTION__,"[%d] ad acknowledgement for adid 0x%04x from \"%s\"",conn_get_socket(c),bn_int_get(packet->u.client_adack.adid),(tname = conn_get_chatname(c)));
 	conn_unget_chatname(c,tname);
      }
-   
+   */
    return 0;
 }
 
