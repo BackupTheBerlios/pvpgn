@@ -232,6 +232,7 @@ static int load_initial_data (t_character * character, t_character_class class, 
 	case character_class_barbarian:
 	    data_in_hex = "84 80 FF FF FF FF FF FF FF FF FF FF FF 05 FF FF FF FF FF FF FF FF FF FF FF 01 81 80 80 80 FF FF FF";
 	    break;
+	default: break; //should never reach that part ot the code... but to make compiler happy...
 	}
 	break;
     case character_expansion_lod:
@@ -258,7 +259,9 @@ static int load_initial_data (t_character * character, t_character_class class, 
 	case character_class_assassin:
 	    data_in_hex = "84 80 FF FF FF FF FF FF FF FF FF FF FF 07 FF FF FF FF FF FF FF FF FF FF FF 01 A1 80 80 80 FF FF FF";
 	    break;
+	default: break; // again we will never get here... but how can compiler know that?!?
 	}
+    default: break; // well... like I said 2 times before....
     }
 
     character->datalen = hex_to_str(data_in_hex, character->data, 33);
