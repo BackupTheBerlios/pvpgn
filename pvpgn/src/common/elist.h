@@ -37,6 +37,8 @@ typedef struct elist_struct {
 
 #define __elist_init(elist,val) { (elist)->next = (elist)->prev = (val); }
 #define elist_init(elist) __elist_init(elist,elist)
+#define DECLARE_ELIST_INIT(var) \
+    t_elist var = { &var, &var };
 
 /* link an new node just after "where" */
 static inline void elist_add(t_elist *where, t_elist *what)
