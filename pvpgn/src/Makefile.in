@@ -86,6 +86,11 @@ LINK_LIBS	= @LIBS@
 
 PARTS            = bnetd bniutils bnpass bnpcap bnproxy bntrackd client common compat d2cs d2dbs tinycdb zlib
 
+ifeq (@enable_bnetd@,no)
+bnetd_SBIN	=
+bnetd_CONFS	=
+bnetd_OBJECTS	=
+else
 bnetd_SBIN	= ${SRC_SBINDIR}/bnetd
 bnetd_CONFS	= bnetd.conf ad.conf channel.conf realm.conf autoupdate.conf \
 		  bnetd_default_user.plain bnetd_default_user.cdb \
@@ -213,8 +218,13 @@ ${SRC_ZLIBDIR}/pvpgn_adler32.o \
 ${SRC_ZLIBDIR}/pvpgn_deflate.o \
 ${SRC_ZLIBDIR}/pvpgn_trees.o \
 ${SRC_ZLIBDIR}/pvpgn_zutil.o
+endif
 
-
+ifeq (@enable_d2cs@,no)
+d2cs_SBIN	=
+d2cs_CONFS	=
+d2cs_OBJECTS	=
+else
 d2cs_SBIN       = ${SRC_SBINDIR}/d2cs
 d2cs_CONFS	= d2cs.conf d2server.ini address_translation.conf
 d2cs_OBJECTS	= ${SRC_D2CSDIR}/main.o \
@@ -275,7 +285,13 @@ ${SRC_COMPATDIR}/pdir.o \
 ${SRC_COMPATDIR}/memset.o \
 ${SRC_COMPATDIR}/memcpy.o \
 ${SRC_COMPATDIR}/memmove.o
+endif
 
+ifeq (@enable_d2dbs@,no)
+d2dbs_SBIN	=
+d2dbs_CONFS	=
+d2dbs_OBJECTS	=
+else
 d2dbs_SBIN      = ${SRC_SBINDIR}/d2dbs
 d2dbs_CONFS	= d2dbs.conf
 d2dbs_OBJECTS	= ${SRC_D2DBSDIR}/main.o \
@@ -300,6 +316,7 @@ ${SRC_COMMONDIR}/xalloc.o \
 ${SRC_COMPATDIR}/psock.o \
 ${SRC_COMPATDIR}/strerror.o \
 ${SRC_COMPATDIR}/strsep.o
+endif
 
 sbnetd_SBIN	= ${SRC_SBINDIR}/sbnetd
 sbnetd_OBJECTS	= ${SRC_DEBUGDIR}/sbnetd.o \

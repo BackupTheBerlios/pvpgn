@@ -2,11 +2,12 @@ PvPGN Version History:
 
  Changelog for 1.7.2 (since 1.7.1)
 ===================================
-[MISC]
-  -- fixed problem with language specific channels
-
 [WIN32 GUI]
   -- fixed problem with running d2cs & d2dbs as services (gui versions)
+
+[MISC]
+  -- fixed problem with language specific channels
+  -- added UNIX build configure options to disable bnetd/d2cs/d2dbs builds
 
  ChangeLog for 1.7.1 (since 1.7.0)
 ===================================

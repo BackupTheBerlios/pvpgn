@@ -148,6 +148,17 @@ if test -z "$ac_cv_func_poll"; then
 	esac
 fi
 
+# disable parts of the build process
+AC_ARG_ENABLE(bnetd,
+[  --enable-bnetd          Enable building of bnetd server (default)
+  --disable-bnetd         Disable building of bnetd server])
+AC_ARG_ENABLE(d2cs,
+[  --enable-d2cs           Enable building of d2cs server (default)
+  --disable-d2cs          Disable building of d2cs server])
+AC_ARG_ENABLE(d2dbs,
+[  --enable-d2dbs          Enable building of d2dbs server (default)
+  --disable-d2dbs         Disable building of d2dbs server])
+
 LDFLAGS="${LDFLAGS} ${extra_lib_dir}"
 LIBS="${LIBS} ${extra_lib}"
 CFLAGS="${CFLAGS} ${zlangflags} ${zwarnflags}"
@@ -157,6 +168,9 @@ CPPFLAGS="${CPPFLAGS} ${extra_include}"
 # This is our invention so we have to substitute it ourselves
 # autoconf uses DEFS
 AC_SUBST(DEFINES)
+AC_SUBST(enable_bnetd)
+AC_SUBST(enable_d2cs)
+AC_SUBST(enable_d2dbs)
 
 # Checks for compiler quirks.
 AC_PROG_GCC_TRADITIONAL
