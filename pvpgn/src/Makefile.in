@@ -78,12 +78,12 @@ INSTALL_DIRS	= @INSTALL@ -d -m 755
 # CC set by configure
 # CFLAGS set by configure
 CPPFLAGS	= @DEFS@ @DEFINES@ -DBNETD_DEFAULT_CONF_FILE=\"${confdir}/bnetd.conf\" -DD2CS_DEFAULT_CONF_FILE=\"${confdir}/d2cs.conf\" -DD2DBS_DEFAULT_CONF_FILE=\"${confdir}/d2dbs.conf\" -I"${SRC_SRCDIR}" @CPPFLAGS@
-COMPILE		= @CC@ @CFLAGS@ ${CPPFLAGS} -fno-strict-aliasing
+COMPILE		= @CC@ @CFLAGS@ ${CPPFLAGS} -fno-strict-aliasing -c
 #PREPROCESS	= @CPP@ ${CPPFLAGS}
 LINK		= @CC@ @CFLAGS@ @LDFLAGS@
 LINK_LIBS	= @LIBS@
 
-PARTS            = bnetd bniutils bnpass bnpcap bnproxy bntrackd client common compat d2cs d2dbs tinycdb
+PARTS            = bnetd bniutils bnpass bnpcap bnproxy bntrackd client common compat d2cs d2dbs tinycdb zlib
 
 bnetd_SBIN	= ${SRC_SBINDIR}/bnetd
 bnetd_OBJECTS	= ${SRC_BNETDDIR}/main.o \
@@ -519,7 +519,7 @@ DIRS		= ${SRC_BINDIR} ${SRC_SBINDIR}
 
 
 .PHONY: all
-all: @ANSI2KNR_DEP@ config ${SBINS} ${BINS} ${SRC_CONFDIR}/bnetd.conf ${SRC_CONFDIR}/d2cs.conf ${SRC_CONFDIR}/d2dbs.conf
+all: .dep @ANSI2KNR_DEP@ config ${SBINS} ${BINS} ${SRC_CONFDIR}/bnetd.conf ${SRC_CONFDIR}/d2cs.conf ${SRC_CONFDIR}/d2dbs.conf
 
 .PHONY: clean
 clean:
@@ -547,7 +547,7 @@ cvsclean: distclean
 clean-compile: clean all
 
 .PHONY: config
-config: ${SRC_SRCDIR}/Makefile ${SRC_SRCDIR}/config.h
+config: .dep ${SRC_SRCDIR}/Makefile ${SRC_SRCDIR}/config.h
 
 ${SRC_SRCDIR}/configure: ${SRC_SRCDIR}/configure.in
 	@${ECHO} "The configure script is out of date; rebuilding..."
@@ -585,10 +585,10 @@ ${SRC_SBINDIR}:
 	${INSTALL_DIRS} $@
 
 .PHONY: bnetd
-bnetd: ${bnetd_SBIN}
+bnetd: .dep ${bnetd_SBIN}
 
 .PHONY: install
-install: install-sbin install-bin install-man install-conf install-share
+install: .dep install-sbin install-bin install-man install-conf install-share
 
 .PHONY: install-bnetd
 install-bnetd: ${bnetd_SBIN}
@@ -727,6 +727,9 @@ ${SRC_ACDIR}/ansi2knr.o: ${SRC_ACDIR}/ansi2knr.c
 	@COMPILEANSI1@
 	@COMPILEANSI2@
 	@COMPILEANSI3@
+
+.dep:
+	${MAKE} dep
 
 dep:
 	@${RMF} .dep
