@@ -191,7 +191,26 @@ static void do_whois(t_connection * c, char const * dest)
     
     if (!(dest_c = connlist_find_connection_by_name(dest,conn_get_realmname(c))))
     {
-	message_send_text(c,message_type_error,c,"That user is not logged on.");
+	t_account * dest_a;
+	t_bnettime btlogin;
+	time_t ulogin;
+	struct tm * tmlogin;
+
+	if (!(dest_a = accountlist_find_account(dest))) {
+	    message_send_text(c,message_type_error,c,"Unknown user.");
+	    return;
+	}
+
+	if (conn_get_class(c) == conn_class_bnet) {
+	    btlogin = time_to_bnettime((time_t)account_get_ll_time(dest_a),0);
+	    btlogin = bnettime_add_tzbias(btlogin, conn_get_tzbias(c));
+	    ulogin = bnettime_to_time(btlogin);
+	    if (!(tmlogin = gmtime(&ulogin)))
+		strcpy(temp, "User was last seen on ?");
+	    else
+		strftime(temp, sizeof(temp), "User was last seen on : %a %b %d %H:%M:%S",tmlogin);
+	} else strcpy(temp, "User is offline");
+	message_send_text(c, message_type_info, c, temp);
 	return;
     }
     
