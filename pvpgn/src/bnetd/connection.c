@@ -128,11 +128,11 @@ static void conn_send_welcome(t_connection * c)
 	return;
     }
     
-    if (c->cflags & conn_flags_welcomed)
+    if (c->protocol.cflags & conn_flags_welcomed)
 	return;
     if (conn_get_class(c)==conn_class_irc)
     {
-	c->cflags|= conn_flags_welcomed;
+	c->protocol.cflags|= conn_flags_welcomed;
 	return;
     }
     if ((filename = prefs_get_motdfile()))
@@ -146,7 +146,7 @@ static void conn_send_welcome(t_connection * c)
 	else
 	  { eventlog(eventlog_level_error,__FUNCTION__,"could not open MOTD file \"%s\" for reading (fopen: %s)",filename,strerror(errno)); }
     }
-    c->cflags|= conn_flags_welcomed;
+    c->protocol.cflags|= conn_flags_welcomed;
 }
 
 
@@ -364,82 +364,83 @@ extern t_connection * conn_create(int tsock, int usock, unsigned int real_local_
     temp->socket.tcp_port               = port;
     temp->socket.udp_sock               = usock;
     temp->socket.udp_addr               = addr; /* same for now but client can request it to be different */
-    temp->socket.udp_port               = port;
     temp->socket.local_addr             = local_addr;
     temp->socket.local_port             = local_port;
     temp->socket.real_local_addr        = real_local_addr;
     temp->socket.real_local_port        = real_local_port;
-    temp->class                  = conn_class_init;
-    temp->state                  = conn_state_initial;
-    temp->sessionkey             = ((unsigned int)rand())^((unsigned int)time(NULL)+(unsigned int)real_local_port);
-    temp->sessionnum             = sessionnum++;
-    temp->secret                 = ((unsigned int)rand())^(totalcount+((unsigned int)time(NULL)));
-    temp->flags                  = MF_PLUG;
-    temp->latency                = 0;
-    temp->settings.dnd           = NULL;
-    temp->settings.away          = NULL;
-    temp->settings.ignore_list   = NULL;
-    temp->settings.ignore_count  = 0;
-    temp->settings.quota.totcount= 0;
-    if (!(temp->settings.quota.list = list_create()))
+    temp->socket.udp_port               = port;
+    temp->protocol.class                = conn_class_init;
+    temp->protocol.state                = conn_state_initial;
+    temp->protocol.sessionkey           = ((unsigned int)rand())^((unsigned int)time(NULL)+(unsigned int)real_local_port);
+    temp->protocol.sessionnum           = sessionnum++;
+    temp->protocol.secret               = ((unsigned int)rand())^(totalcount+((unsigned int)time(NULL)));
+    temp->protocol.flags                = MF_PLUG;
+    temp->protocol.latency              = 0;
+    temp->protocol.chat.dnd                      = NULL;
+    temp->protocol.chat.away                     = NULL;
+    temp->protocol.chat.ignore_list              = NULL;
+    temp->protocol.chat.ignore_count             = 0;
+    temp->protocol.chat.quota.totcount           = 0;
+    if (!(temp->protocol.chat.quota.list = list_create()))
     {
 	free(temp);
         eventlog(eventlog_level_error,"conn_create","could not create quota list");
 	return NULL;
     }
-    temp->versionid              = 0;
-    temp->gameversion		 = 0;
-    temp->checksum		 = 0;
-    temp->archtag                = NULL;
-    temp->clienttag       = NULL;
-    temp->clientver       = NULL;
-    temp->gamelang	 = 0;
-    temp->country                = NULL;
-    temp->tzbias                 = 0;
-    temp->account                = NULL;
-    temp->channel                = NULL;
-    temp->game                   = NULL;
-    temp->queues.outqueue        = NULL;
-    temp->queues.outsize         = 0;
-    temp->queues.outsizep        = 0;
-    temp->queues.inqueue         = NULL;
-    temp->queues.insize          = 0;
-    temp->host                   = NULL;
-    temp->user                   = NULL;
-    temp->clientexe       = NULL;
-    temp->owner                  = NULL;
-    temp->cdkey                  = NULL;
-    temp->botuser                = NULL;
-    temp->last_message           = time(NULL);
-    temp->realmname              = NULL;
-    temp->character              = NULL;
-    temp->bound                  = NULL;
-    temp->lastsender             = NULL;
-    temp->realminfo              = NULL;
-    temp->charname               = NULL;
-    temp->versioncheck           = NULL;
-    temp->irc.ircline		 = NULL;
-    temp->irc.ircping		 = 0;
-    temp->irc.ircpass		 = NULL;
-    temp->w3_username    = NULL;
-    temp->anon.routeconn      = NULL;
-    temp->anon.anongame	 = NULL;
-    temp->cr_time        = time(NULL);
-    temp->passfail_count = 0;
-	
-    temp->w3_playerinfo = NULL;
+    temp->protocol.client.versionid              = 0;
+    temp->protocol.client.gameversion            = 0;
+    temp->protocol.client.checksum               = 0;
+    temp->protocol.client.archtag                = NULL;
+    temp->protocol.client.clienttag              = NULL;
+    temp->protocol.client.clientver              = NULL;
+    temp->protocol.client.gamelang               = 0;
+    temp->protocol.client.country                = NULL;
+    temp->protocol.client.tzbias                 = 0;
+    temp->protocol.client.host                   = NULL;
+    temp->protocol.client.user                   = NULL;
+    temp->protocol.client.clientexe              = NULL;
+    temp->protocol.client.owner                  = NULL;
+    temp->protocol.client.cdkey                  = NULL;
+    temp->protocol.client.versioncheck           = NULL;
+    temp->protocol.account                       = NULL;
+    temp->protocol.chat.channel                  = NULL;
+    temp->protocol.chat.last_message             = time(NULL);
+    temp->protocol.chat.lastsender               = NULL;
+    temp->protocol.chat.irc.ircline              = NULL;
+    temp->protocol.chat.irc.ircping              = 0;
+    temp->protocol.chat.irc.ircpass              = NULL;
+    temp->protocol.game                     = NULL;
+    temp->protocol.queues.outqueue               = NULL;
+    temp->protocol.queues.outsize                = 0;
+    temp->protocol.queues.outsizep               = 0;
+    temp->protocol.queues.inqueue                = NULL;
+    temp->protocol.queues.insize                 = 0;
+    temp->protocol.botuser              = NULL;
+    temp->protocol.d2.realmname                  = NULL;
+    temp->protocol.d2.character                  = NULL;
+    temp->protocol.d2.realminfo                  = NULL;
+    temp->protocol.d2.charname                   = NULL;
+    temp->protocol.w3.w3_username                = NULL;
+    temp->protocol.w3.w3_playerinfo              = NULL;
+    temp->protocol.w3.routeconn                  = NULL;
+    temp->protocol.w3.anongame                   = NULL;
+    temp->protocol.w3.anongame_search_starttime  = 0;
+    temp->protocol.bound                         = NULL;
+    temp->protocol.cr_time                       = time(NULL);
+    temp->protocol.passfail_count                = 0;
 
-    temp->anon.anongame_search_starttime = 0;
-    temp->cflags		= 0;
+
+    temp->protocol.cflags                        = 0;
 	
     if (list_prepend_data(conn_head,temp)<0)
     {
+	list_destroy(temp->protocol.chat.quota.list);
 	free(temp);
 	eventlog(eventlog_level_error,"conn_create","could not prepend temp");
 	return NULL;
     }
     
-    eventlog(eventlog_level_info,"conn_create","[%d][%d] sessionkey=0x%08x sessionnum=0x%08x",temp->socket.tcp_sock,temp->socket.udp_sock,temp->sessionkey,temp->sessionnum);
+    eventlog(eventlog_level_info,"conn_create","[%d][%d] sessionkey=0x%08x sessionnum=0x%08x",temp->socket.tcp_sock,temp->socket.udp_sock,temp->protocol.sessionkey,temp->protocol.sessionnum);
     
     return temp;
 }
@@ -450,9 +451,9 @@ extern t_anongame * conn_create_anongame(t_connection *c)
     t_anongame * temp;
     int i;
 
-    if(c->anon.anongame) {
+    if(c->protocol.w3.anongame) {
         eventlog(eventlog_level_error,"conn_create_anongame","anongame already allocated");
-	return c->anon.anongame;
+	return c->protocol.w3.anongame;
     }
 
     if (!(temp = malloc(sizeof(t_anongame))))
@@ -480,7 +481,7 @@ extern t_anongame * conn_create_anongame(t_connection *c)
     temp->queue		= 0;
     temp->info		= NULL;
 
-    c->anon.anongame = temp;
+    c->protocol.w3.anongame = temp;
 
     return temp;
 }
@@ -491,7 +492,7 @@ extern t_anongame * conn_get_anongame(t_connection *c)
 	eventlog(eventlog_level_error,"conn_get_anongame","got NULL connection");
 	return NULL;
     }
-    return c->anon.anongame;
+    return c->protocol.w3.anongame;
 }
 
 extern void conn_destroy_anongame(t_connection *c)
@@ -504,7 +505,7 @@ extern void conn_destroy_anongame(t_connection *c)
 	return;
     }
 
-    if (!(a = c->anon.anongame))
+    if (!(a = c->protocol.w3.anongame))
     {
 	eventlog(eventlog_level_error,"conn_destroy_anongame","NULL anongame");
 	return;
@@ -520,13 +521,13 @@ extern void conn_destroy_anongame(t_connection *c)
 	// [quetzal] 20020824 
     // unqueue from anongame search list,
 	// if we got AT game, unqueue entire team.
-    if (anongame_arranged(a->queue)) {
-	anongame_unqueue(a->tc[0], a->queue);
-    } else {
-	anongame_unqueue(c, a->queue);
-    }
-    free(c->anon.anongame);
-    c->anon.anongame = NULL;
+	if (anongame_arranged(a->queue)) {
+		anongame_unqueue(a->tc[0], a->queue);
+	} else {
+		anongame_unqueue(c, a->queue);
+	}
+    free(c->protocol.w3.anongame);
+    c->protocol.w3.anongame = NULL;
 }
 
 extern void conn_destroy(t_connection * c)
@@ -539,15 +540,15 @@ extern void conn_destroy(t_connection * c)
 	return;
     }
 
-    classstr = conn_class_get_str(c->class);
-    
+    classstr = conn_class_get_str(c->protocol.class);
+
     if (list_remove_data(conn_head,c)<0)
     {
 	eventlog(eventlog_level_error,"conn_destroy","could not remove item from list");
 	return;
     }
-    
-    if (c->class==conn_class_d2cs_bnetd)
+
+    if (c->protocol.class==conn_class_d2cs_bnetd)
     {
         t_realm * realm;
 
@@ -559,13 +560,13 @@ extern void conn_destroy(t_connection * c)
              eventlog(eventlog_level_error,"conn_destroy","could not find realm for d2cs connection");
         }
     }
-    else if (c->class == conn_class_w3route && c->anon.routeconn && c->anon.routeconn->anon.anongame)
+    else if (c->protocol.class == conn_class_w3route && c->protocol.w3.routeconn && c->protocol.w3.anongame)
     {
 	anongame_stats(c);
-	conn_destroy_anongame(c->anon.routeconn);  // [zap-zero] destroy anongame too when game connection is invalid
+	conn_destroy_anongame(c->protocol.w3.routeconn);  // [zap-zero] destroy anongame too when game connection is invalid
     }
 
-    if (c->realmname) {
+    if (c->protocol.d2.realmname) {
         realm_add_player_number(realmlist_find_realm(conn_get_realmname(c)),-1);
     }
 
@@ -575,94 +576,94 @@ extern void conn_destroy(t_connection * c)
 	t_qline * qline;
 	t_elem *  curr;
 	
-	LIST_TRAVERSE(c->settings.quota.list,curr)
+	LIST_TRAVERSE(c->protocol.chat.quota.list,curr)
 	{
 	    qline = elem_get_data(curr);
 	    free(qline);
-	    list_remove_elem(c->settings.quota.list,curr);
+	    list_remove_elem(c->protocol.chat.quota.list,curr);
 	}
-	list_destroy(c->settings.quota.list);
+	list_destroy(c->protocol.chat.quota.list);
     }
-    
+
     /* if this user in a channel, notify everyone that the user has left */
-    if (c->channel)
-	channel_del_connection(c->channel,c);
-    
-   conn_set_game(c,NULL,NULL,NULL,game_type_none,0);
-   c->state = conn_state_empty;
-   
+    if (c->protocol.chat.channel)
+	channel_del_connection(c->protocol.chat.channel,c);
+
+    conn_set_game(c,NULL,NULL,NULL,game_type_none,0);
+    c->protocol.state = conn_state_empty;
+
     watchlist_del_all_events(c);
     timerlist_del_all_timers(c);
     
     clanmember_set_offline(c);
 
-    if(c->account)
-	watchlist_notify_event(c->account,NULL,conn_get_clienttag(c),watch_event_logout);
+    if(c->protocol.account)
+	watchlist_notify_event(c->protocol.account,NULL,conn_get_clienttag(c),watch_event_logout);
+
+    if (c->protocol.client.versioncheck)
+	versioncheck_destroy((void *)c->protocol.client.versioncheck); /* avoid warning */
+
+    if (c->protocol.chat.lastsender)
+	free((void *)c->protocol.chat.lastsender); /* avoid warning */
     
-    if (c->versioncheck)
-	versioncheck_destroy((void *)c->versioncheck); /* avoid warning */
+    if (c->protocol.chat.away)
+	free((void *)c->protocol.chat.away); /* avoid warning */
+    if (c->protocol.chat.dnd)
+	free((void *)c->protocol.chat.dnd); /* avoid warning */
     
-    if (c->lastsender)
-	free((void *)c->lastsender); /* avoid warning */
-    
-    if (c->settings.away)
-	free((void *)c->settings.away); /* avoid warning */
-    if (c->settings.dnd)
-	free((void *)c->settings.dnd); /* avoid warning */
-    
-    if (c->clienttag)
-	free((void *)c->clienttag); /* avoid warning */
-    if (c->archtag)
-	free((void *)c->archtag); /* avoid warning */
-    if (c->clientver)
-	free((void *)c->clientver); /* avoid warning */
-    if (c->country)
-	free((void *)c->country); /* avoid warning */
-    if (c->host)
-	free((void *)c->host); /* avoid warning */
-    if (c->user)
-	free((void *)c->user); /* avoid warning */
-    if (c->clientexe)
-	free((void *)c->clientexe); /* avoid warning */
-    if (c->owner)
-	free((void *)c->owner); /* avoid warning */
-    if (c->cdkey)
-	free((void *)c->cdkey); /* avoid warning */
-    if (c->botuser)
-	free((void *)c->botuser); /* avoid warning */
-    if (c->realmname)
-	free((void *)c->realmname); /* avoid warning */
-    if (c->realminfo)
-	free((void *)c->realminfo); /* avoid warning */
-    if (c->charname)
-	free((void *)c->charname); /* avoid warning */
-    if (c->irc.ircline)
-	free((void *)c->irc.ircline); /* avoid warning */
-    if (c->irc.ircpass)
-	free((void *)c->irc.ircpass); /* avoid warning */
-    if (c->w3_username)
-	free((void *)c->w3_username); /* avoid warning */
+    if (c->protocol.client.clienttag)
+	free((void *)c->protocol.client.clienttag); /* avoid warning */
+    if (c->protocol.client.archtag)
+	free((void *)c->protocol.client.archtag); /* avoid warning */
+    if (c->protocol.client.clientver)
+	free((void *)c->protocol.client.clientver); /* avoid warning */
+    if (c->protocol.client.country)
+	free((void *)c->protocol.client.country); /* avoid warning */
+    if (c->protocol.client.host)
+	free((void *)c->protocol.client.host); /* avoid warning */
+    if (c->protocol.client.user)
+	free((void *)c->protocol.client.user); /* avoid warning */
+    if (c->protocol.client.clientexe)
+	free((void *)c->protocol.client.clientexe); /* avoid warning */
+    if (c->protocol.client.owner)
+	free((void *)c->protocol.client.owner); /* avoid warning */
+    if (c->protocol.client.cdkey)
+	free((void *)c->protocol.client.cdkey); /* avoid warning */
+    if (c->protocol.botuser)
+	free((void *)c->protocol.botuser); /* avoid warning */
+    if (c->protocol.d2.realmname)
+	free((void *)c->protocol.d2.realmname); /* avoid warning */
+    if (c->protocol.d2.realminfo)
+	free((void *)c->protocol.d2.realminfo); /* avoid warning */
+    if (c->protocol.d2.charname)
+	free((void *)c->protocol.d2.charname); /* avoid warning */
+    if (c->protocol.chat.irc.ircline)
+	free((void *)c->protocol.chat.irc.ircline); /* avoid warning */
+    if (c->protocol.chat.irc.ircpass)
+	free((void *)c->protocol.chat.irc.ircpass); /* avoid warning */
+    if (c->protocol.w3.w3_username)
+	free((void *)c->protocol.w3.w3_username); /* avoid warning */
 
     /* ADDED BY UNDYING SOULZZ 4/8/02 */
-    if (c->w3_playerinfo)
-	free((void *)c->w3_playerinfo); /* avoid warning */ 
+    if (c->protocol.w3.w3_playerinfo)
+	free((void *)c->protocol.w3.w3_playerinfo); /* avoid warning */ 
 
-    if (c->bound)
-	c->bound->bound = NULL;
+    if (c->protocol.bound)
+	c->protocol.bound->protocol.bound = NULL;
     
-    if (c->settings.ignore_count>0)
+    if (c->protocol.chat.ignore_count>0)
     {
-	if (!c->settings.ignore_list)
-	  { eventlog(eventlog_level_error,"conn_destroy","found NULL ignore_list with ignore_count=%u",c->settings.ignore_count); }
+	if (!c->protocol.chat.ignore_list)
+	  { eventlog(eventlog_level_error,"conn_destroy","found NULL ignore_list with ignore_count=%u",c->protocol.chat.ignore_count); }
 	else
-	  { free(c->settings.ignore_list); }
+	  { free(c->protocol.chat.ignore_list); }
     }
-    
-    if (c->account)
+
+    if (c->protocol.account)
     {
 	char const * tname;
 	
-	tname = account_get_name(c->account);
+	tname = account_get_name(c->protocol.account);
 	eventlog(eventlog_level_info,"conn_destroy","[%d] \"%s\" logged out",c->socket.tcp_sock,tname);
 	account_unget_name(tname);
 	//amadeo
@@ -670,11 +671,11 @@ extern void conn_destroy(t_connection * c)
 						guiOnUpdateUserList();
 #endif
 
-	if (account_get_conn(c->account)==c)  /* make sure you don't set this when allready on new conn (relogin with same account) */
-	    account_set_conn(c->account,NULL);
-	c->account = NULL; /* the account code will free the memory later */
+	if (account_get_conn(c->protocol.account)==c)  /* make sure you don't set this when allready on new conn (relogin with same account) */
+	    account_set_conn(c->protocol.account,NULL);
+	c->protocol.account = NULL; /* the account code will free the memory later */
     }
-    
+
     /* make sure the connection is closed */
     if (c->socket.tcp_sock!=-1) { /* -1 means that the socket was already closed by conn_close() */
 	fdwatch_del_fd(c->socket.tcp_sock);
@@ -682,19 +683,19 @@ extern void conn_destroy(t_connection * c)
 	psock_close(c->socket.tcp_sock);
     }
     /* clear out the packet queues */
-    queue_clear(&c->queues.inqueue);
-    queue_clear(&c->queues.outqueue);
+    queue_clear(&c->protocol.queues.inqueue);
+    queue_clear(&c->protocol.queues.outqueue);
 
     // [zap-zero] 20020601
-    if (c->anon.routeconn) {
-	c->anon.routeconn->anon.routeconn = NULL;
-	if(c->anon.routeconn->class == conn_class_w3route)
-	    conn_set_state(c->anon.routeconn, conn_state_destroy);
+    if (c->protocol.w3.routeconn) {
+	c->protocol.w3.routeconn->protocol.w3.routeconn = NULL;
+	if(c->protocol.w3.routeconn->protocol.class == conn_class_w3route)
+	    conn_set_state(c->protocol.w3.routeconn, conn_state_destroy);
     }
 
-    if(c->anon.anongame)
+    if(c->protocol.w3.anongame)
 	conn_destroy_anongame(c);
-    
+
     /* delete the conn from the dead list if its there, we dont check for error
      * because connections may be destroyed without first setting state to destroy */
     list_remove_data(conn_dead, c);
@@ -718,10 +719,10 @@ extern int conn_match(t_connection const * c, char const * username)
         return -1;
     }
     
-    if (!c->account)
+    if (!c->protocol.account)
 	return 0;
     
-    return account_match(c->account,username);
+    return account_match(c->protocol.account,username);
 }
 
 
@@ -733,7 +734,7 @@ extern t_conn_class conn_get_class(t_connection const * c)
         return conn_class_none;
     }
     
-    return c->class;
+    return c->protocol.class;
 }
 
 
@@ -748,10 +749,10 @@ extern void conn_set_class(t_connection * c, t_conn_class class)
         return;
     }
     
-    if (c->class==class)
+    if (c->protocol.class==class)
 	return;
     
-    c->class = class;
+    c->protocol.class = class;
     
     if (class==conn_class_bnet)
     {
@@ -812,7 +813,7 @@ extern t_conn_state conn_get_state(t_connection const * c)
         return conn_state_empty;
     }
     
-    return c->state;
+    return c->protocol.state;
 }
 
 
@@ -825,20 +826,20 @@ extern void conn_set_state(t_connection * c, t_conn_state state)
     }
 
     /* special case for destroying connections, add them to conn_dead list */
-    if (state == conn_state_destroy && c->state != conn_state_destroy) {
+    if (state == conn_state_destroy && c->protocol.state != conn_state_destroy) {
 	if (!conn_dead && !(conn_dead = list_create())) {
 	    eventlog(eventlog_level_error, __FUNCTION__, "could not initilize conn_dead list");
 	    return;
 	}
 	list_append_data(conn_dead, c);
     }
-    else if (state != conn_state_destroy && c->state == conn_state_destroy)
+    else if (state != conn_state_destroy && c->protocol.state == conn_state_destroy)
 	if (list_remove_data(conn_dead, c)) {
 	    eventlog(eventlog_level_error, __FUNCTION__, "could not remove dead connection");
 	    return;
 	}
 
-    c->state = state;
+    c->protocol.state = state;
 }
 
 extern unsigned int conn_get_sessionkey(t_connection const * c)
@@ -849,7 +850,7 @@ extern unsigned int conn_get_sessionkey(t_connection const * c)
         return 0;
     }
     
-    return c->sessionkey;
+    return c->protocol.sessionkey;
 }
 
 
@@ -860,8 +861,8 @@ extern unsigned int conn_get_sessionnum(t_connection const * c)
         eventlog(eventlog_level_error,"conn_get_sessionnum","got NULL connection");
         return 0;
     }
-    
-    return c->sessionnum;
+
+    return c->protocol.sessionnum;
 }
 
 
@@ -872,8 +873,8 @@ extern unsigned int conn_get_secret(t_connection const * c)
         eventlog(eventlog_level_error,"conn_get_secret","got NULL connection");
         return 0;
     }
-    
-    return c->secret;
+
+    return c->protocol.secret;
 }
 
 
@@ -1012,10 +1013,10 @@ extern void conn_set_host(t_connection * c, char const * host)
         return;
     }
     
-    if (c->host)
-	free((void *)c->host); /* avoid warning */
-    if (!(c->host = strdup(host)))
-	eventlog(eventlog_level_error,"conn_set_host","could not allocate memory for c->host");
+    if (c->protocol.client.host)
+	free((void *)c->protocol.client.host); /* avoid warning */
+    if (!(c->protocol.client.host = strdup(host)))
+	eventlog(eventlog_level_error,"conn_set_host","could not allocate memory for c->protocol.client.host");
 }
 
 
@@ -1031,11 +1032,11 @@ extern void conn_set_user(t_connection * c, char const * user)
         eventlog(eventlog_level_error,"conn_set_user","got NULL user");
         return;
     }
-    
-    if (c->user)
-	free((void *)c->user); /* avoid warning */
-    if (!(c->user = strdup(user)))
-	eventlog(eventlog_level_error,"conn_set_user","could not allocate memory for c->user");
+
+    if (c->protocol.client.user)
+	free((void *)c->protocol.client.user); /* avoid warning */
+    if (!(c->protocol.client.user = strdup(user)))
+	eventlog(eventlog_level_error,"conn_set_user","could not allocate memory for c->protocol.client.user");
 }
 
 
@@ -1052,10 +1053,10 @@ extern void conn_set_owner(t_connection * c, char const * owner)
         return;
     }
     
-    if (c->owner)
-	free((void *)c->owner); /* avoid warning */
-    if (!(c->owner = strdup(owner)))
-	eventlog(eventlog_level_error,"conn_set_owner","could not allocate memory for c->owner");
+    if (c->protocol.client.owner)
+	free((void *)c->protocol.client.owner); /* avoid warning */
+    if (!(c->protocol.client.owner = strdup(owner)))
+	eventlog(eventlog_level_error,"conn_set_owner","could not allocate memory for c->protocol.client.owner");
 }
 
 extern const char * conn_get_user(t_connection const * c)
@@ -1064,7 +1065,7 @@ extern const char * conn_get_user(t_connection const * c)
 	eventlog(eventlog_level_error,"conn_get_user","got NULL connection");
 	return NULL;
     }
-    return c->user;
+    return c->protocol.client.user;
 }
 
 extern const char * conn_get_owner(t_connection const * c)
@@ -1073,7 +1074,7 @@ extern const char * conn_get_owner(t_connection const * c)
 	eventlog(eventlog_level_error,"conn_get_user","got NULL connection");
 	return NULL;
     }
-    return c->owner;
+    return c->protocol.client.owner;
 }
 
 extern void conn_set_cdkey(t_connection * c, char const * cdkey)
@@ -1088,11 +1089,11 @@ extern void conn_set_cdkey(t_connection * c, char const * cdkey)
         eventlog(eventlog_level_error,"conn_set_cdkey","got NULL cdkey");
         return;
     }
-    
-    if (c->cdkey)
-	free((void *)c->cdkey); /* avoid warning */
-    if (!(c->cdkey = strdup(cdkey)))
-	eventlog(eventlog_level_error,"conn_set_cdkey","could not allocate memory for c->cdkey");
+
+    if (c->protocol.client.cdkey)
+	free((void *)c->protocol.client.cdkey); /* avoid warning */
+    if (!(c->protocol.client.cdkey = strdup(cdkey)))
+	eventlog(eventlog_level_error,"conn_set_cdkey","could not allocate memory for c->protocol.client.cdkey");
 }
 
 
@@ -1103,10 +1104,10 @@ extern char const * conn_get_clientexe(t_connection const * c)
         eventlog(eventlog_level_error,"conn_get_clientexe","got NULL connection");
         return NULL;
     }
-    
-    if (!c->clientexe)
+
+    if (!c->protocol.client.clientexe)
 	return "";
-    return c->clientexe;
+    return c->protocol.client.clientexe;
 }
 
 
@@ -1130,9 +1131,9 @@ extern void conn_set_clientexe(t_connection * c, char const * clientexe)
 	eventlog(eventlog_level_error,"conn_set_clientexe","unable to allocate memory for clientexe");
 	return;
     }
-    if (c->clientexe)
-	free((void *)c->clientexe); /* avoid warning */
-    c->clientexe = temp;
+    if (c->protocol.client.clientexe)
+	free((void *)c->protocol.client.clientexe); /* avoid warning */
+    c->protocol.client.clientexe = temp;
 }
 
 
@@ -1143,10 +1144,10 @@ extern char const * conn_get_clientver(t_connection const * c)
         eventlog(eventlog_level_error,"conn_get_clientver","got NULL connection");
         return NULL;
     }
-    
-    if (!c->clientver)
+
+    if (!c->protocol.client.clientver)
 	return "";
-    return c->clientver;
+    return c->protocol.client.clientver;
 }
 
 
@@ -1170,9 +1171,9 @@ extern void conn_set_clientver(t_connection * c, char const * clientver)
 	eventlog(eventlog_level_error,"conn_set_clientver","unable to allocate memory for clientver");
 	return;
     }
-    if (c->clientver)
-	free((void *)c->clientver); /* avoid warning */
-    c->clientver = temp;
+    if (c->protocol.client.clientver)
+	free((void *)c->protocol.client.clientver); /* avoid warning */
+    c->protocol.client.clientver = temp;
 }
 
 
@@ -1184,15 +1185,15 @@ extern char const * conn_get_archtag(t_connection const * c)
         return NULL;
     }
     
-    if (c->class==conn_class_auth && c->bound)
+    if (c->protocol.class==conn_class_auth && c->protocol.bound)
     {
-	if (!c->bound->archtag)
+	if (!c->protocol.bound->protocol.client.archtag)
 	    return "UKWN";
-	return c->bound->archtag;
+	return c->protocol.bound->protocol.client.archtag;
     }
-    if (!c->archtag)
+    if (!c->protocol.client.archtag)
 	return "UKWN";
-    return c->archtag;
+    return c->protocol.client.archtag;
 }
 
 
@@ -1216,7 +1217,7 @@ extern void conn_set_archtag(t_connection * c, char const * archtag)
         return;
     }
     
-    if (!c->archtag || strcmp(c->archtag,archtag)!=0)
+    if (!c->protocol.client.archtag || strcmp(c->protocol.client.archtag,archtag)!=0)
 	eventlog(eventlog_level_info,"conn_set_archtag","[%d] setting client arch to \"%s\"",conn_get_socket(c),archtag);
     
     if (!(temp = strdup(archtag)))
@@ -1224,9 +1225,9 @@ extern void conn_set_archtag(t_connection * c, char const * archtag)
 	eventlog(eventlog_level_error,"conn_set_archtag","[%d] unable to allocate memory for archtag",conn_get_socket(c));
 	return;
     }
-    if (c->archtag)
-	free((void *)c->archtag); /* avoid warning */
-    c->archtag = temp;
+    if (c->protocol.client.archtag)
+	free((void *)c->protocol.client.archtag); /* avoid warning */
+    c->protocol.client.archtag = temp;
 }
 
 
@@ -1238,7 +1239,7 @@ extern unsigned int conn_get_gamelang(t_connection const * c)
         return 0;
     }
     
-    return c->gamelang;
+    return c->protocol.client.gamelang;
 }
 
 
@@ -1250,7 +1251,7 @@ extern void conn_set_gamelang(t_connection * c, unsigned int gamelang)
         return;
     }
 
-    c->gamelang = gamelang;
+    c->protocol.client.gamelang = gamelang;
 }
 
 
@@ -1262,15 +1263,15 @@ extern char const * conn_get_clienttag(t_connection const * c)
         return NULL;
     }
     
-    if (c->class==conn_class_auth && c->bound)
+    if (c->protocol.class==conn_class_auth && c->protocol.bound)
     {
-	if (!c->bound->clienttag)
+	if (!c->protocol.bound->protocol.client.clienttag)
 	    return "UKWN";
-	return c->bound->clienttag;
+	return c->protocol.bound->protocol.client.clienttag;
     }
-    if (!c->clienttag)
+    if (!c->protocol.client.clienttag)
 	return "UKWN";
-    return c->clienttag;
+    return c->protocol.client.clienttag;
 }
 
 
@@ -1314,7 +1315,7 @@ extern void conn_set_clienttag(t_connection * c, char const * clienttag)
         return;
     }
     
-    if (!c->clienttag || strcmp(c->clienttag,clienttag)!=0)
+    if (!c->protocol.client.clienttag || strcmp(c->protocol.client.clienttag,clienttag)!=0)
     {
 	eventlog(eventlog_level_info,"conn_set_clienttag","[%d] setting client type to \"%s\"",conn_get_socket(c),clienttag);
 	needrefresh = 1;
@@ -1327,10 +1328,10 @@ extern void conn_set_clienttag(t_connection * c, char const * clienttag)
 	eventlog(eventlog_level_error,"conn_set_clienttag","[%d] unable to allocate memory for clienttag",conn_get_socket(c));
 	return;
     }
-    if (c->clienttag)
-	free((void *)c->clienttag); /* avoid warning */
-    c->clienttag = temp;
-    if (needrefresh && c->channel)
+    if (c->protocol.client.clienttag)
+	free((void *)c->protocol.client.clienttag); /* avoid warning */
+    c->protocol.client.clienttag = temp;
+    if (needrefresh && c->protocol.chat.channel)
 	channel_update_flags(c);
 }
 
@@ -1342,8 +1343,8 @@ extern unsigned long conn_get_gameversion(t_connection const * c)
 	eventlog(eventlog_level_error, __FUNCTION__,"got NULL connection");
 	return 0;
     }
-    
-    return c->gameversion;
+
+    return c->protocol.client.gameversion;
 }
 
 
@@ -1355,7 +1356,7 @@ extern int conn_set_gameversion(t_connection * c, unsigned long gameversion)
 	return -1;
     }
     
-    c->gameversion = gameversion;
+    c->protocol.client.gameversion = gameversion;
     return 0;
 }
 
@@ -1367,8 +1368,8 @@ extern unsigned long conn_get_checksum(t_connection const * c)
 	eventlog(eventlog_level_error, __FUNCTION__,"got NULL connection");
 	return 0;
     }
-    
-    return c->checksum;
+
+    return c->protocol.client.checksum;
 }
 
 
@@ -1380,7 +1381,7 @@ extern int conn_set_checksum(t_connection * c, unsigned long checksum)
 	return -1;
     }
     
-    c->checksum = checksum;
+    c->protocol.client.checksum = checksum;
     return 0;
 }
 
@@ -1392,8 +1393,8 @@ extern unsigned long conn_get_versionid(t_connection const * c)
 	eventlog(eventlog_level_error,"conn_get_versionid","got NULL connection");
 	return 0;
     }
-    
-    return c->versionid;
+
+    return c->protocol.client.versionid;
 }
 
 
@@ -1404,8 +1405,8 @@ extern int conn_set_versionid(t_connection * c, unsigned long versionid)
 	eventlog(eventlog_level_error,"conn_set_versionid","got NULL connection");
 	return -1;
     }
-    
-    c->versionid = versionid;
+
+    c->protocol.client.versionid = versionid;
     return 0;
 }
 
@@ -1417,8 +1418,8 @@ extern int conn_get_tzbias(t_connection const * c)
         eventlog(eventlog_level_error,"conn_get_tzbias","got NULL connection");
         return 0;
     }
-    
-    return c->tzbias;
+
+    return c->protocol.client.tzbias;
 }
 
 
@@ -1430,7 +1431,7 @@ extern void conn_set_tzbias(t_connection * c, int tzbias)
         return;
     }
     
-    c->tzbias = tzbias;
+    c->protocol.client.tzbias = tzbias;
 }
 
 
@@ -1459,8 +1460,8 @@ extern void conn_set_account(t_connection * c, t_account * account)
     }
     account_unget_name(tname);
     
-    c->account = account;
-    c->state = conn_state_loggedin;
+    c->protocol.account = account;
+    c->protocol.state = conn_state_loggedin;
     account_set_conn(account,c);
     {
 	char const * flagstr;
@@ -1469,48 +1470,48 @@ extern void conn_set_account(t_connection * c, t_account * account)
 	    conn_add_flags(c,strtoul(flagstr,NULL,0));
     }
     
-    account_set_ll_time(c->account,now);
-    account_set_ll_owner(c->account,c->owner);
-    account_set_ll_clienttag(c->account,c->clienttag);
-    account_set_ll_ip(c->account,addr_num_to_ip_str(c->socket.tcp_addr));
+    account_set_ll_time(c->protocol.account,now);
+    account_set_ll_owner(c->protocol.account,c->protocol.client.owner);
+    account_set_ll_clienttag(c->protocol.account,c->protocol.client.clienttag);
+    account_set_ll_ip(c->protocol.account,addr_num_to_ip_str(c->socket.tcp_addr));
       
-    if (c->host)
+    if (c->protocol.client.host)
     {
-	free((void *)c->host); /* avoid warning */
-	c->host = NULL;
+	free((void *)c->protocol.client.host); /* avoid warning */
+	c->protocol.client.host = NULL;
     }
-    if (c->user)
+    if (c->protocol.client.user)
     {
-	free((void *)c->user); /* avoid warning */
-	c->user = NULL;
+	free((void *)c->protocol.client.user); /* avoid warning */
+	c->protocol.client.user = NULL;
     }
-    if (c->clientexe)
+    if (c->protocol.client.clientexe)
     {
-	free((void *)c->clientexe); /* avoid warning */
-	c->clientexe = NULL;
+	free((void *)c->protocol.client.clientexe); /* avoid warning */
+	c->protocol.client.clientexe = NULL;
     }
-    if (c->owner)
+    if (c->protocol.client.owner)
     {
-	free((void *)c->owner); /* avoid warning */
-	c->owner = NULL;
+	free((void *)c->protocol.client.owner); /* avoid warning */
+	c->protocol.client.owner = NULL;
     }
-    if (c->cdkey)
+    if (c->protocol.client.cdkey)
     {
-	free((void *)c->cdkey); /* avoid warning */
-	c->cdkey = NULL;
+	free((void *)c->protocol.client.cdkey); /* avoid warning */
+	c->protocol.client.cdkey = NULL;
     }
     
-    if (c->botuser)
+    if (c->protocol.botuser)
     {
-	free((void *)c->botuser); /* avoid warning */
-	c->botuser = NULL;
+	free((void *)c->protocol.botuser); /* avoid warning */
+	c->protocol.botuser = NULL;
     }
     
     clanmember_set_online(c);
 
     totalcount++;
     
-    watchlist_notify_event(c->account,NULL,conn_get_clienttag(c),watch_event_login);
+    watchlist_notify_event(c->protocol.account,NULL,conn_get_clienttag(c),watch_event_login);
     
     return;
 }
@@ -1524,9 +1525,9 @@ extern t_account * conn_get_account(t_connection const * c)
 	return NULL;
     }
     
-    if (c->class==conn_class_auth && c->bound)
-	return c->bound->account;
-    return c->account;
+    if (c->protocol.class==conn_class_auth && c->protocol.bound)
+	return c->protocol.bound->protocol.account;
+    return c->protocol.account;
 }
 
 
@@ -1550,10 +1551,10 @@ extern int conn_set_botuser(t_connection * c, char const * username)
 	eventlog(eventlog_level_error,"conn_set_botuser","unable to duplicate username");
 	return -1;
     }
-    if (c->botuser)
-	free((void *)c->botuser); /* avoid warning */
+    if (c->protocol.botuser)
+	free((void *)c->protocol.botuser); /* avoid warning */
     
-    c->botuser = temp;
+    c->protocol.botuser = temp;
     
     return 0;
 }
@@ -1567,7 +1568,7 @@ extern char const * conn_get_botuser(t_connection const * c)
 	return NULL;
     }
     
-    return c->botuser;
+    return c->protocol.botuser;
 }
 
 
@@ -1578,8 +1579,8 @@ extern unsigned int conn_get_flags(t_connection const * c)
         eventlog(eventlog_level_error,"conn_get_flags","got NULL connection");
         return 0;
     }
-    
-    return c->flags;
+
+    return c->protocol.flags;
 }
 
 
@@ -1592,10 +1593,10 @@ extern int conn_set_flags(t_connection * c, unsigned int flags)
         eventlog(eventlog_level_error,"conn_set_flags","got NULL connection");
         return -1;
     }
-    oldflags = c->flags;
-    c->flags = flags;
+    oldflags = c->protocol.flags;
+    c->protocol.flags = flags;
 
-    if (oldflags!=c->flags && c->channel)
+    if (oldflags!=c->protocol.flags && c->protocol.chat.channel)
 	channel_update_flags(c);
     
     return 0;
@@ -1611,10 +1612,10 @@ extern void conn_add_flags(t_connection * c, unsigned int flags)
         eventlog(eventlog_level_error,"conn_add_flags","got NULL connection");
         return;
     }
-    oldflags = c->flags;
-    c->flags |= flags;
+    oldflags = c->protocol.flags;
+    c->protocol.flags |= flags;
     
-    if (oldflags!=c->flags && c->channel)
+    if (oldflags!=c->protocol.flags && c->protocol.chat.channel)
 	channel_update_flags(c);
 }
 
@@ -1628,10 +1629,10 @@ extern void conn_del_flags(t_connection * c, unsigned int flags)
         eventlog(eventlog_level_error,"conn_del_flags","got NULL connection");
         return;
     }
-    oldflags = c->flags;
-    c->flags &= ~flags;
+    oldflags = c->protocol.flags;
+    c->protocol.flags &= ~flags;
     
-    if (oldflags!=c->flags && c->channel)
+    if (oldflags!=c->protocol.flags && c->protocol.chat.channel)
 	channel_update_flags(c);
 }
 
@@ -1643,8 +1644,8 @@ extern unsigned int conn_get_latency(t_connection const * c)
         eventlog(eventlog_level_error,"conn_get_latency","got NULL connection");
         return 0;
     }
-    
-    return c->latency;
+
+    return c->protocol.latency;
 }
 
 
@@ -1655,10 +1656,10 @@ extern void conn_set_latency(t_connection * c, unsigned int ms)
 	eventlog(eventlog_level_error,"conn_set_latency","got NULL connection");
 	return;
     }
-    
-    c->latency = ms;
-    
-    if (c->channel)
+
+    c->protocol.latency = ms;
+
+    if (c->protocol.chat.channel)
 	channel_update_latency(c);
 }
 
@@ -1670,8 +1671,8 @@ extern char const * conn_get_awaystr(t_connection const * c)
         eventlog(eventlog_level_error,"conn_get_awaystr","got NULL connection");
         return NULL;
     }
-    
-    return c->settings.away;
+
+    return c->protocol.chat.away;
 }
 
 
@@ -1683,12 +1684,12 @@ extern int conn_set_awaystr(t_connection * c, char const * away)
         return -1;
     }
     
-    if (c->settings.away)
-	free((void *)c->settings.away); /* avoid warning */
+    if (c->protocol.chat.away)
+	free((void *)c->protocol.chat.away); /* avoid warning */
     if (!away)
-        c->settings.away = NULL;
+        c->protocol.chat.away = NULL;
     else
-        if (!(c->settings.away = strdup(away)))
+        if (!(c->protocol.chat.away = strdup(away)))
 	{
 	    eventlog(eventlog_level_error,"conn_set_awaystr","could not allocate away string");
 	    return -1;
@@ -1706,7 +1707,7 @@ extern char const * conn_get_dndstr(t_connection const * c)
         return NULL;
     }
     
-    return c->settings.dnd;
+    return c->protocol.chat.dnd;
 }
 
 
@@ -1718,12 +1719,12 @@ extern int conn_set_dndstr(t_connection * c, char const * dnd)
         return -1;
     }
     
-    if (c->settings.dnd)
-	free((void *)c->settings.dnd); /* avoid warning */
+    if (c->protocol.chat.dnd)
+	free((void *)c->protocol.chat.dnd); /* avoid warning */
     if (!dnd)
-        c->settings.dnd = NULL;
+        c->protocol.chat.dnd = NULL;
     else
-        if (!(c->settings.dnd = strdup(dnd)))
+        if (!(c->protocol.chat.dnd = strdup(dnd)))
 	{
 	    eventlog(eventlog_level_error,"conn_set_dndstr","could not allocate dnd string");
 	    return -1;
@@ -1748,14 +1749,14 @@ extern int conn_add_ignore(t_connection * c, t_account * account)
         return -1;
     }
     
-    if (!(newlist = realloc(c->settings.ignore_list,sizeof(t_account const *)*(c->settings.ignore_count+1))))
+    if (!(newlist = realloc(c->protocol.chat.ignore_list,sizeof(t_account const *)*(c->protocol.chat.ignore_count+1))))
     {
 	eventlog(eventlog_level_error,"conn_add_ignore","could not allocate memory for newlist");
 	return -1;
     }
     
-    newlist[c->settings.ignore_count++] = account;
-    c->settings.ignore_list = newlist;
+    newlist[c->protocol.chat.ignore_count++] = account;
+    c->protocol.chat.ignore_list = newlist;
     
     return 0;
 }
@@ -1778,27 +1779,27 @@ extern int conn_del_ignore(t_connection * c, t_account const * account)
         return -1;
     }
     
-    for (i=0; i<c->settings.ignore_count; i++)
-	if (c->settings.ignore_list[i]==account)
+    for (i=0; i<c->protocol.chat.ignore_count; i++)
+	if (c->protocol.chat.ignore_list[i]==account)
 	    break;
-    if (i==c->settings.ignore_count)
+    if (i==c->protocol.chat.ignore_count)
 	return -1; /* not in list */
     
     /* swap entry to be deleted with last entry */
-    temp = c->settings.ignore_list[c->settings.ignore_count-1];
-    c->settings.ignore_list[c->settings.ignore_count-1] = c->settings.ignore_list[i];
-    c->settings.ignore_list[i] = temp;
+    temp = c->protocol.chat.ignore_list[c->protocol.chat.ignore_count-1];
+    c->protocol.chat.ignore_list[c->protocol.chat.ignore_count-1] = c->protocol.chat.ignore_list[i];
+    c->protocol.chat.ignore_list[i] = temp;
     
-    if (c->settings.ignore_count==1) /* some realloc()s are buggy */
+    if (c->protocol.chat.ignore_count==1) /* some realloc()s are buggy */
     {
-	free(c->settings.ignore_list);
+	free(c->protocol.chat.ignore_list);
 	newlist = NULL;
     }
     else
-	newlist = realloc(c->settings.ignore_list,sizeof(t_account const *)*(c->settings.ignore_count-1));
+	newlist = realloc(c->protocol.chat.ignore_list,sizeof(t_account const *)*(c->protocol.chat.ignore_count-1));
     
-    c->settings.ignore_count--;
-    c->settings.ignore_list = newlist;
+    c->protocol.chat.ignore_count--;
+    c->protocol.chat.ignore_list = newlist;
     
     return 0;
 }
@@ -1846,9 +1847,9 @@ extern int conn_check_ignoring(t_connection const * c, char const * me)
     if (!me || !(temp = accountlist_find_account(me)))
 	return -1;
     
-    if (c->settings.ignore_list)
-	for (i=0; i<c->settings.ignore_count; i++)
-	    if (c->settings.ignore_list[i]==temp)
+    if (c->protocol.chat.ignore_list)
+	for (i=0; i<c->protocol.chat.ignore_count; i++)
+	    if (c->protocol.chat.ignore_list[i]==temp)
 		return 1;
     
     return 0;
@@ -1863,7 +1864,7 @@ extern t_channel * conn_get_channel(t_connection const * c)
         return NULL;
     }
     
-    return c->channel;
+    return c->protocol.chat.channel;
 }
 
 
@@ -1874,7 +1875,7 @@ extern int conn_set_channel_var(t_connection * c, t_channel * channel)
         eventlog(eventlog_level_error,"conn_set_channel_var","got NULL connection");
         return -1;
     }
-    c->channel = channel;
+    c->protocol.chat.channel = channel;
     return 0;
 }
 
@@ -1893,7 +1894,7 @@ extern int conn_set_channel(t_connection * c, char const * channelname)
         return -1;
     }
 
-    acc = c->account;
+    acc = c->protocol.account;
 
     if (!acc)
     {
@@ -1905,7 +1906,7 @@ extern int conn_set_channel(t_connection * c, char const * channelname)
     {
 	unsigned int created;
 
-    oldchannel=c->channel;
+    oldchannel=c->protocol.chat.channel;
 
 	channel = channellist_find_channel_by_name(channelname,conn_get_country(c),conn_get_realmname(c));
 
@@ -1935,10 +1936,10 @@ extern int conn_set_channel(t_connection * c, char const * channelname)
         }
     }
 
-    if (c->channel)
+    if (c->protocol.chat.channel)
     {
-	channel_del_connection(c->channel, c);
-	c->channel = NULL;
+	channel_del_connection(c->protocol.chat.channel, c);
+	c->protocol.chat.channel = NULL;
     }
 
     if (channel)
@@ -1985,10 +1986,10 @@ extern int conn_set_channel(t_connection * c, char const * channelname)
 		}
 
 	/* if you're entering a channel, make sure they didn't exit a game without telling us */
-	if (c->game)
+	if (c->protocol.game)
 	{
             game_del_player(conn_get_game(c),c);
-	    c->game = NULL;
+	    c->protocol.game = NULL;
 	}
 
 	created = 0;
@@ -2007,20 +2008,20 @@ extern int conn_set_channel(t_connection * c, char const * channelname)
 	    created = 1;
 	}
 
-    c->channel=channel;
+    c->protocol.chat.channel=channel;
 
     if (channel_add_connection(channel,c)<0)
 	{
 	    if (created)
 		    channel_destroy(channel);
-	c->channel = NULL;
+	c->protocol.chat.channel = NULL;
         return -1;
 	}
 
-	eventlog(eventlog_level_info,"conn_set_channel","[%d] joined channel \"%s\"",conn_get_socket(c),channel_get_name(c->channel));
+	eventlog(eventlog_level_info,"conn_set_channel","[%d] joined channel \"%s\"",conn_get_socket(c),channel_get_name(c->protocol.chat.channel));
 	conn_send_welcome(c);
 
-    if(c->channel && (channel_get_flags(c->channel) & channel_flags_thevoid))
+    if(c->protocol.chat.channel && (channel_get_flags(c->protocol.chat.channel) & channel_flags_thevoid))
 	    message_send_text(c,message_type_info,c,"This channel does not have chat privileges.");
     if (clantag && clan && (clan_get_clantag(clan)==clantag))
     {
@@ -2029,26 +2030,26 @@ extern int conn_set_channel(t_connection * c, char const * channelname)
       message_send_text(c,message_type_info,c,msgtemp);
     }
 
-    if (channel_get_topic(channel_get_name(c->channel)) && (conn_get_class(c)!=conn_class_irc))
+    if (channel_get_topic(channel_get_name(c->protocol.chat.channel)) && (conn_get_class(c)!=conn_class_irc))
     {
       char msgtemp[MAX_MESSAGE_LEN];
 
-      sprintf(msgtemp,"%s topic: %s",channel_get_name(c->channel),channel_get_topic(channel_get_name(c->channel)));
+      sprintf(msgtemp,"%s topic: %s",channel_get_name(c->protocol.chat.channel),channel_get_topic(channel_get_name(c->protocol.chat.channel)));
       message_send_text(c,message_type_info,c,msgtemp);
     }
 
-    if (c->channel && (channel_get_flags(c->channel) & channel_flags_moderated))
+    if (c->protocol.chat.channel && (channel_get_flags(c->protocol.chat.channel) & channel_flags_moderated))
 	message_send_text(c,message_type_error,c,"This channel is moderated.");
 
-    if(c->channel!=oldchannel)
+    if(c->protocol.chat.channel!=oldchannel)
       clanmember_on_change_status_by_connection(c);
     }
     else
     {
-      if (c->channel)
+      if (c->protocol.chat.channel)
       {
-        channel_del_connection(c->channel,c);
-        c->channel = NULL;
+        channel_del_connection(c->protocol.chat.channel,c);
+        c->protocol.chat.channel = NULL;
       }
     }
 
@@ -2064,7 +2065,7 @@ extern t_game * conn_get_game(t_connection const * c)
         return NULL;
     }
     
-    return c->game;
+    return c->protocol.game;
 }
 
 
@@ -2082,29 +2083,29 @@ extern int conn_set_game(t_connection * c, char const * gamename, char const * g
         return -1;
     }
 
-    if (c->game)
+    if (c->protocol.game)
     {
         if (gamename) {
-	    if (strcasecmp(gamename,game_get_name(c->game)))
-        	eventlog(eventlog_level_error,"conn_set_game","[%d] tried to join a new game \"%s\" while already in a game \"%s\"!",conn_get_socket(c),gamename,game_get_name(c->game));
+	    if (strcasecmp(gamename,game_get_name(c->protocol.game)))
+        	eventlog(eventlog_level_error,"conn_set_game","[%d] tried to join a new game \"%s\" while already in a game \"%s\"!",conn_get_socket(c),gamename,game_get_name(c->protocol.game));
 	    else return 0;
 	}
     	game_del_player(conn_get_game(c),c);
-    	c->game = NULL;
+    	c->protocol.game = NULL;
     }
     if (gamename)
     {
-	if (!(c->game = gamelist_find_game(gamename,type)))
+	if (!(c->protocol.game = gamelist_find_game(gamename,type)))
 	/* version from KWS - commented out to try if this made D2 problems
         { 
 	    // setup a new game if it does not allready exist
-	    if (!(c->game = game_create(gamename,gamepass,gameinfo,type,version,conn_get_clienttag(c))))
+	    if (!(c->protocol.game = game_create(gamename,gamepass,gameinfo,type,version,conn_get_clienttag(c))))
 	       return -1;
 
-	    game_parse_info(c->game,gameinfo); // only create
+	    game_parse_info(c->protocol.game,gameinfo); // only create
             if (conn_get_realmname(c) && conn_get_charname(c))
             {
-                  game_set_realmname(c->game,conn_get_realmname(c));
+                  game_set_realmname(c->protocol.game,conn_get_realmname(c));
                   realm_add_game_number(realmlist_find_realm(conn_get_realmname(c)),1);
 	    }
 	}
@@ -2112,31 +2113,31 @@ extern int conn_set_game(t_connection * c, char const * gamename, char const * g
 	// join new or existing game 
         if (game_add_player(conn_get_game(c),gamepass,version,c)<0)
         {
-  	  c->game = NULL; // bad password or version # 
+  	  c->protocol.game = NULL; // bad password or version # 
 	  return -1;
 	}
 	*/
 	// original code
 	{
-	  c->game = game_create(gamename,gamepass,gameinfo,type,version,conn_get_clienttag(c),conn_get_gameversion(c));
-	    if (c->game && conn_get_realmname(c) && conn_get_charname(c))
+	  c->protocol.game = game_create(gamename,gamepass,gameinfo,type,version,conn_get_clienttag(c),conn_get_gameversion(c));
+	    if (c->protocol.game && conn_get_realmname(c) && conn_get_charname(c))
 	    {
-		game_set_realmname(c->game,conn_get_realmname(c));
+		game_set_realmname(c->protocol.game,conn_get_realmname(c));
 		realm_add_game_number(realmlist_find_realm(conn_get_realmname(c)),1);
 	    }
 	}
-	if (c->game)
+	if (c->protocol.game)
 	{
 	  if (game_add_player(conn_get_game(c),gamepass,version,c)<0)
 	  {
-	    c->game = NULL; // bad password or version #
+	    c->protocol.game = NULL; // bad password or version #
 	    return -1;
 	  }
 	}
 	// end of original code
     }
     else
-	c->game = NULL;
+	c->protocol.game = NULL;
     return 0;
 }
 
@@ -2159,8 +2160,8 @@ extern t_queue * * conn_get_in_queue(t_connection * c)
         eventlog(eventlog_level_error,"conn_get_in_queue","got NULL connection");
         return NULL;
     }
-    
-    return &c->queues.inqueue;
+
+    return &c->protocol.queues.inqueue;
 }
 
 
@@ -2172,7 +2173,7 @@ extern unsigned int conn_get_in_size(t_connection const * c)
         return 0;
     }
     
-    return c->queues.insize;
+    return c->protocol.queues.insize;
 }
 
 
@@ -2184,7 +2185,7 @@ extern void conn_set_in_size(t_connection * c, unsigned int size)
         return;
     }
     
-    c->queues.insize = size;
+    c->protocol.queues.insize = size;
 }
 
 
@@ -2195,7 +2196,7 @@ extern t_queue * * conn_get_out_queue(t_connection * c)
         eventlog(eventlog_level_error,"conn_get_out_queue","got NULL connection");
         return NULL;
     }
-    return &c->queues.outqueue;
+    return &c->protocol.queues.outqueue;
 }
 
 
@@ -2206,7 +2207,7 @@ extern unsigned int conn_get_out_size(t_connection const * c)
         eventlog(eventlog_level_error,"conn_get_out_size","got NULL connection");
         return -1;
     }
-    return c->queues.outsize;
+    return c->protocol.queues.outsize;
 }
 
 
@@ -2218,7 +2219,7 @@ extern void conn_set_out_size(t_connection * c, unsigned int size)
         return;
     }
     
-    c->queues.outsize = size;
+    c->protocol.queues.outsize = size;
 }
 
 extern int conn_push_outqueue(t_connection * c, t_packet * packet)
@@ -2235,8 +2236,8 @@ extern int conn_push_outqueue(t_connection * c, t_packet * packet)
         return -1;
     }
 
-    queue_push_packet((t_queue * *)&c->queues.outqueue, packet);
-    if (!c->queues.outsizep++) fdwatch_update_fd(c->socket.tcp_sock, fdwatch_type_read | fdwatch_type_write);
+    queue_push_packet((t_queue * *)&c->protocol.queues.outqueue, packet);
+    if (!c->protocol.queues.outsizep++) fdwatch_update_fd(c->socket.tcp_sock, fdwatch_type_read | fdwatch_type_write);
 
     return 0;
 }
@@ -2249,7 +2250,7 @@ extern t_packet * conn_peek_outqueue(t_connection * c)
         return NULL;
     }
 
-    return queue_peek_packet((t_queue const * const *)&c->queues.outqueue);
+    return queue_peek_packet((t_queue const * const *)&c->protocol.queues.outqueue);
 }
 
 extern t_packet * conn_pull_outqueue(t_connection * c)
@@ -2260,9 +2261,9 @@ extern t_packet * conn_pull_outqueue(t_connection * c)
         return NULL;
     }
 
-    if (c->queues.outsizep) {
-	if (!(--c->queues.outsizep)) fdwatch_update_fd(c->socket.tcp_sock, fdwatch_type_read);
-	return queue_pull_packet((t_queue * *)&c->queues.outqueue);
+    if (c->protocol.queues.outsizep) {
+	if (!(--c->protocol.queues.outsizep)) fdwatch_update_fd(c->socket.tcp_sock, fdwatch_type_read);
+	return queue_pull_packet((t_queue * *)&c->protocol.queues.outqueue);
     }
 
     return NULL;
@@ -2282,7 +2283,7 @@ extern int conn_push_inqueue(t_connection * c, t_packet * packet)
         return -1;
     }
 
-    queue_push_packet((t_queue * *)&c->queues.inqueue, packet);
+    queue_push_packet((t_queue * *)&c->protocol.queues.inqueue, packet);
 
     return 0;
 }
@@ -2295,7 +2296,7 @@ extern t_packet * conn_peek_inqueue(t_connection * c)
         return NULL;
     }
 
-    return queue_peek_packet((t_queue const * const *)&c->queues.inqueue);
+    return queue_peek_packet((t_queue const * const *)&c->protocol.queues.inqueue);
 }
 
 extern t_packet * conn_pull_inqueue(t_connection * c)
@@ -2306,7 +2307,7 @@ extern t_packet * conn_pull_inqueue(t_connection * c)
         return NULL;
     }
 
-    return queue_pull_packet((t_queue * *)&c->queues.inqueue);
+    return queue_pull_packet((t_queue * *)&c->protocol.queues.inqueue);
 }
 
 #ifdef DEBUG_ACCOUNT
@@ -2322,14 +2323,14 @@ extern char const * conn_get_username(t_connection const * c)
         return NULL;
     }
     
-    if (c->class==conn_class_auth && c->bound)
-	return account_get_name(c->bound->account);
-    if(!c->account)
+    if (c->protocol.class==conn_class_auth && c->protocol.bound)
+	return account_get_name(c->protocol.bound->protocol.account);
+    if(!c->protocol.account)
     {
         eventlog(eventlog_level_error,"conn_get_username","got NULL account");
         return NULL;
     }
-    result = account_get_name(c->account);
+    result = account_get_name(c->protocol.account);
     if (result == NULL)
     { 
 	eventlog(eventlog_level_error,__FUNCTION__,"returned previous error after being called by %s:%u",fn,ln);
@@ -2358,18 +2359,18 @@ extern char const * conn_get_chatname(t_connection const * c)
         eventlog(eventlog_level_error,"conn_get_chatname","got NULL connection");
         return NULL;
     }
-    
-    if ((c->class==conn_class_auth || c->class==conn_class_bnet) && c->bound)
+
+    if ((c->protocol.class==conn_class_auth || c->protocol.class==conn_class_bnet) && c->protocol.bound)
     {
-	if (c->character)
-	    return character_get_name(c->character);
-	if (c->bound->character)
-	    return character_get_name(c->bound->character);
-        eventlog(eventlog_level_error,"conn_get_chatname","[%d] got connection class %s bound to class %d without a character",conn_get_socket(c),conn_class_get_str(c->class),c->bound->class);
+	if (c->protocol.d2.character)
+	    return character_get_name(c->protocol.d2.character);
+	if (c->protocol.bound->protocol.d2.character)
+	    return character_get_name(c->protocol.bound->protocol.d2.character);
+        eventlog(eventlog_level_error,"conn_get_chatname","[%d] got connection class %s bound to class %d without a character",conn_get_socket(c),conn_class_get_str(c->protocol.class),c->protocol.bound->protocol.class);
     }
-    if (!c->account)
+    if (!c->protocol.account)
 	return NULL; /* no name yet */
-    return account_get_name(c->account);
+    return account_get_name(c->protocol.account);
 }
 
 
@@ -2381,7 +2382,7 @@ extern int conn_unget_chatname(t_connection const * c, char const * name)
         return -1;
     }
     
-    if ((c->class==conn_class_auth || c->class==conn_class_bnet) && c->bound)
+    if ((c->protocol.class==conn_class_auth || c->protocol.class==conn_class_bnet) && c->protocol.bound)
 	return 0;
     return account_unget_name(name);
 }
@@ -2398,19 +2399,19 @@ extern char const * conn_get_chatcharname(t_connection const * c, t_connection c
         return NULL;
     }
 
-    if (!c->account)
+    if (!c->protocol.account)
         return NULL; /* no name yet */
-    
+
     /* for D2 Users */
-    accname = account_get_name(c->account);
+    accname = account_get_name(c->protocol.account);
     if (!accname)
         return NULL;
-    
-    if (dst && dst->charname)
+
+    if (dst && dst->protocol.d2.charname)
     {
 	const char *mychar;
 
-	if (c->charname) mychar = c->charname;
+	if (c->protocol.d2.charname) mychar = c->protocol.d2.charname;
 	else mychar = "";
     	if ((chatcharname = malloc(strlen(accname) + 2 + strlen(mychar))))
     	    sprintf(chatcharname, "%s*%s", mychar, accname);
@@ -2441,7 +2442,7 @@ extern int conn_unget_chatcharname(t_connection const * c, char const * name)
 
 extern t_message_class conn_get_message_class(t_connection const * c, t_connection const * dst)
 {
-    if (dst && dst->charname) /* message to D2 user must be char*account */
+    if (dst && dst->protocol.d2.charname) /* message to D2 user must be char*account */
 	return message_class_charjoin;
 
     return message_class_normal;
@@ -2456,13 +2457,13 @@ extern unsigned int conn_get_userid(t_connection const * c)
         return 0;
     }
 
-    if(!c->account)
+    if(!c->protocol.account)
     {
         eventlog(eventlog_level_error,"conn_get_userid","got NULL account");
         return 0;
     }
     
-    return account_get_uid(c->account);
+    return account_get_uid(c->protocol.account);
 }
 
 
@@ -2616,11 +2617,11 @@ extern char const * conn_get_playerinfo(t_connection const * c)
     {
 	t_character * ch;
 	
-	if (c->character)
-	    ch = c->character;
+	if (c->protocol.d2.character)
+	    ch = c->protocol.d2.character;
 	else
-	    if ((c->class==conn_class_auth || c->class==conn_class_bnet) && c->bound && c->bound->character)
-		ch = c->bound->character;
+	    if ((c->protocol.class==conn_class_auth || c->protocol.class==conn_class_bnet) && c->protocol.bound && c->protocol.bound->protocol.d2.character)
+		ch = c->protocol.bound->protocol.d2.character;
 	    else
 		ch = NULL;
 	    
@@ -2771,7 +2772,7 @@ extern char const * conn_get_realminfo(t_connection const * c)
         eventlog(eventlog_level_error,"conn_get_realminfo","got NULL connection");
         return NULL;
     }
-    return c->realminfo;
+    return c->protocol.d2.realminfo;
 }
 
 
@@ -2796,9 +2797,9 @@ extern int conn_set_realminfo(t_connection * c, char const * realminfo)
     else
       temp = NULL;
     
-    if (c->realminfo) /* if it was set before, free it now */
-	free((void *)c->realminfo); /* avoid warning */
-    c->realminfo = temp;
+    if (c->protocol.d2.realminfo) /* if it was set before, free it now */
+	free((void *)c->protocol.d2.realminfo); /* avoid warning */
+    c->protocol.d2.realminfo = temp;
     return 0;
 }
 
@@ -2810,7 +2811,7 @@ extern char const * conn_get_charname(t_connection const * c)
        eventlog(eventlog_level_error,"conn_get_charname","got NULL connection");
        return NULL;
     }
-    return c->charname;
+    return c->protocol.d2.charname;
 }
 
 
@@ -2835,9 +2836,9 @@ extern int conn_set_charname(t_connection * c, char const * charname)
     else
 	temp = charname;
 
-    if (c->charname) /* free it, if it was previously set */
-       free((void *)c->charname); /* avoid warning */
-    c->charname = temp;
+    if (c->protocol.d2.charname) /* free it, if it was previously set */
+       free((void *)c->protocol.d2.charname); /* avoid warning */
+    c->protocol.d2.charname = temp;
     return 0;
 }
 
@@ -2850,7 +2851,7 @@ extern int conn_set_idletime(t_connection * c)
         return -1;
     }
     
-    c->last_message = time(NULL);
+    c->protocol.chat.last_message = time(NULL);
     return 0;
 }
 
@@ -2863,7 +2864,7 @@ extern unsigned int conn_get_idletime(t_connection const * c)
         return 0;
     }
     
-    return (unsigned int)difftime(time(NULL),c->last_message);
+    return (unsigned int)difftime(time(NULL),c->protocol.chat.last_message);
 }
 
 
@@ -2875,9 +2876,9 @@ extern char const * conn_get_realmname(t_connection const * c)
         return NULL;
     }
     
-    if (c->class==conn_class_auth && c->bound)
-	return c->bound->realmname;
-    return c->realmname;
+    if (c->protocol.class==conn_class_auth && c->protocol.bound)
+	return c->protocol.bound->protocol.d2.realmname;
+    return c->protocol.d2.realmname;
 }
 
 
@@ -2889,12 +2890,12 @@ extern int conn_set_realmname(t_connection * c, char const * realmname)
         return -1;
     }
     
-    if (c->realmname)
-	free((void *)c->realmname); /* avoid warning */
+    if (c->protocol.d2.realmname)
+	free((void *)c->protocol.d2.realmname); /* avoid warning */
     if (!realmname)
-        c->realmname = NULL;
+        c->protocol.d2.realmname = NULL;
     else
-        if (!(c->realmname = strdup(realmname)))
+        if (!(c->protocol.d2.realmname = strdup(realmname)))
 	{
 	    eventlog(eventlog_level_error,"conn_set_realmname","could not allocate realmname string");
 	    return -1;
@@ -2919,7 +2920,7 @@ extern int conn_set_character(t_connection * c, t_character * character)
 	return -1;
     }
     
-    c->character = character;
+    c->protocol.d2.character = character;
     
     return 0;
 }
@@ -2937,11 +2938,11 @@ extern void conn_set_country(t_connection * c, char const * country)
         eventlog(eventlog_level_error,"conn_set_country","got NULL country");
         return;
     }
-    
-    if (c->country)
-	free((void *)c->country); /* avoid warning */
-    if (!(c->country = strdup(country)))
-	eventlog(eventlog_level_error,"conn_set_country","could not allocate memory for c->country");
+
+    if (c->protocol.client.country)
+	free((void *)c->protocol.client.country); /* avoid warning */
+    if (!(c->protocol.client.country = strdup(country)))
+	eventlog(eventlog_level_error,"conn_set_country","could not allocate memory for c->protocol.client.country");
 }
 
 
@@ -2953,7 +2954,7 @@ extern char const * conn_get_country(t_connection const * c)
         return NULL;
     }
     
-    return c->country;
+    return c->protocol.client.country;
 }
 
 
@@ -2969,10 +2970,10 @@ extern int conn_bind(t_connection * c1, t_connection * c2)
         eventlog(eventlog_level_error,"conn_bind","got NULL connection");
         return -1;
     }
-    
-    c1->bound = c2;
-    c2->bound = c1;
-    
+
+    c1->protocol.bound = c2;
+    c2->protocol.bound = c1;
+
     return 0;
 }
 
@@ -2987,10 +2988,10 @@ extern int conn_set_ircline(t_connection * c, char const * line)
 	eventlog(eventlog_level_error,"conn_set_ircline","got NULL line");
 	return -1;
     }
-    if (c->irc.ircline)
-    	free((void *)c->irc.ircline); /* avoid warning */
-    if (!(c->irc.ircline = strdup(line)))
-	eventlog(eventlog_level_error,"conn_set_ircline","could not allocate memory for c->irc.ircline");
+    if (c->protocol.chat.irc.ircline)
+    	free((void *)c->protocol.chat.irc.ircline); /* avoid warning */
+    if (!(c->protocol.chat.irc.ircline = strdup(line)))
+	eventlog(eventlog_level_error,"conn_set_ircline","could not allocate memory for c->protocol.chat.irc.ircline");
     return 0;
 }
 
@@ -3001,7 +3002,7 @@ extern char const * conn_get_ircline(t_connection const * c)
 	eventlog(eventlog_level_error,"conn_get_ircline","got NULL connection");
 	return NULL;
     }
-    return c->irc.ircline;
+    return c->protocol.chat.irc.ircline;
 }
 
 
@@ -3011,13 +3012,13 @@ extern int conn_set_ircpass(t_connection * c, char const * pass)
 	eventlog(eventlog_level_error,"conn_set_ircpass","got NULL connection");
 	return -1;
     }
-    if (c->irc.ircpass)
-    	free((void *)c->irc.ircpass); /* avoid warning */
+    if (c->protocol.chat.irc.ircpass)
+    	free((void *)c->protocol.chat.irc.ircpass); /* avoid warning */
     if (!pass)
-    	c->irc.ircpass = NULL;
+    	c->protocol.chat.irc.ircpass = NULL;
     else
-	if (!(c->irc.ircpass = strdup(pass)))
-	    eventlog(eventlog_level_error,"conn_set_ircpass","could not allocate memory for c->irc.ircpass");
+	if (!(c->protocol.chat.irc.ircpass = strdup(pass)))
+	    eventlog(eventlog_level_error,"conn_set_ircpass","could not allocate memory for c->protocol.chat.irc.ircpass");
     return 0;
 }
 
@@ -3028,7 +3029,7 @@ extern char const * conn_get_ircpass(t_connection const * c)
 	eventlog(eventlog_level_error,"conn_get_ircpass","got NULL connection");
 	return NULL;
     }
-    return c->irc.ircpass;
+    return c->protocol.chat.irc.ircpass;
 }
 
 
@@ -3038,7 +3039,7 @@ extern int conn_set_ircping(t_connection * c, unsigned int ping)
 	eventlog(eventlog_level_error,"conn_set_ircping","got NULL connection");
 	return -1;
     }
-    c->irc.ircping = ping;
+    c->protocol.chat.irc.ircping = ping;
     return 0;
 }
 
@@ -3049,7 +3050,7 @@ extern unsigned int conn_get_ircping(t_connection const * c)
 	eventlog(eventlog_level_error,"conn_get_ircping","got NULL connection");
 	return 0;
     }
-    return c->irc.ircping;
+    return c->protocol.chat.irc.ircping;
 }
 
 // NonReal
@@ -3060,8 +3061,8 @@ extern char const * conn_get_w3_username(t_connection const * c)
         eventlog(eventlog_level_error,"conn_get_w3_username","got NULL connection");
         return NULL;
     }
-    
-    return c->w3_username;
+
+    return c->protocol.w3.w3_username;
 }
 
 // NonReal
@@ -3085,9 +3086,9 @@ extern void conn_set_w3_username(t_connection * c, char const * w3_username)
 	eventlog(eventlog_level_error,"conn_set_w3_username","[%d] unable to allocate memory for w3_username",conn_get_socket(c));
 	return;
     }
-    if (c->w3_username)
-	free((void *)c->w3_username); /* avoid warning */
-    c->w3_username = temp;
+    if (c->protocol.w3.w3_username)
+	free((void *)c->protocol.w3.w3_username); /* avoid warning */
+    c->protocol.w3.w3_username = temp;
 }
 
 // NonReal
@@ -3098,8 +3099,8 @@ extern int conn_get_welcomed(t_connection const * c)
         eventlog(eventlog_level_error,"conn_get_welcomed","got NULL connection");
         return 0;
     }
-    
-    return (c->cflags & conn_flags_welcomed);
+
+    return (c->protocol.cflags & conn_flags_welcomed);
 }
 
 // NonReal
@@ -3111,7 +3112,7 @@ extern void conn_set_welcomed(t_connection * c, int welcomed)
         eventlog(eventlog_level_error,"conn_set_welcomed","got NULL connection");
         return;
     }
-    c->cflags |= conn_flags_welcomed;
+    c->protocol.cflags |= conn_flags_welcomed;
 }
 
 /* ADDED BY UNDYING SOULZZ 4/7/02 */
@@ -3127,10 +3128,10 @@ extern int conn_set_w3_playerinfo( t_connection * c, const char * w3_playerinfo 
 
     temp = strdup( w3_playerinfo );
 
-    if ( c->w3_playerinfo )
-	free((void *)c->w3_playerinfo);
+    if ( c->protocol.w3.w3_playerinfo )
+	free((void *)c->protocol.w3.w3_playerinfo);
 
-    c->w3_playerinfo = temp;
+    c->protocol.w3.w3_playerinfo = temp;
 
     return 1;
 }
@@ -3142,7 +3143,7 @@ extern const char * conn_get_w3_playerinfo( t_connection * c )
         eventlog(eventlog_level_error,"conn_get_w3_playerinfo","got NULL connection");
         return NULL;
     }
-    return c->w3_playerinfo; 
+    return c->protocol.w3.w3_playerinfo; 
 }
 
 
@@ -3163,16 +3164,16 @@ extern int conn_quota_exceeded(t_connection * con, char const * text)
     now = time(NULL);
     
     needpurge = 0;
-    LIST_TRAVERSE(con->settings.quota.list,curr)
+    LIST_TRAVERSE(con->protocol.chat.quota.list,curr)
     {
 	qline = elem_get_data(curr);
         if (now>=qline->inf+(time_t)prefs_get_quota_time())
 	{
 	    /* these lines are at least quota_time old */
-	    list_remove_elem(con->settings.quota.list,curr);
-	    if (qline->count>con->settings.quota.totcount)
-		eventlog(eventlog_level_error,"conn_quota_exceeded","qline->count=%u but con->settings.quota.totcount=%u",qline->count,con->settings.quota.totcount);
-	    con->settings.quota.totcount -= qline->count;
+	    list_remove_elem(con->protocol.chat.quota.list,curr);
+	    if (qline->count>con->protocol.chat.quota.totcount)
+		eventlog(eventlog_level_error,"conn_quota_exceeded","qline->count=%u but con->protocol.chat.quota.totcount=%u",qline->count,con->protocol.chat.quota.totcount);
+	    con->protocol.chat.quota.totcount -= qline->count;
 	    free(qline);
 	    needpurge = 1;
 	}
@@ -3180,7 +3181,7 @@ extern int conn_quota_exceeded(t_connection * con, char const * text)
 	    break; /* old items are first, so we know nothing else will match */
     }
     if (needpurge)
-	list_purge(con->settings.quota.list);
+	list_purge(con->protocol.chat.quota.list);
     
     if ((qline = malloc(sizeof(t_qline)))==NULL)
     {
@@ -3193,23 +3194,23 @@ extern int conn_quota_exceeded(t_connection * con, char const * text)
     else
 	qline->count = 1;
     
-    if (list_append_data(con->settings.quota.list,qline)<0)
+    if (list_append_data(con->protocol.chat.quota.list,qline)<0)
     {
 	eventlog(eventlog_level_error,"conn_quota_exceeded","could not append to list");
 	free(qline);
 	return 0;
     }
-    con->settings.quota.totcount += qline->count;
+    con->protocol.chat.quota.totcount += qline->count;
     
-    if (con->settings.quota.totcount>=prefs_get_quota_lines())
+    if (con->protocol.chat.quota.totcount>=prefs_get_quota_lines())
     {
 	message_send_text(con,message_type_error,con,"Your message quota has been exceeded!");
-	if (con->settings.quota.totcount>=prefs_get_quota_dobae())
+	if (con->protocol.chat.quota.totcount>=prefs_get_quota_dobae())
 	{
 	    /* kick out the dobae user for violation of the quota rule */
 	    conn_set_state(con,conn_state_destroy);
-	    if (con->channel)
-		channel_message_log(con->channel,con,0,"DISCONNECTED FOR DOBAE ABUSE");
+	    if (con->protocol.chat.channel)
+		channel_message_log(con->protocol.chat.channel,con,0,"DISCONNECTED FOR DOBAE ABUSE");
 	    return 2;
 	}
 	return 1;
@@ -3226,16 +3227,16 @@ extern int conn_set_lastsender(t_connection * c, char const * sender)
 	eventlog(eventlog_level_error,"conn_set_lastsender","got NULL conection");
 	return -1;
     }
-    if (c->lastsender)
-	free((void *)c->lastsender); /* avoid warning */
+    if (c->protocol.chat.lastsender)
+	free((void *)c->protocol.chat.lastsender); /* avoid warning */
     if (!sender)
     {
-	c->lastsender = NULL;
+	c->protocol.chat.lastsender = NULL;
 	return 0;
     }
-    if (!(c->lastsender = strdup(sender)))
+    if (!(c->protocol.chat.lastsender = strdup(sender)))
     {
-	eventlog(eventlog_level_error,"conn_set_lastsender","could not allocate memory for c->lastsender");
+	eventlog(eventlog_level_error,"conn_set_lastsender","could not allocate memory for c->protocol.chat.lastsender");
 	return -1;
     }
     
@@ -3250,7 +3251,7 @@ extern char const * conn_get_lastsender(t_connection const * c)
 	eventlog(eventlog_level_error,"conn_get_lastsender","got NULL connection");
 	return NULL;
     }
-    return c->lastsender;
+    return c->protocol.chat.lastsender;
 }
 
 
@@ -3261,8 +3262,8 @@ extern t_versioncheck * conn_get_versioncheck(t_connection * c)
         eventlog(eventlog_level_error,"conn_get_versioncheck","got NULL connection");
         return NULL;
     }
-    
-    return c->versioncheck;
+
+    return c->protocol.client.versioncheck;
 }
 
 
@@ -3278,9 +3279,9 @@ extern int conn_set_versioncheck(t_connection * c, t_versioncheck * versioncheck
 	eventlog(eventlog_level_error,"conn_set_versioncheck","got NULL versioncheck");
 	return -1;
     }
-    
-    c->versioncheck = versioncheck;
-    
+
+    c->protocol.client.versioncheck = versioncheck;
+
     return 0;
 }
 
@@ -3292,7 +3293,7 @@ extern int conn_get_echoback(t_connection * c)
 	return 0;
 	}
 
-	return (c->cflags & conn_flags_echoback);
+	return (c->protocol.cflags & conn_flags_echoback);
 }
 
 extern void conn_set_echoback(t_connection * c, int echoback)
@@ -3303,9 +3304,9 @@ extern void conn_set_echoback(t_connection * c, int echoback)
 	return;
 	}
 	if (echoback)
-	  c->cflags |=  conn_flags_echoback;
+	  c->protocol.cflags |=  conn_flags_echoback;
 	else
-	  c->cflags &= ~conn_flags_echoback;	  
+	  c->protocol.cflags &= ~conn_flags_echoback;	  
 }
 
 extern int conn_set_udpok(t_connection * c)
@@ -3316,10 +3317,10 @@ extern int conn_set_udpok(t_connection * c)
 	return -1;
     }
     
-    if (!(c->cflags & conn_flags_udpok))
+    if (!(c->protocol.cflags & conn_flags_udpok))
     {
-	c->cflags|= conn_flags_udpok;
-	c->flags &= ~MF_PLUG;
+	c->protocol.cflags|= conn_flags_udpok;
+	c->protocol.flags &= ~MF_PLUG;
     }
     
     return 0;
@@ -3333,8 +3334,8 @@ extern t_connection * conn_get_routeconn(t_connection const * c)
         eventlog(eventlog_level_error,"conn_get_routeconn","got NULL connection");
         return NULL;
     }
-    
-	return c->anon.routeconn;
+
+    return c->protocol.w3.routeconn;
 }
 
 
@@ -3344,7 +3345,7 @@ extern int conn_set_routeconn(t_connection * c, t_connection * rc)
 		eventlog(eventlog_level_error,"conn_set_routeconn","got NULL conection");
 		return -1;
     }
-	c->anon.routeconn = rc;
+	c->protocol.w3.routeconn = rc;
     
     return 0;
 }
@@ -3356,7 +3357,7 @@ extern int conn_get_crtime(t_connection *c)
 		eventlog(eventlog_level_error, "conn_get_crtime", "got NULL connection");
 		return -1;
 	}
-	return c->cr_time;
+	return c->protocol.cr_time;
 }
 
 extern int conn_set_joingamewhisper_ack(t_connection * c, unsigned int value)
@@ -3367,9 +3368,9 @@ extern int conn_set_joingamewhisper_ack(t_connection * c, unsigned int value)
 		return -1;
 	}
 	if (value)
-		c->cflags |=  conn_flags_joingamewhisper;
+		c->protocol.cflags |=  conn_flags_joingamewhisper;
 	else
-		c->cflags &= ~conn_flags_joingamewhisper;
+		c->protocol.cflags &= ~conn_flags_joingamewhisper;
 	return 0;
 }
 extern int conn_get_joingamewhisper_ack(t_connection * c)
@@ -3379,7 +3380,7 @@ extern int conn_get_joingamewhisper_ack(t_connection * c)
 		eventlog(eventlog_level_error,__FUNCTION__, "got NULL connection");
 		return -1;
 	}
-	return (c->cflags & conn_flags_joingamewhisper);
+	return (c->protocol.cflags & conn_flags_joingamewhisper);
 }
 
 extern int conn_set_leavegamewhisper_ack(t_connection * c, unsigned int value)
@@ -3390,9 +3391,9 @@ extern int conn_set_leavegamewhisper_ack(t_connection * c, unsigned int value)
 		return -1;
 	}
 	if (value)
-		c->cflags |=  conn_flags_leavegamewhisper;
+		c->protocol.cflags |=  conn_flags_leavegamewhisper;
 	else
-		c->cflags &= ~conn_flags_leavegamewhisper;
+		c->protocol.cflags &= ~conn_flags_leavegamewhisper;
 	return 0;
 }
 extern int conn_get_leavegamewhisper_ack(t_connection * c)
@@ -3402,7 +3403,7 @@ extern int conn_get_leavegamewhisper_ack(t_connection * c)
 		eventlog(eventlog_level_error,__FUNCTION__, "got NULL connection");
 		return -1;
 	}
-	return (c->cflags & conn_flags_leavegamewhisper);
+	return (c->protocol.cflags & conn_flags_leavegamewhisper);
 }
 
 extern int conn_set_anongame_search_starttime(t_connection * c, time_t t)
@@ -3411,7 +3412,7 @@ extern int conn_set_anongame_search_starttime(t_connection * c, time_t t)
       eventlog(eventlog_level_error, "conn_set_anongame_search_starttime", "got NULL connection");
       return -1;
    }
-   c->anon.anongame_search_starttime = t;
+   c->protocol.w3.anongame_search_starttime = t;
    return 0;
 }
 
@@ -3421,7 +3422,7 @@ extern time_t conn_get_anongame_search_starttime(t_connection * c)
 	  eventlog(eventlog_level_error, "conn_set_anongame_search_starttime", "got NULL connection");
       return ((time_t) 0);
     }
-  return c->anon.anongame_search_starttime;
+  return c->protocol.w3.anongame_search_starttime;
 }
 
 
@@ -3585,7 +3586,7 @@ extern t_connection * connlist_find_connection_by_sessionkey(unsigned int sessio
     LIST_TRAVERSE_CONST(conn_head,curr)
     {
 	c = elem_get_data(curr);
-	if (c->sessionkey==sessionkey)
+	if (c->protocol.sessionkey==sessionkey)
 	    return c;
     }
     
@@ -3601,7 +3602,7 @@ extern t_connection * connlist_find_connection_by_sessionnum(unsigned int sessio
     LIST_TRAVERSE_CONST(conn_head,curr)
     {
 	c = elem_get_data(curr);
-	if (c->sessionnum==sessionnum)
+	if (c->protocol.sessionnum==sessionnum)
 	    return c;
     }
     
@@ -3703,11 +3704,11 @@ extern t_connection * connlist_find_connection_by_charname(char const * charname
         c = elem_get_data(curr);
         if (!c)
             continue;
-        if (!c->charname)
+        if (!c->protocol.d2.charname)
             continue;
-        if (!c->realmname)
+        if (!c->protocol.d2.realmname)
             continue;
-        if ((strcasecmp(c->charname, charname)==0)&&(strcasecmp(c->realmname,realmname)==0))
+        if ((strcasecmp(c->protocol.d2.charname, charname)==0)&&(strcasecmp(c->protocol.d2.realmname,realmname)==0))
             return c;
      }
      return NULL;
@@ -3741,8 +3742,8 @@ extern unsigned int connlist_login_get_length(void)
     LIST_TRAVERSE_CONST(conn_head,curr)
     {
 	c = elem_get_data(curr);
-	if ((c->state==conn_state_loggedin)&&
-	    ((c->class==conn_class_bnet)||(c->class==conn_class_bot)||(c->class==conn_class_telnet)||(c->class==conn_class_irc)))
+	if ((c->protocol.state==conn_state_loggedin)&&
+	    ((c->protocol.class==conn_class_bnet)||(c->protocol.class==conn_class_bot)||(c->protocol.class==conn_class_telnet)||(c->protocol.class==conn_class_irc)))
 	    count++;
     }
     
@@ -3863,7 +3864,7 @@ extern int conn_get_passfail_count (t_connection * c)
         eventlog(eventlog_level_error, "conn_get_passfail_count", "got NULL connection");
         return -1;
     }
-    return c->passfail_count;
+    return c->protocol.passfail_count;
 }
 
 
@@ -3874,7 +3875,7 @@ extern int conn_set_passfail_count (t_connection * c, unsigned int n)
 	eventlog(eventlog_level_error, "conn_set_passfail_count", "got NULL connection");
 	return -1;
     }
-    c->passfail_count = n;
+    c->protocol.passfail_count = n;
     return 0;
 }
 

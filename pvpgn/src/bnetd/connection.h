@@ -67,17 +67,6 @@
 
 #include "compat/uint.h"
 
-#ifdef CONNECTION_INTERNAL_ACCESS
-typedef struct
-{
-    char const *  away;
-    char const *  dnd;
-    t_account * * ignore_list;
-    unsigned int  ignore_count;
-    t_quota	  quota;
-} t_usersettings;
-#endif
-
 typedef enum
 {
     conn_class_init,
@@ -122,89 +111,93 @@ typedef enum
 typedef struct connection
 #ifdef CONNECTION_INTERNAL_ACCESS
 {
-   struct
-   {
-     int                           tcp_sock;
-     unsigned int                  tcp_addr;
-     unsigned short                tcp_port;
-     int                           udp_sock;
-     unsigned int                  udp_addr;
-     unsigned short                udp_port;
-     unsigned int                  local_addr;
-     unsigned short                local_port;
-     unsigned int                  real_local_addr;
-     unsigned short                real_local_port;
-                               } socket;
-   t_conn_class                  class;
-   t_conn_state                  state;
-   unsigned int                  sessionkey;
-   unsigned int                  sessionnum;
-   unsigned int                  secret; /* random number... never sent over net unencrypted */
-   unsigned int                  flags;
-   unsigned int                  latency;
-   t_usersettings                settings;
-   char const *                  country;
-   char const *                  archtag;
-   int                           tzbias;
-   t_account *                   account;
-   t_channel *                   channel;
-   t_game *                      game;
-   struct
-   {
-     t_queue *                     outqueue;  /* packets waiting to be sent */
-     unsigned int                  outsize;   /* amount sent from the current output packet */
-     unsigned int		   outsizep;
-     t_queue *                     inqueue;   /* packet waiting to be processed */
-     unsigned int                  insize;    /* amount received into the current input packet */
-                               } queues;
-   char const *                  host;
-   char const *                  user;
-   char const *                  botuser;   /* username for remote connections (not taken from account) */
-   time_t                        last_message;
-   char const *                  realmname; /* to remember until character is created */
-   t_character *                 character;
-   struct connection *           bound; /* matching Diablo II auth connection */
-   
-   
-   char const *                  lastsender; /* last person to whisper to this connection */
-   char const *                  realminfo;
-   char const *                  charname;
-
-   unsigned int		         gamelang;
-   char const *                  clienttag;
-   char const *                  clientver;
-   char const *                  clientexe;
-   char const *                  owner;
-   char const *                  cdkey;
-   unsigned long                 versionid; /* AKA bnversion */
-   unsigned long		 gameversion;
-   unsigned long		 checksum;
-   t_versioncheck *	         versioncheck; /* equation and MPQ file used to validate game checksum */
-
-   struct {
-     char const *	           ircline; /* line cache for IRC connections */
-     unsigned int		   ircping; /* value of last ping */
-     char const *		   ircpass; /* hashed password for PASS authentication */
-                               } irc;
-   char const *                  w3_username; /* filled between 0x53ff and 0x54ff -- NonReal */
-   char const * 		 w3_playerinfo; /* ADDED BY UNDYING SOULZZ 4/7/02 */
-   
-   // [quetzal] 20020828 - creation time, can be used for killing idling init connections
-   int				 cr_time;
-
-   struct {
+    struct {
+	int			tcp_sock;
+	unsigned int		tcp_addr;
+	unsigned short		tcp_port;
+	int			udp_sock;
+	unsigned int		udp_addr;
+	unsigned short		udp_port;
+	unsigned int		local_addr;
+	unsigned short		local_port;
+	unsigned int		real_local_addr;
+	unsigned short		real_local_port;
+    } socket; /* IP and socket specific data */
+    struct {
+	t_conn_class		class;
+	t_conn_state		state;
+	unsigned int		sessionkey;
+	unsigned int		sessionnum;
+	unsigned int		secret; /* random number... never sent over net unencrypted */
+	unsigned int		flags;
+	unsigned int		latency;
+	t_account *		account;
+	struct {
+	    char const *		archtag;
+	    unsigned int		gamelang;
+	    char const *		clienttag;
+	    char const *		clientver;
+	    unsigned long		versionid; /* AKA bnversion */
+	    unsigned long		gameversion;
+	    unsigned long		checksum;
+	    char const *		country;
+	    int				tzbias;
+	    char const *		host;
+	    char const *		user;
+	    char const *		clientexe;
+	    char const *		owner;
+	    char const *		cdkey;
+	    t_versioncheck *		versioncheck; /* equation and MPQ file used to validate game checksum */
+	} client; /* client program specific data */
+	struct {
+	    t_queue *		outqueue;  /* packets waiting to be sent */
+	    unsigned int	outsize;   /* amount sent from the current output packet */
+	    unsigned int	outsizep;
+	    t_queue *		inqueue;   /* packet waiting to be processed */
+	    unsigned int	insize;    /* amount received into the current input packet */
+	} queues; /* network queues and related data */
+	struct {
+	    t_channel *		channel;
+	    char const *	away;
+	    char const * 	dnd;
+	    t_account * *	ignore_list;
+	    unsigned int	ignore_count;
+	    t_quota		quota;
+	    time_t		last_message;
+	    char const *	lastsender; /* last person to whisper to this connection */
+	    struct {
+		char const *		ircline; /* line cache for IRC connections */
+		unsigned int		ircping; /* value of last ping */
+		char const *		ircpass; /* hashed password for PASS authentication */
+	    } irc; /* irc chat specific data */
+	} chat; /* chat and messages specific data */
+	t_game *		game;
+	char const *		botuser;   /* username for remote connections (not taken from account) */
+	struct connection *	bound; /* matching Diablo II auth connection */
+	/* FIXME: this d2/w3 specific data could be unified into an union */
+	struct {
+	    char const *		realmname; /* to remember until character is created */
+	    t_character *		character;
+	    char const *		realminfo;
+	    char const *		charname;
+	} d2;
+	struct {
+	    char const *		w3_username; /* filled between 0x53ff and 0x54ff -- NonReal */
+	    char const *		w3_playerinfo; /* ADDED BY UNDYING SOULZZ 4/7/02 */
+	    time_t			anongame_search_starttime;
    /* [zap-zero] 20020527 - matching w3route connection for game connection /
     matching game connection for w3route connection */
-     struct connection *           routeconn;
-     t_anongame *		   anongame;
-     time_t                        anongame_search_starttime;
-                               } anon;
-
-   /* Pass fail count for bruteforce protection */
-   unsigned int		passfail_count;
-
-   /* connection flag substituting some other values */
-   t_conn_flags		cflags;
+   /* FIXME: this "optimization" is so confusing leading to many possible bugs */
+	    struct connection *	routeconn;
+	    t_anongame *	anongame;
+	} w3;
+// [quetzal] 20020828 - creation time, can be used for killing idling init connections
+	int			cr_time;
+	/* Pass fail count for bruteforce protection */
+	unsigned int		passfail_count;
+	/* connection flag substituting some other values */
+	t_conn_flags		cflags;
+   } protocol;
 }
 #endif
 t_connection;
