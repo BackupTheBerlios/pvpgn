@@ -75,7 +75,7 @@
 
 /* The number of bytes in a unsigned long long.  */
 /* Borland doesn't do ull, but VC++ does */
-#ifdef BORLAND
+#ifdef __BORLANDC__
 # define SIZEOF_UNSIGNED_LONG_LONG 0
 #else
 # define SIZEOF_UNSIGNED_LONG_LONG 8
@@ -258,7 +258,7 @@
 /* Define if you have the <arpa/inet.h> header file.  */
 /* #undef HAVE_ARPA_INET_H */
 
-#ifdef BORLAND
+#ifdef __BORLANDC__
 /* Define if you have the <dir.h> header file.  */
 # define HAVE_DIR_H
 #else
