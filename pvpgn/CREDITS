@@ -23,6 +23,11 @@ PROGRAMMING CONTRIBUTORS
 	 For persistent SQL connections patch, password brute force attacks 
 	 protection and various bug reports.
 
+MISC
+	Eggy (eggy@neostats.net)
+	Win32 binary packager, QA testing/reporting, supporter (IRC, forums), 
+	misc documentation.
+
 	Lots of other people who do not whish to be mentioned here.
 
 BINARY PACKAGES:
