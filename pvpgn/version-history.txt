@@ -54,6 +54,9 @@ with newest W3 clients (they were considered public and listed)
 -- "fixed" clanscdb dir by not giving it as example to cdb storage; at this 
 moment clans in cdb mode are stored the same way as in plain files mode
 -- completly removed BITS codes and other BITS related data
+-- fixed problems with multiple news items for the same date (now those are
+automagically merged) and the problem, that date displayed for some news
+items was off by one day for each news after the first one
 
 1.6.0pre5 (since 1.6.0pre4):
 -- added support for loading new accounts at runtime (ex. if made by some 

@@ -64,9 +64,10 @@ extern int news_load(const char *filename)
     char		*buff;
     struct tm		*date;
     char date_set;
-    t_news_index	*ni;
+    t_news_index	*ni, *previous_ni;
     
     date_set = 0;
+    previous_ni = NULL;
 
     if (!filename) {
 	eventlog(eventlog_level_error, __FUNCTION__,"got NULL fullname");
@@ -86,7 +87,6 @@ extern int news_load(const char *filename)
 	setbuf(fp,NULL);
 
     date=malloc(sizeof(struct tm));
-    date->tm_sec=1000;         // a big initial value so that even big number of news don't cause negative seconds
     
     for (line=1; (buff = news_read_file(fp)); line++) {
 	len = strlen(buff);
@@ -97,9 +97,9 @@ extern int news_load(const char *filename)
 	    int		dpos;
 	    unsigned 	pos;
 
-	    date->tm_hour=12;   // to make absolutly sure negative seconds don't do a negative day wrap
-	    date->tm_min=0;
-	    date->tm_sec--;     // to make sure two news of the same day stay in correct order
+	    date->tm_hour= 6; 
+	    date->tm_min = 6;  // need to set non-zero values or else date is displayed wrong
+	    date->tm_sec = 6;  
 	    date->tm_isdst=-1;
 	    dpos=0;
 
@@ -164,13 +164,27 @@ extern int news_load(const char *filename)
 			ni->date=time(0);
 			eventlog(eventlog_level_error,__FUNCTION__,"(first) news entry seems to be missing a timestamp, please check your news file on line %u",line);
 		}
-	    ni->body=strdup(buff);
+
+	    if ((previous_ni) && (ni->date == previous_ni->date))
+	    {
+		eventlog(eventlog_level_error,__FUNCTION__,"found another news item for same date, joining both");
+
+		previous_ni->body = realloc(previous_ni->body,strlen(previous_ni->body)+1+strlen(buff)+1);
+		sprintf(previous_ni->body,"%s\n%s",previous_ni->body,buff);
+		free((void *)ni);
+		
+	    }
+	    else
+	    {
+	      ni->body=strdup(buff);
 	    
-	    if (list_append_data(news_head,ni)<0) {
-		eventlog(eventlog_level_error,"news_load","could not append item");
-		if (ni)
-		    free(ni);
-		continue;
+	      if (list_append_data(news_head,ni)<0) {
+		  eventlog(eventlog_level_error,"news_load","could not append item");
+		  if (ni)
+		      free(ni);
+		  continue;
+	      }
+	      previous_ni = ni;
 	    }
 	}
 	free((void *)buff);
