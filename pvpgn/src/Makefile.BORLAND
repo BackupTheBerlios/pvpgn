@@ -33,13 +33,13 @@ srcdir      = .
 
 # prefix is the directory where the bnetd binary
 # distribution will be installed
-prefix      = C:\Bnetd
-exec_prefix = C:\Bnetd
+prefix      = .
+exec_prefix = .\bnetd
 
 bindir      = ${exec_prefix}\bin
 sbindir     = ${exec_prefix}\sbin
 mandir      = ${prefix}\man
-confdir     = ${prefix}\etc
+confdir     = ${prefix}\conf
 sharedir    = ${prefix}\var
 filesdir    = ${sharedir}\files
 usersdir    = ${sharedir}\users
@@ -66,6 +66,7 @@ SRC_CLIENTDIR   = ${SRC_SRCDIR}\client
 SRC_COMMONDIR   = ${SRC_SRCDIR}\common
 SRC_COMPATDIR   = ${SRC_SRCDIR}\compat
 SRC_DEBUGDIR    = ${SRC_SRCDIR}\debug
+SRC_WIN32DIR	= ${SRC_SRCDIR}\win32
 
 MKDIR           = md
 
@@ -114,8 +115,9 @@ bnetd_OBJECTS       = \
     ${SRC_BNETDDIR}\handle_auth.obj \
     ${SRC_BNETDDIR}\channel.obj \
     ${SRC_BNETDDIR}\channel_conv.obj \
-    ${SRC_BNETDDIR}\game.obj \
     ${SRC_BNETDDIR}\war3ladder.obj \
+    ${SRC_BNETDDIR}\game.obj \
+    ${SRC_BNETDDIR}\anongame.obj \
     ${SRC_BNETDDIR}\command.obj \
     ${SRC_BNETDDIR}\account.obj \
     ${SRC_BNETDDIR}\account_wrap.obj \
@@ -134,6 +136,7 @@ bnetd_OBJECTS       = \
     ${SRC_BNETDDIR}\autoupdate.obj \
     ${SRC_BNETDDIR}\helpfile.obj \
     ${SRC_BNETDDIR}\mail.obj \
+    ${SRC_BNETDDIR}\storage.obj \
     ${SRC_BNETDDIR}\runprog.obj \
     ${SRC_BNETDDIR}\game_rule.obj \
     ${SRC_BNETDDIR}\realm.obj \
@@ -155,6 +158,10 @@ bnetd_OBJECTS       = \
     ${SRC_BNETDDIR}\bits_login.obj \
     ${SRC_BNETDDIR}\bits_game.obj \
     ${SRC_BNETDDIR}\bits_motd.obj \
+    ${SRC_BNETDDIR}\pvpgn_mysql.obj \
+    ${SRC_BNETDDIR}\command_groups.obj \
+    ${SRC_BNETDDIR}\output.obj \
+    ${SRC_WIN32DIR}\service.obj \
     ${SRC_COMMONDIR}\hexdump.obj \
     ${SRC_COMMONDIR}\bn_type.obj \
     ${SRC_COMMONDIR}\packet.obj \
@@ -172,6 +179,7 @@ bnetd_OBJECTS       = \
     ${SRC_COMMONDIR}\give_up_root_privileges.obj \
     ${SRC_COMMONDIR}\token.obj \
     ${SRC_COMMONDIR}\proginfo.obj \
+    ${SRC_COMMONDIR}\rlimit.obj \
     ${SRC_COMPATDIR}\pdir.obj \
     ${SRC_COMPATDIR}\inet_aton.obj \
     ${SRC_COMPATDIR}\inet_ntoa.obj \
