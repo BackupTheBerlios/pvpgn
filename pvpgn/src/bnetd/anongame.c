@@ -281,6 +281,16 @@ extern int anongame_matchmaking_create(void)
 }
 */
 
+extern t_list * anongame_get_w3xp_maplist(int gametype)
+{
+  if ((gametype<0) || (gametype>=ANONGAME_TYPES))
+  {
+    eventlog(eventlog_level_error,__FUNCTION__,"got invalid gametype for request");
+    return NULL;
+  }
+  return mapnames_w3xp[gametype];
+}
+
 extern int anongame_maplists_create(void)
 {
    FILE *mapfd;

@@ -166,9 +166,10 @@ static bn_byte const anongame_type[] = {
 		,0x01 ,0x02 ,0x03 ,0x04 ,0x05 ,0x01 ,0x00 ,0x00 ,0x00 ,0x00 
 		,0x06 ,0x04 ,0x05 ,0x06 ,0x07 ,0x08 ,0x09 ,0x02 ,0x00 ,0x00 
 		,0x00 ,0x00 ,0x03 ,0x07 ,0x08 ,0x09 ,0x03 ,0x00 ,0x00 ,0x00 
-		,0x00 ,0x06 ,0x04 ,0x05 ,0x06 ,0x07 ,0x08 ,0x09 ,0x01 ,0x01 
+		,0x00 ,0x06 ,0x04 ,0x05 ,0x06 ,0x07 ,0x08 ,0x09 ,0x01 ,0x02 
 		,0x00 ,0x00 ,0x00 ,0x00 ,0x02 ,0x06 ,0x04 ,0x05 ,0x06 ,0x07 
-		,0x08 ,0x09
+		,0x08 ,0x09 ,0x03 ,0x00 ,0x00 ,0x00 ,0x00 ,0x01 ,0x07
+		
 };
 
 /* BlacKDicK 04/02/2003
@@ -3205,19 +3206,43 @@ static int _client_findanongame(t_connection * c, t_packet const * const packet)
 		int server_tag_unk;
 		char server_tag_count=0;
 		char ladr_count=0;
+		t_list * mapslist;
+		t_elem * curr;
+		char * mapname;
+		char mapscount_1v1;
+		char mapscount_2v2;
+		char mapscount_3v3;
+		char mapscount_sffa;
+		char mapscount_total;
+		char value;
+		char PG_gamestyles, AT_gamestyles, counter1, counter2;
+		char anongame_PG_1v1_prefix[]  = {0x00, 0x00, 0x00, 0x00, 0x00};
+		char anongame_PG_2v2_prefix[]  = {0x01, 0x00, 0x00, 0x00, 0x00};
+		char anongame_PG_3v3_prefix[]  = {0x02, 0x00, 0x00, 0x00, 0x00};
+		char anongame_PG_sffa_prefix[] = {0x03, 0x00, 0x00, 0x00, 0x00};
+		char anongame_AT_2v2_prefix[]  = {0x00, 0x00, 0x00, 0x00, 0x02};
+		char anongame_AT_2v2_maps_static[] = {0x06,0x04,0x05,0x06,0x07,0x08,0x09};
+		char anongame_begin_PG_section = 0x00;
+		char anongame_begin_AT_section = 0x01;
 
-	    if ((rpacket = packet_create(packet_class_bnet)) == NULL) {
-		eventlog(eventlog_level_error, __FUNCTION__, "could not create new packet");
-		return -1;
-	    }
+		mapscount_1v1  = list_get_length(anongame_get_w3xp_maplist(ANONGAME_TYPE_1V1));
+		mapscount_2v2  = list_get_length(anongame_get_w3xp_maplist(ANONGAME_TYPE_2V2));
+		mapscount_3v3  = list_get_length(anongame_get_w3xp_maplist(ANONGAME_TYPE_3V3));
+		mapscount_sffa = list_get_length(anongame_get_w3xp_maplist(ANONGAME_TYPE_SMALL_FFA));
+		mapscount_total = mapscount_1v1 + mapscount_2v2 + mapscount_3v3 + mapscount_sffa;
+
+		if ((rpacket = packet_create(packet_class_bnet)) == NULL) {
+		  eventlog(eventlog_level_error, __FUNCTION__, "could not create new packet");
+		  return -1;
+		}
 
 		//Starting the packet stuff
 		packet_set_size(rpacket, sizeof(t_server_findanongame_inforeply));
-	    packet_set_type(rpacket, SERVER_FINDANONGAME_INFOREPLY);
-	    bn_byte_set(&rpacket->u.server_findanongame_inforeply.option, CLIENT_FINDANONGAME_INFOS);
-	    bn_int_set(&rpacket->u.server_findanongame_inforeply.count, bn_int_get(packet->u.client_findanongame_inforeq.count));
-
-        eventlog(eventlog_level_debug,__FUNCTION__,"client_findanongame_inforeq.noitems=(0x%01x)",bn_byte_get(packet->u.client_findanongame_inforeq.noitems));
+		packet_set_type(rpacket, SERVER_FINDANONGAME_INFOREPLY);
+		bn_byte_set(&rpacket->u.server_findanongame_inforeply.option, CLIENT_FINDANONGAME_INFOS);
+		bn_int_set(&rpacket->u.server_findanongame_inforeply.count, bn_int_get(packet->u.client_findanongame_inforeq.count));
+		
+		eventlog(eventlog_level_debug,__FUNCTION__,"client_findanongame_inforeq.noitems=(0x%01x)",bn_byte_get(packet->u.client_findanongame_inforeq.noitems));
 		for (i=0;i<bn_byte_get(packet->u.client_findanongame_inforeq.noitems);i++){
 			client_tag=(int*)packet_get_data_const(packet,10+(i*8),4);
 			client_tag_unk=(int*)packet_get_data_const(packet,14+(i*8),4);
@@ -3237,8 +3262,54 @@ static int _client_findanongame(t_connection * c, t_packet const * const packet)
 				server_tag_unk=0x70E2E0D5;
 				packet_append_data(rpacket, "PAM\0" , 4);
 				packet_append_data(rpacket, &server_tag_unk , 4);
-				//FIXME: Stop using buffer and add the proper map info.
-				packet_append_data(rpacket, anongame_maps, sizeof(anongame_maps));
+				
+				packet_append_data(rpacket, &mapscount_total, 1);
+				
+				//FIXME: make this adding of mapnames to packet a nice function ?
+				if ((mapslist = anongame_get_w3xp_maplist(ANONGAME_TYPE_1V1)))
+				{
+				  LIST_TRAVERSE(mapslist, curr)
+				  {
+				    if ((mapname = (char *)elem_get_data(curr)))
+				      packet_append_string(rpacket,mapname);
+				    else
+				      eventlog(eventlog_level_error,__FUNCTION__,"got NULL mapname, check your bnmaps.txt");
+				  }
+				}
+				if ((mapslist = anongame_get_w3xp_maplist(ANONGAME_TYPE_2V2)))
+				{
+				  LIST_TRAVERSE(mapslist, curr)
+				  {
+				    if ((mapname = (char *)elem_get_data(curr)))
+				      packet_append_string(rpacket,mapname);
+				    else
+				      eventlog(eventlog_level_error,__FUNCTION__,"got NULL mapname, check your bnmaps.txt");
+				  }
+				}
+				if ((mapslist = anongame_get_w3xp_maplist(ANONGAME_TYPE_3V3)))
+				{
+				  LIST_TRAVERSE(mapslist, curr)
+				  {
+				    if ((mapname = (char *)elem_get_data(curr)))
+				      packet_append_string(rpacket,mapname);
+				    else
+				      eventlog(eventlog_level_error,__FUNCTION__,"got NULL mapname, check your bnmaps.txt");
+				  }
+				}
+				if ((mapslist = anongame_get_w3xp_maplist(ANONGAME_TYPE_SMALL_FFA)))
+				{
+				  LIST_TRAVERSE(mapslist, curr)
+				  {
+				    if ((mapname = (char *)elem_get_data(curr)))
+				      packet_append_string(rpacket,mapname);
+				    else
+				      eventlog(eventlog_level_error,__FUNCTION__,"got NULL mapname, check your bnmaps.txt");
+				  }
+				}
+
+
+				
+				//packet_append_data(rpacket, anongame_maps, sizeof(anongame_maps));
 				server_tag_count++;
 				eventlog(eventlog_level_debug,__FUNCTION__,"client_tag request tagid=(0x%01x) tag=(%s)  tag_unk=(0x%04x)",i,"CLIENT_FINDANONGAME_INFOTAG_MAP",*client_tag_unk);
 				break;
@@ -3246,8 +3317,86 @@ static int _client_findanongame(t_connection * c, t_packet const * const packet)
 				server_tag_unk=0x7C87DEEE;
 				packet_append_data(rpacket, "EPYT" , 4);
 				packet_append_data(rpacket, &server_tag_unk , 4);
+
+				value = 2; //probably count of gametypes (PG,AT)
+				packet_append_data(rpacket, &value, 1);
+				packet_append_data(rpacket, &anongame_begin_PG_section,1);
+
+				PG_gamestyles = 0;
+				if (mapscount_1v1) 
+				  {
+				    PG_gamestyles++;
+				    if (mapscount_2v2)  
+				      {
+					PG_gamestyles++;
+					if (mapscount_3v3)  
+					  {
+					    PG_gamestyles++;
+					    if (mapscount_sffa) PG_gamestyles++;
+					  }
+				      }
+				  }
+
+				packet_append_data(rpacket, &PG_gamestyles,1);
+
+				counter2 = 0;
+				
+				if (mapscount_1v1)
+				{
+				  packet_append_data(rpacket, &anongame_PG_1v1_prefix,5);
+				  packet_append_data(rpacket, &mapscount_1v1,1);
+				  for (counter1=counter2; counter1<(counter2+mapscount_1v1);counter1++)
+				    packet_append_data(rpacket,&counter1,1);
+				  counter2+=mapscount_1v1;
+				  
+				  if (mapscount_2v2)
+				    {
+				      packet_append_data(rpacket, &anongame_PG_2v2_prefix,5);
+				      packet_append_data(rpacket, &mapscount_2v2,1);
+				      for (counter1=counter2; counter1<(counter2+mapscount_2v2);counter1++)
+					packet_append_data(rpacket,&counter1,1);
+				      counter2+=mapscount_2v2;
+				      
+				      if (mapscount_3v3)
+					{
+					  packet_append_data(rpacket, &anongame_PG_3v3_prefix,5);
+					  packet_append_data(rpacket, &mapscount_3v3,1);
+					  for (counter1=counter2; counter1<(counter2+mapscount_3v3);counter1++)
+					    packet_append_data(rpacket,&counter1,1);
+					  counter2+=mapscount_3v3;
+					  
+					  if (mapscount_sffa)
+					    {
+					      packet_append_data(rpacket, &anongame_PG_sffa_prefix,5);
+					      packet_append_data(rpacket, &mapscount_sffa,1);
+					      for (counter1=counter2; counter1<(counter2+mapscount_sffa);counter1++)
+						packet_append_data(rpacket,&counter1,1);
+					    }
+					  else
+					    eventlog(eventlog_level_error,__FUNCTION__,"found no W3XP sffa PG maps in bnmaps.txt - this will disturb anongameinfo packet creation");
+					   
+					}
+				      else
+					eventlog(eventlog_level_error,__FUNCTION__,"found no W3XP 3v3 PG maps in bnmaps.txt - this will disturb anongameinfo packet creation");
+				      
+				    }
+				  else
+				    eventlog(eventlog_level_error,__FUNCTION__,"found no W3XP 2v2 PG maps in bnmaps.txt - this will disturb anongameinfo packet creation");
+				  
+				}
+				else
+				  eventlog(eventlog_level_error,__FUNCTION__,"found no W3XP 1v1 PG maps in bnmaps.txt - this will disturb anongameinfo packet creation");
+				
+				
+				packet_append_data(rpacket,&anongame_begin_AT_section,1);
+				AT_gamestyles = 1;
+				packet_append_data(rpacket,&AT_gamestyles,1);
+				packet_append_data(rpacket,&anongame_AT_2v2_prefix,5);
+
+				packet_append_data(rpacket,&anongame_AT_2v2_maps_static,7);
+				
 				//FIXME: Stop using buffer and add the proper type info.
-				packet_append_data(rpacket, anongame_type, sizeof(anongame_type));
+				// packet_append_data(rpacket, anongame_type, sizeof(anongame_type));
 				server_tag_count++;
 				eventlog(eventlog_level_debug,__FUNCTION__,"client_tag request tagid=(0x%01x) tag=(%s) tag_unk=(0x%04x)",i,"CLIENT_FINDANONGAME_INFOTAG_TYPE",*client_tag_unk);
 				break;
