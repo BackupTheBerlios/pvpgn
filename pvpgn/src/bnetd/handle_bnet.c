@@ -2674,7 +2674,7 @@ static int _client_atinvitefriend(t_connection * c, t_packet const * const packe
 	     
 	     bn_int_set(&rpacket->u.server_arrangedteam_send_invite.count,bn_int_get(packet->u.client_arrangedteam_invite_friend.count));
 	     bn_int_set(&rpacket->u.server_arrangedteam_send_invite.id,bn_int_get(packet->u.client_arrangedteam_invite_friend.id));
-	     bn_int_set(&rpacket->u.server_arrangedteam_send_invite.inviterip, htonl(conn_get_addr(c)));
+	     bn_int_nset(&rpacket->u.server_arrangedteam_send_invite.inviterip, conn_get_addr(c));
 	     bn_short_set(&rpacket->u.server_arrangedteam_send_invite.port, conn_get_game_port(c));
 	     bn_byte_set(&rpacket->u.server_arrangedteam_send_invite.numfriends,count_to_invite);
 	     packet_append_string(rpacket,conn_get_username(c));
@@ -2784,6 +2784,9 @@ static int _client_atacceptinvite(t_connection * c, t_packet const * const packe
 {
    // t_packet * rpacket = NULL;
    
+//[smith] 20030427 fixed Big-Endian/Little-Endian conversion (Solaris bug) then use  packet_append_data for append platform dependent data types - like "int", cos this code was broken for BE platforms. it's rewriten in platform independent style whis usege bn_int and other bn_* like datatypes and fuctions for wor with datatypes - bn_int_set(), what provide right byteorder, not depended on LE/BE
+//  fixed broken htonl() conversion for BE platforms - change it to  bn_int_nset(). i hope it's worked on intel too %) 
+
    if (packet_get_size(packet)<sizeof(t_client_arrangedteam_accept_invite)) {
       eventlog(eventlog_level_error,__FUNCTION__,"[%d] got bad ARRANGEDTEAM_ACCEPT_INVITE packet (expected %u bytes, got %u)",conn_get_socket(c),sizeof(t_client_arrangedteam_accept_invite),packet_get_size(packet));
       return -1;
@@ -2866,6 +2869,8 @@ static int _client_findanongame(t_connection * c, t_packet const * const packet)
 	     int ffalevel=account_get_ffalevel(account,ctag);
 	     int ffarank=account_get_ffarank(account,ctag);
 	     
+
+	     int tmp2=0;
 	     int humanwins=account_get_racewin(account,1,ctag);
 	     int humanlosses=account_get_raceloss(account,1,ctag);
 	     int orcwins=account_get_racewin(account,2,ctag);
@@ -2888,61 +2893,88 @@ static int _client_findanongame(t_connection * c, t_packet const * const packet)
 	     bn_int_set(&rpacket->u.server_findanongame_profile2.unknown1,account_get_icon_profile(account,ctag));
 	     rescount = 0;
 	     if (sololevel) {
-		temp=0x534F4C4F; // SOLO backwards
+		bn_int_set((bn_int*)&temp,0x534F4C4F); // SOLO backwards
 		packet_append_data(rpacket,&temp,4);
-		packet_append_data(rpacket,&solowins,2); //SOLO WINS
-		packet_append_data(rpacket,&sololoss,2); // SOLO LOSSES
-		packet_append_data(rpacket,&sololevel,1); // SOLO LEVEL
-		temp=account_get_profile_calcs(account,soloxp,sololevel);
+		temp=0;
+		bn_int_set((bn_int*)&temp,solowins);
+		packet_append_data(rpacket,&temp,2); //SOLO WINS
+		bn_int_set((bn_int*)&temp,sololoss);
+		packet_append_data(rpacket,&temp,2); // SOLO LOSSES
+		bn_int_set((bn_int*)&temp,sololevel);
+		packet_append_data(rpacket,&temp,1); // SOLO LEVEL
+		bn_int_set((bn_int*)&temp,account_get_profile_calcs(account,soloxp,sololevel));
 		packet_append_data(rpacket,&temp,1); // SOLO PROFILE CALC
-		packet_append_data(rpacket,&soloxp,2); // SOLO XP
-		packet_append_data(rpacket,&solorank,4); // SOLO LADDER RANK
+		bn_int_set((bn_int *)&temp,soloxp);
+		packet_append_data(rpacket,&temp,2); // SOLO XP
+		bn_int_set((bn_int *)&temp,solorank);
+		packet_append_data(rpacket,&temp,4); // SOLO LADDER RANK
 		rescount++;
 	     }
 	     
 	     if (teamlevel) {
 		//below is for team records. Add this after 2v2,3v3,4v4 are done
-		temp=0x5445414D; 
+		bn_int_set((bn_int*)&temp,0x5445414D); 
 		packet_append_data(rpacket,&temp,4);
-		packet_append_data(rpacket,&teamwins,2);
-		packet_append_data(rpacket,&teamloss,2);
-		packet_append_data(rpacket,&teamlevel,1);
-		temp=account_get_profile_calcs(account,teamxp,teamlevel);
+		bn_int_set((bn_int*)&temp,teamwins);
+		packet_append_data(rpacket,&temp,2);
+		bn_int_set((bn_int*)&temp,teamloss);
+		packet_append_data(rpacket,&temp,2);
+		bn_int_set((bn_int*)&temp,teamlevel);
 		packet_append_data(rpacket,&temp,1);
-		packet_append_data(rpacket,&teamxp,2);
-		packet_append_data(rpacket,&teamrank,4);
+		bn_int_set((bn_int*)&temp,account_get_profile_calcs(account,teamxp,teamlevel));
+		
+		packet_append_data(rpacket,&temp,1);
+		bn_int_set((bn_int*)&temp,teamxp);
+		packet_append_data(rpacket,&temp,2);
+		bn_int_set((bn_int*)&temp,teamrank);
+		packet_append_data(rpacket,&temp,4);
 		//done of team game stats
 		rescount++;
 	     }
 	     //FFA stats
 	     if (ffalevel) {
-		temp=0x46464120;
+		bn_int_set((bn_int*)&temp,0x46464120);
 		packet_append_data(rpacket,&temp,4);
-		packet_append_data(rpacket,&ffawins,2);
-		packet_append_data(rpacket,&ffaloss,2);
-		packet_append_data(rpacket,&ffalevel,1);
-		temp=account_get_profile_calcs(account,ffaxp,ffalevel);
+		bn_int_set((bn_int*)&temp,ffawins);
+		packet_append_data(rpacket,&temp,2);
+		bn_int_set((bn_int*)&temp,ffaloss);
+		packet_append_data(rpacket,&temp,2);
+		bn_int_set((bn_int*)&temp,ffalevel);
 		packet_append_data(rpacket,&temp,1);
-		packet_append_data(rpacket,&ffaxp,2);
-		packet_append_data(rpacket,&ffarank,4);
+		bn_int_set((bn_int*)temp,account_get_profile_calcs(account,ffaxp,ffalevel));
+		packet_append_data(rpacket,&temp,1);
+		bn_int_set((bn_int*)&temp,ffaxp);
+		packet_append_data(rpacket,&temp,2);
+		bn_int_set((bn_int*)&temp,ffarank);
+		packet_append_data(rpacket,&temp,4);
 		//End of FFA Stats
 		rescount++;
 	     }
 	     /* set result count */
 	     bn_byte_set(&rpacket->u.server_findanongame_profile2.rescount,rescount);
 	     
-	     temp=0x06; //start of race stats
+	     bn_int_set((bn_int*)&temp,0x06); //start of race stats
 	     packet_append_data(rpacket,&temp,1);
-	     packet_append_data(rpacket,&randomwins,2); //random wins
-	     packet_append_data(rpacket,&randomlosses,2); //random losses
-	     packet_append_data(rpacket,&humanwins,2); //human wins
-	     packet_append_data(rpacket,&humanlosses,2); //human losses
-	     packet_append_data(rpacket,&orcwins,2); //orc wins
-	     packet_append_data(rpacket,&orclosses,2); //orc losses
-	     packet_append_data(rpacket,&undeadwins,2); //undead wins
-	     packet_append_data(rpacket,&undeadlosses,2); //undead losses
-	     packet_append_data(rpacket,&nightelfwins,2); //elf wins
-	     packet_append_data(rpacket,&nightelflosses,2); //elf losses
+	     bn_int_set((bn_int*)&temp,randomwins);
+	     packet_append_data(rpacket,&temp,2); //random wins
+	     bn_int_set((bn_int*)&temp,randomlosses);
+	     packet_append_data(rpacket,&temp,2); //random losses
+	     bn_int_set((bn_int*)&temp,humanwins);
+	     packet_append_data(rpacket,&temp,2); //human wins
+	     bn_int_set((bn_int*)&temp,humanlosses);
+	     packet_append_data(rpacket,&temp,2); //human losses
+	     bn_int_set((bn_int*)&temp,orcwins);
+	     packet_append_data(rpacket,&temp,2); //orc wins
+	     bn_int_set((bn_int*)&temp,orclosses);
+	     packet_append_data(rpacket,&temp,2); //orc losses
+	     bn_int_set((bn_int*)&temp,undeadwins);
+	     packet_append_data(rpacket,&temp,2); //undead wins
+	     bn_int_set((bn_int*)&temp,undeadlosses);
+	     packet_append_data(rpacket,&temp,2); //undead losses
+	     bn_int_set((bn_int*)&temp,nightelfwins);
+	     packet_append_data(rpacket,&temp,2); //elf wins
+	     bn_int_set((bn_int*)&temp,nightelflosses);
+	     packet_append_data(rpacket,&temp,2); //elf losses
 	     temp=0;
 	     packet_append_data(rpacket,&temp,4);
 	     //end of normal stats - Start of AT stats
@@ -2954,8 +2986,9 @@ static int _client_findanongame(t_connection * c, t_packet const * const packet)
 	     }
 
 	     if (temp > 6) temp = 6; //byte (num of AT teams) 
-	     
-	     packet_append_data(rpacket,&temp,1); 
+
+	     bn_int_set((bn_int*)&tmp2,temp);
+	     packet_append_data(rpacket,&tmp2,1); 
 	     
 	     if(temp>0)
 	       {
@@ -3002,25 +3035,27 @@ static int _client_findanongame(t_connection * c, t_packet const * const packet)
 		       eventlog(eventlog_level_debug, __FUNCTION__, 
 				"profile/AT - processing team %d", n);
 		       
-		       temp = teamtype[teamsize];
+		       bn_int_set((bn_int*)&temp,teamtype[teamsize]);
 		       packet_append_data(rpacket,&temp,4);
-		       temp=account_get_atteamwin(account,n,ctag); //at team wins
+		       
+		       bn_int_set((bn_int*)&temp,account_get_atteamwin(account,n,ctag)); //at team wins
 		       packet_append_data(rpacket,&temp,2);
-		       temp=account_get_atteamloss(account,n,ctag); //at team losses
+		       bn_int_set((bn_int*)&temp,account_get_atteamloss(account,n,ctag)); //at team losses
 		       packet_append_data(rpacket,&temp,2);
-		       temp=account_get_atteamlevel(account,n,ctag); 
+		       bn_int_set((bn_int*)&temp,account_get_atteamlevel(account,n,ctag)); 
 		       packet_append_data(rpacket,&temp,1);
-		       temp=account_get_profile_calcs(account,account_get_atteamxp(account,n,ctag),account_get_atteamlevel(account,n,ctag)); // xp bar calc
+		       bn_int_set((bn_int*)&temp,account_get_profile_calcs(account,account_get_atteamxp(account,n,ctag),account_get_atteamlevel(account,n,ctag))); // xp bar calc
 		       packet_append_data(rpacket,&temp,1);
-		       temp=account_get_atteamxp(account,n,ctag);
+		       bn_int_set((bn_int*)&temp,account_get_atteamxp(account,n,ctag));
 		       packet_append_data(rpacket,&temp,2);
-		       temp=account_get_atteamrank(account,n,ctag);; //rank on AT ladder
+		       bn_int_set((bn_int*)&temp,account_get_atteamrank(account,n,ctag)); //rank on AT ladder
 		       packet_append_data(rpacket,&temp,4);
 		       temp=0;
 		       packet_append_data(rpacket,&temp,4); //some unknown packet? random shit
 		       temp=0;
 		       packet_append_data(rpacket,&temp,4); //another unknown packet..random shit
-		       packet_append_data(rpacket,&teamsize,1);
+		       bn_int_set((bn_int*)&temp,teamsize);
+		       packet_append_data(rpacket,&temp,1);
 		       //now attach the names to the packet - not including yourself
 		       
 		       

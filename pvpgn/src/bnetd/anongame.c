@@ -1,4 +1,4 @@
-/*
+/* 
 * This program is free software; you can redistribute it and/or
 * modify it under the terms of the GNU General Public License
 * as published by the Free Software Foundation; either version 2
@@ -811,6 +811,8 @@ extern int anongame_unqueue_player(t_connection * c, t_uint8 gametype)
 
 extern int anongame_unqueue_team(t_connection *c, t_uint8 gametype)
 {
+//[smith] 20030427 fixed Big-Endian/Little-Endian conversion (Solaris bug) then use  packet_append_data for append platform dependent data types - like "int", cos this code was broken for BE platforms. it's rewriten in platform independent style whis usege bn_int and other bn_* like datatypes and fuctions for wor with datatypes - bn_int_set(), what provide right byteorder, not depended on LE/BE
+//  fixed broken htonl() conversion for BE platforms - change it to  bn_int_nset(). i hope it's worked on intel too %) 
 	int id, i;
 	t_elem *curr;
 	t_matchdata *md;
@@ -987,7 +989,7 @@ extern void handle_anongame_search(t_connection * c, t_packet const * packet)
 			return;
 		}
 
-		w3routeip = htonl(addr_get_ip(routeraddr));
+		w3routeip = addr_get_ip(routeraddr);
 		w3routeport = addr_get_port(routeraddr);
 		addr_destroy(routeraddr);
 	}
@@ -1018,7 +1020,7 @@ extern void handle_anongame_search(t_connection * c, t_packet const * packet)
 		bn_int_set(&rpacket->u.server_anongame_found.count,anongame_get_count(conn_get_anongame(player[gametype][i])));
 		bn_int_set(&rpacket->u.server_anongame_found.unknown1,0);
 		
-		bn_int_set(&rpacket->u.server_anongame_found.ip,w3routeip);
+		bn_int_nset(&rpacket->u.server_anongame_found.ip,w3routeip);
 		bn_short_set(&rpacket->u.server_anongame_found.port,w3routeport);
 		bn_byte_set(&rpacket->u.server_anongame_found.numplayers,anongame_totalplayers(gametype));
 		bn_byte_set(&rpacket->u.server_anongame_found.playernum, i+1);
@@ -1054,26 +1056,27 @@ extern void handle_anongame_search(t_connection * c, t_packet const * packet)
 		    if (gametype > 8) {
 			eventlog(eventlog_level_error, "handle_anongame_search", "invalid gametype (%d)", gametype);
 			temp = 0;
-		    } else temp = gametype_tab[gametype];
+		    } else bn_int_set((bn_int*)&temp,gametype_tab[gametype]);
 		}
 		packet_append_data(rpacket, &temp, 4);
-
+		temp = 0;
 		// total players
-		temp=anongame_totalplayers(gametype);
+		bn_byte_set((bn_byte*)&temp,anongame_totalplayers(gametype));
 		packet_append_data(rpacket, &temp, 1);
-
+		
+		temp = 0;
 		if(gametype == ANONGAME_TYPE_SMALL_FFA)
 			temp = 0;
 		else
-			temp = 2;
+			bn_byte_set((bn_byte*)&temp,2);
 
 		packet_append_data(rpacket, &temp, 1);
 
 		temp=0;
 		packet_append_data(rpacket, &temp, 2);
-		temp=0x02; // visibility. 0x01 - dark 0x02 - default
+		bn_byte_set((bn_byte*)&temp,0x02); // visibility. 0x01 - dark 0x02 - default
 		packet_append_data(rpacket, &temp, 1);
-		temp=0x02;
+		bn_byte_set((bn_byte*)&temp,0x02);
 		packet_append_data(rpacket, &temp, 1);
 
 		queue_push_packet(conn_get_out_queue(player[gametype][i]),rpacket);
@@ -1087,6 +1090,9 @@ extern void handle_anongame_search(t_connection * c, t_packet const * packet)
 
 extern int handle_w3route_packet(t_connection * c, t_packet const * const packet)
 {
+//[smith] 20030427 fixed Big-Endian/Little-Endian conversion (Solaris bug) then use  packet_append_data for append platform dependent data types - like "int", cos this code was broken for BE platforms. it's rewriten in platform independent style whis usege bn_int and other bn_* like datatypes and fuctions for wor with datatypes - bn_int_set(), what provide right byteorder, not depended on LE/BE
+//  fixed broken htonl() conversion for BE platforms - change it to  bn_int_nset(). i hope it's worked on intel too %) 
+
    t_packet * rpacket=NULL;
    t_connection * gamec=NULL;
    char const * username;
@@ -1175,7 +1181,7 @@ extern int handle_w3route_packet(t_connection * c, t_packet const * const packet
       bn_byte_set(&rpacket->u.server_w3route_ack.playernum,anongame_get_playernum(a));
       bn_short_set(&rpacket->u.server_w3route_ack.unknown5,0x0002);
       bn_short_set(&rpacket->u.server_w3route_ack.port,conn_get_port(c));
-      bn_int_set(&rpacket->u.server_w3route_ack.ip,htonl(conn_get_addr(c)));
+      bn_int_nset(&rpacket->u.server_w3route_ack.ip,conn_get_addr(c));
       bn_int_set(&rpacket->u.server_w3route_ack.unknown7,0);
       bn_int_set(&rpacket->u.server_w3route_ack.unknown8,0);
       queue_push_packet(conn_get_out_queue(c), rpacket);
@@ -1395,16 +1401,16 @@ extern int handle_anongame_join(t_connection * c)
 
 					// external addr
 					bn_short_set(&pl_addr.unknown1,2);
-					bn_short_set(&pl_addr.port,htons(conn_get_game_port(o)));
-					bn_int_set(&pl_addr.ip,htonl(conn_get_game_addr(o)));
+					bn_short_nset(&pl_addr.port,conn_get_game_port(o));
+					bn_int_nset(&pl_addr.ip,conn_get_game_addr(o));
 					bn_int_set(&pl_addr.unknown2,0);
 					bn_int_set(&pl_addr.unknown3,0);
 					packet_append_data(rpacket, &pl_addr, sizeof(pl_addr));
 
 					// local addr
 					bn_short_set(&pl_addr.unknown1,2);
-					bn_short_set(&pl_addr.port,htons(conn_get_game_port(o)));
-					bn_int_set(&pl_addr.ip,(anongame_get_addr(oa)));
+					bn_short_nset(&pl_addr.port,conn_get_game_port(o));
+					bn_int_set(&pl_addr.ip,anongame_get_addr(oa));
 					bn_int_set(&pl_addr.unknown2,0);
 					bn_int_set(&pl_addr.unknown3,0);
 					packet_append_data(rpacket, &pl_addr, sizeof(pl_addr));
