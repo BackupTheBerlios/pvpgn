@@ -16,6 +16,7 @@ will be automatically renamed on use
 in the future the IRC codes will be cleaned up)
 -- fixed problems with sql_dbcreator when using pgsql (note that
 conf/sql_DB_layout has been updated)
+-- updated conf/bnmaps.txt to match current battle.net maps lineup
 
 1.6.0beta (since 1.6.0pre5)
 !!! IMPORTANT !!!
