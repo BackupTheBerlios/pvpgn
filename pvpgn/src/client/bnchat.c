@@ -139,7 +139,17 @@
 
 volatile int handle_winch=0;
 
-typedef enum { mode_chat, mode_command, mode_waitstat, mode_waitgames, mode_waitladder, mode_gamename, mode_gamepass, mode_gamewait, mode_gamestop } t_mode;
+typedef enum { 
+  mode_chat, 
+  mode_command, 
+  mode_waitstat, 
+  mode_waitgames, 
+  mode_waitladder, 
+  mode_gamename, 
+  mode_gamepass, 
+  mode_gamewait, 
+  mode_gamestop 
+} t_mode;
 
 
 static char const * mflags_get_str(unsigned int flags);
@@ -375,6 +385,251 @@ static void usage(char const * progname)
     exit(STATUS_FAILURE);
 }
 
+int read_commandline(int argc, char * * argv,
+		     char const * * servname, unsigned short * servport,
+		     char const * * clienttag,
+		     int * changepass, int * newacct,
+		     char const * * channel,
+		     char const * * cdowner,
+		     char const * * cdkey,
+		     int * useansi)
+{
+  int a;
+
+    if (argc<1 || !argv || !argv[0])
+    {
+	fprintf(stderr,"bad arguments\n");
+	return STATUS_FAILURE;
+    }
+    
+    for (a=1; a<argc; a++)
+	if (*servname && isdigit((int)argv[a][0]) && a+1>=argc)
+	{
+            if (str_to_ushort(argv[a],servport)<0)
+            {
+                fprintf(stderr,"%s: \"%s\" should be a positive integer\n",argv[0],argv[a]);
+                usage(argv[0]);
+            }
+	}
+	else if (!(*servname) && argv[a][0]!='-' && a+2>=argc)
+	    *servname = argv[a];
+        else if (strcmp(argv[a],"-a")==0 || strcmp(argv[a],"--use-ansi")==0)
+	    *useansi = 1;
+        else if (strcmp(argv[a],"-n")==0 || strcmp(argv[a],"--new-account")==0)
+	{
+	    if (*changepass)
+	    {
+		fprintf(stderr,"%s: can not create new account when changing passwords\n",argv[0]);
+		usage(argv[0]);
+	    }
+	    *newacct = 1;
+	}
+        else if (strcmp(argv[a],"-c")==0 || strcmp(argv[a],"--change-password")==0)
+	{
+	    if (*newacct)
+	    {
+		fprintf(stderr,"%s: can not change passwords when creating a new account\n",argv[0]);
+		usage(argv[0]);
+	    }
+	    *changepass = 1;
+	}
+        else if (strcmp(argv[a],"--client=CHAT")==0)
+	{
+	    if (*clienttag)
+	    {
+		fprintf(stderr,"%s: client type was already specified as \"%s\"\n",argv[0],clienttag);
+		usage(argv[0]);
+	    }
+	    *clienttag = CLIENTTAG_BNCHATBOT;
+	    *channel = CHANNEL_BNCHATBOT;
+	}
+        else if (strcmp(argv[a],"-b")==0 || strcmp(argv[a],"--client=SEXP")==0)
+	{
+	    if (*clienttag)
+	    {
+		fprintf(stderr,"%s: client type was already specified as \"%s\"\n",argv[0],clienttag);
+		usage(argv[0]);
+	    }
+	    *clienttag = CLIENTTAG_BROODWARS;
+	    *channel = CHANNEL_BROODWARS;
+	}
+        else if (strcmp(argv[a],"-d")==0 || strcmp(argv[a],"--client=DRTL")==0)
+	{
+	    if (*clienttag)
+	    {
+		fprintf(stderr,"%s: client type was already specified as \"%s\"\n",argv[0],clienttag);
+		usage(argv[0]);
+	    }
+	    *clienttag = CLIENTTAG_DIABLORTL;
+	    *channel = CHANNEL_DIABLORTL;
+	}
+        else if (strcmp(argv[a],"--client=DSHR")==0)
+	{
+	    if (*clienttag)
+	    {
+		fprintf(stderr,"%s: client type was already specified as \"%s\"\n",argv[0],clienttag);
+		usage(argv[0]);
+	    }
+	    *clienttag = CLIENTTAG_DIABLOSHR;
+	    *channel = CHANNEL_DIABLOSHR;
+	}
+        else if (strcmp(argv[a],"-s")==0 || strcmp(argv[a],"--client=STAR")==0)
+	{
+	    if (*clienttag)
+	    {
+		fprintf(stderr,"%s: client type was already specified as \"%s\"\n",argv[0],clienttag);
+		usage(argv[0]);
+	    }
+	    *clienttag = CLIENTTAG_STARCRAFT;
+	    *channel = CHANNEL_STARCRAFT;
+	}
+        else if (strcmp(argv[a],"--client=SSHR")==0)
+	{
+	    if (*clienttag)
+	    {
+		fprintf(stderr,"%s: client type was already specified as \"%s\"\n",argv[0],clienttag);
+		usage(argv[0]);
+	    }
+	    *clienttag = CLIENTTAG_SHAREWARE;
+	    *channel = CHANNEL_SHAREWARE;
+	}
+        else if (strcmp(argv[a],"-w")==0 || strcmp(argv[a],"--client=W2BN")==0)
+	{
+	    if (*clienttag)
+	    {
+		fprintf(stderr,"%s: client type was already specified as \"%s\"\n",argv[0],clienttag);
+		usage(argv[0]);
+	    }
+	    *clienttag = CLIENTTAG_WARCIIBNE;
+	    *channel = CHANNEL_WARCIIBNE;
+	}
+        else if (strcmp(argv[a],"--client=D2DV")==0)
+	{
+	    if (*clienttag)
+	    {
+		fprintf(stderr,"%s: client type was already specified as \"%s\"\n",argv[0],clienttag);
+		usage(argv[0]);
+	    }
+	    *clienttag = CLIENTTAG_DIABLO2DV;
+	    *channel = CHANNEL_DIABLO2DV;
+	}
+        else if (strcmp(argv[a],"--client=D2XP")==0)
+	{
+	    if (*clienttag)
+	    {
+		fprintf(stderr,"%s: client type was already specified as \"%s\"\n",argv[0],clienttag);
+		usage(argv[0]);
+	    }
+	    *clienttag = CLIENTTAG_DIABLO2XP;
+	    *channel = CHANNEL_DIABLO2XP;
+	}
+        else if (strcmp(argv[a],"--client=WAR3")==0)
+	{
+	    if (*clienttag)
+	    {
+		fprintf(stderr,"%s: client type was already specified as \"%s\"\n",argv[0],clienttag);
+		usage(argv[0]);
+	    }
+	    *clienttag = CLIENTTAG_WARCRAFT3;
+	    *channel = CHANNEL_WARCRAFT3;
+	}
+        else if (strcmp(argv[a],"--client=W3XP")==0)
+	{
+	    if (*clienttag)
+	    {
+		fprintf(stderr,"%s: client type was already specified as \"%s\"\n",argv[0],clienttag);
+		usage(argv[0]);
+	    }
+	    *clienttag = CLIENTTAG_WAR3XP;
+	    *channel = CHANNEL_WAR3XP;
+	}
+	else if (strncmp(argv[a],"--client=",9)==0)
+	{
+	    fprintf(stderr,"%s: unknown client tag \"%s\"\n",argv[0],&argv[a][9]);
+	    usage(argv[0]);
+	}
+	else if (strcmp(argv[a],"-o")==0)
+	{
+	    if (a+1>=argc)
+            {
+                fprintf(stderr,"%s: option \"%s\" requires an argument\n",argv[0],argv[a]);
+                usage(argv[0]);
+            }
+	    if (*cdowner)
+	    {
+		fprintf(stderr,"%s: CD owner was already specified as \"%s\"\n",argv[0],cdowner);
+		usage(argv[0]);
+	    }
+	    *cdowner = argv[++a];
+	}
+	else if (strncmp(argv[a],"--owner=",8)==0)
+	{
+	    if (*cdowner)
+	    {
+		fprintf(stderr,"%s: CD owner was already specified as \"%s\"\n",argv[0],cdowner);
+		usage(argv[0]);
+	    }
+	    *cdowner = &argv[a][8];
+	}
+	else if (strcmp(argv[a],"-k")==0)
+	{
+	    if (a+1>=argc)
+            {
+                fprintf(stderr,"%s: option \"%s\" requires an argument\n",argv[0],argv[a]);
+                usage(argv[0]);
+            }
+	    if (*cdkey)
+	    {
+		fprintf(stderr,"%s: CD key was already specified as \"%s\"\n",argv[0],cdkey);
+		usage(argv[0]);
+	    }
+	    *cdkey = argv[++a];
+	}
+	else if (strncmp(argv[a],"--cdkey=",8)==0)
+	{
+	    if (*cdkey)
+	    {
+		fprintf(stderr,"%s: CD key was already specified as \"%s\"\n",argv[0],cdkey);
+		usage(argv[0]);
+	    }
+	    *cdkey = &argv[a][8];
+	}
+	else if (strcmp(argv[a],"-v")==0 || strcmp(argv[a],"--version")==0)
+	{
+            printf("version "PVPGN_VERSION"\n");
+            return STATUS_SUCCESS;
+	}
+	else if (strcmp(argv[a],"-h")==0 || strcmp(argv[a],"--help")==0 || strcmp(argv[a],"--usage")
+==0)
+            usage(argv[0]);
+        else if (strcmp(argv[a],"--client")==0 || strcmp(argv[a],"--owner")==0 || strcmp(argv[a],"--cdkey")==0)
+	{
+	    fprintf(stderr,"%s: option \"%s\" requires an argument\n",argv[0],argv[a]);
+	    usage(argv[0]);
+	}
+	else
+	{
+	    fprintf(stderr,"%s: unknown option \"%s\"\n",argv[0],argv[a]);
+	    usage(argv[0]);
+	}
+    
+    if (*servport==0)
+	*servport = BNETD_SERV_PORT;
+    if (!(*cdowner))
+	*cdowner = BNETD_DEFAULT_OWNER;
+    if (!(*cdkey))
+	*cdkey = BNETD_DEFAULT_KEY;
+    if (!(*clienttag))
+    {
+	*clienttag = CLIENTTAG_STARCRAFT;
+	*channel = CHANNEL_STARCRAFT;
+    }
+    if (!(*servname))
+	*servname = BNETD_DEFAULT_HOST;
+
+    return 0;
+}
+
 
 extern int main(int argc, char * argv[])
 {
@@ -410,236 +665,8 @@ extern int main(int argc, char * argv[])
     char               curr_gamename[GAME_NAME_LEN];
     char               curr_gamepass[GAME_PASS_LEN];
     
-    if (argc<1 || !argv || !argv[0])
-    {
-	fprintf(stderr,"bad arguments\n");
-	return STATUS_FAILURE;
-    }
-    
-    for (a=1; a<argc; a++)
-	if (servname && isdigit((int)argv[a][0]) && a+1>=argc)
-	{
-            if (str_to_ushort(argv[a],&servport)<0)
-            {
-                fprintf(stderr,"%s: \"%s\" should be a positive integer\n",argv[0],argv[a]);
-                usage(argv[0]);
-            }
-	}
-	else if (!servname && argv[a][0]!='-' && a+2>=argc)
-	    servname = argv[a];
-        else if (strcmp(argv[a],"-a")==0 || strcmp(argv[a],"--use-ansi")==0)
-	    useansi = 1;
-        else if (strcmp(argv[a],"-n")==0 || strcmp(argv[a],"--new-account")==0)
-	{
-	    if (changepass)
-	    {
-		fprintf(stderr,"%s: can not create new account when changing passwords\n",argv[0]);
-		usage(argv[0]);
-	    }
-	    newacct = 1;
-	}
-        else if (strcmp(argv[a],"-c")==0 || strcmp(argv[a],"--change-password")==0)
-	{
-	    if (newacct)
-	    {
-		fprintf(stderr,"%s: can not change passwords when creating a new account\n",argv[0]);
-		usage(argv[0]);
-	    }
-	    changepass = 1;
-	}
-        else if (strcmp(argv[a],"--client=CHAT")==0)
-	{
-	    if (clienttag)
-	    {
-		fprintf(stderr,"%s: client type was already specified as \"%s\"\n",argv[0],clienttag);
-		usage(argv[0]);
-	    }
-	    clienttag = CLIENTTAG_BNCHATBOT;
-	    channel = CHANNEL_BNCHATBOT;
-	}
-        else if (strcmp(argv[a],"-b")==0 || strcmp(argv[a],"--client=SEXP")==0)
-	{
-	    if (clienttag)
-	    {
-		fprintf(stderr,"%s: client type was already specified as \"%s\"\n",argv[0],clienttag);
-		usage(argv[0]);
-	    }
-	    clienttag = CLIENTTAG_BROODWARS;
-	    channel = CHANNEL_BROODWARS;
-	}
-        else if (strcmp(argv[a],"-d")==0 || strcmp(argv[a],"--client=DRTL")==0)
-	{
-	    if (clienttag)
-	    {
-		fprintf(stderr,"%s: client type was already specified as \"%s\"\n",argv[0],clienttag);
-		usage(argv[0]);
-	    }
-	    clienttag = CLIENTTAG_DIABLORTL;
-	    channel = CHANNEL_DIABLORTL;
-	}
-        else if (strcmp(argv[a],"--client=DSHR")==0)
-	{
-	    if (clienttag)
-	    {
-		fprintf(stderr,"%s: client type was already specified as \"%s\"\n",argv[0],clienttag);
-		usage(argv[0]);
-	    }
-	    clienttag = CLIENTTAG_DIABLOSHR;
-	    channel = CHANNEL_DIABLOSHR;
-	}
-        else if (strcmp(argv[a],"-s")==0 || strcmp(argv[a],"--client=STAR")==0)
-	{
-	    if (clienttag)
-	    {
-		fprintf(stderr,"%s: client type was already specified as \"%s\"\n",argv[0],clienttag);
-		usage(argv[0]);
-	    }
-	    clienttag = CLIENTTAG_STARCRAFT;
-	    channel = CHANNEL_STARCRAFT;
-	}
-        else if (strcmp(argv[a],"--client=SSHR")==0)
-	{
-	    if (clienttag)
-	    {
-		fprintf(stderr,"%s: client type was already specified as \"%s\"\n",argv[0],clienttag);
-		usage(argv[0]);
-	    }
-	    clienttag = CLIENTTAG_SHAREWARE;
-	    channel = CHANNEL_SHAREWARE;
-	}
-        else if (strcmp(argv[a],"-w")==0 || strcmp(argv[a],"--client=W2BN")==0)
-	{
-	    if (clienttag)
-	    {
-		fprintf(stderr,"%s: client type was already specified as \"%s\"\n",argv[0],clienttag);
-		usage(argv[0]);
-	    }
-	    clienttag = CLIENTTAG_WARCIIBNE;
-	    channel = CHANNEL_WARCIIBNE;
-	}
-        else if (strcmp(argv[a],"--client=D2DV")==0)
-	{
-	    if (clienttag)
-	    {
-		fprintf(stderr,"%s: client type was already specified as \"%s\"\n",argv[0],clienttag);
-		usage(argv[0]);
-	    }
-	    clienttag = CLIENTTAG_DIABLO2DV;
-	    channel = CHANNEL_DIABLO2DV;
-	}
-        else if (strcmp(argv[a],"--client=D2XP")==0)
-	{
-	    if (clienttag)
-	    {
-		fprintf(stderr,"%s: client type was already specified as \"%s\"\n",argv[0],clienttag);
-		usage(argv[0]);
-	    }
-	    clienttag = CLIENTTAG_DIABLO2XP;
-	    channel = CHANNEL_DIABLO2XP;
-	}
-        else if (strcmp(argv[a],"--client=WAR3")==0)
-	{
-	    if (clienttag)
-	    {
-		fprintf(stderr,"%s: client type was already specified as \"%s\"\n",argv[0],clienttag);
-		usage(argv[0]);
-	    }
-	    clienttag = CLIENTTAG_WARCRAFT3;
-	    channel = CHANNEL_WARCRAFT3;
-	}
-        else if (strcmp(argv[a],"--client=W3XP")==0)
-	{
-	    if (clienttag)
-	    {
-		fprintf(stderr,"%s: client type was already specified as \"%s\"\n",argv[0],clienttag);
-		usage(argv[0]);
-	    }
-	    clienttag = CLIENTTAG_WAR3XP;
-	    channel = CHANNEL_WAR3XP;
-	}
-	else if (strncmp(argv[a],"--client=",9)==0)
-	{
-	    fprintf(stderr,"%s: unknown client tag \"%s\"\n",argv[0],&argv[a][9]);
-	    usage(argv[0]);
-	}
-	else if (strcmp(argv[a],"-o")==0)
-	{
-	    if (a+1>=argc)
-            {
-                fprintf(stderr,"%s: option \"%s\" requires an argument\n",argv[0],argv[a]);
-                usage(argv[0]);
-            }
-	    if (cdowner)
-	    {
-		fprintf(stderr,"%s: CD owner was already specified as \"%s\"\n",argv[0],cdowner);
-		usage(argv[0]);
-	    }
-	    cdowner = argv[++a];
-	}
-	else if (strncmp(argv[a],"--owner=",8)==0)
-	{
-	    if (cdowner)
-	    {
-		fprintf(stderr,"%s: CD owner was already specified as \"%s\"\n",argv[0],cdowner);
-		usage(argv[0]);
-	    }
-	    cdowner = &argv[a][8];
-	}
-	else if (strcmp(argv[a],"-k")==0)
-	{
-	    if (a+1>=argc)
-            {
-                fprintf(stderr,"%s: option \"%s\" requires an argument\n",argv[0],argv[a]);
-                usage(argv[0]);
-            }
-	    if (cdkey)
-	    {
-		fprintf(stderr,"%s: CD key was already specified as \"%s\"\n",argv[0],cdkey);
-		usage(argv[0]);
-	    }
-	    cdkey = argv[++a];
-	}
-	else if (strncmp(argv[a],"--cdkey=",8)==0)
-	{
-	    if (cdkey)
-	    {
-		fprintf(stderr,"%s: CD key was already specified as \"%s\"\n",argv[0],cdkey);
-		usage(argv[0]);
-	    }
-	    cdkey = &argv[a][8];
-	}
-	else if (strcmp(argv[a],"-v")==0 || strcmp(argv[a],"--version")==0)
-	{
-            printf("version "PVPGN_VERSION"\n");
-            return STATUS_SUCCESS;
-	}
-	else if (strcmp(argv[a],"-h")==0 || strcmp(argv[a],"--help")==0 || strcmp(argv[a],"--usage")
-==0)
-            usage(argv[0]);
-        else if (strcmp(argv[a],"--client")==0 || strcmp(argv[a],"--owner")==0 || strcmp(argv[a],"--cdkey")==0)
-	{
-	    fprintf(stderr,"%s: option \"%s\" requires an argument\n",argv[0],argv[a]);
-	    usage(argv[0]);
-	}
-	else
-	{
-	    fprintf(stderr,"%s: unknown option \"%s\"\n",argv[0],argv[a]);
-	    usage(argv[0]);
-	}
-    
-    if (servport==0)
-	servport = BNETD_SERV_PORT;
-    if (!cdowner)
-	cdowner = BNETD_DEFAULT_OWNER;
-    if (!cdkey)
-	cdkey = BNETD_DEFAULT_KEY;
-    if (!clienttag)
-    {
-	clienttag = CLIENTTAG_STARCRAFT;
-	channel = CHANNEL_STARCRAFT;
-    }
-    if (!servname)
-	servname = BNETD_DEFAULT_HOST;
+
+    read_commandline(argc,argv,&servname,&servport,&clienttag,&changepass,&newacct,&channel,&cdowner,&cdkey,&useansi);
     
     fd_stdin = fileno(stdin);
     if (tcgetattr(fd_stdin,&in_attr_old)>=0)
