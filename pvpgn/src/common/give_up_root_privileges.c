@@ -80,7 +80,7 @@ extern int give_up_root_privileges(char const * user_name, char const * group_na
      */
     
 #ifdef HAVE_SETGID
-    if (group_id)
+    if (group_name)
     {
         if (-1 == setgid(group_id))
         {
@@ -94,7 +94,7 @@ extern int give_up_root_privileges(char const * user_name, char const * group_na
 #endif
     
 #ifdef HAVE_SETUID
-    if (user_id)
+    if (user_name)
     {
         if (-1 == setuid(user_id))
         {
