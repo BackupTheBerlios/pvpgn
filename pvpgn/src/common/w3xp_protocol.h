@@ -483,6 +483,8 @@ typedef struct
 */
 #define SERVER_W3XP_GAMELISTREPLY	0x68FF
 
+#define CLIENT_W3XP_STARTGAME		0x79ff
+
 /*
 0000:   FF 4A 1D 00 00 00 00 00   2D 01 00 00 4A 75 73 74    .J......-...Just
 0010:   20 50 6C 61 79 2E 2E 2E   2E 2E 2E 00 00              Play........   
@@ -495,6 +497,6 @@ typedef struct
 
 //#define CLIENT_W3XP_CLOSEGAME		0x67FF
 
-#define CLIENT_W3XP_COMMAND		0x0aff
+#define CLIENT_W3XP_MESSAGE		0x0aff
 
 #endif
