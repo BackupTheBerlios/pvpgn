@@ -622,7 +622,7 @@ extern void conn_destroy(t_connection * c)
     clanmember_set_offline(c);
 
     if(c->account)
-	watchlist_notify_event(c->account,NULL,watch_event_logout);
+	watchlist_notify_event(c->account,NULL,conn_get_clienttag(c),watch_event_logout);
     
     if (c->versioncheck)
 	versioncheck_destroy((void *)c->versioncheck); /* avoid warning */
@@ -1600,7 +1600,7 @@ extern void conn_set_account(t_connection * c, t_account * account)
 
     totalcount++;
     
-    watchlist_notify_event(c->account,NULL,watch_event_login);
+    watchlist_notify_event(c->account,NULL,conn_get_clienttag(c),watch_event_login);
     
     return;
 }
@@ -1894,7 +1894,7 @@ extern int conn_del_ignore(t_connection * c, t_account const * account)
 }
 
 
-extern int conn_add_watch(t_connection * c, t_account * account)
+extern int conn_add_watch(t_connection * c, t_account * account, char const * clienttag)
 {
     if (!c)
     {
@@ -1902,13 +1902,13 @@ extern int conn_add_watch(t_connection * c, t_account * account)
         return -1;
     }
     
-    if (watchlist_add_events(c,account,watch_event_login|watch_event_logout|watch_event_joingame|watch_event_leavegame)<0)
+    if (watchlist_add_events(c,account,clienttag,watch_event_login|watch_event_logout|watch_event_joingame|watch_event_leavegame)<0)
 	return -1;
     return 0;
 }
 
 
-extern int conn_del_watch(t_connection * c, t_account * account)
+extern int conn_del_watch(t_connection * c, t_account * account, char const * clienttag)
 {
     if (!c)
     {
@@ -1916,7 +1916,7 @@ extern int conn_del_watch(t_connection * c, t_account * account)
         return -1;
     }
     
-    if (watchlist_del_events(c,account,watch_event_login|watch_event_logout|watch_event_joingame|watch_event_leavegame)<0)
+    if (watchlist_del_events(c,account,clienttag,watch_event_login|watch_event_logout|watch_event_joingame|watch_event_leavegame)<0)
 	return -1;
     return 0;
 }

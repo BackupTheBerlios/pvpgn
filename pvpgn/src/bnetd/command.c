@@ -2563,7 +2563,7 @@ static int _handle_watch_command(t_connection * c, char const *text)
       return 0;
     }
   
-  if (conn_add_watch(c,account)<0) /* FIXME: adds all events for now */
+  if (conn_add_watch(c,account,NULL)<0) /* FIXME: adds all events for now */
     message_send_text(c,message_type_error,c,"Add to watch list failed.");
   else
     {
@@ -2593,7 +2593,7 @@ static int _handle_unwatch_command(t_connection * c, char const *text)
        return 0;
      }
    
-   if (conn_del_watch(c,account)<0) /* FIXME: deletes all events for now */
+   if (conn_del_watch(c,account,NULL)<0) /* FIXME: deletes all events for now */
      message_send_text(c,message_type_error,c,"Removal from watch list failed.");
    else
      {
@@ -2606,18 +2606,40 @@ static int _handle_unwatch_command(t_connection * c, char const *text)
 
 static int _handle_watchall_command(t_connection * c, char const *text)
 {
-  if (conn_add_watch(c,NULL)<0) /* FIXME: adds all events for now */
+	char const * clienttag = NULL;
+	text = skip_command(text);
+	if(text[0] != '\0')
+		clienttag = text;
+  if (conn_add_watch(c,NULL,clienttag)<0) /* FIXME: adds all events for now */
     message_send_text(c,message_type_error,c,"Add to watch list failed.");
   else
+	if(clienttag)
+	{
+	char msgtemp[MAX_MESSAGE_LEN];
+	sprintf(msgtemp, "All %s users added to your watch list.", clienttag);
+    message_send_text(c,message_type_info,c,msgtemp);
+	}
+	else
     message_send_text(c,message_type_info,c,"All users added to your watch list.");
   return 0;
 }
 
 static int _handle_unwatchall_command(t_connection * c, char const *text)
 {
-  if (conn_del_watch(c,NULL)<0) /* FIXME: deletes all events for now */
+	char const * clienttag = NULL;
+	text = skip_command(text);
+	if(text[0] != '\0')
+		clienttag = text;
+  if (conn_del_watch(c,NULL,clienttag)<0) /* FIXME: deletes all events for now */
     message_send_text(c,message_type_error,c,"Removal from watch list failed.");
   else
+	if(clienttag)
+	{
+	char msgtemp[MAX_MESSAGE_LEN];
+	sprintf(msgtemp, "All %s users removed from your watch list.", clienttag);
+    message_send_text(c,message_type_info,c,msgtemp);
+	}
+	else
     message_send_text(c,message_type_info,c,"All users removed from your watch list.");
   return 0;
 }

@@ -1742,7 +1742,7 @@ extern int game_del_player(t_game * game, unsigned int sessionid)
 
    if(conn_get_leavegamewhisper_ack(c)==0)
      {
-       watchlist_notify_event(conn_get_account(c),NULL,watch_event_leavegame);
+       watchlist_notify_event(conn_get_account(c),NULL,conn_get_clienttag(c),watch_event_leavegame);
        conn_set_leavegamewhisper_ack(c,1); //1 = already whispered. We reset this each time user joins a channel
      }
     

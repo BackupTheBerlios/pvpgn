@@ -24,6 +24,7 @@
 #  include <malloc.h>
 # endif
 #endif
+#include "compat/strcasecmp.h"
 #include "common/field_sizes.h"
 #include "common/list.h"
 #include "account.h"
@@ -39,7 +40,7 @@ static t_list * watchlist_head=NULL;
 
 
 /* who == NULL means anybody */
-extern int watchlist_add_events(t_connection * owner, t_account * who, t_watch_event events)
+extern int watchlist_add_events(t_connection * owner, t_account * who, char const * clienttag, t_watch_event events)
 {
     t_elem const * curr;
     t_watch_pair * pair;
@@ -58,7 +59,7 @@ extern int watchlist_add_events(t_connection * owner, t_account * who, t_watch_e
 	    eventlog(eventlog_level_error,"watchlist_add_events","watchlist contains NULL item");
 	    return -1;
 	}
-	if (pair->owner==owner && pair->who==who)
+	if (pair->owner==owner && pair->who==who && ((clienttag == NULL && strlen(pair->clienttag) == 0) || strcasecmp(pair->clienttag, clienttag)==0))
 	{
 	    pair->what |= events;
 	    return 0;
@@ -70,6 +71,11 @@ extern int watchlist_add_events(t_connection * owner, t_account * who, t_watch_e
 	eventlog(eventlog_level_error,"watchlist_add_events","could not allocate memory for pair");
 	return -1;
     }
+
+	if(clienttag)
+		strcpy(pair->clienttag, clienttag);
+	else
+		strcpy(pair->clienttag, "");
     pair->owner = owner;
     pair->who   = who;
     pair->what  = events;
@@ -86,7 +92,7 @@ extern int watchlist_add_events(t_connection * owner, t_account * who, t_watch_e
 
 
 /* who == NULL means anybody */
-extern int watchlist_del_events(t_connection * owner, t_account * who, t_watch_event events)
+extern int watchlist_del_events(t_connection * owner, t_account * who, char const * clienttag, t_watch_event events)
 {
     t_elem *       curr;
     t_watch_pair * pair;
@@ -105,7 +111,7 @@ extern int watchlist_del_events(t_connection * owner, t_account * who, t_watch_e
 	    eventlog(eventlog_level_error,"watchlist_del_events","watchlist contains NULL item");
 	    return -1;
 	}
-	if (pair->owner==owner && pair->who==who)
+	if (pair->owner==owner && pair->who==who && (clienttag == NULL || strcasecmp(clienttag, pair->clienttag) == 0))
 	{
 	    pair->what &= ~events;
 	    if (pair->what==0)
@@ -203,7 +209,7 @@ extern int watchlist_del_by_account(t_account * who)
     return 0;
 }
 
-extern int handle_event_whisper(t_account *account, char const *gamename, t_watch_event event)
+static int handle_event_whisper(t_account *account, char const *gamename, char const * clienttag, t_watch_event event)
 {
     t_elem const * curr;
     t_watch_pair * pair;
@@ -284,14 +290,14 @@ extern int handle_event_whisper(t_account *account, char const *gamename, t_watc
 	  eventlog(eventlog_level_error,"watchlist_notify_event","watchlist contains NULL item");
 	  return -1;
 	}
-      if (pair->owner && (pair->who==account || !pair->who) && (pair->what&event))
+	if (pair->owner && (!pair->who || pair->who==account) && (!pair->clienttag || (clienttag && strcasecmp(pair->clienttag, clienttag)==0)) && (pair->what&event))
 	message_send_text(pair->owner,message_type_info,pair->owner,msg);
     }
   
     return 0;
 }
 
-extern int watchlist_notify_event(t_account * who, char const * gamename, t_watch_event event)
+extern int watchlist_notify_event(t_account * who, char const * gamename, char const * clienttag, t_watch_event event)
 {
 
     switch (event)
@@ -300,7 +306,7 @@ extern int watchlist_notify_event(t_account * who, char const * gamename, t_watc
     case watch_event_logout:
     case watch_event_joingame:
     case watch_event_leavegame:
-      handle_event_whisper(who,gamename,event);
+      handle_event_whisper(who,gamename,clienttag,event);
       break;
     default:
       eventlog(eventlog_level_error,"watchlist_notify_event","got unknown event %u",(unsigned int)event);

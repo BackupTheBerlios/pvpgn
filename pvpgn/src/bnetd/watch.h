@@ -46,6 +46,7 @@ typedef struct
     t_connection * owner; /* who to notify */
     t_account *    who;   /* when this account */
     t_watch_event  what;  /* does one of these things */
+	char           clienttag[5];
 } t_watch_pair;
 #endif
 
@@ -62,11 +63,11 @@ typedef struct
 
 extern int watchlist_create(void);
 extern int watchlist_destroy(void);
-extern int watchlist_add_events(t_connection * owner, t_account * who, t_watch_event events);
-extern int watchlist_del_events(t_connection * owner, t_account * who, t_watch_event events);
+extern int watchlist_add_events(t_connection * owner, t_account * who, char const * clienttag, t_watch_event events);
+extern int watchlist_del_events(t_connection * owner, t_account * who, char const * clienttag, t_watch_event events);
 extern int watchlist_del_all_events(t_connection * owner);
 extern int watchlist_del_by_account(t_account * account);
-extern int watchlist_notify_event(t_account * who, char const * gamename, t_watch_event event);
+extern int watchlist_notify_event(t_account * who, char const * gamename, char const * clienttag, t_watch_event event);
 
 #endif
 #endif
