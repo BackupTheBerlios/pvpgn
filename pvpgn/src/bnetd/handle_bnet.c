@@ -4407,6 +4407,8 @@ static int _client_progident2(t_connection * c, t_packet const * const packet)
 static int _client_joinchannel(t_connection * c, t_packet const * const packet)
 {
    t_account * account;
+   char const * cname;
+   int 		found=1;
 
    if (packet_get_size(packet)<sizeof(t_client_joinchannel)) {
       eventlog(eventlog_level_error,__FUNCTION__,"[%d] got bad JOINCHANNEL packet (expected %u bytes, got %u)",conn_get_socket(c),sizeof(t_client_joinchannel),packet_get_size(packet));
@@ -4414,10 +4416,6 @@ static int _client_joinchannel(t_connection * c, t_packet const * const packet)
    }
    
    account = conn_get_account(c);
-
-   
-   char const * cname;
-   int          found=1;
    
    if (!(cname = packet_get_str_const(packet,sizeof(t_client_joinchannel),CHANNEL_NAME_LEN))) {
      eventlog(eventlog_level_error,__FUNCTION__,"[%d] got bad JOINCHANNEL (missing or too long cname)",conn_get_socket(c));
