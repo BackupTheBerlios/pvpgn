@@ -42,6 +42,7 @@
 #include "compat/strdup.h"
 #include "compat/strcasecmp.h"
 #include "compat/strncasecmp.h"
+#include "compat/strtoul.h"
 
 #ifdef TIME_WITH_SYS_TIME
 # include <sys/time.h>
@@ -1027,7 +1028,6 @@ static int sql_load_clans(t_load_clans_func cb)
 	eventlog(eventlog_level_error, __FUNCTION__, "error query db (query:\"%s\")", query);
 	return -1;
     }
-
     return 0;
 }
 
@@ -1186,16 +1186,161 @@ static int sql_remove_clanmember(int uid)
 
 static int sql_load_teams(t_load_teams_func cb)
 {
+    t_sql_res *result;
+    t_sql_row *row;
+    char query[1024];
+    t_team *team;
+    int i;
+
+    if (!sql)
+    {
+	eventlog(eventlog_level_error, __FUNCTION__, "sql layer not initilized");
+	return -1;
+    }
+
+    if (cb == NULL)
+    {
+	eventlog(eventlog_level_error, __FUNCTION__, "get NULL callback");
+	return -1;
+    }
+
+    strcpy(query, "SELECT teamid, size, clienttag, lastgame, member1, member2, member3, member4, wins,losses, xp, level, rank FROM arrangedteam WHERE teamid > 0");
+    if ((result = sql->query_res(query)) != NULL)
+    {
+	if (sql->num_rows(result) < 1)
+	{
+	    sql->free_result(result);
+	    return 0;		/* empty team list */
+	}
+
+	while ((row = sql->fetch_row(result)) != NULL)
+	{
+	    if (row[0] == NULL)
+	    {
+		eventlog(eventlog_level_error, __FUNCTION__, "got NULL teamid from db");
+		continue;
+	    }
+
+	    team = xmalloc(sizeof(t_team));
+
+	    if (!(team->teamid = atoi(row[0])))
+	    {
+		eventlog(eventlog_level_error, __FUNCTION__, "got bad teamid");
+		sql->free_result(result);
+		return -1;
+	    }
+
+	    team->size = atoi(row[1]);
+	    team->clienttag=tag_str_to_uint(row[2]);
+	    team->lastgame = strtoul(row[3],NULL,10);
+	    team->teammembers[0] = strtoul(row[4],NULL,10);
+	    team->teammembers[1] = strtoul(row[5],NULL,10);
+	    team->teammembers[2] = strtoul(row[6],NULL,10);
+	    team->teammembers[3] = strtoul(row[7],NULL,10);
+	    
+	    for (i=0; i<MAX_TEAMSIZE;i++)
+	    {
+	       if (i<team->size)
+	       {
+		    if ((team->teammembers[i]==0))
+		    {
+	    		eventlog(eventlog_level_error,__FUNCTION__,"invalid team data: too few members");
+	    		free((void *)team);
+	    		goto load_team_failure;
+		    }
+	       }
+	       else
+	       {
+	   	    if ((team->teammembers[i]!=0))
+		    {
+	    		eventlog(eventlog_level_error,__FUNCTION__,"invalid team data: too many members");
+	    		free((void *)team);
+	    		goto load_team_failure;
+		    }
+
+	       }
+	       team->members[i] = NULL;
+	    }
+	
+	    team->wins = atoi(row[8]);
+	    team->losses = atoi(row[9]);
+	    team->xp = atoi(row[10]);
+	    team->level = atoi(row[11]);
+	    team->rank = atoi(row[12]);
+
+	    eventlog(eventlog_level_trace,__FUNCTION__,"succesfully loaded team %u",team->teamid);
+	    cb(team);
+	    load_team_failure:
+	    ;    
+	}
+
+	sql->free_result(result);
+    } else
+    {
+	eventlog(eventlog_level_error, __FUNCTION__, "error query db (query:\"%s\")", query);
+	return -1;
+    }
     return 0;
 }
 
 static int sql_write_team(void *data)
 {
+    char query[1024];
+    t_sql_res *result;
+    t_sql_row *row;
+    t_team *team = (t_team *) data;
+    int num;
+
+    if (!sql)
+    {
+	eventlog(eventlog_level_error, __FUNCTION__, "sql layer not initilized");
+	return -1;
+    }
+
+    sprintf(query, "SELECT count(*) FROM arrangedteam WHERE teamid='%u'", team->teamid);
+    if ((result = sql->query_res(query)) != NULL)
+    {
+	row = sql->fetch_row(result);
+	if (row == NULL || row[0] == NULL)
+	{
+	    sql->free_result(result);
+	    eventlog(eventlog_level_error, __FUNCTION__, "got NULL count");
+	    return -1;
+	}
+	num = atol(row[0]);
+	sql->free_result(result);
+	if (num < 1)
+	    sprintf(query, "INSERT INTO arrangedteam (teamid, size, clienttag, lastgame, member1, member2, member3, member4, wins,losses, xp, level, rank) VALUES('%u', '%c', '%s', '%u', '%u', '%u', '%u', '%u', '%d', '%d', '%d', '%d', '%d')", team->teamid,team->size+'0',clienttag_uint_to_str(team->clienttag),(unsigned int)team->lastgame,team->teammembers[0],team->teammembers[1],team->teammembers[2],team->teammembers[3],team->wins,team->losses,team->xp,team->level,team->rank);
+	else
+	    sprintf(query, "UPDATE arrangedteam SET size='%c', clienttag='%s', lastgame='%u', member1='%u',member2='%u', member3='%u',member4='%u', wins='%d' losses='%d', xp='%d', level='%d', rank='%d' WHERE teamid='%u'",team->size+'0',clienttag_uint_to_str(team->clienttag),(unsigned int)team->lastgame,team->teammembers[0],team->teammembers[1],team->teammembers[2],team->teammembers[3],team->wins,team->losses,team->xp,team->level,team->rank,team->teamid);
+	if (sql->query(query) < 0)
+	{
+	    eventlog(eventlog_level_error, __FUNCTION__, "error trying query: \"%s\"", query);
+	    return -1;
+	}
+    } else
+    {
+	eventlog(eventlog_level_error, __FUNCTION__, "error trying query: \"%s\"", query);
+	return -1;
+    }
+
     return 0;
 }
 
 static int sql_remove_team(unsigned int teamid)
 {
+    char query[1024];
+
+    if (!sql)
+    {
+	eventlog(eventlog_level_error, __FUNCTION__, "sql layer not initilized");
+	return -1;
+    }
+
+    sprintf(query, "DELETE FROM arrangedteam WHERE teamid='%u'", teamid);
+    if (sql->query(query) != 0)
+        return -1;
+
     return 0;
 }
 

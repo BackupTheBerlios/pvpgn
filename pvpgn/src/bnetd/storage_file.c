@@ -737,8 +737,9 @@ static int file_load_teams(t_load_teams_func cb)
     t_team *team;
     FILE *fp;
     char * line;
-    unsigned int fteamid;
+    unsigned int fteamid,lastgame;
     unsigned char size;
+    char clienttag[5];
     int i;
 
     if (cb == NULL)
@@ -785,7 +786,7 @@ static int file_load_teams(t_load_teams_func cb)
 	    goto load_team_failure;
 	}
 	
-	if (sscanf(line,"%u,%c",&fteamid,&size)!=2)
+	if (sscanf(line,"%u,%c,%4s,%u",&fteamid,&size,clienttag,&lastgame)!=4)
 	{
 	    eventlog(eventlog_level_error,__FUNCTION__,"invalid team file: invalid number of arguments on first line");
 	    goto load_team_failure;
@@ -804,6 +805,13 @@ static int file_load_teams(t_load_teams_func cb)
 	    goto load_team_failure;
 	}
 	team->size = size;
+	
+	if (!(tag_check_client(team->clienttag = tag_str_to_uint(clienttag))))
+	{
+	    eventlog(eventlog_level_error,__FUNCTION__,"invalid team file: invalid clienttag");
+	    goto load_team_failure;
+	}
+	team->lastgame = (time_t)lastgame;
 
 	xfree((void *)line);
 
@@ -900,9 +908,9 @@ static int file_write_team(void *data)
 	return -1;
     }
 
-    fprintf(fp,"%u,%c",team->teamid,team->size+'0');
-    fprintf(fp,"%u,%u,%u,%u",team->teammembers[0],team->teammembers[1],team->teammembers[2],team->teammembers[3]);
-    fprintf(fp,"%d,%d,%d,%d,%d",team->wins,team->losses,team->xp,team->level,team->rank);
+    fprintf(fp,"%u,%c,%s,%u\n",team->teamid,team->size+'0',clienttag_uint_to_str(team->clienttag),(unsigned int)team->lastgame);
+    fprintf(fp,"%u,%u,%u,%u\n",team->teammembers[0],team->teammembers[1],team->teammembers[2],team->teammembers[3]);
+    fprintf(fp,"%d,%d,%d,%d,%d\n",team->wins,team->losses,team->xp,team->level,team->rank);
 
     fclose(fp);
     xfree((void *) teamfile);
