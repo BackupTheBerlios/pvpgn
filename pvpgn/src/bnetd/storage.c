@@ -31,9 +31,7 @@
 #ifdef WITH_SQL
 #include "storage_sql.h"
 #endif
-#ifdef WITH_CDB
 #include "storage_cdb.h"
-#endif
 
 #include "compat/strdup.h"
 #include "common/eventlog.h"
@@ -63,12 +61,9 @@ extern int storage_init(const char *spath)
 	return -1;
     }
 
-    strcpy(dstr, "file");
+    strcpy(dstr, "file, cdb");
 #ifdef WITH_SQL
     strcat(dstr, ", sql");
-#endif
-#ifdef WITH_CDB
-    strcat(dstr, ", cdb");
 #endif
     eventlog(eventlog_level_info, __FUNCTION__, "initializing storage layer (available drivers: %s)", dstr);
 
@@ -78,18 +73,16 @@ extern int storage_init(const char *spath)
 	res = storage->init(p + 1);
 	eventlog(eventlog_level_info, __FUNCTION__, "using file storage driver");
     }
+    else if (strcasecmp(spath, "cdb") == 0) {
+	storage = &storage_cdb;
+	res = storage->init(p + 1);
+	eventlog(eventlog_level_info, __FUNCTION__, "using cdb storage driver");
+    }
 #ifdef WITH_SQL
     else if (strcasecmp(spath, "sql") == 0) {
 	storage = &storage_sql;
 	res = storage->init(p + 1);
 	eventlog(eventlog_level_info, __FUNCTION__, "using sql storage driver");
-    }
-#endif
-#ifdef WITH_CDB
-    else if (strcasecmp(spath, "cdb") == 0) {
-	storage = &storage_cdb;
-	res = storage->init(p + 1);
-	eventlog(eventlog_level_info, __FUNCTION__, "using cdb storage driver");
     }
 #endif
     else {

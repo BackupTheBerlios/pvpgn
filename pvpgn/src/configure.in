@@ -80,8 +80,6 @@ esac])
 extra_lib=""
 AC_ARG_WITH(efence, [  --with-efence           link with Electric Fence to find memory problems], [extra_lib="${extra_lib} -lefence"])
 
-AC_ARG_WITH(cdb, [  --with-cdb              include cdb user accounts file support], [ac_with_cdb='yes'])
-
 AC_ARG_WITH(mysql, [  --with-mysql            include MySQL user accounts support], [ac_with_mysql='yes'])
 
 AC_ARG_WITH(pgsql, [  --with-pgsql            include PostgreSQL user accounts support], [ac_with_pgsql='yes'])
@@ -263,12 +261,6 @@ AC_FUNC_SETPGRP
 AC_FUNC_CLOSEDIR_VOID
 AC_FUNC_MKDIR_ARGS
 AC_CHECK_FUNCS(gethostname gettimeofday select socket strdup strtoul strerror inet_aton inet_ntoa uname recv send recvfrom sendto uname fork getpid sigaction sigprocmask sigaddset setpgid setpgrp ftime strcasecmp strncasecmp stricmp strnicmp chdir difftime strchr strrchr index rindex memcpy memset memmove bcopy wait waitpid pipe getenv ioctl setsid mktime poll gethostbyname getservbyname getlogin pow getpwnam getgrnam getuid getgid setuid setgid mkdir _mkdir strsep getopt kqueue setitimer)
-
-dnl Enabling CDB support if chosen
-if test "$ac_with_cdb" = "yes" ; then
-    echo "enabling CDB support ... "
-    DEFINES="${DEFINES} -DWITH_CDB"
-fi
 
 if test X"${am_cv_prog_cc_stdc}" = X"no"; then
     COMPILEANSI1='${PREPROCESS} $< | sed '"'"'s/^# *\([0-9][0-9]*\)  *\([^ ]*[a-z][^ ]*\) *.*$$/#line \1 \2/'"'"' | ${SRC_ACDIR}/ansi2knr > ${SRC_SRCDIR}/.ansi2knr_tmp.c'
