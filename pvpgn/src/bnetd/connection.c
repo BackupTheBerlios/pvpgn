@@ -2033,12 +2033,13 @@ extern int conn_set_game(t_connection * c, char const * gamename, char const * g
     if (gamename)
     {
 	if (!(c->game = gamelist_find_game(gamename,type)))
+	/* version from KWS - commented out to try if this made D2 problems
         { 
-	    /* setup a new game if it does not allready exist */
+	    // setup a new game if it does not allready exist
 	    if (!(c->game = game_create(gamename,gamepass,gameinfo,type,version,conn_get_clienttag(c))))
 	       return -1;
 
-	    game_parse_info(c->game,gameinfo); /* only create */
+	    game_parse_info(c->game,gameinfo); // only create
             if (conn_get_realmname(c) && conn_get_charname(c))
             {
                   game_set_realmname(c->game,conn_get_realmname(c));
@@ -2046,12 +2047,32 @@ extern int conn_set_game(t_connection * c, char const * gamename, char const * g
 	    }
 	}
 
-	/* join new or existing game */
+	// join new or existing game 
         if (game_add_player(conn_get_game(c),gamepass,version,c)<0)
         {
-  	  c->game = NULL; /* bad password or version # */
+  	  c->game = NULL; // bad password or version # 
 	  return -1;
 	}
+	*/
+	// original code
+	{
+	  c->game = game_create(gamename,gamepass,gameinfo,type,version,conn_get_clienttag(c));
+	    if (c->game && conn_get_realmname(c) && conn_get_charname(c))
+	    {
+		game_set_realmname(c->game,conn_get_realmname(c));
+		realm_add_game_number(realmlist_find_realm(con_get_realmname(c)),1);
+	    }
+	}
+	if (c->game)
+	{
+	  game_parse_info(c->game,gameinfo);
+	  if (game_add_player(conn_get_game(c),gamepass,version,c)<0)
+	  {
+	    c->game = NULL // bad password or version #
+	    return -1;
+	  }
+	}
+	// end of original code
     }
     else
 	c->game = NULL;

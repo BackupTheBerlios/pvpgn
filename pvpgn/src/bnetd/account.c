@@ -1241,7 +1241,7 @@ extern int accountlist_reload(int all)
 #endif
 	 
 #ifndef WITH_MYSQL
-	 if (old_acc = accountlist_find_account(dentry))
+	 if (accountlist_find_account(dentry))
 	 {
 	   // reload account if user not logged in and account not dirty
 	   free(pathname);
@@ -1250,7 +1250,7 @@ extern int accountlist_reload(int all)
 	 if (!(account = account_load(pathname)))
 #else
 	 sprintf(accountuid,"#%u",uid);
-	 if (old_acc = accountlist_find_account(accountuid))
+	 if (accountlist_find_account(accountuid))
 	 {
 	   continue;
 	 }
