@@ -856,9 +856,6 @@
 					RelativePath="..\compat\signal.h">
 				</File>
 				<File
-					RelativePath="..\compat\snprintf.h">
-				</File>
-				<File
 					RelativePath="..\compat\socket.h">
 				</File>
 				<File
