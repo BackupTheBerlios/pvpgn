@@ -416,6 +416,13 @@ static int _client_anongame_get_icon(t_connection * c, t_packet const * const pa
         
         char user_icon[5];
         char const * uicon;
+
+	/* WAR3 uses a different table size, might change if blizzard add tournament support to RoC */
+	if (strcmp(conn_get_clienttag(c),CLIENTTAG_WARCRAFT3)==0) {
+    	    table_width = 5;
+	    table_height= 4;
+	}
+	
         eventlog(eventlog_level_info,__FUNCTION__,"[%d] got FINDANONGAME Get Icons packet",conn_get_socket(c));
 	
 	if ((rpacket = packet_create(packet_class_bnet)) == NULL) {
