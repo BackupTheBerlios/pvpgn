@@ -34,6 +34,9 @@ connections from same IP - by z0rm
 chanel and /op other users to make them tempOPs, too (no OP icon so far, this
 will be added later)
 
+1.4.6-D2
+-- added support for the new d2gs from 20030304
+
 1.4.6
 -- MOTD and join chat welcome message now show users per client
 -- fixed the 1.4.5 mySQL problems with DB autoupdate
@@ -49,6 +52,13 @@ sender
 -- added W3XP icon for WAR3 and STAR
 -- made changes to the irc module to make it safer
 -- made FT PG/AT stats work again !!!! (along with latest loader from aCiD)
+
+1.4.5.5:
+-- Fixed the MySQL db update error.
+-- Added support for the new map on PG : RICE FIELDS
+-- Profile data Saving Fixed.
+-- New Ladder url Changer for handle_bnet.c
+-- IRC-modul fully working
 
 1.4.5:
 ** IMPORTANT !!!! **
