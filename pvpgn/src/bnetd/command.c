@@ -3722,7 +3722,7 @@ static int _handle_ladderinfo_command(t_connection * c, char const *text)
     }
 
   if (text[i]!='\0') {
-    if (strlen(clienttag)!=4) {
+    if (strlen(text)!=4) {
       message_send_text(c,message_type_error,c,"You must supply a rank and a valid program ID.");
       message_send_text(c,message_type_error,c,"Example: /ladderinfo 1 STAR");
       return 0;
