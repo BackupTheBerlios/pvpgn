@@ -1680,13 +1680,13 @@ extern t_account * accountlist_add_account(t_account * account)
 
     // 11-20-2002 aaron --->
     if (account)
-      {
-	if (account_get_solorank(account))
+      { int rank;
+	if (rank = account_get_solorank(account))
 	  {
 	    if (war3_ladder_add(&solo_ladder,
 				uid,
 				account_get_soloxp(account),
-				account_get_solorank(account),
+				rank,
 				account,0 )<0)
 	      {    
 		eventlog(eventlog_level_error,"accountlist_add_account","could not add to war3_ladder(solo)");
@@ -1694,12 +1694,12 @@ extern t_account * accountlist_add_account(t_account * account)
 		return NULL;
 	      }
 	  }
-	if (account_get_teamrank(account))
+	if (rank = account_get_teamrank(account))
 	  {
 	    if (war3_ladder_add(&team_ladder,
 				uid,
 				account_get_teamxp(account),
-				account_get_teamrank(account),
+				rank,
 				account,0 )<0)
 	      {
 		eventlog(eventlog_level_error,"accountlist_add_account","could not add to war3_ladder(team)");	
@@ -1707,12 +1707,12 @@ extern t_account * accountlist_add_account(t_account * account)
 		return NULL;
 	      }
 	  }
-	if (account_get_ffarank(account))
+	if (rank = account_get_ffarank(account))
 	{
           if (war3_ladder_add(&ffa_ladder,
 			      uid,
 			      account_get_ffaxp(account),
-			      account_get_ffarank(account),
+			      rank,
 			      account,0 )<0)
 	  {
 	    eventlog(eventlog_level_error,"accountlist_add_account","could not add to war_ladder(ffa)");
