@@ -10,6 +10,11 @@ PvPGN Version History:
  -- reduce enforced maxchar value down to 18 (fixing possible
  problems when having many chars with long charnames)
 
+[WAR3]
+ -- wins required for specific chat icons now also configurable
+ via anongame_infos.conf (previously only affected profile icons)
+ -- discard games with no winners at all
+
  Changelog for 1.7.4 (since 1.7.3)
 ===================================
 
