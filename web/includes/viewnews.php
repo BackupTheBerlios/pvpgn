@@ -13,6 +13,10 @@ unset($row);
 
 $pages = round(($total_newsitems - $items_front_page) / $items_archive_page);
 
+if ($pages == 0) {
+	$pages = 1;
+}
+
 if ($_GET['page'] != 'newsarchive') {
 	$limit = '0,'.$items_front_page;
 } else if (!isset($_GET['start']) || $_GET['start'] > $total_newsitems) {
