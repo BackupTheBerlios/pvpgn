@@ -132,7 +132,7 @@ extern int trans_load(char const * filename)
 	    network = &tmp[npos];
 	    for (; tmp[npos]!=',' && tmp[npos]!='\0'; npos++);
 	    if (tmp[npos]=='\0')
-		npos++;
+		npos--;
 	    else
 		tmp[npos]='\0';
 	    if (strcmp(network,"NONE")==0) {
@@ -204,7 +204,7 @@ extern int trans_load(char const * filename)
 	    network = &tmp[npos];
 	    for (; tmp[npos]!=',' && tmp[npos]!='\0'; npos++);
 	    if (tmp[npos]=='\0')
-		npos++;
+		npos--;
 	    else
 		tmp[npos]='\0';
 	    if (strcmp(network,"NONE")==0) {
