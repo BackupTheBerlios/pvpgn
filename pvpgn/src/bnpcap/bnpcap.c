@@ -300,7 +300,7 @@ static int bnpcap_conn_packet(unsigned int sip, unsigned short sport, unsigned i
       }
       switch (data[0]) {
        case CLIENT_INITCONN_CLASS_BNET:
-	 bnpcap_conn_set_class(c,packet_class_bnet); /* we use none for bnet */
+	 bnpcap_conn_set_class(c,packet_class_bnet);
 	 break;
        case CLIENT_INITCONN_CLASS_FILE:
 	 bnpcap_conn_set_class(c,packet_class_file);
