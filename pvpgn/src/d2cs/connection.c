@@ -833,7 +833,7 @@ extern int conn_set_bnetd_sessionnum(t_connection * c, unsigned int sessionnum)
 
 extern unsigned int conn_get_bnetd_sessionnum(t_connection const * c)
 {
-	ASSERT(c,-1);
+	ASSERT(c,0);
 	return c->bnetd_sessionnum;
 }
 

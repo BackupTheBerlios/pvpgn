@@ -954,7 +954,7 @@ static int _anongame_search_found(int queue)
 
     /* create data to be appended to end of packet */
     pt2 = xmalloc(sizeof(t_saf_pt2));
-    bn_int_set(&pt2->unknown1, -1);
+    bn_int_set(&pt2->unknown1, 0xFFFFFFFF);
     bn_int_set(&pt2->anongame_string, _anongame_get_gametype_tab(queue));
     bn_byte_set(&pt2->totalplayers, _anongame_totalplayers(queue));
     bn_byte_set(&pt2->totalteams, _anongame_totalteams(queue));	/* 1v1 & sffa are set to zero in _anongame_totalteams() */

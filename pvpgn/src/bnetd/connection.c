@@ -2121,7 +2121,7 @@ extern unsigned int conn_get_out_size(t_connection const * c)
     if (!c)
     {
         eventlog(eventlog_level_error,__FUNCTION__,"got NULL connection");
-        return -1;
+        return 0;
     }
     return c->protocol.queues.outsize;
 }

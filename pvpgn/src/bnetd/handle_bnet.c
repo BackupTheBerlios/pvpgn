@@ -2318,7 +2318,7 @@ static int _client_atinvitefriend(t_connection * c, t_packet const *const packet
 	    if (i < teammemcount) {
 		bn_int_set(&rpacket->u.server_arrangedteam_invite_friend_ack.info[i], team_get_memberuid(team, i));
 	    } else {		/* fill rest with FFFFFFFF */
-		bn_int_set(&rpacket->u.server_arrangedteam_invite_friend_ack.info[i], -1);
+		bn_int_set(&rpacket->u.server_arrangedteam_invite_friend_ack.info[i], 0xFFFFFFFF);
 	    }
 	}
 

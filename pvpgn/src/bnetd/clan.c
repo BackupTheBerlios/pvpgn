@@ -1234,7 +1234,7 @@ extern unsigned int clan_get_clanid(t_clan * clan)
     if (!(clan))
     {
 	eventlog(eventlog_level_error, __FUNCTION__, "got NULL clan");
-	return -1;
+	return 0;
     }
 
     return clan->clanid;

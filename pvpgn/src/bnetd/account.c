@@ -198,7 +198,7 @@ extern unsigned int account_get_uid(t_account const * account)
 {
     if (!account) {
 	eventlog(eventlog_level_error,__FUNCTION__,"got NULL account");
-	return -1;
+	return 0;
     }
 
     return account->uid;
