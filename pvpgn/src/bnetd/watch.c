@@ -283,6 +283,7 @@ static int handle_event_whisper(t_account *account, char const *gamename, t_clie
             if (dest_c==NULL) /* If friend is offline, go on to next */
 	        continue;
             else { 
+	    	if (!my_c) my_c = dest_c;
     		cnt++;	/* keep track of successful whispers */
 	    	if(friend_get_mutual(fr))
         	    message_send_text(dest_c,message_type_whisper,my_c,msg);
@@ -316,7 +317,10 @@ static int handle_event_whisper(t_account *account, char const *gamename, t_clie
 	  return -1;
 	}
 	if (pair->owner && (!pair->who || pair->who==account) && ((!pair->clienttag) || (clienttag == pair->clienttag)) && (pair->what&event))
-	message_send_text(pair->owner,message_type_whisper,my_c,msg);
+	{
+	    if (!my_c) my_c = dest_c;
+	    message_send_text(pair->owner,message_type_whisper,my_c,msg);
+	}
     }
   
     return 0;
