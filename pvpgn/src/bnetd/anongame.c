@@ -231,6 +231,8 @@ static int _anongame_totalplayers(int queue)
 
 static int _anongame_totalteams(int queue)
 {
+/* dont forget to change this if you make some game type with more teams */
+#define ANONGAME_MAX_TEAMS	4
     switch(queue) {
 	case ANONGAME_TYPE_1V1:
 	case ANONGAME_TYPE_SMALL_FFA:
@@ -545,7 +547,7 @@ static int _anongame_match(t_connection * c, int queue)
     t_elem *curr;
     t_anongame * a = conn_get_anongame(c);
     t_uint32 cur_prefs = a->map_prefs;
-    t_connection * inv_c[_anongame_totalteams(queue)];
+    t_connection * inv_c[ANONGAME_MAX_TEAMS];
         
     int teams = 0;
     players[queue] = 0;
