@@ -61,6 +61,7 @@
 #include "command.h"
 #include "handle_irc.h"
 #include "common/setup_after.h"
+#include <windows.h> //amadeo (needed for GlobalAlloc (GPTR-def)
 
 static int handle_irc_line(t_connection * conn, char const * ircline)
 {   /* [:prefix] <command> [[param1] [param2] ... [paramN]] [:<text>]*/
@@ -69,7 +70,9 @@ static int handle_irc_line(t_connection * conn, char const * ircline)
     char * command = NULL; /* mandatory */
     char ** params = NULL; /* optional (array of params) */
     char * text = NULL; /* optional */
+	char * bnet_command = NULL;  //amadeo: used for battle.net.commands
     int unrecognized_before = 0;
+	int linelen; //amadeo: counter for stringlenghts
 
     int numparams = 0;
     char * tempparams;
@@ -112,7 +115,7 @@ static int handle_irc_line(t_connection * conn, char const * ircline)
 	int i;
 	
 	*tempparams++ = '\0';
-	if (tempparams[0]==':') {
+	 if (tempparams[0]==':') {
 	    text = tempparams+1; /* theres just text, no params. skip the colon */
 	} else {
 	    for (i=0;tempparams[i]!='\0';i++) {
@@ -421,21 +424,34 @@ static int handle_irc_line(t_connection * conn, char const * ircline)
                  irc_unget_listelems(e);
 	} else 
 	    irc_send(conn,ERR_NEEDMOREPARAMS,":Too few arguments to JOIN");
-    } else if (strcmp(command,"BNET")==0) {
-	/* This command is actually not defined by any RFC. It is 
+    }/* else if (strcmp(command,"BNET")==0) {
+	  This command is actually not defined by any RFC. It is 
 	 * a special bnetd-irc command to run battle.net /-commands.
-	 */
-	if (text)
-	    handle_command(conn,text);
-	else
+      amadeo: changed this to make the cmdl-syntax more handy,
+	  all unkown commands are directly passed to bnet-cmd-interpreter so we don't
+	  need /BNET anymore....
+	 if (text) 
+
+	 handle_command(conn,text);
+	 else 
 	    irc_send(conn,ERR_NEEDMOREPARAMS,":Too few arguments to BNET");	
-    } else if (strcmp(command,"MODE")==0) {
+    
+    } 
+	:amadeo */
+	else if (strcmp(command,"MODE")==0) {
 	/* FIXME: Not yet implemented */
     } else if (strcmp(command,"USERHOST")==0) {
 	/* FIXME: Send RPL_USERHOST */
     } else if (strcmp(command,"QUIT")==0) {
 	/* FIXME: Not yet implemented */
-    } else {
+	//amadeo -> (LAGTIME.xxxxxxxx is send by several irc-clients. It is not needed
+    // but would result in unknown-command error flooding the users channelwindow....
+	// same for "ISON" in Trillian
+	} else if ((command[0]!='L')&& (command[1]!='A') && (command[2]!='G')&& 
+		       (command[0]!='I')&& (command[1]!='S') && (command[2]!='O')){
+	/* amadeo: just pass the line to bnet-command-interpreter to get rid of /BNET blabla...
+	           will also return errormsg if command is still unknown
+
 	char temp[MAX_IRC_MESSAGE_LEN+1];
 	
 	if ((38+strlen(command)+1+1)<sizeof(temp)) {
@@ -443,7 +459,15 @@ static int handle_irc_line(t_connection * conn, char const * ircline)
 	    irc_send(conn,ERR_UNKNOWNCOMMAND,temp);
 	} else {
 	    irc_send(conn,ERR_UNKNOWNCOMMAND,":Unrecognized command");
-	}
+	}*/
+		
+		linelen = strlen (ircline);
+		bnet_command = (char*)GlobalAlloc(GPTR, linelen + 2);
+		bnet_command[0]='/';
+		strcat (bnet_command,ircline);
+		bnet_command[linelen + 1]='\0';
+		handle_command(conn,bnet_command); 
+		GlobalFree((HANDLE)bnet_command);//<-amadeo
     }
     } /* loggedin */
     if (params)

@@ -2,6 +2,7 @@ PvPGN Version History:
 
 1.2.4
 -- irc: prevented "unknown command"-flooding by adding ignors for lagtime and ISON
+-- irc: changed motd from old huge bnetd logo to smaller message
 -- bnetd-commnds can be typed as in battle.net without need for the /BNET in 
 front of it anymore
 -- passing all unkown commands from irc to bnet-command-interpreter now

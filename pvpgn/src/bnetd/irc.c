@@ -297,19 +297,12 @@ extern int irc_welcome(t_connection * conn)
     if ((3+strlen(server_get_name())+22+1)<=MAX_IRC_MESSAGE_LEN)
     	sprintf(temp,":- %s Message of the day - ",server_get_name());
     else
-        sprintf(temp,":Maximum length exceeded");
+        sprintf(temp,":Maximum length exceeded"); //amadeo shortened that crap a bit :)
     irc_send(conn,RPL_MOTDSTART,temp);
     irc_send(conn,RPL_MOTD,":- This is an experimental service and a MOTD is          ");
     irc_send(conn,RPL_MOTD,":- therefore not yet supported.                           ");
-    irc_send(conn,RPL_MOTD,":-                                                        ");
     irc_send(conn,RPL_MOTD,":- ====================================================== ");
-    irc_send(conn,RPL_MOTD,":-     ....   .   .  .....  .....  ....                   ");
-    irc_send(conn,RPL_MOTD,":-     :   :  ::  :  :        :    :   :                  ");
-    irc_send(conn,RPL_MOTD,":- ....****...*.*.*..*****....*....*...*....p.r.o.j.e.c.t ");
-    irc_send(conn,RPL_MOTD,":-     O   O  O  OO  O        O    O   O                  ");
-    irc_send(conn,RPL_MOTD,":-     oooo   o   o  ooooo    o    oooo                   ");
-    irc_send(conn,RPL_MOTD,":- ====================================================== ");
-    irc_send(conn,RPL_MOTD,":-                 http://www.bnetd.org                   ");
+    irc_send(conn,RPL_MOTD,":-                 http://www.pvpgn.org                   ");
     irc_send(conn,RPL_MOTD,":- ====================================================== ");
     irc_send(conn,RPL_MOTD,":-                                                        ");
     irc_send(conn,RPL_ENDOFMOTD,":End of /MOTD command");
