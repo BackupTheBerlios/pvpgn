@@ -252,7 +252,7 @@ extern char * message_format_line(t_connection const * c, char const * in)
 		break;
 
 	    case 'N':
-	    	strcpy(&out[outpos],conn_get_user_game_title(conn_get_clienttag(c)));
+	    	strcpy(&out[outpos],clienttag_get_title(conn_get_clienttag(c)));
 		outpos += strlen(&out[outpos]);
 		break;
 		

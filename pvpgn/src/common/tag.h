@@ -114,6 +114,7 @@ typedef t_tag		t_gamelang;
 
 extern t_clienttag clienttag_str_to_uint(char const * clienttag);
 extern char const * clienttag_uint_to_str(t_clienttag clienttag);
+extern char const * clienttag_get_title(t_clienttag clienttag);
 
 extern t_tag	tag_str_to_uint(char const * tag_str);
 extern t_tag	tag_case_str_to_uint(char const * tag_str);

@@ -228,7 +228,7 @@ static int handle_event_whisper(t_account *account, char const *gamename, t_clie
 
     my_c = account_get_conn(account);
 
-    game_title = conn_get_user_game_title(clienttag);
+    game_title = clienttag_get_title(clienttag);
 
     /* mutual friends handling */
     flist = account_get_friends(account);

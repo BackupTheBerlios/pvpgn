@@ -210,3 +210,37 @@ extern int tag_check_gamelang(t_tag gamelang)
 	    return 0;
     }
 }
+
+extern char const * clienttag_get_title(t_clienttag clienttag)
+{
+   switch (clienttag)
+   {
+      case CLIENTTAG_WAR3XP_UINT:
+        return "Warcraft III Frozen Throne";
+      case CLIENTTAG_WARCRAFT3_UINT:
+        return "Warcraft III";
+      case CLIENTTAG_DIABLO2XP_UINT:
+        return "Diablo II Lord of Destruction";
+      case CLIENTTAG_DIABLO2DV_UINT:
+        return "Diablo II";
+      case CLIENTTAG_STARJAPAN_UINT:
+        return "Starcraft (Japan)";
+      case CLIENTTAG_WARCIIBNE_UINT:
+        return "Warcraft II";
+      case CLIENTTAG_DIABLOSHR_UINT:
+        return "Diablo I (Shareware)";
+      case CLIENTTAG_DIABLORTL_UINT:
+        return "Diablo I";
+      case CLIENTTAG_SHAREWARE_UINT:
+        return "Starcraft (Shareware)";
+      case CLIENTTAG_BROODWARS_UINT:
+        return "Starcraft: BroodWars";
+      case CLIENTTAG_STARCRAFT_UINT:
+        return "Starcraft";
+      case CLIENTTAG_BNCHATBOT_UINT:
+        return "Chat";
+      default:
+        return "Unknown";
+   }
+}
+

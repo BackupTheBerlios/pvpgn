@@ -3274,39 +3274,6 @@ extern int conn_get_user_count_by_clienttag(t_clienttag ct)
    return clienttagusers;
 }
 
-extern char const * conn_get_user_game_title(t_clienttag ct)
-{
-   switch (ct)
-   {
-      case CLIENTTAG_WAR3XP_UINT:
-	return "Warcraft III Frozen Throne";
-      case CLIENTTAG_WARCRAFT3_UINT:
-	return "Warcraft III";
-      case CLIENTTAG_DIABLO2XP_UINT:
-     	return "Diablo II Lord of Destruction";
-      case CLIENTTAG_DIABLO2DV_UINT:
-     	return "Diablo II";
-      case CLIENTTAG_STARJAPAN_UINT:
-     	return "Starcraft (Japan)";
-      case CLIENTTAG_WARCIIBNE_UINT:
-     	return "Warcraft II";
-      case CLIENTTAG_DIABLOSHR_UINT:
-     	return "Diablo I (Shareware)";
-      case CLIENTTAG_DIABLORTL_UINT:
-     	return "Diablo I";
-      case CLIENTTAG_SHAREWARE_UINT:
-     	return "Starcraft (Shareware)";
-      case CLIENTTAG_BROODWARS_UINT:
-     	return "Starcraft: BroodWars";
-      case CLIENTTAG_STARCRAFT_UINT:
-     	return "Starcraft";
-      case CLIENTTAG_BNCHATBOT_UINT:
-     	return "Chat";
-      default:
-     	return "Unknown";
-   }
-}
-
 extern int connlist_create(void)
 {
     conn_head = list_create();

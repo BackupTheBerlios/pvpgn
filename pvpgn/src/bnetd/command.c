@@ -224,7 +224,7 @@ static void do_whois(t_connection * c, char const * dest)
 	sprintf(msgtemp,"%s %s using %s and %s currently in %s game \"%.64s\".",
 		namepart,
 		verb,
-		conn_get_user_game_title(conn_get_clienttag(dest_c)),
+		clienttag_get_title(conn_get_clienttag(dest_c)),
 		verb,
 		game_get_flag(game) == game_flag_private ? "private" : "",
 		game_get_name(game));
@@ -234,7 +234,7 @@ static void do_whois(t_connection * c, char const * dest)
         sprintf(msgtemp,"%s %s using %s and %s currently in channel \"%.64s\".",
 		namepart,
 		verb,
-		conn_get_user_game_title(conn_get_clienttag(dest_c)),
+		clienttag_get_title(conn_get_clienttag(dest_c)),
 		verb,
 		channel_get_name(channel));
     }
@@ -242,7 +242,7 @@ static void do_whois(t_connection * c, char const * dest)
 	sprintf(msgtemp,"%s %s using %s.",
 		namepart,
 		verb,
-		conn_get_user_game_title(conn_get_clienttag(dest_c)));
+		clienttag_get_title(conn_get_clienttag(dest_c)));
     message_send_text(c,message_type_info,c,msgtemp);
     
     if (conn_get_dndstr(dest_c))
@@ -1590,7 +1590,7 @@ static int _handle_friends_command(t_connection * c, char const * text)
 		if (!(dest_c = connlist_find_connection_by_account(friend_acc)))
 	    	    sprintf(status, ", offline");
 		else {
-	    	    sprintf(software," using %s", conn_get_user_game_title(conn_get_clienttag(dest_c)));
+	    	    sprintf(software," using %s", clienttag_get_title(conn_get_clienttag(dest_c)));
 
 	    	    if(friend_get_mutual(fr)) {
 		        if ((game = conn_get_game(dest_c)))
@@ -1705,63 +1705,63 @@ static int _handle_status_command(t_connection * c, char const *text)
 	    sprintf(msgtemp,"There are currently %u user(s) in %u games of %s",
 		conn_get_user_count_by_clienttag(CLIENTTAG_WAR3XP_UINT),
 		game_get_count_by_clienttag(CLIENTTAG_WAR3XP_UINT),
-		conn_get_user_game_title(CLIENTTAG_WAR3XP_UINT));
+		clienttag_get_title(CLIENTTAG_WAR3XP_UINT));
 	    message_send_text(c,message_type_info,c,msgtemp);
 	    if (clienttag) break;
 	case CLIENTTAG_WARCRAFT3_UINT:
 	    sprintf(msgtemp,"There are currently %u user(s) in %u games of %s",
 		conn_get_user_count_by_clienttag(CLIENTTAG_WARCRAFT3_UINT),
 		game_get_count_by_clienttag(CLIENTTAG_WARCRAFT3_UINT),
-		conn_get_user_game_title(CLIENTTAG_WARCRAFT3_UINT));
+		clienttag_get_title(CLIENTTAG_WARCRAFT3_UINT));
 	    message_send_text(c,message_type_info,c,msgtemp);
 	    if (clienttag) break;
 	case CLIENTTAG_DIABLO2XP_UINT:
 	    sprintf(msgtemp,"There are currently %u user(s) in %u games of %s",
 		conn_get_user_count_by_clienttag(CLIENTTAG_DIABLO2XP_UINT),
 		game_get_count_by_clienttag(CLIENTTAG_DIABLO2XP_UINT),
-		conn_get_user_game_title(CLIENTTAG_DIABLO2XP_UINT));
+		clienttag_get_title(CLIENTTAG_DIABLO2XP_UINT));
 	    message_send_text(c,message_type_info,c,msgtemp);
 	    if (clienttag) break;
 	case CLIENTTAG_DIABLO2DV_UINT:
 	    sprintf(msgtemp,"There are currently %u user(s) in %u games of %s",
 		conn_get_user_count_by_clienttag(CLIENTTAG_DIABLO2DV_UINT),
 		game_get_count_by_clienttag(CLIENTTAG_DIABLO2DV_UINT),
-		conn_get_user_game_title(CLIENTTAG_DIABLO2DV_UINT));
+		clienttag_get_title(CLIENTTAG_DIABLO2DV_UINT));
 	    message_send_text(c,message_type_info,c,msgtemp);
 	    if (clienttag) break;
 	case CLIENTTAG_BROODWARS_UINT:
 	    sprintf(msgtemp,"There are currently %u user(s) in %u games of %s",
 		conn_get_user_count_by_clienttag(CLIENTTAG_BROODWARS_UINT),
 		game_get_count_by_clienttag(CLIENTTAG_BROODWARS_UINT),
-		conn_get_user_game_title(CLIENTTAG_BROODWARS_UINT));
+		clienttag_get_title(CLIENTTAG_BROODWARS_UINT));
 	    message_send_text(c,message_type_info,c,msgtemp);
 	    if (clienttag) break;
 	case CLIENTTAG_STARCRAFT_UINT:
 	    sprintf(msgtemp,"There are currently %u user(s) in %u games of %s",
 		conn_get_user_count_by_clienttag(CLIENTTAG_STARCRAFT_UINT),
 		game_get_count_by_clienttag(CLIENTTAG_STARCRAFT_UINT),
-		conn_get_user_game_title(CLIENTTAG_STARCRAFT_UINT));
+		clienttag_get_title(CLIENTTAG_STARCRAFT_UINT));
 	    message_send_text(c,message_type_info,c,msgtemp);
 	    if (clienttag) break;
 	case CLIENTTAG_WARCIIBNE_UINT:
 	    sprintf(msgtemp,"There are currently %u user(s) in %u games of %s",
 		conn_get_user_count_by_clienttag(CLIENTTAG_WARCIIBNE_UINT),
 		game_get_count_by_clienttag(CLIENTTAG_WARCIIBNE_UINT),
-		conn_get_user_game_title(CLIENTTAG_WARCIIBNE_UINT));
+		clienttag_get_title(CLIENTTAG_WARCIIBNE_UINT));
 	    message_send_text(c,message_type_info,c,msgtemp);
 	    if (clienttag) break;
 	case CLIENTTAG_DIABLORTL_UINT:
 	    sprintf(msgtemp,"There are currently %u user(s) in %u games of %s",
 		conn_get_user_count_by_clienttag(CLIENTTAG_DIABLORTL_UINT),
 		game_get_count_by_clienttag(CLIENTTAG_DIABLORTL_UINT),
-		conn_get_user_game_title(CLIENTTAG_DIABLORTL_UINT));
+		clienttag_get_title(CLIENTTAG_DIABLORTL_UINT));
 	    message_send_text(c,message_type_info,c,msgtemp);
 	    if (clienttag) break;
 	default:
 	    sprintf(msgtemp,"There are currently %u user(s) in %u games of %s",
 		conn_get_user_count_by_clienttag(conn_get_clienttag(c)),
 		game_get_count_by_clienttag(conn_get_clienttag(c)),
-		conn_get_user_game_title(conn_get_clienttag(c)));
+		clienttag_get_title(conn_get_clienttag(c)));
 	    message_send_text(c,message_type_info,c,msgtemp);
     }
     
@@ -3252,7 +3252,7 @@ static int _handle_finger_command(t_connection * c, char const *text)
   if((conn = connlist_find_connection_by_accountname(dest)))
   {
 	  sprintf(msgtemp,"Client: %s    Ver: %s   Country: %s",
-		  conn_get_user_game_title(conn_get_clienttag(conn)),
+		  clienttag_get_title(conn_get_clienttag(conn)),
 		  conn_get_clientver(conn),
 		  conn_get_country(conn));
 	  message_send_text(c,message_type_info,c,msgtemp);
