@@ -462,8 +462,10 @@ extern int main(int argc, char * * argv)
     if ((a = cmdline_load(argc, argv)) != 1)
 	return a;
 
+#ifdef DO_DAEMONIZE
     if ((a = fork_bnetd(cmdline_get_foreground())) != 0)
 	return a < 0 ? a : 0; /* dont return code != 0 when things are OK! */
+#endif
 
     eventlog_set(stderr);
     /* errors to eventlog from here on... */

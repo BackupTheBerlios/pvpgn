@@ -205,7 +205,9 @@ static int conf_set_debug(const char *valstr)
 {
     conf_set_bool(&cmdline_config.debug, valstr, 0);
     if (cmdline_config.debug) eventlog_set_debugmode(1);
+#ifdef DO_DAEMONIZE
     cmdline_config.foreground = 1;
+#endif
     return 0;
 }
 
@@ -273,7 +275,7 @@ static int conf_setdef_service(void)
 
 static int conf_set_servaction(const char *valstr)
 {
-    const char* action = NULL;
+    const char* tmp = NULL;
 
     conf_set_str(&tmp, valstr, NULL);
 
@@ -281,7 +283,7 @@ static int conf_set_servaction(const char *valstr)
 	if (!strcasecmp(tmp, "install")) {
 	    fprintf(stderr, "Installing service");
 	    Win32_ServiceInstall();
-	} else (!strcasecmp(tmp, "uninstall")) {
+	} else if (!strcasecmp(tmp, "uninstall")) {
 	    fprintf(stderr, "Uninstalling service");
 	    Win32_ServiceUninstall();
 	} else {
@@ -289,7 +291,7 @@ static int conf_set_servaction(const char *valstr)
 	}
 
 	exitflag = 1;
-	xfree(tmp);
+	xfree((void *)tmp);
     }
 
     return 0;
