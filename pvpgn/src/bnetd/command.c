@@ -3748,7 +3748,7 @@ static int _handle_serverban_command(t_connection *c, char const *text)
       sprintf(msgtemp,"You have been banned by Admin: %s",conn_get_username(c));
       message_send_text(dest_c,message_type_error,dest_c,msgtemp);
       message_send_text(dest_c,message_type_error,dest_c,"Your account is also LOCKED! Only a admin can UNLOCK it!");
-      conn_destroy(dest_c);
+      conn_set_state(dest_c, conn_state_destroy);
       //now save the ipban file
       ipbanlist_save(prefs_get_ipbanfile());
       return 0;
