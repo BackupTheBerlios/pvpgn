@@ -112,6 +112,7 @@
 #include "server.h"
 #include "handle_d2cs.h"
 #include "command_groups.h"
+#include "attrlayer.h"
 #include "common/rcm.h"
 #include "common/fdwatch.h"
 #include "common/elist.h"

@@ -25,14 +25,14 @@
 #include "common/elist.h"
 #include "clan.h"
 #include "team.h"
-#include "attr.h"
+#include "attrgroup.h"
 #undef JUST_NEED_TYPES
 #else
 #include "common/list.h"
 #include "common/elist.h"
 #include "clan.h"
 #include "team.h"
-#include "attr.h"
+#include "attrgroup.h"
 #endif
 
 #define ACCOUNT_FLAG_NONE	0
@@ -43,7 +43,7 @@ struct connection;
 typedef struct account_struct
 #ifdef ACCOUNT_INTERNAL_ACCESS
 {
-    t_attrlist	* attrlist;
+    t_attrgroup	* attrgroup;
     char	* name;     /* profiling proved 99% of getstrattr its from get_name */
     unsigned int  namehash; /* cached from attrs */
     unsigned int  uid;      /* cached from attrs */

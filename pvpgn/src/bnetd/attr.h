@@ -16,8 +16,8 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifndef __ATTRTYPE_INCLUDED__
-#define __ATTRTYPE_INCLUDED__
+#ifndef __ATTR_INCLUDED__
+#define __ATTR_INCLUDED__
 
 #include "common/elist.h"
 
@@ -28,66 +28,7 @@ typedef struct attr_struct {
     t_hlist		link;
 } t_attr;
 
-#endif /* __ATTRTYPE_INCLUDED__ */
-
-#ifndef __ATTR_H_INCLUDED__
-#define __ATTR_H_INCLUDED__
-
-#ifdef HAVE_TIME_H
-# include <time.h>
-#endif
-#include "common/elist.h"
-
-#ifndef JUST_NEED_TYPES
-#define JUST_NEED_TYPES
-#include "storage.h"
-#undef JUST_NEED_TYPES
-#else
-#include "storage.h"
-#endif
-
-#define ATTRLIST_FLAG_NONE	0
-#define ATTRLIST_FLAG_LOADED	1
-#define ATTRLIST_FLAG_ACCESSED	2
-#define ATTRLIST_FLAG_DIRTY	4
-
-/* flags controlling flush/save operations */
-#define	FS_NONE		0
-#define FS_FORCE	1	/* force save/flush no matter of time */
-#define FS_ALL		2	/* save/flush all, not in steps */
-
-typedef struct attrlist_struct 
-#ifdef ATTRLIST_INTERNAL_ACCESS
-{
-    t_hlist		list;
-    t_storage_info	*storage;
-    int			flags;
-    time_t		lastaccess;
-    time_t		dirtytime;
-    t_elist		loadedlist;
-    t_elist		dirtylist;
-} 
-#endif
-t_attrlist;
-
-typedef int (*t_attr_cb)(t_attrlist *, void *);
-
 #include "common/xalloc.h"
-
-extern int attrlayer_init(void);
-extern int attrlayer_cleanup(void);
-extern int attrlayer_load_default(void);
-extern int attrlayer_save(int flags);
-extern int attrlayer_flush(int flags);
-
-extern t_attrlist *attrlist_create_newuser(const char *name);
-extern t_attrlist *attrlist_create_nameuid(const char *name, unsigned uid);
-extern int attrlist_destroy(t_attrlist *attrlist);
-extern int attrlist_read_accounts(int flag, t_attr_cb cb, void *data);
-extern const char *attrlist_get_attr(t_attrlist *attrlist, const char *key);
-extern int attrlist_set_attr(t_attrlist *attrlist, const char *key, const char *val);
-extern int attrlist_save(t_attrlist *attrlist, int flags);
-extern int attrlist_flush(t_attrlist *attrlist, int flags);
 
 static inline t_attr *attr_create(const char *key, const char *val)
 {
@@ -130,6 +71,19 @@ static inline const char *attr_get_key(t_attr *attr)
 static inline const char *attr_get_val(t_attr *attr)
 {
     return attr->val;
+}
+
+static inline void attr_set_val(t_attr *attr, const char *val)
+{
+    if (attr->val) xfree((void*)attr->val);
+
+    if (val) attr->val = xstrdup(val);
+    else attr->val = NULL;
+}
+
+static inline void attr_set_dirty(t_attr *attr)
+{
+    attr->dirty = 1;
 }
 
 #endif /* __ATTR_H_INCLUDED__ */

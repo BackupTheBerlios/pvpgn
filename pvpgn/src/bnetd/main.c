@@ -87,7 +87,7 @@
 #include "common/trans.h"
 #include "common/xalloc.h"
 #include "common/fdwatch.h"
-#include "attr.h"
+#include "attrlayer.h"
 #ifdef WIN32
 # include "win32/service.h"
 #endif

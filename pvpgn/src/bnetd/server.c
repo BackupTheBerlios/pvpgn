@@ -146,6 +146,7 @@
 #include "tournament.h"
 #include <ctype.h>
 #include "topic.h"
+#include "attrlayer.h"
 #include "common/setup_after.h"
 
 extern FILE * hexstrm; /* from main.c */

@@ -81,7 +81,8 @@
 #include "ladder.h"
 #include "clan.h"
 #include "server.h"
-#include "attr.h"
+#include "attrgroup.h"
+#include "attrlayer.h"
 #include "storage.h"
 #include "common/flags.h"
 #include "common/xalloc.h"
@@ -99,7 +100,7 @@ unsigned int maxuserid=0;
 static int force_account_add=0;
 
 static unsigned int account_hash(char const * username);
-static t_account * account_load(t_attrlist *);
+static t_account * account_load(t_attrgroup *);
 static int account_load_friends(t_account * account);
 static int account_unload_friends(t_account * account);
 static void account_destroy(t_account * account);
@@ -138,7 +139,7 @@ static t_account * account_create(char const * username, char const * passhash1)
 
     account->name     = NULL;
     account->clanmember = NULL;
-    account->attrlist   = NULL;
+    account->attrgroup   = NULL;
     account->friends  = NULL;
     account->teams    = NULL;
     account->conn = NULL;
@@ -148,8 +149,8 @@ static t_account * account_create(char const * username, char const * passhash1)
     account->uid      = 0; /* hash it later before inserting */
 
     if (username) { /* actually making a new account */
-	account->attrlist =  attrlist_create_newuser(username);
-	if(!account->attrlist) {
+	account->attrgroup =  attrgroup_create_newuser(username);
+	if(!account->attrgroup) {
 	    eventlog(eventlog_level_error,__FUNCTION__,"failed to add user");
 	    goto err;
 	}
@@ -185,7 +186,7 @@ static void account_destroy(t_account * account)
 
     friendlist_close(account->friends);
     teams_destroy(account->teams);
-    attrlist_destroy(account->attrlist);
+    attrgroup_destroy(account->attrgroup);
     if (account->name)
         xfree(account->name);
 
@@ -249,7 +250,7 @@ extern int account_save(t_account * account, unsigned flags)
 {
     assert(account);
 
-    return attrlist_save(account->attrlist, flags);
+    return attrgroup_save(account->attrgroup, flags);
 }
 
 
@@ -259,7 +260,7 @@ extern int account_flush(t_account * account, unsigned flags)
 
     assert(account);
 
-    res = attrlist_flush(account->attrlist, flags);
+    res = attrgroup_flush(account->attrgroup, flags);
     if (res<0) return res;
 
     account_unload_friends(account);
@@ -280,7 +281,7 @@ extern char const * account_get_strattr_real(t_account * account, char const * k
 	return NULL;
     }
 
-    return attrlist_get_attr(account->attrlist, key);
+    return attrgroup_get_attr(account->attrgroup, key);
 }
 
 extern int account_set_strattr(t_account * account, char const * key, char const * val)
@@ -295,21 +296,21 @@ extern int account_set_strattr(t_account * account, char const * key, char const
 	return -1;
     }
 
-    return attrlist_set_attr(account->attrlist, key, val);
+    return attrgroup_set_attr(account->attrgroup, key, val);
 }
 
-static t_account * account_load(t_attrlist *attrlist)
+static t_account * account_load(t_attrgroup *attrgroup)
 {
     t_account * account;
 
-    assert(attrlist);
+    assert(attrgroup);
 
     if (!(account = account_create(NULL,NULL))) {
 	eventlog(eventlog_level_error,__FUNCTION__,"could not create account");
 	return NULL;
     }
 
-    account->attrlist = attrlist;
+    account->attrgroup = attrgroup;
 
     return account;
 }
@@ -317,17 +318,17 @@ static t_account * account_load(t_attrlist *attrlist)
 static t_account * account_load_new(char const * name, unsigned uid)
 {
     t_account *account;
-    t_attrlist *attrlist;
+    t_attrgroup *attrgroup;
 
     if (name && account_check_name(name)) return NULL;
 
     force_account_add = 1; /* disable the protection */
-    attrlist = attrlist_create_nameuid(name, uid);
-    if (!attrlist) return NULL;
+    attrgroup = attrgroup_create_nameuid(name, uid);
+    if (!attrgroup) return NULL;
 
-    if (!(account = account_load(attrlist))) {
+    if (!(account = account_load(attrgroup))) {
         eventlog(eventlog_level_error, __FUNCTION__,"could not load account");
-        attrlist_destroy(attrlist);
+        attrgroup_destroy(attrgroup);
 	force_account_add = 0;
         return NULL;
     }
@@ -344,14 +345,14 @@ static t_account * account_load_new(char const * name, unsigned uid)
     return account;
 }
 
-static int _cb_read_accounts(t_attrlist *attrlist, void *data)
+static int _cb_read_accounts(t_attrgroup *attrgroup, void *data)
 {
     unsigned int *count = (unsigned int *)data;
     t_account *account;
 
-    if (!(account = account_load(attrlist))) {
+    if (!(account = account_load(attrgroup))) {
         eventlog(eventlog_level_error, __FUNCTION__,"could not load account");
-	attrlist_destroy(attrlist);
+	attrgroup_destroy(attrgroup);
         return -1;
     }
 
@@ -382,7 +383,7 @@ extern int accountlist_load_all(int flag)
     res = 0;
 
     force_account_add = 1; /* disable the protection */
-    switch(attrlist_read_accounts(flag, _cb_read_accounts, &count))
+    switch(attrgroup_read_accounts(flag, _cb_read_accounts, &count))
     {
 	case -1:
     	    eventlog(eventlog_level_error, __FUNCTION__,"got error reading users");
