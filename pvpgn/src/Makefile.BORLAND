@@ -72,6 +72,13 @@ MKDIR           = md
 
 RMF             = del
 
+#del /q is better if available, as it works on a non-english OS
+!if ${OS}==Windows_NT 
+RMFALL = del /Q
+!else 
+RMFALL = echo y|del 
+!endif
+
 RMDIR           = rmdir
 
 ECHO            = echo
@@ -373,8 +380,8 @@ clean:
     -${RMF} ${SRC_COMMONDIR}\*.bnetg_obj
     -${RMF} ${SRC_BNETDDIR}\*.bnetg_obj
     -${RMF} ${SRC_BNETDDIR}\*.res
-    -echo y|${RMF} ${SRC_BINDIR}\*.*
-    -echo y|${RMF} ${SRC_SBINDIR}\*.*
+    -${RMFALL} ${SRC_BINDIR}\*.*
+    -${RMFALL} ${SRC_SBINDIR}\*.*
     -${RMDIR} ${SRC_BINDIR}
     -${RMDIR} ${SRC_SBINDIR}
 
