@@ -176,6 +176,7 @@ extern int handle_signal_init(void)
 	signal(SIGABRT,on_signal);
 	signal(SIGHUP,on_signal);
 	signal(SIGUSR1,on_signal);
+	signal(SIGUSR2,on_signal);
 	signal(SIGPIPE,on_signal);
 	return 0;
 }
@@ -202,6 +203,10 @@ static void on_signal(int s)
 		case SIGUSR1:
 			log_debug("sigusr1 received");
 			signal_data.reload_ladder=1;
+			break;
+		case SIGUSR2:
+			log_debug("sigusr2 received");
+			signal_data.restart_d2gs=1;
 			break;
 		case SIGPIPE:
 			log_debug("sigpipe received");
