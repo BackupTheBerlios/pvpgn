@@ -220,7 +220,7 @@
 #define BNETD_TELNET_ADDRS    "" /* this means none */
 #define BNETD_TELNET_PORT     23 /* used if port not specified */
 #define BNETD_EXEINFO_MATCH   "exact"
-#define PVPGN_VERSION_TIMEDIV 3600 /* 1 hour */
+#define PVPGN_VERSION_TIMEDIV 0 /* no timediff check by default */
 #define PVPGN_CACHE_MEMLIMIT  5000000  /* bytes */
 #define PVPGN_DEFAULT_SYMB    "-_[]"
 

@@ -189,8 +189,9 @@ allow_unknown_version = true
 version_exeinfo_match = parse
 
 # If you have choosen [parse] above, this is the tolerance with which
-# the time can differ. The value must be given in seconds. 
-version_exeinfo_maxdiff = 4800
+# the time can differ. The value must be given in seconds. If it's 0 this 
+# check is disabled.
+version_exeinfo_maxdiff = 0
 
 #                                                                            #
 ##############################################################################

@@ -365,7 +365,7 @@ static int versioncheck_compare_exeinfo(t_parsed_exeinfo * pattern, t_parsed_exe
             eventlog(eventlog_level_trace,__FUNCTION__,"size differs");
 	    return 1; /* neq */
             }
-	if ((pattern->time!=-1) && (abs(pattern->time-match->time)>(signed)prefs_get_version_exeinfo_maxdiff()))
+	if ((pattern->time!=-1) && prefs_get_version_exeinfo_maxdiff() && (abs(pattern->time-match->time)>(signed)prefs_get_version_exeinfo_maxdiff()))
             {
             eventlog(eventlog_level_trace,__FUNCTION__,"time differs by %i",abs(pattern->time-match->time));
 	    return 1;
