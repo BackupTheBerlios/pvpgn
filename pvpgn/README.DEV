@@ -13,6 +13,7 @@ for PvPGN.
 
 ChangeLog:
 29-07-2003: dizzy : Initial version
+28-08-2004: dizzy : Run-time debugging : Appendix A
 
 1. Why ?
 =========
@@ -107,6 +108,12 @@ In the startup code of any "external" function (function which may be called
 from other modules then the one containing it) please check ALL the input
 parameters (you will notice how PvPGN already does that in such functions).
 
+When developing code you should compile always with "all warnings" enabled 
+and try to fix them (some warnings uncover real bugs), like for gcc use 
+"-Wall". When running/testing the codes you should use a memory debugger like 
+valgrind and/or bounds checking compiler patches like bounds-checking-gcc. 
+For more details about how to run pvpgn check Appendix A.
+
 b. Code Organizing
 
 PvPGN (inhireted from bnetd) trys to group functions based on their data on
@@ -172,3 +179,71 @@ verification system used by Battle.Net servers to identify client version and
 "purity". Based on this the server may accept/refuse connection or ask for 
 upgrade (see autoupdate).
 
+Appendix A
+============
+
+It is very helpfull in finding out memory coruption bugs as soon as possible 
+so while developing codes or just when running a server it is good that you 
+use some memory coruption run-time debuggers. I dont know about Win32 users 
+but on Unix/Linux there are some good options.
+
+1. valgrind (http://valgrind.kde.org)
+
+Valgrind is not very portable (only x86, Linux and very recently FreeBSD), 
+also it slows down the debugged codes (it acts like a CPU emulator so it 
+has to do that) but I have yet to find out a better debugging tool for what 
+he does. Valgrind is so cool that recently many OSS projects use it for 
+finding out bugs in their codes. For more information you can check out their 
+web page. I will focus on valgrind with PvPGN.
+
+After you have compiled and installed valgrind (it's easy, ./configure, make, 
+make install) you will use it by running PvPGN like this:
+
+$ valgrind --tool=memcheck --num-callers=10 /path/to/bnetd -f 2> valg.out
+
+"num-callers" makes valgrind record backtraces with 10 entries and is usually 
+needed with PvPGN which has not very small backtrace path :)
+
+Another option you might want to use is "--leak-check=yes" and probably 
+"--leak-resolution=high". This options make valgrind even slower but they 
+will give memory leak information when PvPGN exits.
+
+I encourage EVERYONE to use it if available (that is if you run PvPGN on 
+a supported platform). Only very big servers won't be able to do it because 
+there is no hardware powerfull enough to run a big server with valgrind (but 
+big means over 500 users online). You should test it with your server and if 
+it does not make your bnetd go over 90% CPU then you should be fine. If you 
+cannot run valgrind for any reason or if you are hunting for some bugs 
+valgrind cannot find (yes, valgrind is superb but there is a class of bugs, 
+especially overflows which valgrind can't help you with) you should then try 
+the next debugging tool.
+
+2. bounds-checking GCC (http://sourceforge.net/projects/boundschecking/)
+
+This has the drawback of beeing just for GCC (as far as I know of) but has 
+the advantage over valgrind that is : more portable (virtually it should be 
+possible to use it anywhere you can use a recent GCC), a lot faster and can 
+detect bugs that valgrind cannot find. However it has the disadvantage that 
+it's error reports do not contain backtraces so they might be lesser usefull.
+
+To use it basically it cuts down to:
+- download a recent compiler (ex GCC 3.4.1)
+- download the coresponding patch from the project's sf.net page
+- apply the patch while beeing in the gcc source dir you unpacked with a 
+command like bunzip2  -c /path/to/patch.bz2 | patch -p1
+- compile gcc and install gcc
+- to make pvpgn compile with your new gcc do something like:
+$ CC=/path/to/new/gcc CFLAGS="-O0 -Wall -fbounds-checking -g" ./configure
+- then the usual make, make install
+- to run PvPGN you will probably need to redirect stderr like:
+$ /path/to/bnetd -f 2> debug.out
+
+You will probably encounter some problems when configuring, building gcc, so 
+you should read the text in the beginning of the bounds-checking patch file. 
+Also the gcc install docs are usefull.
+
+When starting up your new bounds checking enabled binary you will see some 
+usefull messages. By default the patch makes the debugged program exit on the 
+first error it encounters. For a production server this is not very nice so 
+you will want to set GCC_BOUNDS_OPTS shell variable to "-never-fatal" like:
+$ GCC_BOUNDS_OPTS="-never-fatal" /path/to/bnetd -f 2> debug.out
