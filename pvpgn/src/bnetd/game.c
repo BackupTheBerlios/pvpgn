@@ -1788,7 +1788,7 @@ extern int game_del_player(t_game * game, t_connection * c)
 	    eventlog(eventlog_level_debug,"game_del_player","removing player #%u \"%s\" from \"%s\", %u players left",i,(tname = account_get_name(account)),game_get_name(game),game->ref-1);
 	    game->connections[i] = NULL;
 	    if (!(game->reported_results[i]))
-		eventlog(eventlog_level_error,"game_del_player","player \"%s\" left without reporting (valid) results",tname);
+		eventlog(eventlog_level_debug,"game_del_player","player \"%s\" left without reporting (valid) results",tname);
 	    account_unget_name(tname);
 	    
 	    eventlog(eventlog_level_debug,"game_del_player","player deleted... (ref=%u)",game->ref);
