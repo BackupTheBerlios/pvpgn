@@ -2441,12 +2441,16 @@ extern char const * conn_get_chatcharname(t_connection const * c, t_connection c
     if (!accname)
         return NULL;
     
+/* Edited to make channel icon display correctly for d2 clients
     if (dst)
         clienttag = conn_get_clienttag(dst);
     else
         clienttag = NULL;
     
     if (clienttag && ((strcmp(clienttag, CLIENTTAG_DIABLO2DV) == 0) || (strcmp(clienttag, CLIENTTAG_DIABLO2XP) == 0)))
+ *  I'm not sure if this breaks anything else, so I left the original code [Omega] */    
+    
+    if ((clienttag = c->clienttag) && ((strcmp(clienttag, CLIENTTAG_DIABLO2DV) == 0) || (strcmp(clienttag, CLIENTTAG_DIABLO2XP) == 0)))
     {   
         if (c->charname)
         {
