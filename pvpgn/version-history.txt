@@ -8,6 +8,7 @@ PvPGN Version History:
  (those specified with "ladder_games" in bnetd.conf)
  -- adder "ladder_prefix" to allow only matching game names to be counted as 
  ladder games for the alternative ladder game types
+ -- fixed ELO calculation for top-vs-bottom team ladder games
 
 [D2DBS]
  -- changed codes to use the common network API for send/recv on sockets and 
@@ -21,6 +22,9 @@ PvPGN Version History:
 
 [MISC]
   -- lots of optimizations (lowers CPU footprint)
+  -- improved win32 winsock error reporting
+  -- fixed many clan code related crashes
+  -- optimized plain file account loading
 
  Changelog for 1.7.3 (since 1.7.2)
 ===================================
