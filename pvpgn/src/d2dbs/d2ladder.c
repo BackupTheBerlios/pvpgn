@@ -64,6 +64,10 @@
 # include <unistd.h>
 #endif
 
+#ifdef WIN32
+# include <io.h>
+#endif
+
 #include "d2ladder.h"
 #include "prefs.h"
 #include "common/tag.h"
@@ -313,6 +317,14 @@ int d2ladder_check(void)
 	if (!d2ladder_backup_file) return -1;
 	if(d2ladder_checksum_check()!=1) {
 		eventlog(eventlog_level_error,__FUNCTION__,"ladder file checksum error,try to use backup file");
+#ifdef WIN32
+		if (access(d2ladder_ladder_file, 0) == 0) {
+			if (remove(d2ladder_ladder_file)<0) {
+				eventlog(eventlog_level_error,__FUNCTION__,"could not delete ladder file \"%s\" (remove: %s)",d2ladder_ladder_file);
+				return -1;
+			}
+		}
+#endif
 		if (rename(d2ladder_backup_file,d2ladder_ladder_file)==-1) {
 			eventlog(eventlog_level_error,__FUNCTION__,"error rename %s to %s", d2ladder_backup_file,d2ladder_ladder_file);
 		}
@@ -719,7 +731,17 @@ extern int d2ladder_saveladder(void)
 
 	if(d2ladder_checksum_check()==1) {
 		eventlog(eventlog_level_info,__FUNCTION__,"backup ladder file");
-		rename(d2ladder_ladder_file,d2ladder_backup_file);
+#ifdef WIN32
+		if (access(d2ladder_backup_file, 0) == 0) {
+			if (remove(d2ladder_backup_file)<0) {
+				eventlog(eventlog_level_error,__FUNCTION__,"could not delete backup ladder file \"%s\" (remove: %s)",d2ladder_backup_file);
+				return -1;
+			}
+		}
+#endif
+		if (rename(d2ladder_ladder_file,d2ladder_backup_file)==-1) {
+			eventlog(eventlog_level_warn,__FUNCTION__,"error rename %s to %s", d2ladder_ladder_file, d2ladder_backup_file);
+		}
 	}
 
 	fdladder=fopen(d2ladder_ladder_file,"wb");
