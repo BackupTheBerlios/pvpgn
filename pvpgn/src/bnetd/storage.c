@@ -45,6 +45,7 @@ extern int storage_init(const char *spath)
 {
     char *temp, *p;
     int res;
+    char dstr[256];
 
     if (spath == NULL) {
 	eventlog(eventlog_level_error, __FUNCTION__, "got NULL spath");
@@ -62,25 +63,37 @@ extern int storage_init(const char *spath)
 	return -1;
     }
 
+    strcpy(dstr, "file");
+#ifdef WITH_SQL
+    strcat(dstr, ", sql");
+#endif
+#ifdef WITH_CDB
+    strcat(dstr, ", cdb");
+#endif
+    eventlog(eventlog_level_info, __FUNCTION__, "initializing storage layer (available drivers: %s)", dstr);
+
     *p = '\0';
     if (strcasecmp(spath, "file") == 0) {
 	storage = &storage_file;
 	res = storage->init(p + 1);
+	eventlog(eventlog_level_info, __FUNCTION__, "using file storage driver");
     }
 #ifdef WITH_SQL
     else if (strcasecmp(spath, "sql") == 0) {
 	storage = &storage_sql;
 	res = storage->init(p + 1);
+	eventlog(eventlog_level_info, __FUNCTION__, "using sql storage driver");
     }
 #endif
 #ifdef WITH_CDB
     else if (strcasecmp(spath, "cdb") == 0) {
 	storage = &storage_cdb;
 	res = storage->init(p + 1);
+	eventlog(eventlog_level_info, __FUNCTION__, "using cdb storage driver");
     }
 #endif
     else {
-	eventlog(eventlog_level_error, __FUNCTION__, "no known driver specified (%s)", spath);
+	eventlog(eventlog_level_fatal, __FUNCTION__, "no known driver specified (%s)", spath);
 	res = -1;
     }
 
