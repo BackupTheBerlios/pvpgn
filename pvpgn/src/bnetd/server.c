@@ -298,14 +298,14 @@ static int sd_accept(t_addr const * curr_laddr, t_laddr_info const * laddr_info,
 	    psock_errno()==PSOCK_EPROTO ||
 #endif
 	    0)
-	    eventlog(eventlog_level_error,__FUNCTION__,"client aborted connection on %s (psock_accept: %s)",tempa,strerror(psock_errno()));
+	    eventlog(eventlog_level_error,__FUNCTION__,"client aborted connection on %s (psock_accept: %s)",tempa,pstrerror(psock_errno()));
 	else /* EAGAIN can mean out of resources _or_ connection aborted :( */
 	    if (
 #ifdef PSOCK_EINTR
 		psock_errno()!=PSOCK_EINTR &&
 #endif
 		1)
-		eventlog(eventlog_level_error,__FUNCTION__,"could not accept new connection on %s (psock_accept: %s)",tempa,strerror(psock_errno()));
+		eventlog(eventlog_level_error,__FUNCTION__,"could not accept new connection on %s (psock_accept: %s)",tempa,pstrerror(psock_errno()));
 	return -1;
     }
 
@@ -338,7 +338,7 @@ static int sd_accept(t_addr const * curr_laddr, t_laddr_info const * laddr_info,
 	int val=1;
 	
 	if (psock_setsockopt(csocket,PSOCK_SOL_SOCKET,PSOCK_SO_KEEPALIVE,&val,(psock_t_socklen)sizeof(val))<0)
-	    eventlog(eventlog_level_error,__FUNCTION__,"[%d] could not set socket option SO_KEEPALIVE (psock_setsockopt: %s)",csocket,strerror(psock_errno()));
+	    eventlog(eventlog_level_error,__FUNCTION__,"[%d] could not set socket option SO_KEEPALIVE (psock_setsockopt: %s)",csocket,pstrerror(psock_errno()));
 	/* not a fatal error */
     }
     
@@ -350,7 +350,7 @@ static int sd_accept(t_addr const * curr_laddr, t_laddr_info const * laddr_info,
 	rlen = sizeof(rsaddr);
 	if (psock_getsockname(csocket,(struct sockaddr *)&rsaddr,&rlen)<0)
 	{
-	    eventlog(eventlog_level_error,__FUNCTION__,"[%d] unable to determine real local port (psock_getsockname: %s)",csocket,strerror(psock_errno()));
+	    eventlog(eventlog_level_error,__FUNCTION__,"[%d] unable to determine real local port (psock_getsockname: %s)",csocket,pstrerror(psock_errno()));
 	    /* not a fatal error */
 	    raddr = addr_get_ip(curr_laddr);
 	    rport = addr_get_port(curr_laddr);
@@ -374,7 +374,7 @@ static int sd_accept(t_addr const * curr_laddr, t_laddr_info const * laddr_info,
     
     if (psock_ctl(csocket,PSOCK_NONBLOCK)<0)
     {
-	eventlog(eventlog_level_error,__FUNCTION__,"[%d] could not set TCP socket to non-blocking mode (closing connection) (psock_ctl: %s)",csocket,strerror(psock_errno()));
+	eventlog(eventlog_level_error,__FUNCTION__,"[%d] could not set TCP socket to non-blocking mode (closing connection) (psock_ctl: %s)",csocket,pstrerror(psock_errno()));
 	psock_close(csocket);
 	return -1;
     }
@@ -441,12 +441,12 @@ static int sd_udpinput(t_addr * const curr_laddr, t_laddr_info const * laddr_inf
     errlen = sizeof(err);
     if (psock_getsockopt(usocket,PSOCK_SOL_SOCKET,PSOCK_SO_ERROR,&err,&errlen)<0)
     {
-        eventlog(eventlog_level_error,__FUNCTION__,"[%d] unable to read socket error (psock_getsockopt: %s)",usocket,strerror(psock_errno()));
+        eventlog(eventlog_level_error,__FUNCTION__,"[%d] unable to read socket error (psock_getsockopt: %s)",usocket,pstrerror(psock_errno()));
 	return -1;
     }
     if (errlen && err) /* if it was an error, there is no packet to read */
     {
-	eventlog(eventlog_level_error,__FUNCTION__,"[%d] async UDP socket error notification (psock_getsockopt: %s)",usocket,strerror(err));
+	eventlog(eventlog_level_error,__FUNCTION__,"[%d] async UDP socket error notification (psock_getsockopt: %s)",usocket,pstrerror(err));
 	return -1;
     }
     if (!(upacket = packet_create(packet_class_udp)))
@@ -479,7 +479,7 @@ static int sd_udpinput(t_addr * const curr_laddr, t_laddr_info const * laddr_inf
 							// although it shouldn't
 #endif
 		1)
-		eventlog(eventlog_level_error,__FUNCTION__,"could not recv UDP datagram (psock_recvfrom: %s)",strerror(psock_errno()));
+		eventlog(eventlog_level_error,__FUNCTION__,"could not recv UDP datagram (psock_recvfrom: %s)",pstrerror(psock_errno()));
 	    packet_del_ref(upacket);
 	    return -1;
 	}
@@ -812,7 +812,7 @@ extern void server_set_name(void)
 #ifdef WIN32
 	    sprintf(temp,"localhost");
 #else
-	    eventlog(eventlog_level_error,__FUNCTION__,"could not get hostname: %s",strerror(errno));
+	    eventlog(eventlog_level_error,__FUNCTION__,"could not get hostname: %s",pstrerror(errno));
 	    return;
 #endif
     	}
@@ -975,27 +975,27 @@ static int _setup_listensock(t_addrlist *laddrs)
 	laddr_info->ssocket = psock_socket(PSOCK_PF_INET,PSOCK_SOCK_STREAM,PSOCK_IPPROTO_TCP);
 	if (laddr_info->ssocket<0)
 	{
-	    eventlog(eventlog_level_error, __FUNCTION__, "could not create a %s listening socket (psock_socket: %s)",laddr_type_get_str(laddr_info->type),strerror(psock_errno()));
+	    eventlog(eventlog_level_error, __FUNCTION__, "could not create a %s listening socket (psock_socket: %s)",laddr_type_get_str(laddr_info->type),pstrerror(psock_errno()));
 	    goto err;
 	}
 
 	if (_set_reuseaddr(laddr_info->ssocket)<0)
-	    eventlog(eventlog_level_error,__FUNCTION__,"could not set option SO_REUSEADDR on %s socket %d (psock_setsockopt: %s)",laddr_type_get_str(laddr_info->type),laddr_info->ssocket,strerror(psock_errno()));
+	    eventlog(eventlog_level_error,__FUNCTION__,"could not set option SO_REUSEADDR on %s socket %d (psock_setsockopt: %s)",laddr_type_get_str(laddr_info->type),laddr_info->ssocket,pstrerror(psock_errno()));
 	    /* not a fatal error... */
 
 	if (_bind_socket(laddr_info->ssocket,addr_get_ip(curr_laddr),addr_get_port(curr_laddr))<0) {
-	    eventlog(eventlog_level_error,__FUNCTION__,"could not bind %s socket to address %s TCP (psock_bind: %s)",laddr_type_get_str(laddr_info->type),tempa,strerror(psock_errno()));
+	    eventlog(eventlog_level_error,__FUNCTION__,"could not bind %s socket to address %s TCP (psock_bind: %s)",laddr_type_get_str(laddr_info->type),tempa,pstrerror(psock_errno()));
 	    goto errsock;
 	}
 
 	/* tell socket to listen for connections */
 	if (psock_listen(laddr_info->ssocket,LISTEN_QUEUE)<0) {
-	    eventlog(eventlog_level_error,__FUNCTION__,"could not set %s socket %d to listen (psock_listen: %s)",laddr_type_get_str(laddr_info->type),laddr_info->ssocket,strerror(psock_errno()));
+	    eventlog(eventlog_level_error,__FUNCTION__,"could not set %s socket %d to listen (psock_listen: %s)",laddr_type_get_str(laddr_info->type),laddr_info->ssocket,pstrerror(psock_errno()));
 	    goto errsock;
 	}
 
 	if (psock_ctl(laddr_info->ssocket,PSOCK_NONBLOCK)<0)
-	    eventlog(eventlog_level_error,__FUNCTION__,"could not set %s TCP listen socket to non-blocking mode (psock_ctl: %s)",laddr_type_get_str(laddr_info->type),strerror(psock_errno()));
+	    eventlog(eventlog_level_error,__FUNCTION__,"could not set %s TCP listen socket to non-blocking mode (psock_ctl: %s)",laddr_type_get_str(laddr_info->type),pstrerror(psock_errno()));
 
 	/* index not stored persisently because we dont need to refer to it later */
 	fidx = fdwatch_add_fd(laddr_info->ssocket, fdwatch_type_read, handle_accept, curr_laddr);
@@ -1011,21 +1011,21 @@ static int _setup_listensock(t_addrlist *laddrs)
 	    laddr_info->usocket = psock_socket(PSOCK_PF_INET,PSOCK_SOCK_DGRAM,PSOCK_IPPROTO_UDP);
 	    if (laddr_info->usocket<0)
 	    {
-		eventlog(eventlog_level_error,__FUNCTION__,"could not create UDP socket (psock_socket: %s)",strerror(psock_errno()));
+		eventlog(eventlog_level_error,__FUNCTION__,"could not create UDP socket (psock_socket: %s)",pstrerror(psock_errno()));
 		goto errfdw;
 	    }
 
 	    if (_set_reuseaddr(laddr_info->usocket)<0)
-		eventlog(eventlog_level_error,__FUNCTION__,"could not set option SO_REUSEADDR on %s socket %d (psock_setsockopt: %s)",laddr_type_get_str(laddr_info->type),laddr_info->usocket,strerror(psock_errno()));
+		eventlog(eventlog_level_error,__FUNCTION__,"could not set option SO_REUSEADDR on %s socket %d (psock_setsockopt: %s)",laddr_type_get_str(laddr_info->type),laddr_info->usocket,pstrerror(psock_errno()));
 	    /* not a fatal error... */
 
 	    if (_bind_socket(laddr_info->usocket,addr_get_ip(curr_laddr),addr_get_port(curr_laddr))<0) {
-		eventlog(eventlog_level_error,__FUNCTION__,"could not bind %s socket to address %s UDP (psock_bind: %s)",laddr_type_get_str(laddr_info->type),tempa,strerror(psock_errno()));
+		eventlog(eventlog_level_error,__FUNCTION__,"could not bind %s socket to address %s UDP (psock_bind: %s)",laddr_type_get_str(laddr_info->type),tempa,pstrerror(psock_errno()));
 		goto errusock;
 	    }
 
 	    if (psock_ctl(laddr_info->usocket,PSOCK_NONBLOCK)<0)
-		eventlog(eventlog_level_error,__FUNCTION__,"could not set %s UDP socket to non-blocking mode (psock_ctl: %s)",laddr_type_get_str(laddr_info->type),strerror(psock_errno()));
+		eventlog(eventlog_level_error,__FUNCTION__,"could not set %s UDP socket to non-blocking mode (psock_ctl: %s)",laddr_type_get_str(laddr_info->type),pstrerror(psock_errno()));
 
 	    /* index ignored because we never need it after this */
 	    if (fdwatch_add_fd(laddr_info->usocket, fdwatch_type_read, handle_udp, curr_laddr) < 0) {
@@ -1060,42 +1060,42 @@ static int _setup_posixsig(void)
 {
     if (sigemptyset(&save_set)<0)
     {
-	eventlog(eventlog_level_error,__FUNCTION__,"could not initialize signal set (sigemptyset: %s)",strerror(errno));
+	eventlog(eventlog_level_error,__FUNCTION__,"could not initialize signal set (sigemptyset: %s)",pstrerror(errno));
 	return -1;
     }
     if (sigemptyset(&block_set)<0)
     {
-	eventlog(eventlog_level_error,__FUNCTION__,"could not initialize signal set (sigemptyset: %s)",strerror(errno));
+	eventlog(eventlog_level_error,__FUNCTION__,"could not initialize signal set (sigemptyset: %s)",pstrerror(errno));
 	return -1;
     }
     if (sigaddset(&block_set,SIGINT)<0)
     {
-	eventlog(eventlog_level_error,__FUNCTION__,"could not add signal to set (sigemptyset: %s)",strerror(errno));
+	eventlog(eventlog_level_error,__FUNCTION__,"could not add signal to set (sigemptyset: %s)",pstrerror(errno));
 	return -1;
     }
     if (sigaddset(&block_set,SIGHUP)<0)
     {
-	eventlog(eventlog_level_error,__FUNCTION__,"could not add signal to set (sigemptyset: %s)",strerror(errno));
+	eventlog(eventlog_level_error,__FUNCTION__,"could not add signal to set (sigemptyset: %s)",pstrerror(errno));
 	return -1;
     }
     if (sigaddset(&block_set,SIGTERM)<0)
     {
-	eventlog(eventlog_level_error,__FUNCTION__,"could not add signal to set (sigemptyset: %s)",strerror(errno));
+	eventlog(eventlog_level_error,__FUNCTION__,"could not add signal to set (sigemptyset: %s)",pstrerror(errno));
 	return -1;
     }
     if (sigaddset(&block_set,SIGUSR1)<0)
     {
-	eventlog(eventlog_level_error,__FUNCTION__,"could not add signal to set (sigemptyset: %s)",strerror(errno));
+	eventlog(eventlog_level_error,__FUNCTION__,"could not add signal to set (sigemptyset: %s)",pstrerror(errno));
 	return -1;
     }
     if (sigaddset(&block_set,SIGUSR2)<0)
     {
-	eventlog(eventlog_level_error,__FUNCTION__,"could not add signal to set (sigemptyset: %s)",strerror(errno));
+	eventlog(eventlog_level_error,__FUNCTION__,"could not add signal to set (sigemptyset: %s)",pstrerror(errno));
 	return -1;
     }
     if (sigaddset(&block_set,SIGALRM)<0)
     {
-	eventlog(eventlog_level_error,__FUNCTION__,"could not add signal to set (sigemptyset: %s)",strerror(errno));
+	eventlog(eventlog_level_error,__FUNCTION__,"could not add signal to set (sigemptyset: %s)",pstrerror(errno));
 	return -1;
     }
     
@@ -1111,48 +1111,48 @@ static int _setup_posixsig(void)
 
 	quit_action.sa_handler = quit_sig_handle;
 	if (sigemptyset(&quit_action.sa_mask)<0)
-	    eventlog(eventlog_level_error,__FUNCTION__,"could not initialize signal set (sigemptyset: %s)",strerror(errno));
+	    eventlog(eventlog_level_error,__FUNCTION__,"could not initialize signal set (sigemptyset: %s)",pstrerror(errno));
 	quit_action.sa_flags = SA_RESTART;
 
 	restart_action.sa_handler = restart_sig_handle;
 	if (sigemptyset(&restart_action.sa_mask)<0)
-	    eventlog(eventlog_level_error,__FUNCTION__,"could not initialize signal set (sigemptyset: %s)",strerror(errno));
+	    eventlog(eventlog_level_error,__FUNCTION__,"could not initialize signal set (sigemptyset: %s)",pstrerror(errno));
 	restart_action.sa_flags = SA_RESTART;
 
 	save_action.sa_handler = save_sig_handle;
 	if (sigemptyset(&save_action.sa_mask)<0)
-	    eventlog(eventlog_level_error,__FUNCTION__,"could not initialize signal set (sigemptyset: %s)",strerror(errno));
+	    eventlog(eventlog_level_error,__FUNCTION__,"could not initialize signal set (sigemptyset: %s)",pstrerror(errno));
 	save_action.sa_flags = SA_RESTART;
 
 	pipe_action.sa_handler = pipe_sig_handle;
 	if (sigemptyset(&pipe_action.sa_mask)<0)
-	    eventlog(eventlog_level_error,__FUNCTION__,"could not initialize signal set (sigemptyset: %s)",strerror(errno));
+	    eventlog(eventlog_level_error,__FUNCTION__,"could not initialize signal set (sigemptyset: %s)",pstrerror(errno));
 	pipe_action.sa_flags = SA_RESTART;
 #ifdef HAVE_SETITIMER
 	timer_action.sa_handler = timer_sig_handle;
 	if (sigemptyset(&timer_action.sa_mask)<0)
-	    eventlog(eventlog_level_error,__FUNCTION__,"could not initialize signal set (sigemptyset: %s)",strerror(errno));
+	    eventlog(eventlog_level_error,__FUNCTION__,"could not initialize signal set (sigemptyset: %s)",pstrerror(errno));
 	timer_action.sa_flags = SA_RESTART;
 #endif /* HAVE_SETITIMER */
 	forced_quit_action.sa_handler = forced_quit_sig_handle;
 	if (sigemptyset(&forced_quit_action.sa_mask)<0)
-	    eventlog(eventlog_level_error,__FUNCTION__,"could not initialize signal set (sigemptyset: %s)",strerror(errno));
+	    eventlog(eventlog_level_error,__FUNCTION__,"could not initialize signal set (sigemptyset: %s)",pstrerror(errno));
 	forced_quit_action.sa_flags = SA_RESTART;	
 
 	if (sigaction(SIGINT,&quit_action,NULL)<0) /* control-c */
-	    eventlog(eventlog_level_error,__FUNCTION__,"could not set SIGINT signal handler (sigaction: %s)",strerror(errno));
+	    eventlog(eventlog_level_error,__FUNCTION__,"could not set SIGINT signal handler (sigaction: %s)",pstrerror(errno));
 	if (sigaction(SIGHUP,&restart_action,NULL)<0)
-	    eventlog(eventlog_level_error,__FUNCTION__,"could not set SIGHUP signal handler (sigaction: %s)",strerror(errno));
+	    eventlog(eventlog_level_error,__FUNCTION__,"could not set SIGHUP signal handler (sigaction: %s)",pstrerror(errno));
 	if (sigaction(SIGTERM,&quit_action,NULL)<0)
-	    eventlog(eventlog_level_error,__FUNCTION__,"could not set SIGTERM signal handler (sigaction: %s)",strerror(errno));
+	    eventlog(eventlog_level_error,__FUNCTION__,"could not set SIGTERM signal handler (sigaction: %s)",pstrerror(errno));
 	if (sigaction(SIGUSR1,&save_action,NULL)<0)
-	    eventlog(eventlog_level_error,__FUNCTION__,"could not set SIGUSR1 signal handler (sigaction: %s)",strerror(errno));
+	    eventlog(eventlog_level_error,__FUNCTION__,"could not set SIGUSR1 signal handler (sigaction: %s)",pstrerror(errno));
 	if (sigaction(SIGPIPE,&pipe_action,NULL)<0)
-	    eventlog(eventlog_level_error,__FUNCTION__,"could not set SIGPIPE signal handler (sigaction: %s)",strerror(errno));
+	    eventlog(eventlog_level_error,__FUNCTION__,"could not set SIGPIPE signal handler (sigaction: %s)",pstrerror(errno));
 #ifdef HAVE_SETITIMER
 	/* setup asynchronus timestamp update timer */
 	if (sigaction(SIGALRM,&timer_action,NULL)<0)
-	    eventlog(eventlog_level_error,__FUNCTION__,"could not set SIGALRM signal handler (sigaction: %s)",strerror(errno));
+	    eventlog(eventlog_level_error,__FUNCTION__,"could not set SIGALRM signal handler (sigaction: %s)",pstrerror(errno));
 
 	{
 	    struct itimerval it;
@@ -1163,13 +1163,13 @@ static int _setup_posixsig(void)
 	    it.it_value.tv_usec = BNETD_JIFFIES % 1000;
 
 	    if (setitimer(ITIMER_REAL, &it, NULL)) {
-		eventlog(eventlog_level_fatal, __FUNCTION__, "failed to set timers (setitimer(): %s)", strerror(errno));
+		eventlog(eventlog_level_fatal, __FUNCTION__, "failed to set timers (setitimer(): %s)", pstrerror(errno));
 		return -1;
 	    }
 	}
 #endif
 	if (sigaction(SIGQUIT,&forced_quit_action,NULL)<0) /* immediate shutdown */
-	    eventlog(eventlog_level_error,__FUNCTION__,"could not set SIGQUIT signal handler (sigaction: %s)",strerror(errno));
+	    eventlog(eventlog_level_error,__FUNCTION__,"could not set SIGQUIT signal handler (sigaction: %s)",pstrerror(errno));
     }
 
     return 0;
@@ -1424,7 +1424,7 @@ static void _server_mainloop(t_addrlist *laddrs)
 		errno!=PSOCK_EINTR &&
 #endif
 		1)
-	        eventlog(eventlog_level_error,__FUNCTION__,"fdwatch() failed (errno: %s)",strerror(errno));
+	        eventlog(eventlog_level_error,__FUNCTION__,"fdwatch() failed (errno: %s)",pstrerror(errno));
 	case 0: /* timeout... no sockets need checking */
 	    continue;
 	}

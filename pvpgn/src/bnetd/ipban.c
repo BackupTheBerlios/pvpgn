@@ -136,7 +136,7 @@ extern int ipbanlist_load(char const * filename)
     
     if (!(fp = fopen(filename,"r")))
     {
-        eventlog(eventlog_level_error,__FUNCTION__,"could not open banlist file \"%s\" for reading (fopen: %s)",filename,strerror(errno));
+        eventlog(eventlog_level_error,__FUNCTION__,"could not open banlist file \"%s\" for reading (fopen: %s)",filename,pstrerror(errno));
 	return -1;
     }
 
@@ -185,7 +185,7 @@ extern int ipbanlist_load(char const * filename)
     
     file_get_line(NULL); // clear file_get_line buffer
     if (fclose(fp)<0)
-        eventlog(eventlog_level_error,__FUNCTION__,"could not close banlist file \"%s\" after reading (fclose: %s)",filename,strerror(errno));
+        eventlog(eventlog_level_error,__FUNCTION__,"could not close banlist file \"%s\" after reading (fclose: %s)",filename,pstrerror(errno));
     
     return 0;
 }
@@ -207,12 +207,12 @@ extern int ipbanlist_save(char const * filename)
     
     if (!(fp = fopen(filename,"w")))
     {
-        eventlog(eventlog_level_error,__FUNCTION__,"could not open banlist file \"%s\" for writing (fopen: %s)",filename,strerror(errno));
+        eventlog(eventlog_level_error,__FUNCTION__,"could not open banlist file \"%s\" for writing (fopen: %s)",filename,pstrerror(errno));
 	return -1;
     }
 /*    if (ftruncate(fp,0)<0)
     {
-        eventlog(eventlog_level_error,__FUNCTION__,"could not truncate banlist file \"%s\" (ftruncate: %s)",filename,strerror(errno));
+        eventlog(eventlog_level_error,__FUNCTION__,"could not truncate banlist file \"%s\" (ftruncate: %s)",filename,pstrerror(errno));
 	return -1;
     }*/
     
@@ -234,13 +234,13 @@ extern int ipbanlist_save(char const * filename)
 	else    
 	    sprintf(line,"%s %ld\n",ipstr,entry->endtime);
 	if (!(fwrite(line,strlen(line),1,fp)))
-	    eventlog(eventlog_level_error,__FUNCTION__,"could not write to banlist file (write: %s)",strerror(errno));
+	    eventlog(eventlog_level_error,__FUNCTION__,"could not write to banlist file (write: %s)",pstrerror(errno));
 	xfree(ipstr);
     }
 	
     if (fclose(fp)<0)
     {
-        eventlog(eventlog_level_error,__FUNCTION__,"could not close banlist file \"%s\" after writing (fclose: %s)",filename,strerror(errno));
+        eventlog(eventlog_level_error,__FUNCTION__,"could not close banlist file \"%s\" after writing (fclose: %s)",filename,pstrerror(errno));
 	return -1;
     }
     

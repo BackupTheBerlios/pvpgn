@@ -246,7 +246,7 @@ extern int client_connect(char const * progname, char const * servname, unsigned
     
     if (gethostname(compname,COMPNAMELEN)<0)
     {
-	fprintf(stderr,"%s: could not get host name (gethostname: %s)\n",progname,strerror(errno));
+	fprintf(stderr,"%s: could not get host name (gethostname: %s)\n",progname,pstrerror(errno));
 	return -1;
     }
 #ifdef HAVE_GETLOGIN
@@ -254,12 +254,12 @@ extern int client_connect(char const * progname, char const * servname, unsigned
 #endif
     {
 	username = "unknown";
-	dprintf("%s: could not get login name, using \"%s\" (getlogin: %s)\n",progname,username,strerror(errno));
+	dprintf("%s: could not get login name, using \"%s\" (getlogin: %s)\n",progname,username,pstrerror(errno));
     }
     
     if ((sd = psock_socket(PSOCK_PF_INET,PSOCK_SOCK_STREAM,PSOCK_IPPROTO_TCP))<0)
     {
-	fprintf(stderr,"%s: could not create socket (psock_socket: %s)\n",progname,strerror(psock_errno()));
+	fprintf(stderr,"%s: could not create socket (psock_socket: %s)\n",progname,pstrerror(psock_errno()));
 	return -1;
     }
     
@@ -269,7 +269,7 @@ extern int client_connect(char const * progname, char const * servname, unsigned
     memcpy(&saddr->sin_addr.s_addr,host->h_addr_list[0],host->h_length);
     if (psock_connect(sd,(struct sockaddr *)saddr,sizeof(*saddr))<0)
     {
-	fprintf(stderr,"%s: could not connect to server \"%s\" port %hu (psock_connect: %s)\n",progname,servname,servport,strerror(psock_errno()));
+	fprintf(stderr,"%s: could not connect to server \"%s\" port %hu (psock_connect: %s)\n",progname,servname,servport,pstrerror(psock_errno()));
 	goto error_sd;
     }
     

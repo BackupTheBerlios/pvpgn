@@ -68,7 +68,7 @@ extern FILE * runprog_open(char const * command)
     
     if (pipe(fds)<0)
     {
-	eventlog(eventlog_level_error,__FUNCTION__,"could not create pipe (pipe: %s)",strerror(errno));
+	eventlog(eventlog_level_error,__FUNCTION__,"could not create pipe (pipe: %s)",pstrerror(errno));
 	return NULL;
     }
     
@@ -93,12 +93,12 @@ extern FILE * runprog_open(char const * command)
 	    close(fds[1]);
 	
 	if (execlp(command,command,(char *)NULL)<0)
-	    eventlog(eventlog_level_error,__FUNCTION__,"could not execute \"%s\" (execlp: %s)",command,strerror(errno));
+	    eventlog(eventlog_level_error,__FUNCTION__,"could not execute \"%s\" (execlp: %s)",command,pstrerror(errno));
 	
 	exit(127); /* popen exec failure code */
 	
     case -1:
-	eventlog(eventlog_level_error,__FUNCTION__,"could not fork (fork: %s)",strerror(errno));
+	eventlog(eventlog_level_error,__FUNCTION__,"could not fork (fork: %s)",pstrerror(errno));
 	close(fds[0]);
 	close(fds[1]);
 	return NULL;
@@ -108,7 +108,7 @@ extern FILE * runprog_open(char const * command)
 	
 	if (!(pp = fdopen(fds[0],"r")))
 	{
-	    eventlog(eventlog_level_error,__FUNCTION__,"could not streamify output (fdopen: %s)",strerror(errno));
+	    eventlog(eventlog_level_error,__FUNCTION__,"could not streamify output (fdopen: %s)",pstrerror(errno));
 	    close(fds[0]);
 	    return NULL;
 	}
@@ -135,7 +135,7 @@ extern int runprog_close(FILE * pp)
     
     if (fclose(pp)<0)
     {
-	eventlog(eventlog_level_error,__FUNCTION__,"could not close process (fclose: %s)",strerror(errno));
+	eventlog(eventlog_level_error,__FUNCTION__,"could not close process (fclose: %s)",pstrerror(errno));
 	return -1;
     }
     

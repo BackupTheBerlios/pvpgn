@@ -164,10 +164,10 @@ static void conn_send_welcome(t_connection * c)
 	{
 	    message_send_file(c,fp);
 	    if (fclose(fp)<0)
-	      { eventlog(eventlog_level_error,__FUNCTION__,"could not close MOTD file \"%s\" after reading (fopen: %s)",filename,strerror(errno)); }
+	      { eventlog(eventlog_level_error,__FUNCTION__,"could not close MOTD file \"%s\" after reading (fopen: %s)",filename,pstrerror(errno)); }
 	}
 	else
-	  { eventlog(eventlog_level_error,__FUNCTION__,"could not open MOTD file \"%s\" for reading (fopen: %s)",filename,strerror(errno)); }
+	  { eventlog(eventlog_level_error,__FUNCTION__,"could not open MOTD file \"%s\" for reading (fopen: %s)",filename,pstrerror(errno)); }
     }
     c->protocol.cflags|= conn_flags_welcomed;
 }
@@ -189,10 +189,10 @@ static void conn_send_issue(t_connection * c)
 	{
 	    message_send_file(c,fp);
 	    if (fclose(fp)<0)
-		eventlog(eventlog_level_error,__FUNCTION__,"could not close issue file \"%s\" after reading (fopen: %s)",filename,strerror(errno));
+		eventlog(eventlog_level_error,__FUNCTION__,"could not close issue file \"%s\" after reading (fopen: %s)",filename,pstrerror(errno));
 	}
 	else
-	    eventlog(eventlog_level_error,__FUNCTION__,"could not open issue file \"%s\" for reading (fopen: %s)",filename,strerror(errno));
+	    eventlog(eventlog_level_error,__FUNCTION__,"could not open issue file \"%s\" for reading (fopen: %s)",filename,pstrerror(errno));
     else
 	eventlog(eventlog_level_debug,__FUNCTION__,"no issue file");
 }

@@ -174,7 +174,7 @@ extern char * message_format_line(t_connection const * c, char const * in)
 	    case 'h':
     		if (gethostname(&out[outpos],MAX_INC)<0)
     		{
-		    eventlog(eventlog_level_error,__FUNCTION__,"could not get hostname (gethostname: %s)",strerror(errno));
+		    eventlog(eventlog_level_error,__FUNCTION__,"could not get hostname (gethostname: %s)",pstrerror(errno));
 		    strcpy(&out[outpos],"localhost"); /* not much else you can do */
     		}
 		outpos += strlen(&out[outpos]);

@@ -200,7 +200,7 @@ extern int file_send(t_connection * c, char const * rawname, unsigned int adid, 
 	if (!(fp = fopen(filename,"rb")))
 	{
 	    /* FIXME: check for lower-case version of filename */
-	    eventlog(eventlog_level_error,__FUNCTION__,"stat() succeeded yet could not open file \"%s\" for reading (fclose: %s)",filename,strerror(errno));
+	    eventlog(eventlog_level_error,__FUNCTION__,"stat() succeeded yet could not open file \"%s\" for reading (fclose: %s)",filename,pstrerror(errno));
 	    filelen = 0;
 	}
 	xfree((void *)filename); /* avoid warning */
@@ -252,7 +252,7 @@ extern int file_send(t_connection * c, char const * rawname, unsigned int adid, 
 	{
 	    eventlog(eventlog_level_error,__FUNCTION__,"could not create raw packet");
 	    if (fclose(fp)<0)
-		eventlog(eventlog_level_error,__FUNCTION__,"could not close file \"%s\" after reading (fclose: %s)",rawname,strerror(errno));
+		eventlog(eventlog_level_error,__FUNCTION__,"could not close file \"%s\" after reading (fclose: %s)",rawname,pstrerror(errno));
 	    return -1;
 	}
 	if ((nbytes = fread(packet_get_raw_data_build(rpacket,0),1,MAX_PACKET_SIZE,fp))<(int)MAX_PACKET_SIZE)
@@ -264,7 +264,7 @@ extern int file_send(t_connection * c, char const * rawname, unsigned int adid, 
 	    }
 	    packet_del_ref(rpacket);
 	    if (ferror(fp))
-		eventlog(eventlog_level_error,__FUNCTION__,"read failed before EOF on file \"%s\" (fread: %s)",rawname,strerror(errno));
+		eventlog(eventlog_level_error,__FUNCTION__,"read failed before EOF on file \"%s\" (fread: %s)",rawname,pstrerror(errno));
 	    break;
 	}
 	packet_set_size(rpacket,nbytes);
@@ -273,6 +273,6 @@ extern int file_send(t_connection * c, char const * rawname, unsigned int adid, 
     }
     
     if (fclose(fp)<0)
-	eventlog(eventlog_level_error,__FUNCTION__,"could not close file \"%s\" after reading (fclose: %s)",rawname,strerror(errno));
+	eventlog(eventlog_level_error,__FUNCTION__,"could not close file \"%s\" after reading (fclose: %s)",rawname,pstrerror(errno));
     return 0;
 }

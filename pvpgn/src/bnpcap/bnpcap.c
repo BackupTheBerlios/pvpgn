@@ -197,7 +197,7 @@ static t_bnpcap_conn * bnpcap_conn_new(t_bnpcap_addr const *s, t_bnpcap_addr con
    
    c = (t_bnpcap_conn *) malloc(sizeof(t_bnpcap_conn)); /* avoid warning */
    if (!c) {
-      eventlog(eventlog_level_error,__FUNCTION__,"malloc failed: %s",strerror(errno));
+      eventlog(eventlog_level_error,__FUNCTION__,"malloc failed: %s",pstrerror(errno));
       return NULL;
    }
    if (d->port==listen_port || d->port==6200) { /* FIXME: That's dirty: We assume the server is on port 6112 */
@@ -329,7 +329,7 @@ static int bnpcap_conn_packet(unsigned int sip, unsigned short sport, unsigned i
 	 eventlog(eventlog_level_debug,__FUNCTION__,"packet is always complete (class=%d)",bnpcap_conn_get_class(c));
 	 bp = (t_bnpcap_packet *) malloc(sizeof(t_bnpcap_packet)); /* avoid warning */
 	 if (!bp) {
-	    eventlog(eventlog_level_error,__FUNCTION__,"malloc failed: %s",strerror(errno));
+	    eventlog(eventlog_level_error,__FUNCTION__,"malloc failed: %s",pstrerror(errno));
 	    return -1;
 	 }
 	 bp->dir = bnpcap_conn_get_dir(c,&s,&d);
@@ -390,7 +390,7 @@ static int bnpcap_conn_packet(unsigned int sip, unsigned short sport, unsigned i
 	       eventlog(eventlog_level_debug,__FUNCTION__,"packet is complete");
 	       bp = (t_bnpcap_packet *) malloc(sizeof(t_bnpcap_packet)); /* avoid warning */
 	       if (!bp) {
-		  eventlog(eventlog_level_error,__FUNCTION__,"malloc failed: %s",strerror(errno));
+		  eventlog(eventlog_level_error,__FUNCTION__,"malloc failed: %s",pstrerror(errno));
 		  return -1;
 	       }
 	       if ((off != packet_get_size(p))&&(bnpcap_dodebug)) {
@@ -532,7 +532,7 @@ static int bnpcap_process_udp(unsigned char const *data, unsigned int len)
    
    bp = (t_bnpcap_packet *) malloc(sizeof(t_bnpcap_packet)); /* avoid warning */
    if (!bp) {
-      eventlog(eventlog_level_error,__FUNCTION__,"malloc failed: %s",strerror(errno));
+      eventlog(eventlog_level_error,__FUNCTION__,"malloc failed: %s",pstrerror(errno));
       return -1;
    }
    if (h.dport==listen_port || h.dport==6200) {

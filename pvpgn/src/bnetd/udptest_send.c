@@ -106,7 +106,7 @@ extern int udptest_send(t_connection const * c)
         if (psock_sendto(conn_get_game_socket(c),
 			 packet_get_raw_data_const(upacket,0),packet_get_size(upacket),
 			 0,(struct sockaddr *)&caddr,(psock_t_socklen)sizeof(caddr))!=(int)packet_get_size(upacket))
-            eventlog(eventlog_level_error,__FUNCTION__,"[%d] failed to send UDPTEST to %s (attempt %u) (psock_sendto: %s)",conn_get_socket(c),addr_num_to_addr_str(ntohl(caddr.sin_addr.s_addr),conn_get_game_port(c)),tries+1,strerror(psock_errno()));
+            eventlog(eventlog_level_error,__FUNCTION__,"[%d] failed to send UDPTEST to %s (attempt %u) (psock_sendto: %s)",conn_get_socket(c),addr_num_to_addr_str(ntohl(caddr.sin_addr.s_addr),conn_get_game_port(c)),tries+1,pstrerror(psock_errno()));
 	else
 	    successes++;
 	

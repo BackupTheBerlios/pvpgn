@@ -105,7 +105,7 @@ extern int main(int argc, char * argv[])
     else
 	if (!(fp = fopen(tgafile,"r")))
 	{
-	    fprintf(stderr,"%s: could not open TGA file \"%s\" for reading (fopen: %s)\n",argv[0],tgafile,strerror(errno));
+	    fprintf(stderr,"%s: could not open TGA file \"%s\" for reading (fopen: %s)\n",argv[0],tgafile,pstrerror(errno));
 	    return STATUS_FAILURE;
 	}
     
@@ -117,7 +117,7 @@ extern int main(int argc, char * argv[])
 	{
 	    fprintf(stderr,"%s: could not load TGA header\n",argv[0]);
 	    if (tgafile!=dash && fclose(fp)<0)
-		fprintf(stderr,"%s: could not close file \"%s\" after reading (fclose: %s)\n",argv[0],tgafile,strerror(errno));
+		fprintf(stderr,"%s: could not close file \"%s\" after reading (fclose: %s)\n",argv[0],tgafile,pstrerror(errno));
 	    return STATUS_FAILURE;
 	}
 	print_tga_info(tgaimg,stdout);
@@ -125,6 +125,6 @@ extern int main(int argc, char * argv[])
     }
     
     if (tgafile!=dash && fclose(fp)<0)
-	fprintf(stderr,"%s: could not close file \"%s\" after reading (fclose: %s)\n",argv[0],tgafile,strerror(errno));
+	fprintf(stderr,"%s: could not close file \"%s\" after reading (fclose: %s)\n",argv[0],tgafile,pstrerror(errno));
     return STATUS_SUCCESS;
 }

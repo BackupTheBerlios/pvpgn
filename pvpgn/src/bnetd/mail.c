@@ -323,7 +323,7 @@ static int mailbox_delete(t_mailbox * mailbox, unsigned int idx) {
    sprintf(filename,"%s/%s",mailbox->path,dentry);
    rez=remove(filename);
    if (rez<0) {
-       eventlog(eventlog_level_info,__FUNCTION__,"could not remove file \"%s\" (remove: %s)",filename,strerror(errno));
+       eventlog(eventlog_level_info,__FUNCTION__,"could not remove file \"%s\" (remove: %s)",filename,pstrerror(errno));
     }
    xfree(filename);
    return rez;

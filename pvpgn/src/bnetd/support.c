@@ -69,7 +69,7 @@ extern int support_check_files(char const * supportfile)
 
   if (!(fp = fopen(supportfile,"r")))
   {
-    eventlog(eventlog_level_error,__FUNCTION__,"could not open file \"%s\" for reading (fopen: %s)",supportfile,strerror(errno));
+    eventlog(eventlog_level_error,__FUNCTION__,"could not open file \"%s\" for reading (fopen: %s)",supportfile,pstrerror(errno));
     eventlog(eventlog_level_error,__FUNCTION__,"can't guarantee that everything will run smooth");
     return 0;
   }

@@ -89,7 +89,7 @@ static int setup_daemon(void)
 	int pid;
 	
 	if (chdir("/")<0) {
-		eventlog(eventlog_level_error,__FUNCTION__,"can not change working directory to root directory (chdir: %s)",strerror(errno));
+		eventlog(eventlog_level_error,__FUNCTION__,"can not change working directory to root directory (chdir: %s)",pstrerror(errno));
 		return -1;
 	}
 	close(STDIN_FILENO);
@@ -101,7 +101,7 @@ static int setup_daemon(void)
 		case 0:
 			break;
 		case -1:
-			eventlog(eventlog_level_error,__FUNCTION__,"error create child process (fork: %s)",strerror(errno));
+			eventlog(eventlog_level_error,__FUNCTION__,"error create child process (fork: %s)",pstrerror(errno));
 			return -1;
 		default:
 			return pid;

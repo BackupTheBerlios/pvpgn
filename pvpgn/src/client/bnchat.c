@@ -299,13 +299,13 @@ static int print_file(struct sockaddr_in * saddr, char const * filename, char co
     
     if ((sd = psock_socket(PSOCK_PF_INET,PSOCK_SOCK_STREAM,PSOCK_IPPROTO_TCP))<0)
     {
-	fprintf(stderr,"%s: could not create socket (psock_socket: %s)\n",progname,strerror(psock_errno()));
+	fprintf(stderr,"%s: could not create socket (psock_socket: %s)\n",progname,pstrerror(psock_errno()));
 	return -1;
     }
     
     if (psock_connect(sd,(struct sockaddr *)saddr,sizeof(*saddr))<0)
     {
-	fprintf(stderr,"%s: could not connect to server (psock_connect: %s)\n",progname,strerror(psock_errno()));
+	fprintf(stderr,"%s: could not connect to server (psock_connect: %s)\n",progname,pstrerror(psock_errno()));
 	return -1;
     }
     
@@ -1321,7 +1321,7 @@ extern int main(int argc, char * argv[])
     packet_del_ref(packet);
     
     if (psock_ctl(client.sd,PSOCK_NONBLOCK)<0)
-	fprintf(stderr,"%s: could not set TCP socket to non-blocking mode (psock_ctl: %s)\n",argv[0],strerror(psock_errno()));
+	fprintf(stderr,"%s: could not set TCP socket to non-blocking mode (psock_ctl: %s)\n",argv[0],pstrerror(psock_errno()));
     
     client.mode = mode_chat;
     
@@ -1384,7 +1384,7 @@ extern int main(int argc, char * argv[])
 			if (psock_errno()!=PSOCK_EINTR)
 			{
 				munge(&client);
-				printf("Select failed (select: %s)\n",strerror(psock_errno()));
+				printf("Select failed (select: %s)\n",pstrerror(psock_errno()));
 			}
 			continue;
 	    }

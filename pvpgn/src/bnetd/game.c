@@ -910,7 +910,7 @@ static int game_report(t_game * game)
     
     if (!(fp = fopen(tempname,"w")))
     {
-	eventlog(eventlog_level_error,__FUNCTION__,"could not open report file \"%s\" for writing (fopen: %s)",tempname,strerror(errno));
+	eventlog(eventlog_level_error,__FUNCTION__,"could not open report file \"%s\" for writing (fopen: %s)",tempname,pstrerror(errno));
 	if (ladder_info)
 	    xfree(ladder_info);
 	xfree(realname);
@@ -1053,7 +1053,7 @@ static int game_report(t_game * game)
     
     if (fclose(fp)<0)
     {
-	eventlog(eventlog_level_error,__FUNCTION__,"could not close report file \"%s\" after writing (fclose: %s)",tempname,strerror(errno));
+	eventlog(eventlog_level_error,__FUNCTION__,"could not close report file \"%s\" after writing (fclose: %s)",tempname,pstrerror(errno));
 	xfree(realname);
 	xfree(tempname);
 	return -1;
@@ -1061,7 +1061,7 @@ static int game_report(t_game * game)
     
     if (p_rename(tempname,realname)<0)
     {
-	eventlog(eventlog_level_error,__FUNCTION__,"could not rename report file to \"%s\" (rename: %s)",realname,strerror(errno));
+	eventlog(eventlog_level_error,__FUNCTION__,"could not rename report file to \"%s\" (rename: %s)",realname,pstrerror(errno));
 	xfree(realname);
 	xfree(tempname);
 	return -1;

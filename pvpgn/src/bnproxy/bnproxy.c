@@ -129,7 +129,7 @@ static int init_virtconn(t_virtconn * vc, struct sockaddr_in servaddr)
     /* error occurred or connection lost */
     if (addlen<1)
     {
-	eventlog(eventlog_level_error,__FUNCTION__,"[%d] could not get virtconn class (closing connection) (psock_recv: %s)",virtconn_get_client_socket(vc),strerror(psock_errno()));
+	eventlog(eventlog_level_error,__FUNCTION__,"[%d] could not get virtconn class (closing connection) (psock_recv: %s)",virtconn_get_client_socket(vc),pstrerror(psock_errno()));
 	return -1;
     }
     
@@ -163,7 +163,7 @@ static int init_virtconn(t_virtconn * vc, struct sockaddr_in servaddr)
     {
 	if (psock_errno()!=PSOCK_EINPROGRESS)
 	{
-	    eventlog(eventlog_level_error,__FUNCTION__,"[%d] could not connect to server (psock_connect: %s)\n",virtconn_get_client_socket(vc),strerror(psock_errno()));
+	    eventlog(eventlog_level_error,__FUNCTION__,"[%d] could not connect to server (psock_connect: %s)\n",virtconn_get_client_socket(vc),pstrerror(psock_errno()));
 	    return -1;
 	}
 	virtconn_set_state(vc,virtconn_state_connecting);
@@ -202,15 +202,15 @@ static int proxy_process(unsigned short server_listen_port, struct sockaddr_in s
     
     if ((udpsock = psock_socket(PSOCK_PF_INET,PSOCK_SOCK_DGRAM,PSOCK_IPPROTO_UDP))<0)
     {
-	eventlog(eventlog_level_error,__FUNCTION__,"could not create UDP socket (psock_socket: %s)",strerror(psock_errno()));
+	eventlog(eventlog_level_error,__FUNCTION__,"could not create UDP socket (psock_socket: %s)",pstrerror(psock_errno()));
 	return -1;
     }
     if (psock_ctl(udpsock,PSOCK_NONBLOCK)<0)
-	eventlog(eventlog_level_error,__FUNCTION__,"could not set UDP listen socket to non-blocking mode (psock_ctl: %s)",strerror(psock_errno()));
+	eventlog(eventlog_level_error,__FUNCTION__,"could not set UDP listen socket to non-blocking mode (psock_ctl: %s)",pstrerror(psock_errno()));
     
     if ((lsock = psock_socket(PSOCK_PF_INET,PSOCK_SOCK_STREAM,PSOCK_IPPROTO_TCP))<0)
     {
-	eventlog(eventlog_level_error,__FUNCTION__,"could not create listening socket (psock_socket: %s)",strerror(psock_errno()));
+	eventlog(eventlog_level_error,__FUNCTION__,"could not create listening socket (psock_socket: %s)",pstrerror(psock_errno()));
         psock_close(udpsock);
 	return -1;
     }
@@ -219,7 +219,7 @@ static int proxy_process(unsigned short server_listen_port, struct sockaddr_in s
 	int val=1;
 	
 	if (psock_setsockopt(lsock,PSOCK_SOL_SOCKET,PSOCK_SO_REUSEADDR,&val,(psock_t_socklen)sizeof(int))<0)
-	    eventlog(eventlog_level_error,__FUNCTION__,"[%d] could not set socket option SO_REUSEADDR (psock_setsockopt: %s)",lsock,strerror(psock_errno()));
+	    eventlog(eventlog_level_error,__FUNCTION__,"[%d] could not set socket option SO_REUSEADDR (psock_setsockopt: %s)",lsock,pstrerror(psock_errno()));
 	/* not a fatal error... */
     }
     
@@ -229,7 +229,7 @@ static int proxy_process(unsigned short server_listen_port, struct sockaddr_in s
     laddr.sin_addr.s_addr = htonl(INADDR_ANY);
     if (psock_bind(lsock,(struct sockaddr *)&laddr,(psock_t_socklen)sizeof(laddr))<0)
     {
-	eventlog(eventlog_level_error,__FUNCTION__,"could not bind socket to address 0.0.0.0:%hu TCP (psock_bind: %s)",server_listen_port,strerror(psock_errno()));
+	eventlog(eventlog_level_error,__FUNCTION__,"could not bind socket to address 0.0.0.0:%hu TCP (psock_bind: %s)",server_listen_port,pstrerror(psock_errno()));
         psock_close(udpsock);
 	psock_close(lsock);
 	return -1;
@@ -241,7 +241,7 @@ static int proxy_process(unsigned short server_listen_port, struct sockaddr_in s
     laddr.sin_addr.s_addr = htonl(INADDR_ANY);
     if (psock_bind(udpsock,(struct sockaddr *)&laddr,(psock_t_socklen)sizeof(laddr))<0)
     {
-	eventlog(eventlog_level_error,__FUNCTION__,"could not bind socket to address 0.0.0.0:%hu UDP (psock_bind: %s)",server_listen_port,strerror(psock_errno()));
+	eventlog(eventlog_level_error,__FUNCTION__,"could not bind socket to address 0.0.0.0:%hu UDP (psock_bind: %s)",server_listen_port,pstrerror(psock_errno()));
 	psock_close(udpsock);
 	psock_close(lsock);
 	return -1;
@@ -251,13 +251,13 @@ static int proxy_process(unsigned short server_listen_port, struct sockaddr_in s
     /* tell socket to listen for connections */
     if (psock_listen(lsock,LISTEN_QUEUE)<0)
     {
-	eventlog(eventlog_level_error,__FUNCTION__,"could not listen (psock_listen: %s)",strerror(psock_errno()));
+	eventlog(eventlog_level_error,__FUNCTION__,"could not listen (psock_listen: %s)",pstrerror(psock_errno()));
         psock_close(udpsock);
 	psock_close(lsock);
 	return -1;
     }
     if (psock_ctl(lsock,PSOCK_NONBLOCK)<0)
-	eventlog(eventlog_level_error,__FUNCTION__,"could not set TCP listen socket to non-blocking mode (psock_ctl: %s)",strerror(psock_errno()));
+	eventlog(eventlog_level_error,__FUNCTION__,"could not set TCP listen socket to non-blocking mode (psock_ctl: %s)",pstrerror(psock_errno()));
     
     eventlog(eventlog_level_info,__FUNCTION__,"listening on TCP port %hu",server_listen_port);
     
@@ -312,7 +312,7 @@ static int proxy_process(unsigned short server_listen_port, struct sockaddr_in s
 	if (psock_select(highest_fd+1,&rfds,&wfds,NULL,NULL)<0)
 	{
 	    if (errno!=PSOCK_EINTR)
-	        eventlog(eventlog_level_error,__FUNCTION__,"select failed (select: %s)",strerror(errno));
+	        eventlog(eventlog_level_error,__FUNCTION__,"select failed (select: %s)",pstrerror(errno));
 	    continue;
 	}
 	
@@ -328,10 +328,10 @@ static int proxy_process(unsigned short server_listen_port, struct sockaddr_in s
 	    if ((asock = psock_accept(lsock,(struct sockaddr *)&caddr,&caddr_len))<0)
 	    {
 		if (psock_errno()==PSOCK_EWOULDBLOCK || psock_errno()==PSOCK_ECONNABORTED) /* BSD, POSIX error for aborted connections, SYSV often uses EAGAIN */
-		    eventlog(eventlog_level_error,__FUNCTION__,"client aborted connection (psock_accept: %s)",strerror(psock_errno()));
+		    eventlog(eventlog_level_error,__FUNCTION__,"client aborted connection (psock_accept: %s)",pstrerror(psock_errno()));
 		else /* EAGAIN can mean out of resources _or_ connection aborted */
 		    if (psock_errno()!=PSOCK_EINTR)
-			eventlog(eventlog_level_error,__FUNCTION__,"could not accept new connection (psock_accept: %s)",strerror(psock_errno()));
+			eventlog(eventlog_level_error,__FUNCTION__,"could not accept new connection (psock_accept: %s)",pstrerror(psock_errno()));
 	    }
 	    else
 	    {
@@ -341,24 +341,24 @@ static int proxy_process(unsigned short server_listen_port, struct sockaddr_in s
 		eventlog(eventlog_level_info,__FUNCTION__,"[%d] accepted connection from %s:%hu",asock,inet_ntoa(caddr.sin_addr),ntohs(caddr.sin_port));
 		
 		if (psock_setsockopt(asock,PSOCK_SOL_SOCKET,PSOCK_SO_KEEPALIVE,&val,(psock_t_socklen)sizeof(val))<0)
-		    eventlog(eventlog_level_error,__FUNCTION__,"[%d] could not set socket option SO_KEEPALIVE (psock_setsockopt: %s)",asock,strerror(psock_errno()));
+		    eventlog(eventlog_level_error,__FUNCTION__,"[%d] could not set socket option SO_KEEPALIVE (psock_setsockopt: %s)",asock,pstrerror(psock_errno()));
 		    /* not a fatal error */
 		
 		if (psock_ctl(asock,PSOCK_NONBLOCK)<0)
 		{
-		    eventlog(eventlog_level_error,__FUNCTION__,"[%d] could not set TCP socket to non-blocking mode (closing connection) (psock_ctl: %s)",asock,strerror(psock_errno()));
+		    eventlog(eventlog_level_error,__FUNCTION__,"[%d] could not set TCP socket to non-blocking mode (closing connection) (psock_ctl: %s)",asock,pstrerror(psock_errno()));
 		    psock_close(asock);
 		}
 		else
 		    if ((ssd = psock_socket(PSOCK_PF_INET,PSOCK_SOCK_STREAM,PSOCK_IPPROTO_TCP))<0)
 		    {
-			eventlog(eventlog_level_error,__FUNCTION__,"[%d] could create TCP socket (closing connection) (psock_socket: %s)",asock,strerror(psock_errno()));
+			eventlog(eventlog_level_error,__FUNCTION__,"[%d] could create TCP socket (closing connection) (psock_socket: %s)",asock,pstrerror(psock_errno()));
 			psock_close(asock);
 		    }
 		    else
 			if (psock_ctl(ssd,PSOCK_NONBLOCK)<0)
 			{
-			    eventlog(eventlog_level_error,__FUNCTION__,"[%d] could not set TCP socket to non-blocking mode (closing connection) (psock_ctl: %s)",asock,strerror(psock_errno()));
+			    eventlog(eventlog_level_error,__FUNCTION__,"[%d] could not set TCP socket to non-blocking mode (closing connection) (psock_ctl: %s)",asock,pstrerror(psock_errno()));
 			    psock_close(ssd);
 			    psock_close(asock);
 			}
@@ -399,7 +399,7 @@ static int proxy_process(unsigned short server_listen_port, struct sockaddr_in s
 		if ((len = psock_recvfrom(udpsock,packet_get_raw_data_build(upacket,0),MAX_PACKET_SIZE,0,(struct sockaddr *)&fromaddr,&fromlen))<0)
 		{
 		    if (psock_errno()!=PSOCK_EINTR && psock_errno()!=PSOCK_EAGAIN && psock_errno()!=PSOCK_EWOULDBLOCK)
-			eventlog(eventlog_level_error,__FUNCTION__,"could not recv UDP datagram (psock_recvfrom: %s)",strerror(psock_errno()));
+			eventlog(eventlog_level_error,__FUNCTION__,"could not recv UDP datagram (psock_recvfrom: %s)",pstrerror(psock_errno()));
 		}
 		else
 		{
@@ -445,7 +445,7 @@ static int proxy_process(unsigned short server_listen_port, struct sockaddr_in s
 				    {
 					if (psock_errno()==PSOCK_EINTR || psock_errno()==PSOCK_EAGAIN || psock_errno()==PSOCK_EWOULDBLOCK)
 					    continue;
-					eventlog(eventlog_level_error,__FUNCTION__,"could not send UDP datagram to client (psock_sendto: %s)",strerror(psock_errno()));
+					eventlog(eventlog_level_error,__FUNCTION__,"could not send UDP datagram to client (psock_sendto: %s)",pstrerror(psock_errno()));
 				    }
 				    break;
 				}
@@ -475,7 +475,7 @@ static int proxy_process(unsigned short server_listen_port, struct sockaddr_in s
 				{
 				    if (psock_errno()==PSOCK_EINTR || psock_errno()==PSOCK_EAGAIN || psock_errno()==PSOCK_EWOULDBLOCK)
 					continue;
-				    eventlog(eventlog_level_error,__FUNCTION__,"could not send UDP datagram to server (psock_sendto: %s)",strerror(psock_errno()));
+				    eventlog(eventlog_level_error,__FUNCTION__,"could not send UDP datagram to server (psock_sendto: %s)",pstrerror(psock_errno()));
 				}
 				break;
 			    }
@@ -739,7 +739,7 @@ static int proxy_process(unsigned short server_listen_port, struct sockaddr_in s
 		    errlen = sizeof(err);
 		    if (psock_getsockopt(ssocket,PSOCK_SOL_SOCKET,PSOCK_SO_ERROR,&err,&errlen)<0)
 		    {
-			eventlog(eventlog_level_error,__FUNCTION__,"[%d] unable to read socket error (psock_getsockopt[psock_connect]: %s)",virtconn_get_client_socket(vc),strerror(psock_errno()));
+			eventlog(eventlog_level_error,__FUNCTION__,"[%d] unable to read socket error (psock_getsockopt[psock_connect]: %s)",virtconn_get_client_socket(vc),pstrerror(psock_errno()));
 			virtconn_destroy(vc);
 			continue;
 		    }
@@ -747,7 +747,7 @@ static int proxy_process(unsigned short server_listen_port, struct sockaddr_in s
 			virtconn_set_state(vc,virtconn_state_connected);
 		    else
 		    {
-			eventlog(eventlog_level_error,__FUNCTION__,"[%d] could not connect to server (psock_getsockopt[psock_connect]: %s)",virtconn_get_client_socket(vc),strerror(err));
+			eventlog(eventlog_level_error,__FUNCTION__,"[%d] could not connect to server (psock_getsockopt[psock_connect]: %s)",virtconn_get_client_socket(vc),pstrerror(err));
 			virtconn_destroy(vc);
 			continue;
 		    }
@@ -975,14 +975,14 @@ extern int main(int argc, char * argv[])
     {
         if (chdir("/")<0)
         {
-            eventlog(eventlog_level_error,__FUNCTION__,"could not change working directory to / (chdir: %s)",strerror(errno));
+            eventlog(eventlog_level_error,__FUNCTION__,"could not change working directory to / (chdir: %s)",pstrerror(errno));
             return STATUS_FAILURE;
         }
 	
         switch (fork())
         {
         case -1:
-            eventlog(eventlog_level_error,__FUNCTION__,"could not fork (fork: %s)",strerror(errno));
+            eventlog(eventlog_level_error,__FUNCTION__,"could not fork (fork: %s)",pstrerror(errno));
             return STATUS_FAILURE;
         case 0: /* child */
             break;
@@ -997,7 +997,7 @@ extern int main(int argc, char * argv[])
 # ifdef HAVE_SETPGID
         if (setpgid(0,0)<0)
         {
-            eventlog(eventlog_level_error,__FUNCTION__,"could not create new process group (setpgid: %s)",strerror(errno));
+            eventlog(eventlog_level_error,__FUNCTION__,"could not create new process group (setpgid: %s)",pstrerror(errno));
             return STATUS_FAILURE;
         }
 # else
@@ -1005,13 +1005,13 @@ extern int main(int argc, char * argv[])
 #   ifdef SETPGRP_VOID
         if (setpgrp()<0)
         {
-            eventlog(eventlog_level_error,__FUNCTION__,"could not create new process group (setpgrp: %s)",strerror(errno));
+            eventlog(eventlog_level_error,__FUNCTION__,"could not create new process group (setpgrp: %s)",pstrerror(errno));
             return STATUS_FAILURE;
         }
 #   else
         if (setpgrp(0,0)<0)
         {
-            eventlog(eventlog_level_error,__FUNCTION__,"could not create new process group (setpgrp: %s)",strerror(errno));
+            eventlog(eventlog_level_error,__FUNCTION__,"could not create new process group (setpgrp: %s)",pstrerror(errno));
             return STATUS_FAILURE;
         }
 #   endif
@@ -1019,7 +1019,7 @@ extern int main(int argc, char * argv[])
 #   ifdef HAVE_SETSID
         if (setsid()<0)
         {
-            eventlog(eventlog_level_error,__FUNCTION__,"could not create new process group (setsid: %s)",strerror(errno));
+            eventlog(eventlog_level_error,__FUNCTION__,"could not create new process group (setsid: %s)",pstrerror(errno));
             return STATUS_FAILURE;
         }
 #   else
@@ -1032,7 +1032,7 @@ extern int main(int argc, char * argv[])
     
     if (hexfile)
         if (!(hexstrm = fopen(hexfile,"w")))
-            eventlog(eventlog_level_error,__FUNCTION__,"could not open file \"%s\" for writing the hexdump (fopen: %s)",hexfile,strerror(errno));
+            eventlog(eventlog_level_error,__FUNCTION__,"could not open file \"%s\" for writing the hexdump (fopen: %s)",hexfile,pstrerror(errno));
     
     if (proxy_process(port,servaddr)<0)
     {
@@ -1042,7 +1042,7 @@ extern int main(int argc, char * argv[])
     
     if (hexstrm)
         if (fclose(hexstrm)<0)
-	    eventlog(eventlog_level_error,__FUNCTION__,"could not close hexdump file \"%s\" after writing (fclose: %s)",hexfile,strerror(errno));
+	    eventlog(eventlog_level_error,__FUNCTION__,"could not close hexdump file \"%s\" after writing (fclose: %s)",hexfile,pstrerror(errno));
     
     return STATUS_SUCCESS;
 }

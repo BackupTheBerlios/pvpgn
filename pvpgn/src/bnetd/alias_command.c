@@ -356,7 +356,7 @@ extern int aliasfile_load(char const * filename)
     }
     if (!(afp = fopen(filename,"r")))
     {
-	eventlog(eventlog_level_error,__FUNCTION__,"unable to open alias file \"%s\" for reading (fopen: %s)",filename,strerror(errno));
+	eventlog(eventlog_level_error,__FUNCTION__,"unable to open alias file \"%s\" for reading (fopen: %s)",filename,pstrerror(errno));
 	return -1;
     }
 

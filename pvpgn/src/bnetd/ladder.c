@@ -1670,7 +1670,7 @@ extern int ladder_write_to_file(char const * filename, t_ladder * ladder, t_clie
   
   if (!(fp = fopen(filename,"w")))
   { 
-     eventlog(eventlog_level_error,__FUNCTION__,"could not open file \"%s\" for writing (fopen: %s)",filename,strerror(errno)); 
+     eventlog(eventlog_level_error,__FUNCTION__,"could not open file \"%s\" for writing (fopen: %s)",filename,pstrerror(errno)); 
      return -1;
   }
 

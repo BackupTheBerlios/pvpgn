@@ -117,7 +117,7 @@ static int plain_write_attrs(const char *filename, void *attributes)
     char const *  val;
 
     if (!(accountfile = fopen(filename,"w"))) {
-	eventlog(eventlog_level_error, __FUNCTION__, "unable to open file \"%s\" for writing (fopen: %s)",filename,strerror(errno));
+	eventlog(eventlog_level_error, __FUNCTION__, "unable to open file \"%s\" for writing (fopen: %s)",filename,pstrerror(errno));
 	return -1;
     }
    
@@ -150,7 +150,7 @@ static int plain_write_attrs(const char *filename, void *attributes)
     }
 
     if (fclose(accountfile)<0) {
-	eventlog(eventlog_level_error, __FUNCTION__, "could not close account file \"%s\" after writing (fclose: %s)",filename,strerror(errno));
+	eventlog(eventlog_level_error, __FUNCTION__, "could not close account file \"%s\" after writing (fclose: %s)",filename,pstrerror(errno));
 	return -1;
     }
 
@@ -169,7 +169,7 @@ static int plain_read_attrs(const char *filename, t_read_attr_func cb, void *dat
     char * val;
     
     if (!(accountfile = fopen(filename,"r"))) {
-	eventlog(eventlog_level_error, __FUNCTION__,"could not open account file \"%s\" for reading (fopen: %s)", filename, strerror(errno));
+	eventlog(eventlog_level_error, __FUNCTION__,"could not open account file \"%s\" for reading (fopen: %s)", filename, pstrerror(errno));
 	return -1;
     }
 
@@ -214,7 +214,7 @@ static int plain_read_attrs(const char *filename, t_read_attr_func cb, void *dat
     file_get_line(NULL); // clear file_get_line buffer
 
     if (fclose(accountfile)<0) 
-	eventlog(eventlog_level_error, __FUNCTION__, "could not close account file \"%s\" after reading (fclose: %s)", filename, strerror(errno));
+	eventlog(eventlog_level_error, __FUNCTION__, "could not close account file \"%s\" after reading (fclose: %s)", filename, pstrerror(errno));
 
     return 0;
 }

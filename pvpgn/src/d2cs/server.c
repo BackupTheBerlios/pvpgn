@@ -274,7 +274,7 @@ static int server_handle_socket(void)
 			    psock_errno()!=PSOCK_EINTR &&
 #endif
 			    1) {
-				eventlog(eventlog_level_error,__FUNCTION__,"select failed (select: %s)",strerror(psock_errno()));
+				eventlog(eventlog_level_error,__FUNCTION__,"select failed (select: %s)",pstrerror(psock_errno()));
 				return -1;
 			}
 			/* fall through */

@@ -113,15 +113,15 @@ extern int net_socket(int type)
 		ipproto = PSOCK_IPPROTO_UDP;
 	}
 	if ((sock=psock_socket(PSOCK_PF_INET, type, ipproto))<0) {
-		eventlog(eventlog_level_error,__FUNCTION__,"error creating socket (psock_socket: %s)", strerror(psock_errno()));
+		eventlog(eventlog_level_error,__FUNCTION__,"error creating socket (psock_socket: %s)", pstrerror(psock_errno()));
 		return -1;
 	}
 	val=1;
 	if (psock_setsockopt(sock,PSOCK_SOL_SOCKET, PSOCK_SO_KEEPALIVE, &val, sizeof(val))<0) {
-		eventlog(eventlog_level_error,__FUNCTION__,"error set socket option KEEPALIVE (psock_setsockopt: %s)",strerror(psock_errno()));
+		eventlog(eventlog_level_error,__FUNCTION__,"error set socket option KEEPALIVE (psock_setsockopt: %s)",pstrerror(psock_errno()));
 	}
 	if (psock_ctl(sock,PSOCK_NONBLOCK)<0) {
-		eventlog(eventlog_level_error,__FUNCTION__,"error set socket mode to non-block (psock_ctl: %s)",strerror(psock_errno()));
+		eventlog(eventlog_level_error,__FUNCTION__,"error set socket mode to non-block (psock_ctl: %s)",pstrerror(psock_errno()));
 		psock_close(sock);
 		return -1;
 	}
@@ -136,7 +136,7 @@ extern int net_check_connected(int sock)
 	err = 0;
 	errlen = sizeof(err);
 	if (psock_getsockopt(sock,PSOCK_SOL_SOCKET, PSOCK_SO_ERROR, &err, &errlen)<0) {
-		eventlog(eventlog_level_error,__FUNCTION__,"error get socket option SO_ERROR (psock_getsockopt: %s)",strerror(psock_errno()));
+		eventlog(eventlog_level_error,__FUNCTION__,"error get socket option SO_ERROR (psock_getsockopt: %s)",pstrerror(psock_errno()));
 		return -1;
 	}
 	if (errlen && err)
@@ -221,7 +221,7 @@ extern int net_send_data(int sock, char * buff, int buffsize, int * pos, int * c
 		0)
 			return 0;
 
-		eventlog(eventlog_level_error,__FUNCTION__,"[%d] error sent data (closing connection) (psock_send: %s)",sock,strerror(psock_errno()));
+		eventlog(eventlog_level_error,__FUNCTION__,"[%d] error sent data (closing connection) (psock_send: %s)",sock,pstrerror(psock_errno()));
 		return -1;
 	}
 	*currsize -= nsend;
@@ -276,10 +276,10 @@ extern int net_recv_data(int sock, char * buff, int buffsize, int * pos, int * c
 			psock_errno()==PSOCK_ECONNRESET ||
 #endif
 		0) {
-		eventlog(eventlog_level_error,__FUNCTION__,"[%d] remote host closed connection (psock_recv: %s)",sock,strerror(psock_errno()));
+		eventlog(eventlog_level_error,__FUNCTION__,"[%d] remote host closed connection (psock_recv: %s)",sock,pstrerror(psock_errno()));
 		return -1;
 		}
-		eventlog(eventlog_level_error,__FUNCTION__,"[%d] recv error (closing connection) (psock_recv: %s)",sock,strerror(psock_errno()));
+		eventlog(eventlog_level_error,__FUNCTION__,"[%d] recv error (closing connection) (psock_recv: %s)",sock,pstrerror(psock_errno()));
 		return -1;
 	}
 	* currsize += nrecv;

@@ -118,7 +118,7 @@ extern int main(int argc, char * argv[])
     else
 	if (!(fbni = fopen(bnifile,"r")))
 	{
-	    fprintf(stderr,"%s: could not open BNI file \"%s\" for reading (fopen: %s)\n",argv[0],bnifile,strerror(errno));
+	    fprintf(stderr,"%s: could not open BNI file \"%s\" for reading (fopen: %s)\n",argv[0],bnifile,pstrerror(errno));
 	    exit(STATUS_FAILURE);
 	}
     if (tgafile==dash)
@@ -126,7 +126,7 @@ extern int main(int argc, char * argv[])
     else
 	if (!(ftga = fopen(tgafile,"w")))
 	{
-	    fprintf(stderr,"%s: could not open TGA file \"%s\" for reading (fopen: %s)\n",argv[0],tgafile,strerror(errno));
+	    fprintf(stderr,"%s: could not open TGA file \"%s\" for reading (fopen: %s)\n",argv[0],tgafile,pstrerror(errno));
 	    exit(STATUS_FAILURE);
 	}
     
@@ -143,12 +143,12 @@ extern int main(int argc, char * argv[])
 	fprintf(stderr,"Info: numicons=%d dataoffset=0x%08x(%d)\n",bnih.numicons,bnih.dataoffset,bnih.dataoffset);
 	if (fseek(fbni,bnih.dataoffset,SEEK_SET)<0)
 	{
-	    fprintf(stderr,"%s: could not seek to offset %u in BNI file \"%s\" (fseek: %s)\n",argv[0],bnih.dataoffset,bnifile,strerror(errno));
+	    fprintf(stderr,"%s: could not seek to offset %u in BNI file \"%s\" (fseek: %s)\n",argv[0],bnih.dataoffset,bnifile,pstrerror(errno));
 	    return STATUS_FAILURE;
 	}
 	while ((rc = fread(buf,1,sizeof(buf),fbni))>0) {
 	    if (fwrite(buf,rc,1,ftga) < 1) {
-		fprintf(stderr,"%s: could not write data to TGA file \"%s\" (fwrite: %s)\n",argv[0],tgafile,strerror(errno));
+		fprintf(stderr,"%s: could not write data to TGA file \"%s\" (fwrite: %s)\n",argv[0],tgafile,pstrerror(errno));
 		return STATUS_FAILURE;
 	    }
 	}
@@ -156,9 +156,9 @@ extern int main(int argc, char * argv[])
     }
     
     if (tgafile!=dash && fclose(ftga)<0)
-	fprintf(stderr,"%s: could not close TGA file \"%s\" after writing (fclose: %s)\n",argv[0],tgafile,strerror(errno));
+	fprintf(stderr,"%s: could not close TGA file \"%s\" after writing (fclose: %s)\n",argv[0],tgafile,pstrerror(errno));
     if (bnifile!=dash && fclose(fbni)<0)
-	fprintf(stderr,"%s: could not close BNI file \"%s\" after reading (fclose: %s)\n",argv[0],bnifile,strerror(errno));
+	fprintf(stderr,"%s: could not close BNI file \"%s\" after reading (fclose: %s)\n",argv[0],bnifile,pstrerror(errno));
     
     return STATUS_SUCCESS;
 }

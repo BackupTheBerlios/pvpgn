@@ -174,7 +174,7 @@ extern int main(int argc, char * argv[])
     else
 	if (!(fbni = fopen(bnifile,"r")))
 	{
-	    fprintf(stderr,"%s: could not open BNI file \"%s\" for reading (fopen: %s)\n",argv[0],bnifile,strerror(errno));
+	    fprintf(stderr,"%s: could not open BNI file \"%s\" for reading (fopen: %s)\n",argv[0],bnifile,pstrerror(errno));
 	    return STATUS_FAILURE;
 	}
     
@@ -182,22 +182,22 @@ extern int main(int argc, char * argv[])
     {
 	fprintf(stderr,"%s: can not write directory to <stdout>\n",argv[0]);
 	if (bnifile!=dash && fclose(fbni)<0)
-	    fprintf(stderr,"%s: could not close BNI file \"%s\" after reading (fclose: %s)\n",argv[0],bnifile,strerror(errno));
+	    fprintf(stderr,"%s: could not close BNI file \"%s\" after reading (fclose: %s)\n",argv[0],bnifile,pstrerror(errno));
 	return STATUS_FAILURE;
     }
     if (stat(outdir,&s)<0) {
 	if (errno == ENOENT) {
 	    fprintf(stderr,"Info: Creating directory \"%s\" ...\n",outdir);
 	    if (p_mkdir(outdir,S_IRWXU+S_IRWXG+S_IRWXO)<0) {
-		fprintf(stderr,"%s: could not create output directory \"%s\" (mkdir: %s)",argv[0],outdir,strerror(errno));
+		fprintf(stderr,"%s: could not create output directory \"%s\" (mkdir: %s)",argv[0],outdir,pstrerror(errno));
 		if (bnifile!=dash && fclose(fbni)<0)
-		    fprintf(stderr,"%s: could not close BNI file \"%s\" after reading (fclose: %s)\n",argv[0],bnifile,strerror(errno));
+		    fprintf(stderr,"%s: could not close BNI file \"%s\" after reading (fclose: %s)\n",argv[0],bnifile,pstrerror(errno));
 		return STATUS_FAILURE;
 	    }
 	} else {
-	    fprintf(stderr,"%s: could not stat output directory \"%s\" (stat: %s)\n",argv[0],outdir,strerror(errno));
+	    fprintf(stderr,"%s: could not stat output directory \"%s\" (stat: %s)\n",argv[0],outdir,pstrerror(errno));
 	    if (bnifile!=dash && fclose(fbni)<0)
-		fprintf(stderr,"%s: could not close BNI file \"%s\" after reading (fclose: %s)\n",argv[0],bnifile,strerror(errno));
+		fprintf(stderr,"%s: could not close BNI file \"%s\" after reading (fclose: %s)\n",argv[0],bnifile,pstrerror(errno));
 	    return STATUS_FAILURE;
 	}
     }
@@ -205,7 +205,7 @@ extern int main(int argc, char * argv[])
 	if (S_ISDIR(s.st_mode) == 0) {
 	    fprintf(stderr,"%s: \"%s\" is not a directory\n",argv[0],outdir);
 	    if (bnifile!=dash && fclose(fbni)<0)
-		fprintf(stderr,"%s: could not close BNI file \"%s\" after reading (fclose: %s)\n",argv[0],bnifile,strerror(errno));
+		fprintf(stderr,"%s: could not close BNI file \"%s\" after reading (fclose: %s)\n",argv[0],bnifile,pstrerror(errno));
 	    return STATUS_FAILURE;
 	}
     
@@ -221,9 +221,9 @@ extern int main(int argc, char * argv[])
 	bni = load_bni(fbni);
 	if (bni == NULL) return STATUS_FAILURE;
 	if (fseek(fbni,bni->dataoffset,SEEK_SET)<0) {
-		fprintf(stderr,"%s: could not seek to TGA data offset %lu (fseek: %s)\n",argv[0],(unsigned long int)bni->dataoffset,strerror(errno));
+		fprintf(stderr,"%s: could not seek to TGA data offset %lu (fseek: %s)\n",argv[0],(unsigned long int)bni->dataoffset,pstrerror(errno));
 		if (bnifile!=dash && fclose(fbni)<0)
-			fprintf(stderr,"%s: could not close BNI file \"%s\" after reading (fclose: %s)\n",argv[0],bnifile,strerror(errno));
+			fprintf(stderr,"%s: could not close BNI file \"%s\" after reading (fclose: %s)\n",argv[0],bnifile,pstrerror(errno));
 		return STATUS_FAILURE;
 	}
 	fprintf(stderr,"Info: Loading image ...\n");
@@ -236,9 +236,9 @@ extern int main(int argc, char * argv[])
 	fprintf(stderr,"Info: Writing Index to \"%s\" ... \n",indexfilename);
 	indexfile = fopen(indexfilename , "w");
 	if (indexfile == NULL) {
-		fprintf(stderr,"%s: could not open index file \"%s\" for writing (fopen: %s)\n",argv[0],indexfilename,strerror(errno));
+		fprintf(stderr,"%s: could not open index file \"%s\" for writing (fopen: %s)\n",argv[0],indexfilename,pstrerror(errno));
 		if (bnifile!=dash && fclose(fbni)<0)
-			fprintf(stderr,"%s: could not close BNI file \"%s\" after reading (fclose: %s)\n",argv[0],bnifile,strerror(errno));
+			fprintf(stderr,"%s: could not close BNI file \"%s\" after reading (fclose: %s)\n",argv[0],bnifile,pstrerror(errno));
 		return STATUS_FAILURE;
 	}
 	fprintf(indexfile,"unknown1 %08x\n",bni->unknown1);
@@ -265,7 +265,7 @@ extern int main(int argc, char * argv[])
 		curry += icn->height;
 		dsttga = fopen(name,"w");
 		if (dsttga == NULL) {
-			fprintf(stderr,"%s: could not open ouptut TGA file \"%s\" for writing (fopen: %s)\n",argv[0],name,strerror(errno));
+			fprintf(stderr,"%s: could not open ouptut TGA file \"%s\" for writing (fopen: %s)\n",argv[0],name,pstrerror(errno));
 		} else {
 			if (write_tga(dsttga,icn) < 0) {
 				fprintf(stderr,"Error: Writing to TGA failed.\n");
@@ -278,20 +278,20 @@ extern int main(int argc, char * argv[])
 				}
 			}
 			if (fclose(dsttga)<0)
-				fprintf(stderr,"%s: could not close TGA file \"%s\" after writing (fclose: %s)\n",argv[0],name,strerror(errno));
+				fprintf(stderr,"%s: could not close TGA file \"%s\" after writing (fclose: %s)\n",argv[0],name,pstrerror(errno));
 		}
 		free(name);
 		destroy_img(icn);
 	}
 	destroy_img(iconimg);
 	if (fclose(indexfile)<0) {
-		fprintf(stderr,"%s: could not close index file \"%s\" after writing (fclose: %s)\n",argv[0],indexfilename,strerror(errno));
+		fprintf(stderr,"%s: could not close index file \"%s\" after writing (fclose: %s)\n",argv[0],indexfilename,pstrerror(errno));
 		return STATUS_FAILURE;
 	}
 	free(indexfilename);
     }
     if (bnifile!=dash && fclose(fbni)<0)
-	fprintf(stderr,"%s: could not close BNI file \"%s\" after reading (fclose: %s)\n",argv[0],bnifile,strerror(errno));
+	fprintf(stderr,"%s: could not close BNI file \"%s\" after reading (fclose: %s)\n",argv[0],bnifile,pstrerror(errno));
     
     return STATUS_SUCCESS;
 }

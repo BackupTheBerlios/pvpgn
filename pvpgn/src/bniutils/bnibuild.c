@@ -62,7 +62,7 @@ static int read_list(char const * progname, t_bnifile * bnifile, char const * na
 	
 	f = fopen(name,"r");
 	if (f == NULL) {
-		fprintf(stderr,"%s: could not open index file \"%s\" for reading (fopen: %s)\n",progname,name,strerror(errno));
+		fprintf(stderr,"%s: could not open index file \"%s\" for reading (fopen: %s)\n",progname,name,pstrerror(errno));
 		return -1;
 	}
 	bnifile->unknown1 = 0x00000010; /* in case they are not set */
@@ -118,7 +118,7 @@ static int read_list(char const * progname, t_bnifile * bnifile, char const * na
 			fprintf(stderr,"Unknown command \"%s\" in index file \"%s\"\n",cmd,name);
 	}
 	if (fclose(f)<0)
-		fprintf(stderr,"%s: could not close index file \"%s\" after reading (fclose: %s)\n",progname,name,strerror(errno));
+		fprintf(stderr,"%s: could not close index file \"%s\" after reading (fclose: %s)\n",progname,name,pstrerror(errno));
 	return 0;
 }
 
@@ -238,7 +238,7 @@ extern int main(int argc, char * argv[])
 	return STATUS_FAILURE;
     }
     if (stat(indir,&s)<0) {
-        fprintf(stderr,"%s: could not stat input directory \"%s\" (stat: %s)\n",argv[0],indir,strerror(errno));
+        fprintf(stderr,"%s: could not stat input directory \"%s\" (stat: %s)\n",argv[0],indir,pstrerror(errno));
 	return STATUS_FAILURE;
     }
     if (!S_ISDIR(s.st_mode)) {
@@ -251,7 +251,7 @@ extern int main(int argc, char * argv[])
     else
 	if (!(fbni = fopen(bnifile,"w")))
 	{
-	    fprintf(stderr,"%s: could not open BNI file \"%s\" for writing (fopen: %s)\n",argv[0],bnifile,strerror(errno));
+	    fprintf(stderr,"%s: could not open BNI file \"%s\" for writing (fopen: %s)\n",argv[0],bnifile,pstrerror(errno));
 	    return STATUS_FAILURE;
 	}
     
@@ -294,7 +294,7 @@ extern int main(int argc, char * argv[])
 		free(name);
 		icon = load_tga(f);
 		if (fclose(f)<0)
-			fprintf(stderr,"Error: could not close TGA file \"%s\" after reading (fclose: %s)\n",name,strerror(errno));
+			fprintf(stderr,"Error: could not close TGA file \"%s\" after reading (fclose: %s)\n",name,pstrerror(errno));
 		if (icon == NULL) {
 			fprintf(stderr,"Error: load_tga failed with data from TGA file \"%s\"\n",name);
 			return STATUS_FAILURE;			
@@ -311,7 +311,7 @@ extern int main(int argc, char * argv[])
 		return STATUS_FAILURE;
 	}
 	if (bnifile!=dash && fclose(fbni)<0) {
-		fprintf(stderr,"%s: could not close BNI file \"%s\" after writing (fclose: %s)\n",argv[0],bnifile,strerror(errno));
+		fprintf(stderr,"%s: could not close BNI file \"%s\" after writing (fclose: %s)\n",argv[0],bnifile,pstrerror(errno));
 		return STATUS_FAILURE;
 	}
     }

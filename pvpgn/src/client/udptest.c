@@ -103,12 +103,12 @@ extern int client_udptest_setup(char const * progname, unsigned short * lsock_po
     
     if ((lsock = psock_socket(PF_INET,SOCK_DGRAM,PSOCK_IPPROTO_UDP))<0)
     {
-	fprintf(stderr,"%s: could not create UDP socket (psock_socket: %s)\n",progname,strerror(psock_errno()));
+	fprintf(stderr,"%s: could not create UDP socket (psock_socket: %s)\n",progname,pstrerror(psock_errno()));
 	return -1;
     }
     
     if (psock_ctl(lsock,PSOCK_NONBLOCK)<0)
-	fprintf(stderr,"%s: could not set UDP socket to non-blocking mode (psock_ctl: %s)\n",progname,strerror(psock_errno()));
+	fprintf(stderr,"%s: could not set UDP socket to non-blocking mode (psock_ctl: %s)\n",progname,pstrerror(psock_errno()));
     
     for (lsock_port=BNETD_MIN_TEST_PORT; lsock_port<=BNETD_MAX_TEST_PORT; lsock_port++)
     {
@@ -120,11 +120,11 @@ extern int client_udptest_setup(char const * progname, unsigned short * lsock_po
 	    break;
 	
 	if (lsock_port==BNETD_MIN_TEST_PORT)
-	    dprintf("Could not bind to standard UDP port %hu, trying others. (psock_bind: %s)\n",BNETD_MIN_TEST_PORT,strerror(psock_errno()));
+	    dprintf("Could not bind to standard UDP port %hu, trying others. (psock_bind: %s)\n",BNETD_MIN_TEST_PORT,pstrerror(psock_errno()));
     }
     if (lsock_port>BNETD_MAX_TEST_PORT)
     {
-	fprintf(stderr,"%s: could not bind to any UDP port %hu through %hu (psock_bind: %s)\n",progname,BNETD_MIN_TEST_PORT,BNETD_MAX_TEST_PORT,strerror(psock_errno()));
+	fprintf(stderr,"%s: could not bind to any UDP port %hu through %hu (psock_bind: %s)\n",progname,BNETD_MIN_TEST_PORT,BNETD_MAX_TEST_PORT,pstrerror(psock_errno()));
 	psock_close(lsock);
 	return -1;
     }
@@ -162,7 +162,7 @@ extern int client_udptest_recv(char const * progname, int lsock, unsigned short 
 	if ((len = psock_recv(lsock,packet_get_raw_data_build(rpacket,0),MAX_PACKET_SIZE,0))<0)
 	{
 	    if (psock_errno()!=PSOCK_EAGAIN && psock_errno()!=PSOCK_EWOULDBLOCK)
-		fprintf(stderr,"%s: failed to receive UDPTEST on port %hu (psock_recv: %s)\n",progname,lsock_port,strerror(psock_errno()));
+		fprintf(stderr,"%s: failed to receive UDPTEST on port %hu (psock_recv: %s)\n",progname,lsock_port,pstrerror(psock_errno()));
 	    continue;
 	}
 	packet_set_size(rpacket,len);

@@ -90,7 +90,7 @@ extern int autoupdate_load(char const * filename)
     }
     
     if (!(fp = fopen(filename,"r"))) {
-	eventlog(eventlog_level_error,__FUNCTION__,"could not open file \"%s\" for reading (fopen: %s)",filename,strerror(errno));
+	eventlog(eventlog_level_error,__FUNCTION__,"could not open file \"%s\" for reading (fopen: %s)",filename,pstrerror(errno));
 	return -1;
     }
 

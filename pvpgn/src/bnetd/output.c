@@ -190,7 +190,7 @@ extern int output_write_to_file(void)
     
     if (!(fp = fopen(status_filename,"w")))
     {
-        eventlog(eventlog_level_error,__FUNCTION__,"could not open file \"%s\" for writing (fopen: %s)",status_filename,strerror(errno)); 
+        eventlog(eventlog_level_error,__FUNCTION__,"could not open file \"%s\" for writing (fopen: %s)",status_filename,pstrerror(errno)); 
         return -1;
     }
     

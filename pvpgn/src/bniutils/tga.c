@@ -182,7 +182,7 @@ extern t_tgaimg * load_tga(FILE *f) {
 	if (img->idlen > 0) {
 		fprintf(stderr,"load_tga: ID present, skipping %d bytes\n",img->idlen);
 		if (fseek(f,img->idlen,SEEK_CUR)<0)
-			fprintf(stderr,"load_tga: could not seek %u bytes forward (fseek: %s)\n",img->idlen,strerror(errno));
+			fprintf(stderr,"load_tga: could not seek %u bytes forward (fseek: %s)\n",img->idlen,pstrerror(errno));
 	}
 	
 	/* Now, we can alloc img->data */
@@ -257,7 +257,7 @@ extern int write_tga(FILE *f, t_tgaimg *img) {
 		pixelsize = getpixelsize(img);
 		if (pixelsize == 0) return -1;
 		if (fwrite(img->data,pixelsize,img->width*img->height,f)<(unsigned)(img->width*img->height)) {
-			fprintf(stderr,"write_tga: could not write %d pixels (fwrite: %s)\n",img->width*img->height,strerror(errno));
+			fprintf(stderr,"write_tga: could not write %d pixels (fwrite: %s)\n",img->width*img->height,pstrerror(errno));
 			file_wpop();
 			return -1;
 		}
@@ -271,7 +271,7 @@ extern int write_tga(FILE *f, t_tgaimg *img) {
 	file_writed_le(img->extareaoff);
 	file_writed_le(img->devareaoff);
 	if (fwrite(TGAMAGIC,strlen(TGAMAGIC)+1,1,f)<1)
-		fprintf(stderr,"write_tga: could not write TGA footer magic (fwrite: %s)\n",strerror(errno));
+		fprintf(stderr,"write_tga: could not write TGA footer magic (fwrite: %s)\n",pstrerror(errno));
 	/* Ready */
 	file_wpop();
 	return 0;
@@ -304,7 +304,7 @@ static int RLE_decompress(FILE *f, void *buf, int bufsize, int pixelsize) {
 				if (feof(f))
 					fprintf(stderr,"RLE_decompress: short RAW packet (expected %d bytes) (EOF)\n",pixelsize*count);
 				else
-					fprintf(stderr,"RLE_decompress: short RAW packet (expected %d bytes) (fread: %s)\n",pixelsize*count,strerror(errno));
+					fprintf(stderr,"RLE_decompress: short RAW packet (expected %d bytes) (fread: %s)\n",pixelsize*count,pstrerror(errno));
 #if 0
 				file_rpop();
 				return -1;
@@ -317,7 +317,7 @@ static int RLE_decompress(FILE *f, void *buf, int bufsize, int pixelsize) {
 				if (feof(f))
 					fprintf(stderr,"RLE_decompress: short RLE packet (expected %d bytes) (EOF)\n",pixelsize);
 				else
-					fprintf(stderr,"RLE_decompress: short RLE packet (expected %d bytes) (fread: %s)\n",pixelsize,strerror(errno));
+					fprintf(stderr,"RLE_decompress: short RLE packet (expected %d bytes) (fread: %s)\n",pixelsize,pstrerror(errno));
 #if 0
 				file_rpop();
 				return -1;
@@ -351,15 +351,15 @@ static void RLE_write_pkt(FILE *f, t_tgapkttype pkttype, int len, void *data, in
 		}
 		count = (unsigned char)(0x80 | (len-1));
 		if (fwrite(&count, 1, 1, f)<1)
-			fprintf(stderr,"RLE_write_pkt: could not write RLE pixel count (fwrite: %s)\n",strerror(errno));
+			fprintf(stderr,"RLE_write_pkt: could not write RLE pixel count (fwrite: %s)\n",pstrerror(errno));
 		if (fwrite(data, pixelsize, 1, f)<1)
-			fprintf(stderr,"RLE_write_pkt: could not write RLE pixel value (fwrite: %s)\n",strerror(errno));
+			fprintf(stderr,"RLE_write_pkt: could not write RLE pixel value (fwrite: %s)\n",pstrerror(errno));
 	} else {
 		count = (unsigned char) (len-1);
 		if (fwrite(&count, 1, 1, f)<1)
-			fprintf(stderr,"RLE_write_pkt: could not write RAW pixel count (fwrite: %s)\n",strerror(errno));
+			fprintf(stderr,"RLE_write_pkt: could not write RAW pixel count (fwrite: %s)\n",pstrerror(errno));
 		if (fwrite(data,pixelsize,len,f)<(unsigned)len)
-			fprintf(stderr,"RLE_write_pkt: could not write %d RAW pixels (fwrite: %s)\n",len,strerror(errno));
+			fprintf(stderr,"RLE_write_pkt: could not write %d RAW pixels (fwrite: %s)\n",len,pstrerror(errno));
 	}
 }
 

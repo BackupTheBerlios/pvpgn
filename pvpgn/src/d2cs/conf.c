@@ -270,7 +270,7 @@ extern int conf_load_file(char const * filename, t_conf_table * conf_table, void
 	}
 	if (!filename) return 0;
 	if (!(fp=fopen(filename,"r"))) {
-		eventlog(eventlog_level_error,__FUNCTION__,"could not open configuration file \"%s\" for reading (fopen: %s)",filename,strerror(errno));
+		eventlog(eventlog_level_error,__FUNCTION__,"could not open configuration file \"%s\" for reading (fopen: %s)",filename,pstrerror(errno));
 		return -1;
 	}
 	for (line=1; (buff=file_get_line(fp)); line++) {

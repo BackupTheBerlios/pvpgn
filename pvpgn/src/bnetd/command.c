@@ -4220,11 +4220,11 @@ static int _handle_motd_command(t_connection * c, char const *text)
       {
 	message_send_file(c,fp);
 	if (fclose(fp)<0)
-	  eventlog(eventlog_level_error,__FUNCTION__,"could not close motd file \"%s\" after reading (fopen: %s)",filename,strerror(errno));
+	  eventlog(eventlog_level_error,__FUNCTION__,"could not close motd file \"%s\" after reading (fopen: %s)",filename,pstrerror(errno));
       }
     else
       {
-	eventlog(eventlog_level_error,__FUNCTION__,"could not open motd file \"%s\" for reading (fopen: %s)",filename,strerror(errno));
+	eventlog(eventlog_level_error,__FUNCTION__,"could not open motd file \"%s\" for reading (fopen: %s)",filename,pstrerror(errno));
 	message_send_text(c,message_type_error,c,"Unable to open motd.");
       }
     return 0;

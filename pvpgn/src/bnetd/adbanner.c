@@ -417,7 +417,7 @@ extern int adbannerlist_create(char const * filename)
     
     if (!(fp = fopen(filename,"r")))
     {
-        eventlog(eventlog_level_error,__FUNCTION__,"could not open adbanner file \"%s\" for reading (fopen: %s)",filename,strerror(errno));
+        eventlog(eventlog_level_error,__FUNCTION__,"could not open adbanner file \"%s\" for reading (fopen: %s)",filename,pstrerror(errno));
 	list_destroy(adbannerlist_norm_head);
 	list_destroy(adbannerlist_start_head);
 	list_destroy(adbannerlist_init_head);
@@ -475,7 +475,7 @@ extern int adbannerlist_create(char const * filename)
     
     file_get_line(NULL); // clear file_get_line buffer
     if (fclose(fp)<0)
-	eventlog(eventlog_level_error,__FUNCTION__,"could not close adbanner file \"%s\" after reading (fclose: %s)",filename,strerror(errno));
+	eventlog(eventlog_level_error,__FUNCTION__,"could not close adbanner file \"%s\" after reading (fclose: %s)",filename,pstrerror(errno));
     return 0;
 }
 

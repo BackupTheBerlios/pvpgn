@@ -21,6 +21,7 @@
 #endif
 #include <stdarg.h>
 #include "compat/getopt.h"
+#include "compat/strerror.h"
 #include <errno.h>
 #include "common/xalloc.h"
 #include "cdb.h"
@@ -54,7 +55,7 @@ error(int errnum, const char *fmt, ...)
     va_end(ap);
   }
   if (errnum)
-    fprintf(stderr, ": %s\n", strerror(errnum));
+    fprintf(stderr, ": %s\n", pstrerror(errnum));
   else {
     if (fmt) putc('\n', stderr);
     fprintf(stderr, "%s: try `%s -h' for help\n", progname, progname);

@@ -18,10 +18,6 @@
 #ifndef INCLUDED_STRERROR_PROTOS
 #define INCLUDED_STRERROR_PROTOS
 
-#ifndef HAVE_STRERROR
-
-extern char const * strerror(int errornum);
-
-#endif
+extern char const * pstrerror(int errornum);
 
 #endif

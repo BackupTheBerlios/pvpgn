@@ -179,14 +179,14 @@ int dbs_server_init(void)
 	sd = psock_socket(PSOCK_PF_INET, PSOCK_SOCK_STREAM, PSOCK_IPPROTO_TCP);
 	if (sd==-1)
 	{
-		eventlog(eventlog_level_error,__FUNCTION__,"psock_socket() failed : %s",strerror(psock_errno()));
+		eventlog(eventlog_level_error,__FUNCTION__,"psock_socket() failed : %s",pstrerror(psock_errno()));
 		return -1;
 	}
 
 	val = 1;
 	if (psock_setsockopt(sd, PSOCK_SOL_SOCKET, PSOCK_SO_REUSEADDR, &val, sizeof(val)) < 0)
 	{
-		eventlog(eventlog_level_error,__FUNCTION__,"psock_setsockopt() failed : %s",strerror(psock_errno()));
+		eventlog(eventlog_level_error,__FUNCTION__,"psock_setsockopt() failed : %s",pstrerror(psock_errno()));
 	}
 
         if (!(servaddr=addr_create_str(d2dbs_prefs_get_servaddrs(),INADDR_ANY,DEFAULT_LISTEN_PORT)))
@@ -200,12 +200,12 @@ int dbs_server_init(void)
 	sinInterface.sin_port = htons(addr_get_port(servaddr));
 	if (psock_bind(sd, (struct sockaddr*)&sinInterface, (psock_t_socklen)sizeof(struct sockaddr_in)) < 0)
 	{
-		eventlog(eventlog_level_error,__FUNCTION__,"psock_bind() failed : %s",strerror(psock_errno()));
+		eventlog(eventlog_level_error,__FUNCTION__,"psock_bind() failed : %s",pstrerror(psock_errno()));
 		return -1;
 	}
 	if (psock_listen(sd, LISTEN_QUEUE) < 0)
 	{
-		eventlog(eventlog_level_error,__FUNCTION__,"psock_listen() failed : %s",strerror(psock_errno()));
+		eventlog(eventlog_level_error,__FUNCTION__,"psock_listen() failed : %s",pstrerror(psock_errno()));
 		return -1;
 	}
 	addr_destroy(servaddr);
@@ -280,7 +280,7 @@ BOOL dbs_server_read_data(t_d2dbs_connection* conn)
 			return TRUE;
 		} else {
 			err = err ? err : errno2;
-			eventlog(eventlog_level_error,__FUNCTION__,"psock_recv() failed : %s(%d)",strerror(err),err);
+			eventlog(eventlog_level_error,__FUNCTION__,"psock_recv() failed : %s(%d)",pstrerror(err),err);
 			return FALSE;
 		}
 	}
@@ -315,7 +315,7 @@ BOOL dbs_server_write_data(t_d2dbs_connection* conn)
 			return TRUE;
 		} else {
 			err = err ? err : errno2;
-			eventlog(eventlog_level_error,__FUNCTION__,"psock_send() failed : %s(%d)",strerror(err), err);
+			eventlog(eventlog_level_error,__FUNCTION__,"psock_send() failed : %s(%d)",pstrerror(err), err);
 			return FALSE;
 		}
 	}
@@ -408,7 +408,7 @@ void dbs_server_loop(int lsocket)
 		tv.tv_usec = SELECT_TIME_OUT;
 		switch (psock_select(highest_fd+1, &ReadFDs, &WriteFDs, &ExceptFDs, &tv) ) {
 			case -1:
-				eventlog(eventlog_level_error,__FUNCTION__,"psock_select() failed : %s",strerror(psock_errno()));
+				eventlog(eventlog_level_error,__FUNCTION__,"psock_select() failed : %s",pstrerror(psock_errno()));
 				continue;
 			case 0:
 				continue;
@@ -419,7 +419,7 @@ void dbs_server_loop(int lsocket)
 		if (PSOCK_FD_ISSET(lsocket, &ReadFDs)) {
 			sd = psock_accept(lsocket, (struct sockaddr*)&sinRemote, &nAddrSize);
 			if (sd == -1) {
-				eventlog(eventlog_level_error,__FUNCTION__,"psock_accept() failed : %s",strerror(psock_errno()));
+				eventlog(eventlog_level_error,__FUNCTION__,"psock_accept() failed : %s",pstrerror(psock_errno()));
 				return;
 			}
 			
@@ -430,7 +430,7 @@ void dbs_server_loop(int lsocket)
 			setsockopt_keepalive(sd);
 			dbs_server_list_add_socket(sd, ntohl(sinRemote.sin_addr.s_addr));
 			if (psock_ctl(sd,PSOCK_NONBLOCK)<0) {
-				eventlog(eventlog_level_error,__FUNCTION__,"could not set TCP socket [%d] to non-blocking mode (closing connection) (psock_ctl: %s)", sd,strerror(psock_errno()));
+				eventlog(eventlog_level_error,__FUNCTION__,"could not set TCP socket [%d] to non-blocking mode (closing connection) (psock_ctl: %s)", sd,pstrerror(psock_errno()));
 				psock_close(sd);
 			}
 		} else if (PSOCK_FD_ISSET(lsocket, &ExceptFDs)) {
@@ -475,7 +475,7 @@ void dbs_server_loop(int lsocket)
 				if (psock_getsockopt(it->sd, PSOCK_SOL_SOCKET, PSOCK_SO_ERROR, &err, &errlen)==0) {
 					if (errlen && err!=0) {
 						err = err ? err : errno2;
-						eventlog(eventlog_level_error,__FUNCTION__,"data socket error : %s(%d)",strerror(err),err);
+						eventlog(eventlog_level_error,__FUNCTION__,"data socket error : %s(%d)",pstrerror(err),err);
 					}
 				}
 				dbs_server_shutdown_connection(it);

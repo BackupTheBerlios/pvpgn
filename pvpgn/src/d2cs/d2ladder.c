@@ -89,7 +89,7 @@ static int d2ladder_readladder(void)
 			strlen(CLIENTTAG_DIABLO2DV)+1);
 	sprintf(ladderfile,"%s/%s.%s",prefs_get_ladder_dir(),LADDER_FILE_PREFIX,CLIENTTAG_DIABLO2DV);
 	if (!(fp=fopen(ladderfile,"rb"))) {
-		eventlog(eventlog_level_error,__FUNCTION__,"error opening ladder file \"%s\" for reading (fopen: %s)",ladderfile,strerror(errno));
+		eventlog(eventlog_level_error,__FUNCTION__,"error opening ladder file \"%s\" for reading (fopen: %s)",ladderfile,pstrerror(errno));
 		xfree(ladderfile);
 		return -1;
 	}

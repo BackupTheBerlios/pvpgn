@@ -63,7 +63,7 @@ extern unsigned int get_ticks(void)
     
     if (gettimeofday(&tv,NULL)<0)
     {
-	eventlog(eventlog_level_error,__FUNCTION__,"could not get time (gettimeofday: %s)",strerror(errno));
+	eventlog(eventlog_level_error,__FUNCTION__,"could not get time (gettimeofday: %s)",pstrerror(errno));
 	return 0;
     }
     if (first)

@@ -57,7 +57,7 @@ extern int get_socket_limit(void)
 #ifdef HAVE_GETRLIMIT
 	struct rlimit rlim;
 	if(getrlimit(RLIM_NUMFILES, &rlim) < 0)
-		eventlog(eventlog_level_error, __FUNCTION__, "getrlimit returned error: %s", strerror(errno));
+		eventlog(eventlog_level_error, __FUNCTION__, "getrlimit returned error: %s", pstrerror(errno));
 	socklimit = rlim.rlim_cur;
 #else
 	/* FIXME: WIN32: somehow get WSAData win32 socket limit here */

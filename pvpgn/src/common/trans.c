@@ -78,7 +78,7 @@ extern int trans_load(char const * filename, int program)
         return -1;
     }
     if (!(fp = fopen(filename,"r"))) {
-        eventlog(eventlog_level_error,__FUNCTION__,"could not open file \"%s\" for reading (fopen: %s)",filename,strerror(errno));
+        eventlog(eventlog_level_error,__FUNCTION__,"could not open file \"%s\" for reading (fopen: %s)",filename,pstrerror(errno));
         return -1;
     }
     trans_head = list_create();

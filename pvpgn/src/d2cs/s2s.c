@@ -122,7 +122,7 @@ extern t_connection * s2s_create(char const * server, unsigned short def_port, t
 	eventlog(eventlog_level_info,__FUNCTION__,"try make s2s connection to %s",server);
 	if (psock_connect(sock,(struct sockaddr *)&addr,sizeof(addr))<0) {
 		if (psock_errno()!=PSOCK_EWOULDBLOCK && psock_errno() != PSOCK_EINPROGRESS) {
-			eventlog(eventlog_level_error,__FUNCTION__,"error connecting to %s (psock_connect: %s)",server,strerror(psock_errno()));
+			eventlog(eventlog_level_error,__FUNCTION__,"error connecting to %s (psock_connect: %s)",server,pstrerror(psock_errno()));
 			psock_close(sock);
 			return NULL;
 		}

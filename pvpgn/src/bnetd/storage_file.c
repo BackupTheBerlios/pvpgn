@@ -324,7 +324,7 @@ static int file_write_attrs(t_storage_info * info, void *attributes)
 
     if (p_rename(tempname, (const char *) info) < 0)
     {
-	eventlog(eventlog_level_error, __FUNCTION__, "could not rename account file to \"%s\" (rename: %s)", (char *) info, strerror(errno));
+	eventlog(eventlog_level_error, __FUNCTION__, "could not rename account file to \"%s\" (rename: %s)", (char *) info, pstrerror(errno));
 	xfree(tempname);
 	return -1;
     }
@@ -430,7 +430,7 @@ static int file_read_accounts(int flag,t_read_accounts_func cb, void *data)
 
     if (!(accountdir = p_opendir(accountsdir)))
     {
-	eventlog(eventlog_level_error, __FUNCTION__, "unable to open user directory \"%s\" for reading (p_opendir: %s)", accountsdir, strerror(errno));
+	eventlog(eventlog_level_error, __FUNCTION__, "unable to open user directory \"%s\" for reading (p_opendir: %s)", accountsdir, pstrerror(errno));
 	return -1;
     }
 
@@ -446,7 +446,7 @@ static int file_read_accounts(int flag,t_read_accounts_func cb, void *data)
     }
 
     if (p_closedir(accountdir) < 0)
-	eventlog(eventlog_level_error, __FUNCTION__, "unable to close user directory \"%s\" (p_closedir: %s)", accountsdir, strerror(errno));
+	eventlog(eventlog_level_error, __FUNCTION__, "unable to close user directory \"%s\" (p_closedir: %s)", accountsdir, pstrerror(errno));
 
     return 0;
 }
@@ -511,7 +511,7 @@ static int file_load_clans(t_load_clans_func cb)
 
     if (!(clandir = p_opendir(clansdir)))
     {
-	eventlog(eventlog_level_error, __FUNCTION__, "unable to open clan directory \"%s\" for reading (p_opendir: %s)", clansdir, strerror(errno));
+	eventlog(eventlog_level_error, __FUNCTION__, "unable to open clan directory \"%s\" for reading (p_opendir: %s)", clansdir, pstrerror(errno));
 	return -1;
     }
     eventlog(eventlog_level_trace, __FUNCTION__, "start reading clans");
@@ -648,7 +648,7 @@ static int file_load_clans(t_load_clans_func cb)
 
     if (p_closedir(clandir) < 0)
     {
-	eventlog(eventlog_level_error, __FUNCTION__, "unable to close clan directory \"%s\" (p_closedir: %s)", clansdir, strerror(errno));
+	eventlog(eventlog_level_error, __FUNCTION__, "unable to close clan directory \"%s\" (p_closedir: %s)", clansdir, pstrerror(errno));
     }
     eventlog(eventlog_level_trace, __FUNCTION__, "finished reading clans");
 
@@ -700,7 +700,7 @@ static int file_remove_clan(int clantag)
     sprintf(tempname, "%s/%c%c%c%c", clansdir, clantag >> 24, (clantag >> 16) & 0xff, (clantag >> 8) & 0xff, clantag & 0xff);
     if (remove((const char *) tempname) < 0)
     {
-	eventlog(eventlog_level_error, __FUNCTION__, "could not delete clan file \"%s\" (remove: %s)", (char *) tempname, strerror(errno));
+	eventlog(eventlog_level_error, __FUNCTION__, "could not delete clan file \"%s\" (remove: %s)", (char *) tempname, pstrerror(errno));
 	xfree(tempname);
 	return -1;
     }
@@ -735,7 +735,7 @@ static int file_load_teams(t_load_teams_func cb)
 
     if (!(teamdir = p_opendir(teamsdir)))
     {
-	eventlog(eventlog_level_error, __FUNCTION__, "unable to open team directory \"%s\" for reading (p_opendir: %s)", teamsdir, strerror(errno));
+	eventlog(eventlog_level_error, __FUNCTION__, "unable to open team directory \"%s\" for reading (p_opendir: %s)", teamsdir, pstrerror(errno));
 	return -1;
     }
     eventlog(eventlog_level_trace, __FUNCTION__, "start reading teams");
@@ -864,7 +864,7 @@ static int file_load_teams(t_load_teams_func cb)
 
     if (p_closedir(teamdir) < 0)
     {
-	eventlog(eventlog_level_error, __FUNCTION__, "unable to close team directory \"%s\" (p_closedir: %s)", teamsdir, strerror(errno));
+	eventlog(eventlog_level_error, __FUNCTION__, "unable to close team directory \"%s\" (p_closedir: %s)", teamsdir, pstrerror(errno));
     }
     eventlog(eventlog_level_trace, __FUNCTION__, "finished reading teams");
 
@@ -906,7 +906,7 @@ static int file_remove_team(unsigned int teamid)
     sprintf(tempname, "%s/%08x", clansdir, teamid);
     if (remove((const char *) tempname) < 0)
     {
-	eventlog(eventlog_level_error, __FUNCTION__, "could not delete team file \"%s\" (remove: %s)", (char *) tempname, strerror(errno));
+	eventlog(eventlog_level_error, __FUNCTION__, "could not delete team file \"%s\" (remove: %s)", (char *) tempname, pstrerror(errno));
 	xfree(tempname);
 	return -1;
     }

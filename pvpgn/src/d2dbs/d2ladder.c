@@ -415,7 +415,7 @@ int d2ladder_readladder(void)
 
 	readlen=fread(&fileheader,1,sizeof(fileheader),fdladder);
 	if (readlen<=0) {
-		eventlog(eventlog_level_error,__FUNCTION__,"file %s read error(read:%s)",d2ladder_ladder_file,strerror(errno));
+		eventlog(eventlog_level_error,__FUNCTION__,"file %s read error(read:%s)",d2ladder_ladder_file,pstrerror(errno));
 		fclose(fdladder);
 		return -1;
 	}
@@ -439,7 +439,7 @@ int d2ladder_readladder(void)
 	lhead=xmalloc(blocksize);
 	readlen=fread(lhead,1,d2ladder_maxtype*sizeof(*lhead),fdladder);
 	if (readlen<=0) {
-		eventlog(eventlog_level_error,__FUNCTION__,"file %s read error(read:%s)",d2ladder_ladder_file,strerror(errno));
+		eventlog(eventlog_level_error,__FUNCTION__,"file %s read error(read:%s)",d2ladder_ladder_file,pstrerror(errno));
 		xfree(lhead);
 		fclose(fdladder);
 		return -1;
@@ -471,7 +471,7 @@ int d2ladder_readladder(void)
 		fseek(fdladder,bn_int_get(lhead[laddertype].offset),SEEK_SET);
 		readlen=fread(ldata,1,number*sizeof(*ldata),fdladder);
 		if (readlen<=0) {
-			eventlog(eventlog_level_error,__FUNCTION__,"file %s read error(read:%s)",d2ladder_ladder_file,strerror(errno));
+			eventlog(eventlog_level_error,__FUNCTION__,"file %s read error(read:%s)",d2ladder_ladder_file,pstrerror(errno));
 			xfree(ldata);
 			xfree(info);
 			continue;
@@ -859,7 +859,7 @@ int d2ladder_checksum_set(void)
 		if (readlen<=0) {
 			xfree(buffer);
 			fclose(fdladder);
-			eventlog(eventlog_level_error,__FUNCTION__,"got bad save file or read error(read:%s)",strerror(errno));
+			eventlog(eventlog_level_error,__FUNCTION__,"got bad save file or read error(read:%s)",pstrerror(errno));
 			return -1;
 		}
 		curlen+=readlen;
@@ -913,7 +913,7 @@ int d2ladder_checksum_check(void)
 		if (readlen<=0) {
 			xfree(buffer);
 			fclose(fdladder);
-			eventlog(eventlog_level_error,__FUNCTION__,"got bad save file or read error(read:%s)",strerror(errno));
+			eventlog(eventlog_level_error,__FUNCTION__,"got bad save file or read error(read:%s)",pstrerror(errno));
 			return -1;
 		}
 		curlen+=readlen;

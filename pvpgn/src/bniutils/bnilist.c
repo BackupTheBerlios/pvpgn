@@ -105,7 +105,7 @@ extern int main(int argc, char * argv[])
     else
 	if (!(fp = fopen(bnifile,"r")))
 	{
-	    fprintf(stderr,"%s: could not open BNI file \"%s\" for reading (fopen: %s)\n",argv[0],bnifile,strerror(errno));
+	    fprintf(stderr,"%s: could not open BNI file \"%s\" for reading (fopen: %s)\n",argv[0],bnifile,pstrerror(errno));
 	    exit(STATUS_FAILURE);
 	}
     
@@ -155,6 +155,6 @@ extern int main(int argc, char * argv[])
     }
     
     if (bnifile!=dash && fclose(fp)<0)
-	fprintf(stderr,"%s: could not close BNI file \"%s\" after reading (fclose: %s)\n",argv[0],bnifile,strerror(errno));
+	fprintf(stderr,"%s: could not close BNI file \"%s\" after reading (fclose: %s)\n",argv[0],bnifile,pstrerror(errno));
     return STATUS_SUCCESS;
 }

@@ -100,7 +100,7 @@ extern int eventlog_open(char const * filename)
     
     if (!(temp = fopen(filename,"a")))
     {
-	eventlog(eventlog_level_error,__FUNCTION__,"could not open file \"%s\" for appending (fopen: %s)",filename,strerror(errno));
+	eventlog(eventlog_level_error,__FUNCTION__,"could not open file \"%s\" for appending (fopen: %s)",filename,pstrerror(errno));
 	return -1;
     }
     
@@ -108,7 +108,7 @@ extern int eventlog_open(char const * filename)
 	if (fclose(eventstrm)<0)
 	{
 	    eventstrm = temp;
-	    eventlog(eventlog_level_error,__FUNCTION__,"could not close previous logfile after writing (fclose: %s)",strerror(errno));
+	    eventlog(eventlog_level_error,__FUNCTION__,"could not close previous logfile after writing (fclose: %s)",pstrerror(errno));
 	    return 0;
 	}
     eventstrm = temp;

@@ -112,7 +112,7 @@ extern int binary_ladder_save(t_binary_ladder_types type, unsigned int paracount
 
   if (!(fp = fopen(filename,"wb")))
   {
-    eventlog(eventlog_level_error,__FUNCTION__,"could not open file \"%s\" for writing (fopen: %s)",filename,strerror(errno));
+    eventlog(eventlog_level_error,__FUNCTION__,"could not open file \"%s\" for writing (fopen: %s)",filename,pstrerror(errno));
     dispose_filename(filename);
     return -1;
   }
@@ -161,7 +161,7 @@ extern t_binary_ladder_load_result binary_ladder_load(t_binary_ladder_types type
 
   if (!(fp = fopen(filename,"rb")))
   {
-    eventlog(eventlog_level_info,__FUNCTION__,"could not open ladder file \"%s\" - maybe ladder still empty",filename,strerror(errno));
+    eventlog(eventlog_level_info,__FUNCTION__,"could not open ladder file \"%s\" - maybe ladder still empty",filename,pstrerror(errno));
     dispose_filename(filename);
     return load_failed;
   }

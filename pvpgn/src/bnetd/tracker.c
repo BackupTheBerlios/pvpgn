@@ -171,7 +171,7 @@ extern int tracker_send_report(t_addrlist const * laddrs)
 	
 	if (uname(&utsbuf)<0)
 	{
-	    eventlog(eventlog_level_warn,__FUNCTION__,"could not get platform info (uname: %s)",strerror(errno));
+	    eventlog(eventlog_level_warn,__FUNCTION__,"could not get platform info (uname: %s)",pstrerror(errno));
 	    strncpy(packet.platform,"",sizeof(packet.platform));
 	}
 	else
@@ -212,7 +212,7 @@ extern int tracker_send_report(t_addrlist const * laddrs)
 		/* eventlog(eventlog_level_debug,__FUNCTION__,"sending tracking info from %s to %s",tempa,tempb); */
 		
 		if (psock_sendto(laddr_info->usocket,&packet,sizeof(packet),0,(struct sockaddr *)&tempaddr,(psock_t_socklen)sizeof(tempaddr))<0)
-		    eventlog(eventlog_level_warn,__FUNCTION__,"could not send tracking information from %s to %s (psock_sendto: %s)",tempa,tempb,strerror(errno));
+		    eventlog(eventlog_level_warn,__FUNCTION__,"could not send tracking information from %s to %s (psock_sendto: %s)",tempa,tempb,pstrerror(errno));
 	    }
 	}
     }

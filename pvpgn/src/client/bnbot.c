@@ -213,7 +213,7 @@ extern int main(int argc, char * argv[])
 
     if ((sd = psock_socket(PSOCK_PF_INET,PSOCK_SOCK_STREAM,PSOCK_IPPROTO_TCP))<0)
     {
-	fprintf(stderr,"%s: could not create socket (psock_socket: %s)\n",argv[0],strerror(psock_errno()));
+	fprintf(stderr,"%s: could not create socket (psock_socket: %s)\n",argv[0],pstrerror(psock_errno()));
 	if (changed_in)
 	    tcsetattr(fd_stdin,TCSAFLUSH,&in_attr_old);
 	return STATUS_FAILURE;
@@ -225,7 +225,7 @@ extern int main(int argc, char * argv[])
     memcpy(&saddr.sin_addr.s_addr,host->h_addr_list[0],host->h_length);
     if (psock_connect(sd,(struct sockaddr *)&saddr,sizeof(saddr))<0)
     {
-	fprintf(stderr,"%s: could not connect to server \"%s\" port %hu (psock_connect: %s)\n",argv[0],servname,servport,strerror(psock_errno()));
+	fprintf(stderr,"%s: could not connect to server \"%s\" port %hu (psock_connect: %s)\n",argv[0],servname,servport,pstrerror(psock_errno()));
 	if (changed_in)
 	    tcsetattr(fd_stdin,TCSAFLUSH,&in_attr_old);
 	return STATUS_FAILURE;
@@ -233,7 +233,7 @@ extern int main(int argc, char * argv[])
     
     if (psock_ctl(sd,PSOCK_NONBLOCK)<0)
     {
-	fprintf(stderr,"%s: could not set TCP socket to non-blocking mode (psock_ctl: %s)\n",argv[0],strerror(psock_errno()));
+	fprintf(stderr,"%s: could not set TCP socket to non-blocking mode (psock_ctl: %s)\n",argv[0],pstrerror(psock_errno()));
 	psock_close(sd);
 	if (changed_in)
 	    tcsetattr(fd_stdin,TCSAFLUSH,&in_attr_old);
@@ -295,7 +295,7 @@ extern int main(int argc, char * argv[])
 	    if (psock_select(highest_fd+1,&rfds,NULL,NULL,NULL)<0)
 	    {
 		if (errno!=PSOCK_EINTR)
-		    fprintf(stderr,"%s: select failed (select: %s)\n",argv[0],strerror(errno));
+		    fprintf(stderr,"%s: select failed (select: %s)\n",argv[0],pstrerror(errno));
 		continue;
 	    }
 	    

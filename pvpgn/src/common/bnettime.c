@@ -148,7 +148,7 @@ extern t_bnettime bnettime(void)
     
     if (gettimeofday(&tv,NULL)<0)
     {
-        eventlog(eventlog_level_error,__FUNCTION__,"could not get time (gettimeofday: %s)",strerror(errno));
+        eventlog(eventlog_level_error,__FUNCTION__,"could not get time (gettimeofday: %s)",pstrerror(errno));
         return time_to_bnettime(time(NULL),0);
     }
     return time_to_bnettime((time_t)tv.tv_sec,tv.tv_usec);

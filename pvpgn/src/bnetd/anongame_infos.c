@@ -1818,7 +1818,7 @@ extern int anongame_infos_load(char const *filename)
 
     if (!(fp = fopen(filename, "r")))
     {
-	eventlog(eventlog_level_error, "anongameinfo_load", "could not open file \"%s\" for reading (fopen: %s)", filename, strerror(errno));
+	eventlog(eventlog_level_error, "anongameinfo_load", "could not open file \"%s\" for reading (fopen: %s)", filename, pstrerror(errno));
 	anongame_infos_destroy(anongame_infos);
 	return -1;
     }
