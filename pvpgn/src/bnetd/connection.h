@@ -185,7 +185,6 @@ typedef struct connection
 	    char const *		charname;
 	} d2;
 	struct {
-	    char const *		w3_username; /* filled between 0x53ff and 0x54ff -- NonReal */
 	    char const *		w3_playerinfo; /* ADDED BY UNDYING SOULZZ 4/7/02 */
 	    time_t			anongame_search_starttime;
    /* [zap-zero] 20020527 - matching w3route connection for game connection /
@@ -363,8 +362,6 @@ extern char const * conn_get_ircpass(t_connection const * c);
 extern int conn_set_ircping(t_connection * c, unsigned int ping);
 extern unsigned int conn_get_ircping(t_connection const * c);
 extern int conn_set_udpok(t_connection * c);
-extern char const * conn_get_w3_username(t_connection const * c) ;
-extern void conn_set_w3_username(t_connection * c, char const * w3_username);
 extern int conn_get_welcomed(t_connection const * c) ;
 extern void conn_set_welcomed(t_connection * c, int welcomed);
 

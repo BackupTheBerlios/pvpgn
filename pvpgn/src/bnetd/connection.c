@@ -424,7 +424,6 @@ extern t_connection * conn_create(int tsock, int usock, unsigned int real_local_
     temp->protocol.d2.character                  = NULL;
     temp->protocol.d2.realminfo                  = NULL;
     temp->protocol.d2.charname                   = NULL;
-    temp->protocol.w3.w3_username                = NULL;
     temp->protocol.w3.w3_playerinfo              = NULL;
     temp->protocol.w3.routeconn                  = NULL;
     temp->protocol.w3.anongame                   = NULL;
@@ -647,8 +646,6 @@ extern void conn_destroy(t_connection * c)
 	free((void *)c->protocol.chat.irc.ircline); /* avoid warning */
     if (c->protocol.chat.irc.ircpass)
 	free((void *)c->protocol.chat.irc.ircpass); /* avoid warning */
-    if (c->protocol.w3.w3_username)
-	free((void *)c->protocol.w3.w3_username); /* avoid warning */
 
     /* ADDED BY UNDYING SOULZZ 4/8/02 */
     if (c->protocol.w3.w3_playerinfo)
@@ -3057,44 +3054,6 @@ extern unsigned int conn_get_ircping(t_connection const * c)
 	return 0;
     }
     return c->protocol.chat.irc.ircping;
-}
-
-// NonReal
-extern char const * conn_get_w3_username(t_connection const * c)
-{
-    if (!c)
-    {
-        eventlog(eventlog_level_error,"conn_get_w3_username","got NULL connection");
-        return NULL;
-    }
-
-    return c->protocol.w3.w3_username;
-}
-
-// NonReal
-extern void conn_set_w3_username(t_connection * c, char const * w3_username)
-{
-    char const * temp;
-    
-    if (!c)
-    {
-        eventlog(eventlog_level_error,"conn_set_w3_username","got NULL connection");
-        return;
-    }
-    if (!w3_username)
-    {
-        eventlog(eventlog_level_error,"conn_set_w3_username","[%d] got NULL w3_username",conn_get_socket(c));
-        return;
-    }
-    
-    if (!(temp = strdup(w3_username)))
-    {
-	eventlog(eventlog_level_error,"conn_set_w3_username","[%d] unable to allocate memory for w3_username",conn_get_socket(c));
-	return;
-    }
-    if (c->protocol.w3.w3_username)
-	free((void *)c->protocol.w3.w3_username); /* avoid warning */
-    c->protocol.w3.w3_username = temp;
 }
 
 // NonReal

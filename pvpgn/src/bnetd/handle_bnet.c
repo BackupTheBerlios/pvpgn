@@ -2036,7 +2036,6 @@ static int _client_loginreqw3(t_connection * c, t_packet const * const packet)
     {
 	char const * username;
 	t_account *  account;
-	char const * tname;
 	int i;
 
 	if (!(username = packet_get_str_const(packet,sizeof(t_client_loginreq_w3),USER_NAME_MAX)))
@@ -2092,9 +2091,8 @@ static int _client_loginreqw3(t_connection * c, t_packet const * const packet)
 	    }
 	    else
 	    {
-		eventlog(eventlog_level_info,__FUNCTION__,"[%d] (W3) \"%s\" passed account check",conn_get_socket(c),(tname = account_get_name(account)));
-		conn_set_w3_username(c,tname);
-		account_unget_name(tname);
+		eventlog(eventlog_level_info,__FUNCTION__,"[%d] (W3) \"%s\" passed account check",conn_get_socket(c), username);
+		conn_set_loggeduser(c,username);
 		bn_int_set(&rpacket->u.server_loginreply_w3.message,SERVER_LOGINREPLY_W3_MESSAGE_SUCCESS);
 	    }
 	}
@@ -2163,7 +2161,7 @@ static int _client_logonproofreq(t_connection * c, t_packet const * const packet
 	bn_int_set(&rpacket->u.server_logonproofreply.unknown3,SERVER_LOGONPROOFREPLY_UNKNOWN3);
 	bn_int_set(&rpacket->u.server_logonproofreply.unknown4,SERVER_LOGONPROOFREPLY_UNKNOWN4);
 	
-	if (!(username = conn_get_w3_username(c)))
+	if (!(username = conn_get_loggeduser(c)))
 	  {
 	     eventlog(eventlog_level_info,__FUNCTION__,"[%d] (W3) got NULL username, 0x54ff before 0x53ff?",conn_get_socket(c));
 	  }
