@@ -1665,7 +1665,6 @@ extern int ladder_write_to_file(char const * filename, t_ladder * ladder, char c
 extern int ladders_write_to_file()
 {
   
-  eventlog(eventlog_level_info,"ladders_write_to_file","flushing ladders to disc");
   ladder_write_to_file(WAR3_solo_filename, &WAR3_solo_ladder,CLIENTTAG_WARCRAFT3);
   ladder_write_to_file(WAR3_team_filename, &WAR3_team_ladder,CLIENTTAG_WARCRAFT3);
   ladder_write_to_file(WAR3_ffa_filename,  &WAR3_ffa_ladder, CLIENTTAG_WARCRAFT3);

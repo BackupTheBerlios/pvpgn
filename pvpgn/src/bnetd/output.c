@@ -185,8 +185,6 @@ extern int output_write_to_file(void)
 {
     FILE * fp;
   
-    eventlog(eventlog_level_info,"output_write_to_file","flushing output to disk");
-
     if (!status_filename)
     {
 	eventlog(eventlog_level_error,"ouput_write_to_file","got NULL filename");
