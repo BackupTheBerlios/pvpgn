@@ -244,13 +244,11 @@ static void do_whois(t_connection * c, char const * dest)
     }
     else if ((channel = conn_get_channel(dest_c)))
     {
-	if (channel_get_permanent(channel)==1)
-        sprintf(msgtemp,"%s %s logged on from account "UID_FORMAT", and %s currently in %s channel \"%.64s\".",
+        sprintf(msgtemp,"%s %s logged on from account "UID_FORMAT", and %s currently in channel \"%.64s\".",
 		namepart,
 		verb,
 		conn_get_userid(dest_c),
 		verb,
-		channel_get_permanent(channel) != 1 ? "private" : "",
 		channel_get_name(channel));
     }
     else
@@ -4505,7 +4503,7 @@ static int _handle_topic_command(t_connection * c, char const * text)
     return -1;
   }
   
-  if (channel_get_permanent(channel)==1)
+  if (channel_get_permanent(channel))
     do_save = DO_SAVE_TOPIC;
 
   channel_name = channel_get_name(channel);
