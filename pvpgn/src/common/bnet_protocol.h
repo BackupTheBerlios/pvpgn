@@ -918,7 +918,7 @@ typedef struct
     bn_int        gameversion;
     bn_int        checksum;
     bn_int        cdkey_number; /* count of cdkeys, d2 = 1, lod = 2 */
-    bn_int        u1; /* 00 00 00 00 */
+    bn_int        spawn; 	/* set if using spawn copy */
     /* cdkey info(s) */
     /* executable info */
     /* cdkey owner */
