@@ -4078,7 +4078,7 @@ static int _client_joingame(t_connection * c, t_packet const * const packet)
 #ifndef WITH_BITS
 	     if (!(game = gamelist_find_game(gamename,game_type_all)))
 	       {
-		  eventlog(eventlog_level_error,__FUNCTION__,"[%d] unable to find game \"%s\" for user to join",conn_get_socket(c),gamename);
+		  eventlog(eventlog_level_info,__FUNCTION__,"[%d] unable to find game \"%s\" for user to join",conn_get_socket(c),gamename);
 		  return -1;
 	       }
 	     gtype = game_get_type(game);
@@ -4086,7 +4086,7 @@ static int _client_joingame(t_connection * c, t_packet const * const packet)
 #else /* WITH_BITS */
 	     if (!(game = bits_gamelist_find_game(gamename,game_type_all)))
 	       {
-		  eventlog(eventlog_level_error,__FUNCTION__,"[%d] unable to find game \"%s\" for user to join",conn_get_socket(c),gamename);
+		  eventlog(eventlog_level_info,__FUNCTION__,"[%d] unable to find game \"%s\" for user to join",conn_get_socket(c),gamename);
 		  return -1;
 	       }
 	     gtype = bits_game_get_type(game);
