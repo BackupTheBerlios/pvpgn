@@ -11,6 +11,7 @@ PvPGN porting status file
  x86    | FreeBSD 5.x      | OK      | gcc         | tested (use FBSD >=5.2.1)
  x86    | BeOS R4 /w BONE  | OK      | gcc         | tested
  x86    | OpenBSD 3.x      | OK      | gcc         | tested
+ x86	| NetBSD 2.x/3.x   | OK      | gcc         | tested
  x86_64 | Linux 2.6.x      | OK      | gcc         | tested (pvpgn >= 1.6.3)
  sparc64| SunOS 5.9        | OK      | gcc         | tested
  PPC G3 | Mac OS X 10.2.x  | OK      | gcc         | tested
