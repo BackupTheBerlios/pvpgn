@@ -72,6 +72,8 @@
 #endif
 
 
+# include "realm.h"
+
 typedef enum
 {
     conn_class_init,
@@ -183,7 +185,7 @@ typedef struct connection
 	t_elist			timers; /* cached list of timers for cleaning */
 	/* FIXME: this d2/w3 specific data could be unified into an union */
 	struct {
-	    char const *		realmname; /* to remember until character is created */
+	    t_realm *			realm;
 	    t_character *		character;
 	    char const *		realminfo;
 	    char const *		charname;
@@ -343,8 +345,8 @@ extern char const * conn_get_charname(t_connection const * c);
 extern int conn_set_charname(t_connection * c, char const * charname);
 extern int conn_set_idletime(t_connection * c);
 extern unsigned int conn_get_idletime(t_connection const * c) ;
-extern char const * conn_get_realmname(t_connection const * c);
-extern int conn_set_realmname(t_connection * c, char const * realmname);
+extern t_realm * conn_get_realm(t_connection const * c);
+extern int conn_set_realm(t_connection * c, t_realm * realm);
 extern int conn_set_character(t_connection * c, t_character * ch);
 extern int conn_bind(t_connection * c1, t_connection * c2);
 extern void conn_set_country(t_connection * c, char const * country);
@@ -387,7 +389,7 @@ extern t_list * connlist(void) ;
 extern t_connection * connlist_find_connection_by_sessionkey(unsigned int sessionkey);
 extern t_connection * connlist_find_connection_by_socket(int socket);
 extern t_connection * connlist_find_connection_by_sessionnum(unsigned int sessionnum);
-extern t_connection * connlist_find_connection_by_name(char const * name, char const * realmname); /* any chat name format */
+extern t_connection * connlist_find_connection_by_name(char const * name, t_realm * realm); /* any chat name format */
 extern t_connection * connlist_find_connection_by_accountname(char const * username);
 extern t_connection * connlist_find_connection_by_charname(char const * charname, char const * realmname);
 extern t_connection * connlist_find_connection_by_account(t_account * account);

@@ -423,7 +423,7 @@ extern t_connection * conn_create(int tsock, int usock, unsigned int real_local_
     temp->protocol.queues.inqueue                = NULL;
     temp->protocol.queues.insize                 = 0;
     temp->protocol.loggeduser			 = NULL;
-    temp->protocol.d2.realmname                  = NULL;
+    temp->protocol.d2.realm                      = NULL;
     temp->protocol.d2.character                  = NULL;
     temp->protocol.d2.realminfo                  = NULL;
     temp->protocol.d2.charname                   = NULL;
@@ -563,8 +563,8 @@ extern void conn_destroy(t_connection * c, t_elem ** elem, int conn_or_dead_list
 	conn_destroy_anongame(c->protocol.w3.routeconn);  // [zap-zero] destroy anongame too when game connection is invalid
     }
 
-    if (c->protocol.d2.realmname) {
-        realm_add_player_number(realmlist_find_realm(conn_get_realmname(c)),-1);
+    if (c->protocol.d2.realm) {
+        realm_add_player_number(c->protocol.d2.realm,-1);
     }
 
     
@@ -634,8 +634,6 @@ extern void conn_destroy(t_connection * c, t_elem ** elem, int conn_or_dead_list
 	xfree((void *)c->protocol.client.owner); /* avoid warning */
     if (c->protocol.client.cdkey)
 	xfree((void *)c->protocol.client.cdkey); /* avoid warning */
-    if (c->protocol.d2.realmname)
-	xfree((void *)c->protocol.d2.realmname); /* avoid warning */
     if (c->protocol.d2.realminfo)
 	xfree((void *)c->protocol.d2.realminfo); /* avoid warning */
     if (c->protocol.d2.charname)
@@ -1849,7 +1847,7 @@ extern int conn_set_channel(t_connection * c, char const * channelname)
 
     oldchannel=c->protocol.chat.channel;
 
-	channel = channellist_find_channel_by_name(channelname,conn_get_country(c),conn_get_realmname(c));
+	channel = channellist_find_channel_by_name(channelname,conn_get_country(c),realm_get_name(conn_get_realm(c)));
 
 	if(channel && (channel == oldchannel))
 		return 0;
@@ -2025,34 +2023,12 @@ extern int conn_set_game(t_connection * c, char const * gamename, char const * g
     if (gamename)
     {
 	if (!(c->protocol.game = gamelist_find_game(gamename,type)))
-	/* version from KWS - commented out to try if this made D2 problems
-        { 
-	    // setup a new game if it does not allready exist
-	    if (!(c->protocol.game = game_create(gamename,gamepass,gameinfo,type,version,conn_get_clienttag(c))))
-	       return -1;
-
-	    game_parse_info(c->protocol.game,gameinfo); // only create
-            if (conn_get_realmname(c) && conn_get_charname(c))
-            {
-                  game_set_realmname(c->protocol.game,conn_get_realmname(c));
-                  realm_add_game_number(realmlist_find_realm(conn_get_realmname(c)),1);
-	    }
-	}
-
-	// join new or existing game 
-        if (game_add_player(conn_get_game(c),gamepass,version,c)<0)
-        {
-  	  c->protocol.game = NULL; // bad password or version # 
-	  return -1;
-	}
-	*/
-	// original code
 	{
 	  c->protocol.game = game_create(gamename,gamepass,gameinfo,type,version,c->protocol.client.clienttag,conn_get_gameversion(c));
-	    if (c->protocol.game && conn_get_realmname(c) && conn_get_charname(c))
+	    if (c->protocol.game && conn_get_realm(c) && conn_get_charname(c))
 	    {
-		game_set_realmname(c->protocol.game,conn_get_realmname(c));
-		realm_add_game_number(realmlist_find_realm(conn_get_realmname(c)),1);
+		game_set_realmname(c->protocol.game,realm_get_name(conn_get_realm(c)));
+		realm_add_game_number(conn_get_realm(c),1);
 	    }
 	}
 	if (c->protocol.game)
@@ -2529,7 +2505,7 @@ extern char const * conn_get_playerinfo(t_connection const * c)
 #endif
    {
        /* This sets portrait of character */
-       if (!conn_get_realmname(c) || !conn_get_realminfo(c))
+       if (!conn_get_realm(c) || !conn_get_realminfo(c))
        {
            tag_uint_to_str(playerinfo,clienttag);
            //bn_int_tag_set((bn_int *)playerinfo,clienttag); /* FIXME: Is this attempting to reverse the tag?  This isn't really correct... why not use the revtag stuff like above or below? */
@@ -2743,7 +2719,7 @@ extern unsigned int conn_get_idletime(t_connection const * c)
 }
 
 
-extern char const * conn_get_realmname(t_connection const * c)
+extern t_realm * conn_get_realm(t_connection const * c)
 {
     if (!c)
     {
@@ -2751,11 +2727,11 @@ extern char const * conn_get_realmname(t_connection const * c)
         return NULL;
     }
     
-    return c->protocol.d2.realmname;
+    return c->protocol.d2.realm;
 }
 
 
-extern int conn_set_realmname(t_connection * c, char const * realmname)
+extern int conn_set_realm(t_connection * c, t_realm * realm)
 {
     if (!c)
     {
@@ -2763,14 +2739,9 @@ extern int conn_set_realmname(t_connection * c, char const * realmname)
         return -1;
     }
     
-    if (c->protocol.d2.realmname)
-	xfree((void *)c->protocol.d2.realmname); /* avoid warning */
-    if (!realmname)
-        c->protocol.d2.realmname = NULL;
-    else {
-        c->protocol.d2.realmname = xstrdup(realmname);
-	eventlog(eventlog_level_debug,__FUNCTION__,"[%d] set to \"%s\"",conn_get_socket(c),realmname);
-    }
+    c->protocol.d2.realm = realm;
+    if (realm)
+       eventlog(eventlog_level_debug,__FUNCTION__,"[%d] set to \"%s\"",conn_get_socket(c),realm_get_name(realm));
     
     return 0;
 }
@@ -3380,7 +3351,7 @@ extern t_connection * connlist_find_connection_by_socket(int socket)
 }
 
 
-extern t_connection * connlist_find_connection_by_name(char const * name, char const * realmname)
+extern t_connection * connlist_find_connection_by_name(char const * name, t_realm * realm)
 {
     char         charname[CHAR_NAME_LEN];
     char const * temp;
@@ -3435,8 +3406,8 @@ extern t_connection * connlist_find_connection_by_name(char const * name, char c
     }
     
     /* format: charname (realm must be not NULL) */
-    if (realmname)
-	return connlist_find_connection_by_charname(name,realmname);
+    if (realm)
+	return connlist_find_connection_by_charname(name,realm_get_name(realm));
     
     /* format: Simple username, clients with no realm, like starcraft or d2 open,
      * the format is the same of charname but is matched if realmname is NULL */
@@ -3460,9 +3431,9 @@ extern t_connection * connlist_find_connection_by_charname(char const * charname
             continue;
         if (!c->protocol.d2.charname)
             continue;
-        if (!c->protocol.d2.realmname)
+        if (!c->protocol.d2.realm)
             continue;
-        if ((strcasecmp(c->protocol.d2.charname, charname)==0)&&(strcasecmp(c->protocol.d2.realmname,realmname)==0))
+        if ((strcasecmp(c->protocol.d2.charname, charname)==0)&&(strcasecmp(realm_get_name(c->protocol.d2.realm),realmname)==0))
             return c;
      }
      return NULL;

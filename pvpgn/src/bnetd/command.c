@@ -137,7 +137,7 @@ static void do_whisper(t_connection * user_c, char const * dest, char const * te
     t_connection * dest_c;
     char const *   tname;
     
-    if (!(dest_c = connlist_find_connection_by_name(dest,conn_get_realmname(user_c))))
+    if (!(dest_c = connlist_find_connection_by_name(dest,conn_get_realm(user_c))))
     {
 	message_send_text(user_c,message_type_error,user_c,"That user is not logged on.");
 	return;
@@ -182,7 +182,7 @@ static void do_whois(t_connection * c, char const * dest)
     t_channel const * channel;
     
     if ((!(dest_c = connlist_find_connection_by_accountname(dest))) &&
-        (!(dest_c = connlist_find_connection_by_name(dest,conn_get_realmname(c)))))
+        (!(dest_c = connlist_find_connection_by_name(dest,conn_get_realm(c)))))
     {
 	t_account * dest_a;
 	t_bnettime btlogin;
@@ -1746,7 +1746,7 @@ static int _handle_who_command(t_connection * c, char const *text)
 	return 0;
   }
   
-  if (!(channel = channellist_find_channel_by_name(&text[i],conn_get_country(c),conn_get_realmname(c))))
+  if (!(channel = channellist_find_channel_by_name(&text[i],conn_get_country(c),realm_get_name(conn_get_realm(c)))))
     {
       message_send_text(c,message_type_error,c,"That channel does not exist.");
       message_send_text(c,message_type_error,c,"(If you are trying to search for a user, use the /whois command.)");
@@ -2525,7 +2525,8 @@ static int _handle_reply_command(t_connection * c, char const *text)
 static int _handle_realmann_command(t_connection * c, char const *text)
 {
   unsigned int i;
-  char const * realmname;
+  t_realm * realm;
+  t_realm * trealm;
   t_connection * tc;
   t_elem const * curr;
   t_message    * message;
@@ -2533,7 +2534,7 @@ static int _handle_realmann_command(t_connection * c, char const *text)
   for (i=0; text[i]!=' ' && text[i]!='\0'; i++); /* skip command */
   for (; text[i]==' '; i++);
   
-  if (!(realmname=conn_get_realmname(c))) {
+  if (!(realm=conn_get_realm(c))) {
     message_send_text(c,message_type_info,c,"You must join a realm first");
     return 0;
   }
@@ -2544,7 +2545,7 @@ static int _handle_realmann_command(t_connection * c, char const *text)
     return 0;
   }
   
-  sprintf(msgtemp,"Announcement from %.32s@%.32s: %.128s",conn_get_username(c),realmname,&text[i]);
+  sprintf(msgtemp,"Announcement from %.32s@%.32s: %.128s",conn_get_username(c),realm_get_name(realm),&text[i]);
   if (!(message = message_create(message_type_broadcast,c,NULL,msgtemp)))
     {
       message_send_text(c,message_type_info,c,"Could not broadcast message.");
@@ -2556,7 +2557,7 @@ static int _handle_realmann_command(t_connection * c, char const *text)
 	  tc = elem_get_data(curr);
 	  if (!tc)
 	    continue;
-	  if ((conn_get_realmname(tc))&&(strcasecmp(conn_get_realmname(tc),realmname)==0))
+	  if ((trealm = conn_get_realm(tc)) && (trealm==realm))
 	    {
 	      message_send(message,tc);
 	    }
@@ -4453,7 +4454,7 @@ static int _handle_topic_command(t_connection * c, char const * text)
 	return -1;
   }
 
-  if (!(channel = channellist_find_channel_by_name(channel_name,conn_get_country(c),conn_get_realmname(c))))
+  if (!(channel = channellist_find_channel_by_name(channel_name,conn_get_country(c),realm_get_name(conn_get_realm(c)))))
   {
     sprintf(msgtemp,"no such channel, can't set topic");
     message_send_text(c,message_type_error,c,msgtemp);

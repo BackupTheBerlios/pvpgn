@@ -28,6 +28,8 @@
 #undef JUST_NEED_TYPES
 #endif
 
+struct connection;
+
 typedef struct realm
 #ifdef REALM_INTERNAL_ACCESS
 {
@@ -40,7 +42,7 @@ typedef struct realm
     unsigned int   player_number;
     unsigned int   game_number;
     int		   tcp_sock;
-    t_connection * conn;
+    struct connection * conn;
 }
 #endif
 t_realm;
@@ -70,7 +72,7 @@ extern int realm_add_player_number(t_realm * realm, int number);
 extern unsigned int realm_get_game_number(t_realm const * realm);
 extern int realm_add_game_number(t_realm * realm, int number);
 extern int realm_set_active(t_realm * realm, unsigned int active);
-extern int realm_active(t_realm * realm, t_connection * c);
+extern int realm_active(t_realm * realm, struct connection * c);
 extern int realm_deactive(t_realm * realm);
 
 extern int realmlist_create(char const * filename);
@@ -80,7 +82,7 @@ extern t_realm * realmlist_find_realm_by_ip(unsigned long ip); /* ??? */
 extern t_list * realmlist(void);
 extern t_realm * realmlist_find_realm_by_sock(int tcp_sock);
 
-extern t_connection * realm_get_conn(t_realm * realm);
+extern struct connection * realm_get_conn(t_realm * realm);
 
 #endif
 #endif

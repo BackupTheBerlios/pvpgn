@@ -248,6 +248,7 @@ static int on_d2cs_charloginreq(t_connection * c, t_packet const * packet)
 	char const *	clienttag;
 	char *	temp;
 	unsigned int	sessionnum;
+	t_realm * 	realm;
 	char const *	realmname;
 	unsigned int	pos, reply;
 	t_packet *	rpacket;
@@ -273,12 +274,13 @@ static int on_d2cs_charloginreq(t_connection * c, t_packet const * packet)
 	} else if (!(clienttag=clienttag_uint_to_str(conn_get_clienttag(client)))) {
 		eventlog(eventlog_level_error,__FUNCTION__,"got NULL clienttag");
 		reply = BNETD_D2CS_CHARLOGINREPLY_FAILED;
-	} else if (!(realmname=conn_get_realmname(client))) {
-		eventlog(eventlog_level_error,__FUNCTION__,"got NULL realm name");
+	} else if (!(realm=conn_get_realm(client))) {
+		eventlog(eventlog_level_error,__FUNCTION__,"got NULL realm");
 		reply = BNETD_D2CS_CHARLOGINREPLY_FAILED;
 	} else {
 		char revtag[8];
 
+		realmname = realm_get_name(realm);
 		temp=xmalloc(strlen(clienttag)+strlen(realmname)+1+strlen(charname)+1+
 			strlen(portrait)+1);
 		reply = BNETD_D2CS_CHARLOGINREPLY_SUCCEED;

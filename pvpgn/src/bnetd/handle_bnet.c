@@ -67,6 +67,7 @@
 #include "team.h"
 #include "account.h"
 #include "account_wrap.h"
+#include "realm.h"
 #include "connection.h"
 #include "channel.h"
 #include "game.h"
@@ -86,7 +87,6 @@
 #include "common/addr.h"
 #include "game_conv.h"
 #include "autoupdate.h"
-#include "realm.h"
 #include "character.h"
 #include "versioncheck.h"
 #include "anongame.h"
@@ -2694,19 +2694,19 @@ static int _client_realmjoinreq109(t_connection * c, t_packet const *const packe
 	    char const *pass_str;
 	    t_hash secret_hash;
 	    t_hash passhash;
-	    char const *prev_realm;
+	    t_realm *prev_realm;
 
 	    /* FIXME: should we only set this after they log in to the realm server? */
-	    prev_realm = conn_get_realmname(c);
+	    prev_realm = conn_get_realm(c);
 	    if (prev_realm) {
-		if (strcasecmp(prev_realm, realm_get_name(realm))) {
+		if (prev_realm != realm) {
 		    realm_add_player_number(realm, 1);
-		    realm_add_player_number(realmlist_find_realm(prev_realm), -1);
-		    conn_set_realmname(c, realm_get_name(realm));
+		    realm_add_player_number(prev_realm, -1);
+		    conn_set_realm(c, realm);
 		}
 	    } else {
 		realm_add_player_number(realm, 1);
-		conn_set_realmname(c, realm_get_name(realm));
+		conn_set_realm(c, realm);
 	    }
 
 	    if ((pass_str = account_get_pass(conn_get_account(c)))) {
@@ -2811,7 +2811,7 @@ static int _client_charlistreq(t_connection * c, t_packet const *const packet)
 	bn_int_set(&rpacket->u.server_unknown_37.unknown1, SERVER_UNKNOWN_37_UNKNOWN1);
 	bn_int_set(&rpacket->u.server_unknown_37.unknown2, SERVER_UNKNOWN_37_UNKNOWN2);
 
-	if (!(charlist = account_get_closed_characterlist(conn_get_account(c), conn_get_clienttag(c), conn_get_realmname(c)))) {
+	if (!(charlist = account_get_closed_characterlist(conn_get_account(c), conn_get_clienttag(c), realm_get_name(conn_get_realm(c))))) {
 	    bn_int_set(&rpacket->u.server_unknown_37.count, 0);
 	    conn_push_outqueue(c, rpacket);
 	    packet_del_ref(rpacket);
@@ -3145,7 +3145,7 @@ static int _client_joinchannel(t_connection * c, t_packet const *const packet)
 	    case CLIENT_JOINCHANNEL_NORMAL:
 		eventlog(eventlog_level_info, __FUNCTION__, "[%d] CLIENT_JOINCHANNEL_NORMAL channel \"%s\"", conn_get_socket(c), cname);
 
-		if (prefs_get_ask_new_channel() && (!(channellist_find_channel_by_name(cname, conn_get_country(c), conn_get_realmname(c))))) {
+		if (prefs_get_ask_new_channel() && (!(channellist_find_channel_by_name(cname, conn_get_country(c), realm_get_name(conn_get_realm(c)))))) {
 		    found = 0;
 		    eventlog(eventlog_level_info, __FUNCTION__, "[%d] didn't find channel \"%s\" to join", conn_get_socket(c), cname);
 		    message_send_text(c, message_type_channeldoesnotexist, c, cname);
