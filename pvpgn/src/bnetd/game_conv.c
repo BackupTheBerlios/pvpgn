@@ -936,23 +936,45 @@ If the corresponding bit is a '0' then subtract 1 from the character.
         int dpos = 0;
         unsigned char bitmask;
         const char * pstr;
+        int len;
 
+        len = strlen(gameinfo) + 1 - 0x0f;
+        if(len < 2)
+        {
+            eventlog(eventlog_level_error,"game_parse_info","get bad war3 game info");
+            return -1;
+        }
         pstr = gameinfo + 0x0f;
-
         mapsize_x = (unsigned int)((unsigned char)pstr[0] - 1) + (((unsigned int)((unsigned char)pstr[1] - 1)) << 8);
-        pstr += 0x02;
+        len -= 2;
+        if(len < 3)
+        {
+            eventlog(eventlog_level_error,"game_parse_info","get bad war3 game info");
+            return -1;
+        }
+        pstr += 2;
         bitmask = * pstr;
+        len --;
         pstr ++;
         mapsize_y = (unsigned int)((unsigned char)pstr[0]) + (((unsigned int)((unsigned char)pstr[1])) << 8);
         if((bitmask & 0x02) == 0)
             mapsize_y -= 1;
         if((bitmask & 0x04) == 0)
             mapsize_y -= 0x100;
+        game_set_mapsize_x(game, mapsize_x);
+        game_set_mapsize_y(game, mapsize_y);
+        len -= 6;
+        if(len < 1)
+        {
+            eventlog(eventlog_level_error,"game_parse_info","get bad war3 game info");
+            return -1;
+        }
         pstr += 6;
         mapname[0] = pstr[0];
         mapname[1] = 0;
         if((bitmask & 0x80) == 0)
             mapname[0]--;
+        len --;
         pstr ++;
         mpos ++;
         while (mapname[mpos - 1] != 0)
@@ -960,6 +982,12 @@ If the corresponding bit is a '0' then subtract 1 from the character.
             dpos++;
             if ((dpos-1)%8 == 0)
             {
+                len -= 8;
+                if(len < 1)
+                {
+                    eventlog(eventlog_level_error,"game_parse_info","get bad war3 game mapname");
+                    return -1;
+                }
                 bitmask = *pstr;
                 strncat(mapname, pstr+1, 7);
                 pstr += 8;
@@ -971,8 +999,6 @@ If the corresponding bit is a '0' then subtract 1 from the character.
                 mpos ++;
             }
         }
-        game_set_mapsize_x(game, mapsize_x);
-        game_set_mapsize_x(game, mapsize_y);
         game_set_mapname(game, mapname);
 
 		return 0;
