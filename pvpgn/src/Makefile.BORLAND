@@ -352,7 +352,7 @@ d2dbs_OBJECTS = \
     ${SRC_COMPATDIR}\inet_aton.obj \
     ${SRC_COMPATDIR}\psock.obj \
     ${SRC_COMPATDIR}\strerror.obj \ 
-    ${SRC_COMPATDIR}\strsep.obj 
+    ${SRC_COMPATDIR}\strsep.obj \
     ${SRC_WIN32DIR}\service_d2dbs.obj         
 
 bnproxy_SBIN    = ${SRC_SBINDIR}\bnproxy.exe
