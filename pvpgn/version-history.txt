@@ -15,6 +15,10 @@ simply shutdown server, delete the corresponding binary ladder file(s) and
 startup server again. The /rank_all_accounts command has been removed.
 -- added option for d2dbs to only add "ladder" chars to the ladder
 -- fixed output of D2 XML ladder experience value (from signed to unsigned)
+-- rewritten the packet queue codes to reduce memory management calls and in 
+turn reduce CPU usage
+-- "fixed" the infamous "got error handling packet id 0x15ff" message when no 
+ads configured
 
 1.6.0pre5 (since 1.6.0pre4):
 -- added support for loading new accounts at runtime (ex. if made by some 
