@@ -504,6 +504,8 @@ static int sql_read_accounts(t_read_accounts_func cb)
 		continue;
 	    }
 
+	    if (atoi(row[0]) == STORAGE_SQL_DEFAULT_UID) continue; /* skip default account */
+
 	    if ((info = malloc(sizeof(t_sql_info))) == NULL) {
 		eventlog(eventlog_level_error, __FUNCTION__, "not enough memory for sql info");
 		continue;
