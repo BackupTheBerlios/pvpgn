@@ -318,8 +318,7 @@ extern unsigned long game_get_version(t_game const * game);
 extern int game_get_startver(t_game const * game);
 extern unsigned int game_get_ref(t_game const * game);
 extern unsigned int game_get_count(t_game const * game);
-#define game_set_status(game,status) game_set_status_real(game,status,__FILE__,__LINE__)
-extern void game_set_status_real(t_game * game, t_game_status status, const char *fn, unsigned int ln);
+extern void game_set_status(t_game * game, t_game_status status);
 extern t_game_status game_get_status(t_game const * game);
 extern unsigned int game_get_addr(t_game const * game);
 extern unsigned short game_get_port(t_game const * game);

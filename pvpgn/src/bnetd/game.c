@@ -1337,10 +1337,10 @@ extern unsigned int game_get_count(t_game const * game)
 }
 
 
-extern void game_set_status_real(t_game * game, t_game_status status, const char *fn, unsigned int ln)
+extern void game_set_status(t_game * game, t_game_status status)
 {
 	if (!game) {
-		eventlog(eventlog_level_error,"game_set_status","got NULL game (from %s:%u)", fn, ln);
+		eventlog(eventlog_level_error,"game_set_status","got NULL game");
 		return;
     }
 	// [quetzal] 20020829 - this should prevent invalid status changes
@@ -1348,13 +1348,13 @@ extern void game_set_status_real(t_game * game, t_game_status status, const char
 	if (game->status == game_status_started && 
 		(status == game_status_open || status == game_status_full)) {
 		eventlog(eventlog_level_error, "game_set_status", 
-		"attempting to set status '%s' (%d) to started game (from %s:%u)", game_status_get_str(status), status, fn, ln);
+		"attempting to set status '%s' (%d) to started game", game_status_get_str(status), status);
 		return;
 	}
 
 	if (game->status == game_status_done && status != game_status_done) {
 		eventlog(eventlog_level_error, "game_set_status", 
-		"attempting to set status '%s' (%d) to done game (from %s:%u)", game_status_get_str(status), status, fn, ln);
+		"attempting to set status '%s' (%d) to done game", game_status_get_str(status), status);
 		return;
 	}
 
