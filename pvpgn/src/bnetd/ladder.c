@@ -368,22 +368,18 @@ extern unsigned int ladder_get_rank_by_account(t_account * account, t_ladder_sor
 			return ladder_get_rank(ladder_cr(clienttag,id),uid,0,clienttag);
 		else
 			return ladder_get_rank(ladder_ar(clienttag,id),uid,0,clienttag);
-	break;
     case ladder_sort_mostwins:
 		if (ltime == ladder_time_current)
 			return ladder_get_rank(ladder_cw(clienttag,id),uid,0,clienttag);
 		else
 			return ladder_get_rank(ladder_aw(clienttag,id),uid,0,clienttag);
-	break;
     case ladder_sort_mostgames:
 		if (ltime == ladder_time_current)
 			return ladder_get_rank(ladder_cg(clienttag,id),uid,0,clienttag);
 		else
 			return ladder_get_rank(ladder_ag(clienttag,id),uid,0,clienttag);
-	break;
     default:
 	eventlog(eventlog_level_error,"ladder_get_rank_by_account","got bad ladder sort %u",(unsigned int)lsort);
-	return 0;
     }
     
     return 0;
