@@ -10,7 +10,17 @@ function microtime_float()
 }
 $time_start = microtime_float();
 
-$dbh = mysql_connect($dbhost,$dbuser,$dbpass);
+$dbh = @mysql_connect($dbhost,$dbuser,$dbpass);
+if (!$dbh) {
+    readfile('includes/sqlerror.htm');
+    echo "<div class=\"footer\">\n";
+    $time = microtime_float() - $time_start;
+    echo "  Page generation time: ".sprintf("%2.2f",$time)." seconds\n";
+    echo "</div>\n";
+    echo "</body>";
+    echo "</html>";
+    die();
+}
 mysql_select_db($dbname,$dbh);
 
 if (!isset($_GET['page'])) {
