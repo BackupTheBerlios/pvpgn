@@ -4415,7 +4415,7 @@ static int _handle_topic_command(t_connection * c, char const * text)
     if (tmp) tmp[0]='\0';
   }
   
-  if (!(conn_get_channel(c)) || !(channel = channel_get_name(conn_get_channel(c)))) {
+  if (!(conn_get_channel(c))) {
     message_send_text(c,message_type_error,c,"This command can only be used inside a channel.");
     return -1;
   }
@@ -4479,7 +4479,7 @@ static int _handle_moderate_command(t_connection * c, char const * text)
   t_channel_flags oldflags;
   t_channel * channel;
 
-  if (!(conn_get_channel(c)) || !(channel = channel_get_name(conn_get_channel(c)))) {
+  if (!(channel = conn_get_channel(c))) {
     message_send_text(c,message_type_error,c,"This command can only be used inside a channel.");
     return -1;
   }
