@@ -56,7 +56,7 @@
 
 # =================== Warcraft 3 Expansion Entries ================
 
-# Warcraft III Expansion v1.10 RETAIL
+# Warcraft III Expansion Retail v1.10
 # Note: this version check is sent in both FT and ROC mode
 "A=3845581634 B=880823580 C=1363937103 4 A=A-S B=B-C C=C-A A=A-B" \
  IX86ver1.mpq \
@@ -68,13 +68,12 @@
  0x75d1c16f \
  W3XP_110A
 
-# Warcraft III Expansion v1.07 RETAIL
-# Note: this version check is sent in both FT and ROC mode
+# Warcraft III Expansion Retail v1.07
 "A=3845581634 B=880823580 C=1363937103 4 A=A-S B=B-C C=C-A A=A-B" \
  IX86ver1.mpq \
  IX86 \
  W3XP \
- "war3.exe 06/22/03 11:14:36 1494483" \
+ NULL \
  0x00000007 \
  1.0.7.142 \
  0xde80b55b \
@@ -82,8 +81,7 @@
 
 # ==================== Warcraft III entries =======================
 
-# Warcraft III v1.10 RETAIL
-# Note: this version check is sent in both FT 1.10 and ROC 1.10
+# Warcraft III Retail v1.10
 "A=3845581634 B=880823580 C=1363937103 4 A=A-S B=B-C C=C-A A=A-B" \
  IX86ver1.mpq \
  IX86 \
@@ -94,139 +92,150 @@
  0x75d1c16f \
  WAR3_110A
 
-# Warcraft III Retail v1.06a
+# Warcraft III Retail v1.07 (only available after FT installation)
 "A=3845581634 B=880823580 C=1363937103 4 A=A-S B=B-C C=C-A A=A-B" \
  IX86ver1.mpq \
  IX86 \
  WAR3 \
- "war3.exe 05/23/03 19:50:08 1461715" \
- 0x00000006 \
- 1.0.6.0 \
- 0x302dca19 \
- WAR3_106A
+ NULL \
+ 0x00000007 \
+ 1.0.7.142 \
+ 0xde80b55b \
+ WAR3_107A
+
+# Warcraft III Retail v1.06a
+#"A=3845581634 B=880823580 C=1363937103 4 A=A-S B=B-C C=C-A A=A-B" \
+# IX86ver1.mpq \
+# IX86 \
+# WAR3 \
+# "war3.exe 05/23/03 19:50:08 1461715" \
+# 0x00000006 \
+# 1.0.6.0 \
+# 0x302dca19 \
+# WAR3_106A
 
 # Warcraft III Retail v1.05a
-"A=3845581634 B=880823580 C=1363937103 4 A=A-S B=B-C C=C-A A=A-B" \
- IX86ver1.mpq \
- IX86 \
- WAR3 \
- "war3.exe 01/30/03 03:08:10 1170899" \
- 0x00000005 \
- 1.0.5.0 \
- 0xbe284ba9 \
- WAR3_105A
+#"A=3845581634 B=880823580 C=1363937103 4 A=A-S B=B-C C=C-A A=A-B" \
+# IX86ver1.mpq \
+# IX86 \
+# WAR3 \
+# "war3.exe 01/30/03 03:08:10 1170899" \
+# 0x00000005 \
+# 1.0.5.0 \
+# 0xbe284ba9 \
+# WAR3_105A
 
 # Warcraft III Retail v1.04c
-"A=3845581634 B=880823580 C=1363937103 4 A=A-S B=B-C C=C-A A=A-B" \
- IX86ver1.mpq \
- IX86 \
- WAR3 \
- "war3.exe 01/16/03 02:44:48 1166807" \
- 0x00000004 \
- 1.0.4.1 \
- 0x3f06d9fa \
- WAR3_104c
+#"A=3845581634 B=880823580 C=1363937103 4 A=A-S B=B-C C=C-A A=A-B" \
+# IX86ver1.mpq \
+# IX86 \
+# WAR3 \
+# "war3.exe 01/16/03 02:44:48 1166807" \
+# 0x00000004 \
+# 1.0.4.1 \
+# 0x3f06d9fa \
+# WAR3_104c
 
 # Warcraft III Retail v1.04b
-"A=3845581634 B=880823580 C=1363937103 4 A=A-S B=B-C C=C-A A=A-B" \
- IX86ver1.mpq \
- IX86 \
- WAR3 \
- "war3.exe 10/31/02 17:29:22 1068499" \
- 0x00000004 \
- 1.0.3.0 \
- 0x56f4cc37 \
- WAR3_104b
+#"A=3845581634 B=880823580 C=1363937103 4 A=A-S B=B-C C=C-A A=A-B" \
+# IX86ver1.mpq \
+# IX86 \
+# WAR3 \
+# "war3.exe 10/31/02 17:29:22 1068499" \
+# 0x00000004 \
+# 1.0.3.0 \
+# 0x56f4cc37 \
+# WAR3_104b
 
 # Warcraft III Retail v1.04a
-"A=3845581634 B=880823580 C=1363937103 4 A=A-S B=B-C C=C-A A=A-B" \
- IX86ver1.mpq \
- IX86 \
- WAR3 \
- "war3.exe 10/29/02 23:26:17 713495" \
- 0x00000004 \
- 1.0.3.0 \
- 0x0e529b2d \
- WAR3_104a
+#"A=3845581634 B=880823580 C=1363937103 4 A=A-S B=B-C C=C-A A=A-B" \
+# IX86ver1.mpq \
+# IX86 \
+# WAR3 \
+# "war3.exe 10/29/02 23:26:17 713495" \
+# 0x00000004 \
+# 1.0.3.0 \
+# 0x0e529b2d \
+# WAR3_104a
 
 # Warcraft III Retail v1.03a
-"A=3845581634 B=880823580 C=1363937103 4 A=A-S B=B-C C=C-A A=A-B" \
- IX86ver1.mpq \
- IX86 \
- WAR3 \
- "war3.exe 10/08/02 20:54:49 713495" \
- 0x00000003 \
- 1.0.3.0 \
- 0xae4ac7fa \
- WAR3_103a
+#"A=3845581634 B=880823580 C=1363937103 4 A=A-S B=B-C C=C-A A=A-B" \
+# IX86ver1.mpq \
+# IX86 \
+# WAR3 \
+# "war3.exe 10/08/02 20:54:49 713495" \
+# 0x00000003 \
+# 1.0.3.0 \
+# 0xae4ac7fa \
+# WAR3_103a
 
 # Warcraft III Retail v1.02a
-"A=3845581634 B=880823580 C=1363937103 4 A=A-S B=B-C C=C-A A=A-B" \
- IX86ver1.mpq \
- IX86 \
- WAR3 \
- "war3.exe 09/06/02 02:41:02 713495" \
- 0x00000002 \
- 1.0.1.0 \
- 0xa67d9a0e \
- WAR3_102a
+#"A=3845581634 B=880823580 C=1363937103 4 A=A-S B=B-C C=C-A A=A-B" \
+# IX86ver1.mpq \
+# IX86 \
+# WAR3 \
+# "war3.exe 09/06/02 02:41:02 713495" \
+# 0x00000002 \
+# 1.0.1.0 \
+# 0xa67d9a0e \
+# WAR3_102a
 
 # Warcraft III Retail v1.02
-"A=3845581634 B=880823580 C=1363937103 4 A=A-S B=B-C C=C-A A=A-B" \
- IX86ver1.mpq \
- IX86 \
- WAR3 \
- "war3.exe 08/12/02 18:21:15 713495" \
- 0x00000002 \
- 1.0.1.0 \
- 0x03d8be54 \
- WAR3_102
+#"A=3845581634 B=880823580 C=1363937103 4 A=A-S B=B-C C=C-A A=A-B" \
+# IX86ver1.mpq \
+# IX86 \
+# WAR3 \
+# "war3.exe 08/12/02 18:21:15 713495" \
+# 0x00000002 \
+# 1.0.1.0 \
+# 0x03d8be54 \
+# WAR3_102
 
 # Warcraft III Retail v1.01b
-"A=3845581634 B=880823580 C=1363937103 4 A=A-S B=B-C C=C-A A=A-B" \
- IX86ver1.mpq \
- IX86 \
- WAR3 \
- "war3.exe 07/10/02 18:59:10 713495" \
- 0x00000001 \
- 1.0.1.1 \
- 0x062ef7dc \
- WAR3_101b
+#"A=3845581634 B=880823580 C=1363937103 4 A=A-S B=B-C C=C-A A=A-B" \
+# IX86ver1.mpq \
+# IX86 \
+# WAR3 \
+# "war3.exe 07/10/02 18:59:10 713495" \
+# 0x00000001 \
+# 1.0.1.1 \
+# 0x062ef7dc \
+# WAR3_101b
 
 # Warcraft III Retail v1.01a
-"A=3845581634 B=880823580 C=1363937103 4 A=A-S B=B-C C=C-A A=A-B" \
- IX86ver1.mpq \
- IX86 \
- WAR3 \
- "war3.exe 06/28/02 18:41:18 713495" \
- 0x00000001 \
- 1.0.1.0 \
- 0x62c2e1a2 \
- WAR3_101
+#"A=3845581634 B=880823580 C=1363937103 4 A=A-S B=B-C C=C-A A=A-B" \
+# IX86ver1.mpq \
+# IX86 \
+# WAR3 \
+# "war3.exe 06/28/02 18:41:18 713495" \
+# 0x00000001 \
+# 1.0.1.0 \
+# 0x62c2e1a2 \
+# WAR3_101
 
 # Warcraft III Retail v1.00
-"A=3845581634 B=880823580 C=1363937103 4 A=A-S B=B-C C=C-A A=A-B" \
- IX86ver1.mpq \
- IX86 \
- WAR3 \
- "War3.exe 03/27/04 00:11:21 713495" \
- 0x00000000 \
- 1.0.0.0 \
- 0xf891f129 \
- WAR3
+#"A=3845581634 B=880823580 C=1363937103 4 A=A-S B=B-C C=C-A A=A-B" \
+# IX86ver1.mpq \
+# IX86 \
+# WAR3 \
+# "War3.exe 03/27/04 00:11:21 713495" \
+# 0x00000000 \
+# 1.0.0.0 \
+# 0xf891f129 \
+# WAR3
 
 # ================ Warcraft III Final Discord Mod =================
 
 # Warcraft III FD Mod
-"A=3845581634 B=880823580 C=1363937103 4 A=A-S B=B-C C=C-A A=A-B" \
- "IX86ver1.mpq" \
- IX86 \
- WAR3 \
- NULL \
- 0x00000005 \
- 1.0.6.0 \
- 0x18ed599f \
- WAR3_FDM
+#"A=3845581634 B=880823580 C=1363937103 4 A=A-S B=B-C C=C-A A=A-B" \
+# "IX86ver1.mpq" \
+# IX86 \
+# WAR3 \
+# NULL \
+# 0x00000005 \
+# 1.0.6.0 \
+# 0x18ed599f \
+# WAR3_FDM
 
 # ====================== Diablo II LOD entries ====================
 
