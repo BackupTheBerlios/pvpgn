@@ -27,6 +27,11 @@
 # Note: if you use multiple equations/mpqfile be sure of put entries with    #
 #       corresponding checksum for each archtag/clienttag                    #
 #                                                                            #
+# NEW !!!! :                                                                 #
+# exeinfo = "war3.exe ??/??/?? ??:??:?? 1568211"                             #
+#           will match war3.exe with filesize 1568211                        #
+#           but don't care about file's date/time                            #
+#                                                                            #
 # versioncheck entries work like a firewall chains, bnetd will match the     #
 # first entry, then is safe to use entries in descending order, so if we     #
 # found a badversion, it will be tagged with the tag of entry with the lower #
@@ -578,36 +583,22 @@
  SEXP_109_STAR
 
 # Starcraft - Broodwar (Expansion) 1.08b - (Broodwar mode)
-# note: the exeinfo is NULL here since the time of the starcraft.exe depends 
-# on the method used to update StarCraft.
-# You may create independent rules instead with the following information:
-# patch  'bw_108b.exe'   - "starcraft.exe 05/19/01 02:28:24 1082880"
-# update 'brood108b.mpq' - "starcraft.exe 05/19/01 02:28:24 1082880"
-# update 'bw7-8b.mpq'    - "starcraft.exe 05/19/01 02:28:24 1082880"
-# update 'bw8-8b.mpq'    - "starcraft.exe 05/19/01 02:00:06 1082880"
 "A=2521522835 B=3428392135 C=218673704 4 A=A^S B=B-C C=C+A A=A-B" \
  "IX86ver1.mpq" \
  IX86 \
  SEXP \
- NULL \
+ "starcraft.exe ??/??/?? ??:??:?? 1082880" \
  0x000000c3 \
  1.0.8.11 \
  0xd81aee2d \
  SEXP_108b
 
 # Starcraft - Broodwar (Expansion) 1.08b - (StarCraft mode)
-# note: the exeinfo is NULL here since the time of the starcraft.exe depends 
-# on the method used to update StarCraft.
-# You may create independent rules instead with the following information:
-# patch  'bw_108b.exe'   - "starcraft.exe 05/19/01 02:28:24 1082880"
-# update 'brood108b.mpq' - "starcraft.exe 05/19/01 02:28:24 1082880"
-# update 'bw7-8b.mpq'    - "starcraft.exe 05/19/01 02:28:24 1082880"
-# update 'bw8-8b.mpq'    - "starcraft.exe 05/19/01 02:00:06 1082880"
 "A=2521522835 B=3428392135 C=218673704 4 A=A^S B=B-C C=C+A A=A-B" \
  "IX86ver1.mpq" \
  IX86 \
  STAR \
- NULL \
+ "starcraft.exe ??/??/?? ??:??:?? 1082880" \
  0x000000c3 \
  1.0.8.11 \
  0xd81aee2d \
@@ -886,6 +877,258 @@
  2.0.2.0 \
  0x96e2a3a0 \
  W2BN_202a
+ 
+ # Warcraft II BNE v2.01
+"A=2383634235 B=711286254 C=3710735432 4 A=A+S B=B^C C=C+A A=A^B" \
+ "IX86ver4.mpq" \
+ IX86 \
+ W2BN \
+ "Warcraft II BNE.exe ??/??/?? ??:??:?? 704512" \
+ 0x0000004b \
+ 2.0.0.154 \
+ 0x0 \
+ W2BN_201
+
+# Warcraft II BNE v2.00
+"A=3845581634 B=880823580 C=1363937103 4 A=A-S B=B-C C=C-A A=A-B" \
+ IX86ver1.mpq \
+ IX86 \
+ W2BN \
+ NULL \
+ 0x0000004b \
+ 2.0.0.154 \
+ 0x7133f5ed \
+ W2BN_200
+
+# Warcraft II BNE v1.xx
+"A=3845581634 B=880823580 C=1363937103 4 A=A-S B=B-C C=C-A A=A-B" \
+ "IX86ver1.mpq" \
+ IX86 \
+ W2BN \
+ NULL \
+ 0 \
+ 0.0.0.0 \
+ 0x0 \
+ W2BN_1xx
+
+
+## MacOS X ##########################################################
+# ================ StarCraft (original) entries =====================
+
+# StarCraft v1.09b MacOS X
+"A=2521522835 B=3428392135 C=218673704 4 A=A^S B=B-C C=C+A A=A-B" \
+ "XMACver1.mpq" \
+ XMAC \
+ STAR \
+ NULL \
+ 0x000000c5 \
+ 1.0.9.2 \
+ 0x0 \
+ STAR_109b
+
+# StarCraft v1.xx MacOS X
+"A=2521522835 B=3428392135 C=218673704 4 A=A^S B=B-C C=C+A A=A-B" \
+ "XMACver1.mpq" \
+ XMAC \
+ STAR \
+ NULL \
+ 0 \
+ 0.0.0.0 \
+ 0x0 \
+ STAR_1xx
+
+# ================== StarCraft Broodwar entries =====================
+
+# StarCraft (Broodwar mode) v1.09b MacOS X
+"A=2521522835 B=3428392135 C=218673704 4 A=A^S B=B-C C=C+A A=A-B" \
+ "XMACver1.mpq" \
+ XMAC \
+ SEXP \
+ "Starcraft (Carbon) 02/27/102 13:00:00 1360535" \
+ 0x000000c5 \
+ 1.0.9.3 \
+ 0xf744ebdb \
+ SEXP_109b
+
+# StarCraft (Broodwar mode) v1.09a MacOS X
+"A=2521522835 B=3428392135 C=218673704 4 A=A^S B=B-C C=C+A A=A-B" \
+ "XMACver1.mpq" \
+ XMAC \
+ SEXP \
+ "Starcraft (Carbon) 01/23/102 20:01:00 1362615" \
+ 0x000000c5 \
+ 1.0.9.1 \
+ 0x5087792a \
+ SEXP_1xx
+
+# StarCraft (Broodwar mode) v1.08b MacOS X
+"A=2521522835 B=3428392135 C=218673704 4 A=A^S B=B-C C=C+A A=A-B" \
+ "XMACver1.mpq" \
+ XMAC \
+ SEXP \
+ "Starcraft (Carbon) 11/20/101 16:00:00 1362631" \
+ 0x000000c3 \
+ 1.0.8.3 \
+ 0x6fc0e12d \
+ SEXP_1xx
+
+# StarCraft (Broodwar mode) v1.xx MacOS X
+"A=2521522835 B=3428392135 C=218673704 4 A=A^S B=B-C C=C+A A=A-B" \
+ "XMACver1.mpq" \
+ XMAC \
+ SEXP \
+ NULL \
+ 0 \
+ 0.0.0.0 \
+ 0x0 \
+ SEXP_1xx
+
+# ==================== Diablo II LOD entries ========================
+
+# Diablo II LOD v1.09d MacOS X
+"A=3845581634 B=880823580 C=1363937103 4 A=A-S B=B-C C=C-A A=A-B" \
+ "XMACver2.mpq" \
+ XMAC \
+ D2XP \
+ "Game.exe 11/30/01 04:00:17 448675" \
+ 9 \
+ 1.0.9.0 \
+ 0xfa39efbb \
+ D2XP_109d
+
+# Diablo II LOD v1.xx MacOS X
+"A=3845581634 B=880823580 C=1363937103 4 A=A-S B=B-C C=C-A A=A-B" \
+ "XMACver2.mpq" \
+ XMAC \
+ D2XP \
+ NULL \
+ 0 \
+ 0.0.0.0 \
+ 0x0 \
+ D2XP_1xx
+
+# ================== Diablo 2 (original) entries ====================
+
+# Diablo II v1.09d MacOS X
+"A=3845581634 B=880823580 C=1363937103 4 A=A-S B=B-C C=C-A A=A-B" \
+ "XMACver2.mpq" \
+ XMAC \
+ D2DV \
+ "Game.exe 11/30/01 04:00:17 448675" \
+ 9 \
+ 1.0.9.0 \
+ 0xfa39efbb \
+ D2DV_109d
+
+# Diablo II v1.xxd MacOS X
+"A=3845581634 B=880823580 C=1363937103 4 A=A-S B=B-C C=C-A A=A-B" \
+ "XMACver2.mpq" \
+ XMAC \
+ D2DV \
+ NULL \
+ 0 \
+ 0.0.0.0 \
+ 0x0 \
+ D2DV_1xx
+
+## MacOS
+# ================== StarCraft (original) entries ===================
+
+# StarCraft v1.09b MacOS Classic
+"A=2521522835 B=3428392135 C=218673704 4 A=A^S B=B-C C=C+A A=A-B" \
+ "PMACver1.mpq" \
+ PMAC \
+ STAR \
+ NULL \
+ 0x000000c5 \
+ 1.0.9.2 \
+ 0x0 \
+ STAR_109b
+
+# Broodwar v1.xx MacOS Classic
+"A=2521522835 B=3428392135 C=218673704 4 A=A^S B=B-C C=C+A A=A-B" \
+ "PMACver1.mpq" \
+ PMAC \
+ STAR \
+ NULL \
+ 0 \
+ 0.0.0.0 \
+ 0x0 \
+ STAR_1xx
+
+# ================== StarCraft Broodwar entries =====================
+
+# StarCraft (Broodwar mode) v1.09b MacOS Classic
+"A=2521522835 B=3428392135 C=218673704 4 A=A^S B=B-C C=C+A A=A-B" \
+ "PMACver1.mpq" \
+ PMAC \
+ SEXP \
+ NULL \
+ 0x000000c5 \
+ 1.0.9.11 \
+ 0x0 \
+ SEXP_109b
+
+# StarCraft (Broodwar mode) v1.xx MacOS Classic
+"A=2521522835 B=3428392135 C=218673704 4 A=A^S B=B-C C=C+A A=A-B" \
+ "PMACver1.mpq" \
+ PMAC \
+ SEXP \
+ NULL \
+ 0 \
+ 0.0.0.0 \
+ 0x0 \
+ SEXP_1xx
+
+# ====================== Diablo II LOD entries ======================
+
+# Diablo II LOD v1.xx MacOS Classic
+"A=3845581634 B=880823580 C=1363937103 4 A=A-S B=B-C C=C-A A=A-B" \
+ "PMACver2.mpq" \
+ PMAC \
+ D2XP \
+ NULL \
+ 9 \
+ 1.0.9.0 \
+ 0xfa39efbb \
+ D2XP_109d
+
+# Diablo II LOD v1.xx MacOS Classic
+"A=3845581634 B=880823580 C=1363937103 4 A=A-S B=B-C C=C-A A=A-B" \
+ "PMACver2.mpq" \
+ PMAC \
+ D2XP \
+ NULL \
+ 0 \
+ 0.0.0.0 \
+ 0x0 \
+ D2XP_1xx
+
+# ==================== Diablo 2 (original) entries ==================
+
+# Diablo II v1.09d MacOS Classic
+"A=3845581634 B=880823580 C=1363937103 4 A=A-S B=B-C C=C-A A=A-B" \
+ "PMACver2.mpq" \
+ PMAC \
+ D2DV \
+ NULL \
+ 9 \
+ 1.0.9.0 \
+ 0xfa39efbb \
+ D2DV_109d
+
+# Diablo II v1.xx MacOS Classic
+"A=3845581634 B=880823580 C=1363937103 4 A=A-S B=B-C C=C-A A=A-B" \
+ "PMACver2.mpq" \
+ PMAC \
+ D2DV \
+ NULL \
+ 0 \
+ 0.0.0.0 \
+ 0x0 \
+ D2DV_1xx
+
+# ===================================================================
 
 # -=-=-=-=-=-=-=-=-=-=-=-=-=-=- NULL Versionchecks -=-=-=-=-=-=-=-=-=-=-=-=-=-
 
@@ -970,3 +1213,6 @@
 
 #                                                                            #
 ##############################################################################
+
+
+

@@ -230,6 +230,7 @@ t_parsed_exeinfo * parse_exeinfo(char const * exeinfo)
 	char mask[MAX_EXEINFO_STR+1];
 	char * marker;
 	int size;
+        char time_invalid = 0;
 
 	memset(&t1,0,sizeof(t1));
         t1.tm_isdst = -1;
@@ -256,10 +257,15 @@ t_parsed_exeinfo * parse_exeinfo(char const * exeinfo)
 	sprintf(mask,"%%02u/%%02u/%%u %%02u:%%02u:%%02u %%u");
 
 	if (sscanf(exeinfo,mask,&t1.tm_mon,&t1.tm_mday,&t1.tm_year,&t1.tm_hour,&t1.tm_min,&t1.tm_sec,&size)!=7) {
-	    eventlog(eventlog_level_warn,__FUNCTION__,"parser error while parsing pattern \"%s\"",exeinfo);
-	    free((void *)parsed_exeinfo->exe);
-	    free((void *)parsed_exeinfo);
-	    return NULL; /* neq */
+            if (sscanf(exeinfo,"%*s %*s %u",&size) != 1)
+            {
+
+	      eventlog(eventlog_level_warn,__FUNCTION__,"parser error while parsing pattern \"%s\"",exeinfo);
+	      free((void *)parsed_exeinfo->exe);
+	      free((void *)parsed_exeinfo);
+	      return NULL; /* neq */
+            }
+            time_invalid=1;
 	}
 
        /* Now we have a Y2K problem :)  Thanks for using a 2 digit decimal years, Blizzard. */ 
@@ -269,11 +275,14 @@ t_parsed_exeinfo * parse_exeinfo(char const * exeinfo)
        if (t1.tm_year<80) 
 	 t1.tm_year = t1.tm_year + 100; 
 
-       parsed_exeinfo->time = mktime(&t1);
+       if (time_invalid)
+         parsed_exeinfo->time = -1;
+       else 
+         parsed_exeinfo->time = mktime(&t1);
        parsed_exeinfo->size = size;
 
 #else
-	eventlog(eventlog_level_error,"versioncheck_compare_exeinfo","Your system does not support mktime(). Please select another exeinfo matching method.");
+	eventlog(eventlog_level_error,__FUNCTION__,"Your system does not support mktime(). Please select another exeinfo matching method.");
 	return NULL;
 #endif
   }
@@ -298,8 +307,6 @@ static int versioncheck_compare_exeinfo(t_parsed_exeinfo * pattern, t_parsed_exe
 	eventlog(eventlog_level_error,"versioncheck_compare_exeinfo","got NULL match");
 	return -1; /* neq/fail */
     }
-
-    eventlog(eventlog_level_trace,"versioncheck_compare_exeinfo","pattern=\"%s\" match=\"%s\"",pattern->exe,match->exe);
 
     if (strlen(pattern->exe)!=strlen(match->exe))
     	return 1; /* neq */
@@ -328,7 +335,7 @@ static int versioncheck_compare_exeinfo(t_parsed_exeinfo * pattern, t_parsed_exe
             eventlog(eventlog_level_trace,__FUNCTION__,"size differs");
 	    return 1; /* neq */
             }
-	if (abs(pattern->time-match->time)>(signed)prefs_get_version_exeinfo_maxdiff())
+	if ((pattern->time!=-1) && (abs(pattern->time-match->time)>(signed)prefs_get_version_exeinfo_maxdiff()))
             {
             eventlog(eventlog_level_trace,__FUNCTION__,"time differs by %i",abs(pattern->time-match->time));
 	    return 1;
