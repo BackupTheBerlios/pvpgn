@@ -564,6 +564,7 @@ extern int clanlist_remove_clan(t_clan * clan)
 	eventlog(eventlog_level_error, __FUNCTION__, "could not delete clan entry");
 	return -1;
     }
+    list_purge(clanlist_head);
     return 0;
 }
 
