@@ -2399,13 +2399,13 @@ static int _handle_connections_command(t_connection *c, char const *text)
       {
 	message_send_text(c,message_type_error,c,"Unknown option.");
 	return 0;
-      }
+	  }
   
   LIST_TRAVERSE_CONST(connlist(),curr)
-    {
+  {
       conn = elem_get_data(curr);
       if (conn_get_account(conn))
-	{
+	  {
 	  char const * tname;
 	  
 	  sprintf(name,"\"%.16s\"",(tname = conn_get_username(conn)));
@@ -2903,7 +2903,8 @@ static int _handle_rank_all_accounts_command(t_connection * c, char const *text)
       return 0;
     }
   // rank all accounts here
-  accounts_rank_all();  
+  accounts_rank_all();
+  output1_write_to_file();
   return 0;
 }
 
