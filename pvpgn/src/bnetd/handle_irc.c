@@ -65,12 +65,90 @@
 #include "server.h"
 #include "command.h"
 #include "handle_irc.h"
+#include "topic.h"
 #include "common/setup_after.h"
 #include "ctype.h"
 
-#ifdef WIN32
-#include <windows.h> //amadeo (needed for GlobalAlloc (GPTR-def)
-#endif
+typedef int (* t_irc_command)(t_connection * conn, int numparams, char ** params, char * text);
+
+typedef struct {
+	const char     * irc_command_string;
+	t_irc_command    irc_command_handler;
+} t_irc_command_table_row;
+
+static int _handle_nick_command(t_connection * conn, int numparams, char ** params, char * text);
+static int _handle_user_command(t_connection * conn, int numparams, char ** params, char * text);
+static int _handle_ping_command(t_connection * conn, int numparams, char ** params, char * text);
+static int _handle_pong_command(t_connection * conn, int numparams, char ** params, char * text);
+static int _handle_pass_command(t_connection * conn, int numparams, char ** params, char * text);
+static int _handle_privmsg_command(t_connection * conn, int numparams, char ** params, char * text);
+
+
+static int _handle_who_command(t_connection * conn, int numparams, char ** params, char * text);
+static int _handle_list_command(t_connection * conn, int numparams, char ** params, char * text);
+static int _handle_topic_command(t_connection * conn, int numparams, char ** params, char * text);
+static int _handle_join_command(t_connection * conn, int numparams, char ** params, char * text);
+static int _handle_names_command(t_connection * conn, int numparams, char ** params, char * text);
+static int _handle_mode_command(t_connection * conn, int numparams, char ** params, char * text);
+static int _handle_userhost_command(t_connection * conn, int numparams, char ** params, char * text);
+static int _handle_quit_command(t_connection * conn, int numparams, char ** params, char * text);
+
+
+/* state connected handlers */
+static const t_irc_command_table_row irc_con_command_table[] =
+{
+	{ "NICK"		, _handle_nick_command },
+	{ "USER"		, _handle_user_command },
+	{ "PING"		, _handle_ping_command },
+	{ "PONG"		, _handle_pong_command },
+	{ "PASS"		, _handle_pass_command },
+	{ "PRIVMSG"		, _handle_privmsg_command },
+	{ NULL			, NULL }
+};
+
+/* state log'ed in handlers */
+
+static const t_irc_command_table_row irc_log_command_table[] =
+{
+	{ "WHO"			, _handle_who_command },
+	{ "LIST"		, _handle_list_command },
+	{ "TOPIC"		, _handle_topic_command },
+	{ "JOIN"		, _handle_join_command },
+	{ "NAMES"		, _handle_names_command },
+	{ "MODE"		, _handle_mode_command },
+	{ "USERHOST"	, _handle_userhost_command },
+	{ "QUIT"		, _handle_quit_command },
+	{ NULL			, NULL }
+};
+
+
+static int handle_irc_con_command(t_connection * conn, char const * command, int numparams, char ** params, char * text)
+{
+  t_irc_command_table_row const *p;
+
+  for (p = irc_con_command_table; p->irc_command_string != NULL; p++)
+  {
+    if (strcmp(command, p->irc_command_string)==0)
+    {
+	  if (p->irc_command_handler != NULL) return ((p->irc_command_handler)(conn,numparams,params,text));
+	}
+  }
+  return -1;
+}
+
+static int handle_irc_log_command(t_connection * conn, char const * command, int numparams, char ** params, char * text)
+{
+  t_irc_command_table_row const *p;
+
+  for (p = irc_log_command_table; p->irc_command_string != NULL; p++)
+  {
+    if (strcmp(command, p->irc_command_string)==0)
+    {
+	  if (p->irc_command_handler != NULL) return ((p->irc_command_handler)(conn,numparams,params,text));
+	}
+  }
+  return -1;
+}
 
 static int handle_irc_line(t_connection * conn, char const * ircline)
 {   /* [:prefix] <command> [[param1] [param2] ... [paramN]] [:<text>]*/
@@ -178,230 +256,8 @@ static int handle_irc_line(t_connection * conn, char const * ircline)
 	conn_test_latency(conn,time(NULL),temp);
     }
 
-    if (strcmp(command,"NICK")==0) {
-    	/* FIXME: more strict param checking */
-
-	if ((conn_get_botuser(conn))) {
-	    irc_send(conn,ERR_RESTRICTED,":You can only set your nickname once");
-	} else {
-	    if ((params)&&(params[0]))
-		conn_set_botuser(conn,params[0]);
-	    else if (text)
-		conn_set_botuser(conn,text);
-	    else
-	        irc_send(conn,ERR_NEEDMOREPARAMS,":Too few arguments to NICK");
-	    if ((conn_get_user(conn))&&(conn_get_botuser(conn)))
-		irc_welcome(conn); /* only send the welcome if we have USER and NICK */
-	}
-    } else if (strcmp(command,"USER")==0) {
-	/* RFC 2812 says: */
-	/* <user> <mode> <unused> :<realname>*/
-	/* ircII and X-Chat say: */
-	/* mz SHODAN localhost :Marco Ziech */
-	/* BitchX says: */
-	/* mz +iws mz :Marco Ziech */
-	/* What does this tell us? Ditch mode and unused, they don't contain what they should. */
-	char * user = NULL;
-	char * mode = NULL;
-	char * unused = NULL;
-	char * realname = NULL;
-
-	if ((numparams>=3)&&(params[0])&&(params[1])&&(params[2])&&(text)) {
-	    user = params[0];
-	    mode = params[1];
-	    unused = params[2];
-	    realname = text;
-            if (conn_get_user(conn)) {
-		irc_send(conn,ERR_ALREADYREGISTRED,":You are already registred");
-            } else {
-		eventlog(eventlog_level_debug,"handle_irc_line","[%d] got USER: user=\"%s\" mode=\"%s\" unused=\"%s\" realname=\"%s\"",conn_get_socket(conn),user,mode,unused,realname);
-		conn_set_user(conn,user);
-		conn_set_owner(conn,realname);
-		if (conn_get_botuser(conn))
-		    irc_welcome(conn); /* only send the welcome if we have USER and NICK */
-	    }
-        } else {
-	    irc_send(conn,ERR_NEEDMOREPARAMS,":Too few arguments to USER");
-        }
-    } else if (strcmp(command,"PING")==0) {
-	/* Dizzy: just ignore this because RFC says we should not reply client PINGs
-	 * NOTE: RFC2812 doesn't seem to be very expressive about this ... */
-	/*
-        if ((text)&&(strcmp(text,server_get_name())!=0))
-	    irc_send(conn,ERR_NOSUCHSERVER,":No such server"); We don't know other servers
-	;
-	else
-	    irc_send_pong(conn,params[0]);
-	*/
-    } else if (strcmp(command,"PONG")==0) {
-	/* NOTE: RFC2812 doesn't seem to be very expressive about this ... */
-	if (conn_get_ircping(conn)==0) {
-	    eventlog(eventlog_level_warn,"handle_irc_line","[%d] PONG without PING",conn_get_socket(conn));
-	} else {
-	    unsigned int val = 0;
-
-	    if (text) val = atoi(text);
-	    if (numparams>=1) val = atoi(params[0]);
-
-	    if (conn_get_ircping(conn) != val) {
-	    	if ((text)&&(strcmp(text,server_get_name())!=0)) {
-		    /* Actually the servername should not be always accepted but we aren't that pedantic :) */
-		    eventlog(eventlog_level_warn,"handle_irc_line","[%d] got bad PONG (%u!=%u)",conn_get_socket(conn),val,conn_get_ircping(conn));
-		    return -1;
-		}
-	    }
-	    conn_set_latency(conn,get_ticks()-conn_get_ircping(conn));
-	    eventlog(eventlog_level_debug,"handle_irc_line","[%d] latency is now %d (%u-%u)",conn_get_socket(conn),get_ticks()-conn_get_ircping(conn),get_ticks(),conn_get_ircping(conn));
-	    conn_set_ircping(conn,0);
-	}
-    } else if (strcmp(command,"PASS")==0) {
-    	if ((!conn_get_ircpass(conn))&&(conn_get_state(conn)==conn_state_bot_username)) {
-	    t_hash h;
-
-	    if (numparams>=1) {
-		bnet_hash(&h,strlen(params[0]),params[0]);
-		conn_set_ircpass(conn,hash_get_str(h));
-	    } else
-		irc_send(conn,ERR_NEEDMOREPARAMS,":Too few arguments to PASS");
-    	} else {
-	    eventlog(eventlog_level_warn,"handle_irc_line","[%d] client tried to set password twice with PASS",conn_get_socket(conn));
-    	}
-    } else if (strcmp(command,"PRIVMSG")==0) {
-	if ((numparams>=1)&&(text)) {
-	    int i;
-	    char ** e;
-	
-	    e = irc_get_listelems(params[0]);
-	    /* FIXME: support wildcards! */
-		
-//start amadeo: code was sent by some unkown fellow of pvpgn(maybe u wanna give us your name 
-// for any credits), it adds nick-registration,i changed some things here and there...
-	   for (i=0;((e)&&(e[i]));i++) {
-    	
-    	if (strcasecmp(e[i],"NICKSERV")==0) {
- 		    char * pass;
-		    char * p;
-			
- 		    pass = strchr(text,' ');
- 		    if (pass)
- 		    	*pass++ = '\0';
-			if (strcasecmp(text,"identify")==0) {
-				if (conn_get_state(conn)==conn_state_bot_password) {						
-					if (pass) {
- 		    	t_hash h;
- 
-			for (p = pass; *p; p++)
-			    if (isupper(*p)) *p = tolower(*p);
- 		    	bnet_hash(&h,strlen(pass),pass);
- 		    	irc_authenticate(conn,hash_get_str(h));
- 		    } else {
-						irc_send_cmd(conn,"NOTICE",":Syntax: IDENTIFY password(max 16 characters)");
-
-						}
-					} else {
-							irc_send_cmd(conn,"NOTICE",":You don't need to IDENTIFY");
-					}
-				} 
-				else if (strcasecmp(text,"register")==0) {
-					unsigned int j;
-					t_hash       passhash;
-					t_account  * temp;
-					char         msgtemp[MAX_MESSAGE_LEN];
-					char       * username=(char *)conn_get_botuser(conn);						
-					
-					if (account_check_name(username)<0) {
-						message_send_text(conn,message_type_error,conn,"Account name contains invalid symbol!");
-						break;
-					}
-
-					if (!pass || pass[0]=='\0' || (strlen(pass)>16) )
-					{
-						message_send_text(conn,message_type_error,conn,":Syntax: REGISTER password(max 16 characters)");
-						break;
-					}
-	
-					
-					for (j=0; j<strlen(pass); j++)
-						if (isupper((int)pass[j])) pass[j] = tolower((int)pass[j]);
-	
-					bnet_hash(&passhash,strlen(pass),pass);
-	
-					sprintf(msgtemp,"Trying to create account \"%s\" with password \"%s\"",username,pass);
-					message_send_text(conn,message_type_info,conn,msgtemp);					
-	
-					if (!(temp = account_create(username,hash_get_str(passhash))))
-					{
-						message_send_text(conn,message_type_error,conn,"Failed to create account!");
-						eventlog(eventlog_level_info,"handle_irc_line","[%d] account \"%s\" not created by IRC (failed)",conn_get_socket(conn),username);
-						conn_unget_chatname(conn,username);
-						break;
-					}
-					if (!accountlist_add_account(temp))
-					{
-						account_destroy(temp);
-						message_send_text(conn,message_type_error,conn,"Failed to register account. Account already exists.");
-						eventlog(eventlog_level_info,"handle_irc_line","[%d] account \"%s\" could not be created by IRC (insert failed)",conn_get_socket(conn),username);
-					}
-					else
-					{
-						sprintf(msgtemp,"Account "UID_FORMAT" created.",account_get_uid(temp));
-						message_send_text(conn,message_type_info,conn,msgtemp);
-						eventlog(eventlog_level_info,"handle_irc_line","[%d] account \"%s\" created by IRC",conn_get_socket(conn),username);
-					}
-
-					conn_unget_chatname(conn,username);
-				}
-				else 
-				{
-					char tmp[MAX_IRC_MESSAGE_LEN+1];
-					
- 		        irc_send_cmd(conn,"NOTICE",":Invalid arguments for NICKSERV");
-					sprintf(tmp,":Unrecognized command %s",text);
-					irc_send_cmd(conn,"NOTICE",tmp);
- 		    }
- 	        } 
-//end amadeo 
-else if (conn_get_state(conn)==conn_state_loggedin) {
-		    if (e[i][0]=='#') {
-		        /* channel message */
-			t_channel * channel;
-
-			/* HACK: we have to filter CTCP ACTION messages since 
-			 * most not-IRC clients won't support them. However,
-			 * since the original CTCP specification (http://www.irchelp.org/irchelp/rfs/ctcpspec.html)
-			 * describes the users of this command as "losers" we might have
-			 * to do some other stuff here, like for example setting
-			 * a special loser flag in the account or showing them
-			 * a "winners guide" to at least help them to win games ;)
-			 */
-			if ((channel = channellist_find_channel_by_name(irc_convert_ircname(e[i]),NULL,NULL))) {
-			    if ((strlen(text)>=9)&&(strncmp(text,"\001ACTION ",8)==0)&&(text[strlen(text)-1]=='\001')) { /* at least "\001ACTION \001" */
-				/* it's a CTCP ACTION message */
-				text = text + 8;
-				text[strlen(text)-1] = '\0';
-				channel_message_send(channel,message_type_emote,conn,text);
-			    } else
-				channel_message_send(channel,message_type_talk,conn,text);
-			} else {
-			    irc_send(conn,ERR_NOSUCHCHANNEL,":No such channel");
-			}				
-	    	    } else {
-			/* whisper */
-			t_connection * user;
-
-			if ((user = connlist_find_connection_by_accountname(e[i]))) {
-			    message_send_text(user,message_type_whisper,conn,text);
-			} else {
-			    irc_send(conn,ERR_NOSUCHNICK,":No such user");
-			}
-	    	    }
-	        }
-	    }
-	    if (e)
-	         irc_unget_listelems(e);
-	} else
-	    irc_send(conn,ERR_NEEDMOREPARAMS,":Too few arguments to PRIVMSG");
-    } else if (conn_get_state(conn)!=conn_state_loggedin) {
+	if (handle_irc_con_command(conn, command, numparams, params, text)!=-1) {}
+    else if (conn_get_state(conn)!=conn_state_loggedin) {
 	char temp[MAX_IRC_MESSAGE_LEN+1];
 	
 	if ((38+strlen(command)+16+1)<sizeof(temp)) {
@@ -416,217 +272,21 @@ else if (conn_get_state(conn)==conn_state_loggedin) {
     }
     /* --- The following should only be executable after login --- */
     if ((conn_get_state(conn)==conn_state_loggedin)&&(unrecognized_before)) {
-    if (strcmp(command,"WHO")==0) {
-	if (numparams>=1) {
-	    int i;
-	    char ** e;
 
-	    e = irc_get_listelems(params[0]);
-	    for (i=0; ((e)&&(e[i]));i++) {
-	    	irc_who(conn,e[i]);
-	    }
-	    irc_send(conn,RPL_ENDOFWHO,":End of WHO list"); /* RFC2812 only requires this to be sent if a list of names was given. Undernet seems to always send it, so do we :) */
-            if (e)
-                 irc_unget_listelems(e);
-	} else 
-	    irc_send(conn,ERR_NEEDMOREPARAMS,":Too few arguments to WHO");
-    } else if (strcmp(command,"LIST")==0) {
-        char temp[MAX_IRC_MESSAGE_LEN];
-
-	irc_send(conn,RPL_LISTSTART,"Channel :Users  Name"); /* backward compatibility */
-	if (numparams==0) {
- 	    t_elem const * curr;
- 	    
-   	    LIST_TRAVERSE_CONST(channellist(),curr) {
-    	        t_channel const * channel = elem_get_data(curr);
-	        char const * tempname;
-	        char const * temptopic = "Topic not yet implemented."; /* FIXME: */
-
-	        tempname = irc_convert_channel(channel);
-	        if (strlen(tempname)+1+20+1+1+strlen(temptopic)<MAX_IRC_MESSAGE_LEN)
-		    sprintf(temp,"%s %u :%s",tempname,channel_get_length(channel),temptopic);
-	        else
-	            eventlog(eventlog_level_warn,"handle_irc_line","LISTREPLY length exceeded");
-	        irc_send(conn,RPL_LIST,temp);
-    	    }
-    	} else if (numparams>=1) {
-    	    int i;
-    	    char ** e;
- 
-	    /* FIXME: support wildcards! */
-	    e = irc_get_listelems(params[0]);
-	    for (i=0;((e)&&(e[i]));i++) {
-	    	t_channel const * channel;
-	    	char const * verytemp; /* another good example for creative naming conventions :) */
-	        char const * tempname;
-	        char const * temptopic = "Topic not yet implemented."; /* FIXME: */
-		
-		verytemp = irc_convert_ircname(e[i]);
-		if (!verytemp)
-		    continue; /* something is wrong with the name ... */
-		channel = channellist_find_channel_by_name(verytemp,NULL,NULL);
-		if (!channel)
-		    continue; /* channel doesn't exist */
-	        tempname = irc_convert_channel(channel);
-	        if (strlen(tempname)+1+20+1+1+strlen(temptopic)<MAX_IRC_MESSAGE_LEN)
-		    sprintf(temp,"%s %u :%s",tempname,channel_get_length(channel),temptopic);
-	        else
-	            eventlog(eventlog_level_warn,"handle_irc_line","LISTREPLY length exceeded");
-	        irc_send(conn,RPL_LIST,temp);
-	    }
-            if (e)
-                 irc_unget_listelems(e);
-    	}
-    	irc_send(conn,RPL_LISTEND,":End of LIST command");
-/*start amadeo:  same ppl who did the nick-reg stuff had some ideas about "topics" :)....
-doesn't work now, causes accesviolations, but isn't needed @ all, cause gameclients can't see topics*/
-		} else if (strcmp(command,"TOPIC")==0) {
-		char ** e = NULL;
-		
-		if (params!=NULL) e = irc_get_listelems(params[0]);
-
-		if ((e)&&(e[0])) {
-	    	char const * ircname = irc_convert_ircname(e[0]);
-
-			t_channel * channel;
-
-			channel = conn_get_channel(conn);			
-
-			if (channel) {	
-
-				if ((!ircname)||(strcmp(channel_get_name(channel),ircname)!=0)) {
-					irc_send(conn,ERR_NOTONCHANNEL,":You're not on that channel");
-				} else {
-					char temp[MAX_IRC_MESSAGE_LEN];					
-
-					ircname=irc_convert_channel(channel);
-
-					sprintf(temp,"%s :Not yet implemented.",ircname);
-					irc_send(conn,RPL_TOPIC,temp);
-				}
+		if (handle_irc_log_command(conn, command, numparams, params, text)!=-1) {}
+		else if ((strstart(command,"LAG")!=0)&&(strstart(command,"ISON")!=0)&&(strstart(command,"JOIN")!=0)){
+			linelen = strlen (ircline);
+			bnet_command = malloc(linelen + 2);
+			if (bnet_command == NULL) 
+			{
+				eventlog(eventlog_level_error, "handle_irc 470", "insufficient memory available");
+				return -1;
 			}
+			bnet_command[0]='/';
+			strcpy(bnet_command + 1, ircline);
+			handle_command(conn,bnet_command); 
+			free((void*)bnet_command);
 		}
-/* */
-    } else if (strcmp(command,"JOIN")==0) {
-	if (numparams>=1) {
-	    char ** e;
-
-	    e = irc_get_listelems(params[0]);
-	    /* FIXME: support being in more than one channel at once */
-	    if ((e)&&(e[0])) {
-	    	char const * ircname = irc_convert_ircname(e[0]);
-		if (conn_set_channel(conn,ircname)<0) {
-		    irc_send(conn,ERR_NOSUCHCHANNEL,":JOIN failed"); /* FIXME: be more precise; what is the real error code for that? */
-		} else {
-		    t_channel * channel;
-
-		    channel = conn_get_channel(conn);
-		    if (channel) {
-		    	char temp[MAX_IRC_MESSAGE_LEN];
-				message_send_text(conn,message_type_join,conn,NULL); /* we have to send the JOIN acknowledgement */
-				ircname=irc_convert_channel(channel);
-		    	
-			if ((strlen(ircname)+1+strlen(":Not yet implemented.")+1)<MAX_IRC_MESSAGE_LEN) {
-			    sprintf(temp,"%s :Not yet implemented.",ircname);
-			    irc_send(conn,RPL_TOPIC,temp);
-			}
-			if ((strlen(ircname)+1+strlen("FIXME 0")+1)<MAX_IRC_MESSAGE_LEN) {
-			    sprintf(temp,"%s FIXME 0",ircname);
-			    irc_send(conn,RPL_TOPICWHOTIME,temp); /* FIXME: this in an undernet extension but other servers support it too */
-			}
-			irc_send_rpl_namreply(conn,channel);
-			irc_send(conn,RPL_ENDOFNAMES,":End of NAMES list");
-		    }
-		}
-	    }
-            if (e)
-                 irc_unget_listelems(e);
-	} else 
-	    irc_send(conn,ERR_NEEDMOREPARAMS,":Too few arguments to JOIN");
-    } else if (strcmp(command,"NAMES")==0) {
-      t_channel * channel;
-      
-      if (numparams>=1) {
-	char ** e;
-	char const * ircname;
-	char const * verytemp;
-	char temp[MAX_IRC_MESSAGE_LEN];
-	int i;
-	e = irc_get_listelems(params[0]);
-	for (i=0;((e)&&(e[i]));i++) {			
-			verytemp = irc_convert_ircname(e[i]);
-			
-			if (!verytemp)
-			  continue; /* something is wrong with the name ... */
-			channel = channellist_find_channel_by_name(verytemp,NULL,NULL);
-			if (!channel)
-			  continue; /* channel doesn't exist */
-			irc_send_rpl_namreply(conn,channel);
-			ircname=irc_convert_channel(channel);
-			if ((strlen(ircname)+1+strlen(":End of NAMES list")+1)<MAX_IRC_MESSAGE_LEN) {
-			  sprintf(temp,"%s :End of NAMES list",ircname);
-			  irc_send(conn,RPL_ENDOFNAMES,temp);
-			} else 
-			  irc_send(conn,RPL_ENDOFNAMES,":End of NAMES list");
-	}
-	if (e)
-	  irc_unget_listelems(e);
-      } else if (numparams==0) {
-	t_elem const * curr;
-	LIST_TRAVERSE_CONST(channellist(),curr) {
-	  channel = elem_get_data(curr);
-	  irc_send_rpl_namreply(conn,channel);
-	}
-	irc_send(conn,RPL_ENDOFNAMES,"* :End of NAMES list");		
-      }
-   }/* else if (strcmp(command,"BNET")==0) {
-	  This command is actually not defined by any RFC. It is 
-	 * a special bnetd-irc command to run battle.net /-commands.
-      amadeo: changed this to make the cmdl-syntax more handy,
-	  all unkown commands are directly passed to bnet-cmd-interpreter so we don't
-	  need /BNET anymore....
-	 if (text) 
-
-	 handle_command(conn,text);
-	 else 
-	    irc_send(conn,ERR_NEEDMOREPARAMS,":Too few arguments to BNET");	
-    
-    } 
-	:amadeo */
-	else if (strcmp(command,"MODE")==0) {
-	/* FIXME: Not yet implemented */
-    } else if (strcmp(command,"USERHOST")==0) {
-	/* FIXME: Send RPL_USERHOST */
-    } else if (strcmp(command,"QUIT")==0) {
-	/* FIXME: Not yet implemented */
-	//amadeo -> (LAGTIME.xxxxxxxx is send by several irc-clients. It is not needed
-    // but would result in unknown-command error flooding the users channelwindow....
-	// same for "ISON" in Trillian , /JOIN MUST NOT BE PASSED,, otherwise ppl can join without
-	//	nick-auth...,
-	} else if ((strstart(command,"LAG")!=0)&&(strstart(command,"ISON")!=0)&&(strstart(command,"JOIN")!=0)){
-	/* amadeo: just pass the line to bnet-command-interpreter to get rid of /BNET blabla...
-	           will also return errormsg if command is still unknown
-
-	char temp[MAX_IRC_MESSAGE_LEN+1];
-	
-	if ((38+strlen(command)+1+1)<sizeof(temp)) {
-	    sprintf(temp,":Unrecognized command \"%s\"",command);
-	    irc_send(conn,ERR_UNKNOWNCOMMAND,temp);
-	} else {
-	    irc_send(conn,ERR_UNKNOWNCOMMAND,":Unrecognized command");
-	}*/
-		
-		linelen = strlen (ircline);
-		bnet_command = malloc(linelen + 2);
-		if (bnet_command == NULL) {
-		    eventlog(eventlog_level_error, "handle_irc 470", "insufficient memory available");
-		    return -1;
-		}
-		bnet_command[0]='/';
-		strcpy(bnet_command + 1, ircline);
-		handle_command(conn,bnet_command); 
-		free((void*)bnet_command);
-    }
     } /* loggedin */
     if (params)
 	irc_unget_paramelems(params);
@@ -684,3 +344,572 @@ extern int handle_irc_packet(t_connection * conn, t_packet const * const packet)
     return 0;
 }
 
+static int _handle_nick_command(t_connection * conn, int numparams, char ** params, char * text)
+{
+	/* FIXME: more strict param checking */
+
+	if ((conn_get_botuser(conn))) 
+	{
+	    irc_send(conn,ERR_RESTRICTED,":You can only set your nickname once");
+	} 
+	else 
+	{
+	    if ((params)&&(params[0]))
+			conn_set_botuser(conn,params[0]);
+	    else if (text)
+			conn_set_botuser(conn,text);
+	    else
+	        irc_send(conn,ERR_NEEDMOREPARAMS,":Too few arguments to NICK");
+	    if ((conn_get_user(conn))&&(conn_get_botuser(conn)))
+			irc_welcome(conn); /* only send the welcome if we have USER and NICK */
+	}
+	return 0;
+}
+
+static int _handle_user_command(t_connection * conn, int numparams, char ** params, char * text)
+{
+	/* RFC 2812 says: */
+	/* <user> <mode> <unused> :<realname>*/
+	/* ircII and X-Chat say: */
+	/* mz SHODAN localhost :Marco Ziech */
+	/* BitchX says: */
+	/* mz +iws mz :Marco Ziech */
+	/* What does this tell us? Ditch mode and unused, they don't contain what they should. */
+	char * user = NULL;
+	char * mode = NULL;
+	char * unused = NULL;
+	char * realname = NULL;
+
+	if ((numparams>=3)&&(params[0])&&(params[1])&&(params[2])&&(text)) 
+	{
+	    user = params[0];
+	    mode = params[1];
+	    unused = params[2];
+	    realname = text;
+        if (conn_get_user(conn)) 
+	{
+		irc_send(conn,ERR_ALREADYREGISTRED,":You are already registred");
+        } 
+		else 
+		{
+			eventlog(eventlog_level_debug,"handle_irc_line","[%d] got USER: user=\"%s\" mode=\"%s\" unused=\"%s\" realname=\"%s\"",conn_get_socket(conn),user,mode,unused,realname);
+			conn_set_user(conn,user);
+			conn_set_owner(conn,realname);
+			if (conn_get_botuser(conn))
+				irc_welcome(conn); /* only send the welcome if we have USER and NICK */
+	    	}
+    	} 
+	else 
+	{
+	    irc_send(conn,ERR_NEEDMOREPARAMS,":Too few arguments to USER");
+    	}
+	return 0;
+}
+
+static int _handle_ping_command(t_connection * conn, int numparams, char ** params, char * text)
+{
+	/* Dizzy: just ignore this because RFC says we should not reply client PINGs
+	 * NOTE: RFC2812 doesn't seem to be very expressive about this ... */
+	 /*
+        if ((text)&&(strcmp(text,server_get_name())!=0))
+	    irc_send(conn,ERR_NOSUCHSERVER,":No such server"); We don't know other servers
+	;
+	else
+	*/
+	    irc_send_pong(conn,params[0]);
+	    /*
+	*/
+	return 0;
+}
+
+static int _handle_pong_command(t_connection * conn, int numparams, char ** params, char * text)
+{
+	/* NOTE: RFC2812 doesn't seem to be very expressive about this ... */
+	if (conn_get_ircping(conn)==0) 
+	{
+	    eventlog(eventlog_level_warn,"handle_irc_line","[%d] PONG without PING",conn_get_socket(conn));
+	} 
+	else 
+	{
+	    unsigned int val = 0;
+
+	    if (text) val = atoi(text);
+	    if (numparams>=1) val = atoi(params[0]);
+
+	    if (conn_get_ircping(conn) != val) 
+		{
+	    	if ((text)&&(strcmp(text,server_get_name())!=0)) 
+			{
+				/* Actually the servername should not be always accepted but we aren't that pedantic :) */
+				eventlog(eventlog_level_warn,"handle_irc_line","[%d] got bad PONG (%u!=%u)",conn_get_socket(conn),val,conn_get_ircping(conn));
+				return -1;
+			}
+	    }
+	    conn_set_latency(conn,get_ticks()-conn_get_ircping(conn));
+	    eventlog(eventlog_level_debug,"handle_irc_line","[%d] latency is now %d (%u-%u)",conn_get_socket(conn),get_ticks()-conn_get_ircping(conn),get_ticks(),conn_get_ircping(conn));
+	    conn_set_ircping(conn,0);
+	}
+	return 0;
+}
+
+static int _handle_pass_command(t_connection * conn, int numparams, char ** params, char * text)
+{
+   	if ((!conn_get_ircpass(conn))&&(conn_get_state(conn)==conn_state_bot_username)) 
+	{
+		t_hash h;
+
+	    if (numparams>=1) 
+		{
+			bnet_hash(&h,strlen(params[0]),params[0]);
+			conn_set_ircpass(conn,hash_get_str(h));
+	    } 
+		else
+			irc_send(conn,ERR_NEEDMOREPARAMS,":Too few arguments to PASS");
+    } 
+	else 
+	{
+	    eventlog(eventlog_level_warn,"handle_irc_line","[%d] client tried to set password twice with PASS",conn_get_socket(conn));
+    }
+	return 0;
+}
+
+static int _handle_privmsg_command(t_connection * conn, int numparams, char ** params, char * text)
+{
+	if ((numparams>=1)&&(text)) 
+	{
+	    int i;
+	    char ** e;
+	
+	    e = irc_get_listelems(params[0]);
+	    /* FIXME: support wildcards! */
+		
+//start amadeo: code was sent by some unkown fellow of pvpgn(maybe u wanna give us your name 
+// for any credits), it adds nick-registration,i changed some things here and there...
+	    for (i=0;((e)&&(e[i]));i++) 
+		{
+    		if (strcasecmp(e[i],"NICKSERV")==0) 
+			{
+ 				char * pass;
+				char * p;
+			
+ 				pass = strchr(text,' ');
+ 				if (pass)
+ 		    		*pass++ = '\0';
+
+				if (strcasecmp(text,"identify")==0) 
+				{
+					if (conn_get_state(conn)==conn_state_bot_password) 
+					{
+						if (pass) 
+						{
+ 		    				t_hash h;
+ 
+							for (p = pass; *p; p++)
+								if (isupper(*p)) *p = tolower(*p);
+ 		    				bnet_hash(&h,strlen(pass),pass);
+ 		    				irc_authenticate(conn,hash_get_str(h));
+ 						}
+						else 
+						{
+							irc_send_cmd(conn,"NOTICE",":Syntax: IDENTIFY password(max 16 characters)");
+						}
+					} 
+					else 
+					{
+							irc_send_cmd(conn,"NOTICE",":You don't need to IDENTIFY");
+					}
+				} 
+				else if (strcasecmp(text,"register")==0) 
+				{
+					unsigned int j;
+					t_hash       passhash;
+					t_account  * temp;
+					char         msgtemp[MAX_MESSAGE_LEN];
+					char       * username=(char *)conn_get_botuser(conn);						
+					
+					if (account_check_name(username)<0) 
+					{
+						message_send_text(conn,message_type_error,conn,"Account name contains invalid symbol!");
+						break;
+					}
+
+					if (!pass || pass[0]=='\0' || (strlen(pass)>16) )
+					{
+						message_send_text(conn,message_type_error,conn,":Syntax: REGISTER password(max 16 characters)");
+						break;
+					}
+	
+					
+					for (j=0; j<strlen(pass); j++)
+						if (isupper((int)pass[j])) pass[j] = tolower((int)pass[j]);
+	
+					bnet_hash(&passhash,strlen(pass),pass);
+	
+					sprintf(msgtemp,"Trying to create account \"%s\" with password \"%s\"",username,pass);
+					message_send_text(conn,message_type_info,conn,msgtemp);					
+	
+					if (!(temp = account_create(username,hash_get_str(passhash))))
+					{
+						message_send_text(conn,message_type_error,conn,"Failed to create account!");
+						eventlog(eventlog_level_info,"handle_irc_line","[%d] account \"%s\" not created by IRC (failed)",conn_get_socket(conn),username);
+						conn_unget_chatname(conn,username);
+						break;
+					}
+					if (!accountlist_add_account(temp))
+					{
+						account_destroy(temp);
+						message_send_text(conn,message_type_error,conn,"Failed to register account. Account already exists.");
+						eventlog(eventlog_level_info,"handle_irc_line","[%d] account \"%s\" could not be created by IRC (insert failed)",conn_get_socket(conn),username);
+					}
+					else
+					{
+						sprintf(msgtemp,"Account "UID_FORMAT" created.",account_get_uid(temp));
+						message_send_text(conn,message_type_info,conn,msgtemp);
+						eventlog(eventlog_level_info,"handle_irc_line","[%d] account \"%s\" created by IRC",conn_get_socket(conn),username);
+					}
+
+					conn_unget_chatname(conn,username);
+				}
+				else 
+				{
+					char tmp[MAX_IRC_MESSAGE_LEN+1];
+					
+ 					irc_send_cmd(conn,"NOTICE",":Invalid arguments for NICKSERV");
+					sprintf(tmp,":Unrecognized command \"%s\"",text);
+					irc_send_cmd(conn,"NOTICE",tmp);
+ 				}
+ 	        } 
+
+			else if (conn_get_state(conn)==conn_state_loggedin) 
+			{
+				if (e[i][0]=='#') 
+				{
+					/* channel message */
+					t_channel * channel;
+
+					if ((channel = channellist_find_channel_by_name(irc_convert_ircname(e[i]),NULL,NULL))) 
+					{
+						if ((strlen(text)>=9)&&(strncmp(text,"\001ACTION ",8)==0)&&(text[strlen(text)-1]=='\001')) 
+						{ /* at least "\001ACTION \001" */
+							/* it's a CTCP ACTION message */
+							text = text + 8;
+							text[strlen(text)-1] = '\0';
+							channel_message_send(channel,message_type_emote,conn,text);
+						} 
+						else
+							channel_message_send(channel,message_type_talk,conn,text);
+					}
+					else
+					{
+						irc_send(conn,ERR_NOSUCHCHANNEL,":No such channel");
+					}				
+	    	    } 
+				else
+				{
+					/* whisper */
+					t_connection * user;
+
+					if ((user = connlist_find_connection_by_accountname(e[i]))) 
+					{
+						message_send_text(user,message_type_whisper,conn,text);
+					}
+					else 
+					{
+						irc_send(conn,ERR_NOSUCHNICK,":No such user");
+					}
+	    	    }
+	        }
+	    }
+	    if (e)
+	         irc_unget_listelems(e);
+	} 
+	else
+	    irc_send(conn,ERR_NEEDMOREPARAMS,":Too few arguments to PRIVMSG");
+	return 0;
+}
+
+static int _handle_who_command(t_connection * conn, int numparams, char ** params, char * text)
+{
+	if (numparams>=1) 
+	{
+	    int i;
+	    char ** e;
+
+	    e = irc_get_listelems(params[0]);
+	    for (i=0; ((e)&&(e[i]));i++) 
+		{
+	    	irc_who(conn,e[i]);
+	    }
+	    irc_send(conn,RPL_ENDOFWHO,":End of WHO list"); /* RFC2812 only requires this to be sent if a list of names was given. Undernet seems to always send it, so do we :) */
+        if (e)
+			irc_unget_listelems(e);
+	} 
+	else 
+	    irc_send(conn,ERR_NEEDMOREPARAMS,":Too few arguments to WHO");
+	return 0;
+}
+
+static int _handle_list_command(t_connection * conn, int numparams, char ** params, char * text)
+{
+    char temp[MAX_IRC_MESSAGE_LEN];
+
+	irc_send(conn,RPL_LISTSTART,"Channel :Users  Name"); /* backward compatibility */
+	if (numparams==0) 
+	{
+ 	    t_elem const * curr;
+ 	    
+   	    LIST_TRAVERSE_CONST(channellist(),curr) 
+		{
+    	    		t_channel const * channel = elem_get_data(curr);
+	        	char const * tempname;
+	        	char const * notopic = "No topic is set";
+			char * topic = channel_get_topic(channel_get_name(channel));
+
+	        	tempname = irc_convert_channel(channel);
+
+			//FIXME: AARON: only list channels like in /channels command
+
+			if (topic)
+			{
+	        		if (strlen(tempname)+1+20+1+1+strlen(topic)<MAX_IRC_MESSAGE_LEN)
+		    			sprintf(temp,"%s %u :%s",tempname,channel_get_length(channel),topic);
+	        		else
+	            			eventlog(eventlog_level_warn,"handle_irc_line","LISTREPLY length exceeded");
+			}
+			else
+			{
+	        		if (strlen(tempname)+1+20+1+1+strlen(notopic)<MAX_IRC_MESSAGE_LEN)
+		    			sprintf(temp,"%s %u :%s",tempname,channel_get_length(channel),notopic);
+	        		else
+	            			eventlog(eventlog_level_warn,"handle_irc_line","LISTREPLY length exceeded");
+			}
+	        	irc_send(conn,RPL_LIST,temp);
+    	}
+    }
+	else if (numparams>=1) 
+	{
+        int i;
+        char ** e;
+ 
+	/* FIXME: support wildcards! */
+	e = irc_get_listelems(params[0]);
+	for (i=0;((e)&&(e[i]));i++) 
+	{
+		t_channel const * channel;
+		char const * verytemp; /* another good example for creative naming conventions :) */
+	       	char const * tempname;
+	       	char const * notopic = "No topic is set";
+		char * topic;
+		
+		verytemp = irc_convert_ircname(e[i]);
+		if (!verytemp)
+			continue; /* something is wrong with the name ... */
+		channel = channellist_find_channel_by_name(verytemp,NULL,NULL);
+		if (!channel)
+			continue; /* channel doesn't exist */
+				
+		topic = channel_get_topic(channel_get_name(channel));
+	       	tempname = irc_convert_channel(channel);
+		
+		if (topic)
+		{
+	       		if (strlen(tempname)+1+20+1+1+strlen(topic)<MAX_IRC_MESSAGE_LEN)
+	    			sprintf(temp,"%s %u :%s",tempname,channel_get_length(channel),topic);
+	       		else
+	       			eventlog(eventlog_level_warn,"handle_irc_line","LISTREPLY length exceeded");
+		}
+		else
+		{
+	       		if (strlen(tempname)+1+20+1+1+strlen(notopic)<MAX_IRC_MESSAGE_LEN)
+	    			sprintf(temp,"%s %u :%s",tempname,channel_get_length(channel),notopic);
+	       		else
+	       			eventlog(eventlog_level_warn,"handle_irc_line","LISTREPLY length exceeded");
+		}
+	       	irc_send(conn,RPL_LIST,temp);
+	}
+        if (e)
+		irc_unget_listelems(e);
+    }
+    irc_send(conn,RPL_LISTEND,":End of LIST command");
+	return 0;
+}
+
+static int _handle_topic_command(t_connection * conn, int numparams, char ** params, char * text)
+{
+	char ** e = NULL;
+	
+	if (params!=NULL) e = irc_get_listelems(params[0]);
+
+	if ((e)&&(e[0])) 
+	{
+		t_channel *channel = conn_get_channel(conn);
+		
+		if (channel)
+		{	
+			char * topic;
+			char temp[MAX_IRC_MESSAGE_LEN];
+			char const * ircname = irc_convert_ircname(e[0]);
+
+			if ((ircname) && (strcmp(channel_get_name(channel),ircname)==0))
+			{
+				if (topic = channel_get_topic(channel_get_name(channel)))
+				{ 
+			  		sprintf(temp,"%s :%s",ircname,topic);
+			    		irc_send(conn,RPL_TOPIC,temp);
+				}
+				else
+			    		irc_send(conn,RPL_NOTOPIC,":No topic is set");
+			}
+			else
+				irc_send(conn,ERR_NOTONCHANNEL,":You are not on that channel");
+		}
+		else
+		{
+			irc_send(conn,ERR_NOTONCHANNEL,":You're not on a channel");
+		}
+		irc_unget_listelems(e);
+	}
+	else
+		irc_send(conn,ERR_NEEDMOREPARAMS,":too few arguments to TOPIC");
+	return 0;
+}
+
+static int _handle_join_command(t_connection * conn, int numparams, char ** params, char * text)
+{
+	if (numparams>=1) 
+	{
+	    char ** e;
+
+	    e = irc_get_listelems(params[0]);
+	    if ((e)&&(e[0])) 
+		{
+	    		char const * ircname = irc_convert_ircname(e[0]);
+	    		char * old_channel_name = NULL;
+	   	 	t_channel * old_channel = conn_get_channel(conn);
+
+			if (old_channel)
+			{
+			  old_channel_name = strdup(irc_convert_channel(old_channel));
+			}
+			
+			if ((!(ircname)) || (conn_set_channel(conn,ircname)<0))
+			{
+				irc_send(conn,ERR_NOSUCHCHANNEL,":JOIN failed"); /* FIXME: be more precise; what is the real error code for that? */
+			} 
+			else
+			{
+				t_channel * channel;
+
+
+				channel = conn_get_channel(conn);
+				if (channel) 
+				{
+		    			char temp[MAX_IRC_MESSAGE_LEN];
+					char * topic;
+
+				
+					message_send_text(conn,message_type_join,conn,NULL); /* we have to send the JOIN acknowledgement */
+					ircname=irc_convert_channel(channel);
+
+					if ((topic = channel_get_topic(channel_get_name(channel))))
+					{
+
+						if ((strlen(ircname)+1+1+strlen(topic)+1)<MAX_IRC_MESSAGE_LEN) 
+						{
+							sprintf(temp,"%s :%s",ircname,topic);
+							irc_send(conn,RPL_TOPIC,temp);
+						}
+
+						if ((strlen(ircname)+1+strlen("FIXME 0")+1)<MAX_IRC_MESSAGE_LEN) 
+						{
+							sprintf(temp,"%s FIXME 0",ircname);
+							irc_send(conn,RPL_TOPICWHOTIME,temp); /* FIXME: this in an undernet extension but other servers support it too */
+						}
+					}
+					else
+						irc_send(conn,RPL_NOTOPIC,":No topic is set");
+
+					irc_send_rpl_namreply(conn,channel);
+					irc_send(conn,RPL_ENDOFNAMES,":End of NAMES list");
+
+					if (old_channel_name)
+					{
+						irc_send_cmd2(conn,account_get_name(conn_get_account(conn)),"PART",old_channel_name,"only one channel at once");
+					}
+		    		}
+			}
+			if (old_channel_name) free((void *)old_channel_name);
+		}
+    		if (e)
+			irc_unget_listelems(e);
+	} 
+	else 
+	    irc_send(conn,ERR_NEEDMOREPARAMS,":Too few arguments to JOIN");
+	return 0;
+}
+
+static int _handle_names_command(t_connection * conn, int numparams, char ** params, char * text)
+{
+	t_channel * channel;
+      
+    if (numparams>=1) 
+	{
+		char ** e;
+		char const * ircname;
+		char const * verytemp;
+		char temp[MAX_IRC_MESSAGE_LEN];
+		int i;
+
+		e = irc_get_listelems(params[0]);
+		for (i=0;((e)&&(e[i]));i++)
+		{			
+			verytemp = irc_convert_ircname(e[i]);
+			
+			if (!verytemp)
+				continue; /* something is wrong with the name ... */
+			channel = channellist_find_channel_by_name(verytemp,NULL,NULL);
+			if (!channel)
+				continue; /* channel doesn't exist */
+			irc_send_rpl_namreply(conn,channel);
+			ircname=irc_convert_channel(channel);
+			if ((strlen(ircname)+1+strlen(":End of NAMES list")+1)<MAX_IRC_MESSAGE_LEN) 
+			{
+				sprintf(temp,"%s :End of NAMES list",ircname);
+				irc_send(conn,RPL_ENDOFNAMES,temp);
+			} 
+			else 
+				irc_send(conn,RPL_ENDOFNAMES,":End of NAMES list");
+		}
+		if (e)
+		irc_unget_listelems(e);
+    } 
+	else if (numparams==0) 
+	{
+		t_elem const * curr;
+		LIST_TRAVERSE_CONST(channellist(),curr) 
+		{
+			channel = elem_get_data(curr);
+			irc_send_rpl_namreply(conn,channel);
+		}
+		irc_send(conn,RPL_ENDOFNAMES,"* :End of NAMES list");		
+    }
+	return 0;
+}
+
+static int _handle_mode_command(t_connection * conn, int numparams, char ** params, char * text)
+{
+	/* FIXME: Not yet implemented */
+	return 0;
+}
+
+static int _handle_userhost_command(t_connection * conn, int numparams, char ** params, char * text)
+{
+	/* FIXME: Send RPL_USERHOST */
+	return 0;
+}
+
+static int _handle_quit_command(t_connection * conn, int numparams, char ** params, char * text)
+{
+	/* FIXME: Not yet implemented */
+	return 0;
+}

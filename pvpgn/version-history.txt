@@ -2,6 +2,10 @@ PvPGN Version History:
 
 1.7.x
 [IRC]: hiding IP on channel join/leave to non admins when hide_addr=true
+[IRC]: major cleanup of handle_irc.c
+	-- now on IRC channel topics are supported (at least their output)
+	-- PvPGN can only handle being in one channel at once, so the server
+	   now makes sure you leave the channel you were previously in.
 
 a general 1.6.x note:
 versioncheck exe-time parsing now REALLY works as it was intended to.
