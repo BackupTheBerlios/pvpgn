@@ -1,17 +1,26 @@
-##############################################################################
-# realm.list  -  List of Diablo II Realms                                    #
-#----------------------------------------------------------------------------#
-#                                                                            #
-# Realms are areas that hold closed characters and games.  Users are given   #
-# this list of realms to choose from when creating a new character.  Next    #
-# time the character is used, they will automatically join the same realm.   #
-#                                                                            #
-# The realm server runs on port 6113 by default.  If you do not specify a    #
-# port number it will use this by default.  You must enter an IP Address     #
-# There is no default                                                 	     #
-#                                                                            #
-# ------realm name------- --------------description---------- ---ip:port---- #
-#									     #
-#"D2CS"                   "Divine Knights"                    x.x.x.x:6113   
-#									     #
-##############################################################################
+#########################################################################################
+# realm.list  -  List of Diablo II Realms						#
+#---------------------------------------------------------------------------------------#
+#											#
+# Realms are areas that hold closed characters and games.  Users are given this list of	#
+# realms to choose from when creating a new character.  Next time the character is	#
+# used, they will automatically join the same realm.					#
+#											#
+# The realm server runs on port 6113 by default.  If you do not specify a port number,	#
+# it will use this by default.  You must enter IP Addresses in for both places.		#
+# There is no default									#
+#											#
+# ip:port - actual ip the d2cs server is running on					#
+# showip:showport - ip sent to client (may be same as ip:port)				#
+#											#
+# use showip:showport if you are forwarding to a d2cs server behind a gateway on a	#
+# private lan.										#
+#											#
+#-realm name-	----description----	------ip:port------	--showip:showport--	#
+#											#
+#---------------------------------------------------------------------------------------#
+
+#"D2CS"		"PvPGN Closed Realm"	xxx.xxx.xxx.xxx:6113	xxx.xxx.xxx.xxx:6113
+
+#											#
+#########################################################################################

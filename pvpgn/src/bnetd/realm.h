@@ -27,6 +27,8 @@ typedef struct realm
     unsigned int   active;
     unsigned int   ip;
     unsigned short port;
+    unsigned int   showip;
+    unsigned short showport;
     unsigned int   player_number;
     unsigned int   game_number;
     int			   tcp_sock;
@@ -51,6 +53,8 @@ extern char const * realm_get_name(t_realm const * realm) PURE_ATTR();
 extern char const * realm_get_description(t_realm const * realm) PURE_ATTR();
 extern unsigned short realm_get_port(t_realm const * realm) PURE_ATTR();
 extern unsigned int realm_get_ip(t_realm const * realm) PURE_ATTR();
+extern unsigned short realm_get_showport(t_realm const * realm) PURE_ATTR();
+extern unsigned int realm_get_showip(t_realm const * realm) PURE_ATTR();
 extern int realm_set_name(t_realm * realm, char const * name);
 extern unsigned int realm_get_active(t_realm const * realm);
 extern unsigned int realm_get_player_number(t_realm const * realm);

@@ -55,10 +55,10 @@
 
 static t_list * realmlist_head=NULL;
 
-static t_realm * realm_create(char const * name, char const * description, unsigned int ip, unsigned int port);
+static t_realm * realm_create(char const * name, char const * description, unsigned int ip, unsigned int port, unsigned int showip, unsigned int showport);
 static int realm_destroy(t_realm * realm);
 
-static t_realm * realm_create(char const * name, char const * description, unsigned int ip, unsigned int port)
+static t_realm * realm_create(char const * name, char const * description, unsigned int ip, unsigned int port, unsigned int showip, unsigned int showport)
 {
     t_realm * realm;
     
@@ -97,6 +97,8 @@ static t_realm * realm_create(char const * name, char const * description, unsig
     }
     realm->ip = ip;
     realm->port = port;
+    realm->showip = showip;
+    realm->showport = showport;
     realm->active = 0;
     realm->player_number = 0;
     realm->game_number = 0;
@@ -201,6 +203,17 @@ extern unsigned short realm_get_port(t_realm const * realm)
 }
 
 
+extern unsigned short realm_get_showport(t_realm const * realm)
+{
+    if (!realm)
+    {
+        eventlog(eventlog_level_error,"realm_get_port","got NULL realm");
+        return 0;
+    }
+    return realm->showport;
+}
+
+
 extern unsigned int realm_get_ip(t_realm const * realm)
 {
     if (!realm)
@@ -209,6 +222,17 @@ extern unsigned int realm_get_ip(t_realm const * realm)
         return 0;
     }
     return realm->ip;
+}
+
+
+extern unsigned int realm_get_showip(t_realm const * realm)
+{
+    if (!realm)
+    {
+        eventlog(eventlog_level_error,"realm_get_ip","got NULL realm");
+        return 0;
+    }
+    return realm->showip;
 }
 
 extern unsigned int realm_get_active(t_realm const * realm)
@@ -335,11 +359,13 @@ extern int realmlist_create(char const * filename)
     unsigned int    pos;
     unsigned int    len;
     t_addr *        raddr;
+    t_addr *	    showraddr;
     char *          temp;
     char *          buff;
     char *          name;
     char *          desc;
     char *          addr;
+    char *	    showaddr;
     t_realm *       realm;
     
     if (!filename)
@@ -396,20 +422,30 @@ extern int realmlist_create(char const * filename)
         }
         if (!(addr = malloc(len)))
         {
-            eventlog(eventlog_level_error,"realmlist_create","could not allocate memory for desc");
+            eventlog(eventlog_level_error,"realmlist_create","could not allocate memory for addr");
             free(desc);
             free(name);
             free(buff);
             continue;
         }
-	
-	if (sscanf(buff," \"%[^\"]\" \"%[^\"]\" %s",name,desc,addr)!=3)
+	if (!(showaddr = malloc(len)))
 	{
-	    if (sscanf(buff," \"%[^\"]\" \"\" %s",name,addr)==2)
+            eventlog(eventlog_level_error,"realmlist_create","could not allocate memory for showaddr");
+            free(addr);
+	    free(desc);
+            free(name);
+            free(buff);
+            continue;
+        }
+	
+	if (sscanf(buff," \"%[^\"]\" \"%[^\"]\" %s %s",name,desc,addr,showaddr)!=4)
+	{
+	    if (sscanf(buff," \"%[^\"]\" \"\" %s %s",name,addr,showaddr)==3)
 		desc[0] = '\0';
 	    else
 	    {
 		eventlog(eventlog_level_error,"realmlist_create","malformed line %u in file \"%s\"",line,filename);
+		free(showaddr);
 		free(addr);
 		free(desc);
          	free(name);
@@ -423,6 +459,7 @@ extern int realmlist_create(char const * filename)
 	if (!(raddr = addr_create_str(addr,0,BNETD_REALM_PORT))) /* 0 means "this computer" */
 	{
 	    eventlog(eventlog_level_error,"realmlist_create","invalid address value for field 3 on line %u in file \"%s\"",line,filename);
+	    free(showaddr);
 	    free(addr);
 	    free(desc);
 	    free(name);
@@ -431,16 +468,31 @@ extern int realmlist_create(char const * filename)
 	
 	free(addr);
 	
-	if (!(realm = realm_create(name,desc,addr_get_ip(raddr),addr_get_port(raddr))))
+	if (!(showraddr = addr_create_str(showaddr,0,BNETD_REALM_PORT))) /* 0 means "this computer" */
+	{
+	    eventlog(eventlog_level_error,"realmlist_create","invalid address value for field 4 on line %u in file \"%s\"",line,filename);
+	    addr_destroy(raddr);
+	    free(showaddr);
+	    free(addr);
+	    free(desc);
+	    free(name);
+	    continue;
+	}
+	
+	free(showaddr);
+	
+	if (!(realm = realm_create(name,desc,addr_get_ip(raddr),addr_get_port(raddr),addr_get_ip(showraddr),addr_get_port(showraddr))))
 	{
 	    eventlog(eventlog_level_error,"realmlist_create","could not create realm");
 	    addr_destroy(raddr);
+	    addr_destroy(showraddr);
 	    free(desc);
 	    free(name);
 	    continue;
 	}
 	
 	addr_destroy(raddr);
+	addr_destroy(showraddr);
         free(desc);
 	free(name);
 	
