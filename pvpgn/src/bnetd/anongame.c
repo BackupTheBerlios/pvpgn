@@ -1984,14 +1984,14 @@ extern int anongame_stats(t_connection * c)
 	case ANONGAME_TYPE_AT_4V4:
 	  {  
 	    //Added by DJP in an attempt to manage teamcount ! ( bug of previous CVS 1.2.4 )
-	    if(account_get_new_at_team(conn_get_account(c))==1) 
+	    if(account_get_new_at_team(acc)==1) 
 	      {
 		int temp;
 		
-		account_set_new_at_team(conn_get_account(c),0);
-		temp = account_get_atteamcount(conn_get_account(c),ct);
+		account_set_new_at_team(acc,0);
+		temp = account_get_atteamcount(acc,ct);
 		temp = temp+1;
-		account_set_atteamcount(conn_get_account(c),ct,temp);
+		account_set_atteamcount(acc,ct,temp);
 	      }
 		 
 	    if(result == W3_GAMERESULT_WIN)
