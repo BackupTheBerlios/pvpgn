@@ -25,13 +25,6 @@
 #  define NULL ((void *)0)
 # endif
 #endif
-#ifdef STDC_HEADERS
-# include <stdlib.h>
-#else
-# ifdef HAVE_MALLOC_H
-#  include <malloc.h>
-# endif
-#endif
 #include "compat/exitstatus.h"
 #ifdef HAVE_STRING_H
 # include <string.h>
@@ -42,6 +35,13 @@
 #endif
 #include "compat/strchr.h"
 #include "compat/strdup.h"
+#ifdef HAVE_STDARG_H
+# include <stdarg.h>
+#else
+# ifdef HAVE_VARARGS_H
+#  include <varargs.h>
+# endif
+#endif
 #include <ctype.h>
 #include <errno.h>
 #include "compat/strerror.h"
@@ -92,13 +92,6 @@
 #include "compat/netinet_in.h"
 #ifdef HAVE_ARPA_INET_H
 # include <arpa/inet.h>
-#endif
-#ifdef HAVE_STDARG_H
-# include <stdarg.h>
-#else
-# ifdef HAVE_VARARGS_H
-#  include <varargs.h>
-# endif
 #endif
 #include "compat/inet_ntoa.h"
 #include "compat/psock.h"
