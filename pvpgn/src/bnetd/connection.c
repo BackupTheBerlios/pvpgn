@@ -3681,29 +3681,29 @@ extern char const * conn_get_user_game_title(char const * ct)
       return "Unknown";
    }
    
-   if(strcasecmp(ct,CLIENTTAG_WAR3XP)==0)
+   if(strcmp(ct,CLIENTTAG_WAR3XP)==0)
      return "Warcraft III Frozen Throne";
-   else if(strcasecmp(ct,CLIENTTAG_WARCRAFT3)==0)
+   else if(strcmp(ct,CLIENTTAG_WARCRAFT3)==0)
      return "Warcraft III";
-   else if(strcasecmp(ct,CLIENTTAG_DIABLO2XP)==0)
+   else if(strcmp(ct,CLIENTTAG_DIABLO2XP)==0)
      return "Diablo II Lord of Destruction";
-   else if(strcasecmp(ct,CLIENTTAG_DIABLO2DV)==0)
+   else if(strcmp(ct,CLIENTTAG_DIABLO2DV)==0)
      return "Diablo II";
-   else if(strcasecmp(ct,CLIENTTAG_STARJAPAN)==0)
+   else if(strcmp(ct,CLIENTTAG_STARJAPAN)==0)
      return "Starcraft (Japan)";
-   else if(strcasecmp(ct,CLIENTTAG_WARCIIBNE)==0)
+   else if(strcmp(ct,CLIENTTAG_WARCIIBNE)==0)
      return "Warcraft II";
-   else if(strcasecmp(ct,CLIENTTAG_DIABLOSHR)==0)
+   else if(strcmp(ct,CLIENTTAG_DIABLOSHR)==0)
      return "Diablo I (Shareware)";
-   else if(strcasecmp(ct,CLIENTTAG_DIABLORTL)==0)
+   else if(strcmp(ct,CLIENTTAG_DIABLORTL)==0)
      return "Diablo I";
-   else if(strcasecmp(ct,CLIENTTAG_SHAREWARE)==0)
+   else if(strcmp(ct,CLIENTTAG_SHAREWARE)==0)
      return "Starcraft (Shareware)";
-   else if(strcasecmp(ct,CLIENTTAG_BROODWARS)==0)
+   else if(strcmp(ct,CLIENTTAG_BROODWARS)==0)
      return "Starcraft: BroodWars";
-   else if(strcasecmp(ct,CLIENTTAG_STARCRAFT)==0)
+   else if(strcmp(ct,CLIENTTAG_STARCRAFT)==0)
      return "Starcraft";
-   else if(strcasecmp(ct,CLIENTTAG_BNCHATBOT)==0)
+   else if(strcmp(ct,CLIENTTAG_BNCHATBOT)==0)
      return "Chat";
    else
      return "Unknown";
