@@ -87,6 +87,13 @@ LINK_LIBS	= @LIBS@
 PARTS            = bnetd bniutils bnpass bnpcap bnproxy bntrackd client common compat d2cs d2dbs tinycdb zlib
 
 bnetd_SBIN	= ${SRC_SBINDIR}/bnetd
+bnetd_CONFS	= bnetd.conf ad.conf channel.conf realm.conf autoupdate.conf \
+		  bnetd_default_user.plain bnetd_default_user.cdb \
+		  versioncheck.conf bnmotd.txt bnissue.txt bnmaps.conf \
+		  bnxplevel.conf bnxpcalc.conf news.txt command_groups.conf \
+		  bnban.conf bnhelp.conf bnalias.conf anongame_infos.conf \
+		  tournament.conf topics.conf sql_DB_layout.conf \
+		  address_translation.conf supportfile.conf
 bnetd_OBJECTS	= ${SRC_BNETDDIR}/main.o \
 ${SRC_BNETDDIR}/server.o \
 ${SRC_BNETDDIR}/connection.o \
@@ -209,6 +216,7 @@ ${SRC_ZLIBDIR}/pvpgn_zutil.o
 
 
 d2cs_SBIN       = ${SRC_SBINDIR}/d2cs
+d2cs_CONFS	= d2cs.conf d2server.ini address_translation.conf
 d2cs_OBJECTS	= ${SRC_D2CSDIR}/main.o \
 ${SRC_D2CSDIR}/d2gs.o \
 ${SRC_D2CSDIR}/handle_d2gs.o \
@@ -269,6 +277,7 @@ ${SRC_COMPATDIR}/memcpy.o \
 ${SRC_COMPATDIR}/memmove.o
 
 d2dbs_SBIN      = ${SRC_SBINDIR}/d2dbs
+d2dbs_CONFS	= d2dbs.conf
 d2dbs_OBJECTS	= ${SRC_D2DBSDIR}/main.o \
 ${SRC_D2DBSDIR}/charlock.o \
 ${SRC_D2DBSDIR}/d2ladder.o \
@@ -493,12 +502,7 @@ BINS            = ${bnchat_BIN} ${bnpass_BIN} ${bnftp_BIN} ${bnbot_BIN} ${bnstat
 MAN1S		= bnetd.1 bntrackd.1 bnchat.1 bnpass.1 bnbot.1 bnftp.1 bnstat.1 bnetd.1 bni2tga.1 bnibuild.1 bniextract.1 bnilist.1 tgainfo.1
 MAN5S		= bnetd.conf.5 bntext.5 bnmotd.txt.5 bnissue.txt.5 bnnews.txt.5
 
-CONFS		= bnetd.conf d2cs.conf d2dbs.conf \
-		  ad.conf channel.conf realm.conf d2server.ini \
-		  autoupdate.conf bnetd_default_user.plain bnetd_default_user.cdb \
-		  versioncheck.conf bnmotd.txt bnissue.txt bnmaps.conf bnxplevel.conf bnxpcalc.conf news.txt \
-		  command_groups.conf bnban.conf bnhelp.conf bnalias.conf anongame_infos.conf tournament.conf \
-		  topics.conf sql_DB_layout.conf address_translation.conf supportfile.conf
+CONFS		= ${bnetd_CONFS} ${d2cs_CONFS} ${d2dbs_CONFS}
 
 SHARES		= ad000001.smk ad000001.mng ad000004.mng \
 		  tos.txt \
