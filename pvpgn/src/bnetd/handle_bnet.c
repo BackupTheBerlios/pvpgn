@@ -3330,6 +3330,9 @@ static int _client_findanongame(t_connection * c, t_packet const * const packet)
 		char mapscount_3v3;
 		char mapscount_4v4;
 		char mapscount_sffa;
+		char mapscount_at2v2;
+		char mapscount_at3v3;
+		char mapscount_at4v4;
 		char mapscount_total;
 		char value;
 		char PG_gamestyles, AT_gamestyles;
@@ -3347,10 +3350,6 @@ static int _client_findanongame(t_connection * c, t_packet const * const packet)
 		char anongame_AT_2v2_prefix[]  = {0x00, 0x00, 0x02, 0x3F, 0x02};
 		char anongame_AT_3v3_prefix[]  = {0x02, 0x00, 0x02, 0x3F, 0x03};
 		char anongame_AT_4v4_prefix[]  = {0x03, 0x00, 0x02, 0x3F, 0x04};
-
-		char anongame_AT_2v2_maps_static[] = {0x06,0x04,0x05,0x06,0x07,0x08,0x09};
-		char anongame_AT_3v3_maps_static[] = {0x06,0x04,0x05,0x06,0x07,0x08,0x09};
-		char anongame_AT_4v4_maps_static[] = {0x06,0x04,0x05,0x06,0x07,0x08,0x09};
 
 		char anongame_PG_section = 0x00;
 		char anongame_AT_section = 0x01;
@@ -3370,7 +3369,10 @@ static int _client_findanongame(t_connection * c, t_packet const * const packet)
 		mapscount_3v3  = list_get_length(anongame_get_w3xp_maplist(ANONGAME_TYPE_3V3, clienttag));
 		mapscount_4v4  = list_get_length(anongame_get_w3xp_maplist(ANONGAME_TYPE_4V4, clienttag));
 		mapscount_sffa = list_get_length(anongame_get_w3xp_maplist(ANONGAME_TYPE_SMALL_FFA, clienttag));
-		mapscount_total = mapscount_1v1 + mapscount_2v2 + mapscount_3v3 + mapscount_4v4 + mapscount_sffa;
+		mapscount_at2v2 = list_get_length(anongame_get_w3xp_maplist(ANONGAME_TYPE_AT_2V2, clienttag));
+		mapscount_at3v3 = list_get_length(anongame_get_w3xp_maplist(ANONGAME_TYPE_AT_3V3, clienttag));
+		mapscount_at4v4 = list_get_length(anongame_get_w3xp_maplist(ANONGAME_TYPE_AT_4V4, clienttag));
+		mapscount_total = mapscount_1v1 + mapscount_2v2 + mapscount_3v3 + mapscount_4v4 + mapscount_sffa +mapscount_at2v2 + mapscount_at3v3 + mapscount_at4v4;
 
 		if ((rpacket = packet_create(packet_class_bnet)) == NULL) {
 		  eventlog(eventlog_level_error, __FUNCTION__, "could not create new packet");
@@ -3413,6 +3415,10 @@ static int _client_findanongame(t_connection * c, t_packet const * const packet)
 				anongame_add_maps_to_packet(rpacket, ANONGAME_TYPE_3V3, clienttag);
 				anongame_add_maps_to_packet(rpacket, ANONGAME_TYPE_4V4, clienttag);
 				anongame_add_maps_to_packet(rpacket, ANONGAME_TYPE_SMALL_FFA, clienttag);
+				
+				anongame_add_maps_to_packet(rpacket, ANONGAME_TYPE_AT_2V2, clienttag);
+				anongame_add_maps_to_packet(rpacket, ANONGAME_TYPE_AT_3V3, clienttag);
+				anongame_add_maps_to_packet(rpacket, ANONGAME_TYPE_AT_4V4, clienttag);
 				
 				server_tag_count++;
 				eventlog(eventlog_level_debug,__FUNCTION__,"client_tag request tagid=(0x%01x) tag=(%s)  tag_unk=(0x%04x)",i,"CLIENT_FINDANONGAME_INFOTAG_MAP",client_tag_unk);
@@ -3489,35 +3495,78 @@ static int _client_findanongame(t_connection * c, t_packet const * const packet)
 						packet_append_data(rpacket,&counter1,1);
 				    }
 					  else
-					    eventlog(eventlog_level_error,__FUNCTION__,"found no W3XP sffa PG maps in bnmaps.txt - this will disturb anongameinfo packet creation");
+					    eventlog(eventlog_level_error,__FUNCTION__,"found no sffa PG maps in bnmaps.txt - this will disturb anongameinfo packet creation");
 					}
 				      else
-						eventlog(eventlog_level_error,__FUNCTION__,"found no W3XP 4v4 PG maps in bnmaps.txt - this will disturb anongameinfo packet creation");
+						eventlog(eventlog_level_error,__FUNCTION__,"found no 4v4 PG maps in bnmaps.txt - this will disturb anongameinfo packet creation");
 				    }
 				      else
-						eventlog(eventlog_level_error,__FUNCTION__,"found no W3XP 3v3 PG maps in bnmaps.txt - this will disturb anongameinfo packet creation");
+						eventlog(eventlog_level_error,__FUNCTION__,"found no 3v3 PG maps in bnmaps.txt - this will disturb anongameinfo packet creation");
 				      
 				    }
 					  else
-						eventlog(eventlog_level_error,__FUNCTION__,"found no W3XP 2v2 PG maps in bnmaps.txt - this will disturb anongameinfo packet creation");
+						eventlog(eventlog_level_error,__FUNCTION__,"found no 2v2 PG maps in bnmaps.txt - this will disturb anongameinfo packet creation");
 				  
 					}
 					  else
-						eventlog(eventlog_level_error,__FUNCTION__,"found no W3XP 1v1 PG maps in bnmaps.txt - this will disturb anongameinfo packet creation");
+						eventlog(eventlog_level_error,__FUNCTION__,"found no 1v1 PG maps in bnmaps.txt - this will disturb anongameinfo packet creation");
 				
 				
 				packet_append_data(rpacket,&anongame_AT_section,1);
-				AT_gamestyles = 1;
+
+				AT_gamestyles = 0;
+				if (mapscount_at2v2)  
+				  {
+				    AT_gamestyles++;
+				    if (mapscount_at3v3)  
+				      {
+					AT_gamestyles++;
+					if (mapscount_at4v4)
+					  {
+					    AT_gamestyles++;
+					  }
+				      }
+				  }
+				 
+
 				packet_append_data(rpacket,&AT_gamestyles,1);
-
-				packet_append_data(rpacket,&anongame_AT_2v2_prefix,5);
-				packet_append_data(rpacket,&anongame_AT_2v2_maps_static,7);
-
-				//packet_append_data(rpacket,&anongame_AT_3v3_prefix,5);
-				//packet_append_data(rpacket,&anongame_AT_3v3_maps_static,7);
-
-				//packet_append_data(rpacket,&anongame_AT_4v4_prefix,5);
-				//packet_append_data(rpacket,&anongame_AT_4v4_maps_static,7);
+				
+				
+				if (mapscount_at2v2)
+				  {
+				    packet_append_data(rpacket, &anongame_AT_2v2_prefix,5);
+				    packet_append_data(rpacket, &mapscount_at2v2,1);
+				    for (counter1=counter2; counter1<(counter2+mapscount_at2v2);counter1++)
+				      packet_append_data(rpacket,&counter1,1);
+				    counter2+=mapscount_at2v2;
+				    
+				    if (mapscount_at3v3)
+				      {
+					packet_append_data(rpacket, &anongame_AT_3v3_prefix,5);
+					packet_append_data(rpacket, &mapscount_at3v3,1);
+					for (counter1=counter2; counter1<(counter2+mapscount_at3v3);counter1++)
+					  packet_append_data(rpacket,&counter1,1);
+					counter2+=mapscount_at3v3;
+					
+					if (mapscount_at4v4)
+					  {
+					    packet_append_data(rpacket, &anongame_AT_4v4_prefix,5);
+					    packet_append_data(rpacket, &mapscount_at4v4,1);
+					    for (counter1=counter2; counter1<(counter2+mapscount_at4v4);counter1++)
+					      packet_append_data(rpacket,&counter1,1);
+					    counter2+=mapscount_at4v4;
+					  }
+					else
+					  eventlog(eventlog_level_error,__FUNCTION__,"found no 4v4 AT maps in bnmaps.txt - this will disturb anongameinfo packet creation");
+				      }
+				    else
+				      eventlog(eventlog_level_error,__FUNCTION__,"found no 3v3 AT maps in bnmaps.txt - this will disturb anongameinfo packet creation");
+				    
+				  }
+				else
+				  eventlog(eventlog_level_error,__FUNCTION__,"found no 2v2 AT maps in bnmaps.txt - this will disturb anongameinfo packet creation");
+				
+				
 				
 				server_tag_count++;
 				eventlog(eventlog_level_debug,__FUNCTION__,"client_tag request tagid=(0x%01x) tag=(%s) tag_unk=(0x%04x)",i,"CLIENT_FINDANONGAME_INFOTAG_TYPE",client_tag_unk);
