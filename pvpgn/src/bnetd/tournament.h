@@ -75,6 +75,7 @@ extern int tournament_is_arranged(void);
 /*****/
 extern int tournament_init(char const * filename);
 extern int tournament_destroy(void);
+extern int tournament_reload(char const * filename);
 
 /*****/
 extern unsigned int tournament_get_start_preliminary(void);

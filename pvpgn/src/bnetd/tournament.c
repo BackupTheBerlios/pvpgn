@@ -722,6 +722,19 @@ extern int tournament_destroy(void)
     gamelist_destroy();
     return 0;
 }
+
+extern int tournament_reload(char const * filename)
+{
+	time_t tm;
+	time(&tm);
+	if((tm >= tournament_info->start_preliminary) && (tm <= tournament_info->tournament_end))
+	{
+		eventlog(eventlog_level_info,__FUNCTION__,"unable to reload tournament, tournament is in process");
+		return -1;
+	}
+	tournament_destroy();
+	return tournament_init(filename);
+}
 /*****/
 extern unsigned int tournament_get_start_preliminary(void)
 {

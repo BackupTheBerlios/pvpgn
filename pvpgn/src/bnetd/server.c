@@ -1553,8 +1553,7 @@ extern int server_process(void)
 	    if(w3trans_reload(prefs_get_w3trans_file())<0)
 		eventlog(eventlog_level_error,__FUNCTION__,"could not reload w3trans list");
 
-		tournament_destroy();
-		tournament_init(prefs_get_tournament_file());
+		tournament_reload(prefs_get_tournament_file());
 
 	    anongame_infos_unload();
 	    anongame_infos_load(prefs_get_anongame_infos_file());
