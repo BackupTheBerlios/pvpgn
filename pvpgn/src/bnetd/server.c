@@ -1393,7 +1393,6 @@ extern int server_process(void)
 	if (syncdelta && prev_savetime+(time_t)syncdelta<=now)
 	{
 	    accountlist_save(prefs_get_user_sync_timer());
-	    accountlist_reload();
             gamelist_check_voidgame();
 	    prev_savetime = now;
 	}

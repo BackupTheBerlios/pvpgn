@@ -631,7 +631,7 @@ static int sql_read_accounts(t_read_accounts_func cb, void *data)
 
 static int sql_cmp_info(t_storage_info *info1, t_storage_info *info2)
 {
-    return *((unsigned int *)info1) == *((unsigned int *)info2);
+    return *((unsigned int *)info1) != *((unsigned int *)info2);
 }
 
 static int sql_free_info(t_storage_info *info)

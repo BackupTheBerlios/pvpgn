@@ -481,7 +481,7 @@ static int file_read_accounts(t_read_accounts_func cb, void *data)
     }
 
     if (p_closedir(accountdir)<0)
-	eventlog(eventlog_level_error,"accountlist_reload","unable to close user directory \"%s\" (p_closedir: %s)", accountsdir,strerror(errno));
+	eventlog(eventlog_level_error, __FUNCTION__,"unable to close user directory \"%s\" (p_closedir: %s)", accountsdir,strerror(errno));
 
     return 0;
 }
