@@ -35,8 +35,7 @@ typedef struct
     conf_type_t  type;
     char const * defcharval;
     unsigned int defintval; /* shared with bool */
-    char const * charval;
-    unsigned int intval;  /* shared with bool */
+    void *store; /* place where the value is stored */
 } Bconf_t;
 #endif
 

@@ -26,6 +26,7 @@ realm
 -- expanded the /users command (if client tag is given, will list users/games
 of that cleint tag, or 'all' for all cleints) ie. /users w3xp , /users all
 -- added PG 2v2v2 game type (three teams with two players on each team)
+-- optimized bnetd.conf pref.c code (should improve speed a lot)
 
 1.5.0beta3:
 -- fixed a long standing bug regarding bnmaps.txt and AT maps

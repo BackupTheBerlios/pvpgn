@@ -55,149 +55,253 @@
 #include "common/setup_after.h"
 
 static int processDirective(char const * directive, char const * value, unsigned int curLine);
-static char const * get_char_conf(char const * directive);
-static unsigned int get_int_conf(char const * directive);
-static unsigned int get_bool_conf(char const * directive);
 
 #define NONE 0
-#define ACT NULL, 0
+
+static struct {
+    /* files and paths */
+    char const * filedir;
+    char const * storage_path;
+    char const * logfile;
+    char const * loglevels;
+    char const * motdfile;
+    char const * newsfile;
+    char const * channelfile;
+    char const * pidfile;
+    char const * adfile;
+
+    unsigned int usersync;
+    unsigned int userflush;
+
+    char const * servername;
+
+    unsigned int track;
+    char const * location;
+    char const * description;
+    char const * url;
+    char const * contact_name;
+    char const * contact_email;
+    unsigned int latency;
+    unsigned int irc_latency;
+    unsigned int shutdown_delay;
+    unsigned int shutdown_decr;
+    unsigned int new_accounts;
+    unsigned int max_accounts;
+    unsigned int kick_old_login;
+    unsigned int ask_new_channel;
+    unsigned int hide_pass_games;
+    unsigned int hide_started_games;
+    unsigned int hide_temp_channels;
+    unsigned int hide_addr;
+    unsigned int enable_conn_all;
+    unsigned int extra_commands;
+    char const * reportdir;
+    unsigned int report_all_games;
+    unsigned int report_diablo_games;
+    char const * iconfile;
+    char const * war3_iconfile;
+    char const * star_iconfile;
+    char const * tosfile;
+    char const * mpqfile;
+    char const * trackaddrs;
+    char const * servaddrs;
+    char const * w3routeaddr;
+    char const * w3routeshow;
+    char const * ircaddrs;
+    unsigned int use_keepalive;
+    unsigned int udptest_port;
+    unsigned int do_uplink;
+    char const * uplink_server;
+    char const * uplink_username;
+    unsigned int allow_uplink;
+    char const * bits_password_file;
+    char const * bits_motd_file;
+    char const * ipbanfile;
+    unsigned int bits_debug;
+    unsigned int disc_is_loss;
+    char const * helpfile;
+    char const * fortunecmd;
+    char const * transfile;
+    unsigned int chanlog;
+    char const * chanlogdir;
+    unsigned int quota;
+    unsigned int quota_lines;
+    unsigned int quota_time;
+    unsigned int quota_wrapline;
+    unsigned int quota_maxline;
+    unsigned int ladder_init_rating;
+    unsigned int quota_dobae;
+    char const * realmfile;
+    char const * issuefile;
+    char const * bits_mod_file;
+    char const * effective_user;
+    char const * effective_group;
+    unsigned int nullmsg;
+    unsigned int mail_support;
+    unsigned int mail_quota;
+    char const * maildir;
+    char const * log_notice;
+    unsigned int savebyname;
+    unsigned int skip_versioncheck;
+    unsigned int allow_bad_version;
+    unsigned int allow_unknown_version;
+    char const * versioncheck_file;
+    unsigned int d2cs_version;
+    unsigned int allow_d2cs_setname;
+    unsigned int hashtable_size;
+    char const * telnetaddrs;
+    unsigned int ipban_check_int;
+    unsigned int bits_ping_interval;
+    unsigned int bits_ping_timeout;
+    char const * version_exeinfo_match;
+    unsigned int version_exeinfo_maxdiff;
+    unsigned int max_concurrent_logins;
+    unsigned int identify_timeout_secs;
+    char const * server_info;
+    char const * mapsfile;
+    char const * xplevelfile;
+    char const * xpcalcfile;
+    unsigned int initkill_timer;
+    unsigned int war3_ladder_update_secs;
+    unsigned int war3_output_update_secs;
+    char const * ladderdir;
+    char const * statusdir;
+    unsigned int reduced_accounting;
+    unsigned int XML_output_ladder;
+    unsigned int XML_status_output_ladder;
+    char const * account_allowed_symbols;
+    unsigned int reload_new_accounts;
+    char const * command_groups_file;
+    char const * tournament_file;
+    char const * aliasfile;
+    char const * anongame_infos_file;
+    unsigned int max_conns_per_IP;
+    unsigned int max_friends;
+} prefs_runtime_config;
 
 /*    directive                 type               defcharval            defintval                 */
 static Bconf_t conf_table[] =
 {
-    { "filedir",                conf_type_char,    BNETD_FILE_DIR,       NONE,                  ACT },
-    { "storage_path",           conf_type_char,    BNETD_STORAGE_PATH,   NONE,                  ACT },
-    { "logfile",                conf_type_char,    BNETD_LOG_FILE,       NONE,                  ACT },
-    { "loglevels",              conf_type_char,    BNETD_LOG_LEVELS,     NONE,                  ACT },
-    { "motdfile",               conf_type_char,    BNETD_MOTD_FILE,      NONE,                  ACT },
-    { "newsfile",               conf_type_char,    BNETD_NEWS_DIR,       NONE,                  ACT },
-    { "channelfile",            conf_type_char,    BNETD_CHANNEL_FILE,   NONE,                  ACT },
-    { "pidfile",                conf_type_char,    BNETD_PID_FILE,       NONE,                  ACT },
-    { "adfile",                 conf_type_char,    BNETD_AD_FILE,        NONE,                  ACT },
-    { "usersync",               conf_type_int,     NULL,                 BNETD_USERSYNC,        ACT },
-    { "userflush",              conf_type_int,     NULL,                 BNETD_USERFLUSH,       ACT },
-    { "servername",             conf_type_char,    "",                   NONE,                  ACT },
-    { "track",                  conf_type_int,     NULL,                 BNETD_TRACK_TIME,      ACT },
-    { "location",               conf_type_char,    "",                   NONE,                  ACT },
-    { "description",            conf_type_char,    "",                   NONE,                  ACT },
-    { "url",                    conf_type_char,    "",                   NONE,                  ACT },
-    { "contact_name",           conf_type_char,    "",                   NONE,                  ACT },
-    { "contact_email",          conf_type_char,    "",                   NONE,                  ACT },
-    { "latency",                conf_type_int,     NULL,                 BNETD_LATENCY,         ACT },
-    { "irc_latency",            conf_type_int,     NULL,                 BNETD_IRC_LATENCY,     ACT },
-    { "shutdown_delay",         conf_type_int,     NULL,                 BNETD_SHUTDELAY,       ACT },
-    { "shutdown_decr",          conf_type_int,     NULL,                 BNETD_SHUTDECR,        ACT },
-    { "new_accounts",           conf_type_bool,    NULL,                 1,                     ACT },
-    { "max_accounts",           conf_type_int,     NULL,                 0,                     ACT },
-    { "kick_old_login",         conf_type_bool,    NULL,                 1,                     ACT },
-    { "ask_new_channel",        conf_type_bool,    NULL,                 1,                     ACT },
-    { "hide_pass_games",        conf_type_bool,    NULL,                 1,                     ACT },
-    { "hide_started_games",     conf_type_bool,    NULL,                 1,                     ACT },
-    { "hide_temp_channels",     conf_type_bool,    NULL,                 1,                     ACT },
-    { "hide_addr",              conf_type_bool,    NULL,                 1,                     ACT },
-    { "enable_conn_all",        conf_type_bool,    NULL,                 0,                     ACT },
-    { "extra_commands",         conf_type_bool,    NULL,                 0,                     ACT },
-    { "reportdir",              conf_type_char,    BNETD_REPORT_DIR,     NONE,                  ACT },
-    { "report_all_games",       conf_type_bool,    NULL,                 0,                     ACT },
-    { "report_diablo_games",    conf_type_bool,    NULL,                 0,                     ACT },
-    { "iconfile",               conf_type_char,    BNETD_ICON_FILE,      NONE,                  ACT },
-    { "war3_iconfile",          conf_type_char,    BNETD_WAR3_ICON_FILE, NONE,                  ACT },
-    { "star_iconfile",          conf_type_char,    BNETD_STAR_ICON_FILE, NONE,                  ACT },
-    { "tosfile",                conf_type_char,    BNETD_TOS_FILE,       NONE,                  ACT },
-    { "mpqfile",                conf_type_char,    BNETD_MPQ_FILE,       NONE,                  ACT },
-    { "trackaddrs",             conf_type_char,    BNETD_TRACK_ADDRS,    NONE,                  ACT },
-    { "servaddrs",              conf_type_char,    BNETD_SERV_ADDRS,     NONE,                  ACT },
-    { "w3routeaddr",            conf_type_char,    BNETD_W3ROUTE_ADDR,   NONE,                  ACT },
-    { "w3routeshow",            conf_type_char,    NULL,                 NONE,                  ACT },
-    { "ircaddrs",               conf_type_char,    BNETD_IRC_ADDRS,      NONE,                  ACT },
-    { "use_keepalive",          conf_type_bool,    NULL,                 0,                     ACT },
-    { "udptest_port",           conf_type_int,     NULL,                 BNETD_DEF_TEST_PORT,   ACT },
-    { "do_uplink",              conf_type_bool,    NULL,                 BITS_DO_UPLINK,        ACT },
-    { "uplink_server",          conf_type_char,    BITS_UPLINK_SERVER,   NONE,                  ACT },
-    { "uplink_username",        conf_type_char,    BITS_UPLINK_USERNAME, NONE,                  ACT },
-    { "allow_uplink",           conf_type_bool,    NULL,                 BITS_ALLOW_UPLINK,     ACT },
-    { "bits_password_file",     conf_type_char,    BITS_PASSWORD_FILE,   NONE,                  ACT },
-    { "ipbanfile",              conf_type_char,    BNETD_IPBAN_FILE,     NONE,                  ACT },
-    { "bits_debug",             conf_type_bool,    NULL,                 BITS_DEBUG,            ACT },
-    { "disc_is_loss",           conf_type_bool,    NULL,                 0,                     ACT },
-    { "helpfile",               conf_type_char,    BNETD_HELP_FILE,      NONE,                  ACT },
-    { "fortunecmd",             conf_type_char,    BNETD_FORTUNECMD,     NONE,                  ACT },
-    { "transfile",              conf_type_char,    BNETD_TRANS_FILE,     NONE,                  ACT },
-    { "chanlog",                conf_type_bool,    NULL         ,        BNETD_CHANLOG,         ACT },
-    { "chanlogdir",             conf_type_char,    BNETD_CHANLOG_DIR,    NONE,                  ACT },
-    { "quota",                  conf_type_bool,    NULL,                 0,                     ACT },
-    { "quota_lines",            conf_type_int,     NULL,                 BNETD_QUOTA_LINES,     ACT },
-    { "quota_time",             conf_type_int,     NULL,                 BNETD_QUOTA_TIME,      ACT },
-    { "quota_wrapline",	        conf_type_int,     NULL,                 BNETD_QUOTA_WLINE,     ACT },
-    { "quota_maxline",	        conf_type_int,     NULL,                 BNETD_QUOTA_MLINE,     ACT },
-    { "ladder_init_rating",     conf_type_int,     NULL,                 BNETD_LADDER_INIT_RAT, ACT },
-    { "quota_dobae",            conf_type_int,     NULL,                 BNETD_QUOTA_DOBAE,     ACT },
-    { "realmfile",              conf_type_char,    BNETD_REALM_FILE,     NONE,                  ACT },
-    { "issuefile",              conf_type_char,    BNETD_ISSUE_FILE,     NONE,                  ACT },
-    { "bits_motd_file",         conf_type_char,    BITS_MOTD_FILE,       NONE,                  ACT },
-    { "effective_user",         conf_type_char,    NULL,                 NONE,                  ACT },
-    { "effective_group",        conf_type_char,    NULL,                 NONE,                  ACT },
-    { "nullmsg",                conf_type_int,     NULL,                 BNETD_DEF_NULLMSG,     ACT },
-    { "mail_support",           conf_type_bool,    NULL,                 BNETD_MAIL_SUPPORT,    ACT },
-    { "mail_quota",             conf_type_int,     NULL,                 BNETD_MAIL_QUOTA,      ACT },
-    { "maildir",                conf_type_char,    BNETD_MAIL_DIR,       NONE,                  ACT },
-    { "log_notice",             conf_type_char,    BNETD_LOG_NOTICE,     NONE,                  ACT },
-    { "savebyname",             conf_type_bool,    NULL,                 1,                     ACT },
-    { "skip_versioncheck",      conf_type_bool,    NULL,                 0,                     ACT },
-    { "allow_bad_version",      conf_type_bool,    NULL,                 0,                     ACT },
-    { "allow_unknown_version",  conf_type_bool,    NULL,                 0,                     ACT },
-    { "versioncheck_file",      conf_type_char,    PVPGN_VERSIONCHECK,   NONE,                  ACT },
-    { "d2cs_version",           conf_type_int,     NULL,                 0,                     ACT },
-    { "allow_d2cs_setname",     conf_type_bool,    NULL,                 1,                     ACT },
-    { "hashtable_size",         conf_type_int,     NULL,                 BNETD_HASHTABLE_SIZE,  ACT },
-    { "telnetaddrs",            conf_type_char,    BNETD_TELNET_ADDRS,   NONE,                  ACT },
-    { "ipban_check_int",	conf_type_int,	   NULL,		 30,			ACT },
-    { "bits_ping_interval",     conf_type_int,     NULL,                 BITS_PING_INTERVAL,    ACT },
-    { "bits_ping_timeout",      conf_type_int,     NULL,                 BITS_PING_TIMEOUT,     ACT },
-    { "version_exeinfo_match",  conf_type_char,    BNETD_EXEINFO_MATCH,  NONE,                  ACT },
-    { "version_exeinfo_maxdiff",conf_type_int,     NULL,                 PVPGN_VERSION_TIMEDIV, ACT },
-    { "max_concurrent_logins",  conf_type_int,     NULL,                 0,         		ACT }, // added by NonReal
-
-    /* ADDED BY UNDYING SOULZZ 4/9/02 */
-    { "identify_timeout_secs",  conf_type_int,	   NULL,		 W3_IDENTTIMEOUT,	ACT },
-    { "server_info", 		conf_type_char,	   "",	 		 NONE,			ACT },
-
-    /* [zap-zero] 20021606 */
-
-    { "mapsfile",		conf_type_char,	   NULL,		 0,          		ACT },
-    { "xplevelfile",    	conf_type_char,	   NULL,		 0,          		ACT },
-    { "xpcalcfile",		conf_type_char,	   NULL,		 0,          		ACT },
-    { "initkill_timer", 	conf_type_int,     NULL,       		 0,			ACT },
-
-    //aaron
-    { "war3_ladder_update_secs",conf_type_int,     NULL,                 0,                     ACT },
-	{ "war3_output_update_secs",conf_type_int,     NULL,                 0,                     ACT },
-    { "ladderdir",              conf_type_char,    BNETD_LADDER_DIR,     NONE,                  ACT },
-	{ "statusdir",              conf_type_char,    BNETD_STATUS_DIR,     NONE,                  ACT },
-    { "reduced_accounting",     conf_type_bool,    NULL,                 0,                     ACT },
-
-    { "XML_output_ladder",      conf_type_bool,    NULL,                 0,	    		ACT },
-    { "XML_status_output_ladder",      conf_type_bool,    NULL,                 0,	    		ACT },
-    { "account_allowed_symbols",conf_type_char,    PVPGN_DEFAULT_SYMB,   NONE,                  ACT },
-
-    { "reload_new_accounts",    conf_type_bool,    NULL,                 0,                     ACT },
-    { "command_groups_file",	conf_type_char,    BNETD_COMMAND_GROUPS_FILE,	NONE,		ACT },
-    { "tournament_file",	conf_type_char,    BNETD_TOURNAMENT_FILE,	NONE,		ACT },
-    { "aliasfile"          ,    conf_type_char,    BNETD_ALIASFILE   ,   NONE,                  ACT },
-
-    { "anongame_infos_file",		conf_type_char,	   PVPGN_AINFO_FILE,	NONE,		ACT },
-
-    { "max_conns_per_IP",	conf_type_int,	   NULL,		 0,			ACT },
-    
-    { "max_friends",		conf_type_int,     NULL,                 MAX_FRIENDS,           ACT },
-    
-    { NULL,             	conf_type_none,    NULL,                 NONE,                  ACT },
-
+    { "filedir",                conf_type_char,    BNETD_FILE_DIR,       NONE                , &prefs_runtime_config.filedir},
+    { "storage_path",           conf_type_char,    BNETD_STORAGE_PATH,   NONE                , &prefs_runtime_config.storage_path},
+    { "logfile",                conf_type_char,    BNETD_LOG_FILE,       NONE                , &prefs_runtime_config.logfile},
+    { "loglevels",              conf_type_char,    BNETD_LOG_LEVELS,     NONE                , &prefs_runtime_config.loglevels},
+    { "motdfile",               conf_type_char,    BNETD_MOTD_FILE,      NONE                , &prefs_runtime_config.motdfile},
+    { "newsfile",               conf_type_char,    BNETD_NEWS_DIR,       NONE                , &prefs_runtime_config.newsfile},
+    { "channelfile",            conf_type_char,    BNETD_CHANNEL_FILE,   NONE                , &prefs_runtime_config.channelfile},
+    { "pidfile",                conf_type_char,    BNETD_PID_FILE,       NONE                , &prefs_runtime_config.pidfile},
+    { "adfile",                 conf_type_char,    BNETD_AD_FILE,        NONE                , &prefs_runtime_config.adfile},
+    { "usersync",               conf_type_int,     NULL,                 BNETD_USERSYNC      , &prefs_runtime_config.usersync},
+    { "userflush",              conf_type_int,     NULL,                 BNETD_USERFLUSH     , &prefs_runtime_config.userflush},
+    { "servername",             conf_type_char,    "",                   NONE                , &prefs_runtime_config.servername},
+    { "track",                  conf_type_int,     NULL,                 BNETD_TRACK_TIME    , &prefs_runtime_config.track},
+    { "location",               conf_type_char,    "",                   NONE                , &prefs_runtime_config.location},
+    { "description",            conf_type_char,    "",                   NONE                , &prefs_runtime_config.description},
+    { "url",                    conf_type_char,    "",                   NONE                , &prefs_runtime_config.url},
+    { "contact_name",           conf_type_char,    "",                   NONE                , &prefs_runtime_config.contact_name},
+    { "contact_email",          conf_type_char,    "",                   NONE                , &prefs_runtime_config.contact_email},
+    { "latency",                conf_type_int,     NULL,                 BNETD_LATENCY       , &prefs_runtime_config.latency},
+    { "irc_latency",            conf_type_int,     NULL,                 BNETD_IRC_LATENCY   , &prefs_runtime_config.irc_latency},
+    { "shutdown_delay",         conf_type_int,     NULL,                 BNETD_SHUTDELAY     , &prefs_runtime_config.shutdown_delay},
+    { "shutdown_decr",          conf_type_int,     NULL,                 BNETD_SHUTDECR      , &prefs_runtime_config.shutdown_decr},
+    { "new_accounts",           conf_type_bool,    NULL,                 1                   , &prefs_runtime_config.new_accounts},
+    { "max_accounts",           conf_type_int,     NULL,                 0                   , &prefs_runtime_config.max_accounts},
+    { "kick_old_login",         conf_type_bool,    NULL,                 1                   , &prefs_runtime_config.kick_old_login},
+    { "ask_new_channel",        conf_type_bool,    NULL,                 1                   , &prefs_runtime_config.ask_new_channel},
+    { "hide_pass_games",        conf_type_bool,    NULL,                 1                   , &prefs_runtime_config.hide_pass_games},
+    { "hide_started_games",     conf_type_bool,    NULL,                 1                   , &prefs_runtime_config.hide_started_games},
+    { "hide_temp_channels",     conf_type_bool,    NULL,                 1                   , &prefs_runtime_config.hide_temp_channels},
+    { "hide_addr",              conf_type_bool,    NULL,                 1                   , &prefs_runtime_config.hide_addr},
+    { "enable_conn_all",        conf_type_bool,    NULL,                 0                   , &prefs_runtime_config.enable_conn_all},
+    { "extra_commands",         conf_type_bool,    NULL,                 0                   , &prefs_runtime_config.extra_commands},
+    { "reportdir",              conf_type_char,    BNETD_REPORT_DIR,     NONE                , &prefs_runtime_config.reportdir},
+    { "report_all_games",       conf_type_bool,    NULL,                 0                   , &prefs_runtime_config.report_all_games},
+    { "report_diablo_games",    conf_type_bool,    NULL,                 0                   , &prefs_runtime_config.report_diablo_games},
+    { "iconfile",               conf_type_char,    BNETD_ICON_FILE,      NONE                , &prefs_runtime_config.iconfile},
+    { "war3_iconfile",          conf_type_char,    BNETD_WAR3_ICON_FILE, NONE                , &prefs_runtime_config.war3_iconfile},
+    { "star_iconfile",          conf_type_char,    BNETD_STAR_ICON_FILE, NONE                , &prefs_runtime_config.star_iconfile},
+    { "tosfile",                conf_type_char,    BNETD_TOS_FILE,       NONE                , &prefs_runtime_config.tosfile},
+    { "mpqfile",                conf_type_char,    BNETD_MPQ_FILE,       NONE                , &prefs_runtime_config.mpqfile},
+    { "trackaddrs",             conf_type_char,    BNETD_TRACK_ADDRS,    NONE                , &prefs_runtime_config.trackaddrs},
+    { "servaddrs",              conf_type_char,    BNETD_SERV_ADDRS,     NONE                , &prefs_runtime_config.servaddrs},
+    { "w3routeaddr",            conf_type_char,    BNETD_W3ROUTE_ADDR,   NONE                , &prefs_runtime_config.w3routeaddr},
+    { "w3routeshow",            conf_type_char,    NULL,                 NONE                , &prefs_runtime_config.w3routeshow},
+    { "ircaddrs",               conf_type_char,    BNETD_IRC_ADDRS,      NONE                , &prefs_runtime_config.ircaddrs},
+    { "use_keepalive",          conf_type_bool,    NULL,                 0                   , &prefs_runtime_config.use_keepalive},
+    { "udptest_port",           conf_type_int,     NULL,                 BNETD_DEF_TEST_PORT , &prefs_runtime_config.udptest_port},
+    { "do_uplink",              conf_type_bool,    NULL,                 BITS_DO_UPLINK      , &prefs_runtime_config.do_uplink},
+    { "uplink_server",          conf_type_char,    BITS_UPLINK_SERVER,   NONE                , &prefs_runtime_config.uplink_server},
+    { "uplink_username",        conf_type_char,    BITS_UPLINK_USERNAME, NONE                , &prefs_runtime_config.uplink_username},
+    { "allow_uplink",           conf_type_bool,    NULL,                 BITS_ALLOW_UPLINK   , &prefs_runtime_config.allow_uplink},
+    { "bits_password_file",     conf_type_char,    BITS_PASSWORD_FILE,   NONE                , &prefs_runtime_config.bits_password_file},
+    { "ipbanfile",              conf_type_char,    BNETD_IPBAN_FILE,     NONE                , &prefs_runtime_config.ipbanfile},
+    { "bits_debug",             conf_type_bool,    NULL,                 BITS_DEBUG          , &prefs_runtime_config.bits_debug},
+    { "disc_is_loss",           conf_type_bool,    NULL,                 0                   , &prefs_runtime_config.disc_is_loss},
+    { "helpfile",               conf_type_char,    BNETD_HELP_FILE,      NONE                , &prefs_runtime_config.helpfile},
+    { "fortunecmd",             conf_type_char,    BNETD_FORTUNECMD,     NONE                , &prefs_runtime_config.fortunecmd},
+    { "transfile",              conf_type_char,    BNETD_TRANS_FILE,     NONE                , &prefs_runtime_config.transfile},
+    { "chanlog",                conf_type_bool,    NULL         ,        BNETD_CHANLOG       , &prefs_runtime_config.chanlog},
+    { "chanlogdir",             conf_type_char,    BNETD_CHANLOG_DIR,    NONE                , &prefs_runtime_config.chanlogdir},
+    { "quota",                  conf_type_bool,    NULL,                 0                   , &prefs_runtime_config.quota},
+    { "quota_lines",            conf_type_int,     NULL,                 BNETD_QUOTA_LINES   , &prefs_runtime_config.quota_lines},
+    { "quota_time",             conf_type_int,     NULL,                 BNETD_QUOTA_TIME    , &prefs_runtime_config.quota_time},
+    { "quota_wrapline",	        conf_type_int,     NULL,                 BNETD_QUOTA_WLINE   , &prefs_runtime_config.quota_wrapline},
+    { "quota_maxline",	        conf_type_int,     NULL,                 BNETD_QUOTA_MLINE   , &prefs_runtime_config.quota_maxline},
+    { "ladder_init_rating",     conf_type_int,     NULL,                 BNETD_LADDER_INIT_RAT , &prefs_runtime_config.ladder_init_rating},
+    { "quota_dobae",            conf_type_int,     NULL,                 BNETD_QUOTA_DOBAE   , &prefs_runtime_config.quota_dobae},
+    { "realmfile",              conf_type_char,    BNETD_REALM_FILE,     NONE                , &prefs_runtime_config.realmfile},
+    { "issuefile",              conf_type_char,    BNETD_ISSUE_FILE,     NONE                , &prefs_runtime_config.issuefile},
+    { "bits_motd_file",         conf_type_char,    BITS_MOTD_FILE,       NONE                , &prefs_runtime_config.bits_motd_file},
+    { "effective_user",         conf_type_char,    NULL,                 NONE                , &prefs_runtime_config.effective_user},
+    { "effective_group",        conf_type_char,    NULL,                 NONE                , &prefs_runtime_config.effective_group},
+    { "nullmsg",                conf_type_int,     NULL,                 BNETD_DEF_NULLMSG   , &prefs_runtime_config.nullmsg},
+    { "mail_support",           conf_type_bool,    NULL,                 BNETD_MAIL_SUPPORT  , &prefs_runtime_config.mail_support},
+    { "mail_quota",             conf_type_int,     NULL,                 BNETD_MAIL_QUOTA    , &prefs_runtime_config.mail_quota},
+    { "maildir",                conf_type_char,    BNETD_MAIL_DIR,       NONE                , &prefs_runtime_config.maildir},
+    { "log_notice",             conf_type_char,    BNETD_LOG_NOTICE,     NONE                , &prefs_runtime_config.log_notice},
+    { "savebyname",             conf_type_bool,    NULL,                 1                   , &prefs_runtime_config.savebyname},
+    { "skip_versioncheck",      conf_type_bool,    NULL,                 0                   , &prefs_runtime_config.skip_versioncheck},
+    { "allow_bad_version",      conf_type_bool,    NULL,                 0                   , &prefs_runtime_config.allow_bad_version},
+    { "allow_unknown_version",  conf_type_bool,    NULL,                 0                   , &prefs_runtime_config.allow_unknown_version},
+    { "versioncheck_file",      conf_type_char,    PVPGN_VERSIONCHECK,   NONE                , &prefs_runtime_config.versioncheck_file},
+    { "d2cs_version",           conf_type_int,     NULL,                 0                   , &prefs_runtime_config.d2cs_version},
+    { "allow_d2cs_setname",     conf_type_bool,    NULL,                 1                   , &prefs_runtime_config.allow_d2cs_setname},
+    { "hashtable_size",         conf_type_int,     NULL,                 BNETD_HASHTABLE_SIZE , &prefs_runtime_config.hashtable_size},
+    { "telnetaddrs",            conf_type_char,    BNETD_TELNET_ADDRS,   NONE                , &prefs_runtime_config.telnetaddrs},
+    { "ipban_check_int",	conf_type_int,	   NULL,		 30		     , &prefs_runtime_config.ipban_check_int},
+    { "bits_ping_interval",     conf_type_int,     NULL,                 BITS_PING_INTERVAL  , &prefs_runtime_config.bits_ping_interval},
+    { "bits_ping_timeout",      conf_type_int,     NULL,                 BITS_PING_TIMEOUT   , &prefs_runtime_config.bits_ping_timeout},
+    { "version_exeinfo_match",  conf_type_char,    BNETD_EXEINFO_MATCH,  NONE                , &prefs_runtime_config.version_exeinfo_match},
+    { "version_exeinfo_maxdiff",conf_type_int,     NULL,                 PVPGN_VERSION_TIMEDIV , &prefs_runtime_config.version_exeinfo_maxdiff},
+    { "max_concurrent_logins",  conf_type_int,     NULL,                 0         	     , &prefs_runtime_config.max_concurrent_logins},
+    { "identify_timeout_secs",  conf_type_int,	   NULL,		 W3_IDENTTIMEOUT     , &prefs_runtime_config.identify_timeout_secs},
+    { "server_info", 		conf_type_char,	   "",	 		 NONE		     , &prefs_runtime_config.server_info},
+    { "mapsfile",		conf_type_char,	   NULL,		 0          	     , &prefs_runtime_config.mapsfile},
+    { "xplevelfile",    	conf_type_char,	   NULL,		 0          	     , &prefs_runtime_config.xplevelfile},
+    { "xpcalcfile",		conf_type_char,	   NULL,		 0          	     , &prefs_runtime_config.xpcalcfile},
+    { "initkill_timer", 	conf_type_int,     NULL,       		 0		     , &prefs_runtime_config.initkill_timer},
+    { "war3_ladder_update_secs",conf_type_int,     NULL,                 0                   , &prefs_runtime_config.war3_ladder_update_secs},
+    { "war3_output_update_secs",conf_type_int,     NULL,                 0                   , &prefs_runtime_config.war3_output_update_secs},
+    { "ladderdir",              conf_type_char,    BNETD_LADDER_DIR,     NONE                , &prefs_runtime_config.ladderdir},
+    { "statusdir",              conf_type_char,    BNETD_STATUS_DIR,     NONE                , &prefs_runtime_config.statusdir},
+    { "reduced_accounting",     conf_type_bool,    NULL,                 0                   , &prefs_runtime_config.reduced_accounting},
+    { "XML_output_ladder",      conf_type_bool,    NULL,                 0	    	     , &prefs_runtime_config.XML_output_ladder},
+    { "XML_status_output_ladder",      conf_type_bool,    NULL,                 0	     , &prefs_runtime_config.XML_status_output_ladder},
+    { "account_allowed_symbols",conf_type_char,    PVPGN_DEFAULT_SYMB,   NONE                , &prefs_runtime_config.account_allowed_symbols},
+    { "reload_new_accounts",    conf_type_bool,    NULL,                 0                   , &prefs_runtime_config.reload_new_accounts},
+    { "command_groups_file",	conf_type_char,    BNETD_COMMAND_GROUPS_FILE,	NONE	     , &prefs_runtime_config.command_groups_file},
+    { "tournament_file",	conf_type_char,    BNETD_TOURNAMENT_FILE,	NONE	     , &prefs_runtime_config.tournament_file},
+    { "aliasfile"          ,    conf_type_char,    BNETD_ALIASFILE   ,   NONE                , &prefs_runtime_config.aliasfile},
+    { "anongame_infos_file",		conf_type_char,	   PVPGN_AINFO_FILE,	NONE	     , &prefs_runtime_config.anongame_infos_file},
+    { "max_conns_per_IP",	conf_type_int,	   NULL,		 0		     , &prefs_runtime_config.max_conns_per_IP},
+    { "max_friends",		conf_type_int,     NULL,                 MAX_FRIENDS         , &prefs_runtime_config.max_friends},
+    { NULL,             	conf_type_none,    NULL,                 NONE                , NULL},
 };
 
+#define PREFS_STORE_UINT(addr) (*((unsigned int *)(addr)))
+#define PREFS_STORE_CHAR(addr) (*((char const **)(addr)))
 
 char const * preffile=NULL;
-
 
 static int processDirective(char const * directive, char const * value, unsigned int curLine)
 {
@@ -228,9 +332,9 @@ static int processDirective(char const * directive, char const * value, unsigned
 			eventlog(eventlog_level_error,"processDirective","could not allocate memory for value");
 			return -1;
 		    }
-		    if (conf_table[i].charval)
-			free((void *)conf_table[i].charval); /* avoid warning */
-		    conf_table[i].charval = temp;
+		    if (PREFS_STORE_CHAR(conf_table[i].store))
+			free((void *)PREFS_STORE_CHAR(conf_table[i].store)); /* avoid warning */
+		    PREFS_STORE_CHAR(conf_table[i].store) = temp;
 		}
 		break;
 		
@@ -241,7 +345,7 @@ static int processDirective(char const * directive, char const * value, unsigned
 		    if (str_to_uint(value,&temp)<0)
 			eventlog(eventlog_level_error,"processDirective","invalid integer value \"%s\" for element \"%s\" at line %u",value,directive,curLine);
 		    else
-                	conf_table[i].intval = temp;
+                	PREFS_STORE_UINT(conf_table[i].store) = temp;
 		}
 		break;
 		
@@ -249,10 +353,10 @@ static int processDirective(char const * directive, char const * value, unsigned
 		switch (str_get_bool(value))
 		{
 		case 1:
-		    conf_table[i].intval = 1;
+		    PREFS_STORE_UINT(conf_table[i].store) = 1;
 		    break;
 		case 0:
-		    conf_table[i].intval = 0;
+		    PREFS_STORE_UINT(conf_table[i].store) = 0;
 		    break;
 		default:
 		    eventlog(eventlog_level_error,"processDirective","invalid boolean value for element \"%s\" at line %u",directive,curLine);
@@ -270,42 +374,6 @@ static int processDirective(char const * directive, char const * value, unsigned
 }
 
 
-static char const * get_char_conf(char const * directive)
-{
-    unsigned int i;
-    
-    for (i=0; conf_table[i].directive; i++)
-	if (conf_table[i].type==conf_type_char && strcasecmp(conf_table[i].directive,directive)==0)
-	    return conf_table[i].charval;
-    
-    return NULL;
-}
-
-
-static unsigned int get_int_conf(char const * directive)
-{
-    unsigned int i;
-    
-    for (i=0; conf_table[i].directive; i++)
-	if (conf_table[i].type==conf_type_int && strcasecmp(conf_table[i].directive,directive)==0)
-	    return conf_table[i].intval;
-    
-    return 0;
-}
-
-
-static unsigned int get_bool_conf(char const * directive)
-{
-    unsigned int i;
-    
-    for (i=0; conf_table[i].directive; i++)
-	if (conf_table[i].type==conf_type_bool && strcasecmp(conf_table[i].directive,directive)==0)
-	    return conf_table[i].intval;
-    
-    return 0;
-}
-
-
 extern int prefs_load(char const * filename)
 {
     /* restore defaults */
@@ -317,16 +385,16 @@ extern int prefs_load(char const * filename)
 	    {
 	    case conf_type_int:
 	    case conf_type_bool:
-		conf_table[i].intval = conf_table[i].defintval;
+		PREFS_STORE_UINT(conf_table[i].store) = conf_table[i].defintval;
 		break;
 		
 	    case conf_type_char:
-		if (conf_table[i].charval)
-		    free((void *)conf_table[i].charval); /* avoid warning */
+		if (PREFS_STORE_CHAR(conf_table[i].store))
+		    free((void *)PREFS_STORE_CHAR(conf_table[i].store)); /* avoid warning */
 		if (!conf_table[i].defcharval)
-		    conf_table[i].charval = NULL;
+		    PREFS_STORE_CHAR(conf_table[i].store) = NULL;
 		else
-		    if (!(conf_table[i].charval = strdup(conf_table[i].defcharval)))
+		    if (!(PREFS_STORE_CHAR(conf_table[i].store) = strdup(conf_table[i].defcharval)))
 		    {
 			eventlog(eventlog_level_error,"prefs_load","could not allocate memory for conf_table[i].charval");
 			return -1;
@@ -496,10 +564,10 @@ extern void prefs_unload(void)
 	    break;
 	    
 	case conf_type_char:
-	    if (conf_table[i].charval)
+	    if (PREFS_STORE_CHAR(conf_table[i].store))
 	    {
-		free((void *)conf_table[i].charval); /* avoid warning */
-		conf_table[i].charval = NULL;
+		free((void *)PREFS_STORE_CHAR(conf_table[i].store)); /* avoid warning */
+		PREFS_STORE_CHAR(conf_table[i].store) = NULL;
 	    }
 	    break;
 	    
@@ -509,70 +577,69 @@ extern void prefs_unload(void)
 	}
 }
 
-
 extern char const * prefs_get_storage_path(void)
 {
-    return get_char_conf("storage_path");
+    return prefs_runtime_config.storage_path;
 }
 
 
 extern char const * prefs_get_filedir(void)
 {
-    return get_char_conf("filedir");
+    return prefs_runtime_config.filedir;
 }
 
 
 extern char const * prefs_get_logfile(void)
 {
-    return get_char_conf("logfile");
+    return prefs_runtime_config.logfile;
 }
 
 
 extern char const * prefs_get_loglevels(void)
 {
-    return get_char_conf("loglevels");
+    return prefs_runtime_config.loglevels;
 }
 
 
 extern char const * prefs_get_motdfile(void)
 {
-    return get_char_conf("motdfile");
+    return prefs_runtime_config.motdfile;
 }
 
 
 extern char const * prefs_get_newsfile(void)
 {
-    return get_char_conf("newsfile");
+    return prefs_runtime_config.newsfile;
 }
 
 
 extern char const * prefs_get_adfile(void)
 {
-    return get_char_conf("adfile");
+    return prefs_runtime_config.adfile;
 }
 
 
 extern unsigned int prefs_get_user_sync_timer(void)
 {
-    return get_int_conf("usersync");
+    return prefs_runtime_config.usersync;
 }
 
 
 extern unsigned int prefs_get_user_flush_timer(void)
 {
-    return get_int_conf("userflush");
+    return prefs_runtime_config.userflush;
 }
 
 extern char const * prefs_get_servername(void)
 {
-    return get_char_conf("servername");
+    return prefs_runtime_config.servername;
 }
 
 extern unsigned int prefs_get_track(void)
 {
     unsigned int rez;
     
-    rez = get_int_conf("track");
+    rez = prefs_runtime_config.track;
     if (rez>0 && rez<60) rez = 60;
     return rez;
 }
@@ -580,294 +647,294 @@ extern unsigned int prefs_get_track(void)
 
 extern char const * prefs_get_location(void)
 {
-    return get_char_conf("location");
+    return prefs_runtime_config.location;
 }
 
 
 extern char const * prefs_get_description(void)
 {
-    return get_char_conf("description");
+    return prefs_runtime_config.description;
 }
 
 
 extern char const * prefs_get_url(void)
 {
-    return get_char_conf("url");
+    return prefs_runtime_config.url;
 }
 
 
 extern char const * prefs_get_contact_name(void)
 {
-    return get_char_conf("contact_name");
+    return prefs_runtime_config.contact_name;
 }
 
 
 extern char const * prefs_get_contact_email(void)
 {
-    return get_char_conf("contact_email");
+    return prefs_runtime_config.contact_email;
 }
 
 
 extern unsigned int prefs_get_latency(void)
 {
-    return get_int_conf("latency");
+    return prefs_runtime_config.latency;
 }
 
 
 extern unsigned int prefs_get_irc_latency(void)
 {
-    return get_int_conf("irc_latency");
+    return prefs_runtime_config.irc_latency;
 }
 
 
 extern unsigned int prefs_get_shutdown_delay(void)
 {
-    return get_int_conf("shutdown_delay");
+    return prefs_runtime_config.shutdown_delay;
 }
 
 
 extern unsigned int prefs_get_shutdown_decr(void)
 {
-    return get_int_conf("shutdown_decr");
+    return prefs_runtime_config.shutdown_decr;
 }
 
 
 extern unsigned int prefs_get_allow_new_accounts(void)
 {
-    return get_bool_conf("new_accounts");
+    return prefs_runtime_config.new_accounts;
 }
 
 
 extern unsigned int prefs_get_max_accounts(void)
 {
-    return get_int_conf("max_accounts");
+    return prefs_runtime_config.max_accounts;
 }
 
 
 extern unsigned int prefs_get_kick_old_login(void)
 {
-    return get_bool_conf("kick_old_login");
+    return prefs_runtime_config.kick_old_login;
 }
 
 
 extern char const * prefs_get_channelfile(void)
 {
-    return get_char_conf("channelfile");
+    return prefs_runtime_config.channelfile;
 }
 
 
 extern unsigned int prefs_get_ask_new_channel(void)
 {
-    return get_bool_conf("ask_new_channel");
+    return prefs_runtime_config.ask_new_channel;
 }
 
 
 extern unsigned int prefs_get_hide_pass_games(void)
 {
-    return get_bool_conf("hide_pass_games");
+    return prefs_runtime_config.hide_pass_games;
 }
 
 
 extern unsigned int prefs_get_hide_started_games(void)
 {
-    return get_bool_conf("hide_started_games");
+    return prefs_runtime_config.hide_started_games;
 }
 
 
 extern unsigned int prefs_get_hide_temp_channels(void)
 {
-    return get_bool_conf("hide_temp_channels");
+    return prefs_runtime_config.hide_temp_channels;
 }
 
 
 extern unsigned int prefs_get_hide_addr(void)
 {
-    return get_bool_conf("hide_addr");
+    return prefs_runtime_config.hide_addr;
 }
 
 
 extern unsigned int prefs_get_enable_conn_all(void)
 {
-    return get_bool_conf("enable_conn_all");
+    return prefs_runtime_config.enable_conn_all;
 }
 
 
 extern unsigned int prefs_get_extra_commands(void)
 {
-    return get_bool_conf("extra_commands");
+    return prefs_runtime_config.extra_commands;
 }
 
 
 extern char const * prefs_get_reportdir(void)
 {
-    return get_char_conf("reportdir");
+    return prefs_runtime_config.reportdir;
 }
 
 
 extern unsigned int prefs_get_report_all_games(void)
 {
-    return get_bool_conf("report_all_games");
+    return prefs_runtime_config.report_all_games;
 }
 
 extern unsigned int prefs_get_report_diablo_games(void)
 {
-    return get_bool_conf("report_diablo_games");
+    return prefs_runtime_config.report_diablo_games;
 }
 
 extern char const * prefs_get_pidfile(void)
 {
-    return get_char_conf("pidfile");
+    return prefs_runtime_config.pidfile;
 }
 
 
 extern char const * prefs_get_iconfile(void)
 {
-    return get_char_conf("iconfile");
+    return prefs_runtime_config.iconfile;
 }
 
 extern char const * prefs_get_war3_iconfile(void)
 {
-    return get_char_conf("war3_iconfile");
+    return prefs_runtime_config.war3_iconfile;
 }
 
 extern char const * prefs_get_star_iconfile(void)
 {
-    return get_char_conf("star_iconfile");
+    return prefs_runtime_config.star_iconfile;
 }
 
 
 extern char const * prefs_get_tosfile(void)
 {
-    return get_char_conf("tosfile");
+    return prefs_runtime_config.tosfile;
 }
 
 
 extern char const * prefs_get_mpqfile(void)
 {
-    return get_char_conf("mpqfile");
+    return prefs_runtime_config.mpqfile;
 }
 
 
 extern char const * prefs_get_trackserv_addrs(void)
 {
-    return get_char_conf("trackaddrs");
+    return prefs_runtime_config.trackaddrs;
 }
 
 extern char const * prefs_get_bnetdserv_addrs(void)
 {
-    return get_char_conf("servaddrs");
+    return prefs_runtime_config.servaddrs;
 }
 
 // [zap-zero] 20020527	
 extern char const * prefs_get_w3route_addr(void)
 {
-    return get_char_conf("w3routeaddr");
+    return prefs_runtime_config.w3routeaddr;
 }
 
 extern char const * prefs_get_w3route_show(void)
 {
-    return get_char_conf("w3routeshow");
+    return prefs_runtime_config.w3routeshow;
 }
 
 extern char const * prefs_get_irc_addrs(void)
 {
-    return get_char_conf("ircaddrs");
+    return prefs_runtime_config.ircaddrs;
 }
 
 
 extern unsigned int prefs_get_use_keepalive(void)
 {
-    return get_bool_conf("use_keepalive");
+    return prefs_runtime_config.use_keepalive;
 }
 
 
 extern unsigned int prefs_get_udptest_port(void)
 {
-    return get_int_conf("udptest_port");
+    return prefs_runtime_config.udptest_port;
 }
 
 
 extern unsigned int prefs_get_do_uplink(void)
 {
-    return get_bool_conf("do_uplink");
+    return prefs_runtime_config.do_uplink;
 }
 
 
 extern char const * prefs_get_uplink_server(void)
 {
-    return get_char_conf("uplink_server");
+    return prefs_runtime_config.uplink_server;
 }
 
 
 extern unsigned int prefs_get_allow_uplink(void)
 {
-    return get_bool_conf("allow_uplink");
+    return prefs_runtime_config.allow_uplink;
 }
 
 
 extern char const * prefs_get_bits_password_file(void)
 {
-    return get_char_conf("bits_password_file");
+    return prefs_runtime_config.bits_password_file;
 }
 
 
 extern char const * prefs_get_uplink_username(void)
 {
-    return get_char_conf("uplink_username");
+    return prefs_runtime_config.uplink_username;
 }
 
 
 extern char const * prefs_get_ipbanfile(void)
 {
-    return get_char_conf("ipbanfile");
+    return prefs_runtime_config.ipbanfile;
 }
 
 
 extern unsigned int prefs_get_bits_debug(void)
 {
-    return get_bool_conf("bits_debug");
+    return prefs_runtime_config.bits_debug;
 }
 
 
 extern unsigned int prefs_get_discisloss(void)
 {
-    return get_bool_conf("disc_is_loss");
+    return prefs_runtime_config.disc_is_loss;
 }
 
 
 extern char const * prefs_get_helpfile(void)
 {
-    return get_char_conf("helpfile");
+    return prefs_runtime_config.helpfile;
 }
 
 
 extern char const * prefs_get_fortunecmd(void)
 {
-    return get_char_conf("fortunecmd");
+    return prefs_runtime_config.fortunecmd;
 }
 
 
 extern char const * prefs_get_transfile(void)
 {
-    return get_char_conf("transfile");
+    return prefs_runtime_config.transfile;
 }
 
 
 extern unsigned int prefs_get_chanlog(void)
 {
-    return get_bool_conf("chanlog");
+    return prefs_runtime_config.chanlog;
 }
 
 
 extern char const * prefs_get_chanlogdir(void)
 {
-    return get_char_conf("chanlogdir");
+    return prefs_runtime_config.chanlogdir;
 }
 
 
 extern unsigned int prefs_get_quota(void)
 {
-    return get_bool_conf("quota");
+    return prefs_runtime_config.quota;
 }
 
 
@@ -875,7 +942,7 @@ extern unsigned int prefs_get_quota_lines(void)
 {
     unsigned int rez;
     
-    rez=get_int_conf("quota_lines");
+    rez=prefs_runtime_config.quota_lines;
     if (rez<1) rez = 1;
     if (rez>100) rez = 100;
     return rez;
@@ -886,7 +953,7 @@ extern unsigned int prefs_get_quota_time(void)
 {
     unsigned int rez;
     
-    rez=get_int_conf("quota_time");
+    rez=prefs_runtime_config.quota_time;
     if (rez<1) rez = 1;
     if (rez>10) rez = 60;
     return rez;
@@ -897,7 +964,7 @@ extern unsigned int prefs_get_quota_wrapline(void)
 {
     unsigned int rez;
     
-    rez=get_int_conf("quota_wrapline");
+    rez=prefs_runtime_config.quota_wrapline;
     if (rez<1) rez = 1;
     if (rez>256) rez = 256;
     return rez;
@@ -908,7 +975,7 @@ extern unsigned int prefs_get_quota_maxline(void)
 {
     unsigned int rez;
     
-    rez=get_int_conf("quota_maxline");
+    rez=prefs_runtime_config.quota_maxline;
     if (rez<1) rez = 1;
     if (rez>256) rez = 256;
     return rez;
@@ -917,7 +984,7 @@ extern unsigned int prefs_get_quota_maxline(void)
 
 extern unsigned int prefs_get_ladder_init_rating(void)
 {
-    return get_int_conf("ladder_init_rating");
+    return prefs_runtime_config.ladder_init_rating;
 }
 
 
@@ -925,7 +992,7 @@ extern unsigned int prefs_get_quota_dobae(void)
 {
     unsigned int rez;
 
-    rez=get_int_conf("quota_dobae");
+    rez=prefs_runtime_config.quota_dobae;
     if (rez<1) rez = 1;
     if (rez>100) rez = 100;
     return rez;
@@ -934,43 +1001,43 @@ extern unsigned int prefs_get_quota_dobae(void)
 
 extern char const * prefs_get_realmfile(void)
 {
-    return get_char_conf("realmfile");
+    return prefs_runtime_config.realmfile;
 }
 
 
 extern char const * prefs_get_issuefile(void)
 {
-    return get_char_conf("issuefile");
+    return prefs_runtime_config.issuefile;
 }
 
 
 extern char const * prefs_get_bits_motd_file(void)
 {
-    return get_char_conf("bits_motd_file");
+    return prefs_runtime_config.bits_motd_file;
 }
 
 
 extern char const * prefs_get_effective_user(void)
 {
-    return get_char_conf("effective_user");
+    return prefs_runtime_config.effective_user;
 }
 
 
 extern char const * prefs_get_effective_group(void)
 {
-    return get_char_conf("effective_group");
+    return prefs_runtime_config.effective_group;
 }
 
 
 extern unsigned int prefs_get_nullmsg(void)
 {
-    return get_int_conf("nullmsg");
+    return prefs_runtime_config.nullmsg;
 }
 
 
 extern unsigned int prefs_get_mail_support(void)
 {
-    return get_bool_conf("mail_support");
+    return prefs_runtime_config.mail_support;
 }
 
 
@@ -978,7 +1045,7 @@ extern unsigned int prefs_get_mail_quota(void)
 {
     unsigned int rez;
     
-    rez=get_int_conf("mail_quota");
+    rez=prefs_runtime_config.mail_quota;
     if (rez<1) rez = 1;
     if (rez>30) rez = 30;
     return rez;
@@ -987,237 +1054,206 @@ extern unsigned int prefs_get_mail_quota(void)
 
 extern char const * prefs_get_maildir(void)
 {
-    return get_char_conf("maildir");
+    return prefs_runtime_config.maildir;
 }
 
 
 extern char const * prefs_get_log_notice(void)
 {
-    return get_char_conf("log_notice");
+    return prefs_runtime_config.log_notice;
 }
 
 
 extern unsigned int prefs_get_savebyname(void)
 {
-    return get_bool_conf("savebyname");
+    return prefs_runtime_config.savebyname;
 }
 
 
 extern unsigned int prefs_get_skip_versioncheck(void)
 {
-    return get_bool_conf("skip_versioncheck");
+    return prefs_runtime_config.skip_versioncheck;
 }
 
 
 extern unsigned int prefs_get_allow_bad_version(void)
 {
-    return get_bool_conf("allow_bad_version");
+    return prefs_runtime_config.allow_bad_version;
 }
 
 
 extern unsigned int prefs_get_allow_unknown_version(void)
 {
-    return get_bool_conf("allow_unknown_version");
+    return prefs_runtime_config.allow_unknown_version;
 }
 
 
 extern char const * prefs_get_versioncheck_file(void)
 {
-    return get_char_conf("versioncheck_file");
+    return prefs_runtime_config.versioncheck_file;
 }
 
 
 extern unsigned int prefs_allow_d2cs_setname(void)
 {
-        return get_bool_conf("allow_d2cs_setname");
+        return prefs_runtime_config.allow_d2cs_setname;
 }
 
 
 extern unsigned int prefs_get_d2cs_version(void)
 {
-        return get_int_conf("d2cs_version");
+        return prefs_runtime_config.d2cs_version;
 }
 
 
 extern unsigned int prefs_get_hashtable_size(void)
 {
-    return get_int_conf("hashtable_size");
+    return prefs_runtime_config.hashtable_size;
 }
 
 
 extern unsigned int prefs_get_bits_ping_interval(void)
 {
-    return get_int_conf("bits_ping_interval");
+    return prefs_runtime_config.bits_ping_interval;
 }
 
 extern unsigned int prefs_get_bits_ping_timeout(void)
 {
-    return get_int_conf("bits_ping_timeout");
+    return prefs_runtime_config.bits_ping_timeout;
 }
 
 
 extern char const * prefs_get_telnet_addrs(void)
 {
-    return get_char_conf("telnetaddrs");
+    return prefs_runtime_config.telnetaddrs;
 }
 
 
 extern unsigned int prefs_get_ipban_check_int(void)
 {
-    return get_int_conf("ipban_check_int");
+    return prefs_runtime_config.ipban_check_int;
 }
 
 
 extern char const * prefs_get_version_exeinfo_match(void)
 {
-    return get_char_conf("version_exeinfo_match");
+    return prefs_runtime_config.version_exeinfo_match;
 }
 
 
 extern unsigned int prefs_get_version_exeinfo_maxdiff(void)
 {
-    return get_int_conf("version_exeinfo_maxdiff");
+    return prefs_runtime_config.version_exeinfo_maxdiff;
 }
 
 // added by NonReal
 extern unsigned int prefs_get_max_concurrent_logins(void)
 {
-    return get_int_conf("max_concurrent_logins");
+    return prefs_runtime_config.max_concurrent_logins;
 }
 
 /* ADDED BY UNDYING SOULZZ 4/9/02 */
 extern unsigned int prefs_get_identify_timeout_secs(void)
 {
-    return get_int_conf("identify_timeout_secs");
+    return prefs_runtime_config.identify_timeout_secs;
 }
 
 extern char const * prefs_get_server_info( void )
 {
-    return get_char_conf("server_info");
-}
-
-/* [zap-zero] 20021606 */
-
-extern char const * prefs_get_mysql_host( void )
-{
-    return get_char_conf("mysql_host");
-}
-
-extern char const * prefs_get_mysql_account( void )
-{
-    return get_char_conf("mysql_account");
-}
-
-extern char const * prefs_get_mysql_password( void )
-{
-    return get_char_conf("mysql_password");
-}
-extern char const * prefs_get_mysql_sock( void )
-{
-    return get_char_conf("mysql_sock");
-}
-
-extern char const * prefs_get_mysql_dbname( void )
-{
-    return get_char_conf("mysql_dbname");
-}
-
-extern unsigned int prefs_get_mysql_persistent(void)
-{
-    return get_bool_conf("mysql_persistent");
+    return prefs_runtime_config.server_info;
 }
 
 extern char const * prefs_get_mapsfile(void)
 {
-    return get_char_conf("mapsfile");
+    return prefs_runtime_config.mapsfile;
 }
 
 extern char const * prefs_get_xplevel_file(void)
 {
-    return get_char_conf("xplevelfile");
+    return prefs_runtime_config.xplevelfile;
 }
 
 extern char const * prefs_get_xpcalc_file(void)
 {
-    return get_char_conf("xpcalcfile");
+    return prefs_runtime_config.xpcalcfile;
 }
 
 extern int prefs_get_initkill_timer(void)
 {
-	return get_int_conf("initkill_timer");
+	return prefs_runtime_config.initkill_timer;
  }
 
 extern int prefs_get_war3_ladder_update_secs(void)
 {
-        return get_int_conf("war3_ladder_update_secs");
+        return prefs_runtime_config.war3_ladder_update_secs;
 }
 
 extern int prefs_get_war3_output_update_secs(void)
 {
-        return get_int_conf("war3_output_update_secs");
+        return prefs_runtime_config.war3_output_update_secs;
 }
 
 extern char const * prefs_get_ladderdir(void)
 {
-        return get_char_conf("ladderdir");
+        return prefs_runtime_config.ladderdir;
 }
 
 extern char const * prefs_get_outputdir(void)
 {
-        return get_char_conf("statusdir");
+        return prefs_runtime_config.statusdir;
 }
 
 extern int prefs_get_reduced_accounting(void)
 {
-        return get_bool_conf("reduced_accounting");
+        return prefs_runtime_config.reduced_accounting;
 }
 
 extern int prefs_get_XML_output_ladder(void)
 {
-        return get_bool_conf("XML_output_ladder");
+        return prefs_runtime_config.XML_output_ladder;
 }
 
 extern int prefs_get_XML_status_output_ladder(void)
 {
-        return get_bool_conf("XML_status_output_ladder");
+        return prefs_runtime_config.XML_status_output_ladder;
 }
 
 extern char const * prefs_get_account_allowed_symbols(void)
 {
-	return get_char_conf("account_allowed_symbols");
+	return prefs_runtime_config.account_allowed_symbols;
 }
 
 extern int prefs_get_reload_new_accounts(void)
 {
-	return get_bool_conf("reload_new_accounts");
+	return prefs_runtime_config.reload_new_accounts;
 }
 
 extern char const * prefs_get_command_groups_file(void)
 {
-    return get_char_conf("command_groups_file");
+    return prefs_runtime_config.command_groups_file;
 }
 
 extern char const * prefs_get_tournament_file(void)
 {
-    return get_char_conf("tournament_file");
+    return prefs_runtime_config.tournament_file;
 }
 
 extern char const * prefs_get_aliasfile(void)
 {
-   return get_char_conf("aliasfile");
+   return prefs_runtime_config.aliasfile;
 }
 
 extern char const * prefs_get_anongame_infos_file(void)
 {
-	return get_char_conf("anongame_infos_file");
+	return prefs_runtime_config.anongame_infos_file;
 }
 
 extern unsigned int prefs_get_max_conns_per_IP(void)
 {
-	return get_int_conf("max_conns_per_IP");
+	return prefs_runtime_config.max_conns_per_IP;
 }
 
 extern int prefs_get_max_friends(void)
 {
-	return get_int_conf("max_friends");
+	return prefs_runtime_config.max_friends;
 }
