@@ -2,17 +2,20 @@ PvPGN TODO LIST AND WHATS BEING WORKED ON:
 =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
 Release v1.7 ROADMAP:
-1. admin protocol (design an admin protocol and implement the server side and 
-a client lib)
-2. w3route server and serverside game packets
-3. extend/redesign storage to be used by both bnetd and d2cs/d2dbs
-4. DOCUMENTATION (client and server documentation; a FAQ, HOWTO and a file 
+1. DOCUMENTATION (client and server documentation; a FAQ, HOWTO and a file 
 describing all configuration options)
-5. reorganize and clean prefs.c system (now its replicated between bnetd and 
+2. reorganize and clean prefs.c system (now its replicated between bnetd and 
 d2cs/d2dbs not to mention beeing very inflexible)
-6. i18n or some sort to support different language messages to users
+3. i18n or some sort to support different language messages to users
 
 Stuff not programmed for any specific version release:			      
+
+* admin protocol (design an admin protocol and implement the server side and 
+a client lib)
+
+* w3route server and serverside game packets
+
+* extend/redesign storage to be used by both bnetd and d2cs/d2dbs
 
 * complete tournament support with crash recovery option
 
