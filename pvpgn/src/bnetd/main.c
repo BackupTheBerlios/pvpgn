@@ -545,11 +545,11 @@ extern int main(int argc, char * * argv)
     char *pidfile = NULL;
 
 // Read the command line and set variables
-    if (!(a = read_commandline(argc, argv, &foreground, &preffile, &hexfile)) == 1)
+    if ((a = read_commandline(argc, argv, &foreground, &preffile, &hexfile)) != 1)
 	return a;
 
 // Fork to child process if not set to foreground    
-    if (!(a = fork_bnetd(foreground)) == 0)
+    if ((a = fork_bnetd(foreground)) != 0)
 	return a;
 
     eventlog_set(stderr);
