@@ -111,9 +111,13 @@ RC      = brc32
 SQLFLAGS = -DWITH_SQL_MYSQL -DWITH_SQL -a8
 !endif
 
+!ifdef WITH_CDB
+CDBFLAGS = -DWITH_CDB
+!endif
+
 CFLAGS      = -v -y -O2 -d -j2 -w-8060 -w-8057
 CPPFLAGS    = -DWIN32 -DHAVE_CONFIG_H -I${SRC_SRCDIR} \
-                -DBNETD_DEFAULT_CONF_FILE=\"${bnetd_DEFCONFFILE:\=\\}\" ${SQLFLAGS}
+                -DBNETD_DEFAULT_CONF_FILE=\"${bnetd_DEFCONFFILE:\=\\}\" ${SQLFLAGS} ${CDBFLAGS}
 COMPILE     = ${CC} ${CFLAGS} ${CPPFLAGS} -c
 LINK        = ilink32 -v -L${LINK_LIBS_PATH}
 !ifdef WITH_SQL_MYSQL
