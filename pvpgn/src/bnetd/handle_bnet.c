@@ -2469,10 +2469,8 @@ static int _client_atfriendscreen(t_connection * c, t_packet const * const packe
 		
     if(!f_cnt)
 	eventlog(eventlog_level_info, "handle_bnet", "AT - no friends available for AT game.");
-    else {
-	bn_byte_set(&rpacket->u.server_arrangedteam_friendscreen.f_count, f_cnt);
-	conn_push_outqueue(c, rpacket);
-     }
+    bn_byte_set(&rpacket->u.server_arrangedteam_friendscreen.f_count, f_cnt);
+    conn_push_outqueue(c, rpacket);
    
    packet_del_ref(rpacket);
    
