@@ -272,7 +272,7 @@
 #define PVPGN_AINFO_FILE     "conf/anongame_infos.conf"
 
 /* max number of players in an anongame match [Omega] */
-#define ANONGAME_MAX_GAMECOUNT  8
+#define ANONGAME_MAX_GAMECOUNT  12
 
 /***************************************************************/
 /* platform dependent features */

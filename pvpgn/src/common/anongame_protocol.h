@@ -242,9 +242,21 @@ typedef struct
 				     * for TY - set to 0
 				     * from TYPE
 				     */
-    // MAP NAME //
-    // MISC PACKET APPEND DATA's //
+    /* char *		mapname */
+    /* t_saf_pt2 * 	pt2 */
 } t_server_anongame_found PACKED_ATTR();
+
+/* MISC PACKET APPEND DATA's */
+typedef struct
+{
+    bn_int	unknown1;		/* 0xFFFFFFFF */
+    bn_int	anongame_string;	/* ie. SOLO, TEAM, 2VS2, etc. */
+    bn_byte	totalplayers;
+    bn_byte	totalteams;		/* 1v1 & sffa = 0, rest 2 */
+    bn_short	unknown2;		/* 0x0000 */
+    bn_byte	visibility;		/* 0x01 = dark - 0x02 = default */
+    bn_byte	unknown3;		/* 0x02 */
+} t_saf_pt2 PACKED_ATTR();
 
 /***********************************************************************************/
 /* option 02 - info request */
@@ -397,9 +409,16 @@ typedef struct{
 #define ANONGAME_TYPE_AT_4V4    8
 /* Added by Omega */
 #define ANONGAME_TYPE_TY	9
-#define ANONGAME_TYPE_2V2V2	10
+#define ANONGAME_TYPE_5V5	10
+#define ANONGAME_TYPE_6V6	11
+#define ANONGAME_TYPE_2V2V2	12
+#define ANONGAME_TYPE_3V3V3	13
+#define ANONGAME_TYPE_4V4V4	14
+#define ANONGAME_TYPE_2V2V2V2	15
+#define ANONGAME_TYPE_3V3V3V3	16
+#define ANONGAME_TYPE_AT_2V2V2	17
 
-#define ANONGAME_TYPES 11
+#define ANONGAME_TYPES 18
 
 #define SERVER_FINDANONGAME_PROFILE_UNKNOWN2    0x6E736865 //Sheep
 

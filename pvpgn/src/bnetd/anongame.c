@@ -62,7 +62,7 @@
  */
 static char * mapname = NULL;
 
-static int players[ANONGAME_TYPES] = {0,0,0,0,0,0,0,0,0,0,0};
+static int players[ANONGAME_TYPES] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 static t_connection * player[ANONGAME_TYPES][ANONGAME_MAX_GAMECOUNT];
 
 /* [quetzal] 20020815 - queue to hold matching players */
@@ -78,14 +78,12 @@ static char const *	_conn_get_versiontag(t_connection * c);
 static int		_anongame_gametype_to_queue(int type, int gametype);
 static int		_anongame_level_by_queue(t_connection *c, int queue);
 static char *		_get_map_from_prefs(int queue, t_uint32 cur_prefs, const char * clienttag);
+static unsigned int	_anongame_get_gametype_tab(int queue);
 
 static int		_anongame_totalplayers(int queue);
 static int		_anongame_totalteams(int queue);
 
-static int		_handle_anongame_PG_search(t_connection * c, t_packet const * packet);
-static int		_handle_anongame_AT_inv_search(t_connection * c, t_packet const * packet);
-static int		_handle_anongame_AT_search(t_connection * c, t_packet const * packet);
-
+static int		_handle_anongame_search(t_connection * c, t_packet const * packet);
 static int		_anongame_queue(t_connection * c, int queue, t_uint32 map_prefs);
 static int		_anongame_match(t_connection * c, int queue);
 static int		_anongame_search_found(int queue);
@@ -118,7 +116,19 @@ static int _anongame_gametype_to_queue(int type, int gametype)
 		case 4:
 		    return ANONGAME_TYPE_SMALL_FFA;
 		case 5:
+		    return ANONGAME_TYPE_5V5;
+		case 6:
+		    return ANONGAME_TYPE_6V6;
+		case 7:
 		    return ANONGAME_TYPE_2V2V2;
+		case 8:
+		    return ANONGAME_TYPE_3V3V3;
+		case 9:
+		    return ANONGAME_TYPE_4V4V4;
+		case 10:
+		    return ANONGAME_TYPE_2V2V2V2;
+		case 11:
+		    return ANONGAME_TYPE_3V3V3V3;
 		default:
 	    	    eventlog(eventlog_level_error,__FUNCTION__,"invalid PG game type: %d",gametype);
 	    	    return -1;
@@ -131,6 +141,8 @@ static int _anongame_gametype_to_queue(int type, int gametype)
 		    return ANONGAME_TYPE_AT_3V3;
 		case 3:
 		    return ANONGAME_TYPE_AT_4V4;
+		case 4:
+		    return ANONGAME_TYPE_AT_2V2V2;
 		default:
 	    	    eventlog(eventlog_level_error,__FUNCTION__,"invalid AT game type: %d",gametype);
 	    	    return -1;
@@ -153,7 +165,13 @@ static int _anongame_level_by_queue(t_connection * c, int queue)
 	case ANONGAME_TYPE_2V2:
 	case ANONGAME_TYPE_3V3:
 	case ANONGAME_TYPE_4V4:
+	case ANONGAME_TYPE_5V5:
+	case ANONGAME_TYPE_6V6:
 	case ANONGAME_TYPE_2V2V2:
+	case ANONGAME_TYPE_3V3V3:
+	case ANONGAME_TYPE_4V4V4:
+	case ANONGAME_TYPE_2V2V2V2:
+	case ANONGAME_TYPE_3V3V3V3:
 	    return account_get_teamlevel(conn_get_account(c),ct);
 	case ANONGAME_TYPE_SMALL_FFA:
 	case ANONGAME_TYPE_TEAM_FFA:
@@ -161,6 +179,7 @@ static int _anongame_level_by_queue(t_connection * c, int queue)
 	case ANONGAME_TYPE_AT_2V2:
 	case ANONGAME_TYPE_AT_3V3:
 	case ANONGAME_TYPE_AT_4V4:
+	case ANONGAME_TYPE_AT_2V2V2:
 	    return 0;
 	case ANONGAME_TYPE_TY: /* set to ((wins * 3) + ties - losses) ie. prelim score */
 	    return tournament_get_player_score(conn_get_account(c));
@@ -204,6 +223,43 @@ static char * _get_map_from_prefs(int queue, t_uint32 cur_prefs, const char * cl
     return selected;
 }
 
+static unsigned int _anongame_get_gametype_tab(int queue)
+{
+    /* dizzy: this changed in 1.05 */
+    switch(queue) {
+	case ANONGAME_TYPE_1V1:
+	    return SERVER_ANONGAME_SOLO_STR;
+	case ANONGAME_TYPE_2V2:
+	case ANONGAME_TYPE_3V3:
+	case ANONGAME_TYPE_4V4:
+	case ANONGAME_TYPE_5V5:
+	case ANONGAME_TYPE_6V6:
+	case ANONGAME_TYPE_2V2V2:
+	case ANONGAME_TYPE_3V3V3:
+	case ANONGAME_TYPE_4V4V4:
+	case ANONGAME_TYPE_2V2V2V2:
+	case ANONGAME_TYPE_3V3V3V3:
+	    return SERVER_ANONGAME_TEAM_STR;
+	case ANONGAME_TYPE_SMALL_FFA:
+	    return SERVER_ANONGAME_SFFA_STR;
+	case ANONGAME_TYPE_TEAM_FFA:
+	    return 0; /* Team FFA is no longer supported */
+	case ANONGAME_TYPE_AT_2V2:
+	    return SERVER_ANONGAME_AT2v2_STR;
+	case ANONGAME_TYPE_AT_3V3:
+	    return SERVER_ANONGAME_AT3v3_STR;
+	case ANONGAME_TYPE_AT_4V4:
+	    return SERVER_ANONGAME_AT4v4_STR;
+	case ANONGAME_TYPE_AT_2V2V2:
+	    return SERVER_ANONGAME_AT2v2_STR; /* fixme */
+	case ANONGAME_TYPE_TY:
+	    return SERVER_ANONGAME_TY_STR;
+	default:
+	    eventlog(eventlog_level_error,__FUNCTION__, "invalid queue (%d)", queue);
+	    return 0;
+    }
+}
+
 static int _anongame_totalplayers(int queue)
 {
     switch(queue) {
@@ -216,11 +272,21 @@ static int _anongame_totalplayers(int queue)
 	case ANONGAME_TYPE_3V3:
 	case ANONGAME_TYPE_AT_3V3:
 	case ANONGAME_TYPE_2V2V2:
+	case ANONGAME_TYPE_AT_2V2V2:
 		return 6;
 	case ANONGAME_TYPE_4V4:
 	case ANONGAME_TYPE_AT_4V4:
 	case ANONGAME_TYPE_TEAM_FFA:
+	case ANONGAME_TYPE_2V2V2V2:
 		return 8;
+	case ANONGAME_TYPE_3V3V3:
+		return 9;
+	case ANONGAME_TYPE_5V5:
+		return 10;
+	case ANONGAME_TYPE_6V6:
+	case ANONGAME_TYPE_4V4V4:
+	case ANONGAME_TYPE_3V3V3V3:
+		return 12;
 	case ANONGAME_TYPE_TY:	
 		return tournament_get_totalplayers();
 	default:
@@ -240,13 +306,20 @@ static int _anongame_totalteams(int queue)
 	case ANONGAME_TYPE_2V2:
 	case ANONGAME_TYPE_3V3:
 	case ANONGAME_TYPE_4V4:
+	case ANONGAME_TYPE_5V5:
+	case ANONGAME_TYPE_6V6:
 	case ANONGAME_TYPE_AT_2V2:
 	case ANONGAME_TYPE_AT_3V3:
 	case ANONGAME_TYPE_AT_4V4:
 		return 2;
 	case ANONGAME_TYPE_2V2V2:
+	case ANONGAME_TYPE_3V3V3:
+	case ANONGAME_TYPE_4V4V4:
+	case ANONGAME_TYPE_AT_2V2V2:
 		return 3;
 	case ANONGAME_TYPE_TEAM_FFA: /* not even used */
+	case ANONGAME_TYPE_2V2V2V2:
+	case ANONGAME_TYPE_3V3V3V3:
 		return 4;
 	case ANONGAME_TYPE_TY:	
 		return 2; /* fixme: does not support 2v2v2 - tournament_get_totalteams() */
@@ -257,11 +330,14 @@ static int _anongame_totalteams(int queue)
 }
 
 /**********/
-static int _handle_anongame_PG_search(t_connection * c, t_packet const * packet)
+static int _handle_anongame_search(t_connection * c, t_packet const * packet)
 {
-    t_packet * rpacket = NULL;
-    t_anongame * a = NULL; 
-    int	temp;
+    int			i, j, temp, set = 1;
+    t_packet		*rpacket = NULL;
+    t_connection	*tc[6];
+    t_anongame		*a = NULL, *ta = NULL;
+    t_uint8		teamsize = 0;
+    t_uint8     	option = bn_byte_get(packet->u.client_findanongame.option);
     
     if (!(a = conn_get_anongame(c))) {
 	if (!(a = conn_create_anongame(c))) {
@@ -272,20 +348,43 @@ static int _handle_anongame_PG_search(t_connection * c, t_packet const * packet)
         
     conn_set_anongame_search_starttime(c,time(NULL));
     
-    a->tc[0] = c; /* not sure i need to do this */
-    
-    a->count		= bn_int_get(packet->u.client_findanongame.count);
-    a->id		= bn_int_get(packet->u.client_findanongame.id);
-    a->race		= bn_int_get(packet->u.client_findanongame.race);
-    a->map_prefs	= bn_int_get(packet->u.client_findanongame.map_prefs);
-    a->type		= bn_byte_get(packet->u.client_findanongame.type);
-    a->gametype		= bn_byte_get(packet->u.client_findanongame.gametype);
-    
-    if ((a->queue = _anongame_gametype_to_queue(a->type, a->gametype))<0) {
-	eventlog(eventlog_level_error,__FUNCTION__,"invalid queue: %d",a->queue);
-	return -1;
+    switch(option) {
+	case CLIENT_FINDANONGAME_AT_INVITER_SEARCH:
+	    a->count		= bn_int_get(packet->u.client_findanongame_at_inv.count);
+	    a->id		= bn_int_get(packet->u.client_findanongame_at_inv.id);
+	    a->tid		= bn_int_get(packet->u.client_findanongame_at_inv.tid);
+	    a->race		= bn_int_get(packet->u.client_findanongame_at_inv.race);
+	    a->map_prefs	= bn_int_get(packet->u.client_findanongame_at_inv.map_prefs);
+	    a->type		= bn_byte_get(packet->u.client_findanongame_at_inv.type);
+	    a->gametype		= bn_byte_get(packet->u.client_findanongame_at_inv.gametype);
+	    teamsize		= bn_byte_get(packet->u.client_findanongame_at_inv.teamsize);
+	    break;
+	case CLIENT_FINDANONGAME_AT_SEARCH:
+	    a->count    	= bn_int_get(packet->u.client_findanongame_at.count);
+	    a->id       	= bn_int_get(packet->u.client_findanongame_at.id);
+	    a->tid      	= bn_int_get(packet->u.client_findanongame_at.tid);
+	    a->race     	= bn_int_get(packet->u.client_findanongame_at.race);
+	    teamsize    	= bn_byte_get(packet->u.client_findanongame_at.teamsize);
+	    break;	    
+	case CLIENT_FINDANONGAME_SEARCH:
+	    a->count            = bn_int_get(packet->u.client_findanongame.count);
+	    a->id               = bn_int_get(packet->u.client_findanongame.id);
+	    a->race             = bn_int_get(packet->u.client_findanongame.race);
+	    a->map_prefs        = bn_int_get(packet->u.client_findanongame.map_prefs);
+	    a->type             = bn_byte_get(packet->u.client_findanongame.type);
+	    a->gametype         = bn_byte_get(packet->u.client_findanongame.gametype);
+	    break;
+	default:
+	    eventlog(eventlog_level_error,__FUNCTION__, "invalid search option (%d)", option);
+	    return -1;
     }
-
+    
+    if (option != CLIENT_FINDANONGAME_AT_SEARCH)
+	if ((a->queue = _anongame_gametype_to_queue(a->type, a->gametype))<0) {
+	    eventlog(eventlog_level_error,__FUNCTION__,"invalid queue: %d",a->queue);
+	    return -1;
+	}
+    
     account_set_w3pgrace(conn_get_account(c), conn_get_clienttag(c), a->race);
 
     /* send search reply to client */
@@ -301,210 +400,69 @@ static int _handle_anongame_PG_search(t_connection * c, t_packet const * packet)
     queue_push_packet(conn_get_out_queue(c),rpacket);
     packet_del_ref(rpacket);
     /* end search reply */
-    
-//    eventlog(eventlog_level_trace,__FUNCTION__,"[%d] queueing PG player in queue: %d",conn_get_socket(c),a->queue);
-    if(_anongame_queue(c, a->queue, a->map_prefs) < 0) {
-	eventlog(eventlog_level_error,__FUNCTION__,"queue failed");
-	return -1;
-    }
-    
-//    eventlog(eventlog_level_trace,__FUNCTION__,"[%d] matching PG players in queue: %d",conn_get_socket(c),a->queue);
-    _anongame_match(c, a->queue);
 
-//    eventlog(eventlog_level_trace,__FUNCTION__, "queue: %d , number of players matched: %d , number required: %d", a->queue, players[a->queue], _anongame_totalplayers(a->queue));
-    /* if enough players are queued send found packet */
-    if(players[a->queue] == _anongame_totalplayers(a->queue)) {
-//	eventlog(eventlog_level_trace,__FUNCTION__,"[%d] found enough PG players in queue: %d",conn_get_socket(c),a->queue);
-	if (_anongame_search_found(a->queue) < 0)
-	    return -1;
-    }
-    
-    return 0;
-}
-
-static int _handle_anongame_AT_inv_search(t_connection * c, t_packet const * packet)
-{
-    t_packet * rpacket = NULL;
-    t_connection * tc[4];
-    t_anongame * a = NULL;
-    t_anongame * ta = NULL;
-    t_uint8 teamsize = 0;
-    int	set = 1;
-    int	i, j, temp;
-    
-    if (!(a = conn_get_anongame(c))) {
-	if (!(a = conn_create_anongame(c))) {
-	    eventlog(eventlog_level_error,__FUNCTION__,"[%d] conn_create_anongame failed",conn_get_socket(c));
-	    return -1;
-	}
-    }
-        
-    conn_set_anongame_search_starttime(c,time(NULL));
-    
-    a->count		= bn_int_get(packet->u.client_findanongame_at_inv.count);
-    a->id		= bn_int_get(packet->u.client_findanongame_at_inv.id);
-    a->tid		= bn_int_get(packet->u.client_findanongame_at_inv.tid);
-    a->race		= bn_int_get(packet->u.client_findanongame_at_inv.race);
-    a->map_prefs	= bn_int_get(packet->u.client_findanongame_at_inv.map_prefs);
-    a->type		= bn_byte_get(packet->u.client_findanongame_at_inv.type);
-    a->gametype		= bn_byte_get(packet->u.client_findanongame_at_inv.gametype);
-    
-    teamsize		= bn_byte_get(packet->u.client_findanongame_at_inv.teamsize);
-
-    if ((a->queue = _anongame_gametype_to_queue(a->type, a->gametype))<0) {
-	eventlog(eventlog_level_error,__FUNCTION__,"invalid queue: %d",a->queue);
-	return -1;
-    }
-
-//    eventlog(eventlog_level_trace,__FUNCTION__,"[%d] setting AT player to tid: %X",conn_get_socket(c),a->tid);
-    account_set_w3pgrace(conn_get_account(c), conn_get_clienttag(c), a->race);
-
-    /* send search reply to client */
-    if (!(rpacket = packet_create(packet_class_bnet)))
-	return -1;
-    packet_set_size(rpacket,sizeof(t_server_anongame_search_reply));
-    packet_set_type(rpacket,SERVER_ANONGAME_SEARCH_REPLY);
-    bn_byte_set(&rpacket->u.server_anongame_search_reply.option,SERVER_FINDANONGAME_SEARCH);
-    bn_int_set(&rpacket->u.server_anongame_search_reply.count,a->count);
-    bn_int_set(&rpacket->u.server_anongame_search_reply.reply,0);
-    temp = (int)average_anongame_search_time;
-    packet_append_data(rpacket, &temp, 2);
-    queue_push_packet(conn_get_out_queue(c),rpacket);
-    packet_del_ref(rpacket);
-    /* end search reply */
-    
-    /* assign player conns to tc[] array */
-    for (i = 0; i < teamsize; i++) {
-	if (!(tc[i] = _connlist_find_connection_by_uid(bn_int_get(packet->u.client_findanongame_at.info[i])))) {
-	    eventlog(eventlog_level_error,__FUNCTION__,"[%d] got NULL connection",conn_get_socket(tc[i]));
-	    return -1;
-	}
-    }
-    
-    /* assign info from inviter to other team players */
-    for (i = 0; i < teamsize; i++) {
-	if (!(ta = conn_get_anongame(tc[i]))) {
-	    if (!(ta = conn_create_anongame(tc[i]))) {
-		eventlog(eventlog_level_error,__FUNCTION__,"[%d] conn_create_anongame failed",conn_get_socket(tc[i]));
-		return -1;
+    switch (option) {
+	case CLIENT_FINDANONGAME_AT_INVITER_SEARCH:
+	    for (i = 0; i < teamsize; i++) { /* assign player conns to tc[] array */
+		if (!(tc[i] = _connlist_find_connection_by_uid(bn_int_get(packet->u.client_findanongame_at_inv.info[i])))) {
+		    eventlog(eventlog_level_error,__FUNCTION__,"[%d] got NULL connection",conn_get_socket(tc[i]));
+		    return -1;
+		}
 	    }
-	}
-	
-	/* add each players conn to each anongame struct */
-	for (j = 0; j < teamsize; j++)
-	    ta->tc[j] = tc[j];
+	    for (i = 0; i < teamsize; i++) { /* assign info from inviter to other team players */
+		if (!(ta = conn_get_anongame(tc[i]))) {
+		    if (!(ta = conn_create_anongame(tc[i]))) {
+			eventlog(eventlog_level_error,__FUNCTION__,"[%d] conn_create_anongame failed",conn_get_socket(tc[i]));
+			return -1;
+		    }
+		}
+		for (j = 0; j < teamsize; j++) /* add each players conn to each anongame struct */
+		    ta->tc[j] = tc[j];
 
-	ta->type = a->type;
-	ta->gametype = a->gametype;
-	ta->queue = a->queue;
-	ta->map_prefs = a->map_prefs;
+		ta->type = a->type;
+		ta->gametype = a->gametype;
+		ta->queue = a->queue;
+		ta->map_prefs = a->map_prefs;
 
-//	eventlog(eventlog_level_trace,__FUNCTION__,"[%d] player %d: tid=%X inviter tid=%X",conn_get_socket(c),i+1,ta->tid,a->tid);
-	if (ta->tid != a->tid) {
-//	    eventlog(eventlog_level_trace,__FUNCTION__,"[%d] tid mismatch, not queueing team",conn_get_socket(c));
-	    set = 0;
-	}
+		if (ta->tid != a->tid)
+		    set = 0;
+	    }
+	    if (!set) /* check if search packet has been recieved from each team member */
+		return 0;
+	    break;
+	case CLIENT_FINDANONGAME_AT_SEARCH:
+	    for (i = 0; i < teamsize; i++) { /* assign player conns to tc[] array */
+    		if (!(tc[i] = _connlist_find_connection_by_uid(bn_int_get(packet->u.client_findanongame_at.info[i])))) {
+		    eventlog(eventlog_level_error,__FUNCTION__,"[%d] got NULL connection",conn_get_socket(tc[i]));
+		    return -1;
+		}
+	    }
+	    for (i = 0; i < teamsize; i++) { /* check if search packet has been recieved from each team member */
+		if (!(ta = conn_get_anongame(tc[i])))
+		    return 0;
+		if (ta->tid != a->tid)
+		    return 0;
+	    }
+	    break;
+	case CLIENT_FINDANONGAME_SEARCH:
+	    tc[0] = c;
+	    break;
+	default:
+	    eventlog(eventlog_level_error,__FUNCTION__, "invalid search option (%d)", option);
+	    return -1;
     }
     
-    if (!set)
-	return 0;
-
-//    eventlog(eventlog_level_trace,__FUNCTION__,"[%d] queueing AT team in queue: %d",conn_get_socket(c),a->queue);
     if(_anongame_queue(tc[0], a->queue, a->map_prefs) < 0) {
 	eventlog(eventlog_level_error,__FUNCTION__,"queue failed");
 	return -1;
     }
 
-//    eventlog(eventlog_level_trace,__FUNCTION__,"[%d] matching AT team in queue: %d",conn_get_socket(c),a->queue);
     _anongame_match(c, a->queue);
-//    eventlog(eventlog_level_trace,__FUNCTION__, "queue: %d , number of players matched: %d , number required: %d", a->queue, players[a->queue], _anongame_totalplayers(a->queue));
 
     /* if enough players are queued send found packet */
-    if(players[a->queue] == _anongame_totalplayers(a->queue)) {
-//	eventlog(eventlog_level_trace,__FUNCTION__,"[%d] found enough AT players in queue: %d",conn_get_socket(c),a->queue);
+    if(players[a->queue] == _anongame_totalplayers(a->queue))
 	if (_anongame_search_found(a->queue) < 0)
 	    return -1;
-    }
-    
-    return 0;
-}
-
-static int _handle_anongame_AT_search(t_connection * c, t_packet const * packet)
-{
-    t_packet * rpacket = NULL;
-    t_connection * tc[4];
-    t_anongame * a = NULL;
-    t_anongame * ta = NULL;
-    t_uint8 teamsize = 0;
-    int	i, temp;
-    
-    if (!(a = conn_get_anongame(c))) {
-	if (!(a = conn_create_anongame(c))) {
-	    eventlog(eventlog_level_error,__FUNCTION__,"[%d] conn_create_anongame failed",conn_get_socket(c));
-	    return -1;
-	}
-    }
-    
-    conn_set_anongame_search_starttime(c,time(NULL));
-    
-    a->count	= bn_int_get(packet->u.client_findanongame_at.count);
-    a->id	= bn_int_get(packet->u.client_findanongame_at.id);	
-    a->tid	= bn_int_get(packet->u.client_findanongame_at.tid);
-    a->race	= bn_int_get(packet->u.client_findanongame_at.race);
-    
-    teamsize	= bn_byte_get(packet->u.client_findanongame_at.teamsize);
-
-//    eventlog(eventlog_level_trace,__FUNCTION__,"[%d] setting AT player to tid: %X",conn_get_socket(c),a->tid);
-    account_set_w3pgrace(conn_get_account(c), conn_get_clienttag(c), a->race);
-
-    /* send search reply to client */
-    if (!(rpacket = packet_create(packet_class_bnet)))
-	return -1;
-    packet_set_size(rpacket,sizeof(t_server_anongame_search_reply));
-    packet_set_type(rpacket,SERVER_ANONGAME_SEARCH_REPLY);
-    bn_byte_set(&rpacket->u.server_anongame_search_reply.option,SERVER_FINDANONGAME_SEARCH);
-    bn_int_set(&rpacket->u.server_anongame_search_reply.count,a->count);
-    bn_int_set(&rpacket->u.server_anongame_search_reply.reply,0);
-    temp = (int)average_anongame_search_time;
-    packet_append_data(rpacket, &temp, 2);
-    queue_push_packet(conn_get_out_queue(c),rpacket);
-    packet_del_ref(rpacket);
-    /* end search reply */
-    
-    for (i = 0; i < teamsize; i++) {
-	if (!(tc[i] = _connlist_find_connection_by_uid(bn_int_get(packet->u.client_findanongame_at.info[i]))))
-	    eventlog(eventlog_level_error,__FUNCTION__,"[%d] got NULL connection",conn_get_socket(tc[i]));
-	
-	if (!(ta = conn_get_anongame(tc[i]))) {
-	    if (!(ta = conn_create_anongame(tc[i]))) {
-		eventlog(eventlog_level_error,__FUNCTION__,"[%d] conn_create_anongame failed",conn_get_socket(tc[i]));
-		return -1;
-	    }
-	}
-    
-//	eventlog(eventlog_level_trace,__FUNCTION__,"[%d] player %d: tid=%X joiner tid=%X", conn_get_socket(c),i+1,ta->tid,a->tid);
-	if (ta->tid != a->tid) {
-//	    eventlog(eventlog_level_trace,__FUNCTION__,"[%d] tid mismatch, not queueing team",conn_get_socket(c));
-	    return 0;
-	}
-    }
-    
-//    eventlog(eventlog_level_trace,__FUNCTION__,"[%d] queueing AT team in queue: %d",conn_get_socket(c),a->queue);
-    if(_anongame_queue(tc[0], a->queue, a->map_prefs) < 0) {
-	eventlog(eventlog_level_error,__FUNCTION__,"queue failed");
-	return -1;
-    }
-    
-//    eventlog(eventlog_level_trace,__FUNCTION__,"[%d] matching AT team in queue: %d",conn_get_socket(c),a->queue);
-    _anongame_match(c, a->queue);
-//    eventlog(eventlog_level_trace,__FUNCTION__, "queue: %d , number of players matched: %d , number required: %d", a->queue, players[a->queue], _anongame_totalplayers(a->queue));
-
-    /* if enough players are queued send found packet */
-    if(players[a->queue] == _anongame_totalplayers(a->queue)) {
-//	eventlog(eventlog_level_trace,__FUNCTION__,"[%d] found enough AT players in queue: %d",conn_get_socket(c),a->queue);
-	if (_anongame_search_found(a->queue) < 0)
-	    return -1;
-    }
     
     return 0;
 }
@@ -633,7 +591,8 @@ static int _anongame_search_found(int queue)
     t_packet		*rpacket = NULL;
     t_anongameinfo	*info;
     t_anongame		*a = NULL; 
-    int i, j, temp;
+    int i, j;
+    t_saf_pt2		*pt2;
 
     /* FIXME: maybe periodically lookup w3routeaddr to support dynamic ips?
      * (or should dns lookup be even quick enough to do it everytime?)
@@ -665,11 +624,22 @@ static int _anongame_search_found(int queue)
 	eventlog(eventlog_level_error,__FUNCTION__,"anongameinfo_create failed");
 	return -1;
     }
+
+    /* create data to be appended to end of packet */
+    pt2 = malloc(sizeof(t_saf_pt2));
+    bn_int_set(&pt2->unknown1, -1);
+    bn_int_set(&pt2->anongame_string, _anongame_get_gametype_tab(queue));
+    bn_byte_set(&pt2->totalplayers, _anongame_totalplayers(queue));
+    bn_byte_set(&pt2->totalteams, _anongame_totalteams(queue)); /* 1v1 & sffa are set to zero in _anongame_totalteams() */
+    bn_short_set(&pt2->unknown2, 0);
+    bn_byte_set(&pt2->visibility, 2); /* visibility. 0x01 - dark 0x02 - default */
+    bn_byte_set(&pt2->unknown3, 2);
     
     /* send found packet to each of the players */
     for(i=0; i<players[queue]; i++) {
 	if(!(a = conn_get_anongame(player[queue][i]))) {
 	    eventlog(eventlog_level_error,__FUNCTION__,"no anongame struct for queued player");
+	    free(pt2);
 	    return -1;
 	}
 	
@@ -681,10 +651,10 @@ static int _anongame_search_found(int queue)
 	    a->info->account[j] = conn_get_account(player[queue][j]);
 	}
 	
-//	eventlog(eventlog_level_trace,__FUNCTION__, "totalplayers: %d", a->info->totalplayers);
-
-	if (!(rpacket = packet_create(packet_class_bnet)))
+	if (!(rpacket = packet_create(packet_class_bnet))) {
+	    free(pt2);
 	    return -1;
+	}
 	
 	packet_set_size(rpacket,sizeof(t_server_anongame_found));
 	packet_set_type(rpacket,SERVER_ANONGAME_FOUND);
@@ -700,64 +670,15 @@ static int _anongame_search_found(int queue)
 	bn_byte_set(&rpacket->u.server_anongame_found.unknown5,6);
 	bn_byte_set(&rpacket->u.server_anongame_found.type,a->type);
 	bn_byte_set(&rpacket->u.server_anongame_found.gametype,a->gametype);
-	
-	if (!mapname) /* set in anongame_match() */
-	    eventlog(eventlog_level_error,__FUNCTION__,"got all players, but there's no map to play on");
-	else
-	    eventlog(eventlog_level_trace,__FUNCTION__,"selected map: %s", mapname);
-
-	packet_append_string(rpacket, mapname); 
-	temp=-1;
-	packet_append_data(rpacket, &temp, 4);
-
-	{
-	    /* dizzy: this changed in 1.05 */
-	    int gametype_tab [] = {
-		SERVER_ANONGAME_SOLO_STR,
-		SERVER_ANONGAME_TEAM_STR,
-		SERVER_ANONGAME_TEAM_STR,
-		SERVER_ANONGAME_TEAM_STR,
-		SERVER_ANONGAME_SFFA_STR,
-		SERVER_ANONGAME_AT2v2_STR,
-		0, /* Team FFA is no longer supported */
-		SERVER_ANONGAME_AT3v3_STR,
-		SERVER_ANONGAME_AT4v4_STR,
-		SERVER_ANONGAME_TY_STR,
-		SERVER_ANONGAME_TEAM_STR
-	    };
-	
-	    if (queue > ANONGAME_TYPES) {
-		eventlog(eventlog_level_error,__FUNCTION__, "invalid queue (%d)", queue);
-		temp = 0;
-	    } 
-	    else
-		bn_int_set((bn_int*)&temp,gametype_tab[queue]);
-	}
-	packet_append_data(rpacket, &temp, 4);
-	
-	/* total players */
-	bn_byte_set((bn_byte*)&temp,_anongame_totalplayers(queue));
-	packet_append_data(rpacket, &temp, 1);
-	
-	/* number of teams */
-	/* next byte is 1v1 = 0 , sffa = 0 , rest = 2 , (blizzard default) */
-	/* tested with 2v2v2, works [Omega]*/
-	temp = _anongame_totalteams(queue); /* 1v1 & sffa are set to zero in _anongame_totalteams() */
-	packet_append_data(rpacket, &temp, 1);
-
-	temp=0;
-	packet_append_data(rpacket, &temp, 2);
-	bn_byte_set((bn_byte*)&temp,0x02);	/* visibility. 0x01 - dark 0x02 - default */
-	packet_append_data(rpacket, &temp, 1);
-	bn_byte_set((bn_byte*)&temp,0x02);
-	packet_append_data(rpacket, &temp, 1);
-	
+	packet_append_string(rpacket, mapname);
+	packet_append_data(rpacket, pt2, sizeof(t_saf_pt2));
 	queue_push_packet(conn_get_out_queue(player[queue][i]),rpacket);
 	packet_del_ref(rpacket);
     }
 
     /* clear queue */
     players[queue] = 0;
+    free(pt2);
     return 0;
 }
 
@@ -792,19 +713,7 @@ extern int anongame_matchlists_destroy()
 /**********/
 extern int handle_anongame_search(t_connection * c, t_packet const * packet)
 {
-    t_uint8	option = bn_byte_get(packet->u.client_findanongame.option);
-    
-    if (option==CLIENT_FINDANONGAME_AT_INVITER_SEARCH)
-	return _handle_anongame_AT_inv_search(c, packet);
-
-    else if (option==CLIENT_FINDANONGAME_AT_SEARCH)
-	return _handle_anongame_AT_search(c, packet);
-
-    else if (option==CLIENT_FINDANONGAME_SEARCH)
-	return _handle_anongame_PG_search(c, packet);
-    
-    else
-	return -1;
+    return _handle_anongame_search(c, packet);
 }
 
 extern int anongame_unqueue(t_connection * c, int queue)
@@ -855,6 +764,7 @@ extern char anongame_arranged(int queue)
 	case ANONGAME_TYPE_AT_2V2:
 	case ANONGAME_TYPE_AT_3V3:
 	case ANONGAME_TYPE_AT_4V4:
+	case ANONGAME_TYPE_AT_2V2V2:
 		return 1;
 	case ANONGAME_TYPE_TY:
 		return tournament_is_arranged();
@@ -874,6 +784,7 @@ extern int anongame_stats(t_connection * c)
     t_uint8		gametype = a->queue;
     t_uint8		plnum = a->playernum;
     char const *        ct = conn_get_clienttag(c);
+    int			tt = _anongame_totalteams(gametype);
     
     /* do nothing till all other players have w3route conn closed */
     for(i=0; i<tp; i++)
@@ -921,6 +832,11 @@ extern int anongame_stats(t_connection * c)
     /* according to zap, order of players in anongame is:
      * for PG: t1_p1, t2_p1, t1_p2, t2_p2, ...
      * for AT: t1_p1, t1_p2, ..., t2_p1, t2_p2, ...
+     *
+     * (Not True.. follows same order as PG)
+     *  4v4	= t1_p1, t2_p1, t1_p2, t2_p2, t1_p3, t2_p3, t1_p4, t2_p4
+     *	3v3v3	= t1_p1, t2_p1, t3_p1, t1_p2, t2_p2, t3_p2, t1_p3, t2_p3, t3_p3
+     *  2v2v2v2	= t1_p1, t2_p1, t3_p1, t4_p1, t1_p2, t2_p2, t3_p2, t4_p2
      */
 
     /* opponent level calculation has to be done here, because later on, the level of other players
@@ -928,7 +844,7 @@ extern int anongame_stats(t_connection * c)
      */
     for (i=0; i<tp; i++)
     {
-	int j,k;
+	int j,k,l;
         t_account * oacc; 
         oppon_level[i]=0;
         switch(gametype) {
@@ -955,27 +871,22 @@ extern int anongame_stats(t_connection * c)
 		oacc = a->info->account[j];
 		oppon_level[i]= account_get_atteamlevel(oacc,account_get_currentatteam(oacc),ct);
 		break;
-	    case ANONGAME_TYPE_2V2V2:
-		/* I think this works [Omega] */
-		k = i+1;
-		for (j=0; j<(tp/3); j++)
-		{
-		    oppon_level[i]+= account_get_teamlevel(a->info->account[k%tp],ct);
-		    k++;
-		    oppon_level[i]+= account_get_teamlevel(a->info->account[k%tp],ct);
-		    k = k+2;
-		}
-		oppon_level[i]/=((tp/3)*2);
-		break;
+	    case ANONGAME_TYPE_AT_2V2V2:
+		break; /* fixme */
 	    default:
-		/* oppon_level = average level of all opponents (which are every 2nd player in the list) */
+		/* oppon_level = average level of all opponents
+		 * this should work for all PG team games
+		 * [Omega] */
 		k = i+1;
-		for (j=0; j<(tp/2); j++) 
+		for ( j=0; j < (tp/tt); j++) 
 		{
-		    oppon_level[i]+= account_get_teamlevel(a->info->account[k%tp],ct);
-		    k = k+2;
+		    for ( l=0; l < (tt-1); l++) {
+			oppon_level[i]+= account_get_teamlevel(a->info->account[k%tp],ct);
+			k++;
+		    }
+		    k++;
 		}
-		oppon_level[i]/=(tp/2);
+		oppon_level[i]/=(tp/tt*(tt-1));
 	}
     }
     
@@ -999,6 +910,7 @@ extern int anongame_stats(t_connection * c)
 	    case ANONGAME_TYPE_AT_2V2:
 	    case ANONGAME_TYPE_AT_3V3:
 	    case ANONGAME_TYPE_AT_4V4:
+	    case ANONGAME_TYPE_AT_2V2V2:
 	    	/* Added by DJP in an attempt to manage teamcount ! ( bug of previous CVS 1.2.4 ) */
 		if(account_get_new_at_team(acc)==1) {
 		    int temp;
@@ -1018,7 +930,13 @@ extern int anongame_stats(t_connection * c)
 	    case ANONGAME_TYPE_3V3:
 	    case ANONGAME_TYPE_4V4:
 	    case ANONGAME_TYPE_SMALL_FFA:
+	    case ANONGAME_TYPE_5V5:
+	    case ANONGAME_TYPE_6V6:
 	    case ANONGAME_TYPE_2V2V2:
+	    case ANONGAME_TYPE_3V3V3:
+	    case ANONGAME_TYPE_4V4V4:
+	    case ANONGAME_TYPE_2V2V2V2:
+	    case ANONGAME_TYPE_3V3V3V3:
 		if(result == W3_GAMERESULT_WIN)
 		    account_set_saveladderstats(acc,gametype,game_result_win,oppon_level[i],conn_get_clienttag(c));
 		if(result == W3_GAMERESULT_LOSS)
@@ -1428,6 +1346,9 @@ extern int handle_w3route_packet(t_connection * c, t_packet const * const packet
     case CLIENT_W3ROUTE_GAMERESULT:
     case CLIENT_W3ROUTE_GAMERESULT_W3XP:
 	{
+
+	    /* insert reading of whole packet into t_gameresult */
+
 	   int result = bn_int_get(packet->u.client_w3route_gameresult.result);
 	   t_timer_data data;
 	   t_anongameinfo *inf = anongame_get_info(a);
@@ -1667,6 +1588,7 @@ extern int handle_anongame_join(t_connection * c)
 			case ANONGAME_TYPE_AT_2V2:
 			case ANONGAME_TYPE_AT_3V3:
 			case ANONGAME_TYPE_AT_4V4:
+			case ANONGAME_TYPE_AT_2V2V2:
 				acct = conn_get_account(anongame_get_player(ja,i));
 				level = account_get_atteamlevel((acct),account_get_currentatteam(acct),ct);
 				break;

@@ -51,8 +51,13 @@ typedef struct
 
 #endif
 
+#ifndef JUST_NEED_TYPES
 #ifndef INCLUDED_TOURNAMENT_PROTOS
 #define INCLUDED_TOURNAMENT_PROTOS
+
+#define JUST_NEED_TYPES
+#include "account.h"
+#undef JUST_NEED_TYPES
 
 extern int tournament_signup_user(t_account * account);
 extern int tournament_user_signed_up(t_account * account);
@@ -87,4 +92,5 @@ extern char * tournament_get_format(void);
 extern char * tournament_get_sponsor(void);
 extern unsigned int tournament_get_thumbs_down(void);
 /*****/
+#endif
 #endif

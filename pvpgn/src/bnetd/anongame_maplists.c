@@ -53,52 +53,29 @@ static char *	_maplists_queue_get_type(int queue);
 
 static void	_maplists_add_map(char const * clienttag, char * mapname, int queue);
 
+/*****/
+static char *	queue_names[ANONGAME_TYPES] = {
+	"1v1","2v2","3v3","4v4","sffa","at2v2","tffa","at3v3","at4v4",
+	"TY",
+	"5v5","6v6","2v2v2","3v3v3","4v4v4","2v2v2v2","3v3v3v3",
+	"at2v2v2"
+    };
 /**********************************************************************************/
 static int _maplists_type_get_queue(const char * type)
 {
-    if (strcmp(type, "1v1"  ) == 0) return ANONGAME_TYPE_1V1;
-    if (strcmp(type, "2v2"  ) == 0) return ANONGAME_TYPE_2V2;
-    if (strcmp(type, "3v3"  ) == 0) return ANONGAME_TYPE_3V3;
-    if (strcmp(type, "4v4"  ) == 0) return ANONGAME_TYPE_4V4;
-    if (strcmp(type, "sffa" ) == 0) return ANONGAME_TYPE_SMALL_FFA;
-    if (strcmp(type, "tffa" ) == 0) return ANONGAME_TYPE_TEAM_FFA;
-    if (strcmp(type, "at2v2") == 0) return ANONGAME_TYPE_AT_2V2;
-    if (strcmp(type, "at3v3") == 0) return ANONGAME_TYPE_AT_3V3;
-    if (strcmp(type, "at4v4") == 0) return ANONGAME_TYPE_AT_4V4;
-    if (strcmp(type, "TY"   ) == 0) return ANONGAME_TYPE_TY;
-    if (strcmp(type, "2v2v2") == 0) return ANONGAME_TYPE_2V2V2;
+    int i;
+    
+    for (i = 0; i < ANONGAME_TYPES; i++)
+	if (strcmp(type, queue_names[i]) == 0)
+	    return i;
+
     return -1;
 }
 
+
 static char * _maplists_queue_get_type(int queue)
 {
-    switch (queue)
-    {
-	case 0:
-	    return strdup("1v1");
-	case 1:
-	    return strdup("2v2");
-	case 2:
-	    return strdup("3v3");
-	case 3:
-	    return strdup("4v4");
-	case 4:
-	    return strdup("sffa");
-	case 5:
-	    return strdup("tffa");
-	case 6:
-	    return strdup("at2v2");
-	case 7:
-	    return strdup("at3v3");
-	case 8:
-	    return strdup("at4v4");
-	case 9:
-	    return strdup("TY");
-	case 10:
-	    return strdup("2v2v2");
-	default:
-	    return NULL;
-    }
+    return queue_names[queue];
 }
 
 static void _maplists_add_map(char const * clienttag, char * mapname, int queue)
@@ -130,9 +107,9 @@ static void _maplists_add_map(char const * clienttag, char * mapname, int queue)
 	    maplists_war3[queue][0]++;
 	    maplists_war3[queue][maplists_war3[queue][0]] = j;
 	} else {
-	    char * type = _maplists_queue_get_type(queue);
-	    eventlog(eventlog_level_error,__FUNCTION__,"cannot add map \"%s\" for gametype: %s (maxmaps per qametype: %d)", mapname, type, MAXMAPS_PER_QUEUE);
-	    if (type) free((void *)type);
+	    eventlog(eventlog_level_error,__FUNCTION__,
+		"cannot add map \"%s\" for gametype: %s (maxmaps per qametype: %d)",
+		mapname, _maplists_queue_get_type(queue), MAXMAPS_PER_QUEUE);
 	}
     }
     
@@ -151,9 +128,9 @@ static void _maplists_add_map(char const * clienttag, char * mapname, int queue)
 	    maplists_w3xp[queue][0]++;
 	    maplists_w3xp[queue][maplists_w3xp[queue][0]] = j;
 	} else {
-	    char * type = _maplists_queue_get_type(queue);
-	    eventlog(eventlog_level_error,__FUNCTION__,"cannot add map \"%s\" for gametype: %s (maxmaps per qametype: %d)", mapname, type, MAXMAPS_PER_QUEUE);
-	    if (type) free((void *)type);
+	    eventlog(eventlog_level_error,__FUNCTION__,
+		"cannot add map \"%s\" for gametype: %s (maxmaps per qametype: %d)",
+		mapname, _maplists_queue_get_type(queue), MAXMAPS_PER_QUEUE);
 	}
     }
 

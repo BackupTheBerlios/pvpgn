@@ -19,8 +19,13 @@
 #endif
 
 /*****/
+#ifndef JUST_NEED_TYPES
 #ifndef INCLUDED_ANONGAME_MAPLISTS_PROTOS
 #define INCLUDED_ANONGAME_MAPLISTS_PROTOS
+
+#define JUST_NEED_TYPES
+#include "common/packet.h"
+#undef JUST_NEED_TYPES
 
 extern int	anongame_maplists_create(void);
 extern void	anongame_maplists_destroy(void);
@@ -36,4 +41,5 @@ extern char *	maplists_get_map(int queue, char const * clienttag, int mapnumber)
 extern int	anongame_add_tournament_map(char const * clienttag, char * mapname);
 extern void	anongame_tournament_maplists_destroy(void);
 
+#endif
 #endif
