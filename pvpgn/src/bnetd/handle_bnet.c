@@ -5861,6 +5861,8 @@ static int _client_w3xp_clan_inforeq(t_connection * c, t_packet const * const pa
 
 static int _client_changeclient(t_connection * c, t_packet const * const packet)
 {
+    t_versioncheck *vc;
+
    if (packet_get_size(packet)<sizeof(t_client_changeclient)) {
       eventlog(eventlog_level_error,__FUNCTION__,"[%d] got bad CLIENT_CHANGECLIENT packet (expected %u bytes, got %u)",conn_get_socket(c),sizeof(t_client_changeclient),packet_get_size(packet));
       return -1;
@@ -5885,6 +5887,28 @@ static int _client_changeclient(t_connection * c, t_packet const * const packet)
     else if (bn_int_tag_eq(packet->u.client_changeclient.clienttag,CLIENTTAG_WAR3XP)==0)
 	conn_set_clienttag(c,CLIENTTAG_WAR3XP);
     else eventlog(eventlog_level_error,__FUNCTION__,"[%d] unknown client program type 0x%08x, don't expect this to work",conn_get_socket(c),bn_int_get(packet->u.client_changeclient.clienttag));
+
+    vc = conn_get_versioncheck(c);
+    if (vc && versioncheck_get_versiontag(vc)) {
+	const char *vtag;
+
+	vtag = NULL;
+
+	versioncheck_set_clienttag(vc, conn_get_clienttag(c));
+	switch (versioncheck_revalidate(vc, &vtag))
+	{
+	    case -1: /* failed test... client has been modified */
+	    case 0: /* not listed in table... can't tell if client has been modified */
+		eventlog(eventlog_level_error, __FUNCTION__, "error revalidating");
+		conn_set_state(c, conn_state_destroy);
+		break;
+	}
+
+	if (vtag) {
+	    versioncheck_set_versiontag(vc, vtag);
+	    eventlog(eventlog_level_info,__FUNCTION__,"[%d] client matches versiontag \"%s\"",conn_get_socket(c),vtag);
+	}
+    }
 
     return 0;
 }

@@ -117,6 +117,12 @@ extern t_versioncheck * versioncheck_create(char const * archtag, char const * c
 	}
 	vc->versiontag = strdup(clienttag);
 	
+	vc->archtag	= NULL;
+	vc->clienttag	= NULL;
+	vc->exeinfo	= NULL;
+	vc->versionid	= 0;
+	vc->gameversion	= 0;
+	vc->checksum	= 0;
 	return vc;
     }
     
@@ -143,6 +149,9 @@ extern int versioncheck_destroy(t_versioncheck * vc)
     free((void *)vc->versiontag);
     free((void *)vc->mpqfile);
     free((void *)vc->eqn);
+    if (vc->archtag) free((void *)vc->archtag);
+    if (vc->clienttag) free((void *)vc->clienttag);
+    if (vc->exeinfo) free((void *)vc->exeinfo);
     free(vc);
     
     return 0;
@@ -173,6 +182,33 @@ extern char const * versioncheck_get_versiontag(t_versioncheck const * vc)
     }
     
     return vc->versiontag;
+}
+
+extern int versioncheck_set_clienttag(t_versioncheck * vc, char const * clienttag)
+{
+    if (!vc) {
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL vc");
+	return -1;
+    }
+    if (!clienttag) {
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL versiontag");
+	return -1;
+    }
+    
+    if (vc->clienttag!=NULL) free((void *)vc->clienttag);
+    vc->clienttag = strdup(clienttag);
+    return 0;
+}
+
+
+extern char const * versioncheck_get_clienttag(t_versioncheck const * vc)
+{
+    if (!vc) {
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL vc");
+	return NULL;
+    }
+    
+    return vc->clienttag;
 }
 
 
@@ -305,7 +341,7 @@ static int versioncheck_compare_exeinfo(char const * pattern, char const * match
 }
 
 
-extern int versioncheck_validate(t_versioncheck const * vc, char const * archtag, char const * clienttag, char const * exeinfo, unsigned long versionid, unsigned long gameversion, unsigned long checksum, char const ** versiontag)
+extern int versioncheck_validate(t_versioncheck * vc, char const * archtag, char const * clienttag, char const * exeinfo, unsigned long versionid, unsigned long gameversion, unsigned long checksum, char const ** versiontag)
 {
     t_elem const *  curr;
     t_versioninfo * vi;
@@ -325,7 +361,7 @@ extern int versioncheck_validate(t_versioncheck const * vc, char const * archtag
 	    eventlog(eventlog_level_error,"versioncheck_validate","version list contains NULL item");
 	    continue;
         }
-	
+
 	if (strcmp(vi->eqn,vc->eqn)!=0)
 	    continue;
 	if (strcmp(vi->mpqfile,vc->mpqfile)!=0)
@@ -372,8 +408,24 @@ extern int versioncheck_validate(t_versioncheck const * vc, char const * archtag
 	
 	/* Ok, version and checksum matches or exeinfo/checksum are disabled
 	 * anyway we have found a complete match */
-	if (*versiontag)
+	if (*versiontag) {
 	    eventlog(eventlog_level_info,"versioncheck_validate","got a matching entry: %s",*versiontag);
+	    if (vc->archtag != archtag) {
+		if (vc->archtag) free((void *)vc->archtag);
+		vc->archtag = strdup(archtag);
+	    }
+	    if (vc->clienttag != clienttag) {
+		if (vc->clienttag) free((void *)vc->clienttag);
+		vc->clienttag = strdup(clienttag);
+	    }
+	    if (vc->exeinfo != exeinfo) {
+		if (vc->exeinfo) free((void *)vc->exeinfo);
+		vc->exeinfo = strdup(exeinfo);
+	    }
+	    vc->versionid = versionid;
+	    vc->gameversion = gameversion;
+	    vc->checksum = checksum;
+	}
 	else
 	    eventlog(eventlog_level_info,"versioncheck_validate","got a matching entry");
 	return 1;
@@ -402,6 +454,10 @@ extern int versioncheck_validate(t_versioncheck const * vc, char const * archtag
     return 0;
 }
 
+extern int versioncheck_revalidate(t_versioncheck *vc, char const ** versiontag)
+{
+    return versioncheck_validate(vc, vc->archtag, vc->clienttag, vc->exeinfo, vc->versionid, vc->gameversion, vc->checksum, versiontag);
+}
 
 extern int versioncheck_load(char const * filename)
 {
