@@ -869,7 +869,7 @@ extern void handle_anongame_search(t_connection * c, t_packet const * packet)
 	}
 	queue_push_packet(conn_get_out_queue(c),rpacket);
 	packet_del_ref(rpacket);
-
+	
 	anongame_set_type(a, gametype);
 	if(anongame_queue_player(c, gametype, map_prefs) < 0) {
 		eventlog(eventlog_level_error,"handle_anongame_search","queue failed");
@@ -920,44 +920,30 @@ extern void handle_anongame_search(t_connection * c, t_packet const * packet)
 
 		if (!(rpacket = packet_create(packet_class_bnet)))
 			return;
-		
-		if (strcmp(conn_get_clienttag(c), CLIENTTAG_WAR3XP) == 0)
-		    packet_set_size(rpacket,sizeof(t_server_anongame_found2));
-		else
-		    packet_set_size(rpacket,sizeof(t_server_anongame_found));
+
+		packet_set_size(rpacket,sizeof(t_server_anongame_found));
 
 		packet_set_type(rpacket,SERVER_ANONGAME_FOUND);
 		bn_byte_set(&rpacket->u.server_anongame_found.type,1);
 		bn_int_set(&rpacket->u.server_anongame_found.count,anongame_get_count(conn_get_anongame(player[gametype][i])));
 		bn_int_set(&rpacket->u.server_anongame_found.unknown1,0);
 		
-		if (strcmp(conn_get_clienttag(c), CLIENTTAG_WAR3XP) == 0) {
-		    bn_byte_set(&rpacket->u.server_anongame_found2.unknown3, SERVER_ANONGAME_FOUND2_UNKNOWN3);
-		    bn_short_set(&rpacket->u.server_anongame_found2.unknown6, SERVER_ANONGAME_FOUND2_UNKNOWN6);
-		    bn_int_set(&rpacket->u.server_anongame_found2.unknown7, SERVER_ANONGAME_FOUND2_UNKNOWN7);
-		    bn_int_set(&rpacket->u.server_anongame_found2.unknown8, SERVER_ANONGAME_FOUND2_UNKNOWN8);
-		    bn_int_set(&rpacket->u.server_anongame_found2.unknown9, SERVER_ANONGAME_FOUND2_UNKNOWN9);
-		    bn_int_set(&rpacket->u.server_anongame_found2.ip,w3routeip);
-		    bn_short_set(&rpacket->u.server_anongame_found2.port,w3routeport);
-		    bn_byte_set(&rpacket->u.server_anongame_found2.numplayers,anongame_totalplayers(gametype));
-		    bn_byte_set(&rpacket->u.server_anongame_found2.playernum, i+1);
-		    bn_byte_set(&rpacket->u.server_anongame_found2.gametype,gametype);
-		    bn_byte_set(&rpacket->u.server_anongame_found2.unknown2,0);
-		    bn_int_set(&rpacket->u.server_anongame_found2.id,0xdeadbeef);
-		    bn_byte_set(&rpacket->u.server_anongame_found2.unknown4,6);
-		    bn_short_set(&rpacket->u.server_anongame_found2.unknown5,0);
+		if (strcmp(conn_get_clienttag(c), CLIENTTAG_WAR3XP) == 0)
 		    mapname = "Maps\\FrozenThrone\\Beta\\(4)TrtleRock.w3x";
-		} else {
-		    bn_int_set(&rpacket->u.server_anongame_found.ip,w3routeip);
-		    bn_short_set(&rpacket->u.server_anongame_found.port,w3routeport);
-		    bn_byte_set(&rpacket->u.server_anongame_found.numplayers,anongame_totalplayers(gametype));
-		    bn_byte_set(&rpacket->u.server_anongame_found.playernum, i+1);
-		    bn_byte_set(&rpacket->u.server_anongame_found.gametype,gametype);
-		    bn_byte_set(&rpacket->u.server_anongame_found.unknown2,0);
-		    bn_int_set(&rpacket->u.server_anongame_found.id,0xdeadbeef);
-		    bn_byte_set(&rpacket->u.server_anongame_found.unknown4,6);
-		    bn_short_set(&rpacket->u.server_anongame_found.unknown5,0);
+		
+		bn_int_set(&rpacket->u.server_anongame_found.ip,w3routeip);
+		bn_short_set(&rpacket->u.server_anongame_found.port,w3routeport);
+		bn_byte_set(&rpacket->u.server_anongame_found.numplayers,anongame_totalplayers(gametype));
+		bn_byte_set(&rpacket->u.server_anongame_found.playernum, i+1);
+		bn_byte_set(&rpacket->u.server_anongame_found.gametype,gametype);
+		bn_byte_set(&rpacket->u.server_anongame_found.unknown2,0);
+		{
+		    int id;
+		    id = (int)((double)rand() / RAND_MAX * 0x10000000);
+		    bn_int_set(&rpacket->u.server_anongame_found.id,id);
 		}
+		bn_byte_set(&rpacket->u.server_anongame_found.unknown4,6);
+		bn_short_set(&rpacket->u.server_anongame_found.unknown5,0);
 
 		if (!mapname) {
 			eventlog(eventlog_level_fatal, "handle_anongame_search", 
@@ -993,7 +979,7 @@ extern void handle_anongame_search(t_connection * c, t_packet const * packet)
 		temp=anongame_totalplayers(gametype);
 		packet_append_data(rpacket, &temp, 1);
 
-		if(gametype == ANONGAME_TYPE_1V1 || gametype == ANONGAME_TYPE_SMALL_FFA)
+		if(gametype == ANONGAME_TYPE_SMALL_FFA)
 			temp = 0;
 		else
 			temp = 2;
@@ -1091,12 +1077,18 @@ extern int handle_w3route_packet(t_connection * c, t_packet const * const packet
 	 eventlog(eventlog_level_error,"handle_w3route_packet","[%d] packet_create failed",conn_get_socket(c));
 	 return -1;
       }
-      
+           
       packet_set_size(rpacket,sizeof(t_server_w3route_ack));
       packet_set_type(rpacket,SERVER_W3ROUTE_ACK);
       bn_byte_set(&rpacket->u.server_w3route_ack.unknown1,7);
       bn_short_set(&rpacket->u.server_w3route_ack.unknown2,0);
-      bn_int_set(&rpacket->u.server_w3route_ack.unknown3,0xdeafbeef);
+      {
+        int rid;
+	rid =(int)(((double)rand() / RAND_MAX) * 0x10000000);
+	bn_int_set(&rpacket->u.server_w3route_ack.unknown3,rid);
+      }
+
+//      bn_int_set(&rpacket->u.server_w3route_ack.unknown3,0xdeafbeef);
       bn_short_set(&rpacket->u.server_w3route_ack.unknown4,0xcccc);
       bn_byte_set(&rpacket->u.server_w3route_ack.playernum,anongame_get_playernum(a));
       bn_short_set(&rpacket->u.server_w3route_ack.unknown5,0x0002);
