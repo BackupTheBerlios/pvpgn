@@ -1138,7 +1138,7 @@ extern int handle_command(t_connection * c,  char const * text)
 	
 	/* Battle.net time: Wed Jun 23 15:15:29 */
 	btlocal = bnettime_add_tzbias(btsystem,local_tzbias());
-	now = bnettime_to_time(btsystem);
+	now = bnettime_to_time(btlocal);
 	if (!(tmnow = gmtime(&now)))
 	    strcpy(msgtemp,"PvPGN Server Time: ?");
 	else
