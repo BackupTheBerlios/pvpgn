@@ -55,10 +55,10 @@
 
 static t_list * realmlist_head=NULL;
 
-static t_realm * realm_create(char const * name, char const * description, unsigned int ip, unsigned int port, unsigned int showip, unsigned int showport, t_netaddr * exclude_net);
+static t_realm * realm_create(char const * name, char const * description, unsigned int ip, unsigned int port);
 static int realm_destroy(t_realm * realm);
 
-static t_realm * realm_create(char const * name, char const * description, unsigned int ip, unsigned int port, unsigned int showip, unsigned int showport, t_netaddr * exclude_net)
+static t_realm * realm_create(char const * name, char const * description, unsigned int ip, unsigned int port)
 {
     t_realm * realm;
     
@@ -96,11 +96,8 @@ static t_realm * realm_create(char const * name, char const * description, unsig
 	free(realm);
 	return NULL;
     }
-    realm->exclude_net = exclude_net;
     realm->ip = ip;
     realm->port = port;
-    realm->showip = showip;
-    realm->showport = showport;
     realm->active = 0;
     realm->player_number = 0;
     realm->game_number = 0;
@@ -123,7 +120,6 @@ static int realm_destroy(t_realm * realm)
     if (realm->active)
     	realm_deactive(realm);
 
-    netaddr_destroy(realm->exclude_net);    
     free((void *)realm->name); /* avoid warning */
     free((void *)realm->description); /* avoid warning */
     free((void *)realm); /* avoid warning */
@@ -206,17 +202,6 @@ extern unsigned short realm_get_port(t_realm const * realm)
 }
 
 
-extern unsigned short realm_get_showport(t_realm const * realm)
-{
-    if (!realm)
-    {
-        eventlog(eventlog_level_error,"realm_get_port","got NULL realm");
-        return 0;
-    }
-    return realm->showport;
-}
-
-
 extern unsigned int realm_get_ip(t_realm const * realm)
 {
     if (!realm)
@@ -225,28 +210,6 @@ extern unsigned int realm_get_ip(t_realm const * realm)
         return 0;
     }
     return realm->ip;
-}
-
-
-extern unsigned int realm_get_showip(t_realm const * realm)
-{
-    if (!realm)
-    {
-        eventlog(eventlog_level_error,"realm_get_ip","got NULL realm");
-        return 0;
-    }
-    return realm->showip;
-}
-
-
-extern t_netaddr * realm_get_exclude_net(t_realm const * realm)
-{
-    if (!realm)
-    {
-	eventlog(eventlog_level_error,__FUNCTION__,"got NULL realm");
-	return NULL;
-    }
-    return realm->exclude_net;
 }
 
 
@@ -493,62 +456,16 @@ extern int realmlist_create(char const * filename)
 	    continue;
 	}
 	
-	/* skip any separators */
-	for(; *temp && (*temp == ' ' || *temp == '\t');temp++);
-	
-	if (*temp) { /* do we have show addr */
-	    temp2 = temp;
-	    /* find out where address ends */
-	    for(temp = temp2 + 1; *temp && *temp != ' ' && *temp != '\t';temp++);
-
-	    if (*temp) *temp++ = '\0';
-	    /* eventlog(eventlog_level_trace, "realmlist_create","found realm show ip: %s", temp2);*/
-
-	    if (!(showraddr = addr_create_str(temp2,0,BNETD_REALM_PORT))) /* 0 means "this computer" */ {
-		eventlog(eventlog_level_error,"realmlist_create","invalid show address value for field 3 on line %u in file \"%s\"",line,filename);
-		free(name);
-		free(buff);
-		free(desc);
-		continue;
-	    }
-	    
-	    /* skip any separators */
-	    for(; *temp && (*temp == '\t' || *temp == ' ');temp++);
-	    
-	    if(*temp) { /* do we have a exclude net */
-		temp2 = temp;
-		/* find out where exclude net ends */
-		for(temp = temp2 + 1; *temp && *temp != ' ' && *temp != '\t';temp++);
-		
-		*temp = '\0';
-	    
-		if (!(exclude_net = netaddr_create_str(temp2))) {
-		    eventlog(eventlog_level_error,__FUNCTION__,"invalid exclude net");
-		    addr_destroy(showraddr);
-		    free(name);
-		    free(buff);
-		    free(desc);
-		    continue;
-		}
-	    } else exclude_net = netaddr_create_str("0.0.0.0/32");
-	} else {
-	    showraddr = raddr;
-	    exclude_net = netaddr_create_str("0.0.0.0/32");
-	}
-	
-	if (!(realm = realm_create(name,desc,addr_get_ip(raddr),addr_get_port(raddr),addr_get_ip(showraddr),addr_get_port(showraddr), exclude_net)))
+	if (!(realm = realm_create(name,desc,addr_get_ip(raddr),addr_get_port(raddr))))
 	{
 	    eventlog(eventlog_level_error,"realmlist_create","could not create realm");
-	    if (showraddr != raddr) addr_destroy(showraddr);
 	    addr_destroy(raddr);
-	    netaddr_destroy(exclude_net);
 	    free(name);
 	    free(buff);
 	    free(desc);
 	    continue;
 	}
-	
-	if (showraddr != raddr) addr_destroy(showraddr);
+
 	addr_destroy(raddr);
 	free(name);
 	free(buff);

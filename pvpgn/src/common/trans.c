@@ -53,7 +53,7 @@
 
 static t_list * trans_head=NULL;
 
-extern int trans_load(char const * filename)
+extern int trans_load(char const * filename, int program)
 {
     FILE		*fp;
     unsigned int	line;
@@ -106,6 +106,31 @@ extern int trans_load(char const * filename)
 	    free(buff);
 	    continue;
 	}
+	/* check for port number - this tells us what programs will use this entry */
+	if ((temp = strrchr(input,':'))) {
+	    *temp++;
+	    /* bnetd doesn't want the port 4000 entries */
+	    if (program==TRANS_BNETD  && strcmp(temp,"4000")==0) {
+#ifdef DEBUG_TRANS
+		eventlog(eventlog_level_debug,__FUNCTION__,"d2gs input (ignoring) \"%s\"",input);
+#endif
+		free(buff);
+		continue;
+	    }
+	    /* d2cs only wants the port 4000 entries */
+	    if (program==TRANS_D2CS && strcmp(temp,"4000")!=0) {
+#ifdef DEBUG_TRANS
+		eventlog(eventlog_level_debug,__FUNCTION__,"non d2gs input (ignoring) \"%s\"",input);
+#endif
+		free(buff);
+		continue;
+	    }
+	} else {
+	    eventlog(eventlog_level_error,__FUNCTION__,"missing port # on input line %u of file \"%s\"",line,filename);
+	    free(buff);
+	    continue;
+	}
+	
 	if (!(output = strtok(NULL," \t"))) {
 	    eventlog(eventlog_level_error,__FUNCTION__,"missing output on line %u of file \"%s\"",line,filename);
 	    free(buff);
@@ -296,10 +321,10 @@ extern int trans_unload(void)
     return 0;
 }
 
-extern int trans_reload(char const * filename)
+extern int trans_reload(char const * filename, int program)
 {
     trans_unload();
-    if(trans_load(filename)<0) return -1;
+    if(trans_load(filename,program)<0) return -1;
     return 0;
 }
 
@@ -322,7 +347,7 @@ extern int trans_net(unsigned int clientaddr, unsigned int *addr, unsigned short
 	LIST_TRAVERSE_CONST(trans_head,curr)
 	{
 	    if (!(entry = elem_get_data(curr))) {
-		eventlog(eventlog_level_error,"__FUNCTION__","found NULL entry in list");
+		eventlog(eventlog_level_error,__FUNCTION__,"found NULL entry in list");
 		continue;
 	    }
 	    
@@ -334,13 +359,13 @@ extern int trans_net(unsigned int clientaddr, unsigned int *addr, unsigned short
 #endif		
 	    if (addr_get_ip(entry->input)!=*addr && addr_get_port(entry->input)!=*port) {
 #ifdef DEBUG_TRANS
-		eventlog(eventlog_level_debug,"__FUNCTION__","entry does match input address");
+		eventlog(eventlog_level_debug,__FUNCTION__,"entry does match input address");
 #endif
 		continue;
 	    }
 	    if (netaddr_contains_addr_num(entry->network,clientaddr)==0) {
 #ifdef DEBUG_TRANS
-		eventlog(eventlog_level_debug,__FUNCTION__,"client is not in the network");
+		eventlog(eventlog_level_debug,__FUNCTION__,"client is not in the correct network");
 #endif
 		continue;
 	    }

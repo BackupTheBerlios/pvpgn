@@ -453,7 +453,7 @@ int pre_server_startup(void)
     if (command_groups_load(prefs_get_command_groups_file())<0)
 	eventlog(eventlog_level_error,"pre_server_startup","could not load command_groups list");
     aliasfile_load(prefs_get_aliasfile());
-    if (trans_load(prefs_get_transfile())<0)
+    if (trans_load(prefs_get_transfile(),TRANS_BNETD)<0)
 	eventlog(eventlog_level_error,__FUNCTION__,"could not load trans list");
     tournament_init(prefs_get_tournament_file());
     anongame_infos_load(prefs_get_anongame_infos_file());

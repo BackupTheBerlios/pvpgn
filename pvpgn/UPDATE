@@ -21,6 +21,8 @@ changed config files:
 - conf/bnmotd.txt : changed example file to show new feature
 - conf/versioncheck.conf : commented unsupported versions and added new
 - conf/bnetd.conf : updated for renamed, removed, & added  conf files
+- conf/realm.conf : removed showip:port & exclude net (translations done
+    in address_translation.conf)
 
 changes to d2cs.conf:
 ---------------------

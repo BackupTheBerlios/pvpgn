@@ -43,9 +43,12 @@ typedef struct
 #ifndef INCLUDED_TRANS_PROTOS
 #define INCLUDED_TRANS_PROTOS
 
-extern int trans_load(char const * filename);
+#define TRANS_BNETD 1
+#define TRANS_D2CS  2
+
+extern int trans_load(char const * filename, int program);
 extern int trans_unload(void);
-extern int trans_reload(char const * filename);
+extern int trans_reload(char const * filename, int program);
 extern int trans_net(unsigned int clientaddr, unsigned int *addr, unsigned short *port);
 
 #endif

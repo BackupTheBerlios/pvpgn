@@ -1431,7 +1431,7 @@ static void _server_mainloop(t_addrlist *laddrs)
 	    aliasfile_unload();
 	    aliasfile_load(prefs_get_aliasfile());
 	    
-	    if(trans_reload(prefs_get_transfile())<0)
+	    if(trans_reload(prefs_get_transfile(),TRANS_BNETD)<0)
 		eventlog(eventlog_level_error,__FUNCTION__,"could not reload trans list");
 
 	    tournament_reload(prefs_get_tournament_file());

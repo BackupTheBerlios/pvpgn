@@ -3257,15 +3257,15 @@ static int _client_realmjoinreq109(t_connection * c, t_packet const * const pack
 			    bn_short_set(&rpacket->u.server_realmjoinreply_109.u3,0x0); /* reg auth */
 			    bn_int_set(&rpacket->u.server_realmjoinreply_109.bncs_addr1,0x0);
 			    bn_int_set(&rpacket->u.server_realmjoinreply_109.sessionnum,conn_get_sessionnum(c));
+			    { /* trans support */
+				unsigned int	addr = realm_get_ip(realm);
+				unsigned short	port = realm_get_port(realm);
+				
+				trans_net(conn_get_addr(c), &addr, &port);
 			    
-			    if (netaddr_contains_addr_num(realm_get_exclude_net(realm), conn_get_addr(c))) {
-				bn_int_nset(&rpacket->u.server_realmjoinreply_109.addr,realm_get_ip(realm));
-				bn_short_nset(&rpacket->u.server_realmjoinreply_109.port,realm_get_port(realm));
-			    } else {
-				bn_int_nset(&rpacket->u.server_realmjoinreply_109.addr,realm_get_showip(realm));
-				bn_short_nset(&rpacket->u.server_realmjoinreply_109.port,realm_get_showport(realm));
+				bn_int_nset(&rpacket->u.server_realmjoinreply_109.addr,addr);
+				bn_short_nset(&rpacket->u.server_realmjoinreply_109.port,port);
 			    }
-			    			
 			    bn_int_set(&rpacket->u.server_realmjoinreply_109.sessionkey,conn_get_sessionkey(c));
 			    bn_int_set(&rpacket->u.server_realmjoinreply_109.u5,0);
 			    bn_int_set(&rpacket->u.server_realmjoinreply_109.u6,0);
