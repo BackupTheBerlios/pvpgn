@@ -5429,7 +5429,7 @@ static int _client_w3xp_clan_inforeq(t_connection * c, t_packet const * const pa
 	packet_del_ref(rpacket);
      }
 
-
+  return 0;
 
 
 }
