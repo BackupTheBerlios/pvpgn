@@ -329,10 +329,8 @@ extern int handle_command(t_connection * c,  char const * text)
 
 	if ( (strcmp(&text[i],"help") == 0) || (text[i] == '\0') )
 	{
-		message_send_text(c,message_type_info,c,"Type: /clan <clanname>");
-		message_send_text(c,message_type_info,c,"=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=");
+		message_send_text(c,message_type_info,c,"usage: /clan <clanname>");
 		message_send_text(c,message_type_info,c,"Using this option will allow you to join a clan which displays in your profile.  ");
-		message_send_text(c,message_type_info,c,"=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=");
 		return 0;
 	}
 	acctgetclanname = account_get_w3_clanname(conn_get_account(c));
@@ -2846,6 +2844,65 @@ if (strstart(text,"/rank_all_accounts")==0)
 		sprintf(msgtemp,"Warcraft II IronMan current  %5u: <none>",rank);
 	    message_send_text(c,message_type_info,c,msgtemp);
 	}
+	// --> aaron
+	else if (strcasecmp(clienttag,CLIENTTAG_WARCRAFT3)==0)
+	{
+	  unsigned int teamcount;
+	    if (account = war3_ladder_get_account(&solo_ladder,rank,teamcount))
+	    {
+		sprintf(msgtemp,"WarCraft3 Solo   %5u: %-20.20s %u/%u/0",
+			rank,
+			(tname = account_get_name(account)),
+			account_get_solowin(account),
+			account_get_sololoss(account));
+		account_unget_name(tname);
+	    }
+	    else
+		sprintf(msgtemp,"WarCraft3 Solo   %5u: <none>",rank);
+	    message_send_text(c,message_type_info,c,msgtemp);
+	    
+	    if (account = war3_ladder_get_account(&team_ladder,rank,teamcount))
+	    {
+		sprintf(msgtemp,"WarCraft3 Team   %5u: %-20.20s %u/%u/0",
+			rank,
+			(tname = account_get_name(account)),
+			account_get_teamwin(account),
+			account_get_teamloss(account));
+		account_unget_name(tname);
+	    }
+	    else
+		sprintf(msgtemp,"WarCraft3 Team   %5u: <none>",rank);
+	    message_send_text(c,message_type_info,c,msgtemp);
+	    
+	    if (account = war3_ladder_get_account(&ffa_ladder,rank,teamcount))
+	    {
+		sprintf(msgtemp,"WarCraft3 FFA   %5u: %-20.20s %u/%u/0",
+			rank,
+			(tname = account_get_name(account)),
+			account_get_ffawin(account),
+			account_get_ffaloss(account));
+		account_unget_name(tname);
+	    }
+	    else
+		sprintf(msgtemp,"WarCraft3 FFA   %5u: <none>",rank);
+	    message_send_text(c,message_type_info,c,msgtemp);
+	    
+	    if (account = war3_ladder_get_account(&at_ladder,rank,teamcount))
+	    {
+		if (account_get_atteammembers(account,teamcount))
+		sprintf(msgtemp,"WarCraft3 AT Team   %5u: %-80.80s %u/%u/0",
+			rank,
+			account_get_atteammembers(account,teamcount),
+			account_get_atteamwin(account,teamcount),
+			account_get_atteamloss(account,teamcount));
+		else
+		sprintf(msgtemp,"WarCraft3 AT Team   %5u: <invalid team info>",rank);
+	    }
+	    else
+		sprintf(msgtemp,"WarCraft3 AT Team  %5u: <none>",rank);
+	    message_send_text(c,message_type_info,c,msgtemp);
+	}
+	//<---
 	else
 	{
 	    message_send_text(c,message_type_error,c,"This game does not support win/loss records.");

@@ -141,6 +141,8 @@ whereis <player> - looks up some basic information on a user, including their ac
 /motd - display the motd
 %makeadmin
 /makeadmin - +username to make user a admin, or -username to remove admin status of a user
+%rank_all_accounts
+/rank_all_accounts - brute force adds all accounts to war3 ladder
 %remove_accounting_infos
 /remove_accounting_infos - remove extra accounting infos from all accounts - may take some while...
 %rehash

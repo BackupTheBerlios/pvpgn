@@ -49,10 +49,10 @@ realmfile   = /usr/local/etc/realm.list
 maildir     = /usr/local/var/bnmail/
 versioncheck_file = /usr/local/etc/versioncheck
 mapsfile    = /usr/local/etc/bnmaps.txt
-xplevelfile    = /usr/local/etc/bnxplevel.txt
-xpcalcfile    = /usr/local/etc/bnxpcalc.txt
-#pidfile     = /usr/local/var/bnetd.pid
-ladderdir    = /usr/local/var/ladders
+xplevelfile = /usr/local/etc/bnxplevel.txt
+xpcalcfile  = /usr/local/etc/bnxpcalc.txt
+#pidfile    = /usr/local/var/bnetd.pid
+ladderdir   = /usr/local/var/ladders
 
 fortunecmd  = /usr/games/fortune
 
