@@ -1994,6 +1994,7 @@ extern int anongame_stats(t_connection * c)
 		    account_set_saveladderstats(acc,gametype,game_result_loss,oppon_level[i],conn_get_clienttag(c));
 		break;
 	    default:
+		break;
 	}
     }
     // aaron: now update war3 ladders
