@@ -11,6 +11,9 @@ PvPGN Version History:
   -- fixed a bug which created problems with some backends because of reused sockets
   not being cleaned properly
 
+[STAR/SEXP/W2BN]
+  -- fixed problem with topvbot "team game"-results being discarded
+
 [MISC]
   -- made topics.conf being reloaded on SIGHUP
   -- made '/games all' display clienttag of a game
