@@ -345,5 +345,93 @@ typedef struct
 0000:   FF 71 0B 00 01 00 00 00   57 33 00                   .q......W3.     
 */
 #define CLIENT_W3XP_JOINCHANNEL	0x71ff
+typedef struct
+{
+    t_bnet_header h;
+    bn_int        channelflag;
+} t_client_w3xp_joinchannel PACKED_ATTR();
+
+/*
+0000:   FF 59 39 00 07 00 00 00   21 00 00 00 BC 00 00 00    .Y9.....!.......
+0010:   00 00 00 00 0D F0 AD BA   0D F0 AD BA 77 23 66 6F    ............w#fo
+0020:   6F 62 61 72 00 46 72 6F   7A 65 6E 20 54 68 72 6F    obar.Frozen Thro
+0030:   6E 65 20 44 45 55 2D 31   00                         ne DEU-1.       
+*/
+#define SERVER_W3XP_MESSAGE	0x59ff
+typedef struct
+{
+    t_bnet_header h;
+    bn_int        type;
+    bn_int        flags;     /* player flags (or channel flags for MT_CHANNEL) */
+    bn_int        latency;
+    bn_int        unknown1;  /* always zero? */
+    bn_int        player_ip; /* player's IP (big endian), no longer used, always 0D F0 AD BA */
+    bn_int        unknown3;  /* server ip and/or reg auth? CD key and/or account number? */
+  /* player name */
+  /* text */
+} t_server_w3xp_message PACKED_ATTR();
+
+/*
+0000:   FF 16 47 00 01 00 00 00   03 00 00 00 01 00 00 00    ..G.............
+0010:   42 69 5A 61 52 52 65 00   70 72 6F 66 69 6C 65 5C    BiZaRRe.profile\
+0020:   6C 6F 63 61 74 69 6F 6E   00 70 72 6F 66 69 6C 65    location.profile
+0030:   5C 64 65 73 63 72 69 70   74 69 6F 6E 00 63 6C 61    \description.cla
+0040:   6E 5C 6E 61 6D 65 00                                 n\name.         
+*/
+#define CLIENT_W3XP_STATSREQ	0x16ff
+typedef struct
+{
+    t_bnet_header h;
+    bn_int        name_count;
+    bn_int        key_count;
+    bn_int        unknown1; /* 78 52 82 02 */
+    /* player name */
+    /* field key ... */
+} t_client_w3xp_statsreq PACKED_ATTR();
+
+/*
+0000:   FF 16 34 00 01 00 00 00   03 00 00 00 01 00 00 00    ..4.............
+0010:   75 64 20 3D 20 49 4D 42   41 21 21 21 21 31 32 00    ud = IMBA!!!!12.
+0020:   31 20 65 72 72 6F 72 20   69 6E 20 73 6F 6C 6F 20    1 error in solo 
+0030:   3D 5B 00 00                                          =[..            
+*/
+#define SERVER_W3XP_STATSREPLY	0x16ff
+typedef struct
+{
+    t_bnet_header h;
+    bn_int        name_count;
+    bn_int        key_count;
+    bn_int        unknown1; /* 78 52 82 02 */ /* EE E4 84 03 */ /* same as request */
+    /* field values ... */
+} t_server_w3xp_statsreply PACKED_ATTR();
+
+/*
+0000:   FF 34 15 00 04 01 00 00   00 42 69 5A 61 52 52 65    .4.......BiZaRRe
+0010:   00 50 58 33 57                                       .PX3W           
+*/
+#define CLIENT_W3XP_PROFILEREQ	0x34ff
+typedef struct   
+{   
+    t_bnet_header h;   
+    bn_byte     option;    
+    bn_int          count;
+    // USERNAME TO LOOKUP //
+    // CLIENT TAG //
+} t_client_wa3xp_profilereq PACKED_ATTR();
+
+
+/*
+*/
+typedef struct
+{
+    t_bnet_header h; //header
+    bn_byte option; // in this case it will be 0x04 (for profile)
+    bn_int count; // count that goes up each time user clicks on someones profile
+    bn_int unknown1; /* added in 1.03 seems to differ 0x63726165 */
+    bn_byte rescount;
+// REST OF PROFILE STATS - THIS WILL BE SET IN HANDLE_BNET.C after
+// SERVER LOOKS UP THE USER ACCOUNT
+} t_server_w3xp_profilereply PACKED_ATTR();
+
 
 #endif

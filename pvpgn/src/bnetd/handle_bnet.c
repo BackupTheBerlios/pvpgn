@@ -62,6 +62,7 @@
 #include "compat/strdup.h"
 #include "common/packet.h"
 #include "common/bnet_protocol.h"
+#include "common/w3xp_protocol.h"
 #include "common/tag.h"
 #include "message.h"
 #include "common/eventlog.h"
@@ -100,6 +101,7 @@
 #include "character.h"
 #include "versioncheck.h"
 #include "anongame.h"
+#include "bnpmap.h"
 #include "common/proginfo.h"
 #include "handle_bnet.h"
 #include "handlers.h"
@@ -206,6 +208,8 @@ static const t_htable_row bnet_htable_con[] = {
      { CLIENT_LOGINREQ2,        _client_loginreq2},
      { CLIENT_LOGINREQ_W3,      _client_loginreqw3},
      { CLIENT_LOGONPROOFREQ,    _client_logonproofreq},
+   /* After this packet we know to translate the packets to the normal IDs */
+     { CLIENT_W3XP_COUNTRYINFO, _client_countryinfo109},
      { -1,                       NULL}
 };
 
@@ -574,6 +578,11 @@ static int _client_countryinfo109(t_connection * c, t_packet const * const packe
 	  conn_set_clienttag(c,CLIENTTAG_DIABLO2XP);
 	else if (bn_int_tag_eq(packet->u.client_countryinfo_109.clienttag,CLIENTTAG_WARCRAFT3)==0)
 	  conn_set_clienttag(c,CLIENTTAG_WARCRAFT3);
+	else if (bn_int_tag_eq(packet->u.client_countryinfo_109.clienttag,CLIENTTAG_WAR3XP)==0) {
+	   conn_set_clienttag(c,CLIENTTAG_WAR3XP);
+	   /* we activate the packet type mapper for this connection */
+	   conn_set_pmap(c, bnpmap_get_war3xptable());
+	}
 	else
 	  eventlog(eventlog_level_error,__FUNCTION__,"[%d] unknown client program type 0x%08x, don't expect this to work",conn_get_socket(c),bn_int_get(packet->u.client_countryinfo_109.clienttag));
 	
@@ -603,6 +612,9 @@ static int _client_countryinfo109(t_connection * c, t_packet const * const packe
 		      conn_get_clienttag(c), CLIENTTAG_WARCRAFT3);
 	     if (strcmp(conn_get_clienttag(c),CLIENTTAG_WARCRAFT3)==0) {
 		eventlog(eventlog_level_trace,__FUNCTION__,"Responding with WarCraft III AUTHREQ response.");
+		bn_int_set(&rpacket->u.server_authreq_109.unknown1,SERVER_AUTHREQ_109_UNKNOWN1_W3);
+	     } else if (strcmp(conn_get_clienttag(c), CLIENTTAG_WAR3XP) == 0) {
+		eventlog(eventlog_level_trace,__FUNCTION__,"Responding with WarCraft III XP AUTHREQ response.");
 		bn_int_set(&rpacket->u.server_authreq_109.unknown1,SERVER_AUTHREQ_109_UNKNOWN1_W3);
 	     } else {
 		bn_int_set(&rpacket->u.server_authreq_109.unknown1,SERVER_AUTHREQ_109_UNKNOWN1);
@@ -674,6 +686,8 @@ static int _client_progident(t_connection * c, t_packet const * const packet)
      conn_set_clienttag(c,CLIENTTAG_DIABLO2XP);
    else if (bn_int_tag_eq(packet->u.client_progident.clienttag,CLIENTTAG_WARCRAFT3)==0)
      conn_set_clienttag(c,CLIENTTAG_WARCRAFT3);
+   else if (bn_int_tag_eq(packet->u.client_progident.clienttag,CLIENTTAG_WAR3XP)==0)
+     conn_set_clienttag(c,CLIENTTAG_WAR3XP);
    else
      eventlog(eventlog_level_error,__FUNCTION__,"[%d] unknown client program type 0x%08x, don't expect this to work",conn_get_socket(c),bn_int_get(packet->u.client_progident.clienttag));
    
@@ -1415,10 +1429,10 @@ static int _client_iconreq(t_connection * c, t_packet const * const packet)
 	packet_set_size(rpacket,sizeof(t_server_iconreply));
 	packet_set_type(rpacket,SERVER_ICONREPLY);
 	file_to_mod_time(prefs_get_iconfile(),&rpacket->u.server_iconreply.timestamp);
-	
+
 	// select the icon file based on the client
 	// FIXME: what about diablo II? does it have its own icon file? [Omega]
-	if (strcmp(conn_get_clienttag(c),CLIENTTAG_WARCRAFT3)==0)
+	if (strcmp(conn_get_clienttag(c),CLIENTTAG_WARCRAFT3)==0 || strcmp(conn_get_clienttag(c),CLIENTTAG_WAR3XP)==0)
 	    packet_append_string(rpacket,prefs_get_war3_iconfile());
 	else if (strcmp(conn_get_clienttag(c),CLIENTTAG_STARCRAFT)==0)
 	    packet_append_string(rpacket,prefs_get_star_iconfile());
@@ -3838,6 +3852,8 @@ static int _client_progident2(t_connection * c, t_packet const * const packet)
 	  conn_set_clienttag(c,CLIENTTAG_DIABLO2XP);
 	else if (bn_int_tag_eq(packet->u.client_progident2.clienttag,CLIENTTAG_WARCRAFT3)==0)
 	  conn_set_clienttag(c,CLIENTTAG_WARCRAFT3);
+	else if (bn_int_tag_eq(packet->u.client_progident2.clienttag,CLIENTTAG_WAR3XP)==0)
+	  conn_set_clienttag(c,CLIENTTAG_WAR3XP);
 	else
 	  eventlog(eventlog_level_error,__FUNCTION__,"[%d] unknown client program type 0x%08x, don't expect this to work",conn_get_socket(c),bn_int_get(packet->u.client_progident2.clienttag));
      }
@@ -3877,37 +3893,56 @@ static int _client_joinchannel(t_connection * c, t_packet const * const packet)
 	char const * cname;
 	int          found=1;
 	
-	/* ADDED BY UNDYING SOULZZ 4/7/02 AND MODIFIED BY DJP FOR RANDOM FIX & WINS RACE FEATURE*/
-	unsigned int 	acctlevel = 0;
+	if (!(cname = packet_get_str_const(packet,sizeof(t_client_joinchannel),CHANNEL_NAME_LEN))) {
+	   eventlog(eventlog_level_error,__FUNCTION__,"[%d] got bad JOINCHANNEL (missing or too long cname)",conn_get_socket(c));
+	   return -1;
+	}
 	
-	char		    tempplayerinfo[40];
-	char		    raceicon; /* appeared in 1.03 */
-	unsigned int	raceiconnumber;
-	unsigned int    wins;
-	
-	acctlevel = account_get_highestladderlevel(conn_get_account(c));
-	account_get_raceicon(conn_get_account(c), &raceicon, &raceiconnumber, &wins);
-	if(acctlevel==0)
-	  {
-	     sprintf( tempplayerinfo, "3RAW 3RAW 0 0");
-	     eventlog(eventlog_level_info,__FUNCTION__,"[%d] 3RAW 3RAW",conn_get_socket(c));
-	  }
-	else if (wins==0)
-	  {
-	     sprintf( tempplayerinfo, "3RAW 3RAW 0 0");
-	     eventlog(eventlog_level_info,__FUNCTION__,"[%d] 3RAW 3RAW",conn_get_socket(c));
-	  }
-	else 
-	  {
-	     sprintf(tempplayerinfo, "3RAW %1u%c3W %u %u", raceiconnumber, raceicon, acctlevel, wins); 
-	     eventlog(eventlog_level_info,__FUNCTION__,"[%d] 3RAW %1u%c3W %u",conn_get_socket(c), raceiconnumber, raceicon, acctlevel);
-	  }
-	
-	if (!(cname = packet_get_str_const(packet,sizeof(t_client_joinchannel),CHANNEL_NAME_LEN)))
-	  {
-	     eventlog(eventlog_level_error,__FUNCTION__,"[%d] got bad JOINCHANNEL (missing or too long cname)",conn_get_socket(c));
-	     return -1;
-	  }
+	if (strcmp(conn_get_clienttag(c), CLIENTTAG_WARCRAFT3) == 0 || strcmp(conn_get_clienttag(c), CLIENTTAG_WAR3XP) == 0) {
+	   /* ADDED BY UNDYING SOULZZ 4/7/02 AND MODIFIED BY DJP FOR RANDOM FIX & WINS RACE FEATURE*/
+	   unsigned int 	acctlevel = 0;
+	   
+	   char		    tempplayerinfo[40];
+	   char		    raceicon; /* appeared in 1.03 */
+	   unsigned int	raceiconnumber;
+	   unsigned int    wins;
+	   char *          client;
+	   
+	   if (strcmp(conn_get_clienttag(c), CLIENTTAG_WARCRAFT3) == 0)
+	     client = "3RAW";
+	   else
+	     client = "PX3W";
+	   
+	   acctlevel = account_get_highestladderlevel(conn_get_account(c));
+	   account_get_raceicon(conn_get_account(c), &raceicon, &raceiconnumber, &wins);
+	   if(acctlevel==0)
+	     {
+		sprintf( tempplayerinfo, "%s %s 0 0", client, client);
+		eventlog(eventlog_level_info,__FUNCTION__,"[%d] %s %s",conn_get_socket(c), client, client);
+	     }
+	   else if (wins==0)
+	     {
+		sprintf( tempplayerinfo, "%s %s 0 0", client, client);
+		eventlog(eventlog_level_info,__FUNCTION__,"[%d] %s %s",conn_get_socket(c), client, client);
+	     }
+	   else 
+	     {
+		sprintf(tempplayerinfo, "%s %1u%c3W %u %u", client, raceiconnumber, raceicon, acctlevel, wins); 
+		eventlog(eventlog_level_info,__FUNCTION__,"[%d] %s %1u%c3W %u",conn_get_socket(c), client, raceiconnumber, raceicon, acctlevel);
+	     }
+	   
+	   conn_set_w3_playerinfo( c, tempplayerinfo ); 
+	   
+	   if(account_get_new_at_team(conn_get_account(c))==1)
+	     {
+		int temp;
+		temp = account_get_atteamcount(conn_get_account(c));
+		temp = temp-1;
+		account_set_atteamcount(conn_get_account(c),temp);
+		account_set_new_at_team(conn_get_account(c),0);
+	     }
+	}
+
 	//ADDED THEUNDYING - UPDATED 7/31/02
 	if ((account_get_auth_admin(conn_get_account(c),cname)>0) || (account_get_auth_admin(conn_get_account(c),NULL)>0))
 	  conn_set_flags( c, MF_BLIZZARD );
@@ -3915,17 +3950,6 @@ static int _client_joinchannel(t_connection * c, t_packet const * const packet)
 	  conn_set_flags( c, MF_BNET );
 	else
 	  conn_set_flags( c, W3_ICON_SET );
-	
-	conn_set_w3_playerinfo( c, tempplayerinfo ); 
-	
-	if(account_get_new_at_team(conn_get_account(c))==1)
-	  {
-	     int temp;
-	     temp = account_get_atteamcount(conn_get_account(c));
-	     temp = temp-1;
-	     account_set_atteamcount(conn_get_account(c),temp);
-	     account_set_new_at_team(conn_get_account(c),0);
-	  }
 	
 	switch (bn_int_get(packet->u.client_joinchannel.channelflag))
 	  {
@@ -3959,8 +3983,8 @@ static int _client_joinchannel(t_connection * c, t_packet const * const packet)
    if(conn_get_motd_loggedin(c)==0)
      {
 	char msgtemp[255];
-	
-	if(strcasecmp(conn_get_clienttag(c),CLIENTTAG_WARCRAFT3)==0)
+
+	if(strcasecmp(conn_get_clienttag(c),CLIENTTAG_WARCRAFT3)==0 || strcasecmp(conn_get_clienttag(c),CLIENTTAG_WAR3XP)==0)
 	  {
 	     sprintf(msgtemp,"Welcome to the PvPGN Realm");
 	     message_send_text(c,message_type_info,c,msgtemp);
@@ -5194,7 +5218,7 @@ static int _client_mapauthreq2(t_connection * c, t_packet const * const packet)
 	       {
 		  /* MODIFIED BY UNDYING SOULZZ 4/14/02 */
 		  /*			    game_set_status(game,game_status_started); */
-		  if ( strcmp( CLIENTTAG_WARCRAFT3, conn_get_clienttag(c) ) == 0)
+		  if (strcmp( CLIENTTAG_WARCRAFT3, conn_get_clienttag(c) ) == 0  || strcmp( CLIENTTAG_WAR3XP, conn_get_clienttag(c) ) == 0)
 		    game_set_status(game,game_status_open );
 		  else
 		    game_set_status(game,game_status_started );

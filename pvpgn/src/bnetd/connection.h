@@ -40,6 +40,7 @@
 # include "character.h"
 # include "versioncheck.h"
 # include "anongame.h"
+# include "bnpmap.h"
 # ifdef WITH_BITS
 #   include "bits.h"
 #   include "bits_ext.h"
@@ -64,6 +65,7 @@
 # include "character.h"
 # include "versioncheck.h"
 # include "anongame.h"
+# include "bnpmap.h"
 # ifdef WITH_BITS
 #   include "bits.h"
 #   include "bits_ext.h"
@@ -119,78 +121,79 @@ typedef enum
 typedef struct connection
 #ifdef CONNECTION_INTERNAL_ACCESS
 {
-	int                           tcp_sock;
-    unsigned int                  tcp_addr;
-    unsigned short                tcp_port;
-    int                           udp_sock;
-    unsigned int                  udp_addr;
-    unsigned short                udp_port;
-    unsigned int                  local_addr;
-    unsigned short                local_port;
-    unsigned int                  real_local_addr;
-    unsigned short                real_local_port;
-    t_conn_class                  class;
-    t_conn_state                  state;
-    unsigned int                  sessionkey;
-    unsigned int                  sessionnum;
-    unsigned int                  secret; /* random number... never sent over net unencrypted */
-    unsigned int                  flags;
-    unsigned int                  latency;
-    t_usersettings                settings;
-    char const *                  archtag;
-    char const *                  clienttag;
-    char const *                  clientver;
-    unsigned long                 versionid; /* AKA bnversion */
-    char const *                  country;
-    int                           tzbias;
-    t_account *                   account;
-    t_channel *                   channel;
-    t_game *                      game;
-    t_queue *                     outqueue;  /* packets waiting to be sent */
-    unsigned int                  outsize;   /* amount sent from the current output packet */
-    t_queue *                     inqueue;   /* packet waiting to be processed */
-    unsigned int                  insize;    /* amount received into the current input packet */
-    int                           welcomed;  /* 1 = sent welcome message, 0 = have not */
-    char const *                  host;
-    char const *                  user;
-    char const *                  clientexe;
-    char const *                  owner;
-    char const *                  cdkey;
-    char const *                  botuser;   /* username for remote connections (not taken from account) */
-    time_t                        last_message;
-    char const *                  realmname; /* to remember until character is created */
-    t_character *                 character;
-    struct connection *           bound; /* matching Diablo II auth connection */
-
-    /* [zap-zero] 20020527 - matching w3route connection for game connection /
-			     matching game connection for w3route connection */
-    struct connection *		  routeconn;
-    t_anongame *		  anongame;
-
-	// [quetzal] 20020822 - AT game identifier
-	int							  atid;
-
-    char const *          lastsender; /* last person to whisper to this connection */
-    char const *          realminfo;
-    char const *          charname;
-    t_versioncheck *	versioncheck; /* equation and MPQ file used to validate game checksum */
-    char const *	      ircline; /* line cache for IRC connections */
-    unsigned int		  ircping; /* value of last ping */
-    char const *		  ircpass; /* hashed password for PASS authentication */
-#ifdef WITH_BITS
-    unsigned int		  bits_game; /* game is always NULL, this is used instead (0==no game)*/
-    unsigned int          sessionid; /* unique sessionid for this connection on the network */
-    t_bits_connection_extension	* bits;      /* extended connection info for bits connections (conn_class_bits) */
-#endif
-    int                   udpok;     /* udp packets can be received by client */
-    char const *          w3_username; /* filled between 0x53ff and 0x54ff -- NonReal */
-    char const * 		  w3_playerinfo; /* ADDED BY UNDYING SOULZZ 4/7/02 */
-	int					  motd_loggedin;
-	int					  joingamewhisper;
-	int                                       leavegamewhisper;
-		
-	// [quetzal] 20020828 - creation time, can be used for killing idling init connections
-	int					  cr_time;
+   int                           tcp_sock;
+   unsigned int                  tcp_addr;
+   unsigned short                tcp_port;
+   int                           udp_sock;
+   unsigned int                  udp_addr;
+   unsigned short                udp_port;
+   unsigned int                  local_addr;
+   unsigned short                local_port;
+   unsigned int                  real_local_addr;
+   unsigned short                real_local_port;
+   t_conn_class                  class;
+   t_conn_state                  state;
+   pmap_row const *              pmap;
+   unsigned int                  sessionkey;
+   unsigned int                  sessionnum;
+   unsigned int                  secret; /* random number... never sent over net unencrypted */
+   unsigned int                  flags;
+   unsigned int                  latency;
+   t_usersettings                settings;
+   char const *                  archtag;
+   char const *                  clienttag;
+   char const *                  clientver;
+   unsigned long                 versionid; /* AKA bnversion */
+   char const *                  country;
+   int                           tzbias;
+   t_account *                   account;
+   t_channel *                   channel;
+   t_game *                      game;
+   t_queue *                     outqueue;  /* packets waiting to be sent */
+   unsigned int                  outsize;   /* amount sent from the current output packet */
+   t_queue *                     inqueue;   /* packet waiting to be processed */
+   unsigned int                  insize;    /* amount received into the current input packet */
+   int                           welcomed;  /* 1 = sent welcome message, 0 = have not */
+   char const *                  host;
+   char const *                  user;
+   char const *                  clientexe;
+   char const *                  owner;
+   char const *                  cdkey;
+   char const *                  botuser;   /* username for remote connections (not taken from account) */
+   time_t                        last_message;
+   char const *                  realmname; /* to remember until character is created */
+   t_character *                 character;
+   struct connection *           bound; /* matching Diablo II auth connection */
+   
+   /* [zap-zero] 20020527 - matching w3route connection for game connection /
+    matching game connection for w3route connection */
+   struct connection *		  routeconn;
+   t_anongame *		  anongame;
+   
+   // [quetzal] 20020822 - AT game identifier
+   int							  atid;
+   
+   char const *          lastsender; /* last person to whisper to this connection */
+   char const *          realminfo;
+   char const *          charname;
+   t_versioncheck *	versioncheck; /* equation and MPQ file used to validate game checksum */
+   char const *	      ircline; /* line cache for IRC connections */
+   unsigned int		  ircping; /* value of last ping */
+   char const *		  ircpass; /* hashed password for PASS authentication */
+# ifdef WITH_BITS
+   unsigned int		  bits_game; /* game is always NULL, this is used instead (0==no game)*/
+   unsigned int          sessionid; /* unique sessionid for this connection on the network */
+   t_bits_connection_extension	* bits;      /* extended connection info for bits connections (conn_class_bits) */
+# endif
+   int                   udpok;     /* udp packets can be received by client */
+   char const *          w3_username; /* filled between 0x53ff and 0x54ff -- NonReal */
+   char const * 		  w3_playerinfo; /* ADDED BY UNDYING SOULZZ 4/7/02 */
+   int				  motd_loggedin;
+   int				  joingamewhisper;
+   int                            leavegamewhisper;
+   
+   // [quetzal] 20020828 - creation time, can be used for killing idling init connections
+   int					  cr_time;
 }
 #endif
 t_connection;
@@ -213,6 +216,7 @@ t_connection;
 #include "versioncheck.h"
 #include "timer.h"
 #include "anongame.h"
+#include "bnpmap.h"
 #undef JUST_NEED_TYPES
 
 extern t_anongame * conn_create_anongame(t_connection * c);
@@ -381,6 +385,7 @@ extern int conn_set_joingamewhisper_ack(t_connection * c, unsigned int value);
 extern int conn_get_joingamewhisper_ack(t_connection * c);
 extern int conn_set_leavegamewhisper_ack(t_connection * c, unsigned int value);
 extern int conn_get_leavegamewhisper_ack(t_connection * c);
-
+extern int conn_set_pmap(t_connection *c, pmap_row const * pmap);
+extern pmap_row const * conn_get_pmap(t_connection *c);
 #endif
 #endif

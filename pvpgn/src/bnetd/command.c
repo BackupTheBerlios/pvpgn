@@ -1098,6 +1098,8 @@ static int _handle_friends_command(t_connection * c, char const * text)
 	    clienttag = conn_get_clienttag(dest_c);
 	    if(strcasecmp(clienttag,CLIENTTAG_WARCRAFT3)==0)
 	      sprintf(software," using Warcraft 3");
+	    if(strcasecmp(clienttag,CLIENTTAG_WAR3XP)==0)
+	      sprintf(software," using Warcraft 3 Expansion");
 	    else if(strcasecmp(clienttag,CLIENTTAG_WARCIIBNE)==0)
 	      sprintf(software," using Warcraft 2");
 	    else if(strcasecmp(clienttag,CLIENTTAG_STARCRAFT)==0)
@@ -1512,7 +1514,7 @@ static int _handle_stats_command(t_connection * c, char const *text)
 	strcpy(msgtemp,"IronMan games: 0-0-0");
       message_send_text(c,message_type_info,c,msgtemp);
     }
-  else if (strcasecmp(clienttag,CLIENTTAG_WARCRAFT3)==0) // 7-31-02 THEUNDYING - Display stats for war3
+  else if (strcasecmp(clienttag,CLIENTTAG_WARCRAFT3)==0 || strcasecmp(clienttag,CLIENTTAG_WAR3XP)==0) // 7-31-02 THEUNDYING - Display stats for war3
     {
       sprintf(msgtemp,"%.64s's Ladder Record's:",(tname=account_get_name(account)));
       account_unget_name(tname);
@@ -3244,7 +3246,7 @@ static int _handle_ladderinfo_command(t_connection * c, char const *text)
       message_send_text(c,message_type_info,c,msgtemp);
     }
   // --> aaron
-  else if (strcasecmp(clienttag,CLIENTTAG_WARCRAFT3)==0)
+  else if (strcasecmp(clienttag,CLIENTTAG_WARCRAFT3)==0 || strcasecmp(clienttag,CLIENTTAG_WAR3XP)==0)
     {
       unsigned int teamcount = 0;
       if ((account = war3_ladder_get_account(&solo_ladder,rank,teamcount)))

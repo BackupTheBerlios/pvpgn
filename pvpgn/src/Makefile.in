@@ -116,6 +116,7 @@ ${SRC_BNETDDIR}/gametrans.o \
 ${SRC_BNETDDIR}/autoupdate.o \
 ${SRC_BNETDDIR}/helpfile.o \
 ${SRC_BNETDDIR}/mail.o \
+${SRC_BNETDDIR}/bnpmap.o \
 ${SRC_BNETDDIR}/storage.o \
 ${SRC_BNETDDIR}/runprog.o \
 ${SRC_BNETDDIR}/game_rule.o \

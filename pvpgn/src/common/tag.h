@@ -38,6 +38,7 @@
     SSJP==Starcraft (Japanese,Spawn)
 */
 #define CLIENTTAG_WARCRAFT3 "WAR3" /* WarCraft III */
+#define CLIENTTAG_WAR3XP    "W3XP" /* WarCraft III Expansion */
 
 /* BNETD-specific software tags - we try to use lowercase to avoid collisions  */
 #define CLIENTTAG_FREECRAFT "free" /* FreeCraft http://www.freecraft.com/ */

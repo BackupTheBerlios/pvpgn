@@ -1083,7 +1083,7 @@ static int message_bnet_format(t_packet * packet, t_message_type type, t_connect
 	    tname = conn_get_chatcharname(me, dst);
 	    packet_append_string(packet,tname);
 	    conn_unget_chatcharname(me,tname);
-	    if ( strcmp(conn_get_clienttag(me),CLIENTTAG_WARCRAFT3) == 0 )
+	    if ( strcmp(conn_get_clienttag(me),CLIENTTAG_WARCRAFT3) == 0 || strcmp(conn_get_clienttag(me),CLIENTTAG_WAR3XP) == 0 )
 		playerinfo = conn_get_w3_playerinfo(me);
 	    else playerinfo = conn_get_playerinfo(me);
 	    
@@ -1108,7 +1108,7 @@ static int message_bnet_format(t_packet * packet, t_message_type type, t_connect
 	    packet_append_string(packet,tname);
 	    conn_unget_chatcharname(me,tname);
 	    
-	    if ( strcmp(conn_get_clienttag(me),CLIENTTAG_WARCRAFT3) == 0 )
+	    if ( strcmp(conn_get_clienttag(me),CLIENTTAG_WARCRAFT3) == 0 || strcmp(conn_get_clienttag(me),CLIENTTAG_WAR3XP) == 0 )
 		playerinfo = conn_get_w3_playerinfo(me);
 	    else playerinfo = conn_get_playerinfo(me);
 	    
@@ -1250,7 +1250,7 @@ static int message_bnet_format(t_packet * packet, t_message_type type, t_connect
 	    tname = conn_get_chatcharname(me, dst);
 	    packet_append_string(packet,tname);
 	    conn_unget_chatcharname(me,tname);
-	    if ( strcmp(conn_get_clienttag(me),CLIENTTAG_WARCRAFT3) == 0 )
+	    if ( strcmp(conn_get_clienttag(me),CLIENTTAG_WARCRAFT3) == 0 || strcmp(conn_get_clienttag(me),CLIENTTAG_WAR3XP) == 0 )
 		playerinfo = conn_get_w3_playerinfo(me);
 	    else playerinfo = conn_get_playerinfo(me);
 	    

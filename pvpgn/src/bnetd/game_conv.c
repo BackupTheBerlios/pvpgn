@@ -154,7 +154,7 @@ extern t_game_type bngreqtype_to_gtype(char const * clienttag, unsigned short bn
     }
 
     /* ADDED BY UNDYING SOULZZ 4/3/02 */
-    else if ( strcmp( clienttag, CLIENTTAG_WARCRAFT3 ) == 0 )
+    else if ( strcmp( clienttag, CLIENTTAG_WARCRAFT3 ) == 0 || strcmp( clienttag, CLIENTTAG_WAR3XP ) == 0 )
     {
 	return game_type_all;
     }
@@ -269,7 +269,7 @@ extern t_game_type bngtype_to_gtype(char const * clienttag, unsigned short bngty
     }
 
     /* ADDED BY UNDYING SOULZZ 4/3/02 */
-    else if ( strcmp( clienttag, CLIENTTAG_WARCRAFT3 ) == 0 )
+    else if ( strcmp( clienttag, CLIENTTAG_WARCRAFT3 ) == 0 || strcmp( clienttag, CLIENTTAG_WAR3XP ) == 0)
     {
 	return game_type_all;
     }
@@ -623,7 +623,7 @@ extern t_game_option bngoption_to_goption(char const * clienttag, t_game_type gt
     }
    
     /* ADDED BY UNDYING SOULZZ 4/3/02 */
-    else if ( strcmp( clienttag, CLIENTTAG_WARCRAFT3 ) == 0 )
+    else if ( strcmp( clienttag, CLIENTTAG_WARCRAFT3 ) == 0 || strcmp( clienttag, CLIENTTAG_WAR3XP ) == 0 )
     {
  	return game_option_none;
     }
@@ -908,7 +908,7 @@ Also, what is the upper player limit on WCII... 8 like on Starcraft?
     }
 
 	/* warcraft3 - by nonreal */
-	if (strcmp(clienttag,CLIENTTAG_WARCRAFT3)==0)
+	if (strcmp(clienttag,CLIENTTAG_WARCRAFT3)==0 || strcmp(clienttag,CLIENTTAG_WAR3XP)==0)
     {
 		if (!(save = strdup(gameinfo)))
 		{

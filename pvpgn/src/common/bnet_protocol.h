@@ -1430,6 +1430,7 @@ typedef struct
 } t_server_authreq_109 PACKED_ATTR();
 #define SERVER_AUTHREQ_109_UNKNOWN1 0x0000000
 #define SERVER_AUTHREQ_109_UNKNOWN1_W3 0x00000001
+#define SERVER_AUTHREQ_109_UNKNOWN1_W3XP 0x00000002
 #define SERVER_AUTHREQ_109_EQN      "A=3845581634 B=880823580 C=1363937103 4 A=A-S B=B-C C=C-A A=A-B"
 /******************************************************/
 

@@ -379,6 +379,7 @@ extern t_connection * conn_create(int tsock, int usock, unsigned int real_local_
     temp->udp_port               = port;
     temp->class                  = conn_class_init;
     temp->state                  = conn_state_initial;
+    temp->pmap                   = NULL;
     temp->sessionkey             = ((unsigned int)rand())^((unsigned int)time(NULL)+(unsigned int)real_local_port);
     temp->sessionnum             = sessionnum++;
     temp->secret                 = ((unsigned int)rand())^(totalcount+((unsigned int)time(NULL)));
@@ -3599,4 +3600,30 @@ extern int conn_get_leavegamewhisper_ack(t_connection * c)
 		return -1;
 	}
 	return c->leavegamewhisper;
+}
+
+extern int conn_set_pmap(t_connection * c, pmap_row const * pmap)
+{
+   if (c == NULL) {
+      eventlog(eventlog_level_error, "conn_set_pmap", "got NULL connection");
+      return -1;
+   }
+
+   if (pmap == NULL) {
+      eventlog(eventlog_level_error, "conn_set_pmap", "got NULL packet type map");
+      return -1;
+   }
+   
+   c->pmap = pmap;
+   return 0;
+}
+
+extern pmap_row const * conn_get_pmap(t_connection * c)
+{
+   if (c == NULL) {
+      eventlog(eventlog_level_error, "conn_get_pmap", "got NULL connection");
+      return NULL;
+   }
+   
+   return c->pmap;
 }

@@ -689,6 +689,8 @@ static int sd_tcpinput(int csocket, t_connection * c)
 	default:
 	    packet = queue_pull_packet(conn_get_in_queue(c));
 	    
+	    if (conn_get_pmap(c))
+		packet_set_type(packet, bnpmap_real(packet_get_type(packet), conn_get_pmap(c)));
 	    if (hexstrm)
 	    {
 		fprintf(hexstrm,"%d: recv class=%s[0x%02x] type=%s[0x%04x] length=%u\n",
@@ -775,26 +777,43 @@ static int sd_tcpoutput(int csocket, t_connection * c)
 {
     unsigned int currsize;
     unsigned int totsize;
-    t_packet *   packet;
+    t_packet *   packet, *newpacket;
     
     totsize = 0;
     for (;;)
     {
 	currsize = conn_get_out_size(c);
-	switch (net_send_packet(csocket,queue_peek_packet((t_queue const * const *)conn_get_out_queue(c)),&currsize)) /* avoid warning */
+	if ((packet = queue_peek_packet((t_queue const * const *)conn_get_out_queue(c))) == NULL) {
+	    return -2;
+	}
+
+	if ((newpacket = packet_create(packet_get_class(packet))) == NULL) {
+	    return -2;
+	}
+
+	/* FIXME: find a better way to do this */
+	memmove(newpacket, packet, sizeof(t_packet));
+	if (conn_get_pmap(c))
+	    packet_set_type(newpacket, bnpmap_show(packet_get_type(newpacket), conn_get_pmap(c)));
+
+	switch (net_send_packet(csocket,newpacket,&currsize)) /* avoid warning */
 	{
 	case -1:
 		// [quetzal] 20020808 - marking connection as "destroyed", memory will be freed later
 		//conn_destroy(c);
 		conn_set_state(c, conn_state_destroy);
+		packet_del_ref(newpacket);
 	    return -2;
 	    
 	case 0: /* still working on it */
 	    conn_set_out_size(c,currsize);
+	    packet_del_ref(newpacket);
 	    return 0; /* bail out */
 	    
 	case 1: /* done sending */
 	    packet = queue_pull_packet(conn_get_out_queue(c));
+	    packet_del_ref(packet);
+	    packet = newpacket;
 	    
 	    if (hexstrm)
 	    {
@@ -806,7 +825,7 @@ static int sd_tcpoutput(int csocket, t_connection * c)
 		hexdump(hexstrm,packet_get_raw_data(packet,0),packet_get_size(packet));
 	    }
 	    
-	    packet_del_ref(packet);
+	    packet_del_ref(newpacket);
 	    conn_set_out_size(c,0);
 	    
 	    /* stop at about 2KB (or until out of packets or EWOULDBLOCK) */

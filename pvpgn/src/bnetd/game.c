@@ -622,7 +622,7 @@ static int game_report(t_game * game)
     else
 	discisloss = 0;
 
-    if (strcmp(game->clienttag,CLIENTTAG_WARCRAFT3)==0)
+    if (strcmp(game->clienttag,CLIENTTAG_WARCRAFT3)==0 || strcmp(game->clienttag,CLIENTTAG_WAR3XP)==0)
     // war3 game reporting is done elsewhere, so we can skip this function
 	    return 0;
     
