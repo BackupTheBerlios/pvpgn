@@ -259,7 +259,8 @@ ${SRC_COMMONDIR}/check_alloc.o \
 ${SRC_COMPATDIR}/inet_ntoa.o \
 ${SRC_COMPATDIR}/strerror.o \
 ${SRC_COMPATDIR}/psock.o \
-${SRC_COMPATDIR}/memset.o
+${SRC_COMPATDIR}/memset.o \
+${SRC_BNETDDIR}/prefs.o
 
 bnchat_BIN	= ${SRC_BINDIR}/bnchat
 bnchat_OBJECTS	= ${SRC_CLIENTDIR}/bnchat.o \
