@@ -291,15 +291,15 @@ extern int irc_authenticate(t_connection * conn, char const * passhash)
     	irc_send_cmd(conn,"NOTICE",":Authentication failed."); /* user does not exist */
 	return 0;
     }
-    conn_set_account(conn,a);
-    conn_set_botuser(conn,(tempname = conn_get_username(conn)));
-    conn_unget_username(conn,tempname);
 
     hash_set_str(&h1,passhash);
     temphash = account_get_pass(a);	
     hash_set_str(&h2,temphash);
     account_unget_pass(temphash);
     if (hash_eq(h1,h2)) {
+        conn_set_account(conn,a);
+        conn_set_botuser(conn,(tempname = conn_get_username(conn)));
+        conn_unget_username(conn,tempname);
         conn_set_state(conn,conn_state_loggedin);
 	/* FIXME: set clienttag to "ircd" or something (and make an icon) */
         conn_set_clienttag(conn,CLIENTTAG_BNCHATBOT); /* CHAT hope here is ok */
@@ -307,9 +307,6 @@ extern int irc_authenticate(t_connection * conn, char const * passhash)
 	return 1;
     } else {
         irc_send_cmd(conn,"NOTICE",":Authentication failed."); /* wrong password */
-	// [zap-zero] kick client out after failed auth
-	// otherwise could join channels etc.
-	conn_set_state(conn, conn_state_destroy);
     }
     return 0;
 }
