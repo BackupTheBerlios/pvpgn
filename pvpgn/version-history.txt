@@ -2,7 +2,7 @@ PvPGN Version History:
 
 a general 1.6.x note:
 versioncheck exe-time parsing now REALLY works as it was intended to.
-So ALL user using fucked up no-CD cracks or strange war3.org's may
+So ALL users using fucked up no-CD cracks or strange war3.org's may
 fail to login due to wrong file-time. That's not our problem. 
 
 1.6.0pre2 (since 1.6.0pre1):
@@ -16,18 +16,19 @@ deleted friend (resulting in a possible disc when viewing friends list)
 a channel on first connect twice (meaning: join-leave-join)
 -- fixed check for allowed War3 game ports (was 1025-32766 now is 1024-49151)
 -- fixed a tiny problem in war3 login req (when login with non existant user)
--- made sure, that username-based friends get removed from account when converting
-to uid-based friends is done
+-- made sure, that username-based friends get removed from account when 
+converting to uid-based friends is done
 -- fixed possible server instability due to a /rehash when using a non standard
 location for the preffile (bnetd.conf)
 -- fixed profile display on broken team records accounts (disconnected clients);
-now also the profile code autmatically fixes broken team records if it detects any
+now also the profile code autmatically fixes broken team records if it detects 
+any
 -- reorganized some clan stuff
--- removed w3routeshow from bnetd.conf and added w3trans file to specify the w3route ip
-to be sent to clients
+-- removed w3routeshow from bnetd.conf and added w3trans file to specify the 
+w3route ip to be sent to clients
 -- fixed a possible crash bug with IRC who (when ll_owner was NULL)
--- fixed the problem that the displayed tournament start time was wrong (allthough
-tournament started at time specified in conf file)
+-- fixed the problem that the displayed tournament start time was wrong 
+(allthough tournament started at time specified in conf file)
 
 1.6.0pre1 (since 1.5.0beta3):
 -- fixed IRC auth bug (when using passwords with upper cases)
