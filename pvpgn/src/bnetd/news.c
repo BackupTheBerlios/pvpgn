@@ -145,7 +145,10 @@ extern int news_load(const char *filename)
 	    if (date_set==1) 
 			ni->date=mktime(date);
 		else
+		{
 			ni->date=time(0);
+			eventlog(eventlog_level_error,__FUNCTION__,"(first) news entry seems to be missing a timestamp, please check your news file");
+		}
 	    ni->body=strdup(buff);
 	    
 	    if (list_append_data(news_head,ni)<0) {
