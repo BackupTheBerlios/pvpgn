@@ -380,10 +380,7 @@ int d2ladderlist_init(void)
 
 
 	if (!d2ladder_ladder_file) return -1;
-	if (!(d2ladder_list=list_create())) {
-		eventlog(eventlog_level_error,__FUNCTION__,"could not create d2ladder_list");
-		return -1;
-	}
+	d2ladder_list=list_create();
 	d2ladder_maxtype=D2LADDER_MAXTYPE;
 	for (i=0;i<d2ladder_maxtype;i++) {
 		d2ladder=xmalloc(sizeof(t_d2ladder));

@@ -156,11 +156,7 @@ int dbs_server_init(void)
 	int val;
 	t_addr	* servaddr;
 		
-	if (! (dbs_server_connection_list=list_create()))
-	{
-		eventlog(eventlog_level_error,__FUNCTION__,"list_create() failed");
-		return -1;
-	}
+	dbs_server_connection_list=list_create();
 
 	if (d2dbs_d2ladder_init()==-1)
 	{
