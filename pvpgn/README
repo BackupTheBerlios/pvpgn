@@ -13,12 +13,12 @@ The list of supported clients and their minimum verion required is:
 - Starcraft v1.08
 - BroodWar v1.08
 - Warcraft II Battle.Net Edition v2.05
-- Diablo 2 v1.07 (*)
-- Diablo 2 LOD v1.07 (*)
+- Diablo 2 v1.10 (*)
+- Diablo 2 LOD v1.10 (*)
 - Warcraft III Reign Of Chaos v1.10
 - Warcraft III Frozen Throne v1.10
 ------------
-(*) no support for v1.10 yet
+(*) compatibility support for older versions will be added soon
 
     The documentation is located in the docs directory. Please read docs/INDEX 
 for a list of files and what they contain.
