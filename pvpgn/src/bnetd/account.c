@@ -688,23 +688,45 @@ extern char const * account_get_strattr(t_account * account, char const * key)
 	}
 
     if (strncasecmp(key,"DynKey",6)==0)
-    {
+      {
 	char * temp;
 	
 	/* Recent Starcraft clients seems to query DynKey\*\1\rank instead of
 	 * Record\*\1\rank. So replace Dynkey with Record for key lookup.
 	 */
 	if (!(temp = strdup(key)))
-	{
+	  {
 	    eventlog(eventlog_level_error,"account_get_strattr","could not allocate memory for temp");
 	    return NULL;
-	}
+	  }
 	strncpy(temp,"Record",6);
 	newkey = temp;
-    }
-    else
+      }
+#ifdef WITH_MYSQL
+    // we have a tiny little problem: in the DB each \\ is stored as _ and each _ is taken for a \\
+    // so if we try to grab an attribute with _ in it the DB says fuck you...
+    // so let's just cheat a little bit... and make every _ a \\ in the key
+    
+    if (strchr(key,'_')!= NULL)
+      {
+	char * temp;
+       	char * modkey;
+
+	if (!(temp = strdup(key)))
+	  {
+	    eventlog(eventlog_level_error,"account_get_strattr","could not allocate memory for temp");
+	    return NULL;
+	  }
+	
+	for (modkey = temp; *modkey; modkey++)
+	  if (*modkey=='_') *modkey='\\';
+	newkey = temp;
+      }
+    
+#endif
+      else
 	newkey = key;
- 
+    
     last = NULL;
     last2 = NULL;
     if (account->attrs)
