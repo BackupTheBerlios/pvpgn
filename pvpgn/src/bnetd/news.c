@@ -121,16 +121,18 @@ static void _news_insert_index(t_news_index *ni, const char *buff, unsigned len,
 	if ((lstr_get_len(&cni->body) + len +2) > 1023)
 	    eventlog(eventlog_level_error,__FUNCTION__,"failed in joining news, cause news too long - skipping");
 	else {
-	    lstr_set_str(&cni->body,xrealloc(lstr_get_str(&cni->body),lstr_get_len(&cni->body) + 1 + len + 1));
-	    *(lstr_get_str(&cni->body) + lstr_get_len(&cni->body)) = '\n';
-	    strcpy(lstr_get_str(&cni->body) + lstr_get_len(&cni->body) + 1, buff);
-	    lstr_set_len(&cni->body,lstr_get_len(&cni->body) + 1 + len);
+	    lstr_set_str(&cni->body,xrealloc(lstr_get_str(&cni->body),lstr_get_len(&cni->body) + len + 1 + 1));
+	    strcpy(lstr_get_str(&cni->body) + lstr_get_len(&cni->body), buff);
+	    *(lstr_get_str(&cni->body) + lstr_get_len(&cni->body) + len) = '\n';
+	    lstr_set_len(&cni->body,lstr_get_len(&cni->body) + len + 1);
 	}
 	xfree((void *)ni);
     } else {
 	/* adding new index entry */
-	lstr_set_str(&ni->body,xstrdup(buff));
-	lstr_set_len(&ni->body,len);
+	lstr_set_str(&ni->body,xmalloc(len + 2));
+	strcpy(lstr_get_str(&ni->body),buff);
+	strcat(lstr_get_str(&ni->body),"\n");
+	lstr_set_len(&ni->body,len + 1);
 	elist_add_tail(curr,&ni->list);
     }
 }
