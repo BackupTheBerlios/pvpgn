@@ -1,7 +1,12 @@
 #ifdef WITH_SQL_MYSQL
 
 #include "common/setup_before.h"
+#ifdef WIN32
+#include "mysql/config-win.h"
+#include "mysql/mysql.h"
+#else
 #include <mysql.h>
+#endif
 #include <stdlib.h>
 #include "common/eventlog.h"
 #include "storage_sql.h"
