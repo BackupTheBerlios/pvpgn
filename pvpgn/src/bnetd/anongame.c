@@ -555,7 +555,7 @@ static int _anongame_compare_level(void const * a, void const * b)
     int level_a = _anongame_level_by_queue(ca, anongame_get_queue(conn_get_anongame(ca)));
     int level_b = _anongame_level_by_queue(cb, anongame_get_queue(conn_get_anongame(cb)));
     
-    return (level_a > level_b) ? -1 : 1;
+    return (level_a > level_b) ? -1 : ((level_a < level_b) ? 1 : 0);
 }
 
 static int _anongame_order_queue(int queue)
