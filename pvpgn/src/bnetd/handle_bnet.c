@@ -4443,9 +4443,8 @@ static int _client_startgame4(t_connection * c, t_packet const * const packet)
 	bngtype = bn_short_get(packet->u.client_startgame4.gametype);
 	option = bn_short_get(packet->u.client_startgame4.option);
 	eventlog(eventlog_level_debug,__FUNCTION__,"[%d] got startgame4 status for game \"%s\" is 0x%08x (gametype=0x%04hx option=0x%04x)",conn_get_socket(c),gamename,bn_int_get(packet->u.client_startgame4.status),bngtype,option);
-	//status = bn_int_get(packet->u.client_startgame4.status)&CLIENT_STARTGAME4_STATUSMASK;
+	status = bn_int_get(packet->u.client_startgame4.status) & CLIENT_STARTGAME4_STATUSMASK;
 	
-	status = bn_short_get(packet->u.client_startgame4.status); //&CLIENT_STARTGAME4_STATUSMASK;
 	flag = bn_short_get(packet->u.client_startgame4.flag);
 	
 	eventlog(eventlog_level_debug,__FUNCTION__,"[%d] startgame4 status: %02x", conn_get_socket(c), status);
@@ -4455,38 +4454,24 @@ static int _client_startgame4(t_connection * c, t_packet const * const packet)
 	bits_game_handle_startgame4(c,gamename,gamepass,gameinfo,bngtype,status,option);
 	// W3_FIXME: private games won't work with BITS
 #else
-	/* MODIFIED BY UNDYING SOULZZ 4/3/02 */
 	if ((currgame = conn_get_game(c)))
 	  {
 	     switch (status)
 	       {
-		case CLIENT_STARTGAME4_STATUS_STARTED:
-		case CLIENT_STARTGAME4_STATUS_STARTED2:
-		case CLIENT_STARTGAME4_STATUS_STARTED_W3:
-		  game_set_status(currgame,game_status_started);
-		  break;
-		case CLIENT_STARTGAME4_STATUS_FULL1:
-		case CLIENT_STARTGAME4_STATUS_FULL2:
-		case CLIENT_STARTGAME4_STATUS_FULL_W3:
-		  game_set_status(currgame,game_status_full);
-		  break;
 		case CLIENT_STARTGAME4_STATUS_INIT:
-		case CLIENT_STARTGAME4_STATUS_OPEN1:
-		case CLIENT_STARTGAME4_STATUS_OPEN2:
-		case CLIENT_STARTGAME4_STATUS_OPEN3:
-		  
-		case CLIENT_STARTGAME4_STATUS_OPEN1_W3:
 		  game_set_status(currgame,game_status_open);
 		  break;
-		case CLIENT_STARTGAME4_STATUS_DONE2:
-		  game_set_status(currgame,game_status_done);
-		  eventlog(eventlog_level_info,__FUNCTION__,"[%d] game \"%s\" is finished",conn_get_socket(c),gamename);
+		case CLIENT_STARTGAME4_STATUS_PLAYING:
+		  game_set_status(currgame,game_status_started);
+		  break;
+		case CLIENT_STARTGAME4_STATUS_FULL:
+		  game_set_status(currgame,game_status_full);
 		  break;
 		default:
-		  eventlog(eventlog_level_error,__FUNCTION__,"[%d] unknown startgame4 status %d",conn_get_socket(c),status);
+		  eventlog(eventlog_level_error,__FUNCTION__,"[%d] unknown startgame4 status %d (clienttag: %s)",conn_get_socket(c),status, conn_get_clienttag(c));
 	       }
 	  }
-	else if (status!=CLIENT_STARTGAME4_STATUS_DONE2)
+	else if (status==CLIENT_STARTGAME4_STATUS_INIT)
 	  {
 	     t_game_type gtype;
 	     
@@ -4499,12 +4484,8 @@ static int _client_startgame4(t_connection * c, t_packet const * const packet)
 		  eventlog(eventlog_level_info,__FUNCTION__,"[%d] game start for \"%s\" refused (no authority)",conn_get_socket(c),(tname = conn_get_username(c)));
 		  conn_unget_username(c,tname);
 	       }
-	     else if (status != CLIENT_STARTGAME4_STATUS_FULL_W3 &&
-		      conn_set_game(c,gamename,gamepass,gameinfo,gtype,STARTVER_GW4)==0) {
-/* Dizzy: I have yet to find any code that does game_get_option except the 
-          /gameinfo command
+	     else if (conn_set_game(c,gamename,gamepass,gameinfo,gtype,STARTVER_GW4)==0) {
 		game_set_option(conn_get_game(c),bngoption_to_goption(conn_get_clienttag(c),gtype,option));
-*/
 		if (flag & 0x0001) {
 		   eventlog(eventlog_level_debug,__FUNCTION__,"game created with private flag");
 		   game_set_flag_private(conn_get_game(c),1);
@@ -4525,7 +4506,7 @@ static int _client_startgame4(t_connection * c, t_packet const * const packet)
 	       }
 	  }
 	else
-	  eventlog(eventlog_level_info,__FUNCTION__,"[%d] client tried to set game status DONE to destroyed game",conn_get_socket(c));
+	  eventlog(eventlog_level_info,__FUNCTION__,"[%d] client tried to set game status 0x%x to unexistent game (clienttag: %s)",conn_get_socket(c), status, conn_get_clienttag(c));
 #endif /* !WITH_BITS */
      }
    
