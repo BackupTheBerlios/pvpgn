@@ -80,9 +80,6 @@ static int ladder_make_active(t_ladder const * ladder);
 
 static t_ladder * ladderlist_find_ladder(t_ladder_time ltime, char const * clienttag, t_ladder_id id);
 
-static int ladder_createxptable(const char *, const char *);
-static void ladder_destroyxptable(void);
-
 static int ladder_create(char const * clienttag, t_ladder_id id)
 {
     t_ladder * current;
@@ -985,12 +982,6 @@ extern int ladderlist_create(void)
     ladder_create(CLIENTTAG_WARCIIBNE,ladder_id_normal);
     ladder_create(CLIENTTAG_WARCIIBNE,ladder_id_ironman);
 
-    /* By Dizzy : load the XP calc table */
-    if (ladder_createxptable(prefs_get_xplevel_file(), prefs_get_xpcalc_file())<0) {
-	eventlog(eventlog_level_error, "ladderlist_create", "could not load War3 XP calc tables");
-	return -1;
-    }
-    
     eventlog(eventlog_level_info,"ladderlist_create","created %u local ladders",list_get_length(ladderlist_head));
     
     HASHTABLE_TRAVERSE(accountlist(),curra)
@@ -1040,8 +1031,6 @@ extern int ladderlist_destroy(void)
     t_ladder *     ladder;
     t_elem const * curr;
     
-   ladder_destroyxptable();
-
    if (ladderlist_head)
     {
 	LIST_TRAVERSE(ladderlist_head,curr)
@@ -1095,7 +1084,7 @@ static t_ladder * ladderlist_find_ladder(t_ladder_time ltime, char const * clien
 }
 
 
-static int ladder_createxptable(const char *xplevelfile, const char *xpcalcfile)
+extern int ladder_createxptable(const char *xplevelfile, const char *xpcalcfile)
 {
    FILE *fd1, *fd2;
    char buffer[256];
@@ -1235,7 +1224,7 @@ static int ladder_createxptable(const char *xplevelfile, const char *xpcalcfile)
    return 0;
 }
 
-static void ladder_destroyxptable()
+extern void ladder_destroyxptable()
 {
    int i;
    

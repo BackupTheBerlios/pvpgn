@@ -114,6 +114,8 @@ extern int ladderlist_create(void);
 extern int ladderlist_destroy(void);
 extern int ladderlist_make_all_active(void);
 
+extern int  ladder_createxptable(const char *xplevelfile, const char *xpcalcfile);
+extern void ladder_destroyxptable(void);
 
 extern int ladder_war3_xpdiff(unsigned int winnerlevel, unsigned int looserlevel, int *, int *);
 extern int ladder_war3_updatelevel(unsigned int oldlevel, int xp);

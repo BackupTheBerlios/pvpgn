@@ -154,6 +154,7 @@ static void usage(char const * progname)
 #define STATUS_MAPLISTS_FAILURE		4
 #define STATUS_MATCHLISTS_FAILURE	5
 #define STATUS_LADDERLIST_FAILURE	6
+#define STATUS_WAR3XPTABLES_FAILURE	7
 
 // new functions extracted from Fw()
 int read_commandline(int argc, char * * argv, int *foreground, char const *preffile[], char *hexfile[]);
@@ -450,6 +451,10 @@ int pre_server_startup(void)
 	eventlog(eventlog_level_error, "pre_server_startup", "could not create ladders");
 	return STATUS_LADDERLIST_FAILURE;
     }
+    if (ladder_createxptable(prefs_get_xplevel_file(),prefs_get_xpcalc_file())<0) {
+        eventlog(eventlog_level_error, "pre_server_startup", "could not load WAR3 xp calc tables");
+        return STATUS_WAR3XPTABLES_FAILURE;
+    }
     war3_ladders_init();
     war3_ladders_load_accounts_to_ladderlists();
     war3_ladder_update_all_accounts();
@@ -486,6 +491,8 @@ void post_server_shutdown(int status)
 	    tracker_set_servers(NULL);
 	    characterlist_destroy();
     	    realmlist_destroy();
+            ladder_destroyxptable();
+        case STATUS_WAR3XPTABLES_FAILURE:
     	    ladderlist_destroy();
 	case STATUS_LADDERLIST_FAILURE:
 	    war3_ladder_update_all_accounts();
