@@ -121,7 +121,7 @@ W3XP		4v4		Maps\FrozenThrone\(10)RagingStream.w3x
 W3XP		sffa		Maps\FrozenThrone\(4)Islands.w3x
 W3XP		sffa		Maps\FrozenThrone\(6)BloodstoneMesa.w3x
 W3XP		sffa		Maps\FrozenThrone\(6)JungleFever.w3x
-W3XP            sffa            Maps\FrozenThrone(6)Monsoon.w3x
+W3XP            sffa            Maps\FrozenThrone\(6)Monsoon.w3x
 W3XP		sffa		Maps\FrozenThrone\(6)SavageStorm.w3x
 W3XP		sffa		Maps\FrozenThrone\(8)Battleground.w3x
 W3XP		sffa		Maps\FrozenThrone\(8)GardenOfWar.w3x
