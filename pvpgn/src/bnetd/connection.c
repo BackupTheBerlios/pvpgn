@@ -401,7 +401,7 @@ extern t_connection * conn_create(int tsock, int usock, unsigned int real_local_
     temp->archtag                = NULL;
     temp->clienttag              = NULL;
     temp->clientver              = NULL;
-    temp->gamelang		 = NULL;
+    temp->gamelang		 = 0;
     temp->country                = NULL;
     temp->tzbias                 = 0;
     temp->account                = NULL;
@@ -620,8 +620,6 @@ extern void conn_destroy(t_connection * c)
 	free((void *)c->clienttag); /* avoid warning */
     if (c->archtag)
 	free((void *)c->archtag); /* avoid warning */
-    if (c->gamelang)
-	free((void *)c->gamelang); /* avoid warning */
     if (c->clientver)
 	free((void *)c->clientver); /* avoid warning */
     if (c->country)
@@ -1279,57 +1277,27 @@ extern void conn_set_archtag(t_connection * c, char const * archtag)
 }
 
 
-extern char const * conn_get_gamelang(t_connection const * c)
+extern unsigned int conn_get_gamelang(t_connection const * c)
 {
     if (!c)
     {
-        eventlog(eventlog_level_error,"conn_get_gamelang","got NULL connection");
-        return NULL;
+        eventlog(eventlog_level_error, __FUNCTION__,"got NULL connection");
+        return 0;
     }
     
-    if (c->class==conn_class_auth && c->bound)
-    {
-	if (!c->bound->gamelang)
-	    return "UKWN";
-	return c->bound->gamelang;
-    }
-    if (!c->gamelang)
-	return "UKWN";
     return c->gamelang;
 }
 
 
-extern void conn_set_gamelang(t_connection * c, char const * gamelang)
+extern void conn_set_gamelang(t_connection * c, unsigned int gamelang)
 {
-    char const * temp;
-    
     if (!c)
     {
-        eventlog(eventlog_level_error,"conn_set_gamelang","got NULL connection");
+        eventlog(eventlog_level_error,__FUNCTION__,"got NULL connection");
         return;
     }
-    if (!gamelang)
-    {
-        eventlog(eventlog_level_error,"conn_set_gamelang","[%d] got NULL gamelang",conn_get_socket(c));
-        return;
-    }
-    if (strlen(gamelang)!=4)
-    {
-        eventlog(eventlog_level_error,"conn_set_gamelang","[%d] got bad gamelang",conn_get_socket(c));
-        return;
-    }
-    
-    if (!c->gamelang || strcmp(c->gamelang,gamelang)!=0)
-	eventlog(eventlog_level_info,"conn_set_gamelang","[%d] setting client game language \"%s\"",conn_get_socket(c),gamelang);
-    
-    if (!(temp = strdup(gamelang)))
-    {
-	eventlog(eventlog_level_error,"conn_set_gamelang","[%d] unable to allocate memory for gamelang",conn_get_socket(c));
-	return;
-    }
-    if (c->gamelang)
-	free((void *)c->gamelang); /* avoid warning */
-    c->gamelang = temp;
+
+    c->gamelang = gamelang;
 }
 
 

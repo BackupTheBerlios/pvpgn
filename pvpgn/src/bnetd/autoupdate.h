@@ -39,7 +39,7 @@ typedef struct
 
 extern int autoupdate_load(char const * filename);
 extern int autoupdate_unload(void);
-extern char * autoupdate_check(char const * archtag, char const * clienttag, char const * gamelang,char const * versiontag);
+extern char * autoupdate_check(char const * archtag, char const * clienttag, unsigned int gamelang,char const * versiontag);
 
 #endif
 #endif

@@ -138,7 +138,7 @@ typedef struct connection
    unsigned int                  latency;
    t_usersettings                settings;
    char const *                  archtag;
-   char const *			 gamelang;
+   unsigned int			 gamelang;
    char const *                  clienttag;
    char const *                  clientver;
    unsigned long                 versionid; /* AKA bnversion */
@@ -268,8 +268,8 @@ extern char const * conn_get_clientexe(t_connection const * c) PURE_ATTR();
 extern void conn_set_clientexe(t_connection * c, char const * clientexe);
 extern char const * conn_get_archtag(t_connection const * c) PURE_ATTR();
 extern void conn_set_archtag(t_connection * c, char const * archtag);
-extern char const * conn_get_gamelang(t_connection const * c) PURE_ATTR();
-extern void conn_set_gamelang(t_connection * c, char const * gamelang);
+extern unsigned int conn_get_gamelang(t_connection const * c) PURE_ATTR();
+extern void conn_set_gamelang(t_connection * c, unsigned int gamelang);
 extern char const * conn_get_clienttag(t_connection const * c) PURE_ATTR();
 extern char const * conn_get_fake_clienttag(t_connection const * c) PURE_ATTR();
 extern void conn_set_clienttag(t_connection * c, char const * clienttag);

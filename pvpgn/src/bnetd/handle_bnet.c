@@ -596,35 +596,8 @@ static int _client_countryinfo109(t_connection * c, t_packet const * const packe
 	  eventlog(eventlog_level_error,__FUNCTION__,"[%d] unknown client program type 0x%08x, don't expect this to work",conn_get_socket(c),bn_int_get(packet->u.client_countryinfo_109.clienttag));
 	
 	if ((bn_int_tag_eq(packet->u.client_countryinfo_109.clienttag,CLIENTTAG_WARCRAFT3)==0) || (bn_int_tag_eq(packet->u.client_countryinfo_109.clienttag,CLIENTTAG_WAR3XP)==0))
-	{
-	    if (bn_int_tag_eq(packet->u.client_countryinfo_109.unknown2,"enUS")==0)
-		conn_set_gamelang(c,"enUS"); 
-	    else if (bn_int_tag_eq(packet->u.client_countryinfo_109.unknown2,"csCZ")==0)
-		conn_set_gamelang(c,"csCZ");
-	    else if (bn_int_tag_eq(packet->u.client_countryinfo_109.unknown2,"deDE")==0)
-		conn_set_gamelang(c,"deDE");
-	    else if (bn_int_tag_eq(packet->u.client_countryinfo_109.unknown2,"esES")==0)
-		conn_set_gamelang(c,"esES");
-	    else if (bn_int_tag_eq(packet->u.client_countryinfo_109.unknown2,"frFR")==0)
-		conn_set_gamelang(c,"frFR");
-	    else if (bn_int_tag_eq(packet->u.client_countryinfo_109.unknown2,"itIT")==0)
-		conn_set_gamelang(c,"itIT");
-	    else if (bn_int_tag_eq(packet->u.client_countryinfo_109.unknown2,"jaJA")==0)
-		conn_set_gamelang(c,"jaJA");
-	    else if (bn_int_tag_eq(packet->u.client_countryinfo_109.unknown2,"koKR")==0)
-		conn_set_gamelang(c,"koKR");
-	    else if (bn_int_tag_eq(packet->u.client_countryinfo_109.unknown2,"plPL")==0)
-		conn_set_gamelang(c,"plPL");
-	    else if (bn_int_tag_eq(packet->u.client_countryinfo_109.unknown2,"ruRU")==0)
-		conn_set_gamelang(c,"ruRU");
-	    else if (bn_int_tag_eq(packet->u.client_countryinfo_109.unknown2,"zhCN")==0)
-		conn_set_gamelang(c,"zhCN");
-	    else if (bn_int_tag_eq(packet->u.client_countryinfo_109.unknown2,"zhTW")==0)
-		conn_set_gamelang(c,"zhTW");
-	    else
-		eventlog(eventlog_level_error,__FUNCTION__,"[%d] unknown client gamelang 0x%08x, don't expect this to work",conn_get_socket(c),bn_int_get(packet->u.client_countryinfo_109.unknown2));
-	}
-
+	    conn_set_gamelang(c, bn_int_get(packet->u.client_countryinfo_109.unknown2));
+		
 	/* First, send an ECHO_REQ */
 	
 	if ((rpacket = packet_create(packet_class_bnet)))

@@ -227,7 +227,7 @@ extern int autoupdate_unload(void)
  *  retrun NULL if no update exists
  */
 
-extern char * autoupdate_check(char const * archtag, char const * clienttag, char const * gamelang, char const * versiontag)
+extern char * autoupdate_check(char const * archtag, char const * clienttag, unsigned int gamelang, char const * versiontag)
 {
     if (autoupdate_head) {
 	t_elem const * curr;
@@ -250,23 +250,30 @@ extern char * autoupdate_check(char const * archtag, char const * clienttag, cha
 	    
 	    /* if we have a gamelang then add to mpq file, unless enUS */
 	    if (gamelang) {
-		if (strcmp(gamelang, "enUS") != 0) {
-		    char * tempmpq;
-		    char * extention;
+		char gltag[5];
 		
+		gltag[0] = ((unsigned char)(gamelang>>24)     );
+		gltag[1] = ((unsigned char)(gamelang>>16)&0xff);
+		gltag[2] = ((unsigned char)(gamelang>> 8)&0xff);
+		gltag[3] = ((unsigned char)(gamelang    )&0xff);
+		gltag[4] = '\0';
+		
+		if (strcmp(gltag, "enUS") != 0) {
+		    char * tempmpq = NULL;
+		    char * extention;
+		    
 		    tempmpq = strdup(entry->mpqfile);
 
 		    if (!(temp = malloc(strlen(tempmpq)+6))) {
 	        	eventlog(eventlog_level_error,"autoupdate_load","could not allocate memory for mpq file name");
-		        return NULL;
+			return NULL;
 		    }
 
 		    extention = strrchr(tempmpq,'.');
 		    *extention = '\0';
 		    extention++;
-
 		    
-		    sprintf(temp, "%s_%s.%s", tempmpq, gamelang, extention);
+		    sprintf(temp, "%s_%s.%s", tempmpq, gltag, extention);
 		    
 		    free((void *)tempmpq);
 		    return temp;
