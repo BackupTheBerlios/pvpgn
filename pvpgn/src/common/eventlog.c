@@ -265,7 +265,7 @@ extern void eventlog(t_eventlog_level level, char const * module, char const * f
     {
 	fprintf(eventstrm,"%s [error] eventlog: got NULL module\n",time_string);
 #ifdef WIN32_GUI
-        gui_printf("%s [error] eventlog: got NULL module\n",time_string);
+        gui_lprintf(eventlog_level_error,"%s [error] eventlog: got NULL module\n",time_string);
 #endif
 	fflush(eventstrm);
 	return;
@@ -275,7 +275,7 @@ extern void eventlog(t_eventlog_level level, char const * module, char const * f
     {
 	fprintf(eventstrm,"%s [error] eventlog: got NULL fmt\n",time_string);
 #ifdef WIN32_GUI
-        gui_printf("%s [error] eventlog: got NULL fmt\n",time_string);
+        gui_lprintf(eventlog_level_error,"%s [error] eventlog: got NULL fmt\n",time_string);
 #endif
 	fflush(eventstrm);
 	return;
@@ -283,7 +283,7 @@ extern void eventlog(t_eventlog_level level, char const * module, char const * f
     
     fprintf(eventstrm,"%s [%s] %s: ",time_string,eventlog_get_levelname_str(level),module);
 #ifdef WIN32_GUI
-    gui_printf("%s [%s] %s: ",time_string,eventlog_get_levelname_str(level),module);
+    gui_lprintf(level,"%s [%s] %s: ",time_string,eventlog_get_levelname_str(level),module);
 #endif
 
     va_start(args,fmt);
@@ -291,7 +291,7 @@ extern void eventlog(t_eventlog_level level, char const * module, char const * f
 #ifdef HAVE_VPRINTF
     vfprintf(eventstrm,fmt,args);
 #ifdef WIN32_GUI
-    gui_vprintf(fmt,args);
+    gui_lvprintf(level,fmt,args);
 #endif
 #else
 # if HAVE__DOPRNT
@@ -303,7 +303,7 @@ extern void eventlog(t_eventlog_level level, char const * module, char const * f
     va_end(args);
     fprintf(eventstrm,"\n");
 #ifdef WIN32_GUI
-    gui_printf("\n");
+    gui_lprintf(level,"\n");
 #endif
 
     if (eventlog_debugmode) {

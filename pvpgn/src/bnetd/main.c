@@ -105,7 +105,7 @@
 
         va_start(args, format);
         if(stream == stderr || stream == stdout) 
-         return gui_vprintf(format, args);
+         return gui_lvprintf(eventlog_level_error, format, args);
         else return vfprintf(stream, format, args);
     }
 #define printf gui_printf
@@ -562,7 +562,7 @@ extern int main(int argc, char * * argv)
 
 // Fork to child process if not set to foreground    
     if ((a = fork_bnetd(foreground)) != 0)
-	return a;
+	return a < 0 ? a : 0; /* dizzy: dont return code != 0 when things are OK! */
 
     eventlog_set(stderr);
     /* errors to eventlog from here on... */
