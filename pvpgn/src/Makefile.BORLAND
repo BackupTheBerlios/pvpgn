@@ -371,7 +371,6 @@ clean:
     -${RMF} ${SRC_BNIUTILSDIR}\*.obj
     -${RMF} ${SRC_BNPASSDIR}\*.obj
     -${RMF} ${SRC_BNPROXYDIR}\*.obj
-    -${RMF} ${SRC_CLIENTDIR}\*.obj
     -${RMF} ${SRC_COMPATDIR}\*.obj
     -${RMF} ${SRC_COMMONDIR}\*.obj
     -${RMF} ${SRC_BNETDDIR}\*.obj
@@ -379,7 +378,6 @@ clean:
     -${RMF} ${SRC_COMPATDIR}\*.bnetg_obj
     -${RMF} ${SRC_COMMONDIR}\*.bnetg_obj
     -${RMF} ${SRC_BNETDDIR}\*.bnetg_obj
-    -${RMF} ${SRC_BNETDDIR}\*.res
     -${RMFALL} ${SRC_BINDIR}\*.*
     -${RMFALL} ${SRC_SBINDIR}\*.*
     -${RMDIR} ${SRC_BINDIR}
