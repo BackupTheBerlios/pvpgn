@@ -1901,14 +1901,20 @@ extern int conn_set_channel(t_connection * c, char const * channelname)
 		message_send_text(c,message_type_error,c,"You are banned from that channel.");
 		return -1;
 	    }
-	    //FIXME: channel restrictions for usergroups like admins/opers/clans
-	    //       can be solved with channels with max_users = 0 ;-)
+
+	    if ((account_get_auth_admin(acc,NULL)!=1) && (account_get_auth_admin(acc,channelname)!=1) &&
+		(account_get_auth_operator(acc,NULL)!=1) && (account_get_auth_operator(acc,channelname)!=1) &&
+		(channel_get_max(channel) == 0))
+	    {
+		message_send_text(c,message_type_error,c,"That channel is for Admins/Operators only.");
+		return -1;
+	    }
 
 	    if ((account_get_auth_admin(acc,NULL)!=1) && (account_get_auth_admin(acc,channelname)!=1) &&
 		(account_get_auth_operator(acc,NULL)!=1) && (account_get_auth_operator(acc,channelname)!=1) &&
 		(channel_get_max(channel) != -1) && (channel_get_curr(channel)>=channel_get_max(channel)))
 	    {
-		message_send_text(c,message_type_error,c,"The channel is currently full");
+		message_send_text(c,message_type_error,c,"The channel is currently full.");
 		return -1;
 	    }
 	}
