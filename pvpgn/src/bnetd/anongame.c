@@ -1782,7 +1782,7 @@ extern int anongame_stats(t_connection * c)
     t_connection	* gamec = conn_get_routeconn(c);
     t_anongame		* a = conn_get_anongame(gamec);
     int			tp = anongame_get_totalplayers(a);
-    int                 oppon_level[tp];
+    int                 oppon_level[8];
     t_uint8		gametype = anongame_get_type(a);
     t_uint8		plnum = anongame_get_playernum(a);
     
