@@ -49,7 +49,11 @@ sub convert_cdb2sql {
 	    $tab = $1;
 	    # skip Team as we now have another team structure
 	    if ($tab =~ m/^team$/i) {
+		print STDERR "WARNING: skipping Team information!\n";
 	    	next;
+	    } elsif ($tab =~ m/^\s*$/) {
+		print STDERR "WARNING: skipping empty tab!\n";
+		next;
 	    }
 
 	    $alist[$count]{tab} = $tab;
