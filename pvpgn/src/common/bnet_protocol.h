@@ -2210,7 +2210,7 @@ typedef struct
 /*
  * status string:
  *
- * for STAR, SEXP, SSHR:
+ * for STAR, SEXP, SSHR < 1.10:
  * "%s %u %u %u %u %u"
  *  client tag (RATS, PXES, RHSS)
  *  rating
@@ -2219,6 +2219,21 @@ typedef struct
  *  unknown3 (always zero?)
  *  unknown4 (always zero?) FIXME: I don't see this last one in any dumps...
                                    is this only a SEXP thing?
+				   
+ * for STAR, SEXP, SSHR >= 1.10:
+ * "%s %u %u %u %u %u %u %u %u %u %s"
+ *  client tag (RATS, PXES, RHSS)
+ *  rating
+ *  number (ladder rank)
+ *  stars  (normal wins)
+ *  spawned (1 of spawned, 0 otherwise)
+ *  unknown4 (always zero?)
+ *  highest ladder rating
+ *  unknown6 (always zero?)
+ *  unknown7 (always zero?)
+ *  icon tag (usually client tag)
+
+				   
  *
  * for DRTL:
  * "%s %u %u %u %u %u %u %u %u %u"
