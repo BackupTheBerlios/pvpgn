@@ -8,8 +8,8 @@
 typedef struct news_index
 #ifdef NEWS_INTERNAL_ACCESS
 {
-	unsigned int	date;
-	fpos_t  	offset;
+	long	date;
+	long	offset;
 	unsigned short	size;
 }
 #endif
@@ -33,4 +33,3 @@ extern t_list * newslist(void);
 
 #endif
 #endif
-

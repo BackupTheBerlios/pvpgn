@@ -49,11 +49,10 @@ extern int news_load(const char *filename){
 	unsigned int    line;
     unsigned int    pos;
 	unsigned int	len;
-	unsigned long	loffset;
-	fpos_t	offset;
-	struct tm    *date;
+	unsigned long	loffset;	
 	char *	    buff;
     char *	    temp;	
+	struct tm    *date;
 	t_news_index	*ni=NULL;
 
 	if (!filename) {
@@ -133,10 +132,9 @@ extern int news_load(const char *filename){
 			{
 				eventlog(eventlog_level_error,"news_load","could not allocate memory for news index");
 				return -1;
-			}
-			fgetpos(fp,(fpos_t *)&offset);
+			}			
 			ni->date=mktime(date);
-			ni->offset=offset;
+			ni->offset=ftell(fp);
 			loffset=line+1;
 			if (list_append_data(news_head,ni)<0)
 			{
@@ -149,7 +147,6 @@ extern int news_load(const char *filename){
 		}
 		free(buff);
 	}	
-	//fgetpos(fp,(fpos_t *)&offset);
 	if (ni!=NULL) 
 	{
 		first_news = ni->date;
@@ -157,7 +154,6 @@ extern int news_load(const char *filename){
 	}
 
 	free(date);
-//	fsetpos(fp,0);
 	news_get_lastnews();
 	return 0;
 }
@@ -217,25 +213,28 @@ extern t_list * newslist(void)
 extern char const * news_get_body(t_news_index const * news)
 {
 	char	* buff;
-	char	* big_buffer=NULL;
-	unsigned int line,len=0,rlen;
-	fpos_t	offset;		
+	char	* big_buffer=malloc(1);
+	unsigned int line,len=1,rlen;	
 
 	// Load news into buffer
+	big_buffer[len-1]='\0';
 	line=0;
-	offset=(fpos_t)news->offset;
-	fsetpos(fp,&offset);
+	fseek(fp,news->offset,SEEK_SET);
 	while ((++line<=news->size) && (buff = (char *)file_get_line(fp)))
 	{		
 		rlen=strlen(buff);
 		len+=rlen+2;
 		big_buffer=realloc(big_buffer,len);
-		big_buffer[len-rlen-2]='\0';
-		strncat(big_buffer,buff,rlen);
-		strncat(big_buffer,"\r\n",2);
+//		big_buffer[len-rlen-3]='\0';
+		strcat(big_buffer,buff);
+		strcat(big_buffer,"\r\n");
 		free(buff);		
 	}
-	//big_buffer[news->size]='\0';
+/*
+	big_buffer=(char *)malloc(10);
+	big_buffer[0]='\0';
+	sprintf(big_buffer,"Testing");
+*/
 	return big_buffer;
 }
 
@@ -262,4 +261,3 @@ extern unsigned int const news_get_date(t_news_index const * news)
     
 	return news->date;
 }
-
