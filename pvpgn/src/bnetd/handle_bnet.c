@@ -5321,7 +5321,7 @@ static int _client_w3xp_clan_memberdelreq(t_connection * c, t_packet const * con
     packet_set_type(rpacket,SERVER_W3XP_CLAN_MEMBERDELREPLY);
     bn_int_set(&rpacket->u.server_w3xp_clan_memberdelreply.count,bn_int_get(packet->u.client_w3xp_clan_memberdelreq.count));
     username=packet_get_str_const(packet, sizeof(t_client_w3xp_clan_memberdelreq), USER_NAME_MAX);
-    if((acc = conn_get_account(c)) && (member = account_get_clanmember(acc)) && (clan = clanmember_get_clan(member)))
+    if((acc = conn_get_account(c)) && (clan = account_get_clan(acc)) && (member=clan_find_member_by_name(clan,username)))
     {
       dest_conn=clanmember_get_connection(member);
       if(clan_remove_member(clan, member)==0)
