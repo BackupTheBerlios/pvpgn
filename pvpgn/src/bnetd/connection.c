@@ -128,7 +128,7 @@ static void conn_send_welcome(t_connection * c)
 	return;
     }
     
-    if (c->cflags & connection_flags_welcomed)
+    if (c->cflags & conn_flags_welcomed)
 	return;
     if ((filename = prefs_get_motdfile()))
     {
@@ -141,7 +141,7 @@ static void conn_send_welcome(t_connection * c)
 	else
 	  { eventlog(eventlog_level_error,__FUNCTION__,"could not open MOTD file \"%s\" for reading (fopen: %s)",filename,strerror(errno)); }
     }
-    c->cflags|= connection_flags_welcomed;
+    c->cflags|= conn_flags_welcomed;
 }
 
 
@@ -3098,7 +3098,7 @@ extern int conn_get_welcomed(t_connection const * c)
         return 0;
     }
     
-    return (c->flags & connection_flags_welcomed);
+    return (c->flags & conn_flags_welcomed);
 }
 
 // NonReal
@@ -3110,7 +3110,7 @@ extern void conn_set_welcomed(t_connection * c, int welcomed)
         eventlog(eventlog_level_error,"conn_set_welcomed","got NULL connection");
         return;
     }
-    c->flags |= connection_flags_welcomed;
+    c->flags |= conn_flags_welcomed;
 }
 
 /* ADDED BY UNDYING SOULZZ 4/7/02 */
@@ -3291,7 +3291,7 @@ extern int conn_get_echoback(t_connection * c)
 	return 0;
 	}
 
-	return (c->cflags & connection_flags_echoback);
+	return (c->cflags & conn_flags_echoback);
 }
 
 extern void conn_set_echoback(t_connection * c, int echoback)
@@ -3302,9 +3302,9 @@ extern void conn_set_echoback(t_connection * c, int echoback)
 	return;
 	}
 	if (echoback)
-	  c->cflags |=  connection_flags_echoback;
+	  c->cflags |=  conn_flags_echoback;
 	else
-	  c->cflags &= ~connection_flags_echoback;	  
+	  c->cflags &= ~conn_flags_echoback;	  
 }
 
 extern int conn_set_udpok(t_connection * c)
@@ -3315,9 +3315,9 @@ extern int conn_set_udpok(t_connection * c)
 	return -1;
     }
     
-    if (!(c->cflags & connection_flags_udpok))
+    if (!(c->cflags & conn_flags_udpok))
     {
-	c->cflags|= connection_flags_udpok;
+	c->cflags|= conn_flags_udpok;
 	c->flags &= ~MF_PLUG;
     }
     
@@ -3366,9 +3366,9 @@ extern int conn_set_joingamewhisper_ack(t_connection * c, unsigned int value)
 		return -1;
 	}
 	if (value)
-		c->cflags |=  connection_flags_joingamewhisper;
+		c->cflags |=  conn_flags_joingamewhisper;
 	else
-		c->cflags &= ~connection_flags_joingamewhisper;
+		c->cflags &= ~conn_flags_joingamewhisper;
 	return 0;
 }
 extern int conn_get_joingamewhisper_ack(t_connection * c)
@@ -3378,7 +3378,7 @@ extern int conn_get_joingamewhisper_ack(t_connection * c)
 		eventlog(eventlog_level_error,__FUNCTION__, "got NULL connection");
 		return -1;
 	}
-	return (c->cflags & connection_flags_joingamewhisper);
+	return (c->cflags & conn_flags_joingamewhisper);
 }
 
 extern int conn_set_leavegamewhisper_ack(t_connection * c, unsigned int value)
@@ -3389,9 +3389,9 @@ extern int conn_set_leavegamewhisper_ack(t_connection * c, unsigned int value)
 		return -1;
 	}
 	if (value)
-		c->cflags |=  connection_flags_leavegamewhisper;
+		c->cflags |=  conn_flags_leavegamewhisper;
 	else
-		c->cflags &= ~connection_flags_leavegamewhisper;
+		c->cflags &= ~conn_flags_leavegamewhisper;
 	return 0;
 }
 extern int conn_get_leavegamewhisper_ack(t_connection * c)
@@ -3401,7 +3401,7 @@ extern int conn_get_leavegamewhisper_ack(t_connection * c)
 		eventlog(eventlog_level_error,__FUNCTION__, "got NULL connection");
 		return -1;
 	}
-	return (c->cflags & connection_flags_leavegamewhisper);
+	return (c->cflags & conn_flags_leavegamewhisper);
 }
 
 extern int conn_set_anongame_search_starttime(t_connection * c, time_t t)

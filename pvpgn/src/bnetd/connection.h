@@ -109,13 +109,13 @@ typedef enum
 #ifdef CONNECTION_INTERNAL_ACCESS
 typedef enum
 {
-  connection_flags_welcomed		= 0x01,
-  connection_flags_udpok		= 0x02,
-  connection_flags_joingamewhisper	= 0x04,
-  connection_flags_leavegamewhisper	= 0x08,
-  connection_flags_echoback		= 0x10
+  conn_flags_welcomed		= 0x01,
+  conn_flags_udpok		= 0x02,
+  conn_flags_joingamewhisper	= 0x04,
+  conn_flags_leavegamewhisper	= 0x08,
+  conn_flags_echoback		= 0x10
   
-} t_connection_flags;
+} t_conn_flags;
 
 #endif
 
@@ -192,7 +192,7 @@ typedef struct connection
    unsigned int		passfail_count;
 
    /* connection flag substituting some other values */
-   t_connection_flags	cflags;
+   t_conn_flags		cflags;
 }
 #endif
 t_connection;
