@@ -854,12 +854,6 @@ extern int game_parse_info(t_game * game, char const * gameinfo)
 	return -1;
     }
     
-	// [quetzal] 20020831
-	if (!strlen(gameinfo)) 
-	{
-		eventlog(eventlog_level_info,__FUNCTION__, "got empty gameinfo (W3 client joining CG)");
-		return -1;
-	}
 /*
 
 BW 104:
@@ -950,7 +944,9 @@ Also, what is the upper player limit on WCII... 8 like on Starcraft?
     else if (clienttag==CLIENTTAG_DIABLO2DV_UINT ||
 	     clienttag==CLIENTTAG_DIABLO2XP_UINT)
     {
-        if (game->type == game_type_diablo2closed)
+        if ((game->type == game_type_diablo2closed) &&
+	    (!strlen(gameinfo)))
+	
 	{
 	  /* D2 closed games are handled by d2cs so we can have only have a generic startgame4
 	     without any info :(, this fix also a memory leak for description allocation */
@@ -971,6 +967,12 @@ Also, what is the upper player limit on WCII... 8 like on Starcraft?
 	    }
 	  game_set_difficulty(game,bngdifficulty);
 	  game_set_description(game,&gameinfo[1]);
+
+	  if ((game->type == game_type_diablo2closed) && (clienttag==CLIENTTAG_DIABLO2DV_UINT))
+	  {
+	    eventlog(eventlog_level_debug,__FUNCTION__,"D2 classic bug workarround needed (open games tagged as closed)");
+	    game->type = game_type_diablo2open;
+	  }
 	}
 	return 0;
     }
@@ -999,6 +1001,12 @@ If the corresponding bit is a '0' then subtract 1 from the character.
 */
         const char *pstr;
 
+	if (!strlen(gameinfo)) 
+	{
+	    eventlog(eventlog_level_info,__FUNCTION__, "got empty gameinfo (W3 client joining PG/AT)");
+	    return -1;
+	}
+    
 	if (strlen(gameinfo) < 0xf + 2 + 1 + 2 + 4) {
 	    eventlog(eventlog_level_error, __FUNCTION__, "got too short W3 mapinfo");
 	    return -1;

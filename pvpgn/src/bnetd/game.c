@@ -486,7 +486,7 @@ extern t_game * game_create(char const * name, char const * pass, char const * i
     elist_add(&gamelist_head,&game->glist_link);
     glist_length++;
 
-    eventlog(eventlog_level_info,__FUNCTION__,"game \"%s\" (pass \"%s\") type %hu(%s) startver %d created",name,pass,(unsigned short)type,game_type_get_str(type),startver);
+    eventlog(eventlog_level_info,__FUNCTION__,"game \"%s\" (pass \"%s\") type %hu(%s) startver %d created",name,pass,(unsigned short)type,game_type_get_str(game->type),startver);
     
     return game;
 }
