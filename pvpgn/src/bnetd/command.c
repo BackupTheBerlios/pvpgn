@@ -1491,7 +1491,6 @@ static int _handle_friends_command(t_connection * c, char const * text)
 	t_account * friend_acc;
 	t_game const * game;
 	t_channel const * channel;
-	t_elem  * curr;
 	t_friend * fr;
 	t_list  * flist;
 	int num;

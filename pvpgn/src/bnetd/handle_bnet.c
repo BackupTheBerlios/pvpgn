@@ -650,19 +650,13 @@ static int _client_countryinfo109(t_connection * c, t_packet const * const packe
 	     conn_set_versioncheck(c,vc);
 	     packet_set_size(rpacket,sizeof(t_server_authreq_109));
 	     packet_set_type(rpacket,SERVER_AUTHREQ_109);
-	     
-	     // WarCraft III expects a different value than other clients
-	     eventlog(eventlog_level_trace,__FUNCTION__,"conn_get_clienttag(c)=%s (WCIII is %s)",
-		      conn_get_clienttag(c), CLIENTTAG_WARCRAFT3);
-	     if (strcmp(conn_get_clienttag(c),CLIENTTAG_WARCRAFT3)==0) {
-		eventlog(eventlog_level_trace,__FUNCTION__,"Responding with WarCraft III AUTHREQ response.");
+
+	     if (strcmp(conn_get_clienttag(c),CLIENTTAG_WARCRAFT3)==0)
 		bn_int_set(&rpacket->u.server_authreq_109.logontype,SERVER_AUTHREQ_109_LOGONTYPE_W3);
-	     } else if (strcmp(conn_get_clienttag(c), CLIENTTAG_WAR3XP) == 0) {
-		eventlog(eventlog_level_trace,__FUNCTION__,"Responding with WarCraft III XP AUTHREQ response.");
+	     else if (strcmp(conn_get_clienttag(c), CLIENTTAG_WAR3XP) == 0)
 		bn_int_set(&rpacket->u.server_authreq_109.logontype,SERVER_AUTHREQ_109_LOGONTYPE_W3);
-	     } else {
+	     else
 		bn_int_set(&rpacket->u.server_authreq_109.logontype,SERVER_AUTHREQ_109_LOGONTYPE);
-	     }
 	     
 	     bn_int_set(&rpacket->u.server_authreq_109.sessionkey,conn_get_sessionkey(c));
 	     bn_int_set(&rpacket->u.server_authreq_109.sessionnum,conn_get_sessionnum(c));
@@ -2168,8 +2162,6 @@ static int _client_loginreqw3(t_connection * c, t_packet const * const packet)
 	{
 	    eventlog(eventlog_level_error,__FUNCTION__,"[%d] got bad CLIENT_LOGINREQ_W3 (missing or too long username)",conn_get_socket(c));
 	    return -1;
-	} else {
-	     eventlog(eventlog_level_trace,__FUNCTION__,"[%d] got username from CLIENT_LOGINREQ_W3 packet: %s",conn_get_socket(c),username);
 	}
 
 	if (!(rpacket = packet_create(packet_class_bnet)))
@@ -2374,7 +2366,6 @@ static int _client_changegameport(t_connection * c, t_packet const * const packe
 	   return -1;
 	}
 
-	eventlog(eventlog_level_trace,__FUNCTION__,"[%d] changing game port to: %d",conn_get_socket(c), (int)port);
 	conn_set_game_port(c, port);
      }
    
@@ -2918,7 +2909,6 @@ static int _client_motdw3(t_connection * c, t_packet const * const packet)
 	    
 		    /* Append news to packet */
 		    packet_append_string(rpacket,news_get_body(newsindex));
-		    eventlog(eventlog_level_trace,__FUNCTION__,"(W3) %u bytes were used to store news",strlen(news_get_body(newsindex)));
 	    
 		    /* Send news packet */
 		    conn_push_outqueue(c,rpacket);
@@ -5563,11 +5553,9 @@ static int _client_setemailreply(t_connection * c, t_packet const * const packet
 		eventlog(eventlog_level_error,__FUNCTION__,"[%d] failed to init account \"%s\" email to \"%s\"", conn_get_socket(c),
 			account_get_name(account), email);
 		return 0;
-	} else {
+	} else
 		eventlog(eventlog_level_info,__FUNCTION__,"[%d] init account \"%s\" email to \"%s\"", conn_get_socket(c), 
 			account_get_name(account), email);
-		eventlog(eventlog_level_trace,__FUNCTION__,"%s set-email success init-email %s", account_get_name(account), inet_ntoa(caddr));
-	}
 	return 0;
 }
 
@@ -5610,8 +5598,6 @@ static int _client_changeemailreq(t_connection * c, t_packet const * const packe
 	if (strcasecmp(email, old)) {
 		eventlog(eventlog_level_error,__FUNCTION__,"[%d] account \"%s\" email mismatch, ignore changing", conn_get_socket(c), 
 			account_get_name(account));
-		eventlog(eventlog_level_trace,__FUNCTION__,"%s change-email refused wrong-previous-email %s", account_get_name(account), 
-			inet_ntoa(caddr));
 //  what should I do? a reply packet needed?
 //		conn_set_state(c, conn_state_destroy);
 		return 0;
@@ -5620,10 +5606,8 @@ static int _client_changeemailreq(t_connection * c, t_packet const * const packe
 		eventlog(eventlog_level_error,__FUNCTION__,"[%d] failed to change account \"%s\" email to \"%s\"", conn_get_socket(c),
 			account_get_name(account), new);
 		return 0;
-	} else {
+	} else
 		eventlog(eventlog_level_info,__FUNCTION__,"[%d] change account \"%s\" email to \"%s\"", conn_get_socket(c), account_get_name(account), new);
-		eventlog(eventlog_level_trace,__FUNCTION__,"%s change-email success new-email %s", account_get_name(account), inet_ntoa(caddr));
-	}
 	return 0;
 }
 
@@ -5660,13 +5644,10 @@ static int _client_getpasswordreq(t_connection * c, t_packet const * const packe
 	if (strcasecmp(email, try_email)) {
 		eventlog(eventlog_level_error,__FUNCTION__,"[%d] account \"%s\" email mismatch, ignore get password", conn_get_socket(c), 
 			account_get_name(account));
-		eventlog(eventlog_level_trace,__FUNCTION__,"%s get-password refused wrong-email %s", account_get_name(account), 
-			inet_ntoa(caddr));
 //  what should I do? a reply packet needed?
 		return 0;
 	}
 	eventlog(eventlog_level_info,__FUNCTION__,"[%d] get password for account \"%s\" to email \"%s\"", conn_get_socket(c), 
 		account_get_name(account), email);
-	eventlog(eventlog_level_trace,__FUNCTION__,"%s get-password success correct-email %s", account_get_name(account), inet_ntoa(caddr));
 	return 0;
 }
