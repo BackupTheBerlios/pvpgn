@@ -352,7 +352,6 @@ extern char const * account_get_strattr(t_account * account, char const * key)
     char const *        newkey = key, *newkey2;
     t_attribute * curr, *last, *last2;
    
-/*    eventlog(eventlog_level_trace,"account_get_strattr","<<<< ENTER!"); */
     if (!account)
     {
 #ifdef DEBUG_ACCOUNT
@@ -373,8 +372,6 @@ extern char const * account_get_strattr(t_account * account, char const * key)
     }
 
     FLAG_SET(&account->flags,ACCOUNT_FLAG_ACCESSED);
-
-//    eventlog(eventlog_level_trace, __FUNCTION__, "reading '%s'", key);
 
     if (strncasecmp(key,"DynKey",6)==0)
       {
@@ -432,7 +429,6 @@ extern char const * account_get_strattr(t_account * account, char const * key)
 	    {
 		if (newkey!=key)
 		    xfree((void *)newkey); /* avoid warning */
-/*	        eventlog(eventlog_level_trace,"account_get_strattr","found for \"%s\" value \"%s\"", newkey, curr->val); */
 		/* DIZZY: found a match, lets promote it so it would be found faster next time */
 		if (last) { 
 		    if (last2) {
@@ -660,7 +656,6 @@ static t_account * account_load(t_storage_info *storage)
 {
     t_account * account;
 
-    eventlog(eventlog_level_trace, "account_load","<<<< ENTER !");
     if (!(account = account_create(NULL,NULL)))
     {
 	eventlog(eventlog_level_error,"account_load","could not load account");
@@ -1154,7 +1149,6 @@ extern char const * account_get_name(t_account * account)
     }
     
     if (account->name) { /* we have a cached username so return it */
-/*	eventlog(eventlog_level_trace, "account_get_name", "we use the cached value, good!"); */
 #ifdef TEST_UNGET
        return xstrdup(account->name);
 #else
