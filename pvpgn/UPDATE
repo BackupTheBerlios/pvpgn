@@ -31,6 +31,8 @@ changed config files:
     which disables exeinfo comparation and made that default
 - conf/bnetd.conf : added "ladder_games" parameter to specify additional game 
     types to be counted as ladder games
+- conf/bnetd.conf : removed "load_new_account" option as now it's always active 
+    with PvPGN
 
 
 changes to d2cs.conf:

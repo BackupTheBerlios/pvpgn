@@ -723,8 +723,6 @@ extern t_account * account_load_new(char const * name, unsigned uid)
         return NULL;
     }
 
-    /* might as well free up the memory since we probably won't need it */
-    account_flush(account, FS_FORCE); /* force unload */
     force_account_add = 0;
 
     return account;
@@ -982,7 +980,7 @@ extern t_account * accountlist_find_account(char const * username)
 	}
     }
     
-    return prefs_get_load_new_account() ? account_load_new(username,0) : NULL;
+    return account_load_new(username,0);
 }
 
 
@@ -1001,7 +999,7 @@ extern t_account * accountlist_find_account_by_uid(unsigned int uid)
 	    }
 	}
     }
-    return prefs_get_load_new_account() ? account_load_new(NULL,uid) : NULL;
+    return account_load_new(NULL,uid);
 }
 
 

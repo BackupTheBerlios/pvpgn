@@ -247,10 +247,8 @@ kick_old_login = true
 #kick_old_login = false
 # With no passwords, this is bad to have enabled --NonReal
 		
-# If you want to heck storage(file directory or sql database) to look for manual
-# added new account while account is not found on login.
-# It can be used for web-based register system
-load_new_account = false
+# load_new_account option has been eliminated and the functionality now is 
+# always active in PvPGN
 
 # If a user is creating a new channel, should it be added automatically, or
 # prompt them first?
