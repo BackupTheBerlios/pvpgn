@@ -901,11 +901,11 @@ extern int irc_send_rpl_namreply(t_connection * c, t_channel const * channel)
 	    continue;
 	flags = conn_get_flags(m);
 	if (flags & MF_BLIZZARD)
-	    strcat(flg,"a");
+	    strcat(flg,"@");
 	if (flags & MF_BNET)
-	    strcat(flg,"o");
+	    strcat(flg,"%");
 	if (flags & MF_GAVEL)
-	    strcat(flg,"@"); 
+	    strcat(flg,"~"); 
 	if (flags & MF_VOICE)
 	    strcat(flg,"+"); 
 	if ((strlen(temp)+((!first)?(1):(0))+strlen(flg)+strlen(name)+1)<=sizeof(temp)) {
