@@ -497,7 +497,7 @@
 			Name="Header Files"
 			Filter="h;hpp;hxx;hm;inl;inc">
 			<File
-				RelativePath="..\resource1.h">
+				RelativePath="resource1.h">
 			</File>
 			<Filter
 				Name="bnetd"
@@ -1014,7 +1014,7 @@
 			Name="Resource Files"
 			Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe">
 			<File
-				RelativePath="..\logo01.ico">
+				RelativePath="logo01.ico">
 			</File>
 			<File
 				RelativePath="pvpgnConsole.rc">
