@@ -1337,6 +1337,7 @@ static int _handle_friends_command(t_connection * c, char const * text)
     	    }
     	    if(friend_get_mutual(fr)) {
         	dest_c = connlist_find_connection_by_account(friend_get_account(fr));
+		if (!dst_c) continue;
         	message_send_text(dest_c,message_type_whisper,c,msg);
         	cnt++;
     	    }
