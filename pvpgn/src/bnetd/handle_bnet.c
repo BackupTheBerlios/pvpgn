@@ -4413,13 +4413,19 @@ static int _client_gamereport(t_connection * c, t_packet const * const packet)
 	conn_unget_username(c,tname);
 	my_account = conn_get_account(c);
 
-	if (!(results = malloc(sizeof(t_game_result)*player_count)))
+	if (player_count > game_get_count(game))
+	{
+	    eventlog(eventlog_level_error,__FUNCTION__,"[%d] rejecting report - more reported results(%d) than player slots(%d)",conn_get_socket(c),player_count,game_get_count(game));
+	    return -1;
+	}
+
+	if (!(results = malloc(sizeof(t_game_result)*game_get_count(game))))
 	{
 	    eventlog(eventlog_level_error,__FUNCTION__,"could not allocate memory to store game results");
 	    return -1;
 	}
 
-	for (i=0;i<player_count;i++) results[i]=game_result_none;
+	for (i=0;i<game_get_count(game);i++) results[i]=game_result_none;
 	
 	for (i=0,result_off=sizeof(t_client_game_report),player_off=sizeof(t_client_game_report)+player_count*sizeof(t_client_game_report_result);
 	     i<player_count;
