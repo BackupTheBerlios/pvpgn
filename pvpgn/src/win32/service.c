@@ -15,6 +15,16 @@
  */
 
 #include <windows.h>
+#include <winsvc.h>
+#include <stdlib.h>
+
+#if !defined(WINADVAPI)
+#if !defined(_ADVAPI32_)
+#define WINADVAPI DECLSPEC_IMPORT
+#else
+#define WINADVAPI
+#endif
+#endif
 
 char serviceLongName[] = "PvPGN service";
 char serviceName[] = "pvpgn";
