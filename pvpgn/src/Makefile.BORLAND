@@ -306,6 +306,7 @@ d2cs_OBJECTS    = \
     ${SRC_COMMONDIR}\queue.obj \ 
     ${SRC_COMMONDIR}\network.obj \ 
     ${SRC_COMMONDIR}\rlimit.obj \ 
+    ${SRC_COMMONDIR}\d2char_checksum.obj \ 
     ${SRC_COMPATDIR}\inet_aton.obj \ 
     ${SRC_COMPATDIR}\inet_ntoa.obj \ 
     ${SRC_COMPATDIR}\strdup.obj \ 
@@ -342,6 +343,7 @@ d2dbs_OBJECTS = \
     ${SRC_COMMONDIR}\check_alloc.obj \ 
     ${SRC_COMMONDIR}\util.obj \
     ${SRC_COMMONDIR}\addr.obj \
+    ${SRC_COMMONDIR}\d2char_checksum.obj \ 
     ${SRC_COMPATDIR}\inet_aton.obj \
     ${SRC_COMPATDIR}\psock.obj \
     ${SRC_COMPATDIR}\strerror.obj \ 

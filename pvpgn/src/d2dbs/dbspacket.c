@@ -104,9 +104,10 @@
 #include "d2ladder.h"
 #include "charlock.h"
 #include "prefs.h"
+#include "common/bn_type.h"
+#include "common/d2char_checksum.h"
 #include "d2cs/xstring.h"
 #include "d2cs/d2cs_d2gs_character.h"
-#include "common/bn_type.h"
 #include "common/list.h"
 #include "common/eventlog.h"
 #include "common/addr.h"
@@ -130,9 +131,22 @@ static unsigned int dbs_packet_savedata_charsave(t_d2dbs_connection* conn, char 
 	char bakfile[MAX_PATH];
 	unsigned short curlen,readlen,leftlen,writelen;
 	FILE * fd;
+	int checksum_header;
+	int checksum_calc;
 	
 	strtolower(AccountName);
 	strtolower(CharName);
+
+	//check if checksum is ok
+	checksum_header = bn_int_get(&data[D2CHARSAVE_CHECKSUM_OFFSET]);
+	checksum_calc   = d2charsave_checksum(data,datalen,D2CHARSAVE_CHECKSUM_OFFSET);
+
+	if (checksum_header != checksum_calc)
+	{
+	  eventlog(eventlog_level_error,__FUNCTION__,"received (%x) and calculated(%x) checksum do not match - discarding charsave",checksum_header, checksum_calc);
+	  return 0;
+	}
+
 
 	sprintf(filename,"%s/.%s.tmp",d2dbs_prefs_get_charsave_dir(),CharName);
 	fd = fopen(filename, "wb");
@@ -162,7 +176,7 @@ static unsigned int dbs_packet_savedata_charsave(t_d2dbs_connection* conn, char 
 	if (access(bakfile, 0) == 0) {
 		if (remove(bakfile)<0) {
 			eventlog(eventlog_level_error,__FUNCTION__,"could not delete backup charsave file \"%s\" (remove: %s)",bakfile);
-			return -1;
+			return 0;
 		}
 	}
 #endif
@@ -173,7 +187,7 @@ static unsigned int dbs_packet_savedata_charsave(t_d2dbs_connection* conn, char 
 	if (access(savefile, 0) == 0) {
 		if (remove(savefile)<0) {
 			eventlog(eventlog_level_error,__FUNCTION__,"could not delete charsave file \"%s\" (remove: %s)",savefile);
-			return -1;
+			return 0;
 		}
 	}
 #endif
@@ -233,7 +247,7 @@ static unsigned int dbs_packet_savedata_charinfo(t_d2dbs_connection* conn,char *
 	if (access(bakfile, 0) == 0) {
 		if (remove(bakfile)<0) {
 			eventlog(eventlog_level_error,__FUNCTION__,"could not delete backup charinfo file \"%s\" (remove: %s)",bakfile);
-			return -1;
+			return 0;
 		}
 	}
 #endif
@@ -244,7 +258,7 @@ static unsigned int dbs_packet_savedata_charinfo(t_d2dbs_connection* conn,char *
 	if (access(savefile, 0) == 0) {
 		if (remove(savefile)<0) {
 			eventlog(eventlog_level_error,__FUNCTION__,"could not delete charinfo file \"%s\" (remove: %s)",savefile);
-			return -1;
+			return 0;
 		}
 	}
 #endif

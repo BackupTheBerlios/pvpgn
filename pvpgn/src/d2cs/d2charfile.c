@@ -70,13 +70,12 @@
 #include "xstring.h"
 #include "common/bn_type.h"
 #include "common/eventlog.h"
+#include "common/d2char_checksum.h"
 #include "common/setup_after.h"
 
 static int d2charsave_init(void * buffer,char const * charname,unsigned char class,unsigned short status);
 static int d2charinfo_init(t_d2charinfo_file * chardata, char const * account, char const * charname,
 				unsigned char class, unsigned short status);
-static int d2charsave_checksum(unsigned char const * data, unsigned int len, unsigned int offset);
-
 
 static int d2charsave_init(void * buffer,char const * charname,unsigned char class,unsigned short status)
 {
@@ -754,25 +753,6 @@ extern unsigned int d2charinfo_get_difficulty(t_d2charinfo_summary const * chari
 	if (difficulty>2) difficulty=2;
 	return difficulty;
 }
-
-
-static int d2charsave_checksum(unsigned char const * data, unsigned int len,unsigned int offset)
-{
-	int		checksum;
-	unsigned int	i;
-	unsigned int	ch;
-
-	if (!data) return 0;
-	checksum=0;
-	for (i=0; i<len; i++) {
-		ch=data[i];
-		if (i>=offset && i<offset+sizeof(int)) ch=0;
-		ch+=(checksum<0);
-		checksum=2*checksum+ch;
-	}
-	return checksum;
-}
-
 
 /* those functions should move to util.c */
 extern int file_read(char const * filename, void * data, unsigned int * size)

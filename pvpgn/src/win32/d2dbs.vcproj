@@ -174,6 +174,9 @@
 					RelativePath="..\common\check_alloc.c">
 				</File>
 				<File
+					RelativePath="..\common\d2char_checksum.c">
+				</File>
+				<File
 					RelativePath="..\common\eventlog.c">
 				</File>
 				<File
@@ -266,6 +269,9 @@
 				</File>
 				<File
 					RelativePath="..\common\check_alloc.h">
+				</File>
+				<File
+					RelativePath="..\common\d2char_checksum.h">
 				</File>
 				<File
 					RelativePath="..\common\eventlog.h">

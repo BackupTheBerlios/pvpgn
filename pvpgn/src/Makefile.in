@@ -246,6 +246,7 @@ ${SRC_COMMONDIR}/fdwatch_select.o\
 ${SRC_COMMONDIR}/fdwatch_poll.o\
 ${SRC_COMMONDIR}/fdwatch_kqueue.o\
 ${SRC_COMMONDIR}/fdwatch_epoll.o\
+${SRC_COMMONDIR}/d2char_checksum.o\
 ${SRC_COMPATDIR}/inet_aton.o \
 ${SRC_COMPATDIR}/inet_ntoa.o \
 ${SRC_COMPATDIR}/strdup.o \
@@ -282,6 +283,7 @@ ${SRC_COMMONDIR}/bn_type.o \
 ${SRC_COMMONDIR}/check_alloc.o \
 ${SRC_COMMONDIR}/util.o \
 ${SRC_COMMONDIR}/addr.o \
+${SRC_COMMONDIR}/d2char_checksum.o \
 ${SRC_COMPATDIR}/psock.o \
 ${SRC_COMPATDIR}/strerror.o \
 ${SRC_COMPATDIR}/strsep.o
