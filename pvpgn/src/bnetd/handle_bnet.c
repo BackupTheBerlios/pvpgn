@@ -234,6 +234,8 @@ static const t_htable_row bnet_htable_con[] = {
    /* After this packet we know to translate the packets to the normal IDs */
      { CLIENT_W3XP_COUNTRYINFO, _client_countryinfo109},
      { CLIENT_CHANGECLIENT,	_client_changeclient},
+     { CLIENT_GETPASSWORDREQ,   _client_getpasswordreq },
+     { CLIENT_CHANGEEMAILREQ,   _client_changeemailreq },
      { -1,                       NULL}
 };
 
@@ -294,8 +296,6 @@ static const t_htable_row bnet_htable_log [] = {
      { CLIENT_W3XP_CLAN_INVITEREPLY,_client_w3xp_clan_invitereply },
      { CLIENT_CRASHDUMP,        _client_crashdump },
      { CLIENT_SETEMAILREPLY,      _client_setemailreply },
-     { CLIENT_GETPASSWORDREQ,   _client_getpasswordreq },
-     { CLIENT_CHANGEEMAILREQ,   _client_changeemailreq },
      { CLIENT_NULL,		NULL},
      { -1,                      NULL}
 };
