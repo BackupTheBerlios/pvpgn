@@ -14,7 +14,7 @@ mysql_select_db($dbname,$dbh);
 <title>Site admin</title>
 </HEAD>
 <body bgcolor="#FFFFFF">
-<p align="center"><a href="index.php?action=submit">Submit news</a> | <a href="index.php?action=edit">Edit news</a> | <a href="index.php?action=newuser">Create new user</a> | <a href="links.php">Edit links</a> | <a href="index.php?action=downloads">Edit downloads</a> | <a href="index.php?action=chpass">Edit user profile</a> | <a href="index.php?action=logout">Logout</a></p>
+<p align="center"><a href="index.php?action=submit">Submit news</a> | <a href="index.php?action=edit">Edit news</a> | <a href="index.php?action=newuser">Create new user</a> | <a href="links.php">Edit links</a> | <a href="index.php?action=downloads">Edit downloads</a> | <a href="index.php?action=chpass">Edit user profile</a> | <a href="index.php?action=config">Misc config</a> | <a href="index.php?action=logout">Logout</a></p>
 <p>
 <?php
 if (isset($_GET['edit'])) {

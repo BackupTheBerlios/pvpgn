@@ -26,7 +26,7 @@ Password: <input type="password" name="password"><br />
 </form></p>
 <?php
 } else {
-	if ($_GET['action'] == 'login' || $_GET['action'] == 'donewuser' || $_GET['action'] == 'dosubmit' || $_GET['action'] == 'downloads' || $_GET['action'] == 'dodownloads' || $_GET['action'] == 'edit' || $_GET['action'] == 'dodelete' || $_GET['action'] == 'doedit' || $_GET['action'] == 'edititem' || $_GET['action'] == 'chpass' || $_GET['action'] == 'dochpass') {
+	if ($_GET['action'] == 'login' || $_GET['action'] == 'donewuser' || $_GET['action'] == 'dosubmit' || $_GET['action'] == 'downloads' || $_GET['action'] == 'dodownloads' || $_GET['action'] == 'edit' || $_GET['action'] == 'dodelete' || $_GET['action'] == 'doedit' || $_GET['action'] == 'edititem' || $_GET['action'] == 'chpass' || $_GET['action'] == 'dochpass' || $_GET['action'] == 'config' || $_GET['action'] == 'doconfig') {
 		$dbh = mysql_connect($dbhost,$dbuser,$dbpass);
 		mysql_select_db($dbname,$dbh);
 	}
@@ -46,7 +46,7 @@ Password: <input type="password" name="password"><br />
 	} else {
 		if ($_GET['action'] != 'logout' && $_GET['action'] != 'dochpass') {
 			?>
-			<p align="center"><a href="<?php echo $_SERVER['PHP_SELF']; ?>?action=submit">Submit news</a> | <a href="<?php echo $_SERVER['PHP_SELF']; ?>?action=edit">Edit news</a> | <a href="<?php echo $_SERVER['PHP_SELF']; ?>?action=newuser">Create new user</a> | <a href="links.php">Edit links</a> | <a href="<?php echo $_SERVER['PHP_SELF']; ?>?action=downloads">Edit downloads</a> | <a href="<?php echo $_SERVER['PHP_SELF']; ?>?action=chpass">Edit user profile</a> | <a href="<?php echo $_SERVER['PHP_SELF']; ?>?action=logout">Logout</a></p>
+			<p align="center"><a href="<?php echo $_SERVER['PHP_SELF']; ?>?action=submit">Submit news</a> | <a href="<?php echo $_SERVER['PHP_SELF']; ?>?action=edit">Edit news</a> | <a href="<?php echo $_SERVER['PHP_SELF']; ?>?action=newuser">Create new user</a> | <a href="links.php">Edit links</a> | <a href="<?php echo $_SERVER['PHP_SELF']; ?>?action=downloads">Edit downloads</a> | <a href="<?php echo $_SERVER['PHP_SELF']; ?>?action=chpass">Edit user profile</a> | <a href="<?php echo $_SERVER['PHP_SELF']; ?>?action=config">Misc config</a> | <a href="<?php echo $_SERVER['PHP_SELF']; ?>?action=logout">Logout</a></p>
 			<?php
 		}
 		if ($_GET['action'] == 'newuser') {
@@ -163,6 +163,35 @@ Password: <input type="password" name="password"><br />
 			echo "</form>\n";
 		} else if ($_GET['action'] == 'dodownloads') {
 			if (mysql_query("UPDATE config SET `value` = '".$_POST['unstable']."' WHERE `key` = 'latest_unstable';",$dbh) && mysql_query("UPDATE config SET `value` = '".$_POST['stable']."' WHERE `key` = 'latest_stable';",$dbh)) {
+				echo "<p align=\"center\">Updated successfully</p>\n";
+			} else {
+				echo "<p align=\"center\">Error: Could not apply changes</p>\n";
+				echo "<p align=\"center\">MySQL said: ".mysql_error()."</p>\n";
+			}
+		} else if ($_GET['action'] == 'config') {
+			$row = mysql_fetch_row($temp = mysql_query("SELECT COUNT(*) FROM news",$dbh));
+			$total_newsitems = $row[0];
+			mysql_free_result($temp);
+			$row = mysql_fetch_row($temp = mysql_query("SELECT value+0 FROM config WHERE `key` = 'items_front_page'",$dbh));
+			$items_front_page = $row[0];
+			mysql_free_result($temp);
+			$row = mysql_fetch_row($temp = mysql_query("SELECT value+0 FROM config WHERE `key` = 'items_archive_page'",$dbh));
+			$items_archive_page = $row[0];
+			mysql_free_result($temp);
+			$row = mysql_fetch_row($temp = mysql_query("SELECT value FROM config WHERE `key` = 'footer'",$dbh));
+			$footer = $row[0];
+			mysql_free_result($temp);
+			unset($temp);
+			unset($row);
+			echo "<p><form action=\"".$_SERVER['PHP_SELF']."?action=doconfig\" method=\"post\">\n";
+			echo "<b>News items on front page:</b> <input type=\"text\" size=\"2\" name=\"items_front_page\" value=\"".$items_front_page."\"><br />\n";
+			echo "<b>News items per archive page:</b> <input type=\"text\" size=\"2\" name=\"items_archive_page\" value=\"".$items_archive_page."\"><br /><br />\n";
+			echo "<b>Page footer:</b><br />\n";
+			echo "<textarea name=\"footer\" cols=\"50\" rows=\"5\">".$footer."</textarea><br />\n";
+			echo "<input type=\"submit\" value=\"Apply changes\">\n";
+			echo "</form></p>\n";
+		} else if ($_GET['action'] == 'doconfig') {
+			if (mysql_query("UPDATE config SET `value` = '".$_POST['items_front_page']."' WHERE `key` = 'items_front_page';",$dbh) && mysql_query("UPDATE config SET `value` = '".$_POST['items_archive_page']."' WHERE `key` = 'items_archive_page';",$dbh) && mysql_query("UPDATE config SET `value` = '".$_POST['footer']."' WHERE `key` = 'footer';",$dbh)) {
 				echo "<p align=\"center\">Updated successfully</p>\n";
 			} else {
 				echo "<p align=\"center\">Error: Could not apply changes</p>\n";
