@@ -46,7 +46,7 @@
 # - "pass" : db password                                                     #
 #                                                                            #
 # Examples:                                                                  #
-# storage_path = file:mode=plain;dir=/usr/local/var/users;clan=/usr/local/var/clans;team=/usr/local/var/teams;default=/usr/local/etc/bnetd_default_user
+# storage_path = file:mode=plain;dir=/usr/local/var/users;clan=/usr/local/var/clans;team=/usr/local/var/teams;default=/usr/local/etc/bnetd_default_user.plain
 # storage_path = file:mode=cdb;dir=/usr/local/var/userscdb;clan=/usr/local/var/clans;team=/usr/local/var/teams;default=/usr/local/etc/bnetd_default_user.cdb
 # storage_path = sql:mode=mysql;host=127.0.0.1;name=PVPGN;user=pvpgn;pass=pvpgnrocks;default=0
 # storage_path = sql:mode=pgsql;host=127.0.0.1;name=pvpgn;user=pvpgn;pass=pvpgnrocks;default=0
