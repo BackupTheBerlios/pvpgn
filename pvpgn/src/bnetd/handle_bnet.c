@@ -3411,8 +3411,8 @@ static int _client_realmjoinreq109(t_connection * c, t_packet const * const pack
 			    bn_short_set(&rpacket->u.server_realmjoinreply_109.u3,0x0); /* reg auth */
 			    bn_int_set(&rpacket->u.server_realmjoinreply_109.bncs_addr1,0x0);
 			    bn_int_set(&rpacket->u.server_realmjoinreply_109.sessionnum,conn_get_sessionnum(c));
-			    bn_int_nset(&rpacket->u.server_realmjoinreply_109.addr,realm_get_ip(realm));
-			    bn_short_nset(&rpacket->u.server_realmjoinreply_109.port,realm_get_port(realm));
+			    bn_int_nset(&rpacket->u.server_realmjoinreply_109.addr,realm_get_showip(realm));
+			    bn_short_nset(&rpacket->u.server_realmjoinreply_109.port,realm_get_showport(realm));
 			    bn_int_set(&rpacket->u.server_realmjoinreply_109.sessionkey,conn_get_sessionkey(c));
 			    bn_int_set(&rpacket->u.server_realmjoinreply_109.u5,0);
 			    bn_int_set(&rpacket->u.server_realmjoinreply_109.u6,0);
@@ -3924,9 +3924,9 @@ static int _client_joinchannel(t_connection * c, t_packet const * const packet)
 	     return -1;
 	  }
 	//ADDED THEUNDYING - UPDATED 7/31/02
-	if(account_get_auth_admin(conn_get_account(c))>0)
+	if ((account_get_auth_admin(conn_get_account(c),cname)>0) || (account_get_auth_admin(conn_get_account(c),NULL)>0))
 	  conn_set_flags( c, MF_BLIZZARD );
-	else if(account_get_auth_operator(conn_get_account(c),cname)>0)
+	else if ((account_get_auth_operator(conn_get_account(c),cname)>0) || (account_get_auth_operator(conn_get_account(c),NULL)>0))
 	  conn_set_flags( c, MF_BNET );
 	else
 	  conn_set_flags( c, W3_ICON_SET );

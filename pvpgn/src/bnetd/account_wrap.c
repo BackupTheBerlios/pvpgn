@@ -220,9 +220,27 @@ extern int account_unget_pass(char const * pass)
 /****************************************************************/
 
 
-extern int account_get_auth_admin(t_account * account)
+extern int account_get_auth_admin(t_account * account, char const * channelname)
 {
-    return account_get_boolattr(account,"BNET\\auth\\admin");
+    char temp[256];
+    
+    if (!channelname)
+	return account_get_boolattr(account, "BNET\\auth\\admin");
+    
+    sprintf(temp,"BNET\\auth\\admin\\%.100s",channelname);
+    return account_get_boolattr(account, temp);
+}
+
+
+extern int account_set_auth_admin(t_account * account, char const * channelname, int val)
+{
+    char temp[256];
+    
+    if (!channelname)
+	return account_set_boolattr(account, "BNET\\auth\\admin", val);
+    
+    sprintf(temp,"BNET\\auth\\admin\\%.100s",channelname);
+    return account_set_boolattr(account, temp, val);
 }
 
 
@@ -253,6 +271,17 @@ extern int account_get_auth_operator(t_account * account, char const * channelna
     
     sprintf(temp,"BNET\\auth\\operator\\%.100s",channelname);
     return account_get_boolattr(account,temp);
+}
+
+extern int account_set_auth_operator(t_account * account, char const * channelname, int val)
+{
+    char temp[256];
+    
+    if (!channelname)
+	return account_set_boolattr(account, "BNET\\auth\\operator", val);
+	
+    sprintf(temp,"BNET\\auth\\operator\\%.100s",channelname);
+    return account_set_boolattr(account, temp, val);
 }
 
 

@@ -140,7 +140,7 @@
 # (use the long channel name)
 # "BNET\\auth\\operator\\example channel"="false"
 "BNET\\auth\\botlogin"="true"
-"BNET\\auth\\operator"="true"
+# "BNET\\auth\\operator"="false"
 
 # Set to "false" to not check IP, set to IP
 # (like: "192.168.1.2" to require an IP to login for warcraft3)

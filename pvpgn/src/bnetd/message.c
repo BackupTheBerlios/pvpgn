@@ -1674,7 +1674,7 @@ extern int message_send_admins(t_connection * src, t_message_type type, char con
 	tc = elem_get_data(curr);
 	if (!tc)
 	    continue;
-	if (account_get_auth_admin(conn_get_account(tc))==1 && tc != src)
+	if (account_get_auth_admin(conn_get_account(tc),NULL)==1 && tc != src)
 	{
 	    message_send_text(tc,type,src,text);
 	    counter++;

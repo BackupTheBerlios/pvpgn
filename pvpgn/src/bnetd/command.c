@@ -296,10 +296,13 @@ typedef struct {
 	t_command    command_handler;
 } t_command_table_row;
 
-
+static int command_set_flags(t_connection * c); // [Omega]
 // command handler prototypes
 static int _handle_clan_command(t_connection * c, char const * text);
 static int _handle_admin_command(t_connection * c, char const * text);
+static int _handle_aop_command(t_connection * c, char const * text);
+static int _handle_op_command(t_connection * c, char const * text);
+static int _handle_deop_command(t_connection * c, char const * text);
 static int _handle_friends_command(t_connection * c, char const * text);
 static int _handle_me_command(t_connection * c, char const * text);
 static int _handle_whisper_command(t_connection * c, char const * text);
@@ -321,8 +324,8 @@ static int _handle_away_command(t_connection * c, char const * text);
 static int _handle_dnd_command(t_connection * c, char const * text);
 static int _handle_squelch_command(t_connection * c, char const * text);
 static int _handle_unsquelch_command(t_connection * c, char const * text);
-static int _handle_designate_command(t_connection * c, char const * text);
-static int _handle_resign_command(t_connection * c, char const * text);
+//static int _handle_designate_command(t_connection * c, char const * text); Obsolete function [Omega]
+//static int _handle_resign_command(t_connection * c, char const * text); Obsolete function [Omega]
 static int _handle_kick_command(t_connection * c, char const * text);
 static int _handle_ban_command(t_connection * c, char const * text);
 static int _handle_unban_command(t_connection * c, char const * text);
@@ -363,7 +366,7 @@ static int _handle_unlockacct_command(t_connection * c, char const * text);
 static int _handle_flag_command(t_connection * c, char const * text);
 static int _handle_tag_command(t_connection * c, char const * text);
 static int _handle_bitsinfo_command(t_connection * c, char const * text);
-static int _handle_ipban_command(t_connection * c, char const * text);
+//static int _handle_ipban_command(t_connection * c, char const * text); Redirected to handle_ipban_command() in ipban.c [Omega]
 static int _handle_set_command(t_connection * c, char const * text);
 static int _handle_motd_command(t_connection * c, char const * text);
 static int _handle_ping_command(t_connection * c, char const * text);
@@ -407,8 +410,8 @@ static const t_command_table_row standard_command_table[] =
 	{ "/squelch"            , _handle_squelch_command },
 	{ "/unignore"           , _handle_unsquelch_command },
 	{ "/unsquelch"          , _handle_unsquelch_command },
-	{ "/designate"          , _handle_designate_command },
-	{ "/resign"             , _handle_resign_command },
+//	{ "/designate"          , _handle_designate_command }, Obsotele command [Omega]
+//	{ "/resign"             , _handle_resign_command }, Obsolete command [Omega]
 	{ "/kick"               , _handle_kick_command },
 	{ "/ban"                , _handle_ban_command },
 	{ "/unban"              , _handle_unban_command },
@@ -439,6 +442,9 @@ static const t_command_table_row extended_command_table[] =
 	{ "/con"                , _handle_connections_command },
 	{ "/finger"             , _handle_finger_command },
 	{ "/operator"           , _handle_operator_command },
+	{ "/aop"		, _handle_aop_command },
+	{ "/op"           	, _handle_op_command },
+	{ "/deop"           	, _handle_deop_command },
 	{ "/admins"             , _handle_admins_command },
 	{ "/logout"             , _handle_quit_command },
 	{ "/quit"               , _handle_quit_command },
@@ -465,7 +471,7 @@ static const t_command_table_row extended_command_table[] =
 	{ "/bitsinfo"           , _handle_bitsinfo_command },
 	{ "/help"               , handle_help_command },
 	{ "/mail"               , handle_mail_command },
-	{ "/ipban"              , _handle_ipban_command },
+	{ "/ipban"              , handle_ipban_command }, // in ipban.c
 	{ "/set"                , _handle_set_command },
 	{ "/motd"               , _handle_motd_command },
 	{ "/latency"            , _handle_ping_command },
@@ -500,7 +506,7 @@ extern int handle_command(t_connection * c,  char const * text)
 	      message_send_text(c,message_type_error,c,"This command has been deactivated");
 	      return 0;
 	    }
-	  if (!((command_get_group(p->command_string) & account_get_command_groups(conn_get_account(c))) == command_get_group(p->command_string)))
+	  if (!((command_get_group(p->command_string) & account_get_command_groups(conn_get_account(c)))))
 	    {
 	      message_send_text(c,message_type_error,c,"This command is reserved for admins.");
 	      return 0;
@@ -526,7 +532,7 @@ extern int handle_command(t_connection * c,  char const * text)
 	      message_send_text(c,message_type_error,c,"This command has been deactivated");
 	      return 0;
 	    }
-	  if (!((command_get_group(p->command_string) & account_get_command_groups(conn_get_account(c))) == command_get_group(p->command_string)))
+	  if (!((command_get_group(p->command_string) & account_get_command_groups(conn_get_account(c)))))
 	    {
 	      message_send_text(c,message_type_error,c,"This command is reserved for admins.");
 	      return 0;
@@ -583,71 +589,275 @@ static int _handle_clan_command(t_connection * c, char const * text)
   return 0;
 }
 
+static int command_set_flags(t_connection * c)
+{
+    unsigned int	currflags;
+    unsigned int	newflags;
+    char const *	channel;
+    
+    currflags = conn_get_flags(c);
+    
+    if (!(channel = channel_get_name(conn_get_channel(c))))
+	return -1;
+    
+    if (account_get_auth_admin(conn_get_account(c),channel) == 1 || account_get_auth_admin(conn_get_account(c),NULL) == 1)
+	newflags = MF_BLIZZARD;
+    else if (account_get_auth_operator(conn_get_account(c),channel) == 1 || account_get_auth_operator(conn_get_account(c),NULL) == 1)
+        newflags = MF_BNET;
+    else
+        newflags = 0;
+        
+    if (conn_get_flags(c) != newflags) {
+	conn_set_flags(c, newflags);
+	channel_update_flags(c);
+    }
+    
+    return 0;
+}
+
 static int _handle_admin_command(t_connection * c, char const * text)
 {
-  char msg[255];
-  const char *username;
-  char command;
-  t_account * acc;
-
-  text = skip_command(text);
-  
-  if (account_get_auth_admin(conn_get_account(c))!=1) /* default to false */
-    {
-      message_send_text(c,message_type_error,c,"This command is reserved for admins.");
-      return 0;
+    char		msg[255];
+    char const *	username;
+    char		command;
+    t_account *		acc;
+    
+    text = skip_command(text);
+    
+    if ((text[0]=='\0') || ((text[0] != '+') && (text[0] != '-'))) {
+	message_send_text(c,message_type_info,c,"usage: /admin +username to promote user to Server Admin.");
+	message_send_text(c,message_type_info,c,"       /admin -username to demote user from Aerver Admin.");
+	return -1;
     }
-  
-  if ((text[0]=='\0') || ((text[0] != '+') && (text[0] != '-'))) {
-    message_send_text(c, message_type_info, c,"usage: /admin +username to promote user to admin.");
-    message_send_text(c, message_type_info, c,"       /admin -username to demote user from admin.");
-    return -1;
-    }
-  
-  command = text[0];
-  username = &text[1];
-  
-  if(!*username)
-    {
-      message_send_text(c, message_type_info, c,
-			"You need to supply a username.");
+    
+    command = text[0];
+    username = &text[1];
+    
+    if(!*username) {
+	message_send_text(c,message_type_info,c,"You need to supply a username.");
       return -1;
     }
-  
-  if (!(acc = accountlist_find_account(username))) {
-    sprintf(msg, "There's no account with  username %s.", username);
-    message_send_text(c, message_type_info, c, msg);
-    return -1;
-  }
-  
-  if (command == '+') 
-  {
-    if (account_get_auth_admin(acc) == 1)
-      sprintf(msg,"%s is allready a Server Admin",username);
-    else
-    {
-	account_set_admin(acc);
-	sprintf(msg, "%s has been promoted to a Server Admin.", username);
-    }
-  } 
-  else 
-  {
-    if (account_get_auth_admin(acc) != 1)
-      sprintf(msg,"%s is no Server Admin, so you can't demote him",username);
-    else
-    {
-	account_set_demoteadmin(acc);
-	sprintf(msg, "%s has been demoted from a Server Admin.", username);
-    }
-  }
-  message_send_text(c, message_type_info, c, msg);
     
-  return 0;
+    if(!(acc = accountlist_find_account(username))) {
+	sprintf(msg, "There's no account with username %s.", username);
+	message_send_text(c, message_type_info, c, msg);
+	return -1;
+    }
+    
+    if (command == '+') {
+	if (account_get_auth_admin(acc,NULL) == 1) {
+	    sprintf(msg,"%s is allready a Server Admin",username);
+	} else {
+	    account_set_auth_admin(acc,NULL,1);
+	    sprintf(msg,"%s has been promoted to a Server Admin",username);
+	}
+    } else {
+	if (account_get_auth_admin(acc,NULL) != 1)
+    	    sprintf(msg,"%s is no Server Admin, so you can't demote him",username);
+	else {
+	    account_set_auth_admin(acc,NULL,0);
+	    sprintf(msg,"%s has been demoted from a Server Admin",username);
+	}
+    }
+    
+    message_send_text(c, message_type_info, c, msg);
+    command_set_flags(connlist_find_connection_by_accountname(username));
+    return 0;
+}
+
+static int _handle_operator_command(t_connection * c, char const * text)
+{
+    char		msg[255];
+    char const *	username;
+    char		command;
+    t_account *		acc;
+    
+    text = skip_command(text);
+    
+    if ((text[0]=='\0') || ((text[0] != '+') && (text[0] != '-'))) {
+	message_send_text(c,message_type_info,c,"usage: /operator +username to promote user to Server Operator.");
+	message_send_text(c,message_type_info,c,"       /operator -username to demote user from Server Operator.");
+	return -1;
+    }
+    
+    command = text[0];
+    username = &text[1];
+    
+    if(!*username) {
+	message_send_text(c,message_type_info,c,"You need to supply a username.");
+      return -1;
+    }
+    
+    if(!(acc = accountlist_find_account(username))) {
+	sprintf(msg, "There's no account with username %s.", username);
+	message_send_text(c, message_type_info, c, msg);
+	return -1;
+    }
+    
+    if (command == '+') {
+	if (account_get_auth_operator(acc,NULL) == 1)
+	    sprintf(msg,"%s is allready a Server Operator",username);
+	else {
+	    account_set_auth_operator(acc,NULL,1);
+	    sprintf(msg,"%s has been promoted to a Server Operator",username);
+	}
+    } else {
+	if (account_get_auth_operator(acc,NULL) != 1)
+    	    sprintf(msg,"%s is no Server Operator, so you can't demote him",username);
+	else {
+	    account_set_auth_operator(acc,NULL,0);
+	    sprintf(msg,"%s has been demoted from a Server Operator",username);
+	}
+    }
+    
+    message_send_text(c, message_type_info, c, msg);
+    command_set_flags(connlist_find_connection_by_accountname(username));
+    return 0;
+}
+
+static int _handle_aop_command(t_connection * c, char const * text)
+{
+    char		msg[255];
+    char const *	username;
+    char const *	channel;
+    t_account *		acc;
+    
+    if (!(channel = channel_get_name(conn_get_channel(c)))) {
+	message_send_text(c,message_type_error,c,"This command can only be used inside a channel.");
+	return -1;
+    }
+    
+    if (account_get_auth_admin(conn_get_account(c),NULL)!=1 && account_get_auth_admin(conn_get_account(c),channel)!=1) {
+	message_send_text(c,message_type_error,c,"You must be at least a Channel Admin to use this command.");
+	return -1;
+    }
+    
+    text = skip_command(text);
+    
+    if (!(username = &text[0])) {
+	message_send_text(c, message_type_info, c, "You need to supply a username.");
+	return -1;
+    }
+    
+    if(!(acc = accountlist_find_account(username))) {
+	sprintf(msg, "There's no account with username %s.", username);
+	message_send_text(c, message_type_info, c, msg);
+	return -1;
+    }
+    
+    if (account_get_auth_admin(acc,channel) == 1)
+	sprintf(msg,"%s is allready a Channel Admin",username);
+    else {
+	account_set_auth_admin(acc,channel,1);
+	sprintf(msg,"%s has been promoted to a Channel Admin",username);
+    }
+    
+    message_send_text(c, message_type_info, c, msg);
+    command_set_flags(connlist_find_connection_by_accountname(username));
+    return 0;
+}
+
+static int _handle_op_command(t_connection * c, char const * text)
+{
+    char		msg[255];
+    char const *	username;
+    char const *	channel;
+    t_account *		acc;
+    
+    if (!(channel = channel_get_name(conn_get_channel(c)))) {
+	message_send_text(c,message_type_error,c,"This command can only be used inside a channel.");
+	return -1;
+    }
+    
+    if (account_get_auth_admin(conn_get_account(c),NULL)!=1 && account_get_auth_admin(conn_get_account(c),channel)!=1 &&
+      account_get_auth_operator(conn_get_account(c),NULL)!=1 && account_get_auth_operator(conn_get_account(c),channel)!=1) {
+	message_send_text(c,message_type_error,c,"You must be at least a Channel Operator to use this command.");
+	return -1;
+    }
+    
+    text = skip_command(text);
+    
+    if (!(username = &text[0])) {
+	message_send_text(c, message_type_info, c, "You need to supply a username.");
+	return -1;
+    }
+    
+    if(!(acc = accountlist_find_account(username))) {
+	sprintf(msg, "There's no account with username %s.", username);
+	message_send_text(c, message_type_info, c, msg);
+	return -1;
+    }
+    
+    if (account_get_auth_operator(acc,channel) == 1)
+	sprintf(msg,"%s is allready a Channel Operator",username);
+    else {
+	account_set_auth_operator(acc,channel,1);
+	sprintf(msg,"%s has been promoted to a Channel Operator",username);
+    }
+    
+    message_send_text(c, message_type_info, c, msg);
+    command_set_flags(connlist_find_connection_by_accountname(username));
+    return 0;
+}
+
+static int _handle_deop_command(t_connection * c, char const * text)
+{
+    char		msg[255];
+    char const *	username;
+    char const *	channel;
+    t_account *		acc;
+    
+    if (!(channel = channel_get_name(conn_get_channel(c)))) {
+	message_send_text(c,message_type_error,c,"This command can only be used inside a channel.");
+	return -1;
+    }
+    
+    if (account_get_auth_admin(conn_get_account(c),NULL)!=1 && account_get_auth_admin(conn_get_account(c),channel)!=1 &&
+      account_get_auth_operator(conn_get_account(c),NULL)!=1 && account_get_auth_operator(conn_get_account(c),channel)!=1) {
+	message_send_text(c,message_type_error,c,"You must be at least a Channel Operator to use this command.");
+	return -1;
+    }
+    
+    text = skip_command(text);
+    
+    if (!(username = &text[0])) {
+	message_send_text(c, message_type_info, c, "You need to supply a username.");
+	return -1;
+    }
+    
+    if(!(acc = accountlist_find_account(username))) {
+	sprintf(msg, "There's no account with username %s.", username);
+	message_send_text(c, message_type_info, c, msg);
+	return -1;
+    }
+    
+    if (account_get_auth_admin(acc,channel) == 1 || account_get_auth_operator(acc,channel) == 1) {
+	if (account_get_auth_admin(acc,channel) == 1) {
+	    if (account_get_auth_admin(conn_get_account(c),channel)!=1 && account_get_auth_admin(conn_get_account(c),NULL)!=1)
+		message_send_text(c,message_type_info,c,"You must be at least a Channel Admin to demote another Channel Admin");
+	    else {
+		account_set_auth_admin(acc,channel,0);
+		sprintf(msg, "%s has been demoted from a Channel Admin.", username);
+		message_send_text(c, message_type_info, c, msg);
+	    }
+	}
+	if (account_get_auth_operator(acc,channel) == 1) {
+	    account_set_auth_operator(acc,channel,0);
+	    sprintf(msg,"%s has been demoted from a Channel Operator",username);
+	    message_send_text(c, message_type_info, c, msg);
+	}
+    } else {
+	sprintf(msg,"%s is no Channel Admin or Channel Operator, so you can't demote him.",username);
+	message_send_text(c, message_type_info, c, msg);
+    }
+    
+    command_set_flags(connlist_find_connection_by_accountname(username));
+    return 0;
 }
 
 static int _handle_friends_command(t_connection * c, char const * text)
 {
-  unsigned int i;
+  int i;
 	
   text = skip_command(text);;
   
@@ -939,7 +1149,6 @@ static int _handle_friends_command(t_connection * c, char const * text)
 static int _handle_me_command(t_connection * c, char const * text)
 {
   t_channel const * channel;
-  unsigned int      i;
   
   if (!(channel = conn_get_channel(c)))
     {
@@ -1104,13 +1313,6 @@ static int _handle_announce_command(t_connection * c, char const *text)
   for (i=0; text[i]!=' ' && text[i]!='\0'; i++); /* skip command */
   for (; text[i]==' '; i++);
   
-  if (account_get_auth_admin(conn_get_account(c))!=1 && /* default to false */
-      account_get_auth_announce(conn_get_account(c))!=1) /* default to false */
-    {
-      message_send_text(c,message_type_info,c,"You do not have permission to use this command.");
-      return 0;
-    }
-
   if (text[i]=='\0')
   {
 	message_send_text(c,message_type_info,c,"usage: /announce <announcement>");
@@ -1137,7 +1339,7 @@ static int _handle_beep_command(t_connection * c, char const *text)
   return 0; /* FIXME: these only affect CHAT clients... I think they prevent ^G from being sent */
 }
 
-static int _handle_nobeep_command(t_connection * c, char const *t)
+static int _handle_nobeep_command(t_connection * c, char const *text)
 {
   message_send_text(c,message_type_info,c,"Audible notification off."); /* FIXME: actually do something */
   return 0;
@@ -1442,17 +1644,17 @@ static int _handle_channel_command(t_connection * c, char const *text)
    
    if(strcasecmp(&text[i],"Arranged Teams")==0)
      {
-       if(account_get_auth_admin(conn_get_account(c))>0)
-	 {
-	   message_send_text(c,message_type_error,c,"Please do not talk in channel Arranged Teams");
-	   message_send_text(c,message_type_error,c,"This channel is dedicated for the preparation of");
-	   message_send_text(c,message_type_error,c,"Arranged Team Games.");
-	 }
-       else
-	 {
+//       if(account_get_auth_admin(conn_get_account(c))>0)
+//	 {
+//	   message_send_text(c,message_type_error,c,"Please do not talk in channel Arranged Teams");
+//	   message_send_text(c,message_type_error,c,"This channel is dedicated for the preparation of");
+//	   message_send_text(c,message_type_error,c,"Arranged Team Games.");
+//	 }
+//       else
+//	 {
 	   message_send_text(c,message_type_error,c,"Channel Arranged Teams is a RESTRICTED Channel!");
 	   return 0;
-	 }
+//	 }
      }
    
    if (conn_set_channel(c,&text[i])<0)
@@ -1610,81 +1812,6 @@ static int _handle_unsquelch_command(t_connection * c, char const *text)
   return 0;
 }
 
-static int _handle_designate_command(t_connection * c, char const *text)
-{
-  char           msgtemp[MAX_MESSAGE_LEN];
-  unsigned int   i;
-  t_channel *    channel;
-  t_connection * noc;
-  
-  for (i=0; text[i]!=' ' && text[i]!='\0'; i++); /* skip command */
-  for (; text[i]==' '; i++);
-  
-  if (text[i]=='\0')
-    {
-      message_send_text(c,message_type_info,c,"usage: /designate <username>");
-      return 0;
-    }
-  
-  if (!(channel = conn_get_channel(c)))
-    {
-      message_send_text(c,message_type_error,c,"This command can only be used inside a channel.");
-      return 0;
-    }
-  if (account_get_auth_admin(conn_get_account(c))!=1 && /* default to false */
-      channel_get_operator(channel)!=c)
-    {
-      message_send_text(c,message_type_error,c,"You are not a channel operator.");
-      return 0;
-    }
-  if (!(noc = connlist_find_connection_by_accountname(&text[i])))
-    {
-      message_send_text(c,message_type_error,c,"That user is not logged in.");
-      return 0;
-    }
-  if (conn_get_channel(noc)!=channel)
-    {
-      message_send_text(c,message_type_error,c,"That user is not in this channel.");
-      return 0;
-    }
-  
-  if (channel_set_next_operator(channel,noc)<0)
-    message_send_text(c,message_type_error,c,"Unable to designate that user.");
-  else
-    {
-      char const * tname;
-      
-      sprintf(msgtemp,"%s will be the new operator when you resign.",(tname = conn_get_username(noc)));
-      conn_unget_username(noc,tname);
-      message_send_text(c,message_type_info,c,msgtemp);
-    }
-  
-  return 0;
-}
-
-static int _handle_resign_command(t_connection * c, char const *text)
-{
-  t_channel *    channel;
-  
-  if (!(channel = conn_get_channel(c)))
-    {
-      message_send_text(c,message_type_error,c,"This command can only be used inside a channel.");
-      return 0;
-    }
-  if (channel_get_operator(channel)!=c)
-    {
-      message_send_text(c,message_type_error,c,"This command is reserved for channel operators.");
-      return 0;
-    }
-  
-  if (channel_choose_operator(channel,NULL)<0)
-    message_send_text(c,message_type_error,c,"You are unable to resign.");
-  else
-    message_send_text(c,message_type_info,c,"You are no longer the operator.");
-  
-  return 0;
-}
-
 static int _handle_kick_command(t_connection * c, char const *text)
 {
   char              msgtemp[MAX_MESSAGE_LEN];
@@ -1711,10 +1838,12 @@ static int _handle_kick_command(t_connection * c, char const *text)
       message_send_text(c,message_type_error,c,"This command can only be used inside a channel.");
       return 0;
     }
-  if (account_get_auth_admin(conn_get_account(c))!=1 && /* default to false */
-      channel_get_operator(channel)!=c)
+  if (account_get_auth_admin(conn_get_account(c),NULL)!=1 && /* default to false */
+      account_get_auth_admin(conn_get_account(c),channel_get_name(channel))!=1 && /* default to false */
+      account_get_auth_operator(conn_get_account(c),NULL)!=1 && /* default to false */
+      account_get_auth_operator(conn_get_account(c),channel_get_name(channel))!=1) /* default to false */
     {
-      message_send_text(c,message_type_error,c,"You are not a channel operator.");
+      message_send_text(c,message_type_error,c,"You have to be at least a Channel Operator to use this command.");
       return 0;
     }
   if (!(kuc = connlist_find_connection_by_accountname(dest)))
@@ -1727,12 +1856,19 @@ static int _handle_kick_command(t_connection * c, char const *text)
       message_send_text(c,message_type_error,c,"That user is not in this channel.");
       return 0;
     }
-  if (account_get_auth_admin(conn_get_account(kuc))==1)
+  if (account_get_auth_admin(conn_get_account(kuc),NULL)==1 ||
+    account_get_auth_admin(conn_get_account(kuc),channel_get_name(channel))==1)
     {
       message_send_text(c,message_type_error,c,"You cannot kick administrators.");
       return 0;
     }
-  
+  else if (account_get_auth_operator(conn_get_account(kuc),NULL)==1 ||
+    account_get_auth_operator(conn_get_account(kuc),channel_get_name(channel))==1)
+    {
+      message_send_text(c,message_type_error,c,"You cannot kick operators.");
+      return 0;
+    }
+      
   {
     char const * tname1;
     char const * tname2;
@@ -1780,10 +1916,12 @@ static int _handle_ban_command(t_connection * c, char const *text)
       message_send_text(c,message_type_error,c,"This command can only be used inside a channel.");
       return 0;
     }
-  if (account_get_auth_admin(conn_get_account(c))!=1 && /* default to false */
-      channel_get_operator(channel)!=c)
+  if (account_get_auth_admin(conn_get_account(c),NULL)!=1 && /* default to false */
+      account_get_auth_admin(conn_get_account(c),channel_get_name(channel))!=1 && /* default to false */
+      account_get_auth_operator(conn_get_account(c),NULL)!=1 && /* default to false */
+      account_get_auth_operator(conn_get_account(c),channel_get_name(channel))!=1) /* default to false */
     {
-      message_send_text(c,message_type_error,c,"You are not a channel operator.");
+      message_send_text(c,message_type_error,c,"You have to be at least a Channel Operator to use this command.");
       return 0;
     }
   {
@@ -1791,12 +1929,17 @@ static int _handle_ban_command(t_connection * c, char const *text)
     
     if (!(account = accountlist_find_account(dest)))
       message_send_text(c,message_type_info,c,"That account doesn't currently exist, banning anyway.");
-    else
-      if (account_get_auth_admin(account)==1) /* default to false */
-	{
-	  message_send_text(c,message_type_error,c,"You cannot ban administrators.");
-	  return 0;
-	}
+    else if (account_get_auth_admin(account,NULL)==1 || account_get_auth_admin(account,channel_get_name(channel))==1)
+      {
+        message_send_text(c,message_type_error,c,"You cannot ban administrators.");
+        return 0;
+      }
+    else if (account_get_auth_operator(account,NULL)==1 ||
+	account_get_auth_operator(account,channel_get_name(channel))==1)
+      {
+        message_send_text(c,message_type_error,c,"You cannot ban operators.");
+        return 0;
+      }
   }
   
   if (channel_ban_user(channel,dest)<0)
@@ -1844,8 +1987,10 @@ static int _handle_unban_command(t_connection * c, char const *text)
       message_send_text(c,message_type_error,c,"This command can only be used inside a channel.");
       return 0;
     }
-  if (account_get_auth_admin(conn_get_account(c))!=1 && /* default to false */
-      channel_get_operator(channel)!=c)
+  if (account_get_auth_admin(conn_get_account(c),NULL)!=1 && /* default to false */
+      account_get_auth_admin(conn_get_account(c),channel_get_name(channel))!=1 && /* default to false */
+      account_get_auth_operator(conn_get_account(c),NULL)!=1 && /* default to false */
+      account_get_auth_operator(conn_get_account(c),channel_get_name(channel))!=1) /* default to false */
     {
       message_send_text(c,message_type_error,c,"You are not a channel operator.");
       return 0;
@@ -1898,12 +2043,6 @@ static int _handle_realmann_command(t_connection * c, char const *text)
   for (i=0; text[i]!=' ' && text[i]!='\0'; i++); /* skip command */
   for (; text[i]==' '; i++);
   
-  if (account_get_auth_admin(conn_get_account(c))!=1 && /* default to false */
-      account_get_auth_announce(conn_get_account(c))!=1) /* default to false */
-    {
-      message_send_text(c,message_type_info,c,"You do not have permission to use this command.");
-      return 0;
-    }
   if (!(realmname=conn_get_realmname(c))) {
     message_send_text(c,message_type_info,c,"You must join a realm first");
   }
@@ -2104,7 +2243,7 @@ static int _handle_games_command(t_connection * c, char const *text)
       message_send_text(c,message_type_info,c,msgtemp);
     }
   
-  if (prefs_get_hide_addr() && account_get_auth_admin(conn_get_account(c))!=1) /* default to false */
+  if (prefs_get_hide_addr() && !(account_get_command_groups(conn_get_account(c)) & command_get_group("/admin-addr"))) /* default to false */
     sprintf(msgtemp," ------name------ p -status- --------type--------- count");
   else
     sprintf(msgtemp," ------name------ p -status- --------type--------- count --------addr--------");
@@ -2126,7 +2265,7 @@ static int _handle_games_command(t_connection * c, char const *text)
       if ((!tag || !prefs_get_hide_pass_games() || strcmp(game_get_pass(game),"")==0) &&
 	  (!tag || strcasecmp(game_get_clienttag(game),tag)==0))
 	{
-	  if (prefs_get_hide_addr() && account_get_auth_admin(conn_get_account(c))!=1) /* default to false */
+	  if (prefs_get_hide_addr() && !(account_get_command_groups(conn_get_account(c)) & command_get_group("/admin-addr"))) /* default to false */
 	    sprintf(msgtemp," %-16.16s %1.1s %-8.8s %-21.21s %5u",
 		    game_get_name(game),
 		    strcmp(game_get_pass(game),"")==0 ? "n":"y",
@@ -2215,12 +2354,6 @@ static int _handle_addacct_command(t_connection * c, char const *text)
   char         username[USER_NAME_MAX];
   char         msgtemp[MAX_MESSAGE_LEN];
   char         pass[256];
-  
-  if (account_get_auth_admin(conn_get_account(c))!=1) /* default to false */
-    {
-      message_send_text(c,message_type_error,c,"This command is only enabled for admins.");
-      return 0;
-    }
   
   for (i=0; text[i]!=' ' && text[i]!='\0'; i++);
   for (; text[i]==' '; i++);
@@ -2337,7 +2470,7 @@ static int _handle_chpass_command(t_connection * c, char const *text)
   account = conn_get_account(c);
   
   if ((temp==account && account_get_auth_changepass(account)==0) || /* default to true */
-      (temp!=account && account_get_auth_admin(account)!=1)) /* default to false */
+      (temp!=account && !(account_get_command_groups(conn_get_account(c)) & command_get_group("/admin-chpass")))) /* default to false */
     {
       eventlog(eventlog_level_info,"handle_command","[%d] password change for \"%s\" refused (no change access)",conn_get_socket(c),username);
       if (username!=arg1)
@@ -2370,7 +2503,7 @@ static int _handle_connections_command(t_connection *c, char const *text)
   char const *   channel_name;
   char const *   game_name;
   
-  if (!prefs_get_enable_conn_all() && account_get_auth_admin(conn_get_account(c))!=1) /* default to false */
+  if (!prefs_get_enable_conn_all() && !(account_get_command_groups(conn_get_account(c)) & command_get_group("/admin-con"))) /* default to false */
     {
       message_send_text(c,message_type_error,c,"This command is only enabled for admins.");
       return 0;
@@ -2389,7 +2522,7 @@ static int _handle_connections_command(t_connection *c, char const *text)
   else
     if (strcmp(&text[i],"all")==0) /* print extended info */
       {
-	if (prefs_get_hide_addr() && account_get_auth_admin(conn_get_account(c))!=1)
+	if (prefs_get_hide_addr() && !(account_get_command_groups(conn_get_account(c)) & command_get_group("/admin-addr")))
 	  sprintf(msgtemp," -#- -class ----state--- -tag -----name------ -session-- -flag- -lat(ms)- ----channel---- --game--");
 	else
 	  sprintf(msgtemp," -#- -class ----state--- -tag -----name------ -session-- -flag- -lat(ms)- ----channel---- --game-- ---------addr--------");
@@ -2430,7 +2563,7 @@ static int _handle_connections_command(t_connection *c, char const *text)
 		channel_name,
 		game_name);
       else
-	if (prefs_get_hide_addr() && account_get_auth_admin(conn_get_account(c))!=1) /* default to false */
+	if (prefs_get_hide_addr() && !(account_get_command_groups(conn_get_account(c)) & command_get_group("/admin-addr"))) /* default to false */
 	  sprintf(msgtemp," %3d %-6.6s %-12.12s %4.4s %-15.15s 0x%08x 0x%04x %9u %-16.16s %-8.8s", 
 		  conn_get_socket(conn),
 		  conn_class_get_str(conn_get_class(conn)), 
@@ -2523,7 +2656,7 @@ static int _handle_finger_command(t_connection * c, char const *text)
   message_send_text(c,message_type_info,c,msgtemp);
   
   if (!(host=thost = account_get_ll_host(account)) ||
-      account_get_auth_admin(conn_get_account(c))!=1) /* default to false */
+      !(account_get_command_groups(conn_get_account(c)) & command_get_group("/admin-addr"))) /* default to false */
     host = "unknown";
   
   {
@@ -2565,6 +2698,12 @@ static int _handle_finger_command(t_connection * c, char const *text)
   return 0;
 }
 
+/*
+ * rewrote command /operator to add and remove operator status [Omega]
+ *
+ * Fixme: rewrite /operators to show Currently logged on Server and/or Channel operators ...??
+ */
+/*
 static int _handle_operator_command(t_connection * c, char const *text)
 {
   char                 msgtemp[MAX_MESSAGE_LEN];
@@ -2589,7 +2728,9 @@ static int _handle_operator_command(t_connection * c, char const *text)
   message_send_text(c,message_type_info,c,msgtemp);
   return 0;
 }
+*/
 
+/* FIXME: do we want to show just Server Admin or Channel Admin Also? [Omega] */
 static int _handle_admins_command(t_connection * c, char const *text)
 {
   char            msgtemp[MAX_MESSAGE_LEN];
@@ -2605,7 +2746,7 @@ static int _handle_admins_command(t_connection * c, char const *text)
       tc = elem_get_data(curr);
       if (!tc)
 	continue;
-      if (account_get_auth_admin(conn_get_account(tc))==1)
+      if (account_get_auth_admin(conn_get_account(tc),NULL)==1)
 	{
 	  if ((nick = conn_get_username(tc)))
 	    {
@@ -2646,11 +2787,6 @@ static int _handle_kill_command(t_connection * c, char const *text)
   usrnick[j]='\0';
   for (; text[i]==' '; i++);
   
-  if (account_get_auth_admin(conn_get_account(c))!=1) /* default to false */
-    {
-      message_send_text(c,message_type_error,c,"This command is reserved for admins.");
-      return 0;
-    }
   if (usrnick[0]=='\0')
     {
       message_send_text(c,message_type_info,c,"usage: /kill <username>");
@@ -2682,11 +2818,6 @@ static int _handle_killsession_command(t_connection * c, char const *text)
   session[j]='\0';
   for (; text[i]==' '; i++);
   
-  if (account_get_auth_admin(conn_get_account(c))!=1) /* default to false */
-    {
-      message_send_text(c,message_type_error,c,"This command is reserved for admins.");
-      return 0;
-    }
   if (session[0]=='\0')
     {
       message_send_text(c,message_type_info,c,"usage: /killsession <session>");
@@ -2760,7 +2891,7 @@ static int _handle_gameinfo_command(t_connection * c, char const *text)
   }
   message_send_text(c,message_type_info,c,msgtemp);
   
-  if (!prefs_get_hide_addr() || account_get_auth_admin(conn_get_account(c))==1) /* default to false */
+  if (!prefs_get_hide_addr() || (account_get_command_groups(conn_get_account(c)) & command_get_group("/admin-addr"))) /* default to false */
     {
       unsigned int   addr;
       unsigned short port;
@@ -2855,11 +2986,6 @@ static int _handle_gameinfo_command(t_connection * c, char const *text)
 
 static int _handle_ladderactivate_command(t_connection * c, char const *text)
 {
-  if (account_get_auth_admin(conn_get_account(c))!=1) /* default to false */
-    {
-      message_send_text(c,message_type_error,c,"This command is reserved for admins.");
-      return 0;
-    }
   ladderlist_make_all_active();
   message_send_text(c,message_type_info,c,"Copied current scores to active scores on all ladders.");
   return 0;
@@ -2867,11 +2993,6 @@ static int _handle_ladderactivate_command(t_connection * c, char const *text)
 
 static int _handle_remove_accounting_infos_command(t_connection * c, char const *text)
 {
-  if (account_get_auth_admin(conn_get_account(c))!=1) /* default to false */
-    {
-      message_send_text(c,message_type_error,c,"This command is reserved for admins.");
-      return 0;
-    }
   if (prefs_get_reduced_accounting()==0)
     {
       message_send_text(c,message_type_error,c,"Command Aborted. Server is currently in full accounting mode.");
@@ -2886,22 +3007,12 @@ static int _handle_remove_accounting_infos_command(t_connection * c, char const 
 
 static int _handle_rehash_command(t_connection * c, char const *text)
 {
-  if (account_get_auth_admin(conn_get_account(c))!=1) /* default to false */
-    {
-      message_send_text(c,message_type_error,c,"This command is reserved for admins.");
-      return 0;
-    }
   server_restart_wraper();  
   return 0;
 }
 
 static int _handle_rank_all_accounts_command(t_connection * c, char const *text)
 {
-  if (account_get_auth_admin(conn_get_account(c))!=1) /* default to false */
-    {
-      message_send_text(c,message_type_error,c,"This command is reserved for admins.");
-      return 0;
-    }
   // rank all accounts here
   accounts_rank_all();
 //  output_write_to_file(); // why do this here? force output with command? lets add new command... [Omega]
@@ -2910,11 +3021,6 @@ static int _handle_rank_all_accounts_command(t_connection * c, char const *text)
 
 static int _handle_reload_accounts_all_command(t_connection * c, char const *text)
 {
-  if (account_get_auth_admin(conn_get_account(c))!=1) /* default to false */
-    {
-      message_send_text(c,message_type_error,c,"This command is reserved for admins.");
-      return 0;
-    }
   message_send_text(c,message_type_info,c,"start reloading all accounts (Warning: still EXPERIMENTAL");
   accountlist_reload(RELOAD_UPDATE_ALL);  
   message_send_text(c,message_type_info,c,"done reloading all accounts");
@@ -2923,11 +3029,6 @@ static int _handle_reload_accounts_all_command(t_connection * c, char const *tex
 
 static int _handle_reload_accounts_new_command(t_connection * c, char const *text)
 {
-  if (account_get_auth_admin(conn_get_account(c))!=1) /* default to false */
-    {
-      message_send_text(c,message_type_error,c,"This command is reserved for admins.");
-      return 0;
-    }
   message_send_text(c,message_type_info,c,"searching for new accounts to add");
   accountlist_reload(RELOAD_ADD_ONLY_NEW);  
   message_send_text(c,message_type_info,c,"done loading new accounts");
@@ -2947,12 +3048,6 @@ static int _handle_shutdown_command(t_connection * c, char const *text)
   dest[j] = '\0';
   for (; text[i]==' '; i++);
 
-  if (account_get_auth_admin(conn_get_account(c))!=1) /* default to false */
-    {
-      message_send_text(c,message_type_error,c,"This command is reserved for admins.");
-      return 0;
-    }
-  
   if (dest[0]=='\0')
     delay = prefs_get_shutdown_delay();
   else
@@ -3274,13 +3369,6 @@ static int _handle_serverban_command(t_connection *c, char const *text)
   dest[j] = '\0';
   for (; text[i]==' '; i++);
   
-    if (account_get_auth_admin(conn_get_account(c))!=1) /* default to false */
-    {
-      message_send_text(c,message_type_error,c,"This command is reserved for admins.");
-      return 0;
-    }
-  else
-    {
       if (dest[0]=='\0')
       {
 	message_send_text(c,message_type_info,c,"usage: /serverban <account>");
@@ -3306,9 +3394,6 @@ static int _handle_serverban_command(t_connection *c, char const *text)
       //now save the ipban file
       ipbanlist_save(prefs_get_ipbanfile());
       return 0;
-    }
-  
-  return 0;
 }
 
 static int _handle_netinfo_command(t_connection * c, char const *text)
@@ -3347,7 +3432,7 @@ static int _handle_netinfo_command(t_connection * c, char const *text)
     }
   
   if (conn_get_account(conn)!=conn_get_account(c) &&
-      prefs_get_hide_addr() && account_get_auth_admin(conn_get_account(c))!=1) // default to false 
+      prefs_get_hide_addr() && !(account_get_command_groups(conn_get_account(c)) & command_get_group("/admin-addr"))) // default to false 
     {
       message_send_text(c,message_type_error,c,"Address information for other users is only available to admins.");
       return 0;
@@ -3420,12 +3505,6 @@ static int _handle_lockacct_command(t_connection * c, char const *text)
   for (i=0; text[i]!=' ' && text[i]!='\0'; i++); /* skip command */
   for (; text[i]==' '; i++);
   
-  if (account_get_auth_admin(conn_get_account(c))!=1) /* default to false */
-    {
-      message_send_text(c,message_type_error,c,"This command is reserved for admins.");
-      return 0;
-    }
-  
   if (text[i]=='\0')
     {
       message_send_text(c,message_type_info,c,"usage: /lockacct <username>");
@@ -3465,12 +3544,6 @@ static int _handle_unlockacct_command(t_connection * c, char const *text)
   
   for (i=0; text[i]!=' ' && text[i]!='\0'; i++); /* skip command */
   for (; text[i]==' '; i++);
-  
-  if (account_get_auth_admin(conn_get_account(c))!=1) /* default to false */
-    {
-      message_send_text(c,message_type_error,c,"This command is reserved for admins.");
-      return 0;
-    }
   
   if (text[i]=='\0')
     {
@@ -3517,12 +3590,6 @@ static int _handle_flag_command(t_connection * c, char const *text)
   dest[j] = '\0';
   for (; text[i]==' '; i++);
   
-  if (account_get_auth_admin(conn_get_account(c))!=1)
-    {
-      message_send_text(c,message_type_error,c,"This command is reserved for admins.");
-      return 0;
-    }
-  
   if (dest[0]=='\0')
     {
       message_send_text(c,message_type_info,c,"usage: /flag <flag>");
@@ -3550,12 +3617,6 @@ static int _handle_tag_command(t_connection * c, char const *text)
   dest[j] = '\0';
   for (; text[i]==' '; i++);
  
- if (account_get_auth_admin(conn_get_account(c))!=1)
-    {
-      message_send_text(c,message_type_error,c,"This command is reserved for admins.");
-      return 0;
-    }
-    
   if (dest[0]=='\0')
   {
 	message_send_text(c,message_type_info,c,"usage: /tag <clienttag>");
@@ -3632,12 +3693,6 @@ static int _handle_set_command(t_connection * c, char const *text)
   char         arg1[256];
   char         arg2[256];
   char         arg3[256];
-  
-  if (account_get_auth_admin(conn_get_account(c))!=1) /* default to false */
-    {
-      message_send_text(c,message_type_error,c,"This command is only enabled for admins.");
-      return 0;
-    }
   
   strncpy(t, text, MAX_MESSAGE_LEN - 1);
   for (i=0; t[i]!=' ' && t[i]!='\0'; i++); /* skip command /set */
@@ -3768,17 +3823,13 @@ static int _handle_ping_command(t_connection * c, char const *text)
   return 0;
 }
 
+/* Redirected to handle_ipban_command in ipban.c [Omega]
 static int _handle_ipban_command(t_connection * c, char const *text)
 {
-  if (account_get_auth_admin(conn_get_account(c))!=1)
-    {
-      message_send_text(c,message_type_error,c,"This command is reserved for admins.");
-      return 0;
-    }
-  
   handle_ipban_command(c,text);
   return 0;
 }
+*/
 
 static int _handle_commandgroups_command(t_connection * c, char const * text)
 {
