@@ -224,11 +224,15 @@ static int handle_irc_line(t_connection * conn, char const * ircline)
 	    irc_send(conn,ERR_NEEDMOREPARAMS,":Too few arguments to USER");
         }
     } else if (strcmp(command,"PING")==0) {
-	/* NOTE: RFC2812 doesn't seem to be very expressive about this ... */
+	/* Dizzy: just ignore this because RFC says we should not reply client PINGs
+	 * NOTE: RFC2812 doesn't seem to be very expressive about this ... */
+	/*
         if ((text)&&(strcmp(text,server_get_name())!=0))
-	    irc_send(conn,ERR_NOSUCHSERVER,":No such server"); /* We don't know other servers */
+	    irc_send(conn,ERR_NOSUCHSERVER,":No such server"); We don't know other servers
+	;
 	else
 	    irc_send_pong(conn,params[0]);
+	*/
     } else if (strcmp(command,"PONG")==0) {
 	/* NOTE: RFC2812 doesn't seem to be very expressive about this ... */
 	if (conn_get_ircping(conn)==0) {
