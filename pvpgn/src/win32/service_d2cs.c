@@ -10,9 +10,13 @@ extern int main(int argc, char *argv[]);
 SERVICE_STATUS serviceStatus;
 SERVICE_STATUS_HANDLE serviceStatusHandle = 0;
 
+typedef WINADVAPI BOOL (WINAPI *CSD_T)(SC_HANDLE, DWORD, LPCVOID);
+
 void Win32_ServiceInstall()
 {
 	SERVICE_DESCRIPTION sdBuf; 
+	CSD_T ChangeServiceDescription;
+    HANDLE advapi32;
 	SC_HANDLE serviceControlManager = OpenSCManager(0, 0, SC_MANAGER_CREATE_SERVICE);
 
 	if (serviceControlManager)
@@ -30,7 +34,22 @@ void Win32_ServiceInstall()
 			if (service)
 			{
 				sdBuf.lpDescription = serviceDescription;
-				ChangeServiceConfig2(  
+
+				if (!(advapi32 = GetModuleHandle("ADVAPI32.DLL")))
+				{
+					CloseServiceHandle(service);
+					CloseServiceHandle(serviceControlManager);
+					return;
+				}
+			
+				if (!(ChangeServiceDescription = (CSD_T) GetProcAddress(advapi32, "ChangeServiceConfig2A")))
+				{
+					CloseServiceHandle(service);
+					CloseServiceHandle(serviceControlManager);
+					return;
+				}
+    
+				ChangeServiceDescription(  
 										service,                // handle to service  
 										SERVICE_CONFIG_DESCRIPTION, // change: description  
 										&sdBuf);
