@@ -530,26 +530,33 @@ static int _handle_privmsg_command(t_connection * conn, int numparams, char ** p
 
 				if (strcasecmp(text,"identify")==0) 
 				{
-					if (conn_get_state(conn)==conn_state_bot_password) 
+				    switch (conn_get_state(conn))
+				    {
+					case conn_state_bot_password:
 					{
-						if (pass) 
-						{
+					    if (pass) 
+					    {
  		    				t_hash h;
  
-							for (p = pass; *p; p++)
-								if (isupper((int)*p)) *p = tolower(*p);
+						for (p = pass; *p; p++)
+						    if (isupper((int)*p)) *p = tolower(*p);
  		    				bnet_hash(&h,strlen(pass),pass);
  		    				irc_authenticate(conn,hash_get_str(h));
- 						}
-						else 
-						{
-							irc_send_cmd(conn,"NOTICE",":Syntax: IDENTIFY password(max 16 characters)");
-						}
-					} 
-					else 
-					{
-							irc_send_cmd(conn,"NOTICE",":You don't need to IDENTIFY");
+ 					    }
+					    else 
+					    {
+						irc_send_cmd(conn,"NOTICE",":Syntax: IDENTIFY password(max 16 characters)");
+					    }
+					    break;
 					}
+					case conn_state_loggedin:
+					{
+					    irc_send_cmd(conn,"NOTICE",":You don't need to IDENTIFY");
+					    break;
+					}
+					default: ;
+					    eventlog(eventlog_level_trace,__FUNCTION__,"got /msg in unexpected connection state (%s)",conn_state_get_str(conn_get_state(conn)));
+				    }
 				} 
 				else if (strcasecmp(text,"register")==0) 
 				{
