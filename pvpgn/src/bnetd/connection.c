@@ -3264,8 +3264,8 @@ extern int conn_get_user_count_by_clienttag(t_clienttag ct)
    LIST_TRAVERSE_CONST(connlist(),curr)
      {
 	conn = elem_get_data(curr);
-	if (ct == conn->protocol.client.clienttag)
-	  clienttagusers++;
+	if ( ( ct == conn->protocol.client.clienttag ) 
+	  && ( conn->protocol.state == conn_state_loggedin ) ) clienttagusers++;
      }
 
    return clienttagusers;
