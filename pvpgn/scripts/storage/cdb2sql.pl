@@ -37,7 +37,7 @@ sub convert_cdb2sql {
     my $filen = shift;
     my ($userid, $count, $alist);
 
-    $pid  = open(FILE, "$bncdb -d $filen |");
+    $pid  = open(FILE, "$bncdb -d \"".$filen."\" |");
     print STDERR "Converting file $filen ... ";
 
     $count = 0;
