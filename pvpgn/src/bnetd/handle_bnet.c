@@ -3897,9 +3897,7 @@ static int _client_gamelistreq(t_connection * c, t_packet const * const packet)
 	     unsigned int   tcount;
 	     t_elem const * curr;
 	     bn_int game_spacer = { 1, 0 ,0 ,0 };
-	     char const * versiontag1;
-	     char const * versiontag2;
-	     
+
 	     if (gtype==game_type_all)
 	       eventlog(eventlog_level_debug,__FUNCTION__,"GAMELISTREPLY looking for public games tag=\"%s\" bngtype=0x%08x gtype=all",clienttag,bngtype);
 	     else
@@ -3938,9 +3936,11 @@ static int _client_gamelistreq(t_connection * c, t_packet const * const packet)
 		       eventlog(eventlog_level_debug,__FUNCTION__,"[%d] not listing because game is wrong type",conn_get_socket(c));
 		       continue;
 		    }
-		  versiontag1 = versioncheck_get_versiontag(conn_get_versioncheck(c));
-		  versiontag2 = versioncheck_get_versiontag(conn_get_versioncheck(game_get_owner(game)));
-		  if (versiontag1 && versiontag2 && (strcmp(versiontag2,versiontag1)!=0))
+		  if (conn_get_versioncheck(c) && 
+		      conn_get_versioncheck(game_get_owner(game)) && 
+		      versioncheck_get_versiontag(conn_get_versioncheck(c)) && 
+		      versioncheck_get_versiontag(conn_get_versioncheck(game_get_owner(game))) &&
+		      strcmp(versioncheck_get_versiontag(conn_get_versioncheck(c)),versioncheck_get_versiontag(conn_get_versioncheck(game_get_owner(game))))!=0)
 		    {
 		       eventlog(eventlog_level_debug,__FUNCTION__,"[%d] not listing because game is wrong versiontag",conn_get_socket(c));
 		       continue;
