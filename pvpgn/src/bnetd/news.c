@@ -161,7 +161,7 @@ extern int news_load(const char *filename)
 
     for (line=1; fgets(buff,sizeof(buff),fp); line++) {
 	len = strlen(buff);
-	while(len && (buff[len] == '\n' || buff[len] == '\r')) len--;
+	while(len && (buff[len - 1] == '\n' || buff[len - 1] == '\r')) len--;
 	if (!len) continue; /* empty line */
 	buff[len] = '\0';
 
