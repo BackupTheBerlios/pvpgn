@@ -61,7 +61,7 @@ sub convertfile {
 
 	    if ($tab =~ m/^record$/i) {
 		if ($col =~ m/^solo/i or $col =~ m/^team/i or $col =~ m/^ffa/i or
-		    $col =~ m/^orcs/i or $col =~ m/^humans/i or $col =~ m/^nightelves/i or $col =~ m/^undead/i) {
+		    $col =~ m/^orcs/i or $col =~ m/^humans/i or $col =~ m/^nightelves/i or $col =~ m/^undead/i or $col =~ m/^random/i) {
 		    print FILEOUT "\"". $tab . "\\\\WAR3\\\\" . $col . "\"=\"" . $val ."\"\n";
 		    next;
 		}
