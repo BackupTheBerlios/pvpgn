@@ -11,7 +11,6 @@
 # @                                                                          #
 # aliasname [aliasshortcut1 [aliasshortcut2 [...]]]                          #
 # [!]text or command to type as if the player typed it                       #
-# [!]text or command to type as if the player typed it                       #
 # [!]%Iinformation to print to the player                                    #
 # [!]%Eerror to print to the player                                          #
 #                                                                            #
@@ -39,7 +38,7 @@
 @
 //doubt //dt //d
 [0]/me looks with doubt
-[1+]/me looks at $* with doubt
+[1+]/me looks at ${1-} with doubt
 @
 //numusers //nu
 [0]%IThere are %u users online.
@@ -52,5 +51,8 @@
 @
 //statsme //sm
 [0]/stats %u
+@
+//pvpgn
+[*]/announce PVPGN rulez!
 #                                                                            #
 ##############################################################################

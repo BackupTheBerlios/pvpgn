@@ -307,14 +307,34 @@ static int do_alias(t_connection * c, char const * cmd, char const * text)
 	    //TODO: initialize offsets
 	    
             {
-		char const * msgtmp;
+		char * msgtmp;
+		char * tmp2;
+		msgtmp = tmp2 = NULL;
 		match = 1;
+		char * cmd ="%C";
 		
 		if ((msgtmp = replace_args(output->line,offsets,numargs+1,text)))
 		{
-/* FIXME: add %C to start of line */
+	          if (msgtmp[0]!='\0')
+		  {
+		    if ((msgtmp[0]=='/')&&(msgtmp[1]!='/')) // to make sure we don't get endless aliasing loop
+		    {
+		      if ((tmp2 = malloc(strlen(msgtmp)+3)))
+		      {
+			sprintf(tmp2,"%s%s",cmd,msgtmp);
+			free((void *)msgtmp);
+			msgtmp=tmp2;
+		      }
+
+		    }
+		    if (strlen(msgtmp)>MAX_MESSAGE_LEN) 
+		    {
+		      msgtmp[MAX_MESSAGE_LEN]='\0';
+		      eventlog(eventlog_level_info,__FUNCTION__,"message line after alias expansion was too long, truncating it");
+		    }
 		    message_send_formatted(c,msgtmp);
-		    free((void *)msgtmp); /* avoid warning */
+		  }
+		  free((void *)msgtmp); /* avoid warning */
 		}
 		else
 		    eventlog(eventlog_level_error,"do_alias","could not perform argument replacement");
@@ -391,7 +411,7 @@ extern int aliasfile_load(char const * filename)
 		if (buff[pos]=='\0') break;
 		    
 		inalias = 2;
-		if (alias = malloc(sizeof(t_alias)))
+		if ((alias = malloc(sizeof(t_alias))))
 		{
 		  alias->output=0;
 		  alias->alias=strdup(&buff[pos]);
@@ -413,7 +433,7 @@ extern int aliasfile_load(char const * filename)
 		  break;
 	      }
 
-	      if (dummy=strchr(&buff[pos],']'))
+	      if ((dummy=strchr(&buff[pos],']')))
 	      {
 		if (dummy[1]!='\0') out = strdup(&dummy[1]);
 	      }
@@ -485,7 +505,7 @@ extern int aliasfile_load(char const * filename)
 		t_output * output = NULL;
 
 		min = max = 0;
-		if (dummy=strchr(&buff[pos],']'))
+		if ((dummy=strchr(&buff[pos],']')))
 		  {
 		    if (dummy[1]!='\0') out = strdup(&dummy[1]);
 		  }
