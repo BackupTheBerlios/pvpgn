@@ -78,6 +78,7 @@ typedef struct
 #define D2CS_CLIENT_CREATECHARREPLY_SUCCEED		0x00
 #define D2CS_CLIENT_CREATECHARREPLY_FAILED		0x01
 #define D2CS_CLIENT_CREATECHARREPLY_ALREADY_EXIST	0x14
+#define D2CS_CLIENT_CREATECHARREPLY_NAME_REJECT		0x15
 
 
 #define CLIENT_D2CS_CREATEGAMEREQ		0x03
@@ -141,6 +142,7 @@ typedef struct
 #define D2CS_CLIENT_JOINGAMEREPLY_NIGHTMARE_HELL	0x74
 #define D2CS_CLIENT_JOINGAMEREPLY_CLASSIC_EXPANSION	0x78
 #define D2CS_CLIENT_JOINGAMEREPLY_EXPANSION_CLASSIC	0x79
+#define D2CS_CLIENT_JOINGAMEREPLY_NORMAL_LADDER		0x7D
 #define D2CS_CLIENT_JOINGAMEREPLY_FAILED		0x01
 
 #define CLIENT_D2CS_GAMELISTREQ				0x05
@@ -185,7 +187,7 @@ typedef struct
 	bn_byte			currchar;
 	bn_byte			class[16];		/* 16 character class */
 	bn_byte			level[16];		/* 16 character level */
-	bn_byte			u1;			/* always zero */
+	/* game description */
 	/* currchar number of character names */
 } t_d2cs_client_gameinforeply;
 
@@ -346,5 +348,34 @@ typedef struct
 } t_d2cs_client_convertcharreply;
 #define D2CS_CLIENT_CONVERTCHARREPLY_SUCCEED		0x00
 #define D2CS_CLIENT_CONVERTCHARREPLY_FAILED		0x01
+
+#define CLIENT_D2CS_CHARLISTREQ_110		0x19
+typedef struct
+{
+	t_d2cs_client_header	h;
+	bn_short		maxchar;
+	bn_short		u1;
+} t_client_d2cs_charlistreq_110;
+
+
+#define D2CS_CLIENT_CHARLISTREPLY_110		0x19
+typedef struct
+{
+	t_d2cs_client_header	h;
+	bn_short		maxchar;
+	bn_short		currchar;
+	bn_short		u1;			/* always zero */
+	bn_short		currchar2;
+} t_d2cs_client_charlistreply_110;
+
+typedef struct
+{
+	bn_int			expire_time;		/* character expire time (in seconds) */
+	/* character name */
+	/* character portrait blocks */
+	/* each block is 0x22 bytes static length */
+} t_d2cs_client_chardata;
+
+
 
 #endif

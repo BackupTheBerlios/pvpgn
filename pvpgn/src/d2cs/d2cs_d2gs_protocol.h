@@ -50,7 +50,9 @@ typedef struct
 {
 	t_d2cs_d2gs_header	h;
 	bn_int			sessionnum;
-	/* realm name */
+	bn_int			signlen;
+ 	/* realm name */
+	/* key check sum, maybe 128 bytes */
 } t_d2cs_d2gs_authreq;
 
 #define D2GS_D2CS_AUTHREPLY		0x11
@@ -59,6 +61,9 @@ typedef struct
 	t_d2cs_d2gs_header	h;
 	bn_int			version;
 	bn_int			checksum;
+	bn_int			randnum;
+	bn_int			signlen;
+	bn_basic		sign[128];
 } t_d2gs_d2cs_authreply;
 
 #define D2CS_D2GS_AUTHREPLY		0x11
@@ -110,10 +115,22 @@ typedef struct
 #define D2CS_D2GS_CONTROL_CMD_SHUTDOWN	0x02
 #define D2CS_D2GS_CONTROL_VALUE_DEFAULT	0x00
 
+#define D2CS_D2GS_SETINITINFO		0x15
+typedef struct
+{
+	t_d2cs_d2gs_header	h;
+	bn_int			time;
+	bn_int			gs_id;
+	bn_int			ac_version;
+	/* ac_checksum */
+} t_d2cs_d2gs_setinitinfo;
+
+
 #define D2CS_D2GS_CREATEGAMEREQ		0x20
 typedef struct
 {
 	t_d2cs_d2gs_header	h;
+	bn_byte			ladder;
 	bn_byte			expansion;
 	bn_byte			difficulty;
 	bn_byte			hardcore;
@@ -132,7 +149,7 @@ typedef struct
 } t_d2gs_d2cs_creategamereply;
 #define D2GS_D2CS_CREATEGAME_SUCCEED		0
 #define D2GS_D2CS_CREATEGAME_FAILED		1
-#define D2GS_D2CS_JOINGAME_GAME_FULL		2
+
 
 #define D2CS_D2GS_JOINGAMEREQ		0x21
 typedef struct
@@ -153,6 +170,7 @@ typedef struct
 } t_d2gs_d2cs_joingamereply;
 #define D2GS_D2CS_JOINGAME_SUCCEED			0
 #define D2GS_D2CS_JOINGAME_FAILED			1
+#define D2GS_D2CS_JOINGAME_GAME_FULL			2
 
 #define D2GS_D2CS_UPDATEGAMEINFO	0x22
 typedef struct
