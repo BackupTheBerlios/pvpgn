@@ -3055,10 +3055,11 @@ static int _client_motdw3(t_connection * c, t_packet const * const packet)
      }
    
      {
-	time_t news_time;
+	time_t news_time, now;
 	
 	// default news time is right now
-	news_time=time(NULL);
+	
+	now = news_time = time(NULL);
 	
 	// News
 	  {
@@ -3086,8 +3087,8 @@ static int _client_motdw3(t_connection * c, t_packet const * const packet)
 			   packet_set_size(rpacket,sizeof(t_server_motd_w3));
 			   packet_set_type(rpacket,SERVER_MOTD_W3);
 			   
-			   bn_int_set(&rpacket->u.server_motd_w3.unknown4,SERVER_MOTD_W3_UNKNOWN4);
 			   bn_byte_set(&rpacket->u.server_motd_w3.msgtype,SERVER_MOTD_W3_MSGTYPE);
+			   bn_int_set(&rpacket->u.server_motd_w3.curr_time,now);
 			   bn_int_set(&rpacket->u.server_motd_w3.first_news_time,news_time);
 			   bn_int_set(&rpacket->u.server_motd_w3.last_news_time,news_time);
 			   bn_int_set(&rpacket->u.server_motd_w3.timestamp,news_time);
@@ -3147,8 +3148,8 @@ static int _client_motdw3(t_connection * c, t_packet const * const packet)
 	packet_set_type(rpacket,SERVER_MOTD_W3);
 	
         //bn_int_set(&rpacket->u.server_motd_w3.ticks,get_ticks());
-	bn_int_set(&rpacket->u.server_motd_w3.unknown4,SERVER_MOTD_W3_UNKNOWN4);
 	bn_byte_set(&rpacket->u.server_motd_w3.msgtype,SERVER_MOTD_W3_MSGTYPE);
+	bn_int_set(&rpacket->u.server_motd_w3.curr_time,now);
 	bn_int_set(&rpacket->u.server_motd_w3.first_news_time,news_time);
 	bn_int_set(&rpacket->u.server_motd_w3.last_news_time,news_time);
 	bn_int_set(&rpacket->u.server_motd_w3.timestamp,SERVER_MOTD_W3_WELCOME);

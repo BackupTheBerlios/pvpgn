@@ -2292,7 +2292,7 @@ typedef struct
 {
     t_bnet_header h;
 	bn_byte        msgtype; // this is probably actually the count
-	bn_int         unknown4; // _MIGHT_ be current time, not sure though
+	bn_int         curr_time;
 	bn_int         first_news_time;
 	bn_int         last_news_time;
 	bn_int         timestamp;
@@ -2300,7 +2300,6 @@ typedef struct
 	/* text */
 } t_server_motd_w3 PACKED_ATTR();
 #define SERVER_MOTD_W3_MSGTYPE  0x01
-#define SERVER_MOTD_W3_UNKNOWN4 0x3c6c3a16
 #define SERVER_MOTD_W3_WELCOME  0x00000000
 /******************************************************/
 
