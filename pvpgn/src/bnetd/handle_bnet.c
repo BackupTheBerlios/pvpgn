@@ -995,7 +995,7 @@ static int _client_createacctreq2(t_connection * c, t_packet const * const packe
 	packet_del_ref(rpacket);
      }
    
-   return -1;
+   return 0;
 }
 
 static int _client_changepassreq(t_connection * c, t_packet const * const packet)
