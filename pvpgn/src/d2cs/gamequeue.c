@@ -82,7 +82,7 @@ extern t_gq * gq_create(unsigned int clientid, t_packet * packet, char const * g
 {
 	t_gq	* gq;
 
-	if (!(gq=xmalloc(sizeof(t_gq)))) return NULL;
+	gq=xmalloc(sizeof(t_gq));
 	gq->seqno=++gqlist_seqno;
 	gq->clientid=clientid;
 	gq->packet=packet;

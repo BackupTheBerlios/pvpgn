@@ -197,10 +197,7 @@ extern t_d2gs * d2gs_create(char const * ipaddr)
 		eventlog(eventlog_level_error,__FUNCTION__,"game server %s already in list",ipaddr);
 		return NULL;
 	}
-	if (!(gs=xmalloc(sizeof(t_d2gs)))) {;
-		eventlog(eventlog_level_error,__FUNCTION__,"error allocate memory");
-		return NULL;
-	}
+	gs=xmalloc(sizeof(t_d2gs));
 	gs->ip=ntohl(ip);
 	gs->id=++d2gs_id;
 	gs->active=0;

@@ -195,10 +195,7 @@ extern int d2char_create(char const * account, char const * charname, unsigned c
 		return -1;
 	}
 
-	if (!(savefile=xmalloc(strlen(prefs_get_charsave_dir())+1+strlen(charname)+1))) {
-		eventlog(eventlog_level_error,__FUNCTION__,"error allocate memory for file");
-		return -1;
-	}
+	savefile=xmalloc(strlen(prefs_get_charsave_dir())+1+strlen(charname)+1);
 	d2char_get_savefile_name(savefile,charname);
 	if ((fp=fopen(savefile,"rb"))) {
 		eventlog(eventlog_level_warn,__FUNCTION__,"character save file \"%s\" for \"%s\" already exist",savefile,charname);
@@ -207,12 +204,7 @@ extern int d2char_create(char const * account, char const * charname, unsigned c
 		return -1;
 	}
 	
-	if (!(infofile=xmalloc(strlen(prefs_get_charinfo_dir())+1+strlen(account)+1+strlen(charname)+1))) {
-		eventlog(eventlog_level_error,__FUNCTION__,"error allocate memory for charinfo file");
-		xfree(savefile);
-		return -1;
-	}
-
+	infofile=xmalloc(strlen(prefs_get_charinfo_dir())+1+strlen(account)+1+strlen(charname)+1);
 	d2char_get_infofile_name(infofile,account,charname);
 
 	now = time(NULL);
@@ -253,10 +245,7 @@ extern int d2char_find(char const * account, char const * charname)
 
 	ASSERT(account,-1);
 	ASSERT(charname,-1);
-	if (!(file=xmalloc(strlen(prefs_get_charinfo_dir())+1+strlen(account)+1+strlen(charname)+1))) {
-		eventlog(eventlog_level_error,__FUNCTION__,"error allocate memory for charinfo file");
-		return -1;
-	}
+	file=xmalloc(strlen(prefs_get_charinfo_dir())+1+strlen(account)+1+strlen(charname)+1);
 	d2char_get_infofile_name(file,account,charname);
 	fp=fopen(file,"rb");
 	xfree(file);
@@ -307,10 +296,7 @@ extern int d2char_convert(char const * account, char const * charname)
 		eventlog(eventlog_level_error,__FUNCTION__,"got bad account name \"%s\"",account);
 		return -1;
 	}
-	if (!(file=xmalloc(strlen(prefs_get_charinfo_dir())+1+strlen(account)+1+strlen(charname)+1))) {
-		eventlog(eventlog_level_error,__FUNCTION__,"error allocate memory for charinfo file");
-		return -1;
-	}
+	file=xmalloc(strlen(prefs_get_charinfo_dir())+1+strlen(account)+1+strlen(charname)+1);
 	d2char_get_infofile_name(file,account,charname);
 	if (!(fp=fopen(file,"rb+"))) {
 		eventlog(eventlog_level_error,__FUNCTION__,"unable to open charinfo file \"%s\" for reading and writing (fopen: %s)",file,strerror(errno));
@@ -342,10 +328,7 @@ extern int d2char_convert(char const * account, char const * charname)
 		return -1;
 	}
 	
-	if (!(file=xmalloc(strlen(prefs_get_charsave_dir())+1+strlen(charname)+1))) {
-		eventlog(eventlog_level_error,__FUNCTION__,"error allocate memory for charsave file");
-		return -1;
-	}
+	file=xmalloc(strlen(prefs_get_charsave_dir())+1+strlen(charname)+1);
 	d2char_get_savefile_name(file,charname);
 	if (!(fp=fopen(file,"rb+"))) {
 		eventlog(eventlog_level_error,__FUNCTION__,"could not open charsave file \"%s\" for reading and writing (fopen: %s)",file,strerror(errno));
@@ -401,10 +384,7 @@ extern int d2char_delete(char const * account, char const * charname)
 		eventlog(eventlog_level_error,__FUNCTION__,"got bad account name \"%s\"",account);
 		return -1;
 	}
-	if (!(file=xmalloc(strlen(prefs_get_charinfo_dir())+1+strlen(account)+1+strlen(charname)+1))) {
-		eventlog(eventlog_level_error,__FUNCTION__,"error allocate memory for charinfo file");
-		return -1;
-	}
+	file=xmalloc(strlen(prefs_get_charinfo_dir())+1+strlen(account)+1+strlen(charname)+1);
 	d2char_get_infofile_name(file,account,charname);
 	if (unlink(file)<0) {
 		eventlog(eventlog_level_error,__FUNCTION__,"failed to unlink charinfo file \"%s\" (unlink: %s)",file,strerror(errno));
@@ -413,10 +393,7 @@ extern int d2char_delete(char const * account, char const * charname)
 	}
 	xfree(file);
 
-	if (!(file=xmalloc(strlen(prefs_get_charsave_dir())+1+strlen(charname)+1))) {
-		eventlog(eventlog_level_error,__FUNCTION__,"error allocate memory for charsave file");
-		return -1;
-	}
+	file=xmalloc(strlen(prefs_get_charsave_dir())+1+strlen(charname)+1);
 	d2char_get_savefile_name(file,charname);
 	if (unlink(file)<0) {
 		eventlog(eventlog_level_error,__FUNCTION__,"failed to unlink charsave file \"%s\" (unlink: %s)",file,strerror(errno));
@@ -459,10 +436,7 @@ extern int d2charinfo_load(char const * account, char const * charname, t_d2char
 		eventlog(eventlog_level_error,__FUNCTION__,"got bad account name \"%s\"",account);
 		return -1;
 	}
-	if (!(file=xmalloc(strlen(prefs_get_charinfo_dir())+1+strlen(account)+1+strlen(charname)+1))) {
-		eventlog(eventlog_level_error,__FUNCTION__,"error allocate memory for file");
-		return -1;
-	}
+	file=xmalloc(strlen(prefs_get_charinfo_dir())+1+strlen(account)+1+strlen(charname)+1);
 	d2char_get_infofile_name(file,account,charname);
 	size=sizeof(t_d2charinfo_file);
 	if (file_read(file,data,&size)<0) {
@@ -519,10 +493,7 @@ extern int d2charinfo_load(char const * account, char const * charname, t_d2char
 }
 		fclose(fp);
 
-		if (!(file=xmalloc(strlen(prefs_get_charsave_dir())+1+strlen(charname)+1))) {
-			eventlog(eventlog_level_error,__FUNCTION__,"error allocate memory for charsave file");
-			return -1;
-		}
+		file=xmalloc(strlen(prefs_get_charsave_dir())+1+strlen(charname)+1);
 		d2char_get_savefile_name(file,charname);
 
 		if (!(fp=fopen(file,"rb+"))) {

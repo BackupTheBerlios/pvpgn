@@ -71,69 +71,62 @@ extern int d2charlist_add_char(t_d2charlist *charlist, char const * name, bn_int
     char const * d2char_sort;
     d2char_sort = prefs_get_charlist_sort();
     charlist_internal = xmalloc(sizeof(t_d2charlist_internal));
-    if(charlist_internal!=NULL)
-    {
-	charlist_internal->name = xstrdup(name);
-	charlist_internal->mtime = bn_int_get(mtime);
-	charlist_internal->level = bn_int_get(level);
-	charlist_internal->exp = bn_int_get(exp);
-	charlist_internal->prev = NULL;
-	charlist_internal->next = NULL;
-	if (charlist->first == NULL) {
-	    charlist->first = charlist_internal;
-	    charlist->last = charlist_internal;
-	}
-	else
-	{
-            if (!strcasecmp(d2char_sort, "name"))
-            {
-                search = charlist->first;
-                while ((search != NULL) && (name > search->name))
-                {
-                    search = search->next;
-                }
-                do_add_char(charlist,search,charlist_internal);
-            }
-	    else if (!strcasecmp(d2char_sort, "mtime"))
-	    {
-		search = charlist->first;
-		while ((search != NULL) && (bn_int_get(mtime) > search->mtime))
-		{
-		    search = search->next;
-		}
-		do_add_char(charlist,search,charlist_internal);
-	    }
-            else if (!strcasecmp(d2char_sort, "level"))
-            {
-                search = charlist->first;
-                while ((search != NULL) && (bn_int_get(level) > search->level))
-                {
-                    search = search->next;
-                }
-                while ((search != NULL) && (bn_int_get(level) == search->level) && (bn_int_get(exp) > search->exp))
-                {
-                    search = search->next;
-                }
-                while ((search != NULL) && (bn_int_get(level) == search->level) && (bn_int_get(exp) == search->exp) && (name > search->name))
-                {
-                    search = search->next;
-                }
-                do_add_char(charlist,search,charlist_internal);
-            }
-            else
-            {
-		charlist->last->next = charlist_internal;
-		charlist_internal->prev = charlist->last;
-		charlist->last = charlist_internal;
-            }
-        }
-        return 0;
+
+    charlist_internal->name = xstrdup(name);
+    charlist_internal->mtime = bn_int_get(mtime);
+    charlist_internal->level = bn_int_get(level);
+    charlist_internal->exp = bn_int_get(exp);
+    charlist_internal->prev = NULL;
+    charlist_internal->next = NULL;
+    if (charlist->first == NULL) {
+	charlist->first = charlist_internal;
+	charlist->last = charlist_internal;
     }
     else
     {
-        eventlog(eventlog_level_error,__FUNCTION__,"could not allocate memory for internal charlist");
-        return -1;
+        if (!strcasecmp(d2char_sort, "name"))
+        {
+            search = charlist->first;
+            while ((search != NULL) && (name > search->name))
+            {
+                search = search->next;
+            }
+            do_add_char(charlist,search,charlist_internal);
+        }
+	else if (!strcasecmp(d2char_sort, "mtime"))
+	{
+	    search = charlist->first;
+	    while ((search != NULL) && (bn_int_get(mtime) > search->mtime))
+	    {
+		search = search->next;
+	    }
+	    do_add_char(charlist,search,charlist_internal);
+	}
+        else if (!strcasecmp(d2char_sort, "level"))
+        {
+            search = charlist->first;
+            while ((search != NULL) && (bn_int_get(level) > search->level))
+            {
+                search = search->next;
+            }
+            while ((search != NULL) && (bn_int_get(level) == search->level) && (bn_int_get(exp) > search->exp))
+            {
+                search = search->next;
+            }
+            while ((search != NULL) && (bn_int_get(level) == search->level) && (bn_int_get(exp) == search->exp) && (name > search->name))
+            {
+                search = search->next;
+            }
+            do_add_char(charlist,search,charlist_internal);
+        }
+        else
+        {
+	    charlist->last->next = charlist_internal;
+	    charlist_internal->prev = charlist->last;
+	    charlist->last = charlist_internal;
+        }
     }
+    return 0;
 }
 
 void do_add_char (t_d2charlist * charlist, t_d2charlist_internal * search, t_d2charlist_internal * charlist_internal)

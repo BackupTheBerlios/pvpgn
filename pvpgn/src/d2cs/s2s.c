@@ -98,9 +98,7 @@ extern t_connection * s2s_create(char const * server, unsigned short def_port, t
 	char			* p, * tserver;
 
 	ASSERT(server,NULL);
-	if (!(tserver=xstrdup(server))) {
-		return NULL;
-	}
+	tserver=xstrdup(server);
 	p=strchr(tserver,':');
 	if (p) {
 		port=(unsigned short)strtoul(p+1,NULL,10);

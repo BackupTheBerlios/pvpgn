@@ -150,11 +150,6 @@ static void d2gs_send_server_conffile(t_d2gs *gs, t_connection *c)
 	fseek(fp, 0L, SEEK_SET);
 	/* read config file content */
 	confs = xmalloc(size+8);
-	if (confs==NULL) {
-		fclose(fp);
-		eventlog(eventlog_level_error,__FUNCTION__,"not enough memory");
-		return;
-	}
 	if (fread(confs, size, 1, fp) != 1) {
 		fclose(fp);
 		xfree(confs);

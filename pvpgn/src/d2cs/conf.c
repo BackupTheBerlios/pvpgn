@@ -97,26 +97,23 @@ static int conf_bool_set(void * data, int value)
 static int conf_str_set(void * data, char const * value)
 {
 	char * * p;
-	char	* tmp;
-	
+
 	p=(char * *)data;
-	tmp=NULL;
-	if (value && !(tmp=xstrdup(value))) return -1;
 	if (*p) xfree(*p);
-	*p=tmp;
+	if (value) *p=xstrdup(value);
+	else *p=NULL;
+
 	return 0;
 }
 
 static int conf_hexstr_set(void * data, char const * value)
 {
 	char * * p;
-	char * tmp;
 
 	p=(char * *)data;
-	tmp=NULL;
-	if (value && !(tmp=hexstrdup(value))) return -1;
 	if (*p) xfree(*p);
-	*p=tmp;
+	if (value) *p=hexstrdup(value);
+	else *p=NULL;
 	return 0;
 }
 	

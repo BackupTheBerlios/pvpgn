@@ -110,7 +110,7 @@ extern char * hexstrdup(unsigned char const * src)
 	int	len;
 
 	if (!src) return NULL;
-	if (!(dest=xstrdup(src))) return NULL;
+	dest=xstrdup(src);
 	len=hexstrtoraw(src,dest,strlen(dest)+1);
 	dest[len]='\0';
 	return dest;
@@ -183,10 +183,8 @@ extern char * * strtoargv(char const * str, unsigned int * count)
 
 	if (!str || !count) return NULL;
 	temp=xmalloc(strlen(str)+1);
-	if (!temp) return NULL;
 	n = SPLIT_STRING_INIT_COUNT;
 	pindex=xmalloc(n * sizeof (int));
-	if (!pindex) return NULL;
 
 	i=j=0;
 	*count=0;
@@ -195,12 +193,7 @@ extern char * * strtoargv(char const * str, unsigned int * count)
 		if (!str[i]) break;
 		if (*count >=n ) {
 			n += SPLIT_STRING_INCREASEMENT;
-			if (!(realloc_tmp=xrealloc(pindex,n * sizeof(int)))) {
-				xfree(pindex);
-				xfree(temp);
-				return NULL;
-			}
-			pindex=(int *)realloc_tmp;
+			pindex=(int *)=xrealloc(pindex,n * sizeof(int));
 		}
 		pindex[*count]=j;
 		(*count)++;
@@ -230,20 +223,9 @@ extern char * * strtoargv(char const * str, unsigned int * count)
 		return NULL;
 	}
 	result=xmalloc(j+index_size);
-	if (!result) {
-		xfree(temp);
-		xfree(pindex);
-		return NULL;
-	}
 	memcpy(result+index_size,temp,j);
 
 	ptrindex=xmalloc(*count * sizeof (char*));
-	if (!ptrindex) {
-	    xfree(temp);
-	    xfree(pindex);
-	    xfree(result);
-	    return NULL;
-	}
 	for (i=0; i< *count; i++) {
 		ptrindex[i] = result + index_size + pindex[i];
 	}
@@ -268,7 +250,6 @@ extern char * arraytostr(char * * array, char const * delim, int count)
 
 	n=COMBINE_STRING_INIT_LEN;
 	result=xmalloc(n);
-	if (!result) return NULL;
 	result[0]='\0';
 
 	need_delim=0;
@@ -276,11 +257,7 @@ extern char * arraytostr(char * * array, char const * delim, int count)
 		if (!array[i]) continue;	
 		if (strlen(result)+strlen(array[i])+strlen(delim)>=n) {
 			n+=COMBINE_STRING_INCREASEMENT;
-			if (!(realloc_tmp=xrealloc(result,n))) {
-				xfree(result);
-				return NULL;
-			}
-			result=realloc_tmp;
+			result=xrealloc(result,n);
 		}
 		if (need_delim) {
 			strcat(result,delim);
@@ -288,10 +265,7 @@ extern char * arraytostr(char * * array, char const * delim, int count)
 		strcat(result,array[i]);
 		need_delim=1;
 	}
-	if (!(realloc_tmp=xrealloc(result,strlen(result)+1))) {
-		return result;
-	}
-	result=realloc_tmp;
+	result=xrealloc(result,strlen(result)+1);
 	return result;
 }
 

@@ -85,11 +85,8 @@ static int d2ladder_readladder(void)
 	t_d2ladderfile_header		header;
 	unsigned int			i, n, temp, count, type, number;
 
-	if (!(ladderfile=xmalloc(strlen(prefs_get_ladder_dir())+1+strlen(LADDER_FILE_PREFIX)+1+
-			strlen(CLIENTTAG_DIABLO2DV)+1))) {
-		eventlog(eventlog_level_error,__FUNCTION__,"error allocate memory for ladderfile");
-		return -1;
-	}
+	ladderfile=xmalloc(strlen(prefs_get_ladder_dir())+1+strlen(LADDER_FILE_PREFIX)+1+
+			strlen(CLIENTTAG_DIABLO2DV)+1);
 	sprintf(ladderfile,"%s/%s.%s",prefs_get_ladder_dir(),LADDER_FILE_PREFIX,CLIENTTAG_DIABLO2DV);
 	if (!(fp=fopen(ladderfile,"rb"))) {
 		eventlog(eventlog_level_error,__FUNCTION__,"error opening ladder file \"%s\" for reading (fopen: %s)",ladderfile,strerror(errno));
@@ -109,11 +106,7 @@ static int d2ladder_readladder(void)
 		return -1;
 	}
 	temp= max_ladder_type * sizeof(*ladderheader);
-	if (!(ladderheader=xmalloc(temp))) {
-		eventlog(eventlog_level_error,__FUNCTION__,"error allocate ladderheader");
-		fclose(fp);
-		return -1;
-	}
+	ladderheader=xmalloc(temp);
 	if (fread(ladderheader,1,temp,fp)!=temp) {
 		eventlog(eventlog_level_error,__FUNCTION__,"error read ladder file");
 		xfree(ladderheader);
@@ -129,10 +122,7 @@ static int d2ladder_readladder(void)
 		}
 		fseek(fp,bn_int_get(ladderheader[i].offset),SEEK_SET);
 		temp=number * sizeof(*ladderinfo);
-		if (!(ladderinfo=xmalloc(temp))) {
-			eventlog(eventlog_level_error,__FUNCTION__,"error allocate ladder info");
-			continue;
-		}
+		ladderinfo=xmalloc(temp);
 		if (fread(ladderinfo,1,temp,fp)!=temp) {
 			eventlog(eventlog_level_error,__FUNCTION__,"error read ladder file");
 			xfree(ladderinfo);
@@ -152,10 +142,7 @@ static int d2ladder_readladder(void)
 
 static int d2ladderlist_create(unsigned int maxtype)
 {
-	if (!(ladder_data=xmalloc(maxtype * sizeof(*ladder_data)))) {
-		eventlog(eventlog_level_error,__FUNCTION__,"error allocate ladder_data");
-		return -1;
-	}
+	ladder_data=xmalloc(maxtype * sizeof(*ladder_data));
 	memset(ladder_data,0, maxtype * sizeof(*ladder_data));
 	return 0;
 }
@@ -172,10 +159,7 @@ static int d2ladder_create(unsigned int type, unsigned int len)
 		eventlog(eventlog_level_error,__FUNCTION__,"ladder type %d exceed max ladder type %d",type,max_ladder_type);
 		return -1;
 	}
-	if (!(ladder_data[type].info=xmalloc(sizeof(t_d2cs_client_ladderinfo) * len))) {
-		eventlog(eventlog_level_error,__FUNCTION__,"error allocate memory for ladder info");
-		return -1;
-	}
+	ladder_data[type].info=xmalloc(sizeof(t_d2cs_client_ladderinfo) * len);
 	ladder_data[type].len=len;
 	ladder_data[type].type=type;
 	ladder_data[type].curr_len=0;

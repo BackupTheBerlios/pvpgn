@@ -428,10 +428,7 @@ extern t_connection * d2cs_conn_create(int sock, unsigned int local_addr, unsign
 		eventlog(eventlog_level_error,__FUNCTION__,"got bad socket");
 		return NULL;
 	}
-	if (!(c=xmalloc(sizeof(t_connection)))) {
-		eventlog(eventlog_level_error,__FUNCTION__,"error allocate connection");
-		return NULL;
-	}
+	c=xmalloc(sizeof(t_connection));
 	c->charname=NULL;
 	c->account=NULL;
 	c->sock=sock;
@@ -702,19 +699,14 @@ extern int conn_process_packet(t_connection * c, t_packet * packet, t_packet_han
 
 extern int d2cs_conn_set_account(t_connection * c, char const * account)
 {
-	char const * temp;
-
 	ASSERT(c,-1);
 	if (!account) {
 		if (c->account) xfree((void *)c->account);
 		c->account=NULL;
 	}
-	if (!(temp=xstrdup(account))) {
-		eventlog(eventlog_level_error,__FUNCTION__,"error allocate temp for account");
-		return -1;
-	}
 	if (c->account) xfree((void *)c->account);
-	c->account=temp;
+	c->account=xstrdup(account);
+
 	return 0;
 }
 
@@ -730,10 +722,7 @@ extern int d2cs_conn_set_charname(t_connection * c, char const * charname)
 
 	ASSERT(c,-1);
 	temp=NULL;
-	if (charname && !(temp=xstrdup(charname))) {
-		eventlog(eventlog_level_error,__FUNCTION__,"error allocate temp for charname");
-		return -1;
-	}
+	if (charname) temp=xstrdup(charname);
 	if (c->charname) {
 		if (hashtable_remove_data(conn_charname_list_head,c,c->charname_hash) <0) {
 			eventlog(eventlog_level_error,__FUNCTION__,"error remove charname %s from list",charname);
@@ -815,21 +804,15 @@ extern unsigned int conn_get_charinfo_class(t_connection const * c)
 
 extern int conn_set_charinfo(t_connection * c, t_d2charinfo_summary const * charinfo)
 {
-	t_d2charinfo_summary * temp;
-
 	ASSERT(c,-1);
 	if (!charinfo) {
 		if (c->charinfo) xfree((void *)c->charinfo);
 		c->charinfo=NULL;
 		return 0;
 	}
-	if (!(temp=xmalloc(sizeof(t_d2charinfo_summary)))) {
-		eventlog(eventlog_level_error,__FUNCTION__,"error allocate temp for charinfo");
-		return -1;
-	}
 	if (c->charinfo) xfree((void *)c->charinfo);
-	memcpy(temp,charinfo,sizeof(t_d2charinfo_summary));
-	c->charinfo=temp;
+	c->charinfo=xmalloc(sizeof(t_d2charinfo_summary));
+	memcpy(c->charinfo,charinfo,sizeof(t_d2charinfo_summary));
 	return 0;
 }
 

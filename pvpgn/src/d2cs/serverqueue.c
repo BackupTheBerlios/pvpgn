@@ -109,7 +109,7 @@ extern t_sq * sq_create(unsigned int clientid, t_packet * packet,unsigned int ga
 {
 	t_sq	* sq;
 	
-	if (!(sq=xmalloc(sizeof(t_sq)))) return NULL;
+	sq=xmalloc(sizeof(t_sq));
 	sq->seqno=++sqlist_seqno;
 	sq->ctime=time(NULL);
 	sq->clientid=clientid;

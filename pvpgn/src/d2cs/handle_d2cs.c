@@ -210,10 +210,7 @@ static int on_client_createcharreq(t_connection * c, t_packet * packet)
 	class=bn_short_get(packet->u.client_d2cs_createcharreq.class);
 	status=bn_short_get(packet->u.client_d2cs_createcharreq.status);
 
-	if (!(path=xmalloc(strlen(prefs_get_charinfo_dir())+1+strlen(account)+1))) {
-		eventlog(eventlog_level_error,__FUNCTION__,"error allocate memory for path");
-		return 0;
-	}
+	path=xmalloc(strlen(prefs_get_charinfo_dir())+1+strlen(account)+1);
 	d2char_get_infodir_name(path,account);
 	if (!(dir=p_opendir(path))) {
 	        eventlog(eventlog_level_info,__FUNCTION__,"(*%s) charinfo directory do not exist, building it",account);
@@ -858,14 +855,8 @@ static int on_client_charlistreq(t_connection * c, t_packet * packet)
 		eventlog(eventlog_level_error,__FUNCTION__,"missing account for connection");
 		return -1;
 	}
-	if (!(path=xmalloc(strlen(prefs_get_charinfo_dir())+1+strlen(account)+1))) {
-		eventlog(eventlog_level_error,__FUNCTION__,"error allocate memory for path");
-		return 0;
-	}
-	if (!(d2c=xmalloc(sizeof(t_d2charlist)))) {
-		eventlog(eventlog_level_error,__FUNCTION__,"cannot allocate memory for charlist");
-		return -1;
-	}
+	path=xmalloc(strlen(prefs_get_charinfo_dir())+1+strlen(account)+1);
+	d2c=xmalloc(sizeof(t_d2charlist));
 	d2charlist_init(d2c);
 	charlist_sort_order = prefs_get_charlist_sort_order();
 	d2char_get_infodir_name(path,account);
@@ -962,14 +953,8 @@ static int on_client_charlistreq_110(t_connection * c, t_packet * packet)
 		eventlog(eventlog_level_error,__FUNCTION__,"missing account for connection");
 		return -1;
 	}
-	if (!(path=xmalloc(strlen(prefs_get_charinfo_dir())+1+strlen(account)+1))) {
-		eventlog(eventlog_level_error,__FUNCTION__,"error allocate memory for path");
-		return 0;
-	}
-	if (!(d2c=xmalloc(sizeof(t_d2charlist)))) {
-		eventlog(eventlog_level_error,__FUNCTION__,"cannot allocate memory for charlist");
-		return -1;
-	}
+	path=xmalloc(strlen(prefs_get_charinfo_dir())+1+strlen(account)+1);
+	d2c=xmalloc(sizeof(t_d2charlist));
 	d2charlist_init(d2c);
 	charlist_sort_order = prefs_get_charlist_sort_order();
 	d2char_get_infodir_name(path,account);

@@ -189,25 +189,10 @@ extern t_game * d2cs_game_create(char const * gamename, char const * gamepass, c
 		eventlog(eventlog_level_error,__FUNCTION__,"game %s already exist",gamename);
 		return NULL;
 	}
-	if (!(game=xmalloc(sizeof(t_game)))) {
-		eventlog(eventlog_level_error,__FUNCTION__,"error allocate memory for game");
-		return NULL;
-	}
-	if (!(game->name=xstrdup(gamename))) {
-		xfree(game);
-		return NULL;
-	}
-	if (!(game->pass=xstrdup(gamepass))) {
-		xfree((void *)game->name);
-		xfree(game);
-		return NULL;
-	}
-	if (!(game->desc=xstrdup(gamedesc))) {
-		xfree((void *)game->name);
-		xfree((void *)game->pass);
-		xfree(game);
-		return NULL;
-	}
+	game=xmalloc(sizeof(t_game));
+	game->name=xstrdup(gamename);
+	game->pass=xstrdup(gamepass);
+	game->desc=xstrdup(gamedesc);
 	if (!(game->charlist=list_create())) {
 		xfree((void *)game->name);
 		xfree((void *)game->pass);
@@ -313,13 +298,8 @@ extern int game_add_character(t_game * game, char const * charname, unsigned cha
 		charinfo->level=level;
 		return 0;
 	}
-	if (!(charinfo=xmalloc(sizeof(t_game_charinfo)))) {
-		eventlog(eventlog_level_error,__FUNCTION__,"error allocate charinfo");
-		return -1;
-	}
-	if (!(charinfo->charname=xstrdup(charname))) {
-		return -1;
-	}
+	charinfo=xmalloc(sizeof(t_game_charinfo));
+	charinfo->charname=xstrdup(charname);
 	charinfo->class=class;
 	charinfo->level=level;
 	if (list_append_data(game->charlist,charinfo)<0) {
