@@ -54,6 +54,7 @@ typedef struct
 #define CLIENT_INITCONN_CLASS_DEFER  0x01 /* great... means either "bnet protocol" or "auth protocol" */
 #define CLIENT_INITCONN_CLASS_FILE   0x02
 #define CLIENT_INITCONN_CLASS_BOT    0x03
+#define CLIENT_INITCONN_CLASS_ENC    0x04 /* encrypted connection */
 #define CLIENT_INITCONN_CLASS_TELNET 0x0d /* Hack alert: look for user to hit \r when they connect */
 #define CLIENT_INITCONN_CLASS_BITS   0xbd
 #define CLIENT_INITCONN_CLASS_D2CS   0x01

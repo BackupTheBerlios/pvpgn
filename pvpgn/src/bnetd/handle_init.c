@@ -132,6 +132,10 @@ extern int handle_init_packet(t_connection * c, t_packet const * const packet)
            }
            break;
 	    
+	case CLIENT_INITCONN_CLASS_ENC:
+	    eventlog(eventlog_level_info,"handle_init_packet","[%d] client initiated encrypted connection (not supported)",conn_get_socket(c));
+	    return -1;
+
 	default:
 	    eventlog(eventlog_level_error,"handle_init_packet","[%d] client requested unknown class 0x%02x (length %d) (closing connection)",conn_get_socket(c),(unsigned int)bn_byte_get(packet->u.client_initconn.class),packet_get_size(packet));
 	    return -1;
