@@ -131,6 +131,9 @@ bnetd_DEFCONFFILE   = ${confdir}\bnetd.conf
 bnetd_SBIN          = ${SRC_SBINDIR}\bnetd.exe
 bnetd_OBJECTS       = \
     ${SRC_BNETDDIR}\main.obj \
+    ${SRC_BNETDDIR}\fdwatch.obj \    
+    ${SRC_BNETDDIR}\fdwatch_poll.obj \    
+    ${SRC_BNETDDIR}\fdwatch_select.obj \    
     ${SRC_BNETDDIR}\server.obj \
     ${SRC_BNETDDIR}\connection.obj \
     ${SRC_BNETDDIR}\message.obj \
