@@ -110,6 +110,7 @@ extern int d2dbs_handle_signal(void)
 		eventlog(eventlog_level_info,__FUNCTION__,"the server is going to shutdown in %lu minutes",(signal_data.exit_time-now)/60);
 	}
 	if (signal_data.exit_time) {
+		now=time(NULL);
 		if (now >= (signed)signal_data.exit_time) {
 			eventlog(eventlog_level_info,__FUNCTION__,"shutdown server due to signal");
 			return -1;
