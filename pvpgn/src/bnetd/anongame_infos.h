@@ -24,26 +24,28 @@
 #undef JUST_NEED_TYPES
 #endif
 
-typedef struct {
-	char * server_URL;
-	char * player_URL;
-	char * tourney_URL;
-	char * clan_URL;
+#define anongame_infos_URL_count 14
 
-	char * ladder_PG_1v1_URL;
-	char * ladder_PG_ffa_URL;
-	char * ladder_PG_team_URL;
+typedef enum
+{
+	URL_server,
+	URL_player,
+	URL_tourney,
+	URL_clan,
 
-	char * ladder_AT_2v2_URL;
-	char * ladder_AT_3v3_URL;
-	char * ladder_AT_4v4_URL;
+	URL_ladder_PG_1v1,
+	URL_ladder_PG_ffa,
+	URL_ladder_PG_team,
 
-	char * ladder_clan_1v1_URL;
-	char * ladder_clan_2v2_URL;
-	char * ladder_clan_3v3_URL;
-	char * ladder_clan_4v4_URL;
-	
-} t_anongame_infos_URL;
+	URL_ladder_AT_2v2,
+	URL_ladder_AT_3v3,
+	URL_ladder_AT_4v4,
+
+	URL_ladder_clan_1v1,
+	URL_ladder_clan_2v2,
+	URL_ladder_clan_3v3,
+	URL_ladder_clan_4v4
+} t_anongame_infos_URLs;
 
 typedef struct {
 	char * langID;
@@ -171,7 +173,7 @@ typedef struct {
 } t_anongame_infos_data;
 
 typedef struct {
-	t_anongame_infos_URL	* anongame_infos_URL;
+	char			** anongame_infos_URL;
 	t_anongame_infos_DESC	* anongame_infos_DESC;			// for default DESC
 	t_list			* anongame_infos_DESC_list;		// for localized DESC's
 	t_anongame_infos_THUMBSDOWN * anongame_infos_THUMBSDOWN;	// for storing thumbs down config
@@ -197,15 +199,7 @@ typedef struct {
 extern int anongame_infos_load(char const * filename);
 extern int anongame_infos_unload(void);
 
-extern char * anongame_infos_URL_get_server_url(void);
-extern char * anongame_infos_URL_get_player_url(void);
-extern char * anongame_infos_URL_get_tourney_url(void);
-extern char * anongame_infos_URL_get_ladder_PG_1v1_url(void);
-extern char * anongame_infos_URL_get_ladder_PG_ffa_url(void);
-extern char * anongame_infos_URL_get_ladder_PG_team_url(void);
-extern char * anongame_infos_URL_get_ladder_AT_2v2_url(void);
-extern char * anongame_infos_URL_get_ladder_AT_3v3_url(void);
-extern char * anongame_infos_URL_get_ladder_AT_4v4_url(void);
+extern char * anongame_infos_URL_get_URL(int member);
 
 extern char * anongame_infos_DESC_get_ladder_PG_1v1_desc(char * langID);
 extern char * anongame_infos_DESC_get_ladder_PG_ffa_desc(char * langID);

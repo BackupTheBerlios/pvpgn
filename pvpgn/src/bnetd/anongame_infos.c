@@ -54,7 +54,8 @@ static int anongame_infos_data_load(void);
 
 static int anongame_infos_URL_init(t_anongame_infos * anongame_infos)
 {
-    t_anongame_infos_URL *anongame_infos_URL;
+    char **anongame_infos_URL;
+    int i;
 
     if (!(anongame_infos))
     {
@@ -62,71 +63,35 @@ static int anongame_infos_URL_init(t_anongame_infos * anongame_infos)
 	return -1;
     }
 
-    anongame_infos_URL = xmalloc(sizeof(t_anongame_infos_URL));
+    anongame_infos_URL = xmalloc(sizeof(char*)*anongame_infos_URL_count);
 
-    anongame_infos_URL->player_URL = NULL;
-    anongame_infos_URL->server_URL = NULL;
-    anongame_infos_URL->tourney_URL = NULL;
-    anongame_infos_URL->clan_URL = NULL;
-
-    anongame_infos_URL->ladder_PG_1v1_URL = NULL;
-    anongame_infos_URL->ladder_PG_ffa_URL = NULL;
-    anongame_infos_URL->ladder_PG_team_URL = NULL;
-
-    anongame_infos_URL->ladder_AT_2v2_URL = NULL;
-    anongame_infos_URL->ladder_AT_3v3_URL = NULL;
-    anongame_infos_URL->ladder_AT_4v4_URL = NULL;
-
-    anongame_infos_URL->ladder_clan_1v1_URL = NULL;
-    anongame_infos_URL->ladder_clan_2v2_URL = NULL;
-    anongame_infos_URL->ladder_clan_3v3_URL = NULL;
-    anongame_infos_URL->ladder_clan_4v4_URL = NULL;
+    for (i=0; i<anongame_infos_URL_count; i++)
+        anongame_infos_URL[i] = NULL;
 
     anongame_infos->anongame_infos_URL = anongame_infos_URL;
 
     return 0;
 }
 
-static int anongame_infos_URL_destroy(t_anongame_infos_URL * anongame_infos_URL)
+static int anongame_infos_URL_destroy(char ** anongame_infos_URL)
 {
+    int i;
+    
     if (!(anongame_infos_URL))
     {
 	eventlog(eventlog_level_error, __FUNCTION__, "got NULL anongame_infos_URL");
 	return -1;
     }
 
-    if (anongame_infos_URL->player_URL)
-	xfree((void *) anongame_infos_URL->player_URL);
-    if (anongame_infos_URL->server_URL)
-	xfree((void *) anongame_infos_URL->server_URL);
-    if (anongame_infos_URL->tourney_URL)
-	xfree((void *) anongame_infos_URL->tourney_URL);
-    if (anongame_infos_URL->clan_URL)
-	xfree((void *) anongame_infos_URL->clan_URL);
+    for (i=0; i <anongame_infos_URL_count; i++)
+    {
+        if (anongame_infos_URL[i])
+	{
+            xfree((void *)anongame_infos_URL[i]);
+	    anongame_infos_URL[i] = NULL;
+	}
+    }
 
-    if (anongame_infos_URL->ladder_PG_1v1_URL)
-	xfree((void *) anongame_infos_URL->ladder_PG_1v1_URL);
-    if (anongame_infos_URL->ladder_PG_ffa_URL)
-	xfree((void *) anongame_infos_URL->ladder_PG_ffa_URL);
-    if (anongame_infos_URL->ladder_PG_team_URL)
-	xfree((void *) anongame_infos_URL->ladder_PG_team_URL);
-
-    if (anongame_infos_URL->ladder_AT_2v2_URL)
-	xfree((void *) anongame_infos_URL->ladder_AT_2v2_URL);
-    if (anongame_infos_URL->ladder_AT_3v3_URL)
-	xfree((void *) anongame_infos_URL->ladder_AT_3v3_URL);
-    if (anongame_infos_URL->ladder_AT_4v4_URL)
-	xfree((void *) anongame_infos_URL->ladder_AT_4v4_URL);
-
-
-    if (anongame_infos_URL->ladder_clan_1v1_URL)
-	xfree((void *) anongame_infos_URL->ladder_clan_1v1_URL);
-    if (anongame_infos_URL->ladder_clan_2v2_URL)
-	xfree((void *) anongame_infos_URL->ladder_clan_2v2_URL);
-    if (anongame_infos_URL->ladder_clan_3v3_URL)
-	xfree((void *) anongame_infos_URL->ladder_clan_3v3_URL);
-    if (anongame_infos_URL->ladder_clan_4v4_URL)
-	xfree((void *) anongame_infos_URL->ladder_clan_4v4_URL);
     xfree((void *) anongame_infos_URL);
 
     return 0;
@@ -697,234 +662,26 @@ static int anongame_infos_set_str(char **dst, char *src, char *errstr)
     return 0;
 }
 
-static int anongame_infos_URL_set_server_URL(t_anongame_infos_URL * anongame_infos_URL, char *server_URL)
+static int anongame_infos_URL_set_URL(int member, char *URL)
 {
-    if (!(anongame_infos_URL))
+    char **anongame_infos_URLs;
+    
+    if (!(anongame_infos_URLs = anongame_infos->anongame_infos_URL))
     {
-	eventlog(eventlog_level_error, __FUNCTION__, "got NULL anongame_infos_URL");
+	eventlog(eventlog_level_error, __FUNCTION__, "detected NULL anongame_infos_URL");
 	return -1;
     }
 
-    return anongame_infos_set_str(&anongame_infos_URL->server_URL, server_URL, "server_URL");
+    return anongame_infos_set_str(&anongame_infos_URLs[member], URL, "URL");
 }
 
-extern char *anongame_infos_URL_get_server_url(void)
+extern char *anongame_infos_URL_get_URL(int member)
 {
-    return anongame_infos->anongame_infos_URL->server_URL;
-}
-
-static int anongame_infos_URL_set_player_URL(t_anongame_infos_URL * anongame_infos_URL, char *player_URL)
-{
-    if (!(anongame_infos_URL))
-    {
-	eventlog(eventlog_level_error, __FUNCTION__, "got NULL anongame_infos_URL");
-	return -1;
-    }
-
-
-    return anongame_infos_set_str(&anongame_infos_URL->player_URL, player_URL, "player_URL");
-}
-
-extern char *anongame_infos_URL_get_player_url(void)
-{
-    return anongame_infos->anongame_infos_URL->player_URL;
-}
-
-
-static int anongame_infos_URL_set_tourney_URL(t_anongame_infos_URL * anongame_infos_URL, char *tourney_URL)
-{
-    if (!(anongame_infos_URL))
-    {
-	eventlog(eventlog_level_error, __FUNCTION__, "got NULL anongame_infos_URL");
-	return -1;
-    }
-
-    return anongame_infos_set_str(&anongame_infos_URL->tourney_URL, tourney_URL, "tourney_URL");
-
-}
-
-extern char *anongame_infos_URL_get_tourney_url(void)
-{
-    return anongame_infos->anongame_infos_URL->tourney_URL;
-}
-
-static int anongame_infos_URL_set_clan_URL(t_anongame_infos_URL * anongame_infos_URL, char *clan_URL)
-{
-    if (!(anongame_infos_URL))
-    {
-	eventlog(eventlog_level_error, __FUNCTION__, "got NULL anongame_infos_URL");
-	return -1;
-    }
-
-    return anongame_infos_set_str(&anongame_infos_URL->clan_URL, clan_URL, "clan_URL");
-
-}
-
-extern char *anongame_infos_URL_get_clan_url(void)
-{
-    return anongame_infos->anongame_infos_URL->clan_URL;
-}
-
-
-static int anongame_infos_URL_set_ladder_PG_1v1_URL(t_anongame_infos_URL * anongame_infos_URL, char *ladder_PG_1v1_URL)
-{
-    if (!(anongame_infos_URL))
-    {
-	eventlog(eventlog_level_error, __FUNCTION__, "got NULL anongame_infos_URL");
-	return -1;
-    }
-
-    return anongame_infos_set_str(&anongame_infos_URL->ladder_PG_1v1_URL, ladder_PG_1v1_URL, "ladder_PG_1v1_URL");
-
-}
-
-extern char *anongame_infos_URL_get_ladder_PG_1v1_url(void)
-{
-    return anongame_infos->anongame_infos_URL->ladder_PG_1v1_URL;
-}
-
-static int anongame_infos_URL_set_ladder_PG_ffa_URL(t_anongame_infos_URL * anongame_infos_URL, char *ladder_PG_ffa_URL)
-{
-    if (!(anongame_infos_URL))
-    {
-	eventlog(eventlog_level_error, __FUNCTION__, "got NULL anongame_infos_URL");
-	return -1;
-    }
-
-    return anongame_infos_set_str(&anongame_infos_URL->ladder_PG_ffa_URL, ladder_PG_ffa_URL, "ladder_PG_ffa_URL");
-}
-
-extern char *anongame_infos_URL_get_ladder_PG_ffa_url(void)
-{
-    return anongame_infos->anongame_infos_URL->ladder_PG_ffa_URL;
-}
-
-static int anongame_infos_URL_set_ladder_PG_team_URL(t_anongame_infos_URL * anongame_infos_URL, char *ladder_PG_team_URL)
-{
-    if (!(anongame_infos_URL))
-    {
-	eventlog(eventlog_level_error, __FUNCTION__, "got NULL anongame_infos_URL");
-	return -1;
-    }
-
-    return anongame_infos_set_str(&anongame_infos_URL->ladder_PG_team_URL, ladder_PG_team_URL, "ladder_PG_team_URL");
-}
-
-extern char *anongame_infos_URL_get_ladder_PG_team_url(void)
-{
-    return anongame_infos->anongame_infos_URL->ladder_PG_team_URL;
-}
-
-static int anongame_infos_URL_set_ladder_AT_2v2_URL(t_anongame_infos_URL * anongame_infos_URL, char *ladder_AT_2v2_URL)
-{
-    if (!(anongame_infos_URL))
-    {
-	eventlog(eventlog_level_error, __FUNCTION__, "got NULL anongame_infos_URL");
-	return -1;
-    }
-
-    return anongame_infos_set_str(&anongame_infos_URL->ladder_AT_2v2_URL, ladder_AT_2v2_URL, "ladder_AT_2v2_URL");
-}
-
-extern char *anongame_infos_URL_get_ladder_AT_2v2_url(void)
-{
-    return anongame_infos->anongame_infos_URL->ladder_AT_2v2_URL;
-}
-
-static int anongame_infos_URL_set_ladder_AT_3v3_URL(t_anongame_infos_URL * anongame_infos_URL, char *ladder_AT_3v3_URL)
-{
-    if (!(anongame_infos_URL))
-    {
-	eventlog(eventlog_level_error, __FUNCTION__, "got NULL anongame_infos_URL");
-	return -1;
-    }
-
-    return anongame_infos_set_str(&anongame_infos_URL->ladder_AT_3v3_URL, ladder_AT_3v3_URL, "ladder_AT_3v3_URL");
-}
-
-extern char *anongame_infos_URL_get_ladder_AT_3v3_url(void)
-{
-    return anongame_infos->anongame_infos_URL->ladder_AT_3v3_URL;
-}
-
-static int anongame_infos_URL_set_ladder_AT_4v4_URL(t_anongame_infos_URL * anongame_infos_URL, char *ladder_AT_4v4_URL)
-{
-    if (!(anongame_infos_URL))
-    {
-	eventlog(eventlog_level_error, __FUNCTION__, "got NULL anongame_infos_URL");
-	return -1;
-    }
-
-    return anongame_infos_set_str(&anongame_infos_URL->ladder_AT_4v4_URL, ladder_AT_4v4_URL, "ladder_AT_4v4_URL");
-}
-
-extern char *anongame_infos_URL_get_ladder_AT_4v4_url(void)
-{
-    return anongame_infos->anongame_infos_URL->ladder_AT_4v4_URL;
-}
-
-static int anongame_infos_URL_set_ladder_clan_1v1_URL(t_anongame_infos_URL * anongame_infos_URL, char *ladder_clan_1v1_URL)
-{
-    if (!(anongame_infos_URL))
-    {
-	eventlog(eventlog_level_error, __FUNCTION__, "got NULL anongame_infos_URL");
-	return -1;
-    }
-
-    return anongame_infos_set_str(&anongame_infos_URL->ladder_clan_1v1_URL, ladder_clan_1v1_URL, "ladder_clan_1v1_URL");
-}
-
-extern char *anongame_infos_URL_get_ladder_clan_1v1_url(void)
-{
-    return anongame_infos->anongame_infos_URL->ladder_clan_1v1_URL;
-}
-
-static int anongame_infos_URL_set_ladder_clan_2v2_URL(t_anongame_infos_URL * anongame_infos_URL, char *ladder_clan_2v2_URL)
-{
-    if (!(anongame_infos_URL))
-    {
-	eventlog(eventlog_level_error, __FUNCTION__, "got NULL anongame_infos_URL");
-	return -1;
-    }
-
-    return anongame_infos_set_str(&anongame_infos_URL->ladder_clan_2v2_URL, ladder_clan_2v2_URL, "ladder_clan_2v2_URL");
-}
-
-extern char *anongame_infos_URL_get_ladder_clan_2v2_url(void)
-{
-    return anongame_infos->anongame_infos_URL->ladder_clan_2v2_URL;
-}
-
-static int anongame_infos_URL_set_ladder_clan_3v3_URL(t_anongame_infos_URL * anongame_infos_URL, char *ladder_clan_3v3_URL)
-{
-    if (!(anongame_infos_URL))
-    {
-	eventlog(eventlog_level_error, __FUNCTION__, "got NULL anongame_infos_URL");
-	return -1;
-    }
-
-    return anongame_infos_set_str(&anongame_infos_URL->ladder_clan_3v3_URL, ladder_clan_3v3_URL, "ladder_clan_3v3_URL");
-}
-
-extern char *anongame_infos_URL_get_ladder_clan_3v3_url(void)
-{
-    return anongame_infos->anongame_infos_URL->ladder_clan_3v3_URL;
-}
-
-static int anongame_infos_URL_set_ladder_clan_4v4_URL(t_anongame_infos_URL * anongame_infos_URL, char *ladder_clan_4v4_URL)
-{
-    if (!(anongame_infos_URL))
-    {
-	eventlog(eventlog_level_error, __FUNCTION__, "got NULL anongame_infos_URL");
-	return -1;
-    }
-
-    return anongame_infos_set_str(&anongame_infos_URL->ladder_clan_4v4_URL, ladder_clan_4v4_URL, "ladder_clan_4v4_URL");
-}
-
-extern char *anongame_infos_URL_get_ladder_clan_4v4_url(void)
-{
-    return anongame_infos->anongame_infos_URL->ladder_clan_4v4_URL;
+    char **anongame_infos_URLs;
+    
+    if (!(anongame_infos_URLs = anongame_infos->anongame_infos_URL))
+        return NULL;
+    else return anongame_infos_URLs[member];
 }
 
 
@@ -2468,7 +2225,7 @@ extern char *anongame_infos_data_get_ladr(char const *langID, t_clienttag client
 
 static void anongame_infos_set_defaults(t_anongame_infos * anongame_infos)
 {
-    t_anongame_infos_URL *anongame_infos_URL;
+    char ** anongame_infos_URL;
     t_anongame_infos_DESC *anongame_infos_DESC;
 
     if (!(anongame_infos))
@@ -2502,34 +2259,34 @@ static void anongame_infos_set_defaults(t_anongame_infos * anongame_infos)
     }
     // now set default values
 
-    if (!(anongame_infos_URL->server_URL))
-	anongame_infos_URL_set_server_URL(anongame_infos_URL, PVPGN_DEFAULT_URL);
-    if (!(anongame_infos_URL->player_URL))
-	anongame_infos_URL_set_player_URL(anongame_infos_URL, PVPGN_DEFAULT_URL);
-    if (!(anongame_infos_URL->tourney_URL))
-	anongame_infos_URL_set_tourney_URL(anongame_infos_URL, PVPGN_DEFAULT_URL);
-    if (!(anongame_infos_URL->clan_URL))
-	anongame_infos_URL_set_clan_URL(anongame_infos_URL, PVPGN_DEFAULT_URL);
-    if (!(anongame_infos_URL->ladder_PG_1v1_URL))
-	anongame_infos_URL_set_ladder_PG_1v1_URL(anongame_infos_URL, PVPGN_DEFAULT_URL);
-    if (!(anongame_infos_URL->ladder_PG_ffa_URL))
-	anongame_infos_URL_set_ladder_PG_ffa_URL(anongame_infos_URL, PVPGN_DEFAULT_URL);
-    if (!(anongame_infos_URL->ladder_PG_team_URL))
-	anongame_infos_URL_set_ladder_PG_team_URL(anongame_infos_URL, PVPGN_DEFAULT_URL);
-    if (!(anongame_infos_URL->ladder_AT_2v2_URL))
-	anongame_infos_URL_set_ladder_AT_2v2_URL(anongame_infos_URL, PVPGN_DEFAULT_URL);
-    if (!(anongame_infos_URL->ladder_AT_3v3_URL))
-	anongame_infos_URL_set_ladder_AT_3v3_URL(anongame_infos_URL, PVPGN_DEFAULT_URL);
-    if (!(anongame_infos_URL->ladder_AT_4v4_URL))
-	anongame_infos_URL_set_ladder_AT_4v4_URL(anongame_infos_URL, PVPGN_DEFAULT_URL);
-    if (!(anongame_infos_URL->ladder_clan_1v1_URL))
-	anongame_infos_URL_set_ladder_clan_1v1_URL(anongame_infos_URL, PVPGN_DEFAULT_URL);
-    if (!(anongame_infos_URL->ladder_clan_2v2_URL))
-	anongame_infos_URL_set_ladder_clan_2v2_URL(anongame_infos_URL, PVPGN_DEFAULT_URL);
-    if (!(anongame_infos_URL->ladder_clan_3v3_URL))
-	anongame_infos_URL_set_ladder_clan_3v3_URL(anongame_infos_URL, PVPGN_DEFAULT_URL);
-    if (!(anongame_infos_URL->ladder_clan_4v4_URL))
-	anongame_infos_URL_set_ladder_clan_4v4_URL(anongame_infos_URL, PVPGN_DEFAULT_URL);
+    if (!(anongame_infos_URL[URL_server]))
+	anongame_infos_URL_set_URL(URL_server, PVPGN_DEFAULT_URL);
+    if (!(anongame_infos_URL[URL_player]))
+	anongame_infos_URL_set_URL(URL_player, PVPGN_DEFAULT_URL);
+    if (!(anongame_infos_URL[URL_tourney]))
+	anongame_infos_URL_set_URL(URL_tourney, PVPGN_DEFAULT_URL);
+    if (!(anongame_infos_URL[URL_clan]))
+	anongame_infos_URL_set_URL(URL_clan, PVPGN_DEFAULT_URL);
+    if (!(anongame_infos_URL[URL_ladder_PG_1v1]))
+	anongame_infos_URL_set_URL(URL_ladder_PG_1v1, PVPGN_DEFAULT_URL);
+    if (!(anongame_infos_URL[URL_ladder_PG_ffa]))
+	anongame_infos_URL_set_URL(URL_ladder_PG_ffa, PVPGN_DEFAULT_URL);
+    if (!(anongame_infos_URL[URL_ladder_PG_team]))
+	anongame_infos_URL_set_URL(URL_ladder_PG_team, PVPGN_DEFAULT_URL);
+    if (!(anongame_infos_URL[URL_ladder_AT_2v2]))
+	anongame_infos_URL_set_URL(URL_ladder_AT_2v2, PVPGN_DEFAULT_URL);
+    if (!(anongame_infos_URL[URL_ladder_AT_3v3]))
+	anongame_infos_URL_set_URL(URL_ladder_AT_3v3, PVPGN_DEFAULT_URL);
+    if (!(anongame_infos_URL[URL_ladder_AT_4v4]))
+	anongame_infos_URL_set_URL(URL_ladder_AT_4v4, PVPGN_DEFAULT_URL);
+    if (!(anongame_infos_URL[URL_ladder_clan_1v1]))
+	anongame_infos_URL_set_URL(URL_ladder_clan_1v1, PVPGN_DEFAULT_URL);
+    if (!(anongame_infos_URL[URL_ladder_clan_2v2]))
+	anongame_infos_URL_set_URL(URL_ladder_clan_2v2, PVPGN_DEFAULT_URL);
+    if (!(anongame_infos_URL[URL_ladder_clan_3v3]))
+	anongame_infos_URL_set_URL(URL_ladder_clan_3v3, PVPGN_DEFAULT_URL);
+    if (!(anongame_infos_URL[URL_ladder_clan_4v4]))
+	anongame_infos_URL_set_URL(URL_ladder_clan_4v4, PVPGN_DEFAULT_URL);
 
     if (!(anongame_infos_DESC->ladder_PG_1v1_desc))
 	anongame_infos_DESC_set_ladder_PG_1v1_desc(anongame_infos_DESC, PVPGN_PG_1V1_DESC);
@@ -2608,11 +2365,9 @@ static void anongame_infos_set_defaults(t_anongame_infos * anongame_infos)
 
 }
 
-typedef int (*t_URL_string_handler) (t_anongame_infos_URL * anongame_infos_URL, char *text);
-
 typedef struct {
     const char *anongame_infos_URL_string;
-    t_URL_string_handler URL_string_handler;
+    int member;
 } t_anongame_infos_URL_table_row;
 
 typedef int (*t_DESC_string_handler) (t_anongame_infos_DESC * anongame_infos_DESC, char *text);
@@ -2653,21 +2408,21 @@ typedef struct {
 
 
 static const t_anongame_infos_URL_table_row URL_handler_table[] = {
-    {"server_URL", anongame_infos_URL_set_server_URL},
-    {"player_URL", anongame_infos_URL_set_player_URL},
-    {"tourney_URL", anongame_infos_URL_set_tourney_URL},
-    {"clan_URL", anongame_infos_URL_set_clan_URL},
-    {"ladder_PG_1v1_URL", anongame_infos_URL_set_ladder_PG_1v1_URL},
-    {"ladder_PG_ffa_URL", anongame_infos_URL_set_ladder_PG_ffa_URL},
-    {"ladder_PG_team_URL", anongame_infos_URL_set_ladder_PG_team_URL},
-    {"ladder_AT_2v2_URL", anongame_infos_URL_set_ladder_AT_2v2_URL},
-    {"ladder_AT_3v3_URL", anongame_infos_URL_set_ladder_AT_3v3_URL},
-    {"ladder_AT_4v4_URL", anongame_infos_URL_set_ladder_AT_4v4_URL},
-    {"ladder_clan_1v1_URL", anongame_infos_URL_set_ladder_clan_1v1_URL},
-    {"ladder_clan_2v2_URL", anongame_infos_URL_set_ladder_clan_2v2_URL},
-    {"ladder_clan_3v3_URL", anongame_infos_URL_set_ladder_clan_3v3_URL},
-    {"ladder_clan_4v4_URL", anongame_infos_URL_set_ladder_clan_4v4_URL},
-    {NULL, NULL}
+    {"server_URL", 		URL_server},
+    {"player_URL", 		URL_player},
+    {"tourney_URL", 		URL_tourney},
+    {"clan_URL", 		URL_clan},
+    {"ladder_PG_1v1_URL", 	URL_ladder_PG_1v1},
+    {"ladder_PG_ffa_URL", 	URL_ladder_PG_ffa},
+    {"ladder_PG_team_URL", 	URL_ladder_PG_team},
+    {"ladder_AT_2v2_URL", 	URL_ladder_AT_2v2},
+    {"ladder_AT_3v3_URL", 	URL_ladder_AT_3v3},
+    {"ladder_AT_4v4_URL", 	URL_ladder_AT_4v4},
+    {"ladder_clan_1v1_URL", 	URL_ladder_clan_1v1},
+    {"ladder_clan_2v2_URL", 	URL_ladder_clan_2v2},
+    {"ladder_clan_3v3_URL", 	URL_ladder_clan_3v3},
+    {"ladder_clan_4v4_URL", 	URL_ladder_clan_4v4},
+    {NULL, 0}
 };
 
 static const t_anongame_infos_DESC_table_row DESC_handler_table[] = {
@@ -2918,8 +2673,7 @@ extern int anongame_infos_load(char const *filename)
 		    for (URL_table_row = URL_handler_table; URL_table_row->anongame_infos_URL_string != NULL; URL_table_row++)
 			if (strcmp(URL_table_row->anongame_infos_URL_string, variable) == 0)
 			{
-			    if (URL_table_row->URL_string_handler != NULL)
-				URL_table_row->URL_string_handler(anongame_infos->anongame_infos_URL, value);
+			    anongame_infos_URL_set_URL(URL_table_row->member, value);
 			}
 
 		    break;
@@ -3151,16 +2905,16 @@ static int anongame_infos_data_load(void)
     if ((raw = packet_create(packet_class_raw)) != NULL)
     {
 	// assemble URL part with 3 URLs ( <1.15 )
-	packet_append_string(raw, anongame_infos_URL_get_server_url());
-	packet_append_string(raw, anongame_infos_URL_get_player_url());
-	packet_append_string(raw, anongame_infos_URL_get_tourney_url());
+	packet_append_string(raw, anongame_infos_URL_get_URL(URL_server));
+	packet_append_string(raw, anongame_infos_URL_get_URL(URL_player));
+	packet_append_string(raw, anongame_infos_URL_get_URL(URL_tourney));
 	size = packet_get_size(raw);
 	// create compressed data
 	zlib_compress(packet_get_data_const(raw, 0, size), size, &anongame_infos->anongame_infos_data_war3->url_comp_data, &anongame_infos->anongame_infos_data_war3->url_comp_len);
 	zlib_compress(packet_get_data_const(raw, 0, size), size, &anongame_infos->anongame_infos_data_w3xp->url_comp_data, &anongame_infos->anongame_infos_data_w3xp->url_comp_len);
 
 	// append 4th URL for >= 1.15 clients
-	packet_append_string(raw, anongame_infos_URL_get_clan_url());
+	packet_append_string(raw, anongame_infos_URL_get_URL(URL_clan));
 	size = packet_get_size(raw);
 	zlib_compress(packet_get_data_const(raw, 0, size), size, &anongame_infos->anongame_infos_data_war3->url_comp_data_115, &anongame_infos->anongame_infos_data_war3->url_comp_len_115);
 	zlib_compress(packet_get_data_const(raw, 0, size), size, &anongame_infos->anongame_infos_data_w3xp->url_comp_data_115, &anongame_infos->anongame_infos_data_w3xp->url_comp_len_115);
@@ -3322,34 +3076,34 @@ static int anongame_infos_data_load(void)
 	packet_append_data(raw, &ladr_count, 1);
 	packet_append_data(raw, "OLOS", 4);
 	packet_append_string(raw, anongame_infos_DESC_get_ladder_PG_1v1_desc(NULL));
-	packet_append_string(raw, anongame_infos_URL_get_ladder_PG_1v1_url());
+	packet_append_string(raw, anongame_infos_URL_get_URL(URL_ladder_PG_1v1));
 	packet_append_data(raw, "MAET", 4);
 	packet_append_string(raw, anongame_infos_DESC_get_ladder_PG_team_desc(NULL));
-	packet_append_string(raw, anongame_infos_URL_get_ladder_PG_team_url());
+	packet_append_string(raw, anongame_infos_URL_get_URL(URL_ladder_PG_team));
 	packet_append_data(raw, " AFF", 4);
 	packet_append_string(raw, anongame_infos_DESC_get_ladder_PG_ffa_desc(NULL));
-	packet_append_string(raw, anongame_infos_URL_get_ladder_PG_ffa_url());
+	packet_append_string(raw, anongame_infos_URL_get_URL(URL_ladder_PG_ffa));
 	packet_append_data(raw, "2SV2", 4);
 	packet_append_string(raw, anongame_infos_DESC_get_ladder_AT_2v2_desc(NULL));
-	packet_append_string(raw, anongame_infos_URL_get_ladder_AT_2v2_url());
+	packet_append_string(raw, anongame_infos_URL_get_URL(URL_ladder_AT_2v2));
 	packet_append_data(raw, "3SV3", 4);
 	packet_append_string(raw, anongame_infos_DESC_get_ladder_AT_3v3_desc(NULL));
-	packet_append_string(raw, anongame_infos_URL_get_ladder_AT_3v3_url());
+	packet_append_string(raw, anongame_infos_URL_get_URL(URL_ladder_AT_3v3));
 	packet_append_data(raw, "4SV4", 4);
 	packet_append_string(raw, anongame_infos_DESC_get_ladder_AT_4v4_desc(NULL));
-	packet_append_string(raw, anongame_infos_URL_get_ladder_AT_4v4_url());
+	packet_append_string(raw, anongame_infos_URL_get_URL(URL_ladder_AT_4v4));
 	packet_append_data(raw, "SNLC", 4);
 	packet_append_string(raw, anongame_infos_DESC_get_ladder_clan_1v1_desc(NULL));
-	packet_append_string(raw, anongame_infos_URL_get_ladder_clan_1v1_url());
+	packet_append_string(raw, anongame_infos_URL_get_URL(URL_ladder_clan_1v1));
 	packet_append_data(raw, "2NLC", 4);
 	packet_append_string(raw, anongame_infos_DESC_get_ladder_clan_2v2_desc(NULL));
-	packet_append_string(raw, anongame_infos_URL_get_ladder_clan_2v2_url());
+	packet_append_string(raw, anongame_infos_URL_get_URL(URL_ladder_clan_2v2));
 	packet_append_data(raw, "3NLC", 4);
 	packet_append_string(raw, anongame_infos_DESC_get_ladder_clan_3v3_desc(NULL));
-	packet_append_string(raw, anongame_infos_URL_get_ladder_clan_3v3_url());
+	packet_append_string(raw, anongame_infos_URL_get_URL(URL_ladder_clan_3v3));
 	packet_append_data(raw, "4NLC", 4);
 	packet_append_string(raw, anongame_infos_DESC_get_ladder_clan_4v4_desc(NULL));
-	packet_append_string(raw, anongame_infos_URL_get_ladder_clan_3v3_url());
+	packet_append_string(raw, anongame_infos_URL_get_URL(URL_ladder_clan_4v4));
 
         size = packet_get_size(raw);
         zlib_compress(packet_get_data_const(raw,0,size), size, &anongame_infos->anongame_infos_data_war3->ladr_comp_data, &anongame_infos->anongame_infos_data_war3->ladr_comp_len);
@@ -3426,34 +3180,34 @@ static int anongame_infos_data_load(void)
 	    packet_append_data(raw, &ladr_count, 1);
 	    packet_append_data(raw, "OLOS", 4);
 	    packet_append_string(raw, anongame_infos_DESC_get_ladder_PG_1v1_desc(anongame_infos_DESC->langID));
-	    packet_append_string(raw, anongame_infos_URL_get_ladder_PG_1v1_url());
+	    packet_append_string(raw, anongame_infos_URL_get_URL(URL_ladder_PG_1v1));
 	    packet_append_data(raw, "MAET", 4);
 	    packet_append_string(raw, anongame_infos_DESC_get_ladder_PG_team_desc(anongame_infos_DESC->langID));
-	    packet_append_string(raw, anongame_infos_URL_get_ladder_PG_team_url());
+	    packet_append_string(raw, anongame_infos_URL_get_URL(URL_ladder_PG_team));
 	    packet_append_data(raw, " AFF", 4);
 	    packet_append_string(raw, anongame_infos_DESC_get_ladder_PG_ffa_desc(anongame_infos_DESC->langID));
-	    packet_append_string(raw, anongame_infos_URL_get_ladder_PG_ffa_url());
+	    packet_append_string(raw, anongame_infos_URL_get_URL(URL_ladder_PG_ffa));
 	    packet_append_data(raw, "2SV2", 4);
 	    packet_append_string(raw, anongame_infos_DESC_get_ladder_AT_2v2_desc(anongame_infos_DESC->langID));
-	    packet_append_string(raw, anongame_infos_URL_get_ladder_AT_2v2_url());
+	    packet_append_string(raw, anongame_infos_URL_get_URL(URL_ladder_AT_2v2));
 	    packet_append_data(raw, "3SV3", 4);
 	    packet_append_string(raw, anongame_infos_DESC_get_ladder_AT_3v3_desc(anongame_infos_DESC->langID));
-	    packet_append_string(raw, anongame_infos_URL_get_ladder_AT_3v3_url());
+	    packet_append_string(raw, anongame_infos_URL_get_URL(URL_ladder_AT_3v3));
 	    packet_append_data(raw, "4SV4", 4);
 	    packet_append_string(raw, anongame_infos_DESC_get_ladder_AT_4v4_desc(anongame_infos_DESC->langID));
-	    packet_append_string(raw, anongame_infos_URL_get_ladder_AT_4v4_url());
+	    packet_append_string(raw, anongame_infos_URL_get_URL(URL_ladder_AT_4v4));
 	    packet_append_data(raw, "SNLC", 4);
 	    packet_append_string(raw, anongame_infos_DESC_get_ladder_clan_1v1_desc(anongame_infos_DESC->langID));
-	    packet_append_string(raw, anongame_infos_URL_get_ladder_clan_1v1_url());
+	    packet_append_string(raw, anongame_infos_URL_get_URL(URL_ladder_clan_1v1));
 	    packet_append_data(raw, "2NLC", 4);
 	    packet_append_string(raw, anongame_infos_DESC_get_ladder_clan_2v2_desc(anongame_infos_DESC->langID));
-	    packet_append_string(raw, anongame_infos_URL_get_ladder_clan_2v2_url());
+	    packet_append_string(raw, anongame_infos_URL_get_URL(URL_ladder_clan_2v2));
 	    packet_append_data(raw, "3NLC", 4);
 	    packet_append_string(raw, anongame_infos_DESC_get_ladder_clan_3v3_desc(anongame_infos_DESC->langID));
-	    packet_append_string(raw, anongame_infos_URL_get_ladder_clan_3v3_url());
+	    packet_append_string(raw, anongame_infos_URL_get_URL(URL_ladder_clan_3v3));
 	    packet_append_data(raw, "4NLC", 4);
 	    packet_append_string(raw, anongame_infos_DESC_get_ladder_clan_4v4_desc(anongame_infos_DESC->langID));
-	    packet_append_string(raw, anongame_infos_URL_get_ladder_clan_3v3_url());
+	    packet_append_string(raw, anongame_infos_URL_get_URL(URL_ladder_clan_4v4));
 	    anongame_infos_data_lang_war3->ladr_len = packet_get_size(raw);
 	    anongame_infos_data_lang_war3->ladr_data = (char *) xmalloc(anongame_infos_data_lang_war3->ladr_len);
 	    memcpy(anongame_infos_data_lang_war3->ladr_data, packet_get_data_const(raw, 0, anongame_infos_data_lang_war3->ladr_len), anongame_infos_data_lang_war3->ladr_len);
