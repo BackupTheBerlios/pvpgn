@@ -5,6 +5,10 @@ versioncheck exe-time parsing now REALLY works as it was intended to.
 So ALL users using fucked up no-CD cracks or strange war3.org's may
 fail to login due to wrong file-time. That's not our problem. 
 
+1.6.0beta (since 1.6.0pre5)
+-- fixed bug in d2cs where it didnt accepted new chars if lod_realm was set 
+to any 0 or 1 value (but worked with 2 set by default)
+
 1.6.0pre5 (since 1.6.0pre4):
 -- added support for loading new accounts at runtime (ex. if made by some 
 external webscript)
