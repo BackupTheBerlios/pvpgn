@@ -50,7 +50,7 @@ sub convert_cdb2sql {
 	    $alist[$count]{col} = $2;
 	    $alist[$count]{val} = $3;
 
-	    $alist[$count]{col} =~ s!\\\\!_!g;
+	    $alist[$count]{col} =~ s!\\!_!g;
 
 	    if ($alist[$count]{col} =~ m!userid$!) {
 		$userid = $alist[$count]{val};
