@@ -1910,18 +1910,6 @@ extern int conn_set_channel(t_connection * c, char const * channelname)
     if(conn_set_leavegamewhisper_ack(c,0)<0)
 	eventlog(eventlog_level_error,"conn_set_channel","Unable to reset conn_set_leavegamewhisper_ack flag");
     
-	//if the last Arranged Team game was cancel, interupted, then we dont save the team at all.
-	//then we reset the flag to 0
-
-        if(account_get_new_at_team(acc)==1)
-		{
-			int temp;
-			temp = account_get_atteamcount(acc,c->protocol.client.clienttag);
-			temp = temp-1;
-			account_set_atteamcount(acc,c->protocol.client.clienttag,temp);
-			account_set_new_at_team(acc,0);
-		}
-
 	/* if you're entering a channel, make sure they didn't exit a game without telling us */
 	if (c->protocol.game)
 	{
@@ -3599,14 +3587,6 @@ extern int conn_update_w3_playerinfo(t_connection * c)
     }
 
     conn_set_w3_playerinfo( c, tempplayerinfo ); 
-
-    if(account_get_new_at_team(account) == 1) {
-	int temp;
-	temp = account_get_atteamcount(account,clienttag);
-	temp = temp-1;
-	account_set_atteamcount(account,clienttag,temp);
-	account_set_new_at_team(account,0);
-    }
 
     return 0;     
 }

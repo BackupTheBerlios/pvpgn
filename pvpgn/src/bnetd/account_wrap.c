@@ -2575,299 +2575,6 @@ extern int account_get_w3pgrace( t_account * account, t_clienttag clienttag )
   return account_get_numattr( account, key);
 }
 // Arranged Team Functions
-extern int account_check_team(t_account * account, const char * members_usernames, t_clienttag clienttag)
-{
-  int teams_cnt = account_get_atteamcount(account,clienttag);
-  int i;
-	    
-  if(teams_cnt==0) //user has never play at before
-    return -1;
-	
-  for(i=1;i<=teams_cnt;i++)
-    {
-      char const * members = account_get_atteammembers(account,i,clienttag);
-      if(members && members_usernames && strcasecmp(members,members_usernames)==0)
-	{
-	  eventlog(eventlog_level_debug,"account_check_team","Use have played before! Team num is %d",i);
-	  return i;
-	}
-    }
-  //if your here this group of people have never played a AT game yet
-  return -1;
-}
-
-extern int account_create_newteam(t_account * account, const char * members_usernames, unsigned int teamsize, t_clienttag clienttag)
-{
-    int teams_cnt = account_get_atteamcount(account,clienttag);
-
-    if (teams_cnt <= 0 ) teams_cnt = 1;
-    else teams_cnt++; /* since we making a new team here add+1 to the count */
-
-    account_set_atteamcount(account,clienttag,teams_cnt);
-    account_set_atteammembers(account,teams_cnt,clienttag,members_usernames);
-    account_set_atteamsize(account,teams_cnt,clienttag,teamsize);
-
-    return teams_cnt;
-}
-
-extern int account_set_atteamcount(t_account * account, t_clienttag clienttag, unsigned int teamcount)
-{
-  char key[256];
-  char clienttag_str[5];
-
-  sprintf(key,"Record\\%s\\teamcount",tag_uint_to_str(clienttag_str,clienttag));
-  
-  return account_set_numattr(account,key,teamcount);
-}
-
-extern int account_get_atteamcount(t_account * account, t_clienttag clienttag)
-{
-  char key[256];
-  char clienttag_str[5];
-
-  sprintf(key,"Record\\%s\\teamcount",tag_uint_to_str(clienttag_str,clienttag));
-
-  return account_get_numattr(account,key);
-}
-
-extern int account_set_atteamsize(t_account * account, unsigned int teamcount, t_clienttag clienttag, unsigned int teamsize)
-{
-  char key[356];
-  char clienttag_str[5];
-  
-  sprintf(key,"Team\\%s\\%u\\teamsize",tag_uint_to_str(clienttag_str,clienttag),teamcount);
-  
-  return account_set_numattr(account,key,teamsize);
-}
-
-extern int account_get_atteamsize(t_account * account, unsigned int teamcount, t_clienttag clienttag)
-{
-  char key[256];
-  char clienttag_str[5];
-  
-  sprintf(key,"Team\\%s\\%u\\teamsize",tag_uint_to_str(clienttag_str,clienttag), teamcount);
-
-  return account_get_numattr(account,key);
-}
-
-extern int account_set_atteamwins(t_account * account, unsigned int teamcount, t_clienttag clienttag, int wins)
-{
-  char key[256];
-  char clienttag_str[5];
-  
-  sprintf(key,"Team\\%s\\%u\\teamwins",tag_uint_to_str(clienttag_str,clienttag),teamcount);
-	
-  return account_set_numattr(account,key,wins);
-}
-
-extern int account_inc_atteamwins(t_account * account, unsigned int teamcount, t_clienttag clienttag)
-{
-  char key[256];
-  char clienttag_str[5];
-  
-  int wins = account_get_atteamwins(account,teamcount,clienttag);
-  wins++;
-  
-  sprintf(key,"Team\\%s\\%u\\teamwins",tag_uint_to_str(clienttag_str,clienttag),teamcount);
-	
-  return account_set_numattr(account,key,wins);
-}
-
-extern int account_get_atteamwins(t_account * account, unsigned int teamcount, t_clienttag clienttag)
-{
-  char key[256];
-  char clienttag_str[5];
-
-  sprintf(key,"Team\\%s\\%u\\teamwins",tag_uint_to_str(clienttag_str,clienttag),teamcount);
-  
-  return account_get_numattr(account,key);
-}
-
-extern int account_set_atteamlosses(t_account * account, unsigned int teamcount, t_clienttag clienttag, int losses)
-{
-  char key[256];
-  char clienttag_str[5];
-
-  sprintf(key,"Team\\%s\\%u\\teamlosses",tag_uint_to_str(clienttag_str,clienttag),teamcount);
-	
-  return account_set_numattr(account,key,losses);
-}
-
-extern int account_inc_atteamlosses(t_account * account, unsigned int teamcount, t_clienttag clienttag)
-{
-  char key[256];
-  char clienttag_str[5];
-  
-  int losses = account_get_atteamlosses(account,teamcount,clienttag);
-  losses++;
-
-  sprintf(key,"Team\\%s\\%u\\teamlosses",tag_uint_to_str(clienttag_str,clienttag),teamcount);
-	
-  return account_set_numattr(account,key,losses);
-}
-
-extern int account_get_atteamlosses(t_account * account, unsigned int teamcount, t_clienttag clienttag)
-{
-  char key[256];
-  char clienttag_str[5];
-  
-  sprintf(key,"Team\\%s\\%u\\teamlosses",tag_uint_to_str(clienttag_str,clienttag),teamcount);
-
-  return account_get_numattr(account,key);
-}
-
-extern int account_update_atteamxp(t_account * account, t_game_result gameresult, unsigned int opponlevel, unsigned int teamcount, t_clienttag clienttag, int * xp_diff)
-{ 
-  int xp;
-  int mylevel;
-  int xpdiff = 0, placeholder;
-  char key[256];
-  char clienttag_str[5];
-   
-  xp = account_get_atteamxp(account,teamcount,clienttag); //get current xp
-  if (xp < 0) {
-    eventlog(eventlog_level_error, "account_set_atteamxp", "got negative XP");
-    return -1;
-  }
-  
-  mylevel = account_get_atteamlevel(account,teamcount,clienttag); //get accounts level
-  if (mylevel > W3_XPCALC_MAXLEVEL) {
-    eventlog(eventlog_level_error, "account_set_atteamxp", "got invalid level: %d", mylevel);
-    return -1;
-  }
-  
-  if(mylevel<=0) //if level is 0 then set it to 1
-    mylevel=1;
-  
-  if (opponlevel < 1) opponlevel = 1;
-  
-  switch (gameresult) 
-    {
-    case game_result_win:
-      ladder_war3_xpdiff(mylevel, opponlevel, &xpdiff, &placeholder); break;
-    case game_result_loss:
-      ladder_war3_xpdiff(opponlevel, mylevel, &placeholder, &xpdiff); break;
-    default:
-      eventlog(eventlog_level_error, "account_set_atteamxp", "got invalid game result: %d", gameresult);
-      return -1;
-    }
-  
-   *xp_diff = xpdiff;
-   
-   xp += xpdiff;
-   if (xp < 0) xp = 0;
-   
-   sprintf(key,"Team\\%s\\%u\\teamxp",tag_uint_to_str(clienttag_str,clienttag),teamcount);
-
-   return account_set_numattr(account,key,xp);
-}
-
-extern int account_get_atteamxp(t_account * account, unsigned int teamcount, t_clienttag clienttag)
-{
-  char key[256];
-  char clienttag_str[5];
-  
-  sprintf(key,"Team\\%s\\%u\\teamxp",tag_uint_to_str(clienttag_str,clienttag),teamcount);
-  
-  return account_get_numattr(account,key);
-}
-
-extern int account_set_atteamxp(t_account * account, unsigned int teamcount, t_clienttag clienttag, int xp)
-{
-  char key[256];
-  char clienttag_str[5];
-  
-  sprintf(key,"Team\\%s\\%u\\teamxp",tag_uint_to_str(clienttag_str,clienttag),teamcount);
-  
-  return account_set_numattr(account,key,xp);
-}
-
-extern int account_update_atteamlevel(t_account * account, unsigned int teamcount, t_clienttag clienttag)
-{
-  int xp, mylevel;
-  char key[256];
-  char clienttag_str[5];
-   
-  xp = account_get_atteamxp(account,teamcount,clienttag);
-   
-  if (xp < 0) xp = 0;
-   
-  mylevel = account_get_atteamlevel(account,teamcount,clienttag);
-  if (mylevel < 1) mylevel = 1;
-  
-  if (mylevel > W3_XPCALC_MAXLEVEL) 
-    {
-      eventlog(eventlog_level_error, "account_set_atteamlevel", "got invalid level: %d", mylevel);
-      return -1;
-    }
-  
-  mylevel = ladder_war3_updatelevel(mylevel, xp);
-  sprintf(key,"Team\\%s\\%u\\teamlevel",tag_uint_to_str(clienttag_str,clienttag),teamcount);
-  return account_set_numattr(account,key,mylevel);
-}
-
-extern int account_get_atteamlevel(t_account * account, unsigned int teamcount, t_clienttag clienttag)
-{
-  char key[256];
-  char clienttag_str[5];
-
-  sprintf(key,"Team\\%s\\%u\\teamlevel",tag_uint_to_str(clienttag_str,clienttag), teamcount);
-
-  return account_get_numattr(account,key);
-}
-
-extern int account_set_atteamlevel(t_account * account, unsigned int teamcount, t_clienttag clienttag, int level)
-{
-  char key[256];
-  char clienttag_str[5];
-
-  sprintf(key,"Team\\%s\\%u\\teamlevel",tag_uint_to_str(clienttag_str,clienttag), teamcount);
-
-  return account_set_numattr(account,key,level);
-}
-
-//aaron 
-extern int account_get_atteamrank(t_account * account, unsigned int teamcount,t_clienttag clienttag)
-{
-  char key[256];
-  char clienttag_str[5];
-  
-  sprintf(key,"Team\\%s\\%u\\rank",tag_uint_to_str(clienttag_str,clienttag), teamcount);
-  
-  return account_get_numattr(account,key);
-}
-
-extern int account_set_atteamrank(t_account * account, unsigned int teamcount, t_clienttag clienttag, int teamrank)
-{
-  char key[256];
-  char clienttag_str[5];
-  
-  sprintf(key,"Team\\%s\\%u\\rank",tag_uint_to_str(clienttag_str,clienttag), teamcount);
-
-  return account_set_numattr(account, key, teamrank);
-}
-// <---
-
-extern int account_set_atteammembers(t_account * account, unsigned int teamcount, t_clienttag clienttag, char const *members)
-{
-  char key[256];
-  char clienttag_str[5];
-  
-  sprintf(key,"Team\\%s\\%u\\teammembers",tag_uint_to_str(clienttag_str,clienttag),teamcount);
-	
-  return account_set_strattr(account,key,members);
-}
-
-extern char const * account_get_atteammembers(t_account * account, unsigned int teamcount, t_clienttag clienttag)
-{
-  char key[256];
-  char clienttag_str[5];
-  
-  sprintf(key,"Team\\%s\\%u\\teammembers",tag_uint_to_str(clienttag_str,clienttag),teamcount);
-  
-  return account_get_strattr(account,key);
-}
-
 extern int account_set_currentatteam(t_account * account, unsigned int teamcount)
 {
 	return account_set_numattr(account,"BNET\\current_at_team",teamcount);
@@ -2878,83 +2585,12 @@ extern int account_get_currentatteam(t_account * account)
 	return account_get_numattr(account,"BNET\\current_at_team");
 }
 
-extern int account_fix_at(t_account *account, t_clienttag ctag)
-{
-    int n, i, j;
-    int teamsize;
-    const char *teammembers;
-
-    if (account == NULL) {
-	eventlog(eventlog_level_error, __FUNCTION__, "got NULL account");
-	return -1;
-    }
-
-    if (ctag == 0) {
-	eventlog(eventlog_level_error, __FUNCTION__, "got NULL clienttag");
-	return -1;
-    }
-
-    n = account_get_atteamcount(account, ctag);
-    for(i = 1, j = 1; i <= n ; i++) {
-	teamsize = account_get_atteamsize(account, i, ctag);
-	teammembers = account_get_atteammembers(account, i, ctag);
-	if (!teammembers || teamsize < 1 || teamsize > 5) continue;
-	/* valid team */
-	if (j < i) {
-	    account_set_atteamsize(account, j, ctag, teamsize);
-	    account_set_atteammembers(account, j, ctag, teammembers);
-	    account_set_atteamwins(account, j, ctag, account_get_atteamwins(account, i, ctag));
-	    account_set_atteamlosses(account, j, ctag, account_get_atteamlosses(account, i, ctag));
-	    account_set_atteamxp(account, j, ctag, account_get_atteamxp(account, i, ctag));
-	    account_set_atteamrank(account, j, ctag, account_get_atteamrank(account, i, ctag));
-	    account_set_atteamlevel(account, j, ctag, account_get_atteamlevel(account, i, ctag));
-	}
-	j++;
-    }
-
-    if (j <= n) account_set_atteamcount(account, ctag, j - 1);
-    return 0;
-}
-
-extern int account_set_saveATladderstats(t_account * account, unsigned int gametype, t_game_result result, unsigned int opponlevel, unsigned int current_teamnum, t_clienttag clienttag)
-{
-  unsigned int intrace;
-  int xpdiff,uid,level;
-	
-  if(!account) 
-    {
-      eventlog(eventlog_level_error, "account_set_saveATladderstats", "got NULL account");
-      return -1;
-    }
-  
-    //added for better tracking down of problems with gameresults
-    eventlog(eventlog_level_trace,__FUNCTION__,"parsing game result for player: %s result: %s",account_get_name(account),(result==game_result_win)?"WIN":"LOSS");
-
-  intrace = account_get_w3pgrace(account,clienttag);
-  uid = account_get_uid(account);
-  
-  if(result == game_result_win)
-    {
-      account_inc_atteamwins(account,current_teamnum,clienttag);
-      account_inc_racewins(account,intrace,clienttag);
-    }
-  if(result == game_result_loss)
-    {
-      account_inc_atteamlosses(account,current_teamnum,clienttag);
-      account_inc_racelosses(account,intrace,clienttag);
-    }
-  account_update_atteamxp(account,result,opponlevel,current_teamnum,clienttag,&xpdiff);
-  account_update_atteamlevel(account,current_teamnum,clienttag);
-  level = account_get_atteamlevel(account,current_teamnum,clienttag);
-  if (war3_ladder_update(at_ladder(clienttag),uid,xpdiff,level,account,0)!=0)
-    war3_ladder_add(at_ladder(clienttag),uid,account_get_atteamxp(account,current_teamnum,clienttag),level,account,0,clienttag);
-  return 0;
-}
-
 extern int account_get_highestladderlevel(t_account * account,t_clienttag clienttag)
 {
 	// [quetzal] 20020827 - AT level part rewritten
 	int i;
+	t_elem * curr;
+	t_team * team;
 
 	unsigned int sololevel = account_get_sololevel(account,clienttag);
 	unsigned int teamlevel = account_get_teamlevel(account,clienttag);
@@ -2962,8 +2598,19 @@ extern int account_get_highestladderlevel(t_account * account,t_clienttag client
 	unsigned int atlevel = 0;
 	unsigned int t; // [quetzal] 20020827 - not really needed, but could speed things up a bit
 	
-	for (i = 0; i < account_get_atteamcount(account,clienttag); i++) {
-		if ((t = account_get_atteamlevel(account, i+1,clienttag)) > atlevel) {
+	if (account_get_teams(account))
+	{
+		LIST_TRAVERSE(account_get_teams(account),curr)
+		{
+			if (!(team = elem_get_data(curr)))
+			{
+				eventlog(eventlog_level_error,__FUNCTION__,"found NULL entry in list");
+				continue;
+			}
+		if ((team_get_clienttag(team)!=clienttag))
+			continue;
+			
+		if ((t = team_get_level(team)) > atlevel) 
 			atlevel = t;
 		}
 	}
@@ -2983,27 +2630,6 @@ extern int account_get_highestladderlevel(t_account * account,t_clienttag client
 
 	return -1;
 }
-extern int account_set_new_at_team(t_account * account, unsigned int value)
-{
-	if(!account)
-	{
-		eventlog(eventlog_level_error,"account_set_new_at_team","Unable to set account flag to TRUE");
-		return -1;
-	}
-
-	return account_set_numattr(account,"BNET\\new_at_team_flag",value);
-}
-extern int account_get_new_at_team(t_account * account)
-{
-	if(!account)
-	{
-		eventlog(eventlog_level_error,"account_get_new_at_team","Unable to set account flag to TRUE");
-		return -1;
-	}
-
-	return account_get_numattr(account,"BNET\\new_at_team_flag");
-}
-
 
 //BlacKDicK 04/20/2003
 extern int account_set_user_icon( t_account * account, t_clienttag clienttag,char const * usericon)

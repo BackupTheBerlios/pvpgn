@@ -149,6 +149,9 @@ extern int account_set_conn(t_account * account, t_connection * conn);
 extern t_connection * account_get_conn(t_account * account);
 
 extern void account_add_team(t_account * account, t_team * team);
+extern t_team * account_find_team_by_accounts(t_account * account, t_account **accounts, t_clienttag clienttag);
+extern t_team * account_find_team_by_teamid(t_account * account, unsigned int teamid);
+extern t_list * account_get_teams(t_account * account);
 
 
 

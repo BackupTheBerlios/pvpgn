@@ -399,8 +399,8 @@ int in_same_team(t_account * acc1, t_account * acc2, unsigned int tc1, unsigned 
 {
    char const * teammembers1;
    char const * teammembers2;
-   teammembers1 = account_get_atteammembers(acc1,tc1,clienttag);
-   teammembers2 = account_get_atteammembers(acc2,tc2,clienttag);
+   //teammembers1 = account_get_atteammembers(acc1,tc1,clienttag);
+   //teammembers2 = account_get_atteammembers(acc2,tc2,clienttag);
    if ((teammembers1 == NULL) || (teammembers2 == NULL))
    {
       if (teammembers1 != NULL) return 1; else return 0;
@@ -1109,11 +1109,11 @@ extern int ladder_update_all_accounts(void)
   ladder_update_accounts(&WAR3_solo_ladder,&account_set_solorank,   &account_get_solorank);
   ladder_update_accounts(&WAR3_team_ladder,&account_set_teamrank,   &account_get_teamrank);
   ladder_update_accounts(&WAR3_ffa_ladder, &account_set_ffarank,    &account_get_ffarank);
-  ladder_update_accounts(&WAR3_at_ladder,  &account_set_atteamrank, &account_get_atteamrank);
+  //ladder_update_accounts(&WAR3_at_ladder,  &account_set_atteamrank, &account_get_atteamrank);
   ladder_update_accounts(&W3XP_solo_ladder,&account_set_solorank,   &account_get_solorank);
   ladder_update_accounts(&W3XP_team_ladder,&account_set_teamrank,   &account_get_teamrank);
   ladder_update_accounts(&W3XP_ffa_ladder, &account_set_ffarank,    &account_get_ffarank);
-  ladder_update_accounts(&W3XP_at_ladder,  &account_set_atteamrank, &account_get_atteamrank);
+  //ladder_update_accounts(&W3XP_at_ladder,  &account_set_atteamrank, &account_get_atteamrank);
   ladder_update_accounts(&STAR_current_rating, &account_set_ladder_rank, &account_get_ladder_rank);
   ladder_update_accounts(&STAR_current_wins,  NULL,                      NULL);
   ladder_update_accounts(&STAR_current_games, NULL,                      NULL);
@@ -1258,13 +1258,12 @@ extern void ladders_load_accounts_to_ladderlists(void)
 				  account,0,CLIENTTAG_WARCRAFT3_UINT);
 		  }
 	      // user is part of a team
+	      /*
 	      if ((war3_at_res!=load_success) && ((teamcount = account_get_atteamcount(account,CLIENTTAG_WARCRAFT3_UINT))))
 		  {
 		  int counter;
-		  // for each team he is in...
 		  for (counter=1; counter<=teamcount; counter++)
 		    {
-		      // make sure... user has ranking... and team is valid...
 		      if ((xp = account_get_atteamxp(account,counter,CLIENTTAG_WARCRAFT3_UINT)) && 
 				   account_get_atteammembers(account,counter,CLIENTTAG_WARCRAFT3_UINT))
 			  {
@@ -1276,6 +1275,7 @@ extern void ladders_load_accounts_to_ladderlists(void)
 			  }
 		    }	   
 		  }
+		  */
 	      if ((w3xp_solo_res!=load_success) && ((xp = account_get_soloxp(account,CLIENTTAG_WAR3XP_UINT))))
 		  {
 		  war3_ladder_add(&W3XP_solo_ladder,
@@ -1300,14 +1300,13 @@ extern void ladders_load_accounts_to_ladderlists(void)
 				  CLIENTTAG_WAR3XP_UINT);
 		  }
 	      // user is part of a team
+	      /*
 	      if ((w3xp_at_res!=load_success) && ((teamcount = account_get_atteamcount(account,CLIENTTAG_WAR3XP_UINT))))
 	 	  {
 		  int counter;
-		  // for each team he is in...
 		  for (counter=1; counter<=teamcount; counter++)
 		    {
 
-		      // make sure... user has ranking... and team is valid...
 		      if ((xp = account_get_atteamxp(account,counter,CLIENTTAG_WAR3XP_UINT)) && 
 				   account_get_atteammembers(account,counter,CLIENTTAG_WAR3XP_UINT))
 			  {
@@ -1319,7 +1318,8 @@ extern void ladders_load_accounts_to_ladderlists(void)
 			  }
 		    }	   
 		  }
-
+		  */
+		  
 		  if ((rating = account_get_ladder_rating(account,CLIENTTAG_STARCRAFT_UINT,ladder_id_normal))>0)
 		  {
 		    wins   = account_get_ladder_wins(account,CLIENTTAG_STARCRAFT_UINT,ladder_id_normal);
@@ -1539,7 +1539,7 @@ int standard_writer(FILE * fp, t_ladder * ladder, t_clienttag clienttag)
 		// other team... so write all team members names, xp and rank to file
 		else
 		{
-		    fprintf(fp,"%s,%u,%u\n",account_get_atteammembers(pointer->account,pointer->teamcount,clienttag),pointer->xp,rank);
+		    //fprintf(fp,"%s,%u,%u\n",account_get_atteammembers(pointer->account,pointer->teamcount,clienttag),pointer->xp,rank);
 		}
 	    }
 	    else
@@ -1592,7 +1592,7 @@ int XML_writer(FILE * fp, t_ladder * ladder, t_clienttag clienttag)
 	       rank--;
        else
 	 {
-	   // other team... so write all team members names, xp and rank to file
+	   /* other team... so write all team members names, xp and rank to file
 	   fprintf(fp,"\t<team>\n");
 	   if (account_get_atteammembers(pointer->account,pointer->teamcount,clienttag)==NULL)
 	     {
@@ -1608,6 +1608,7 @@ int XML_writer(FILE * fp, t_ladder * ladder, t_clienttag clienttag)
 	       fprintf(fp,"\t\t<member>%s</member>\n",member);
 	   xfree(members);
 	   fprintf(fp,"\t\t<xp>%u</xp>\n\t\t<rank>%u</rank>\n\t</team>\n",pointer->xp,rank);
+	   */
 	 }
      }
      else {

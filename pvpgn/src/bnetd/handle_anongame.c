@@ -44,7 +44,9 @@
 #include "common/list.h"
 #include "common/util.h"
 #include "common/xalloc.h"
+#include "common/bnettime.h"
 #include "connection.h"
+#include "team.h"
 #include "account.h"
 #include "channel.h"
 #include "anongame.h"
@@ -143,12 +145,20 @@ static int _client_anongame_profile(t_connection * c, t_packet const * const pac
 {
     t_packet * rpacket;
     char const * username;
-    int Count;
+    int Count, i;
     int temp;
     t_account * account; 
     t_connection * dest_c;
     t_clienttag ctag;
     char clienttag_str[5];
+    t_list * teamlist;
+    unsigned char teamcount;
+    unsigned char *atcountp;
+    t_elem * curr;
+    t_team * team;
+    t_bnettime bn_time;
+    bn_long ltime;
+    
     
     Count = bn_int_get(packet->u.client_findanongame.count);
     eventlog(eventlog_level_info,__FUNCTION__,"[%d] got a FINDANONGAME PROFILE packet",conn_get_socket(c));
@@ -175,7 +185,7 @@ static int _client_anongame_profile(t_connection * c, t_packet const * const pac
 
     eventlog(eventlog_level_info,__FUNCTION__,"Looking up %s's %s Stats.",username,tag_uint_to_str(clienttag_str,ctag));
 
-    if (account_get_sololevel(account,ctag)<=0 && account_get_teamlevel(account,ctag)<=0 && account_get_atteamcount(account,ctag)<=0)
+    if (account_get_sololevel(account,ctag)<=0 && account_get_teamlevel(account,ctag)<=0 && account_get_teams(account)==NULL)
     {
 	eventlog(eventlog_level_info,__FUNCTION__,"%s does not have WAR3 Stats.",username);
 	if (!(rpacket = packet_create(packet_class_bnet)))
@@ -322,134 +332,72 @@ static int _client_anongame_profile(t_connection * c, t_packet const * const pac
 
 	/* 1 byte team count place holder, set later */
 	packet_append_data(rpacket, &temp, 1);
+	
+	/* we need to store the AT team count but we dont know yet the no
+	 * of stored teams so we cache the pointer for later use 
+	 */
+	atcountp = (unsigned char *)packet_get_raw_data(rpacket, packet_get_size(rpacket) - 1);
 
-	temp=account_get_atteamcount(account,ctag);
-	if(temp>0)
+	teamlist = account_get_teams(account);
+	teamcount = 0;
+	if (teamlist)
 	{
-	    /* [quetzal] 20020827 - partially rewritten AT part */
-	    int i, j, lvl, highest_lvl[6], cnt;
-	    int invalid;
-	    /* allocate array for teamlevels */
-	    int *teamlevels;
-	    unsigned char *atcountp;
-
-	    cnt = temp;
-	    teamlevels = xmalloc(cnt * sizeof(int));
-
-	    /* we need to store the AT team count but we dont know yet the no
-	     * of corectly stored teams so we cache the pointer for later use 
-	     */
-	    atcountp = (unsigned char *)packet_get_raw_data(rpacket, packet_get_size(rpacket) - 1);
-
-	    /* populate our array */
-	    for (i = 0; i < cnt; i++)
-		if ((teamlevels[i] = account_get_atteamlevel(account, i+1,ctag)) < 0)
-		    teamlevels[i] = 0;
-
-	    /* now lets pick indices of 6 highest levels */
-	    for (j = 0; j < cnt && j < 6; j++) {
-		lvl = -1;
-		for (i = 0; i < cnt; i++) {
-		    if (teamlevels[i] > lvl) {
-			lvl = teamlevels[i];
-			highest_lvl[j] = i;
-		    }
-		}
-		teamlevels[highest_lvl[j]] = -1;
-		eventlog(eventlog_level_debug, __FUNCTION__, 
-		    "profile/AT - highest level is %d with index %d", lvl, highest_lvl[j]);
-	    }
-	    // <-- end of picking indices
-	    // 
-
-	    xfree((void*)teamlevels);
-
-	    cnt = 0;
-	    invalid = 0;
-	    for(i = 0; i < j; i++)
-	    {
-		int n;
-		int teamsize;
-		char * teammembers, *self, *p2, *p3;
-		int teamtype[] = {0, 0x32565332, 0x33565333, 0x34565334, 0x35565335, 0x36565336};
+	  int teamtype[] = {0, 0x32565332, 0x33565333, 0x34565334, 0x35565335, 0x36565336};
 		
-		n = highest_lvl[i] + 1;
-		teamsize = account_get_atteamsize(account, n, ctag);
+	  LIST_TRAVERSE(teamlist,curr)
+	  {
+	    if (!(team = elem_get_data(curr)))
+	    {
+	      eventlog(eventlog_level_error, __FUNCTION__, "found NULL entry in list");
+	      continue;
+	    }
 
-		teammembers = (char *)account_get_atteammembers(account, n,ctag);
-		if (!teammembers || teamsize < 1 || teamsize > 5) {
-		    eventlog(eventlog_level_warn, __FUNCTION__, "skipping invalid AT (members: '%s' teamsize: %d)", teammembers ? teammembers : "NULL", teamsize);
-		    invalid = 1;
-		    continue;
-		}
+	    if (team_get_clienttag(team) != ctag)
+	      continue;
+	      
+	    bn_int_set((bn_int*)&temp,teamtype[team_get_size(team)-1]);
+	    packet_append_data(rpacket,&temp,4);
 
-		p2 = p3 = teammembers = xstrdup(teammembers);
-		eventlog(eventlog_level_debug, __FUNCTION__,"profile/AT - processing team %d", n);
+	    bn_int_set((bn_int*)&temp,team_get_wins(team)); //at team wins
+	    packet_append_data(rpacket,&temp,2);
+	    bn_int_set((bn_int*)&temp,team_get_losses(team)); //at team losses
+	    packet_append_data(rpacket,&temp,2);
+	    bn_int_set((bn_int*)&temp,team_get_level(team)); 
+	    packet_append_data(rpacket,&temp,1);
+	    bn_int_set((bn_int*)&temp,account_get_profile_calcs(account,team_get_xp(team),team_get_level(team))); // xp bar calc
+	    packet_append_data(rpacket,&temp,1);
+	    bn_int_set((bn_int*)&temp,team_get_xp(team));
+	    packet_append_data(rpacket,&temp,2);
+	    bn_int_set((bn_int*)&temp,team_get_rank(team)); //rank on AT ladder
+	    packet_append_data(rpacket,&temp,4);
 
-		bn_int_set((bn_int*)&temp,teamtype[teamsize]);
-		packet_append_data(rpacket,&temp,4);
+	    bn_time = time_to_bnettime(temp,team_get_lastgame(team));
+	    bnettime_to_bn_long(bn_time,&ltime);
+	    packet_append_data(rpacket,&ltime,8);
+	  
+	    bn_int_set((bn_int*)&temp,team_get_size(team)-1);
+	    packet_append_data(rpacket,&temp,1);
 
-		bn_int_set((bn_int*)&temp,account_get_atteamwins(account,n,ctag)); //at team wins
-		packet_append_data(rpacket,&temp,2);
-		bn_int_set((bn_int*)&temp,account_get_atteamlosses(account,n,ctag)); //at team losses
-		packet_append_data(rpacket,&temp,2);
-		bn_int_set((bn_int*)&temp,account_get_atteamlevel(account,n,ctag)); 
-		packet_append_data(rpacket,&temp,1);
-		bn_int_set((bn_int*)&temp,account_get_profile_calcs(account,account_get_atteamxp(account,n,ctag),account_get_atteamlevel(account,n,ctag))); // xp bar calc
-		packet_append_data(rpacket,&temp,1);
-		bn_int_set((bn_int*)&temp,account_get_atteamxp(account,n,ctag));
-		packet_append_data(rpacket,&temp,2);
-		bn_int_set((bn_int*)&temp,account_get_atteamrank(account,n,ctag)); //rank on AT ladder
-		packet_append_data(rpacket,&temp,4);
-		temp=0;
-		packet_append_data(rpacket,&temp,4); //some unknown packet? random shit
-		packet_append_data(rpacket,&temp,4); //another unknown packet..random shit
-		bn_int_set((bn_int*)&temp,teamsize);
-		packet_append_data(rpacket,&temp,1);
+	    for (i=0; i<team_get_size(team);i++)
+	    {
+	    	if ((team_get_memberuid(team,i)!=account_get_uid(account)))
+		  packet_append_string(rpacket,account_get_name(team_get_member(team,i)));
 		//now attach the names to the packet - not including yourself
 		// [quetzal] 20020826
-		self = strstr(teammembers, account_get_name(account));
 
-		while (p2)
-		{
-		    p3 = strchr(p2, ' ');
-		    if (p3) *p3++ = 0;
-		    if (self != p2) packet_append_string(rpacket, p2);
-		    p2 = p3;
-		}
-
-		xfree((void *)teammembers);
-		cnt++;
 	    }
+	    teamcount++;
 
-	    if (!cnt) {
-		eventlog(eventlog_level_warn, __FUNCTION__, "no valid team found, sending bogus team");
-		bn_int_set((bn_int*)&temp, 0x32565332);
-		packet_append_data(rpacket,&temp,4);
-
-		temp = 0;
-		packet_append_data(rpacket,&temp,2);
-		packet_append_data(rpacket,&temp,2);
-		packet_append_data(rpacket,&temp,1);
-		packet_append_data(rpacket,&temp,1);
-		packet_append_data(rpacket,&temp,2);
-		packet_append_data(rpacket,&temp,4);
-		packet_append_data(rpacket,&temp,4);
-		packet_append_data(rpacket,&temp,4);
-		bn_int_set((bn_int*)&temp, 1);
-		packet_append_data(rpacket,&temp,1);
-		packet_append_string(rpacket,"error");
-		cnt++;
-	    }
-	    *atcountp = (unsigned char)cnt;
-
-	    if (invalid) account_fix_at(account, ctag);
+	    if ((teamcount>=16)) break;
+	  }
 	}
+
+	*atcountp = (unsigned char)teamcount;
 
 	conn_push_outqueue(c,rpacket);
 	packet_del_ref(rpacket);				
 	
-	eventlog(eventlog_level_info,__FUNCTION__,"Sent %s's WAR3 Stats to requestor.",username);
+	eventlog(eventlog_level_info,__FUNCTION__,"Sent %s's WAR3 Stats (including %d teams) to requestor.",username,teamcount);
     }
     return 0;
 }    

@@ -1464,3 +1464,26 @@ void account_add_team(t_account * account,t_team * team)
 
     list_append_data(account->teams,team);
 }
+
+t_team * account_find_team_by_accounts(t_account * account, t_account **accounts, t_clienttag clienttag)
+{
+    if ((account->teams))
+      return _list_find_team_by_accounts(accounts,clienttag,account->teams);
+    else 
+      return NULL;
+}
+
+t_team * account_find_team_by_teamid(t_account * account, unsigned int teamid)
+{
+    if ((account->teams))
+      return _list_find_team_by_teamid(teamid,account->teams);
+    else
+      return NULL;
+}
+
+t_list * account_get_teams(t_account * account)
+{
+  assert(account);
+
+  return account->teams;
+}

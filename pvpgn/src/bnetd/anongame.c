@@ -48,6 +48,7 @@
 #include "common/packet.h"
 #include "common/eventlog.h"
 #include "common/tag.h"
+#include "team.h"
 #include "account.h"
 #include "connection.h"
 #include "common/queue.h"
@@ -1273,15 +1274,16 @@ extern int anongame_stats(t_connection * c)
 	    case ANONGAME_TYPE_AT_2V2:
     	    case ANONGAME_TYPE_AT_3V3:
     	    case ANONGAME_TYPE_AT_4V4:
-		if (i<(tp/2))
-		    j=(tp/2);
-		else
-		    j=0;
-		oacc = a->info->account[j];
-		oppon_level[i]= account_get_atteamlevel(oacc,account_get_currentatteam(oacc),ct);
+		oacc = a->info->account[(i+1)%tp];
+		oppon_level[i]= team_get_level(account_find_team_by_teamid(oacc,account_get_currentatteam(oacc)));
 		break;
 	    case ANONGAME_TYPE_AT_2V2V2:
-		break; /* fixme */
+		oacc = a->info->account[(i+1)%tp];
+		oppon_level[i]= team_get_level(account_find_team_by_teamid(oacc,account_get_currentatteam(oacc)));
+		oacc = a->info->account[(i+2)%tp];
+		oppon_level[i]= team_get_level(account_find_team_by_teamid(oacc,account_get_currentatteam(oacc)));
+		oppon_level[i]/=2;
+		break;
 	    default:
 		/* oppon_level = average level of all opponents
 		 * this should work for all PG team games
@@ -1301,6 +1303,8 @@ extern int anongame_stats(t_connection * c)
     
     for(i=0; i<tp; i++) {
 	t_account * acc;
+	t_team * team;
+	unsigned int currteam;
         int result = a->info->result[i];
         
         if(result == -1)
@@ -1320,19 +1324,13 @@ extern int anongame_stats(t_connection * c)
 	    case ANONGAME_TYPE_AT_3V3:
 	    case ANONGAME_TYPE_AT_4V4:
 	    case ANONGAME_TYPE_AT_2V2V2:
-	    	/* Added by DJP in an attempt to manage teamcount ! ( bug of previous CVS 1.2.4 ) */
-		if(account_get_new_at_team(acc)==1) {
-		    int temp;
-		
-		    account_set_new_at_team(acc,0);
-		    temp = account_get_atteamcount(acc,ct);
-		    temp = temp+1;
-		    account_set_atteamcount(acc,ct,temp);
-	        }
-		if(result == W3_GAMERESULT_WIN)
-		    account_set_saveATladderstats(acc,gametype,game_result_win,oppon_level[i],account_get_currentatteam(acc),ct);
-		if(result == W3_GAMERESULT_LOSS) 
-	    	    account_set_saveATladderstats(acc,gametype,game_result_loss,oppon_level[i],account_get_currentatteam(acc),ct);
+	    
+	    	if ((currteam = account_get_currentatteam(acc)))
+		{
+		    team = account_find_team_by_teamid(acc,currteam);
+		    team_set_saveladderstats(team,gametype,result,oppon_level[i],ct);
+		}
+
 		break;
 	    case ANONGAME_TYPE_1V1:
 	    case ANONGAME_TYPE_2V2:
@@ -2030,7 +2028,7 @@ extern int handle_anongame_join(t_connection * c)
 			case ANONGAME_TYPE_AT_4V4:
 			case ANONGAME_TYPE_AT_2V2V2:
 				acct = conn_get_account(anongame_get_player(ja,i));
-				level = account_get_atteamlevel((acct),account_get_currentatteam(acct),ct);
+				level = team_get_level(account_find_team_by_teamid(acct,account_get_currentatteam(acct)));
 				break;
 			case ANONGAME_TYPE_TY:
 				level = 0; /* FIXME-TY: WHAT TO DO HERE */

@@ -39,6 +39,7 @@ PvPGN Version History:
 [WAR3]: 
   -- droped <1.13 support, added 1.15 support (CG,PG,AT, clan profile view)
   -- added code to detect the right w3routeip if is set to 0.0.0.0
+  -- redone major parts of the AT code (old AT teams will be lost)
 
 [LADDERS]:
   -- added .dat/.xml ladder output for STAR/SEXP/W2BN rating based ladder

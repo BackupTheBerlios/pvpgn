@@ -73,6 +73,7 @@
 #include "game.h"
 #include "common/util.h"
 #include "common/version.h"
+#include "team.h"
 #include "account.h"
 #include "server.h"
 #include "prefs.h"
@@ -2060,21 +2061,36 @@ static int _handle_stats_command(t_connection * c, char const *text)
 	    sprintf(msgtemp,"FFA Rank: %u",
 		account_get_ffarank(account,clienttag_uint));
 	    message_send_text(c,message_type_info,c,msgtemp);
-	    if (account_get_atteamcount(account,clienttag_uint)) {
-		int teamcount;
-		for (teamcount=1; teamcount<=account_get_atteamcount(account,clienttag_uint); teamcount++) {
+	    if (account_get_teams(account)) {
+		t_elem * curr;
+		t_list * list;
+		t_team * team;
+		int teamcount = 0;
+		
+		list = account_get_teams(account);
+		
+		LIST_TRAVERSE(list,curr)
+		{
+	    	  if (!(team = elem_get_data(curr)))
+	    	  {
+	      	    eventlog(eventlog_level_error, __FUNCTION__, "found NULL entry in list");
+	      	    continue;
+	    	    }
+
+	          if (team_get_clienttag(team) != clienttag_uint)
+	            continue;
+	      
+		    teamcount++;
 		    sprintf(msgtemp,"Users AT Team No. %u",teamcount);
 		    message_send_text(c,message_type_info,c,msgtemp);
 		    sprintf(msgtemp,"Users AT TEAM Level: %u, Experience: %u",
-			account_get_atteamlevel(account,teamcount,clienttag_uint),
-			account_get_atteamxp(account,teamcount,clienttag_uint));
+			team_get_level(team),team_get_xp(team));
 		    message_send_text(c,message_type_info,c,msgtemp);
 		    sprintf(msgtemp,"AT TEAM Ladder Record: %u-%u-0",
-			account_get_atteamwins(account,teamcount,clienttag_uint),
-			account_get_atteamlosses(account,teamcount,clienttag_uint));
+			team_get_wins(team),team_get_losses(team));
 		    message_send_text(c,message_type_info,c,msgtemp);
 		    sprintf(msgtemp,"AT TEAM Rank: %u",
-			account_get_atteamrank(account,teamcount,clienttag_uint));
+			team_get_rank(team));
 		    message_send_text(c,message_type_info,c,msgtemp);
 		}
 	    }
@@ -3840,13 +3856,15 @@ static int _handle_ladderinfo_command(t_connection * c, char const *text)
       
       if ((account = ladder_get_account(at_ladder(clienttag),rank,&teamcount,clienttag)))
 	{
+	/*
 	  if (account_get_atteammembers(account,teamcount,clienttag))
 	    sprintf(msgtemp,"WarCraft3 AT Team   %5u: %-80.80s %u/%u/0",
 		    rank,
 		    account_get_atteammembers(account,teamcount,clienttag),
-		    account_get_atteamwins(account,teamcount,clienttag),
-		    account_get_atteamlosses(account,teamcount,clienttag));
-	  else
+		    account_get_atteamwin(account,teamcount,clienttag),
+		    account_get_atteamloss(account,teamcount,clienttag));
+	
+	  else */
 	    sprintf(msgtemp,"WarCraft3 AT Team   %5u: <invalid team info>",rank);
 	}
       else
@@ -4560,7 +4578,8 @@ static void _reset_w3_stats(t_account *account, t_clienttag ctag, t_connection *
     account_set_ffawins(account,ctag,0);
     account_set_ffalosses(account,ctag,0);
     account_set_ffarank(account,ctag,0);
-    account_set_atteamcount(account,ctag,0);
+    // this would now need a way to delete the team for all members now
+    //account_set_atteamcount(account,ctag,0); 
 
     sprintf(msgtemp,"Resetted %s's %s Stats",account_get_name(account),clienttag_get_title(ctag));
     message_send_text(c,message_type_info,c,msgtemp);

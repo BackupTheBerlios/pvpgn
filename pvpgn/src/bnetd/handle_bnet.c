@@ -64,6 +64,7 @@
 #include "message.h"
 #include "common/eventlog.h"
 #include "command.h"
+#include "team.h"
 #include "account.h"
 #include "connection.h"
 #include "channel.h"
@@ -110,8 +111,6 @@
 
 extern int last_news;
 extern int first_news;
-
-static int compar(const void* a, const void* b);
 
 /* handlers prototypes */
 static int _client_unknown_1b(t_connection * c, t_packet const * const packet);
@@ -350,11 +349,6 @@ extern int handle_bnet_packet(t_connection * c, t_packet const * const packet)
    };
        
     return 0;
-}
-
-static int compar(const void* a, const void* b)
-{
-	return strcasecmp(*(char **)a, *(char **)b);
 }
 
 static int handle(const t_htable_row *htable, int type, t_connection * c, t_packet const * const packet)
@@ -2414,190 +2408,166 @@ static int _client_atfriendscreen(t_connection * c, t_packet const * const packe
 
 static int _client_atinvitefriend(t_connection * c, t_packet const * const packet)
 {
-   t_packet * rpacket;
-   t_clienttag ctag;
-   
-   if (packet_get_size(packet)<sizeof(t_client_arrangedteam_invite_friend)) {
-      eventlog(eventlog_level_error,__FUNCTION__,"[%d] got bad ARRANGEDTEAM_INVITE_FRIEND packet (expected %u bytes, got %u)",conn_get_socket(c),sizeof(t_client_arrangedteam_invite_friend),packet_get_size(packet));
-      return -1;
-   }
-   
-     ctag = conn_get_clienttag(c);
-
-     {
-	int count_to_invite = bn_byte_get(packet->u.client_arrangedteam_invite_friend.numfriends);
-	char const *invited_usernames[8];
-	char const *invited_usernames2[8];
-	char atmembers_usernames[255];
-	int i, n, offset,teamnumber,teammemcount;
-	t_connection * dest_c;
-	
-	teammemcount = count_to_invite;
-	teammemcount++;
-	eventlog(eventlog_level_info,__FUNCTION__,"[%d] got ARRANGEDTEAM INVITE packet",conn_get_socket(c));
-	offset = sizeof(t_client_arrangedteam_invite_friend);
-	
-	for (i = 0; i < count_to_invite; i++) 
+  t_packet * rpacket;
+  t_clienttag ctag;
+  
+  if (packet_get_size(packet)<sizeof(t_client_arrangedteam_invite_friend)) {
+    eventlog(eventlog_level_error,__FUNCTION__,"[%d] got bad ARRANGEDTEAM_INVITE_FRIEND packet (expected %u bytes, got %u)",conn_get_socket(c),sizeof(t_client_arrangedteam_invite_friend),packet_get_size(packet));
+    return -1;
+  }
+  
+  ctag = conn_get_clienttag(c);
+  
+  {
+    int count_to_invite, count, id;
+    char const *invited_usernames[8];
+    char atmembers_usernames[255];
+    t_account * members[MAX_TEAMSIZE];
+    int i, n, offset,teammemcount;
+    t_connection * dest_c;
+    t_team * team;
+    unsigned int teamid;
+    
+    count_to_invite = bn_byte_get(packet->u.client_arrangedteam_invite_friend.numfriends);
+    count = bn_int_get(packet->u.client_arrangedteam_invite_friend.count);
+    id = bn_int_get(packet->u.client_arrangedteam_invite_friend.id);
+    teammemcount = count_to_invite + 1;
+    
+    if ((count_to_invite<1) || (count_to_invite>3))
+      {
+	eventlog(eventlog_level_error,__FUNCTION__,"got invalid number of users to invite to game");
+	return -1;
+      }
+    
+    eventlog(eventlog_level_info,__FUNCTION__,"[%d] got ARRANGEDTEAM INVITE packet for %d invitees",conn_get_socket(c),count_to_invite);
+    
+    offset = sizeof(t_client_arrangedteam_invite_friend);
+    
+    for (i = 0; i < count_to_invite; i++) 
+      {
+	if (!(invited_usernames[i] = packet_get_str_const(packet, offset, USER_NAME_MAX))) 
 	  {
-	     if (!(invited_usernames[i] = packet_get_str_const(packet, offset, USER_NAME_MAX))) 
-	       {
-		  eventlog(eventlog_level_error, "handle_bnet", "Could not get username from invite packet");
-	       } 
-	     else 
-	       {
-		  offset += strlen(invited_usernames[i]) + 1;
-		  eventlog(eventlog_level_debug,"handle_bnet","Added user %s to invite array.", invited_usernames[i]);
-	       }
+	    eventlog(eventlog_level_error, "handle_bnet", "Could not get username from invite packet");
+	    return -1;
+	  } 
+	else 
+	  {
+	    offset += strlen(invited_usernames[i]) + 1;
+	    eventlog(eventlog_level_debug,"handle_bnet","Added user %s to invite array.", invited_usernames[i]);
 	  }
-	//add names to another array
-	n=teammemcount-1;
-	for (i=0;i<teammemcount;i++)
+      }
+    
+    members[0] = conn_get_account(c);
+    for (i=1; i<MAX_TEAMSIZE;i++)
+      {
+	if ((i<teammemcount))
 	  {
-	     if(i==n)
-	       invited_usernames2[i] = conn_get_username(c);
-	     else
-	       invited_usernames2[i] = invited_usernames[i];
-	  }
-	//--> start of stat shit
-	qsort((char *)invited_usernames2, teammemcount, sizeof(char *), compar); //sort the array				
-	
-	for (i=0;i<teammemcount;i++)
-	  {
-	     if(i==0)
-	       strcpy(atmembers_usernames,invited_usernames2[i]);
-	     else
-	       {
-		  strcat(atmembers_usernames," ");
-		  strcat(atmembers_usernames,invited_usernames2[i]);
-	       }
-	  }		
-	
-	eventlog(eventlog_level_debug,"handle_bnet","All AT Team Members: %s",atmembers_usernames);
-	
-	//check see if inviter has ever played AT before
-	if(account_check_team(conn_get_account(c),atmembers_usernames,ctag)<0)
-	  {
-	     if(account_set_currentatteam(conn_get_account(c),account_create_newteam(conn_get_account(c),atmembers_usernames,count_to_invite,ctag))<0)
-	       eventlog(eventlog_level_debug,"handle_bnet","Unable to properly create team info for user. No Stats will be saved");
-	     if(account_set_new_at_team(conn_get_account(c),1)<0)
-	       eventlog(eventlog_level_error,"handle_bnet","Unable to set flag new_at_team to 1 for YES");
-	     
+	    if (!(members[i] = accountlist_find_account(invited_usernames[i-1])))
+	      {
+		eventlog(eventlog_level_error,__FUNCTION__,"got invitation for non-existant user \"%s\"",invited_usernames[i-1]);
+		return -1;
+	      }
 	  }
 	else
-	  {
-	     teamnumber = account_check_team(conn_get_account(c),atmembers_usernames,ctag);
-	     eventlog(eventlog_level_debug,"handle_bnet","AT Team has played before! - Team number %d",teamnumber);
-	     account_set_currentatteam(conn_get_account(c),teamnumber);
-	     account_set_atteamsize(conn_get_account(c),teamnumber,ctag,count_to_invite);
-	     account_set_new_at_team(conn_get_account(c),0); //avoid warning
-	  }
-	//<--- end of stat saving shit
+	  members[i] = NULL;
+      }
+    
+	  
+    eventlog(eventlog_level_debug,"handle_bnet","All AT Team Members: %s",atmembers_usernames);
+    
+    if (!(team = account_find_team_by_accounts(members[0],members,ctag)))
+      {
+	team = create_team(members,ctag); //no need to free on return -1 because it's allready in teamlist
 	
-	//Create the packet to send to each of the users you wanted to invite
-	conn_set_channel(c,NULL);
-	//if new team set flag
+	eventlog(eventlog_level_trace,__FUNCTION__,"this team has never played before, creating new team");
+      }
+    else
+      {
+	eventlog(eventlog_level_trace,__FUNCTION__,"this team has allready played before");
+      }
+    
+    teamid = team_get_teamid(team);
+    account_set_currentatteam(conn_get_account(c),team_get_teamid(team));
+    
+    
+    //Create the packet to send to each of the users you wanted to invite
+    conn_set_channel(c,NULL);
+    
+    for(i=0; i < teammemcount; i++)
+      {
+
+	if(!(dest_c = account_get_conn(team_get_member(team,i))))
+	continue;
+
+	if ((dest_c == c))
+	continue;
 	
-	for(i=0; i < count_to_invite; i++)
-	  {
-	     if(!(dest_c = connlist_find_connection_by_accountname(invited_usernames[i]))) 
-	       continue;
-	     
-	     if (!(rpacket = packet_create(packet_class_bnet)))
-	       return -1;
-	     packet_set_size(rpacket,sizeof(t_server_arrangedteam_send_invite));
-	     packet_set_type(rpacket, SERVER_ARRANGEDTEAM_SEND_INVITE);
-	     
-	     bn_int_set(&rpacket->u.server_arrangedteam_send_invite.count,bn_int_get(packet->u.client_arrangedteam_invite_friend.count));
-	     bn_int_set(&rpacket->u.server_arrangedteam_send_invite.id,bn_int_get(packet->u.client_arrangedteam_invite_friend.id));
-	     { /* trans support */
-	        unsigned short port = conn_get_game_port(c);
-		unsigned int addr = conn_get_addr(c);
-		
-		trans_net(conn_get_addr(dest_c), &addr, &port);
-		
-		bn_int_nset(&rpacket->u.server_arrangedteam_send_invite.inviterip, addr);
-		bn_short_set(&rpacket->u.server_arrangedteam_send_invite.port, port);
-	     }
-	     bn_byte_set(&rpacket->u.server_arrangedteam_send_invite.numfriends,count_to_invite);
-	     packet_append_string(rpacket,conn_get_username(c));
-	     
-	     conn_set_channel(c,NULL);
-	     
-	     //attach all the invited to the packet - but dont include the invitee's name
-	     for(n=0; n < count_to_invite; n++) 
-	       {
-		  if (n != i) packet_append_string(rpacket, invited_usernames[n]);
-	       }
-	     
-	     //now send packet
-	     conn_push_outqueue(dest_c,rpacket);
-	     packet_del_ref(rpacket);
-	     
-	     //start of stat shit for each invitee -->
-	     if(account_check_team(conn_get_account(dest_c),atmembers_usernames,ctag)<0)
-	       {
-		  if(account_set_currentatteam(conn_get_account(dest_c),account_create_newteam(conn_get_account(dest_c),atmembers_usernames,count_to_invite,ctag))<0)
-		    eventlog(eventlog_level_debug,"handle_bnet","Unable to properly create team info for user. No Stats will be saved");
-		  if(account_set_new_at_team(conn_get_account(dest_c),1)<0)
-		    eventlog(eventlog_level_error,"handle_bnet","Unable to set flag new_at_team to 1 for YES");
-	       }
-	     else
-	       {
-		  teamnumber = account_check_team(conn_get_account(dest_c),atmembers_usernames,ctag);
-		  eventlog(eventlog_level_debug,"handle_bnet","AT Team has played before! - Team number %d",teamnumber);
-		  account_set_currentatteam(conn_get_account(dest_c),teamnumber);
-		  account_set_atteamsize(conn_get_account(dest_c),teamnumber,ctag,count_to_invite);
-		  account_set_new_at_team(conn_get_account(dest_c),0); //avoid warning
-	       }
-	     //<--- end of stat saving shit
-	     
-	  }	
-	
-	//now send a ACK to the inviter 
 	if (!(rpacket = packet_create(packet_class_bnet)))
 	  return -1;
-	packet_set_size(rpacket,sizeof(t_server_arrangedteam_invite_friend_ack));
-	packet_set_type(rpacket,SERVER_ARRANGEDTEAM_INVITE_FRIEND_ACK);
+	  
+	packet_set_size(rpacket,sizeof(t_server_arrangedteam_send_invite));
+	packet_set_type(rpacket, SERVER_ARRANGEDTEAM_SEND_INVITE);
 	
-	bn_int_set(&rpacket->u.server_arrangedteam_invite_friend_ack.count,bn_int_get(packet->u.client_arrangedteam_invite_friend.count));
-	bn_int_set(&rpacket->u.server_arrangedteam_invite_friend_ack.id,bn_int_get(packet->u.client_arrangedteam_invite_friend.id));
-	bn_int_set(&rpacket->u.server_arrangedteam_invite_friend_ack.timestamp,time(NULL));
-	bn_byte_set(&rpacket->u.server_arrangedteam_invite_friend_ack.teamsize,count_to_invite+1);
-	
-	/*
-	 * five int's to fill
-	 * fill with uid's of all teammembers, including the inviter
-	 * and the rest with FFFFFFFF
-	 * to be used when sever recieves anongame search
-	 * [Omega]
-	 */
-	for(i = 0; i < 5; i++) { 
-	    unsigned int invited_uid;
-	    t_connection * invited_c;
-	    
-	    if (i == 0) { /* add inviter first */
-		invited_uid = account_get_uid(conn_get_account(c));
-		bn_int_set(&rpacket->u.server_arrangedteam_invite_friend_ack.info[i], invited_uid);
-		eventlog(eventlog_level_trace,__FUNCTION__,"added uid: %u username: %s (inviter) to array",invited_uid,conn_get_loggeduser(c));
-	    } 
-	    else if (i < teammemcount) { /* add rest of team */
-		invited_c = connlist_find_connection_by_accountname(invited_usernames[i-1]);
-		invited_uid = account_get_uid(conn_get_account(invited_c));
-		bn_int_set(&rpacket->u.server_arrangedteam_invite_friend_ack.info[i], invited_uid);
-		eventlog(eventlog_level_trace,__FUNCTION__,"added uid: %u username: %s to array",invited_uid,invited_usernames[i-1]);
-	    }
-	    else { /* fill rest with FFFFFFFF */
-	    	bn_int_set(&rpacket->u.server_arrangedteam_invite_friend_ack.info[i], -1);
-		eventlog(eventlog_level_trace,__FUNCTION__,"no more users, added FFFFFFFF");
-	    }
+	bn_int_set(&rpacket->u.server_arrangedteam_send_invite.count,count);
+	bn_int_set(&rpacket->u.server_arrangedteam_send_invite.id,id);
+	{ /* trans support */
+	  unsigned short port = conn_get_game_port(c);
+	  unsigned int addr = conn_get_addr(c);
+	  
+	  trans_net(conn_get_addr(dest_c), &addr, &port);
+	  
+	  bn_int_nset(&rpacket->u.server_arrangedteam_send_invite.inviterip, addr);
+	  bn_short_set(&rpacket->u.server_arrangedteam_send_invite.port, port);
 	}
+	bn_byte_set(&rpacket->u.server_arrangedteam_send_invite.numfriends,count_to_invite);
 	
-	conn_push_outqueue(c,rpacket);
+	for(n=0; n < teammemcount; n++) 
+	  {
+	    if (n != i) 
+	        packet_append_string(rpacket, conn_get_loggeduser(account_get_conn(team_get_member(team,n))));
+	  }
+	
+	//now send packet
+	conn_push_outqueue(dest_c,rpacket);
 	packet_del_ref(rpacket);
 	
-     }
-
-   return 0;
+	account_set_currentatteam(conn_get_account(dest_c),teamid);
+      }	
+    
+    //now send a ACK to the inviter 
+    if (!(rpacket = packet_create(packet_class_bnet)))
+      return -1;
+    packet_set_size(rpacket,sizeof(t_server_arrangedteam_invite_friend_ack));
+    packet_set_type(rpacket,SERVER_ARRANGEDTEAM_INVITE_FRIEND_ACK);
+    
+    bn_int_set(&rpacket->u.server_arrangedteam_invite_friend_ack.count,count);
+    bn_int_set(&rpacket->u.server_arrangedteam_invite_friend_ack.id,id);
+    bn_int_set(&rpacket->u.server_arrangedteam_invite_friend_ack.timestamp,time(NULL));
+    bn_byte_set(&rpacket->u.server_arrangedteam_invite_friend_ack.teamsize,count_to_invite+1);
+    
+    /*
+     * five int's to fill
+     * fill with uid's of all teammembers, including the inviter
+     * and the rest with FFFFFFFF
+     * to be used when sever recieves anongame search
+     * [Omega]
+     */
+    for(i = 0; i < 5; i++) { 
+      
+      if (i < teammemcount) {
+	bn_int_set(&rpacket->u.server_arrangedteam_invite_friend_ack.info[i], team_get_memberuid(team,i));
+      }
+      else { /* fill rest with FFFFFFFF */
+	bn_int_set(&rpacket->u.server_arrangedteam_invite_friend_ack.info[i], -1);
+      }
+    }
+    
+    conn_push_outqueue(c,rpacket);
+    packet_del_ref(rpacket);
+    
+  }
+  
+  return 0;
 }
 
 static int _client_atacceptdeclineinvite(t_connection * c, t_packet const * const packet)
@@ -2615,15 +2585,6 @@ static int _client_atacceptdeclineinvite(t_connection * c, t_packet const * cons
      {
 	char const *inviter;
 	t_connection * dest_c;
-	
-	if(account_get_new_at_team(conn_get_account(c))==1)
-	  {
-	     int temp;
-	     temp = account_get_atteamcount(conn_get_account(c),ctag);
-	     temp = temp-1;
-	     account_set_atteamcount(conn_get_account(c),ctag,temp);
-	     account_set_new_at_team(conn_get_account(c),0);
-	  }
 	
 	//if user declined the invitation then
 	if(bn_int_get(packet->u.client_arrangedteam_accept_decline_invite.option)==CLIENT_ARRANGEDTEAM_DECLINE) {
@@ -2653,9 +2614,6 @@ static int _client_atacceptinvite(t_connection * c, t_packet const * const packe
 {
    // t_packet * rpacket;
    
-//[smith] 20030427 fixed Big-Endian/Little-Endian conversion (Solaris bug) then use  packet_append_data for append platform dependent data types - like "int", cos this code was broken for BE platforms. it's rewriten in platform independent style whis usege bn_int and other bn_* like datatypes and fuctions for wor with datatypes - bn_int_set(), what provide right byteorder, not depended on LE/BE
-//  fixed broken htonl() conversion for BE platforms - change it to  bn_int_nset(). i hope it's worked on intel too %) 
-
    if (packet_get_size(packet)<sizeof(t_client_arrangedteam_accept_invite)) {
       eventlog(eventlog_level_error,__FUNCTION__,"[%d] got bad ARRANGEDTEAM_ACCEPT_INVITE packet (expected %u bytes, got %u)",conn_get_socket(c),sizeof(t_client_arrangedteam_accept_invite),packet_get_size(packet));
       return -1;
