@@ -105,7 +105,7 @@
 
 				
 #ifndef D2CS_DEFAULT_CONF_FILE
-# define D2CS_DEFAULT_CONF_FILE       "/usr/local/etc/d2cs.conf"
+# define D2CS_DEFAULT_CONF_FILE       "conf/d2cs.conf"
 #endif
 
 #define DEFAULT_LOG_FILE	"/usr/local/var/d2cs.log"
