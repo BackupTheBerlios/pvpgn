@@ -96,7 +96,7 @@ static int sql_read_attrs(t_storage_info *, t_read_attr_func, void *);
 static void *sql_read_attr(t_storage_info *, const char *);
 static int sql_write_attrs(t_storage_info *, void *);
 static int sql_read_accounts(t_read_accounts_func, void *);
-static t_storage_info * sql_read_account(const char *);
+static t_storage_info * sql_read_account(const char *,unsigned);
 static int sql_cmp_info(t_storage_info *, t_storage_info *);
 static const char *sql_escape_key(const char *);
 static int sql_load_clans(t_load_clans_func cb);
@@ -721,7 +721,7 @@ static int sql_read_accounts(t_read_accounts_func cb, void *data)
     return 0;
 }
 
-static t_storage_info * sql_read_account(const char *name)
+static t_storage_info * sql_read_account(const char *name, unsigned uid)
 {
     char query[1024];
     t_sql_res *result = NULL;
@@ -734,7 +734,12 @@ static t_storage_info * sql_read_account(const char *name)
 	return NULL;
     }
 
-    sprintf(query, "SELECT uid FROM BNET WHERE acct_username='%s'", name);
+    /* SELECT uid from BNET WHERE uid=x sounds stupid, I agree but its a clean
+     * way to check for account existence by an uid */
+    if (name) 
+	sprintf(query, "SELECT uid FROM BNET WHERE acct_username='%s'", name);
+    else
+	sprintf(query, "SELECT uid FROM BNET WHERE uid=%u", uid);
     result = sql->query_res(query);
     if (!result) {
 	eventlog(eventlog_level_error, __FUNCTION__, "error query db (query:\"%s\")", query);

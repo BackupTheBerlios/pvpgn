@@ -828,18 +828,13 @@ extern int accountlist_reload(void)
   return 0;
 }
 
-extern t_account * account_load_new(char const * name)
+extern t_account * account_load_new(char const * name, unsigned uid)
 {
     t_account *account;
     t_storage_info *info;
 
-    if (name == NULL) {
-	eventlog(eventlog_level_error, __FUNCTION__, "got NULL name");
-	return NULL;
-    }
-
     force_account_add = 1; /* disable the protection */
-    info = storage->read_account(name);
+    info = storage->read_account(name,uid);
     if (!info) return NULL;
 
     if (!(account = account_load(info)))
@@ -1076,7 +1071,7 @@ extern t_account * accountlist_find_account(char const * username)
 	}
     }
     
-    return NULL;
+    return prefs_get_load_new_account() ? account_load_new(username,0) : NULL;
 }
 
 
@@ -1095,7 +1090,7 @@ extern t_account * accountlist_find_account_by_uid(unsigned int uid)
 	    }
 	}
     }
-    return NULL;
+    return prefs_get_load_new_account() ? account_load_new(NULL,uid) : NULL;
 }
 
 

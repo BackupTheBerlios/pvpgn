@@ -35,7 +35,7 @@ typedef struct {
     int (*write_attrs)(t_storage_info *, void *);
     void * (*read_attr)(t_storage_info *, const char *);
     int (*read_accounts)(t_read_accounts_func, void *);
-    t_storage_info * (*read_account)(const char *);
+    t_storage_info * (*read_account)(const char *,unsigned);
     int (*cmp_info)(t_storage_info *, t_storage_info *);
     const char * (*escape_key)(const char *);
     int (*load_clans)(t_load_clans_func);
