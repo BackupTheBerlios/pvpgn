@@ -2701,12 +2701,12 @@ extern int conn_set_playerinfo(t_connection const * c, char const * playerinfo)
     else if (strcmp(clienttag,CLIENTTAG_DIABLO2DV)==0)
     {
 	/* not much to do */ /* FIXME: get char name here? */
-	eventlog(eventlog_level_error,"conn_set_playerinfo","[%d] unhandled playerinfo request for client \"%s\" playerinfo=\"%s\"",conn_get_socket(c),clienttag,playerinfo);
+	eventlog(eventlog_level_trace,"conn_set_playerinfo","[%d] playerinfo request for client \"%s\" playerinfo=\"%s\"",conn_get_socket(c),clienttag,playerinfo);
     }
     else if (strcmp(clienttag,CLIENTTAG_DIABLO2XP)==0)
     {
         /* in playerinfo we get strings of the form "Realmname,charname" */
-	eventlog(eventlog_level_error,"conn_set_playerinfo","[%d] unhandled playerinfo request for client \"%s\" playerinfo=\"%s\"",conn_get_socket(c),clienttag,playerinfo);
+	eventlog(eventlog_level_trace,"conn_set_playerinfo","[%d] playerinfo request for client \"%s\" playerinfo=\"%s\"",conn_get_socket(c),clienttag,playerinfo);
     }
     else
     {
