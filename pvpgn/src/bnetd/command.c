@@ -3116,12 +3116,12 @@ static int _handle_finger_command(t_connection * c, char const *text)
     tmthen = localtime(&then); /* FIXME: determine user's timezone */
     if (!(conn = connlist_find_connection_by_accountname(dest)))
       if (tmthen)
-	strftime(msgtemp,sizeof(msgtemp),"Last login %a %b %d %H:%M from ",tmthen);
+	strftime(msgtemp,sizeof(msgtemp),"Last login %a %b %d %H:%M %Y from ",tmthen);
       else
 	strcpy(msgtemp,"Last login ? from ");
     else
       if (tmthen)
-	strftime(msgtemp,sizeof(msgtemp),"On since %a %b %d %H:%M from ",tmthen);
+	strftime(msgtemp,sizeof(msgtemp),"On since %a %b %d %H:%M %Y from ",tmthen);
       else
 	strcpy(msgtemp,"On since ? from ");
   }
