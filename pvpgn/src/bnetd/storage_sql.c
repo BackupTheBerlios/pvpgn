@@ -94,13 +94,9 @@ static t_sql_engine *sql = NULL;
 
 static char * tables[] = {"BNET", "Record", "profile", "friend", "Team", NULL};
 
-/* FIXME: add dbcreator support 
-static int _dbcreator_init();
-static int _dbcreator_createdatabase(char const *database);
-static int _dbcreator_filldb(char const *database);
-
-void update_DB_v0_to_v150(void);
-*/
+static int _sql_dbcheck(void);
+static int _sql_dbcreator(void);
+static void _sql_update_DB_v0_to_v150(void);
 
 static const char * _db_add_tab(const char *tab, const char *key)
 {
@@ -109,10 +105,6 @@ static const char * _db_add_tab(const char *tab, const char *key)
    strncpy(nkey, tab, sizeof(nkey) - 1);
    nkey[strlen(nkey) + 1] = '\0'; nkey[strlen(nkey)] = '_';
    strncpy(nkey + strlen(nkey), key, sizeof(nkey) - strlen(nkey));
-/*
-   for(p = nkey; *p; p++)
-     if (*p == '_') *p = '\\';
-*/
    return nkey;
 }
 
@@ -130,11 +122,6 @@ static int _db_get_tab(const char *key, char **ptab, char **pcol)
    *(strchr(tab, '_')) = 0;
    strncpy(col, key+strlen(tab)+1, DB_MAX_TAB-1);
    col[DB_MAX_TAB-1]=0;
-/*
-   for(p=col; *p; p++)
-     if(*p == '\\' || *p == ' ' || *p == '-')
-       *p = '_';
-*/
    /* return tab and col as 2 static buffers */
    *ptab = tab;
    *pcol = col;
@@ -220,6 +207,12 @@ static int sql_init(const char *dbpath)
 
     free((void*)path);
 
+    if (_sql_dbcheck()) {
+	eventlog(eventlog_level_error, __FUNCTION__, "got error from dbcheck");
+	sql->close();
+	return -1;
+    }
+
     return 0;
 }
 
@@ -279,15 +272,6 @@ static t_storage_info * sql_create_account(char const * username)
     }
 
     *((unsigned int*)info) = uid;
-/*
-    sprintf(query, "UPDATE counters SET max_uid='%s';", str_uid);
-    if (sql->query(query)) {
-        eventlog(eventlog_level_error, __FUNCTION__, "uid update failed");
-	free((void*)info->sql);
-	free((void*)info);
-	return NULL;
-    }
-*/
     sprintf(query, "INSERT INTO BNET (uid) VALUES('%s');", str_uid);
     if (sql->query(query)) {
         eventlog(eventlog_level_error, __FUNCTION__, "user insert failed");
@@ -569,128 +553,137 @@ static const char * sql_escape_key(const char *key)
     return newkey;
 }
 
-#ifdef KAKAMAKA
-
-static unsigned int sql_max_uid()
+int db_get_version(void)
 {
-   MYSQL_RES* result = NULL;
-   MYSQL_ROW row;
-   int uid;
-   
-   if(!mysql) {
-      eventlog(eventlog_level_error, "db_max_uid", "NULL mysql");
-      return 0;
-   }
-   
-   mysql_query(mysql,"SELECT max_uid FROM counters;");
-   result = mysql_store_result(mysql);
-   if(result) {
-      row = mysql_fetch_row(result);
-      /* Dizzy: 16-07-2002 : check to see if its NULL in db */
-      if (row == NULL || row[0] == NULL) {
-	 eventlog(eventlog_level_error, "db_max_uid", "got NULL maxuid");
-	 mysql_free_result(result);
-	 return 0;
-      }
-      uid = atol(row[0]);
-      mysql_free_result(result);
-   }
-   else return 0;
-   
-   eventlog(eventlog_level_trace, "db_max_uid", "uid: %d", uid);
-   
-   return uid;
+    t_sql_res * result = NULL;
+    t_sql_row * row;
+    int version = 0;
+
+    if ((result = sql->query_res("SELECT value FROM pvpgn WHERE name = 'db_version'")) == NULL) return 0;
+    if (sql->num_rows(result) == 1
+	&& (row = sql->fetch_row(result)) != NULL
+	&& row[0] != NULL) 
+	version = atoi(row[0]);
+
+    sql->free_result(result);
+
+    return version;
 }
 
-int db_get_version()
+void _sql_db_set_version(int version)
 {
-  MYSQL_RES * result = NULL;
-  MYSQL_ROW row;
-  int version = 0;
-	
-  db_init();
-  if (!mysql) return -1;
-  mysql_query(mysql,"SELECT version FROM Version");
-  result = mysql_store_result(mysql);
-  if (!result) return 0;
-  if (mysql_num_rows(result) != 1) { mysql_free_result(result); return 0; }
-  if (!(row = mysql_fetch_row(result))) { mysql_free_result(result); return 0; }
-  if (row[0]==NULL) { mysql_free_result(result); return 0; }
-  version = atoi(row[0]);
-  mysql_free_result(result);
-  db_close();
-  return version;
-}
+    char query[1024];
 
-void db_set_version(int version)
-{
-  char query[1024];
-       
-  db_init();
-  if (!mysql) return;
-  
-  sprintf(query,"UPDATE Version SET version=%d;",version);
-  eventlog(eventlog_level_info,__FUNCTION__,"query:%s",query);
-  mysql_query(mysql,query);
-  if (mysql_affected_rows(mysql)!=1) 
-    {
-      mysql_query(mysql,"CREATE TABLE Version (version int(11) NOT NULL PRIMARY KEY);");
-      sprintf(query,"INSERT INTO Version VALUES (%d);",version);
-      mysql_query(mysql,query);
+    sprintf(query,"UPDATE pvpgn SET value = '%d' WHERE name = 'db_version';",version);
+    if (sql->query(query)) {
+	sql->query("CREATE TABLE pvpgn (name varchar(128) NOT NULL PRIMARY KEY, value varchar(255));");
+	sprintf(query,"INSERT INTO pvpgn (name, value) VALUES('db_version', '%d');",version);
+	sql->query(query);
     }
-  db_close();
 }
 
-extern int db_check()
+extern int _sql_dbcheck(void)
 {
-  int version = 0;
-   if (prefs_get_mysql_host() == NULL || prefs_get_mysql_dbname() == NULL ||
-       prefs_get_mysql_account() == NULL || prefs_get_mysql_password() == NULL) {
-      eventlog(eventlog_level_error, "db_check", "Invalid mysql settings! Please check your config!");
-      return -1;
-   }
-   
-   /* settings seem fine, lets try to connect */
-   if ((mysql = mysql_init(NULL)) == NULL) {
-      eventlog(eventlog_level_error, "db_check", "Could not init mysql");
-      return -1;
-   }
-   
-   if(!mysql_real_connect(mysql, prefs_get_mysql_host(), prefs_get_mysql_account(), prefs_get_mysql_password(), prefs_get_mysql_dbname(), 0, prefs_get_mysql_sock(), CLIENT_FOUND_ROWS)) 
-     {
-	eventlog(eventlog_level_info, "db_check", "mysql connection failed, lets try to build the db (%s)",mysql_error(mysql));
-	db_close(); /* dbcreator opens its own connection */
-	
-	if (dbcreator_start() <0) {
-	   eventlog(eventlog_level_error,"db_check","could not build db");
-	   return -1;
-	}
+    int version = 0;
 
-	return 0;
+    _sql_dbcreator();
+
+    while ((version=db_get_version())!=CURRENT_DB_VERSION) {
+	switch (version) {
+	    case 0:
+        	_sql_update_DB_v0_to_v150();
+		break;
+	    default:
+		eventlog(eventlog_level_error,__FUNCTION__,"unknown PvPGN DB version, aborting");
+		return -1;
+	}
      }
-   
-   db_close();
-   
-   while ((version=db_get_version())!=CURRENT_DB_VERSION)
-     {
-       switch (version)
-	 {
-	 case 0:
-	   {
-             update_DB_v0_to_v150();
-	     break;
-	   }
-	 default:
-	   {
-	     eventlog(eventlog_level_error,__FUNCTION__,"unknown PvPGN DB version, aborting");
-	     return -1;
-	     
-	   }
-	 }
-     }
-   
-   return 0;
+
+    return 0;
 }
+
+static int _sql_dbcreator()
+{
+    char **pstr;
+    char * querys[] = {
+	"CREATE TABLE BNET (uid int(11) NOT NULL default '0' PRIMARY KEY,acct_username varchar(128) default NULL,acct_userid varchar(128) default NULL,acct_passhash1 varchar(128) default NULL,flags_initial varchar(128) default NULL,auth_admin varchar(128) default 'false',auth_normallogin varchar(128) default NULL,auth_changepass varchar(128) default NULL,auth_changeprofile varchar(128) default NULL,auth_botlogin varchar(128) default 'true',auth_operator varchar(128) default NULL,new_at_team_flag varchar(128) default '0', auth_lockk varchar(128) default '0', auth_command_groups varchar(128) NOT NULL default '1');",
+	"INSERT INTO BNET VALUES (0,NULL,NULL,NULL,NULL,'false',NULL,NULL,NULL,'true',NULL,'0','0','1');",
+	"CREATE TABLE friend (uid int(11) NOT NULL default '0' PRIMARY KEY);",
+	"INSERT INTO friend VALUES (0);",
+	"CREATE TABLE profile (uid int(11) NOT NULL default '0' PRIMARY KEY);",
+	"INSERT INTO profile VALUES (0);",
+	"CREATE TABLE Record (uid int(11) NOT NULL default '0' PRIMARY KEY, WAR3_solo_xp int(11) default '0', WAR3_solo_level int(11) default '0', WAR3_solo_wins int(11) default '0', WAR3_solo_rank int(11) default '0', WAR3_solo_losses int(11) default '0', WAR3_team_xp int(11) default '0', WAR3_team_level int(11) default '0', WAR3_team_rank int(11) default '0', WAR3_team_wins int(11) default '0', WAR3_team_losses int(11) default '0', WAR3_ffa_xp int(11) default '0', WAR3_ffa_rank int(11) default '0', WAR3_ffa_level int(11) default '0', WAR3_ffa_wins int(11) default '0', WAR3_ffa_losses int(11) default '0', WAR3_orcs_wins int(11) default '0', WAR3_orcs_losses int(11) default '0', WAR3_humans_wins int(11) default '0', WAR3_humans_losses int(11) default '0', WAR3_undead_wins int(11) default '0', WAR3_undead_losses int(11) default '0', WAR3_nightelves_wins int(11) default '0', WAR3_nightelves_losses int(11) default '0', WAR3_random_wins int(11) default '0', WAR3_random_losses int(11) default '0', WAR3_teamcount int(11) default '0', W3XP_solo_xp int(11) default '0', W3XP_solo_level int(11) default '0', W3XP_solo_wins int(11) default '0', W3XP_solo_rank int(11) default '0', W3XP_solo_losses int(11) default '0', W3XP_team_xp int(11) default '0', W3XP_team_level int(11) default '0', W3XP_team_rank int(11) default '0', W3XP_team_wins int(11) default '0', W3XP_team_losses int(11) default '0', W3XP_ffa_xp int(11) default '0', W3XP_ffa_rank int(11) default '0', W3XP_ffa_level int(11) default '0', W3XP_ffa_wins int(11) default '0', W3XP_ffa_losses int(11) default '0', W3XP_orcs_wins int(11) default '0', W3XP_orcs_losses int(11) default '0', W3XP_humans_wins int(11) default '0', W3XP_humans_losses int(11) default '0', W3XP_undead_wins int(11) default '0', W3XP_undead_losses int(11) default '0', W3XP_nightelves_wins int(11) default '0', W3XP_nightelves_losses int(11) default '0', W3XP_random_wins int(11) default '0', W3XP_random_losses int(11) default '0', W3XP_teamcount int(11) default '0');",
+	"INSERT INTO Record VALUES (0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0);",
+	"CREATE TABLE Team (uid int(11) NOT NULL PRIMARY KEY);",
+	"INSERT INTO Team VALUES (0);",
+	"CREATE TABLE pvpgn (name varchar(128) NOT NULL PRIMARY KEY, value varchar(255));",
+	"INSERT INTO pvpgn (name, value) VALUES('db_version', '0');",
+	"DROP TABLE Version;",
+	NULL
+    };
+
+    eventlog(eventlog_level_info, __FUNCTION__,"Creating missing tables (if any)");
+    /* Note: this SQL statements should fail for already initilized DB */
+    for(pstr = querys; *pstr; pstr++)
+	sql->query(*pstr);
+    
+    return 0;
+}
+
+static void _sql_update_DB_v0_to_v150(void)
+{
+    t_sql_res   * result;
+    t_sql_field * fields, *fentry;
+    char query[1024];
+
+    eventlog(eventlog_level_info,__FUNCTION__,"updating your PvPGN SQL DB...");
+
+    if ((result = sql->query_res("SELECT * FROM Record;")) != NULL) {
+	if ((fields = sql->fetch_fields(result)) != NULL) {
+	    for(fentry = fields; *fentry; fentry++) {
+		if (strncmp(*fentry,"WAR3_",5)==0) continue;   // prevent converting over and over again
+		if (strncmp(*fentry,"W3XP_",5)==0) continue;
+		if (strncmp(*fentry,CLIENTTAG_STARCRAFT,4)==0) continue;
+		if (strncmp(*fentry,CLIENTTAG_BROODWARS,4)==0) continue;
+		if (strncmp(*fentry,CLIENTTAG_WARCIIBNE,4)==0) continue;
+		if (strncmp(*fentry,CLIENTTAG_DIABLO2DV,4)==0) continue;
+		if (strncmp(*fentry,CLIENTTAG_DIABLO2XP,4)==0) continue;
+		if (strncmp(*fentry,CLIENTTAG_DIABLORTL,4)==0) continue;
+		if (strncmp(*fentry,CLIENTTAG_DIABLOSHR,4)==0) continue;
+		if (strncmp(*fentry,CLIENTTAG_SHAREWARE,4)==0) continue;
+		if (strcmp(*fentry,SQL_UID_FIELD)==0) continue;
+
+		sprintf(query,"ALTER TABLE Record CHANGE %s WAR3_%s int(11) default '0';",*fentry,*fentry);
+		sql->query(query);
+		sprintf(query,"ALTER TABLE Record ADD W3XP_%s int(11) default '0';",*fentry);
+		sql->query(query); 
+	    }
+	    sql->free_fields(fields);
+	}
+	sql->free_result(result);
+    }
+
+    if ((result = sql->query_res("SELECT * FROM Team;")) != NULL) {
+	if ((fields = sql->fetch_fields(result)) != NULL) {
+	    for(fentry = fields; *fentry; fentry++) {
+		if (strncmp(*fentry,"WAR3_",5)==0) continue;
+		if (strncmp(*fentry,"W3XP_",5)==0) continue;
+		if (strcmp(*fentry,SQL_UID_FIELD)==0) continue;
+
+		sprintf(query,"ALTER TABLE Team CHANGE %s WAR3_%s varchar(128);",*fentry,*fentry);
+		sql->query(query);
+	    }
+	    sql->free_fields(fields);
+	}
+        sql->free_result(result);
+    }
+
+    _sql_db_set_version(150);
+
+    eventlog(eventlog_level_info,__FUNCTION__,"successfully updated your DB");
+}
+
+#ifdef KAKAMAKA
 
 t_attr_from_all * db_get_attr_from_all(char const * attr)
 {
@@ -874,158 +867,6 @@ extern int db_drop_column(const char * key)
   return 0;
 }
 // <---
-
-
-extern int dbcreator_start()
-{
-   if(_dbcreator_init()<0)
-     {
-	eventlog(eventlog_level_error,"dbcreator_start","Error connection to MySQL - Check your conf File!");
-	return -1;
-     }
-   
-   eventlog(eventlog_level_info,"pvpgn_mysql","Creating Database %s",prefs_get_mysql_dbname());
-   
-   if(_dbcreator_createdatabase(prefs_get_mysql_dbname())<0) {
-      eventlog(eventlog_level_error, "dbcreator_start","Error trying to create the database: %s", prefs_get_mysql_dbname());
-      db_close();
-      return -1;	
-   }
-   if(_dbcreator_filldb(prefs_get_mysql_dbname())<0) {
-      eventlog(eventlog_level_error, "dbcreator_start", "Error trying to init db struct");
-      db_close();
-      return -1;
-   }
-   
-   db_close();
-
-   return 0;
-   
-}
-
-static int _dbcreator_init()
-{
-   if (!((mysql=mysql_init(NULL)))) 
-     return -1; 
-   
-   if(!mysql_real_connect(mysql, prefs_get_mysql_host(), prefs_get_mysql_account(), prefs_get_mysql_password(), "mysql", 0, prefs_get_mysql_sock(), CLIENT_FOUND_ROWS))
-   {
-     eventlog(eventlog_level_error,__FUNCTION__,"error: %s",mysql_error(mysql));
-     return -1;
-   }
-
-   return 0;
-}
-
-static int _dbcreator_createdatabase(char const *database)
-{
-	char query[1024];
-	
-	strcpy(query,"CREATE DATABASE ");
-	strncat(query,database, sizeof(query) - strlen(query) - 2);
-	strcat(query,";");
-	
-	mysql_query(mysql,query);
-
-	if(mysql_affected_rows(mysql) != 1) 
-	{
-		eventlog(eventlog_level_fatal,"dbcreator_createdatabase","Failed to Create the database.");
-		return -1;
-	}
-
-   eventlog(eventlog_level_info,"dbcreator_createdatabase","Database Created...creating Tables..");
-   
-   return 0;
-}
-
-static int _dbcreator_filldb(char const *database)
-{
-   char **pstr;
-   char * querys[] = {
-      "CREATE TABLE BNET (uid int(11) NOT NULL default '0' PRIMARY KEY,acct_username varchar(128) default NULL,acct_userid varchar(128) default NULL,acct_passhash1 varchar(128) default NULL,flags_initial varchar(128) default NULL,auth_admin varchar(128) default 'false',auth_normallogin varchar(128) default NULL,auth_changepass varchar(128) default NULL,auth_changeprofile varchar(128) default NULL,auth_botlogin varchar(128) default 'true',auth_operator varchar(128) default NULL,new_at_team_flag varchar(128) default '0', auth_lockk varchar(128) default '0', auth_command_groups varchar(128) NOT NULL default '1');",
-      "INSERT INTO BNET VALUES (0,NULL,NULL,NULL,NULL,'false',NULL,NULL,NULL,'true',NULL,'0','0','1');",
-      "CREATE TABLE counters (max_uid int(11) NOT NULL default '0' PRIMARY KEY);",
-      "INSERT INTO counters VALUES (0);",
-      "CREATE TABLE friend (uid int(11) NOT NULL default '0' PRIMARY KEY);",
-      "INSERT INTO friend VALUES (0);",
-      "CREATE TABLE profile (uid int(11) NOT NULL default '0' PRIMARY KEY);",
-      "INSERT INTO profile VALUES (0);",
-      "CREATE TABLE Record (uid int(11) NOT NULL default '0' PRIMARY KEY, WAR3_solo_xp int(11) default '0', WAR3_solo_level int(11) default '0', WAR3_solo_wins int(11) default '0', WAR3_solo_rank int(11) default '0', WAR3_solo_losses int(11) default '0', WAR3_team_xp int(11) default '0', WAR3_team_level int(11) default '0', WAR3_team_rank int(11) default '0', WAR3_team_wins int(11) default '0', WAR3_team_losses int(11) default '0', WAR3_ffa_xp int(11) default '0', WAR3_ffa_rank int(11) default '0', WAR3_ffa_level int(11) default '0', WAR3_ffa_wins int(11) default '0', WAR3_ffa_losses int(11) default '0', WAR3_orcs_wins int(11) default '0', WAR3_orcs_losses int(11) default '0', WAR3_humans_wins int(11) default '0', WAR3_humans_losses int(11) default '0', WAR3_undead_wins int(11) default '0', WAR3_undead_losses int(11) default '0', WAR3_nightelves_wins int(11) default '0', WAR3_nightelves_losses int(11) default '0', WAR3_random_wins int(11) default '0', WAR3_random_losses int(11) default '0', WAR3_teamcount int(11) default '0', W3XP_solo_xp int(11) default '0', W3XP_solo_level int(11) default '0', W3XP_solo_wins int(11) default '0', W3XP_solo_rank int(11) default '0', W3XP_solo_losses int(11) default '0', W3XP_team_xp int(11) default '0', W3XP_team_level int(11) default '0', W3XP_team_rank int(11) default '0', W3XP_team_wins int(11) default '0', W3XP_team_losses int(11) default '0', W3XP_ffa_xp int(11) default '0', W3XP_ffa_rank int(11) default '0', W3XP_ffa_level int(11) default '0', W3XP_ffa_wins int(11) default '0', W3XP_ffa_losses int(11) default '0', W3XP_orcs_wins int(11) default '0', W3XP_orcs_losses int(11) default '0', W3XP_humans_wins int(11) default '0', W3XP_humans_losses int(11) default '0', W3XP_undead_wins int(11) default '0', W3XP_undead_losses int(11) default '0', W3XP_nightelves_wins int(11) default '0', W3XP_nightelves_losses int(11) default '0', W3XP_random_wins int(11) default '0', W3XP_random_losses int(11) default '0', W3XP_teamcount int(11) default '0');",
-      "INSERT INTO Record VALUES (0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0);",
-	  "CREATE TABLE Team (uid int(11) NOT NULL PRIMARY KEY);",
-	  "INSERT INTO Team VALUES (0);",
-	  "CREATE TABLE Version (version int(11) NOT NULL PRIMARY KEY);",
-	  "INSERT INTO Version VALUES(150);",
-      NULL
-   };
-	              
-   if (mysql_select_db(mysql, database)) return -1;
-   
-   for(pstr = querys; *pstr; pstr++)
-     if (mysql_query(mysql, *pstr)) return -1;
-    
-    return 0;
-}
-
-void update_DB_v0_to_v150()
-{
-  MYSQL_RES   * result;
-  MYSQL_FIELD * field;
-  char query[1024];
-  
-  db_init();
-
-  if (!mysql) return;
-  
-  eventlog(eventlog_level_info,__FUNCTION__,"updating your PvPGN mySQL DB...");
-  
-  mysql_query(mysql,"SELECT * FROM Record;");
-  if ((result = mysql_store_result(mysql)))
-  {
-    while ((field = mysql_fetch_field(result)))
-    {
-      if (field->name==NULL) continue;
-      if (strncmp(field->name,"WAR3_",5)==0) continue;   // prevent converting over and over again
-      if (strncmp(field->name,"W3XP_",5)==0) continue;
-      if (strncmp(field->name,CLIENTTAG_STARCRAFT,4)==0) continue;
-      if (strncmp(field->name,CLIENTTAG_BROODWARS,4)==0) continue;
-      if (strncmp(field->name,CLIENTTAG_WARCIIBNE,4)==0) continue;
-      if (strncmp(field->name,CLIENTTAG_DIABLO2DV,4)==0) continue;
-      if (strncmp(field->name,CLIENTTAG_DIABLO2XP,4)==0) continue;
-      if (strncmp(field->name,CLIENTTAG_DIABLORTL,4)==0) continue;
-      if (strcmp(field->name,MYSQL_UID_FIELD)==0) continue;
-      if (strcmp(field->name,"uid")==0) continue;
-
-      sprintf(query,"ALTER TABLE Record CHANGE %s WAR3_%s int(11) default '0';",field->name,field->name);
-      mysql_query(mysql,query);
-      sprintf(query,"ALTER TABLE Record ADD W3XP_%s int(11) default '0';",field->name);
-      mysql_query(mysql,query); 
-    }
-  mysql_free_result(result);
-  }
-
-  mysql_query(mysql,"SELECT * FROM Team;");
-  if ((result = mysql_store_result(mysql)))
-  {
-    while ((field = mysql_fetch_field(result)))
-    {
-      if (field->name==NULL) continue;
-      if (strncmp(field->name,"WAR3_",5)==0) continue;
-      if (strncmp(field->name,"W3XP_",5)==0) continue;
-      if (strcmp(field->name,MYSQL_UID_FIELD)==0) continue;
-      if (strcmp(field->name,"uid")==0) continue;
-
-      sprintf(query,"ALTER TABLE Team CHANGE %s WAR3_%s varchar(128);",field->name,field->name);
-      mysql_query(mysql,query);
-    }
-    mysql_free_result(result);
-  }
-
-  db_close();
-  db_set_version(150);
-
-  eventlog(eventlog_level_info,__FUNCTION__,"successfully updated your DB");
-}
 
 #endif
 
