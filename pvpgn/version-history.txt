@@ -13,16 +13,17 @@ a players game-connection but his connection to the server
 -- fixed some error in war3ladder causing ladder not to be updated
 -- better handling of "broken" atteams in war3ladder - could have caused
 server crash on previous version
--- new bnetd.conf options:
- - added boolean option XML_output_ladder for supporting jfro's latest ladder
+-- new bnetd.conf option: added boolean option XML_output_ladder for supporting
+jfro's latest ladder
 -- added command line option -x and --XML to run bntrackd in XML output mode
 and added a nice servers.xsl from jfro to show server list based on XML files
 -- added XML_output_ladder option to d2dbs.conf for additional output of D2
 ladder to xml file - once again... for ladder pages
---- added support for closed realms (d2cs) behind a router
---- added command line option (-p PORT) to bnpcap to specify port number
+-- added support for closed realms (d2cs) behind a router
+-- added command line option (-p PORT) to bnpcap to specify port number
 to process. Defaults to 6112
---- updated fsgs2bnetd.pl script - Thanks Keto
+-- updated fsgs2bnetd.pl script - Thanks Keto
+-- fixed /time command
 
 1.2.3:
 -- fixed some crash related bugs
