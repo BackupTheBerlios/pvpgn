@@ -144,19 +144,12 @@ whois <player> - looks up some basic information on a user, including their acco
 /admin - +username to make user a admin, or -username to remove admin status of a user
 %rank_all_accounts
 /rank_all_accounts - brute force adds all accounts to war3 ladder
-%remove_accounting_infos
-/remove_accounting_infos - remove extra accounting infos from all accounts - may take some while...
 %rehash
 /rehash - forces reload of bnetd.conf
 %clan
 /clan <clanname> - sets the clanname to be displayed in your profile
 %ping p latency
 /ping, /p, /latency - returns your latency to the server
-%reload_accounts_all
-/reload_accounts_all - reload account data for all users currently not logged in
- WARNING: STILL EXPERIMANTAL
-%reload_accounts_new
-/reload_accounts_new - load accounts added manually to DB or userfiles folder
 %command_groups cg
 /command_groups, /cg <command) <user> [<groups>] - adds, deletes, or lists command groups for user
     Syntax:
