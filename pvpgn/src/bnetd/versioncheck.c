@@ -421,7 +421,8 @@ extern int versioncheck_load(char const * filename)
 	return -1;
     }
 
-    for (line=1; (buff = file_get_line(fp)); line++)
+    line = 1;
+    for (; (buff = file_get_line(fp)); line++)
     {
 	for (pos=0; buff[pos]=='\t' || buff[pos]==' '; pos++);
 	if (buff[pos]=='\0' || buff[pos]=='#')
@@ -442,52 +443,60 @@ extern int versioncheck_load(char const * filename)
 
 	if (!(eqn = next_token(buff,&pos)))
 	{
-	    eventlog(eventlog_level_error,"versioncheck_load","missing eqn on line %u of file \"%s\"",line,filename);
+	    eventlog(eventlog_level_error,"versioncheck_load","missing eqn near line %u of file \"%s\"",line,filename);
 	    free(buff);
 	    continue;
 	}
+	line++;
 	if (!(mpqfile = next_token(buff,&pos)))
 	{
-	    eventlog(eventlog_level_error,"versioncheck_load","missing mpqfile on line %u of file \"%s\"",line,filename);
+	    eventlog(eventlog_level_error,"versioncheck_load","missing mpqfile near line %u of file \"%s\"",line,filename);
 	    free(buff);
 	    continue;
 	}
+	line++;
 	if (!(archtag = next_token(buff,&pos)))
 	{
-	    eventlog(eventlog_level_error,"versioncheck_load","missing archtag on line %u of file \"%s\"",line,filename);
+	    eventlog(eventlog_level_error,"versioncheck_load","missing archtag near line %u of file \"%s\"",line,filename);
 	    free(buff);
 	    continue;
 	}
+	line++;
 	if (!(clienttag = next_token(buff,&pos)))
 	{
-	    eventlog(eventlog_level_error,"versioncheck_load","missing clienttag on line %u of file \"%s\"",line,filename);
+	    eventlog(eventlog_level_error,"versioncheck_load","missing clienttag near line %u of file \"%s\"",line,filename);
 	    free(buff);
 	    continue;
 	}
+	line++;
 	if (!(exeinfo = next_token(buff,&pos)))
 	{
-	    eventlog(eventlog_level_error,"versioncheck_load","missing exeinfo on line %u of file \"%s\"",line,filename);
+	    eventlog(eventlog_level_error,"versioncheck_load","missing exeinfo near line %u of file \"%s\"",line,filename);
 	    free(buff);
 	    continue;
 	}
+	line++;
 	if (!(versionid = next_token(buff,&pos)))
 	{
-	    eventlog(eventlog_level_error,"versioncheck_load","missing versionid on line %u of file \"%s\"",line,filename);
+	    eventlog(eventlog_level_error,"versioncheck_load","missing versionid near line %u of file \"%s\"",line,filename);
 	    free(buff);
 	    continue;
 	}
+	line++;
 	if (!(gameversion = next_token(buff,&pos)))
 	{
-	    eventlog(eventlog_level_error,"versioncheck_load","missing gameversion on line %u of file \"%s\"",line,filename);
+	    eventlog(eventlog_level_error,"versioncheck_load","missing gameversion near line %u of file \"%s\"",line,filename);
 	    free(buff);
 	    continue;
 	}
+	line++;
 	if (!(checksum = next_token(buff,&pos)))
 	{
-	    eventlog(eventlog_level_error,"versioncheck_load","missing checksum on line %u of file \"%s\"",line,filename);
+	    eventlog(eventlog_level_error,"versioncheck_load","missing checksum near line %u of file \"%s\"",line,filename);
 	    free(buff);
 	    continue;
 	}
+	line++;
 	if (!(versiontag = next_token(buff,&pos)))
 	{
 	    versiontag = NULL;
