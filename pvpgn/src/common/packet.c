@@ -1288,7 +1288,10 @@ extern int packet_append_string(t_packet * packet, char const * str)
     if (size>=MAX_PACKET_SIZE)
         return -1;
     
-    addlen = (MAX_PACKET_SIZE-(unsigned int)size>len)?len:MAX_PACKET_SIZE-size;
+    if (MAX_PACKET_SIZE-(unsigned int)size>len)
+	    addlen = len;
+    else
+	    addlen = MAX_PACKET_SIZE-size;
     if (addlen<1)
 	return -1;
     
@@ -1322,7 +1325,10 @@ extern int packet_append_ntstring(t_packet * packet, char const * str)
     if (size>=MAX_PACKET_SIZE)
         return -1;
     
-    addlen = (MAX_PACKET_SIZE-(unsigned int)size>len)?len:MAX_PACKET_SIZE-size;
+    if (MAX_PACKET_SIZE-(unsigned int)size>len)
+	    addlen = len;
+    else
+	    addlen = MAX_PACKET_SIZE-size;
     if (addlen<1)
 	return -1;
     
@@ -1353,7 +1359,10 @@ extern int packet_append_data(t_packet * packet, void const * data, unsigned int
     if (size>=MAX_PACKET_SIZE)
         return -1;
     
-    addlen = (MAX_PACKET_SIZE-(unsigned int)size>len)?len:MAX_PACKET_SIZE-size;
+    if (MAX_PACKET_SIZE-(unsigned int)size>len)
+	    addlen = len;
+    else
+	    addlen = MAX_PACKET_SIZE-size;
     if (addlen<1)
 	return -1;
     
