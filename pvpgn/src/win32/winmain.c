@@ -16,6 +16,8 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
+#ifdef WIN32_GUI
+
 #pragma warning(disable : 4047)
 
 #include "common/setup_before.h"
@@ -960,3 +962,5 @@ BOOL CALLBACK KickDlgProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam)
     }
     return TRUE;
 }
+
+#endif

@@ -15,6 +15,9 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
+ 
+#ifdef WIN32_GUI 
+ 
 #include <windows.h>
 #include <windowsx.h>
 #include <richedit.h>
@@ -346,3 +349,5 @@ static void d2dbs(void * dummy)
     eventlog(eventlog_level_warn,__FUNCTION__,"Server Stopped");
     d2dbs_running = FALSE;
 }
+
+#endif
