@@ -1638,10 +1638,14 @@ extern void conn_set_latency(t_connection * c, unsigned int ms)
 	return;
     }
 
-    c->protocol.latency = ms;
 
-    if (c->protocol.chat.channel)
-	channel_update_latency(c);
+    if (c->protocol.latency != ms)
+    {
+        c->protocol.latency = ms;
+    
+        if (c->protocol.chat.channel)
+	    channel_update_latency(c);
+    }
 }
 
 
