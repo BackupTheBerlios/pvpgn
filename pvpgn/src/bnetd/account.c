@@ -1606,9 +1606,13 @@ extern t_account * accountlist_find_account(char const * username)
     if (username[0]=='#')
         if (str_to_uint(&username[1],&userid)<0)
             userid = 0;
-    if (!(prefs_get_savebyname()))
+
+#ifndef WITH_MYSQL
+    else if (!(prefs_get_savebyname()))
 	if (str_to_uint(username,&userid)<0)
 	    userid = 0;
+#endif
+
 
     /* all accounts in list must be hashed already, no need to check */
     
@@ -1624,7 +1628,7 @@ extern t_account * accountlist_find_account(char const * username)
 	    }
 	}
     }
-    else
+    if ((!(userid)) || (userid && ((username[0]=='#') || (isnum(username[0])))))
     {
 	unsigned int namehash;
 	char const * tname;
