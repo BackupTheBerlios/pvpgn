@@ -225,9 +225,9 @@ extern char const * eventlog_get_levelname_str(t_eventlog_level level)
   case eventlog_level_debug:
     return "debug";
   case eventlog_level_info:
-    return "info";
+    return "info ";
   case eventlog_level_warn:
-    return "warn";
+    return "warn ";
   case eventlog_level_error:
     return "error";
   case eventlog_level_fatal:
@@ -307,7 +307,7 @@ extern void eventlog(t_eventlog_level level, char const * module, char const * f
 #endif
 
     if (eventlog_debugmode) {
-    	printf("%s %s: ",time_string,module);
+    	printf("%s [%s] %s: ",time_string,eventlog_get_levelname_str(level),module);
     	va_start(args,fmt);
 #ifdef HAVE_VPRINTF
     	vprintf(fmt,args);
