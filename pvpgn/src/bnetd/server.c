@@ -1420,11 +1420,10 @@ static void _server_mainloop(t_addrlist *laddrs)
 	case -1: /* error */
 	    if (
 #ifdef PSOCK_EINTR
-		/* FIXME: psock_select() uses psock_errno() instead of errno */
-		errno!=PSOCK_EINTR &&
+		psock_errno()!=PSOCK_EINTR &&
 #endif
 		1)
-	        eventlog(eventlog_level_error,__FUNCTION__,"fdwatch() failed (errno: %s)",pstrerror(errno));
+	        eventlog(eventlog_level_error,__FUNCTION__,"fdwatch() failed (errno: %s)",pstrerror(psock_errno()));
 	case 0: /* timeout... no sockets need checking */
 	    continue;
 	}
