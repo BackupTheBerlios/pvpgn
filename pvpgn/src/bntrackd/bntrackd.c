@@ -296,7 +296,7 @@ static int server_process(int sockfd)
 	
 	/* time to dump our list to disk and call the process command */
 	/* (I'm making the assumption that this won't take very long.) */
-	if (last+prefs.update<time(NULL))
+	if (last+(signed)prefs.update<time(NULL))
 	{
 	    last = time(NULL);
 	    
@@ -310,7 +310,7 @@ static int server_process(int sockfd)
 	    {
 		server = elem_get_data(curr);
 		
-		if (server->updated+prefs.expire<last)
+		if (server->updated+(signed)prefs.expire<last)
 		{
 		    list_remove_elem(serverlist_head,curr);
 		    free(server);
