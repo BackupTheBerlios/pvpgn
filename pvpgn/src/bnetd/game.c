@@ -1942,7 +1942,7 @@ extern int game_set_reported_results(t_game * game, t_account * account, t_game_
 	  default: /* result is invalid */
 	    if (i!=j)
 	    {
-		eventlog(eventlog_level_error,__FUNCTION__,"ignoring bad reported result %u for player \"%s\"",(unsigned int)result,j,(tname=account_get_name(game->players[j])));
+		eventlog(eventlog_level_error,__FUNCTION__,"ignoring bad reported result %u for player \"%s\"",(unsigned int)result,(tname=account_get_name(game->players[j])));
 		account_unget_name(tname);
 		results[i]=game_result_none;
 	    } else {
