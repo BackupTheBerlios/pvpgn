@@ -47,9 +47,9 @@ extern void * pmmap(void *addr, unsigned len, int prot, int flags, int fd, unsig
     /* under win32 we only support readonly mappings, the only ones used in pvpgn now :) */
     if (prot != PROT_READ) return NULL;
     hFile = (HANDLE) _get_osfhandle(fd);
-    if (hFile == (HANDLE) - 1) return -1;
+    if (hFile == (HANDLE) - 1) return MAP_FAILED;
     hMapping = CreateFileMapping(hFile, NULL, PAGE_READONLY, 0, 0, NULL);
-    if (!hMapping) return -1;
+    if (!hMapping) return MAP_FAILED;
     mem = MapViewOfFile(hMapping, FILE_MAP_READ, 0, 0 ,0);
 #else /* systems without mmap or win32 */
     if ((mem = malloc(len)) == NULL) return MAP_FAILED;
