@@ -1070,6 +1070,8 @@ extern int handle_w3route_packet(t_connection * c, t_packet const * const packet
 	   t_timer_data data;
 	   t_anongameinfo *inf = anongame_get_info(a);
 	   t_connection *ac;
+
+	   data.p = NULL;
 	   	   
 	   eventlog(eventlog_level_trace,"handle_w3route_packet","[%d] got W3ROUTE_GAMERESULT: %08x",conn_get_socket(c), result);
 	   

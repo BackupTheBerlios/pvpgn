@@ -723,6 +723,7 @@ extern int account_remove_verbose_accounting(t_account * account)
       account_set_ll_clientver(account,NULL);
       account_set_ll_cdkey(account,NULL);
     }
+    return 0;
 }
 
 #ifdef WITH_MYSQL
