@@ -646,7 +646,7 @@ static int game_match_type(t_game_type type,const char *gametypes)
     gametypes = p = xstrdup(gametypes);
     res = 0;
     do {
-	q = strchr(gametypes,',');
+	q = strchr(p,',');
 	if (q) *q = '\0';
 	if (!strcasecmp(p,"topvbot")) {
 	    if (type == game_type_topvbot) { res = 1; break; }
