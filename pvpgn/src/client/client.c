@@ -46,6 +46,9 @@
 #include "compat/psock.h"
 #include "common/packet.h"
 #include "common/network.h"
+#ifdef WIN32
+# include <conio.h> /* for kbhit() and getch() */
+#endif
 #include "client.h"
 #include "common/setup_after.h"
 
@@ -179,7 +182,13 @@ extern int client_get_comm(char const * prompt, char * text, unsigned int maxlen
 	}
 	
 	fflush(stdout);
+#ifndef WIN32
 	addlen = read(fileno(stdin),&temp,1);
+#else
+	temp = getch();
+	addlen=1;
+#endif
+
 	if (addlen<1)
 	    return addlen;
 	

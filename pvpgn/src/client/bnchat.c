@@ -116,6 +116,9 @@
 #include "client.h"
 #include "udptest.h"
 #include "client_connect.h"
+#ifdef WIN32
+# include <conio.h> /* for kbhit() and getch() */
+#endif
 #include "common/setup_after.h"
 
 
@@ -1275,10 +1278,19 @@ extern int main(int argc, char * argv[])
 	unsigned int   i;
 	int            highest_fd;
 	t_psock_fd_set rfds;
+#ifdef WIN32
+    static struct timeval tv;
+
+	tv.tv_sec  = 50 / 1000;
+	tv.tv_usec = 50 % 1000;
+#endif
 	
 	PSOCK_FD_ZERO(&rfds);
+
+#ifndef WIN32
 	highest_fd = fd_stdin;
 	if (sd>highest_fd)
+#endif
 	    highest_fd = sd;
 	
 	currsize = 0;
@@ -1289,6 +1301,8 @@ extern int main(int argc, char * argv[])
 	
 	for (;;)
 	{
+
+
 	    if (handle_winch)
 	    {
 		client_get_termsize(fd_stdin,&screen_width,&screen_height);
@@ -1303,32 +1317,42 @@ extern int main(int argc, char * argv[])
 		fflush(stdout);
 		munged = 0;
 	    }
-	    
+	    	PSOCK_FD_ZERO(&rfds);
+#ifndef WIN32
 	    PSOCK_FD_SET(fd_stdin,&rfds);
+#endif
 	    PSOCK_FD_SET(sd,&rfds);
+		errno = 0;
 	    
+#ifndef WIN32
 	    if (psock_select(highest_fd+1,&rfds,NULL,NULL,NULL)<0)
+#else
+	    if (psock_select(highest_fd+1,&rfds,NULL,NULL,&tv)<0)
+#endif
 	    {
-		if (errno!=PSOCK_EINTR)
-		{
-		    if (!munged)
-		    {
-			printf("\r");
-			for (i=0; i<strlen(mode_get_prompt(mode)); i++)
-			    printf(" ");
-			for (i=0; i<strlen(text) && i<screen_width-strlen(mode_get_prompt(mode)); i++)
-			    printf(" ");
-			printf("\r");
-		    }
-		    printf("Select failed (select: %s)\n",strerror(errno));
-		}
-		continue;
+			if (psock_errno()!=PSOCK_EINTR)
+			{
+				if (!munged)
+				{
+				printf("\r");
+				for (i=0; i<strlen(mode_get_prompt(mode)); i++)
+					printf(" ");
+				for (i=0; i<strlen(text) && i<screen_width-strlen(mode_get_prompt(mode)); i++)
+					printf(" ");
+				printf("\r");
+				}
+				printf("Select failed (select: %s)\n",strerror(psock_errno()));
+			}
+			continue;
 	    }
-	    
+#ifndef WIN32
 	    if (PSOCK_FD_ISSET(fd_stdin,&rfds)) /* got keyboard data */
+#else
+		if (kbhit())
+#endif
 	    {
 		munged = 0;
-		
+
 		switch (client_get_comm(mode_get_prompt(mode),text,MAX_MESSAGE_LEN,&commpos,1,0,screen_width))
 		{
 		case -1: /* cancel */
@@ -1353,38 +1377,7 @@ extern int main(int argc, char * argv[])
 		case 1:
 		    switch (mode)
 		    {
-/*
-9: recv class=normal[0x0001] type=CLIENT_STARTGAME4[0x1cff] length=76
-0000:   FF 1C 4C 00 00 00 00 00   00 00 00 00 06 00 03 00    ..L.............
-0010:   00 00 00 00 00 00 00 00   67 72 65 65 64 37 35 30    ........greed750
-0020:   30 00 00 2C 33 34 2C 31   32 2C 2C 31 2C 36 2C 33    0..,34,12,,1,6,3
-0030:   2C 33 65 33 37 61 38 34   63 2C 2C 52 6F 73 73 0D    ,3e37a84c,,Ross.
-0040:   43 68 61 6C 6C 65 6E 67   65 72 0D 00                Challenger..
-9: send class=normal[0x0001] type=SERVER_STARTGAME4_ACK[0x1cff] length=8
-0000:   FF 1C 08 00 00 00 00 00                              ........        
-9: recv class=normal[0x0001] type=CLIENT_LEAVECHANNEL[0x10ff] length=4
-0000:   FF 10 04 00                                          ....            
-9: send class=normal[0x0001] type=SERVER_MESSAGE[0x0fff] length=34
-0000:   FF 0F 22 00 03 00 00 00   00 00 00 00 86 00 00 00    ..".............
-0010:   00 00 00 00 00 00 00 00   00 00 00 00 52 6F 73 73    ............Ross
-0020:   00 00                                                ..
-9: recv class=normal[0x0001] type=CLIENT_CLOSEGAME[0x02ff] length=4
-0000:   FF 02 04 00                                          ....
-9: recv class=normal[0x0001] type=CLIENT_PLAYERINFOREQ[0x0aff] length=10
-0000:   FF 0A 0A 00 52 6F 73 73   00 00                      ....Ross..
-9: send class=normal[0x0001] type=SERVER_PLAYERINFOREPLY[0x0aff] length=30
-0000:   FF 0A 1E 00 52 6F 73 73   00 50 58 45 53 20 30 20    ....Ross.PXES 0 
-0010:   30 20 31 30 20 30 20 30   00 52 6F 73 73 00          0 10 0 0.Ross.
-9: recv class=normal[0x0001] type=CLIENT_PROGIDENT2[0x0bff] length=8
-0000:   FF 0B 08 00 50 58 45 53                              ....PXES
-9: send class=normal[0x0001] type=SERVER_CHANNELLIST[0x0bff] length=35
-0000:   FF 0B 23 00 42 6E 65 74   64 20 53 75 70 70 6F 72    ..#.Bnetd Suppor
-0010:   74 00 42 72 6F 6F 64 20   57 61 72 20 55 53 41 2D    t.Brood War USA-
-0020:   31 00 00                                             1..
-9: recv class=normal[0x0001] type=CLIENT_JOINCHANNEL[0x0cff] length=24
-0000:   FF 0C 18 00 02 00 00 00   42 72 6F 6F 64 20 57 61    ........Brood Wa
-0010:   72 20 55 53 41 2D 31 00                              r USA-1.
-*/
+
 		    case mode_gamename:
 			if (text[0]=='\0')
 			{
