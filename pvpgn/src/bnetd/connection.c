@@ -4103,7 +4103,7 @@ extern int conn_update_w3_playerinfo(t_connection * c)
 	return -1;
     }
 
-    strcpy(revtag, conn_get_fake_clienttag(c),5); revtag[4] = '\0';
+    strncpy(revtag, conn_get_fake_clienttag(c),5); revtag[4] = '\0';
     strreverse(revtag);
 
     clienttag = conn_get_clienttag(c);
