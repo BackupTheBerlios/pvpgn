@@ -190,10 +190,7 @@ static int handle_irc_line(t_connection * conn, char const * ircline)
 	tmp[254]='\0';
     }    
 
-    if (!(line = xstrdup(ircline))) {
-	eventlog(eventlog_level_error,"handle_irc_line","could not allocate memory for line");
-	return -1;
-    }
+    line = xstrdup(ircline);
 
     /* split the message */
     if (line[0] == ':') {
@@ -282,11 +279,6 @@ static int handle_irc_line(t_connection * conn, char const * ircline)
 		else if ((strstart(command,"LAG")!=0)&&(strstart(command,"JOIN")!=0)){
 			linelen = strlen (ircline);
 			bnet_command = xmalloc(linelen + 2);
-			if (bnet_command == NULL) 
-			{
-				eventlog(eventlog_level_error, __FUNCTION__, "insufficient memory available");
-				return -1;
-			}
 			bnet_command[0]='/';
 			strcpy(bnet_command + 1, ircline);
 			handle_command(conn,bnet_command); 
@@ -854,9 +846,7 @@ static int _handle_join_command(t_connection * conn, int numparams, char ** para
 	   	 	t_channel * old_channel = conn_get_channel(conn);
 
 			if (old_channel)
-			{
 			  old_channel_name = xstrdup(irc_convert_channel(old_channel));
-			}
 			
 			if ((!(ircname)) || (conn_set_channel(conn,ircname)<0))
 			{

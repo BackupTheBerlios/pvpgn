@@ -278,13 +278,11 @@ static int on_d2cs_charloginreq(t_connection * c, t_packet const * packet)
 	} else if (!(realmname=conn_get_realmname(client))) {
 		eventlog(eventlog_level_error,"on_d2cs_charloginreq","got NULL realm name");
 		reply = BNETD_D2CS_CHARLOGINREPLY_FAILED;
-	} else if (!(temp=xmalloc(strlen(clienttag)+strlen(realmname)+1+strlen(charname)+1+
-			strlen(portrait)+1))) {
-		eventlog(eventlog_level_error,"on_d2cs_charloginreq","error allocate temp");
-		reply = BNETD_D2CS_CHARLOGINREPLY_FAILED;
 	} else {
 		char revtag[8];
-		
+
+		temp=xmalloc(strlen(clienttag)+strlen(realmname)+1+strlen(charname)+1+
+			strlen(portrait)+1);
 		reply = BNETD_D2CS_CHARLOGINREPLY_SUCCEED;
 		strcpy(revtag,clienttag);
 		strreverse(revtag);
