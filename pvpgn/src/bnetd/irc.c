@@ -271,7 +271,7 @@ extern int irc_authenticate(t_connection * conn, char const * passhash)
     t_hash h2;
     t_account * a;
     char const * temphash;
-    char const * tempname;
+    char const * username;
 
     if (!conn) {
 	eventlog(eventlog_level_error,"irc_authenticate","got NULL connection");
@@ -281,12 +281,13 @@ extern int irc_authenticate(t_connection * conn, char const * passhash)
 	eventlog(eventlog_level_error,"irc_authenticate","got NULL passhash");
 	return 0;
     }
-    if (!conn_get_loggeduser(conn)) {
+    username = conn_get_loggeduser(conn);
+    if (!username) {
 	/* redundant sanity check */
 	eventlog(eventlog_level_error,"irc_authenticate","got NULL conn->protocol.loggeduser");
 	return 0;
-    }	
-    a = accountlist_find_account(conn_get_loggeduser(conn));
+    }
+    a = accountlist_find_account(username);
     if (!a) {
     	irc_send_cmd(conn,"NOTICE",":Authentication failed."); /* user does not exist */
 	return 0;
@@ -307,9 +308,7 @@ extern int irc_authenticate(t_connection * conn, char const * passhash)
         hash_set_str(&h2,temphash);
         account_unget_pass(temphash);
         if (hash_eq(h1,h2)) {
-            conn_set_account(conn,a);
-            conn_set_loggeduser(conn,(tempname = conn_get_username(conn)));
-            conn_unget_username(conn,tempname);
+            conn_login(conn,a,username);
             conn_set_state(conn,conn_state_loggedin);
 	    /* FIXME: set clienttag to "ircd" or something (and make an icon) */
             conn_set_clienttag(conn,CLIENTTAG_BNCHATBOT_UINT); /* CHAT hope here is ok */

@@ -326,22 +326,13 @@ extern int handle_bot_packet(t_connection * c, t_packet const * const packet)
 			conn_push_outqueue(c,rpacket);
 			packet_del_ref(rpacket);
 		    }
-		    if (!(loggeduser = strdup(loggeduser)))
-		    {
-			eventlog(eventlog_level_error,__FUNCTION__,"not enough memory to save loggeduser");			
-		    }
-		    else
-		    {
-		        conn_set_account(c,account);
-			if (strcmp(loggeduser,account_get_name(account))) conn_set_loggeduser(c,loggeduser);
-		    
-		        message_send_text(c,message_type_uniqueid,c,loggeduser);
-		    		    
-		        if (conn_set_channel(c,CHANNEL_NAME_CHAT)<0)
-			    conn_set_channel(c,CHANNEL_NAME_BANNED); /* should not fail */
 
-			free((void *)loggeduser);
-		    }
+		    conn_login(c,account,loggeduser);
+
+		    message_send_text(c,message_type_uniqueid,c,loggeduser);
+		    		    
+		    if (conn_set_channel(c,CHANNEL_NAME_CHAT)<0)
+			conn_set_channel(c,CHANNEL_NAME_BANNED); /* should not fail */
 	    }
 	    break;
 	    

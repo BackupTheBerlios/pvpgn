@@ -1748,9 +1748,7 @@ static int _client_loginreq1(t_connection * c, t_packet const * const packet)
 		       
 		       if (hash_eq(trypasshash2,oldpasshash2)==1)
 			 {
-			       conn_set_account(c,account);
-			       /* cache logged username only on bnet and if case differs */
-			       if (strcmp(username, account_get_name(account))) conn_set_loggeduser(c,username);
+			       conn_login(c,account,username);
 			       eventlog(eventlog_level_info,__FUNCTION__,"[%d] \"%s\" logged in (correct password)",conn_get_socket(c),username);
 			       bn_int_set(&rpacket->u.server_loginreply1.message,SERVER_LOGINREPLY1_MESSAGE_SUCCESS);
 #ifdef WIN32_GUI
@@ -1767,9 +1765,7 @@ static int _client_loginreq1(t_connection * c, t_packet const * const packet)
 	       }
 	     else
 	       {
-		  conn_set_account(c,account);
-		  /* cache logged username only on bnet and if case differs */
-		  if (strcmp(username, account_get_name(account))) conn_set_loggeduser(c,username);
+		  conn_login(c,account,username);
 		  eventlog(eventlog_level_info,__FUNCTION__,"[%d] \"%s\" logged in (no password)",conn_get_socket(c), username);
 		  bn_int_set(&rpacket->u.server_loginreply1.message,SERVER_LOGINREPLY1_MESSAGE_SUCCESS);
 #ifdef WIN32_GUI
@@ -1899,9 +1895,7 @@ static int _client_loginreq2(t_connection * c, t_packet const * const packet)
 		       
 		       if (hash_eq(trypasshash2,oldpasshash2)==1)
 			 {
-			       conn_set_account(c,account);
-			       /* cache logged username only on bnet and if case differs */
-			       if (strcmp(username, account_get_name(account))) conn_set_loggeduser(c,username);
+			       conn_login(c,account,username);
 			       eventlog(eventlog_level_info,__FUNCTION__,"[%d] \"%s\" logged in (correct password)",conn_get_socket(c), username);
 			       bn_int_set(&rpacket->u.server_loginreply2.message,SERVER_LOGINREPLY2_MESSAGE_SUCCESS);
 			       success = 1;
@@ -1916,9 +1910,7 @@ static int _client_loginreq2(t_connection * c, t_packet const * const packet)
 	       }
 	     else
 	       {
-		  conn_set_account(c,account);
-		  /* cache logged username only on bnet and if case differs */
-		  if (strcmp(username, account_get_name(account))) conn_set_loggeduser(c,username);
+		  conn_login(c,account,username);
 		  eventlog(eventlog_level_info,__FUNCTION__,"[%d] \"%s\" logged in (no password)",conn_get_socket(c), username);
 		  bn_int_set(&rpacket->u.server_loginreply2.message,SERVER_LOGINREPLY2_MESSAGE_SUCCESS);
 		  success = 1;
@@ -2098,19 +2090,12 @@ static int _client_logonproofreq(t_connection * c, t_packet const * const packet
 	     
 	     hash_set_str(&serverhash, account_get_pass(account));
 	     if(hash_eq(clienthash,serverhash)) {
-	        if (!(username = strdup(username))) {
-		    eventlog(eventlog_level_error, __FUNCTION__, "not enough memory to save username");
-		    return -1;
-		}
-		conn_set_account(c,account);
-		/* cache logged username only on bnet and if case differs */
-		if (strcmp(username, account_get_name(account))) conn_set_loggeduser(c,username);
+		conn_login(c,account,username);
 		eventlog(eventlog_level_info,__FUNCTION__,"[%d] (W3) \"%s\" logged in (right password)",conn_get_socket(c),username);
 		if((conn_get_versionid(c) >= 0x0000000D) && (account_get_email(account) == NULL))
 			bn_int_set(&rpacket->u.server_logonproofreply.response,SERVER_LOGONPROOFREPLY_RESPONSE_EMAIL);
 		else
 			bn_int_set(&rpacket->u.server_logonproofreply.response,SERVER_LOGONPROOFREPLY_RESPONSE_OK);
-		free((void*)username);
 		// by amadeo updates the userlist
 #ifdef WIN32_GUI
 		guiOnUpdateUserList();

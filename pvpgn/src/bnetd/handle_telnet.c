@@ -334,9 +334,9 @@ extern int handle_telnet_packet(t_connection * c, t_packet const * const packet)
 		    }
 		    message_send_text(c,message_type_uniqueid,c,(tname = account_get_name(account)));
 		    account_unget_name(tname);
-		    
-		    conn_set_account(c,account);
-		    
+
+		    conn_login(c,account,loggeduser);
+
 		    if (conn_set_channel(c,CHANNEL_NAME_CHAT)<0)
 			conn_set_channel(c,CHANNEL_NAME_BANNED); /* should not fail */
 	    }

@@ -177,7 +177,7 @@ typedef struct connection
 	    } irc; /* irc chat specific data */
 	} chat; /* chat and messages specific data */
 	t_game *		game;
-	char const *		loggeduser;   /* username as logged in or given (not taken from account) */
+	const char *		loggeduser;   /* username as logged in or given (not taken from account) */
 	struct connection *	bound; /* matching Diablo II auth connection */
 	t_elist			timers; /* cached list of timers for cleaning */
 	/* FIXME: this d2/w3 specific data could be unified into an union */
@@ -324,7 +324,7 @@ extern t_packet * conn_peek_inqueue(t_connection * c);
 extern t_packet * conn_pull_inqueue(t_connection * c);
 extern int conn_check_ignoring(t_connection const * c, char const * me) ;
 extern t_account * conn_get_account(t_connection const * c) ;
-extern void conn_set_account(t_connection * c, t_account * account);
+extern void conn_set_login(t_connection * c, t_account * account, const char *loggeduser);
 extern int conn_get_socket(t_connection const * c) ;
 extern int conn_get_game_socket(t_connection const * c) ;
 extern int conn_set_game_socket(t_connection * c, int usock);

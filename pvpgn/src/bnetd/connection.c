@@ -46,6 +46,9 @@
 #  include <strings.h>
 # endif
 #endif
+#ifdef HAVE_ASSERT_H
+# include <assert.h>
+#endif
 #include "compat/strchr.h"
 #include "compat/strrchr.h"
 #include "compat/strdup.h"
@@ -418,7 +421,7 @@ extern t_connection * conn_create(int tsock, int usock, unsigned int real_local_
     temp->protocol.queues.outsizep               = 0;
     temp->protocol.queues.inqueue                = NULL;
     temp->protocol.queues.insize                 = 0;
-    temp->protocol.loggeduser                    = NULL;
+    temp->protocol.loggeduser			 = NULL;
     temp->protocol.d2.realmname                  = NULL;
     temp->protocol.d2.character                  = NULL;
     temp->protocol.d2.realminfo                  = NULL;
@@ -669,17 +672,12 @@ extern void conn_destroy(t_connection * c, t_elem ** elem, int conn_or_dead_list
 
     if (c->protocol.account)
     {
-	char const * tname;
-
-	tname = conn_get_loggeduser(c);;
-	eventlog(eventlog_level_info,"conn_destroy","[%d] \"%s\" logged out",c->socket.tcp_sock,tname);
+	eventlog(eventlog_level_info,"conn_destroy","[%d] \"%s\" logged out",c->socket.tcp_sock,conn_get_loggeduser(c));
 	//amadeo
 #ifdef WIN32_GUI
 						guiOnUpdateUserList();
 #endif
-	if (c->protocol.loggeduser)
-	    free((void *)c->protocol.loggeduser); /* avoid warning */
-
+	if (c->protocol.loggeduser) free((void*)c->protocol.loggeduser);
 	if (account_get_conn(c->protocol.account)==c)  /* make sure you don't set this when allready on new conn (relogin with same account) */
 	    account_set_conn(c->protocol.account,NULL);
 	c->protocol.account = NULL; /* the account code will free the memory later */
@@ -1414,7 +1412,7 @@ extern void conn_set_tzbias(t_connection * c, int tzbias)
 }
 
 
-extern void conn_set_account(t_connection * c, t_account * account)
+static void conn_set_account(t_connection * c, t_account * account)
 {
     t_connection * other;
     unsigned int   now;
@@ -1480,12 +1478,6 @@ extern void conn_set_account(t_connection * c, t_account * account)
 	c->protocol.client.cdkey = NULL;
     }
     
-    if (c->protocol.loggeduser)
-    {
-	free((void *)c->protocol.loggeduser); /* avoid warning */
-	c->protocol.loggeduser = NULL;
-    }
-    
     clanmember_set_online(c);
 
     totalcount++;
@@ -1493,6 +1485,18 @@ extern void conn_set_account(t_connection * c, t_account * account)
     watchlist_notify_event(c->protocol.account,NULL,c->protocol.client.clienttag,watch_event_login);
     
     return;
+}
+
+
+extern void conn_login(t_connection *c, t_account *a, const char *loggeduser)
+{
+    assert(c != NULL);
+    assert(a != NULL);
+    assert(loggeduser != NULL);
+
+    conn_set_account(c,a);
+    if (strcmp(conn_get_loggeduser(c),loggeduser))
+	conn_set_loggeduser(c,loggeduser);
 }
 
 
@@ -1512,40 +1516,26 @@ extern t_account * conn_get_account(t_connection const * c)
 
 extern int conn_set_loggeduser(t_connection * c, char const * username)
 {
-    char const * temp;
-    
-    if (!c)
-    {
-	eventlog(eventlog_level_error, __FUNCTION__, "got NULL connection");
-	return -1;
-    }
-    if (!username)
-    {
-	eventlog(eventlog_level_error, __FUNCTION__, "got NULL username");
-	return -1;
-    }
-    
-    if (!(temp = strdup(username)))
-    {
+    const char * temp;
+
+    assert(c != NULL);
+    assert(username != NULL);
+
+    if (!(temp = strdup(username))) {
 	eventlog(eventlog_level_error, __FUNCTION__,"unable to duplicate username");
 	return -1;
     }
-    if (c->protocol.loggeduser)
-	free((void *)c->protocol.loggeduser); /* avoid warning */
-    
+    if (c->protocol.loggeduser) free((void*)c->protocol.loggeduser);
+
     c->protocol.loggeduser = temp;
-    
+
     return 0;
 }
 
 
 extern char const * conn_get_loggeduser(t_connection const * c)
 {
-    if (!c)
-    {
-	eventlog(eventlog_level_error, __FUNCTION__, "got NULL connection");
-	return NULL;
-    }
+    assert(c != NULL);
 
     if (!c->protocol.loggeduser && c->protocol.account)
 	return account_get_name(c->protocol.account);
