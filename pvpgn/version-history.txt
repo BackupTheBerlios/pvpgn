@@ -23,6 +23,10 @@ PvPGN Version History:
   -- allow another try on a wrong /msg nickserv identify <pass>
   -- added passfail count to IRC connections to prevent bruteforce logins
 
+[D2]
+  -- added the option to supply norm, night, hell to /games d2xp command
+  for finding a game of a specific difficulty.
+
 [WAR3]: 
   -- droped <1.13 support, added 1.15 support (CG,PG,AT, clan profile view)
 

@@ -2786,27 +2786,46 @@ static int _handle_news_command(t_connection * c, char const *text)
 static int _handle_games_command(t_connection * c, char const *text)
 {
   unsigned int   i;
+  unsigned int   j;
   t_elem const * curr;
   t_game const * game;
   char const *   tag;
+  char           dest[5];
+  t_game_difficulty   difficulty;
   
   for (i=0; text[i]!=' ' && text[i]!='\0'; i++); /* skip command */
   for (; text[i]==' '; i++);
+  for (j=0; text[i]!=' ' && text[i]!='\0'; i++) /* get dest */
+    if (j<sizeof(dest)-1) dest[j++] = text[i];
+  dest[j] = '\0';
+  for (; text[i]==' '; i++);
+
+  if(strcmp(&text[i],"norm")==0)
+    difficulty = game_difficulty_normal;
+  else if(strcmp(&text[i],"night")==0)
+    difficulty = game_difficulty_nightmare;
+  else if(strcmp(&text[i],"hell")==0)
+    difficulty = game_difficulty_hell;
+  else
+    difficulty = game_difficulty_none;
   
-  if (text[i]=='\0')
+  if (dest[0]=='\0')
     {
       tag = clienttag_uint_to_str(conn_get_clienttag(c));
       message_send_text(c,message_type_info,c,"Currently accessable games:");
     }
-  else if (strcmp(&text[i],"all")==0)
+  else if (strcmp(&dest[0],"all")==0)
     {
       tag = NULL;
       message_send_text(c,message_type_info,c,"All current games:");
     }
   else
     {
-      tag = &text[i];
-      sprintf(msgtemp,"Current games of type %s",tag);
+      tag = &dest[0];
+      if(difficulty==game_difficulty_none)
+        sprintf(msgtemp,"Current games of type %s",tag);
+      else
+        sprintf(msgtemp,"Current games of type %s %s",tag,&text[i]);
       message_send_text(c,message_type_info,c,msgtemp);
     }
   
@@ -2819,7 +2838,8 @@ static int _handle_games_command(t_connection * c, char const *text)
     {
       game = elem_get_data(curr);
       if ((!tag || !prefs_get_hide_pass_games() || game_get_flag(game) != game_flag_private) &&
-	  (!tag || strcasecmp(game_get_clienttag(game),tag)==0))
+	  (!tag || strcasecmp(game_get_clienttag(game),tag)==0) && 
+         (difficulty==game_difficulty_none || game_get_difficulty(game)==difficulty))
 	{
 	  if (prefs_get_hide_addr() && !(account_get_command_groups(conn_get_account(c)) & command_get_group("/admin-addr"))) /* default to false */
 	    sprintf(msgtemp," %-16.16s %1.1s %-8.8s %-21.21s %5u",
