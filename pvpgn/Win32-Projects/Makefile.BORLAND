@@ -29,7 +29,7 @@
 #  -> ofcourse set path to your path
 #  -> this was detected in 5.5
 
-srcdir      = .
+srcdir      = ..\src
 
 # prefix is the directory where the bnetd binary
 # distribution will be installed
@@ -114,6 +114,18 @@ RC      = brc32
 #However the data alignment has to be set to "quad word", thus the -a8 in SQLFLAGS
 #This might not work flawless, MYSQL suggests to use their static libs from http://www.mysql.com/downloads/os-win32.html
 
+!ifdef WITH_GUI
+bnetd_RESOURCES	= ${SRC_WIN32DIR}\resource.res
+d2cs_RESOURCES	= ${SRC_WIN32DIR}\d2cs_resource.res
+d2dbs_RESOURCES	= ${SRC_WIN32DIR}\d2dbs_resource.res
+GUIBCCFLAGS	= -tWM -DWIN32_GUI
+LINKPREFIX	=  /aa c0w32
+LINKPOSTFIX 	= cw32mt import32 , , 
+!else
+LINKPREFIX	=  /ap c0x32
+LINKPOSTFIX 	= cw32 import32
+!endif
+
 !ifdef WITH_SQL_MYSQL
 SQLFLAGS = -DWITH_SQL_MYSQL -a8
 !endif
@@ -127,7 +139,7 @@ CPPFLAGS    = -DWIN32 -I${SRC_SRCDIR} \
                 -DBNETD_DEFAULT_CONF_FILE=\"${bnetd_DEFCONFFILE:\=\\}\" \
 		-DD2CS_DEFAULT_CONF_FILE=\"${d2cs_DEFCONFFILE:\=\\}\" \
 		-DD2DBS_DEFAULT_CONF_FILE=\"${d2dbs_DEFCONFFILE:\=\\}\" \
-		${SQLFLAGS} ${CDBFLAGS}
+		${SQLFLAGS} ${CDBFLAGS} ${GUIBCCFLAGS}
 COMPILE     = ${CC} ${CFLAGS} ${CPPFLAGS} -c
 LINK        = ilink32 -v -L${LINK_LIBS_PATH} -I${OBJDIR}
 !ifdef WITH_SQL_MYSQL
@@ -256,14 +268,9 @@ bnetd_OBJECTS       = \
     $(SRC_ZLIBDIR)\pvpgn_adler32.obj \
     $(SRC_ZLIBDIR)\pvpgn_deflate.obj \
     $(SRC_ZLIBDIR)\pvpgn_trees.obj \
-    $(SRC_ZLIBDIR)\pvpgn_zutil.obj
-
-
-bnetg_SBIN          = ${SRC_SBINDIR}\bnetg.exe
-bnetg_OBJECTS       = ${bnetd_OBJECTS:.obj=.bnetg_obj}\
+    $(SRC_ZLIBDIR)\pvpgn_zutil.obj \
     ${SRC_WIN32DIR}\winmain.obj
-bnetg_RESOURCES     = ${SRC_WIN32DIR}\resource.res
-bnetg_CFLAGS        = -DWIN32_GUI -tWM
+
 
 sbnetd_SBIN	= ${SRC_SBINDIR}\sbnetd.exe
 sbnetd_OBJECTS	= ${SRC_DEBUGDIR}\sbnetd.obj \
@@ -326,7 +333,8 @@ d2cs_OBJECTS    = \
     ${SRC_COMPATDIR}\difftime.obj \ 
     ${SRC_COMPATDIR}\pdir.obj \ 
     ${SRC_COMPATDIR}\strsep.obj \
-    ${SRC_WIN32DIR}\service_d2cs.obj     
+    ${SRC_WIN32DIR}\service_d2cs.obj \
+    ${SRC_WIN32DIR}\d2cs_winmain.obj    
 
 d2dbs_DEFCONFFILE = ${confdir}\d2dbs.conf 
 d2dbs_SBIN = ${SRC_SBINDIR}\d2dbs.exe 
@@ -354,7 +362,8 @@ d2dbs_OBJECTS = \
     ${SRC_COMPATDIR}\psock.obj \
     ${SRC_COMPATDIR}\strerror.obj \ 
     ${SRC_COMPATDIR}\strsep.obj \
-    ${SRC_WIN32DIR}\service_d2dbs.obj         
+    ${SRC_WIN32DIR}\service_d2dbs.obj \
+    ${SRC_WIN32DIR}\d2dbs_winmain.obj    
 
 bnproxy_SBIN    = ${SRC_SBINDIR}\bnproxy.exe
 bnproxy_OBJECTS = ${SRC_BNPROXYDIR}\bnproxy.obj \
@@ -553,7 +562,7 @@ ${SRC_COMPATDIR}\mmap.obj \
 ${SRC_COMPATDIR}\getopt.obj
 
 OBJECTS		= ${bnetd_OBJECTS} ${d2cs_OBJECTS} ${d2dbs_OBJECTS} ${bntrackd_OBJECTS} ${bnchat_OBJECTS} ${bnpass_OBJECTS} ${bnbot_OBJECTS} ${bnftp_OBJECTS} ${bnstat_OBJECTS} ${bnilist_OBJECTS} ${bni2tga_OBJECTS} ${bniextract_OBJECTS} ${bnibuild_OBJECTS} ${tgainfo_OBJECTS} ${timetest_OBJECTS} ${listtest_OBJECTS} ${hashtabletest_OBJECTS} ${addrtest_OBJECTS} ${cdb_OBJECTS}
-SBINS       = ${bnetd_SBIN} ${bnetg_SBIN} ${d2cs_SBIN} ${d2dbs_SBIN} ${bnproxy_SBIN} ${bntrackd_SBIN}
+SBINS       = ${bnetd_SBIN} ${d2cs_SBIN} ${d2dbs_SBIN} ${bnproxy_SBIN} ${bntrackd_SBIN}
 BINS        = ${bnchat_BIN} ${bnpass_BIN} ${bnftp_BIN} ${bnbot_BIN} ${bnstat_BIN} ${bnilist_BIN} ${bni2tga_BIN} ${bniextract_BIN} ${bnibuild_BIN} ${tgainfo_BIN} ${cdb_BIN}
 CONFS       = ad.conf bnetd.conf bnetd_default_user.plain bnetd_default_user.cdb bnmotd.txt channel.conf news.txt bnban.conf bnhelp.conf autoupdate.conf realm.conf bnmaps.conf bnxplevel.conf bnxpcalc.conf news.txt command_groups.conf bnban.conf bnhelp.conf bnalias.conf anongame_infos.conf tournament.conf topics.conf sql_DB_layout.conf address_translation.conf supportfile.conf
 SHARES      = ad000001.smk tos.txt
@@ -582,12 +591,12 @@ clean:
     -${RMF} ${SRC_CDBDIR}\*.obj
     -${RMF} ${SRC_ZLIBDIR}\*.obj
     -${RMF} ${SRC_BNETDDIR}\*.res
-    -${RMF} ${SRC_COMPATDIR}\*.bnetg_obj
-    -${RMF} ${SRC_COMMONDIR}\*.bnetg_obj
-    -${RMF} ${SRC_WIN32DIR}\*.bnetg_obj  
-    -${RMF} ${SRC_BNETDDIR}\*.bnetg_obj
-    -${RMF} ${SRC_CDBDIR}\*.bnetg_obj
-    -${RMF} ${SRC_ZLIBDIR}\*.bnetg_obj
+    -${RMF} ${SRC_COMPATDIR}\*.g_obj
+    -${RMF} ${SRC_COMMONDIR}\*.g_obj
+    -${RMF} ${SRC_WIN32DIR}\*.g_obj  
+    -${RMF} ${SRC_BNETDDIR}\*.g_obj
+    -${RMF} ${SRC_CDBDIR}\*.g_obj
+    -${RMF} ${SRC_ZLIBDIR}\*.g_obj
     -${RMFALL} ${SRC_BINDIR}\*.*
     -${RMFALL} ${SRC_SBINDIR}\*.*
     -${RMFALL} ${OBJDIR}\*.*    
@@ -610,8 +619,8 @@ clean-compile: clean all
 
 config: ${SRC_SRCDIR}\Makefile
 
-${SRC_SRCDIR}\Makefile: ${SRC_SRCDIR}\Makefile.BORLAND
-    copy ${SRC_SRCDIR}\Makefile.BORLAND ${SRC_SRCDIR}\Makefile
+${SRC_SRCDIR}\Makefile: Makefile.BORLAND
+    copy Makefile.BORLAND ${SRC_SRCDIR}\Makefile
 
 ${SRC_BINDIR}:
     if not exist $@ ${INSTALL_DIRS} $@
@@ -639,31 +648,24 @@ install: config all
     copy ${TOPDIR}\*.* ${INSTALLDIR}
     echo @cd ${INSTALLDIR} > ${INSTALLDIR}\bnetd.bat
     echo @.\sbin\bnetd.exe -c .\etc\bnetd.conf >> ${INSTALLDIR}\bnetd.bat
-    echo @start .\sbin\bnetg.exe -c .\etc\bnetd.conf > ${INSTALLDIR}\bnetg.bat
 
 # The Borland compiler silently ignores -ofilename if it is after the source file
 # The Borland compiler silently ignores -efilename if it is after the object file
 
 .rc.res:
-    ${RC} -r -fo$@ $<
+    ${RC} -r -i${srcdir} -fo$@ $<
 
 .c.obj:
     ${COMPILE} -o$@ $<
 
-.c.bnetg_obj:
-    ${COMPILE} -o$@ ${bnetg_CFLAGS} $<
+${bnetd_SBIN}: ${bnetd_OBJECTS} ${bnetd_RESOURCES} ${SRC_SBINDIR}
+    ${LINK} ${LINKPREFIX} ${bnetd_OBJECTS}, $@, , ${LINK_LIBS} ${LINKPOSTFIX} ${bnetd_RESOURCES}
 
-${bnetd_SBIN}: ${bnetd_OBJECTS} ${SRC_SBINDIR}
-    ${LINK} /ap c0x32 ${bnetd_OBJECTS}, $@, , ${LINK_LIBS} cw32 import32
+${d2cs_SBIN}: ${d2cs_OBJECTS} ${d2cs_RESOURCES} ${SRC_SBINDIR}
+    ${LINK} ${LINKPREFIX} ${d2cs_OBJECTS}, $@, , ${LINK_LIBS} ${LINKPOSTFIX} ${d2cs_RESOURCES} 
 
-${bnetg_SBIN}: ${bnetg_OBJECTS} ${bnetg_RESOURCES} ${SRC_SBINDIR}
-    ${LINK} /aa c0w32 ${bnetg_OBJECTS}, $@, , ${LINK_LIBS} cw32mt import32, , ${bnetg_RESOURCES}
-
-${d2cs_SBIN}: ${d2cs_OBJECTS} ${SRC_SBINDIR}
-    ${LINK} /ap c0x32 ${d2cs_OBJECTS}, $@, , ${LINK_LIBS} cw32 import32
-
-${d2dbs_SBIN}: ${d2dbs_OBJECTS} ${SRC_SBINDIR}
-    ${LINK} /ap c0x32 ${d2dbs_OBJECTS}, $@, , ${LINK_LIBS} cw32 import32 
+${d2dbs_SBIN}: ${d2dbs_OBJECTS} ${d2dbs_RESOURCES} ${SRC_SBINDIR}
+    ${LINK} ${LINKPREFIX} ${d2dbs_OBJECTS}, $@, , ${LINK_LIBS} ${LINKPOSTFIX} ${d2dbs_RESOURCES} 
 
 ${bnproxy_SBIN}: ${bnproxy_OBJECTS} ${SRC_SBINDIR}
     ${LINK} /ap c0x32 ${bnproxy_OBJECTS}, $@, , ${LINK_LIBS} cw32 import32
