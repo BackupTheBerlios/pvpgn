@@ -27,12 +27,15 @@ codes)
 
 [WAR3-CG]: fixed the "can only create on CG in a row" problem
 
+[WAR3]: fixed possible disc on too long news items
+
 [D2]:
   -- re-enabled checksum check
   -- added missing packet NULL check (possible crash fix)
   -- added support for d2gs beta6 (DiabloClone etc)
   -- rewritten some of the d2cs/d2dbs configuration codes to be more clean and 
   portable (now pvpgn compiles fine on 64 bit archs)
+  -- fixed an error with opened directory handles not being closed
 
 [MISC]:
   -- fixed crash in versioncheck for clients who didnt sent proper informations
