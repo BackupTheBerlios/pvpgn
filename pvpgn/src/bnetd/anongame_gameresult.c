@@ -38,6 +38,9 @@
 #include "common/tag.h"
 #include "common/bn_type.h"
 #include "common/packet.h"
+#ifdef HAVE_ASSERT_H
+# include <assert.h>
+#endif
 #include "common/xalloc.h"
 #define ANONGAME_GAMERESULT_INTERNAL_ACCESS
 #include "anongame_gameresult.h"
@@ -156,6 +159,12 @@ extern t_anongame_gameresult * anongame_gameresult_parse(t_packet const * const 
   return gameresult;
 }
 
+extern char gameresult_get_number_of_results(t_anongame_gameresult * gameresult)
+{
+  assert(gameresult);
+
+  return gameresult->number_of_results;
+}
 
 extern int gameresult_get_player_result(t_anongame_gameresult * gameresult, int player)
 {
@@ -169,4 +178,18 @@ extern int gameresult_get_player_result(t_anongame_gameresult * gameresult, int 
   }
 
   return gameresult->players[player].result;
+}
+
+extern int gameresult_get_player_number(t_anongame_gameresult * gameresult, int player)
+{
+  if (!(gameresult))
+    return -1;
+
+  if (player >= gameresult->number_of_results)
+  {
+    eventlog(eventlog_level_error,__FUNCTION__,"request for invalid player number");
+    return -1;
+  }
+
+  return gameresult->players[player].number;
 }

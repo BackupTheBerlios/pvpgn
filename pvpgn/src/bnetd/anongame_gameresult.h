@@ -70,7 +70,9 @@ t_anongame_gameresult;
 extern t_anongame_gameresult * anongame_gameresult_parse(t_packet const * const packet);
 extern int gameresult_destroy(t_anongame_gameresult * gameresult);
 
+extern char gameresult_get_number_of_results(t_anongame_gameresult * gameresult);
 extern int gameresult_get_player_result(t_anongame_gameresult * gameresult, int player);
+extern int gameresult_get_player_number(t_anongame_gameresult * gameresult, int player);
 
 #endif
 #endif

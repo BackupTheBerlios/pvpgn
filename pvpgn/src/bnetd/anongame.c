@@ -1119,6 +1119,62 @@ extern char anongame_arranged(int queue)
     }
 }
 
+extern int anongame_evaluate_results(t_anongame * anongame)
+{
+  int i,j,number;
+  int wins[ANONGAME_MAX_GAMECOUNT];
+  int losses[ANONGAME_MAX_GAMECOUNT];
+  int result;
+  t_anongame_gameresult * results;
+  t_anongameinfo *anoninfo = anongame->info;
+  
+  for (i=0; i<ANONGAME_MAX_GAMECOUNT; i++)
+  {
+    wins[i] = 0;
+    losses[i] = 0;
+  }
+
+  for (i=0; i<anongame_get_totalplayers(anongame); i++)
+  {
+    if ((results = anoninfo->results[i]))
+    {
+      for (j=0; j<gameresult_get_number_of_results(results); j++)
+      {
+	number = gameresult_get_player_number(results,j)-1;
+	result = gameresult_get_player_result(results,j);
+	
+	if ((result == W3_GAMERESULT_WIN))
+	  wins[number]++;
+	if ((result == W3_GAMERESULT_LOSS))
+	  losses[number]++;
+      }
+    }
+  }
+  
+  for (i=0; i<anongame_get_totalplayers(anongame); i++)
+  {
+    if ((wins[i]>losses[i]))
+    {
+      if ((anoninfo->result[i] != W3_GAMERESULT_WIN))
+      {
+        eventlog(eventlog_level_trace,__FUNCTION__,"player %d reported DISC/LOSS for self, but others agree on WIN",i+1);
+        anoninfo->result[i] = W3_GAMERESULT_WIN;
+      }
+    }
+    else
+    {
+      if ((anoninfo->result[i] != W3_GAMERESULT_LOSS))
+      {
+        eventlog(eventlog_level_trace,__FUNCTION__,"player %d reported DISC/WIN for self, but others agree on LOSS",i+1);
+        anoninfo->result[i] = W3_GAMERESULT_LOSS;
+      }
+    }
+  }
+  
+  return 0;
+
+}
+
 extern int anongame_stats(t_connection * c)
 {
     int			i;
@@ -1137,6 +1193,8 @@ extern int anongame_stats(t_connection * c)
 	if(i+1 != plnum && a->info->player[i])
 	    if(conn_get_routeconn(a->info->player[i]))
 		return 0;
+
+    anongame_evaluate_results(a);
     
     /* count wins, losses, discs */
     for(i=0; i<tp; i++) {
@@ -1152,19 +1210,19 @@ extern int anongame_stats(t_connection * c)
     switch(gametype) {
 	case ANONGAME_TYPE_SMALL_FFA:
 	    if(wins != 1) {
-		eventlog(eventlog_level_info, "handle_w3route_packet", "bogus game result: wins != 1 in small ffa game");
+		eventlog(eventlog_level_info, __FUNCTION__, "bogus game result: wins != 1 in small ffa game");
 		return -1;
 	    }
 	    break;
 	case ANONGAME_TYPE_TEAM_FFA:
 	    if(!discs && wins != 2) {
-		eventlog(eventlog_level_info, "handle_w3route_packet", "bogus game result: wins != 2 in team ffa game");
+		eventlog(eventlog_level_info, __FUNCTION__, "bogus game result: wins != 2 in team ffa game");
 		return -1;
 	    }
 	    break;
 	default:
 	    if(!discs && wins > losses) {
-		eventlog(eventlog_level_info, "handle_w3route_packet", "bogus game result: wins > losses");
+		eventlog(eventlog_level_info, __FUNCTION__, "bogus game result: wins > losses");
 		return -1;
 	    }
 	    break;
@@ -1310,6 +1368,7 @@ extern t_anongameinfo * anongameinfo_create(int totalplayers)
 	   temp->player[i] = NULL;
 	   temp->account[i] = NULL;
 	   temp->result[i] = -1; /* consider DISC default */
+	   temp->results[i] = NULL;
 	}
 
 	return temp;
@@ -1317,10 +1376,14 @@ extern t_anongameinfo * anongameinfo_create(int totalplayers)
 
 extern void anongameinfo_destroy(t_anongameinfo * i)
 {
+	int j;
+	
 	if(!i) {
 		eventlog(eventlog_level_error, "anongameinfo_destroy", "got NULL anongameinfo");
 		return;
 	}
+	for (j=0; j<ANONGAME_MAX_GAMECOUNT; j++)
+		if (i->results[j]) gameresult_destroy(i->results[j]);
 	xfree(i);
 }
 
@@ -1494,22 +1557,44 @@ extern void anongame_set_result(t_anongame * a, int result)
 {
    if (!a)
      {
-	eventlog(eventlog_level_error,"anongame_set_result","got NULL anongame");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL anongame");
 	return;
      }
    if (!a->info)
      {
-	eventlog(eventlog_level_error,"anongame_set_result","NULL anongameinfo");
+	eventlog(eventlog_level_error,__FUNCTION__,"NULL anongameinfo");
 	return;
      }
    
    if (a->playernum < 1 || a->playernum > ANONGAME_MAX_GAMECOUNT) 
      {
-	eventlog(eventlog_level_error,"anongame_set_result","invalid playernum: %d", a->playernum);
+	eventlog(eventlog_level_error,__FUNCTION__,"invalid playernum: %d", a->playernum);
 	return;
      }
    
    a->info->result[a->playernum-1] = result;
+}
+
+extern void anongame_set_gameresults(t_anongame * a, t_anongame_gameresult * results)
+{
+   if (!a)
+     {
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL anongame");
+	return;
+     }
+   if (!a->info)
+     {
+	eventlog(eventlog_level_error,__FUNCTION__,"NULL anongameinfo");
+	return;
+     }
+   
+   if (a->playernum < 1 || a->playernum > ANONGAME_MAX_GAMECOUNT) 
+     {
+	eventlog(eventlog_level_error,__FUNCTION__,"invalid playernum: %d", a->playernum);
+	return;
+     }
+   
+   a->info->results[a->playernum-1] = results;
 }
 
 extern void anongame_set_handle(t_anongame *a, t_uint32 h)
@@ -1632,6 +1717,7 @@ extern int handle_w3route_packet(t_connection * c, t_packet const * const packet
       anongame_set_joined(a, 0);
       anongame_set_loaded(a, 0);
       anongame_set_result(a, -1);
+      anongame_set_gameresults(a, NULL);
       
       anongame_set_handle(a, bn_int_get(packet->u.client_w3route_req.handle));
       
@@ -1707,15 +1793,14 @@ extern int handle_w3route_packet(t_connection * c, t_packet const * const packet
 	   	   
 	   eventlog(eventlog_level_trace,"handle_w3route_packet","[%d] got W3ROUTE_GAMERESULT: %08x",conn_get_socket(c), result);
 
-	   if ((gameresult))  // not needed any longer... should be attached to anongame for later usage
-	     gameresult_destroy(gameresult);
-	   
 	   if(!inf) {
 	      eventlog(eventlog_level_error,"handle_w3route_packet","[%d] NULL anongameinfo",conn_get_socket(c));
 	      return -1;
 	   }
-	   
-	   anongame_set_result(a, result);
+
+	   anongame_set_gameresults(a, gameresult);
+	   anongame_set_result(a,result);
+
 	   conn_set_state(c, conn_state_destroy);
 	   
 	   // activate timers on open w3route connectons

@@ -16,6 +16,7 @@
 #ifndef INCLUDED_ANONGAME_TYPES
 #define INCLUDED_ANONGAME_TYPES
 
+#include "common/setup_before.h"
 #ifdef JUST_NEED_TYPES
 # include "account.h"
 # include "connection.h"
@@ -27,6 +28,8 @@
 # include "compat/uint.h"
 # undef JUST_NEED_TYPES
 #endif
+# include "anongame_gameresult.h"
+#include "common/setup_after.h"
 
 typedef struct
 {
@@ -35,6 +38,7 @@ typedef struct
     struct connection *		player[ANONGAME_MAX_GAMECOUNT];
     t_account *			account[ANONGAME_MAX_GAMECOUNT];
     int				result[ANONGAME_MAX_GAMECOUNT];
+    t_anongame_gameresult *	results[ANONGAME_MAX_GAMECOUNT];
 } t_anongameinfo;
 
 typedef struct
@@ -103,6 +107,7 @@ extern t_uint8          anongame_get_playernum(t_anongame * a);
 extern t_uint8          anongame_get_queue(t_anongame *a);
 
 extern void		anongame_set_result(t_anongame * a, int result);
+extern void		anongame_set_gameresults(t_anongame * a, t_anongame_gameresult * results);
 extern void		anongame_set_handle(t_anongame *a, t_uint32 h);
 extern void		anongame_set_addr(t_anongame *a, unsigned int addr);
 extern void		anongame_set_loaded(t_anongame * a, char loaded);
