@@ -1887,6 +1887,7 @@ extern int anongame_stats(t_connection * c)
     {
       int j,k;
       t_account * oacc;
+      oppon_level[i]=0;
       switch(gametype) {
       case ANONGAME_TYPE_1V1:
 	oppon_level[i] = account_get_sololevel(anongame_get_account(a,(i+1)%tp));
