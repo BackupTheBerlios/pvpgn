@@ -32,6 +32,7 @@ chanlogsdir	= @localstatedir@/chanlogs
 charinfodir     = @localstatedir@/charinfo
 charsavedir     = @localstatedir@/charsave
 ladderdir       = @localstatedir@/ladders
+statusdir       = @localstatedir@/status
 bak_charsavedir = @localstatedir@/bak/charsave
 bak_charinfodir = @localstatedir@/bak/charinfo
 
@@ -582,7 +583,7 @@ install-conf: ${SRC_CONFDIR}/bnetd.conf ${SRC_CONFDIR}/d2cs.conf ${SRC_CONFDIR}/
 install-share:
 	${INSTALL_DIRS} ${sharedir} ${filesdir} ${usersdir} ${reportsdir} \
 	${chanlogsdir} ${charinfodir} ${charsavedir} ${bak_charsavedir} \
-	${bak_charinfodir} ${ladderdir}
+	${bak_charinfodir} ${ladderdir} ${statusdir}
 	@list='${SHARES}'; for p in $$list; do \
 	  if test -f ${SRC_SHAREDIR}/$$p; then \
 	    ${ECHO} "  ${INSTALL_DATA} ${SRC_SHAREDIR}/$$p ${filesdir}"; \
