@@ -1144,7 +1144,7 @@ extern unsigned int account_get_ladder_high_rank(t_account * account, t_clientta
 	eventlog(eventlog_level_error,__FUNCTION__,"got bad clienttag");
 	return 0;
     }
-    sprintf(key,"Record\\%s\\%d\\high_rank",tag_uint_to_str(clienttag_str,clienttag),(int)id);
+    sprintf(key,"Record\\%s\\%d\\high rank",tag_uint_to_str(clienttag_str,clienttag),(int)id);
     return account_get_numattr(account,key);
 }
 
