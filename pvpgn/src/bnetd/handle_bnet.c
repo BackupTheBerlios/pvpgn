@@ -3156,8 +3156,11 @@ static int _client_findanongame(t_connection * c, t_packet const * const packet)
        char table_width = 6;
        char table_height= 5;
        int i,j;
+       char rico;
+       unsigned int rlvl,rwins;
        
-       const char * user_icon;
+       char user_icon[5];
+       char const * uicon;
        eventlog(eventlog_level_info,__FUNCTION__,"[%d] got FINDANONGAME Get Icons packet",conn_get_socket(c));
 
        if ((rpacket = packet_create(packet_class_bnet)) == NULL) {
@@ -3168,9 +3171,16 @@ static int _client_findanongame(t_connection * c, t_packet const * const packet)
        packet_set_type(rpacket, SERVER_FINDANONGAME_ICONREPLY);
        bn_int_set(&rpacket->u.server_findanongame_iconreply.count, bn_int_get(packet->u.client_findanongame_inforeq.count));
        bn_byte_set(&rpacket->u.server_findanongame_iconreply.option, CLIENT_FINDANONGAME_GET_ICON);
-       user_icon = account_get_user_icon(conn_get_account(c),conn_get_clienttag(c));
-       if (user_icon) memcpy(&rpacket->u.server_findanongame_iconreply.curricon, user_icon,4);
-       else bn_int_set(&rpacket->u.server_findanongame_iconreply.curricon,account_get_icon_profile(conn_get_account(c),conn_get_clienttag(c)));
+       if ((uicon = account_get_user_icon(conn_get_account(c),conn_get_clienttag(c))))
+       {
+	 memcpy(&rpacket->u.server_findanongame_iconreply.curricon, uicon,4);
+       }
+       else 
+       {
+	 account_get_raceicon(conn_get_account(c),&rico,&rlvl,&rwins,conn_get_clienttag(c));
+	 sprintf(user_icon,"%1d%c3W",rlvl,rico);
+         memcpy(&rpacket->u.server_findanongame_iconreply.curricon,user_icon,4);
+       };
        bn_byte_set(&rpacket->u.server_findanongame_iconreply.table_width, table_width);
        bn_byte_set(&rpacket->u.server_findanongame_iconreply.table_size, table_width*table_height);
        for (j=0;j<table_height;j++){
