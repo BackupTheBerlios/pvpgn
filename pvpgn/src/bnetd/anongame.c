@@ -2007,3 +2007,35 @@ extern int anongame_stats(t_connection * c)
     war3_ladder_update_all_accounts();
     return 1;
 }
+
+extern int anongame_add_tournament_map(char * ctag, char * mname)
+{
+    t_list * * mapnames;
+    char *mapname;
+	
+    if (strcmp(ctag, CLIENTTAG_WARCRAFT3) == 0)
+	mapnames = mapnames_war3;
+    else if (strcmp(ctag, CLIENTTAG_WAR3XP) == 0)
+        mapnames = mapnames_w3xp;
+    else
+	return -1; /* invalid clienttag */
+    
+    if ((mapname = strdup(mname)) == NULL)
+	return -1;
+    
+    if (mapnames[ANONGAME_TYPE_TY] == NULL) { /* uninitialized map name list */
+        if ((mapnames[ANONGAME_TYPE_TY] = list_create()) == NULL) {
+    	    eventlog(eventlog_level_error,__FUNCTION__, "could not create list for type : %d", ANONGAME_TYPE_TY);
+    	    free(mapname);
+    	    return -1;
+	}
+    }
+    
+    if (list_append_data(mapnames[ANONGAME_TYPE_TY], mapname) < 0) {
+        eventlog(eventlog_level_error,__FUNCTION__, "could not add map to the list (map: \"%s\")", mapname);
+        free(mapname);
+        return -1;
+    }
+    
+    return 0;
+}

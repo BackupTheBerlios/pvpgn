@@ -190,6 +190,7 @@ extern int anongame_matchlists_create(void);
 extern int anongame_matchlists_destroy(void);
 
 extern int anongame_stats(t_connection * c);
+extern int anongame_add_tournament_map(char * ctag, char * mname);
 
 #endif
 #endif

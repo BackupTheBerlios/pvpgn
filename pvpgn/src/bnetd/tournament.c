@@ -53,7 +53,7 @@
 //#include "connection.h"
 #include "account.h"
 //#include "channel.h"
-//#include "anongame.h"
+#include "anongame.h"
 //#include "anongame_infos.h"
 //#include "handle_anongame.h"
 #include "tournament.h"
@@ -268,8 +268,9 @@ extern int tournament_init(char const * filename)
 {
     FILE * fp;
     unsigned int line,pos,mon,day,year,hour,min,sec;
-    char *buff,*temp,*variable,*pointer,*value;
+    char *buff,*temp,*pointer,*value;
     char format[30];
+    char *variable = NULL;
     char *sponsor = NULL;
     char *have_sponsor = NULL;
     char *have_icon = NULL;
@@ -321,242 +322,286 @@ extern int tournament_init(char const * filename)
 	    buff[endpos+1] = '\0';
 	}
 	
-	variable = buff;
-	pointer = strchr(variable,'=');
-	for(pointer--;pointer[0]==' ' || pointer[0]=='\t';pointer--);
-	pointer[1]='\0';
-	pointer++;
-	pointer++;
-	pointer = strchr(pointer,'=');
-	pointer++;
-	
-	if (strcmp(variable,"start_preliminary") == 0) {
-	    pointer = strchr(pointer,'\"');
-	    pointer++;
-	    value = pointer;
-	    pointer = strchr(pointer,'\"');
-	    pointer[0]='\0';
+	if (strcmp(buff,"[MAPS]") == 0) {
+	    int mapsline;
+	    char *clienttag, *ctag, *mapname, *mname;
 	    
-	    sscanf(value,format,&mon,&day,&year,&hour,&min,&sec);
-	    
-	    timestamp->tm_mon	= mon-1;
-	    timestamp->tm_mday	= day;
-	    timestamp->tm_year	= year-1900;
-	    timestamp->tm_hour	= hour;
-	    timestamp->tm_min	= min;
-	    timestamp->tm_sec	= sec;
-	    timestamp->tm_isdst	= -1;
-	    
-	    tournament_info->start_preliminary = mktime(timestamp);
-	}
-	else if (strcmp(variable,"end_signup") == 0) {
-	    pointer = strchr(pointer,'\"');
-	    pointer++;
-	    value = pointer;
-	    pointer = strchr(pointer,'\"');
-	    pointer[0]='\0';
-	    
-	    sscanf(value,format,&mon,&day,&year,&hour,&min,&sec);
-	    
-	    timestamp->tm_mon	= mon-1;
-	    timestamp->tm_mday	= day;
-	    timestamp->tm_year	= year-1900;
-	    timestamp->tm_hour	= hour;
-	    timestamp->tm_min	= min;
-	    timestamp->tm_sec	= sec;
-	    timestamp->tm_isdst	= -1;
-
-	    tournament_info->end_signup = mktime(timestamp);
-	}
-	else if (strcmp(variable,"end_preliminary") == 0) {
-	    pointer = strchr(pointer,'\"');
-	    pointer++;
-	    value = pointer;
-	    pointer = strchr(pointer,'\"');
-	    pointer[0]='\0';
-	    
-	    sscanf(value,format,&mon,&day,&year,&hour,&min,&sec);
-	    
-	    timestamp->tm_mon	= mon-1;
-	    timestamp->tm_mday	= day;
-	    timestamp->tm_year	= year-1900;
-	    timestamp->tm_hour	= hour;
-	    timestamp->tm_min	= min;
-	    timestamp->tm_sec	= sec;
-	    timestamp->tm_isdst	= -1;
-
-	    tournament_info->end_preliminary = mktime(timestamp);
-	}
-	else if (strcmp(variable,"start_round_1") == 0) {
-	    pointer = strchr(pointer,'\"');
-	    pointer++;
-	    value = pointer;
-	    pointer = strchr(pointer,'\"');
-	    pointer[0]='\0';
-	    
-	    sscanf(value,format,&mon,&day,&year,&hour,&min,&sec);
-	    
-	    timestamp->tm_mon	= mon-1;
-	    timestamp->tm_mday	= day;
-	    timestamp->tm_year	= year-1900;
-	    timestamp->tm_hour	= hour;
-	    timestamp->tm_min	= min;
-	    timestamp->tm_sec	= sec;
-	    timestamp->tm_isdst	= -1;
-
-	    tournament_info->start_round_1 = mktime(timestamp);
-	}
-	else if (strcmp(variable,"start_round_2") == 0) {
-	    pointer = strchr(pointer,'\"');
-	    pointer++;
-	    value = pointer;
-	    pointer = strchr(pointer,'\"');
-	    pointer[0]='\0';
-	    
-	    sscanf(value,format,&mon,&day,&year,&hour,&min,&sec);
-	    
-	    timestamp->tm_mon	= mon-1;
-	    timestamp->tm_mday	= day;
-	    timestamp->tm_year	= year-1900;
-	    timestamp->tm_hour	= hour;
-	    timestamp->tm_min	= min;
-	    timestamp->tm_sec	= sec;
-	    timestamp->tm_isdst	= -1;
-
-	    tournament_info->start_round_2 = mktime(timestamp);
-	}
-	else if (strcmp(variable,"start_round_3") == 0) {
-	    pointer = strchr(pointer,'\"');
-	    pointer++;
-	    value = pointer;
-	    pointer = strchr(pointer,'\"');
-	    pointer[0]='\0';
-	    
-	    sscanf(value,format,&mon,&day,&year,&hour,&min,&sec);
-	    
-	    timestamp->tm_mon	= mon-1;
-	    timestamp->tm_mday	= day;
-	    timestamp->tm_year	= year-1900;
-	    timestamp->tm_hour	= hour;
-	    timestamp->tm_min	= min;
-	    timestamp->tm_sec	= sec;
-	    timestamp->tm_isdst	= -1;
-
-	    tournament_info->start_round_3 = mktime(timestamp);
-	}
-	else if (strcmp(variable,"start_round_4") == 0) {
-	    pointer = strchr(pointer,'\"');
-	    pointer++;
-	    value = pointer;
-	    pointer = strchr(pointer,'\"');
-	    pointer[0]='\0';
-	    
-	    sscanf(value,format,&mon,&day,&year,&hour,&min,&sec);
-	    
-	    timestamp->tm_mon	= mon-1;
-	    timestamp->tm_mday	= day;
-	    timestamp->tm_year	= year-1900;
-	    timestamp->tm_hour	= hour;
-	    timestamp->tm_min	= min;
-	    timestamp->tm_sec	= sec;
-	    timestamp->tm_isdst	= -1;
-
-	    tournament_info->start_round_4 = mktime(timestamp);
-	}
-	else if (strcmp(variable,"tournament_end") == 0) {
-	    pointer = strchr(pointer,'\"');
-	    pointer++;
-	    value = pointer;
-	    pointer = strchr(pointer,'\"');
-	    pointer[0]='\0';
-	    
-	    sscanf(value,format,&mon,&day,&year,&hour,&min,&sec);
-	    
-	    timestamp->tm_mon	= mon-1;
-	    timestamp->tm_mday	= day;
-	    timestamp->tm_year	= year-1900;
-	    timestamp->tm_hour	= hour;
-	    timestamp->tm_min	= min;
-	    timestamp->tm_sec	= sec;
-	    timestamp->tm_isdst	= -1;
-
-	    tournament_info->tournament_end = mktime(timestamp);
-	}
-	else if (strcmp(variable,"game_selection") == 0) {
-	    tournament_info->game_selection = atoi(pointer);
-	}
-	else if (strcmp(variable,"game_type") == 0) {
-	    tournament_info->game_type = atoi(pointer);
-	}
-	else if (strcmp(variable,"format") == 0) {
-	    pointer = strchr(pointer,'\"');
-	    pointer++;
-	    value = pointer;
-	    pointer = strchr(pointer,'\"');
-	    pointer[0]='\0';
-	    
-	    if (tournament_info->format) free((void *)tournament_info->format);
-	    tournament_info->format = strdup(value);
-	}
-	else if (strcmp(variable,"races") == 0) {
-	    unsigned int intvalue = 0;
-	    unsigned int i;
-	    
-	    pointer = strchr(pointer,'\"');
-	    pointer++;
-	    value = pointer;
-	    pointer = strchr(pointer,'\"');
-	    pointer[0]='\0';
-	    
-	    for(i=0;i<strlen(value);i++) {
-		if (value[i] == 'H') intvalue = intvalue | 0x01;
-		if (value[i] == 'O') intvalue = intvalue | 0x02;
-		if (value[i] == 'N') intvalue = intvalue | 0x04;
-		if (value[i] == 'U') intvalue = intvalue | 0x08;
-		if (value[i] == 'R') intvalue = intvalue | 0x20;
+	    free(buff);
+	    for (mapsline=1; (buff = file_get_line(fp)); mapsline++) {
+		for (pos=0; buff[pos]=='\t' || buff[pos]==' '; pos++);
+		if (buff[pos]=='\0' || buff[pos]=='#') {
+		    free(buff);
+		    continue;
+		}
+		if ((temp = strrchr(buff,'#'))) {
+		    unsigned int len;
+		    unsigned int endpos;
+		    
+		    *temp = '\0';
+		    len = strlen(buff)+1;
+		    for (endpos=len-1; buff[endpos]=='\t' || buff[endpos]==' '; endpos--);
+		    buff[endpos+1] = '\0';
+		}
+		
+		if (!(clienttag = strtok(buff, " \t"))) { /* strtok modifies the string it is passed */
+		    free(buff);
+		    continue;
+		}
+		if (strcmp(buff,"[ENDMAPS]") == 0) {
+		    free(buff);
+		    break;
+		}
+		if (!(mapname = strtok(NULL," \t"))) {
+		    free(buff);
+		    continue;
+		}
+		ctag = strdup(clienttag);
+		mname = strdup(mapname);
+		
+		anongame_add_tournament_map(ctag, mname);
+		eventlog(eventlog_level_trace,__FUNCTION__,"added tournament map \"%s\" for %s",mname,ctag);
+		free(ctag);
+		free(mname);
+		free(buff);
 	    }
+	} else {
+	    variable = buff;
+	    pointer = strchr(variable,'=');
+	    for(pointer--;pointer[0]==' ' || pointer[0]=='\t';pointer--);
+	    pointer[1]='\0';
+	    pointer++;
+	    pointer++;
+	    pointer = strchr(pointer,'=');
+	    pointer++;
 	    
-	    if (intvalue == 0 || intvalue == 0x2F)
-		intvalue = 0x3F; /* hack to make all races availiable */
-
-	    tournament_info->races = intvalue;
+	    if (strcmp(variable,"start_preliminary") == 0) {
+	        pointer = strchr(pointer,'\"');
+	        pointer++;
+	        value = pointer;
+	        pointer = strchr(pointer,'\"');
+	        pointer[0]='\0';
+	        
+	        sscanf(value,format,&mon,&day,&year,&hour,&min,&sec);
+	        
+	        timestamp->tm_mon	= mon-1;
+	        timestamp->tm_mday	= day;
+	        timestamp->tm_year	= year-1900;
+	        timestamp->tm_hour	= hour;
+	        timestamp->tm_min	= min;
+	        timestamp->tm_sec	= sec;
+	        timestamp->tm_isdst	= -1;
+	        
+	        tournament_info->start_preliminary = mktime(timestamp);
+	    }
+	    else if (strcmp(variable,"end_signup") == 0) {
+	        pointer = strchr(pointer,'\"');
+	        pointer++;
+	        value = pointer;
+	        pointer = strchr(pointer,'\"');
+	        pointer[0]='\0';
+	        
+	        sscanf(value,format,&mon,&day,&year,&hour,&min,&sec);
+	        
+	        timestamp->tm_mon	= mon-1;
+	        timestamp->tm_mday	= day;
+	        timestamp->tm_year	= year-1900;
+	        timestamp->tm_hour	= hour;
+	        timestamp->tm_min	= min;
+	        timestamp->tm_sec	= sec;
+	        timestamp->tm_isdst	= -1;
+		
+		tournament_info->end_signup = mktime(timestamp);
+	    }
+	    else if (strcmp(variable,"end_preliminary") == 0) {
+	        pointer = strchr(pointer,'\"');
+	        pointer++;
+	        value = pointer;
+	        pointer = strchr(pointer,'\"');
+	        pointer[0]='\0';
+	        
+	        sscanf(value,format,&mon,&day,&year,&hour,&min,&sec);
+	        
+	        timestamp->tm_mon	= mon-1;
+	        timestamp->tm_mday	= day;
+	        timestamp->tm_year	= year-1900;
+	        timestamp->tm_hour	= hour;
+	        timestamp->tm_min	= min;
+	        timestamp->tm_sec	= sec;
+	        timestamp->tm_isdst	= -1;
+    
+	        tournament_info->end_preliminary = mktime(timestamp);
+	    }
+	    else if (strcmp(variable,"start_round_1") == 0) {
+		pointer = strchr(pointer,'\"');
+	        pointer++;
+	        value = pointer;
+	        pointer = strchr(pointer,'\"');
+	        pointer[0]='\0';
+	        
+	        sscanf(value,format,&mon,&day,&year,&hour,&min,&sec);
+	        
+	        timestamp->tm_mon	= mon-1;
+	        timestamp->tm_mday	= day;
+	        timestamp->tm_year	= year-1900;
+	        timestamp->tm_hour	= hour;
+	        timestamp->tm_min	= min;
+	        timestamp->tm_sec	= sec;
+	        timestamp->tm_isdst	= -1;
+    		
+	        tournament_info->start_round_1 = mktime(timestamp);
+	    }
+	    else if (strcmp(variable,"start_round_2") == 0) {
+	        pointer = strchr(pointer,'\"');
+	        pointer++;
+	        value = pointer;
+	        pointer = strchr(pointer,'\"');
+	        pointer[0]='\0';
+	        
+	        sscanf(value,format,&mon,&day,&year,&hour,&min,&sec);
+	        
+	        timestamp->tm_mon	= mon-1;
+	        timestamp->tm_mday	= day;
+	        timestamp->tm_year	= year-1900;
+	        timestamp->tm_hour	= hour;
+	        timestamp->tm_min	= min;
+	        timestamp->tm_sec	= sec;
+	        timestamp->tm_isdst	= -1;
+		
+	        tournament_info->start_round_2 = mktime(timestamp);
+	    }
+	    else if (strcmp(variable,"start_round_3") == 0) {
+		pointer = strchr(pointer,'\"');
+	        pointer++;
+	        value = pointer;
+	        pointer = strchr(pointer,'\"');
+	        pointer[0]='\0';
+	        
+	        sscanf(value,format,&mon,&day,&year,&hour,&min,&sec);
+	        
+	        timestamp->tm_mon	= mon-1;
+	        timestamp->tm_mday	= day;
+	        timestamp->tm_year	= year-1900;
+	        timestamp->tm_hour	= hour;
+	        timestamp->tm_min	= min;
+	        timestamp->tm_sec	= sec;
+	        timestamp->tm_isdst	= -1;
+		
+	        tournament_info->start_round_3 = mktime(timestamp);
+	    }
+	    else if (strcmp(variable,"start_round_4") == 0) {
+	        pointer = strchr(pointer,'\"');
+	        pointer++;
+	        value = pointer;
+	        pointer = strchr(pointer,'\"');
+	        pointer[0]='\0';
+	        
+	        sscanf(value,format,&mon,&day,&year,&hour,&min,&sec);
+	        
+	        timestamp->tm_mon	= mon-1;
+	        timestamp->tm_mday	= day;
+	        timestamp->tm_year	= year-1900;
+	        timestamp->tm_hour	= hour;
+	        timestamp->tm_min	= min;
+	        timestamp->tm_sec	= sec;
+	        timestamp->tm_isdst	= -1;
+		
+	        tournament_info->start_round_4 = mktime(timestamp);
+	    }
+	    else if (strcmp(variable,"tournament_end") == 0) {
+		pointer = strchr(pointer,'\"');
+	        pointer++;
+	        value = pointer;
+	        pointer = strchr(pointer,'\"');
+	        pointer[0]='\0';
+	        
+	        sscanf(value,format,&mon,&day,&year,&hour,&min,&sec);
+	        
+	        timestamp->tm_mon	= mon-1;
+	        timestamp->tm_mday	= day;
+	        timestamp->tm_year	= year-1900;
+	        timestamp->tm_hour	= hour;
+	        timestamp->tm_min	= min;
+	        timestamp->tm_sec	= sec;
+	        timestamp->tm_isdst	= -1;
+		
+	        tournament_info->tournament_end = mktime(timestamp);
+	    }
+	    else if (strcmp(variable,"game_selection") == 0) {
+	        tournament_info->game_selection = atoi(pointer);
+	    }
+	    else if (strcmp(variable,"game_type") == 0) {
+	        tournament_info->game_type = atoi(pointer);
+	    }
+	    else if (strcmp(variable,"format") == 0) {
+	        pointer = strchr(pointer,'\"');
+	        pointer++;
+	        value = pointer;
+	        pointer = strchr(pointer,'\"');
+	        pointer[0]='\0';
+	        
+	        if (tournament_info->format) free((void *)tournament_info->format);
+	        tournament_info->format = strdup(value);
+	    }
+	    else if (strcmp(variable,"races") == 0) {
+	        unsigned int intvalue = 0;
+	        unsigned int i;
+	        
+	        pointer = strchr(pointer,'\"');
+	        pointer++;
+	        value = pointer;
+	        pointer = strchr(pointer,'\"');
+	        pointer[0]='\0';
+	        
+	        for(i=0;i<strlen(value);i++) {
+		    if (value[i] == 'H') intvalue = intvalue | 0x01;
+		    if (value[i] == 'O') intvalue = intvalue | 0x02;
+		    if (value[i] == 'N') intvalue = intvalue | 0x04;
+		    if (value[i] == 'U') intvalue = intvalue | 0x08;
+		    if (value[i] == 'R') intvalue = intvalue | 0x20;
+		}
+		
+		if (intvalue == 0 || intvalue == 0x2F)
+		    intvalue = 0x3F; /* hack to make all races availiable */
+		
+	        tournament_info->races = intvalue;
+	    }
+	    else if (strcmp(variable,"sponsor") == 0) {
+		pointer = strchr(pointer,'\"');
+		pointer++;
+	        value = pointer;
+	        pointer = strchr(pointer,'\"');
+	        pointer[0]='\0';
+		
+	        have_sponsor = strdup(value);
+	    }
+	    else if (strcmp(variable,"icon") == 0) {
+	        pointer = strchr(pointer,'\"');
+	        pointer++;
+	        value = pointer;
+	        pointer = strchr(pointer,'\"');
+	        pointer[0]='\0';
+		
+	        have_icon = strdup(value);
+	    }
+	    else if (strcmp(variable,"thumbs_down") == 0) {
+	        tournament_info->thumbs_down = atoi(pointer);
+	    }
+	    else
+	        eventlog(eventlog_level_error,__FUNCTION__,"bad option \"%s\" in \"%s\"",variable,filename);
+	    
+	    if (have_sponsor && have_icon) {
+		sponsor = malloc(strlen(have_sponsor)+6);
+	        sprintf(sponsor, "%c%c3W,%s",have_icon[1],have_icon[0],have_sponsor);
+	        if (tournament_info->sponsor) free((void *)tournament_info->sponsor);
+	        tournament_info->sponsor = strdup(sponsor);
+	        free((void *)have_sponsor);
+		free((void *)have_icon);
+	        free((void *)sponsor);
+		have_sponsor = NULL;
+	        have_icon = NULL;
+	    }
+	    free(buff);
 	}
-	else if (strcmp(variable,"sponsor") == 0) {
-	    pointer = strchr(pointer,'\"');
-	    pointer++;
-	    value = pointer;
-	    pointer = strchr(pointer,'\"');
-	    pointer[0]='\0';
-
-	    have_sponsor = strdup(value);
-	}
-	else if (strcmp(variable,"icon") == 0) {
-	    pointer = strchr(pointer,'\"');
-	    pointer++;
-	    value = pointer;
-	    pointer = strchr(pointer,'\"');
-	    pointer[0]='\0';
-
-	    have_icon = strdup(value);
-	}
-	else if (strcmp(variable,"thumbs_down") == 0) {
-	    tournament_info->thumbs_down = atoi(pointer);
-	}
-	else
-	    eventlog(eventlog_level_error,__FUNCTION__,"bad option \"%s\" in \"%s\"",variable,filename);
-	
-	if (have_sponsor && have_icon) {
-	    sponsor = malloc(strlen(have_sponsor)+6);
-	    sprintf(sponsor, "%c%c3W,%s",have_icon[1],have_icon[0],have_sponsor);
-	    if (tournament_info->sponsor) free((void *)tournament_info->sponsor);
-	    tournament_info->sponsor = strdup(sponsor);
-	    free((void *)have_sponsor);
-	    free((void *)have_icon);
-	    free((void *)sponsor);
-	    have_sponsor = NULL;
-	    have_icon = NULL;
-	}
-	free(buff);
     }
     if (have_sponsor) free((void *)have_sponsor);
     if (have_icon) free((void *)have_icon);
