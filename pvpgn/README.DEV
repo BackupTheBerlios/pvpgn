@@ -1,0 +1,130 @@
+
+		    PVPGN (wannabe) DEVELOPERS README
+
+           Please read this file before asking any questions !
+
+
+1. Why ?
+
+You want to start coding for PvPGN ? Why ? What do you expect to get from it ?
+Answer yourself this questions and then go to the next paragraph.
+
+2. History
+
+PvPGN has started as a game server emulation project, taking the excelent's
+bnetd project source and working on it. While initially it has started as
+a War3 emulation patch over bnetd it become a lot more than that (lots of
+new features, lots of code changes organizing). Because of the code roots
+you will notice a lot of things still carrying the "bnetd" word (most notable
+examples are the main servers program file called "bnetd" or the main server
+configuration file called bnetd.conf). We considered that as a sign of respect
+from us to the bnetd coders we keep their names on the code they written (but
+on the new code of course we may name them different).
+
+3. Objective
+
+PvPGN's main objective is to support all Battle.Net clients (games) but are
+considering in the near future to extend it to support other game protocols
+as well.
+
+4. Layout of files:
+Note: Starting here on you may find lots of terms and wors which may sound
+"strange" to you and for this reason we have included a glossary of terms
+in the end of this file.
+
+The PvPGN project consists of a main server (called "bnetd") and various
+other programs and (little) servers (ex. bnchat, d2cs, d2dbs etc...).
+
+PvPGN follows the bnetd's layout of files:
+./bin			-> used to store binaries (after compilation)
+./conf			-> configuration files (many of them templates)
+./files			-> various files needed for clients connecting
+./man			-> outdated man pages :(
+./sbin			-> same as ./bin
+./scripts		-> various scripts for testing/managing pvpgn
+./src			-> the source main directory
+./src/bnetd		-> source files used only by the main server
+./src/common		-> source files used in common by different programs
+./src/compat		-> source files concerning portability of code
+...
+
+The build process takes place in the "src" dir.
+
+5. Coding Style
+a. General
+
+PvPGN is mainly developed on and for UNIX/Linux. The reasons are because we
+as coders work on this systems and because our users (at least the big ones)
+use UNIX/Linux more than ex. Windows. But, even so we try to code in a portable
+fashion and any release PvPGN had we made sure it compiles on win32 too (we
+even release win32 binaries). We will never refuse a good win32 coder but we
+prefer UNIX ones ;)
+
+One thing which is overlooked by newbie coders is the "esthetical" side of the
+code. It may not be so important to many people (which code on the idee "if it
+works then its good") but for us, coding on PvPGN is VERY important. When you
+are coding for PvPGN PLEASE try to make your code look similar to already 
+written code (this includes identing, identificator names, etc...). Keeping
+the code look "the same" makes its reading a lot more easier so, finding
+bugs easier so coding better.
+
+Other overlooked aspect for newbie coders is code replication. Please DONT
+copy and paste code arround !!! If you need to copy common functionality from
+some place, think about making some API of that functionalilty, put it in
+some functions and use it from both places. I repeat, DONT replicate code.
+
+When allocating memory inside a function always free it in the same function
+before its exit (exceptions: the function returns the allocated memory in
+which case the calling function should take care of the allocated memory;
+or the allocated memory is cached/stored somewhere to be used later, in which
+case you must make sure it will be free()d when not needed anymore).
+
+In the startup code of any "external" function (function which may be called
+from other modules then the one containing it) please check ALL the input
+parameters (you will notice how PvPGN already does that in such functions).
+
+b. Code Organizing
+
+PvPGN (inhireted from bnetd) trys to group functions based on their data on
+which they work on. Thus it somewhat resembles the principle of data
+encapsulation used in OOP. For example connection.h defines structs necesarry
+to work with connections (the main one beeing t_connection) and functions
+which work with this structs and which do actions related to this connections.
+Also notice that all this functions are named like conn_<name>(). In general
+if you have a set of functions working on a set of structs, you define the
+structs and the functions in a <module>.h file (thus defining the API) then
+write the function implementations in <module>.c file. And the function names
+should be something like <module>_<name>(). Separating and grouping functions
+in their own modules, working on their own data structures helps isolating
+functionality in the server and thus hunting bugs a lot easier.
+
+c. Code Flow
+
+Note: this chapter is more or less correct. Is intended to give a general
+ideea about the code flow, it may contain flows and things which are not
+in sync with the actual code, for a better understanding I recommend reading
+the actual code
+
+The server starts in main() found in bnetd/main.c file. There it parses
+command line arguments then tries to initilize the modules by calling their
+initilizing function (many of them called like <module>_init()). Some of this
+modules depend on the initilizing of others so the order there may be important.
+Also some of the modules if fail on initilizing may represent a general fail
+thus PvPGN bails out. But should print out a explaining message (or write it
+to the log configured file).
+
+From there the server calls the main server loop function found in server.c.
+Here the loop may be simplified to something like:
+1. select()/poll() on the set of opened sockets
+2. read (if any) network data and "handle" them (by calling the handle function
+coresponding to the class of the connection receiving the data)
+3. write (if any) to the network from the output queue
+4. do any periodic or time based events
+5. go to 1
+
+As seen on step 2. above we call the handling functions coresponding to the
+class of the connection. The handle functions usualy are a big switch/case or
+a for/if (which is equivalent) and they check for the packet type received, then
+they act acordingly to the data received (many of them responing with packets
+by adding them to the output packet queue of the connection).
+
