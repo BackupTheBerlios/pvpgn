@@ -776,6 +776,7 @@ extern int prefs_load(char const * filename)
 
     if (conf_load_file(fd,conf_table)) {
 	eventlog(eventlog_level_error,__FUNCTION__,"error loading config file '%s'",filename);
+	fclose(fd);
 	return -1;
     }
 
