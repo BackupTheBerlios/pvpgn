@@ -581,7 +581,7 @@ void pvpgn_greeting(void)
 }
 
 // MAIN STARTS HERE!!!
-#ifdef WITH_D2
+#ifdef WIN32_GUI
 extern int bnetd_main(int argc, char * * argv)
 #else
 extern int main(int argc, char * * argv)

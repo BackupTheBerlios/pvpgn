@@ -18,10 +18,8 @@
 
 #pragma warning(disable : 4047)
 
-#include <shlobj.h>
-#include <shlwapi.h>
-#include "winmain.h"
 #include "common/setup_before.h"
+#include "winmain.h"
 #include <time.h>
 #include "common/eventlog.h"
 #include "common/version.h"
@@ -47,7 +45,7 @@
 
 #define WM_SHELLNOTIFY          (WM_USER+1)
 
-int extern main(int, char*[]);
+int extern bnetd_main(int, char*[]);
 
 
 void static         guiThread(void*);
@@ -137,7 +135,7 @@ int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE reserved,
 
   //by greini new call of main cause _argc and _argv don't exist in VS
 	//result = main(_argc, _argv);
-	result = main(__argc ,__argv);
+	result = bnetd_main(__argc ,__argv);
     
 	gui.main_finished = TRUE;
     eventlog(eventlog_level_debug,"WinMain","server exited ( return : %i )", result);
@@ -687,7 +685,7 @@ void static guiAddText(const char *str, COLORREF clr){
 	ds.cpMin = 0;
 	ds.cpMax = text_length - 30000;
 	SendMessage(gui.hwndConsole, EM_EXSETSEL, 0, (LPARAM)&ds);
-	SendMessage(gui.hwndConsole, EM_REPLACESEL, FALSE, NULL);
+	SendMessage(gui.hwndConsole, EM_REPLACESEL, FALSE, 0);
 	}
 	
     cr.cpMin = text_length;

@@ -32,7 +32,12 @@ char serviceDescription[] = "Player vs. Player Gaming Network - Server";
 
 
 extern int g_ServiceStatus;
+
+#ifdef WIN32_GUI
+extern int bnetd_main(int argc, char *argv[]);
+#else
 extern int main(int argc, char *argv[]);
+#endif
 
 SERVICE_STATUS serviceStatus;
 SERVICE_STATUS_HANDLE serviceStatusHandle = 0;
@@ -199,7 +204,11 @@ void WINAPI ServiceMain(DWORD argc, char *argv[])
 		g_ServiceStatus = 1;
 		argc = 1;
 
+#ifdef WIN32_GUI
+		bnetd_main(argc, argv);
+#else
 		main(argc, argv);
+#endif
 
 		// service was stopped
 		serviceStatus.dwCurrentState = SERVICE_STOP_PENDING;
