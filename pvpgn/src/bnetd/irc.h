@@ -25,6 +25,7 @@
 #undef JUST_NEED_TYPES
 
 extern int irc_send_cmd(t_connection * conn, char const * command, char const * params);
+extern int irc_send_cmd2(t_connection * conn, char const * prefix, char const * command, char const * postfix, char const * comment);
 extern int irc_send(t_connection * conn, int code, char const * params);
 extern int irc_send_ping(t_connection * conn);
 extern int irc_send_pong(t_connection * conn, char const * params);

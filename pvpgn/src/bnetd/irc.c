@@ -110,13 +110,19 @@ extern int irc_send_cmd(t_connection * conn, char const * command, char const * 
     if (params) {
         len = 1+strlen(ircname)+1+strlen(command)+1+strlen(nick)+1+strlen(params)+2;
 	if (len > MAX_IRC_MESSAGE_LEN)
+	{
 	    eventlog(eventlog_level_error,"irc_send_cmd","message to send is too large (%d bytes)",len);
+	    return -1;
+	}
 	else
 	    sprintf(data,":%s %s %s %s\r\n",ircname,command,nick,params);
     } else {
         len = 1+strlen(ircname)+1+strlen(command)+1+strlen(nick)+1+2;
 	if (len > MAX_IRC_MESSAGE_LEN)
+	{
 	    eventlog(eventlog_level_error,"irc_send_cmd","message to send is too large (%d bytes)",len);
+	    return -1;
+	}
 	else
 	sprintf(data,":%s %s %s\r\n",ircname,command,nick);
     }
@@ -142,6 +148,63 @@ extern int irc_send(t_connection * conn, int code, char const * params)
     }
     sprintf(temp,"%03u",code);
     return irc_send_cmd(conn,temp,params);
+}
+
+extern int irc_send_cmd2(t_connection * conn, char const * prefix, char const * command, char const * postfix, char const * comment)
+{
+    t_packet * p;
+    char data[MAX_IRC_MESSAGE_LEN+1];
+    int len;
+    
+    if (!conn) {
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL connection");
+	return -1;
+    }
+    if (!prefix)
+    {
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL prefix");
+	return -1;
+    }
+    if (!command) {
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL command");
+	return -1;
+    }
+    if (!postfix)
+    {
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL postfix");
+	return -1;
+    }
+    
+    if (!(p = packet_create(packet_class_raw))) {
+	eventlog(eventlog_level_error,__FUNCTION__,"could not create packet");
+	return -1;
+    }
+
+    if (comment) {
+        len = 1+strlen(prefix)+1+strlen(command)+1+strlen(postfix)+2+strlen(comment)+1+2;
+	if (len > MAX_IRC_MESSAGE_LEN)
+	{
+	    eventlog(eventlog_level_error,__FUNCTION__,"message to send is too large (%d bytes)",len);
+	    return -1;
+	}
+	else
+	    sprintf(data,":%s %s %s :%s\r\n",prefix,command,postfix,comment);
+    } else {
+        len = 1+strlen(prefix)+1+strlen(command)+1+strlen(postfix)+1+2;
+	if (len > MAX_IRC_MESSAGE_LEN)
+	{
+	    eventlog(eventlog_level_error,__FUNCTION__,"message to send is too large (%d bytes)",len);
+	    return -1;
+	}
+	else
+	sprintf(data,":%s %s %s\r\n",prefix,command,postfix);
+    }
+    packet_set_size(p,0);
+    packet_append_data(p,data,len);
+    eventlog(eventlog_level_debug,__FUNCTION__,"[%d] sent \"%s\"",conn_get_socket(conn),data);
+    conn_push_outqueue(conn,p);
+    packet_del_ref(p);
+    return 0;
 }
 
 extern int irc_send_ping(t_connection * conn)
@@ -266,13 +329,12 @@ extern int irc_welcome(t_connection * conn)
 
 
     if ((34+strlen(tempname)+1)<=MAX_IRC_MESSAGE_LEN)
-        /* sprintf(temp,":Welcome to the Internet Relay Network %s!%s@%s",conn_get_botuser(conn),conn_get_user(conn),addr_num_to_ip_str(conn_get_addr(conn)));*/
         sprintf(temp,":Welcome to the BNETD IRC Network %s",tempname);
     else
         sprintf(temp,":Maximum length exceeded");
     irc_send(conn,RPL_WELCOME,temp);
     
-    if ((14+strlen(server_get_name())+24+strlen(PVPGN_SOFTWARE" "PVPGN_VERSION)+1)<=MAX_IRC_MESSAGE_LEN)
+    if ((14+strlen(server_get_name())+10+strlen(PVPGN_SOFTWARE" "PVPGN_VERSION)+1)<=MAX_IRC_MESSAGE_LEN)
         sprintf(temp,":Your host is %s, running "PVPGN_SOFTWARE" "PVPGN_VERSION,server_get_name());
     else
         sprintf(temp,":Maximum length exceeded");
@@ -285,6 +347,7 @@ extern int irc_welcome(t_connection * conn)
     else
         sprintf(temp,":Maximum length exceeded");
     irc_send(conn,RPL_CREATED,temp);
+
     if ((strlen(server_get_name())+7+strlen(PVPGN_SOFTWARE" "PVPGN_VERSION)+9+1)<=MAX_IRC_MESSAGE_LEN)
         sprintf(temp,"%s "PVPGN_SOFTWARE" "PVPGN_VERSION" aroO Oon",server_get_name()); /* FIXME: be honest about modes :) */
     else
@@ -296,7 +359,7 @@ extern int irc_welcome(t_connection * conn)
     if ((3+strlen(server_get_name())+22+1)<=MAX_IRC_MESSAGE_LEN)
     	sprintf(temp,":- %s Message of the day - ",server_get_name());
     else
-        sprintf(temp,":Maximum length exceeded"); //amadeo shortened that crap a bit :)
+        sprintf(temp,":Maximum length exceeded"); 
     irc_send(conn,RPL_MOTDSTART,temp);
     irc_send(conn,RPL_MOTD,":- This is an experimental service and a MOTD is          ");
     irc_send(conn,RPL_MOTD,":- therefore not yet supported.                           ");
