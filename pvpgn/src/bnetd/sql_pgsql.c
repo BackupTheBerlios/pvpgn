@@ -16,6 +16,7 @@ static t_sql_row * sql_pgsql_fetch_row(t_sql_res *);
 static void sql_pgsql_free_result(t_sql_res *);
 static unsigned int sql_pgsql_num_rows(t_sql_res *);
 static unsigned int sql_pgsql_num_fields(t_sql_res *);
+static unsigned int sql_pgsql_affected_rows(void);
 static t_sql_field * sql_pgsql_fetch_fields(t_sql_res *);
 static int sql_pgsql_free_fields(t_sql_field *);
 static void sql_pgsql_escape_string(char *, const char *, int);
@@ -29,12 +30,14 @@ t_sql_engine sql_pgsql = {
     sql_pgsql_free_result,
     sql_pgsql_num_rows,
     sql_pgsql_num_fields,
+    sql_pgsql_affected_rows,
     sql_pgsql_fetch_fields,
     sql_pgsql_free_fields,
     sql_pgsql_escape_string
 };
 
 static PGconn *pgsql = NULL;
+static unsigned int lastarows = 0;
 
 typedef struct {
     int crow;
@@ -124,6 +127,12 @@ static t_sql_res * sql_pgsql_query_res(const char * query)
     return res;
 }
 
+static void _pgsql_update_arows (const char *str)
+{
+    if (!str || str[0] == '\0') lastarows = 0;
+    lastarows = (unsigned int)atoi(str);
+}
+
 static int sql_pgsql_query(const char * query)
 {
     PGresult *pgres;
@@ -145,6 +154,8 @@ static int sql_pgsql_query(const char * query)
     }
 
     res = PQresultStatus(pgres) == PGRES_COMMAND_OK ? 0 : -1;
+    /* Dizzy: HACK ALERT! cache affected rows here before destroying result */
+    if (!res) _pgsql_update_arows(PQcmdTuples(pgres));
     PQclear(pgres);
 
     return res;
@@ -210,6 +221,11 @@ static unsigned int sql_pgsql_num_fields(t_sql_res *result)
     }
 
     return PQnfields(((t_pgsql_res *)result)->pgres);
+}
+
+static unsigned int sql_pgsql_affected_rows(void)
+{
+    return lastarows;
 }
 
 static t_sql_field * sql_pgsql_fetch_fields(t_sql_res *result)

@@ -627,28 +627,25 @@ int sql_write_attrs(t_storage_info * info, void *attrs)
 	sprintf(query + strlen(query), "%u", uid);
 	strcat(query, "'");
 
-//      eventlog(eventlog_level_trace, "db_set", "query: %s", query);
+//      eventlog(eventlog_level_trace, "db_set", "update query: %s", query);
 
-	if (sql->query(query))
+	if (sql->query(query) || !sql->affected_rows())
 	{
 	    char query2[512];
-	    eventlog(eventlog_level_info, __FUNCTION__, "trying to insert new column %s", col);
+
+//	    eventlog(eventlog_level_debug, __FUNCTION__, "trying to insert new column %s", col);
 	    strcpy(query2, "ALTER TABLE ");
 	    strncat(query2, tab, DB_MAX_TAB);
 	    strcat(query2, " ADD COLUMN ");
 	    strncat(query2, col, DB_MAX_TAB);
 	    strcat(query2, " VARCHAR(128);");
 
-//          eventlog(eventlog_level_trace, __FUNCTION__, "query: %s", query2);
-	    if (sql->query(query2))
-	    {
-		eventlog(eventlog_level_error, __FUNCTION__, "ALTER failed, bailing out");
-		continue;
-	    }
+//          eventlog(eventlog_level_trace, __FUNCTION__, "alter query: %s", query2);
+	    sql->query(query2);
 
 	    /* try query again */
-//          eventlog(eventlog_level_trace, "db_set", "query: %s", query);
-	    if (sql->query(query))
+//          eventlog(eventlog_level_trace, "db_set", "retry insert query: %s", query);
+	    if (sql->query(query) || !sql->affected_rows())
 	    {
 		// Tried everything, now trying to insert that user to the table for the first time
 		sprintf(query2, "INSERT INTO %s (uid,%s) VALUES ('%u','%s')", tab, col, uid, escape);

@@ -21,6 +21,7 @@ static t_sql_row * sql_mysql_fetch_row(t_sql_res *);
 static void sql_mysql_free_result(t_sql_res *);
 static unsigned int sql_mysql_num_rows(t_sql_res *);
 static unsigned int sql_mysql_num_fields(t_sql_res *);
+static unsigned int sql_mysql_affected_rows(void);
 static t_sql_field * sql_mysql_fetch_fields(t_sql_res *);
 static int sql_mysql_free_fields(t_sql_field *);
 static void sql_mysql_escape_string(char *, const char *, int);
@@ -34,6 +35,7 @@ t_sql_engine sql_mysql = {
     sql_mysql_free_result,
     sql_mysql_num_rows,
     sql_mysql_num_fields,
+    sql_mysql_affected_rows,
     sql_mysql_fetch_fields,
     sql_mysql_free_fields,
     sql_mysql_escape_string
@@ -53,7 +55,7 @@ static int sql_mysql_init(const char *host, const char *port, const char *socket
         return -1;
     }
 
-    if ((mysql = mysql_real_connect(mysql, host, user, pass, name, port ? atoi(port) : 0, socket, 0)) == NULL) {
+    if ((mysql = mysql_real_connect(mysql, host, user, pass, name, port ? atoi(port) : 0, socket, CLIENT_FOUND_ROWS)) == NULL) {
         eventlog(eventlog_level_error, __FUNCTION__, "error connecting to database");
         return -1;
     }
@@ -152,6 +154,11 @@ static unsigned int sql_mysql_num_fields(t_sql_res *result)
     }
 
     return mysql_num_fields((MYSQL_RES *)result);
+}
+
+static unsigned int sql_mysql_affected_rows(void)
+{
+    return mysql_affected_rows(mysql);
 }
 
 static t_sql_field * sql_mysql_fetch_fields(t_sql_res *result)

@@ -19,6 +19,7 @@ typedef struct {
     void (*free_result)(t_sql_res *);
     unsigned int (*num_rows)(t_sql_res *);
     unsigned int (*num_fields)(t_sql_res *);
+    unsigned int (*affected_rows)(void);
     t_sql_field * (*fetch_fields)(t_sql_res *);
     int (*free_fields)(t_sql_field *);
     void (*escape_string)(char *, const char *, int);
