@@ -4061,7 +4061,7 @@ extern t_connection * connlist_find_connection_by_uid(unsigned int uid)
     LIST_TRAVERSE_CONST(conn_head,curr)
     {
 	c = elem_get_data(curr);
-	if (conn_get_userid(c)==uid)
+	if (c->account && conn_get_userid(c)==uid)
 	    return c;
     }
     
