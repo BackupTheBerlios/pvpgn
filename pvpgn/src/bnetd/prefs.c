@@ -415,6 +415,7 @@ extern int prefs_load(char const * filename)
 	char const * directive;
 	char const * value;
 	char *       rawvalue;
+	unsigned     cflag;
 	
         if (!(fp = fopen(filename,"r")))
         {
@@ -425,7 +426,24 @@ extern int prefs_load(char const * filename)
 	/* Read the configuration file */
 	for (currline=1; (buff = file_get_line(fp)); currline++)
 	{
-	    for(cp = buff; *cp && *cp != '#'; cp++);
+	    cflag = 1;
+	    for(cp = buff; *cp; cp++) {
+		switch(*cp) {
+		    case '\\': 
+			if (!*(++cp)) cflag = 0; /* end of string, exit the loop */
+			break;
+		    case '"':
+			switch(cflag) {
+			    case 1: cflag = 2; break;
+			    case 2: cflag = 1; break;
+			}
+			break;
+		    case '#':
+			if (cflag == 1) cflag = 0; /* comment outside quotes found, exit the loop */
+			break;
+		}
+		if (!cflag) break;
+	    }
 	    if (*cp == '#') *cp = '\0';
 
 	    cp = buff;
