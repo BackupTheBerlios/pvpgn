@@ -39,6 +39,8 @@ typedef int (*t_oom_cb)(void);
 # endif
 #endif
 
+#ifndef XALLOC_SKIP
+
 #define xmalloc(size) xmalloc_real(size,__FILE__,__LINE__)
 void *xmalloc_real(size_t size, const char *fn, unsigned ln);
 #define xcalloc(no,size) xcalloc_real(no,size,__FILE__,__LINE__)
@@ -50,5 +52,16 @@ char *xstrdup_real(const char *str, const char *fn, unsigned ln);
 #define xfree(ptr) xfree_real(ptr,__FILE__,__LINE__)
 void xfree_real(void *ptr, const char *fn, unsigned ln);
 void xalloc_setcb(t_oom_cb cb);
+
+#else /* XALLOC_SKIP */
+
+#define xmalloc(size) malloc(size)
+#define xcalloc(no,size) calloc(no,size)
+#define xrealloc(ptr,size) realloc(ptr,size)
+#define xstrdup(str) strdup(str)
+#define xfree(ptr) free(ptr)
+#define xalloc_setcb(cb)
+
+#endif
 
 #endif /* INCLUDED_XALLOC_PROTOS */

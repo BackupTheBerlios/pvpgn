@@ -17,6 +17,8 @@
  */
 
 #include "common/setup_before.h"
+#ifndef XALLOC_SKIP
+
 #ifdef HAVE_STDDEF_H
 # include <stddef.h>
 #endif
@@ -113,3 +115,5 @@ void xalloc_setcb(t_oom_cb cb)
 {
     oom_cb = cb;
 }
+
+#endif /* XALLOC_SKIP */
