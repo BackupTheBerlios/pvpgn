@@ -49,6 +49,8 @@ and 3v3v3v3) and a new AT gametype (2v2v2)
 more than once, it returned a wrong link)
 -- a tiny "fix" to /f remove <username> so u can remove users from your friendslist 
 that have allready been deleted from the server earlier
+-- fixed problems with SC stats being lost on server shutdown in mySQL mode
+(caused due to unwanted renaming of the columns on next server startup)
 
 
 1.5.0beta3:
