@@ -73,6 +73,7 @@
 #include "common/tag.h"
 #include "common/addr.h"
 #include "realm.h"
+#include "watch.h"
 #include "game_conv.h"
 #include "game.h"
 #ifdef WITH_BITS
@@ -1738,6 +1739,12 @@ extern int game_del_player(t_game * game, unsigned int sessionid)
     }
     account = accountlist_find_account(lle->chatname);
 #endif
+
+   if(conn_get_leavegamewhisper_ack(c)==0)
+     {
+       watchlist_notify_event(conn_get_account(c),NULL,watch_event_leavegame);
+       conn_set_leavegamewhisper_ack(c,1); //1 = already whispered. We reset this each time user joins a channel
+     }
     
     eventlog(eventlog_level_debug,"game_del_player","game \"%s\" has ref=%u, count=%u; trying to remove player \"%s\"",game_get_name(game),game->ref,game->count,(tname = account_get_name(account)));
     account_unget_name(tname);
@@ -1775,6 +1782,7 @@ extern int game_del_player(t_game * game, unsigned int sessionid)
 	    game->ref--;
             game->lastaccess_time = time(NULL);
 	    
+	    if (game->ref > 1)
 	    game_choose_host(game);
 	    
 	    return 0;

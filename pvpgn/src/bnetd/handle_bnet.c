@@ -4505,12 +4505,6 @@ static int _client_closegame(t_connection * c, t_packet const * const packet)
    conn_set_game(c,NULL,NULL,NULL,game_type_none,0);
 
    //to prevent whispering over and over that user joined channel
-   if(conn_get_leavegamewhisper_ack(c)==0)
-     {
-       watchlist_notify_event(conn_get_account(c),NULL,watch_event_leavegame);
-       conn_set_leavegamewhisper_ack(c,1); //1 = already whispered. We reset this each time user joins a channel
-     }
-
    return 0;
 }
 
