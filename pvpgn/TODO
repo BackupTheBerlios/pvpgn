@@ -18,6 +18,9 @@ Release v1.6 roadmap:
 	4. add stats recording for tournament games (did race wins)
 5. optimize PvPGN using "inline" functions in all "small" functions
 6. complete support for diablo2 1.10
+7. add /watchall <gametype> option....
+8. add maxusers_per_channel to bnetd.conf and limit users in private channels 
+   to this value
 
 
 Stuff not programmed for any specific version release:			      
