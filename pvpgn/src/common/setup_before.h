@@ -347,7 +347,7 @@
 #endif
 
 /* avoid using padding */
-#if defined(__GNUC__) /* FIXME: which gcc versions? */
+#if defined(__GNUC__) && (__GNUC__ < 3 || (__GNUC__ == 3 && __GNUC_MINOR__<4 ))
 # define PACKED_ATTR() __attribute__((__packed__))
 #else
 # define PACKED_ATTR()
