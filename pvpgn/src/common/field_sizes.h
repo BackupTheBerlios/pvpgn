@@ -27,6 +27,7 @@
 #define MAX_COMMAND_LEN        32
 #define USER_NAME_MAX          16 /* including terminating NUL char */
 #define USER_NAME_MIN           2
+#define USER_PASS_MAX          12 /* max password length as allowed by clients */
 #define UNCHECKED_NAME_STR     32 /* including terminating NUL char */
                                   /* (longer than USER_NAME_MAX and CHAR_NAME_LEN so that
                                    *  proper error packets can be returned) */
