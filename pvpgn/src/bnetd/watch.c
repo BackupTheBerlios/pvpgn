@@ -44,7 +44,6 @@
 #include "watch.h"
 #include "friends.h"
 #include "clienttag.h"
-#include "compat/uint.h"
 #include "common/setup_after.h"
 
 
@@ -56,7 +55,7 @@ extern int watchlist_add_events(t_connection * owner, t_account * who, char cons
 {
     t_elem const * curr;
     t_watch_pair * pair;
-    t_uint32	   ctag;
+    t_clienttag	   ctag;
     
     if (!owner)
     {
@@ -111,7 +110,7 @@ extern int watchlist_del_events(t_connection * owner, t_account * who, char cons
 {
     t_elem *       curr;
     t_watch_pair * pair;
-    t_uint32       ctag;
+    t_clienttag    ctag;
     
     if (!owner)
     {
@@ -230,7 +229,7 @@ extern int watchlist_del_by_account(t_account * who)
     return 0;
 }
 
-static int handle_event_whisper(t_account *account, char const *gamename, t_uint32 clienttag, t_watch_event event)
+static int handle_event_whisper(t_account *account, char const *gamename, t_clienttag clienttag, t_watch_event event)
 {
     t_elem const * curr;
     t_watch_pair * pair;
@@ -323,7 +322,7 @@ static int handle_event_whisper(t_account *account, char const *gamename, t_uint
     return 0;
 }
 
-extern int watchlist_notify_event(t_account * who, char const * gamename, t_uint32 clienttag, t_watch_event event)
+extern int watchlist_notify_event(t_account * who, char const * gamename, t_clienttag clienttag, t_watch_event event)
 {
 
     switch (event)

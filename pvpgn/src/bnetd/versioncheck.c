@@ -69,7 +69,6 @@
 #include "prefs.h"
 #include "versioncheck.h"
 #include "clienttag.h"
-#include "compat/uint.h"
 #include "common/setup_after.h"
 
 
@@ -78,7 +77,7 @@ static t_versioncheck dummyvc={ "A=42 B=42 C=42 4 A=A^S B=B^B C=C^C A=A^S", "IX8
 
 static int versioncheck_compare_exeinfo(t_parsed_exeinfo * pattern, t_parsed_exeinfo * match);
 
-extern t_versioncheck * versioncheck_create(char const * archtag, t_uint32 clienttag)
+extern t_versioncheck * versioncheck_create(char const * archtag, t_clienttag clienttag)
 {
     t_elem const *   curr;
     t_versioninfo *  vi;
@@ -389,7 +388,7 @@ void free_parsed_exeinfo(t_parsed_exeinfo * parsed_exeinfo)
   }
 }
 
-extern int versioncheck_validate(t_versioncheck * vc, char const * archtag, t_uint32 clienttag, char const * exeinfo, unsigned long versionid, unsigned long gameversion, unsigned long checksum)
+extern int versioncheck_validate(t_versioncheck * vc, char const * archtag, t_clienttag clienttag, char const * exeinfo, unsigned long versionid, unsigned long gameversion, unsigned long checksum)
 {
     t_elem const     * curr;
     t_versioninfo    * vi;

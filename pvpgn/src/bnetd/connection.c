@@ -107,7 +107,6 @@
 #include "topic.h"
 #include "common/fdwatch.h"
 #include "clienttag.h"
-#include "compat/uint.h"
 #include "common/setup_after.h"
 
 
@@ -1264,7 +1263,7 @@ extern void conn_set_gamelang(t_connection * c, unsigned int gamelang)
 }
 
 
-extern t_uint32 conn_get_clienttag(t_connection const * c)
+extern t_clienttag conn_get_clienttag(t_connection const * c)
 {
     if (!c)
     {
@@ -1303,7 +1302,7 @@ extern char const * conn_get_fake_clienttag(t_connection const * c)
 }
 
 
-extern void conn_set_clienttag(t_connection * c, t_uint32 clienttag)
+extern void conn_set_clienttag(t_connection * c, t_clienttag clienttag)
 {
     if (!c)
     {
@@ -3397,7 +3396,7 @@ extern time_t conn_get_anongame_search_starttime(t_connection * c)
 }
 
 
-extern int conn_get_user_count_by_clienttag(t_uint32 ct)
+extern int conn_get_user_count_by_clienttag(t_clienttag ct)
 {
    t_connection * conn;
    t_elem const * curr;
@@ -3414,7 +3413,7 @@ extern int conn_get_user_count_by_clienttag(t_uint32 ct)
    return clienttagusers;
 }
 
-extern char const * conn_get_user_game_title(t_uint32 ct)
+extern char const * conn_get_user_game_title(t_clienttag ct)
 {
    switch (ct)
    {

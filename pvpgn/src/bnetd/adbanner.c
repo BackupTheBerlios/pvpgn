@@ -52,7 +52,6 @@
 #include "connection.h"
 #include "adbanner.h"
 #include "clienttag.h"
-#include "compat/uint.h"
 #include "common/setup_after.h"
 
 
@@ -67,8 +66,8 @@ static unsigned int adbannerlist_norm_count=0;
 static t_adbanner * adbanner_create(unsigned int id, unsigned int next_id, unsigned int delay, bn_int tag, char const * filename, char const * link, char const * client);
 static int adbanner_destroy(t_adbanner const * ad);
 static int adbannerlist_insert(t_list * head, unsigned int * count, char const * filename, unsigned int delay, char const * link, unsigned int next_id, char const * client);
-static t_adbanner * adbannerlist_find_adbanner_by_id(t_list const * head, unsigned int id, t_uint32 clienttag);
-static t_adbanner * adbannerlist_get_random(t_list const * head, t_uint32 client);
+static t_adbanner * adbannerlist_find_adbanner_by_id(t_list const * head, unsigned int id, t_clienttag clienttag);
+static t_adbanner * adbannerlist_get_random(t_list const * head, t_clienttag client);
 
 
 static t_adbanner * adbanner_create(unsigned int id, unsigned int next_id, unsigned int delay, bn_int tag, char const * filename, char const * link, char const * client)
@@ -143,7 +142,7 @@ static int adbanner_destroy(t_adbanner const * ad)
 extern t_adbanner * adbanner_get(t_connection const * c, unsigned int id)
 {
   t_adbanner * banner;
-  t_uint32 ctag = conn_get_clienttag(c);
+  t_clienttag ctag = conn_get_clienttag(c);
 
   banner = adbannerlist_find_adbanner_by_id(adbannerlist_init_head,id,ctag);
   if (!banner) banner = adbannerlist_find_adbanner_by_id(adbannerlist_start_head,id,ctag);
@@ -156,7 +155,7 @@ extern t_adbanner * adbanner_pick(t_connection const * c, unsigned int prev_id)
 {
     t_adbanner const * prev;
     unsigned int       next_id;
-    t_uint32 ctag;
+    t_clienttag ctag;
     
     if (!c)
     {
@@ -252,7 +251,7 @@ extern char const * adbanner_get_link(t_adbanner const * ad)
 }
 
 
-extern t_uint32 adbanner_get_client(t_adbanner const * ad)
+extern t_clienttag adbanner_get_client(t_adbanner const * ad)
 {
     if (!ad)
     {
@@ -263,7 +262,7 @@ extern t_uint32 adbanner_get_client(t_adbanner const * ad)
 }
 
 
-static t_adbanner * adbannerlist_find_adbanner_by_id(t_list const * head, unsigned int id, t_uint32 clienttag)
+static t_adbanner * adbannerlist_find_adbanner_by_id(t_list const * head, unsigned int id, t_clienttag clienttag)
 {
     t_elem const * curr;
     t_adbanner *   temp;
@@ -289,7 +288,7 @@ static t_adbanner * adbannerlist_find_adbanner_by_id(t_list const * head, unsign
  * Dizzy: maybe we should use a temporary list, right now we parse the list for
  * 2 times. It should not matter for servers without more than 20 ads :)
 */
-static t_adbanner * adbannerlist_get_random(t_list const * head, t_uint32 client)
+static t_adbanner * adbannerlist_get_random(t_list const * head, t_clienttag client)
 {
     t_elem const * curr;
     t_adbanner *   temp;

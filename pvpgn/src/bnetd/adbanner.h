@@ -18,7 +18,7 @@
 #ifndef INCLUDED_ADBANNER_TYPES
 #define INCLUDED_ADBANNER_TYPES
 
-#include "compat/uint.h"
+#include "clienttag.h"
 
 typedef struct adbanner
 #ifdef ADBANNER_INTERNAL_ACCESS
@@ -29,7 +29,7 @@ typedef struct adbanner
     unsigned int next; /* adid or 0 */
     char const * filename;
     char const * link;
-    t_uint32	 client;
+    t_clienttag	 client;
 }
 #endif
 t_adbanner;
@@ -52,7 +52,7 @@ extern unsigned int adbanner_get_id(t_adbanner const * ad);
 extern unsigned int adbanner_get_extensiontag(t_adbanner const * ad);
 extern char const * adbanner_get_filename(t_adbanner const * ad);
 extern char const * adbanner_get_link(t_adbanner const * ad);
-extern t_uint32     adbanner_get_client(t_adbanner const * ad);
+extern t_clienttag  adbanner_get_client(t_adbanner const * ad);
 
 extern int adbannerlist_create(char const * filename);
 extern int adbannerlist_destroy(void);

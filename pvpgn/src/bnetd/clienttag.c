@@ -41,12 +41,12 @@
 #include "compat/strerror.h"
 #include "common/eventlog.h"
 #include "common/tag.h"
-#include "compat/uint.h"
+#include "clienttag.h"
 #include "common/setup_after.h"
 
-static t_uint32 str_to_uint(char const * str)
+static t_clienttag str_to_uint(char const * str)
 {
-    t_uint32 result;
+    t_clienttag result;
 
     result  = str[0]<<24;
     result |= str[1]<<16;
@@ -56,7 +56,7 @@ static t_uint32 str_to_uint(char const * str)
     return result;
 }
 
-extern t_uint32 clienttag_str_to_uint(char const * clienttag)
+extern t_clienttag clienttag_str_to_uint(char const * clienttag)
 {
 	if (!clienttag)
 	{
@@ -67,7 +67,7 @@ extern t_uint32 clienttag_str_to_uint(char const * clienttag)
 	return str_to_uint(clienttag);
 }
 
-extern char const * clienttag_uint_to_str(t_uint32 clienttag)
+extern char const * clienttag_uint_to_str(t_clienttag clienttag)
 {
 	switch (clienttag)
 	{

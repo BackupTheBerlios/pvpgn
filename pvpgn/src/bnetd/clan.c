@@ -123,7 +123,7 @@ extern int clan_send_packet_to_online_members(t_clan * clan, t_packet * packet)
     LIST_TRAVERSE(clan->members, curr)
     {
 	t_clanmember *member;
-	t_uint32 clienttag;
+	t_clienttag clienttag;
 	if ((member = elem_get_data(curr)) && (member->memberconn) && (clienttag = conn_get_clienttag(member->memberconn)) && ((clienttag ==  CLIENTTAG_WARCRAFT3_UINT ) || (clienttag == CLIENTTAG_WAR3XP_UINT)))
 	    conn_push_outqueue(member->memberconn, packet);
     }
@@ -154,7 +154,7 @@ extern int clan_send_status_window_on_create(t_clan * clan)
 	LIST_TRAVERSE(clan->members, curr)
 	{
 	    t_clanmember *member;
-	    t_uint32 clienttag;
+	    t_clienttag clienttag;
 	    if ((member = elem_get_data(curr)) && member->memberconn && (clienttag = conn_get_clienttag(member->memberconn)) && ((clienttag == CLIENTTAG_WARCRAFT3_UINT) || (clienttag == CLIENTTAG_WAR3XP_UINT)))
 	    {
 		if (conn_get_channel(member->memberconn))
@@ -192,7 +192,7 @@ extern int clan_close_status_window_on_disband(t_clan * clan)
 	LIST_TRAVERSE(clan->members, curr)
 	{
 	    t_clanmember *member;
-	    t_uint32 clienttag;
+	    t_clienttag clienttag;
 	    if ((member = elem_get_data(curr)) && member->memberconn && (clienttag = conn_get_clienttag(member->memberconn)) && ((clienttag == CLIENTTAG_WARCRAFT3_UINT) || (clienttag ==  CLIENTTAG_WAR3XP_UINT) ))
 	    {
 		conn_push_outqueue(member->memberconn, rpacket);
@@ -211,7 +211,7 @@ extern int clan_send_status_window(t_connection * c)
     t_packet * rpacket;
     t_account *acc = conn_get_account(c);
     t_clanmember *member;
-    t_uint32 clienttag;
+    t_clienttag clienttag;
 
     if (acc == NULL)
 	return 0;
@@ -235,7 +235,7 @@ extern int clan_send_status_window(t_connection * c)
 extern int clan_close_status_window(t_connection * c)
 {
     t_packet * rpacket;
-    t_uint32 clienttag;
+    t_clienttag clienttag;
 
     if ((clienttag = conn_get_clienttag(c)) && ((clienttag == CLIENTTAG_WARCRAFT3_UINT) || (clienttag == CLIENTTAG_WAR3XP_UINT)) && ((rpacket = packet_create(packet_class_bnet)) != NULL))
     {
@@ -403,7 +403,7 @@ extern int clan_get_possible_member(t_connection * c, t_packet const *const pack
 	    if ((fr = elem_get_data(curr)) != NULL)
 	    {
 		t_account *fr_acc = friend_get_account(fr);
-		t_uint32 clienttag;
+		t_clienttag clienttag;
 		if (fr->mutual 
 		    && ((conn = connlist_find_connection_by_account(fr_acc)) != NULL) 
 		    && (conn_get_channel(conn) == channel) 

@@ -19,7 +19,8 @@
 #define INCLUDED_CLIENTTAG_TYPES
 
 #include "compat/uint.h"
-// some types here
+
+typedef t_uint32 t_clienttag;
 
 
 #endif
@@ -31,8 +32,8 @@
 
 // some protos here
 
-extern t_uint32 clienttag_str_to_uint(char const * clienttag);
-extern char const * clienttag_uint_to_str(t_uint32 clienttag);
+extern t_clienttag clienttag_str_to_uint(char const * clienttag);
+extern char const * clienttag_uint_to_str(t_clienttag clienttag);
 
 #endif
 #endif

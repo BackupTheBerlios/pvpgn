@@ -29,7 +29,7 @@
 # include "connection.h"
 # undef JUST_NEED_TYPES
 #endif
-#include "compat/uint.h"
+#include "clienttag.h"
 
 #endif
 
@@ -47,7 +47,7 @@ typedef struct
     t_connection * owner; /* who to notify */
     t_account *    who;   /* when this account */
     t_watch_event  what;  /* does one of these things */
-    t_uint32 clienttag;
+    t_clienttag clienttag;
 } t_watch_pair;
 #endif
 
@@ -68,7 +68,7 @@ extern int watchlist_add_events(t_connection * owner, t_account * who, char cons
 extern int watchlist_del_events(t_connection * owner, t_account * who, char const * clienttag, t_watch_event events);
 extern int watchlist_del_all_events(t_connection * owner);
 extern int watchlist_del_by_account(t_account * account);
-extern int watchlist_notify_event(t_account * who, char const * gamename, t_uint32 clienttag, t_watch_event event);
+extern int watchlist_notify_event(t_account * who, char const * gamename, t_clienttag clienttag, t_watch_event event);
 
 #endif
 #endif
