@@ -312,6 +312,7 @@ extern int game_add_player(t_game * game, char const * pass, int startver, t_con
 extern int game_del_player(t_game * game, t_connection * c);
 extern int game_set_report(t_game * game, t_account * account, char const * head, char const * body);
 extern int game_set_reported_results(t_game * game, t_account * account, t_game_result * results);
+extern int game_set_self_report(t_game * game, t_account * account, t_game_result result);
 extern t_game_result * game_get_reported_results(t_game * game, t_account * account);
 extern char const * game_get_mapname(t_game const * game);
 extern int game_set_mapname(t_game * game, char const * mapname);

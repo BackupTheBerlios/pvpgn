@@ -1951,6 +1951,55 @@ extern int game_set_reported_results(t_game * game, t_account * account, t_game_
     return 0;
 }
 
+
+extern int game_set_self_report(t_game * game, t_account * account, t_game_result result)
+{
+    int i;
+    t_game_result * results;
+    
+    if (!game)
+    {
+        eventlog(eventlog_level_error,__FUNCTION__,"got NULL game");
+	return -1;
+    }
+    
+    if (!account)
+    {
+        eventlog(eventlog_level_error,__FUNCTION__,"got NULL account");
+	return -1;
+    }
+    
+    if (!game->players)
+    {
+        eventlog(eventlog_level_error,__FUNCTION__,"player array is NULL");
+	return -1;
+    }
+
+    if (!game->reported_results)
+    {
+        eventlog(eventlog_level_error,__FUNCTION__,"reported_results array is NULL");
+	return -1;
+    }
+    
+    if (!(results = malloc(sizeof(t_game_result)*game->count)))
+    {
+        eventlog(eventlog_level_error,__FUNCTION__,"could not allocate memory to store game results");
+        return -1;
+    }
+
+    for (i=0;i<game->count;i++) 
+    {
+        if ((game->players[i]==account))
+          results[i]= result;
+	else
+          results[i]= game_result_none;
+    }
+
+  game_set_reported_results(game,account,results);
+
+  return 0;
+}
+
 extern t_game_result * game_get_reported_results(t_game * game, t_account * account)
 {
     unsigned int i;

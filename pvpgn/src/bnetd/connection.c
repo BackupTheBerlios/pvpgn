@@ -592,6 +592,12 @@ extern void conn_destroy(t_connection * c)
     if (c->protocol.chat.channel)
 	channel_del_connection(c->protocol.chat.channel,c);
 
+   if ((c->protocol.game) && (c->protocol.account))
+   {
+        game_set_self_report(c->protocol.game,c->protocol.account,game_result_disconnect);
+        game_set_report(c->protocol.game,c->protocol.account,"disconnect","disconnect");
+   }
+
     conn_set_game(c,NULL,NULL,NULL,game_type_none,0);
     c->protocol.state = conn_state_empty;
 
