@@ -1,8 +1,6 @@
 /*
  * Copyright (C) 1998  Mark Baysinger (mbaysing@ucsd.edu)
  * Copyright (C) 1998,1999,2000  Ross Combs (rocombs@cs.nmsu.edu)
- * Some BITS modifications:
- * 		Copyright (C) 2000  Marco Ziech (mmz@gmx.net)
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -61,11 +59,6 @@
 #include "prefs.h"
 #include "ladder.h"
 #include "adbanner.h"
-#include "query.h"
-#ifdef WITH_BITS
-# include "bits.h"
-# include "bits_query.h"
-#endif
 #include "ipban.h"
 #include "gametrans.h"
 #include "autoupdate.h"
@@ -78,7 +71,6 @@
 #include "character.h"
 #include "common/give_up_root_privileges.h"
 #include "versioncheck.h"
-#include "query.h"
 #include "storage.h"
 #include "anongame.h"
 //aaron
@@ -147,9 +139,6 @@ static void usage(char const * progname)
 
 
 // added some more exit status --> put in "compat/exitstatus.h" ???
-#ifdef WITH_BITS
-# define STATUS_BITS_FAILURE		2
-#endif
 #define STATUS_STORAGE_FAILURE		3
 #define STATUS_MAPLISTS_FAILURE		4
 #define STATUS_MATCHLISTS_FAILURE	5
@@ -424,14 +413,6 @@ int pre_server_startup(void)
     gamelist_create();
     timerlist_create();
     server_set_name();
-    query_init();
-#ifdef WITH_BITS
-    bits_query_init();
-    if (bits_init()<0) {
-	eventlog(eventlog_level_error,"pre_server_startup","BITS initialization failed");
-	return STATUS_BITS_FAILURE;
-    }
-#endif
     channellist_create();
     if (helpfile_init(prefs_get_helpfile())<0)
 	eventlog(eventlog_level_error,"pre_server_startup","could not load helpfile");
@@ -512,12 +493,6 @@ void post_server_shutdown(int status)
     	    ipbanlist_destroy();
     	    helpfile_unload();
     	    channellist_destroy();
-#ifdef WITH_BITS
-	    bits_destroy();
-	case STATUS_BITS_FAILURE: //  bits_fail:
-	    bits_query_destroy();
-#endif
-	    query_destroy();
 	    server_clear_name();
     	    timerlist_destroy();
 	    gamelist_destroy();

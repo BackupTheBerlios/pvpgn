@@ -40,10 +40,6 @@
 # include "character.h"
 # include "versioncheck.h"
 # include "anongame.h"
-# ifdef WITH_BITS
-#   include "bits.h"
-#   include "bits_ext.h"
-# endif
 #else
 # define JUST_NEED_TYPES
 # ifdef TIME_WITH_SYS_TIME
@@ -64,10 +60,6 @@
 # include "character.h"
 # include "versioncheck.h"
 # include "anongame.h"
-# ifdef WITH_BITS
-#   include "bits.h"
-#   include "bits_ext.h"
-# endif
 # undef JUST_NEED_TYPES
 #endif
 
@@ -93,13 +85,11 @@ typedef enum
     conn_class_bnet,
     conn_class_file,
     conn_class_bot,
-    conn_class_bits,
-    conn_class_remote,	/* Connection on a remote bits server */
     conn_class_auth,
     conn_class_telnet,
     conn_class_irc,     /* Internet Relay Chat */
     conn_class_d2cs_bnetd,
-	conn_class_w3route,
+    conn_class_w3route,
     conn_class_none
 } t_conn_class;
 
@@ -112,7 +102,6 @@ typedef enum
     conn_state_destroy,
     conn_state_bot_username,
     conn_state_bot_password,
-    conn_state_bits_auth,
     conn_state_untrusted,
     conn_state_pending_raw
 } t_conn_state;
@@ -179,11 +168,6 @@ typedef struct connection
    char const *	      ircline; /* line cache for IRC connections */
    unsigned int		  ircping; /* value of last ping */
    char const *		  ircpass; /* hashed password for PASS authentication */
-# ifdef WITH_BITS
-   unsigned int		  bits_game; /* game is always NULL, this is used instead (0==no game)*/
-   unsigned int          sessionid; /* unique sessionid for this connection on the network */
-   t_bits_connection_extension	* bits;      /* extended connection info for bits connections (conn_class_bits) */
-# endif
    int                   udpok;     /* udp packets can be received by client */
    char const *          w3_username; /* filled between 0x53ff and 0x54ff -- NonReal */
    char const * 		  w3_playerinfo; /* ADDED BY UNDYING SOULZZ 4/7/02 */
@@ -240,12 +224,6 @@ extern t_conn_class conn_get_class(t_connection const * c) ;
 extern void conn_set_class(t_connection * c, t_conn_class class);
 extern t_conn_state conn_get_state(t_connection const * c) ;
 extern void conn_set_state(t_connection * c, t_conn_state state);
-#ifdef WITH_BITS
-extern void conn_set_sessionid(t_connection * c, unsigned int sessionid);
-extern unsigned int conn_get_sessionid(t_connection const * c);
-extern int conn_set_bits_game(t_connection * c, unsigned int gameid);
-extern unsigned int conn_get_bits_game(t_connection const * c);
-#endif
 extern unsigned int conn_get_sessionkey(t_connection const * c) ;
 extern unsigned int conn_get_sessionnum(t_connection const * c) ;
 extern unsigned int conn_get_secret(t_connection const * c) ;
@@ -306,9 +284,6 @@ extern int conn_set_channel(t_connection * c, char const * channelname);
 extern t_game * conn_get_game(t_connection const * c) ;
 extern int conn_set_game(t_connection * c, char const * gamename, char const * gamepass, char const * gameinfo, t_game_type type, int version);
 extern unsigned int conn_get_tcpaddr(t_connection * c) ;
-#ifdef WITH_BITS
-extern int conn_set_game_bits(t_connection * c, char const * gamename, char const * gamepass, char const * gameinfo, t_game_type type, int version, t_game_option option);
-#endif
 extern t_queue * * conn_get_in_queue(t_connection * c) ;
 extern unsigned int conn_get_in_size(t_connection const * c) ;
 extern void conn_set_in_size(t_connection * c, unsigned int size);
@@ -397,9 +372,6 @@ extern t_connection * connlist_find_connection_by_name(char const * name, char c
 extern t_connection * connlist_find_connection_by_accountname(char const * username);
 extern t_connection * connlist_find_connection_by_charname(char const * charname, char const * realmname);
 extern t_connection * connlist_find_connection_by_account(t_account * account);
-#ifdef WITH_BITS
-extern t_connection * connlist_find_connection_by_sessionid(unsigned int sessionid);
-#endif
 extern t_connection * connlist_find_connection_by_uid(unsigned int uid);
 extern int connlist_get_length(void) ;
 extern unsigned int connlist_login_get_length(void) ;

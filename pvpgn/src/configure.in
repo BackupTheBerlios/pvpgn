@@ -85,7 +85,6 @@ AC_ARG_WITH(mysql, [  --with-mysql            include MySQL user accounts suppor
 AC_ARG_WITH(pgsql, [  --with-pgsql            include PostgreSQL user accounts support], [ac_with_pgsql='yes'])
 
 extra_define=""
-dnl AC_ARG_WITH(bits, [  --with-bits             include BITS patch. (EXPERIMENTAL)], [extra_define="${extra_define} -DWITH_BITS"])
 dnl Enable poll()
 AC_ARG_ENABLE(poll,
 [  --enable-poll           Enable poll() instead of select().  Normally poll

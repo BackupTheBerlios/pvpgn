@@ -104,7 +104,6 @@
 #include "message.h"
 #include "common/queue.h"
 #include "handle_auth.h"
-#include "handle_bits.h"
 #include "handle_bnet.h"
 #include "handle_bot.h"
 #include "handle_telnet.h"
@@ -123,16 +122,9 @@
 #include "common/addr.h"
 #include "common/util.h"
 #include "common/rlimit.h"
-#ifdef WITH_BITS
-# include "bits.h"
-# include "bits_query.h"
-# include "bits_ext.h"
-# include "bits_motd.h"
-#endif
 #include "ipban.h"
 #include "helpfile.h"
 #include "gametrans.h"
-#include "query.h"
 #include "autoupdate.h"
 #include "versioncheck.h"
 #include "realm.h"
@@ -582,13 +574,6 @@ static int sd_tcpinput(t_connection * c)
 		    break;
 	    }
 	    break;
-	case conn_class_bits:
-	    if (!(packet = packet_create(packet_class_bits)))
-	    {
-		eventlog(eventlog_level_error,"sd_tcpinput","could not allocate BITS packet for input");
-		return -1;
-	    }
-	    break;
 	case conn_class_defer:
 	case conn_class_bot:
 	case conn_class_irc:
@@ -717,14 +702,6 @@ static int sd_tcpinput(t_connection * c)
 		
 		switch (conn_get_class(c))
 		{
-		case conn_class_bits:
-#ifdef WITH_BITS
-		    ret = handle_bits_packet(c,packet);
-#else
-		    eventlog(eventlog_level_error,"sd_tcpinput","[%d] BITS not enabled (closing connection)",conn_get_socket(c));
-		    ret = -1;
-#endif
-		    break;
 		case conn_class_init:
 		    ret = handle_init_packet(c,packet);
 		    break;
@@ -1512,10 +1489,7 @@ extern int server_process(void)
 	    also it can be the cause for a lot of problems
 	    accountlist_reload(); */
 	    
-	    /* FIXME: reload channel list, need some tests, bits is disabled */
-	    #ifndef WITH_BITS
 	    channellist_reload();
-	    #endif
 
             realmlist_destroy();
             if (realmlist_create(prefs_get_realmfile())<0)
@@ -1558,10 +1532,6 @@ extern int server_process(void)
 	    
 	    if (prefs_get_track())
 		tracker_set_servers(prefs_get_trackserv_addrs());
-#ifdef WITH_BITS
-	    if (!bits_uplink_connection)
-		bits_motd_load_from_file();
-#endif
 	    if (command_groups_reload(prefs_get_command_groups_file())<0)
 		eventlog(eventlog_level_error,"server_process","could not load new command_groups list");
 
@@ -1621,9 +1591,6 @@ extern int server_process(void)
 
 	/* reap dead connections */
 	connlist_reap();
-
-	/* check all pending queries */
-	query_tick();
     }
     
     /* cleanup for server shutdown */

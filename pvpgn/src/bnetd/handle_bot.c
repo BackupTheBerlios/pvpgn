@@ -37,9 +37,6 @@
 #  include <memory.h>
 # endif
 #endif
-#ifdef BITS
-# include "compat/memcpy.h"
-#endif
 #include "compat/strdup.h"
 #include <ctype.h>
 #include "common/packet.h"
@@ -57,14 +54,6 @@
 #include "common/bn_type.h"
 #include "common/field_sizes.h"
 #include "common/list.h"
-#ifdef WITH_BITS
-# include "query.h"
-# include "bits.h"
-# include "bits_va.h"
-# include "bits_login.h"
-# include "bits_query.h"
-# include "bits_packet.h"
-#endif
 #include "handle_bot.h"
 #include "common/setup_after.h"
 
@@ -210,34 +199,6 @@ extern int handle_bot_packet(t_connection * c, t_packet const * const packet)
 		}
 		if (!(account = accountlist_find_account(botuser)))
 		{
-#ifdef WITH_BITS
-		    t_query * q;
-		    
-		    if (!bits_master) {
-			bits_va_lock_account(botuser);
-			account = accountlist_find_account(botuser);
-			if (!account) {
-			    eventlog(eventlog_level_warn,"handle_bot_packet","account is still NULL");
-		  	    conn_set_state(c,conn_state_bot_username);
-		    
-		    	    if (!(rpacket = packet_create(packet_class_raw)))
-		    	    {
-				eventlog(eventlog_level_error,"handle_bot_packet","[%d] could not create rpacket",conn_get_socket(c));
-				break;
-		    	    }
-		    
-		    	    packet_append_ntstring(rpacket,tempa);
-		    	    conn_push_outqueue(c,rpacket);
-		    	    packet_del_ref(rpacket);
-		    	    break;
-			} else {
-			    q = query_create(bits_query_type_handle_packet_account_loaded);
-			    query_attach_conn(q,"client",c);
-			    query_attach_packet_const(q,"request",packet);
-			    query_attach_account(q,"account",account);
-			}
-		    } else { /* bits master */
-#endif
 			eventlog(eventlog_level_info,"handle_bot_packet","[%d] bot login for \"%s\" refused (bad account)",conn_get_socket(c),botuser);
 			conn_set_state(c,conn_state_bot_username);
 			
@@ -250,30 +211,8 @@ extern int handle_bot_packet(t_connection * c, t_packet const * const packet)
 			packet_append_ntstring(rpacket,tempa);
 			conn_push_outqueue(c,rpacket);
 			packet_del_ref(rpacket);
-#ifdef WITH_BITS
-		    } /* bits master */
-#endif
 		    break;
 		}
-#ifdef WITH_BITS
-		if (account_is_invalid(account)) {
-		    eventlog(eventlog_level_info,"handle_bot_packet","[%d] bot login for \"%s\" refused (bad account)",conn_get_socket(c),botuser);
-		    conn_set_state(c,conn_state_bot_username);
-		    
-		    if (!(rpacket = packet_create(packet_class_raw)))
-		    {
-			eventlog(eventlog_level_error,"handle_bot_packet","[%d] could not create rpacket",conn_get_socket(c));
-			break;
-		    }
-		    
-		    packet_append_ntstring(rpacket,tempa);
-		    conn_push_outqueue(c,rpacket);
-		    packet_del_ref(rpacket);
-		    break;
-		}
-		if (!account_is_ready_for_use(account))
-		    break; /* wait ... */
-#endif
 		if ((oldstrhash1 = account_get_pass(account)))
 		{
 		    if (hash_set_str(&oldpasshash1,oldstrhash1)<0)
@@ -387,42 +326,6 @@ extern int handle_bot_packet(t_connection * c, t_packet const * const packet)
 		    eventlog(eventlog_level_info,"handle_bot_packet","[%d] \"%s\" bot logged in (no password)",conn_get_socket(c),(tname = account_get_name(account)));
 		    account_unget_name(tname);
 		}
-#ifdef WITH_BITS
-		if (!bits_master)
-		{
-		    t_query *q;
-		    
-		    q = query_create(bits_query_type_bot_loginreq);
-		    if (!q) {
-			eventlog(eventlog_level_error,"handle_bot_packet","[%d] could not create query",conn_get_socket(c));
-			break; /* FIXME: connection will hang */
-		    }
-		    query_attach_conn(q,"client",c);
-		    query_attach_account(q,"account",account);
-		    send_bits_va_loginreq(query_get_qid(q),account_get_uid(account),0,0,CLIENTTAG_BNCHATBOT);
-		} else { /* bits master */
-		    bn_int ct;
-		    int sid;
-
-		    if (conn_get_clienttag(c))
-		        memcpy(&ct,conn_get_clienttag(c),4);
-		    else
-		        bn_int_set(&ct,0);
-		    if (bits_loginlist_add(account_get_uid(account),BITS_ADDR_MASTER,(sid = bits_va_loginlist_get_free_sessionid()),ct,0,0,botuser)==1) {
-			eventlog(eventlog_level_info,"handle_bot_packet","[%d] bot login for \"%s\" refused (already logged in (bits))",conn_get_socket(c),botuser);
-			conn_set_state(c,conn_state_bot_username);
-			conn_set_sessionid(c,sid);
-			if (!(rpacket = packet_create(packet_class_raw)))
-			{
-			    eventlog(eventlog_level_error,"handle_bot_packet","[%d] could not create rpacket",conn_get_socket(c));
-			    break;
-			}
-			packet_append_ntstring(rpacket,tempa);
-			conn_push_outqueue(c,rpacket);
-			packet_del_ref(rpacket);
-			break;
-		    }
-#endif /*WITH_BITS*/
 		    if (!(rpacket = packet_create(packet_class_raw))) /* if we got this far, let them log in even if this fails */
 			eventlog(eventlog_level_error,"handle_bot_packet","[%d] could not create rpacket",conn_get_socket(c));
 		    else
@@ -438,9 +341,6 @@ extern int handle_bot_packet(t_connection * c, t_packet const * const packet)
 		    		    
 		    if (conn_set_channel(c,CHANNEL_NAME_CHAT)<0)
 			conn_set_channel(c,CHANNEL_NAME_BANNED); /* should not fail */
-#ifdef WITH_BITS
-		}
-#endif /*WITH_BITS*/
 	    }
 	    break;
 	    

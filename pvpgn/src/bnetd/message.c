@@ -1677,7 +1677,6 @@ extern int message_send_all(t_message * message)
     LIST_TRAVERSE_CONST(connlist(),curr)
     {
 	c = elem_get_data(curr);
-	if (conn_get_class(c)==conn_class_bits) continue;
 	if (message_send(message,c)==0)
 	    rez = 0;
     }

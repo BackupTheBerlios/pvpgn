@@ -221,9 +221,6 @@ extern int irc_authenticate(t_connection * conn, char const * passhash)
 	eventlog(eventlog_level_error,"irc_authenticate","got NULL conn->botuser");
 	return 0;
     }	
-#ifdef WITH_BITS
-    /* FIXME: lock account here*/
-#else
     a = accountlist_find_account(conn_get_botuser(conn));
     if (!a) {
     	irc_send_cmd(conn,"NOTICE",":Authentication failed."); /* user does not exist */
@@ -249,7 +246,6 @@ extern int irc_authenticate(t_connection * conn, char const * passhash)
 	// otherwise could join channels etc.
 	conn_set_state(conn, conn_state_destroy);
     }
-#endif
     return 0;
 }
 
@@ -758,11 +754,7 @@ extern int irc_send_rpl_namreply(t_connection * c, t_channel const * channel)
     char temp[MAX_IRC_MESSAGE_LEN];
     char const * ircname;
     int first = 1;
-#ifdef WITH_BITS
-    t_bits_channelmember * m;
-#else
     t_connection * m;
-#endif
 
     if (!c) {
 	eventlog(eventlog_level_error,"irc_send_rpl_namreply","got NULL connection");
@@ -786,30 +778,6 @@ extern int irc_send_rpl_namreply(t_connection * c, t_channel const * channel)
 	return -1;
     }
     /* FIXME: Add per user flags (@(op) and +(voice))*/
-#ifdef WITH_BITS  
-    for (m = channel_get_first(channel);m;m = channel_get_next()) {
-	// Explicit cast: bbf
-	char const * name = (const char*) bits_loginlist_get_name_bysessionid(m->sessionid);
-	char flg[5] = "";
-	
-	if (!name)
-	    continue;
-	if (m->flags & MF_BLIZZARD)
-	    strcat(flg,"a");
-	if (m->flags & MF_BNET)
-	    strcat(flg,"o");
-	if (m->flags & MF_GAVEL)
-	    strcat(flg,"@"); 
-	if (m->flags & MF_VOICE)
-	    strcat(flg,"+"); 
-	if ((strlen(temp)+((!first)?(1):(0))+strlen(flg)+strlen(name)+1)<=sizeof(temp)) {
-	    if (!first) strcat(temp," ");
-	    strcat(temp,flg);
-	    strcat(temp,name);
-	    first = 0;
-	}
-    } 
-#else
     for (m = channel_get_first(channel);m;m = channel_get_next()) {
 	char const * name = conn_get_chatname(m);
 	char flg[5] = "";
@@ -834,14 +802,12 @@ extern int irc_send_rpl_namreply(t_connection * c, t_channel const * channel)
 	}
 	conn_unget_chatname(m,name);
     } 
-#endif
     irc_send(c,RPL_NAMREPLY,temp);
     return 0;
 }
 
 static int irc_who_connection(t_connection * dest, t_connection * c)
 {
-    /* FIXME: maybe we can give some more accurate info with BITS ... */
     t_account * a;
     char const * tempuser;
     char const * tempowner;
@@ -899,7 +865,6 @@ static int irc_who_connection(t_connection * dest, t_connection * c)
 extern int irc_who(t_connection * c, char const * name)
 {
     /* FIXME: support wildcards! */
-    /* FIXME: support BITS! */
 
     if (!c) {
 	eventlog(eventlog_level_error,"irc_who","got NULL connection");

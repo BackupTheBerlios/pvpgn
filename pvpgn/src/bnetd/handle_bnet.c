@@ -50,9 +50,6 @@
 #  include <memory.h>
 # endif
 #endif
-#ifdef WITH_BITS
-# include "compat/memcpy.h"
-#endif
 #ifdef WIN32
  #include "compat/socket.h"
 #endif
@@ -85,15 +82,6 @@
 #include "common/list.h"
 #include "common/bnettime.h"
 #include "common/addr.h"
-#ifdef WITH_BITS
-# include "query.h"
-# include "bits.h"
-# include "bits_login.h"
-# include "bits_va.h"
-# include "bits_query.h"
-# include "bits_packet.h"
-# include "bits_game.h"
-#endif
 #include "game_conv.h"
 #include "gametrans.h"
 #include "autoupdate.h"
@@ -880,19 +868,6 @@ static int _client_createacctreq1(t_connection * c, t_packet const * const packe
 	return -1;
      }
    
-#ifdef WITH_BITS
-   if (!bits_master) { /* BITS client */
-      const char * username;
-      
-      if (!(username = packet_get_str_const(packet,sizeof(t_client_createacctreq1),UNCHECKED_NAME_STR)))
-	{
-	   eventlog(eventlog_level_error,__FUNCTION__,"[%d] got bad CREATEACCTREQ1 (missing or too long username)",conn_get_socket(c));
-	   return -1;
-	}
-      
-      send_bits_va_create_req(c,username,packet->u.client_createacctreq1.password_hash1);
-   } else /* standalone or BITS master */
-#endif
      {
 	char const * username;
 	t_account *  temp;
@@ -959,19 +934,6 @@ static int _client_createacctreq2(t_connection * c, t_packet const * const packe
 	return -1;
      }
    
-#ifdef WITH_BITS
-   if (!bits_master) { /* BITS client */
-      const char * username;
-      
-      if (!(username = packet_get_str_const(packet,sizeof(t_client_createacctreq2),UNCHECKED_NAME_STR)))
-	{
-	   eventlog(eventlog_level_error,__FUNCTION__,"[%d] got bad CLIENT_CREATEACCTREQ2 (missing or too long username)",conn_get_socket(c));
-	   return -1;
-	}
-      
-      send_bits_va_create_req(c,username,packet->u.client_createacctreq2.password_hash1);
-   } else /* standalone or BITS master */
-#endif
      {
 	char const * username;
 	t_account *  temp;
@@ -1815,34 +1777,6 @@ static int _client_loginreq1(t_connection * c, t_packet const * const packet)
 	     eventlog(eventlog_level_info,__FUNCTION__,"[%d] login for \"%s\" refused (already logged in)",conn_get_socket(c),username);
 	     bn_int_set(&rpacket->u.server_loginreply1.message,SERVER_LOGINREPLY1_MESSAGE_FAIL);
 	  }
-#ifdef WITH_BITS
-	else
-	  if (!bits_master)
-	    {
-	       t_query * q;
-	       
-	       if (account_name_is_unknown(username)) {
-		  if (bits_va_lock_account(username)<0) {
-		     eventlog(eventlog_level_error,__FUNCTION__,"bits_va_lock_account failed");
-		     packet_del_ref(rpacket);
-		     return -1;
-		  }
-	       }
-	       account = accountlist_find_account(username);
-	       
-	       if (!account_is_ready_for_use(account)) {
-		  q = query_create(bits_query_type_client_loginreq_1);
-		  if (!q)
-		    eventlog(eventlog_level_error,__FUNCTION__,"could not create bits query");
-		  query_attach_conn(q,"client",c);
-		  query_attach_packet_const(q,"request",packet);
-		  query_attach_account(q,"account",account);
-		  packet_del_ref(rpacket);
-		  return -1;
-	       }
-	       /* Account is ready for use now */
-	    }
-#endif
 	else if (account_get_auth_bnetlogin(account)==0) /* default to true */
 	  {
 	     eventlog(eventlog_level_info,__FUNCTION__,"[%d] login for \"%s\" refused (no bnet access)",conn_get_socket(c),username);
@@ -1893,62 +1827,12 @@ static int _client_loginreq1(t_connection * c, t_packet const * const packet)
 		       
 		       if (hash_eq(trypasshash2,oldpasshash2)==1)
 			 {
-#ifdef WITH_BITS
-			    int rc = 0;
-			    
-			    if (bits_master) {
-			       bn_int ct;
-			       int sid;
-			       
-			       if (conn_get_clienttag(c))
-				 memcpy(&ct,conn_get_clienttag(c),4);
-			       else
-				 bn_int_set(&ct,0);
-			       tname = account_get_name(account);
-			       rc = bits_loginlist_add(account_get_uid(account),
-						       BITS_ADDR_MASTER,
-						       (sid = bits_va_loginlist_get_free_sessionid()),
-						       ct,
-						       conn_get_game_addr(c),
-						       conn_get_game_port(c),
-						       tname);
-			       account_unget_name(tname);
-			       conn_set_sessionid(c,sid);
-			       /* Invoke the playerinfo update logic */
-			       conn_get_playerinfo(c);
-			       /* Maybe it was already ready for use before: check if we have to create a query */
-			    } else if ((!query_current)||(query_get_type(query_current) != bits_query_type_client_loginreq_2)) { /* slave/client server */
-			       t_query * q;
-			       
-			       q = query_create(bits_query_type_client_loginreq_2);
-			       if (!q)
-				 eventlog(eventlog_level_error,__FUNCTION__,"could not create bits query");
-			       query_attach_conn(q,"client",c);
-			       query_attach_packet_const(q,"request",packet);
-			       query_attach_account(q,"account",account);
-			       packet_del_ref(rpacket);
-			       send_bits_va_loginreq(query_get_qid(q),
-						     account_get_uid(account),
-						     conn_get_game_addr(c),
-						     conn_get_game_port(c),
-						     conn_get_clienttag(c));
-			       return -1;
-			    }
-			    if (rc == 0) {
-#endif
 			       conn_set_account(c,account);
 			       eventlog(eventlog_level_info,__FUNCTION__,"[%d] \"%s\" logged in (correct password)",conn_get_socket(c),(tname = conn_get_username(c)));
 			       conn_unget_username(c,tname);
 			       bn_int_set(&rpacket->u.server_loginreply1.message,SERVER_LOGINREPLY1_MESSAGE_SUCCESS);
 #ifdef WIN32_GUI
 			       guiOnUpdateUserList();
-#endif
-#ifdef WITH_BITS
-			    } else {
-			       eventlog(eventlog_level_info,__FUNCTION__,"[%d] login for \"%s\" refused (bits_loginlist_add returned %d)",conn_get_socket(c),(tname = account_get_name(account)),rc);
-			       account_unget_name(tname);
-			       bn_int_set(&rpacket->u.server_loginreply1.message,SERVER_LOGINREPLY1_MESSAGE_FAIL);
-			    }
 #endif
 			 }
 		       else
@@ -2047,20 +1931,6 @@ static int _client_loginreq2(t_connection * c, t_packet const * const packet)
 	     eventlog(eventlog_level_info,__FUNCTION__,"[%d] login for \"%s\" refused (already logged in)",conn_get_socket(c),username);
 	     bn_int_set(&rpacket->u.server_loginreply2.message,SERVER_LOGINREPLY2_MESSAGE_ALREADY);
 	  }
-#ifdef WITH_BITS
-	else
-	  if (!bits_master)
-	    {
-	       if (account_name_is_unknown(username)) {
-		  if (bits_va_lock_account(username)<0) {
-		     eventlog(eventlog_level_error,__FUNCTION__,"bits_va_lock_account failed");
-		     packet_del_ref(rpacket);
-		     return -1;
-		  }
-	       }
-	       account = accountlist_find_account(username);
-	    }
-#endif
 	else if (account_get_auth_bnetlogin(account)==0) /* default to true */
 	  {
 	     eventlog(eventlog_level_info,__FUNCTION__,"[%d] login for \"%s\" refused (no bnet access)",conn_get_socket(c),username);
@@ -2111,61 +1981,11 @@ static int _client_loginreq2(t_connection * c, t_packet const * const packet)
 		       
 		       if (hash_eq(trypasshash2,oldpasshash2)==1)
 			 {
-#ifdef WITH_BITS
-			    int rc = 0;
-			    
-			    if (bits_master) {
-			       bn_int ct;
-			       int sid;
-			       
-			       if (conn_get_clienttag(c))
-				 memcpy(&ct,conn_get_clienttag(c),4);
-			       else
-				 bn_int_set(&ct,0);
-			       tname = account_get_name(account);
-			       rc = bits_loginlist_add(account_get_uid(account),
-						       BITS_ADDR_MASTER,
-						       (sid = bits_va_loginlist_get_free_sessionid()),
-						       ct,
-						       conn_get_game_addr(c),
-						       conn_get_game_port(c),
-						       tname);
-			       account_unget_name(tname);
-			       conn_set_sessionid(c,sid);
-			       /* Invoke the playerinfo update logic */
-			       conn_get_playerinfo(c);				    
-			       /* Maybe it was already ready for use before: check if we have to create a query */
-			    } else if ((!query_current)||(query_get_type(query_current) != bits_query_type_client_loginreq_2)) { /* slave/client server */
-			       t_query * q;
-			       
-			       q = query_create(bits_query_type_client_loginreq_2);
-			       if (!q)
-				 eventlog(eventlog_level_error,__FUNCTION__,"could not create bits query");
-			       query_attach_conn(q,"client",c);
-			       query_attach_packet_const(q,"request",packet);
-			       query_attach_account(q,"account",account);
-			       packet_del_ref(rpacket);
-			       send_bits_va_loginreq(query_get_qid(q),
-						     account_get_uid(account),
-						     conn_get_game_addr(c),
-						     conn_get_game_port(c),
-						     conn_get_clienttag(c));
-			       return -1;
-			    }
-			    if (rc == 0) {
-#endif
 			       conn_set_account(c,account);
 			       eventlog(eventlog_level_info,__FUNCTION__,"[%d] \"%s\" logged in (correct password)",conn_get_socket(c),(tname = conn_get_username(c)));
 			       conn_unget_username(c,tname);
 			       bn_int_set(&rpacket->u.server_loginreply2.message,SERVER_LOGINREPLY2_MESSAGE_SUCCESS);
 			       success = 1;
-#ifdef WITH_BITS
-			    } else {
-			       eventlog(eventlog_level_info,__FUNCTION__,"[%d] login for \"%s\" refused (bits_loginlist_add returned %d)",conn_get_socket(c),(tname = account_get_name(account)),rc);
-			       account_unget_name(tname);
-			       bn_int_set(&rpacket->u.server_loginreply1.message,SERVER_LOGINREPLY1_MESSAGE_FAIL);
-			    }
-#endif
 			 }
 		       else
 			 {
@@ -3871,12 +3691,10 @@ static int _client_gamelistreq(t_connection * c, t_packet const * const packet)
 	unsigned short              bngtype;
 	t_game_type                 gtype;
 	char const *		    clienttag;
-#ifndef WITH_BITS
 	t_game *                    game;
 	t_server_gamelistreply_game glgame;
 	unsigned int                addr;
 	unsigned short              port;
-#endif
 	
 	if (!(gamename = packet_get_str_const(packet,sizeof(t_client_gamelistreq),GAME_NAME_LEN)))
 	  {
@@ -3893,10 +3711,6 @@ static int _client_gamelistreq(t_connection * c, t_packet const * const packet)
 	bngtype = bn_short_get(packet->u.client_gamelistreq.gametype);
 	clienttag = conn_get_clienttag(c);
 	gtype = bngreqtype_to_gtype(clienttag,bngtype);
-#ifdef WITH_BITS
-	/* FIXME: what about maxgames? */
-	bits_game_handle_client_gamelistreq(c,gtype,0,gamename);
-#else		
 	if (!(rpacket = packet_create(packet_class_bnet)))
 	  return -1;
 	packet_set_size(rpacket,sizeof(t_server_gamelistreply));
@@ -4083,7 +3897,6 @@ static int _client_gamelistreq(t_connection * c, t_packet const * const packet)
 	
 	conn_push_outqueue(c,rpacket);
 	packet_del_ref(rpacket);
-#endif  /* WITH_BITS */
      }
    
    return 0;
@@ -4100,11 +3913,7 @@ static int _client_joingame(t_connection * c, t_packet const * const packet)
 	char const * gamename;
 	char const * gamepass;
 	char const * tname;
-#ifndef WITH_BITS
 	t_game *     game;
-#else
-	t_bits_game * game;
-#endif
 	t_game_type  gtype;
 	
 	if (!(gamename = packet_get_str_const(packet,sizeof(t_client_join_game),GAME_NAME_LEN))) {
@@ -4143,7 +3952,6 @@ static int _client_joingame(t_connection * c, t_packet const * const packet)
           clanmember_on_change_status_by_connection(c);
 	       }
 	     
-#ifndef WITH_BITS
 	     if (!(game = gamelist_find_game(gamename,game_type_all)))
 	       {
 		  eventlog(eventlog_level_info,__FUNCTION__,"[%d] unable to find game \"%s\" for user to join",conn_get_socket(c),gamename);
@@ -4151,16 +3959,6 @@ static int _client_joingame(t_connection * c, t_packet const * const packet)
 	       }
 	     gtype = game_get_type(game);
 	     gamename = game_get_name(game);
-#else /* WITH_BITS */
-	     if (!(game = bits_gamelist_find_game(gamename,game_type_all)))
-	       {
-		  eventlog(eventlog_level_info,__FUNCTION__,"[%d] unable to find game \"%s\" for user to join",conn_get_socket(c),gamename);
-		  return 0;
-	       }
-	     gtype = bits_game_get_type(game);
-	     gamename = bits_game_get_name(game);
-#endif /* WITH_BITS */
-	     /* bits: since the connection needs the account it should already be loaded so there should be no problem */		
 	     if ((gtype==game_type_ladder && account_get_auth_joinladdergame(conn_get_account(c))==0) || /* default to true */
 		 (gtype!=game_type_ladder && account_get_auth_joinnormalgame(conn_get_account(c))==0)) /* default to true */
 	       {
@@ -4202,9 +4000,7 @@ static int _client_startgame1(t_connection * c, t_packet const * const packet)
 	char const *   gameinfo;
 	unsigned short bngtype;
 	unsigned int   status;
-#ifndef WITH_BITS
 	t_game *       currgame;
-#endif
 	
 	if (!(gamename = packet_get_str_const(packet,sizeof(t_client_startgame1),GAME_NAME_LEN)))
 	  {
@@ -4234,9 +4030,6 @@ static int _client_startgame1(t_connection * c, t_packet const * const packet)
 	eventlog(eventlog_level_debug,__FUNCTION__,"[%d] got startgame1 status for game \"%s\" is 0x%08x (gametype = 0x%04hx)",conn_get_socket(c),gamename,bn_int_get(packet->u.client_startgame1.status),bngtype);
 	status = bn_int_get(packet->u.client_startgame1.status)&CLIENT_STARTGAME1_STATUSMASK;
 	
-#ifdef WITH_BITS
-	bits_game_handle_startgame1(c,gamename,gamepass,gameinfo,bngtype,status);
-#else
 	if ((currgame = conn_get_game(c)))
 	  {
 	     switch (status)
@@ -4289,7 +4082,6 @@ static int _client_startgame1(t_connection * c, t_packet const * const packet)
 	    }
 	else
 	  eventlog(eventlog_level_info,__FUNCTION__,"[%d] client tried to set game status DONE to destroyed game",conn_get_socket(c));
-#endif /* !WITH_BITS */
      }
    
    return 0;
@@ -4310,9 +4102,7 @@ static int _client_startgame3(t_connection * c, t_packet const * const packet)
 	char const *   gameinfo;
 	unsigned short bngtype;
 	unsigned int   status;
-#ifndef WITH_BITS
 	t_game *       currgame;
-#endif
 	
 	if (!(gamename = packet_get_str_const(packet,sizeof(t_client_startgame3),GAME_NAME_LEN)))
 	  {
@@ -4340,9 +4130,6 @@ static int _client_startgame3(t_connection * c, t_packet const * const packet)
 	eventlog(eventlog_level_debug,__FUNCTION__,"[%d] got startgame3 status for game \"%s\" is 0x%08x (gametype = 0x%04hx)",conn_get_socket(c),gamename,bn_int_get(packet->u.client_startgame3.status),bngtype);
 	status = bn_int_get(packet->u.client_startgame3.status)&CLIENT_STARTGAME3_STATUSMASK;
 	
-#ifdef WITH_BITS
-	bits_game_handle_startgame3(c,gamename,gamepass,gameinfo,bngtype,status);
-#else
 	if ((currgame = conn_get_game(c)))
 	  {
 	     switch (status)
@@ -4396,7 +4183,6 @@ static int _client_startgame3(t_connection * c, t_packet const * const packet)
 	    }
 	else
 	  eventlog(eventlog_level_info,__FUNCTION__,"[%d] client tried to set game status DONE to destroyed game",conn_get_socket(c));
-#endif /* !WITH_BITS */
      }
    
    return 0;
@@ -4423,11 +4209,7 @@ static int _client_startgame4(t_connection * c, t_packet const * const packet)
 	unsigned int   status;
 	unsigned int   flag;
 	unsigned short option;
-	
-	
-#ifndef WITH_BITS
 	t_game *       currgame;
-#endif
 	
 	if (!(gamename = packet_get_str_const(packet,sizeof(t_client_startgame4),GAME_NAME_LEN)))
 	  {
@@ -4463,10 +4245,6 @@ static int _client_startgame4(t_connection * c, t_packet const * const packet)
 	eventlog(eventlog_level_debug,__FUNCTION__,"[%d] startgame4 status: %02x", conn_get_socket(c), status);
 	eventlog(eventlog_level_debug,__FUNCTION__,"[%d] startgame4 flag: %02x", conn_get_socket(c), flag);
 	
-#ifdef WITH_BITS
-	bits_game_handle_startgame4(c,gamename,gamepass,gameinfo,bngtype,status,option);
-	// W3_FIXME: private games won't work with BITS
-#else
 	if ((currgame = conn_get_game(c)))
 	  {
 	     switch (status)
@@ -4520,7 +4298,6 @@ static int _client_startgame4(t_connection * c, t_packet const * const packet)
 	  }
 	else
 	  eventlog(eventlog_level_info,__FUNCTION__,"[%d] client tried to set game status 0x%x to unexistent game (clienttag: %s)",conn_get_socket(c), status, conn_get_clienttag(c));
-#endif /* !WITH_BITS */
      }
    
    /* First, send an ECHO_REQ */
@@ -4556,12 +4333,6 @@ static int _client_gamereport(t_connection * c, t_packet const * const packet)
       return -1;
    }
    
-#ifdef WITH_BITS
-   if (!bits_master) {
-      /* send the packet to the master server */
-      send_bits_game_report(c,packet);
-   } else
-#endif	    
      {
 	t_account *                         my_account;
 	t_account *                         other_account;
@@ -4910,12 +4681,7 @@ static int _client_mapauthreq1(t_connection * c, t_packet const * const packet)
 	     return -1;
 	  }
 	
-#ifndef WITH_BITS
 	game = conn_get_game(c);
-#else
-	game = bits_game_create_temp(conn_get_bits_game(c));
-	/* Hope this works --- Typhoon */
-#endif
 	
 	if (game)
 	  {
@@ -4967,9 +4733,6 @@ static int _client_mapauthreq1(t_connection * c, t_packet const * const packet)
 	     conn_push_outqueue(c,rpacket);
 	     packet_del_ref(rpacket);
 	  }
-#ifdef WITH_BITS
-	if (game) bits_game_destroy_temp(game);
-#endif		
      }
    
    return 0;
@@ -4994,12 +4757,7 @@ static int _client_mapauthreq2(t_connection * c, t_packet const * const packet)
 	     return -1;
 	  }
 	
-#ifndef WITH_BITS
 	game = conn_get_game(c);
-#else
-	game = bits_game_create_temp(conn_get_bits_game(c));
-	/* Hope this works --- Typhoon */
-#endif
 	
 	if (game)
 	  {
@@ -5051,9 +4809,6 @@ static int _client_mapauthreq2(t_connection * c, t_packet const * const packet)
 	     conn_push_outqueue(c,rpacket);
 	     packet_del_ref(rpacket);
 	  }
-#ifdef WITH_BITS
-	if (game) bits_game_destroy_temp(game);
-#endif		
      }
    
    return 0;

@@ -2,8 +2,6 @@
  * Copyright (C) 1998,1999,2000,2001  Ross Combs (rocombs@cs.nmsu.edu)
  * Copyright (C) 1999  Rob Crittenden (rcrit@greyoak.com)
  * Copyright (C) 1999  Mark Baysinger (mbaysing@ucsd.edu)
- * Some BITS modifications:
- *          Copyright (C) 1999,2000  Marco Ziech (mmz@gmx.net)
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -111,14 +109,7 @@ static struct {
     char const * ircaddrs;
     unsigned int use_keepalive;
     unsigned int udptest_port;
-    unsigned int do_uplink;
-    char const * uplink_server;
-    char const * uplink_username;
-    unsigned int allow_uplink;
-    char const * bits_password_file;
-    char const * bits_motd_file;
     char const * ipbanfile;
-    unsigned int bits_debug;
     unsigned int disc_is_loss;
     char const * helpfile;
     char const * fortunecmd;
@@ -134,7 +125,6 @@ static struct {
     unsigned int quota_dobae;
     char const * realmfile;
     char const * issuefile;
-    char const * bits_mod_file;
     char const * effective_user;
     char const * effective_group;
     unsigned int nullmsg;
@@ -152,8 +142,6 @@ static struct {
     unsigned int hashtable_size;
     char const * telnetaddrs;
     unsigned int ipban_check_int;
-    unsigned int bits_ping_interval;
-    unsigned int bits_ping_timeout;
     char const * version_exeinfo_match;
     unsigned int version_exeinfo_maxdiff;
     unsigned int max_concurrent_logins;
@@ -240,13 +228,7 @@ static Bconf_t conf_table[] =
     { "ircaddrs",               conf_type_char,    BNETD_IRC_ADDRS,      NONE                , (void *)&prefs_runtime_config.ircaddrs},
     { "use_keepalive",          conf_type_bool,    NULL,                 0                   , (void *)&prefs_runtime_config.use_keepalive},
     { "udptest_port",           conf_type_int,     NULL,                 BNETD_DEF_TEST_PORT , (void *)&prefs_runtime_config.udptest_port},
-    { "do_uplink",              conf_type_bool,    NULL,                 BITS_DO_UPLINK      , (void *)&prefs_runtime_config.do_uplink},
-    { "uplink_server",          conf_type_char,    BITS_UPLINK_SERVER,   NONE                , (void *)&prefs_runtime_config.uplink_server},
-    { "uplink_username",        conf_type_char,    BITS_UPLINK_USERNAME, NONE                , (void *)&prefs_runtime_config.uplink_username},
-    { "allow_uplink",           conf_type_bool,    NULL,                 BITS_ALLOW_UPLINK   , (void *)&prefs_runtime_config.allow_uplink},
-    { "bits_password_file",     conf_type_char,    BITS_PASSWORD_FILE,   NONE                , (void *)&prefs_runtime_config.bits_password_file},
     { "ipbanfile",              conf_type_char,    BNETD_IPBAN_FILE,     NONE                , (void *)&prefs_runtime_config.ipbanfile},
-    { "bits_debug",             conf_type_bool,    NULL,                 BITS_DEBUG          , (void *)&prefs_runtime_config.bits_debug},
     { "disc_is_loss",           conf_type_bool,    NULL,                 0                   , (void *)&prefs_runtime_config.disc_is_loss},
     { "helpfile",               conf_type_char,    BNETD_HELP_FILE,      NONE                , (void *)&prefs_runtime_config.helpfile},
     { "fortunecmd",             conf_type_char,    BNETD_FORTUNECMD,     NONE                , (void *)&prefs_runtime_config.fortunecmd},
@@ -262,7 +244,6 @@ static Bconf_t conf_table[] =
     { "quota_dobae",            conf_type_int,     NULL,                 BNETD_QUOTA_DOBAE   , (void *)&prefs_runtime_config.quota_dobae},
     { "realmfile",              conf_type_char,    BNETD_REALM_FILE,     NONE                , (void *)&prefs_runtime_config.realmfile},
     { "issuefile",              conf_type_char,    BNETD_ISSUE_FILE,     NONE                , (void *)&prefs_runtime_config.issuefile},
-    { "bits_motd_file",         conf_type_char,    BITS_MOTD_FILE,       NONE                , (void *)&prefs_runtime_config.bits_motd_file},
     { "effective_user",         conf_type_char,    NULL,                 NONE                , (void *)&prefs_runtime_config.effective_user},
     { "effective_group",        conf_type_char,    NULL,                 NONE                , (void *)&prefs_runtime_config.effective_group},
     { "nullmsg",                conf_type_int,     NULL,                 BNETD_DEF_NULLMSG   , (void *)&prefs_runtime_config.nullmsg},
@@ -280,8 +261,6 @@ static Bconf_t conf_table[] =
     { "hashtable_size",         conf_type_int,     NULL,                 BNETD_HASHTABLE_SIZE , (void *)&prefs_runtime_config.hashtable_size},
     { "telnetaddrs",            conf_type_char,    BNETD_TELNET_ADDRS,   NONE                , (void *)&prefs_runtime_config.telnetaddrs},
     { "ipban_check_int",	conf_type_int,	   NULL,		 30		     , (void *)&prefs_runtime_config.ipban_check_int},
-    { "bits_ping_interval",     conf_type_int,     NULL,                 BITS_PING_INTERVAL  , (void *)&prefs_runtime_config.bits_ping_interval},
-    { "bits_ping_timeout",      conf_type_int,     NULL,                 BITS_PING_TIMEOUT   , (void *)&prefs_runtime_config.bits_ping_timeout},
     { "version_exeinfo_match",  conf_type_char,    BNETD_EXEINFO_MATCH,  NONE                , (void *)&prefs_runtime_config.version_exeinfo_match},
     { "version_exeinfo_maxdiff",conf_type_int,     NULL,                 PVPGN_VERSION_TIMEDIV , (void *)&prefs_runtime_config.version_exeinfo_maxdiff},
     { "max_concurrent_logins",  conf_type_int,     NULL,                 0         	     , (void *)&prefs_runtime_config.max_concurrent_logins},
@@ -882,45 +861,9 @@ extern unsigned int prefs_get_udptest_port(void)
 }
 
 
-extern unsigned int prefs_get_do_uplink(void)
-{
-    return prefs_runtime_config.do_uplink;
-}
-
-
-extern char const * prefs_get_uplink_server(void)
-{
-    return prefs_runtime_config.uplink_server;
-}
-
-
-extern unsigned int prefs_get_allow_uplink(void)
-{
-    return prefs_runtime_config.allow_uplink;
-}
-
-
-extern char const * prefs_get_bits_password_file(void)
-{
-    return prefs_runtime_config.bits_password_file;
-}
-
-
-extern char const * prefs_get_uplink_username(void)
-{
-    return prefs_runtime_config.uplink_username;
-}
-
-
 extern char const * prefs_get_ipbanfile(void)
 {
     return prefs_runtime_config.ipbanfile;
-}
-
-
-extern unsigned int prefs_get_bits_debug(void)
-{
-    return prefs_runtime_config.bits_debug;
 }
 
 
@@ -1039,12 +982,6 @@ extern char const * prefs_get_issuefile(void)
 }
 
 
-extern char const * prefs_get_bits_motd_file(void)
-{
-    return prefs_runtime_config.bits_motd_file;
-}
-
-
 extern char const * prefs_get_effective_user(void)
 {
     return prefs_runtime_config.effective_user;
@@ -1137,17 +1074,6 @@ extern unsigned int prefs_get_d2cs_version(void)
 extern unsigned int prefs_get_hashtable_size(void)
 {
     return prefs_runtime_config.hashtable_size;
-}
-
-
-extern unsigned int prefs_get_bits_ping_interval(void)
-{
-    return prefs_runtime_config.bits_ping_interval;
-}
-
-extern unsigned int prefs_get_bits_ping_timeout(void)
-{
-    return prefs_runtime_config.bits_ping_timeout;
 }
 
 

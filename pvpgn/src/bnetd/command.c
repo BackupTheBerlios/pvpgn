@@ -91,15 +91,6 @@
 #include "realm.h"
 #include "ipban.h"
 #include "command_groups.h"
-#ifdef WITH_BITS
-# include "bits.h"
-# include "bits_query.h"
-# include "bits_va.h"
-# include "bits_packet.h"
-# include "bits_login.h"
-# include "bits_chat.h"
-# include "bits_game.h"
-#endif
 #include "common/queue.h"
 #include "common/bn_type.h"
 #include "command.h"
@@ -142,14 +133,8 @@ static void do_whisper(t_connection * user_c, char const * dest, char const * te
     
     if (!(dest_c = connlist_find_connection_by_name(dest,conn_get_realmname(user_c))))
     {
-#ifndef WITH_BITS
 	message_send_text(user_c,message_type_error,user_c,"That user is not logged on.");
 	return;
-#else
-	bits_chat_user((tname = conn_get_username(user_c)),dest,message_type_whisper,conn_get_latency(user_c),conn_get_flags(user_c),text);
-	conn_unget_username(user_c,tname);
-	return;
-#endif
     }
     
     if (conn_get_dndstr(dest_c))
@@ -372,7 +357,6 @@ static int _handle_lockacct_command(t_connection * c, char const * text);
 static int _handle_unlockacct_command(t_connection * c, char const * text);
 static int _handle_flag_command(t_connection * c, char const * text);
 static int _handle_tag_command(t_connection * c, char const * text);
-static int _handle_bitsinfo_command(t_connection * c, char const * text);
 //static int _handle_ipban_command(t_connection * c, char const * text); Redirected to handle_ipban_command() in ipban.c [Omega]
 static int _handle_set_command(t_connection * c, char const * text);
 static int _handle_motd_command(t_connection * c, char const * text);
@@ -478,7 +462,6 @@ static const t_command_table_row extended_command_table[] =
 	{ "/unlockacct"         , _handle_unlockacct_command },
 	{ "/flag"               , _handle_flag_command },
 	{ "/tag"                , _handle_tag_command },
-	{ "/bitsinfo"           , _handle_bitsinfo_command },
 	{ "/help"               , handle_help_command },
 	{ "/mail"               , handle_mail_command },
 	{ "/ipban"              , handle_ipban_command }, // in ipban.c
@@ -1660,16 +1643,10 @@ static int _handle_status_command(t_connection * c, char const *text)
 
 static int _handle_who_command(t_connection * c, char const *text)
 {
-#ifndef WITH_BITS
   t_connection const * conn;
-#else
-  t_bits_channelmember const * conn;
-#endif
   t_channel const *    channel;
   unsigned int         i;
-#ifndef WITH_BITS
   char const *         tname;
-#endif
 	
   for (i=0; text[i]!=' ' && text[i]!='\0'; i++); /* skip command */
   for (; text[i]==' '; i++);
@@ -1696,7 +1673,6 @@ static int _handle_who_command(t_connection * c, char const *text)
   i = strlen(msgtemp);
   for (conn=channel_get_first(channel); conn; conn=channel_get_next())
     {
-#ifndef WITH_BITS
       if (i+strlen((tname = conn_get_username(conn)))+2>sizeof(msgtemp)) /* " ", name, '\0' */
 	{
 	  message_send_text(c,message_type_info,c,msgtemp);
@@ -1705,21 +1681,6 @@ static int _handle_who_command(t_connection * c, char const *text)
       sprintf(&msgtemp[i]," %s",tname);
       conn_unget_username(conn,tname);
       i += strlen(&msgtemp[i]);
-#else
-      char const * name = bits_loginlist_get_name_bysessionid(conn->sessionid);
-      
-      if (!name) {
-	eventlog(eventlog_level_error,"handle_command","FIXME: user without name");
-	continue;
-      }
-      if (i+strlen(name)+2>sizeof(msgtemp)) /* " ", name, '\0' */
-	{
-	  message_send_text(c,message_type_info,c,msgtemp);
-	  i = 0;
-	}
-      sprintf(&msgtemp[i]," %s",name);
-      i += strlen(&msgtemp[i]);
-#endif
     }
   if (i>0)
     message_send_text(c,message_type_info,c,msgtemp);
@@ -1862,10 +1823,6 @@ static int _handle_stats_command(t_connection * c, char const *text)
   for (; text[i]==' '; i++);
   
   
-#ifdef WITH_BITS
-  if (bits_va_command_with_account_name(c,text,dest))
-    return 0;
-#endif
   // [quetzal] 20020815 - /stats without an argument should work as doing /stats yourself
   if (!dest[0]) {
     account = conn_get_account(c);
@@ -1873,12 +1830,6 @@ static int _handle_stats_command(t_connection * c, char const *text)
     message_send_text(c,message_type_error,c,"Invalid user.");
     return 0;
   }
-#ifdef WITH_BITS
-  if (account_is_invalid(account)) {
-    message_send_text(c,message_type_error,c,"Invalid user.");
-    return 0;
-  }
-#endif
 		
   if (text[i]!='\0')
     clienttag = &text[i];
@@ -2700,11 +2651,7 @@ static int _handle_games_command(t_connection * c, char const *text)
 {
   unsigned int   i;
   t_elem const * curr;
-#ifndef WITH_BITS
   t_game const * game;
-#else
-  t_bits_game const * bgame;
-#endif
   char const *   tag;
   
   for (i=0; text[i]!=' ' && text[i]!='\0'; i++); /* skip command */
@@ -2732,20 +2679,9 @@ static int _handle_games_command(t_connection * c, char const *text)
   else
     sprintf(msgtemp," ------name------ p -status- --------type--------- count --------addr--------");
   message_send_text(c,message_type_info,c,msgtemp);
-#ifndef WITH_BITS
   LIST_TRAVERSE_CONST(gamelist(),curr)
-#else
-    LIST_TRAVERSE_CONST(bits_gamelist(),curr)
-#endif
     {
-#ifdef WITH_BITS
-      t_game * game;
-      
-      bgame = elem_get_data(curr);
-      game = bits_game_create_temp(bits_game_get_id(bgame));
-#else
       game = elem_get_data(curr);
-#endif
       if ((!tag || !prefs_get_hide_pass_games() || game_get_flag(game) != game_flag_private) &&
 	  (!tag || strcasecmp(game_get_clienttag(game),tag)==0))
 	{
@@ -2766,9 +2702,6 @@ static int _handle_games_command(t_connection * c, char const *text)
 		    addr_num_to_addr_str(game_get_addr(game),game_get_port(game)));
 	  message_send_text(c,message_type_info,c,msgtemp);
 	}
-#ifdef WITH_BITS
-      bits_game_destroy_temp(game);
-#endif
     }
   
   return 0;
@@ -2780,9 +2713,7 @@ static int _handle_channels_command(t_connection * c, char const *text)
   t_elem const *    curr;
   t_channel const * channel;
   char const *      tag;
-  #ifndef WITH_BITS
   t_connection const * conn;
-  #endif
   t_account * acc;
   char const * name;
   int first;
@@ -2832,7 +2763,6 @@ static int _handle_channels_command(t_connection * c, char const *text)
 	  {
 
 
-#ifndef WITH_BITS
 		acc = conn_get_account(conn);
 		if (account_is_operator_or_admin(acc,channel_get_name(channel)) ||
 		    channel_account_is_tmpOP(channel,acc))
@@ -2848,7 +2778,6 @@ static int _handle_channels_command(t_connection * c, char const *text)
 		  else if (account_get_auth_operator(acc,channel_get_name(channel))==1) strcat(msgtemp,"(o)");
 		  first = 0;
 		}
-#endif
 	  }
 
 	  message_send_text(c,message_type_info,c,msgtemp);
@@ -3154,22 +3083,11 @@ static int _handle_finger_command(t_connection * c, char const *text)
     return 0;
   }
   
-#ifdef WITH_BITS
-  if (bits_va_command_with_account_name(c,text,dest))
-    return 0;
-#endif
-  
   if (!(account = accountlist_find_account(dest)))
     {
       message_send_text(c,message_type_error,c,"Invalid user.");
       return 0;
     }
-#ifdef WITH_BITS
-  if (account_is_invalid(account)) {
-    message_send_text(c,message_type_error,c,"Invalid user.");
-    return 0;
-  }
-#endif
   sprintf(msgtemp,"Login: %-16.16s "UID_FORMAT" Sex: %.14s",
 	  (tname = account_get_name(account)),
 	  account_get_uid(account),
@@ -4006,27 +3924,15 @@ static int _handle_lockacct_command(t_connection * c, char const *text)
       message_send_text(c,message_type_info,c,"usage: /lockacct <username>");
       return 0;
     }
-#ifdef WITH_BITS
-  if (bits_va_command_with_account_name(c,text,text))
-    return 0;
-#endif
   
   if (!(account = accountlist_find_account(text)))
     {
       message_send_text(c,message_type_error,c,"Invalid user.");
       return 0;
     }
-#ifdef WITH_BITS
-  if (account_is_invalid(account)) {
-    message_send_text(c,message_type_error,c,"Invalid user.");
-    return 0;
-  }
-#endif
   if ((user = connlist_find_connection_by_accountname(text)))
     message_send_text(user,message_type_info,user,"Your account has just been locked by admin.");
   
-  /* FIXME: this account attribute changing should be advertised on BITS right ?  (Yes.) */
-  /* Since this wrapper function uses account_set_attr the attribute change should be advertised automatically on BITS ... */
   account_set_auth_lock(account,1);
   message_send_text(c,message_type_error,c,"That user account is now locked.");
   return 0;
@@ -4044,26 +3950,14 @@ static int _handle_unlockacct_command(t_connection * c, char const *text)
       message_send_text(c,message_type_info,c,"usage: /unlockacct <username>");
       return 0;
     }
-#ifdef WITH_BITS
-  if (bits_va_command_with_account_name(c,text,text))
-    return 0;
-#endif
   if (!(account = accountlist_find_account(text)))
     {
       message_send_text(c,message_type_error,c,"Invalid user.");
       return 0;
     }
-#ifdef WITH_BITS
-  if (account_is_invalid(account)) {
-    message_send_text(c,message_type_error,c,"Invalid user.");
-    return 0;
-  }
-#endif
   
   if ((user = connlist_find_connection_by_accountname(text)))
     message_send_text(user,message_type_info,user,"Your account has just been unlocked by admin.");
-  
-  /* FIXME: this account attribute changing should be advertised on BITS right ?*/
   
   account_set_auth_lock(account,0);
   message_send_text(c,message_type_error,c,"That user account is now unlocked.");
@@ -4126,52 +4020,6 @@ static int _handle_tag_command(t_connection * c, char const *text)
   return 0;
 }
 
-static int _handle_bitsinfo_command(t_connection * c, char const *text)
-{
-#ifndef WITH_BITS
-  message_send_text(c,message_type_info,c,"This PvPGN Server was compiled WITHOUT BITS support.");
-#else
-  t_elem const * curr;
-  int count;
-  
-  message_send_text(c,message_type_info,c,"This PvPGN Server was compiled WITH BITS support.");
-  sprintf(msgtemp,"Server address: 0x%04x",bits_get_myaddr());
-  message_send_text(c,message_type_info,c,msgtemp);
-  if (bits_uplink_connection) {
-    message_send_text(c,message_type_info,c,"Server type: client/slave");
-  } else {
-    message_send_text(c,message_type_info,c,"Server type: master");
-  }
-  message_send_text(c,message_type_info,c,"BITS routing table:");
-  count = 0;
-  LIST_TRAVERSE_CONST(bits_routing_table,curr) {
-    t_bits_routing_table_entry *e = elem_get_data(curr);
-    count++;
-    
-    sprintf(msgtemp,"Route %d: [%d] -> 0x%04x",count,conn_get_socket(e->conn),e->bits_addr);
-    message_send_text(c,message_type_info,c,msgtemp);
-  }
-  if (bits_master) {
-    message_send_text(c,message_type_info,c,"BITS host list:");
-    LIST_TRAVERSE_CONST(bits_hostlist,curr) {
-      t_bits_hostlist_entry *e = elem_get_data(curr);
-      
-      if (e->name)
-	if (strlen(e->name)>128)
-	  sprintf(msgtemp,"[0x%04x] name=(too long)",e->address);
-	else
-	  sprintf(msgtemp,"[0x%04x] name=\"%s\"",e->address,e->name);
-      else {
-	eventlog(eventlog_level_error,"handle_command","corruption in bits_hostlist detected");
-	sprintf(msgtemp,"[0x%04x] name=(null)",e->address);
-      }
-      message_send_text(c,message_type_info,c,msgtemp);
-    }
-  }
-#endif
-  return 0;
-}
-
 static int _handle_set_command(t_connection * c, char const *text)
 {
   t_account * account;
@@ -4210,27 +4058,12 @@ static int _handle_set_command(t_connection * c, char const *text)
   {
 	message_send_text(c,message_type_info,c,"usage: /set <username> <key> [value]");
   }
-  
-#ifdef WITH_BITS
-  if (bits_va_command_with_account_name(c,text,accname))
-    {
-      return 0;
-    }
-#endif
-  
+    
   if (!(account = accountlist_find_account(accname)))
     {
       message_send_text(c,message_type_error,c,"Invalid user.");
       return 0;
     }
-  
-#ifdef WITH_BITS
-  if (account_is_invalid(account))
-    {
-      message_send_text(c,message_type_error,c,"Invalid user.");
-      return 0;
-    }
-#endif
   
   if (*value == '\0')
     {

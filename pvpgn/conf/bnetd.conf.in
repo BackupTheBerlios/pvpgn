@@ -439,34 +439,6 @@ w3routeaddr = "0.0.0.0:6200"
 
 
 ##############################################################################
-# BNETD Interserver Transport System (BITS) info                             #
-#----------------------------------------------------------------------------#
-
-# This stuff is experimental. You must configure bnetd --with-bits for these
-# settings to take effect.
-
-# connection to an existing network
-#do_uplink = false
-#uplink_server = localhost
-#uplink_username = anonymous
-
-# allow others to connect
-#allow_uplink = false
-
-# location of the BITS password file
-#bits_password_file = "/usr/local/etc/bnbitspasswd"
-
-# location of the network-wide MOTD file (bits master only)
-#bits_motd_file = "/usr/local/etc/bnbitsmotd.txt"
-
-# use plaintext password transfer (bits client only)
-#bits_use_plaintext = false
-
-#                                                                            #
-##############################################################################
-
-
-##############################################################################
 # Internet Relay Chat (IRC) configuration                                    #
 #----------------------------------------------------------------------------#
 

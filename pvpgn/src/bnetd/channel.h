@@ -46,28 +46,11 @@
 
 #endif
 
-#ifdef WITH_BITS
-typedef struct
-{
-    int		 sessionid;       /* Session ID */
-    unsigned int latency;   	  /* Latency */
-    unsigned int flags;           /* Flags */
-} t_bits_channelmember;
-#endif
-
 #ifdef CHANNEL_INTERNAL_ACCESS
 typedef struct channelmember
 {
-#ifndef WITH_BITS
     /* standalone mode */
     t_connection *         connection;
-#else
-    /* network mode */
-    /* We don't have a t_connection struct for every user */
-    /* in this channel. A remote connection (rconn) would */
-    /* require a loaded account for every user in this channel. */
-    t_bits_channelmember member; /* not a pointer */
-#endif
     struct channelmember * next;
 } t_channelmember;
 #endif
@@ -87,32 +70,6 @@ typedef enum
 	channel_flags_clan=0x200
 } t_channel_flags;
 
-/* Just a quick note for BITS: Only the master server decides whether
- * to remove or add users to channels. The 'subscribed' clients just
- * have to follow the instructions from the master server. 
- * The same is valid for almost everything else (eg. operator, channelname, ...)
- * in channels. 
- * There are two types of channels for bits clients: 
- *
- *  1) unsubscribed channels (ref==0)
- *    The bits client is only notified when this channel is created or
- *    removed from the channellist. So clients can maintain their
- *    own channellist. This mode is the default when there are no local
- *    users (or users on 'sub-servers') in this channel. There is
- *    only low bits traffic.
- *    
- *  2) subscribed channels (ref>0)
- *    The bits client receives any messages for this channel (joins,leaves,chats,...).
- *    Since this produces high traffic on the bits network it's only
- *    used when it's really needed. It's only needed if there are local users
- *    in this channel or users on 'sub-servers'.
- *    The server subscribes to that channel as soon as the ref level is higher than
- *    0. The ref level _could_ be calculated by adding the number of local users
- *    in this channel to the number of 'sub-servers' where this channel is needed.
- *    
- * I hope that described the mechanism good enough - Marco
- */
-
 typedef struct channel
 #ifdef CHANNEL_INTERNAL_ACCESS
 {
@@ -129,9 +86,6 @@ typedef struct channel
     t_list *          banlist;    /* of char * */
     char *            logname;    /* NULL if not logged */
     FILE *            log;        /* NULL if not logging */
-#ifdef WITH_BITS
-    int               ref;        /* how many local users + remote (bits) connections use this channel */
-#endif
 }
 #endif
 t_channel;
@@ -178,26 +132,12 @@ extern int channel_get_max(t_channel const * channel);
 extern int channel_get_curr(t_channel const * channel);
 extern int channel_account_is_tmpOP(t_channel const * channel, t_account * account);
 extern int channel_account_has_tmpVOICE(t_channel const * channel, t_account * account);
-#ifndef WITH_BITS
 extern t_connection * channel_get_first(t_channel const * channel);
 extern t_connection * channel_get_next(void);
-#else
-extern t_bits_channelmember * channel_get_first(t_channel const * channel);
-extern t_bits_channelmember * channel_get_next(void);
-
-extern int channel_add_member(t_channel * channel, int sessionid, int flags, int latency);
-extern int channel_del_member(t_channel * channel, t_bits_channelmember * member);
-extern t_bits_channelmember * channel_find_member_bysessionid(t_channel const * channel, int sessionid);
-
-extern int channel_add_ref(t_channel * channel);
-extern int channel_del_ref(t_channel * channel);
-#endif
 
 extern int channellist_create(void);
 extern int channellist_destroy(void);
-#ifndef WITH_BITS 
 extern int channellist_reload(void);
-#endif
 extern t_list * channellist(void);
 extern t_channel * channellist_find_channel_by_name(char const * name, char const * locale, char const * realmname);
 extern t_channel * channellist_find_channel_bychannelid(unsigned int channelid);

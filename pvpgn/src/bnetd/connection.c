@@ -95,18 +95,6 @@
 #include "timer.h"
 #include "irc.h"
 #include "ipban.h"
-#ifdef WITH_BITS
-# include "bits.h"
-# include "bits_va.h"
-# include "bits_login.h"
-# include "bits_ext.h"
-# include "bits_query.h"
-# include "bits_packet.h"
-# include "bits_game.h"
-# include "bits_motd.h"
-# include "bits_chat.h"
-#endif
-#include "query.h"
 #include "game_conv.h"
 #include "udptest_send.h"
 #include "character.h"
@@ -142,10 +130,6 @@ static void conn_send_welcome(t_connection * c)
     
     if (c->welcomed)
 	return;
-#ifdef WITH_BITS
-    /* send the network-wide MOTD first */
-    bits_motd_send(c);
-#endif
     if ((filename = prefs_get_motdfile()))
     {
 	if ((fp = fopen(filename,"r")))
@@ -301,10 +285,6 @@ extern char const * conn_class_get_str(t_conn_class class)
 	return "file";
     case conn_class_bot:
 	return "bot";
-    case conn_class_bits:
-	return "bits";
-    case conn_class_remote:
-    	return "remote";
     case conn_class_d2cs_bnetd:
 	return "d2cs_bnetd";
     case conn_class_auth:
@@ -341,8 +321,6 @@ extern char const * conn_state_get_str(t_conn_state state)
 	return "loggedin";
     case conn_state_destroy:
 	return "destroy";
-    case conn_state_bits_auth:
-	return "bits_auth";
     case conn_state_untrusted:
 	return "untrusted";
     case conn_state_pending_raw:
@@ -440,11 +418,6 @@ extern t_connection * conn_create(int tsock, int usock, unsigned int real_local_
     temp->ircline		 = NULL;
     temp->ircping		 = 0;
     temp->ircpass		 = NULL;
-#ifdef WITH_BITS
-    temp->bits_game		 = 0;
-    temp->sessionid		 = 0;
-    temp->bits		 	 = NULL;
-#endif
     temp->udpok          = 0;
     temp->w3_username    = NULL;
     temp->routeconn      = NULL;
@@ -688,9 +661,6 @@ extern void conn_destroy(t_connection * c)
     {
 	char const * tname;
 	
-#ifdef WITH_BITS
-	send_bits_va_logout(conn_get_sessionid(c));
-#endif
 	tname = account_get_name(c->account);
 	eventlog(eventlog_level_info,"conn_destroy","[%d] \"%s\" logged out",c->tcp_sock,tname);
 	account_unget_name(tname);
@@ -711,21 +681,6 @@ extern void conn_destroy(t_connection * c)
     /* clear out the packet queues */
     queue_clear(&c->inqueue);
     queue_clear(&c->outqueue);
-
-    /* clear all references from queries to this connection */
-    query_clear_connection(c);
-    
-#ifdef WITH_BITS
-    if (c->bits)
-	destroy_bits_ext(c);
-    /* clear references for special bits connections */
-    if (c==bits_uplink_connection)
-        bits_uplink_connection = NULL;
-    if (c==bits_loopback_connection)
-        bits_loopback_connection = NULL;
-    /* look if there are references in bits routes to this connection */
-    bits_route_del_conn(c);
-#endif
 
     // [zap-zero] 20020601
     if (c->routeconn) {
@@ -882,50 +837,6 @@ extern void conn_set_state(t_connection * c, t_conn_state state)
 
     c->state = state;
 }
-
-#ifdef WITH_BITS
-extern void conn_set_sessionid(t_connection * c, unsigned int sessionid)
-{
-    if (!c)
-    {
-    	eventlog(eventlog_level_error,"conn_set_sessionid","got NULL connection");
-	return;
-    }
-    c->sessionid = sessionid;
-}
-
-extern unsigned int conn_get_sessionid(t_connection const * c)
-{
-    if (!c)
-    {
-    	eventlog(eventlog_level_error,"conn_get_sessionid","got NULL connection");
-	return 0;
-    }
-    return c->sessionid;
-}
-
-extern int conn_set_bits_game(t_connection * c, unsigned int gameid)
-{
-    if (!c) {
-	eventlog(eventlog_level_error,"conn_set_bits_game","got NULL connection");
-	return -1;
-    }
-    /* eventlog(eventlog_level_debug,"conn_set_bits_game","[%d] setting bits_game 0x%08x -> 0x%08x",c->tcp_sock,c->bits_game,gameid); */
-    c->bits_game = gameid;
-    return 0;
-}
-
-extern unsigned int conn_get_bits_game(t_connection const * c)
-{
-    if (!c) {
-	eventlog(eventlog_level_error,"conn_get_bits_game","got NULL connection");
-	return 0;
-    }
-    return c->bits_game;
-}
-
-#endif
-
 
 extern unsigned int conn_get_sessionkey(t_connection const * c)
 {
@@ -1536,12 +1447,6 @@ extern void conn_set_account(t_connection * c, t_account * account)
         eventlog(eventlog_level_error,"conn_set_account","got NULL account");
         return;
     }
-#ifdef WITH_BITS
-    if (conn_get_class(c)==conn_class_remote) {
-	c->account = account;
-	return;
-    }
-#endif
     now = (unsigned int)time(NULL);
     
     if ((other = connlist_find_connection_by_accountname((tname = account_get_name(account)))))
@@ -1994,9 +1899,7 @@ extern int conn_set_channel(t_connection * c, char const * channelname)
 
     if (channelname)
     {
-#ifndef WITH_BITS
 	unsigned int created;
-#endif
 
     oldchannel=c->channel;
 
@@ -2080,61 +1983,10 @@ extern int conn_set_channel(t_connection * c, char const * channelname)
 	/* if you're entering a channel, make sure they didn't exit a game without telling us */
 	if (c->game)
 	{
-#ifndef WITH_BITS
             game_del_player(conn_get_game(c),c);
-#else
-            send_bits_game_leave(conn_get_bits_game(c),conn_get_sessionid(c));
-	    conn_set_bits_game(c,0);
-#endif
 	    c->game = NULL;
 	}
 
-#ifdef WITH_BITS
-	c->channel = channellist_find_channel_by_name(channelname,NULL,NULL);
-	if (conn_get_channel(c)) {
-	    if (channel_get_permanent(conn_get_channel(c))) {
-		/* Oh no, this *could* be a rollover channel. We have to ask the master to put us in one instance of this channel. */
-		t_query * q;
-
-		q = query_create(bits_query_type_chat_channel_join_perm);
-		if (!q) {
-		    eventlog(eventlog_level_error,"conn_set_channel","could not create query");
-		    return -1;
-		}
-		query_attach_conn(q,"client",c);
-		send_bits_chat_channel_join_perm_request(query_get_qid(q),conn_get_sessionid(c),conn_get_latency(c),conn_get_flags(c),channelname,conn_get_country(c));
-	    } else {
-		channel_add_connection(conn_get_channel(c),c);
-	    }
-	} else {
-	    t_query * q;
-	    t_packet     * p;
-		
-	    p = packet_create(packet_class_bits);
-	    if (!p) {
-		eventlog(eventlog_level_error,"conn_set_channel","could not create packet");
-		return -1;
-	    }
-	    q = query_create(bits_query_type_chat_channel_join_new);
-	    if (!q) {
-		eventlog(eventlog_level_error,"conn_set_channel","could not create query");
-		packet_del_ref(p);
-		return -1;
-	    }
-	    query_attach_conn(q,"client",c);
-	    packet_set_size(p,sizeof(t_bits_chat_channel_join_new_request));
-	    packet_set_type(p,BITS_CHAT_CHANNEL_JOIN_NEW_REQUEST);
-	    bn_int_set(&p->u.bits_chat_channel_join_new_request.qid,query_get_qid(q));
-	    bn_int_set(&p->u.bits_chat_channel_join_new_request.flags,conn_get_flags(c));
-	    bn_int_set(&p->u.bits_chat_channel_join_new_request.latency,conn_get_latency(c));
-	    bn_int_set(&p->u.bits_chat_channel_join_new_request.sessionid,conn_get_sessionid(c));
-	    packet_append_string(p,channelname);
-	    bits_packet_generic(p,BITS_ADDR_MASTER);
-	    send_bits_packet(p);
-	    packet_del_ref(p);
-	}
-	eventlog(eventlog_level_debug,"conn_set_channel","[%d] joined channel \"%s\"",conn_get_socket(c),channelname);
-#else
 	created = 0;
 
     if (!channel)
@@ -2161,7 +2013,6 @@ extern int conn_set_channel(t_connection * c, char const * channelname)
     c->channel=channel;
 
 	eventlog(eventlog_level_info,"conn_set_channel","[%d] joined channel \"%s\"",conn_get_socket(c),channel_get_name(c->channel));
-#endif
 	conn_send_welcome(c);
 
     if(c->channel && (channel_get_flags(c->channel) & channel_flags_thevoid))
@@ -2226,10 +2077,6 @@ extern int conn_set_game(t_connection * c, char const * gamename, char const * g
         return -1;
     }
 
-#ifdef WITH_BITS
-    eventlog(eventlog_level_debug,"conn_set_game","passing to conn_set_game_bits() with game_option_none");
-    return conn_set_game_bits(c,gamename,gamepass,gameinfo,type,version,game_option_none);
-#else    
     if (c->game)
     {
         if (gamename) {
@@ -2286,7 +2133,6 @@ extern int conn_set_game(t_connection * c, char const * gamename, char const * g
     else
 	c->game = NULL;
     return 0;
-#endif /* !WITH_BITS */
 }
 
 extern unsigned int conn_get_tcpaddr(t_connection * c)
@@ -2300,44 +2146,6 @@ extern unsigned int conn_get_tcpaddr(t_connection * c)
 	return c->tcp_addr;
 }
 
-#ifdef WITH_BITS
-extern int conn_set_game_bits(t_connection * c, char const * gamename, char const * gamepass, char const * gameinfo, t_game_type type, int version, t_game_option option)
-{
-
-    if (!c)
-    {
-        eventlog(eventlog_level_error,"conn_set_game_bits","got NULL connection");
-        return -1;
-    }
-    
-    if (conn_get_bits_game(c)!=0) {
-	/* We have no t_game on BITS clients so we have to do it manually */
-	eventlog(eventlog_level_debug,"conn_set_game_bits","\"%s\" leaving bits_game %d",conn_get_chatname(c),conn_get_bits_game(c));
-	send_bits_game_leave(conn_get_sessionid(c),conn_get_bits_game(c));
-	conn_set_bits_game(c,0);
-	c->game = NULL;
-    }
-    if (gamename)
-    {
-	t_bits_game *game;
-	
-	game = bits_gamelist_find_game(gamename,type);
-	if (game) {
-	    eventlog(eventlog_level_debug,"conn_set_game_bits","\"%s\" joining bits_game %d",conn_get_chatname(c),bits_game_get_id(game));
-	    send_bits_game_join_request(conn_get_sessionid(c),bits_game_get_id(game),version);
-	    conn_set_bits_game(c,bits_game_get_id(game));
-	} else {
-	    eventlog(eventlog_level_debug,"conn_set_game_bits","\"%s\" creating new bits_game",conn_get_chatname(c));
-	    send_bits_game_create_request(gamename,gamepass,gameinfo,type,version,conn_get_sessionid(c),option);
-	}
-    } else {
-	/* The following is just to be sure :) */
-	c->game = NULL;
-	conn_set_bits_game(c,0); /* also clear BITS game */
-    }
-    return 0;
-}
-#endif /* WITH_BITS */
 
 extern t_queue * * conn_get_in_queue(t_connection * c)
 {
@@ -2382,11 +2190,6 @@ extern t_queue * * conn_get_out_queue(t_connection * c)
         eventlog(eventlog_level_error,"conn_get_out_queue","got NULL connection");
         return NULL;
     }
-#ifdef WITH_BITS
-    if (c->bits) /* bits loopback */
-	if (c->bits->type == bits_loop)
-		return &c->inqueue;
-#endif
     return &c->outqueue;
 }
 
@@ -2398,11 +2201,6 @@ extern unsigned int conn_get_out_size(t_connection const * c)
         eventlog(eventlog_level_error,"conn_get_out_size","got NULL connection");
         return -1;
     }
-#ifdef WITH_BITS
-    if (c->bits) /* bits loopback */
-	if (c->bits->type == bits_loop)
-	    return 0;
-#endif
     return c->outsize;
 }
 
@@ -2414,11 +2212,6 @@ extern void conn_set_out_size(t_connection * c, unsigned int size)
         eventlog(eventlog_level_error,"conn_set_out_size","got NULL connection");
         return;
     }
-#ifdef WITH_BITS
-    if (c->bits) /* bits loopback */
-	if (c->bits->type == bits_loop)
-	    c->outsize = 0;
-#endif
     
     c->outsize = size;
 }
@@ -2524,13 +2317,6 @@ extern char const * conn_get_username(t_connection const * c)
         return NULL;
     }
     
-    if (conn_get_class(c)==conn_class_remote) {
-#ifdef TESTUNGET
-	return strdup(conn_get_botuser(c));
-#else
-	return conn_get_botuser(c);
-#endif
-    }
     if (c->class==conn_class_auth && c->bound)
 	return account_get_name(c->bound->account);
     if(!c->account)
@@ -2568,14 +2354,6 @@ extern char const * conn_get_chatname(t_connection const * c)
         return NULL;
     }
     
-    if (conn_get_class(c)==conn_class_remote)
-    {
-#ifdef TESTUNGET
-	return strdup(conn_get_botuser(c));
-#else
-	return conn_get_botuser(c);
-#endif
-    }
     if ((c->class==conn_class_auth || c->class==conn_class_bnet) && c->bound)
     {
 	if (c->character)
@@ -2616,15 +2394,6 @@ extern char const * conn_get_chatcharname(t_connection const * c, t_connection c
         return NULL;
     }
 
-    if (conn_get_class(c)==conn_class_remote)
-    {
-#ifdef TESTUNGET
-        return strdup(conn_get_botuser(c));
-#else
-        return conn_get_botuser(c);
-#endif
-    }
-    
     if (!c->account)
         return NULL; /* no name yet */
     
@@ -2674,14 +2443,6 @@ extern int conn_unget_chatcharname(t_connection const * c, char const * name)
     {
 	eventlog(eventlog_level_error,"conn_unget_chatcharname","got NULL name");
 	return -1;
-    }
-    
-    if (conn_get_class(c)==conn_class_remote)
-    {
-#ifdef TESTUNGET
-        free((void *)name); /* avoid warning */
-#endif
-        return 0;
     }
     
     free((void *)name); /* avoid warning */
@@ -2750,21 +2511,7 @@ extern char const * conn_get_playerinfo(t_connection const * c)
     static char  playerinfo[MAX_PLAYERINFO_STR];
     char const * clienttag;
     char         revtag[5];
-    
-#ifdef WITH_BITS
-    /* Playerinfo taken from loginlist cache on bits clients */
-    t_bits_loginlist_entry * lle;
-
-    lle = bits_loginlist_bysessionid(conn_get_sessionid(c));
-    if (!lle) {
-	eventlog(eventlog_level_error,"conn_get_playerinfo","requested playerinfo for non-existent sessionid 0x%08x",conn_get_sessionid(c));
-	if (!bits_master) return NULL;
-    }
-    if (!bits_master) {
-	return lle->playerinfo;
-    }
-#endif
-    
+        
     if (!c)
     {
         eventlog(eventlog_level_error,"conn_get_playerinfo","got NULL connection");
@@ -2906,15 +2653,7 @@ extern char const * conn_get_playerinfo(t_connection const * c)
     }
     else
         strcpy(playerinfo,revtag); /* open char */
-    
-#ifdef WITH_BITS
-    if ((!lle->playerinfo)||(strcmp(playerinfo,lle->playerinfo)!=0)) {
-	/* Update playerinfo if different from loginlist playerinfo or loginlist playerinfo is not yet set */
-	send_bits_va_update_playerinfo(conn_get_sessionid(c),playerinfo,NULL);
-	bits_loginlist_set_playerinfo(conn_get_sessionid(c),playerinfo);
-    }
-#endif
-    
+        
     return playerinfo;
 }
 
@@ -3022,11 +2761,6 @@ extern int conn_set_playerinfo(t_connection const * c, char const * playerinfo)
 	eventlog(eventlog_level_warn,"conn_set_playerinfo","setting playerinfo for client \"%s\" not supported (playerinfo=\"%s\")",clienttag,playerinfo);
 	return -1;
     }
-    
-#ifdef WITH_BITS
-    /* Check if the playerinfo has to be updated in the network */
-    conn_get_playerinfo(c);
-#endif
     
     return 0;
 }
@@ -3993,23 +3727,6 @@ extern t_connection * connlist_find_connection_by_charname(char const * charname
      return NULL;
 }
 
-
-#ifdef WITH_BITS
-extern t_connection * connlist_find_connection_by_sessionid(unsigned int sessionid)
-{
-    t_connection * c;
-    t_elem const * curr;
-    
-    LIST_TRAVERSE_CONST(conn_head,curr)
-    {
-	c = elem_get_data(curr);
-	if (c->sessionid==sessionid)
-	    return c;
-    }
-    
-    return NULL;
-}
-#endif
 
 extern t_connection * connlist_find_connection_by_uid(unsigned int uid)
 {

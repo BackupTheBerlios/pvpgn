@@ -40,17 +40,6 @@ typedef struct attribute_struct
 } t_attribute;
 #endif
 
-#ifdef WITH_BITS
-typedef enum
-{
-    account_state_invalid, /* account does not exist */
-    account_state_delete,  /* account will be removed from cache */
-    account_state_pending, /* account state is still unknown (request sent) */
-    account_state_valid,   /* account is valid and locked (server receives notifications/changes for it) */
-    account_state_unknown  /* account state is unknown and no request has been sent */
-} t_bits_account_state;
-#endif
-
 #define ACCOUNT_CLIENTTAG_UNKN 0x00; // used for all non warcraft 3 clients so far
 #define ACCOUNT_CLIENTTAG_WAR3 0x01;
 #define ACCOUNT_CLIENTTAG_W3XP 0x02;
@@ -72,14 +61,6 @@ typedef struct account_struct
     t_storage_info * storage;
     t_clanmember * clanmember;
     t_list * friends;
-#ifdef WITH_BITS
-    t_bits_account_state bits_state;
- /*   int           locked;    0==lock request not yet answered,
-    				1==account exists & locked,
-    				-1==no lock request sent,
-    				2==invalid,
-    				3==to be deleted (enum?) */
-#endif
 }
 #endif
 t_account;
@@ -114,20 +95,6 @@ extern char const * account_get_strattr(t_account * account, char const * key);
 #endif
 extern int account_unget_strattr(char const * val);
 extern int account_set_strattr(t_account * account, char const * key, char const * val);
-#ifdef WITH_BITS
-extern int account_set_strattr_nobits(t_account * account, char const * key, char const * val);
-extern int accountlist_remove_account(t_account const * account);
-extern int account_name_is_unknown(char const * name);
-extern int account_state_is_pending(t_account const * account);
-extern int account_is_ready_for_use(t_account const * account);
-extern int account_is_invalid(t_account const * account);
-extern t_bits_account_state account_get_bits_state(t_account const * account);
-extern int account_set_bits_state(t_account * account, t_bits_account_state state);
-extern int account_set_accessed(t_account * account, int accessed);
-extern int account_is_loaded(t_account const * account);
-extern int account_set_loaded(t_account * account, int loaded);
-extern int account_set_uid(t_account * account, int uid);
-#endif
 
 extern char const * account_get_first_key(t_account * account);
 extern char const * account_get_next_key(t_account * account, char const * key);

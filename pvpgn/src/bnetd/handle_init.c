@@ -28,11 +28,6 @@
 #include "common/eventlog.h"
 #include "common/queue.h"
 #include "common/bn_type.h"
-#ifdef WITH_BITS
-# include "bits.h"
-# include "bits_query.h"
-# include "bits_ext.h"
-#endif
 #include "connection.h"
 #include "realm.h"
 #include "prefs.h"
@@ -77,24 +72,6 @@ extern int handle_init_packet(t_connection * c, t_packet const * const packet)
 	    conn_set_state(c,conn_state_connected);
 	    conn_set_class(c,conn_class_file);
 	    
-	    break;
-	    
-	case CLIENT_INITCONN_CLASS_BITS:
-	    eventlog(eventlog_level_info,"handle_init_packet","[%d] client initiated BNETD uplink connection",conn_get_socket(c));
-	    if (!prefs_get_allow_uplink())
-	    {
-		eventlog(eventlog_level_info,"handle_init_packet","[%d] allow_uplink is disabled",conn_get_socket(c));
-		return -1;
-	    }
-	    conn_set_state(c,conn_state_connected);
-	    conn_set_class(c,conn_class_bits);
-#ifdef WITH_BITS
-	    conn_set_in_size(c,0);
-	    if (create_bits_ext(c,bits_to_slave)<0) {
-		eventlog(eventlog_level_error,"handle_init_packet","cannot create bits connection extension");
-		return -1;
-	    }
-#endif
 	    break;
 	    
 	case CLIENT_INITCONN_CLASS_BOT:

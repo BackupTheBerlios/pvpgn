@@ -67,18 +67,6 @@
 #include "common/util.h"
 #include "prefs.h"
 #include "common/token.h"
-#ifdef WITH_BITS
-# include "query.h"
-# include "bits.h"
-# include "bits_chat.h"
-# include "bits_rconn.h"
-# include "bits_query.h"
-# include "bits_packet.h"
-# include "bits_login.h"
-# include "common/bn_type.h"
-# include "common/packet.h"
-# include "common/queue.h"
-#endif
 #include "channel.h"
 #include "common/setup_after.h"
 #include "irc.h"
@@ -273,12 +261,6 @@ extern t_channel * channel_create(char const * fullname, char const * shortname,
     channel->currmembers = 0;
     channel->memberlist = NULL;
     
-#ifdef WITH_BITS
-    if (bits_master)
-	send_bits_chat_channellist_add(channel,NULL);
-    channel->ref = 0;
-#endif
-    
     if (permflag) channel->flags |= channel_flags_permanent;
     if (botflag)  channel->flags |= channel_flags_allowbots;
     if (operflag) channel->flags |= channel_flags_allowopers;
@@ -396,10 +378,6 @@ extern int channel_destroy(t_channel * channel)
         channel->flags &= ~channel_flags_permanent; /* make it go away when the last person leaves */
 	return -1;
     }
-    
-#ifdef WITH_BITS
-    send_bits_chat_channellist_del(channel_get_channelid(channel));
-#endif
     
     if (list_remove_data(channellist_head,channel)<0)
     {
@@ -557,45 +535,6 @@ extern int channel_rejoin(t_connection * conn)
 
 extern int channel_add_connection(t_channel * channel, t_connection * connection)
 {
-#ifdef WITH_BITS
-    t_packet * p;
-    t_query *q;
-
-    if (!channel) {
-	eventlog(eventlog_level_error,"channel_add_connection","got NULL channel");
-	return -1;
-    }
-    if (!connection) {
-	eventlog(eventlog_level_error,"channel_add_connection","got NULL connection");
-	return -1;
-    }
-    
-    p = packet_create(packet_class_bits);
-    if (!p) {
-	eventlog(eventlog_level_error,"channel_add_connection","could not create packet");
-	return -1;
-    }
-    channel_add_ref(channel);
-    channel->currmembers++;
-    packet_set_size(p,sizeof(t_bits_chat_channel_join_request));
-    packet_set_type(p,BITS_CHAT_CHANNEL_JOIN_REQUEST);
-    bits_packet_generic(p,BITS_ADDR_MASTER);
-    bn_int_set(&p->u.bits_chat_channel_join_request.channelid,channel_get_channelid(channel));
-    bn_int_set(&p->u.bits_chat_channel_join_request.sessionid,conn_get_sessionid(connection));
-    bn_int_set(&p->u.bits_chat_channel_join_request.flags,conn_get_flags(connection));
-    bn_int_set(&p->u.bits_chat_channel_join_request.latency,conn_get_latency(connection));
-    q = query_create(bits_query_type_chat_channel_join);
-    if (!q) {
-	eventlog(eventlog_level_error,"channel_add_connection","could not create query");
-	packet_del_ref(p);
-	return -1;
-    }
-    query_attach_conn(q,"client",connection);
-    bn_int_set(&p->u.bits_chat_channel_join_request.qid,query_get_qid(q));
-    send_bits_packet(p);
-    packet_del_ref(p);
-    return 0;
-#else
     t_channelmember * member;
     t_connection *    user;
     
@@ -653,42 +592,11 @@ extern int channel_add_connection(t_channel * channel, t_connection * connection
 	message_send_text(connection,message_type_info,connection,prefs_get_log_notice());
     
     return 0;
-#endif
 }
 
 
 extern int channel_del_connection(t_channel * channel, t_connection * connection)
 {
-#ifdef WITH_BITS
-    t_packet * p;
-
-    if (!channel) {
-	eventlog(eventlog_level_error,"channel_del_connection","got NULL channel");
-	return -1;
-    }
-    if (!connection) {
-	eventlog(eventlog_level_error,"channel_del_connection","got NULL connection");
-	return -1;
-    }
-
-    p = packet_create(packet_class_bits);
-    if (!p) {
-	eventlog(eventlog_level_error,"channel_del_connection","could not create packet");
-	return -1;
-    }
-    packet_set_size(p,sizeof(t_bits_chat_channel_leave));
-    packet_set_type(p,BITS_CHAT_CHANNEL_LEAVE);
-    bn_int_set(&p->u.bits_chat_channel_leave.channelid,channel_get_channelid(channel));
-    bn_int_set(&p->u.bits_chat_channel_leave.sessionid,conn_get_sessionid(connection));
-    bits_packet_generic(p,BITS_ADDR_MASTER);
-    send_bits_packet(p);
-    packet_del_ref(p);
-    channel_del_ref(channel);
-    channel->currmembers--;
-    list_purge(channellist_head);
-    
-    return 0;
-#else
     t_channelmember * curr;
     t_channelmember * temp;
     t_account 	    * acc;
@@ -748,17 +656,14 @@ extern int channel_del_connection(t_channel * channel, t_connection * connection
     }
     
     return 0;
-#endif
 }
 
 
 extern void channel_update_latency(t_connection * me)
 {
     t_channel *    channel;
-#ifndef WITH_BITS
     t_message *    message;
     t_connection * c;
-#endif
     
     if (!me)
     {
@@ -771,7 +676,6 @@ extern void channel_update_latency(t_connection * me)
         return;
     }
     
-#ifndef WITH_BITS
     if (!(message = message_create(message_type_userflags,me,NULL,NULL))) /* handles NULL text */
 	return;
 
@@ -779,20 +683,14 @@ extern void channel_update_latency(t_connection * me)
         if (conn_get_class(c)==conn_class_bnet)
             message_send(message,c);
     message_destroy(message);
-#else
-    /* FIXME: check whether an update is needed */
-    channel_message_send(channel,message_type_userflags,me,NULL); /* handles NULL text */
-#endif
 }
 
 
 extern void channel_update_flags(t_connection * me)
 {
     t_channel *    channel;
-#ifndef WITH_BITS
     t_message *    message;
     t_connection * c;
-#endif
     
     if (!me)
     {
@@ -805,7 +703,6 @@ extern void channel_update_flags(t_connection * me)
         return;
     }
     
-#ifndef WITH_BITS
     if (!(message = message_create(message_type_userflags,me,NULL,NULL))) /* handles NULL text */
 	return;
     
@@ -813,11 +710,6 @@ extern void channel_update_flags(t_connection * me)
 	message_send(message,c);
     
     message_destroy(message);
-#else
-    /* FIXME: check whether an update is needed */
-    	/* TODO */
-    channel_message_send(channel,message_type_userflags,me,NULL); /* handles NULL text */
-#endif
 }
 
 
@@ -862,12 +754,7 @@ extern void channel_message_send(t_channel const * channel, t_message_type type,
     t_connection * c;
     unsigned int   heard;
     t_message *    message;
-#ifdef WITH_BITS
-    t_bits_channelmember * member;
-    t_elem const * curr;
-#else
     char const *   tname;
-#endif
     
     if (!channel)
     {
@@ -902,7 +789,6 @@ extern void channel_message_send(t_channel const * channel, t_message_type type,
 	return;
     }
     
-#ifndef WITH_BITS
     heard = 0;
     tname = conn_get_chatname(me);
     for (c=channel_get_first(channel); c; c=channel_get_next())
@@ -917,29 +803,6 @@ extern void channel_message_send(t_channel const * channel, t_message_type type,
 	    heard = 1;
     }
     conn_unget_chatname(me,tname);
-#else
-    heard = 1; /* FIXME: check if there is more than 1 member in the channel */
-    member = channel_find_member_bysessionid(channel,conn_get_sessionid(me));
-    if (!member) {
-	char const * username;
-	eventlog(eventlog_level_error,"channel_message_send","could not find sending user \"%s\" with sessionid 0x%08x",(username = conn_get_username(me)),conn_get_sessionid(me));
-	conn_unget_username(me,username);
-    } else {
-	send_bits_chat_channel(member,channel_get_channelid(channel),type,text);
-    }
-    LIST_TRAVERSE_CONST(connlist(),curr)
-    {
-    	c = elem_get_data(curr);
-	if (c==me && (type==message_type_talk || type==message_type_join))
-	    continue; /* ignore ourself */
-	/* FIXME: what about ignore? */
-        if ((conn_get_class(c) == conn_class_bnet)||(conn_get_class(c) == conn_class_bot)) {
-	    if (conn_get_channel(c) == channel) {
-		message_send(message,c); 
-	    }
-	}
-    }
-#endif
     message_destroy(message);
     
     if (!heard && (type==message_type_talk || type==message_type_emote))
@@ -1067,11 +930,7 @@ extern int channel_get_length(t_channel const * channel)
 }
 
 
-#ifndef WITH_BITS
 extern t_connection * channel_get_first(t_channel const * channel)
-#else
-extern t_bits_channelmember * channel_get_first(t_channel const * channel)
-#endif
 {
     if (!channel)
     {
@@ -1084,11 +943,7 @@ extern t_bits_channelmember * channel_get_first(t_channel const * channel)
     return channel_get_next();
 }
 
-#ifndef WITH_BITS
 extern t_connection * channel_get_next(void)
-#else
-extern t_bits_channelmember * channel_get_next(void)
-#endif
 {
 
     t_channelmember * member;
@@ -1098,11 +953,7 @@ extern t_bits_channelmember * channel_get_next(void)
         member = memberlist_curr;
         memberlist_curr = memberlist_curr->next;
         
-#ifndef WITH_BITS
         return member->connection;
-#else
-	return &member->member;
-#endif
     }
     return NULL;
 }
@@ -1130,226 +981,6 @@ extern char const * channel_get_shortname(t_channel const * channel)
     
     return channel->shortname;
 }
-
-
-#ifdef WITH_BITS
-extern int channel_add_member(t_channel * channel, int sessionid, int flags, int latency)
-{
-	/* BITS version of channel_add_connection() */
-    t_channelmember * member;
-    t_bits_channelmember * user;
-    t_connection  * joinc;
-    t_bits_loginlist_entry * lle;
-
-    
-    if (!channel)
-    {
-	eventlog(eventlog_level_error,"channel_add_member","got NULL channel");
-	return -1;
-    }
-    lle = bits_loginlist_bysessionid(sessionid);
-    if (!lle) {
-	eventlog(eventlog_level_error,"channel_add_member","joining user is not logged in (sessionid=0x%08x)",sessionid);
-	return -1;
-    }
-    if (!(member = malloc(sizeof(t_channelmember))))
-    {
-	eventlog(eventlog_level_error,"channel_add_member","could not allocate memory for channelmember");
-	return -1;
-    }
-
-/* defaults */
-    eventlog(eventlog_level_debug,"channel_add_member","sessionid=#%u flags=0x%08x latency=%d",sessionid,flags,latency);
-    member->member.sessionid = sessionid;
-    member->member.latency = latency;
-    member->member.flags = flags;
-    member->next = channel->memberlist;
-/* operator */
-    if ((bits_master) && (channel->allowopers)) {
-	if ((!channel->opr)||(!channel->memberlist)) {
-	    member->member.flags |= MF_GAVEL;    
-	    channel->opr = sessionid;
-	}
-    }
-/* add*/
-    channel->memberlist = member;
-    send_bits_chat_channel_join(NULL,channel_get_channelid(channel),&member->member);
-
-    /* send message_type_join to local users */
-    joinc = connlist_find_connection_by_sessionid(sessionid);
-    if (!joinc) {
-	joinc = bits_rconn_create(latency,flags,lle->sessionid);
-	conn_set_botuser(joinc,lle->chatname);
-    }
-    for (user=channel_get_first(channel); user; user=channel_get_next())
-    {
-    	t_connection * userc;
-    	userc = connlist_find_connection_by_sessionid(user->sessionid);
-    	if (userc)
-	  message_send_text(userc,message_type_join,joinc,NULL);
-    }
-    if (conn_get_class(joinc)==conn_class_remote) {
-	bits_rconn_destroy(joinc);
-    }
-    return 0;
-}
-
-extern int channel_del_member(t_channel * channel, t_bits_channelmember * member)
-{
-	/* BITS version of channel_del_connection() */
-    t_channelmember * curr;
-    t_channelmember * prev = NULL;
-    t_bits_loginlist_entry * lle;
-    
-    if (!channel)
-    {
-	eventlog(eventlog_level_error,"channel_del_member","got NULL channel");
-        return -1;
-    }
-    if (!member)
-    {
-	eventlog(eventlog_level_error,"channel_del_member","got NULL member");
-        return -1;
-    }
-    lle = bits_loginlist_bysessionid(member->sessionid);
-    if (!lle) {
-	eventlog(eventlog_level_error,"channel_del_member","leaving user is not logged in");
-	return -1;
-    }
-
-    eventlog(eventlog_level_debug,"channel_del_member","sessionid=0x%08x",member->sessionid);
-    send_bits_chat_channel_leave(channel_get_channelid(channel),member->sessionid);
-    curr = channel->memberlist;
-    while (curr) {
-        if (&curr->member == member) { /* compare the pointers */
-            t_bits_channelmember * user;
-   	    t_connection * joinc;
-   	    int op_has_changed = 0;
-
-   	    /* operator, part 1 */
-            if ((bits_master)&&(channel->allowopers)) {
-            	if (channel->opr == 0) {
-            	    channel->opr = channel->next_opr;
-            	    channel->next_opr = 0;
-            	    op_has_changed = 1;
-            	}
-             	if (channel->next_opr != 0) {
-            	    if (channel->next_opr == member->sessionid) {
-		        channel->next_opr = 0;
-   	            }
-   	        }
-           	if (channel->opr != 0) {
-            	    if (channel->opr == member->sessionid) {
-		        channel->opr = channel->next_opr;
-		        channel->next_opr = 0;
-            	        op_has_changed = 1;
-   	            }
-   	        }
-   	    }
-	    /* send message_type_part to local conns */
-   	    joinc = connlist_find_connection_by_sessionid(curr->member.sessionid);
-            if (!joinc) {
-	        joinc = bits_rconn_create(curr->member.latency,curr->member.flags,lle->sessionid);
-	        conn_set_botuser(joinc,lle->chatname);
-            }
-            for (user=channel_get_first(channel); user; user=channel_get_next())
-            {
-    	        t_connection * userc;
-    	        userc = connlist_find_connection_by_sessionid(user->sessionid);
-      	        if (userc)
-		    message_send_text(userc,message_type_part,joinc,NULL);
-	    }
-	    if (conn_get_class(joinc)==conn_class_remote) {
-	        bits_rconn_destroy(joinc);
-	    }
-	    
-	    if (prev) {
-		prev->next = curr->next;
-	    } else {
-	    	channel->memberlist = curr->next;
-	    }
-	    free(curr);
-	    /* operator, part 2 */
-            if ((bits_master)&&(channel->allowopers)) {
-		if ((channel->opr == 0)&&(channel->memberlist)) {
-		    channel->opr = channel->memberlist->member.sessionid;
-               	    op_has_changed = 1;
-		}
-		if ((op_has_changed)&&(channel->opr)) {
-		    t_bits_channelmember * m;
-
-		    m = channel_find_member_bysessionid(channel,channel->opr);
-		    m->flags |= MF_GAVEL;   
-		    send_bits_chat_channel_join(NULL,channel_get_channelid(channel),m);
-        	}
-        	if ((!channel->memberlist)&&(!channel->permanent)) {
-		/* destroy the channel */
-		    channel_destroy(channel);
-        	}
-            }
-            /* --- */
-	    return 0;
-    	}
-	prev = curr;
-	curr = curr->next;
-    }
-    return 1;
-}
-
-extern t_bits_channelmember * channel_find_member_bysessionid(t_channel const * channel, int sessionid)
-{
-	t_bits_channelmember * member;
-
-	if (!channel) {
-		eventlog(eventlog_level_error,"channel_find_member_bysessionid","got NULL channel");
-		return NULL;
-	}
-	member = channel_get_first(channel);
-	while (member) {
-		if (member->sessionid == sessionid) {
-			return member;
-		}
-		member = channel_get_next();
-	}
-	return NULL;
-}
-
-extern int channel_add_ref(t_channel * channel) {
-	if (!channel) {
-		eventlog(eventlog_level_error,"channel_add_ref","got NULL channel");
-		return -1;
-	}
-	if (!bits_uplink_connection) return 0;
-	if (channel->ref == 0) {
-		eventlog(eventlog_level_debug,"channel_add_ref","joining channel \"%s\" (#%u)",channel_get_name(channel),channel_get_channelid(channel));
-		send_bits_chat_channel_server_join(channel_get_channelid(channel));
-	}
-	channel->ref++;
-	return 0;
-}
-
-extern int channel_del_ref(t_channel * channel) {
-	if (!channel) {
-		eventlog(eventlog_level_error,"channel_del_ref","got NULL channel");
-		return -1;
-	}
-	if (!bits_uplink_connection) return 0;
-	if (channel->ref < 1) {
-		eventlog(eventlog_level_error,"channel_del_ref","reference counter <= 0");
-		return -1;
-	}
-	if (channel->ref == 1) {
-		eventlog(eventlog_level_debug,"channel_del_ref","leaving channel \"%s\" (#%u)",channel_get_name(channel),channel_get_channelid(channel));
-		send_bits_chat_channel_server_leave(channel_get_channelid(channel));
-		/* delete all members */
-		while (channel->memberlist)
-			channel_del_member(channel,&channel->memberlist->member);
-	}
-	channel->ref--;
-	return 0;
-}
-
-#endif
 
 
 static int channellist_load_permanent(char const * filename)
@@ -1380,13 +1011,6 @@ static int channellist_load_permanent(char const * filename)
 	return -1;
     }
     
-#ifdef WITH_BITS
-    if (bits_uplink_connection)
-    {
-	eventlog(eventlog_level_info,"channellist_load_permanent","not loading permanent channels from file");
-	return 0;
-    }
-#endif
     if (!(fp = fopen(filename,"r")))
     {
 	eventlog(eventlog_level_error,"channellist_load_permanent","could not open channel file \"%s\" for reading (fopen: %s)",filename,strerror(errno));
@@ -1591,7 +1215,6 @@ static char * channel_format_name(char const * sname, char const * country, char
     return fullname;
 }
 
-#ifndef WITH_BITS 
 extern int channellist_reload(void)
 {
   t_elem * curr;
@@ -1738,7 +1361,6 @@ extern int channellist_reload(void)
   return 0;
 
 }     
-#endif
 
 extern int channellist_create(void)
 {
@@ -1940,11 +1562,6 @@ extern t_channel * channellist_find_channel_by_name(char const * name, char cons
 		else
 		    eventlog(eventlog_level_debug,"channellist_find_channel_by_name","countries didn't match");
 		
-#ifdef WITH_BITS
-		if (!bits_master) /* BITS slaves have to handle permanent, rollover channel seperately with an extra */
-		    return channel; /* request to the master. Only the master has to decide whether to create a new instance ... */
-#endif
-
 		foundperm = 1;
 		
 		/* save off some info in case we need to create a new copy */
@@ -1975,7 +1592,7 @@ extern t_channel * channellist_find_channel_by_name(char const * name, char cons
      */
 
     if (foundperm) /* All the channels were full, create a new one */
-    {		/* Only BITS masters should reach this point. */
+    {
 	char * channelname;
 	
         if (!(channelname=channel_format_name(saveshortname,savecountry,saverealmname,maxchannel+1)))

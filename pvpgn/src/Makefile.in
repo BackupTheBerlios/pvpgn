@@ -94,7 +94,6 @@ ${SRC_BNETDDIR}/handle_bnet.o \
 ${SRC_BNETDDIR}/handle_file.o \
 ${SRC_BNETDDIR}/handle_bot.o \
 ${SRC_BNETDDIR}/handle_telnet.o \
-${SRC_BNETDDIR}/handle_bits.o \
 ${SRC_BNETDDIR}/handle_irc.o \
 ${SRC_BNETDDIR}/handle_udp.o \
 ${SRC_BNETDDIR}/handle_auth.o \
@@ -136,19 +135,7 @@ ${SRC_BNETDDIR}/versioncheck.o \
 ${SRC_BNETDDIR}/handle_d2cs.o \
 ${SRC_BNETDDIR}/news.o \
 ${SRC_BNETDDIR}/irc.o \
-${SRC_BNETDDIR}/query.o \
 ${SRC_BNETDDIR}/alias_command.o \
-${SRC_BNETDDIR}/bits.o \
-${SRC_BNETDDIR}/bits_va.o \
-${SRC_BNETDDIR}/bits_query.o \
-${SRC_BNETDDIR}/bits_packet.o \
-${SRC_BNETDDIR}/bits_net.o \
-${SRC_BNETDDIR}/bits_ext.o \
-${SRC_BNETDDIR}/bits_chat.o \
-${SRC_BNETDDIR}/bits_rconn.o \
-${SRC_BNETDDIR}/bits_login.o \
-${SRC_BNETDDIR}/bits_game.o \
-${SRC_BNETDDIR}/bits_motd.o \
 ${SRC_BNETDDIR}/command_groups.o \
 ${SRC_BNETDDIR}/output.o \
 ${SRC_BNETDDIR}/handle_anongame.o \
@@ -489,8 +476,8 @@ MAN5S		= bnetd.conf.5 bntext.5 bnmotd.txt.5 bnissue.txt.5 bnnews.txt.5
 CONFS		= bnetd.conf d2cs.conf d2dbs.conf \
 		  ad.list channel.list realm.list \
 		  autoupdate bnetd_default_user bnetd_default_user.cdb gametrans d2gstrans versioncheck \
-		  bnmotd.txt bnbitsmotd.txt bnissue.txt bnmaps.txt bnxplevel.txt bnxpcalc.txt news.txt command_groups.txt \
-		  bnban bnhelp bnbitspasswd bnalias.list anongame_infos.conf tournament.conf topics sql_DB_layout w3trans supportfile
+		  bnmotd.txt bnissue.txt bnmaps.txt bnxplevel.txt bnxpcalc.txt news.txt command_groups.txt \
+		  bnban bnhelp bnalias.list anongame_infos.conf tournament.conf topics sql_DB_layout w3trans supportfile
 
 SHARES		= ad000001.pcx ad000001.mng ad000004.mng ad000666.mng ad000666.pcx \
 		  tos.txt \

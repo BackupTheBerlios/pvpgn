@@ -31,6 +31,13 @@ changes to d2dbs.conf:
 -- added: ladder_chars_only = 1
 -- added: ladder_start_time = ""
 
+REMOVED BITS SUPPORT:
+- conf/bnbitsmotd.txt
+- conf/bnbitspasswd
+- removed BITS entries from conf/bnetd.conf.in si conf/bnetd.conf.win32
+(do_uplink, uplink_server, uplink_username, allow_uplink, bits_password_file, 
+bits_motd_file, bits_use_plaintext)
+
  Updating from 1.6.0 pre 4 to 1.6.0 pre 5
 ===========================================
 

@@ -76,10 +76,6 @@
 #include "watch.h"
 #include "game_conv.h"
 #include "game.h"
-#ifdef WITH_BITS
-# include "bits_login.h"
-# include "bits_game.h"
-#endif
 #include "common/setup_after.h"
 
 static t_list * gamelist_head=NULL;
@@ -109,24 +105,9 @@ static void game_choose_host(t_game * game)
     for (i=0; i<game->count; i++)
 	if (game->connections[i])
 	{
-#ifdef WITH_BITS
-	    t_bits_loginlist_entry * lle;
-
-#endif
 	    game->owner = game->connections[i];
-#ifdef WITH_BITS
-	    lle = bits_loginlist_bysessionid(game->connections[i]);
-	    if (lle) {
-	    	game->addr  = lle->game_addr;
-	    	game->port  = lle->game_port;
-	    	game_set_owner(game,game->connections[i]);
-	    } else {
-		eventlog(eventlog_level_error,"game_choose_host","user with sessionid 0x%08x is not in the loginlist",game->connections[i]);
-	    }
-#else
 	    game->addr  = conn_get_game_addr(game->connections[i]);
 	    game->port  = conn_get_game_port(game->connections[i]);
-#endif
 	    return;
 	}
     eventlog(eventlog_level_warn,"game_choose_host","no valid connections found");
@@ -478,11 +459,7 @@ extern t_game * game_create(char const * name, char const * pass, char const * i
     game->mapname       = NULL;
     game->ref           = 0;
     game->count         = 0;
-#ifdef WITH_BITS
-    game->owner		= 0; /* FIXME: sessionid of creator should be here */
-#else
     game->owner         = NULL;
-#endif
     game->connections   = NULL;
     game->players       = NULL;
     game->results       = NULL;
@@ -515,7 +492,6 @@ extern t_game * game_create(char const * name, char const * pass, char const * i
 	free(game);
 	return NULL;
     }
-    /* bits_game must be announced later! */
 
     eventlog(eventlog_level_info,"game_create","game \"%s\" (pass \"%s\") type %hu(%s) startver %d created",name,pass,(unsigned short)type,game_type_get_str(type),startver);
     
@@ -544,9 +520,6 @@ static void game_destroy(t_game const * game)
         realm_add_game_number(realmlist_find_realm(game->realmname),-1); 
     } 
 
-#ifdef WITH_BITS
-    send_bits_gamelist_del(NULL,game);
-#endif
     eventlog(eventlog_level_debug,"game_destroy","game \"%s\" (count=%u ref=%u) removed from list...",game_get_name(game),game->count,game->ref);
     
     for (i=0; i<game->count; i++)
@@ -1361,9 +1334,6 @@ extern void game_set_status(t_game * game, t_game_status status)
     if (status==game_status_started && game->start_time==(time_t)0)
 	game->start_time = time(NULL);
     game->status = status;
-#ifdef WITH_BITS
-    bits_game_update_status(game_get_id(game),status);
-#endif
 }
 
 
@@ -1464,64 +1434,35 @@ extern char const * game_get_clienttag(t_game const * game)
 }
 
 
-#ifndef WITH_BITS
 extern int game_add_player(t_game * game, char const * pass, int startver, t_connection * c)
-#else
-extern int game_add_player(t_game * game, char const * pass, int startver, unsigned int sessionid)
-#endif
 {
-#ifndef WITH_BITS
     t_connection * * tempc;
-#else
-    unsigned int * tempc;
-#endif
     t_account * *    tempp;
     t_game_result *  tempr;
     char const * *   temprh;
     char const * *   temprb;
-#ifdef WITH_BITS
-    t_bits_loginlist_entry * lle;
-    t_account * tempa;
-    char ct[5];
-#endif	
     
     if (!game)
     {
 	eventlog(eventlog_level_error,"game_add_player","got NULL game");
         return -1;
     }
-#ifndef WITH_BITS
-    /* BITS: Password should not be checked by the master server */
     if (!pass)
     {
 	eventlog(eventlog_level_error,"game_add_player","got NULL password");
 	return -1;
     }
-#endif
     if (startver!=STARTVER_UNKNOWN && startver!=STARTVER_GW1 && startver!=STARTVER_GW3 && startver!=STARTVER_GW4 && startver!=STARTVER_REALM1)
     {
 	eventlog(eventlog_level_error,"game_add_player","got bad game startver %d",startver);
 	return -1;
     }
-#ifndef WITH_BITS
     if (!c)
     {
 	eventlog(eventlog_level_error,"game_add_player","got NULL connection");
         return -1;
     }
     if (game->type==game_type_ladder && account_get_normal_wins(conn_get_account(c),conn_get_clienttag(c))<10)
-#else	
-    if (!(lle = bits_loginlist_bysessionid(sessionid))) {
-	eventlog(eventlog_level_error,"game_add_player","got invalid sessionid 0x%08x",sessionid);
-	return -1;
-    }
-
-    ct[4]='\0';
-    memcpy(ct,lle->clienttag,4);
-
-    tempa = accountlist_find_account(lle->chatname);
-    if (game->type==game_type_ladder && account_get_normal_wins(tempa,ct)<10)
-#endif
     /* if () ... */
     {
 	eventlog(eventlog_level_error,"game_add_player","can not join ladder game without 10 normal wins");
@@ -1536,7 +1477,6 @@ extern int game_add_player(t_game * game, char const * pass, int startver, unsig
 	    eventlog(eventlog_level_error,"game_add_player","could not get clienttag for game");
 	    return -1;
 	}
-#ifndef WITH_BITS
 /* FIXME: What's wrong with this?  *** I dunno, when does it print this message? */
 /*
 	if (strcmp(conn_get_clienttag(c),gt)!=0)
@@ -1545,32 +1485,17 @@ extern int game_add_player(t_game * game, char const * pass, int startver, unsig
 	    return -1;
 	}
 */
-#else
-	if (strcmp(ct,gt)!=0)
-	{
-	    eventlog(eventlog_level_error,"game_add_player","player clienttag (\"%s\") does not match game clienttag (\"%s\")",ct,gt);
-	    return -1;
-	}
-#endif
     }
     
-#ifndef WITH_BITS
-    /* BITS: Password is checked earlier */
     if (game->pass[0]!='\0' && strcasecmp(game->pass,pass)!=0)
     {
         eventlog(eventlog_level_debug,"game_add_player","game \"%s\" password mismatch \"%s\"!=\"%s\"",game->name,game->pass,pass); 
 	return -1;
     }
 
-#endif
-    
     if (!game->connections) /* some realloc()s are broken */
     {
-#ifndef WITH_BITS
 	if (!(tempc = malloc((game->count+1)*sizeof(t_connection *))))
-#else
-	if (!(tempc = malloc((game->count+1)*sizeof(unsigned int))))
-#endif
 	{
 	    eventlog(eventlog_level_error,"game_add_player","unable to allocate memory for game connections");
 	    return -1;
@@ -1578,11 +1503,7 @@ extern int game_add_player(t_game * game, char const * pass, int startver, unsig
     }
     else
     {
-#ifndef WITH_BITS
 	if (!(tempc = realloc(game->connections,(game->count+1)*sizeof(t_connection *))))
-#else
-	if (!(tempc = realloc(game->connections,(game->count+1)*sizeof(unsigned int))))
-#endif
 	{
 	    eventlog(eventlog_level_error,"game_add_player","unable to allocate memory for game connections");
 	    return -1;
@@ -1591,8 +1512,8 @@ extern int game_add_player(t_game * game, char const * pass, int startver, unsig
     game->connections = tempc;
     if (!game->players) /* some realloc()s are broken */
     {
-	if (!(tempp = malloc((game->count+1)*sizeof(t_account *)))) /* FIXME: BITS shouldn't use this */
-	{                                                           /* Typhoon: since this function is only used by the master server it should be ok to use accounts */
+	if (!(tempp = malloc((game->count+1)*sizeof(t_account *))))
+	{
 	    eventlog(eventlog_level_error,"game_add_player","unable to allocate memory for game players");
 	    return -1;
 	}
@@ -1661,13 +1582,8 @@ extern int game_add_player(t_game * game, char const * pass, int startver, unsig
     }
     game->report_bodies = temprb;
     
-#ifndef WITH_BITS
     game->connections[game->count]   = c;
     game->players[game->count]       = conn_get_account(c);
-#else
-    game->connections[game->count]   = sessionid;
-    game->players[game->count]       = tempa;
-#endif
     game->results[game->count]       = game_result_none;
     game->report_heads[game->count]  = NULL;
     game->report_bodies[game->count] = NULL;
@@ -1678,14 +1594,10 @@ extern int game_add_player(t_game * game, char const * pass, int startver, unsig
     
     if (game->startver!=startver && startver!=STARTVER_UNKNOWN) /* with join startver ALWAYS unknown [KWS] */
     {
-#ifndef WITH_BITS	
 	char const * tname;
 
 	eventlog(eventlog_level_error,"game_add_player","player \"%s\" client \"%s\" startver %u joining game startver %u (count=%u ref=%u)",(tname = account_get_name(conn_get_account(c))),conn_get_clienttag(c),startver,game->startver,game->count,game->ref);
 	account_unget_name(tname);
-#else
-	eventlog(eventlog_level_error,"game_add_player","player \"%s\" client \"%s\" startver %u joining game startver %u (count=%u ref=%u)",lle->chatname,ct,startver,game->startver,game->count,game->ref);
-#endif
     }
     
     game_choose_host(game);
@@ -1693,31 +1605,22 @@ extern int game_add_player(t_game * game, char const * pass, int startver, unsig
     return 0;
 }
 
-#ifndef WITH_BITS
 extern int game_del_player(t_game * game, t_connection * c)
-#else
-extern int game_del_player(t_game * game, unsigned int sessionid)
-#endif
 {
     char const * tname;
     unsigned int i;
     t_account *  account;
-#ifdef WITH_BITS
-    t_bits_loginlist_entry * lle;
-#endif
     
     if (!game)
     {
 	eventlog(eventlog_level_error,"game_del_player","got NULL game");
         return -1;
     }
-#ifndef WITH_BITS
     if (!c)
     {
 	eventlog(eventlog_level_error,"game_del_player","got NULL connection");
 	return -1;
     }
-#endif
     if (!game->players)
     {
 	eventlog(eventlog_level_error,"game_del_player","player array is NULL");
@@ -1729,16 +1632,7 @@ extern int game_del_player(t_game * game, unsigned int sessionid)
 	return -1;
     }
     
-#ifndef WITH_BITS
     account = conn_get_account(c);
-#else
-    lle = bits_loginlist_bysessionid(sessionid);
-    if (!lle) {
-	eventlog(eventlog_level_error,"game_del_player","cannot find a loginlist entry with sessionid 0x%08x",sessionid);
-	return -1;
-    }
-    account = accountlist_find_account(lle->chatname);
-#endif
 
    if(conn_get_leavegamewhisper_ack(c)==0)
      {
@@ -1753,11 +1647,7 @@ extern int game_del_player(t_game * game, unsigned int sessionid)
 	if (game->players[i]==account && game->connections[i])
 	{
 	    eventlog(eventlog_level_debug,"game_del_player","removing player #%u \"%s\" from \"%s\", %u players left",i,(tname = account_get_name(account)),game_get_name(game),game->ref-1);
-#ifndef WITH_BITS
 	    game->connections[i] = NULL;
-#else
-	    game->connections[i] = 0;
-#endif	    
 	    if (game->results[i]!=game_result_win &&
 		game->results[i]!=game_result_loss &&
 		game->results[i]!=game_result_draw &&
@@ -2051,27 +1941,8 @@ extern t_connection * game_get_owner(t_game const * game)
 	eventlog(eventlog_level_error,"game_get_owner","got NULL game");
 	return NULL;
     }
-#ifdef WITH_BITS
-    eventlog(eventlog_level_info,"game_get_owner","BITS: this function is broken");
-    return NULL;
-#else    
     return game->owner;
-#endif
 }
-
-
-#ifdef WITH_BITS
-extern void game_set_owner(t_game * game, unsigned int owner)
-{
-    if (!game)
-    {
-	eventlog(eventlog_level_error,"game_set_owner","got NULL game");
-        return;
-    }
-    game->owner = owner;
-    bits_game_update_owner(game_get_id(game),owner);
-}
-#endif
 
 
 extern time_t game_get_create_time(t_game const * game)

@@ -77,11 +77,6 @@
 #include "common/util.h"
 #include "common/field_sizes.h"
 #include "common/bnethash.h"
-#ifdef WITH_BITS
-# include "connection.h"
-# include "bits_va.h"
-# include "bits.h"
-#endif
 #define CLAN_INTERNAL_ACCESS
 #define ACCOUNT_INTERNAL_ACCESS
 #include "common/introtate.h"

@@ -72,11 +72,6 @@
 #include "common/util.h"
 #include "common/field_sizes.h"
 #include "common/bnethash.h"
-#ifdef WITH_BITS
-# include "connection.h"
-# include "bits_va.h"
-# include "bits.h"
-#endif
 #include "common/introtate.h"
 #include "account.h"
 #include "common/hashtable.h"
@@ -217,74 +212,15 @@ extern t_account * account_create(char const * username, char const * passhash1)
 	    return NULL;
 	}
 	
-#ifdef WITH_BITS
-	account_set_bits_state(account,account_state_valid);
-	if (!bits_master)
-	    eventlog(eventlog_level_warn,"account_create","account_create should not be called on BITS clients");
-#endif
     }
     else /* empty account to be filled in later */
     {
 	account->loaded   = 0;
-#ifdef WITH_BITS
-	account_set_bits_state(account,account_state_valid);
-#endif
     }
     
     return account;
 }
 
-#ifdef WITH_BITS
-extern t_account * create_vaccount(const char *username, unsigned int uid)
-{
-    /* this is a modified(?) version of account_create */
-    t_account * account;
-    
-    account = malloc(sizeof(t_account));
-    if (!account)
-    {
-	eventlog(eventlog_level_error,"create_vaccount","could not allocate memory for account");
-	return NULL;
-    }
-    account->attrs    = NULL;
-    account->dirty    = 0;
-    account->accessed = 0;
-    account->age      = 0;
-    
-    account->namehash = 0; /* hash it later */
-    account->uid      = 0; /* uid? */
-    
-    account->filename = NULL;	/* there is no local account file */
-    account->loaded   = 0;	/* the keys are not yet loaded */
-    account->bits_state = account_state_unknown;
-    
-    if (username)
-    {
-	if (username[0]!='#') {
-	    if (strchr(username,' '))
-	    {
-	        eventlog(eventlog_level_error,"create_vaccount","username contains spaces");
-	        account_destroy(account);
-	        return NULL;
-	    }
-	    if (strlen(username)>=USER_NAME_MAX)
-	    {
-	        eventlog(eventlog_level_error,"create_vaccount","username \"%s\" is too long (%u chars)",username,strlen(username));
-	        account_destroy(account);
-	        return NULL;
-	    }
-	    account_set_strattr(account,"BNET\\acct\\username",username);
-            account->namehash = account_hash(username);
-	} else {
-	    if (str_to_uint(&username[1],&account->uid)<0) {
-		eventlog(eventlog_level_warn,"create_vaccount","invalid username \"%s\"",username);
-	    }
-	}
-    }
-    account_set_numattr(account,"BNET\\acct\\userid",account->uid);
-    return account;
-}
-#endif
 
 static void account_unload_attrs(t_account * account)
 {
@@ -406,28 +342,9 @@ extern int account_save(t_account * account, unsigned int delta)
    if (account->age>( (3*prefs_get_user_flush_timer()) >>1))
      account->age = ( (3*prefs_get_user_flush_timer()) >>1);
    account->accessed = 0;
-#ifdef WITH_BITS
-   /* We do not have to save the account information to disk if we are a BITS client */
-   if (!bits_master) {
-      if (account->age>=prefs_get_user_flush_timer())
-	{
-	   if (!connlist_find_connection_by_accountname(account_get_name(account)))
-	     {
-		account_set_bits_state(account,account_state_delete);
-		/*	account_set_locked(account,3);  To be deleted */
-		/*	bits_va_unlock_account(account); */
-	     }
-	}
-      return 0;
-   }
-#endif
    
    if (!account->storage)
      {
-# ifdef WITH_BITS
-	if (!bits_master)
-	  return 0; /* It's OK since we don't have the files on the bits clients */
-# endif
 	eventlog(eventlog_level_error,"account_save","account "UID_FORMAT" has NULL filename",account->uid);
 	return -1;
      }
@@ -636,32 +553,7 @@ extern int account_unget_strattr(char const * val)
     return 0;
 }
 
-#ifdef WITH_BITS
 extern int account_set_strattr(t_account * account, char const * key, char const * val)
-{
-	char const * oldvalue;
-	
-	if (!account) {
-		eventlog(eventlog_level_error,"account_set_strattr(bits)","got NULL account");
-		return -1;
-	}
-	oldvalue = account_get_strattr(account,key); /* To check whether the value has changed. */
-	if (oldvalue) {
-	    if (val && strcmp(oldvalue,val)==0) {
-		account_unget_strattr(oldvalue);
-		return 0; /* The value hasn't changed. Don't produce unnecessary traffic. */
-	    }
-	    /* The value must have changed. Send the update to the msster and update local account. */
-	    account_unget_strattr(oldvalue);
-	}
-	if (send_bits_va_set_attr(account_get_uid(account),key,val,NULL)<0) return -1;
-	return account_set_strattr_nobits(account,key,val);
-}
-
-extern int account_set_strattr_nobits(t_account * account, char const * key, char const * val)
-#else
-extern int account_set_strattr(t_account * account, char const * key, char const * val)
-#endif
 {
     t_attribute * curr;
     const char *newkey;
@@ -677,7 +569,6 @@ extern int account_set_strattr(t_account * account, char const * key, char const
 	return -1;
     }
     
-#ifndef WITH_BITS
     if (!account->loaded)
     {
         if (account_load_attrs(account)<0)
@@ -686,7 +577,6 @@ extern int account_set_strattr(t_account * account, char const * key, char const
 	        return -1;
     	}
     }
-#endif
     curr = account->attrs;
     if (!curr) /* if no keys in attr list then we need to insert it */
     {
@@ -808,27 +698,8 @@ static int account_load_attrs(t_account * account)
 
     if (!account->storage)
     {
-#ifndef WITH_BITS
 	eventlog(eventlog_level_error,"account_load_attrs","account has NULL filename");
 	return -1;
-#else /* WITH_BITS */
-	if (!bits_uplink_connection) {
-		eventlog(eventlog_level_error,"account_load_attrs","account has NULL filename on BITS master");
-		return -1;
-	}
-    	if (account->uid==0) {
-	    eventlog(eventlog_level_debug,"account_load_attrs","userid is unknown");
-	    return 0;
-    	} else if (!account->loaded) {
-    	    if (account_get_bits_state(account)==account_state_valid) {
-            	eventlog(eventlog_level_debug,"account_load_attrs","bits: virtual account "UID_FORMAT": loading attrs",account->uid);
-	    	send_bits_va_get_allattr(account->uid);
-	    } else {
-		eventlog(eventlog_level_debug,"account_load_attrs","waiting for account "UID_FORMAT" to be locked",account->uid);
-	    }
-	    return 0;
-	}
-#endif /* WITH_BITS */
     }
 
     
@@ -855,9 +726,6 @@ static int account_load_attrs(t_account * account)
     account->name = NULL;
 
     account->dirty = 0;
-#ifdef WITH_BITS
-    account_set_bits_state(account,account_state_valid);
-#endif
 
     return 0;
     
@@ -943,13 +811,6 @@ extern int accountlist_reload(void)
 
     int starttime = time(NULL);
 
-#ifdef WITH_BITS
-  if (!bits_master)
-     {
-       eventlog(eventlog_level_info,"accountlist_reload","running as BITS client -> no accounts loaded");
-       return 0;
-     }
-#endif
   
   force_account_add = 1; /* disable the protection */
   
@@ -1057,14 +918,6 @@ extern int accountlist_create(void)
 	return -1;
     }
     
-#ifdef WITH_BITS
-    if (!bits_master)
-    {
-	eventlog(eventlog_level_info,"accountlist_create","running as BITS client -> no accounts loaded");
-	return 0;
-    }
-#endif
-
     force_account_add = 1; /* disable the protection */
     
     count = 0;
@@ -1168,9 +1021,6 @@ extern int accountlist_save(unsigned int delta, int *syncdeltap)
 	tcount++;
     }
     
-#ifdef WITH_BITS
-    bits_va_lock_check();
-#endif
     if (scount>0)
 	eventlog(eventlog_level_debug,"accountlist_save","saved %u of %u user accounts",scount,tcount);
 
@@ -1280,12 +1130,6 @@ extern t_account * accountlist_find_account_by_storage(t_storage_info *info)
 
 extern int accountlist_allow_add(void)
 {
-#ifdef WITH_BITS
-    /* Client may tend to fill the accountlist with junk ... let them proceed */
-    if (!bits_master)
-	return 1; 
-#endif
-
     if (force_account_add)
 	return 1; /* the permission was forced */
 
@@ -1319,12 +1163,8 @@ extern t_account * accountlist_add_account(t_account * account)
     }
     if (uid<1)
     {
-#ifndef WITH_BITS
-        eventlog(eventlog_level_error,"accountlist_add_account","got bad account (bad uid), fix it!");
+	eventlog(eventlog_level_error,"accountlist_add_account","got bad account (bad uid), fix it!");
 	uid = maxuserid + 1;
-#else
-	uid = 0;
-#endif
     }
 
     /* check whether the account limit was reached */
@@ -1463,136 +1303,6 @@ extern int accounts_rank_all(void)
 }
 */
 // <---
-
-#ifdef WITH_BITS
-
-extern int accountlist_remove_account(t_account const * account)
-{
-    if(hashtable_remove_data(accountlist_head,account,account->namehash)!=0)
-        return -1;
-    if(hashtable_remove_data(accountlist_uid_head,account,account->uid)!=0)
-        return -1;
-    return 0;
-}
-
-/* This function checks whether the server knows if an account exists or not. 
- * It returns 1 if the server knows the account and 0 if the server doesn't 
- * know whether it exists. */
-extern int account_name_is_unknown(char const * name)
-{
-    t_account * account;
-
-    if (!name) {
-    	eventlog(eventlog_level_error,"account_name_is_unknown","got NULL name");
-	return -1;
-    }
-    if (bits_master) {
-	return 0; /* The master server knows about all accounts */
-    }
-    account = accountlist_find_account(name);
-    if (!account) {
-	return 1; /* not in the accountlist */
-    } else if (account_get_bits_state(account)==account_state_unknown) {
-	return 1; /* in the accountlist, but still unknown */
-    }
-    return 0; /* account is known */
-}
-
-extern int account_state_is_pending(t_account const * account)
-{
-    if (!account) {
-	eventlog(eventlog_level_error,"account_state_is_pending","got NULL account");
-	return -1;
-    }
-    if (account_get_bits_state(account)==account_state_pending)
-    	return 1;
-    else
-    	return 0;
-}
-
-extern int account_is_ready_for_use(t_account const * account)
-{
-    if (!account) {
-	eventlog(eventlog_level_error,"account_is_ready_for_use","got NULL account");
-	return -1;
-    }
-    if ((account_get_bits_state(account)==account_state_valid)&&(account_is_loaded(account)))
-    	return 1;
-    else
-    	return 0;
-}
-
-extern int account_is_invalid(t_account const * account)
-{
-    if (!account) {
-	eventlog(eventlog_level_error,"account_is_invalid","got NULL account");
-	return -1;
-    }
-    if ((account_get_bits_state(account)==account_state_invalid)||(account_get_bits_state(account)==account_state_delete))
-    	return 1;
-    else
-    	return 0;
-}
-
-extern t_bits_account_state account_get_bits_state(t_account const * account)
-{
-    if (!account) {
-	eventlog(eventlog_level_error,"account_get_bits_state","got NULL account");
-	return -1;
-    }
-    return account->bits_state;
-}
-
-extern int account_set_bits_state(t_account * account, t_bits_account_state state)
-{
-    if (!account) {
-	eventlog(eventlog_level_error,"account_get_bits_state","got NULL account");
-	return -1;
-    }
-    account->bits_state = state;
-    return 0;
-}
-
-
-extern int account_set_accessed(t_account * account, int accessed) {
-	if (!account) {
-		eventlog(eventlog_level_error,"account_set_accessed","got NULL account");
-		return -1;
-	}
-	account->accessed = accessed;
-	return 0;
-}
-
-extern int account_is_loaded(t_account const * account)
-{
-	if (!account) {
-		eventlog(eventlog_level_error,"account_is_loaded","got NULL account");
-		return -1;
-	}
-	return account->loaded;
-}
-
-extern int account_set_loaded(t_account * account, int loaded)
-{
-	if (!account) {
-		eventlog(eventlog_level_error,"account_set_loaded","got NULL account");
-		return -1;
-	}
-	account->loaded = loaded;
-	return 0;
-}
-
-extern int account_set_uid(t_account * account, int uid)
-{
-	if (!account) {
-		eventlog(eventlog_level_error,"account_set_uid","got NULL account");
-		return -1;
-	}
-	account->uid = uid;
-	return account_set_numattr(account,"BNET\\acct\\userid",uid);
-}
-
-#endif
 
 extern char const * account_get_first_key(t_account * account)
 {

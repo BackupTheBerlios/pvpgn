@@ -384,9 +384,6 @@ else if (conn_get_state(conn)==conn_state_loggedin) {
 	    	    } else {
 			/* whisper */
 			t_connection * user;
-#ifdef WITH_BITS
-			/* FIXME: support BITS! */
-#endif
 
 			if ((user = connlist_find_connection_by_accountname(e[i]))) {
 			    message_send_text(user,message_type_whisper,conn,text);

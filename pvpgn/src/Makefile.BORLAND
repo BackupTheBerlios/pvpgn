@@ -148,7 +148,6 @@ bnetd_OBJECTS       = \
     ${SRC_BNETDDIR}\handle_file.obj \
     ${SRC_BNETDDIR}\handle_bot.obj \
     ${SRC_BNETDDIR}\handle_telnet.obj \
-    ${SRC_BNETDDIR}\handle_bits.obj \
     ${SRC_BNETDDIR}\handle_irc.obj \
     ${SRC_BNETDDIR}\handle_udp.obj \
     ${SRC_BNETDDIR}\handle_auth.obj \
@@ -186,19 +185,7 @@ bnetd_OBJECTS       = \
     ${SRC_BNETDDIR}\handle_d2cs.obj \
     ${SRC_BNETDDIR}\news.obj \
     ${SRC_BNETDDIR}\irc.obj \
-    ${SRC_BNETDDIR}\query.obj \
     ${SRC_BNETDDIR}\alias_command.obj \
-    ${SRC_BNETDDIR}\bits.obj \
-    ${SRC_BNETDDIR}\bits_va.obj \
-    ${SRC_BNETDDIR}\bits_query.obj \
-    ${SRC_BNETDDIR}\bits_packet.obj \
-    ${SRC_BNETDDIR}\bits_net.obj \
-    ${SRC_BNETDDIR}\bits_ext.obj \
-    ${SRC_BNETDDIR}\bits_chat.obj \
-    ${SRC_BNETDDIR}\bits_rconn.obj \
-    ${SRC_BNETDDIR}\bits_login.obj \
-    ${SRC_BNETDDIR}\bits_game.obj \
-    ${SRC_BNETDDIR}\bits_motd.obj \
     ${SRC_BNETDDIR}\storage_sql.obj \
     ${SRC_BNETDDIR}\storage_file.obj \ 
     ${SRC_BNETDDIR}\storage_cdb.obj \     

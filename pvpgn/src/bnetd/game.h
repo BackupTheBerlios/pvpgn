@@ -190,24 +190,6 @@ typedef enum {
     game_flag_private
 } t_game_flag;
 
-/* Just a quick note for BITS: The original gamelist is only
- * kept by the master server. The bits clients only have a
- * 'stripped down' bits_gamelist. Information which is not
- * really relevant is just dropped. To emulate a t_game struct
- * bits clients can still use the bits_game_create_temp()
- * function. However this function can only reconstruct a small
- * piece of information which is stored in t_game. But it should
- * generally be enough to work with it ...
- * If you wonder why the (t_connection *) fields are replaced by
- * (unsigned int) fields there is an easy answer: The master server
- * doesn't store a t_connection struct for every user on the server
- * but he can reconstruct one from the bits_loginlist. Therefore the
- * t_connection struct is only built when it's needed but only the
- * sessionid for it is permanently stored.
- * Game reports are sent to the master server in raw packet format.
- * They are all evaluated there.
- */
-
 typedef struct game
 #ifdef GAME_INTERNAL_ACCESS
 {
@@ -235,13 +217,8 @@ typedef struct game
     unsigned int      mapsize_y;
     unsigned int      maxplayers;
     
-#ifdef WITH_BITS
-    unsigned int      owner; /* sessionds for all players (connections are only available locally) */
-    unsigned int *    connections; /* HUH?  We assign t_connection * to these in game.c */
-#else
     t_connection *    owner;
     t_connection * *  connections;
-#endif
     t_account * *     players;
     t_game_result *   results;
     char const * *    report_heads;
@@ -330,22 +307,14 @@ extern unsigned short game_get_port(t_game const * game);
 extern unsigned int game_get_latency(t_game const * game);
 extern t_connection * game_get_player_conn(t_game const * game, unsigned int i);
 extern char const * game_get_clienttag(t_game const * game);
-#ifndef WITH_BITS
 extern int game_add_player(t_game * game, char const * pass, int startver, t_connection * c);
 extern int game_del_player(t_game * game, t_connection * c);
-#else
-extern int game_add_player(t_game * game, char const * pass, int startver, unsigned int sessionid);
-extern int game_del_player(t_game * game, unsigned int sessionid);
-#endif
 extern int game_check_result(t_game * game, t_account * account, t_game_result result);
 extern int game_set_result(t_game * game, t_account * account, t_game_result result, char const * head, char const * body);
 extern t_game_result game_get_result(t_game * game, t_account * account);
 extern char const * game_get_mapname(t_game const * game);
 extern int game_set_mapname(t_game * game, char const * mapname);
 extern t_connection * game_get_owner(t_game const * game);
-#ifdef WITH_BITS
-extern void game_set_owner(t_game * game, unsigned int owner);
-#endif
 extern time_t game_get_create_time(t_game const * game);
 extern time_t game_get_start_time(t_game const * game);
 extern int game_set_option(t_game * game, t_game_option option);
