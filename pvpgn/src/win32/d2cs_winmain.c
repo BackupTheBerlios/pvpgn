@@ -18,12 +18,14 @@
  
 #ifdef WIN32_GUI 
  
+#include "common/setup_before.h"
 #include <windows.h>
 #include <windowsx.h>
 #include <richedit.h>
 #include "d2cs_resource.h"
 #include "common/eventlog.h"
 #include "d2cs/version.h"
+#include "common/setup_after.h"
 
 #define WM_SHELLNOTIFY          (WM_USER+1)
 
