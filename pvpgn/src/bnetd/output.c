@@ -137,11 +137,8 @@ int output_standard_writer(FILE * fp)
 	LIST_TRAVERSE_CONST(channellist(),curr)
 	{
     	    channel = elem_get_data(curr);
-    	    if (channel_get_name(channel)!=NULL)
-	    {
-		channel_name = channel_get_name(channel);
-		fprintf(fp,"\t\t<channel>%s</channel>\n",channel_name);
-	    }
+	    channel_name = channel_get_name(channel);
+	    fprintf(fp,"\t\t<channel>%s</channel>\n",channel_name);
 	}
 	
 	fprintf(fp,"\t\t</Channels>\n");
@@ -156,12 +153,9 @@ int output_standard_writer(FILE * fp)
 	LIST_TRAVERSE_CONST(channellist(),curr)
 	{
     	    channel = elem_get_data(curr);
-    	    if (channel_get_name(channel)!=NULL)
-	    {
-		channel_name = channel_get_name(channel);
-		fprintf(fp,"channel%d=%s\n",number,channel_name);
-		number++;
-	    }
+	    channel_name = channel_get_name(channel);
+	    fprintf(fp,"channel%d=%s\n",number,channel_name);
+	    number++;
 	}
 
 	fprintf(fp,"[GAMES]\n");
