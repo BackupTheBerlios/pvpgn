@@ -156,11 +156,13 @@ extern int friendlist_purge(t_list * flist)
             eventlog(eventlog_level_error,__FUNCTION__,"found NULL entry in list");
             continue;
         }
-        if(fr->mutual<0)
+        if (fr->mutual<0)
+          {
             if(list_remove_elem(flist, curr)<0)
                 eventlog(eventlog_level_error,__FUNCTION__,"could not remove item from list");
             else
                 doremove=1;
+          }
     }
     if(doremove)
         list_purge(flist);
