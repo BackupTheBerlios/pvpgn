@@ -494,6 +494,11 @@ static int sd_udpinput(t_addr * const curr_laddr, t_laddr_info const * laddr_inf
 #ifdef PSOCK_EWOULDBLOCK
 		psock_errno()!=PSOCK_EWOULDBLOCK &&
 #endif
+#ifdef PSOCK_ECONNRESET
+		psock_errno()!=PSOCK_ECONNRESET &&	// this is a win2k/winxp issue
+							// their socket implementation returns this value
+							// although it shouldn't
+#endif
 		1)
 		eventlog(eventlog_level_error,"sd_udpinput","could not recv UDP datagram (psock_recvfrom: %s)",strerror(psock_errno()));
 	    packet_del_ref(upacket);
