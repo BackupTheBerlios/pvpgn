@@ -378,7 +378,6 @@ static int file_free_info(t_storage_info *info)
 
 static t_storage_info * file_get_defacct(void)
 {
-    const char * str;
     t_storage_info * info;
 
     if ((info = strdup(prefs_get_defacct())) == NULL) {

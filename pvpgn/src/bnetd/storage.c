@@ -70,6 +70,10 @@ extern int storage_init(const char *spath)
 	res = storage->init(p + 1);
     }
 #endif
+    else {
+	eventlog(eventlog_level_error, __FUNCTION__, "no known driver specified (%s)", spath);
+	res = -1;
+    }
 
     free((void*)temp);
 

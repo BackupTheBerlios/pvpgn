@@ -487,8 +487,6 @@ extern char const * account_get_strattr(t_account * account, char const * key)
 {
     char const *        newkey = key, *newkey2;
     t_attribute * curr, *last, *last2;
-   char const * result;
-   t_attribute * attr;
    
 /*    eventlog(eventlog_level_trace,"account_get_strattr","<<<< ENTER!"); */
     if (!account)
@@ -769,9 +767,6 @@ static int _cb_load_attr(const char *key, const char *val, void *data)
 
 static int account_load_attrs(t_account * account)
 {
-    char * key;
-    char * val;
-    
     if (!account)
     {
 	eventlog(eventlog_level_error,"account_load_attrs","got NULL account");
@@ -932,7 +927,6 @@ static int _cb_read_accounts(t_storage_info *info, void *data)
 extern int accountlist_reload(int all)
 {
     unsigned int count;
-    t_account *  account;
     t_account *  old_acc;
 
     t_entry   * curr;

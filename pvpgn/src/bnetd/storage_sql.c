@@ -93,16 +93,17 @@ static t_sql_engine *sql = NULL;
 
 static char * tables[] = {"BNET", "Record", "profile", "friend", "Team", NULL};
 
+/* FIXME: add dbcreator support 
 static int _dbcreator_init();
 static int _dbcreator_createdatabase(char const *database);
 static int _dbcreator_filldb(char const *database);
 
 void update_DB_v0_to_v150(void);
+*/
 
 static const char * _db_add_tab(const char *tab, const char *key)
 {
    static char nkey[DB_MAX_ATTRKEY];
-   char *p;
    
    strncpy(nkey, tab, sizeof(nkey) - 1);
    nkey[strlen(nkey) + 1] = '\0'; nkey[strlen(nkey)] = '_';
@@ -118,7 +119,6 @@ static int _db_get_tab(const char *key, char **ptab, char **pcol)
 {
    static char tab[DB_MAX_ATTRKEY];
    static char col[DB_MAX_ATTRKEY];
-   char *p;
    
    strncpy(tab, key, DB_MAX_TAB-1);
    tab[DB_MAX_TAB-1]=0;
@@ -321,7 +321,7 @@ static int sql_read_attrs(t_storage_info *info, t_read_attr_func cb, void *data)
     t_sql_res * result = NULL;
     t_sql_row * row;
     char **tab;
-    unsigned int maxlen, uid;
+    unsigned int uid;
 
     if(!sql) {
 	eventlog(eventlog_level_error, __FUNCTION__, "sql layer not initilized");
