@@ -280,7 +280,7 @@ extern int handle_bnet_packet(t_connection * c, t_packet const * const packet)
 	 eventlog(eventlog_level_error,__FUNCTION__,"[%d] unknown (unlogged in) bnet packet type 0x%04x, len %u",conn_get_socket(c),packet_get_type(packet),packet_get_size(packet));
 	 break;
        case -1:
-	 eventlog(eventlog_level_error,__FUNCTION__,"[%d] got error handling packet type 0x%04x, len %u", conn_get_socket(c), packet_get_type(packet), packet_get_size(packet));
+	 eventlog(eventlog_level_error,__FUNCTION__,"[%d] (unlogged in) got error handling packet type 0x%04x, len %u", conn_get_socket(c), packet_get_type(packet), packet_get_size(packet));
 	 break;
       };
       break;
@@ -291,7 +291,7 @@ extern int handle_bnet_packet(t_connection * c, t_packet const * const packet)
 	 eventlog(eventlog_level_error,__FUNCTION__,"[%d] unknown (logged in) bnet packet type 0x%04x, len %u",conn_get_socket(c),packet_get_type(packet),packet_get_size(packet));
 	 break;
        case -1:
-	 eventlog(eventlog_level_error,__FUNCTION__,"[%d] got error handling packet type 0x%04x, len %u", conn_get_socket(c), packet_get_type(packet), packet_get_size(packet));
+	 eventlog(eventlog_level_error,__FUNCTION__,"[%d] (logged in) got error handling packet type 0x%04x, len %u", conn_get_socket(c), packet_get_type(packet), packet_get_size(packet));
 	 break;
       };
       break;
