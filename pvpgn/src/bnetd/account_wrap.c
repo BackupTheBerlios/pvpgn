@@ -2621,22 +2621,23 @@ extern void account_get_raceicon(t_account * account, char * raceicon, unsigned 
 	*raceiconnumber = i + 1;
 }
 
-extern int account_get_profile_calcs(t_account * account, int xp, unsigned int j)
+extern int account_get_profile_calcs(t_account * account, int xp, unsigned int Level)
 {
-  // FIXME: these static tables should get removed cause a) those infos are stored in bnxplevel.txt and b) they are incolmplete anyways
-	static const int xp_min[] = {-1, 0, 100, 200, 400, 600, 900, 1200, 1600, 2000, 2500, 
-	3000, 3500, 4000, 4500, 5000, 5500, 6000, 6500, 7000, 7500, 8000, 8500, 9000};
-	static const int xp_max[] = {-1, 100, 200, 400, 600, 900, 1200, 1600, 2000, 2500, 
-	3000, 3500, 4000, 4500, 5000, 5500, 6000, 6500, 7000, 7500, 8000, 8500, 9000, 9500};
-
+        unsigned int xp_min;
+	unsigned int xp_max;
 	unsigned int i;
 	int  t;
-
-	for (i = 0; i < sizeof(xp_min) / sizeof(int); i++) {
-		if (xp >= xp_min[i] && xp < xp_max[i]) {
-			t = (int)((((double)xp - (double)xp_min[i]) 
-					/ ((double)xp_max[i] - (double)xp_min[i])) * 128);
-			if (i < j) {
+	unsigned int startlvl;
+	
+	if (Level==1) startlvl = 1;
+	else startlvl = Level-1;
+	for (i = startlvl; i < W3_XPCALC_MAXLEVEL; i++) {
+		xp_min = ladder_war3_get_min_xp(i);
+		xp_max = ladder_war3_get_min_xp(i+1);
+		if ((xp >= xp_min) && (xp < xp_max)) {
+			t = (int)((((double)xp - (double)xp_min) 
+					/ ((double)xp_max - (double)xp_min)) * 128);
+			if (i < Level) {
 				return 128 + t;
 			} else {
 				return t;

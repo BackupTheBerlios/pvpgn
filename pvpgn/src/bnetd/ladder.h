@@ -117,6 +117,7 @@ extern int ladderlist_make_all_active(void);
 
 extern int ladder_war3_xpdiff(unsigned int winnerlevel, unsigned int looserlevel, int *, int *);
 extern int ladder_war3_updatelevel(unsigned int oldlevel, int xp);
+extern int ladder_war3_get_min_xp(unsigned int level);
 
 #endif
 #endif

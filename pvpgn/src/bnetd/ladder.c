@@ -1296,15 +1296,25 @@ extern int ladder_war3_updatelevel(unsigned int oldlevel, int xp)
       return oldlevel;
    }
    
-   if (xp < 0) return 1;
+   if (xp <= 0) return 1;
 
    mylevel = oldlevel;
    
    for(i=mylevel ; i < W3_XPCALC_MAXLEVEL; i++)
-     if (xplevels[i].startxp > xp) { mylevel = i; break; }
+     if (xplevels[i].startxp > xp) { mylevel = i; break;}
 
-   for(i=mylevel - 1; i >= 0 ; i--)
-     if (xplevels[i].neededxp <= xp) { mylevel = i + 1; break; }
+   for(i=mylevel - 1; i >0 ; i--)
+     if (xplevels[i-1].startxp <= xp) { mylevel = i+1; break; }
 
    return mylevel;
+}
+
+extern int ladder_war3_get_min_xp(unsigned int Level)
+{
+  if ((Level < 1) || (Level>=W3_XPCALC_MAXLEVEL))
+  {
+	eventlog(eventlog_level_error,__FUNCTION__,"got invalid Level %d",Level);
+	return -1;
+  }
+  return xplevels[Level-1].startxp;
 }
