@@ -720,11 +720,17 @@ ${SRC_ACDIR}/ansi2knr.o: ${SRC_ACDIR}/ansi2knr.c
 	@${RMF} $@
 	${COMPILE} ${SRC_ACDIR}/ansi2knr.c -o $@
 
+SHOWHEADER:
+	@echo
+	@echo "Using compile command: ${COMPILE}"
+	@echo
+
 .c.o:
 	@${RMF} $@
-	@COMPILEANSI1@
-	@COMPILEANSI2@
-	@COMPILEANSI3@
+	@echo "Compiling $*.c"
+	@@COMPILEANSI1@
+	@@COMPILEANSI2@
+	@@COMPILEANSI3@
 
 .dep:
 	${MAKE} dep
@@ -736,105 +742,125 @@ dep:
 	    ${COMPILE} -MM `ls $$a/*.c` | sed -e "s@\(.*\)\.o:\(.*\)@$$a\/\1\.o:\2@g" 1>>.dep; \
 	done
 	
-${bnetd_SBIN}: ${bnetd_OBJECTS}
+${bnetd_SBIN}: SHOWHEADER ${bnetd_OBJECTS}
 	@${INSTALL_DIRS} ${SRC_SBINDIR}
 	@${RMF} $@
-	${LINK} ${bnetd_OBJECTS} ${LINK_LIBS} -o $@
+	@echo "Linking $@"
+	@${LINK} ${bnetd_OBJECTS} ${LINK_LIBS} -o $@
 
-${d2cs_SBIN}: ${d2cs_OBJECTS}
+${d2cs_SBIN}: SHOWHEADER ${d2cs_OBJECTS}
 	@${INSTALL_DIRS} ${SRC_SBINDIR}
 	@${RMF} $@
-	${LINK} ${d2cs_OBJECTS} ${LINK_LIBS} -o $@
+	@echo "Linking $@"
+	@${LINK} ${d2cs_OBJECTS} ${LINK_LIBS} -o $@
 
-${d2dbs_SBIN}: ${d2dbs_OBJECTS}
+${d2dbs_SBIN}: SHOWHEADER ${d2dbs_OBJECTS}
 	@${INSTALL_DIRS} ${SRC_SBINDIR}
 	@${RMF} $@
-	${LINK} ${d2dbs_OBJECTS} ${LINK_LIBS} -o $@
+	@echo "Linking $@"
+	@${LINK} ${d2dbs_OBJECTS} ${LINK_LIBS} -o $@
 
-${sbnetd_SBIN}: ${sbnetd_OBJECTS}
+${sbnetd_SBIN}: SHOWHEADER ${sbnetd_OBJECTS}
 	@${INSTALL_DIRS} ${SRC_SBINDIR}
 	@${RMF} $@
-	${LINK} ${sbnetd_OBJECTS} ${LINK_LIBS} -o $@
+	@echo "Linking $@"
+	@${LINK} ${sbnetd_OBJECTS} ${LINK_LIBS} -o $@
 
-${bntrackd_SBIN}: ${bntrackd_OBJECTS}
+${bntrackd_SBIN}: SHOWHEADER ${bntrackd_OBJECTS}
 	@${INSTALL_DIRS} ${SRC_SBINDIR}
 	@${RMF} $@
-	${LINK} ${bntrackd_OBJECTS} ${LINK_LIBS} -o $@
+	@echo "Linking $@"
+	@${LINK} ${bntrackd_OBJECTS} ${LINK_LIBS} -o $@
 
-${bnchat_BIN}: ${bnchat_OBJECTS}
+${bnchat_BIN}: SHOWHEADER ${bnchat_OBJECTS}
 	@${INSTALL_DIRS} ${SRC_BINDIR}
 	@${RMF} $@
-	${LINK} ${bnchat_OBJECTS} ${LINK_LIBS} -o $@
+	@echo "Linking $@"
+	@${LINK} ${bnchat_OBJECTS} ${LINK_LIBS} -o $@
 
-${bnpass_BIN}: ${bnpass_OBJECTS}
+${bnpass_BIN}: SHOWHEADER ${bnpass_OBJECTS}
 	@${INSTALL_DIRS} ${SRC_BINDIR}
 	@${RMF} $@
-	${LINK} ${bnpass_OBJECTS} ${LINK_LIBS} -o $@
+	@echo "Linking $@"
+	@${LINK} ${bnpass_OBJECTS} ${LINK_LIBS} -o $@
 
-${bnftp_BIN}: ${bnftp_OBJECTS}
+${bnftp_BIN}: SHOWHEADER ${bnftp_OBJECTS}
 	@${INSTALL_DIRS} ${SRC_BINDIR}
 	@${RMF} $@
-	${LINK} ${bnftp_OBJECTS} ${LINK_LIBS} -o $@
+	@echo "Linking $@"
+	@${LINK} ${bnftp_OBJECTS} ${LINK_LIBS} -o $@
 
-${bnbot_BIN}: ${bnbot_OBJECTS}
+${bnbot_BIN}: SHOWHEADER ${bnbot_OBJECTS}
 	@${INSTALL_DIRS} ${SRC_BINDIR}
 	@${RMF} $@
-	${LINK} ${bnbot_OBJECTS} ${LINK_LIBS} -o $@
+	@echo "Linking $@"
+	@${LINK} ${bnbot_OBJECTS} ${LINK_LIBS} -o $@
 
-${bnstat_BIN}: ${bnstat_OBJECTS}
+${bnstat_BIN}: SHOWHEADER ${bnstat_OBJECTS}
 	@${INSTALL_DIRS} ${SRC_BINDIR}
 	@${RMF} $@
-	${LINK} ${bnstat_OBJECTS} ${LINK_LIBS} -o $@
+	@echo "Linking $@"
+	@${LINK} ${bnstat_OBJECTS} ${LINK_LIBS} -o $@
 
-${bnilist_BIN}: ${bnilist_OBJECTS}
+${bnilist_BIN}: SHOWHEADER ${bnilist_OBJECTS}
 	@${INSTALL_DIRS} ${SRC_BINDIR}
 	@${RMF} $@
-	${LINK} ${bnilist_OBJECTS} ${LINK_LIBS} -o $@
+	@echo "Linking $@"
+	@${LINK} ${bnilist_OBJECTS} ${LINK_LIBS} -o $@
 
-${bni2tga_BIN}: ${bni2tga_OBJECTS}
+${bni2tga_BIN}: SHOWHEADER ${bni2tga_OBJECTS}
 	@${INSTALL_DIRS} ${SRC_BINDIR}
 	@${RMF} $@
-	${LINK} ${bni2tga_OBJECTS} ${LINK_LIBS} -o $@
+	@echo "Linking $@"
+	@${LINK} ${bni2tga_OBJECTS} ${LINK_LIBS} -o $@
 
-${bniextract_BIN}: ${bniextract_OBJECTS}
+${bniextract_BIN}: SHOWHEADER ${bniextract_OBJECTS}
 	@${INSTALL_DIRS} ${SRC_BINDIR}
 	@${RMF} $@
-	${LINK} ${bniextract_OBJECTS} ${LINK_LIBS} -o $@
+	@echo "Linking $@"
+	@${LINK} ${bniextract_OBJECTS} ${LINK_LIBS} -o $@
 
-${bnibuild_BIN}: ${bnibuild_OBJECTS}
+${bnibuild_BIN}: SHOWHEADER ${bnibuild_OBJECTS}
 	@${INSTALL_DIRS} ${SRC_BINDIR}
 	@${RMF} $@
-	${LINK} ${bnibuild_OBJECTS} ${LINK_LIBS} -o $@
+	@echo "Linking $@"
+	@${LINK} ${bnibuild_OBJECTS} ${LINK_LIBS} -o $@
 
-${tgainfo_BIN}: ${tgainfo_OBJECTS}
+${tgainfo_BIN}: SHOWHEADER ${tgainfo_OBJECTS}
 	@${INSTALL_DIRS} ${SRC_BINDIR}
 	@${RMF} $@
-	${LINK} ${tgainfo_OBJECTS} ${LINK_LIBS} -o $@
+	@echo "Linking $@"
+	@${LINK} ${tgainfo_OBJECTS} ${LINK_LIBS} -o $@
 
-${timetest_BIN}: ${timetest_OBJECTS}
+${timetest_BIN}: SHOWHEADER ${timetest_OBJECTS}
 	@${INSTALL_DIRS} ${SRC_BINDIR}
 	@${RMF} $@
-	${LINK} ${timetest_OBJECTS} ${LINK_LIBS} -o $@
+	@echo "Linking $@"
+	@${LINK} ${timetest_OBJECTS} ${LINK_LIBS} -o $@
 
-${listtest_BIN}: ${listtest_OBJECTS}
+${listtest_BIN}: SHOWHEADER ${listtest_OBJECTS}
 	@${INSTALL_DIRS} ${SRC_BINDIR}
 	@${RMF} $@
-	${LINK} ${listtest_OBJECTS} ${LINK_LIBS} -o $@
+	@echo "Linking $@"
+	@${LINK} ${listtest_OBJECTS} ${LINK_LIBS} -o $@
 
-${hashtabletest_BIN}: ${hashtabletest_OBJECTS}
+${hashtabletest_BIN}: SHOWHEADER ${hashtabletest_OBJECTS}
 	@${INSTALL_DIRS} ${SRC_BINDIR}
 	@${RMF} $@
-	${LINK} ${hashtabletest_OBJECTS} ${LINK_LIBS} -o $@
+	@echo "Linking $@"
+	@${LINK} ${hashtabletest_OBJECTS} ${LINK_LIBS} -o $@
 
-${addrtest_BIN}: ${addrtest_OBJECTS}
+${addrtest_BIN}: SHOWHEADER ${addrtest_OBJECTS}
 	@${INSTALL_DIRS} ${SRC_BINDIR}
 	@${RMF} $@
-	${LINK} ${addrtest_OBJECTS} ${LINK_LIBS} -o $@
+	@echo "Linking $@"
+	@${LINK} ${addrtest_OBJECTS} ${LINK_LIBS} -o $@
 
-${cdb_BIN}: ${cdb_OBJECTS}
+${cdb_BIN}: SHOWHEADER ${cdb_OBJECTS}
 	@${INSTALL_DIRS} ${SRC_BINDIR}
 	@${RMF} $@
-	${LINK} ${cdb_OBJECTS} ${LINK_LIBS} -o $@
+	@echo "Linking $@"
+	@${LINK} ${cdb_OBJECTS} ${LINK_LIBS} -o $@
 
 ifneq ($(wildcard .dep),)
 include .dep
