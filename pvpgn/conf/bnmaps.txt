@@ -122,6 +122,12 @@ W3XP		3v3		Maps\FrozenThrone\Beta\(8)PlainsOfSnow.w3x
 W3XP		4v4		Maps\FrozenThrone\Beta\(8)Mur'gulOasis.w3x
 W3XP		4v4		Maps\FrozenThrone\Beta\(8)PlainsOfSnow.w3x
 
+W3XP		sffa		Maps\FrozenThrone\Beta\(6)JungleFever.w3x
+W3XP		sffa		Maps\FrozenThrone\Beta\(6)RiceFields.w3x
+W3XP		sffa		Maps\FrozenThrone\Beta\(6)ScorchedBasin.w3x
+W3XP		sffa		Maps\FrozenThrone\Beta\(6)StranglethornVale.w3x
+W3XP		sffa		Maps\FrozenThrone\Beta\(6)WheelOfChaos.w3x
+
 W3XP		at2v2		Maps\FrozenThrone\Beta\(4)Adrenaline.w3x
 W3XP		at2v2		Maps\FrozenThrone\Beta\(4)Avalanche.w3x
 W3XP		at2v2		Maps\FrozenThrone\Beta\(4)BridgeTooNear.w3x
