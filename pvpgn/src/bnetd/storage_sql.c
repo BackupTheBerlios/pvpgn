@@ -1023,9 +1023,7 @@ static int sql_load_clans(t_load_clans_func cb)
 
 	    if ((result2 = sql->query_res(query)) != NULL)
 	    {
-		if (sql->num_rows(result2) < 1)
-		    sql->free_result(result2);
-		else
+		if (sql->num_rows(result2) >= 1)
 		    while ((row2 = sql->fetch_row(result2)) != NULL)
 		    {
 			if (!(member = malloc(sizeof(t_clanmember))))
