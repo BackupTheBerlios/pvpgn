@@ -352,13 +352,29 @@ extern t_game_option bngoption_to_goption(t_clienttag clienttag, t_game_type gty
 	case game_type_topvbot:
 	    switch (bngoption)
 	    {
-	    default:
+	      case CLIENT_STARTGAME4_OPTION_TOPVBOT_1:
+	        return game_option_topvbot_1;
+	      case CLIENT_STARTGAME4_OPTION_TOPVBOT_2:
+		return game_option_topvbot_2;
+	      case CLIENT_STARTGAME4_OPTION_TOPVBOT_3:
+	        return game_option_topvbot_3;
+	      case CLIENT_STARTGAME4_OPTION_TOPVBOT_4:
+		return game_option_topvbot_4;
+	      case CLIENT_STARTGAME4_OPTION_TOPVBOT_5:
+	        return game_option_topvbot_5;
+	      case CLIENT_STARTGAME4_OPTION_TOPVBOT_6:
+		return game_option_topvbot_6;
+	      case CLIENT_STARTGAME4_OPTION_TOPVBOT_7:
+	        return game_option_topvbot_7;
+	      default:
 		eventlog(eventlog_level_error,__FUNCTION__,"unknown Warcraft II bnet game option for \"%s\" game \"%s\" %hu",tag_uint_to_str(clienttag_str,clienttag),game_type_get_str(gtype),bngoption);
 		return game_option_none;
 	    }
 	case game_type_melee:
 	    switch (bngoption)
 	    {
+	    case CLIENT_STARTGAME4_OPTION_MELEE_NORMAL:
+		return game_option_melee_normal;
 	    default:
 		eventlog(eventlog_level_error,__FUNCTION__,"unknown Warcraft II bnet game option for \"%s\" game \"%s\" %hu",tag_uint_to_str(clienttag_str,clienttag),game_type_get_str(gtype),bngoption);
 		return game_option_none;
@@ -366,6 +382,8 @@ extern t_game_option bngoption_to_goption(t_clienttag clienttag, t_game_type gty
 	case game_type_ffa:
 	    switch (bngoption)
 	    {
+	    case CLIENT_STARTGAME4_OPTION_FFA_NORMAL:
+		return game_option_ffa_normal;
 	    default:
 		eventlog(eventlog_level_error,__FUNCTION__,"unknown Warcraft II bnet game option for \"%s\" game \"%s\" %hu",tag_uint_to_str(clienttag_str,clienttag),game_type_get_str(gtype),bngoption);
 		return game_option_none;
@@ -373,6 +391,8 @@ extern t_game_option bngoption_to_goption(t_clienttag clienttag, t_game_type gty
 	case game_type_oneonone:
 	    switch (bngoption)
 	    {
+	    case CLIENT_STARTGAME4_OPTION_ONEONONE_NORMAL:
+		return game_option_oneonone_normal;
 	    default:
 		eventlog(eventlog_level_error,__FUNCTION__,"unknown Warcraft II bnet game option for \"%s\" game \"%s\" %hu",tag_uint_to_str(clienttag_str,clienttag),game_type_get_str(gtype),bngoption);
 		return game_option_none;
@@ -398,6 +418,8 @@ extern t_game_option bngoption_to_goption(t_clienttag clienttag, t_game_type gty
 	case game_type_mapset:
 	    switch (bngoption)
 	    {
+	    case CLIENT_STARTGAME4_OPTION_MAPSET_NORMAL:
+		return game_option_mapset_normal;
 	    default:
 		eventlog(eventlog_level_error,__FUNCTION__,"unknown Warcraft II bnet game option for \"%s\" game \"%s\" %hu",tag_uint_to_str(clienttag_str,clienttag),game_type_get_str(gtype),bngoption);
 		return game_option_none;
