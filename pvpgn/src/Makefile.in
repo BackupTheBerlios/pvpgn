@@ -162,7 +162,6 @@ ${SRC_COMMONDIR}/bnethash.o \
 ${SRC_COMMONDIR}/bnethashconv.o \
 ${SRC_COMMONDIR}/addr.o \
 ${SRC_COMMONDIR}/hashtable.o \
-${SRC_COMMONDIR}/check_alloc.o \
 ${SRC_COMMONDIR}/give_up_root_privileges.o \
 ${SRC_COMMONDIR}/token.o \
 ${SRC_COMMONDIR}/proginfo.o \
@@ -230,7 +229,6 @@ ${SRC_D2CSDIR}/s2s.o \
 ${SRC_D2CSDIR}/net.o \
 ${SRC_D2CSDIR}/d2ladder.o \
 ${SRC_D2CSDIR}/handle_signal.o \
-${SRC_COMMONDIR}/check_alloc.o \
 ${SRC_COMMONDIR}/hashtable.o \
 ${SRC_COMMONDIR}/hexdump.o \
 ${SRC_COMMONDIR}/eventlog.o \
@@ -283,7 +281,6 @@ ${SRC_COMMONDIR}/list.o \
 ${SRC_COMMONDIR}/eventlog.o \
 ${SRC_COMMONDIR}/hexdump.o \
 ${SRC_COMMONDIR}/bn_type.o \
-${SRC_COMMONDIR}/check_alloc.o \
 ${SRC_COMMONDIR}/util.o \
 ${SRC_COMMONDIR}/addr.o \
 ${SRC_COMMONDIR}/d2char_checksum.o \
@@ -301,7 +298,6 @@ ${SRC_COMMONDIR}/util.o \
 ${SRC_COMMONDIR}/list.o \
 ${SRC_COMMONDIR}/eventlog.o \
 ${SRC_COMMONDIR}/hexdump.o \
-${SRC_COMMONDIR}/check_alloc.o \
 ${SRC_COMPATDIR}/inet_ntoa.o \
 ${SRC_COMPATDIR}/strerror.o \
 ${SRC_COMPATDIR}/psock.o \
@@ -322,7 +318,6 @@ ${SRC_COMMONDIR}/bnethash.o \
 ${SRC_COMMONDIR}/bnethashconv.o \
 ${SRC_COMMONDIR}/util.o \
 ${SRC_COMMONDIR}/bnettime.o \
-${SRC_COMMONDIR}/check_alloc.o \
 ${SRC_COMMONDIR}/proginfo.o \
 ${SRC_COMPATDIR}/inet_ntoa.o \
 ${SRC_COMPATDIR}/strerror.o \
@@ -335,7 +330,6 @@ bnpass_OBJECTS	= ${SRC_BNPASSDIR}/bnpass.o \
 ${SRC_COMMONDIR}/bnethash.o \
 ${SRC_COMMONDIR}/eventlog.o \
 ${SRC_COMMONDIR}/hexdump.o \
-${SRC_COMMONDIR}/check_alloc.o \
 ${SRC_COMPATDIR}/strerror.o
 
 bnftp_BIN	= ${SRC_BINDIR}/bnftp
@@ -349,7 +343,6 @@ ${SRC_COMMONDIR}/network.o \
 ${SRC_COMMONDIR}/eventlog.o \
 ${SRC_COMMONDIR}/bnettime.o \
 ${SRC_COMMONDIR}/util.o \
-${SRC_COMMONDIR}/check_alloc.o \
 ${SRC_COMPATDIR}/inet_ntoa.o \
 ${SRC_COMPATDIR}/strerror.o \
 ${SRC_COMPATDIR}/strftime.o \
@@ -365,7 +358,6 @@ ${SRC_COMMONDIR}/network.o \
 ${SRC_COMMONDIR}/eventlog.o \
 ${SRC_COMMONDIR}/hexdump.o \
 ${SRC_COMMONDIR}/util.o \
-${SRC_COMMONDIR}/check_alloc.o \
 ${SRC_COMPATDIR}/inet_ntoa.o \
 ${SRC_COMPATDIR}/strerror.o \
 ${SRC_COMPATDIR}/psock.o
@@ -385,7 +377,6 @@ ${SRC_COMMONDIR}/bnethash.o \
 ${SRC_COMMONDIR}/bnethashconv.o \
 ${SRC_COMMONDIR}/util.o \
 ${SRC_COMMONDIR}/bnettime.o \
-${SRC_COMMONDIR}/check_alloc.o \
 ${SRC_COMMONDIR}/proginfo.o \
 ${SRC_COMPATDIR}/inet_ntoa.o \
 ${SRC_COMPATDIR}/strerror.o \
@@ -398,20 +389,17 @@ bnilist_BIN	= ${SRC_BINDIR}/bnilist
 bnilist_OBJECTS	= ${SRC_BNIUTILSDIR}/bnilist.o \
 ${SRC_BNIUTILSDIR}/fileio.o \
 ${SRC_BNIUTILSDIR}/tga.o \
-${SRC_COMMONDIR}/check_alloc.o \
 ${SRC_COMPATDIR}/memcpy.o
 
 bni2tga_BIN	= ${SRC_BINDIR}/bni2tga
 bni2tga_OBJECTS	= ${SRC_BNIUTILSDIR}/bni2tga.o \
-${SRC_BNIUTILSDIR}/fileio.o \
-${SRC_COMMONDIR}/check_alloc.o
+${SRC_BNIUTILSDIR}/fileio.o
 
 bniextract_BIN	= ${SRC_BINDIR}/bniextract
 bniextract_OBJECTS= ${SRC_BNIUTILSDIR}/bniextract.o \
 ${SRC_BNIUTILSDIR}/fileio.o \
 ${SRC_BNIUTILSDIR}/tga.o \
 ${SRC_BNIUTILSDIR}/bni.o \
-${SRC_COMMONDIR}/check_alloc.o \
 ${SRC_COMPATDIR}/memcpy.o
 
 bnibuild_BIN	= ${SRC_BINDIR}/bnibuild
@@ -419,14 +407,12 @@ bnibuild_OBJECTS= ${SRC_BNIUTILSDIR}/bnibuild.o \
 ${SRC_BNIUTILSDIR}/fileio.o \
 ${SRC_BNIUTILSDIR}/tga.o \
 ${SRC_BNIUTILSDIR}/bni.o \
-${SRC_COMMONDIR}/check_alloc.o \
 ${SRC_COMPATDIR}/memcpy.o
 
 tgainfo_BIN	= ${SRC_BINDIR}/tgainfo
 tgainfo_OBJECTS	= ${SRC_BNIUTILSDIR}/tgainfo.o \
 ${SRC_BNIUTILSDIR}/fileio.o \
 ${SRC_BNIUTILSDIR}/tga.o \
-${SRC_COMMONDIR}/check_alloc.o \
 ${SRC_COMPATDIR}/memcpy.o
 
 timetest_BIN	= ${SRC_BINDIR}/timetest
@@ -435,7 +421,6 @@ ${SRC_COMMONDIR}/bn_type.o \
 ${SRC_COMMONDIR}/eventlog.o \
 ${SRC_COMMONDIR}/hexdump.o \
 ${SRC_COMMONDIR}/bnettime.o \
-${SRC_COMMONDIR}/check_alloc.o \
 ${SRC_COMPATDIR}/strerror.o \
 ${SRC_COMPATDIR}/gettimeofday.o
 
@@ -444,7 +429,6 @@ listtest_OBJECTS	= ${SRC_DEBUGDIR}/listtest.o \
 ${SRC_COMMONDIR}/list.o \
 ${SRC_COMMONDIR}/eventlog.o \
 ${SRC_COMMONDIR}/hexdump.o \
-${SRC_COMMONDIR}/check_alloc.o \
 ${SRC_COMPATDIR}/strerror.o \
 ${SRC_COMPATDIR}/strdup.o
 
@@ -453,7 +437,6 @@ hashtabletest_OBJECTS	= ${SRC_DEBUGDIR}/hashtabletest.o \
 ${SRC_COMMONDIR}/hashtable.o \
 ${SRC_COMMONDIR}/eventlog.o \
 ${SRC_COMMONDIR}/hexdump.o \
-${SRC_COMMONDIR}/check_alloc.o \
 ${SRC_COMPATDIR}/strerror.o \
 ${SRC_COMPATDIR}/strdup.o
 
@@ -464,7 +447,6 @@ ${SRC_COMMONDIR}/util.o \
 ${SRC_COMMONDIR}/list.o \
 ${SRC_COMMONDIR}/eventlog.o \
 ${SRC_COMMONDIR}/hexdump.o \
-${SRC_COMMONDIR}/check_alloc.o \
 ${SRC_COMPATDIR}/inet_aton.o \
 ${SRC_COMPATDIR}/inet_ntoa.o \
 ${SRC_COMPATDIR}/strerror.o \

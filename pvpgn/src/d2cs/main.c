@@ -66,10 +66,6 @@
 #endif
 #include "common/setup_after.h"
 
-#ifdef USE_CHECK_ALLOC
-static FILE * memlog_fp;
-#endif
-
 int g_ServiceStatus = 1;
 
 static int init(void);
@@ -226,14 +222,6 @@ if (cmdline_get_make_service())
 			return -1;
 		}
 	}
-#ifdef USE_CHECK_ALLOC
-	memlog_fp=fopen(cmdline_get_memlog_file(),"a");
-	if (!memlog_fp) {
-		eventlog(eventlog_level_warn,__FUNCTION__,"error open file %s for memory debug logging",cmdline_get_memlog_file());
-	} else {
-		check_set_file(memlog_fp);
-	}
-#endif
 	return 0;
 }
 
@@ -252,9 +240,6 @@ extern int main(int argc, char * * argv)
 #endif
 {
 	int pid;
-#ifdef USE_CHECK_ALLOC
-	check_set_file(stderr);
-#endif
 	eventlog_set(stderr);
 	if (!((pid = config_init(argc, argv)) == 0)) {
 		if (pid==1) pid=0;
@@ -274,9 +259,5 @@ extern int main(int argc, char * * argv)
 	cleanup();
 	config_cleanup();
 	eventlog_close();
-#ifdef USE_CHECK_ALLOC
-	check_cleanup();
-	if (memlog_fp) fclose(memlog_fp);
-#endif
 	return 0;
 }

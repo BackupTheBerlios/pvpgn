@@ -53,9 +53,6 @@
 #undef LIST_DEBUG
 #undef HASHTABLE_DEBUG
 
-/* do we want to track malloc() and free()? */
-#undef USE_CHECK_ALLOC
-
 /* this will use GCC evensions to verify that all module arguments to
    eventlog() are correct. */
 #undef DEBUGMODSTRINGS

@@ -159,9 +159,6 @@ static void save_sig_handle(int unused);
 static void timer_sig_handle(int unused);
 #endif
 #endif
-#ifdef USE_CHECK_ALLOC
-static void memstat_sig_handle(int unused);
-#endif
 
 
 time_t now;
@@ -171,9 +168,6 @@ static volatile time_t sigexittime=0;
 static volatile int do_restart=0;
 static volatile int do_save=0;
 static volatile int got_epipe=0;
-#ifdef USE_CHECK_ALLOC
-static volatile int do_report_usage=0;
-#endif
 static char const * server_name=NULL;
 
 extern void server_quit_delay(unsigned int delay)
@@ -230,14 +224,6 @@ static void timer_sig_handle(int unused)
     time(&now);
 }
 #endif
-#endif
-
-
-#ifdef USE_CHECK_ALLOC
-static void memstat_sig_handle(int unused)
-{
-    do_report_usage = 1;
-}
 #endif
 
 
@@ -1162,9 +1148,6 @@ static int _setup_posixsig(void)
 	struct sigaction restart_action;
 	struct sigaction save_action;
 	struct sigaction pipe_action;
-# ifdef USE_CHECK_ALLOC
-	struct sigaction memstat_action;
-# endif
 #ifdef	HAVE_SETITIMER
 	struct sigaction timer_action;
 #endif
@@ -1183,13 +1166,6 @@ static int _setup_posixsig(void)
 	if (sigemptyset(&save_action.sa_mask)<0)
 	    eventlog(eventlog_level_error,__FUNCTION__,"could not initialize signal set (sigemptyset: %s)",strerror(errno));
 	save_action.sa_flags = SA_RESTART;
-	
-# ifdef USE_CHECK_ALLOC
-	memstat_action.sa_handler = memstat_sig_handle;
-	if (sigemptyset(&memstat_action.sa_mask)<0)
-	    eventlog(eventlog_level_error,__FUNCTION__,"could not initialize signal set (sigemptyset: %s)",strerror(errno));
-	memstat_action.sa_flags = SA_RESTART;
-# endif
 	
 	pipe_action.sa_handler = pipe_sig_handle;
 	if (sigemptyset(&pipe_action.sa_mask)<0)
@@ -1210,10 +1186,6 @@ static int _setup_posixsig(void)
 	    eventlog(eventlog_level_error,__FUNCTION__,"could not set SIGTERM signal handler (sigaction: %s)",strerror(errno));
 	if (sigaction(SIGUSR1,&save_action,NULL)<0)
 	    eventlog(eventlog_level_error,__FUNCTION__,"could not set SIGUSR1 signal handler (sigaction: %s)",strerror(errno));
-# ifdef USE_CHECK_ALLOC
-	if (sigaction(SIGUSR2,&memstat_action,NULL)<0)
-	    eventlog(eventlog_level_error,__FUNCTION__,"could not set SIGUSR2 signal handler (sigaction: %s)",strerror(errno));
-# endif
 	if (sigaction(SIGPIPE,&pipe_action,NULL)<0)
 	    eventlog(eventlog_level_error,__FUNCTION__,"could not set SIGPIPE signal handler (sigaction: %s)",strerror(errno));
 #ifdef HAVE_SETITIMER
@@ -1445,14 +1417,6 @@ static void _server_mainloop(t_addrlist *laddrs)
 	    
 	    do_restart = 0;
 	}
-	
-#ifdef USE_CHECK_ALLOC
-	if (do_report_usage)
-	{
-	    check_report_usage();
-	    do_report_usage = 0;
-	}
-#endif
 	
 	count += BNETD_POLL_INTERVAL;
 	if (count>=1000) /* only check timers once a second */

@@ -65,7 +65,6 @@
 #include "helpfile.h"
 #include "timer.h"
 #include "watch.h"
-#include "common/check_alloc.h"
 #include "common/tracker.h"
 #include "realm.h"
 #include "character.h"
@@ -295,12 +294,6 @@ int fork_bnetd(int foreground)
 {
     int		pid;
     
-#ifdef USE_CHECK_ALLOC
-    if (foreground)
-	check_set_file(stderr);
-    else
-	eventlog(eventlog_level_warn,"fork_bnetd","memory allocation checking only available in foreground mode");
-#endif
 #ifdef DO_DAEMONIZE
     if (!foreground) {
 	if (chdir("/")<0) {
@@ -321,9 +314,6 @@ int fork_bnetd(int foreground)
 	close(STDINFD);
 	close(STDOUTFD);
 	close(STDERRFD);
-#endif
-#ifdef USE_CHECK_ALLOC
-	check_set_file(NULL);
 #endif
 # ifdef HAVE_SETPGID
 	if (setpgid(0,0)<0) {
@@ -619,10 +609,6 @@ extern int main(int argc, char * * argv)
 	    eventlog(eventlog_level_error,"main","could not remove pid file \"%s\" (remove: %s)",pidfile,strerror(errno));
 	free((void *)pidfile); /* avoid warning */
     }
-
-#ifdef USE_CHECK_ALLOC
-    check_cleanup();
-#endif
 
     if (a == 0)
 	eventlog(eventlog_level_info,"main","server has shut down");

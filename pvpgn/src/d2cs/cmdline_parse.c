@@ -45,9 +45,6 @@
 #include "common/setup_after.h"
 
 static t_conf_table param_conf_table[]={
-#ifdef USE_CHECK_ALLOC
-	{ "-m",          offsetof(t_param,memlog_file),   conf_type_str, 0, DEFAULT_MEMLOG_FILE   },
-#endif
 	{ "-c",          offsetof(t_param,prefs_file),    conf_type_str, 0, D2CS_DEFAULT_CONF_FILE},
 	{ "-l",          offsetof(t_param,logfile),       conf_type_str, 0, NULL                  },
 	{ "-h",          offsetof(t_param,help),          conf_type_bool,0, NULL                  },
@@ -84,8 +81,7 @@ static char help_message[]="\n"
 #endif	    
 "\n"
 "Notes:\n"
-"	1.You should always use absolute path here for all FILE names\n"
-"	2.-m option only works when compiled with USE_CHECK_ALLOC defined\n";
+"	1.You should always use absolute path here for all FILE names\n";
 
 extern void cmdline_show_help(void)
 {
@@ -155,11 +151,4 @@ extern char const * cmdline_get_make_service(void)
 	return cmdline_param.make_service;
 }
 
-#endif
-
-#ifdef USE_CHECK_ALLOC
-extern char const * cmdline_get_memlog_file(void)
-{
-	return cmdline_param.memlog_file;
-}
 #endif
