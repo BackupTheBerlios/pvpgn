@@ -205,6 +205,7 @@ bnetd_OBJECTS       = \
     ${SRC_BNETDDIR}\anongame_maplists.obj \
     ${SRC_BNETDDIR}\clan.obj \
     ${SRC_BNETDDIR}\topic.obj \
+    ${SRC_BNETDDIR}\w3trans.obj \
     ${SRC_WIN32DIR}\service.obj \
     ${SRC_COMMONDIR}\hexdump.obj \
     ${SRC_COMMONDIR}\bn_type.obj \
@@ -462,7 +463,7 @@ ${SRC_COMPATDIR}\getopt.obj
 OBJECTS		= ${bnetd_OBJECTS} ${d2cs_OBJECTS} ${d2dbs_OBJECTS} ${bntrackd_OBJECTS} ${bnchat_OBJECTS} ${bnpass_OBJECTS} ${bnbot_OBJECTS} ${bnftp_OBJECTS} ${bnstat_OBJECTS} ${bnilist_OBJECTS} ${bni2tga_OBJECTS} ${bniextract_OBJECTS} ${bnibuild_OBJECTS} ${tgainfo_OBJECTS} ${timetest_OBJECTS} ${listtest_OBJECTS} ${hashtabletest_OBJECTS} ${addrtest_OBJECTS} ${cdb_OBJECTS}
 SBINS       = ${bnetd_SBIN} ${bnetg_SBIN} ${bnproxy_SBIN} ${bntrackd_SBIN}
 BINS        = ${bnchat_BIN} ${bnpass_BIN} ${bnftp_BIN} ${bnbot_BIN} ${bnstat_BIN} ${bnilist_BIN} ${bni2tga_BIN} ${bniextract_BIN} ${bnibuild_BIN} ${tgainfo_BIN} ${cdb_BIN}
-CONFS       = ad.list bnetd.conf bnetd_default_user bnmotd.txt channel.list news.txt bnban bnhelp gametrans d2gstrans autoupdate realm.list bnmaps.txt bnxplevel.txt bnxpcalc.txt news.txt command_groups.txt bnban bnhelp bnalias.list anongame_infos.conf tournament.conf topics sql_DB_layout
+CONFS       = ad.list bnetd.conf bnetd_default_user bnmotd.txt channel.list news.txt bnban bnhelp gametrans d2gstrans autoupdate realm.list bnmaps.txt bnxplevel.txt bnxpcalc.txt news.txt command_groups.txt bnban bnhelp bnalias.list anongame_infos.conf tournament.conf topics sql_DB_layout w3trans
 SHARES      = ad000001.pcx icons.bni tos.txt
 OTHERBINS	= ${sbnetd_OBJECTS} ${sbnetd_SBIN}
 DIRS        = ${SRC_BINDIR} ${SRC_SBINDIR}
