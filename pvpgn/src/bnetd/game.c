@@ -499,7 +499,8 @@ extern t_game * game_create(char const * name, char const * pass, char const * i
     game->maxplayers    = 0;
     game->bad           = 0;
     game->description   = NULL;
-	game->flag_private  = 0;
+    game->flag_private  = 0;
+    game->difficulty    = game_difficulty_none;
 
     game_parse_info(game,info);
     
