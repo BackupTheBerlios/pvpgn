@@ -1304,7 +1304,7 @@ extern int ladder_war3_updatelevel(unsigned int oldlevel, int xp)
      if (xplevels[i].startxp > xp) { mylevel = i; break;}
 
    for(i=mylevel - 1; i >0 ; i--)
-     if (xplevels[i-1].startxp <= xp) { mylevel = i+1; break; }
+     if (xplevels[i-1].startxp < xp) { mylevel = i+1; break; }
 
    return mylevel;
 }
