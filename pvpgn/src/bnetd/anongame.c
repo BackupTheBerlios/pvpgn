@@ -1112,7 +1112,10 @@ extern int handle_w3route_packet(t_connection * c, t_packet const * const packet
 	 eventlog(eventlog_level_error,"handle_w3route_packet","[%d] conn_set_routeconn failed",conn_get_socket(c));
 	 return -1;
       }
-      
+
+      /* set clienttag for w3route connections; we can do conn_get_clienttag() on them */
+      conn_set_clienttag(c, strdup(conn_get_clienttag(gamec)));
+
       anongame_set_addr(a, bn_int_get((unsigned char const *)packet->u.data+sizeof(t_client_w3route_req)+strlen(username)+2+12));
       anongame_set_joined(a, 0);
       anongame_set_loaded(a, 0);
@@ -1249,7 +1252,7 @@ extern int handle_w3route_packet(t_connection * c, t_packet const * const packet
 	 
 	 packet_set_size(rpacket,sizeof(t_server_w3route_ready));
 	 packet_set_type(rpacket,SERVER_W3ROUTE_READY);
-	 bn_byte_set(&rpacket->u.server_w3route_host.unknown1, i+1);
+	 bn_byte_set(&rpacket->u.server_w3route_host.unknown1, 0);
 	 queue_push_packet(conn_get_out_queue(conn_get_routeconn(anongame_get_player(a, i))),rpacket);
 	 packet_del_ref(rpacket);
       }
