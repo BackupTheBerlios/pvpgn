@@ -124,21 +124,6 @@
 					RelativePath="..\bnetd\connection.c">
 				</File>
 				<File
-					RelativePath="..\bnetd\fdwatch.c">
-				</File>
-				<File
-					RelativePath="..\bnetd\fdwatch_epoll.c">
-				</File>
-				<File
-					RelativePath="..\bnetd\fdwatch_kqueue.c">
-				</File>
-				<File
-					RelativePath="..\bnetd\fdwatch_poll.c">
-				</File>
-				<File
-					RelativePath="..\bnetd\fdwatch_select.c">
-				</File>
-				<File
 					RelativePath="..\bnetd\file.c">
 				</File>
 				<File
@@ -303,6 +288,21 @@
 				</File>
 				<File
 					RelativePath="..\common\eventlog.c">
+				</File>
+				<File
+					RelativePath="..\common\fdwatch.c">
+				</File>
+				<File
+					RelativePath="..\common\fdwatch_epoll.c">
+				</File>
+				<File
+					RelativePath="..\common\fdwatch_kqueue.c">
+				</File>
+				<File
+					RelativePath="..\common\fdwatch_poll.c">
+				</File>
+				<File
+					RelativePath="..\common\fdwatch_select.c">
 				</File>
 				<File
 					RelativePath="..\common\give_up_root_privileges.c">
@@ -518,21 +518,6 @@
 					RelativePath="..\bnetd\connection.h">
 				</File>
 				<File
-					RelativePath="..\bnetd\fdwatch.h">
-				</File>
-				<File
-					RelativePath="..\bnetd\fdwatch_epoll.h">
-				</File>
-				<File
-					RelativePath="..\bnetd\fdwatch_kqueue.h">
-				</File>
-				<File
-					RelativePath="..\bnetd\fdwatch_poll.h">
-				</File>
-				<File
-					RelativePath="..\bnetd\fdwatch_select.h">
-				</File>
-				<File
 					RelativePath="..\bnetd\file.h">
 				</File>
 				<File
@@ -715,6 +700,21 @@
 				</File>
 				<File
 					RelativePath="..\common\eventlog.h">
+				</File>
+				<File
+					RelativePath="..\common\fdwatch.h">
+				</File>
+				<File
+					RelativePath="..\common\fdwatch_epoll.h">
+				</File>
+				<File
+					RelativePath="..\common\fdwatch_kqueue.h">
+				</File>
+				<File
+					RelativePath="..\common\fdwatch_poll.h">
+				</File>
+				<File
+					RelativePath="..\common\fdwatch_select.h">
 				</File>
 				<File
 					RelativePath="..\common\field_sizes.h">
