@@ -20,6 +20,7 @@ below, not when you drop below the startxp of the current level)
 dnd/away status) and immediatly showing correct
 -- added promote/demote shortcut for friends
 -- fixed mutual status for deleted friends
+-- added support for war3 1.13 (war3 1.12 is still working)
 
 1.6.0pre2 (since 1.6.0pre1):
 -- fixed searching for connection of a acccount uid (thus getting rid of all 
