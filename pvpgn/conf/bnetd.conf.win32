@@ -466,3 +466,20 @@ war3_ladder_update_secs = 300
 # on demand. Maybe we should set update interval bigger cause XML output version
 # is much more verbose than the standard output
 XML_output_ladder = false
+
+###############################################################################
+# war3 output status textual output                                           #
+#-----------------------------------------------------------------------------#
+# This is for writing status of the server in an attempt to see number of user
+# on line actually, and games/chans.
+# This is store in file var\status\warcraft3.dat as a *.ini format.
+# Shouldn't be so hard in php to create dynamic website using this content.
+
+# the following value determines, at which rate, these files are created
+# set to 0 if you don't want or need these files
+war3_output_update_secs = 60
+
+# jfro's latest ladder is based on XML... so we can switch to XML output of ladder
+# on demand. Maybe we should set update interval bigger cause XML output version
+# is much more verbose than the standard output
+XML_status_output_ladder = false
