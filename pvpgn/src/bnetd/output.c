@@ -42,6 +42,11 @@
 #include "prefs.h"
 #include "connection.h"
 #include "common/list.h"
+#include "game.h"
+#include "war3ladder.h"
+#include "common/util.h"
+#include "server.h"
+#include "channel.h"
 
 char * war3_file   = "server";
 char * str_end   = ".dat";
@@ -152,27 +157,6 @@ fprintf(fp,"[USERS]\n");
   return 0;
   }
 }
-
-extern char list_users()
- {
-  t_elem const * curr;
-  t_connection * conn;
-  char * name;
-  unsigned int   i; /* for loop */
-  char const *   channel_name;
-  char const *   game_name;
-
-  LIST_TRAVERSE_CONST(connlist(),curr)
-  {
-	   name="";
-      conn = elem_get_data(curr);
-      if (conn_get_account(conn))
-	  {
-   printf(name,"%s",conn_get_username(conn));
-	  }
-  }
-  return name;
- }
 
 extern int output_write_to_file(char const * filename)
 {

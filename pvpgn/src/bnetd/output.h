@@ -23,5 +23,4 @@
 
  extern void output_init(void);
  // initialize the output file
- extern char list_users();
  extern int output_write_to_file();
