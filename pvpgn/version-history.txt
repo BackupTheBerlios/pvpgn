@@ -46,6 +46,12 @@ currently not logged in (and remove all accounts where userfile/db entries
 got removed) and /reload_accounts_new which will only load new created
 accounts
 -- modified /set command to return current value if no value to set is given
+-- massivly cleaned up command.c and updated bnhelp so that /help command
+should be somehow up-to-date now
+-- some ad banner sending order fixes
+-- updated versioncheck and matchmaking file
+-- /watch and /watchall command should work now
+
 
 1.2.3:
 -- fixed some crash related bugs
