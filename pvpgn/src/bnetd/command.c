@@ -570,6 +570,12 @@ static int _handle_admin_command(t_connection * c, char const * text)
   
   for (i=0; text[i]!=' ' && text[i]!='\0'; i++); /* skip command */
   for (; text[i]==' '; i++);
+
+  if (account_get_auth_admin(conn_get_account(c))!=1) /* default to false */
+    {
+      message_send_text(c,message_type_error,c,"This command is reserved for admins.");
+      return 0;
+    }
   
   if ((!text[i]) || ((text[i] != '+') && (text[i] != '-'))) {
     message_send_text(c, message_type_info, c,"usage: /admin +username to promote user to admin.");
@@ -593,21 +599,18 @@ static int _handle_admin_command(t_connection * c, char const * text)
     return -1;
   }
   
-  if(account_get_auth_admin(conn_get_account(c)) > 0)
-    {
-      if (command == '+') {
+  if (command == '+') 
+  {
 	account_set_admin(accountlist_find_account(username));
 	sprintf(msg, "%s has been promoted to a Server Admin.", username);			
-      } else {
+  } 
+  else 
+  {
 	account_set_demoteadmin(accountlist_find_account(username));
 	sprintf(msg, "%s has been demoted from a Server Admin.", username);			
-      }
-      message_send_text(c, message_type_info, c, msg);
-    } else {
-      message_send_text(c, message_type_info, c,
-			"You must have admin status to execute this command.");
-      return -1;
-    }
+  }
+  message_send_text(c, message_type_info, c, msg);
+    
   return 0;
 }
 
@@ -2914,6 +2917,12 @@ static int _handle_shutdown_command(t_connection * c, char const *text)
     if (j<sizeof(dest)-1) dest[j++] = text[i];
   dest[j] = '\0';
   for (; text[i]==' '; i++);
+
+  if (account_get_auth_admin(conn_get_account(c))!=1) /* default to false */
+    {
+      message_send_text(c,message_type_error,c,"This command is reserved for admins.");
+      return 0;
+    }
   
   if (dest[0]=='\0')
     delay = prefs_get_shutdown_delay();
@@ -2924,11 +2933,6 @@ static int _handle_shutdown_command(t_connection * c, char const *text)
 	return 0;
       }
   
-  if (account_get_auth_admin(conn_get_account(c))!=1) /* default to false */
-    {
-      message_send_text(c,message_type_error,c,"This command is reserved for admins.");
-      return 0;
-    }
   server_quit_delay(delay);
   
   if (delay)
@@ -3241,9 +3245,9 @@ static int _handle_serverban_command(t_connection *c, char const *text)
   dest[j] = '\0';
   for (; text[i]==' '; i++);
   
-  if(account_get_auth_admin(conn_get_account(c))!=1)
+    if (account_get_auth_admin(conn_get_account(c))!=1) /* default to false */
     {
-      message_send_text(c,message_type_error,c,"You do not have permissions to use this command.");
+      message_send_text(c,message_type_error,c,"This command is reserved for admins.");
       return 0;
     }
   else
@@ -3387,6 +3391,12 @@ static int _handle_lockacct_command(t_connection * c, char const *text)
   for (i=0; text[i]!=' ' && text[i]!='\0'; i++); /* skip command */
   for (; text[i]==' '; i++);
   
+  if (account_get_auth_admin(conn_get_account(c))!=1) /* default to false */
+    {
+      message_send_text(c,message_type_error,c,"This command is reserved for admins.");
+      return 0;
+    }
+  
   if (text[i]=='\0')
     {
       message_send_text(c,message_type_info,c,"usage: /lockacct <username>");
@@ -3408,11 +3418,6 @@ static int _handle_lockacct_command(t_connection * c, char const *text)
     return 0;
   }
 #endif
-  if (account_get_auth_admin(conn_get_account(c))!=1) /* default to false */
-    {
-      message_send_text(c,message_type_error,c,"This command is reserved for admins.");
-      return 0;
-    }
   if ((user = connlist_find_connection_by_accountname(&text[i])))
     message_send_text(user,message_type_info,user,"Your account has just been locked by admin.");
   
@@ -3431,6 +3436,12 @@ static int _handle_unlockacct_command(t_connection * c, char const *text)
   
   for (i=0; text[i]!=' ' && text[i]!='\0'; i++); /* skip command */
   for (; text[i]==' '; i++);
+  
+  if (account_get_auth_admin(conn_get_account(c))!=1) /* default to false */
+    {
+      message_send_text(c,message_type_error,c,"This command is reserved for admins.");
+      return 0;
+    }
   
   if (text[i]=='\0')
     {
@@ -3452,11 +3463,7 @@ static int _handle_unlockacct_command(t_connection * c, char const *text)
     return 0;
   }
 #endif
-  if (account_get_auth_admin(conn_get_account(c))!=1) /* default to false */
-    {
-      message_send_text(c,message_type_error,c,"This command is reserved for admins.");
-      return 0;
-    }
+  
   if ((user = connlist_find_connection_by_accountname(&text[i])))
     message_send_text(user,message_type_info,user,"Your account has just been unlocked by admin.");
   
@@ -3481,17 +3488,18 @@ static int _handle_flag_command(t_connection * c, char const *text)
   dest[j] = '\0';
   for (; text[i]==' '; i++);
   
-  if (dest[0]=='\0')
-    {
-      message_send_text(c,message_type_info,c,"usage: /flag <flag>");
-      return 0;
-    }
   if (account_get_auth_admin(conn_get_account(c))!=1)
     {
       message_send_text(c,message_type_error,c,"This command is reserved for admins.");
       return 0;
     }
   
+  if (dest[0]=='\0')
+    {
+      message_send_text(c,message_type_info,c,"usage: /flag <flag>");
+      return 0;
+    }
+    
   newflag = strtoul(dest,NULL,0);
   conn_set_flags(c,newflag);
   
@@ -3513,23 +3521,23 @@ static int _handle_tag_command(t_connection * c, char const *text)
   dest[j] = '\0';
   for (; text[i]==' '; i++);
  
+ if (account_get_auth_admin(conn_get_account(c))!=1)
+    {
+      message_send_text(c,message_type_error,c,"This command is reserved for admins.");
+      return 0;
+    }
+    
   if (dest[0]=='\0')
   {
 	message_send_text(c,message_type_info,c,"usage: /tag <clienttag>");
 	return 0;
   }
-  
   if (strlen(dest)!=4)
     {
       message_send_text(c,message_type_error,c,"Client tag should be four characters long.");
       return 0;
     }
-  if (account_get_auth_admin(conn_get_account(c))!=1)
-    {
-      message_send_text(c,message_type_error,c,"This command is reserved for admins.");
-      return 0;
-    }
-  
+    
   conn_set_clienttag(c,dest);
   sprintf(msgtemp,"Client tag set to %s.",dest);
   message_send_text(c,message_type_info,c,msgtemp);
@@ -3733,9 +3741,9 @@ static int _handle_ping_command(t_connection * c, char const *text)
 
 static int _handle_ipban_command(t_connection * c, char const *text)
 {
-  if (account_get_auth_admin(conn_get_account(c))!=1) /* default to false */
+  if (account_get_auth_admin(conn_get_account(c))!=1)
     {
-      message_send_text(c,message_type_info,c,"You do not have permission to use this command.");
+      message_send_text(c,message_type_error,c,"This command is reserved for admins.");
       return 0;
     }
   
