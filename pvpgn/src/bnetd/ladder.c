@@ -291,7 +291,6 @@ extern int ladder_check_map(char const * mapname, t_game_maptype maptype, char c
 
 extern t_account * ladder_get_account_by_rank(unsigned int rank, t_ladder_sort lsort, t_ladder_time ltime, char const * clienttag, t_ladder_id id)
 {
-    t_account * *    accounts;
     int dummy;
     
     if (rank<1)
@@ -334,9 +333,8 @@ extern t_account * ladder_get_account_by_rank(unsigned int rank, t_ladder_sort l
 
 extern unsigned int ladder_get_rank_by_account(t_account * account, t_ladder_sort lsort, t_ladder_time ltime, char const * clienttag, t_ladder_id id)
 {
-    t_account * *    accounts;
-	int uid;
-    
+    int uid;
+
     if (!account)
     {
 	eventlog(eventlog_level_error,"ladder_get_rank_by_account","got NULL account");
