@@ -12,6 +12,7 @@ PvPGN Version History:
 codes)
 [FDWATCH]: moved codes into "common" directory to be used by other applications 
 than bnetd
+[SQL]: fixed sql_DB_layout for command_groups and pgsql
 
 a general 1.6.x note:
 versioncheck exe-time parsing now REALLY works as it was intended to.
