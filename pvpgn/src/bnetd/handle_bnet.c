@@ -772,7 +772,7 @@ static int _client_createaccountw3(t_connection * c, t_packet const * const pack
 	     char upass[20];
 	     char lpass[20];
 	     t_hash sc_hash;
-	     int i;
+	     unsigned int i;
 	     
 	     if (!plainpass) {
 		eventlog(eventlog_level_error,"handle_bnet_packet","[%d] (W3) got bad CREATEACCOUNT_W3 (missing password)",conn_get_socket(c));
@@ -1785,7 +1785,7 @@ static int _client_loginreq1(t_connection * c, t_packet const * const packet)
 	     
 	     if(!strcmp(account_get_pass(account),"a") && account_get_w3_acctpass(account)) {
 		char lpass[20];
-		int i;
+		unsigned int i;
 		
 		/* convert plaintext password to lowercase */
 		strncpy(lpass,account_get_w3_acctpass(account),16);
@@ -3060,7 +3060,7 @@ static int _client_motdw3(t_connection * c, t_packet const * const packet)
 	     char * big_buffer;
 	     int file_size;
 	     struct stat st;
-	     unsigned int last_news_time;
+	     int last_news_time;
 	     
 	     if ((filename = prefs_get_newsfile())) {
 		if (stat(filename,&st)==0) {

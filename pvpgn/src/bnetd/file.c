@@ -68,7 +68,7 @@ static char const * file_get_info(char const * rawname, unsigned int * len, bn_l
     char *filename;
     struct stat  sfile;
     t_bnettime   bt;
-    int i;
+    unsigned int i;
     char extension[10];
 	char pattern[40];
 	/* Add new default files in this format: "pattern:.extension" */

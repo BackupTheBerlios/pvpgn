@@ -1287,7 +1287,7 @@ extern int ladder_war3_xpdiff(unsigned int winnerlevel, unsigned int looserlevel
    return 0;
 }
 
-extern int ladder_war3_updatelevel(unsigned int oldlevel, unsigned int xp)
+extern int ladder_war3_updatelevel(unsigned int oldlevel, int xp)
 {
    int i, mylevel;
    

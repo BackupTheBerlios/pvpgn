@@ -3269,10 +3269,10 @@ extern int connlist_get_length(void)
 }
 
 
-extern int connlist_login_get_length(void)
+extern unsigned int connlist_login_get_length(void)
 {
     t_connection const * c;
-    int                  count;
+    unsigned int         count;
     t_elem const *       curr;
     
     count = 0;

@@ -232,7 +232,7 @@ extern int account_set_w3_clanname( t_account * account, char const * acctsetcla
 
 extern int account_set_friend( t_account * account, int friendnum, char const * friendname );
 extern char const * account_get_friend( t_account * account, int friendnum);
-extern int account_set_friendcount( t_account * account, unsigned int count);
+extern int account_set_friendcount( t_account * account, int count);
 extern int account_get_friendcount( t_account * account );
 // THEUNDYING MUTUAL FRIEND CHECK 7/27/02 UPDATED!
 extern int account_check_mutual( t_account * account, char const *myusername);
@@ -331,7 +331,7 @@ extern int account_get_new_at_team(t_account * account);
 extern int account_get_highestladderlevel(t_account * account); //func will compare levels for AT, Solo/Team Ladder and out the higest level of the 3
 
 // Determines the length of XP bar in profiles screen
-extern int account_get_profile_calcs(t_account * account, unsigned int xp, unsigned int level);
+extern int account_get_profile_calcs(t_account * account, int xp, unsigned int level);
 extern int account_get_icon_profile(t_account * account);
 
 #endif

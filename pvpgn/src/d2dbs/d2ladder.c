@@ -586,7 +586,8 @@ int d2ladder_print_XML(FILE *ladderstrm)
   // modified version of d2ladder_print - changes done by jfro with a little help of aaron
   t_d2ladder * d2ladder;
   t_d2ladder_info * ldata;
-  int i,type,overalltype,classtype;
+  int overalltype,classtype;
+  unsigned int i,type;
   char laddermode[4][20]={"Hardcore", "Standard","Expansion HC","Expansion" };
   char charclass[11][12]={"OverAll", "Amazon", "Sorceress", "Necromancer", "Paladin",\
 			  "Barbarian", "Druid", "Assassin", "","",""} ;
@@ -603,7 +604,7 @@ int d2ladder_print_XML(FILE *ladderstrm)
     overalltype=0;
     classtype=0;
 
-    if(type >= D2LADDER_HC_OVERALL && type<= D2LADDER_HC_OVERALL+D2CHAR_CLASS_MAX +1) 
+    if(type<= D2LADDER_HC_OVERALL+D2CHAR_CLASS_MAX +1) 
       {
 	overalltype=0 ;
 	classtype=type-D2LADDER_HC_OVERALL;

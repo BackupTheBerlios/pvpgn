@@ -118,8 +118,8 @@ typedef struct channel
     int               allowbots;  /* FIXME: merge with flags */
     int               allowopers; /* FIXME: merge with flags */
     t_channel_flags   flags;
-    unsigned int      maxmembers;
-    unsigned int      currmembers;
+    int		      maxmembers;
+    int		      currmembers;
     char const *      clienttag;
     unsigned int      id;
     t_channelmember * memberlist;

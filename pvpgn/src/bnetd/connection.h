@@ -372,7 +372,7 @@ extern t_connection * connlist_find_connection_by_charname(char const * charname
 extern t_connection * connlist_find_connection_by_sessionid(unsigned int sessionid);
 #endif
 extern int connlist_get_length(void) PURE_ATTR();
-extern int connlist_login_get_length(void) PURE_ATTR();
+extern unsigned int connlist_login_get_length(void) PURE_ATTR();
 extern int connlist_total_logins(void) PURE_ATTR();
 extern int conn_set_motd_loggedin(t_connection * c);
 extern int conn_get_motd_loggedin(t_connection * c);

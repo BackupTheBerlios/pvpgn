@@ -719,7 +719,7 @@ extern int anongame_unqueue_team(t_connection *c, t_uint8 gametype)
 }
 
 // [zap-zero] 20020527
-static unsigned int w3routeip = -1; /* changed by dizzy to show the w3routeshow addr if available */
+static int w3routeip = -1; /* changed by dizzy to show the w3routeshow addr if available */
 static unsigned short w3routeport = 6200;
 
 extern void handle_anongame_search(t_connection * c, t_packet const * packet)

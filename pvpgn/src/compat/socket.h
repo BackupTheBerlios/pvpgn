@@ -35,6 +35,8 @@
  * of those headers.
  */
 
+# else
+# include <sys/socket.h>
 #endif
 
 #endif

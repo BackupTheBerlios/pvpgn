@@ -24,6 +24,7 @@
 #  define NULL ((void *)0)
 # endif
 #endif
+#include <compat/socket.h>
 #include "common/packet.h"
 #include "common/file_protocol.h"
 #include "common/eventlog.h"

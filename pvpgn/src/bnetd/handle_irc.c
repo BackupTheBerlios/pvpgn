@@ -484,7 +484,7 @@ static int handle_irc_line(t_connection * conn, char const * ircline)
 
 extern int handle_irc_packet(t_connection * conn, t_packet const * const packet)
 {
-    int i;
+    unsigned int i;
     char ircline[MAX_IRC_MESSAGE_LEN];
     int ircpos;
     char const * data;

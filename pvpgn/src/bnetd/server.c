@@ -885,7 +885,7 @@ extern int server_process(void)
     t_addr_data     laddr_data;
     t_laddr_info *  laddr_info;
 #ifdef HAVE_POLL
-    struct pollfd * fds;
+    struct pollfd * fds = NULL; /* avoid warning */
     int             num_fd;
 #else
     struct timeval  tv;

@@ -1887,7 +1887,7 @@ extern char const * account_get_friend( t_account * account, int friendnum)
 	return tmp;
 }
 
-extern int account_set_friendcount( t_account * account, unsigned int count)
+extern int account_set_friendcount( t_account * account, int count)
 {
 	if (count < 0 || count > MAX_FRIENDS)
 	{
@@ -2268,8 +2268,9 @@ extern int account_get_teamxp(t_account * account)
 
 extern int account_set_teamlevel(t_account * account)
 { 
-	int xp, i;
-	const static int xp_to_level[] = {100, 200, 300, 400, 500, 600, 700, 800,
+	int xp;
+	unsigned int i;
+	static const int xp_to_level[] = {100, 200, 300, 400, 500, 600, 700, 800,
 		900, 1000, 1100, 1200, 1300, 1400, 1600, 1900, 2200, 2500, 2800, 3200,
 	    3600, 4000, 4500, 5000, 5500, 6000, 6600, 7200, 7800, 8400, 9000}; //Supports up to level 31
 
@@ -2381,8 +2382,9 @@ extern int account_get_ffaxp(t_account * account)
 
 extern int account_set_ffalevel(t_account * account)
 { 
-	int xp, i;
-	const static int xp_to_level[] = {100, 200, 300, 400, 500, 600, 700, 800,
+	int xp;
+	unsigned int i;
+	static const int xp_to_level[] = {100, 200, 300, 400, 500, 600, 700, 800,
 		900, 1000, 1100, 1200, 1300, 1400, 1600, 1900, 2200, 2500, 2800, 3200,
 	    3600, 4000, 4500, 5000, 5500, 6000, 6600, 7200, 7800, 8400, 9000}; //Supports up to level 31
 
@@ -2460,19 +2462,20 @@ extern void account_get_raceicon(t_account * account, char * raceicon, unsigned 
 	    *wins = random;
 	}
 	i = 0;
-	while(*wins >= icons_limits[i] && icons_limits[i] > 0) i++;
+	while((signed)*wins >= icons_limits[i] && icons_limits[i] > 0) i++;
 	*raceiconnumber = i + 1;
 }
 
-extern int account_get_profile_calcs(t_account * account, unsigned int xp, unsigned int j)
+extern int account_get_profile_calcs(t_account * account, int xp, unsigned int j)
 {
 
-	const static int xp_min[] = {-1, 0, 100, 200, 400, 600, 900, 1200, 1600, 2000, 2500, 
+	static const int xp_min[] = {-1, 0, 100, 200, 400, 600, 900, 1200, 1600, 2000, 2500, 
 	3000, 3500, 4000, 4500, 5000, 5500, 6000, 6500, 7000, 7500, 8000, 8500, 9000};
-	const static int xp_max[] = {-1, 100, 200, 400, 600, 900, 1200, 1600, 2000, 2500, 
+	static const int xp_max[] = {-1, 100, 200, 400, 600, 900, 1200, 1600, 2000, 2500, 
 	3000, 3500, 4000, 4500, 5000, 5500, 6000, 6500, 7000, 7500, 8000, 8500, 9000, 9500};
 
-	int i, t;
+	unsigned int i;
+	int  t;
 
 	for (i = 0; i < sizeof(xp_min) / sizeof(int); i++) {
 		if (xp >= xp_min[i] && xp < xp_max[i]) {

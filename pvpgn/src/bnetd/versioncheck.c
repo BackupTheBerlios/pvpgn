@@ -198,7 +198,7 @@ static int versioncheck_compare_exeinfo(char const * pattern, char const * match
     } else if (strcmp(prefs_get_version_exeinfo_match(),"exactcase")==0) {
 	return strcmp(pattern,match);
     } else if (strcmp(prefs_get_version_exeinfo_match(),"wildcard")==0) {
-    	int i;
+    	unsigned int i;
     	
     	for (i=0;i<strlen(pattern);i++)
     	    if ((pattern[i]!='?')&& /* out "don't care" sign */
@@ -243,7 +243,7 @@ static int versioncheck_compare_exeinfo(char const * pattern, char const * match
 	    return 1; /* neq */
 	if (size1!=size2)
 	    return 1; /* neq */
-	if (abs((int)mktime(&t1)-mktime(&t2))>prefs_get_version_exeinfo_maxdiff())
+	if (abs((int)mktime(&t1)-mktime(&t2))>(signed)prefs_get_version_exeinfo_maxdiff())
 	    return 1;
 	return 0; /* ok */
 #else

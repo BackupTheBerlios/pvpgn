@@ -414,7 +414,7 @@ extern int handle_command(t_connection * c,  char const * text)
 	// Added by THEUNDYING 5/12/02 - FRIENDS LIST START (NEEDS FINISHED!!)
 	// [zap-zero] 20020517 - finished friends list
 	if (strstart(text,"/f")==0 || strstart(text,"/friends")==0) {
-		unsigned int i;
+		int i;
 		for (i=0; text[i]!=' ' && text[i]!='\0'; i++); /* skip command */
 		for (; text[i]==' '; i++);
 
@@ -554,7 +554,7 @@ extern int handle_command(t_connection * c,  char const * text)
 		}
 		if (strstart(text,"r")==0 || strstart(text,"remove")==0
 	 	    || strstart(text,"d")==0 || strstart(text,"del")==0) {
-			unsigned int n;
+			int n;
 			char msgtemp[MAX_MESSAGE_LEN];
 			char const * oldfriend;
 			t_packet * rpacket=NULL;
@@ -614,7 +614,7 @@ extern int handle_command(t_connection * c,  char const * text)
 			char status[128];
 			char software[1000];
 			char msgtemp[MAX_MESSAGE_LEN];
-			unsigned int n;
+			int n;
 			char const *myusername;
 			char const *clienttag;
 			t_connection const * dest_c;
@@ -1080,7 +1080,7 @@ extern int handle_command(t_connection * c,  char const * text)
 		message_send_text(c,message_type_info,c,msgtemp);
                 if (account_get_atteamcount(account))
 		{
-		  unsigned int teamcount;
+		  int teamcount;
 		  for (teamcount=0; teamcount<account_get_atteamcount(account); teamcount++)
 		  {
                     sprintf(msgtemp,"Users AT Team No. %u",teamcount);

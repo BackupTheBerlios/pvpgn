@@ -15,7 +15,7 @@
  */
 
 #include "common/setup_before.h"
-
+#include <stdio.h>
 #ifdef HAVE_UNISTD_H
 # include <unistd.h>
 #endif
@@ -30,6 +30,9 @@
 # else
 #  include <time.h>
 # endif
+#endif
+#ifdef HAVE_STRING_H
+# include <string.h>
 #endif
 
 /* FIXME: sys/resource.h should be checked with autoconf */ 
@@ -57,7 +60,7 @@
 
 extern int get_socket_limit(void)
 {
-	int socklimit = BNETD_MAX_SOCKETS;
+	unsigned int socklimit = BNETD_MAX_SOCKETS;
 #ifndef WIN32
 	struct rlimit rlim;
 	if(getrlimit(RLIM_NUMFILES, &rlim) < 0)

@@ -40,6 +40,7 @@
 #  include <strings.h>
 # endif
 #endif
+#include <ctype.h>
 #include "compat/strchr.h"
 #include "compat/strdup.h"
 #include "compat/strcasecmp.h"
@@ -205,7 +206,7 @@ extern int ipbanlist_save(char const * filename)
 	return -1;
     }
     
-    if ((fp = fopen(filename,"w"))<0)
+    if (!(fp = fopen(filename,"w")))
     {
         eventlog(eventlog_level_error,"ipbanlist_save","could not open banlist file \"%s\" for writing (fopen: %s)",filename,strerror(errno));
 	return -1;
@@ -233,7 +234,7 @@ extern int ipbanlist_save(char const * filename)
 	    sprintf(line,"%s\n",ipstr);
 	else    
 	    sprintf(line,"%s %ld\n",ipstr,entry->endtime);
-	if (fwrite(line,strlen(line),1,fp)<0)
+	if (!(fwrite(line,strlen(line),1,fp)))
 	    eventlog(eventlog_level_error,"ipbanlist_save","could not write to banlist file (write: %s)",strerror(errno));
 	free(ipstr);
     }
@@ -275,7 +276,7 @@ extern int ipbanlist_check(char const * ipaddr)
     time(&now);
     eventlog(eventlog_level_debug,"ipban_check","lastcheck: %u, now: %u, now-lc: %u.",(unsigned)lastchecktime,(unsigned)now,(unsigned)(now-lastchecktime));
     
-    if (now - lastchecktime >= prefs_get_ipban_check_int()) /* unsigned; no need to check prefs < 0 */
+    if (now - lastchecktime >= (signed)prefs_get_ipban_check_int()) /* unsigned; no need to check prefs < 0 */
     {
 	ipbanlist_unload_expired();
 	lastchecktime = now;
@@ -498,7 +499,7 @@ extern time_t ipbanlist_str_to_time_t(t_connection * c, char const * timestr)
 
     unsigned int	bmin;
     char		minstr[MAX_TIME_STR];
-    int			i;
+    unsigned int	i;
     char		tstr[MAX_MESSAGE_LEN];
     time_t		now;
     
@@ -601,7 +602,7 @@ static int identify_ipban_function(const char * funcstr)
 static int ipban_func_del(t_connection * c, char const * cp)
 {
     t_ipban_entry *	to_delete;
-    int			to_delete_nmbr;
+    unsigned int	to_delete_nmbr;
     t_ipban_entry *	entry;
     t_elem *		curr;
     unsigned int	counter;
@@ -1054,7 +1055,7 @@ static int ipban_could_be_ip_str(char const * str)
 {
     char *	matched;
     char *	ipstr;
-    int 	i;
+    unsigned int 	i;
     
     if (strlen(str)<7)
     {

@@ -337,7 +337,7 @@ extern char const * irc_convert_channel(t_channel const * channel)
 {
     char const * bname;
     static char out[CHANNEL_NAME_LEN];
-    int outpos;
+    unsigned int outpos;
     int i;
     
     if (!channel)
@@ -385,7 +385,7 @@ extern char const * irc_convert_channel(t_channel const * channel)
 extern char const * irc_convert_ircname(char const * pircname)
 {
     static char out[CHANNEL_NAME_LEN];
-    int outpos;
+    unsigned int outpos;
     int special;
     int i;
     char const * ircname = pircname + 1;
