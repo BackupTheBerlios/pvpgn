@@ -4202,7 +4202,10 @@ static int _handle_tag_command(t_connection * c, char const *text)
     newtag = tag_case_str_to_uint(dest);
     if (tag_check_client(newtag))
     {
+        unsigned int oldflags = conn_get_flags(c);
         conn_set_clienttag(c,newtag);
+	channel_rejoin(c);
+	conn_set_flags(c,oldflags);
 	channel_update_userflags(c);
         sprintf(msgtemp,"Client tag set to %s.",dest);
     }
