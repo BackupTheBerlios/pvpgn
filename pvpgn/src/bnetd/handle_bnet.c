@@ -4409,37 +4409,32 @@ static int _client_startgame4(t_connection * c, t_packet const * const packet)
 	  }
 	bngtype = bn_short_get(packet->u.client_startgame4.gametype);
 	option = bn_short_get(packet->u.client_startgame4.option);
-	eventlog(eventlog_level_debug,__FUNCTION__,"[%d] got startgame4 status for game \"%s\" is 0x%08x (gametype=0x%04hx option=0x%04x)",conn_get_socket(c),gamename,bn_int_get(packet->u.client_startgame4.status),bngtype,option);
 	status = bn_int_get(packet->u.client_startgame4.status);
-	if (status == 0xc) status = 0x3;
-	status &= CLIENT_STARTGAME4_STATUSMASK;
-	
 	flag = bn_short_get(packet->u.client_startgame4.flag);
 	
-	eventlog(eventlog_level_debug,__FUNCTION__,"[%d] startgame4 status: %02x", conn_get_socket(c), status);
-	eventlog(eventlog_level_debug,__FUNCTION__,"[%d] startgame4 flag: %02x", conn_get_socket(c), flag);
+	eventlog(eventlog_level_debug,__FUNCTION__,"[%d] got startgame4 status for game \"%s\" is 0x%08x (gametype=0x%04hx option=0x%04hx, flag=0x%04hx)",conn_get_socket(c),gamename,status,bngtype,option,flag);
 	
 	if ((currgame = conn_get_game(c)))
 	  {
-	     switch (status)
-	       {
-		case CLIENT_STARTGAME4_STATUS_INIT:
-		case CLIENT_STARTGAME4_STATUS_INITPRIVATE:
-		  game_set_status(currgame,game_status_open);
-		  break;
-		case CLIENT_STARTGAME4_STATUS_PLAYING:
-		  game_set_status(currgame,game_status_started);
-		  break;
-		case CLIENT_STARTGAME4_STATUS_FULL:
-		  game_set_status(currgame,game_status_full);
-		  break;
-		default:
-		  eventlog(eventlog_level_error,__FUNCTION__,"[%d] unknown startgame4 status %d (clienttag: %s)",conn_get_socket(c),status, clienttag_uint_to_str(conn_get_clienttag(c))); 
-	       }
+	     if ((status & CLIENT_STARTGAME4_STATUSMASK_OPEN_VALID) == status)
+	     {
+	       if      (status & CLIENT_STARTGAME4_STATUS_START)
+	     	  game_set_status(currgame,game_status_started);
+	       else if (status & CLIENT_STARTGAME4_STATUS_FULL)
+	          game_set_status(currgame,game_status_full);
+	       else
+	          game_set_status(currgame,game_status_open);
+	     }
+	     else
+	     {
+		eventlog(eventlog_level_error,__FUNCTION__,"[%d] unknown startgame4 status %d (clienttag: %s)",conn_get_socket(c),status,clienttag_uint_to_str(conn_get_clienttag(c)));
+	     }
 	  }
-	else if (status==CLIENT_STARTGAME4_STATUS_INIT ||
-	         status==CLIENT_STARTGAME4_STATUS_INITPRIVATE)
+	else if ((status & CLIENT_STARTGAME4_STATUSMASK_INIT_VALID) == status)
 	  {
+	     /*valid creation status would be:
+	       0x00, 0x01, 0x02, 0x03, 0x10, 0x11, 0x12, 0x13, 0x80, 0x81, 0x82, 0x83 */
+	       
 	     t_game_type gtype;
 	     
 	     gtype = bngtype_to_gtype(clienttag_uint_to_str(conn_get_clienttag(c)),bngtype);
@@ -4453,8 +4448,11 @@ static int _client_startgame4(t_connection * c, t_packet const * const packet)
 	       }
 	     else if (conn_set_game(c,gamename,gamepass,gameinfo,gtype,STARTVER_GW4)==0) {
 		game_set_option(conn_get_game(c),bngoption_to_goption(clienttag_uint_to_str(conn_get_clienttag(c)),gtype,option));
-		if (status == CLIENT_STARTGAME4_STATUS_INITPRIVATE)
+		if (status & CLIENT_STARTGAME4_STATUS_PRIVATE)
 		    game_set_flag(conn_get_game(c),game_flag_private);
+		if (status & CLIENT_STARTGAME4_STATUS_FULL)
+		    game_set_status(conn_get_game(c),game_status_full);
+		//FIXME: still need special handling for status disc-is-loss and replay
 	     }
 	  }
 	else
