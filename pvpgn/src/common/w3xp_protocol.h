@@ -1,3 +1,6 @@
+#ifndef __W3XP_PROTOCOL_H__
+#define __W3XP_PROTOCOL_H__
+
 /*
 0000  ff 72 3a 00 00 00 00 00 - 36 38 58 49 50 58 33 57   .r:.....68XIPX3W
 0010  2d 01 00 00 53 55 6e 65 - 43 08 45 1f 2c 01 00 00   -...SUneC.E.,...
@@ -340,4 +343,5 @@ typedef struct
 0000:   FF 71 0B 00 01 00 00 00   57 33 00                   .q......W3.     
 */
 #define CLIENT_W3XP_JOINCHANNEL	0x71ff
-typedef struct
+
+#endif
