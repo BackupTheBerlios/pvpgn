@@ -271,7 +271,7 @@ static int on_client_creategamereq(t_connection * c, t_packet * packet)
 	unsigned int	pos;
 	t_elem		* elem;
 
-	pos=sizeof(t_client_creategamereq);
+	pos=sizeof(t_client_d2cs_creategamereq);
 	if (!(gamename=packet_get_str_const(packet,pos,MAX_GAMENAME_LEN))) {
 		eventlog(eventlog_level_error,__FUNCTION__,"got bad game name");
 		return -1;
