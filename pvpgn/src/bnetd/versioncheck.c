@@ -253,7 +253,7 @@ t_parsed_exeinfo * parse_exeinfo(char const * exeinfo)
 
         exeinfo    = strreverse((char *)exeinfo);
 
-	sprintf(mask,"%%02u/%%02u/%%02u %%02u:%%02u:%%02u %%u");
+	sprintf(mask,"%%02u/%%02u/%%u %%02u:%%02u:%%02u %%u");
 
 	if (sscanf(exeinfo,mask,&t1.tm_mon,&t1.tm_mday,&t1.tm_year,&t1.tm_hour,&t1.tm_min,&t1.tm_sec,&size)!=7) {
 	    eventlog(eventlog_level_warn,__FUNCTION__,"parser error while parsing pattern \"%s\"",exeinfo);
@@ -628,7 +628,7 @@ extern int versioncheck_load(char const * filename)
 	{
 	    if (!(vi->parsed_exeinfo = parse_exeinfo(exeinfo)))
 	    {
-		eventlog(eventlog_level_error,"versioncheck_load","could not allocate memory for exeinfo");
+		eventlog(eventlog_level_error,"versioncheck_load","encountered an error while parsing exeinfo");
 		free((void *)vi->clienttag); /* avoid warning */
 		free((void *)vi->archtag); /* avoid warning */
 		free((void *)vi->mpqfile); /* avoid warning */
