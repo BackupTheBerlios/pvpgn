@@ -854,15 +854,25 @@ static int _handle_deop_command(t_connection * c, char const * text)
     char const *	username;
     char const *	channel;
     t_account *		acc;
+    int			OP_lvl;
     
     if (!(channel = channel_get_name(conn_get_channel(c)))) {
 	message_send_text(c,message_type_error,c,"This command can only be used inside a channel.");
 	return -1;
     }
+
+    acc = conn_get_account(c);
+    OP_lvl = 0;
     
-    if (account_get_auth_admin(conn_get_account(c),NULL)!=1 && account_get_auth_admin(conn_get_account(c),channel)!=1 &&
-      account_get_auth_operator(conn_get_account(c),NULL)!=1 && account_get_auth_operator(conn_get_account(c),channel)!=1) {
-	message_send_text(c,message_type_error,c,"You must be at least a Channel Operator to use this command.");
+    if (account_get_auth_admin(acc,NULL)==1 || account_get_auth_admin(acc,channel)==1 ||
+        account_get_auth_operator(acc,NULL)==1 || account_get_auth_operator(acc,channel)==1)
+      OP_lvl = 1;
+    else if (channel_account_is_tmpOP(conn_get_channel(c),acc))
+      OP_lvl = 2;
+
+    if (OP_lvl==0)
+    {
+	message_send_text(c,message_type_error,c,"You must be at least a Channel Operator or tempOP to use this command.");
 	return -1;
     }
     
@@ -878,26 +888,52 @@ static int _handle_deop_command(t_connection * c, char const * text)
 	message_send_text(c, message_type_info, c, msg);
 	return -1;
     }
-    
-    if (account_get_auth_admin(acc,channel) == 1 || account_get_auth_operator(acc,channel) == 1) {
-	if (account_get_auth_admin(acc,channel) == 1) {
+  
+    if (OP_lvl==1) // user is real OP and allowed to deOP
+      {    
+	if (account_get_auth_admin(acc,channel) == 1 || account_get_auth_operator(acc,channel) == 1) {
+	  if (account_get_auth_admin(acc,channel) == 1) {
 	    if (account_get_auth_admin(conn_get_account(c),channel)!=1 && account_get_auth_admin(conn_get_account(c),NULL)!=1)
-		message_send_text(c,message_type_info,c,"You must be at least a Channel Admin to demote another Channel Admin");
+	      message_send_text(c,message_type_info,c,"You must be at least a Channel Admin to demote another Channel Admin");
 	    else {
-		account_set_auth_admin(acc,channel,0);
-		sprintf(msg, "%s has been demoted from a Channel Admin.", username);
-		message_send_text(c, message_type_info, c, msg);
+	      account_set_auth_admin(acc,channel,0);
+	      account_set_tmpOP_channel(acc,NULL);
+	      sprintf(msg, "%s has been demoted from a Channel Admin.", username);
+	      message_send_text(c, message_type_info, c, msg);
 	    }
-	}
-	if (account_get_auth_operator(acc,channel) == 1) {
+	  }
+	  if (account_get_auth_operator(acc,channel) == 1) {
 	    account_set_auth_operator(acc,channel,0);
+	    account_set_tmpOP_channel(acc,NULL);
 	    sprintf(msg,"%s has been demoted from a Channel Operator",username);
 	    message_send_text(c, message_type_info, c, msg);
+	  }
+	} 
+	else if (channel_account_is_tmpOP(conn_get_channel(c),acc))
+	  {
+	    account_set_tmpOP_channel(acc,NULL);
+	    sprintf(msg,"%s has been demoted from a tempOP of this channel",username);
+	    message_send_text(c, message_type_info, c, msg);
+	  }
+	else {
+	  sprintf(msg,"%s is no Channel Admin or Channel Operator or tempOP, so you can't demote him.",username);
+	  message_send_text(c, message_type_info, c, msg);
 	}
-    } else {
-	sprintf(msg,"%s is no Channel Admin or Channel Operator, so you can't demote him.",username);
-	message_send_text(c, message_type_info, c, msg);
-    }
+      }
+    else //user is just a tempOP and may only deOP other tempOPs
+      {
+	if (channel_account_is_tmpOP(conn_get_channel(c),acc))
+	  {
+	    account_set_tmpOP_channel(acc,NULL);
+	    sprintf(msg,"%s has been demoted from a tempOP of this channel",username);
+	    message_send_text(c, message_type_info, c, msg);
+	  }
+	else
+	  {
+	    sprintf(msg,"%s is no tempOP, so you can't demote him",username);
+	    message_send_text(c, message_type_info, c, msg);
+	  }
+      }
     
     command_set_flags(connlist_find_connection_by_accountname(username));
     return 0;
