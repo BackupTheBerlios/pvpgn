@@ -79,7 +79,7 @@ t_topic * get_topic(char const * channel_name)
         eventlog(eventlog_level_error,__FUNCTION__,"found NULL entry in list");
         continue;
       }
-      if (strcmp(channel_name,topic->channel_name)==0) return topic;
+      if (strcasecmp(channel_name,topic->channel_name)==0) return topic;
     }
   }
   return NULL;
