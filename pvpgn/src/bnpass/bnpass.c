@@ -106,7 +106,8 @@ extern int main(int argc, char * argv[])
 	    printf("Enter password to hash: ");
 	    fflush(stdout);
 	    fgets(buff,256,stdin);
-	    buff[strlen(buff)-1] = '\0';
+	    if (buff[0]!='\0')
+	        buff[strlen(buff)-1] = '\0';
 	}
 	else
 	{
