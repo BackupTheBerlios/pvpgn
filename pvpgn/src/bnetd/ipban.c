@@ -44,6 +44,7 @@
 #include "compat/strchr.h"
 #include "compat/strdup.h"
 #include "compat/strcasecmp.h"
+#include "compat/strsep.h"
 #include <errno.h>
 #include "compat/strerror.h"
 #ifdef TIME_WITH_SYS_TIME
