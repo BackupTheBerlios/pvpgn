@@ -2,6 +2,14 @@
 require_once('../config.php');
 $dateformat = 'l F j, Y G:i:s';
 session_start();
+if ($_GET['action'] == 'logout' || $_GET['action'] == 'dochpass') {
+	$uid = $_SESSION['uid'];
+	$_SESSION = array();
+	if (isset($_COOKIE[session_name()])) {
+		setcookie(session_name(),'',time()-42000,'/');
+	}
+	session_destroy();
+}
 ?>
 <html>
 <head>
@@ -9,7 +17,7 @@ session_start();
 </head>
 <body bgcolor="#FFFFFF">
 <?php
-if (!session_is_registered('user') && $_GET['action'] != 'login') {
+if (!session_is_registered('user') && $_GET['action'] != 'login' && $_GET['action'] != 'dochpass') {
 ?>
 <p align="center"><form action="<?php echo $_SERVER['PHP_SELF']; ?>?action=login" method="post">
 Username: <input type="text" name="username" maxlength="32"><br />
@@ -18,7 +26,7 @@ Password: <input type="password" name="password"><br />
 </form></p>
 <?php
 } else {
-	if ($_GET['action'] == 'login' || $_GET['action'] == 'donewuser' || $_GET['action'] == 'dosubmit' || $_GET['action'] == 'downloads' || $_GET['action'] == 'dodownloads' || $_GET['action'] == 'edit' || $_GET['action'] == 'dodelete' || $_GET['action'] == 'doedit' || $_GET['action'] == 'edititem') {
+	if ($_GET['action'] == 'login' || $_GET['action'] == 'donewuser' || $_GET['action'] == 'dosubmit' || $_GET['action'] == 'downloads' || $_GET['action'] == 'dodownloads' || $_GET['action'] == 'edit' || $_GET['action'] == 'dodelete' || $_GET['action'] == 'doedit' || $_GET['action'] == 'edititem' || $_GET['action'] == 'chpass' || $_GET['action'] == 'dochpass') {
 		$dbh = mysql_connect($dbhost,$dbuser,$dbpass);
 		mysql_select_db($dbname,$dbh);
 	}
@@ -36,9 +44,9 @@ Password: <input type="password" name="password"><br />
 			echo "<p align=\"center\"><a href=\"".$_SERVER['PHP_SELF']."\">Click here to continue</a></p>\n";
 		}
 	} else {
-		if ($_GET['action'] != 'logout') {
+		if ($_GET['action'] != 'logout' && $_GET['action'] != 'dochpass') {
 			?>
-			<p align="center"><a href="<?php echo $_SERVER['PHP_SELF']; ?>?action=submit">Submit news</a> | <a href="<?php echo $_SERVER['PHP_SELF']; ?>?action=edit">Edit news</a> | <a href="<?php echo $_SERVER['PHP_SELF']; ?>?action=newuser">Create new user</a> | <a href="links.php">Edit links</a> | <a href="<?php echo $_SERVER['PHP_SELF']; ?>?action=downloads">Edit downloads</a> | <a href="<?php echo $_SERVER['PHP_SELF']; ?>?action=logout">Logout</a></p>
+			<p align="center"><a href="<?php echo $_SERVER['PHP_SELF']; ?>?action=submit">Submit news</a> | <a href="<?php echo $_SERVER['PHP_SELF']; ?>?action=edit">Edit news</a> | <a href="<?php echo $_SERVER['PHP_SELF']; ?>?action=newuser">Create new user</a> | <a href="links.php">Edit links</a> | <a href="<?php echo $_SERVER['PHP_SELF']; ?>?action=downloads">Edit downloads</a> | <a href="<?php echo $_SERVER['PHP_SELF']; ?>?action=chpass">Edit user profile</a> | <a href="<?php echo $_SERVER['PHP_SELF']; ?>?action=logout">Logout</a></p>
 			<?php
 		}
 		if ($_GET['action'] == 'newuser') {
@@ -113,7 +121,30 @@ Password: <input type="password" name="password"><br />
 			} else {
 				echo "<p align=\"center\">Error: Could not update news</p>\n";
 				echo "<p align=\"center\">MySQL said: ".mysql_error()."</p>\n";		
-			}			
+			}
+		} else if ($_GET['action'] == 'chpass') {
+			$row = mysql_fetch_row(mysql_query("SELECT username,email FROM news_users WHERE uid = ".$_SESSION['uid'].";",$dbh));
+			?>
+			<p><form action="<?php echo $_SERVER['PHP_SELF']; ?>?action=dochpass" method="post">
+			Username: <input type="text" name="username" value="<?php echo $row[0]; ?>" maxlength="32"><br />
+			Password: <input type="password" name="pass1"><br />
+			Confirm password: <input type="password" name="pass2"><br />
+			Email address: <input type="text" name="email" value="<?php echo $row[1]; ?>" maxlength="128"><br />
+			<input type="submit" value="Apply changes">
+			</form></p>
+			<?php
+		} else if ($_GET['action'] == 'dochpass') {
+			if ($_POST['pass1'] == $_POST['pass2']) {
+				if (@mysql_query("UPDATE news_users SET `username` = '".$_POST['username']."', `passhash` = '".md5($_POST['pass1'])."', `email` = '".$_POST['email']."' WHERE `uid` = ".$uid.";",$dbh)) {
+					echo "<p align=\"center\">Profile updated successfully</p>\n";
+					echo "<p align=\"center\">You must <a href=\"".$_SERVER['PHP_SELF']."\">log in</a> again before you can perform further actions.</p>\n";
+				} else {
+					echo "<p align=\"center\">Error: Could not update profile</p>\n";
+					echo "<p align=\"center\">MySQL said: ".mysql_error()."</p>\n";
+				}
+			} else {
+				echo "<p align=\"center\">Error: Password and repeated password do not match</p>\n";
+			}
 		} else if ($_GET['action'] == 'downloads') {
 			$row = mysql_fetch_row($temp = mysql_query("SELECT value FROM misc WHERE `key` = 'latest_stable'",$dbh));
 			$latest_stable = $row[0];
@@ -138,11 +169,6 @@ Password: <input type="password" name="password"><br />
 				echo "<p align=\"center\">MySQL said: ".mysql_error()."</p>\n";
 			}
 		} else if ($_GET['action'] == 'logout') {
-			$_SESSION = array();
-			if (isset($_COOKIE[session_name()])) {
-				setcookie(session_name(), '', time()-42000, '/');
-			}
-			session_destroy();
 			echo "<p align=\"center\">Logout successful</p>\n";
 		}
 	}
