@@ -609,3 +609,37 @@ extern int hashtable_entry_release(t_entry * entry)
     free(entry);
     return 0;
 }
+
+
+extern int hashtable_stats(t_hashtable * hashtable)
+{
+    unsigned int      row;
+    t_internentry *   curr;
+    unsigned int      rcount, max, min;
+    
+    if (!hashtable)
+    {
+        eventlog(eventlog_level_error, __FUNCTION__,"got NULL hashtable");
+        return -1;
+    }
+    
+#ifdef HASHTABLE_DEBUG
+    hashtable_check(hashtable);
+#endif
+
+    max = 0;
+    min = hashtable->len;
+    for (row=0; row<hashtable->num_rows; row++)
+    {
+	rcount = 0;
+	for (curr=hashtable->rows[row]; curr; curr=curr->next)
+	    if (curr->data!=&nodata) rcount++;
+	if (rcount > max) max = rcount;
+	if (rcount < min) min = rcount;
+    }
+
+    eventlog(eventlog_level_info, __FUNCTION__, "hashsize: %u min: %u max: %u avg: %.2f diff: %.2f%c", hashtable->num_rows, min, max, (float)(min + max)/2, (float)(max - min)/max*100, '%');
+    return 0;
+}
+
+

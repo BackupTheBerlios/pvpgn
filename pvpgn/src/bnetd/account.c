@@ -105,22 +105,17 @@ static int account_load_attrs(t_account * account);
 static void account_unload_attrs(t_account * account);
 static int account_check_name(char const * name);
 
-
+/*
 static unsigned int account_hash(char const * username)
 {
     register unsigned int i;
-    unsigned int pos;
     register unsigned int hash;
+    unsigned int pos;
     unsigned int ch;
+    unsigned int len = strlen(username);
 
-    if (!username)
-    {
-	eventlog(eventlog_level_error,"account_hash","got NULL username");
-	return 0;
-    }
-    
-    hash = (strlen(username)+1)*120343021;
-    for (pos=0,i=0; i<strlen(username); i++)
+    hash = (len+1)*120343021;
+    for (pos=0,i=0; i<len; i++)
     {
 	if (isascii((int)username[i]) && isupper((int)username[i]))
 	    ch = (unsigned int)(unsigned char)tolower((int)username[i]);
@@ -133,7 +128,22 @@ static unsigned int account_hash(char const * username)
     
     return hash;
 }
+*/
 
+unsigned int account_hash(char const *username)
+{
+    register unsigned int h;
+    register unsigned int len = strlen(username);
+
+    for (h = 5381; len > 0; --len, ++username) {
+        h += h << 5;
+	if (isupper((int) *username) == 0)
+	    h ^= *username;
+	else
+	    h ^= tolower((int) *username);
+    }
+    return h;
+}
 
 extern t_account * account_create(char const * username, char const * passhash1)
 {
@@ -1344,6 +1354,8 @@ extern t_account * accountlist_add_account(t_account * account)
 	return NULL;
     }
     
+/*    hashtable_stats(accountlist_head); */
+
     if (uid>maxuserid)
         maxuserid = uid;
 

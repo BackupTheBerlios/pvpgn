@@ -104,6 +104,7 @@ extern t_entry * hashtable_get_first_matching(t_hashtable const * hashtable, uns
 #endif
 extern t_entry * entry_get_next_matching(t_entry * entry);
 extern int hashtable_entry_release(t_entry * entry);
+extern int hashtable_stats(t_hashtable * hashtable);
 
 #define HASHTABLE_TRAVERSE(hashtable,curr) for (curr=hashtable_get_first(hashtable); curr; curr=entry_get_next(curr))
 #define HASHTABLE_TRAVERSE_MATCHING(hashtable,curr,hash) for (curr=hashtable_get_first_matching(hashtable,hash); curr; curr=entry_get_next_matching(curr))
