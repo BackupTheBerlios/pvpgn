@@ -196,10 +196,6 @@ static int _client_w3xp_clan_memberdelreq(t_connection * c, t_packet const * con
 static int _client_w3xp_clan_membernewchiefreq(t_connection * c, t_packet const * const packet);
 static int _client_w3xp_clan_invitereq(t_connection * c, t_packet const * const packet);
 static int _client_w3xp_clan_invitereply(t_connection * c, t_packet const * const packet);
-static int _client_crashdump(t_connection * c, t_packet const * const packet);
-static int _client_setemailreply(t_connection * c, t_packet const * const packet);
-static int _client_changeemailreq(t_connection * c, t_packet const * const packet);
-static int _client_getpasswordreq(t_connection * c, t_packet const * const packet);
 
 /* connection state connected handler table */
 static const t_htable_row bnet_htable_con[] = {
@@ -292,17 +288,11 @@ static const t_htable_row bnet_htable_log [] = {
      { CLIENT_W3XP_CLAN_MEMBERNEWCHIEFREQ,_client_w3xp_clan_membernewchiefreq },
      { CLIENT_W3XP_CLAN_INVITEREQ,_client_w3xp_clan_invitereq },
      { CLIENT_W3XP_CLAN_INVITEREPLY,_client_w3xp_clan_invitereply },
-     { CLIENT_CRASHDUMP,        _client_crashdump },
-     { CLIENT_SETEMAILREPLY,      _client_setemailreply },
-     { CLIENT_GETPASSWORDREQ,   _client_getpasswordreq },
-     { CLIENT_CHANGEEMAILREQ,   _client_changeemailreq },
      { CLIENT_NULL,		NULL},
      { -1,                      NULL}
 };
 
 /* main handler function */
-static void client_init_email(t_connection * c, t_account * account);
-
 static int handle(const t_htable_row * htable, int type, t_connection * c, t_packet const * const packet);
 
 extern int handle_bnet_packet(t_connection * c, t_packet const * const packet)
@@ -850,7 +840,7 @@ static int _client_createaccountw3(t_connection * c, t_packet const * const pack
 		if (!(temp = account_create(username,hash_get_str(sc_hash))))
 		  {
 		     eventlog(eventlog_level_info,__FUNCTION__,"[%d] (W3) account not created (failed)",conn_get_socket(c));
-		     bn_int_set(&rpacket->u.server_createaccount_w3.result,SERVER_CREATEACCOUNT_W3_RESULT_EXIST);
+		     bn_int_set(&rpacket->u.server_createaccount_w3.result,SERVER_CREATEACCOUNT_W3_RESULT_INVALID);
 		  }
 		else if (!accountlist_add_account(temp))
 		  {
@@ -1124,7 +1114,7 @@ static int _client_changepassreq(t_connection * c, t_packet const * const packet
 		  bn_int_set(&rpacket->u.server_changepassack.message,SERVER_CHANGEPASSACK_MESSAGE_SUCCESS);
 	       }
 	  }
-
+	
 	conn_push_outqueue(c,rpacket);
 	packet_del_ref(rpacket);
 	
@@ -1973,7 +1963,6 @@ static int _client_loginreq2(t_connection * c, t_packet const * const packet)
      {
 	char const * username;
 	t_account *  account;
-	int success = 0;
 	
 	if (!(username = packet_get_str_const(packet,sizeof(t_client_loginreq2),USER_NAME_MAX)))
 	  {
@@ -2119,7 +2108,6 @@ static int _client_loginreq2(t_connection * c, t_packet const * const packet)
 			       eventlog(eventlog_level_info,__FUNCTION__,"[%d] \"%s\" logged in (correct password)",conn_get_socket(c),(tname = conn_get_username(c)));
 			       conn_unget_username(c,tname);
 			       bn_int_set(&rpacket->u.server_loginreply2.message,SERVER_LOGINREPLY2_MESSAGE_SUCCESS);
-				   success = 1;
 #ifdef WITH_BITS
 			    } else {
 			       eventlog(eventlog_level_info,__FUNCTION__,"[%d] login for \"%s\" refused (bits_loginlist_add returned %d)",conn_get_socket(c),(tname = account_get_name(account)),rc);
@@ -2143,12 +2131,8 @@ static int _client_loginreq2(t_connection * c, t_packet const * const packet)
 		  eventlog(eventlog_level_info,__FUNCTION__,"[%d] \"%s\" logged in (no password)",conn_get_socket(c),(tname = account_get_name(account)));
 		  account_unget_name(tname);
 		  bn_int_set(&rpacket->u.server_loginreply2.message,SERVER_LOGINREPLY2_MESSAGE_SUCCESS);
-				   success = 1;
 	       }
 	  }
-	if (success && account) {
-		client_init_email(c, account);
-	}
 	conn_push_outqueue(c,rpacket);
 	packet_del_ref(rpacket);
      }
@@ -2347,10 +2331,7 @@ static int _client_logonproofreq(t_connection * c, t_packet const * const packet
 		conn_set_account(c,account);
 		eventlog(eventlog_level_info,__FUNCTION__,"[%d] (W3) \"%s\" logged in (right password)",conn_get_socket(c),(tname = account_get_name(account)));
 		account_unget_name(tname);
-		if(account_get_email(account) == NULL)
-			bn_int_set(&rpacket->u.server_logonproofreply.response,SERVER_LOGONPROOFREPLY_RESPONSE_EMAIL);
-		else
-			bn_int_set(&rpacket->u.server_logonproofreply.response,SERVER_LOGONPROOFREPLY_RESPONSE_OK);
+		bn_int_set(&rpacket->u.server_logonproofreply.response,SERVER_LOGONPROOFREPLY_RESPONSE_OK);
 		// by amadeo updates the userlist
 #ifdef WIN32_GUI
 		guiOnUpdateUserList();
@@ -5540,160 +5521,3 @@ static int _client_w3xp_clan_invitereply(t_connection * c, t_packet const * cons
 
   return 0;
 }
-
-static int _client_crashdump(t_connection * c, t_packet const * const packet)
-{
-	return 0;
-}
-
-static int _client_setemailreply(t_connection * c, t_packet const * const packet)
-{
-	char const * email;
-	t_account * account;
-	struct in_addr caddr;
-
-	memset(&caddr, 0, sizeof(caddr));
-	caddr.s_addr = ntohl(conn_get_addr(c));
-	if (!(email = packet_get_str_const(packet, sizeof(t_client_setemailreply), MAX_EMAIL_STR))) {
-		eventlog(eventlog_level_error,__FUNCTION__,"[%d] got bad SETEMAILREPLY packet",conn_get_socket(c));
-		return -1;
-	}
-	if (!(account = conn_get_account(c))) {
-		eventlog(eventlog_level_error,__FUNCTION__,"got NULL account for connection in setemail request");
-		return -1;
-	}
-	if (account_get_email(account)) {
-		eventlog(eventlog_level_error,__FUNCTION__,"[%d] account \"%s\" already have email set, ignore set email", conn_get_socket(c), 
-			account_get_name(account));
-		return 0;
-	}
-	if (account_set_email(account, email) < 0) {
-		eventlog(eventlog_level_error,__FUNCTION__,"[%d] failed to init account \"%s\" email to \"%s\"", conn_get_socket(c),
-			account_get_name(account), email);
-		return 0;
-	} else {
-		eventlog(eventlog_level_info,__FUNCTION__,"[%d] init account \"%s\" email to \"%s\"", conn_get_socket(c), 
-			account_get_name(account), email);
-		eventlog(eventlog_level_trace,__FUNCTION__,"%s set-email success init-email %s", account_get_name(account), inet_ntoa(caddr));
-	}
-	return 0;
-}
-
-static int _client_changeemailreq(t_connection * c, t_packet const * const packet)
-{
-	char const * old;
-	char const * new;
-	char const * username;
-	char const * email;
-	t_account * account;
-	struct in_addr caddr;
-	int pos;
-
-	memset(&caddr, 0, sizeof(caddr));
-	caddr.s_addr = ntohl(conn_get_addr(c));
-	pos = sizeof(t_client_changeemailreq);
-	if (!(username = packet_get_str_const(packet, pos, USER_NAME_MAX))) {
-		eventlog(eventlog_level_error,__FUNCTION__,"[%d] got bad username in CHANGEEMAILREQ packet",conn_get_socket(c));
-		return -1;
-	}
-	pos += (strlen(username)+1);
-	if (!(old = packet_get_str_const(packet, pos, MAX_EMAIL_STR))) {
-		eventlog(eventlog_level_error,__FUNCTION__,"[%d] got bad old email in CHANGEEMAILREQ packet",conn_get_socket(c));
-		return -1;
-	}
-	pos += (strlen(old)+1);
-	if (!(new = packet_get_str_const(packet, pos, MAX_EMAIL_STR))) {
-		eventlog(eventlog_level_error,__FUNCTION__,"[%d] got bad new email in CHANGEEMAILREQ packet",conn_get_socket(c));
-		return -1;
-	}
-	if (!(account = accountlist_find_account(username))) {
-		eventlog(eventlog_level_info,__FUNCTION__,"[%d] change email for \"%s\" refused (no such account)",conn_get_socket(c), username);
-		return 0;
-	}
-	if (!(email = account_get_email(account)) || !email[0]) {
-		eventlog(eventlog_level_error,__FUNCTION__,"[%d] account \"%s\" do not have email set, ignore changing", conn_get_socket(c), 
-			account_get_name(account));
-		return 0;
-	}
-	if (strcasecmp(email, old)) {
-		eventlog(eventlog_level_error,__FUNCTION__,"[%d] account \"%s\" email mismatch, ignore changing", conn_get_socket(c), 
-			account_get_name(account));
-		eventlog(eventlog_level_trace,__FUNCTION__,"%s change-email refused wrong-previous-email %s", account_get_name(account), 
-			inet_ntoa(caddr));
-//  what should I do? a reply packet needed?
-//		conn_set_state(c, conn_state_destroy);
-		return 0;
-	}
-	if (account_set_email(account, new) < 0) {
-		eventlog(eventlog_level_error,__FUNCTION__,"[%d] failed to change account \"%s\" email to \"%s\"", conn_get_socket(c),
-			account_get_name(account), new);
-		return 0;
-	} else {
-		eventlog(eventlog_level_info,__FUNCTION__,"[%d] change account \"%s\" email to \"%s\"", conn_get_socket(c), account_get_name(account), new);
-		eventlog(eventlog_level_trace,__FUNCTION__,"%s change-email success new-email %s", account_get_name(account), inet_ntoa(caddr));
-	}
-	return 0;
-}
-
-static int _client_getpasswordreq(t_connection * c, t_packet const * const packet)
-{
-	char const * username;
-	char const * try_email;
-	char const * email;
-	t_account * account;
-	struct in_addr caddr;
-	int pos;
-
-	memset(&caddr, 0, sizeof(caddr));
-	caddr.s_addr = ntohl(conn_get_addr(c));
-	pos = sizeof(t_client_getpasswordreq);
-	if (!(username = packet_get_str_const(packet, pos, USER_NAME_MAX))) {
-		eventlog(eventlog_level_error,__FUNCTION__,"[%d] got bad username in GETPASSWORDREQ packet",conn_get_socket(c));
-		return -1;
-	}
-	pos += (strlen(username)+1);
-	if (!(try_email = packet_get_str_const(packet, pos, MAX_EMAIL_STR))) {
-		eventlog(eventlog_level_error,__FUNCTION__,"[%d] got bad email in GETPASSWORDREQ packet",conn_get_socket(c));
-		return -1;
-	}
-	if (!(account = accountlist_find_account(username))) {
-		eventlog(eventlog_level_info,__FUNCTION__,"[%d] get password for \"%s\" refused (no such account)",conn_get_socket(c),username);
-		return 0;
-	}
-	if (!(email = account_get_email(account)) || !email[0]) {
-		eventlog(eventlog_level_error,__FUNCTION__,"[%d] account \"%s\" do not have email set, ignore get password", conn_get_socket(c), 
-			account_get_name(account));
-		return 0;
-	}
-	if (strcasecmp(email, try_email)) {
-		eventlog(eventlog_level_error,__FUNCTION__,"[%d] account \"%s\" email mismatch, ignore get password", conn_get_socket(c), 
-			account_get_name(account));
-		eventlog(eventlog_level_trace,__FUNCTION__,"%s get-password refused wrong-email %s", account_get_name(account), 
-			inet_ntoa(caddr));
-//  what should I do? a reply packet needed?
-		return 0;
-	}
-	eventlog(eventlog_level_info,__FUNCTION__,"[%d] get password for account \"%s\" to email \"%s\"", conn_get_socket(c), 
-		account_get_name(account), email);
-	eventlog(eventlog_level_trace,__FUNCTION__,"%s get-password success correct-email %s", account_get_name(account), inet_ntoa(caddr));
-	return 0;
-}
-
-static void client_init_email(t_connection * c, t_account * account)
-{
-	t_packet * packet;
-	char const * email;
-
-	if (!c || !account) return;
-	email = account_get_email(account);
-	if (!email) {
-		if ((packet = packet_create(packet_class_bnet))) {
-			packet_set_size(packet,sizeof(t_server_setemailreq));
-			packet_set_type(packet,SERVER_SETEMAILREQ);
-			conn_push_outqueue(c,packet);
-			packet_del_ref(packet);
-		}
-	}
-	return;
-}
-
