@@ -99,11 +99,8 @@ extern int d2gslist_create(void)
 
 extern int d2gslist_reload(char const * gslist)
 {
-	char		* templist;
-	char		* s, * temp;
+	t_addrlist	* gsaddrs;
 	t_d2gs		* gs;
-	unsigned int	ip;
-	unsigned int	resolveipaddr;
 
 	if (!d2gslist_head) return -1;
 
@@ -113,21 +110,24 @@ extern int d2gslist_reload(char const * gslist)
 	}
 	END_LIST_TRAVERSE_DATA()
 
-/* FIXME: use addr.h addrlist code */
-	if (!(templist=strdup(gslist))) return -1;
-	temp=templist;
-	while ((s=strsep(&temp, ","))) {
-		host_lookup(s, &resolveipaddr);
-		if ((ip=net_inet_addr(addr_num_to_ip_str(resolveipaddr)))==~0UL) {
-			eventlog(eventlog_level_error,__FUNCTION__,"got bad ip address %s", addr_num_to_ip_str(resolveipaddr));
-			continue;
+	gsaddrs = addrlist_create(gslist, INADDR_ANY, 0);
+	if (gsaddrs) {
+	    t_elem const *acurr;
+	    t_addr * curr_laddr;
+
+	    LIST_TRAVERSE_CONST(gsaddrs, acurr)
+	    {
+		curr_laddr = (t_addr*)elem_get_data(acurr);
+		if (!curr_laddr) {
+		    eventlog(eventlog_level_error, __FUNCTION__, "found NULL value in gslist");
+		    continue;
 		}
-		if (!(gs=d2gslist_find_gs_by_ip(ntohl(ip)))) {
-			gs=d2gs_create(addr_num_to_ip_str(resolveipaddr));
-		}
+		if (!(gs=d2gslist_find_gs_by_ip(addr_get_ip(curr_laddr))))
+		    gs = d2gs_create(addr_num_to_ip_str(addr_get_ip(curr_laddr)));
 		if (gs) BIT_SET_FLAG(gs->flag, D2GS_FLAG_VALID);
+	    }
+	    addrlist_destroy(gsaddrs);
 	}
-	free(templist);
 
 	BEGIN_LIST_TRAVERSE_DATA(d2gslist_head,gs)
 	{
