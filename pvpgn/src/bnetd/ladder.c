@@ -406,7 +406,7 @@ int in_same_team(t_account * acc1, t_account * acc2, unsigned int tc1, unsigned 
    {
       if (teammembers1 != NULL) return 1; else return 0;
    }
-   if (strcmp(teammembers1, teammembers2)==0) return 1;
+   if (strcasecmp(teammembers1, teammembers2)==0) return 1;
    else return 0;
 }
 

@@ -132,7 +132,7 @@ static int handle_irc_con_command(t_connection * conn, char const * command, int
 
   for (p = irc_con_command_table; p->irc_command_string != NULL; p++)
   {
-    if (strcmp(command, p->irc_command_string)==0)
+    if (strcasecmp(command, p->irc_command_string)==0)
     {
 	  if (p->irc_command_handler != NULL) return ((p->irc_command_handler)(conn,numparams,params,text));
 	}
@@ -146,7 +146,7 @@ static int handle_irc_log_command(t_connection * conn, char const * command, int
 
   for (p = irc_log_command_table; p->irc_command_string != NULL; p++)
   {
-    if (strcmp(command, p->irc_command_string)==0)
+    if (strcasecmp(command, p->irc_command_string)==0)
     {
 	  if (p->irc_command_handler != NULL) return ((p->irc_command_handler)(conn,numparams,params,text));
 	}
@@ -815,7 +815,7 @@ static int _handle_topic_command(t_connection * conn, int numparams, char ** par
 			char temp[MAX_IRC_MESSAGE_LEN];
 			char const * ircname = irc_convert_ircname(e[0]);
 
-			if ((ircname) && (strcmp(channel_get_name(channel),ircname)==0))
+			if ((ircname) && (strcasecmp(channel_get_name(channel),ircname)==0))
 			{
 				if ((topic = channel_get_topic(channel_get_name(channel))))
 				{ 
