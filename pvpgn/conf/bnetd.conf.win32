@@ -40,6 +40,7 @@ ladderdir    = var\ladders
 command_groups_file = conf\command_groups.txt
 statusdir   = var\status
 aliasfile   = conf\bnalias.list
+anonagem_infos_file = conf\anongame_infos.conf
 
 fortunecmd  = bin\fortune.exe
 
@@ -486,46 +487,3 @@ war3_output_update_secs = 60
 # is much more verbose than the standard output
 XML_status_output_ladder = false
 
-###############################################################################
-# W3XP Matchmaking Stuff                                                      #
-#-----------------------------------------------------------------------------#
-w3xp_matchmaking_server_url  = "http://www.google.com"
-w3xp_matchmaking_player_url  = "http://www.google.com/search?q="
-w3xp_matchmaking_tourney_url = "http://www.google.com"
-
-w3xp_matchmaking_solo_url = "http://www.google.com"
-w3xp_matchmaking_solo_url_desc = "Solo Games"
-
-w3xp_matchmaking_2vs2_url = "http://www.google.com"
-w3xp_matchmaking_2vs2_url_desc = "2 player team"
-
-w3xp_matchmaking_3vs3_url = "http://www.google.com"
-w3xp_matchmaking_3vs3_url_desc = "3 player team"
-
-w3xp_matchmaking_4vs4_url = "http://www.google.com"
-w3xp_matchmaking_4vs4_url_desc = "4 player team"
-
-w3xp_matchmaking_team_url = "http://www.google.com"
-w3xp_matchmaking_team_url_desc = "Team Games"
-
-w3xp_matchmaking_ffa_url  = "http://www.google.com"
-w3xp_matchmaking_ffa_url_desc = "Free for All Games"
-
-
-w3xp_matchmaking_solo_desc = "One vs. One"
-w3xp_matchmaking_solo_desc_long = "Two players fight to the death"
-
-w3xp_matchmaking_2vs2_desc = "Two vs. Two"
-w3xp_matchmaking_2vs2_desc_long = "Two teams of two vie for dominance"
-
-w3xp_matchmaking_3vs3_desc = "Three vs. Three"
-w3xp_matchmaking_3vs3_desc_long = "Two teams of three face off on the battlefield"
-
-w3xp_matchmaking_4vs4_desc = "Four vs. Four"
-w3xp_matchmaking_4vs4_desc_long = "Two teams of four head to battle"
-
-w3xp_matchmaking_ffa_desc = "Small Free for All"
-w3xp_matchmaking_ffa_desc_long = "Can you defeat 3-5 opponents alone?"
-
-
-###############################################################################

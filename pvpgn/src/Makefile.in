@@ -118,6 +118,7 @@ ${SRC_BNETDDIR}/autoupdate.o \
 ${SRC_BNETDDIR}/helpfile.o \
 ${SRC_BNETDDIR}/mail.o \
 ${SRC_BNETDDIR}/bnpmap.o \
+${SRC_BNETDDIR}/anongame_infos.o \
 ${SRC_BNETDDIR}/storage.o \
 ${SRC_BNETDDIR}/runprog.o \
 ${SRC_BNETDDIR}/game_rule.o \
@@ -435,7 +436,7 @@ CONFS		= bnetd.conf d2cs.conf d2dbs.conf \
 		  ad.list channel.list realm.list \
 		  autoupdate bnetd_default_user gametrans d2gstrans versioncheck \
 		  bnmotd.txt bnbitsmotd.txt bnissue.txt bnmaps.txt bnxplevel.txt bnxpcalc.txt news.txt command_groups.txt \
-		  bnban bnhelp bnbitspasswd bnalias.list
+		  bnban bnhelp bnbitspasswd bnalias.list anongame_infos.conf
 
 SHARES		= ad000001.pcx ad000001.mng ad000004.mng ad000666.mng ad000666.pcx \
 		  icons.bni icons_STAR.bni icons-WAR3.bni \

@@ -112,6 +112,7 @@
 #endif
 #include "compat/netinet_in.h"
 #include "watch.h"
+#include "anongame_infos.h"
 
 static int compar(const void* a, const void* b);
 
@@ -3171,9 +3172,9 @@ static int _client_findanongame(t_connection * c, t_packet const * const packet)
 				packet_append_data(rpacket, "LRU\0" , 4);
 				packet_append_data(rpacket, &server_tag_unk , 4);
 				// FIXME: Maybe need do do some checks to avoid prefs empty strings.
-				packet_append_string(rpacket, prefs_get_w3xp_matchmaking_server_url());
-				packet_append_string(rpacket, prefs_get_w3xp_matchmaking_player_url());
-				packet_append_string(rpacket, prefs_get_w3xp_matchmaking_tourney_url());
+				packet_append_string(rpacket, anongame_infos_URL_get_server_url());
+				packet_append_string(rpacket, anongame_infos_URL_get_player_url());
+				packet_append_string(rpacket, anongame_infos_URL_get_tourney_url());
 				server_tag_count++;
 				eventlog(eventlog_level_debug,__FUNCTION__,"client_tag request tagid=(0x%01x) tag=(%s)  tag_unk=(0x%04x)",i,"CLIENT_FINDANONGAME_INFOTAG_URL",*client_tag_unk);
 				break;
@@ -3304,40 +3305,40 @@ static int _client_findanongame(t_connection * c, t_packet const * const packet)
 				packet_append_data(rpacket,&anongame_PG_section,1);
 				packet_append_data(rpacket,&desc_count,1);
 				desc_count++;
-				packet_append_string(rpacket,prefs_get_w3xp_matchmaking_solo_desc());
-				packet_append_string(rpacket,prefs_get_w3xp_matchmaking_solo_desc_long());
+				packet_append_string(rpacket,anongame_infos_DESC_get_gametype_1v1_short((char *)conn_get_country(c)));
+				packet_append_string(rpacket,anongame_infos_DESC_get_gametype_1v1_long((char *)conn_get_country(c)));
 				packet_append_data(rpacket,&anongame_PG_section,1);
 				packet_append_data(rpacket,&desc_count,1);
 				desc_count++;
-				packet_append_string(rpacket,prefs_get_w3xp_matchmaking_2vs2_desc());
-				packet_append_string(rpacket,prefs_get_w3xp_matchmaking_2vs2_desc_long());
+				packet_append_string(rpacket,anongame_infos_DESC_get_gametype_2v2_short((char *)conn_get_country(c)));
+				packet_append_string(rpacket,anongame_infos_DESC_get_gametype_2v2_long((char *)conn_get_country(c)));
 				packet_append_data(rpacket,&anongame_PG_section,1);
 				packet_append_data(rpacket,&desc_count,1);
 				desc_count++;
-				packet_append_string(rpacket,prefs_get_w3xp_matchmaking_3vs3_desc());
-				packet_append_string(rpacket,prefs_get_w3xp_matchmaking_3vs3_desc_long());
+				packet_append_string(rpacket,anongame_infos_DESC_get_gametype_3v3_short((char *)conn_get_country(c)));
+				packet_append_string(rpacket,anongame_infos_DESC_get_gametype_3v3_long((char *)conn_get_country(c)));
 				packet_append_data(rpacket,&anongame_PG_section,1);
 				packet_append_data(rpacket,&desc_count,1);
 				desc_count++;
-				packet_append_string(rpacket,prefs_get_w3xp_matchmaking_4vs4_desc());
-				packet_append_string(rpacket,prefs_get_w3xp_matchmaking_4vs4_desc_long());
+				packet_append_string(rpacket,anongame_infos_DESC_get_gametype_4v4_short((char *)conn_get_country(c)));
+				packet_append_string(rpacket,anongame_infos_DESC_get_gametype_4v4_long((char *)conn_get_country(c)));
 				packet_append_data(rpacket,&anongame_PG_section,1);
 				packet_append_data(rpacket,&desc_count,1);
 				desc_count++;
-				packet_append_string(rpacket,prefs_get_w3xp_matchmaking_ffa_desc());
-				packet_append_string(rpacket,prefs_get_w3xp_matchmaking_ffa_desc_long());
+				packet_append_string(rpacket,anongame_infos_DESC_get_gametype_ffa_short((char *)conn_get_country(c)));
+				packet_append_string(rpacket,anongame_infos_DESC_get_gametype_ffa_long((char *)conn_get_country(c)));
 				// AT description section
 				desc_count = 0;
 				packet_append_data(rpacket,&anongame_AT_section,1);
 				packet_append_data(rpacket,&desc_count,1);
 				desc_count++;
-				packet_append_string(rpacket,prefs_get_w3xp_matchmaking_2vs2_desc());
-				packet_append_string(rpacket,prefs_get_w3xp_matchmaking_2vs2_desc_long());
+				packet_append_string(rpacket,anongame_infos_DESC_get_gametype_2v2_short((char *)conn_get_country(c)));
+				packet_append_string(rpacket,anongame_infos_DESC_get_gametype_2v2_long((char *)conn_get_country(c)));
 				packet_append_data(rpacket,&anongame_AT_section,1);
 				packet_append_data(rpacket,&desc_count,1);
 				desc_count++;
-				packet_append_string(rpacket,prefs_get_w3xp_matchmaking_3vs3_desc());
-				packet_append_string(rpacket,prefs_get_w3xp_matchmaking_3vs3_desc_long());
+				packet_append_string(rpacket,anongame_infos_DESC_get_gametype_3v3_short((char *)conn_get_country(c)));
+				packet_append_string(rpacket,anongame_infos_DESC_get_gametype_3v3_long((char *)conn_get_country(c)));
 				
 				
 				server_tag_count++;
@@ -3352,20 +3353,20 @@ static int _client_findanongame(t_connection * c, t_packet const * const packet)
 				ladr_count=5;
 				packet_append_data(rpacket, &ladr_count, 1);
 				packet_append_data(rpacket, "OLOS", 4);
-				packet_append_string(rpacket, prefs_get_w3xp_matchmaking_solo_url_desc());
-				packet_append_string(rpacket, prefs_get_w3xp_matchmaking_solo_url());
+				packet_append_string(rpacket, anongame_infos_DESC_get_ladder_PG_1v1_desc((char *)conn_get_country(c)));
+				packet_append_string(rpacket, anongame_infos_URL_get_ladder_PG_1v1_url());
 				packet_append_data(rpacket, "MAET", 4);
-				packet_append_string(rpacket, prefs_get_w3xp_matchmaking_team_url_desc());
-				packet_append_string(rpacket, prefs_get_w3xp_matchmaking_team_url());
+				packet_append_string(rpacket, anongame_infos_DESC_get_ladder_PG_team_desc((char *)conn_get_country(c)));
+				packet_append_string(rpacket, anongame_infos_URL_get_ladder_PG_team_url());
 				packet_append_data(rpacket, "2SV2", 4);
-				packet_append_string(rpacket, prefs_get_w3xp_matchmaking_2vs2_url_desc());
-				packet_append_string(rpacket, prefs_get_w3xp_matchmaking_2vs2_url());
+				packet_append_string(rpacket, anongame_infos_DESC_get_ladder_AT_2v2_desc((char *)conn_get_country(c)));
+				packet_append_string(rpacket, anongame_infos_URL_get_ladder_AT_2v2_url());
 				packet_append_data(rpacket, " AFF", 4);
-				packet_append_string(rpacket, prefs_get_w3xp_matchmaking_ffa_url_desc());
-				packet_append_string(rpacket, prefs_get_w3xp_matchmaking_ffa_url());
+				packet_append_string(rpacket, anongame_infos_DESC_get_ladder_PG_ffa_desc((char *)conn_get_country(c)));
+				packet_append_string(rpacket, anongame_infos_URL_get_ladder_PG_ffa_url());
 				packet_append_data(rpacket, "3SV3", 4);
-				packet_append_string(rpacket, prefs_get_w3xp_matchmaking_3vs3_url_desc());
-				packet_append_string(rpacket, prefs_get_w3xp_matchmaking_3vs3_url());
+				packet_append_string(rpacket, anongame_infos_DESC_get_ladder_AT_3v3_desc((char *)conn_get_country(c)));
+				packet_append_string(rpacket, anongame_infos_URL_get_ladder_AT_3v3_url());
 				server_tag_count++;
 				eventlog(eventlog_level_debug,__FUNCTION__,"client_tag request tagid=(0x%01x) tag=(%s) tag_unk=(0x%04x)",i,"CLIENT_FINDANONGAME_INFOTAG_LADR",*client_tag_unk);
 				break;

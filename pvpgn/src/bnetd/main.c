@@ -87,6 +87,7 @@
 #include "output.h"
 #include "common/setup_after.h"
 #include "alias_command.h"
+#include "anongame_infos.h"
 
 #ifdef WIN32
 # include "win32/service.h"
@@ -460,6 +461,7 @@ int pre_server_startup(void)
     if (command_groups_load(prefs_get_command_groups_file())<0)
 	eventlog(eventlog_level_error,"pre_server_startup","could not load command_groups list");
     aliasfile_load(prefs_get_aliasfile());
+    anongame_infos_load(prefs_get_anongame_infos_file());
     return 0;
 }
 
@@ -468,6 +470,7 @@ void post_server_shutdown(int status)
     switch (status)
     {
 	case 0:
+	    anongame_infos_unload();
 	    aliasfile_unload();
 	    command_groups_unload();
 	    tracker_set_servers(NULL);

@@ -244,15 +244,15 @@
 
 #define PVPGN_DEFAULT_URL    "www.pvpgn.org"
 
-#define PVPGN_SOLO_DESC      "Solo Games"
-#define PVPGN_2V2_DESC       "2 player team"
-#define PVPGN_3V3_DESC       "3 player team"
-#define PVPGN_4V4_DESC       "4 player team"
-#define PVPGN_TEAM_DESC      "Team Games"
-#define PVPGN_FFA_DESC       "Free for All Games"
+#define PVPGN_PG_1V1_DESC      "Solo Games"
+#define PVPGN_AT_2V2_DESC       "2 player team"
+#define PVPGN_AT_3V3_DESC       "3 player team"
+#define PVPGN_AT_4V4_DESC       "4 player team"
+#define PVPGN_PG_TEAM_DESC      "Team Games"
+#define PVPGN_PG_FFA_DESC       "Free for All Games"
 
-#define PVPGN_SOLO_GT_DESC   "One vs. One"
-#define PVPGN_SOLO_GT_LONG   "Two players fight to the death"
+#define PVPGN_1V1_GT_DESC   "One vs. One"
+#define PVPGN_1V1_GT_LONG   "Two players fight to the death"
 
 #define PVPGN_2V2_GT_DESC    "Two vs. Two"
 #define PVPGN_2V2_GT_LONG    "Two teams of two vie for dominance"
@@ -265,6 +265,8 @@
 
 #define PVPGN_FFA_GT_DESC    "Small Free for All"
 #define PVPGN_FFA_GT_LONG    "Can you defeat 3-5 opponents alone?"
+
+#define PVPGN_AINFO_FILE     "conf/anongame_infos.conf"
 
 /***************************************************************/
 /* platform dependent features */

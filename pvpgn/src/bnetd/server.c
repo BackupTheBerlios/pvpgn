@@ -160,6 +160,7 @@
 #include "common/setup_after.h"
 #include "bnpmap.h"
 #include "alias_command.h"
+#include "anongame_infos.h"
 
 extern FILE * hexstrm; /* from main.c */
 extern int g_ServiceStatus;
@@ -1504,6 +1505,9 @@ extern int server_process(void)
 
 	    aliasfile_unload();
 	    aliasfile_load(prefs_get_aliasfile());
+
+	    anongame_infos_unload();
+	    anongame_infos_load(prefs_get_anongame_infos_file());
 	    
 	    syncdelta = prefs_get_user_sync_timer();
 	    
