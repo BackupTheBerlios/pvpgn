@@ -1829,7 +1829,7 @@ extern int account_set_w3_clanname( t_account * account, char const * acctsetcla
 	eventlog( eventlog_level_error,"account_set_w3_acctclanname","got NULL Clan Name. Not setting." );
 	return -1;
     }
-	eventlog( eventlog_level_debug,"account_set_w3_acctpass","setting password to %s", acctsetclanname );
+	eventlog( eventlog_level_debug,"account_set_w3_clanname","setting clanname to %s", acctsetclanname );
 	return account_set_strattr( account, "profile\\clanname", acctsetclanname );
 }
 
