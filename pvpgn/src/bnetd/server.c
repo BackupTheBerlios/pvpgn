@@ -895,6 +895,7 @@ extern int server_process(void)
 #endif
     time_t          curr_exittime, prev_exittime, prev_savetime, track_time, now;
     time_t          war3_ladder_updatetime;
+	time_t          war3_output_updatetime;
     unsigned int    syncdelta;
     t_connection *  c;
     t_elem const *  acurr;
@@ -1297,6 +1298,7 @@ extern int server_process(void)
     track_time = time(NULL)-prefs_get_track();
     starttime=prev_savetime = time(NULL);
     war3_ladder_updatetime  = time(NULL)-prefs_get_war3_ladder_update_secs();
+	war3_output_updatetime  = time(NULL)-prefs_get_war3_output_update_secs();
     count = 0;
     
     for (;;)
@@ -1379,8 +1381,15 @@ extern int server_process(void)
 	if (prefs_get_war3_ladder_update_secs() && war3_ladder_updatetime+(time_t)prefs_get_war3_ladder_update_secs()<=now)
 	{
            war3_ladder_updatetime = now;
-	   war3_ladders_write_to_file();
+	       war3_ladders_write_to_file();
 	}
+
+	if (prefs_get_war3_output_update_secs() && war3_output_updatetime+(time_t)prefs_get_war3_output_update_secs()<=now)
+	{
+           war3_output_updatetime = now;
+	       output1_write_to_file();
+	}
+	
 
 	if (do_save)
 	{
