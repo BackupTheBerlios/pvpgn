@@ -702,6 +702,18 @@ extern char const * account_get_strattr(t_account * account, char const * key)
 	strncpy(temp,"Record",6);
 	newkey = temp;
       }
+    else if (strcasecmp(key,"clan\\name")==0)
+      {
+	char * temp;
+	
+	/* we have decided to store the clan in "profile\\clanname" so we don't need an extra table
+	 * for this. But when using a client like war3 it is requested from "clan\\name"
+	 * let's just redirect this request...
+	 */
+	eventlog(eventlog_level_info,"get_strattr","we have a clan request");
+	return account_get_w3_clanname(account);
+      }
+
 #ifdef WITH_MYSQL
     // we have a tiny little problem: in the DB each \\ is stored as _ and each _ is taken for a \\
     // so if we try to grab an attribute with _ in it the DB says fuck you...
