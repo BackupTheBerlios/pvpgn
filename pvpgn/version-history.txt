@@ -57,6 +57,11 @@ moment clans in cdb mode are stored the same way as in plain files mode
 -- fixed problems with multiple news items for the same date (now those are
 automagically merged) and the problem, that date displayed for some news
 items was off by one day for each news after the first one
+-- fixed an issue with new news items not showing up. This was caused by a wrong
+timestamp in a news entry. The symphtom was, that after your first connect to 
+any PvPGN server news items weren't updateing anymore, even when news.txt seemed
+to have news that were more recent. Also ask your users to once delete their
+bncache.dat or this fix won't help them.
 
 1.6.0pre5 (since 1.6.0pre4):
 -- added support for loading new accounts at runtime (ex. if made by some 
