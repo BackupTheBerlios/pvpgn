@@ -93,8 +93,6 @@
 
 static t_hashtable * accountlist_head=NULL;
 static t_hashtable * accountlist_uid_head=NULL;
-static t_list * accountlist_dirty=NULL;
-static t_list * accountlist_loaded=NULL;
 
 static t_account * default_acct=NULL;
 unsigned int maxuserid=0;
@@ -390,54 +388,66 @@ extern int account_match(t_account * account, char const * username)
 }
 
 
-extern int account_flush(t_account * account, unsigned int force)
+extern int account_save(t_account * account, unsigned int delta)
 {
-    if (!account) {
-	eventlog(eventlog_level_error, __FUNCTION__, "got NULL account");
+   
+   if (!account)
+     {
+	eventlog(eventlog_level_error,"account_save","got NULL account");
 	return -1;
-    }
+     }
 
-    if (!account->storage) {
-	eventlog(eventlog_level_error, __FUNCTION__, "account "UID_FORMAT" has NULL storage",account->uid);
+   
+   /* account aging logic */
+   if (account->accessed)
+     account->age >>=  1;
+   else
+     account->age += delta;
+   if (account->age>( (3*prefs_get_user_flush_timer()) >>1))
+     account->age = ( (3*prefs_get_user_flush_timer()) >>1);
+   account->accessed = 0;
+#ifdef WITH_BITS
+   /* We do not have to save the account information to disk if we are a BITS client */
+   if (!bits_master) {
+      if (account->age>=prefs_get_user_flush_timer())
+	{
+	   if (!connlist_find_connection_by_accountname(account_get_name(account)))
+	     {
+		account_set_bits_state(account,account_state_delete);
+		/*	account_set_locked(account,3);  To be deleted */
+		/*	bits_va_unlock_account(account); */
+	     }
+	}
+      return 0;
+   }
+#endif
+   
+   if (!account->storage)
+     {
+# ifdef WITH_BITS
+	if (!bits_master)
+	  return 0; /* It's OK since we don't have the files on the bits clients */
+# endif
+	eventlog(eventlog_level_error,"account_save","account "UID_FORMAT" has NULL filename",account->uid);
 	return -1;
-    }
+     }
 
-    if (account->loaded) return 0;
+   if (!account->loaded)
+     return 0;
 
-    if (!account->dirty && (force || !account->accessed = 0 ||
-	(account->atime && now - account->atime > prefs_get_user_flush_timer()))) 
-    {
-	account_unload_friends(account);
-	account_unload_attrs(account);
-	account->accessed = 0;
-	account->atime = 0;
-	return 1;
-    }
+   if (!account->dirty) {
+	if (account->age>=prefs_get_user_flush_timer()) {
+	    account_unload_friends(account);
+	    account_unload_attrs(account);
+	}
+	return 0;
+   }
+   
+   storage->write_attrs(account->storage, account->attrs);
 
-    return 0;
-}
+   account->dirty = 0;
 
-
-extern int account_save(t_account * account, unsigned int force)
-{
-    if (!account) {
-	eventlog(eventlog_level_error, __FUNCTION__, "got NULL account");
-	return -1;
-    }
-
-    if (!account->storage) {
-	eventlog(eventlog_level_error, __FUNCTION__, "account "UID_FORMAT" has NULL storage",account->uid);
-	return -1;
-    }
-
-    if (force || now - account->mtime > prefs_get_user_sync_timer()) {
-	storage->write_attrs(account->storage, account->attrs);
-	account->dirty = 0;
-	account->mtime = 0;
-	return 1;
-    }
-
-    return 0;
+   return 1;
 }
 
 
@@ -626,7 +636,32 @@ extern int account_unget_strattr(char const * val)
     return 0;
 }
 
+#ifdef WITH_BITS
 extern int account_set_strattr(t_account * account, char const * key, char const * val)
+{
+	char const * oldvalue;
+	
+	if (!account) {
+		eventlog(eventlog_level_error,"account_set_strattr(bits)","got NULL account");
+		return -1;
+	}
+	oldvalue = account_get_strattr(account,key); /* To check whether the value has changed. */
+	if (oldvalue) {
+	    if (val && strcmp(oldvalue,val)==0) {
+		account_unget_strattr(oldvalue);
+		return 0; /* The value hasn't changed. Don't produce unnecessary traffic. */
+	    }
+	    /* The value must have changed. Send the update to the msster and update local account. */
+	    account_unget_strattr(oldvalue);
+	}
+	if (send_bits_va_set_attr(account_get_uid(account),key,val,NULL)<0) return -1;
+	return account_set_strattr_nobits(account,key,val);
+}
+
+extern int account_set_strattr_nobits(t_account * account, char const * key, char const * val)
+#else
+extern int account_set_strattr(t_account * account, char const * key, char const * val)
+#endif
 {
     t_attribute * curr;
     const char *newkey;
@@ -642,6 +677,7 @@ extern int account_set_strattr(t_account * account, char const * key, char const
 	return -1;
     }
     
+#ifndef WITH_BITS
     if (!account->loaded)
     {
         if (account_load_attrs(account)<0)
@@ -650,18 +686,13 @@ extern int account_set_strattr(t_account * account, char const * key, char const
 	        return -1;
     	}
     }
-
+#endif
     curr = account->attrs;
     if (!curr) /* if no keys in attr list then we need to insert it */
     {
 	if (val)
 	{
-	    if (!account->dirty)
-		if (!account->dirty) {
-		    account->dirty = 1; /* we are inserting an entry */
-		    list_append_data(accountlist_dirty, account);
-		}
-	    account->mtime = now;
+	    account->dirty = 1; /* we are inserting an entry */
 	    return account_insert_attr(account,key,val);
 	}
 	return 0;
@@ -683,11 +714,7 @@ extern int account_set_strattr(t_account * account, char const * key, char const
 	    
 	    if (strcmp(curr->val,temp)!=0)
 	    {	
-		if (!account->dirty) {
-		    account->dirty = 1; /* we are changing an entry */
-		    list_append_data(accountlist_dirty, account);
-		}
-		account->mtime = now;
+		account->dirty = 1; /* we are changing an entry */
 	    }
 	    free((void *)curr->val); /* avoid warning */
 	    curr->val = temp;
@@ -699,11 +726,7 @@ extern int account_set_strattr(t_account * account, char const * key, char const
 
 	    temp = curr->next;
 
-	    if (!account->dirty) {
-		account->dirty = 1; /* we are deleting an entry */
-		list_append_data(accountlist_dirty, account);
-	    }
-	    account->mtime = now;
+	    account->dirty = 1; /* we are deleting an entry */
 	    free((void *)curr->key); /* avoid warning */
 	    free((void *)curr->val); /* avoid warning */
 	    free((void *)curr); /* avoid warning */
@@ -734,11 +757,7 @@ extern int account_set_strattr(t_account * account, char const * key, char const
 	    
 	    if (strcmp(curr->next->val,temp)!=0)
 	    {
-		if (!account->dirty) {
-		    account->dirty = 1; /* we are changing an entry */
-		    list_append_data(accountlist_dirty, account);
-		}
-		account->mtime = now;
+		account->dirty = 1; /* we are changing an entry */
 		curr->next->dirty = 1;
 	    }
 	    free((void *)curr->next->val); /* avoid warning */
@@ -750,11 +769,7 @@ extern int account_set_strattr(t_account * account, char const * key, char const
 	    
 	    temp = curr->next->next;
 	    
-	    if (!account->dirty) {
-		account->dirty = 1; /* we are deleting an entry */
-		list_append_data(accountlist_dirty, account);
-	    }
-	    account->mtime = now;
+	    account->dirty = 1; /* we are deleting an entry */
 	    free((void *)curr->next->key); /* avoid warning */
 	    free((void *)curr->next->val); /* avoid warning */
 	    free(curr->next);
@@ -770,11 +785,7 @@ extern int account_set_strattr(t_account * account, char const * key, char const
 
     if (val)
     {
-	if (!account->dirty) {
-	    account->dirty = 1; /* we are inserting an entry */
-	    list_append_data(accountlist_dirty, account);
-	}
-	account->mtime = now;
+	account->dirty = 1; /* we are inserting an entry */
 	return account_insert_attr(account,key,val);
     }
     return 0;
@@ -797,8 +808,27 @@ static int account_load_attrs(t_account * account)
 
     if (!account->storage)
     {
+#ifndef WITH_BITS
 	eventlog(eventlog_level_error,"account_load_attrs","account has NULL filename");
 	return -1;
+#else /* WITH_BITS */
+	if (!bits_uplink_connection) {
+		eventlog(eventlog_level_error,"account_load_attrs","account has NULL filename on BITS master");
+		return -1;
+	}
+    	if (account->uid==0) {
+	    eventlog(eventlog_level_debug,"account_load_attrs","userid is unknown");
+	    return 0;
+    	} else if (!account->loaded) {
+    	    if (account_get_bits_state(account)==account_state_valid) {
+            	eventlog(eventlog_level_debug,"account_load_attrs","bits: virtual account "UID_FORMAT": loading attrs",account->uid);
+	    	send_bits_va_get_allattr(account->uid);
+	    } else {
+		eventlog(eventlog_level_debug,"account_load_attrs","waiting for account "UID_FORMAT" to be locked",account->uid);
+	    }
+	    return 0;
+	}
+#endif /* WITH_BITS */
     }
 
     
@@ -825,9 +855,9 @@ static int account_load_attrs(t_account * account)
     account->name = NULL;
 
     account->dirty = 0;
-    list_append_data(accountlist_loaded, account);
-    account->atime = 0;
-    account->mtime = 0;
+#ifdef WITH_BITS
+    account_set_bits_state(account,account_state_valid);
+#endif
 
     return 0;
     
@@ -974,41 +1004,32 @@ extern int accountlist_create(void)
 
     eventlog(eventlog_level_info, "accountlist_create", "started creating accountlist");
     
-    if (!(accountlist_dirty = list_create())) {
-	eventlog(eventlog_level_error, __FUNCTION__, "could not initilize accountlist_dirty");
-	return -1;
-    }
-
-    if (!(accountlist_loaded = list_create())) {
-	eventlog(eventlog_level_error, __FUNCTION__, "could not initilize loaded list");
-	list_destroy(accountlist_dirty);
-	return -1;
-    }
-
     if (!(accountlist_head = hashtable_create(prefs_get_hashtable_size())))
     {
         eventlog(eventlog_level_error,"accountlist_create","could not create accountlist_head");
-	list_destroy(accountlist_dirty);
-	list_destroy(accountlist_loaded);
 	return -1;
     }
     
     if (!(accountlist_uid_head = hashtable_create(prefs_get_hashtable_size())))
     {
         eventlog(eventlog_level_error,"accountlist_create","could not create accountlist_uid_head");
-	list_destroy(accountlist_dirty);
-	list_destroy(accountlist_loaded);
 	return -1;
     }
     
+#ifdef WITH_BITS
+    if (!bits_master)
+    {
+	eventlog(eventlog_level_info,"accountlist_create","running as BITS client -> no accounts loaded");
+	return 0;
+    }
+#endif
+
     force_account_add = 1; /* disable the protection */
     
     count = 0;
     if (storage->read_accounts(_cb_read_accounts2, &count))
     {
         eventlog(eventlog_level_error,"accountlist_create","got error reading users");
-	list_destroy(accountlist_dirty);
-	list_destroy(accountlist_loaded);
         return -1;
     }
 
@@ -1077,56 +1098,16 @@ extern unsigned int accountlist_get_length(void)
 }
 
 
-extern int accountlist_flush(unsigned int force, int *flushdeltap)
+extern int accountlist_save(unsigned int delta, int *syncdeltap)
 {
-    static t_elem *curr = NULL;
-    t_account *  account;
-    unsigned int fcount;
-    unsigned int tcount;
-
-    scount = tcount = 0;
-    if (!curr || force || *flushdeltap > 0)
-	curr = list_get_first(accountlist_loaded);
-    for(;curr; curr=list_get_next(curr))
-    {
-	if (!force && tcount >= prefs_get_user_step()) break;
-	account = (t_account *)elem_get_data(curr);
-	switch (account_flush(account, force))
-	{
-	case -1:
-	    eventlog(eventlog_level_error, __FUNCTION__, "could not flush account");
-	    break;
-	case 1:
-	    fcount++;
-	    break;
-	case 0:
-	default:
-	    break;
-	}
-	tcount++;
-    }
-    
-    if (fcount)
-	eventlog(eventlog_level_debug, __FUNCTION__, "flushed %u of %u user accounts", fcount, tcount);
-
-    if (!force) {
-	if (curr) *flushdeltap = -1;
-	else if (*flushdeltap < 0) *flushdeltap = prefs_get_user_flush_timer();
-    }
-
-    return 0;
-}
-
-extern int accountlist_save(unsigned int force, int *syncdeltap)
-{
-    static t_elem *curr = NULL;
+    static t_entry *    curr = NULL;
     t_account *  account;
     unsigned int scount;
     unsigned int tcount;
-
-    scount = tcount = 0;
-    if (!curr || force || *syncdeltap > 0)
-	curr = list_get_first(accountlist_dirty);
+    
+    scount=tcount = 0;
+    if (!curr || !syncdeltap || *syncdeltap > 0)
+	curr = hashtable_get_first(accountlist_head);
     for(;curr; curr=entry_get_next(curr))
     {
 	if (syncdeltap && tcount >= prefs_get_user_step()) break;
@@ -1146,6 +1127,9 @@ extern int accountlist_save(unsigned int force, int *syncdeltap)
 	tcount++;
     }
     
+#ifdef WITH_BITS
+    bits_va_lock_check();
+#endif
     if (scount>0)
 	eventlog(eventlog_level_debug,"accountlist_save","saved %u of %u user accounts",scount,tcount);
 
