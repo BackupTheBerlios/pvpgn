@@ -51,6 +51,8 @@ more than once, it returned a wrong link)
 that have allready been deleted from the server earlier
 -- fixed problems with SC stats being lost on server shutdown in mySQL mode
 (caused due to unwanted renaming of the columns on next server startup)
+-- added IRC style channel topics that get shown on channel join (with /topic
+command)
 
 
 1.5.0beta3:

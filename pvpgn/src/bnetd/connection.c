@@ -2096,10 +2096,19 @@ extern int conn_set_channel(t_connection * c, char const * channelname)
 	eventlog(eventlog_level_info,"conn_set_channel","[%d] joined channel \"%s\"",conn_get_socket(c),channel_get_name(c->channel));
 #endif
 	conn_send_welcome(c);
+
 	if(c->channel && (channel_get_flags(c->channel) & channel_flags_thevoid))
 	    message_send_text(c,message_type_info,c,"This channel does not have chat privileges.");
     }
     
+    if (channel_get_topic(channel_get_name(c->channel)))
+    {
+      char msgtemp[MAX_MESSAGE_LEN];
+
+      sprintf(msgtemp,"%s topic: %s",channel_get_name(c->channel),channel_get_topic(channel_get_name(c->channel)));
+      message_send_text(c,message_type_info,c,msgtemp);
+    }
+
     if (c->channel && (channel_get_flags(c->channel) & channel_flags_moderated))
 	message_send_text(c,message_type_error,c,"This channel is moderated.");
     return 0;

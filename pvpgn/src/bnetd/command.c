@@ -107,6 +107,7 @@
 #include "common/setup_after.h"
 // aaron
 #include "war3ladder.h"
+#include "topic.h"
 
 
 static char const * bnclass_get_str(unsigned int class);
@@ -392,6 +393,7 @@ static int _handle_set_command(t_connection * c, char const * text);
 static int _handle_motd_command(t_connection * c, char const * text);
 static int _handle_ping_command(t_connection * c, char const * text);
 static int _handle_commandgroups_command(t_connection * c, char const * text);
+static int _handle_topic_command(t_connection * c, char const * text);
 
 static const t_command_table_row standard_command_table[] =
 {
@@ -501,6 +503,7 @@ static const t_command_table_row extended_command_table[] =
 	{ "/p"                  , _handle_ping_command },
 	{ "/commandgroups"	, _handle_commandgroups_command },
 	{ "/cg"			, _handle_commandgroups_command },
+	{ "/topic"		, _handle_topic_command },
         { NULL                  , NULL } 
 
 };
@@ -818,12 +821,12 @@ static int _handle_voice_command(t_connection * c, char const * text)
 	message_send_text(c,message_type_error,c,"This command can only be used inside a channel.");
 	return -1;
     }
-    
+        
     if (!(account_is_operator_or_admin(conn_get_account(c),channel_get_name(conn_get_channel(c))))) {
 	message_send_text(c,message_type_error,c,"You must be at least a Channel Operator to use this command.");
 	return -1;
     }
-    
+ 
     text = skip_command(text);
     
     if (!(username = &text[0])) {
@@ -4287,4 +4290,67 @@ static int _handle_commandgroups_command(t_connection * c, char const * text)
     sprintf(msgtemp, "got unknown command: %s", command);
     message_send_text(c,message_type_info,c,msgtemp);
     return 0;
+}
+
+static int _handle_topic_command(t_connection * c, char const * text)
+{
+  char msgtemp[MAX_MESSAGE_LEN];
+  char const * channel_name;
+  char const * topic;
+  t_channel * channel;
+  int  do_save = NO_SAVE_TOPIC;
+
+  channel_name = skip_command(text);
+  topic = skip_command(channel_name);
+
+  if (channel_name[0]=='\0')
+  {
+    if (channel_get_topic(channel_get_name(conn_get_channel(c))))
+    {
+      sprintf(msgtemp,"%s topic: %s",channel_get_name(conn_get_channel(c)),channel_get_topic(channel_get_name(conn_get_channel(c))));
+    }
+    else
+    {
+      sprintf(msgtemp,"%s topic: no topic",channel_get_name(conn_get_channel(c)));
+    }
+    message_send_text(c,message_type_info,c,msgtemp);
+   
+    return 0;
+  }
+
+  if (topic[0]=='\0')
+  {
+    if (channel_get_topic(channel_name))
+    {
+      sprintf(msgtemp,"%s topic: %s",channel_name, channel_get_topic(channel_name));
+    }
+    else
+    {
+      sprintf(msgtemp,"%s topic: no topic",channel_name);
+    }
+    message_send_text(c,message_type_info,c,msgtemp);
+    return 0;
+  }
+
+  if (!(account_is_operator_or_admin(conn_get_account(c),channel_get_name(conn_get_channel(c))))) {
+	message_send_text(c,message_type_error,c,"You must be at least a Channel Operator to use this command.");
+	return -1;
+  }
+
+  if (!(channel = channellist_find_channel_by_name(channel_name,conn_get_country(c),conn_get_realmname(c))))
+  {
+    sprintf(msgtemp,"no such channel, can't set topic");
+    message_send_text(c,message_type_error,c,msgtemp);
+    return -1;
+  }
+  
+  if (channel_get_permanent(channel)==1)
+    do_save = DO_SAVE_TOPIC;
+
+  channel_set_topic(channel_name, topic, do_save);
+
+  sprintf(msgtemp,"%s topic: %s",channel_name, topic);
+  message_send_text(c,message_type_info,c,msgtemp);
+
+  return 0;
 }
