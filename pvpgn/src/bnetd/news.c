@@ -86,7 +86,8 @@ extern int news_load(const char *filename)
 	setbuf(fp,NULL);
 
     date=malloc(sizeof(struct tm));
-	
+    date->tm_sec=1000;         // a big initial value so that even big number of news don't cause negative seconds
+    
     for (line=1; (buff = news_read_file(fp)); line++) {
 	len = strlen(buff);
 	
@@ -96,9 +97,9 @@ extern int news_load(const char *filename)
 	    int		dpos;
 	    unsigned 	pos;
 
-	    date->tm_hour=0;
+	    date->tm_hour=12;   // to make absolutly sure negative seconds don't do a negative day wrap
 	    date->tm_min=0;
-	    date->tm_sec=0;
+	    date->tm_sec--;     // to make sure two news of the same day stay in correct order
 	    date->tm_isdst=-1;
 	    dpos=0;
 
