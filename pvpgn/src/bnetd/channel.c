@@ -123,10 +123,13 @@ extern t_channel * channel_create(char const * fullname, char const * shortname,
     /* non-permanent already checks for this in conn_set_channel */
     if (permflag)
     {
-	if (channellist_find_channel_by_fullname(fullname))
+	if (channel = channellist_find_channel_by_fullname(fullname))
 	{
-	    eventlog(eventlog_level_error,"channel_create","could not create duplicate permanent channel (fullname \"%s\")",fullname);
-	    return NULL;
+	    if ((channel_get_clienttag(channel)) && (clienttag) && (strcmp(channel_get_clienttag(channel),clienttag)==0))
+	    {
+	      eventlog(eventlog_level_error,"channel_create","could not create duplicate permanent channel (fullname \"%s\")",fullname);
+	      return NULL;
+	    }
 	}
     }
     
