@@ -37,7 +37,7 @@
 #include "character.h"
 #include "common/util.h"
 #include "handle_auth.h"
-#include "clienttag.h"
+#include "common/tag.h"
 #include "common/setup_after.h"
 
 

@@ -96,7 +96,6 @@
 #include "common/bn_type.h"
 #include "command.h"
 #include "news.h"
-#include "clienttag.h"
 #include "common/trans.h"
 #include "common/setup_after.h"
 // aaron

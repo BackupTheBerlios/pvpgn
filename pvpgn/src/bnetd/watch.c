@@ -43,7 +43,7 @@
 #include "message.h"
 #include "watch.h"
 #include "friends.h"
-#include "clienttag.h"
+#include "common/tag.h"
 #include "common/setup_after.h"
 
 

@@ -106,7 +106,6 @@
 #include "connection.h"
 #include "topic.h"
 #include "common/fdwatch.h"
-#include "clienttag.h"
 #include "common/setup_after.h"
 
 
@@ -391,7 +390,7 @@ extern t_connection * conn_create(int tsock, int usock, unsigned int real_local_
     temp->protocol.client.versionid              = 0;
     temp->protocol.client.gameversion            = 0;
     temp->protocol.client.checksum               = 0;
-    temp->protocol.client.archtag                = NULL;
+    temp->protocol.client.archtag                = 0;
     temp->protocol.client.clienttag              = 0;
     temp->protocol.client.clientver              = NULL;
     temp->protocol.client.gamelang               = 0;
@@ -626,8 +625,6 @@ extern void conn_destroy(t_connection * c, t_elem ** elem, int conn_or_dead_list
     if (c->protocol.chat.tmpVOICE_channel)
 	free((void *)c->protocol.chat.tmpVOICE_channel); /* avoid warning */
     
-    if (c->protocol.client.archtag)
-	free((void *)c->protocol.client.archtag); /* avoid warning */
     if (c->protocol.client.clientver)
 	free((void *)c->protocol.client.clientver); /* avoid warning */
     if (c->protocol.client.country)
@@ -1190,61 +1187,39 @@ extern void conn_set_clientver(t_connection * c, char const * clientver)
 }
 
 
-extern char const * conn_get_archtag(t_connection const * c)
+extern t_tag conn_get_archtag(t_connection const * c)
 {
-    if (!c)
-    {
-        eventlog(eventlog_level_error,"conn_get_archtag","got NULL connection");
-        return NULL;
+    if (!c) {
+        eventlog(eventlog_level_error,__FUNCTION__,"got NULL connection");
+        return 0; /* unknown */
     }
-    
     if (c->protocol.class==conn_class_auth && c->protocol.bound)
-    {
-	if (!c->protocol.bound->protocol.client.archtag)
-	    return "UKWN";
 	return c->protocol.bound->protocol.client.archtag;
-    }
-    if (!c->protocol.client.archtag)
-	return "UKWN";
+    
     return c->protocol.client.archtag;
 }
 
 
-extern void conn_set_archtag(t_connection * c, char const * archtag)
+extern void conn_set_archtag(t_connection * c, t_tag archtag)
 {
-    char const * temp;
+    char archtag_str[5];
     
-    if (!c)
-    {
-        eventlog(eventlog_level_error,"conn_set_archtag","got NULL connection");
+    if (!c) {
+        eventlog(eventlog_level_error,__FUNCTION__,"got NULL connection");
         return;
     }
-    if (!archtag)
-    {
-        eventlog(eventlog_level_error,"conn_set_archtag","[%d] got NULL archtag",conn_get_socket(c));
-        return;
-    }
-    if (strlen(archtag)!=4)
-    {
-        eventlog(eventlog_level_error,"conn_set_archtag","[%d] got bad archtag",conn_get_socket(c));
-        return;
-    }
-    
-    if (!c->protocol.client.archtag || strcmp(c->protocol.client.archtag,archtag)!=0)
-	eventlog(eventlog_level_info,"conn_set_archtag","[%d] setting client arch to \"%s\"",conn_get_socket(c),archtag);
-    
-    if (!(temp = strdup(archtag)))
-    {
-	eventlog(eventlog_level_error,"conn_set_archtag","[%d] unable to allocate memory for archtag",conn_get_socket(c));
+    if (!tag_check_arch(archtag)) {
+	eventlog(eventlog_level_error,__FUNCTION__,"got UNKNOWN archtag");
 	return;
     }
-    if (c->protocol.client.archtag)
-	free((void *)c->protocol.client.archtag); /* avoid warning */
-    c->protocol.client.archtag = temp;
+    if (c->protocol.client.archtag!=archtag)
+	eventlog(eventlog_level_info,__FUNCTION__,"[%d] setting client arch to \"%s\"",conn_get_socket(c),tag_uint_to_str(&archtag_str[0],archtag));
+    
+    c->protocol.client.archtag = archtag;
 }
 
 
-extern unsigned int conn_get_gamelang(t_connection const * c)
+extern t_tag conn_get_gamelang(t_connection const * c)
 {
     if (!c)
     {
@@ -1256,13 +1231,23 @@ extern unsigned int conn_get_gamelang(t_connection const * c)
 }
 
 
-extern void conn_set_gamelang(t_connection * c, unsigned int gamelang)
+extern void conn_set_gamelang(t_connection * c, t_tag gamelang)
 {
-    if (!c)
-    {
+    char gamelang_str[5];
+    
+    if (!c) {
         eventlog(eventlog_level_error,__FUNCTION__,"got NULL connection");
         return;
     }
+    if (!gamelang)
+	return; /* only war3 & w3xp have gamelang */
+    
+    if (!tag_check_gamelang(gamelang)) {
+	eventlog(eventlog_level_error,__FUNCTION__,"got UNKNOWN gamelang");
+	return;
+    }
+    if (c->protocol.client.gamelang!=gamelang)
+	eventlog(eventlog_level_info,__FUNCTION__,"[%d] setting client gamelang to \"%s\"",conn_get_socket(c),tag_uint_to_str(&gamelang_str[0],gamelang));
 
     c->protocol.client.gamelang = gamelang;
 }

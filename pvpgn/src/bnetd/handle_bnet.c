@@ -101,7 +101,6 @@
 #include "anongame_infos.h"
 #include "news.h" //by Spider
 #include "friends.h"
-#include "clienttag.h"
 #include "compat/uint.h"
 #include "common/trans.h"
 #include "common/setup_after.h"
@@ -561,6 +560,9 @@ static int _client_countryinfo109(t_connection * c, t_packet const * const packe
 	char const * langstr;
 	char const * countryname;
 	unsigned int tzbias;
+	char archtag_str[5];
+	char clienttag_str[5];
+	char gamelang_str[5];
 	
 	if (!(langstr = packet_get_str_const(packet,sizeof(t_client_countryinfo_109),MAX_LANG_STR)))
 	  {
@@ -576,14 +578,14 @@ static int _client_countryinfo109(t_connection * c, t_packet const * const packe
 	
 	tzbias = bn_int_get(packet->u.client_countryinfo_109.bias);
 	
-	eventlog(eventlog_level_debug,__FUNCTION__,"[%d] COUNTRYINFO_109 packet tzbias=0x%04x(%+d) lcid=%u langid=%u arch=%04x client=%04x versionid=%04x gamelang=%04x",conn_get_socket(c),
+	eventlog(eventlog_level_debug,__FUNCTION__,"[%d] COUNTRYINFO_109 packet tzbias=0x%04x(%+d) lcid=%u langid=%u arch=\"%s\" client=\"%s\" versionid=0x%08x gamelang=\"%s\"",conn_get_socket(c),
 		 tzbias,uint32_to_int(tzbias),
 		 bn_int_get(packet->u.client_countryinfo_109.lcid),
 		 bn_int_get(packet->u.client_countryinfo_109.langid),
-		 bn_int_get(packet->u.client_countryinfo_109.archtag),
-		 bn_int_get(packet->u.client_countryinfo_109.clienttag),
+		 tag_uint_to_str(&archtag_str[0],bn_int_get(packet->u.client_countryinfo_109.archtag)),
+		 tag_uint_to_str(&clienttag_str[0],bn_int_get(packet->u.client_countryinfo_109.clienttag)),
 		 bn_int_get(packet->u.client_countryinfo_109.versionid),
-		 bn_int_get(packet->u.client_countryinfo_109.gamelang));
+		 tag_uint_to_str(&gamelang_str[0],bn_int_get(packet->u.client_countryinfo_109.gamelang)));
 	
 	eventlog(eventlog_level_debug,__FUNCTION__,"[%d] COUNTRYINFO_109 packet from \"%s\" \"%s\"", conn_get_socket(c),countryname,langstr);
 	
@@ -592,14 +594,7 @@ static int _client_countryinfo109(t_connection * c, t_packet const * const packe
 	
 	conn_set_versionid(c,bn_int_get(packet->u.client_countryinfo_109.versionid));
 	
-	if (bn_int_tag_eq(packet->u.client_countryinfo_109.archtag,ARCHTAG_WINX86)==0)
-	  conn_set_archtag(c,ARCHTAG_WINX86);
-	else if (bn_int_tag_eq(packet->u.client_countryinfo_109.archtag,ARCHTAG_MACPPC)==0)
-	  conn_set_archtag(c,ARCHTAG_MACPPC);
-	else if (bn_int_tag_eq(packet->u.client_countryinfo_109.archtag,ARCHTAG_OSXPPC)==0)
-	  conn_set_archtag(c,ARCHTAG_OSXPPC);
-	else
-	  eventlog(eventlog_level_error,__FUNCTION__,"[%d] unknown client arch 0x%08x, don't expect this to work",conn_get_socket(c),bn_int_get(packet->u.client_countryinfo_109.archtag));
+	conn_set_archtag(c,bn_int_get(packet->u.client_countryinfo_109.archtag));
 	
 	if (bn_int_tag_eq(packet->u.client_countryinfo_109.clienttag,CLIENTTAG_STARCRAFT)==0)
 	  conn_set_clienttag(c,CLIENTTAG_STARCRAFT_UINT);
@@ -622,8 +617,7 @@ static int _client_countryinfo109(t_connection * c, t_packet const * const packe
 	else
 	  eventlog(eventlog_level_error,__FUNCTION__,"[%d] unknown client program type 0x%08x, don't expect this to work",conn_get_socket(c),bn_int_get(packet->u.client_countryinfo_109.clienttag));
 	
-	if ((bn_int_tag_eq(packet->u.client_countryinfo_109.clienttag,CLIENTTAG_WARCRAFT3)==0) || (bn_int_tag_eq(packet->u.client_countryinfo_109.clienttag,CLIENTTAG_WAR3XP)==0))
-	    conn_set_gamelang(c, bn_int_get(packet->u.client_countryinfo_109.gamelang));
+        conn_set_gamelang(c, bn_int_get(packet->u.client_countryinfo_109.gamelang));
 		
 	/* First, send an ECHO_REQ */
 	
@@ -697,15 +691,8 @@ static int _client_progident(t_connection * c, t_packet const * const packet)
 	    bn_int_get(packet->u.client_progident.clienttag),
 	    bn_int_get(packet->u.client_progident.versionid),
 	    bn_int_get(packet->u.client_progident.unknown1));
-   
-   if (bn_int_tag_eq(packet->u.client_progident.archtag,ARCHTAG_WINX86)==0)
-     conn_set_archtag(c,ARCHTAG_WINX86);
-   else if (bn_int_tag_eq(packet->u.client_progident.archtag,ARCHTAG_MACPPC)==0)
-     conn_set_archtag(c,ARCHTAG_MACPPC);
-   else if (bn_int_tag_eq(packet->u.client_progident.archtag,ARCHTAG_OSXPPC)==0)
-     conn_set_archtag(c,ARCHTAG_OSXPPC);
-   else
-     eventlog(eventlog_level_error,__FUNCTION__,"[%d] unknown client arch 0x%08x, don't expect this to work",conn_get_socket(c),bn_int_get(packet->u.client_progident.archtag));
+
+   conn_set_archtag(c,bn_int_get(packet->u.client_progident.archtag));
    
    if (bn_int_tag_eq(packet->u.client_progident.clienttag,CLIENTTAG_STARCRAFT)==0)
      conn_set_clienttag(c,CLIENTTAG_STARCRAFT_UINT);
@@ -1148,7 +1135,7 @@ static int _client_authreq1(t_connection * c, t_packet const * const packet)
 	int          failed;
 	
 	failed = 0;
-	if (bn_int_tag_eq(packet->u.client_authreq1.archtag,conn_get_archtag(c))<0)
+	if (bn_int_get(packet->u.client_authreq1.archtag)!=conn_get_archtag(c))
 	  failed = 1;
 	if (bn_int_tag_eq(packet->u.client_authreq1.clienttag,clienttag_uint_to_str(conn_get_clienttag(c)))<0)
 	  failed = 1;
@@ -1232,7 +1219,7 @@ static int _client_authreq1(t_connection * c, t_packet const * const packet)
 	       {
 		  char * mpqfilename;
 		  
-		  mpqfilename = autoupdate_check(conn_get_archtag(c),clienttag_uint_to_str(conn_get_clienttag(c)),conn_get_gamelang(c),versiontag);
+		  mpqfilename = autoupdate_check(conn_get_archtag(c),conn_get_clienttag(c),conn_get_gamelang(c),versiontag);
 		  
 	          /* Only handle updates when there is an update file available. */
 		  if (mpqfilename!=NULL)
@@ -1376,7 +1363,7 @@ static int _client_authreq109(t_connection * c, t_packet const * const packet)
 	       {
 	          char * mpqfilename;
 		  
-		  mpqfilename = autoupdate_check(conn_get_archtag(c),clienttag_uint_to_str(conn_get_clienttag(c)),conn_get_gamelang(c),versiontag);
+		  mpqfilename = autoupdate_check(conn_get_archtag(c),conn_get_clienttag(c),conn_get_gamelang(c),versiontag);
 		  
 		  /* Only handle updates when there is an update file available. */
 		  if (mpqfilename!=NULL)

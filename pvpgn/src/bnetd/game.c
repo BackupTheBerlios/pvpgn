@@ -76,7 +76,6 @@
 #include "watch.h"
 #include "game_conv.h"
 #include "game.h"
-#include "clienttag.h"
 #include "compat/uint.h"
 #include "common/setup_after.h"
 

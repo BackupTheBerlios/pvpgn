@@ -78,7 +78,6 @@
 #include "channel.h"
 #include "anongame.h"
 #include "storage.h"
-#include "clienttag.h"
 #include "compat/uint.h"
 #include "common/setup_after.h"
 

@@ -70,7 +70,6 @@
 #include "message.h"
 #include "command_groups.h"
 #include "common/util.h"
-#include "clienttag.h"
 #include "common/setup_after.h"
 
 typedef struct {

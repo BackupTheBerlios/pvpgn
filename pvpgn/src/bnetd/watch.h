@@ -29,7 +29,7 @@
 # include "connection.h"
 # undef JUST_NEED_TYPES
 #endif
-#include "clienttag.h"
+#include "common/tag.h"
 
 #endif
 

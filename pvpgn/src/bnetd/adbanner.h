@@ -18,7 +18,7 @@
 #ifndef INCLUDED_ADBANNER_TYPES
 #define INCLUDED_ADBANNER_TYPES
 
-#include "clienttag.h"
+#include "common/tag.h"
 
 typedef struct adbanner
 #ifdef ADBANNER_INTERNAL_ACCESS

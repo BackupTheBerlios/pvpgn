@@ -63,7 +63,7 @@
 #include "handle_irc.h"
 #include "topic.h"
 #include "command_groups.h"
-#include "clienttag.h"
+#include "common/tag.h"
 #include "ctype.h"
 #include "common/setup_after.h"
 

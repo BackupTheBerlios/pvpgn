@@ -51,7 +51,6 @@
 #include "common/util.h"
 #include "connection.h"
 #include "adbanner.h"
-#include "clienttag.h"
 #include "common/setup_after.h"
 
 

@@ -43,7 +43,7 @@
 #include "common/util.h"
 #include "common/field_sizes.h"
 #include "handle_d2cs.h"
-#include "clienttag.h"
+#include "common/tag.h"
 #include "common/setup_after.h"
 
 static int on_d2cs_accountloginreq(t_connection * c, t_packet const * packet);

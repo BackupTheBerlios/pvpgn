@@ -1,6 +1,7 @@
 /*
  * Copyright (C) 2000  Rob Crittenden (rcrit@greyoak.com)
  * Copyright (C) 2002 Gianluigi Tiesi (sherpya@netfarm.it)
+ * Copyright (C) 2004 CreepLord (creeplord@pvpgn.org)
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -19,11 +20,13 @@
 #ifndef INCLUDED_AUTOUPDATE_TYPES
 #define INCLUDED_AUTOUPDATE_TYPES
 
+#include "common/tag.h"
+
 #ifdef AUTOUPDATE_INTERNAL_ACCESS
 typedef struct
 {
-    char const *  archtag;
-    char const *  clienttag;
+    t_tag         archtag;
+    t_tag         clienttag;
     char const *  versiontag;
     char const *  mpqfile;
 } t_autoupdate;
@@ -39,7 +42,7 @@ typedef struct
 
 extern int autoupdate_load(char const * filename);
 extern int autoupdate_unload(void);
-extern char * autoupdate_check(char const * archtag, char const * clienttag, unsigned int gamelang,char const * versiontag);
+extern char * autoupdate_check(t_tag archtag, t_tag clienttag, t_tag gamelang, char const * versiontag);
 
 #endif
 #endif

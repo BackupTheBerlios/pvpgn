@@ -1,6 +1,7 @@
 /*
  * Copyright (C) 2000 Rob Crittenden (rcrit@greyoak.com)
  * Copyright (C) 2002 Gianluigi Tiesi (sherpya@netfarm.it)
+ * Copyright (C) 2004 CreepLord (creeplord@pvpgn.org)
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -49,6 +50,7 @@
 #include "common/list.h"
 #include "common/util.h"
 #include "common/proginfo.h"
+#include "common/tag.h"
 #include "autoupdate.h"
 #include "common/setup_after.h"
 
@@ -82,17 +84,17 @@ extern int autoupdate_load(char const * filename)
     t_autoupdate * entry;
     
     if (!filename) {
-	eventlog(eventlog_level_error,"autoupdate_load","got NULL filename");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL filename");
 	return -1;
     }
     
     if (!(autoupdate_head = list_create())) {
-	eventlog(eventlog_level_error,"autoupdate_load","could create list");
+	eventlog(eventlog_level_error,__FUNCTION__,"could create list");
 	return -1;
     }
     
     if (!(fp = fopen(filename,"r"))) {
-	eventlog(eventlog_level_error,"autoupdate_load","could not open file \"%s\" for reading (fopen: %s)",filename,strerror(errno));
+	eventlog(eventlog_level_error,__FUNCTION__,"could not open file \"%s\" for reading (fopen: %s)",filename,strerror(errno));
 	list_destroy(autoupdate_head);
 	autoupdate_head = NULL;
 	return -1;
@@ -118,71 +120,64 @@ extern int autoupdate_load(char const * filename)
 	
 	/* FIXME: use next_token instead of strtok */
 	if (!(archtag = strtok(buff, " \t"))) { /* strtok modifies the string it is passed */
-	    eventlog(eventlog_level_error,"autoupdate_load","missing archtag on line %u of file \"%s\"",line,filename);
+	    eventlog(eventlog_level_error,__FUNCTION__,"missing archtag on line %u of file \"%s\"",line,filename);
 	    free(buff);
 	    continue;
 	}
 	if (!(clienttag = strtok(NULL," \t"))) {
-	    eventlog(eventlog_level_error,"autoupdate_load","missing clienttag on line %u of file \"%s\"",line,filename);
+	    eventlog(eventlog_level_error,__FUNCTION__,"missing clienttag on line %u of file \"%s\"",line,filename);
 	    free(buff);
 	    continue;
 	}
         if (!(versiontag = strtok(NULL, " \t"))) {
-	    eventlog(eventlog_level_error,"autoupdate_load","missing versiontag on line %u of file \"%s\"",line,filename);
+	    eventlog(eventlog_level_error,__FUNCTION__,"missing versiontag on line %u of file \"%s\"",line,filename);
 	    free(buff);
 	    continue;
 	}
 	if (!(mpqfile = strtok(NULL," \t"))) {
-	    eventlog(eventlog_level_error,"autoupdate_load","missing mpqfile on line %u of file \"%s\"",line,filename);
+	    eventlog(eventlog_level_error,__FUNCTION__,"missing mpqfile on line %u of file \"%s\"",line,filename);
 	    free(buff);
 	    continue;
 	}
 	
 	if (!(entry = malloc(sizeof(t_autoupdate)))) {
-	    eventlog(eventlog_level_error,"autoupdate_load","could not allocate memory for entry");
+	    eventlog(eventlog_level_error,__FUNCTION__,"could not allocate memory for entry");
 	    free(buff);
 	    continue;
 	}
 	
-	if (!(entry->archtag = strdup(archtag))) {
-	    eventlog(eventlog_level_error,"autoupdate_load","could not allocate memory for archtag");
+	if (!tag_check_arch((entry->archtag = tag_str_to_uint(archtag)))) {
+	    eventlog(eventlog_level_error,__FUNCTION__,"got unknown archtag");
 	    free(entry);
 	    free(buff);
 	    continue;
 	}
-	if (!(entry->clienttag = strdup(clienttag))) {
-	    eventlog(eventlog_level_error,"autoupdate_load","could not allocate memory for clienttag");
-	    free((void *)entry->archtag);
+	if (!tag_check_client((entry->clienttag = tag_str_to_uint(clienttag)))) {
+	    eventlog(eventlog_level_error,__FUNCTION__,"got unknown clienttag");
 	    free(entry);
 	    free(buff);
 	    continue;
 	}
 	if ((!(entry->versiontag = strdup(versiontag)))) {
-	    eventlog(eventlog_level_error,"autoupdate_load","could not allocate memory for versiontag");
-	    free((void *)entry->clienttag);
-	    free((void *)entry->archtag);
+	    eventlog(eventlog_level_error,__FUNCTION__,"could not allocate memory for versiontag");
 	    free(entry);
 	    free(buff);
 	    continue;
 	}
 	if (!(entry->mpqfile = strdup(mpqfile))) {
-	    eventlog(eventlog_level_error,"autoupdate_load","could not allocate memory for mpqfile");
+	    eventlog(eventlog_level_error,__FUNCTION__,"could not allocate memory for mpqfile");
 	    free((void *)entry->versiontag);
-	    free((void *)entry->clienttag);
-	    free((void *)entry->archtag);
 	    free(entry);
 	    free(buff);
 	    continue;
 	}
 	
-	eventlog(eventlog_level_debug,"autoupdate_load","update '%s' version '%s' with file %s",clienttag,versiontag,mpqfile);
+	eventlog(eventlog_level_debug,__FUNCTION__,"update '%s' version '%s' with file %s",clienttag,versiontag,mpqfile);
 	free(buff);
 	
 	if (list_append_data(autoupdate_head,entry)<0) {
-	    eventlog(eventlog_level_error,"autoupdate_load","could not append item");
+	    eventlog(eventlog_level_error,__FUNCTION__,"could not append item");
 	    free((void *)entry->versiontag);
-	    free((void *)entry->clienttag);
-	    free((void *)entry->archtag);
 	    free((void *)entry->mpqfile);
 	    free(entry);
 	    continue;
@@ -204,12 +199,10 @@ extern int autoupdate_unload(void)
 	LIST_TRAVERSE(autoupdate_head,curr)
 	{
 	    if (!(entry = elem_get_data(curr)))
-		eventlog(eventlog_level_error,"autoupdate_unload","found NULL entry in list");
+		eventlog(eventlog_level_error,__FUNCTION__,"found NULL entry in list");
 	    else {
 		free((void *)entry->versiontag);	/* avoid warning */
 		free((void *)entry->mpqfile);		/* avoid warning */
-		free((void *)entry->clienttag);		/* avoid warning */
-		free((void *)entry->archtag);		/* avoid warning */
 		free(entry);
 	    }
 	    list_remove_elem(autoupdate_head,&curr);
@@ -227,7 +220,7 @@ extern int autoupdate_unload(void)
  *  retrun NULL if no update exists
  */
 
-extern char * autoupdate_check(char const * archtag, char const * clienttag, unsigned int gamelang, char const * versiontag)
+extern char * autoupdate_check(t_tag archtag, t_tag clienttag, t_tag gamelang, char const * versiontag)
 {
     if (autoupdate_head) {
 	t_elem const * curr;
@@ -237,47 +230,39 @@ extern char * autoupdate_check(char const * archtag, char const * clienttag, uns
 	LIST_TRAVERSE_CONST(autoupdate_head,curr)
 	{
 	    if (!(entry = elem_get_data(curr))) {
-		eventlog(eventlog_level_error,"autoupdate_file","found NULL entry in list");
+		eventlog(eventlog_level_error,__FUNCTION__,"found NULL entry in list");
 		continue;
 	    }
 	    
-	    if (strcmp(entry->archtag, archtag) != 0)
+	    if (entry->archtag != archtag)
 		continue;
-	    if (strcmp(entry->clienttag, clienttag) != 0)
+	    if (entry->clienttag != clienttag)
 		continue;
 	    if (strcmp(entry->versiontag, versiontag) != 0)
 		continue;
 	    
-	    /* if we have a gamelang then add to mpq file, unless enUS */
+	    /* if we have a gamelang then add it to the mpq file name */
 	    if (gamelang) {
 		char gltag[5];
+		char * tempmpq;
+		char * extention;
 		
-		gltag[0] = ((unsigned char)(gamelang>>24)     );
-		gltag[1] = ((unsigned char)(gamelang>>16)&0xff);
-		gltag[2] = ((unsigned char)(gamelang>> 8)&0xff);
-		gltag[3] = ((unsigned char)(gamelang    )&0xff);
-		gltag[4] = '\0';
+		tag_uint_to_str(&gltag[0],gamelang);
+		tempmpq = strdup(entry->mpqfile);
 		
-		if (strcmp(gltag, "enUS") != 0) {
-		    char * tempmpq;
-		    char * extention;
-		    
-		    tempmpq = strdup(entry->mpqfile);
-
-		    if (!(temp = malloc(strlen(tempmpq)+6))) {
-	        	eventlog(eventlog_level_error,"autoupdate_load","could not allocate memory for mpq file name");
-			return NULL;
-		    }
-
-		    extention = strrchr(tempmpq,'.');
-		    *extention = '\0';
-		    extention++;
-		    
-		    sprintf(temp, "%s_%s.%s", tempmpq, gltag, extention);
-		    
-		    free((void *)tempmpq);
-		    return temp;
+		if (!(temp = malloc(strlen(tempmpq)+6))) {
+		    eventlog(eventlog_level_error,__FUNCTION__,"could not allocate memory for mpq file name");
+		    return NULL;
 		}
+		
+		extention = strrchr(tempmpq,'.');
+		*extention = '\0';
+		extention++;
+		
+		sprintf(temp, "%s_%s.%s", tempmpq, gltag, extention);
+		
+		free((void *)tempmpq);
+		return temp;
 	    }
 	    temp = strdup(entry->mpqfile);
 	    return temp;

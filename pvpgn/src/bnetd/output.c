@@ -48,7 +48,7 @@
 #include "common/list.h"
 #include "common/proginfo.h"
 #include "compat/strerror.h"
-#include "clienttag.h"
+#include "common/tag.h"
 
 char * status_filename;
 

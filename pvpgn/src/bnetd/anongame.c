@@ -1,4 +1,6 @@
-/* 
+/*
+ * Copyright (C) 2004 CreepLord (creeplord@pvpgn.org) 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
@@ -60,7 +62,6 @@
 #include "ladder.h"
 #include "anongame_maplists.h"
 #include "anongame_gameresult.h"
-#include "clienttag.h"
 #include "common/trans.h"
 #include "common/setup_after.h"
 

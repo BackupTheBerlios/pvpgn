@@ -40,6 +40,7 @@
 # include "character.h"
 # include "versioncheck.h"
 # include "anongame.h"
+# include "common/tag.h"
 #else
 # define JUST_NEED_TYPES
 # ifdef TIME_WITH_SYS_TIME
@@ -60,12 +61,12 @@
 # include "character.h"
 # include "versioncheck.h"
 # include "anongame.h"
+# include "common/tag.h"
 # undef JUST_NEED_TYPES
 #endif
 
 #endif
 
-#include "clienttag.h"
 
 typedef enum
 {
@@ -133,8 +134,8 @@ typedef struct connection
 	unsigned int		latency;
 	t_account *		account;
 	struct {
-	    char const *		archtag;
-	    unsigned int		gamelang;
+	    t_tag			archtag;
+	    t_tag			gamelang;
 	    t_clienttag			clienttag;
 	    char const *		clientver;
 	    unsigned long		versionid; /* AKA bnversion */
@@ -222,6 +223,7 @@ t_connection;
 #include "timer.h"
 #include "anongame.h"
 #include "message.h"
+#include "common/tag.h"
 #undef JUST_NEED_TYPES
 
 #define DESTROY_FROM_CONNLIST 0
@@ -266,10 +268,10 @@ extern const char * conn_get_owner(t_connection const * c);
 extern void conn_set_cdkey(t_connection * c, char const * cdkey);
 extern char const * conn_get_clientexe(t_connection const * c) ;
 extern void conn_set_clientexe(t_connection * c, char const * clientexe);
-extern char const * conn_get_archtag(t_connection const * c) ;
-extern void conn_set_archtag(t_connection * c, char const * archtag);
-extern unsigned int conn_get_gamelang(t_connection const * c) ;
-extern void conn_set_gamelang(t_connection * c, unsigned int gamelang);
+extern t_tag	conn_get_archtag(t_connection const * c) ;
+extern void	conn_set_archtag(t_connection * c, t_tag archtag);
+extern t_tag	conn_get_gamelang(t_connection const * c) ;
+extern void	conn_set_gamelang(t_connection * c, t_tag gamelang);
 extern t_clienttag conn_get_clienttag(t_connection const * c) ;
 extern char const * conn_get_fake_clienttag(t_connection const * c) ;
 extern void conn_set_clienttag(t_connection * c, t_clienttag clienttag);

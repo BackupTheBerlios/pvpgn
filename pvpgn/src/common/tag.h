@@ -1,6 +1,7 @@
 /*
  * Copyright (C) 1998  Mark Baysinger (mbaysing@ucsd.edu)
  * Copyright (C) 1998,1999,2000  Ross Combs (rocombs@cs.nmsu.edu)
+ * Copyright (C) 2004 CreepLord (creeplord@pvpgn.org)
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -16,10 +17,26 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
-#ifndef JUST_NEED_TYPES
-/* FIXME: could probably be in PROTOS... does any other header need these? */
 #ifndef INCLUDED_TAG_TYPES
 #define INCLUDED_TAG_TYPES
+
+#ifdef JUST_NEED_TYPES
+#include "compat/uint.h"
+#else
+#define JUST_NEED_TYPES
+#include "compat/uint.h"
+#undef JUST_NEED_TYPES
+#endif
+
+typedef t_uint32 t_clienttag;
+typedef t_uint32 t_tag;
+
+#endif
+
+/*****/
+#ifndef JUST_NEED_TYPES
+#ifndef INCLUDED_TAG_PROTOS
+#define INCLUDED_TAG_PROTOS
 
 /* Software tags */
 #define CLIENTTAG_BNCHATBOT 		"CHAT" /* CHAT bot */
@@ -64,6 +81,27 @@
 #define ARCHTAG_MACPPC       "PMAC" /* MacOS   on PowerPC   */
 #define ARCHTAG_OSXPPC       "XMAC" /* MacOS X on PowerPC   */
 
+#define ARCHTAG_WINX86_UINT  0x49583836		/* IX86 */
+#define ARCHTAG_MACPPC_UINT  0x504D4143		/* PMAC */
+#define ARCHTAG_OSXPPC_UINT  0x584D4143		/* XMAC */
+
+/* game languages */
+#define GAMELANG_ENGLISH_UINT	0x656E5553	/* enUS */
+#define GAMELANG_GERMAN_UINT	0x64654445	/* deDE */
+#define GAMELANG_CZECH_UINT	0x6373435A	/* csCZ */
+#define GAMELANG_SPANISH_UINT	0x65734553	/* esES */
+#define GAMELANG_FRENCH_UINT	0x66724652	/* frFR */
+#define GAMELANG_ITALIAN_UINT	0x69744954	/* itIT */
+#define GAMELANG_JAPANESE_UINT	0x6A614A41	/* jaJA */
+#define GAMELANG_KOREAN_UINT	0x6B6F4B52	/* koKR */
+#define GAMELANG_POLISH_UINT	0x706C504C	/* plPL */
+#define GAMELANG_RUSSIAN_UINT	0x72755255	/* ruRU */
+#define GAMELANG_CHINESE_S_UINT	0x7A68434E	/* zhCN */
+#define GAMELANG_CHINESE_T_UINT	0x7A685457	/* zhTW */
+
+#define TAG_UNKNOWN_UINT	0x554E4B4E	/* UNKN */
+#define TAG_UNKNOWN		"UNKN"
+
 /* Server tag */
 #define BNETTAG "bnet" /* Battle.net */
 
@@ -71,6 +109,15 @@
 #define EXTENSIONTAG_PCX "xcp."
 #define EXTENSIONTAG_SMK "kms."
 #define EXTENSIONTAG_MNG "gnm."
+
+extern t_clienttag clienttag_str_to_uint(char const * clienttag);
+extern char const * clienttag_uint_to_str(t_clienttag clienttag);
+
+extern t_tag	tag_str_to_uint(char const * tag_str);
+extern char *	tag_uint_to_str(char tag_str[], t_tag tag_uint);
+extern int	tag_check_arch(t_tag tag_uint);
+extern int	tag_check_client(t_tag tag_uint);
+extern int	tag_check_gamelang(t_tag tag_uint);
 
 #endif
 #endif

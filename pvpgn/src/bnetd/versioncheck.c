@@ -2,6 +2,7 @@
  * Copyright (C) 2000 Onlyer (onlyer@263.net)
  * Copyright (C) 2001 Ross Combs (ross@bnetd.org)
  * Copyright (C) 2002 Gianluigi Tiesi (sherpya@netfarm.it)
+ * Copyright (C) 2004 CreepLord (creeplord@pvpgn.org)
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -68,7 +69,7 @@
 #include "common/field_sizes.h"
 #include "prefs.h"
 #include "versioncheck.h"
-#include "clienttag.h"
+#include "common/tag.h"
 #include "common/setup_after.h"
 
 
@@ -77,22 +78,27 @@ static t_versioncheck dummyvc={ "A=42 B=42 C=42 4 A=A^S B=B^B C=C^C A=A^S", "IX8
 
 static int versioncheck_compare_exeinfo(t_parsed_exeinfo * pattern, t_parsed_exeinfo * match);
 
-extern t_versioncheck * versioncheck_create(char const * archtag, t_clienttag clienttag)
+extern t_versioncheck * versioncheck_create(t_tag archtag, t_tag clienttag)
 {
     t_elem const *   curr;
     t_versioninfo *  vi;
     t_versioncheck * vc;
+    char             archtag_str[5];
+    char             clienttag_str[5];
     
     LIST_TRAVERSE_CONST(versioninfo_head,curr)
     {
         if (!(vi = elem_get_data(curr))) /* should not happen */
         {
-            eventlog(eventlog_level_error,"versioncheck_create","version list contains NULL item");
+            eventlog(eventlog_level_error,__FUNCTION__,"version list contains NULL item");
             continue;
         }
 	
-	eventlog(eventlog_level_debug,"versioncheck_create","version check entry archtag=%s, clienttag=%s",vi->archtag,clienttag_uint_to_str(vi->clienttag));
-	if (strcmp(vi->archtag,archtag)!=0)
+	eventlog(eventlog_level_debug,__FUNCTION__,"version check entry archtag=%s, clienttag=%s",
+	    tag_uint_to_str(&archtag_str[0],vi->archtag),
+	    tag_uint_to_str(&clienttag_str[0],vi->clienttag));
+	
+	if (vi->archtag != archtag)
 	    continue;
 	if (vi->clienttag != clienttag)
 	    continue;
@@ -100,23 +106,23 @@ extern t_versioncheck * versioncheck_create(char const * archtag, t_clienttag cl
 	/* FIXME: randomize the selection if more than one match */
 	if (!(vc = malloc(sizeof(t_versioncheck))))
 	{
-	    eventlog(eventlog_level_error,"versioncheck_create","unable to allocate memory for vc");
+	    eventlog(eventlog_level_error,__FUNCTION__,"unable to allocate memory for vc");
 	    return &dummyvc;
 	}
 	if (!(vc->eqn = strdup(vi->eqn)))
 	{
-	    eventlog(eventlog_level_error,"versioncheck_create","unable to allocate memory for eqn");
+	    eventlog(eventlog_level_error,__FUNCTION__,"unable to allocate memory for eqn");
 	    free(vc);
 	    return &dummyvc;
 	}
 	if (!(vc->mpqfile = strdup(vi->mpqfile)))
 	{
-	    eventlog(eventlog_level_error,"versioncheck_create","unable to allocate memory for mpqfile");
+	    eventlog(eventlog_level_error,__FUNCTION__,"unable to allocate memory for mpqfile");
 	    free((void *)vc->eqn); /* avoid warning */
 	    free(vc);
 	    return &dummyvc;
 	}
-	vc->versiontag = strdup(clienttag_uint_to_str(clienttag));
+	vc->versiontag = strdup(tag_uint_to_str(&clienttag_str[0],clienttag));
 	
 	return vc;
     }
@@ -134,7 +140,7 @@ extern int versioncheck_destroy(t_versioncheck * vc)
 {
     if (!vc)
     {
-	eventlog(eventlog_level_error,"versioncheck_destroy","got NULL vc");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL vc");
 	return -1;
     }
     
@@ -152,11 +158,11 @@ extern int versioncheck_destroy(t_versioncheck * vc)
 extern int versioncheck_set_versiontag(t_versioncheck * vc, char const * versiontag)
 {
     if (!vc) {
-	eventlog(eventlog_level_error,"versioncheck_set_versiontag","got NULL vc");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL vc");
 	return -1;
     }
     if (!versiontag) {
-	eventlog(eventlog_level_error,"versioncheck_set_versiontag","got NULL versiontag");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL versiontag");
 	return -1;
     }
     
@@ -169,7 +175,7 @@ extern int versioncheck_set_versiontag(t_versioncheck * vc, char const * version
 extern char const * versioncheck_get_versiontag(t_versioncheck const * vc)
 {
     if (!vc) {
-	eventlog(eventlog_level_error,"versioncheck_get_versiontag","got NULL vc");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL vc");
 	return NULL;
     }
     
@@ -181,7 +187,7 @@ extern char const * versioncheck_get_mpqfile(t_versioncheck const * vc)
 {
     if (!vc)
     {
-	eventlog(eventlog_level_error,"versioncheck_get_mpqfile","got NULL vc");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL vc");
 	return NULL;
     }
     
@@ -193,7 +199,7 @@ extern char const * versioncheck_get_eqn(t_versioncheck const * vc)
 {
     if (!vc)
     {
-	eventlog(eventlog_level_error,"versioncheck_get_mpqfile","got NULL vc");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL vc");
 	return NULL;
     }
     
@@ -331,11 +337,11 @@ t_parsed_exeinfo * parse_exeinfo(char const * exeinfo)
 static int versioncheck_compare_exeinfo(t_parsed_exeinfo * pattern, t_parsed_exeinfo * match)
 {
     if (!pattern) {
-	eventlog(eventlog_level_error,"versioncheck_compare_exeinfo","got NULL pattern");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL pattern");
 	return -1; /* neq/fail */
     }
     if (!match) {
-	eventlog(eventlog_level_error,"versioncheck_compare_exeinfo","got NULL match");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL match");
 	return -1; /* neq/fail */
     }
 
@@ -373,7 +379,7 @@ static int versioncheck_compare_exeinfo(t_parsed_exeinfo * pattern, t_parsed_exe
             }
 	return 0; /* ok */
     } else {
-	eventlog(eventlog_level_error,"versioncheck_compare_exeinfo","unknown version exeinfo match method \"%s\"",prefs_get_version_exeinfo_match());
+	eventlog(eventlog_level_error,__FUNCTION__,"unknown version exeinfo match method \"%s\"",prefs_get_version_exeinfo_match());
 	return -1; /* neq/fail */
     }
 }
@@ -388,7 +394,7 @@ void free_parsed_exeinfo(t_parsed_exeinfo * parsed_exeinfo)
   }
 }
 
-extern int versioncheck_validate(t_versioncheck * vc, char const * archtag, t_clienttag clienttag, char const * exeinfo, unsigned long versionid, unsigned long gameversion, unsigned long checksum)
+extern int versioncheck_validate(t_versioncheck * vc, t_tag archtag, t_tag clienttag, char const * exeinfo, unsigned long versionid, unsigned long gameversion, unsigned long checksum)
 {
     t_elem const     * curr;
     t_versioninfo    * vi;
@@ -397,7 +403,7 @@ extern int versioncheck_validate(t_versioncheck * vc, char const * archtag, t_cl
     
     if (!vc)
     {
-	eventlog(eventlog_level_error,"versioncheck_validate","got NULL vc");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL vc");
 	return -1;
     }
     
@@ -407,17 +413,17 @@ extern int versioncheck_validate(t_versioncheck * vc, char const * archtag, t_cl
     {
         if (!(vi = elem_get_data(curr))) /* should not happen */
         {
-	    eventlog(eventlog_level_error,"versioncheck_validate","version list contains NULL item");
+	    eventlog(eventlog_level_error,__FUNCTION__,"version list contains NULL item");
 	    continue;
         }
 	
+	if (vi->archtag != archtag)
+	    continue;
+	if (vi->clienttag != clienttag)
+	    continue;
 	if (strcmp(vi->eqn,vc->eqn)!=0)
 	    continue;
 	if (strcmp(vi->mpqfile,vc->mpqfile)!=0)
-	    continue;
-	if (strcmp(vi->archtag,archtag)!=0)
-	    continue;
-	if (vi->clienttag != clienttag)
 	    continue;
 	
 	if (vi->versionid && vi->versionid != versionid)
@@ -460,26 +466,26 @@ extern int versioncheck_validate(t_versioncheck * vc, char const * archtag, t_cl
 	
 	/* Ok, version and checksum matches or exeinfo/checksum are disabled
 	 * anyway we have found a complete match */
-	eventlog(eventlog_level_info,"versioncheck_validate","got a matching entry: %s",vc->versiontag);
+	eventlog(eventlog_level_info,__FUNCTION__,"got a matching entry: %s",vc->versiontag);
         free_parsed_exeinfo(parsed_exeinfo);
 	return 1;
     }
     
     if (badcs) /* A match was found but the checksum was different */
     {
-	eventlog(eventlog_level_info,"versioncheck_validate","bad checksum, closest match is: %s",vc->versiontag);
+	eventlog(eventlog_level_info,__FUNCTION__,"bad checksum, closest match is: %s",vc->versiontag);
         free_parsed_exeinfo(parsed_exeinfo);
 	return -1;
     }
     if (badexe) /* A match was found but the exeinfo string was different */
     {
-	eventlog(eventlog_level_info,"versioncheck_validate","bad exeinfo, closest match is: %s",vc->versiontag);
+	eventlog(eventlog_level_info,__FUNCTION__,"bad exeinfo, closest match is: %s",vc->versiontag);
         free_parsed_exeinfo(parsed_exeinfo);
 	return -1;
     }
     
     /* No match in list */
-    eventlog(eventlog_level_info,"versioncheck_validate","no match in list, setting to: %s",vc->versiontag);
+    eventlog(eventlog_level_info,__FUNCTION__,"no match in list, setting to: %s",vc->versiontag);
     free_parsed_exeinfo(parsed_exeinfo);
     return 0;
 }
@@ -504,18 +510,18 @@ extern int versioncheck_load(char const * filename)
     
     if (!filename)
     {
-	eventlog(eventlog_level_error,"versioncheck_load","got NULL filename");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL filename");
 	return -1;
     }
     
     if (!(versioninfo_head = list_create()))
     {
-	eventlog(eventlog_level_error,"versioncheck_load","could create list");
+	eventlog(eventlog_level_error,__FUNCTION__,"could create list");
 	return -1;
     }
     if (!(fp = fopen(filename,"r")))
     {
-	eventlog(eventlog_level_error,"versioncheck_load","could not open file \"%s\" for reading (fopen: %s)",filename,strerror(errno));
+	eventlog(eventlog_level_error,__FUNCTION__,"could not open file \"%s\" for reading (fopen: %s)",filename,strerror(errno));
 	list_destroy(versioninfo_head);
 	versioninfo_head = NULL;
 	return -1;
@@ -543,56 +549,56 @@ extern int versioncheck_load(char const * filename)
 
 	if (!(eqn = next_token(buff,&pos)))
 	{
-	    eventlog(eventlog_level_error,"versioncheck_load","missing eqn near line %u of file \"%s\"",line,filename);
+	    eventlog(eventlog_level_error,__FUNCTION__,"missing eqn near line %u of file \"%s\"",line,filename);
 	    free(buff);
 	    continue;
 	}
 	line++;
 	if (!(mpqfile = next_token(buff,&pos)))
 	{
-	    eventlog(eventlog_level_error,"versioncheck_load","missing mpqfile near line %u of file \"%s\"",line,filename);
+	    eventlog(eventlog_level_error,__FUNCTION__,"missing mpqfile near line %u of file \"%s\"",line,filename);
 	    free(buff);
 	    continue;
 	}
 	line++;
 	if (!(archtag = next_token(buff,&pos)))
 	{
-	    eventlog(eventlog_level_error,"versioncheck_load","missing archtag near line %u of file \"%s\"",line,filename);
+	    eventlog(eventlog_level_error,__FUNCTION__,"missing archtag near line %u of file \"%s\"",line,filename);
 	    free(buff);
 	    continue;
 	}
 	line++;
 	if (!(clienttag = next_token(buff,&pos)))
 	{
-	    eventlog(eventlog_level_error,"versioncheck_load","missing clienttag near line %u of file \"%s\"",line,filename);
+	    eventlog(eventlog_level_error,__FUNCTION__,"missing clienttag near line %u of file \"%s\"",line,filename);
 	    free(buff);
 	    continue;
 	}
 	line++;
 	if (!(exeinfo = next_token(buff,&pos)))
 	{
-	    eventlog(eventlog_level_error,"versioncheck_load","missing exeinfo near line %u of file \"%s\"",line,filename);
+	    eventlog(eventlog_level_error,__FUNCTION__,"missing exeinfo near line %u of file \"%s\"",line,filename);
 	    free(buff);
 	    continue;
 	}
 	line++;
 	if (!(versionid = next_token(buff,&pos)))
 	{
-	    eventlog(eventlog_level_error,"versioncheck_load","missing versionid near line %u of file \"%s\"",line,filename);
+	    eventlog(eventlog_level_error,__FUNCTION__,"missing versionid near line %u of file \"%s\"",line,filename);
 	    free(buff);
 	    continue;
 	}
 	line++;
 	if (!(gameversion = next_token(buff,&pos)))
 	{
-	    eventlog(eventlog_level_error,"versioncheck_load","missing gameversion near line %u of file \"%s\"",line,filename);
+	    eventlog(eventlog_level_error,__FUNCTION__,"missing gameversion near line %u of file \"%s\"",line,filename);
 	    free(buff);
 	    continue;
 	}
 	line++;
 	if (!(checksum = next_token(buff,&pos)))
 	{
-	    eventlog(eventlog_level_error,"versioncheck_load","missing checksum near line %u of file \"%s\"",line,filename);
+	    eventlog(eventlog_level_error,__FUNCTION__,"missing checksum near line %u of file \"%s\"",line,filename);
 	    free(buff);
 	    continue;
 	}
@@ -604,20 +610,20 @@ extern int versioncheck_load(char const * filename)
 	
 	if (!(vi = malloc(sizeof(t_versioninfo))))
 	{
-	    eventlog(eventlog_level_error,"versioncheck_load","could not allocate memory for vi");
+	    eventlog(eventlog_level_error,__FUNCTION__,"could not allocate memory for vi");
 	    free(buff);
 	    continue;
 	}
 	if (!(vi->eqn = strdup(eqn)))
 	{
-	    eventlog(eventlog_level_error,"versioncheck_load","could not allocate memory for eqn");
+	    eventlog(eventlog_level_error,__FUNCTION__,"could not allocate memory for eqn");
 	    free(vi);
 	    free(buff);
 	    continue;
 	}
 	if (!(vi->mpqfile = strdup(mpqfile)))
 	{
-	    eventlog(eventlog_level_error,"versioncheck_load","could not allocate memory for mpqfile");
+	    eventlog(eventlog_level_error,__FUNCTION__,"could not allocate memory for mpqfile");
 	    free((void *)vi->eqn); /* avoid warning */
 	    free(vi);
 	    free(buff);
@@ -625,16 +631,16 @@ extern int versioncheck_load(char const * filename)
 	}
 	if (strlen(archtag)!=4)
 	{
-	    eventlog(eventlog_level_error,"versioncheck_load","invalid arch tag on line %u of file \"%s\"",line,filename);
+	    eventlog(eventlog_level_error,__FUNCTION__,"invalid arch tag on line %u of file \"%s\"",line,filename);
 	    free((void *)vi->mpqfile); /* avoid warning */
 	    free((void *)vi->eqn); /* avoid warning */
 	    free(vi);
 	    free(buff);
 	    continue;
 	}
-	if (!(vi->archtag = strdup(archtag)))
+	if (!tag_check_arch((vi->archtag = tag_str_to_uint(archtag))))
 	{
-	    eventlog(eventlog_level_error,"versioncheck_load","could not allocate memory for archtag");
+	    eventlog(eventlog_level_error,__FUNCTION__,"got unknown archtag");
 	    free((void *)vi->mpqfile); /* avoid warning */
 	    free((void *)vi->eqn); /* avoid warning */
 	    free(vi);
@@ -643,18 +649,16 @@ extern int versioncheck_load(char const * filename)
 	}
 	if (strlen(clienttag)!=4)
 	{
-	    eventlog(eventlog_level_error,"versioncheck_load","invalid client tag on line %u of file \"%s\"",line,filename);
-	    free((void *)vi->archtag); /* avoid warning */
+	    eventlog(eventlog_level_error,__FUNCTION__,"invalid client tag on line %u of file \"%s\"",line,filename);
 	    free((void *)vi->mpqfile); /* avoid warning */
 	    free((void *)vi->eqn); /* avoid warning */
 	    free(vi);
 	    free(buff);
 	    continue;
 	}
-	if (!(vi->clienttag = clienttag_str_to_uint(clienttag)))
+	if (!tag_check_client((vi->clienttag = tag_str_to_uint(clienttag))))
 	{
-	    eventlog(eventlog_level_error,"versioncheck_load","could not allocate memory for clienttag");
-	    free((void *)vi->archtag); /* avoid warning */
+	    eventlog(eventlog_level_error,__FUNCTION__,"got unknown clienttag");
 	    free((void *)vi->mpqfile); /* avoid warning */
 	    free((void *)vi->eqn); /* avoid warning */
 	    free(vi);
@@ -667,8 +671,7 @@ extern int versioncheck_load(char const * filename)
 	{
 	    if (!(vi->parsed_exeinfo = parse_exeinfo(exeinfo)))
 	    {
-		eventlog(eventlog_level_error,"versioncheck_load","encountered an error while parsing exeinfo");
-		free((void *)vi->archtag); /* avoid warning */
+		eventlog(eventlog_level_error,__FUNCTION__,"encountered an error while parsing exeinfo");
 		free((void *)vi->mpqfile); /* avoid warning */
 		free((void *)vi->eqn); /* avoid warning */
 		free(vi);
@@ -680,9 +683,8 @@ extern int versioncheck_load(char const * filename)
 	vi->versionid = strtoul(versionid,NULL,0);
 	if (verstr_to_vernum(gameversion,&vi->gameversion)<0)
 	{
-	    eventlog(eventlog_level_error,"versioncheck_load","malformed version on line %u of file \"%s\"",line,filename);
+	    eventlog(eventlog_level_error,__FUNCTION__,"malformed version on line %u of file \"%s\"",line,filename);
 	    free((void *)vi->parsed_exeinfo); /* avoid warning */
-	    free((void *)vi->archtag); /* avoid warning */
 	    free((void *)vi->mpqfile); /* avoid warning */
 	    free((void *)vi->eqn); /* avoid warning */
 	    free(vi);
@@ -695,9 +697,8 @@ extern int versioncheck_load(char const * filename)
 	{
 	    if (!(vi->versiontag = strdup(versiontag)))
 	    {
-		eventlog(eventlog_level_error,"versioncheck_load","could not allocate memory for versiontag");
+		eventlog(eventlog_level_error,__FUNCTION__,"could not allocate memory for versiontag");
 		free((void *)vi->parsed_exeinfo); /* avoid warning */
-		free((void *)vi->archtag); /* avoid warning */
 		free((void *)vi->mpqfile); /* avoid warning */
 		free((void *)vi->eqn); /* avoid warning */
 		free(vi);
@@ -712,11 +713,10 @@ extern int versioncheck_load(char const * filename)
 	
 	if (list_append_data(versioninfo_head,vi)<0)
 	{
-	    eventlog(eventlog_level_error,"versioncheck_load","could not append item");
+	    eventlog(eventlog_level_error,__FUNCTION__,"could not append item");
 	    if (vi->versiontag)
 	      free((void *)vi->versiontag); /* avoid warning */
 	    free((void *)vi->parsed_exeinfo); /* avoid warning */
-	    free((void *)vi->archtag); /* avoid warning */
 	    free((void *)vi->mpqfile); /* avoid warning */
 	    free((void *)vi->eqn); /* avoid warning */
 	    free(vi);
@@ -725,7 +725,7 @@ extern int versioncheck_load(char const * filename)
     }
     
     if (fclose(fp)<0)
-	eventlog(eventlog_level_error,"versioncheck_load","could not close versioncheck file \"%s\" after reading (fclose: %s)",filename,strerror(errno));
+	eventlog(eventlog_level_error,__FUNCTION__,"could not close versioncheck file \"%s\" after reading (fclose: %s)",filename,strerror(errno));
     
     return 0;
 }
@@ -742,12 +742,12 @@ extern int versioncheck_unload(void)
 	{
 	    if (!(vi = elem_get_data(curr))) /* should not happen */
 	    {
-		eventlog(eventlog_level_error,"versioncheck_unload","version list contains NULL item");
+		eventlog(eventlog_level_error,__FUNCTION__,"version list contains NULL item");
 		continue;
 	    }
 	    
 	    if (list_remove_elem(versioninfo_head,&curr)<0)
-		eventlog(eventlog_level_error,"versioncheck_unload","could not remove item from list");
+		eventlog(eventlog_level_error,__FUNCTION__,"could not remove item from list");
 
 	    if (vi->parsed_exeinfo)
             {
@@ -755,7 +755,6 @@ extern int versioncheck_unload(void)
                     free((void *)vi->parsed_exeinfo->exe);
 		free((void *)vi->parsed_exeinfo); /* avoid warning */
             }
-	    free((void *)vi->archtag); /* avoid warning */
 	    free((void *)vi->mpqfile); /* avoid warning */
 	    free((void *)vi->eqn); /* avoid warning */
 	    if (vi->versiontag)
@@ -770,4 +769,3 @@ extern int versioncheck_unload(void)
     
     return 0;
 }
-
