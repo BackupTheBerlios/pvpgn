@@ -4392,7 +4392,8 @@ static int _client_progident2(t_connection * c, t_packet const * const packet)
 		        strcmp(channel_get_clienttag(ch), CLIENTTAG_WARCRAFT3) || strcmp(channel_get_clienttag(ch), CLIENTTAG_WAR3XP) ||
 			strcmp(channel_get_name(ch),channel_get_name(conn_get_channel(c)))))
 		    
-		    packet_append_string(rpacket,channel_get_name(ch));
+		    if (!(channel_get_flags(ch) & channel_flags_thevoid)) // don't display theVoid in channel list
+			packet_append_string(rpacket,channel_get_name(ch));
 	       }
 	  }
 	packet_append_string(rpacket,"");
