@@ -153,6 +153,7 @@
 #define BITS_PASSWORD_FILE      "conf/bits_passwd"
 #define BITS_MOTD_FILE          "conf/bits_motd"
 #define BNETD_LADDER_DIR        "var/ladders"
+#define BNETD_STATUS_DIR        "var/status"
 
 #define BNETD_COMMAND_GROUPS_FILE "conf/command_groups.txt"
 /* ADDED BY UNDYING SOULZZ 4/9/02 */
