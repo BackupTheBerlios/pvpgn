@@ -877,7 +877,7 @@ static int _handle_join_command(t_connection * conn, int numparams, char ** para
 
 
 				channel = conn_get_channel(conn);
-				if (channel!=oldchannel) 
+				if (channel!=old_channel) 
 				{
 		    			char temp[MAX_IRC_MESSAGE_LEN];
 					char * topic;
@@ -1043,9 +1043,8 @@ static int _handle_whois_command(t_connection * conn, int numparams, char ** par
 		      sprintf(temp,"%s %s %s * :%s",e[i],clienttag_uint_to_str(conn_get_clienttag(c)),addr_num_to_ip_str(conn_get_addr(c)),"PvPGN user");
 		    irc_send(conn,RPL_WHOISUSER,temp);
 		    
-		    if ( chan = conn_get_channel(conn) ) 
+		    if ((chan=conn_get_channel(conn)))
 		    {
-			char const * name = conn_get_chatname(c);
 			char flg;
 			unsigned int flags;
 			
@@ -1057,7 +1056,7 @@ static int _handle_whois_command(t_connection * conn, int numparams, char ** par
 		            flg='%'; 
 	            	else if (flags & MF_VOICE)
 		            flg='+';
-		        else flg = '';
+		        else flg = ' ';
 			sprintf(temp2,"%s :%c%s",e[i],flg,irc_convert_channel(chan));
 			irc_send(conn,RPL_WHOISCHANNELS,temp2);
 		    }
