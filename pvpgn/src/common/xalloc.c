@@ -51,8 +51,8 @@ void *xrealloc_real(void *ptr, size_t size, const char *fn, unsigned ln)
 void xfree_real(void *ptr, const char *fn, unsigned ln)
 {
     if (!ptr) {
-	eventlog(eventlog_level_fatal, __FUNCTION__, "got NULL ptr (from %s:%u)",fn,ln);
-	return; /* avoid sure crash */
+	eventlog(eventlog_level_error, __FUNCTION__, "got NULL ptr (from %s:%u)",fn,ln);
+	return;
     }
 
     free(ptr);
