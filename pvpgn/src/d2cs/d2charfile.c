@@ -482,6 +482,7 @@ extern int d2charinfo_load(char const * account, char const * charname, t_d2char
 	}
 	if (!(charstatus_get_ladder(bn_int_get(data->summary.charstatus)))) {
 		bn_byte_set(&data->portrait.ladder, D2CHARINFO_PORTRAIT_PADBYTE);
+		free(file);
 		return 0;
 	}
 	ladder_time = prefs_get_ladder_start_time();
@@ -559,6 +560,7 @@ extern int d2charinfo_load(char const * account, char const * charname, t_d2char
 		fclose(fp);
 	} else {
 		bn_byte_set(&data->portrait.ladder, 1);
+		free(file);
 	}
 	return 0;
 }
