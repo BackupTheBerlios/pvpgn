@@ -425,7 +425,7 @@ extern int versioncheck_validate(t_versioncheck * vc, char const * archtag, char
 	    continue;
 
 	
-	if (vi->parsed_exeinfo && (versioncheck_compare_exeinfo(vi->parsed_exeinfo,parsed_exeinfo) != 0))
+	if ((!(parsed_exeinfo)) || (vi->parsed_exeinfo && (versioncheck_compare_exeinfo(vi->parsed_exeinfo,parsed_exeinfo) != 0)))
 	{
 	    /*
 	     * Found an entry matching but the exeinfo doesn't match.
