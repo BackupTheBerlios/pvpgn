@@ -149,24 +149,45 @@ static int on_d2gs_authreply(t_connection * c, t_packet * packet)
 		queue_push_packet(d2cs_conn_get_out_queue(c),rpacket);
 		packet_del_ref(rpacket);
 	}
+	
+	// set d2gs version
+	gs->d2gs_version = version;
+	
 	return 0;
 }
 
 static int on_d2gs_setgsinfo(t_connection * c, t_packet * packet)
 {
 	t_d2gs		* gs;
-	unsigned int	maxgame, prev_maxgame, i;
+	t_packet	* rpacket;
+	unsigned int	maxgame, prev_maxgame;
+	unsigned int	currgame, gameflag;
 
 	if (!(gs=d2gslist_find_gs(conn_get_d2gs_id(c)))) {
-		log_error("game server %d not found",conn_get_d2gs_id(c));
+		eventlog(eventlog_level_error,"on_d2gs_setgsinfo","game server %d not found",conn_get_d2gs_id(c));
 		return -1;
 	}
 	maxgame=bn_int_get(packet->u.d2gs_d2cs_setgsinfo.maxgame);
 	prev_maxgame=d2gs_get_maxgame(gs);
-	log_info("change game server %s max game from %d to %d",addr_num_to_ip_str(d2cs_conn_get_addr(c)),
-		prev_maxgame, maxgame);
+	currgame = d2gs_get_gamenum(gs);
+	eventlog(eventlog_level_info, "on_d2gs_setgsinfo", "change game server %s max game from %d to %d (%d current)",addr_num_to_ip_str(d2cs_conn_get_addr(c)),prev_maxgame, maxgame, currgame);
 	d2gs_set_maxgame(gs,maxgame);
-	for (i=prev_maxgame; i<maxgame; i++) gqlist_check_creategame();
+	
+	if(gs->d2gs_version > 0x1090007)
+	{
+		gameflag=bn_int_get(packet->u.d2gs_d2cs_setgsinfo.gameflag);
+		
+                if ((rpacket=packet_create(packet_class_d2gs))) {
+            	    packet_set_size(rpacket,sizeof(t_d2cs_d2gs_setgsinfo));
+                    packet_set_type(rpacket,D2CS_D2GS_SETGSINFO);
+                    bn_int_set(&rpacket->u.d2cs_d2gs_setgsinfo.maxgame,maxgame);
+                    bn_int_set(&rpacket->u.d2cs_d2gs_setgsinfo.gameflag,gameflag);
+                    queue_push_packet(d2cs_conn_get_out_queue(c),rpacket);
+                    packet_del_ref(rpacket);
+                }
+        }
+	
+	gqlist_check_creategame();
 	return 0;
 }
 
@@ -214,6 +235,9 @@ static int on_d2gs_creategamereply(t_connection * c, t_packet * packet)
 		game_set_created(game,1);
 		log_info("game %s created on gs %d",d2cs_game_get_name(game),conn_get_d2gs_id(c));
 		reply=D2CS_CLIENT_CREATEGAMEREPLY_SUCCEED;
+	} else if (result==D2GS_D2CS_JOINGAME_GAME_FULL) {
+		eventlog(eventlog_level_info, "on_d2gs_joingamereply", "failed to add %s to game %s on gs %d (game full)",d2cs_conn_get_charname(client),d2cs_game_get_name(game),conn_get_d2gs_id(c));
+		reply=D2CS_CLIENT_JOINGAMEREPLY_GAME_FULL;
 	} else {
 		log_warn("failed to create game %s on gs %d",d2cs_game_get_name(game),conn_get_d2gs_id(c));
 		game_destroy(game);
@@ -368,6 +392,19 @@ static int on_d2gs_closegame(t_connection * c, t_packet * packet)
 
 extern int handle_d2gs_packet(t_connection * c, t_packet * packet)
 {
+	int	type;
+	t_d2gs	* gs;
+	
+	type=packet_get_type(packet);
+	
+	// ugly d2gs hack, used in backward campability...
+	if(type == D2GS_D2CS_SETGSINFO)
+	{
+		gs=d2gslist_find_gs(conn_get_d2gs_id(c));
+		if(gs->d2gs_version <= 0x1090007)
+		    d2gs_packet_handle_table[type].size = sizeof(t_d2gs_d2cs_setgsinfo) - sizeof(bn_int);
+	}
+	
 	conn_process_packet(c,packet,d2gs_packet_handle_table,NELEMS(d2gs_packet_handle_table));
 	return 0;
 }

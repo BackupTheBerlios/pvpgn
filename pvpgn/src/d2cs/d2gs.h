@@ -39,6 +39,7 @@ typedef struct d2gs
 	unsigned int      	maxgame;
 	unsigned int      	gamenum;
 	t_connection *		connection;
+	unsigned int		d2gs_version;
 } t_d2gs;
 
 #define D2GS_FLAG_VALID		0x01
@@ -68,5 +69,6 @@ extern int d2gs_active(t_d2gs * gs, t_connection * c);
 extern int d2gs_deactive(t_d2gs * gs, t_connection * c);
 extern unsigned int d2gs_calc_checksum(t_connection * c);
 extern int d2gs_keepalive(void);
+extern int d2gs_restart_all_gs(void);
 
 #endif

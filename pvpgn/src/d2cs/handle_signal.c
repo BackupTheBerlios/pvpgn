@@ -80,8 +80,9 @@ static volatile struct
 	unsigned char	cancel_quit;
 	unsigned char	reload_config;
 	unsigned char	reload_ladder;
+	unsigned char	restart_d2gs;
 	unsigned int	exit_time;
-} signal_data ={ 0, 0, 0, 0, 0 };
+} signal_data ={ 0, 0, 0, 0, 0, 0 };
 
 extern int handle_signal(void)
 {
@@ -158,6 +159,13 @@ extern int handle_signal(void)
 		log_info("reloading ladder data due to signal");
 		d2ladder_refresh();
 	}
+	
+	if (signal_data.restart_d2gs) {
+		signal_data.restart_d2gs=0;
+		eventlog(eventlog_level_info, "handle_singal","restarting all game servers due to signal");
+		d2gs_restart_all_gs();
+	}
+	
 	return 0;
 }
 

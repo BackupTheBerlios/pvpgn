@@ -93,6 +93,7 @@ extern int d2gslist_reload(char const * gslist)
 	char		* s, * temp;
 	t_d2gs		* gs;
 	unsigned int	ip;
+	unsigned int	resolveipaddr;
 
 	if (!d2gslist_head) return -1;
 
@@ -106,12 +107,13 @@ extern int d2gslist_reload(char const * gslist)
 	if (!(templist=strdup(gslist))) return -1;
 	temp=templist;
 	while ((s=strsep(&temp, ","))) {
-		if ((ip=net_inet_addr(s))==~0UL) {
-			log_error("got bad ip address %s",s);
+		host_lookup(s, &resolveipaddr);
+		if ((ip=net_inet_addr(addr_num_to_ip_str(resolveipaddr)))==~0UL) {
+			log_error("got bad ip address %s", addr_num_to_ip_str(resolveipaddr));
 			continue;
 		}
 		if (!(gs=d2gslist_find_gs_by_ip(ntohl(ip)))) {
-			gs=d2gs_create(s);
+			gs=d2gs_create(addr_num_to_ip_str(resolveipaddr));
 		}
 		if (gs) BIT_SET_FLAG(gs->flag, D2GS_FLAG_VALID);
 	}
@@ -430,3 +432,30 @@ extern int d2gs_keepalive(void)
 	packet_del_ref(packet);
 	return 0;
 }
+
+extern int d2gs_restart_all_gs(void)
+{
+	t_packet        * packet;
+	t_d2gs          * gs;
+	
+	if (!(packet=packet_create(packet_class_d2gs))) {
+    		eventlog(eventlog_level_error, __FUNCTION__, "error creating packet");
+    		return -1;
+        }
+        packet_set_size(packet,sizeof(t_d2cs_d2gs_control));
+        packet_set_type(packet,D2CS_D2GS_CONTROL);
+        bn_int_set(&packet->u.d2cs_d2gs_control.cmd, D2CS_D2GS_CONTROL_CMD_RESTART);
+        bn_int_set(&packet->u.d2cs_d2gs_control.value, prefs_get_d2gs_restart_delay());
+	
+        BEGIN_LIST_TRAVERSE_DATA(d2gslist_head,gs)
+        {
+    		if (gs->connection && gs->d2gs_version > 0x1090007) {
+            	    queue_push_packet(d2cs_conn_get_out_queue(gs->connection),packet);
+                }
+        }
+	
+        END_LIST_TRAVERSE_DATA()
+        packet_del_ref(packet);
+        return 0;
+}
+

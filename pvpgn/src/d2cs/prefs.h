@@ -59,6 +59,7 @@ typedef struct
 	unsigned int	s2s_keepalive_interval;
 	unsigned int	lod_realm;
 	unsigned int	allow_convert;
+	unsigned int	d2gs_restart_delay;
 } t_prefs;
 
 extern int d2cs_prefs_load(char const * filename);
@@ -105,5 +106,6 @@ extern unsigned int prefs_get_max_game_idletime(void);
 extern unsigned int prefs_get_lod_realm(void);
 extern unsigned int prefs_get_allow_convert(void);
 extern char const * prefs_get_d2cs_account_allowed_symbols(void);
+extern unsigned int prefs_get_d2gs_restart_delay(void);
 
 #endif

@@ -181,5 +181,8 @@ s2s_keepalive_interval	=	60
 # all connection timeout check interval
 timeout_checkinterval	=	60
 
+# game server restart interval
+d2gs_restart_delay	=	300
+
 #
 #################################################################################

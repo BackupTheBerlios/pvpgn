@@ -99,10 +99,12 @@
 #include "d2ladder.h"
 #include "charlock.h"
 #include "prefs.h"
+#include "d2cs/xstring.h"
 #include "d2cs/d2cs_d2gs_character.h"
 #include "common/bn_type.h"
 #include "common/list.h"
 #include "common/eventlog.h"
+#include "common/addr.h"
 #include "common/setup_after.h"
 
 static unsigned int dbs_packet_savedata_charsave(t_d2dbs_connection* conn,char * AccountName,char * CharName,char * data,unsigned int datalen);
@@ -123,6 +125,9 @@ static unsigned int dbs_packet_savedata_charsave(t_d2dbs_connection* conn, char 
 	char bakfile[MAX_PATH];
 	unsigned short curlen,readlen,leftlen,writelen;
 	int	fd;
+	
+	strtolower(AccountName);
+	strtolower(CharName);
 
 	sprintf(filename,"%s/.%s.tmp",d2dbs_prefs_get_charsave_dir(),CharName);
 	fd = open(filename, O_WRONLY|O_CREAT|O_TRUNC,S_IREAD|S_IWRITE );
@@ -168,6 +173,9 @@ static unsigned int dbs_packet_savedata_charinfo(t_d2dbs_connection* conn,char *
 	int  fd;
 	unsigned short curlen,readlen,leftlen,writelen;
 	struct stat statbuf;
+	
+	strtolower(AccountName);
+	strtolower(CharName);
 
 	sprintf(filepath,"%s/%s",prefs_get_charinfo_bak_dir(),AccountName);
 	if (stat(filepath,&statbuf)==-1) {
@@ -217,6 +225,10 @@ static unsigned int dbs_packet_getdata_charsave(t_d2dbs_connection* conn,char * 
 	int				fd;
 	unsigned short curlen,readlen,leftlen,writelen;
 	long filesize;
+	
+	strtolower(AccountName);
+	strtolower(CharName);
+	
 	sprintf(filename,"%s/%s",d2dbs_prefs_get_charsave_dir(),CharName);
 	fd = open(filename, O_RDONLY);
 	if (fd<=0) {
@@ -261,6 +273,9 @@ static unsigned int dbs_packet_getdata_charinfo(t_d2dbs_connection* conn,char * 
 	int  fd;
 	unsigned short curlen,readlen,leftlen,writelen;
 	long filesize;
+	
+	strtolower(AccountName);
+	strtolower(CharName);
 
 	sprintf(filename,"%s/%s/%s",d2dbs_prefs_get_charinfo_dir(),AccountName,CharName);
 	fd = open(filename, O_RDONLY);
@@ -656,6 +671,7 @@ static int dbs_verify_ipaddr(char const * addrlist,t_d2dbs_connection * c)
 	t_elem			* elem;
 	t_d2dbs_connection	* tempc;
 	unsigned int		valid;
+	unsigned int		resolveipaddr;
 
 	in.s_addr=htonl(c->ipaddr);
 	ipaddr=inet_ntoa(in);
@@ -663,7 +679,10 @@ static int dbs_verify_ipaddr(char const * addrlist,t_d2dbs_connection * c)
 	temp=adlist;
 	valid=0;
 	while ((s=strsep(&temp, ","))) {
-		if (!strcmp(ipaddr,s)) {
+		host_lookup(s, &resolveipaddr);
+		if(resolveipaddr == 0) continue;
+				
+		if (!strcmp(ipaddr, (const char *)addr_num_to_ip_str(resolveipaddr))) {
 			valid=1;
 			break;
 		}

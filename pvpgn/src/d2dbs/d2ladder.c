@@ -199,6 +199,10 @@ int d2ladder_find_pos(t_d2ladder * d2ladder, t_d2ladder_info * info)
 	int	i;
 
 	if (!d2ladder || !info) return -1;
+	
+	// only allow if the experience threshold is reached
+	if (info->experience < prefs_get_ladderupdate_threshold()) return -1;
+	
 	i=d2ladder->len;
 	while (i--) {
 		if (d2ladder->info[i].experience >= info->experience) {

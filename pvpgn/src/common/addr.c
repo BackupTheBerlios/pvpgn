@@ -76,7 +76,6 @@
 
 
 static char const * netaddr_num_to_addr_str(unsigned int netipaddr, unsigned int netmask);
-static char const * host_lookup(char const * hoststr, unsigned int * ipaddr);
 
 
 #define HACK_SIZE 4
@@ -138,7 +137,7 @@ static char const * netaddr_num_to_addr_str(unsigned int netipaddr, unsigned int
 
 
 
-static char const * host_lookup(char const * hoststr, unsigned int * ipaddr)
+extern char const * host_lookup(char const * hoststr, unsigned int * ipaddr)
 {
     struct sockaddr_in tsa;
 #ifdef HAVE_GETHOSTBYNAME

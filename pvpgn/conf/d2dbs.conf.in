@@ -89,5 +89,8 @@ keepalive_interval	=	60
 # connection time out check interval
 timeout_checkinterval	=	60
 
+# experience threshold, minimum experience needed to register on the ladder
+ladderupdate_threshold	=	0
+
 #										#
 #################################################################################

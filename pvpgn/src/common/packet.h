@@ -316,6 +316,7 @@ typedef struct
         t_d2cs_d2gs_authreq             d2cs_d2gs_authreq;
         t_d2gs_d2cs_authreply           d2gs_d2cs_authreply;
         t_d2cs_d2gs_authreply           d2cs_d2gs_authreply;
+	t_d2cs_d2gs_setgsinfo           d2cs_d2gs_setgsinfo;
         t_d2gs_d2cs_setgsinfo           d2gs_d2cs_setgsinfo;
         t_d2cs_d2gs_creategamereq       d2cs_d2gs_creategamereq;
         t_d2gs_d2cs_creategamereply     d2gs_d2cs_creategamereply;
@@ -325,6 +326,7 @@ typedef struct
         t_d2gs_d2cs_closegame           d2gs_d2cs_closegame;
         t_d2cs_d2gs_echoreq             d2cs_d2gs_echoreq;
         t_d2gs_d2cs_echoreply           d2gs_d2cs_echoreply;
+	t_d2cs_d2gs_control             d2cs_d2gs_control;
 
         t_d2cs_client_generic           d2cs_client;
         t_client_d2cs_loginreq          client_d2cs_loginreq;

@@ -76,7 +76,16 @@ typedef struct
 {
 	t_d2cs_d2gs_header	h;
 	bn_int			maxgame;
+	bn_int			gameflag;
 } t_d2gs_d2cs_setgsinfo;
+
+#define D2CS_D2GS_SETGSINFO		0x12
+typedef struct
+{
+	t_d2cs_d2gs_header      h;
+	bn_int                  maxgame;
+	bn_int                  gameflag;
+} t_d2cs_d2gs_setgsinfo;
 
 #define D2CS_D2GS_ECHOREQ		0x13
 typedef struct
@@ -89,6 +98,17 @@ typedef struct
 {
 	t_d2cs_d2gs_header	h;
 } t_d2gs_d2cs_echoreply;
+
+#define D2CS_D2GS_CONTROL		0x14
+typedef struct
+{
+	t_d2cs_d2gs_header      h;
+	bn_int                  cmd;
+	bn_int                  value;
+} t_d2cs_d2gs_control;
+#define D2CS_D2GS_CONTROL_CMD_RESTART	0x01
+#define D2CS_D2GS_CONTROL_CMD_SHUTDOWN	0x02
+#define D2CS_D2GS_CONTROL_VALUE_DEFAULT	0x00
 
 #define D2CS_D2GS_CREATEGAMEREQ		0x20
 typedef struct
@@ -112,7 +132,7 @@ typedef struct
 } t_d2gs_d2cs_creategamereply;
 #define D2GS_D2CS_CREATEGAME_SUCCEED		0
 #define D2GS_D2CS_CREATEGAME_FAILED		1
-
+#define D2GS_D2CS_JOINGAME_GAME_FULL		2
 
 #define D2CS_D2GS_JOINGAMEREQ		0x21
 typedef struct

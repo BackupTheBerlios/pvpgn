@@ -74,6 +74,8 @@ extern char const * addr_num_to_addr_str(unsigned int ipaddr, unsigned short por
 /* ipaddr is in host byte order */
 extern char const * addr_num_to_ip_str(unsigned int ipaddr);
 
+extern char const * host_lookup(char const * hoststr, unsigned int * ipaddr);
+
 /* ipaddr and port are in host byte order */
 #ifdef USE_CHECK_ALLOC
 extern t_addr * addr_create_num_real(unsigned int ipaddr, unsigned short port, char const * fn, unsigned int ln) MALLOC_ATTR();

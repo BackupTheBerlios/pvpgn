@@ -30,6 +30,7 @@
 #include "handle_init.h"
 #include "handle_d2gs.h"
 #include "d2gs.h"
+#include "prefs.h"
 #include "common/init_protocol.h"
 #include "common/addr.h"
 #include "common/packet.h"
@@ -70,9 +71,16 @@ static int on_d2gs_initconn(t_connection * c)
 
 	log_info("[%d] client initiated d2gs connection",d2cs_conn_get_socket(c));
 	if (!(gs=d2gslist_find_gs_by_ip(d2cs_conn_get_addr(c)))) {
-		log_error("d2gs connection from invalid ip address %s",
-			addr_num_to_ip_str(d2cs_conn_get_addr(c)));
-		return -1;
+		// reload list and see if any dns addy's has changed
+		if (d2gslist_reload(prefs_get_d2gs_list())<0) {
+			log_error("error reloading game server list,exitting");
+			return -1;
+		}
+		//recheck
+		if (!(gs=d2gslist_find_gs_by_ip(d2cs_conn_get_addr(c)))) {
+			log_error("d2gs connection from invalid ip address %s",addr_num_to_ip_str(d2cs_conn_get_addr(c)));
+			return -1;
+		}
 	}
 	d2cs_conn_set_class(c,conn_class_d2gs);
 	d2cs_conn_set_state(c,conn_state_connected);
