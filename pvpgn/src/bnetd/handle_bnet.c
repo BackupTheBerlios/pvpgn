@@ -2370,11 +2370,11 @@ static int _client_changegameport(t_connection * c, t_packet const * const packe
    }
      {
 	unsigned short port = bn_short_get(packet->u.client_changegameport.port);
-	if(port < 1024 || port > 49151) {
+	if(port < 1024) {
 	   eventlog(eventlog_level_error,__FUNCTION__,"[%d] invalid port in changegameport packet: %d",conn_get_socket(c), (int)port);
 	   return -1;
 	}
-	
+
 	eventlog(eventlog_level_trace,__FUNCTION__,"[%d] changing game port to: %d",conn_get_socket(c), (int)port);
 	conn_set_game_port(c, port);
      }
