@@ -1137,7 +1137,7 @@ extern int handle_command(t_connection * c,  char const * text)
 	/* Battle.net time: Wed Jun 23 15:15:29 */
 	btlocal = bnettime_add_tzbias(btsystem,local_tzbias());
 	now = bnettime_to_time(btlocal);
-	if (!(tmnow = localtime(&now)))
+	if (!(tmnow = gmtime(&now)))
 	    strcpy(msgtemp,"PvPGN Server Time: ?");
 	else
 	    strftime(msgtemp,sizeof(msgtemp),"PvPGN Server Time: %a %b %d %H:%M:%S",tmnow);
@@ -1146,7 +1146,7 @@ extern int handle_command(t_connection * c,  char const * text)
 	{
 	    btlocal = bnettime_add_tzbias(btsystem,conn_get_tzbias(c));
 	    now = bnettime_to_time(btlocal);
-	    if (!(tmnow = localtime(&now)))
+	    if (!(tmnow = gmtime(&now)))
 		strcpy(msgtemp,"Your local time: ?");
 	    else
 		strftime(msgtemp,sizeof(msgtemp),"Your local time: %a %b %d %H:%M:%S",tmnow);
@@ -2864,7 +2864,7 @@ if (strstart(text,"/rank_all_accounts")==0)
 	else if (strcasecmp(clienttag,CLIENTTAG_WARCRAFT3)==0)
 	{
 	  unsigned int teamcount;
-	    if (account = war3_ladder_get_account(&solo_ladder,rank,teamcount))
+	    if ((account = war3_ladder_get_account(&solo_ladder,rank,teamcount)))
 	    {
 		sprintf(msgtemp,"WarCraft3 Solo   %5u: %-20.20s %u/%u/0",
 			rank,
@@ -2877,7 +2877,7 @@ if (strstart(text,"/rank_all_accounts")==0)
 		sprintf(msgtemp,"WarCraft3 Solo   %5u: <none>",rank);
 	    message_send_text(c,message_type_info,c,msgtemp);
 	    
-	    if (account = war3_ladder_get_account(&team_ladder,rank,teamcount))
+	    if ((account = war3_ladder_get_account(&team_ladder,rank,teamcount)))
 	    {
 		sprintf(msgtemp,"WarCraft3 Team   %5u: %-20.20s %u/%u/0",
 			rank,
@@ -2890,7 +2890,7 @@ if (strstart(text,"/rank_all_accounts")==0)
 		sprintf(msgtemp,"WarCraft3 Team   %5u: <none>",rank);
 	    message_send_text(c,message_type_info,c,msgtemp);
 	    
-	    if (account = war3_ladder_get_account(&ffa_ladder,rank,teamcount))
+	    if ((account = war3_ladder_get_account(&ffa_ladder,rank,teamcount)))
 	    {
 		sprintf(msgtemp,"WarCraft3 FFA   %5u: %-20.20s %u/%u/0",
 			rank,
@@ -2903,7 +2903,7 @@ if (strstart(text,"/rank_all_accounts")==0)
 		sprintf(msgtemp,"WarCraft3 FFA   %5u: <none>",rank);
 	    message_send_text(c,message_type_info,c,msgtemp);
 	    
-	    if (account = war3_ladder_get_account(&at_ladder,rank,teamcount))
+	    if ((account = war3_ladder_get_account(&at_ladder,rank,teamcount)))
 	    {
 		if (account_get_atteammembers(account,teamcount))
 		sprintf(msgtemp,"WarCraft3 AT Team   %5u: %-80.80s %u/%u/0",
@@ -3466,11 +3466,11 @@ if (strstart(text,"/rank_all_accounts")==0)
  	
  	if (text[i]=='\0')
  	{
- 	    if (game=conn_get_game(c))
+ 	    if ((game=conn_get_game(c)))
  	    {
 		for (i=0; i<game_get_count(game); i++)
  		{
- 		    if (user = game_get_player_conn(game, i))
+ 		    if ((user = game_get_player_conn(game, i)))
  		    {
  			sprintf(msgtemp,"%s latency: %9u",(tname = conn_get_username(user)),conn_get_latency(user));
  			conn_unget_username(user,tname);
@@ -3481,7 +3481,7 @@ if (strstart(text,"/rank_all_accounts")==0)
  	    }
  	    sprintf(msgtemp,"Your latency %9u",conn_get_latency(c));
  	}
-	else if (user = connlist_find_connection_by_accountname(&text[i]))
+	else if ((user = connlist_find_connection_by_accountname(&text[i])))
  		sprintf(msgtemp,"%s latency %9u",&text[i],conn_get_latency(user));
  	else
  		sprintf(msgtemp,"Invalid user");
