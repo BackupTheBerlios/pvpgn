@@ -15,26 +15,26 @@
 # -1 for max sets no limit to the number of users allowed in the channel     #
 #                                                                            #
 # ---special name--- 		-----short name----- 	cltag bots- -ops- -log- ctry- realm max -mod-#
-"The Void"           		"The Void"           	NULL  true  false false  NULL NULL -1    true
-NONE                	 	"Starcraft"          	STAR  true  false false "USA" NULL 30   false
-NONE                 		"Brood War"          	SEXP  true  false false "USA" NULL 30   false
-NONE                 		"Starcraft Shareware" 	SSHR  true  false false "USA" NULL 30   false
-NONE                 		"Diablo Retail"      	DRTL  true  false false "USA" NULL 30   false
-NONE                 		"War2BNE"            	W2BN  true  false false "USA" NULL 30   false
-NONE                 		"Diablo II"          	D2DV  true  false false "USA" NULL 30   false
-NONE				"Diablo II"		D2XP  true  false false  NULL NULL 30   false
+"The Void"           		"The Void"           	NULL  true  false false  NULL NULL -1   true
+NONE                	 	"Starcraft"          	STAR  true  false false  NULL NULL -1   false
+NONE                 		"Brood War"          	SEXP  true  false false  NULL NULL -1   false
+NONE                 		"Starcraft Shareware" 	SSHR  true  false false  NULL NULL -1   false
+NONE                 		"Diablo Retail"      	DRTL  true  false false  NULL NULL -1   false
+NONE                 		"War2BNE"            	W2BN  true  false false  NULL NULL -1   false
+NONE                 		"Diablo II"          	D2DV  true  false false  NULL NULL -1   false
+NONE				"Diablo II"		D2XP  true  false false  NULL NULL -1   false
 "Warcraft 3 Frozen Throne" 	"W3"			W3XP  true  false false  NULL NULL -1   false
 "Warcraft 3"         		"W3"			WAR3  true  false false  NULL NULL -1   false
-"Human Castle"       		"W3"			W3XP  false false false  NULL NULL -1   false
-"Orc Stronghold"     		"W3"			W3XP  false false false  NULL NULL -1   false
-"Undead Necropolis" 		"W3"			W3XP  false false false  NULL NULL -1   false
-"Night Elf Tree of Life"  	"W3"			W3XP  false false false  NULL NULL -1   false
-"Dragon Roost"       		"W3"			W3XP  false false false  NULL NULL -1   false
-"Human Castle"       		"W3"			WAR3  false false false  NULL NULL -1   false
-"Orc Stronghold"     		"W3"			WAR3  false false false  NULL NULL -1   false
-"Undead Necropolis" 		"W3"			WAR3  false false false  NULL NULL -1   false
-"Night Elf Tree of Life"	"W3"			WAR3  false false false  NULL NULL -1   false
-"Dragon Roost"       		"W3"			WAR3  false false false  NULL NULL -1   false
+"Human Castle"       		"W3"			W3XP  true  false false  NULL NULL -1   false
+"Orc Stronghold"     		"W3"			W3XP  true  false false  NULL NULL -1   false
+"Undead Necropolis" 		"W3"			W3XP  true  false false  NULL NULL -1   false
+"Night Elf Tree of Life"  	"W3"			W3XP  true  false false  NULL NULL -1   false
+"Dragon Roost"       		"W3"			W3XP  true  false false  NULL NULL -1   false
+"Human Castle"       		"W3"			WAR3  true  false false  NULL NULL -1   false
+"Orc Stronghold"     		"W3"			WAR3  true  false false  NULL NULL -1   false
+"Undead Necropolis" 		"W3"			WAR3  true  false false  NULL NULL -1   false
+"Night Elf Tree of Life"	"W3"			WAR3  true  false false  NULL NULL -1   false
+"Dragon Roost"       		"W3"			WAR3  true  false false  NULL NULL -1   false
 "Chat"               		"Chat"			CHAT  true  false false  NULL NULL -1   false
 "Backstage"			"Backstage"		NULL  true  false false  NULL NULL  0   false
 "Moderated Support"		"Support"		NULL  true  false false  NULL NULL -1    true
