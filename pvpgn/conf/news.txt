@@ -1,12 +1,16 @@
-Welcome to PvPGN BNETD MOD (type /version for details)
-PvPGN and its affiliates in no way condone software piracy.
-The games that you play on our servers, we hope you have
-or will be purchasing. 
+Welcome To The Player-vs-Player Gaming Network!
+Bringing Emulation To New Levels!
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-==-=-=-=-=-=-=-=-=-=-=-=-=-=-==-=-=-=-=-=-=-=
 
-Whats New?: Fully working Play Game!, Stats, Profiles.
-Auto Matching 6 level difference players.
+Added Features: 
+	
+	-WAR3 Frozen Throne v304 BETA Support
+	-Users sent to THE VOID can no longer chat while in the channel.
+	-PG 1v1,2v2, and Arranged Teams 2v2 Works
+		-LAdder Not Saving Yet
+	-Small /f list bug fixed showing offline users w/ gameclients.
 
-All crash bugs fixed! - PvPGN can run as a service on Win32 now!
+	-War3 Classic v1.05 Support
 
 =-=-=-=-=-=-=-=-=-=-=-=-=-=-==-=-=-=-=-=-=-=-=-=-=-=-=-=-==-=-=-=-=-=-=-=
 Make sure to visit us online!
