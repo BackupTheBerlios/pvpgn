@@ -179,12 +179,13 @@ static int on_d2gs_setgsinfo(t_connection * c, t_packet * packet)
 		gameflag=bn_int_get(packet->u.d2gs_d2cs_setgsinfo.gameflag);
 		
                 if ((rpacket=packet_create(packet_class_d2gs))) {
-            	    packet_set_size(rpacket,sizeof(t_d2cs_d2gs_setgsinfo));
-                    packet_set_type(rpacket,D2CS_D2GS_SETGSINFO);
-                    bn_int_set(&rpacket->u.d2cs_d2gs_setgsinfo.maxgame,maxgame);
-                    bn_int_set(&rpacket->u.d2cs_d2gs_setgsinfo.gameflag,gameflag);
-                    queue_push_packet(d2cs_conn_get_out_queue(c),rpacket);
-                    packet_del_ref(rpacket);
+		    packet_set_size(rpacket,sizeof(t_d2cs_d2gs_setgsinfo));
+		    packet_set_type(rpacket,D2CS_D2GS_SETGSINFO);
+		    bn_int_set(&rpacket->u.d2cs_d2gs_setgsinfo.h.seqno,1);
+		    bn_int_set(&rpacket->u.d2cs_d2gs_setgsinfo.maxgame,maxgame);
+		    bn_int_set(&rpacket->u.d2cs_d2gs_setgsinfo.gameflag,gameflag);
+		    queue_push_packet(d2cs_conn_get_out_queue(c),rpacket);
+		    packet_del_ref(rpacket);
                 }
         }
 	
