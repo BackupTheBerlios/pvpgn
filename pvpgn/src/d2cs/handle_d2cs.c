@@ -216,8 +216,9 @@ static int on_client_createcharreq(t_connection * c, t_packet * packet)
 	        eventlog(eventlog_level_info,__FUNCTION__,"(*%s) charinfo directory do not exist, building it",account);
 		p_mkdir(path,S_IRWXU);
 	}
+	else
+	  p_closedir(dir);
 	free(path);
-	if (dir) p_closedir(dir);
 
 	if (d2char_create(account,charname,class,status)<0) {
 		eventlog(eventlog_level_warn,__FUNCTION__,"error create character %s for account %s",charname,account);
