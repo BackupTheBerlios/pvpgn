@@ -2333,15 +2333,18 @@ static int anongame_infos_data_load(void)
     
     if ((raw = packet_create(packet_class_raw)) != NULL)
     {
+	t_anongame_infos_DESC *anongame_infos_DESC;
+	t_anongame_infos_data_lang *anongame_infos_data_lang_war3;
+	t_anongame_infos_data_lang *anongame_infos_data_lang_w3xp;
+	char * langID;
+	    
 	LIST_TRAVERSE(anongame_infos->anongame_infos_DESC_list, curr)
 	{
-	    t_anongame_infos_DESC *anongame_infos_DESC;
-	    t_anongame_infos_data_lang *anongame_infos_data_lang_war3;
-	    t_anongame_infos_data_lang *anongame_infos_data_lang_w3xp;
 	    anongame_infos_DESC = elem_get_data(curr);
-	    char * langID = anongame_infos_DESC->langID;
+	    langID = anongame_infos_DESC->langID;
 	    anongame_infos_data_lang_war3 = anongame_infos_data_lang_init(langID);
 	    anongame_infos_data_lang_w3xp = anongame_infos_data_lang_init(langID);
+
 	    for (k = 0; k < 2; k++)
 	    {
 		desc_count = 0;
