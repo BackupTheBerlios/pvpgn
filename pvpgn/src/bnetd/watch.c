@@ -229,6 +229,7 @@ static int handle_event_whisper(t_account *account, char const *gamename, char c
     t_list * flist;
     t_connection * dest_c;
     t_friend * fr;
+    char const * game_title;
 
     if (!account)
     {
@@ -242,17 +243,19 @@ static int handle_event_whisper(t_account *account, char const *gamename, char c
 	return -1;
     }
 
+    game_title = conn_get_user_game_title(clienttag);
+
     /* mutual friends handling */
     flist = account_get_friends(account);
     if(flist)
     {
         if (event == watch_event_joingame) {
     	    if (gamename)
-	        sprintf(msg,"Your friend %s has entered game %s.",myusername,gamename);
+	        sprintf(msg,"Your friend %s has entered a %s game named \"%s\".",myusername,game_title,gamename);
     	    else
-	        sprintf(msg,"Your friend %s has entered a game",myusername);
+	        sprintf(msg,"Your friend %s has entered a %s game",myusername,game_title);
     	}
-        if (event == watch_event_leavegame)sprintf(msg,"Your friend %s has left a game.",myusername);
+        if (event == watch_event_leavegame)sprintf(msg,"Your friend %s has left a %s game.",myusername,game_title);
         if (event == watch_event_login)    sprintf(msg,"Your friend %s has entered the PvPGN Realm.",myusername);
         if (event == watch_event_logout)   sprintf(msg,"Your friend %s has left the PvPGN Realm",myusername);
         LIST_TRAVERSE(flist,curr)
@@ -281,12 +284,12 @@ static int handle_event_whisper(t_account *account, char const *gamename, char c
     if (event == watch_event_joingame) 
     {
 	if (gamename)
-    	    sprintf(msg,"Watched user %s has entered game %s.",myusername,gamename);
+    	    sprintf(msg,"Watched user %s has entered a %s game named \"%s\".",myusername,game_title,gamename);
 	else
-	    sprintf(msg,"Watched user %s has entered a game",myusername);
+	    sprintf(msg,"Watched user %s has entered a %s game",myusername,game_title);
     }
 
-    if (event == watch_event_leavegame)sprintf(msg,"Your friend %s has left a game.",myusername);
+    if (event == watch_event_leavegame)sprintf(msg,"Watched user %s has left a %s game.",myusername,game_title);
     if (event == watch_event_login)    sprintf(msg,"Watched user %s has entered the PvPGN Realm.",myusername);
     if (event == watch_event_logout)   sprintf(msg,"Watched user %s has left the PvPGN Realm",myusername);
 
