@@ -549,13 +549,14 @@ static int _client_countryinfo109(t_connection * c, t_packet const * const packe
 	
 	tzbias = bn_int_get(packet->u.client_countryinfo_109.bias);
 	
-	eventlog(eventlog_level_debug,__FUNCTION__,"[%d] COUNTRYINFO_109 packet tzbias=0x%04x(%+d) lcid=%u langid=%u arch=%04x client=%04x versionid=%04x",conn_get_socket(c),
+	eventlog(eventlog_level_debug,__FUNCTION__,"[%d] COUNTRYINFO_109 packet tzbias=0x%04x(%+d) lcid=%u langid=%u arch=%04x client=%04x versionid=%04x gamelang=%04x",conn_get_socket(c),
 		 tzbias,uint32_to_int(tzbias),
 		 bn_int_get(packet->u.client_countryinfo_109.lcid),
 		 bn_int_get(packet->u.client_countryinfo_109.langid),
 		 bn_int_get(packet->u.client_countryinfo_109.archtag),
 		 bn_int_get(packet->u.client_countryinfo_109.clienttag),
-		 bn_int_get(packet->u.client_countryinfo_109.versionid));
+		 bn_int_get(packet->u.client_countryinfo_109.versionid),
+		 bn_int_get(packet->u.client_countryinfo_109.unknown2));
 	
 	eventlog(eventlog_level_debug,__FUNCTION__,"[%d] COUNTRYINFO_109 packet from \"%s\" \"%s\"", conn_get_socket(c),countryname,langstr);
 	
@@ -594,6 +595,36 @@ static int _client_countryinfo109(t_connection * c, t_packet const * const packe
 	else
 	  eventlog(eventlog_level_error,__FUNCTION__,"[%d] unknown client program type 0x%08x, don't expect this to work",conn_get_socket(c),bn_int_get(packet->u.client_countryinfo_109.clienttag));
 	
+	if ((bn_int_tag_eq(packet->u.client_countryinfo_109.clienttag,CLIENTTAG_WARCRAFT3)==0) || (bn_int_tag_eq(packet->u.client_countryinfo_109.clienttag,CLIENTTAG_WAR3XP)==0))
+	{
+	    if (bn_int_tag_eq(packet->u.client_countryinfo_109.unknown2,"enUS")==0)
+		conn_set_gamelang(c,"enUS"); 
+	    else if (bn_int_tag_eq(packet->u.client_countryinfo_109.unknown2,"csCZ")==0)
+		conn_set_gamelang(c,"csCZ");
+	    else if (bn_int_tag_eq(packet->u.client_countryinfo_109.unknown2,"deDE")==0)
+		conn_set_gamelang(c,"deDE");
+	    else if (bn_int_tag_eq(packet->u.client_countryinfo_109.unknown2,"esES")==0)
+		conn_set_gamelang(c,"esES");
+	    else if (bn_int_tag_eq(packet->u.client_countryinfo_109.unknown2,"frFR")==0)
+		conn_set_gamelang(c,"frFR");
+	    else if (bn_int_tag_eq(packet->u.client_countryinfo_109.unknown2,"itIT")==0)
+		conn_set_gamelang(c,"itIT");
+	    else if (bn_int_tag_eq(packet->u.client_countryinfo_109.unknown2,"jaJA")==0)
+		conn_set_gamelang(c,"jaJA");
+	    else if (bn_int_tag_eq(packet->u.client_countryinfo_109.unknown2,"koKR")==0)
+		conn_set_gamelang(c,"koKR");
+	    else if (bn_int_tag_eq(packet->u.client_countryinfo_109.unknown2,"plPL")==0)
+		conn_set_gamelang(c,"plPL");
+	    else if (bn_int_tag_eq(packet->u.client_countryinfo_109.unknown2,"ruRU")==0)
+		conn_set_gamelang(c,"ruRU");
+	    else if (bn_int_tag_eq(packet->u.client_countryinfo_109.unknown2,"zhCN")==0)
+		conn_set_gamelang(c,"zhCN");
+	    else if (bn_int_tag_eq(packet->u.client_countryinfo_109.unknown2,"zhTW")==0)
+		conn_set_gamelang(c,"zhTW");
+	    else
+		eventlog(eventlog_level_error,__FUNCTION__,"[%d] unknown client gamelang 0x%08x, don't expect this to work",conn_get_socket(c),bn_int_get(packet->u.client_countryinfo_109.unknown2));
+	}
+
 	/* First, send an ECHO_REQ */
 	
 	if ((rpacket = packet_create(packet_class_bnet)))
@@ -1237,32 +1268,35 @@ static int _client_authreq1(t_connection * c, t_packet const * const packet)
 	       }
 	     else
 	       {
-		  /* Only handle updates when there is an update file available. */
-		  if (autoupdate_file(conn_get_archtag(c),conn_get_clienttag(c),verstr,versiontag)!=NULL)
+		  char * mpqfilename;
+		  
+		  mpqfilename = autoupdate_check(conn_get_archtag(c),conn_get_clienttag(c),conn_get_gamelang(c),versiontag);
+		  
+	          /* Only handle updates when there is an update file available. */
+		  if (mpqfilename!=NULL)
 		    {
-		       eventlog(eventlog_level_info,__FUNCTION__,"[%d] an upgrade from %s-%s %s(%s) to %s is available \"%s\"",
+		       eventlog(eventlog_level_info,__FUNCTION__,"[%d] an upgrade for version %s is available \"%s\"",
 				conn_get_socket(c),
-				conn_get_archtag(c),
-				conn_get_clienttag(c),
-				verstr,
-				versiontag?versiontag:"(none)",
-				autoupdate_version(conn_get_archtag(c),conn_get_clienttag(c),verstr,versiontag),
-				autoupdate_file(conn_get_archtag(c),conn_get_clienttag(c),verstr,versiontag));
+				versiontag,
+				mpqfilename);
 		       if (bn_int_tag_eq(packet->u.client_progident.clienttag,CLIENTTAG_DIABLO2XP)==0)
 			 bn_int_set(&rpacket->u.server_authreply1.message,SERVER_AUTHREPLY1_D2XP_MESSAGE_UPDATE);
 		       else
 			 bn_int_set(&rpacket->u.server_authreply1.message,SERVER_AUTHREPLY1_MESSAGE_UPDATE);
-		       packet_append_string(rpacket,autoupdate_file(conn_get_archtag(c),conn_get_clienttag(c),verstr,versiontag));
+		       packet_append_string(rpacket,mpqfilename);
 		    }
 		  else
 		    {
-		       eventlog(eventlog_level_info,__FUNCTION__,"[%d] no upgrades from %s %s are available",conn_get_socket(c),conn_get_clienttag(c),verstr);
+		       eventlog(eventlog_level_info,__FUNCTION__,"[%d] no upgrade for %s is available",conn_get_socket(c),versiontag);
 		       if (bn_int_tag_eq(packet->u.client_progident.clienttag,CLIENTTAG_DIABLO2XP)==0)
 			 bn_int_set(&rpacket->u.server_authreply1.message,SERVER_AUTHREPLY1_D2XP_MESSAGE_OK);
 		       else
 			 bn_int_set(&rpacket->u.server_authreply1.message,SERVER_AUTHREPLY1_MESSAGE_OK);
 		       packet_append_string(rpacket,"");
 		    }
+		  
+		  if (mpqfilename)
+		    free((void *)mpqfilename);
 	       }
 	     
 	     packet_append_string(rpacket,""); /* FIXME: what's the second string for? */
@@ -1379,7 +1413,7 @@ static int _client_authreq109(t_connection * c, t_packet const * const packet)
 	       versioncheck_set_versiontag(vc, versiontag);
 	       conn_set_versioncheck(c, vc);
 	       eventlog(eventlog_level_info,__FUNCTION__,"[%d] client matches versiontag \"%s\"",conn_get_socket(c),versiontag);
-	     }
+	     } else versiontag = conn_get_clienttag(c);
 	     
 	     if (failed)
 	       {
@@ -1389,26 +1423,28 @@ static int _client_authreq109(t_connection * c, t_packet const * const packet)
 	       }
 	     else
 	       {
+	          char * mpqfilename;
+		  
+		  mpqfilename = autoupdate_check(conn_get_archtag(c),conn_get_clienttag(c),conn_get_gamelang(c),versiontag);
+		  
 		  /* Only handle updates when there is an update file available. */
-		  if (autoupdate_file(conn_get_archtag(c),conn_get_clienttag(c),verstr,versiontag)!=NULL)
+		  if (mpqfilename!=NULL)
 		    {
-		       eventlog(eventlog_level_info,__FUNCTION__,"[%d] an upgrade from %s-%s %s(%s) to %s is available \"%s\"",
+		       eventlog(eventlog_level_info,__FUNCTION__,"[%d] an upgrade for %s is available \"%s\"",
 				conn_get_socket(c),
-				conn_get_archtag(c),
-				conn_get_clienttag(c),
-				verstr,
-				versiontag?versiontag:"(none)",
-				autoupdate_version(conn_get_archtag(c),conn_get_clienttag(c),verstr,versiontag),
-				autoupdate_file(conn_get_archtag(c),conn_get_clienttag(c),verstr,versiontag));
+				versiontag,
+				mpqfilename);
 		       bn_int_set(&rpacket->u.server_authreply_109.message,SERVER_AUTHREPLY_109_MESSAGE_UPDATE);
-		       packet_append_string(rpacket,autoupdate_file(conn_get_archtag(c),conn_get_clienttag(c),verstr,versiontag));
+		       packet_append_string(rpacket,mpqfilename);
 		    }
 		  else
 		    {
-		       eventlog(eventlog_level_info,__FUNCTION__,"[%d] no upgrades from %s %s are available",conn_get_socket(c),conn_get_clienttag(c),verstr);
+		       eventlog(eventlog_level_info,__FUNCTION__,"[%d] no upgrade for %s is available",conn_get_socket(c),versiontag);
 		       bn_int_set(&rpacket->u.server_authreply_109.message,SERVER_AUTHREPLY_109_MESSAGE_OK);
 		       packet_append_string(rpacket,"");
 		    }
+	          if (mpqfilename)
+		    free((void *)mpqfilename);
 	       }
 	     
 	     queue_push_packet(conn_get_out_queue(c),rpacket);
@@ -5868,7 +5904,7 @@ static int _client_changeclient(t_connection * c, t_packet const * const packet)
 		eventlog(eventlog_level_error, __FUNCTION__, "[%d] error revalidating, allowing anyway", conn_get_socket(c));
 		vtag = strdup(conn_get_clienttag(c)); /* set versiontag to clienttag  on fail */
 		/* client allready passed first test so we will allow */
-		/* conn_set_state(c, conn_state_destroy); */ 
+		/* conn_set_state(c, conn_state_destroy); */
 		break;
 	}
 

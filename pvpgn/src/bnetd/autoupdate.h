@@ -24,11 +24,8 @@ typedef struct
 {
     char const *  archtag;
     char const *  clienttag;
-    char const *  mpqfile;
     char const *  versiontag;
-    unsigned long version;
-    unsigned long version_min;
-    unsigned long version_max;
+    char const *  mpqfile;
 } t_autoupdate;
 #endif
 
@@ -42,8 +39,7 @@ typedef struct
 
 extern int autoupdate_load(char const * filename);
 extern int autoupdate_unload(void);
-extern char const * autoupdate_file(char const * archtag, char const * clienttag, char const * new_version, char const * versiontag);
-extern char const * autoupdate_version(char const * archtag, char const * clienttag, char const * curr_version, char const * versiontag);
+extern char * autoupdate_check(char const * archtag, char const * clienttag, char const * gamelang,char const * versiontag);
 
 #endif
 #endif
