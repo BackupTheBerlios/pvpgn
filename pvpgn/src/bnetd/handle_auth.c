@@ -119,6 +119,7 @@ extern int handle_auth_packet(t_connection * c, t_packet const * const packet)
 		    if (hash_eq(try_hash,secret_hash)!=1)
 		    {
 			eventlog(eventlog_level_info,"handle_auth_packet","[%d] auth login for \"%s\" refused (bad password)",conn_get_socket(c),username);
+			conn_increment_passfail_count (c);
 			reply = SERVER_AUTHLOGINREPLY_REPLY_BANNED;
 		    }
 		    else

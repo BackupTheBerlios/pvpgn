@@ -9,6 +9,15 @@ It should contain:
 -- all new/changed config files in the conf/ subfolder
 The path's specified are those of the default unix installation
 
+ Updating from 1.6.0 pre 1 to 1.6.0 pre 2
+===========================================
+
+changes to bnetd.conf:
+----------------------
+-- added: passfail_count   = 0
+-- added: passfail_bantime = 300
+
+
  Updating from 1.5.x branch to 1.6.0 pre 1
 ===========================================
 

@@ -195,6 +195,9 @@ typedef struct connection
 
    time_t                 anongame_search_starttime;
    int			  echoback;
+
+   /* Pass fail count for bruteforce protection */
+   unsigned int		passfail_count;
 }
 #endif
 t_connection;
@@ -416,6 +419,10 @@ extern char const * conn_get_user_game_title(char const * ct);
 extern unsigned int connlist_count_connections(unsigned int addr);
 
 extern int conn_update_w3_playerinfo(t_connection * c);
+
+extern int conn_get_passfail_count(t_connection * c);
+extern int conn_set_passfail_count(t_connection * c, unsigned int failcount);
+extern int conn_increment_passfail_count (t_connection * c);
 
 #endif
 #endif

@@ -1113,6 +1113,7 @@ static int _client_changepassreq(t_connection * c, t_packet const * const packet
 			 {
 			    eventlog(eventlog_level_info,__FUNCTION__,"[%d] password change for \"%s\" refused (wrong password)",conn_get_socket(c),(tname = account_get_name(account)));
 			    account_unget_name(tname);
+			    conn_increment_passfail_count(c);
 			    bn_int_set(&rpacket->u.server_changepassack.message,SERVER_CHANGEPASSACK_MESSAGE_FAIL);
 			 }
 		    }
@@ -1941,6 +1942,7 @@ static int _client_loginreq1(t_connection * c, t_packet const * const packet)
 			 {
 			    eventlog(eventlog_level_info,__FUNCTION__,"[%d] login for \"%s\" refused (wrong password)",conn_get_socket(c),(tname = account_get_name(account)));
 			    account_unget_name(tname);
+			    conn_increment_passfail_count (c);
 			    bn_int_set(&rpacket->u.server_loginreply1.message,SERVER_LOGINREPLY1_MESSAGE_FAIL);
 			 }
 		    }
@@ -2131,6 +2133,7 @@ static int _client_loginreq2(t_connection * c, t_packet const * const packet)
 			 {
 			    eventlog(eventlog_level_info,__FUNCTION__,"[%d] login for \"%s\" refused (wrong password)",conn_get_socket(c),(tname = account_get_name(account)));
 			    account_unget_name(tname);
+			    conn_increment_passfail_count (c);
 			    bn_int_set(&rpacket->u.server_loginreply2.message,SERVER_LOGINREPLY2_MESSAGE_BADPASS);
 			 }
 		    }
@@ -2359,9 +2362,11 @@ static int _client_logonproofreq(t_connection * c, t_packet const * const packet
 #ifdef WIN32_GUI
 		guiOnUpdateUserList();
 #endif
-	     } else
+	     } else 
+	     {
 	       eventlog(eventlog_level_info,__FUNCTION__,"[%d] (W3) got wrong password for \"%s\"",conn_get_socket(c),(tname = account_get_name(account)));
-	     
+	       conn_increment_passfail_count(c);
+	     }
 	     conn_push_outqueue(c,rpacket);
 	     packet_del_ref(rpacket);
 	  }

@@ -9,6 +9,10 @@ CREDITS
 PROGRAMMING CONTRIBUTORS
 	Guiot Jean-Philippe <guiot_j@epitech.net>
 
+	Zzzoom (servers@3dgames.com.ar)
+	 For persistent SQL connections patch, password brute force attacks 
+	 protection and various bug reports.
+
 	Lots of other people who do not whish to be mentioned here.
 
 BINARY PACKAGES:

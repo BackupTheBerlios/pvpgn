@@ -76,6 +76,7 @@
 #include "compat/socket.h"
 #include "compat/psock.h"
 #include "common/eventlog.h"
+#include "common/addr.h"
 #include "account.h"
 #include "realm.h"
 #include "channel.h"
@@ -93,6 +94,7 @@
 #include "watch.h"
 #include "timer.h"
 #include "irc.h"
+#include "ipban.h"
 #ifdef WITH_BITS
 # include "bits.h"
 # include "bits_va.h"
@@ -443,19 +445,19 @@ extern t_connection * conn_create(int tsock, int usock, unsigned int real_local_
 #endif
     temp->udpok          = 0;
     temp->w3_username    = NULL;
-    temp->routeconn      = NULL;	// [zap-zero] 20020527
-    temp->anongame	     = NULL;	// [zap-zero] 20020714
-	temp->cr_time        = time(NULL); // [quetzal] 200220828
+    temp->routeconn      = NULL;
+    temp->anongame	 = NULL;
+    temp->cr_time        = time(NULL);
+    temp->passfail_count = 0;
 	
-    /* ADDED BY THEUNDYING  */
     temp->w3_playerinfo = NULL;
-	temp->motd_loggedin = 0;
-	temp->joingamewhisper = 0;
-	temp->leavegamewhisper = 0;
+    temp->motd_loggedin = 0;
+    temp->joingamewhisper = 0;
+    temp->leavegamewhisper = 0;
 
-	temp->anongame_search_starttime = 0;
-		
-	if (list_prepend_data(conn_head,temp)<0)
+    temp->anongame_search_starttime = 0;
+	
+    if (list_prepend_data(conn_head,temp)<0)
     {
 	free(temp);
 	eventlog(eventlog_level_error,"conn_create","could not prepend temp");
@@ -4198,4 +4200,47 @@ extern int conn_update_w3_playerinfo(t_connection * c)
     }
 
     return 0;     
+}
+
+
+extern int conn_get_passfail_count (t_connection * c)
+{
+    if (!c) 
+    {
+        eventlog(eventlog_level_error, "conn_get_passfail_count", "got NULL connection");
+        return -1;
+    }
+    return c->passfail_count;
+}
+
+
+extern int conn_set_passfail_count (t_connection * c, unsigned int n)
+{
+    if (c == NULL)
+    {
+	eventlog(eventlog_level_error, "conn_set_passfail_count", "got NULL connection");
+	return -1;
+    }
+    c->passfail_count = n;
+    return 0;
+}
+
+
+extern int conn_increment_passfail_count (t_connection * c)
+{
+    unsigned int count;
+		
+    if (prefs_get_passfail_count() > 0)
+    {
+	count = conn_get_passfail_count(c) + 1;
+	if (count == prefs_get_passfail_count())
+	{
+	    ipbanlist_add(NULL, addr_num_to_ip_str(conn_get_addr(c)), time(NULL)+(time_t)prefs_get_passfail_bantime());
+	    eventlog(eventlog_level_info,"conn_increment_passfail_count","[%d] failed password tries: %d (banned ip)",conn_get_socket(c), count);
+	    conn_set_state(c, conn_state_destroy);
+	    return -1;
+	}
+	else conn_set_passfail_count(c, count);
+    }
+    return 0;
 }

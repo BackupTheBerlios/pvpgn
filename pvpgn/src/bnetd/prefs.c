@@ -179,6 +179,8 @@ static struct {
     unsigned int clan_newer_time;
     unsigned int clan_max_members;
     unsigned int clan_channel_default_private;
+    unsigned int passfail_count;
+    unsigned int passfail_bantime;
 } prefs_runtime_config;
 
 /*    directive                 type               defcharval            defintval                 */
@@ -300,6 +302,8 @@ static Bconf_t conf_table[] =
     { "clan_newer_time",        conf_type_int,     NULL,                 CLAN_NEWER_TIME     , (void *)&prefs_runtime_config.clan_newer_time},
     { "clan_max_members",       conf_type_int,     NULL,                 CLAN_MAX_MEMBERS    , (void *)&prefs_runtime_config.clan_max_members},
     { "clan_channel_default_private",   conf_type_bool,    NULL,         0                   , (void *)&prefs_runtime_config.clan_channel_default_private},
+    { "passfail_count",		conf_type_int,     NULL,                 0                   , (void *)&prefs_runtime_config.passfail_count},
+    { "passfail_bantime",	conf_type_int,     NULL,                 300                 , (void *)&prefs_runtime_config.passfail_bantime},
     { NULL,             		conf_type_none,    NULL,                 NONE                , NULL},
 };
 
@@ -1276,4 +1280,14 @@ extern unsigned int prefs_get_clan_max_members(void)
 extern unsigned int prefs_get_clan_channel_default_private(void)
 {
     return prefs_runtime_config.clan_channel_default_private;
+}
+
+extern unsigned int prefs_get_passfail_count(void)
+{
+    return prefs_runtime_config.passfail_count;
+}
+
+extern unsigned int prefs_get_passfail_bantime(void)
+{
+    return prefs_runtime_config.passfail_bantime;
 }

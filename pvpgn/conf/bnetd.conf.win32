@@ -294,6 +294,13 @@ mail_quota = 5
 # Channel logging message
 log_notice = "*** Please note this channel is logged! ***"
 
+# Ban on repeated password fails against bruteforce password thieves
+# Fails required to get ip banned (0 to disable ban on password fail)
+passfail_count = 0
+
+# Password fail IP ban duration (in seconds)
+passfail_bantime = 300
+
 #                                                                            #
 ##############################################################################
 

@@ -190,5 +190,8 @@ extern unsigned int prefs_get_clan_newer_time(void) PURE_ATTR();
 extern unsigned int prefs_get_clan_max_members(void) PURE_ATTR();
 extern unsigned int prefs_get_clan_channel_default_private(void) PURE_ATTR();
 
+extern unsigned int prefs_get_passfail_count(void) PURE_ATTR();
+extern unsigned int prefs_get_passfail_bantime(void) PURE_ATTR();
+
 #endif
 #endif
