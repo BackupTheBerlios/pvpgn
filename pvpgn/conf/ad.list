@@ -45,10 +45,10 @@
  "ad000004.mng"  start   30 "http://www.pvpgn.org"            0x000000  "W3XP"
  "ad000666.mng"  init    30 "http://www.world-of-amadeus.de"  0x000000  "W3XP"
  "ad000666.mng"  start   30 "http://www.world-of-amadeus.de"  0x000000  "W3XP"
- "ad000001.pcx"  init    30 "http://www.pvpgn.org"            0x000000  "NULL"
- "ad000001.pcx"  start   30 "http://www.pvpgn.org"            0x000000  "NULL"
- "ad000666.pcx"  init    30 "http://www.world-of-amadeus.de"  0x000000  "NULL"
- "ad000666.pcx"  start   30 "http://www.world-of-amadeus.de"  0x000000  "NULL"
+ "ad000001.smk"  init    30 "http://www.pvpgn.org"            0x000000  "NULL"
+ "ad000001.smk"  start   30 "http://www.pvpgn.org"            0x000000  "NULL"
+ "ad000004.smk"  init    30 "http://www.world-of-amadeus.de"  0x000000  "NULL"
+ "ad000004.smk"  start   30 "http://www.world-of-amadeus.de"  0x000000  "NULL"
 #"ad000003.pcx"  start   30 "http://www.place.edu/~clanpage"  0x000000
 #"ad000002.smk"  start   30 "http://www.blah.com/"            0x000004
 #"ad000004.smk"  norm    30 "http://foo.com/"                 0x000000
