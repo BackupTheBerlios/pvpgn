@@ -1,7 +1,7 @@
 [Project]
 FileName=PvPGN.dev
 Name=PvPGN
-UnitCount=280
+UnitCount=283
 Type=0
 Ver=1
 ObjFiles=
@@ -2838,7 +2838,37 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit280]
-FileName=..\src\bnetd\attr.c
+FileName=..\src\bnetd\attrlayer.h
+CompileCpp=0
+Folder=bnetd/Header Files
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit281]
+FileName=..\src\bnetd\attrgroup.h
+CompileCpp=0
+Folder=bnetd/Header Files
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit282]
+FileName=..\src\bnetd\attrlayer.c
+CompileCpp=0
+Folder=bnetd/Source Files
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit283]
+FileName=..\src\bnetd\attrgroup.c
 CompileCpp=0
 Folder=bnetd/Source Files
 Compile=1

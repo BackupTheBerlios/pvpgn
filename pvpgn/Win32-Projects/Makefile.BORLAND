@@ -212,7 +212,8 @@ bnetd_OBJECTS       = \
     ${SRC_BNETDDIR}\ladder_binary.obj \
     ${SRC_BNETDDIR}\support.obj \
     ${SRC_BNETDDIR}\team.obj \
-    ${SRC_BNETDDIR}\attr.obj \    
+    ${SRC_BNETDDIR}\attrgroup.obj \    
+    ${SRC_BNETDDIR}\attrlayer.obj \            
     ${SRC_WIN32DIR}\service.obj \
     ${SRC_COMMONDIR}\hexdump.obj \
     ${SRC_COMMONDIR}\bn_type.obj \

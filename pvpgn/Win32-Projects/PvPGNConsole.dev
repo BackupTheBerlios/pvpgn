@@ -1,7 +1,7 @@
 [Project]
 FileName=PvPGNConsole.dev
 Name=PvPGNConsole
-UnitCount=276
+UnitCount=279
 Type=1
 Ver=1
 ObjFiles=
@@ -2798,7 +2798,37 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit276]
-FileName=..\src\bnetd\attr.c
+FileName=..\src\bnetd\attrlayer.h
+CompileCpp=0
+Folder=bnetd/Header Files
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit277]
+FileName=..\src\bnetd\attrgroup.h
+CompileCpp=0
+Folder=bnetd/Header Files
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit278]
+FileName=..\src\bnetd\attrlayer.c
+CompileCpp=0
+Folder=bnetd/Source Files
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit279]
+FileName=..\src\bnetd\attrgroup.c
 CompileCpp=0
 Folder=bnetd/Source Files
 Compile=1

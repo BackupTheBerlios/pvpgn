@@ -176,7 +176,10 @@
 					RelativePath="..\src\bnetd\anongame_maplists.c">
 				</File>
 				<File
-					RelativePath="..\src\bnetd\attr.c">
+					RelativePath="..\src\bnetd\attrgroup.c">
+				</File>
+				<File
+					RelativePath="..\src\bnetd\attrlayer.c">
 				</File>
 				<File
 					RelativePath="..\src\bnetd\autoupdate.c">
@@ -580,6 +583,12 @@
 				</File>
 				<File
 					RelativePath="..\src\bnetd\attr.h">
+				</File>
+				<File
+					RelativePath="..\src\bnetd\attrgroup.h">
+				</File>
+				<File
+					RelativePath="..\src\bnetd\attrlayer.h">
 				</File>				
 				<File
 					RelativePath="..\src\bnetd\autoupdate.h">
