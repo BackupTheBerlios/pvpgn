@@ -1448,16 +1448,16 @@ extern void conn_set_account(t_connection * c, t_account * account)
 	  account_set_fl_cdkey(c->account,c->cdkey);
       }
       account_set_ll_connection(c->account,c->tcp_addr);
-      account_set_ll_host(c->account,c->host);
       account_set_ll_user(c->account,c->user);
       account_set_ll_clientexe(c->account,c->clientexe);
       account_set_ll_clienttag(c->account,c->clienttag);
       account_set_ll_clientver(c->account,c->clientver);
-      account_set_ll_owner(c->account,c->owner);
       account_set_ll_cdkey(c->account,c->cdkey);
     }
-    // still always keep track of lastlogon_time
+    // still always keep track of lastlogon_time, _host and _owner
     account_set_ll_time(c->account,now);
+    account_set_ll_host(c->account,c->host);
+    account_set_ll_owner(c->account,c->owner);
       
     if (c->host)
     {

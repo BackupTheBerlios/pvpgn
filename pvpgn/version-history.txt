@@ -4,6 +4,18 @@ PvPGN Version History:
 -- fixed disconnet = loss bug for PG and AT
 -- added timer to shutdowm open w3route connections
 -- added reloading of d2trans file on HUP signal
+-- added a realtime ladder for War3 supporting seperate ladders for solo,team,ffa
+and at games (keeping top 1000 accounts)
+-- output of War3 ladder into 4 seperate text files in /var/ladders that can
+be easily parsed to create nice ladder pages for the web (output interval can
+be configured via bnetd.conf)
+-- some optimizations for MySQL mode - only changed attributes are flushed to
+DB now
+-- fixed 3 tiny memory leaks (files not beeing closed after opening them)
+-- added option to reduce the size of accounts by not keeping firstlogin infos
+in the account and removing unused lastlogin infos (experimental - if your
+client seems to miss some info now, plz report as a bug). This can be done via
+a new parameter in bnetd.conf and the new command /remove_accounting_infos
 
 1.1.7 RC1:
 -- added 1.03 War3 support; because of the protocol changes this version

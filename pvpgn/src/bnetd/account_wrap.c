@@ -707,9 +707,7 @@ extern int account_remove_verbose_accounting(t_account * account)
 {
   if (account_get_fl_time(account)!=0)
     {
-      // account_set_fl_time(account,NULL);
       account_set_strattr(account,"BNET\\acct\\firstlogin_time",NULL);
-      // account_set_fl_connection(account,NULL);
       account_set_strattr(account,"BNET\\acct\\firstlogin_connection",NULL);
       account_set_fl_host(account,NULL);
       account_set_fl_user(account,NULL);
@@ -718,14 +716,11 @@ extern int account_remove_verbose_accounting(t_account * account)
       account_set_fl_clientver(account,NULL);
       account_set_fl_owner(account,NULL);
       account_set_fl_cdkey(account,NULL);
-      // account_set_ll_connection(account,NULL);
       account_set_strattr(account,"BNET\\acct\\lastlogin_connection",NULL);
-      account_set_ll_host(account,NULL);
       account_set_ll_user(account,NULL);
       account_set_ll_clientexe(account,NULL);
       account_set_ll_clienttag(account,NULL);
       account_set_ll_clientver(account,NULL);
-      account_set_ll_owner(account,NULL);
       account_set_ll_cdkey(account,NULL);
     }
 }
@@ -740,16 +735,14 @@ extern int accounts_remove_verbose_columns(void)
   db_drop_column("BNET\\acct\\firstlogin_clientexe");
   db_drop_column("BNET\\acct\\firstlogin_clienttag");
   db_drop_column("BNET\\acct\\firstlogin_clientver");
-  db_drop_column("BNET\\acct\\firstlogin_clientowner");
-  db_drop_column("BNET\\acct\\firstlogin_clientcdkey");
+  db_drop_column("BNET\\acct\\firstlogin_owner");
+  db_drop_column("BNET\\acct\\firstlogin_cdkey");
   db_drop_column("BNET\\acct\\lastlogin_connection");
-  db_drop_column("BNET\\acct\\lastlogin_host");
   db_drop_column("BNET\\acct\\lastlogin_user");
   db_drop_column("BNET\\acct\\lastlogin_clientexe");
   db_drop_column("BNET\\acct\\lastlogin_clienttag");
   db_drop_column("BNET\\acct\\lastlogin_clientver");
-  db_drop_column("BNET\\acct\\lastlogin_clientowner");
-  db_drop_column("BNET\\acct\\lastlogin_clientcdkey");
+  db_drop_column("BNET\\acct\\lastlogin_cdkey");
 
 }
 #endif

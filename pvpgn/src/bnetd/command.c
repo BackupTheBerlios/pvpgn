@@ -3303,12 +3303,15 @@ extern int handle_command(t_connection * c,  char const * text)
         if (*key == '\0')
 	{
             message_send_text(c,message_type_error,c,"Which key do you want to change?");
+	    message_send_text(c,message_type_error,c,"usage: /set key value");
+	    message_send_text(c,message_type_error,c,"e.g.: /set Record\\solo\\xp 0");
             return 0;
         }
 
     	if (*value == '\0')
 	{
 	    message_send_text(c,message_type_error,c,"What value do you want to set?");
+	    message_send_text(c,message_type_error,c,"it is currently not possible to remove a value");
 	    return 0;
 	}
 
