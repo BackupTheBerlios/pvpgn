@@ -7,9 +7,11 @@ fail to login due to wrong file-time. That's not our problem.
 
 1.6.0pre4 (since 1.6.0pre3):
 -- fixed problem that started game remain in gamelist in war3/w3xp 1.13
--- moved anongame_infos packet data generation to server startup so that
-we don't generate anongame_infos data each time when user logon
+-- moved anongame_infos packet data generation to server startup so that we
+don't generate anongame_infos data each time when user logon
 -- tournament settings will also reload when get restart signal
+-- moved winmain.c/winmain.h to src/win32/, cleanup vc project files and move
+them to src/win32/
 
 1.6.0pre3 (since 1.6.0pre2):
 -- fixed clan crash bug (when any user with clans logged in on sql/cdb pvpgn 

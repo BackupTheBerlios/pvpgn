@@ -17,7 +17,7 @@
 #include "common/setup_before.h"
 
 #ifdef WIN32_GUI
-#include <bnetd/winmain.h>
+#include <win32/winmain.h>
 #endif
 
 #ifdef HAVE_STRING_H

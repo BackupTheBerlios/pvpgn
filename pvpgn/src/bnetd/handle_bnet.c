@@ -26,7 +26,7 @@
 #include <ctype.h>
 // amadeo
 #ifdef WIN32_GUI
-#include <bnetd/winmain.h>
+#include <win32/winmain.h>
 #endif
 // NonReal:
 #include <sys/stat.h>

@@ -100,7 +100,7 @@
 #endif
 
 #ifdef WIN32_GUI
-#include "winmain.h"
+#include "win32/winmain.h"
     int static fprintf(FILE *stream, const char *format, ...){
      va_list args;
 

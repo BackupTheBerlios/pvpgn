@@ -44,7 +44,7 @@
 #endif
 
 #ifdef WIN32_GUI
-# include <bnetd/winmain.h>
+# include <win32/winmain.h>
 #endif
 
 #include "common/eventlog.h"

@@ -22,7 +22,7 @@
 #include <stdio.h>
 // amadeo
 #ifdef WIN32_GUI
-#include <bnetd/winmain.h>
+#include <win32/winmain.h>
 #endif
 #ifdef HAVE_STDDEF_H
 # include <stddef.h>
