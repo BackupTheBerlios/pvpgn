@@ -601,7 +601,29 @@ extern char const * packet_get_type_str(t_packet const * packet, t_packet_dir di
 	    return "unknown";
 
 	case packet_class_w3route:
+	    if (packet_get_size(packet)<sizeof(t_w3route_header))
+	    {
+		eventlog(eventlog_level_error,"packet_get_type_str","packet is shorter than header (len=%u)",packet_get_size(packet));
 		return "unknown";
+	    }
+	    switch (bn_short_get(packet->u.bnet.h.type))
+	    {
+	    case CLIENT_W3ROUTE_REQ:
+	        return "CLIENT_W3ROUTE_REQ";
+	    case CLIENT_W3ROUTE_LOADINGDONE:
+	        return "CLIENT_W3ROUTE_LOADINGDONE";	        
+	    case CLIENT_W3ROUTE_ABORT:
+	        return "CLIENT_W3ROUTE_ABORT";
+	    case CLIENT_W3ROUTE_CONNECTED:
+	        return "CLIENT_W3ROUTE_CONNECTED";
+	    case CLIENT_W3ROUTE_ECHOREPLY:
+	        return "CLIENT_W3ROUTE_ECHOREPLY";
+	    case CLIENT_W3ROUTE_GAMERESULT:
+	        return "CLIENT_W3ROUTE_GAMERESULT";	        
+	    case CLIENT_W3ROUTE_GAMERESULT_W3XP:
+	        return "CLIENT_W3ROUTE_GAMERESULT_W3XP";
+	    }
+	    return "unknown";
 	
 	case packet_class_none:
 	    return "unknown";
@@ -822,7 +844,31 @@ extern char const * packet_get_type_str(t_packet const * packet, t_packet_dir di
 	    }
 	    return "unknown";
 	case packet_class_w3route:
+	    if (packet_get_size(packet)<sizeof(t_w3route_header))
+	    {
+		eventlog(eventlog_level_error,"packet_get_type_str","packet is shorter than header (len=%u)",packet_get_size(packet));
 		return "unknown";
+	    }
+	    switch (bn_short_get(packet->u.bnet.h.type))
+	    {
+	    case SERVER_W3ROUTE_READY:
+	        return "SERVER_W3ROUTE_READY";
+	    case SERVER_W3ROUTE_LOADINGACK:
+	        return "SERVER_W3ROUTE_LOADINGACK";	        
+	    case SERVER_W3ROUTE_ECHOREQ:
+	        return "SERVER_W3ROUTE_ECHOREQ";	        
+	    case SERVER_W3ROUTE_ACK:
+	        return "SERVER_W3ROUTE_ACK";	        
+	    case SERVER_W3ROUTE_PLAYERINFO:
+	        return "SERVER_W3ROUTE_PLAYERINFO";	        
+	    case SERVER_W3ROUTE_LEVELINFO:
+	        return "SERVER_W3ROUTE_LEVELINFO";
+	    case SERVER_W3ROUTE_STARTGAME1:
+	        return "SERVER_W3ROUTE_STARTGAME1";	        
+	    case SERVER_W3ROUTE_STARTGAME2:
+	        return "SERVER_W3ROUTE_STARTGAME2";	        
+	    }	
+	    return "unknown";
 	case packet_class_none:
 	    return "unknown";
 	}
