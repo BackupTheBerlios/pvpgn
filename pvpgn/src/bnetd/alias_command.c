@@ -404,8 +404,9 @@ extern int aliasfile_load(char const * filename)
 	      char * dummy = NULL;
 	      char * out   = NULL;
 	      int min, max;
-	      min = max = 0;
 	      t_output * output = NULL;
+
+	      min = max = 0;
 	      if (buff[pos]!='[')
 	      {
 		  eventlog(eventlog_level_error,"aliasfile_load","expected output entry on line %u of alias file \"%s\" but found \"%s\"",line,filename,&buff[pos]);
@@ -481,8 +482,9 @@ extern int aliasfile_load(char const * filename)
 		char * dummy = NULL;
 		char * out   = NULL;
 		int min, max;
-		min = max = 0;
 		t_output * output = NULL;
+
+		min = max = 0;
 		if (dummy=strchr(&buff[pos],']'))
 		  {
 		    if (dummy[1]!='\0') out = strdup(&dummy[1]);
