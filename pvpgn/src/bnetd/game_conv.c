@@ -46,6 +46,7 @@
 #include "game.h"
 #include "common/bnet_protocol.h"
 #include "common/util.h"
+#include "common/bn_type.h"
 #include "game_conv.h"
 #include "common/setup_after.h"
 
@@ -751,6 +752,40 @@ extern t_game_difficulty bngdifficulty_to_gdifficulty(unsigned int bngdifficulty
 }
 
 
+static const char * _w3_decrypt_mapinfo(const char *enc)
+{
+    char	*mapinfo;
+    char	*dec;
+    unsigned    pos;
+    unsigned char bitmask;
+
+    if (!(mapinfo = strdup(enc))) {
+	eventlog(eventlog_level_error, __FUNCTION__, "not enough memory to setup temporary buffer");
+	return NULL; /* its safe couse game_set_mapname checks if its NULL */
+    }
+
+    dec = mapinfo;
+    pos = 0;
+    bitmask = 0; /* stupid gcc warning */
+    while(*enc)
+    {
+        if (pos % 8)
+        {
+            *dec = *enc;
+            if (!(bitmask & 0x1)) (*dec)--;
+            dec++;
+            bitmask >>= 1;
+        } else
+            bitmask = *enc >> 1;
+        enc++;
+        pos++;
+    }
+    *dec = '\0';
+
+    return mapinfo;
+}
+
+
 extern int game_parse_info(t_game * game, char const * gameinfo)
 {
     char const * clienttag;
@@ -907,8 +942,7 @@ Also, what is the upper player limit on WCII... 8 like on Starcraft?
 	return 0;
     }
 
-	/* warcraft3 - by nonreal */
-	if (strcmp(clienttag,CLIENTTAG_WARCRAFT3)==0 || strcmp(clienttag,CLIENTTAG_WAR3XP)==0)
+    if (strcmp(clienttag,CLIENTTAG_WARCRAFT3)==0 || strcmp(clienttag,CLIENTTAG_WAR3XP)==0)
     {
 /*  Warcraft 3 game info format -- by Soar
     0x00 -- 1 byte  (char, Empty slots)
@@ -929,79 +963,22 @@ If the corresponding bit is a '0' then subtract 1 from the character.
     0x17 -- n bytes (string, mapname \0 terminated)
     0x17+n -- bitmask encoding stops from here, but we don't know what following bytes mean.
 */
-        int mapsize_x;
-        int mapsize_y;
-        char mapname[255];
-        int mpos = 0;
-        int dpos = 0;
-        unsigned char bitmask;
-        const char * pstr;
-        int len;
+        const char *pstr;
 
-        len = strlen(gameinfo) + 1 - 0x0f;
-        if(len < 2)
-        {
-            eventlog(eventlog_level_error,"game_parse_info","get bad war3 game info");
-            return -1;
-        }
-        pstr = gameinfo + 0x0f;
-        mapsize_x = (unsigned int)((unsigned char)pstr[0] - 1) + (((unsigned int)((unsigned char)pstr[1] - 1)) << 8);
-        len -= 2;
-        if(len < 3)
-        {
-            eventlog(eventlog_level_error,"game_parse_info","get bad war3 game info");
-            return -1;
-        }
-        pstr += 2;
-        bitmask = * pstr;
-        len --;
-        pstr ++;
-        mapsize_y = (unsigned int)((unsigned char)pstr[0]) + (((unsigned int)((unsigned char)pstr[1])) << 8);
-        if((bitmask & 0x02) == 0)
-            mapsize_y -= 1;
-        if((bitmask & 0x04) == 0)
-            mapsize_y -= 0x100;
-        game_set_mapsize_x(game, mapsize_x);
-        game_set_mapsize_y(game, mapsize_y);
-        len -= 6;
-        if(len < 1)
-        {
-            eventlog(eventlog_level_error,"game_parse_info","get bad war3 game info");
-            return -1;
-        }
-        pstr += 6;
-        mapname[0] = pstr[0];
-        mapname[1] = 0;
-        if((bitmask & 0x80) == 0)
-            mapname[0]--;
-        len --;
-        pstr ++;
-        mpos ++;
-        while (mapname[mpos - 1] != 0)
-        {
-            dpos++;
-            if ((dpos-1)%8 == 0)
-            {
-                len -= 8;
-                if(len < 1)
-                {
-                    eventlog(eventlog_level_error,"game_parse_info","get bad war3 game mapname");
-                    return -1;
-                }
-                bitmask = *pstr;
-                strncat(mapname, pstr+1, 7);
-                pstr += 8;
-            }
-            else
-            {
-                if ((bitmask & (0x1 << ((dpos-1)%8))) == 0)
-                    mapname[mpos] --;
-                mpos ++;
-            }
-        }
-        game_set_mapname(game, mapname);
+	if (strlen(gameinfo) < 0xf + 2 + 1 + 2 + 4) {
+	    eventlog(eventlog_level_error, __FUNCTION__, "got too short W3 mapinfo");
+	    return -1;
+	}
+        pstr = gameinfo + 9;
+	pstr = _w3_decrypt_mapinfo(pstr);
+	/* after decryption we dont have the mask bytes anymore so offsets need
+	 * to be adjusted acordingly */
+        game_set_mapsize_x(game, bn_short_get(*((bn_short*)(pstr + 5))));
+        game_set_mapsize_y(game, bn_short_get(*((bn_short*)(pstr + 7))));
+        game_set_mapname(game, pstr + 13);
+	free((void*)pstr);
 
-		return 0;
+	return 0;
     }
     
     /* otherwise it's Starcraft, Brood War, or Warcraft II */
