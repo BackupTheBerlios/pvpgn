@@ -463,14 +463,6 @@ extern int realmlist_create(char const * filename)
 	    for(temp = temp + 1; *temp && (*temp == ' ' || *temp == '\t');temp++);
 	} else desc = strdup("\0");
 	
-	if (*temp < '0' || *temp > '9') {
-	    eventlog(eventlog_level_error,"realmlist_create","malformed line %u in file \"%s\" (no address)",line,filename);
-	    free(name);
-	    free(buff);
-	    free(desc);
-	    continue;
-	}
-	
 	temp2 = temp;
 	/* find out where address ends */
 	for(temp = temp2 + 1; *temp && *temp != ' ' && *temp != '\t';temp++);
@@ -491,14 +483,6 @@ extern int realmlist_create(char const * filename)
 	for(; *temp && (*temp == ' ' || *temp == '\t');temp++);
 	
 	if (*temp) { /* do we have show addr */
-	    if  (*temp < '0' || *temp > '9') {
-		eventlog(eventlog_level_error,"realmlist_create","malformed line %u in file \"%s\" (invalid show address)",line,filename);
-		free(name);
-		free(buff);
-		free(desc);
-		continue;
-	    }
-
 	    temp2 = temp;
 	    /* find out where address ends */
 	    for(temp = temp2 + 1; *temp && *temp != ' ' && *temp != '\t';temp++);
