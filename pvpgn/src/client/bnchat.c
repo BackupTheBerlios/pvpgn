@@ -707,8 +707,7 @@ void ansi_printf(t_client_state * client,int color, char const * fmt, ...)
     vsnprintf(buffer,2048,fmt,args);
     va_end(args);
     
-    
-    str_print_term(stdout,buffer,0,0);
+    str_print_term(stdout,buffer,0,1);
 
     if (client->useansi)
         ansi_text_reset();
@@ -730,9 +729,8 @@ extern int main(int argc, char * argv[])
     char const * *     channellist;
     unsigned int       statsmatch=24; /* any random number that is rare in uninitialized fields */
     
-    user.cdowner = NULL;
-    user.cdkey = NULL;
-    user.channel = NULL;
+    memset(&user,0,sizeof(t_user_info));
+    memset(&client,0,sizeof(t_client_state));
     
     read_commandline(argc,argv,&servname,&servport,&user.clienttag,&changepass,&newacct,&user.channel,
                      &user.cdowner,&user.cdkey,&client.useansi);
@@ -1676,6 +1674,16 @@ extern int main(int argc, char * argv[])
 			    }
 			}
 			break;
+
+		    case SERVER_W3XP_CLAN_INVITEREQ:
+			if (packet_get_size(rpacket)<sizeof(t_server_w3xp_clan_invitereq))
+			{
+		            munge(&client);
+			    printf("Got bad SERVER_W3XP_CLAN_INVITEREQ packet (expected %u bytes, got %u)\n",sizeof(t_server_w3xp_clan_invitereq),packet_get_size(rpacket));
+			    break;
+			}
+			munge(&client);
+			printf("invited\n");
 			
 		    case SERVER_STATSREPLY:
 			if (client.mode==mode_waitstat)
@@ -1778,13 +1786,15 @@ extern int main(int argc, char * argv[])
 				break;
 			    case SERVER_MESSAGE_TYPE_ADDUSER:
 		                munge(&client);
-				ansi_printf(&client,ansi_text_color_green,"\"%s\" %s is here\n",speaker,mflags_get_str(bn_int_get(rpacket->u.server_message.flags)));
+				ansi_printf(&client,ansi_text_color_green,"\"%s\" %s is here\n",speaker,
+				            mflags_get_str(bn_int_get(rpacket->u.server_message.flags)));
 				break;
 			    case SERVER_MESSAGE_TYPE_USERFLAGS:
 				break;
 			    case SERVER_MESSAGE_TYPE_PART:
 		                munge(&client);
-				ansi_printf(&client,ansi_text_color_green,"\"%s\" %s leaves\n",speaker,mflags_get_str(bn_int_get(rpacket->u.server_message.flags)));
+				ansi_printf(&client,ansi_text_color_green,"\"%s\" %s leaves\n",speaker,
+				            mflags_get_str(bn_int_get(rpacket->u.server_message.flags)));
 				break;
 			    case SERVER_MESSAGE_TYPE_WHISPER:
 		                munge(&client);
