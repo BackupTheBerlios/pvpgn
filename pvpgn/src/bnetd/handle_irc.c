@@ -61,7 +61,10 @@
 #include "command.h"
 #include "handle_irc.h"
 #include "common/setup_after.h"
+
+#ifdef WIN32
 #include <windows.h> //amadeo (needed for GlobalAlloc (GPTR-def)
+#endif
 
 static int handle_irc_line(t_connection * conn, char const * ircline)
 {   /* [:prefix] <command> [[param1] [param2] ... [paramN]] [:<text>]*/
@@ -462,12 +465,15 @@ static int handle_irc_line(t_connection * conn, char const * ircline)
 	}*/
 		
 		linelen = strlen (ircline);
-		bnet_command = (char*)GlobalAlloc(GPTR, linelen + 2);
+		bnet_command = malloc(linelen + 2);
+		if (bnet_command == NULL) {
+		    eventlog(eventlog_level_error, "handle_irc 470", "insufficient memory available");
+		    return -1;
+		}
 		bnet_command[0]='/';
-		strcat (bnet_command,ircline);
-		bnet_command[linelen + 1]='\0';
+		strcpy(bnet_command + 1, ircline);
 		handle_command(conn,bnet_command); 
-		GlobalFree((HANDLE)bnet_command);//<-amadeo
+		free((void*)bnet_command);
     }
     } /* loggedin */
     if (params)
