@@ -215,7 +215,7 @@ static int on_d2cs_accountloginreq(t_connection * c, t_packet const * packet)
 		} else {
 			hash_to_bnhash((t_hash const *)&passhash,temp.passhash);
 			bnet_hash(&secret_hash,sizeof(temp),&temp);
-			bnhash_to_hash(packet->u.d2cs_bnetd_accountloginreq.secret_hash,&try_hash);
+			bnhash_to_hash((bn_int const *)packet->u.d2cs_bnetd_accountloginreq.secret_hash,&try_hash);
 			if (hash_eq(try_hash,secret_hash)==1) {
 				eventlog(eventlog_level_debug,__FUNCTION__,"user %s loggedin on d2cs",
 					account);
