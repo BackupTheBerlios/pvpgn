@@ -1340,7 +1340,7 @@ static int _handle_friends_command(t_connection * c, char const * text)
     	    message_send_text(dest_c,message_type_info,dest_c,msgtemp);
 	}
 
-	if (!(rpacket = packet_create(packet_class_bnet)))
+	if ((conn_get_class(c)!=conn_class_bnet) || (!(rpacket = packet_create(packet_class_bnet))))
     	    return 0;
 
 	packet_set_size(rpacket,sizeof(t_server_friendadd_ack));
@@ -1461,7 +1461,7 @@ static int _handle_friends_command(t_connection * c, char const * text)
 		sprintf(msgtemp, "Removed %s from your friends list.", text);
 		message_send_text(c,message_type_info,c,msgtemp);
 
-		if (!(rpacket = packet_create(packet_class_bnet)))
+		if ((conn_get_class(c)!=conn_class_bnet) || (!(rpacket = packet_create(packet_class_bnet))))
 	    	    return 0;
 
 		packet_set_size(rpacket,sizeof(t_server_frienddel_ack));
@@ -1508,7 +1508,7 @@ static int _handle_friends_command(t_connection * c, char const * text)
 		sprintf(msgtemp, "Premoted %s in your friends list.", dest_name);
 		message_send_text(c,message_type_info,c,msgtemp);
 
-		if (!(rpacket = packet_create(packet_class_bnet)))
+		if ((conn_get_class(c)!=conn_class_bnet) || (!(rpacket = packet_create(packet_class_bnet))))
 	    	    return 0;
 
 		packet_set_size(rpacket,sizeof(t_server_friendmove_ack));
@@ -1555,7 +1555,7 @@ static int _handle_friends_command(t_connection * c, char const * text)
 		sprintf(msgtemp, "Premoted %s in your friends list.", dest_name);
 		message_send_text(c,message_type_info,c,msgtemp);
 
-		if (!(rpacket = packet_create(packet_class_bnet)))
+		if ((conn_get_class(c)!=conn_class_bnet) || (!(rpacket = packet_create(packet_class_bnet))))
 	    	    return 0;
 
 		packet_set_size(rpacket,sizeof(t_server_friendmove_ack));
