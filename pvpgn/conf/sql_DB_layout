@@ -28,7 +28,6 @@
 "description varchar(256)","NULL"
 "age varchar(16)","NULL"
 "clanname varchar(48)","NULL"
-
 [Record]
 "uid int(11) NOT NULL PRIMARY KEY","'0'"
 "WAR3_solo_xp int(11)","'0'"
