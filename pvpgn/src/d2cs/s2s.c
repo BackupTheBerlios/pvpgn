@@ -64,6 +64,7 @@
 #include <ctype.h>
 
 #include "compat/psock.h"
+#include "compat/strtoul.h"
 #include "connection.h"
 #include "bnetd.h"
 #include "net.h"

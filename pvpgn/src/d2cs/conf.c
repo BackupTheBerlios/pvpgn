@@ -54,6 +54,7 @@
 # endif
 #endif
 #include "compat/strcasecmp.h"
+#include "compat/strtoul.h"
 #include "compat/memset.h"
 #include "compat/strdup.h"
 #include <errno.h>
