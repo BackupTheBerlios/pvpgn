@@ -146,6 +146,6 @@ whereis <player> - looks up some basic information on a user, including their ac
 %rehash
 /rehash - forces reload of bnetd.conf
 &clan
-/clan <clanname> - sets the clanname to be displayed in your war3 profile
+/clan <clanname> - sets the clanname to be displayed in your profile
 #                                                                            #
 ##############################################################################
