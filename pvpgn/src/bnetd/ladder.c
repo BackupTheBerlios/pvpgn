@@ -52,8 +52,8 @@
 #include "common/hashtable.h"
 #include "ladder_calc.h"
 #include "ladder.h"
-#include "common/setup_after.h"
 #include "war3ladder.h"
+#include "common/setup_after.h"
 
 /* for War3 XP computations */
 static t_xpcalc *xpcalc;
