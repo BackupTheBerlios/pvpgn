@@ -19,8 +19,8 @@
    write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
    Boston, MA 02111-1307, USA.  */
 
-#ifndef _GETOPT_H
-#define _GETOPT_H 1
+#ifndef _PVPGN_GETOPT_H_
+#define _PVPGN_GETOPT_H_ 1
 
 #include "common/setup_before.h"
 
@@ -148,4 +148,4 @@ extern int _getopt_internal ();
 
 #endif /* !HAVE_GETOPT */
 
-#endif /* _GETOPT_H */
+#endif /* _PVPGN_GETOPT_H_ */
