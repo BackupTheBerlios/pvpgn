@@ -3269,7 +3269,7 @@ static int _client_findanongame(t_connection * c, t_packet const * const packet)
 	desired_icon=bn_int_get(packet->u.client_findanongame.count);
 	user_icon[4]=0;
 	if (desired_icon==0){
-		strcpy(&user_icon,"NULL");
+		strcpy(user_icon[0],"NULL");
 		eventlog(eventlog_level_info,__FUNCTION__,"[%d] Set icon packet to DEFAULT ICON [%4.4s]",conn_get_socket(c),user_icon);
 	}else{
 		memcpy(user_icon,&desired_icon,4);
@@ -4406,132 +4406,153 @@ static int _client_progident2(t_connection * c, t_packet const * const packet)
 
 static int _client_joinchannel(t_connection * c, t_packet const * const packet)
 {
+   t_account * account;
+
    if (packet_get_size(packet)<sizeof(t_client_joinchannel)) {
       eventlog(eventlog_level_error,__FUNCTION__,"[%d] got bad JOINCHANNEL packet (expected %u bytes, got %u)",conn_get_socket(c),sizeof(t_client_joinchannel),packet_get_size(packet));
       return -1;
    }
    
-     {
-	char const * cname;
-	int          found=1;
-	
-	if (!(cname = packet_get_str_const(packet,sizeof(t_client_joinchannel),CHANNEL_NAME_LEN))) {
-	   eventlog(eventlog_level_error,__FUNCTION__,"[%d] got bad JOINCHANNEL (missing or too long cname)",conn_get_socket(c));
-	   return -1;
-	}
-	
-	if (strcmp(conn_get_clienttag(c), CLIENTTAG_WARCRAFT3) == 0 || strcmp(conn_get_clienttag(c), CLIENTTAG_WAR3XP) == 0) {
-	   /* ADDED BY UNDYING SOULZZ 4/7/02 AND MODIFIED BY DJP FOR RANDOM FIX & WINS RACE FEATURE*/
-	   unsigned int 	acctlevel = 0;
-	   
-	   char		    tempplayerinfo[40];
-	   char		    raceicon; /* appeared in 1.03 */
-	   unsigned int	raceiconnumber;
-	   unsigned int    wins;
-	   char *          client;
-	   char const *	   usericon;
-	   char const * clienttag = conn_get_clienttag(c);
-	   t_account * account = conn_get_account(c);
-	   
-	   if (strcmp(clienttag, CLIENTTAG_WARCRAFT3) == 0)
-	     client = "3RAW";
-	   else
-	     client = "PX3W";
-	   
-	   acctlevel = account_get_highestladderlevel(account,clienttag);
-	   account_get_raceicon(account, &raceicon, &raceiconnumber, &wins,clienttag);
-	   if(acctlevel==0)
-	     {
-	        strcpy(tempplayerinfo, client);
-		eventlog(eventlog_level_info,__FUNCTION__,"[%d] %s",conn_get_socket(c), client);
-	     }
-	   else 
-	     {
-		usericon = account_get_user_icon(account,clienttag);
-		if (!usericon)
-		{
-		  sprintf(tempplayerinfo, "%s %1u%c3W %u", client, raceiconnumber, raceicon, acctlevel); 
-		  eventlog(eventlog_level_debug,__FUNCTION__,"[%d] %s using generated icon [%1u%c3W]",conn_get_socket(c), client, raceiconnumber, raceicon);
-		}
-		else
-		{
-		  sprintf(tempplayerinfo, "%s %s %u",client, usericon,acctlevel);
-		  eventlog(eventlog_level_debug,__FUNCTION__,"[%d] %s using user-selected icon [%s]",conn_get_socket(c),client,usericon);
-		}
-	     }
-	   
-	   conn_set_w3_playerinfo( c, tempplayerinfo ); 
-	   
-	   if(account_get_new_at_team(account)==1)
-	     {
-		int temp;
-		temp = account_get_atteamcount(account,clienttag);
-		temp = temp-1;
-		account_set_atteamcount(account,clienttag,temp);
-		account_set_new_at_team(account,0);
-	     }
-	}
+   account = conn_get_account(c);
 
-	//ADDED THEUNDYING - UPDATED 7/31/02
-	if ((account_get_auth_admin(conn_get_account(c),cname)>0) || (account_get_auth_admin(conn_get_account(c),NULL)>0))
-	  conn_set_flags( c, MF_BLIZZARD );
-	else if ((account_get_auth_operator(conn_get_account(c),cname)>0) || (account_get_auth_operator(conn_get_account(c),NULL)>0))
-	  conn_set_flags( c, MF_BNET );
-	else
-	  conn_set_flags( c, W3_ICON_SET );
-	
-	switch (bn_int_get(packet->u.client_joinchannel.channelflag))
-	  {
-	   case CLIENT_JOINCHANNEL_NORMAL:
-	     eventlog(eventlog_level_info,__FUNCTION__,"[%d] CLIENT_JOINCHANNEL_NORMAL channel \"%s\"",conn_get_socket(c),cname);
-	     
-	     if (channellist_find_channel_by_name(cname,conn_get_country(c),conn_get_realmname(c)))
-	       break; /* just join it */
-	     else if (prefs_get_ask_new_channel())
-	       {
-		  found=0;
-		  eventlog(eventlog_level_info,__FUNCTION__,"[%d] didn't find channel \"%s\" to join",conn_get_socket(c),cname);
-		  message_send_text(c,message_type_channeldoesnotexist,c,cname);
-	       }
-	     break;
-	   case CLIENT_JOINCHANNEL_GENERIC:
-	     eventlog(eventlog_level_info,__FUNCTION__,"[%d] CLIENT_JOINCHANNEL_GENERIC channel \"%s\"",conn_get_socket(c),cname);
-	     /* don't have to do anything here */
-	     break;
-	   case CLIENT_JOINCHANNEL_CREATE:
-	     eventlog(eventlog_level_info,__FUNCTION__,"[%d] CLIENT_JOINCHANNEL_CREATE channel \"%s\"",conn_get_socket(c),cname);
-	     eventlog(eventlog_level_info,__FUNCTION__,"[%d] CLIENT_JOINCHANNEL_CREATE channel \"%s\"",conn_get_socket(c),cname);
-	     /* don't have to do anything here */
-	     break;
-	  }
-	
-	if (found && conn_set_channel(c,cname)<0)
-	  conn_set_channel(c,CHANNEL_NAME_BANNED); /* should not fail */
-     }	
+   
+   char const * cname;
+   int          found=1;
+   
+   if (!(cname = packet_get_str_const(packet,sizeof(t_client_joinchannel),CHANNEL_NAME_LEN))) {
+     eventlog(eventlog_level_error,__FUNCTION__,"[%d] got bad JOINCHANNEL (missing or too long cname)",conn_get_socket(c));
+     return -1;
+   }
+   
+   if (strcmp(conn_get_clienttag(c), CLIENTTAG_WARCRAFT3) == 0 || strcmp(conn_get_clienttag(c), CLIENTTAG_WAR3XP) == 0) 
+     {
+       /* ADDED BY UNDYING SOULZZ 4/7/02 AND MODIFIED BY DJP FOR RANDOM FIX & WINS RACE FEATURE*/
+       unsigned int 	acctlevel = 0;
+       
+       char		    tempplayerinfo[40];
+       char		    raceicon; /* appeared in 1.03 */
+       unsigned int	raceiconnumber;
+       unsigned int    wins;
+       char *          client;
+       char const *	   usericon;
+       char const * clienttag = conn_get_clienttag(c);
+       
+       if (strcmp(clienttag, CLIENTTAG_WARCRAFT3) == 0)
+	 client = "3RAW";
+       else
+	 client = "PX3W";
+       
+       acctlevel = account_get_highestladderlevel(account,clienttag);
+       account_get_raceicon(account, &raceicon, &raceiconnumber, &wins,clienttag);
+       if(acctlevel==0)
+	 {
+	   strcpy(tempplayerinfo, client);
+	   eventlog(eventlog_level_info,__FUNCTION__,"[%d] %s",conn_get_socket(c), client);
+	 }
+       else 
+	 {
+	   usericon = account_get_user_icon(account,clienttag);
+	   if (!usericon)
+	     {
+	       sprintf(tempplayerinfo, "%s %1u%c3W %u", client, raceiconnumber, raceicon, acctlevel); 
+	       eventlog(eventlog_level_debug,__FUNCTION__,"[%d] %s using generated icon [%1u%c3W]",conn_get_socket(c), client, raceiconnumber, raceicon);
+	     }
+	   else
+	     {
+	       sprintf(tempplayerinfo, "%s %s %u",client, usericon,acctlevel);
+	       eventlog(eventlog_level_debug,__FUNCTION__,"[%d] %s using user-selected icon [%s]",conn_get_socket(c),client,usericon);
+	     }
+	 }
+       
+       conn_set_w3_playerinfo( c, tempplayerinfo ); 
+       
+       if(account_get_new_at_team(account)==1)
+	 {
+	   int temp;
+	   temp = account_get_atteamcount(account,clienttag);
+	   temp = temp-1;
+	   account_set_atteamcount(account,clienttag,temp);
+	   account_set_new_at_team(account,0);
+	 }
+       
+       
+       switch (bn_int_get(packet->u.client_joinchannel.channelflag))
+	 {
+	 case CLIENT_JOINCHANNEL_NORMAL:
+	   eventlog(eventlog_level_info,__FUNCTION__,"[%d] CLIENT_JOINCHANNEL_NORMAL channel \"%s\"",conn_get_socket(c),cname);
+	   
+	   if (channellist_find_channel_by_name(cname,conn_get_country(c),conn_get_realmname(c)))
+	     break; /* just join it */
+	   else if (prefs_get_ask_new_channel())
+	     {
+	       found=0;
+	       eventlog(eventlog_level_info,__FUNCTION__,"[%d] didn't find channel \"%s\" to join",conn_get_socket(c),cname);
+	       message_send_text(c,message_type_channeldoesnotexist,c,cname);
+	     }
+	   break;
+	 case CLIENT_JOINCHANNEL_GENERIC:
+	   eventlog(eventlog_level_info,__FUNCTION__,"[%d] CLIENT_JOINCHANNEL_GENERIC channel \"%s\"",conn_get_socket(c),cname);
+	   /* don't have to do anything here */
+	   break;
+	 case CLIENT_JOINCHANNEL_CREATE:
+	   eventlog(eventlog_level_info,__FUNCTION__,"[%d] CLIENT_JOINCHANNEL_CREATE channel \"%s\"",conn_get_socket(c),cname);
+	   eventlog(eventlog_level_info,__FUNCTION__,"[%d] CLIENT_JOINCHANNEL_CREATE channel \"%s\"",conn_get_socket(c),cname);
+	   /* don't have to do anything here */
+	   break;
+	 }
+       
+       if (found && conn_set_channel(c,cname)<0)
+	 conn_set_channel(c,CHANNEL_NAME_BANNED); /* should not fail */
+       
+       //ADDED THEUNDYING - UPDATED 7/31/02
+       if ((account_get_auth_admin(account,cname)>0) || (account_get_auth_admin(account,NULL)>0))
+	 conn_set_flags( c, MF_BLIZZARD );
+       else if ((account_get_auth_operator(account,cname)>0) || (account_get_auth_operator(account,NULL)>0) || (channel_account_is_tmpOP(conn_get_channel(c),account)))
+	 conn_set_flags( c, MF_BNET );
+       else
+	 conn_set_flags( c, W3_ICON_SET );	
+     }   
+   else
+     {
+       t_account * acc;
+       
+       acc = conn_get_account(c);
+       
+       if (conn_set_channel(c,cname)<0)
+	 conn_set_channel(c,CHANNEL_NAME_BANNED); /* should not fail */
+       //ADDED THEUNDYING - UPDATED 7/31/02
+       if ((account_get_auth_admin(account,cname)>0) || (account_get_auth_admin(account,NULL)>0))
+	 conn_set_flags( c, MF_BLIZZARD );
+       else if ((account_get_auth_operator(account,cname)>0) || (account_get_auth_operator(account,NULL)>0) ||
+		channel_account_is_tmpOP(conn_get_channel(c),acc))
+	{
+	 conn_set_flags( c, MF_BNET );
+	}
+     }
    
    if(conn_get_motd_loggedin(c)==0)
      {
-	char msgtemp[255];
-	int clienttaggames = game_get_count_by_clienttag(conn_get_clienttag(c));
-	int clienttagusers = conn_get_user_count_by_clienttag(conn_get_clienttag(c));
-	
-	sprintf(msgtemp,"Welcome to the PvPGN Realm");
-	message_send_text(c,message_type_info,c,msgtemp);
-	sprintf(msgtemp,"This Server is hosted by: %s",prefs_get_contact_name());
-	message_send_text(c,message_type_info,c,msgtemp);
-	sprintf(msgtemp,"There are currently %u users in %u games of %s,",
-		clienttagusers,
-		clienttaggames,
-		conn_get_user_game_title(conn_get_clienttag(c)));
-	message_send_text(c,message_type_info,c,msgtemp);
-	sprintf(msgtemp,"and %u users playing %u games and chatting In %u channels in the PvPGN Realm.",
-		connlist_login_get_length(),
-		gamelist_get_length(),
-		channellist_get_length());
-	message_send_text(c,message_type_info,c,msgtemp);
-	
-	
-	conn_set_motd_loggedin(c);
+       char msgtemp[255];
+       int clienttaggames = game_get_count_by_clienttag(conn_get_clienttag(c));
+       int clienttagusers = conn_get_user_count_by_clienttag(conn_get_clienttag(c));
+       
+       sprintf(msgtemp,"Welcome to the PvPGN Realm");
+       message_send_text(c,message_type_info,c,msgtemp);
+       sprintf(msgtemp,"This Server is hosted by: %s",prefs_get_contact_name());
+       message_send_text(c,message_type_info,c,msgtemp);
+       sprintf(msgtemp,"There are currently %u users in %u games of %s,",
+	       clienttagusers,
+	       clienttaggames,
+	       conn_get_user_game_title(conn_get_clienttag(c)));
+       message_send_text(c,message_type_info,c,msgtemp);
+       sprintf(msgtemp,"and %u users playing %u games and chatting In %u channels in the PvPGN Realm.",
+	       connlist_login_get_length(),
+	       gamelist_get_length(),
+	       channellist_get_length());
+       message_send_text(c,message_type_info,c,msgtemp);
+       
+       
+       conn_set_motd_loggedin(c);
      }
    
    return 0;

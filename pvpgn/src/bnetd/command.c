@@ -620,15 +620,19 @@ static int command_set_flags(t_connection * c)
     unsigned int	currflags;
     unsigned int	newflags;
     char const *	channel;
+    t_account  *	acc;
     
     currflags = conn_get_flags(c);
+    acc = conn_get_account(c);
     
     if (!(channel = channel_get_name(conn_get_channel(c))))
 	return -1;
     
-    if (account_get_auth_admin(conn_get_account(c),channel) == 1 || account_get_auth_admin(conn_get_account(c),NULL) == 1)
+    if (account_get_auth_admin(acc,channel) == 1 || account_get_auth_admin(acc,NULL) == 1)
 	newflags = MF_BLIZZARD;
-    else if (account_get_auth_operator(conn_get_account(c),channel) == 1 || account_get_auth_operator(conn_get_account(c),NULL) == 1)
+    else if (account_get_auth_operator(acc,channel) == 1 || 
+	     account_get_auth_operator(acc,NULL) == 1 ||
+	     channel_account_is_tmpOP(conn_get_channel(c),acc) )
         newflags = MF_BNET;
     else
         newflags = 0;
@@ -1687,6 +1691,7 @@ static int _handle_channel_command(t_connection * c, char const *text)
    
    if (conn_set_channel(c,&text[i])<0)
      conn_set_channel(c,CHANNEL_NAME_BANNED); /* should not fail */
+   command_set_flags(c);
    
    return 0;
  }
@@ -1696,6 +1701,7 @@ static int _handle_rejoin_command(t_connection * c, char const *text)
 
   if (channel_rejoin(c)!=0)
       message_send_text(c,message_type_error,c,"You are not in a channel.");
+  command_set_flags(c);
   
   return 0;
 }
