@@ -744,6 +744,7 @@ extern int accounts_remove_verbose_columns(void)
   db_drop_column("BNET\\acct\\lastlogin_clienttag");
   db_drop_column("BNET\\acct\\lastlogin_clientver");
   db_drop_column("BNET\\acct\\lastlogin_cdkey");
+  return 0;
 
 }
 #endif

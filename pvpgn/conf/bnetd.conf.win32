@@ -333,7 +333,7 @@ use_keepalive = true
 # W3 Play Game router address. Just put your server address in here.
 # It's needed to tell clients where to connect to init anonymous games.
 # change it, or clients will get "Error handling the request"!
-w3routeaddr = "129.0.0.1:6200"
+w3routeaddr = "127.0.0.1:6200"
 
 # This is the w3route adress to show to clients If not specified it uses
 # the w3routeaddr from above. But if specified it will be send to clients
