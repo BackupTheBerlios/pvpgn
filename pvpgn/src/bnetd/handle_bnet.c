@@ -101,9 +101,11 @@
 #include "anongame_infos.h"
 #include "news.h" //by Spider
 #include "friends.h"
+#include "server.h"
 #include "compat/uint.h"
 #include "common/trans.h"
 #include "common/xalloc.h"
+#include "common/lstr.h"
 #include "common/setup_after.h"
 
 extern int last_news;
@@ -2668,94 +2670,95 @@ static int _client_atacceptinvite(t_connection * c, t_packet const * const packe
    return 0;
 }
 
+typedef struct {
+    t_connection *c;
+    unsigned lnews;
+    unsigned fnews;
+} t_motd_data;
+
+static int _news_cb(time_t date, t_lstr *lstr, void *data)
+{
+    t_packet * rpacket;
+    t_motd_data *motdd = (t_motd_data*)data;
+
+    if (date < motdd->lnews) return -1;	/* exit traversing */
+
+    rpacket = packet_create(packet_class_bnet);
+    if (!rpacket) return -1;
+
+    packet_set_size(rpacket,sizeof(t_server_motd_w3));
+    packet_set_type(rpacket,SERVER_MOTD_W3);
+
+    bn_byte_set(&rpacket->u.server_motd_w3.msgtype,SERVER_MOTD_W3_MSGTYPE);
+    bn_int_set(&rpacket->u.server_motd_w3.curr_time,now);
+
+    bn_int_set(&rpacket->u.server_motd_w3.first_news_time,motdd->fnews);
+    bn_int_set(&rpacket->u.server_motd_w3.timestamp,date);
+    bn_int_set(&rpacket->u.server_motd_w3.timestamp2,date);
+
+    /* Append news to packet, we used the already cached len in the lstr */
+    packet_append_lstr(rpacket,lstr);
+
+    /* Send news packet */
+    conn_push_outqueue(motdd->c,rpacket);
+    packet_del_ref(rpacket);
+
+    return 0;
+}
+
 static int _client_motdw3(t_connection * c, t_packet const * const packet)
 {
     t_packet * rpacket;
-    unsigned int last_news_time;
-    unsigned int news_firstnews;
     char serverinfo[512];
     t_clienttag ctag;
-    
+    t_motd_data motdd;
+
     if (packet_get_size(packet)<sizeof(t_client_motd_w3)) {
 	eventlog(eventlog_level_error,__FUNCTION__,"[%d] got bad CLIENT_MOTD_W3 packet (expected %u bytes, got %u)",conn_get_socket(c),sizeof(t_client_motd_w3),packet_get_size(packet));
 	return -1;
     }
 
     ctag = conn_get_clienttag(c);
-
-	/* if in a game, remove user from his game */
-	if(conn_get_game(c) != NULL)
-		conn_set_game(c,NULL,NULL,NULL,game_type_none,0);
+    /* if in a game, remove user from his game */
+    if(conn_get_game(c) != NULL)
+	conn_set_game(c,NULL,NULL,NULL,game_type_none,0);
 
     /* News */
-    last_news_time = bn_int_get(packet->u.client_motd_w3.last_news_time);
-    news_firstnews = news_get_firstnews();
+    motdd.lnews = bn_int_get(packet->u.client_motd_w3.last_news_time);
+    motdd.fnews = news_get_firstnews();
+    motdd.c = c;
 
-    if (newslist()) {
-    	eventlog(eventlog_level_trace,__FUNCTION__,"lastnews() %u news_time %u",news_get_lastnews(),last_news_time);
-	if (news_get_lastnews() > last_news_time) {
-	    t_elem const * curr;
-	
-	    LIST_TRAVERSE_CONST(newslist(),curr)
-	    {
-		t_news_index const * newsindex = elem_get_data(curr);
-	    
-		if (news_get_date(newsindex) > last_news_time) {
-		    if (!(rpacket = packet_create(packet_class_bnet)))
-			return -1;
-	    
-		    packet_set_size(rpacket,sizeof(t_server_motd_w3));
-		    packet_set_type(rpacket,SERVER_MOTD_W3);
-	    
-		    bn_byte_set(&rpacket->u.server_motd_w3.msgtype,SERVER_MOTD_W3_MSGTYPE);
-		    bn_int_set(&rpacket->u.server_motd_w3.curr_time,time(NULL));
-	    
-		    bn_int_set(&rpacket->u.server_motd_w3.first_news_time,news_firstnews);
-		    bn_int_set(&rpacket->u.server_motd_w3.timestamp,news_get_date(newsindex));
-		    bn_int_set(&rpacket->u.server_motd_w3.timestamp2,news_get_date(newsindex));
-	    
-		    /* Append news to packet */
-		    packet_append_string(rpacket,news_get_body(newsindex));
-	    
-		    /* Send news packet */
-		    conn_push_outqueue(c,rpacket);
-	    
-		    packet_del_ref(rpacket);
-		}
-	    }
-	} 
-    } else {
-	if (!(rpacket = packet_create(packet_class_bnet)))
-	    return -1;
-	
+    eventlog(eventlog_level_trace,__FUNCTION__,"lastnews() %u news_time %u",news_get_lastnews(),motdd.lnews);
+    if (!news_traverse(_news_cb,&motdd)) {
+	rpacket = packet_create(packet_class_bnet);
+	if (!rpacket) return -1;
+
 	packet_set_size(rpacket,sizeof(t_server_motd_w3));
 	packet_set_type(rpacket,SERVER_MOTD_W3);
 	bn_byte_set(&rpacket->u.server_motd_w3.msgtype,SERVER_MOTD_W3_MSGTYPE);
-	bn_int_set(&rpacket->u.server_motd_w3.curr_time,time(NULL));
+	bn_int_set(&rpacket->u.server_motd_w3.curr_time,now);
 	bn_int_set(&rpacket->u.server_motd_w3.first_news_time,0);
-	bn_int_set(&rpacket->u.server_motd_w3.timestamp,time(NULL));
-	bn_int_set(&rpacket->u.server_motd_w3.timestamp2,time(NULL));
+	bn_int_set(&rpacket->u.server_motd_w3.timestamp,now);
+	bn_int_set(&rpacket->u.server_motd_w3.timestamp2,now);
 	packet_append_string(rpacket,"No news today.");
-	conn_push_outqueue(c,rpacket);
 	conn_push_outqueue(c,rpacket);
 	packet_del_ref(rpacket);
     }
-            
+
     /* Welcome Message */
-    if (!(rpacket = packet_create(packet_class_bnet)))
-      return -1;
-    
+    rpacket = packet_create(packet_class_bnet);
+    if (!rpacket) return -1;
+
     packet_set_size(rpacket,sizeof(t_server_motd_w3));
     packet_set_type(rpacket,SERVER_MOTD_W3);
-    
+
     //bn_int_set(&rpacket->u.server_motd_w3.ticks,get_ticks());
     bn_byte_set(&rpacket->u.server_motd_w3.msgtype,SERVER_MOTD_W3_MSGTYPE);
     bn_int_set(&rpacket->u.server_motd_w3.curr_time,time(NULL));
-    bn_int_set(&rpacket->u.server_motd_w3.first_news_time,news_firstnews);
-    bn_int_set(&rpacket->u.server_motd_w3.timestamp,news_firstnews+1);
+    bn_int_set(&rpacket->u.server_motd_w3.first_news_time,motdd.fnews);
+    bn_int_set(&rpacket->u.server_motd_w3.timestamp,motdd.fnews+1);
     bn_int_set(&rpacket->u.server_motd_w3.timestamp2,SERVER_MOTD_W3_WELCOME);
-    
-    /* MODIFIED BY THE UNDYING SOULZZ 4/7/02 */
+
     sprintf(serverinfo,"Welcome to the "PVPGN_SOFTWARE" Version "PVPGN_VERSION"\r\n\r\nThere are currently %u user(s) in %u games of %s, and %u user(s) playing %u games and chatting In %u channels in the PvPGN Realm.\r\n%s",
 	conn_get_user_count_by_clienttag(conn_get_clienttag(c)),
 	game_get_count_by_clienttag(ctag),
@@ -2764,12 +2767,12 @@ static int _client_motdw3(t_connection * c, t_packet const * const packet)
 	gamelist_get_length(),
 	channellist_get_length(),
 	prefs_get_server_info());
-      
+  
     packet_append_string(rpacket,serverinfo);
-    
+
     conn_push_outqueue(c,rpacket);
     packet_del_ref(rpacket);
-    
+
     return 0;
 }
 

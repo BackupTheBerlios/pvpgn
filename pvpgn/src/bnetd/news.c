@@ -40,311 +40,199 @@
 #  include <strings.h>
 # endif
 #endif
+#ifdef HAVE_ERRNO_H
+# include <errno.h>
+#endif
+#ifdef HAVE_TIME_H
+# include <time.h>
+#endif
+#ifdef HAVE_ASSERT_H
+# include <assert.h>
+#endif
 #include "compat/strchr.h"
 #include "compat/strdup.h"
-#include <errno.h>
 #include "compat/strerror.h"
 #include "common/eventlog.h"
-#include "common/list.h"
+#include "common/elist.h"
 #include "common/util.h"
 #include "common/proginfo.h"
 #include "common/xalloc.h"
 #include "news.h"
-#include <time.h>
 #include "common/setup_after.h"
 
-static char * news_read_file(FILE * fp);
+static t_elist news_head;
 
-static t_list * news_head=NULL;
-static FILE * fp = NULL;
+static int _news_parsetime(char *buff, struct tm *date, unsigned line)
+{
+    char *p;
+
+    date->tm_hour= 6; 
+    date->tm_min = 6;  // need to set non-zero values or else date is displayed wrong
+    date->tm_sec = 6;  
+    date->tm_isdst=-1;
+
+    if (!(p = strchr(buff,'/'))) return -1;
+    *p = '\0';
+
+    date->tm_mon = atoi(buff) - 1;
+    if ((date->tm_mon<0) || (date->tm_mon>11)) {
+	eventlog(eventlog_level_error,__FUNCTION__,"found invalid month (%i) in news date. (format: {MM/DD/YYYY}) on line %u",date->tm_mon,line);
+    }
+
+    buff = p + 1;
+    if (!(p = strchr(buff,'/'))) return -1;
+    *p = '\0';
+
+    date->tm_mday = atoi(buff);
+    if ((date->tm_mday<1) || (date->tm_mday>31)) {
+	eventlog(eventlog_level_error,__FUNCTION__,"found invalid month day (%i) in news date. (format: {MM/DD/YYYY}) on line %u",date->tm_mday,line);
+	return -1;
+    }
+
+    buff = p + 1;
+    if (!(p = strchr(buff,'}'))) return -1;
+    *p = '\0';
+
+    date->tm_year=atoi(buff)-1900;
+    if (date->tm_year>137) //limited due to 32bit t_time
+    {
+	eventlog(eventlog_level_error,__FUNCTION__,"found invalid year (%i) (>2037) in news date.  on line %u",date->tm_year+1900,line);
+	return -1;
+    }
+
+    return 0;
+}
+
+static void _news_insert_index(t_news_index *ni, char *buff, unsigned len, int date_set)
+{
+    t_elist *curr;
+    t_news_index *cni;
+
+    elist_for_each(curr,&news_head) {
+	cni = elist_entry(curr,t_news_index,list);
+	if (cni->date <= ni->date) break;
+    }
+
+    if (curr != &news_head && cni->date == ni->date) {
+	if (date_set == 1)
+	    eventlog(eventlog_level_warn,__FUNCTION__,"found another news item for same date, trying to join both");
+
+	if ((lstr_get_len(&cni->body) + len +2) > 1023)
+	    eventlog(eventlog_level_error,__FUNCTION__,"failed in joining news, cause news too long - skipping");
+	else {
+	    lstr_set_str(&cni->body,xrealloc(lstr_get_str(&cni->body),lstr_get_len(&cni->body) + 1 + len + 1));
+	    *(lstr_get_str(&cni->body) + lstr_get_len(&cni->body)) = '\n';
+	    strcpy(lstr_get_str(&cni->body) + lstr_get_len(&cni->body) + 1, buff);
+	    lstr_set_len(&cni->body,lstr_get_len(&cni->body) + 1 + len);
+	}
+	xfree((void *)ni);
+    } else {
+	/* adding new index entry */
+	lstr_set_str(&ni->body,xstrdup(buff));
+	lstr_set_len(&ni->body,len);
+	elist_add_tail(curr,&ni->list);
+    }
+}
 
 extern int news_load(const char *filename)
 {
+    FILE * 		fp;
     unsigned int	line;
     unsigned int	len;
-    char		*buff;
-    struct tm		*date;
-    char date_set;
-    t_news_index	*ni, *previous_ni;
-    
+    char		buff[256];
+    struct tm		date;
+    char		date_set;
+    t_news_index	*ni;
+
+    elist_init(&news_head);
+
     date_set = 0;
-    previous_ni = NULL;
 
     if (!filename) {
 	eventlog(eventlog_level_error, __FUNCTION__,"got NULL fullname");
 	return -1;
     }
 
-    if ((fp = fopen(filename,"r"))==NULL) {
+    if ((fp = fopen(filename,"rt"))==NULL) {
 	eventlog(eventlog_level_error, __FUNCTION__,"can't open news file");
 	return -1;
     }
 
-    news_head = list_create();
-     
-    setbuf(fp,NULL);
-
-    date=xmalloc(sizeof(struct tm));
-    
-    for (line=1; (buff = news_read_file(fp)); line++) {
+    for (line=1; fgets(buff,sizeof(buff),fp); line++) {
 	len = strlen(buff);
-	
+	while(len && (buff[len] == '\n' || buff[len] == '\r')) len--;
+	if (!len) continue; /* empty line */
+	buff[len] = '\0';
+
 	if (buff[0]=='{') {
-	    int		flag;
-	    char	*dpart = xmalloc(5);
-	    int		dpos;
-	    unsigned 	pos;
-
-	    date->tm_hour= 6; 
-	    date->tm_min = 6;  // need to set non-zero values or else date is displayed wrong
-	    date->tm_sec = 6;  
-	    date->tm_isdst=-1;
-	    dpos=0;
-
-	    for (pos=1, flag=0; pos<len; pos++) {
-		if ((buff[pos]=='/') || (buff[pos]=='}')) {
-	    	    pos++;
-		    dpart[dpos]='\0';
-	    	    
-		    switch (flag++) {
-			case 0:
-		    	    date->tm_mon=atoi(dpart)-1;
-					if ((date->tm_mon<0) || (date->tm_mon>11))
-						eventlog(eventlog_level_error,__FUNCTION__,"found invalid month (%i) in news date. (format: {MM/DD/YYYY}) on line %u",date->tm_mon,line);
-		    	    break;
-			case 1:
-		    	    date->tm_mday=atoi(dpart);
-					if ((date->tm_mday<1) || (date->tm_mday>31))
-						eventlog(eventlog_level_error,__FUNCTION__,"found invalid month day (%i) in news date. (format: {MM/DD/YYYY}) on line %u",date->tm_mday,line);
-		    	    break;
-			case 2:
-		    	    date->tm_year=atoi(dpart)-1900;
-					if (date->tm_year>137) //limited due to 32bit t_time
-					{
-						eventlog(eventlog_level_error,__FUNCTION__,"found invalid year (%i) (>2037) in news date.  on line %u",date->tm_year+1900,line);
-						date->tm_year=137;
-					}
-		    	    break;
-			default:
-		    	    eventlog(eventlog_level_error,__FUNCTION__,"error parsing news date on line %u",line);
-		    	    xfree((void *)dpart);
-					xfree((void *)date);
-					xfree((void *)buff);
-					fclose(fp);
-		    		return -1;
-		    }
-	    	    
-		    dpos=0;
-		} 
-		
-		if (buff[pos]=='}')
-	    	    break;
-
-		dpart[dpos++]=buff[pos];
-	    }
-		
-	    if (((dpos>1) && (flag<2)) || ((dpos>3) && (flag>1))) {
-		eventlog(eventlog_level_error,__FUNCTION__,"dpos: %d, flag: %d", dpos, flag);
-	    	eventlog(eventlog_level_error,"news_load","error parsing news date");
-	    	xfree((void *)dpart);
-		xfree((void *)date);
-		xfree((void *)buff);
-		fclose(fp);
+	    if (_news_parsetime(buff + 1,&date, line)) {
+		eventlog(eventlog_level_error,__FUNCTION__,"error parsing news date on line %u",line);
 		return -1;
 	    }
 	    date_set = 1;
-	    xfree((void *)dpart);
 	} else {
 	    ni = (t_news_index*)xmalloc(sizeof(t_news_index));
-	    			
-	    if (date_set==1) 
-			ni->date=mktime(date);
-		else
-		{
-			ni->date=time(0);
-			eventlog(eventlog_level_error,__FUNCTION__,"(first) news entry seems to be missing a timestamp, please check your news file on line %u",line);
-		}
-
-	    if ((previous_ni) && (ni->date == previous_ni->date))
-	    {
-		eventlog(eventlog_level_error,__FUNCTION__,"found another news item for same date, trying to join both");
-		
-		if ((strlen(previous_ni->body) + strlen(buff) +2) > 1023)
-		{
-		  eventlog(eventlog_level_error,__FUNCTION__,"failed in joining news, cause news too long - skipping");
-		  xfree((void *)ni);
-		}
-		else
-		{
-		  previous_ni->body = xrealloc(previous_ni->body,strlen(previous_ni->body)+1+strlen(buff)+1);
-		  sprintf(previous_ni->body,"%s\n%s",previous_ni->body,buff);
-		  xfree((void *)ni);
-		}
-		
+	    if (date_set)
+		ni->date = mktime(&date);
+	    else {
+		ni->date = time(0);
+		eventlog(eventlog_level_warn,__FUNCTION__,"(first) news entry seems to be missing a timestamp, please check your news file on line %u",line);
 	    }
-	    else
-	    {
-	      if ( strlen(buff)<1023 )
-	      {
-	        ni->body=xstrdup(buff);
-	    
-	        list_append_data(news_head,ni);
-
-	        previous_ni = ni;
-	      }
-	      else
-	      {
-		eventlog(eventlog_level_error,__FUNCTION__,"news too long - skipping");
-		xfree((void*)ni);
-	      }
-	    }
+	    _news_insert_index(ni,buff,len,date_set);
+	    date_set = 2;
 	}
-	xfree((void *)buff);
-    }	
-    xfree((void *)date);
-    
+    }
     fclose(fp);
-    fp = NULL;
+
     return 0;
 }
 
-static char * news_read_file(FILE * fp)
-{
-    char * 	 line;
-    char *       newline;
-    unsigned int len=256;
-    unsigned int pos=0;
-    int          curr_char;
-    
-    line = xmalloc(256);
-
-    while ((curr_char = fgetc(fp))!=EOF) {
-	if (((char)curr_char)=='\r')
-	    continue; /* make DOS line endings look Unix-like */
-	if (((char)curr_char)=='{'&& pos>0 ) {
-	    fseek(fp,ftell(fp)-1,SEEK_SET);
-	    break; /* end of news body */
-	}
-	
-	line[pos++] = (char)curr_char;
-	if ((pos+1)>=len) {
-	    len += 64;
-	    newline = xrealloc(line,len);
-	    line = newline;
-	}
-	if (((char)curr_char)=='}'&& pos>0 ) {
-	    if ((curr_char = fgetc(fp))!=EOF)
-		if (((char)curr_char)!='\n') /* check for return */
-		    fseek(fp,ftell(fp)-1,SEEK_SET); /* if not assume body starts and reset fp pos */
-	    break; /* end of news date */
-	}
-    }
-    
-    if (curr_char==EOF && pos<1)  { /* not even an empty line */
-	xfree(line);
-	return NULL;
-    }
-			    
-    if (pos+1<len)
-	line = xrealloc(line,pos+1); /* bump the size back down to what we need */
-    line[pos] = '\0';
-    return line;
-}
-							    
 /* Free up all of the elements in the linked list */
 extern int news_unload(void)
 {
-    t_elem *       curr;
-    t_news_index * ni;
-    
-    if (news_head) {
-	LIST_TRAVERSE(news_head,curr)
-	{
-	    if (!(ni = elem_get_data(curr))) {
-	    	eventlog(eventlog_level_error,"news_unload","found NULL entry in list");
-		continue;
-	    }
-	    
-	    xfree((void *)ni->body);
-	    xfree((void *)ni);
-	    list_remove_elem(news_head,&curr);
+    t_elist *		curr, *save;
+    t_news_index * 	ni;
 
-	}
-	
-	if (list_destroy(news_head)<0)
-	    return -1;
-	
-	news_head = NULL;
+    elist_for_each_safe(curr,&news_head,save)
+    {
+	ni = elist_entry(curr,t_news_index,list);
+	elist_del(&ni->list);
+	xfree((void *)lstr_get_str(&ni->body));
+	xfree((void *)ni);
     }
+
+    elist_init(&news_head);
+
     return 0;
 }
 
 extern unsigned int news_get_lastnews(void)
 {
-    t_elem	 *curr;
-    t_news_index *ni;
-    unsigned int last_news = 0;
-    
-    if (news_head) {
-	LIST_TRAVERSE(news_head,curr)
-	{
-	    if (!(ni = elem_get_data(curr))) {
-		eventlog(eventlog_level_error,"news_get_lastnews","found NULL entry in list");
-		continue;
-	    } else
-		if (last_news<ni->date)
-		    last_news=ni->date;
-	}
-    }
-    return last_news;
+    if (elist_empty(&news_head)) return 0;
+    return ((elist_entry(news_head.next,t_news_index,list))->date);
 }
 
 extern unsigned int news_get_firstnews(void)
 {
-    t_elem	 *curr;
-    t_news_index *ni;
-    unsigned int first_news = 0;
-    
-    if (news_head) {
-	LIST_TRAVERSE(news_head,curr)
-	{
-	    if (!(ni = elem_get_data(curr))) {
-		eventlog(eventlog_level_error,"news_get_lastnews","found NULL entry in list");
-		continue;
-	    } else
-	        if (first_news)
-		{
-		  if (first_news>ni->date)
-		      first_news=ni->date;
-		}
-		else
-		  first_news=ni->date;
-	}
-    }
-    return first_news;
+    if (elist_empty(&news_head)) return 0;
+    return ((elist_entry(news_head.prev,t_news_index,list))->date);
 }
 
-extern t_list * newslist(void)
+extern unsigned news_traverse(t_news_cb cb, void *data)
 {
-    return news_head;
-}
+    unsigned count;
+    t_elist *curr;
+    t_news_index *cni;
 
-extern char * news_get_body(t_news_index const * news)
-{
-    if (!news) {
-	eventlog(eventlog_level_warn,"news_get_date","got NULL news");
-	return 0;
-    }
-    
-    return news->body;
-}
+    assert(cb);
 
-extern unsigned int news_get_date(t_news_index const * news)
-{
-    if (!news) {
-	eventlog(eventlog_level_warn,"news_get_date","got NULL news");
-	return 0;
+    count = 0;
+    elist_for_each(curr,&news_head)
+    {
+	cni = elist_entry(curr,t_news_index,list);
+	if (cb(cni->date,&cni->body,data)) break;
+	count++;
     }
-    
-    return news->date;
+
+    return count;
 }

@@ -19,14 +19,23 @@
 #ifndef INCLUDED_NEWS_TYPES
 #define INCLUDED_NEWS_TYPES
 
+#ifdef HAVE_TIME_H
+# include <time.h>
+#endif
+#include "common/elist.h"
+#include "common/lstr.h"
+
 typedef struct news_index
 #ifdef NEWS_INTERNAL_ACCESS
 {
-	unsigned int 	date;
-	char		*body;
+	time_t 		date;
+	t_lstr		body;
+	t_elist		list;
 }
 #endif
 t_news_index;
+
+typedef int (*t_news_cb)(time_t, t_lstr *, void *);
 
 #endif
 
@@ -40,10 +49,8 @@ extern int news_unload(void);
 
 extern unsigned int news_get_firstnews(void);
 extern unsigned int news_get_lastnews(void);
-extern char * news_get_body(t_news_index const * news);
-extern unsigned int news_get_date(t_news_index const * news);
 
-extern t_list * newslist(void);
+extern unsigned news_traverse(t_news_cb cb, void *data);
 
 #endif
 #endif

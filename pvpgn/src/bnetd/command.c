@@ -98,12 +98,12 @@
 #include "command.h"
 #include "news.h"
 #include "common/trans.h"
-#include "common/setup_after.h"
+#include "common/lstr.h"
 // aaron
 #include "topic.h"
-
 #include "friends.h"
 #include "clan.h"
+#include "common/setup_after.h"
 
 
 static char const * bnclass_get_str(unsigned int class);
@@ -2757,42 +2757,34 @@ static int _handle_lusers_command(t_connection * c, char const *text)
   return 0;
 }
 
+static int _news_cb(time_t date, t_lstr *lstr, void *data)
+{
+    char	strdate[64];
+    struct tm 	*tm;
+    char	save, *p, *q;
+    t_connection *c = (t_connection*)data;
+
+    tm = localtime(&date);
+    if (tm) strftime(strdate, 64,"%B %d, %Y", tm);
+    else strcpy(strdate, "(invalid date)");
+    message_send_text(c,message_type_info,c,strdate);
+
+    for (p = lstr_get_str(lstr); *p;) {
+	for(q = p + 1; *q && *q != '\r' && *q != '\n';q++);
+	save = *q;
+	*q = '\0';
+	message_send_text(c,message_type_info,c,p);
+	*q = save;
+	p = q;
+	for(;*p == '\n' || *p == '\r';p++);
+    }
+
+    return 0;
+}
+
 static int _handle_news_command(t_connection * c, char const *text)
 {
-    if (newslist()) {
-	t_news_index const 	*newsindex;
-	t_elem const 		*curr;
-	char			date[64];
-	char			*body;
-	struct tm 		*temp;
-	time_t			temp1;
-	char			*temp2;
-	int			i,j;
-	
-	LIST_TRAVERSE_CONST(newslist(),curr)
-	{
-	    newsindex = elem_get_data(curr);
-
-	    temp1 = news_get_date(newsindex);
-	    if ((temp = localtime(&temp1)))
-	       strftime(date, 64,"%B %d, %Y", temp);
-	    else
-	       strcpy(date, "(invalid date)");
-	    message_send_text(c,message_type_info,c,date);
-
-	    if ((body = news_get_body(newsindex)))
-		{
-	      for (i=0; body[i] != '\0'; i++) {
-		  temp2 = xstrdup(&body[i]);
-		  for (j=0; (temp2[j] != '\n')&&(temp2[j] != '\0'); j++);
-		  temp2[j] = '\0';
-		  message_send_text(c,message_type_info,c,temp2);
-		  xfree((void *)temp2);
-		  i = i+j;
-		  }
-	    }
-	}
-    } else
+    if (!news_traverse(_news_cb,c))
 	message_send_text(c,message_type_info,c,"No news today.");
     return 0;
 }
