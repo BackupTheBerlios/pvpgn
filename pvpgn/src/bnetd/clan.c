@@ -639,11 +639,7 @@ int clanlist_load(void)
     if (clanlist_head)
 	clanlist_unload();
 
-    if (!(clanlist_head = list_create()))
-    {
-	eventlog(eventlog_level_error, __FUNCTION__, "could not create clanlist");
-	return -1;
-    }
+    clanlist_head = list_create();
 
     storage->load_clans(_cb_load_clans);
 
@@ -1279,17 +1275,7 @@ extern t_clan *clan_create(t_account * chieftain_acc, t_connection * chieftain_c
     clan->modified = 1;
     clan->channel_type = prefs_get_clan_channel_default_private();
 
-    if ((clan->members = list_create()) == NULL)
-    {
-	eventlog(eventlog_level_error, __FUNCTION__, "could not create memberlist");
-	if (clan->clanname)
-	    xfree((void *) clan->clanname);
-	if (clan->clan_motd)
-	    xfree((void *) clan->clan_motd);
-	xfree((void *) member);
-	xfree((void *) clan);
-	return NULL;
-    }
+    clan->members = list_create();
 
     member->memberacc = chieftain_acc;
     member->memberconn = chieftain_conn;

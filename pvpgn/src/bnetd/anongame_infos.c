@@ -494,11 +494,7 @@ static int anongame_infos_data_init(t_anongame_infos * anongame_infos)
 
     anongame_infos_data = xmalloc(sizeof(t_anongame_infos_data));
 
-    if (!(anongame_infos_data_lang = list_create()))
-    {
-	eventlog(eventlog_level_error, __FUNCTION__, "could not allocate mem for anongame_infos_data_lang");
-	return -1;
-    }
+    anongame_infos_data_lang = list_create();
 
     anongame_infos_data->url_comp_data = NULL;
     anongame_infos_data->url_comp_data_115 = NULL;
@@ -519,11 +515,7 @@ static int anongame_infos_data_init(t_anongame_infos * anongame_infos)
 
     anongame_infos_data = xmalloc(sizeof(t_anongame_infos_data));
 
-    if (!(anongame_infos_data_lang = list_create()))
-    {
-	eventlog(eventlog_level_error, __FUNCTION__, "could not allocate mem for anongame_infos_data_lang");
-	return -1;
-    }
+    anongame_infos_data_lang = list_create();
 
     anongame_infos_data->url_comp_data = NULL;
     anongame_infos_data->url_comp_data_115 = NULL;
@@ -641,20 +633,8 @@ t_anongame_infos *anongame_infos_init(void)
 
     anongame_infos->anongame_infos_DESC = NULL;
 
-    if (!(anongame_infos->anongame_infos_DESC_list = list_create()))
-    {
-	eventlog(eventlog_level_error, __FUNCTION__, "could not create list");
+    anongame_infos->anongame_infos_DESC_list = list_create();
 
-	anongame_infos_ICON_REQ_TOURNEY_destroy(anongame_infos->anongame_infos_ICON_REQ_TOURNEY);
-	anongame_infos_ICON_REQ_W3XP_destroy(anongame_infos->anongame_infos_ICON_REQ_W3XP);
-	anongame_infos_ICON_REQ_WAR3_destroy(anongame_infos->anongame_infos_ICON_REQ_WAR3);
-	anongame_infos_THUMBSDOWN_destroy(anongame_infos->anongame_infos_THUMBSDOWN);
-	anongame_infos_URL_destroy(anongame_infos->anongame_infos_URL);
-	anongame_infos_data_destroy(anongame_infos->anongame_infos_data_war3, anongame_infos->anongame_infos_data_lang_war3);
-	anongame_infos_data_destroy(anongame_infos->anongame_infos_data_w3xp, anongame_infos->anongame_infos_data_lang_w3xp);
-	xfree((void *) anongame_infos);
-	return NULL;
-    }
     return anongame_infos;
 }
 

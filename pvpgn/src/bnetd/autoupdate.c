@@ -89,17 +89,12 @@ extern int autoupdate_load(char const * filename)
 	return -1;
     }
     
-    if (!(autoupdate_head = list_create())) {
-	eventlog(eventlog_level_error,__FUNCTION__,"could create list");
-	return -1;
-    }
-    
     if (!(fp = fopen(filename,"r"))) {
 	eventlog(eventlog_level_error,__FUNCTION__,"could not open file \"%s\" for reading (fopen: %s)",filename,strerror(errno));
-	list_destroy(autoupdate_head);
-	autoupdate_head = NULL;
 	return -1;
     }
+
+    autoupdate_head = list_create();
     
     for (line=1; (buff = file_get_line(fp)); line++) {
 	for (pos=0; buff[pos]=='\t' || buff[pos]==' '; pos++);

@@ -472,8 +472,7 @@ extern int character_verify_charlist(t_character const * ch, char const * charli
 
 extern int characterlist_create(char const * dirname)
 {
-    if (!(characterlist_head = list_create()))
-        return -1;
+    characterlist_head = list_create();
     return 0;
 }
 

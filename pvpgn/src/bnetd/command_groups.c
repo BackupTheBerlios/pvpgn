@@ -66,16 +66,13 @@ extern int command_groups_load(char const * filename)
         eventlog(eventlog_level_error,"command_groups_load","got NULL filename");
         return -1;
     }
-    if (!(command_groups_head = list_create())) {
-        eventlog(eventlog_level_error,"command_groups_load","could not create list");
-        return -1;
-    }
     if (!(fp = fopen(filename,"r"))) {
         eventlog(eventlog_level_error,"command_groups_load","could not open file \"%s\" for reading (fopen: %s)",filename,strerror(errno));
-	list_destroy(command_groups_head);
-	command_groups_head = NULL;
         return -1;
     }
+    
+    command_groups_head = list_create();
+    
     for (line=1; (buff = file_get_line(fp)); line++) {
         for (pos=0; buff[pos]=='\t' || buff[pos]==' '; pos++);
 	if (buff[pos]=='\0' || buff[pos]=='#') {

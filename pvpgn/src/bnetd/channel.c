@@ -187,21 +187,7 @@ extern t_channel * channel_create(char const * fullname, char const * shortname,
     else
         channel->realmname=NULL;
 	
-    if (!(channel->banlist = list_create()))
-    {
-	eventlog(eventlog_level_error,"channel_create","could not create list");
-	if (channel->country)
-	    xfree((void *)channel->country); /* avoid warning */
-        if (channel->realmname)
-            xfree((void *)channel->realmname); /*avoid warining */
-	if (channel->clienttag)
-	    xfree((void *)channel->clienttag); /* avoid warning */
-	if (channel->shortname)
-	    xfree((void *)channel->shortname); /* avoid warning */
-	xfree((void *)channel->name); /* avoid warning */
-	xfree(channel);
-	return NULL;
-    }
+    channel->banlist = list_create();
     
     totalcount++;
     if (totalcount==0) /* if we wrap (yeah right), don't use id 0 */
@@ -1157,8 +1143,7 @@ extern int channellist_reload(void)
   if (channellist_head)
     {
 
-      if (!(channellist_old = list_create()))
-        return -1;
+      channellist_old = list_create();
 
       /* First pass - get members */
       LIST_TRAVERSE(channellist_head,curr)
@@ -1290,8 +1275,7 @@ extern int channellist_reload(void)
 
 extern int channellist_create(void)
 {
-    if (!(channellist_head = list_create()))
-	return -1;
+    channellist_head = list_create();
     
     return channellist_load_permanent(prefs_get_channelfile());
 }

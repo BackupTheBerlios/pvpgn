@@ -329,7 +329,7 @@ static int do_alias(t_connection * c, char const * cmd, char const * text)
 		  xfree((void *)msgtmp); /* avoid warning */
 		}
 		else
-		    eventlog(eventlog_level_error,"do_alias","could not perform argument replacement");
+		    eventlog(eventlog_level_error,__FUNCTION__,"could not perform argument replacement");
 	    }
 	}
     }
@@ -348,22 +348,19 @@ extern int aliasfile_load(char const * filename)
     int          inalias;
     t_alias *    alias = NULL;
 
-    if (!(aliaslist_head = list_create()))
-    {
-	eventlog(eventlog_level_error,__FUNCTION__,"failed to create aliaslist");
-	return -1;
-    }
     
     if (!filename)
     {
-	eventlog(eventlog_level_error,"aliasfile_load","got NULL filename");
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL filename");
 	return -1;
     }
     if (!(afp = fopen(filename,"r")))
     {
-	eventlog(eventlog_level_error,"aliasfile_load","unable to open alias file \"%s\" for reading (fopen: %s)",filename,strerror(errno));
+	eventlog(eventlog_level_error,__FUNCTION__,"unable to open alias file \"%s\" for reading (fopen: %s)",filename,strerror(errno));
 	return -1;
     }
+
+    aliaslist_head = list_create();
     
     inalias = 0;
     for (line=1; (buff = file_get_line(afp)); line++)
@@ -392,7 +389,7 @@ extern int aliasfile_load(char const * filename)
 	case 0:
 	    if (buff[pos]!='@') /* not start of alias */
 	    {
-		eventlog(eventlog_level_error,"aliasfile_load","expected start of alias stanza on line %u of alias file \"%s\" but found \"%s\"",line,filename,&buff[pos]);
+		eventlog(eventlog_level_error,__FUNCTION__,"expected start of alias stanza on line %u of alias file \"%s\" but found \"%s\"",line,filename,&buff[pos]);
 		break;
 	    }
 	    inalias = 1;
@@ -419,7 +416,7 @@ extern int aliasfile_load(char const * filename)
 	      min = max = 0;
 	      if (buff[pos]!='[')
 	      {
-		  eventlog(eventlog_level_error,"aliasfile_load","expected output entry on line %u of alias file \"%s\" but found \"%s\"",line,filename,&buff[pos]);
+		  eventlog(eventlog_level_error,__FUNCTION__,"expected output entry on line %u of alias file \"%s\" but found \"%s\"",line,filename,&buff[pos]);
 		  break;
 	      }
 
@@ -454,13 +451,7 @@ extern int aliasfile_load(char const * filename)
 		output->min=min;
 		output->max=max;
 		output->line = out;
-		if (!(alias->output = list_create()))
-		{
-		  eventlog(eventlog_level_error,__FUNCTION__,"could not allocate mem for alias output list");
-		  xfree((void *)out);
-		  xfree((void *)output);
-		  break;
-		}
+		alias->output = list_create();
 		if (list_append_data(alias->output,output)<0)
 		{
 			eventlog(eventlog_level_error,__FUNCTION__,"could not appen output to alias output list");
@@ -533,7 +524,7 @@ extern int aliasfile_load(char const * filename)
 		  }
 	      }
 	    else		    
-	      eventlog(eventlog_level_error,"aliasfile_load","expected output entry or next alias stanza on line %u of file \"%s\"i but found \"%s\"",line,filename,&buff[pos]);
+	      eventlog(eventlog_level_error,__FUNCTION__,"expected output entry or next alias stanza on line %u of file \"%s\"i but found \"%s\"",line,filename,&buff[pos]);
 	    break;
 	  }
 	}
@@ -560,13 +551,13 @@ extern int aliasfile_unload(void)
 	{
 	    if (!(alias = elem_get_data(elem1))) /* should not happen */
 	    {
-		eventlog(eventlog_level_error,"aliasfile_unload","alias list contains NULL item");
+		eventlog(eventlog_level_error,__FUNCTION__,"alias list contains NULL item");
 		continue;
 	    }
 	    
 	    if (list_remove_elem(aliaslist_head,&elem1)<0)
 	    {
-	        eventlog(eventlog_level_error,"aliasfile_unload","could not remove alias");
+	        eventlog(eventlog_level_error,__FUNCTION__,"could not remove alias");
 		continue;
 	    }
 	    if (alias->output)
@@ -575,13 +566,13 @@ extern int aliasfile_unload(void)
 		{
 		    if (!(output = elem_get_data(elem2)))
 		    {
-			eventlog(eventlog_level_error,"aliasfile_unload","output list contains NULL item");
+			eventlog(eventlog_level_error,__FUNCTION__,"output list contains NULL item");
 			continue;
 		    }
 		    
 		    if (list_remove_elem(alias->output,&elem2)<0)
 		    {
-		        eventlog(eventlog_level_error,"aliasfile_unload","could not remove output");
+		        eventlog(eventlog_level_error,__FUNCTION__,"could not remove output");
 			continue;
 		    }
 		    xfree((void *)output->line); /* avoid warning */
