@@ -87,6 +87,7 @@ t_account;
 
 extern unsigned int maxuserid;
 
+extern int accountlist_reload(void);
 extern t_account * account_create(char const * username, char const * passhash1) MALLOC_ATTR();
 extern t_account * create_vaccount(const char *username, unsigned int uid);
 extern void account_destroy(t_account * account);

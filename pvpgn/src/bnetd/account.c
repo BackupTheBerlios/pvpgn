@@ -892,26 +892,6 @@ extern int accountlist_load_default(void)
     return 0;
 }
 
-extern int account_logged_in(t_account * account)
-{
-    t_elem const * curr;
-    t_connection * tc;
-    t_account * acc;
-
-    LIST_TRAVERSE_CONST(connlist(),curr)
-    {
-	if ((tc = elem_get_data(curr))) 
-	{
-	    if ((acc = conn_get_account(tc)))
-	    {
-		if (acc == account) return 1;
-	    }
-	}
-    }
-
-    return 0;
-}
-
 static int _cb_read_accounts(t_storage_info *info, void *data)
 {
     unsigned int *count = (unsigned int *)data;
@@ -941,6 +921,37 @@ static int _cb_read_accounts(t_storage_info *info, void *data)
     (*count)++;
 
     return 0;
+}
+
+extern int accountlist_reload(void)
+{
+    unsigned int count;
+
+    int starttime = time(NULL);
+
+#ifdef WITH_BITS
+  if (!bits_master)
+     {
+       eventlog(eventlog_level_info,"accountlist_reload","running as BITS client -> no accounts loaded");
+       return 0;
+     }
+#endif
+  
+  force_account_add = 1; /* disable the protection */
+  
+  count = 0;
+
+  if (storage->read_accounts(_cb_read_accounts, &count)) {
+      eventlog(eventlog_level_error, __FUNCTION__, "could not read accounts");
+      return -1;
+  }
+
+  force_account_add = 0; /* enable the protection */
+
+  if (count)
+    eventlog(eventlog_level_info,"accountlist_reload","loaded %u user accounts in %ld seconds",count,time(NULL) - starttime);
+
+  return 0;
 }
 
 static int _cb_read_accounts2(t_storage_info *info, void *data)
