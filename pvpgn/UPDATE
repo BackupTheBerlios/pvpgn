@@ -18,6 +18,7 @@ storage into "file"
 - conf/autoupdate : updated with latest client versions entries
 - conf/anongame_infos.conf : added some clan related lines
 - conf/bnmotd.txt : changed example file to show new feature
+- conf/versioncheck: commented unsupported versions
 
  Updating from 1.6.0 beta to 1.6.0 (final)
 ==========================================
