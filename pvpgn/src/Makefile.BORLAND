@@ -253,7 +253,6 @@ bnetd_OBJECTS       = \
     ${SRC_CDBDIR}\cdb_make_put.obj \
     ${SRC_CDBDIR}\cdb_make_find.obj \
     ${SRC_CDBDIR}\cdb_make.obj \
-    ${SRC_CDBDIR}\cdb_seq.obj \
     ${SRC_CDBDIR}\cdb_hash.obj
 
 
@@ -458,7 +457,6 @@ ${SRC_CDBDIR}\cdb_make_put.obj \
 ${SRC_CDBDIR}\cdb_make_find.obj \
 ${SRC_CDBDIR}\cdb_make.obj \
 ${SRC_CDBDIR}\cdb_hash.obj \
-${SRC_CDBDIR}\cdb_seq.obj \
 ${SRC_COMPATDIR}\mmap.obj \
 ${SRC_COMPATDIR}\getopt.obj
 
