@@ -2213,38 +2213,39 @@ extern int account_set_teamxp(t_account * account, char const * clienttag, t_gam
   char key[256];
   int xp;
   int mylevel;
-  int lvldiff_2_xpdiff_loss[] = {-16, -22, -28, -37, -48, -60, -100, -140, -152, -163, -172, -178, -184};
-  int lvldiff_2_xpdiff_win[] = { 184, 178, 172, 163, 152, 140, 100, 60, 48, 37, 28, 22, 16};
-  int lvldiff, xpdiff;
+  int xpdiff = 0, placeholder;
+
   xp = account_get_teamxp(account,clienttag); //get current xp
-  xpdiff = 0;
+  if (xp < 0) {
+    eventlog(eventlog_level_error, "account_set_teamxp", "got negative XP");
+    return -1;
+  }
+
   mylevel = account_get_teamlevel(account,clienttag); //get accounts level
-  
-  if(mylevel==0) //if level is 0 then set it to 1
+  if (mylevel > W3_XPCALC_MAXLEVEL) {
+    eventlog(eventlog_level_error, "account_set_teamxp", "got invalid level: %d", mylevel);
+    return -1;
+  }
+
+  if(mylevel<=0) //if level is 0 then set it to 1
     mylevel=1;
   
-  //I know its ugly, how bout some help putting this into a array? -THEUNDYING
-  //made 2 nice arrays and added update of war3ladder(team) - aaron
+  if (opponlevel < 1) opponlevel = 1;
   
-  lvldiff = mylevel-opponlevel;
-  if (lvldiff>6) lvldiff=6;
-  if (lvldiff<-6) lvldiff=-6;
-  
-  
-  if(gameresult == game_result_loss) //loss
+  switch (gameresult) 
     {
-      xpdiff = lvldiff_2_xpdiff_loss[lvldiff+6];
-    }
-  if(gameresult == game_result_win) //win
-    {
-      xpdiff = lvldiff_2_xpdiff_win[lvldiff+6];
-    }
-  
+    case game_result_win:
+      ladder_war3_xpdiff(mylevel, opponlevel, &xpdiff, &placeholder); break;
+    case game_result_loss:
+      ladder_war3_xpdiff(opponlevel, mylevel, &placeholder, &xpdiff); break;
+    default:
+      eventlog(eventlog_level_error, "account_set_atteamxp", "got invalid game result: %d", gameresult);
+      return -1;
+    }  
+
   war3_ladder_update(team_ladder(clienttag),account_get_uid(account), xpdiff, account,0,clienttag);
   
   xp += xpdiff;
-  
-  //now check see if xp is negative, if it is, just set it to 0
   if(xp<0) xp=0;
   
   sprintf(key,"Record\\%s\\team\\xp",clienttag);
@@ -2264,21 +2265,26 @@ extern int account_get_teamxp(t_account * account, char const * clienttag)
 extern int account_set_teamlevel(t_account * account, char const * clienttag)
 { 
   char key[256];
-  int xp;
-  unsigned int i;
-  static const int xp_to_level[] = {100, 200, 300, 400, 500, 600, 700, 800,
-				    900, 1000, 1100, 1200, 1300, 1400, 1600, 1900, 2200, 2500, 2800, 3200,
-				    3600, 4000, 4500, 5000, 5500, 6000, 6600, 7200, 7800, 8400, 9000}; //Supports up to level 31
+  int xp,mylevel;
   
   xp = account_get_teamxp(account,clienttag);
   
-  for (i = 0; i < sizeof(xp_to_level) / sizeof(int); i++) {
-    if (xp_to_level[i] > xp) break;
-  }
+  if (xp<0) xp =0;
+
+  mylevel = account_get_teamlevel(account,clienttag);
+  if (mylevel < 1) mylevel = 1;
+  
+  if (mylevel > W3_XPCALC_MAXLEVEL) 
+    {
+      eventlog(eventlog_level_error, "account_set_atteamlevel", "got invalid level: %d", mylevel);
+      return -1;
+    }
+  
+  mylevel = ladder_war3_updatelevel(mylevel, xp);
   
   sprintf(key,"Record\\%s\\team\\level",clienttag);
 
-  return account_set_numattr(account, key, ++i);
+  return account_set_numattr(account, key, mylevel);
 }
 
 extern int account_get_teamlevel(t_account * account, char const * clienttag)
@@ -2372,32 +2378,37 @@ extern int account_set_ffaxp(t_account * account, char const * clienttag,t_game_
   char key[256];
   int xp;
   int mylevel;
-  int lvldiff_2_xpdiff_loss[] = {-16, -22, -28, -37, -48, -60, -100, -140, -152, -163, -172, -178, -184};
-  int lvldiff_2_xpdiff_win[] = { 184, 178, 172, 163, 152, 140, 100, 60, 48, 37, 28, 22, 16};
-  int lvldiff, xpdiff;
+  int xpdiff = 0, placeholder;
   xp = account_get_ffaxp(account,clienttag); //get current xp
+
   xpdiff = 0;
-  mylevel = account_get_ffalevel(account,clienttag); //get accounts level
+  if (xp < 0) {
+    eventlog(eventlog_level_error, "account_set_ffaxp", "got negative XP");
+    return -1;
+  }
   
-  if(mylevel==0) //if level is 0 then set it to 1
+  mylevel = account_get_ffalevel(account,clienttag); //get accounts level
+  if (mylevel > W3_XPCALC_MAXLEVEL) {
+    eventlog(eventlog_level_error, "account_set_ffaxp", "got invalid level: %d", mylevel);
+    return -1;
+  }
+
+  if(mylevel<=0) //if level is 0 then set it to 1
     mylevel=1;
   
-  //I know its ugly, how bout some help putting this into a array? -THEUNDYING
-  //aaron: done the array stuff
-  
-  lvldiff = mylevel-opponlevel;
-  if (lvldiff>6) lvldiff=6;
-  if (lvldiff<-6) lvldiff=-6;
-  
-  if(gameresult == game_result_loss) //loss
+  if (opponlevel < 1) opponlevel = 1;
+
+  switch (gameresult) 
     {
-      xpdiff=lvldiff_2_xpdiff_loss[lvldiff+6];
+    case game_result_win:
+      ladder_war3_xpdiff(mylevel, opponlevel, &xpdiff, &placeholder); break;
+    case game_result_loss:
+      ladder_war3_xpdiff(opponlevel, mylevel, &placeholder, &xpdiff); break;
+    default:
+      eventlog(eventlog_level_error, "account_set_atteamxp", "got invalid game result: %d", gameresult);
+      return -1;
     }
-  if(gameresult == game_result_win) //win
-    {
-      xpdiff=lvldiff_2_xpdiff_win[lvldiff+6];
-    }
-  
+    
   war3_ladder_update(ffa_ladder(clienttag), account_get_uid(account), xpdiff, account, 0, clienttag);
   
   xp += xpdiff;
@@ -2421,21 +2432,26 @@ extern int account_get_ffaxp(t_account * account, char const * clienttag)
 extern int account_set_ffalevel(t_account * account, char const * clienttag)
 { 
   char key[256];
-  int xp;
-  unsigned int i;
-  static const int xp_to_level[] = {100, 200, 300, 400, 500, 600, 700, 800,
-				    900, 1000, 1100, 1200, 1300, 1400, 1600, 1900, 2200, 2500, 2800, 3200,
-				    3600, 4000, 4500, 5000, 5500, 6000, 6600, 7200, 7800, 8400, 9000}; //Supports up to level 31
-  
+  int xp, mylevel;
+
   xp = account_get_ffaxp(account,clienttag);
-	
-  for (i = 0; i < sizeof(xp_to_level) / sizeof(int); i++) {
-    if (xp_to_level[i] > xp) break;
-  }
+
+  if (xp<0) xp = 0;
+
+  mylevel = account_get_ffalevel(account,clienttag);
+  if (mylevel < 1) mylevel = 1;
+  
+  if (mylevel > W3_XPCALC_MAXLEVEL) 
+    {
+      eventlog(eventlog_level_error, "account_set_ffalevel", "got invalid level: %d", mylevel);
+      return -1;
+    }
+  
+  mylevel = ladder_war3_updatelevel(mylevel, xp);
   
   sprintf(key,"Record\\%s\\ffa\\level",clienttag);
 
-  return account_set_numattr(account, key, ++i);
+  return account_set_numattr(account, key, mylevel);
 }
 
 extern int account_get_ffalevel(t_account * account, char const * clienttag)
