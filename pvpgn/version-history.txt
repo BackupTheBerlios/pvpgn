@@ -69,6 +69,9 @@ tables/columns to your database
 -- fixed the 99% CPU usage while it shutdown phase
 -- optimized unnecesary often update of "now" timestamp inside server main loop 
 using POSIX timers (where available)
+-- changed the db_creator, it now uses a config file (conf/sql_DB_layout) and 
+creates missing tables and columns if needed. (can add columns to an allready
+existant table). Also can add the default user (uid==0) when it was deleted
 
 1.5.0beta3:
 -- fixed a long standing bug regarding bnmaps.txt and AT maps
