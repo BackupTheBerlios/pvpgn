@@ -1518,6 +1518,7 @@ extern t_channel * channellist_find_channel_by_name(char const * name, char cons
     char const *   savecountry;
     char const *   saverealmname;
     int            savemaxmembers;
+    t_channel *    special_channel;
 
     // try to make gcc happy and initialize all variables
     saveshortname = savetag = savecountry = saverealmname = NULL;
@@ -1544,6 +1545,9 @@ extern t_channel * channellist_find_channel_by_name(char const * name, char cons
 	    
             if (channel->shortname && strcasecmp(channel->shortname,name)==0)
 	    {
+	    	special_channel = channellist_find_channel_by_name(channel->name,country,realmname);
+	    	if (special_channel) return special_channel;
+	    	
 		/* FIXME: what should we do if the client doesn't have a country?  For now, just take the first
 		 * channel that would otherwise match. */
                 if ( (!channel->country || !country || 
