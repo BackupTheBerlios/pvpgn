@@ -5,6 +5,9 @@ PvPGN Version History:
 [MISC]
   -- fixed problem with language specific channels
 
+[DEV-C++]
+  -- fixed problem with running d2cs & d2dbs as services (gui versions)
+
  ChangeLog for 1.7.1 (since 1.7.0)
 ===================================
 
