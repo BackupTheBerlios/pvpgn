@@ -452,6 +452,8 @@ int pre_server_startup(void)
 	eventlog(eventlog_level_error, __FUNCTION__, "error initilizing fdwatch");
 	return STATUS_FDWATCH_FAILURE;
     }
+    if (realmlist_create(prefs_get_realmfile())<0)
+	eventlog(eventlog_level_error,__FUNCTION__,"could not load realm list");
     connlist_create();
     gamelist_create();
     timerlist_create();
@@ -481,8 +483,6 @@ int pre_server_startup(void)
     ladders_init();
     ladders_load_accounts_to_ladderlists();
     ladder_update_all_accounts();
-    if (realmlist_create(prefs_get_realmfile())<0)
-	eventlog(eventlog_level_error,__FUNCTION__,"could not load realm list");
     if (characterlist_create("")<0)
 	eventlog(eventlog_level_error,__FUNCTION__,"could not load character list");
     if (prefs_get_track()) /* setup the tracking mechanism */
@@ -515,7 +515,6 @@ void post_server_shutdown(int status)
 	    command_groups_unload();
 	    tracker_set_servers(NULL);
 	    characterlist_destroy();
-    	    realmlist_destroy();
             ladder_destroyxptable();
         case STATUS_WAR3XPTABLES_FAILURE:
     	    
@@ -538,6 +537,7 @@ void post_server_shutdown(int status)
     	    timerlist_destroy();
 	    gamelist_destroy();
 	    connlist_destroy();
+    	    realmlist_destroy();
 	    fdwatch_close();
 	case STATUS_FDWATCH_FAILURE:
 	    anongame_matchlists_destroy();

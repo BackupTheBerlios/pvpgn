@@ -345,7 +345,8 @@ extern int realmlist_create(char const * filename)
         return -1;
     }
     
-    realmlist_head = list_create();
+    if (!realmlist_head)
+    	realmlist_head = list_create();
 
     for (line=1; (buff = file_get_line(fp)); line++)
     {
@@ -461,13 +462,21 @@ extern int realmlist_destroy(void)
 	LIST_TRAVERSE(realmlist_head,curr)
 	{
 	    if (!(realm = elem_get_data(curr)))
+	    {
 		eventlog(eventlog_level_error,__FUNCTION__,"found NULL realm in list");
-	    else
-		realm_destroy(realm);
-	    list_remove_elem(realmlist_head,&curr);
+	        list_remove_elem(realmlist_head,&curr);
+            }
+	    else if (!realm->player_number) // FIXME: this was we don't get rid of still visited realms
+	    {
+	        realm_destroy(realm);
+	        list_remove_elem(realmlist_head,&curr);
+	    }
 	}
-	list_destroy(realmlist_head);
-	realmlist_head = NULL;
+	if (list_get_length(realmlist_head)==0)
+	{
+	    list_destroy(realmlist_head);
+	    realmlist_head = NULL;
+	}
     }
     
     return 0;
