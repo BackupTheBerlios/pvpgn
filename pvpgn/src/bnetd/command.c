@@ -1080,7 +1080,6 @@ static int _handle_friends_command(t_connection * c, char const * text)
     t_channel const * channel;
     t_account * my_acc;
     
-    software[0]='\0';
     message_send_text(c,message_type_info,c,"Your PvPGN - Friends List");
     message_send_text(c,message_type_info,c,"=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=");
     
@@ -1089,6 +1088,8 @@ static int _handle_friends_command(t_connection * c, char const * text)
     
     for(i=0; i<n; i++) 
      {
+        software[0]='\0';
+
 	friend = account_get_friend(my_acc, i);
 	
 	if (!(dest_c = connlist_find_connection_by_accountname(friend)))
