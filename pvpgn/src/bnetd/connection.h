@@ -390,6 +390,7 @@ extern t_connection * connlist_find_connection_by_sessionnum(unsigned int sessio
 extern t_connection * connlist_find_connection_by_name(char const * name, char const * realmname); /* any chat name format */
 extern t_connection * connlist_find_connection_by_accountname(char const * username);
 extern t_connection * connlist_find_connection_by_charname(char const * charname, char const * realmname);
+extern t_connection * connlist_find_connection_by_account(t_account * account);
 #ifdef WITH_BITS
 extern t_connection * connlist_find_connection_by_sessionid(unsigned int sessionid);
 #endif

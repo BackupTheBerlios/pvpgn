@@ -2593,6 +2593,7 @@ extern int account_set_saveladderstats(t_account * account,unsigned int gametype
 	  case ANONGAME_TYPE_2V2:
 	  case ANONGAME_TYPE_3V3:
 	  case ANONGAME_TYPE_4V4:
+	  case ANONGAME_TYPE_2V2V2:
 	  {
 		if(result == game_result_win) //win
 		{

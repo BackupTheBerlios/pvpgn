@@ -2714,12 +2714,37 @@ static int _client_atinvitefriend(t_connection * c, t_packet const * const packe
 	packet_set_type(rpacket,SERVER_ARRANGEDTEAM_INVITE_FRIEND_ACK);
 	
 	bn_int_set(&rpacket->u.server_arrangedteam_invite_friend_ack.count,bn_int_get(packet->u.client_arrangedteam_invite_friend.count));
-	bn_short_set(&rpacket->u.server_arrangedteam_invite_friend_ack.unknown1,bn_short_get(packet->u.client_arrangedteam_invite_friend.unknown1));
-	bn_short_set(&rpacket->u.server_arrangedteam_invite_friend_ack.unknown2,0x0001);
-	bn_int_set(&rpacket->u.server_arrangedteam_invite_friend_ack.timestamp,get_ticks());
-	bn_byte_set(&rpacket->u.server_arrangedteam_invite_friend_ack.teamsize,count_to_invite++);
+	bn_int_set(&rpacket->u.server_arrangedteam_invite_friend_ack.id,bn_int_get(packet->u.client_arrangedteam_invite_friend.id));
+	bn_int_set(&rpacket->u.server_arrangedteam_invite_friend_ack.timestamp,time(NULL));
+	bn_byte_set(&rpacket->u.server_arrangedteam_invite_friend_ack.teamsize,count_to_invite+1);
 	
-	for(i = 0; i < 5; i++) bn_int_set(&rpacket->u.server_arrangedteam_invite_friend_ack.unknown3[i], 0);
+	/*
+	 * five int's to fill
+	 * fill with uid's of all teammembers, including the inviter
+	 * and the rest with FFFFFFFF
+	 * to be used when sever recieves anongame search
+	 * [Omega]
+	 */
+	for(i = 0; i < 5; i++) { 
+	    unsigned int invited_uid;
+	    t_connection * invited_c;
+	    
+	    if (i == 0) { /* add inviter first */
+		invited_uid = account_get_uid(conn_get_account(c));
+		bn_int_set(&rpacket->u.server_arrangedteam_invite_friend_ack.info[i], invited_uid);
+		eventlog(eventlog_level_trace,__FUNCTION__,"added uid: %u username: %s (inviter) to array",invited_uid,account_get_name(conn_get_account(c)));
+	    } 
+	    else if (i < teammemcount) { /* add rest of team */
+		invited_c = connlist_find_connection_by_accountname(invited_usernames[i-1]);
+		invited_uid = account_get_uid(conn_get_account(invited_c));
+		bn_int_set(&rpacket->u.server_arrangedteam_invite_friend_ack.info[i], invited_uid);
+		eventlog(eventlog_level_trace,__FUNCTION__,"added uid: %u username: %s to array",invited_uid,invited_usernames[i-1]);
+	    }
+	    else { /* fill rest with FFFFFFFF */
+	    	bn_int_set(&rpacket->u.server_arrangedteam_invite_friend_ack.info[i], -1);
+		eventlog(eventlog_level_trace,__FUNCTION__,"no more users, added FFFFFFFF");
+	    }
+	}
 	
 	queue_push_packet(conn_get_out_queue(c),rpacket);
 	packet_del_ref(rpacket);

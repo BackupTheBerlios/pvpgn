@@ -85,11 +85,12 @@
 #include "war3ladder.h"
 #include "command_groups.h"
 #include "output.h"
-#include "common/setup_after.h"
 #include "alias_command.h"
 #include "anongame_infos.h"
+#include "anongame_maplists.h"
 #include "tournament.h"
 #include "news.h"
+#include "common/setup_after.h"
 
 #ifdef WIN32
 # include "win32/service.h"

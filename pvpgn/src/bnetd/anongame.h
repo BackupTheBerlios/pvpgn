@@ -17,92 +17,57 @@
 #define INCLUDED_ANONGAME_TYPES
 
 #ifdef JUST_NEED_TYPES
-# ifdef TIME_WITH_SYS_TIME
-#  include <sys/time.h>
-#  include <time.h>
-# else
-#   if HAVE_SYS_TIME_H
-#    include <sys/time.h>
-#   else
-#    include <time.h>
-#   endif
-# endif
-# include "game.h"
-# include "common/queue.h"
-# include "channel.h"
 # include "account.h"
-# include "quota.h"
-# include "character.h"
-# include "versioncheck.h"
 # include "connection.h"
-# ifdef WITH_BITS
-#   include "bits.h"
-#   include "bits_ext.h"
-# endif
+# include "compat/uint.h"
 #else
 # define JUST_NEED_TYPES
-# ifdef TIME_WITH_SYS_TIME
-#  include <sys/time.h>
-#  include <time.h>
-# else
-#   if HAVE_SYS_TIME_H
-#    include <sys/time.h>
-#   else
-#    include <time.h>
-#   endif
-# endif
-# include "game.h"
-# include "common/queue.h"
-# include "channel.h"
 # include "account.h"
-# include "quota.h"
-# include "character.h"
-# include "versioncheck.h"
 # include "connection.h"
-# ifdef WITH_BITS
-#   include "bits.h"
-#   include "bits_ext.h"
-# endif
+# include "compat/uint.h"
 # undef JUST_NEED_TYPES
 #endif
 
-#include "compat/uint.h"
-
 typedef struct
 {
-    int				 currentplayers;
-    int				 totalplayers;
-    struct connection *	         player[8];
-    t_account *			 account[8];
-    int				 result[8];
+    int				currentplayers;
+    int				totalplayers;
+    struct connection *		player[ANONGAME_MAX_GAMECOUNT];
+    t_account *			account[ANONGAME_MAX_GAMECOUNT];
+    int				result[ANONGAME_MAX_GAMECOUNT];
 } t_anongameinfo;
 
 typedef struct
 {
-    t_anongameinfo *		 info;
-    int				 count;
-    t_uint32		  	 id;
-    t_uint32		  	 race;
-    t_uint32		  	 handle;
-    unsigned int		 addr;	
-    char			 loaded;
-    char			 joined;
-    t_uint8 		  	 playernum;
-    t_uint8			 type;
+    t_anongameinfo *		info;
+    int				count;
+    t_uint32			id;
+    t_uint32			tid;
+    struct connection *		tc[ANONGAME_MAX_GAMECOUNT/2];
+    t_uint32			race;
+    t_uint32			handle;
+    unsigned int		addr;	
+    char			loaded;
+    char			joined;
+    t_uint8			playernum;
+    t_uint32			map_prefs;
+    t_uint8			type;
+    t_uint8			gametype;
+    int				queue;	
 } t_anongame;
 
 typedef struct
 {
-	struct connection *c;
-	t_uint32 map_prefs;
-	char * versiontag;
+	struct connection *	c;
+	t_uint32		map_prefs;
+	char *			versiontag;
 } t_matchdata;
 
 typedef struct
 {
-	int atid;
-	int count;
-	t_uint32 map_prefs;
+	int			atid;
+	int			count;
+	t_uint32		map_prefs;
 } t_atcountinfo;
 
 #endif
@@ -114,84 +79,46 @@ typedef struct
 
 #define JUST_NEED_TYPES
 #include "common/packet.h"
-#include "common/queue.h"
-#include "channel.h"
-#include "game.h"
-#include "account.h"
-#include "common/list.h"
-#include "character.h"
-#include "versioncheck.h"
-#include "timer.h"
 #include "connection.h"
-#include "anongame.h"
 #undef JUST_NEED_TYPES
 
+extern int		anongame_matchlists_create(void);
+extern int		anongame_matchlists_destroy(void);
+
+extern int		handle_anongame_search(t_connection * c, t_packet const * packet);
+extern int		anongame_unqueue_player(t_connection * c, int queue);
+extern int		anongame_unqueue_team(t_connection * c, int queue);
+
+extern int		anongame_totalplayers(int queue);
+extern char		anongame_arranged(int queue);
+extern int		anongame_stats(t_connection * c);
 
 extern t_anongameinfo * anongameinfo_create(int totalplayers);
-extern void anongameinfo_destroy(t_anongameinfo * i);
+extern void		anongameinfo_destroy(t_anongameinfo * i);
 
-
-extern void anongame_set_info(t_anongame * a, t_anongameinfo * i);
 extern t_anongameinfo * anongame_get_info(t_anongame * a);
+extern int              anongame_get_currentplayers(t_anongame *a);
+extern int              anongame_get_totalplayers(t_anongame *a);
+extern t_connection *   anongame_get_player(t_anongame * a, int plnum);
+extern int		anongame_get_count(t_anongame *a);
+extern t_uint32         anongame_get_id(t_anongame * a);
+extern t_connection *	anongame_get_tc(t_anongame *a, int tpnumber);
+extern t_uint32         anongame_get_race(t_anongame * a);
+extern t_uint32         anongame_get_handle(t_anongame * a);
+extern unsigned int     anongame_get_addr(t_anongame * a);
+extern char             anongame_get_loaded(t_anongame * a);
+extern char             anongame_get_joined(t_anongame * a);
+extern t_uint8          anongame_get_playernum(t_anongame * a);
+extern t_uint8          anongame_get_queue(t_anongame *a);
 
-extern void anongame_set_player(t_anongame *a, int plnum, t_connection *c);
-extern t_connection * anongame_get_player(t_anongame *a, int plnum);
-extern t_account * anongame_get_account(t_anongame *a, int plnum);
+extern void		anongame_set_result(t_anongame * a, int result);
+extern void		anongame_set_handle(t_anongame *a, t_uint32 h);
+extern void		anongame_set_addr(t_anongame *a, unsigned int addr);
+extern void		anongame_set_loaded(t_anongame * a, char loaded);
+extern void		anongame_set_joined(t_anongame * a, char joined);
 
-extern void anongame_set_count(t_anongame *a, int count);
-extern int anongame_get_count(t_anongame *a);
-
-extern void anongame_set_addr(t_anongame *a, unsigned int addr);
-extern unsigned int anongame_get_addr(t_anongame *a);
-
-extern int anongame_get_totalplayers(t_anongame *a);
-
-extern void anongame_set_currentplayers(t_anongame *a, int players);
-extern int anongame_get_currentplayers(t_anongame *a);
-
-extern void anongame_set_id(t_anongame *a, t_uint32 id);
-extern t_uint32 anongame_get_id(t_anongame *a);
-
-extern void anongame_set_race(t_anongame *a, t_uint32 race);
-extern t_uint32 anongame_get_race(t_anongame *a);
-
-extern void anongame_set_playernum(t_anongame *a, t_uint8 plnum);
-extern t_uint8 anongame_get_playernum(t_anongame *a);
-
-extern void anongame_set_type(t_anongame *a, t_uint8 type);
-extern t_uint8 anongame_get_type(t_anongame *a);
-
-extern void anongame_set_handle(t_anongame *a, t_uint32 handle);
-extern t_uint32 anongame_get_handle(t_anongame *a);
-
-extern void anongame_set_joined(t_anongame *a, char joined);
-extern char anongame_get_joined(t_anongame *a);
-
-extern void anongame_set_loaded(t_anongame *a, char loaded);
-extern char anongame_get_loaded(t_anongame *a);
-
-extern void anongame_set_result(t_anongame *a, int result);
-extern int anongame_get_result(t_anongame *a, int plnum);
-
-extern int anongame_maplists_create(void);
-extern void anongame_maplists_destroy(void);
-extern t_list * anongame_get_w3xp_maplist(int gametype, const char * clienttag);
-extern void anongame_add_maps_to_packet(t_packet * packet, int gametype, const char * clienttag);
-
-extern int anongame_totalplayers(t_uint8 gametype);
-extern char anongame_arranged(t_uint8 gametype);
-extern int handle_anongame_search(t_connection * c, t_packet const * packet);
-extern int handle_anongame_join(t_connection * c);
-extern int handle_w3route_packet(t_connection * c, t_packet const * const packet);
-extern int anongame_unqueue_player(t_connection * c, t_uint8 gametype);
-extern int anongame_unqueue_team(t_connection * c, t_uint8 gametype);
-
-extern int anongame_matchlists_create(void);
-extern int anongame_matchlists_destroy(void);
-
-extern int anongame_stats(t_connection * c);
-extern int anongame_add_tournament_map(char * ctag, char * mname);
-extern void anongame_tournament_maplists_destroy(void);
+extern int		handle_w3route_packet(t_connection * c, t_packet const * const packet);
+extern int		handle_anongame_join(t_connection * c);
 
 #endif
 #endif

@@ -184,6 +184,28 @@ typedef struct
 0060:   00 00 00 00 00 00 00 00   00 00 00                   ...........
 */
 #define CLIENT_W3ROUTE_GAMERESULT 0x2ef7
+/*
+                           F7 3A-84 00 02 01 04 00 00 00  
+0x0040   20 00 00 00 83 09 00 00-00 00 00 00 02 03 00 00  
+0x0050   00 20 00 00 00 2C 01 00-00 00 00 00 00 5C 04 00 
+0x0060   00 00 03 00 00 00 00 00-00 00 01 00 00 00 CC 0B  
+0x0070   00 00 00 00 00 00 72 0B-00 00 0E 00 00 00 00 00   
+0x0080   00 00 04 00 00 00 01 00-00 00 15 00 00 00 00 00   
+0x0090   00 00 00 00 00 00 00 00-00 00 00 00 00 00 00 00  
+0x00A0   00 00 46 0A 00 00 2C 01-00 00 00 00 00 00 00 00   
+0x00B0   00 00 00 00 00 00 00 00-00 00                     
+
+                           F7 3A-84 00 02 02 03 00 00 00 
+0x0040   20 00 00 00 2C 01 00 00-00 00 00 00 01 04 00 00 
+0x0050   00 20 00 00 00 83 09 00-00 00 00 00 00 5C 04 00  
+0x0060   00 00 01 00 00 00 01 00-00 00 00 00 00 00 39 03  
+0x0070   00 00 00 00 00 00 00 00-00 00 05 00 00 00 00 00  
+0x0080   00 00 01 00 00 00 00 00-00 00 05 00 00 00 00 00  
+0x0090   00 00 00 00 00 00 00 00-00 00 00 00 00 00 00 00 
+0x00A0   00 00 00 00 00 00 00 00-00 00 00 00 00 00 00 00  
+0x00B0   00 00 00 00 00 00 00 00-00 00                  
+*/
+
 #define CLIENT_W3ROUTE_GAMERESULT_W3XP 0x3af7
 typedef struct
 {
@@ -321,116 +343,6 @@ Diablo II 1.03 ... note it sends NO host and user strings
       FF 05 14 00 01 00   00 00 D1 43 88 AA DA 9D      ...... ...C.... 
 1B 00 9A F7 69 AB                                    ....i.
 */
-
-// [zap-zero] 20020516 - war3 friend list packets
-/******************************************************/
-/*
-# 144 packet from client: type=0x65ff(unknown) length=4 class=bnet
-0000:   FF 65 04 00                                          .e..
-*/
-#define CLIENT_FRIENDSLISTREQ 0x65ff
-typedef struct
-{
-    t_bnet_header h;
-} t_client_friendslistreq PACKED_ATTR();
-/******************************************************/
-
-
-/******************************************************/
-/*
-# 158 packet from server: type=0x65ff(unknown) length=16 class=bnet
-0000:   FF 65 10 00     01 66 6F 6F   00 00 00 00 00 00 00 00    .e.. .foo. .......
-
-
-*/
-#define SERVER_FRIENDSLISTREPLY 0x65ff
-typedef struct
-{
-    t_bnet_header h;
-    /* 1 byte status, 0-terminated name, 6 bytes unknown, ... */
-} t_server_friendslistreply PACKED_ATTR();
-/******************************************************/
-
-
-/******************************************************/
-/*
-# 124 packet from client: type=0x66ff(unknown) length=5 class=bnet
-0000:   FF 66 05 00 00                                       .f...
-*/
-/* FF 66-05 00 00 40 - AT */
-#define CLIENT_FRIENDINFOREQ 0x66ff
-typedef struct
-{
-    t_bnet_header h;
-    bn_byte friendnum;
-} t_client_friendinforeq PACKED_ATTR();
-/******************************************************/
-
-
-/******************************************************/
-/*
-# 126 packet from server: type=0x66ff(unknown) length=12 class=bnet
-0000:   FF 66 0C 00 00 00 00 00   00 00 00 00                .f..........
-
-Arranged Team sends this to each inviter
-					       FF 66-1A 00 00 01 03 33 52 41   .Ðg­..ÿf.....3RA
-0x0040   57 41 72 72 61 6E 67 65-64 20 54 65 61 6D 73 00   WArranged Teams.
-
-and this to the inviter
-                     FF 66-18 00 00 01 02 33 52 41         .Ðiô..ÿf.....3RA
-0x0040   57 57 61 72 63 72 61 66-74 20 49 49 49 00         WWarcraft III.
-
-*/
-#define SERVER_FRIENDINFOREPLY 0x66ff
-typedef struct
-{
-    t_bnet_header h;
-    bn_byte friendnum;
-    bn_byte unknown1;
-    bn_byte status;
-    bn_int clienttag;
-    /* game name */
-} t_server_friendinforeply PACKED_ATTR();
-/******************************************************/
-
-
-/******************************************************/
-/*
-# 126 packet from server: type=0x67ff(unknown) length=15 class=bnet
-0000:   FF 67 0F 00 66 6F 6F 00   00 00 00 00 00 00 00       .g..foo........
-*/
-#define SERVER_FRIENDADD_ACK 0x67ff
-typedef struct
-{
-    t_bnet_header h;
-    /* friend name, status */
-} t_server_friendadd_ack PACKED_ATTR();
-/******************************************************/
-
-
-/******************************************************/
-/*
-# 114 packet from server: type=0x68ff(unknown) length=5 class=bnet
-0000:   FF 68 05 00 01                                       .h...
-*/
-#define SERVER_FRIENDDEL_ACK 0x68ff
-typedef struct
-{
-    t_bnet_header h;
-    bn_byte friendnum;
-} t_server_frienddel_ack PACKED_ATTR();
-/******************************************************/
-
-
-
-
-#define FRIENDSTATUS_OFFLINE	0
-#define FRIENDSTATUS_ONLINE	1
-#define FRIENDSTATUS_CHAT	2
-#define FRIENDSTATUS_GAME	3
-
-
-
 #define CLIENT_COMPINFO1 0x05ff
 typedef struct
 {
@@ -3355,105 +3267,14 @@ typedef struct
 {
     t_bnet_header h;
 } t_client_leavechannel PACKED_ATTR();
-/******************************************************/
-
-// THEUNDYING - 5/19/02 - ARRANGED TEAM GAMES
-#define CLIENT_ARRANGEDTEAM_FRIENDSCREEN 0x60ff
-typedef struct
-{
-	t_bnet_header h;
-} t_client_arrangedteam_friendscreen PACKED_ATTR();
-// This is a blank packet - includes just type and size
-#define SERVER_ARRANGEDTEAM_FRIENDSCREEN 0x60ff
-typedef struct
-{
-	t_bnet_header h;
-	bn_byte f_count;
-	// usernames get appended here
-} t_server_arrangedteam_friendscreen PACKED_ATTR();
-#define SERVER_ARRANGED_TEAM_ADDNAME 0x01 
-/*
-						   FF 61-1C 00 01 00 00 00 C9 7B   ö›Aê..ÿa......É{
-
-0x0040   A0 02 01 00 00 00 01 74-72 65 6E 64 65 63 69 64    ......trendecid
-
-0x0050   65 00                                             e.
-*/
-#define CLIENT_ARRANGEDTEAM_INVITE_FRIEND 0x61ff
-typedef struct
-{
-	t_bnet_header h;
-	bn_int count;
-	bn_int id;
-	bn_short unknown1;	//first short gets put into 61FF after int unknown1
-	bn_short unknown2;	//second short is not used at all
-	bn_byte numfriends;	//next is a byte, that is the number of friends to invite
-	//USERNAME'S HERE
-} t_client_arrangedteam_invite_friend PACKED_ATTR();
-
-#define SERVER_ARRANGEDTEAM_INVITE_FRIEND_ACK 0x61ff
-typedef struct
-{
-        t_bnet_header h;
-        bn_int count;
-        bn_short unknown1;
-		bn_short unknown2;
-        bn_int timestamp;
-        bn_byte teamsize;	// numfriends + 1
-	    bn_int unknown3[5];
-} t_server_arrangedteam_invite_friend_ack PACKED_ATTR();
-
-#define SERVER_ARRANGEDTEAM_SEND_INVITE 0x63ff
-typedef struct
-{
-	t_bnet_header h;
-	bn_int count;
-	bn_int id; //Get first int from 0x61ff packet
-	bn_int inviterip; // IP address of the person who invited them into the game
-	bn_short port; // Port of the person who invited them into the game
-	bn_byte numfriends; // Number of friends that got invited to the game
-	//Username of Inviter
-	//Usernames of the others who got invited
-} t_server_arrangedteam_send_invite PACKED_ATTR();
-
-
-#define CLIENT_ARRANGEDTEAM_ACCEPT_DECLINE_INVITE 0x63ff
-typedef struct
-{
-	t_bnet_header h;
-	bn_int count;
-	bn_int id;
-	bn_int option; //accept or decline
-	//username of the inviter
-} t_client_arrangedteam_accept_decline_invite PACKED_ATTR();
-
-#define CLIENT_ARRANGEDTEAM_ACCEPT		0x00000003
-#define CLIENT_ARRANGEDTEAM_DECLINE		0x00000002
-
-#define SERVER_ARRANGEDTEAM_MEMBER_DECLINE 0x62ff
-typedef struct
-{
-	t_bnet_header h;
-	bn_int count;
-	bn_int action; // number assigned to player? playernum?
-	//username of the person who declined invitation
-} t_server_arrangedteam_member_decline PACKED_ATTR();
-#define SERVER_ARRANGEDTEAM_ACCEPT		0x00000003
-#define SERVER_ARRANGEDTEAM_DECLINE		0x00000002
-
-/*
-                           FF 64-1C 00 02 00 00 00 00 00   ?¤¿ï..ÿd........
-0x0040   00 00 01 00 00 00 00 00-00 00 03 00 00 00 00 00   ................
-0x0050   00 00                                             ..
-//THIS NEEDS FINISHED
-#define SERVER_ARRANGEDTEAM_TEAM_STATS 0x64ff
-typedef struct
-{
-	t_bnet_header h;
-
-*/
 
 /******************************************************/
+/*
+    packets 0x60ff - 0x64ff moved to anongame_protocal.h
+    [Omega]
+ */
+/******************************************************/
+
 /*
 FF 32 2A 00 1A 29 25 72   77 C3 3C 25 6B 4D 7A A4    .2*..)%rw.<%kMz.
 3B 92 38 D5 01 F4 A5 6B   28 32 29 43 68 61 6C 6C    ;.8....k(2)Chall

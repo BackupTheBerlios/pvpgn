@@ -47,19 +47,13 @@
 # include <bnetd/winmain.h>
 #endif
 
-//#include "common/bn_type.h"
 #include "common/eventlog.h"
-//#include "common/packet.h"
-//#include "common/queue.h"
+#include "common/packet.h"
 #include "common/tag.h"
 #include "common/list.h"
 #include "common/util.h"
-//#include "connection.h"
 #include "account.h"
-//#include "channel.h"
-#include "anongame.h"
-//#include "anongame_infos.h"
-//#include "handle_anongame.h"
+#include "anongame_maplists.h"
 #include "tournament.h"
 #include "common/setup_after.h"
 

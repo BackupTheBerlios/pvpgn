@@ -46,6 +46,7 @@
 #include "channel.h"
 #include "anongame.h"
 #include "anongame_infos.h"
+#include "anongame_maplists.h"
 #include "handle_anongame.h"
 #include "tournament.h"
 #include "common/setup_after.h"
@@ -359,10 +360,11 @@ static int _client_anongame_profile(t_connection * c, t_packet const * const pac
 static int _client_anongame_cancel(t_connection * c)
 {
     t_packet * rpacket = NULL;
+    t_connection * tc[ANONGAME_MAX_GAMECOUNT/2];
     
     // [quetzal] 20020809 - added a_count, so we dont refer to already destroyed anongame
     t_anongame *a = conn_get_anongame(c);
-    int a_count;
+    int a_count, i;
     
     eventlog(eventlog_level_info,__FUNCTION__,"[%d] got FINDANONGAME CANCEL packet", conn_get_socket(c));
     
@@ -371,10 +373,18 @@ static int _client_anongame_cancel(t_connection * c)
     
     a_count = anongame_get_count(a);
     
-    // anongame_unqueue_player(c, anongame_get_type(a)); 
-    // -- already doing unqueue in anongame_destroy_anongame
-    conn_set_routeconn(c, NULL);
-    conn_destroy_anongame(c);
+    // anongame_unqueue_player(c, anongame_get_queue(a)); 
+    // -- already doing unqueue in conn_destroy_anongame
+    for (i=0; i < ANONGAME_MAX_GAMECOUNT/2; i++)
+	tc[i] = anongame_get_tc(a, i);
+	
+    for (i=0; i < ANONGAME_MAX_GAMECOUNT/2; i++) {
+	if (tc[i] == NULL)
+	    continue;
+	    
+	conn_set_routeconn(tc[i], NULL);
+	conn_destroy_anongame(tc[i]);
+    }
     
     if (!(rpacket = packet_create(packet_class_bnet)))
 	return -1;
@@ -571,6 +581,7 @@ static int _client_anongame_infos(t_connection * c, t_packet const * const packe
 	char mapscount_at3v3;
 	char mapscount_at4v4;
 	char mapscount_TY;
+	char mapscount_2v2v2;
 	char mapscount_total;
 	char value;
 	char PG_gamestyles, AT_gamestyles, TY_gamestyles;
@@ -584,6 +595,8 @@ static int _client_anongame_infos(t_connection * c, t_packet const * const packe
 	char anongame_PG_3v3_prefix[]  = {0x02, 0x00, 0x01, 0x3F, 0x00};
 	char anongame_PG_4v4_prefix[]  = {0x03, 0x00, 0x01, 0x3F, 0x00};
 	char anongame_PG_sffa_prefix[] = {0x04, 0x00, 0x02, 0x3F, 0x00};
+	/* Added by Omega */
+	char anongame_PG_2v2v2_prefix[] = {0x05, 0x00, 0x01, 0x3F, 0x00};
 	
 	char anongame_AT_2v2_prefix[]  = {0x00, 0x00, 0x02, 0x3F, 0x02};
 	char anongame_AT_3v3_prefix[]  = {0x02, 0x00, 0x02, 0x3F, 0x03};
@@ -633,9 +646,14 @@ static int _client_anongame_infos(t_connection * c, t_packet const * const packe
 	mapscount_at3v3 = list_get_length(anongame_get_w3xp_maplist(ANONGAME_TYPE_AT_3V3, clienttag));
 	mapscount_at4v4 = list_get_length(anongame_get_w3xp_maplist(ANONGAME_TYPE_AT_4V4, clienttag));
 	mapscount_TY	= list_get_length(anongame_get_w3xp_maplist(ANONGAME_TYPE_TY, clienttag));
-	mapscount_total = mapscount_1v1 + mapscount_2v2 + mapscount_3v3 + mapscount_4v4 + mapscount_sffa +mapscount_at2v2 + mapscount_at3v3 + mapscount_at4v4 + mapscount_TY;
+	/* Added by Omega */
+	mapscount_2v2v2 = list_get_length(anongame_get_w3xp_maplist(ANONGAME_TYPE_2V2V2, clienttag));
 	
-	eventlog(eventlog_level_debug,__FUNCTION__,"client_findanongame_inforeq.noitems=(0x%01x)",bn_byte_get(packet->u.client_findanongame_inforeq.noitems));
+	mapscount_total = mapscount_1v1 + mapscount_2v2 + mapscount_3v3 + mapscount_4v4 +
+		     mapscount_sffa + mapscount_at2v2 + mapscount_at3v3 + mapscount_at4v4 + 
+		     mapscount_TY + mapscount_2v2v2; /* Added by Omega */
+	
+//	eventlog(eventlog_level_debug,__FUNCTION__,"client_findanongame_inforeq.noitems=(0x%01x)",bn_byte_get(packet->u.client_findanongame_inforeq.noitems));
 	
 	/* Send seperate packet for each item requested
 	 * sending all at once overloaded w3xp
@@ -682,6 +700,9 @@ static int _client_anongame_infos(t_connection * c, t_packet const * const packe
 		    anongame_add_maps_to_packet(rpacket, ANONGAME_TYPE_3V3, clienttag);
 		    anongame_add_maps_to_packet(rpacket, ANONGAME_TYPE_4V4, clienttag);
 		    anongame_add_maps_to_packet(rpacket, ANONGAME_TYPE_SMALL_FFA, clienttag);
+		    /* 2v2v2 */
+		    anongame_add_maps_to_packet(rpacket, ANONGAME_TYPE_2V2V2, clienttag);
+		    /* end */
 		    anongame_add_maps_to_packet(rpacket, ANONGAME_TYPE_AT_2V2, clienttag);
 		    anongame_add_maps_to_packet(rpacket, ANONGAME_TYPE_AT_3V3, clienttag);
 		    anongame_add_maps_to_packet(rpacket, ANONGAME_TYPE_AT_4V4, clienttag);
@@ -707,8 +728,12 @@ static int _client_anongame_infos(t_connection * c, t_packet const * const packe
 				PG_gamestyles++;
 				if (mapscount_4v4) {
 				    PG_gamestyles++;
-				    if (mapscount_sffa)
+				    if (mapscount_sffa) {
 					PG_gamestyles++;
+					if (mapscount_2v2v2) {
+					    PG_gamestyles++;
+					}
+				    }
 				}
 			    }
 			}
@@ -757,6 +782,17 @@ static int _client_anongame_infos(t_connection * c, t_packet const * const packe
 					for (counter1=counter2; counter1<(counter2+mapscount_sffa);counter1++)
 					    packet_append_data(rpacket,&counter1,1);
 					counter2+=mapscount_sffa;
+					
+					/* Added by Omega */
+					if (mapscount_2v2v2) {
+					    packet_append_data(rpacket, &anongame_PG_2v2v2_prefix,5);
+					    packet_append_data(rpacket, &mapscount_2v2v2,1);
+					    for (counter1=counter2; counter1<(counter2+mapscount_2v2v2);counter1++)
+						packet_append_data(rpacket,&counter1,1);
+					    counter2+=mapscount_2v2v2;
+					
+					} else 
+					    eventlog(eventlog_level_error,__FUNCTION__,"found no 2v2v2 PG maps in bnmaps.txt - this will disturb anongameinfo packet creation");
 				    }
 				    else
 					eventlog(eventlog_level_error,__FUNCTION__,"found no sffa PG maps in bnmaps.txt - this will disturb anongameinfo packet creation");
@@ -851,7 +887,7 @@ static int _client_anongame_infos(t_connection * c, t_packet const * const packe
 		    packet_append_data(rpacket, "CSED" , 4);
 		    packet_append_data(rpacket,&server_tag_unk,4);
 		    // total descriptions
-		    desc_count=9; /* PG = 5 , AT = 3 , TY = 1 , Total = 9 */
+		    desc_count=10; /* PG = 5 , AT = 3 , TY = 1 , Total = 9 */ /* +1 for 2v2v2 [Omega] */
                     packet_append_data(rpacket,&desc_count,1);
 		    // PG description section
 		    desc_count=0;
@@ -880,11 +916,19 @@ static int _client_anongame_infos(t_connection * c, t_packet const * const packe
 		    desc_count++;
 		    packet_append_string(rpacket,anongame_infos_DESC_get_gametype_ffa_short((char *)conn_get_country(c)));
 		    packet_append_string(rpacket,anongame_infos_DESC_get_gametype_ffa_long((char *)conn_get_country(c)));
+		    /* Added by Omega */
+		    packet_append_data(rpacket,&anongame_PG_section,1);
+		    packet_append_data(rpacket,&desc_count,1);
+		    desc_count++;
+		    packet_append_string(rpacket,"Two vs. Two vs. Two"); /* Fixme */
+		    packet_append_string(rpacket,"Three teams of two, can you handle it?"); /* Fixme */
+		    
 		    // AT description section
 		    desc_count = 0;
 		    packet_append_data(rpacket,&anongame_AT_section,1);
 		    packet_append_data(rpacket,&desc_count,1);
 		    desc_count++;
+		    desc_count++; /* advances count to equal anongame_AT_3v3_prefix[0] [Omega]*/
 		    packet_append_string(rpacket,anongame_infos_DESC_get_gametype_2v2_short((char *)conn_get_country(c)));
 		    packet_append_string(rpacket,anongame_infos_DESC_get_gametype_2v2_long((char *)conn_get_country(c)));
 		    packet_append_data(rpacket,&anongame_AT_section,1);
@@ -898,17 +942,8 @@ static int _client_anongame_infos(t_connection * c, t_packet const * const packe
 		    packet_append_string(rpacket,anongame_infos_DESC_get_gametype_4v4_short((char *)conn_get_country(c)));
 		    packet_append_string(rpacket,anongame_infos_DESC_get_gametype_4v4_long((char *)conn_get_country(c)));
 		    
-//		    noitems++;
-		    server_tag_count++;
 		    eventlog(eventlog_level_debug,__FUNCTION__,"client_tag request tagid=(0x%01x) tag=(%s) tag_unk=(0x%04x)",i,"CLIENT_FINDANONGAME_INFOTAG_DESC",client_tag_unk);
 		    
-		    /* start of info for tournament info */
-//		    server_tag_unk=0x9023A85A;
-//		    packet_append_data(rpacket, "CSED" , 4);
-//		    packet_append_data(rpacket,&server_tag_unk,4);
-		    /* total descriptions */
-//		    desc_count=1;
-//		    packet_append_data(rpacket,&desc_count,1);
 		    /* TY description section */
 		    desc_count=0;
 		    packet_append_data(rpacket,&anongame_TY_section,1);
@@ -918,6 +953,7 @@ static int _client_anongame_infos(t_connection * c, t_packet const * const packe
 		    packet_append_string(rpacket,tournament_get_sponsor());
 		    
 		    noitems++;
+		    server_tag_count++;
 		    break;
 		case CLIENT_FINDANONGAME_INFOTAG_LADR:
 		    server_tag_unk=0x3BADE25A;
@@ -1153,7 +1189,7 @@ static int _client_anongame_tournament(t_connection * c, t_packet const * const 
 
 static unsigned int _tournament_time_convert(unsigned int time)
 {
-    /* it works, don't ask me how */
+    /* it works, don't ask me how */ /* some time drift reportd by testers */
     unsigned int tmp1, tmp2, tmp3;
     
     tmp1 = time-1059179400;	/* 0x3F21CB88  */

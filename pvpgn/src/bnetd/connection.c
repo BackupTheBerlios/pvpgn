@@ -465,6 +465,7 @@ extern t_connection * conn_create(int tsock, int usock, unsigned int real_local_
 extern t_anongame * conn_create_anongame(t_connection *c)
 {
     t_anongame * temp;
+    int i;
 
     if(c->anongame) {
         eventlog(eventlog_level_error,"conn_create_anongame","anongame already allocated");
@@ -479,13 +480,21 @@ extern t_anongame * conn_create_anongame(t_connection *c)
 
     temp->count		= 0;
     temp->id		= 0;
+    temp->tid		= 0;
+    
+    for (i=0; i < ANONGAME_MAX_GAMECOUNT/2; i++)
+	temp->tc[i]	= NULL;
+    
     temp->race		= 0;
     temp->playernum	= 0;
     temp->handle	= 0;
     temp->addr		= 0;
     temp->loaded	= 0;
     temp->joined	= 0;
+    temp->map_prefs	= 0xffffffff;
     temp->type		= 0;
+    temp->gametype	= 0;
+    temp->queue		= 0;
     temp->info		= NULL;
 
     c->anongame = temp;
@@ -528,10 +537,10 @@ extern void conn_destroy_anongame(t_connection *c)
 	// [quetzal] 20020824 
     // unqueue from anongame search list,
 	// if we got AT game, unqueue entire team.
-	if (anongame_arranged(a->type)) {
-		anongame_unqueue_team(c, a->type);
+	if (anongame_arranged(a->queue)) {
+		anongame_unqueue_team(c, a->queue);
 	} else {
-		anongame_unqueue_player(c, a->type);
+		anongame_unqueue_player(c, a->queue);
 	}
     free(c->anongame);
 	c->anongame = NULL;
@@ -3302,6 +3311,26 @@ extern t_connection * connlist_find_connection_by_accountname(char const * accou
     {
 	c = elem_get_data(curr);
 	if (c->account==temp)
+	    return c;
+    }
+    
+    return NULL;
+}
+
+extern t_connection * connlist_find_connection_by_account(t_account * account)
+{
+    t_connection *    c;
+    t_elem const *    curr;
+    
+    if (!account) {
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL account");
+	return NULL;
+    }
+    
+    LIST_TRAVERSE_CONST(conn_head,curr)
+    {
+	c = elem_get_data(curr);
+	if (c->account==account)
 	    return c;
     }
     
