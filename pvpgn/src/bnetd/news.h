@@ -51,7 +51,7 @@ extern int news_unload(void);
 extern unsigned int news_get_firstnews(void);
 extern unsigned int news_get_lastnews(void);
 
-extern unsigned news_traverse(t_news_cb cb, void *data);
+extern void news_traverse(t_news_cb cb, void *data);
 
 #endif
 #endif

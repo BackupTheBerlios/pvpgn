@@ -104,7 +104,7 @@ static int _news_parsetime(char *buff, struct tm *date, unsigned line)
     return 0;
 }
 
-static void _news_insert_index(t_news_index *ni, char *buff, unsigned len, int date_set)
+static void _news_insert_index(t_news_index *ni, const char *buff, unsigned len, int date_set)
 {
     t_elist *curr;
     t_news_index *cni;
@@ -135,6 +135,16 @@ static void _news_insert_index(t_news_index *ni, char *buff, unsigned len, int d
     }
 }
 
+static void _news_insert_default(void)
+{
+    const char * deftext = "No news today";
+    t_news_index	*ni;
+
+    ni = (t_news_index*)xmalloc(sizeof(t_news_index));
+    ni->date = time(NULL);
+    _news_insert_index(ni, deftext, strlen(deftext), 1);
+}
+
 extern int news_load(const char *filename)
 {
     FILE * 		fp;
@@ -155,8 +165,9 @@ extern int news_load(const char *filename)
     }
 
     if ((fp = fopen(filename,"rt"))==NULL) {
-	eventlog(eventlog_level_error, __FUNCTION__,"can't open news file");
-	return -1;
+	eventlog(eventlog_level_warn, __FUNCTION__,"can't open news file");
+	_news_insert_default();
+	return 0;
     }
 
     for (line=1; fgets(buff,sizeof(buff),fp); line++) {
@@ -176,7 +187,7 @@ extern int news_load(const char *filename)
 	    if (date_set)
 		ni->date = mktime(&date);
 	    else {
-		ni->date = time(0);
+		ni->date = time(NULL);
 		eventlog(eventlog_level_warn,__FUNCTION__,"(first) news entry seems to be missing a timestamp, please check your news file on line %u",line);
 	    }
 	    _news_insert_index(ni,buff,len,date_set);
@@ -184,6 +195,11 @@ extern int news_load(const char *filename)
 	}
     }
     fclose(fp);
+
+    if (elist_empty(&news_head)) {
+	eventlog(eventlog_level_warn,__FUNCTION__,"no news configured");
+	_news_insert_default();
+    }
 
     return 0;
 }
@@ -219,21 +235,16 @@ extern unsigned int news_get_firstnews(void)
     return ((elist_entry(news_head.prev,t_news_index,list))->date);
 }
 
-extern unsigned news_traverse(t_news_cb cb, void *data)
+extern void news_traverse(t_news_cb cb, void *data)
 {
-    unsigned count;
     t_elist *curr;
     t_news_index *cni;
 
     assert(cb);
 
-    count = 0;
     elist_for_each(curr,&news_head)
     {
 	cni = elist_entry(curr,t_news_index,list);
 	if (cb(cni->date,&cni->body,data)) break;
-	count++;
     }
-
-    return count;
 }

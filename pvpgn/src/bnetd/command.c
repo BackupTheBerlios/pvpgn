@@ -2784,8 +2784,7 @@ static int _news_cb(time_t date, t_lstr *lstr, void *data)
 
 static int _handle_news_command(t_connection * c, char const *text)
 {
-    if (!news_traverse(_news_cb,c))
-	message_send_text(c,message_type_info,c,"No news today.");
+    news_traverse(_news_cb,c);
     return 0;
 }
 

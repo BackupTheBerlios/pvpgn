@@ -2729,21 +2729,7 @@ static int _client_motdw3(t_connection * c, t_packet const * const packet)
     motdd.c = c;
 
     eventlog(eventlog_level_trace,__FUNCTION__,"lastnews() %u news_time %u",news_get_lastnews(),motdd.lnews);
-    if (!news_traverse(_news_cb,&motdd)) {
-	rpacket = packet_create(packet_class_bnet);
-	if (!rpacket) return -1;
-
-	packet_set_size(rpacket,sizeof(t_server_motd_w3));
-	packet_set_type(rpacket,SERVER_MOTD_W3);
-	bn_byte_set(&rpacket->u.server_motd_w3.msgtype,SERVER_MOTD_W3_MSGTYPE);
-	bn_int_set(&rpacket->u.server_motd_w3.curr_time,now);
-	bn_int_set(&rpacket->u.server_motd_w3.first_news_time,0);
-	bn_int_set(&rpacket->u.server_motd_w3.timestamp,now);
-	bn_int_set(&rpacket->u.server_motd_w3.timestamp2,now);
-	packet_append_string(rpacket,"No news today.");
-	conn_push_outqueue(c,rpacket);
-	packet_del_ref(rpacket);
-    }
+    news_traverse(_news_cb,&motdd);
 
     /* Welcome Message */
     rpacket = packet_create(packet_class_bnet);
