@@ -494,15 +494,12 @@ CONFS		= bnetd.conf d2cs.conf d2dbs.conf \
 
 SHARES		= ad000001.pcx ad000001.mng ad000004.mng ad000666.mng ad000666.pcx \
 		  icons.bni icons_STAR.bni icons-WAR3.bni \
-		  tos.txt tos-unicode_USA.txt TOS_USA.TXT \
+		  tos.txt \
 		  bnserver.ini bnserver-D2DV.ini bnserver-WAR3.ini \
 		  newbie.save \
 		  IX86ver1.mpq \
 		  termsofservice-default.txt termsofservice-enUS.txt \
 		  matchmaking-war3-default.dat matchmaking-war3-enUS.dat \
-		  matchmaking-war3-deDE.dat matchmaking-war3-itIT.dat \
-		  matchmaking-war3-frFR.dat \
-		  matchmaking-war3-ruRU.dat matchmaking-war3-zhTW.dat \
 		  chathelp-war3-default.txt chathelp-war3-enUS.txt \
 		  newaccount-default.txt newaccount-enUS.txt
 
