@@ -40,7 +40,6 @@
 # include "character.h"
 # include "versioncheck.h"
 # include "anongame.h"
-# include "bnpmap.h"
 # ifdef WITH_BITS
 #   include "bits.h"
 #   include "bits_ext.h"
@@ -65,7 +64,6 @@
 # include "character.h"
 # include "versioncheck.h"
 # include "anongame.h"
-# include "bnpmap.h"
 # ifdef WITH_BITS
 #   include "bits.h"
 #   include "bits_ext.h"
@@ -133,7 +131,6 @@ typedef struct connection
    unsigned short                real_local_port;
    t_conn_class                  class;
    t_conn_state                  state;
-   pmap_row const *              pmap;
    unsigned int                  sessionkey;
    unsigned int                  sessionnum;
    unsigned int                  secret; /* random number... never sent over net unencrypted */
@@ -219,7 +216,6 @@ t_connection;
 #include "versioncheck.h"
 #include "timer.h"
 #include "anongame.h"
-#include "bnpmap.h"
 #undef JUST_NEED_TYPES
 
 extern t_anongame * conn_create_anongame(t_connection * c);
@@ -396,8 +392,6 @@ extern int conn_set_joingamewhisper_ack(t_connection * c, unsigned int value);
 extern int conn_get_joingamewhisper_ack(t_connection * c);
 extern int conn_set_leavegamewhisper_ack(t_connection * c, unsigned int value);
 extern int conn_get_leavegamewhisper_ack(t_connection * c);
-extern int conn_set_pmap(t_connection *c, pmap_row const * pmap);
-extern pmap_row const * conn_get_pmap(t_connection *c);
 extern int conn_set_anongame_search_starttime(t_connection * c, time_t t);
 extern time_t conn_get_anongame_search_starttime(t_connection * c);
 

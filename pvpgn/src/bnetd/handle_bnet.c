@@ -102,7 +102,6 @@
 #include "character.h"
 #include "versioncheck.h"
 #include "anongame.h"
-#include "bnpmap.h"
 #include "common/proginfo.h"
 #include "handle_bnet.h"
 #include "handlers.h"
@@ -339,8 +338,6 @@ static int handle(const t_htable_row *htable, int type, t_connection * c, t_pack
 	if (res != 2) break; /* return 2 means we want to continue parsing */
      }
    
-   if (conn_get_pmap(c) && packet_get_type(packet) == 0) /* packet needed to map get message from previous code */
-    return 0;
    return res;
 }
 
@@ -591,11 +588,8 @@ static int _client_countryinfo109(t_connection * c, t_packet const * const packe
 	  conn_set_clienttag(c,CLIENTTAG_DIABLO2XP);
 	else if (bn_int_tag_eq(packet->u.client_countryinfo_109.clienttag,CLIENTTAG_WARCRAFT3)==0)
 	  conn_set_clienttag(c,CLIENTTAG_WARCRAFT3);
-	else if (bn_int_tag_eq(packet->u.client_countryinfo_109.clienttag,CLIENTTAG_WAR3XP)==0) {
+	else if (bn_int_tag_eq(packet->u.client_countryinfo_109.clienttag,CLIENTTAG_WAR3XP)==0)
 	   conn_set_clienttag(c,CLIENTTAG_WAR3XP);
-	   /* we activate the packet type mapper for this connection */
-	   conn_set_pmap(c, bnpmap_get_war3xptable(bn_int_get(packet->u.client_countryinfo_109.versionid)));
-	}
 	else
 	  eventlog(eventlog_level_error,__FUNCTION__,"[%d] unknown client program type 0x%08x, don't expect this to work",conn_get_socket(c),bn_int_get(packet->u.client_countryinfo_109.clienttag));
 	

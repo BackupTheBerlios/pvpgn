@@ -158,7 +158,6 @@
 #include "war3ladder.h"
 #include "output.h"
 #include "common/setup_after.h"
-#include "bnpmap.h"
 #include "alias_command.h"
 #include "anongame_infos.h"
 #include "news.h"
@@ -712,9 +711,6 @@ static int sd_tcpinput(int csocket, t_connection * c)
 		hexdump(hexstrm,packet_get_raw_data_const(packet,0),packet_get_size(packet));
 	    }
 	    
-            if (conn_get_pmap(c))
-                packet_set_type(packet, bnpmap_real(packet_get_type(packet), conn_get_pmap(c)));
-
 	    if (conn_get_class(c)==conn_class_bot ||
 		conn_get_class(c)==conn_class_telnet) /* NUL terminate the line to make life easier */
 	    {
@@ -791,7 +787,7 @@ static int sd_tcpoutput(int csocket, t_connection * c)
 {
     unsigned int currsize;
     unsigned int totsize;
-    t_packet *   packet, *newpacket;
+    t_packet *   packet;
     
     totsize = 0;
     for (;;)
@@ -801,25 +797,16 @@ static int sd_tcpoutput(int csocket, t_connection * c)
         if ((packet = queue_peek_packet((t_queue const * const *)conn_get_out_queue(c))) == NULL)
             return -2;
 
-	if ((newpacket = packet_create(packet_get_class(packet))) == NULL)
-	    return -2;
-	    
-	memmove(newpacket, packet, sizeof(t_packet));
-	if (conn_get_pmap(c))
-	    packet_set_type(newpacket, bnpmap_show(packet_get_type(packet), conn_get_pmap(c)));
-
-	switch (net_send_packet(csocket,newpacket,&currsize)) /* avoid warning */
+	switch (net_send_packet(csocket,packet,&currsize)) /* avoid warning */
 	{
 	case -1:
 		// [quetzal] 20020808 - marking connection as "destroyed", memory will be freed later
 		//conn_destroy(c);
 		conn_set_state(c, conn_state_destroy);
-		packet_destroy(newpacket);
 	    return -2;
 	    
 	case 0: /* still working on it */
 	    conn_set_out_size(c,currsize);
-	    packet_destroy(newpacket);
 	    return 0; /* bail out */
 	    
 	case 1: /* done sending */
@@ -827,14 +814,12 @@ static int sd_tcpoutput(int csocket, t_connection * c)
 	    {
 		fprintf(hexstrm,"%d: send class=%s[0x%02x] type=%s[0x%04x] length=%u\n",
 			csocket,
-			packet_get_class_str(newpacket),(unsigned int)packet_get_class(newpacket),
-			packet_get_type_str(newpacket,packet_dir_from_server),packet_get_type(newpacket),
-			packet_get_size(newpacket));
-		hexdump(hexstrm,packet_get_raw_data(newpacket,0),packet_get_size(newpacket));
+			packet_get_class_str(packet),(unsigned int)packet_get_class(packet),
+			packet_get_type_str(packet,packet_dir_from_server),packet_get_type(packet),
+			packet_get_size(packet));
+		hexdump(hexstrm,packet_get_raw_data(packet,0),packet_get_size(packet));
 	    }
 
-	    packet_destroy(newpacket);
-	    
 	    packet = queue_pull_packet(conn_get_out_queue(c));
 	    packet_del_ref(packet);
 	    conn_set_out_size(c,0);
