@@ -1249,6 +1249,8 @@ extern int main(int argc, char * argv[])
 	     (chann = packet_get_str_const(rpacket,chann_off,128));
 	     i++,chann_off+=strlen(chann)+1)
         {
+	    if (chann[0] == '\0') break;  /* channel list ends with a "" */
+
 	    if (!(channellist = realloc(channellist,sizeof(char const *)*(i+2))))
 	    {
 		fprintf(stderr,"%s: could not allocate memory for channellist\n",argv[0]);
