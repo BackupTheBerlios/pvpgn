@@ -10,6 +10,8 @@ fail to login due to wrong file-time. That's not our problem.
 -- fixed a problem with PvPGN (GUI-version) run as a service wasn't shutting down
 -- fixed get_socket_limit() to use getrusage on systems which support it (this 
 also gets things compiling on BeOS)
+-- made sure D2 charsave files created with D2Closed (with file ending .d2s)
+will be automatically renamed on use
 
 1.6.0beta (since 1.6.0pre5)
 !!! IMPORTANT !!!

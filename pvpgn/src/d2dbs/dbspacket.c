@@ -258,6 +258,7 @@ static unsigned int dbs_packet_savedata_charinfo(t_d2dbs_connection* conn,char *
 static unsigned int dbs_packet_getdata_charsave(t_d2dbs_connection* conn,char * AccountName,char * CharName,char * data,unsigned int bufsize)
 {
 	char filename[MAX_PATH];
+	char filename_d2closed[MAX_PATH];
 	FILE * fd;
 	unsigned short curlen,readlen,leftlen,writelen;
 	long filesize;
@@ -266,6 +267,11 @@ static unsigned int dbs_packet_getdata_charsave(t_d2dbs_connection* conn,char * 
 	strtolower(CharName);
 	
 	sprintf(filename,"%s/%s",d2dbs_prefs_get_charsave_dir(),CharName);
+	sprintf(filename_d2closed,"%s/%s.d2s",d2dbs_prefs_get_charsave_dir(),CharName);
+	if ((access(filename, F_OK) < 0) && (access(filename_d2closed, F_OK) == 0))
+	{
+		rename(filename_d2closed, filename);
+	}
 	fd = fopen(filename, "rb");
 	if (!fd) {
 		eventlog(eventlog_level_error,__FUNCTION__,"open() failed : %s",filename);
