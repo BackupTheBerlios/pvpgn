@@ -503,10 +503,10 @@ XML_output_ladder = false
 
 # the following value determines, at which rate, these files are created
 # set to 0 if you don't want or need these files
-war3_output_update_secs = 60
+output_update_secs = 60
 
 # jfro's latest ladder is based on XML... so we can switch to XML output of ladder
 # on demand. Maybe we should set update interval bigger cause XML output version
 # is much more verbose than the standard output
-XML_status_output_ladder = false
+XML_status_output = false
 

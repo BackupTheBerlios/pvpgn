@@ -165,14 +165,14 @@ extern int prefs_get_initkill_timer(void) PURE_ATTR();
 
 //aaron
 extern int prefs_get_war3_ladder_update_secs(void) PURE_ATTR();
-extern int prefs_get_war3_output_update_secs(void) PURE_ATTR();
+extern int prefs_get_output_update_secs(void) PURE_ATTR();
 extern char const * prefs_get_ladderdir(void) PURE_ATTR();
 extern char const * prefs_get_outputdir(void) PURE_ATTR();
 
 extern int prefs_get_reduced_accounting(void) PURE_ATTR();
 
 extern int prefs_get_XML_output_ladder(void) PURE_ATTR();
-extern int prefs_get_XML_status_output_ladder(void) PURE_ATTR();
+extern int prefs_get_XML_status_output(void) PURE_ATTR();
 
 extern char const * prefs_get_account_allowed_symbols(void) PURE_ATTR();
 

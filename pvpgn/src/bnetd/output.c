@@ -60,7 +60,7 @@ extern void output_init(void)
 {
     eventlog(eventlog_level_info,"output_init","initializing output file");
 
-    if (prefs_get_XML_status_output_ladder())
+    if (prefs_get_XML_status_output())
 	status_filename = create_filename(prefs_get_outputdir(),"server",".xml"); // WarCraft III
     else
 	status_filename = create_filename(prefs_get_outputdir(),"server",".dat"); // WarCraft III
@@ -83,7 +83,7 @@ int output_standard_writer(FILE * fp)
     char const		*		tname;
 	int						number;
     
-    if (prefs_get_XML_status_output_ladder())
+    if (prefs_get_XML_status_output())
     {
 	fprintf(fp,"<?xml version=\"1.0\"?>\n<status>\n");
 	fprintf(fp,"\t\t<Uptime>%s</Uptime>\n",seconds_to_timestr(server_get_uptime()));

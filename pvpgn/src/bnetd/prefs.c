@@ -163,12 +163,12 @@ static struct {
     char const * xpcalcfile;
     unsigned int initkill_timer;
     unsigned int war3_ladder_update_secs;
-    unsigned int war3_output_update_secs;
+    unsigned int output_update_secs;
     char const * ladderdir;
     char const * statusdir;
     unsigned int reduced_accounting;
     unsigned int XML_output_ladder;
-    unsigned int XML_status_output_ladder;
+    unsigned int XML_status_output;
     char const * account_allowed_symbols;
     unsigned int reload_new_accounts;
     char const * command_groups_file;
@@ -281,12 +281,12 @@ static Bconf_t conf_table[] =
     { "xpcalcfile",		conf_type_char,	   NULL,		 0          	     , &prefs_runtime_config.xpcalcfile},
     { "initkill_timer", 	conf_type_int,     NULL,       		 0		     , &prefs_runtime_config.initkill_timer},
     { "war3_ladder_update_secs",conf_type_int,     NULL,                 0                   , &prefs_runtime_config.war3_ladder_update_secs},
-    { "war3_output_update_secs",conf_type_int,     NULL,                 0                   , &prefs_runtime_config.war3_output_update_secs},
+    { "output_update_secs",	conf_type_int,     NULL,                 0                   , &prefs_runtime_config.output_update_secs},
     { "ladderdir",              conf_type_char,    BNETD_LADDER_DIR,     NONE                , &prefs_runtime_config.ladderdir},
     { "statusdir",              conf_type_char,    BNETD_STATUS_DIR,     NONE                , &prefs_runtime_config.statusdir},
     { "reduced_accounting",     conf_type_bool,    NULL,                 0                   , &prefs_runtime_config.reduced_accounting},
     { "XML_output_ladder",      conf_type_bool,    NULL,                 0	    	     , &prefs_runtime_config.XML_output_ladder},
-    { "XML_status_output_ladder",      conf_type_bool,    NULL,                 0	     , &prefs_runtime_config.XML_status_output_ladder},
+    { "XML_status_output",      conf_type_bool,    NULL,                 0	     	     , &prefs_runtime_config.XML_status_output},
     { "account_allowed_symbols",conf_type_char,    PVPGN_DEFAULT_SYMB,   NONE                , &prefs_runtime_config.account_allowed_symbols},
     { "reload_new_accounts",    conf_type_bool,    NULL,                 0                   , &prefs_runtime_config.reload_new_accounts},
     { "command_groups_file",	conf_type_char,    BNETD_COMMAND_GROUPS_FILE,	NONE	     , &prefs_runtime_config.command_groups_file},
@@ -1188,9 +1188,9 @@ extern int prefs_get_war3_ladder_update_secs(void)
         return prefs_runtime_config.war3_ladder_update_secs;
 }
 
-extern int prefs_get_war3_output_update_secs(void)
+extern int prefs_get_output_update_secs(void)
 {
-        return prefs_runtime_config.war3_output_update_secs;
+        return prefs_runtime_config.output_update_secs;
 }
 
 extern char const * prefs_get_ladderdir(void)
@@ -1213,9 +1213,9 @@ extern int prefs_get_XML_output_ladder(void)
         return prefs_runtime_config.XML_output_ladder;
 }
 
-extern int prefs_get_XML_status_output_ladder(void)
+extern int prefs_get_XML_status_output(void)
 {
-        return prefs_runtime_config.XML_status_output_ladder;
+        return prefs_runtime_config.XML_status_output;
 }
 
 extern char const * prefs_get_account_allowed_symbols(void)
