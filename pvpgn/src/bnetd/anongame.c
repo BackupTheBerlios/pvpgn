@@ -1304,10 +1304,6 @@ extern t_anongameinfo * anongameinfo_create(int totalplayers)
 	int i;
 
 	temp = xmalloc(sizeof(t_anongameinfo));
-	if(!temp) {
-		eventlog(eventlog_level_error, "anongameinfo_create", "could not allocate memory for temp");
-		return NULL;
-	}
 
 	temp->totalplayers = temp->currentplayers = totalplayers;
 	for(i=0; i<ANONGAME_MAX_GAMECOUNT; i++) {

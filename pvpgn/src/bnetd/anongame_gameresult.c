@@ -82,18 +82,9 @@ extern t_anongame_gameresult * anongame_gameresult_parse(t_packet const * const 
 	return NULL;
   }
 
-  if (!(gameresult = xmalloc(sizeof(t_anongame_gameresult))))
-  {
-	eventlog(eventlog_level_error,__FUNCTION__,"could not allocate memory for gameresult");
-	return NULL;
-  }
+  gameresult = xmalloc(sizeof(t_anongame_gameresult));
 
-  if (!(gameresult->players = xmalloc(sizeof(t_anongame_player)*result_count)))
-  {
-	eventlog(eventlog_level_error,__FUNCTION__,"could not allocate memory for players");
-	xfree((void *)gameresult);
-	return NULL;
-  }
+  gameresult->players = xmalloc(sizeof(t_anongame_player)*result_count);
 
   gameresult->number_of_results = result_count;
 
@@ -127,13 +118,7 @@ extern t_anongame_gameresult * anongame_gameresult_parse(t_packet const * const 
 
   if ((heroes_count))
   {
-    if (!(gameresult->heroes = xmalloc(sizeof(t_anongame_hero)*heroes_count)))
-    {
-	eventlog(eventlog_level_error,__FUNCTION__,"could not allocate memory for heroes");
-	xfree((void *)gameresult->players);
-	xfree((void *)gameresult);
-	return NULL;
-    }
+    gameresult->heroes = xmalloc(sizeof(t_anongame_hero)*heroes_count);
 
     if (packet_get_size(packet) < expectedsize + sizeof(t_client_w3route_gameresult_hero)*heroes_count)
     {
