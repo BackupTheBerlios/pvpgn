@@ -646,6 +646,7 @@ extern int irc_message_postformat(t_packet * packet, t_connection const * dest)
     int len;
     /* the four elements */
     char * e1;
+    char * e1_2;
     char * e2;
     char * e3;
     char * e4;
@@ -681,6 +682,17 @@ extern int irc_message_postformat(t_packet * packet, t_connection const * dest)
     }
     *e4++ = '\0';
 
+    if (prefs_get_hide_addr() && !(account_get_command_groups(conn_get_account(dest)) & command_get_group("/admin-addr")))
+    {
+      e1_2 = strchr(e1,'@');
+      if (e1_2)
+      {
+	  *e1_2++ = '\0';
+      }
+    }
+    else
+    e1_2 = NULL;
+
     if (e3[0]=='\0') { /* fill in recipient */
     	if ((tname = conn_get_chatname(dest)))
     	    toname = tname;
@@ -695,7 +707,10 @@ extern int irc_message_postformat(t_packet * packet, t_connection const * dest)
     if (len<=MAX_IRC_MESSAGE_LEN) {
 	char msg[MAX_IRC_MESSAGE_LEN+1];
 
-	sprintf(msg,"%s %s %s %s\r\n",e1,e2,toname,e4);
+	if (e1_2)
+	    sprintf(msg,"%s@hidden %s %s %s\r\n",e1,e2,toname,e4);
+	else
+	    sprintf(msg,"%s %s %s %s\r\n",e1,e2,toname,e4);
 	eventlog(eventlog_level_debug,"irc_message_postformat","sent \"%s\"",msg);
 	packet_set_size(packet,0);
 	packet_append_data(packet,msg,strlen(msg));
@@ -733,20 +748,14 @@ extern int irc_message_format(t_packet * packet, t_message_type type, t_connecti
     case message_type_join:
     	from.nick = conn_get_chatname(me);
     	from.user = conn_get_clienttag(me);
-	if (prefs_get_hide_addr() && !(account_get_command_groups(conn_get_account(dst)) & command_get_group("/admin-addr")))
-	    from.host = hidden;
-	else
-    	    from.host = addr_num_to_ip_str(conn_get_addr(me));
+    	from.host = addr_num_to_ip_str(conn_get_addr(me));
     	msg = irc_message_preformat(&from,"JOIN","\r",irc_convert_channel(conn_get_channel(me)));
     	conn_unget_chatname(me,from.nick);
     	break;
     case message_type_part:
     	from.nick = conn_get_chatname(me);
     	from.user = conn_get_clienttag(me);
-	if (prefs_get_hide_addr() && !(account_get_command_groups(conn_get_account(dst)) & command_get_group("/admin-addr")))
-	    from.host = hidden;
-	else
-    	    from.host = addr_num_to_ip_str(conn_get_addr(me));
+    	from.host = addr_num_to_ip_str(conn_get_addr(me));
     	msg = irc_message_preformat(&from,"PART","\r",irc_convert_channel(conn_get_channel(me)));
     	conn_unget_chatname(me,from.nick);
     	break;
@@ -757,10 +766,7 @@ extern int irc_message_format(t_packet * packet, t_message_type type, t_connecti
 	    char temp[MAX_IRC_MESSAGE_LEN];
     	    from.nick = conn_get_chatname(me);
             from.user = conn_get_clienttag(me);
-	    if (prefs_get_hide_addr() && !(account_get_command_groups(conn_get_account(dst)) & command_get_group("/admin-addr")))
-	        from.host = hidden;
-	    else
-    	        from.host = addr_num_to_ip_str(conn_get_addr(me));
+    	    from.host = addr_num_to_ip_str(conn_get_addr(me));
     	    if (type==message_type_talk)
     	    	dest = irc_convert_channel(conn_get_channel(me)); /* FIXME: support more channels and choose right one! */
 	    else
@@ -783,10 +789,7 @@ extern int irc_message_format(t_packet * packet, t_message_type type, t_connecti
 	    }
     	    from.nick = conn_get_chatname(me);
             from.user = conn_get_clienttag(me);
-	    if (prefs_get_hide_addr() && !(account_get_command_groups(conn_get_account(dst)) & command_get_group("/admin-addr")))
-	        from.host = hidden;
-	    else
-    	        from.host = addr_num_to_ip_str(conn_get_addr(me));
+    	    from.host = addr_num_to_ip_str(conn_get_addr(me));
     	    /* FIXME: also supports whisper emotes? */
     	    dest = irc_convert_channel(conn_get_channel(me)); /* FIXME: support more channels and choose right one! */
 	    msg = irc_message_preformat(&from,"PRIVMSG",dest,temp);
@@ -808,10 +811,7 @@ extern int irc_message_format(t_packet * packet, t_message_type type, t_connecti
     case message_type_mode:
 	from.nick = conn_get_chatname(me);
 	from.user = conn_get_clienttag(me);
-	if (prefs_get_hide_addr() && !(account_get_command_groups(conn_get_account(dst)) & command_get_group("/admin-addr")))
-	    from.host = hidden;
-	else
-	    from.host = addr_num_to_ip_str(conn_get_addr(me));
+	from.host = addr_num_to_ip_str(conn_get_addr(me));
 	msg = irc_message_preformat(&from,"MODE","\r",text);
 	conn_unget_chatname(me,from.nick);
 	break;
