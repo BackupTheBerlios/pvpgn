@@ -850,17 +850,36 @@ static int irc_who_connection(t_connection * dest, t_connection * c)
 	return -1;
     }
     a = conn_get_account(c);
-    /*tempuser = account_get_ll_user(a);*/
-    tempuser = conn_get_clienttag(c);
-    tempowner = account_get_ll_owner(a);
-    tempname = conn_get_username(c);
-    tempip = addr_num_to_ip_str(conn_get_addr(c));
-    tempchannel = irc_convert_channel(conn_get_channel(c));
+    if (!(tempuser = conn_get_clienttag(c)))
+    {
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL clienttag (tempuser)");
+	return -1;
+    }
+    if (!(tempowner = account_get_ll_owner(a)))
+    {
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL ll_owner (tempowner)");
+	return -1;
+    }
+    if (!(tempname = conn_get_username(c)))
+    {
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL username (tempname)");
+	return -1;
+    }
+    if (!(tempip = addr_num_to_ip_str(conn_get_addr(c))))
+    {
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL addr (tempip)");
+	return -1;
+    }
+    if (!(tempchannel = irc_convert_channel(conn_get_channel(c))))
+    {
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL channel (tempchannel)");
+	return -1;
+    }
     if ((strlen(tempchannel)+1+strlen(tempuser)+1+strlen(tempip)+1+strlen(server_get_name())+1+strlen(tempname)+1+1+strlen(tempflags)+4+strlen(tempowner)+1)>MAX_IRC_MESSAGE_LEN) {
-	eventlog(eventlog_level_info,"irc_who_connection","WHO reply too long");
+	eventlog(eventlog_level_info,"irc_who_connection","WHO reply too long - skip");
+	return -1;
     } else
         sprintf(temp,"%s %s %s %s %s %c%s :0 %s",tempchannel,tempuser,tempip,server_get_name(),tempname,'H',tempflags,tempowner);
-    /*account_unget_ll_user(tempuser);*/
     account_unget_ll_owner(tempowner);
     conn_unget_username(c,tempname);
     irc_send(dest,RPL_WHOREPLY,temp);
