@@ -263,6 +263,7 @@ static int _client_friendslistreq(t_connection * c, t_packet const * const packe
 static int _client_friendinforeq(t_connection * c, t_packet const * const packet);
 static int _client_atfriendscreen(t_connection * c, t_packet const * const packet);
 static int _client_atinvitefriend(t_connection * c, t_packet const * const packet);
+static int _client_atacceptinvite(t_connection * c, t_packet const * const packet);
 static int _client_atacceptdeclineinvite(t_connection * c, t_packet const * const packet);
 static int _client_findanongame(t_connection * c, t_packet const * const packet);
 static int _client_motdw3(t_connection * c, t_packet const * const packet);
@@ -336,6 +337,7 @@ static const t_htable_row bnet_htable_log [] = {
      { CLIENT_FRIENDINFOREQ,    _client_friendinforeq},
      { CLIENT_ARRANGEDTEAM_FRIENDSCREEN, _client_atfriendscreen},
      { CLIENT_ARRANGEDTEAM_INVITE_FRIEND, _client_atinvitefriend},
+     { CLIENT_ARRANGEDTEAM_ACCEPT_INVITE, _client_atacceptinvite},
      { CLIENT_ARRANGEDTEAM_ACCEPT_DECLINE_INVITE, _client_atacceptdeclineinvite},
      { CLIENT_FINDANONGAME,     _client_findanongame},
      { CLIENT_FILEINFOREQ,      _client_fileinforeq},
@@ -2885,11 +2887,21 @@ static int _client_atacceptdeclineinvite(t_connection * c, t_packet const * cons
 	     
 	     queue_push_packet(conn_get_out_queue(dest_c),rpacket);
 	     packet_del_ref(rpacket);
-	} else
-	     conn_set_channel(c, "Arranged Teams");
+	}
      }
 
    return 0;
+}
+
+static int _client_atacceptinvite(t_connection * c, t_packet const * const packet)
+{
+   t_packet * rpacket = NULL;
+   
+   if (packet_get_size(packet)<sizeof(t_client_arrangedteam_accept_invite)) {
+      eventlog(eventlog_level_error,__FUNCTION__,"[%d] got bad ARRANGEDTEAM_ACCEPT_INVITE packet (expected %u bytes, got %u)",conn_get_socket(c),sizeof(t_client_arrangedteam_accept_invite),packet_get_size(packet));
+      return -1;
+   }
+   conn_set_channel(c, "Arranged Teams");
 }
 
 static int _client_findanongame(t_connection * c, t_packet const * const packet)

@@ -3800,6 +3800,7 @@ typedef struct
 	//Usernames of the others who got invited
 } t_server_arrangedteam_send_invite PACKED_ATTR();
 
+
 #define CLIENT_ARRANGEDTEAM_ACCEPT_DECLINE_INVITE 0x63ff
 typedef struct
 {
@@ -3809,6 +3810,7 @@ typedef struct
 	bn_int option; //accept or decline
 	//username of the inviter
 } t_client_arrangedteam_accept_decline_invite PACKED_ATTR();
+
 #define CLIENT_ARRANGEDTEAM_ACCEPT		0x00000003
 #define CLIENT_ARRANGEDTEAM_DECLINE		0x00000002
 

@@ -120,6 +120,14 @@ typedef struct{
   bn_short             message;
 } t_server_w3xp_clan_inforeply PACKED_ATTR();
 
+#define CLIENT_ARRANGEDTEAM_ACCEPT_INVITE 0xfdff
+typedef struct
+{
+	t_bnet_header h;
+} t_client_arrangedteam_accept_invite PACKED_ATTR();
+
+
+
 #define SERVER_W3XP_CLAN_INFOREPLY_MESSAGE_OK 0x0000
 #define SERVER_W3XP_CLAN_INFOREPLY_MESSAGE_ALLREADY_IN_USE 0x0001
 

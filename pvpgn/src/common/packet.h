@@ -371,6 +371,7 @@ typedef struct
 	t_client_arrangedteam_invite_friend		client_arrangedteam_invite_friend;
 	t_server_arrangedteam_invite_friend_ack		server_arrangedteam_invite_friend_ack;
 	t_server_arrangedteam_send_invite		server_arrangedteam_send_invite;
+	t_client_arrangedteam_accept_invite    client_arrangedteam_accept_invite;
 	t_client_arrangedteam_accept_decline_invite    client_arrangedteam_accept_decline_invite;
 	t_server_arrangedteam_member_decline    server_arrangedteam_member_decline;
 	// 5/24/02 - THEUNDYING - updates for ANONGAME PROFILE PACKET
