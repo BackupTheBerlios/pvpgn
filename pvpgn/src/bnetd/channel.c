@@ -546,6 +546,7 @@ extern int channel_rejoin(t_connection * conn)
 
   if ((chname=strdup(temp)))
   {
+    conn_set_channel(conn, NULL);
     if (conn_set_channel(conn,chname)<0)
       conn_set_channel(conn,CHANNEL_NAME_BANNED);
     free((void *)chname);
@@ -627,6 +628,7 @@ extern int channel_add_connection(t_channel * channel, t_connection * connection
 
     if ((!(channel->flags & channel_flags_permanent)) 
         && (!(channel->flags & channel_flags_thevoid)) 
+        && (!(channel->flags & channel_flags_clan)) 
 	&& (channel->currmembers==1) 
 	&& (account_is_operator_or_admin(conn_get_account(connection),channel_get_name(channel))==0))
     {

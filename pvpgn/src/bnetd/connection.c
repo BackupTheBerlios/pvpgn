@@ -1997,9 +1997,14 @@ extern int conn_set_channel(t_connection * c, char const * channelname)
 	unsigned int created;
 #endif
 
+    oldchannel=c->channel;
+
 	channel = channellist_find_channel_by_name(channelname,conn_get_country(c),conn_get_realmname(c));
 
-	if((channel_get_flags(channel) & channel_flags_clan) == channel_flags_clan)
+	if(channel && (channel == oldchannel))
+		return 0;
+
+	if((strncasecmp(channelname, "clan ", 5)==0)&&(strlen(channelname)<10))
 		clantag = str_to_clantag(&channelname[5]);
 
     if(clantag && ((!(clan = account_get_clan(acc))) || (clan_get_clantag(clan) != clantag)))
@@ -2028,8 +2033,6 @@ extern int conn_set_channel(t_connection * c, char const * channelname)
 	c->channel = NULL;
     }
 
-    channel = channellist_find_channel_by_name(channelname,conn_get_country(c),conn_get_realmname(c));
-
     if (channel)
 	{
 	    if (channel_check_banning(channel,c))
@@ -2055,8 +2058,6 @@ extern int conn_set_channel(t_connection * c, char const * channelname)
 	    }
 	}
     
-    oldchannel=c->channel;
-
     if(conn_set_joingamewhisper_ack(c,0)<0)
 	eventlog(eventlog_level_error,"conn_set_channel","Unable to reset conn_set_joingamewhisper_ack flag");
 
@@ -2137,6 +2138,9 @@ extern int conn_set_channel(t_connection * c, char const * channelname)
 
     if (!channel)
 	{
+		if(clantag)
+		channel = channel_create(channelname,channelname,NULL,0,1,1,prefs_get_chanlog(), NULL, NULL, (prefs_get_maxusers_per_channel() > 0) ? prefs_get_maxusers_per_channel() : -1, 0, 1);
+		else
 		channel = channel_create(channelname,channelname,NULL,0,1,1,prefs_get_chanlog(), NULL, NULL, (prefs_get_maxusers_per_channel() > 0) ? prefs_get_maxusers_per_channel() : -1, 0, 0);
 	    if (!channel)
 	    {
