@@ -232,7 +232,8 @@ t_parsed_exeinfo * parse_exeinfo(char const * exeinfo)
 	int size;
         char time_invalid = 0;
 
-	if (exeinfo[0]=='\0') //happens when using war3-noCD and having deleted war3.org
+	if ((exeinfo[0]=='\0') ||	   //happens when using war3-noCD and having deleted war3.org
+	    (strcmp(exeinfo,"badexe")==0)) //happens when AUTHREQ had no owner/exeinfo entry
 	{
           free((void *)parsed_exeinfo->exe);
           free((void *)parsed_exeinfo);
