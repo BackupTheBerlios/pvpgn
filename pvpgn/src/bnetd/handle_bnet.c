@@ -1145,9 +1145,6 @@ static int _client_authreq1(t_connection * c, t_packet const * const packet)
 	char         verstr[16];
 	char const * exeinfo;
 	char const * versiontag;
-	unsigned int versionid;
-	unsigned int gameversion;
-	unsigned int checksum;
 	int          failed;
 	
 	failed = 0;
@@ -1293,8 +1290,6 @@ static int _client_authreq109(t_connection * c, t_packet const * const packet)
 	char const * exeinfo;
 	char const * versiontag;
 	unsigned int versionid;
-	unsigned int gameversion;
-	unsigned int checksum;
 	int          failed;
 	char const * owner;
 	unsigned int count;

@@ -34,10 +34,16 @@
 #include "common/bn_type.h"
 #include "common/field_sizes.h"
 #include "handle_file.h"
+/* ADDED BY UNDYING SOULZZ 4/3/02 */
+#ifdef HAVE_SYS_TYPES_H
+# include <sys/types.h>
+#endif
+#ifdef HAVE_SYS_SOCKET_H
+# include <sys/socket.h>
+#endif
+#include "compat/psock.h"
 #include "common/setup_after.h"
 
-/* ADDED BY UNDYING SOULZZ 4/3/02 */
-#include "compat/psock.h"
 
 extern int handle_file_packet(t_connection * c, t_packet const * const packet)
 {
