@@ -1096,26 +1096,8 @@ static int _handle_friends_command(t_connection * c, char const * text)
 	  sprintf(status, ", offline");
 	else
 	  {
-	    clienttag = conn_get_clienttag(dest_c);
-	    if(strcasecmp(clienttag,CLIENTTAG_WARCRAFT3)==0)
-	      sprintf(software," using Warcraft 3");
-	    if(strcasecmp(clienttag,CLIENTTAG_WAR3XP)==0)
-	      sprintf(software," using Warcraft 3 Expansion");
-	    else if(strcasecmp(clienttag,CLIENTTAG_WARCIIBNE)==0)
-	      sprintf(software," using Warcraft 2");
-	    else if(strcasecmp(clienttag,CLIENTTAG_STARCRAFT)==0)
-	      sprintf(software," using Starcraft");
-	    else if(strcasecmp(clienttag,CLIENTTAG_BROODWARS)==0)
-	      sprintf(software," using BroodWars");
-	    else if(strcasecmp(clienttag,CLIENTTAG_DIABLORTL)==0)
-	      sprintf(software," using Diablo 1");
-	    else if(strcasecmp(clienttag,CLIENTTAG_DIABLO2XP)==0)
-	      sprintf(software," using Diablo 2 Xpansion");
-	    else if(strcasecmp(clienttag,CLIENTTAG_BNCHATBOT)==0)
-	      sprintf(software," using a BOT");
-	    else
-	      sprintf(software," using a UNKNOWN Game.");
-	    
+	    sprintf(software," using %s", conn_get_user_game_title(conn_get_clienttag(dest_c)));
+
 	    if(account_check_mutual(conn_get_account(dest_c),myusername)==0)
 	      {
 		if ((game = conn_get_game(dest_c)))
