@@ -533,10 +533,6 @@ static int _client_anongame_set_icon(t_connection * c, t_packet const * const pa
     //BlacKDicK 04/20/2003
     unsigned int desired_icon;
     char user_icon[5];
-    char playerinfo[40];
-    char rico;
-    unsigned int rlvl,rwin;
-    int hll;
     
     /*FIXME: In this case we do not get a 'count' but insted of it we get the icon
     that the client wants to set.'W3H2' for an example. For now it is ok, since they share

@@ -1977,7 +1977,7 @@ extern int conn_set_channel(t_connection * c, char const * channelname)
     t_channel * oldchannel;
     t_account * acc;
     int clantag=0;
-    t_clan * clan;
+    t_clan * clan = NULL;
 
     if (!c)
     {
@@ -2140,9 +2140,9 @@ extern int conn_set_channel(t_connection * c, char const * channelname)
 
     if (!channel)
 	{
-		if(clantag)
+	    if(clantag)
 		channel = channel_create(channelname,channelname,NULL,0,1,1,prefs_get_chanlog(), NULL, NULL, (prefs_get_maxusers_per_channel() > 0) ? prefs_get_maxusers_per_channel() : -1, 0, 1);
-		else
+	    else
 		channel = channel_create(channelname,channelname,NULL,0,1,1,prefs_get_chanlog(), NULL, NULL, (prefs_get_maxusers_per_channel() > 0) ? prefs_get_maxusers_per_channel() : -1, 0, 0);
 	    if (!channel)
 	    {
@@ -2192,7 +2192,7 @@ extern int conn_set_channel(t_connection * c, char const * channelname)
    
     if(c->channel && (channel_get_flags(c->channel) & channel_flags_thevoid))
 	    message_send_text(c,message_type_info,c,"This channel does not have chat privileges.");
-    if (clantag&&clan&&(clan_get_clantag(clan)==clantag))
+    if (clantag && clan && (clan_get_clantag(clan)==clantag))
     {
       char msgtemp[MAX_MESSAGE_LEN];
       sprintf(msgtemp,"%s",clan_get_motd(clan));

@@ -24,6 +24,16 @@
 #  include <malloc.h>
 # endif
 #endif
+#ifdef HAVE_STRING_H
+# include <string.h>
+#else
+# ifdef HAVE_STRINGS_H
+#  include <strings.h>
+# endif
+# ifdef HAVE_MEMORY_H
+#  include <memory.h>
+# endif
+#endif
 #include "compat/strcasecmp.h"
 #include "common/field_sizes.h"
 #include "common/list.h"

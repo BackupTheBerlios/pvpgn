@@ -2804,7 +2804,6 @@ static int _handle_channels_command(t_connection * c, char const *text)
   t_account * acc;
   char const * name;
   int first;
-  t_clan * clan;
 
   
   for (i=0; text[i]!=' ' && text[i]!='\0'; i++); /* skip command */

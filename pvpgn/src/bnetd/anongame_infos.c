@@ -39,6 +39,7 @@
 #include "common/tag.h"
 #include "zlib/pvpgn_zlib.h"
 #include "tournament.h"
+#include "anongame_maplists.h"
 #include "anongame_infos.h"
 #include "common/setup_after.h"
 
@@ -2169,8 +2170,6 @@ extern short anongame_infos_get_ICON_REQ_TOURNEY(int Level)
 
 extern char * anongame_infos_data_get_url(char const * clienttag, int versionid, int * len)
 {
-	t_elem * curr;
-	t_anongame_infos_data_lang * entry;
 	if(strcmp(clienttag, CLIENTTAG_WARCRAFT3) == 0)
 	{
 		if(versionid < 0x0000000D)
@@ -2201,8 +2200,6 @@ extern char * anongame_infos_data_get_url(char const * clienttag, int versionid,
 
 extern char * anongame_infos_data_get_map(char const * clienttag, int versionid, int * len)
 {
-	t_elem * curr;
-	t_anongame_infos_data_lang * entry;
 	if(strcmp(clienttag, CLIENTTAG_WARCRAFT3) == 0)
 	{
 		if(versionid < 0x0000000D)
@@ -2233,8 +2230,6 @@ extern char * anongame_infos_data_get_map(char const * clienttag, int versionid,
 
 extern char * anongame_infos_data_get_type(char const * clienttag, int versionid, int * len)
 {
-	t_elem * curr;
-	t_anongame_infos_data_lang * entry;
 	if(strcmp(clienttag, CLIENTTAG_WARCRAFT3) == 0)
 	{
 		if(versionid < 0x0000000D)

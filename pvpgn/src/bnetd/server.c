@@ -153,6 +153,7 @@
 #include "fdwatch.h"
 #include "clan.h"
 #include "w3trans.h"
+#include "tournament.h"
 #include "common/setup_after.h"
 
 extern FILE * hexstrm; /* from main.c */
@@ -1565,7 +1566,7 @@ extern int server_process(void)
 	    if(w3trans_reload(prefs_get_w3trans_file())<0)
 		eventlog(eventlog_level_error,__FUNCTION__,"could not reload w3trans list");
 
-		tournament_reload(prefs_get_tournament_file());
+	    tournament_reload(prefs_get_tournament_file());
 
 	    anongame_infos_unload();
 	    anongame_infos_load(prefs_get_anongame_infos_file());

@@ -3670,9 +3670,7 @@ static int _client_progident2(t_connection * c, t_packet const * const packet)
 	  {
 	     t_channel *    ch;
 	     t_elem const * curr;
-		 t_clan * clan;
-		 t_account * acc;
-	     
+ 
 	     LIST_TRAVERSE_CONST(channellist(),curr)
 	       {
 		  ch = elem_get_data(curr);

@@ -447,10 +447,6 @@ typedef struct
 
 #endif
 
-/* has the packet been mapped yet? */
-#define PACKET_FLAG_PMAPPED 0x0002
-
-
 /*****/
 #ifndef JUST_NEED_TYPES
 #ifndef INCLUDED_PACKET_PROTOS
