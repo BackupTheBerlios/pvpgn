@@ -650,6 +650,9 @@ extern void conn_destroy(t_connection * c, t_elem ** elem, int conn_or_dead_list
 	  { xfree(c->protocol.chat.ignore_list); }
     }
 
+    /* we might store logged user before login, so free it here */
+    if (c->protocol.loggeduser) xfree((void*)c->protocol.loggeduser);
+
     if (c->protocol.account)
     {
 	eventlog(eventlog_level_info,"conn_destroy","[%d] \"%s\" logged out",c->socket.tcp_sock,conn_get_loggeduser(c));
@@ -657,7 +660,6 @@ extern void conn_destroy(t_connection * c, t_elem ** elem, int conn_or_dead_list
 #ifdef WIN32_GUI
 						guiOnUpdateUserList();
 #endif
-	if (c->protocol.loggeduser) xfree((void*)c->protocol.loggeduser);
 	if (account_get_conn(c->protocol.account)==c)  /* make sure you don't set this when allready on new conn (relogin with same account) */
 	    account_set_conn(c->protocol.account,NULL);
 	c->protocol.account = NULL; /* the account code will free the memory later */
