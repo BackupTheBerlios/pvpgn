@@ -28,6 +28,8 @@
 # undef JUST_NEED_TYPES
 #endif
 
+# include "account.h"
+
 #ifdef CHANNEL_INTERNAL_ACCESS
 
 #ifdef JUST_NEED_TYPES
