@@ -23,6 +23,8 @@ location for the preffile (bnetd.conf)
 -- fixed profile display on broken team records accounts (disconnected clients);
 now also the profile code autmatically fixes broken team records if it detects any
 -- reorganized some clan stuff
+-- removed w3routeshow from bnetd.conf and added w3trans file to specify the w3route ip
+to be sent to clients
 
 1.6.0pre1 (since 1.5.0beta3):
 -- fixed IRC auth bug (when using passwords with upper cases)

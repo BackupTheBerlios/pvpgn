@@ -16,7 +16,12 @@ changes to bnetd.conf:
 ----------------------
 -- added: passfail_count   = 0
 -- added: passfail_bantime = 300
+-- added: w3trans_file = /usr/local/etc/w3trans
+-- removed: w3routeshow
 
+new/changed config files/folders:
+---------------------------------
+-- usr/local/etc/w3trans    (this file is used to specify the w3route ip sent to clients)
 
  Updating from 1.5.x branch to 1.6.0 pre 1
 ===========================================
