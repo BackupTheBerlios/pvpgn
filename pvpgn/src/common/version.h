@@ -1,6 +1,6 @@
 #include "setup_before.h"
 #ifndef PVPGN_VERSION
-#define PVPGN_VERSION "1.5.0beta3"
+#define PVPGN_VERSION "1.6.0-CVS"
 #endif
 #ifndef PVPGN_SOFTWARE
 #define PVPGN_SOFTWARE "PvPGN BnetD Mod"
