@@ -1275,9 +1275,9 @@ extern t_clienttag conn_get_clienttag(t_connection const * c)
 
 extern t_clienttag conn_get_fake_clienttag(t_connection const * c)
 {
-    t_clienttag clienttag;
+    char const * clienttag;
     t_account *  account;
-
+    
     if (!c)
     {
         eventlog(eventlog_level_error,"conn_get_fake_clienttag","got NULL connection");
@@ -1286,8 +1286,8 @@ extern t_clienttag conn_get_fake_clienttag(t_connection const * c)
 
     account = conn_get_account(c);
     if (account) /* BITS remote connections don't need to have an account */
-	if ((clienttag = tag_str_to_uint(account_get_strattr(account,"BNET\\fakeclienttag"))))
-	    return clienttag;
+	if ((clienttag = account_get_strattr(account,"BNET\\fakeclienttag")))
+	    return tag_str_to_uint(clienttag);
     return c->protocol.client.clienttag;
 }
 
