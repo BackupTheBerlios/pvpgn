@@ -53,7 +53,7 @@ static t_conf_table prefs_conf_table[]={
     { "charinfodir",            offsetof(t_prefs,charinfodir),       conf_type_str,    (int)D2CS_CHARINFO_DIR       },
     { "ladderdir",              offsetof(t_prefs,ladderdir),         conf_type_str,    (int)D2CS_LADDER_DIR         },
 // FIXME: ladder_start_time should be conf_type_timestr
-    { "ladder_start_time",	offsetof(t_prefs,ladder_start_time), conf_type_int,    0		            },
+    { "ladder_start_time",	offsetof(t_prefs,ladder_start_time), conf_type_timestr, 0		            },
     { "ladder_refresh_interval",offsetof(t_prefs,ladder_refresh_interval),conf_type_int,3600                        },
     { "newbiefile",             offsetof(t_prefs,newbiefile),        conf_type_str,    (int)D2CS_CHARSAVE_NEWBIE    },
     { "d2gstransfile",		offsetof(t_prefs,d2gstransfile),     conf_type_str,    (int)D2CS_D2GSTRANS_FILE	    },

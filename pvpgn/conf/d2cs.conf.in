@@ -186,6 +186,10 @@ timeout_checkinterval	=	60
 # of all connected d2gs after d2gs_restart_delay seconds
 d2gs_restart_delay	=	300
 
+# ladder start time
+# format: yyyy-mm-dd hh:mm:ss
+ladder_start_time	=	""
+
 # number of days before a char expires (default 0=unlimited)
 char_expire_day		=	0
 

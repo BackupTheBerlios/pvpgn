@@ -24,7 +24,8 @@ typedef enum
 	conf_type_bool,
 	conf_type_int,
 	conf_type_str,
-	conf_type_hexstr
+	conf_type_hexstr,
+	conf_type_timestr
 } e_conf_type;
 
 typedef struct

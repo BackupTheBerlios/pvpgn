@@ -20,6 +20,8 @@ turn reduce CPU usage
 -- "fixed" the infamous "got error handling packet id 0x15ff" message when no 
 ads configured
 -- fixed userlist in Win32 GUI to update after each user login and not only for 
+-- added ladder_start_time to d2cs.conf
+
 War3 users
 
 1.6.0pre5 (since 1.6.0pre4):

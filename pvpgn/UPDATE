@@ -15,6 +15,7 @@ The path's specified are those of the default unix installation
 changes to d2dbs.conf:
 ----------------------
 -- added: ladder_chars_only = 1
+-- added: ladder_start_time = ""
 
  Updating from 1.6.0 pre 4 to 1.6.0 pre 5
 ===========================================

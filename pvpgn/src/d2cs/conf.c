@@ -33,6 +33,16 @@
 #  include <malloc.h>
 # endif
 #endif
+#ifdef TIME_WITH_SYS_TIME
+# include <time.h>
+# include <sys/time.h>
+#else
+# ifdef HAVE_SYS_TIME_H
+#  include <sys/time.h>
+# else
+#  include <time.h>
+# endif
+#endif
 #ifdef HAVE_STRING_H
 # include <string.h>
 #else
@@ -62,6 +72,7 @@ static int conf_bool_set(void * data, int value);
 static int conf_str_set(void * data, char * value);
 static int conf_hexstr_set(void * data, char * value);
 static int conf_type_get_size(e_conf_type type);
+static int timestr_to_time(char const * timestr);
 
 static int conf_int_set(void * data, int value)
 {
@@ -106,6 +117,7 @@ static int conf_hexstr_set(void * data, char * value)
 	*p=tmp;
 	return 0;
 }
+	
 
 static int conf_set_default(t_conf_table * conf_table, void * param_data, int datalen)
 {
@@ -126,6 +138,7 @@ static int conf_set_default(t_conf_table * conf_table, void * param_data, int da
 			CASE(conf_type_int,  conf_int_set(p, conf_table[i].def_value));
 			CASE(conf_type_str,  conf_str_set(p, (char *)conf_table[i].def_value));
 			CASE(conf_type_hexstr,  conf_hexstr_set(p, (char *)conf_table[i].def_value));
+			CASE(conf_type_timestr, conf_int_set(p, conf_table[i].def_value));
 			default:
 				log_error("conf table item %d bad type %d",i,conf_table[i].type);
 				return -1;
@@ -147,6 +160,7 @@ static int conf_set_value(t_conf_table * conf, void * param_data, char * value)
 		CASE(conf_type_int,  conf_int_set(p, strtoul(value,NULL,0)));
 		CASE(conf_type_str,  conf_str_set(p, value));
 		CASE(conf_type_hexstr,  conf_hexstr_set(p, value));
+		CASE(conf_type_timestr, conf_int_set(p, timestr_to_time(value)));
 		default:
 			log_error("got bad conf type %d",conf->type);
 			return -1;
@@ -164,6 +178,8 @@ static int conf_type_get_size(e_conf_type type)
 		case conf_type_str:
 		case conf_type_hexstr:
 			return sizeof(char *);
+		case conf_type_timestr:
+			return sizeof(int);
 		default:
 			log_error("got bad conf type %d",type);
 			return 0;
@@ -218,6 +234,13 @@ extern int conf_parse_param(int argc, char ** argv, t_conf_table * conf_table, v
 						i++;
 						conf_hexstr_set(p,argv[i]);
 						break;
+					case conf_type_timestr:
+						if (i+1>=argc) {
+							log_error("got bad timestr conf %s without value",argv[i]);
+							break;
+						}
+						i++;
+						conf_int_set(p,timestr_to_time(argv[i]));
 					default:
 						log_error("got bad conf type %d",conf_table[i].type);
 						break;
@@ -310,6 +333,7 @@ extern int conf_cleanup(t_conf_table * conf_table, void * param_data, int datale
 			CASE(conf_type_int,  conf_int_set(p, 0));
 			CASE(conf_type_str,  conf_str_set(p, NULL));
 			CASE(conf_type_hexstr,  conf_hexstr_set(p, NULL));
+			CASE(conf_type_timestr, conf_int_set(p,0));
 			default:
 				log_error("conf table item %d bad type %d",i,conf_table[i].type);
 				return -1;
@@ -318,3 +342,89 @@ extern int conf_cleanup(t_conf_table * conf_table, void * param_data, int datale
 	memset(param_data,0,datalen);
 	return 0;
 }
+
+
+/* convert a time string to time_t
+time string format is:
+yyyy/mm/dd or yyyy-mm-dd or yyyy.mm.dd
+hh:mm:ss
+*/
+static int timestr_to_time(char const * timestr)
+{
+	char const * p;
+	char ch;
+	struct tm when;
+	int day_s, time_s, last;
+
+	if (!timestr) return -1;
+	if (!timestr[0]) return 0;
+	p = timestr;
+	day_s = time_s = 0;
+	last = 0;
+	memset(&when, 0, sizeof(when));
+	when.tm_mday = 1;
+	when.tm_isdst = -1;
+	while (1) {
+		ch = *timestr;
+		timestr++;
+		switch (ch) {
+		case '/':
+		case '-':
+		case '.':
+			if (day_s == 0) {
+				when.tm_year = atoi(p) - 1900;
+			} else if (day_s == 1) {
+				when.tm_mon = atoi(p) - 1;
+			} else if (day_s == 2) {
+				when.tm_mday = atoi(p);
+			}
+			time_s = 0;
+			day_s++;
+			p = timestr;
+			last = 1;
+			break;
+		case ':':
+			if (time_s == 0) {
+				when.tm_hour = atoi(p);
+			} else if (time_s == 1) {
+				when.tm_min = atoi(p);
+			} else if (time_s == 2) {
+				when.tm_sec = atoi(p);
+			}
+			day_s = 0;
+			time_s++;
+			p = timestr;
+			last = 2;
+			break;
+		case ' ':
+		case '\t':
+		case '\x0':
+			if (last == 1) {
+				if (day_s == 0) {
+					when.tm_year = atoi(p) - 1900;
+				} else if (day_s == 1) {
+					when.tm_mon = atoi(p) - 1;
+				} else if (day_s == 2) {
+					when.tm_mday = atoi(p);
+				}
+			} else if (last == 2) {
+				if (time_s == 0) {
+					when.tm_hour = atoi(p);
+				} else if (time_s == 1) {
+					when.tm_min = atoi(p);
+				} else if (time_s == 2) {
+					when.tm_sec = atoi(p);
+				}
+			}
+			time_s = day_s = 0;
+			p = timestr;
+			last = 0;
+			break;
+		default:
+			break;
+		}
+		if (!ch) break;
+	}
+	return mktime(&when);
+}
+
