@@ -89,7 +89,7 @@ extern int d2cs_gamelist_destroy(void)
 
 	BEGIN_LIST_TRAVERSE_DATA(gamelist_head, game)
 	{
-		game_destroy(game);
+		game_destroy(game,&curr_elem_);
 	}
 	END_LIST_TRAVERSE_DATA();
 
@@ -168,7 +168,7 @@ extern void d2cs_gamelist_check_voidgame(void)
 		if (!game->currchar) {
 			if ((now-game->lastaccess_time)>timeout) {
 				eventlog(eventlog_level_info,__FUNCTION__,"game %s is empty too long time,destroying it",game->name);
-				game_destroy(game);
+				game_destroy(game,&curr_elem_);
 			}
 		}
 	}
@@ -243,17 +243,16 @@ extern t_game * d2cs_game_create(char const * gamename, char const * gamepass, c
 	return game;
 }
 
-extern int game_destroy(t_game * game)
+extern int game_destroy(t_game * game, t_elem ** elem)
 {
 	t_elem		* curr;
 	t_game_charinfo	* charinfo;
-	t_elem		* elem;
 
 	ASSERT(game,-1);
 	if (gamelist_curr_elem && (game==elem_get_data(gamelist_curr_elem))) {
 		gamelist_curr_elem=elem_get_next_const(gamelist_head,gamelist_curr_elem);
 	}
-	if (list_remove_data(gamelist_head,game,&elem)<0) {
+	if (list_remove_data(gamelist_head,game,elem)<0) {
 		eventlog(eventlog_level_error,__FUNCTION__,"error remove game %s on game list",game->name);
 		return -1;
 	}

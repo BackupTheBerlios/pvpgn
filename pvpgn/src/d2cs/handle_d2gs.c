@@ -322,7 +322,7 @@ static int on_d2gs_creategamereply(t_connection * c, t_packet * packet)
 		reply=D2CS_CLIENT_CREATEGAMEREPLY_SUCCEED;
 	} else {
 		eventlog(eventlog_level_warn,__FUNCTION__,"failed to create game %s on gs %d",d2cs_game_get_name(game),conn_get_d2gs_id(c));
-		game_destroy(game);
+		game_destroy(game,&curr);
 		reply=D2CS_CLIENT_CREATEGAMEREPLY_FAILED;
 	}
 
@@ -480,12 +480,13 @@ static int on_d2gs_updategameinfo(t_connection * c, t_packet * packet)
 static int on_d2gs_closegame(t_connection * c, t_packet * packet)
 {
 	t_game	* game;
+	t_elem  * curr;
 
 	if (!(game=gamelist_find_game_by_d2gs_and_id(conn_get_d2gs_id(c),
 		bn_int_get(packet->u.d2gs_d2cs_closegame.gameid)))) {
 		return 0;
 	}
-	game_destroy(game);
+	game_destroy(game, &curr);
 	return 0;
 }
 

@@ -381,7 +381,7 @@ extern int d2gs_deactive(t_d2gs * gs, t_connection * c)
 	eventlog(eventlog_level_info,__FUNCTION__,"destroying all games on game server %d",gs->id);
 	BEGIN_LIST_TRAVERSE_DATA(d2cs_gamelist(),game)
 	{
-		if (game_get_d2gs(game)==gs) game_destroy(game);
+		if (game_get_d2gs(game)==gs) game_destroy(game,&curr_elem_);
 	}
 	END_LIST_TRAVERSE_DATA()
 	if (gs->gamenum!=0) {
