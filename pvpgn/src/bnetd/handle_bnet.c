@@ -3344,7 +3344,7 @@ static int _client_gamelistreq(t_connection * c, t_packet const *const packet)
     /* specific game requested? */
     if (gamename[0] != '\0') {
 	eventlog(eventlog_level_debug, __FUNCTION__, "[%d] GAMELISTREPLY looking for specific game tag=\"%s\" bngtype=0x%08x gtype=%d name=\"%s\" pass=\"%s\"", conn_get_socket(c), tag_uint_to_str(clienttag_str, clienttag), bngtype, (int) gtype, gamename, gamepass);
-	if ((game = gamelist_find_game(gamename, gtype))) {
+	if ((game = gamelist_find_game(gamename, clienttag, gtype))) {
 	    /* game found but first we need to make sure everything is OK */
 	    bn_int_set(&rpacket->u.server_gamelistreply.gamecount, 0);
 	    switch (game_get_status(game)) {
@@ -3458,7 +3458,7 @@ static int _client_joingame(t_connection * c, t_packet const *const packet)
 	gamename = NULL;
 	return 0;		/* tmp: do not record any anongames as yet */
     } else {
-	if (!(game = gamelist_find_game(gamename, game_type_all))) {
+	if (!(game = gamelist_find_game(gamename, conn_get_clienttag(c), game_type_all))) {
 	    eventlog(eventlog_level_info, __FUNCTION__, "[%d] unable to find game \"%s\" for user to join", conn_get_socket(c), gamename);
 	    return 0;
 	}

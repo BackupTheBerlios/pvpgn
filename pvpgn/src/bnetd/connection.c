@@ -2036,9 +2036,11 @@ extern int conn_set_game(t_connection * c, char const * gamename, char const * g
     }
 
     if (gamename) {
-	if (!(c->protocol.game = gamelist_find_game(gamename,type))) {
+	if (!(c->protocol.game = gamelist_find_game(gamename,c->protocol.client.clienttag,type))
+	    /* do not allow creation of games with same name of same clienttag (yet) */
+	    && !gamelist_find_game(gamename,c->protocol.client.clienttag,game_type_all)) {
 	    c->protocol.game = game_create(gamename,gamepass,gameinfo,type,version,c->protocol.client.clienttag,conn_get_gameversion(c));
-	    
+
 	    if (c->protocol.game && conn_get_realm(c) && conn_get_charname(c)) {
 		game_set_realmname(c->protocol.game,realm_get_name(conn_get_realm(c)));
 		realm_add_game_number(conn_get_realm(c),1);

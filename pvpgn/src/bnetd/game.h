@@ -327,7 +327,7 @@ extern t_game_option game_get_option(t_game const * game);
 extern int gamelist_create(void);
 extern int gamelist_destroy(void);
 extern int gamelist_get_length(void);
-extern t_game * gamelist_find_game(char const * name, t_game_type type);
+extern t_game * gamelist_find_game(char const * name, t_clienttag ctag, t_game_type type);
 extern t_game * gamelist_find_game_byid(unsigned int id);
 extern void gamelist_traverse(t_glist_func cb, void *data);
 extern int gamelist_total_games(void);

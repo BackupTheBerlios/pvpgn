@@ -381,7 +381,8 @@ static int on_d2cs_gameinforeply(t_connection * c, t_packet const * packet)
 		return -1;
 	}
 
-	if (!(game = gamelist_find_game(gamename,game_type_diablo2closed)))
+	if (!(game = gamelist_find_game(gamename,CLIENTTAG_DIABLO2DV_UINT,game_type_diablo2closed))
+	    && !(game = gamelist_find_game(gamename,CLIENTTAG_DIABLO2XP_UINT,game_type_diablo2closed)))
 	{
 	       eventlog(eventlog_level_error,__FUNCTION__,"reply for unknown game \"%s\"",gamename);
                return -1;

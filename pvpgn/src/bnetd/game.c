@@ -431,8 +431,8 @@ extern t_game * game_create(char const * name, char const * pass, char const * i
 	eventlog(eventlog_level_info,__FUNCTION__,"got NULL game info");
 	return NULL;
     }
-    
-    if (gamelist_find_game(name,game_type_all))
+
+    if (gamelist_find_game(name, clienttag, game_type_all))
     {
 	eventlog(eventlog_level_info,__FUNCTION__,"game \"%s\" not created because it already exists",name);
 	return NULL; /* already have a game by that name */
@@ -2050,7 +2050,7 @@ extern int gamelist_get_length(void)
 }
 
 
-extern t_game * gamelist_find_game(char const * name, t_game_type type)
+extern t_game * gamelist_find_game(char const * name, t_clienttag ctag, t_game_type type)
 {
     t_elist *curr;
     t_game *game;
@@ -2058,8 +2058,10 @@ extern t_game * gamelist_find_game(char const * name, t_game_type type)
     elist_for_each(curr,&gamelist_head)
     {
 	game = elist_entry(curr,t_game,glist_link);
-	if ((type==game_type_all || game->type==type) && game->name && strcasecmp(name,game->name)==0)
-	    return game;
+	if ((type==game_type_all || game->type==type) 
+	    && ctag == game->clienttag 
+	    && game->name 
+	    && !strcasecmp(name,game->name)) return game;
     }
 
     return NULL;
