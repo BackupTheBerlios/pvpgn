@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2000 Alexey Belyaev (spider@omskart.ru)
+ * Copyright (C) 2004 Dizzy 
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
