@@ -389,7 +389,7 @@ extern int client_connect(char const * progname, char const * servname, unsigned
 	    packet_append_string(packet,exeinfo);
 	    packet_append_string(packet,cdowner);
 	}
-	
+	bn_int_set(&packet->u.client_authreq_109.spawn,0x0000);	
 	bn_int_set(&packet->u.client_authreq_109.checksum,checksum);
 	client_blocksend_packet(sd,packet);
 	packet_del_ref(packet);
