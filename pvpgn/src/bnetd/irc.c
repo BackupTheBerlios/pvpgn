@@ -790,10 +790,14 @@ extern int irc_send_rpl_namreply(t_connection * c, t_channel const * channel)
     for (m = channel_get_first(channel);m;m = channel_get_next()) {
 	// Explicit cast: bbf
 	char const * name = (const char*) bits_loginlist_get_name_bysessionid(m->sessionid);
-	char flg[3] = "";
+	char flg[5] = "";
 	
 	if (!name)
 	    continue;
+	if (m->flags & MF_BLIZZARD)
+	    strcat(flg,"a");
+	if (m->flags & MF_BNET)
+	    strcat(flg,"o");
 	if (m->flags & MF_GAVEL)
 	    strcat(flg,"@"); 
 	if (m->flags & MF_VOICE)
@@ -808,13 +812,19 @@ extern int irc_send_rpl_namreply(t_connection * c, t_channel const * channel)
 #else
     for (m = channel_get_first(channel);m;m = channel_get_next()) {
 	char const * name = conn_get_chatname(m);
-	char flg[3] = "";
+	char flg[5] = "";
+	unsigned int flags;
 	
 	if (!name)
 	    continue;
-	if (conn_get_flags(m) & MF_GAVEL)
+	flags = conn_get_flags(m);
+	if (flags & MF_BLIZZARD)
+	    strcat(flg,"a");
+	if (flags & MF_BNET)
+	    strcat(flg,"o");
+	if (flags & MF_GAVEL)
 	    strcat(flg,"@"); 
-	if (conn_get_flags(m) & MF_VOICE)
+	if (flags & MF_VOICE)
 	    strcat(flg,"+"); 
 	if ((strlen(temp)+((!first)?(1):(0))+strlen(flg)+strlen(name)+1)<=sizeof(temp)) {
 	    if (!first) strcat(temp," ");
