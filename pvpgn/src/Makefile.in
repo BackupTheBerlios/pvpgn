@@ -500,7 +500,7 @@ CONFS		= bnetd.conf d2cs.conf d2dbs.conf \
 		  bnmotd.txt bnissue.txt bnmaps.txt bnxplevel.txt bnxpcalc.txt news.txt command_groups.txt \
 		  bnban bnhelp bnalias.list anongame_infos.conf tournament.conf topics sql_DB_layout w3trans supportfile
 
-SHARES		= ad000001.smk ad000001.mng ad000004.mng ad000666.mng ad000004.smk \
+SHARES		= ad000001.smk ad000001.mng ad000004.mng \
 		  tos.txt \
 		  newbie.save \
 		  termsofservice-default.txt termsofservice-enUS.txt \
