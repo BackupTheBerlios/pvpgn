@@ -207,7 +207,7 @@ AC_HEADER_DIRENT
 AC_HEADER_STDC
 AC_HEADER_TIME
 AC_HEADER_STAT
-AC_CHECK_HEADERS(fcntl.h sys/time.h sys/select.h string.h strings.h unistd.h stdarg.h varargs.h malloc.h sys/utsname.h sys/timeb.h sys/socket.h sys/param.h netinet/in.h arpa/inet.h netdb.h termios.h stddef.h memory.h sys/types.h sys/wait.h sys/ioctl.h stdint.h sys/file.h limits.h poll.h sys/poll.h stropts.h sys/stropts.h sys/stat.h pwd.h grp.h dir.h direct.h)
+AC_CHECK_HEADERS(fcntl.h sys/time.h sys/select.h string.h strings.h unistd.h stdarg.h varargs.h malloc.h sys/utsname.h sys/timeb.h sys/socket.h sys/param.h netinet/in.h arpa/inet.h netdb.h termios.h stddef.h memory.h sys/types.h sys/wait.h sys/ioctl.h stdint.h sys/file.h limits.h poll.h sys/poll.h stropts.h sys/stropts.h sys/stat.h pwd.h grp.h dir.h direct.h sys/mman.h)
 
 # Checks for typedefs and structures
 AC_STRUCT_TM
@@ -222,6 +222,7 @@ AC_CHECK_SIZEOF(unsigned long, 4)
 AC_CHECK_SIZEOF(unsigned long long, 0)
 
 # Checks for library functions.
+AC_FUNC_MMAP
 AC_FUNC_STRFTIME
 AC_FUNC_VPRINTF
 AC_FUNC_SETPGRP
