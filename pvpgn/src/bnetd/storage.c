@@ -31,6 +31,9 @@
 #ifdef WITH_SQL
 #include "storage_sql.h"
 #endif
+#ifdef WITH_CDB
+#include "storage_cdb.h"
+#endif
 
 #include "compat/strdup.h"
 #include "common/eventlog.h"
@@ -67,6 +70,12 @@ extern int storage_init(const char *spath)
 #ifdef WITH_SQL
     else if (strcasecmp(spath, "sql") == 0) {
 	storage = &storage_sql;
+	res = storage->init(p + 1);
+    }
+#endif
+#ifdef WITH_CDB
+    else if (strcasecmp(spath, "cdb") == 0) {
+	storage = &storage_cdb;
 	res = storage->init(p + 1);
     }
 #endif

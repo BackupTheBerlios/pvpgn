@@ -82,6 +82,8 @@ AC_ARG_WITH(efence, [  --with-efence           link with Electric Fence to find 
 
 AC_ARG_WITH(mysql, [  --with-mysql            include mysql support], [ac_with_mysql='yes'])
 
+AC_ARG_WITH(cdb, [  --with-cdb              include cdb file support], [ac_with_cdb='yes'])
+
 extra_define=""
 AC_ARG_WITH(bits, [  --with-bits             include BITS patch. (EXPERIMENTAL)], [extra_define="${extra_define} -DWITH_BITS"])
 dnl Enable poll()
@@ -167,6 +169,7 @@ AC_CHECK_LIB(nsl, gethostbyname, [LIBS="$LIBS -lnsl"])
 AC_CHECK_LIB(socket, socket, [LIBS="$LIBS -lsocket"])
 AC_CHECK_LIB(resolv, inet_aton, [LIBS="$LIBS -lresolv"])
 AC_CHECK_LIB(z, compress, [LIBS="$LIBS -lz"])
+AC_CHECK_LIB(cdb, cdb_init, [LIBS="$LIBS -lcdb" DEFINES="${DEFINES} -DWITH_CDB"])
 
 dnl Detecting mysql paths
 if test "$ac_with_mysql" = "yes" ; then
