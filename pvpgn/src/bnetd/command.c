@@ -3769,7 +3769,6 @@ static int _handle_quota_command(t_connection * c, char const * text)
 
 static int _handle_lockacct_command(t_connection * c, char const *text)
 {
-  unsigned int   i;
   t_connection * user;
   t_account *    account;
  
@@ -3808,7 +3807,6 @@ static int _handle_lockacct_command(t_connection * c, char const *text)
 
 static int _handle_unlockacct_command(t_connection * c, char const *text)
 {
-  unsigned int   i;
   t_connection * user;
   t_account *    account;
  
@@ -3835,7 +3833,7 @@ static int _handle_unlockacct_command(t_connection * c, char const *text)
   }
 #endif
   
-  if ((user = connlist_find_connection_by_accountname(&text[i])))
+  if ((user = connlist_find_connection_by_accountname(text)))
     message_send_text(user,message_type_info,user,"Your account has just been unlocked by admin.");
   
   /* FIXME: this account attribute changing should be advertised on BITS right ?*/
