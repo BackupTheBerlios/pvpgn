@@ -2952,7 +2952,7 @@ static int _client_findanongame(t_connection * c, t_packet const * const packet)
 		packet_append_data(rpacket,&temp,2);
 		bn_int_set((bn_int*)&temp,ffalevel);
 		packet_append_data(rpacket,&temp,1);
-		bn_int_set((bn_int*)temp,account_get_profile_calcs(account,ffaxp,ffalevel));
+		bn_int_set((bn_int*)&temp,account_get_profile_calcs(account,ffaxp,ffalevel));
 		packet_append_data(rpacket,&temp,1);
 		bn_int_set((bn_int*)&temp,ffaxp);
 		packet_append_data(rpacket,&temp,2);
