@@ -314,19 +314,21 @@ static const char *attrgroup_escape_key(const char *key)
     return newkey;
 }
 
-static t_attr *attrgroup_find_attr(t_attrgroup *attrgroup, const char *key)
+static t_attr *attrgroup_find_attr(t_attrgroup *attrgroup, const char *pkey[], int escape)
 {
-    const char *newkey, *val;
+    const char *val;
     t_hlist *curr, *last, *last2;
     t_attr *attr;
 
     assert(attrgroup);
-    assert(key);
+    assert(pkey);
+    assert(*pkey);
 
     /* trigger loading of attributes if not loaded already */
     if (attrgroup_load(attrgroup)) return NULL;	/* eventlog happens earlier */
 
-    newkey = attrgroup_escape_key(key);
+    /* only if the callers tell us to */
+    if (escape) *pkey = attrgroup_escape_key(*pkey);
 
     /* we are doing attribute lookup so we are accessing it */
     attrgroup_set_accessed(attrgroup);
@@ -337,7 +339,7 @@ static t_attr *attrgroup_find_attr(t_attrgroup *attrgroup, const char *key)
     hlist_for_each(curr,&attrgroup->list) {
 	attr = hlist_entry(curr, t_attr, link);
 
-	if (!strcasecmp(attr_get_key(attr),newkey)) {
+	if (!strcasecmp(attr_get_key(attr),*pkey)) {
 	    val = attr_get_val(attr);
 	    /* key found, promote it so it's found faster next time */
 	    hlist_promote(curr, last, last2);
@@ -348,22 +350,38 @@ static t_attr *attrgroup_find_attr(t_attrgroup *attrgroup, const char *key)
     }
 
     if (curr == &attrgroup->list) {	/* no key found in cached list */
-	attr = (t_attr*)storage->read_attr(attrgroup->storage, newkey);
+	attr = (t_attr*)storage->read_attr(attrgroup->storage, *pkey);
 	if (attr) hlist_add(&attrgroup->list, &attr->link);
     }
-
-    if (newkey != key) xfree((void*)newkey);
 
     /* "attr" here can either have a proper value found in the cached list, or
      * a value returned by storage->read_attr, or NULL */
     return attr;
 }
 
-extern const char *attrgroup_get_attr(t_attrgroup *attrgroup, const char *key)
+/* low-level get attr, receives a flag to tell if it needs to escape key */
+static const char *attrgroup_get_attrlow(t_attrgroup *attrgroup, const char *key, int escape)
 {
     const char *val = NULL;
+    const char *newkey = key;
     t_attr *attr;
 
+    /* no need to check for attrgroup, key */
+
+    attr = attrgroup_find_attr(attrgroup, &newkey, escape);
+
+    if (attr) val = attr_get_val(attr);
+
+    if (!val && attrgroup != attrlayer_get_defattrgroup()) 
+	val = attrgroup_get_attrlow(attrlayer_get_defattrgroup(), newkey, 0);
+
+    if (newkey != key) xfree((void*)newkey);
+
+    return val;
+}
+
+extern const char *attrgroup_get_attr(t_attrgroup *attrgroup, const char *key)
+{
     if (!attrgroup) {
 	eventlog(eventlog_level_error, __FUNCTION__, "got NULL attrgroup");
 	return NULL;
@@ -374,19 +392,13 @@ extern const char *attrgroup_get_attr(t_attrgroup *attrgroup, const char *key)
 	return NULL;
     }
 
-    attr = attrgroup_find_attr(attrgroup, key);
-
-    if (attr) val = attr_get_val(attr);
-
-    if (!val && attrgroup != attrlayer_get_defattrgroup()) 
-	val = attrgroup_get_attr(attrlayer_get_defattrgroup(), key);
-
-    return val;
+    return attrgroup_get_attrlow(attrgroup, key, 1);
 }
 
 extern int attrgroup_set_attr(t_attrgroup *attrgroup, const char *key, const char *val)
 {
     t_attr *attr;
+    const char *newkey = key;
 
     if (!attrgroup) {
 	eventlog(eventlog_level_error, __FUNCTION__, "got NULL attrgroup");
@@ -398,23 +410,26 @@ extern int attrgroup_set_attr(t_attrgroup *attrgroup, const char *key, const cha
 	return -1;
     }
 
-    attr = attrgroup_find_attr(attrgroup, key);
+    attr = attrgroup_find_attr(attrgroup, &newkey, 1);
 
     if (attr) {
 	if (attr_get_val(attr) == val ||
 	    (attr_get_val(attr) && val && !strcmp(attr_get_val(attr), val)))
-	    return 0;	/* no need to modify anything, values are the same */
+	    goto out;	/* no need to modify anything, values are the same */
 
 	/* new value for existent key, replace the old one */
 	attr_set_val(attr, val);
     } else {	/* unknown key so add new attr */
-	attr = attr_create(key, val);
+	attr = attr_create(newkey, val);
 	hlist_add(&attrgroup->list, &attr->link);
     }
 
     /* we have modified this attr and attrgroup */
     attr_set_dirty(attr);
     attrgroup_set_dirty(attrgroup);
+
+out:
+    if (newkey != key) xfree((void*)newkey);
 
     return 0;
 }
