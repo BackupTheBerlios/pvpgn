@@ -182,6 +182,8 @@ s2s_keepalive_interval	=	60
 timeout_checkinterval	=	60
 
 # game server restart interval
+# when sending SIGUSR2 signal to your d2cs this issues a restart
+# of all connected d2gs after d2gs_restart_delay seconds
 d2gs_restart_delay	=	300
 
 # number of days before a char expires (default 0=unlimited)
