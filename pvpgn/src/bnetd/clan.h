@@ -39,14 +39,15 @@
 
 #endif
 
-#ifdef CLAN_INTERNAL_ACCESS
 typedef struct clanmember
+#ifdef CLAN_INTERNAL_ACCESS
 {
   int    uid;
   char   status;
   time_t join_time;
-} t_clanmember;
+}
 #endif
+t_clanmember;
 
 typedef struct clan
 #ifdef CLAN_INTERNAL_ACCESS
