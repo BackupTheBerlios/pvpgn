@@ -1,6 +1,6 @@
 PvPGN Version History:
 
-1.7.0 since 1.6.0
+1.7.0 since 1.6.2
 
 [STAR/SEXP/W2BN]: changed handling of gameresults to be democratic
 
@@ -13,55 +13,16 @@ PvPGN Version History:
   -- now the real MOTD displays when connecting via IRC
   -- allow changing /nick before login
   -- allow another try on a wrong /msg nickserv identify <pass>
-
-[STORAGE]: combined plain and cdb file storage into one (this eliminates replicating 
-codes)
-
-[FDWATCH]: 
-  -- moved codes into "common" directory to be used by other applications 
-  than bnetd
-  -- changed d2cs to use fdwatch for socket handling (reduces CPU usage 
-  drastically on BIG servers)
-
-[SQL]: bugfixes
-  -- fixed sql_DB_layout for command_groups and pgsql
-  -- fixed a long standing bug which failed to created new columns properly 
-  (mostly seen on servers failing to save AT records to DB)
-  -- fixed files2db.pl conversion script for AT (ie Team table)
-  -- added more verbose error reporting for mysql and pgsql backends
-  -- fixed DB initialization for the default user
-
-[WAR3-CG]: fixed the "can only create on CG in a row" problem
-
-[WAR3-AT]: 
-  -- fixed "can't refresh on AT screen when no online mutual friends"
-  -- matching users in same private channel now also get listed on AT screen
+  -- added passfail count to IRC connections to prevent bruteforce logins
 
 [WAR3]: 
-  -- fixed possible disc on too long news items
   -- droped <1.13 support, added 1.15 support (CG,PG,AT, clan profile view)
-
-[D2]:
-  -- re-enabled checksum check
-  -- added missing packet NULL check (possible crash fix)
-  -- added support for d2gs beta6 (DiabloClone etc)
-  -- rewritten some of the d2cs/d2dbs configuration codes to be more clean and 
-  portable (now pvpgn compiles fine on 64 bit archs)
-  -- fixed an error with opened directory handles not being closed
-  -- fixed chat names showen to other clients while in the same channel
-  -- fixed code portability and got d2cs/d2dbs working fine on x86_64
 
 [PREFS]
   -- fixed handling of comments (previously it skipped the whole line no 
   matter where '#' was)
 
 [MISC]:
-  -- fixed crash in versioncheck for clients who didnt sent proper informations
-  -- fixed channel loading "multiple clienttag duplicate channels"
-  -- added year display on lastlogin/onsince line of /finger command.
-  -- disable versioncheck exeinfo timediff if the maxdiff is set to 0 and made 
-  it 0 in the default config file
-  -- fixed versioncheck file for PMAC/XMAC entries
   -- updated autoupdate with latest clients versions
   -- fixed "message_cache_lookup: unsupported connection class" errors when 
   broadcasting message (ex /ann) and having any connection different than 
@@ -72,23 +33,103 @@ versioncheck exe-time parsing now REALLY works as it was intended to.
 So ALL users using fucked up no-CD cracks or strange war3.org's may
 fail to login due to wrong file-time. That's not our problem. 
 
+ChangeLog for 1.6.3 (since 1.6.2)
+====================================
 
-1.6.0 RC1 (since 1.6.0beta)
--- fixed problems with win32 compiled versions only running on >= Win2000
--- fixed a problem with PvPGN (GUI-version) run as a service wasn't shutting down
--- fixed get_socket_limit() to use getrusage on systems which support it (this 
-also gets things compiling on BeOS)
--- made sure D2 charsave files created with D2Closed (with file ending .d2s)
-will be automatically renamed on use
--- IRC: fixed error messages sent on client sent PINGs (this is a temporary fix 
-in the future the IRC codes will be cleaned up)
--- IRC: fixed the problem that IRC clients weren't informed about users
-joining a channel
--- fixed problems with sql_dbcreator when using pgsql (note that
-conf/sql_DB_layout has been updated)
--- updated conf/bnmaps.txt to match current battle.net maps lineup
+[D2]
+ -- fixed problem with sending of d2server.ini file and fdwatch codes
 
-1.6.0beta (since 1.6.0pre5)
+[CLANS]
+ -- fixed loading of clans with big topics on cdb and other overflow checks 
+ (this were missed from the earlier clan loading fixes)
+
+ChangeLog for 1.6.2 (since 1.6.1)
+====================================
+
+[D2]
+ -- fixed file descriptor leak in d2cs (on a busy server after a while d2cs 
+ whould crash because of this)
+ -- fixed chat names displayed when D2 and non-D2 users joined the same channel
+ -- improved realm.list comments/examples
+
+[W3]
+ -- fixed AT refresh problem with no online friends
+ -- fixed AT listing of private channel users (not just mutual friends)
+
+[SQL]
+ -- fixed initialization of DB default user entry (uid 0 user)
+
+[FDWATCH]
+ -- moved fdwatch codes from bnetd to common directory to be used by others 
+ than just bnetd
+ -- changed d2cs to use fdwatch for socket event handling
+
+[MISC]
+ -- added check in news loading code so we skip too big news entries (which 
+ when used kick out clients just after login)
+ -- fixed channel loading "multiple clienttag duplicate channels"
+ -- fixed parsing of bnetd.conf with comments in the middle of lines
+ -- added year display on lastlogin/onsince line of /finger command
+ -- disable exeinfo timediff check if maxdiff set to 0 in confing and changed 
+ the default config that way
+ -- fixed versioncheck entries for PMAC/XMAC clients
+
+ChangeLog for 1.6.1 (since 1.6.0)
+====================================
+
+[W3]
+ -- fixed maps configuration file for PG 2v2 and AT 2v2 LostTemple map
+ -- fixed news.txt beeing too long :-/
+
+ChangeLog for 1.6.0 FINAL (since 1.6.0beta)
+=============================================
+
+[WIN32]
+ -- fixed problems with win32 compiled versions only running on >= Win2000
+ -- fixed a problem with PvPGN (GUI-version) run as a service wasn't shutting down
+ -- added logwindow limit
+
+[D2]
+ -- made sure D2 charsave files created with D2Closed (with file ending .d2s)
+ will be automatically renamed on use
+ -- fixed 64 bit archs issues with d2cs/d2dbs in the configuration codes
+ -- added missing packet NULL check (possible crash fix)
+ -- added support for d2gs beta6 (DiabloClone etc)
+
+[IRC]
+ -- fixed error messages sent on client sent PINGs (this is a temporary fix)
+ -- fixed the problem that IRC clients weren't informed about users
+ joining a channel in the future the IRC codes will be cleaned up)
+
+[SQL]
+ -- fixed problems with sql_dbcreator when using pgsql (note that
+ conf/sql_DB_layout has been updated)
+ -- fixed SQL on creating/adding new columns/attributes (this bug was 
+ mostly triggered when saving AT records to DB)
+ -- fixed files2db.pl conversion script for AT (ie Team table)
+ -- added more verbose error reporting to db connect failures
+
+[W3]
+ -- updated conf/bnmaps.txt to match current battle.net maps lineup
+ -- fixed the "can only create CG once in a row"-problem
+ -- fixed the "player has left game" message players get about the game creator 
+ at the beginning of a CG game
+ -- fixed buffer overflow (causing crash) on loading clans and too big motds
+
+[FDWATCH]
+ -- fixed kqueue backend for wrong readiness check
+
+[MISC]
+ -- fixed get_socket_limit() to use getrusage on systems which support it (this 
+ also gets things compiling on BeOS)
+ -- changed default channel.list to not have any channel country (ie USA), 
+ allow bots on all default channels and made then unlimited
+ -- fixed a problem with watchlist notification when using /watchall (without 
+ clienttag specified)
+ -- fixed crash happening with bad bots/client not sending proper versioncheck
+
+
+ChangeLog for 1.6.0beta (since 1.6.0pre5)
 !!! IMPORTANT !!!
 Most of the files under "files" directory where moved in their own package now 
 which is distributed separately. To setup a fresh server you will need to get 
