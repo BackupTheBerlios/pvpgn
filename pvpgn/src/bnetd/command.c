@@ -2366,9 +2366,14 @@ static int _handle_channels_command(t_connection * c, char const *text)
   char              msgtemp[MAX_MESSAGE_LEN];
   t_elem const *    curr;
   t_channel const * channel;
-  t_connection *    opr;
-  char const *      oprname;
   char const *      tag;
+  #ifndef WITH_BITS
+  t_connection const * conn;
+  #endif
+  t_account * acc;
+  char const * name;
+  int first;
+
   
   for (i=0; text[i]!=' ' && text[i]!='\0'; i++); /* skip command */
   for (; text[i]==' '; i++);
@@ -2390,7 +2395,7 @@ static int _handle_channels_command(t_connection * c, char const *text)
       message_send_text(c,message_type_info,c,msgtemp);
     }
   
-  sprintf(msgtemp," ----------name---------- users ----operator----");
+  sprintf(msgtemp," -----------name----------- users ----admin/operator----");
   message_send_text(c,message_type_info,c,msgtemp);
   LIST_TRAVERSE_CONST(channellist(),curr)
     {
@@ -2403,18 +2408,36 @@ static int _handle_channels_command(t_connection * c, char const *text)
 	    (!(channel_get_flags(channel) & channel_flags_thevoid)) // don't list TheVoid
 	)
 	{
-	 /* FIXME: display opers correct again (aaron)
-	  if ((opr = channel_get_operator(channel)))
-	    oprname = conn_get_username(opr);
-	  else
-	 */
-	    oprname = NULL;
-	  sprintf(msgtemp," %-24.24s %5u %-16.16s",
+
+	  sprintf(msgtemp," %-26.26s %5u - ",
 		  channel_get_name(channel),
-		  channel_get_length(channel),
-		  oprname?oprname:"");
-	  if (oprname)
-	    conn_unget_username(opr,oprname);
+		  channel_get_length(channel));
+
+	  first = 1;
+
+	  for (conn = channel_get_first(channel);conn;conn=channel_get_next())
+	  {
+
+
+#ifndef WITH_BITS
+		acc = conn_get_account(conn);
+		if (account_is_operator_or_admin(acc,channel_get_name(channel)) ||
+		    channel_account_is_tmpOP(channel,acc))
+		{
+		  name = account_get_name(acc);
+		  if (strlen(msgtemp) + strlen(name) +6 >= MAX_MESSAGE_LEN) break;
+		  if (!first) strcat(msgtemp," ,");
+		  strcat(msgtemp,name);
+		  account_unget_name(name);
+		  if (account_get_auth_admin(acc,NULL)==1) strcat(msgtemp,"(A)");
+		  else if (account_get_auth_operator(acc,NULL)==1) strcat(msgtemp,"(O)");
+		  else if (account_get_auth_admin(acc,channel_get_name(channel))==1) strcat(msgtemp,"(a)");
+		  else if (account_get_auth_operator(acc,channel_get_name(channel))==1) strcat(msgtemp,"(o)");
+		  first = 0;
+		}
+#endif
+	  }
+
 	  message_send_text(c,message_type_info,c,msgtemp);
 	}
     }
