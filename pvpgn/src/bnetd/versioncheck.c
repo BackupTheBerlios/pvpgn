@@ -262,8 +262,6 @@ static int versioncheck_compare_exeinfo(char const * pattern, char const * match
 	exe1[marker1-pattern]='\0';
 	exe2[marker2-match]='\0';
 
-	eventlog(eventlog_level_error,__FUNCTION__,"exe1: %s, exe2: %s",exe1,exe2);
-
 	sprintf(mask,"%%02u/%%02u/%%02u %%02u:%%02u:%%02u %%u");
 
 	if (sscanf(marker1,mask,&t1.tm_mon,&t1.tm_mday,&t1.tm_year,&t1.tm_hour,&t1.tm_min,&t1.tm_sec,&size1)!=7) {
