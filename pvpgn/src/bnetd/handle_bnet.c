@@ -317,7 +317,7 @@ static const t_htable_row bnet_htable_con[] = {
      { CLIENT_CDKEY3,           _client_cdkey3},
      { CLIENT_UDPOK,            _client_udpok},
      { CLIENT_FILEINFOREQ,      _client_fileinforeq},
-     // { CLIENT_STATSREQ,         _client_statsreq},
+     { CLIENT_STATSREQ,         _client_statsreq},
      { CLIENT_PINGREQ,          _client_pingreq},
      { CLIENT_LOGINREQ1,        _client_loginreq1},
      { CLIENT_LOGINREQ2,        _client_loginreq2},
