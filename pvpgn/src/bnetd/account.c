@@ -1206,18 +1206,20 @@ extern int accountlist_reload(int all)
   if (all = RELOAD_UPDATE_ALL)
   // go to accountlist and remove everything possible
   // we keep dirty account and accounts of users currently logged in
-  HASHTABLE_TRAVERSE(accountlist_head,curr)
   {
-    if (curr)
+    HASHTABLE_TRAVERSE(accountlist_head,curr)
     {
-      if (old_acc = (t_account *)entry_get_data(curr))
+      if (curr)
       {
-	if (!((old_acc->dirty) || account_logged_in(old_acc)))
-	{
-	  war3_ladders_remove_account(old_acc);
-	  account_destroy(old_acc);
-	  hashtable_remove_entry(accountlist_head,curr);
-	}
+        if (old_acc = (t_account *)entry_get_data(curr))
+        {
+	  if (!((old_acc->dirty) || account_logged_in(old_acc)))
+	  {
+	    war3_ladders_remove_account(old_acc);
+	    account_destroy(old_acc);
+	    hashtable_remove_entry(accountlist_head,curr);
+  	  }
+        }
       }
     }
   }
