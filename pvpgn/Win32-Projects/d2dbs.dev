@@ -1,7 +1,7 @@
 [Project]
 FileName=d2dbs.dev
 Name=d2dbs
-UnitCount=53
+UnitCount=57
 Type=0
 Ver=1
 ObjFiles=
@@ -570,6 +570,46 @@ BuildCmd=
 FileName=..\src\win32\d2dbs_resource.h
 CompileCpp=0
 Folder=win32/Resource Files
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit54]
+FileName=..\src\common\packet.h
+CompileCpp=0
+Folder=common/Header Files
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit55]
+FileName=..\src\common\network.h
+CompileCpp=0
+Folder=common/Header Files
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit56]
+FileName=..\src\common\packet.c
+CompileCpp=0
+Folder=common/Source Files
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit57]
+FileName=..\src\common\network.c
+CompileCpp=0
+Folder=common/Source Files
 Compile=1
 Link=1
 Priority=1000

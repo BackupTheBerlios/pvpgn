@@ -1,7 +1,7 @@
 [Project]
 FileName=d2dbsConsole.dev
 Name=d2dbsConsole
-UnitCount=49
+UnitCount=53
 Type=1
 Ver=1
 ObjFiles=
@@ -531,6 +531,46 @@ BuildCmd=
 FileName=..\src\d2cs\conf.h
 CompileCpp=0
 Folder=d2cs/Header Files
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit50]
+FileName=..\src\common\packet.h
+CompileCpp=0
+Folder=common/Header Files
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit51]
+FileName=..\src\common\network.h
+CompileCpp=0
+Folder=common/Header Files
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit52]
+FileName=..\src\common\packet.c
+CompileCpp=0
+Folder=common/Source Files
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit53]
+FileName=..\src\common\network.c
+CompileCpp=0
+Folder=common/Source Files
 Compile=1
 Link=1
 Priority=1000

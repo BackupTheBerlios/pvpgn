@@ -358,7 +358,9 @@ d2dbs_OBJECTS = \
     ${SRC_COMMONDIR}\util.obj \
     ${SRC_COMMONDIR}\addr.obj \
     ${SRC_COMMONDIR}\d2char_checksum.obj \ 
-    ${SRC_COMMONDIR}\xalloc.obj \        
+    ${SRC_COMMONDIR}\xalloc.obj \   
+    ${SRC_COMMONDIR}\packet.obj \   
+    ${SRC_COMMONDIR}\network.obj \           
     ${SRC_COMPATDIR}\inet_aton.obj \
     ${SRC_COMPATDIR}\psock.obj \
     ${SRC_COMPATDIR}\strerror.obj \ 
