@@ -2276,6 +2276,7 @@ static int _handle_realmann_command(t_connection * c, char const *text)
   
   if (!(realmname=conn_get_realmname(c))) {
     message_send_text(c,message_type_info,c,"You must join a realm first");
+    return 0;
   }
 
   if (text[i]=='\0')
