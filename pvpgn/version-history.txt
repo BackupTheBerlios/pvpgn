@@ -14,6 +14,9 @@ PvPGN Version History:
  -- wins required for specific chat icons now also configurable
  via anongame_infos.conf (previously only affected profile icons)
  -- discard games with no winners at all
+ 
+[SC/BW/W2BNE]
+ -- fixed parsing of ladder_games option in bnetd.conf
 
  Changelog for 1.7.4 (since 1.7.3)
 ===================================
