@@ -22,7 +22,13 @@ ladder to xml file - once again... for ladder pages
 -- added support for closed realms (d2cs) behind a router
 -- added command line option (-p PORT) to bnpcap to specify port number
 to process. Defaults to 6112
--- updated fsgs2bnetd.pl script - Thanks Keto
+--- updated fsgs2bnetd.pl script - Thanks Keto
+-- added account_allowed_symbols configuration variable to bnetd.conf and
+d2cs.conf. Now you have full control of the symbols allowed in account names.
+But please read the warnings in the conf files carefully - you have been
+warned. ALWAYS keep both variables at the same value!!!
+This fix solves the problem with accounts not beeing able to play D2 closed
+games, cause bnetd and d2cs were accepting different symbols.
 -- fixed /time command
 
 1.2.3:
