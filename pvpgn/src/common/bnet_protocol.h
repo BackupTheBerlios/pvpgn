@@ -66,6 +66,9 @@ typedef struct
 } t_w3route_generic PACKED_ATTR();
 /******************************************************/
 
+/* for unhandled pmap packets */
+#define CLIENT_NULL 0xfeff
+
 
 /******************************************************/
 /*

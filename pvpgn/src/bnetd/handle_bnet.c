@@ -324,6 +324,7 @@ static const t_htable_row bnet_htable_con[] = {
      { CLIENT_LOGINREQ2,        _client_loginreq2},
      { CLIENT_LOGINREQ_W3,      _client_loginreqw3},
      { CLIENT_LOGONPROOFREQ,    _client_logonproofreq},
+     { CLIENT_NULL,		NULL},
    /* After this packet we know to translate the packets to the normal IDs */
      { CLIENT_W3XP_COUNTRYINFO, _client_countryinfo109},
      { -1,                       NULL}
