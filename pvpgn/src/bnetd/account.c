@@ -830,9 +830,19 @@ extern int accountlist_reload(void)
   return 0;
 }
 
-static t_account * _cb_read_account(t_storage_info *info)
+extern t_account * account_load_new(char const * name)
 {
     t_account *account;
+    t_storage_info *info;
+
+    if (name == NULL) {
+	eventlog(eventlog_level_error, __FUNCTION__, "got NULL name");
+	return NULL;
+    }
+
+    force_account_add = 1; /* disable the protection */
+    info = storage->read_account(name);
+    if (!info) return NULL;
 
     if (!(account = account_load(info)))
     {
@@ -851,21 +861,6 @@ static t_account * _cb_read_account(t_storage_info *info)
     /* might as well free up the memory since we probably won't need it */
     account->accessed = 0; /* lie */
     account_save(account,1000); /* big delta to force unload */
-
-    return account;
-}
-
-extern t_account * account_load_new(char const * name)
-{
-    t_account * account;
-
-    if (name == NULL) {
-	eventlog(eventlog_level_error, __FUNCTION__, "got NULL name");
-	return NULL;
-    }
-
-    force_account_add = 1; /* disable the protection */
-    account = storage->read_account((t_read_account_func)_cb_read_account, name);
     force_account_add = 0;
 
     return account;
@@ -893,7 +888,7 @@ static int _cb_read_accounts2(t_storage_info *info, void *data)
     /* might as well free up the memory since we probably won't need it */
     account->accessed = 0; /* lie */
     account_save(account,1000); /* big delta to force unload */
-	
+
     (*count)++;
 
     return 0;

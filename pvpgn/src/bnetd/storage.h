@@ -23,7 +23,6 @@
 
 typedef int (*t_read_attr_func)(const char *, const char *, void *);
 typedef int (*t_read_accounts_func)(t_storage_info *, void*);
-typedef void * (*t_read_account_func)(t_storage_info *);
 typedef int (*t_load_clans_func)(void*);
 
 typedef struct {
@@ -36,7 +35,7 @@ typedef struct {
     int (*write_attrs)(t_storage_info *, void *);
     void * (*read_attr)(t_storage_info *, const char *);
     int (*read_accounts)(t_read_accounts_func, void *);
-    void * (*read_account)(t_read_account_func, const char *);
+    t_storage_info * (*read_account)(const char *);
     int (*cmp_info)(t_storage_info *, t_storage_info *);
     const char * (*escape_key)(const char *);
     int (*load_clans)(t_load_clans_func);

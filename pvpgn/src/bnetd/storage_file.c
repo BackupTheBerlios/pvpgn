@@ -106,7 +106,7 @@ static int file_read_attrs(t_storage_info *, t_read_attr_func, void *);
 static void * file_read_attr(t_storage_info *, const char *);
 static int file_write_attrs(t_storage_info *, void *);
 static int file_read_accounts(t_read_accounts_func, void *);
-static void * file_read_account(t_read_account_func, const char *);
+static t_storage_info * file_read_account(const char *);
 static int file_cmp_info(t_storage_info *, t_storage_info *);
 static const char * file_escape_key(const char *);
 static int file_load_clans(t_load_clans_func);
@@ -453,17 +453,12 @@ static int file_read_accounts(t_read_accounts_func cb, void *data)
     return 0;
 }
 
-static void * file_read_account(t_read_account_func cb, const char * accname)
+static t_storage_info * file_read_account(const char * accname)
 {
     char *       pathname;
 
     if (accountsdir == NULL) {
 	eventlog(eventlog_level_error, __FUNCTION__, "file storage not initilized");
-	return NULL;
-    }
-
-    if (cb == NULL) {
-	eventlog(eventlog_level_error, __FUNCTION__, "got NULL callback");
 	return NULL;
     }
 
@@ -479,7 +474,7 @@ static void * file_read_account(t_read_account_func cb, const char * accname)
 	return NULL;
     }
 
-    return cb(pathname);
+    return pathname;
 }
 
 static int file_cmp_info(t_storage_info *info1, t_storage_info *info2)
