@@ -150,6 +150,7 @@ ${SRC_BNETDDIR}/bits_motd.o \
 ${SRC_BNETDDIR}/command_groups.o \
 ${SRC_BNETDDIR}/output.o \
 ${SRC_BNETDDIR}/handle_anongame.o \
+${SRC_BNETDDIR}/tournament.o \
 ${SRC_COMMONDIR}/hexdump.o \
 ${SRC_COMMONDIR}/bn_type.o \
 ${SRC_COMMONDIR}/packet.o \

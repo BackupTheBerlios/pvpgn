@@ -16,35 +16,11 @@
 #ifndef INCLUDED_HANDLE_ANONGAME_TYPES
 #define INCLUDED_HANDLE_ANONGAME_TYPES
 
-typedef struct
-{
-    unsigned int start_preliminary;
-    unsigned int end_signup;
-    unsigned int end_preliminary;
-    unsigned int start_round_1;
-    unsigned int start_round_2;
-    unsigned int start_round_3;
-    unsigned int start_round_4;
-    unsigned int tournament_end;
-    unsigned int game_selection;
-    unsigned int game_type;
-    char *	 format;
-    char *	 sponsor;	/* format: "ricon,sponsor"
-				 * ricon = W3+icon reversed
-				 * ie. "4R3W,The PvPGN Team"
-				 */
-    unsigned int thumbs_down;
-} t_tournament_info;
-
 #endif
 
 #ifndef INCLUDED_HANDLE_ANONGAME_PROTOS
 #define INCLUDED_HANDLE_ANONGAME_PROTOS
 
-extern int tournament_init(char const * filename);
-extern int tournament_destroy(void);
 extern int handle_anongame_packet(t_connection * c, t_packet const * const packet);
-extern int tournament_get_totalplayers(void);
-extern int tournament_is_arranged(void);
 
 #endif

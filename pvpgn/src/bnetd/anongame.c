@@ -94,7 +94,7 @@
 #include "common/proginfo.h"
 #include "handle_bnet.h"
 #include "anongame.h"
-#include "handle_anongame.h"
+#include "tournament.h"
 #include "timer.h"
 #include "common/setup_after.h"
 #ifdef HAVE_NETINET_IN_H
@@ -825,8 +825,10 @@ extern int handle_anongame_search(t_connection * c, t_packet const * packet)
 		map_prefs = 0xffffffff;
 		eventlog(eventlog_level_info,__FUNCTION__,"[%d] got FINDANONGAME Arranged Team SEARCH packet",conn_get_socket(c));
 	} else {
-		if (selection == 2) /* PG=0 , AT=1 , TY=2 */
+		if (selection == 2) { /* PG=0 , AT=1 , TY=2 */
 		    gametype = ANONGAME_TYPE_TY;
+		    tournament_signup_user(conn_get_account(c));
+		}
 		else
 		    gametype = bn_byte_get(packet->u.client_findanongame.gametype);
 		
@@ -1919,7 +1921,7 @@ extern int anongame_stats(t_connection * c)
         oppon_level[i]=0;
         switch(gametype) {
 	    case ANONGAME_TYPE_TY:
-		/* FIXME-TY: ADD TOURNAMENT STATS RECORDING */
+		/* FIXME-TY: ADD TOURNAMENT STATS RECORDING (this part not required?) */
 		break;
 	    case ANONGAME_TYPE_1V1:
 		oppon_level[i] = account_get_sololevel(anongame_get_account(a,(i+1)%tp),ct);
@@ -1964,7 +1966,11 @@ extern int anongame_stats(t_connection * c)
       
         switch(gametype) {
 	    case ANONGAME_TYPE_TY:
-		/* FIXME-TY: ADD TOURNAMENT STATS RECORDING */
+		if(result == W3_GAMERESULT_WIN)
+		    tournament_add_stat(acc, 1);
+		if(result == W3_GAMERESULT_LOSS)
+		    tournament_add_stat(acc, 2);
+		/* FIXME-TY: how to do ties? */
 		break;
 	    case ANONGAME_TYPE_AT_2V2:
 	    case ANONGAME_TYPE_AT_3V3:
