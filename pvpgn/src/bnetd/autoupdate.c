@@ -210,7 +210,8 @@ extern char * autoupdate_check(t_tag archtag, t_tag clienttag, t_tag gamelang, c
 		continue;
 	    
 	    /* if we have a gamelang then add it to the mpq file name */
-	    if (gamelang) {
+	    if ((gamelang) && // so far only WAR3 uses gamelang specific MPQs!
+	        ((clienttag == CLIENTTAG_WARCRAFT3_UINT) || (clienttag == CLIENTTAG_WAR3XP_UINT))){
 		char gltag[5];
 		char * tempmpq;
 		char * extention;
