@@ -77,7 +77,6 @@
 #include "common/bnethash.h"
 #define CLAN_INTERNAL_ACCESS
 #define TEAM_INTERNAL_ACCESS
-#define ACCOUNT_INTERNAL_ACCESS
 #include "common/introtate.h"
 #include "team.h"
 #include "account.h"
@@ -107,7 +106,7 @@ static t_storage_info *file_get_defacct(void);
 static int file_free_info(t_storage_info *);
 static int file_read_attrs(t_storage_info *, t_read_attr_func, void *);
 static void *file_read_attr(t_storage_info *, const char *);
-static int file_write_attrs(t_storage_info *, void *);
+static int file_write_attrs(t_storage_info *, const void *);
 static int file_read_accounts(int,t_read_accounts_func, void *);
 static t_storage_info *file_read_account(const char *, unsigned);
 static int file_cmp_info(t_storage_info *, t_storage_info *);
@@ -290,7 +289,7 @@ static t_storage_info *file_create_account(const char *username)
     return temp;
 }
 
-static int file_write_attrs(t_storage_info * info, void *attributes)
+static int file_write_attrs(t_storage_info * info, const void *attributes)
 {
     char *tempname;
 

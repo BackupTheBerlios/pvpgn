@@ -1340,10 +1340,7 @@ static void _server_mainloop(t_addrlist *laddrs)
 	    /* reload server name */
 	    server_set_name();
 
-	    accountlist_load_default(); /* FIXME: free old one */
-	    /* Dizzy: disabled for the moment, lets see who really needs it, 
-	    also it can be the cause for a lot of problems
-	    accountlist_reload(); */
+	    attrlayer_load_default();
 
 	    channellist_reload();
 

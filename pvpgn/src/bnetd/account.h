@@ -19,67 +19,38 @@
 #ifndef INCLUDED_ACCOUNT_TYPES
 #define INCLUDED_ACCOUNT_TYPES
 
-#include "storage.h"
 #ifndef JUST_NEED_TYPES
 #define JUST_NEED_TYPES
 #include "common/list.h"
 #include "common/elist.h"
 #include "clan.h"
 #include "team.h"
+#include "attr.h"
 #undef JUST_NEED_TYPES
 #else
 #include "common/list.h"
 #include "common/elist.h"
 #include "clan.h"
 #include "team.h"
+#include "attr.h"
 #endif
-
-#ifdef ACCOUNT_INTERNAL_ACCESS
-typedef struct attribute_struct
-{
-    char const *              key;
-    char const *              val;
-    int			      dirty;  // 1 = needs to be saved, 0 = unchanged
-    struct attribute_struct * next;
-} t_attribute;
-#endif
-
-#define ACCOUNT_CLIENTTAG_UNKN 0x00; // used for all non warcraft 3 clients so far
-#define ACCOUNT_CLIENTTAG_WAR3 0x01;
-#define ACCOUNT_CLIENTTAG_W3XP 0x02;
 
 #define ACCOUNT_FLAG_NONE	0
-#define ACCOUNT_FLAG_LOADED	1
-#define ACCOUNT_FLAG_ACCESSED	2
-#define ACCOUNT_FLAG_DIRTY	4
-#define ACCOUNT_FLAG_FLOADED	8	/* friend loaded */
-
-/* flags controlling flush/save operations */
-#define FS_NONE		0
-#define FS_FORCE	1	/* force save/flush no matter of time */
-/* NOTE: flush with force will trigger save with force in case of dirty */
-#define FS_ALL		2	/* save/flush all, not in steps */
+#define ACCOUNT_FLAG_FLOADED	1	/* friends list loaded */
 
 struct connection;
 
 typedef struct account_struct
 #ifdef ACCOUNT_INTERNAL_ACCESS
 {
-    t_attribute * attrs;
+    t_attrlist	* attrlist;
     char	* name;     /* profiling proved 99% of getstrattr its from get_name */
     unsigned int  namehash; /* cached from attrs */
     unsigned int  uid;      /* cached from attrs */
     unsigned int  flags;
     struct connection * conn;
-    t_storage_info * storage;
     t_clanmember   * clanmember;
     t_list * friends;
-    time_t	lastaccess;	/* timestamp of last access moment */
-    time_t	dirtytime;	/* timestamp of first dirty moment */
-    t_elist	loadedlist;	/* link to the list of loaded accounts for 
-				 * fast flushes */
-    t_elist	dirtylist;	/* link to the list of dirty accounts for 
-				 * fast saves */
     t_list * teams;
 }
 #endif
@@ -108,15 +79,10 @@ extern char const * account_get_strattr_real(t_account * account, char const * k
 #define account_get_strattr(A,K) account_get_strattr_real(A,K,__FILE__,__LINE__)
 extern int account_set_strattr(t_account * account, char const * key, char const * val);
 
-extern char const * account_get_first_key(t_account * account);
-extern char const * account_get_next_key(t_account * account, char const * key);
-
 extern int accountlist_create(void);
 extern int accountlist_destroy(void);
 extern t_hashtable * accountlist(void);
 extern t_hashtable * accountlist_uid(void);
-extern int accountlist_load_default(void);
-extern void accountlist_unload_default(void);
 extern int accountlist_load_all(int flag);
 extern unsigned int accountlist_get_length(void);
 extern int accountlist_save(unsigned flags);
@@ -125,20 +91,15 @@ extern t_account * accountlist_find_account(char const * username);
 extern t_account * accountlist_find_account_by_uid(unsigned int uid);
 extern int accountlist_allow_add(void);
 extern t_account * accountlist_create_account(const char *username, const char *passhash1);
-// aaron
-//extern int accounts_rank_all(void);
 extern void accounts_get_attr(char const *);
 /* names and passwords */
 extern char const * account_get_name_real(t_account * account, char const * fn, unsigned int ln);
 # define account_get_name(A) account_get_name_real(A,__FILE__,__LINE__)
 
 
-// THEUNDYING MUTUAL FRIEND CHECK 7/27/02 UPDATED!
-// moved to account.c/account.h by Soar to direct access struct t_account
 extern int account_check_mutual( t_account * account,  int myuserid);
 extern t_list * account_get_friends(t_account * account);
 
-//clan thingy by DJP & Soar
 extern int account_set_clanmember(t_account * account, t_clanmember * clanmember);
 extern t_clanmember * account_get_clanmember(t_account * account);
 extern t_clanmember * account_get_clanmember_forced(t_account * account);

@@ -60,14 +60,12 @@
 #include "common/util.h"
 
 #define CLAN_INTERNAL_ACCESS
-#define ACCOUNT_INTERNAL_ACCESS
 #define TEAM_INTERNAL_ACCESS
 #include "team.h"
 #include "account.h"
 #include "connection.h"
 #include "clan.h"
 #undef TEAM_INTERNAL_ACCESS
-#undef ACCOUNT_INTERNAL_ACCESS
 #undef CLAN_INTERNAL_ACCESS
 #include "common/tag.h"
 #include "common/xalloc.h"
@@ -80,6 +78,8 @@
 #ifdef WITH_SQL_PGSQL
 #include "sql_pgsql.h"
 #endif
+#include "common/elist.h"
+#include "attr.h"
 #include "common/setup_after.h"
 
 #define CURRENT_DB_VERSION 150
@@ -101,7 +101,7 @@ static t_storage_info *sql_get_defacct(void);
 static int sql_free_info(t_storage_info *);
 static int sql_read_attrs(t_storage_info *, t_read_attr_func, void *);
 static void *sql_read_attr(t_storage_info *, const char *);
-static int sql_write_attrs(t_storage_info *, void *);
+static int sql_write_attrs(t_storage_info *, const void *);
 static int sql_read_accounts(int,t_read_accounts_func, void *);
 static t_storage_info * sql_read_account(const char *,unsigned);
 static int sql_cmp_info(t_storage_info *, t_storage_info *);
@@ -462,7 +462,7 @@ static int sql_read_attrs(t_storage_info * info, t_read_attr_func cb, void *data
 
 	    if ((fields = sql->fetch_fields(result)) == NULL)
 	    {
-		eventlog(eventlog_level_error, "db_get_attributes", "could not fetch the fields");
+		eventlog(eventlog_level_error, __FUNCTION__, "could not fetch the fields");
 		sql->free_result(result);
 		return -1;
 	    }
@@ -511,7 +511,8 @@ static void *sql_read_attr(t_storage_info * info, const char *key)
     t_sql_row *row;
     char *tab, *col;
     unsigned int uid;
-    t_attribute *attr;
+    t_attr    *attr;
+    t_hlist   *attr;
 
     if (!sql)
     {
@@ -564,13 +565,9 @@ static void *sql_read_attr(t_storage_info * info, const char *key)
 	return NULL;
     }
 
-    attr = (t_attribute *) xmalloc(sizeof(t_attribute));
-    attr->key = xstrdup(key);
-    attr->val = xstrdup(row[0]);
-
+    attr = attr_create(key, val);
     sql->free_result(result);
 
-    attr->dirty = 0;
     return (void *) attr;
 #else
     return NULL;
@@ -578,13 +575,14 @@ static void *sql_read_attr(t_storage_info * info, const char *key)
 }
 
 /* write ONLY dirty attributes */
-int sql_write_attrs(t_storage_info * info, void *attrs)
+int sql_write_attrs(t_storage_info * info, const void *attrs)
 {
     char query[1024];
     char escape[DB_MAX_ATTRVAL * 2 + 1];	/* sql docs say the escape can take a maximum of double original size + 1 */
     char safeval[DB_MAX_ATTRVAL];
     char *p, *tab, *col;
-    t_attribute *attr;
+    t_attr *attr;
+    t_hlist *curr;
     unsigned int uid;
 
     if (!sql)
@@ -607,30 +605,28 @@ int sql_write_attrs(t_storage_info * info, void *attrs)
 
     uid = *((unsigned int *) info);
 
-    for (attr = (t_attribute *) attrs; attr; attr = attr->next)
-    {
-	if (!attr->dirty)
+    hlist_for_each(curr, attrs) {
+	attr = hlist_entry(curr, t_attr, link);
+
+	if (!attr_get_dirty(attr))
 	    continue;		/* save ONLY dirty attributes */
 
-	if (attr->key == NULL)
-	{
+	if (attr_get_key(attr) == NULL) {
 	    eventlog(eventlog_level_error, __FUNCTION__, "found NULL key in attributes list");
 	    continue;
 	}
 
-	if (attr->val == NULL)
-	{
+	if (attr_get_val(attr) == NULL)	{
 	    eventlog(eventlog_level_error, __FUNCTION__, "found NULL value in attributes list");
 	    continue;
 	}
 
-	if (_db_get_tab(attr->key, &tab, &col) < 0)
-	{
+	if (_db_get_tab(attr_get_key(attr), &tab, &col) < 0) {
 	    eventlog(eventlog_level_error, __FUNCTION__, "error from db_get_tab");
 	    continue;
 	}
 
-	strncpy(safeval, attr->val, DB_MAX_ATTRVAL - 1);
+	strncpy(safeval, attr_get_val(attr), DB_MAX_ATTRVAL - 1);
 	safeval[DB_MAX_ATTRVAL - 1] = 0;
 	for (p = safeval; *p; p++)
 	    if (*p == '\'')	/* value shouldn't contain ' */
@@ -650,8 +646,7 @@ int sql_write_attrs(t_storage_info * info, void *attrs)
 
 //      eventlog(eventlog_level_trace, "db_set", "update query: %s", query);
 
-	if (sql->query(query) || !sql->affected_rows())
-	{
+	if (sql->query(query) || !sql->affected_rows()) {
 	    char query2[512];
 
 //	    eventlog(eventlog_level_debug, __FUNCTION__, "trying to insert new column %s", col);
@@ -666,18 +661,19 @@ int sql_write_attrs(t_storage_info * info, void *attrs)
 
 	    /* try query again */
 //          eventlog(eventlog_level_trace, "db_set", "retry insert query: %s", query);
-	    if (sql->query(query) || !sql->affected_rows())
-	    {
+	    if (sql->query(query) || !sql->affected_rows()) {
 		// Tried everything, now trying to insert that user to the table for the first time
 		sprintf(query2, "INSERT INTO %s (uid,%s) VALUES ('%u','%s')", tab, col, uid, escape);
 //              eventlog(eventlog_level_error, __FUNCTION__, "update failed so tried INSERT for the last chance");
 		if (sql->query(query2))
 		{
-		    eventlog(eventlog_level_error, __FUNCTION__, "could not INSERT attribute '%s'->'%s'", attr->key, attr->val);
+		    eventlog(eventlog_level_error, __FUNCTION__, "could not INSERT attribute '%s'->'%s'", attr_get_key(attr), attr_get_val(attr));
 		    continue;
 		}
 	    }
 	}
+
+	attr_clear_dirty(attr);
     }
 
     return 0;

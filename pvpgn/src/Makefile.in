@@ -161,6 +161,7 @@ ${SRC_BNETDDIR}/topic.o\
 ${SRC_BNETDDIR}/friends.o\
 ${SRC_BNETDDIR}/ladder_binary.o \
 ${SRC_BNETDDIR}/support.o \
+${SRC_BNETDDIR}/attr.o \
 ${SRC_COMMONDIR}/tag.o \
 ${SRC_COMMONDIR}/hexdump.o \
 ${SRC_COMMONDIR}/bn_type.o \

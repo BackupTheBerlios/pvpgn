@@ -38,7 +38,7 @@ typedef struct {
     t_storage_info * (*get_defacct)(void);
     int (*free_info)(t_storage_info *);
     int (*read_attrs)(t_storage_info *, t_read_attr_func, void *);
-    int (*write_attrs)(t_storage_info *, void *);
+    int (*write_attrs)(t_storage_info *, const void *);
     void * (*read_attr)(t_storage_info *, const char *);
     int (*read_accounts)(int,t_read_accounts_func, void *);
     t_storage_info * (*read_account)(const char *,unsigned);

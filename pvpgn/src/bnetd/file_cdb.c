@@ -77,7 +77,6 @@
 #include "common/bnethash.h"
 #include "common/introtate.h"
 #define CLAN_INTERNAL_ACCESS
-#define ACCOUNT_INTERNAL_ACCESS
 #include "account.h"
 #include "common/hashtable.h"
 #include "storage.h"
@@ -87,7 +86,6 @@
 #include "connection.h"
 #include "watch.h"
 #include "clan.h"
-#undef ACCOUNT_INTERNAL_ACCESS
 #undef CLAN_INTERNAL_ACCESS
 #include "common/tag.h"
 #ifdef HAVE_FCNTL_H
@@ -98,13 +96,15 @@
 # endif
 #endif
 #include "tinycdb/cdb.h"
+#include "common/elist.h"
+#include "attr.h"
 #include "common/setup_after.h"
 
 /* cdb file storage API functions */
 
 static int cdb_read_attrs(const char *filename, t_read_attr_func cb, void *data);
 static void * cdb_read_attr(const char *filename, const char *key);
-static int cdb_write_attrs(const char *filename, void *attributes);
+static int cdb_write_attrs(const char *filename, const void *attributes);
 
 /* file_engine struct populated with the functions above */
 
@@ -118,10 +118,11 @@ t_file_engine file_cdb = {
 
 //#define CDB_ON_DEMAND	1
 
-static int cdb_write_attrs(const char *filename, void *attributes)
+static int cdb_write_attrs(const char *filename, const void *attributes)
 {
     FILE           *cdbfile;
-    t_attribute    *attr;
+    t_hlist	   *curr;
+    t_attr         *attr;
     struct cdb_make cdbm;
 
     if ((cdbfile = fopen(filename, "w+b")) == NULL) {
@@ -130,22 +131,26 @@ static int cdb_write_attrs(const char *filename, void *attributes)
     }
 
     cdb_make_start(&cdbm, cdbfile);
-    for (attr=(t_attribute *)attributes; attr; attr=attr->next) {
-	if (attr->key && attr->val) {
-	    if (strncmp("BNET\\CharacterDefault\\", attr->key, 20) == 0) {
-		eventlog(eventlog_level_debug, __FUNCTION__, "skipping attribute key=\"%s\"",attr->key);
+
+    hlist_for_each(curr,(t_hlist*)attributes) {
+	attr = hlist_entry(curr, t_attr, link);
+
+	if (attr_get_key(attr) && attr_get_val(attr)) {
+	    if (strncmp("BNET\\CharacterDefault\\", attr_get_key(attr), 20) == 0) {
+		eventlog(eventlog_level_debug, __FUNCTION__, "skipping attribute key=\"%s\"",attr_get_key(attr));
 	    } else {
-		eventlog(eventlog_level_debug, __FUNCTION__, "saving attribute key=\"%s\" val=\"%s\"",attr->key,attr->val);
-		if (cdb_make_add(&cdbm, attr->key, strlen(attr->key), attr->val, strlen(attr->val))<0)
+		eventlog(eventlog_level_debug, __FUNCTION__, "saving attribute key=\"%s\" val=\"%s\"",attr_get_key(attr),attr_get_val(attr));
+		if (cdb_make_add(&cdbm, attr_get_key(attr), strlen(attr_get_key(attr)), attr_get_val(attr), strlen(attr_get_val(attr)))<0)
 		{
-		    eventlog(eventlog_level_error, __FUNCTION__, "got error on cdb_make_add ('%s' = '%s')", attr->key, attr->val);
+		    eventlog(eventlog_level_error, __FUNCTION__, "got error on cdb_make_add ('%s' = '%s')", attr_get_key(attr), attr_get_val(attr));
 		    cdb_make_finish(&cdbm); /* try to bail out nicely */
 		    fclose(cdbfile);
 		    return -1;
 		}
 	    }
-	} else eventlog(eventlog_level_error, __FUNCTION__,"could not save attribute key=\"%s\"",attr->key);
+	} else eventlog(eventlog_level_error, __FUNCTION__,"could not save attribute key=\"%s\"",attr_get_key(attr));
 
+	attr_clear_dirty(attr);
     }
 
     if (cdb_make_finish(&cdbm)<0) {
@@ -277,7 +282,7 @@ static void * cdb_read_attr(const char *filename, const char *key)
 {
 #ifdef CDB_ON_DEMAND
     FILE	*cdbfile;
-    t_attribute	*attr;
+    t_attr	*attr;
     char	*val;
     unsigned	vlen = 1;
 
@@ -293,7 +298,8 @@ static void * cdb_read_attr(const char *filename, const char *key)
 	return NULL;
     }
 
-    attr = xmalloc(sizeof(t_attribute));
+    /* FIXME: use attr_* API */
+    attr = xmalloc(sizeof(t_attr));
     attr->key = xstrdup(key);
     val = xmalloc(vlen + 1);
 

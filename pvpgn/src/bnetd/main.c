@@ -87,6 +87,7 @@
 #include "common/trans.h"
 #include "common/xalloc.h"
 #include "common/fdwatch.h"
+#include "attr.h"
 #ifdef WIN32
 # include "win32/service.h"
 #endif
@@ -466,7 +467,7 @@ int pre_server_startup(void)
 	eventlog(eventlog_level_error,__FUNCTION__,"could not load news list");
     watchlist_create();
     output_init();
-    accountlist_load_default();
+    attrlayer_init();
     accountlist_create();
     if (ladder_createxptable(prefs_get_xplevel_file(),prefs_get_xpcalc_file())<0) {
         eventlog(eventlog_level_error, "pre_server_startup", "could not load WAR3 xp calc tables");
@@ -512,13 +513,13 @@ void post_server_shutdown(int status)
 	    characterlist_destroy();
             ladder_destroyxptable();
         case STATUS_WAR3XPTABLES_FAILURE:
-    	    
+
 	case STATUS_LADDERLIST_FAILURE:
 	    ladder_update_all_accounts();
     	    ladders_destroy();
 	    output_dispose_filename();
 	    accountlist_destroy();
-    	    accountlist_unload_default();
+    	    attrlayer_cleanup();
     	    watchlist_destroy();
 	    news_unload();
     	    versioncheck_unload();

@@ -73,7 +73,6 @@
 #include "account.h"
 #include "account_wrap.h"
 #include "common/hashtable.h"
-#include "storage.h"
 #include "connection.h"
 #include "watch.h"
 #include "friends.h"
@@ -82,6 +81,8 @@
 #include "ladder.h"
 #include "clan.h"
 #include "server.h"
+#include "attr.h"
+#include "storage.h"
 #include "common/flags.h"
 #include "common/xalloc.h"
 #ifdef HAVE_ASSERT_H
@@ -92,21 +93,13 @@
 static t_hashtable * accountlist_head=NULL;
 static t_hashtable * accountlist_uid_head=NULL;
 
-static t_account * default_acct=NULL;
 unsigned int maxuserid=0;
-static DECLARE_ELIST_INIT(dirtylist);
-static DECLARE_ELIST_INIT(loadedlist);
 
 /* This is to force the creation of all accounts when we initially load the accountlist. */
 static int force_account_add=0;
 
-static int doing_loadattrs=0;
-
 static unsigned int account_hash(char const * username);
-static int account_insert_attr(t_account * account, char const * key, char const * val);
-static t_account * account_load(t_storage_info *);
-static int account_load_attrs(t_account * account);
-static void account_unload_attrs(t_account * account);
+static t_account * account_load(t_attrlist *);
 static int account_load_friends(t_account * account);
 static int account_unload_friends(t_account * account);
 static void account_destroy(t_account * account);
@@ -127,56 +120,6 @@ static unsigned int account_hash(char const *username)
     return h;
 }
 
-static inline void account_set_accessed(t_account *acc)
-{
-    FLAG_SET(&acc->flags,ACCOUNT_FLAG_ACCESSED);
-    acc->lastaccess = now;
-}
-
-static inline void account_clear_accessed(t_account *acc)
-{
-    FLAG_CLEAR(&acc->flags,ACCOUNT_FLAG_ACCESSED);
-}
-
-static inline void account_set_dirty(t_account *acc)
-{
-    if (FLAG_ISSET(acc->flags,ACCOUNT_FLAG_DIRTY)) return;
-
-    acc->dirtytime = now;
-    FLAG_SET(&acc->flags,ACCOUNT_FLAG_DIRTY);
-    elist_add_tail(&dirtylist, &acc->dirtylist);
-}
-
-static inline void account_clear_dirty(t_account *acc)
-{
-    if (!FLAG_ISSET(acc->flags,ACCOUNT_FLAG_DIRTY)) return;
-
-    FLAG_CLEAR(&acc->flags,ACCOUNT_FLAG_DIRTY);
-    elist_del(&acc->dirtylist);
-}
-
-static inline void account_set_loaded(t_account *acc)
-{
-    if (FLAG_ISSET(acc->flags,ACCOUNT_FLAG_LOADED)) return;
-    FLAG_SET(&acc->flags,ACCOUNT_FLAG_LOADED);
-
-    if (acc == default_acct) return; /* don't add default_acct to loadedlist */
-    elist_add_tail(&loadedlist, &acc->loadedlist);
-}
-
-static inline void account_clear_loaded(t_account *acc)
-{
-    if (!FLAG_ISSET(acc->flags,ACCOUNT_FLAG_LOADED)) return;
-
-    /* clear this because they are not valid if account is unloaded */
-    account_clear_dirty(acc);
-    account_clear_accessed(acc);
-
-    FLAG_CLEAR(&acc->flags,ACCOUNT_FLAG_LOADED);
-    if (acc == default_acct) return; /* default_acct is not in loadedlist */
-    elist_del(&acc->loadedlist);
-}
-
 static t_account * account_create(char const * username, char const * passhash1)
 {
     t_account * account;
@@ -194,50 +137,41 @@ static t_account * account_create(char const * username, char const * passhash1)
     account = xmalloc(sizeof(t_account));
 
     account->name     = NULL;
-    account->storage  = NULL;
     account->clanmember = NULL;
-    account->attrs    = NULL;
+    account->attrlist   = NULL;
     account->friends  = NULL;
     account->teams    = NULL;
     account->conn = NULL;
     FLAG_ZERO(&account->flags);
-    account->lastaccess = 0;
-    account->dirtytime  = 0;
-    elist_init(&account->dirtylist);
-    elist_init(&account->loadedlist);
 
     account->namehash = 0; /* hash it later before inserting */
     account->uid      = 0; /* hash it later before inserting */
 
-    if (username) /* actually making a new account */
-    {
-	account->storage =  storage->create_account(username);
-	if(!account->storage) {
-	    eventlog(eventlog_level_error,__FUNCTION__,"failed to add user to storage");
+    if (username) { /* actually making a new account */
+	account->attrlist =  attrlist_create_newuser(username);
+	if(!account->attrlist) {
+	    eventlog(eventlog_level_error,__FUNCTION__,"failed to add user");
 	    goto err;
 	}
-	account_set_loaded(account);
 
 	account->name = xstrdup(username);
 
-	if (account_set_strattr(account,"BNET\\acct\\username",username)<0)
-	{
-	    eventlog(eventlog_level_error,__FUNCTION__,"could not set username");
-	    goto err;
-	}
-	if (account_set_numattr(account,"BNET\\acct\\userid",maxuserid+1)<0)
-	{
-	    eventlog(eventlog_level_error,__FUNCTION__,"could not set userid");
-	    goto err;
-	}
-	if (account_set_strattr(account,"BNET\\acct\\passhash1",passhash1)<0)
-	{
-	    eventlog(eventlog_level_error,__FUNCTION__,"could not set passhash1");
-	    goto err;
-	}
-	
+        if (account_set_strattr(account,"BNET\\acct\\username",username)<0) {
+            eventlog(eventlog_level_error,__FUNCTION__,"could not set username");
+            goto err;
+        }
+
+        if (account_set_numattr(account,"BNET\\acct\\userid",maxuserid+1)<0) {
+            eventlog(eventlog_level_error,__FUNCTION__,"could not set userid");
+            goto err;
+        }
+
+	if (account_set_strattr(account,"BNET\\acct\\passhash1",passhash1)<0) {
+            eventlog(eventlog_level_error,__FUNCTION__,"could not set passhash1");
+            goto err;
+        }
     }
-    
+
     return account;
 
 err:
@@ -245,41 +179,15 @@ err:
     return NULL;
 }
 
-
-static void account_unload_attrs(t_account * account)
-{
-    t_attribute const * attr;
-    t_attribute const * temp;
-
-    assert(account);
-
-    for (attr=account->attrs; attr; attr=temp)
-    {
-	if (attr->key)
-	    xfree((void *)attr->key); /* avoid warning */
-	if (attr->val)
-	    xfree((void *)attr->val); /* avoid warning */
-        temp = attr->next;
-	xfree((void *)attr); /* avoid warning */
-    }
-    account->attrs = NULL;
-    account_clear_loaded(account);
-}
-
 static void account_destroy(t_account * account)
 {
-    if (!account)
-    {
-	eventlog(eventlog_level_error,__FUNCTION__,"got NULL account");
-	return;
-    }
+    assert(account);
+
     friendlist_close(account->friends);
     teams_destroy(account->teams);
-    account_unload_attrs(account);
+    attrlist_destroy(account->attrlist);
     if (account->name)
         xfree(account->name);
-    if (account->storage)
-	storage->free_info(account->storage);
 
     xfree(account);
 }
@@ -287,11 +195,11 @@ static void account_destroy(t_account * account)
 
 extern unsigned int account_get_uid(t_account const * account)
 {
-    if (!account)
-    {
+    if (!account) {
 	eventlog(eventlog_level_error,__FUNCTION__,"got NULL account");
 	return -1;
     }
+
     return account->uid;
 }
 
@@ -341,385 +249,93 @@ extern int account_save(t_account * account, unsigned flags)
 {
     assert(account);
 
-    if (!FLAG_ISSET(account->flags,ACCOUNT_FLAG_LOADED))
-	return 0;
-
-    if (!FLAG_ISSET(account->flags,ACCOUNT_FLAG_DIRTY))
-	return 0;
-
-    if (!FLAG_ISSET(flags,FS_FORCE) && now - account->dirtytime < prefs_get_user_sync_timer())
-	return 0;
-
-    if (!account->storage) {
-	eventlog(eventlog_level_error, __FUNCTION__, "account "UID_FORMAT" has NULL filename",account->uid);
-	return -1;
-    }
-
-    storage->write_attrs(account->storage, account->attrs);
-    account_clear_dirty(account);
-
-    return 1;
+    return attrlist_save(account->attrlist, flags);
 }
 
 
 extern int account_flush(t_account * account, unsigned flags)
 {
+    int res;
+
     assert(account);
 
-    if (!FLAG_ISSET(account->flags,ACCOUNT_FLAG_LOADED))
-	return 0;
-
-    if (FLAG_ISSET(flags,FS_FORCE) && FLAG_ISSET(account->flags,ACCOUNT_FLAG_DIRTY))
-	if (account_save(account,FS_FORCE) < 0) return -1;
-
-    if (!FLAG_ISSET(flags,FS_FORCE) &&
-	FLAG_ISSET(account->flags,ACCOUNT_FLAG_ACCESSED) && 
-	now - account->lastaccess < prefs_get_user_flush_timer())
-	return 0;
+    res = attrlist_flush(account->attrlist, flags);
+    if (res<0) return res;
 
     account_unload_friends(account);
-    account_unload_attrs(account);
 
-    return 1;
+    return res;
 }
 
-
-static int account_insert_attr(t_account * account, char const * key, char const * val)
-{
-    t_attribute * nattr;
-    char *        nkey;
-    char *        nval;
-    
-    nattr = xmalloc(sizeof(t_attribute));
-
-    nkey = (char *)storage->escape_key(key);
-    if (nkey == key) nkey = xstrdup(key);
-    nval = xstrdup(val);
-    nattr->key  = nkey;
-    nattr->val  = nval;
-    nattr->dirty = 1;
-
-    nattr->next = account->attrs;
-    
-    account->attrs = nattr;
-    
-    account_set_dirty(account);
-
-    return 0;
-}
 
 extern char const * account_get_strattr_real(t_account * account, char const * key, char const * fn, unsigned int ln)
 {
-    char const *        newkey = key, *newkey2;
-    t_attribute * curr, *last, *last2;
-
-    if (!account)
-    {
+    if (!account) {
 	eventlog(eventlog_level_error,__FUNCTION__,"got NULL account (from %s:%u)",fn,ln);
 	return NULL;
     }
-    if (!key)
-    {
+
+    if (!key) {
 	eventlog(eventlog_level_error,__FUNCTION__,"got NULL key (from %s:%u)",fn,ln);
 	return NULL;
     }
 
-    if (!FLAG_ISSET(account->flags,ACCOUNT_FLAG_LOADED))
-    {
-        if (account_load_attrs(account)<0)
-        {
-            eventlog(eventlog_level_error,__FUNCTION__,"could not load attributes");
-            return NULL;
-        }
-    }
-
-    account_set_accessed(account);
-
-    if (strncasecmp(key,"DynKey",6)==0)
-      {
-	char * temp;
-	
-	/* Recent Starcraft clients seems to query DynKey\*\1\rank instead of
-	 * Record\*\1\rank. So replace Dynkey with Record for key lookup.
-	 */
-	temp = xstrdup(key);
-	strncpy(temp,"Record",6);
-	newkey = temp;
-      }
-    else if (strncmp(key,"Star",4)==0)
-      {
-	char * temp;
-	
-	/* Starcraft clients query Star instead of STAR on logon screen.
-	 */
-	temp = xstrdup(key);
-	strncpy(temp,"STAR",6);
-	newkey = temp;
-      }
-
-    if (newkey != key) {
-	newkey2 = storage->escape_key(newkey);
-	if (newkey2 != newkey) {
-	    xfree((void*)newkey);
-	    newkey = newkey2;
-	}
-    } else newkey = storage->escape_key(key);
-
-    last = NULL;
-    last2 = NULL;
-    if (account->attrs)
-	for (curr=account->attrs; curr; curr=curr->next) {
-	    if (strcasecmp(curr->key,newkey)==0)
-	    {
-		if (newkey!=key)
-		    xfree((void *)newkey); /* avoid warning */
-		/* DIZZY: found a match, lets promote it so it would be found faster next time */
-		if (last) { 
-		    if (last2) {
-			last2->next = curr;
-		    } else {
-			account->attrs = curr;
-		    }
-		    
-		    last->next = curr->next;
-		    curr->next = last;
-		    
-		}
-                return curr->val;
-	    }
-	    last2 = last;
-	    last = curr;
-	}
-
-    if ((curr = (t_attribute *)storage->read_attr(account->storage, newkey)) != NULL) {
-	curr->next = account->attrs;
-	account->attrs = curr;
-	if (newkey!=key) xfree((void *)newkey); /* avoid warning */
-	return curr->val;
-    }
-
-    if (newkey!=key) xfree((void *)newkey); /* avoid warning */
-
-    if (account==default_acct) /* don't recurse infinitely */
-	return NULL;
-    
-    return account_get_strattr(default_acct,key); /* FIXME: this is sorta dangerous because this pointer can go away if we re-read the config files... verify that nobody caches non-username, userid strings */
+    return attrlist_get_attr(account->attrlist, key);
 }
 
 extern int account_set_strattr(t_account * account, char const * key, char const * val)
-{
-    t_attribute * curr;
-    const char *newkey;
-    
-    if (!account)
-    {
-	eventlog(eventlog_level_error,__FUNCTION__,"got NULL account");
-	return -1;
-    }
-    if (!key)
-    {
-	eventlog(eventlog_level_error,__FUNCTION__,"got NULL key");
-	return -1;
-    }
-
-    if (!FLAG_ISSET(account->flags,ACCOUNT_FLAG_LOADED))
-    {
-        if (account_load_attrs(account)<0)
-	    {
-	        eventlog(eventlog_level_error,__FUNCTION__,"could not load attributes");
-	        return -1;
-    	}
-    }
-    curr = account->attrs;
-    if (!curr) /* if no keys in attr list then we need to insert it */
-    {
-	if (val) return account_insert_attr(account,key,val);
-	return 0;
-    }
-
-    newkey = storage->escape_key(key);
-    if (strcasecmp(curr->key,newkey)==0) /* if key is already the first in the attr list */
-    {
-	if (val)
-	{
-	    char * temp;
-	    
-	    temp = xstrdup(val);
-	    
-	    if (strcmp(curr->val,temp)!=0)
-		account_set_dirty(account);
-	    xfree((void *)curr->val); /* avoid warning */
-	    curr->val = temp;
-	    curr->dirty = 1;
-	}
-	else
-	{
-	    t_attribute * temp;
-
-	    temp = curr->next;
-
-	    account_set_dirty(account);
-	    xfree((void *)curr->key); /* avoid warning */
-	    xfree((void *)curr->val); /* avoid warning */
-	    xfree((void *)curr); /* avoid warning */
-
-	    account->attrs = temp;
-	}
-
-	if (key != newkey) xfree((void*)newkey);
-	return 0;
-    }
-    
-    for (; curr->next; curr=curr->next)
-	if (strcasecmp(curr->next->key,newkey)==0)
-	    break;
-
-    if (curr->next) /* if key is already in the attr list */
-    {
-	if (val)
-	{
-	    char * temp;
-	    
-	    temp = xstrdup(val);
-	    
-	    if (strcmp(curr->next->val,temp)!=0)
-	    {
-		account_set_dirty(account);
-		curr->next->dirty = 1;
-	    }
-	    xfree((void *)curr->next->val); /* avoid warning */
-	    curr->next->val = temp;
-	}
-	else
-	{
-	    t_attribute * temp;
-	    
-	    temp = curr->next->next;
-	    
-	    account_set_dirty(account);
-	    xfree((void *)curr->next->key); /* avoid warning */
-	    xfree((void *)curr->next->val); /* avoid warning */
-	    xfree(curr->next);
-	    
-	    curr->next = temp;
-	}
-
-	if (key != newkey) xfree((void*)newkey);
-	return 0;
-    }
-    
-    if (key != newkey) xfree((void*)newkey);
-
-    if (val) return account_insert_attr(account,key,val);
-
-    return 0;
-}
-
-static int _cb_load_attr(const char *key, const char *val, void *data)
-{
-    t_account *account = (t_account *)data;
-
-    return account_set_strattr(account, key, val);
-}
-
-static int account_load_attrs(t_account * account)
 {
     if (!account) {
 	eventlog(eventlog_level_error,__FUNCTION__,"got NULL account");
 	return -1;
     }
 
-    if (!account->storage) {
-	eventlog(eventlog_level_error,__FUNCTION__,"account has NULL filename");
+    if (!key) {
+	eventlog(eventlog_level_error,__FUNCTION__,"got NULL key");
 	return -1;
     }
 
-    
-    if (FLAG_ISSET(account->flags,ACCOUNT_FLAG_LOADED)) /* already done */
-	return 0;
-    if (FLAG_ISSET(account->flags,ACCOUNT_FLAG_DIRTY)) /* if not loaded, how dirty? */
-    {
-	eventlog(eventlog_level_error,__FUNCTION__,"can not load modified account");
-	return -1;
-    }
-
-    account_set_loaded(account); /* set now so set_strattr works */
-    doing_loadattrs = 1;
-    if (storage->read_attrs(account->storage, _cb_load_attr, account)) {
-        eventlog(eventlog_level_error, __FUNCTION__, "got error loading attributes");
-	return -1;
-    }
-    doing_loadattrs = 0;
-
-    account_clear_dirty(account);
-
-    return 0;
+    return attrlist_set_attr(account->attrlist, key, val);
 }
 
-extern void accounts_get_attr(const char * attribute)
-{
-/* FIXME: do it */
-}
-
-static t_account * account_load(t_storage_info *storage)
+static t_account * account_load(t_attrlist *attrlist)
 {
     t_account * account;
 
-    if (!(account = account_create(NULL,NULL)))
-    {
-	eventlog(eventlog_level_error,__FUNCTION__,"could not load account");
+    assert(attrlist);
+
+    if (!(account = account_create(NULL,NULL))) {
+	eventlog(eventlog_level_error,__FUNCTION__,"could not create account");
 	return NULL;
     }
 
-    account->storage = storage;
+    account->attrlist = attrlist;
 
     return account;
-}
-
-extern int accountlist_load_default(void)
-{
-    if (default_acct)
-	account_destroy(default_acct);
-
-    if (!(default_acct = account_load(storage->get_defacct())))
-    {
-        eventlog(eventlog_level_error,__FUNCTION__,"could not load default account template");
-	return -1;
-    }
-
-    if (account_load_attrs(default_acct)<0)
-    {
-	eventlog(eventlog_level_error,__FUNCTION__,"could not load default account template attributes");
-	return -1;
-    }
-    
-    eventlog(eventlog_level_debug,__FUNCTION__,"loaded default account template");
-
-    return 0;
 }
 
 static t_account * account_load_new(char const * name, unsigned uid)
 {
     t_account *account;
-    t_storage_info *info;
+    t_attrlist *attrlist;
 
     if (name && account_check_name(name)) return NULL;
 
     force_account_add = 1; /* disable the protection */
-    info = storage->read_account(name,uid);
-    if (!info) return NULL;
+    attrlist = attrlist_create_nameuid(name, uid);
+    if (!attrlist) return NULL;
 
-    if (!(account = account_load(info)))
-    {
-        eventlog(eventlog_level_error, __FUNCTION__,"could not load account from storage");
-        storage->free_info(info);
+    if (!(account = account_load(attrlist))) {
+        eventlog(eventlog_level_error, __FUNCTION__,"could not load account");
+        attrlist_destroy(attrlist);
+	force_account_add = 0;
         return NULL;
     }
-	
-    if (!accountlist_add_account(account))
-    {
+
+    if (!accountlist_add_account(account)) {
         eventlog(eventlog_level_error, __FUNCTION__,"could not add account to list");
         account_destroy(account);
+	force_account_add = 0;
         return NULL;
     }
 
@@ -728,20 +344,18 @@ static t_account * account_load_new(char const * name, unsigned uid)
     return account;
 }
 
-static int _cb_read_accounts2(t_storage_info *info, void *data)
+static int _cb_read_accounts(t_attrlist *attrlist, void *data)
 {
     unsigned int *count = (unsigned int *)data;
     t_account *account;
 
-    if (!(account = account_load(info)))
-    {
-        eventlog(eventlog_level_error, __FUNCTION__,"could not load account from storage");
-        storage->free_info(info);
+    if (!(account = account_load(attrlist))) {
+        eventlog(eventlog_level_error, __FUNCTION__,"could not load account");
+	attrlist_destroy(attrlist);
         return -1;
     }
 
-    if (!accountlist_add_account(account))
-    {
+    if (!accountlist_add_account(account)) {
         eventlog(eventlog_level_error, __FUNCTION__,"could not add account to list");
         account_destroy(account);
         return -1;
@@ -768,7 +382,7 @@ extern int accountlist_load_all(int flag)
     res = 0;
 
     force_account_add = 1; /* disable the protection */
-    switch(storage->read_accounts(flag,_cb_read_accounts2, &count))
+    switch(attrlist_read_accounts(flag, _cb_read_accounts, &count))
     {
 	case -1:
     	    eventlog(eventlog_level_error, __FUNCTION__,"got error reading users");
@@ -814,7 +428,7 @@ extern int accountlist_destroy(void)
 {
     t_entry *   curr;
     t_account * account;
-    
+
     HASHTABLE_TRAVERSE(accountlist_head,curr)
     {
 	if (!(account = entry_get_data(curr)))
@@ -823,12 +437,12 @@ extern int accountlist_destroy(void)
 	{
 	    if (account_flush(account, FS_FORCE)<0)
 		eventlog(eventlog_level_error,__FUNCTION__,"could not save account");
-	    
+
 	    account_destroy(account);
 	}
 	hashtable_remove_entry(accountlist_head,curr);
     }
-    
+
     HASHTABLE_TRAVERSE(accountlist_uid_head,curr)
     {
 	    hashtable_remove_entry(accountlist_head,curr);
@@ -855,12 +469,6 @@ extern t_hashtable * accountlist_uid(void)
 }
 
 
-extern void accountlist_unload_default(void)
-{
-    account_destroy(default_acct);
-}
-
-
 extern unsigned int accountlist_get_length(void)
 {
     return hashtable_get_length(accountlist_head);
@@ -869,86 +477,12 @@ extern unsigned int accountlist_get_length(void)
 
 extern int accountlist_save(unsigned flags)
 {
-    static t_elist *curr = &dirtylist;
-    static t_elist *next = NULL;
-    t_account *  account;
-    unsigned int scount;
-    unsigned int tcount;
-
-    scount = tcount = 0;
-    if (curr == &dirtylist || FLAG_ISSET(flags,FS_ALL)) {
-	curr = dirtylist.next;
-	next = curr->next;
-    }
-
-    /* elist_for_each_safe splitted into separate startup for userstep function */
-    for (; curr != &dirtylist; curr = next, next = curr->next)
-    {
-	if (!FLAG_ISSET(flags,FS_ALL) && tcount >= prefs_get_user_step()) break;
-	account = elist_entry(curr,t_account,dirtylist);
-	switch (account_save(account,flags))
-	{
-	case -1:
-	    eventlog(eventlog_level_error, __FUNCTION__,"could not save account");
-	    break;
-	case 1:
-	    scount++;
-	    break;
-	case 0:
-	default:
-	    break;
-	}
-	tcount++;
-    }
-
-    if (scount>0)
-	eventlog(eventlog_level_debug, __FUNCTION__,"saved %u of %u user accounts",scount,tcount);
-
-    if (!FLAG_ISSET(flags,FS_ALL) && curr != &dirtylist) return 1;
-
-    return 0;
+    return attrlayer_save(flags);
 }
 
 extern int accountlist_flush(unsigned flags)
 {
-    static t_elist *curr = &loadedlist;
-    static t_elist *next = NULL;
-    t_account *  account;
-    unsigned int fcount;
-    unsigned int tcount;
-
-    fcount = tcount = 0;
-    if (curr == &loadedlist || FLAG_ISSET(flags,FS_ALL)) {
-	curr = loadedlist.next;
-	next = curr->next;
-    }
-
-    /* elist_for_each_safe splitted into separate startup for userstep function */
-    for (; curr != &loadedlist; curr = next, next = curr->next)
-    {
-	if (!FLAG_ISSET(flags,FS_ALL) && tcount >= prefs_get_user_step()) break;
-	account = elist_entry(curr,t_account,loadedlist);
-	switch (account_flush(account,flags))
-	{
-	case -1:
-	    eventlog(eventlog_level_error, __FUNCTION__,"could not flush account");
-	    break;
-	case 1:
-	    fcount++;
-	    break;
-	case 0:
-	default:
-	    break;
-	}
-	tcount++;
-    }
-
-    if (fcount>0)
-	eventlog(eventlog_level_debug, __FUNCTION__,"flushed %u of %u user accounts",fcount,tcount);
-
-    if (!FLAG_ISSET(flags,FS_ALL) && curr != &loadedlist) return 1;
-
-    return 0;
+    return attrlayer_flush(flags);
 }
 
 extern t_account * accountlist_find_account(char const * username)
@@ -1136,42 +670,6 @@ extern t_account * accountlist_create_account(const char *username, const char *
 
     return res;
 }
-
-extern char const * account_get_first_key(t_account * account)
-{
-	if (!account) {
-		eventlog(eventlog_level_error,__FUNCTION__,"got NULL account");
-		return NULL;
-	}
-	if (!account->attrs) {
-		return NULL;
-	}
-	return account->attrs->key;
-}
-
-extern char const * account_get_next_key(t_account * account, char const * key)
-{
-	t_attribute * attr;
-
-	if (!account) {
-		eventlog(eventlog_level_error,__FUNCTION__,"got NULL account");
-		return NULL;
-	}
-	attr = account->attrs;
-	while (attr) {
-		if (strcmp(attr->key,key)==0) {
-			if (attr->next) {
-				return attr->next->key;
-			} else {
-				return NULL;
-			}
-		}
-		attr = attr->next;
-	}
-
-	return NULL;
-}
-
 
 extern int account_check_name(char const * name)
 {

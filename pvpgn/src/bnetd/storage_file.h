@@ -26,7 +26,7 @@ typedef const char t_file_info;
 typedef struct {
     void * (*read_attr)(const char *filename, const char *key);
     int (*read_attrs)(const char *filename, t_read_attr_func cb, void *data);
-    int (*write_attrs)(const char *filename, void *attributes);
+    int (*write_attrs)(const char *filename, const void *attributes);
 } t_file_engine;
 
 #endif /* INClUDED_STORAGE_FILE_TYPES */

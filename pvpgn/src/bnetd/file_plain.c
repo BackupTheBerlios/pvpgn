@@ -78,7 +78,6 @@
 #include "common/field_sizes.h"
 #include "common/bnethash.h"
 #define CLAN_INTERNAL_ACCESS
-#define ACCOUNT_INTERNAL_ACCESS
 #include "common/introtate.h"
 #include "account.h"
 #include "common/hashtable.h"
@@ -89,8 +88,9 @@
 #include "connection.h"
 #include "watch.h"
 #include "clan.h"
-#undef ACCOUNT_INTERNAL_ACCESS
 #undef CLAN_INTERNAL_ACCESS
+#include "common/elist.h"
+#include "attr.h"
 #include "common/tag.h"
 #include "common/setup_after.h"
 
@@ -98,7 +98,7 @@
 
 static void * plain_read_attr(const char *filename, const char *key);
 static int plain_read_attrs(const char *filename, t_read_attr_func cb, void *data);
-static int plain_write_attrs(const char *filename, void *attributes);
+static int plain_write_attrs(const char *filename, const void *attributes);
 
 /* file_engine struct populated with the functions above */
 
@@ -109,10 +109,11 @@ t_file_engine file_plain = {
 };
 
 
-static int plain_write_attrs(const char *filename, void *attributes)
+static int plain_write_attrs(const char *filename, const void *attributes)
 {
-    FILE *        accountfile;
-    t_attribute * attr;
+    FILE       *  accountfile;
+    t_hlist    *  curr;
+    t_attr     *  attr;
     char const *  key;
     char const *  val;
 
@@ -120,17 +121,19 @@ static int plain_write_attrs(const char *filename, void *attributes)
 	eventlog(eventlog_level_error, __FUNCTION__, "unable to open file \"%s\" for writing (fopen: %s)",filename,pstrerror(errno));
 	return -1;
     }
-   
-    for (attr=(t_attribute *)attributes; attr; attr=attr->next) {
-	if (attr->key)
-	    key = escape_chars(attr->key,strlen(attr->key));
+
+    hlist_for_each(curr, (t_hlist*)attributes) {
+	attr = hlist_entry(curr, t_attr, link);
+
+	if (attr_get_key(attr))
+	    key = escape_chars(attr_get_key(attr),strlen(attr_get_key(attr)));
 	else {
 	    eventlog(eventlog_level_error, __FUNCTION__, "attribute with NULL key in list");
 	    key = NULL;
 	}
 
-	if (attr->val)
-	    val = escape_chars(attr->val,strlen(attr->val));
+	if (attr_get_val(attr))
+	    val = escape_chars(attr_get_val(attr),strlen(attr_get_val(attr)));
 	else {
 	    eventlog(eventlog_level_error, __FUNCTION__, "attribute with NULL val in list");
 	    val = NULL;
@@ -147,6 +150,8 @@ static int plain_write_attrs(const char *filename, void *attributes)
 
 	if (key) xfree((void *)key); /* avoid warning */
 	if (val) xfree((void *)val); /* avoid warning */
+
+	attr_clear_dirty(attr);
     }
 
     if (fclose(accountfile)<0) {

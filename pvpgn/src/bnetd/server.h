@@ -40,6 +40,9 @@ typedef struct
 
 #endif
 
+#ifdef HAVE_TIME_H
+# include <time.h>
+#endif
 extern time_t now;
 
 #endif
