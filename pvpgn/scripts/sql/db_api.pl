@@ -4,8 +4,6 @@
 
 use DBI;
 
-$maxuserid = -1;
-
 sub db_init {
     my $dbhost = shift;
     my $dbname = shift;
@@ -42,14 +40,6 @@ sub db_set {
 	$query = "UPDATE $tab SET `$col` = '$nval' WHERE uid = $userid";
 #	print "$query\n";
 	$rv = $dbh->do($query) or die "Erorr while doing UPDATE!\n"
-    }
-}
-
-sub db_maxuid {
-    $maxuserid = shift;
-    
-    if ($maxuserid ne "") {
-	$dbh->do("UPDATE counters SET max_uid = '$maxuserid'");
     }
 }
 

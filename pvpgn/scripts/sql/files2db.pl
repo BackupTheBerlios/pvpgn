@@ -14,8 +14,6 @@ if (scalar(@ARGV) != 5) {
 $dirpath = $ARGV[0];
 $dirpath =~ s!(.*)/$!$1!;
 
-$max_uid = -1;
-
 $dbh = &db_init($ARGV[1], $ARGV[2], $ARGV[3], $ARGV[4]);
 
 opendir FILEDIR, $dirpath or die "Error opening filedir!\n";
@@ -38,8 +36,6 @@ while ($filename = readdir FILEDIR) {
 }
 
 closedir FILEDIR;
-
-&db_maxuid($max_uid);
 
 sub convertfile2db {
     my $filen = shift;
@@ -69,9 +65,6 @@ sub convertfile2db {
     }
     if ($userid ne "") {
 	&db_set($dbh, $userid, $alist);
-	if ($userid > $max_uid) {
-	    $max_uid = $userid;
-	}
     }
     close FILE;
     print "done\n";
