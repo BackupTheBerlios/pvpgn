@@ -2397,7 +2397,11 @@ static int _handle_channels_command(t_connection * c, char const *text)
       channel = elem_get_data(curr);
       if ((!tag || !prefs_get_hide_temp_channels() || channel_get_permanent(channel)) &&
 	  (!tag || !channel_get_clienttag(channel) ||
-	   strcasecmp(channel_get_clienttag(channel),tag)==0))
+	   strcasecmp(channel_get_clienttag(channel),tag)==0) &&
+	   ((channel_get_max(channel)!=0) || //only show restricted channels to OPs and Admins
+	    ((channel_get_max(channel)==0 && account_is_operator_or_admin(conn_get_account(c),NULL)))) &&
+	    (!(channel_get_flags(channel) & channel_flags_thevoid)) // don't list TheVoid
+	)
 	{
 	 /* FIXME: display opers correct again (aaron)
 	  if ((opr = channel_get_operator(channel)))
