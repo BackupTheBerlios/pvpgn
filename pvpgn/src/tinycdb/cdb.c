@@ -304,10 +304,20 @@ dofile_cdb(struct cdb_make *cdbmp, FILE *f, const char *fn, int flags)
     fget(f, buf, klen, NULL, 0);
     if (getc(f) != '-' || getc(f) != '>') badinput(fn);
     fget(f, buf + klen, vlen, NULL, 0);
-    if (getc(f) != '\n') badinput(fn);
+    switch (getc(f))
+	{
+	    case '\n': break;
+	    case '\r': if (getc(f)=='\n') break;
+	    default: badinput(fn);
+	}
     addrec(cdbmp, buf, klen, buf + klen, vlen, flags);
   }
-  if (c != '\n') badinput(fn);
+    switch (c)
+	{
+	    case '\n': break;
+	    case '\r': if (getc(f)=='\n') break;
+	    default: badinput(fn);
+	}
 }
 
 static void
