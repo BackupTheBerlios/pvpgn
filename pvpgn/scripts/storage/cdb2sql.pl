@@ -44,9 +44,15 @@ sub convert_cdb2sql {
     $userid = ""; undef @alist;
     while($line = <FILE>) {
 	if ($line =~ m/:.*->.*/) {
-	    $line =~ m/^\+[0-9]+,[0-9]+:([A-Za-z0-9]+)\\(.*)->(.*)$/;
+	    $line =~ m/^\+([0-9]+),([0-9]+):([A-Za-z0-9]+)\\(.*)$/;
 
-	    $tab = $1;
+	    # key length and value length
+	    $keylen = $1; $vallen = $2;
+
+	    $tab = $3;
+	    $tab =~ tr/A-Z/a-z/;
+	    $str = $4;
+
 	    # skip Team as we now have another team structure
 	    if ($tab =~ m/^team$/i) {
 		print STDERR "WARNING: skipping Team information!\n";
@@ -57,8 +63,8 @@ sub convert_cdb2sql {
 	    }
 
 	    $alist[$count]{tab} = $tab;
-	    $alist[$count]{col} = &escape_key($2);
-	    $alist[$count]{val} = $3;
+	    $alist[$count]{col} = &escape_key(substr($str, 0, $keylen - length($tab) - 1));
+	    $alist[$count]{val} = substr($str, $keylen - length($tab) + 1);
 
 	    if ($alist[$count]{col} =~ m!userid$!) {
 		$userid = $alist[$count]{val};
