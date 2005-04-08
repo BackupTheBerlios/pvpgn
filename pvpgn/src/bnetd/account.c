@@ -171,6 +171,11 @@ static t_account * account_create(char const * username, char const * passhash1)
             eventlog(eventlog_level_error,__FUNCTION__,"could not set passhash1");
             goto err;
         }
+
+        if (account_set_numattr(account,"BNET\\acct\\ctime",(unsigned int)now)) {
+            eventlog(eventlog_level_error,__FUNCTION__,"could not set ctime");
+            goto err;
+        }
     }
 
     return account;
