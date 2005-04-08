@@ -861,7 +861,7 @@ void _sql_db_set_version(int version)
     char query[1024];
 
     sprintf(query, "UPDATE pvpgn SET value = '%d' WHERE name = 'db_version';", version);
-    if (sql->query(query))
+    if (sql->query(query) || sql->affected_rows() < 1)
     {
 	sql->query("CREATE TABLE pvpgn (name varchar(128) NOT NULL PRIMARY KEY, value varchar(255));");
 	sprintf(query, "INSERT INTO pvpgn (name, value) VALUES('db_version', '%d');", version);
