@@ -962,6 +962,12 @@ Also, what is the upper player limit on WCII... 8 like on Starcraft?
 	{
 	  char         difficulty[2];
 	  unsigned int bngdifficulty;
+	  
+	  if (!strlen(gameinfo)) 
+	  {
+	      eventlog(eventlog_level_info,__FUNCTION__, "got empty gameinfo (from D2 client)");
+	      return -1;
+	  }
 	
 	  difficulty[0] = gameinfo[0];
 	  difficulty[1] = '\0';
@@ -973,9 +979,9 @@ Also, what is the upper player limit on WCII... 8 like on Starcraft?
 	  game_set_difficulty(game,bngdifficulty);
 	  game_set_description(game,&gameinfo[1]);
 
-	  if ((game->type == game_type_diablo2closed) && (clienttag==CLIENTTAG_DIABLO2DV_UINT))
+	  if ((game->type == game_type_diablo2closed))
 	  {
-	    eventlog(eventlog_level_debug,__FUNCTION__,"D2 classic bug workarround needed (open games tagged as closed)");
+	    eventlog(eventlog_level_debug,__FUNCTION__,"D2 bug workarround needed (open games tagged as closed)");
 	    game->type = game_type_diablo2open;
 	  }
 	}
@@ -1008,7 +1014,7 @@ If the corresponding bit is a '0' then subtract 1 from the character.
 
 	if (!strlen(gameinfo)) 
 	{
-	    eventlog(eventlog_level_info,__FUNCTION__, "got empty gameinfo (W3 client joining PG/AT)");
+	    eventlog(eventlog_level_info,__FUNCTION__, "got empty gameinfo (from W3 client)");
 	    return -1;
 	}
     
