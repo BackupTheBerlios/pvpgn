@@ -1,5 +1,10 @@
 PvPGN Version History:
 
+ Changelog for 1.7.6 (since 1.7.5)
+===================================
+[MISC]
+ -- renamed config variable 'servername' to 'hostname' in bnetd.conf
+
  Changelog for 1.7.5 (since 1.7.4)
 ===================================
 

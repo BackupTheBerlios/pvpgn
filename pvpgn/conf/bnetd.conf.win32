@@ -478,9 +478,9 @@ initkill_timer = 120
 # specifed then 6667 will be used.
 #ircaddrs = ":6667"
 
-# This is the server name used for IRC connections. Set this to your
-# server name, if the automatic detection doesn't correctly.
-#servername = "none"
+# This is the hostname used for IRC connections. Set this to your
+# hostname, if the automatic detection doesn't correctly.
+#hostname = "none"
 
 # Set this to the desired IRC connection timeout in seconds.
 #irc_latency = 180

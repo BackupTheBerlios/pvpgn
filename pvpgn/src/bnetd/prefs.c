@@ -74,7 +74,7 @@ static struct {
     unsigned int userflush;
     unsigned int userstep;
 
-    char const * servername;
+    char const * hostname;
 
     unsigned int track;
     char const * location;
@@ -238,9 +238,9 @@ static int conf_set_userstep(const char *valstr);
 static const char *conf_get_userstep(void);
 static int conf_setdef_userstep(void);
 
-static int conf_set_servername(const char *valstr);
-static const char *conf_get_servername(void);
-static int conf_setdef_servername(void);
+static int conf_set_hostname(const char *valstr);
+static const char *conf_get_hostname(void);
+static int conf_setdef_hostname(void);
 
 static int conf_set_track(const char *valstr);
 static const char *conf_get_track(void);
@@ -656,7 +656,7 @@ static t_conf_entry conf_table[] =
     { "usersync",               conf_set_usersync,             conf_get_usersync,     conf_setdef_usersync},
     { "userflush",              conf_set_userflush,            conf_get_userflush,    conf_setdef_userflush},
     { "userstep",               conf_set_userstep,             conf_get_userstep,     conf_setdef_userstep},
-    { "servername",             conf_set_servername,           conf_get_servername,   conf_setdef_servername},
+    { "hostname",               conf_set_hostname,             conf_get_hostname,     conf_setdef_hostname},
     { "track",                  conf_set_track,                conf_get_track,        conf_setdef_track},
     { "location",               conf_set_location,             conf_get_location,     conf_setdef_location},
     { "description",            conf_set_description,          conf_get_description,  conf_setdef_description},
@@ -1043,24 +1043,24 @@ static const char* conf_get_userstep(void)
 }
 
 
-extern char const * prefs_get_servername(void)
+extern char const * prefs_get_hostname(void)
 {
-    return prefs_runtime_config.servername;
+    return prefs_runtime_config.hostname;
 }
 
-static int conf_set_servername(const char *valstr)
+static int conf_set_hostname(const char *valstr)
 {
-    return conf_set_str(&prefs_runtime_config.servername,valstr,NULL);
+    return conf_set_str(&prefs_runtime_config.hostname,valstr,NULL);
 }
 
-static int conf_setdef_servername(void)
+static int conf_setdef_hostname(void)
 {
-    return conf_set_str(&prefs_runtime_config.servername,NULL,"");
+    return conf_set_str(&prefs_runtime_config.hostname,NULL,"");
 }
 
-static const char* conf_get_servername(void)
+static const char* conf_get_hostname(void)
 {
-    return prefs_runtime_config.servername;
+    return prefs_runtime_config.hostname;
 }
 
 

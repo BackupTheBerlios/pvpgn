@@ -170,7 +170,7 @@ static volatile time_t sigexittime=0;
 static volatile int do_restart=0;
 static volatile int do_save=0;
 static volatile int got_epipe=0;
-static char const * server_name=NULL;
+static char const * server_hostname=NULL;
 
 extern void server_quit_delay(int delay)
 {
@@ -765,7 +765,7 @@ static int sd_tcpoutput(t_connection * c)
     /* not reached */
 }
 
-void server_check_and_fix_name(char const * sname)
+void server_check_and_fix_hostname(char const * sname)
 {
     int ok = 1;
     char * tn = (char *)sname;
@@ -773,7 +773,7 @@ void server_check_and_fix_name(char const * sname)
 
     if (!isalnum((int)*sn))
     {
-	eventlog(eventlog_level_error,__FUNCTION__,"servername contains invalid first symbol (must be alphanumeric)");
+	eventlog(eventlog_level_error,__FUNCTION__,"hostname contains invalid first symbol (must be alphanumeric)");
 	*tn='a';
     }
     tn++;
@@ -792,24 +792,24 @@ void server_check_and_fix_name(char const * sname)
     *tn='\0';
 
     if (!ok)
-      eventlog(eventlog_level_error,__FUNCTION__,"servername contains invalid symbol(s) (must be alphanumeric, '-' or '.') - skipped those symbols");
+      eventlog(eventlog_level_error,__FUNCTION__,"hostname contains invalid symbol(s) (must be alphanumeric, '-' or '.') - skipped those symbols");
 }
 
-extern void server_set_name(void)
+extern void server_set_hostname(void)
 {
     char temp[250];
-    char const * sn;
+    char const * hn;
 #ifdef HAVE_GETHOSTBYNAME
     struct hostent *   hp;
 #endif
 
-    if (server_name) {
-	xfree((void *)server_name); /* avoid warning */
-	server_name = NULL;
+    if (server_hostname) {
+	xfree((void *)server_hostname); /* avoid warning */
+	server_hostname = NULL;
     }
     
-    sn = prefs_get_servername();
-    if ((!sn)||(sn[0]=='\0')) {
+    hn = prefs_get_hostname();
+    if ((!hn)||(hn[0]=='\0')) {
     	if (gethostname(temp,sizeof(temp))<0) {
 #ifdef WIN32
 	    sprintf(temp,"localhost");
@@ -822,46 +822,46 @@ extern void server_set_name(void)
     	hp = gethostbyname(temp);
     	if (!hp || !hp->h_name) {
 #endif
-    	    server_name = xstrdup(temp);
+    	    server_hostname = xstrdup(temp);
 #ifdef HAVE_GETHOSTBYNAME
     	} else {
 	    int i=0;
 
 	    if (strchr(hp->h_name,'.'))
 	    	/* Default name is already a FQDN */
-	    	server_name = xstrdup(hp->h_name);
+	    	server_hostname = xstrdup(hp->h_name);
 	    /* ... if not we have to examine the aliases */
-	    while (!server_name && hp->h_aliases && hp->h_aliases[i]) {
+	    while (!server_hostname && hp->h_aliases && hp->h_aliases[i]) {
 		if (strchr(hp->h_aliases[i],'.'))
-		    server_name = xstrdup(hp->h_aliases[i]);
+		    server_hostname = xstrdup(hp->h_aliases[i]);
 	    	i++;
 	    }
-	    if (!server_name)
+	    if (!server_hostname)
 		/* Fall back to default name which might not be a FQDN */
-    	    	server_name = xstrdup(hp->h_name);
+    	    	server_hostname = xstrdup(hp->h_name);
     	}
 #endif
     } else {
-	server_name = xstrdup(sn);
+	server_hostname = xstrdup(hn);
     }
-    server_check_and_fix_name(server_name);
-    eventlog(eventlog_level_info,__FUNCTION__,"set servername to \"%s\"",server_name);
+    server_check_and_fix_hostname(server_hostname);
+    eventlog(eventlog_level_info,__FUNCTION__,"set hostname to \"%s\"",server_hostname);
 }
 
-extern char const * server_get_name(void)
+extern char const * server_get_hostname(void)
 {
-    if (!server_name)
+    if (!server_hostname)
     	return "(null)"; /* avoid crashes */
     else
-    	return server_name;
+    	return server_hostname;
 }
 
 
-extern void server_clear_name(void)
+extern void server_clear_hostname(void)
 {
-    if (server_name) {
-	xfree((void *)server_name); /* avoid warning */
-        server_name = NULL;
+    if (server_hostname) {
+	xfree((void *)server_hostname); /* avoid warning */
+        server_hostname = NULL;
     }
 }
 
@@ -1340,7 +1340,7 @@ static void _server_mainloop(t_addrlist *laddrs)
 	    /* FIXME: load new network settings */
 
 	    /* reload server name */
-	    server_set_name();
+	    server_set_hostname();
 
 	    attrlayer_load_default();
 

@@ -324,7 +324,7 @@ int pre_server_startup(void)
     connlist_create();
     gamelist_create();
     timerlist_create();
-    server_set_name();
+    server_set_hostname();
     channellist_create();
     if (helpfile_init(prefs_get_helpfile())<0)
 	eventlog(eventlog_level_error,__FUNCTION__,"could not load helpfile");
@@ -403,7 +403,7 @@ void post_server_shutdown(int status)
     	    ipbanlist_destroy();
     	    helpfile_unload();
     	    channellist_destroy();
-	    server_clear_name();
+	    server_clear_hostname();
     	    timerlist_destroy();
 	    gamelist_destroy();
 	    connlist_destroy();
