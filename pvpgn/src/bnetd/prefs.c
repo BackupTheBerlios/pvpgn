@@ -756,7 +756,7 @@ static t_conf_entry conf_table[] =
     { "max_connections",      	conf_set_max_connections,      conf_get_max_connections,conf_setdef_max_connections},
     { "sync_on_logoff",         conf_set_sync_on_logoff,       conf_get_sync_on_logoff,conf_setdef_sync_on_logoff},
     { "ladder_prefix",		conf_set_ladder_prefix,		conf_get_ladder_prefix,conf_setdef_ladder_prefix},
-    { NULL,             	NULL,                          NONE},
+    { NULL,			NULL,				NULL,				NONE},
   };
 
 extern int prefs_load(char const * filename)
