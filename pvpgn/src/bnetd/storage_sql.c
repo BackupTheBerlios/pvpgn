@@ -81,6 +81,9 @@
 #ifdef WITH_SQL_SQLITE3
 #include "sql_sqlite3.h"
 #endif
+#ifdef WITH_SQL_ODBC
+#include "sql_odbc.h"
+#endif
 #include "common/elist.h"
 #include "attr.h"
 #include "common/setup_after.h"
@@ -280,6 +283,20 @@ static int sql_init(const char *dbpath)
 	    break;
 	}
 #endif				/* WITH_SQL_SQLITE3 */
+#ifdef WITH_SQL_ODBC
+	if (strcasecmp(driver, "odbc") == 0)
+	{
+	    sql = &sql_odbc;
+	    if (sql->init(dbhost, dbport, dbsocket, dbname, dbuser, dbpass))
+	    {
+		eventlog(eventlog_level_error, __FUNCTION__, "got error init db");
+		sql = NULL;
+		free((void *) path);
+		return -1;
+	    }
+	    break;
+	}
+#endif				/* WITH_SQL_ODBC */
 	eventlog(eventlog_level_error, __FUNCTION__, "no driver found for '%s'", driver);
 	xfree((void *) path);
 	return -1;

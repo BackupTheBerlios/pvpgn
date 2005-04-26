@@ -374,7 +374,7 @@
 # define HAVE_EPOLL	1
 #endif
 
-#if defined(WITH_SQL_MYSQL) || defined(WITH_SQL_PGSQL) || defined(WITH_SQL_SQLITE3)
+#if defined(WITH_SQL_MYSQL) || defined(WITH_SQL_PGSQL) || defined(WITH_SQL_SQLITE3) || defined(WITH_SQL_ODBC)
 #define WITH_SQL	1
 #endif
 

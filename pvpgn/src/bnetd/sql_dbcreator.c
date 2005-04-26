@@ -519,7 +519,13 @@ int sql_dbcreator(t_sql_engine * sql)
 /*
 	sscanf(column->name,"%s",_column);
 	sprintf(query,"ALTER TABLE %s ALTER %s SET DEFAULT %s",table->name,_column,column->value);
-	sql->query(query);
+	
+	// If failed, try alternate language.  (From ZSoft for sql_odbc.)
+	if(sql->query(query)) {
+	    sprintf(query,"ALTER TABLE %s ADD DEFAULT %s FOR %s",table->name,column->value,_column);
+	    sql->query(query);
+	}
+	// ALTER TABLE BNET add default 'false' for auth_admin;
 */
       }
     }

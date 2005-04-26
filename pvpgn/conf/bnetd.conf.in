@@ -51,6 +51,7 @@
 # storage_path = sql:mode=mysql;host=127.0.0.1;name=PVPGN;user=pvpgn;pass=pvpgnrocks;default=0
 # storage_path = sql:mode=pgsql;host=127.0.0.1;name=pvpgn;user=pvpgn;pass=pvpgnrocks;default=0
 # storage_path = sql:mode=sqlite3;name=/usr/local/var/users.db;default=0
+# storage_path = sql:mode=odbc;name=PVPGN
 #----------------------------------------------------------------------------#
 
 storage_path = file:mode=plain;dir=/usr/local/var/users;clan=/usr/local/var/clans;team=/usr/local/var/teams;default=/usr/local/etc/bnetd_default_user.plain
