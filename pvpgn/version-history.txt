@@ -5,6 +5,9 @@ PvPGN Version History:
 [MISC]
  -- renamed config variable 'servername' to 'hostname' in bnetd.conf
 
+[STORAGE]
+ -- added ODBC storage support
+ 
  Changelog for 1.7.5 (since 1.7.4)
 ===================================
 

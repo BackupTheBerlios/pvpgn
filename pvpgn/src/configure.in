@@ -88,6 +88,8 @@ AC_ARG_WITH(mssql, [  --with-mssql            include MSSQL user accounts suppor
 
 AC_ARG_WITH(sqlite3, [  --with-sqlite3          include SQLite3 user accounts support ])
 
+AC_ARG_WITH(odbc, [  --with-odbc          include ODBC user accounts support ])
+
 extra_define=""
 dnl Enable poll()
 AC_ARG_ENABLE(poll,
@@ -343,6 +345,46 @@ if test "$with_sqlite3" = "yes" ; then
 	    AC_MSG_RESULT([found in $sqlite3_lib_path])
 	else
 	    AC_MSG_ERROR([not found, please install the SQLite3 libraries])
+	fi
+     ])
+fi
+
+odbc_include_path=""
+dnl Detecting odbc paths
+if test "$with_odbc" = "yes" ; then
+	AC_MSG_CHECKING([for odbc include path])
+	odbc_try_includes="/usr/include /usr/include/odbc /usr/local/include /usr/local/include/odbc /usr/local/odbc/include"
+	for i in `echo ${odbc_try_includes}`; do
+	    if test -f "${i}/sqlext.h" ; then
+		CPPFLAGS="${CPPFLAGS} -I${i}"
+		odbc_include_path=${i}
+		break
+	    fi
+	done
+	if test -n "$odbc_include_path" ; then
+	    AC_MSG_RESULT([found in $odbc_include_path])
+	else
+	    AC_MSG_ERROR([not found, please install the odbc includes])
+	fi
+fi
+
+odbc_lib_path=""
+if test "$with_odbc" = "yes" ; then
+     AC_CHECK_LIB(odbc, SQLConnect, [DEFINES="${DEFINES} -DWITH_SQL_ODBC" ; LIBS="${LIBS} -lodbc"], [
+	AC_MSG_CHECKING([for odbc lib path])
+	odbc_try_libs="/usr/lib /usr/lib/odbc /usr/local/lib /usr/local/lib/odbc /usr/local/odbc/lib"
+	for i in `echo ${odbc_try_libs}`; do
+	    if test -f "${i}/libodbc.so" -o -f "${i}/libodbc.a" ; then
+		save_ldflags="${LDFLAGS}"
+		LDFLAGS="${LDFLAGS} -L${i}"
+		AC_CHECK_LIB(odbc, SQLDisconnect, [DEFINES="${DEFINES} -DWITH_SQL_ODBC" ; LIBS="${LIBS} -lodbc" ; odbc_lib_path="${i}"], [LDFLAGS="${save_ldflags}"])
+		break
+	    fi
+	done
+	if test -n "$odbc_lib_path" ; then
+	    AC_MSG_RESULT([found in $odbc_lib_path])
+	else
+	    AC_MSG_ERROR([not found, please install the odbc libraries])
 	fi
      ])
 fi
