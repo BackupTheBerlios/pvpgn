@@ -241,8 +241,8 @@ static int handle_event_whisper(t_account *account, char const *gamename, t_clie
 	        sprintf(msg,"Your friend %s has entered a %s game",myusername,game_title);
     	}
         if (event == watch_event_leavegame)sprintf(msg,"Your friend %s has left a %s game.",myusername,game_title);
-        if (event == watch_event_login)    sprintf(msg,"Your friend %s has entered the PvPGN Realm.",myusername);
-        if (event == watch_event_logout)   sprintf(msg,"Your friend %s has left the PvPGN Realm",myusername);
+        if (event == watch_event_login)    sprintf(msg,"Your friend %s has entered %s.",myusername,prefs_get_servername());
+        if (event == watch_event_logout)   sprintf(msg,"Your friend %s has left %s.",myusername,prefs_get_servername());
         LIST_TRAVERSE(flist,curr)
         { 
             if (!(fr = elem_get_data(curr)))
@@ -256,10 +256,9 @@ static int handle_event_whisper(t_account *account, char const *gamename, t_clie
             if (dest_c==NULL) /* If friend is offline, go on to next */
 	        continue;
             else { 
-	    	if (!my_c) my_c = dest_c;
     		cnt++;	/* keep track of successful whispers */
 	    	if(friend_get_mutual(fr))
-        	    message_send_text(dest_c,message_type_whisper,my_c,msg);
+        	    message_send_text(dest_c,message_type_whisper,NULL,msg);
 	    }
     	}
     }
@@ -276,8 +275,8 @@ static int handle_event_whisper(t_account *account, char const *gamename, t_clie
     }
 
     if (event == watch_event_leavegame)sprintf(msg,"Watched user %s has left a %s game.",myusername,game_title);
-    if (event == watch_event_login)    sprintf(msg,"Watched user %s has entered the PvPGN Realm.",myusername);
-    if (event == watch_event_logout)   sprintf(msg,"Watched user %s has left the PvPGN Realm",myusername);
+    if (event == watch_event_login)    sprintf(msg,"Watched user %s has entered %s.",myusername,prefs_get_servername());
+    if (event == watch_event_logout)   sprintf(msg,"Watched user %s has left %s",myusername,prefs_get_servername());
 
     LIST_TRAVERSE_CONST(watchlist_head,curr)
     {
@@ -289,8 +288,7 @@ static int handle_event_whisper(t_account *account, char const *gamename, t_clie
 	}
 	if (pair->owner && (!pair->who || pair->who==account) && ((!pair->clienttag) || (clienttag == pair->clienttag)) && (pair->what&event))
 	{
-	    if (!my_c) my_c = pair->owner;
-	    message_send_text(pair->owner,message_type_whisper,my_c,msg);
+	    message_send_text(pair->owner,message_type_whisper,NULL,msg);
 	}
     }
   

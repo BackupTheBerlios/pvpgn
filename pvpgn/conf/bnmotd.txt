@@ -1,4 +1,4 @@
-%IHello %l, welcome to a PvPGN Server!
+%IHello %l, welcome to %s!
 %IRunning version %v on %h.
 %IThis server is hosted by %H
 %I

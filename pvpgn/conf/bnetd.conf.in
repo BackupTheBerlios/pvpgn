@@ -433,6 +433,9 @@ contact_email = "unknown"
 # Server network info                                                        #
 #----------------------------------------------------------------------------#
 
+# Servername by which the server identifies itself (default: "PvPGN Realm")
+#servername = "PvPGN Realm"
+
 # Set this to the maximum number of concurrent connections allowed on 
 # this server (minimum 32). This limit sets a general server connection 
 # limit, NOT the concurrent user limit (for that see next option)

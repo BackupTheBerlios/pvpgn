@@ -206,6 +206,11 @@ extern char * message_format_line(t_connection const * c, char const * in)
 		out[outpos+MAX_INC-1] = '\0';
 		outpos += strlen(&out[outpos]);
 		break;
+
+	    case 's':
+		sprintf(&out[outpos],"%s",prefs_get_servername());
+		outpos += strlen(&out[outpos]);
+		break;
 		
 	    case 't':
 		sprintf(&out[outpos],"%s",tag_uint_to_str(clienttag_str,conn_get_clienttag(c)));
@@ -356,11 +361,6 @@ static int message_telnet_format(t_packet * packet, t_message_type type, t_conne
 	}
 	break;
     case message_type_whisper:
-	if (!me)
-	{
-	    eventlog(eventlog_level_error,__FUNCTION__,"got NULL connection for %s",message_type_get_str(type));
-	    return -1;
-	}
 	if (!text)
 	{
 	    eventlog(eventlog_level_error,__FUNCTION__,"got NULL text for %s",message_type_get_str(type));
@@ -372,7 +372,11 @@ static int message_telnet_format(t_packet * packet, t_message_type type, t_conne
 	    char const * tname;
 	    char const * newtext;
 	    
-	    tname = conn_get_chatcharname(me, dst);
+	    if (me)
+		tname = conn_get_chatcharname(me, dst);
+	    else
+		tname = prefs_get_servername();
+	    
 	    if ((newtext = escape_chars(text,strlen(text))))
 	    {
 		msgtemp = xmalloc(strlen(tname)+8+strlen(newtext)+4);
@@ -384,15 +388,11 @@ static int message_telnet_format(t_packet * packet, t_message_type type, t_conne
 		msgtemp = xmalloc(16+strlen(tname));
 		sprintf(msgtemp,"<from %s> \r\n",tname);
 	    }
-	    conn_unget_chatcharname(me,tname);
+	    if (me)
+	        conn_unget_chatcharname(me,tname);
 	}
 	break;
     case message_type_talk:
-	if (!me)
-	{
-	    eventlog(eventlog_level_error,__FUNCTION__,"got NULL connection for %s",message_type_get_str(type));
-	    return -1;
-	}
 	if (!text)
 	{
 	    eventlog(eventlog_level_error,__FUNCTION__,"got NULL text for %s",message_type_get_str(type));
@@ -404,7 +404,11 @@ static int message_telnet_format(t_packet * packet, t_message_type type, t_conne
 	    char const * tname;
 	    char const * newtext;
 	    
-	    tname = conn_get_chatcharname(me, me); /* FIXME: second should be dst but cache gets in the way */
+	    if (me)
+	        tname = conn_get_chatcharname(me, dst);
+	    else
+		tname = prefs_get_servername();
+	    
 	    if ((newtext = escape_chars(text,strlen(text))))
 	    {
 		msgtemp = xmalloc(strlen(tname)+4+strlen(newtext)+4);
@@ -416,7 +420,8 @@ static int message_telnet_format(t_packet * packet, t_message_type type, t_conne
 		msgtemp = xmalloc(strlen(tname)+8);
 		sprintf(msgtemp,"<%s> \r\n",tname);
 	    }
-	    conn_unget_chatcharname(me,tname);
+	    if (me)
+	        conn_unget_chatcharname(me,tname);
 	}
 	break;
     case message_type_broadcast:
@@ -591,7 +596,7 @@ static int message_telnet_format(t_packet * packet, t_message_type type, t_conne
 	    char const * tname;
 	    char const * newtext;
 	    
-	    tname = conn_get_chatcharname(me, me); /* FIXME: second should be dst but cache gets in the way */
+	    tname = conn_get_chatcharname(me, dst);
 	    if ((newtext = escape_chars(text,strlen(text))))
 	    {
 		msgtemp = xmalloc(strlen(tname)+4+strlen(newtext)+4);
@@ -729,11 +734,6 @@ static int message_bot_format(t_packet * packet, t_message_type type, t_connecti
 	    }
 	    break;
 	case message_type_whisper:
-	    if (!me)
-	    {
-		eventlog(eventlog_level_error,__FUNCTION__,"got NULL connection for %s",message_type_get_str(type));
-		return -1;
-	    }
 	    if (!text)
 	    {
 		eventlog(eventlog_level_error,__FUNCTION__,"got NULL text for %s",message_type_get_str(type));
@@ -744,10 +744,15 @@ static int message_bot_format(t_packet * packet, t_message_type type, t_connecti
 	    {
 		char const * tname;
 		
-		tname = conn_get_chatcharname(me, dst);
+		if (me)
+		    tname = conn_get_chatcharname(me, dst);
+		else
+		    tname = prefs_get_servername();
+		
 		msgtemp = xmalloc(32+strlen(tname)+32+strlen(text));
 		sprintf(msgtemp,"%u %s %s %04x \"%s\"\r\n",EID_WHISPER,"WHISPER",tname,conn_get_flags(me)|dstflags,text);
-		conn_unget_chatcharname(me,tname);
+		if (me)
+		    conn_unget_chatcharname(me,tname);
 	    }
 	    break;
 	case message_type_talk:
@@ -766,7 +771,7 @@ static int message_bot_format(t_packet * packet, t_message_type type, t_connecti
 	    {
 		char const * tname;
 		
-		tname = conn_get_chatcharname(me, me); /* FIXME: second should be dst but cache gets in the way */
+		tname = conn_get_chatcharname(me, dst);
 		msgtemp = xmalloc(32+strlen(tname)+32+strlen(text));
 		sprintf(msgtemp,"%u %s %s %04x \"%s\"\r\n",EID_TALK,"TALK",tname,conn_get_flags(me)|dstflags,text);
 		conn_unget_chatcharname(me,tname);
@@ -890,7 +895,7 @@ static int message_bot_format(t_packet * packet, t_message_type type, t_connecti
 	    {
 		char const * tname;
 		
-		tname = conn_get_chatcharname(me, me); /* FIXME: second should be dst but cache gets in the way */
+		tname = conn_get_chatcharname(me, dst);
 		msgtemp = xmalloc(32+strlen(tname)+32+strlen(text));
 		sprintf(msgtemp,"%u %s %s %04x \"%s\"\r\n",EID_EMOTE,"EMOTE",tname,conn_get_flags(me)|dstflags,text);
 		conn_unget_chatcharname(me,tname);
@@ -1001,11 +1006,6 @@ static int message_bnet_format(t_packet * packet, t_message_type type, t_connect
 	}
 	break;
     case message_type_whisper:
-	if (!me)
-	{
-	    eventlog(eventlog_level_error,__FUNCTION__,"got NULL connection for %s",message_type_get_str(type));
-	    return -1;
-	}
 	if (!text)
 	{
 	    eventlog(eventlog_level_error,__FUNCTION__,"got NULL text for %s",message_type_get_str(type));
@@ -1016,14 +1016,20 @@ static int message_bnet_format(t_packet * packet, t_message_type type, t_connect
         bn_int_set(&packet->u.server_message.type,SERVER_MESSAGE_TYPE_WHISPER);
 	bn_int_set(&packet->u.server_message.flags,conn_get_flags(me)|dstflags);
 	bn_int_set(&packet->u.server_message.latency,conn_get_latency(me));
+	
+	if (me)
 	{
 	    char const * tname;
 	    
 	    tname = conn_get_chatcharname(me, dst);
 	    packet_append_string(packet,tname);
 	    conn_unget_chatcharname(me,tname);
-	    packet_append_string(packet,text);
 	}
+	else
+	packet_append_string(packet,prefs_get_servername());
+		
+        packet_append_string(packet,text);
+	
 	break;
     case message_type_talk:
 	if (!me)
@@ -1044,7 +1050,7 @@ static int message_bnet_format(t_packet * packet, t_message_type type, t_connect
 	{
 	    char const * tname;
 	    
-	    tname = conn_get_chatcharname(me, dst); /* FIXME: second should be dst but cache gets in the way */
+	    tname = conn_get_chatcharname(me, dst);
 	    packet_append_string(packet,tname);
 	    conn_unget_chatcharname(me,tname);
 	    packet_append_string(packet,text);
@@ -1249,7 +1255,7 @@ static int message_bnet_format(t_packet * packet, t_message_type type, t_connect
 	{
 	    char const * tname;
 	    
-	    tname = conn_get_chatcharname(me, me); /* FIXME: second should be dst but cache gets in the way */
+	    tname = conn_get_chatcharname(me, dst);
 	    packet_append_string(packet,tname);
 	    conn_unget_chatcharname(me,tname);
 	    packet_append_string(packet,text);

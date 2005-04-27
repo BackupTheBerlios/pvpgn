@@ -182,6 +182,7 @@
 #define BNETD_SERV_PORT       6112
 #define BNETD_W3ROUTE_ADDR    "0.0.0.0"
 #define BNETD_W3ROUTE_PORT    6200
+#define BNETD_SERVERNAME      "PvPGN Realm"
 #define BNETD_IRC_ADDRS       "" /* this means none */
 #define BNETD_IRC_PORT        6667 /* used if port not specified */
 #define BNETD_TRACK_ADDRS     "track.pvpgn.org"

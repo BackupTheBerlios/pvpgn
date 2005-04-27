@@ -767,7 +767,10 @@ extern int irc_message_format(t_packet * packet, t_message_type type, t_connecti
     }
 
     msg = NULL;
-    ctag = clienttag_uint_to_str(conn_get_clienttag(me));
+    if (me)
+        ctag = clienttag_uint_to_str(conn_get_clienttag(me));
+    else
+	ctag = "SRVR";
         
     switch (type)
     {
@@ -794,16 +797,28 @@ extern int irc_message_format(t_packet * packet, t_message_type type, t_connecti
     	{
     	    char const * dest;
 	    char temp[MAX_IRC_MESSAGE_LEN];
-    	    from.nick = conn_get_chatname(me);
+
+	    if (me)
+	    {
+    	        from.nick = conn_get_chatname(me);
+    	        from.host = addr_num_to_ip_str(conn_get_addr(me));
+	    }
+	    else
+	    {
+		from.nick = server_get_hostname();
+		from.host = server_get_hostname();
+	    }
+	    
             from.user = ctag;
-    	    from.host = addr_num_to_ip_str(conn_get_addr(me));
+	    
     	    if (type==message_type_talk)
     	    	dest = irc_convert_channel(conn_get_channel(me)); /* FIXME: support more channels and choose right one! */
 	    else
 	        dest = ""; /* will be replaced with username in postformat */
 	    sprintf(temp,":%s",text);
     	    msg = irc_message_preformat(&from,"PRIVMSG",dest,temp);
-    	    conn_unget_chatname(me,from.nick);
+	    if (me)
+    	        conn_unget_chatname(me,from.nick);
     	}
         break;
     case message_type_emote:

@@ -3,7 +3,11 @@ PvPGN Version History:
  Changelog for 1.7.6 (since 1.7.5)
 ===================================
 [MISC]
- -- renamed config variable 'servername' to 'hostname' in bnetd.conf
+ -- renamed old config variable 'servername' to 'hostname' in bnetd.conf
+ -- added 'servername' config variable in bnetd.conf for server identification
+ -- expanded bnmotd.conf to use 'servername'
+ -- made the hardcoded WAR3 motd use 'servername'
+ -- fixed friends join/leave whispers to come from 'servername'
 
 [STORAGE]
  -- added ODBC storage support

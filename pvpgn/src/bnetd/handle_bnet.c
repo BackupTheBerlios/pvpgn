@@ -2460,7 +2460,7 @@ static int _client_motdw3(t_connection * c, t_packet const *const packet)
     bn_int_set(&rpacket->u.server_motd_w3.timestamp, motdd.fnews + 1);
     bn_int_set(&rpacket->u.server_motd_w3.timestamp2, SERVER_MOTD_W3_WELCOME);
 
-    sprintf(serverinfo, "Welcome to the " PVPGN_SOFTWARE " Version " PVPGN_VERSION "\r\n\r\nThere are currently %u user(s) in %u games of %s, and %u user(s) playing %u games and chatting In %u channels in the PvPGN Realm.\r\n%s", conn_get_user_count_by_clienttag(conn_get_clienttag(c)), game_get_count_by_clienttag(ctag), clienttag_get_title(conn_get_clienttag(c)), connlist_login_get_length(), gamelist_get_length(), channellist_get_length(), prefs_get_server_info());
+    sprintf(serverinfo, "Welcome to the " PVPGN_SOFTWARE " Version " PVPGN_VERSION "\r\n\r\nThere are currently %u user(s) in %u games of %s, and %u user(s) playing %u games and chatting in %u channels in %s.\r\n%s", conn_get_user_count_by_clienttag(conn_get_clienttag(c)), game_get_count_by_clienttag(ctag), clienttag_get_title(conn_get_clienttag(c)), connlist_login_get_length(), gamelist_get_length(), channellist_get_length(), prefs_get_servername(),prefs_get_server_info());
 
     packet_append_string(rpacket, serverinfo);
 
