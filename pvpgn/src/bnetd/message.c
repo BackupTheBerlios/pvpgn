@@ -750,7 +750,7 @@ static int message_bot_format(t_packet * packet, t_message_type type, t_connecti
 		    tname = prefs_get_servername();
 		
 		msgtemp = xmalloc(32+strlen(tname)+32+strlen(text));
-		sprintf(msgtemp,"%u %s %s %04x \"%s\"\r\n",EID_WHISPER,"WHISPER",tname,conn_get_flags(me)|dstflags,text);
+		sprintf(msgtemp,"%u %s %s %04x \"%s\"\r\n",EID_WHISPER,"WHISPER",tname,me?conn_get_flags(me)|dstflags:dstflags,text);
 		if (me)
 		    conn_unget_chatcharname(me,tname);
 	    }
@@ -1014,8 +1014,8 @@ static int message_bnet_format(t_packet * packet, t_message_type type, t_connect
 	if (dstflags&MF_X)
 	    return -1; /* player is ignored */
         bn_int_set(&packet->u.server_message.type,SERVER_MESSAGE_TYPE_WHISPER);
-	bn_int_set(&packet->u.server_message.flags,conn_get_flags(me)|dstflags);
-	bn_int_set(&packet->u.server_message.latency,conn_get_latency(me));
+	bn_int_set(&packet->u.server_message.flags,me?conn_get_flags(me)|dstflags:dstflags);
+	bn_int_set(&packet->u.server_message.latency,me?conn_get_latency(me):0);
 	
 	if (me)
 	{
