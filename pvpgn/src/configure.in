@@ -88,7 +88,7 @@ AC_ARG_WITH(mssql, [  --with-mssql            include MSSQL user accounts suppor
 
 AC_ARG_WITH(sqlite3, [  --with-sqlite3          include SQLite3 user accounts support ])
 
-AC_ARG_WITH(odbc, [  --with-odbc          include ODBC user accounts support ])
+AC_ARG_WITH(odbc, [  --with-odbc             include ODBC user accounts support ])
 
 extra_define=""
 dnl Enable poll()
