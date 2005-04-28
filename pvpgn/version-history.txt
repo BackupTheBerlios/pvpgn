@@ -10,6 +10,8 @@ PvPGN Version History:
  -- fixed friends join/leave whispers to come from 'servername'
 
 [STORAGE]
+ -- updated sql_DB_layout.conf and the code handling it
+ -- SQL storage types now use a unique index for 'acct_username' (speedup)
  -- added ODBC storage support
  
  Changelog for 1.7.5 (since 1.7.4)
