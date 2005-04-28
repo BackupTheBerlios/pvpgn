@@ -86,9 +86,7 @@
 #include "server.h"
 #include "prefs.h"
 #include "d2ladder.h"
-#ifndef WIN32
 #include "handle_signal.h"
-#endif
 #include "common/addr.h"
 #include "common/list.h"
 #include "common/hashtable.h"

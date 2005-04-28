@@ -22,9 +22,13 @@
 #include <windows.h>
 #include <windowsx.h>
 #include <richedit.h>
+#include <process.h>
 #include "d2cs_resource.h"
 #include "common/eventlog.h"
 #include "d2cs/version.h"
+#include "d2cs/handle_signal.h"
+#include "service.h"
+#include "winmain.h"
 #include "common/setup_after.h"
 
 #define WM_SHELLNOTIFY          (WM_USER+1)
