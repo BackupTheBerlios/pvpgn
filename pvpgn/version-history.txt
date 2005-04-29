@@ -8,6 +8,8 @@ PvPGN Version History:
  -- expanded bnmotd.conf to use 'servername'
  -- made the hardcoded WAR3 motd use 'servername'
  -- fixed friends join/leave whispers to come from 'servername'
+ -- fixed bug where d2cs was not able to set realmname even
+ when 'allow_d2cs_setname' was set to 'true' in bnetd.conf
 
 [STORAGE]
  -- updated sql_DB_layout.conf and the code handling it
