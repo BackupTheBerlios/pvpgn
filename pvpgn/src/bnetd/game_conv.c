@@ -104,11 +104,19 @@ extern t_game_type bngreqtype_to_gtype(t_clienttag clienttag, unsigned short bng
     {
 	switch (bngtype)
 	{
-	case CLIENT_GAMELISTREQ_ALL:
-	    return game_type_all;
+	case CLIENT_GAMETYPE_DIABLO_0:
 	case CLIENT_GAMETYPE_DIABLO_1:
 	case CLIENT_GAMETYPE_DIABLO_2:
 	case CLIENT_GAMETYPE_DIABLO_3:
+	case CLIENT_GAMETYPE_DIABLO_4:
+	case CLIENT_GAMETYPE_DIABLO_5:
+	case CLIENT_GAMETYPE_DIABLO_6:
+	case CLIENT_GAMETYPE_DIABLO_7:
+	case CLIENT_GAMETYPE_DIABLO_8:
+	case CLIENT_GAMETYPE_DIABLO_9:
+	case CLIENT_GAMETYPE_DIABLO_a:
+	case CLIENT_GAMETYPE_DIABLO_b:
+	case CLIENT_GAMETYPE_DIABLO_c:
 	    return game_type_diablo;
 	default:
 	    eventlog(eventlog_level_error,__FUNCTION__,"unknown Diablo bnet game type \"%s\" %hu",tag_uint_to_str(clienttag_str,clienttag),bngtype);
@@ -222,9 +230,19 @@ extern t_game_type bngtype_to_gtype(t_clienttag clienttag, unsigned short bngtyp
     {
 	switch (bngtype)
 	{
+	case CLIENT_GAMETYPE_DIABLO_0:
 	case CLIENT_GAMETYPE_DIABLO_1:
 	case CLIENT_GAMETYPE_DIABLO_2:
 	case CLIENT_GAMETYPE_DIABLO_3:
+	case CLIENT_GAMETYPE_DIABLO_4:
+	case CLIENT_GAMETYPE_DIABLO_5:
+	case CLIENT_GAMETYPE_DIABLO_6:
+	case CLIENT_GAMETYPE_DIABLO_7:
+	case CLIENT_GAMETYPE_DIABLO_8:
+	case CLIENT_GAMETYPE_DIABLO_9:
+	case CLIENT_GAMETYPE_DIABLO_a:
+	case CLIENT_GAMETYPE_DIABLO_b:
+	case CLIENT_GAMETYPE_DIABLO_c:
 	    return game_type_diablo;
 	default:
 	    eventlog(eventlog_level_error,__FUNCTION__,"unknown Diablo bnet game type \"%s\" %hu",tag_uint_to_str(clienttag_str,clienttag),bngtype);
@@ -467,7 +485,7 @@ extern t_game_option bngoption_to_goption(t_clienttag clienttag, t_game_type gty
 	    switch (bngoption)
 	    {
 	    default:
-		eventlog(eventlog_level_error,__FUNCTION__,"unknown Diablo bnet game option for \"%s\" game \"%s\" %hu",tag_uint_to_str(clienttag_str,clienttag),game_type_get_str(gtype),bngoption);
+		/* diablo doesn't use any options */
 		return game_option_none;
 	    }
 	default:

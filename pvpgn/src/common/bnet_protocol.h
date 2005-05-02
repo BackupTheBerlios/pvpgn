@@ -2631,9 +2631,20 @@ typedef struct
 #define CLIENT_GAMELISTREQ_TOPVBOT   0x000f
 #define CLIENT_GAMELISTREQ_DIABLO    0x0409 /* FIXME: this should be the langid */
 /* FIXME: Diablo reports differently than it is listed in GAMELIST */
-#define CLIENT_GAMETYPE_DIABLO_1     0x00000005
-#define CLIENT_GAMETYPE_DIABLO_2     0x00000009
-#define CLIENT_GAMETYPE_DIABLO_3     0x0000000c
+#define CLIENT_GAMETYPE_DIABLO_0     0x00000000 /* Level 1 Char */
+#define CLIENT_GAMETYPE_DIABLO_1     0x00000001 /* Level 2 Char */
+#define CLIENT_GAMETYPE_DIABLO_2     0x00000002 /* Level ? Char */
+#define CLIENT_GAMETYPE_DIABLO_3     0x00000003 /* Level 4 Char */
+#define CLIENT_GAMETYPE_DIABLO_4     0x00000004 /* Level ? Char */
+#define CLIENT_GAMETYPE_DIABLO_5     0x00000005 /* Level ? Char */
+#define CLIENT_GAMETYPE_DIABLO_6     0x00000006 /* Level ? Char */
+#define CLIENT_GAMETYPE_DIABLO_7     0x00000007 /* Level ? Char */
+#define CLIENT_GAMETYPE_DIABLO_8     0x00000008 /* Level 20-24 Char */
+#define CLIENT_GAMETYPE_DIABLO_9     0x00000009 /* Level 25-? Char */
+#define CLIENT_GAMETYPE_DIABLO_a     0x0000000a /* Level ? Char */
+#define CLIENT_GAMETYPE_DIABLO_b     0x0000000b /* Level ? Char */
+#define CLIENT_GAMETYPE_DIABLO_c     0x0000000c /* Level ? Char */
+/* list might continue - what is maximum diablo level ? */
 /* FIXME: Not sure how Diablo II does things yet */
 #define CLIENT_GAMETYPE_DIABLO2_CLOSE 		0x00000000 /* close game */ 
 #define CLIENT_GAMETYPE_DIABLO2_OPEN_NORMAL	0X00000008 /* open, normal difficulty */

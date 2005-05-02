@@ -16,6 +16,9 @@ PvPGN Version History:
  -- SQL storage types now use a unique index for 'acct_username' (speedup)
  -- added sqlite3 storage support
  -- added ODBC storage support
+
+[DRTL]
+ -- fixed handling of gametypes (character levels)
  
  Changelog for 1.7.5 (since 1.7.4)
 ===================================
