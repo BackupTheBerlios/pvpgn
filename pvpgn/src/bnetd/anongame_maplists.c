@@ -18,12 +18,6 @@
 
 #include "common/setup_before.h"
 #include <stdio.h>
-
-/* amadeo */
-#ifdef WIN32_GUI
-#include <win32/winmain.h>
-#endif
-
 #ifdef HAVE_STRING_H
 # include <string.h>
 #else

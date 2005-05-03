@@ -31,11 +31,6 @@
 #  include <malloc.h>
 # endif
 #endif
-
-#ifdef WIN32_GUI
-# include <win32/winmain.h>
-#endif
-
 #include "common/bn_type.h"
 #include "common/eventlog.h"
 #include "common/packet.h"
