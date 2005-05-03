@@ -27,14 +27,4 @@ extern void guiOnUpdateUserList(void);
 extern int gui_lvprintf(t_eventlog_level l, const char *format, va_list arglist);
 extern int gui_lprintf(t_eventlog_level l, const char *format, ...);
 
-static inline int fprintf(FILE *stream, const char *format, ...)
-{
-    va_list args;
-    va_start(args, format);
-    if(stream == stderr || stream == stdout)
-        return gui_lvprintf(eventlog_level_error, format, args);
-    else
-        return vfprintf(stream, format, args);
-}
-
 #endif

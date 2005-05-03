@@ -54,6 +54,16 @@ static int	gui_run = TRUE;		/* default state: run gui */
 static int	d2dbs_run = TRUE;	/* default state: run d2dbs */
 static int	d2dbs_running = FALSE;	/* currect state: not running */
 
+int fprintf(FILE *stream, const char *format, ...)
+{
+	va_list args;
+	va_start(args, format);
+	if(stream == stderr || stream == stdout)
+		return gui_lvprintf(eventlog_level_error, format, args);
+	else
+		return vfprintf(stream, format, args);
+}
+
 static void KillTrayIcon(HWND hwnd)
 {
     NOTIFYICONDATA dta;
@@ -161,27 +171,28 @@ static void OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify)
             OnShellNotify(hwnd, ID_TRAY, WM_LBUTTONDBLCLK);
             break;
         case ID_START_D2DBS:
-            eventlog(eventlog_level_warn,__FUNCTION__,"Sending Start Signal to d2dbs");
+            fprintf(stderr,"Sending Start Signal to d2dbs\n");
             d2dbs_run = TRUE;
             break;
         case ID_SHUTDOWN_D2DBS:
-            eventlog(eventlog_level_warn,__FUNCTION__,"Sending Shutdown Signal to d2dbs");
+            fprintf(stderr,"Sending Shutdown Signal to d2dbs\n");
             d2dbs_run = FALSE;
             d2dbs_signal_quit_wrapper();
             break;
         case ID_RESTART_D2DBS:
-            eventlog(eventlog_level_warn,__FUNCTION__,"Sending Restart Signal To d2dbs");
+            fprintf(stderr,"Sending Restart Signal To d2dbs\n");
+            d2dbs_run = TRUE;
             d2dbs_signal_quit_wrapper();
             break;
         case ID_EDITCONFIG_D2DBS:
             ShellExecute(NULL, "open", "notepad.exe", "conf\\d2dbs.conf", NULL, SW_SHOW );
             break;
         case ID_LOADCONFIG_D2DBS:
-            eventlog(eventlog_level_warn,__FUNCTION__,"Sending Reload Config Signal To d2dbs");
+            fprintf(stderr,"Sending Reload Config Signal To d2dbs\n");
             d2dbs_signal_reload_config_wrapper();
             break;
         case ID_LADDER_SAVE:
-            eventlog(eventlog_level_warn,__FUNCTION__,"Sending Save Ladder Signal To d2dbs");
+            fprintf(stderr,"Sending Save Ladder Signal To d2dbs\n");
             d2dbs_signal_save_ladder_wrapper();
             break;
         case ID_EXIT:
@@ -211,7 +222,7 @@ static int OnShellNotify(HWND hwnd, int uID, int uMessage)
 
 static void OnClose(HWND hwnd)
 {
-    eventlog(eventlog_level_warn,__FUNCTION__,"Sending Exit Signal");
+    fprintf(stderr,"Sending Exit Signal To d2dbs\n");
     gui_run = FALSE;
     d2dbs_run = FALSE;
     d2dbs_signal_exit_wrapper();
@@ -352,7 +363,7 @@ static void d2dbs(void * dummy)
             ; /* do nothing */
     }
     
-    eventlog(eventlog_level_warn,__FUNCTION__,"Server Stopped");
+    fprintf(stderr,"Server Stopped\n");
     d2dbs_running = FALSE;
 }
 

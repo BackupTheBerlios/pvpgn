@@ -75,24 +75,24 @@ static char help_message[]="\n"
 "	-D, --debug:		run in debug mode (run in foreground and log to stdout)\n"
 #ifdef WIN32
 "    Running as service functions:\n"
-"	 --service		  run as service\n"
-"    -s install               install service\n"
-"    -s uninstall             uninstall service\n"
+"	--service		run as service\n"
+"	-s install		install service\n"
+"	-s uninstall		uninstall service\n"
 #endif	    
 "\n"
 "Notes:\n"
-"	1.You should always use absolute path here for all FILE names\n";
+"	1.You should always use absolute path here for all FILE names\n\n";
 
 extern void cmdline_show_help(void)
 {
-	fputs(help_message,stderr);
+	fprintf(stderr,help_message);
 	return;
 }
 
 extern void cmdline_show_version(void)
 {
-	fputs(D2CS_VERSION,stderr);
-	fputs("\n\n",stderr);
+	fprintf(stderr,D2CS_VERSION);
+	fprintf(stderr,"\n\n");
 	return;
 }
 

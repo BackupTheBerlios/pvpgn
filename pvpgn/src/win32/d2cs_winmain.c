@@ -54,6 +54,16 @@ static int	gui_run = TRUE;		/* default state: run gui */
 static int	d2cs_run = TRUE;	/* default state: run d2cs */
 static int	d2cs_running = FALSE;	/* currect state: not running */
 
+int fprintf(FILE *stream, const char *format, ...)
+{
+	va_list args;
+	va_start(args, format);
+	if(stream == stderr || stream == stdout)
+		return gui_lvprintf(eventlog_level_error, format, args);
+	else
+		return vfprintf(stream, format, args);
+}
+
 static void KillTrayIcon(HWND hwnd)
 {
     NOTIFYICONDATA dta;
@@ -161,31 +171,32 @@ static void OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify)
             OnShellNotify(hwnd, ID_TRAY, WM_LBUTTONDBLCLK);
             break;
         case ID_START_D2CS:
-            eventlog(eventlog_level_warn,__FUNCTION__,"Sending Start Signal to d2cs");
+            fprintf(stderr,"Sending Start Signal to d2cs\n");
             d2cs_run = TRUE;
             break;
         case ID_SHUTDOWN_D2CS:
-            eventlog(eventlog_level_warn,__FUNCTION__,"Sending Shutdown Signal to d2cs");
+            fprintf(stderr,"Sending Shutdown Signal to d2cs\n");
             d2cs_run = FALSE;
             signal_quit_wrapper();
             break;
         case ID_RESTART_D2CS:
-            eventlog(eventlog_level_warn,__FUNCTION__,"Sending Restart Signal To d2cs");
+            fprintf(stderr,"Sending Restart Signal To d2cs\n");
+            d2cs_run = TRUE;
             signal_quit_wrapper();
             break;
         case ID_EDITCONFIG_D2CS:
             ShellExecute(NULL, "open", "notepad.exe", "conf\\d2cs.conf", NULL, SW_SHOW );
             break;
         case ID_LOADCONFIG_D2CS:
-            eventlog(eventlog_level_warn,__FUNCTION__,"Sending Reload Config Signal To d2cs");
+            fprintf(stderr,"Sending Reload Config Signal To d2cs\n");
             signal_reload_config_wrapper();
             break;
         case ID_LADDER_LOAD:
-            eventlog(eventlog_level_warn,__FUNCTION__,"Sending Reload Ladder Signal To d2cs");
+            fprintf(stderr,"Sending Reload Ladder Signal To d2cs\n");
             signal_load_ladder_wrapper();
             break;
         case ID_RESTART_D2GS:
-            eventlog(eventlog_level_warn,__FUNCTION__,"Sending Restart d2gs Signal To d2cs");
+            fprintf(stderr,"Sending Restart d2gs Signal To d2cs\n");
             signal_restart_d2gs_wrapper();
             break;
         case ID_EXIT:
@@ -215,7 +226,7 @@ static int OnShellNotify(HWND hwnd, int uID, int uMessage)
 
 static void OnClose(HWND hwnd)
 {
-    eventlog(eventlog_level_warn,__FUNCTION__,"Sending Exit Signal");
+    fprintf(stderr,"Sending Exit Signal To d2cs\n");
     gui_run = FALSE;
     d2cs_run = FALSE;
     signal_exit_wrapper();
@@ -356,7 +367,7 @@ static void d2cs(void * dummy)
            ; /* do nothing */
     }
     
-    eventlog(eventlog_level_warn,__FUNCTION__,"Server Stopped");
+    fprintf(stderr,"Server Stopped\n");
     d2cs_running = FALSE;
 }
 
