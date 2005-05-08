@@ -124,6 +124,7 @@ static void _news_insert_index(t_news_index *ni, const char *buff, unsigned len,
 	    lstr_set_str(&cni->body,xrealloc(lstr_get_str(&cni->body),lstr_get_len(&cni->body) + len + 1 + 1));
 	    strcpy(lstr_get_str(&cni->body) + lstr_get_len(&cni->body), buff);
 	    *(lstr_get_str(&cni->body) + lstr_get_len(&cni->body) + len) = '\n';
+	    *(lstr_get_str(&cni->body) + lstr_get_len(&cni->body) + len + 1) = '\0';
 	    lstr_set_len(&cni->body,lstr_get_len(&cni->body) + len + 1);
 	}
 	xfree((void *)ni);
