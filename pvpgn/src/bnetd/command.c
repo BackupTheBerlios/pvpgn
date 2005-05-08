@@ -2719,7 +2719,7 @@ static int _news_cb(time_t date, t_lstr *lstr, void *data)
     message_send_text(c,message_type_info,c,strdate);
 
     for (p = lstr_get_str(lstr); *p;) {
-	for(q = p + 1; *q && *q != '\r' && *q != '\n';q++);
+	for(q = p; *q && *q != '\r' && *q != '\n';q++);
 	save = *q;
 	*q = '\0';
 	message_send_text(c,message_type_info,c,p);
