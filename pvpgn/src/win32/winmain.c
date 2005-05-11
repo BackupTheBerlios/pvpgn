@@ -30,9 +30,9 @@
 #include <string.h>
 #include <commctrl.h>
 #include <time.h>
+#include "bnetd/connection.h"
 #include "bnetd/account.h"
 #include "bnetd/account_wrap.h"
-#include "bnetd/connection.h"
 #include "bnetd/ipban.h"
 #include "bnetd/message.h"
 #include "bnetd/server.h"
@@ -56,7 +56,7 @@ static void	guiMoveWindow(HWND, RECT*);
 static void	guiClearLogWindow(void);
 static void	guiKillTrayIcon(void);
 
-PASCAL long	guiWndProc(HWND, UINT, WPARAM, LPARAM);
+long PASCAL guiWndProc(HWND, UINT, WPARAM, LPARAM);
 static void	guiOnCommand(HWND, int, HWND, UINT);
 static void	guiOnMenuSelect(HWND, HMENU, int, HMENU, UINT);
 static int	guiOnShellNotify(int, int);
@@ -749,14 +749,15 @@ BOOL CALLBACK KickDlgProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam)
 			switch(LOWORD(wParam)) {
 				case IDC_KICK_EXECUTE:
 					{
+						t_connection * conngui;
+						t_account * accountgui;
 						BOOL messageq;
 						BOOL kickq;
 						char temp[60];
 						char ipadr[110];
+
 						messageq = FALSE;
 						kickq = FALSE;
-						t_connection * conngui;
-						t_account * accountgui;
 						
 						GetDlgItemText(hwnd, IDC_EDITKICK, selected_item, 32);
 						
