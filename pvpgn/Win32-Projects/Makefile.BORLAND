@@ -75,7 +75,6 @@ SRC_DEBUGDIR    = ${SRC_SRCDIR}\debug
 SRC_WIN32DIR	= ${SRC_SRCDIR}\win32
 SRC_CDBDIR      = ${SRC_SRCDIR}\tinycdb
 SRC_ZLIBDIR     = ${SRC_SRCDIR}\zlib
-SRC_SQLITE3DIR  = ${SRC_SRCDIR}\sqlite3
 
 MKDIR           = md
 
@@ -275,37 +274,6 @@ bnetd_OBJECTS       = \
     $(SRC_ZLIBDIR)\pvpgn_deflate.obj \
     $(SRC_ZLIBDIR)\pvpgn_trees.obj \
     $(SRC_ZLIBDIR)\pvpgn_zutil.obj \
-    ${SRC_SQLITE3DIR}\attach.obj \
-    ${SRC_SQLITE3DIR}\auth.obj \
-    ${SRC_SQLITE3DIR}\btree.obj \
-    ${SRC_SQLITE3DIR}\build.obj \
-    ${SRC_SQLITE3DIR}\date.obj \
-    ${SRC_SQLITE3DIR}\delete.obj \
-    ${SRC_SQLITE3DIR}\expr.obj \
-    ${SRC_SQLITE3DIR}\func.obj \
-    ${SRC_SQLITE3DIR}\hash.obj \
-    ${SRC_SQLITE3DIR}\insert.obj \
-    ${SRC_SQLITE3DIR}\legacy.obj \
-    ${SRC_SQLITE3DIR}\main.obj \
-    ${SRC_SQLITE3DIR}\opcodes.obj \
-    ${SRC_SQLITE3DIR}\os_win.obj \
-    ${SRC_SQLITE3DIR}\pager.obj \
-    ${SRC_SQLITE3DIR}\parse.obj \
-    ${SRC_SQLITE3DIR}\pragma.obj \
-    ${SRC_SQLITE3DIR}\printf.obj \
-    ${SRC_SQLITE3DIR}\random.obj \
-    ${SRC_SQLITE3DIR}\select.obj \
-    ${SRC_SQLITE3DIR}\tokenize.obj \
-    ${SRC_SQLITE3DIR}\trigger.obj \
-    ${SRC_SQLITE3DIR}\update.obj \
-    ${SRC_SQLITE3DIR}\utf.obj \
-    ${SRC_SQLITE3DIR}\util.obj \
-    ${SRC_SQLITE3DIR}\vacuum.obj \
-    ${SRC_SQLITE3DIR}\vdbe.obj \
-    ${SRC_SQLITE3DIR}\vdbeapi.obj \
-    ${SRC_SQLITE3DIR}\vdbeaux.obj \
-    ${SRC_SQLITE3DIR}\vdbemem.obj \
-    ${SRC_SQLITE3DIR}\where.obj \
     ${SRC_WIN32DIR}\winmain.obj
 
 
@@ -660,7 +628,6 @@ clean:
     -${RMF} ${SRC_D2CSDIR}\*.obj
     -${RMF} ${SRC_CDBDIR}\*.obj
     -${RMF} ${SRC_ZLIBDIR}\*.obj
-    -${RMF} ${SRC_SQLITE3DIR}\*.obj    
     -${RMF} ${SRC_BNETDDIR}\*.res
     -${RMF} ${SRC_COMPATDIR}\*.g_obj
     -${RMF} ${SRC_COMMONDIR}\*.g_obj
@@ -668,7 +635,6 @@ clean:
     -${RMF} ${SRC_BNETDDIR}\*.g_obj
     -${RMF} ${SRC_CDBDIR}\*.g_obj
     -${RMF} ${SRC_ZLIBDIR}\*.g_obj
-    -${RMF} ${SRC_SQLITE3DIR}\*.g_obj    
     -${RMFALL} ${SRC_BINDIR}\*.*
     -${RMFALL} ${SRC_SBINDIR}\*.*
     -${RMFALL} ${OBJDIR}\*.*    
