@@ -7,6 +7,7 @@ echo ===================================================================
 echo Parameter clean deletes object files
 echo ===================================================================
 copy Makefile.BORLAND ..\src\Makefile.BORLAND
+copy make_borland.bat ..\src\make_borland.bat
 cd ..\src
 make -fMakefile.BORLAND %1 %2
 cd ..\Win32-Projects
