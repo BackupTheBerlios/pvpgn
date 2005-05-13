@@ -130,6 +130,10 @@ LINKPOSTFIX 	= cw32 import32
 SQLFLAGS = -DWITH_SQL_MYSQL -a8
 !endif
 
+!ifdef WITH_SQL_ODBC
+SQLFLAGS = -DWITH_SQL_ODBC
+!endif
+
 !ifdef WITH_CDB
 CDBFLAGS = -DWITH_CDB
 !endif
@@ -143,9 +147,17 @@ CPPFLAGS    = -DWIN32 -I${SRC_SRCDIR} \
 COMPILE     = ${CC} ${CFLAGS} ${CPPFLAGS} -c
 LINK        = ilink32 -v -L${LINK_LIBS_PATH} -I${OBJDIR}
 !ifdef WITH_SQL_MYSQL
-LINK_LIBS   = libmySQL_bc.lib
+!ifdef WITH_SQL_ODBC
+LINK_LIBS   = libmySQL_bc.lib odbc32.lib
 !else
-LINK_LIBS   =
+LINK_LIBS   = libmySQL_bc.lib
+!endif
+!else
+!ifdef WITH_SQL_ODBC
+LINK_LIBS   = odbc32.lib
+!else
+LINK_LIBS   = 
+!endif
 !endif
 
 bnetd_DEFCONFFILE   = ${confdir}\bnetd.conf
@@ -202,6 +214,7 @@ bnetd_OBJECTS       = \
     ${SRC_BNETDDIR}\file_cdb.obj \
     ${SRC_BNETDDIR}\storage_sql.obj \
     ${SRC_BNETDDIR}\sql_mysql.obj \
+    ${SRC_BNETDDIR}\sql_odbc.obj \    
     ${SRC_BNETDDIR}\sql_dbcreator.obj \
     ${SRC_BNETDDIR}\command_groups.obj \
     ${SRC_BNETDDIR}\output.obj \
