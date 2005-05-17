@@ -149,6 +149,15 @@ static t_account * account_create(char const * username, char const * passhash1)
     account->uid      = 0; /* hash it later before inserting */
 
     if (username) { /* actually making a new account */
+	/* first check if such a username already owns an account.
+	 * we search in the memory hash mainly for non-indexed storage types.
+	 * indexed storage types check themselves if the username exists already 
+	 * in the storage (see storage_sql.c) */
+	if (accountlist_find_account(username)) {
+		eventlog(eventlog_level_debug,__FUNCTION__,"user \"%s\" already has an account",username);
+		goto err;
+	}
+
 	account->attrgroup =  attrgroup_create_newuser(username);
 	if(!account->attrgroup) {
 	    eventlog(eventlog_level_error,__FUNCTION__,"failed to add user");
@@ -191,7 +200,8 @@ static void account_destroy(t_account * account)
 
     friendlist_close(account->friends);
     teams_destroy(account->teams);
-    attrgroup_destroy(account->attrgroup);
+    if (account->attrgroup)
+    	attrgroup_destroy(account->attrgroup);
     if (account->name)
         xfree(account->name);
 
@@ -606,6 +616,10 @@ static t_account * accountlist_add_account(t_account * account)
     account->namehash = account_hash(username);
     account->uid = uid;
 
+    /* FIXME: this check actually (with the new attr system) happens too late
+     * we already have created the attrgroup here which is "dirty" and refusing 
+     * an account here will trigger attrgroup_destroy which will "sync" the 
+     * bad data to the storage! The codes should make sure we don't fail here */
     /* mini version of accountlist_find_account(username) || accountlist_find_account(uid)  */
     {
 	t_entry *    curr;
@@ -618,7 +632,7 @@ static t_account * accountlist_add_account(t_account * account)
 	    curraccount = entry_get_data(curr);
 	    if (curraccount->uid==uid)
 	    {
-		eventlog(eventlog_level_debug,__FUNCTION__,"user \"%s\":"UID_FORMAT" already has an account (\"%s\":"UID_FORMAT")",username,uid,account_get_name(curraccount),curraccount->uid);
+		eventlog(eventlog_level_debug,__FUNCTION__,"BUG: user \"%s\":"UID_FORMAT" already has an account (\"%s\":"UID_FORMAT")",username,uid,account_get_name(curraccount),curraccount->uid);
 		hashtable_entry_release(curr);
 		return NULL;
 	    }
@@ -631,7 +645,7 @@ static t_account * accountlist_add_account(t_account * account)
 	    {
 		    if (strcasecmp(tname,username)==0)
 		    {
-		        eventlog(eventlog_level_debug,__FUNCTION__,"user \"%s\":"UID_FORMAT" already has an account (\"%s\":"UID_FORMAT")",username,uid,tname,curraccount->uid);
+		        eventlog(eventlog_level_debug,__FUNCTION__,"BUG: user \"%s\":"UID_FORMAT" already has an account (\"%s\":"UID_FORMAT")",username,uid,tname,curraccount->uid);
 		        hashtable_entry_release(curr);
 		        return NULL;
 		    }
