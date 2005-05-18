@@ -1,5 +1,11 @@
 PvPGN Version History:
 
+ ChangeLog for 1.7.7 (since 1.7.6)
+===================================
+[STORAGE]
+ -- fixed account corruption bug happening when trying to register new 
+ accounts with existent accounts usernames and using plain/cdb file storage
+
  Changelog for 1.7.6 (since 1.7.5)
 ===================================
 [MISC]
