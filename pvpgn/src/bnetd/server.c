@@ -320,7 +320,7 @@ static int sd_accept(t_addr const * curr_laddr, t_laddr_info const * laddr_info,
 
     if (ipbanlist_check(inet_ntoa(caddr.sin_addr))!=0)
     {
-	eventlog(eventlog_level_error,__FUNCTION__,"[%d] connection from banned address %s denied (closing connection)",csocket,inet_ntoa(caddr.sin_addr));
+	eventlog(eventlog_level_info,__FUNCTION__,"[%d] connection from banned address %s denied (closing connection)",csocket,inet_ntoa(caddr.sin_addr));
 	psock_close(csocket);
 	return -1;
     }
