@@ -4728,7 +4728,7 @@ static int _client_changeemailreq(t_connection * c, t_packet const *const packet
 	return 0;
     }
     if (!(email = account_get_email(account)) || !email[0]) {
-	eventlog(eventlog_level_error, __FUNCTION__, "[%d] account \"%s\" do not have email set, ignore changing", conn_get_socket(c), account_get_name(account));
+	eventlog(eventlog_level_info, __FUNCTION__, "[%d] account \"%s\" do not have email set, ignore changing", conn_get_socket(c), account_get_name(account));
 	return 0;
     }
     if (strcasecmp(email, old)) {
