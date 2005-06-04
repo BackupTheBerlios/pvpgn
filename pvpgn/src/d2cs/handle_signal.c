@@ -66,7 +66,7 @@
 #include "game.h"
 #include "prefs.h"
 #include "d2ladder.h"
-#include "cmdline_parse.h"
+#include "cmdline.h"
 #include "handle_signal.h"
 #include "common/trans.h"
 #include "common/eventlog.h"
@@ -123,7 +123,7 @@ extern int handle_signal(void)
 	if (signal_data.reload_config) {
 		signal_data.reload_config=0;
 		eventlog(eventlog_level_info,__FUNCTION__,"reloading configuartion file due to signal");
-		if (prefs_reload(cmdline_get_prefs_file())<0) {
+		if (prefs_reload(cmdline_get_preffile())<0) {
 			eventlog(eventlog_level_error,__FUNCTION__,"error reload configuration file,exitting");
 			return -1;
 		}
@@ -151,7 +151,7 @@ extern int handle_signal(void)
             xfree(temp);
         }
 
-		if (!cmdline_get_debugmode()) eventlog_open(d2cs_prefs_get_logfile());
+		if (!cmdline_get_foreground()) eventlog_open(d2cs_prefs_get_logfile());
 	}
 	if (signal_data.reload_ladder) {
 		signal_data.reload_ladder=0;

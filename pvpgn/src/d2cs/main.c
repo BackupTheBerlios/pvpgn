@@ -55,7 +55,7 @@
 #include "serverqueue.h"
 #include "d2gs.h"
 #include "prefs.h"
-#include "cmdline_parse.h"
+#include "cmdline.h"
 #include "d2ladder.h"
 #include "version.h"
 #include "common/trans.h"
@@ -94,7 +94,7 @@ static int setup_daemon(void)
 	}
 	close(STDIN_FILENO);
 	close(STDOUT_FILENO);
-	if (!cmdline_get_debugmode()) {
+	if (!cmdline_get_foreground()) {
 		close(STDERR_FILENO);
 	}
 	switch ((pid = fork())) {
@@ -148,51 +148,20 @@ static int config_init(int argc, char * * argv)
     char const * tok;
     int		 pid;
 
-	if (cmdline_parse(argc, argv)<0) {
+	if (cmdline_load(argc, argv) != 1) {
 		return -1;
 	}
-#ifdef WIN32
-if (cmdline_get_run_as_service())
-{
-  	Win32_ServiceRun();
-    return 1;
-}
-#endif
 
-	if (cmdline_get_version()) {
-		cmdline_show_version();
-		return -1;
-	}
-	if (cmdline_get_help()) {
-		cmdline_show_help();
-		return -1;
-	}
 #ifdef DO_DAEMONIZE
-	if ((!cmdline_get_foreground())&&(!cmdline_get_debugmode())) {
+	if ((!cmdline_get_foreground())) {
 		if (!((pid = setup_daemon()) == 0)) {
 			return pid;
 		}
 	}
 #endif
 
-#ifdef WIN32
-if (cmdline_get_make_service())
-{
-		if (strcmp(cmdline_get_make_service(), "install") == 0) {
-		    fprintf(stderr, "Installing service\n");
-		    Win32_ServiceInstall();
-			return 1;
-		}
-		if (strcmp(cmdline_get_make_service(), "uninstall") == 0) {
-		    fprintf(stderr, "Uninstalling service\n");
-		    Win32_ServiceUninstall();
-			return 1;
-		}
-}
-#endif
-
-	if (d2cs_prefs_load(cmdline_get_prefs_file())<0) {
-		eventlog(eventlog_level_error,__FUNCTION__,"error loading configuration file %s",cmdline_get_prefs_file());
+	if (d2cs_prefs_load(cmdline_get_preffile())<0) {
+		eventlog(eventlog_level_error,__FUNCTION__,"error loading configuration file %s",cmdline_get_preffile());
 		return -1;
 	}
 
@@ -212,7 +181,7 @@ if (cmdline_get_make_service())
         xfree(temp);
     }
 
-	if (cmdline_get_debugmode()) {
+	if (cmdline_get_foreground()) {
 		eventlog_set(stderr);
 	} else if (cmdline_get_logfile()) {
 		if (eventlog_open(cmdline_get_logfile())<0) {
@@ -232,7 +201,7 @@ if (cmdline_get_make_service())
 static int config_cleanup(void)
 {
 	d2cs_prefs_unload();
-	cmdline_cleanup(); 
+	cmdline_unload(); 
 	return 0;
 }
 

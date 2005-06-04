@@ -40,6 +40,16 @@
 #  include <strings.h>
 # endif
 #endif
+#ifdef TIME_WITH_SYS_TIME
+# include <sys/time.h>
+# include <time.h>
+#else
+# ifdef HAVE_SYS_TIME_H
+#  include <sys/time.h>
+# else
+#  include <time.h>
+# endif
+#endif
 #include "compat/strcasecmp.h"
 #include "compat/strncasecmp.h"
 #include "common/xalloc.h"
@@ -669,3 +679,92 @@ extern char * str_skip_word(char *str)
     return str;
 }
 
+/* convert a time string to time_t
+time string format is:
+yyyy/mm/dd or yyyy-mm-dd or yyyy.mm.dd
+hh:mm:ss
+*/
+extern int timestr_to_time(char const * timestr, time_t* ptime)
+{
+        char const * p;
+        char ch;
+        struct tm when;
+        int day_s, time_s, last;
+
+        if (!timestr) return -1;
+        if (!timestr[0]) {
+		*ptime = 0;
+		return 0;
+	}
+
+        p = timestr;
+        day_s = time_s = 0;
+        last = 0;
+        memset(&when, 0, sizeof(when));
+        when.tm_mday = 1;
+        when.tm_isdst = -1;
+        while (1) {
+                ch = *timestr;
+                timestr++;
+                switch (ch) {
+                case '/':
+                case '-':
+                case '.':
+                        if (day_s == 0) {
+                                when.tm_year = atoi(p) - 1900;
+                        } else if (day_s == 1) {
+                                when.tm_mon = atoi(p) - 1;
+                        } else if (day_s == 2) {
+                                when.tm_mday = atoi(p);
+                        }
+                        time_s = 0;
+                        day_s++;
+                        p = timestr;
+                        last = 1;
+                        break;
+                case ':':
+                        if (time_s == 0) {
+                                when.tm_hour = atoi(p);
+                        } else if (time_s == 1) {
+                                when.tm_min = atoi(p);
+                        } else if (time_s == 2) {
+                                when.tm_sec = atoi(p);
+                        }
+                        day_s = 0;
+                        time_s++;
+                        p = timestr;
+                        last = 2;
+                        break;
+                case ' ':
+                case '\t':
+                case '\x0':
+                        if (last == 1) {
+                                if (day_s == 0) {
+                                        when.tm_year = atoi(p) - 1900;
+                                } else if (day_s == 1) {
+                                        when.tm_mon = atoi(p) - 1;
+                                } else if (day_s == 2) {
+                                        when.tm_mday = atoi(p);
+                                }
+                        } else if (last == 2) {
+                                if (time_s == 0) {
+                                        when.tm_hour = atoi(p);
+                                } else if (time_s == 1) {
+                                        when.tm_min = atoi(p);
+                                } else if (time_s == 2) {
+                                        when.tm_sec = atoi(p);
+                                }
+                        }
+                        time_s = day_s = 0;
+                        p = timestr;
+                        last = 0;
+                        break;
+                default:
+                        break;
+                }
+                if (!ch) break;
+        }
+
+	*ptime = mktime(&when);
+	return 0;
+}

@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2000,2001	Onlyer	(onlyer@263.net)
+ * Copyright (C) 2005	Dizzy	
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -17,58 +18,6 @@
  */
 #ifndef INCLUDED_PREFS_H
 #define INCLUDED_PREFS_H
-
-typedef struct
-{
-	char const	* logfile;
-	char const	* loglevels;
-	char const	* servaddrs;
-	char const	* gameservlist;
-	char const	* bnetdaddr;
-	char const	* charsavedir;
-	char const	* charinfodir;
-	char const	* bak_charsavedir;
-	char const	* bak_charinfodir;
-	char const	* ladderdir;
-	char const	* newbiefile;
-	char const	* motd;
-	char const	* realmname;
-	char const	* d2gs_password;
-	char const	* transfile;
-	char const      * account_allowed_symbols;
-	char const	* d2gsconffile;
-	unsigned int	ladder_refresh_interval;
-	unsigned int	maxchar;
-	unsigned int	listpurgeinterval;
-	unsigned int	gqcheckinterval;
-	unsigned int	s2s_retryinterval;
-	unsigned int	s2s_timeout;
-	unsigned int	s2s_idletime;
-	unsigned int	sq_checkinterval;
-	unsigned int	sq_timeout;
-	unsigned int	maxgamelist;
-	unsigned int	max_game_idletime;
-	unsigned int	gamelist_showall;
-	unsigned int	game_maxlifetime;
-	unsigned int	allow_gamelimit;
-	unsigned int	allow_newchar;
-	unsigned int	idletime;
-	unsigned int	shutdown_delay;
-	unsigned int	shutdown_decr;
-	unsigned int	d2gs_checksum;
-	unsigned int	d2gs_version;
-	unsigned int	check_multilogin;
-	unsigned int	timeout_checkinterval;
-	unsigned int	s2s_keepalive_interval;
-	unsigned int	lod_realm;
-	unsigned int	allow_convert;
-	unsigned int	d2gs_restart_delay;
-	unsigned int	ladder_start_time;
-	unsigned int	char_expire_day;
-	char const      * charlist_sort;
-	char const      * charlist_sort_order;
-	unsigned int	max_connections;
-} t_prefs;
 
 extern int d2cs_prefs_load(char const * filename);
 extern int prefs_reload(char const * filename);

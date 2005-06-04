@@ -79,6 +79,17 @@ extern int conf_set_str(const char **pstr, const char *valstr, const char *def)
     return 0;
 }
 
+extern int conf_set_timestr(time_t* ptime, const char *valstr, time_t def)
+{
+    if (!valstr) *ptime = def;
+    else if (timestr_to_time(valstr,ptime)<0) {
+	    eventlog(eventlog_level_error,__FUNCTION__,"invalid timestr value '%s'",valstr);
+	    return -1;
+    }
+
+    return 0;
+}
+
 extern const char* conf_get_int(unsigned ival)
 {
     static char tmpbuf[128];

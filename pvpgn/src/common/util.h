@@ -24,6 +24,16 @@
 
 #define JUST_NEED_TYPES
 #include <stdio.h>
+#ifdef TIME_WITH_SYS_TIME
+# include <sys/time.h>
+# include <time.h>
+#else
+# ifdef HAVE_SYS_TIME_H
+#  include <sys/time.h>
+# else
+#  include <time.h>
+# endif
+#endif
 #undef JUST_NEED_TYPES
 
 extern int strstart(char const * full, char const * part) ;
@@ -43,6 +53,7 @@ extern int hex_to_str(char const * source, char * data, int datalen);
 extern char * buildpath(char const *root, const char *suffix);
 extern char *str_skip_space(char *str);
 extern char *str_skip_word(char *str);
+extern int timestr_to_time(char const * timestr, time_t* ptime);
 
 #endif
 #endif

@@ -65,7 +65,7 @@
 #include "dbserver.h"
 #include "prefs.h"
 #include "d2ladder.h"
-#include "cmdline_parse.h"
+#include "cmdline.h"
 #include "handle_signal.h"
 #include "common/eventlog.h"
 #include "common/xalloc.h"
@@ -120,7 +120,7 @@ extern int d2dbs_handle_signal(void)
 	if (signal_data.reload_config) {
 		signal_data.reload_config=0;
 		eventlog(eventlog_level_info,__FUNCTION__,"reloading configuartion file due to signal");
-		if (d2dbs_prefs_reload(d2dbs_cmdline_get_prefs_file())<0) {
+		if (d2dbs_prefs_reload(cmdline_get_preffile())<0) {
 			eventlog(eventlog_level_error,__FUNCTION__,"error reload configuration file,exitting");
 			return -1;
 		}
@@ -139,7 +139,7 @@ extern int d2dbs_handle_signal(void)
           xfree(temp);
         }
 
-		if (!d2dbs_cmdline_get_debugmode()) eventlog_open(d2dbs_prefs_get_logfile());
+		if (!cmdline_get_foreground()) eventlog_open(d2dbs_prefs_get_logfile());
 	}
 	if (signal_data.save_ladder) {
 		signal_data.save_ladder=0;

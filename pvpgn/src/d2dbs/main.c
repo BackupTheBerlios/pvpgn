@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2000,2001	Onlyer	(onlyer@263.net)
+ * Copyright (C) 2005	        Olaf Freyer (aaron@cs.tu-berlin.de)
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -49,7 +50,7 @@
 #endif
 
 #include "prefs.h"
-#include "cmdline_parse.h"
+#include "cmdline.h"
 #include "version.h"
 #include "common/eventlog.h"
 #ifdef WIN32
@@ -91,7 +92,7 @@ static int setup_daemon(void)
 
 	close(STDIN_FILENO);
 	close(STDOUT_FILENO);
-	if (!d2dbs_cmdline_get_debugmode()) {
+	if (!cmdline_get_foreground()) {
 		close(STDERR_FILENO);
 	}
 
@@ -127,52 +128,20 @@ static int config_init(int argc, char * * argv)
     char const * tok;
     int		 pid;
 
-	if (d2dbs_cmdline_parse(argc, argv)<0) {
+	if (cmdline_load(argc, argv)<0) {
 		return -1;
 	}
 
-#ifdef WIN32
-	if (d2dbs_cmdline_get_run_as_service())
-	{
-  		Win32_ServiceRun();
-		return 1;
-	}
-#endif
-
-	if (d2dbs_cmdline_get_version()) {
-		d2dbs_cmdline_show_version();
-		return -1;
-	}
-	if (d2dbs_cmdline_get_help()) {
-		d2dbs_cmdline_show_help();
-		return -1;
-	}
 #ifdef DO_DAEMONIZE
-	if ((!d2dbs_cmdline_get_foreground()) && (!d2dbs_cmdline_get_debugmode())) {
+	if (!cmdline_get_foreground()) {
 	    	if (!((pid = setup_daemon()) == 0)) {
 		        return pid;
 		}
 	}
 #endif
 
-#ifdef WIN32
-if (d2dbs_cmdline_get_make_service())
-{
-		if (strcmp(d2dbs_cmdline_get_make_service(), "install") == 0) {
-		    fprintf(stderr, "Installing service\n");
-		    Win32_ServiceInstall();
-			return 1;
-		}
-		if (strcmp(d2dbs_cmdline_get_make_service(), "uninstall") == 0) {
-		    fprintf(stderr, "Uninstalling service\n");
-		    Win32_ServiceUninstall();
-			return 1;
-		}
-}
-#endif
-
-	if (d2dbs_prefs_load(d2dbs_cmdline_get_prefs_file())<0) {
-		eventlog(eventlog_level_error,__FUNCTION__,"error loading configuration file %s",d2dbs_cmdline_get_prefs_file());
+	if (d2dbs_prefs_load(cmdline_get_preffile())<0) {
+		eventlog(eventlog_level_error,__FUNCTION__,"error loading configuration file %s",cmdline_get_preffile());
 		return -1;
 	}
 	
@@ -193,11 +162,11 @@ if (d2dbs_cmdline_get_make_service())
     }
 
 
-	if (d2dbs_cmdline_get_debugmode()) {
+	if (cmdline_get_foreground()) {
 		eventlog_set(stderr);
-	} else if (d2dbs_cmdline_get_logfile()) {
-		if (eventlog_open(d2dbs_cmdline_get_logfile())<0) {
-			eventlog(eventlog_level_error,__FUNCTION__,"error open eventlog file %s",d2dbs_cmdline_get_logfile());
+	} else if (cmdline_get_logfile()) {
+		if (eventlog_open(cmdline_get_logfile())<0) {
+			eventlog(eventlog_level_error,__FUNCTION__,"error open eventlog file %s",cmdline_get_logfile());
 			return -1;
 		}
 	} else {
@@ -212,7 +181,7 @@ if (d2dbs_cmdline_get_make_service())
 static int config_cleanup(void)
 {
 	d2dbs_prefs_unload();
-	d2dbs_cmdline_cleanup(); 
+	cmdline_unload(); 
 	eventlog_close();
 	if (eventlog_fp) fclose(eventlog_fp);
 	return 0;

@@ -1,5 +1,11 @@
 PvPGN Version History:
 
+ ChangeLog for 1.7.8 CVS (since 1.7.7)
+=======================================
+
+[D2CS/D2DBS]
+  -- usage of the new conf API
+
  ChangeLog for 1.7.7 (since 1.7.6)
 ===================================
 [STORAGE]

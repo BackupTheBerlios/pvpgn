@@ -19,31 +19,6 @@
 #ifndef INCLUDED_PREFS_H
 #define INCLUDED_PREFS_H
 
-typedef struct
-{
-	char const	* logfile;
-	char const	* logfile_gs;
-	char const	* loglevels;
-	char const	* servaddrs;
-	char const	* gameservlist;
-	char const	* charsavedir;
-	char const	* charsavebakdir;
-	char const	* charinfodir;
-	char const	* charinfobakdir;
-	char const	* ladderdir;
-	unsigned int	laddersave_interval;
-	unsigned int	ladderinit_time;
-	unsigned int    shutdown_delay;
-	unsigned int    shutdown_decr; 
-	unsigned int	idletime;
-	unsigned int	keepalive_interval;
-	unsigned int	timeout_checkinterval;
-	unsigned int    XML_ladder_output;
-	unsigned int    ladderupdate_threshold;
-	unsigned int    ladder_chars_only;
-	unsigned int	difficulty_hack;
-} t_prefs;
-
 extern int d2dbs_prefs_load(char const * filename);
 extern int d2dbs_prefs_reload(char const * filename);
 extern int d2dbs_prefs_unload(void);
