@@ -138,8 +138,10 @@ extern int d2dbs_handle_signal(void)
           }
           xfree(temp);
         }
-
-		if (!cmdline_get_foreground()) eventlog_open(d2dbs_prefs_get_logfile());
+#ifdef DO_DAEMONIZE
+		if (!cmdline_get_foreground())
+#endif
+			eventlog_open(d2dbs_prefs_get_logfile());
 	}
 	if (signal_data.save_ladder) {
 		signal_data.save_ladder=0;

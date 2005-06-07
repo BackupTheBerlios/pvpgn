@@ -161,19 +161,23 @@ static int config_init(int argc, char * * argv)
         xfree(temp);
     }
 
-
+#ifdef DO_DAEMONIZE
 	if (cmdline_get_foreground()) {
 		eventlog_set(stderr);
-	} else if (cmdline_get_logfile()) {
+	} else
+#endif
+	{
+	    if (cmdline_get_logfile()) {
 		if (eventlog_open(cmdline_get_logfile())<0) {
 			eventlog(eventlog_level_error,__FUNCTION__,"error open eventlog file %s",cmdline_get_logfile());
 			return -1;
 		}
-	} else {
+	    } else {
 		if (eventlog_open(d2dbs_prefs_get_logfile())<0) {
 			eventlog(eventlog_level_error,__FUNCTION__,"error open eventlog file %s",d2dbs_prefs_get_logfile());
 			return -1;
 		}
+	    }
 	}
 	return 0;
 }

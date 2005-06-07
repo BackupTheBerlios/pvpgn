@@ -40,6 +40,7 @@
 #include "compat/memset.h"
 
 #include "common/conf.h"
+#include "common/xalloc.h"
 #include "version.h"
 #include "cmdline.h"
 #include "common/eventlog.h"
@@ -78,8 +79,8 @@ static int conf_set_debug(const char * valstr);
 static int conf_setdef_debug(void);
 
 #ifdef WIN32
-static int conf_set_set_service(char const * valstr);
-static int conf_setdef_set_service(void);
+static int conf_set_service(char const * valstr);
+static int conf_setdef_service(void);
 #endif
 
 
