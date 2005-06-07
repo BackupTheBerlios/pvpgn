@@ -38,7 +38,9 @@
 # endif
 #endif
 #include "compat/memset.h"
-
+#ifdef WIN32
+# include "win32/service.h"
+#endif
 #include "common/conf.h"
 #include "common/xalloc.h"
 #include "version.h"
