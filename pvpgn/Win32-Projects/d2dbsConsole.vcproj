@@ -156,7 +156,7 @@
 					RelativePath="..\src\d2dbs\charlock.c">
 				</File>
 				<File
-					RelativePath="..\src\d2dbs\cmdline_parse.c">
+					RelativePath="..\src\d2dbs\cmdline.c">
 				</File>
 				<File
 					RelativePath="..\src\d2dbs\d2ladder.c">
@@ -188,6 +188,9 @@
 				</File>
 				<File
 					RelativePath="..\src\common\bn_type.c">
+				</File>
+				<File
+					RelativePath="..\src\common\conf.c">
 				</File>
 				<File
 					RelativePath="..\src\common\d2char_checksum.c">
@@ -234,9 +237,6 @@
 				Name="d2cs"
 				Filter="">
 				<File
-					RelativePath="..\src\d2cs\conf.c">
-				</File>
-				<File
 					RelativePath="..\src\d2cs\xstring.c">
 				</File>
 			</Filter>
@@ -259,7 +259,7 @@
 					RelativePath="..\src\d2dbs\charlock.h">
 				</File>
 				<File
-					RelativePath="..\src\d2dbs\cmdline_parse.h">
+					RelativePath="..\src\d2dbs\cmdline.h">
 				</File>
 				<File
 					RelativePath="..\src\d2dbs\d2ladder.h">
@@ -294,6 +294,9 @@
 				</File>
 				<File
 					RelativePath="..\src\common\bn_type.h">
+				</File>
+				<File
+					RelativePath="..\src\common\conf.h">
 				</File>
 				<File
 					RelativePath="..\src\common\d2char_checksum.h">
@@ -339,9 +342,6 @@
 			<Filter
 				Name="d2cs"
 				Filter="">
-				<File
-					RelativePath="..\src\d2cs\conf.h">
-				</File>
 				<File
 					RelativePath="..\src\d2cs\xstring.h">
 				</File>
