@@ -768,3 +768,8 @@ extern int timestr_to_time(char const * timestr, time_t* ptime)
 	*ptime = mktime(&when);
 	return 0;
 }
+
+extern void strlower(char* str)
+{
+	for(;*str;str++) *str = tolower(*str);
+}

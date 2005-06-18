@@ -54,6 +54,7 @@ extern char * buildpath(char const *root, const char *suffix);
 extern char *str_skip_space(char *str);
 extern char *str_skip_word(char *str);
 extern int timestr_to_time(char const * timestr, time_t* ptime);
+extern void strlower(char* str);
 
 #endif
 #endif
