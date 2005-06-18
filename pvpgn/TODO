@@ -4,9 +4,7 @@ PvPGN TODO LIST AND WHATS BEING WORKED ON:
 Release v1.7 ROADMAP:
 1. DOCUMENTATION (client and server documentation; a FAQ, HOWTO and a file 
 describing all configuration options)
-2. reorganize and clean prefs.c system (now its replicated between bnetd and 
-d2cs/d2dbs not to mention beeing very inflexible)
-3. i18n or some sort to support different language messages to users
+2. i18n or some sort to support different language messages to users
 
 Stuff not programmed for any specific version release:			      
 
