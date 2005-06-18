@@ -338,8 +338,12 @@ static t_account * account_load_new(char const * name, unsigned uid)
     if (name && account_check_name(name)) return NULL;
 
     force_account_add = 1; /* disable the protection */
+
     attrgroup = attrgroup_create_nameuid(name, uid);
-    if (!attrgroup) return NULL;
+    if (!attrgroup) {
+	force_account_add = 0;
+	return NULL;
+    }
 
     if (!(account = account_load(attrgroup))) {
         eventlog(eventlog_level_error, __FUNCTION__,"could not load account");
@@ -506,6 +510,7 @@ extern t_account * accountlist_find_account(char const * username)
     unsigned int userid=0;
     t_entry *    curr;
     t_account *  account;
+    char* user;
     
     if (!username)
     {
@@ -513,41 +518,50 @@ extern t_account * accountlist_find_account(char const * username)
 	return NULL;
     }
     
-    if (username[0]=='#') {
-        if (str_to_uint(&username[1],&userid)<0)
+    user = xstrdup(username);
+    strlower(user);
+
+    if (user[0]=='#') {
+        if (str_to_uint(&user[1],&userid)<0)
             userid = 0;
     } else if (!(prefs_get_savebyname()))
-	if (str_to_uint(username,&userid)<0)
+	if (str_to_uint(user,&userid)<0)
 	    userid = 0;
 
     /* all accounts in list must be hashed already, no need to check */
     
     if (userid) {
         account=accountlist_find_account_by_uid(userid);
-        if (account) return account;
+        if (account) {
+	    xfree(user);
+	    return account;
+	}
     }
 
-    if ((!(userid)) || (userid && ((username[0]=='#') || (isdigit((int)username[0])))))
+    if ((!(userid)) || (userid && ((user[0]=='#') || (isdigit((int)user[0])))))
     {
 	unsigned int namehash;
 	char const * tname;
 	
-	namehash = account_hash(username);
+	namehash = account_hash(user);
 	HASHTABLE_TRAVERSE_MATCHING(accountlist_head,curr,namehash)
 	{
 	    account = entry_get_data(curr);
             if ((tname = account_get_name(account)))
 	    {
-		if (strcasecmp(tname,username)==0)
+		if (strcmp(tname,user)==0)
 		{
 		    hashtable_entry_release(curr);
+		    xfree(user);
 		    return account;
 		}
 	    }
 	}
     }
     
-    return account_load_new(username,0);
+    account = account_load_new(user,0);
+    xfree(user);
+    return account;
 }
 
 
@@ -671,24 +685,37 @@ static t_account * accountlist_add_account(t_account * account)
     return account;
 }
 
-extern t_account * accountlist_create_account(const char *username, const char *passhash1)
+extern t_account * accountlist_create_account(const char *user, const char *passhash1)
 {
     t_account *res;
+    char* username;
 
-    assert(username != NULL);
+    assert(user != NULL);
     assert(passhash1 != NULL);
 
-    res = account_create(username,passhash1);
-    if (!res) return NULL; /* eventlog reported ealier */
+    username = xstrdup(user);
+    strlower(username);
 
-    if (!accountlist_add_account(res)) {
-	account_destroy(res);
-	return NULL; /* eventlog reported earlier */
-    }
+    res = account_create(username,passhash1);
+    if (!res)
+	goto err_user; /* eventlog reported ealier */
+
+    if (!accountlist_add_account(res))
+    	goto err_acc; /* eventlog reported earlier */
 
     account_save(res,FS_FORCE); /* sync new account to storage */
 
+    xfree(username);
+
     return res;
+
+err_acc:
+    account_destroy(res);
+
+err_user:
+    xfree(username);
+
+    return NULL;
 }
 
 extern int account_check_name(char const * name)
