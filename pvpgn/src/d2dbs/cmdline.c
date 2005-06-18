@@ -45,6 +45,7 @@
 #include "common/xalloc.h"
 #include "version.h"
 #include "cmdline.h"
+#include "compat/strcasecmp.h"
 #include "common/eventlog.h"
 #include "common/setup_after.h"
 
