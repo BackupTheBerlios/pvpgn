@@ -10,7 +10,7 @@ PvPGN Version History:
   -- fixed a bug where case sensitive string lookup SQL backends whould not 
   see old accounts when searched with different case; this is a major problem 
   and if you are running any non-MySQL SQL backend you MUST upgrade; make sure 
-  you reed UPDATE too as it contains very important information for this bugfix
+  you read UPDATE too as it contains very important information for this bugfix
 
  ChangeLog for 1.7.7 (since 1.7.6)
 ===================================
