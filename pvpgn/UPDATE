@@ -9,6 +9,14 @@ It should contain:
 -- all new/changed config files in the conf/ subfolder
 The path's specified are those of the default unix installation
 
+ Updating from 1.7.8 to 1.7.7
+==============================
+Configuration files changed:
+- conf/sql_DB_layout.conf : includes changes needed for the new "username" SQL 
+    field used to fix a MAJOR bug that shows up with case sensitive SQL engines
+    (almost ALL non-MySQL engines); if you update to 1.7.8 YOU MUST update this 
+    file too if you have your accounts on SQL
+
  Updating from 1.7.5 to 1.7.6
 ==============================
 

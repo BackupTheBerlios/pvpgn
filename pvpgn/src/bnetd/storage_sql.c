@@ -367,6 +367,7 @@ static t_storage_info *sql_create_account(char const *username)
     int uid = maxuserid + 1;
     char str_uid[32];
     t_storage_info *info;
+    char *user;
 
     if (!sql)
     {
@@ -376,7 +377,10 @@ static t_storage_info *sql_create_account(char const *username)
 
     sprintf(str_uid, "%u", uid);
 
-    sprintf(query, "SELECT count(*) FROM BNET WHERE acct_username='%s'", username);
+    user = xstrdup(username);
+    strlower(user);
+    sprintf(query, "SELECT count(*) FROM BNET WHERE username='%s'", user);
+
     if ((result = sql->query_res(query)) != NULL)
     {
 	int num;
@@ -386,31 +390,30 @@ static t_storage_info *sql_create_account(char const *username)
 	{
 	    sql->free_result(result);
 	    eventlog(eventlog_level_error, __FUNCTION__, "got NULL count");
-	    return NULL;
+	    goto err_dup;
 	}
 	num = atol(row[0]);
 	sql->free_result(result);
 	if (num > 0)
 	{
 	    eventlog(eventlog_level_error, __FUNCTION__, "got existant username");
-	    return NULL;
+	    goto err_dup;
 	}
     } else
     {
 	eventlog(eventlog_level_error, __FUNCTION__, "error trying query: \"%s\"", query);
-	return NULL;
+	goto err_dup;
     }
 
     info = xmalloc(sizeof(t_sql_info));
     *((unsigned int *) info) = uid;
     sprintf(query, "DELETE FROM BNET WHERE uid = '%s';", str_uid);
     sql->query(query);
-    sprintf(query, "INSERT INTO BNET (uid) VALUES('%s');", str_uid);
+    sprintf(query, "INSERT INTO BNET (uid,username) VALUES('%s','%s');", str_uid, user);
     if (sql->query(query))
     {
 	eventlog(eventlog_level_error, __FUNCTION__, "user insert failed");
-	xfree((void *) info);
-	return NULL;
+	goto err_info;
     }
 
     sprintf(query, "DELETE FROM profile WHERE uid = '%s';", str_uid);
@@ -419,8 +422,7 @@ static t_storage_info *sql_create_account(char const *username)
     if (sql->query(query))
     {
 	eventlog(eventlog_level_error, __FUNCTION__, "user insert failed");
-	xfree((void *) info);
-	return NULL;
+	goto err_info;
     }
 
     sprintf(query, "DELETE FROM Record WHERE uid = '%s';", str_uid);
@@ -429,8 +431,7 @@ static t_storage_info *sql_create_account(char const *username)
     if (sql->query(query))
     {
 	eventlog(eventlog_level_error, __FUNCTION__, "user insert failed");
-	xfree((void *) info);
-	return NULL;
+	goto err_info;
     }
 
     sprintf(query, "DELETE FROM friend WHERE uid = '%s';", str_uid);
@@ -439,11 +440,19 @@ static t_storage_info *sql_create_account(char const *username)
     if (sql->query(query))
     {
 	eventlog(eventlog_level_error, __FUNCTION__, "user insert failed");
-	xfree((void *) info);
-	return NULL;
+	goto err_info;
     }
 
+    xfree(user);
     return info;
+
+err_info:
+    xfree((void *) info);
+
+err_dup:
+    xfree(user);
+
+    return NULL;
 }
 
 static int sql_read_attrs(t_storage_info * info, t_read_attr_func cb, void *data)
@@ -775,9 +784,13 @@ static t_storage_info * sql_read_account(const char *name, unsigned uid)
 
     /* SELECT uid from BNET WHERE uid=x sounds stupid, I agree but its a clean
      * way to check for account existence by an uid */
-    if (name) 
-	sprintf(query, "SELECT uid FROM BNET WHERE acct_username='%s'", name);
-    else
+    if (name) {
+        char *user = xstrdup(name);
+        strlower(user);
+
+	sprintf(query, "SELECT uid FROM BNET WHERE username='%s'", user);
+	xfree(user);
+    } else
 	sprintf(query, "SELECT uid FROM BNET WHERE uid=%u", uid);
     result = sql->query_res(query);
     if (!result) {
