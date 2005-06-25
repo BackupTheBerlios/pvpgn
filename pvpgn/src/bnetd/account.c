@@ -510,7 +510,6 @@ extern t_account * accountlist_find_account(char const * username)
     unsigned int userid=0;
     t_entry *    curr;
     t_account *  account;
-    char* user;
     
     if (!username)
     {
@@ -518,50 +517,41 @@ extern t_account * accountlist_find_account(char const * username)
 	return NULL;
     }
     
-    user = xstrdup(username);
-    strlower(user);
-
-    if (user[0]=='#') {
-        if (str_to_uint(&user[1],&userid)<0)
+    if (username[0]=='#') {
+        if (str_to_uint(&username[1],&userid)<0)
             userid = 0;
     } else if (!(prefs_get_savebyname()))
-	if (str_to_uint(user,&userid)<0)
+	if (str_to_uint(username,&userid)<0)
 	    userid = 0;
 
     /* all accounts in list must be hashed already, no need to check */
     
     if (userid) {
         account=accountlist_find_account_by_uid(userid);
-        if (account) {
-	    xfree(user);
-	    return account;
-	}
+        if (account) return account;
     }
 
-    if ((!(userid)) || (userid && ((user[0]=='#') || (isdigit((int)user[0])))))
+    if ((!(userid)) || (userid && ((username[0]=='#') || (isdigit((int)username[0])))))
     {
 	unsigned int namehash;
 	char const * tname;
 	
-	namehash = account_hash(user);
+	namehash = account_hash(username);
 	HASHTABLE_TRAVERSE_MATCHING(accountlist_head,curr,namehash)
 	{
 	    account = entry_get_data(curr);
             if ((tname = account_get_name(account)))
 	    {
-		if (strcmp(tname,user)==0)
+		if (strcasecmp(tname,username)==0)
 		{
 		    hashtable_entry_release(curr);
-		    xfree(user);
 		    return account;
 		}
 	    }
 	}
     }
     
-    account = account_load_new(user,0);
-    xfree(user);
-    return account;
+    return account_load_new(username,0);
 }
 
 
@@ -685,37 +675,24 @@ static t_account * accountlist_add_account(t_account * account)
     return account;
 }
 
-extern t_account * accountlist_create_account(const char *user, const char *passhash1)
+extern t_account * accountlist_create_account(const char *username, const char *passhash1)
 {
     t_account *res;
-    char* username;
 
-    assert(user != NULL);
+    assert(username != NULL);
     assert(passhash1 != NULL);
 
-    username = xstrdup(user);
-    strlower(username);
-
     res = account_create(username,passhash1);
-    if (!res)
-	goto err_user; /* eventlog reported ealier */
+    if (!res) return NULL; /* eventlog reported ealier */
 
-    if (!accountlist_add_account(res))
-    	goto err_acc; /* eventlog reported earlier */
+    if (!accountlist_add_account(res)) {
+	account_destroy(res);
+	return NULL; /* eventlog reported earlier */
+    }
 
     account_save(res,FS_FORCE); /* sync new account to storage */
 
-    xfree(username);
-
     return res;
-
-err_acc:
-    account_destroy(res);
-
-err_user:
-    xfree(username);
-
-    return NULL;
 }
 
 extern int account_check_name(char const * name)
