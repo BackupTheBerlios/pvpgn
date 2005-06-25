@@ -97,3 +97,11 @@
     so). The new codes eliminates this presumtion and thus allows WIN32 hosts 
     to support a large number of connections as PvPGN supported Unix based 
     platforms.
+
+ o Added more storage types: SQLite3 and ODBC
+
+    With 1.7.x PvPGN now supports besides the MySQL/PostgreSQL SQL backends 
+    also SQLite3 (www.sqlite.org) and ... ODBC SQL engine !! This means that 
+    theoretically now you should be able to use PvPGN with almost any SQL 
+    engine as long as an ODBC driver exists for it.
+ 
