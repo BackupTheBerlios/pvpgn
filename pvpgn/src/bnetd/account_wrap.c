@@ -2366,3 +2366,18 @@ extern int account_set_email(t_account * account, char const * email)
 
     return account_set_strattr(account,"BNET\\acct\\email", email);
 }
+
+/**
+*  Westwood Online Extensions
+*/
+extern char const * account_get_wol_apgar(t_account * account)
+{
+    return account_get_strattr(account,"WOL\\auth\\apgar");
+}
+
+extern int account_set_wol_apgar(t_account * account, char const * apgar)
+{
+    eventlog(eventlog_level_debug,__FUNCTION__,"[** WOL **] WOL\\auth\\apgar = %s",apgar);
+    return account_set_strattr(account,"WOL\\auth\\apgar",apgar);
+}
+

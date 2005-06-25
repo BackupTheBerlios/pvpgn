@@ -1407,6 +1407,7 @@ static t_packet * message_cache_lookup(t_message * message, t_connection *dst, u
 	}
 	break;
      case conn_class_irc:
+     case conn_class_wol:
 	if (!(packet = packet_create(packet_class_raw)))
 	{
 	    eventlog(eventlog_level_error,__FUNCTION__,"could not create packet");
@@ -1475,7 +1476,7 @@ extern int message_send(t_message * message, t_connection * dst)
 	return -1;
 
     /* FIXME: this is not needed now, message has dst */
-    if (conn_get_class(dst)==conn_class_irc) {
+    if ((conn_get_class(dst)==conn_class_irc)||(conn_get_class(dst)==conn_class_wol)) {
     	/* HACK: IRC message always need the recipient and are therefore bad to cache. */
 	/*       So we only cache a pseudo packet and convert it to a real packet later ... */
 	packet = packet_duplicate(packet); /* we want to modify packet so we have to create a copy ... */
@@ -1487,7 +1488,7 @@ extern int message_send(t_message * message, t_connection * dst)
     
     conn_push_outqueue(dst,packet);
 
-    if (conn_get_class(dst)==conn_class_irc)
+    if ((conn_get_class(dst)==conn_class_irc)||(conn_get_class(dst)==conn_class_wol))
     	packet_del_ref(packet); /* we don't need the previously created copy anymore ... */
 
     return 0;

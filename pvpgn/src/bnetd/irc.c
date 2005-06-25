@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2001  Marco Ziech (mmz@gmx.net)
+ * Copyright (C) 2005  Bryan Biedenkapp (gatekeep@gmail.com)
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -108,12 +109,12 @@ extern int irc_send_cmd(t_connection * conn, char const * command, char const * 
 
     nick = conn_get_loggeduser(conn);
     if (!nick)
-    	nick = ""; /* FIXME: Is this good? */
+    	nick = "";
+    	
     /* snprintf isn't portable -> check message length first */
     if (params) {
         len = 1+strlen(ircname)+1+strlen(command)+1+strlen(nick)+1+strlen(params)+2;
-	if (len > MAX_IRC_MESSAGE_LEN)
-	{
+	if (len > MAX_IRC_MESSAGE_LEN) {
 	    eventlog(eventlog_level_error,__FUNCTION__,"message to send is too large (%d bytes)",len);
 	    return -1;
 	}
@@ -121,8 +122,7 @@ extern int irc_send_cmd(t_connection * conn, char const * command, char const * 
 	    sprintf(data,":%s %s %s %s\r\n",ircname,command,nick,params);
     } else {
         len = 1+strlen(ircname)+1+strlen(command)+1+strlen(nick)+1+2;
-	if (len > MAX_IRC_MESSAGE_LEN)
-	{
+    	if (len > MAX_IRC_MESSAGE_LEN) {
 	    eventlog(eventlog_level_error,__FUNCTION__,"message to send is too large (%d bytes)",len);
 	    return -1;
 	}
@@ -185,8 +185,7 @@ extern int irc_send_cmd2(t_connection * conn, char const * prefix, char const * 
 
     if (comment) {
         len = 1+strlen(prefix)+1+strlen(command)+1+strlen(postfix)+2+strlen(comment)+1+2;
-	if (len > MAX_IRC_MESSAGE_LEN)
-	{
+    	if (len > MAX_IRC_MESSAGE_LEN) {
 	    eventlog(eventlog_level_error,__FUNCTION__,"message to send is too large (%d bytes)",len);
 	    return -1;
 	}
@@ -194,8 +193,7 @@ extern int irc_send_cmd2(t_connection * conn, char const * prefix, char const * 
 	    sprintf(data,":%s %s %s :%s\r\n",prefix,command,postfix,comment);
     } else {
         len = 1+strlen(prefix)+1+strlen(command)+1+strlen(postfix)+1+2;
-	if (len > MAX_IRC_MESSAGE_LEN)
-	{
+    	if (len > MAX_IRC_MESSAGE_LEN) {
 	    eventlog(eventlog_level_error,__FUNCTION__,"message to send is too large (%d bytes)",len);
 	    return -1;
 	}
@@ -223,9 +221,13 @@ extern int irc_send_ping(t_connection * conn)
 	eventlog(eventlog_level_error,__FUNCTION__,"could not create packet");
 	return -1;
     }
+
+    if((conn_get_wol(conn) == 1))
+        return 0;
+
     conn_set_ircping(conn,get_ticks());
     if (conn_get_state(conn)==conn_state_bot_username)
-	sprintf(data,"PING :%u\r\n",conn_get_ircping(conn)); /* Undernet doesn't reveal the servername yet ... so do we */
+    	sprintf(data,"PING :%u\r\n",conn_get_ircping(conn)); /* Undernet doesn't reveal the servername yet ... neither do we */
     else if ((6+strlen(server_get_hostname())+2+1)<=MAX_IRC_MESSAGE_LEN)
     	sprintf(data,"PING :%s\r\n",server_get_hostname());
     else
@@ -255,6 +257,7 @@ extern int irc_send_pong(t_connection * conn, char const * params)
 	eventlog(eventlog_level_error,__FUNCTION__,"could not create packet");
 	return -1;
     }
+    
     if (params)
     	sprintf(data,":%s PONG %s :%s\r\n",server_get_hostname(),server_get_hostname(),params);
     else
@@ -274,6 +277,8 @@ extern int irc_authenticate(t_connection * conn, char const * passhash)
     t_account * a;
     char const * temphash;
     char const * username;
+
+    char const * tempapgar;
 
     if (!conn) {
 	eventlog(eventlog_level_error,__FUNCTION__,"got NULL connection");
@@ -295,24 +300,42 @@ extern int irc_authenticate(t_connection * conn, char const * passhash)
 	return 0;
     }
 
-    if (connlist_find_connection_by_account(a) && prefs_get_kick_old_login()==0)
-    {
+    if (connlist_find_connection_by_account(a) && prefs_get_kick_old_login()==0) {
             irc_send_cmd(conn,"NOTICE",":Authentication rejected (already logged in) ");
     }
-    else if (account_get_auth_lock(a)==1)
-    {
+    else if (account_get_auth_lock(a)==1) {
             irc_send_cmd(conn,"NOTICE",":Authentication rejected (account is locked) "); 
     }
     else
     {
+     	if((conn_get_wol(conn) == 1)) {
+    	    temphash = account_get_wol_apgar(a);
+    	    tempapgar = conn_wol_get_apgar(conn);
+    	    
+    	    if(temphash == NULL) {
+        		account_set_wol_apgar(a,tempapgar);
+        		temphash = account_get_wol_apgar(a);
+    	    }
+    	    
+    	    if(strcmp(temphash,tempapgar) == 0) {
+                conn_login(conn,a,username);
+    	        conn_set_state(conn,conn_state_loggedin);
+        	    conn_set_clienttag(conn,CLIENTTAG_WWOL_UINT); /* WWOL hope here is ok */
+        		return 1;
+    	    }
+    	    else {
+        		conn_increment_passfail_count(conn);
+        		return 0;
+    	    }
+    	}
+
         hash_set_str(&h1,passhash);
         temphash = account_get_pass(a);	
         hash_set_str(&h2,temphash);
         if (hash_eq(h1,h2)) {
             conn_login(conn,a,username);
             conn_set_state(conn,conn_state_loggedin);
-	    /* FIXME: set clienttag to "ircd" or something (and make an icon) */
-            conn_set_clienttag(conn,CLIENTTAG_BNCHATBOT_UINT); /* CHAT hope here is ok */
+            conn_set_clienttag(conn,CLIENTTAG_IIRC_UINT); /* IIRC hope here is ok */
             irc_send_cmd(conn,"NOTICE",":Authentication successful. You are now logged in.");
 	    return 1;
         } else {
@@ -342,9 +365,8 @@ extern int irc_welcome(t_connection * conn)
 
     tempname = conn_get_loggeduser(conn);
 
-
     if ((34+strlen(tempname)+1)<=MAX_IRC_MESSAGE_LEN)
-        sprintf(temp,":Welcome to the BNETD IRC Network %s",tempname);
+        sprintf(temp,":Welcome to the "PVPGN_SOFTWARE" IRC Network %s",tempname);
     else
         sprintf(temp,":Maximum length exceeded");
     irc_send(conn,RPL_WELCOME,temp);
@@ -363,31 +385,23 @@ extern int irc_welcome(t_connection * conn)
         sprintf(temp,":Maximum length exceeded");
     irc_send(conn,RPL_CREATED,temp);
 
+    /* we don't give mode information on MYINFO we give it on ISUPPORT */
     if ((strlen(server_get_hostname())+7+strlen(PVPGN_SOFTWARE" "PVPGN_VERSION)+9+1)<=MAX_IRC_MESSAGE_LEN)
-        sprintf(temp,"%s "PVPGN_SOFTWARE" "PVPGN_VERSION" aroO Oon",server_get_hostname()); /* FIXME: be honest about modes :) */
+        sprintf(temp,"%s "PVPGN_SOFTWARE" "PVPGN_VERSION" - -",server_get_hostname());
     else
         sprintf(temp,":Maximum length exceeded");
     irc_send(conn,RPL_MYINFO,temp);
-    /* 251 is here */
-    /* 255 is here */
-    /* FIXME: show a real MOTD */
+
     if ((3+strlen(server_get_hostname())+22+1)<=MAX_IRC_MESSAGE_LEN)
-    	sprintf(temp,":- %s Message of the day - ",server_get_hostname());
+    	sprintf(temp,":- %s, "PVPGN_SOFTWARE" "PVPGN_VERSION", built on %s",server_get_hostname(),temptimestr);
     else
         sprintf(temp,":Maximum length exceeded"); 
-
     irc_send(conn,RPL_MOTDSTART,temp);
 
-   if ((filename = prefs_get_motdfile()))
-   {
-	if ((fp = fopen(filename,"r")))
-	{
-
-	  while ((line=file_get_line(fp)))
-	  {
-	  	
-		if ((formatted_line = message_format_line(conn,line)))
-		{
+    if ((filename = prefs_get_motdfile())) {
+	 if ((fp = fopen(filename,"r"))) {
+	  while ((line=file_get_line(fp))) {
+		if ((formatted_line = message_format_line(conn,line))) {
 		  formatted_line[0]=' ';
 		  sprintf(send_line,":-%s",formatted_line);
 		  irc_send(conn,RPL_MOTD,send_line);
@@ -398,13 +412,13 @@ extern int irc_welcome(t_connection * conn)
 	  file_get_line(NULL); // clear file_get_line buffer
 	  fclose(fp);
 	}
-	else motd_failed = 1;
+	 else 
+	 	motd_failed = 1;
    }
    else
      motd_failed = 1;
    
-    if (motd_failed)
-    {
+    if (motd_failed) {
       irc_send(conn,RPL_MOTD,":- Failed to load motd, sending default motd              ");
       irc_send(conn,RPL_MOTD,":- ====================================================== ");
       irc_send(conn,RPL_MOTD,":-                 http://www.pvpgn.org                   ");
@@ -412,11 +426,13 @@ extern int irc_welcome(t_connection * conn)
     }
     irc_send(conn,RPL_ENDOFMOTD,":End of /MOTD command");
     irc_send_cmd(conn,"NOTICE",":This is an experimental service.");
+    
     conn_set_state(conn,conn_state_bot_password);
     if (connlist_find_connection_by_accountname(conn_get_loggeduser(conn))) {
-	irc_send_cmd(conn,"NOTICE","This account is allready logged in, use another account.");
+    	irc_send_cmd(conn,"NOTICE","This account is already logged in, use another account.");
 	return -1;
     }
+    
     if (conn_get_ircpass(conn)) {
 	irc_send_cmd(conn,"NOTICE",":Trying to authenticate with PASS ...");
 	irc_authenticate(conn,conn_get_ircpass(conn));
@@ -437,7 +453,6 @@ extern int irc_welcome(t_connection * conn)
 /*   ':'  -> '%='     */
 /*   ','  -> '%-'     */
 /* In IRC a channel can be specified by '#'+channelname or '!'+channelid */
- 
 extern char const * irc_convert_channel(t_channel const * channel)
 {
     char const * bname;
@@ -770,7 +785,7 @@ extern int irc_message_format(t_packet * packet, t_message_type type, t_connecti
     if (me)
         ctag = clienttag_uint_to_str(conn_get_clienttag(me));
     else
-	ctag = "SRVR";
+	    ctag = clienttag_uint_to_str(CLIENTTAG_IIRC_UINT);
         
     switch (type)
     {
@@ -782,6 +797,20 @@ extern int irc_message_format(t_packet * packet, t_message_type type, t_connecti
     	from.nick = conn_get_chatname(me);
     	from.user = ctag;
     	from.host = addr_num_to_ip_str(conn_get_addr(me));
+
+	    if((conn_get_wol(me) == 1))
+	    {
+        	char temp[MAX_IRC_MESSAGE_LEN];
+    		memset(temp,0,sizeof(temp));
+    		
+    		/**
+            *  For WOL the channel JOIN output must be like the following:
+    		*   user!WWOL@hostname JOIN :clanID,longIP channelName
+    		*/
+    		sprintf(temp,":0,%u",conn_get_addr(me));
+    		msg = irc_message_preformat(&from,"JOIN",temp,irc_convert_channel(conn_get_channel(me)));
+	    }
+	    else
     	msg = irc_message_preformat(&from,"JOIN","\r",irc_convert_channel(conn_get_channel(me)));
     	conn_unget_chatname(me,from.nick);
     	break;
@@ -860,6 +889,44 @@ extern int irc_message_format(t_packet * packet, t_message_type type, t_connecti
 	msg = irc_message_preformat(&from,"MODE","\r",text);
 	conn_unget_chatname(me,from.nick);
 	break;
+   	/**
+   	*  Westwood Online Extensions
+   	*/
+    case message_wol_joingame:
+    	from.nick = conn_get_chatname(me);
+    	from.user = ctag;
+    	from.host = addr_num_to_ip_str(conn_get_addr(me));
+    	msg = irc_message_preformat(&from,"JOINGAME",text,"\r");
+    	conn_unget_chatname(me,from.nick);
+    	break;
+    case message_wol_gameopt_owner:
+    	from.nick = conn_get_chatname(me);
+    	from.user = ctag;
+    	from.host = addr_num_to_ip_str(conn_get_addr(me));
+    	msg = irc_message_preformat(&from,"GAMEOPT",irc_convert_channel(conn_get_channel(me)),text);
+    	conn_unget_chatname(me,from.nick);
+    	break;
+    case message_wol_gameopt_join:
+    	from.nick = conn_get_chatname(me);
+    	from.user = ctag;
+    	from.host = addr_num_to_ip_str(conn_get_addr(me));
+    	msg = irc_message_preformat(&from,"GAMEOPT",channel_wol_get_game_owner(conn_get_channel(me)),text);
+    	conn_unget_chatname(me,from.nick);
+    	break;
+    case message_wol_start_game:
+    	from.nick = conn_get_chatname(me);
+    	from.user = ctag;
+    	from.host = addr_num_to_ip_str(conn_get_addr(me));
+    	msg = irc_message_preformat(&from,"STARTG","u",text);
+    	conn_unget_chatname(me,from.nick);
+    	break;
+    case message_wol_page:
+    	from.nick = conn_get_chatname(me);
+    	from.user = ctag;
+    	from.host = addr_num_to_ip_str(conn_get_addr(me));
+    	msg = irc_message_preformat(&from,"PAGE","u",text);
+    	conn_unget_chatname(me,from.nick);
+    	break;
     default:
     	eventlog(eventlog_level_warn,__FUNCTION__,"%d not yet implemented",type);
 	return -1;
@@ -918,8 +985,24 @@ extern int irc_send_rpl_namreply(t_connection * c, t_channel const * channel)
 		strcat(flg,"+"); 
 	if ((strlen(temp)+((!first)?(1):(0))+strlen(flg)+strlen(name)+1)<=sizeof(temp)) {
 	    if (!first) strcat(temp," ");
+
+    	    if((conn_get_wol(c) == 1))
+    	    {
+        		if((conn_wol_get_ingame(c) == 0))
+        		{
+                    if ((flags & MF_BLIZZARD))
+        			   strcat(temp,"@");
+        		    if ((flags & MF_BNET) || (flags & MF_GAVEL))
+        			   strcat(temp,"@");
+        		}
+                sprintf(temp,"%s%s,0,%u",temp,name,conn_get_addr(m));
+    	    }
+    	    else
+    	    {
 	    strcat(temp,flg);
 	    strcat(temp,name);
+    	    }
+
 	    first = 0;
 	}
 	conn_unget_chatname(m,name);

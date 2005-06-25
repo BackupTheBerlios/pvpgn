@@ -185,6 +185,8 @@
 #define BNETD_SERVERNAME      "PvPGN Realm"
 #define BNETD_IRC_ADDRS       "" /* this means none */
 #define BNETD_IRC_PORT        6667 /* used if port not specified */
+#define BNETD_WOL_ADDRS       ""
+#define BNETD_WOL_PORT        4005
 #define BNETD_TRACK_ADDRS     "track.pvpgn.org"
 #define BNETD_TRACK_PORT      6114 /* use this port if not specified */
 #define BNETD_DEF_TEST_PORT   6112 /* default guess for UDP test port */

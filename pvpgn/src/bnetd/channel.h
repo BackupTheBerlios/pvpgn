@@ -87,6 +87,17 @@ typedef struct channel
     t_list *          banlist;    /* of char * */
     char *            logname;    /* NULL if not logged */
     FILE *            log;        /* NULL if not logging */
+    
+    /**
+    *  Westwood Online Extensions
+    */
+    char const *      gameOwner;
+    int               gameOwnerIP;
+
+    int               gameType;
+    int               gameTournament;
+
+    char const *      gameOptions;
 }
 #endif
 t_channel;
@@ -144,6 +155,24 @@ extern t_list * channellist(void);
 extern t_channel * channellist_find_channel_by_name(char const * name, char const * locale, char const * realmname);
 extern t_channel * channellist_find_channel_bychannelid(unsigned int channelid);
 extern int channellist_get_length(void);
+
+/**
+*  Westwood Online Extensions
+*/
+extern char const * channel_wol_get_game_owner(t_channel const * channel);
+extern int channel_wol_set_game_owner(t_channel * channel, char const * gameOwner);
+
+extern int channel_wol_get_game_ownerip(t_channel const * channel);
+extern int channel_wol_set_game_ownerip(t_channel * channel, int gameOwnerIP);
+
+extern int channel_wol_get_game_type(t_channel const * channel);
+extern int channel_wol_set_game_type(t_channel * channel, int gameType);
+
+extern int channel_wol_get_game_tournament(t_channel const * channel);
+extern int channel_wol_set_game_tournament(t_channel * channel, int tournament);
+
+extern char const * channel_wol_get_game_options(t_channel const * channel);
+extern int channel_wol_set_game_options(t_channel * channel, char const * gameOptions);
 
 #endif
 #endif

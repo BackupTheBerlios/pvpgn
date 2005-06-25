@@ -88,6 +88,10 @@ extern char const * clienttag_uint_to_str(t_clienttag clienttag)
 	    	return CLIENTTAG_WARCRAFT3;
 	    case CLIENTTAG_WAR3XP_UINT:
 	    	return CLIENTTAG_WAR3XP;
+    	case CLIENTTAG_IIRC_UINT:
+             return CLIENTTAG_IIRC;
+        case CLIENTTAG_WWOL_UINT:
+             return CLIENTTAG_WWOL;
 	    default:
 		return CLIENTTAG_UNKNOWN;
 	}
@@ -183,6 +187,8 @@ extern int tag_check_client(t_tag tag_uint)
 	case CLIENTTAG_DIABLO2XP_UINT:
 	case CLIENTTAG_WARCRAFT3_UINT:
 	case CLIENTTAG_WAR3XP_UINT:
+    case CLIENTTAG_IIRC_UINT:
+    case CLIENTTAG_WWOL_UINT:
 	    return 1;
 	default:
 	    return 0;
@@ -239,6 +245,10 @@ extern char const * clienttag_get_title(t_clienttag clienttag)
         return "Starcraft";
       case CLIENTTAG_BNCHATBOT_UINT:
         return "Chat";
+      case CLIENTTAG_IIRC_UINT:
+        return "Internet Relay Chat";
+      case CLIENTTAG_WWOL_UINT:
+        return "Westwood Online";
       default:
         return "Unknown";
    }

@@ -212,5 +212,12 @@ extern int account_is_operator_or_admin(t_account * account, char const * channe
 extern int account_set_email(t_account * account, char const * email);
 extern char const * account_get_email(t_account * account);
 
+/**
+*  Westwood Online Extensions
+*/
+extern char const * account_get_wol_apgar(t_account * account);
+extern int account_set_wol_apgar(t_account * account, char const * apgar);
+
+
 #endif
 #endif

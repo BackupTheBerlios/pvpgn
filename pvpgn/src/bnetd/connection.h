@@ -85,6 +85,7 @@ typedef enum
     conn_class_bot,
     conn_class_telnet,
     conn_class_irc,     /* Internet Relay Chat */
+    conn_class_wol,     /* Westwood Online */
     conn_class_d2cs_bnetd,
     conn_class_w3route,
     conn_class_none
@@ -203,6 +204,17 @@ typedef struct connection
 	    struct connection *	routeconn;
 	    t_anongame *	anongame;
 	} w3;
+	struct {
+	    int ingame;				        /* Are we in a game channel? */
+	    
+	    int codepage;
+	    int locale;
+	    int gameType;
+	    
+	    char const * apgar;			    /* WOL User Password (encrypted) */
+
+	    char const * gameOptions;		/* Game Options */
+	} wol;
 // [quetzal] 20020828 - creation time, can be used for killing idling init connections
 	int			cr_time;
 	/* Pass fail count for bruteforce protection */
@@ -425,6 +437,29 @@ extern int conn_set_tmpVOICE_channel(t_connection * c, char const * tmpVOICE_cha
 extern char const * conn_get_tmpVOICE_channel(t_connection * c);
 extern t_elist *conn_get_timer(t_connection * c);
 extern int conn_add_fdwatch(t_connection *c, fdwatch_handler handle);
+
+/**
+*  Westwood Online Extensions
+*/
+extern int conn_get_wol(t_connection * c);
+
+extern void conn_wol_set_ingame(t_connection * c, int wol_ingame);
+extern int conn_wol_get_ingame(t_connection * c);
+
+extern void conn_wol_set_apgar(t_connection * c, char const * apgar);
+extern char const * conn_wol_get_apgar(t_connection * c); 
+
+extern void conn_wol_set_codepage(t_connection * c, int codepage);
+extern int conn_wol_get_codepage(t_connection * c);
+
+extern void conn_wol_set_locale(t_connection * c, int locale);
+extern int conn_wol_get_locale(t_connection * c);
+
+extern void conn_wol_set_game_type(t_connection * c, int gameType);
+extern int conn_wol_get_game_type(t_connection * c); 
+
+extern void conn_wol_set_game_options(t_connection * c, char const * gameOptions);
+extern char const * conn_wol_get_game_options(t_connection * c); 
 
 #endif
 #endif

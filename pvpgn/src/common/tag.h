@@ -72,6 +72,11 @@ typedef t_tag		t_gamelang;
 #define CLIENTTAG_WAR3XP    		"W3XP" /* WarCraft III Expansion */
 #define CLIENTTAG_WAR3XP_UINT		0x57335850
 
+#define CLIENTTAG_IIRC              "IIRC"/* IRC */
+#define CLIENTTAG_IIRC_UINT         0x49495243
+#define CLIENTTAG_WWOL              "WWOL"/* Westwood Online */
+#define CLIENTTAG_WWOL_UINT         0x57574F4C
+
 /* BNETD-specific software tags - we try to use lowercase to avoid collisions  */
 #define CLIENTTAG_FREECRAFT "free" /* FreeCraft http://www.freecraft.com/ */
 

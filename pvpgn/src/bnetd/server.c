@@ -258,6 +258,8 @@ static char const * laddr_type_get_str(t_laddr_type laddr_type)
 	return "w3route";
     case laddr_type_irc:
 	return "irc";
+    case laddr_type_wol:
+	return "wol";
     case laddr_type_telnet:
 	return "telnet";
     default:
@@ -402,6 +404,10 @@ static int sd_accept(t_addr const * curr_laddr, t_laddr_info const * laddr_info,
 	{
 	case laddr_type_irc:
 	    conn_set_class(c,conn_class_irc);
+	    conn_set_state(c,conn_state_connected);
+	    break;
+	case laddr_type_wol:
+	    conn_set_class(c,conn_class_wol);
 	    conn_set_state(c,conn_state_connected);
 	    break;
 	case laddr_type_w3route:
@@ -573,6 +579,7 @@ static int sd_tcpinput(t_connection * c)
 	    break;
 	case conn_class_bot:
 	case conn_class_irc:
+	case conn_class_wol:
 	case conn_class_telnet:
 	    if (!(packet = packet_create(packet_class_raw)))
 	    {
@@ -687,6 +694,7 @@ static int sd_tcpinput(t_connection * c)
 		    ret = handle_file_packet(c,packet);
 		    break;
 		case conn_class_irc:
+		case conn_class_wol:
 		    ret = handle_irc_packet(c,packet);
 		    break;
 		case conn_class_w3route:
@@ -1486,6 +1494,14 @@ extern int server_process(void)
     if (_setup_add_addrs(&laddrs, prefs_get_irc_addrs(),INADDR_ANY,BNETD_IRC_PORT, laddr_type_irc))
     {
 	eventlog(eventlog_level_error,__FUNCTION__,"could not create %s server address list from \"%s\"",laddr_type_get_str(laddr_type_irc),prefs_get_irc_addrs());
+	_shutdown_addrs(laddrs);
+	return -1;
+    }
+
+    /* Append list of addresses to listen for WOL IRC connections */
+    if (_setup_add_addrs(&laddrs, prefs_get_wol_addrs(),INADDR_ANY,BNETD_WOL_PORT, laddr_type_wol))
+    {
+	eventlog(eventlog_level_error,__FUNCTION__,"could not create %s server address list from \"%s\"",laddr_type_get_str(laddr_type_wol),prefs_get_wol_addrs());
 	_shutdown_addrs(laddrs);
 	return -1;
     }

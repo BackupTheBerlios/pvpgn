@@ -52,6 +52,16 @@ typedef enum
     message_type_emote,
     message_type_uniqueid,
     message_type_mode,
+
+    /**
+    *  Westwood Online Extensions
+    */
+    message_wol_joingame,
+    message_wol_gameopt_owner,
+    message_wol_gameopt_join,
+    message_wol_start_game,
+    message_wol_page,
+
     message_type_null
 } t_message_type;
 

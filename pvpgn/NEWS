@@ -2,6 +2,12 @@
 		    PvPGN 1.7.x Major Changes And New Features
 		  ==============================================
 
+ o Westwood Online (WOL) support
+
+    This is a historic moment in the life of the PvPGN project. For the first 
+    time a different gaming network than Battle.net is supported with PvPGN. 
+    Current supports includes almost complete support for Tiberian Sun (TA) 
+    and basic support for Red Alert 2 (RA2) and Yuri's Revenge (YR).
 
  o WIN32 GUI for d2cs and d2dbs
 

@@ -171,5 +171,13 @@ extern char const * prefs_get_ladder_prefix(void);
 extern unsigned int prefs_get_max_connections(void);
 extern unsigned int prefs_get_sync_on_logoff(void);
 
+/**
+*  Westwood Online Extensions
+*/
+extern char const * prefs_get_wol_addrs(void);
+extern char const * prefs_get_wol_timezone(void);
+extern char const * prefs_get_wol_long(void);
+extern char const * prefs_get_wol_lat(void);
+
 #endif
 #endif

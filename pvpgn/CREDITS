@@ -14,6 +14,10 @@ PROGRAMMING CONTRIBUTORS
 	 Project release engineering, general code maintenance, storage 
 	 development, fdwatch development, some documentation and lots others.
 
+	Bryan Biedenkapp (gatekeep@gmail.com)
+	 Westwood Online (WOL) support. Lot's of IRC fixes and enhancements. 
+	 WOL and IRC maintainer.
+
 	pandaemonium a.k.a. aaron
 	 W3 ladders, binary ladders, commands aliases, channel topics, 
 	 channel tmp ops/voices, anongame infos language support, SQL db 

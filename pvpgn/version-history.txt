@@ -12,6 +12,10 @@ PvPGN Version History:
   and if you are running any non-MySQL SQL backend you MUST upgrade; make sure 
   you read UPDATE too as it contains very important information for this bugfix
 
+[WOL]
+  -- initial support (HURRAY!!); almost complete Tiberian Sun (TA) support, 
+  basic Red Alert 2 (RA2) and Yuri's Revenge (YR) support
+
  ChangeLog for 1.7.7 (since 1.7.6)
 ===================================
 [STORAGE]

@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2001  Marco Ziech (mmz@gmx.net)
+ * Copyright (C) 2005  Bryan Biedenkapp (gatekeep@gmail.com)
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -35,7 +36,7 @@
  * of the undernet-ircd distribution.
  * See http://www.undernet.org/
  */
-
+/** reply's */
 #define RPL_WELCOME            1
 #define RPL_YOURHOST           2
 #define RPL_CREATED            3
@@ -47,7 +48,6 @@
 #define RPL_SNOMASK            8        /* Undernet extension */
 #define RPL_STATMEMTOT         9        /* Undernet extension */
 #define RPL_STATMEM           10        /* Undernet extension */
-					/* Hybrid: server redirect */
 /*      RPL_YOURCOOKIE        14           IRCnet extension */
 #define RPL_MAP               15        /* Undernet extension */
 #define RPL_MAPMORE           16        /* Undernet extension */
@@ -293,6 +293,59 @@
 /*      RPL_NOUSERS          395        Dalnet/EFnet/IRCnet */
 
 /*
+ * Numberic replies from server commands.
+ * These are currently in the range 600-699.
+ */
+/*		RPL_LOGON			 600		   dalnet,unreal
+		RPL_LOGOFF           601		   dalnet,unreal
+		RPL_WATCHOFF         602		   dalnet,unreal
+		RPL_WATCHSTAT        603		   dalnet,unreal
+		RPL_NOWON            604		   dalnet,unreal
+		RPL_NOWOFF           605		   dalnet,unreal
+		RPL_WATCHLIST        606		   dalnet,unreal
+		RPL_ENDOFWATCHLIST   607		   dalnet,unreal
+
+		RPL_MAPMORE          610		   unreal
+
+		RPL_MAPMORE          615		   PTlink
+	
+		RPL_DCCSTATUS        617		   dalnet
+		RPL_DCCLIST          618		   dalnet
+		RPL_ENDOFDCCLIST     619		   dalnet
+		RPL_DCCINFO          620		   dalnet
+	
+		RPL_DUMPING			 640		   unreal
+		RPL_DUMPRPL			 641		   unreal
+		RPL_EODUMP			 642		   unreal
+*/
+
+/**
+* Westwood Online Extensions
+*/
+#define RPL_GAME_CHANNEL     326
+#define RPL_CHANNEL			 327
+
+#define RPL_GET_CODEPAGE     328	
+#define RPL_SET_CODEPAGE     329
+
+#define RPL_GET_LOCALE	     309
+#define RPL_SET_LOCALE	     310
+
+#define RPL_BATTLECLAN	     358
+
+#define RPL_FIND_USER_EX     398
+
+#define RPL_UPDATE_RECORD    602
+
+#define RPL_IRCSERV			 605
+#define RPL_ENDSERVLIST	     607
+#define RPL_GAMERESSERV	     608
+#define RPL_LADDERSERV	     609
+
+#define RPL_LOBCOUNT	     610
+
+/** error's */
+/*
  * Errors are in the range from 400-599 currently and are grouped by what
  * commands they come from.
  */
@@ -433,30 +486,6 @@
 /*	ERR_LISTSYNTAX       521	dalnet
 	ERR_WHOSYNTAX	     522        dalnet
 	ERR_WHOLIMEXCEED     523	dalnet */
-
-/*	RPL_LOGON	     600	dalnet,unreal
-	RPL_LOGOFF           601	dalnet,unreal
-	RPL_WATCHOFF         602	dalnet,unreal
-	RPL_WATCHSTAT        603	dalnet,unreal
-	RPL_NOWON            604	dalnet,unreal
-	RPL_NOWOFF           605	dalnet,unreal
-	RPL_WATCHLIST        606	dalnet,unreal
-	RPL_ENDOFWATCHLIST   607	dalnet,unreal
-
-	RPL_MAPMORE          610	unreal
-
-	RPL_MAPMORE          615	PTlink
-	
-	RPL_DCCSTATUS        617	dalnet
-	RPL_DCCLIST          618	dalnet
-	RPL_ENDOFDCCLIST     619	dalnet
-	RPL_DCCINFO          620	dalnet
-	
-	RPL_DUMPING	     640	unreal
-	RPL_DUMPRPL	     641	unreal
-	RPL_EODUMP	     642	unreal
-*/
-
 
 #endif
 #endif

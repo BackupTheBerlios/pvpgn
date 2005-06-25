@@ -154,7 +154,8 @@ static void conn_send_welcome(t_connection * c)
     
     if (c->protocol.cflags & conn_flags_welcomed)
 	return;
-    if (conn_get_class(c)==conn_class_irc)
+    if ((conn_get_class(c)==conn_class_irc)||
+        (conn_get_class(c)==conn_class_wol))
     {
 	c->protocol.cflags|= conn_flags_welcomed;
 	return;
@@ -236,7 +237,8 @@ extern void conn_test_latency(t_connection * c, time_t now, t_timer_data delta)
     	return;					// state_destroy: do nothing
 
     
-    if (conn_get_class(c)==conn_class_irc) {
+    if ((conn_get_class(c)==conn_class_irc)||
+        (conn_get_class(c)==conn_class_wol)) {
     	/* We should start pinging the client after we received the first line ... */
     	/* NOTE: RFC2812 only suggests that PINGs are being sent 
     	 * if no other activity is detected. However it explecitly 
@@ -318,6 +320,8 @@ extern char const * conn_class_get_str(t_conn_class class)
 	return "telnet";
     case conn_class_irc:
 	return "irc";
+	case conn_class_wol:
+    return "wol";
     case conn_class_none:
 	return "none";
 	case conn_class_w3route:
@@ -440,6 +444,18 @@ extern t_connection * conn_create(int tsock, int usock, unsigned int real_local_
     temp->protocol.w3.anongame_search_starttime  = 0;
     temp->protocol.bound                         = NULL;
     elist_init(&temp->protocol.timers);
+
+    temp->protocol.wol.ingame			         = 0;
+    
+    temp->protocol.wol.codepage			         = 0;
+    temp->protocol.wol.locale			         = 0;
+    temp->protocol.wol.gameType			         = 0;
+
+    temp->protocol.wol.apgar			         = NULL;
+
+    temp->protocol.wol.gameOptions		         = NULL;
+
+
     temp->protocol.cr_time                       = now;
     temp->protocol.passfail_count                = 0;
 
@@ -1973,7 +1989,8 @@ extern int conn_set_channel(t_connection * c, char const * channelname)
       message_send_text(c,message_type_info,c,msgtemp);
     }
 
-    if (channel_get_topic(channel_get_name(c->protocol.chat.channel)) && (conn_get_class(c)!=conn_class_irc))
+    if (channel_get_topic(channel_get_name(c->protocol.chat.channel)) && ((conn_get_class(c)!=conn_class_irc) ||
+        (conn_get_class(c)!=conn_class_wol)))
     {
       char msgtemp[MAX_MESSAGE_LEN];
 
@@ -3494,7 +3511,7 @@ extern unsigned int connlist_login_get_length(void)
     {
 	c = elem_get_data(curr);
 	if ((c->protocol.state==conn_state_loggedin)&&
-	    ((c->protocol.class==conn_class_bnet)||(c->protocol.class==conn_class_bot)||(c->protocol.class==conn_class_telnet)||(c->protocol.class==conn_class_irc)))
+	    ((c->protocol.class==conn_class_bnet)||(c->protocol.class==conn_class_bot)||(c->protocol.class==conn_class_telnet)||(c->protocol.class==conn_class_irc)||(c->protocol.class==conn_class_wol)))
 	    count++;
     }
     
@@ -3758,4 +3775,171 @@ static void connarray_del_conn(unsigned index)
     curr = connarray + index;
     curr->c = NULL;
     elist_add_tail(&arrayflist,&curr->freelist);
+}
+
+/**
+*  Westwood Online Extensions
+*/
+extern int conn_get_wol(t_connection * c)
+{
+    if (!c)
+    {
+    	eventlog(eventlog_level_error,__FUNCTION__,"get NULL conn");
+    	return -1;
+    }
+    
+	if (c->protocol.class==conn_class_wol)
+	   return 1;
+	   
+    return 0;
+}
+
+extern void conn_wol_set_ingame(t_connection * c, int ingame)
+{
+    if (!c)
+    {
+    	eventlog(eventlog_level_error,__FUNCTION__,"get NULL conn");
+    	return;
+    }
+    
+    if (ingame)
+      c->protocol.wol.ingame = ingame;
+}
+
+extern int conn_wol_get_ingame(t_connection * c)
+{
+    if (!c)
+    {
+    	eventlog(eventlog_level_error,__FUNCTION__,"get NULL conn");
+    	return -1;
+    }
+    
+    return c->protocol.wol.ingame;
+}
+
+extern void conn_wol_set_apgar(t_connection * c, char const * apgar)
+{
+    if (!c)
+    {
+        eventlog(eventlog_level_error,__FUNCTION__,"got NULL connection");
+        return;
+    }
+    if (!apgar)
+    {
+        eventlog(eventlog_level_error,__FUNCTION__,"got NULL WOL apgar");
+        return;
+    }
+
+    if (c->protocol.wol.apgar)
+		xfree((void *)c->protocol.wol.apgar); /* avoid warning */
+    c->protocol.wol.apgar = xstrdup(apgar);
+}
+
+extern char const * conn_wol_get_apgar(t_connection * c)
+{
+    if (!c)
+    {
+    	eventlog(eventlog_level_error,__FUNCTION__,"got NULL conn");
+    	return NULL;
+    }
+
+    return c->protocol.wol.apgar;
+}
+
+extern void conn_wol_set_codepage(t_connection * c, int codepage)
+{
+    if (!c)
+    {
+        eventlog(eventlog_level_error,__FUNCTION__,"got NULL conn");
+        return;
+    }
+    
+    if (codepage)
+       c->protocol.wol.codepage = codepage;
+}
+
+extern int conn_wol_get_codepage(t_connection * c)
+{
+    if (!c)
+    {
+    	eventlog(eventlog_level_error,__FUNCTION__,"got NULL conn");
+    	return -1;
+    }
+
+    return c->protocol.wol.codepage;
+}
+
+extern void conn_wol_set_locale(t_connection * c, int locale)
+{
+    if (!c)
+    {
+    	eventlog(eventlog_level_error,__FUNCTION__,"got NULL conn");
+    	return;
+    }
+
+    if (locale)
+        c->protocol.wol.locale = locale;
+}
+
+extern int conn_wol_get_locale(t_connection * c)
+{
+    if (!c)
+    {
+    	eventlog(eventlog_level_error,__FUNCTION__,"got NULL conn");
+    	return -1;
+    }
+
+    return c->protocol.wol.locale;
+}    
+
+extern void conn_wol_set_game_type(t_connection * c, int gameType)
+{
+    if (!c)
+    {
+        eventlog(eventlog_level_error,__FUNCTION__,"got NULL connection");
+        return;
+    }
+
+    if (gameType)
+        c->protocol.wol.gameType = gameType;
+}
+
+extern int conn_wol_get_game_type(t_connection * c)
+{
+    if (!c)
+    {
+    	eventlog(eventlog_level_error,__FUNCTION__,"got NULL conn");
+    	return -1;
+    }
+
+    return c->protocol.wol.gameType;
+}
+
+extern void conn_wol_set_game_options(t_connection * c, char const * gameOptions)
+{
+    if (!c)
+    {
+        eventlog(eventlog_level_error,__FUNCTION__,"got NULL connection");
+        return;
+    }
+    if (!gameOptions)
+    {
+        eventlog(eventlog_level_error,__FUNCTION__,"got NULL game options");
+        return;
+    }
+
+    if (c->protocol.wol.gameOptions)
+    	xfree((void *)c->protocol.wol.gameOptions); /* avoid warning */
+    c->protocol.wol.gameOptions = xstrdup(gameOptions);
+}
+
+extern char const * conn_wol_get_game_options(t_connection * c)
+{
+    if (!c)
+    {
+		eventlog(eventlog_level_error,__FUNCTION__,"got NULL conn");
+		return NULL;
+    }
+
+    return c->protocol.wol.gameOptions;
 }

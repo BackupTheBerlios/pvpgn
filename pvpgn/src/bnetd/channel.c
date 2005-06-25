@@ -258,6 +258,14 @@ extern t_channel * channel_create(char const * fullname, char const * shortname,
 	channel->log = NULL;
     }
     
+    channel->gameOwner = NULL;
+    channel->gameOwnerIP = 0;
+
+    channel->gameType = 0;
+    channel->gameTournament = 0;
+
+    channel->gameOptions = NULL;
+
     list_append_data(channellist_head,channel);
     
     eventlog(eventlog_level_debug,__FUNCTION__,"channel created successfully");
@@ -697,7 +705,7 @@ extern void channel_message_send(t_channel const * channel, t_message_type type,
     tname = conn_get_chatname(me);
     for (c=channel_get_first(channel); c; c=channel_get_next())
     {
-	if (c==me && (type==message_type_talk || type==message_type_join || type==message_type_part))
+	if (c==me && (type==message_type_talk || type==message_type_join || type==message_type_part || type==message_wol_gameopt_owner))
 	    continue; /* ignore ourself */
 	if ((type==message_type_talk || type==message_type_whisper || type==message_type_emote || type==message_type_broadcast) &&
 	    conn_check_ignoring(c,tname)==1)
@@ -711,8 +719,11 @@ extern void channel_message_send(t_channel const * channel, t_message_type type,
     
     message_destroy(message);
 
+    if ((conn_get_wol(me) == 0))
+    {
     if (!heard && (type==message_type_talk || type==message_type_emote))
 	message_send_text(me,message_type_info,me,"No one hears you.");
+}
 }
 
 extern int channel_ban_user(t_channel * channel, char const * user)
@@ -1554,4 +1565,134 @@ extern int channel_set_userflags(t_connection * c)
   }
   
   return 0;
+}
+
+/**
+*  Westwood Online Extensions
+*/
+extern char const * channel_wol_get_game_owner(t_channel const * channel)
+{
+	if (!channel)
+	{
+	  eventlog(eventlog_level_error,__FUNCTION__,"got NULL channel");
+	  return NULL;
+	}
+	
+    return channel->gameOwner;
+}
+
+extern int channel_wol_set_game_owner(t_channel * channel, char const * gameOwner)
+{
+	if (!channel)
+	{
+	  eventlog(eventlog_level_error,__FUNCTION__,"got NULL channel");
+	  return 0;
+	}
+	
+	if (channel->gameOwner)
+	    xfree((void *)channel->gameOwner); /* avoid warning */
+	channel->gameOwner = xstrdup(gameOwner);
+	    
+	return 1;
+}
+
+extern int channel_wol_get_game_ownerip(t_channel const * channel)
+{
+	if (!channel)
+	{
+	  eventlog(eventlog_level_error,__FUNCTION__,"got NULL channel");
+	  return -1;
+	}
+	
+    return channel->gameOwnerIP;
+}
+
+extern int channel_wol_set_game_ownerip(t_channel * channel, int gameOwnerIP)
+{
+	if (!channel)
+	{
+	  eventlog(eventlog_level_error,__FUNCTION__,"got NULL channel");
+	  return 0;
+	}
+	
+	if (gameOwnerIP)
+  	   channel->gameOwnerIP = gameOwnerIP;
+	    
+	return 1;
+}
+
+extern int channel_wol_get_game_type(t_channel const * channel)
+{
+	if (!channel)
+	{
+	  eventlog(eventlog_level_error,__FUNCTION__,"got NULL channel");
+	  return -1;
+	}
+	
+    return channel->gameType;
+}
+
+extern int channel_wol_set_game_type(t_channel * channel, int gameType)
+{
+	if (!channel)
+	{
+	  eventlog(eventlog_level_error,__FUNCTION__,"got NULL channel");
+	  return 0;
+	}
+	
+	if (gameType)
+  	   channel->gameType = gameType;
+	    
+	return 1;
+}
+
+extern int channel_wol_get_game_tournament(t_channel const * channel)
+{
+	if (!channel)
+	{
+	  eventlog(eventlog_level_error,__FUNCTION__,"got NULL channel");
+	  return -1;
+	}
+	
+    return channel->gameTournament;
+}
+
+extern int channel_wol_set_game_tournament(t_channel * channel, int gameTournament)
+{
+	if (!channel)
+	{
+	  eventlog(eventlog_level_error,__FUNCTION__,"got NULL channel");
+	  return 0;
+	}
+	
+	if (gameTournament)
+ 	   channel->gameTournament = gameTournament;
+	    
+	return 1;
+}
+
+extern char const * channel_wol_get_game_options(t_channel const * channel)
+{
+	if (!channel)
+	{
+	  eventlog(eventlog_level_error,__FUNCTION__,"got NULL channel");
+	  return NULL;
+	}
+	
+    return channel->gameOptions;
+}
+
+extern int channel_wol_set_game_options(t_channel * channel, char const * gameOptions)
+{
+	if (!channel)
+	{
+	  eventlog(eventlog_level_error,__FUNCTION__,"got NULL channel");
+	  return 0;
+	}
+	
+	if (channel->gameOptions)
+	    xfree((void *)channel->gameOptions); /* avoid warning */
+	channel->gameOptions = xstrdup(gameOptions);
+	    
+	return 1;
 }
