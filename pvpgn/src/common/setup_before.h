@@ -178,7 +178,7 @@
 
 /* other default configuration values */
 #define BNETD_LOG_LEVELS      "warn,error"
-#define BNETD_SERV_ADDRS      ":" /* this means "all" */
+#define BNETD_SERV_ADDRS      "" /* this means none */
 #define BNETD_SERV_PORT       6112
 #define BNETD_W3ROUTE_ADDR    "0.0.0.0"
 #define BNETD_W3ROUTE_PORT    6200

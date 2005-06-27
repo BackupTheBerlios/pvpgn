@@ -20,6 +20,9 @@ Configuration files changed:
     to specify the address to listen for WOL clients, woltimezone for the 
     server timezone to send to clients, wollong for the server longitute, 
     wollat for the server latitude
+- conf/bnetd.conf : changed "servaddrs" directive to not be totally commented 
+    and be as ":" by default in bnetd.conf (if "servaddrs" is commented this 
+    means "bnetd" will not listen for b.net services at all)
 - conf/channels.conf : added channels needed by WOL clients
 
  Updating from 1.7.5 to 1.7.6

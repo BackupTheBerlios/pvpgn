@@ -459,7 +459,7 @@ max_conns_per_IP = 0
 # interfaces.
 #servaddrs = ":9999"
 #servaddrs = "myinternalname.some.com,localhost"
-#servaddrs = ":" # default interface (all) and default port (6112)
+servaddrs = ":" # default interface (all) and default port (6112)
 
 # Don't change these unless you really need to!  You will need to run a proxy
 # or modify the clients.  Also note that these will not change when simply

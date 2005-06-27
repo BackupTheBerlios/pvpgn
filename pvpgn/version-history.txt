@@ -16,6 +16,11 @@ PvPGN Version History:
   -- initial support (HURRAY!!); almost complete Tiberian Sun (TA) support, 
   basic Red Alert 2 (RA2) and Yuri's Revenge (YR) support
 
+[MISC]
+  -- changed that if "servaddrs" option in bnetd.conf is commented server 
+  should not listen on bnet addresses (now that we have WOL b.net is not a 
+  priority anymore)
+
  ChangeLog for 1.7.7 (since 1.7.6)
 ===================================
 [STORAGE]
