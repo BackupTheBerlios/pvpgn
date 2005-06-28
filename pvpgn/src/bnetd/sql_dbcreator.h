@@ -19,11 +19,23 @@
 
 #include "common/list.h"
 
+typedef struct sqlcommand
+#ifdef SQL_DBCREATOR_INTERNAL_ACCESS
+{
+  char * sql_command;
+  char * mode;
+  char * extra_cmd;
+}
+#endif
+t_sqlcommand;
+
 typedef struct column
 #ifdef SQL_DBCREATOR_INTERNAL_ACCESS
 {
   char * name;
   char * value;
+  char * mode;
+  char * extra_cmd;
 } 
 #endif
 t_column;

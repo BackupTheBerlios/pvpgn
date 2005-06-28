@@ -54,7 +54,7 @@ t_elem  * curr_cmd    = NULL;
 
 t_db_layout * db_layout;
 
-t_column * create_column(char * name, char * value)
+t_column * create_column(char * name, char * value, char * mode, char * extra_cmd)
 {
   t_column * column;
   
@@ -74,6 +74,17 @@ t_column * create_column(char * name, char * value)
   column->name  = xstrdup(name);
   column->value = xstrdup(value);
 
+  if (mode && extra_cmd)
+  {
+	  column->mode      = xstrdup(mode);
+	  column->extra_cmd = xstrdup(extra_cmd);
+  }
+  else
+  {
+	  column->mode      = NULL;
+	  column->extra_cmd = NULL;
+  }
+
   return column;
 };
 
@@ -81,10 +92,49 @@ void dispose_column(t_column * column)
 {
   if (column)
     {
-      if (column->name)  xfree((void *)column->name);
-      if (column->value) xfree((void *)column->value);
+      if (column->name)      xfree((void *)column->name);
+      if (column->value)     xfree((void *)column->value);
+      if (column->mode)      xfree((void *)column->mode);
+      if (column->extra_cmd) xfree((void *)column->extra_cmd);
       xfree((void *)column);
     }
+}
+
+t_sqlcommand * create_sqlcommand(char * sql_command, char * mode, char * extra_cmd)
+{
+  t_sqlcommand * sqlcommand;
+  
+  if (!(sql_command))
+  {
+    eventlog(eventlog_level_error,__FUNCTION__,"got NULL sql_command");
+    return NULL;
+  }
+  
+  sqlcommand = xmalloc(sizeof(t_sqlcommand));
+  sqlcommand->sql_command = xstrdup(sql_command);
+  if (mode && extra_cmd)
+  {
+    sqlcommand->mode      = xstrdup(mode);
+    sqlcommand->extra_cmd = xstrdup(extra_cmd);
+  }
+  else
+  {
+    sqlcommand->mode      = NULL;
+    sqlcommand->extra_cmd = NULL;
+  }
+
+  return sqlcommand;
+}
+
+void dispose_sqlcommand(t_sqlcommand * sqlcommand)
+{
+  if (sqlcommand)
+  {
+    if (sqlcommand->sql_command) xfree((void *)sqlcommand->sql_command);
+    if (sqlcommand->mode) xfree((void *)sqlcommand->mode);
+    if (sqlcommand->extra_cmd) xfree((void *)sqlcommand->extra_cmd);
+    xfree(sqlcommand);
+  }
 }
 
 t_table * create_table(char * name)
@@ -110,7 +160,7 @@ void dispose_table(t_table * table)
 {
   t_elem * curr;
   t_column * column;
-  char * sql_command;
+  t_sqlcommand * sql_command;
   
   if (table)
     {
@@ -141,7 +191,7 @@ void dispose_table(t_table * table)
 		  eventlog(eventlog_level_error,__FUNCTION__,"found NULL entry in list");
 		  continue;
 		}
-	      xfree((void *)sql_command);
+	      dispose_sqlcommand(sql_command);
 	      list_remove_elem(table->sql_commands,&curr);
 	    }
 	  
@@ -161,7 +211,7 @@ void table_add_column(t_table * table, t_column * column)
     }
 }
 
-void table_add_sql_command(t_table * table, char * sql_command)
+void table_add_sql_command(t_table * table, t_sqlcommand * sql_command)
 {
   if ((table) && (sql_command))
     {
@@ -323,9 +373,9 @@ t_column * table_get_next_column(t_table * table)
   return column;
 }
 
-char * table_get_first_sql_command(t_table * table)
+t_sqlcommand * table_get_first_sql_command(t_table * table)
 {
-  char * sql_command;
+  t_sqlcommand * sql_command;
 
   if (!(table))
   {
@@ -353,9 +403,9 @@ char * table_get_first_sql_command(t_table * table)
   return sql_command;
 }
 
-char * table_get_next_sql_command(t_table * table)
+t_sqlcommand * table_get_next_sql_command(t_table * table)
 {
-  char * sql_command;
+  t_sqlcommand * sql_command;
 
   if (!(curr_cmd))
   {
@@ -378,14 +428,17 @@ int load_db_layout(char const * filename)
 {
   FILE * fp;
   int    lineno;
-  char * line        = NULL;
-  char * tmp         = NULL;
-  char * table       = NULL;
-  char * column      = NULL;
-  char * value       = NULL;
-  char * sqlcmd      = NULL;
-  t_table * _table   = NULL;
-  t_column * _column = NULL;
+  char * line                = NULL;
+  char * tmp                 = NULL;
+  char * table               = NULL;
+  char * column              = NULL;
+  char * value               = NULL;
+  char * sqlcmd              = NULL;
+  char * mode                = NULL;
+  char * extra_cmd           = NULL;
+  t_table * _table           = NULL;
+  t_column * _column         = NULL;
+  t_sqlcommand * _sqlcommand = NULL;
 
   if (!(filename))
   {
@@ -449,7 +502,35 @@ int load_db_layout(char const * filename)
           continue;
         }
         tmp[0]='\0';
-        _column = create_column(column,value);
+	tmp++;
+	mode = NULL;
+	extra_cmd = NULL;
+	if ((mode = strchr(tmp,'&')) || (mode = strchr(tmp,'|')))
+	{
+	  if (mode[0] == mode[1])
+	  {
+		mode[2]='\0';
+		tmp=mode+3;
+		if (!(tmp = strchr(tmp,'"')))
+		{
+			eventlog(eventlog_level_error,__FUNCTION__,"missing starting '\"' in extra sql_command on line %i",lineno);
+			continue;
+		}
+		extra_cmd = ++tmp;
+		if (!(tmp = strchr(extra_cmd,'"')))
+		{
+			eventlog(eventlog_level_error,__FUNCTION__,"missing ending '\"' in extra sql_command on line %i",lineno);
+			continue;
+		}
+		tmp[0]='\0';
+	  }
+	  else
+	  {
+            eventlog(eventlog_level_error,__FUNCTION__,"missing or non-matching secondary character in combination logic on line %i",lineno);
+	    continue;
+	  }
+	}
+        _column = create_column(column,value,mode,extra_cmd);
         table_add_column(_table,_column);
         _column = NULL;
         break;
@@ -471,7 +552,37 @@ int load_db_layout(char const * filename)
           continue;
         }
         tmp[0]='\0';
-	table_add_sql_command(_table,xstrdup(sqlcmd));
+	tmp++;
+	mode = NULL;
+	extra_cmd = NULL;
+	if ((mode = strchr(tmp,'&')) || (mode = strchr(tmp,'|')))
+	{
+	  if (mode[0] == mode[1])
+	  {
+		mode[2]='\0';
+		tmp=mode+3;
+		if (!(tmp = strchr(tmp,'"')))
+		{
+			eventlog(eventlog_level_error,__FUNCTION__,"missing starting '\"' in extra sql_command on line %i",lineno);
+			continue;
+		}
+		extra_cmd = ++tmp;
+		if (!(tmp = strchr(extra_cmd,'"')))
+		{
+			eventlog(eventlog_level_error,__FUNCTION__,"missing ending '\"' in extra sql_command on line %i",lineno);
+			continue;
+		}
+		tmp[0]='\0';
+	  }
+	  else
+	  {
+            eventlog(eventlog_level_error,__FUNCTION__,"missing or non-matching secondary character in combination logic on line %i",lineno);
+	    continue;
+	  }
+	}
+	_sqlcommand = create_sqlcommand(sqlcmd,mode,extra_cmd);
+	table_add_sql_command(_table,_sqlcommand);
+	_sqlcommand = NULL;
 
 	break;
       case '#':
@@ -489,11 +600,11 @@ int load_db_layout(char const * filename)
 
 int sql_dbcreator(t_sql_engine * sql)
 {
-  t_table     * table;
-  t_column    * column;
-  char        _column[1024];
-  char        query[1024];
-  char        * sqlcmd;
+  t_table      * table;
+  t_column     * column;
+  char            _column[1024];
+  char           query[1024];
+  t_sqlcommand * sqlcmd;
 
   load_db_layout(prefs_get_DBlayoutfile());
 
@@ -516,6 +627,13 @@ int sql_dbcreator(t_sql_engine * sql)
       if (!(sql->query(query)))
       {
         eventlog(eventlog_level_info,__FUNCTION__,"added missing column %s to table %s",column->name,table->name);
+	if ((column->mode != NULL) && (strcmp(column->mode,"&&") == 0))
+	{
+          if (!(sql->query(column->extra_cmd)))
+	  {
+	    eventlog(eventlog_level_info,__FUNCTION__,"sucessfully issued: %s %s",column->mode, column->extra_cmd);
+	  }
+	}
 /*
 	sscanf(column->name,"%s",_column);
 	sprintf(query,"ALTER TABLE %s ALTER %s SET DEFAULT %s",table->name,_column,column->value);
@@ -528,14 +646,43 @@ int sql_dbcreator(t_sql_engine * sql)
 	// ALTER TABLE BNET add default 'false' for auth_admin;
 */
       }
+      else
+      {
+	if ((column->mode != NULL) && (strcmp(column->mode,"||") == 0))
+	{
+          if (!(sql->query(column->extra_cmd)))
+	  {
+	    eventlog(eventlog_level_info,__FUNCTION__,"sucessfully issued: %s %s",column->mode, column->extra_cmd);
+	  }
+	}
+
+      }
     }
 
     for (sqlcmd = table_get_first_sql_command(table);sqlcmd;sqlcmd = table_get_next_sql_command(table))
     {
-        if (!(sql->query(sqlcmd)))
+        if (!(sql->query(sqlcmd->sql_command)))
         {
-           eventlog(eventlog_level_info,__FUNCTION__,"sucessfully issued: %s",sqlcmd);
+           eventlog(eventlog_level_info,__FUNCTION__,"sucessfully issued: %s",sqlcmd->sql_command);
+	   if ((sqlcmd->mode != NULL) && (strcmp(sqlcmd->mode,"&&") == 0))
+	   {
+	      if (!(sql->query(sqlcmd->extra_cmd)))
+	      {
+		eventlog(eventlog_level_info,__FUNCTION__,"sucessfully issued: %s %s",sqlcmd->mode, sqlcmd->extra_cmd);
+	      }
+	   }
         }
+	else
+	{
+	   if ((sqlcmd->mode != NULL) && (strcmp(sqlcmd->mode,"||") == 0))
+	   {
+	      if (!(sql->query(sqlcmd->extra_cmd)))
+	      {
+		eventlog(eventlog_level_info,__FUNCTION__,"sucessfully issued: %s %s",sqlcmd->mode, sqlcmd->extra_cmd);
+	      }
+	   }
+
+	}
     }
 
     column = table_get_first_column(table);
