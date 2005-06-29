@@ -1197,17 +1197,17 @@ static int _handle_whereto_command(t_connection * conn, int numparams, char ** p
 	const char * ircip = addr_num_to_ip_str(conn_get_real_local_addr(conn));
 	const char * ircname = prefs_get_servername();
 	const char * irctimezone = prefs_get_wol_timezone();
-	const char * irclog = prefs_get_wol_long();
-	const char * irclat = prefs_get_wol_lat();
+	const char * irclong = prefs_get_wol_longitude();
+	const char * irclat = prefs_get_wol_latitude();
 
-	sprintf(temp,":%s %d '0:%s' %s %s %s",ircip,BNETD_WOL_PORT,ircname,irctimezone,irclog,irclat);
+	sprintf(temp,":%s %d '0:%s' %s %s %s",ircip,BNETD_WOL_PORT,ircname,irctimezone,irclong,irclat);
 	irc_send(conn,RPL_IRCSERV,temp);
-	sprintf(temp,":%s %d 'Live chat server' %s %s %s",ircip,BNETD_IRC_PORT,irctimezone,irclog,irclat);
+	sprintf(temp,":%s %d 'Live chat server' %s %s %s",ircip,BNETD_IRC_PORT,irctimezone,irclong,irclat);
 	irc_send(conn,RPL_IRCSERV,temp);
 
-	sprintf(temp,":%s %d 'Gameres server' %s %s %s",ircip,BNETD_WOL_PORT,irctimezone,irclog,irclat);
+	sprintf(temp,":%s %d 'Gameres server' %s %s %s",ircip,BNETD_WOL_PORT,irctimezone,irclong,irclat);
 	irc_send(conn,RPL_GAMERESSERV,temp);
-	sprintf(temp,":%s %d 'Ladder server' %s %s %s",ircip,BNETD_WOL_PORT,irctimezone,irclog,irclat);
+	sprintf(temp,":%s %d 'Ladder server' %s %s %s",ircip,BNETD_WOL_PORT,irctimezone,irclong,irclat);
 	irc_send(conn,RPL_LADDERSERV,temp);
 
 	irc_send(conn,RPL_ENDSERVLIST,"");

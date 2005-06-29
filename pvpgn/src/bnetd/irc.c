@@ -317,6 +317,12 @@ extern int irc_authenticate(t_connection * conn, char const * passhash)
         		temphash = account_get_wol_apgar(a);
     	    }
     	    
+    	    if(tempapgar == NULL) {
+                irc_send_cmd(conn,"NOTICE",":Authentication failed."); /* bad APGAR */
+                conn_increment_passfail_count(conn);
+                return 0;
+            }
+    	    
     	    if(strcmp(temphash,tempapgar) == 0) {
                 conn_login(conn,a,username);
     	        conn_set_state(conn,conn_state_loggedin);
@@ -366,7 +372,7 @@ extern int irc_welcome(t_connection * conn)
     tempname = conn_get_loggeduser(conn);
 
     if ((34+strlen(tempname)+1)<=MAX_IRC_MESSAGE_LEN)
-        sprintf(temp,":Welcome to the "PVPGN_SOFTWARE" IRC Network %s",tempname);
+        sprintf(temp,":Welcome to the %s IRC Network %s",prefs_get_irc_network_name(), tempname);
     else
         sprintf(temp,":Maximum length exceeded");
     irc_send(conn,RPL_WELCOME,temp);
@@ -391,6 +397,20 @@ extern int irc_welcome(t_connection * conn)
     else
         sprintf(temp,":Maximum length exceeded");
     irc_send(conn,RPL_MYINFO,temp);
+    
+    if((conn_get_wol(conn) == 1))
+        sprintf(temp,"NICKLEN=%d TOPICLEN=%d CHANNELLEN=%d PREFIX="CHANNEL_PREFIX" CHANTYPES="CHANNEL_TYPE" NETWORK=%s IRCD="PVPGN_SOFTWARE,
+        WOL_NICKNAME_LEN, MAX_TOPIC_LEN, CHANNEL_NAME_LEN, prefs_get_irc_network_name());
+    else
+        sprintf(temp,"NICKLEN=%d TOPICLEN=%d CHANNELLEN=%d PREFIX="CHANNEL_PREFIX" CHANTYPES="CHANNEL_TYPE" NETWORK=%s IRCD="PVPGN_SOFTWARE,
+        CHAR_NAME_LEN, MAX_TOPIC_LEN, CHANNEL_NAME_LEN, prefs_get_irc_network_name());
+    
+    if((strlen(temp))<=MAX_IRC_MESSAGE_LEN)
+        irc_send(conn,RPL_ISUPPORT,temp);
+    else {
+        sprintf(temp,":Maximum length exceeded");
+        irc_send(conn,RPL_ISUPPORT,temp);
+    }    
 
     if ((3+strlen(server_get_hostname())+22+1)<=MAX_IRC_MESSAGE_LEN)
     	sprintf(temp,":- %s, "PVPGN_SOFTWARE" "PVPGN_VERSION", built on %s",server_get_hostname(),temptimestr);

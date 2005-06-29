@@ -29,9 +29,13 @@
 #ifndef INCLUDED_INIT_PROTOCOL_PROTOS
 #define INCLUDED_INIT_PROTOCOL_PROTOS
 
+/* IRC Defines */
+#define WOL_NICKNAME_LEN 9
 
-/* Defines */
+#define CHANNEL_PREFIX "(ov)@+"
+#define CHANNEL_TYPE   "#"
 
+/* Reply Defines */
 /* The following defines were taken from include/numeric.h 
  * of the undernet-ircd distribution.
  * See http://www.undernet.org/

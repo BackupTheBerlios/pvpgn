@@ -177,11 +177,12 @@ static struct {
     char const * ladder_prefix;
     unsigned int max_connections;
     unsigned int sync_on_logoff;
+    char const * irc_network_name;
     
     char const * woladdrs;
     char const * woltimezone;
-    char const * wollong;
-    char const * wollat;
+    char const * wollongitude;
+    char const * wollatitude;
 } prefs_runtime_config;
 
 static int conf_set_filedir(const char *valstr);
@@ -648,6 +649,10 @@ static int conf_set_ladder_prefix(const char *valstr);
 static const char *conf_get_ladder_prefix(void);
 static int conf_setdef_ladder_prefix(void);
 
+static int conf_setdef_irc_network_name(void);
+static int conf_set_irc_network_name(const char *valstr);
+static const char *conf_get_irc_network_name(void);
+
 
 static int conf_setdef_wol_addrs(void);
 static int conf_set_wol_addrs(const char *valstr);
@@ -657,13 +662,13 @@ static int conf_set_wol_timezone(const char *valstr);
 static const char *conf_get_wol_timezone(void);
 static int conf_setdef_wol_timezone(void);
 
-static int conf_set_wol_long(const char *valstr);
-static const char *conf_get_wol_long(void);
-static int conf_setdef_wol_long(void);
+static int conf_set_wol_longitude(const char *valstr);
+static const char *conf_get_wol_longitude(void);
+static int conf_setdef_wol_longitude(void);
 
-static int conf_set_wol_lat(const char *valstr);
-static const char *conf_get_wol_lat(void);
-static int conf_setdef_wol_lat(void);
+static int conf_set_wol_latitude(const char *valstr);
+static const char *conf_get_wol_latitude(void);
+static int conf_setdef_wol_latitude(void);
 
 /*    directive                 set method                     get method         */
 static t_conf_entry conf_table[] =
@@ -784,11 +789,12 @@ static t_conf_entry conf_table[] =
     { "max_connections",      	conf_set_max_connections,      conf_get_max_connections,conf_setdef_max_connections},
     { "sync_on_logoff",         conf_set_sync_on_logoff,       conf_get_sync_on_logoff,conf_setdef_sync_on_logoff},
     { "ladder_prefix",		conf_set_ladder_prefix,	       conf_get_ladder_prefix,conf_setdef_ladder_prefix},
+    { "irc_network_name",		conf_set_irc_network_name,	       conf_get_irc_network_name, conf_setdef_irc_network_name},
  
     { "woladdrs",		conf_set_wol_addrs,	       conf_get_wol_addrs, conf_setdef_wol_addrs},
     { "woltimezone",		conf_set_wol_timezone,         conf_get_wol_timezone, conf_setdef_wol_timezone},
-    { "wollong",		conf_set_wol_long,             conf_get_wol_long, conf_setdef_wol_long},
-    { "wollat",			conf_set_wol_lat,              conf_get_wol_lat, conf_setdef_wol_lat},
+    { "wollongitude",		conf_set_wol_longitude,             conf_get_wol_longitude, conf_setdef_wol_longitude},
+    { "wollatitude",		conf_set_wol_latitude,              conf_get_wol_latitude, conf_setdef_wol_latitude},
 
     { NULL,			NULL,				NULL,				NONE},
   };
@@ -3294,6 +3300,26 @@ static const char* conf_get_sync_on_logoff(void)
     return conf_get_bool(prefs_runtime_config.sync_on_logoff);
 }
 
+extern char const * prefs_get_irc_network_name(void)
+{
+    return prefs_runtime_config.irc_network_name;
+}
+
+static int conf_set_irc_network_name(const char *valstr)
+{
+    return conf_set_str(&prefs_runtime_config.irc_network_name,valstr,NULL);
+}
+
+static int conf_setdef_irc_network_name(void)
+{
+    return conf_set_str(&prefs_runtime_config.irc_network_name,NULL,BNETD_IRC_NETWORK_NAME);
+}
+
+static const char* conf_get_irc_network_name(void)
+{
+    return prefs_runtime_config.irc_network_name;
+}
+
 /**
 *  Westwood Online Extensions
 */
@@ -3338,42 +3364,42 @@ static int conf_setdef_wol_timezone(void)
     return conf_set_str(&prefs_runtime_config.woltimezone,NULL,0);
 }
 
-static int  conf_set_wol_long(const char *valstr)
+static int  conf_set_wol_longitude(const char *valstr)
 {
-    return conf_set_str(&prefs_runtime_config.wollong,valstr,NULL);
+    return conf_set_str(&prefs_runtime_config.wollongitude,valstr,NULL);
 }
 
-extern char const * prefs_get_wol_long(void)
+extern char const * prefs_get_wol_longitude(void)
 {
-     return prefs_runtime_config.wollong;
+     return prefs_runtime_config.wollongitude;
 }
 
-static char const * conf_get_wol_long(void)
+static char const * conf_get_wol_longitude(void)
 {
-     return prefs_runtime_config.wollong;
+     return prefs_runtime_config.wollongitude;
 }
 
-static int conf_setdef_wol_long(void)
+static int conf_setdef_wol_longitude(void)
 {
-    return conf_set_str(&prefs_runtime_config.wollong,NULL,0);
+    return conf_set_str(&prefs_runtime_config.wollongitude,NULL,0);
 }
 
-static int conf_set_wol_lat(const char *valstr)
+static int conf_set_wol_latitude(const char *valstr)
 {
-    return conf_set_str(&prefs_runtime_config.wollat,valstr,NULL);
+    return conf_set_str(&prefs_runtime_config.wollatitude,valstr,NULL);
 }
 
-extern char const * prefs_get_wol_lat(void)
+extern char const * prefs_get_wol_latitude(void)
 {
-     return prefs_runtime_config.wollat;
+     return prefs_runtime_config.wollatitude;
 }
 
-static char const * conf_get_wol_lat(void)
+static char const * conf_get_wol_latitude(void)
 {
-     return prefs_runtime_config.wollat;
+     return prefs_runtime_config.wollatitude;
 }
 
-static int conf_setdef_wol_lat(void)
+static int conf_setdef_wol_latitude(void)
 {
-    return conf_set_str(&prefs_runtime_config.wollat,NULL,0);
+    return conf_set_str(&prefs_runtime_config.wollatitude,NULL,0);
 }

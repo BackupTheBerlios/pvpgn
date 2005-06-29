@@ -185,6 +185,7 @@
 #define BNETD_SERVERNAME      "PvPGN Realm"
 #define BNETD_IRC_ADDRS       "" /* this means none */
 #define BNETD_IRC_PORT        6667 /* used if port not specified */
+#define BNETD_IRC_NETWORK_NAME "PvPGN"
 #define BNETD_WOL_ADDRS       ""
 #define BNETD_WOL_PORT        4005
 #define BNETD_TRACK_ADDRS     "track.pvpgn.org"
