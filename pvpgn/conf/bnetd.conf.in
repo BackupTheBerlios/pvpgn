@@ -503,8 +503,8 @@ initkill_timer = 120
 # Just leave these as default (unless you know the timezone, longitiude and latitude
 # of your server
 woltimezone = "-8"
-wollog = "36.1083"
-wollat = "-115.0582"
+wollongitude = "36.1083"
+wollatitude = "-115.0582"
 
 #                                                                            #
 ##############################################################################
