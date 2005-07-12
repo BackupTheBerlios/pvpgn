@@ -15,6 +15,9 @@ PvPGN Version History:
 [WOL]
   -- initial support (HURRAY!!); almost complete Tiberian Sun (TA) support, 
   basic Red Alert 2 (RA2) and Yuri's Revenge (YR) support
+  
+[DRTL]
+  -- fixed problem with joining games of level 50 characters
 
 [MISC]
   -- changed that if "servaddrs" option in bnetd.conf is commented server 

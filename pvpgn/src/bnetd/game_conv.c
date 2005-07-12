@@ -117,6 +117,7 @@ extern t_game_type bngreqtype_to_gtype(t_clienttag clienttag, unsigned short bng
 	case CLIENT_GAMETYPE_DIABLO_a:
 	case CLIENT_GAMETYPE_DIABLO_b:
 	case CLIENT_GAMETYPE_DIABLO_c:
+	case CLIENT_GAMETYPE_DIABLO_d:
 	    return game_type_diablo;
 	default:
 	    eventlog(eventlog_level_error,__FUNCTION__,"unknown Diablo bnet game type \"%s\" %hu",tag_uint_to_str(clienttag_str,clienttag),bngtype);

@@ -2644,6 +2644,7 @@ typedef struct
 #define CLIENT_GAMETYPE_DIABLO_a     0x0000000a /* Level ? Char */
 #define CLIENT_GAMETYPE_DIABLO_b     0x0000000b /* Level ? Char */
 #define CLIENT_GAMETYPE_DIABLO_c     0x0000000c /* Level ? Char */
+#define CLIENT_GAMETYPE_DIABLO_d     0x0000000d /* Level ? Char */
 /* list might continue - what is maximum diablo level ? */
 /* FIXME: Not sure how Diablo II does things yet */
 #define CLIENT_GAMETYPE_DIABLO2_CLOSE 		0x00000000 /* close game */ 
