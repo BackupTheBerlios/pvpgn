@@ -28,6 +28,7 @@
 #include <stdio.h>
 #include "compat/vargs.h"
 #include "compat/uint.h"
+#include "compat/strnlen.h"
 #include "asnprintf.h"
 #include "common/setup_after.h"
 
@@ -40,7 +41,7 @@ static int skip_atoi(const char **s)
 	return i;
 }
 
-uint32_t do_div(t_uint64 *n, t_uint32 base)
+t_uint32 do_div(t_uint64 *n, t_uint32 base)
 {
 	t_uint32 remainder = *n % base;
 	*n = *n / base;

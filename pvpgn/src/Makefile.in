@@ -211,6 +211,7 @@ ${SRC_COMPATDIR}/difftime.o \
 ${SRC_COMPATDIR}/memset.o \
 ${SRC_COMPATDIR}/memcpy.o \
 ${SRC_COMPATDIR}/mmap.o \
+${SRC_COMPATDIR}/strnlen.o \
 ${SRC_CDBDIR}/cdb_init.o \
 ${SRC_CDBDIR}/cdb_find.o \
 ${SRC_CDBDIR}/cdb_findnext.o \
