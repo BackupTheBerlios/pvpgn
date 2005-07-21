@@ -36,10 +36,10 @@ extern unsigned long strnlen(const char *s, unsigned long maxlen)
     if (!s)
       return 0;
 
-    while ((length<maxlen) && (*symbols!='\0'))
+    while ((length<maxlen) && (*symbol!='\0'))
     {
 	    length ++;
-	    symbols++;
+	    symbol++;
     }
     return length;
 
