@@ -41,6 +41,7 @@ extern unsigned long strnlen(const char *s, unsigned long maxlen)
 	    length ++;
 	    s++;
     }
+    return length;
 
 }
 
