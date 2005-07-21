@@ -183,7 +183,6 @@ int vasnprintf(char *buf, size_t size, char **locations, const char *fmt, va_lis
 		}
 		locations[argCounter]=str;
 		argCounter++;
-		printf("now here comes the %dth argument\n",argCounter);
 
 		/* process flags */
 		flags = 0;
