@@ -16,13 +16,8 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-
-#include "common/setup_before.h"
-#include <stdio.h>
-#include "compat/vargs.h"
-#include "compat/uint.h"
-#include "common/setup_after.h"
-
+#ifndef ASNPRINTF_H
+#define ASNPRINTF_H
 
 #define ZEROPAD	1		/* pad with zero */
 #define SIGN	2		/* unsigned/signed long */
@@ -42,3 +37,4 @@
  */
 int asnprintf(char * buffer, size_t size, char ** locations, const char *fmt, ...);
 
+#endif
