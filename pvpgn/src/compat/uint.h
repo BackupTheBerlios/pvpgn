@@ -25,6 +25,11 @@ typedef uint8_t  t_uint8;
 typedef uint16_t t_uint16;
 typedef uint32_t t_uint32;
 typedef uint64_t t_uint64;
+
+typedef int8_t   t_int8;
+typedef int16_t  t_int16;
+typedef int32_t  t_int32;
+typedef int64_t  t_int64;
 # define HAVE_UINT64_T
 
 #else
@@ -33,6 +38,10 @@ typedef unsigned int t_uint8   MODE_ATTR(__QI__);
 typedef unsigned int t_uint16  MODE_ATTR(__HI__);
 typedef unsigned int t_uint32  MODE_ATTR(__SI__);
 typedef unsigned int t_uint64  MODE_ATTR(__DI__); /* FIXME: I guess DI is always available... Is there a way to check? */
+typedef signed int   t_int8    MODE_ATTR(__QI__);
+typedef signed int   t_int16   MODE_ATTR(__HI__);
+typedef signed int   t_int32   MODE_ATTR(__SI__);
+typedef signed int   t_int64   MODE_ATTR(__DI__); /* FIXME: I guess DI is always available... Is there a way to check? */
 #  define HAVE_UINT64_T
 
 # else
@@ -52,11 +61,27 @@ typedef unsigned char      t_uint8;
 # error "Unable to find 8-bit integer type"
 #  endif
 
+#  if SIZEOF_SIGNED_CHAR*MY_CHAR_BIT == 8
+typedef signed char        t_int8;
+#  else
+# error "Unable to find 8-bit integer type"
+#  endif
+
 #  if SIZEOF_UNSIGNED_SHORT*MY_CHAR_BIT == 16
 typedef unsigned short     t_uint16;
 #  else
 #   if SIZEOF_UNSIGNED_INT*MY_CHAR_BIT == 16
 typedef unsigned int       t_uint16;
+#   else
+#    error "Unable to find 16-bit integer type"
+#   endif
+#  endif
+
+#  if SIZEOF_SIGNED_SHORT*MY_CHAR_BIT == 16
+typedef signed short       t_int16;
+#  else
+#   if SIZEOF_SIGNED_INT*MY_CHAR_BIT == 16
+typedef signed int         t_int16;
 #   else
 #    error "Unable to find 16-bit integer type"
 #   endif
@@ -76,6 +101,20 @@ typedef unsigned long      t_uint32;
 #   endif
 #  endif
 
+#  if   SIZEOF_SIGNED_SHORT*MY_CHAR_BIT == 32
+typedef signed short       t_int32;
+#  else
+#   if SIZEOF_SIGNED_INT*MY_CHAR_BIT == 32
+typedef signed int         t_int32;
+#   else
+#    if SIZEOF_SIGNED_LONG*MY_CHAR_BIT == 32
+typedef signed long        t_int32;
+#    else
+#     error "Unable to find 32-bit integer type"
+#    endif
+#   endif
+#  endif
+
 #  if SIZEOF_UNSIGNED_INT*MY_CHAR_BIT == 64
 typedef unsigned int       t_uint64;
 #   define HAVE_UINT64_T
@@ -87,6 +126,21 @@ typedef unsigned long      t_uint64;
 #    if SIZEOF_UNSIGNED_LONG_LONG*MY_CHAR_BIT == 64
 typedef unsigned long long t_uint64;
 #     define HAVE_UINT64_T
+#    endif
+#   endif
+#  endif
+
+#  if SIZEOF_SIGNED_INT*MY_CHAR_BIT == 64
+typedef signed int         t_int64;
+#   define HAVE_INT64_T
+#  else
+#   if SIZEOF_SIGNED_LONG*MY_CHAR_BIT == 64
+typedef signed long        t_int64;
+#    define HAVE_INT64_T
+#   else
+#    if SIZEOF_SIGNED_LONG_LONG*MY_CHAR_BIT == 64
+typedef signed long long   t_int64;
+#     define HAVE_INT64_T
 #    endif
 #   endif
 #  endif

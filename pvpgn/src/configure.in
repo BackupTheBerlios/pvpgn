@@ -465,6 +465,11 @@ AC_CHECK_SIZEOF(unsigned short, 2)
 AC_CHECK_SIZEOF(unsigned int, 4)
 AC_CHECK_SIZEOF(unsigned long, 4)
 AC_CHECK_SIZEOF(unsigned long long, 0)
+AC_CHECK_SIZEOF(signed char, 1)
+AC_CHECK_SIZEOF(signed short, 2)
+AC_CHECK_SIZEOF(signed int, 4)
+AC_CHECK_SIZEOF(signed long, 4)
+AC_CHECK_SIZEOF(signed long long, 0)
 
 # Checks for library functions.
 AC_FUNC_MMAP
