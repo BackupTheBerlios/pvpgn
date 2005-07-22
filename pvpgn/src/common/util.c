@@ -60,17 +60,21 @@
 
 extern int strstart(char const * full, char const * part)
 {
-    size_t strlen_full, strlen_part;
+    size_t strlen_part;
+    int compare_result;
+    
     if (!full || !part)
 	return 1;
-    strlen_full = strlen(full);
+    
     strlen_part = strlen(part);
-    if (strlen_full<strlen_part)
-	return 1;
+    compare_result = strncasecmp(full,part,strlen_part);
+    
     /* If there is more than the command, make sure it is separated */
-    if (strlen_full>strlen_part && full[strlen_part]!=' ' && full[strlen_part]!='\0')
+    if (compare_result!=0)
+	    return compare_result;
+    else if (full[strlen_part]!=' ' && full[strlen_part]!='\0')
         return 1;
-    return strncasecmp(full,part,strlen_part);
+    else return compare_result;
 }
 
 
@@ -136,21 +140,20 @@ extern char * file_get_line(FILE * fp)
 
 extern char * strreverse(char * str)
 {
-    unsigned int i;
     unsigned int len;
     char         temp;
+    char *start, *end;
     
     if (!str)
 	return NULL;
     
     len = strlen(str);
-    
-    /* swap leftmost and rightmost chars until we hit center */
-    for (i=0; i<len/2; i++)
+
+    for (start=str,end=str+len;start<end;start++,end--)
     {
-	temp         = str[i];
-	str[i]       = str[len-1-i];
-	str[len-1-i] = temp;
+	    temp   = *end;
+	    *end   = *start;
+	    *start = temp;
     }
     
     return str;
@@ -159,19 +162,18 @@ extern char * strreverse(char * str)
 
 extern int str_to_uint(char const * str, unsigned int * num)
 {
-    unsigned int pos;
-    unsigned int i;
     unsigned int val;
     unsigned int pval;
+    char * pos;
     
     if (!str || !num)
         return -1;
-    for (pos=0; str[pos]==' ' || str[pos]=='\t'; pos++);
-    if (str[pos]=='+')
+    for (pos=(char *)str; *pos==' ' || *pos=='\t'; pos++);
+    if (*pos=='+')
         pos++;
     
     val = 0;
-    for (i=pos; str[i]!='\0'; i++)
+    for (; *pos!='\0'; pos++)
     {
 	pval = val;
         val *= 10;
@@ -179,40 +181,11 @@ extern int str_to_uint(char const * str, unsigned int * num)
 	    return -1;
 	
 	pval = val;
-	switch (str[i])
-	{
-	case '0':
-	    break;
-	case '1':
-	    val += 1;
-	    break;
-	case '2':
-	    val += 2;
-	    break;
-	case '3':
-	    val += 3;
-	    break;
-	case '4':
-	    val += 4;
-	    break;
-	case '5':
-	    val += 5;
-	    break;
-	case '6':
-	    val += 6;
-	    break;
-	case '7':
-	    val += 7;
-	    break;
-	case '8':
-	    val += 8;
-	    break;
-	case '9':
-	    val += 9;
-	    break;
-	default:
-	    return -1;
-	}
+	if (isdigit(*pos))
+		val += *pos - '0';
+	else
+		return -1;
+	
 	if (val<pval) /* check for overflow */
 	    return -1;
     }
@@ -224,19 +197,18 @@ extern int str_to_uint(char const * str, unsigned int * num)
 
 extern int str_to_ushort(char const * str, unsigned short * num)
 {
-    unsigned int   pos;
-    unsigned int   i;
     unsigned short val;
     unsigned short pval;
+    char * pos;
     
     if (!str || !num)
         return -1;
-    for (pos=0; str[pos]==' ' || str[pos]=='\t'; pos++);
-    if (str[pos]=='+')
+    for (pos=(char *)str; *pos==' ' || *pos=='\t'; pos++);
+    if (*pos=='+')
         pos++;
     
     val = 0;
-    for (i=pos; str[i]!='\0'; i++)
+    for (; *pos!='\0'; pos++)
     {
 	pval = val;
         val *= 10;
@@ -244,40 +216,12 @@ extern int str_to_ushort(char const * str, unsigned short * num)
 	    return -1;
 	
 	pval = val;
-	switch (str[i])
-	{
-	case '0':
-	    break;
-	case '1':
-	    val += 1;
-	    break;
-	case '2':
-	    val += 2;
-	    break;
-	case '3':
-	    val += 3;
-	    break;
-	case '4':
-	    val += 4;
-	    break;
-	case '5':
-	    val += 5;
-	    break;
-	case '6':
-	    val += 6;
-	    break;
-	case '7':
-	    val += 7;
-	    break;
-	case '8':
-	    val += 8;
-	    break;
-	case '9':
-	    val += 9;
-	    break;
-	default:
-	    return -1;
-	}
+
+	if (isdigit(*pos))
+		val += *pos - '0';
+	else
+		return -1;
+
 	if (val<pval) /* check for overflow */
 	    return -1;
     }
