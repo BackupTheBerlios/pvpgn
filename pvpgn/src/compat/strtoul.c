@@ -18,28 +18,29 @@
 #include "common/setup_before.h"
 #ifndef HAVE_STRTOUL
 
+#include <ctype.h>
 #include "strtoul.h"
 #include "common/setup_after.h"
 
 
 extern unsigned long strtoul(char const * str, char * * endptr, int base)
 {
-    unsigned int  pos;
-    unsigned int  i;
     unsigned long val;
+    char symbolval;
+    char * pos;
     
     if (!str)
 	return 0; /* EINVAL */
     
-    for (pos=0; str[pos]==' ' || str[pos]=='\t'; pos++);
-    if (str[pos]=='-' || str[pos]=='+')
+    for (pos=(char *)str; *pos==' ' || *pos=='\t'; pos++);
+    if (*pos=='-' || *pos=='+')
         pos++;
-    if ((base==0 || base==16) && str[pos]=='0' && (str[pos+1]=='x' || str[pos+1]=='X'))
+    if ((base==0 || base==16) && *pos=='0' && (*(pos+1)=='x' || *(pos+1)=='X'))
     {
 	base = 16;
 	pos += 2; /* skip 0x prefix */
     }
-    else if ((base==0 || base==8) && str[pos]=='0')
+    else if ((base==0 || base==8) && *pos=='0')
 	{
 	    base = 8;
 	    pos += 1;
@@ -53,49 +54,23 @@ extern unsigned long strtoul(char const * str, char * * endptr, int base)
 	return 0; /* EINVAL */
     
     val = 0;
-    for (i=pos; str[i]!='\0'; i++)
+    for (; *pos!='\0'; pos++)
     {
         val *= base;
 	
-	/* we could assume ASCII and subtraction but this isn't too hard */
-	if (str[i]=='0')
-	    val += 0;
-	else if (str[i]=='1')
-	    val += 1;
-	else if (base>2 && str[i]=='2')
-	    val += 2;
-	else if (base>3 && str[i]=='3')
-	    val += 3;
-	else if (base>4 && str[i]=='4')
-	    val += 4;
-	else if (base>5 && str[i]=='5')
-	    val += 5;
-	else if (base>6 && str[i]=='6')
-	    val += 6;
-	else if (base>7 && str[i]=='7')
-	    val += 7;
-	else if (base>8 && str[i]=='8')
-	    val += 8;
-	else if (base>9 && str[i]=='9')
-	    val += 9;
-	else if (base>10 && (str[i]=='a' || str[i]=='A'))
-	    val += 10;
-	else if (base>11 && (str[i]=='b' || str[i]=='B'))
-	    val += 11;
-	else if (base>12 && (str[i]=='c' || str[i]=='C'))
-	    val += 12;
-	else if (base>13 && (str[i]=='d' || str[i]=='D'))
-	    val += 13;
-	else if (base>14 && (str[i]=='e' || str[i]=='E'))
-	    val += 14;
-	else if (base>15 && (str[i]=='f' || str[i]=='F'))
-	    val += 15;
-	else
-	    break;
+	if (isxdigit(*pos))
+	{
+		symbolval = isdigit(*pos) ? *pos-'0' : tolower(*pos)-'a'+10;
+		if (base>symbolval)
+			val += symbolval;
+		else
+			break;
+		
+	}
     }
     
     if (endptr)
-	*endptr = (void *)&str[i]; /* avoid warning */
+	*endptr = (void *)pos; /* avoid warning */
     
     return val;
 }
