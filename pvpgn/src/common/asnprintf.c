@@ -25,10 +25,10 @@
 
 
 #include "common/setup_before.h"
+#include <ctype.h>
 #include <stdio.h>
 #include "compat/vargs.h"
 #include "compat/uint.h"
-#include "compat/strnlen.h"
 #include "asnprintf.h"
 #include "common/setup_after.h"
 
@@ -266,7 +266,9 @@ int vasnprintf(char *buf, size_t size, char **locations, const char *fmt, va_lis
 				if ((unsigned long)s < PAGE_SIZE)
 					s = "<NULL>";
 
-				len = strnlen(s, precision);
+				len = strlen(s);
+				if (len>precision) 
+					len=precision;
 
 				if (!(flags & LEFT)) {
 					while (len < field_width--) {
