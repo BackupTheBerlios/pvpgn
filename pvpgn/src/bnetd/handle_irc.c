@@ -213,6 +213,9 @@ static int handle_irc_line(t_connection * conn, char const * ircline)
 
     int numparams = 0;
     char * tempparams;
+	int i;
+ 	char paramtemp[MAX_IRC_MESSAGE_LEN*2];
+	int first = 1;
 
     if (!conn) {
 	eventlog(eventlog_level_error,__FUNCTION__,"got NULL connection");
@@ -255,8 +258,6 @@ static int handle_irc_line(t_connection * conn, char const * ircline)
     
     tempparams = strchr(command,' ');
     if (tempparams) {
-	int i;
-	
 	*tempparams++ = '\0';
 	 if (tempparams[0]==':') {
 	    text = tempparams+1; /* theres just text, no params. skip the colon */
@@ -278,10 +279,6 @@ static int handle_irc_line(t_connection * conn, char const * ircline)
 	for (numparams=0;params[numparams];numparams++);
     }
 
-	int i;
-    	char paramtemp[MAX_IRC_MESSAGE_LEN*2];
-	int first = 1;
-
 	memset(paramtemp,0,sizeof(paramtemp));
     	for (i=0;((numparams>0)&&(params[i]));i++) {
 		if (!first) 
@@ -293,7 +290,7 @@ static int handle_irc_line(t_connection * conn, char const * ircline)
     	}
 
     	eventlog(eventlog_level_debug,__FUNCTION__,"[%d] got \"%s\" \"%s\" [%s] \"%s\"",conn_get_socket(conn),((prefix)?(prefix):("")),command,paramtemp,((text)?(text):("")));
-    
+
     if (conn_get_state(conn)==conn_state_connected) {
 	t_timer_data temp;
 	
