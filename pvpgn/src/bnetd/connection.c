@@ -2384,7 +2384,6 @@ extern char const * conn_get_playerinfo(t_connection const * c)
     static char  playerinfo[MAX_PLAYERINFO_STR];
     t_clienttag  clienttag;
     char         revtag[5];
-    char         clienttag_str[5];
         
     if (!c)
     {
@@ -2402,9 +2401,7 @@ extern char const * conn_get_playerinfo(t_connection const * c)
 	eventlog(eventlog_level_error,__FUNCTION__,"connection has NULL fakeclienttag");
 	return NULL;
     }
-    tag_uint_to_str(clienttag_str,clienttag);
-    strncpy(revtag,clienttag_str,5); revtag[4] = '\0';
-    strreverse(revtag);
+    tag_uint_to_revstr(revtag,clienttag);
     
     if (clienttag==CLIENTTAG_BNCHATBOT_UINT)
     {

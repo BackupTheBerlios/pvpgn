@@ -157,6 +157,19 @@ extern char * tag_uint_to_str(char * tag_str, t_tag tag_uint)
     return tag_str;
 }
 
+extern char * tag_uint_to_revstr(char * tag_str, t_tag tag_uint)
+{
+    if (!tag_uint) /* return "UNKN" if tag_uint = 0 */
+	return TAG_UNKNOWN;
+    
+    tag_str[0] = ((unsigned char)(tag_uint    )&0xff);
+    tag_str[1] = ((unsigned char)(tag_uint>> 8)&0xff);
+    tag_str[2] = ((unsigned char)(tag_uint>>16)&0xff);
+    tag_str[3] = ((unsigned char)(tag_uint>>24)     );
+    tag_str[4] = '\0';
+    return tag_str;
+}
+
 extern int tag_check_arch(t_tag tag_uint)
 {
     switch (tag_uint)
