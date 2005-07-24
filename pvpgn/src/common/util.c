@@ -149,7 +149,7 @@ extern char * strreverse(char * str)
     
     len = strlen(str);
 
-    for (start=str,end=str+len;start<end;start++,end--)
+    for (start=str,end=str+len-1;start<end;start++,end--)
     {
 	    temp   = *end;
 	    *end   = *start;
