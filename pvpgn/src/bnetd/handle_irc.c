@@ -1572,6 +1572,8 @@ static int _handle_startg_command(t_connection * conn, int numparams, char ** pa
 	char _temp_a[MAX_IRC_MESSAGE_LEN];
 	t_channel * channel;
 
+	time_t now;
+
  	/**
  	*  Heres the output expected (this can have up-to 8 entries (ie 8 players): 
     *  (we are assuming for this example that user1 is the game owner)
@@ -1603,7 +1605,9 @@ static int _handle_startg_command(t_connection * conn, int numparams, char ** pa
         strcat(temp,":");
         strcat(temp,"1337"); /* yes, ha ha funny, i just don't generate game numbers yet */
         strcat(temp," ");
-        strcat(temp,"0");
+        
+        now = time(NULL);
+        strcat(temp,ctime(&now));
 	    
 	    eventlog(eventlog_level_debug,__FUNCTION__,"[** WOL **] STARTG: (%s)",temp);
 
