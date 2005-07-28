@@ -102,7 +102,7 @@
 #include "prefs.h"
 #include "common/bn_type.h"
 #include "common/d2char_checksum.h"
-#include "d2cs/xstring.h"
+#include "common/xstring.h"
 #include "d2cs/d2cs_d2gs_character.h"
 #include "common/list.h"
 #include "common/eventlog.h"

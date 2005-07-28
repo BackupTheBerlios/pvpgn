@@ -246,7 +246,6 @@ ${SRC_D2CSDIR}/handle_init.o \
 ${SRC_D2CSDIR}/handle_d2cs.o \
 ${SRC_D2CSDIR}/d2charfile.o \
 ${SRC_D2CSDIR}/d2charlist.o \
-${SRC_D2CSDIR}/xstring.o \
 ${SRC_D2CSDIR}/gamequeue.o \
 ${SRC_D2CSDIR}/prefs.o \
 ${SRC_D2CSDIR}/cmdline.o \
@@ -256,6 +255,7 @@ ${SRC_D2CSDIR}/s2s.o \
 ${SRC_D2CSDIR}/net.o \
 ${SRC_D2CSDIR}/d2ladder.o \
 ${SRC_D2CSDIR}/handle_signal.o \
+${SRC_COMMONDIR}/xstring.o \
 ${SRC_COMMONDIR}/conf.o \
 ${SRC_COMMONDIR}/hashtable.o \
 ${SRC_COMMONDIR}/hexdump.o \
@@ -311,7 +311,7 @@ ${SRC_D2DBSDIR}/cmdline.o \
 ${SRC_D2DBSDIR}/prefs.o \
 ${SRC_D2DBSDIR}/handle_signal.o \
 ${SRC_D2DBSDIR}/dbsdupecheck.o \
-${SRC_D2CSDIR}/xstring.o \
+${SRC_COMMONDIR}/xstring.o \
 ${SRC_COMMONDIR}/conf.o \
 ${SRC_COMMONDIR}/list.o \
 ${SRC_COMMONDIR}/eventlog.o \

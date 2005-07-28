@@ -68,7 +68,7 @@
 
 #include "d2charfile.h"
 #include "prefs.h"
-#include "xstring.h"
+#include "common/xstring.h"
 #include "common/bn_type.h"
 #include "common/eventlog.h"
 #include "common/d2char_checksum.h"
