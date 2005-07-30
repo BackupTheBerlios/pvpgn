@@ -71,6 +71,8 @@ static char * file_find_default(const char *rawname)
 				 "newaccount-",".txt",
 				 "chathelp-war3-",".txt",
 				 "matchmaking-war3-",".dat",
+				 "tos_",".txt",
+				 "tos-unicode_", ".txt",
 				 NULL,NULL};
     const char ** pattern, **extension;
     char *filename = NULL;
