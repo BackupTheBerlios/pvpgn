@@ -411,7 +411,7 @@ static int bnpcap_conn_packet(unsigned int sip, unsigned short sport, unsigned i
 	 } /* while */
 	 /* write back saved state */
 	 if ((off>0)&&(bnpcap_dodebug)) {
-	    eventlog(eventlog_level_debug,__FUNCTION__,"saving %d bytes in packet buffer (p=0x%08x)",off,(int)p);
+	    eventlog(eventlog_level_debug,__FUNCTION__,"saving %d bytes in packet buffer (p=0x%08lx)",off,(long)p);
 	 }
 	 if (bnpcap_conn_get_dir(c,&s,&d)==packet_dir_from_client) {
 	    c->clientpkt = p;
@@ -743,4 +743,3 @@ int main (int argc, char **argv) {
    pcap_close(pc);
    return 0;
 }
-
