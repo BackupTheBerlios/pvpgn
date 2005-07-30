@@ -73,11 +73,20 @@
 /* The number of bytes in a unsigned char.  */
 #define SIZEOF_UNSIGNED_CHAR 1
 
+/* The number of bytes in a signed char.  */
+#define SIZEOF_SIGNED_CHAR 1
+
 /* The number of bytes in a unsigned int.  */
 #define SIZEOF_UNSIGNED_INT 4
 
+/* The number of bytes in a signed int.  */
+#define SIZEOF_SIGNED_INT 4
+
 /* The number of bytes in a unsigned long.  */
 #define SIZEOF_UNSIGNED_LONG 4
+
+/* The number of bytes in a signed long.  */
+#define SIZEOF_SIGNED_LONG 4
 
 /* The number of bytes in a unsigned long long.  */
 /* Borland doesn't do ull, but VC++ does */
@@ -87,8 +96,19 @@
 # define SIZEOF_UNSIGNED_LONG_LONG 8
 #endif
 
+/* The number of bytes in a signed long long.  */
+/* Borland doesn't do ll, but VC++ does */
+#ifdef __BORLANDC__
+# define SIZEOF_SIGNED_LONG_LONG 0
+#else
+# define SIZEOF_SIGNED_LONG_LONG 8
+#endif
+
 /* The number of bytes in a unsigned short.  */
 #define SIZEOF_UNSIGNED_SHORT 2
+
+/* The number of bytes in a signed short.  */
+#define SIZEOF_SIGNED_SHORT 2
 
 /* Define if you have the _mkdir function.  */
 #define HAVE__MKDIR 1
