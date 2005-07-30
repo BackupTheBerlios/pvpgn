@@ -216,6 +216,9 @@
 				<File
 					RelativePath="..\src\common\xalloc.c">
 				</File>
+				<File
+					RelativePath="..\src\common\xstring.c">
+				</File>
 			</Filter>
 			<Filter
 				Name="compat"
@@ -231,13 +234,6 @@
 				</File>
 				<File
 					RelativePath="..\src\compat\strsep.c">
-				</File>
-			</Filter>
-			<Filter
-				Name="d2cs"
-				Filter="">
-				<File
-					RelativePath="..\src\d2cs\xstring.c">
 				</File>
 			</Filter>
 			<Filter
@@ -322,6 +318,9 @@
 				<File
 					RelativePath="..\src\common\xalloc.h">
 				</File>
+				<File
+					RelativePath="..\src\common\xstring.h">
+				</File>
 			</Filter>
 			<Filter
 				Name="compat"
@@ -337,13 +336,6 @@
 				</File>
 				<File
 					RelativePath="..\src\compat\strsep.h">
-				</File>
-			</Filter>
-			<Filter
-				Name="d2cs"
-				Filter="">
-				<File
-					RelativePath="..\src\d2cs\xstring.h">
 				</File>
 			</Filter>
 			<Filter

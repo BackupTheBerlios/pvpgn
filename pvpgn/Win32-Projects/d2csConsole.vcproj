@@ -212,9 +212,6 @@
 				<File
 					RelativePath="..\src\d2cs\serverqueue.c">
 				</File>
-				<File
-					RelativePath="..\src\d2cs\xstring.c">
-				</File>
 			</Filter>
 			<Filter
 				Name="common"
@@ -278,6 +275,9 @@
 				</File>
 				<File
 					RelativePath="..\src\common\xalloc.c">
+				</File>
+				<File
+					RelativePath="..\src\common\xstring.c">
 				</File>
 			</Filter>
 			<Filter
@@ -422,9 +422,6 @@
 				<File
 					RelativePath="..\src\d2cs\version.h">
 				</File>
-				<File
-					RelativePath="..\src\d2cs\xstring.h">
-				</File>
 			</Filter>
 			<Filter
 				Name="common"
@@ -488,6 +485,9 @@
 				</File>
 				<File
 					RelativePath="..\src\common\xalloc.h">
+				</File>
+				<File
+					RelativePath="..\src\common\xstring.h">
 				</File>
 			</Filter>
 			<Filter
