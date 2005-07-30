@@ -308,7 +308,6 @@ d2cs_OBJECTS    = \
     ${SRC_D2CSDIR}\handle_d2cs.obj \ 
     ${SRC_D2CSDIR}\d2charfile.obj \ 
     ${SRC_D2CSDIR}\d2charlist.obj \ 
-    ${SRC_D2CSDIR}\xstring.obj \ 
     ${SRC_D2CSDIR}\gamequeue.obj \ 
     ${SRC_D2CSDIR}\prefs.obj \ 
     ${SRC_D2CSDIR}\cmdline.obj \ 
@@ -337,6 +336,7 @@ d2cs_OBJECTS    = \
     ${SRC_COMMONDIR}\d2char_checksum.obj \ 
     ${SRC_COMMONDIR}\fdwatch_select.obj \      
     ${SRC_COMMONDIR}\xalloc.obj \        
+    ${SRC_COMMONDIR}\xstring.obj \     
     ${SRC_COMPATDIR}\inet_aton.obj \ 
     ${SRC_COMPATDIR}\inet_ntoa.obj \ 
     ${SRC_COMPATDIR}\strdup.obj \ 
@@ -366,7 +366,6 @@ d2dbs_OBJECTS = \
     ${SRC_D2DBSDIR}\prefs.obj \ 
     ${SRC_D2DBSDIR}\dbsdupecheck.obj \ 
     ${SRC_D2DBSDIR}\handle_signal.obj \     
-    ${SRC_D2CSDIR}\xstring.obj \ 
     ${SRC_COMMONDIR}\conf.obj \     
     ${SRC_COMMONDIR}\list.obj \ 
     ${SRC_COMMONDIR}\eventlog.obj \ 
@@ -378,6 +377,7 @@ d2dbs_OBJECTS = \
     ${SRC_COMMONDIR}\xalloc.obj \   
     ${SRC_COMMONDIR}\packet.obj \   
     ${SRC_COMMONDIR}\network.obj \           
+    ${SRC_COMMONDIR}\xstring.obj \     
     ${SRC_COMPATDIR}\inet_aton.obj \
     ${SRC_COMPATDIR}\psock.obj \
     ${SRC_COMPATDIR}\strerror.obj \ 
