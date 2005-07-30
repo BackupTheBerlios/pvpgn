@@ -19,7 +19,7 @@ ObjectOutput=
 OverrideOutput=0
 OverrideOutputName=d2dbs.exe
 HostApplication=
-Folders=common,"common/Header Files","common/Source Files",compat,"compat/Header Files","compat/Source Files",d2cs,"d2cs/Header Files","d2cs/Source Files",d2dbs,"d2dbs/Header Files","d2dbs/Source Files",win32,"win32/Header Files","win32/Resource Files","win32/Source Files"
+Folders=common,"common/Header Files","common/Source Files",compat,"compat/Header Files","compat/Source Files",d2dbs,"d2dbs/Header Files","d2dbs/Source Files",win32,"win32/Header Files","win32/Resource Files","win32/Source Files"
 CommandLine=
 UseCustomMakefile=0
 IncludeVersionInfo=0
@@ -460,9 +460,9 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit44]
-FileName=..\src\d2cs\xstring.c
+FileName=..\src\win32\d2dbs_winmain.c
 CompileCpp=0
-Folder=d2cs/Source Files
+Folder=win32/Source Files
 Compile=1
 Link=1
 Priority=1000
@@ -470,9 +470,9 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit45]
-FileName=..\src\d2cs\xstring.h
+FileName=..\src\win32\winmain.h
 CompileCpp=0
-Folder=d2cs/Header Files
+Folder=win32/Header Files
 Compile=1
 Link=1
 Priority=1000
@@ -498,26 +498,6 @@ ProductVersion=0.1
 AutoIncBuildNr=0
 
 [Unit46]
-FileName=..\src\win32\d2dbs_winmain.c
-CompileCpp=0
-Folder=win32/Source Files
-Compile=1
-Link=1
-Priority=1000
-OverrideBuildCmd=0
-BuildCmd=
-
-[Unit47]
-FileName=..\src\win32\winmain.h
-CompileCpp=0
-Folder=win32/Header Files
-Compile=1
-Link=1
-Priority=1000
-OverrideBuildCmd=0
-BuildCmd=
-
-[Unit48]
 FileName=..\src\win32\d2dbs_resource.rc
 CompileCpp=0
 Folder=win32/Resource Files
@@ -527,7 +507,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit49]
+[Unit47]
 FileName=..\src\win32\d2dbs_resource.h
 CompileCpp=0
 Folder=win32/Resource Files
@@ -537,7 +517,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit50]
+[Unit48]
 FileName=..\src\common\packet.h
 CompileCpp=0
 Folder=common/Header Files
@@ -547,7 +527,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit51]
+[Unit49]
 FileName=..\src\common\network.h
 CompileCpp=0
 Folder=common/Header Files
@@ -557,17 +537,17 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit52]
+[Unit50]
 FileName=..\src\common\packet.c
+CompileCpp=0
 Folder=common/Source Files
 Compile=1
 Link=1
 Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
-CompileCpp=0
 
-[Unit53]
+[Unit51]
 FileName=..\src\common\network.c
 CompileCpp=0
 Folder=common/Source Files
@@ -577,17 +557,17 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit54]
+[Unit52]
 FileName=..\src\common\conf.h
-CompileCpp=0
 Folder=common/Header Files
 Compile=1
 Link=1
 Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
+CompileCpp=0
 
-[Unit55]
+[Unit53]
 FileName=..\src\common\conf.c
 CompileCpp=0
 Folder=common/Source Files
@@ -597,7 +577,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit56]
+[Unit54]
 FileName=..\src\d2dbs\cmdline.h
 CompileCpp=0
 Folder=d2dbs/Header Files
@@ -607,10 +587,30 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit57]
+[Unit55]
 FileName=..\src\d2dbs\cmdline.c
 CompileCpp=0
 Folder=d2dbs/Source Files
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit56]
+FileName=..\src\common\xstring.h
+CompileCpp=0
+Folder=common/Header Files
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit57]
+FileName=..\src\common\xstring.c
+CompileCpp=0
+Folder=common/Source Files
 Compile=1
 Link=1
 Priority=1000

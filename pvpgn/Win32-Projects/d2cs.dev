@@ -30,16 +30,6 @@ CustomMakefile=
 PrivateResource=d2cs_private.rc
 
 [Unit1]
-FileName=..\src\d2cs\xstring.h
-CompileCpp=0
-Folder=d2cs/Header Files
-Compile=1
-Link=1
-Priority=1000
-OverrideBuildCmd=0
-BuildCmd=
-
-[Unit2]
 FileName=..\src\d2cs\bit.h
 CompileCpp=0
 Folder=d2cs/Header Files
@@ -49,7 +39,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit3]
+[Unit2]
 FileName=..\src\d2cs\bnetd.h
 CompileCpp=0
 Folder=d2cs/Header Files
@@ -59,7 +49,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit4]
+[Unit3]
 FileName=..\src\d2cs\connection.h
 CompileCpp=0
 Folder=d2cs/Header Files
@@ -69,7 +59,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit5]
+[Unit4]
 FileName=..\src\d2cs\d2charfile.h
 CompileCpp=0
 Folder=d2cs/Header Files
@@ -79,7 +69,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit6]
+[Unit5]
 FileName=..\src\d2cs\d2charlist.h
 CompileCpp=0
 Folder=d2cs/Header Files
@@ -89,7 +79,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit7]
+[Unit6]
 FileName=..\src\d2cs\d2cs_bnetd_protocol.h
 CompileCpp=0
 Folder=d2cs/Header Files
@@ -99,7 +89,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit8]
+[Unit7]
 FileName=..\src\d2cs\d2cs_d2dbs_ladder.h
 CompileCpp=0
 Folder=d2cs/Header Files
@@ -109,7 +99,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit9]
+[Unit8]
 FileName=..\src\d2cs\d2cs_d2gs_character.h
 CompileCpp=0
 Folder=d2cs/Header Files
@@ -119,7 +109,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit10]
+[Unit9]
 FileName=..\src\d2cs\d2cs_d2gs_protocol.h
 CompileCpp=0
 Folder=d2cs/Header Files
@@ -129,7 +119,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit11]
+[Unit10]
 FileName=..\src\d2cs\d2cs_protocol.h
 CompileCpp=0
 Folder=d2cs/Header Files
@@ -139,7 +129,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit12]
+[Unit11]
 FileName=..\src\d2cs\d2gs.h
 CompileCpp=0
 Folder=d2cs/Header Files
@@ -149,7 +139,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit13]
+[Unit12]
 FileName=..\src\d2cs\d2ladder.h
 CompileCpp=0
 Folder=d2cs/Header Files
@@ -159,7 +149,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit14]
+[Unit13]
 FileName=..\src\d2cs\game.h
 CompileCpp=0
 Folder=d2cs/Header Files
@@ -169,7 +159,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit15]
+[Unit14]
 FileName=..\src\d2cs\gamequeue.h
 CompileCpp=0
 Folder=d2cs/Header Files
@@ -179,7 +169,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit16]
+[Unit15]
 FileName=..\src\d2cs\handle_bnetd.h
 CompileCpp=0
 Folder=d2cs/Header Files
@@ -189,7 +179,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit17]
+[Unit16]
 FileName=..\src\d2cs\handle_d2cs.h
 CompileCpp=0
 Folder=d2cs/Header Files
@@ -199,7 +189,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit18]
+[Unit17]
 FileName=..\src\d2cs\handle_d2gs.h
 CompileCpp=0
 Folder=d2cs/Header Files
@@ -209,7 +199,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit19]
+[Unit18]
 FileName=..\src\d2cs\handle_init.h
 CompileCpp=0
 Folder=d2cs/Header Files
@@ -219,7 +209,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit20]
+[Unit19]
 FileName=..\src\d2cs\handle_signal.h
 CompileCpp=0
 Folder=d2cs/Header Files
@@ -229,7 +219,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit21]
+[Unit20]
 FileName=..\src\d2cs\net.h
 CompileCpp=0
 Folder=d2cs/Header Files
@@ -239,7 +229,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit22]
+[Unit21]
 FileName=..\src\d2cs\prefs.h
 CompileCpp=0
 Folder=d2cs/Header Files
@@ -249,7 +239,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit23]
+[Unit22]
 FileName=..\src\d2cs\s2s.h
 CompileCpp=0
 Folder=d2cs/Header Files
@@ -259,7 +249,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit24]
+[Unit23]
 FileName=..\src\d2cs\server.h
 CompileCpp=0
 Folder=d2cs/Header Files
@@ -269,7 +259,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit25]
+[Unit24]
 FileName=..\src\d2cs\serverqueue.h
 CompileCpp=0
 Folder=d2cs/Header Files
@@ -279,7 +269,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit26]
+[Unit25]
 FileName=..\src\d2cs\setup.h
 CompileCpp=0
 Folder=d2cs/Header Files
@@ -289,7 +279,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit27]
+[Unit26]
 FileName=..\src\d2cs\version.h
 CompileCpp=0
 Folder=d2cs/Header Files
@@ -299,17 +289,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit28]
-FileName=..\src\d2cs\xstring.c
-CompileCpp=0
-Folder=d2cs/Source Files
-Compile=1
-Link=1
-Priority=1000
-OverrideBuildCmd=0
-BuildCmd=
-
-[Unit29]
+[Unit27]
 FileName=..\src\d2cs\bnetd.c
 CompileCpp=0
 Folder=d2cs/Source Files
@@ -319,7 +299,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit30]
+[Unit28]
 FileName=..\src\d2cs\connection.c
 CompileCpp=0
 Folder=d2cs/Source Files
@@ -329,7 +309,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit31]
+[Unit29]
 FileName=..\src\d2cs\d2charfile.c
 CompileCpp=0
 Folder=d2cs/Source Files
@@ -339,7 +319,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit32]
+[Unit30]
 FileName=..\src\d2cs\d2charlist.c
 CompileCpp=0
 Folder=d2cs/Source Files
@@ -349,7 +329,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit33]
+[Unit31]
 FileName=..\src\d2cs\d2gs.c
 CompileCpp=0
 Folder=d2cs/Source Files
@@ -359,7 +339,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit34]
+[Unit32]
 FileName=..\src\d2cs\d2ladder.c
 CompileCpp=0
 Folder=d2cs/Source Files
@@ -369,7 +349,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit35]
+[Unit33]
 FileName=..\src\d2cs\game.c
 CompileCpp=0
 Folder=d2cs/Source Files
@@ -379,7 +359,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit36]
+[Unit34]
 FileName=..\src\d2cs\gamequeue.c
 CompileCpp=0
 Folder=d2cs/Source Files
@@ -389,7 +369,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit37]
+[Unit35]
 FileName=..\src\d2cs\handle_bnetd.c
 CompileCpp=0
 Folder=d2cs/Source Files
@@ -399,7 +379,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit38]
+[Unit36]
 FileName=..\src\d2cs\handle_d2cs.c
 CompileCpp=0
 Folder=d2cs/Source Files
@@ -409,7 +389,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit39]
+[Unit37]
 FileName=..\src\d2cs\handle_d2gs.c
 CompileCpp=0
 Folder=d2cs/Source Files
@@ -419,7 +399,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit40]
+[Unit38]
 FileName=..\src\d2cs\handle_init.c
 CompileCpp=0
 Folder=d2cs/Source Files
@@ -429,7 +409,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit41]
+[Unit39]
 FileName=..\src\d2cs\handle_signal.c
 CompileCpp=0
 Folder=d2cs/Source Files
@@ -439,7 +419,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit42]
+[Unit40]
 FileName=..\src\d2cs\main.c
 CompileCpp=0
 Folder=d2cs/Source Files
@@ -449,7 +429,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit43]
+[Unit41]
 FileName=..\src\d2cs\net.c
 CompileCpp=0
 Folder=d2cs/Source Files
@@ -459,7 +439,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit44]
+[Unit42]
 FileName=..\src\d2cs\prefs.c
 CompileCpp=0
 Folder=d2cs/Source Files
@@ -469,7 +449,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit45]
+[Unit43]
 FileName=..\src\d2cs\s2s.c
 CompileCpp=0
 Folder=d2cs/Source Files
@@ -479,7 +459,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit46]
+[Unit44]
 FileName=..\src\d2cs\server.c
 CompileCpp=0
 Folder=d2cs/Source Files
@@ -489,7 +469,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit47]
+[Unit45]
 FileName=..\src\d2cs\serverqueue.c
 CompileCpp=0
 Folder=d2cs/Source Files
@@ -499,7 +479,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit48]
+[Unit46]
 FileName=..\src\common\xalloc.c
 CompileCpp=0
 Folder=common/Source Files
@@ -509,7 +489,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit49]
+[Unit47]
 FileName=..\src\common\addr.c
 CompileCpp=0
 Folder=common/Source Files
@@ -519,7 +499,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit50]
+[Unit48]
 FileName=..\src\common\bn_type.c
 CompileCpp=0
 Folder=common/Source Files
@@ -529,7 +509,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit51]
+[Unit49]
 FileName=..\src\common\d2char_checksum.c
 CompileCpp=0
 Folder=common/Source Files
@@ -539,7 +519,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit52]
+[Unit50]
 FileName=..\src\common\eventlog.c
 CompileCpp=0
 Folder=common/Source Files
@@ -549,7 +529,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit53]
+[Unit51]
 FileName=..\src\common\fdwatch.c
 CompileCpp=0
 Folder=common/Source Files
@@ -559,7 +539,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit54]
+[Unit52]
 FileName=..\src\common\fdwatch_epoll.c
 CompileCpp=0
 Folder=common/Source Files
@@ -569,7 +549,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit55]
+[Unit53]
 FileName=..\src\common\fdwatch_kqueue.c
 CompileCpp=0
 Folder=common/Source Files
@@ -579,7 +559,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit56]
+[Unit54]
 FileName=..\src\common\fdwatch_poll.c
 CompileCpp=0
 Folder=common/Source Files
@@ -589,7 +569,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit57]
+[Unit55]
 FileName=..\src\common\fdwatch_select.c
 CompileCpp=0
 Folder=common/Source Files
@@ -599,7 +579,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit58]
+[Unit56]
 FileName=..\src\common\hashtable.c
 CompileCpp=0
 Folder=common/Source Files
@@ -609,7 +589,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit59]
+[Unit57]
 FileName=..\src\common\hexdump.c
 CompileCpp=0
 Folder=common/Source Files
@@ -619,7 +599,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit60]
+[Unit58]
 FileName=..\src\common\list.c
 CompileCpp=0
 Folder=common/Source Files
@@ -629,7 +609,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit61]
+[Unit59]
 FileName=..\src\common\network.c
 CompileCpp=0
 Folder=common/Source Files
@@ -639,7 +619,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit62]
+[Unit60]
 FileName=..\src\common\packet.c
 CompileCpp=0
 Folder=common/Source Files
@@ -649,7 +629,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit63]
+[Unit61]
 FileName=..\src\common\queue.c
 CompileCpp=0
 Folder=common/Source Files
@@ -659,7 +639,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit64]
+[Unit62]
 FileName=..\src\common\rlimit.c
 CompileCpp=0
 Folder=common/Source Files
@@ -669,7 +649,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit65]
+[Unit63]
 FileName=..\src\common\trans.c
 CompileCpp=0
 Folder=common/Source Files
@@ -679,7 +659,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit66]
+[Unit64]
 FileName=..\src\common\util.c
 CompileCpp=0
 Folder=common/Source Files
@@ -689,7 +669,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit67]
+[Unit65]
 FileName=..\src\common\xalloc.h
 CompileCpp=0
 Folder=common/Header Files
@@ -699,7 +679,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit68]
+[Unit66]
 FileName=..\src\common\addr.h
 CompileCpp=0
 Folder=common/Header Files
@@ -709,7 +689,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit69]
+[Unit67]
 FileName=..\src\common\bn_type.h
 CompileCpp=0
 Folder=common/Header Files
@@ -719,7 +699,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit70]
+[Unit68]
 FileName=..\src\common\d2char_checksum.h
 CompileCpp=0
 Folder=common/Header Files
@@ -729,7 +709,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit71]
+[Unit69]
 FileName=..\src\common\eventlog.h
 CompileCpp=0
 Folder=common/Header Files
@@ -739,7 +719,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit72]
+[Unit70]
 FileName=..\src\common\fdwatch.h
 CompileCpp=0
 Folder=common/Header Files
@@ -749,7 +729,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit73]
+[Unit71]
 FileName=..\src\common\fdwatch_epoll.h
 CompileCpp=0
 Folder=common/Header Files
@@ -759,7 +739,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit74]
+[Unit72]
 FileName=..\src\common\fdwatch_kqueue.h
 CompileCpp=0
 Folder=common/Header Files
@@ -769,7 +749,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit75]
+[Unit73]
 FileName=..\src\common\fdwatch_poll.h
 CompileCpp=0
 Folder=common/Header Files
@@ -779,7 +759,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit76]
+[Unit74]
 FileName=..\src\common\fdwatch_select.h
 CompileCpp=0
 Folder=common/Header Files
@@ -789,7 +769,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit77]
+[Unit75]
 FileName=..\src\common\hashtable.h
 CompileCpp=0
 Folder=common/Header Files
@@ -799,7 +779,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit78]
+[Unit76]
 FileName=..\src\common\hexdump.h
 CompileCpp=0
 Folder=common/Header Files
@@ -809,7 +789,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit79]
+[Unit77]
 FileName=..\src\common\list.h
 CompileCpp=0
 Folder=common/Header Files
@@ -819,7 +799,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit80]
+[Unit78]
 FileName=..\src\common\network.h
 CompileCpp=0
 Folder=common/Header Files
@@ -829,7 +809,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit81]
+[Unit79]
 FileName=..\src\common\packet.h
 CompileCpp=0
 Folder=common/Header Files
@@ -839,7 +819,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit82]
+[Unit80]
 FileName=..\src\common\queue.h
 CompileCpp=0
 Folder=common/Header Files
@@ -849,7 +829,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit83]
+[Unit81]
 FileName=..\src\common\rlimit.h
 CompileCpp=0
 Folder=common/Header Files
@@ -859,7 +839,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit84]
+[Unit82]
 FileName=..\src\common\trans.h
 CompileCpp=0
 Folder=common/Header Files
@@ -869,7 +849,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit85]
+[Unit83]
 FileName=..\src\common\util.h
 CompileCpp=0
 Folder=common/Header Files
@@ -879,7 +859,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit86]
+[Unit84]
 FileName=..\src\compat\uname.c
 CompileCpp=0
 Folder=compat/Source Files
@@ -889,7 +869,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit87]
+[Unit85]
 FileName=..\src\compat\difftime.c
 CompileCpp=0
 Folder=compat/Source Files
@@ -899,7 +879,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit88]
+[Unit86]
 FileName=..\src\compat\gettimeofday.c
 CompileCpp=0
 Folder=compat/Source Files
@@ -909,7 +889,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit89]
+[Unit87]
 FileName=..\src\compat\inet_aton.c
 CompileCpp=0
 Folder=compat/Source Files
@@ -919,7 +899,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit90]
+[Unit88]
 FileName=..\src\compat\inet_ntoa.c
 CompileCpp=0
 Folder=compat/Source Files
@@ -929,7 +909,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit91]
+[Unit89]
 FileName=..\src\compat\pdir.c
 CompileCpp=0
 Folder=compat/Source Files
@@ -939,7 +919,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit92]
+[Unit90]
 FileName=..\src\compat\psock.c
 CompileCpp=0
 Folder=compat/Source Files
@@ -949,7 +929,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit93]
+[Unit91]
 FileName=..\src\compat\strcasecmp.c
 CompileCpp=0
 Folder=compat/Source Files
@@ -959,7 +939,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit94]
+[Unit92]
 FileName=..\src\compat\strdup.c
 CompileCpp=0
 Folder=compat/Source Files
@@ -969,7 +949,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit95]
+[Unit93]
 FileName=..\src\compat\strerror.c
 CompileCpp=0
 Folder=compat/Source Files
@@ -979,7 +959,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit96]
+[Unit94]
 FileName=..\src\compat\strftime.c
 CompileCpp=0
 Folder=compat/Source Files
@@ -989,7 +969,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit97]
+[Unit95]
 FileName=..\src\compat\strncasecmp.c
 CompileCpp=0
 Folder=compat/Source Files
@@ -999,7 +979,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit98]
+[Unit96]
 FileName=..\src\compat\strsep.c
 CompileCpp=0
 Folder=compat/Source Files
@@ -1009,7 +989,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit99]
+[Unit97]
 FileName=..\src\compat\strtoul.c
 CompileCpp=0
 Folder=compat/Source Files
@@ -1019,7 +999,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit100]
+[Unit98]
 FileName=..\src\compat\strsep.h
 CompileCpp=0
 Folder=compat/Header Files
@@ -1029,7 +1009,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit101]
+[Unit99]
 FileName=..\src\compat\strtoul.h
 CompileCpp=0
 Folder=compat/Header Files
@@ -1039,7 +1019,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit102]
+[Unit100]
 FileName=..\src\compat\uname.h
 CompileCpp=0
 Folder=compat/Header Files
@@ -1049,7 +1029,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit103]
+[Unit101]
 FileName=..\src\compat\access.h
 CompileCpp=0
 Folder=compat/Header Files
@@ -1059,7 +1039,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit104]
+[Unit102]
 FileName=..\src\compat\difftime.h
 CompileCpp=0
 Folder=compat/Header Files
@@ -1069,7 +1049,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit105]
+[Unit103]
 FileName=..\src\compat\gettimeofday.h
 CompileCpp=0
 Folder=compat/Header Files
@@ -1079,7 +1059,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit106]
+[Unit104]
 FileName=..\src\compat\inet_aton.h
 CompileCpp=0
 Folder=compat/Header Files
@@ -1089,7 +1069,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit107]
+[Unit105]
 FileName=..\src\compat\inet_ntoa.h
 CompileCpp=0
 Folder=compat/Header Files
@@ -1099,7 +1079,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit108]
+[Unit106]
 FileName=..\src\compat\pdir.h
 CompileCpp=0
 Folder=compat/Header Files
@@ -1109,7 +1089,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit109]
+[Unit107]
 FileName=..\src\compat\psock.h
 CompileCpp=0
 Folder=compat/Header Files
@@ -1119,7 +1099,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit110]
+[Unit108]
 FileName=..\src\compat\strcasecmp.h
 CompileCpp=0
 Folder=compat/Header Files
@@ -1129,7 +1109,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit111]
+[Unit109]
 FileName=..\src\compat\strdup.h
 CompileCpp=0
 Folder=compat/Header Files
@@ -1139,7 +1119,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit112]
+[Unit110]
 FileName=..\src\compat\strerror.h
 CompileCpp=0
 Folder=compat/Header Files
@@ -1149,7 +1129,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit113]
+[Unit111]
 FileName=..\src\compat\strftime.h
 CompileCpp=0
 Folder=compat/Header Files
@@ -1159,7 +1139,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit114]
+[Unit112]
 FileName=..\src\compat\strncasecmp.h
 CompileCpp=0
 Folder=compat/Header Files
@@ -1169,7 +1149,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit115]
+[Unit113]
 FileName=..\src\win32\service.h
 CompileCpp=0
 Folder=win32/Header Files
@@ -1179,7 +1159,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit116]
+[Unit114]
 FileName=..\src\win32\service.c
 CompileCpp=0
 Folder=win32/Source Files
@@ -1189,7 +1169,7 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit117]
+[Unit115]
 FileName=..\src\win32\d2cs_resource.h
 CompileCpp=0
 Folder=win32/Resource Files
@@ -1199,12 +1179,32 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit118]
+[Unit116]
 FileName=..\src\win32\d2cs_resource.rc
 CompileCpp=0
 Folder=win32/Resource Files
 Compile=1
 Link=0
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit117]
+FileName=..\src\win32\winmain.h
+CompileCpp=0
+Folder=win32/Header Files
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit118]
+FileName=..\src\win32\d2cs_winmain.c
+CompileCpp=0
+Folder=win32/Source Files
+Compile=1
+Link=1
 Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
@@ -1228,26 +1228,6 @@ ProductVersion=0.1
 AutoIncBuildNr=0
 
 [Unit119]
-FileName=..\src\win32\winmain.h
-CompileCpp=0
-Folder=win32/Header Files
-Compile=1
-Link=1
-Priority=1000
-OverrideBuildCmd=0
-BuildCmd=
-
-[Unit120]
-FileName=..\src\win32\d2cs_winmain.c
-CompileCpp=0
-Folder=win32/Source Files
-Compile=1
-Link=1
-Priority=1000
-OverrideBuildCmd=0
-BuildCmd=
-
-[Unit121]
 FileName=..\src\common\conf.h
 CompileCpp=0
 Folder=common/Header Files
@@ -1257,17 +1237,17 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit122]
+[Unit120]
 FileName=..\src\common\conf.c
+CompileCpp=0
 Folder=common/Source Files
 Compile=1
 Link=1
 Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
-CompileCpp=0
 
-[Unit123]
+[Unit121]
 FileName=..\src\d2cs\cmdline.h
 CompileCpp=0
 Folder=d2cs/Header Files
@@ -1277,10 +1257,30 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit124]
+[Unit122]
 FileName=..\src\d2cs\cmdline.c
-CompileCpp=0
 Folder=d2cs/Source Files
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+CompileCpp=0
+
+[Unit123]
+FileName=..\src\common\xstring.h
+CompileCpp=0
+Folder=common/Header Files
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit124]
+FileName=..\src\common\xstring.c
+CompileCpp=0
+Folder=common/Source Files
 Compile=1
 Link=1
 Priority=1000
