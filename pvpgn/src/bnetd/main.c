@@ -439,17 +439,18 @@ void pvpgn_greeting(void)
     
     printf("You are currently Running "PVPGN_SOFTWARE" "PVPGN_VERSION"\n");
     printf("=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=\n");
-    printf("Make sure to visit:\n");
-    printf("http://www.pvpgn.org\n");
-    printf("We can also be found on: irc.pvpgn.org\n");
-    printf("Channel: #pvpgn\n");
-    printf("Server is now running.\n");
+    printf("If you need support:\n");
+    printf(" * READ the documentation at http://pvpgndocs.berlios.de/\n");
+    printf(" * you can subscribe to the pvpgn-users mailing list at \n");
+    printf("   https://lists.berlios.de/mailman/listinfo/pvpgn-users\n");
+    printf(" * check out the forums at http://forums.pvpgn.org\n");
+    printf(" * visit us on IRC on irc.pvpgn.org channel #pvpgn\n");
+    printf("\nServer is now running.\n");
     printf("=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=\n");
     
     return;
 }
 
-// MAIN STARTS HERE!!!
 #ifdef WIN32_GUI
 extern int server_main(int argc, char * * argv)
 #else
