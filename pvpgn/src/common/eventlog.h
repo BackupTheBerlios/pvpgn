@@ -51,26 +51,40 @@ extern void eventlog_clear_level(void);
 extern int eventlog_add_level(char const * levelname);
 extern int eventlog_del_level(char const * levelname);
 extern char const * eventlog_get_levelname_str(t_eventlog_level level);
-#ifdef DEBUGMODSTRINGS
-
-extern void eventlog_real(t_eventlog_level level, char const * module, char const * fmt, ...) PRINTF_ATTR(3,4);
-# if __STDC_VERSION__+1 >= 199901L
-#  define eventlog(l,m,f,args...) eventlog_real(l,"@(" __FILE__ ":" m "@@" __func__ ")@",f,##args)
-# else
-# if defined(__GNUC__) && ((__GNUC__ == 2 && __GNUC_MINOR__ >= 7) || __GNUC__ > 2)
-#   define eventlog(l,m,f,args...) eventlog_real(l,"@(" __FILE__ ":" m "@@" __PRETTY_FUNCTION__ ")@",f,##args)
-#  else
-#   error "No function macro available, either don't define DEBUGMODSTRINGS or don't use -pedantic"
-#  endif
-# endif
-
-#else
-
 extern void eventlog_hexdump_data(void const * data, unsigned int len);
 extern void eventlog(t_eventlog_level level, char const * module, char const * fmt, ...);
 extern void eventlog_step(char const * filename, t_eventlog_level level, char const * module, char const * fmt, ...);
 
-#endif
+#define FATAL0(fmt) eventlog(eventlog_level_fatal,__FUNCTION__,fmt)
+#define FATAL1(fmt,arg1) eventlog(eventlog_level_fatal,__FUNCTION__,fmt,arg1)
+#define FATAL2(fmt,arg1,arg2) eventlog(eventlog_level_fatal,__FUNCTION__,fmt,arg1,arg2)
+#define FATAL3(fmt,arg1,arg2,arg3) eventlog(eventlog_level_fatal,__FUNCTION__,fmt,arg1,arg2,arg3)
+
+#define ERROR0(fmt) eventlog(eventlog_level_error,__FUNCTION__,fmt)
+#define ERROR1(fmt,arg1) eventlog(eventlog_level_error,__FUNCTION__,fmt,arg1)
+#define ERROR2(fmt,arg1,arg2) eventlog(eventlog_level_error,__FUNCTION__,fmt,arg1,arg2)
+#define ERROR3(fmt,arg1,arg2,arg3) eventlog(eventlog_level_error,__FUNCTION__,fmt,arg1,arg2,arg3)
+
+#define WARN0(fmt) eventlog(eventlog_level_warn,__FUNCTION__,fmt)
+#define WARN1(fmt,arg1) eventlog(eventlog_level_warn,__FUNCTION__,fmt,arg1)
+#define WARN2(fmt,arg1,arg2) eventlog(eventlog_level_warn,__FUNCTION__,fmt,arg1,arg2)
+#define WARN3(fmt,arg1,arg2,arg3) eventlog(eventlog_level_warn,__FUNCTION__,fmt,arg1,arg2,arg3)
+
+#define INFO0(fmt) eventlog(eventlog_level_info,__FUNCTION__,fmt)
+#define INFO1(fmt,arg1) eventlog(eventlog_level_info,__FUNCTION__,fmt,arg1)
+#define INFO2(fmt,arg1,arg2) eventlog(eventlog_level_info,__FUNCTION__,fmt,arg1,arg2)
+#define INFO3(fmt,arg1,arg2,arg3) eventlog(eventlog_level_info,__FUNCTION__,fmt,arg1,arg2,arg3)
+
+#define DEBUG0(fmt) eventlog(eventlog_level_debug,__FUNCTION__,fmt)
+#define DEBUG1(fmt,arg1) eventlog(eventlog_level_debug,__FUNCTION__,fmt,arg1)
+#define DEBUG2(fmt,arg1,arg2) eventlog(eventlog_level_debug,__FUNCTION__,fmt,arg1,arg2)
+#define DEBUG3(fmt,arg1,arg2,arg3) eventlog(eventlog_level_debug,__FUNCTION__,fmt,arg1,arg2,arg3)
+
+#define TRACE0(fmt) eventlog(eventlog_level_trace,__FUNCTION__,fmt)
+#define TRACE1(fmt,arg1) eventlog(eventlog_level_trace,__FUNCTION__,fmt,arg1)
+#define TRACE2(fmt,arg1,arg2) eventlog(eventlog_level_trace,__FUNCTION__,fmt,arg1,arg2)
+#define TRACE3(fmt,arg1,arg2,arg3) eventlog(eventlog_level_trace,__FUNCTION__,fmt,arg1,arg2,arg3)
+
 
 #endif
 #endif

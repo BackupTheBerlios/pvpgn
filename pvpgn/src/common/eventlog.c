@@ -260,11 +260,7 @@ extern void eventlog_hexdump_data(void const * data, unsigned int len)
     fflush(eventstrm);
 }
 
-#ifdef DEBUGMODSTRINGS
-extern void eventlog_real(t_eventlog_level level, char const * module, char const * fmt, ...)
-#else
 extern void eventlog(t_eventlog_level level, char const * module, char const * fmt, ...)
-#endif
 {
     va_list     args;
     char        time_string[EVENT_TIME_MAXLEN];
