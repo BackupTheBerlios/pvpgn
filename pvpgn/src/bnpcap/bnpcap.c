@@ -21,6 +21,7 @@
 #include <errno.h>
 #include <netinet/in.h>
 #include <string.h>
+#include <stdlib.h>
 #include "compat/strerror.h"
 #include "compat/getopt.h"
 #include "common/init_protocol.h"
