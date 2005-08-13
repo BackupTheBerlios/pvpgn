@@ -19,6 +19,5 @@
 #endif
 
 extern void output_init(void);
- // initialize the output file
 extern void output_dispose_filename(void);
 extern int output_write_to_file(void);

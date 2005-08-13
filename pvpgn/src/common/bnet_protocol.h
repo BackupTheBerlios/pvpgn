@@ -42,7 +42,7 @@ typedef struct
 } PACKED_ATTR() t_bnet_header;
 /******************************************************/
 
-// [zap-zero] 20020529 - added support for war3 anongame routing packets
+/* [zap-zero] 20020529 - added support for war3 anongame routing packets */
 /******************************************************/
 typedef struct
 {
@@ -83,11 +83,11 @@ typedef struct
 {
 	t_w3route_header h;
 	bn_int unknown1;
-	bn_int id;			// unique id sent by server
+	bn_int id;			/* unique id sent by server */
 	bn_byte unknown2;
 	bn_short port;
-	bn_int handle;		// handle/descriptor for client <-> client communication
-	// player name, ...
+	bn_int handle;		/* handle/descriptor for client <-> client communication */
+	/* player name, ... */
 } PACKED_ATTR() t_client_w3route_req;
 /******************************************************/
 
@@ -128,7 +128,7 @@ f7 21 08 00 01 00 00 00
 typedef struct
 {
         t_w3route_header h;
-        bn_int unknown1;       // count?
+        bn_int unknown1;       /* count? */
 } PACKED_ATTR() t_client_w3route_abort;
 		
 /******************************************************/
@@ -219,7 +219,7 @@ typedef struct
 } PACKED_ATTR() t_client_w3route_gameresult;
 /******************************************************/
 
-// [zap-zero] what value is DRAW?
+/* [zap-zero] what value is DRAW? */
 #define W3_GAMERESULT_LOSS	0x00000003
 #define W3_GAMERESULT_WIN	0x00000004
 
@@ -234,7 +234,7 @@ typedef struct
 
 typedef struct
 {
-	bn_byte unknown0; // but could also contain info about result
+	bn_byte unknown0; /* but could also contain info about result */
 	bn_int  unknown1;
 	bn_int  unknown2;
 	bn_int  unknown3;
@@ -281,16 +281,16 @@ typedef struct
 typedef struct
 {
 	t_w3route_header h;
-	bn_byte unknown1;	// 07
-	bn_short unknown2;	// 00 00
-	bn_int unknown3;	// random stuff
-	bn_short unknown4;	// cc cc
-        bn_byte playernum;	// 1-4
-	bn_short unknown5;	// 0x0002
-	bn_short port;		// client port
-	bn_int ip;		// client ip
-	bn_int unknown7;	// 00 00 00 00
-	bn_int unknown8;	// 00 00 00 00
+	bn_byte unknown1;	/* 07 */
+	bn_short unknown2;	/* 00 00 */
+	bn_int unknown3;	/* random stuff */
+	bn_short unknown4;	/* cc cc */
+        bn_byte playernum;	/* 1-4 */
+	bn_short unknown5;	/* 0x0002 */
+	bn_short port;		/* client port */
+	bn_int ip;		/* client ip */
+	bn_int unknown7;	/* 00 00 00 00 */
+	bn_int unknown8;	/* 00 00 00 00 */
 } PACKED_ATTR() t_server_w3route_ack;
 /******************************************************/
 
@@ -311,18 +311,19 @@ typedef struct
 	t_w3route_header h;
 	bn_int handle;
 	bn_byte playernum;
-	// then:
-	// opponent name
-	// playerinfo2
-	// playerinfo_addr (external addr)
-	// playerinfo_addr (local lan addr)
+	/* then:
+	   opponent name
+	   playerinfo2
+	   playerinfo_addr (external addr)
+	   playerinfo_addr (local lan addr)
+	 */
 } PACKED_ATTR() t_server_w3route_playerinfo;
 
 typedef struct
 {
-	bn_byte unknown1;		// 8 (length?)
-	bn_int id;			// id from FINDANONGAME_SEARCH packet
-	bn_int race;			// see defines
+	bn_byte unknown1;		/* 8 (length?) */
+	bn_int id;			/* id from FINDANONGAME_SEARCH packet */
+	bn_int race;			/* see defines */
 } PACKED_ATTR() t_server_w3route_playerinfo2;
 
 #define SERVER_W3ROUTE_LEVELINFO 0x47f7
@@ -330,13 +331,13 @@ typedef struct
 {
 	t_w3route_header h;
 	bn_byte numplayers;
-	// then: levelinfo2 for each player	
+	/* then: levelinfo2 for each player */
 } PACKED_ATTR() t_server_w3route_levelinfo;
 
 typedef struct
 {
 	bn_byte plnum;	
-	bn_byte unknown1;		// 3 (length?)
+	bn_byte unknown1;		/* 3 (length?) */
 	bn_byte level;
 	bn_short unknown2;
 } PACKED_ATTR() t_server_w3route_levelinfo2;
@@ -344,23 +345,23 @@ typedef struct
 
 typedef struct
 {
-	bn_short unknown1;		// 2 
+	bn_short unknown1;		/* 2 */
 	bn_short port;
 	bn_int ip;
-	bn_int unknown2;		// 0
-	bn_int unknown3;		// 0
+	bn_int unknown2;		/* 0 */
+	bn_int unknown3;		/* 0 */
 } PACKED_ATTR() t_server_w3route_playerinfo_addr;
 
 
 typedef struct
 {
-	t_w3route_header h;	// f7 0a 04 00
+	t_w3route_header h;	/* f7 0a 04 00 */
 } PACKED_ATTR() t_server_w3route_startgame1;
 #define SERVER_W3ROUTE_STARTGAME1 0x0af7
 
 typedef struct
 {
-	t_w3route_header h;	// f7 0b 04 00
+	t_w3route_header h;	/* f7 0b 04 00 */
 } PACKED_ATTR() t_server_w3route_startgame2;
 #define SERVER_W3ROUTE_STARTGAME2 0x0bf7
 
@@ -1573,7 +1574,7 @@ typedef struct
 typedef struct
 {
     t_bnet_header h;
-    bn_int        last_news_time; // date of the last news item the client has
+    bn_int        last_news_time; /* date of the last news item the client has */
 } PACKED_ATTR() t_client_motd_w3;
 /******************************************************/
 
@@ -1711,7 +1712,7 @@ typedef struct
    bn_int unknown4;
 } PACKED_ATTR() t_server_logonproofreply;
 #define SERVER_LOGONPROOFREPLY_RESPONSE_OK 0x00000000
-//#define SERVER_LOGONPROOFREPLY_RESPONSE_BADPASS 0x00000001
+/*#define SERVER_LOGONPROOFREPLY_RESPONSE_BADPASS 0x00000001 */
 #define SERVER_LOGONPROOFREPLY_RESPONSE_BADPASS 0x00000002 /* from the battle net dump... */
 #define SERVER_LOGONPROOFREPLY_RESPONSE_EMAIL  0x0000000E
 #define SERVER_LOGONPROOFREPLY_UNKNOWN1  0x02825278
@@ -2406,9 +2407,9 @@ typedef struct
     /* text */
 } PACKED_ATTR() t_server_message;
 #define SERVER_MESSAGE_PLAYER_IP_DUMMY 0x00000000
-// nok
+/* nok */
 #define SERVER_MESSAGE_REG_AUTH 0xBAADF00D /* 0D F0 AD BA */
-//#define SERVER_MESSAGE_REG_AUTH 0x07f694d8
+/* #define SERVER_MESSAGE_REG_AUTH 0x07f694d8 */
 #define SERVER_MESSAGE_ACCOUNT_NUM 0x0df0adba
 /* For MT_ADD, MT_JOIN, the text portion looks like:
  *
@@ -2488,10 +2489,10 @@ typedef struct
 #define W3_RACE_UNDEAD				8
 #define W3_RACE_NIGHTELVES			4
 
-#define W3_ICON_RANDOM				0 // - Although when client presses random in PG and it sends "32" its "0" for icon
+#define W3_ICON_RANDOM				0 /* - Although when client presses random in PG and it sends "32" its "0" for icon */
 #define W3_ICON_HUMANS				1
 #define W3_ICON_ORCS				2
-#define W3_ICON_UNDEAD				3 // - Although when client presses undead in PG and it sends "8" its "3" for icon
+#define W3_ICON_UNDEAD				3 /* - Although when client presses undead in PG and it sends "8" its "3" for icon */
 #define W3_ICON_NIGHTELVES			4
 #define W3_ICON_DEMONS				5
 
@@ -2728,8 +2729,8 @@ typedef struct
 
 typedef struct
 {
-//	if yak doesn't like this... then the client doesn't also =) (bbf)
-//    bn_int   unknown7;// not in yak
+/*	if yak doesn't like this... then the client doesn't also =) (bbf)
+    bn_int   unknown7; */
     bn_short gametype;
     bn_short unknown1; /* langid under Diablo... */
     bn_short unknown3;
@@ -2882,7 +2883,7 @@ Diablo II 1.03 (level diff 0)
 typedef struct
 {
     t_bnet_header h;
-    bn_short      status; // 0x0001 - private war3 game
+    bn_short      status; /* 0x0001 - private war3 game */
     bn_short      flag;
     bn_int        unknown2; /* 00 00 00 00 */
     bn_short      gametype;
@@ -3572,7 +3573,7 @@ typedef struct
 typedef struct
 {
   t_bnet_header h;
-  bn_byte game_tag[4]; // 3WAR
+  bn_byte game_tag[4]; /* 3WAR */
   bn_int unknown1;
   bn_int unknown2;
 } PACKED_ATTR() t_client_search_lan_games;
@@ -3662,7 +3663,7 @@ typedef struct
 	t_bnet_header h;
 } PACKED_ATTR() t_client_arrangedteam_accept_invite;
 
-// clan handling
+/* clan handling */
 
 #define SERVER_W3XP_CLAN_MEMBER_CHIEFTAIN 0x04
 #define SERVER_W3XP_CLAN_MEMBER_SHAMAN 0x03
@@ -3719,8 +3720,8 @@ typedef struct{
   bn_int               count;
   bn_byte			   check_result;
   bn_byte			   friend_count;
-  // player name in chan or mutual
-  //char player_name[sizeof (friend_name)];
+  /* player name in chan or mutual
+  char player_name[sizeof (friend_name)]; */
 } PACKED_ATTR() t_server_w3xp_clan_createreply;
 #define SERVER_W3XP_CLAN_CREATEREPLY_CHECK_OK 0x00
 #define SERVER_W3XP_CLAN_CREATEREPLY_CHECK_ALLREADY_IN_USE 0x01
@@ -3740,10 +3741,11 @@ typedef struct{
 typedef struct{
   t_bnet_header        h;
   bn_int               count;
-  // Clan Name (\0 terminated string)
-  // bn_int			    clantag;
-  // bn_byte			friend_count; //Number of friend selected
-  // Name of friend (\0 terminated string)
+  /* Clan Name (\0 terminated string)
+     bn_int			    clantag;
+     bn_byte			friend_count; //Number of friend selected
+     Name of friend (\0 terminated string)
+   */
 } PACKED_ATTR() t_client_w3xp_clan_createinvitereq;
 
 /*3756: send class=bnet[0x02] type=unknown[0x71ff] length=14
@@ -3757,8 +3759,8 @@ Paquet #266
 typedef struct{
   t_bnet_header        h;
   bn_int               count;
-  bn_byte			   status; // 0x05 = Cannot contact(not in channel screen) or already in clan | 0x04 = Decline | 0x00 = OK :)
-// Name of failed member(\0 terminated string)
+  bn_byte			   status; /* 0x05 = Cannot contact(not in channel screen) or already in clan | 0x04 = Decline | 0x00 = OK :)
+  Name of failed member(\0 terminated string) */
 } PACKED_ATTR() t_server_w3xp_clan_createinvitereply;
 
 #define SERVER_W3XP_CLAN_CREATEINVITEREQ 0x72ff
@@ -3766,10 +3768,10 @@ typedef struct{
   t_bnet_header        h;
   bn_int               count;
   bn_int			   clantag;
-  // Clan Name (\0 terminated string)
-  // Clan Creator (\0 terminated string)
-  // bn_byte			friend_count; //Number of friend selected
-  // Name of friend (\0 terminated string)
+  /* Clan Name (\0 terminated string)
+     Clan Creator (\0 terminated string)
+     bn_byte			friend_count; //Number of friend selected
+     Name of friend (\0 terminated string) */
 } PACKED_ATTR() t_server_w3xp_clan_createinvitereq;
 
 #define CLIENT_W3XP_CLAN_CREATEINVITEREPLY 0x72ff
@@ -3777,8 +3779,8 @@ typedef struct{
   t_bnet_header        h;
   bn_int               count;
   bn_int			   clantag;
-  // Clan Creator (\0 terminated string)
-  // bn_byte			reply  /* 0x04--decline 0x05--Cannot contact(not in channel screen) or already in clan 0x06--accept*/ 
+  /* Clan Creator (\0 terminated string)
+     bn_byte			reply */ /* 0x04--decline 0x05--Cannot contact(not in channel screen) or already in clan 0x06--accept*/ 
 } PACKED_ATTR() t_client_w3xp_clan_createinvitereply;
 
 /*
@@ -3804,7 +3806,7 @@ typedef struct{
 typedef struct{
   t_bnet_header        h;
   bn_int               count;
-  //Player_Name deleted(\0 terminated)
+  /*Player_Name deleted(\0 terminated) */
 } PACKED_ATTR() t_client_w3xp_clan_membernewchiefreq;
 
 #define SERVER_W3XP_CLAN_MEMBERNEWCHIEFREPLY 0x74ff
@@ -3838,7 +3840,7 @@ typedef struct{
 typedef struct{
   t_bnet_header        h;
   bn_int               count;
-  //Player_Name invited
+  /*Player_Name invited */
 } PACKED_ATTR() t_client_w3xp_clan_invitereq;
 
 #define SERVER_W3XP_CLAN_INVITEREPLY 0x77ff
@@ -3852,7 +3854,7 @@ typedef struct{
 typedef struct{
   t_bnet_header        h;
   bn_int               count;
-  //Player_Name deleted(\0 terminated)
+  /*Player_Name deleted(\0 terminated) */
 } PACKED_ATTR() t_client_w3xp_clanmember_remove_req;
 
 #define SERVER_W3XP_CLANMEMBER_REMOVE_REPLY 0x78ff
@@ -3869,8 +3871,8 @@ typedef struct{
   t_bnet_header        h;
   bn_int               count;
   bn_int               clantag;
-  //Clan_Name (\0 terminated)
-  //Player_Name invited (\0 terminated)
+  /*Clan_Name (\0 terminated)
+  Player_Name invited (\0 terminated) */
 } PACKED_ATTR() t_server_w3xp_clan_invitereq;
 
 #define CLIENT_W3XP_CLAN_INVITEREPLY 0x79ff
@@ -3878,8 +3880,8 @@ typedef struct{
   t_bnet_header        h;
   bn_int               count;
   bn_int               clantag;
-  //Player_Name invited (\0 terminated)
-  //bn_byte            reply/* 0x04--decline 0x05--Cannot contact(not in channel screen) or already in clan 0x06--accept 0x07--no privilege to invite 0x08--cannot invite(??any difference from cannot contact?) 0x09--clan full*/
+  /*Player_Name invited (\0 terminated)
+  bn_byte            reply *//* 0x04--decline 0x05--Cannot contact(not in channel screen) or already in clan 0x06--accept 0x07--no privilege to invite 0x08--cannot invite(??any difference from cannot contact?) 0x09--clan full*/
 } PACKED_ATTR() t_client_w3xp_clan_invitereply;
 #define W3XP_CLAN_INVITEREPLY_SUCCESS 0x00
 #define W3XP_CLAN_INVITEREPLY_DECLINE 0x04
@@ -3893,8 +3895,8 @@ typedef struct{
 typedef struct{
   t_bnet_header        h;
   bn_int               count;
-  //Player_Name invited(\0 terminated)
-  //Player_Status(bn_byte: 1~4)
+  /*Player_Name invited(\0 terminated)
+    Player_Status(bn_byte: 1~4) */
 } PACKED_ATTR() t_client_w3xp_clanmember_rankupdate_req;
 
 #define SERVER_W3XP_CLANMEMBER_RANKUPDATE_REPLY 0x7aff
@@ -3910,7 +3912,7 @@ typedef struct{
 typedef struct{
   t_bnet_header        h;
   bn_int               unknow1;
-  // Motd en string ^^
+  /* Motd en string ^^ */
 } PACKED_ATTR() t_client_w3xp_clan_motdchg;
 #define SERVER_W3XP_CLAN_MOTDREPLY_UNKNOW1 0x00000000
 
@@ -3918,8 +3920,8 @@ typedef struct{
 typedef struct{
   t_bnet_header        h;
   bn_int               count;
-  bn_int			   unknow1; // 0x00000000
-  // MOTD 
+  bn_int			   unknow1; /* 0x00000000 */
+  /* MOTD */
 } PACKED_ATTR() t_server_w3xp_clan_motdreply;
 
 #define CLIENT_W3XP_CLAN_MOTDREQ 0x7cff
@@ -3953,16 +3955,17 @@ typedef struct{
   t_bnet_header        h;
   bn_int               count;
   bn_byte			   member_count;
-  // player repeat start
-  // Name of player(\0 terminated string)
-  // bn_byte		   CHIEFTAIN = 0x04
-  //				   SHAMANS = 0x03
-  //				   GRUNT = 0x02
-  //				   PEON = 0x01
-  //				   NEW_MEMBER = 0x00 <- can't be promoted/devoted
-  // bn_byte		   online status
-  // unknown(always \0)
-  // repeat end
+  /* player repeat start
+   * Name of player(\0 terminated string)
+   * bn_byte		   CHIEFTAIN = 0x04
+   *				   SHAMANS = 0x03
+   *				   GRUNT = 0x02
+   *				   PEON = 0x01
+   *				   NEW_MEMBER = 0x00 <- can't be promoted/devoted
+   * bn_byte		   online status
+   * unknown(always \0)
+   * repeat end
+   */
 } PACKED_ATTR() t_server_w3xp_clanmemberlist_reply;
 
 /*
@@ -3979,15 +3982,16 @@ typedef struct{
 #define SERVER_W3XP_CLANMEMBER_REMOVED_NOTIFY 0x7eff
 typedef struct{
   t_bnet_header        h;
-  //Player_Name deleted(\0 terminated)
+  /* Player_Name deleted(\0 terminated) */
 } PACKED_ATTR() t_server_w3xp_clanmember_removed_notify;
 
 #define SERVER_W3XP_CLANMEMBERUPDATE 0x7fff
 typedef struct{
   t_bnet_header        h;
-  //Player_Name invited(\0 terminated)
-  //Player_Status(bn_byte: 1~4)
-  //Player_Online(bn_short: 0x0/0x1)
+  /* Player_Name invited(\0 terminated)
+   * Player_Status(bn_byte: 1~4)
+   * Player_Online(bn_short: 0x0/0x1)
+   */
 } PACKED_ATTR() t_server_w3xp_clanmemberupdate;
 
 #endif

@@ -43,7 +43,7 @@ typedef enum
     message_type_channel,
     message_type_userflags,
     message_type_whisperack,
-    message_type_friendwhisperack,   // [zap-zero] 20020518
+    message_type_friendwhisperack,
     message_type_channelfull,
     message_type_channeldoesnotexist,
     message_type_channelrestricted,

@@ -210,10 +210,8 @@ typedef struct
 	t_client_findanongame_at_inv   client_findanongame_at_inv;
 
 
-	// 5/12/02 EDITED BY THEUNDYING for WC3 1.31+
 	t_server_findanongame_playgame_cancel		server_findanongame_playgame_cancel;
 	t_server_anongame_found		server_anongame_found;
-	//t_server_w3profile_reply      server_w3profile_reply;
         t_d2cs_bnetd_generic            d2cs_bnetd;
         t_bnetd_d2cs_authreq            bnetd_d2cs_authreq;
         t_d2cs_bnetd_authreply          d2cs_bnetd_authreply;
@@ -273,8 +271,6 @@ typedef struct
         t_d2cs_client_charlistreply_110 d2cs_client_charlistreply_110;
         t_client_d2cs_convertcharreq    client_d2cs_convertcharreq;
         t_d2cs_client_convertcharreply  d2cs_client_convertcharreply;
-		// 5/14/02 - THEUNDYING - USED FOR THE FRIENDS LIST
-		// [zap-zero] 20020516
 
 	t_client_friendslistreq		client_friendslistreq;
 	t_server_friendslistreply	server_friendslistreply;
@@ -284,7 +280,6 @@ typedef struct
 	t_server_frienddel_ack		server_frienddel_ack;
 	t_server_friendmove_ack		server_friendmove_ack;
 
-	// 5/19/02 - THEUNDYING - used for arranged teams
 	t_client_arrangedteam_friendscreen	client_arrangedteam_friendscreen;
 	t_server_arrangedteam_friendscreen	server_arrangedteam_friendscreen;
 	t_client_arrangedteam_invite_friend	client_arrangedteam_invite_friend;
@@ -293,13 +288,10 @@ typedef struct
 	t_client_arrangedteam_accept_invite    client_arrangedteam_accept_invite;
 	t_client_arrangedteam_accept_decline_invite    client_arrangedteam_accept_decline_invite;
 	t_server_arrangedteam_member_decline    server_arrangedteam_member_decline;
-	// 5/24/02 - THEUNDYING - updates for ANONGAME PROFILE PACKET
 	t_client_findanongame_profile		client_findanongame_profile;
 
-	/* dizzy : war3 1.03 has changed format */
 	t_server_findanongame_profile2		server_findanongame_profile2;
 		
-	// [zap-zero] 20020529
 	t_client_w3route_req			client_w3route_req;
 	t_server_w3route_ack			server_w3route_ack;
 	t_server_w3route_playerinfo		server_w3route_playerinfo;
@@ -347,14 +339,12 @@ typedef struct
 
 	t_server_findanongame_iconreply		server_findanongame_iconreply;
 	t_client_changeclient			client_changeclient;
-	/* restructure anongame [Omega] */
 	t_client_anongame			client_anongame;
 	t_server_anongame_search_reply		server_anongame_search_reply;
 	t_client_anongame_tournament_request	client_anongame_tournament_request;
 	t_server_anongame_tournament_reply	server_anongame_tournament_reply;
 
-    /* new packets supporting D2 1.10 & War3 1.13 */
-    t_client_setemailreply			client_setemailreq;
+	t_client_setemailreply			client_setemailreq;
 	t_server_setemailreq			server_setemailreply;
 	t_client_getpasswordreq			client_getpasswordreq;
 	t_client_changeemailreq			client_changeemailreq;

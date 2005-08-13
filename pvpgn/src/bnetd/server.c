@@ -133,7 +133,6 @@
 #ifdef WIN32
 # include "win32/service.h"
 #endif
-// aaron
 #include "ladder.h"
 #include "output.h"
 #include "alias_command.h"
@@ -482,9 +481,10 @@ static int sd_udpinput(t_addr * const curr_laddr, t_laddr_info const * laddr_inf
 		psock_errno()!=PSOCK_EWOULDBLOCK &&
 #endif
 #ifdef PSOCK_ECONNRESET
-		psock_errno()!=PSOCK_ECONNRESET &&	// this is a win2k/winxp issue
-							// their socket implementation returns this value
-							// although it shouldn't
+		psock_errno()!=PSOCK_ECONNRESET &&	/* this is a win2k/winxp issue
+							 * their socket implementation returns this value
+							 * although it shouldn't
+							 */
 #endif
 		1)
 		eventlog(eventlog_level_error,__FUNCTION__,"could not recv UDP datagram (psock_recvfrom: %s)",pstrerror(psock_errno()));
@@ -598,7 +598,7 @@ static int sd_tcpinput(t_connection * c)
 	
 	default:
 	    eventlog(eventlog_level_error,__FUNCTION__,"[%d] connection has bad class (closing connection)",conn_get_socket(c));
-	    // [quetzal] 20020808 - marking connection as "destroyed", memory will be freed later
+	    /* marking connection as "destroyed", memory will be freed later */
 		conn_set_state(c, conn_state_destroy);
 	    return -2;
 	}
@@ -611,7 +611,7 @@ static int sd_tcpinput(t_connection * c)
     {
     case -1:
 	eventlog(eventlog_level_debug,__FUNCTION__,"[%d] read FAILED (closing connection)",conn_get_socket(c));
-	// [quetzal] 20020808 - marking connection as "destroyed", memory will be freed later
+	/* marking connection as "destroyed", memory will be freed later */
 	conn_set_state(c, conn_state_destroy);
 	return -2;
 	
@@ -707,7 +707,7 @@ static int sd_tcpinput(t_connection * c)
 		packet_del_ref(packet);
 		if (ret<0)
 		{
-			// [quetzal] 20020808 - marking connection as "destroyed", memory will be freed later
+			/* marking connection as "destroyed", memory will be freed later  */
 			conn_set_state(c, conn_state_destroy);
 		    return -2;
 		}
@@ -739,7 +739,7 @@ static int sd_tcpoutput(t_connection * c)
 	switch (net_send_packet(csocket,packet,&currsize)) /* avoid warning */
 	{
 	case -1:
-		// [quetzal] 20020808 - marking connection as "destroyed", memory will be freed later
+		/* marking connection as "destroyed", memory will be freed later */
 	    conn_set_state(c, conn_state_destroy);
 	    return -2;
 	    

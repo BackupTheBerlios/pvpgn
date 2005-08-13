@@ -215,7 +215,6 @@ typedef struct connection
 
 	    char const * gameOptions;		/* Game Options */
 	} wol;
-// [quetzal] 20020828 - creation time, can be used for killing idling init connections
 	int			cr_time;
 	/* Pass fail count for bruteforce protection */
 	unsigned int		passfail_count;
@@ -385,18 +384,14 @@ extern int conn_set_udpok(t_connection * c);
 extern int conn_get_welcomed(t_connection const * c) ;
 extern void conn_set_welcomed(t_connection * c, int welcomed);
 
-/* ADDED BY UNDYING SOULZZ 4/7/02 */
 extern int conn_set_w3_playerinfo( t_connection * c, char const * w3_playerinfo );
 extern const char * conn_get_w3_playerinfo( t_connection * c );
 
-// [quetzal] 20020822
 extern int conn_get_crtime(t_connection *c);
 
-// [zap-zero] 20020522
 extern int conn_set_w3_loginreq(t_connection * c, char const * loginreq);
 extern char const * conn_get_w3_loginreq(t_connection * c);
 
-// [zap-zero] 20020527
 extern int conn_set_routeconn(t_connection * c, t_connection * rc);
 extern t_connection * conn_get_routeconn(t_connection const * c);
 extern int connlist_create(void);

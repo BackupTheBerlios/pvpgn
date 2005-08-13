@@ -75,10 +75,10 @@ typedef struct ladder_internal
    int uid;
    int xp;
    int level;
-   unsigned int teamcount;            // needed for AT ladder
+   unsigned int teamcount;            /* needed for AT ladder */
    t_account *account;
-   struct ladder_internal *prev; // user with less XP
-   struct ladder_internal *next; // user with more XP
+   struct ladder_internal *prev; /* user with less XP */
+   struct ladder_internal *next; /* user with more XP */
  }
 #endif
  t_ladder_internal;
@@ -88,7 +88,7 @@ typedef struct ladder_internal
  {
     t_ladder_internal *first;
     t_ladder_internal *last;
-    int dirty;                        // 0==no changes, 1==something changed
+    int dirty;                        /* 0==no changes, 1==something changed */
     t_binary_ladder_types type;
     t_clienttag clienttag;
     t_ladder_id  ladder_id;
@@ -144,40 +144,40 @@ extern int war3_get_maxleveldiff(void);
 
 
  extern int war3_ladder_add(t_ladder *ladder, int uid, int xp, int level, t_account *account, unsigned int teamcount,t_clienttag clienttag);
- // this function adds a user to the ladder and keeps the ladder sorted
- // returns 0 if everything is fine and -1 when error occured
+ /* this function adds a user to the ladder and keeps the ladder sorted
+  * returns 0 if everything is fine and -1 when error occured */
 
  extern int war3_ladder_update(t_ladder *ladder, int uid, int xp, int level, t_account *account, unsigned int teamcount);
- // this functions increases the xp of user with UID uid and corrects ranking
- // returns 0 if everything is fine
- // if user is not yet in ladder, he gets added automatically
+ /* this functions increases the xp of user with UID uid and corrects ranking
+  * returns 0 if everything is fine
+  * if user is not yet in ladder, he gets added automatically */
 
  extern int ladder_get_rank(t_ladder *ladder, int uid, unsigned int teamcount, t_clienttag clienttag);
- // this function returns the rank of a user with a given uid
- // returns 0 if no such user is found
+ /* this function returns the rank of a user with a given uid
+  * returns 0 if no such user is found */
  
  extern int ladder_update_all_accounts(void);
- // write the correct ranking information to all user accounts
- // and cut down ladder size to given limit
+ /* write the correct ranking information to all user accounts
+  * and cut down ladder size to given limit */
  
  extern int ladders_write_to_file(void);
- // outputs the ladders into  files - for the guys that wanna make ladder pages
+ /* outputs the ladders into  files - for the guys that wanna make ladder pages */
  
  extern void ladders_init(void);
- // initialize the ladders
+ /* initialize the ladders */
 
  extern void ladders_destroy(void);
- // remove all ladder data from memory
+ /* remove all ladder data from memory */
  
  extern void ladders_load_accounts_to_ladderlists(void);
- // enters all accounts from accountlist into the ladders
+ /* enters all accounts from accountlist into the ladders */
  
  extern void ladder_reload_conf(void);
- // reloads relevant parameters from bnetd.conf (xml/std mode for ladder)
+ /* reloads relevant parameters from bnetd.conf (xml/std mode for ladder) */
  
  extern t_account * ladder_get_account(t_ladder *ladder,int rank, unsigned int * teamcount, t_clienttag clienttag);
- // returns the account that is on specified rank in specified ladder. also return teamcount for AT ladder
- // returns NULL if this rank is still vacant
+ /* returns the account that is on specified rank in specified ladder. also return teamcount for AT ladder
+  * returns NULL if this rank is still vacant */
  
  extern t_ladder * solo_ladder(t_clienttag clienttag);
  extern t_ladder * team_ladder(t_clienttag clienttag);
@@ -190,7 +190,7 @@ extern int war3_get_maxleveldiff(void);
  extern t_ladder * ladder_cw(t_clienttag clienttag, t_ladder_id ladder_id);
  extern t_ladder * ladder_cg(t_clienttag clienttag, t_ladder_id ladder_id);
 
- // for external clienttag specific reference of the ladders
+ /* for external clienttag specific reference of the ladders */
 
  extern int ladder_get_from_ladder(t_binary_ladder_types type, int rank, int * results);
  extern int ladder_put_into_ladder(t_binary_ladder_types type, int * values);
@@ -199,4 +199,3 @@ extern int war3_get_maxleveldiff(void);
 #endif
 
  extern char * create_filename(const char * path, const char * filename, const char * ending);
- // Add by DJP for output.c

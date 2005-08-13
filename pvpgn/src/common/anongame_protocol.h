@@ -312,8 +312,8 @@ for type 0x02 :
 #define SERVER_FINDANONGAME_PLAYGAME_CANCEL 	0x44ff
 typedef struct
 {
-    t_bnet_header h; // header
-    bn_byte cancel; // Cancel byte always 03
+    t_bnet_header h; /* header */
+    bn_byte cancel; /* Cancel byte always 03 */
     bn_int  count;
 } PACKED_ATTR() t_server_findanongame_playgame_cancel;
 
@@ -324,8 +324,8 @@ typedef struct
     t_bnet_header h;
     bn_byte     option;
     bn_int          count;
-    // USERNAME TO LOOKUP //
-    // CLIENT TAG //
+    /* USERNAME TO LOOKUP
+     * CLIENT TAG */
 } PACKED_ATTR() t_client_findanongame_profile;
 
 #define SERVER_FINDANONGAME_PROFILE		0x44ff
@@ -346,8 +346,8 @@ typedef struct
     bn_int		count;
     bn_int		icon;
     bn_byte		rescount;
-    // REST OF PROFILE STATS - THIS WILL BE SET IN HANDLE_BNET.C after
-    // SERVER LOOKS UP THE USER ACCOUNT
+    /* REST OF PROFILE STATS - THIS WILL BE SET IN HANDLE_BNET.C after
+     * SERVER LOOKS UP THE USER ACCOUNT */
 } PACKED_ATTR() t_server_findanongame_profile2;
 
 /***********************************************************************************/
@@ -406,8 +406,8 @@ typedef struct
     bn_byte		option;
     bn_int		count;
     bn_byte		rescount;
-    // REST OF PROFILE STATS - THIS WILL BE SET IN HANDLE_BNET.C after
-    // SERVER LOOKS UP THE USER ACCOUNT
+    /* REST OF PROFILE STATS - THIS WILL BE SET IN HANDLE_BNET.C after
+     * SERVER LOOKS UP THE USER ACCOUNT */
 } PACKED_ATTR() t_server_findanongame_profile_clan;
 
 
@@ -433,14 +433,14 @@ typedef struct{
 #define SERVER_ANONGAME_AT4v4_STR       	0x34565334 /* "4VS4" */
 #define SERVER_ANONGAME_TY_STR			0X54592020 /* "TY  " FIXME-TY: WHAT TO PUT HERE */
 
-#define CLIENT_FINDANONGAME_INFOTAG_URL         0x55524c        //  URL\0
-#define CLIENT_FINDANONGAME_INFOTAG_MAP         0x4d4150        //  MAP\0
-#define CLIENT_FINDANONGAME_INFOTAG_TYPE        0x54595045      //  TYPE
-#define CLIENT_FINDANONGAME_INFOTAG_DESC        0x44455343      //  DESC
-#define CLIENT_FINDANONGAME_INFOTAG_LADR        0x4c414452      //  LADR
-#define CLIENT_FINDANONGAME_INFOTAG_SOLO        0x534f4c4f      //  SOLO
-#define CLIENT_FINDANONGAME_INFOTAG_TEAM        0x5445414d      //  TEAM
-#define CLIENT_FINDANONGAME_INFOTAG_FFA         0x46464120      //  FFA\20
+#define CLIENT_FINDANONGAME_INFOTAG_URL         0x55524c        /*  URL\0 */
+#define CLIENT_FINDANONGAME_INFOTAG_MAP         0x4d4150        /*  MAP\0 */
+#define CLIENT_FINDANONGAME_INFOTAG_TYPE        0x54595045      /*  TYPE */
+#define CLIENT_FINDANONGAME_INFOTAG_DESC        0x44455343      /*  DESC */
+#define CLIENT_FINDANONGAME_INFOTAG_LADR        0x4c414452      /*  LADR */
+#define CLIENT_FINDANONGAME_INFOTAG_SOLO        0x534f4c4f      /*  SOLO */
+#define CLIENT_FINDANONGAME_INFOTAG_TEAM        0x5445414d      /*  TEAM */
+#define CLIENT_FINDANONGAME_INFOTAG_FFA         0x46464120      /*  FFA\20 */
 
 #define ANONGAME_TYPE_1V1       0
 #define ANONGAME_TYPE_2V2       1
@@ -464,7 +464,7 @@ typedef struct{
 
 #define ANONGAME_TYPES 18
 
-#define SERVER_FINDANONGAME_PROFILE_UNKNOWN2    0x6E736865 //Sheep
+#define SERVER_FINDANONGAME_PROFILE_UNKNOWN2    0x6E736865 /* Sheep */
 
 /***********************************************************************************/
 /***********************************************************************************/
@@ -498,7 +498,7 @@ typedef struct
 	bn_int		count;
 	bn_int		id;
 	bn_int		unknown1;	/* 01 00 00 00 */
-	bn_byte 	numfriends;	//next is a byte, that is the number of friends to invite
+	bn_byte 	numfriends;	/* next is a byte, that is the number of friends to invite */
 	/* usernames get appended here */
 } PACKED_ATTR() t_client_arrangedteam_invite_friend;
 
@@ -548,8 +548,8 @@ typedef struct
 {
 	t_bnet_header h;
 	bn_int count;
-	bn_int action; // number assigned to player? playernum?
-	//username of the person who declined invitation
+	bn_int action; /* number assigned to player? playernum? */
+	/* username of the person who declined invitation */
 } PACKED_ATTR() t_server_arrangedteam_member_decline;
 
 #define SERVER_ARRANGEDTEAM_ACCEPT		0x00000003

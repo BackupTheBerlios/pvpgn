@@ -177,8 +177,8 @@ typedef struct {
 
 typedef struct {
 	char			** anongame_infos_URL;
-	t_anongame_infos_DESC	* anongame_infos_DESC;			// for default DESC
-	t_list			* anongame_infos_DESC_list;		// for localized DESC's
+	t_anongame_infos_DESC	* anongame_infos_DESC;		/* for default DESC */
+	t_list			* anongame_infos_DESC_list;	/* for localized DESC's */
 	char			anongame_infos_THUMBSDOWN[anongame_infos_THUMBSDOWN_count]; 
 	int			anongame_infos_ICON_REQ[anongame_infos_ICON_REQ_count];
 	t_anongame_infos_data * anongame_infos_data_war3;
