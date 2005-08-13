@@ -19,6 +19,8 @@
 #ifndef ASNPRINTF_H
 #define ASNPRINTF_H
 
+#include "compat/vargs.h"
+
 #define ZEROPAD	1		/* pad with zero */
 #define SIGN	2		/* unsigned/signed long */
 #define PLUS	4		/* show plus */
@@ -27,14 +29,19 @@
 #define SPECIAL	32		/* 0x */
 #define LARGE	64		/* use 'ABCDEF' instead of 'abcdef' */
 
-#define PAGE_SIZE 4096
-
+typedef struct {
+	const char* trans;	/* points to the translation of the format */
+	unsigned translen;	/* how many chars in this translation */
+	const char* fmt;	/* points to the fmt location of this format spec */
+	unsigned fmtlen;	/* how many chars in this fmt spec */
+} t_fmtentry;
 
 /* "array" snprintf - this function prints all vargs into the prepared buffer,
  * each of them as a \0 terminated string. The prepared char* [] locations will 
  * contain the starting position of each seperate string afterwards.
  * The function returns the number of vargs that have been printed.
  */
-int asnprintf(char * buffer, size_t size, char ** locations, const char *fmt, ...);
+int asnprintf(char * buffer, size_t size, t_fmtentry *entries, unsigned entlen, const char *fmt, ...);
+int vasnprintf(char * buffer, size_t size, t_fmtentry *entries, unsigned entlen, const char *fmt, va_list args);
 
 #endif

@@ -27,7 +27,13 @@
 #include "common/setup_before.h"
 #include <ctype.h>
 #include <stdio.h>
-#include "compat/vargs.h"
+#ifdef HAVE_STRING_H
+# include <string.h>
+#else
+# ifdef HAVE_STRINGS_H
+#  include <strings.h>
+# endif
+#endif
 #include "compat/uint.h"
 #include "asnprintf.h"
 #include "common/setup_after.h"
@@ -141,7 +147,7 @@ static char * number(char * buf, char * end, t_uint64 num, int base, int size, i
 	return buf;
 }
 
-int vasnprintf(char *buf, size_t size, char **locations, const char *fmt, va_list args)
+int vasnprintf(char *buf, size_t size, t_fmtentry *entries, unsigned entlen, const char *fmt, va_list args)
 {
 	int len;
 	t_uint64 num;
@@ -157,32 +163,31 @@ int vasnprintf(char *buf, size_t size, char **locations, const char *fmt, va_lis
 	int qualifier;		/* 'h', 'l', or 'L' for integer fields */
 				/* 'z' support added 23/7/1999 S.H.    */
 				/* 'z' changed to 'Z' --davidm 1/25/99 */
-	int argCounter = 0;
-	
+	unsigned fmtno = 0;
+
 
 	/* Reject out-of-range values early */
-	if ((int) size < 0) {
-		/* There can be only one.. */
-		static int warn = 1;
-		//WARN_ON(warn);
-		warn = 0;
+	if ((int) size < 0)
 		return 0;
-	}
 
 	str = buf;
 	end = buf + size - 1;
-
+/*
 	if (end < buf - 1) {
 		end = ((void *) -1);
 		size = end - buf + 1;
 	}
+*/
+	for (; *fmt; ++fmt) {
+		t_fmtentry* const fmtent = entries + fmtno;
 
-	for (; *fmt ; ++fmt) {
-		if (*fmt != '%') {
+		if (*fmt != '%')
 			continue;
-		}
-		locations[argCounter]=str;
-		argCounter++;
+
+		if (fmtno >= entlen) return -1;
+		fmtent->trans = str;
+		fmtent->fmt = fmt;
+		fmtno++;
 
 		/* process flags */
 		flags = 0;
@@ -244,26 +249,30 @@ int vasnprintf(char *buf, size_t size, char **locations, const char *fmt, va_lis
 			case 'c':
 				if (!(flags & LEFT)) {
 					while (--field_width > 0) {
-						if (str <= end)
-							*str = ' ';
+						if (str > end)
+							return -1;
+						*str = ' ';
 						++str;
 					}
 				}
 				c = (unsigned char) va_arg(args, int);
-				if (str <= end)
-					*str = c;
+				if (str > end)
+					return -1;
+				*str = c;
 				++str;
 				while (--field_width > 0) {
-					if (str <= end)
-						*str = ' ';
+					if (str > end)
+						return -1;
+					*str = ' ';
 					++str;
 				}
-				if (str <= end) { *str = '\0'; ++str; }
+				fmtent->fmtlen = fmt - fmtent->fmt + 1;
+				fmtent->translen = str - fmtent->trans;
 				continue;
 
 			case 's':
 				s = va_arg(args, char *);
-				if ((unsigned long)s < PAGE_SIZE)
+				if (!s)
 					s = "<NULL>";
 
 				len = strlen(s);
@@ -272,22 +281,26 @@ int vasnprintf(char *buf, size_t size, char **locations, const char *fmt, va_lis
 
 				if (!(flags & LEFT)) {
 					while (len < field_width--) {
-						if (str <= end)
-							*str = ' ';
+						if (str > end)
+							return -1;
+						*str = ' ';
 						++str;
 					}
 				}
 				for (i = 0; i < len; ++i) {
-					if (str <= end)
-						*str = *s;
+					if (str > end)
+						return -1;
+					*str = *s;
 					++str; ++s;
 				}
 				while (len < field_width--) {
-					if (str <= end)
-						*str = ' ';
+					if (str > end)
+						return -1;
+					*str = ' ';
 					++str;
 				}
-				if (str <= end) { *str = '\0'; ++str; }
+				fmtent->fmtlen = fmt - fmtent->fmt + 1;
+				fmtent->translen = str - fmtent->trans;
 				continue;
 
 			case 'p':
@@ -298,7 +311,9 @@ int vasnprintf(char *buf, size_t size, char **locations, const char *fmt, va_lis
 				str = number(str, end,
 						(unsigned long) va_arg(args, void *),
 						16, field_width, precision, flags);
-				if (str <= end) { *str = '\0'; ++str; }
+				if (str > end) return -1;
+				fmtent->fmtlen = fmt - fmtent->fmt + 1;
+				fmtent->translen = str - fmtent->trans;
 				continue;
 
 
@@ -315,14 +330,17 @@ int vasnprintf(char *buf, size_t size, char **locations, const char *fmt, va_lis
 					int * ip = va_arg(args, int *);
 					*ip = (str - buf);
 				}
-				if (str <= end) { *str = '\0'; ++str; }
+				fmtent->fmtlen = fmt - fmtent->fmt + 1;
+				fmtent->translen = str - fmtent->trans;
 				continue;
 
 			case '%':
-				if (str <= end)
-					*str = '%';
+				if (str > end)
+					return -1;
+				*str = '%';
 				++str;
-				if (str <= end) { *str = '\0'; ++str; }
+				fmtent->fmtlen = fmt - fmtent->fmt + 1;
+				fmtent->translen = str - fmtent->trans;
 				continue;
 
 				/* integer number formats - set up the flags and "break" */
@@ -343,17 +361,20 @@ int vasnprintf(char *buf, size_t size, char **locations, const char *fmt, va_lis
 				break;
 
 			default:
-				if (str <= end)
-					*str = '%';
+				if (str > end)
+					return -1;
+				*str = '%';
 				++str;
 				if (*fmt) {
-					if (str <= end)
-						*str = *fmt;
+					if (str > end)
+						return -1;
+					*str = *fmt;
 					++str;
 				} else {
 					--fmt;
 				}
-				if (str <= end) { *str = '\0'; ++str; }
+				fmtent->fmtlen = fmt - fmtent->fmt + 1;
+				fmtent->translen = str - fmtent->trans;
 				continue;
 		}
 		if (qualifier == 'L')
@@ -375,45 +396,25 @@ int vasnprintf(char *buf, size_t size, char **locations, const char *fmt, va_lis
 		}
 		str = number(str, end, num, base,
 				field_width, precision, flags);
-		if (str <= end) { *str = '\0'; ++str; }
+		if (str > end) return -1;
+		fmtent->fmtlen = fmt - fmtent->fmt + 1;
+		fmtent->translen = str - fmtent->trans;
 	}
 	if (str <= end)
 		*str = '\0';
-	else if (size > 0)
-		/* don't write out a null byte if the buf size is zero */
-		*end = '\0';
 	/* the trailing null byte doesn't count towards the total
 	* ++str;
 	*/
-	return argCounter;
+	return str - buf;
 }
 
-int asnprintf(char * buf, size_t size, char ** locations, const char *fmt, ...)
+int asnprintf(char * buf, size_t size, t_fmtentry *entries, unsigned entlen, const char *fmt, ...)
 {
 	va_list args;
 	int i;
 
 	VA_START(args, fmt);
-	i=vasnprintf(buf,size,locations,fmt,args);
+	i=vasnprintf(buf,size,entries,entlen,fmt,args);
 	va_end(args);
 	return i;
 }
-
-/*
-int main()
-{
-	char buffer[4097];
-	char * locations[3];
-	int i;
-	i=asnprintf(buffer,sizeof(buffer),locations,"this %s the %X5.10ith %6.4s\n","is",10,"testify");
-	printf(buffer);
-	printf("\n printed %i arguments\n",i);
-        printf("arguments: \"this %%s the %%X5.10ith %%6.4s\\n\",\"is\",10,\"testify\"\n");
-	for (i=0; i<3; i++)
-	{
-		printf("content of %i: \"%s\"\n",i,locations[i]);
-	}
-	return 0;
-}
-*/
-
