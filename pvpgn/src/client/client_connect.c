@@ -194,7 +194,7 @@ static int get_defversioninfo(char const * progname, char const * clienttag, uns
 }
 
 
-extern int client_connect(char const * progname, char const * servname, unsigned short servport, char const * cdowner, char const * cdkey, char const * clienttag, struct sockaddr_in * saddr, unsigned int * sessionkey, unsigned int * sessionnum, char const * archtag)
+extern int client_connect(char const * progname, char const * servname, unsigned short servport, char const * cdowner, char const * cdkey, char const * clienttag, struct sockaddr_in * saddr, unsigned int * sessionkey, unsigned int * sessionnum, char const * archtag, char const * gamelang)
 {
     struct hostent * host;
     char const *     username;
@@ -332,7 +332,7 @@ extern int client_connect(char const * progname, char const * servname, unsigned
 	   //AARON 
 
     bn_int_set(&packet->u.client_countryinfo_109.versionid,versionid);
-    bn_int_set(&packet->u.client_countryinfo_109.gamelang,CLIENT_COUNTRYINFO_109_GAMELANG);
+    bn_int_tag_set(&packet->u.client_countryinfo_109.gamelang,gamelang);
     bn_int_set(&packet->u.client_countryinfo_109.localip,CLIENT_COUNTRYINFO_109_LOCALIP);
     {
 	int bias;

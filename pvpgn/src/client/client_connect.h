@@ -87,13 +87,13 @@
 
 #define CLIENT_COUNTRYINFO_109_PROTOCOL            0x00000000
 #define CLIENT_COUNTRYINFO_109_VERSIONID_D2DV      0x00000009
-#define CLIENT_COUNTRYINFO_109_GAMELANG            0x00000000
+#define CLIENT_COUNTRYINFO_109_GAMELANG            "enUS"
 #define CLIENT_COUNTRYINFO_109_LOCALIP             0x00000000
 #define CLIENT_COUNTRYINFO_109_LANGID_USENGLISH    0x00000409
 #define CLIENT_COUNTRYINFO_109_LANGSTR_USENGLISH   "ENU"
 #define CLIENT_COUNTRYINFO_109_COUNTRYNAME_USA     "United States"
 
-extern int client_connect(char const * progname, char const * servname, unsigned short servport, char const * cdowner, char const * cdkey, char const * clienttag, struct sockaddr_in * saddr, unsigned int * sessionkey, unsigned int * sessionnum, char const * archtag);
+extern int client_connect(char const * progname, char const * servname, unsigned short servport, char const * cdowner, char const * cdkey, char const * clienttag, struct sockaddr_in * saddr, unsigned int * sessionkey, unsigned int * sessionnum, char const * archtag, char const * gamelang);
 
 #endif
 #endif

@@ -175,6 +175,8 @@ typedef struct _client_state
 typedef struct _user_info
 {
     char const *	clienttag;
+    char const *	archtag;
+    char const *	gamelang;
     char		player[MAX_MESSAGE_LEN];
     char const *	cdowner;
     char const *	cdkey;
@@ -411,10 +413,14 @@ static void usage(char const * progname)
             "    --client=D2DV               report client as Diablo II\n"
             "    --client=D2XP               report client as Diablo II: LoD\n"
             "    --client=WAR3               report client as Warcraft III\n"
-            "    --client=W3XP               report client as Warcraft III Frozen Throne\n");
+            "    --client=W3XP               report client as Warcraft III Frozen Throne\n"
+            "    --arch=IX86                 report architecture as Intel x86 (default)\n"
+            "    --arch=PMAC                 report architecture as PowerPC MacOS\n"
+            "    --arch=XMAC                 report architecture as PowerPC MacOSX\n");
     fprintf(stderr,
 	    "    -o NAME, --owner=NAME       report CD owner as NAME\n"
 	    "    -k KEY, --cdkey=KEY         report CD key as KEY\n"
+	    "    -l LANG --lang=LANG         report language as LANG (default \"enUS\")\n"
             "    -h, --help, --usage         show this information and exit\n"
             "    -v, --version               print version number and exit\n");
     exit(STATUS_FAILURE);
@@ -423,10 +429,12 @@ static void usage(char const * progname)
 int read_commandline(int argc, char * * argv,
 		     char const * * servname, unsigned short * servport,
 		     char const * * clienttag,
+		     char const * * archtag,
 		     int * changepass, int * newacct,
 		     char const * * channel,
 		     char const * * cdowner,
 		     char const * * cdkey,
+		     char const * * gamelang,
 		     int * useansi)
 {
   int a;
@@ -583,6 +591,23 @@ int read_commandline(int argc, char * * argv,
 	    fprintf(stderr,"%s: unknown client tag \"%s\"\n",argv[0],&argv[a][9]);
 	    usage(argv[0]);
 	}
+        else if (strcmp(argv[a],"--arch=IX86")==0)
+	{
+	    *archtag = ARCHTAG_WINX86;
+	}
+        else if (strcmp(argv[a],"--arch=PMAC")==0)
+	{
+	    *archtag = ARCHTAG_MACPPC;
+	}
+        else if (strcmp(argv[a],"--arch=XMAC")==0)
+	{
+	    *archtag = ARCHTAG_OSXPPC;
+	}
+	else if (strncmp(argv[a],"--arch=",7)==0)
+	{
+	    fprintf(stderr,"%s: unknown architecture tag \"%s\"\n",argv[0],&argv[a][7]);
+	    usage(argv[0]);
+	}
 	else if (strcmp(argv[a],"-o")==0)
 	{
 	    if (a+1>=argc)
@@ -628,6 +653,29 @@ int read_commandline(int argc, char * * argv,
 		usage(argv[0]);
 	    }
 	    *cdkey = &argv[a][8];
+	}
+	else if (strcmp(argv[a],"-l")==0)
+	{
+	    if (a+1>=argc)
+            {
+                fprintf(stderr,"%s: option \"%s\" requires an argument\n",argv[0],argv[a]);
+                usage(argv[0]);
+            }
+	    if (strlen(argv[a + 1]) != 4)
+	    {
+		fprintf(stderr,"%s: language has to be 4 characters long\n",argv[0]);
+		usage(argv[0]);
+	    }
+	    *gamelang = argv[++a];
+	}
+	else if (strncmp(argv[a],"--lang=",7)==0)
+	{
+	    if (strlen(argv[a] + 7) != 4)
+	    {
+		fprintf(stderr,"%s: language has to be 4 characters long\n",argv[0]);
+		usage(argv[0]);
+	    }
+	    *gamelang = &argv[a][7];
 	}
 	else if (strcmp(argv[a],"-v")==0 || strcmp(argv[a],"--version")==0)
 	{
@@ -722,9 +770,13 @@ extern int main(int argc, char * argv[])
     
     memset(&user,0,sizeof(t_user_info));
     memset(&client,0,sizeof(t_client_state));
-    
-    read_commandline(argc,argv,&servname,&servport,&user.clienttag,&changepass,&newacct,&user.channel,
-                     &user.cdowner,&user.cdkey,&client.useansi);
+
+    /* default values */
+    user.archtag = ARCHTAG_WINX86;
+    user.gamelang = CLIENT_COUNTRYINFO_109_GAMELANG;
+
+    read_commandline(argc,argv,&servname,&servport,&user.clienttag,&user.archtag,&changepass,
+                     &newacct,&user.channel,&user.cdowner,&user.cdkey,&user.gamelang,&client.useansi);
     
     client.fd_stdin = fileno(stdin);
     if (tcgetattr(client.fd_stdin,&client.in_attr_old)>=0)
@@ -773,7 +825,7 @@ extern int main(int argc, char * argv[])
     
     if ((client.sd = client_connect(argv[0],
 			     servname,servport,user.cdowner,user.cdkey,user.clienttag,
-			     &client.saddr,&client.sessionkey,&client.sessionnum,ARCHTAG_WINX86))<0)
+			     &client.saddr,&client.sessionkey,&client.sessionnum,user.archtag,user.gamelang))<0)
     {
 	fprintf(stderr,"%s: fatal error during handshake\n",argv[0]);
 	if (client.changed_in)
