@@ -19,10 +19,22 @@ PvPGN Version History:
 [DRTL]
   -- fixed problem with joining games of level 50 characters
 
+[BNPCAP]
+  -- 64 bit arch compatibility changes
+
+[BNCHAT]
+  -- added --arch parameter to specify architecture
+  -- added --lang parameter to specify "gamelang" field of COUNTRYINFO packet
+
 [MISC]
   -- changed that if "servaddrs" option in bnetd.conf is commented server 
   should not listen on bnet addresses (now that we have WOL b.net is not a 
   priority anymore)
+  -- optimized some "compat" codes
+  -- updated more places where people get directed to IRC with the other 
+  support channels (should reduce the "n00b" infestation that PvPGN 
+  IRC suffers of)
+  -- added versioncheck for D2 LOD 1.11 and D2 classic 1.11
 
  ChangeLog for 1.7.7 (since 1.7.6)
 ===================================
