@@ -35,6 +35,9 @@ PvPGN Version History:
   support channels (should reduce the "n00b" infestation that PvPGN 
   IRC suffers of)
   -- added versioncheck for D2 LOD 1.11 and D2 classic 1.11
+  -- updated versioncheck with latest client versions (War3 1.18a, SC/BW 1.13 
+  and 1.13b)
+  -- updated bnmaps.conf with latest maps used on b.net
 
  ChangeLog for 1.7.7 (since 1.7.6)
 ===================================

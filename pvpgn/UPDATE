@@ -24,6 +24,9 @@ Configuration files changed:
     and be as ":" by default in bnetd.conf (if "servaddrs" is commented this 
     means "bnetd" will not listen for b.net services at all)
 - conf/channels.conf : added channels needed by WOL clients
+- conf/versioncheck.conf : updated with latest client versions (War3 1.18a, 
+    SC/BW 1.13 and 1.13b)
+- conf/bnmaps.conf : updated with the maps used now on b.net
 
  Updating from 1.7.5 to 1.7.6
 ==============================
