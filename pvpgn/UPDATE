@@ -9,6 +9,11 @@ It should contain:
 -- all new/changed config files in the conf/ subfolder
 The path's specified are those of the default unix installation
 
+NOTE: If updating through several versions (example if updating from 1.7.1 to 
+1.7.5) you HAVE to go through ALL the update information listed for every 
+version in between and including the last one (ex. you have to go through 
+1.7.1 to 1.7.2 update info, then 1.7.2 to 1.7.3, and so on until 1.7.4 to 1.7.5)
+
  Updating from 1.7.7 to 1.7.8
 ==============================
 Configuration files changed:
