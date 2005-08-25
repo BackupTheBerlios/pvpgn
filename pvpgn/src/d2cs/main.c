@@ -81,6 +81,7 @@ static int cleanup(void);
 static int config_init(int argc, char * * argv);
 static int config_cleanup(void);
 static int setup_daemon(void);
+static char * write_to_pidfile(void);
 
 
 #ifdef DO_DAEMONIZE
@@ -111,6 +112,41 @@ static int setup_daemon(void)
 	return 0;
 }
 #endif
+
+
+static char * write_to_pidfile(void)
+{
+	char *pidfile = xstrdup(prefs_get_pidfile());
+	
+	if (pidfile[0]=='\0') {
+		xfree((void *)pidfile); /* avoid warning */
+		return NULL;
+	}
+	
+	if (pidfile) {
+#ifdef HAVE_GETPID
+		FILE * fp;
+		
+		if (!(fp = fopen(pidfile,"w"))) {
+			eventlog(eventlog_level_error,__FUNCTION__,"unable to open pid file \"%s\" for writing (fopen: %s)",pidfile,pstrerror(errno));
+			xfree((void *)pidfile); /* avoid warning */
+			return NULL;
+		} else {
+			fprintf(fp,"%u",(unsigned int)getpid());
+			if (fclose(fp)<0)
+				eventlog(eventlog_level_error,__FUNCTION__,"could not close pid file \"%s\" after writing (fclose: %s)",pidfile,pstrerror(errno));
+		}
+		
+#else
+		eventlog(eventlog_level_warn,__FUNCTION__,"no getpid() system call, disable pid file in d2cs.conf");
+		xfree((void *)pidfile); /* avoid warning */
+		return NULL;
+#endif
+	}
+	
+	return pidfile;
+}
+
 
 static int init(void)
 {
@@ -217,11 +253,14 @@ extern int main(int argc, char * * argv)
 #endif
 {
 	int pid;
+	char * pidfile;
+	
 	eventlog_set(stderr);
 	if (!((pid = config_init(argc, argv)) == 0)) {
 //		if (pid==1) pid=0;
 		return pid;
 	}
+	pidfile = write_to_pidfile();
 	eventlog(eventlog_level_info,__FUNCTION__,D2CS_VERSION);
 	if (init()<0) {
 		eventlog(eventlog_level_error,__FUNCTION__,"failed to init");
@@ -234,6 +273,11 @@ extern int main(int argc, char * * argv)
 		return -1;
 	}
 	cleanup();
+	if (pidfile) {
+		if (remove(pidfile)<0)
+			eventlog(eventlog_level_error,__FUNCTION__,"could not remove pid file \"%s\" (remove: %s)",pidfile,pstrerror(errno));
+		xfree((void *)pidfile); /* avoid warning */
+	}
 	config_cleanup();
 	eventlog_close();
 	return 0;

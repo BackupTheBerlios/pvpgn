@@ -57,6 +57,7 @@ static struct
 	unsigned int	laddersave_interval;
 	unsigned int	ladderinit_time;
 	char const	* loglevels;
+	char const	* pidfile;
 	unsigned int	shutdown_delay;
 	unsigned int	shutdown_decr;
 	unsigned int	idletime;
@@ -105,6 +106,9 @@ static int conf_setdef_ladderinit_time(void);
 static int conf_set_loglevels(const char* valstr);
 static int conf_setdef_loglevels(void);
 
+static int conf_set_pidfile(const char* valstr);
+static int conf_setdef_pidfile(void);
+
 static int conf_set_shutdown_delay(const char* valstr);
 static int conf_setdef_shutdown_delay(void);
 
@@ -146,6 +150,7 @@ static t_conf_entry prefs_conf_table[]={
     { "laddersave_interval",    conf_set_laddersave_interval,    NULL,    conf_setdef_laddersave_interval },
     { "ladderinit_time",        conf_set_ladderinit_time,        NULL,    conf_setdef_ladderinit_time },
     { "loglevels",              conf_set_loglevels,              NULL,    conf_setdef_loglevels },
+    { "pidfile",		conf_set_pidfile,	         NULL,    conf_setdef_pidfile},
     { "shutdown_delay",         conf_set_shutdown_delay,         NULL,    conf_setdef_shutdown_delay },
     { "shutdown_decr",          conf_set_shutdown_decr,          NULL,    conf_setdef_shutdown_decr },
     { "idletime",               conf_set_idletime,               NULL,    conf_setdef_idletime },
@@ -385,6 +390,22 @@ static int conf_set_loglevels(const char* valstr)
 static int conf_setdef_loglevels(void)
 {
 	return conf_set_str(&prefs_conf.loglevels,NULL,DEFAULT_LOG_LEVELS);
+}
+
+
+extern char const * d2dbs_prefs_get_pidfile(void)
+{
+	return prefs_conf.pidfile;
+}
+
+static int conf_set_pidfile(const char* valstr)
+{
+	return conf_set_str(&prefs_conf.pidfile,valstr,NULL);
+}
+
+static int conf_setdef_pidfile(void)
+{
+	return conf_set_str(&prefs_conf.pidfile,NULL,"");
 }
 
 

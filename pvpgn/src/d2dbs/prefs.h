@@ -44,5 +44,6 @@ extern unsigned int d2dbs_prefs_get_XML_output_ladder(void);
 extern unsigned int prefs_get_ladderupdate_threshold(void);
 extern unsigned int prefs_get_ladder_chars_only(void);
 extern unsigned int prefs_get_difficulty_hack(void);
+extern char const * d2dbs_prefs_get_pidfile(void);
 
 #endif

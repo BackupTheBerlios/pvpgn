@@ -56,6 +56,8 @@ charinfodir	=	/usr/local/var/charinfo
 ladderdir	=	/usr/local/var/ladders
 bak_charsavedir	=	/usr/local/var/bak/charsave
 bak_charinfodir	=	/usr/local/var/bak/charinfo
+#pidfile	=	/usr/local/var/d2dbs.pid
+
 #										#
 #################################################################################
 

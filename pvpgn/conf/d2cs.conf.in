@@ -95,6 +95,8 @@ ladderdir		=	/usr/local/var/ladders
 newbiefile		=	/usr/local/var/files/newbie.save
 transfile		=	/usr/local/etc/address_translation.conf
 d2gsconffile		=	/usr/local/etc/d2server.ini
+#pidfile		=	/usr/local/var/d2cs.pid
+
 #										#
 #################################################################################
 

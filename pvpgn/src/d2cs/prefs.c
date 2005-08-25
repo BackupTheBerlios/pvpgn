@@ -62,6 +62,7 @@ static struct
         char const      * transfile;
         char const      * account_allowed_symbols;
         char const      * d2gsconffile;
+	char const	* pidfile;
         unsigned int    ladder_refresh_interval;
         unsigned int    maxchar;
         unsigned int    listpurgeinterval;
@@ -239,6 +240,9 @@ static int conf_setdef_charlist_sort_order(void);
 static int conf_set_max_connections(const char* valstr);
 static int conf_setdef_max_connections(void);
 
+static int conf_set_pidfile(const char* valstr);
+static int conf_setdef_pidfile(void);
+
 static t_conf_entry prefs_conf_table[]={
     { "logfile",                conf_set_logfile,                NULL,    conf_setdef_logfile },
     { "loglevels",              conf_set_loglevels,              NULL,    conf_setdef_loglevels},
@@ -254,6 +258,7 @@ static t_conf_entry prefs_conf_table[]={
     { "ladder_refresh_interval",conf_set_ladder_refresh_interval,NULL,   conf_setdef_ladder_refresh_interval},
     { "newbiefile",             conf_set_newbiefile,             NULL,   conf_setdef_newbiefile},
     { "transfile",		conf_set_transfile,	         NULL,    conf_setdef_transfile},
+    { "pidfile",		conf_set_pidfile,	         NULL,    conf_setdef_pidfile},
     { "motd",                   conf_set_motd,                   NULL,    conf_setdef_motd},
     { "realmname",              conf_set_realmname,              NULL,    conf_setdef_realmname},
     { "maxchar",                conf_set_maxchar,                NULL,    conf_setdef_maxchar},
@@ -1089,7 +1094,6 @@ static int conf_setdef_charlist_sort_order(void)
 }
 
 
-
 extern unsigned int prefs_get_max_connections(void)
 {
 	return prefs_conf.max_connections;
@@ -1103,4 +1107,20 @@ static int conf_set_max_connections(const char* valstr)
 static int conf_setdef_max_connections(void)
 {
 	return conf_set_int(&prefs_conf.max_connections,NULL,BNETD_MAX_SOCKETS);
+}
+
+
+extern char const * prefs_get_pidfile(void)
+{
+	return prefs_conf.pidfile;
+}
+
+static int conf_set_pidfile(const char* valstr)
+{
+	return conf_set_str(&prefs_conf.pidfile,valstr,NULL);
+}
+
+static int conf_setdef_pidfile(void)
+{
+	return conf_set_str(&prefs_conf.pidfile,NULL,"");
 }
