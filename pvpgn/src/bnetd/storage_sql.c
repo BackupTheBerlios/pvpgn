@@ -870,35 +870,6 @@ static const char *sql_escape_key(const char *key)
     return newkey;
 }
 
-int db_get_version(void)
-{
-    t_sql_res *result = NULL;
-    t_sql_row *row;
-    int version = 0;
-
-    if ((result = sql->query_res("SELECT value FROM pvpgn WHERE name = 'db_version'")) == NULL)
-	return 0;
-    if (sql->num_rows(result) == 1 && (row = sql->fetch_row(result)) != NULL && row[0] != NULL)
-	version = atoi(row[0]);
-
-    sql->free_result(result);
-
-    return version;
-}
-
-void _sql_db_set_version(int version)
-{
-    char query[1024];
-
-    sprintf(query, "UPDATE pvpgn SET value = '%d' WHERE name = 'db_version';", version);
-    if (sql->query(query) || sql->affected_rows() < 1)
-    {
-	sql->query("CREATE TABLE pvpgn (name varchar(128) NOT NULL PRIMARY KEY, value varchar(255));");
-	sprintf(query, "INSERT INTO pvpgn (name, value) VALUES('db_version', '%d');", version);
-	sql->query(query);
-    }
-}
-
 static int sql_load_clans(t_load_clans_func cb)
 {
     t_sql_res *result;
