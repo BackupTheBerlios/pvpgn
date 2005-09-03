@@ -64,7 +64,7 @@ extern t_storage storage_sql;
 #define SQL_UID_FIELD		"uid"
 #define STORAGE_SQL_DEFAULT_UID	0
 
-#define SQL_ON_DEMAND	0
+#define SQL_ON_DEMAND	1
 
 extern t_sql_engine *sql;
 extern unsigned int sql_defacct;
