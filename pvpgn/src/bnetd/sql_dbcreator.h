@@ -66,7 +66,9 @@ t_db_layout;
 #ifndef INCLUDED_SQL_DBCREATOR_PROTOS
 #define INCLUDED_SQL_DBCRETAOR_PROTOS
 
-#include "storage_sql.h"
+#define JUST_NEED_TYPES
+# include "sql_common.h"
+#undef JUST_NEED_TYPES
 
 int sql_dbcreator(t_sql_engine * sql);
 

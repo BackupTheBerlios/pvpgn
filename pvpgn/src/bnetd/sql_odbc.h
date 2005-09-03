@@ -18,7 +18,9 @@
 #ifndef INCLUDED_SQL_ODBC_PROTOS
 #define INCLUDED_SQL_ODBC_PROTOS
 
-#include "storage.h"
+#define JUST_NEED_TYPES
+# include "sql_common.h"
+#undef JUST_NEED_TYPES
 
 extern t_sql_engine sql_odbc;
 

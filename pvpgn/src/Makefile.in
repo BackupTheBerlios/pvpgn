@@ -139,6 +139,7 @@ ${SRC_BNETDDIR}/file_plain.o \
 ${SRC_BNETDDIR}/file_cdb.o \
 ${SRC_BNETDDIR}/storage_sql.o \
 ${SRC_BNETDDIR}/sql_dbcreator.o \
+${SRC_BNETDDIR}/sql_common.o \
 ${SRC_BNETDDIR}/sql_pgsql.o \
 ${SRC_BNETDDIR}/sql_mysql.o \
 ${SRC_BNETDDIR}/sql_sqlite3.o \
