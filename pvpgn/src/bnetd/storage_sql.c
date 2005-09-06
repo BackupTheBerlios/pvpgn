@@ -109,6 +109,8 @@ t_storage storage_sql = {
     sql_remove_team
 };
 
+static char query[512];
+
 #ifndef SQL_ON_DEMAND
 
 static const char *_db_add_tab(const char *tab, const char *key)
@@ -122,7 +124,7 @@ static const char *_db_add_tab(const char *tab, const char *key)
     return nkey;
 }
 
-#endif
+#endif	/* SQL_ON_DEMAND */
 
 static int _db_get_tab(const char *key, char **ptab, char **pcol)
 {
@@ -147,11 +149,9 @@ static int _db_get_tab(const char *key, char **ptab, char **pcol)
 
 static t_storage_info *sql_create_account(char const *username)
 {
-    char query[1024];
     t_sql_res *result = NULL;
     t_sql_row *row;
     int uid = maxuserid + 1;
-    char str_uid[32];
     t_storage_info *info;
     char *user;
 
@@ -161,11 +161,9 @@ static t_storage_info *sql_create_account(char const *username)
 	return NULL;
     }
 
-    sprintf(str_uid, "%u", uid);
-
     user = xstrdup(username);
     strlower(user);
-    sprintf(query, "SELECT count(*) FROM BNET WHERE username='%s'", user);
+    snprintf(query, sizeof(query), "SELECT count(*) FROM %sBNET WHERE username='%s'", tab_prefix, user);
 
     if ((result = sql->query_res(query)) != NULL)
     {
@@ -193,39 +191,39 @@ static t_storage_info *sql_create_account(char const *username)
 
     info = xmalloc(sizeof(t_sql_info));
     *((unsigned int *) info) = uid;
-    sprintf(query, "DELETE FROM BNET WHERE "SQL_UID_FIELD" = '%s';", str_uid);
+    snprintf(query, sizeof(query), "DELETE FROM %sBNET WHERE "SQL_UID_FIELD" = '%u'", tab_prefix, uid);
     sql->query(query);
-    sprintf(query, "INSERT INTO BNET ("SQL_UID_FIELD",username) VALUES('%s','%s');", str_uid, user);
+    snprintf(query, sizeof(query), "INSERT INTO %sBNET ("SQL_UID_FIELD",username) VALUES('%u','%s')", tab_prefix, uid, user);
     if (sql->query(query))
     {
-	eventlog(eventlog_level_error, __FUNCTION__, "user insert failed");
+	eventlog(eventlog_level_error, __FUNCTION__, "user insert failed (query: '')", query);
 	goto err_info;
     }
 
-    sprintf(query, "DELETE FROM profile WHERE "SQL_UID_FIELD" = '%s';", str_uid);
+    snprintf(query, sizeof(query), "DELETE FROM %sprofile WHERE "SQL_UID_FIELD" = '%u'", tab_prefix, uid);
     sql->query(query);
-    sprintf(query, "INSERT INTO profile ("SQL_UID_FIELD") VALUES('%s');", str_uid);
+    snprintf(query, sizeof(query), "INSERT INTO %sprofile ("SQL_UID_FIELD") VALUES('%u')", tab_prefix, uid);
     if (sql->query(query))
     {
-	eventlog(eventlog_level_error, __FUNCTION__, "user insert failed");
+	eventlog(eventlog_level_error, __FUNCTION__, "user insert failed (query: '')", query);
 	goto err_info;
     }
 
-    sprintf(query, "DELETE FROM Record WHERE "SQL_UID_FIELD" = '%s';", str_uid);
+    snprintf(query, sizeof(query), "DELETE FROM %sRecord WHERE "SQL_UID_FIELD" = '%u'", tab_prefix, uid);
     sql->query(query);
-    sprintf(query, "INSERT INTO Record ("SQL_UID_FIELD") VALUES('%s');", str_uid);
+    snprintf(query, sizeof(query), "INSERT INTO %sRecord ("SQL_UID_FIELD") VALUES('%u')", tab_prefix, uid);
     if (sql->query(query))
     {
-	eventlog(eventlog_level_error, __FUNCTION__, "user insert failed");
+	eventlog(eventlog_level_error, __FUNCTION__, "user insert failed (query: '')", query);
 	goto err_info;
     }
 
-    sprintf(query, "DELETE FROM friend WHERE "SQL_UID_FIELD" = '%s';", str_uid);
+    snprintf(query, sizeof(query), "DELETE FROM %sfriend WHERE "SQL_UID_FIELD" = '%u'", tab_prefix, uid);
     sql->query(query);
-    sprintf(query, "INSERT INTO friend ("SQL_UID_FIELD") VALUES('%s');", str_uid);
+    snprintf(query, sizeof(query), "INSERT INTO %sfriend ("SQL_UID_FIELD") VALUES('%u')", tab_prefix, uid);
     if (sql->query(query))
     {
-	eventlog(eventlog_level_error, __FUNCTION__, "user insert failed");
+	eventlog(eventlog_level_error, __FUNCTION__, "user insert failed (query: '')", query);
 	goto err_info;
     }
 
@@ -244,7 +242,6 @@ err_dup:
 static int sql_read_attrs(t_storage_info * info, t_read_attr_func cb, void *data)
 {
 #ifndef SQL_ON_DEMAND
-    char query[1024];
     t_sql_res *result = NULL;
     t_sql_row *row;
     char **tab;
@@ -272,7 +269,7 @@ static int sql_read_attrs(t_storage_info * info, t_read_attr_func cb, void *data
 
     for (tab = sql_tables; *tab; tab++)
     {
-	sprintf(query, "SELECT * FROM %s WHERE "SQL_UID_FIELD"='%u'", *tab, uid);
+	snprintf(query, sizeof(query), "SELECT * FROM %s%s WHERE "SQL_UID_FIELD"='%u'", tab_prefix, *tab, uid);
 
 //      eventlog(eventlog_level_trace, __FUNCTION__, "query: \"%s\"",query);
 
@@ -327,7 +324,6 @@ static int sql_read_attrs(t_storage_info * info, t_read_attr_func cb, void *data
 static t_attr *sql_read_attr(t_storage_info * info, const char *key)
 {
 #ifdef SQL_ON_DEMAND
-    char query[1024];
     t_sql_res *result = NULL;
     t_sql_row *row;
     char *tab, *col;
@@ -360,7 +356,7 @@ static t_attr *sql_read_attr(t_storage_info * info, const char *key)
 	return NULL;
     }
 
-    sprintf(query, "SELECT %s FROM %s WHERE " SQL_UID_FIELD " = %d", col, tab, uid);
+    snprintf(query, sizeof(query), "SELECT %s FROM %s%s WHERE " SQL_UID_FIELD " = %u", col, tab_prefix, tab, uid);
     if ((result = sql->query_res(query)) == NULL)
 	return NULL;
 
@@ -397,7 +393,6 @@ static t_attr *sql_read_attr(t_storage_info * info, const char *key)
 /* write ONLY dirty attributes */
 int sql_write_attrs(t_storage_info * info, const t_hlist *attrs)
 {
-    char query[1024];
     char escape[DB_MAX_ATTRVAL * 2 + 1];	/* sql docs say the escape can take a maximum of double original size + 1 */
     char safeval[DB_MAX_ATTRVAL];
     char *p, *tab, *col;
@@ -454,27 +449,14 @@ int sql_write_attrs(t_storage_info * info, const t_hlist *attrs)
 
 	sql->escape_string(escape, safeval, strlen(safeval));
 
-	strcpy(query, "UPDATE ");
-	strncat(query, tab, 64);
-	strcat(query, " SET ");
-	strncat(query, col, 64);
-	strcat(query, "='");
-	strcat(query, escape);
-	strcat(query, "' WHERE "SQL_UID_FIELD"='");
-	sprintf(query + strlen(query), "%u", uid);
-	strcat(query, "'");
-
+	snprintf(query, sizeof(query), "UPDATE %s%s SET '%s' = '%s' WHERE "SQL_UID_FIELD" = '%u'", tab_prefix, tab, col, escape, uid);
 //      eventlog(eventlog_level_trace, "db_set", "update query: %s", query);
 
 	if (sql->query(query) || !sql->affected_rows()) {
 	    char query2[512];
 
 //	    eventlog(eventlog_level_debug, __FUNCTION__, "trying to insert new column %s", col);
-	    strcpy(query2, "ALTER TABLE ");
-	    strncat(query2, tab, DB_MAX_TAB);
-	    strcat(query2, " ADD COLUMN ");
-	    strncat(query2, col, DB_MAX_TAB);
-	    strcat(query2, " VARCHAR(128);");
+	    snprintf(query2, sizeof(query2), "ALTER TABLE %s%s ADD COLUMN '%s' VARCHAR(128)", tab_prefix, tab, col);
 
 //          eventlog(eventlog_level_trace, __FUNCTION__, "alter query: %s", query2);
 	    sql->query(query2);
@@ -483,7 +465,7 @@ int sql_write_attrs(t_storage_info * info, const t_hlist *attrs)
 //          eventlog(eventlog_level_trace, "db_set", "retry insert query: %s", query);
 	    if (sql->query(query) || !sql->affected_rows()) {
 		// Tried everything, now trying to insert that user to the table for the first time
-		sprintf(query2, "INSERT INTO %s ("SQL_UID_FIELD",%s) VALUES ('%u','%s')", tab, col, uid, escape);
+		snprintf(query2, sizeof(query2), "INSERT INTO %s%s ("SQL_UID_FIELD",%s) VALUES ('%u','%s')", tab_prefix, tab, col, uid, escape);
 //              eventlog(eventlog_level_error, __FUNCTION__, "update failed so tried INSERT for the last chance");
 		if (sql->query(query2))
 		{
@@ -501,7 +483,6 @@ int sql_write_attrs(t_storage_info * info, const t_hlist *attrs)
 
 static t_storage_info * sql_read_account(const char *name, unsigned uid)
 {
-    char query[1024];
     t_sql_res *result = NULL;
     t_sql_row *row;
     t_storage_info *info;
@@ -518,10 +499,10 @@ static t_storage_info * sql_read_account(const char *name, unsigned uid)
         char *user = xstrdup(name);
         strlower(user);
 
-	sprintf(query, "SELECT "SQL_UID_FIELD" FROM BNET WHERE username='%s'", user);
+	snprintf(query, sizeof(query), "SELECT "SQL_UID_FIELD" FROM %sBNET WHERE username='%s'", tab_prefix, user);
 	xfree(user);
     } else
-	sprintf(query, "SELECT "SQL_UID_FIELD" FROM BNET WHERE "SQL_UID_FIELD"=%u", uid);
+	snprintf(query, sizeof(query), "SELECT "SQL_UID_FIELD" FROM %sBNET WHERE "SQL_UID_FIELD" = '%u'", tab_prefix, uid);
     result = sql->query_res(query);
     if (!result) {
 	eventlog(eventlog_level_error, __FUNCTION__, "error query db (query:\"%s\")", query);

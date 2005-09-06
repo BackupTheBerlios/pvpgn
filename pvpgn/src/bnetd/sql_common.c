@@ -94,8 +94,11 @@ t_sql_engine *sql = NULL;
 
 #ifndef SQL_ON_DEMAND
 char *sql_tables[] = { "BNET", "Record", "profile", "friend", "Team", NULL };
+#endif	/* SQL_ON_DEMAND */
 
-#endif				/* SQL_ON_DEMAND */
+const char* tab_prefix = SQL_DEFAULT_PREFIX;
+
+static char query[512];
 
 extern int sql_init(const char *dbpath)
 {
@@ -108,6 +111,7 @@ extern int sql_init(const char *dbpath)
     const char *dbport = NULL;
     const char *dbsocket = NULL;
     const char *def = NULL;
+    const char *pref = NULL;
 
     path = xstrdup(dbpath);
     tmp = path;
@@ -137,6 +141,8 @@ extern int sql_init(const char *dbpath)
 	    dbpass = p + 1;
 	else if (strcasecmp(tok, "default") == 0)
 	    def = p + 1;
+	else if (strcasecmp(tok, "prefix") == 0)
+	    pref = p + 1;
 	else
 	    eventlog(eventlog_level_warn, __FUNCTION__, "unknown token in storage_path : '%s'", tok);
     }
@@ -152,6 +158,11 @@ extern int sql_init(const char *dbpath)
 	sql_defacct = STORAGE_SQL_DEFAULT_UID;
     else
 	sql_defacct = atoi(def);
+
+    if (pref == NULL)
+    	tab_prefix = SQL_DEFAULT_PREFIX;
+    else
+    	tab_prefix = xstrdup(pref);
 
     do
     {
@@ -234,6 +245,11 @@ extern int sql_close(void)
 
     sql->close();
     sql = NULL;
+    if (tab_prefix != SQL_DEFAULT_PREFIX) {
+    	xfree((void*)tab_prefix);
+    	tab_prefix = NULL;
+    }
+
     return 0;
 }
 
@@ -249,8 +265,9 @@ extern unsigned sql_read_maxuserid(void)
 	return 0;
     }
 
-    if ((result = sql->query_res("SELECT max("SQL_UID_FIELD") FROM BNET")) == NULL) {
-	eventlog(eventlog_level_error, __FUNCTION__, "error trying query: \"SELECT max("SQL_UID_FIELD") FROM BNET\"");
+    snprintf(query, sizeof(query), "SELECT max("SQL_UID_FIELD") FROM %sBNET", tab_prefix);
+    if ((result = sql->query_res(query)) == NULL) {
+	eventlog(eventlog_level_error, __FUNCTION__, "error trying query: \"SELECT max("SQL_UID_FIELD") FROM %sBNET\"", tab_prefix);
 	return 0;
     }
 
@@ -275,7 +292,6 @@ extern unsigned sql_read_maxuserid(void)
 
 extern int sql_read_accounts(int flag,t_read_accounts_func cb, void *data)
 {
-    char query[1024];
     t_sql_res *result = NULL;
     t_sql_row *row;
     t_storage_info *info;
@@ -295,7 +311,7 @@ extern int sql_read_accounts(int flag,t_read_accounts_func cb, void *data)
     /* don't actually load anything here if ST_FORCE is not set as SQL is indexed */
     if (!FLAG_ISSET(flag,ST_FORCE)) return 1;
 
-    strcpy(query, "SELECT "SQL_UID_FIELD" FROM BNET");
+    snprintf(query, sizeof(query), "SELECT "SQL_UID_FIELD" FROM %sBNET", tab_prefix);
     if ((result = sql->query_res(query)) != NULL)
     {
 	if (sql->num_rows(result) <= 1)
@@ -358,7 +374,6 @@ extern int sql_load_clans(t_load_clans_func cb)
     t_sql_res *result2;
     t_sql_row *row;
     t_sql_row *row2;
-    char query[1024];
     t_clan *clan;
     int member_uid;
     t_clanmember *member;
@@ -375,7 +390,7 @@ extern int sql_load_clans(t_load_clans_func cb)
 	return -1;
     }
 
-    strcpy(query, "SELECT cid, short, name, motd, creation_time FROM clan WHERE cid > 0");
+    snprintf(query, sizeof(query), "SELECT cid, short, name, motd, creation_time FROM %sclan WHERE cid > 0", tab_prefix);
     if ((result = sql->query_res(query)) != NULL)
     {
 	if (sql->num_rows(result) < 1)
@@ -411,7 +426,7 @@ extern int sql_load_clans(t_load_clans_func cb)
 	    clan->channel_type = prefs_get_clan_channel_default_private();
 	    clan->members = list_create();
 
-	    sprintf(query, "SELECT "SQL_UID_FIELD", status, join_time FROM clanmember WHERE cid='%u'", clan->clanid);
+	    snprintf(query, sizeof(query), "SELECT "SQL_UID_FIELD", status, join_time FROM %sclanmember WHERE cid='%u'", tab_prefix, clan->clanid);
 
 	    if ((result2 = sql->query_res(query)) != NULL)
 	    {
@@ -465,7 +480,6 @@ extern int sql_load_clans(t_load_clans_func cb)
 
 extern int sql_write_clan(void *data)
 {
-    char query[1024];
     t_sql_res *result;
     t_sql_row *row;
     t_elem *curr;
@@ -479,7 +493,7 @@ extern int sql_write_clan(void *data)
 	return -1;
     }
 
-    sprintf(query, "SELECT count(*) FROM clan WHERE cid='%u'", clan->clanid);
+    snprintf(query, sizeof(query), "SELECT count(*) FROM %sclan WHERE cid='%u'", tab_prefix, clan->clanid);
     if ((result = sql->query_res(query)) != NULL)
     {
 	row = sql->fetch_row(result);
@@ -492,9 +506,9 @@ extern int sql_write_clan(void *data)
 	num = atol(row[0]);
 	sql->free_result(result);
 	if (num < 1)
-	    sprintf(query, "INSERT INTO clan (cid, short, name, motd, creation_time) VALUES('%u', '%d', '%s', '%s', '%u')", clan->clanid, clan->clantag, clan->clanname, clan->clan_motd, (unsigned) clan->creation_time);
+	    snprintf(query, sizeof(query), "INSERT INTO %sclan (cid, short, name, motd, creation_time) VALUES('%u', '%d', '%s', '%s', '%u')", tab_prefix, clan->clanid, clan->clantag, clan->clanname, clan->clan_motd, (unsigned) clan->creation_time);
 	else
-	    sprintf(query, "UPDATE clan SET short='%d', name='%s', motd='%s', creation_time='%u' WHERE cid='%u'", clan->clantag, clan->clanname, clan->clan_motd, (unsigned) clan->creation_time, clan->clanid);
+	    snprintf(query, sizeof(query), "UPDATE %sclan SET short='%d', name='%s', motd='%s', creation_time='%u' WHERE cid='%u'", tab_prefix, clan->clantag, clan->clanname, clan->clan_motd, (unsigned) clan->creation_time, clan->clanid);
 	if (sql->query(query) < 0)
 	{
 	    eventlog(eventlog_level_error, __FUNCTION__, "error trying query: \"%s\"", query);
@@ -517,7 +531,7 @@ extern int sql_write_clan(void *data)
 	    if (member->modified)
 	    {
 		uid = account_get_uid(member->memberacc);
-		sprintf(query, "SELECT count(*) FROM clanmember WHERE "SQL_UID_FIELD"='%u'", uid);
+		snprintf(query, sizeof(query), "SELECT count(*) FROM %sclanmember WHERE "SQL_UID_FIELD"='%u'",  tab_prefix, uid);
 		if ((result = sql->query_res(query)) != NULL)
 		{
 		    row = sql->fetch_row(result);
@@ -530,9 +544,9 @@ extern int sql_write_clan(void *data)
 		    num = atol(row[0]);
 		    sql->free_result(result);
 		    if (num < 1)
-			sprintf(query, "INSERT INTO clanmember (cid, "SQL_UID_FIELD", status, join_time) VALUES('%u', '%u', '%d', '%u')", clan->clanid, uid, member->status, (unsigned) member->join_time);
+			snprintf(query, sizeof(query), "INSERT INTO %sclanmember (cid, "SQL_UID_FIELD", status, join_time) VALUES('%u', '%u', '%d', '%u')", tab_prefix, clan->clanid, uid, member->status, (unsigned) member->join_time);
 		    else
-			sprintf(query, "UPDATE clanmember SET cid='%u', status='%d', join_time='%u' WHERE "SQL_UID_FIELD"='%u'", clan->clanid, member->status, (unsigned) member->join_time, uid);
+			snprintf(query, sizeof(query), "UPDATE %sclanmember SET cid='%u', status='%d', join_time='%u' WHERE "SQL_UID_FIELD"='%u'", tab_prefix, clan->clanid, member->status, (unsigned) member->join_time, uid);
 		    if (sql->query(query) < 0)
 		    {
 			eventlog(eventlog_level_error, __FUNCTION__, "error trying query: \"%s\"", query);
@@ -557,7 +571,6 @@ extern int sql_write_clan(void *data)
 
 extern int sql_remove_clan(int clantag)
 {
-    char query[1024];
     t_sql_res *result;
     t_sql_row *row;
 
@@ -567,7 +580,7 @@ extern int sql_remove_clan(int clantag)
 	return -1;
     }
 
-    sprintf(query, "SELECT cid FROM clan WHERE short = '%d'", clantag);
+    snprintf(query, sizeof(query), "SELECT cid FROM %sclan WHERE short = '%d'", tab_prefix, clantag);
     if (!(result = sql->query_res(query)))
     {
 	eventlog(eventlog_level_error, __FUNCTION__, "error query db (query:\"%s\")", query);
@@ -583,10 +596,10 @@ extern int sql_remove_clan(int clantag)
     if ((row = sql->fetch_row(result)))
     {
 	unsigned int cid = atoi(row[0]);
-	sprintf(query, "DELETE FROM clanmember WHERE cid='%u'", cid);
+	snprintf(query, sizeof(query), "DELETE FROM %sclanmember WHERE cid='%u'", tab_prefix, cid);
 	if (sql->query(query) != 0)
 	    return -1;
-	sprintf(query, "DELETE FROM clan WHERE cid='%u'", cid);
+	snprintf(query, sizeof(query), "DELETE FROM %sclan WHERE cid='%u'", tab_prefix, cid);
 	if (sql->query(query) != 0)
 	    return -1;
     }
@@ -598,15 +611,13 @@ extern int sql_remove_clan(int clantag)
 
 extern int sql_remove_clanmember(int uid)
 {
-    char query[1024];
-
     if (!sql)
     {
 	eventlog(eventlog_level_error, __FUNCTION__, "sql layer not initilized");
 	return -1;
     }
 
-    sprintf(query, "DELETE FROM clanmember WHERE "SQL_UID_FIELD"='%u'", uid);
+    snprintf(query, sizeof(query), "DELETE FROM %sclanmember WHERE "SQL_UID_FIELD"='%u'", tab_prefix, uid);
     if (sql->query(query) != 0)
     {
 	eventlog(eventlog_level_error, __FUNCTION__, "error trying query: \"%s\"", query);
@@ -620,7 +631,6 @@ extern int sql_load_teams(t_load_teams_func cb)
 {
     t_sql_res *result;
     t_sql_row *row;
-    char query[1024];
     t_team *team;
     int i;
 
@@ -636,7 +646,7 @@ extern int sql_load_teams(t_load_teams_func cb)
 	return -1;
     }
 
-    strcpy(query, "SELECT teamid, size, clienttag, lastgame, member1, member2, member3, member4, wins,losses, xp, level, rank FROM arrangedteam WHERE teamid > 0");
+    snprintf(query, sizeof(query), "SELECT teamid, size, clienttag, lastgame, member1, member2, member3, member4, wins,losses, xp, level, rank FROM %sarrangedteam WHERE teamid > 0", tab_prefix);
     if ((result = sql->query_res(query)) != NULL)
     {
 	if (sql->num_rows(result) < 1)
@@ -717,7 +727,6 @@ extern int sql_load_teams(t_load_teams_func cb)
 
 extern int sql_write_team(void *data)
 {
-    char query[1024];
     t_sql_res *result;
     t_sql_row *row;
     t_team *team = (t_team *) data;
@@ -729,7 +738,7 @@ extern int sql_write_team(void *data)
 	return -1;
     }
 
-    sprintf(query, "SELECT count(*) FROM arrangedteam WHERE teamid='%u'", team->teamid);
+    snprintf(query, sizeof(query), "SELECT count(*) FROM %sarrangedteam WHERE teamid='%u'", tab_prefix, team->teamid);
     if ((result = sql->query_res(query)) != NULL)
     {
 	row = sql->fetch_row(result);
@@ -742,9 +751,9 @@ extern int sql_write_team(void *data)
 	num = atol(row[0]);
 	sql->free_result(result);
 	if (num < 1)
-	    sprintf(query, "INSERT INTO arrangedteam (teamid, size, clienttag, lastgame, member1, member2, member3, member4, wins,losses, xp, level, rank) VALUES('%u', '%c', '%s', '%u', '%u', '%u', '%u', '%u', '%d', '%d', '%d', '%d', '%d')", team->teamid,team->size+'0',clienttag_uint_to_str(team->clienttag),(unsigned int)team->lastgame,team->teammembers[0],team->teammembers[1],team->teammembers[2],team->teammembers[3],team->wins,team->losses,team->xp,team->level,team->rank);
+	    snprintf(query, sizeof(query), "INSERT INTO %sarrangedteam (teamid, size, clienttag, lastgame, member1, member2, member3, member4, wins,losses, xp, level, rank) VALUES('%u', '%c', '%s', '%u', '%u', '%u', '%u', '%u', '%d', '%d', '%d', '%d', '%d')", tab_prefix,  team->teamid, team->size + '0', clienttag_uint_to_str(team->clienttag),(unsigned int)team->lastgame, team->teammembers[0], team->teammembers[1], team->teammembers[2], team->teammembers[3], team->wins, team->losses, team->xp, team->level, team->rank);
 	else
-	    sprintf(query, "UPDATE arrangedteam SET size='%c', clienttag='%s', lastgame='%u', member1='%u', member2='%u', member3='%u', member4='%u', wins='%d', losses='%d', xp='%d', level='%d', rank='%d' WHERE teamid='%u'",team->size+'0',clienttag_uint_to_str(team->clienttag),(unsigned int)team->lastgame,team->teammembers[0],team->teammembers[1],team->teammembers[2],team->teammembers[3],team->wins,team->losses,team->xp,team->level,team->rank,team->teamid);
+	    snprintf(query, sizeof(query), "UPDATE %sarrangedteam SET size='%c', clienttag='%s', lastgame='%u', member1='%u', member2='%u', member3='%u', member4='%u', wins='%d', losses='%d', xp='%d', level='%d', rank='%d' WHERE teamid='%u'", tab_prefix, team->size + '0', clienttag_uint_to_str(team->clienttag),(unsigned int)team->lastgame, team->teammembers[0], team->teammembers[1], team->teammembers[2], team->teammembers[3], team->wins, team->losses, team->xp, team->level, team->rank, team->teamid);
 	if (sql->query(query) < 0)
 	{
 	    eventlog(eventlog_level_error, __FUNCTION__, "error trying query: \"%s\"", query);
@@ -761,15 +770,13 @@ extern int sql_write_team(void *data)
 
 extern int sql_remove_team(unsigned int teamid)
 {
-    char query[1024];
-
     if (!sql)
     {
 	eventlog(eventlog_level_error, __FUNCTION__, "sql layer not initilized");
 	return -1;
     }
 
-    sprintf(query, "DELETE FROM arrangedteam WHERE teamid='%u'", teamid);
+    snprintf(query, sizeof(query), "DELETE FROM %sarrangedteam WHERE teamid='%u'", tab_prefix, teamid);
     if (sql->query(query) != 0)
         return -1;
 

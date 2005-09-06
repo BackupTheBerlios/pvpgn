@@ -63,11 +63,17 @@ extern t_storage storage_sql;
 
 #define SQL_UID_FIELD		"uid"
 #define STORAGE_SQL_DEFAULT_UID	0
+#define SQL_DEFAULT_PREFIX	""
 
 #define SQL_ON_DEMAND	1
 
 extern t_sql_engine *sql;
 extern unsigned int sql_defacct;
+extern const char* tab_prefix;
+
+#ifndef SQL_ON_DEMAND
+extern char *sql_tables[];
+#endif /* SQL_ON_DEMAND */
 
 extern int sql_init(const char *);
 extern int sql_close(void);
@@ -83,10 +89,6 @@ extern int sql_remove_clanmember(int uid);
 extern int sql_load_teams(t_load_teams_func cb);
 extern int sql_write_team(void *data);
 extern int sql_remove_team(unsigned int teamid);
-
-#ifndef SQL_ON_DEMAND
-extern char *sql_tables[];
-#endif /* SQL_ON_DEMAND */
 
 #endif /* SQL_INTERNAL */
 

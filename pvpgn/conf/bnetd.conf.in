@@ -44,14 +44,16 @@
 # - "name" : database name                                                   #
 # - "user" : db username                                                     #
 # - "pass" : db password                                                     #
+# - "default" : specify the UID to use for the default account data          #
+# - "prefix" : prefix to use for all pvpgn tables (default "")               #
 #                                                                            #
 # Examples:                                                                  #
 # storage_path = file:mode=plain;dir=/usr/local/var/users;clan=/usr/local/var/clans;team=/usr/local/var/teams;default=/usr/local/etc/bnetd_default_user.plain
 # storage_path = file:mode=cdb;dir=/usr/local/var/userscdb;clan=/usr/local/var/clans;team=/usr/local/var/teams;default=/usr/local/etc/bnetd_default_user.cdb
-# storage_path = sql:mode=mysql;host=127.0.0.1;name=PVPGN;user=pvpgn;pass=pvpgnrocks;default=0
-# storage_path = sql:mode=pgsql;host=127.0.0.1;name=pvpgn;user=pvpgn;pass=pvpgnrocks;default=0
-# storage_path = sql:mode=sqlite3;name=/usr/local/var/users.db;default=0
-# storage_path = sql:mode=odbc;name=PVPGN
+# storage_path = sql:mode=mysql;host=127.0.0.1;name=PVPGN;user=pvpgn;pass=pvpgnrocks;default=0;prefix=pvpgn_
+# storage_path = sql:mode=pgsql;host=127.0.0.1;name=pvpgn;user=pvpgn;pass=pvpgnrocks;default=0;prefix=pvpgn_
+# storage_path = sql:mode=sqlite3;name=/usr/local/var/users.db;default=0;prefix=pvpgn_
+# storage_path = sql:mode=odbc;name=PVPGN;prefix=pvpgn_
 #----------------------------------------------------------------------------#
 
 storage_path = file:mode=plain;dir=/usr/local/var/users;clan=/usr/local/var/clans;team=/usr/local/var/teams;default=/usr/local/etc/bnetd_default_user.plain

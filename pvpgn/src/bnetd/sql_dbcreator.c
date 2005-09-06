@@ -45,6 +45,7 @@
 #include "compat/strdup.h"
 #include "common/list.h"
 #include "common/xalloc.h"
+#include "common/xstr.h"
 #include "prefs.h"
 #include "common/setup_after.h"
 
@@ -439,6 +440,7 @@ int load_db_layout(char const * filename)
   t_table * _table           = NULL;
   t_column * _column         = NULL;
   t_sqlcommand * _sqlcommand = NULL;
+  t_xstr * xstr              = NULL;
 
   if (!(filename))
   {
@@ -461,6 +463,17 @@ int load_db_layout(char const * filename)
 
   for (lineno=1; (line = file_get_line(fp)) ; lineno++)
   {
+    /* convert ${prefix} replacement variable */
+    if ((tmp = strstr(line, "${prefix}"))) {
+	if (!xstr) xstr = xstr_alloc();
+
+	*tmp = '\0';
+	xstr_cpy_str(xstr, line);
+	xstr_cat_str(xstr, tab_prefix);
+	xstr_cat_str(xstr, tmp + 9 /* strlen("${prefix}") */ );
+	line = (char*)xstr_get_str(xstr);
+    }
+
     switch (line[0])
     {
       case '[':
@@ -593,6 +606,7 @@ int load_db_layout(char const * filename)
   }
   if (_table) db_layout_add_table(db_layout,_table);
 
+  if (xstr) xstr_free(xstr);
   file_get_line(NULL); // clear file_get_line buffer
   fclose(fp);
   return 0;
