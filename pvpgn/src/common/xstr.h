@@ -39,6 +39,7 @@ typedef struct {
 
 extern t_xstr* xstr_alloc(void);
 extern void xstr_free(t_xstr*);
+extern t_xstr* xstr_cpy_str(t_xstr* dst, const char* src);
 extern t_xstr* xstr_cat_xstr(t_xstr* dst, const t_xstr* src);
 extern t_xstr* xstr_cat_str(t_xstr* dst, const char* src);
 extern t_xstr* xstr_ncat_str(t_xstr* dst, const char* src, int len);
