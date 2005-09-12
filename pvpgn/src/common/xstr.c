@@ -37,8 +37,8 @@
 /* enlarge "dst" enough so it can hold more "size" characters (not including terminator) */
 static void xstr_enlarge(t_xstr* dst, int size)
 {
-	if (dst->alen - dst->ulen - 1 < size) {
-		int nalen = ((dst->ulen + size + 10) / XSTR_INCREMENT) * XSTR_INCREMENT;
+	if (dst->alen - dst->ulen < size + 1) {
+		int nalen = ((dst->ulen + size + 10) / XSTR_INCREMENT + 1) * XSTR_INCREMENT;
 
 		dst->str = xrealloc(dst->str, nalen);
 		dst->alen = nalen;
@@ -60,6 +60,29 @@ extern void xstr_free(t_xstr* xstr)
 
 	if (xstr->str) xfree(xstr->str);
 	xfree(xstr);
+}
+
+
+
+extern t_xstr * xstr_cpy_str(t_xstr * dst, const char * src)
+{
+	int len;
+
+	assert(dst);
+
+	dst->ulen = 0;
+	/* so if we cpy a NULL string we delete the old one :) */
+	if (!src) return dst;
+
+	len = strlen(src);
+
+	/* need to enlarge dst ? */
+	xstr_enlarge(dst, len);
+
+	memcpy(dst->str, src, len + 1);
+	dst->ulen = len;
+
+	return dst;
 }
 
 extern t_xstr* xstr_cat_xstr(t_xstr* dst, const t_xstr* src)
