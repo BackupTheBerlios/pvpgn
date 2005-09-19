@@ -34,9 +34,11 @@
 #  storage_path = file:mode=plain;dir=<path_to_user_files>;clan=<path_to_clan_files>;default=/path/to/default/account #
 # * for cdb file driver:                                                     #
 #  storage_path = file:mode=cdb;dir=<path_to_cdb_files>;clan=<path_to_clan_files>;default=/path/to/default/account   #
-# * for sql driver:                                                          #
+# * for sql/sql2 driver:                                                     #
 #  storage_path = sql:variable=value;...;default=0 (0 is the default uid)    #
-# Variables can be:                                                          #
+# or storage_path = sql2:variable=value;...;default=0 (0 is the default uid) #
+#                                                                            #
+# Variables for sql/sql2 can be:                                             #
 # - "mode" : tells PVPGN the sql mode you will use (mysql/pgsql/etc..)       #
 # - "host" : the database host                                               #
 # - "port" : the TCP/IP port if needed                                       #
@@ -54,6 +56,13 @@
 # storage_path = sql:mode=pgsql;host=127.0.0.1;name=pvpgn;user=pvpgn;pass=pvpgnrocks;default=0;prefix=pvpgn_
 # storage_path = sql:mode=sqlite3;name=/usr/local/var/users.db;default=0;prefix=pvpgn_
 # storage_path = sql:mode=odbc;name=PVPGN;prefix=pvpgn_
+#
+# WARNING!! you MUST change "DBlayoutfile" bellow configuration directive to 
+# sql_DB_layout2.conf to be able to use "sql2" !!!
+# storage_path = sql2:mode=mysql;host=127.0.0.1;name=PVPGN;user=pvpgn;pass=pvpgnrocks;default=0;prefix=pvpgn2_
+# storage_path = sql2:mode=pgsql;host=127.0.0.1;name=pvpgn;user=pvpgn;pass=pvpgnrocks;default=0;prefix=pvpgn2_
+# storage_path = sql2:mode=sqlite3;name=/usr/local/var/users.db;default=0;prefix=pvpgn2_
+# storage_path = sql2:mode=odbc;name=PVPGN;prefix=pvpgn2_
 #----------------------------------------------------------------------------#
 
 storage_path = file:mode=plain;dir=/usr/local/var/users;clan=/usr/local/var/clans;team=/usr/local/var/teams;default=/usr/local/etc/bnetd_default_user.plain

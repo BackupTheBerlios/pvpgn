@@ -37,6 +37,7 @@
 #include "storage_file.h"
 #ifdef WITH_SQL
 #include "storage_sql.h"
+#include "storage_sql2.h"
 #endif
 
 #include "compat/strdup.h"
@@ -67,6 +68,7 @@ extern int storage_init(const char *spath)
     strcpy(dstr, "file");
 #ifdef WITH_SQL
     strcat(dstr, ", sql");
+    strcat(dstr, ", sql2");
 #endif
     eventlog(eventlog_level_info, __FUNCTION__, "initializing storage layer (available drivers: %s)", dstr);
 
@@ -83,6 +85,12 @@ extern int storage_init(const char *spath)
 	res = storage->init(p + 1);
 	if (!res)
 	    eventlog(eventlog_level_info, __FUNCTION__, "using sql storage driver");
+    }
+    else if (strcasecmp(spath, "sql2") == 0) {
+	storage = &storage_sql2;
+	res = storage->init(p + 1);
+	if (!res)
+	    eventlog(eventlog_level_info, __FUNCTION__, "using sql2 storage driver");
     }
 #endif
     else {

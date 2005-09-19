@@ -97,7 +97,7 @@ bnetd_CONFS	= bnetd.conf ad.conf channel.conf realm.conf autoupdate.conf \
 		  versioncheck.conf bnmotd.txt bnissue.txt bnmaps.conf \
 		  bnxplevel.conf bnxpcalc.conf news.txt command_groups.conf \
 		  bnban.conf bnhelp.conf bnalias.conf anongame_infos.conf \
-		  tournament.conf topics.conf sql_DB_layout.conf \
+		  tournament.conf topics.conf sql_DB_layout.conf sql_DB_layout2.conf \
 		  address_translation.conf supportfile.conf
 bnetd_OBJECTS	= ${SRC_BNETDDIR}/main.o \
 ${SRC_BNETDDIR}/server.o \
@@ -138,6 +138,7 @@ ${SRC_BNETDDIR}/storage_file.o \
 ${SRC_BNETDDIR}/file_plain.o \
 ${SRC_BNETDDIR}/file_cdb.o \
 ${SRC_BNETDDIR}/storage_sql.o \
+${SRC_BNETDDIR}/storage_sql2.o \
 ${SRC_BNETDDIR}/sql_dbcreator.o \
 ${SRC_BNETDDIR}/sql_common.o \
 ${SRC_BNETDDIR}/sql_pgsql.o \
