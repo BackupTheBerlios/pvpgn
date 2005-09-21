@@ -62,5 +62,13 @@ static inline unsigned xstr_get_len(t_xstr* xstr)
 	return xstr->alen ? xstr->ulen : 0;
 }
 
+static inline t_xstr* xstr_clear(t_xstr* xstr)
+{
+    /* reset the string content, don't touch the allocation space */
+    xstr->ulen = 0;
+
+    return xstr;
+}
+
 #endif /* INCLUDED_STR_PROTOS */
 
