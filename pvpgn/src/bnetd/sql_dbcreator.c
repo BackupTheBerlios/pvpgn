@@ -441,6 +441,7 @@ int load_db_layout(char const * filename)
   t_column * _column         = NULL;
   t_sqlcommand * _sqlcommand = NULL;
   t_xstr * xstr              = NULL;
+  int prefix;
 
   if (!(filename))
   {
@@ -464,13 +465,25 @@ int load_db_layout(char const * filename)
   for (lineno=1; (line = file_get_line(fp)) ; lineno++)
   {
     /* convert ${prefix} replacement variable */
-    if ((tmp = strstr(line, "${prefix}"))) {
-	if (!xstr) xstr = xstr_alloc();
-
+    prefix = 0;
+    for(tmp = line;(tmp = strstr(line, "${prefix}")); line = tmp + 9 /* strlen("${prefix}") */)
+    {
 	*tmp = '\0';
-	xstr_cpy_str(xstr, line);
+
+	if (!prefix) {
+	    prefix = 1;
+
+    	    if (!xstr) xstr = xstr_alloc();
+
+	    xstr_clear(xstr);
+	}
+
+	xstr_cat_str(xstr, line);
 	xstr_cat_str(xstr, tab_prefix);
-	xstr_cat_str(xstr, tmp + 9 /* strlen("${prefix}") */ );
+    }
+    if (prefix) {
+	/* append any reminder of the original string */
+	xstr_cat_str(xstr, line);
 	line = (char*)xstr_get_str(xstr);
     }
 
