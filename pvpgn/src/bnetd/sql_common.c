@@ -43,6 +43,7 @@
 #include "compat/strcasecmp.h"
 #include "compat/strncasecmp.h"
 #include "compat/strtoul.h"
+#include "compat/snprintf.h"
 
 #ifdef TIME_WITH_SYS_TIME
 # include <sys/time.h>
