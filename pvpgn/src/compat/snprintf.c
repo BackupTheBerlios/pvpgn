@@ -30,7 +30,7 @@ extern int snprintf(char *str, size_t size, const char *format, ...)
 
     VA_START(args,format);
     result = vsnprintf(str,size,format,args);
-    va_end();
+    va_end(args);
     return result;
 }
 
