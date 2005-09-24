@@ -38,7 +38,7 @@ if ($row = mysql_fetch_row($query)) {
 		echo "</tr>\n";
 	} while ($row = mysql_fetch_row($query));
 } else {
-	echo "<tr><td colspan=\"4\">No files found!</td></tr>\n";
+	echo "<td style=\"width:4%\">&nbsp</td><td colspan=\"3\" class=\"text13\">We recommend using the latest development release at this time.</td></tr>\n";
 }
 ?>
 </table>
