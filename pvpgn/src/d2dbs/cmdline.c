@@ -84,6 +84,9 @@ static int conf_setdef_debug(void);
 #ifdef WIN32
 static int conf_set_service(char const * valstr);
 static int conf_setdef_service(void);
+
+static int conf_set_servaction(const char * valstr);
+static int conf_setdef_servaction(void);
 #endif
 
 
@@ -105,7 +108,7 @@ static t_conf_entry conftab[]={
 	{ "debug",      conf_set_debug,         NULL, conf_setdef_debug     },
 #ifdef WIN32
 	{ "service",    conf_set_service,       NULL, conf_setdef_service   },
-	{ "s",          conf_set_service,       NULL, conf_setdef_service   },
+	{ "s",		conf_set_servaction,	NULL, conf_setdef_servaction},
 #endif
 	{ NULL,         NULL,                   NULL, NULL                  }
 };
