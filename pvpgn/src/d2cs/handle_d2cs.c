@@ -761,21 +761,32 @@ static int d2cs_send_client_ladder(t_connection * c, unsigned char type, unsigne
 	return 0;
 }
 
+#define MAX_MOTD_LENGTH 511
 static int on_client_motdreq(t_connection * c, t_packet * packet)
 {
 	t_packet	* rpacket;
+	char		* motd;
+	int		motd_len;
 
 	if (!packet)
 	    return -1;
 	
+	/* client will crash if motd is too long */
+	motd = xstrdup(prefs_get_motd());
+	motd_len = strlen(motd);
+	if (motd_len > MAX_MOTD_LENGTH) {
+		WARN2("motd length (%i) exceeds maximun value (%i)",motd_len,MAX_MOTD_LENGTH);
+		motd[MAX_MOTD_LENGTH]='\0';
+	}
 	if ((rpacket=packet_create(packet_class_d2cs))) {
 		packet_set_size(rpacket,sizeof(t_d2cs_client_motdreply));
 		packet_set_type(rpacket,D2CS_CLIENT_MOTDREPLY);
 		bn_byte_set(&rpacket->u.d2cs_client_motdreply.u1,0);
-		packet_append_string(rpacket,prefs_get_motd());
+		packet_append_string(rpacket,motd);
 		conn_push_outqueue(c,rpacket);
 		packet_del_ref(rpacket);
 	}
+	xfree(motd);
 	return 0;
 }
 

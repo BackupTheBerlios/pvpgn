@@ -102,8 +102,8 @@ d2gsconffile		=	conf\d2server.ini
 # Misc										#
 #-------------------------------------------------------------------------------#
 #										#
-# Message Of The Day, support hexcode
-motd                    =       "Tips: How to use color in your profile(Right click on your portrait to open pr ofile editing). Use \\\\xffc as Prefix (\\\\xff means ascii code 0xff,but you should use copy/paste trick to in put it, c means character 'c'. Color also works in game chat,but have input limit). Then append the Color chara cter list below:   \\xffc0White '0' \\xffc1Red '1' \\xffc2Green '2' \\xffc3Blue '3' \\xffc4Gold '4' \\xffc5Gray '5' Black '6' \\xffc7DarkYellow '7' \\xffc8Orange '8' \\xffc9Yellow '9' \\xffc:DarkGreen ':' \\xffc;Purple ';' \\xffc<LightDarkGreen '<'" 
+# Message Of The Day
+motd                    =       "No Message Of The Day Set" 
 
 # Set to non-zero to allow creation of new realm character
 allow_newchar		=	1
