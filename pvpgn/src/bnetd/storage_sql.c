@@ -450,7 +450,7 @@ int sql_write_attrs(t_storage_info * info, const t_hlist *attrs)
 
 	sql->escape_string(escape, safeval, strlen(safeval));
 
-	snprintf(query, sizeof(query), "UPDATE %s%s SET '%s' = '%s' WHERE "SQL_UID_FIELD" = '%u'", tab_prefix, tab, col, escape, uid);
+	snprintf(query, sizeof(query), "UPDATE %s%s SET %s = '%s' WHERE "SQL_UID_FIELD" = '%u'", tab_prefix, tab, col, escape, uid);
 //      eventlog(eventlog_level_trace, "db_set", "update query: %s", query);
 
 	if (sql->query(query) || !sql->affected_rows()) {
