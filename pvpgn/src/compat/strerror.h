@@ -21,11 +21,7 @@
 #ifndef HAVE_STRERROR
   extern char const * pstrerror(int errornum);
 #else
-# ifdef WIN32
-   extern char const * pstrerror(int errornum);
-# else
-#  define pstrerror(e) strerror(e)
-# endif
-
+# define pstrerror(e) strerror(e)
 #endif
+
 #endif

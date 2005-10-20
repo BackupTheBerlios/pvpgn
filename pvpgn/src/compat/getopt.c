@@ -24,18 +24,15 @@
    write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
    Boston, MA 02111-1307, USA.  */
 
-#ifndef __WIN32__ /* caused problems/warnings compiling on bcc/vs.net otherwise */
 #include <common/setup_before.h>
-#endif
+
+#ifndef HAVE_GETOPT
 
 /* This tells Alpha OSF/1 not to define a getopt prototype in <stdio.h>.
    Ditto for AIX 3.2 and <stdlib.h>.  */
 #ifndef _NO_PROTO
 #define _NO_PROTO
 #endif
-
-
-#ifndef HAVE_GETOPT
 
 #if !defined (__STDC__) || !__STDC__
 /* This is a separate conditional since some stdc systems
@@ -46,7 +43,6 @@
 #endif
 
 #include <stdio.h>
-#include <common/setup_before.h>
 
 
 /* Comment out all this code if we are using the GNU C Library, and are not
