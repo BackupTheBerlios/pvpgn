@@ -4451,22 +4451,23 @@ static int _handle_topic_command(t_connection * c, char const * text)
     return 0;
   }
 
-  if (!(account_is_operator_or_admin(conn_get_account(c),channel_get_name(conn_get_channel(c))))) {
-	message_send_text(c,message_type_error,c,"You must be at least a Channel Operator to use this command.");
-	return -1;
-  }
-
   if (!(channel = channellist_find_channel_by_name(channel_name,conn_get_country(c),realm_get_name(conn_get_realm(c)))))
   {
     sprintf(msgtemp,"no such channel, can't set topic");
     message_send_text(c,message_type_error,c,msgtemp);
     return -1;
   }
-  
-  if (channel_get_permanent(channel))
-    do_save = DO_SAVE_TOPIC;
 
   channel_name = channel_get_name(channel);
+
+  if (!(account_is_operator_or_admin(conn_get_account(c),channel_name))) {
+	sprintf(msgtemp,"You must be at least a Channel Operator of %s to set the topic",channel_name);
+	message_send_text(c,message_type_error,c,msgtemp);
+	return -1;
+  }
+
+  if (channel_get_permanent(channel))
+    do_save = DO_SAVE_TOPIC;
 
   channel_set_topic(channel_name, topic, do_save);
 
