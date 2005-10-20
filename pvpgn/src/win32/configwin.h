@@ -65,7 +65,7 @@
 #define STDC_HEADERS 1
 
 /* Define if you can safely include both <sys/time.h> and <time.h>.  */
-/* #undef TIME_WITH_SYS_TIME */
+/* #undef TIME_WITH_SYS_TIME */ /* MinGW can safely include both headers, but conflicts with compat/gettimeofday.h */
 
 /* Define if your <sys/time.h> declares struct tm.  */
 /* #undef TM_IN_SYS_TIME */
@@ -89,7 +89,7 @@
 #define SIZEOF_SIGNED_LONG 4
 
 /* The number of bytes in a unsigned long long.  */
-/* Borland doesn't do ull, but VC++ does */
+/* Borland doesn't do ull, but VC++ and MinGW do */
 #ifdef __BORLANDC__
 # define SIZEOF_UNSIGNED_LONG_LONG 0
 #else
@@ -97,7 +97,7 @@
 #endif
 
 /* The number of bytes in a signed long long.  */
-/* Borland doesn't do ll, but VC++ does */
+/* Borland doesn't do ll, but VC++ and MinGW do */
 #ifdef __BORLANDC__
 # define SIZEOF_SIGNED_LONG_LONG 0
 #else
@@ -117,7 +117,9 @@
 /* #undef HAVE_BCOPY */
 
 /* Define if you have the chdir function.  */
-/* #undef HAVE_CHDIR */
+#ifdef __MINGW32__
+# define HAVE_CHDIR 1
+#endif
 
 /* Define if you have the difftime function.  */
 #define HAVE_DIFFTIME 1
@@ -146,11 +148,21 @@
 /* Define if you have the getlogin function.  */
 /* #undef HAVE_GETLOGIN */
 
+/* Define if you have the getopt function. */
+#ifdef __MINGW32__
+# define HAVE_GETOPT 1
+#endif
+
 /* Define if you have the getpid function.  */
-/* #undef HAVE_GETPID */
+#ifdef __MINGW32__
+# define HAVE_GETPID 1
+#endif
 
 /* Define if you have the getpwnam function.  */
 /* #undef HAVE_GETPWNAM */
+
+/* Define if you have the getrlimit function. */
+/* #undef HAVE_GETRLIMIT */
 
 /* Define if you have the getservbyname function.  */
 #define HAVE_GETSERVBYNAME 1
@@ -170,8 +182,16 @@
 /* Define if you have the inet_ntoa function.  */
 #define HAVE_INET_NTOA 1
 
+/* Define if you have the <inttypes.h> header file. */
+#ifdef __MINGW32__
+# define HAVE_INTTYPES_H 1
+#endif
+
 /* Define if you have the ioctl function.  */
 /* #undef HAVE_IOCTL */
+
+/* Define if you have the kqueue function. */
+/* #undef HAVE_KQUEUE */
 
 /* Define if you have the memcpy function.  */
 #define HAVE_MEMCPY 1
@@ -183,7 +203,7 @@
 #define HAVE_MEMSET 1
 
 /* Define if you have the mkdir function.  */
-#define HAVE_MKDIR
+#define HAVE_MKDIR 1
 
 /* Define if you have the mktime function.  */
 #define HAVE_MKTIME 1
@@ -195,7 +215,7 @@
 /* #undef HAVE_POLL */
 
 /* Define if you have the pow function.  */
-#define HAVE_POW
+#define HAVE_POW 1
 
 /* Define if you have the recv function.  */
 #define HAVE_RECV 1
@@ -243,7 +263,9 @@
 #define HAVE_SOCKET 1
 
 /* Define if you have the strcasecmp function.  */
-/* #undef HAVE_STRCASECMP */
+#ifdef __MINGW32__
+#define HAVE_STRCASECMP 1
+#endif
 
 /* Define if you have the strchr function.  */
 #define HAVE_STRCHR 1
@@ -261,7 +283,9 @@
 #define HAVE_STRICMP 1
 
 /* Define if you have the strncasecmp function.  */
-/* #undef HAVE_STRNCASECMP */
+#ifdef __MINGW32__
+# define HAVE_STRNCASECMP 1
+#endif
 
 /* Define if you have the strnicmp function.  */
 #define HAVE_STRNICMP 1
@@ -284,16 +308,24 @@
 /* Define if you have the <arpa/inet.h> header file.  */
 /* #undef HAVE_ARPA_INET_H */
 
-#ifdef __BORLANDC__
 /* Define if you have the <dir.h> header file.  */
-# define HAVE_DIR_H
-#else
+#if defined(__BORLANDC__) || defined(__MINGW32__)
+# define HAVE_DIR_H 1
+#endif
+
 /* Define if you have the <direct.h> header file.  */
-#define HAVE_DIRECT_H 1
+#ifndef __BORLAMDC__
+# define HAVE_DIRECT_H 1
 #endif
 
 /* Define if you have the <dirent.h> header file.  */
 /* #undef HAVE_DIRENT_H */
+#ifdef __MINGW32__
+# define HAVE_DIRENT_H 1
+#endif
+
+/* Define if you have the epoll_create function. */
+/* #undef HAVE_EPOLL_CREATE */
 
 /* Define if you have the <fcntl.h> header file.  */
 #define HAVE_FCNTL_H 1
@@ -308,7 +340,12 @@
 #define HAVE_MALLOC_H 1
 
 /* Define if you have the <memory.h> header file.  */
-/* #undef HAVE_MEMORY_H */
+#ifdef __MINGW32__
+# define HAVE_MEMORY_H 1
+#endif
+
+/* Define if you have a working mmap system call. */
+/* #undef HAVE_MMAP */
 
 /* Define if you have the <ndir.h> header file.  */
 /* #undef HAVE_NDIR_H */
@@ -325,6 +362,14 @@
 /* Define if you have the <pwd.h> header file.  */
 /* #undef HAVE_PWD_H */
 
+/* Define if you have the setitimer function. */
+/* #undef HAVE_SETITIMER */
+
+/* Define if you have the snprintf function. */
+#ifdef __MINGW32__
+#define HAVE_SNPRINTF 1
+#endif
+
 /* Define if you have the <stdarg.h> header file.  */
 #define HAVE_STDARG_H 1
 
@@ -332,34 +377,64 @@
 #define HAVE_STDDEF_H 1
 
 /* Define if you have the <stdint.h> header file.  */
-/* #undef HAVE_STDINT_H */
+#ifdef __MINGW32__
+# define HAVE_STDINT_H 1
+#endif
+
+/* Define if you have the <stdlib.h> header file. */
+#ifdef __MINGW32__
+#define HAVE_STDLIB_H 1
+#endif
 
 /* Define if you have the <string.h> header file.  */
 #define HAVE_STRING_H 1
 
 /* Define if you have the <strings.h> header file.  */
-/* #undef HAVE_STRINGS_H */
+#ifdef __MINGW32__
+# define HAVE_STRINGS_H 1
+#endif
 
 /* Define if you have the <stropts.h> header file.  */
 /* #undef HAVE_STROPTS_H */
 
+/* Define if you have the strrchr function */
+#ifdef __MINGW32__
+#define HAVE_STRRCHR 1
+#endif
+
 /* Define if you have the <sys/dir.h> header file.  */
 /* #undef HAVE_SYS_DIR_H */
 
+/* Define if you have the <sys/epoll.h> header file. */
+/* #undef HAVE_SYS_EPOLL_H */
+
+/* Define if you have the <sys/event.h> header file. */
+/* #undef HAVE_SYS_EVENT_H */
+
 /* Define if you have the <sys/file.h> header file.  */
-/* #undef HAVE_SYS_FILE_H */
+#ifdef __MINGW32__
+# define HAVE_SYS_FILE_H 1
+#endif
 
 /* Define if you have the <sys/ioctl.h> header file.  */
 /* #undef HAVE_SYS_IOCTL_H */
+
+/* Define if you have the <sys/mman.h> header file. */
+/* #undef HAVE_SYS_MMAN_H */
 
 /* Define if you have the <sys/ndir.h> header file.  */
 /* #undef HAVE_SYS_NDIR_H */
 
 /* Define if you have the <sys/param.h> header file.  */
-/* #undef HAVE_SYS_PARAM_H */
+#ifdef __MINGW32__
+# define HAVE_SYS_PARAM_H 1
+#endif
 
 /* Define if you have the <sys/poll.h> header file.  */
 /* #undef HAVE_SYS_POLL_H */
+
+/* Define if you have the <sys/resource.h> header file. */
+/* #undef HAVE_SYS_RESOURCE_H */
 
 /* Define if you have the <sys/select.h> header file.  */
 /* #undef HAVE_SYS_SELECT_H */
@@ -374,7 +449,7 @@
 /* #undef HAVE_SYS_STROPTS_H */
 
 /* Define if you have the <sys/time.h> header file.  */
-/* #undef HAVE_SYS_TIME_H */
+/* #undef HAVE_SYS_TIME_H */ /* MinGW has this header, but confilcts with compat/gettimeofday.h */
 
 /* Define if you have the <sys/timeb.h> header file.  */
 #define HAVE_SYS_TIMEB_H 1
@@ -398,7 +473,9 @@
 #define HAVE_VARARGS_H 1
 
 /* Define if you have the <unistd.h> header file.  */
-/* #undef HAVE_UNISTD_H */
+#ifdef __MINGW32__
+# define HAVE_UNISTD_H 1
+#endif
 
 /* Define if you support inline */
 #define inline __inline
@@ -406,9 +483,5 @@
 /* Define if you support assertions */
 #define HAVE_ASSERT_H 1
 
-/* Define if you have the memmove function.  */
-#define HAVE_MEMMOVE 1
-
 /* Define if you have the <time.h> header file.  */
 #define HAVE_TIME_H 1
-
