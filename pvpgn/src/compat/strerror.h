@@ -18,7 +18,7 @@
 #ifndef INCLUDED_STRERROR_PROTOS
 #define INCLUDED_STRERROR_PROTOS
 
-#ifndef HAVE_STRERROR
+#if !defined(HAVE_STRERROR) || defined(WIN32)
   extern char const * pstrerror(int errornum);
 #else
 # define pstrerror(e) strerror(e)
