@@ -55,6 +55,8 @@ t_elem  * curr_cmd    = NULL;
 
 t_db_layout * db_layout;
 
+static void sql_escape_command(char *escape, const char *from, int len);
+
 t_column * create_column(char * name, char * value, char * mode, char * extra_cmd)
 {
   t_column * column;
@@ -435,8 +437,10 @@ int load_db_layout(char const * filename)
   char * column              = NULL;
   char * value               = NULL;
   char * sqlcmd              = NULL;
+  char * sqlcmd_escaped      = NULL;
   char * mode                = NULL;
   char * extra_cmd           = NULL;
+  char * extra_cmd_escaped   = NULL;
   t_table * _table           = NULL;
   t_column * _column         = NULL;
   t_sqlcommand * _sqlcommand = NULL;
@@ -531,6 +535,7 @@ int load_db_layout(char const * filename)
 	tmp++;
 	mode = NULL;
 	extra_cmd = NULL;
+	extra_cmd_escaped = NULL;
 	if ((mode = strchr(tmp,'&')) || (mode = strchr(tmp,'|')))
 	{
 	  if (mode[0] == mode[1])
@@ -556,7 +561,13 @@ int load_db_layout(char const * filename)
 	    continue;
 	  }
 	}
-        _column = create_column(column,value,mode,extra_cmd);
+	if (extra_cmd)
+	{
+		extra_cmd_escaped = xmalloc(strlen(extra_cmd) * 2);
+		sql_escape_command(extra_cmd_escaped, extra_cmd, strlen(extra_cmd));
+	}
+	_column = create_column(column,value,mode,extra_cmd_escaped);
+	if (extra_cmd_escaped) xfree(extra_cmd_escaped);
         table_add_column(_table,_column);
         _column = NULL;
         break;
@@ -581,6 +592,7 @@ int load_db_layout(char const * filename)
 	tmp++;
 	mode = NULL;
 	extra_cmd = NULL;
+	extra_cmd_escaped = NULL;
 	if ((mode = strchr(tmp,'&')) || (mode = strchr(tmp,'|')))
 	{
 	  if (mode[0] == mode[1])
@@ -606,7 +618,16 @@ int load_db_layout(char const * filename)
 	    continue;
 	  }
 	}
-	_sqlcommand = create_sqlcommand(sqlcmd,mode,extra_cmd);
+	sqlcmd_escaped = xmalloc(strlen(sqlcmd) * 2);
+	sql_escape_command(sqlcmd_escaped, sqlcmd, strlen(sqlcmd));
+	if (extra_cmd)
+	{
+		extra_cmd_escaped = xmalloc(strlen(extra_cmd) * 2);
+		sql_escape_command(extra_cmd_escaped, extra_cmd, strlen(extra_cmd));
+	}
+	_sqlcommand = create_sqlcommand(sqlcmd_escaped,mode,extra_cmd_escaped);
+	xfree(sqlcmd_escaped);
+	if (extra_cmd_escaped) xfree(extra_cmd_escaped);
 	table_add_sql_command(_table,_sqlcommand);
 	_sqlcommand = NULL;
 
@@ -726,6 +747,47 @@ int sql_dbcreator(t_sql_engine * sql)
  
   eventlog(eventlog_level_info,__FUNCTION__,"finished adding missing tables and columns");  
   return 0;
+}
+
+static void sql_escape_command(char *escape, const char *from, int len)
+{
+	if (from != NULL && len != 0) /* make sure we have a command */
+	{
+		char * tmp1 = xstrdup(from);			/* copy of 'from' */
+		char * tmp2 = escape;
+		char * tmp3 = NULL;				/* begining of string to be escaped */
+		char * tmp4 = xmalloc(strlen(tmp1) * 2);	/* escaped string */
+		unsigned int i,j;
+	
+/*		eventlog(eventlog_level_trace,__FUNCTION__,"COMMAND: %s",tmp1); */
+		
+		for (i=0; tmp1[i] && i < len; i++, tmp2++)
+		{
+			*tmp2 = tmp1[i]; /* copy 'from' to 'escape' */
+			
+			if (tmp1[i] == '\'') /* check if we find a string by checking for a single quote (') */
+			{
+				tmp3 = &tmp1[++i]; /* set tmp3 to the begining of the string to be escaped */
+				
+				for(; tmp1[i] && tmp1[i] != '\'' && i < len; i++); /* find the end of the string to be escaped */
+				
+				tmp1[i] = '\0'; /* set end of string with null terminator */
+/*				eventlog(eventlog_level_trace,__FUNCTION__,"STRING: %s",tmp3); */
+				
+				sql->escape_string(tmp4, tmp3, strlen(tmp3)); /* escape the string */
+/*				eventlog(eventlog_level_trace,__FUNCTION__,"ESCAPE STRING: %s",tmp4); */
+				
+				for (j=0, tmp2++; tmp4[j]; j++, tmp2++) *tmp2 = tmp4[j]; /* add 'escaped string' to 'escape' */
+				
+				*tmp2 = '\''; /* add single quote to end after adding 'escaped string' */
+			}
+		}
+		*tmp2 = '\0';
+/*		eventlog(eventlog_level_trace,__FUNCTION__,"ESCAPED COMMAND: %s",escape); */
+		
+		xfree(tmp1);
+		xfree(tmp4);
+	}
 }
 
 #endif /* WITH_SQL */
