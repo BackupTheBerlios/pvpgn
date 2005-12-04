@@ -1,6 +1,29 @@
 PvPGN Version History:
 
- ChangeLog for 1.7.8 CVS (since 1.7.7)
+ ChangeLog for 1.7.9 (since 1.7.7)
+=======================================
+
+[D2CS/D2DBS]
+  -- added pid files to the confs
+  -- fixed a bug where server could not be (un)installed as a win32 service
+  -- added check and modified the default motd to not have a too big motd that 
+  was crashing the clients just after character selection
+
+[VERSIONCHECK]
+  -- added SC/BW 1.13c entries
+  -- added SC/BW 1.13d entries
+
+[SQL]
+  -- reorganized optimized and made more safe the existent codes
+  -- added a new sql layout called "sql2" in config
+
+[MISC]
+  -- fixed security issue where an op of a channel was able to set the topic 
+  of any other channel
+  -- added more information to "/finger" display (if issued by an admin)
+  -- added a new command, "/tos" to display the Terms Of Service on request
+
+ ChangeLog for 1.7.8 (since 1.7.7)
 =======================================
 
 [D2CS/D2DBS]
