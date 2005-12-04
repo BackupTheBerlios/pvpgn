@@ -12,6 +12,7 @@ PvPGN Version History:
 [VERSIONCHECK]
   -- added SC/BW 1.13c entries
   -- added SC/BW 1.13d entries
+  -- added W3 1.20a entries
 
 [SQL]
   -- reorganized optimized and made more safe the existent codes
