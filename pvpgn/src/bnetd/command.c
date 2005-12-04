@@ -369,6 +369,7 @@ static int _handle_commandgroups_command(t_connection * c, char const * text);
 static int _handle_topic_command(t_connection * c, char const * text);
 static int _handle_moderate_command(t_connection * c, char const * text);
 static int _handle_clearstats_command(t_connection * c, char const * text);
+static int _handle_tos_command(t_connection * c, char const * text);
 
 static const t_command_table_row standard_command_table[] =
 {
@@ -414,6 +415,7 @@ static const t_command_table_row standard_command_table[] =
 	{ "/kick"               , _handle_kick_command },
 	{ "/ban"                , _handle_ban_command },
 	{ "/unban"              , _handle_unban_command },
+	{ "/tos"              , _handle_tos_command },
 
 	{ NULL                  , NULL }
 
@@ -4255,6 +4257,66 @@ static int _handle_motd_command(t_connection * c, char const *text)
     return 0;
   }
 }
+
+static int _handle_tos_command(t_connection * c, char const * text)
+{
+/* handle /tos - shows terms of service by user request -raistlinthewiz */
+
+  char * filename=NULL;
+  FILE * fp;
+
+  filename = (char*)xmalloc(strlen(prefs_get_filedir()) + 1 + strlen(prefs_get_tosfile()));
+  strcpy(filename, prefs_get_filedir());
+  strcat(filename, "/");
+  strcat(filename, prefs_get_tosfile());
+  /* FIXME: if user enters relative path to tos file in config,
+     above routine will fail */
+
+    if ((fp = fopen(filename,"r")))
+    {
+
+         char * buff;
+         int len;
+
+         while ((buff = file_get_line(fp)))
+         {
+
+               if ((len=strlen(buff)) < MAX_MESSAGE_LEN)
+                  message_send_text(c,message_type_info,c,buff);
+               else {
+               /*  lines in TOS file can be > MAX_MESSAGE_LEN, so split them
+               truncating is not an option for TOS -raistlinthewiz
+               */
+
+                  while ( len  > MAX_MESSAGE_LEN - 1)
+                  {
+                        strncpy(msgtemp,buff,MAX_MESSAGE_LEN-1);
+                        msgtemp[MAX_MESSAGE_LEN]='\0';
+                        buff += MAX_MESSAGE_LEN - 1;
+                        len -= MAX_MESSAGE_LEN - 1;
+                        message_send_text(c,message_type_info,c,msgtemp);
+                  }
+
+                  if ( len > 0 ) /* does it exist a small last part ? */
+                     message_send_text(c,message_type_info,c,buff);
+
+               }
+         }
+
+
+       	if (fclose(fp)<0)
+	       eventlog(eventlog_level_error,__FUNCTION__,"could not close tos file \"%s\" after reading (fopen: %s)",filename,pstrerror(errno));
+    }
+    else
+    {
+	    eventlog(eventlog_level_error,__FUNCTION__,"could not open tos file \"%s\" for reading (fopen: %s)",filename,pstrerror(errno));
+        message_send_text(c,message_type_error,c,"Unable to send TOS (terms of service).");
+    }
+    xfree((void *)filename);
+    return 0;
+
+}
+
 
 static int _handle_ping_command(t_connection * c, char const *text)
 {
