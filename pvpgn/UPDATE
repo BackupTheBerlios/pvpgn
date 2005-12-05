@@ -14,6 +14,20 @@ NOTE: If updating through several versions (example if updating from 1.7.1 to
 version in between and including the last one (ex. you have to go through 
 1.7.1 to 1.7.2 update info, then 1.7.2 to 1.7.3, and so on until 1.7.4 to 1.7.5)
 
+ Updating from 1.7.8 to 1.7.9
+==============================
+Configuration files changed:
+- conf/d2cs.conf : added pid entry
+- conf/d2dbs.conf : added pid entry
+- conf/bnetd.conf : added examples for sql2 usage
+- conf/versioncheck.conf : added many SC/BW vchecks (yeah seems they have been 
+    busy lately) and W3 vchecks
+- conf/command_groups.conf : added entry for the new "/tos" command
+
+Configuration files added:
+- conf/sql_DB_layout2.conf : contains database structure initialization SQL 
+    statements for sql2 mode
+
  Updating from 1.7.7 to 1.7.8
 ==============================
 Configuration files changed:
