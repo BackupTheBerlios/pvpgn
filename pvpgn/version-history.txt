@@ -1,6 +1,6 @@
 PvPGN Version History:
 
- ChangeLog for 1.7.9 (since 1.7.7)
+ ChangeLog for 1.7.9 (since 1.7.8)
 =======================================
 
 [D2CS/D2DBS]
