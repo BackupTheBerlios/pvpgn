@@ -178,10 +178,10 @@
 				</File>
 				<File
 					RelativePath="..\src\bnetd\attrgroup.c">
-				</File>				
+				</File>
 				<File
 					RelativePath="..\src\bnetd\attrlayer.c">
-				</File>	
+				</File>
 				<File
 					RelativePath="..\src\bnetd\autoupdate.c">
 				</File>
@@ -300,6 +300,9 @@
 					RelativePath="..\src\bnetd\server.c">
 				</File>
 				<File
+					RelativePath="..\src\bnetd\sql_common.c">
+				</File>
+				<File
 					RelativePath="..\src\bnetd\sql_dbcreator.c">
 				</File>
 				<File
@@ -316,6 +319,9 @@
 				</File>
 				<File
 					RelativePath="..\src\bnetd\storage_sql.c">
+				</File>
+				<File
+					RelativePath="..\src\bnetd\storage_sql2.c">
 				</File>
 				<File
 					RelativePath="..\src\bnetd\support.c">
@@ -432,6 +438,9 @@
 				<File
 					RelativePath="..\src\common\xalloc.c">
 				</File>
+				<File
+					RelativePath="..\src\common\xstr.c">
+				</File>
 			</Filter>
 			<Filter
 				Name="compat"
@@ -468,6 +477,9 @@
 				</File>
 				<File
 					RelativePath="..\src\compat\psock.c">
+				</File>
+				<File
+					RelativePath="..\src\compat\snprintf.c">
 				</File>
 				<File
 					RelativePath="..\src\compat\strcasecmp.c">
@@ -593,13 +605,13 @@
 				</File>
 				<File
 					RelativePath="..\src\bnetd\attr.h">
-				</File>	
+				</File>
 				<File
 					RelativePath="..\src\bnetd\attrgroup.h">
-				</File>				
+				</File>
 				<File
 					RelativePath="..\src\bnetd\attrlayer.h">
-				</File>					
+				</File>
 				<File
 					RelativePath="..\src\bnetd\autoupdate.h">
 				</File>
@@ -721,6 +733,9 @@
 					RelativePath="..\src\bnetd\server.h">
 				</File>
 				<File
+					RelativePath="..\src\bnetd\sql_common.h">
+				</File>
+				<File
 					RelativePath="..\src\bnetd\sql_dbcreator.h">
 				</File>
 				<File
@@ -737,6 +752,9 @@
 				</File>
 				<File
 					RelativePath="..\src\bnetd\storage_sql.h">
+				</File>
+				<File
+					RelativePath="..\src\bnetd\storage_sql2.h">
 				</File>
 				<File
 					RelativePath="..\src\bnetd\support.h">
@@ -904,6 +922,9 @@
 				<File
 					RelativePath="..\src\common\xalloc.h">
 				</File>
+				<File
+					RelativePath="..\src\common\xstr.h">
+				</File>
 			</Filter>
 			<Filter
 				Name="compat"
@@ -973,6 +994,9 @@
 				</File>
 				<File
 					RelativePath="..\src\compat\signal.h">
+				</File>
+				<File
+					RelativePath="..\src\compat\snprintf.h">
 				</File>
 				<File
 					RelativePath="..\src\compat\socket.h">
