@@ -511,11 +511,11 @@ static int _handle_pong_command(t_connection * conn, int numparams, char ** para
 	    char * sname;
 
 	    if (numparams>=1) {  
-	        val = atoi(params[0]);
+	        val = strtoul(params[0],NULL,10);
 		sname = params[0];
 	    }
 	    else if (text) {
-	    	val = atoi(text);
+	    	val = strtoul(text,NULL,10);
 		sname = text;
 	    }
 	    else {
