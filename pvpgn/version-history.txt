@@ -5,6 +5,7 @@ PvPGN Version History:
 =======================================
 [SQL]
   -- inserted additional indices for BNET table in sql2 layout
+  -- added runtime loading of shared library files (DLLs)
 
 [SC/BW/W2BNE]
   -- fixed problem with parsing gameresults with unexpected order of players
