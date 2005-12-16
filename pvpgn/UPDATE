@@ -18,6 +18,8 @@ version in between and including the last one (ex. you have to go through
 ===============================
 Configuration files changed:
 - conf/sql_DB_layout2.conf : added creation of two additional indices
+- conf/versioncheck.conf : added D2 / W3 entries + cleanups
+- conf/autoupdate.conf : general cleanup/update
 
  Updating from 1.7.8 to 1.7.9
 ==============================
