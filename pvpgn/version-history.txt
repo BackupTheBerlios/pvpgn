@@ -1,7 +1,7 @@
 PvPGN Version History:
 
 
- ChangeLog for 1.7.10 (since 1.7.9)
+ ChangeLog for 1.8.0rc1 (since 1.7.9)
 =======================================
 [SQL]
   -- inserted additional indices for BNET table in sql2 layout
