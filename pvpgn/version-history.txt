@@ -20,7 +20,9 @@ PvPGN Version History:
   -- added SC/BW 1.13e entries (XMAC & PMAC)
   -- added D2/D2XP 1.11b entries
   -- added W3 1.20b entried
-  
+
+[MISC]
+  -- enforce limit for topic message max length
 
  ChangeLog for 1.7.9 (since 1.7.8)
 =======================================
