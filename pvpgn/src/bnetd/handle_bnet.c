@@ -1885,9 +1885,9 @@ static int _client_logonproofreq(t_connection * c, t_packet const *const packet)
 		eventlog(eventlog_level_info, __FUNCTION__, "[%d] (W3) got wrong password for \"%s\"", conn_get_socket(c), username);
 		conn_increment_passfail_count(c);
 	    }
-	    conn_push_outqueue(c, rpacket);
-	    packet_del_ref(rpacket);
 	}
+	conn_push_outqueue(c, rpacket);
+	packet_del_ref(rpacket);
     }
     clan_send_status_window(c);
 
