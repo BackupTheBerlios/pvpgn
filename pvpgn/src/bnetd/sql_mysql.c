@@ -79,19 +79,19 @@ static MYSQL *mysql = NULL;
 /* RUNTIME_LIBS */
 static int mysql_load_dll(void);
 
-typedef my_ulonglong	STDCALL (*f_mysql_affected_rows		)(MYSQL*);
-typedef void		STDCALL (*f_mysql_close			)(MYSQL*);
-typedef const char*	STDCALL (*f_mysql_error			)(MYSQL*);
-typedef MYSQL_FIELD*	STDCALL (*f_mysql_fetch_fields		)(MYSQL_RES*);
-typedef MYSQL_ROW	STDCALL (*f_mysql_fetch_row		)(MYSQL_RES*);
-typedef my_bool		STDCALL (*f_mysql_free_result		)(MYSQL_RES*);
-typedef MYSQL*		STDCALL (*f_mysql_init			)(MYSQL*);
-typedef unsigned int	STDCALL (*f_mysql_num_fields		)(MYSQL_RES*);
-typedef my_ulonglong	STDCALL (*f_mysql_num_rows		)(MYSQL_RES*);
-typedef int		STDCALL (*f_mysql_query			)(MYSQL*,const char*);
-typedef MYSQL*		STDCALL (*f_mysql_real_connect		)(MYSQL*,const char*,const char*,const char*,const char*,unsigned int,const char*,unsigned long);
-typedef unsigned long	STDCALL (*f_mysql_real_escape_string	)(MYSQL*,char*,const char*,unsigned long);
-typedef MYSQL_RES*	STDCALL (*f_mysql_store_result		)(MYSQL*);
+typedef my_ulonglong	(STDCALL *f_mysql_affected_rows		)(MYSQL*);
+typedef void		(STDCALL *f_mysql_close			)(MYSQL*);
+typedef const char*	(STDCALL *f_mysql_error			)(MYSQL*);
+typedef MYSQL_FIELD*	(STDCALL *f_mysql_fetch_fields		)(MYSQL_RES*);
+typedef MYSQL_ROW	(STDCALL *f_mysql_fetch_row		)(MYSQL_RES*);
+typedef my_bool		(STDCALL *f_mysql_free_result		)(MYSQL_RES*);
+typedef MYSQL*		(STDCALL *f_mysql_init			)(MYSQL*);
+typedef unsigned int	(STDCALL *f_mysql_num_fields		)(MYSQL_RES*);
+typedef my_ulonglong	(STDCALL *f_mysql_num_rows		)(MYSQL_RES*);
+typedef int		(STDCALL *f_mysql_query			)(MYSQL*,const char*);
+typedef MYSQL*		(STDCALL *f_mysql_real_connect		)(MYSQL*,const char*,const char*,const char*,const char*,unsigned int,const char*,unsigned long);
+typedef unsigned long	(STDCALL *f_mysql_real_escape_string	)(MYSQL*,char*,const char*,unsigned long);
+typedef MYSQL_RES*	(STDCALL *f_mysql_store_result		)(MYSQL*);
 
 static f_mysql_affected_rows		p_mysql_affected_rows;
 static f_mysql_close			p_mysql_close;
@@ -160,6 +160,9 @@ static int sql_mysql_init(const char *host, const char *port, const char *socket
 	p_mysql_close(mysql);
         return -1;
     }
+    
+    /* allows identifers (specificly column names) to be quoted using double quotes (") in addition to ticks (`) */
+    sql_mysql_query("SET sql_mode='ANSI_QUOTES'");
 
     return 0;
 }
