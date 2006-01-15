@@ -357,7 +357,7 @@ static t_attr *sql_read_attr(t_storage_info * info, const char *key)
 	return NULL;
     }
 
-    snprintf(query, sizeof(query), "SELECT %s FROM %s%s WHERE " SQL_UID_FIELD " = %u", col, tab_prefix, tab, uid);
+    snprintf(query, sizeof(query), "SELECT \"%s\" FROM %s%s WHERE " SQL_UID_FIELD " = %u", col, tab_prefix, tab, uid);
     if ((result = sql->query_res(query)) == NULL)
 	return NULL;
 
@@ -378,6 +378,16 @@ static t_attr *sql_read_attr(t_storage_info * info, const char *key)
     if (row[0] == NULL)
     {
 //      eventlog(eventlog_level_debug, __FUNCTION__, "NULL value from query (%s)", query);
+	sql->free_result(result);
+	return NULL;
+    }
+
+    /* Because we are double quoting the column name
+       sqlite3 treats it as a string when the column does not exist
+       and returns the column name as the result.
+       We need to return NULL under this condition */
+    if (strcmp(row[0], col) == 0)
+    {
 	sql->free_result(result);
 	return NULL;
     }
