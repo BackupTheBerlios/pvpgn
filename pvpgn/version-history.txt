@@ -8,6 +8,9 @@ PvPGN Version History:
 [VERSIONCHECK]
   -- added W3 1.20c entries
 
+[MISC]
+  -- updated bnmaps.conf with the latest Battle.net maps
+
  ChangeLog for 1.8.0rc1 (since 1.7.9)
 =======================================
 [SQL]
