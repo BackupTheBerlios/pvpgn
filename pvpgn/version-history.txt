@@ -1,5 +1,12 @@
 PvPGN Version History:
 
+ Changelog for 1.8.0rc2 (since 1.8.0rc1)
+=========================================
+[SQL]
+  -- fixed friendslist-related (my)SQL problems
+  
+[VERSIONCHECK]
+  -- added W3 1.20c entries
 
  ChangeLog for 1.8.0rc1 (since 1.7.9)
 =======================================
@@ -19,7 +26,7 @@ PvPGN Version History:
 [VERSIONCHECK]
   -- added SC/BW 1.13e entries (XMAC & PMAC)
   -- added D2/D2XP 1.11b entries
-  -- added W3 1.20b entried
+  -- added W3 1.20b entries
 
 [MISC]
   -- enforce limit for topic message max length
