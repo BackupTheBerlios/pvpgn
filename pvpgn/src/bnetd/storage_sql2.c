@@ -349,7 +349,7 @@ static int sql2_write_attrs(t_storage_info * info, const t_hlist *attrs)
     char escval[DB_MAX_ATTRVAL * 2 + 1];	/* sql docs say the escape can take a maximum of double original size + 1 */
     char safeval[DB_MAX_ATTRVAL];
     char esckey[DB_MAX_ATTRKEY * 2 + 1];
-    char *p, *tab, *col;
+    char *tab, *col;
     t_attr *attr;
     t_hlist *curr;
     unsigned int uid;
