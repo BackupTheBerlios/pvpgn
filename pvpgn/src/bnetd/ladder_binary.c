@@ -161,7 +161,7 @@ extern t_binary_ladder_load_result binary_ladder_load(t_binary_ladder_types type
 
   if (!(fp = fopen(filename,"rb")))
   {
-    eventlog(eventlog_level_info,__FUNCTION__,"could not open ladder file \"%s\" - maybe ladder still empty",filename,pstrerror(errno));
+    eventlog(eventlog_level_info,__FUNCTION__,"could not open ladder file \"%s\" - maybe ladder still empty (fopen: %s)",filename,pstrerror(errno));
     dispose_filename(filename);
     return load_failed;
   }
