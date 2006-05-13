@@ -160,9 +160,6 @@ static int sql_mysql_init(const char *host, const char *port, const char *socket
 	p_mysql_close(mysql);
         return -1;
     }
-    
-    /* allows identifers (specificly column names) to be quoted using double quotes (") in addition to ticks (`) */
-    sql_mysql_query("SET sql_mode='ANSI_QUOTES'");
 
     return 0;
 }
