@@ -4,9 +4,16 @@ PvPGN Version History:
 =========================================
 [VCHECK]
   -- added sc/bw 1.13f version check entries
+  -- added WAR3/W3XP IX86 1.20d vcheck entries
+
+[D2]
+  -- cleaned up some mess about dealing with D2 1.08 auth reply packets which 
+  we don't need to support according to our minimum D2 version required
+
 [MISC]
   -- fixed logging of invalid strings for client tags
   -- fixed /ladderinfo command, fix usage of uninitilized variables
+
 
  Changelog for 1.8.0rc2 (since 1.8.0rc1)
 =========================================
