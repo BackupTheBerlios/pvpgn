@@ -1,5 +1,13 @@
 PvPGN Version History:
 
+ ChangeLog for 1.8.0rc3 (since 1.8.0rc2)
+=========================================
+[VCHECK]
+  -- added sc/bw 1.13f version check entries
+[MISC]
+  -- fixed logging of invalid strings for client tags
+  -- fixed /ladderinfo command, fix usage of uninitilized variables
+
  Changelog for 1.8.0rc2 (since 1.8.0rc1)
 =========================================
 [SQL]
