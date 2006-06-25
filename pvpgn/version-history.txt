@@ -13,6 +13,8 @@ PvPGN Version History:
 [MISC]
   -- fixed logging of invalid strings for client tags
   -- fixed /ladderinfo command, fix usage of uninitilized variables
+  -- fixed corruption of account data when using files storage and when there 
+  where already broken UID accounts
 
 
  Changelog for 1.8.0rc2 (since 1.8.0rc1)
