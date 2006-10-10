@@ -163,8 +163,8 @@
 #define CLAN_NEWER_TIME     168
 #define CLAN_DEFAULT_MAX_MEMBERS    50
 /* hardcoded limits in the client */
-#define CLAN_MIN_MEMBERS 10;
-#define CLAN_MAX_MEMBERS 100;
+#define CLAN_MIN_MEMBERS 10
+#define CLAN_MAX_MEMBERS 100
 
 /* moved from account.h */
 #define MAX_FRIENDS 20
