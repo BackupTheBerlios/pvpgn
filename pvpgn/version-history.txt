@@ -9,12 +9,15 @@ PvPGN Version History:
 [D2]
   -- cleaned up some mess about dealing with D2 1.08 auth reply packets which 
   we don't need to support according to our minimum D2 version required
+  -- fixed joining of D2 channels by non-D2 clients
 
 [MISC]
   -- fixed logging of invalid strings for client tags
   -- fixed /ladderinfo command, fix usage of uninitilized variables
   -- fixed corruption of account data when using files storage and when there 
   where already broken UID accounts
+  -- fixed the clan max members to be 100 not 255
+  -- fixed loading of all accounts in sql2 (ex. when doing a ladder rebuild)
 
 
  Changelog for 1.8.0rc2 (since 1.8.0rc1)
