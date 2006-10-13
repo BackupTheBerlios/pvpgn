@@ -18,6 +18,7 @@ PvPGN Version History:
   where already broken UID accounts
   -- fixed the clan max members to be 100 not 255
   -- fixed loading of all accounts in sql2 (ex. when doing a ladder rebuild)
+  -- reverted dynamic SQL lib support that was creating problems
 
 
  Changelog for 1.8.0rc2 (since 1.8.0rc1)
