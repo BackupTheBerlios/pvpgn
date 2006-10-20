@@ -457,7 +457,7 @@ int sql_write_attrs(t_storage_info * info, const t_hlist *attrs)
 	    char query2[512];
 
 //	    eventlog(eventlog_level_debug, __FUNCTION__, "trying to insert new column %s", col);
-	    snprintf(query2, sizeof(query2), "ALTER TABLE %s%s ADD COLUMN '%s' VARCHAR(128)", tab_prefix, tab, col);
+	    snprintf(query2, sizeof(query2), "ALTER TABLE %s%s ADD COLUMN %s VARCHAR(128)", tab_prefix, tab, col);
 
 //          eventlog(eventlog_level_trace, __FUNCTION__, "alter query: %s", query2);
 	    sql->query(query2);
