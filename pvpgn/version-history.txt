@@ -3,8 +3,8 @@ PvPGN Version History:
  ChangeLog for 1.8.0rc3 (since 1.8.0rc2)
 =========================================
 [VCHECK]
-  -- added sc/bw 1.13f version check entries
-  -- added WAR3/W3XP IX86 1.20d vcheck entries
+  -- added sc/bw 1.13f/1.14 version check entries
+  -- added WAR3/W3XP IX86 1.20d/1.20e vcheck entries
 
 [D2]
   -- cleaned up some mess about dealing with D2 1.08 auth reply packets which 
