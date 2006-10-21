@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2005 Dizzy 
+ * Copyright (C) 2005 Dizzy
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -49,6 +49,7 @@ static int sql_sqlite3_free_fields(t_sql_field *);
 static void sql_sqlite3_escape_string(char *, const char *, int);
 
 t_sql_engine sql_sqlite3 = {
+    '`', /* can't use single quotes or double quotes, ref: http://www.sqlite.org/lang_keywords.html */
     sql_sqlite3_init,
     sql_sqlite3_close,
     sql_sqlite3_query_res,

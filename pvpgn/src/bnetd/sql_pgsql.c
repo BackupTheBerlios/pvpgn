@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2002,2003 Dizzy 
+ * Copyright (C) 2002,2003 Dizzy
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -40,6 +40,7 @@ static int sql_pgsql_free_fields(t_sql_field *);
 static void sql_pgsql_escape_string(char *, const char *, int);
 
 t_sql_engine sql_pgsql = {
+    '"',
     sql_pgsql_init,
     sql_pgsql_close,
     sql_pgsql_query_res,

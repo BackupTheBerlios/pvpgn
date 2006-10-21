@@ -19,6 +19,9 @@ PvPGN Version History:
   -- fixed the clan max members to be 100 not 255
   -- fixed loading of all accounts in sql2 (ex. when doing a ladder rebuild)
   -- reverted dynamic SQL lib support that was creating problems
+  -- properly fixed "sql" ("sql2" is not affected) friend list bugs (reverted 
+  the old fix which was creating new problems); might still be problems if
+  using old versions of sqlite3 (that dont support ` quoting) or using ODBC
 
 
  Changelog for 1.8.0rc2 (since 1.8.0rc1)

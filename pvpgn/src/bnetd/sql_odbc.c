@@ -44,6 +44,8 @@ static int sql_odbc_free_fields(t_sql_field *);
 static void sql_odbc_escape_string(char *, const char *, int);
 
 t_sql_engine sql_odbc = {
+	' ', /* I'm not sure but I dont think ODBC "translates" the SQL queries but instead just forwards them to the engine,
+	      * thus if the engine is mysql it will need "`" but if somethign else it will need "'" so just put space here */
 	sql_odbc_init,
 	sql_odbc_close,
 	sql_odbc_query_res,
@@ -127,7 +129,7 @@ static t_sql_res* sql_odbc_query_res(const char *query)
 	SQLRETURN result = 0;
 	t_odbc_rowSet *rowSet = NULL;
 	ROWCOUNT = 0;
-	
+
 	/* Validate query. */
 	if(query == NULL) {
 		eventlog(eventlog_level_error, __FUNCTION__, "Got a NULL query!");

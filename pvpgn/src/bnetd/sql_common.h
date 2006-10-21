@@ -29,6 +29,7 @@ typedef char * t_sql_row;
 typedef char * t_sql_field;
 
 typedef struct {
+    char quote;	/* quote character for column names, depending on backend */
     int (*init)(const char *host, const char *port, const char *socket, const char *name, const char *user, const char *pass);
     int (*close)(void);
     t_sql_res * (*query_res)(const char *);

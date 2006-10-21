@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2002,2003 Dizzy 
+ * Copyright (C) 2002,2003 Dizzy
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -45,6 +45,7 @@ static int sql_mysql_free_fields(t_sql_field *);
 static void sql_mysql_escape_string(char *, const char *, int);
 
 t_sql_engine sql_mysql = {
+    '`',
     sql_mysql_init,
     sql_mysql_close,
     sql_mysql_query_res,
