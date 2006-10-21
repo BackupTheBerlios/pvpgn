@@ -1158,8 +1158,10 @@ static int _handle_whois_command(t_connection * conn, int numparams, char ** par
 static int _handle_part_command(t_connection * conn, int numparams, char ** params, char * text)
 {
     if ((conn_get_wol(conn) == 1))
-		if ((conn_wol_get_ingame(conn) == 1))
+		if ((conn_wol_get_ingame(conn) == 1)) {
 			conn_wol_set_ingame(conn,0);
+			conn_set_channel(conn, NULL);   /* In WOL we disconecting from the channel */
+        }
 
     message_send_text(conn,message_type_part,conn,NULL);
     return 0;

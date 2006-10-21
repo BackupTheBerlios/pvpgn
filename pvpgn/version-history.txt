@@ -1,6 +1,6 @@
 PvPGN Version History:
 
- ChangeLog for 1.8.0rc3 (since 1.8.0rc2)
+ ChangeLog for 1.8.0 (since 1.8.0rc2)
 =========================================
 [VCHECK]
   -- added sc/bw 1.13f/1.14 version check entries
@@ -10,6 +10,9 @@ PvPGN Version History:
   -- cleaned up some mess about dealing with D2 1.08 auth reply packets which 
   we don't need to support according to our minimum D2 version required
   -- fixed joining of D2 channels by non-D2 clients
+
+[WOL]
+  -- fixed a bug where players couldn't join newly created channels
 
 [MISC]
   -- fixed logging of invalid strings for client tags
