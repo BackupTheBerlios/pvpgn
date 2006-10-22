@@ -25,6 +25,7 @@ PvPGN Version History:
   -- properly fixed "sql" ("sql2" is not affected) friend list bugs (reverted 
   the old fix which was creating new problems); might still be problems if
   using old versions of sqlite3 (that dont support ` quoting) or using ODBC
+  -- fixed connection loss problems with mysql>=5.0.3
 
 
  Changelog for 1.8.0rc2 (since 1.8.0rc1)

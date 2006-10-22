@@ -79,6 +79,15 @@ static int sql_mysql_init(const char *host, const char *port, const char *socket
         return -1;
     }
 
+    #if MYSQL_VERSION_ID >= 50003
+      my_bool my_true = (my_bool)1;
+      if (mysql_options(mysql, MYSQL_OPT_RECONNECT, &my_true)){
+        eventlog(eventlog_level_warn,__FUNCTION__,"Failed to set MYSQL_OPT_RECONNECT to TRUE. To prevent connection/data loss you should upgrade to at least mySQL 5.0.13.");
+      }else{
+        eventlog(eventlog_level_info,__FUNCTION__,"Successfully turned on MYSQL_OPT_RECONNECT.");
+      }
+    #endif
+
     return 0;
 }
 
