@@ -1,4 +1,4 @@
-{10/01/2004}
+{10/01/2006}
 Welcome To The Player-vs-Player Gaming Network!
 Bringing Emulation To New Levels!
 
@@ -17,9 +17,11 @@ http://sourceforge.net/tracker/?atid=470605&group_id=53514&func=browse
 2. Mailing List: pvpgn-users@lists.sourceforge.net (to subscribe go here 
 http://lists.sourceforge.net/lists/listinfo/pvpgn-users )
 
-3. Forums: http://forums.pvpgn.org
+3. Forums: https://forums.pvpgn.org
 
-4. IRC live support: #pvpgn on irc.pvpgn.org
+4. Wiki documentation at http://wiki.pvpgn.org
+
+5. IRC live support: #pvpgn on irc.pvpgn.org
 
 Enjoy!
 The PvPGN Team
