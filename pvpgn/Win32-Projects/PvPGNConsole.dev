@@ -1,7 +1,7 @@
 [Project]
 FileName=PvPGNConsole.dev
 Name=PvPGNConsole
-UnitCount=283
+UnitCount=293
 Type=1
 Ver=1
 ObjFiles=
@@ -2871,6 +2871,106 @@ BuildCmd=
 FileName=..\src\common\conf.c
 CompileCpp=0
 Folder=common/Source Files
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit284]
+FileName=..\src\bnetd\sql_common.h
+CompileCpp=0
+Folder=bnetd/Header Files
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit285]
+FileName=..\src\bnetd\sql_sqlite3.h
+CompileCpp=0
+Folder=bnetd/Header Files
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit286]
+FileName=..\src\bnetd\sql_odbc.h
+CompileCpp=0
+Folder=bnetd/Header Files
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit287]
+FileName=..\src\bnetd\sql_sqlite3.c
+CompileCpp=0
+Folder=bnetd/Source Files
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit288]
+FileName=..\src\bnetd\sql_common.c
+CompileCpp=0
+Folder=bnetd/Source Files
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit289]
+FileName=..\src\bnetd\sql_odbc.c
+CompileCpp=0
+Folder=bnetd/Source Files
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit290]
+FileName=..\src\common\xstr.h
+CompileCpp=0
+Folder=common/Header Files
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit291]
+FileName=..\src\common\xstr.c
+CompileCpp=0
+Folder=common/Source Files
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit292]
+FileName=..\src\bnetd\storage_sql2.h
+CompileCpp=0
+Folder=bnetd/Header Files
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit293]
+FileName=..\src\bnetd\storage_sql2.c
+CompileCpp=0
+Folder=bnetd/Source Files
 Compile=1
 Link=1
 Priority=1000
