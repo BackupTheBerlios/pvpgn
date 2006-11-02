@@ -1,5 +1,10 @@
 PvPGN Version History:
 
+ ChangeLog for 1.8.1 (since 1.8.0)
+=========================================
+[MISC]
+  -- fixed d2dbs accepting d2gs connections from any ip
+
  ChangeLog for 1.8.0 (since 1.8.0rc2)
 =========================================
 [VCHECK]
