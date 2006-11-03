@@ -759,7 +759,7 @@ static int dbs_verify_ipaddr(char const * addrlist,t_d2dbs_connection * c)
 	}
 	xfree(adlist);
 	if (valid) {
-		eventlog(eventlog_level_info,__FUNCTION__,"ip address %s is valid",ipaddr);
+		eventlog(eventlog_level_info,__FUNCTION__,"ip address %s is valid",addr_num_to_ip_str(c->ipaddr));
 		LIST_TRAVERSE(dbs_server_connection_list,elem)
 		{
 			if (!(tempc=elem_get_data(elem))) continue;
