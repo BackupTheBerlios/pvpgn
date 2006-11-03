@@ -61,6 +61,7 @@ SRC_COMPATDIR	= ${SRC_SRCDIR}/compat
 SRC_DEBUGDIR	= ${SRC_SRCDIR}/debug
 SRC_CDBDIR	= ${SRC_SRCDIR}/tinycdb
 SRC_ZLIBDIR     = ${SRC_SRCDIR}/zlib
+SRC_WIN32DIR    = ${SRC_SRCDIR}/win32
 
 RMF		= rm -f
 
@@ -84,7 +85,7 @@ COMPILE		= @CC@ @CFLAGS@ ${CPPFLAGS} -fno-strict-aliasing -c
 LINK		= @CC@ @CFLAGS@ @LDFLAGS@
 LINK_LIBS	= @LIBS@
 
-PARTS            = bnetd bniutils bnpass bnpcap bnproxy bntrackd client common compat d2cs d2dbs tinycdb zlib
+PARTS            = bnetd bniutils bnpass bnpcap bnproxy bntrackd client common compat d2cs d2dbs tinycdb zlib win32
 
 ifeq (@enable_bnetd@,no)
 bnetd_SBIN	=
@@ -228,7 +229,8 @@ ${SRC_CDBDIR}/cdb_hash.o \
 ${SRC_ZLIBDIR}/pvpgn_adler32.o \
 ${SRC_ZLIBDIR}/pvpgn_deflate.o \
 ${SRC_ZLIBDIR}/pvpgn_trees.o \
-${SRC_ZLIBDIR}/pvpgn_zutil.o
+${SRC_ZLIBDIR}/pvpgn_zutil.o \
+${SRC_WIN32DIR}/service.o
 endif
 
 ifeq (@enable_d2cs@,no)
@@ -295,7 +297,8 @@ ${SRC_COMPATDIR}/difftime.o \
 ${SRC_COMPATDIR}/pdir.o \
 ${SRC_COMPATDIR}/memset.o \
 ${SRC_COMPATDIR}/memcpy.o \
-${SRC_COMPATDIR}/memmove.o
+${SRC_COMPATDIR}/memmove.o \
+${SRC_WIN32DIR}/service.o
 endif
 
 ifeq (@enable_d2dbs@,no)
@@ -326,9 +329,11 @@ ${SRC_COMMONDIR}/d2char_checksum.o \
 ${SRC_COMMONDIR}/xalloc.o \
 ${SRC_COMMONDIR}/network.o \
 ${SRC_COMMONDIR}/packet.o \
+${SRC_COMPATDIR}/inet_aton.o \
 ${SRC_COMPATDIR}/psock.o \
 ${SRC_COMPATDIR}/strerror.o \
-${SRC_COMPATDIR}/strsep.o
+${SRC_COMPATDIR}/strsep.o \
+${SRC_WIN32DIR}/service.o
 endif
 
 sbnetd_SBIN	= ${SRC_SBINDIR}/sbnetd
@@ -438,17 +443,20 @@ bnilist_BIN	= ${SRC_BINDIR}/bnilist
 bnilist_OBJECTS	= ${SRC_BNIUTILSDIR}/bnilist.o \
 ${SRC_BNIUTILSDIR}/fileio.o \
 ${SRC_BNIUTILSDIR}/tga.o \
+${SRC_COMPATDIR}/strerror.o \
 ${SRC_COMPATDIR}/memcpy.o
 
 bni2tga_BIN	= ${SRC_BINDIR}/bni2tga
 bni2tga_OBJECTS	= ${SRC_BNIUTILSDIR}/bni2tga.o \
-${SRC_BNIUTILSDIR}/fileio.o
+${SRC_BNIUTILSDIR}/fileio.o \
+${SRC_COMPATDIR}/strerror.o
 
 bniextract_BIN	= ${SRC_BINDIR}/bniextract
 bniextract_OBJECTS= ${SRC_BNIUTILSDIR}/bniextract.o \
 ${SRC_BNIUTILSDIR}/fileio.o \
 ${SRC_BNIUTILSDIR}/tga.o \
 ${SRC_BNIUTILSDIR}/bni.o \
+${SRC_COMPATDIR}/strerror.o \
 ${SRC_COMPATDIR}/memcpy.o
 
 bnibuild_BIN	= ${SRC_BINDIR}/bnibuild
@@ -456,12 +464,14 @@ bnibuild_OBJECTS= ${SRC_BNIUTILSDIR}/bnibuild.o \
 ${SRC_BNIUTILSDIR}/fileio.o \
 ${SRC_BNIUTILSDIR}/tga.o \
 ${SRC_BNIUTILSDIR}/bni.o \
+${SRC_COMPATDIR}/strerror.o \
 ${SRC_COMPATDIR}/memcpy.o
 
 tgainfo_BIN	= ${SRC_BINDIR}/tgainfo
 tgainfo_OBJECTS	= ${SRC_BNIUTILSDIR}/tgainfo.o \
 ${SRC_BNIUTILSDIR}/fileio.o \
 ${SRC_BNIUTILSDIR}/tga.o \
+${SRC_COMPATDIR}/strerror.o \
 ${SRC_COMPATDIR}/memcpy.o
 
 timetest_BIN	= ${SRC_BINDIR}/timetest
@@ -525,6 +535,7 @@ ${SRC_COMMONDIR}/eventlog.o \
 ${SRC_COMMONDIR}/hexdump.o \
 ${SRC_COMMONDIR}/xalloc.o \
 ${SRC_COMPATDIR}/mmap.o \
+${SRC_COMPATDIR}/strerror.o \
 ${SRC_COMPATDIR}/getopt.o
 
 OBJECTS		= ${bnetd_OBJECTS} ${d2cs_OBJECTS} ${d2dbs_OBJECTS} ${bntrackd_OBJECTS} ${bnchat_OBJECTS} ${bnpass_OBJECTS} ${bnbot_OBJECTS} ${bnftp_OBJECTS} ${bnstat_OBJECTS} ${bnilist_OBJECTS} ${bni2tga_OBJECTS} ${bniextract_OBJECTS} ${bnibuild_OBJECTS} ${tgainfo_OBJECTS} ${timetest_OBJECTS} ${listtest_OBJECTS} ${hashtabletest_OBJECTS} ${addrtest_OBJECTS} ${cdb_OBJECTS}

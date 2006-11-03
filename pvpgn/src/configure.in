@@ -404,6 +404,7 @@ case "$host" in
 		fi
 		;;
 esac
+AC_CHECK_LIB(wsock32, _libwsock32_a_iname, [LIBS="$LIBS -lwsock32"])
 
 # Checks for header files.
 AC_HEADER_DIRENT
@@ -475,10 +476,15 @@ AC_CHECK_SIZEOF(signed long long, 0)
 AC_FUNC_MMAP
 AC_FUNC_STRFTIME
 AC_FUNC_VPRINTF
-AC_FUNC_SETPGRP
 AC_FUNC_CLOSEDIR_VOID
 AC_FUNC_MKDIR_ARGS
 AC_CHECK_FUNCS(gethostname gettimeofday select socket strdup strtoul strerror inet_aton inet_ntoa uname recv send recvfrom sendto uname fork getpid sigaction sigprocmask sigaddset setpgid setpgrp ftime strcasecmp strncasecmp stricmp strnicmp chdir difftime strchr strrchr index rindex memcpy memset memmove bcopy wait waitpid pipe getenv ioctl setsid mktime poll gethostbyname getservbyname getlogin pow getpwnam getgrnam getuid getgid setuid setgid mkdir _mkdir strsep getopt kqueue setitimer epoll_create getrlimit vsnprintf _vsnprintf snprintf _snprintf)
+case $host_os in
+    *mingw32*)	;;
+    *)
+	AC_FUNC_SETPGRP
+	;;
+esac
 
 if test X"${am_cv_prog_cc_stdc}" = X"no"; then
     COMPILEANSI1='${PREPROCESS} $< | sed '"'"'s/^# *\([0-9][0-9]*\)  *\([^ ]*[a-z][^ ]*\) *.*$$/#line \1 \2/'"'"' | ${SRC_ACDIR}/ansi2knr > ${SRC_SRCDIR}/.ansi2knr_tmp.c'

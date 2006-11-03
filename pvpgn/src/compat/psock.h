@@ -40,7 +40,7 @@
 
 #ifdef WIN32 /* winsock2 */
 
-#include <Winsock2.h>
+#include <winsock2.h>
 
 /* protocol families */
 #define PSOCK_PF_INET PF_INET
