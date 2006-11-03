@@ -20,14 +20,6 @@
 
 #ifndef HAVE_GETTIMEOFDAY
 
-/* FIXME: these might already exist even if gettimeofday() doesn't */
-struct timeval
-{
-    long tv_sec;
-    long tv_usec;
-};
-
-
 struct timezone
 {
     int tz_minuteswest;
@@ -35,6 +27,10 @@ struct timezone
 };
 
 #endif
+
+/* we always require select thus we always require timeval which should
+ * be available through portable socket layer */
+#include "psock.h"
 
 #endif
 

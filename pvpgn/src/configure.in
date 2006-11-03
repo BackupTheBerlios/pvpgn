@@ -479,12 +479,9 @@ AC_FUNC_VPRINTF
 AC_FUNC_CLOSEDIR_VOID
 AC_FUNC_MKDIR_ARGS
 AC_CHECK_FUNCS(gethostname gettimeofday select socket strdup strtoul strerror inet_aton inet_ntoa uname recv send recvfrom sendto uname fork getpid sigaction sigprocmask sigaddset setpgid setpgrp ftime strcasecmp strncasecmp stricmp strnicmp chdir difftime strchr strrchr index rindex memcpy memset memmove bcopy wait waitpid pipe getenv ioctl setsid mktime poll gethostbyname getservbyname getlogin pow getpwnam getgrnam getuid getgid setuid setgid mkdir _mkdir strsep getopt kqueue setitimer epoll_create getrlimit vsnprintf _vsnprintf snprintf _snprintf)
-case $host_os in
-    *mingw32*)	;;
-    *)
-	AC_FUNC_SETPGRP
-	;;
-esac
+if test X$ac_cv_func_setpgrp = X"yes"; then
+    AC_FUNC_SETPGRP
+fi
 
 if test X"${am_cv_prog_cc_stdc}" = X"no"; then
     COMPILEANSI1='${PREPROCESS} $< | sed '"'"'s/^# *\([0-9][0-9]*\)  *\([^ ]*[a-z][^ ]*\) *.*$$/#line \1 \2/'"'"' | ${SRC_ACDIR}/ansi2knr > ${SRC_SRCDIR}/.ansi2knr_tmp.c'
