@@ -443,7 +443,8 @@ void pvpgn_greeting(void)
     printf(" * READ the documentation at http://pvpgndocs.berlios.de/\n");
     printf(" * you can subscribe to the pvpgn-users mailing list at \n");
     printf("   https://lists.berlios.de/mailman/listinfo/pvpgn-users\n");
-    printf(" * check out the forums at http://forums.pvpgn.org\n");
+    printf(" * you can try our wiki page at http://wiki.pvpgn.org \n");
+    printf(" * check out the forums at https://forums.pvpgn.org\n");
     printf(" * visit us on IRC on irc.pvpgn.org channel #pvpgn\n");
     printf("\nServer is now running.\n");
     printf("=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=\n");

@@ -2,8 +2,6 @@ NOTE: we believe that most people are more likely to read IGNOREME file than
 the README file so we moved the actual contents of README into this file. We 
 hope that this will improve the quality of questions on support channels.
 
-         >>>>> IMPORTANT: THIS IS A BETA QUALITY RELEASE <<<<<<
-
               Readme for Player vs. Player Gaming Network
              ---------------------------------------------
 
@@ -41,7 +39,8 @@ anyone who can contribute to our project in any way.
 Project homepages/distribution sites:
 - project home and main distribution site: http://pvpgn.berlios.de
 - alternate project home: http://www.pvpgn.org
-- alternate distribution site: http://www.pvpgn.de
+- alternate distribution site: 
+http://developer.berlios.de/project/showfiles.php?group_id=2291
 
 Support channels:
 
@@ -51,6 +50,8 @@ http://developer.berlios.de/bugs/?group_id=2291
 2. Mailing List: pvpgn-users@lists.berlios.de ( to subscribe go here 
 https://lists.berlios.de/mailman/listinfo/pvpgn-users )
 
-3. Forums: http://forums.pvpgn.org
+3. Wiki: http://wiki.pvpgn.org
+
+4. Forums: https://forums.pvpgn.org
 
 4. IRC live support: #pvpgn on irc.pvpgn.org
