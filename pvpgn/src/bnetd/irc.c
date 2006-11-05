@@ -217,13 +217,14 @@ extern int irc_send_ping(t_connection * conn)
 	eventlog(eventlog_level_error,__FUNCTION__,"got NULL connection");
 	return -1;
     }
+
+    if((conn_get_wol(conn) == 1))
+        return 0;
+
     if (!(p = packet_create(packet_class_raw))) {
 	eventlog(eventlog_level_error,__FUNCTION__,"could not create packet");
 	return -1;
     }
-
-    if((conn_get_wol(conn) == 1))
-        return 0;
 
     conn_set_ircping(conn,get_ticks());
     if (conn_get_state(conn)==conn_state_bot_username)
