@@ -118,6 +118,8 @@ static char const * message_type_get_str(t_message_type type)
         return "uniqueid";
     case message_type_mode:
 	return "mode";
+    case message_type_notice:
+        return "notice";
     case message_type_null:
         return "null";
     default:
@@ -361,6 +363,7 @@ static int message_telnet_format(t_packet * packet, t_message_type type, t_conne
 	}
 	break;
     case message_type_whisper:
+    case message_type_notice:
 	if (!text)
 	{
 	    eventlog(eventlog_level_error,__FUNCTION__,"got NULL text for %s",message_type_get_str(type));
@@ -734,6 +737,7 @@ static int message_bot_format(t_packet * packet, t_message_type type, t_connecti
 	    }
 	    break;
 	case message_type_whisper:
+	case message_type_notice:
 	    if (!text)
 	    {
 		eventlog(eventlog_level_error,__FUNCTION__,"got NULL text for %s",message_type_get_str(type));
@@ -1006,6 +1010,7 @@ static int message_bnet_format(t_packet * packet, t_message_type type, t_connect
 	}
 	break;
     case message_type_whisper:
+    case message_type_notice:
 	if (!text)
 	{
 	    eventlog(eventlog_level_error,__FUNCTION__,"got NULL text for %s",message_type_get_str(type));

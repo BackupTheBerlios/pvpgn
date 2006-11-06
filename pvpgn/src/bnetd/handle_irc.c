@@ -708,7 +708,7 @@ static int _handle_notice_command(t_connection * conn, int numparams, char ** pa
 				t_connection * user;
 
 				if ((user = connlist_find_connection_by_accountname(e[i]))) {
-					irc_send_cmd2(user,conn_get_loggeduser(conn),"NOTICE",conn_get_loggeduser(user),text);
+				        message_send_text(user,message_type_notice,conn,text);
 				}
 				else {
 					irc_send(conn,ERR_NOSUCHNICK,":No such user");

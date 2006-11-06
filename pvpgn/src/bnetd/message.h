@@ -54,6 +54,11 @@ typedef enum
     message_type_mode,
 
     /**
+    *   IRC specific messages
+    */
+    message_type_notice,
+
+    /**
     *  Westwood Online Extensions
     */
     message_wol_joingame,

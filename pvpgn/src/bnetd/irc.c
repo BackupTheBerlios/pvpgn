@@ -910,6 +910,22 @@ extern int irc_message_format(t_packet * packet, t_message_type type, t_connecti
 	msg = irc_message_preformat(&from,"MODE","\r",text);
 	conn_unget_chatname(me,from.nick);
 	break;
+    case message_type_notice:
+         {
+	     char temp[MAX_IRC_MESSAGE_LEN];
+	     sprintf(temp,":%s",text);
+
+	     if (me && conn_get_chatname(me))
+	     {
+	         from.nick = conn_get_chatname(me);
+	         from.host = addr_num_to_ip_str(conn_get_addr(me));
+	         from.user = ctag;
+	         msg = irc_message_preformat(&from,"NOTICE","",temp);
+	     }else{
+	         msg = irc_message_preformat(NULL,"NOTICE","",temp);
+	     }
+	 }
+	 break;
    	/**
    	*  Westwood Online Extensions
    	*/

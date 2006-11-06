@@ -4,6 +4,7 @@ PvPGN Version History:
 =========================================
 [MISC]
   -- fixed d2dbs accepting d2gs connections from any ip
+  -- fixed IRC /notice disc bug
 
  ChangeLog for 1.8.0 (since 1.8.0rc2)
 =========================================
