@@ -2,6 +2,12 @@ PvPGN Version History:
 
  ChangeLog for 1.8.1 (since 1.8.0)
 =========================================
+
+[WOL]
+  -- fixed bug trying to join unexistent games
+  -- fixed bug overflowing the max players game limit
+  -- fixed bug of not showing Yuri's revenge channels
+
 [MISC]
   -- fixed d2dbs accepting d2gs connections from any ip
   -- fixed IRC /notice disc bug

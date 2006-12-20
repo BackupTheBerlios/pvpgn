@@ -1289,6 +1289,19 @@ extern int channel_get_max(t_channel const * channel)
   return channel->maxmembers;
 }
 
+extern int channel_set_max(t_channel * channel, int maxmembers)
+{
+  if (!channel)
+  {
+    eventlog(eventlog_level_error,__FUNCTION__,"got NULL channel");
+    return 0;
+  }
+
+  if (maxmembers)
+    channel->maxmembers = maxmembers;
+  return 1;
+}
+
 extern int channel_get_curr(t_channel const * channel)
 {
   if (!channel)

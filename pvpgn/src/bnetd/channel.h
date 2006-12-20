@@ -142,6 +142,7 @@ extern int channel_rejoin(t_connection * conn);
 extern t_list * channel_get_banlist(t_channel const * channel);
 extern int channel_get_length(t_channel const * channel);
 extern int channel_get_max(t_channel const * channel);
+extern int channel_set_max(t_channel * channel, int maxmembers);
 extern int channel_get_curr(t_channel const * channel);
 extern int channel_conn_is_tmpOP(t_channel const * channel, t_connection * c);
 extern int channel_conn_has_tmpVOICE(t_channel const * channel, t_connection * c);

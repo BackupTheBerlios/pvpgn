@@ -1,6 +1,7 @@
 /*
  * Copyright (C) 2001  Marco Ziech (mmz@gmx.net)
  * Copyright (C) 2005  Bryan Biedenkapp (gatekeep@gmail.com)
+ * Copyright (C) 2006  Pelish (pelish@gmail.com)
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -780,7 +781,7 @@ static int _handle_list_command(t_connection * conn, int numparams, char ** para
 	    else if((strcmp(params[0], "18") == 0) ||
 				(strcmp(params[0], "21") == 0) ||
 				(strcmp(params[0], "33") == 0) ||
-				(strcmp(params[0], "41"))) {
+				(strcmp(params[0], "41") == 0)) {
     		eventlog(eventlog_level_debug,__FUNCTION__,"[** WOL **] LIST [Game]");
    			LIST_TRAVERSE_CONST(channellist(),curr) 
 			{
@@ -1157,11 +1158,12 @@ static int _handle_whois_command(t_connection * conn, int numparams, char ** par
 
 static int _handle_part_command(t_connection * conn, int numparams, char ** params, char * text)
 {
-    if ((conn_get_wol(conn) == 1))
+    if ((conn_get_wol(conn) == 1)) {
 		if ((conn_wol_get_ingame(conn) == 1)) {
 			conn_wol_set_ingame(conn,0);
-			conn_set_channel(conn, NULL);   /* In WOL we disconecting from the channel */
         }
+        conn_set_channel(conn, NULL);   /* In WOL we disconecting from the channel */
+    }
 
     message_send_text(conn,message_type_part,conn,NULL);
     return 0;
@@ -1357,7 +1359,25 @@ static int _handle_joingame_command(t_connection * conn, int numparams, char ** 
 	    if ((e)&&(e[0])) {
     		char const * ircname = irc_convert_ircname(e[0]);
     		char * old_channel_name = NULL;
+			t_channel * channel;
 	   	 	t_channel * old_channel = conn_get_channel(conn);
+	   	 	
+            channel = channellist_find_channel_by_name(ircname,NULL,NULL);
+
+            if (channel == NULL) {
+	             irc_send(conn,ERR_NOSUCHCHANNEL,":No such channel");
+			     if (e)
+		               irc_unget_listelems(e);
+     	         return 0;
+            }
+
+            if (channel_get_length(channel) == channel_get_max(channel)) {
+	   	 	     snprintf(_temp, sizeof(_temp), "%s :Channel is full",e[0]);
+                 irc_send(conn,ERR_CHANNELISFULL,_temp);
+			     if (e)
+		            irc_unget_listelems(e);
+			     return 0;
+            }
 
 			if (old_channel)
    	  		   old_channel_name = xstrdup(irc_convert_channel(old_channel));
@@ -1446,6 +1466,7 @@ static int _handle_joingame_command(t_connection * conn, int numparams, char ** 
 					channel_wol_set_game_owner(channel,conn_get_chatname(conn));
 					channel_wol_set_game_ownerip(channel,conn_get_addr(conn));
 					channel_wol_set_game_type(channel,conn_wol_get_game_type(conn));
+					channel_set_max(channel,atoi(params[2]));
 					channel_wol_set_game_tournament(channel,atoi(params[6]));
 					
 					message_send_text(conn,message_wol_joingame,conn,_temp); /* we have to send the JOINGAME acknowledgement */
