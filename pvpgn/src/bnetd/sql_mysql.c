@@ -80,7 +80,7 @@ static int sql_mysql_init(const char *host, const char *port, const char *socket
     }
 
 #if MYSQL_VERSION_ID >= 50003
-  #if MYSQL_VERSIOB_ID >= 50013
+  #if MYSQL_VERSION_ID >= 50013
     my_bool my_true = (my_bool)1;
     if (mysql_options(mysql, MYSQL_OPT_RECONNECT, &my_true)){
       eventlog(eventlog_level_warn,__FUNCTION__,"Failed to turn on MYSQL_OPT_RECONNECT.");
