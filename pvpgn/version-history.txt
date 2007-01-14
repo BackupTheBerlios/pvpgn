@@ -7,7 +7,6 @@ PvPGN Version History:
   -- fixed bug trying to join unexistent games
   -- fixed bug overflowing the max players game limit
   -- fixed bug of not showing Yuri's revenge channels
-  -- fixed bug when trying to join closed game channel
   -- added address translation support to servserv sent addresses
 
 [MISC]
