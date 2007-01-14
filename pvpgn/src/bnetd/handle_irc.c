@@ -1197,11 +1197,20 @@ static int _handle_whereto_command(t_connection * conn, int numparams, char ** p
 	char temp[MAX_IRC_MESSAGE_LEN];
 
 	// Casted to avoid warnings
-	const char * ircip = addr_num_to_ip_str(conn_get_real_local_addr(conn));
+	const char * ircip;
 	const char * ircname = prefs_get_servername();
 	const char * irctimezone = prefs_get_wol_timezone();
 	const char * irclong = prefs_get_wol_longitude();
 	const char * irclat = prefs_get_wol_latitude();
+	
+    {			/* trans support */
+       unsigned short port = conn_get_real_local_port(conn);
+       unsigned int addr = conn_get_real_local_addr(conn);
+
+       trans_net(conn_get_addr(conn), &addr, &port);
+
+       ircip = addr_num_to_ip_str(addr);
+    }
 
 	sprintf(temp,":%s %d '0:%s' %s %s %s",ircip,BNETD_WOL_PORT,ircname,irctimezone,irclong,irclat);
 	irc_send(conn,RPL_IRCSERV,temp);
@@ -1365,9 +1374,10 @@ static int _handle_joingame_command(t_connection * conn, int numparams, char ** 
             channel = channellist_find_channel_by_name(ircname,NULL,NULL);
 
             if (channel == NULL) {
-	             irc_send(conn,ERR_NOSUCHCHANNEL,":No such channel");
+	   	 	     snprintf(_temp, sizeof(_temp), "%s :Game channel has closed",e[0]);
+	             irc_send(conn,ERR_GAMECHANCLOSED,_temp);
 			     if (e)
-		               irc_unget_listelems(e);
+		            irc_unget_listelems(e);
      	         return 0;
             }
 

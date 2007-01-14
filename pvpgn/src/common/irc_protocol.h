@@ -345,8 +345,9 @@
 #define RPL_ENDSERVLIST	     607
 #define RPL_GAMERESSERV	     608
 #define RPL_LADDERSERV	     609
-
 #define RPL_LOBCOUNT	     610
+
+#define ERR_GAMECHANCLOSED   478
 
 /** error's */
 /*
