@@ -319,7 +319,7 @@ extern int irc_authenticate(t_connection * conn, char const * passhash)
     	    }
     	    
     	    if(tempapgar == NULL) {
-                irc_send_cmd(conn,"NOTICE",":Authentication failed."); /* bad APGAR */
+                irc_send(conn,RPL_BAD_LOGIN,":Authentication failed."); /* bad APGAR */
                 conn_increment_passfail_count(conn);
                 return 0;
             }
@@ -331,6 +331,7 @@ extern int irc_authenticate(t_connection * conn, char const * passhash)
         		return 1;
     	    }
     	    else {
+                       irc_send(conn,RPL_BAD_LOGIN,":Authentication failed."); /* bad APGAR */
         		conn_increment_passfail_count(conn);
         		return 0;
     	    }

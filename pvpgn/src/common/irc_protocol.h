@@ -337,6 +337,8 @@
 
 #define RPL_BATTLECLAN	     358
 
+#define RPL_BAD_LOGIN        378
+
 #define RPL_FIND_USER_EX     398
 
 #define RPL_UPDATE_RECORD    602
