@@ -9,10 +9,16 @@ PvPGN Version History:
   -- fixed bug of not showing Yuri's revenge channels
   -- added address translation support to servserv sent addresses
 
+[WAR3]
+  -- fixed possible server crash on ill-formated clan invitation reply packet
+
 [MISC]
   -- fixed d2dbs accepting d2gs connections from any ip
   -- fixed IRC /notice disc bug
   -- fixed warning and reactivated reconnecting when using mysql>=5.0.13
+  -- fixed SC:BW string representation from "StarCraft: Broodwars"
+  to "StarCraft: Brood War" (to better match battle.net behaviour)
+  -- fixed possible server crash caused by /ipban command
 
  ChangeLog for 1.8.0 (since 1.8.0rc2)
 =========================================
