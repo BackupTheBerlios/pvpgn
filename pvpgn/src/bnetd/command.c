@@ -2136,6 +2136,13 @@ static int _handle_channel_command(t_connection * c, char const *text)
 //	 }
      }
 
+   if (!(strlen(text) < CHANNEL_NAME_LEN))
+   {
+     sprintf(msgtemp,"max channel name length exceeded (max %d symbols)", CHANNEL_NAME_LEN - 1);
+     message_send_text(c,message_type_error,c,msgtemp);
+     return 0;
+   }
+
    if ((channel = conn_get_channel(c)) && (strcasecmp(channel_get_name(channel),text)==0))
      return 0; // we don't have to do anything, we are allready in this channel
 
