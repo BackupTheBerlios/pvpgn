@@ -898,7 +898,10 @@ extern int irc_message_format(t_packet * packet, t_message_type type, t_connecti
 	{
 	    char temp[MAX_IRC_MESSAGE_LEN];
 	    sprintf(temp,":%s",text);
-	    msg = irc_message_preformat(NULL,"NOTICE",NULL,temp);
+        if ((type==message_type_info || type==message_type_error) && (conn_get_wol(dst) == 1))
+            msg = irc_message_preformat(NULL,"PAGE",NULL,temp);
+        else
+	        msg = irc_message_preformat(NULL,"NOTICE",NULL,temp);
 	}
 	break;
     case message_type_channel:

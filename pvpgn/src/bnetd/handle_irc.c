@@ -664,8 +664,14 @@ static int _handle_privmsg_command(t_connection * conn, int numparams, char ** p
 							channel_message_send(channel,message_type_emote,conn,text);
 						} 
 						else {
-							channel_message_log(channel, conn, 1, text);
-							channel_message_send(channel,message_type_talk,conn,text);
+                            if (text[0] == '/') {
+                                /* "/" commands (like "/help..." */
+                                handle_command(conn, text);
+                            }
+                            else {
+                                channel_message_log(channel, conn, 1, text);
+                                channel_message_send(channel,message_type_talk,conn,text);
+                            }
 						}
 					}
 					else {
