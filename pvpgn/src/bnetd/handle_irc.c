@@ -664,7 +664,7 @@ static int _handle_privmsg_command(t_connection * conn, int numparams, char ** p
 							channel_message_send(channel,message_type_emote,conn,text);
 						} 
 						else {
-                            if (text[0] == '/') {
+                            if ((conn_get_wol(conn)==1) && (text[0] == '/')) {
                                 /* "/" commands (like "/help..." */
                                 handle_command(conn, text);
                             }
@@ -1164,13 +1164,10 @@ static int _handle_whois_command(t_connection * conn, int numparams, char ** par
 
 static int _handle_part_command(t_connection * conn, int numparams, char ** params, char * text)
 {
-    if ((conn_get_wol(conn) == 1)) {
-		if ((conn_wol_get_ingame(conn) == 1)) {
-			conn_wol_set_ingame(conn,0);
-        }
-        conn_set_channel(conn, NULL);   /* In WOL we disconecting from the channel */
-    }
+    if ((conn_get_wol(conn) == 1) && (conn_wol_get_ingame(conn) == 1)) 
+        conn_wol_set_ingame(conn,0);
 
+    conn_set_channel(conn, NULL);
     message_send_text(conn,message_type_part,conn,NULL);
     return 0;
 }    
