@@ -2115,6 +2115,12 @@ static int _handle_channel_command(t_connection * c, char const *text)
 
    text = skip_command(text);
 
+   if (conn_get_wol(c)) {
+      message_send_text(c,message_type_error,c,"Sorry, this command is currently disabled for WOL clients.");
+      return 0;
+
+   }
+
    if (text[0]=='\0')
      {
        message_send_text(c,message_type_info,c,"usage /channel <channel>");
