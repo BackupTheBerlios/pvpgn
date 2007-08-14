@@ -8,6 +8,7 @@ PvPGN Version History:
   -- fixed bug overflowing the max players game limit
   -- fixed bug of not showing Yuri's revenge channels
   -- added address translation support to servserv sent addresses
+  -- added support for usage of /commands
 
 [WAR3]
   -- fixed possible server crash on ill-formated clan invitation reply packet
