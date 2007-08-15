@@ -936,7 +936,7 @@ extern int main(int argc, char * argv[])
 		strchr(user.player,'>')  ||
 		strchr(user.player,'?'))
 	    {
-		printf("The special characters #%%&*\\\",</>? are allowed in usernames. Try again.\n");
+		printf("The special characters #%%&*\\\",</>? are not allowed in usernames. Try again.\n");
 	    }
 	    if (strlen(user.player)>=USER_NAME_MAX)
 	    {
