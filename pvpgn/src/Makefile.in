@@ -347,6 +347,7 @@ ${SRC_COMMONDIR}/list.o \
 ${SRC_COMMONDIR}/eventlog.o \
 ${SRC_COMMONDIR}/hexdump.o \
 ${SRC_COMMONDIR}/xalloc.o \
+${SRC_COMMONDIR}/bn_type.o \
 ${SRC_COMPATDIR}/inet_ntoa.o \
 ${SRC_COMPATDIR}/strerror.o \
 ${SRC_COMPATDIR}/psock.o \
