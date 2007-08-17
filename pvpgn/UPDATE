@@ -20,6 +20,8 @@ Configuration files changed:
 - conf/versioncheck.conf : added W3/SC entries entries
 - conf/bnetd.conf : added account_force_username option
 - conf/supportfile.conf : removed unused support files from the list
+- conf/sql_DB_layout.conf : added WOL table
+- conf/sql_DB_layout2.conf : added WOL table
 
  Updating from 1.8.0rc2 to 1.8.0
 ====================================
