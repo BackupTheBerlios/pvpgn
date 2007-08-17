@@ -22,6 +22,8 @@ Configuration files changed:
 - conf/supportfile.conf : removed unused support files from the list
 - conf/sql_DB_layout.conf : added WOL table
 - conf/sql_DB_layout2.conf : added WOL table
+- conf/address_translation.conf : added support for WOL servserv
+    address translation
 
  Updating from 1.8.0rc2 to 1.8.0
 ====================================
