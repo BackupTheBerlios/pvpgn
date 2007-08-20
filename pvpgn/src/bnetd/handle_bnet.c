@@ -1653,12 +1653,12 @@ static int _client_loginreq2(t_connection * c, t_packet const *const packet)
 	/* fail if no account */
 	if (!(account = accountlist_find_account(username))) {
 	    eventlog(eventlog_level_info, __FUNCTION__, "[%d] login for \"%s\" refused (no such account)", conn_get_socket(c), username);
-	    bn_int_set(&rpacket->u.server_loginreply2.message, SERVER_LOGINREPLY2_MESSAGE_BADPASS);
+	    bn_int_set(&rpacket->u.server_loginreply2.message, SERVER_LOGINREPLY2_MESSAGE_NONEXIST);
 	}
 	/* already logged in */
 	else if (connlist_find_connection_by_account(account) && prefs_get_kick_old_login() == 0) {
 	    eventlog(eventlog_level_info, __FUNCTION__, "[%d] login for \"%s\" refused (already logged in)", conn_get_socket(c), username);
-	    bn_int_set(&rpacket->u.server_loginreply2.message, SERVER_LOGINREPLY2_MESSAGE_ALREADY);
+	    bn_int_set(&rpacket->u.server_loginreply2.message, SERVER_LOGINREPLY2_MESSAGE_BADPASS);
 	} else if (account_get_auth_bnetlogin(account) == 0) {	/* default to true */
 	    eventlog(eventlog_level_info, __FUNCTION__, "[%d] login for \"%s\" refused (no bnet access)", conn_get_socket(c), username);
 	    bn_int_set(&rpacket->u.server_loginreply2.message, SERVER_LOGINREPLY2_MESSAGE_BADPASS);
