@@ -1,5 +1,11 @@
 PvPGN Version History:
 
+ ChangeLog for 1.8.2 (since 1.8.1)
+=========================================
+
+[WOL]
+  -- fixed possible server crash on raw list command
+
  ChangeLog for 1.8.1 (since 1.8.0)
 =========================================
 

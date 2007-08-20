@@ -757,7 +757,7 @@ static int _handle_list_command(t_connection * conn, int numparams, char ** para
 	if((conn_get_wol(conn) == 1)) {
  	    t_elem const * curr;
  	    
-	    if(strcmp(params[0], "0") == 0) {
+	    if((params) && (strcmp(params[0], "0") == 0)) {
 			/* HACK: Currently, this is the best way to set the game type... */
 			conn_wol_set_game_type(conn,atoi(params[1]));
 			    
@@ -784,10 +784,10 @@ static int _handle_list_command(t_connection * conn, int numparams, char ** para
         *  18 = Tiberian Sun game channels, 21 = Red alert 1 channels, 
 		*  33 = Red alert 2 channels, 41 = Yuri's Revenge
 		*/
-	    else if((strcmp(params[0], "18") == 0) ||
-				(strcmp(params[0], "21") == 0) ||
-				(strcmp(params[0], "33") == 0) ||
-				(strcmp(params[0], "41") == 0)) {
+	    else if((params) && ((strcmp(params[0], "18") == 0) ||
+				             (strcmp(params[0], "21") == 0) ||
+				             (strcmp(params[0], "33") == 0) ||
+				             (strcmp(params[0], "41") == 0))) {
     		eventlog(eventlog_level_debug,__FUNCTION__,"[** WOL **] LIST [Game]");
    			LIST_TRAVERSE_CONST(channellist(),curr) 
 			{
