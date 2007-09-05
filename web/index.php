@@ -218,7 +218,7 @@ if ($row = mysql_fetch_row($query)) {
                             echo substr($line,$pos+2)."<br>\n";
                         } elseif (substr($line,0,13) == 'Changelog for' || substr($line,0,13) == 'ChangeLog for') {
                             echo "<strong style=\"color:#FFB019\">$line</strong>\n";
-                        } elseif ($line == '===================================' || $line == '=======================================') {
+                        } elseif (ereg('^========================+', $line)) {
                             echo "<span style=\"color:#FFB019\">$line</span><br>\n";
                         } else {
                             echo $line . "<br>\n";
