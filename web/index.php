@@ -160,7 +160,7 @@ if ($row = mysql_fetch_row($query)) {
 						  <table border="0" cellspacing="0" cellpadding="0">
 							<tr>
 							  <td>
-								<a href="http://download.berlios.de/pvpgn/pvpgn-support-1.0.tar.gz" class="link">pvpgn-support-1.0.tar.gz</a>
+								<a href="http://download.berlios.de/pvpgn/pvpgn-support-1.1.tar.gz" class="link">pvpgn-support-1.1.tar.gz</a>
 							  </td>
 							</tr>
 						  </table>
@@ -180,7 +180,7 @@ if ($row = mysql_fetch_row($query)) {
 						  <table border="0" cellspacing="0" cellpadding="0">
 							<tr>
 							  <td>
-								<a href="http://download.berlios.de/pvpgn/pvpgn-support-1.0.zip" class="link">pvpgn-support-1.0.zip</a>
+								<a href="http://download.berlios.de/pvpgn/pvpgn-support-1.1.zip" class="link">pvpgn-support-1.1.zip</a>
 							  </td>
 							</tr>
 						  </table>
