@@ -8,6 +8,9 @@ PvPGN Version History:
 
 [SC/BW]
   -- fixed client crash when was showed Friends without any item
+  
+[D2]
+  -- fixed stat string in D2 open mode 
 
 [VCHECK]
   -- added SC/BW IX86 1.15.1 version check entries
