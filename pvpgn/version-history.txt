@@ -7,7 +7,7 @@ PvPGN Version History:
   -- fixed possible server crash on raw list command
 
 [SC/BW]
-  -- fixed client crash when was showed Friends without any item
+  -- fixed client crash when displaying empty friendslist
   
 [D2]
   -- fixed stat string in D2 open mode 
