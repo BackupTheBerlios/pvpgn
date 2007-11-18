@@ -1,5 +1,11 @@
 PvPGN Version History:
 
+ ChangeLog for 1.8.3 (since 1.8.2)
+=========================================
+
+[MISC]
+  -- fixed bad output by /cg list command
+
  ChangeLog for 1.8.2 (since 1.8.1)
 =========================================
 
