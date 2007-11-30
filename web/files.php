@@ -10,9 +10,9 @@ if (!isset($filesphp)) {
 if ($filesphp['type'] == 'd2pack109') {
     echo "<p><strong>Diablo II 1.09d support</strong></p>";
 } elseif ($filesphp['type'] == 'development') {
-    echo "<p><strong>Latest development release: PvPGN ".$filesphp['version']."</strong>&nbsp; [<a href=\"index.php?page=changelog\">Changelog</a>]</p>";
+    echo "<p><strong>Latest development release: PvPGN ".$filesphp['version']."</strong></p>";
 } else {
-    echo "<p><strong>Latest stable release: PvPGN ".$filesphp['version']."</strong></p>";
+    echo "<p><strong>Latest stable release: PvPGN ".$filesphp['version']."</strong>&nbsp; [<a href=\"index.php?page=changelog\">Changelog</a>]</p>";
 }
 ?>
 </td>
