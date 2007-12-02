@@ -907,6 +907,9 @@ extern int irc_message_format(t_packet * packet, t_message_type type, t_connecti
     case message_type_channel:
     	/* ignore it */
 	break;
+    case message_type_userflags:
+    	/* ignore it */
+	break;
     case message_type_mode:
 	from.nick = conn_get_chatname(me);
 	from.user = ctag;

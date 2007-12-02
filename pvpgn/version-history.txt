@@ -3,6 +3,11 @@ PvPGN Version History:
  ChangeLog for 1.8.3 (since 1.8.2)
 =========================================
 
+[WOL]
+  -- added Dune 2000 Support
+  -- fixed bad time format in startgame message
+  -- fixed log warnings/errors rising in login process
+
 [MISC]
   -- fixed bad output by /cg list command
 

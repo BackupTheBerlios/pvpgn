@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2001  Marco Ziech (mmz@gmx.net)
  * Copyright (C) 2005  Bryan Biedenkapp (gatekeep@gmail.com)
- * Copyright (C) 2006  Pelish (pelish@gmail.com)
+ * Copyright (C) 2006,2007  Pelish (pelish@gmail.com)
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -120,6 +120,8 @@ static int _handle_finduserex_command(t_connection * conn, int numparams, char *
 static int _handle_page_command(t_connection * conn, int numparams, char ** params, char * text);
 static int _handle_startg_command(t_connection * conn, int numparams, char ** params, char * text);
 static int _handle_listsearch_command(t_connection * conn, int numparams, char ** params, char * text);
+static int _handle_rungsearch_command(t_connection * conn, int numparams, char ** params, char * text);
+static int _handle_highscore_command(t_connection * conn, int numparams, char ** params, char * text);
 
 /* state "connected" handlers */
 static const t_irc_command_table_row irc_con_command_table[] =
@@ -139,6 +141,11 @@ static const t_irc_command_table_row irc_con_command_table[] =
 	{ "WHERETO"		, _handle_whereto_command },
 	{ "APGAR"		, _handle_apgar_command },	
 	{ "SERIAL"		, _handle_serial_command },	
+
+    /* Ladder server commands */
+	{ "LISTSEARCH"	, _handle_listsearch_command },
+	{ "RUNGSEARCH"	, _handle_rungsearch_command },
+	{ "HIGHSCORE"	, _handle_highscore_command },
 
 	{ NULL			, NULL }
 };
@@ -168,7 +175,6 @@ static const t_irc_command_table_row irc_log_command_table[] =
 	{ "FINDUSEREX"	, _handle_finduserex_command },	
 	{ "PAGE"		, _handle_page_command },		
 	{ "STARTG"		, _handle_startg_command },		
-	{ "LISTSEARCH"	, _handle_listsearch_command },
 
 	{ NULL			, NULL }
 };
@@ -781,10 +787,11 @@ static int _handle_list_command(t_connection * conn, int numparams, char ** para
     		}
 	    }
 	    /**
-        *  18 = Tiberian Sun game channels, 21 = Red alert 1 channels, 
+        *  14 = Dune 2000, 18 = Tiberian Sun game channels, 21 = Red alert 1 channels, 
 		*  33 = Red alert 2 channels, 41 = Yuri's Revenge
 		*/
-	    else if((params) && ((strcmp(params[0], "18") == 0) ||
+	    else if((params) && ((strcmp(params[0], "14") == 0) ||
+				             (strcmp(params[0], "18") == 0) ||
 				             (strcmp(params[0], "21") == 0) ||
 				             (strcmp(params[0], "33") == 0) ||
 				             (strcmp(params[0], "41") == 0))) {
@@ -1079,7 +1086,8 @@ static int _handle_userhost_command(t_connection * conn, int numparams, char ** 
 
 static int _handle_quit_command(t_connection * conn, int numparams, char ** params, char * text)
 {
-	conn_set_channel(conn, NULL);
+	if (conn_get_channel(conn))
+	    conn_set_channel(conn, NULL);
 	conn_set_state(conn, conn_state_destroy);
 	return 0;
 }
@@ -1616,7 +1624,7 @@ static int _handle_startg_command(t_connection * conn, int numparams, char ** pa
  	*  Heres the output expected (this can have up-to 8 entries (ie 8 players): 
     *  (we are assuming for this example that user1 is the game owner)
     *
- 	*   user1!WWOL@hostname STARTG u :user1 xxx.xxx.xxx.xxx user2 xxx.xxx.xxx.xxx :gameNumber cTime
+ 	*   user1!WWOL@hostname STARTG u :user1 xxx.xxx.xxx.xxx user2 xxx.xxx.xxx.xxx :gameNumber t_Time
  	*/
 	if((numparams>=1)) {
 	    int i;
@@ -1645,7 +1653,8 @@ static int _handle_startg_command(t_connection * conn, int numparams, char ** pa
         strcat(temp," ");
         
         now = time(NULL);
-        strcat(temp,ctime(&now));
+        sprintf(_temp_a,"%lu",now);
+    	strcat(temp,_temp_a);;
 	    
 	    eventlog(eventlog_level_debug,__FUNCTION__,"[** WOL **] STARTG: (%s)",temp);
 
@@ -1659,8 +1668,26 @@ static int _handle_startg_command(t_connection * conn, int numparams, char ** pa
    	return 0;
 }	    
 
+/**
+ * LADDER Server commands:
+ */
 static int _handle_listsearch_command(t_connection * conn, int numparams, char ** params, char * text)
 {
-	// FIXME: Not implemented
+	// FIXME: Not implemetned yet
+	conn_set_state(conn, conn_state_destroy);
+	return 0;
+}
+
+static int _handle_rungsearch_command(t_connection * conn, int numparams, char ** params, char * text)
+{
+	// FIXME: Not implemetned yet
+	conn_set_state(conn, conn_state_destroy);
+	return 0;
+}
+
+static int _handle_highscore_command(t_connection * conn, int numparams, char ** params, char * text)
+{
+	// FIXME: Not implemetned yet
+	conn_set_state(conn, conn_state_destroy);
 	return 0;
 }
