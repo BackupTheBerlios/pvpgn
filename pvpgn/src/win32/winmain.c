@@ -550,7 +550,7 @@ extern int gui_lvprintf(t_eventlog_level l, const char *format, va_list arglist)
 
 static void guiOnUpdates ()
 {
-	ShellExecute(NULL, "open", "www.pvpgn.org", NULL, NULL, SW_SHOW );
+	ShellExecute(NULL, "open", "pvpgn.berlios.de", NULL, NULL, SW_SHOW );
 }
 
 static void guiOnAnnounce (HWND hwnd)
