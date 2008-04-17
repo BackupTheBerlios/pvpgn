@@ -9,7 +9,7 @@ PvPGN Version History:
   -- fixed log warnings/errors rising in login process
 
 [MISC]
-  -- fixed bad output by /cg list command
+  -- fixed malformed output by /cg list command
 
  ChangeLog for 1.8.2 (since 1.8.1)
 =========================================
