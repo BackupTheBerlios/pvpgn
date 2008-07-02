@@ -5,15 +5,24 @@ PvPGN Version History:
 
 [WOL]
   -- added Dune 2000 Support
+  -- fixed possible steal account throught hardcoded password
   -- fixed malformed time format in startgame message
   -- fixed log warnings/errors rising in login process
+  -- fixed RA2/YURI bug when host of game was not possilbe
+     change max players
+
+[IRC]
+  -- added some missing channel modes
+  -- added proper messages when client was baned form channel
+     or when channel is full
 
 [MISC]
   -- fixed malformed output by /cg list command
 
 [VCHECK]
   -- added WAR3/W3XP IX86 1.21b vcheck entries
-  -- added STAR/SEXP IX86 1.51.2 vcheck entries
+  -- added STAR/SEXP IX86 1.15.2 vcheck entries
+  -- added D2XP IX86 1.12a vcheck entries
   -- rewrited all STAR/SEXP/W2BN/DRTL IX86 vcheck entries
      to match new ver-ix86-1.mpq file (this fixes connecting
      problems on Windows Vista systems)

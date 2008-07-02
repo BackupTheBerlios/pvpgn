@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2001  Marco Ziech (mmz@gmx.net)
  * Copyright (C) 2005  Bryan Biedenkapp (gatekeep@gmail.com)
- * Copyright (C) 2006,2007  Pelish (pelish@gmail.com)
+ * Copyright (C) 2006,2007,2008  Pelish (pelish@gmail.com)
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -119,6 +119,8 @@ static int _handle_gameopt_command(t_connection * conn, int numparams, char ** p
 static int _handle_finduserex_command(t_connection * conn, int numparams, char ** params, char * text);
 static int _handle_page_command(t_connection * conn, int numparams, char ** params, char * text);
 static int _handle_startg_command(t_connection * conn, int numparams, char ** params, char * text);
+static int _handle_kick_command(t_connection * conn, int numparams, char ** params, char * text);
+
 static int _handle_listsearch_command(t_connection * conn, int numparams, char ** params, char * text);
 static int _handle_rungsearch_command(t_connection * conn, int numparams, char ** params, char * text);
 static int _handle_highscore_command(t_connection * conn, int numparams, char ** params, char * text);
@@ -169,12 +171,13 @@ static const t_irc_command_table_row irc_log_command_table[] =
 	{ "SETCODEPAGE"	, _handle_setcodepage_command },
 	{ "SETLOCALE"	, _handle_setlocale_command },	
 	{ "GETCODEPAGE"	, _handle_getcodepage_command },
-	{ "GETLOCALE"	, _handle_getlocale_command },	
-	{ "JOINGAME"	, _handle_joingame_command },	
-	{ "GAMEOPT"		, _handle_gameopt_command },	
-	{ "FINDUSEREX"	, _handle_finduserex_command },	
-	{ "PAGE"		, _handle_page_command },		
-	{ "STARTG"		, _handle_startg_command },		
+	{ "GETLOCALE"	, _handle_getlocale_command },
+	{ "JOINGAME"	, _handle_joingame_command },
+	{ "GAMEOPT"		, _handle_gameopt_command },
+	{ "FINDUSEREX"	, _handle_finduserex_command },
+	{ "PAGE"		, _handle_page_command },
+	{ "STARTG"		, _handle_startg_command },
+	{ "KICK"		, _handle_kick_command },	
 
 	{ NULL			, NULL }
 };
@@ -450,7 +453,7 @@ static int _handle_user_command(t_connection * conn, int numparams, char ** para
                    if((conn_get_wol(conn) == 1)) {
                         t_account * tempacct;
                         t_hash pass_hash;
-                        char * pass = "supersecret";
+                        char * pass = xstrdup(conn_wol_get_apgar(conn)); /* FIXME: Do not use bnet passhash when we have wol passhash */
                         int j;
             
             			for (j=0; j<strlen(pass); j++)
@@ -960,19 +963,42 @@ static int _handle_join_command(t_connection * conn, int numparams, char ** para
 
 	    e = irc_get_listelems(params[0]);
 	    if ((e)&&(e[0])) {
-	    		char const * ircname = irc_convert_ircname(e[0]);
-	    		char * old_channel_name = NULL;
+            char temp[MAX_IRC_MESSAGE_LEN];
+	    	char const * ircname = irc_convert_ircname(e[0]);
+	    	char * old_channel_name = NULL;
 	   	 	t_channel * old_channel = conn_get_channel(conn);
+			t_channel * channel;
+	   	    t_account * acc = conn_get_account(conn);
 
 			if (old_channel)
 			  old_channel_name = xstrdup(irc_convert_channel(old_channel));
+
+            if ((ircname) && (channel = channellist_find_channel_by_name(ircname,NULL,NULL))) {
+                if (channel_check_banning(channel,conn)) {
+                    snprintf(temp, sizeof(temp), "%s :You are banned from that channel.",e[0]);
+                    irc_send(conn,ERR_BANNEDFROMCHAN, temp);
+                    if (e)
+                        irc_unget_listelems(e);
+                    return 0;
+                }
+
+                if ((account_get_auth_admin(acc,NULL)!=1) && (account_get_auth_admin(acc,ircname)!=1) &&
+                    (account_get_auth_operator(acc,NULL)!=1) && (account_get_auth_operator(acc,ircname)!=1) &&
+                    (channel_get_max(channel) != -1) && (channel_get_curr(channel)>=channel_get_max(channel))) {
+
+                    snprintf(temp, sizeof(temp), "%s :The channel is currently full.",e[0]);
+                    irc_send(conn,ERR_CHANNELISFULL, temp);
+                    if (e)
+                        irc_unget_listelems(e);
+                    return 0;
+                }
+            }
 			
 			if ((!(ircname)) || (conn_set_channel(conn,ircname)<0)) {
 				irc_send(conn,ERR_NOSUCHCHANNEL,":JOIN failed"); /* FIXME: be more precise; what is the real error code for that? */
 			} 
 			else {
     			char temp[MAX_IRC_MESSAGE_LEN];
-				t_channel * channel;
 				channel = conn_get_channel(conn);
 
 			    if ((conn_get_wol(conn) == 1)) {
@@ -1072,10 +1098,145 @@ static int _handle_names_command(t_connection * conn, int numparams, char ** par
 	return 0;
 }
 
+static int irc_send_banlist(t_connection * conn, t_channel * channel)
+{
+    t_elem const * curr;
+    char const *   banned;
+    char const * ircname = server_get_hostname();
+    char temp[MAX_IRC_MESSAGE_LEN];
+
+    if (!conn) {
+        ERROR0("got NULL conn");
+        return -1;
+    }
+
+    if (!channel) {
+        ERROR0("got NULL channel");
+        return -1;
+    }
+
+    LIST_TRAVERSE_CONST(channel_get_banlist(channel),curr) {
+        banned = (char*)elem_get_data(curr);
+
+        //FIXME: right now we lie about who have gives ban and also about bantime
+        snprintf(temp,sizeof(temp),"%s %s!*@* %s 1208297879", irc_convert_channel(channel), banned, ircname);
+        irc_send(conn,RPL_BANLIST,temp);
+    }
+    return 0;
+}
+
 static int _handle_mode_command(t_connection * conn, int numparams, char ** params, char * text)
 {
-	/* FIXME: Not yet implemented */
-	return 0;
+    char temp[MAX_IRC_MESSAGE_LEN];
+    t_account * acc = conn_get_account(conn);
+
+   	memset(temp,0,sizeof(temp));
+
+    if (numparams < 1) {
+        irc_send(conn,ERR_NEEDMOREPARAMS,"MODE :Not enough parameters");
+        return 0;
+    }
+
+    if (params[0][0]=='#') {
+        /* Channel mode */
+        t_channel * channel;
+        char const * ircname = irc_convert_ircname(params[0]);
+
+        if (!(channel = channellist_find_channel_by_name(ircname,NULL,NULL))) {
+            snprintf(temp,sizeof(temp),"%s :No such channel", params[0]);
+            irc_send(conn,ERR_NOSUCHCHANNEL,temp);
+     	    return 0;
+	    }
+
+        if (numparams == 1) {
+            /* FIXME: Send real CHANELMODE flags! */
+            snprintf(temp,sizeof(temp),"%s +tns", params[0]);
+            irc_send(conn,RPL_CHANNELMODEIS,temp);
+            return 0;
+        }
+
+        if (numparams == 2) {
+            if (strcmp(params[1], "b") == 0) {
+                irc_send_banlist(conn, channel);
+                snprintf(temp,sizeof(temp),"%s :End of channel ban list", params[0]);
+                irc_send(conn,RPL_ENDOFBANLIST,temp);
+                return 0;
+            }
+            else {
+                snprintf(temp,sizeof(temp),":%s is unknown mode char to me for %s", params[1], params[0]);
+                irc_send(conn,ERR_UNKNOWNMODE,temp);
+                return 0;
+            }
+        }
+
+        /* PELISH: Also tmpOP have setting modes alowed because all new channels have only tmpOP */
+        if ((channel_conn_is_tmpOP(channel,conn)!=1) && 
+            (account_get_auth_admin(acc,NULL)!=1) && (account_get_auth_admin(acc,ircname)!=1) &&
+            (account_get_auth_operator(acc,NULL)!=1) && (account_get_auth_operator(acc,ircname)!=1)) {
+            snprintf(temp,sizeof(temp),"%s :You're not channel operator", params[0]);
+            irc_send(conn,ERR_CHANOPRIVSNEEDED,temp);
+            return 0;
+        }
+
+        if (strcmp(params[1], "+b") == 0) {
+            channel_ban_user (channel, params[2]);
+            snprintf(temp,sizeof(temp),"%s %s %s!*@*", params[0], params[1], params[2]);
+   	        channel_message_send(channel,message_type_mode,conn,temp);                
+        }
+        else if (strcmp(params[1], "-b") == 0) {
+            channel_unban_user(channel, params[2]);
+            snprintf(temp,sizeof(temp),"%s %s %s!*@*", params[0], params[1], params[2]);
+   	        channel_message_send(channel,message_type_mode,conn,temp);                     
+        }
+        else if (strcmp(params[1], "+o") == 0) {
+            snprintf(temp, sizeof(temp), "/op %s", params[2]);
+            handle_command(conn, temp);
+            snprintf(temp,sizeof(temp),"%s %s %s", params[0], params[1], params[2]);
+  	        channel_message_send(channel,message_type_mode,conn,temp);                
+        }
+        else if (strcmp(params[1], "-o") == 0) {
+            snprintf(temp, sizeof(temp), "/deop %s", params[2]);
+            handle_command(conn, temp);
+            snprintf(temp,sizeof(temp),"%s %s %s", params[0], params[1], params[2]);
+   	        channel_message_send(channel,message_type_mode,conn,temp);                     
+        }
+        else if (strcmp(params[1], "+v") == 0) {
+            snprintf(temp, sizeof(temp), "/voice %s", params[2]);
+            handle_command(conn, temp);
+            snprintf(temp,sizeof(temp),"%s %s %s", params[0], params[1], params[2]);
+  	        channel_message_send(channel,message_type_mode,conn,temp);                
+        }
+        else if (strcmp(params[1], "-v") == 0) {
+            snprintf(temp, sizeof(temp), "/devoice %s", params[2]);
+            handle_command(conn, temp);
+
+            snprintf(temp,sizeof(temp),"%s %s %s", params[0], params[1], params[2]);
+       	    channel_message_send(channel,message_type_mode,conn,temp);                     
+        }
+        else if (strcmp(params[1], "+i") == 0) {
+            /* FIXME: channel will be only for invited */
+        }
+        else if (strcmp(params[1], "+l") == 0) {
+            channel_set_max(channel, atoi(params[2]));
+            snprintf(temp,sizeof(temp),"%s %s %s", params[0], params[1], params[2]);
+            channel_message_send(channel,message_type_mode,conn,temp);
+        }
+        else if (strcmp(params[1], "-l") == 0) {
+            channel_set_max(channel, -1);
+            snprintf(temp,sizeof(temp),"%s %s", params[0], params[1]);
+   	        channel_message_send(channel,message_type_mode,conn,temp);
+        }
+       	else {
+            snprintf(temp,sizeof(temp),":%s is unknown mode char to me for %s", params[1], params[0]);
+            irc_send(conn,ERR_UNKNOWNMODE,temp);
+        }
+    }
+    else {
+        /* User modes */
+        /* FIXME: Support user modes (away, invisible...) */
+     	irc_send(conn,ERR_UMODEUNKNOWNFLAG,":Unknown MODE flag");
+    }
+    return 0;
 }
 
 static int _handle_userhost_command(t_connection * conn, int numparams, char ** params, char * text)
@@ -1191,8 +1352,17 @@ static int _handle_cvers_command(t_connection * conn, int numparams, char ** par
 
 static int _handle_verchk_command(t_connection * conn, int numparams, char ** params, char * text)
 {
-	// Ignore command
-	return 0; 
+    char temp[MAX_IRC_MESSAGE_LEN];
+
+    if (numparams == 2) {
+        snprintf(temp, sizeof(temp), ":none none none 1 %s NONREQ", params[0]);
+        eventlog(eventlog_level_debug,__FUNCTION__,"[** WOL **] VERCHK %s",temp);
+        irc_send(conn,RPL_VERCHK_NONREQ,temp);
+    }
+    else
+        irc_send(conn,ERR_NEEDMOREPARAMS,"VERCHK :Not enough parameters");
+
+    return 0; 
 }
 
 static int _handle_lobcount_command(t_connection * conn, int numparams, char ** params, char * text)
@@ -1245,7 +1415,9 @@ static int _handle_apgar_command(t_connection * conn, int numparams, char ** par
 	    apgar = params[0];
 	    conn_wol_set_apgar(conn,apgar);
 	}
-	
+    else
+        irc_send(conn,ERR_NEEDMOREPARAMS,"APGAR :Not enough parameters");
+
 	return 0;
 }
 
@@ -1257,8 +1429,12 @@ static int _handle_serial_command(t_connection * conn, int numparams, char ** pa
 
 static int _handle_squadinfo_command(t_connection * conn, int numparams, char ** params, char * text)
 {
-	// FIXME: Not implemented
-	return 0;
+    if ((numparams>=1)&&(params[0]))
+	    irc_send(conn,ERR_IDNOEXIST,":ID does not exist");
+    else
+        irc_send(conn,ERR_NEEDMOREPARAMS,"SQUADINFO :Not enough parameters");
+
+    return 0;
 }	    
 
 static int _handle_setopt_command(t_connection * conn, int numparams, char ** params, char * text)
@@ -1275,8 +1451,10 @@ static int _handle_setcodepage_command(t_connection * conn, int numparams, char 
 	if((numparams>=1)&&params[0]) {
 	    codepage = params[0];
 	    conn_wol_set_codepage(conn,atoi(codepage));
+    	irc_send(conn,RPL_SET_CODEPAGE,codepage);
 	}
-	irc_send(conn,RPL_SET_CODEPAGE,codepage);
+	else
+	    irc_send(conn,ERR_NEEDMOREPARAMS,"SETCODEPAGE :Not enough parameters");
 	return 0;
 }
 
@@ -1284,11 +1462,13 @@ static int _handle_setlocale_command(t_connection * conn, int numparams, char **
 {
 	char * locale = NULL;
 	
-	if((numparams>=1)&&params[0]) {
+	if((numparams>=1)&&(params[0])) {
 	    locale = params[0];
 	    conn_wol_set_locale(conn,atoi(locale));
+        irc_send(conn,RPL_SET_LOCALE,locale);
 	}
-	irc_send(conn,RPL_SET_LOCALE,locale);	
+	else
+	    irc_send(conn,ERR_NEEDMOREPARAMS,"SETLOCALE :Not enough parameters");
 	return 0;
 }	    
 
@@ -1319,6 +1499,8 @@ static int _handle_getcodepage_command(t_connection * conn, int numparams, char 
 	    }
    	    irc_send(conn,RPL_GET_CODEPAGE,temp);	
 	}
+	else
+	    irc_send(conn,ERR_NEEDMOREPARAMS,"GETCODEPAGE :Not enough parameters");
 	return 0;
 }
 
@@ -1349,6 +1531,8 @@ static int _handle_getlocale_command(t_connection * conn, int numparams, char **
 	    }
    	    irc_send(conn,RPL_GET_LOCALE,temp);	
 	}
+	else
+	    irc_send(conn,ERR_NEEDMOREPARAMS,"GETLOCALE :Not enough parameters");
 	return 0;
 }	    
 
@@ -1369,6 +1553,7 @@ static int _handle_joingame_command(t_connection * conn, int numparams, char ** 
 	*   Heres the output expected:
 	*   user!WWOL@hostname JOINGAME unknown numberOfPlayers gameType unknown clanID longIP gameIsTournament :#game_channel_name
 	*/
+
 	if((numparams==2)) {
 	    char ** e;
 
@@ -1513,8 +1698,8 @@ static int _handle_joingame_command(t_connection * conn, int numparams, char ** 
 		if (e)
 	       irc_unget_listelems(e);
 	} 
-	else 
-	    irc_send(conn,ERR_NEEDMOREPARAMS,":Too few arguments to JOINGAME");
+	else
+	    irc_send(conn,ERR_NEEDMOREPARAMS,"JOINGAME :Not enough parameters");
 	return 0;
 }	    
 
@@ -1571,7 +1756,7 @@ static int _handle_gameopt_command(t_connection * conn, int numparams, char ** p
 	    }
 	}
 	else
-	    irc_send(conn,ERR_NEEDMOREPARAMS,":Too few arguments to GAMEOPT");
+	    irc_send(conn,ERR_NEEDMOREPARAMS,"GAMEOPT :Not enough parameters");
 	return 0;
 }	    
 
@@ -1592,6 +1777,8 @@ static int _handle_finduserex_command(t_connection * conn, int numparams, char *
 	    sprintf(_temp,"0 :%s,0",ircname);
 	    irc_send(conn,RPL_FIND_USER_EX,_temp);
     }
+	else
+	    irc_send(conn,ERR_NEEDMOREPARAMS,"FINDUSEREX :Not enough parameters");
 	return 0;
 }
 
@@ -1608,7 +1795,9 @@ static int _handle_page_command(t_connection * conn, int numparams, char ** para
 	    if((user = connlist_find_connection_by_accountname(params[0]))) {
      		message_send_text(user,message_wol_page,conn,_temp);
 	    }
-	}
+    }
+	else
+	    irc_send(conn,ERR_NEEDMOREPARAMS,"PAGE :Not enough parameters");
 	return 0;
 }	   
 
@@ -1664,12 +1853,55 @@ static int _handle_startg_command(t_connection * conn, int numparams, char ** pa
 	    else {
      		irc_send(conn,ERR_NOSUCHCHANNEL,":No such channel");
 	    }
-	}	    
+    }
+	else
+	    irc_send(conn,ERR_NEEDMOREPARAMS,"STARTG :Not enough parameters");	    
    	return 0;
-}	    
+}
+
+static int _handle_kick_command(t_connection * conn, int numparams, char ** params, char * text)
+{
+    char temp[MAX_IRC_MESSAGE_LEN];
+    char ** e;
+    /**
+    *  Heres the imput expected
+    *  KICK [channel] [kicked_user],[kicked_user2]
+    *
+    *  Heres the output expected
+    *  :user!WWOL@hostname KICK [channel] [kicked_user] :[text]
+    *
+    *  WOL in [text] sends Admin name
+    */
+
+    if ((numparams != 2) || !(params[1])) {
+	    irc_send(conn,ERR_NEEDMOREPARAMS,"KICK :Not enough parameters");
+	    return 0;
+    }
+
+    e = irc_get_listelems(params[1]);
+
+    /* Make standart PvPGN KICK from RFC2812 KICK */
+    if (text)
+        snprintf(temp, sizeof(temp), "/kick %s %s", e[0], text);
+    else
+        snprintf(temp, sizeof(temp), "/kick %s", e[0]);
+
+    handle_command(conn, temp);
+
+    if (e)
+        irc_unget_listelems(e);
+
+    return 0;
+}
+
 
 /**
  * LADDER Server commands:
+ *
+ * Client standartly initialise connection, sends command and after that
+ * standing for server response. When all data are sended, server close
+ * connection which is an infromation to client that transfer is done.
+ * At the moment we only closing connection.
  */
 static int _handle_listsearch_command(t_connection * conn, int numparams, char ** params, char * text)
 {
