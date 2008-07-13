@@ -8,7 +8,7 @@ PvPGN Version History:
   -- fixed possible steal account throught hardcoded password
   -- fixed malformed time format in startgame message
   -- fixed log warnings/errors rising in login process
-  -- fixed RA2/YURI bug when host of game was not possilbe
+  -- fixed RA2/YURI bug when host of game culd not
      change max players
 
 [IRC]
@@ -24,7 +24,7 @@ PvPGN Version History:
   -- added STAR/SEXP IX86 1.15.2 vcheck entries
   -- added D2XP IX86 1.12a vcheck entries
   -- rewrited all STAR/SEXP/W2BN/DRTL IX86 vcheck entries
-     to match new ver-ix86-1.mpq file (this fixe connecting
+     to match new ver-ix86-1.mpq file (this fixes connecting
      problems on Windows Vista systems)
 
  ChangeLog for 1.8.2 (since 1.8.1)

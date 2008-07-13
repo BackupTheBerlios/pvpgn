@@ -341,9 +341,9 @@ extern int irc_authenticate(t_connection * conn, char const * passhash)
         temphash = account_get_pass(a);	
         hash_set_str(&h2,temphash);
         if (hash_eq(h1,h2)) {
+            conn_set_clienttag(conn,CLIENTTAG_IIRC_UINT); /* IIRC hope here is ok */
             conn_login(conn,a,username);
             conn_set_state(conn,conn_state_loggedin);
-            conn_set_clienttag(conn,CLIENTTAG_IIRC_UINT); /* IIRC hope here is ok */
             irc_send_cmd(conn,"NOTICE",":Authentication successful. You are now logged in.");
 	    return 1;
         } else {
