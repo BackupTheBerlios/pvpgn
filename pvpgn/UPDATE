@@ -19,8 +19,9 @@ version in between and including the last one (ex. you have to go through
 Configuration files changed:
 - conf/channels.conf : added channels needed by DUNE2000 clients
 - conf/versioncheck.conf : added WAR3/W3XP IX86 entries and
-  rewrited all STAR/SEXP/W2BN/DRTL IX86 vcheck entries
+  rewritten all STAR/SEXP/W2BN/DRTL IX86 vcheck entries
 - conf/supportfile.conf : added needed ver-ix86-1.mpq support file
+- conf/bnmaps.conf : updated ladder map lineup to be equal to battle.net 
 
  Updating from 1.8.1 to 1.8.2
 ===================================

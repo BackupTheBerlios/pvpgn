@@ -8,23 +8,23 @@ PvPGN Version History:
   -- fixed possible steal account throught hardcoded password
   -- fixed malformed time format in startgame message
   -- fixed log warnings/errors rising in login process
-  -- fixed RA2/YURI bug when host of game culd not
+  -- fixed RA2/YURI bug when host of game could not
      change max players
 
 [IRC]
   -- added some missing channel modes
-  -- added proper messages when client was baned form channel
+  -- added proper messages when client was baned from channel
      or when channel is full
 
 [MISC]
   -- fixed malformed output by /cg list command
 
 [VCHECK]
-  -- added WAR3/W3XP IX86 1.19a/1.19b/1.21b vcheck entries
+  -- added WAR3/W3XP IX86 1.19a/1.19b/1.21b/1.22a vcheck entries
   -- added STAR/SEXP IX86 1.15.2 vcheck entries
   -- added D2XP IX86 1.12a vcheck entries
-  -- rewrited all STAR/SEXP/W2BN/DRTL IX86 vcheck entries
-     to match new ver-ix86-1.mpq file (this fixes connecting
+  -- rewritten all STAR/SEXP/W2BN/DRTL IX86 vcheck entries
+     to match new ver-ix86-1.mpq file (this fixes connection
      problems on Windows Vista systems)
 
  ChangeLog for 1.8.2 (since 1.8.1)
