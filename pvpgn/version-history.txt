@@ -22,7 +22,7 @@ PvPGN Version History:
 [VCHECK]
   -- added WAR3/W3XP IX86 1.19a/1.19b/1.21b/1.22a vcheck entries
   -- added STAR/SEXP IX86 1.15.2 vcheck entries
-  -- added D2XP IX86 1.12a vcheck entries
+  -- added D2DV/D2XP IX86 1.12a vcheck entries
   -- rewritten all STAR/SEXP/W2BN/DRTL IX86 vcheck entries
      to match new ver-ix86-1.mpq file (this fixes connection
      problems on Windows Vista systems)
