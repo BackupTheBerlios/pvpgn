@@ -18,6 +18,7 @@ PvPGN Version History:
 
 [MISC]
   -- fixed malformed output by /cg list command
+  -- updated IX86 autoupdate with latest clients versions
 
 [VCHECK]
   -- added WAR3/W3XP IX86 1.19a/1.19b/1.21b/1.22a vcheck entries
