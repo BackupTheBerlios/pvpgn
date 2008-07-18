@@ -15,6 +15,7 @@ PvPGN Version History:
   -- added some missing channel modes
   -- added proper messages when client was baned from channel
      or when channel is full
+  -- fixed bug when IIRC was not stored as last used client tag
 
 [MISC]
   -- fixed malformed output by /cg list command
