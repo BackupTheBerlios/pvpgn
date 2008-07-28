@@ -1,5 +1,11 @@
 PvPGN Version History:
 
+ ChangeLog for 1.8.4 (since 1.8.3)
+=========================================
+
+[WAR3]
+  -- fixed possible server crash on ill-formated packet
+
  ChangeLog for 1.8.3 (since 1.8.2)
 =========================================
 
