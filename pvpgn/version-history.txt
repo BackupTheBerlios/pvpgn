@@ -7,7 +7,14 @@ PvPGN Version History:
   -- fixed possible server crash on many ill-formated packets
   
 [SQL]
-  -- fixed MySQL reconnection issues for MySQL >= 5.0.19  
+  -- fixed MySQL reconnection issues for MySQL >= 5.0.19
+
+[VCHECK]
+  -- added STAR/SEXP IX86 1.15.3 vcheck entries
+
+[MISC]
+  -- updated STAR/SEXP IX86 autoupdate entries according
+     to latest clients versions
 
  ChangeLog for 1.8.3 (since 1.8.2)
 =========================================
