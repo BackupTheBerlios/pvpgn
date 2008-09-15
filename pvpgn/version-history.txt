@@ -9,6 +9,10 @@ PvPGN Version History:
 [SQL]
   -- fixed MySQL reconnection issues for MySQL >= 5.0.19
 
+[IRC/WOL]
+  -- fixed bug when client does not got proper information
+     when account is already in use
+
 [VCHECK]
   -- added STAR/SEXP IX86 1.15.3 vcheck entries
 

@@ -278,6 +278,7 @@ extern int irc_authenticate(t_connection * conn, char const * passhash)
     t_account * a;
     char const * temphash;
     char const * username;
+    char temp[MAX_IRC_MESSAGE_LEN];
 
     char const * tempapgar;
 
@@ -302,7 +303,8 @@ extern int irc_authenticate(t_connection * conn, char const * passhash)
     }
 
     if (connlist_find_connection_by_account(a) && prefs_get_kick_old_login()==0) {
-            irc_send_cmd(conn,"NOTICE",":Authentication rejected (already logged in) ");
+        snprintf(temp, sizeof(temp), "%s :Account is already in use!",conn_get_loggeduser(conn));
+        irc_send(conn,ERR_NICKNAMEINUSE,temp);
     }
     else if (account_get_auth_lock(a)==1) {
             irc_send_cmd(conn,"NOTICE",":Authentication rejected (account is locked) "); 
@@ -325,9 +327,9 @@ extern int irc_authenticate(t_connection * conn, char const * passhash)
             }
     	    
     	    if(strcmp(temphash,tempapgar) == 0) {
+        	    conn_set_clienttag(conn,CLIENTTAG_WWOL_UINT); /* WWOL hope here is ok */
                 conn_login(conn,a,username);
     	        conn_set_state(conn,conn_state_loggedin);
-        	    conn_set_clienttag(conn,CLIENTTAG_WWOL_UINT); /* WWOL hope here is ok */
         		return 1;
     	    }
     	    else {
@@ -450,11 +452,7 @@ extern int irc_welcome(t_connection * conn)
     irc_send_cmd(conn,"NOTICE",":This is an experimental service.");
     
     conn_set_state(conn,conn_state_bot_password);
-    if (connlist_find_connection_by_accountname(conn_get_loggeduser(conn))) {
-    	irc_send_cmd(conn,"NOTICE","This account is already logged in, use another account.");
-	return -1;
-    }
-    
+
     if (conn_get_ircpass(conn)) {
 	irc_send_cmd(conn,"NOTICE",":Trying to authenticate with PASS ...");
 	irc_authenticate(conn,conn_get_ircpass(conn));
