@@ -667,6 +667,7 @@ extern void channel_message_send(t_channel const * channel, t_message_type type,
     unsigned int   heard;
     t_message *    message;
     char const *   tname;
+    t_account *    acc;
     
     if (!channel)
     {
@@ -679,6 +680,8 @@ extern void channel_message_send(t_channel const * channel, t_message_type type,
         return;
     }
 
+    acc = conn_get_account(me);
+
     if(channel_get_flags(channel) & channel_flags_thevoid) // no talking in the void
 	return;
 
@@ -687,7 +690,7 @@ extern void channel_message_send(t_channel const * channel, t_message_type type,
 	if (type==message_type_talk || type==message_type_emote)
 	{
 	    if (!((account_is_operator_or_admin(conn_get_account(me),channel_get_name(channel))) ||
-		 (channel_conn_has_tmpVOICE(channel,me))))
+		 (channel_conn_has_tmpVOICE(channel,me)) || (account_get_auth_voice(acc,channel_get_name(channel)) == 1)))
 	    {
 		message_send_text(me,message_type_error,me,"This channel is moderated");
 	        return;

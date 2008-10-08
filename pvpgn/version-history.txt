@@ -17,6 +17,8 @@ PvPGN Version History:
   -- added STAR/SEXP IX86 1.15.3 vcheck entries
 
 [MISC]
+  -- fixed bug when Voiced client was not possible to talk in
+     moderated channels
   -- updated STAR/SEXP IX86 autoupdate entries according
      to latest clients versions
 
