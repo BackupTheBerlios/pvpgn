@@ -21,6 +21,8 @@ PvPGN Version History:
      moderated channels
   -- updated STAR/SEXP IX86 autoupdate entries according
      to latest clients versions
+  -- fixed bug when admins was not possible to join private clan channels
+  -- fixed bug when clan leaders were not channel ops in their clan channel
 
  ChangeLog for 1.8.3 (since 1.8.2)
 =========================================
