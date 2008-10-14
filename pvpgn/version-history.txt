@@ -10,19 +10,18 @@ PvPGN Version History:
   -- fixed MySQL reconnection issues for MySQL >= 5.0.19
 
 [IRC/WOL]
-  -- fixed bug when client does not got proper information
-     when account is already in use
+  -- fixed client not getting proper information when account 
+     is already in use
 
 [VCHECK]
   -- added STAR/SEXP IX86 1.15.3 vcheck entries
 
 [MISC]
-  -- fixed bug when Voiced client was not possible to talk in
-     moderated channels
+  -- fixed Voiced clients unable to talk in moderated channels
   -- updated STAR/SEXP IX86 autoupdate entries according
-     to latest clients versions
-  -- fixed bug when admins was not possible to join private clan channels
-  -- fixed bug when clan leaders were not channel ops in their clan channel
+     to latest client versions
+  -- fixed admins not being able to join private clan channels
+  -- fixed clan leaders not being channel ops in their clan channel
 
  ChangeLog for 1.8.3 (since 1.8.2)
 =========================================
