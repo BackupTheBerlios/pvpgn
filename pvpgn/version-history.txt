@@ -1,5 +1,11 @@
 PvPGN Version History:
 
+ ChangeLog for 1.8.5 (since 1.8.4)
+=========================================
+
+[WAR3]
+  -- fixed bug when saved games could not be loaded
+
  ChangeLog for 1.8.4 (since 1.8.3)
 =========================================
 
