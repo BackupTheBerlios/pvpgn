@@ -3,8 +3,14 @@ PvPGN Version History:
  ChangeLog for 1.8.5 (since 1.8.4)
 =========================================
 
+[VCHECK]
+  -- added STAR/SEXP IX86 1.16 vcheck entries
+
 [WAR3]
   -- fixed bug when saved games could not be loaded
+
+[MISC]
+  -- updated IX86 autoupdate according to STAR/SEXP 1.16
 
  ChangeLog for 1.8.4 (since 1.8.3)
 =========================================
