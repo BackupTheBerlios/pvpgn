@@ -4481,6 +4481,8 @@ static int _client_w3xp_clanmember_rankupdatereq(t_connection * c, t_packet cons
 	char status;
 	t_clan *clan;
 	t_clanmember *dest_member;
+	t_clanmember *member;
+	t_account *account;
 
 	packet_set_size(rpacket, sizeof(t_server_w3xp_clanmember_rankupdate_reply));
 	packet_set_type(rpacket, SERVER_W3XP_CLANMEMBER_RANKUPDATE_REPLY);
@@ -4489,23 +4491,34 @@ static int _client_w3xp_clanmember_rankupdatereq(t_connection * c, t_packet cons
 	username = packet_get_str_const(packet, offset, USER_NAME_MAX);
 	offset += (strlen(username) + 1);
     if (packet_get_size(packet) < offset+1) {
-        eventlog(eventlog_level_error, __FUNCTION__, "[%d] got bad W3XP_CLAN_CREATEINVITEREPLY packet (mising status)", conn_get_socket(c));
+        eventlog(eventlog_level_error, __FUNCTION__, "[%d] got bad W3XP_CLANMEMBER_RANKUPDATE_REQ packet (mising status)", conn_get_socket(c));
         return -1;
     }
 	status = *((char *) packet_get_data_const(packet, offset, 1));
 
-	clan = account_get_clan(conn_get_account(c));
-	dest_member = clan_find_member_by_name(clan, username);
-	if (clanmember_set_status(dest_member, status) == 0) 
-	{
-	    bn_byte_set(&rpacket->u.server_w3xp_clanmember_rankupdate_reply.result, 
-	                SERVER_W3XP_CLANMEMBER_RANKUPDATE_SUCCESS);
-	    clanmember_on_change_status(dest_member);
+    account = (conn_get_account(c));
+
+    if ((clan = account_get_clan(account)) && (member = clan_find_member(clan,account))
+      && (dest_member = clan_find_member_by_name(clan, username)) && (member != dest_member)) {
+        if ((status < CLAN_PEON) || (status > CLAN_SHAMAN)) {
+            /* PELISH: CLAN_NEW can not be promoted to anything 
+             * and also noone can be promoted to CLAN_CHIEFTAIN */
+            DEBUG1("trying to change to bad status %u", status);
+	        bn_byte_set(&rpacket->u.server_w3xp_clanmember_rankupdate_reply.result, SERVER_W3XP_CLANMEMBER_RANKUPDATE_FAILED);
+        }
+        else if ((((clanmember_get_status(member) == CLAN_SHAMAN) && (status < CLAN_SHAMAN) && (clanmember_get_status(dest_member) < CLAN_SHAMAN)) ||
+          (clanmember_get_status(member) == CLAN_CHIEFTAIN)) && 
+           (clanmember_set_status(dest_member, status) == 0)) {
+            bn_byte_set(&rpacket->u.server_w3xp_clanmember_rankupdate_reply.result, SERVER_W3XP_CLANMEMBER_RANKUPDATE_SUCCESS);
+            clanmember_on_change_status(dest_member);
+        }
+        else {
+	        bn_byte_set(&rpacket->u.server_w3xp_clanmember_rankupdate_reply.result, SERVER_W3XP_CLANMEMBER_RANKUPDATE_FAILED);
+        }
 	} 
 	else 
 	{
-	    bn_byte_set(&rpacket->u.server_w3xp_clanmember_rankupdate_reply.result, 
-	                SERVER_W3XP_CLANMEMBER_RANKUPDATE_FAILED);
+	    bn_byte_set(&rpacket->u.server_w3xp_clanmember_rankupdate_reply.result, SERVER_W3XP_CLANMEMBER_RANKUPDATE_FAILED);
 	}
 	conn_push_outqueue(c, rpacket);
 	packet_del_ref(rpacket);

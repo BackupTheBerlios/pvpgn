@@ -8,6 +8,8 @@ PvPGN Version History:
 
 [WAR3]
   -- fixed bug when saved games could not be loaded
+  -- fixed bug when clanmember can promote/demote any
+     member of his clan by sending proper rankupdate packet
 
 [MISC]
   -- updated IX86 autoupdate according to STAR/SEXP 1.16
