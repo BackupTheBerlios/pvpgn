@@ -1030,10 +1030,12 @@ extern int irc_send_rpl_namreply(t_connection * c, t_channel const * channel)
 
     	    if((conn_get_wol(c) == 1))
     	    {
+    	        char _temp[MAX_IRC_MESSAGE_LEN];
                 if ((channel_wol_get_game_owner(channel) != NULL) && (strcmp(channel_wol_get_game_owner(channel),name) == 0)) {
                             strcat(temp,"@");
                     }
-                sprintf(temp,"%s%s,0,%u",temp,name,conn_get_addr(m));
+                sprintf(_temp,"%s%s,0,%u",temp,name,conn_get_addr(m));
+                strcat(temp,_temp);
     	    }
     	    else
     	    {
