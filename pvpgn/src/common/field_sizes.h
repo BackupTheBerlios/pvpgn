@@ -37,7 +37,7 @@
 #define REALM_NAME_LEN         32
 #define GAME_NAME_LEN          32
 #define GAME_PASS_LEN          32
-#define GAME_INFO_LEN         256
+#define GAME_INFO_LEN         128
 #define MAP_NAME_LEN           64
 #define BNETHASH_LEN           20 /* uint32*5, see bnethash.h */
 #define MAX_EXEINFO_STR       256 /* including terminating NUL char */
