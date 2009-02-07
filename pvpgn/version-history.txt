@@ -4,15 +4,17 @@ PvPGN Version History:
 =========================================
 
 [VCHECK]
-  -- added STAR/SEXP IX86 1.16 vcheck entries
+  -- added STAR/SEXP IX86 1.16 and 1.16.1 vcheck entries
 
 [WAR3]
   -- fixed bug when saved games could not be loaded
   -- fixed bug when clanmember can promote/demote any
      member of his clan by sending proper rankupdate packet
+  -- fixed bug when a hosting bot was able to create a 
+     custom game which caused clients to disconect
 
 [MISC]
-  -- updated IX86 autoupdate according to STAR/SEXP 1.16
+  -- updated IX86 autoupdate according to STAR/SEXP 1.16.1
 
  ChangeLog for 1.8.4 (since 1.8.3)
 =========================================
