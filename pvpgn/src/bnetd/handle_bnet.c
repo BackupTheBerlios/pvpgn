@@ -3356,7 +3356,7 @@ static int _client_gamelistreq(t_connection * c, t_packet const *const packet)
 			break;
 		    }
 
-		    if (game_get_status(game) & game_status_loaded) {
+		    if (game_get_status(game) == game_status_loaded) {
 		        bn_int_set(&rpacket->u.server_gamelistreply.sstatus, SERVER_GAMELISTREPLY_GAME_SSTATUS_LOADED);
 		        eventlog(eventlog_level_debug, __FUNCTION__, "[%d] GAMELISTREPLY found loaded game", conn_get_socket(c));
             }
@@ -3718,7 +3718,7 @@ static int _client_startgame4(t_connection * c, t_packet const *const packet)
 		    game_set_flag(conn_get_game(c), game_flag_private);
 		if (status & CLIENT_STARTGAME4_STATUS_FULL)
 		    game_set_status(conn_get_game(c), game_status_full);
-        if (bngtype & CLIENT_GAMELISTREQ_LOADED) /* PELISH: seems strange but it is really needed for loaded games */
+        if (bngtype == CLIENT_GAMELISTREQ_LOADED) /* PELISH: seems strange but it is really needed for loaded games */
 		    game_set_status(conn_get_game(c), game_status_loaded);
 		//FIXME: still need special handling for status disc-is-loss and replay
 	    }
