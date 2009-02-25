@@ -1,5 +1,8 @@
 PvPGN Version History:
 
+ ChangeLog for 1.8.6 (since 1.8.5)
+=========================================
+
  ChangeLog for 1.8.5 (since 1.8.4)
 =========================================
 
