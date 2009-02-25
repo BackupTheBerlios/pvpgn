@@ -12,6 +12,8 @@ PvPGN Version History:
      member of his clan by sending proper rankupdate packet
   -- fixed bug when a hosting bot was able to create a 
      custom game which caused clients to disconnect
+  -- fixed bug when clanmember without permission
+     was able to disband clan
 
  [SQL]
   -- fix potential SQL injection via clan MOTD

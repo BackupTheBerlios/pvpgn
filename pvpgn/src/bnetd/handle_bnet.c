@@ -4292,29 +4292,35 @@ static int _client_w3xp_clan_disbandreq(t_connection * c, t_packet const *const 
     t_packet *rpacket;
 
     if (packet_get_size(packet) < sizeof(t_client_w3xp_clan_disbandreq)) {
-	eventlog(eventlog_level_error, __FUNCTION__, "[%d] got bad W3XP_CLAN_DISBANDREQ packet (expected %u bytes, got %u)", conn_get_socket(c), sizeof(t_client_w3xp_clan_disbandreq), packet_get_size(packet));
-	return -1;
+        eventlog(eventlog_level_error, __FUNCTION__, "[%d] got bad W3XP_CLAN_DISBANDREQ packet (expected %u bytes, got %u)", conn_get_socket(c), sizeof(t_client_w3xp_clan_disbandreq), packet_get_size(packet));
+        return -1;
     }
 
     if ((rpacket = packet_create(packet_class_bnet))) {
-	t_clan *clan;
-	t_account *myacc;
-	myacc = conn_get_account(c);
-	clan = account_get_clan(myacc);
-	packet_set_size(rpacket, sizeof(t_server_w3xp_clan_disbandreply));
-	packet_set_type(rpacket, SERVER_W3XP_CLAN_DISBANDREPLY);
-	bn_int_set(&rpacket->u.server_w3xp_clan_disbandreply.count, bn_int_get(packet->u.client_w3xp_clan_disbandreq.count));
-	if ((clanlist_remove_clan(clan) == 0) && (clan_remove(clan_get_clantag(clan)) == 0)) {
-	    bn_byte_set(&rpacket->u.server_w3xp_clan_disbandreply.result, SERVER_W3XP_CLAN_DISBANDREPLY_RESULT_OK);
-	    clan_close_status_window_on_disband(clan);
-	    clan_send_packet_to_online_members(clan, rpacket);
-	    packet_del_ref(rpacket);
-	    clan_destroy(clan);
-	} else {
-	    bn_byte_set(&rpacket->u.server_w3xp_clan_disbandreply.result, SERVER_W3XP_CLAN_DISBANDREPLY_RESULT_EXCEPTION);
-	    conn_push_outqueue(c, rpacket);
-	    packet_del_ref(rpacket);
-	}
+        t_clan *clan;
+        t_clanmember *member;
+        t_account *account;
+
+        packet_set_size(rpacket, sizeof(t_server_w3xp_clan_disbandreply));
+        packet_set_type(rpacket, SERVER_W3XP_CLAN_DISBANDREPLY);
+        bn_int_set(&rpacket->u.server_w3xp_clan_disbandreply.count, bn_int_get(packet->u.client_w3xp_clan_disbandreq.count));
+
+        if (!((account = conn_get_account(c)) && (clan = account_get_clan(account)) && (member = account_get_clanmember(account)) && (clanmember_get_status(member) >= CLAN_CHIEFTAIN))) {
+       	    eventlog(eventlog_level_warn, __FUNCTION__, "[%d] got suspicious W3XP_CLAN_DISBANDREQ packet (request without required privileges)", conn_get_socket(c));
+       	    bn_byte_set(&rpacket->u.server_w3xp_clan_disbandreply.result, SERVER_W3XP_CLAN_DISBANDREPLY_RESULT_NOT_AUTHORIZED);
+       	    conn_push_outqueue(c, rpacket);
+       	    packet_del_ref(rpacket);
+        } else if ((clanlist_remove_clan(clan) == 0) && (clan_remove(clan_get_clantag(clan)) == 0)) {
+            bn_byte_set(&rpacket->u.server_w3xp_clan_disbandreply.result, SERVER_W3XP_CLAN_DISBANDREPLY_RESULT_OK);
+            clan_close_status_window_on_disband(clan);
+            clan_send_packet_to_online_members(clan, rpacket);
+            packet_del_ref(rpacket);
+            clan_destroy(clan);
+        } else {
+            bn_byte_set(&rpacket->u.server_w3xp_clan_disbandreply.result, SERVER_W3XP_CLAN_DISBANDREPLY_RESULT_EXCEPTION);
+            conn_push_outqueue(c, rpacket);
+            packet_del_ref(rpacket);
+        }
     }
 
     return 0;
