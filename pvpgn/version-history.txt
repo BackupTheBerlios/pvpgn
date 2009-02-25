@@ -11,7 +11,10 @@ PvPGN Version History:
   -- fixed bug when clanmember can promote/demote any
      member of his clan by sending proper rankupdate packet
   -- fixed bug when a hosting bot was able to create a 
-     custom game which caused clients to disconect
+     custom game which caused clients to disconnect
+
+ [SQL]
+  -- fix potential SQL injection via clan MOTD
 
 [MISC]
   -- updated IX86 autoupdate according to STAR/SEXP 1.16.1

@@ -31,7 +31,9 @@
 #define UNCHECKED_NAME_STR     32 /* including terminating NUL char */
                                   /* (longer than USER_NAME_MAX and CHAR_NAME_LEN so that
                                    *  proper error packets can be returned) */
-#define MAX_CLANNAME_LEN       64
+#define CLANSHORT_NAME_MAX      4
+#define CLAN_NAME_MAX          24 /* including terminating NUL char */
+#define CLAN_MOTD_MAX         224 /* including terminating NUL char */
 #define CHANNEL_NAME_LEN       64
 #define CHAR_NAME_LEN          16 /* including terminating NUL char */
 #define REALM_NAME_LEN         32
@@ -58,7 +60,5 @@
 #define MAX_ATTRVAL_STR      4096 /* including terminating NUL char */
 #define MAX_IRC_MESSAGE_LEN 512 /* including CRLF (according to RFC 2812) */
 #define MAX_TOPIC_LEN         201 /* including terminating NUL char */
-#define CLANSHORT_NAME_MAX          4
-#define CLAN_NAME_MAX          25 /* including terminating NUL char */
 
 #endif

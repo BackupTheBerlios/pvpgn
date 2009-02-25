@@ -1781,7 +1781,7 @@ extern int main(int argc, char * argv[])
 			    int offset;
 			    
 			    offset = sizeof(t_server_w3xp_clan_invitereq);
-			    if (!(clan = packet_get_str_const(rpacket,offset,MAX_CLANNAME_LEN)))
+			    if (!(clan = packet_get_str_const(rpacket,offset,CLAN_NAME_MAX)))
 			    {
 				munge(&client);
 				printf("Got SERVER_W3XP_CLAN_INVITEREQ with bad or missing clanname\n");
