@@ -15,7 +15,7 @@ PvPGN Version History:
   -- fixed bug when clanmember without permission
      was able to disband clan
 
- [SQL]
+[SQL]
   -- fix potential SQL injection via clan MOTD
 
 [MISC]
