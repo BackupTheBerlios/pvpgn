@@ -52,6 +52,7 @@
 #include "compat/strchr.h"
 #include "compat/strrchr.h"
 #include "compat/strdup.h"
+#include "compat/snprintf.h"
 #include "compat/strcasecmp.h"
 #include "compat/strncasecmp.h"
 #include <errno.h>

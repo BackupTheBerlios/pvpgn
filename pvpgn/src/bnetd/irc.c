@@ -36,6 +36,7 @@
 # endif
 #endif
 #include "compat/strdup.h"
+#include "compat/snprintf.h"
 #include <errno.h>
 #include "compat/strerror.h"
 #ifdef TIME_WITH_SYS_TIME

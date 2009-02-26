@@ -64,6 +64,8 @@ static MYSQL *mysql = NULL;
 
 static int sql_mysql_init(const char *host, const char *port, const char *socket, const char *name, const char *user, const char *pass)
 {
+    my_bool my_true = (my_bool)1;
+
     if (name == NULL || user == NULL) {
         eventlog(eventlog_level_error, __FUNCTION__, "got NULL parameter");
         return -1;
@@ -82,7 +84,6 @@ static int sql_mysql_init(const char *host, const char *port, const char *socket
     // mysql->reconnect = 1;
   #endif
   #if MYSQL_VERSION_ID >= 50019
-    my_bool my_true = (my_bool)1;
     if (mysql_options(mysql, MYSQL_OPT_RECONNECT, &my_true)){
       eventlog(eventlog_level_warn,__FUNCTION__,"Failed to turn on MYSQL_OPT_RECONNECT.");
     }else{
@@ -100,7 +101,6 @@ static int sql_mysql_init(const char *host, const char *port, const char *socket
 
 #if MYSQL_VERSION_ID >= 50013
   #if MYSQL_VERSION_ID < 50019
-    my_bool my_true = (my_bool)1;
     if (mysql_options(mysql, MYSQL_OPT_RECONNECT, &my_true)){
       eventlog(eventlog_level_warn,__FUNCTION__,"Failed to turn on MYSQL_OPT_RECONNECT.");
     }else{

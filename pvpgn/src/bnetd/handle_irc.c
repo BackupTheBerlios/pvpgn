@@ -40,6 +40,7 @@
 #endif
 #include "compat/strdup.h"
 #include "compat/strcasecmp.h"
+#include "compat/snprintf.h"
 #include <errno.h>
 #include "compat/strerror.h"
 #include "common/irc_protocol.h"
